@@ -207,38 +207,47 @@ window.fossil.onPageLoad(function(){
   
   /**
      Installs chunk-loading controls into TR element tr. isSplit is true
-     if the parent table is a split diff, else false.)
-
+     if the parent table is a split diff, else false.
 
      The goal is to base these controls closely on github's, a good example
      of which, for use as a model, is:
 
      https://github.com/msteveb/autosetup/commit/235925e914a52a542
+
+     Each instance corresponds to a single TR.diffskip element.
   */
   Diff.ChunkLoadControls = function(isSplit, tr){
     this.isSplit = isSplit;
-    this.e = {/*DOM elements*/};
-    this.pos = {
-      start: +tr.dataset.startln,
-      end: +tr.dataset.endln
+    this.e = {/*DOM elements*/
+      tr: tr
     };
     tr.$chunker = this /* keep GC from reaping this */;
-    this.e.tr = tr;
+    this.pos = {
+      /* These line numbers correspond to the LHS file. Because the
+         contents are common to both sides, we have the same number
+         for the RHS, but need to extract those line numbers from the
+         neighboring TR blocks */
+      startLhs: +tr.dataset.startln,
+      endLhs: +tr.dataset.endln
+    };
     D.clearElement(tr);
     this.e.td = D.addClass(
+      /* Holder for our UI controls */
       D.attr(D.td(tr), 'colspan', isSplit ? 5 : 4),
       'chunkctrl'
     );
     this.e.btnWrapper = D.div();
     D.append(this.e.td, this.e.btnWrapper);
     /**
-       Depending on various factors, we need one of:
+       Depending on various factors, we need one or more of:
+
+       - A single button to load the initial chunk incrementally
 
        - A single button to load all lines then remove this control
 
-       - A single button to load the initial chunk
-
        - Two buttons: one to load upwards, one to load downwards
+
+       - A single button to load the final chunk incrementally
     */
     if(tr.nextElementSibling){
       this.pos.next = {
@@ -261,36 +270,61 @@ window.fossil.onPageLoad(function(){
       btnDown = false;
       btnUp = D.append(
         D.addClass(D.span(), 'button', 'up', 'down'),
-        D.append(D.span(), this.config.glyphDown, this.config.glyphUp)
+        D.span(/*glyph holder*/)
+        //D.append(D.span(), this.config.glyphDown, this.config.glyphUp)
       );
     }else{
       /* Figure out which chunk-load buttons to add... */
       if(this.pos.prev){
         btnDown = D.append(
           D.addClass(D.span(), 'button', 'down'),
-          D.append(D.span(), this.config.glyphDown)
+          D.span(/*glyph holder*/)
+          //D.append(D.span(), this.config.glyphDown)
         );
       }
       if(this.pos.next){
         btnUp = D.append(
           D.addClass(D.span(), 'button', 'up'),
-          D.append(D.span(), this.config.glyphUp)
+          D.span(/*glyph holder*/)
+          //D.append(D.span(), this.config.glyphUp)
         );
       }
     }
-    if(btnDown) D.append(this.e.btnWrapper, btnDown);
-    if(btnUp) D.append(this.e.btnWrapper, btnUp);
-    D.append(this.e.btnWrapper, D.append(D.span(), JSON.stringify(this.pos)));
+    if(btnDown){
+      D.append(this.e.btnWrapper, btnDown);
+      btnDown.addEventListener('click', ()=>this.fetchChunk(1),false);
+    }
+    if(btnUp){
+      D.append(this.e.btnWrapper, btnUp);
+      btnUp.addEventListener(
+        'click', ()=>this.fetchChunk(btnUp.classList.contains('down') ? 0 : -1),
+        false);
+    }
+    /* For debugging only... */
+    this.e.posState = D.span();
+    D.append(this.e.btnWrapper, this.e.posState);
+    this.updatePosDebug();
   };
 
   Diff.ChunkLoadControls.prototype = {
     config: {
+      /*
       glyphUp: '⇡', //'&#uarr;',
       glyphDown: '⇣' //'&#darr;'
+      */
     },
+    updatePosDebug: function(){
+      if(this.e.posState){
+        D.append(D.clearElement(this.e.posState), JSON.stringify(this.pos));
+      }
+      return this;
+    },
+    
     destroy: function(){
       delete this.tr.$chunker;
-      D.remove(this.tr);
+      D.remove(this.e.tr);
+      delete this.e;
+      delete this.pos;
     },
     /**
        Creates and returns a new TR element, including its TD elements (depending
@@ -312,25 +346,40 @@ window.fossil.onPageLoad(function(){
         D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtu' ), D.pre());
       }
       return tr;
+    },
+
+    fetchChunk: function(direction/*-1=prev, 1=next, 0=both*/){
+      /* Forewarning, this is a bit confusing: when fetching the
+         previous lines, we're doing so on behalf of the *next* diff
+         chunk (this.pos.next), and vice versa. */
+      if(this.isFetching) return this;
+      if(direction<0/*prev chunk*/ && !this.pos.next){
+        console.error("Attempt to fetch previous diff lines but don't have any.");
+        return this;
+      }else if(direction>0/*next chunk*/ && !this.pos.prev){
+        console.error("Attempt to fetch next diff lines but don't have any.");
+        return this;
+      }
+      console.debug("Going to fetch in direction",direction);
+      this.updatePosDebug();
+      return this;
     }
   };
 
   Diff.addDiffSkipHandlers = function(){
-    const tables = document.querySelectorAll('table.diff[data-lefthash]');
-    if(!tables.length) return F;
-    const addDiffSkipToTr = function f(isSplit, tr){
-      D.addClass(tr, 'jchunk');
-      //tr.addEventListener('click', f._handler, false);
-      /* TODO/in progress... */
-      new Diff.ChunkLoadControls(isSplit, tr);
-    };
+    const tables = document.querySelectorAll('table.diff[data-lefthash]:not(.diffskipped)');
+    /* Potential performance-related TODO: instead of installing all
+       of these at once, install them as the corresponding TR is
+       scrolled into view. */
     tables.forEach(function(table){
+      D.addClass(table, 'diffskipped'/*avoid processing these more than once */);
+      const isSplit = table.classList.contains('splitdiff')/*else udiff*/;
       table.querySelectorAll('tr.diffskip[data-startln]').forEach(function(tr){
-        addDiffSkipToTr(table.classList.contains('splitdiff')/*else udiff*/, tr);
+        new Diff.ChunkLoadControls(isSplit, D.addClass(tr, 'jchunk'));
       });
     });
+    return F;
   };
-
   Diff.addDiffSkipHandlers();
 });
 
