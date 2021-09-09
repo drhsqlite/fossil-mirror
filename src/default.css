@@ -571,11 +571,14 @@ tr.diffskip > td.chunkctrl > div > .button {
   display: inline-block;
   padding: 0.1em 1em;
   margin: 0 1em 0 0;
-  background-color: rgba(127,127,127,0.3);
+  background-color: rgba(127,127,127,0.2);
   border-style: outset;
-  border-width: 1px;
-  border-color: rgba(0,0,0,0);
+  border-width: 0;
+  /*border-width: 1px;
+  border-color: rgba(0,0,0,0);*/
   border-radius: 0.5em;
+  opacity: 0.7;
+  /*filter: drop-shadow(0.08em 0.08em 0.08em black);*/
 }
 tr.diffskip > td.chunkctrl > div > .button > span {
   /* In order to increase the glyph size w/o increasing the em-based
@@ -592,8 +595,10 @@ tr.diffskip > td.chunkctrl > div > .button.down:not(.up){
   border-radius: 0.25em 0.25em 3em 3em;
 }
 tr.diffskip > td.chunkctrl > div > .button:hover {
-  border-color: rgba(0,0,0,1);
+  /*border-color: rgba(75,75,75,1);*/
   cursor: pointer;
+  opacity: 1;
+  filter: contrast(3);
 }
 td.diffln {
   width: 1px;
