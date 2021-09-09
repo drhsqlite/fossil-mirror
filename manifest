@@ -1,5 +1,5 @@
-C Style\simprovements.\sHooked\sup\sthe\sbuttons\sbut\sthey\sdon't\syet\sfetch\sanything.
-D 2021-09-09T20:03:55.447
+C Implemented\sfetching\sand\sinjection\sof\schunks\swhich\sare\ssmaller\sthan\sthe\sconfigured\sload\ssize,\sbut\sthe\sresults\sdo\snot\splay\swell\swith\sour\sscrolling\sworkaround\sand\sneed\sto\sbe\srevisited\safter\ssome\ssleep,\sperhaps\sappending/prepending\sthe\sresults\sdirectly\sto\sthe\sprevious/next\sTR\sinstead\sof\sinjecting\sa\snew\sone.
+D 2021-09-09T21:36:19.284
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
-F src/default.css 6d25944e589bafb4cd1faf9f61e4c9bc9eb64765c7454c52ca813fd2229b6db0
+F src/default.css 1b732ada55e371993b5427475284e926359d594e7f363f536aaab4e5abc87a92
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -485,7 +485,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
-F src/fossil.diff.js e055387f644295207e3bbc0ccaa7b7c2e2ea1b39b9b82daf0e05fe171366de6f
+F src/fossil.diff.js 80a430309afca80568a062a2253f33f7b6e4318fb9ade8d9e38883bff0566835
 F src/fossil.dom.js 58d3f602503f19ad40956cfb5b1380f2a081902372c76759bd3ca526e7997828
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7cc651c87f0aedb102ec9cc47d3da20633e648b6c7b91b033aa3b8e4df8e95ad
-R a8192170b641c25240d9475979df7128
+P f0984389baa138b60a386cfdc121077c7549e4f2fbb28a1322dfb6348935a483
+R 488d200e2a76bc1b25250c07a8d7bc50
 U stephan
-Z 27d8c517ad3bc0b05bf62853c1bf0533
+Z ca95aa995e9375759b4fc71c0fe46f29

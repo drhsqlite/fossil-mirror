@@ -219,10 +219,13 @@ window.fossil.onPageLoad(function(){
   Diff.ChunkLoadControls = function(isSplit, tr){
     this.isSplit = isSplit;
     this.e = {/*DOM elements*/
-      tr: tr
+      tr: tr,
+      table: tr.parentElement/*TBODY*/.parentElement
     };
+    this.fileHash = this.e.table.dataset.lefthash;
     tr.$chunker = this /* keep GC from reaping this */;
     this.pos = {
+      //hash: F.hashDigits(this.fileHash),
       /* These line numbers correspond to the LHS file. Because the
          contents are common to both sides, we have the same number
          for the RHS, but need to extract those line numbers from the
@@ -262,11 +265,18 @@ window.fossil.onPageLoad(function(){
       };
     }
     let btnUp = false, btnDown = false;
-    if(this.pos.prev && this.pos.next
-       && ((this.pos.next.startLhs - this.pos.prev.endLhs)
-           <= Diff.config.chunkLoadLines)){
+    /**
+       this.pos.next refers to the line numbers in the next TR's chunk.
+       this.pos.prev refers to the line numbers in the previous TR's chunk.
+    */
+    if((this.pos.startLhs + Diff.config.chunkLoadLines
+        >= this.pos.endLhs )
+       || (this.pos.prev && this.pos.next
+           && ((this.pos.next.startLhs - this.pos.prev.endLhs)
+               <= Diff.config.chunkLoadLines))){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
+      //delete this.pos.next;
       btnDown = false;
       btnUp = D.append(
         D.addClass(D.span(), 'button', 'up', 'down'),
@@ -321,38 +331,94 @@ window.fossil.onPageLoad(function(){
     },
     
     destroy: function(){
-      delete this.tr.$chunker;
       D.remove(this.e.tr);
+      delete this.e.tr.$chunker;
+      delete this.e.tr;
       delete this.e;
       delete this.pos;
     },
     /**
-       Creates and returns a new TR element, including its TD elements (depending
-       on this.isSplit), but does not fill it with any information nor inject it
-       into the table (it doesn't know where to do so).
+       Creates a new TR element, including its TD elements (depending
+       on this.isSplit), but does not fill it with any information nor
+       inject it into the table (it doesn't know where to do
+       so). Returns an object containing the TR element and various TD
+       elements which will likely be needed by the routine which
+       called this. See this code for details.
     */
     newTR: function(){
-      const tr = D.tr();
+      const tr = D.addClass(D.tr(),'fetched'), rc = {
+        tr,
+        preLnL: D.pre(),
+        preLnR: D.pre()
+      };
       if(this.isSplit){
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), D.pre());
-        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtl' ), D.pre());
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), rc.preLnL);
+        rc.preTxtL = D.pre();
+        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtl' ), rc.preTxtL);
         D.addClass( D.td(tr), 'diffsep' );
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), D.pre());
-        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtr' ), D.pre());
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), rc.preLnR);
+        rc.preTxtR = D.pre();
+        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtr' ), rc.preTxtR);
       }else{
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), D.pre());
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), D.pre());
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), rc.preLnL);
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), rc.preLnR);
         D.addClass( D.td(tr), 'diffsep' );
-        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtu' ), D.pre());
+        rc.preTxtU = D.pre();
+        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtu' ), rc.preTxtU);
       }
-      return tr;
+      return rc;
+    },
+
+    injectResponse: function(direction/*as for fetchChunk()*/,
+                             urlParam/*from fetchChunk()*/,
+                             lines/*response lines*/){
+      console.debug("Loading line range ",urlParam.from,"-",urlParam.to);
+      const row = this.newTR();
+      const lineno = [];
+      let i;
+      for( i = urlParam.from; i <= urlParam.to; ++i ){
+        /* TODO: space-pad numbers, but we don't know the proper length from here. */
+        lineno.push(i);
+      }
+      row.preLnL.innerText = lineno.join('\n')+'\n';
+      if(row.preTxtU){//unified diff
+        row.preTxtU.innerText = lines.join('\n')+'\n';
+      }else{//split diff
+        const code = lines.join('\n')+'\n';
+        row.preTxtL.innerText = code;
+        row.preTxtR.innerText = code;
+      }
+      if(0===direction){
+        /* Closing the whole gap between two chunks or a whole gap
+           at the start or end of a diff. */
+        let startLnR = this.pos.prev
+            ? this.pos.prev.endRhs+1 /* Closing the whole gap between two chunks
+                                        or end-of-file gap. */
+            : this.pos.next.startRhs - lines.length /* start-of-file gap */;
+        lineno.length = 0;
+        for( i = startLnR; i < startLnR + lines.length; ++i ){
+          /* TODO? space-pad numbers, but we don't know the proper length from here. */
+          lineno.push(i);
+        }
+        row.preLnR.innerText = lineno.join('\n')+'\n';
+        this.e.tr.parentNode.insertBefore(row.tr, this.e.tr);
+        Diff.initTableDiff(this.e.table/*fix scrolling*/).checkTableWidth(true);
+        this.destroy();
+        return this;
+      }else{
+        console.debug("TODO: handle load of partial next/prev");
+        this.updatePosDebug();
+      }
     },
 
     fetchChunk: function(direction/*-1=prev, 1=next, 0=both*/){
       /* Forewarning, this is a bit confusing: when fetching the
          previous lines, we're doing so on behalf of the *next* diff
          chunk (this.pos.next), and vice versa. */
-      if(this.isFetching) return this;
+      if(this.$isFetching){
+        console.debug("Cannot load chunk while a load is pending.");
+        return this;
+      }
       if(direction<0/*prev chunk*/ && !this.pos.next){
         console.error("Attempt to fetch previous diff lines but don't have any.");
         return this;
@@ -361,7 +427,25 @@ window.fossil.onPageLoad(function(){
         return this;
       }
       console.debug("Going to fetch in direction",direction);
-      this.updatePosDebug();
+      const fOpt = {
+        urlParams:{
+          name: this.fileHash, from: 0, to: 0
+        },
+        aftersend: ()=>delete this.$isFetching
+      };
+      const self = this;
+      if(direction!=0){
+        console.debug("Skipping fetch for now.");
+        return this;
+      }else{
+        fOpt.urlParams.from = this.pos.startLhs;
+        fOpt.urlParams.to = this.pos.endLhs;
+        fOpt.onload = function(list){
+          self.injectResponse(direction,fOpt.urlParams,list);
+        };
+      }
+      this.$isFetching = true;
+      Diff.fetchArtifactChunk(fOpt);
       return this;
     }
   };
