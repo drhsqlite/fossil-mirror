@@ -545,6 +545,13 @@ table.diff td {
 table.diff pre {
   margin: 0 0 0 0;
 }
+tr.diffskip.jchunk:hover {
+  /* jchunk gets added from JS to diffskip rows when they are
+     plugged into the /jchunk route and removed after that data
+     is fetched. */
+  background-color: rgba(127,127,127,0.5);
+  cursor: pointer;
+}
 td.diffln {
   width: 1px;
   text-align: right;

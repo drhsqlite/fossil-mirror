@@ -1901,7 +1901,7 @@ void secure_rawartifact_page(void){
 ** always in JSON form and errors are reported as documented for
 ** ajax_route_error().
 */
-void jtext_page(void){
+void jchunk_page(void){
   int rid = 0;
   const char *zName = PD("name", "");
   int iFrom = atoi(PD("from","0"));
@@ -1913,6 +1913,11 @@ void jtext_page(void){
   Blob line;
   Blob *pOut;
 
+  if(0){
+    ajax_route_error(400, "Just testing client-side error handling.");
+    return;
+  }
+  
   login_check_credentials();
   if( !g.perm.Read ){
     ajax_route_error(403, "Access requires Read permissions.");
