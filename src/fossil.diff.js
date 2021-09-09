@@ -94,15 +94,15 @@ window.fossil.onPageLoad(function(){
     const isSbs = table.classList.contains('splitdiff')/*else udiff*/;
     tr.dataset.xfer = 1 /* sentinel against multiple concurrent ajax requests */;
     const lineTo = +tr.dataset.endln;
-    var lnFrom = +tr.dataset.startln;
+    var lineFrom = +tr.dataset.startln;
     /* TODO: for the time being, for simplicity, we'll read the whole
        [startln, endln] chunk. "Later on" we'll maybe want to read it in
-       chunks of, say, 20 lines or so, adjusting lnFrom to be 1 if it would
+       chunks of, say, 20 lines or so, adjusting lineFrom to be 1 if it would
        be less than 1. */
     Diff.fetchArtifactChunk({
       urlParams:{
         name: hash,
-        from: lnFrom,
+        from: lineFrom,
         to: lineTo
       },
       aftersend: function(){
@@ -113,26 +113,44 @@ window.fossil.onPageLoad(function(){
       },
       onload: function(result){
         //console.debug("Chunk result: ",result);
+        /* Replace content of tr.diffskip with the fetches result.
+           When we refactor this to load in smaller chunks, we'll instead
+           need to keep this skipper in place and:
+
+           - Add a new TR above or above it, as apropriate.
+
+           - Change the TR.dataset.startln/endln values to account for
+           the just-fetched set.
+         */
         D.clearElement(tr);
-        const cols = [], pre = [D.pre()];
+        const cols = [], preCode = [D.pre()], preLines = [D.pre(), D.pre()];
         if(isSbs){
           cols.push(D.addClass(D.td(tr), 'diffln', 'difflnl'));
           cols.push(D.addClass(D.td(tr), 'difftxt', 'difftxtl'));
           cols.push(D.addClass(D.td(tr), 'diffsep'));
           cols.push(D.addClass(D.td(tr), 'diffln', 'difflnr'));
           cols.push(D.addClass(D.td(tr), 'difftxt', 'difftxtr'));
-          D.append(cols[1], pre[0]);
-          pre.push(D.pre());
-          D.append(cols[4], pre[1]);
+          D.append(cols[0], preLines[0]);
+          D.append(cols[1], preCode[0]);
+          D.append(cols[3], preLines[1]);
+          preCode.push(D.pre());
+          D.append(cols[4], preCode[1]);
         }else{
           cols.push(D.addClass(D.td(tr), 'diffln', 'difflnl'));
           cols.push(D.addClass(D.td(tr), 'diffln', 'difflnr'));
           cols.push(D.addClass(D.td(tr), 'diffsep'));
           cols.push(D.addClass(D.td(tr), 'difftxt', 'difftxtu'));
-          D.append(cols[3], pre[0]);
+          D.append(cols[0], preLines[0]);
+          D.append(cols[1], preLines[1]);
+          D.append(cols[3], preCode[0]);
         }
+        let lineno = [], i;
+        for( i = lineFrom; i <= lineTo; ++i ){
+          lineno.push(i);
+        }
+        preLines[0].append(lineno.join('\n')+'\n');
         const code = result.join('\n')+'\n';
-        pre.forEach((e)=>e.innerText = code);
+        preCode.forEach((e)=>e.innerText = code);
         //console.debug("Updated TR",tr);
         Diff.initTableDiff(table).checkTableWidth(true);
         /*
