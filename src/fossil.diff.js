@@ -208,7 +208,13 @@ window.fossil.onPageLoad(function(){
   /**
      Installs chunk-loading controls into TR element tr. isSplit is true
      if the parent table is a split diff, else false.)
-   */
+
+
+     The goal is to base these controls closely on github's, a good example
+     of which, for use as a model, is:
+
+     https://github.com/msteveb/autosetup/commit/235925e914a52a542
+  */
   Diff.ChunkLoadControls = function(isSplit, tr){
     this.isSplit = isSplit;
     this.e = {/*DOM elements*/};
@@ -216,12 +222,15 @@ window.fossil.onPageLoad(function(){
       start: +tr.dataset.startln,
       end: +tr.dataset.endln
     };
+    tr.$chunker = this /* keep GC from reaping this */;
     this.e.tr = tr;
     D.clearElement(tr);
     this.e.td = D.addClass(
       D.attr(D.td(tr), 'colspan', isSplit ? 5 : 4),
       'chunkctrl'
     );
+    this.e.btnWrapper = D.div();
+    D.append(this.e.td, this.e.btnWrapper);
     /**
        Depending on various factors, we need one of:
 
@@ -243,13 +252,66 @@ window.fossil.onPageLoad(function(){
         endRhs: extractLineNo(false, false, tr.previousElementSibling, isSplit)
       };
     }
-    D.append(this.e.td,"Controls pending: ",JSON.stringify(this.pos));
+    let btnUp = false, btnDown = false;
+    if(this.pos.prev && this.pos.next
+       && ((this.pos.next.startLhs - this.pos.prev.endLhs)
+           <= Diff.config.chunkLoadLines)){
+      /* Place a single button to load the whole block, rather
+         than separate up/down buttons. */
+      btnDown = false;
+      btnUp = D.append(
+        D.addClass(D.span(), 'button', 'up', 'down'),
+        D.append(D.span(), this.config.glyphDown, this.config.glyphUp)
+      );
+    }else{
+      /* Figure out which chunk-load buttons to add... */
+      if(this.pos.prev){
+        btnDown = D.append(
+          D.addClass(D.span(), 'button', 'down'),
+          D.append(D.span(), this.config.glyphDown)
+        );
+      }
+      if(this.pos.next){
+        btnUp = D.append(
+          D.addClass(D.span(), 'button', 'up'),
+          D.append(D.span(), this.config.glyphUp)
+        );
+      }
+    }
+    if(btnDown) D.append(this.e.btnWrapper, btnDown);
+    if(btnUp) D.append(this.e.btnWrapper, btnUp);
+    D.append(this.e.btnWrapper, D.append(D.span(), JSON.stringify(this.pos)));
   };
 
   Diff.ChunkLoadControls.prototype = {
     config: {
-      glyphUp: '&#uarr;',
-      glyphDown: '&#darr;'
+      glyphUp: '⇡', //'&#uarr;',
+      glyphDown: '⇣' //'&#darr;'
+    },
+    destroy: function(){
+      delete this.tr.$chunker;
+      D.remove(this.tr);
+    },
+    /**
+       Creates and returns a new TR element, including its TD elements (depending
+       on this.isSplit), but does not fill it with any information nor inject it
+       into the table (it doesn't know where to do so).
+    */
+    newTR: function(){
+      const tr = D.tr();
+      if(this.isSplit){
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), D.pre());
+        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtl' ), D.pre());
+        D.addClass( D.td(tr), 'diffsep' );
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), D.pre());
+        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtr' ), D.pre());
+      }else{
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), D.pre());
+        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), D.pre());
+        D.addClass( D.td(tr), 'diffsep' );
+        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtu' ), D.pre());
+      }
+      return tr;
     }
   };
 
@@ -258,31 +320,8 @@ window.fossil.onPageLoad(function(){
     if(!tables.length) return F;
     const addDiffSkipToTr = function f(isSplit, tr){
       D.addClass(tr, 'jchunk');
-      if(!f._handler){
-        f._handler = function ff(event){
-          const e = this;
-          e.removeEventListener('click',ff);
-          D.removeClass(e, 'jchunk', 'diffskip');
-          fetchTrChunk(e);
-        };
-      }
-      /* TODO:
-
-         Depending on tr.dataset.{startln,endln}, install one or two
-         controls for loading the next diff chunk. For both types of
-         diff, put the control(s) into tr->td[0], delete tr->td[1],
-         give tr->td[0] a colspan of 2. Change the click handler to
-         address those controls, instead of the TR element, for
-         purposes of figuring out which lines to fetch. Use a helper
-         class to encapsulate the activation and updates of the
-         controls (e.g. removing controls which are no longer relevant
-         once a chunk is fully loaded).
-
-         Good example from github to use as a model:
-
-         https://github.com/msteveb/autosetup/commit/235925e914a52a542
-      */
       //tr.addEventListener('click', f._handler, false);
+      /* TODO/in progress... */
       new Diff.ChunkLoadControls(isSplit, tr);
     };
     tables.forEach(function(table){

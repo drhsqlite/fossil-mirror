@@ -549,8 +549,10 @@ tr.diffskip.jchunk:hover {
   /* jchunk gets added from JS to diffskip rows when they are
      plugged into the /jchunk route and removed after that data
      is fetched. */
-  background-color: rgba(127,127,127,0.5);
-  cursor: pointer;
+}
+tr.diffskip.jchunk:hover {
+  /*background-color: rgba(127,127,127,0.5);
+  cursor: pointer;*/
 }
 tr.diffskip > td.chunkctrl {
   text-align: left;
@@ -559,12 +561,38 @@ tr.diffskip > td.chunkctrl {
   border-width: 1px;
   border-style: dotted;
 }
-tr.diffskip > td.chunkctrl > .button {
-  min-width: 1.5em;
-  min-height: 1.5em;
-  max-width: 1.5em;
-  max-height: 1.5em;
+tr.diffskip > td.chunkctrl > div {
+  /* Exists solely for layout purposes. */
+}
+tr.diffskip > td.chunkctrl > div > .button {
+  min-width: 2.5em;
+  max-width: 2.5em;
   text-align: center;
+  display: inline-block;
+  padding: 0.1em 1em;
+  margin: 0 1em 0 0;
+  background-color: rgba(127,127,127,0.3);
+  border-style: outset;
+  border-width: 1px;
+  border-color: rgba(0,0,0,0);
+  border-radius: 0.5em;
+}
+tr.diffskip > td.chunkctrl > div > .button > span {
+  /* In order to increase the glyph size w/o increasing the button size,
+     we need an extra layer of DOM element for the glyph. */
+  font-size: 150%;
+}
+tr.diffskip > td.chunkctrl > div > .button.up:not(.down){
+  /* Simulate an error pointing up */
+  border-radius: 3em 3em 0.25em 0.25em;
+}
+tr.diffskip > td.chunkctrl > div > .button.down:not(.up){
+  /* Simulate an error pointing down */
+  border-radius: 0.25em 0.25em 3em 3em;
+}
+tr.diffskip > td.chunkctrl > div > .button:hover {
+  border-color: rgba(0,0,0,1);
+  cursor: pointer;
 }
 td.diffln {
   width: 1px;
