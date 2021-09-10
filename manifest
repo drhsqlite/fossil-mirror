@@ -1,5 +1,5 @@
-C Edit\spass\son\sthe\sblockchain\sdoc:\smainly\sclarity\simprovements,\sbut\salso\nsome\stypo\sand\sgrammar\sfixes.
-D 2021-09-09T16:19:55.363
+C Mark\sprivate\sbranches\sin\sthe\sCLI\soutput\sof\s"fossil\sbranch\slist",\sand\soutput\sonly\sthose\swhen\s"-p"\sis\sgiven.\sClarify\sthat\sprivate\sbranches\sdo\snot\sappear\sin\sa\smerge\smanifest.
+D 2021-09-10T13:11:23.820
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -433,7 +433,7 @@ F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0f
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
 F src/blob.c a5923503ef2ce9a6b8c9bb99c533fb889b0fd7c31c1a20e953b37e811328a927
-F src/branch.c a9f79af28fba52a5243d269205a888057ad51707853b3f2d72a3ab1df3f32a18
+F src/branch.c 40edc441a60d2b655dcdc015003c5d84711582f14a4db978c41197592da9224f
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
@@ -939,7 +939,7 @@ F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d
 F www/permutedindex.html 3e1ae6c1a27a1c93293783b9525b363d1ec9b0b0e28efec7cbbc9da26efd067d
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
-F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
+F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
 F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2d
 F www/quickstart.wiki 4068f638b88a37f7cdcd7f50bdcbf86a871e6300206a8ef664188d3ad0502f80
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 701c6dc284c2c4f5f47659f0a93b872e31757cb322ff650d22823f08a6692a5f
-R 26b93e6b90ebd009491ad2e06eb794aa
-U wyoung
-Z 1e9a163a31f64c15e2faf9f4ecec3f36
+P c34ca6299f09515db286d791997464bca9be5ae090064631a63029c725895d4b
+R 63c7ff737e37e5ab28a8594353d13628
+U danield
+Z 6ccb2bd400567c5b4eac1553534eaadb
