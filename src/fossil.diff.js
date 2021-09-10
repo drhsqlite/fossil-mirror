@@ -25,7 +25,7 @@ window.fossil.onPageLoad(function(){
   const Diff = F.diff = {
     e:{/*certain cached DOM elements*/},
     config: {
-      chunkLoadLines: 20,
+      chunkLoadLines: 30,
       chunkFetch: {
         /* Default callack handlers for Diff.fetchArtifactChunk(),
            unless overridden by options passeed to that function. */
@@ -284,6 +284,8 @@ window.fossil.onPageLoad(function(){
         btnUp = this.createButton(-1);
       }
     }
+    //this.e.btnUp = btnUp;
+    //this.e.btnDown = btnDown;
     if(btnDown) D.append(this.e.btnWrapper, btnDown);
     if(btnUp) D.append(this.e.btnWrapper, btnUp);
     /* For debugging only... */
@@ -349,16 +351,21 @@ window.fossil.onPageLoad(function(){
       delete this.pos;
     },
 
-    injectResponse: function(direction/*as for fetchChunk()*/,
-                             urlParam/*from fetchChunk()*/,
-                             lines/*response lines*/){
+    injectResponse: function f(direction/*as for fetchChunk()*/,
+                               urlParam/*from fetchChunk()*/,
+                               lines/*response lines*/){
+      if(!lines.length){
+        /* No more data to load */
+        this.destroy();
+        return this;
+      }
       console.debug("Loading line range ",urlParam.from,"-",urlParam.to);
       const lineno = [],
             trPrev = this.e.tr.previousElementSibling,
             trNext = this.e.tr.nextElementSibling,
-            doAppend = !!trPrev /* true to append to previous TR, else prepend to NEXT TR */;
+            doAppend = (!!trPrev && direction>=0) /* true to append to previous TR, else prepend to NEXT TR */;
       const tr = trPrev || trNext;
-      if(0!==direction){
+      if(direction<0){
         console.error("this case is not yet handled",arguments);
         return this;
       }
@@ -369,10 +376,21 @@ window.fossil.onPageLoad(function(){
          trNext into trPrev and remove trNext. */;
       let i, td;
 
+      if(!f.convertLines){
+        f.convertLines = function(li){
+          return li.join('\n')
+            .replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')+'\n';
+        };
+      }
+
       if(1){ // LHS line numbers...
         const selector = '.difflnl > pre';
         td = tr.querySelector(selector);
-        for( i = urlParam.from; i <= urlParam.to; ++i ){
+        const lnTo = Math.min(urlParam.to,
+                              urlParam.from +
+                              lines.length - 1/*b/c request range is inclusive*/);
+        for( i = urlParam.from; i <= lnTo; ++i ){
           lineno.push(i);
         }
         const lineNoTxt = lineno.join('\n')+'\n';
@@ -388,7 +406,7 @@ window.fossil.onPageLoad(function(){
       if(1){// code block(s)...
         const selector = '.difftxt > pre';
         td = tr.querySelectorAll(selector);
-        const code = D.append(D.div(),lines.join('\n')+'\n').innerText;
+        const code = f.convertLines(lines);
         let joinNdx = 0;
         td.forEach(function(e){
           const content = [e.innerHTML];
@@ -443,6 +461,35 @@ window.fossil.onPageLoad(function(){
         Diff.checkTableWidth(true);
         this.destroy();
         return this;
+      }else if(1===direction){
+        /* Expanding previous TR downwards. */
+        // RHS line numbers...
+        let startLnR = this.pos.prev.endRhs+1;
+        lineno.length = lines.length;
+        for( i = startLnR; i < startLnR + lines.length; ++i ){
+          lineno[i-startLnR] = i;
+        }
+        console.debug("lineno.length =",lineno.length);
+        console.debug("lines.length =",lineno.length);
+        this.pos.startLhs += lines.length;
+        this.pos.prev.endRhs += lines.length;
+        this.pos.prev.endLhs += lines.length;
+        const selector = '.difflnr > pre';
+        td = tr.querySelector(selector);
+        const lineNoTxt = lineno.join('\n')+'\n';
+        lineno.length = 0;
+        const content = [td.innerHTML];
+        if(doAppend) content.push(lineNoTxt);
+        else content.unshift(lineNoTxt);
+        td.innerHTML = content.join('');
+        if(lines.length < (urlParam.to - urlParam.from)){
+          /* No more data. */
+          this.destroy();
+        }else{
+          this.updatePosDebug();
+        }
+        Diff.checkTableWidth(true);
+        return this;
       }else{
         console.debug("TODO: handle load of partial next/prev");
         this.updatePosDebug();
@@ -489,6 +536,7 @@ window.fossil.onPageLoad(function(){
       };
       const up = fOpt.urlParams;
       if(direction===0){
+        /* Easiest case: filling a whole gap. */
         up.from = this.pos.startLhs;
         up.to = this.pos.endLhs;
       }else if(1===direction){
@@ -497,15 +545,20 @@ window.fossil.onPageLoad(function(){
           console.error("Attempt to fetch next diff lines but don't have any.");
           return this;
         }
-        console.debug("fetchChunk(",direction,")");
-        return this;
+        up.from = this.pos.prev.endLhs + 1;
+        up.to = up.from +
+          Diff.config.chunkLoadLines - 1/*b/c request range is inclusive*/;
+        if( this.pos.next && this.pos.next.startLhs <= up.to ){
+          up.to = this.pos.next.startLhs - 1;
+          direction = 0;
+        }
       }else{
         /* Expand next TR upwards */
-        console.debug("fetchChunk(",direction,")");
+        console.debug("fetchChunk(",direction,")",up);
         return this;
       }
-
       this.$isFetching = true;
+      console.debug("fetchChunk(",direction,")",up);
       Diff.fetchArtifactChunk(fOpt);
       return this;
     }
