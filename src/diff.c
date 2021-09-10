@@ -2579,12 +2579,19 @@ static void diff_optimize(DContext *p){
 
 /*
 ** Extract the number of lines of context from diffFlags.  Supply an
-** appropriate default if no context width is specified.
+** appropriate default if no context width is specified. If pCfg is
+** NULL then the compile-time default is used (which gets propagated
+** to JS-side state by certain pages).
 */
 int diff_context_lines(DiffConfig *pCfg){
-  int n = pCfg->nContext;
-  if( n<=0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
-  return n;
+  const int dflt = 5;
+  if(pCfg!=0){
+    int n = pCfg->nContext;
+    if( n<=0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
+    return n;
+  }else{
+    return dflt;
+  }
 }
 
 /*

@@ -625,6 +625,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("/* Length of UUID hashes for display purposes. */");
     CX("hashDigits: %d, hashDigitsUrl: %d,\n",
        hash_digits(0), hash_digits(1));
+    CX("diffContextLines: %d,\n",
+       diff_context_lines(0));
     CX("editStateMarkers: {"
        "/*Symbolic markers to denote certain edit states.*/"
        "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");

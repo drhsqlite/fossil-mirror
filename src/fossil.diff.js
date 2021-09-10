@@ -25,7 +25,10 @@ window.fossil.onPageLoad(function(){
   const Diff = F.diff = {
     e:{/*certain cached DOM elements*/},
     config: {
-      chunkLoadLines: 30 /* TODO: 3x default context diff value */,
+      chunkLoadLines: (
+        F.config.diffContextLines * 3
+        /*per /chat discussion*/
+      ) || 20,
       chunkFetch: {
         /* Default callack handlers for Diff.fetchArtifactChunk(),
            unless overridden by options passeed to that function. */
@@ -420,8 +423,7 @@ window.fossil.onPageLoad(function(){
         });
       }
 
-      if(1){
-        // Add blank lines in (.diffsep>pre)
+      if(1){// Add blank lines in (.diffsep>pre)
         const selector = '.diffsep > pre';
         td = tr.querySelector(selector);
         for(i = 0; i < lineno.length; ++i) lineno[i] = '';
