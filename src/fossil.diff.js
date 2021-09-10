@@ -276,12 +276,10 @@ window.fossil.onPageLoad(function(){
                <= Diff.config.chunkLoadLines))){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
-      //delete this.pos.next;
       btnDown = false;
       btnUp = D.append(
         D.addClass(D.span(), 'button', 'up', 'down'),
         D.span(/*glyph holder*/)
-        //D.append(D.span(), this.config.glyphDown, this.config.glyphUp)
       );
     }else{
       /* Figure out which chunk-load buttons to add... */
@@ -289,14 +287,12 @@ window.fossil.onPageLoad(function(){
         btnDown = D.append(
           D.addClass(D.span(), 'button', 'down'),
           D.span(/*glyph holder*/)
-          //D.append(D.span(), this.config.glyphDown)
         );
       }
       if(this.pos.next){
         btnUp = D.append(
           D.addClass(D.span(), 'button', 'up'),
           D.span(/*glyph holder*/)
-          //D.append(D.span(), this.config.glyphUp)
         );
       }
     }
@@ -383,8 +379,13 @@ window.fossil.onPageLoad(function(){
         console.error("this case is not yet handled",arguments);
         return this;
       }
-      const joinTr = (0===direction && trPrev && trNext);
+      const joinTr = (
+        0===direction && trPrev && trNext
+      ) ? trNext : false
+      /* Truthy if we want to combine trPrev, the new content, and
+         trNext into trPrev and remove trNext. */;
       let i, td;
+
       if(1){ // LHS line numbers...
         const selector = '.difflnl > pre';
         td = tr.querySelector(selector);
@@ -392,69 +393,70 @@ window.fossil.onPageLoad(function(){
           lineno.push(i);
         }
         const lineNoTxt = lineno.join('\n')+'\n';
-        const content = [];
-        if(doAppend) content.push(td.innerHTML, lineNoTxt);
-        else content.push(lineNoTxt, td.innerHTML);
+        const content = [td.innerHTML];
+        if(doAppend) content.push(lineNoTxt);
+        else content.unshift(lineNoTxt);
         if(joinTr){
           content.push(trNext.querySelector(selector).innerHTML);
         }
         td.innerHTML = content.join('');
       }
 
-      if(1){// code block...
+      if(1){// code block(s)...
         const selector = '.difftxt > pre';
         td = tr.querySelectorAll(selector);
         const code = D.append(D.div(),lines.join('\n')+'\n').innerText;
         let joinNdx = 0;
         td.forEach(function(e){
-          const content = [];
-          if(doAppend) content.push(e.innerHTML, code);
-          else content.push(code, e.innerHTML);
+          const content = [e.innerHTML];
+          if(doAppend) content.push(code);
+          else content.unshift(code);
           if(joinTr){
             content.push(trNext.querySelectorAll(selector)[joinNdx++].innerHTML)
           }
           e.innerHTML = content.join('');
         });
       }
+
       if(1){
         // Add blank lines in (.diffsep>pre)
         const selector = '.diffsep > pre';
         td = tr.querySelector(selector);
         for(i = 0; i < lineno.length; ++i) lineno[i] = '';
         const blanks = lineno.join('\n')+'\n';
-        const content = [];
-        if(doAppend) content.push(td.innerHTML, blanks);
-        else content.push(blanks, td.innerHTML);
+        const content = [td.innerHTML];
+        if(doAppend) content.push(blanks);
+        else content.unshift(blanks);
         if(joinTr){
           content.push(trNext.querySelector(selector).innerHTML);
         }
         td.innerHTML = content.join('');
       }
+
       if(0===direction){
         /* Closing the whole gap between two chunks or a whole gap
            at the start or end of a diff. */
+        // RHS line numbers...
         let startLnR = this.pos.prev
             ? this.pos.prev.endRhs+1 /* Closing the whole gap between two chunks
                                         or end-of-file gap. */
             : this.pos.next.startRhs - lines.length /* start-of-file gap */;
-        lineno.length = 0;
+        lineno.length = lines.length;
         for( i = startLnR; i < startLnR + lines.length; ++i ){
-          /* TODO? space-pad numbers, but we don't know the proper length from here. */
-          lineno.push(i);
+          lineno[i-startLnR] = i;
         }
         const selector = '.difflnr > pre';
         td = tr.querySelector(selector);
         const lineNoTxt = lineno.join('\n')+'\n';
-        const content = [];
-        if(doAppend) content.push(td.innerHTML, lineNoTxt);
-        else content.push(lineNoTxt, td.innerHTML);
+        lineno.length = 0;
+        const content = [td.innerHTML];
+        if(doAppend) content.push(lineNoTxt);
+        else content.unshift(lineNoTxt);
         if(joinTr){
           content.push(trNext.querySelector(selector).innerHTML);
         }
         td.innerHTML = content.join('');
-        if(joinTr){
-          D.remove(joinTr);
-        }
+        if(joinTr) D.remove(joinTr);
         Diff.checkTableWidth(true);
         this.destroy();
         return this;
@@ -482,7 +484,6 @@ window.fossil.onPageLoad(function(){
         console.error("Attempt to fetch next diff lines but don't have any.");
         return this;
       }
-      console.debug("Going to fetch in direction",direction);
       const fOpt = {
         urlParams:{
           name: this.fileHash, from: 0, to: 0
@@ -491,7 +492,7 @@ window.fossil.onPageLoad(function(){
       };
       const self = this;
       if(direction!=0){
-        console.debug("Skipping fetch for now.");
+        console.debug("Skipping partial fetch for now.");
         return this;
       }else{
         fOpt.urlParams.from = this.pos.startLhs;
@@ -523,11 +524,6 @@ window.fossil.onPageLoad(function(){
   Diff.addDiffSkipHandlers();
 });
 
-/**
-   2021-09-07: refactoring the following for use in the higher-level
-   fossil.*.js framework is pending. For now it's a copy/paste copy
-   of diff.js.
-*/
 /* Refinements to the display of unified and side-by-side diffs.
 **
 ** In all cases, the table columns tagged with "difftxt" are expanded,

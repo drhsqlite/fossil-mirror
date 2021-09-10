@@ -549,10 +549,12 @@ table.diff pre {
 }
 tr.diffskip.jchunk {
   /* jchunk gets added from JS to diffskip rows when they are
-     plugged into the /jchunk route and removed after that data
-     is fetched. */
+     plugged into the /jchunk route. */
   background-color: aliceblue;
   padding: 0;
+}
+body.fossil-dark-style tr.diffskip.jchunk {
+  filter: invert(100%);
 }
 tr.diffskip.jchunk > td {
   padding: 0.25em 0.5em;
@@ -568,6 +570,9 @@ tr.diffskip > td.chunkctrl {
 }
 tr.diffskip > td.chunkctrl > div {
   /* Exists solely for layout purposes. */
+}
+body.fossil-dark-style tr.diffskip > td.chunkctrl{
+  filter: inherit;
 }
 tr.diffskip > td.chunkctrl .button {
   min-width: 2.5em;
