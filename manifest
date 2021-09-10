@@ -1,5 +1,5 @@
-C Implemented\sdiff.js\sarrow\skey\sscroll\sfix\sfrom\s[566b7f1165293655].
-D 2021-09-10T15:53:26.163
+C When\scomputing\sa\sdiff\sdisplay,\sif\sthe\snumber\sof\srows\sto\sskip\sbetween\stwo\sdiff\nregions\sis\sless\sthan\sthe\scontext\ssize,\sthen\sgo\sahead\sand\sshow\sthe\sskip\sarea\nas\scommon\stext.
+D 2021-09-10T23:50:36.471
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,7 +465,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 5f6d49a27fb597f8fec240e3d299767f7e6ab3777a0d6cad1b9a5923c9f60f0f
+F src/diff.c ca6a03d216d501391d61c7040e0f872436d6e9764495893cfc1d80fced30b906
 F src/diff.js 12ea016593dee9676298712a06576be149afefffabb2ef93da32f403db05fd1a
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c 72bcccf71104c8ccca15ccea8f75946efabb9349782219a1d136af0e2f39b9ae
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf04bcb2b112bbc8b6ccd5a0c36bfcb75c9c166ba80fa11341d70555c747b790
-R 8ed38aab82e64ac76fec9d3db627cc77
-U stephan
-Z 0b0a3fa9941e1ca42dee45a835e49b61
+P c624ed868e80289e0b6f186dfb62f9bad646a7a3385675d42482bc6511c36035
+R 18b23a407a28d4e2eb8cbe10c7d4e35a
+U drh
+Z 8fcf9c66609e3deae2e657a4eff27b8b
