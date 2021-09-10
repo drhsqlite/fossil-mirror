@@ -25,7 +25,7 @@ window.fossil.onPageLoad(function(){
   const Diff = F.diff = {
     e:{/*certain cached DOM elements*/},
     config: {
-      chunkLoadLines: 30,
+      chunkLoadLines: 30 /* TODO: 3x default context diff value */,
       chunkFetch: {
         /* Default callack handlers for Diff.fetchArtifactChunk(),
            unless overridden by options passeed to that function. */
@@ -336,7 +336,8 @@ window.fossil.onPageLoad(function(){
 
     updatePosDebug: function(){
       if(this.e.posState){
-        D.append(D.clearElement(this.e.posState), JSON.stringify(this.pos));
+        D.clearElement(this.e.posState);
+        //D.append(D.clearElement(this.e.posState), JSON.stringify(this.pos));
       }
       return this;
     },
