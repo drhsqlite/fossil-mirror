@@ -1,5 +1,5 @@
-C Some\sJS\scode\ssimplification\sand\sadded\sdark-mode\sCSS\sfilter\sto\sjchunk\scontrols.
-D 2021-09-10T16:08:06.638
+C Removed\ssome\sdead\scode.\sInternal\scleanups\sand\sreorg\sin\sprep\sfor\supcoming\schanges.
+D 2021-09-10T21:30:20.211
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -485,7 +485,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
-F src/fossil.diff.js 9c721c68430746d9cdc578f5b2df08a68cb2c35e7a9a1ce7cd70606edc25d69b
+F src/fossil.diff.js 54297879323d8f50650caa2395eee080ca386930e903598d05cfe10259c33d84
 F src/fossil.dom.js 58d3f602503f19ad40956cfb5b1380f2a081902372c76759bd3ca526e7997828
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11a981ead041010ad59befd46db13f2e4ad5311048302117a0db7fbbde3cdc5b
-R 36ed673c6ebd179ecf263b74a85e7e70
+P 65ae15e0088cf3ff81f13d1c9d13b8bbf49beacc98c48594945d3e00a70d18db
+R 4745e422c91cb6e68a809f67fe57754e
 U stephan
-Z 87758e5f9a5ede51b8c7a9c78ec09efe
+Z 597417c4e13bfd469548a118d83c0072

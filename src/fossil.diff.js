@@ -206,26 +206,23 @@ window.fossil.onPageLoad(function(){
   };
   
   /**
-     Installs chunk-loading controls into TR element tr. isSplit is true
-     if the parent table is a split diff, else false.
+     Installs chunk-loading controls into TR.diffskip element tr.
+     Each instance corresponds to a single TR.diffskip element.
 
-     The goal is to base these controls closely on github's, a good example
-     of which, for use as a model, is:
+     The goal is to base these controls roughly on github's, a good
+     example of which, for use as a model, is:
 
      https://github.com/msteveb/autosetup/commit/235925e914a52a542
-
-     Each instance corresponds to a single TR.diffskip element.
   */
-  Diff.ChunkLoadControls = function(isSplit, tr){
-    this.isSplit = isSplit;
+  Diff.ChunkLoadControls = function(tr){
     this.e = {/*DOM elements*/
       tr: tr,
       table: tr.parentElement/*TBODY*/.parentElement
     };
+    this.isSplit = this.e.table.classList.contains('splitdiff')/*else udiff*/;
     this.fileHash = this.e.table.dataset.lefthash;
     tr.$chunker = this /* keep GC from reaping this */;
     this.pos = {
-      //hash: F.hashDigits(this.fileHash),
       /* These line numbers correspond to the LHS file. Because the
          contents are common to both sides, we have the same number
          for the RHS, but need to extract those line numbers from the
@@ -236,7 +233,7 @@ window.fossil.onPageLoad(function(){
     D.clearElement(tr);
     this.e.td = D.addClass(
       /* Holder for our UI controls */
-      D.attr(D.td(tr), 'colspan', isSplit ? 5 : 4),
+      D.attr(D.td(tr), 'colspan', this.isSplit ? 5 : 4),
       'chunkctrl'
     );
     this.e.btnWrapper = D.div();
@@ -254,14 +251,14 @@ window.fossil.onPageLoad(function(){
     */
     if(tr.nextElementSibling){
       this.pos.next = {
-        startLhs: extractLineNo(true, true, tr.nextElementSibling, isSplit),
-        startRhs: extractLineNo(false, true, tr.nextElementSibling, isSplit)
+        startLhs: extractLineNo(true, true, tr.nextElementSibling, this.isSplit),
+        startRhs: extractLineNo(false, true, tr.nextElementSibling, this.isSplit)
       };
     }
     if(tr.previousElementSibling){
       this.pos.prev = {
-        endLhs: extractLineNo(true, false, tr.previousElementSibling, isSplit),
-        endRhs: extractLineNo(false, false, tr.previousElementSibling, isSplit)
+        endLhs: extractLineNo(true, false, tr.previousElementSibling, this.isSplit),
+        endRhs: extractLineNo(false, false, tr.previousElementSibling, this.isSplit)
       };
     }
     let btnUp = false, btnDown = false;
@@ -277,35 +274,18 @@ window.fossil.onPageLoad(function(){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
       btnDown = false;
-      btnUp = D.append(
-        D.addClass(D.span(), 'button', 'up', 'down'),
-        D.span(/*glyph holder*/)
-      );
+      btnUp = this.createButton(0);
     }else{
       /* Figure out which chunk-load buttons to add... */
       if(this.pos.prev){
-        btnDown = D.append(
-          D.addClass(D.span(), 'button', 'down'),
-          D.span(/*glyph holder*/)
-        );
+        btnDown = this.createButton(1);
       }
       if(this.pos.next){
-        btnUp = D.append(
-          D.addClass(D.span(), 'button', 'up'),
-          D.span(/*glyph holder*/)
-        );
+        btnUp = this.createButton(-1);
       }
     }
-    if(btnDown){
-      D.append(this.e.btnWrapper, btnDown);
-      btnDown.addEventListener('click', ()=>this.fetchChunk(1),false);
-    }
-    if(btnUp){
-      D.append(this.e.btnWrapper, btnUp);
-      btnUp.addEventListener(
-        'click', ()=>this.fetchChunk(btnUp.classList.contains('down') ? 0 : -1),
-        false);
-    }
+    if(btnDown) D.append(this.e.btnWrapper, btnDown);
+    if(btnUp) D.append(this.e.btnWrapper, btnUp);
     /* For debugging only... */
     this.e.posState = D.span();
     D.append(this.e.btnWrapper, this.e.posState);
@@ -319,51 +299,54 @@ window.fossil.onPageLoad(function(){
       glyphDown: '⇣' //'&#darr;'
       */
     },
+
+    /**
+       Creates and returns a button element for fetching a chunk in
+       the given direction (as documented for fetchChunk()).
+    */
+    createButton: function(direction){
+      let b;
+      switch(direction){
+      case 1:
+        b = D.append(
+          D.addClass(D.span(), 'button', 'down'),
+          D.span(/*glyph holder*/)
+        );
+        break;
+      case 0:
+        b = D.append(
+          D.addClass(D.span(), 'button', 'up', 'down'),
+          D.span(/*glyph holder*/)
+        );
+        break;
+      case -1:
+        b = D.append(
+          D.addClass(D.span(), 'button', 'up'),
+          D.span(/*glyph holder*/)
+        );
+        break;
+      default:
+        throw new Error("Internal API misuse: unexpected direction value "+direction);
+      }
+      b.addEventListener('click', ()=>this.fetchChunk(direction),false);
+      return b;
+    },
+
     updatePosDebug: function(){
       if(this.e.posState){
         D.append(D.clearElement(this.e.posState), JSON.stringify(this.pos));
       }
       return this;
     },
-    
+
+    /* Attempt to clean up resources and remove some circular references to
+       that GC can do the right thing. */
     destroy: function(){
       D.remove(this.e.tr);
       delete this.e.tr.$chunker;
       delete this.e.tr;
       delete this.e;
       delete this.pos;
-    },
-    /**
-       Creates a new TR element, including its TD elements (depending
-       on this.isSplit), but does not fill it with any information nor
-       inject it into the table (it doesn't know where to do
-       so). Returns an object containing the TR element and various TD
-       elements which will likely be needed by the routine which
-       called this. See this code for details.
-    */
-    newTR: function(){
-      const tr = D.tr(), rc = {
-        tr,
-        preLnL: D.pre(),
-        preLnR: D.pre(),
-        preSep: D.pre()
-      };
-      if(this.isSplit){
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), rc.preLnL);
-        rc.preTxtL = D.pre();
-        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtl' ), rc.preTxtL);
-        D.append(D.addClass( D.td(tr), 'diffsep' ), rc.preSep);
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), rc.preLnR);
-        rc.preTxtR = D.pre();
-        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtr' ), rc.preTxtR);
-      }else{
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), rc.preLnL);
-        D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), rc.preLnR);
-        D.append(D.addClass( D.td(tr), 'diffsep' ), rc.preSep);
-        rc.preTxtU = D.pre();
-        D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtu' ), rc.preTxtU);
-      }
-      return rc;
     },
 
     injectResponse: function(direction/*as for fetchChunk()*/,
@@ -466,41 +449,62 @@ window.fossil.onPageLoad(function(){
       }
     },
 
-    fetchChunk: function(direction/*-1=down from prev chunk,
-                                    1=up from next chunk,
-                                    0=full-gap filler for any neighoring
-                                    chunk(s)*/){
+    /**
+       Fetches and inserts a line chunk. direction is:
+
+       -1 = upwards from next chunk (this.pos.next)
+
+       0 = the whole gap between this.pos.prev and this.pos.next, or
+       the whole gap before/after the initial/final chunk in the diff.
+
+       1 = downwards from the previous chunk (this.pos.prev)
+
+       Those values are set at the time this object is initialized but
+       one instance of this class may have 2 buttons, one each for
+       directions -1 and 1.
+
+       This is an async operation. While it is in transit, any calls
+       to this function will have no effect except (possibly) to emit
+       a warning. Returns this object.
+    */
+    fetchChunk: function(direction){
       /* Forewarning, this is a bit confusing: when fetching the
          previous lines, we're doing so on behalf of the *next* diff
          chunk (this.pos.next), and vice versa. */
       if(this.$isFetching){
-        console.debug("Cannot load chunk while a load is pending.");
+        F.toast.warning("Cannot load chunk while a load is pending.");
         return this;
       }
-      if(direction<0/*prev chunk*/ && !this.pos.next){
-        console.error("Attempt to fetch previous diff lines but don't have any.");
-        return this;
-      }else if(direction>0/*next chunk*/ && !this.pos.prev){
-        console.error("Attempt to fetch next diff lines but don't have any.");
+      if(direction<0 && !this.pos.next
+        || direction>0 && !this.pos.prev){
+        console.error("Attempt to fetch diff lines but don't have any.");
         return this;
       }
       const fOpt = {
         urlParams:{
           name: this.fileHash, from: 0, to: 0
         },
-        aftersend: ()=>delete this.$isFetching
+        aftersend: ()=>delete this.$isFetching,
+        onload: (list)=>this.injectResponse(direction,up,list)
       };
-      const self = this;
-      if(direction!=0){
-        console.debug("Skipping partial fetch for now.");
+      const up = fOpt.urlParams;
+      if(direction===0){
+        up.from = this.pos.startLhs;
+        up.to = this.pos.endLhs;
+      }else if(1===direction){
+        /* Expand previous TR downwards. */
+        if(!this.pos.prev){
+          console.error("Attempt to fetch next diff lines but don't have any.");
+          return this;
+        }
+        console.debug("fetchChunk(",direction,")");
         return this;
       }else{
-        fOpt.urlParams.from = this.pos.startLhs;
-        fOpt.urlParams.to = this.pos.endLhs;
-        fOpt.onload = function(list){
-          self.injectResponse(direction,fOpt.urlParams,list);
-        };
+        /* Expand next TR upwards */
+        console.debug("fetchChunk(",direction,")");
+        return this;
       }
+
       this.$isFetching = true;
       Diff.fetchArtifactChunk(fOpt);
       return this;
@@ -514,9 +518,8 @@ window.fossil.onPageLoad(function(){
        scrolled into view. */
     tables.forEach(function(table){
       D.addClass(table, 'diffskipped'/*avoid processing these more than once */);
-      const isSplit = table.classList.contains('splitdiff')/*else udiff*/;
       table.querySelectorAll('tr.diffskip[data-startln]').forEach(function(tr){
-        new Diff.ChunkLoadControls(isSplit, D.addClass(tr, 'jchunk'));
+        new Diff.ChunkLoadControls(D.addClass(tr, 'jchunk'));
       });
     });
     return F;
