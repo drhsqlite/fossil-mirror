@@ -1760,6 +1760,7 @@ static int match_dline(const DLine *pA, const DLine *pB){
   if( avg==0 ) return 0;
   nMin = nA;
   if( nB<nMin ) nMin = nB;
+  if( nMin==0 ) return 62;
   for(nPrefix=0; nPrefix<nMin && zA[nPrefix]==zB[nPrefix]; nPrefix++){}
   best = 0;
   if( nPrefix>5 && nPrefix>nMin/2 ){
