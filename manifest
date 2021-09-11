@@ -1,5 +1,5 @@
-C Merge\srecent\strunk\senhancements\sinto\sthe\sdiff-js-refactoring\sbranch.
-D 2021-09-11T00:30:03.055
+C Final\schunk\sload\smode\simplemented,\sbut\sdiff\stable\swidths\shave\ssomehow\sbeen\sbroken\s(too\swide\s-\snot\ssure\ssince\swhen).\sThis\sversion\sis\ssuitable\sfor\splaying\swith\sand\sfeedback,\sbut\snot\squite\syet\sfor\strunk.
+D 2021-09-11T03:20:03.442
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -485,7 +485,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
-F src/fossil.diff.js ee12f84528eeb0bda2a17bcfdce8c773a1eecbfbfd7f94c6e5a60cf18eb989a0
+F src/fossil.diff.js ae91305c571e87e03f9473106ce36a1157203d034193acab9901005fd7b6e37b
 F src/fossil.dom.js 58d3f602503f19ad40956cfb5b1380f2a081902372c76759bd3ca526e7997828
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f84424fff2a9aef7042145bf753cee404336eb0e2d82824b0ec32ddb705da3e 674da6424a5a5faf85029f38d339aac92e2a125dfb0ed6aebbc0449ecc875bc1
-R 7e4bee947e1021bea84785dcac5368fa
-U drh
-Z 1d415ffbc6e91f9ddeed6a47e9822abf
+P a7fbefee38a1c522920befb80386742b52facf3616b7531aca70aa91f67c73ae
+R 761bee414de9be84b4fcf87be94e6890
+U stephan
+Z 0d30179fbb61f8e26426d453de19b7da

@@ -217,7 +217,7 @@ window.fossil.onPageLoad(function(){
 
      https://github.com/msteveb/autosetup/commit/235925e914a52a542
   */
-  Diff.ChunkLoadControls = function(tr){
+  const ChunkLoadControls = function(tr){
     this.e = {/*DOM elements*/
       tr: tr,
       table: tr.parentElement/*TBODY*/.parentElement
@@ -277,14 +277,14 @@ window.fossil.onPageLoad(function(){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
       btnDown = false;
-      btnUp = this.createButton(0);
+      btnUp = this.createButton(this.FetchType.FillGap);
     }else{
       /* Figure out which chunk-load buttons to add... */
       if(this.pos.prev){
-        btnDown = this.createButton(1);
+        btnDown = this.createButton(this.FetchType.PrevDown);
       }
       if(this.pos.next){
-        btnUp = this.createButton(-1);
+        btnUp = this.createButton(this.FetchType.NextUp);
       }
     }
     //this.e.btnUp = btnUp;
@@ -297,7 +297,21 @@ window.fossil.onPageLoad(function(){
     this.updatePosDebug();
   };
 
-  Diff.ChunkLoadControls.prototype = {
+  ChunkLoadControls.prototype = {
+    /** An "enum" of values describing the types of context
+        fetches/operations performed by this type. The values in this
+        object must not be changed without modifying all logic which
+        relies on their relative order. */
+    FetchType:{
+      /** Append context to the bottom of the previous diff chunk. */
+      PrevDown: 1,
+      /** Fill a complete gap between the previous/next diff chunks
+          or at the start of the next chunk or end of the previous
+          chunks. */
+      FillGap: 0,
+      /** Prepend context to the start of the next diff chunk. */
+      NextUp: -1
+    },
     config: {
       /*
       glyphUp: '⇡', //'&#uarr;',
@@ -307,33 +321,33 @@ window.fossil.onPageLoad(function(){
 
     /**
        Creates and returns a button element for fetching a chunk in
-       the given direction (as documented for fetchChunk()).
+       the given fetchType (as documented for fetchChunk()).
     */
-    createButton: function(direction){
+    createButton: function(fetchType){
       let b;
-      switch(direction){
-      case 1:
+      switch(fetchType){
+      case this.FetchType.PrevDown:
         b = D.append(
           D.addClass(D.span(), 'button', 'down'),
           D.span(/*glyph holder*/)
         );
         break;
-      case 0:
+      case this.FetchType.FillGap:
         b = D.append(
           D.addClass(D.span(), 'button', 'up', 'down'),
           D.span(/*glyph holder*/)
         );
         break;
-      case -1:
+      case this.FetchType.NextUp:
         b = D.append(
           D.addClass(D.span(), 'button', 'up'),
           D.span(/*glyph holder*/)
         );
         break;
       default:
-        throw new Error("Internal API misuse: unexpected direction value "+direction);
+        throw new Error("Internal API misuse: unexpected fetchType value "+fetchType);
       }
-      b.addEventListener('click', ()=>this.fetchChunk(direction),false);
+      b.addEventListener('click', ()=>this.fetchChunk(fetchType),false);
       return b;
     },
 
@@ -355,7 +369,23 @@ window.fossil.onPageLoad(function(){
       delete this.pos;
     },
 
-    injectResponse: function f(direction/*as for fetchChunk()*/,
+    /**
+       If the gap between this.pos.endLhs/startLhs is less than or equal to
+       Diff.config.chunkLoadLines then this function replaces any up/down buttons
+       with a gap-filler button, else it's a no-op. Returns this object.
+     */
+    maybeReplaceButtons: function(){
+      if(this.pos.endLhs - this.pos.startLhs <= Diff.config.chunkLoadLines){
+        D.clearElement(this.e.btnWrapper);
+        D.append(this.e.btnWrapper, this.createButton(this.FetchType.FillGap));
+      }
+      return this;
+    },
+
+    /**
+       Callack for /jchunk responses.
+    */
+    injectResponse: function f(fetchType/*as for fetchChunk()*/,
                                urlParam/*from fetchChunk()*/,
                                lines/*response lines*/){
       if(!lines.length){
@@ -363,23 +393,20 @@ window.fossil.onPageLoad(function(){
         this.destroy();
         return this;
       }
-      console.debug("Loading line range ",urlParam.from,"-",urlParam.to);
+      console.debug("Loaded line range ",urlParam.from,"-",urlParam.to, "fetchType ",fetchType);
       const lineno = [],
             trPrev = this.e.tr.previousElementSibling,
             trNext = this.e.tr.nextElementSibling,
-            doAppend = (!!trPrev && direction>=0) /* true to append to previous TR, else prepend to NEXT TR */;
-      const tr = trPrev || trNext;
-      if(direction<0){
-        console.error("this case is not yet handled",arguments);
-        return this;
-      }
+            doAppend = (
+              !!trPrev && fetchType>=this.FetchType.FillGap
+            ) /* true to append to previous TR, else prepend to NEXT TR */;
+      const tr = doAppend ? trPrev : trNext;
       const joinTr = (
-        0===direction && trPrev && trNext
+        this.FetchType.FillGap===fetchType && trPrev && trNext
       ) ? trNext : false
       /* Truthy if we want to combine trPrev, the new content, and
-         trNext into trPrev and remove trNext. */;
+         trNext into trPrev and then remove trNext. */;
       let i, td;
-
       if(!f.convertLines){
         f.convertLines = function(li){
           return li.join('\n')
@@ -387,7 +414,6 @@ window.fossil.onPageLoad(function(){
             .replaceAll('<','&lt;')+'\n';
         };
       }
-
       if(1){ // LHS line numbers...
         const selector = '.difflnl > pre';
         td = tr.querySelector(selector);
@@ -437,7 +463,7 @@ window.fossil.onPageLoad(function(){
         td.innerHTML = content.join('');
       }
 
-      if(0===direction){
+      if(this.FetchType.FillGap===fetchType){
         /* Closing the whole gap between two chunks or a whole gap
            at the start or end of a diff. */
         // RHS line numbers...
@@ -464,16 +490,14 @@ window.fossil.onPageLoad(function(){
         Diff.checkTableWidth(true);
         this.destroy();
         return this;
-      }else if(1===direction){
-        /* Expanding previous TR downwards. */
+      }else if(this.FetchType.PrevDown===fetchType){
+        /* Append context to previous TR. */
         // RHS line numbers...
         let startLnR = this.pos.prev.endRhs+1;
         lineno.length = lines.length;
         for( i = startLnR; i < startLnR + lines.length; ++i ){
           lineno[i-startLnR] = i;
         }
-        console.debug("lineno.length =",lineno.length);
-        console.debug("lines.length =",lineno.length);
         this.pos.startLhs += lines.length;
         this.pos.prev.endRhs += lines.length;
         this.pos.prev.endLhs += lines.length;
@@ -489,35 +513,66 @@ window.fossil.onPageLoad(function(){
           /* No more data. */
           this.destroy();
         }else{
+          this.maybeReplaceButtons();
+          this.updatePosDebug();
+        }
+        Diff.checkTableWidth(true);
+        return this;
+      }else if(this.FetchType.NextUp===fetchType){
+        /* Prepend content to next TR. */
+        // RHS line numbers...
+        if(doAppend){
+          throw new Error("Internal precondition violation: doAppend is true.");
+        }
+        let startLnR = this.pos.next.startRhs - lines.length;
+        lineno.length = lines.length;
+        for( i = startLnR; i < startLnR + lines.length; ++i ){
+          lineno[i-startLnR] = i;
+        }
+        this.pos.endLhs -= lines.length;
+        this.pos.next.startRhs -= lines.length;
+        this.pos.next.startLhs -= lines.length;
+        const selector = '.difflnr > pre';
+        td = tr.querySelector(selector);
+        const lineNoTxt = lineno.join('\n')+'\n';
+        lineno.length = 0;
+        td.innerHTML = lineNoTxt + td.innerHTML;
+        if(this.pos.endLhs<=1
+           || lines.length < (urlParam.to - urlParam.from)){
+          /* No more data. */
+          this.destroy();
+        }else{
+          this.maybeReplaceButtons();
           this.updatePosDebug();
         }
         Diff.checkTableWidth(true);
         return this;
       }else{
-        console.debug("TODO: handle load of partial next/prev");
-        this.updatePosDebug();
+        throw new Error("Unexpected 'fetchType' value.");
       }
     },
 
     /**
-       Fetches and inserts a line chunk. direction is:
+       Fetches and inserts a line chunk. fetchType is:
 
-       -1 = upwards from next chunk (this.pos.next)
+       this.FetchType.NextUp = upwards from next chunk (this.pos.next)
 
-       0 = the whole gap between this.pos.prev and this.pos.next, or
-       the whole gap before/after the initial/final chunk in the diff.
+       this.FetchType.FillGap = the whole gap between this.pos.prev
+       and this.pos.next, or the whole gap before/after the
+       initial/final chunk in the diff.
 
-       1 = downwards from the previous chunk (this.pos.prev)
+       this.FetchType.PrevDown = downwards from the previous chunk
+       (this.pos.prev)
 
        Those values are set at the time this object is initialized but
        one instance of this class may have 2 buttons, one each for
-       directions -1 and 1.
+       fetchTypes NextUp and PrevDown.
 
        This is an async operation. While it is in transit, any calls
        to this function will have no effect except (possibly) to emit
        a warning. Returns this object.
     */
-    fetchChunk: function(direction){
+    fetchChunk: function(fetchType){
       /* Forewarning, this is a bit confusing: when fetching the
          previous lines, we're doing so on behalf of the *next* diff
          chunk (this.pos.next), and vice versa. */
@@ -525,8 +580,8 @@ window.fossil.onPageLoad(function(){
         F.toast.warning("Cannot load chunk while a load is pending.");
         return this;
       }
-      if(direction<0 && !this.pos.next
-        || direction>0 && !this.pos.prev){
+      if(fetchType===this.FetchType.NextUp && !this.pos.next
+        || fetchType===this.FetchType.PrevDown && !this.pos.prev){
         console.error("Attempt to fetch diff lines but don't have any.");
         return this;
       }
@@ -535,15 +590,15 @@ window.fossil.onPageLoad(function(){
           name: this.fileHash, from: 0, to: 0
         },
         aftersend: ()=>delete this.$isFetching,
-        onload: (list)=>this.injectResponse(direction,up,list)
+        onload: (list)=>this.injectResponse(fetchType,up,list)
       };
       const up = fOpt.urlParams;
-      if(direction===0){
+      if(fetchType===this.FetchType.FillGap){
         /* Easiest case: filling a whole gap. */
         up.from = this.pos.startLhs;
         up.to = this.pos.endLhs;
-      }else if(1===direction){
-        /* Expand previous TR downwards. */
+      }else if(this.FetchType.PrevDown===fetchType){
+        /* Append to previous TR. */
         if(!this.pos.prev){
           console.error("Attempt to fetch next diff lines but don't have any.");
           return this;
@@ -553,21 +608,29 @@ window.fossil.onPageLoad(function(){
           Diff.config.chunkLoadLines - 1/*b/c request range is inclusive*/;
         if( this.pos.next && this.pos.next.startLhs <= up.to ){
           up.to = this.pos.next.startLhs - 1;
-          direction = 0;
+          fetchType = this.FetchType.FillGap;
         }
       }else{
-        /* Expand next TR upwards */
-        console.debug("fetchChunk(",direction,")",up);
-        return this;
+        /* Prepend to next TR */
+        if(!this.pos.next){
+          console.error("Attempt to fetch previous diff lines but don't have any.");
+          return this;
+        }
+        up.to = this.pos.next.startLhs - 1;
+        up.from = Math.max(1, up.to - Diff.config.chunkLoadLines + 1);
+        if( this.pos.prev && this.pos.prev.endLhs >= up.from ){
+          up.from = this.pos.prev.endLhs + 1;
+          fetchType = this.FetchType.FillGap;
+        }
       }
       this.$isFetching = true;
-      console.debug("fetchChunk(",direction,")",up);
+      console.debug("fetchChunk(",fetchType,")",up);
       Diff.fetchArtifactChunk(fOpt);
       return this;
     }
   };
 
-  Diff.addDiffSkipHandlers = function(){
+  const addDiffSkipHandlers = function(){
     const tables = document.querySelectorAll('table.diff[data-lefthash]:not(.diffskipped)');
     /* Potential performance-related TODO: instead of installing all
        of these at once, install them as the corresponding TR is
@@ -575,12 +638,12 @@ window.fossil.onPageLoad(function(){
     tables.forEach(function(table){
       D.addClass(table, 'diffskipped'/*avoid processing these more than once */);
       table.querySelectorAll('tr.diffskip[data-startln]').forEach(function(tr){
-        new Diff.ChunkLoadControls(D.addClass(tr, 'jchunk'));
+        new ChunkLoadControls(D.addClass(tr, 'jchunk'));
       });
     });
     return F;
   };
-  Diff.addDiffSkipHandlers();
+  addDiffSkipHandlers();
 });
 
 /* Refinements to the display of unified and side-by-side diffs.
@@ -621,6 +684,7 @@ window.fossil.onPageLoad(function(){
     }
     w = f.lastWidth;
     f.allDiffs.forEach((e)=>e.style.maxWidth = w + "px");
+    //console.debug("checkTableWidth(",force,") f.lastWidth =",f.lastWidth);
     return this;
   };
 
