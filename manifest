@@ -1,5 +1,5 @@
-C diff\scontext:\snever\sshow\sthe\sdual-mode\sup/down\sbuttons\sat\sthe\svery\sstart\sor\send\sof\sa\sfile,\sonly\sin\sthe\sgaps\sbetween\stwo\schunks.
-D 2021-09-11T17:44:08.572
+C darkmode\sskin:\sgive\sSELECT\selements\sa\scolor\scombination\swhich\sis\svisible,\sas\sreported\sin\s[forum:9a87b3e40d\s|\sforum\spost\s9a87b3e40d].
+D 2021-09-11T18:01:43.859
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -385,7 +385,7 @@ F skins/bootstrap/css.txt e196e8a3fd98e7c4877a64a5d332867261f83332be791e972ba554
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 7e02dfdcc09bf622744011d460d2422b8cead4687b66f753519e9a75b93db8ca
 F skins/bootstrap/header.txt ba52ec8100c2c05be73863d8b35b5d322b21fa53acfcb236b661219fd0c8487f
-F skins/darkmode/css.txt b6d911b1a06ae3342d47b58efdfe24609f4006e87efa5ec536c78c9fd4f87e89
+F skins/darkmode/css.txt 45d6f2223e83abc140465a03d5da8f684e91e76fdbcd6804d689046bc2c690a0
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bded9fb6ce6ee6c5e221ab6cfa971d2f22daf4b74c1680b2a14da00c0708788
-R 39f1b65919a116a28fe53baab6d5e8c7
+P 7b1e2aaee15e8069cb7c53f756d6c6ba1fcc5aa78bb6ba01bc9b5b2a77c32857
+R 28835e3e616d32fe7c6ce71a868315c7
 U stephan
-Z 4fcde23ea221331b1582a00bec442391
+Z 3e9740298f75f32b46a3cbd1faa4d4b7

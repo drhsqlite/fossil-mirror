@@ -531,6 +531,10 @@ input, textarea, select {
   border: 1px solid rgba(127, 201, 255, 0.9);
   padding: 1px;
 }
+select {
+  color: #1f1f1f;
+  background: #ffffffe0;
+}
 .capsumOff {
   background-color: #222;
 }
