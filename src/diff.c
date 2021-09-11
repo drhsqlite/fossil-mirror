@@ -1726,14 +1726,18 @@ static DiffBuilder *dfsbsNew(Blob *pOut, DiffConfig *pCfg){
 **
 ** (1) Remove leading and trailing whitespace.
 ** (2) Truncate both strings to at most 250 characters
-** (3) Find the length of the longest common subsequence
-** (4) Longer common subsequences yield lower scores.
+** (3) If the two strings have a common prefix, measure that prefix
+** (4) Find the length of the longest common subsequence that is
+**     at least 150% longer than the common prefix.
+** (5) Longer common subsequences yield lower scores.
 */
 static int match_dline(const DLine *pA, const DLine *pB){
   const char *zA;            /* Left string */
   const char *zB;            /* right string */
   int nA;                    /* Bytes in zA[] */
   int nB;                    /* Bytes in zB[] */
+  int nMin;
+  int nPrefix;
   int avg;                   /* Average length of A and B */
   int i, j, k;               /* Loop counters */
   int best = 0;              /* Longest match found so far */
@@ -1746,14 +1750,22 @@ static int match_dline(const DLine *pA, const DLine *pB){
   zB = pB->z;
   nA = pA->n;
   nB = pB->n;
-  while( nA>0 && fossil_isspace(zA[0]) ){ nA--; zA++; }
-  while( nA>0 && fossil_isspace(zA[nA-1]) ){ nA--; }
-  while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
-  while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
+  while( nA>0 && (unsigned char)zA[0]<=' ' ){ nA--; zA++; }
+  while( nA>0 && (unsigned char)zA[nA-1]<=' ' ){ nA--; }
+  while( nB>0 && (unsigned char)zB[0]<=' ' ){ nB--; zB++; }
+  while( nB>0 && (unsigned char)zB[nB-1]<=' ' ){ nB--; }
   if( nA>250 ) nA = 250;
   if( nB>250 ) nB = 250;
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
+  nMin = nA;
+  if( nB<nMin ) nMin = nB;
+  for(nPrefix=0; nPrefix<nMin && zA[nPrefix]==zB[nPrefix]; nPrefix++){}
+  best = 0;
+  if( nPrefix>5 && nPrefix>nMin/2 ){
+    best = nPrefix*3/2;
+    if( best>=avg ) best = avg - 2;
+  }
   if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
   memset(aFirst, 0xff, sizeof(aFirst));
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
@@ -1762,7 +1774,6 @@ static int match_dline(const DLine *pA, const DLine *pB){
     aNext[i] = aFirst[c];
     aFirst[c] = i;
   }
-  best = 0;
   for(i=1; i<=nA-best; i++){
     c = (unsigned char)zA[i];
     for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
@@ -1771,7 +1782,7 @@ static int match_dline(const DLine *pA, const DLine *pB){
       if( k>best ) best = k;
     }
   }
-  score = (best>avg) ? 0 : (avg - best)*100/avg;
+  score = (best>=avg) ? 0 : (avg - best)*100/avg;
 
 #if 0
   fprintf(stderr, "A: [%.*s]\nB: [%.*s]\nbest=%d avg=%d score=%d\n",
