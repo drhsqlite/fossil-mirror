@@ -265,7 +265,6 @@ table.splitdiff {
   font-size: 8pt;
   border-collapse:collapse;
   white-space: pre;
-  width: 98%;
   border: 1px #000 dashed;
   margin-left: auto;
   margin-right: auto;
@@ -349,9 +348,16 @@ td.difftxt del > del, td.diffln del {
 td.difftxt del {
   background-color: inherit;
 }
+tr.diffskip.jchunk {
+  background-color: #7EA2D9;
+}
+tr.diffskip > td.chunkctrl .jcbutton{
+  color: white;
+  background-color: #485D7B;
+}
 
 .fileage tr:hover {
-  background-color: #7EA2D9;
+  background-color:  #7EA2D9;
 }
 
 span.modpending {

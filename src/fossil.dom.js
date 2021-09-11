@@ -433,7 +433,7 @@
 
   /**
      Toggles CSS class c on e (a single element for forEach-capable
-     collection of elements. Returns its first argument.
+     collection of elements). Returns its first argument.
   */
   dom.toggleClass = function f(e,c){
     if(e.forEach){

@@ -266,6 +266,13 @@ table.label-value th {
  * Diffs
  */
 
+tr.diffskip.jchunk {
+  background-color: black;
+}
+tr.diffskip > td.chunkctrl .jcbutton {
+  background-color: #303536;
+}
+
 /* Code Added */
 td.diffln ins,
 td.difftxt ins > ins {
@@ -295,7 +302,6 @@ td.difftxt del {
 table.splitdiff {
   border-spacing: 0;
   font-size: 0.85rem;
-  width: 90%;
 }
 
 table.splitdiff pre {

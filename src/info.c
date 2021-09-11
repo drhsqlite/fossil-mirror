@@ -444,7 +444,7 @@ static void append_file_change_line(
 */
 void append_diff_javascript(int diffType){
   if( diffType==0 ) return;
-  builtin_request_js("diff.js");
+  builtin_fossil_js_bundle_or("diff", NULL);
 }
 
 /*
@@ -935,7 +935,6 @@ void ci_page(void){
   }
   db_finalize(&q3);
   append_diff_javascript(diffType);
-  builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
 
@@ -1340,7 +1339,6 @@ void vdiff_page(void){
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType);
-  builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
 
@@ -1886,17 +1884,24 @@ void secure_rawartifact_page(void){
 
 
 /*
-** WEBPAGE: jtext
-** URL: /jtext/HASH?from=N&to=M
+** WEBPAGE: jchunk hidden
+** URL: /jchunk/HASH?from=N&to=M
 **
 ** Return lines of text from a file as a JSON array - one entry in the
 ** array for each line of text.
 **
-** This page is intended to be used in an XHR from javascript on a diff
-** page, to return unseen context to fill in additional context when the
-** user clicks on the appropriate button.
+** **Warning:**  This is an internal-use-only interface that is subject to
+** change at any moment.  External application should not use this interface
+** since the application will break when this interface changes, and this
+** interface will undoubtedly change.
+**
+** This page is intended to be used in an XHR from javascript on a
+** diff page, to return unseen context to fill in additional context
+** when the user clicks on the appropriate button. The response is
+** always in JSON form and errors are reported as documented for
+** ajax_route_error().
 */
-void jtext_page(void){
+void jchunk_page(void){
   int rid = 0;
   const char *zName = PD("name", "");
   int iFrom = atoi(PD("from","0"));
@@ -1908,17 +1913,39 @@ void jtext_page(void){
   Blob line;
   Blob *pOut;
 
-  login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
-  if( rid==0 ){
-    cgi_set_status(404, "Not Found");
-    @ Unknown artifact: "%h(zName)"
+  if(0){
+    ajax_route_error(400, "Just testing client-side error handling.");
     return;
   }
+
+  login_check_credentials();
+  if( !g.perm.Read ){
+    ajax_route_error(403, "Access requires Read permissions.");
+    return;
+  }
+#if 1
+  /* Re-enable this block once this code is integrated somewhere into
+     the UI. */
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
+  if( rid==0 ){
+    ajax_route_error(404, "Unknown artifact: %h", zName);
+    return;
+  }
+#else
+  /* This impl is only to simplify "manual" testing via the JS
+     console. */
+  rid = symbolic_name_to_rid(zName, "*");
+  if( rid==0 ){
+    ajax_route_error(404, "Unknown artifact: %h", zName);
+    return;
+  }else if( rid<0 ){
+    ajax_route_error(418, "Ambiguous artifact name: %h", zName);
+    return;
+  }
+#endif
   if( iFrom<1 || iTo<iFrom ){
-    cgi_set_status(500, "Bad Request");
-    @ Invalid line range
+    ajax_route_error(500, "Invalid line range from=%d, to=%d.",
+                     iFrom, iTo);
     return;
   }
   content_get(rid, &content);

@@ -481,7 +481,12 @@ td.difftxt ins > ins {
   color: #000;
   text-decoration: none;
 }
-
+tr.diffskip.jchunk {
+  background-color: black;
+}
+tr.diffskip > td.chunkctrl .jcbutton {
+  background-color: #303536;
+}
 
 /************************************************************************
 ************************************************************************/

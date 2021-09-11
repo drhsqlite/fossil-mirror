@@ -534,16 +534,96 @@ ul.filelist li {
 
 /* Rules governing diff layout and colors */
 table.diff {
-  width: 98%;
+  width: 100%;
   border-spacing: 0;
   border: 1px solid black;
-  padding: 0 0.5em;
+}
+table.diff td.diffln{
+  padding: 0;
+}
+table.diff td.diffln > pre{
+  padding: 0 0.25em 0 0.5em;
+  margin: 0;
 }
 table.diff td {
   vertical-align: top;
+  padding: 0;
+  overflow: hidden /*work around inner PRE slight overflow/overlap*/;
 }
 table.diff pre {
   margin: 0 0 0 0;
+  padding: 0 0.5em;
+}
+table.diff td.diffln > pre {
+  padding: 0 0.35em 0 0.5em;
+}
+table.diff td.difftxt > pre {
+  min-width: 100%;
+  max-width: 100%;
+}
+tr.diffskip.jchunk {
+  /* jchunk gets added from JS to diffskip rows when they are
+     plugged into the /jchunk route. */
+  background-color: aliceblue;
+  padding: 0;
+}
+tr.diffskip.jchunk > td {
+  padding: 0.25em 0.5em;
+  margin: 0;
+}
+tr.diffskip.jchunk:hover {
+  /*background-color: rgba(127,127,127,0.5);
+  cursor: pointer;*/
+}
+tr.diffskip > td.chunkctrl {
+  text-align: left;
+  font-family: monospace;
+}
+tr.diffskip > td.chunkctrl > div {
+  /* Exists solely for layout purposes. */
+}
+tr.diffskip > td.chunkctrl .jcbutton
+/* class name .button breaks w/ some skins! */ {
+  min-width: 3.5ex;
+  max-width: 3.5ex;
+  text-align: center;
+  display: inline-block;
+  padding: 0.1em 1em;
+  margin: 0 1em 0 0;
+  background-color: rgba(127,127,127,0.2);
+  border-style: outset;
+  border-width: 0;
+  border-radius: 0.5em;
+  opacity: 0.7;
+}
+tr.diffskip > td.chunkctrl .jcbutton.up:not(.down){
+  /* Simulate an arrow pointing up */
+  border-radius: 3em 3em 0.25em 0.25em;
+}
+tr.diffskip > td.chunkctrl .jcbutton.down:not(.up){
+  /* Simulate an arrow pointing down */
+  border-radius: 0.25em 0.25em 3em 3em;
+}
+tr.diffskip > td.chunkctrl .jcbutton > span {
+  /* In order to increase the glyph size w/o increasing the em-based
+     button size or border-radius, we need an extra layer of DOM
+     element for the glyph. */
+  font-size: 150%;
+}
+tr.diffskip > td.chunkctrl .jcbutton.up:not(.down) > span::before {
+  content: '⇡';
+}
+tr.diffskip > td.chunkctrl .jcbutton.down:not(.up) > span::before {
+  content: '⇣';
+}
+tr.diffskip > td.chunkctrl .jcbutton.up.down > span::before {
+  content: '⇡⇣';
+}
+
+tr.diffskip > td.chunkctrl .jcbutton:hover {
+  cursor: pointer;
+  opacity: 1;
+  filter: contrast(1);
 }
 td.diffln {
   width: 1px;
@@ -555,7 +635,7 @@ td.difflne {
 }
 td.diffsep {
   width: 1px;
-  padding: 0 0.3em 0 1em;
+  padding: 0 0.3em 0 0.5em;
 }
 td.difftxt pre {
   overflow-x: auto;

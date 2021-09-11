@@ -625,6 +625,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("/* Length of UUID hashes for display purposes. */");
     CX("hashDigits: %d, hashDigitsUrl: %d,\n",
        hash_digits(0), hash_digits(1));
+    CX("diffContextLines: %d,\n",
+       diff_context_lines(0));
     CX("editStateMarkers: {"
        "/*Symbolic markers to denote certain edit states.*/"
        "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
@@ -704,6 +706,7 @@ static int builtin_emit_fossil_js_once(const char * zName){
   /* This list ordering isn't strictly important. */
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
+  {"diff",           0, "dom\0fetch\0popupwidget\0"},
   {"dom",            0, 0},
   {"fetch",          0, 0},
   {"info-diff",      0, "dom\0"},
