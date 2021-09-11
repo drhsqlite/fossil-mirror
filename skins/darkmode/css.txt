@@ -481,7 +481,20 @@ td.difftxt ins > ins {
   color: #000;
   text-decoration: none;
 }
-
+body.fossil-dark-style tr.diffskip.jchunk {
+    filter: revert;
+    background-color: black;
+}
+tr.diffskip > td.chunkctrl .jcbutton {
+  background-color: #303536;
+}
+table.diff {
+  /* For reasons beyond my ken, in THIS SKIN ONLY, table.diff
+     is wider than the body even when it is explicitly set
+     to a size less than the body UNLESS we reduce the font-size
+     to about 85%. */
+  /*font-size: 0.85em;*/
+}
 
 /************************************************************************
 ************************************************************************/

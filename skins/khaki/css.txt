@@ -172,3 +172,10 @@ div.forumPostBody blockquote {
   border-style: solid;
   padding: 0 0.5em;
 }
+
+tr.diffskip > td.chunkctrl .button {
+  background-color: #a09048;
+}
+tr.diffskip.jchunk {
+  background-color: #c0af58;
+}

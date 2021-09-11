@@ -328,25 +328,26 @@ window.fossil.onPageLoad(function(){
       switch(fetchType){
       case this.FetchType.PrevDown:
         b = D.append(
-          D.addClass(D.span(), 'button', 'down'),
+          D.addClass(D.span(), 'down'),
           D.span(/*glyph holder*/)
         );
         break;
       case this.FetchType.FillGap:
         b = D.append(
-          D.addClass(D.span(), 'button', 'up', 'down'),
+          D.addClass(D.span(), 'up', 'down'),
           D.span(/*glyph holder*/)
         );
         break;
       case this.FetchType.NextUp:
         b = D.append(
-          D.addClass(D.span(), 'button', 'up'),
+          D.addClass(D.span(), 'up'),
           D.span(/*glyph holder*/)
         );
         break;
       default:
         throw new Error("Internal API misuse: unexpected fetchType value "+fetchType);
       }
+      D.addClass(b, 'jcbutton');
       b.addEventListener('click', ()=>this.fetchChunk(fetchType),false);
       return b;
     },
@@ -393,7 +394,8 @@ window.fossil.onPageLoad(function(){
         this.destroy();
         return this;
       }
-      console.debug("Loaded line range ",urlParam.from,"-",urlParam.to, "fetchType ",fetchType);
+      //console.debug("Loaded line range ",
+      //urlParam.from,"-",urlParam.to, "fetchType ",fetchType);
       const lineno = [],
             trPrev = this.e.tr.previousElementSibling,
             trNext = this.e.tr.nextElementSibling,
@@ -624,7 +626,7 @@ window.fossil.onPageLoad(function(){
         }
       }
       this.$isFetching = true;
-      console.debug("fetchChunk(",fetchType,")",up);
+      //console.debug("fetchChunk(",fetchType,")",up);
       Diff.fetchArtifactChunk(fOpt);
       return this;
     }
@@ -658,13 +660,23 @@ window.fossil.onPageLoad(function(){
 window.fossil.onPageLoad(function(){
   const SCROLL_LEN = 25;
   const F = window.fossil, D = F.dom, Diff = F.diff;
+  var lastWidth;
   Diff.checkTableWidth = function f(force){
-    if(undefined === f.lastWidth){
-      f.lastWidth = 0;
+    if(undefined === f.contentNode){
+      f.contentNode = document.querySelector('div.content');
     }
-    if( !force && document.body.clientWidth===f.lastWidth ) return this;
-    f.lastWidth = document.body.clientWidth;
-    let w = f.lastWidth*0.5 - 100;
+    force = true;
+    const parentCS = window.getComputedStyle(f.contentNode);
+    const parentWidth = (
+      //document.body.clientWidth;
+      //parentCS.width;
+      f.contentNode.clientWidth
+        - parseFloat(parentCS.marginLeft) - parseFloat(parentCS.marginRight)
+    );
+    if( !force && parentWidth===lastWidth ) return this;
+    lastWidth = parentWidth;
+    let w = lastWidth*0.5 - 100;
+    //console.debug( "w = ",w,", lastWidth =",lastWidth," body = ",document.body.clientWidth);
     if(force || !f.colsL){
       f.colsL = document.querySelectorAll('td.difftxtl pre');
     }
@@ -682,9 +694,16 @@ window.fossil.onPageLoad(function(){
     if(!f.allDiffs){
       f.allDiffs = document.querySelectorAll('table.diff');
     }
-    w = f.lastWidth;
-    f.allDiffs.forEach((e)=>e.style.maxWidth = w + "px");
-    //console.debug("checkTableWidth(",force,") f.lastWidth =",f.lastWidth);
+    w = lastWidth;
+    f.allDiffs.forEach(function f(e){
+      if(!f.$){
+        f.$ = e.getClientRects()[0];
+        console.debug("diff table w =",w," f.$x",f.$);
+        w - 2*f.$.x /* left margin (assume right==left, for simplicity) */;
+      }
+      e.style.maxWidth = w + "px";
+    });
+    //console.debug("checkTableWidth(",force,") lastWidth =",lastWidth);
     return this;
   };
 

@@ -295,7 +295,6 @@ td.difftxt del {
 table.splitdiff {
   border-spacing: 0;
   font-size: 0.85rem;
-  width: 90%;
 }
 
 table.splitdiff pre {
