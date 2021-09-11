@@ -1,5 +1,5 @@
-C blob_append_json_literal()\snow\sescapes\shard\stab,\snewlines,\sand\scarriage\sreturns.\sFixes\s/jchunk\sloading\sof\smakefiles\sand\swindows\stext\sfiles.
-D 2021-09-11T18:39:07.022
+C Enhance\sblob_append_json_literal()\sso\sthat\sit\sescapes\sall\scontrol\scharacters.
+D 2021-09-11T19:20:43.507
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c 965c613dfc57cc3854f820be94561a643b1fd143c0c2cf46820aff403a30b977
+F src/blob.c 20ec4dc638e7e945c1ab5bdfed2465997b2a92d86b2f33ef4b3730f016464d71
 F src/branch.c 40edc441a60d2b655dcdc015003c5d84711582f14a4db978c41197592da9224f
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c f6736bc9a987732ce7e35b4141479d573c950b080e0776eb2fd1a7fd987733b2
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee0b76a77e76ed920973d3beec865b91218f2f40e12c76374cb52c1515702ba7
-R b122cc308e0ab76a6e0499f3eb07381d
-U stephan
-Z b22905101be4854985c9282fce424691
+P 0f7740b6329e533852a948f07992a8c116080fc9e3b952fafc4358ccfd296b41
+R 5b5c985896163e2e9ba6b3c6d40d22af
+U drh
+Z 706f1ffec1f4413ff8953ac90cc37723

@@ -401,17 +401,43 @@ void blob_append_json_literal(Blob *pOut, const char *z, int n){
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
     char c = z[i];
-    char esc = 0;
     switch( c ){
-      case '\t': c = 't';
-      case '"':
-      case '\\':
-        esc = 1;
-        break;
-      case '\r': c = 'r'; esc = 1; break;
-      case '\n': c = 'n'; esc = 1; break;
+      case 0x00:
+      case 0x01:
+      case 0x02:
+      case 0x03:
+      case 0x04:
+      case 0x05:
+      case 0x06:
+      case 0x07: c += '0' - 0x00; blob_append(pOut, "\\u000",5); break;
+      case 0x0b:
+      case 0x0e:
+      case 0x0f: c += 'a' - 0x0a; blob_append(pOut, "\\u000",5); break;
+      case 0x10:
+      case 0x11:
+      case 0x12:
+      case 0x13:
+      case 0x14:
+      case 0x15:
+      case 0x16:
+      case 0x17:
+      case 0x18:
+      case 0x19: c += '0' - 0x10; blob_append(pOut, "\\u001",5); break;
+      case 0x1a:
+      case 0x1b:
+      case 0x1c:
+      case 0x1d:
+      case 0x1e:
+      case 0x1f: c += 'a' - 0x1a; blob_append(pOut, "\\u001",5); break;
+      case '\b': c = 'b';         blob_append_char(pOut, '\\');  break;
+      case '\t': c = 't';         blob_append_char(pOut, '\\');  break;
+      case '\r': c = 'r';         blob_append_char(pOut, '\\');  break;
+      case '\n': c = 'n';         blob_append_char(pOut, '\\');  break;
+      case '\f': c = 'f';         blob_append_char(pOut, '\\');  break;
+      case '"':                   blob_append_char(pOut, '\\');  break;
+      case '\\':                  blob_append_char(pOut, '\\');  break;
+      default:                                                   break;
     }
-    if(esc) blob_append_char(pOut, '\\');
     blob_append_char(pOut, c);
   }
   blob_append_char(pOut, '"');
