@@ -269,11 +269,9 @@ window.fossil.onPageLoad(function(){
        this.pos.next refers to the line numbers in the next TR's chunk.
        this.pos.prev refers to the line numbers in the previous TR's chunk.
     */
-    if((this.pos.startLhs + Diff.config.chunkLoadLines
-        >= this.pos.endLhs )
-       || (this.pos.prev && this.pos.next
-           && ((this.pos.next.startLhs - this.pos.prev.endLhs)
-               <= Diff.config.chunkLoadLines))){
+    if(this.pos.prev && this.pos.next
+       && ((this.pos.next.startLhs - this.pos.prev.endLhs)
+           <= Diff.config.chunkLoadLines)){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
       btnDown = false;
@@ -374,9 +372,13 @@ window.fossil.onPageLoad(function(){
        If the gap between this.pos.endLhs/startLhs is less than or equal to
        Diff.config.chunkLoadLines then this function replaces any up/down buttons
        with a gap-filler button, else it's a no-op. Returns this object.
-     */
+
+       As a special case, do not apply this at the start or bottom
+       of the diff, only between two diff chunks.
+    */
     maybeReplaceButtons: function(){
-      if(this.pos.endLhs - this.pos.startLhs <= Diff.config.chunkLoadLines){
+      if(this.pos.next && this.pos.prev
+         && (this.pos.endLhs - this.pos.startLhs <= Diff.config.chunkLoadLines)){
         D.clearElement(this.e.btnWrapper);
         D.append(this.e.btnWrapper, this.createButton(this.FetchType.FillGap));
       }
