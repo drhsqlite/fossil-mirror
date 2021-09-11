@@ -348,17 +348,9 @@ td.difftxt del > del, td.diffln del {
 td.difftxt del {
   background-color: inherit;
 }
-
-tr.diffskip > td.chunkctrl .button {
-  background-color: #485D7B;
-}
 tr.diffskip.jchunk {
   background-color: #7EA2D9;
 }
-body.fossil-dark-style tr.diffskip.jchunk {
-  filter: revert;
-}
-
 tr.diffskip > td.chunkctrl .jcbutton{
   color: white;
   background-color: #485D7B;

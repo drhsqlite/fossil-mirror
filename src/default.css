@@ -567,9 +567,6 @@ tr.diffskip.jchunk {
   background-color: aliceblue;
   padding: 0;
 }
-body.fossil-dark-style tr.diffskip.jchunk {
-  filter: invert(100%);
-}
 tr.diffskip.jchunk > td {
   padding: 0.25em 0.5em;
   margin: 0;
@@ -584,9 +581,6 @@ tr.diffskip > td.chunkctrl {
 }
 tr.diffskip > td.chunkctrl > div {
   /* Exists solely for layout purposes. */
-}
-body.fossil-dark-style tr.diffskip > td.chunkctrl{
-  filter: inherit;
 }
 tr.diffskip > td.chunkctrl .jcbutton
 /* class name .button breaks w/ some skins! */ {
@@ -627,10 +621,9 @@ tr.diffskip > td.chunkctrl .jcbutton.up.down > span::before {
 }
 
 tr.diffskip > td.chunkctrl .jcbutton:hover {
-  /*border-color: rgba(75,75,75,1);*/
   cursor: pointer;
   opacity: 1;
-  filter: contrast(3);
+  filter: contrast(1);
 }
 td.diffln {
   width: 1px;
