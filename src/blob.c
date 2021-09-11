@@ -401,13 +401,18 @@ void blob_append_json_literal(Blob *pOut, const char *z, int n){
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
     char c = z[i];
+    char esc = 0;
     switch( c ){
+      case '\t': c = 't';
       case '"':
       case '\\':
-        blob_append_char(pOut, '\\');
-      default:
-        blob_append_char(pOut, c);
+        esc = 1;
+        break;
+      case '\r': c = 'r'; esc = 1; break;
+      case '\n': c = 'n'; esc = 1; break;
     }
+    if(esc) blob_append_char(pOut, '\\');
+    blob_append_char(pOut, c);
   }
   blob_append_char(pOut, '"');
 }
