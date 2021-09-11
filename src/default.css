@@ -539,13 +539,27 @@ table.diff {
   border: 1px solid black;
 }
 table.diff td.diffln{
+  padding: 0;
+}
+table.diff td.diffln > pre{
   padding: 0 0.25em 0 0.5em;
+  margin: 0;
 }
 table.diff td {
   vertical-align: top;
+  padding: 0;
+  overflow: hidden /*work around inner PRE slight overflow/overlap*/;
 }
 table.diff pre {
   margin: 0 0 0 0;
+  padding: 0 0.5em;
+}
+table.diff td.diffln > pre {
+  padding: 0 0.35em 0 0.5em;
+}
+table.diff td.difftxt > pre {
+  min-width: 100%;
+  max-width: 100%;
 }
 tr.diffskip.jchunk {
   /* jchunk gets added from JS to diffskip rows when they are

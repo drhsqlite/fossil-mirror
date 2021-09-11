@@ -691,19 +691,21 @@ window.fossil.onPageLoad(function(){
       e.style.width = w + "px";
       e.style.maxWidth = w + "px";
     });
-    if(!f.allDiffs){
-      f.allDiffs = document.querySelectorAll('table.diff');
-    }
-    w = lastWidth;
-    f.allDiffs.forEach(function f(e){
-      if(!f.$){
-        f.$ = e.getClientRects()[0];
-        console.debug("diff table w =",w," f.$x",f.$);
-        w - 2*f.$.x /* left margin (assume right==left, for simplicity) */;
+    if(0){ // seems to be unnecessary
+      if(!f.allDiffs){
+        f.allDiffs = document.querySelectorAll('table.diff');
       }
-      e.style.maxWidth = w + "px";
-    });
-    //console.debug("checkTableWidth(",force,") lastWidth =",lastWidth);
+      w = lastWidth;
+      f.allDiffs.forEach(function f(e){
+        if(0 && !f.$){
+          f.$ = e.getClientRects()[0];
+          console.debug("diff table w =",w," f.$x",f.$);
+          w - 2*f.$.x /* left margin (assume right==left, for simplicity) */;
+        }
+        e.style.maxWidth = w + "px";
+      });
+      //console.debug("checkTableWidth(",force,") lastWidth =",lastWidth);
+    }
     return this;
   };
 
@@ -746,6 +748,10 @@ window.fossil.onPageLoad(function(){
         const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
         if( !len ) return;
         this.$txtPres[0].scrollLeft += len;
+        /* ^^^ bug: if there is a 2nd column and it has a scrollbar
+           but txtPres[0] does not, no scrolling happens here. We need
+           to find the widest of txtPres and scroll that one. Example:
+           Checkin a7fbefee38a1c522 file diff.c */
         return false;
       }, false);
     }
