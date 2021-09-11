@@ -359,8 +359,13 @@ body.fossil-dark-style tr.diffskip.jchunk {
   filter: revert;
 }
 
+tr.diffskip > td.chunkctrl .jcbutton{
+  color: white;
+  background-color: #485D7B;
+}
+
 .fileage tr:hover {
-  background-color: #7EA2D9;
+  background-color:  #7EA2D9;
 }
 
 span.modpending {
