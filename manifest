@@ -1,5 +1,5 @@
-C Enhance\sblob_append_json_literal()\sso\sthat\sit\sescapes\sall\scontrol\scharacters.
-D 2021-09-11T19:20:43.507
+C More\stweaks\sto\sthe\sdiff\salignment\salgorithm.
+D 2021-09-11T19:51:37.118
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,7 +465,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c c4269418e674ea02d5d376d3f2128ff38604c64cc6895db1636d4de04e81e72b
+F src/diff.c e77da3b5605dabbed266faa9de2052ba616b9fd579176c1419b2c64e786bd3f8
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c d28081165a52c43adbba67159a77217b1b8ed49ddbd73a0b3009d74f1c98e24c
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f7740b6329e533852a948f07992a8c116080fc9e3b952fafc4358ccfd296b41
-R 5b5c985896163e2e9ba6b3c6d40d22af
+P 810576be159c62d1db236bd11b74ab002328e3ba61ce94e18cebc59cabbfe60b
+R efec9c9c50d4b24acf5e860314050b40
 U drh
-Z 706f1ffec1f4413ff8953ac90cc37723
+Z b5776f7eccea668c584d44206306a40e

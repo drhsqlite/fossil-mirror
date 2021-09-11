@@ -1760,12 +1760,12 @@ static int match_dline(const DLine *pA, const DLine *pB){
   if( avg==0 ) return 0;
   nMin = nA;
   if( nB<nMin ) nMin = nB;
-  if( nMin==0 ) return 62;
+  if( nMin==0 ) return 68;
   for(nPrefix=0; nPrefix<nMin && zA[nPrefix]==zB[nPrefix]; nPrefix++){}
   best = 0;
   if( nPrefix>5 && nPrefix>nMin/2 ){
     best = nPrefix*3/2;
-    if( best>=avg ) best = avg - 2;
+    if( best>=avg - 2 ) best = avg - 2;
   }
   if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
   memset(aFirst, 0xff, sizeof(aFirst));
@@ -1957,7 +1957,7 @@ static unsigned char *diffBlockAlignment(
       }
       if( m>p ){
         int score = match_dline(&aLeft[j-1], &aRight[i-1]);
-        if( (score<=63 || (i<j+1 && i>j-1)) && m>p+score ){
+        if( (score<=90 || (i<j+1 && i>j-1)) && m>p+score ){
           m = p+score;
           d = 3 | score*4;
         }
