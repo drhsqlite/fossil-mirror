@@ -2094,7 +2094,15 @@ static void formatDiff(
     m = R[r] - skip;
     if( r ) skip -= nContext;
     if( skip>0 ){
-      pBuilder->xSkip(pBuilder, skip, 0);
+      if( skip<nContext ){
+        /* If the amount to skip is less that the context band, then
+        ** go ahead and show the skip band as it is not worth eliding */
+        for(j=0; j<skip; j++){
+          pBuilder->xCommon(pBuilder, &A[a+j-skip]);
+        }
+      }else{
+        pBuilder->xSkip(pBuilder, skip, 0);
+      }
     }
     for(j=0; j<m; j++){
       pBuilder->xCommon(pBuilder, &A[a+j]);
