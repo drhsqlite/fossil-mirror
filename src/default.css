@@ -537,6 +537,7 @@ table.diff {
   width: 100%;
   border-spacing: 0;
   border: 1px solid black;
+  font-size: 80%;
 }
 table.diff td.diffln{
   padding: 0;
