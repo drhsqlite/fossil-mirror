@@ -1,5 +1,5 @@
-C Resolution\sfor\suneven\sline\salignment\son\smobile\sbrowsers,\sas\sreported\sin\s[forum:e6f4ee7de98b55c0\s|\sforum\spost\se6f4ee7de98b55c0].
-D 2021-09-12T17:50:07.862
+C Soften\sthe\sbox\saround\sdiffs\swith\sa\s5px\scorner\sradius.
+D 2021-09-12T18:20:27.530
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
-F src/default.css 0da34ebaf35f618728d3d73fceebb94d379ea1199b5e6243e4e7f46a5506c63e
+F src/default.css dc5c9e4e8797b25751fae7e2c08625b05127e606f9681121e6ebd9bac4d8679b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 912f7295a6a4a0d20d05cf90ddcadcdee69a9835e266690210c185308710999d
-R 9e30190e90a440f563fc3b8426e4d004
-U stephan
-Z bfce3aa3d3fddb20998c565ed94be58f
+P 49d69ff6c566184b6ab1314f43673b2183112f668200719cc1b7da50b2774bcf
+R 350e1a3d98a682710ec6fafac17c6986
+U drh
+Z 1357468e3d845e1e758a11f502cca3f2
