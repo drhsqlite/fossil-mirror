@@ -554,6 +554,8 @@ table.diff td {
 table.diff pre {
   margin: 0 0 0 0;
   padding: 0 0.5em;
+  line-height: 1.20 /* important for mobile:
+                      see forum post e6f4ee7de98b55c0 */;
 }
 table.diff td.diffln > pre {
   padding: 0 0.35em 0 0.5em;
