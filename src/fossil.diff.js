@@ -656,7 +656,7 @@ window.fossil.onPageLoad(function(){
        of these at once, install them as the corresponding TR is
        scrolled into view. */
     tables.forEach(function(table){
-      if(!table.dataset.lefthash) return;
+      if(table.classList.contains('diffskipped') || !table.dataset.lefthash) return;
       D.addClass(table, 'diffskipped'/*avoid processing these more than once */);
       table.querySelectorAll('tr.diffskip[data-startln]').forEach(function(tr){
         new ChunkLoadControls(D.addClass(tr, 'jchunk'));
