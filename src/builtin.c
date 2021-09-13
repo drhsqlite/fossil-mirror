@@ -709,7 +709,6 @@ static int builtin_emit_fossil_js_once(const char * zName){
   {"diff",           0, "dom\0fetch\0popupwidget\0"},
   {"dom",            0, 0},
   {"fetch",          0, 0},
-  {"info-diff",      0, "dom\0"},
   {"numbered-lines", 0, "popupwidget\0copybutton\0"},
   {"pikchr",         0, "dom\0"},
   {"popupwidget",    0, "dom\0"},
