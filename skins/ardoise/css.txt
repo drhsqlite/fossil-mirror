@@ -1120,7 +1120,6 @@ table.login_out .login_out_label {
 table.diff {
   width: 100%;
   overflow: auto;
-  padding: 0 5px;
   font-size: 1rem;
   background: #000;
   border-radius: 5px;
@@ -1162,6 +1161,13 @@ td.difftxt ins > ins {
   background-color: #559855;
   color: #000;
   text-decoration: none;
+}
+
+tr.diffskip.jchunk {
+  background-color: #404040;
+}
+tr.diffskip > td.chunkctrl .jcbutton {
+  background-color: black;
 }
 
 table.report {
