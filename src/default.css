@@ -555,8 +555,19 @@ table.diff td {
 table.diff pre {
   margin: 0 0 0 0;
   padding: 0 0.5em;
-  line-height: 1.20 /* important for mobile:
-                      see forum post e6f4ee7de98b55c0 */;
+  line-height: 1.225/*for mobile: forum post e6f4ee7de98b55c0*/;
+}
+table.diff pre > ins,
+table.diff pre > del {
+  /* Fill platform-dependent color gaps caused by
+     inflated line-height */;
+  padding: 0.062em 0 0.062em 0;
+}
+table.diff pre > ins > *,
+table.diff pre > del > *{
+  /* Avoid odd-looking color swatches in conjunction with
+     (table.diff pre > ins/del) padding */
+  padding: inherit;
 }
 table.diff td.diffln > pre {
   padding: 0 0.35em 0 0.5em;
@@ -564,6 +575,13 @@ table.diff td.diffln > pre {
 table.diff td.difftxt > pre {
   min-width: 100%;
   max-width: 100%;
+}
+table.diff td > pre {
+  /* Workaround for "slight wiggle" when using mouse-wheel in some FF
+     versions, apparently caused by the increased line-height forcing
+     these elements to be a *tick* larger than they should be but not
+     large enough to force a scroll bar to show up. */
+  overflow-y: hidden;
 }
 tr.diffskip.jchunk {
   /* jchunk gets added from JS to diffskip rows when they are
@@ -614,10 +632,10 @@ tr.diffskip > td.chunkctrl .jcbutton > span {
      element for the glyph. */
   font-size: 150%;
 }
-tr.diffskip > td.chunkctrl .jcbutton.up:not(.down) > span::before {
+tr.diffskip > td.chunkctrl .jcbutton.up > span::before {
   content: '⇡';
 }
-tr.diffskip > td.chunkctrl .jcbutton.down:not(.up) > span::before {
+tr.diffskip > td.chunkctrl .jcbutton.down > span::before {
   content: '⇣';
 }
 tr.diffskip > td.chunkctrl .jcbutton.up.down > span::before {
