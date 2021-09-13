@@ -1514,6 +1514,7 @@
         }
       );
     }
+    F.diff.setupDiffContextLoad();
     this.tweakSbsDiffs();
   };
 

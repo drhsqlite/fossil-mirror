@@ -160,10 +160,8 @@ void ajax_render_diff(Blob * pOrig, Blob *pContent, u64 diffFlags){
   text_diff(pOrig, pContent, &out, &DCfg);
   if(blob_size(&out)==0){
     /* nothing to do */
-  }else if(DIFF_SIDEBYSIDE & diffFlags){
-    CX("%b",&out);
   }else{
-    CX("<pre class='udiff'>%b</pre>",&out);
+    CX("%b",&out);
   }
   blob_reset(&out);
 }

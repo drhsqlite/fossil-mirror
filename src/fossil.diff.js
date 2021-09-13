@@ -634,12 +634,29 @@ window.fossil.onPageLoad(function(){
     }
   };
 
-  const addDiffSkipHandlers = function(){
-    const tables = document.querySelectorAll('table.diff[data-lefthash]:not(.diffskipped)');
+  /**
+     Adds context-loading buttons to one or more tables. The argument
+     may be a forEach-capable list of diff table elements, a query
+     selector string matching 0 or more diff tables, or falsy, in
+     which case all relevant diff tables are set up. It tags each
+     table it processes to that it will not be processed multiple
+     times by subsequent calls to this function.
+
+     Note that this only works for diffs which have been marked up
+     with certain state, namely table.dataset.lefthash and TR
+     entries which hold state related to browsing context.
+  */
+  Diff.setupDiffContextLoad = function(tables){
+    if('string'===typeof tables){
+      tables = document.querySelectorAll(tables);
+    }else if(!tables){
+      tables = document.querySelectorAll('table.diff[data-lefthash]:not(.diffskipped)');
+    }
     /* Potential performance-related TODO: instead of installing all
        of these at once, install them as the corresponding TR is
        scrolled into view. */
     tables.forEach(function(table){
+      if(!table.dataset.lefthash) return;
       D.addClass(table, 'diffskipped'/*avoid processing these more than once */);
       table.querySelectorAll('tr.diffskip[data-startln]').forEach(function(tr){
         new ChunkLoadControls(D.addClass(tr, 'jchunk'));
@@ -647,7 +664,7 @@ window.fossil.onPageLoad(function(){
     });
     return F;
   };
-  addDiffSkipHandlers();
+  Diff.setupDiffContextLoad();
 });
 
 /* Refinements to the display of unified and side-by-side diffs.
@@ -765,4 +782,3 @@ window.fossil.onPageLoad(function(){
   Diff.initTableDiff().checkTableWidth();
   window.addEventListener('resize', ()=>Diff.checkTableWidth());
 }, false);
-
