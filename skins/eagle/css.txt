@@ -15,8 +15,14 @@ div.logo {
   font-weight: bold;
   color: white;
   min-width: 50px;
-  padding: 5 0 5 0em;
   white-space: nowrap;
+  position: relative;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.75));
+  top: 0.5em;
+  right: -0.5em;
+}
+div.logo img{
+  border-radius: 2mm;
 }
 
 /* The page title centered at the top of each page */

@@ -1849,7 +1849,7 @@ void fileedit_page(void){
     style_labeled_checkbox("cb-dry-run",
                            "dry_run", "Dry-run?", "1",
                            0,
-                           "In dry-run mode, the Commit button performs"
+                           "In dry-run mode, the Commit button performs "
                            "all work needed for committing changes but "
                            "then rolls back the transaction, and thus "
                            "does not really commit.");
