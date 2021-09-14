@@ -777,7 +777,8 @@ window.fossil.onPageLoad(function(){
     return this;
   }
   window.fossil.page.tweakSbsDiffs = function(){
-    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff);
+    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff(e));
+    Diff.checkTableWidth();
   };
   Diff.initTableDiff().checkTableWidth();
   window.addEventListener('resize', ()=>Diff.checkTableWidth());

@@ -151,12 +151,19 @@ void ajax_render_preview(Blob * pContent, const char *zName,
 ** Renders diffs for ajax routes. pOrig is the "original" (v1) content
 ** and pContent is the locally-edited (v2) content. diffFlags is any
 ** set of flags suitable for passing to text_diff().
+**
+** zOrigHash, if not NULL, must be the SCM-side hash of pOrig's
+** contents. If set, additional information may be built into
+** the diff output to enable dynamic loading of additional
+** diff context.
 */
-void ajax_render_diff(Blob * pOrig, Blob *pContent, u64 diffFlags){
+void ajax_render_diff(Blob * pOrig, const char * zOrigHash,
+                      Blob *pContent, u64 diffFlags){
   Blob out = empty_blob;
   DiffConfig DCfg;
 
   diff_config_init(&DCfg, diffFlags);
+  DCfg.zLeftHash = zOrigHash;
   text_diff(pOrig, pContent, &out, &DCfg);
   if(blob_size(&out)==0){
     /* nothing to do */

@@ -1064,6 +1064,7 @@ static void wiki_ajax_route_diff(void){
   Manifest * pParent = 0;
   const char * zContent = P("content");
   u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR;
+  char * zParentUuid = 0;
 
   if( zPageName==0 || zPageName[0]==0 ){
     ajax_route_error(400,"Missing page name.");
@@ -1081,6 +1082,9 @@ static void wiki_ajax_route_diff(void){
     default: break;
   }
   wiki_fetch_by_name( zPageName, 0, 0, &pParent );
+  if( pParent ){
+    zParentUuid = rid_to_uuid(pParent->rid);
+  }
   if( pParent && pParent->zWiki && *pParent->zWiki ){
     blob_init(&contentOrig, pParent->zWiki, -1);
   }else{
@@ -1088,9 +1092,10 @@ static void wiki_ajax_route_diff(void){
   }
   blob_init(&contentNew, zContent ? zContent : "", -1);
   cgi_set_content_type("text/html");
-  ajax_render_diff(&contentOrig, &contentNew, diffFlags);
+  ajax_render_diff(&contentOrig, zParentUuid, &contentNew, diffFlags);
   blob_reset(&contentNew);
   blob_reset(&contentOrig);
+  fossil_free(zParentUuid);
   manifest_destroy(pParent);
 }
 

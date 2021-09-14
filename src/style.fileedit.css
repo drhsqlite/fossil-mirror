@@ -164,13 +164,17 @@ body.fileedit .tab-container > .tabs > .tab-panel {
 body.fileedit #fileedit-tab-diff-wrapper {
   margin: 0;
   padding: 0;
-  overflow: auto;
-  display: flex;
+  /*overflow: hidden;*/
+  /* ^^^ we "really" want hidden and let a sub-sub-child element
+     handle that, but that isn't working, for unknown reasons. */
+  overflow-x: auto;
+  /*display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: stretch;*/
 }
 body.fileedit #fileedit-tab-diff-wrapper > div {
   margin: 0.5em 0 0.5em 0;
+  overflow-wrap: break-word;
 }
 body.fileedit table.sbsdiffcols {
   /*width: initial;*/

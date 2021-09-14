@@ -1146,8 +1146,10 @@ static void fileedit_ajax_diff(void){
   blob_init(&content, zContent, -1);
   {
     Blob orig = empty_blob;
+    char * const zOrigUuid = rid_to_uuid(frid);
     content_get(frid, &orig);
-    ajax_render_diff(&orig, &content, diffFlags);
+    ajax_render_diff(&orig, zOrigUuid, &content, diffFlags);
+    fossil_free(zOrigUuid);
     blob_reset(&orig);
   }
   fossil_free(zRevUuid);
