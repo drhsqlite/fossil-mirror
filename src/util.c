@@ -655,13 +655,13 @@ char *fossil_temp_filename(void){
   char zSep[2];
   size_t nDir;
   u64 r[2];
-  int i;
 #ifdef _WIN32
   char *zTempDirA = NULL;
   WCHAR zTempDirW[MAX_PATH+1];
   const DWORD dwTempSizeW = sizeof(zTempDirW)/sizeof(zTempDirW[0]);
   DWORD dwTempLenW;
 #else
+  int i;
   static const char *azTmp[] = {"/var/tmp","/usr/tmp","/tmp"};
 #endif
   if( g.db ){
