@@ -1,5 +1,5 @@
-C wiki\slist\sCLI\scommand\sno\slonger\slists\sdeleted\spages\sby\sdefault:\suse\s--all\sto\sinclude\sthose\s(same\sparameter\sname\sas\s/wcontent\suses\sfor\sthat\spurpose).\s[forum:cf4195f8bf6824fa\s|\sForum\spost\scf4195f8bf6824fa].
-D 2021-09-15T08:04:28.818
+C Update\sthe\scustom\sMinGW\smakefile.
+D 2021-09-15T19:42:25.077
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -795,7 +795,7 @@ F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc c95e9640bd533628b6d2257dd655c450643f39530d015a7523b6f809abe3dab0
 F win/Makefile.mingw ed5ad70b3ebe267d9e2b064b0fa9f99032328b4c0106c999b0dce2d9f75e9732
-F win/Makefile.mingw.mistachkin 46440a39377d968291d2ca4cb2289797780f5db142007c7a8d3fe0b002a5024c
+F win/Makefile.mingw.mistachkin 3d185a1d292f64e2b28ec13a68c3db09f781fe8748b163322cb66a1bd92d7ffc
 F win/Makefile.msc 0f5c55602bfc4ddced5cc8d75520f3af1ab1211f9501446ef927e1f80eed7696
 F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7912deb5fd401ac943b19ba86831a86436328f8afb0efa02dc9a0e6232370a61
-R 7a128fa3d884ae70fe9336ecd7b0ce3f
-U stephan
-Z 74eaacfd6a2f9454a5637c6adf9e967f
+P 88e5336007aab9904f3584acd7fda98f71f860df5ab77be5b5c2024193b5072a
+R 784a12fe30f65152ac886b31188bf310
+U mistachkin
+Z 57ceba54e435062455bcf6c08ff0ed06
