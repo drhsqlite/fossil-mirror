@@ -30,6 +30,9 @@
   *  The [/mdrules|Markdown formatter] now interprets the content of
      block HTML markup (such as &lt;table&gt;) in most cases.  Only content
      of &lt;pre&gt; and &lt;script&gt; is passed through verbatim.
+  *  The [/help?cmd=wiki|wiki list command] no longer lists "deleted"
+     pages by default. Use the new <tt>--all</tt> option to include deleted
+     pages in the output.
 
 <a name='v2_16'></a>
 <h2>Changes for Version 2.16 (2021-07-02)</h2>

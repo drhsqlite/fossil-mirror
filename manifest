@@ -1,5 +1,5 @@
-C eagle\sskin:\scleaned\sup\sthe\sclock-update\sJS\sfunction\sand\smodernized\sthe\slogo\sappearance\sa\sbit.\s/fileedit:\sfixed\sa\shelp\stest\stypo.
-D 2021-09-14T22:07:16.225
+C wiki\slist\sCLI\scommand\sno\slonger\slists\sdeleted\spages\sby\sdefault:\suse\s--all\sto\sinclude\sthose\s(same\sparameter\sname\sas\s/wcontent\suses\sfor\sthat\spurpose).\s[forum:cf4195f8bf6824fa\s|\sForum\spost\scf4195f8bf6824fa].
+D 2021-09-15T08:04:28.818
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -645,7 +645,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 0db7e9c877c025b1fac85da5982348c7a6c5935c2cec3519d19c43e32e4c2289
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 496b003816ba86ed5eea5d82f073e32edb6f2c1246157412cf8a8167d3b4983e
+F src/wiki.c f9d4d1e772bc2dd380d806f8f426a77b6f673c0e8cc0aa9de72e2f427801f59e
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -830,7 +830,7 @@ F www/caps/index.md 467e09ce01dac6ee2462780cb11cfb2b43ceb7e1228b62f4f2ff23291d19
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 1fbc517dfdb97e01ed15c66b3dc23fe3bfbb3beb2b03fa99ed96f2e629534070
+F www/changes.wiki 6b06a1e3f4a3e37c9e20321f7dcb96312b8e9c497520b2cbf469640106b7576d
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef69044cf97e21e7c827222468bf20114d7646f1fa49e12930801ff1ac963e88
-R 6dd0fa5e9f11a09741ed367142239df8
+P 7912deb5fd401ac943b19ba86831a86436328f8afb0efa02dc9a0e6232370a61
+R 7a128fa3d884ae70fe9336ecd7b0ce3f
 U stephan
-Z e1d34e0a7e5df0f157f309494f7ffd49
+Z 74eaacfd6a2f9454a5637c6adf9e967f

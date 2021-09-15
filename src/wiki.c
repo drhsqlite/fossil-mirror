@@ -2186,6 +2186,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **       case-insensitively by name.
 **
 **       Options:
+**         --all                       Include "deleted" pages in output.
+**                                     By default deleted pages are elided.
 **         -t|--technote               Technotes will be listed instead of
 **                                     pages. The technotes will be in order
 **                                     of timestamp with the most recent
@@ -2209,6 +2211,7 @@ int wiki_technote_to_rid(const char *zETime) {
 void wiki_cmd(void){
   int n;
   int isSandbox = 0;     /* true if dealing with sandbox pseudo-page */
+  const int showAll = find_option("all", 0, 0)!=0;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -2424,10 +2427,7 @@ void wiki_cmd(void){
     const int showIds = find_option("show-technote-ids","s",0)!=0;
     verify_all_options();
     if (fTechnote==0){
-      db_prepare(&q,
-        "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
-        " ORDER BY lower(tagname) /*sort*/"
-      );
+      db_prepare(&q, listAllWikiPages/*works-like:""*/);
     }else{
       db_prepare(&q,
         "SELECT datetime(e.mtime), substr(t.tagname,7)"
@@ -2440,6 +2440,10 @@ void wiki_cmd(void){
     }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      const int wrid = db_column_int(&q, 2);
+      if(!showAll && !wrid){
+        continue;
+      }
       if( showIds ){
         const char *zUuid = db_column_text(&q, 1);
         fossil_print("%s ",zUuid);
