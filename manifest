@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning\son\sWin32.
-D 2021-09-15T19:43:13.126
+C Prevent\san\sextra\sleading\sslash\sfrom\sthe\spost-login\sredirector.\s\sAlso,\son\sthe\s'register'\spage,\sinclude\sthe\semail\snotifications\sinput\selement\sif\sthe\s'selfreg-verify'\ssetting\sis\senabled,\seven\swhen\sthe\s'default-perms'\ssetting\sdoes\snot\sinclude\sthe\s'Email\sAlerts'\s('7')\spermission.
+D 2021-09-15T19:50:13.521
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -538,7 +538,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c 5a39ed2deb413b38888cbb7e2789c35b740b86dbfe595329165df94054d413c0
+F src/login.c 0ad81f0ce3d20366b9e24e83a2dae42e591fe98cd0436a3ec54f98cfe9bfe617
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 3b0acec05b7fd5d0d2cd85a044e2aad71c61aab4f11450afc1a6d6bc3024470a
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47bda8418ab7387f54e76cd761ff95256ea7aa9d044baa315097fe2fb19b8713
-R e54b39fa951dcd5f4c681dacfbbd3e9f
+P e1996e25582f693d4abf673f7fdcd5f18d698b0b70d9e4edfaf84a1da59ac87b
+R 8b5d2899ee36c623dfd3786f011f9945
 U mistachkin
-Z 216cdf0bbd744273dfe223a8bb270c21
+Z 5eb13f0987743c9fc8fead9120fd8a95

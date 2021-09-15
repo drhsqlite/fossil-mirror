@@ -1481,6 +1481,7 @@ void login_needed(int anonOk){
     const char *zPathInfo = PD("PATH_INFO","");
     Blob redir;
     blob_init(&redir, 0, 0);
+    if( zPathInfo[0]=='/' ) zPathInfo++; /* skip leading slash */
     if( fossil_wants_https(1) ){
       blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zPathInfo);
     }else{
@@ -1607,9 +1608,9 @@ void register_page(void){
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
-  canDoAlerts = alert_tables_exist() && db_int(0,
+  canDoAlerts = alert_tables_exist() && (db_int(0,
     "SELECT fullcap(%Q) GLOB '*7*'", zPerms
-  );
+  ) || db_get_boolean("selfreg-verify",0));
   doAlerts = canDoAlerts && atoi(PD("alerts","1"))!=0;
 
   zUserID = PDT("u","");
