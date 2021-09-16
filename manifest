@@ -1,5 +1,5 @@
-C Eagle\sskin:\sadded\sa\stoggle\sin\sthe\sheader\sto\sswitch\sthe\slogo\slink\sbetween\sthe\shistorical\sbehavior\s(link\sto\stop\sof\sthe\scurrent\sdomain)\sand\snew\s(link\sto\stop\sof\scurrent\srepo),\sdefaulting\sto\sthe\soriginal\sbehavior.\s[forum:f7a84dc19d51efa8|Forum\spost\sf7a84dc19d51efa8].
-D 2021-09-16T15:36:35.264
+C Added\stext-size-adjust:none\sCSS\sto\stable.diff\sin\san\sattempt\sto\skeep\siPhones\sfrom\sscaling\sthe\scode\stext\ssize\sup,\sbringing\sit\sout\sof\salignment\swith\sthe\sline\snumbers.\sWhether\sthis\sworks\sremains\sto\sbe\sseen.
+D 2021-09-16T15:38:20.892
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
-F src/default.css 5cb0f8924e2f3687816cf2dc23fc8b41f82bca8231bc840a7232d78b428f901b
+F src/default.css 877b07ee29d62144ade5e44de569e543d5bbedb9e2b390553dd5540353439858
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 129ea22423ee20b52d07e43c805e0ffd1cafa1690231299d43f8e6aef6507180
-R 58b03c3c25b66381203e923dac70954d
+P c4c64257cf2c4e145701ed720cca1f931b0c894aeb003947f92f8140ea771b59
+R 3415d0ef490418563bef8f55dab55027
 U stephan
-Z ef74a5656dc15e349850c2646a5aab60
+Z 8f5f2984a9ef3412f8a46e00d4fc3014
