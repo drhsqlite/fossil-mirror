@@ -1,5 +1,5 @@
-C Added\sdiff\scontext\sloading\sto\sthe\slist\sof\splaces\swe\suse\sJS\sin\sjavascript.md.
-D 2021-09-16T15:39:10.001
+C Xekri\sskin:\sadded\ssame\slogo\stoggle\sas\sin\s[c4c64257cf],\simproved\spage\slayout\sin\schat\smode,\sand\sslightly\smodernized\sthe\sheader\slayout.\sGave\schat\smessage\sarea\sin\sall\sskins\sa\svery\sslight\sside\spadding.
+D 2021-09-16T17:05:17.485
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -412,10 +412,10 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 719bcc164468a21fb8056755d309cb9fb69dcf87f8a57b7658dbb564398a0661
+F skins/xekri/css.txt f4e5c9f3667909b2da03fc5f4df800c7fbc7132f7cc5d236c3045cb1fd496521
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
-F skins/xekri/header.txt fd9c16665fcbe917fe59dd81b557d9b0df1ffd0cbdde98d1b8d1ba130e5e8bfa
+F skins/xekri/header.txt e75e1af0572c2cfe44e3882d18e0f71aac5fecc504b9a193205c9b7dbaaa56da
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c feca4f3e28189e2ece07ee5260ff0ed7fb4c1125f39c3e30f5c7d916745eb62a
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
-F src/default.css 877b07ee29d62144ade5e44de569e543d5bbedb9e2b390553dd5540353439858
+F src/default.css 26e400d3c78d864db42e11d4239e82aedab8715850f4eb135bc6fd4aa385c837
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d8a9046a185dd6a54946b6e966708dbf9c80820b9fcfdf1f3b215884ff19aa0
-R e4dfc816dac28ea9b3d2abae0734c1a0
+P 30a2b87c4ed89321059e63580bcb18aed4e5f3ca7ef2a6a6875d328731d0f40c
+R 76b346dd9f56371dad1a72d0885d262a
 U stephan
-Z 5b18ecae0439f89e2b4dde7b6ab608f2
+Z 40259c10c1afdad28c0e9d81e83faebe

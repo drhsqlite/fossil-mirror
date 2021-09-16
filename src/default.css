@@ -1792,8 +1792,8 @@ body.chat .chat-settings-popup > select.menu-entry > option {
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
   overflow: auto;
-  /*max-height: 800em*//*will be re-calc'd in JS*/;
   flex: 2 1 auto;
+  padding: 0 0.25em;
 }
 body.chat #chat-messages-wrapper.loading > * {
   /* An attempt at reducing flicker when loading lots of messages. */

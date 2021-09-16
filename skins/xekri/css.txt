@@ -91,13 +91,22 @@ div.header, div.mainmenu, div.submenu, div.content, div.footer {
 
 div.header {
   margin: 0.5rem auto 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+div.logo {
+  display: inline;
+  max-height: 4em;
+  max-width: 4em;
+  flex: 0 1 auto;
 }
 
 div.logo img {
-  float: left;
   padding: 0;
-  box-shadow: 3px 3px 1px #000;
-  margin: 0 6px 6px 0;
+  box-shadow: 2px 4px 6px rgba(180,180,180,0.70);
+  border-radius: 2mm;
 }
 
 div.logo br {
@@ -122,6 +131,7 @@ div.title {
   padding: 0.5rem;
   text-align: center;
   text-shadow: 3px 3px 1px #000;
+  flex: 10 0 auto;
 }
 
 div.status {
@@ -130,6 +140,7 @@ div.status {
   padding: 0.25rem;
   text-align: right;
   text-shadow: 2px 2px 1px #000;
+  flex: 0 1 auto;
 }
 
 
@@ -1141,4 +1152,14 @@ div.forumPostBody blockquote {
 body.branch .brlist > table > tbody > tr:hover:not(.selected),
 body.branch .brlist > table > tbody > tr.selected {
   background-color: #444;
+}
+
+body.chat div.header, body.chat div.footer,
+body.chat div.mainmenu, body.chat div.submenu,
+body.chat div.content {
+  margin-left: auto;
+  margin-right: auto;
+}
+body.chat.chat-only-mode div.content {
+  max-width: revert;
 }
