@@ -58,7 +58,13 @@
       }
       return $logourl
     }
-    set logourl [getLogoUrl $baseurl]
+    if {1} {
+      # Link logo to the top of the current domain
+      set logourl [getLogoUrl $baseurl]
+    } else {
+      # Link logo to the top of the current repo
+      set logourl $baseurl
+    }
     </th1>
     <a href="$logourl">
       <img src="$logo_image_url" border="0" alt="$project_name">

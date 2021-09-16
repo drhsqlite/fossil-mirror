@@ -1,5 +1,5 @@
-C Prevent\san\sextra\sleading\sslash\sfrom\sthe\spost-login\sredirector.\s\sAlso,\son\sthe\s'register'\spage,\sinclude\sthe\semail\snotifications\sinput\selement\sif\sthe\s'selfreg-verify'\ssetting\sis\senabled,\seven\swhen\sthe\s'default-perms'\ssetting\sdoes\snot\sinclude\sthe\s'Email\sAlerts'\s('7')\spermission.
-D 2021-09-15T19:50:13.521
+C Eagle\sskin:\sadded\sa\stoggle\sin\sthe\sheader\sto\sswitch\sthe\slogo\slink\sbetween\sthe\shistorical\sbehavior\s(link\sto\stop\sof\sthe\scurrent\sdomain)\sand\snew\s(link\sto\stop\sof\scurrent\srepo),\sdefaulting\sto\sthe\soriginal\sbehavior.\s[forum:f7a84dc19d51efa8|Forum\spost\sf7a84dc19d51efa8].
+D 2021-09-16T15:36:35.264
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -398,7 +398,7 @@ F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 9919fc591a630e1919e6827341c877ccf2e54092a58a7f352ff747f5f55a48e0
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
-F skins/eagle/header.txt bf2bfc67e7f9e8e07b8d42328361da6466462240e685e134a76f4370beddbad1
+F skins/eagle/header.txt 08e07145b73d55f29d04f5796024fbda5db60f6521a5b057b96db5edf7ba5f6a
 F skins/khaki/css.txt e4df7a70a1a3c6552441587a4038753f0058608b95d3f0d89ff47f94967225d2
 F skins/khaki/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/khaki/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1996e25582f693d4abf673f7fdcd5f18d698b0b70d9e4edfaf84a1da59ac87b
-R 8b5d2899ee36c623dfd3786f011f9945
-U mistachkin
-Z 5eb13f0987743c9fc8fead9120fd8a95
+P 129ea22423ee20b52d07e43c805e0ffd1cafa1690231299d43f8e6aef6507180
+R 58b03c3c25b66381203e923dac70954d
+U stephan
+Z ef74a5656dc15e349850c2646a5aab60
