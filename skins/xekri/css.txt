@@ -1163,3 +1163,8 @@ body.chat div.content {
 body.chat.chat-only-mode div.content {
   max-width: revert;
 }
+
+body.chat .message-widget .message-widget-tab {
+  /* Make /chat user names and timestamps more visible */
+  filter: saturate(6);
+}
