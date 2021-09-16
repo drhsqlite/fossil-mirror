@@ -1,5 +1,5 @@
-C Added\stext-size-adjust:none\sCSS\sto\stable.diff\sin\san\sattempt\sto\skeep\siPhones\sfrom\sscaling\sthe\scode\stext\ssize\sup,\sbringing\sit\sout\sof\salignment\swith\sthe\sline\snumbers.\sWhether\sthis\sworks\sremains\sto\sbe\sseen.
-D 2021-09-16T15:38:20.892
+C Added\sdiff\scontext\sloading\sto\sthe\slist\sof\splaces\swe\suse\sJS\sin\sjavascript.md.
+D 2021-09-16T15:39:10.001
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -903,7 +903,7 @@ F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c21
 F www/index.wiki 7dd2176c54f2b29de1cbae6743160d26d11862c28400127d2a4212c1f7b643dc
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
-F www/javascript.md 4d80f9949ffc666440a690da0772aa54a7e78ae4cbbf40a4065b4df2647d3bbf
+F www/javascript.md 6de0903f1588a0a54eac6f190e2bd72dcd7b918462ecec60841454643cd5447b
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c4c64257cf2c4e145701ed720cca1f931b0c894aeb003947f92f8140ea771b59
-R 3415d0ef490418563bef8f55dab55027
+P 2d8a9046a185dd6a54946b6e966708dbf9c80820b9fcfdf1f3b215884ff19aa0
+R e4dfc816dac28ea9b3d2abae0734c1a0
 U stephan
-Z 8f5f2984a9ef3412f8a46e00d4fc3014
+Z 5b18ecae0439f89e2b4dde7b6ab608f2

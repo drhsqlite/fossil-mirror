@@ -465,6 +465,18 @@ the other box.
 
 _Graceful Fallback:_ Manually scroll both boxes to sync their views.
 
+### <a id="diffcontext"></a>Diff Context Loading
+
+As of version 2.17, fossil adds the ability for the diff views to
+dynamically load more lines of context around changed blocks. The UI
+controls for this feature are injected using JavaScript when the page
+initializes and make use of XHR requests to fetch data from the
+fossil instance.
+
+_Graceful Fallback:_ The UI controls for this feature do not appear
+when JS is unavailable, leaving the user with the "legacy" static diff
+view.
+
 
 ### <a id="sort"></a>Table Sorting
 
