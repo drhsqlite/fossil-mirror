@@ -1,5 +1,5 @@
-C xekri\sskin:\smake\s/chat\snames\sand\stimestamps\sslightly\smore\slegible.
-D 2021-09-16T22:50:33.727
+C Remove\sobsolete\sdiagram\ssource\sfiles\sthat\shave\snow\sbeen\sreplaced\sby\sPikchr.\nThe\sfiles\sare\sstill\saccessible\sin\solder\sversions,\sof\scourse,\sand\scan\sbe\neasily\sresurrected\sif\sneeded.\s\sBut\sthere\sis\sno\sreason\sto\sinclude\sthem\sin\nmodern\ssource\starballs.
+D 2021-09-17T00:34:51.754
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -27,21 +27,7 @@ F ajax/js/fossil-ajaj.js fd8e12d69fc9cd13e29c78030380045843b5de03
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
 F ajax/js/whajaj.js 64b3ef7eeef5155fd772b3b28e7901713542db0375342c735ab8d4f68a49a3a1
 F ajax/wiki-editor.html 1f630ecf988838dcfe5abd2548b9e5461da77c38
-F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
-F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
-F art/CollRev3.dia c9e4b2f61b68592539ec5ff17f6dba0aef45b4d2
-F art/CollRev4.dia 59a4919923d1d695cb4e9fb9f29114ea25e35d18
-F art/branching.odp 2b21dbbc284413ed7e9a915c6c716e42f6831b1a
-F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
-F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
-F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
-F art/delta2.dia 5e2acf9cd1e5c75b7f08eac61602b224626a8939
-F art/delta3.dia 822f600d80faca38daa35ba10ddee2ef89ee97bf
-F art/delta4.dia 7184224cface58098e74c518e1aeb155645fb915
-F art/delta5.dia 42c52e3c7c6b853b3eca596b183fa43d75fd841d
-F art/delta6.dia 638abaa6b4ca7c348d1a00d96f5d6676231e6e37
 F art/encode1.tex bb4fa24df875f09c104ac535727a885ecd1b0126
-F art/encode10.dia 5957690e4d2e7e75412247830267678e95634552
 F art/encode2.tex 0a86eb21bb6fd8ccec597e6651d5d038aaf07baf
 F art/encode3.tex e14430ac5a65400a5c2c4f0fef0274bfe94c69ea
 F art/encode4.tex ef19f3297df533c6baa0500dbcda54de333b8830
@@ -998,7 +984,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb2e6c6185367d8814852388316fabbd0c1278f4a17f21ced611905f52c2f2f5
-R ff3e9af26bd837184d69b0e79df76022
-U stephan
-Z deb5f598380a6d50df6db8f40968195d
+P 919468b358d9915d553bed335bd9ce05751d22573bb7c56ca9b82631de03c45d
+R 1fc54e05a0924bc6d67a98b6592f5a29
+U drh
+Z 9e884a5b43045be48c971aa3e67e4ab8
