@@ -1,5 +1,5 @@
-C Formatting\simprovements\son\sthe\schange\slog.\s\sImprovements\sto\sthe\shelp\stext\nfor\sthe\s"fossil\sui"\scommand.
-D 2021-09-17T19:48:40.386
+C Clarified\sthe\sread/write\saccess\sissue\sin\sthe\s#webonly\ssection\sof\sthe\nmain\suser\scapabilities\sdoc.
+D 2021-09-17T21:48:07.722
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -812,7 +812,7 @@ F www/build.wiki d8f7055f5d9fd6c5826290ad16208e17e356bcd1e6b626cd6d053798c25c322
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
-F www/caps/index.md ca08b8255aeac5a019a6b55edc8956c18019395130fc7405375fabddcbd6fce9
+F www/caps/index.md ecf88f0d8c8d11d3358445367ed0e9cef17b8d2f7c4567b2c77b727ea2157b7c
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
@@ -984,7 +984,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5839abaee4763400fc9989f49cd45b60b6580a86e9fd52f67c5a4112a40b7315
-R 463161ab22a7013a4f8c12cb63422567
-U drh
-Z 98aa4fd0c19e363381cd5cc854943fef
+P 76f65b4362bce059bca9ab644769a89a4215dd3e5e9f83466fa6da81dec4eb62
+R adc36450b8e460f6c1da00da77de23e8
+U wyoung
+Z a372a03b887c5b1e453542c98686feac

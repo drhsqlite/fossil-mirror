@@ -265,13 +265,20 @@ all.
 
 The only checks made when working directly with a local repository are
 the operating system’s file system permissions.  This should strike you
-as sensible, since if you have local file access to the repository, you
-can do anything you want to that repo DB including adding a
-[**Setup**][s] user for yourself, after which Fossil’s user capability
-system is effectively bypassed. This is why the `fossil ui` command
+as sensible, since if you have read access to the repository file, you
+can do anything you want to that repo DB including giving your user’s
+record the [**Setup**][s] capability, after which Fossil’s user
+capability system is effectively bypassed. (Or, create another Setup
+user, with the same end effect.) If you’re objecting that you need
+*write* access to the DB file to achieve this, realize that you can copy
+a read-only file to another location, giving yourself write access to
+it.
+
+This is why the `fossil ui` command
 gives you Setup permissions within Fossil UI: it can’t usefully prevent
 you from doing anything through the UI since only the local file system
-permissions actually matter.
+permissions actually matter, and you can’t start `fossil ui` without
+having at least read access to that file.
 
 What may be more surprising to you is that this is also true when
 working on a *clone* done over a local file path, except that there are
