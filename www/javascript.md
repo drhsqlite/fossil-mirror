@@ -530,7 +530,7 @@ by default.
 
 ### <a id="hbm"></a>Hamburger Menu
 
-The default skin includes a “hamburger menu” (&#9776;) which uses
+Several of the stock skins (including the default) include a “hamburger menu” (&#9776;) which uses
 JavaScript to show a simplified version of the Fossil UI site map using
 an animated-in dropdown.
 

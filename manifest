@@ -1,5 +1,5 @@
-C Converted\sall\suses\sof\sthe\s[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-name\s|\sobsolete]\nnamed\sanchor\sfeature\sfrom\sHTML\sbefore\s4.0\sto\suse\sfragment\sidentifiers\ninstead.\n\nWhere\spossible,\schanged\sconstructs\slike\s<nowiki><a\sname="foo"></a><h3></nowiki>\nto\s<nowiki><h3\sid="foo"></nowiki>.\s\sAlso\sfixed\sa\sfew\scases\swhere\sthe\nlink\starget\scame\safter\sa\sheader\sso\sthe\sbrowser\swould\sscroll\sthe\sheader\noff\sthe\sscreen\swhen\svisiting\sthe\stargeted\ssection.\n\nMotivation:\sRecent\sversions\sof\sFirefox\sand\sChrome\sappear\sto\shave\sfinally\ngiven\sup\son\ssupporting\sthis\sold\sintra-document\slinking\sstyle.\sEven\nshould\sthese\sbrowser\sregressions\sbe\sfixed,\sthis\sis\sstill\san\sobjective\nimprovement,\sboth\sfrom\sa\sstyle\sand\sfunctionality\simprovement.
-D 2021-09-17T02:02:44.048
+C Updated\sthe\sJS\sdoc's\ssection\sabout\sthe\shamburger\smenu\sto\sreflect\sthe\nrecent\saddition\sof\sthis\smenu\sto\sother\sstock\sskins.
+D 2021-09-17T02:32:56.536
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -889,7 +889,7 @@ F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c21
 F www/index.wiki 7dd2176c54f2b29de1cbae6743160d26d11862c28400127d2a4212c1f7b643dc
 F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
 F www/interwiki.md bdd1cc9e3f97ef0d7262470ffa866f4c40c346c880a2601c496ab06ffd88dd35
-F www/javascript.md 6de0903f1588a0a54eac6f190e2bd72dcd7b918462ecec60841454643cd5447b
+F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -984,7 +984,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dbf94ab50c625fb33c105d09e0fd2eff4d09fe0dedfd214e838b50c3b02a8d82
-R aeea8760d37a1d0e5473e9ab6e68f08a
+P 93cee1f56e581b5c5257d8b90d529892f003091df211385ccb06050c445de4c3
+R 9fd73cce7f6d2d5bb6f0e3169002fff3
 U wyoung
-Z e4f35f45e4dcfa430583fa6d0e890bfd
+Z 1eda959527b6c76f17e2d7366dd2b43d
