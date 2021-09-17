@@ -1,5 +1,5 @@
-C Tolerate\sone\sor\stwo\spunctuation\scharacters\sat\sthe\send\sof\sa\ssymbolic\sname,\nif\sthe\sname\sdoes\snot\sotherwise\smatch,\sto\saccomodate\snames\staken\sfrom\sthe\nends\sof\sURLs\swhere\ssome\sextra\spunctuation\sfrom\sthe\sfollowing\stext\nwas\sincluded\swith\sthe\sURL.
-D 2021-09-17T10:46:13.139
+C Bring\sthe\shelp\stext\sfor\sthe\s"fossil\sall\sgit"\scommand\sinto\salignment\swith\sthe\nimplementation\safter\schanges\son\s[/timeline?c=202108141825|2021-08-14].
+D 2021-09-17T19:06:04.293
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -412,7 +412,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 719f9c30f4b43896e06a6594ad0cd1bfd520c112b79c6aa44f58b2cf104480d6
+F src/allrepo.c 54bc8b2d0d03ff2241d20a5f60ca6b6e20521176d85a0b3f07a79e83a9e04485
 F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
 F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
@@ -984,7 +984,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36d84427f6e2e795bcf61000f675fdd169a25a0350240d720675760c68bf6fd3
-R 8d8f58f44a2383e9cf0184432b7996d8
+P d81190bd72dcf74a8fa91b729b1d9c5bd57ee2bb1edc9a986f18a7ff19513732
+R 3b5936163142c61467d544079bddbafc
 U drh
-Z 219326c1ae992c4b6818c8ceddd1a164
+Z 1fa6a6101696b514a5a84d04c4b73e51
