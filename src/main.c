@@ -2881,8 +2881,9 @@ void fossil_set_timeout(int N){
 **
 ** For the special case REPOSITORY name of "/", the global configuration
 ** database is consulted for a list of all known repositories.  The --repolist
-** option is implied by this special case.  See also the "fossil all ui"
-** command.
+** option is implied by this special case.  The "fossil ui /" command is
+** equivalent to "fossil all ui".  To see all repositories owned by "user"
+** on machine "remote" via ssh, run "fossil ui user@remote:/".
 **
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by turning off the "localauth"
@@ -2916,6 +2917,8 @@ void fossil_set_timeout(int N){
 **                       and bundled modes might result in a single
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nobrowser         Do not automatically launch a web-browser for the
@@ -2927,12 +2930,10 @@ void fossil_set_timeout(int N){
 **   --notfound URL      Redirect
 **   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   -P|--port TCPPORT   listen to request on port TCPPORT
-**   --th-trace          trace TH1 execution (for debugging purposes)
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --mainmenu FILE     Override the mainmenu config setting with the contents
-**                       of the given file.
+**   --th-trace          trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **

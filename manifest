@@ -1,5 +1,5 @@
-C Update\sthe\schanges\slog.\s\sFix\sa\sminor\stypo\sin\sthe\shelp\stext\sfor\s"diff".
-D 2021-09-17T19:32:55.207
+C Formatting\simprovements\son\sthe\schange\slog.\s\sImprovements\sto\sthe\shelp\stext\nfor\sthe\s"fossil\sui"\scommand.
+D 2021-09-17T19:48:40.386
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -527,7 +527,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 0ad81f0ce3d20366b9e24e83a2dae42e591fe98cd0436a3ec54f98cfe9bfe617
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 3b0acec05b7fd5d0d2cd85a044e2aad71c61aab4f11450afc1a6d6bc3024470a
+F src/main.c d741fc6df0f1e44b0e47385c5ba18735f9a1a19c80e3b2ad64e6b4358976e8ce
 F src/main.mk 8f1dd7d73f3c8aac0be496e12017abcd2fe8fa1c339a4576fda91e1550b5a741
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -816,7 +816,7 @@ F www/caps/index.md ca08b8255aeac5a019a6b55edc8956c18019395130fc7405375fabddcbd6
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 8617d5644f9e2432a72d9114124def11989566d22c80594849b4e315b9201acf
+F www/changes.wiki 380939456bcd250a7d5d26a0b5f256b6b495f8d006161addf59e179cff28ea67
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -984,7 +984,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1033e0ff88f756d980d6be99411195d01b2dce5bdb0493d8f31436c9e77c1942
-R d4ef1144a11f36e020902b900496b13d
+P 5839abaee4763400fc9989f49cd45b60b6580a86e9fd52f67c5a4112a40b7315
+R 463161ab22a7013a4f8c12cb63422567
 U drh
-Z 40ae711701f59cb8f5d78032ca83b68f
+Z 98aa4fd0c19e363381cd5cc854943fef

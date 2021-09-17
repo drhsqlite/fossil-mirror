@@ -1,13 +1,13 @@
 <title>Change Log</title>
 
 <h2 id='v2_17'>Changes for version 2.17 (pending)</h2>
-  *  Added new options to the various 
-     [/help?cmd=diff|diff commands]: --by, -b, --webpage, --json, --tcl.
-  *  Performance and display improvements to the internal diff engine, including
-     partial-line matching for unified diffs and improved partial line matching for
-     side-by-side diffs.
-  *  Buttons to increase the amount of context above or below each block of
-     differences are not shown on many web-based diff displays.
+  *  Major improvements to the "diff" subsystem, including: <ul>
+     <li> Added new [/help?cmd=diff|formatting options]: --by, -b, --webpage, --json, --tcl.
+     <li> Partial-line matching for unified diffs
+     <li> Better partial-line matching for side-by-side diffs
+     <li> Buttons on web-based diffs to show more context
+     <li> Performance improvements
+     </ul>
   *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
      [/help?cmd=amend|fossil amend] can now take the value "auto" to
      force Fossil to use its built-in automatic color choosing algorithm.
@@ -18,8 +18,8 @@
      to be displayed below the search box in the /ticket page.
   *  The "nc" query parameter to the [/help?cmd=/timeline|/timeline] page
      causes all graph coloring to be omitted.
-  *  Improvements and bug fixes to the new "fossil ui REMOTE" feature so
-     that it works better on a wider variety of platforms.
+  *  Improvements and bug fixes to the new "[/help?cmd=ui|fossil ui REMOTE]"
+     feature so that it works better on a wider variety of platforms.
   *  In [/help?cmd=/wikiedit|/wikiedit], show the list of attachments for 
      the current page and list URLs suitable for pasting them into the page.
   *  Add the --no-http-compression option to [/help?cmd=sync|fossil sync]
@@ -28,6 +28,8 @@
      the --verbose option.
   *  Add the <tt>close</tt>, <tt>reopen</tt>, <tt>hide</tt>, and
      </tt>unhide</tt> subcommands to [/help?cmd=branch|the branch command].
+  *  The "-p" option to [/help?cmd=branch|fossil branch list] shows only
+     private branches.
   *  The [/mdrules|Markdown formatter] now interprets the content of
      block HTML markup (such as &lt;table&gt;) in most cases.  Only content
      of &lt;pre&gt; and &lt;script&gt; is passed through verbatim.
@@ -36,10 +38,6 @@
      pages in the output.
   *  The [/help?cmd=all|fossil all git status] command only shows reports for
      the subset of repositories that have a configured Git export.
-  *  Added new subcommands to [/help?cmd=branch|fossil branch] including
-     "close", "hide", "reopen", and "unhide".
-  *  The "-p" option to [/help?cmd=branch|fossil branch list] shows only
-     private branches.
 
 <h2 id='v2_16'>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
