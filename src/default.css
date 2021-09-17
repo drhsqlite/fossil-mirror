@@ -1899,7 +1899,37 @@ body.chat #chat-drop-details img {
   max-width: 45%;
   max-height: 45%;
 }
-
+body.chat #chat-config {
+  /* /chat configuration widget */
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  overflow: auto;
+  flex: 2 1 auto;
+  padding: 0 0.25em;
+}
+body.chat #chat-config > button {
+  padding: 0.5em;
+  flex: 0 1 auto;
+  margin: 0.25em 0;
+}
+body.chat #chat-config #chat-config-options {
+  /* /chat config options go here */
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+body.chat #chat-config #chat-config-options .menu-entry {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  padding: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry > *:first-child {
+  margin-right: 1em;
+}
 input[type="checkbox"].diff-toggle {
   float: right;
 }

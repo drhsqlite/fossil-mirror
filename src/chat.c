@@ -53,7 +53,9 @@ static void chat_emit_alert_list(void){
   unsigned int i;
   const char * azBuiltins[] = {
   "builtin/alerts/plunk.wav",
-  "builtin/alerts/b-flat.wav"
+  "builtin/alerts/bflat2.wav",
+  "builtin/alerts/bflat3.wav",
+  "builtin/alerts/bloop.wav"
   };
   CX("window.fossil.config.chat.alerts = [\n");
   for(i=0; i < sizeof(azBuiltins)/sizeof(azBuiltins[0]); ++i){
@@ -183,6 +185,11 @@ void chat_webpage(void){
   @   </div>
   @ </div>
   @ </form>
+  @ <div id='chat-config' class='hidden'>
+  @ <div id='chat-config-options'></div>
+    /* ^^^populated client-side */
+  @ <button>Close</button>
+  @ </div>
   @ <div id='chat-messages-wrapper'>
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
