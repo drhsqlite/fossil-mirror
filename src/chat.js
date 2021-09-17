@@ -1076,7 +1076,6 @@
     if(settingsOps.selectSound){
       D.append(optionsMenu, settingsOps.selectSound);
     }
-    settingsButton.click()/*for for development*/;
   })()/*#chat-settings-button setup*/;
   
   /** Callback for poll() to inject new content into the page.  jx ==
