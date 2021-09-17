@@ -1,5 +1,5 @@
-C Updated\sthe\sJS\sdoc's\ssection\sabout\sthe\shamburger\smenu\sto\sreflect\sthe\nrecent\saddition\sof\sthis\smenu\sto\sother\sstock\sskins.
-D 2021-09-17T02:32:56.536
+C Tolerate\sone\sor\stwo\spunctuation\scharacters\sat\sthe\send\sof\sa\ssymbolic\sname,\nif\sthe\sname\sdoes\snot\sotherwise\smatch,\sto\saccomodate\snames\staken\sfrom\sthe\nends\sof\sURLs\swhere\ssome\sextra\spunctuation\sfrom\sthe\sfollowing\stext\nwas\sincluded\swith\sthe\sURL.
+D 2021-09-17T10:46:13.139
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -545,7 +545,7 @@ F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf
 F src/mkindex.c b5c2cf8c00e9ae8d2bc1f4eba68b59fcde6febdff3a2a9a791b20c96526d074a
 F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d2691
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 274aa2b22e665627369da0e16748dace3618301f326662e02a67a6d7006c66e2
+F src/name.c 8859f5d0cd49e99d4d326fd125a5e65dac19acfdfb3ded0286cebe4528a02f57
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
@@ -984,7 +984,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93cee1f56e581b5c5257d8b90d529892f003091df211385ccb06050c445de4c3
-R 9fd73cce7f6d2d5bb6f0e3169002fff3
-U wyoung
-Z 1eda959527b6c76f17e2d7366dd2b43d
+P 36d84427f6e2e795bcf61000f675fdd169a25a0350240d720675760c68bf6fd3
+R 8d8f58f44a2383e9cf0184432b7996d8
+U drh
+Z 219326c1ae992c4b6818c8ceddd1a164
