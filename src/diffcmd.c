@@ -970,7 +970,7 @@ const char *diff_get_binary_glob(void){
 ** or files is taken.  If there is no "--to" option then the (possibly edited)
 ** files in the current check-out are used.  The "--checkin VERSION" option
 ** shows the changes made by check-in VERSION relative to its primary parent.
-** The "--branch BRANCHNAME" shows all then changes on the branch BRANCHNAME.
+** The "--branch BRANCHNAME" shows all the changes on the branch BRANCHNAME.
 **
 ** The "-i" command-line option forces the use of Fossils own the internal
 ** diff logic rather than any external diff program that might be configured

@@ -1,5 +1,5 @@
-C Bring\sthe\shelp\stext\sfor\sthe\s"fossil\sall\sgit"\scommand\sinto\salignment\swith\sthe\nimplementation\safter\schanges\son\s[/timeline?c=202108141825|2021-08-14].
-D 2021-09-17T19:06:04.293
+C Update\sthe\schanges\slog.\s\sFix\sa\sminor\stypo\sin\sthe\shelp\stext\sfor\s"diff".
+D 2021-09-17T19:32:55.207
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -454,7 +454,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c e77da3b5605dabbed266faa9de2052ba616b9fd579176c1419b2c64e786bd3f8
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c d28081165a52c43adbba67159a77217b1b8ed49ddbd73a0b3009d74f1c98e24c
+F src/diffcmd.c 1fd7ae886208b4565d815681a91439ff3bd5dd8d2fbaf3b45da2de25ece5e007
 F src/dispatch.c 5d92dfc903345990a4bc48fe7a6daa4759f0e008e07d0001fcbebe4f977c1c1a
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -816,7 +816,7 @@ F www/caps/index.md ca08b8255aeac5a019a6b55edc8956c18019395130fc7405375fabddcbd6
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki b167e775e93247300303ca05dffd7f97fc27205d8640498ce67a2519db6c6a4f
+F www/changes.wiki 8617d5644f9e2432a72d9114124def11989566d22c80594849b4e315b9201acf
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -984,7 +984,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d81190bd72dcf74a8fa91b729b1d9c5bd57ee2bb1edc9a986f18a7ff19513732
-R 3b5936163142c61467d544079bddbafc
+P 1033e0ff88f756d980d6be99411195d01b2dce5bdb0493d8f31436c9e77c1942
+R d4ef1144a11f36e020902b900496b13d
 U drh
-Z 1fa6a6101696b514a5a84d04c4b73e51
+Z 40ae711701f59cb8f5d78032ca83b68f

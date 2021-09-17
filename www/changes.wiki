@@ -6,6 +6,8 @@
   *  Performance and display improvements to the internal diff engine, including
      partial-line matching for unified diffs and improved partial line matching for
      side-by-side diffs.
+  *  Buttons to increase the amount of context above or below each block of
+     differences are not shown on many web-based diff displays.
   *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
      [/help?cmd=amend|fossil amend] can now take the value "auto" to
      force Fossil to use its built-in automatic color choosing algorithm.
@@ -32,6 +34,12 @@
   *  The [/help?cmd=wiki|wiki list command] no longer lists "deleted"
      pages by default. Use the new <tt>--all</tt> option to include deleted
      pages in the output.
+  *  The [/help?cmd=all|fossil all git status] command only shows reports for
+     the subset of repositories that have a configured Git export.
+  *  Added new subcommands to [/help?cmd=branch|fossil branch] including
+     "close", "hide", "reopen", and "unhide".
+  *  The "-p" option to [/help?cmd=branch|fossil branch list] shows only
+     private branches.
 
 <h2 id='v2_16'>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
