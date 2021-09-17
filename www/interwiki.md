@@ -59,7 +59,7 @@ directly to the URL contained in the Intermap.  The Intermap can define
 additional text to put in between the base URL and the PageName for
 Hash and Wiki links, respectively.
 
-<a name="intermap"></a>
+<a id="intermap"></a>
 ## Intermap
 
 The intermap defines a mapping from interwiki Tags to full URLs.  The

@@ -26,7 +26,7 @@ future versions of Fossil might be enhanced to understand other VCS
 interchange formats, and so for compatibility, use of the
 --git option is recommended.
 
-<a name="fx_git"></a>
+<a id="fx_git"></a>
 Note that in new imports, Fossil defaults to using the email component of the
 Git <em>committer</em> (or <em>author</em> if <code>--use-author</code> is
 passed) to attribute check-ins in the imported repository. Alternatively, the

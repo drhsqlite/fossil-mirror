@@ -45,7 +45,7 @@ Windows service](./service.md), which will allow Fossil to start at
 system boot, before anyone has logged in interactively.
 
 
-## <a name="install"></a>Install IIS
+## <a id="install"></a>Install IIS
 
 IIS might not be installed in your system yet, so follow the path
 appropriate to your host OS.  We’ve tested only the latest Microsoft

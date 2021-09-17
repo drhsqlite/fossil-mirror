@@ -718,7 +718,7 @@ We cover [this and the workaround for it](#csplit) above.
 [3]: ./rebaseharm.md
 
 
-## <a name="cdiff"></a> Colorized Diffs
+## <a id="cdiff"></a> Colorized Diffs
 
 The graphical diffs in the Fossil web UI and `fossil diff --tk` use
 color to distinguish insertions, deletions, and replacements, but unlike
@@ -755,7 +755,7 @@ While there is no direct equivalent to Git’s “`show`” command, similar
 functionality may be present in Fossil under other commands:
 
 
-#### <a name="patch"></a> Show A Patch For A Commit
+#### <a id="patch"></a> Show A Patch For A Commit
 
         git show -p COMMIT_ID
 
@@ -780,7 +780,7 @@ I just commit?”
 [LKML]:   https://lkml.org/
 
 
-#### <a name="cmsg"></a> Show A Specific Commit Message
+#### <a id="cmsg"></a> Show A Specific Commit Message
 
         git show -s COMMIT_ID
 
@@ -799,7 +799,7 @@ what’s missing is present in the corresponding [`/info` web
 view][infow], though.
 
 
-#### <a name="dstat"></a> Diff Statistics
+#### <a id="dstat"></a> Diff Statistics
 
 Fossil’s closest internal equivalent to commands like
 `git show --stat` is:

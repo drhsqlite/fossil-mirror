@@ -170,8 +170,7 @@ puts $out {
 <li> <a href='http://fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
 </ul>
-<a name="pindex"></a>
-<h2>Other Documents:</h2>
+<h2 id="pindex">Other Documents:</h2>
 <ul>}
 foreach entry $permindex {
   foreach {title file bold} $entry break

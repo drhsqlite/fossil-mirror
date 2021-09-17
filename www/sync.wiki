@@ -32,8 +32,7 @@ the [/help?cmd=configuration|config push] and
 [/help?cmd=configuration|config pull]
 commands.
 
-<a name="crdt"></a>
-<h3>1.1 Conflict-Free Replicated Datatypes</h3>
+<h3 id="crdt">1.1 Conflict-Free Replicated Datatypes</h3>
 
 <p>The "bag of artifacts" data model used by Fossil
 Fossil is apparently an implementation of a particular 

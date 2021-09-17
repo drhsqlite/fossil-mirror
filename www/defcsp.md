@@ -42,7 +42,7 @@ CSP restrictions can be completely disabled by setting the default-csp to:
 
 The following sections detail the maining of the default CSP setting.
 
-### <a name="base"></a> default-src 'self' data:
+### <a id="base"></a> default-src 'self' data:
 
 This policy means mixed-origin content isn’t allowed, so you can’t refer
 to resources on other web domains. Browsers will ignore a link like the
@@ -79,7 +79,7 @@ There are many other cases, [covered below](#serving).
 [svr]: ./server/
 
 
-### <a name="img"></a> img-src * data:
+### <a id="img"></a> img-src * data:
 
 As of Fossil 2.15, we don’t restrict the source of inline images at all.
 You can pull them in from remote systems as well as pull them from
@@ -92,7 +92,7 @@ decoders, system dialog box spoofing, etc. — by changing this to
 `data:` URIs.
 
 
-### <a name="style"></a> style-src 'self' 'unsafe-inline'
+### <a id="style"></a> style-src 'self' 'unsafe-inline'
 
 This policy allows CSS information to come from separate files hosted
 under the Fossil repo server’s Internet domain. It also allows inline CSS
@@ -113,7 +113,7 @@ less than the harm possible with injected javascript.  And so the
 go away in some future release of Fossil.
 
 
-### <a name="script"></a> script-src 'self' 'nonce-%s'
+### <a id="script"></a> script-src 'self' 'nonce-%s'
 
 This policy disables in-line JavaScript and only allows `<script>`
 elements if the `<script>` includes a `nonce` attribute that matches the
@@ -156,7 +156,7 @@ be protected at the system administration level on the Fossil server:
 [su]:  ./caps/admin-v-setup.md#apsu
 
 
-#### <a name="xss"></a>Cross-Site Scripting via Ordinary User Capabilities
+#### <a id="xss"></a>Cross-Site Scripting via Ordinary User Capabilities
 
 We’re so restrictive about how we treat JavaScript because it can lead
 to difficult-to-avoid scripting attacks. If we used the same CSP for
@@ -216,7 +216,7 @@ through check-ins.
 [hfed]: ./embeddeddoc.wiki#html
 
 
-## <a name="serving"></a>Serving Files Within the Limits
+## <a id="serving"></a>Serving Files Within the Limits
 
 There are several ways to serve files within the above restrictions,
 avoiding the need to [override the default CSP](#override). In
@@ -307,7 +307,7 @@ Thus our recommendation that you refer to in-repo resources exclusively.
 [wiki]: ./wikitheory.wiki
 
 
-## <a name="override"></a>Overriding the Default CSP
+## <a id="override"></a>Overriding the Default CSP
 
 If you wish to relax the default CSP’s restrictions or to tighten them
 further, there are multiple ways to accomplish that.
@@ -318,7 +318,7 @@ into the stack, which is helpful to understand even if you end up using
 a higher-level method.
 
 
-### <a name="cspsetting"></a>The `default-csp` Setting
+### <a id="cspsetting"></a>The `default-csp` Setting
 
 If the [`default-csp` setting](/help?cmd=default-csp) is defined and is
 not an empty string, its value is injected into the page using
@@ -357,7 +357,7 @@ is inadvisable, except for very short settings like the example above:
 
 
 
-### <a name="th1"></a>TH1 Setup Hook
+### <a id="th1"></a>TH1 Setup Hook
 
 Fossil sets [the TH1 variable `$default_csp`][thvar] from the
 `default-csp` setting and uses *that* to inject the value into generated
@@ -375,7 +375,7 @@ After [the above](#admin-ui), this is the cleanest method.
 
 
 
-### <a name="csrc"></a>Fossil C Source Code
+### <a id="csrc"></a>Fossil C Source Code
 
 When you do neither of the above things, Fossil uses
 [a hard-coded default](/info?ln=527-530&name=65a555d0d4fb846b).
@@ -386,7 +386,7 @@ move down-stack.
 
 
 
-### <a name="header"></a>Skin Header
+### <a id="header"></a>Skin Header
 
 [In the normal case](./customskin.md#override), Fossil injects the CSP
 retrieved by one of the above methods into the header of all HTML
@@ -447,7 +447,7 @@ independently of the skin.
 [dcinj]: /info?ln=7&name=bef080a6929a3e6f
 
 
-### <a name="fep"></a>Front-End Proxy
+### <a id="fep"></a>Front-End Proxy
 
 If your Fossil repo is behind some sort of HTTP [front-end proxy][svr],
 the [preferred method][pmcsp] for setting the CSP is via a custom HTTP
