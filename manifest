@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\scommit"\scommand\sso\sthat\sit\sdoes\snot\sget\sconfused\sby\nfiles\sadded\sby\smerge\sand\sthen\sedited\sbut\skeeping\sthe\ssame\sfile\ssize.\sSee\n[forum:/forumpost/03f6b307f89c990b|forum\sthread\s03f6b307f89c990b]\sfor\ndiscussion\sand\sa\smore\sdetailed\sdescription\sof\sthe\sproblem.
-D 2021-09-18T15:15:00.398
+C Corrected\sdisplay\sof\s'hooks'\ssetting\sin\s/setup_settings,\sper\s[forum:d1ac688c1b|forum\spost\sd1ac688c1b].
+D 2021-09-18T21:25:37.897
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -495,7 +495,7 @@ F src/graph.js 64969f41d5da8334630a7ddb81385b6fc6c3a9c81b58fc02376caf2137d38348
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c e1a759e54877800dd86b17355a8f07f2caebb325c0f2d014473b47a5b4099d28
+F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
@@ -985,7 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c777150ed38697145ef4b6aa232e930bb4478d5364ab26515948fff278ee0ac
-R a2d1e2cc954f9cc41b8dfe9649c190bf
-U drh
-Z 9b40d49cfe17a97e43f90895a3d356bf
+P ed5843cf31c388bccef6dd73b1b3be1c80dd35e0e5bdff240abed7da0e908126
+R 5aed3278ed399bc26bc38fc320e1becd
+U stephan
+Z d445209caa5059a1c595cb348b710c0c
