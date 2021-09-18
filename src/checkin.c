@@ -2574,7 +2574,7 @@ void commit_cmd(void){
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
-    "WHERE chnged IN (1, 7, 9) AND NOT deleted AND is_selected(id)",
+    "WHERE chnged<>0 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
     glob_expr("pathname", db_get("crlf-glob",db_get("crnl-glob",""))),
     glob_expr("pathname", db_get("binary-glob","")),
@@ -2612,12 +2612,14 @@ void commit_cmd(void){
     }
     nrid = content_put(&content);
     blob_reset(&content);
-    if( rid>0 ){
-      content_deltify(rid, &nrid, 1, 0);
+    if( nrid!=rid ){
+      if( rid>0 ){
+        content_deltify(rid, &nrid, 1, 0);
+      }
+      db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
+                    nrid,nrid,id);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
     }
-    db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
-                  nrid,nrid,id);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   }
   db_finalize(&q);
   if( nConflict && !allowConflict ){

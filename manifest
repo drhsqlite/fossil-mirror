@@ -1,5 +1,5 @@
-C Reimplemented\s/chat\ssettings\sselection\sto\sbe\smore\susable,\sdevice-portable,\sand\sextensible.\sRe-enabled\sclient-side\sselection\sof\srepo-specific\schat\snofication\ssounds.
-D 2021-09-18T03:40:35.022
+C Fix\sthe\s"fossil\scommit"\scommand\sso\sthat\sit\sdoes\snot\sget\sconfused\sby\nfiles\sadded\sby\smerge\sand\sthen\sedited\sbut\skeeping\sthe\ssame\sfile\ssize.\sSee\n[forum:/forumpost/03f6b307f89c990b|forum\sthread\s03f6b307f89c990b]\sfor\ndiscussion\sand\sa\smore\sdetailed\sdescription\sof\sthe\sproblem.
+D 2021-09-18T15:15:00.398
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -429,7 +429,7 @@ F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c 3c557d1cfb81d04309024652a977b3ed92abc997a07babede68834dfd2be03d6
 F src/chat.js 22caaecb22120de6ae5b0ab92ed7147a4113d3fc3e19469bea97e17065da0785
-F src/checkin.c 9cd9a2593b6a5859831902c7367d3735846cfdc74305ef346aa8dc8e0b388a83
+F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -985,8 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8f470757e9ae126d7bd4324492e9740adf4d4bab34e085d980e0e03cae41588 c23aa77411fdb65e4329a67eeafa6163019982522e1639690dc252482a989880
-R 6476570c3604591588b707638dbed7a6
-T +closed c23aa77411fdb65e4329a67eeafa6163019982522e1639690dc252482a989880
-U stephan
-Z 47e6cd955a93d6017baec9d7087bdd95
+P 9c777150ed38697145ef4b6aa232e930bb4478d5364ab26515948fff278ee0ac
+R a2d1e2cc954f9cc41b8dfe9649c190bf
+U drh
+Z 9b40d49cfe17a97e43f90895a3d356bf
