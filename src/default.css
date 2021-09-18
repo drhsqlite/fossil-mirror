@@ -1924,7 +1924,7 @@ body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
   align-items: center;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   padding: 1em;
 }
 body.chat #chat-config #chat-config-options .menu-entry > *:first-child {

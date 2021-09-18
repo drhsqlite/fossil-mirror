@@ -388,7 +388,7 @@
       setNewMessageSound: function f(uri){
         delete this.playNewMessageSound.audio;
         this.playNewMessageSound.uri = uri;
-        this.settings.set('audible-alert', !!uri);
+        this.settings.set('audible-alert', uri);
         return this;
       }
     };
@@ -1019,23 +1019,23 @@
       D.append(settingsOps.selectSound,
                D.append(D.span(),"Audio alert"),
                selectSound);
-      D.disable(D.option(selectSound, "0", "Audible alert..."));
       D.option(selectSound, "", "(no audio)");
+      const firstSoundIndex = selectSound.options.length;
       F.config.chat.alerts.forEach(function(a){
         D.option(selectSound, a);
       });
       if(true===Chat.settings.getBool('audible-alert')){
-        selectSound.selectedIndex = 2/*first audio file in the list*/;
+        selectSound.selectedIndex = firstSoundIndex;
       }else{
         selectSound.value = Chat.settings.get('audible-alert','');
         if(selectSound.selectedIndex<0){
           /*Missing file - removed after this setting was applied. Fall back
             to the first sound in the list. */
-          selectSound.selectedIndex = 2;
+          selectSound.selectedIndex = firstSoundIndex;
         }
       }
       selectSound.addEventListener('change',function(){
-        const v = this.selectedIndex>1 ? this.value : '';
+        const v = this.value;
         Chat.setNewMessageSound(v);
         F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
         if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
@@ -1076,6 +1076,7 @@
     if(settingsOps.selectSound){
       D.append(optionsMenu, settingsOps.selectSound);
     }
+    //settingsButton.click()/*for for development*/;
   })()/*#chat-settings-button setup*/;
   
   /** Callback for poll() to inject new content into the page.  jx ==
