@@ -290,9 +290,11 @@ of the sync. Be aware that those file checks do still matter, however:
 Fossil requires write access to a repo DB while cloning from it, so you
 can’t clone from a read-only repo DB file over a local file path.
 
-Even more surprising may be the fact that user caps do not affect
-cloning and syncing over SSH! When you make a change to such a
-repository, the change first goes to the local clone where file system
+Even more surprising to you may be the fact that user caps do not affect
+cloning and syncing over SSH! (Not unless you go [out of your way][sshfc]
+patch around it, at any rate.) When you make a change to such a
+repository, the stock Fossil behavior is that the change first goes to the
+local repo clone where file system
 permissions are all that matter, but then upon sync, the situation is
 effectively the same as when the parent repo is on the local file
 system. The reason behind this is that if you can log into the remote
@@ -300,7 +302,8 @@ system over SSH and that user has the necessary file system permissions
 on that remote repo DB file to allow clone and sync operations, then
 we’re back in the same situation as with local files: there’s no point
 trying to enforce the Fossil user capabilities when you can just modify
-the remote DB directly, so the operation proceeds unimpeded.
+the remote DB directly, so the operation proceeds unimpeded by any user
+capability settings on the remote repo.
 
 Where this gets confusing is that *all* Fossil syncs are done over the
 HTTP protocol, including those done over `file://` and `ssh://` URLs,
@@ -309,9 +312,7 @@ not just those done over `http[s]://` URLs:
 *   For `ssh://` URLs, Fossil pipes the HTTP conversation through a
     local SSH client to a remote instance of Fossil running the
     [`test-http`](/help?name=test-http) command to receive the tunneled
-    HTTP connection. The reason Fossil’s user capability system is
-    bypassed in this case is that [`test-http` gives full capabilities
-    to its users][sxycap].
+    HTTP connection. [This interface is intentionally permissionless][sxycap].
 
 *   For `file://` URLs — as opposed to plain local file paths —
     the “sending” Fossil instance writes its side of
@@ -321,10 +322,12 @@ not just those done over `http[s]://` URLs:
     those changes to that repository. Presumably Fossil does this
     instead of using a pipe to ease portability to Windows.
 
-Checks for capabilities like [**Read**][o] and [**Write**][i] within the
+Despite use of HTTP for these URL types, the fact remains that 
+checks for capabilities like [**Read**][o] and [**Write**][i] within the
 HTTP conversation between two Fossil instances only have a useful effect
 when done over an `http[s]://` URL.
 
+[sshfc]:  ../server/any/http-over-ssh.md
 [sxycap]: /file?ci=ec5efceb8aac6cb4&name=src/main.c&ln=2748-2752
 
 
