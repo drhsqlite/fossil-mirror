@@ -111,7 +111,8 @@
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
-        contentDiv: E1('div.content')
+        contentDiv: E1('div.content'),
+        configArea: E1('#chat-config')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -387,7 +388,7 @@
       setNewMessageSound: function f(uri){
         delete this.playNewMessageSound.audio;
         this.playNewMessageSound.uri = uri;
-        this.settings.set('audible-alert', !!uri);
+        this.settings.set('audible-alert', uri);
         return this;
       }
     };
@@ -952,10 +953,12 @@
 
   (function(){/*Set up #chat-settings-button */
     const settingsButton = document.querySelector('#chat-settings-button');
-    var popupSize = undefined/*placement workaround*/;
-    const settingsPopup = new F.PopupWidget({
-      cssClass: ['fossil-tooltip', 'chat-settings-popup']
-    });
+    const optionsMenu = E1('#chat-config-options');
+    const cbToggle = function(){
+      D.toggleClass([Chat.e.messagesWrapper, Chat.e.configArea], 'hidden');
+    };
+    D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
+    Chat.e.configArea.querySelector('button').addEventListener('click', cbToggle, false);
     /* Settings menu entries... */
     const settingsOps = [{
       label: "Multi-line input",
@@ -994,7 +997,7 @@
     }];
 
     /** Set up selection list of notification sounds. */
-    if(true/*flip this to false to enable selection of audio files*/){
+    if(false/*flip this to false to enable selection of audio files*/){
       settingsOps.push({
         label: "Audible alerts",
         boolValue: ()=>Chat.settings.getBool('audible-alert'),
@@ -1011,99 +1014,69 @@
     }else{
       /* Disabled per chatroom discussion: selection list of audio files for
          chat notification. */
-      const selectSound = settingsOps.selectSound = D.addClass(D.select(), 'menu-entry');
-      D.disable(D.option(selectSound, "0", "Audible alert..."));
+      settingsOps.selectSound = D.addClass(D.div(), 'menu-entry');
+      const selectSound = D.select();
+      D.append(settingsOps.selectSound,
+               D.append(D.span(),"Audio alert"),
+               selectSound);
       D.option(selectSound, "", "(no audio)");
+      const firstSoundIndex = selectSound.options.length;
       F.config.chat.alerts.forEach(function(a){
         D.option(selectSound, a);
       });
       if(true===Chat.settings.getBool('audible-alert')){
-        selectSound.selectedIndex = 2/*first audio file in the list*/;
+        selectSound.selectedIndex = firstSoundIndex;
       }else{
         selectSound.value = Chat.settings.get('audible-alert','');
         if(selectSound.selectedIndex<0){
           /*Missing file - removed after this setting was applied. Fall back
             to the first sound in the list. */
-          selectSound.selectedIndex = 2;
+          selectSound.selectedIndex = firstSoundIndex;
         }
       }
       selectSound.addEventListener('change',function(){
-        const v = this.selectedIndex>1 ? this.value : '';
+        const v = this.value;
         Chat.setNewMessageSound(v);
         F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-        if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
-        settingsPopup.hide();
+        if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
       }, false);
       Chat.setNewMessageSound(selectSound.value);
     }/*audio notification config*/
     /**
-       Rebuild the menu each time it's shown so that the toggles can
-       show their current values.
+       Build list of options...
     */
-    settingsPopup.options.refresh = function(){
-      D.clearElement(this.e);
-      settingsOps.forEach(function(op){
-        const line = D.addClass(D.span(), 'menu-entry');
-        const btn = D.append(D.addClass(D.span(), 'button'), op.label);
-        const callback = function(ev){
-          settingsPopup.hide();
-          op.callback(ev);
-          if(op.persistentSetting){
-            Chat.settings.set(op.persistentSetting, op.boolValue());
-          }
-        };
-        D.append(line, btn);
-        if(op.hasOwnProperty('boolValue')){
-          const check = D.attr(D.checkbox(1, op.boolValue()),
-                                          'aria-label', op.label);
-          D.append(line, check);
+    settingsOps.forEach(function f(op){
+      const line = D.addClass(D.div(), 'menu-entry');
+      const btn = D.append(
+        D.addClass(D.label(), 'cbutton'/*bootstrap skin hijacks 'button'*/),
+        op.label);
+      const callback = function(ev){
+        op.callback(ev);
+        if(op.persistentSetting){
+          Chat.settings.set(op.persistentSetting, op.boolValue());
         }
-        D.append(settingsPopup.e, line);
+      };
+      if(op.hasOwnProperty('boolValue')){
+        if(undefined === f.$id) f.$id = 0;
+        ++f.$id;
+        const check = D.attr(D.checkbox(1, op.boolValue()),
+                             'aria-label', op.label);
+        const id = 'cfgopt'+f.$id;
+        if(op.boolValue()) check.checked = true;
+        D.attr(check, 'id', id);
+        D.attr(btn, 'for', id);
+        D.append(line, check);
+        check.addEventListener('change', callback);
+      }else{
         line.addEventListener('click', callback);
-      });
-      if(settingsOps.selectSound){
-        D.append(settingsPopup.e, settingsOps.selectSound);
       }
-    };
-    settingsPopup.installHideHandlers(
-      false, settingsOps.selectSound ? false : true,
-      true)
-    /** Reminder: click-to-hide interferes with "?" embedded within
-        the popup, so cannot be used together with those. Enabling
-        this means, however, that tapping the menu button to toggle
-        the menu cannot work because tapping the menu button while the
-        menu is opened will, because of the click-to-hide handler,
-        hide the menu before the button gets an event saying to toggle
-        it.
-
-        Reminder: because we need a SELECT element for the audio file
-        selection (since that list can be arbitrarily long), we have
-        to disable tap-outside-the-popup-to-close-it via passing false
-        as the 2nd argument to installHideHandlers(). If we don't,
-        tapping on the select element is unreliable on desktop
-        browsers and doesn't seem to work at all on mobile. */;
-    D.attr(settingsButton, 'role', 'button');
-    settingsButton.addEventListener('click',function(ev){
-      //ev.preventDefault();
-      if(settingsPopup.isShown()) settingsPopup.hide();
-      else settingsPopup.show(settingsButton);
-      /* Reminder: we cannot toggle the visibility from her
-       */
-    }, false);
-
-    /* Find an ideal X/Y position for the popup, directly above the settings
-       button, based on the size of the popup... */
-    settingsPopup.show(document.body);
-    popupSize = settingsPopup.e.getBoundingClientRect();
-    settingsPopup.hide();
-    settingsPopup.options.adjustX = function(x){
-      const rect = settingsButton.getBoundingClientRect();
-      return rect.right - popupSize.width;
-    };
-    settingsPopup.options.adjustY = function(y){
-      const rect = settingsButton.getBoundingClientRect();
-      return rect.top - popupSize.height -2;
-    };
+      D.append(line, btn);
+      D.append(optionsMenu, line);
+    });
+    if(settingsOps.selectSound){
+      D.append(optionsMenu, settingsOps.selectSound);
+    }
+    //settingsButton.click()/*for for development*/;
   })()/*#chat-settings-button setup*/;
   
   /** Callback for poll() to inject new content into the page.  jx ==

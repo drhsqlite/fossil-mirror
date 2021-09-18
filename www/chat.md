@@ -102,6 +102,14 @@ record, which deletes it not only from their own browser but also
 propagates the removal to all connected clients the next time they
 poll for new messages.
 
+### <a id='notifications'></a>Customizing New-message Notification Sounds
+
+By default, the list of new-message notification sounds is limited to
+a few built in to the fossil binary. In addition, any
+[unversioned files](./unvers.wiki) named `alert-sounds/*.{mp3,wav,ogg}`
+will be included in that list. To switch sounds, tap the "settings"
+button.
+
 ## Implementation Details
 
 *You do not need to understand how Fossil chat works in order to use it.

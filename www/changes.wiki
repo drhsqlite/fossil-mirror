@@ -38,6 +38,9 @@
      pages in the output.
   *  The [/help?cmd=all|fossil all git status] command only shows reports for
      the subset of repositories that have a configured Git export.
+  *  Enhanced the [/help?cmd=/chat|/chat page] configuration and added the ability
+     for a repository administrator to [./chat.md#notifications|extend the
+     selection of notification sounds via unversioned files].
 
 <h2 id='v2_16'>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the

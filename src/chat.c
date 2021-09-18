@@ -49,33 +49,29 @@
 ** alert-sounds/\*.{mp3,ogg,wav} are included.
 */
 static void chat_emit_alert_list(void){
-  /*Stmt q = empty_Stmt;*/
   unsigned int i;
   const char * azBuiltins[] = {
   "builtin/alerts/plunk.wav",
-  "builtin/alerts/b-flat.wav"
+  "builtin/alerts/bflat2.wav",
+  "builtin/alerts/bflat3.wav",
+  "builtin/alerts/bloop.wav"
   };
   CX("window.fossil.config.chat.alerts = [\n");
   for(i=0; i < sizeof(azBuiltins)/sizeof(azBuiltins[0]); ++i){
     CX("%s%!j", i ? ", " : "", azBuiltins[i]);
   }
-#if 0
-  /*
-  ** 2021-01-05 temporarily disabled until we decide whether we're
-  ** going to keep configurable audio files or not. If we do, this
-  ** code needs to check whether the [unversioned] table exists before
-  ** querying it.
-  */
-  db_prepare(&q, "SELECT 'uv/'||name FROM unversioned "
-             "WHERE content IS NOT NULL "
-             "AND (name LIKE 'alert-sounds/%%.wav' "
-             "OR name LIKE 'alert-sounds/%%.mp3' "
-             "OR name LIKE 'alert-sounds/%%.ogg')");
-  while(SQLITE_ROW==db_step(&q)){
-    CX(", %!j", db_column_text(&q, 0));
+  if( db_table_exists("repository","unversioned") ){
+    Stmt q = empty_Stmt;
+    db_prepare(&q, "SELECT 'uv/'||name FROM unversioned "
+               "WHERE content IS NOT NULL "
+               "AND (name LIKE 'alert-sounds/%%.wav' "
+               "OR name LIKE 'alert-sounds/%%.mp3' "
+               "OR name LIKE 'alert-sounds/%%.ogg')");
+    while(SQLITE_ROW==db_step(&q)){
+      CX(", %!j", db_column_text(&q, 0));
+    }
+    db_finalize(&q);
   }
-  db_finalize(&q);
-#endif
   CX("\n];\n");
 }
 
@@ -183,6 +179,11 @@ void chat_webpage(void){
   @   </div>
   @ </div>
   @ </form>
+  @ <div id='chat-config' class='hidden'>
+  @ <div id='chat-config-options'></div>
+    /* ^^^populated client-side */
+  @ <button>Close</button>
+  @ </div>
   @ <div id='chat-messages-wrapper'>
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
