@@ -1,5 +1,5 @@
-C Added\sthe\swww/server/any/http-over-ssh.md\sdoc,\san\selaboration\sof\sAndy\nBradford's\sOpenSSH\sForceCommand\sbased\ssolution\sfor\sforcing\saccess\svia\nssh://\sURLs\sto\sgo\sthrough\sa\swrapper\sscript\sthat\srewrites\sthe\scommand,\nexchanging\s"test-http"\sfor\s"http",\scausing\sthe\sFossil\sRBAC\ssystem\sto\ncome\sinto\splay\sin\sa\ssecure\sfashion.\s\sLinking\sto\sit\sfrom\sthe\stop-level\n"server/"\sindex\sand\sfrom\sthe\s#webonly\ssection\sof\sthe\scaps/\sindex\swhere\nit\scites\sthis\slimitation.\sReworked\sthe\slatter\ssection\snow\sthat\swe\shave\na\sdocumented\salternative.
-D 2021-09-18T00:51:01.569
+C Assorted\ssmall\simprovements\sto\sthe\snew\shttp-over-ssh.md\sdoc.
+D 2021-09-18T01:37:28.891
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -936,7 +936,7 @@ F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210
 F www/selfhost.wiki 1fd025edaf770792a624efb9178d1fce212c578b35445df63b769720d1c359fc
 F www/server/any/althttpd.md fe4538a33990079b84d585ee8ba26df1b2c43cd147bc7aee18fa11ebfb2b6a20
 F www/server/any/cgi.md 56a20818656ab26eb2640671c869baffc20741153962557e3945c05c6b12ed98
-F www/server/any/http-over-ssh.md 591d5aa3e1271e9aaa6648bceaf0e7fe00dbf6d7793583b759fc15c1b25b280d
+F www/server/any/http-over-ssh.md 917c5c3cf0ecc25b7f37d2ab961b8c22f78346f2f0c397830889b178638ed3ba
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
@@ -985,7 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 391bc369872059c6fe21eef90a0e61ee0b07d552ff5977183c97a59098aa6e18
-R 3410ec98c952e7014bfcaaf83e3f555c
+P be8ed971f9e640271070f2b936b4043e59f53d48c4ceb5125e020d754e3de9aa
+R 13f27279c440de135f2044743c378a08
 U wyoung
-Z 8a7a6240f769adb134fc89e84c1d44c4
+Z 3a9fe62e806fe74de5f8b810edbd5000

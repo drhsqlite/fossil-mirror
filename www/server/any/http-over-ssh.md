@@ -1,6 +1,6 @@
 # Forcing Use of Fossil’s RBAC over SSH
 
-Andy Bradford once posted a [clever solution][sshfc] to the problem of
+Andy Bradford posted a [clever solution][sshfc] to the problem of
 Fossil’s RBAC system [being ignored](../../caps/#webonly) over `ssh://`
 URLs: use OpenSSH’s `ForceCommand` feature to route the sync transfer
 protocol data over `fossil http` rather than `fossil test-http`.
@@ -50,6 +50,13 @@ You could instead list the exceptions:
 This would permit only Edie the System Administrator to bypass this
 mechanism.
 
+If you have a user that needs both interactive SSH shell access *and*
+Fossil access, exclude that user from the `Match` rule and use Fossil’s
+normal `ssh://` URL scheme for those cases. This user will bypass the
+Fossil RBAC, but they effectively have Setup capability on those
+repositories anyway by having full read/write access to the DB files via
+the shell.
+
 
 ## 2. Rewrite the sync command with that wrapper <a id="wrapper"></a>
 
@@ -91,7 +98,9 @@ The substantive changes are:
 
 The script’s shebang line assumes `/bin/sh` is POSIX-compliant, but that
 is not the case everywhere. If the script fails to run on your system,
-try changing this line to point at `bash`, `dash`, `ksh`, or `zsh`.
+try changing this line to point at `bash`, `dash`, `ksh`, or `zsh`. Also
+check the absolute paths for local correctness: is `/bin/basename`
+installed on your system, for example?
 
 Under this scheme, you clone with a command like:
 
@@ -103,24 +112,14 @@ subdirectory. Notice that we didn’t have to give the `museum/` part of
 the path: it’s implicit per point #3 above.
 
 This presumes your local user name matches the remote user name.  Unlike
-with `http[s]://` URLs, you don’t have to provide the `USER@` part,
-since this scheme doesn’t permit anything like anonymous cloning. Only
+with `http[s]://` URLs, you don’t have to provide the `USER@` part to
+get authenticated access
+since this scheme doesn’t permit anonymous cloning. Only
 if two names are different do you need to add the `USER@` bit to the
 URL.
 
 
-## 3. Accept externally-supplied user names <a id="remote-user"></a>
-
-Fossil only pays attention to the `REMOTE_USER` environment variable in
-certain contexts, of which “`fossil http`” is not one. You have to give
-the following command on each repository where you want to allow this:
-
-``` shell
-    echo "INSERT OR REPLACE INTO config VALUES ('remote_user_ok',1,strftime('%s','now'));" |
-    fossil sql -R museum/repo.fossil
-```
-
-## 4. Set permissions <a id="perms"></a>
+## 3. Set permissions <a id="perms"></a>
 
 This scheme assumes that the users covered by the `Match` rule can read
 the wrapper script from where you placed it and execute it, and that
@@ -130,21 +129,39 @@ repositories are stored.
 You can achieve all of this on a Linux box with:
 
 ``` shell
-sudo adduser fossil
-for u in alice bob carol dave ; do 
-    sudo adduser $u
-    sudo gpasswd -a fossil $u
-done
-sudo -i -u fossil
-chmod 710 .
-mkdir -m 750 bin
-mkdir -m 770 museum
-ln -s /usr/local/bin/fossil bin
+    sudo adduser fossil
+    for u in alice bob carol dave ; do 
+        sudo adduser $u
+        sudo gpasswd -a fossil $u
+    done
+    sudo -i -u fossil
+    chmod 710 .
+    mkdir -m 750 bin
+    mkdir -m 770 museum
+    ln -s /usr/local/bin/fossil bin
 ```
 
 You then need to copy the Fossil repositories into `~fossil/museum` and
-make them writable by group `fossil` and [permit
-`REMOTE_USER`](#remote-user) on each one.
+make them readable and writable by group `fossil`. These repositories
+presumably already have Fossil users configured, with the necessary
+[user capabilities](../../caps/), the point of this article being to
+show you how to make Fossil-over-SSH pay attention to those caps.
+
+You must also permit use of `REMOTE_USER` on each shared repository.
+Fossil only pays attention to this environment variable in certain
+contexts, of which “`fossil http`” is not one. Run this command against
+each repo to allow that:
+
+``` shell
+    echo "INSERT OR REPLACE INTO config VALUES ('remote_user_ok',1,strftime('%s','now'));" |
+    fossil sql -R museum/repo.fossil
+```
+
+Now you can configure SSH authentication for each user. Since Fossil’s
+password-saving feature doesn’t work in this case, I suggest setting up
+SSH keys via `~USER/.ssh/authorized_keys` since the SSH authentication
+occurs on each sync, which Fossil’s default-enabled autosync setting
+makes frequent.
 
 Equivalent commands for other OSes should be readily discerned from the
 script above.
