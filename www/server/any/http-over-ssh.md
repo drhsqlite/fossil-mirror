@@ -44,11 +44,13 @@ a `Match` block of some sort.
 You could instead list the exceptions:
 
 ``` ssh-config
-    Match User !edie
+    Match User !evi
 ```
 
-This would permit only Edie the System Administrator to bypass this
+This would permit only [Evi the System Administrator][evi] to bypass this
 mechanism.
+
+[evi]: https://en.wikipedia.org/wiki/Evi_Nemeth
 
 If you have a user that needs both interactive SSH shell access *and*
 Fossil access, exclude that user from the `Match` rule and use Fossil’s
@@ -91,7 +93,7 @@ The substantive changes are:
 4.  Don’t take the user name via the SSH command; to this author’s mind,
     the user should not get to override their Fossil user name on the
     remote server, as that permits impersonation.  The identity you
-    preset to the SSH server must be the same identity that the Fossil
+    present to the SSH server must be the same identity that the Fossil
     repository you’re working with knows you by.  Since the users
     selected by “`Match`” block above are dedicated to using only Fossil
     in this setup, this restriction shouldn’t present a practical problem.
@@ -115,7 +117,7 @@ This presumes your local user name matches the remote user name.  Unlike
 with `http[s]://` URLs, you don’t have to provide the `USER@` part to
 get authenticated access
 since this scheme doesn’t permit anonymous cloning. Only
-if two names are different do you need to add the `USER@` bit to the
+if these two user names are different do you need to add the `USER@` bit to the
 URL.
 
 
