@@ -2883,7 +2883,8 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   if( find_option("internal","i",0)==0
    && (diffFlags & (DIFF_HTML|DIFF_TCL|DIFF_DEBUG|DIFF_JSON))==0
   ){
-    pCfg->zDiffCmd = diff_command_external(isGDiff);
+    pCfg->zDiffCmd = find_option("command", 0, 1);
+    if( pCfg->zDiffCmd==0 ) pCfg->zDiffCmd = diff_command_external(isGDiff);
     if( pCfg->zDiffCmd ){
       const char *zDiffBinary;
       pCfg->zBinGlob = diff_get_binary_glob();
