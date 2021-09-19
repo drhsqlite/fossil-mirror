@@ -734,18 +734,20 @@
         if(!P.e.cbAutoPreview.checked){/* If NOT in auto-preview mode, trigger an update. */
           P.preview();
         }
+        return false;
       }
     }, false);
     // If we're in the preview tab, have ctrl-enter switch back to the editor.
     document.body.addEventListener('keydown',function(ev){
       if(ev.ctrlKey && 13 === ev.keyCode){
         if(currentTab === P.e.tabs.preview){
-          //ev.preventDefault();
-          //ev.stopPropagation();
+          ev.preventDefault();
+          ev.stopPropagation();
           P.tabs.switchToTab(P.e.tabs.content);
           P.e.taEditor.focus(/*doesn't work for client-supplied editor widget!
                               And it's slow as molasses for long docs, as focus()
                               forces a document reflow.*/);
+          return false;
         }
       }
     }, true);
