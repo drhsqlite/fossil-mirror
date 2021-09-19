@@ -1631,12 +1631,22 @@ body.chat .message-widget-content {
   margin-top: 0;
   min-width: 9em /*avoid unsightly "underlap" with the neighboring
                    .message-widget-tab element*/;
-  white-space: pre-wrap/*needed for multi-line edits*/;
+  white-space: normal;
 }
 body.chat.monospace-messages .message-widget-content,
 body.chat.monospace-messages textarea,
 body.chat.monospace-messages input[type=text]{
   font-family: monospace;  
+}
+body.chat .message-widget-content > .markdown {
+  margin: 0;
+  padding: 0;
+}
+body.chat .message-widget-content > .markdown > *:first-child {
+  margin-top: 0;
+}
+body.chat .message-widget-content > .markdown > *:last-child {
+  margin-bottom: 0;
 }
 /* User name and timestamp (a LEGEND-like element) */
 body.chat .message-widget .message-widget-tab {
