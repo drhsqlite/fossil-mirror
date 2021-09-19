@@ -1,5 +1,5 @@
-C Corrected\sdisplay\sof\s'hooks'\ssetting\sin\s/setup_settings,\sper\s[forum:d1ac688c1b|forum\spost\sd1ac688c1b].
-D 2021-09-18T21:25:37.897
+C Put\sa\sspace\safter\sall\s"###"\sused\sas\sinline\sheaders\sin\swww/customgraph.md\nto\smake\sthem\sbehave\sthe\ssame\sif\swe\sfollow\sthe\sCommonMark\sspec\sand\nrequire\sat\sleast\sone\sspace\sor\stab\safter\sthe\slast\s#.\s\sAll\sother\swww/*.md\nfiles\salready\sdo\sthis.
+D 2021-09-19T03:34:26.582
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -834,7 +834,7 @@ F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f
 F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272bf3
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki b74e5f0b26dc99bc352b289ee82517818039889697d8c61f76ef9bc51ed621eb
-F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
+F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
 F www/customskin.md 0fe0613ca89b524be29a996adf80e1f6be36549c660bce983dccdfa8b19e7d99
 F www/defcsp.md f9d7c3c754e503a3a4c38789b53c09c65e95d59e58ef9288a5ea7a333324b92c
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
@@ -985,7 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed5843cf31c388bccef6dd73b1b3be1c80dd35e0e5bdff240abed7da0e908126
-R 5aed3278ed399bc26bc38fc320e1becd
-U stephan
-Z d445209caa5059a1c595cb348b710c0c
+P 5d9a7442fa44973822dcc5c2fc87127adf7a237e8101a5c05e7e7bb0ec32cec4
+R 17970a947ab564306ca8751d3bdc64a3
+U wyoung
+Z 8399d91c7405922109324fcfd473ba4f
