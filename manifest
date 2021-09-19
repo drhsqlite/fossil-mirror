@@ -1,5 +1,5 @@
-C /chat\snow\suses\smarkdown,\sinstead\sof\sits\sminimal\scustom\smarkup.\sChat\smessages\sare\srendered\sat\ssend-time,\snot\ssave-time,\sso\sthis\sretroactively\saffects\sall\smessages.
-D 2021-09-19T04:11:13.891
+C Updated\schange\slog\sand\schat.md\sfor\sthe\s/chat\sswitch\sto\smarkdown.
+D 2021-09-19T05:53:02.037
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -816,8 +816,8 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki dc509d2cda86e510e2e69f29b4a80499a9df0b5e903fd8aa2163b991ed79f14e
-F www/chat.md 161195ece3bb4a8d181f1577a923c43dd2e75ca92a97c86b286852dc2c5b574c
+F www/changes.wiki 174d7a865de8985647ca0fe6fdd06fad539a29ce6d75d8a6d5a44158a69a6629
+F www/chat.md 3f663c34be18c9873f7d03c1fd43827bab160eda20baf3839f78beb640b29433
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -985,10 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d4a13276110757b0cc42286f6b1e7a7507aec576f6bb23230e6a9cde6e078b6
-R 7f345cf7d9acbe69ae2fea59f4ab4c81
-T *branch * chat-markdown
-T *sym-chat-markdown *
-T -sym-trunk *
+P 52d40548ed2a1176d4bc2fef710f11ae6c5c74ea0d985e13bc405f47bcaca6ad
+R d56afd2d1bb727fee456399644edfc66
 U stephan
-Z d853989c40219a96d079a72bff2ad1d6
+Z d838993f189e56a6c0389c60c8d664fb

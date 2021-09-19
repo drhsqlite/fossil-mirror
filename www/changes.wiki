@@ -41,6 +41,11 @@
   *  Enhanced the [/help?cmd=/chat|/chat page] configuration and added the ability
      for a repository administrator to [./chat.md#notifications|extend the
      selection of notification sounds via unversioned files].
+  *  The [/help?cmd=/chat|/chat] messages now use fossil's full complement of
+     markdown features, instead of the prior small subset of markup it
+     previously supported. This retroactively applies to all chat messages,
+     as they are markdown-processed when they are sent instead of when they
+     are saved. See [./chat.md#usage|the chat docs] for more details.
 
 <h2 id='v2_16'>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
