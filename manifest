@@ -1,5 +1,5 @@
-C Removed\sabout\sa\shundred\slines\sof\sdead\scode\sfrom\sthe\sdiff\scontext\sloading\sbits.\sReported\sby\sFlorian\sB.\sin\sthe\sforum.
-D 2021-09-19T22:48:35.777
+C Fix\shyperlinks\sto\sthe\sFossil\sBook\sto\suse\sthe\snewer\sURL.
+D 2021-09-20T12:13:25.259
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -918,11 +918,11 @@ F www/makefile.wiki 5ddaea274c2e5043c47c61fd5b741361deeafbc038a3893c84ba1940c0f9
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
-F www/mkindex.tcl 0188fbee154da82c1ade9a0bea7758303a2975dc0abe02c4538f1b9584baf38f x
+F www/mkindex.tcl e84e0d0dc2bc00c14da915d0205992dc2bfb20c433b62c68a63881fefa7d0fe7 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
-F www/permutedindex.html 4c96fb8477ecedd21ff15442d1fecf47095fedc099ff95b2ae47ec9d24e8b62e
+F www/permutedindex.html a00ef54c43544f68c50754c27d1297f4da6c0e83da71b98827f438b173f6a3e2
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
@@ -985,7 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cae7036bb7f07c1ba9f831abde508d33b02ce27f0038355065726b2e2c5b617c
-R d8c15c58e0f7555e68518529eab93da2
-U stephan
-Z 3855cec1f7f180a689705903ab42ec13
+P 47438b71376128c177027ad01829ae231aae8d49dd930eaa05e7765f15843dec
+R c53361ee97986d7ae11be6bc4c531b52
+U drh
+Z 4570d2b26baac89054f20ea4cadb1d0d
