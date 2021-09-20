@@ -1,5 +1,5 @@
-C Applied\spatch\sfrom\sWarren\sat\s[forum:26371e6b32cb4ebc]\sto\sresolve\sthe\snew\sbehavior\sof\smarkdown\scatching\smessage\sprefixes\sof\s#NNN\sas\sa\sheader.
-D 2021-09-19T07:28:08.639
+C /chat:\sadd\spikchr\sclick\shandlers\sto\sincoming\smessages.
+D 2021-09-20T11:28:16.414
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -427,8 +427,8 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
-F src/chat.c 52853ac43f66fee02021bbc02e798d03c07dc96ba8ae0bcbae952fb246f2a64f
-F src/chat.js 22caaecb22120de6ae5b0ab92ed7147a4113d3fc3e19469bea97e17065da0785
+F src/chat.c 60018a92eff102b849a1dc93961fd424e410533d52e6ba7c1c491611cb4116b1
+F src/chat.js 8a7c049c9d73455b992dae7ce4a544b1c32b42f995dae8319c72c7cdef3ce3ca
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -985,7 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32bd273ebf6d1008d49d8d52c8bfea64cb8add7e43880bd18a35c896b621067c
-R cd1fa6bb436cf51f1fd0adc404578974
+P 408d584e21d1ae057d46bfac6a107270625a5f763a7ea0c53451f79e2dfe0db8
+R d0d1f8e0ca81977a8f726448d82cee79
 U stephan
-Z 57cdb82d8f1079a658d254afcf86d66f
+Z 2eb5ada381fe509b9529b59f345114e8

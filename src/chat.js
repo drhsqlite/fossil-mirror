@@ -683,6 +683,9 @@
             D.append(contentTarget, m.xmsg);
           }else{
             contentTarget.innerHTML = m.xmsg;
+            if(F.pikchr){
+              F.pikchr.addSrcView(contentTarget.querySelectorAll('svg.pikchr'));
+            }
           }
         }
         this.e.tab.addEventListener('click', this._handleLegendClicked, false);
