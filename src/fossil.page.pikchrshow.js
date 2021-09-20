@@ -102,7 +102,12 @@
     ////////////////////////////////////////////////////////////
     // Trigger preview on Ctrl-Enter.
     P.e.taContent.addEventListener('keydown',function(ev){
-      if(ev.ctrlKey && 13 === ev.keyCode) P.preview();
+      if(ev.ctrlKey && 13 === ev.keyCode){
+        ev.preventDefault();
+        ev.stopPropagation();
+        P.preview();
+        return false;
+      }
     }, false);
 
     ////////////////////////////////////////////////////////////

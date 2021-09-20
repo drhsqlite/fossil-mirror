@@ -930,13 +930,14 @@
     document.body.addEventListener('keydown',function(ev){
       if(ev.ctrlKey && 13 === ev.keyCode){
         if(currentTab === P.e.tabs.preview){
-          //ev.preventDefault();
-          //ev.stopPropagation();
+          ev.preventDefault();
+          ev.stopPropagation();
           P.tabs.switchToTab(P.e.tabs.content);
           P.e.taEditor.focus(/*doesn't work for client-supplied editor widget!
                               And it's slow as molasses for long docs, as focus()
                               forces a document reflow. */);
           //console.debug("BODY ctrl-enter");
+          return false;
         }
       }
     }, true);
