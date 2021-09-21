@@ -549,16 +549,18 @@ static int html_tagspan(
   if( text==0 ){
     /* no-op */
   }else{
-    char c;
+    char cPrefix = '!';
     BLOB_APPEND_LITERAL(ob, "<span data-");
     switch (type) {
-        case MKDT_ATREF: c='@'; BLOB_APPEND_LITERAL(ob, "atref"); break;
-        case MKDT_HASH:  c='#'; BLOB_APPEND_LITERAL(ob, "hash");  break;
+      case MKDT_ATREF:
+        cPrefix = '@'; BLOB_APPEND_LITERAL(ob, "atref"); break;
+      case MKDT_HASHTAG:
+        cPrefix = '#'; BLOB_APPEND_LITERAL(ob, "hashtag");  break;
     }
     BLOB_APPEND_LITERAL(ob, "=\"");
     html_quote(ob, blob_buffer(text), blob_size(text));
     BLOB_APPEND_LITERAL(ob, "\"");
-    blob_appendf(ob, ">%c%b</span>", c, text);
+    blob_appendf(ob, ">%c%b</span>", cPrefix,text);
   }
   return 1;
 }

@@ -23,7 +23,6 @@
 #include "markdown.h"
 
 #include <assert.h>
-#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -46,7 +45,7 @@ enum mkd_autolink {
 /* mkd_tagspan -- type of tagged <span> */
 enum mkd_tagspan {
   MKDT_ATREF,           /* @name references, as in /chat attention targeting */
-  MKDT_HASH,            /* #hash tags, message IDs, etc. */
+  MKDT_HASHTAG,         /* #hash tags, message IDs, etc. */
 };
 
 /* mkd_renderer -- functions for rendering parsed data */
@@ -893,14 +892,31 @@ static size_t char_atref_tag(
   size_t end;
   struct Blob work = BLOB_INITIALIZER;
 
-  if (size < 2 || !isalpha(data[1])) return 0;
-  for (end = 2; (end < size) && isalnum(data[end]); ++end) /* */ ;
-    
+  if(offset>0 && !fossil_isspace(data[-1])){
+    /* Only ever match if the *previous* character is
+       whitespace or we're at the start of the input. */
+    return 0;
+  }
+  /*fprintf(stderr,"@-REF: %.*s\n", (int)size, data);*/
+  if (size < 2 || !fossil_isalpha(data[1])) return 0;
+  for (end = 2; (end < size)
+         && (fossil_isalnum(data[end])
+             /* TODO: email addresses are legal fossil user names, but
+                parsing those is beyond our current ambitions.
+                Similarly, non-ASCII names are legal, but not
+                currently handled here. */
+             /*|| data[end] == '.' || data[end] == '_'
+               || data[end] == '-'*/);
+       ++end);
+  if(end<size){
+    if(!fossil_isspace(data[end])){
+      return 0;
+    }
+  }
   blob_init(&work, data + 1, end - 1);
   rndr->make.tagspan(ob, &work, MKDT_ATREF, rndr->make.opaque);
   return end;
 }
-
 
 /* char_hashref_tag -- '#' followed by "word" characters to tag
  * post numbers, hashtags, etc. */
@@ -914,12 +930,28 @@ static size_t char_hashref_tag(
   size_t end;
   struct Blob work = BLOB_INITIALIZER;
 
-  if (size < 2 || !isalnum(data[1])) return 0;
-  for (end = 2; (end < size) && (isalnum(data[end]) || data[end] == '.'); ++end) /* */ ;
-    
+  if(offset>0 && !fossil_isspace(data[-1])){
+    /* Only ever match if the *previous* character is
+       whitespace or we're at the start of the input. */
+    return 0;
+  }
+  if(size < 2 || !fossil_isalnum(data[1])) return 0;
+  /*fprintf(stderr,"HASHREF: %.*s\n", (int)size, data);*/
+  for (end = 2; (end < size) && fossil_isalnum(data[end]); ++end);
+  /*TODO: in order to support detection of forum post-style
+    references, we need to recognize #X.Y, but only when X and Y are
+    both purely numeric and Y ends on a word/sentence
+    boundary.*/
+  if(end<size){
+    /* Only match if we end at a dot or space or end of input */
+    if(data[end]!='.' && !fossil_isspace(data[end])){
+      return 0;
+    }
+  }
   blob_init(&work, data + 1, end - 1);
-  rndr->make.tagspan(ob, &work, MKDT_HASH, rndr->make.opaque);
+  rndr->make.tagspan(ob, &work, MKDT_HASHTAG, rndr->make.opaque);
   return end;
+  return 0;
 }
 
 
