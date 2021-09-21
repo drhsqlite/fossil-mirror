@@ -1,5 +1,5 @@
-C Added\s'@'\sand\s'#'\sprefixes\sin\sspans.\sInitial\scommit\sate\sthem.
-D 2021-09-21T16:38:41.275
+C Fixed\sa\sparen\snesting\sbug\sthat\sprevented\smulti-character\shashtags\sfrom\nbeing\sprocessed.\s\sIt\swould\sstop\sat\sthe\ssecond\scharacter.
+D 2021-09-21T16:42:25.367
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -533,7 +533,7 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 2bb9f9b921a045d53b387a4be404f3c697971c3eb60a0f6b58151e937404610e
+F src/markdown.c 74510ffe0377bbab392d337c06997e01aa4b8556cf92d105b195e8cf5cf851c5
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
 F src/markdown_html.c a216f2d38495b521fd322abe0acfd485e4651b48877ac824cb44adeddd947527
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b07f400ce3a5922b5d813b9380f1de9971fe551bb801f3b79deb2fe62eb44bf
-R e7b526be49ad08a3eab73188b30e240c
+P 398cfa0be0c2f7ef52d01bc93ab58b75637608d703782af586ee617861bb3a1b
+R 2759d24308c704ec4f7a7e41fef826d7
 U wyoung
-Z 922946f53660ddbf670aa44e147e9cd9
+Z 5802ba3e694343c6a4b3f47b8d2e1213

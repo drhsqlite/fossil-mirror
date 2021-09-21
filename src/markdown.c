@@ -915,7 +915,7 @@ static size_t char_hashref_tag(
   struct Blob work = BLOB_INITIALIZER;
 
   if (size < 2 || !isalnum(data[1])) return 0;
-  for (end = 2; (end < size) && (isalnum(data[end] || data[end] == '.')); ++end) /* */ ;
+  for (end = 2; (end < size) && (isalnum(data[end]) || data[end] == '.'); ++end) /* */ ;
     
   blob_init(&work, data + 1, end - 1);
   rndr->make.tagspan(ob, &work, MKDT_HASH, rndr->make.opaque);
