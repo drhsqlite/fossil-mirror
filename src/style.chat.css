@@ -228,9 +228,6 @@ body.chat #chat-edit-buttons {
   flex-direction: column;
   justify-content: space-between;
 }
-body.chat #chat-input-line.single-line {
-  flex-direction: column;
-}
 body.chat #chat-input-line.single-line #chat-edit-buttons {
   flex-direction: row;
 }

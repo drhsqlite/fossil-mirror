@@ -1027,7 +1027,9 @@
   (function(){/*Set up #chat-settings-button */
     const settingsButton = document.querySelector('#chat-settings-button');
     const optionsMenu = E1('#chat-config-options');
-    const cbToggle = function(){
+    const cbToggle = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
       if(Chat.e.configArea.classList.contains('hidden')){
         D.removeClass(Chat.e.configArea, 'hidden');
         D.addClass([Chat.e.messagesWrapper, Chat.e.previewArea], 'hidden');
@@ -1035,6 +1037,7 @@
         D.addClass(Chat.e.configArea, 'hidden');
         D.removeClass(Chat.e.messagesWrapper, 'hidden');
       }
+      return false;
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
     Chat.e.configArea.querySelector('button').addEventListener('click', cbToggle, false);

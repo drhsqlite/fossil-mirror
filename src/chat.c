@@ -164,10 +164,12 @@ void chat_webpage(void){
   @      placeholder="Type markdown-formatted message for %h(zProjectName). Ctrl-Enter sends it." \
   @      class="hidden"></textarea>
   @     <div id='chat-edit-buttons'>
-  @       <button id="chat-preview-button">Preview</button>
-  @       <span id="chat-settings-button" class="settings-icon" \
-  @         aria-label="Settings..." aria-haspopup="true" ></span>
-  @       <button id="chat-message-submit">Send</button>
+  @       <button id="chat-preview-button" \
+  @         title="Preview message">&#128065;</button>
+  @       <button id="chat-settings-button" \
+  @         title="Configure chat">&#9881;</button>
+  @       <button id="chat-message-submit" \
+  @         title="Send message">&#128228;</button>
   @     </div>
   @   </div>
   @   <div id='chat-input-file-area'>
