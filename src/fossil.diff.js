@@ -35,7 +35,7 @@ window.fossil.onPageLoad(function(){
         beforesend: function(){},
         aftersend: function(){},
         onerror: function(e){
-          F.toast.error("XHR error: ",e.message);
+          console.error("XHR error: ",e);
         }
       }
     }
@@ -140,6 +140,7 @@ window.fossil.onPageLoad(function(){
       D.attr(D.td(tr), 'colspan', this.isSplit ? 5 : 4),
       'chunkctrl'
     );
+    this.e.msgWidget = D.addClass(D.span(), 'hidden');
     this.e.btnWrapper = D.div();
     D.append(this.e.td, this.e.btnWrapper);
     /**
@@ -190,6 +191,7 @@ window.fossil.onPageLoad(function(){
     //this.e.btnDown = btnDown;
     if(btnDown) D.append(this.e.btnWrapper, btnDown);
     if(btnUp) D.append(this.e.btnWrapper, btnUp);
+    D.append(this.e.btnWrapper, this.e.msgWidget);
     /* For debugging only... */
     this.e.posState = D.span();
     D.append(this.e.btnWrapper, this.e.posState);
@@ -297,6 +299,7 @@ window.fossil.onPageLoad(function(){
         this.destroy();
         return this;
       }
+      this.msg(false);
       //console.debug("Loaded line range ",
       //urlParam.from,"-",urlParam.to, "fetchType ",fetchType);
       const lineno = [],
@@ -458,6 +461,24 @@ window.fossil.onPageLoad(function(){
     },
 
     /**
+       Sets this widget's message to the given text. If the message
+       represents an error, the first argument must be truthy, else it
+       must be falsy. Returns this object.
+    */
+    msg: function(isError,txt){
+      if(txt){
+        if(isError) D.addClass(this.e.msgWidget, 'error');
+        else D.removeClass(this.e.msgWidget, 'error');
+        D.append(
+          D.removeClass(D.clearElement(this.e.msgWidget), 'hidden'),
+          txt);
+      }else{
+        D.addClass(D.clearElement(this.e.msgWidget), 'hidden');
+      }
+      return this;
+    },
+
+    /**
        Fetches and inserts a line chunk. fetchType is:
 
        this.FetchType.NextUp = upwards from next chunk (this.pos.next)
@@ -482,14 +503,14 @@ window.fossil.onPageLoad(function(){
          previous lines, we're doing so on behalf of the *next* diff
          chunk (this.pos.next), and vice versa. */
       if(this.$isFetching){
-        F.toast.warning("Cannot load chunk while a load is pending.");
-        return this;
+        return this.msg(true,"Cannot load chunk while a load is pending.");
       }
       if(fetchType===this.FetchType.NextUp && !this.pos.next
         || fetchType===this.FetchType.PrevDown && !this.pos.prev){
         console.error("Attempt to fetch diff lines but don't have any.");
         return this;
       }
+      this.msg(false,"Fetching diff chunk...");
       const fOpt = {
         urlParams:{
           name: this.fileHash, from: 0, to: 0
@@ -530,6 +551,7 @@ window.fossil.onPageLoad(function(){
       }
       this.$isFetching = true;
       //console.debug("fetchChunk(",fetchType,")",up);
+      fOpt.onerror = (err)=>this.msg(true,err.message);
       Diff.fetchArtifactChunk(fOpt);
       return this;
     }

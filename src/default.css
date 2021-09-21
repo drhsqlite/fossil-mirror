@@ -604,7 +604,12 @@ tr.diffskip > td.chunkctrl {
   font-family: monospace;
 }
 tr.diffskip > td.chunkctrl > div {
-  /* Exists solely for layout purposes. */
+  display: flex;
+  align-items: center;
+}
+tr.diffskip > td.chunkctrl > div > span.error {
+  padding: 0.25em 0.5em;
+  border-radius: 0.5em;
 }
 tr.diffskip > td.chunkctrl .jcbutton
 /* class name .button breaks w/ some skins! */ {
