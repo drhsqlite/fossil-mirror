@@ -851,8 +851,6 @@
             }
           }/*f.popup*/;
         }/*end static init*/
-        console.debug("event =",ev);
-        console.debug("event.target =",ev.target);
         let theMsg = ev.target;
         while( theMsg && !theMsg.classList.contains('message-widget')){
           theMsg = theMsg.parentNode;
@@ -910,7 +908,7 @@
       if(!item || !item.type) return;
       else if('file'===item.kind){
         updateDropZoneContent(false/*clear prev state*/);
-        updateDropZoneContent(items[0].getAsFile());
+        updateDropZoneContent(item.getAsFile());
       }
     }, false);
     /* Add help button for drag/drop/paste zone */
