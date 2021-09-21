@@ -1053,7 +1053,7 @@ void login_check_credentials(void){
       /* Invalid cookie */
     }else if( fossil_strcmp(zUser, "anonymous")==0 ){
       /* Cookies of the form "HASH/TIME/anonymous".  The TIME must not be
-      ** too old and the sha1 hash of TIME/IPADDR/SECRET must match HASH.
+      ** too old and the sha1 hash of TIME/SECRET must match HASH.
       ** SECRET is the "captcha-secret" value in the repository.
       */
       double rTime = atof(zArg);

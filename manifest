@@ -1,5 +1,5 @@
-C Corrected\sth1\slappend\sto\spersist\sits\sresult,\sas\sreported\sin\s[forum:97f8815dd3ddd7df|forum\spost\s97f8815dd3ddd7df].
-D 2021-09-21T08:01:27.844
+C Fixed\sa\scomment\sto\smatch\sthe\scode,\sas\sreported\s[forum:/forumpost/81e0168804\s|\son\sthe\sforum].
+D 2021-09-21T09:47:24.488
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -524,7 +524,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c 0ad81f0ce3d20366b9e24e83a2dae42e591fe98cd0436a3ec54f98cfe9bfe617
+F src/login.c 3a32b1a9e096fc95adce72a939e527ba0909b38bc9a27ffd5e1ddc8584e91124
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c d741fc6df0f1e44b0e47385c5ba18735f9a1a19c80e3b2ad64e6b4358976e8ce
@@ -985,7 +985,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7cd51fa341efbfde54eff91a5d1b5c955b01ff24d3bc0b2b2cb9fcd5dacc8852
-R d0f7f071464380e7637f7c2cbe70e8a9
-U stephan
-Z 7cb9d84ca11592b143e047b1cbaf8239
+P cb531a541663ad095adfe5027ffd980f3f97235e54f68380df210dbbc7b449bc
+R 7c1d3ccb3858348da7e3dd0ad5aefbfd
+U wyoung
+Z 487cc809c2d9be57cf42a9683365a42c
