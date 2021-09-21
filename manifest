@@ -1,5 +1,5 @@
-C /chat\srestored\saccidentally-removed\sconfigurable\snotification\ssounds.\sMore\slayout\stweaks\son\schat\sbuttons.
-D 2021-09-21T14:34:58.008
+C Updated\schangelog\sfor\schat\spreview.\sHyperlinks\sin\spreview\smode\snow\shave\starget=_blank.\sRemoved\sextraneous\sFORM\selement\saround\schat\sinput\sarea,\sas\sit\scaused\sonly\sgrief\swith\sregards\sto\sEnter\skey\shandling\s(always\sactivating\sthe\sfirst\sbutton\sin\sthe\slist,\swhich\sis\snow\sthe\spreview\sbutton).
+D 2021-09-21T15:02:18.831
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -427,8 +427,8 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
-F src/chat.c 94a50674d7581e89f2677b033575906d1fa27e949f2b7409946513207a50048d
-F src/chat.js cd5aeda447a76e9c011294de661f7dd99605b3b77fb0d25b2c0c9ce37f1a5359
+F src/chat.c 91b0f4a5cdec842e93e6410e35169303cbbc2be323ac93712d7d4853c3936642
+F src/chat.js a61853532097a45b686d0c40559b370eceaf85c42a09fa9b07872596e694ff46
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -817,7 +817,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 174d7a865de8985647ca0fe6fdd06fad539a29ce6d75d8a6d5a44158a69a6629
+F www/changes.wiki 4b6d5899021f8283773b1a804e9af7f796b7352c975af93ab70356255d61e914
 F www/chat.md 3f663c34be18c9873f7d03c1fd43827bab160eda20baf3839f78beb640b29433
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03f33cd3c290116e97e718bbdd9d708a3a73b0d2c378c497a21aab4f51a2afa2
-R 64daf4e809e216cc24b28c8f64de545c
+P cf81ddf97a4cad9ab81747a1036ece2c4159567b6f82c647c75c3770869c0238
+R 47d5e7e981025e5cb5c23f69d8bf1f25
 U stephan
-Z cc2b8721b1ddb497b5204dc15ba245d6
+Z 0cde8587fee9a98da4a05d39f72643f2

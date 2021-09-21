@@ -154,7 +154,6 @@ void chat_webpage(void){
   zProjectName = db_get("project-name","Unnamed project");
   style_set_current_feature("chat");
   style_header("Chat");
-  @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line' class='single-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
@@ -184,7 +183,6 @@ void chat_webpage(void){
   @     <div id="chat-drop-details"></div>
   @   </div>
   @ </div>
-  @ </form>
   @ <div id='chat-preview' class='hidden'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
   @  <div id='chat-preview-content' class='message-widget-content'></div>

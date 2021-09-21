@@ -35,6 +35,8 @@
     return false;
   };
 
+  const addAnchorTargetBlank = (e)=>D.attr(e, 'target','_blank');
+
   (function(){
     let dbg = document.querySelector('#debugMsg');
     if(dbg){
@@ -106,7 +108,6 @@
         inputLine: E1('#chat-input-line'),
         fileSelectWrapper: E1('#chat-input-file-area'),
         messagesWrapper: E1('#chat-messages-wrapper'),
-        inputForm: E1('#chat-form'),
         btnSubmit: E1('#chat-message-submit'),
         inputSingle: E1('#chat-input-single'),
         inputMulti: E1('#chat-input-multi'),
@@ -670,7 +671,6 @@
         ':',pad2(d.getSeconds())
       ].join('');
     };
-    const addAnchorTargetBlank = (e)=>D.attr(e, 'target','_blank');
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -958,10 +958,7 @@
       f.spaces = /\s+$/;
     }
     this.revealPreview(false);
-    const fd = new FormData(this.e.inputForm)
-    /* ^^^^ we don't really want/need the FORM element, but when
-       FormData() is default-constructed here then the server
-       segfaults, and i have no clue why! */;
+    const fd = new FormData();
     var msg = this.inputValue().trim();
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
       /* Cosmetic: trim whitespace from the ends of lines to try to
@@ -1151,6 +1148,8 @@
     const btnPreview = Chat.e.btnPreview;
     Chat.setPreviewText = function(t){
       this.revealPreview(true).e.previewContent.innerHTML = t;
+      this.e.previewArea.querySelectorAll('a').forEach(addAnchorTargetBlank);
+      this.e.inputCurrent.focus();
     };
     /**
        Reveals preview area if showIt is true, else hides it.
