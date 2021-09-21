@@ -263,6 +263,7 @@ body.chat #chat-input-file-area > .file-selection-wrapper {
   margin-right: 0.5em;
   flex: 0 1 auto;
   padding: 0.25em 0.25em 0.25em 0;
+  white-space: nowrap;
 }
 body.chat #chat-input-file-area .file-selection-wrapper > * {
   vertical-align: middle;

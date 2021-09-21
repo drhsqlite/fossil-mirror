@@ -1,5 +1,5 @@
-C Moved\sthe\s350-ish\slines/9k\sof\schat-specific\sCSS\sinto\sstyle.chat.css.
-D 2021-09-21T11:32:33.259
+C /chat:\stell\sthe\sfile\sselection\swidget\snot\sto\swrap,\sso\sthat\sthe\shelp\sbutton\sstays\son\sthe\ssame\sline\s(reported\sfrom\sMartin\sG's\sphone).
+D 2021-09-21T11:52:34.963
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 3ef95ff5a3a6977f60da948ade93a7990f59a7fa714b189451545e5f14fcae62
+F src/style.chat.css 61e2c113897a7a41a2df7d51ff39975308a34311e7ceb7ebc4f55febc426ed82
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f33eefe2bb8bf14e00a61b9c8add780ac2db308d4ea21acf277fdee536fab943
-R 132809fb80d1d217b5fbfc1601e1f883
+P bd4dd24373c3fe38619417ab4cf6cc173ffda76b238a039faa41a4e684f0d73d
+R d8e3fb368767ca72525f7e5e2dfde4a9
 U stephan
-Z 650dfdb99f3102cf07c717c5fdce4137
+Z 4e239a4ac348bf695f51f5c5bf05d65f
