@@ -1062,11 +1062,11 @@
         document.body.classList.toggle('monospace-messages');
       }
     },{
-      label: "Chat-only mode",
-      boolValue: ()=>Chat.isChatOnlyMode(),
-      persistentSetting: 'chat-only-mode',
+      label: "Images inline",
+      boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
-        Chat.toggleChatOnlyMode();
+        const v = Chat.settings.toggle('images-inline');
+        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
     },{
       label: "Left-align my posts",
@@ -1075,11 +1075,11 @@
         document.body.classList.toggle('my-messages-right');
       }
     },{
-      label: "Images inline",
-      boolValue: ()=>Chat.settings.getBool('images-inline'),
+      label: "Chat-only mode",
+      boolValue: ()=>Chat.isChatOnlyMode(),
+      persistentSetting: 'chat-only-mode',
       callback: function(){
-        const v = Chat.settings.toggle('images-inline');
-        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
+        Chat.toggleChatOnlyMode();
       }
     }];
 
