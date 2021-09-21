@@ -220,14 +220,13 @@ body.chat:not(.chat-only-mode) #chat-input-area{
 body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
-  margin-bottom: 0.25em;
   align-items: stretch;
 }
 body.chat #chat-input-line.single-line {
   flex-wrap: wrap;
-  margin-bottom: 0.25em;
 }
 body.chat #chat-edit-buttons {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -236,10 +235,12 @@ body.chat #chat-input-line.single-line #chat-edit-buttons {
   flex-direction: row;
 }
 body.chat #chat-edit-buttons > * {
-  /*flex: 1 5 auto;*/
-  max-width: 6em;
+  flex: 1 1 auto;
   margin: 0 0.25em;
 }
+body.chat #chat-input-line.single-line #chat-edit-buttons > * {
+}
+
 body.chat #chat-input-line > button {
   max-width: 4em;
 }
@@ -249,9 +250,12 @@ body.chat #chat-input-line > #chat-settings-button{
 }
 body.chat #chat-input-line > input[type=text],
 body.chat #chat-input-line > textarea {
-  flex: 2 1 auto;
+  flex: 10 1 auto;
   max-width: revert;
-  min-width: 16em;
+  min-width: 20em;
+}
+body.chat #chat-input-line.single-line > input[type=text] {
+  margin: 0 0 0.25em 0/* gap for if/when buttons wrap*/;
 }
 /* Widget holding the file selection control and preview */
 body.chat #chat-input-file-area  {
@@ -259,6 +263,7 @@ body.chat #chat-input-file-area  {
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
+  margin-bottom: 0.25em 0 0 0 /* avoid nudging input area */;
 }
 body.chat #chat-input-file-area > .file-selection-wrapper {
   align-self: flex-start;

@@ -1148,7 +1148,7 @@
         D.addClass([Chat.e.messagesWrapper, Chat.e.configArea],
                    'hidden');
       }else{
-        D.addClass(Chat.e.previewArea, 'hidden');
+        D.addClass([Chat.e.configArea, Chat.e.previewArea], 'hidden');
         D.removeClass(Chat.e.messagesWrapper, 'hidden');
       }
       return this;

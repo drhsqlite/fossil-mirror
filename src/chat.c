@@ -186,7 +186,7 @@ void chat_webpage(void){
   @ </div>
   @ </form>
   @ <div id='chat-preview' class='hidden'>
-  @  <header>Preview:</header>
+  @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
   @  <div id='chat-preview-content' class='message-widget-content'></div>
   @  <div id='chat-preview-buttons'><button id='chat-preview-close'>Close Preview</button></div>
   @ </div>
