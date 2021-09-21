@@ -198,8 +198,8 @@ void chat_webpage(void){
   @ <span id='message-inject-point'></span>
   @ </div>
   fossil_free(zProjectName);
-  builtin_fossil_js_bundle_or("popupwidget", "storage",
-                              "fetch", "pikchr", NULL);
+  builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch",
+                              "pikchr", "confirmer", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
   /* We need an onload handler to ensure that window.fossil is

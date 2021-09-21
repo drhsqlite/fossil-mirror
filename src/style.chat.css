@@ -72,13 +72,13 @@ body.chat .message-widget .message-widget-tab .xfrom {
    and deletion controls. */
 body.chat .chat-message-popup {
   font-family: monospace;
-  font-size: 0.8em;
+  font-size: 0.9em;
   text-align: left;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   padding: 0.25em;
-  z-index: 200;
+  margin-top: 0.25em;
 }
 /* Full message timestamps. */
 body.chat .chat-message-popup > span { white-space: nowrap; }
