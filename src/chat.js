@@ -632,7 +632,7 @@
     const cf = function(){
       this.e = {
         body: D.addClass(D.div(), 'message-widget'),
-        tab: D.addClass(D.span(), 'message-widget-tab'),
+        tab: D.addClass(D.div(), 'message-widget-tab'),
         content: D.addClass(D.div(), 'message-widget-content')
       };
       D.append(this.e.body, this.e.tab, this.e.content);
@@ -694,10 +694,10 @@
         var eXFrom /* element holding xfrom name */;
         if(m.xfrom){
           eXFrom = D.append(D.addClass(D.span(), 'xfrom'), m.xfrom);
-          D.append(
-            this.e.tab, eXFrom,
-            D.text(" #",(m.msgid||'???'),' @ ',theTime(d))
-          );
+          const wrapper = D.append(
+            D.span(), eXFrom,
+            D.text(" #",(m.msgid||'???'),' @ ',theTime(d)))
+          D.append(this.e.tab, wrapper);
         }else{/*notification*/
           D.addClass(this.e.body, 'notification');
           if(m.isError){
@@ -753,10 +753,10 @@
             }
           }
         }
-        this.e.tab.addEventListener('click', this._handleLegendClicked, false);
-        if(eXFrom){
+        this.e.tab.firstElementChild.addEventListener('click', this._handleLegendClicked, false);
+        /*if(eXFrom){
           eXFrom.addEventListener('click', ()=>this.e.tab.click(), false);
-        }
+        }*/
         return this;
       },
       /* Event handler for clicking .message-user elements to show their
@@ -764,10 +764,10 @@
       _handleLegendClicked: function f(ev){
         if(!f.popup){
           /* Timestamp popup widget */
-          f.popup = new F.PopupWidget({
-            cssClass: ['fossil-tooltip', 'chat-message-popup'],
+          f.popup = {
+            e: D.addClass(D.div(), 'chat-message-popup'),
             refresh:function(){
-              const eMsg = this._eMsg;
+              const eMsg = this.$eMsg/*.message-widget element*/;
               if(!eMsg) return;
               D.clearElement(this.e);
               const d = new Date(eMsg.dataset.timestamp);
@@ -804,9 +804,14 @@
               if(Chat.userMayDelete(eMsg)){
                 const btnDeleteGlobal = D.button("Delete globally");
                 D.append(toolbar, btnDeleteGlobal);
-                btnDeleteGlobal.addEventListener('click', function(){
-                  self.hide();
-                  Chat.deleteMessage(eMsg);
+                F.confirmer(btnDeleteGlobal,{
+                  pinSize: true,
+                  ticks: F.config.confirmerButtonTicks,
+                  confirmText: "Confirm delete?",
+                  onconfirm:function(){
+                    self.hide();
+                    Chat.deleteMessage(eMsg);
+                  }
                 });
               }
               const toolbar2 = D.addClass(D.div(), 'toolbar');
@@ -815,7 +820,7 @@
               btnToggleText.addEventListener('click', function(){
                 self.hide();
                 Chat.toggleTextMode(eMsg);
-              });
+              },false);
               D.append(toolbar2, btnToggleText);
               if(eMsg.dataset.xfrom){
                 /* Add a link to the /timeline filtered on this user. */
@@ -828,28 +833,31 @@
                 );
                 D.append(toolbar2, timelineLink);
               }
-            }/*refresh()*/
-          });
-          f.popup.installHideHandlers();
-          f.popup.hide = function(){
-            delete this._eMsg;
-            D.clearElement(this.e);
-            return this.show(false);
-          };
+              const tab = eMsg.querySelector('.message-widget-tab');
+              D.append(tab, this.e);
+              D.removeClass(this.e, 'hidden');
+            }/*refresh()*/,
+            hide: function(){
+              D.addClass(D.clearElement(this.e), 'hidden');
+              delete this.$eMsg;
+            },
+            show: function(tgtMsg){
+              if(tgtMsg === this.$eMsg){
+                this.hide();
+                return;
+              }
+              this.$eMsg = tgtMsg;
+              this.refresh();
+            }
+          }/*f.popup*/;
         }/*end static init*/
-        const rect = ev.target.getBoundingClientRect();
-        const eMsg = ev.target.parentNode/*the owning .message-widget element*/;
-        f.popup._eMsg = eMsg;
-        let x = rect.left, y = rect.topm;
-        f.popup.show(ev.target)/*so we can get its computed size*/;
-        if(eMsg.dataset.xfrom===Chat.me
-           && document.body.classList.contains('my-messages-right')){
-          // Shift popup to the left for right-aligned messages to avoid
-          // truncation off the right edge of the page.
-          const pRect = f.popup.e.getBoundingClientRect();
-          x = rect.right - pRect.width;
+        console.debug("event =",ev);
+        console.debug("event.target =",ev.target);
+        let theMsg = ev.target;
+        while( theMsg && !theMsg.classList.contains('message-widget')){
+          theMsg = theMsg.parentNode;
         }
-        f.popup.show(x, y);
+        if(theMsg) f.popup.show(theMsg);
       }/*_handleLegendClicked()*/
     };
     return cf;
