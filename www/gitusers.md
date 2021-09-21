@@ -115,15 +115,15 @@ Someone coming from the Git perspective may perceive that `fossil up`
 has two purposes:
 
 *   Without the optional `VERSION` argument, it updates the working
-    checkout to the tip of the current branch, like `git pull`.
+    checkout to the tip of the current branch, as `git pull` does.
 
 *   Given a `VERSION` argument, it updates to the named version. If that’s the
-    name of a branch, it updates to the tip of that branch rather than
-    the current one, like `git checkout BRANCH`.
+    name of a branch, it updates to the *tip* of that branch, as
+    `git checkout BRANCH` does.
 
 In fact, these are the same operation, so they’re the same command in
 Fossil. The first form simply allows the `VERSION` to be implicit: the
-current branch.
+tip of the current branch.
 
 We think this is a more sensible command design than `git pull` vs
 `git checkout`. ([…vs `git checkout` vs `git checkout`!][gcokoan])
@@ -146,6 +146,7 @@ This author uses a scheme like the following on mobile machines that
 shuttle between home and the office:
 
 ``` pikchr toggle indent
+scale=0.8
 box "~/museum/" fit
 move right 0.1
 line right dotted
@@ -178,16 +179,18 @@ On a Windows box, you might instead choose "`C:\Fossils`"
 and do without the subdirectory scheme, for example.
 
 
-#### <a id="close" name="dotfile"></a> Closing A Check-Out
+#### <a id="close" name="dotfile"></a> Closing a Check-Out
 
 The [`fossil close`][close] command dissociates a check-out directory from the
-Fossil repository database, nondestructively inverting [`fossil open`][open]. It
-won’t remove the managed files, and unless you give the `--force`
+Fossil repository database, nondestructively inverting [`fossil open`][open].
+(Contrast [its closest inverse](#worktree), `git worktree remove`, which *is*
+destructive in Git!) This Fossil command does not
+remove the managed files, and unless you give the `--force`
 option, it won’t let you close the check-out with uncommitted changes to
 those managed files.
 
-The `close` command refuses to run without `--force` when you have
-certain precious per-checkout data, which Fossil stores in the
+The `close` command also refuses to run without `--force` when you have
+certain other precious per-checkout data that Fossil stores in the
 `.fslckout` file at the root of a check-out directory. This is a SQLite
 database that keeps track of local state such as what version you have
 checked out, the contents of the [stash] for that working directory, the
@@ -228,8 +231,8 @@ The symlink trick has a number of problems, the largest being that
 symlinks weren’t available on Windows until Vista, and until the Windows
 10 Creators Update was released in spring of 2017, you had to be an
 Administrator to use the feature besides. ([Source][wsyml]) Git solved
-this problem two years earlier with the `git-worktree` command in Git
-2.5:
+this problem back when Windows XP was Microsoft’s current offering
+with the `git-worktree` command, added in Git 2.5:
 
         git worktree add ../foo-branch foo-branch
         cd ../foo-branch
@@ -237,7 +240,14 @@ this problem two years earlier with the `git-worktree` command in Git
 That is approximately equivalent to this in Fossil:
 
         mkdir ../foo-branch
+        cd ../foo-branch
         fossil open /path/to/repo.fossil foo-branch
+
+The Fossil alternative is wordier, but this tends to be one-time setup,
+not something you do everyday. This author keeps a “scratch” checkout
+for cases where is isn’t appropriate to reuse the “trunk” checkout. The
+other peer checkouts therefore tend to track long-lived branches, so
+they rarely change once a development machine is set up.
 
 That then leads us to the closest equivalent in Git to [closing a Fossil
 check-out](#close):
@@ -342,9 +352,9 @@ files in sequence as Git must, so the OS’s buffer cache can result in
 [still better performance][35pct].
 
 Unlike Git’s log, Fossil’s timeline shows info across branches by
-default, a feature for maintaining better situational awareness. The
+default, a feature for maintaining better situational awareness. Although the
 `fossil timeline` command has no way to show a single branch’s commits,
-but you can restrict your view like this using the web UI equivalent by
+you can restrict your view like this using the web UI equivalent by
 clicking the name of a branch on the `/timeline` or `/brlist` page. (Or
 manually, by adding the `r=` query parameter.) Note that even in this
 case, the Fossil timeline still shows other branches where they interact
@@ -509,6 +519,9 @@ of the files or directories you want to commit as arguments, like this:
 
         fossil commit src/feature.c doc/feature.md examples/feature
 
+Note that the last element is a directory name, meaning “any changed
+file under the `examples/feature` directory.”
+
 Although there are currently no
 <a id="csplit"></a>[commit splitting][gcspl] features in Fossil like
 `git add -p`, `git commit -p`, or `git rebase -i`, you can get the same
@@ -552,12 +565,12 @@ design leads.
 
 
 <a id="bneed"></a>
-## Create Branches At Point Of Need, Rather Than Ahead of Need
+## Create Branches at Point of Need, Rather Than Ahead of Need
 
 Fossil prefers that you create new branches as part of the first commit
 on that branch:
 
-        fossil commit --branch my-new-branch
+        fossil commit --branch my-branch
 
 If that commit is successful, your local check-out directory is then
 switched to the tip of that branch, so subsequent commits don’t need the
@@ -566,25 +579,38 @@ adding commits to the tip of that branch.
 
 To switch back to the parent branch, say something like:
 
-        fossil update trunk       # ≅ git checkout master
+        fossil update trunk
+
+(This is approximately equivalent to `git checkout master`.)
 
 Fossil does also support the Git style, creating the branch ahead of
 need:
 
-        fossil branch new my-new-branch
-        fossil update my-new-branch
+        fossil branch new my-branch
+        fossil up my-branch
         ...work on first commit...
         fossil commit
 
-This is more verbose, but it has the same effect: put the first commit
-onto `my-new-branch` and switch the check-out directory to that branch so
-subsequent commits are descendants of that initial branch commit.
+This is more verbose, giving the same overall effect though the initial
+actions are inverted: create a new branch for the first commit, switch
+the check-out directory to that branch, and make that first commit. As
+above, subsequent commits are descendants of that initial branch commit.
+We think you’ll agree that creating a branch as part of the initial
+commit is simpler.
 
 Fossil also allows you to move a check-in to a different branch
 *after* you commit it, using the "`fossil amend`" command.
 For example:
 
-        fossil amend current --branch my-new-branch
+        fossil amend current --branch my-branch
+
+This works by inserting a tag into the repository that causes the web UI
+to relabel commits from that point forward with the new name. Like Git,
+Fossil’s fundamental data structure is the interlinked DAG of commit
+hashes; branch names are supplemental data for making it easier for the
+humans to understand this DAG, so this command does not change the core
+history of the project, only annotate it for better display to the
+humans.
 
 (The version string “current” is one of the [special check-in names][scin] in Fossil. See
 that document for the many other names you can give to “`amend`”, or
@@ -615,7 +641,7 @@ system while retaining the advantages of distributed version control:
 
 1.  Your work stays synced up with your coworkers’ efforts as long as your
     machine can connect to the remote repository. At need, you can go
-    off-network and continue work atop the last version you sync’d with
+    off-network and continue work atop the last version you synced with
     the remote.
 
 2.  It provides immediate off-machine backup of your commits. Unlike
@@ -641,7 +667,7 @@ system while retaining the advantages of distributed version control:
 
 
 <a id="syncall"></a>
-## Sync Is All-Or-Nothing
+## Sync Is All-or-Nothing
 
 Fossil does not support the concept of syncing, pushing, or pulling
 individual branches.  When you sync/push/pull in Fossil, it
@@ -713,7 +739,7 @@ addressed there.
 
 There is only one sub-feature of `git rebase` that is philosophically
 compatible with Fossil yet which currently has no functional equivalent.
-We cover [this and the workaround for it](#csplit) above.
+We [covered this and the workaround for its lack](#csplit) above.
 
 [3]: ./rebaseharm.md
 
@@ -735,7 +761,8 @@ then say:
 
 Because this is unconditional, unlike `git diff --color=auto`, you will
 then have to remember to add the `-i` option to `fossil diff` commands
-when you want color disabled, such as when piping diff output to another
+when you want color disabled, such as when producing `patch(1)` files
+or piping diff output to another
 command that doesn’t understand ANSI escape sequences. There’s an
 example of this [below](#dstat).
 
@@ -752,10 +779,10 @@ ability to run on files not inside any repository.
 ## <a id="show"></a> Showing Information About Commits
 
 While there is no direct equivalent to Git’s “`show`” command, similar
-functionality may be present in Fossil under other commands:
+functionality is present in Fossil under other commands:
 
 
-#### <a id="patch"></a> Show A Patch For A Commit
+#### <a id="patch"></a> Show a Patch for a Commit
 
         git show -p COMMIT_ID
 
@@ -771,16 +798,20 @@ You can use any of [Fossil’s special check-in names][scin] in place of
 the `COMMIT_ID` in this and later examples. Fossil docs usually say
 “`VERSION`” or “`NAME`” where this is allowed, since the version string
 or name might not refer to a commit ID, but instead to a forum post, a
-wiki document, etc. The following command answers the question “What did
+wiki document, etc. For instance, the following command answers the question “What did
 I just commit?”
 
         fossil diff --checkin tip
+
+…or equivalently using a different symbolic commit name:
+
+        fossil diff --from prev
 
 [devorg]: ./fossil-v-git.wiki#devorg
 [LKML]:   https://lkml.org/
 
 
-#### <a id="cmsg"></a> Show A Specific Commit Message
+#### <a id="cmsg"></a> Show a Specific Commit Message
 
         git show -s COMMIT_ID
 
@@ -892,14 +923,14 @@ can cast it away on a per-command basis:
 ----
 
 
-## <a id="cvdate" name="cs1"></a> Case Study 1: Checking Out A Version By Date
+## <a id="cvdate" name="cs1"></a> Case Study 1: Checking Out a Version by Date
 
 Let’s get into something a bit more complicated: a case study showing
 how the concepts lined out above cause Fossil to materially differ in
 day-to-day operation from Git.
 
 Why would you want to check out a version of a project by date?  Perhaps
-because your customer gave you a vague bug report referencing only a
+your customer gave you a vague bug report referencing only a
 date rather than a version. Or, you may be poking semi-randomly through
 history to find a “good” version to anchor the start point of a
 [`fossil bisect`][fbis] operation.
@@ -919,8 +950,8 @@ critical:
 
 2.  A date string in Git without a time will be interpreted as
     “[at the local wall clock time on the given date][gapxd],” so the
-    command means something different from one second to the next. This
-    can be a problem if there are multiple commits on that date, because
+    command means something different from one second to the next! This
+    can be a serious problem if there are multiple commits on that date, because
     the command will give different results depending on the time of
     day you run it.
 
@@ -942,7 +973,7 @@ critical:
     Git tries its best, but because it’s working from a purgeable and
     possibly-stale local cache, you cannot trust its results.
 
-We cannot recommend this command at all. It’s unreliable even in the
+Consequently, we cannot recommend this command at all. It’s unreliable even in the
 best case.
 
 That same Stack Overflow answer therefore goes on to recommend an
@@ -1022,7 +1053,7 @@ to three Fossil design choices:
 *  Use an indexed SQL `ORDER BY` query to match timestamps to commit
    IDs for a fast and consistent result.
 
-*  Round timestamp strings up using [rules][frud] consistent across
+*  Round incomplete timestamp strings up using [rules][frud] consistent across
    computers and local time of day.
 
 [frud]:   https://fossil-scm.org/home/file/src/name.c?ci=d2a59b03727bc3&ln=122-141
@@ -1197,9 +1228,15 @@ The “Friday afternoon sync-up” case is simpler, too:
         fossil remote work
         fossil sync
 
-Back at home, it’s simpler still: we can do away with the second command,
+Back at home, it’s simpler still: we may be able to do away with the second command,
 saying just “`fossil remote home`” because the sync will happen as part
-of the next commit, thanks once again to Fossil’s autosync feature.
+of the next commit, thanks once again to Fossil’s autosync feature. If
+the working branch now has commits from other developers after syncing
+with the central repository, though, you’ll want to say “`fossil up`” to
+avoid creating an inadvertent fork in the branch.
+
+(Which is easy to fix if it occurs: `fossil merge` without arguments
+means “merge open tips on the current branch.”)
 
 [grsync]: https://stackoverflow.com/q/1398018/142454
 [qs]:     ./quickstart.wiki
