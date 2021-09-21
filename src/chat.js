@@ -1082,19 +1082,33 @@
 
     /** Set up selection list of notification sounds. */
     if(1){
-      settingsOps.push({
-        label: "Audible alerts",
-        boolValue: ()=>Chat.settings.getBool('audible-alert'),
-        callback: function(){
-          const v = Chat.settings.toggle('audible-alert');
-          Chat.setNewMessageSound(v ? F.config.chat.alertSound : false);
-          if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
-          F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-        }
+      settingsOps.selectSound = D.addClass(D.div(), 'menu-entry');
+      const selectSound = D.select();
+      D.append(settingsOps.selectSound,
+               D.append(D.span(),"Audio alert"),
+               selectSound);
+      D.option(selectSound, "", "(no audio)");
+      const firstSoundIndex = selectSound.options.length;
+      F.config.chat.alerts.forEach(function(a){
+        D.option(selectSound, a);
       });
-      Chat.setNewMessageSound(
-        Chat.settings.getBool('audible-alert') ? F.config.chat.alertSound : false
-      );
+      if(true===Chat.settings.getBool('audible-alert')){
+        selectSound.selectedIndex = firstSoundIndex;
+      }else{
+        selectSound.value = Chat.settings.get('audible-alert','');
+        if(selectSound.selectedIndex<0){
+          /*Missing file - removed after this setting was applied. Fall back
+            to the first sound in the list. */
+          selectSound.selectedIndex = firstSoundIndex;
+        }
+      }
+      selectSound.addEventListener('change',function(){
+        const v = this.value;
+        Chat.setNewMessageSound(v);
+        F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+        if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
+      }, false);
+      Chat.setNewMessageSound(selectSound.value);
     }/*audio notification config*/
     /**
        Build list of options...

@@ -236,9 +236,13 @@ body.chat #chat-input-line.single-line #chat-edit-buttons {
 }
 body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
-  margin: 0 0.25em;
+}
+body.chat #chat-input-line:not(.single-line) #chat-edit-buttons > * {
+  max-width: 4em;
+  margin: 0.25em;
 }
 body.chat #chat-input-line.single-line #chat-edit-buttons > * {
+  margin: 0 0.25em;
 }
 
 body.chat #chat-input-line > button {
@@ -250,7 +254,7 @@ body.chat #chat-input-line > #chat-settings-button{
 }
 body.chat #chat-input-line > input[type=text],
 body.chat #chat-input-line > textarea {
-  flex: 10 1 auto;
+  flex: 20 1 auto;
   max-width: revert;
   min-width: 20em;
 }
