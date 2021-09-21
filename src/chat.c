@@ -156,16 +156,19 @@ void chat_webpage(void){
   style_header("Chat");
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
-  @   <div id='chat-input-line'>
+  @   <div id='chat-input-line' class='single-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
   @      placeholder="Type markdown-formatted message for %h(zProjectName)." \
   @      autocomplete="off">
   @     <textarea rows="8" id="chat-input-multi" \
   @      placeholder="Type markdown-formatted message for %h(zProjectName). Ctrl-Enter sends it." \
   @      class="hidden"></textarea>
-  @     <input type="submit" value="Send" id="chat-message-submit">
-  @     <span id="chat-settings-button" class="settings-icon" \
-  @       aria-label="Settings..." aria-haspopup="true" ></span>
+  @     <div id='chat-edit-buttons'>
+  @       <button id="chat-preview-button">Preview</button>
+  @       <span id="chat-settings-button" class="settings-icon" \
+  @         aria-label="Settings..." aria-haspopup="true" ></span>
+  @       <button id="chat-message-submit">Send</button>
+  @     </div>
   @   </div>
   @   <div id='chat-input-file-area'>
   @     <div class='file-selection-wrapper'>
@@ -180,10 +183,15 @@ void chat_webpage(void){
   @   </div>
   @ </div>
   @ </form>
+  @ <div id='chat-preview' class='hidden'>
+  @  <header>Preview:</header>
+  @  <div id='chat-preview-content' class='message-widget-content'></div>
+  @  <div id='chat-preview-buttons'><button id='chat-preview-close'>Close Preview</button></div>
+  @ </div>
   @ <div id='chat-config' class='hidden'>
   @ <div id='chat-config-options'></div>
     /* ^^^populated client-side */
-  @ <button>Close</button>
+  @ <button>Close Settings</button>
   @ </div>
   @ <div id='chat-messages-wrapper'>
   /* New chat messages get inserted immediately after this element */
@@ -205,6 +213,7 @@ void chat_webpage(void){
   @   initSize: %d(db_get_int("chat-initial-history",50)),
   @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
   @ };
+  ajax_emit_js_preview_modes(0);
   chat_emit_alert_list();
   cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);

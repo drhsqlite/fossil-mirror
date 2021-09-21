@@ -1642,6 +1642,9 @@ body.chat .message-widget-content > * {
   margin: 0;
   padding: 0;
 }
+body.chat .message-widget-content > pre {
+  white-space: pre-wrap;
+}
 body.chat .message-widget-content > .markdown > *:first-child {
   margin-top: 0;
 }
@@ -1851,12 +1854,21 @@ body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
   margin-bottom: 0.25em;
-  align-items: self-start;
+  align-items: stretch;
 }
-body.chat #chat-input-line > input[type=submit],
-body.chat #chat-input-line > #chat-settings-button,
-body.chat #chat-input-line > button {
-  flex: 1 5 auto;
+body.chat #chat-edit-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+body.chat #chat-input-line.single-line {
+  flex-direction: column;
+}
+body.chat #chat-input-line.single-line #chat-edit-buttons {
+  flex-direction: row;
+}
+body.chat #chat-edit-buttons > * {
+  /*flex: 1 5 auto;*/
   max-width: 6em;
   margin: 0 0.25em;
 }
@@ -1870,6 +1882,7 @@ body.chat #chat-input-line > #chat-settings-button{
 body.chat #chat-input-line > input[type=text],
 body.chat #chat-input-line > textarea {
   flex: 5 1 auto;
+  max-width: revert;
 }
 /* Widget holding the file selection control and preview */
 body.chat #chat-input-file-area  {
@@ -1913,19 +1926,18 @@ body.chat #chat-drop-details img {
   max-width: 45%;
   max-height: 45%;
 }
-body.chat #chat-config {
+
+body.chat #chat-config,
+body.chat #chat-preview {
   /* /chat configuration widget */
   display: flex;
   flex-direction: column;
-  flex: 1 0 auto;
   overflow: auto;
   flex: 2 1 auto;
-  padding: 0 0.25em;
-}
-body.chat #chat-config > button {
-  padding: 0.5em;
-  flex: 0 1 auto;
-  margin: 0.25em 0;
+  padding: 0;
+  margin: 0;
+  align-items: stretch;
+  min-height: 6em;
 }
 body.chat #chat-config #chat-config-options {
   /* /chat config options go here */
@@ -1944,6 +1956,28 @@ body.chat #chat-config #chat-config-options .menu-entry {
 body.chat #chat-config #chat-config-options .menu-entry > *:first-child {
   margin-right: 1em;
 }
+body.chat #chat-preview #chat-preview-content {
+  overflow: auto;
+  flex: 1 1 auto;
+  padding: 0.5em;
+  border: 1px dotted;
+}
+body.chat #chat-preview #chat-preview-content > * {
+  margin: 0;
+  padding: 0;
+}
+body.chat #chat-preview #chat-preview-buttons {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+body.chat #chat-config > button,
+body.chat #chat-preview #chat-preview-buttons > button {
+  padding: 0.5em;
+  flex: 0 1 auto;
+  margin: 0.25em 0;
+}
+
 input[type="checkbox"].diff-toggle {
   float: right;
 }

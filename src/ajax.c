@@ -266,12 +266,14 @@ int ajax_get_fnci_args( const char **zFn, const char **zCi ){
 }
 
 /*
-** AJAX route /ajax/preview-wiki
+** AJAX route /ajax/preview-text
 **
 ** Required query parameters:
 **
 ** filename=name of content, for use in determining the
-** mimetype/render mode.  content=text
+** mimetype/render mode.
+**
+** content=text
 **
 ** Optional query parameters:
 **
@@ -367,7 +369,7 @@ int cmp_ajax_route_name(const void *a, const void *b){
 }
 
 /*
-** WEBPAGE: ajax
+** WEBPAGE: ajax hidden
 **
 ** The main dispatcher for shared ajax-served routes. Requires the
 ** 'name' parameter be the main route's name (as defined in a list in
