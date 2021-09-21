@@ -23,6 +23,7 @@
 #include "markdown.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -40,6 +41,12 @@ enum mkd_autolink {
   MKDA_NORMAL,          /* normal http/http/ftp link */
   MKDA_EXPLICIT_EMAIL,  /* e-mail link with explicit mailto: */
   MKDA_IMPLICIT_EMAIL   /* e-mail link without mailto: */
+};
+
+/* mkd_tagspan -- type of tagged <span> */
+enum mkd_tagspan {
+  MKDT_ATREF,           /* @name references, as in /chat attention targeting */
+  MKDT_HASH,            /* #hash tags, message IDs, etc. */
 };
 
 /* mkd_renderer -- functions for rendering parsed data */
@@ -79,6 +86,8 @@ struct mkd_renderer {
   int (*link)(struct Blob *ob, struct Blob *link, struct Blob *title,
           struct Blob *content, void *opaque);
   int (*raw_html_tag)(struct Blob *ob, struct Blob *tag, void *opaque);
+  int (*tagspan)(struct Blob *ob, struct Blob *ref, enum mkd_tagspan type,
+        void *opaque);
   int (*triple_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
 
@@ -868,6 +877,48 @@ static size_t char_entity(
   }else{
     blob_append(ob, data, end);
   }
+  return end;
+}
+
+
+/* char_atref_tag -- '@' followed by "word" characters to tag
+ * at-references */
+static size_t char_atref_tag(
+  struct Blob *ob,
+  struct render *rndr,
+  char *data,
+  size_t offset,
+  size_t size
+){
+  size_t end;
+  struct Blob work = BLOB_INITIALIZER;
+
+  if (size < 2 || !isalpha(data[1])) return 0;
+  for (end = 2; (end < size) && isalnum(data[end]); ++end) /* */ ;
+    
+  blob_init(&work, data + 1, end - 1);
+  rndr->make.tagspan(ob, &work, MKDT_ATREF, rndr->make.opaque);
+  return end;
+}
+
+
+/* char_hashref_tag -- '#' followed by "word" characters to tag
+ * post numbers, hashtags, etc. */
+static size_t char_hashref_tag(
+  struct Blob *ob,
+  struct render *rndr,
+  char *data,
+  size_t offset,
+  size_t size
+){
+  size_t end;
+  struct Blob work = BLOB_INITIALIZER;
+
+  if (size < 2 || !isalnum(data[1])) return 0;
+  for (end = 2; (end < size) && (isalnum(data[end] || data[end] == '.')); ++end) /* */ ;
+    
+  blob_init(&work, data + 1, end - 1);
+  rndr->make.tagspan(ob, &work, MKDT_HASH, rndr->make.opaque);
   return end;
 }
 
@@ -2223,6 +2274,8 @@ void markdown(
   if( rndr.make.codespan ) rndr.active_char['`'] = char_codespan;
   if( rndr.make.linebreak ) rndr.active_char['\n'] = char_linebreak;
   if( rndr.make.image || rndr.make.link ) rndr.active_char['['] = char_link;
+  rndr.active_char['@'] = char_atref_tag;
+  rndr.active_char['#'] = char_hashref_tag;
   rndr.active_char['<'] = char_langle_tag;
   rndr.active_char['\\'] = char_escape;
   rndr.active_char['&'] = char_entity;

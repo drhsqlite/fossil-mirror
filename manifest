@@ -1,5 +1,5 @@
-C Updated\schangelog\sfor\schat\spreview.\sHyperlinks\sin\spreview\smode\snow\shave\starget=_blank.\sRemoved\sextraneous\sFORM\selement\saround\schat\sinput\sarea,\sas\sit\scaused\sonly\sgrief\swith\sregards\sto\sEnter\skey\shandling\s(always\sactivating\sthe\sfirst\sbutton\sin\sthe\slist,\swhich\sis\snow\sthe\spreview\sbutton).
-D 2021-09-21T15:02:18.831
+C Initial\simplementation\sof\s<span\sdata>\swrappers\saround\s@name\sand\s#tag\nreferences.\sSeems\sfunctional\son\sa\stest-markdown-render\sbasis,\sbut\sthe\ndefinitions\sof\swhat\scounts\sas\sa\sreference\sand\swhat\sto\sdo\swith\sthem\nstill\sremains\sto\sbe\shandled.
+D 2021-09-21T16:19:47.177
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -533,9 +533,9 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
+F src/markdown.c 2bb9f9b921a045d53b387a4be404f3c697971c3eb60a0f6b58151e937404610e
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
-F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
+F src/markdown_html.c d9dadfd558eb05f8720097e2277f1ce4494d68b10771c096e8d173ecd77481e6
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 198021b2831021563ba6ae220d50a5dcbd48f73b0996711b93f2ce5ba8dd9ce2
@@ -986,7 +986,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf81ddf97a4cad9ab81747a1036ece2c4159567b6f82c647c75c3770869c0238
-R 47d5e7e981025e5cb5c23f69d8bf1f25
-U stephan
-Z 0cde8587fee9a98da4a05d39f72643f2
+P 60ed1ff9511306a902128adf6b8b789d4b2b265d5e7f9fe2002b651dbe1a0a44
+R 676cb2f928f493e6669a20a5e9533a57
+T *branch * markdown-tagrefs
+T *sym-markdown-tagrefs *
+T -sym-trunk *
+U wyoung
+Z 32cefe9f532cf535d26a211209b9a95a
