@@ -542,22 +542,23 @@ static int html_link(
 */
 static int html_tagspan(
   struct Blob *ob,        /* Write the output here */
-  struct Blob *text,      /* The stuff in between the code span marks */
-  enum mkd_tagspan type,  /* which type of tagspan we're creating */
+  struct Blob *text,      /* The word after the tag character */
+  enum mkd_tagspan type,  /* Which type of tagspan we're creating */
   void *opaque
 ){
   if( text==0 ){
     /* no-op */
   }else{
+    char c;
     BLOB_APPEND_LITERAL(ob, "<span data-");
     switch (type) {
-        case MKDT_ATREF: BLOB_APPEND_LITERAL(ob, "atref"); break;
-        case MKDT_HASH:  BLOB_APPEND_LITERAL(ob, "hash");  break;
+        case MKDT_ATREF: c='@'; BLOB_APPEND_LITERAL(ob, "atref"); break;
+        case MKDT_HASH:  c='#'; BLOB_APPEND_LITERAL(ob, "hash");  break;
     }
     BLOB_APPEND_LITERAL(ob, "=\"");
     html_quote(ob, blob_buffer(text), blob_size(text));
     BLOB_APPEND_LITERAL(ob, "\"");
-    blob_appendf(ob, ">%b</span>", text);
+    blob_appendf(ob, ">%c%b</span>", c, text);
   }
   return 1;
 }
