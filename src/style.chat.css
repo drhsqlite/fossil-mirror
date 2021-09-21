@@ -223,6 +223,9 @@ body.chat #chat-input-line {
   margin-bottom: 0.25em;
   align-items: stretch;
 }
+body.chat #chat-input-line.single-line {
+  flex-wrap: wrap;
+}
 body.chat #chat-edit-buttons {
   display: flex;
   flex-direction: column;
@@ -247,6 +250,7 @@ body.chat #chat-input-line > input[type=text],
 body.chat #chat-input-line > textarea {
   flex: 5 1 auto;
   max-width: revert;
+  min-width: 24em;
 }
 /* Widget holding the file selection control and preview */
 body.chat #chat-input-file-area  {

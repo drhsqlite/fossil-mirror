@@ -1,5 +1,5 @@
-C Reduced\sside\smargin/padding\son\stext\sinput\sfield\sto\simprove\sphone\susability.
-D 2021-09-21T13:10:38.157
+C In\ssingle-line\sedit\smode,\swrap\sthe\schat\sbuttons\sif\sthe\sscreen\sis\snot\s"wide\senough."\sGive\sthe\sedit\sfield\sa\smin-width\sof\s(experimentally)\s24em.
+D 2021-09-21T13:18:47.225
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 8d6cd6fa2b0f96ac5c19fa8f2955c87cbab3dd771155cee80ee1844300499489
+F src/style.chat.css a07b985749c03b8a390cdf336fd9836656cc00ddfe88db3740c6ddf6c9aae471
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 607854c90f95b5c8d918701d47bfb2a36e658913ce67bae160493b75938edc52
-R 92dc5d156ad2824f8c395e3d54401a90
+P ac6e7ae9da579b64df192b8893b159616dc185b5c9f6fb0c3acd0bafb7a5d8ac
+R e8013515e9669ab6efe70a43c1664605
 U stephan
-Z 579f0c2f706974249643f9f2d9375f6e
+Z 13ace52d3a3c43b6326ca546b19ec615
