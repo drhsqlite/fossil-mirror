@@ -201,10 +201,10 @@ body.chat div.content {
 body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
-  padding: 0.5em 1em;
+  padding: 0.5em 0 0 0;
   border-bottom: none;
   border-top: 1px solid black;
-  margin: 0.5em 1em 0 1em;
+  margin: 0.5em 0;
   position: initial /*sticky currently disabled due to scrolling-related issues*/;
   bottom: 0;
 }
