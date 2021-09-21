@@ -332,8 +332,11 @@ body.chat #chat-config #chat-config-options .menu-entry {
   flex-wrap: wrap;
   padding: 1em;
 }
-body.chat #chat-config #chat-config-options .menu-entry > *:first-child {
+body.chat #chat-config #chat-config-options .menu-entry > input:first-child {
   margin-right: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry > label:first-child {
+  margin-right: 0.5em;
 }
 body.chat #chat-preview #chat-preview-content {
   overflow: auto;

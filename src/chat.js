@@ -1085,36 +1085,36 @@
 
     /** Set up selection list of notification sounds. */
     if(1){
-      settingsOps.selectSound = D.addClass(D.div(), 'menu-entry');
       const selectSound = D.select();
-      D.append(settingsOps.selectSound,
-               D.append(D.span(),"Audio alert"),
-               selectSound);
       D.option(selectSound, "", "(no audio)");
       const firstSoundIndex = selectSound.options.length;
-      F.config.chat.alerts.forEach(function(a){
-        D.option(selectSound, a);
-      });
+      F.config.chat.alerts.forEach((a)=>D.option(selectSound, a));
       if(true===Chat.settings.getBool('audible-alert')){
+        /* This setting used to be a plain bool. If we encounter
+           such a setting, take the first sound in the list. */
         selectSound.selectedIndex = firstSoundIndex;
       }else{
         selectSound.value = Chat.settings.get('audible-alert','');
         if(selectSound.selectedIndex<0){
-          /*Missing file - removed after this setting was applied. Fall back
-            to the first sound in the list. */
+          /* Missing file - removed after this setting was
+            applied. Fall back to the first sound in the list. */
           selectSound.selectedIndex = firstSoundIndex;
         }
       }
-      selectSound.addEventListener('change',function(){
-        const v = this.value;
-        Chat.setNewMessageSound(v);
-        F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-        if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
-      }, false);
       Chat.setNewMessageSound(selectSound.value);
+      settingsOps.push({
+        label: "Audio alert",
+        select: selectSound,
+        callback: function(ev){
+          const v = ev.target.value;
+          Chat.setNewMessageSound(v);
+          F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+          if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
+        }
+      });
     }/*audio notification config*/
     /**
-       Build list of options...
+       Build UI for config options...
     */
     settingsOps.forEach(function f(op){
       const line = D.addClass(D.div(), 'menu-entry');
@@ -1127,7 +1127,10 @@
           Chat.settings.set(op.persistentSetting, op.boolValue());
         }
       };
-      if(op.hasOwnProperty('boolValue')){
+      if(op.hasOwnProperty('select')){
+        D.append(line, btn, op.select);
+        op.select.addEventListener('change', callback, false);
+      }else if(op.hasOwnProperty('boolValue')){
         if(undefined === f.$id) f.$id = 0;
         ++f.$id;
         const check = D.attr(D.checkbox(1, op.boolValue()),
@@ -1138,13 +1141,14 @@
         D.attr(btn, 'for', id);
         D.append(line, check);
         check.addEventListener('change', callback);
+        D.append(line, btn);
       }else{
         line.addEventListener('click', callback);
+        D.append(line, btn);
       }
-      D.append(line, btn);
       D.append(optionsMenu, line);
     });
-    if(settingsOps.selectSound){
+    if(0 && settingsOps.selectSound){
       D.append(optionsMenu, settingsOps.selectSound);
     }
     //settingsButton.click()/*for for development*/;
