@@ -951,7 +951,6 @@ static size_t char_hashref_tag(
   blob_init(&work, data + 1, end - 1);
   rndr->make.tagspan(ob, &work, MKDT_HASHTAG, rndr->make.opaque);
   return end;
-  return 0;
 }
 
 
