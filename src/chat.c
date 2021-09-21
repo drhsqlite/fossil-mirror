@@ -601,6 +601,83 @@ void chat_poll_webpage(void){
 }
 
 /*
+** WEBPAGE: chat-fetch-one hidden
+**
+** /chat-fetch-one/N
+**
+** Fetches a single message with the given ID, if available.
+**
+** Options:
+**
+**   raw = the xmsg field will be returned unparsed.
+**
+** Response is either a single object in the format returned by
+** /chat-poll (without the wrapper array) or a JSON-format error
+** response, as documented for ajax_route_error().
+*/
+void chat_fetch_one(void){
+  Blob json = empty_blob;   /* The json to be constructed and returned */
+  const int fRaw = PD("raw",0)!=0;
+  const int msgid = atoi(PD("name","0"));
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Chat ) {
+    chat_emit_permissions_error(0);
+    return;
+  }
+  chat_create_tables();
+  cgi_set_content_type("application/json");
+  db_prepare(&q, 
+    "SELECT datetime(mtime), xfrom, xmsg, length(file),"
+    "       fname, fmime, lmtime"
+    "  FROM chat WHERE msgid=%d AND mdel IS NULL",
+    msgid);
+  if(SQLITE_ROW==db_step(&q)){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zFrom = db_column_text(&q, 1);
+    const char *zRawMsg = db_column_text(&q, 2);
+    const int nByte = db_column_int(&q, 3);
+    const char *zFName = db_column_text(&q, 4);
+    const char *zFMime = db_column_text(&q, 5);
+    const char *zLMtime = db_column_text(&q, 7);
+    blob_appendf(&json,"{\"msgid\": %d,", msgid);
+
+    blob_appendf(&json, "\"mtime\":\"%.10sT%sZ\",", zDate, zDate+11);
+    if( zLMtime && zLMtime[0] ){
+      blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
+    }
+    blob_append(&json, "\"xfrom\":", -1);
+    if(zFrom){
+      blob_appendf(&json, "%!j,", zFrom);
+    }else{
+      /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+      blob_appendf(&json, "null,");
+    }
+    blob_appendf(&json, "\"uclr\":%!j,",
+                 user_color(zFrom ? zFrom : "nobody"));
+    blob_append(&json,"\"xmsg\":", 7);
+    if(fRaw){
+      blob_appendf(&json, "%!j,", zRawMsg);
+    }else{
+      char * zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
+      blob_appendf(&json, "%!j,", zMsg);
+      fossil_free(zMsg);
+    }
+    if( nByte==0 ){
+      blob_appendf(&json, "\"fsize\":0");
+    }else{
+      blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
+                   nByte, zFName, zFMime);
+    }    
+    blob_append(&json,"}",1);
+    cgi_set_content(&json);
+  }else{
+    ajax_route_error(404,"Chat message #%d not found.", msgid);
+  }
+  db_finalize(&q);
+}
+
+/*
 ** WEBPAGE: chat-download hidden
 **
 ** Download the CHAT.FILE attachment associated with a single chat

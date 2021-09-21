@@ -1638,7 +1638,7 @@ body.chat.monospace-messages textarea,
 body.chat.monospace-messages input[type=text]{
   font-family: monospace;  
 }
-body.chat .message-widget-content > .markdown {
+body.chat .message-widget-content > * {
   margin: 0;
   padding: 0;
 }
@@ -1681,7 +1681,7 @@ body.chat .chat-message-popup {
 body.chat .chat-message-popup > span { white-space: nowrap; }
 /* Container for the message deletion buttons. */
 body.chat .chat-message-popup > .toolbar {
-  padding: 0.2em;
+  padding: 0;
   margin: 0;
   border: 2px inset rgba(0,0,0,0.3);
   border-radius: 0.25em;
@@ -1689,6 +1689,10 @@ body.chat .chat-message-popup > .toolbar {
   flex-direction: row;
   justify-content: stretch;
   flex-wrap: wrap;
+  align-items: center;
+}
+body.chat .chat-message-popup > .toolbar > * {
+  margin: 0.35em;
 }
 body.chat .chat-message-popup > .toolbar > button {
   flex: 1 1 auto;

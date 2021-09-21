@@ -487,6 +487,63 @@
       return !!e;
     };
 
+    /**
+       Toggles the given message between its parsed and plain-text
+       representations. It requires a server round-trip to collect the
+       plain-text form but caches it for subsequent toggles.
+
+       Expects the ID of a currently-loaded message or a
+       message-widget DOM elment from which it can extract an id.
+       This is an aync operation the first time it's passed a given
+       message and synchronous on subsequent calls for that
+       message. It is a no-op if id does not resolve to a loaded
+       message.
+    */
+    cs.toggleTextMode = function(id){
+      var e;
+      if(id instanceof HTMLElement){
+        e = id;
+        id = e.dataset.msgid;
+      }else{
+        e = this.getMessageElemById(id);
+      }
+      if(!e || !id) return false;
+      else if(e.$isToggling) return;
+      e.$isToggling = true;
+      const content = e.querySelector('.message-widget-content');
+      if(!content.$elems){
+        content.$elems = [
+          content.firstElementChild, // parsed elem
+          undefined // plaintext elem
+        ];
+      }else if(content.$elems[1]){
+        // We have both content types. Simply toggle them.
+        const child = (
+          content.firstElementChild===content.$elems[0]
+            ? content.$elems[1]
+            : content.$elems[0]
+        );
+        delete e.$isToggling;
+        D.append(D.clearElement(content), child);
+        return;
+      }
+      // We need to fetch the plain-text version...
+      const self = this;
+      F.fetch('chat-fetch-one',{
+        urlParams:{ name: id, raw: true},
+        responseType: 'json',
+        onload: function(msg){
+          content.$elems[1] = D.append(D.pre(),msg.xmsg);
+          self.toggleTextMode(e);
+        },
+        aftersend:function(){
+          delete e.$isToggling;
+          Chat.ajaxEnd();
+        }
+      });
+      return true;
+    };
+    
     /** Given a .message-row element, this function returns whethe the
         current user may, at least hypothetically, delete the message
         globally.  A user may always delete a local copy of a
@@ -744,10 +801,16 @@
                   Chat.deleteMessage(eMsg);
                 });
               }
+              const toolbar2 = D.addClass(D.div(), 'toolbar');
+              D.append(this.e, toolbar2);
+              const btnToggleText = D.button("Toggle text mode");
+              btnToggleText.addEventListener('click', function(){
+                self.hide();
+                Chat.toggleTextMode(eMsg);
+              });
+              D.append(toolbar2, btnToggleText);
               if(eMsg.dataset.xfrom){
                 /* Add a link to the /timeline filtered on this user. */
-                const toolbar2 = D.addClass(D.div(), 'toolbar');
-                D.append(this.e, toolbar2);
                 const timelineLink = D.attr(
                   D.a(F.repoUrl('timeline',{
                     u: eMsg.dataset.xfrom,
