@@ -103,6 +103,7 @@
         pageTitle: E1('head title'),
         loadOlderToolbar: undefined /* the load-posts toolbar (dynamically created) */,
         inputWrapper: E1("#chat-input-area"),
+        inputLine: E1('#chat-input-line'),
         fileSelectWrapper: E1('#chat-input-file-area'),
         messagesWrapper: E1('#chat-messages-wrapper'),
         inputForm: E1('#chat-form'),
@@ -112,7 +113,10 @@
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
-        configArea: E1('#chat-config')
+        configArea: E1('#chat-config'),
+        previewArea: E1('#chat-preview'),
+        previewContent: E1('#chat-preview-content'),
+        btnPreview: E1('#chat-preview-button')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -149,8 +153,10 @@
         const old = this.e.inputCurrent;
         if(this.e.inputCurrent === this.e.inputSingle){
           this.e.inputCurrent = this.e.inputMulti;
+          this.e.inputLine.classList.remove('single-line');
         }else{
           this.e.inputCurrent = this.e.inputSingle;
+          this.e.inputLine.classList.add('single-line');
         }
         const m = this.e.messagesWrapper,
               sTop = m.scrollTop,
@@ -487,6 +493,63 @@
       return !!e;
     };
 
+    /**
+       Toggles the given message between its parsed and plain-text
+       representations. It requires a server round-trip to collect the
+       plain-text form but caches it for subsequent toggles.
+
+       Expects the ID of a currently-loaded message or a
+       message-widget DOM elment from which it can extract an id.
+       This is an aync operation the first time it's passed a given
+       message and synchronous on subsequent calls for that
+       message. It is a no-op if id does not resolve to a loaded
+       message.
+    */
+    cs.toggleTextMode = function(id){
+      var e;
+      if(id instanceof HTMLElement){
+        e = id;
+        id = e.dataset.msgid;
+      }else{
+        e = this.getMessageElemById(id);
+      }
+      if(!e || !id) return false;
+      else if(e.$isToggling) return;
+      e.$isToggling = true;
+      const content = e.querySelector('.message-widget-content');
+      if(!content.$elems){
+        content.$elems = [
+          content.firstElementChild, // parsed elem
+          undefined // plaintext elem
+        ];
+      }else if(content.$elems[1]){
+        // We have both content types. Simply toggle them.
+        const child = (
+          content.firstElementChild===content.$elems[0]
+            ? content.$elems[1]
+            : content.$elems[0]
+        );
+        delete e.$isToggling;
+        D.append(D.clearElement(content), child);
+        return;
+      }
+      // We need to fetch the plain-text version...
+      const self = this;
+      F.fetch('chat-fetch-one',{
+        urlParams:{ name: id, raw: true},
+        responseType: 'json',
+        onload: function(msg){
+          content.$elems[1] = D.append(D.pre(),msg.xmsg);
+          self.toggleTextMode(e);
+        },
+        aftersend:function(){
+          delete e.$isToggling;
+          Chat.ajaxEnd();
+        }
+      });
+      return true;
+    };
+    
     /** Given a .message-row element, this function returns whethe the
         current user may, at least hypothetically, delete the message
         globally.  A user may always delete a local copy of a
@@ -683,6 +746,9 @@
             D.append(contentTarget, m.xmsg);
           }else{
             contentTarget.innerHTML = m.xmsg;
+            if(F.pikchr){
+              F.pikchr.addSrcView(contentTarget.querySelectorAll('svg.pikchr'));
+            }
           }
         }
         this.e.tab.addEventListener('click', this._handleLegendClicked, false);
@@ -741,10 +807,16 @@
                   Chat.deleteMessage(eMsg);
                 });
               }
+              const toolbar2 = D.addClass(D.div(), 'toolbar');
+              D.append(this.e, toolbar2);
+              const btnToggleText = D.button("Toggle text mode");
+              btnToggleText.addEventListener('click', function(){
+                self.hide();
+                Chat.toggleTextMode(eMsg);
+              });
+              D.append(toolbar2, btnToggleText);
               if(eMsg.dataset.xfrom){
                 /* Add a link to the /timeline filtered on this user. */
-                const toolbar2 = D.addClass(D.div(), 'toolbar');
-                D.append(this.e, toolbar2);
                 const timelineLink = D.attr(
                   D.a(F.repoUrl('timeline',{
                     u: eMsg.dataset.xfrom,
@@ -883,6 +955,7 @@
     if(!f.spaces){
       f.spaces = /\s+$/;
     }
+    this.revealPreview(false);
     const fd = new FormData(this.e.inputForm)
     /* ^^^^ we don't really want/need the FORM element, but when
        FormData() is default-constructed here then the server
@@ -954,8 +1027,17 @@
   (function(){/*Set up #chat-settings-button */
     const settingsButton = document.querySelector('#chat-settings-button');
     const optionsMenu = E1('#chat-config-options');
-    const cbToggle = function(){
-      D.toggleClass([Chat.e.messagesWrapper, Chat.e.configArea], 'hidden');
+    const cbToggle = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(Chat.e.configArea.classList.contains('hidden')){
+        D.removeClass(Chat.e.configArea, 'hidden');
+        D.addClass([Chat.e.messagesWrapper, Chat.e.previewArea], 'hidden');
+      }else{
+        D.addClass(Chat.e.configArea, 'hidden');
+        D.removeClass(Chat.e.messagesWrapper, 'hidden');
+      }
+      return false;
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
     Chat.e.configArea.querySelector('button').addEventListener('click', cbToggle, false);
@@ -997,7 +1079,7 @@
     }];
 
     /** Set up selection list of notification sounds. */
-    if(false/*flip this to false to enable selection of audio files*/){
+    if(1){
       settingsOps.push({
         label: "Audible alerts",
         boolValue: ()=>Chat.settings.getBool('audible-alert'),
@@ -1011,36 +1093,6 @@
       Chat.setNewMessageSound(
         Chat.settings.getBool('audible-alert') ? F.config.chat.alertSound : false
       );
-    }else{
-      /* Disabled per chatroom discussion: selection list of audio files for
-         chat notification. */
-      settingsOps.selectSound = D.addClass(D.div(), 'menu-entry');
-      const selectSound = D.select();
-      D.append(settingsOps.selectSound,
-               D.append(D.span(),"Audio alert"),
-               selectSound);
-      D.option(selectSound, "", "(no audio)");
-      const firstSoundIndex = selectSound.options.length;
-      F.config.chat.alerts.forEach(function(a){
-        D.option(selectSound, a);
-      });
-      if(true===Chat.settings.getBool('audible-alert')){
-        selectSound.selectedIndex = firstSoundIndex;
-      }else{
-        selectSound.value = Chat.settings.get('audible-alert','');
-        if(selectSound.selectedIndex<0){
-          /*Missing file - removed after this setting was applied. Fall back
-            to the first sound in the list. */
-          selectSound.selectedIndex = firstSoundIndex;
-        }
-      }
-      selectSound.addEventListener('change',function(){
-        const v = this.value;
-        Chat.setNewMessageSound(v);
-        F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-        if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
-      }, false);
-      Chat.setNewMessageSound(selectSound.value);
     }/*audio notification config*/
     /**
        Build list of options...
@@ -1078,6 +1130,74 @@
     }
     //settingsButton.click()/*for for development*/;
   })()/*#chat-settings-button setup*/;
+
+  (function(){/*set up message preview*/
+    const btnPreview = Chat.e.btnPreview;
+    Chat.setPreviewText = function(t){
+      this.revealPreview(true).e.previewContent.innerHTML = t;
+    };
+    /**
+       Reveals preview area if showIt is true, else hides it.
+       This also shows/hides other elements, "as appropriate."
+    */
+    Chat.revealPreview = function(showIt){
+      if(showIt){
+        D.removeClass(Chat.e.previewArea, 'hidden');
+        D.addClass([Chat.e.messagesWrapper, Chat.e.configArea],
+                   'hidden');
+      }else{
+        D.addClass(Chat.e.previewArea, 'hidden');
+        D.removeClass(Chat.e.messagesWrapper, 'hidden');
+      }
+      return this;
+    };
+    Chat.e.previewArea.querySelector('#chat-preview-close').
+      addEventListener('click', ()=>Chat.revealPreview(false), false);
+    let previewPending = false;
+    const elemsToEnable = [
+      btnPreview, Chat.e.btnSubmit,
+      Chat.e.inputSingle, Chat.e.inputMulti];
+    Chat.disableDuringAjax.push(btnPreview);
+    const submit = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(previewPending) return false;
+      const txt = Chat.e.inputCurrent.value;
+      if(!txt){
+        Chat.setPreviewText('');
+        previewPending = false;
+        return false;
+      }
+      const fd = new FormData();
+      fd.append('content', txt);
+      fd.append('filename','chat.md'
+                /*filename needed for mimetype determination*/);
+      fd.append('render_mode',F.page.previewModes.wiki);
+      F.fetch('ajax/preview-text',{
+        payload: fd,
+        onload: (html)=>Chat.setPreviewText(html),
+        onerror: function(e){
+          F.fetch.onerror(e);
+          Chat.setPreviewText("ERROR: "+(
+            e.message || 'Unknown error fetching preview!'
+          ));
+        },
+        beforesend: function(){
+          D.disable(elemsToEnable);
+          Chat.ajaxStart();
+          previewPending = true;
+          Chat.setPreviewText("Loading preview...");
+        },
+        aftersend:function(){
+          previewPending = false;
+          D.enable(elemsToEnable);
+          Chat.ajaxEnd();
+        }
+      });
+      return false;
+    };
+    btnPreview.addEventListener('click', submit, false);
+  })()/*message preview setup*/;
   
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is

@@ -127,7 +127,7 @@ static void chat_emit_alert_list(void){
 ** SETTING: chat-alert-sound     width=10
 **
 ** This is the name of the builtin sound file to use for the alert tone.
-** The value must be the name of one of a builtin WAV file.
+** The value must be the name of a builtin WAV file.
 */
 /*
 ** WEBPAGE: chat
@@ -156,15 +156,21 @@ void chat_webpage(void){
   style_header("Chat");
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
-  @   <div id='chat-input-line'>
+  @   <div id='chat-input-line' class='single-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="Type message for %h(zProjectName)." autocomplete="off">
+  @      placeholder="Type markdown-formatted message for %h(zProjectName)." \
+  @      autocomplete="off">
   @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="Type message for %h(zProjectName). Ctrl-Enter sends it." \
+  @      placeholder="Type markdown-formatted message for %h(zProjectName). Ctrl-Enter sends it." \
   @      class="hidden"></textarea>
-  @     <input type="submit" value="Send" id="chat-message-submit">
-  @     <span id="chat-settings-button" class="settings-icon" \
-  @       aria-label="Settings..." aria-haspopup="true" ></span>
+  @     <div id='chat-edit-buttons'>
+  @       <button id="chat-preview-button" \
+  @         title="Preview message">&#128065;</button>
+  @       <button id="chat-settings-button" \
+  @         title="Configure chat">&#9881;</button>
+  @       <button id="chat-message-submit" \
+  @         title="Send message">&#128228;</button>
+  @     </div>
   @   </div>
   @   <div id='chat-input-file-area'>
   @     <div class='file-selection-wrapper'>
@@ -179,17 +185,23 @@ void chat_webpage(void){
   @   </div>
   @ </div>
   @ </form>
+  @ <div id='chat-preview' class='hidden'>
+  @  <header>Preview:</header>
+  @  <div id='chat-preview-content' class='message-widget-content'></div>
+  @  <div id='chat-preview-buttons'><button id='chat-preview-close'>Close Preview</button></div>
+  @ </div>
   @ <div id='chat-config' class='hidden'>
   @ <div id='chat-config-options'></div>
     /* ^^^populated client-side */
-  @ <button>Close</button>
+  @ <button>Close Settings</button>
   @ </div>
   @ <div id='chat-messages-wrapper'>
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
   fossil_free(zProjectName);
-  builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch", NULL);
+  builtin_fossil_js_bundle_or("popupwidget", "storage",
+                              "fetch", "pikchr", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
   /* We need an onload handler to ensure that window.fossil is
@@ -203,6 +215,7 @@ void chat_webpage(void){
   @   initSize: %d(db_get_int("chat-initial-history",50)),
   @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
   @ };
+  ajax_emit_js_preview_modes(0);
   chat_emit_alert_list();
   cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);
@@ -296,7 +309,7 @@ static void chat_emit_permissions_error(int fAsMessageList){
 }
 
 /*
-** WEBPAGE: chat-send
+** WEBPAGE: chat-send hidden
 **
 ** This page receives (via XHR) a new chat-message and/or a new file
 ** to be entered into the chat history.
@@ -349,75 +362,21 @@ void chat_send_webpage(void){
 
 /*
 ** This routine receives raw (user-entered) message text and transforms
-** it into HTML that is safe to insert using innerHTML.
-**
-**    *   HTML in the original text is escaped.
-**
-**    *   Hyperlinks are identified and tagged.  Hyperlinks are:
-**
-**          -  Undelimited text of the form https:... or http:...
-**          -  Any text enclosed within [...]
+** it into HTML that is safe to insert using innerHTML. As of 2021-09-19,
+** it does so by using markdown_to_html() to convert markdown-formatted
+** zMsg to HTML.
 **
 ** Space to hold the returned string is obtained from fossil_malloc()
 ** and must be freed by the caller.
 */
 static char *chat_format_to_html(const char *zMsg){
-  char *zSafe = mprintf("%h", zMsg);
-  int i, j, k;
   Blob out;
-  char zClose[20];
-  blob_init(&out, 0, 0);
-  for(i=j=0; zSafe[i]; i++){
-    if( zSafe[i]=='[' ){
-      for(k=i+1; zSafe[k] && zSafe[k]!=']'; k++){}
-      if( zSafe[k]==']' ){
-        zSafe[k] = 0;
-        if( j<i ){
-          blob_append(&out, zSafe + j, i-j);
-          j = i;
-        }
-        blob_append_char(&out, '[');
-        wiki_resolve_hyperlink(&out,
-                               WIKI_NOBADLINKS|WIKI_TARGET_BLANK|WIKI_NOBRACKET,
-                               zSafe+i+1, zClose, sizeof(zClose), zSafe, 0);
-        zSafe[k] = ']';
-        j++;
-        blob_append(&out, zSafe + j, k - j);
-        blob_append(&out, zClose, -1);
-        blob_append_char(&out, ']');
-        i = k;
-        j = k+1;
-        continue;
-      }
-    }else if( zSafe[i]=='h' 
-           && (strncmp(zSafe+i,"http:",5)==0
-               || strncmp(zSafe+i,"https:",6)==0) ){
-      for(k=i+1; zSafe[k] && !fossil_isspace(zSafe[k]); k++){}
-      if( k>i+7 ){
-        char c = zSafe[k];
-        if( !fossil_isalnum(zSafe[k-1]) && zSafe[k-1]!='/' ){
-          k--;
-          c = zSafe[k];
-        }
-        if( j<i ){
-          blob_append(&out, zSafe + j, i-j);
-          j = i;
-        }
-        zSafe[k] = 0;        
-        wiki_resolve_hyperlink(&out, WIKI_NOBADLINKS|WIKI_TARGET_BLANK,
-                               zSafe+i, zClose, sizeof(zClose), zSafe, 0);
-        zSafe[k] = c;
-        blob_append(&out, zSafe + j, k - j);
-        blob_append(&out, zClose, -1);
-        i = j = k;
-        continue;
-      }
-    }
+  blob_init(&out, "", 0);
+  if(*zMsg){
+    Blob bIn;
+    blob_init(&bIn, zMsg, (int)strlen(zMsg));
+    markdown_to_html(&bIn, NULL, &out);
   }
-  if( j<i ){
-    blob_append(&out, zSafe+j, j-i);
-  }
-  fossil_free(zSafe);
   return blob_str(&out);
 }
 
@@ -444,7 +403,7 @@ void chat_test_formatter_cmd(void){
 }
 
 /*
-** WEBPAGE: chat-poll
+** WEBPAGE: chat-poll hidden
 **
 ** The chat page generated by /chat using an XHR to this page to
 ** request new chat content.  A typical invocation is:
@@ -653,7 +612,84 @@ void chat_poll_webpage(void){
 }
 
 /*
-** WEBPAGE: chat-download
+** WEBPAGE: chat-fetch-one hidden
+**
+** /chat-fetch-one/N
+**
+** Fetches a single message with the given ID, if available.
+**
+** Options:
+**
+**   raw = the xmsg field will be returned unparsed.
+**
+** Response is either a single object in the format returned by
+** /chat-poll (without the wrapper array) or a JSON-format error
+** response, as documented for ajax_route_error().
+*/
+void chat_fetch_one(void){
+  Blob json = empty_blob;   /* The json to be constructed and returned */
+  const int fRaw = PD("raw",0)!=0;
+  const int msgid = atoi(PD("name","0"));
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Chat ) {
+    chat_emit_permissions_error(0);
+    return;
+  }
+  chat_create_tables();
+  cgi_set_content_type("application/json");
+  db_prepare(&q, 
+    "SELECT datetime(mtime), xfrom, xmsg, length(file),"
+    "       fname, fmime, lmtime"
+    "  FROM chat WHERE msgid=%d AND mdel IS NULL",
+    msgid);
+  if(SQLITE_ROW==db_step(&q)){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zFrom = db_column_text(&q, 1);
+    const char *zRawMsg = db_column_text(&q, 2);
+    const int nByte = db_column_int(&q, 3);
+    const char *zFName = db_column_text(&q, 4);
+    const char *zFMime = db_column_text(&q, 5);
+    const char *zLMtime = db_column_text(&q, 7);
+    blob_appendf(&json,"{\"msgid\": %d,", msgid);
+
+    blob_appendf(&json, "\"mtime\":\"%.10sT%sZ\",", zDate, zDate+11);
+    if( zLMtime && zLMtime[0] ){
+      blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
+    }
+    blob_append(&json, "\"xfrom\":", -1);
+    if(zFrom){
+      blob_appendf(&json, "%!j,", zFrom);
+    }else{
+      /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+      blob_appendf(&json, "null,");
+    }
+    blob_appendf(&json, "\"uclr\":%!j,",
+                 user_color(zFrom ? zFrom : "nobody"));
+    blob_append(&json,"\"xmsg\":", 7);
+    if(fRaw){
+      blob_appendf(&json, "%!j,", zRawMsg);
+    }else{
+      char * zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
+      blob_appendf(&json, "%!j,", zMsg);
+      fossil_free(zMsg);
+    }
+    if( nByte==0 ){
+      blob_appendf(&json, "\"fsize\":0");
+    }else{
+      blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
+                   nByte, zFName, zFMime);
+    }    
+    blob_append(&json,"}",1);
+    cgi_set_content(&json);
+  }else{
+    ajax_route_error(404,"Chat message #%d not found.", msgid);
+  }
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE: chat-download hidden
 **
 ** Download the CHAT.FILE attachment associated with a single chat
 ** entry.  The "name" query parameter begins with an integer that
@@ -686,7 +722,7 @@ void chat_download_webpage(void){
 
 
 /*
-** WEBPAGE: chat-delete
+** WEBPAGE: chat-delete hidden
 **
 ** Delete the chat entry identified by the name query parameter.
 ** Invoking fetch("chat-delete/"+msgid) from javascript in the client

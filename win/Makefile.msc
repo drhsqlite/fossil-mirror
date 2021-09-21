@@ -618,6 +618,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\sounds\e.wav" \
         "$(SRCDIR)\sounds\f.wav" \
         "$(SRCDIR)\style.admin_log.css" \
+        "$(SRCDIR)\style.chat.css" \
         "$(SRCDIR)\style.fileedit.css" \
         "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
@@ -1226,6 +1227,7 @@ realclean: clean
 	echo "$(SRCDIR)\sounds/e.wav" >> $@
 	echo "$(SRCDIR)\sounds/f.wav" >> $@
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
+	echo "$(SRCDIR)\style.chat.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@
