@@ -670,6 +670,7 @@
         ':',pad2(d.getSeconds())
       ].join('');
     };
+    const addAnchorTargetBlank = (e)=>D.attr(e, 'target','_blank');
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -746,6 +747,7 @@
             D.append(contentTarget, m.xmsg);
           }else{
             contentTarget.innerHTML = m.xmsg;
+            contentTarget.querySelectorAll('a').forEach(addAnchorTargetBlank);
             if(F.pikchr){
               F.pikchr.addSrcView(contentTarget.querySelectorAll('svg.pikchr'));
             }
