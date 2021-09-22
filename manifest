@@ -1,5 +1,5 @@
-C Another\sSQLite\supdate\sto\sfix\sthe\sbuild\son\solder\smachines\sthat\slack\sCHAR_BITS\nas\swell\sas\sto\sfix\sa\sfew\sharmless\scompiler\swarnings.
-D 2021-09-22T14:45:15.967
+C Possibly\sfixed\sa\scase\swhere\s/chat's\spreview\sbutton\swill\sget\sstuck\sin\sa\sdisabled\sstate,\sbut\sit's\sintermittent\sand\sdifficult\sto\strigger\sso\sam\snot\s100%\ssure.
+D 2021-09-22T17:12:15.554
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c 1fc266a924586f1f74f68aa308fffa84ed4855ca59cbfa1151d3fe4451d286a6
-F src/chat.js 7d93a262aa85a2bc8ccdad52a0d36a856103d14c6c697f5b353b9605677263e7
+F src/chat.js a41f1b76d848f031166ee5f4fc38f19c5a9102130afbe36b654369f42fe8266f
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 606dcf08c94e4a142fe21bdcbf813bfe48eaf71db45e9b9a1785ed5c9d3d79a2
-R e42fe37b6366e36f0c179b68f8b5a9d7
-U drh
-Z 38520790d3d2137baf665c5beb443811
+P 457a73e6adcf66f3306b0ca80f95351b6a1545b34af4ab856851f542e3cef219
+R 5b07de843eed525d2ab99ec5ebf7ce70
+U stephan
+Z e3893011feafffaec6e1c0e4d9c3e84a

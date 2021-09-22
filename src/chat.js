@@ -1176,7 +1176,6 @@
     const elemsToEnable = [
       btnPreview, Chat.e.btnSubmit,
       Chat.e.inputSingle, Chat.e.inputMulti];
-    Chat.disableDuringAjax.push(btnPreview);
     const submit = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
@@ -1209,8 +1208,8 @@
         },
         aftersend:function(){
           previewPending = false;
-          D.enable(elemsToEnable);
           Chat.ajaxEnd();
+          D.enable(elemsToEnable);
         }
       });
       return false;
