@@ -316,10 +316,14 @@ window.fossil.onPageLoad(function(){
          trNext into trPrev and then remove trNext. */;
       let i, td;
       if(!f.convertLines){
+        /* Reminder: string.replaceAll() is a relatively new
+           JS feature, not available in some still-widely-used
+           browser versions. */
+        f.rx = [[/&/g, '&amp;'], [/</g, '&lt;']];
         f.convertLines = function(li){
-          return li.join('\n')
-            .replaceAll('&','&amp;')
-            .replaceAll('<','&lt;')+'\n';
+          var s = li.join('\n');
+          f.rx.forEach((a)=>s=s.replace(a[0],a[1]));
+          return s + '\n';
         };
       }
       if(1){ // LHS line numbers...
@@ -345,7 +349,7 @@ window.fossil.onPageLoad(function(){
         const selector = '.difftxt > pre';
         td = tr.querySelectorAll(selector);
         const code = f.convertLines(lines);
-        let joinNdx = 0;
+        let joinNdx = 0/*selector[X] index to join together*/;
         td.forEach(function(e){
           const content = [e.innerHTML];
           if(doAppend) content.push(code);
