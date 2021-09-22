@@ -107,17 +107,18 @@
         inputWrapper: E1("#chat-input-area"),
         inputLine: E1('#chat-input-line'),
         fileSelectWrapper: E1('#chat-input-file-area'),
-        messagesWrapper: E1('#chat-messages-wrapper'),
+        viewMessages: E1('#chat-messages-wrapper'),
         btnSubmit: E1('#chat-message-submit'),
         inputSingle: E1('#chat-input-single'),
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
-        configArea: E1('#chat-config'),
-        previewArea: E1('#chat-preview'),
+        viewConfig: E1('#chat-config'),
+        viewPreview: E1('#chat-preview'),
         previewContent: E1('#chat-preview-content'),
-        btnPreview: E1('#chat-preview-button')
+        btnPreview: E1('#chat-preview-button'),
+        views: document.querySelectorAll('.chat-view')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -159,7 +160,7 @@
           this.e.inputCurrent = this.e.inputSingle;
           this.e.inputLine.classList.add('single-line');
         }
-        const m = this.e.messagesWrapper,
+        const m = this.e.viewMessages,
               sTop = m.scrollTop,
               mh1 = m.clientHeight;
         D.addClass(old, 'hidden');
@@ -243,7 +244,7 @@
          the list. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
-              holder = this.e.messagesWrapper,
+              holder = this.e.viewMessages,
               prevMessage = this.e.newestMessage;
         if(atEnd){
           const fe = mip.nextElementSibling;
@@ -339,9 +340,9 @@
       */
       scrollMessagesTo: function(where){
         if(where<0){
-          Chat.e.messagesWrapper.scrollTop = 0;
+          Chat.e.viewMessages.scrollTop = 0;
         }else if(where>0){
-          Chat.e.messagesWrapper.scrollTop = Chat.e.messagesWrapper.scrollHeight;
+          Chat.e.viewMessages.scrollTop = Chat.e.viewMessages.scrollHeight;
         }else if(Chat.e.newestMessage){
           Chat.e.newestMessage.scrollIntoView(false);
         }
@@ -350,7 +351,7 @@
         return this.chatOnlyMode(!this.isChatOnlyMode());
       },
       messageIsInView: function(e){
-        return e ? overlapsElemView(e, this.e.messagesWrapper) : false;
+        return e ? overlapsElemView(e, this.e.viewMessages) : false;
       },
       settings:{
         get: (k,dflt)=>F.storage.get(k,dflt),
@@ -397,6 +398,17 @@
         this.playNewMessageSound.uri = uri;
         this.settings.set('audible-alert', uri);
         return this;
+      },
+      /**
+         Expects e to be one of the elements in this.e.views.
+         The 'hidden' class is removed from e and added to
+         all other elements in that list. Returns e.
+      */
+      setCurrentView: function(e){
+        this.e.views.forEach(function(E){
+          if(e!==E) D.addClass(E,'hidden');
+        });
+        return this.e.currentView = D.removeClass(e,'hidden');
       }
     };
     F.fetch.beforesend = ()=>cs.ajaxStart();
@@ -613,6 +625,7 @@
         cs.e.pageTitle.innerText = cs.pageTitleOrig;
       }
     }, true);
+    cs.setCurrentView(cs.e.viewMessages);
     return cs;
   })()/*Chat initialization*/;
 
@@ -963,7 +976,7 @@
     if(!f.spaces){
       f.spaces = /\s+$/;
     }
-    this.revealPreview(false);
+    this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
     var msg = this.inputValue().trim();
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
@@ -1035,17 +1048,12 @@
     const cbToggle = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
-      if(Chat.e.configArea.classList.contains('hidden')){
-        D.removeClass(Chat.e.configArea, 'hidden');
-        D.addClass([Chat.e.messagesWrapper, Chat.e.previewArea], 'hidden');
-      }else{
-        D.addClass(Chat.e.configArea, 'hidden');
-        D.removeClass(Chat.e.messagesWrapper, 'hidden');
-      }
+      Chat.setCurrentView(Chat.e.currentView===Chat.e.viewConfig
+                          ? Chat.e.viewMessages : Chat.e.viewConfig);
       return false;
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
-    Chat.e.configArea.querySelector('button').addEventListener('click', cbToggle, false);
+    Chat.e.viewConfig.querySelector('button').addEventListener('click', cbToggle, false);
     /* Settings menu entries... */
     const settingsOps = [{
       label: "Multi-line input",
@@ -1157,27 +1165,13 @@
   (function(){/*set up message preview*/
     const btnPreview = Chat.e.btnPreview;
     Chat.setPreviewText = function(t){
-      this.revealPreview(true).e.previewContent.innerHTML = t;
-      this.e.previewArea.querySelectorAll('a').forEach(addAnchorTargetBlank);
+      this.setCurrentView(this.e.viewPreview);
+      this.e.previewContent.innerHTML = t;
+      this.e.viewPreview.querySelectorAll('a').forEach(addAnchorTargetBlank);
       this.e.inputCurrent.focus();
     };
-    /**
-       Reveals preview area if showIt is true, else hides it.
-       This also shows/hides other elements, "as appropriate."
-    */
-    Chat.revealPreview = function(showIt){
-      if(showIt){
-        D.removeClass(Chat.e.previewArea, 'hidden');
-        D.addClass([Chat.e.messagesWrapper, Chat.e.configArea],
-                   'hidden');
-      }else{
-        D.addClass([Chat.e.configArea, Chat.e.previewArea], 'hidden');
-        D.removeClass(Chat.e.messagesWrapper, 'hidden');
-      }
-      return this;
-    };
-    Chat.e.previewArea.querySelector('#chat-preview-close').
-      addEventListener('click', ()=>Chat.revealPreview(false), false);
+    Chat.e.viewPreview.querySelector('#chat-preview-close').
+      addEventListener('click', ()=>Chat.setCurrentView(Chat.e.viewMessages), false);
     let previewPending = false;
     const elemsToEnable = [
       btnPreview, Chat.e.btnSubmit,
@@ -1279,10 +1273,10 @@
     Chat.disableDuringAjax.push(toolbar);
     /* Loads the next n oldest messages, or all previous history if n is negative. */
     const loadOldMessages = function(n){
-      Chat.e.messagesWrapper.classList.add('loading');
+      Chat.e.viewMessages.classList.add('loading');
       Chat._isBatchLoading = true;
-      const scrollHt = Chat.e.messagesWrapper.scrollHeight,
-            scrollTop = Chat.e.messagesWrapper.scrollTop;
+      const scrollHt = Chat.e.viewMessages.scrollHeight,
+            scrollTop = Chat.e.viewMessages.scrollTop;
       F.fetch("chat-poll",{
         urlParams:{
           before: Chat.mnMsg,
@@ -1320,13 +1314,13 @@
             F.toast.message("Loaded "+gotMessages+" older messages.");
             /* Return scroll position to where it was when the history load
                was requested, per user request */
-            Chat.e.messagesWrapper.scrollTo(
-              0, Chat.e.messagesWrapper.scrollHeight - scrollHt + scrollTop
+            Chat.e.viewMessages.scrollTo(
+              0, Chat.e.viewMessages.scrollHeight - scrollHt + scrollTop
             );
           }
         },
         aftersend:function(){
-          Chat.e.messagesWrapper.classList.remove('loading');
+          Chat.e.viewMessages.classList.remove('loading');
           Chat.ajaxEnd();
         }
       });
@@ -1339,7 +1333,7 @@
     btn = D.button("All previous messages");
     D.append(wrapper, btn);
     btn.addEventListener('click',()=>loadOldMessages(-1));
-    D.append(Chat.e.messagesWrapper, toolbar);
+    D.append(Chat.e.viewMessages, toolbar);
     toolbar.disabled = true /*will be enabled when msg load finishes */;
   })()/*end history loading widget setup*/;
 
@@ -1347,7 +1341,7 @@
     if(true===f.isFirstCall){
       f.isFirstCall = false;
       Chat.ajaxEnd();
-      Chat.e.messagesWrapper.classList.remove('loading');
+      Chat.e.viewMessages.classList.remove('loading');
       setTimeout(function(){
         Chat.scrollMessagesTo(1);
       }, 250);
@@ -1369,7 +1363,7 @@
     if(true===f.isFirstCall){
       f.isFirstCall = false;
       Chat.ajaxStart();
-      Chat.e.messagesWrapper.classList.add('loading');
+      Chat.e.viewMessages.classList.add('loading');
     }
     F.fetch("chat-poll",{
       timeout: 420 * 1000/*FIXME: get the value from the server*/,

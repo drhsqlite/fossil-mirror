@@ -183,17 +183,17 @@ void chat_webpage(void){
   @     <div id="chat-drop-details"></div>
   @   </div>
   @ </div>
-  @ <div id='chat-preview' class='hidden'>
+  @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
   @  <div id='chat-preview-content' class='message-widget-content'></div>
   @  <div id='chat-preview-buttons'><button id='chat-preview-close'>Close Preview</button></div>
   @ </div>
-  @ <div id='chat-config' class='hidden'>
+  @ <div id='chat-config' class='hidden chat-view'>
   @ <div id='chat-config-options'></div>
     /* ^^^populated client-side */
   @ <button>Close Settings</button>
   @ </div>
-  @ <div id='chat-messages-wrapper'>
+  @ <div id='chat-messages-wrapper' class='chat-view'>
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
