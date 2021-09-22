@@ -76,7 +76,7 @@
       f.contentArea.style.height =
         f.contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
-          " - 1em"/*fudge value*/,")"
+          " - 0.75em"/*fudge value*/,")"
           /* ^^^^ hypothetically not needed, but both Chrome/FF on
              Linux will force scrollbars on the body if this value is
              too small (<0.75em in my tests). */
