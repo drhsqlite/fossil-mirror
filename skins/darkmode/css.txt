@@ -522,10 +522,13 @@ input,
 optgroup,
 select,
 textarea {
-  background-color: rgba(45,45,45,0.75);
+  background: inherit;
   color: inherit;
   font: inherit;
   margin: 0
+}
+button {
+  background-color: rgba(45,45,45,0.75);
 }
 input, textarea, select {
   border: 1px solid rgba(127, 201, 255, 0.9);

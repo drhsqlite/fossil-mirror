@@ -1,5 +1,5 @@
-C Darkmode\sskin\stweak\sso\sthat\scertain\sform\selements,\se.g.\sbuttons,\sdon't\shave\s_entirely_\sinvisible\sbackgrounds.
-D 2021-09-22T05:45:33.152
+C Revert\spart\sof\sthe\sprevious\scommit\sso\sthat\sonly\sbuttons,\snot\stextareas\san\sinput\sfields,\sare\saffects.
+D 2021-09-22T08:43:30.675
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -371,7 +371,7 @@ F skins/bootstrap/css.txt e196e8a3fd98e7c4877a64a5d332867261f83332be791e972ba554
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 7e02dfdcc09bf622744011d460d2422b8cead4687b66f753519e9a75b93db8ca
 F skins/bootstrap/header.txt ba52ec8100c2c05be73863d8b35b5d322b21fa53acfcb236b661219fd0c8487f
-F skins/darkmode/css.txt 8feb2bbd08dd82eab3ecbf88f3a82e86f5e2be1a6504dd28cf647ae450fa0a47
+F skins/darkmode/css.txt c667e0a33eb6cdb7a218822c74300731cd2d721dda8f429f2a64a3b9c96677b0
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48887195881200aea08df9050d467c3f9498cfc9d821859595f2f4bf72607598
-R 8f0fe95576d630cb16a891eb203003d9
+P 65233c9f33e549883967552f7b3068786f56ad383583bdc8fe07c6512d056c0d
+R 78ed51e2d8be1edcb5601c1f672a824d
 U stephan
-Z b69fc7462c6a894a526da92da5616b6e
+Z 57bdbc8c7a65746fe88ce9fe5950adcd
