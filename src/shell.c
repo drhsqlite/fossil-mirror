@@ -10156,6 +10156,7 @@ static int idxFindCompatible(
  */
 static int countNonzeros(void* pCount, int nc,
                          char* azResults[], char* azColumns[]){
+  (void)azColumns;  /* Suppress unused parameter warning */
   if( nc>0 && (azResults[0][0]!='0' || azResults[0][1]!=0) ){
     *((int *)pCount) += 1;
   }
@@ -21651,6 +21652,9 @@ meta_command_exit:
 
 /* Line scan result and intermediate states (supporting scan resumption)
 */
+#ifndef CHAR_BIT
+# define CHAR_BIT 8
+#endif
 typedef enum {
   QSS_HasDark = 1<<CHAR_BIT, QSS_EndingSemi = 2<<CHAR_BIT,
   QSS_CharMask = (1<<CHAR_BIT)-1, QSS_ScanMask = 3<<CHAR_BIT,
