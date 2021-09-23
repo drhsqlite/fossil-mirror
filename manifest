@@ -1,5 +1,5 @@
-C Added\sa\shelp\sbuttonlet\sto\sthe\suser\sactivity\slist.
-D 2021-09-23T13:26:54.118
+C xekri\sskin:\sremove\sthe\soutlandish\ssaturation\son\schat\smessage\stabs\sand\smake\suser\sname\scolor\smore\slegible\sin\sthe\srecent\sactivity\slist.
+D 2021-09-23T13:44:10.547
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -398,7 +398,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt e256d73953eaf540f0eba622f2088a17cafd64cd1c37db3e69f0f3670a7143d2
+F skins/xekri/css.txt cd9c536f072c066d2f402f146ace3dcf157c3c0822c505ced9f3a88732b6566d
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt e75e1af0572c2cfe44e3882d18e0f71aac5fecc504b9a193205c9b7dbaaa56da
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 754f7a42cc52c65dc7da26b081a771524755a12b80481b6277a12cd746f75cb5
-R 5bc5a3679ebd1987cd4b17db8b7c440c
+P f39c8326e2b526da903e34caed22cf7f9a93af3d0bb491c77901d2c379d7ed40
+R 463877eb6af0cb1ba1a284aa2ed060b0
 U stephan
-Z 4a53f208c51c4620e2e7e7fe29fb1237
+Z 916a59a95b64d747f91d861afd65f5ad
