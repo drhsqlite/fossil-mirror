@@ -486,7 +486,8 @@
             D.append(self.e.activeUserList, uSpan);
           };
         }
-        D.clearElement(this.e.activeUserList);
+        //D.clearElement(this.e.activeUserList);
+        D.remove(this.e.activeUserList.querySelectorAll('.chat-user'));
         Object.keys(this.usersLastSeen).sort(
           callee.sortUsersSeen
         ).forEach(callee.addUserElem);

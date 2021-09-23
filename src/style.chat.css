@@ -336,8 +336,8 @@ body.chat #chat-user-list {
   flex-wrap: wrap;
   align-items: center;
 }
-body.chat #chat-user-list::before {
-  /*content: "Recently active: ";*/
+body.chat #chat-user-list .help-buttonlet {
+  margin: 0.2em 0.5em 0.2em -0.25em;
 }
 body.chat #chat-user-list .chat-user {
   margin: 0.2em;

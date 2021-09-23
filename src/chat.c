@@ -185,7 +185,13 @@ void chat_webpage(void){
   @ </div>
   @ <fieldset id='chat-user-list-wrapper' class='hidden'>
   @   <legend>Active Users (most recent first)</legend>
-  @   <div id='chat-user-list'>(user list goes here)</div>
+  @   <div id='chat-user-list'>
+  @     <div class='help-buttonlet'>
+  @      Users who have messages in the currently-loaded list.<br>
+  @      Tap a user name to filter messages on that user and
+  @      tap again to clear the filter.
+  @     </div>
+  @   </div>
   @ </fieldset>
   @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
