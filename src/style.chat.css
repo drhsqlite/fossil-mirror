@@ -202,11 +202,9 @@ body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
   padding: 0.5em 0 0 0;
-  border-bottom: none;
-  border-top: 1px solid black;
   margin: 0.5em 0 0 0;
   position: initial /*sticky currently disabled due to scrolling-related issues*/;
-  bottom: 0;
+  /*bottom: 0;*/
 }
 body.chat:not(.chat-only-mode) #chat-input-area{
   /* Safari user reports that 2em is necessary to keep the file selection
@@ -360,27 +358,31 @@ body.chat #chat-preview #chat-preview-buttons > button {
   margin: 0.25em 0;
 }
 
+body.chat #chat-user-list-wrapper {
+  border-radius: 0.5em;
+  margin: 0.5em 0 0 0;
+  font-size: 85%;
+}
 body.chat #chat-user-list {
-  border: 1px inset;
-  padding: 0.1em 0.2em;
-  border-radius: 0.25em;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  font-size: 85%;
-  margin: 0.5em 0 0 0;
-  border-radius: 0.5em;
-  padding: 0.5em;
 }
 body.chat #chat-user-list::before {
-  content: "Most recently active:";
+  /*content: "Recently active: ";*/
 }
 body.chat #chat-user-list .chat-user {
   margin: 0.2em;
-  padding: 0.1em 0.5em;
+  padding: 0.1em 0.5em 0.2em 0.5em;
   border-radius: 0.5em;
   cursor: pointer;
+  text-align: center;
+  white-space: pre;
+}
+body.chat #chat-user-list .chat-user > .timestamp {
+  font-size: 80%;
+  font-family: monospace;
 }
 body.chat #chat-user-list .chat-user.selected {
   font-weight: bold;

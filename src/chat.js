@@ -37,6 +37,26 @@
 
   const addAnchorTargetBlank = (e)=>D.attr(e, 'target','_blank');
 
+  /**
+     Returns an almost-ISO8601 form of Date object d.
+  */
+  const iso8601ish = function(d){
+    return d.toISOString()
+        .replace('T',' ').replace(/\.\d+/,'')
+        .replace('Z', ' zulu');
+  };
+  /** Returns the local time string of Date object d, defaulting
+      to the current time. */
+  const localTimeString = function ff(d){
+    d || (d = new Date());
+    return [
+      d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
+      '-',pad2(d.getDate()),
+      ' ',pad2(d.getHours()),':',pad2(d.getMinutes()),
+      ':',pad2(d.getSeconds())
+    ].join('');
+  };
+
   (function(){
     let dbg = document.querySelector('#debugMsg');
     if(dbg){
@@ -119,7 +139,8 @@
         previewContent: E1('#chat-preview-content'),
         btnPreview: E1('#chat-preview-button'),
         views: document.querySelectorAll('.chat-view'),
-        activeUserList: D.append(E1('#chat-user-list'), "user list placeholder")
+        activeUserListWrapper: E1('#chat-user-list-wrapper'),
+        activeUserList: E1('#chat-user-list')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -137,6 +158,12 @@
            are considered. */
         /* Reminder: to convert a Julian time J to JS:
            new Date((J - 2440587.5) * 86400000) */
+      },
+      filterState:{
+        activeUser: undefined,
+        match: function(uname){
+          return this.activeUser===uname || !this.activeUser;
+        }
       },
       /** Gets (no args) or sets (1 arg) the current input text field value,
           taking into account single- vs multi-line input. The getter returns
@@ -254,6 +281,9 @@
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.viewMessages,
               prevMessage = this.e.newestMessage;
+        if(!this.filterState.match(e.dataset.xfrom)){
+          e.classList.add('hidden');
+        }
         if(atEnd){
           const fe = mip.nextElementSibling;
           if(fe) mip.parentNode.insertBefore(e, fe);
@@ -427,6 +457,7 @@
           /** Array.sort() callback. Expects an array of user names and
               sorts them in last-received message order (newest first). */
           const usersLastSeen = this.usersLastSeen;
+          const self = this;
           callee.sortUsersSeen = function(l,r){
             l = usersLastSeen[l];
             r = usersLastSeen[r];
@@ -435,21 +466,52 @@
             else if(r) return 1;
             else return 0;
           };
+          callee.addUserElem = function(u){
+            const uSpan = D.addClass(D.span(), 'chat-user');
+            const uDate = self.usersLastSeen[u];
+            if(self.filterState.activeUser===u){
+              uSpan.classList.add('selected');
+            }
+            uSpan.dataset.uname = u;
+            D.append(uSpan, u, "\n", 
+                     D.append(
+                       D.addClass(D.span(),'timestamp'),
+                       localTimeString(uDate)//.substr(5/*chop off year*/)
+                     ));
+            if(uDate.$uColor){
+              uSpan.style.backgroundColor = uDate.$uColor;
+            }
+            D.append(self.e.activeUserList, uSpan);
+          };
         }
-        const self = this,
-              users = Object.keys(this.usersLastSeen).sort(callee.sortUsersSeen);
-        if(!users.length) return this;
-        const ael = this.e.activeUserList;
-        D.clearElement(ael);
-        users.forEach(function(u){
-          const uSpan = D.addClass(D.span(), 'chat-user');
-          const uDate = self.usersLastSeen[u];
-          D.append(uSpan, u);
-          if(uDate.$uColor){
-            uSpan.style.backgroundColor = uDate.$uColor;
+        D.clearElement(this.e.activeUserList);
+        Object.keys(this.usersLastSeen).sort(
+          callee.sortUsersSeen
+        ).forEach(callee.addUserElem);
+        return this;
+      },
+      /**
+         Applies user name filter to all current messages, or clears
+         the filter if uname is falsy.
+      */
+      setUserFilter: function(uname){
+        this.filterState.activeUser = uname;
+        const mw = this.e.viewMessages.querySelectorAll('.message-widget');
+        const self = this;
+        let eLast;
+        mw.forEach(function(w){
+          if(self.filterState.match(w.dataset.xfrom)){
+            w.classList.remove('hidden');
+            eLast = w;
+          }else{
+            w.classList.add('hidden');
           }
-          D.append(ael, uSpan);
         });
+        if(eLast) eLast.scrollIntoView(false);
+        cs.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
+          e.classList[uname===e.dataset.uname ? 'add' : 'remove']('selected');
+        });
+        return this;
       }
     };
     F.fetch.beforesend = ()=>cs.ajaxStart();
@@ -472,7 +534,7 @@
       document.body.classList.add('monospace-messages');
     }
     if(cs.settings.getBool('active-user-list',false)){
-      cs.e.activeUserList.classList.remove('hidden');
+      cs.e.activeUserListWrapper.classList.remove('hidden');
     }
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
@@ -675,35 +737,25 @@
       /* Filter messages on a user clicked in activeUserList */
       ev.stopPropagation();
       ev.preventDefault();
-      if(!ev.target.classList.contains('chat-user')) return false;
-      const eUser = ev.target;
-      const uname = eUser.innerText;
+      let eUser = ev.target;
+      while(eUser!==this && !eUser.classList.contains('chat-user')){
+        eUser = eUser.parentNode;
+      }
+      if(eUser==this || !eUser) return false;
+      const uname = eUser.dataset.uname;
       let eLast;
       cs.setCurrentView(cs.e.viewMessages);
       if(eUser.classList.contains('selected')){
+        /* If curently selected, toggle filter off */
         eUser.classList.remove('selected');
-        cs.e.viewMessages.querySelectorAll(
-            '.message-widget.hidden'
-        ).forEach(function(e){
-          e.classList.remove('hidden');
-          eLast = e;
-        });
+        cs.setUserFilter(false);
         delete f.$eSelected;
       }else{
         if(f.$eSelected) f.$eSelected.classList.remove('selected');
         f.$eSelected = eUser;
         eUser.classList.add('selected');
-        cs.e.viewMessages.querySelectorAll(
-          '.message-widget'
-        ).forEach(function(e){
-          if(e.dataset.xfrom===uname){
-            e.classList.remove('hidden');
-            eLast = e;
-          }
-          else e.classList.add('hidden');
-        });
+        cs.setUserFilter(uname);
       }
-      if(eLast) eLast.scrollIntoView(false);
       return false;
     }, false);
     return cs;
@@ -751,17 +803,6 @@
         d.getHours(),":",
         (d.getMinutes()+100).toString().slice(1,3),
         ' ', dowMap[d.getDay()]
-      ].join('');
-    };
-    /** Returns the local time string of Date object d, defaulting
-        to the current time. */
-    const localTimeString = function ff(d){
-      d || (d = new Date());
-      return [
-        d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
-        '-',pad2(d.getDate()),
-        ' ',pad2(d.getHours()),':',pad2(d.getMinutes()),
-        ':',pad2(d.getSeconds())
       ].join('');
     };
     cf.prototype = {
@@ -1116,12 +1157,6 @@
     return false;
   });
 
-  /* Returns an almost-ISO8601 form of Date object d. */
-  const iso8601ish = function(d){
-    return d.toISOString()
-      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' zulu');
-  };
-
   (function(){/*Set up #chat-settings-button */
     const settingsButton = document.querySelector('#chat-settings-button');
     const optionsMenu = E1('#chat-config-options');
@@ -1144,11 +1179,11 @@
       }
     },{
       label: "Show recent user list",
-      boolValue: ()=>!Chat.e.activeUserList.classList.contains('hidden'),
+      boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
       persistentSetting: 'active-user-list',
       callback: function(){
-        D.toggleClass(Chat.e.activeUserList,'hidden');
-        if(Chat.e.activeUserList.classList.contains('hidden')){
+        D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
+        if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
           /* When hiding this element, undo all filtering */
           D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'), 'hidden');
           /*Ideally we'd scroll the final message into view

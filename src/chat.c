@@ -183,7 +183,10 @@ void chat_webpage(void){
   @     <div id="chat-drop-details"></div>
   @   </div>
   @ </div>
-  @ <div id='chat-user-list' class='hidden'></div>
+  @ <fieldset id='chat-user-list-wrapper' class='hidden'>
+  @   <legend>Recently Active</legend>
+  @   <div id='chat-user-list'>(user list goes here)</div>
+  @ </fieldset>
   @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
   @  <div id='chat-preview-content' class='message-widget-content'></div>
