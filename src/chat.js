@@ -457,7 +457,7 @@
       */
       updateActiveUserList: function callee(){
         if(this._isBatchLoading
-           || Chat.e.activeUserListWrapper.classList.contains('hidden')){
+           || this.e.activeUserListWrapper.classList.contains('hidden')){
           return this;
         }else if(!callee.sortUsersSeen){
           /** Array.sort() callback. Expects an array of user names and

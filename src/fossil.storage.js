@@ -1,6 +1,6 @@
 (function(F){
   /**
-     fossil.store is a basic wrapper around localStorage
+     fossil.storage is a basic wrapper around localStorage
      or sessionStorage or a dummy proxy object if neither
      of those are available.
   */

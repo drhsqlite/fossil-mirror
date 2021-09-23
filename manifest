@@ -1,5 +1,5 @@
-C Only\supdate\sthe\srecent\sactivity\sview\swhen\sit's\sactive\sor\sactivated,\snot\swhen\sit's\shidden/inactive.
-D 2021-09-23T15:51:57.668
+C Insignificant\stypos.
+D 2021-09-23T20:11:00.953
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c f655e6b9ac394d3bb7f99e0eb643232d6cf299e5b671dd07611ec7a801a1f254
-F src/chat.js 4e5e0c02ed315dbd96138a4b1716e6bfedddf7f7f7b262d68da8ddfaa8a0225e
+F src/chat.js 0466d5970682d5759e863178e6bd657463a2bf4dfb875613a78351519e272e54
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -483,7 +483,7 @@ F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe753
 F src/fossil.page.wikiedit.js 8b8450f77f2e8cb0757e37e108ebef12d7fca9c55270799b7a5e956357697dd6
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
 F src/fossil.popupwidget.js 726f605138cf039328e56b6b2d4f5f99dfb54675c0a87f560bf3cfc148bd3d83
-F src/fossil.storage.js ee846952cca6914fe98b82d9048725e81bc0ce2bf719e5f6bea1cf1c80abc8cb
+F src/fossil.storage.js 767a7eba00b6ffbed8aba7fab3b9b4a1eb3052cb9d0730b2bd96941baa7627a9
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
 F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c00002656a60314aadd02740e3b15de2845705b8015b07e30d0040f13108ce2d
-R c603aa9743ca7f15397d65366dc285c4
+P 06196b19939b5fca0132177b6358ba7293d2d486d616b03f2d656de844c96013
+R eeab98a3c093e02e7501f4e5b7c0ba00
 U stephan
-Z 0d9c9189c0461c81195681ccfd5ce786
+Z 50522c4109df5f855fbcb94c8c70fa47
