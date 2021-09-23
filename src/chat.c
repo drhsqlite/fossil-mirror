@@ -184,7 +184,7 @@ void chat_webpage(void){
   @   </div>
   @ </div>
   @ <fieldset id='chat-user-list-wrapper' class='hidden'>
-  @   <legend>Recently Active</legend>
+  @   <legend>Active Users (most recent first)</legend>
   @   <div id='chat-user-list'>(user list goes here)</div>
   @ </fieldset>
   @ <div id='chat-preview' class='hidden chat-view'>
