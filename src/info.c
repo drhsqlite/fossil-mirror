@@ -2250,7 +2250,7 @@ void output_text_with_line_numbers(
   }
   /*cgi_printf("<!-- ln span count=%d -->", nSpans);*/
   cgi_append_content("<table class='numbered-lines'><tbody>"
-                     "<tr><td class='line-numbers'>", -1);
+                     "<tr><td class='line-numbers'><pre>", -1);
   iStart = iEnd = 0;
   count_lines(z, nZ, &nLine);
   for( n=1 ; n<=nLine; ++n ){
@@ -2292,9 +2292,10 @@ void output_text_with_line_numbers(
     }else if( n>iStart && n<iEnd ){
       zAttr = " class='selected-line'";
     }
-    cgi_printf("<span%s%s>%6d</span>", zId, zAttr, n);
+    cgi_printf("<span%s%s>%6d</span>\n", zId, zAttr, n)
+      /* ^^^ explicit \n is necessary for text-mode browsers. */;
   }
-  cgi_append_content("</td><td class='file-content'><pre>",-1);
+  cgi_append_content("</pre></td><td class='file-content'><pre>",-1);
   if(zExt && *zExt){
     cgi_printf("<code class='language-%h'>",zExt);
   }else{

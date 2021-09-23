@@ -1308,12 +1308,13 @@ table.numbered-lines > tbody > tr > td {
 table.numbered-lines td.line-numbers {
   width: 4.5em;
 }
-table.numbered-lines td.line-numbers > span:first-of-type {
-  margin-top: 0.25em/*must match top PADDING of
-                      td.file-content > pre > code*/;
+table.numbered-lines td.line-numbers > pre {
+  margin: 0.25em/*must match top PADDING of td.file-content
+                  > pre > code*/ 0 0 0;
+  padding: 0;
 }
-table.numbered-lines td.line-numbers > span {
-  display: block;
+table.numbered-lines td.line-numbers span {
+  display: inline-block;
   margin: 0;
   padding: 0;
   line-height: inherit;
@@ -1324,7 +1325,7 @@ table.numbered-lines td.line-numbers > span {
   margin-right: 2px/*keep selection from nudging the right column */;
   text-align: right;
 }
-table.numbered-lines td.line-numbers > span:hover {
+table.numbered-lines td.line-numbers span:hover {
   background-color: rgba(112, 112, 112, 0.25);
 }
 table.numbered-lines td.file-content {
