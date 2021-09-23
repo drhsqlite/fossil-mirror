@@ -140,6 +140,7 @@ body.chat #chat-messages-wrapper {
   overflow: auto;
   flex: 2 1 auto;
   padding: 0 0.25em;
+  margin-bottom: 0.5em;
 }
 body.chat #chat-messages-wrapper.loading > * {
   /* An attempt at reducing flicker when loading lots of messages. */
@@ -163,8 +164,8 @@ body.chat div.content {
 body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
-  padding: 0.5em 0 0 0;
-  margin: 0.5em 0 0 0;
+  padding: 0;
+  margin: 0;
   position: initial /*sticky currently disabled due to scrolling-related issues*/;
   /*bottom: 0;*/
 }

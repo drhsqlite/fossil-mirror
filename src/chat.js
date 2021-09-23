@@ -454,7 +454,8 @@
          Updates the "active user list" view.
       */
       updateActiveUserList: function callee(){
-        if(!callee.sortUsersSeen){
+        if(this._isBatchLoading) return this;
+        else if(!callee.sortUsersSeen){
           /** Array.sort() callback. Expects an array of user names and
               sorts them in last-received message order (newest first). */
           const usersLastSeen = this.usersLastSeen;
@@ -1391,12 +1392,11 @@
         Chat.injectMessageElem(row.e.body,atEnd);
         if(m.isError){
           Chat._gotServerError = m;
-        }else{
-          Chat.updateActiveUserList();
         }
       }/*processPost()*/;
     }/*end static init*/
     jx.msgs.forEach((m)=>f.processPost(m,atEnd));
+    Chat.updateActiveUserList();
     if('visible'===document.visibilityState){
       if(Chat.changesSincePageHidden){
         Chat.changesSincePageHidden = 0;
@@ -1441,6 +1441,7 @@
           let gotMessages = x.msgs.length;
           newcontent(x,true);
           Chat._isBatchLoading = false;
+          Chat.updateActiveUserList();
           if(Chat._gotServerError){
             Chat._gotServerError = false;
             return;
@@ -1534,7 +1535,10 @@
       },
       onload:function(y){
         newcontent(y);
-        Chat._isBatchLoading = false;
+        if(Chat._isBatchLoading){
+          Chat._isBatchLoading = false;
+          Chat.updateActiveUserList();
+        }
         afterFetch();
       }
     });
