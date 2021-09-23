@@ -1394,5 +1394,6 @@
     Chat.chatOnlyMode(true);
   }
   Chat.intervalTimer = setInterval(poll, 1000);
+  setTimeout( ()=>Chat.inputFocus(), 0 );
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();
