@@ -1,5 +1,5 @@
-C When\sbatch\sloading\schat\smessages,\sdelay\supdate\sof\srecent\sactivity\slist\suntil\safter\sthe\sbatch\sis\sdone.\sSqueezed\sabout\s0.5em\smore\sspace\sout\sof\sthe\sscreen.
-D 2021-09-23T12:41:25.675
+C Redistributed\sa\stiny\sbit\sof\sspacing\s-\slooks\sless\scramped\sthis\sway.
+D 2021-09-23T12:49:06.254
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 166e219c251bb6a19e66ccfa6d4454d4f9cd321de3764415aa5e34ffa420e670
+F src/style.chat.css 0a3132b67ea66a3de303b9fe29022ef7f94ec12b2640a754bc44c81f41c13c24
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dddd42baa6bbd967b2f211b7b7e636bae66d539cf208ff4820f23ba28e2ac2be
-R 46ef27c14fb6ddb83c6eb731c2f5de5d
+P 7c2f3eb31faac3afe3f5d7562db4c39b699b0454baa1016fcab0299cd1cd92fc
+R d03376847d02de0bec9795bd6ac0515d
 U stephan
-Z 346259d398d9fe6de3ff6c63daf3eca2
+Z 053ffa593f3cd7ec7203aec3b421e98a
