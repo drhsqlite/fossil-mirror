@@ -1,5 +1,5 @@
-C Was\ssupposed\sto\sbe\spart\sof\sthe\sprevious\scommit\s:/.
-D 2021-09-23T12:03:53.380
+C Corrected\spersistence\sof\sthe\stimestamps\stoggle.\sRemoved\sabout\s40\slines\sof\sdead\sCSS.
+D 2021-09-23T12:23:06.918
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c ca82fc5ae1d40b190b8a30f4ac9ab7d2e1f6f1d48b87a2cc244c8108e55e7ab2
-F src/chat.js d01f8b63c935cf4d621bcdba4f8eee3a4cbbfdf93b3d97dc950851ed9594937b
+F src/chat.js 09b1d024b6d7d5e931214f1dbbc448988ba5c246b0fd716013049c7dbd77e456
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css c93e0981631a1ec7b54de9b5ca34d842b1e011dc5b2b17f70fa8bbea4445b8af
+F src/style.chat.css bfc16bc4034ca62ff014943a04e6897a193d60aede94533a0521cb48f9b6af73
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9938acb049e5ed879fcd6298b44ad76dcc2be9797e0b121a89e274ea793cfb93
-R 36289cc43cdb4d51849ef8e2c66d8254
+P a3ea94205b7c262eaec84fd733e4b583b94998cecf69d9f1bd466caf1a23aedd
+R 0725d1f077fb0bdc2a7964dfc3df8398
 U stephan
-Z d2d825265b3995af87fd5e336160bc64
+Z 90800ddad35ec793a32264f4ffa879ea

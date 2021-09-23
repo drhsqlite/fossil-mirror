@@ -134,44 +134,6 @@ body.chat .chat-settings-popup {
   padding: 0.25em;
   z-index: 200;
 }
-body.chat .chat-settings-popup > span {
-  vertical-align: middle;
-}
-body.chat .chat-settings-popup > span.menu-entry{
-  white-space: nowrap;
-  cursor: pointer;
-  border: 1px solid;
-  border-radius: 0.25em;
-  padding: 0.25em 0.5em;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-body.chat .chat-settings-popup > span.menu-entry:hover {
-}
-body.chat .chat-settings-popup > span.menu-entry > .help-buttonlet {
-  vertical-align: middle;
-}
-body.chat .chat-settings-popup > span.menu-entry > span.button {
-  margin: 0.25em 0.2em;
-  padding: 0.25em;
-  flex: 1 1 auto/*eliminates dead no-click zones on the right*/;
-}
-body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
-  cursor: inherit;
-}
-body.chat .chat-settings-popup > select.menu-entry {
-  flex: 1 1 auto;
-  padding: 0;
-  cursor: pointer;
-  min-height: 2.5em;
-  border-radius: 0.25em;
-}
-body.chat .chat-settings-popup > select.menu-entry > option {
-  /*Recall that many browsers don't allow styling of OPTION
-    elements, or allow only very limited styling.*/
-}
 
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
@@ -327,8 +289,11 @@ body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
   align-items: center;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry > label {
+  cursor: pointer;
 }
 body.chat #chat-config #chat-config-options .menu-entry > input:first-child {
   margin-right: 1em;
@@ -361,6 +326,7 @@ body.chat #chat-preview #chat-preview-buttons > button {
 body.chat #chat-user-list-wrapper {
   border-radius: 0.5em;
   margin: 0.5em 0 0 0;
+  padding: 0.25em 0.5em;
   font-size: 85%;
 }
 body.chat #chat-user-list {
@@ -384,7 +350,7 @@ body.chat #chat-user-list .timestamp {
   font-size: 80%;
   font-family: monospace;
 }
-body.chat #chat-user-list.no-timestamps .timestamp {
+body.chat #chat-user-list:not(.timestamps) .timestamp {
   display: none;
 }
 body.chat #chat-user-list .chat-user.selected {

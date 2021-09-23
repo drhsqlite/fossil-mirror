@@ -537,6 +537,9 @@
     if(cs.settings.getBool('active-user-list',false)){
       cs.e.activeUserListWrapper.classList.remove('hidden');
     }
+    if(cs.settings.getBool('active-user-list-timestamps',false)){
+      cs.e.activeUserList.classList.add('timestamps');
+    }
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
@@ -1187,19 +1190,19 @@
         document.body.classList.toggle('my-messages-right');
       }
     },{
-      label: "Images inline",
+      label: "Show images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
         const v = Chat.settings.toggle('images-inline');
         F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
     },{
-      label: "Show timestamps in recent user list",
-      boolValue: ()=>!Chat.e.activeUserList.classList.contains('no-timestamps'),
+      label: "Show timestamps in recent activity list",
+      boolValue: ()=>Chat.e.activeUserList.classList.contains('timestamps'),
       persistentSetting: 'active-user-list-timestamps',
-      callback: ()=>D.toggleClass(Chat.e.activeUserList,'no-timestamps')
+      callback: ()=>D.toggleClass(Chat.e.activeUserList,'timestamps')
     },{
-      label: "Show recent user list",
+      label: "Show recent activity list",
       boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
       persistentSetting: 'active-user-list',
       callback: function(){
