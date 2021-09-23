@@ -118,7 +118,8 @@
         viewPreview: E1('#chat-preview'),
         previewContent: E1('#chat-preview-content'),
         btnPreview: E1('#chat-preview-button'),
-        views: document.querySelectorAll('.chat-view')
+        views: document.querySelectorAll('.chat-view'),
+        activeUserList: D.append(E1('#chat-user-list'), "user list placeholder")
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -130,6 +131,13 @@
       //! Number of messages to load for the history buttons
       loadMessageCount: Math.abs(F.config.chat.initSize || 20),
       ajaxInflight: 0,
+      usersLastSeen:{
+        /* Map of user names to their most recent message time
+           (JS Date object). Only messages received by the chat client
+           are considered. */
+        /* Reminder: to convert a Julian time J to JS:
+           new Date((J - 2440587.5) * 86400000) */
+      },
       /** Gets (no args) or sets (1 arg) the current input text field value,
           taking into account single- vs multi-line input. The getter returns
           a string and the setter returns this object. */
@@ -369,7 +377,8 @@
           "edit-multiline": false,
           "monospace-messages": false,
           "chat-only-mode": false,
-          "audible-alert": true
+          "audible-alert": true,
+          "active-user-list": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -409,6 +418,38 @@
           if(e!==E) D.addClass(E,'hidden');
         });
         return this.e.currentView = D.removeClass(e,'hidden');
+      },
+      /**
+         Updates the "active user list" view.
+      */
+      updateActiveUserList: function callee(){
+        if(!callee.sortUsersSeen){
+          /** Array.sort() callback. Expects an array of user names and
+              sorts them in last-received message order (newest first). */
+          const usersLastSeen = this.usersLastSeen;
+          callee.sortUsersSeen = function(l,r){
+            l = usersLastSeen[l];
+            r = usersLastSeen[r];
+            if(l && r) return r - l;
+            else if(l) return -1;
+            else if(r) return 1;
+            else return 0;
+          };
+        }
+        const self = this,
+              users = Object.keys(this.usersLastSeen).sort(callee.sortUsersSeen);
+        if(!users.length) return this;
+        const ael = this.e.activeUserList;
+        D.clearElement(ael);
+        users.forEach(function(u){
+          const uSpan = D.addClass(D.span(), 'chat-user');
+          const uDate = self.usersLastSeen[u];
+          D.append(uSpan, u);
+          if(uDate.$uColor){
+            uSpan.style.backgroundColor = uDate.$uColor;
+          }
+          D.append(ael, uSpan);
+        });
       }
     };
     F.fetch.beforesend = ()=>cs.ajaxStart();
@@ -429,6 +470,9 @@
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
+    }
+    if(cs.settings.getBool('active-user-list',false)){
+      cs.e.activeUserList.classList.remove('hidden');
     }
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
@@ -626,6 +670,42 @@
       }
     }, true);
     cs.setCurrentView(cs.e.viewMessages);
+
+    cs.e.activeUserList.addEventListener('click', function f(ev){
+      /* Filter messages on a user clicked in activeUserList */
+      ev.stopPropagation();
+      ev.preventDefault();
+      if(!ev.target.classList.contains('chat-user')) return false;
+      const eUser = ev.target;
+      const uname = eUser.innerText;
+      let eLast;
+      cs.setCurrentView(cs.e.viewMessages);
+      if(eUser.classList.contains('selected')){
+        eUser.classList.remove('selected');
+        cs.e.viewMessages.querySelectorAll(
+            '.message-widget.hidden'
+        ).forEach(function(e){
+          e.classList.remove('hidden');
+          eLast = e;
+        });
+        delete f.$eSelected;
+      }else{
+        if(f.$eSelected) f.$eSelected.classList.remove('selected');
+        f.$eSelected = eUser;
+        eUser.classList.add('selected');
+        cs.e.viewMessages.querySelectorAll(
+          '.message-widget'
+        ).forEach(function(e){
+          if(e.dataset.xfrom===uname){
+            e.classList.remove('hidden');
+            eLast = e;
+          }
+          else e.classList.add('hidden');
+        });
+      }
+      if(eLast) eLast.scrollIntoView(false);
+      return false;
+    }, false);
     return cs;
   })()/*Chat initialization*/;
 
@@ -1063,6 +1143,21 @@
         Chat.inputToggleSingleMulti();
       }
     },{
+      label: "Show recent user list",
+      boolValue: ()=>!Chat.e.activeUserList.classList.contains('hidden'),
+      persistentSetting: 'active-user-list',
+      callback: function(){
+        D.toggleClass(Chat.e.activeUserList,'hidden');
+        if(Chat.e.activeUserList.classList.contains('hidden')){
+          /* When hiding this element, undo all filtering */
+          D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'), 'hidden');
+          /*Ideally we'd scroll the final message into view
+            now, but because viewMessages is currently hidden behind
+            viewConfig, scrolling is a no-op. */
+          Chat.scrollMessagesTo(1);
+        }
+      }
+    },{
       label: "Monospace message font",
       boolValue: ()=>document.body.classList.contains('monospace-messages'),
       persistentSetting: 'monospace-messages',
@@ -1230,6 +1325,14 @@
         ++Chat.totalMessageCount;
         if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
         if( !Chat.mnMsg || m.msgid<Chat.mnMsg) Chat.mnMsg = m.msgid;
+        if(m.xfrom && m.mtime){
+          const d = new Date(m.mtime);
+          const uls = Chat.usersLastSeen[m.xfrom];
+          if(!uls || uls<d){
+            d.$uColor = m.uclr;
+            Chat.usersLastSeen[m.xfrom] = d;
+          }
+        }
         if( m.mdel ){
           /* A record deletion notice. */
           Chat.deleteMessageElem(m.mdel);
@@ -1242,6 +1345,8 @@
         Chat.injectMessageElem(row.e.body,atEnd);
         if(m.isError){
           Chat._gotServerError = m;
+        }else{
+          Chat.updateActiveUserList();
         }
       }/*processPost()*/;
     }/*end static init*/
