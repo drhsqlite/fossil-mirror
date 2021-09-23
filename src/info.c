@@ -3307,6 +3307,11 @@ void ci_edit_page(void){
     @ <input type="checkbox" name="pclr" />
   }
   @ Propagate color to descendants</label></div>
+  @ <div class='font-size-80'>Be aware that fixed background
+  @ colors will not interact well with all available skins.
+  @ It is recommended that fossil be allowed to select these
+  @ colors automatically so that it can take the skin's
+  @ preferences into account.</div>
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Tags:</th>

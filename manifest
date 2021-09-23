@@ -1,5 +1,5 @@
-C Minor\srestructuring\sof\sthe\s/file\sline\snumber\sDOM\selements\sto\saddress\stext-mode\sbrowsers.\s[forum:c8fd094267a0f0d9|\sForum\spost\sc8fd094267a0f0d9].
-D 2021-09-23T04:46:50.388
+C In\s/ci_edit,\sadd\sa\sfootnote\srecommending\sagainst\ssetting\sfixed\scolor\svalues.\sThat\sfeature\spredates\sskins\sby\syears\sand\sdoes\snot\splay\swell\swith\sarbitrary\sskins.
+D 2021-09-23T04:53:26.498
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -446,7 +446,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
-F src/default.css fbcf2e95b7bdb90518d5379bad7e99c04bdb5c4aa1c93b8aff54174c2a1bc818
+F src/default.css a92d3abc2f2a366bd63a2e863672ad9bc9b7fc515bfba0be6e851e2b7e7e6ebe
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -502,7 +502,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c e414dce084c13bf35da951f45dc5ffdaed195f06ec6cfeb0fc22a83bee5bbbee
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
-F src/info.c e28dde56baaaaf6fa2a200feed4f8d2fb199d87eddf4580e525285fec8006630
+F src/info.c 96a44645529426c345f0f2199529cb22ca5eebeb1b6caf362a756b7f5f3c7061
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3362100e297585a927ff65e5dc448a4258980bdd4e6edf6324e32e55c770770
-R 163eddcc1f46e4d84790e4d258893bd3
+P 53ff9d0de0ca79d0e58d8e75f26bb1bda42806a0d201df0a06f260085c596d67
+R d743bba6bb08709d09b22477b1873b8e
 U stephan
-Z 1b986c4dde9298704e9ab1f321e473c9
+Z 964b0a49fa0bbffbfd9ebc4f2ed20bf8

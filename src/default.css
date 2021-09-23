@@ -1214,6 +1214,9 @@ hr {
   margin: 0.25em 0;
   flex: 0 0 auto;
 }
+.font-size-80 {
+  font-size: 80%;
+}
 .font-size-100 {
   font-size: 100%;
 }
