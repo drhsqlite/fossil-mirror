@@ -1,5 +1,5 @@
-C Replaced\srecent\sactivity\slist\sfieldset\selement\swith\sa\sfieldset-like\selement\sbecause\sof\sSafari\sfieldset\slayout/sizing\sbugs.
-D 2021-09-23T15:15:23.681
+C Micro-tweaking\sof\sCSS\sto\saccount\sfor\sthe\sfieldset\ssubstitution.
+D 2021-09-23T15:32:27.432
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 8b3035cac231382bcdc8d91efc3a0eed50a6dd88656994196949c91ac3f5e143
+F src/style.chat.css 0ab8b1a25d90aeeddfa8581ab7c60321db4abcd7880c6007edefa50e2d2d7490
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fced72da8610bd49307e17d171782685f13d32f277541132d2ea5549207c8456
-R 412d74394c784e4239ccb4b59b439053
+P dc3f028290648d3d1ab609b046c8308091eb300ddf65ea11f4f0b426fa27cd71
+R cb7c607915f636d92bceae4071376fc1
 U stephan
-Z 39da91b4f439ce0fc56b0cd929efdc14
+Z 73020eb7491d04e24dd8134b25653349

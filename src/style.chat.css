@@ -329,7 +329,7 @@ body.chat #chat-preview #chat-preview-buttons > button {
 body.chat #chat-user-list-wrapper {
   /* Safari can't do fieldsets right, so we emulate one. */
   border-radius: 0.5em;
-  margin: 0.3em 0 0.2em 0;
+  margin: 0.55em 0 0.2em 0;
   padding: 0.25em 0.5em;
   font-size: 85%;
   border-style: inset;
@@ -340,6 +340,7 @@ body.chat #chat-user-list-wrapper > legend {
   padding: 0 0.5em;
   position: relative;
   top: -1.75ex;
+  opacity: 0.6;
 }
 body.chat #chat-user-list {
   margin-top: -1.25ex;
