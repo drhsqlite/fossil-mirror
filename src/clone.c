@@ -267,6 +267,10 @@ void clone_cmd(void){
     db_open_repository(zRepo);
   }
   db_begin_transaction();
+  if( db_exists("SELECT 1 FROM delta WHERE srcId IN phantom") ){
+    fossil_fatal("there are unresolved deltas -"
+                 " the clone is probably incomplete and unusable.");
+  }
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
   if( !noCompress ){

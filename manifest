@@ -1,5 +1,5 @@
-C Improve\sthe\sdecision\sabout\swhen\sto\sstop\sdoing\sHTTP\sround-trips\swhile\ndoing\sa\sclone\sso\sthat\sthe\sclone\swill\scontinue\sas\slong\sas\snew\scontent\nis\sbeing\sreceived\sand\swe\shave\snot\syet\sseen\sthe\s"clone_seqno\s0"\scard.\nProposed\sfix\sfor\sthe\sissue\sdiscussed\sin\n[forum:/forumpost/60d48c2896|forum\sthread\s60d48c2896].
-D 2021-09-23T18:14:32.040
+C Earlier\sdetection\sof\sunresolved\sdeltas\sdue\sto\san\sincomplete\sclone.
+D 2021-09-23T19:47:41.245
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -433,7 +433,7 @@ F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 0c91e9516bd7d7a3db9a1d235e5b29c95023da3679fd355bb9fde9c456d14186
+F src/clone.c 60a3abb4227053868a4d817fd3e8e1d4e454cf9de8ec32d4cfaf8f18b216c525
 F src/codecheck1.c a8331266f3851f7f01bd2777de07d954a721d698e432c79fe3c2d753b0c98ead
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9956fa6ddefebb468ba5502b44153a2ac9f31463029fcccde7c1a1033eab1b39
-R 91b0e01f5229c6bf4a20de426604cfff
+P ea5afad31f478396c53790a1cf9d7840cfee2be13303af7c4d90646f0a286d64
+R 58ee35c7d624594cf107e53a9e930e56
 U drh
-Z 0e082c4028689745d6c21144a434e824
+Z 0ed546571b48a5ecafcc5d322dea1c0f
