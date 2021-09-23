@@ -326,6 +326,7 @@ body.chat #chat-preview #chat-preview-buttons > button {
 }
 
 body.chat #chat-user-list-wrapper {
+  flex: 1 1 auto/*attempt to work around Safari mobile bug*/;
   border-radius: 0.5em;
   margin: 0.3em 0 0.2em 0;
   padding: 0.25em 0.5em;
@@ -341,6 +342,7 @@ body.chat #chat-user-list {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
+  min-height: fit-content/*attempt to work around Safari mobile*/;
 }
 body.chat #chat-user-list .help-buttonlet {
   margin: 0.2em 0.5em 0.2em 0;
