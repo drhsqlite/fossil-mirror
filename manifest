@@ -1,5 +1,5 @@
-C In\s/ci_edit,\sadd\sa\sfootnote\srecommending\sagainst\ssetting\sfixed\scolor\svalues.\sThat\sfeature\spredates\sskins\sby\syears\sand\sdoes\snot\splay\swell\swith\sarbitrary\sskins.
-D 2021-09-23T04:53:26.498
+C Improve\sthe\sdecision\sabout\swhen\sto\sstop\sdoing\sHTTP\sround-trips\swhile\ndoing\sa\sclone\sso\sthat\sthe\sclone\swill\scontinue\sas\slong\sas\snew\scontent\nis\sbeing\sreceived\sand\swe\shave\snot\syet\sseen\sthe\s"clone_seqno\s0"\scard.\nProposed\sfix\sfor\sthe\sissue\sdiscussed\sin\n[forum:/forumpost/60d48c2896|forum\sthread\s60d48c2896].
+D 2021-09-23T18:14:32.040
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -637,7 +637,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
-F src/xfer.c 0c1e7baf407a8040473f3d93f82d59de5b4cd5e394759484e4d66469feaad851
+F src/xfer.c 9cc4482c2264ec069268f5f84468c76bae566a7611f41e883ddd3acefc80da8a
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53ff9d0de0ca79d0e58d8e75f26bb1bda42806a0d201df0a06f260085c596d67
-R d743bba6bb08709d09b22477b1873b8e
-U stephan
-Z 964b0a49fa0bbffbfd9ebc4f2ed20bf8
+P 9956fa6ddefebb468ba5502b44153a2ac9f31463029fcccde7c1a1033eab1b39
+R 91b0e01f5229c6bf4a20de426604cfff
+U drh
+Z 0e082c4028689745d6c21144a434e824
