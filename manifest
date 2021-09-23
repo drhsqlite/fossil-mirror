@@ -1,5 +1,5 @@
-C Micro-tweaking\sof\sCSS\sto\saccount\sfor\sthe\sfieldset\ssubstitution.
-D 2021-09-23T15:32:27.432
+C Only\supdate\sthe\srecent\sactivity\sview\swhen\sit's\sactive\sor\sactivated,\snot\swhen\sit's\shidden/inactive.
+D 2021-09-23T15:51:57.668
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c f655e6b9ac394d3bb7f99e0eb643232d6cf299e5b671dd07611ec7a801a1f254
-F src/chat.js abea31b699175048edacbbf360050003877723399535ba77cf91433cf416a831
+F src/chat.js 4e5e0c02ed315dbd96138a4b1716e6bfedddf7f7f7b262d68da8ddfaa8a0225e
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc3f028290648d3d1ab609b046c8308091eb300ddf65ea11f4f0b426fa27cd71
-R cb7c607915f636d92bceae4071376fc1
+P c00002656a60314aadd02740e3b15de2845705b8015b07e30d0040f13108ce2d
+R c603aa9743ca7f15397d65366dc285c4
 U stephan
-Z 73020eb7491d04e24dd8134b25653349
+Z 0d9c9189c0461c81195681ccfd5ce786

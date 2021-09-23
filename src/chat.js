@@ -451,18 +451,21 @@
         return this.e.currentView = D.removeClass(e,'hidden');
       },
       /**
-         Updates the "active user list" view.
+         Updates the "active user list" view if we are not currently
+         batch-loading messages and if the active user list UI element
+         is active.
       */
       updateActiveUserList: function callee(){
-        if(this._isBatchLoading) return this;
-        else if(!callee.sortUsersSeen){
+        if(this._isBatchLoading
+           || Chat.e.activeUserListWrapper.classList.contains('hidden')){
+          return this;
+        }else if(!callee.sortUsersSeen){
           /** Array.sort() callback. Expects an array of user names and
               sorts them in last-received message order (newest first). */
-          const usersLastSeen = this.usersLastSeen;
           const self = this;
           callee.sortUsersSeen = function(l,r){
-            l = usersLastSeen[l];
-            r = usersLastSeen[r];
+            l = self.usersLastSeen[l];
+            r = self.usersLastSeen[r];
             if(l && r) return r - l;
             else if(l) return -1;
             else if(r) return 1;
@@ -1216,6 +1219,8 @@
             now, but because viewMessages is currently hidden behind
             viewConfig, scrolling is a no-op. */
           Chat.scrollMessagesTo(1);
+        }else{
+          Chat.updateActiveUserList();
         }
       }
     },{
