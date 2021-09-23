@@ -408,7 +408,8 @@
           "monospace-messages": false,
           "chat-only-mode": false,
           "audible-alert": true,
-          "active-user-list": false
+          "active-user-list": false,
+          "active-user-list-timestamps": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -1169,7 +1170,9 @@
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
     Chat.e.viewConfig.querySelector('button').addEventListener('click', cbToggle, false);
-    /* Settings menu entries... */
+    /* Settings menu entries... Remember that they will be rendered in reverse
+       order and the most frequently-needed ones should be closer to the start
+       of this list. */
     const settingsOps = [{
       label: "Multi-line input",
       boolValue: ()=>Chat.inputElement()===Chat.e.inputMulti,
@@ -1177,6 +1180,24 @@
       callback: function(){
         Chat.inputToggleSingleMulti();
       }
+    },{
+      label: "Left-align my posts",
+      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
+      callback: function f(){
+        document.body.classList.toggle('my-messages-right');
+      }
+    },{
+      label: "Images inline",
+      boolValue: ()=>Chat.settings.getBool('images-inline'),
+      callback: function(){
+        const v = Chat.settings.toggle('images-inline');
+        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
+      }
+    },{
+      label: "Show timestamps in recent user list",
+      boolValue: ()=>!Chat.e.activeUserList.classList.contains('no-timestamps'),
+      persistentSetting: 'active-user-list-timestamps',
+      callback: ()=>D.toggleClass(Chat.e.activeUserList,'no-timestamps')
     },{
       label: "Show recent user list",
       boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
@@ -1198,19 +1219,6 @@
       persistentSetting: 'monospace-messages',
       callback: function(){
         document.body.classList.toggle('monospace-messages');
-      }
-    },{
-      label: "Images inline",
-      boolValue: ()=>Chat.settings.getBool('images-inline'),
-      callback: function(){
-        const v = Chat.settings.toggle('images-inline');
-        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
-      }
-    },{
-      label: "Left-align my posts",
-      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
-      callback: function f(){
-        document.body.classList.toggle('my-messages-right');
       }
     },{
       label: "Chat-only mode",

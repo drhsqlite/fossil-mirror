@@ -380,9 +380,12 @@ body.chat #chat-user-list .chat-user {
   text-align: center;
   white-space: pre;
 }
-body.chat #chat-user-list .chat-user > .timestamp {
+body.chat #chat-user-list .timestamp {
   font-size: 80%;
   font-family: monospace;
+}
+body.chat #chat-user-list.no-timestamps .timestamp {
+  display: none;
 }
 body.chat #chat-user-list .chat-user.selected {
   font-weight: bold;
