@@ -138,7 +138,6 @@ body.chat .chat-settings-popup {
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
   overflow: auto;
-  flex: 2 1 auto;
   padding: 0 0.25em;
   margin-bottom: 0.5em;
 }
@@ -267,14 +266,16 @@ body.chat #chat-drop-details img {
   max-width: 45%;
   max-height: 45%;
 }
-
+body.chat .chat-view {
+  flex: 20 1 auto
+  /*ensure that these grow more than the non-.chat-view elements*/;
+}
 body.chat #chat-config,
 body.chat #chat-preview {
   /* /chat configuration widget */
   display: flex;
   flex-direction: column;
   overflow: auto;
-  flex: 2 1 auto;
   padding: 0;
   margin: 0;
   align-items: stretch;
@@ -326,23 +327,26 @@ body.chat #chat-preview #chat-preview-buttons > button {
 }
 
 body.chat #chat-user-list-wrapper {
-  flex: 1 1 auto/*attempt to work around Safari mobile bug*/;
+  /* Safari can't do fieldsets right, so we emulate one. */
   border-radius: 0.5em;
   margin: 0.3em 0 0.2em 0;
   padding: 0.25em 0.5em;
   font-size: 85%;
-  border-width: 1px/*some skins remove fieldset borders*/;
+  border-style: inset;
+  border-width: 0 1px 1px 1px/*else collides with the LEGEND*/;
 }
 body.chat #chat-user-list-wrapper > legend {
   font-weight: initial;
   padding: 0 0.5em;
+  position: relative;
+  top: -1.75ex;
 }
 body.chat #chat-user-list {
+  margin-top: -1.25ex;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  min-height: fit-content/*attempt to work around Safari mobile*/;
 }
 body.chat #chat-user-list .help-buttonlet {
   margin: 0.2em 0.5em 0.2em 0;

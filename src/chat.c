@@ -183,7 +183,7 @@ void chat_webpage(void){
   @     <div id="chat-drop-details"></div>
   @   </div>
   @ </div>
-  @ <fieldset id='chat-user-list-wrapper' class='hidden'>
+  @ <div id='chat-user-list-wrapper' class='hidden'>
   @   <legend>Active Users (most recent first)</legend>
   @   <div id='chat-user-list'>
   @     <div class='help-buttonlet'>
@@ -192,7 +192,7 @@ void chat_webpage(void){
   @      tap again to clear the filter.
   @     </div>
   @   </div>
-  @ </fieldset>
+  @ </div>
   @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
   @  <div id='chat-preview-content' class='message-widget-content'></div>
