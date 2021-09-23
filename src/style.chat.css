@@ -197,6 +197,7 @@ body.chat #chat-input-line.single-line #chat-edit-buttons {
 }
 body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
+  padding: initial/*some skins mess this up for buttons*/;
 }
 body.chat #chat-input-line:not(.single-line) #chat-edit-buttons > * {
   max-width: 4em;
@@ -329,6 +330,11 @@ body.chat #chat-user-list-wrapper {
   margin: 0.3em 0 0.2em 0;
   padding: 0.25em 0.5em;
   font-size: 85%;
+  border-width: 1px/*some skins remove fieldset borders*/;
+}
+body.chat #chat-user-list-wrapper > legend {
+  font-weight: initial;
+  padding: 0 0.5em;
 }
 body.chat #chat-user-list {
   display: flex;
@@ -337,7 +343,7 @@ body.chat #chat-user-list {
   align-items: center;
 }
 body.chat #chat-user-list .help-buttonlet {
-  margin: 0.2em 0.5em 0.2em -0.25em;
+  margin: 0.2em 0.5em 0.2em 0;
 }
 body.chat #chat-user-list .chat-user {
   margin: 0.2em;
