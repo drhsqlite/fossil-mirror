@@ -373,7 +373,7 @@ body.chat #chat-user-list .chat-user.selected {
 }
 
 body.chat .anim-rotate-360 {
-  animation: rotate-360 1s linear;
+  animation: rotate-360 750ms linear;
 }
 @keyframes rotate-360 {
   from {

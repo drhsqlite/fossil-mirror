@@ -977,8 +977,8 @@
                 D.append(toolbar2, timelineLink);
                 if(Chat.filterState.activeUser &&
                    Chat.filterState.match(eMsg.dataset.xfrom)){
-                  /* Add a button to jump to clear user filter
-                     and jump to this message in context. */
+                  /* Add a button to clear user filter and jump to
+                     this message in its original context. */
                   D.append(
                     this.e,
                     D.append(
