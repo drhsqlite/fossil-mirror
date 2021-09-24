@@ -1,5 +1,5 @@
-C Animation\stweaks\sand\smore\spredictable\sscrolling\swhen\sthe\suser\sfilter\sis\scleared\s(always\sscroll\sto\sthe\sbutton).
-D 2021-09-24T10:14:20.485
+C Disable\schat\sanimations\sduring\sthe\sbootstrapping\sprocess.\sIncreated\stimestamp\ssize\sa\stick.\sXekri\sCSS\stweak\sto\seliminate\sbody-level\sscrollbars\sin\schat-only\smode.
+D 2021-09-24T12:07:39.386
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -398,7 +398,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt cd9c536f072c066d2f402f146ace3dcf157c3c0822c505ced9f3a88732b6566d
+F skins/xekri/css.txt 993ea74ca06a0609626f5b09af014d1c9e19e045d7305eb1a6056fb4e3d1f9b0
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt e75e1af0572c2cfe44e3882d18e0f71aac5fecc504b9a193205c9b7dbaaa56da
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c c5a4ef0deff16b0a329f0965722da30f53719079e7c74c7e96d4d2b6c8dbfd99
-F src/chat.js 44f73f336455a09d708067e24d81ee457b91dd1e177e4cc98db85004c92a51a4
+F src/chat.js d273423343ba8f53e80413ea4f2517a880fe9deb7d801e0f573247f0daf8af09
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css e05ebe5453ed3c584d9869b50a63b405209ba1861f0643bdb77c07a2785e8319
+F src/style.chat.css b1b14e030eb52668fe796c20eae1d13bc148560cab029528eaa55d9bd128b546
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b3a6ed8465eb09e9e120e4bac0064a09329a171a3e37296968a602d969e92ba
-R 3cd78a3518d4312c94c8b50ec796528e
+P 3d4101d354708a2661974aef661e68102a46eab61c4b09df2a99de748eac747a
+R 684132e041b0550e6fa56cefe0ad74cf
 U stephan
-Z 41c5b38d149f44bcd12ed9ccd3febd16
+Z 57afde4f1191505eade6cf5a062bf139

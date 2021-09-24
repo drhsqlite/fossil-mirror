@@ -234,7 +234,7 @@ body.chat #chat-input-file-area > .file-selection-wrapper {
   align-self: flex-start;
   margin-right: 0.5em;
   flex: 0 1 auto;
-  padding: 0.25em 0.25em 0.25em 0;
+  padding: 0.25em 0.5em;
   white-space: nowrap;
 }
 body.chat #chat-input-file-area .file-selection-wrapper > * {
@@ -361,7 +361,7 @@ body.chat #chat-user-list .chat-user {
   white-space: pre;
 }
 body.chat #chat-user-list .timestamp {
-  font-size: 80%;
+  font-size: 85%;
   font-family: monospace;
 }
 body.chat #chat-user-list:not(.timestamps) .timestamp {

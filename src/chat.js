@@ -204,7 +204,7 @@
         m.scrollTo(0, sTop + (mh1-mh2));
         this.e.inputCurrent.value = old.value;
         old.value = '';
-        D.addClassBriefly(this.e.inputCurrent, "anim-flip-v");
+        this.animate(this.e.inputCurrent, "anim-flip-v");
         return this;
       },
       /**
@@ -525,8 +525,21 @@
           e.classList[uname===e.dataset.uname ? 'add' : 'remove']('selected');
         });
         return this;
+      },
+
+      /**
+         If animations are enabled, passes its arguments
+         to D.addClassBriefly(), else this is a no-op.
+         Returns this object;
+      */
+      animate: function f(e,a){
+        if(!f.$disabled){
+          D.addClassBriefly(e, a);
+        }
+        return this;
       }
     };
+    cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
     F.fetch.aftersend = ()=>cs.ajaxEnd();
     cs.e.inputCurrent = cs.e.inputSingle;
@@ -996,14 +1009,13 @@
                           self.hide();
                           Chat.setUserFilter(false);
                           eMsg.scrollIntoView(false);
-                          D.addClassBriefly(
+                          Chat.animate(
                             eMsg.firstElementChild, 'anim-rotate-360'
                             //eMsg.firstElementChild, 'anim-flip-v'
                             //eMsg.childNodes, 'anim-rotate-360'
                             //eMsg.childNodes, 'anim-flip-v'
                             //eMsg, 'anim-flip-v'
                           );
-                          //D.addClassBriefly(eMsg.childNodes[1], 'anim-flip-h');
                         })
                     )
                   );
@@ -1231,7 +1243,7 @@
             Chat.scrollMessagesTo(1);
           }else{
             Chat.updateActiveUserList();
-            D.addClassBriefly(Chat.e.activeUserListWrapper, "anim-flip-v");
+            Chat.animate(Chat.e.activeUserListWrapper, "anim-flip-v");
           }
         }
       }
@@ -1610,11 +1622,12 @@
   }
   Chat.intervalTimer = setInterval(poll, 1000);
   if(0){
-    const flip = (ev)=>F.dom.addClassBriefly(ev.target,'anim-flip-h');
+    const flip = (ev)=>Chat.animate(ev.target,'anim-flip-h');
     document.querySelectorAll('#chat-edit-buttons button').forEach(function(e){
       e.addEventListener('click',flip, false);
     });
   }
   setTimeout( ()=>Chat.inputFocus(), 0 );
+  Chat.animate.$disabled = false;
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();
