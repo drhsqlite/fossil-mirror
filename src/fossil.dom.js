@@ -696,6 +696,9 @@
      function.
 
      Returns this object but the flashing is asynchronous.
+
+     Depending on system load and related factors, a multi-flash
+     animation might stutter and look suboptimal.
   */
   dom.flashNTimes = function(e,n,howLongMs,afterFlashCallback){
     const args = argsToArray(arguments);
@@ -719,7 +722,36 @@
     this.flashOnce.apply(this, args);
     return this;
   };
-  
+
+  /**
+     Adds the given CSS class or array of CSS classes to the given
+     element or forEach-capable list of elements for howLongMs, then
+     removes it. If afterCallack is a function, it is called after the
+     CSS class is removed from all elements. If called with 3
+     arguments and the 3rd is a function, the 3rd is treated as a
+     callback and the default time (addClassBriefly.defaultTimeMs) is
+     used. If called with only 2 arguments, a time of
+     addClassBriefly.defaultTimeMs is used.
+
+     Returns this object but the CSS removal is asynchronous.
+  */
+  dom.addClassBriefly = function f(e, className, howLongMs, afterCallback){
+    if(arguments.length<4 && 'function'===typeof howLongMs){
+      afterCallback = howLongMs;
+      howLongMs = f.defaultTimeMs;
+    }else if(arguments.length<3 || !+howLongMs){
+      howLongMs = f.defaultTimeMs;
+    }
+    if(!e.forEach) e = [e];
+    this.addClass(e, className);
+    setTimeout(function(){
+      dom.removeClass(e, className);
+      if(afterCallback) afterCallback();
+    }, howLongMs);
+    return this;
+  };
+  dom.addClassBriefly.defaultTimeMs = 1000;
+
   /**
      Attempts to copy the given text to the system clipboard. Returns
      true if it succeeds, else false.

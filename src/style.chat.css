@@ -371,3 +371,37 @@ body.chat #chat-user-list .chat-user.selected {
   font-weight: bold;
   text-decoration: underline;
 }
+
+body.chat .anim-rotate-360 {
+  animation: rotate-360 1s linear;
+}
+@keyframes rotate-360 {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+body.chat .anim-flip-h {
+  animation: flip-h 1s linear;
+}
+@keyframes flip-h{
+  from{
+    transform: rotateY(0deg);
+  }
+  to{
+    transform: rotateY(360deg);
+  }
+}
+body.chat .anim-flip-v {
+  animation: flip-v 1s linear;
+}
+@keyframes flip-v{
+  from{
+    transform: rotateX(0deg);
+  }
+  to{
+    transform: rotateX(360deg);
+  }
+}

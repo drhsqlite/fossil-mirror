@@ -1,5 +1,5 @@
-C When\schat\sview\sis\sfiltered\son\sa\ssingle\suser,\sthe\sper-message\spopup\snow\soffers\sthe\soption\sto\sjump\sto\sthat\smessage\sin\sthe\slarger\sunfiltered\scontext.\sWhen\stoggling\sthe\sactive\suser\stimestamps\son,\salso\stoggle\sthe\sactive\suser\ssetting\son\sif\sit's\snot\salready\son.
-D 2021-09-24T08:37:42.050
+C Changed\sthe\s"message\sin\scontext"\sanimation\sto\ssomething\smore\seye-catching\sand\sless\sstuttery.
+D 2021-09-24T09:29:55.901
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c c5a4ef0deff16b0a329f0965722da30f53719079e7c74c7e96d4d2b6c8dbfd99
-F src/chat.js 21e397b2b07ed686a58b50d8ae4ca61fef222171a364447e774eeb96c24bbf93
+F src/chat.js c768d87495e9ab8ea97a9d66767c3a39450eaf5055acced9fa04b4c9a8986443
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -472,7 +472,7 @@ F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
 F src/fossil.diff.js 53bd783341a3299fba5cbc7ef464dadd1c184632656c8f909fb1683dfbc95f68
-F src/fossil.dom.js 29e8b0dae1ab90294e6ea01f77a774c6d15da22694faed4349f6e4eed62eef53
+F src/fossil.dom.js b9699bbb8927e7e68f3d8f0643f21987a09fe81cdd39b4b5c8c47c118387a701
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 0ab8b1a25d90aeeddfa8581ab7c60321db4abcd7880c6007edefa50e2d2d7490
+F src/style.chat.css b0a977adc5f555293d2b8f5229e39eef3f2a0133634212e472f29b782855fd9d
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d046ab687d028c9072909a11fb0c15c7ab2dacb4bca93f0d7a7d8d0fcf01ff91
-R ea9c5471877bae058c9cf986759ada64
+P 5aac6ae058f9d777664a83e26cbd77403ac43e9e99ea603976aa8f23e104e8fe
+R 26b4c23f8a3485eeee0a761e72b94b90
 U stephan
-Z 5169e303826d72d1f6b3f41bc41f4069
+Z cd2dbb873ff0341e71c4f26d48b3a834

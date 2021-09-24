@@ -989,7 +989,7 @@
                           self.hide();
                           Chat.setUserFilter(false);
                           eMsg.scrollIntoView(false);
-                          D.flashNTimes(eMsg, 3);
+                          D.addClassBriefly(eMsg.firstElementChild, 'anim-rotate-360');
                         })
                     )
                   );
