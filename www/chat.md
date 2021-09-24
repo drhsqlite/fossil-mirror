@@ -99,6 +99,30 @@ a few built in to the fossil binary. In addition, any
 will be included in that list. To switch sounds, tap the "settings"
 button.
 
+### <a id='connection'></a> Who's Online?
+
+Because the chat app has to be able to work over transient CGI-based
+connections, as opposed to a stable socket connection to the server,
+real-time tracking of "who's online" is not possible. As of version
+2.17, chat offers an optional feature, toggleable in the settings,
+which can list users who have posted messages in the client's current
+list of loaded messages. This is not the same thing as tracking who's
+online, but it gives an overview of which users have been active most
+recently, noting that "lurkers" (people who post no messages) will not
+show up in that list, nor does the chat infrastructure have a way to
+track and present those. That list can be used to filter messages on a
+specific user by tapping on that user's name, tapping a second time to
+remove the filter.
+
+Sidebar: message deletion is a type of message and deletions count
+towards updates in the recent activity list (counted for the person
+who performed the deletion, nor the author of the deleted
+comment). That can potentially lead to odd corner cases where a user
+shows up in the list but has no messages which are currently visible
+because they were deleted. That is a known minor cosmetic-only bug
+with a resolution of "will not fix."
+
+
 ## Implementation Details
 
 *You do not need to understand how Fossil chat works in order to use it.
