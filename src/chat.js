@@ -446,6 +446,9 @@
          all other elements in that list. Returns e.
       */
       setCurrentView: function(e){
+        if(e===this.e.currentView){
+          return e;
+        }
         this.e.views.forEach(function(E){
           if(e!==E) D.addClass(E,'hidden');
         });

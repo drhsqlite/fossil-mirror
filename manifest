@@ -1,5 +1,5 @@
-C One\s"last"\sstyle\stweak,\sthen\si'm\sdone.
-D 2021-09-24T17:07:22.600
+C Removed\san\saccidental\sextraneous\sanimation\son\severy\schat\smessage\ssent.
+D 2021-09-24T17:11:39.320
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c d0935e3672fdde6621883845420c33bed88fcc969e2dcc0fad7a4aa0e4e32e88
-F src/chat.js cb8f9a18c6fad741cc165fff9fc8c7394325e030911f96bf4dfcd706e74ca8a5
+F src/chat.js df7bc9ff863d081a6759f6106927e22569bc88c9bc592f6f7ff8d36f63a35f1c
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 10107e4fbc80d0b87dc0fae3a669d7d6d1b5eb5990f20553ed769129f69f9dac
-R dc270283f5e4fedb5fbb6bd70c2bd426
+P 9e5acae7d5933b04b4c4e89dc1eb6b6e57366bb67c35f9d52ee3b59b95d1043e
+R d7895d4cb0d0073a1931458de0221190
 U stephan
-Z baa44954cacba16fa93d1d49cf81bdcd
+Z 00d07071c769bfdcda05ec18ea393173
