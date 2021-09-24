@@ -449,7 +449,9 @@
         this.e.views.forEach(function(E){
           if(e!==E) D.addClass(E,'hidden');
         });
-        return this.e.currentView = D.removeClass(e,'hidden');
+        this.e.currentView = D.removeClass(e,'hidden');
+        this.animate(this.e.currentView, 'anim-fade-in-fast');
+        return this.e.currentView;
       },
       /**
          Updates the "active user list" view if we are not currently
@@ -530,11 +532,12 @@
       /**
          If animations are enabled, passes its arguments
          to D.addClassBriefly(), else this is a no-op.
-         Returns this object;
+         If cb is a function, it is called after the
+         CSS class is removed. Returns this object; 
       */
-      animate: function f(e,a){
+      animate: function f(e,a,cb){
         if(!f.$disabled){
-          D.addClassBriefly(e, a);
+          D.addClassBriefly(e, a, 0, cb);
         }
         return this;
       }
@@ -1010,7 +1013,7 @@
                           Chat.setUserFilter(false);
                           eMsg.scrollIntoView(false);
                           Chat.animate(
-                            eMsg.firstElementChild, 'anim-rotate-360'
+                            eMsg.firstElementChild, 'anim-flip-h'
                             //eMsg.firstElementChild, 'anim-flip-v'
                             //eMsg.childNodes, 'anim-rotate-360'
                             //eMsg.childNodes, 'anim-flip-v'
@@ -1021,14 +1024,15 @@
                   );
                 }/*jump-to button*/
               }
- 
               const tab = eMsg.querySelector('.message-widget-tab');
               D.append(tab, this.e);
               D.removeClass(this.e, 'hidden');
+              Chat.animate(this.e, 'anim-fade-in-fast');
             }/*refresh()*/,
             hide: function(){
-              D.addClass(D.clearElement(this.e), 'hidden');
               delete this.$eMsg;
+              D.addClass(this.e, 'hidden');
+              D.clearElement(this.e);
             },
             show: function(tgtMsg){
               if(tgtMsg === this.$eMsg){
@@ -1234,6 +1238,7 @@
         persistentSetting: 'active-user-list',
         callback: function(){
           D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
+          D.removeClass(Chat.e.activeUserListWrapper, 'collapsed');
           if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
             /* When hiding this element, undo all filtering */
             Chat.setUserFilter(false);
@@ -1243,11 +1248,24 @@
             Chat.scrollMessagesTo(1);
           }else{
             Chat.updateActiveUserList();
-            Chat.animate(Chat.e.activeUserListWrapper, "anim-flip-v");
+            Chat.animate(Chat.e.activeUserListWrapper, 'anim-flip-v');
           }
         }
       }
     };
+    if(1){
+      /* Per user request, toggle the list of users on and off if the
+         legend element is tapped. */
+      const optAu = namedOptions.activeUsers;
+      optAu.theLegend = Chat.e.activeUserListWrapper.firstElementChild/*LEGEND*/;
+      optAu.theList = optAu.theLegend.nextElementSibling/*user list container*/;
+      optAu.theLegend.addEventListener('click',function(){
+        D.toggleClass(Chat.e.activeUserListWrapper, 'collapsed');
+        if(!Chat.e.activeUserListWrapper.classList.contains('collapsed')){
+          Chat.animate(optAu.theList,'anim-flip-v');
+        }
+      }, false);
+    }/*namedOptions.activeUsers additional setup*/
     /* Settings menu entries... Remember that they will be rendered in
        reverse order and the most frequently-needed ones "should"
        (arguably) be closer to the start of this list so that they
@@ -1285,6 +1303,7 @@
            && !namedOptions.activeUsers.boolValue()){
           namedOptions.activeUsers.checkbox.checked = true;
           namedOptions.activeUsers.callback();
+          Chat.settings.set(namedOptions.activeUsers.persistentSetting, true);
         }
       }
     },

@@ -733,6 +733,9 @@
      used. If called with only 2 arguments, a time of
      addClassBriefly.defaultTimeMs is used.
 
+     Passing a value of 0 for howLongMs causes the default value
+     to be applied.
+
      Returns this object but the CSS removal is asynchronous.
   */
   dom.addClassBriefly = function f(e, className, howLongMs, afterCallback){
@@ -742,7 +745,6 @@
     }else if(arguments.length<3 || !+howLongMs){
       howLongMs = f.defaultTimeMs;
     }
-    if(!e.forEach) e = [e];
     this.addClass(e, className);
     setTimeout(function(){
       dom.removeClass(e, className);

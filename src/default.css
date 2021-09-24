@@ -1389,7 +1389,7 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   text-align: center;
   padding: 0.2em 1em;
   border: 1px solid black;
-  border-radius: 0.25em;
+  border-radius: 0.5em;
   position: absolute;
   display: inline-block;
   z-index: 19/*below default skin's hamburger popup*/;
