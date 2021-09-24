@@ -103,7 +103,7 @@ button.
 
 Because the chat app has to be able to work over transient CGI-based
 connections, as opposed to a stable socket connection to the server,
-real-time tracking of "who's online" is not possible. As of version
+real-time tracking of "who's online" is not feasible. As of version
 2.17, chat offers an optional feature, toggleable in the settings,
 which can list users who have posted messages in the client's current
 list of loaded messages. This is not the same thing as tracking who's
@@ -116,11 +116,12 @@ remove the filter.
 
 Sidebar: message deletion is a type of message and deletions count
 towards updates in the recent activity list (counted for the person
-who performed the deletion, nor the author of the deleted
+who performed the deletion, not the author of the deleted
 comment). That can potentially lead to odd corner cases where a user
 shows up in the list but has no messages which are currently visible
-because they were deleted. That is a known minor cosmetic-only bug
-with a resolution of "will not fix."
+because they were deleted, or an admin user who has not posted
+anything but deleted a message. That is a known minor cosmetic-only
+bug with a resolution of "will not fix."
 
 
 ## Implementation Details
