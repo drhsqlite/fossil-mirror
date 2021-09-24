@@ -204,6 +204,7 @@
         m.scrollTo(0, sTop + (mh1-mh2));
         this.e.inputCurrent.value = old.value;
         old.value = '';
+        D.addClassBriefly(this.e.inputCurrent, "anim-flip-v");
         return this;
       },
       /**
@@ -505,15 +506,21 @@
         const mw = this.e.viewMessages.querySelectorAll('.message-widget');
         const self = this;
         let eLast;
-        mw.forEach(function(w){
-          if(self.filterState.match(w.dataset.xfrom)){
-            w.classList.remove('hidden');
-            eLast = w;
-          }else{
-            w.classList.add('hidden');
-          }
-        });
+        if(!uname){
+          D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'),
+                        'hidden');
+        }else{
+          mw.forEach(function(w){
+            if(self.filterState.match(w.dataset.xfrom)){
+              w.classList.remove('hidden');
+              eLast = w;
+            }else{
+              w.classList.add('hidden');
+            }
+          });
+        }
         if(eLast) eLast.scrollIntoView(false);
+        else this.scrollMessagesTo(1);
         cs.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
           e.classList[uname===e.dataset.uname ? 'add' : 'remove']('selected');
         });
@@ -989,7 +996,14 @@
                           self.hide();
                           Chat.setUserFilter(false);
                           eMsg.scrollIntoView(false);
-                          D.addClassBriefly(eMsg.firstElementChild, 'anim-rotate-360');
+                          D.addClassBriefly(
+                            eMsg.firstElementChild, 'anim-rotate-360'
+                            //eMsg.firstElementChild, 'anim-flip-v'
+                            //eMsg.childNodes, 'anim-rotate-360'
+                            //eMsg.childNodes, 'anim-flip-v'
+                            //eMsg, 'anim-flip-v'
+                          );
+                          //D.addClassBriefly(eMsg.childNodes[1], 'anim-flip-h');
                         })
                     )
                   );
@@ -1210,13 +1224,14 @@
           D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
           if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
             /* When hiding this element, undo all filtering */
-            D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'), 'hidden');
+            Chat.setUserFilter(false);
             /*Ideally we'd scroll the final message into view
               now, but because viewMessages is currently hidden behind
               viewConfig, scrolling is a no-op. */
             Chat.scrollMessagesTo(1);
           }else{
             Chat.updateActiveUserList();
+            D.addClassBriefly(Chat.e.activeUserListWrapper, "anim-flip-v");
           }
         }
       }
@@ -1251,8 +1266,9 @@
       persistentSetting: 'active-user-list-timestamps',
       callback: function(){
         D.toggleClass(Chat.e.activeUserList,'timestamps');
-        /* If the timestamp option is activated but optActiveUsers is not
-           currently checked then toggle that option on as well. */
+        /* If the timestamp option is activated but
+           namedOptions.activeUsers is not currently checked then
+           toggle that option on as well. */
         if(Chat.e.activeUserList.classList.contains('timestamps')
            && !namedOptions.activeUsers.boolValue()){
           namedOptions.activeUsers.checkbox.checked = true;
@@ -1593,6 +1609,12 @@
     Chat.chatOnlyMode(true);
   }
   Chat.intervalTimer = setInterval(poll, 1000);
+  if(0){
+    const flip = (ev)=>F.dom.addClassBriefly(ev.target,'anim-flip-h');
+    document.querySelectorAll('#chat-edit-buttons button').forEach(function(e){
+      e.addEventListener('click',flip, false);
+    });
+  }
   setTimeout( ()=>Chat.inputFocus(), 0 );
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();

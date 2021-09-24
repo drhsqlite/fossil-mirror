@@ -384,7 +384,7 @@ body.chat .anim-rotate-360 {
   }
 }
 body.chat .anim-flip-h {
-  animation: flip-h 1s linear;
+  animation: flip-h 750ms linear;
 }
 @keyframes flip-h{
   from{
@@ -395,7 +395,7 @@ body.chat .anim-flip-h {
   }
 }
 body.chat .anim-flip-v {
-  animation: flip-v 1s linear;
+  animation: flip-v 750ms linear;
 }
 @keyframes flip-v{
   from{
