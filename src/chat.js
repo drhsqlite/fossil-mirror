@@ -903,10 +903,10 @@
         return this;
       },
       /* Event handler for clicking .message-user elements to show their
-         timestamps. */
+         timestamps and a set of actions. */
       _handleLegendClicked: function f(ev){
         if(!f.popup){
-          /* Timestamp popup widget */
+          /* "Popup" widget */
           f.popup = {
             e: D.addClass(D.div(), 'chat-message-popup'),
             refresh:function(){
@@ -975,7 +975,27 @@
                   'target', '_blank'
                 );
                 D.append(toolbar2, timelineLink);
+                if(Chat.filterState.activeUser &&
+                   Chat.filterState.match(eMsg.dataset.xfrom)){
+                  /* Add a button to jump to clear user filter
+                     and jump to this message in context. */
+                  D.append(
+                    this.e,
+                    D.append(
+                      D.addClass(D.div(), 'toolbar'),
+                      D.button(
+                        "Message in context",
+                        function(){
+                          self.hide();
+                          Chat.setUserFilter(false);
+                          eMsg.scrollIntoView(false);
+                          D.flashNTimes(eMsg, 3);
+                        })
+                    )
+                  );
+                }/*jump-to button*/
               }
+ 
               const tab = eMsg.querySelector('.message-widget-tab');
               D.append(tab, this.e);
               D.removeClass(this.e, 'hidden');
@@ -1178,9 +1198,33 @@
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
     Chat.e.viewConfig.querySelector('button').addEventListener('click', cbToggle, false);
-    /* Settings menu entries... Remember that they will be rendered in reverse
-       order and the most frequently-needed ones should be closer to the start
-       of this list. */
+
+    /** Internal acrobatics to allow certain settings toggles to access
+        related toggles. */
+    const namedOptions = {
+      activeUsers:{
+        label: "Show active users list",
+        boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
+        persistentSetting: 'active-user-list',
+        callback: function(){
+          D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
+          if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
+            /* When hiding this element, undo all filtering */
+            D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'), 'hidden');
+            /*Ideally we'd scroll the final message into view
+              now, but because viewMessages is currently hidden behind
+              viewConfig, scrolling is a no-op. */
+            Chat.scrollMessagesTo(1);
+          }else{
+            Chat.updateActiveUserList();
+          }
+        }
+      }
+    };
+    /* Settings menu entries... Remember that they will be rendered in
+       reverse order and the most frequently-needed ones "should"
+       (arguably) be closer to the start of this list so that they
+       will be rendered within easier reach of the settings button. */
     const settingsOps = [{
       label: "Multi-line input",
       boolValue: ()=>Chat.inputElement()===Chat.e.inputMulti,
@@ -1202,28 +1246,21 @@
         F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
     },{
-      label: "Show timestamps in recent activity list",
+      label: "Timestamps in active users list",
       boolValue: ()=>Chat.e.activeUserList.classList.contains('timestamps'),
       persistentSetting: 'active-user-list-timestamps',
-      callback: ()=>D.toggleClass(Chat.e.activeUserList,'timestamps')
-    },{
-      label: "Show recent activity list",
-      boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
-      persistentSetting: 'active-user-list',
       callback: function(){
-        D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
-        if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
-          /* When hiding this element, undo all filtering */
-          D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'), 'hidden');
-          /*Ideally we'd scroll the final message into view
-            now, but because viewMessages is currently hidden behind
-            viewConfig, scrolling is a no-op. */
-          Chat.scrollMessagesTo(1);
-        }else{
-          Chat.updateActiveUserList();
+        D.toggleClass(Chat.e.activeUserList,'timestamps');
+        /* If the timestamp option is activated but optActiveUsers is not
+           currently checked then toggle that option on as well. */
+        if(Chat.e.activeUserList.classList.contains('timestamps')
+           && !namedOptions.activeUsers.boolValue()){
+          namedOptions.activeUsers.checkbox.checked = true;
+          namedOptions.activeUsers.callback();
         }
       }
-    },{
+    },
+    namedOptions.activeUsers,{
       label: "Monospace message font",
       boolValue: ()=>document.body.classList.contains('monospace-messages'),
       persistentSetting: 'monospace-messages',
@@ -1289,8 +1326,9 @@
       }else if(op.hasOwnProperty('boolValue')){
         if(undefined === f.$id) f.$id = 0;
         ++f.$id;
-        const check = D.attr(D.checkbox(1, op.boolValue()),
-                             'aria-label', op.label);
+        const check = op.checkbox
+              = D.attr(D.checkbox(1, op.boolValue()),
+                       'aria-label', op.label);
         const id = 'cfgopt'+f.$id;
         if(op.boolValue()) check.checked = true;
         D.attr(check, 'id', id);

@@ -184,7 +184,7 @@ void chat_webpage(void){
   @   </div>
   @ </div>
   @ <div id='chat-user-list-wrapper' class='hidden'>
-  @   <legend>Active Users (most recent first)</legend>
+  @   <legend>Active users (sorted by last message time)</legend>
   @   <div id='chat-user-list'>
   @     <div class='help-buttonlet'>
   @      Users who have messages in the currently-loaded list.<br>

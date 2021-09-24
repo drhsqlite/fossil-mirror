@@ -121,9 +121,14 @@
   dom.text = function(/*...*/){
     return document.createTextNode(argsToArray(arguments).join(''));
   };
-  dom.button = function(label){
+  /** Returns a new Button element with the given optional
+      label and on-click event listener function. */
+  dom.button = function(label,callback){
     const b = this.create('button');
     if(label) b.appendChild(this.text(label));
+    if('function' === typeof callback){
+      b.addEventListener('click', callback, false);
+    }
     return b;
   };
   /**
@@ -679,6 +684,42 @@
   */
   dom.flashOnce.eventHandler = (event)=>dom.flashOnce(event.target)
 
+  /**
+     This variant of flashOnce() flashes the element e n times
+     for a duration of howLongMs milliseconds then calls the
+     afterFlashCallback() callback. It may also be called with 2
+     or 3 arguments, in which case:
+
+     2 arguments: default flash time and no callback.
+
+     3 arguments: 3rd may be a flash delay time or a callback
+     function.
+
+     Returns this object but the flashing is asynchronous.
+  */
+  dom.flashNTimes = function(e,n,howLongMs,afterFlashCallback){
+    const args = argsToArray(arguments);
+    args.splice(1,1);
+    if(arguments.length===3 && 'function'===typeof howLongMs){
+      afterFlashCallback = howLongMs;
+      howLongMs = args[1] = this.flashOnce.defaultTimeMs;
+    }else if(arguments.length<3){
+      args[1] = this.flashOnce.defaultTimeMs;
+    }
+    n = +n;
+    const self = this;
+    const cb = args[2] = function f(){
+      if(--n){
+        setTimeout(()=>self.flashOnce(e, howLongMs, f),
+                   howLongMs+(howLongMs*0.1)/*we need a slight gap here*/);
+      }else if(afterFlashCallback){
+        afterFlashCallback();
+      }
+    };
+    this.flashOnce.apply(this, args);
+    return this;
+  };
+  
   /**
      Attempts to copy the given text to the system clipboard. Returns
      true if it succeeds, else false.
