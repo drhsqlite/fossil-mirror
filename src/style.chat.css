@@ -342,7 +342,6 @@ body.chat #chat-user-list-wrapper {
 }
 body.chat #chat-user-list-wrapper.collapsed {
   padding: 0;
-  margin-bottom: 0;
 }
 body.chat #chat-user-list-wrapper > .legend {
   font-weight: initial;
