@@ -37,6 +37,26 @@
 
   const addAnchorTargetBlank = (e)=>D.attr(e, 'target','_blank');
 
+  /**
+     Returns an almost-ISO8601 form of Date object d.
+  */
+  const iso8601ish = function(d){
+    return d.toISOString()
+        .replace('T',' ').replace(/\.\d+/,'')
+        .replace('Z', ' zulu');
+  };
+  /** Returns the local time string of Date object d, defaulting
+      to the current time. */
+  const localTimeString = function ff(d){
+    d || (d = new Date());
+    return [
+      d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
+      '-',pad2(d.getDate()),
+      ' ',pad2(d.getHours()),':',pad2(d.getMinutes()),
+      ':',pad2(d.getSeconds())
+    ].join('');
+  };
+
   (function(){
     let dbg = document.querySelector('#debugMsg');
     if(dbg){
@@ -118,7 +138,9 @@
         viewPreview: E1('#chat-preview'),
         previewContent: E1('#chat-preview-content'),
         btnPreview: E1('#chat-preview-button'),
-        views: document.querySelectorAll('.chat-view')
+        views: document.querySelectorAll('.chat-view'),
+        activeUserListWrapper: E1('#chat-user-list-wrapper'),
+        activeUserList: E1('#chat-user-list')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -130,6 +152,19 @@
       //! Number of messages to load for the history buttons
       loadMessageCount: Math.abs(F.config.chat.initSize || 20),
       ajaxInflight: 0,
+      usersLastSeen:{
+        /* Map of user names to their most recent message time
+           (JS Date object). Only messages received by the chat client
+           are considered. */
+        /* Reminder: to convert a Julian time J to JS:
+           new Date((J - 2440587.5) * 86400000) */
+      },
+      filterState:{
+        activeUser: undefined,
+        match: function(uname){
+          return this.activeUser===uname || !this.activeUser;
+        }
+      },
       /** Gets (no args) or sets (1 arg) the current input text field value,
           taking into account single- vs multi-line input. The getter returns
           a string and the setter returns this object. */
@@ -169,6 +204,7 @@
         m.scrollTo(0, sTop + (mh1-mh2));
         this.e.inputCurrent.value = old.value;
         old.value = '';
+        this.animate(this.e.inputCurrent, "anim-flip-v");
         return this;
       },
       /**
@@ -246,6 +282,9 @@
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.viewMessages,
               prevMessage = this.e.newestMessage;
+        if(!this.filterState.match(e.dataset.xfrom)){
+          e.classList.add('hidden');
+        }
         if(atEnd){
           const fe = mip.nextElementSibling;
           if(fe) mip.parentNode.insertBefore(e, fe);
@@ -369,7 +408,9 @@
           "edit-multiline": false,
           "monospace-messages": false,
           "chat-only-mode": false,
-          "audible-alert": true
+          "audible-alert": true,
+          "active-user-list": false,
+          "active-user-list-timestamps": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -405,12 +446,106 @@
          all other elements in that list. Returns e.
       */
       setCurrentView: function(e){
+        if(e===this.e.currentView){
+          return e;
+        }
         this.e.views.forEach(function(E){
           if(e!==E) D.addClass(E,'hidden');
         });
-        return this.e.currentView = D.removeClass(e,'hidden');
+        this.e.currentView = D.removeClass(e,'hidden');
+        this.animate(this.e.currentView, 'anim-fade-in-fast');
+        return this.e.currentView;
+      },
+      /**
+         Updates the "active user list" view if we are not currently
+         batch-loading messages and if the active user list UI element
+         is active.
+      */
+      updateActiveUserList: function callee(){
+        if(this._isBatchLoading
+           || this.e.activeUserListWrapper.classList.contains('hidden')){
+          return this;
+        }else if(!callee.sortUsersSeen){
+          /** Array.sort() callback. Expects an array of user names and
+              sorts them in last-received message order (newest first). */
+          const self = this;
+          callee.sortUsersSeen = function(l,r){
+            l = self.usersLastSeen[l];
+            r = self.usersLastSeen[r];
+            if(l && r) return r - l;
+            else if(l) return -1;
+            else if(r) return 1;
+            else return 0;
+          };
+          callee.addUserElem = function(u){
+            const uSpan = D.addClass(D.span(), 'chat-user');
+            const uDate = self.usersLastSeen[u];
+            if(self.filterState.activeUser===u){
+              uSpan.classList.add('selected');
+            }
+            uSpan.dataset.uname = u;
+            D.append(uSpan, u, "\n", 
+                     D.append(
+                       D.addClass(D.span(),'timestamp'),
+                       localTimeString(uDate)//.substr(5/*chop off year*/)
+                     ));
+            if(uDate.$uColor){
+              uSpan.style.backgroundColor = uDate.$uColor;
+            }
+            D.append(self.e.activeUserList, uSpan);
+          };
+        }
+        //D.clearElement(this.e.activeUserList);
+        D.remove(this.e.activeUserList.querySelectorAll('.chat-user'));
+        Object.keys(this.usersLastSeen).sort(
+          callee.sortUsersSeen
+        ).forEach(callee.addUserElem);
+        return this;
+      },
+      /**
+         Applies user name filter to all current messages, or clears
+         the filter if uname is falsy.
+      */
+      setUserFilter: function(uname){
+        this.filterState.activeUser = uname;
+        const mw = this.e.viewMessages.querySelectorAll('.message-widget');
+        const self = this;
+        let eLast;
+        if(!uname){
+          D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'),
+                        'hidden');
+        }else{
+          mw.forEach(function(w){
+            if(self.filterState.match(w.dataset.xfrom)){
+              w.classList.remove('hidden');
+              eLast = w;
+            }else{
+              w.classList.add('hidden');
+            }
+          });
+        }
+        if(eLast) eLast.scrollIntoView(false);
+        else this.scrollMessagesTo(1);
+        cs.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
+          e.classList[uname===e.dataset.uname ? 'add' : 'remove']('selected');
+        });
+        return this;
+      },
+
+      /**
+         If animations are enabled, passes its arguments
+         to D.addClassBriefly(), else this is a no-op.
+         If cb is a function, it is called after the
+         CSS class is removed. Returns this object; 
+      */
+      animate: function f(e,a,cb){
+        if(!f.$disabled){
+          D.addClassBriefly(e, a, 0, cb);
+        }
+        return this;
       }
     };
+    cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
     F.fetch.aftersend = ()=>cs.ajaxEnd();
     cs.e.inputCurrent = cs.e.inputSingle;
@@ -429,6 +564,12 @@
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
+    }
+    if(cs.settings.getBool('active-user-list',false)){
+      cs.e.activeUserListWrapper.classList.remove('hidden');
+    }
+    if(cs.settings.getBool('active-user-list-timestamps',false)){
+      cs.e.activeUserList.classList.add('timestamps');
     }
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
@@ -626,6 +767,32 @@
       }
     }, true);
     cs.setCurrentView(cs.e.viewMessages);
+
+    cs.e.activeUserList.addEventListener('click', function f(ev){
+      /* Filter messages on a user clicked in activeUserList */
+      ev.stopPropagation();
+      ev.preventDefault();
+      let eUser = ev.target;
+      while(eUser!==this && !eUser.classList.contains('chat-user')){
+        eUser = eUser.parentNode;
+      }
+      if(eUser==this || !eUser) return false;
+      const uname = eUser.dataset.uname;
+      let eLast;
+      cs.setCurrentView(cs.e.viewMessages);
+      if(eUser.classList.contains('selected')){
+        /* If curently selected, toggle filter off */
+        eUser.classList.remove('selected');
+        cs.setUserFilter(false);
+        delete f.$eSelected;
+      }else{
+        if(f.$eSelected) f.$eSelected.classList.remove('selected');
+        f.$eSelected = eUser;
+        eUser.classList.add('selected');
+        cs.setUserFilter(uname);
+      }
+      return false;
+    }, false);
     return cs;
   })()/*Chat initialization*/;
 
@@ -671,17 +838,6 @@
         d.getHours(),":",
         (d.getMinutes()+100).toString().slice(1,3),
         ' ', dowMap[d.getDay()]
-      ].join('');
-    };
-    /** Returns the local time string of Date object d, defaulting
-        to the current time. */
-    const localTimeString = function ff(d){
-      d || (d = new Date());
-      return [
-        d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
-        '-',pad2(d.getDate()),
-        ' ',pad2(d.getHours()),':',pad2(d.getMinutes()),
-        ':',pad2(d.getSeconds())
       ].join('');
     };
     cf.prototype = {
@@ -773,10 +929,10 @@
         return this;
       },
       /* Event handler for clicking .message-user elements to show their
-         timestamps. */
+         timestamps and a set of actions. */
       _handleLegendClicked: function f(ev){
         if(!f.popup){
-          /* Timestamp popup widget */
+          /* "Popup" widget */
           f.popup = {
             e: D.addClass(D.div(), 'chat-message-popup'),
             refresh:function(){
@@ -845,14 +1001,41 @@
                   'target', '_blank'
                 );
                 D.append(toolbar2, timelineLink);
+                if(Chat.filterState.activeUser &&
+                   Chat.filterState.match(eMsg.dataset.xfrom)){
+                  /* Add a button to clear user filter and jump to
+                     this message in its original context. */
+                  D.append(
+                    this.e,
+                    D.append(
+                      D.addClass(D.div(), 'toolbar'),
+                      D.button(
+                        "Message in context",
+                        function(){
+                          self.hide();
+                          Chat.setUserFilter(false);
+                          eMsg.scrollIntoView(false);
+                          Chat.animate(
+                            eMsg.firstElementChild, 'anim-flip-h'
+                            //eMsg.firstElementChild, 'anim-flip-v'
+                            //eMsg.childNodes, 'anim-rotate-360'
+                            //eMsg.childNodes, 'anim-flip-v'
+                            //eMsg, 'anim-flip-v'
+                          );
+                        })
+                    )
+                  );
+                }/*jump-to button*/
               }
               const tab = eMsg.querySelector('.message-widget-tab');
               D.append(tab, this.e);
               D.removeClass(this.e, 'hidden');
+              Chat.animate(this.e, 'anim-fade-in-fast');
             }/*refresh()*/,
             hide: function(){
-              D.addClass(D.clearElement(this.e), 'hidden');
               delete this.$eMsg;
+              D.addClass(this.e, 'hidden');
+              D.clearElement(this.e);
             },
             show: function(tgtMsg){
               if(tgtMsg === this.$eMsg){
@@ -1036,12 +1219,6 @@
     return false;
   });
 
-  /* Returns an almost-ISO8601 form of Date object d. */
-  const iso8601ish = function(d){
-    return d.toISOString()
-      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' zulu');
-  };
-
   (function(){/*Set up #chat-settings-button */
     const settingsButton = document.querySelector('#chat-settings-button');
     const optionsMenu = E1('#chat-config-options');
@@ -1054,7 +1231,48 @@
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
     Chat.e.viewConfig.querySelector('button').addEventListener('click', cbToggle, false);
-    /* Settings menu entries... */
+
+    /** Internal acrobatics to allow certain settings toggles to access
+        related toggles. */
+    const namedOptions = {
+      activeUsers:{
+        label: "Show active users list",
+        boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
+        persistentSetting: 'active-user-list',
+        callback: function(){
+          D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
+          D.removeClass(Chat.e.activeUserListWrapper, 'collapsed');
+          if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
+            /* When hiding this element, undo all filtering */
+            Chat.setUserFilter(false);
+            /*Ideally we'd scroll the final message into view
+              now, but because viewMessages is currently hidden behind
+              viewConfig, scrolling is a no-op. */
+            Chat.scrollMessagesTo(1);
+          }else{
+            Chat.updateActiveUserList();
+            Chat.animate(Chat.e.activeUserListWrapper, 'anim-flip-v');
+          }
+        }
+      }
+    };
+    if(1){
+      /* Per user request, toggle the list of users on and off if the
+         legend element is tapped. */
+      const optAu = namedOptions.activeUsers;
+      optAu.theLegend = Chat.e.activeUserListWrapper.firstElementChild/*LEGEND*/;
+      optAu.theList = optAu.theLegend.nextElementSibling/*user list container*/;
+      optAu.theLegend.addEventListener('click',function(){
+        D.toggleClass(Chat.e.activeUserListWrapper, 'collapsed');
+        if(!Chat.e.activeUserListWrapper.classList.contains('collapsed')){
+          Chat.animate(optAu.theList,'anim-flip-v');
+        }
+      }, false);
+    }/*namedOptions.activeUsers additional setup*/
+    /* Settings menu entries... Remember that they will be rendered in
+       reverse order and the most frequently-needed ones "should"
+       (arguably) be closer to the start of this list so that they
+       will be rendered within easier reach of the settings button. */
     const settingsOps = [{
       label: "Multi-line input",
       boolValue: ()=>Chat.inputElement()===Chat.e.inputMulti,
@@ -1063,24 +1281,41 @@
         Chat.inputToggleSingleMulti();
       }
     },{
-      label: "Monospace message font",
-      boolValue: ()=>document.body.classList.contains('monospace-messages'),
-      persistentSetting: 'monospace-messages',
-      callback: function(){
-        document.body.classList.toggle('monospace-messages');
+      label: "Left-align my posts",
+      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
+      callback: function f(){
+        document.body.classList.toggle('my-messages-right');
       }
     },{
-      label: "Images inline",
+      label: "Show images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
         const v = Chat.settings.toggle('images-inline');
         F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
     },{
-      label: "Left-align my posts",
-      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
-      callback: function f(){
-        document.body.classList.toggle('my-messages-right');
+      label: "Timestamps in active users list",
+      boolValue: ()=>Chat.e.activeUserList.classList.contains('timestamps'),
+      persistentSetting: 'active-user-list-timestamps',
+      callback: function(){
+        D.toggleClass(Chat.e.activeUserList,'timestamps');
+        /* If the timestamp option is activated but
+           namedOptions.activeUsers is not currently checked then
+           toggle that option on as well. */
+        if(Chat.e.activeUserList.classList.contains('timestamps')
+           && !namedOptions.activeUsers.boolValue()){
+          namedOptions.activeUsers.checkbox.checked = true;
+          namedOptions.activeUsers.callback();
+          Chat.settings.set(namedOptions.activeUsers.persistentSetting, true);
+        }
+      }
+    },
+    namedOptions.activeUsers,{
+      label: "Monospace message font",
+      boolValue: ()=>document.body.classList.contains('monospace-messages'),
+      persistentSetting: 'monospace-messages',
+      callback: function(){
+        document.body.classList.toggle('monospace-messages');
       }
     },{
       label: "Chat-only mode",
@@ -1141,8 +1376,9 @@
       }else if(op.hasOwnProperty('boolValue')){
         if(undefined === f.$id) f.$id = 0;
         ++f.$id;
-        const check = D.attr(D.checkbox(1, op.boolValue()),
-                             'aria-label', op.label);
+        const check = op.checkbox
+              = D.attr(D.checkbox(1, op.boolValue()),
+                       'aria-label', op.label);
         const id = 'cfgopt'+f.$id;
         if(op.boolValue()) check.checked = true;
         D.attr(check, 'id', id);
@@ -1230,6 +1466,14 @@
         ++Chat.totalMessageCount;
         if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
         if( !Chat.mnMsg || m.msgid<Chat.mnMsg) Chat.mnMsg = m.msgid;
+        if(m.xfrom && m.mtime){
+          const d = new Date(m.mtime);
+          const uls = Chat.usersLastSeen[m.xfrom];
+          if(!uls || uls<d){
+            d.$uColor = m.uclr;
+            Chat.usersLastSeen[m.xfrom] = d;
+          }
+        }
         if( m.mdel ){
           /* A record deletion notice. */
           Chat.deleteMessageElem(m.mdel);
@@ -1246,6 +1490,7 @@
       }/*processPost()*/;
     }/*end static init*/
     jx.msgs.forEach((m)=>f.processPost(m,atEnd));
+    Chat.updateActiveUserList();
     if('visible'===document.visibilityState){
       if(Chat.changesSincePageHidden){
         Chat.changesSincePageHidden = 0;
@@ -1290,6 +1535,7 @@
           let gotMessages = x.msgs.length;
           newcontent(x,true);
           Chat._isBatchLoading = false;
+          Chat.updateActiveUserList();
           if(Chat._gotServerError){
             Chat._gotServerError = false;
             return;
@@ -1383,7 +1629,10 @@
       },
       onload:function(y){
         newcontent(y);
-        Chat._isBatchLoading = false;
+        if(Chat._isBatchLoading){
+          Chat._isBatchLoading = false;
+          Chat.updateActiveUserList();
+        }
         afterFetch();
       }
     });
@@ -1394,6 +1643,13 @@
     Chat.chatOnlyMode(true);
   }
   Chat.intervalTimer = setInterval(poll, 1000);
+  if(0){
+    const flip = (ev)=>Chat.animate(ev.target,'anim-flip-h');
+    document.querySelectorAll('#chat-edit-buttons button').forEach(function(e){
+      e.addEventListener('click',flip, false);
+    });
+  }
   setTimeout( ()=>Chat.inputFocus(), 0 );
+  Chat.animate.$disabled = false;
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();

@@ -12,9 +12,13 @@ body.chat .message-widget {
   border: none;
   align-items: flex-start;
 }
+body.chat .message-widget:last-of-type {
+  /* Latest message: reduce bottom gap */
+  margin-bottom: 0.1em;
+}
 body.chat.my-messages-right .message-widget.mine {
   /* Right-aligns a user's own chat messages, similar to how
-     most mobile messaging apps do it. */
+     most/some mobile messaging apps do it. */
   align-items: flex-end;
 }
 body.chat.my-messages-right .message-widget.notification {
@@ -79,6 +83,8 @@ body.chat .chat-message-popup {
   align-items: stretch;
   padding: 0.25em;
   margin-top: 0.25em;
+  border: 1px outset;
+  border-radius: 0.5em;
 }
 /* Full message timestamps. */
 body.chat .chat-message-popup > span { white-space: nowrap; }
@@ -134,49 +140,10 @@ body.chat .chat-settings-popup {
   padding: 0.25em;
   z-index: 200;
 }
-body.chat .chat-settings-popup > span {
-  vertical-align: middle;
-}
-body.chat .chat-settings-popup > span.menu-entry{
-  white-space: nowrap;
-  cursor: pointer;
-  border: 1px solid;
-  border-radius: 0.25em;
-  padding: 0.25em 0.5em;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-body.chat .chat-settings-popup > span.menu-entry:hover {
-}
-body.chat .chat-settings-popup > span.menu-entry > .help-buttonlet {
-  vertical-align: middle;
-}
-body.chat .chat-settings-popup > span.menu-entry > span.button {
-  margin: 0.25em 0.2em;
-  padding: 0.25em;
-  flex: 1 1 auto/*eliminates dead no-click zones on the right*/;
-}
-body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
-  cursor: inherit;
-}
-body.chat .chat-settings-popup > select.menu-entry {
-  flex: 1 1 auto;
-  padding: 0;
-  cursor: pointer;
-  min-height: 2.5em;
-  border-radius: 0.25em;
-}
-body.chat .chat-settings-popup > select.menu-entry > option {
-  /*Recall that many browsers don't allow styling of OPTION
-    elements, or allow only very limited styling.*/
-}
 
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
   overflow: auto;
-  flex: 2 1 auto;
   padding: 0 0.25em;
 }
 body.chat #chat-messages-wrapper.loading > * {
@@ -201,12 +168,10 @@ body.chat div.content {
 body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
-  padding: 0.5em 0 0 0;
-  border-bottom: none;
-  border-top: 1px solid black;
-  margin: 0.5em 0 0 0;
+  padding: 0;
+  margin: 0;
   position: initial /*sticky currently disabled due to scrolling-related issues*/;
-  bottom: 0;
+  /*bottom: 0;*/
 }
 body.chat:not(.chat-only-mode) #chat-input-area{
   /* Safari user reports that 2em is necessary to keep the file selection
@@ -236,6 +201,7 @@ body.chat #chat-input-line.single-line #chat-edit-buttons {
 }
 body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
+  padding: initial/*some skins mess this up for buttons*/;
 }
 body.chat #chat-input-line:not(.single-line) #chat-edit-buttons > * {
   max-width: 4em;
@@ -273,7 +239,7 @@ body.chat #chat-input-file-area > .file-selection-wrapper {
   align-self: flex-start;
   margin-right: 0.5em;
   flex: 0 1 auto;
-  padding: 0.25em 0.25em 0.25em 0;
+  padding: 0.25em 0.5em;
   white-space: nowrap;
 }
 body.chat #chat-input-file-area .file-selection-wrapper > * {
@@ -305,14 +271,17 @@ body.chat #chat-drop-details img {
   max-width: 45%;
   max-height: 45%;
 }
-
+body.chat .chat-view {
+  flex: 20 1 auto
+  /*ensure that these grow more than the non-.chat-view elements*/;
+  margin-bottom: 0.2em;
+}
 body.chat #chat-config,
 body.chat #chat-preview {
   /* /chat configuration widget */
   display: flex;
   flex-direction: column;
   overflow: auto;
-  flex: 2 1 auto;
   padding: 0;
   margin: 0;
   align-items: stretch;
@@ -329,8 +298,11 @@ body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
   align-items: center;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry > label {
+  cursor: pointer;
 }
 body.chat #chat-config #chat-config-options .menu-entry > input:first-child {
   margin-right: 1em;
@@ -358,4 +330,108 @@ body.chat #chat-preview #chat-preview-buttons > button {
   padding: 0.5em;
   flex: 0 1 auto;
   margin: 0.25em 0;
+}
+
+body.chat #chat-user-list-wrapper {
+  /* Safari can't do fieldsets right, so we emulate one. */
+  border-radius: 0.5em;
+  margin: 1em 0 0.2em 0;
+  padding: 0 0.5em;
+  border-style: inset;
+  border-width: 0 1px 1px 1px/*else collides with the LEGEND*/;
+}
+body.chat #chat-user-list-wrapper.collapsed {
+  padding: 0;
+}
+body.chat #chat-user-list-wrapper > .legend {
+  font-weight: initial;
+  padding: 0 0.5em 0 0.5em;
+  position: relative;
+  top: -1.75ex/* place it like a fieldset legend */;
+  cursor: pointer;
+}
+body.chat #chat-user-list-wrapper > .legend > * {
+  vertical-align: middle;
+}
+body.chat #chat-user-list-wrapper > .legend > *:nth-child(2){
+  /* Title label */
+  opacity: 0.6;
+  font-size: 0.8em;
+}
+body.chat #chat-user-list-wrapper.collapsed > .legend > *:nth-child(2)::after {
+  content: " (tap to toggle)";
+}
+body.chat #chat-user-list-wrapper .help-buttonlet {
+  margin: 0;
+}
+body.chat #chat-user-list-wrapper.collapsed #chat-user-list {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+body.chat #chat-user-list {
+  margin-top: -1.25ex;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body.chat #chat-user-list .chat-user {
+  margin: 0.2em;
+  padding: 0.1em 0.5em 0.2em 0.5em;
+  border-radius: 0.5em;
+  cursor: pointer;
+  text-align: center;
+  white-space: pre;
+}
+body.chat #chat-user-list .timestamp {
+  font-size: 85%;
+  font-family: monospace;
+}
+body.chat #chat-user-list:not(.timestamps) .timestamp {
+  display: none;
+}
+body.chat #chat-user-list .chat-user.selected {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+body.chat .anim-rotate-360 {
+  animation: rotate-360 750ms linear;
+}
+@keyframes rotate-360 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+body.chat .anim-flip-h {
+  animation: flip-h 750ms linear;
+}
+@keyframes flip-h{
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+body.chat .anim-flip-v {
+  animation: flip-v 750ms linear;
+}
+@keyframes flip-v{
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(360deg); }
+}
+body.chat .anim-fade-in {
+  animation: fade-in 750ms linear;
+}
+body.chat .anim-fade-in-fast {
+  animation: fade-in 350ms linear;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+body.chat .anim-fade-out-fast {
+  animation: fade-out 250ms linear;
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
