@@ -1,5 +1,5 @@
-C Merged\sin\slatest\strunk.\stest-markdown-render\snow\saccepts\sfiles\sand\sstring\sliterals.
-D 2021-09-25T07:20:47.532
+C More\sprogress\son\sthe\smarkdown\s#hashtag\sparsing.
+D 2021-09-25T08:17:24.688
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -533,7 +533,7 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 009d9faad66bcbf9073cdf8bdd4b2dd705a7b89952836cde2c27d632df24a609
+F src/markdown.c 056850301937bb60963a6cd561d89f7ecb8adb57a45a75eabedbb1a20ad8caf1
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
 F src/markdown_html.c 0f3b1035405524d11cc419f1343ec0c78565a0e4be192ec1222f85ce85d8f160
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e6464284183edc10bc7d239a9756c12808c6187b70f0453f8d10f4216ea9e55 ce0d61bbae80a04d73df49695966304aa5a7cc82083d733c1764b37879f31d82
-R da91f62192a96a54db322a61ba84ee2b
+P 5618cceb7bf9e8c14108d9fd16c7b8f74cbb8994015e945bed8210e34723cf26
+R 33941d72bf38e659954c9b95eb7eb605
 U stephan
-Z a128d5d1e4ee9ddeb936fdcc3030cf94
+Z a42f3c4fc3ce6403cf6c17df80921404

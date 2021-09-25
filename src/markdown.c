@@ -919,7 +919,34 @@ static size_t char_atref_tag(
 }
 
 /* char_hashref_tag -- '#' followed by "word" characters to tag
- * post numbers, hashtags, etc. */
+** post numbers, hashtags, etc.
+**
+** Basic syntax:
+**
+**  ^[a-zA-Z]X*
+**
+** Where X is:
+**
+** - Any number of alphanumeric characters.
+**
+** - Single underscores. Adjacent underscores are not recognized
+**   as valid hashtags. That decision is somewhat arbitrary
+**   and up for debate.
+**
+** Hashtags must end at the end of input or be followed by whitespace
+** or what appears to be the end or separator of a logical
+** natural-language construct, e.g. period, colon, etc.
+**
+** Current limitations of this implementation:
+**
+** - ASCII only. Support for non-ASCII characters might be
+**   interesting.
+**
+** - Currently requires starting alpha and trailing
+**   alphanumeric or underscores. "Should" be extended to
+**   handle #X[.Y], where X and optional Y are integer
+**   values, for forum post references.
+*/
 static size_t char_hashref_tag(
   struct Blob *ob,
   struct render *rndr,
@@ -929,29 +956,73 @@ static size_t char_hashref_tag(
 ){
   size_t end;
   struct Blob work = BLOB_INITIALIZER;
-
+  int nUscore = 0;
   if(offset>0 && !fossil_isspace(data[-1])){
     /* Only ever match if the *previous* character is
-       whitespace or we're at the start of the input. */
+       whitespace or we're at the start of the input.
+       Note that we rely on fossil processing emphasis
+       markup before reaching this function, so *#Hash*
+       will Do The Right Thing. */
     return 0;
   }
   assert( '#' == data[0] );
-  if(size < 2 || !fossil_isalnum(data[1])) return 0;
-  /*fprintf(stderr,"HASHREF: %.*s\n", (int)size, data);*/
-  for (end = 2; (end < size) && fossil_isalnum(data[end]); ++end);
+  if(size < 2 || !fossil_isalpha(data[1])) return 0;
+#if 0
+  fprintf(stderr,"HASHREF offset=%d size=%d: %.*s\n",
+          (int)offset, (int)size, (int)size, data);
+#endif
+#define HASHTAG_LEGAL_END \
+      case ' ': case '\t': case '\r': case '\n': case '.': case ':': case ';': case '!': case '?'
+  for(end = 2; end < size; ++end){
+    char ch = data[end];
+    switch(ch){
+      case '_':
+        /* Multiple adjacent underscores not permitted. */
+        if(++nUscore>1) goto hashref_bailout;
+        break;
+      HASHTAG_LEGAL_END:
+        if(end<3) goto hashref_bailout/*require 2+ characters (arbitrary)*/;
+        ch = 0;
+        break;
+      default:
+        if(!fossil_isalnum(ch)) goto hashref_bailout;
+        nUscore = 0;
+        break;
+    }
+    if(ch) continue;
+    else break;
+  }
+#if 0
+  fprintf(stderr,"?HASHREF length=%d: %.*s\n",
+          (int)end, (int)end, data);
+#endif
   /*TODO: in order to support detection of forum post-style
     references, we need to recognize #X.Y, but only when X and Y are
     both purely numeric and Y ends on a word/sentence
     boundary.*/
   if(end<size){
-    /* Only match if we end at a dot or space or end of input */
-    if(data[end]!='.' && !fossil_isspace(data[end])){
-      return 0;
+    /* Only match if we end at end of input or what "might" be the end
+       of a natural language grammar construct, e.g. period or
+       [semi]colon. */
+    switch(data[end]){
+      HASHTAG_LEGAL_END:
+        /* We could arguably treat any leading multi-byte character as
+           valid here. */
+        break;
+      default:
+        goto hashref_bailout;
     }
   }
   blob_init(&work, data + 1, end - 1);
   rndr->make.tagspan(ob, &work, MKDT_HASHTAG, rndr->make.opaque);
   return end;
+  hashref_bailout:
+#if 0
+  fprintf(stderr,"BAILING HASHREF examined=%d:\n[%.*s] of\n[%.*s]\n",
+          (int)end, (int)end, data, (int)size, data);
+#endif
+#undef HASHTAG_LEGAL_END
+  return 0;
 }
 
 
