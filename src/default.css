@@ -604,7 +604,12 @@ tr.diffskip > td.chunkctrl {
   font-family: monospace;
 }
 tr.diffskip > td.chunkctrl > div {
-  /* Exists solely for layout purposes. */
+  display: flex;
+  align-items: center;
+}
+tr.diffskip > td.chunkctrl > div > span.error {
+  padding: 0.25em 0.5em;
+  border-radius: 0.5em;
 }
 tr.diffskip > td.chunkctrl .jcbutton
 /* class name .button breaks w/ some skins! */ {
@@ -1209,6 +1214,9 @@ hr {
   margin: 0.25em 0;
   flex: 0 0 auto;
 }
+.font-size-80 {
+  font-size: 80%;
+}
 .font-size-100 {
   font-size: 100%;
 }
@@ -1303,12 +1311,13 @@ table.numbered-lines > tbody > tr > td {
 table.numbered-lines td.line-numbers {
   width: 4.5em;
 }
-table.numbered-lines td.line-numbers > span:first-of-type {
-  margin-top: 0.25em/*must match top PADDING of
-                      td.file-content > pre > code*/;
+table.numbered-lines td.line-numbers > pre {
+  margin: 0.25em/*must match top PADDING of td.file-content
+                  > pre > code*/ 0 0 0;
+  padding: 0;
 }
-table.numbered-lines td.line-numbers > span {
-  display: block;
+table.numbered-lines td.line-numbers span {
+  display: inline-block;
   margin: 0;
   padding: 0;
   line-height: inherit;
@@ -1319,7 +1328,7 @@ table.numbered-lines td.line-numbers > span {
   margin-right: 2px/*keep selection from nudging the right column */;
   text-align: right;
 }
-table.numbered-lines td.line-numbers > span:hover {
+table.numbered-lines td.line-numbers span:hover {
   background-color: rgba(112, 112, 112, 0.25);
 }
 table.numbered-lines td.file-content {
@@ -1380,7 +1389,7 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   text-align: center;
   padding: 0.2em 1em;
   border: 1px solid black;
-  border-radius: 0.25em;
+  border-radius: 0.5em;
   position: absolute;
   display: inline-block;
   z-index: 19/*below default skin's hamburger popup*/;

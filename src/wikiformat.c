@@ -1890,9 +1890,11 @@ void test_wiki_render(void){
 /*
 ** COMMAND: test-markdown-render
 **
-** Usage: %fossil test-markdown-render FILE ...
+** Usage: %fossil test-markdown-render TEXT ...
 **
-** Render markdown in FILE as HTML on stdout.
+** Render markdown in TEXT as HTML on stdout, where TEXT
+** may be a file name or a markdown-formatted string.
+**
 ** Options:
 **
 **    --safe           Restrict the output to use only "safe" HTML
@@ -1906,9 +1908,16 @@ void test_markdown_render(void){
   verify_all_options();
   for(i=2; i<g.argc; i++){
     blob_zero(&out);
-    blob_read_from_file(&in, g.argv[i], ExtFILE);
-    if( g.argc>3 ){
-      fossil_print("<!------ %h ------->\n", g.argv[i]);
+    if(file_isfile(g.argv[i], ExtFILE)){
+      blob_read_from_file(&in, g.argv[i], ExtFILE);
+      if( g.argc>3 ){
+        fossil_print("<!------ %h ------->\n", g.argv[i]);
+      }
+    }else{
+      blob_init(&in, g.argv[i], -1);
+      if( g.argc>3 ){
+        fossil_print("<!------ script #%d ------->\n", i-1);
+      }
     }
     markdown_to_html(&in, 0, &out);
     safe_html_context( bSafe ? DOCSRC_UNTRUSTED : DOCSRC_TRUSTED );

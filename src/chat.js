@@ -37,6 +37,26 @@
 
   const addAnchorTargetBlank = (e)=>D.attr(e, 'target','_blank');
 
+  /**
+     Returns an almost-ISO8601 form of Date object d.
+  */
+  const iso8601ish = function(d){
+    return d.toISOString()
+        .replace('T',' ').replace(/\.\d+/,'')
+        .replace('Z', ' zulu');
+  };
+  /** Returns the local time string of Date object d, defaulting
+      to the current time. */
+  const localTimeString = function ff(d){
+    d || (d = new Date());
+    return [
+      d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
+      '-',pad2(d.getDate()),
+      ' ',pad2(d.getHours()),':',pad2(d.getMinutes()),
+      ':',pad2(d.getSeconds())
+    ].join('');
+  };
+
   (function(){
     let dbg = document.querySelector('#debugMsg');
     if(dbg){
@@ -76,7 +96,7 @@
       f.contentArea.style.height =
         f.contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
-          " - 1em"/*fudge value*/,")"
+          " - 0.75em"/*fudge value*/,")"
           /* ^^^^ hypothetically not needed, but both Chrome/FF on
              Linux will force scrollbars on the body if this value is
              too small (<0.75em in my tests). */
@@ -107,17 +127,20 @@
         inputWrapper: E1("#chat-input-area"),
         inputLine: E1('#chat-input-line'),
         fileSelectWrapper: E1('#chat-input-file-area'),
-        messagesWrapper: E1('#chat-messages-wrapper'),
+        viewMessages: E1('#chat-messages-wrapper'),
         btnSubmit: E1('#chat-message-submit'),
         inputSingle: E1('#chat-input-single'),
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
-        configArea: E1('#chat-config'),
-        previewArea: E1('#chat-preview'),
+        viewConfig: E1('#chat-config'),
+        viewPreview: E1('#chat-preview'),
         previewContent: E1('#chat-preview-content'),
-        btnPreview: E1('#chat-preview-button')
+        btnPreview: E1('#chat-preview-button'),
+        views: document.querySelectorAll('.chat-view'),
+        activeUserListWrapper: E1('#chat-user-list-wrapper'),
+        activeUserList: E1('#chat-user-list')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -129,6 +152,19 @@
       //! Number of messages to load for the history buttons
       loadMessageCount: Math.abs(F.config.chat.initSize || 20),
       ajaxInflight: 0,
+      usersLastSeen:{
+        /* Map of user names to their most recent message time
+           (JS Date object). Only messages received by the chat client
+           are considered. */
+        /* Reminder: to convert a Julian time J to JS:
+           new Date((J - 2440587.5) * 86400000) */
+      },
+      filterState:{
+        activeUser: undefined,
+        match: function(uname){
+          return this.activeUser===uname || !this.activeUser;
+        }
+      },
       /** Gets (no args) or sets (1 arg) the current input text field value,
           taking into account single- vs multi-line input. The getter returns
           a string and the setter returns this object. */
@@ -159,7 +195,7 @@
           this.e.inputCurrent = this.e.inputSingle;
           this.e.inputLine.classList.add('single-line');
         }
-        const m = this.e.messagesWrapper,
+        const m = this.e.viewMessages,
               sTop = m.scrollTop,
               mh1 = m.clientHeight;
         D.addClass(old, 'hidden');
@@ -168,6 +204,7 @@
         m.scrollTo(0, sTop + (mh1-mh2));
         this.e.inputCurrent.value = old.value;
         old.value = '';
+        this.animate(this.e.inputCurrent, "anim-flip-v");
         return this;
       },
       /**
@@ -243,8 +280,11 @@
          the list. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
-              holder = this.e.messagesWrapper,
+              holder = this.e.viewMessages,
               prevMessage = this.e.newestMessage;
+        if(!this.filterState.match(e.dataset.xfrom)){
+          e.classList.add('hidden');
+        }
         if(atEnd){
           const fe = mip.nextElementSibling;
           if(fe) mip.parentNode.insertBefore(e, fe);
@@ -339,9 +379,9 @@
       */
       scrollMessagesTo: function(where){
         if(where<0){
-          Chat.e.messagesWrapper.scrollTop = 0;
+          Chat.e.viewMessages.scrollTop = 0;
         }else if(where>0){
-          Chat.e.messagesWrapper.scrollTop = Chat.e.messagesWrapper.scrollHeight;
+          Chat.e.viewMessages.scrollTop = Chat.e.viewMessages.scrollHeight;
         }else if(Chat.e.newestMessage){
           Chat.e.newestMessage.scrollIntoView(false);
         }
@@ -350,7 +390,7 @@
         return this.chatOnlyMode(!this.isChatOnlyMode());
       },
       messageIsInView: function(e){
-        return e ? overlapsElemView(e, this.e.messagesWrapper) : false;
+        return e ? overlapsElemView(e, this.e.viewMessages) : false;
       },
       settings:{
         get: (k,dflt)=>F.storage.get(k,dflt),
@@ -368,7 +408,9 @@
           "edit-multiline": false,
           "monospace-messages": false,
           "chat-only-mode": false,
-          "audible-alert": true
+          "audible-alert": true,
+          "active-user-list": false,
+          "active-user-list-timestamps": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -397,8 +439,113 @@
         this.playNewMessageSound.uri = uri;
         this.settings.set('audible-alert', uri);
         return this;
+      },
+      /**
+         Expects e to be one of the elements in this.e.views.
+         The 'hidden' class is removed from e and added to
+         all other elements in that list. Returns e.
+      */
+      setCurrentView: function(e){
+        if(e===this.e.currentView){
+          return e;
+        }
+        this.e.views.forEach(function(E){
+          if(e!==E) D.addClass(E,'hidden');
+        });
+        this.e.currentView = D.removeClass(e,'hidden');
+        this.animate(this.e.currentView, 'anim-fade-in-fast');
+        return this.e.currentView;
+      },
+      /**
+         Updates the "active user list" view if we are not currently
+         batch-loading messages and if the active user list UI element
+         is active.
+      */
+      updateActiveUserList: function callee(){
+        if(this._isBatchLoading
+           || this.e.activeUserListWrapper.classList.contains('hidden')){
+          return this;
+        }else if(!callee.sortUsersSeen){
+          /** Array.sort() callback. Expects an array of user names and
+              sorts them in last-received message order (newest first). */
+          const self = this;
+          callee.sortUsersSeen = function(l,r){
+            l = self.usersLastSeen[l];
+            r = self.usersLastSeen[r];
+            if(l && r) return r - l;
+            else if(l) return -1;
+            else if(r) return 1;
+            else return 0;
+          };
+          callee.addUserElem = function(u){
+            const uSpan = D.addClass(D.span(), 'chat-user');
+            const uDate = self.usersLastSeen[u];
+            if(self.filterState.activeUser===u){
+              uSpan.classList.add('selected');
+            }
+            uSpan.dataset.uname = u;
+            D.append(uSpan, u, "\n", 
+                     D.append(
+                       D.addClass(D.span(),'timestamp'),
+                       localTimeString(uDate)//.substr(5/*chop off year*/)
+                     ));
+            if(uDate.$uColor){
+              uSpan.style.backgroundColor = uDate.$uColor;
+            }
+            D.append(self.e.activeUserList, uSpan);
+          };
+        }
+        //D.clearElement(this.e.activeUserList);
+        D.remove(this.e.activeUserList.querySelectorAll('.chat-user'));
+        Object.keys(this.usersLastSeen).sort(
+          callee.sortUsersSeen
+        ).forEach(callee.addUserElem);
+        return this;
+      },
+      /**
+         Applies user name filter to all current messages, or clears
+         the filter if uname is falsy.
+      */
+      setUserFilter: function(uname){
+        this.filterState.activeUser = uname;
+        const mw = this.e.viewMessages.querySelectorAll('.message-widget');
+        const self = this;
+        let eLast;
+        if(!uname){
+          D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'),
+                        'hidden');
+        }else{
+          mw.forEach(function(w){
+            if(self.filterState.match(w.dataset.xfrom)){
+              w.classList.remove('hidden');
+              eLast = w;
+            }else{
+              w.classList.add('hidden');
+            }
+          });
+        }
+        if(eLast) eLast.scrollIntoView(false);
+        else this.scrollMessagesTo(1);
+        cs.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
+          e.classList[uname===e.dataset.uname ? 'add' : 'remove']('selected');
+        });
+        return this;
+      },
+
+      /**
+         If animations are enabled, passes its arguments
+         to D.addClassBriefly(), else this is a no-op.
+         If cb is a function, it is called after the
+         CSS class is removed. Returns this object; 
+      */
+      animate: function f(e,a,cb){
+        if(!f.$disabled){
+          D.addClassBriefly(e, a, 0, cb);
+        }
+        return this;
       }
     };
+    cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
     F.fetch.aftersend = ()=>cs.ajaxEnd();
     cs.e.inputCurrent = cs.e.inputSingle;
@@ -417,6 +564,12 @@
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
+    }
+    if(cs.settings.getBool('active-user-list',false)){
+      cs.e.activeUserListWrapper.classList.remove('hidden');
+    }
+    if(cs.settings.getBool('active-user-list-timestamps',false)){
+      cs.e.activeUserList.classList.add('timestamps');
     }
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
@@ -613,6 +766,33 @@
         cs.e.pageTitle.innerText = cs.pageTitleOrig;
       }
     }, true);
+    cs.setCurrentView(cs.e.viewMessages);
+
+    cs.e.activeUserList.addEventListener('click', function f(ev){
+      /* Filter messages on a user clicked in activeUserList */
+      ev.stopPropagation();
+      ev.preventDefault();
+      let eUser = ev.target;
+      while(eUser!==this && !eUser.classList.contains('chat-user')){
+        eUser = eUser.parentNode;
+      }
+      if(eUser==this || !eUser) return false;
+      const uname = eUser.dataset.uname;
+      let eLast;
+      cs.setCurrentView(cs.e.viewMessages);
+      if(eUser.classList.contains('selected')){
+        /* If curently selected, toggle filter off */
+        eUser.classList.remove('selected');
+        cs.setUserFilter(false);
+        delete f.$eSelected;
+      }else{
+        if(f.$eSelected) f.$eSelected.classList.remove('selected');
+        f.$eSelected = eUser;
+        eUser.classList.add('selected');
+        cs.setUserFilter(uname);
+      }
+      return false;
+    }, false);
     return cs;
   })()/*Chat initialization*/;
 
@@ -658,17 +838,6 @@
         d.getHours(),":",
         (d.getMinutes()+100).toString().slice(1,3),
         ' ', dowMap[d.getDay()]
-      ].join('');
-    };
-    /** Returns the local time string of Date object d, defaulting
-        to the current time. */
-    const localTimeString = function ff(d){
-      d || (d = new Date());
-      return [
-        d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
-        '-',pad2(d.getDate()),
-        ' ',pad2(d.getHours()),':',pad2(d.getMinutes()),
-        ':',pad2(d.getSeconds())
       ].join('');
     };
     cf.prototype = {
@@ -760,10 +929,10 @@
         return this;
       },
       /* Event handler for clicking .message-user elements to show their
-         timestamps. */
+         timestamps and a set of actions. */
       _handleLegendClicked: function f(ev){
         if(!f.popup){
-          /* Timestamp popup widget */
+          /* "Popup" widget */
           f.popup = {
             e: D.addClass(D.div(), 'chat-message-popup'),
             refresh:function(){
@@ -832,14 +1001,41 @@
                   'target', '_blank'
                 );
                 D.append(toolbar2, timelineLink);
+                if(Chat.filterState.activeUser &&
+                   Chat.filterState.match(eMsg.dataset.xfrom)){
+                  /* Add a button to clear user filter and jump to
+                     this message in its original context. */
+                  D.append(
+                    this.e,
+                    D.append(
+                      D.addClass(D.div(), 'toolbar'),
+                      D.button(
+                        "Message in context",
+                        function(){
+                          self.hide();
+                          Chat.setUserFilter(false);
+                          eMsg.scrollIntoView(false);
+                          Chat.animate(
+                            eMsg.firstElementChild, 'anim-flip-h'
+                            //eMsg.firstElementChild, 'anim-flip-v'
+                            //eMsg.childNodes, 'anim-rotate-360'
+                            //eMsg.childNodes, 'anim-flip-v'
+                            //eMsg, 'anim-flip-v'
+                          );
+                        })
+                    )
+                  );
+                }/*jump-to button*/
               }
               const tab = eMsg.querySelector('.message-widget-tab');
               D.append(tab, this.e);
               D.removeClass(this.e, 'hidden');
+              Chat.animate(this.e, 'anim-fade-in-fast');
             }/*refresh()*/,
             hide: function(){
-              D.addClass(D.clearElement(this.e), 'hidden');
               delete this.$eMsg;
+              D.addClass(this.e, 'hidden');
+              D.clearElement(this.e);
             },
             show: function(tgtMsg){
               if(tgtMsg === this.$eMsg){
@@ -963,7 +1159,7 @@
     if(!f.spaces){
       f.spaces = /\s+$/;
     }
-    this.revealPreview(false);
+    this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
     var msg = this.inputValue().trim();
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
@@ -1023,30 +1219,60 @@
     return false;
   });
 
-  /* Returns an almost-ISO8601 form of Date object d. */
-  const iso8601ish = function(d){
-    return d.toISOString()
-      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' zulu');
-  };
-
   (function(){/*Set up #chat-settings-button */
     const settingsButton = document.querySelector('#chat-settings-button');
     const optionsMenu = E1('#chat-config-options');
     const cbToggle = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
-      if(Chat.e.configArea.classList.contains('hidden')){
-        D.removeClass(Chat.e.configArea, 'hidden');
-        D.addClass([Chat.e.messagesWrapper, Chat.e.previewArea], 'hidden');
-      }else{
-        D.addClass(Chat.e.configArea, 'hidden');
-        D.removeClass(Chat.e.messagesWrapper, 'hidden');
-      }
+      Chat.setCurrentView(Chat.e.currentView===Chat.e.viewConfig
+                          ? Chat.e.viewMessages : Chat.e.viewConfig);
       return false;
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
-    Chat.e.configArea.querySelector('button').addEventListener('click', cbToggle, false);
-    /* Settings menu entries... */
+    Chat.e.viewConfig.querySelector('button').addEventListener('click', cbToggle, false);
+
+    /** Internal acrobatics to allow certain settings toggles to access
+        related toggles. */
+    const namedOptions = {
+      activeUsers:{
+        label: "Show active users list",
+        boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
+        persistentSetting: 'active-user-list',
+        callback: function(){
+          D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
+          D.removeClass(Chat.e.activeUserListWrapper, 'collapsed');
+          if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
+            /* When hiding this element, undo all filtering */
+            Chat.setUserFilter(false);
+            /*Ideally we'd scroll the final message into view
+              now, but because viewMessages is currently hidden behind
+              viewConfig, scrolling is a no-op. */
+            Chat.scrollMessagesTo(1);
+          }else{
+            Chat.updateActiveUserList();
+            Chat.animate(Chat.e.activeUserListWrapper, 'anim-flip-v');
+          }
+        }
+      }
+    };
+    if(1){
+      /* Per user request, toggle the list of users on and off if the
+         legend element is tapped. */
+      const optAu = namedOptions.activeUsers;
+      optAu.theLegend = Chat.e.activeUserListWrapper.firstElementChild/*LEGEND*/;
+      optAu.theList = optAu.theLegend.nextElementSibling/*user list container*/;
+      optAu.theLegend.addEventListener('click',function(){
+        D.toggleClass(Chat.e.activeUserListWrapper, 'collapsed');
+        if(!Chat.e.activeUserListWrapper.classList.contains('collapsed')){
+          Chat.animate(optAu.theList,'anim-flip-v');
+        }
+      }, false);
+    }/*namedOptions.activeUsers additional setup*/
+    /* Settings menu entries... Remember that they will be rendered in
+       reverse order and the most frequently-needed ones "should"
+       (arguably) be closer to the start of this list so that they
+       will be rendered within easier reach of the settings button. */
     const settingsOps = [{
       label: "Multi-line input",
       boolValue: ()=>Chat.inputElement()===Chat.e.inputMulti,
@@ -1055,6 +1281,36 @@
         Chat.inputToggleSingleMulti();
       }
     },{
+      label: "Left-align my posts",
+      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
+      callback: function f(){
+        document.body.classList.toggle('my-messages-right');
+      }
+    },{
+      label: "Show images inline",
+      boolValue: ()=>Chat.settings.getBool('images-inline'),
+      callback: function(){
+        const v = Chat.settings.toggle('images-inline');
+        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
+      }
+    },{
+      label: "Timestamps in active users list",
+      boolValue: ()=>Chat.e.activeUserList.classList.contains('timestamps'),
+      persistentSetting: 'active-user-list-timestamps',
+      callback: function(){
+        D.toggleClass(Chat.e.activeUserList,'timestamps');
+        /* If the timestamp option is activated but
+           namedOptions.activeUsers is not currently checked then
+           toggle that option on as well. */
+        if(Chat.e.activeUserList.classList.contains('timestamps')
+           && !namedOptions.activeUsers.boolValue()){
+          namedOptions.activeUsers.checkbox.checked = true;
+          namedOptions.activeUsers.callback();
+          Chat.settings.set(namedOptions.activeUsers.persistentSetting, true);
+        }
+      }
+    },
+    namedOptions.activeUsers,{
       label: "Monospace message font",
       boolValue: ()=>document.body.classList.contains('monospace-messages'),
       persistentSetting: 'monospace-messages',
@@ -1068,53 +1324,40 @@
       callback: function(){
         Chat.toggleChatOnlyMode();
       }
-    },{
-      label: "Left-align my posts",
-      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
-      callback: function f(){
-        document.body.classList.toggle('my-messages-right');
-      }
-    },{
-      label: "Images inline",
-      boolValue: ()=>Chat.settings.getBool('images-inline'),
-      callback: function(){
-        const v = Chat.settings.toggle('images-inline');
-        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
-      }
     }];
 
     /** Set up selection list of notification sounds. */
     if(1){
-      settingsOps.selectSound = D.addClass(D.div(), 'menu-entry');
       const selectSound = D.select();
-      D.append(settingsOps.selectSound,
-               D.append(D.span(),"Audio alert"),
-               selectSound);
       D.option(selectSound, "", "(no audio)");
       const firstSoundIndex = selectSound.options.length;
-      F.config.chat.alerts.forEach(function(a){
-        D.option(selectSound, a);
-      });
+      F.config.chat.alerts.forEach((a)=>D.option(selectSound, a));
       if(true===Chat.settings.getBool('audible-alert')){
+        /* This setting used to be a plain bool. If we encounter
+           such a setting, take the first sound in the list. */
         selectSound.selectedIndex = firstSoundIndex;
       }else{
         selectSound.value = Chat.settings.get('audible-alert','');
         if(selectSound.selectedIndex<0){
-          /*Missing file - removed after this setting was applied. Fall back
-            to the first sound in the list. */
+          /* Missing file - removed after this setting was
+            applied. Fall back to the first sound in the list. */
           selectSound.selectedIndex = firstSoundIndex;
         }
       }
-      selectSound.addEventListener('change',function(){
-        const v = this.value;
-        Chat.setNewMessageSound(v);
-        F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-        if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
-      }, false);
       Chat.setNewMessageSound(selectSound.value);
+      settingsOps.push({
+        label: "Audio alert",
+        select: selectSound,
+        callback: function(ev){
+          const v = ev.target.value;
+          Chat.setNewMessageSound(v);
+          F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+          if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
+        }
+      });
     }/*audio notification config*/
     /**
-       Build list of options...
+       Build UI for config options...
     */
     settingsOps.forEach(function f(op){
       const line = D.addClass(D.div(), 'menu-entry');
@@ -1127,24 +1370,29 @@
           Chat.settings.set(op.persistentSetting, op.boolValue());
         }
       };
-      if(op.hasOwnProperty('boolValue')){
+      if(op.hasOwnProperty('select')){
+        D.append(line, btn, op.select);
+        op.select.addEventListener('change', callback, false);
+      }else if(op.hasOwnProperty('boolValue')){
         if(undefined === f.$id) f.$id = 0;
         ++f.$id;
-        const check = D.attr(D.checkbox(1, op.boolValue()),
-                             'aria-label', op.label);
+        const check = op.checkbox
+              = D.attr(D.checkbox(1, op.boolValue()),
+                       'aria-label', op.label);
         const id = 'cfgopt'+f.$id;
         if(op.boolValue()) check.checked = true;
         D.attr(check, 'id', id);
         D.attr(btn, 'for', id);
         D.append(line, check);
         check.addEventListener('change', callback);
+        D.append(line, btn);
       }else{
         line.addEventListener('click', callback);
+        D.append(line, btn);
       }
-      D.append(line, btn);
       D.append(optionsMenu, line);
     });
-    if(settingsOps.selectSound){
+    if(0 && settingsOps.selectSound){
       D.append(optionsMenu, settingsOps.selectSound);
     }
     //settingsButton.click()/*for for development*/;
@@ -1153,32 +1401,17 @@
   (function(){/*set up message preview*/
     const btnPreview = Chat.e.btnPreview;
     Chat.setPreviewText = function(t){
-      this.revealPreview(true).e.previewContent.innerHTML = t;
-      this.e.previewArea.querySelectorAll('a').forEach(addAnchorTargetBlank);
+      this.setCurrentView(this.e.viewPreview);
+      this.e.previewContent.innerHTML = t;
+      this.e.viewPreview.querySelectorAll('a').forEach(addAnchorTargetBlank);
       this.e.inputCurrent.focus();
     };
-    /**
-       Reveals preview area if showIt is true, else hides it.
-       This also shows/hides other elements, "as appropriate."
-    */
-    Chat.revealPreview = function(showIt){
-      if(showIt){
-        D.removeClass(Chat.e.previewArea, 'hidden');
-        D.addClass([Chat.e.messagesWrapper, Chat.e.configArea],
-                   'hidden');
-      }else{
-        D.addClass([Chat.e.configArea, Chat.e.previewArea], 'hidden');
-        D.removeClass(Chat.e.messagesWrapper, 'hidden');
-      }
-      return this;
-    };
-    Chat.e.previewArea.querySelector('#chat-preview-close').
-      addEventListener('click', ()=>Chat.revealPreview(false), false);
+    Chat.e.viewPreview.querySelector('#chat-preview-close').
+      addEventListener('click', ()=>Chat.setCurrentView(Chat.e.viewMessages), false);
     let previewPending = false;
     const elemsToEnable = [
       btnPreview, Chat.e.btnSubmit,
       Chat.e.inputSingle, Chat.e.inputMulti];
-    Chat.disableDuringAjax.push(btnPreview);
     const submit = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
@@ -1211,8 +1444,8 @@
         },
         aftersend:function(){
           previewPending = false;
-          D.enable(elemsToEnable);
           Chat.ajaxEnd();
+          D.enable(elemsToEnable);
         }
       });
       return false;
@@ -1233,6 +1466,14 @@
         ++Chat.totalMessageCount;
         if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
         if( !Chat.mnMsg || m.msgid<Chat.mnMsg) Chat.mnMsg = m.msgid;
+        if(m.xfrom && m.mtime){
+          const d = new Date(m.mtime);
+          const uls = Chat.usersLastSeen[m.xfrom];
+          if(!uls || uls<d){
+            d.$uColor = m.uclr;
+            Chat.usersLastSeen[m.xfrom] = d;
+          }
+        }
         if( m.mdel ){
           /* A record deletion notice. */
           Chat.deleteMessageElem(m.mdel);
@@ -1249,6 +1490,7 @@
       }/*processPost()*/;
     }/*end static init*/
     jx.msgs.forEach((m)=>f.processPost(m,atEnd));
+    Chat.updateActiveUserList();
     if('visible'===document.visibilityState){
       if(Chat.changesSincePageHidden){
         Chat.changesSincePageHidden = 0;
@@ -1275,10 +1517,10 @@
     Chat.disableDuringAjax.push(toolbar);
     /* Loads the next n oldest messages, or all previous history if n is negative. */
     const loadOldMessages = function(n){
-      Chat.e.messagesWrapper.classList.add('loading');
+      Chat.e.viewMessages.classList.add('loading');
       Chat._isBatchLoading = true;
-      const scrollHt = Chat.e.messagesWrapper.scrollHeight,
-            scrollTop = Chat.e.messagesWrapper.scrollTop;
+      const scrollHt = Chat.e.viewMessages.scrollHeight,
+            scrollTop = Chat.e.viewMessages.scrollTop;
       F.fetch("chat-poll",{
         urlParams:{
           before: Chat.mnMsg,
@@ -1293,6 +1535,7 @@
           let gotMessages = x.msgs.length;
           newcontent(x,true);
           Chat._isBatchLoading = false;
+          Chat.updateActiveUserList();
           if(Chat._gotServerError){
             Chat._gotServerError = false;
             return;
@@ -1316,13 +1559,13 @@
             F.toast.message("Loaded "+gotMessages+" older messages.");
             /* Return scroll position to where it was when the history load
                was requested, per user request */
-            Chat.e.messagesWrapper.scrollTo(
-              0, Chat.e.messagesWrapper.scrollHeight - scrollHt + scrollTop
+            Chat.e.viewMessages.scrollTo(
+              0, Chat.e.viewMessages.scrollHeight - scrollHt + scrollTop
             );
           }
         },
         aftersend:function(){
-          Chat.e.messagesWrapper.classList.remove('loading');
+          Chat.e.viewMessages.classList.remove('loading');
           Chat.ajaxEnd();
         }
       });
@@ -1335,7 +1578,7 @@
     btn = D.button("All previous messages");
     D.append(wrapper, btn);
     btn.addEventListener('click',()=>loadOldMessages(-1));
-    D.append(Chat.e.messagesWrapper, toolbar);
+    D.append(Chat.e.viewMessages, toolbar);
     toolbar.disabled = true /*will be enabled when msg load finishes */;
   })()/*end history loading widget setup*/;
 
@@ -1343,7 +1586,7 @@
     if(true===f.isFirstCall){
       f.isFirstCall = false;
       Chat.ajaxEnd();
-      Chat.e.messagesWrapper.classList.remove('loading');
+      Chat.e.viewMessages.classList.remove('loading');
       setTimeout(function(){
         Chat.scrollMessagesTo(1);
       }, 250);
@@ -1365,7 +1608,7 @@
     if(true===f.isFirstCall){
       f.isFirstCall = false;
       Chat.ajaxStart();
-      Chat.e.messagesWrapper.classList.add('loading');
+      Chat.e.viewMessages.classList.add('loading');
     }
     F.fetch("chat-poll",{
       timeout: 420 * 1000/*FIXME: get the value from the server*/,
@@ -1386,7 +1629,10 @@
       },
       onload:function(y){
         newcontent(y);
-        Chat._isBatchLoading = false;
+        if(Chat._isBatchLoading){
+          Chat._isBatchLoading = false;
+          Chat.updateActiveUserList();
+        }
         afterFetch();
       }
     });
@@ -1397,5 +1643,13 @@
     Chat.chatOnlyMode(true);
   }
   Chat.intervalTimer = setInterval(poll, 1000);
+  if(0){
+    const flip = (ev)=>Chat.animate(ev.target,'anim-flip-h');
+    document.querySelectorAll('#chat-edit-buttons button').forEach(function(e){
+      e.addEventListener('click',flip, false);
+    });
+  }
+  setTimeout( ()=>Chat.inputFocus(), 0 );
+  Chat.animate.$disabled = false;
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();

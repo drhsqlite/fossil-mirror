@@ -935,6 +935,7 @@ static size_t char_hashref_tag(
        whitespace or we're at the start of the input. */
     return 0;
   }
+  assert( '#' == data[0] );
   if(size < 2 || !fossil_isalnum(data[1])) return 0;
   /*fprintf(stderr,"HASHREF: %.*s\n", (int)size, data);*/
   for (end = 2; (end < size) && fossil_isalnum(data[end]); ++end);

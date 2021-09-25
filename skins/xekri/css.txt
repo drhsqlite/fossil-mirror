@@ -239,7 +239,7 @@ div.footer div {
   box-shadow: 3px 3px 1px #000;
   border-radius: 0 0 1rem 1rem;
   margin: 0 0 10px 0;
-  padding: 0.5rem 0.75rem;
+  padding: 0.25rem 0.75rem;
 }
 
 div.footer div.page-time {
@@ -1159,12 +1159,11 @@ body.chat div.mainmenu, body.chat div.submenu,
 body.chat div.content {
   margin-left: auto;
   margin-right: auto;
+  margin-top: auto/*eliminates unnecessary scrollbars*/;
 }
 body.chat.chat-only-mode div.content {
   max-width: revert;
 }
-
-body.chat .message-widget .message-widget-tab {
-  /* Make /chat user names and timestamps more visible */
-  filter: saturate(6);
+body.chat #chat-user-list .chat-user{
+  color: white;
 }

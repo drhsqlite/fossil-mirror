@@ -1870,6 +1870,7 @@ int client_sync(
   int nRoundtrip= 0;      /* Number of HTTP requests */
   int nArtifactSent = 0;  /* Total artifacts sent */
   int nArtifactRcvd = 0;  /* Total artifacts received */
+  int nPriorArtifact = 0; /* Artifacts received on prior round-trips */
   const char *zOpType = 0;/* Push, Pull, Sync, Clone */
   double rSkew = 0.0;     /* Maximum time skew */
   int uvHashSent = 0;     /* The "pragma uv-hash" message has been sent */
@@ -2198,6 +2199,7 @@ int client_sync(
     go = 0;
     nUvGimmeSent = 0;
     nUvFileRcvd = 0;
+    nPriorArtifact = nArtifactRcvd;
 
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
@@ -2630,9 +2632,8 @@ int client_sync(
     blob_reset(&recv);
     nCycle++;
 
-    /* If we received one or more files on the previous exchange but
-    ** there are still phantoms, then go another round.
-    */
+    /* Set go to 1 if we need to continue the sync/push/pull/clone for
+    ** another round.  Set go to 0 if it is time to quit. */
     nFileRecv = xfer.nFileRcvd + xfer.nDeltaRcvd + xfer.nDanglingFile;
     if( (nFileRecv>0 || newPhantom) && db_exists("SELECT 1 FROM phantom") ){
       go = 1;
@@ -2640,34 +2641,29 @@ int client_sync(
       if( mxPhantomReq<200 ) mxPhantomReq = 200;
     }else if( (syncFlags & SYNC_CLONE)!=0 && nFileRecv>0 ){
       go = 1;
+    }else if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
+      /* Go another round if files are queued to send */
+      go = 1;
+    }else if( xfer.nPrivIGot>0 && nCycle==1 ){
+      go = 1;
+    }else if( (syncFlags & SYNC_CLONE)!=0 ){
+      if( nCycle==1 ){
+        go = 1;   /* go at least two rounds on a clone */
+      }else if( cloneSeqno>0 && nArtifactRcvd>nPriorArtifact ){
+        /* Continue the clone until we see the clone_seqno 0" card or
+        ** until we stop receiving artifacts */
+        go = 1;
+      }
+    }else if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ){
+      /* Continue looping as long as new uvfile cards are being received
+      ** and uvgimme cards are being sent. */
+      go = 1;
     }
+
     nCardRcvd = 0;
     xfer.nFileRcvd = 0;
     xfer.nDeltaRcvd = 0;
     xfer.nDanglingFile = 0;
-
-    /* If we have one or more files queued to send, then go
-    ** another round
-    */
-    if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
-      go = 1;
-    }
-    if( xfer.nPrivIGot>0 && nCycle==1 ) go = 1;
-
-    /* If this is a clone, the go at least two rounds */
-    if( (syncFlags & SYNC_CLONE)!=0 && nCycle==1 ) go = 1;
-
-    /* Stop the cycle if the server sends a "clone_seqno 0" card and
-    ** we have gone at least two rounds.  Always go at least two rounds
-    ** on a clone in order to be sure to retrieve the configuration
-    ** information which is only sent on the second round.
-    */
-    if( cloneSeqno<=0 && nCycle>1 ) go = 0;
-
-    /* Continue looping as long as new uvfile cards are being received
-    ** and uvgimme cards are being sent. */
-    if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ) go = 1;
-
     db_multi_exec("DROP TABLE onremote; DROP TABLE unk;");
     if( go ){
       manifest_crosslink_end(MC_PERMIT_HOOKS);

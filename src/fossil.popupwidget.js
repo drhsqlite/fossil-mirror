@@ -357,6 +357,7 @@
       if(!f.hasOwnProperty('clickHandler')){
         f.clickHandler = function fch(ev){
           ev.preventDefault();
+          ev.stopPropagation();
           if(!fch.popup){
             fch.popup = new F.PopupWidget({
               cssClass: ['fossil-tooltip', 'help-buttonlet-content'],
@@ -413,6 +414,7 @@
           if(x<0) x = 0;
           //console.debug("dimensions",x,y, popupRect, rectBody);
           fch.popup.show(x, y);
+          return false;
         };
         f.foreachElement = function(e){
           if(e.classList.contains('processed')) return;
