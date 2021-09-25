@@ -177,7 +177,7 @@ window.fossil.onPageLoad(function(){
            <= Diff.config.chunkLoadLines)){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
-      btnDown = false;
+      btnDown = this.createButton(this.FetchType.FillGap);
       btnUp = this.createButton(this.FetchType.FillGap);
     }else{
       /* Figure out which chunk-load buttons to add... */
@@ -287,7 +287,9 @@ window.fossil.onPageLoad(function(){
       if(this.pos.next && this.pos.prev
          && (this.pos.endLhs - this.pos.startLhs <= Diff.config.chunkLoadLines)){
         D.clearElement(this.e.btnWrapper);
-        D.append(this.e.btnWrapper, this.createButton(this.FetchType.FillGap));
+        for( var i=0; i<2; i++ ){
+          D.append(this.e.btnWrapper, this.createButton(this.FetchType.FillGap));
+        }
         if( this.$fetchQueue && this.$fetchQueue.length>0 ){
           this.$fetchQueue = [this.FetchType.FillGap];
         }
