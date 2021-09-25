@@ -397,7 +397,8 @@ body.chat #chat-user-list .chat-user.selected {
   text-decoration: underline;
 }
 
-body.chat span[data-hashtag] {
+body.chat span[data-hashtag],
+body.chat span[data-numtag]{
   font-family: monospace;
   text-decoration: underline;
   cursor: pointer;

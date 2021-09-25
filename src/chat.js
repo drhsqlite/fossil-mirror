@@ -177,7 +177,7 @@
           },
           matchElem: function(e){
             return !this.activeTag
-              || !!e.querySelector('[data-hashtag='+this.activeTag+']');
+              || !!e.querySelector('[data-hashtag="'+this.activeTag+'"]');
           }
         },
         current: undefined/*gets set to current active filter*/
@@ -897,6 +897,7 @@
   const setupHashtags = function f(elem){
     if(!f.$click){
       f.$click = function(ev){
+        /* Click handler for hashtags */
         const tag = ev.target.dataset.hashtag;
         if(tag){
           Chat.setHashtagFilter(
@@ -905,12 +906,29 @@
           );
         }
       };
+      f.$clickNum = function(ev){
+        /* Click handler for #NNN references */
+        const tag = ev.target.dataset.numtag;
+        if(tag){
+          const e = Chat.e.viewMessages.querySelector(
+            '.message-widget[data-msgid="'+tag+'"]'
+          );
+          if(e){
+            Chat.MessageWidget.scrollToMessageElem(e);
+          }else{
+            F.toast.warning("Message #"+tag+" not found in loaded messages.");
+          }
+        }
+      };
     }
     elem.querySelectorAll('[data-hashtag]').forEach(function(e){
       e.dataset.hashtag = e.dataset.hashtag.toLowerCase();
       e.addEventListener('click', f.$click, false);
     })
-  };
+    elem.querySelectorAll('[data-numtag]').forEach(
+      (e)=>e.addEventListener('click', f.$clickNum, false)
+    )
+  }/*setupHashtags()*/;
 
   /**
      Custom widget type for rendering messages (one message per
@@ -1130,8 +1148,7 @@
                         function(){
                           self.hide();
                           Chat.clearFilters();
-                          eMsg.scrollIntoView(false);
-                          Chat.animate(eMsg.firstElementChild, 'anim-flip-h');
+                          Chat.MessageWidget.scrollToMessageElem(eMsg);
                         })
                     )
                   );
@@ -1163,6 +1180,16 @@
         }
         if(theMsg) f.popup.show(theMsg);
       }/*_handleLegendClicked()*/
+    }/*MessageWidget.prototype*/;
+    /** Assumes that e is a MessageWidget element, ensures that
+        Chat.e.viewMessages is visible, scrolls the message,
+        and animates it a bit to make it more visible. */
+    cf.scrollToMessageElem = function(e){
+      if(e.firstElementChild){
+        Chat.setCurrentView(Chat.e.viewMessages);
+        e.scrollIntoView(false);
+        Chat.animate(e.firstElementChild, 'anim-flip-h');
+      }
     };
     return cf;
   })()/*MessageWidget*/;

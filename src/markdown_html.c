@@ -555,7 +555,16 @@ static int html_tagspan(
       case MKDT_ATREF:
         cPrefix = '@'; BLOB_APPEND_LITERAL(ob, "atref"); break;
       case MKDT_HASHTAG:
-        cPrefix = '#'; BLOB_APPEND_LITERAL(ob, "hashtag");  break;
+        cPrefix = '#';
+        if(fossil_isdigit(*blob_str(text))){
+          /* This is a #NNN or #NNN.NNN reference. Mark it differently
+             because these will be handled differently by higher-level
+             code than conventional hashtags will. */
+          BLOB_APPEND_LITERAL(ob, "numtag");
+        }else{
+          BLOB_APPEND_LITERAL(ob, "hashtag");
+        }
+        break;
     }
     BLOB_APPEND_LITERAL(ob, "=\"");
     html_quote(ob, blob_buffer(text), blob_size(text));

@@ -1,5 +1,5 @@
-C /chat:\swhen\sapplying\sa\sfilter,\sautomatically\sswitch\sto\sthe\smessages\sview.\sApply\shashtag\sprocessing\sto\sthe\spreview\sview.
-D 2021-09-25T11:35:11.794
+C Added\s#NNN\sand\s#NNN.NNN\sreferences\sas\sa\sspecial\scase\sof\shashtag,\snoting\sthat\sit\swill\scurrently\smatch\sa\sprefix\sof\s#NNN.NNN.NNN.\sTaught\s/chat\sthat\sclicking\son\ssuch\sa\sreference\sshould\sjump\sto\sthe\sreferenced\smessage\sor\stoast\sthe\suser\sthat\sthe\smessage\sis\snot\sin\sthe\scurrent\shistory.
+D 2021-09-25T12:26:22.259
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c 2455f745d25ba7abda47625eb581c9dbc17771205d2983e5ecb3d9d9a04e80cc
-F src/chat.js c5a2a2e4734dddda3c68f15b0522b8bb17a85118959c409c5513806d5c14082e
+F src/chat.js 0bf2f128a7a43ce884a985078147c2ab305c8cbbb44bfd04985d462d5fcba2ed
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -533,9 +533,9 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 056850301937bb60963a6cd561d89f7ecb8adb57a45a75eabedbb1a20ad8caf1
+F src/markdown.c 1d8a3180e08e3a48827d26a325c4d7f439ac130c74a796be67d5667ff18360af
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
-F src/markdown_html.c 0f3b1035405524d11cc419f1343ec0c78565a0e4be192ec1222f85ce85d8f160
+F src/markdown_html.c 6c4a1f129aacb416bfad4e94d06e280857ebd959bf663fdc018b0e0b6a3fb204
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 198021b2831021563ba6ae220d50a5dcbd48f73b0996711b93f2ce5ba8dd9ce2
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css f83d791c2adc6fffd746173611da270b73311a01e4f442ac6f8906f1e7b6c6ae
+F src/style.chat.css e1d09a5872ab9d4766810abda8ecd93410aa98ef7eaedc45728081fd1e484e3e
 F src/style.fileedit.css 7e3f1635590009ad7165cbbeda7dc8f50c5027499681bff8e26793d1c98d2178
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93bf25055ab7864649ace03d5062ef8b0d441b7db027c05df75215a91aa5c3c5
-R c44ba404108bf62593f7132f0fa5aa69
+P b59a761bb2b0143e4289795ecb6abf28e4c31af6dc8f039cb7cc25758b21d22f
+R 2a55d9e7d101f4628a1a0a420cee1e05
 U stephan
-Z 2a39a39a57f0db9d3521a5bd764fa4d3
+Z 2025fc001dea7b2905ada5b09dadd92c

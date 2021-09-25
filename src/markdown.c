@@ -956,58 +956,86 @@ static size_t char_hashref_tag(
 ){
   size_t end;
   struct Blob work = BLOB_INITIALIZER;
-  int nUscore = 0;
+  int nUscore = 0; /* Consecutive underscore counter */;
+  int numberMode = 0 /* 0 for normal, 1 for #NNN numeric,
+                  and 2 for #NNN.NNN. */;
   if(offset>0 && !fossil_isspace(data[-1])){
-    /* Only ever match if the *previous* character is
-       whitespace or we're at the start of the input.
-       Note that we rely on fossil processing emphasis
-       markup before reaching this function, so *#Hash*
-       will Do The Right Thing. */
+    /* Only ever match if the *previous* character is whitespace or
+       we're at the start of the input.  Note that we rely on fossil
+       processing emphasis markup before reaching this function, so
+       *#Hash* will Do The Right Thing. Not that this means that
+       "#Hash." will match while ".#Hash" won't. That's okay. */
     return 0;
   }
   assert( '#' == data[0] );
-  if(size < 2 || !fossil_isalpha(data[1])) return 0;
+  if(size < 2) return 0;
+  if(fossil_isdigit(data[1])){
+    numberMode = 1;
+  }else if(!fossil_isalpha(data[1])){
+    return 0;
+  }
 #if 0
   fprintf(stderr,"HASHREF offset=%d size=%d: %.*s\n",
           (int)offset, (int)size, (int)size, data);
 #endif
 #define HASHTAG_LEGAL_END \
-      case ' ': case '\t': case '\r': case '\n': case '.': case ':': case ';': case '!': case '?'
+      case ' ': case '\t': case '\r': case '\n': \
+      case ':': case ';': case '!': case '?': case ','
+      /* ^^^^ '.' is handled separately */
   for(end = 2; end < size; ++end){
     char ch = data[end];
+    /* Potential TODO: if (ch & 0xF0), treat it as valid, skip that
+       multi-byte character's length characters, and continue
+       looping. Reminder: UTF8 char lengths can be determined by
+       masking against 0xF0: 0xf0==4, 0xe0==3, 0xc0==2, else 1. */
     switch(ch){
       case '_':
         /* Multiple adjacent underscores not permitted. */
-        if(++nUscore>1) goto hashref_bailout;
+        if(numberMode>0 || ++nUscore>1) goto hashref_bailout;
         break;
-      HASHTAG_LEGAL_END:
-        if(end<3) goto hashref_bailout/*require 2+ characters (arbitrary)*/;
+      case '.':
+        if(1==numberMode) ++numberMode;
         ch = 0;
         break;
+      HASHTAG_LEGAL_END:
+        if(numberMode==0 && end<3){
+          goto hashref_bailout/*require 2+ characters (arbitrary)*/;
+        }
+        ch = 0;
+        break;
+      case '0': case '1': case '2': case '3': case '4':
+      case '5': case '6': case '7': case '8': case '9':
+        break;
       default:
-        if(!fossil_isalnum(ch)) goto hashref_bailout;
+        if(numberMode!=0 || !fossil_isalpha(ch)){
+          goto hashref_bailout;
+        }
         nUscore = 0;
         break;
     }
     if(ch) continue;
-    else break;
+    break;
+  }
+  if(numberMode>1){
+    /* Check for trailing part of #NNN.nnn... */
+    assert('.'==data[end]);
+    if(end<size-1 && fossil_isdigit(data[end+1])){
+      for(++end; end<size; ++end){
+        if(!fossil_isdigit(data[end])) break;
+      }
+    }
   }
 #if 0
   fprintf(stderr,"?HASHREF length=%d: %.*s\n",
           (int)end, (int)end, data);
 #endif
-  /*TODO: in order to support detection of forum post-style
-    references, we need to recognize #X.Y, but only when X and Y are
-    both purely numeric and Y ends on a word/sentence
-    boundary.*/
   if(end<size){
     /* Only match if we end at end of input or what "might" be the end
        of a natural language grammar construct, e.g. period or
        [semi]colon. */
     switch(data[end]){
+      case '.':
       HASHTAG_LEGAL_END:
-        /* We could arguably treat any leading multi-byte character as
-           valid here. */
         break;
       default:
         goto hashref_bailout;
