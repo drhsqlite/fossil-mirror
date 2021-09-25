@@ -140,7 +140,8 @@
         btnPreview: E1('#chat-preview-button'),
         views: document.querySelectorAll('.chat-view'),
         activeUserListWrapper: E1('#chat-user-list-wrapper'),
-        activeUserList: E1('#chat-user-list')
+        activeUserList: E1('#chat-user-list'),
+        btnClearFilter: E1('#chat-clear-filter')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -159,11 +160,27 @@
         /* Reminder: to convert a Julian time J to JS:
            new Date((J - 2440587.5) * 86400000) */
       },
-      filterState:{
-        activeUser: undefined,
-        match: function(uname){
-          return this.activeUser===uname || !this.activeUser;
-        }
+      filter: {
+        user:{
+          activeTag: undefined,
+          match: function(uname){
+            return !this.activeTag || this.activeTag===uname;
+          },
+          matchElem: function(e){
+            return !this.activeTag || this.activeTag===e.dataset.xfrom;
+          }
+        },
+        hashtag:{
+          activeTag: undefined,
+          match: function(tag){
+            return !this.activeTag || tag===this.activeTag;
+          },
+          matchElem: function(e){
+            return !this.activeTag
+              || !!e.querySelector('[data-hashtag='+this.activeTag+']');
+          }
+        },
+        current: undefined/*gets set to current active filter*/
       },
       /** Gets (no args) or sets (1 arg) the current input text field value,
           taking into account single- vs multi-line input. The getter returns
@@ -282,7 +299,8 @@
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.viewMessages,
               prevMessage = this.e.newestMessage;
-        if(!this.filterState.match(e.dataset.xfrom)){
+        if(this.filter.current
+           && !this.filter.current.matchElem(e)){
           e.classList.add('hidden');
         }
         if(atEnd){
@@ -480,7 +498,7 @@
           callee.addUserElem = function(u){
             const uSpan = D.addClass(D.span(), 'chat-user');
             const uDate = self.usersLastSeen[u];
-            if(self.filterState.activeUser===u){
+            if(self.filter.user.activeTag===u){
               uSpan.classList.add('selected');
             }
             uSpan.dataset.uname = u;
@@ -503,32 +521,106 @@
         return this;
       },
       /**
+         For each Chat.MessageWidget element (X.message-widget) for
+         which predicate(elem) returns true, the 'hidden' class is
+         removed from that message. For all others, 'hidden' is
+         added. If predicate is falsy, 'hidden' is removed from all
+         elements. After filtering, it will try to scroll the last
+         not-filtered-out message into view, but exactly where it
+         scrolls into view (top, middle, button) is
+         unpredictable. Returns this object.
+
+         The argument may optionally be an object from this.filter,
+         in which case its matchElem() method becomes the predicate.
+
+         Note that this does not encapsulate certain filter-specific
+         logic which applies changes to elements other than the
+         main message list or this.e.btnClearFilter.
+      */
+      applyMessageFilter: function(predicate){
+        const self = this;
+        let eLast;
+        console.debug("applyMessageFilter(",predicate,")");
+        if(!predicate){
+          D.removeClass(this.e.viewMessages.querySelectorAll('.message-widget.hidden'),
+                        'hidden');
+          D.addClass(this.e.btnClearFilter, 'hidden');
+        }else if('function'!==typeof predicate
+                && predicate.matchElem){
+          /* assume Chat.filter object */
+          const p = predicate;
+          predicate = (e)=>p.matchElem(e);
+        }
+        if(predicate){
+          this.e.viewMessages.querySelectorAll('.message-widget').forEach(function(e){
+            if(predicate(e)){
+              e.classList.remove('hidden');
+              eLast = e;
+            }else{
+              e.classList.add('hidden');
+            }
+          });
+          D.removeClass(this.e.btnClearFilter, 'hidden');
+        }
+        if(eLast) eLast.scrollIntoView(false);
+        else this.scrollMessagesTo(1);
+        return this;
+      },
+      /**
+         Clears the current message filter, if any, and clears the
+         activeTag property of all members of this.filter. Returns
+         this object. This also unfortunately performs some
+         filter-type-specific logic which we have not yet managed to
+         encapsulate more cleanly.
+       */
+      clearFilters: function(){
+        if(!this.filter.current) return this;
+        this.filter.current = undefined;
+        this.applyMessageFilter(false);
+        const self = this;
+        Object.keys(this.filter).forEach(function(k){
+          const f = self.filter[k];
+          if(f) f.activeTag = undefined;
+        });
+        this.e.activeUserList.querySelectorAll('.chat-user').forEach(
+          /*Unfortante filter-specific logic*/
+          (e)=>e.classList.remove('selected')
+        );
+        return this;
+      },
+      /**
          Applies user name filter to all current messages, or clears
          the filter if uname is falsy.
       */
       setUserFilter: function(uname){
-        this.filterState.activeUser = uname;
-        const mw = this.e.viewMessages.querySelectorAll('.message-widget');
-        const self = this;
-        let eLast;
-        if(!uname){
-          D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'),
-                        'hidden');
-        }else{
-          mw.forEach(function(w){
-            if(self.filterState.match(w.dataset.xfrom)){
-              w.classList.remove('hidden');
-              eLast = w;
-            }else{
-              w.classList.add('hidden');
-            }
-          });
+        if(!uname || (this.filter.current
+                      && this.filter.current!==this.filter.user)){
+          this.clearFilters();
         }
-        if(eLast) eLast.scrollIntoView(false);
-        else this.scrollMessagesTo(1);
-        cs.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
-          e.classList[uname===e.dataset.uname ? 'add' : 'remove']('selected');
+        this.filter.user.activeTag = uname;
+        if(uname) this.applyMessageFilter(this.filter.user);
+        this.filter.current = uname ? this.filter.user : undefined;
+        const self = this;
+        this.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
+          e.classList[
+            self.filter.user.activeTag===e.dataset.uname
+              ? 'add' : 'remove'
+          ]('selected');
         });
+        return this;
+      },
+      /**
+         Applies a hashtag filter to all current messages, or clears
+         the filter if tag is falsy.
+      */
+      setHashtagFilter: function(tag){
+        if(!tag || (this.filter.current
+                    && this.filter.current!==this.filter.hashtag)){
+          this.clearFilters();
+        }
+        this.filter.hashtag.activeTag = tag;
+        if(tag) this.applyMessageFilter(this.filter.hashtag);
+        this.filter.current = tag ? this.filter.hashtag : undefined;
         return this;
       },
 
@@ -784,17 +876,41 @@
         /* If curently selected, toggle filter off */
         eUser.classList.remove('selected');
         cs.setUserFilter(false);
-        delete f.$eSelected;
       }else{
-        if(f.$eSelected) f.$eSelected.classList.remove('selected');
-        f.$eSelected = eUser;
         eUser.classList.add('selected');
         cs.setUserFilter(uname);
       }
       return false;
     }, false);
+
+    cs.e.btnClearFilter.addEventListener('click',function(){
+      D.addClass(this,'hidden');
+      cs.clearFilters();
+    }, false);
     return cs;
   })()/*Chat initialization*/;
+
+  /** To be passed each MessageWidget's top-level DOM element
+      after initial processing of the message, to set up
+      hashtag references. */
+  const setupHashtags = function f(elem){
+    if(!f.$click){
+      f.$click = function(ev){
+        const tag = ev.target.dataset.hashtag;
+        if(tag){
+          console.debug("hashtag = ",tag);
+          Chat.setHashtagFilter(
+            tag===Chat.filter.hashtag.activeTag
+              ? false : tag
+          );
+        }
+      };
+    }
+    elem.querySelectorAll('[data-hashtag]').forEach(function(e){
+      e.dataset.hashtag = e.dataset.hashtag.toLowerCase();
+      e.addEventListener('click', f.$click, false);
+    })
+  };
 
   /**
      Custom widget type for rendering messages (one message per
@@ -917,6 +1033,7 @@
           }else{
             contentTarget.innerHTML = m.xmsg;
             contentTarget.querySelectorAll('a').forEach(addAnchorTargetBlank);
+            setupHashtags(contentTarget);
             if(F.pikchr){
               F.pikchr.addSrcView(contentTarget.querySelectorAll('svg.pikchr'));
             }
@@ -1001,9 +1118,8 @@
                   'target', '_blank'
                 );
                 D.append(toolbar2, timelineLink);
-                if(Chat.filterState.activeUser &&
-                   Chat.filterState.match(eMsg.dataset.xfrom)){
-                  /* Add a button to clear user filter and jump to
+                if(Chat.filter.current){
+                  /* Add a button to clear filter and jump to
                      this message in its original context. */
                   D.append(
                     this.e,
@@ -1013,15 +1129,9 @@
                         "Message in context",
                         function(){
                           self.hide();
-                          Chat.setUserFilter(false);
+                          Chat.clearFilters();
                           eMsg.scrollIntoView(false);
-                          Chat.animate(
-                            eMsg.firstElementChild, 'anim-flip-h'
-                            //eMsg.firstElementChild, 'anim-flip-v'
-                            //eMsg.childNodes, 'anim-rotate-360'
-                            //eMsg.childNodes, 'anim-flip-v'
-                            //eMsg, 'anim-flip-v'
-                          );
+                          Chat.animate(eMsg.firstElementChild, 'anim-flip-h');
                         })
                     )
                   );
@@ -1243,8 +1353,10 @@
           D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
           D.removeClass(Chat.e.activeUserListWrapper, 'collapsed');
           if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
-            /* When hiding this element, undo all filtering */
-            Chat.setUserFilter(false);
+            /* When hiding this element, undo user filtering */
+            if(Chat.filter.current === Chat.filter.user){
+              Chat.setUserFilter(false);
+            }
             /*Ideally we'd scroll the final message into view
               now, but because viewMessages is currently hidden behind
               viewConfig, scrolling is a no-op. */

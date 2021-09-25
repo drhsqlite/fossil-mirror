@@ -397,6 +397,16 @@ body.chat #chat-user-list .chat-user.selected {
   text-decoration: underline;
 }
 
+body.chat span[data-hashtag] {
+  font-family: monospace;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+body.chat #chat-clear-filter {
+  margin: 0.25em 0.5em;
+}
+
 body.chat .anim-rotate-360 {
   animation: rotate-360 750ms linear;
 }
@@ -422,14 +432,14 @@ body.chat .anim-fade-in {
   animation: fade-in 750ms linear;
 }
 body.chat .anim-fade-in-fast {
-  animation: fade-in 350ms linear;
+  animation: fade-in 300ms linear;
 }
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 body.chat .anim-fade-out-fast {
-  animation: fade-out 250ms linear;
+  animation: fade-out 300ms linear;
 }
 @keyframes fade-out {
   from { opacity: 1; }
