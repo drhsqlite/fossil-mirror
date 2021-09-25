@@ -562,6 +562,7 @@
           });
           D.removeClass(this.e.btnClearFilter, 'hidden');
         }
+        this.setCurrentView(this.e.viewMessages);
         if(eLast) eLast.scrollIntoView(false);
         else this.scrollMessagesTo(1);
         return this;
@@ -898,7 +899,6 @@
       f.$click = function(ev){
         const tag = ev.target.dataset.hashtag;
         if(tag){
-          console.debug("hashtag = ",tag);
           Chat.setHashtagFilter(
             tag===Chat.filter.hashtag.activeTag
               ? false : tag
@@ -1516,6 +1516,7 @@
       this.setCurrentView(this.e.viewPreview);
       this.e.previewContent.innerHTML = t;
       this.e.viewPreview.querySelectorAll('a').forEach(addAnchorTargetBlank);
+      setupHashtags(this.e.previewContent)/*arguable, for usability reasons*/;
       this.e.inputCurrent.focus();
     };
     Chat.e.viewPreview.querySelector('#chat-preview-close').

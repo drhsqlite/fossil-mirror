@@ -1,5 +1,5 @@
-C Improved\sthe\sbehavior\sin\sthe\sface\sof\smultiple\sfilters,\sapplying\sonly\sthe\smost\srecent\sone.\sAdded\sa\sbutton\sto\sclear\sfilters\swhich\sappears\salong\sthe\sbottom\sof\sthe\smessage\sarea\sif\sany\sfilter\sis\sactive.
-D 2021-09-25T10:54:51.702
+C /chat:\swhen\sapplying\sa\sfilter,\sautomatically\sswitch\sto\sthe\smessages\sview.\sApply\shashtag\sprocessing\sto\sthe\spreview\sview.
+D 2021-09-25T11:35:11.794
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c 2455f745d25ba7abda47625eb581c9dbc17771205d2983e5ecb3d9d9a04e80cc
-F src/chat.js e524dedd4dc517d260b7f6dc062c4df6bc29d4997e9ed6524859800604ff19c1
+F src/chat.js c5a2a2e4734dddda3c68f15b0522b8bb17a85118959c409c5513806d5c14082e
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac5b66bb40a03f8383a6a61029519e64b0642fadc248ec2c642ff78ab026d266
-R 62388b739cb0a097a34b98bdceb6038a
+P 93bf25055ab7864649ace03d5062ef8b0d441b7db027c05df75215a91aa5c3c5
+R c44ba404108bf62593f7132f0fa5aa69
 U stephan
-Z 1ed0b2e1f7d491ca87a9dd4e89bb40b9
+Z 2a39a39a57f0db9d3521a5bd764fa4d3
