@@ -307,6 +307,7 @@ proc get_all_settings {} {
       dotfiles \
       editor \
       email-admin \
+      email-renew-interval \
       email-self \
       email-send-command \
       email-send-db \
@@ -333,6 +334,7 @@ proc get_all_settings {} {
       main-branch \
       mainmenu \
       manifest \
+      max-cache-entry \
       max-loadavg \
       max-upload \
       mimetypes \
