@@ -446,3 +446,11 @@ body.chat .anim-fade-out-fast {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+body.chat .anim-fade-out-in {
+  animation: fade-out-in 1000ms linear;
+}
+@keyframes fade-out-in {
+  0%,100% { opacity: 0 }
+  50% { opacity: 1 }
+}

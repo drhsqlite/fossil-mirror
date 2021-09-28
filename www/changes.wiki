@@ -30,7 +30,7 @@
      </tt>unhide</tt> subcommands to [/help?cmd=branch|the branch command].
   *  The "-p" option to [/help?cmd=branch|fossil branch list] shows only
      private branches.
-  *  The [/mdrules|Markdown formatter] now interprets the content of
+  *  The [/md_rules|Markdown formatter] now interprets the content of
      block HTML markup (such as &lt;table&gt;) in most cases.  Only content
      of &lt;pre&gt; and &lt;script&gt; is passed through verbatim.
   *  The [/help?cmd=wiki|wiki list command] no longer lists "deleted"

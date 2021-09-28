@@ -119,6 +119,7 @@ window.fossil.onPageLoad(function(){
      https://github.com/msteveb/autosetup/commit/235925e914a52a542
   */
   const ChunkLoadControls = function(tr){
+    this.$fetchQueue = [];
     this.e = {/*DOM elements*/
       tr: tr,
       table: tr.parentElement/*TBODY*/.parentElement
@@ -211,13 +212,9 @@ window.fossil.onPageLoad(function(){
           chunks. */
       FillGap: 0,
       /** Prepend context to the start of the next diff chunk. */
-      NextUp: -1
-    },
-    config: {
-      /*
-      glyphUp: '⇡', //'&#uarr;',
-      glyphDown: '⇣' //'&#darr;'
-      */
+      NextUp: -1,
+      /** Process the next queued action. */
+      ProcessQueue: 0x7fffffff
     },
 
     /**
@@ -264,6 +261,7 @@ window.fossil.onPageLoad(function(){
     /* Attempt to clean up resources and remove some circular references to
        that GC can do the right thing. */
     destroy: function(){
+      delete this.$fetchQueue;
       D.remove(this.e.tr);
       delete this.e.tr.$chunker;
       delete this.e.tr;
@@ -284,6 +282,9 @@ window.fossil.onPageLoad(function(){
          && (this.pos.endLhs - this.pos.startLhs <= Diff.config.chunkLoadLines)){
         D.clearElement(this.e.btnWrapper);
         D.append(this.e.btnWrapper, this.createButton(this.FetchType.FillGap));
+        if( this.$fetchQueue && this.$fetchQueue.length>0 ){
+          this.$fetchQueue = [this.FetchType.FillGap];
+        }
       }
       return this;
     },
@@ -503,24 +504,38 @@ window.fossil.onPageLoad(function(){
        a warning. Returns this object.
     */
     fetchChunk: function(fetchType){
+      if( !this.$fetchQueue ) return this;  // HACKHACK: are we destroyed?
+      if( fetchType==this.FetchType.ProcessQueue ){
+        if( this.$fetchQueue.length==0 ) return this;
+        //console.log('fetchChunk: processing queue ...');
+      }
+      else{
+        this.$fetchQueue.push(fetchType);
+        if( this.$fetchQueue.length!=1 ) return this;
+        //console.log('fetchChunk: processing user input ...');
+      }
+      fetchType = this.$fetchQueue[0];
       /* Forewarning, this is a bit confusing: when fetching the
          previous lines, we're doing so on behalf of the *next* diff
          chunk (this.pos.next), and vice versa. */
-      if(this.$isFetching){
-        return this.msg(true,"Cannot load chunk while a load is pending.");
-      }
       if(fetchType===this.FetchType.NextUp && !this.pos.next
         || fetchType===this.FetchType.PrevDown && !this.pos.prev){
         console.error("Attempt to fetch diff lines but don't have any.");
         return this;
       }
       this.msg(false,"Fetching diff chunk...");
+      const self = this;
       const fOpt = {
         urlParams:{
           name: this.fileHash, from: 0, to: 0
         },
-        aftersend: ()=>delete this.$isFetching,
-        onload: (list)=>this.injectResponse(fetchType,up,list)
+        aftersend: ()=>this.msg(false),
+        onload: function(list){
+          self.injectResponse(fetchType,up,list);
+          if( !self.$fetchQueue || self.$fetchQueue.length==0 ) return;
+          self.$fetchQueue.shift();
+          setTimeout(self.fetchChunk.bind(self,self.FetchType.ProcessQueue));
+        }
       };
       const up = fOpt.urlParams;
       if(fetchType===this.FetchType.FillGap){
@@ -553,9 +568,11 @@ window.fossil.onPageLoad(function(){
           fetchType = this.FetchType.FillGap;
         }
       }
-      this.$isFetching = true;
       //console.debug("fetchChunk(",fetchType,")",up);
-      fOpt.onerror = (err)=>this.msg(true,err.message);
+      fOpt.onerror = function(err){
+        self.msg(true,err.message);
+        self.$fetchQueue = [];
+      };
       Diff.fetchArtifactChunk(fOpt);
       return this;
     }

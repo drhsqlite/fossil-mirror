@@ -282,13 +282,15 @@
   };
 
   /**
-     Sets the innerText of the page's TITLE tag to
-     the given text and returns this object.
+     Sets the innerText of the page's TITLE tag to the given text and
+     returns this object. If passed a falsy value then the title is
+     reverted to its page-load-time value.
    */
-  F.page.setPageTitle = function(title){
+  F.page.setPageTitle = function f(title){
     const t = document.querySelector('title');
-    if(t) t.innerText = title;
+    if(t) t.innerText = title || f.$orig;
     return this;
   };
-
+  F.onPageLoad(()=>F.page.setPageTitle.$orig
+               = document.querySelector('title').innerText);
 })(window);

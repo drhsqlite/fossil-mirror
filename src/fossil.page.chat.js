@@ -2,7 +2,7 @@
    This file contains the client-side implementation of fossil's /chat
    application. 
 */
-(function(){
+window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
   const E1 = function(selector){
     const e = document.querySelector(selector);
@@ -81,10 +81,9 @@
       ];
       f.contentArea = E1('div.content');
     }
-    const bcl = document.body.classList;
     const resized = function(){
       const wh = window.innerHeight,
-            com = bcl.contains('chat-only-mode');
+            com = document.body.classList.contains('chat-only-mode');
       var ht;
       var extra = 0;
       if(com){
@@ -891,6 +890,33 @@
     return cs;
   })()/*Chat initialization*/;
 
+  /**
+     An experiment in history navigation: when a message numref is
+     clicked, we push the origin message onto the history and
+     set up the back button to return to that message.
+  */
+  if(0) window.onpopstate = function(event){
+    console.debug("onpopstate event",event.state, event);
+    if(event.state && event.state.msgId){
+      const e = Chat.setCurrentView(Chat.e.viewMessages).
+            querySelector('.message-widget[data-msgid="'+event.state.msgId+'"]');
+      console.debug("Popping history back to",event.state, e);
+      if(e){
+        Chat.MessageWidget.scrollToMessageElem(e);
+        //F.page.setPageTitle("Fossil Chat #"+event.state.msgId);
+        return;
+      }
+    }
+    Chat.scrollMessagesTo(1);
+  };
+
+  const findParentWithClass = function(e, className){
+    while(e && !e.classList.contains(className)){
+      e = e.parentNode;
+    }
+    return e;
+  };
+  
   /** To be passed each MessageWidget's top-level DOM element
       after initial processing of the message, to set up
       hashtag references. */
@@ -915,6 +941,14 @@
           );
           if(e){
             Chat.MessageWidget.scrollToMessageElem(e);
+            //Set up window.history() state...
+            const p = 1 ? false : findParentWithClass(ev.target, 'message-widget');
+            if(p){
+              const state = {msgId: p.dataset.msgid};
+              console.debug("Pushing history for msgid", state);
+              const rc = window.history.pushState(state, "?");
+              console.debug("History length =",window.history.length, rc);
+            }
           }else{
             F.toast.warning("Message #"+tag+" not found in loaded messages.");
           }
@@ -1188,7 +1222,7 @@
       if(e.firstElementChild){
         Chat.setCurrentView(Chat.e.viewMessages);
         e.scrollIntoView(false);
-        Chat.animate(e.firstElementChild, 'anim-flip-h');
+        Chat.animate(e, 'anim-fade-out-in');
       }
     };
     return cf;
@@ -1792,4 +1826,4 @@
   setTimeout( ()=>Chat.inputFocus(), 0 );
   Chat.animate.$disabled = false;
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
-})();
+});
