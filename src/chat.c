@@ -218,7 +218,7 @@ void chat_webpage(void){
   /* We need an onload handler to ensure that window.fossil is
      initialized before the chat init code runs. */
   @ window.addEventListener('load', function(){
-  @ document.body.classList.add('chat')
+  @ document.body.classList.add('chat');
   @ /*^^^for skins which add their own BODY tag */;
   @ window.fossil.config.chat = {
   @   fromcli: %h(PB("cli")?"true":"false"),
@@ -228,10 +228,9 @@ void chat_webpage(void){
   @ };
   ajax_emit_js_preview_modes(0);
   chat_emit_alert_list();
-  cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);
   @ </script>
-
+  builtin_request_js("fossil.page.chat.js");
   style_finish_page();
 }
 

@@ -2,7 +2,7 @@
    This file contains the client-side implementation of fossil's /chat
    application. 
 */
-(function(){
+window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
   const E1 = function(selector){
     const e = document.querySelector(selector);
@@ -1652,4 +1652,4 @@
   setTimeout( ()=>Chat.inputFocus(), 0 );
   Chat.animate.$disabled = false;
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
-})();
+});
