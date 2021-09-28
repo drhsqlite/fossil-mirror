@@ -891,25 +891,33 @@ window.fossil.onPageLoad(function(){
   })()/*Chat initialization*/;
 
   /**
-     An experiment in history navigation: when a message numref is
+     An experiment in history navigation: when a message numtag is
      clicked, we push the origin message onto the history and
      set up the back button to return to that message.
   */
-  if(0) window.onpopstate = function(event){
-    console.debug("onpopstate event",event.state, event);
-    if(event.state && event.state.msgId){
+  window.onpopstate = function(event){
+    const msgid = Chat.numtagHistoryStack.pop();
+    if(msgid){
       const e = Chat.setCurrentView(Chat.e.viewMessages).
-            querySelector('.message-widget[data-msgid="'+event.state.msgId+'"]');
-      console.debug("Popping history back to",event.state, e);
+            querySelector('.message-widget[data-msgid="'+msgid+'"]');
+      //console.debug("Popping history back to",msgid, e);
       if(e){
         Chat.MessageWidget.scrollToMessageElem(e);
-        //F.page.setPageTitle("Fossil Chat #"+event.state.msgId);
         return;
       }
     }
     Chat.scrollMessagesTo(1);
   };
+  Chat.numtagHistoryStack = [
+    /* Relying on the pushHistory() state object for holding
+       the message ID is completely misbehaving, not giving
+       us the expected state object when window.onpopstate
+       is triggered (plus, the browser persists it, which
+       introduces its own problems). Thus we use our own
+       stack of message IDs for history navigation purposes. */];
 
+  /** If e or one of its parents has the given CSS class, that element
+      is returned, else falsy is returned. */
   const findParentWithClass = function(e, className){
     while(e && !e.classList.contains(className)){
       e = e.parentNode;
@@ -919,7 +927,7 @@ window.fossil.onPageLoad(function(){
   
   /** To be passed each MessageWidget's top-level DOM element
       after initial processing of the message, to set up
-      hashtag references. */
+      hashtag and numtag references. */
   const setupHashtags = function f(elem){
     if(!f.$click){
       f.$click = function(ev){
@@ -942,12 +950,13 @@ window.fossil.onPageLoad(function(){
           if(e){
             Chat.MessageWidget.scrollToMessageElem(e);
             //Set up window.history() state...
-            const p = 1 ? false : findParentWithClass(ev.target, 'message-widget');
+            const p = 0 ? false : findParentWithClass(ev.target, 'message-widget');
             if(p){
               const state = {msgId: p.dataset.msgid};
-              console.debug("Pushing history for msgid", state);
-              const rc = window.history.pushState(state, "?");
-              console.debug("History length =",window.history.length, rc);
+              Chat.numtagHistoryStack.push(p.dataset.msgid);
+              const rc = window.history.pushState(state, "");
+              //console.debug("Pushing history for msgid", state);
+              //console.debug("Chat.numtagHistoryStack =",Chat.numtagHistoryStack);
             }
           }else{
             F.toast.warning("Message #"+tag+" not found in loaded messages.");
