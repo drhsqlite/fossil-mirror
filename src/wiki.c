@@ -2430,7 +2430,7 @@ void wiki_cmd(void){
       db_prepare(&q, listAllWikiPages/*works-like:""*/);
     }else{
       db_prepare(&q,
-        "SELECT datetime(e.mtime), substr(t.tagname,7)"
+        "SELECT datetime(e.mtime), substr(t.tagname,7), e.objid"
          " FROM event e, tag t"
         " WHERE e.type='e'"
           " AND e.tagid IS NOT NULL"

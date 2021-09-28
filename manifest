@@ -1,5 +1,5 @@
-C Another\sline-height\stweak\sfor\sthe\sdiff\sview\sto\skeep\sunderscores\sfrom\sbeing\struncated\sin\sChromium.
-D 2021-09-28T11:51:16.814
+C Query\scolumn\smiscount\sfix\sfor\s(wiki\slist\s-t)\sas\sreported\sin\s[forum:5e6c3e3b78112df3].
+D 2021-09-28T12:09:14.475
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -632,7 +632,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 5f0d2fcdb67ee5433c9151892af3681f91ccdfffbaff8f09aa46ea61ec163e77
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c f9d4d1e772bc2dd380d806f8f426a77b6f673c0e8cc0aa9de72e2f427801f59e
+F src/wiki.c 5ca072c08a05fb65465b1b69d8bb52969effbb7101918232ddc996473576e73c
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ec8c6c04deccf97bedff069a1f24a0e35f4313ecb88f67fcc576fd237b2d062
-R 5fcb2a9566863c2338a3a53f1e448378
+P ebf69b498e00afb6b6cd95eefa95d6f58a8be782f59812326135e329f6bcc4c8
+R c8fa7395d8545fee71a88fb308e52f9f
 U stephan
-Z 66b9a3543f303db849a220b7bd93296a
+Z c5dc9970731e01610eb268c1d97a757b
