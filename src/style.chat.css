@@ -209,6 +209,7 @@ body.chat #chat-edit-buttons > * {
 body.chat #chat-input-line:not(.single-line) #chat-edit-buttons > * {
   max-width: 4em;
   margin: 0.25em;
+  min-height: 2em;
 }
 body.chat #chat-input-line:not(.single-line) #chat-input-field {
   border-left-style: double;
@@ -222,6 +223,7 @@ body.chat #chat-input-line:not(.single-line) #chat-input-field {
 
 body.chat #chat-input-line.single-line #chat-edit-buttons > * {
   margin: 0 0.25em;
+  min-width: 2em;
 }
 
 body.chat #chat-input-line > button {
