@@ -1201,7 +1201,15 @@ window.fossil.onPageLoad(function(){
       if(ev.shiftKey){
         ev.preventDefault();
         ev.stopPropagation();
-        Chat.e.btnPreview.click();
+        /* Shift-enter will run preview mode UNLESS preview mode is
+           active AND the input field is empty, in which case it will
+           switch back to message view. */
+        if(Chat.e.currentView===Chat.e.viewPreview
+           && !Chat.e.inputCurrent.value){
+          Chat.setCurrentView(Chat.e.viewMessages);
+        }else{
+          Chat.e.btnPreview.click();
+        }
         return false;
       }else if((Chat.e.inputSingle===ev.target)
                || (ev.ctrlKey && Chat.e.inputMulti===ev.target)){
