@@ -129,9 +129,7 @@ window.fossil.onPageLoad(function(){
         fileSelectWrapper: E1('#chat-input-file-area'),
         viewMessages: E1('#chat-messages-wrapper'),
         btnSubmit: E1('#chat-message-submit'),
-        inputSingle: E1('#chat-input-single'),
-        inputMulti: E1('#chat-input-multi'),
-        inputCurrent: undefined/*one of inputSingle or inputMulti*/,
+        inputField: E1('#chat-input-field'),
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
         viewConfig: E1('#chat-config'),
@@ -171,10 +169,10 @@ window.fossil.onPageLoad(function(){
       inputValue: function(){
         const e = this.inputElement();
         if(arguments.length){
-          e.value = arguments[0];
+          e.innerText = arguments[0];
           return this;
         }
-        return e.value;
+        return e.innerText;
       },
       /** Asks the current user input field to take focus. Returns this. */
       inputFocus: function(){
@@ -183,40 +181,7 @@ window.fossil.onPageLoad(function(){
       },
       /** Returns the current message input element. */
       inputElement: function(){
-        return this.e.inputCurrent;
-      },
-      /** Toggles between single- and multi-line edit modes. Returns this. */
-      inputToggleSingleMulti: function(){
-        const old = this.e.inputCurrent;
-        if(this.e.inputCurrent === this.e.inputSingle){
-          this.e.inputCurrent = this.e.inputMulti;
-          this.e.inputLine.classList.remove('single-line');
-        }else{
-          this.e.inputCurrent = this.e.inputSingle;
-          this.e.inputLine.classList.add('single-line');
-        }
-        const m = this.e.viewMessages,
-              sTop = m.scrollTop,
-              mh1 = m.clientHeight;
-        D.addClass(old, 'hidden');
-        D.removeClass(this.e.inputCurrent, 'hidden');
-        const mh2 = m.clientHeight;
-        m.scrollTo(0, sTop + (mh1-mh2));
-        this.e.inputCurrent.value = old.value;
-        old.value = '';
-        return this;
-      },
-      /**
-         If passed true or no arguments, switches to multi-line mode
-         if currently in single-line mode. If passed false, switches
-         to single-line mode if currently in multi-line mode. Returns
-         this.
-      */
-      inputMultilineMode: function(yes){
-        if(!arguments.length) yes = true;
-        if(yes && this.e.inputCurrent === this.e.inputMulti) return this;
-        else if(!yes && this.e.inputCurrent === this.e.inputSingle) return this;
-        else return this.inputToggleSingleMulti();
+        return this.e.inputField;
       },
       /** Enables (if yes is truthy) or disables all elements in
        * this.disableDuringAjax. */
@@ -394,13 +359,21 @@ window.fossil.onPageLoad(function(){
       settings:{
         get: (k,dflt)=>F.storage.get(k,dflt),
         getBool: (k,dflt)=>F.storage.getBool(k,dflt),
-        set: (k,v)=>F.storage.set(k,v),
+        set: function(k,v){
+          F.storage.set(k,v);
+          F.page.dispatchEvent('chat-setting',{key: k, value: v});
+        },
         /* Toggles the boolean setting specified by k. Returns the
            new value.*/
         toggle: function(k){
           const v = this.getBool(k);
           this.set(k, !v);
           return !v;
+        },
+        addListener: function(setting, f){
+          F.page.addEventListener('chat-setting', function(ev){
+            if(ev.detail.key===setting) f(ev.detail);
+          }, false);
         },
         defaults:{
           "images-inline": !!F.config.chat.imagesInline,
@@ -451,7 +424,9 @@ window.fossil.onPageLoad(function(){
         this.e.views.forEach(function(E){
           if(e!==E) D.addClass(E,'hidden');
         });
-        this.e.currentView = D.removeClass(e,'hidden');
+        this.e.currentView = e;
+        if(this.e.currentView.$beforeShow) this.e.currentView.$beforeShow();
+        D.removeClass(e,'hidden');
         this.animate(this.e.currentView, 'anim-fade-in-fast');
         return this.e.currentView;
       },
@@ -501,6 +476,31 @@ window.fossil.onPageLoad(function(){
         ).forEach(callee.addUserElem);
         return this;
       },
+      /** Show or hide the active user list. Returns this object. */
+      showActiveUserList: function(yes){
+        if(0===arguments.length) yes = true;
+        this.e.activeUserListWrapper.classList[
+          yes ? 'remove' : 'add'
+        ]('hidden');
+        D.removeClass(Chat.e.activeUserListWrapper, 'collapsed');
+        if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
+          /* When hiding this element, undo all filtering */
+          Chat.setUserFilter(false);
+          /*Ideally we'd scroll the final message into view
+            now, but because viewMessages is currently hidden behind
+            viewConfig, scrolling is a no-op. */
+          Chat.scrollMessagesTo(1);
+        }else{
+          Chat.updateActiveUserList();
+          Chat.animate(Chat.e.activeUserListWrapper, 'anim-flip-v');
+        }
+        return this;
+      },
+      showActiveUserTimestamps: function(yes){
+        if(0===arguments.length) yes = true;
+        this.e.activeUserList.classList[yes ? 'add' : 'remove']('timestamps');
+        return this;
+      },
       /**
          Applies user name filter to all current messages, or clears
          the filter if uname is falsy.
@@ -547,31 +547,6 @@ window.fossil.onPageLoad(function(){
     cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
     F.fetch.aftersend = ()=>cs.ajaxEnd();
-    cs.e.inputCurrent = cs.e.inputSingle;
-    /* Install default settings... */
-    Object.keys(cs.settings.defaults).forEach(function(k){
-      const v = cs.settings.get(k,cs);
-      if(cs===v) cs.settings.set(k,cs.settings.defaults[k]);
-    });
-    if(window.innerWidth<window.innerHeight){
-      /* Alignment of 'my' messages: right alignment is conventional
-         for mobile chat apps but can be difficult to read in wide
-         windows (desktop/tablet landscape mode), so we default to a
-         layout based on the apparent "orientation" of the window:
-         tall vs wide. Can be toggled via settings popup. */
-      document.body.classList.add('my-messages-right');
-    }
-    if(cs.settings.getBool('monospace-messages',false)){
-      document.body.classList.add('monospace-messages');
-    }
-    if(cs.settings.getBool('active-user-list',false)){
-      cs.e.activeUserListWrapper.classList.remove('hidden');
-    }
-    if(cs.settings.getBool('active-user-list-timestamps',false)){
-      cs.e.activeUserList.classList.add('timestamps');
-    }
-    cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
-    cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
@@ -1196,43 +1171,55 @@ window.fossil.onPageLoad(function(){
     Chat.inputValue("").inputFocus();
   };
 
-  const inputWidgetKeydown = function(ev){
+  const inputWidgetKeydown = function f(ev){
+    if(!f.$toggle){
+      f.$toggle = function(currentMode){
+        currentMode = !currentMode;
+        Chat.settings.set('edit-multiline', currentMode);
+      };
+    }
     if(13 === ev.keyCode){
+      const multi = Chat.settings.getBool('edit-multiline', false);
       if(ev.shiftKey){
         ev.preventDefault();
         ev.stopPropagation();
         /* Shift-enter will run preview mode UNLESS preview mode is
            active AND the input field is empty, in which case it will
            switch back to message view. */
-        if(Chat.e.currentView===Chat.e.viewPreview
-           && !Chat.e.inputCurrent.value){
-          Chat.setCurrentView(Chat.e.viewMessages);
-        }else{
-          Chat.e.btnPreview.click();
-        }
+        const text = Chat.inputValue().trim();
+        if(Chat.e.currentView===Chat.e.viewPreview && !text) Chat.setCurrentView(Chat.e.viewMessages);
+        else if(!text) f.$toggle(multi);
+        else Chat.e.btnPreview.click();
         return false;
-      }else if((Chat.e.inputSingle===ev.target)
-               || (ev.ctrlKey && Chat.e.inputMulti===ev.target)){
+      }else if(!multi || (ev.ctrlKey && multi)){
         /* ^^^ note that it is intended that both ctrl-enter and enter
            work for single-line input mode. */
         ev.preventDefault();
         ev.stopPropagation();
-        Chat.submitMessage();
+        const text = Chat.inputValue().trim();
+        if(!text) f.$toggle(multi);
+        else Chat.submitMessage();
         return false;
       }
     }
   };  
-  Chat.e.inputSingle
-    .addEventListener('keydown', inputWidgetKeydown, false);
-  Chat.e.inputMulti
-    .addEventListener('keydown', inputWidgetKeydown, false);
+  Chat.e.inputField.addEventListener('keydown', inputWidgetKeydown, false);
   Chat.e.btnSubmit.addEventListener('click',(e)=>{
     e.preventDefault();
     Chat.submitMessage();
     return false;
   });
 
-  (function(){/*Set up #chat-settings-button */
+  (function(){/*Set up #chat-settings-button and related bits */
+    if(window.innerWidth<window.innerHeight){
+      // Must be set up before config view is...
+      /* Alignment of 'my' messages: right alignment is conventional
+         for mobile chat apps but can be difficult to read in wide
+         windows (desktop/tablet landscape mode), so we default to a
+         layout based on the apparent "orientation" of the window:
+         tall vs wide. Can be toggled via settings. */
+      document.body.classList.add('my-messages-right');
+    }
     const settingsButton = document.querySelector('#chat-settings-button');
     const optionsMenu = E1('#chat-config-options');
     const cbToggle = function(ev){
@@ -1250,23 +1237,7 @@ window.fossil.onPageLoad(function(){
     const namedOptions = {
       activeUsers:{
         label: "Show active users list",
-        boolValue: ()=>!Chat.e.activeUserListWrapper.classList.contains('hidden'),
-        persistentSetting: 'active-user-list',
-        callback: function(){
-          D.toggleClass(Chat.e.activeUserListWrapper,'hidden');
-          D.removeClass(Chat.e.activeUserListWrapper, 'collapsed');
-          if(Chat.e.activeUserListWrapper.classList.contains('hidden')){
-            /* When hiding this element, undo all filtering */
-            Chat.setUserFilter(false);
-            /*Ideally we'd scroll the final message into view
-              now, but because viewMessages is currently hidden behind
-              viewConfig, scrolling is a no-op. */
-            Chat.scrollMessagesTo(1);
-          }else{
-            Chat.updateActiveUserList();
-            Chat.animate(Chat.e.activeUserListWrapper, 'anim-flip-v');
-          }
-        }
+        boolValue: 'active-user-list'
       }
     };
     if(1){
@@ -1286,57 +1257,55 @@ window.fossil.onPageLoad(function(){
        reverse order and the most frequently-needed ones "should"
        (arguably) be closer to the start of this list so that they
        will be rendered within easier reach of the settings button. */
+    /**
+       Settings ops structure:
+
+       label: string for the UI
+
+       boolValue: string (name of Chat.settings setting) or a
+       function which returns true or false.
+
+       select: SELECT element (instead of boolValue)
+
+       callback: optional handler to call after setting is modified.
+
+       If a setting has a boolValue set, that gets transformed into a
+       checkbox which toggles the given persistent setting (if
+       boolValue is a string) AND listens for changes to that setting
+       fired via Chat.settings.set() so that the checkbox can stay in
+       sync with external changes to that setting. Various Chat UI
+       elements stay in sync with the config UI via those settings
+       events.
+     */
     const settingsOps = [{
       label: "Multi-line input",
-      boolValue: ()=>Chat.inputElement()===Chat.e.inputMulti,
-      persistentSetting: 'edit-multiline',
-      callback: function(){
-        Chat.inputToggleSingleMulti();
-      }
+      boolValue: 'edit-multiline'
     },{
       label: "Left-align my posts",
       boolValue: ()=>!document.body.classList.contains('my-messages-right'),
       callback: function f(){
-        document.body.classList.toggle('my-messages-right');
+        document.body.classList[
+          this.checkbox.checked ? 'remove' : 'add'
+        ]('my-messages-right');
       }
     },{
       label: "Show images inline",
-      boolValue: ()=>Chat.settings.getBool('images-inline'),
-      callback: function(){
-        const v = Chat.settings.toggle('images-inline');
-        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
-      }
+      boolValue: 'images-inline'
     },{
       label: "Timestamps in active users list",
-      boolValue: ()=>Chat.e.activeUserList.classList.contains('timestamps'),
-      persistentSetting: 'active-user-list-timestamps',
-      callback: function(){
-        D.toggleClass(Chat.e.activeUserList,'timestamps');
-        /* If the timestamp option is activated but
-           namedOptions.activeUsers is not currently checked then
-           toggle that option on as well. */
-        if(Chat.e.activeUserList.classList.contains('timestamps')
-           && !namedOptions.activeUsers.boolValue()){
-          namedOptions.activeUsers.checkbox.checked = true;
-          namedOptions.activeUsers.callback();
-          Chat.settings.set(namedOptions.activeUsers.persistentSetting, true);
-        }
-      }
+      boolValue: 'active-user-list-timestamps'
     },
     namedOptions.activeUsers,{
       label: "Monospace message font",
-      boolValue: ()=>document.body.classList.contains('monospace-messages'),
-      persistentSetting: 'monospace-messages',
-      callback: function(){
-        document.body.classList.toggle('monospace-messages');
+      boolValue: 'monospace-messages',
+      callback: function(setting){
+        document.body.classList[
+          setting.value ? 'add' : 'remove'
+        ]('monospace-messages');
       }
     },{
       label: "Chat-only mode",
-      boolValue: ()=>Chat.isChatOnlyMode(),
-      persistentSetting: 'chat-only-mode',
-      callback: function(){
-        Chat.toggleChatOnlyMode();
-      }
+      boolValue: 'chat-only-mode'
     }];
 
     /** Set up selection list of notification sounds. */
@@ -1377,59 +1346,109 @@ window.fossil.onPageLoad(function(){
       const btn = D.append(
         D.addClass(D.label(), 'cbutton'/*bootstrap skin hijacks 'button'*/),
         op.label);
-      const callback = function(ev){
-        op.callback(ev);
-        if(op.persistentSetting){
-          Chat.settings.set(op.persistentSetting, op.boolValue());
-        }
-      };
       if(op.hasOwnProperty('select')){
         D.append(line, btn, op.select);
-        op.select.addEventListener('change', callback, false);
+        if(op.callback){
+          op.select.addEventListener('change', (ev)=>op.callback(ev), false);
+        }
       }else if(op.hasOwnProperty('boolValue')){
         if(undefined === f.$id) f.$id = 0;
         ++f.$id;
+        if('string' ===typeof op.boolValue){
+          const key = op.boolValue;
+          op.boolValue = ()=>Chat.settings.getBool(key);
+          op.persistentSetting = key;
+        }
         const check = op.checkbox
               = D.attr(D.checkbox(1, op.boolValue()),
                        'aria-label', op.label);
         const id = 'cfgopt'+f.$id;
-        if(op.boolValue()) check.checked = true;
+        check.checked = op.boolValue();
+        op.checkbox = check;
         D.attr(check, 'id', id);
         D.attr(btn, 'for', id);
         D.append(line, check);
-        check.addEventListener('change', callback);
         D.append(line, btn);
       }else{
         line.addEventListener('click', callback);
         D.append(line, btn);
       }
       D.append(optionsMenu, line);
+      if(op.persistentSetting){
+        Chat.settings.addListener(
+          op.persistentSetting,
+          function(setting){
+            if(op.checkbox) op.checkbox.checked = !!setting.value;
+            else if(op.select) op.select.value = setting.value;
+            if(op.callback) op.callback(setting);
+          }             
+        );
+        if(op.checkbox){
+          op.checkbox.addEventListener(
+            'change', function(){
+              Chat.settings.set(op.persistentSetting, op.checkbox.checked)
+            }, false);
+        }
+      }else if(op.callback && op.checkbox){
+        op.checkbox.addEventListener('change', (ev)=>op.callback(ev), false);
+      }
     });
-    if(0 && settingsOps.selectSound){
-      D.append(optionsMenu, settingsOps.selectSound);
-    }
-    //settingsButton.click()/*for for development*/;
   })()/*#chat-settings-button setup*/;
 
+  (function(){
+    /* Install default settings... must come after
+       chat-settings-button setup so that the listeners which that
+       installs are notified via the properties getting initialized
+       here. */
+    Chat.settings.addListener('monospace-messages',function(s){
+      document.body.classList[s.value ? 'add' : 'remove']('monospace-messages');
+    })
+    Chat.settings.addListener('active-user-list',function(s){
+      Chat.showActiveUserList(s.value);
+    });
+    Chat.settings.addListener('active-user-list-timestamps',function(s){
+      Chat.showActiveUserTimestamps(s.value);
+    });
+    Chat.settings.addListener('chat-only-mode',function(s){
+      Chat.chatOnlyMode(s.value);
+    });
+    Chat.settings.addListener('edit-multiline',function(s){
+      Chat.e.inputLine.classList[
+        s.value ? 'remove' : 'add'
+      ]('single-line');
+    });
+    const valueKludges = {
+      /* Convert certain string-format values to other types... */
+      "false": false,
+      "true": true
+    };
+    Object.keys(Chat.settings.defaults).forEach(function(k){
+      var v = Chat.settings.get(k,Chat);
+      if(Chat===v) v = Chat.settings.defaults[k];
+      if(valueKludges.hasOwnProperty(v)) v = valueKludges[v];
+      Chat.settings.set(k,v)
+      /* fires event listeners so that the Config area checkboxes
+         get in sync */;
+    });
+  })();
+  
   (function(){/*set up message preview*/
     const btnPreview = Chat.e.btnPreview;
     Chat.setPreviewText = function(t){
       this.setCurrentView(this.e.viewPreview);
       this.e.previewContent.innerHTML = t;
       this.e.viewPreview.querySelectorAll('a').forEach(addAnchorTargetBlank);
-      this.e.inputCurrent.focus();
+      this.inputFocus();
     };
     Chat.e.viewPreview.querySelector('#chat-preview-close').
       addEventListener('click', ()=>Chat.setCurrentView(Chat.e.viewMessages), false);
     let previewPending = false;
-    const elemsToEnable = [
-      btnPreview, Chat.e.btnSubmit,
-      Chat.e.inputSingle, Chat.e.inputMulti];
+    const elemsToEnable = [btnPreview, Chat.e.btnSubmit, Chat.e.inputField];
     const submit = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
       if(previewPending) return false;
-      const txt = Chat.e.inputCurrent.value;
+      const txt = Chat.inputValue();
       if(!txt){
         Chat.setPreviewText('');
         previewPending = false;
