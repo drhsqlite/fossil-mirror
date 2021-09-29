@@ -198,6 +198,7 @@ void url_parse_local(
         pUrlData->port = pUrlData->port*10 + c - '0';
         i++;
       }
+      if( c!=0 && c!='/' ) fossil_fatal("url missing '/' after port number");
       pUrlData->hostname = mprintf("%s:%d", pUrlData->name, pUrlData->port);
     }else{
       pUrlData->port = pUrlData->dfltPort;
