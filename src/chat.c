@@ -144,6 +144,11 @@ static void chat_emit_alert_list(void){
 void chat_webpage(void){
   char *zAlert;
   char *zProjectName;
+  const char * zInputPlaceholder1 = /* Placeholder for 1-line input */
+    "Enter sends and Shift-Enter previews.";
+  const char * zInputPlaceholder2 = /* Placeholder for textarea input*/
+    "Ctrl-Enter sends and Shift-Enter previews.";
+  char * zInputPlaceholder0;  /* Common text input placeholder value */
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
@@ -152,23 +157,25 @@ void chat_webpage(void){
   zAlert = mprintf("%s/builtin/%s", g.zBaseURL,
                 db_get("chat-alert-sound","alerts/plunk.wav"));
   zProjectName = db_get("project-name","Unnamed project");
+  zInputPlaceholder0 =
+    mprintf("Type markdown-formatted message for %h.", zProjectName);
   style_set_current_feature("chat");
   style_header("Chat");
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line' class='single-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="Type markdown-formatted message for %h(zProjectName)." \
+  @      placeholder="%h(zInputPlaceholder0) %h(zInputPlaceholder1)" \
   @      autocomplete="off">
   @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="Type markdown-formatted message for %h(zProjectName). Ctrl-Enter sends it." \
+  @      placeholder="%h(zInputPlaceholder0) %h(zInputPlaceholder2)" \
   @      class="hidden"></textarea>
   @     <div id='chat-edit-buttons'>
   @       <button id="chat-preview-button" \
-  @         title="Preview message">&#128065;</button>
+  @         title="Preview message (Shift-Enter)">&#128065;</button>
   @       <button id="chat-settings-button" \
   @         title="Configure chat">&#9881;</button>
   @       <button id="chat-message-submit" \
-  @         title="Send message">&#128228;</button>
+  @         title="Send message (Ctrl-Enter)">&#128228;</button>
   @     </div>
   @   </div>
   @   <div id='chat-input-file-area'>
@@ -211,6 +218,7 @@ void chat_webpage(void){
   @ <span id='message-inject-point'></span>
   @ </div>
   fossil_free(zProjectName);
+  fossil_free(zInputPlaceholder0);
   builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch",
                               "pikchr", "confirmer", NULL);
   /* Always in-line the javascript for the chat page */

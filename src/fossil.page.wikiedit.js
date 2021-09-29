@@ -916,7 +916,7 @@
     // Trigger preview on Ctrl-Enter. This only works on the built-in
     // editor widget, not a client-provided one.
     P.e.taEditor.addEventListener('keydown',function(ev){
-      if(ev.ctrlKey && 13 === ev.keyCode){
+      if(ev.shiftKey && 13 === ev.keyCode){
         ev.preventDefault();
         ev.stopPropagation();
         P.e.taEditor.blur(/*force change event, if needed*/);
@@ -928,7 +928,7 @@
     }, false);
     // If we're in the preview tab, have ctrl-enter switch back to the editor.
     document.body.addEventListener('keydown',function(ev){
-      if(ev.ctrlKey && 13 === ev.keyCode){
+      if(ev.shiftKey && 13 === ev.keyCode){
         if(currentTab === P.e.tabs.preview){
           ev.preventDefault();
           ev.stopPropagation();
