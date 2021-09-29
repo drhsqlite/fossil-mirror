@@ -450,7 +450,7 @@ window.fossil.onPageLoad(function(){
         const lineNoTxt = lineno.join('\n')+'\n';
         lineno.length = 0;
         td.innerHTML = lineNoTxt + td.innerHTML;
-        if(this.pos.endLhs<=1
+        if(this.pos.endLhs<1
            || lines.length < (urlParam.to - urlParam.from)){
           /* No more data. */
           this.destroy();
