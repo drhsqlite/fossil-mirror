@@ -679,7 +679,8 @@ char *url_to_repo_basename(const char *zUrl){
     zTail += 4;
   }
   if( zTail[0]==0 ) return 0;
-  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
+  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?' &&
+           zTail[i]!=':' && zTail[i]!='/'; i++){}
   if( i==0 ) return 0;
   return mprintf("%.*s", i, zTail);
 }
