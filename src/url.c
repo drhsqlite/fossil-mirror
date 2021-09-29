@@ -198,6 +198,7 @@ void url_parse_local(
         pUrlData->port = pUrlData->port*10 + c - '0';
         i++;
       }
+      if( c!=0 && c!='/' ) fossil_fatal("url missing '/' after port number");
       pUrlData->hostname = mprintf("%s:%d", pUrlData->name, pUrlData->port);
     }else{
       pUrlData->port = pUrlData->dfltPort;
@@ -678,7 +679,8 @@ char *url_to_repo_basename(const char *zUrl){
     zTail += 4;
   }
   if( zTail[0]==0 ) return 0;
-  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
+  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?' &&
+           zTail[i]!=':' && zTail[i]!='/'; i++){}
   if( i==0 ) return 0;
   return mprintf("%.*s", i, zTail);
 }

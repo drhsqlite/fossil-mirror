@@ -100,9 +100,9 @@
               P.e.markupAlignWrapper );
 
     ////////////////////////////////////////////////////////////
-    // Trigger preview on Ctrl-Enter.
+    // Trigger preview on Shift-Enter.
     P.e.taContent.addEventListener('keydown',function(ev){
-      if(ev.ctrlKey && 13 === ev.keyCode){
+      if(ev.shiftKey && 13 === ev.keyCode){
         ev.preventDefault();
         ev.stopPropagation();
         P.preview();
@@ -392,6 +392,7 @@
       break;
     }
     this.e.previewModeLabel.innerText = label;
+    this.e.taContent.focus(/*not sure why this gets lost on preview!*/);
   };
 
   /**

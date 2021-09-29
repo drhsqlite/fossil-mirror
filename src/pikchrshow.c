@@ -337,7 +337,7 @@ void pikchrshow_page(void){
        "}\n");
     CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   } CX("</style>");
-  CX("<div>Input pikchr code and tap Preview (or Ctrl-Enter) to render "
+  CX("<div>Input pikchr code and tap Preview (or Shift-Enter) to render "
      "it:</div>");
   CX("<div id='sbs-wrapper'>"); {
     CX("<div id='pikchrshow-form'>"); {

@@ -220,7 +220,6 @@ window.fossil.onPageLoad(function(){
         m.scrollTo(0, sTop + (mh1-mh2));
         this.e.inputCurrent.value = old.value;
         old.value = '';
-        this.animate(this.e.inputCurrent, "anim-flip-v");
         return this;
       },
       /**
@@ -1377,22 +1376,28 @@ window.fossil.onPageLoad(function(){
     Chat.inputValue("").inputFocus();
   };
 
-  Chat.e.inputSingle.addEventListener('keydown',function(ev){
-    if(13===ev.keyCode/*ENTER*/){
-      ev.preventDefault();
-      ev.stopPropagation();
-      Chat.submitMessage();
-      return false;
+  const inputWidgetKeydown = function(ev){
+    if(13 === ev.keyCode){
+      if(ev.shiftKey){
+        ev.preventDefault();
+        ev.stopPropagation();
+        Chat.e.btnPreview.click();
+        return false;
+      }else if((Chat.e.inputSingle===ev.target)
+               || (ev.ctrlKey && Chat.e.inputMulti===ev.target)){
+        /* ^^^ note that it is intended that both ctrl-enter and enter
+           work for single-line input mode. */
+        ev.preventDefault();
+        ev.stopPropagation();
+        Chat.submitMessage();
+        return false;
+      }
     }
-  }, false);
-  Chat.e.inputMulti.addEventListener('keydown',function(ev){
-    if(ev.ctrlKey && 13 === ev.keyCode){
-      ev.preventDefault();
-      ev.stopPropagation();
-      Chat.submitMessage();
-      return false;
-    }
-  }, false);
+  };  
+  Chat.e.inputSingle
+    .addEventListener('keydown', inputWidgetKeydown, false);
+  Chat.e.inputMulti
+    .addEventListener('keydown', inputWidgetKeydown, false);
   Chat.e.btnSubmit.addEventListener('click',(e)=>{
     e.preventDefault();
     Chat.submitMessage();

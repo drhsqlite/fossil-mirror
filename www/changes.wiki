@@ -47,6 +47,11 @@
      as they are markdown-processed when they are sent instead of when they
      are saved. Added a preview mode so messages can be previewed before
      being sent. See [./chat.md#usage|the chat docs] for more details.
+  *  The hotkey to activate preview mode in [/help?cmd=/wikiedit|/wikiedit],
+     [/help?cmd=/fileedit|/fileedit], and [/help?cmd=/pikchrshow|/pikchrshow]
+     was changed from ctrl-enter to shift-enter in order to align with
+     [/help?cmd=/chat|/chat]'s new preview feature and related future
+     changes.
 
 <h2 id='v2_16'>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the

@@ -73,6 +73,9 @@ body.fileedit #fileedit-tabs {
 body.fileedit #fileedit-tab-preview-wrapper {
   overflow: auto;
 }
+body.fileedit #fileedit-tab-preview-wrapper > pre {
+  margin: 0;
+}
 body.fileedit #fileedit-tab-fileselect > h1 {
   margin: 0;
 }
