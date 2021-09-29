@@ -506,6 +506,7 @@ window.fossil.onPageLoad(function(){
     fetchChunk: function(fetchType){
       if( !this.$fetchQueue ) return this;  // HACKHACK: are we destroyed?
       if( fetchType==this.FetchType.ProcessQueue ){
+        this.$fetchQueue.shift();
         if( this.$fetchQueue.length==0 ) return this;
         //console.log('fetchChunk: processing queue ...');
       }
@@ -515,6 +516,11 @@ window.fossil.onPageLoad(function(){
         //console.log('fetchChunk: processing user input ...');
       }
       fetchType = this.$fetchQueue[0];
+      if( fetchType==this.FetchType.ProcessQueue ){
+        /* Unexpected! Clear queue so recovery (manual restart) is possible. */
+        this.$fetchQueue.length = 0;
+        return this;
+      }
       /* Forewarning, this is a bit confusing: when fetching the
          previous lines, we're doing so on behalf of the *next* diff
          chunk (this.pos.next), and vice versa. */
@@ -533,7 +539,10 @@ window.fossil.onPageLoad(function(){
         onload: function(list){
           self.injectResponse(fetchType,up,list);
           if( !self.$fetchQueue || self.$fetchQueue.length==0 ) return;
-          self.$fetchQueue.shift();
+          /* Keep queue length > 0, or clicks stalled during (unusually lengthy)
+             injectResponse() may sneak in as soon as setTimeout() allows, find
+             an empty queue, and therefore start over with queue processing. */
+          self.$fetchQueue[0] = self.FetchType.ProcessQueue;
           setTimeout(self.fetchChunk.bind(self,self.FetchType.ProcessQueue));
         }
       };
