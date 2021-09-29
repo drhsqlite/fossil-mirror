@@ -180,7 +180,7 @@ body.chat:not(.chat-only-mode) #chat-input-area{
 }
 #chat-input-field {
   padding: 0.2em;
-  flex: 20 1 auto;
+  flex: 50 1 auto;
   border-width: 1px;
   border-style: solid;
 }
@@ -217,6 +217,7 @@ body.chat #chat-input-line:not(.single-line) #chat-input-field {
   border-right-width: 3px;
   max-height: 10em/*arbitrary!*/;
   overflow: auto;
+  font-family: monospace;
 }
 
 body.chat #chat-input-line.single-line #chat-edit-buttons > * {
@@ -308,13 +309,18 @@ body.chat #chat-config #chat-config-options {
 }
 body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   flex-direction: row;
   flex-wrap: nowrap;
   padding: 1em;
 }
 body.chat #chat-config #chat-config-options .menu-entry > label {
   cursor: pointer;
+}
+body.chat #chat-config #chat-config-options .menu-entry > label > span {
+  /* Config menu hint text */
+  font-size: 80%;
+  white-space: pre-wrap;
 }
 body.chat #chat-config #chat-config-options .menu-entry > input:first-child {
   margin-right: 1em;

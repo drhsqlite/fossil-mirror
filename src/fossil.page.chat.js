@@ -1237,6 +1237,7 @@ window.fossil.onPageLoad(function(){
     const namedOptions = {
       activeUsers:{
         label: "Show active users list",
+        hint: "List users who have messages in the currently-loaded chat history.",
         boolValue: 'active-user-list'
       }
     };
@@ -1279,9 +1280,16 @@ window.fossil.onPageLoad(function(){
      */
     const settingsOps = [{
       label: "Multi-line input",
+      hint: [
+        "When the input field is empty, Ctrl-Enter or Shift-Enter will toggle this.",
+        "In multi-line mode, Ctrl-Enter sends messages. In single-line mode, "
+          +"Enter or Ctrl-Enter sends messages."
+      ].join('\n'),
       boolValue: 'edit-multiline'
     },{
       label: "Left-align my posts",
+      hint: "Default alignment of your own messages is selected "
+        +"based window width/height relationship.",
       boolValue: ()=>!document.body.classList.contains('my-messages-right'),
       callback: function f(){
         document.body.classList[
@@ -1290,13 +1298,16 @@ window.fossil.onPageLoad(function(){
       }
     },{
       label: "Show images inline",
+      hint: "Whether to show images inline or as a hyperlink.",
       boolValue: 'images-inline'
     },{
       label: "Timestamps in active users list",
+      hint: "Whether to show last-message timestamps.",
       boolValue: 'active-user-list-timestamps'
     },
     namedOptions.activeUsers,{
       label: "Monospace message font",
+      hint: "Use monospace font for message text?",
       boolValue: 'monospace-messages',
       callback: function(setting){
         document.body.classList[
@@ -1305,6 +1316,7 @@ window.fossil.onPageLoad(function(){
       }
     },{
       label: "Chat-only mode",
+      hint: "Toggle the page between normal fossil view and chat-only view.",
       boolValue: 'chat-only-mode'
     }];
 
@@ -1329,6 +1341,7 @@ window.fossil.onPageLoad(function(){
       Chat.setNewMessageSound(selectSound.value);
       settingsOps.push({
         label: "Audio alert",
+        hint: "How to enable audio playback is browser-specific!",
         select: selectSound,
         callback: function(ev){
           const v = ev.target.value;
@@ -1346,6 +1359,9 @@ window.fossil.onPageLoad(function(){
       const btn = D.append(
         D.addClass(D.label(), 'cbutton'/*bootstrap skin hijacks 'button'*/),
         op.label);
+      if(op.hint){
+        D.append(btn,D.br(),D.append(D.span(),op.hint));                          
+      }
       if(op.hasOwnProperty('select')){
         D.append(line, btn, op.select);
         if(op.callback){
