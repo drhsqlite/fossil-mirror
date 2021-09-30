@@ -39,7 +39,8 @@ body.chat .message-widget-content {
 }
 body.chat.monospace-messages .message-widget-content,
 body.chat.monospace-messages textarea,
-body.chat.monospace-messages input[type=text]{
+body.chat.monospace-messages input[type=text],
+body.chat.monospace-messages #chat-input-field{
   font-family: monospace;  
 }
 body.chat .message-widget-content > * {
@@ -180,27 +181,51 @@ body.chat:not(.chat-only-mode) #chat-input-area{
 }
 #chat-input-field {
   padding: 0.2em;
-  flex: 50 1 auto;
+  flex: 50 1 85%;
+  background-color: rgba(156,156,156,0.3);
+  overflow: auto;
+  max-height: 8rem /*arbitrary!*/;
+}
+#chat-input-field:not(:focus){
   border-width: 1px;
   border-style: solid;
+  border-radius: 0.25em;
 }
-
+#chat-input-field:focus{
+  /* This transparent border helps avoid the text shifting around
+     when the contenteditable attribute causes a border (which we
+     apparently cannot style) to be added. */
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 0.25em;
+}
 /* Widget holding the chat message input field, send button, and
    settings button. */
 body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
+/*body.chat #chat-input-line:not(.single-line) {
+  flex-wrap: nowrap;
+}*/
+body.chat #chat-input-line.single-line #chat-input-field {
+  max-height: 2rem /*arbitrary*/;
+}
+
 body.chat #chat-edit-buttons {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 4em;
+  min-height: 1.5em;
 }
 body.chat #chat-input-line.single-line #chat-edit-buttons {
   flex-direction: row;
+  margin-top: 0.25em;
 }
 body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
@@ -212,13 +237,10 @@ body.chat #chat-input-line:not(.single-line) #chat-edit-buttons > * {
   min-height: 2em;
 }
 body.chat #chat-input-line:not(.single-line) #chat-input-field {
-  border-left-style: double;
+  /*border-left-style: double;
   border-left-width: 3px;
   border-right-style: double;
-  border-right-width: 3px;
-  max-height: 10em/*arbitrary!*/;
-  overflow: auto;
-  font-family: monospace;
+  border-right-width: 3px;*/
 }
 
 body.chat #chat-input-line.single-line #chat-edit-buttons > * {
