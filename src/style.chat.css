@@ -249,6 +249,23 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
   border-right-width: 3px;*/
   min-height: 4rem;
   resize: both;
+  /*max-height: 50rem;*/
+/*
+  Problems related to max-height:
+
+  - If we do NOT set a max-height then pasting/typing a large amount
+  of text can cause this element to grow without bounds, larger than
+  the window, and there's no way to navigate it sensibly.  In this
+  case, manually resizing the element (desktop only - mobile doesn't
+  offer that) will force it to stay at the selected size even if more
+  content is added to it later.
+
+  - If we DO set a max-height then its growth is bounded but it also
+  cannot manually expanded by the user.
+
+  The lesser of the two evils seems to be to rely on the browser
+  feature that a manual resize of the element will pin its sits.
+*/
 }
 
 body.chat #chat-input-line.compact #chat-edit-buttons > * {
@@ -317,7 +334,7 @@ body.chat #chat-drop-details img {
   max-height: 45%;
 }
 body.chat .chat-view {
-  flex: 20 1 auto
+  flex: 20 0 auto
   /*ensure that these grow more than the non-.chat-view elements*/;
   margin-bottom: 0.2em;
 }
