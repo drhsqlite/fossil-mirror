@@ -1213,34 +1213,47 @@ window.fossil.onPageLoad(function(){
         Chat.settings.set('edit-compact-mode', currentMode);
       };
     }
-    if(13 === ev.keyCode){
-      const ctrlMode = Chat.settings.getBool('edit-ctrl-send', false);
-      if(ev.shiftKey){
-        const compactMode = Chat.settings.getBool('edit-compact-mode', false);
-        ev.preventDefault();
-        ev.stopPropagation();
-        /* Shift-enter will run preview mode UNLESS preview mode is
-           active AND the input field is empty, in which case it will
-           switch back to message view. */
-        const text = Chat.inputValue().trim();
-        if(Chat.e.currentView===Chat.e.viewPreview && !text){
-          Chat.setCurrentView(Chat.e.viewMessages);
-        }
-        else if(!text){
-          f.$toggleCompact(compactMode);
-        }
-        else Chat.e.btnPreview.click();
-        return false;
-      }else if(!ctrlMode || (ev.ctrlKey && ctrlMode)){
-        /* ^^^ note that it is intended that both ctrl-enter and enter
-           work for compact input mode. */
-        ev.preventDefault();
-        ev.stopPropagation();
-        const text = Chat.inputValue().trim();
-        if(!text) f.$toggleCtrl(ctrlMode);
-        else Chat.submitMessage();
-        return false;
+    //console.debug("Enter key event:", ev.keyCode, ev.ctrlKey, ev.shiftKey, ev);
+    if(13 !== ev.keyCode) return;
+    const ctrlMode = Chat.settings.getBool('edit-ctrl-send', false);
+    //console.debug("Enter key event:", ctrlMode, ev.ctrlKey, ev.shiftKey, ev);
+    const text = Chat.inputValue().trim();
+    if(ev.shiftKey){
+      const compactMode = Chat.settings.getBool('edit-compact-mode', false);
+      ev.preventDefault();
+      ev.stopPropagation();
+      /* Shift-enter will run preview mode UNLESS preview mode is
+         active AND the input field is empty, in which case it will
+         switch back to message view. */
+      if(Chat.e.currentView===Chat.e.viewPreview && !text){
+        Chat.setCurrentView(Chat.e.viewMessages);
+      }else if(!text){
+        f.$toggleCompact(compactMode);
+      }else{
+        Chat.e.btnPreview.click();
       }
+      return false;
+    }
+    if(0 && (!ctrlMode && ev.ctrlKey && text)){
+      /* Ctrl-enter in Enter-sends mode SHOULD, with this logic add a
+         newline, but that is not happening, for reasons i don't
+         understand.  Forcibly appending a newline do the input area
+         does not work, also for unknown reasons.
+       */
+      return;
+    }
+    if(ev.ctrlKey && !text){
+      /* Ctrl-enter on an empty field toggles Enter/Ctrl-enter mode */
+      ev.preventDefault();
+      ev.stopPropagation();
+      f.$toggleCtrl(ctrlMode);
+      return false;
+    }else if((!ctrlMode && !ev.ctrlKey) || (ev.ctrlKey && ctrlMode)){
+      /* Ship it! */
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.submitMessage();
+      return false;
     }
   };  
   Chat.e.inputField.addEventListener('keydown', inputWidgetKeydown, false);
