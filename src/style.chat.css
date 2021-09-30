@@ -338,19 +338,27 @@ body.chat #chat-config #chat-config-options .menu-entry {
   flex-wrap: nowrap;
   padding: 1em;
 }
-body.chat #chat-config #chat-config-options .menu-entry > label {
+body.chat #chat-config #chat-config-options .menu-entry label[for] {
   cursor: pointer;
 }
-body.chat #chat-config #chat-config-options .menu-entry > label > span {
+body.chat #chat-config #chat-config-options .menu-entry > *:first-child {
+  min-width: 1.5rem;
+}
+body.chat #chat-config #chat-config-options .menu-entry span.hint {
   /* Config menu hint text */
   font-size: 80%;
   white-space: pre-wrap;
+  display: inline-block;
 }
-body.chat #chat-config #chat-config-options .menu-entry > input:first-child {
-  margin-right: 1em;
+body.chat #chat-config #chat-config-options .menu-entry:first-child {
 }
-body.chat #chat-config #chat-config-options .menu-entry > label:first-child {
-  margin-right: 0.5em;
+body.chat #chat-config #chat-config-options .menu-entry div.label-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-self: baseline;
+  margin-left: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry select {
 }
 body.chat #chat-preview #chat-preview-content {
   overflow: auto;

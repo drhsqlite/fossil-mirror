@@ -1047,7 +1047,7 @@ window.fossil.onPageLoad(function(){
         data. The argument must be a Blob or Blob-like object (File) or
         it can be falsy to reset/clear that state.*/
     const updateDropZoneContent = function(blob){
-      console.debug("updateDropZoneContent()",blob);
+      //console.debug("updateDropZoneContent()",blob);
       const dd = bxs.dropDetails;
       bxs.blob = blob;
       D.clearElement(dd);
@@ -1154,6 +1154,7 @@ window.fossil.onPageLoad(function(){
   Chat.submitMessage = function f(){
     if(!f.spaces){
       f.spaces = /\s+$/;
+      f.markdownContinuation = /\\\s\s$/;
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
@@ -1161,10 +1162,16 @@ window.fossil.onPageLoad(function(){
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
       /* Cosmetic: trim whitespace from the ends of lines to try to
          keep copy/paste from terminals, especially wide ones, from
-         forcing a horizontal scrollbar on all clients. */
+         forcing a horizontal scrollbar on all clients. This breaks
+         markdown's use of blackslash-space-space for paragraph
+         continuation, but *not* doing this affects all clients every
+         time someone pastes in console copy/paste from an affected
+         platform. */
       const xmsg = msg.split('\n');
       xmsg.forEach(function(line,ndx){
-        xmsg[ndx] = line.trimRight();
+        if(!f.markdownContinuation.test(line)){
+          xmsg[ndx] = line.trimRight();
+        }
       });
       msg = xmsg.join('\n');
     }
@@ -1313,7 +1320,8 @@ window.fossil.onPageLoad(function(){
      */
     const settingsOps = [{
       label: "Ctrl-enter to Send",
-      hint: "When on, only Ctrl-Enter will send messages. "+
+      hint: "When on, only Ctrl-Enter will send messages and Enter adds "+
+        "blank lines. "+
         "When off, both Enter and Ctrl-Enter send. "+
         "When the input field has focus, is empty, and preview "+
         "mode is NOT active then Ctrl-Enter toggles this setting.",
@@ -1378,8 +1386,7 @@ window.fossil.onPageLoad(function(){
       }
       Chat.setNewMessageSound(selectSound.value);
       settingsOps.push({
-        label: "Audio alert",
-        hint: "How to enable audio playback is browser-specific!",
+        hint: "Audio alert. How to enable audio playback is browser-specific!",
         select: selectSound,
         callback: function(ev){
           const v = ev.target.value;
@@ -1394,14 +1401,20 @@ window.fossil.onPageLoad(function(){
     */
     settingsOps.forEach(function f(op){
       const line = D.addClass(D.div(), 'menu-entry');
-      const btn = D.append(
+      const label = op.label ? D.append(
         D.addClass(D.label(), 'cbutton'/*bootstrap skin hijacks 'button'*/),
-        op.label);
+        op.label) : undefined;
+      const labelWrapper = D.addClass(D.div(), 'label-wrapper');
+      var hint;
+      const col0 = D.span();
       if(op.hint){
-        D.append(btn,D.br(),D.append(D.span(),op.hint));                          
+        hint = D.append(D.addClass(D.span(),'hint'),op.hint);
       }
       if(op.hasOwnProperty('select')){
-        D.append(line, btn, op.select);
+        D.append(line, col0, labelWrapper);
+        D.append(labelWrapper, op.select);
+        if(hint) D.append(labelWrapper, hint);
+        if(label) D.append(col0, label);
         if(op.callback){
           op.select.addEventListener('change', (ev)=>op.callback(ev), false);
         }
@@ -1420,12 +1433,18 @@ window.fossil.onPageLoad(function(){
         check.checked = op.boolValue();
         op.checkbox = check;
         D.attr(check, 'id', id);
-        D.attr(btn, 'for', id);
-        D.append(line, check);
-        D.append(line, btn);
+        D.append(line, col0, labelWrapper);
+        D.append(col0, check);
+        if(label){
+          D.attr(label, 'for', id);
+          D.append(labelWrapper, label);
+        }
+        if(hint) D.append(labelWrapper, hint);
       }else{
         line.addEventListener('click', callback);
-        D.append(line, btn);
+        D.append(line, col0, labelWrapper);
+        if(label) D.append(labelWrapper, label);
+        if(hint) D.append(labelWrapper, hint);
       }
       D.append(optionsMenu, line);
       if(op.persistentSetting){
