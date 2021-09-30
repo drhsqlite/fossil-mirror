@@ -144,8 +144,6 @@ static void chat_emit_alert_list(void){
 void chat_webpage(void){
   char *zAlert;
   char *zProjectName;
-  const char * zInputPlaceholder2 = /* Placeholder for textarea input*/
-    "Ctrl-Enter sends and Shift-Enter previews.";
   char * zInputPlaceholder0;  /* Common text input placeholder value */
   login_check_credentials();
   if( !g.perm.Chat ){
@@ -162,8 +160,9 @@ void chat_webpage(void){
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line' class='single-line'>
   @     <div contenteditable id="chat-input-field" \
-  @      placeholder="%h(zInputPlaceholder0) %h(zInputPlaceholder2)" \
-  @      class></div>
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class=""></div>
   @     <div id='chat-edit-buttons'>
   @       <button id="chat-preview-button" \
   @         title="Preview message (Shift-Enter)">&#128065;</button>

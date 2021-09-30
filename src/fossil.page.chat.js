@@ -1120,6 +1120,7 @@ window.fossil.onPageLoad(function(){
         ev.preventDefault();
         ev.dataTransfer.dropEffect = "copy";
         D.addClass(dropHighlight, 'dragover');
+        return false;
       },
       dragleave: function(ev){
         D.removeClass(dropHighlight, 'dragover');
@@ -1128,8 +1129,19 @@ window.fossil.onPageLoad(function(){
         D.removeClass(dropHighlight, 'dragover');
       }
     };
+    const cancelEvent = function(ev){
+      /* contenteditable tries to do its own thing with dropped data,
+         which is not compatible with how we use it, so... */
+      //if(ev.dataTransfer) ev.dataTransfer.dropEffect = 'none';
+      ev.preventDefault();
+      ev.stopPropagation();
+      return false;
+    };
     Object.keys(dropEvents).forEach(
-      (k)=>Chat.e.inputFile.addEventListener(k, dropEvents[k], true)
+      (k)=>{
+        Chat.e.inputFile.addEventListener(k, dropEvents[k], true);
+        Chat.inputElement().addEventListener(k, cancelEvent, false);
+      }
     );
     return bxs;
   })()/*drag/drop*/;
@@ -1205,19 +1217,16 @@ window.fossil.onPageLoad(function(){
       f.$toggleCtrl = function(currentMode){
         currentMode = !currentMode;
         Chat.settings.set('edit-ctrl-send', currentMode);
-        F.toast.message((currentMode ? "Ctrl-" : "")
-                        +"Enter submits messages.");
       };
       f.$toggleCompact = function(currentMode){
         currentMode = !currentMode;
         Chat.settings.set('edit-compact-mode', currentMode);
       };
     }
-    //console.debug("Enter key event:", ev.keyCode, ev.ctrlKey, ev.shiftKey, ev);
     if(13 !== ev.keyCode) return;
+    const text = Chat.inputValue().trim();
     const ctrlMode = Chat.settings.getBool('edit-ctrl-send', false);
     //console.debug("Enter key event:", ctrlMode, ev.ctrlKey, ev.shiftKey, ev);
-    const text = Chat.inputValue().trim();
     if(ev.shiftKey){
       const compactMode = Chat.settings.getBool('edit-compact-mode', false);
       ev.preventDefault();
@@ -1234,21 +1243,28 @@ window.fossil.onPageLoad(function(){
       }
       return false;
     }
-    if(0 && (!ctrlMode && ev.ctrlKey && text)){
-      /* Ctrl-enter in Enter-sends mode SHOULD, with this logic add a
-         newline, but that is not happening, for reasons i don't
-         understand.  Forcibly appending a newline do the input area
-         does not work, also for unknown reasons.
-       */
-      return;
-    }
     if(ev.ctrlKey && !text){
       /* Ctrl-enter on an empty field toggles Enter/Ctrl-enter mode */
       ev.preventDefault();
       ev.stopPropagation();
       f.$toggleCtrl(ctrlMode);
       return false;
-    }else if((!ctrlMode && !ev.ctrlKey) || (ev.ctrlKey && ctrlMode)){
+    }
+    if(!ctrlMode && ev.ctrlKey && text){
+      //console.debug("!ctrlMode && ev.ctrlKey && text.");
+      /* Ctrl-enter in Enter-sends mode SHOULD, with this logic add a
+         newline, but that is not happening, for unknown reasons
+         (possibly related to this element being a conteneditable DIV
+         instead of a textarea). Forcibly appending a newline do the
+         input area does not work, also for unknown reasons, and would
+         only be suitable when we're at the end of the input.
+
+         Strangely, this approach DOES work for shift-enter, but we
+         need shift-enter as a hotkey for preview mode.
+      */
+      return;
+    }
+    if((!ctrlMode && !ev.ctrlKey) || (ev.ctrlKey && ctrlMode)){
       /* Ship it! */
       ev.preventDefault();
       ev.stopPropagation();
@@ -1341,7 +1357,7 @@ window.fossil.onPageLoad(function(){
       boolValue: 'edit-ctrl-send'
     },{
       label: "Compact mode",
-      hint: "Toggle between a space-saving and more spacious writing area. "+
+      hint: "Toggle between a space-saving or more spacious writing area. "+
         "When the input field has focus, is empty, and preview mode "+
         "is NOT active then Shift-Enter toggles this setting.",
       boolValue: 'edit-compact-mode'
@@ -1502,6 +1518,12 @@ window.fossil.onPageLoad(function(){
       Chat.e.inputLine.classList[
         s.value ? 'add' : 'remove'
       ]('compact');
+    });
+    Chat.settings.addListener('edit-ctrl-send',function(s){
+      const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
+      const eInput = Chat.inputElement();
+      eInput.dataset.placeholder = eInput.dataset.placeholder0 + " " +label;
+      F.toast.message(label);
     });
     const valueKludges = {
       /* Convert certain string-format values to other types... */

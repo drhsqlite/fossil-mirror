@@ -38,8 +38,8 @@ body.chat .message-widget-content {
   white-space: normal;
 }
 body.chat.monospace-messages .message-widget-content,
-body.chat.monospace-messages textarea,
-body.chat.monospace-messages input[type=text],
+/*body.chat.monospace-messages textarea,*/
+/*body.chat.monospace-messages input[type=text],*/
 body.chat.monospace-messages #chat-input-field{
   font-family: monospace;  
 }
@@ -180,11 +180,17 @@ body.chat:not(.chat-only-mode) #chat-input-area{
   margin-bottom: 0;
 }
 #chat-input-field {
+  display: inline-block/*supposed workaround for Chrome weirdness*/;
   padding: 0.2em;
   flex: 50 1 85%;
   background-color: rgba(156,156,156,0.3);
   overflow: auto;
   max-height: 8rem /*arbitrary!*/;
+  /*white-space: pre-wrap;*/
+}
+#chat-input-field:empty::before {
+  content: attr(data-placeholder);
+  opacity: 0.6;
 }
 #chat-input-field:not(:focus){
   border-width: 1px;
