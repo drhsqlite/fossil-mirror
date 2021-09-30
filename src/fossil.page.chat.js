@@ -1166,7 +1166,7 @@ window.fossil.onPageLoad(function(){
   Chat.submitMessage = function f(){
     if(!f.spaces){
       f.spaces = /\s+$/;
-      f.markdownContinuation = /\\\s\s$/;
+      f.markdownContinuation = /\\\s+$/;
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
@@ -1178,7 +1178,9 @@ window.fossil.onPageLoad(function(){
          markdown's use of blackslash-space-space for paragraph
          continuation, but *not* doing this affects all clients every
          time someone pastes in console copy/paste from an affected
-         platform. */
+         platform. We seem to have narrowed to the console pasting
+         problem to users of tmux. Most consoles don't behave
+         that way. */
       const xmsg = msg.split('\n');
       xmsg.forEach(function(line,ndx){
         if(!f.markdownContinuation.test(line)){
