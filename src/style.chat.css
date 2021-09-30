@@ -208,10 +208,10 @@ body.chat #chat-input-line {
   align-items: stretch;
   flex-wrap: nowrap;
 }
-/*body.chat #chat-input-line:not(.single-line) {
+/*body.chat #chat-input-line:not(.compact) {
   flex-wrap: nowrap;
 }*/
-body.chat #chat-input-line.single-line #chat-input-field {
+body.chat #chat-input-line.compact #chat-input-field {
   max-height: 2rem /*arbitrary*/;
 }
 
@@ -223,7 +223,7 @@ body.chat #chat-edit-buttons {
   min-width: 4em;
   min-height: 1.5em;
 }
-body.chat #chat-input-line.single-line #chat-edit-buttons {
+body.chat #chat-input-line.compact #chat-edit-buttons {
   flex-direction: row;
   margin-top: 0.25em;
 }
@@ -231,19 +231,19 @@ body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
   padding: initial/*some skins mess this up for buttons*/;
 }
-body.chat #chat-input-line:not(.single-line) #chat-edit-buttons > * {
+body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
   max-width: 4em;
   margin: 0.25em;
   min-height: 2em;
 }
-body.chat #chat-input-line:not(.single-line) #chat-input-field {
+body.chat #chat-input-line:not(.compact) #chat-input-field {
   /*border-left-style: double;
   border-left-width: 3px;
   border-right-style: double;
   border-right-width: 3px;*/
 }
 
-body.chat #chat-input-line.single-line #chat-edit-buttons > * {
+body.chat #chat-input-line.compact #chat-edit-buttons > * {
   margin: 0 0.25em;
   min-width: 2em;
 }
@@ -261,7 +261,7 @@ body.chat #chat-input-line > textarea {
   max-width: revert;
   min-width: 20em;
 }
-body.chat #chat-input-line.single-line > input[type=text] {
+body.chat #chat-input-line.compact > input[type=text] {
   margin: 0 0 0.25em 0/* gap for if/when buttons wrap*/;
 }
 /* Widget holding the file selection control and preview */

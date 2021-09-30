@@ -377,7 +377,8 @@ window.fossil.onPageLoad(function(){
         },
         defaults:{
           "images-inline": !!F.config.chat.imagesInline,
-          "edit-multiline": false,
+          "edit-ctrl-send": false,
+          "edit-compact-mode": true,
           "monospace-messages": false,
           "chat-only-mode": false,
           "audible-alert": true,
@@ -1046,6 +1047,7 @@ window.fossil.onPageLoad(function(){
         data. The argument must be a Blob or Blob-like object (File) or
         it can be falsy to reset/clear that state.*/
     const updateDropZoneContent = function(blob){
+      console.debug("updateDropZoneContent()",blob);
       const dd = bxs.dropDetails;
       bxs.blob = blob;
       D.clearElement(dd);
@@ -1055,7 +1057,7 @@ window.fossil.onPageLoad(function(){
       }
       D.append(dd, "Name: ", blob.name,
                D.br(), "Size: ",blob.size);
-      if(blob.type && blob.type.startsWith("image/")){
+      if(blob.type && (blob.type.startsWith("image/") || blob.type==='BITMAP')){
         const img = D.img();
         D.append(dd, D.br(), img);
         const reader = new FileReader();
@@ -1072,15 +1074,35 @@ window.fossil.onPageLoad(function(){
     /* Handle image paste from clipboard. TODO: figure out how we can
        paste non-image binary data as if it had been selected via the
        file selection element. */
-    document.addEventListener('paste', function(event){
+    const pasteListener = function(event){
       const items = event.clipboardData.items,
             item = items[0];
-      if(!item || !item.type) return;
-      else if('file'===item.kind){
+      //console.debug("paste event",event.target,item,event);
+      //console.debug("paste event item",item);
+      if(item && item.type && ('file'===item.kind || 'BITMAP'===item.type)){
         updateDropZoneContent(false/*clear prev state*/);
         updateDropZoneContent(item.getAsFile());
+        event.stopPropagation();
+        event.preventDefault(true);
+        return false;
       }
-    }, false);
+      /* else continue propagating */
+    };
+    document.addEventListener('paste', pasteListener, true);
+    if(0){
+      const onPastePlainText = function(ev){
+        var pastedText = undefined;
+        if (window.clipboardData && window.clipboardData.getData) { // IE
+          pastedText = window.clipboardData.getData('Text');
+        }else if (ev.clipboardData && ev.clipboardData.getData) {
+          pastedText = ev.clipboardData.getData('text/plain');
+        }
+        ev.target.textContent += pastedText;
+        ev.preventDefault();
+        return false;
+      };
+      Chat.e.inputField.addEventListener('paste', onPastePlainText, false);
+    }
     /* Add help button for drag/drop/paste zone */
     Chat.e.inputFile.parentNode.insertBefore(
       F.helpButtonlets.create(
@@ -1172,32 +1194,41 @@ window.fossil.onPageLoad(function(){
   };
 
   const inputWidgetKeydown = function f(ev){
-    if(!f.$toggle){
-      f.$toggle = function(currentMode){
+    if(!f.$toggleCtrl){
+      f.$toggleCtrl = function(currentMode){
         currentMode = !currentMode;
-        Chat.settings.set('edit-multiline', currentMode);
+        Chat.settings.set('edit-ctrl-send', currentMode);
+      };
+      f.$toggleCompact = function(currentMode){
+        currentMode = !currentMode;
+        Chat.settings.set('edit-compact-mode', currentMode);
       };
     }
     if(13 === ev.keyCode){
-      const multi = Chat.settings.getBool('edit-multiline', false);
+      const ctrlMode = Chat.settings.getBool('edit-ctrl-send', false);
       if(ev.shiftKey){
+        const compactMode = Chat.settings.getBool('edit-compact-mode', false);
         ev.preventDefault();
         ev.stopPropagation();
         /* Shift-enter will run preview mode UNLESS preview mode is
            active AND the input field is empty, in which case it will
            switch back to message view. */
         const text = Chat.inputValue().trim();
-        if(Chat.e.currentView===Chat.e.viewPreview && !text) Chat.setCurrentView(Chat.e.viewMessages);
-        else if(!text) f.$toggle(multi);
+        if(Chat.e.currentView===Chat.e.viewPreview && !text){
+          Chat.setCurrentView(Chat.e.viewMessages);
+        }
+        else if(!text){
+          f.$toggleCompact(compactMode);
+        }
         else Chat.e.btnPreview.click();
         return false;
-      }else if(!multi || (ev.ctrlKey && multi)){
+      }else if(!ctrlMode || (ev.ctrlKey && ctrlMode)){
         /* ^^^ note that it is intended that both ctrl-enter and enter
-           work for single-line input mode. */
+           work for compact input mode. */
         ev.preventDefault();
         ev.stopPropagation();
         const text = Chat.inputValue().trim();
-        if(!text) f.$toggle(multi);
+        if(!text) f.$toggleCtrl(ctrlMode);
         else Chat.submitMessage();
         return false;
       }
@@ -1279,13 +1310,18 @@ window.fossil.onPageLoad(function(){
        events.
      */
     const settingsOps = [{
-      label: "Multi-line input",
-      hint: [
-        "When the input field is empty, Ctrl-Enter or Shift-Enter will toggle this.",
-        "In multi-line mode, Ctrl-Enter sends messages. In single-line mode, "
-          +"Enter or Ctrl-Enter sends messages."
-      ].join('\n'),
-      boolValue: 'edit-multiline'
+      label: "Ctrl-enter to Send",
+      hint: "When on, only Ctrl-Enter will send messages. "+
+        "When off, both Enter and Ctrl-Enter send. "+
+        "When the input field has focus, is empty, and preview "+
+        "mode is NOT active then Ctrl-Enter toggles this setting.",
+      boolValue: 'edit-ctrl-send'
+    },{
+      label: "Compact mode",
+      hint: "Toggle between a space-saving and more spacious writing area. "+
+        "When the input field has focus, is empty, and preview mode "+
+        "is NOT active then Shift-Enter toggles this setting.",
+      boolValue: 'edit-compact-mode'
     },{
       label: "Left-align my posts",
       hint: "Default alignment of your own messages is selected "
@@ -1428,10 +1464,10 @@ window.fossil.onPageLoad(function(){
     Chat.settings.addListener('chat-only-mode',function(s){
       Chat.chatOnlyMode(s.value);
     });
-    Chat.settings.addListener('edit-multiline',function(s){
+    Chat.settings.addListener('edit-compact-mode',function(s){
       Chat.e.inputLine.classList[
-        s.value ? 'remove' : 'add'
-      ]('single-line');
+        s.value ? 'add' : 'remove'
+      ]('compact');
     });
     const valueKludges = {
       /* Convert certain string-format values to other types... */
