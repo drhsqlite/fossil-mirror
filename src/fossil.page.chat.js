@@ -1198,6 +1198,8 @@ window.fossil.onPageLoad(function(){
       f.$toggleCtrl = function(currentMode){
         currentMode = !currentMode;
         Chat.settings.set('edit-ctrl-send', currentMode);
+        F.toast.message((currentMode ? "Ctrl-" : "")
+                        +"Enter submits messages.");
       };
       f.$toggleCompact = function(currentMode){
         currentMode = !currentMode;
