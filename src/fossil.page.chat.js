@@ -1262,9 +1262,10 @@ window.fossil.onPageLoad(function(){
          Strangely, this approach DOES work for shift-enter, but we
          need shift-enter as a hotkey for preview mode.
       */
-      return;
+      //return;
+      // return here "should" cause newline to be added, but that doesn't work
     }
-    if((!ctrlMode && !ev.ctrlKey) || (ev.ctrlKey && ctrlMode)){
+    if((!ctrlMode && !ev.ctrlKey) || (ev.ctrlKey/* && ctrlMode*/)){
       /* Ship it! */
       ev.preventDefault();
       ev.stopPropagation();
@@ -1523,6 +1524,7 @@ window.fossil.onPageLoad(function(){
       const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
       const eInput = Chat.inputElement();
       eInput.dataset.placeholder = eInput.dataset.placeholder0 + " " +label;
+      Chat.e.btnSubmit.title = label;
       F.toast.message(label);
     });
     const valueKludges = {
