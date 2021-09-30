@@ -185,8 +185,6 @@ body.chat:not(.chat-only-mode) #chat-input-area{
   flex: 50 1 85%;
   background-color: rgba(156,156,156,0.3);
   overflow: auto;
-  max-height: 8rem /*arbitrary!*/;
-  /*white-space: pre-wrap;*/
 }
 #chat-input-field:empty::before {
   content: attr(data-placeholder);
@@ -218,7 +216,8 @@ body.chat #chat-input-line {
   flex-wrap: nowrap;
 }*/
 body.chat #chat-input-line.compact #chat-input-field {
-  max-height: 2rem /*arbitrary*/;
+  max-height: 2rem
+  /*enough space to see, after wrapping, that there's more text*/;
 }
 
 body.chat #chat-edit-buttons {
@@ -239,6 +238,7 @@ body.chat #chat-edit-buttons > * {
 }
 body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
   max-width: 4em;
+  max-height: 4em;
   margin: 0.25em;
   min-height: 2em;
 }
@@ -247,6 +247,8 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
   border-left-width: 3px;
   border-right-style: double;
   border-right-width: 3px;*/
+  min-height: 4rem;
+  resize: both;
 }
 
 body.chat #chat-input-line.compact #chat-edit-buttons > * {
