@@ -379,7 +379,7 @@ window.fossil.onPageLoad(function(){
           "images-inline": !!F.config.chat.imagesInline,
           "edit-ctrl-send": false,
           "edit-compact-mode": true,
-          "monospace-messages": false,
+          "monospace-messages": true,
           "chat-only-mode": false,
           "audible-alert": true,
           "active-user-list": false,

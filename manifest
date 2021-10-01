@@ -1,5 +1,5 @@
-C Reimplemented\s[607b11ddc6]\sto\suse\sa\sproper\sfeature\scheck\sapproach\srather\sthan\suser\sagent\sstring\scheck.
-D 2021-10-01T12:26:23.741
+C Made\smonospace\sthe\sdefault\sbecause\sthat\ssetting\snow\salso\sapplies\sto\sthe\sinput\sarea\sand\sthis\schat\sis\soften\sused\sfor\sconveying\scode.\sAccounted\sfor\sa\scouple\sbits\sof\sskin-specific\sweirdness.
+D 2021-10-01T12:48:47.565
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -398,7 +398,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 993ea74ca06a0609626f5b09af014d1c9e19e045d7305eb1a6056fb4e3d1f9b0
+F skins/xekri/css.txt d84f9196b9f9dd07c08578ec5e84381fbc7d05b725a87537f35913e4794ada2e
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt e75e1af0572c2cfe44e3882d18e0f71aac5fecc504b9a193205c9b7dbaaa56da
@@ -475,7 +475,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 706fd16e911fc815138b67573e4e1a5650ea736e3b2db78113d3e6c1f7c1ee1c
+F src/fossil.page.chat.js 9dce420810f7658d08472c05a1d0efcb16785cd12cc18110cda91e770002368c
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 2d34fdc1a79eb8b36976bf2f966a702dacc8350eaca5ff4611d15d7eb9e853be
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 6b1dbf800950c5b0ff9ca97331702b1943a31d77d9897b00a2a1d3e0e521c9bf
+F src/style.chat.css b3182d1c7d0076f9cb9876304d98203fd622700dda1ed8441ce60a8b754cd88d
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 607b11ddc6ec2ba838cef29c353ded442df9b276e978b868903cf3d79515c8ff
-R c482b45ee9529784eba54759067315a8
+P d96f6f195cd87ea1a798621a6cc5ff8f2fb70193e96929d132a70a0773fc9511
+R 59802ca8196c663837397362db7407f8
 U stephan
-Z c2768723996f0c516584d0b6ef3987dc
+Z 2cf8bbb471813329ccf02700f44b4664

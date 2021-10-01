@@ -12,6 +12,10 @@ body.chat .message-widget {
   border: none;
   align-items: flex-start;
 }
+body.chat button,
+body.chat input[type=button] {
+  line-height: inherit/*undo skin-specific funkiness*/;
+}
 body.chat .message-widget:last-of-type {
   /* Latest message: reduce bottom gap */
   margin-bottom: 0.1em;
@@ -235,6 +239,7 @@ body.chat #chat-input-line.compact #chat-edit-buttons {
 body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
   padding: initial/*some skins mess this up for buttons*/;
+  line-height: inherit/*undo skin funkiness*/;
 }
 body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
   max-width: 4em;
