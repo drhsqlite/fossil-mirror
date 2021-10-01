@@ -1,5 +1,5 @@
-C Minor\slayout\simprovement\sin\scompact\smode:\sinput\sfield\snow\sreally\slooks\slike\sit's\sone\sline\shigh\sinstead\sof\s1.x.
-D 2021-10-01T13:23:43.665
+C Shrank\sthe\schat\sbuttons\sin\scompact\smode\sbecause\s(spoiler\salert)\sSafari.
+D 2021-10-01T13:33:51.135
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css b0ee0142aea790ef7056b13ec6ec5ceac69cd1d9a3ea525c458176d27c0657de
+F src/style.chat.css f125417df8ce614599963ff9b62840ace98b9ed72ac02ff302bb3e4da1a891b7
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9191823207b147857039c934b7932d7f535a36dabaa26997d8e977cdb4038d34
-R 27e5d5285aadc70609921d8325892bbc
+P 40119a06bc71517f285edc7f9ad914cf8924168fff85bb0f8612b71ca0dd62cc
+R 4f75d0bab8b69e510a8a528e5ef7d779
 U stephan
-Z 9dfd2ed9d09096585c1da50dc114e7b6
+Z 69d598a63e692d6c8ecb1f0679f1ef72
