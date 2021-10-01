@@ -359,7 +359,7 @@ body.chat #chat-config #chat-config-options {
   /* /chat config options go here */
   flex: 1 1 auto;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   overflow: auto;
 }
 body.chat #chat-config #chat-config-options .menu-entry {

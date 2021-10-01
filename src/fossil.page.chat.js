@@ -383,7 +383,8 @@ window.fossil.onPageLoad(function(){
           "chat-only-mode": false,
           "audible-alert": true,
           "active-user-list": false,
-          "active-user-list-timestamps": false
+          "active-user-list-timestamps": false,
+          "hide-attachment-widget": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -1332,10 +1333,8 @@ window.fossil.onPageLoad(function(){
         }
       }, false);
     }/*namedOptions.activeUsers additional setup*/
-    /* Settings menu entries... Remember that they will be rendered in
-       reverse order and the most frequently-needed ones "should"
-       (arguably) be closer to the start of this list so that they
-       will be rendered within easier reach of the settings button. */
+    /* Settings menu entries... the most frequently-needed ones "should"
+       (arguably) be closer to the start of this list. */
     /**
        Settings ops structure:
 
@@ -1381,15 +1380,6 @@ window.fossil.onPageLoad(function(){
         ]('my-messages-right');
       }
     },{
-      label: "Show images inline",
-      hint: "Whether to show images inline or as a hyperlink.",
-      boolValue: 'images-inline'
-    },{
-      label: "Timestamps in active users list",
-      hint: "Whether to show last-message timestamps.",
-      boolValue: 'active-user-list-timestamps'
-    },
-    namedOptions.activeUsers,{
       label: "Monospace message font",
       hint: "Use monospace font for message text?",
       boolValue: 'monospace-messages',
@@ -1402,6 +1392,20 @@ window.fossil.onPageLoad(function(){
       label: "Chat-only mode",
       hint: "Toggle the page between normal fossil view and chat-only view.",
       boolValue: 'chat-only-mode'
+    },{
+      label: "Show images inline",
+      hint: "Whether to show images inline or as a hyperlink.",
+      boolValue: 'images-inline'
+    },{
+      label: "Timestamps in active users list",
+      hint: "Whether to show last-message timestamps.",
+      boolValue: 'active-user-list-timestamps'
+    },
+    namedOptions.activeUsers,{
+      label: "Hide file attachment widget",
+      boolValue: "hide-attachment-widget",
+      hint: "Hides the file attachment widget, gaining more "+
+        "screen space for messages."
     }];
 
     /** Set up selection list of notification sounds. */
@@ -1528,6 +1532,11 @@ window.fossil.onPageLoad(function(){
         s.value ? 'add' : 'remove'
       ]('compact');
     });
+    Chat.settings.addListener('hide-attachment-widget',function(s){
+      Chat.e.fileSelectWrapper.classList[
+        s.value ? 'add' : 'remove'
+      ]('hidden');
+    });    
     Chat.settings.addListener('edit-ctrl-send',function(s){
       const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
       const eInput = Chat.inputElement();
