@@ -166,19 +166,16 @@ void chat_webpage(void){
   @     <div id='chat-edit-buttons'>
   @       <button id="chat-preview-button" \
   @         title="Preview message (Shift-Enter)">&#128065;</button>
+  @       <button id="chat-message-attach" \
+  @         title="Attach file to message">&#128206;</button>
   @       <button id="chat-settings-button" \
   @         title="Configure chat">&#9881;</button>
   @       <button id="chat-message-submit" \
   @         title="Send message (Ctrl-Enter)">&#128228;</button>
   @     </div>
   @   </div>
-  @   <div id='chat-input-file-area' class='hidden'>
-  @     <div class='file-selection-wrapper'>
-  @       <div class='help-buttonlet'>
-  @        Select a file to upload, drag/drop a file into this spot,
-  @        or paste an image from the clipboard if supported by
-  @        your environment.
-  @       </div>
+  @   <div id='chat-input-file-area'>
+  @     <div class='file-selection-wrapper hidden'>
   @       <input type="file" name="file" id="chat-input-file">
   @     </div>
   @     <div id="chat-drop-details"></div>

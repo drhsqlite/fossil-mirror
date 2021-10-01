@@ -268,7 +268,7 @@ body.chat #chat-edit-buttons > * {
 body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
   max-width: 6ex;
   min-width: 6ex;
-  min-height: 6ex;
+  min-height: 5ex;
   max-height: 6ex;
   margin: 0.125em;
 }
@@ -327,9 +327,9 @@ body.chat #chat-input-line.compact > input[type=text] {
 body.chat #chat-input-file-area  {
   display: flex;
   flex-direction: row;
+  margin: 0;
+  justify-content: flex-end;
   align-items: center;
-  flex-wrap: wrap;
-  margin: 0.25em 0 0 0 /* avoid nudging input area */;
 }
 body.chat #chat-input-file-area > .file-selection-wrapper {
   align-self: flex-start;
@@ -337,10 +337,6 @@ body.chat #chat-input-file-area > .file-selection-wrapper {
   flex: 0 1 auto;
   padding: 0.25em 0.5em;
   white-space: nowrap;
-}
-body.chat #chat-input-file-area .file-selection-wrapper > * {
-  vertical-align: middle;
-  margin: 0;
 }
 body.chat #chat-input-file {
   border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
@@ -356,7 +352,6 @@ body.chat #chat-input-file.dragover {
 }
 /* Widget holding the details of a selected/dropped file/image. */
 body.chat #chat-drop-details {
-  flex: 0 1 auto;
   padding: 0.5em 1em;
   margin-left: 0.5em;
   white-space: pre;

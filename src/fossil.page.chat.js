@@ -129,6 +129,7 @@ window.fossil.onPageLoad(function(){
         fileSelectWrapper: E1('#chat-input-file-area'),
         viewMessages: E1('#chat-messages-wrapper'),
         btnSubmit: E1('#chat-message-submit'),
+        btnAttach: E1('#chat-message-attach'),
         inputField: E1('#chat-input-field'),
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
@@ -383,8 +384,7 @@ window.fossil.onPageLoad(function(){
           "chat-only-mode": false,
           "audible-alert": true,
           "active-user-list": false,
-          "active-user-list-timestamps": false,
-          "hide-attachment-widget": false
+          "active-user-list-timestamps": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -1038,7 +1038,7 @@ window.fossil.onPageLoad(function(){
     return cf;
   })()/*MessageWidget*/;
 
-  const BlobXferState = (function(){/*drag/drop bits...*/
+  const BlobXferState = (function(){
     /* State for paste and drag/drop */
     const bxs = {
       dropDetails: document.querySelector('#chat-drop-details'),
@@ -1061,8 +1061,11 @@ window.fossil.onPageLoad(function(){
         Chat.e.inputFile.value = '';
         return;
       }
-      D.append(dd, "Name: ", blob.name,
+      D.append(dd, "Attached: ", blob.name,
                D.br(), "Size: ",blob.size);
+      const btn = D.button("Cancel");
+      D.append(dd, D.br(), btn);
+      btn.addEventListener('click', ()=>updateDropZoneContent(), false);
       if(blob.type && (blob.type.startsWith("image/") || blob.type==='BITMAP')){
         const img = D.img();
         D.append(dd, D.br(), img);
@@ -1070,9 +1073,6 @@ window.fossil.onPageLoad(function(){
         reader.onload = (e)=>img.setAttribute('src', e.target.result);
         reader.readAsDataURL(blob);
       }
-      const btn = D.button("Cancel");
-      D.append(dd, D.br(), btn);
-      btn.addEventListener('click', ()=>updateDropZoneContent(), false);
     };
     Chat.e.inputFile.addEventListener('change', function(ev){
       updateDropZoneContent(this.files && this.files[0] ? this.files[0] : undefined)
@@ -1109,32 +1109,6 @@ window.fossil.onPageLoad(function(){
       };
       Chat.e.inputField.addEventListener('paste', onPastePlainText, false);
     }
-    /* Add help button for drag/drop/paste zone */
-    Chat.e.inputFile.parentNode.insertBefore(
-      F.helpButtonlets.create(
-        Chat.e.fileSelectWrapper.querySelector('.help-buttonlet')
-      ), Chat.e.inputFile
-    );
-    ////////////////////////////////////////////////////////////
-    // File drag/drop visual notification.
-    const dropHighlight = Chat.e.inputFile /* target zone */;
-    const dropEvents = {
-      drop: function(ev){
-        D.removeClass(dropHighlight, 'dragover');
-      },
-      dragenter: function(ev){
-        ev.preventDefault();
-        ev.dataTransfer.dropEffect = "copy";
-        D.addClass(dropHighlight, 'dragover');
-        return false;
-      },
-      dragleave: function(ev){
-        D.removeClass(dropHighlight, 'dragover');
-      },
-      dragend: function(ev){
-        D.removeClass(dropHighlight, 'dragover');
-      }
-    };
     const noDragDropEvents = function(ev){
       /* contenteditable tries to do its own thing with dropped data,
          which is not compatible with how we use it, so... */
@@ -1144,14 +1118,14 @@ window.fossil.onPageLoad(function(){
       ev.stopPropagation();
       return false;
     };
-    Object.keys(dropEvents).forEach(
+
+    ['drop','dragenter','dragleave','dragend'].forEach(
       (k)=>{
-        Chat.e.inputFile.addEventListener(k, dropEvents[k], true);
         Chat.inputElement().addEventListener(k, noDragDropEvents, false);
       }
     );
     return bxs;
-  })()/*drag/drop*/;
+  })()/*drag/drop/paste*/;
 
   const tzOffsetToString = function(off){
     const hours = Math.round(off/60), min = Math.round(off % 30);
@@ -1288,6 +1262,8 @@ window.fossil.onPageLoad(function(){
     Chat.submitMessage();
     return false;
   });
+  Chat.e.btnAttach.addEventListener(
+    'click', ()=>Chat.e.inputFile.click(), false);
 
   (function(){/*Set up #chat-settings-button and related bits */
     if(window.innerWidth<window.innerHeight){
@@ -1401,12 +1377,7 @@ window.fossil.onPageLoad(function(){
       hint: "Whether to show last-message timestamps.",
       boolValue: 'active-user-list-timestamps'
     },
-    namedOptions.activeUsers,{
-      label: "Hide file attachment widget",
-      boolValue: "hide-attachment-widget",
-      hint: "Hides the file attachment widget, gaining more "+
-        "screen space for messages."
-    }];
+    namedOptions.activeUsers];
 
     /** Set up selection list of notification sounds. */
     if(1){
@@ -1532,11 +1503,6 @@ window.fossil.onPageLoad(function(){
         s.value ? 'add' : 'remove'
       ]('compact');
     });
-    Chat.settings.addListener('hide-attachment-widget',function(s){
-      Chat.e.fileSelectWrapper.classList[
-        s.value ? 'add' : 'remove'
-      ]('hidden');
-    });    
     Chat.settings.addListener('edit-ctrl-send',function(s){
       const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
       const eInput = Chat.inputElement();
