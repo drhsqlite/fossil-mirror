@@ -330,8 +330,6 @@ body.chat #chat-input-file-area  {
   display: flex;
   flex-direction: row;
   margin: 0;
-  justify-content: flex-end;
-  align-items: center;
 }
 body.chat #chat-input-file-area > .file-selection-wrapper {
   align-self: flex-start;
@@ -354,10 +352,11 @@ body.chat #chat-input-file.dragover {
 }
 /* Widget holding the details of a selected/dropped file/image. */
 body.chat #chat-drop-details {
-  padding: 0.5em 1em;
-  margin-left: 0.5em;
+  padding: 0 1em;
   white-space: pre;
   font-family: monospace;
+  margin: auto;
+  flex: 0;
 }
 
 body.chat #chat-drop-details img {
