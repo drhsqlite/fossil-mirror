@@ -1,5 +1,5 @@
-C Added\sthe\schat\sinput\sarea\sresize\soption\sto\scompact\smode\sso\sthere\sis\sa\srecovery\sstrategy\sif\ssomeone\smanages\sto\spaste\sa\swhole\sbook\sinto\sthat\sfield.
-D 2021-10-01T18:01:21.873
+C Worked\saround\sa\sbutton\sglyph\smisalignment\son\ssome\solder\sFF\sversions.
+D 2021-10-01T18:10:27.234
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 18fb5118e1534139e9f5c0e39483c66540fac1ea8640067870856f227b3762dd
+F src/style.chat.css 120c2aa447e53b090e26bad6bf3846bb5b9a97de82daad4ebc9df1d51ad8e499
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b07b66d5942c69844c43710abc960f77dd8f0bc7e2dc51be76bc0bc33851624
-R d4c5d86bf7e21cf1547fee450031dd90
+P 797e33ba6ba0bbd6d5143b6cbf439577202d394fade24ce3136d3a054e2a794d
+R fe801e45ea3ef6b7bc21bbfec14e7ad8
 U stephan
-Z 1c47aefaee6fd0f810b9461e7d0b0f0d
+Z 3d2ba5b9770c2c6a67f655dbe0be7a49

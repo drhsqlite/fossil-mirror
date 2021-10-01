@@ -263,7 +263,9 @@ body.chat #chat-input-line.compact #chat-edit-buttons {
 }
 body.chat #chat-edit-buttons > * {
   padding: initial/*some skins mess this up for buttons*/;
-  line-height: inherit/*undo skin funkiness*/;
+  line-height:
+    0.1 /* buggy glyph alignment workaround for FF78, possibly
+           others. Does not affect well-behaved browsers. */;
   min-width: 4ex;
 }
 body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
