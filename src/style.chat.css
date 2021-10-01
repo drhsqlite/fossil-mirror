@@ -186,7 +186,7 @@ body.chat:not(.chat-only-mode) #chat-input-area{
 #chat-input-field {
   display: inline-block/*supposed workaround for Chrome weirdness*/;
   padding: 0.2em;
-  flex: 2 20 auto;
+  flex: 10 1 auto;
   background-color: rgba(156,156,156,0.3);
   overflow: auto;
 }
@@ -228,6 +228,13 @@ body.chat #chat-input-line.compact {
      much space. */
   /*flex-wrap: wrap;
   justify-content: flex-end;*/
+  flex-direction: column;
+  /**
+     We "really do" need column orientation here because it's the
+     only way to eliminate the possibility that (A) the buttons
+     get truncated in very narrow windows and (B) that they keep
+     stable positions.
+ */
 }
 body.chat #chat-input-line.compact #chat-input-field {
 }
@@ -236,16 +243,24 @@ body.chat #chat-edit-buttons {
   flex: 0 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
   min-width: 4em;
   min-height: 1.5em;
-  align-self: flex-end;
+  align-self: flex-end
+  /*keep buttons stable at bottom/right even when input field
+    resizes */;
 }
 body.chat #chat-input-line.compact #chat-edit-buttons {
   flex-direction: row;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-content: flex-end;
+  /*flex-wrap: wrap;*/
+  /* Wrapping would be ideal except that the edit widget
+     grows in width as the user types, moving the buttons
+     around */
 }
 body.chat #chat-edit-buttons > * {
-  flex: 1 1 auto;
   padding: initial/*some skins mess this up for buttons*/;
   line-height: inherit/*undo skin funkiness*/;
   min-width: 4ex;
@@ -255,7 +270,7 @@ body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
   min-width: 6ex;
   min-height: 6ex;
   max-height: 6ex;
-  margin: 0.25em;
+  margin: 0.125em;
 }
 
 body.chat #chat-input-line:not(.compact) #chat-input-field {
@@ -285,13 +300,16 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
 }
 
 body.chat #chat-input-line.compact #chat-edit-buttons > * {
-  margin: 0 0.125em 0 0.125em;
-  min-width: 6ex;
+  margin: 2px 0.125em 0 0.125em;
+  min-width: 8ex;
   max-width: unset;
   min-height: 3ex;
   max-height: 3ex;
+  /*flex: 1 1 auto;*/
 }
-
+body.chat #chat-input-line.compact #chat-edit-buttons #chat-message-submit {
+  min-width: 16ex;
+}
 body.chat #chat-input-line > #chat-settings-button{
   margin: 0 0 0 0.25em;
   max-width: 2em;
