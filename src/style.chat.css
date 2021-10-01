@@ -220,8 +220,6 @@ body.chat #chat-input-line {
   flex-wrap: nowrap;
 }*/
 body.chat #chat-input-line.compact #chat-input-field {
-  max-height: 2rem
-  /*enough space to see, after wrapping, that there's more text*/;
 }
 
 body.chat #chat-edit-buttons {
@@ -231,6 +229,7 @@ body.chat #chat-edit-buttons {
   justify-content: space-between;
   min-width: 4em;
   min-height: 1.5em;
+  align-self: flex-end;
 }
 body.chat #chat-input-line.compact #chat-edit-buttons {
   flex-direction: row;
@@ -240,12 +239,14 @@ body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
   padding: initial/*some skins mess this up for buttons*/;
   line-height: inherit/*undo skin funkiness*/;
+  min-width: 4ex;
 }
 body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
-  max-width: 4em;
-  max-height: 4em;
+  max-width: 6ex;
+  min-width: 6ex;
+  min-height: 6ex;
+  max-height: 6ex;
   margin: 0.25em;
-  min-height: 2em;
 }
 body.chat #chat-input-line:not(.compact) #chat-input-field {
   /*border-left-style: double;
@@ -275,12 +276,12 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
 
 body.chat #chat-input-line.compact #chat-edit-buttons > * {
   margin: 0 0.25em;
-  min-width: 2em;
+  min-width: 5ex;
+  max-width: 5ex;
+  min-height: 3ex;
+  max-height: 3ex;
 }
 
-body.chat #chat-input-line > button {
-  max-width: 4em;
-}
 body.chat #chat-input-line > #chat-settings-button{
   margin: 0 0 0 0.25em;
   max-width: 2em;
