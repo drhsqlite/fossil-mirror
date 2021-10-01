@@ -233,7 +233,6 @@ body.chat #chat-edit-buttons {
 }
 body.chat #chat-input-line.compact #chat-edit-buttons {
   flex-direction: row;
-  margin-top: 0.25em;
 }
 body.chat #chat-edit-buttons > * {
   flex: 1 1 auto;
