@@ -219,6 +219,16 @@ body.chat #chat-input-line {
 /*body.chat #chat-input-line:not(.compact) {
   flex-wrap: nowrap;
 }*/
+body.chat #chat-input-line.compact {
+  /* "The problem" with wrapping, together with a contenteditable input
+     field, is that the latter grows as the user types, so causes
+     wrapping to happen while they type, then to unwrap as soon as the
+     input field is cleared (when the message is sent). When we stay
+     wrapped in compact mode, the wrapped buttons simply take up too
+     much space. */
+  /*flex-wrap: wrap;
+  justify-content: flex-end;*/
+}
 body.chat #chat-input-line.compact #chat-input-field {
 }
 
@@ -247,6 +257,7 @@ body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
   max-height: 6ex;
   margin: 0.25em;
 }
+
 body.chat #chat-input-line:not(.compact) #chat-input-field {
   /*border-left-style: double;
   border-left-width: 3px;
@@ -274,9 +285,9 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
 }
 
 body.chat #chat-input-line.compact #chat-edit-buttons > * {
-  margin: 0 0.1em;
-  min-width: 4ex;
-  max-width: 4ex;
+  margin: 0 0.125em 0 0.125em;
+  min-width: 6ex;
+  max-width: unset;
   min-height: 3ex;
   max-height: 3ex;
 }

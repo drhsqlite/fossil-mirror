@@ -1,5 +1,5 @@
-C Added\sfile\sattachment\swidget\stoggle\s(on\sby\sdefault)\sand\sreversed\sorder\sof\sconfig\soptions\s(top-down\sinstead\sof\sbottom-up)\sbecause\sthat\ssimply\sseems\smore\sintuitive.
-D 2021-10-01T14:14:58.098
+C Button\ssize\stweaks\sfor\scompact\smode,\sto\smake\sthem\sslightly\smore\saccessible\son\smobile\sdevices.
+D 2021-10-01T15:49:35.353
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -427,7 +427,7 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
-F src/chat.c bc449362f38107e037390631dc4e0691687bf430f87c13ea5c543454bec6e6b0
+F src/chat.c 68b475a682de25e6993b36111034f837868ea6dc015108b8c00b15191fda34f6
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css a40ea55ee46ec4e2177e858ba60a69fe4bc7622e64f1a3ba8d02e963202d7794
+F src/style.chat.css 6256a79c88131842dacadd7ee2d4be25b449077f2186949f726e93091c4b485d
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e7e2e5e3c063503c73642cf796292460ce622c0b820f5341985c65a22f211673
-R 20b75725a7203108b37fb15b2048c52d
+P 40cdaeecd48dd7aaa5360a37a321e3a0454025f71f3440edaab91b229f6d708d
+R 94c81863dfd44e68f7a98c8945ca3f19
 U stephan
-Z 9fb3fd16a5da206d14358d54f41be5d9
+Z 11ff539b508dede608c962dfb3ccd776

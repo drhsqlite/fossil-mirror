@@ -172,7 +172,7 @@ void chat_webpage(void){
   @         title="Send message (Ctrl-Enter)">&#128228;</button>
   @     </div>
   @   </div>
-  @   <div id='chat-input-file-area'>
+  @   <div id='chat-input-file-area' class='hidden'>
   @     <div class='file-selection-wrapper'>
   @       <div class='help-buttonlet'>
   @        Select a file to upload, drag/drop a file into this spot,
