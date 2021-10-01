@@ -339,8 +339,9 @@ body.chat #chat-drop-details img {
   max-height: 45%;
 }
 body.chat .chat-view {
-  flex: 20 0 auto
-  /*ensure that these grow more than the non-.chat-view elements*/;
+  flex: 20 1 auto
+  /*ensure that these grow more than the non-.chat-view elements.
+    Note that setting flex shrink to 0 breaks/disables scrolling!*/;
   margin-bottom: 0.2em;
 }
 body.chat #chat-config,
