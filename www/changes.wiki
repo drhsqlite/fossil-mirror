@@ -38,15 +38,19 @@
      pages in the output.
   *  The [/help?cmd=all|fossil all git status] command only shows reports for
      the subset of repositories that have a configured Git export.
-  *  Enhanced the [/help?cmd=/chat|/chat page] configuration and added the ability
-     for a repository administrator to [./chat.md#notifications|extend the
-     selection of notification sounds via unversioned files].
-  *  The [/help?cmd=/chat|/chat] messages now use fossil's full complement of
-     markdown features, instead of the prior small subset of markup it
-     previously supported. This retroactively applies to all chat messages,
-     as they are markdown-processed when they are sent instead of when they
-     are saved. Added a preview mode so messages can be previewed before
-     being sent. See [./chat.md#usage|the chat docs] for more details.
+  *  The [/help?cmd=/chat|/chat] configuration was reimplemented and
+     provides new options, including the ability for a repository
+     administrator to
+     [./chat.md#notifications|extend the selection of notification sounds]
+     using unversioned files.
+  *  Chat now uses fossil's full complement of markdown features,
+     instead of the prior small subset of markup it previously supported.
+     This retroactively applies to all chat messages, as they are
+     markdown-processed when they are sent instead of when they
+     are saved.
+  *  Added a chat message preview mode so messages can be previewed
+     before being sent. Similarly, added a per-message ability to view
+     the raw un-parsed message text.
   *  The hotkey to activate preview mode in [/help?cmd=/wikiedit|/wikiedit],
      [/help?cmd=/fileedit|/fileedit], and [/help?cmd=/pikchrshow|/pikchrshow]
      was changed from ctrl-enter to shift-enter in order to align with
