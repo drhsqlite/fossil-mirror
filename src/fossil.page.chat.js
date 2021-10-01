@@ -545,6 +545,12 @@ window.fossil.onPageLoad(function(){
         return this;
       }
     };
+    if(/chrome/i.test(navigator.userAgent)){
+      // Only the Chrome family supports
+      // contenteditable=plaintext-only, but Chrome is the only engine
+      // for which we need this flag:
+      D.attr(cs.e.inputField,'contenteditable','plaintext-only');
+    }
     cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
     F.fetch.aftersend = ()=>cs.ajaxEnd();
@@ -1129,10 +1135,11 @@ window.fossil.onPageLoad(function(){
         D.removeClass(dropHighlight, 'dragover');
       }
     };
-    const cancelEvent = function(ev){
+    const noDragDropEvents = function(ev){
       /* contenteditable tries to do its own thing with dropped data,
          which is not compatible with how we use it, so... */
-      //if(ev.dataTransfer) ev.dataTransfer.dropEffect = 'none';
+      ev.dataTransfer.effectAllowed = 'none';
+      ev.dataTransfer.dropEffect = 'none';
       ev.preventDefault();
       ev.stopPropagation();
       return false;
@@ -1140,7 +1147,7 @@ window.fossil.onPageLoad(function(){
     Object.keys(dropEvents).forEach(
       (k)=>{
         Chat.e.inputFile.addEventListener(k, dropEvents[k], true);
-        Chat.inputElement().addEventListener(k, cancelEvent, false);
+        Chat.inputElement().addEventListener(k, noDragDropEvents, false);
       }
     );
     return bxs;
