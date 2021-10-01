@@ -545,11 +545,10 @@ window.fossil.onPageLoad(function(){
         return this;
       }
     };
-    if(/chrome/i.test(navigator.userAgent)){
-      // Only the Chrome family supports
-      // contenteditable=plaintext-only, but Chrome is the only engine
-      // for which we need this flag:
-      D.attr(cs.e.inputField,'contenteditable','plaintext-only');
+    if(!D.attr(cs.e.inputField,'contenteditable','plaintext-only').isContentEditable){
+      /* Only the Chrome family supports contenteditable=plaintext-only,
+         but Chrome is the only engine for which we need this flag: */
+        D.attr(cs.e.inputField,'contenteditable','true');
     }
     cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
