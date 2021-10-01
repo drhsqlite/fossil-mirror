@@ -189,6 +189,7 @@ body.chat:not(.chat-only-mode) #chat-input-area{
   flex: 10 1 auto;
   background-color: rgba(156,156,156,0.3);
   overflow: auto;
+  resize: vertical;
 }
 #chat-input-field:empty::before {
   content: attr(data-placeholder);
@@ -279,7 +280,6 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
   border-right-style: double;
   border-right-width: 3px;*/
   min-height: 4rem;
-  resize: both;
   /*max-height: 50rem;*/
 /*
   Problems related to max-height:
