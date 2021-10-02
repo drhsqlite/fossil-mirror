@@ -1,5 +1,5 @@
-C /chat:\sshift-enter\swhen\sin\spreview\smode\snow\sswitches\sback\sto\smessage\slist\smode\sif\sthe\sinput\sfield\sis\sempty.\sIt\swas\spreviously\sonly\spossible\sto\sswitch\sback\svia\sbutton\sor\ssending\sa\smessage.
-D 2021-09-29T17:03:29.759
+C Cherrypicked\s[658db85ce2],\swhich\swas\sintended\sfor\strunk.
+D 2021-10-02T14:35:41.522
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -566,7 +566,7 @@ F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c 11e895c3060231df2db1b742be76179c647603190ee43b3fc6badf1c5804519f
-F src/setup.c e36a52c24aae98d69d88a01a88f717a111df3bab9fd669ad25a967cda7332162
+F src/setup.c 72700e8d952e7f3472638274d9eb64a38d3bfbd0a79b98645b011e072cd9f66f
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -986,7 +986,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13fabf3f4d87d0016fc97bb0035273c1e0f8785fe433db74ba63c083d6c49aef
-R d883813f050badb53c3f4f8522a5ed1d
+P 79995e13552cab0d047d3900717942dbe117c24ca2e91741863189edbb5a87b2
+Q +658db85ce26b98ca4c23fbec8d5db950a85e5b94da43c6b9a6eb2d3f02fcc82e
+R 96c25d9abcccec7e06045a95a67be3ee
 U stephan
-Z 897f1273ab988f63b0b55e5fe7da5ad2
+Z 79c522237fbbf473af7427459ec05455
