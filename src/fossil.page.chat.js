@@ -1602,7 +1602,9 @@ window.fossil.onPageLoad(function(){
           Chat.deleteMessageElem(m.mdel);
           return;
         }
-        if(!Chat._isBatchLoading /*&& Chat.me!==m.xfrom*/ && Chat.playNewMessageSound){
+        if(!Chat._isBatchLoading
+           && Chat.me!==m.xfrom
+           && Chat.playNewMessageSound){
           Chat.playNewMessageSound();
         }
         const row = new Chat.MessageWidget(m);

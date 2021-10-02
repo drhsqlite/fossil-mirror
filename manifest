@@ -1,5 +1,5 @@
-C Reordered\stwo\sconfig\smenu\sentries.\sRemoved\sthe\senter/ctrl-enter\stoggle\stoast\sbecause\sthat\sinfo\sis\snow\sin\sthe\sedit\swidget's\splaceholder\stext\sand\sthe\stoast\scan\sblock\saccess\sto\sconfig\sview\sentries\sfor\sa\sfew\sseconds.
-D 2021-10-02T02:09:36.282
+C Do\snot\splay\snotification\ssound\sfor\sthe\ssender's\sown\smessages.\sThis\schange\swas\smade\sand\sreverted\sbefore\sso\smay\sbe\ssubject\sto\sfurther\sdebate.
+D 2021-10-02T04:21:12.146
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -475,7 +475,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js f960c0f0ad3e51d7565ad8d61d1e65984df12a25b9fcf8bb7cf0e14f1dd893aa
+F src/fossil.page.chat.js 53cae740f660ea1994f90c6ce80def3516f9bea51c29f111f82a900103353200
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 2d34fdc1a79eb8b36976bf2f966a702dacc8350eaca5ff4611d15d7eb9e853be
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bca3d7f405f754c54b7ddc99f2ee2589d255e99df038ac7ca4575fbf720b6006
-R 8fe5f0ea19e14797c5c37d44bc466f05
+P b2d55ec9475ad0041a2d08fab97da4b79e9f4e8e68b934bf4617ac7700b93e2e
+R ec4dd21187bbe5093038962507d7c8d8
 U stephan
-Z 219529cb96f8b7a87ac6f7241d73d3f4
+Z 8385cb6f6df885aa0063899a820b7097
