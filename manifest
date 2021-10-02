@@ -1,5 +1,5 @@
-C Added\sa\stoggle\sto\splay\sthe\saudio\salert\s(or\snot)\sfor\sone's\sown\smessages\s(default=off)\sand\sadded\sdocs\sdescribing\seach\sconfigurable\ssetting.
-D 2021-10-02T04:57:07.982
+C Removed\snow-invalid\sdoc\ssnippet,\sper\s[forum:f6a4695090|forum\spost\sf6a4695090].
+D 2021-10-02T14:33:22.063
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -566,7 +566,7 @@ F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c 11e895c3060231df2db1b742be76179c647603190ee43b3fc6badf1c5804519f
-F src/setup.c e36a52c24aae98d69d88a01a88f717a111df3bab9fd669ad25a967cda7332162
+F src/setup.c 72700e8d952e7f3472638274d9eb64a38d3bfbd0a79b98645b011e072cd9f66f
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 87c29eee983cb018a3194a96e9ef33efa78c29505c0d9ad261d5f7dad8438bfe
-R 97ca8ab8a8da7997a3d676ea0de7ce20
+P 8534eb75e17db41bdb4a6030801fd4077066b3da1b1edc2a3e4c9ab8a926a10b
+R 050f43c12186ee491679063d713b480e
 U stephan
-Z 7d237f394dd6461c41645405d07b4ee9
+Z 642c4c30704e8c887528eb48d74d570f
