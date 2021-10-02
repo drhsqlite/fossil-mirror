@@ -1372,12 +1372,11 @@ window.fossil.onPageLoad(function(){
       label: "Show images inline",
       hint: "Whether to show images inline or as a hyperlink.",
       boolValue: 'images-inline'
-    },{
+    },namedOptions.activeUsers,{
       label: "Timestamps in active users list",
       hint: "Whether to show last-message timestamps.",
       boolValue: 'active-user-list-timestamps'
-    },
-    namedOptions.activeUsers];
+    }];
 
     /** Set up selection list of notification sounds. */
     if(1){
@@ -1508,7 +1507,6 @@ window.fossil.onPageLoad(function(){
       const eInput = Chat.inputElement();
       eInput.dataset.placeholder = eInput.dataset.placeholder0 + " " +label;
       Chat.e.btnSubmit.title = label;
-      F.toast.message(label);
     });
     const valueKludges = {
       /* Convert certain string-format values to other types... */
