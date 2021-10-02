@@ -376,15 +376,42 @@ window.fossil.onPageLoad(function(){
             if(ev.detail.key===setting) f(ev.detail);
           }, false);
         },
+        /* Default values of settings. These are used for intializing
+           the setting event listeners and config view UI. */
         defaults:{
+          /* When on, inbound images are displayed inlined, else as a
+             link to download the image. */
           "images-inline": !!F.config.chat.imagesInline,
+          /* When on, ctrl-enter sends messages, else enter and
+             ctrl-enter both send them. */
           "edit-ctrl-send": false,
+          /* When on, the edit field starts as a single line and
+             expands as the user types, and the relevant buttons are
+             laid out in a compact form. When off, the edit field and
+             buttons are larger. */
           "edit-compact-mode": true,
+          /* When on, sets the font-family on messages and the edit
+             field to monospace. */
           "monospace-messages": true,
+          /* When on, non-chat UI elements (page header/footer) are
+             hidden */
           "chat-only-mode": false,
+          /* When set to a URI, it is assumed to be an audio file,
+             which gets played when new messages arrive. When true,
+             the first entry in the audio file selection list will be
+             used. */
           "audible-alert": true,
+          /* When on, show the list of "active" users - those from
+             whom we have messages in the currently-loaded history
+             (noting that deletions are also messages). */
           "active-user-list": false,
-          "active-user-list-timestamps": false
+          /* When on, the [active-user-list] setting includes the
+             timestamp of each user's most recent message. */
+          "active-user-list-timestamps": false,
+          /* When on, the [audible-alert] is played for one's own
+             messages, else it is only played for other users'
+             messages. */
+          "alert-own-messages": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -397,7 +424,7 @@ window.fossil.onPageLoad(function(){
             f.audio.currentTime = 0;
             f.audio.play();
           }catch(e){
-            console.error("Audio playblack failed.",e);
+            console.error("Audio playblack failed.", f.uri, e);
           }
         }
         return this;
@@ -1389,7 +1416,7 @@ window.fossil.onPageLoad(function(){
            such a setting, take the first sound in the list. */
         selectSound.selectedIndex = firstSoundIndex;
       }else{
-        selectSound.value = Chat.settings.get('audible-alert','');
+        selectSound.value = Chat.settings.get('audible-alert','<none>');
         if(selectSound.selectedIndex<0){
           /* Missing file - removed after this setting was
             applied. Fall back to the first sound in the list. */
@@ -1408,6 +1435,13 @@ window.fossil.onPageLoad(function(){
         }
       });
     }/*audio notification config*/
+    settingsOps.push({
+      label: "Play notification for your own messages.",
+      hint: "When enabled, the audio notification will be played for all messages, "+
+        "including your own. When disabled only messages from other users "+
+        "will trigger a notification.",
+      boolValue: 'alert-own-messages'
+    });
     /**
        Build UI for config options...
     */
@@ -1603,8 +1637,8 @@ window.fossil.onPageLoad(function(){
           return;
         }
         if(!Chat._isBatchLoading
-           && Chat.me!==m.xfrom
-           && Chat.playNewMessageSound){
+           && (Chat.me!==m.xfrom
+               || Chat.settings.getBool('alert-own-messages'))){
           Chat.playNewMessageSound();
         }
         const row = new Chat.MessageWidget(m);
