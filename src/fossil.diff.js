@@ -190,8 +190,8 @@ window.fossil.onPageLoad(function(){
     }
     //this.e.btnUp = btnUp;
     //this.e.btnDown = btnDown;
-    if(btnDown) D.append(this.e.btnWrapper, btnDown);
     if(btnUp) D.append(this.e.btnWrapper, btnUp);
+    if(btnDown) D.append(this.e.btnWrapper, btnDown);
     D.append(this.e.btnWrapper, this.e.msgWidget);
     /* For debugging only... */
     this.e.posState = D.span();

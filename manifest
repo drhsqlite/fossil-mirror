@@ -1,5 +1,5 @@
-C Fix\sminor\sdocumentation\stypo.
-D 2021-10-02T18:13:13.558
+C Swapped\sthe\sorder\sof\sthe\sdiff\scontext\sload\sbuttons\sto\simprove\susability\sslightly,\sper\sforum\sfeedback.
+D 2021-10-03T10:10:02.425
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -470,7 +470,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
-F src/fossil.diff.js e2c904fcdd7c4ad7c688fbb5d664d2abda137f44b39a9d215906949b4c71d8cc
+F src/fossil.diff.js afe05da89d56557dc2b44c57dfe75295d16f6472672f868d7d8695fbe8dcf312
 F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e05e09
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9dd8d5efc7eaca448282041d221dc07055c7e879c55a5dfc979df041d3875f37
-R 9c284a571185c1294d1a818414d956f5
-U drh
-Z f25e1aec50504051ba5e1c2cecb8ef11
+P 8d88f08801e418d56acd03b33495d3e51cf5315b058f6ae1ce4288f66afeb4e9
+R 3e203c9b1059b6c442a5ec9acc08f598
+U stephan
+Z c39330b97c02e3d02c055221f2c1f3f3
