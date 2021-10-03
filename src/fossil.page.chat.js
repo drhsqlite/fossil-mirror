@@ -1253,8 +1253,8 @@ window.fossil.onPageLoad(function(){
       }
       return false;
     }
-    if(ev.ctrlKey && !text){
-      /* Ctrl-enter on an empty field toggles Enter/Ctrl-enter mode */
+    if(ev.ctrlKey && !text && !BlobXferState.blob){
+      /* Ctrl-enter on empty input field(s) toggles Enter/Ctrl-enter mode */
       ev.preventDefault();
       ev.stopPropagation();
       f.$toggleCtrl(ctrlMode);
