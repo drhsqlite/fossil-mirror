@@ -146,7 +146,9 @@ void chat_webpage(void){
   char *zProjectName;
   char * zInputPlaceholder0;  /* Common text input placeholder value */
   const char *zPaperclip =
-    "<svg height=\"8.0\" width=\"16.0\"><path d=\"M 15.93452,3.2530441 "
+    "<svg height=\"8.0\" width=\"16.0\"><path "
+    "stroke=\"rgb(100,100,100)\" "
+    "d=\"M 15.93452,3.2530441 "
     "A 4.1499493,4.1265346 0 0 0 11.804809,6.5256284e-4 H 2.8582923 A "
     "2.8239899,2.8080565 0 0 0 0.68965668,0.96142476 2.874599,2.8583801 "
     "0 0 0 0.03119302,3.2388108 2.7632589,2.7476682 0 0 0 "
