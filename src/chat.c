@@ -145,6 +145,16 @@ void chat_webpage(void){
   char *zAlert;
   char *zProjectName;
   char * zInputPlaceholder0;  /* Common text input placeholder value */
+  const char *zPaperclip =
+    "<svg style=\"max-width:2.5ex\"><path d=\"M13.26,1.9a4.1,4.1,0,"
+    "0,0-5.17.6L1.84,8.75A2.79,2.79,0,0,0,1,10.94,2.84,2.84,0,0,0,"
+    "2.14,13a2.73,2.73,0,0,0,1.62.53,3.13,3.13,0,0,0,"
+    "2.18-.92l5.4-5.4A1.66,1.66,0,0,0,9,4.86L5.4,8.46l.71.71L9.7,"
+    "5.57a.66.66,0,0,1,.93.93L5.24,11.9a2,2,0,0,1-2.5.3,1.83,1.83,"
+    "0,0,1-.2-2.74L8.79,3.21a3.11,3.11,0,0,1,3.9-.48A3,3,0,0,1,14,"
+    "4.92a3,3,0,0,1-.86,2.37L7.86,12.55l.7.71L13.83,8a4,4,0,0,"
+    "0-.57-6.1Z\"></path></svg>";
+
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
@@ -167,7 +177,7 @@ void chat_webpage(void){
   @       <button id="chat-preview-button" \
   @         title="Preview message (Shift-Enter)">&#128065;</button>
   @       <button id="chat-message-attach" \
-  @         title="Attach file to message">&#128206;</button>
+  @         title="Attach file to message">%s(zPaperclip)</button>
   @       <button id="chat-settings-button" \
   @         title="Configure chat">&#9881;</button>
   @       <button id="chat-message-submit" \

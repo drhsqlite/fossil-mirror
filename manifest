@@ -1,5 +1,5 @@
-C Removed\snow-invalid\sdoc\ssnippet,\sper\s[forum:f6a4695090|forum\spost\sf6a4695090].
-D 2021-10-02T14:33:22.063
+C Experimentally\sreplace\spaperclip\sUnicode\sglyph\swith\san\sembedded\sSVG,\sas\sthe\sglyph\slooks\sgreyed\sout/inactive\sin\ssome\senvironments.
+D 2021-10-03T19:34:35.672
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -427,7 +427,7 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
-F src/chat.c d94b5929bb69ea80a44918be356e21c598636485bb5118fe8f8bcdbdcca03438
+F src/chat.c bade92d511fe6b1daf22ff0ce3b6a7f60c5e3de3c6c8834fc892c0eeb4311293
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8534eb75e17db41bdb4a6030801fd4077066b3da1b1edc2a3e4c9ab8a926a10b
-R 050f43c12186ee491679063d713b480e
+P 658db85ce26b98ca4c23fbec8d5db950a85e5b94da43c6b9a6eb2d3f02fcc82e
+R 9d1acce2a63ee5758c850ccc1617230e
 U stephan
-Z 642c4c30704e8c887528eb48d74d570f
+Z 8245f47f42369598d519fa179d60c812
