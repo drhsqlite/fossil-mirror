@@ -5400,7 +5400,11 @@ static void ieee754func(
     e += 1075;
     if( e<=0 ){
       /* Subnormal */
-      m >>= 1-e;
+      if( 1-e >= 64 ){
+        m = 0;
+      }else{
+        m >>= 1-e;
+      }
       e = 0;
     }else if( e>0x7ff ){
       e = 0x7ff;
@@ -5946,7 +5950,7 @@ int sqlite3_series_init(
   int rc = SQLITE_OK;
   SQLITE_EXTENSION_INIT2(pApi);
 #ifndef SQLITE_OMIT_VIRTUALTABLE
-  if( sqlite3_libversion_number()<3008012 ){
+  if( sqlite3_libversion_number()<3008012 && pzErrMsg!=0 ){
     *pzErrMsg = sqlite3_mprintf(
         "generate_series() requires SQLite 3.8.12 or later");
     return SQLITE_ERROR;
@@ -7296,6 +7300,7 @@ static u16 zipfileGetU16(const u8 *aBuf){
 ** Read and return a 32-bit little-endian unsigned integer from buffer aBuf.
 */
 static u32 zipfileGetU32(const u8 *aBuf){
+  if( aBuf==0 ) return 0;
   return ((u32)(aBuf[3]) << 24)
        + ((u32)(aBuf[2]) << 16)
        + ((u32)(aBuf[1]) <<  8)
@@ -7598,7 +7603,7 @@ static int zipfileGetEntry(
         aRead = (u8*)&aBlob[pNew->cds.iOffset];
       }
 
-      rc = zipfileReadLFH(aRead, &lfh);
+      if( rc==SQLITE_OK ) rc = zipfileReadLFH(aRead, &lfh);
       if( rc==SQLITE_OK ){
         pNew->iDataOff =  pNew->cds.iOffset + ZIPFILE_LFH_FIXED_SZ;
         pNew->iDataOff += lfh.nFile + lfh.nExtra;
@@ -7874,13 +7879,13 @@ static int zipfileReadEOCD(
   int nRead;                      /* Bytes to read from file */
   int rc = SQLITE_OK;
 
+  memset(pEOCD, 0, sizeof(ZipfileEOCD));
   if( aBlob==0 ){
     i64 iOff;                     /* Offset to read from */
     i64 szFile;                   /* Total size of file in bytes */
     fseek(pFile, 0, SEEK_END);
     szFile = (i64)ftell(pFile);
     if( szFile==0 ){
-      memset(pEOCD, 0, sizeof(ZipfileEOCD));
       return SQLITE_OK;
     }
     nRead = (int)(MIN(szFile, ZIPFILE_BUFFER_SIZE));
@@ -12488,7 +12493,6 @@ static void editFunc(
     sqlite3_int64 i, j;
     if( hasCRNL ){
       /* If the original contains \r\n then do no conversions back to \n */
-      j = sz;
     }else{
       /* If the file did not originally contain \r\n then convert any new
       ** \r\n back into \n */
@@ -14217,9 +14221,9 @@ static void exec_prepared_stmt_columnar(
       z = (const char*)sqlite3_column_text(pStmt,i);
       azData[nRow*nColumn + i] = z ? strdup(z) : 0;
     }
-  }while( (rc = sqlite3_step(pStmt))==SQLITE_ROW );
+  }while( sqlite3_step(pStmt)==SQLITE_ROW );
   if( nColumn>p->nWidth ){
-    p->colWidth = realloc(p->colWidth, nColumn*2*sizeof(int));
+    p->colWidth = realloc(p->colWidth, (nColumn+1)*2*sizeof(int));
     if( p->colWidth==0 ) shell_out_of_memory();
     for(i=p->nWidth; i<nColumn; i++) p->colWidth[i] = 0;
     p->nWidth = nColumn;
@@ -14361,7 +14365,7 @@ static void exec_prepared_stmt(
     int nCol = sqlite3_column_count(pStmt);
     void *pData = sqlite3_malloc64(3*nCol*sizeof(const char*) + 1);
     if( !pData ){
-      rc = SQLITE_NOMEM;
+      shell_out_of_memory();
     }else{
       char **azCols = (char **)pData;      /* Names of result columns */
       char **azVals = &azCols[nCol];       /* Results */
@@ -15502,7 +15506,7 @@ static unsigned char *readHexDb(ShellState *p, int *pnData){
                 &x[8], &x[9], &x[10], &x[11], &x[12], &x[13], &x[14], &x[15]);
     if( rc==17 ){
       k = iOffset+j;
-      if( k+16<=n ){
+      if( k+16<=n && k>=0 ){
         int ii;
         for(ii=0; ii<16; ii++) a[k+ii] = x[ii]&0xff;
       }
@@ -16419,7 +16423,7 @@ static void tryToCloneSchema(
                       zQuery);
       goto end_schema_xfer;
     }
-    while( (rc = sqlite3_step(pQuery))==SQLITE_ROW ){
+    while( sqlite3_step(pQuery)==SQLITE_ROW ){
       zName = sqlite3_column_text(pQuery, 0);
       zSql = sqlite3_column_text(pQuery, 1);
       printf("%s... ", zName); fflush(stdout);
@@ -16807,8 +16811,7 @@ static void newTempFile(ShellState *p, const char *zSuffix){
     p->zTempFile = sqlite3_mprintf("%z.%s", p->zTempFile, zSuffix);
   }
   if( p->zTempFile==0 ){
-    raw_printf(stderr, "out of memory\n");
-    exit(1);
+    shell_out_of_memory();
   }
 }
 
@@ -19623,7 +19626,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     sqlite3_free(zSql);
     i = 0;
-    while( sqlite3_step(pStmt)==SQLITE_ROW ){
+    while( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
       char zLabel[20];
       const char *zCol = (const char*)sqlite3_column_text(pStmt,2);
       i++;
@@ -19865,10 +19868,11 @@ static int do_meta_command(char *zLine, ShellState *p){
     }else if( p->zNonce==0 || strcmp(azArg[1],p->zNonce)!=0 ){
       raw_printf(stderr, "line %d: incorrect nonce: \"%s\"\n", p->lineno, azArg[1]);
       exit(1);
+    }else{
+      p->bSafeMode = 0;
+      return 0;  /* Return immediately to bypass the safe mode reset
+                 ** at the end of this procedure */
     }
-    p->bSafeMode = 0;
-    return 0;  /* Return immediately to bypass the safe mode reset
-               ** at the end of this procedure */
   }else
 
   if( c=='n' && strncmp(azArg[0], "nullvalue", n)==0 ){
@@ -20127,7 +20131,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         rx = sqlite3_prepare_v2(p->db,
              "SELECT key, quote(value) "
              "FROM temp.sqlite_parameters;", -1, &pStmt, 0);
-        while( sqlite3_step(pStmt)==SQLITE_ROW ){
+        while( rx==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
           utf8_printf(p->out, "%-*s %s\n", len, sqlite3_column_text(pStmt,0),
                       sqlite3_column_text(pStmt,1));
         }
@@ -21100,8 +21104,10 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
     }
     rc = sqlite3_finalize(pStmt);
-    appendText(&s, " ORDER BY 1", 0);
-    rc = sqlite3_prepare_v2(p->db, s.z, -1, &pStmt, 0);
+    if( rc==SQLITE_OK ){
+      appendText(&s, " ORDER BY 1", 0);
+      rc = sqlite3_prepare_v2(p->db, s.z, -1, &pStmt, 0);
+    }
     freeText(&s);
     if( rc ) return shellDatabaseError(p->db);
 
@@ -21627,7 +21633,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     int j;
     assert( nArg<=ArraySize(azArg) );
     p->nWidth = nArg-1;
-    p->colWidth = realloc(p->colWidth, p->nWidth*sizeof(int)*2);
+    p->colWidth = realloc(p->colWidth, (p->nWidth+1)*sizeof(int)*2);
     if( p->colWidth==0 && p->nWidth>0 ) shell_out_of_memory();
     if( p->nWidth ) p->actualWidth = &p->colWidth[p->nWidth];
     for(j=1; j<nArg; j++){
@@ -21676,6 +21682,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss){
   char cWait = (char)qss; /* intentional narrowing loss */
   if( cWait==0 ){
   PlainScan:
+    assert( cWait==0 );
     while( (cin = *zLine++)!=0 ){
       if( IsSpace(cin) )
         continue;
@@ -21863,7 +21870,8 @@ static int process_input(ShellState *p){
     if( QSS_PLAINWHITE(qss) && nSql==0 ){
       if( ShellHasFlag(p, SHFLG_Echo) )
         printf("%s\n", zLine);
-      /* Just swallow leading whitespace */
+      /* Just swallow single-line whitespace */
+      qss = QSS_Start;
       continue;
     }
     if( zLine && (zLine[0]=='.' || zLine[0]=='#') && nSql==0 ){
@@ -21876,8 +21884,10 @@ static int process_input(ShellState *p){
           errCnt++;
         }
       }
+      qss = QSS_Start;
       continue;
     }
+    /* No single-line dispositions remain; accumulate line(s). */
     nLine = strlen30(zLine);
     if( nSql+nLine+2>=nAlloc ){
       /* Grow buffer by half-again increments when big. */
@@ -21907,9 +21917,11 @@ static int process_input(ShellState *p){
         clearTempFile(p);
       }
       p->bSafeMode = p->bSafeModePersist;
+      qss = QSS_Start;
     }else if( nSql && QSS_PLAINWHITE(qss) ){
       if( ShellHasFlag(p, SHFLG_Echo) ) printf("%s\n", zSql);
       nSql = 0;
+      qss = QSS_Start;
     }
   }
   if( nSql && QSS_PLAINDARK(qss) ){
