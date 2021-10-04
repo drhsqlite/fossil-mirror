@@ -1,5 +1,5 @@
-C /chat:\sshrunk\scompact\smode\stoolbar\sjust\sa\stick.\sReplaced\snon-portable\son-hover\sbutton\seffect\swith\ssomething\sportable.
-D 2021-10-04T19:13:50.139
+C /chat\snarrowed\sthe\scompact-mode\sbuttons\s-\sthey\swere\stoo\swide\sfor\san\siPhone\sscreen.\sShould\sfit\sfine\son\sscreens\sas\snarrow\sas\s340\spixels\snow.
+D 2021-10-04T19:21:27.308
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css b3a3f7af30835253ea6b1d263a93c1e3be1272ee0ceef1b6187987f5c2174b13
+F src/style.chat.css 7bbf81cf42db251a61997c07c409681d14a1d167b9a98862220fec34ce54c395
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98b2cbe69b2e8a31c06b043bcb1fa00fcf5fc951f31b3052393dc607c677e61b
-R 1d9e8b4af50859e9fb0b2ccd56c49776
+P 7755c6482b257bea97f3321788c3ca86b4340956a30791a2a0118593a59b8411
+R be2694bbf6669e7c885003e59f1e052e
 U stephan
-Z 9b3086953ebe03ed3c3e4c3d9e036703
+Z 6fa5c8d4a25cb9d9d761b42524194e99

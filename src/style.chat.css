@@ -283,14 +283,14 @@ body.chat #chat-buttons-wrapper > .cbutton:hover {
 }
 body.chat #chat-input-line.compact #chat-buttons-wrapper > .cbutton {
   margin: 2px 0.125em 0 0.125em;
-  min-width: 8ex;
-  max-width: 8ex;
+  min-width: 6ex;
+  max-width: 6ex;
   min-height: 2.3ex;
   max-height: 2.3ex;
   font-size: 120%;
 }
 body.chat #chat-input-line.compact #chat-buttons-wrapper #chat-button-submit {
-  min-width: 16ex;
+  min-width: 12ex;
 }
 body.chat #chat-input-line:not(.compact) #chat-input-field {
   /*border-left-style: double;
