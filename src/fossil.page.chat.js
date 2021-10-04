@@ -128,15 +128,15 @@ window.fossil.onPageLoad(function(){
         inputLine: E1('#chat-input-line'),
         fileSelectWrapper: E1('#chat-input-file-area'),
         viewMessages: E1('#chat-messages-wrapper'),
-        btnSubmit: E1('#chat-message-submit'),
-        btnAttach: E1('#chat-message-attach'),
+        btnSubmit: E1('#chat-button-submit'),
+        btnAttach: E1('#chat-button-attach'),
         inputField: E1('#chat-input-field'),
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
         viewConfig: E1('#chat-config'),
         viewPreview: E1('#chat-preview'),
         previewContent: E1('#chat-preview-content'),
-        btnPreview: E1('#chat-preview-button'),
+        btnPreview: E1('#chat-button-preview'),
         views: document.querySelectorAll('.chat-view'),
         activeUserListWrapper: E1('#chat-user-list-wrapper'),
         activeUserList: E1('#chat-user-list')
@@ -1292,7 +1292,7 @@ window.fossil.onPageLoad(function(){
   Chat.e.btnAttach.addEventListener(
     'click', ()=>Chat.e.inputFile.click(), false);
 
-  (function(){/*Set up #chat-settings-button and related bits */
+  (function(){/*Set up #chat-button-settings and related bits */
     if(window.innerWidth<window.innerHeight){
       // Must be set up before config view is...
       /* Alignment of 'my' messages: right alignment is conventional
@@ -1302,7 +1302,7 @@ window.fossil.onPageLoad(function(){
          tall vs wide. Can be toggled via settings. */
       document.body.classList.add('my-messages-right');
     }
-    const settingsButton = document.querySelector('#chat-settings-button');
+    const settingsButton = document.querySelector('#chat-button-settings');
     const optionsMenu = E1('#chat-config-options');
     const cbToggle = function(ev){
       ev.preventDefault();
@@ -1447,9 +1447,8 @@ window.fossil.onPageLoad(function(){
     */
     settingsOps.forEach(function f(op){
       const line = D.addClass(D.div(), 'menu-entry');
-      const label = op.label ? D.append(
-        D.addClass(D.label(), 'cbutton'/*bootstrap skin hijacks 'button'*/),
-        op.label) : undefined;
+      const label = op.label
+            ? D.append(D.label(),op.label) : undefined;
       const labelWrapper = D.addClass(D.div(), 'label-wrapper');
       var hint;
       const col0 = D.span();
@@ -1512,11 +1511,11 @@ window.fossil.onPageLoad(function(){
         op.checkbox.addEventListener('change', (ev)=>op.callback(ev), false);
       }
     });
-  })()/*#chat-settings-button setup*/;
+  })()/*#chat-button-settings setup*/;
 
   (function(){
     /* Install default settings... must come after
-       chat-settings-button setup so that the listeners which that
+       chat-button-settings setup so that the listeners which that
        installs are notified via the properties getting initialized
        here. */
     Chat.settings.addListener('monospace-messages',function(s){
@@ -1804,7 +1803,7 @@ window.fossil.onPageLoad(function(){
   Chat.intervalTimer = setInterval(poll, 1000);
   if(0){
     const flip = (ev)=>Chat.animate(ev.target,'anim-flip-h');
-    document.querySelectorAll('#chat-edit-buttons button').forEach(function(e){
+    document.querySelectorAll('#chat-buttons-wrapper .cbutton').forEach(function(e){
       e.addEventListener('click',flip, false);
     });
   }

@@ -134,7 +134,7 @@ body.chat #load-msg-toolbar > div > button {
 /* "Chat-only mode" hides the site header/footer, showing only
    the chat app. */
 body.chat.chat-only-mode{}
-body.chat #chat-settings-button {}
+body.chat #chat-button-settings {}
 /** Popup widget for the /chat settings. */
 body.chat .chat-settings-popup {
   font-size: 0.8em;
@@ -240,7 +240,7 @@ body.chat #chat-input-line.compact {
 body.chat #chat-input-line.compact #chat-input-field {
 }
 
-body.chat #chat-edit-buttons {
+body.chat #chat-buttons-wrapper {
   flex: 0 1 auto;
   display: flex;
   flex-direction: column;
@@ -251,7 +251,7 @@ body.chat #chat-edit-buttons {
   /*keep buttons stable at bottom/right even when input field
     resizes */;
 }
-body.chat #chat-input-line.compact #chat-edit-buttons {
+body.chat #chat-input-line.compact #chat-buttons-wrapper {
   flex-direction: row;
   flex: 1 1 auto;
   align-self: stretch;
@@ -261,21 +261,37 @@ body.chat #chat-input-line.compact #chat-edit-buttons {
      grows in width as the user types, moving the buttons
      around */
 }
-body.chat #chat-edit-buttons > * {
-  padding: initial/*some skins mess this up for buttons*/;
-  line-height:
-    0.1 /* buggy glyph alignment workaround for FF78, possibly
-           others. Does not affect well-behaved browsers. */;
+body.chat #chat-buttons-wrapper > .cbutton {
+  padding: 0;
+  display: inline-block;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.25em;
   min-width: 4ex;
-}
-body.chat #chat-input-line:not(.compact) #chat-edit-buttons > * {
-  max-width: 6ex;
-  min-width: 6ex;
-  min-height: 5ex;
-  max-height: 6ex;
+  max-width: 4ex;
+  min-height: 4ex;
+  max-height: 4ex;
   margin: 0.125em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 150%;
 }
-
+body.chat #chat-buttons-wrapper > .cbutton:hover {
+  backdrop-filter: contrast(0.5);
+}
+body.chat #chat-input-line.compact #chat-buttons-wrapper > .cbutton {
+  margin: 2px 0.125em 0 0.125em;
+  min-width: 8ex;
+  max-width: 8ex;
+  min-height: 2.3ex;
+  max-height: 2.3ex;
+  font-size: 130%;
+}
+body.chat #chat-input-line.compact #chat-buttons-wrapper #chat-button-submit {
+  min-width: 16ex;
+}
 body.chat #chat-input-line:not(.compact) #chat-input-field {
   /*border-left-style: double;
   border-left-width: 3px;
@@ -301,18 +317,7 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
 */
 }
 
-body.chat #chat-input-line.compact #chat-edit-buttons > * {
-  margin: 2px 0.125em 0 0.125em;
-  min-width: 8ex;
-  max-width: unset;
-  min-height: 3ex;
-  max-height: 3ex;
-  /*flex: 1 1 auto;*/
-}
-body.chat #chat-input-line.compact #chat-edit-buttons #chat-message-submit {
-  min-width: 16ex;
-}
-body.chat #chat-input-line > #chat-settings-button{
+body.chat #chat-input-line > #chat-button-settings{
   margin: 0 0 0 0.25em;
   max-width: 2em;
 }
@@ -503,10 +508,10 @@ body.chat #chat-user-list .chat-user.selected {
   text-decoration: underline;
 }
 
-body.chat.fossil-dark-style #chat-message-attach > svg {
+body.chat.fossil-dark-style #chat-button-attach > svg {
   /* The black paperclip is barely visible in dark-mode
      skins when they have dark buttons */
-  filter: invert(0.5);
+  filter: invert(0.8);
 }
 
 body.chat .anim-rotate-360 {

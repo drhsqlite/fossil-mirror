@@ -181,15 +181,15 @@ void chat_webpage(void){
   @      data-placeholder0="%h(zInputPlaceholder0)" \
   @      data-placeholder="%h(zInputPlaceholder0)" \
   @      class=""></div>
-  @     <div id='chat-edit-buttons'>
-  @       <button id="chat-preview-button" \
-  @         title="Preview message (Shift-Enter)">&#128065;</button>
-  @       <button id="chat-message-attach" \
-  @         title="Attach file to message">%s(zPaperclip)</button>
-  @       <button id="chat-settings-button" \
-  @         title="Configure chat">&#9881;</button>
-  @       <button id="chat-message-submit" \
-  @         title="Send message (Ctrl-Enter)">&#128228;</button>
+  @     <div id='chat-buttons-wrapper'>
+  @       <span class='cbutton' id="chat-button-preview" \
+  @         title="Preview message (Shift-Enter)">&#128065;</span>
+  @       <span class='cbutton' id="chat-button-attach" \
+  @         title="Attach file to message">%s(zPaperclip)</span>
+  @       <span class='cbutton' id="chat-button-settings" \
+  @         title="Configure chat">&#9881;</span>
+  @       <span class='cbutton' id="chat-button-submit" \
+  @         title="Send message (Ctrl-Enter)">&#128228;</span>
   @     </div>
   @   </div>
   @   <div id='chat-input-file-area'>
