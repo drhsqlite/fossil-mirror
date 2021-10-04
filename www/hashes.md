@@ -5,7 +5,7 @@ All artifacts in Fossil are identified by a unique hash, currently using
 algorithm:
 
 <table border="1" cellspacing="0" cellpadding="10">
-<tr><th>Algorithm<</th><th>Raw Bits</th> <th>Hexadecimal digits</th></tr>
+<tr><th>Algorithm</th><th>Raw Bits</th> <th>Hexadecimal digits</th></tr>
 <tr><td>SHA3-256</td>  <td>256</td>      <td>64</td></tr>
 <tr><td>SHA1</td>      <td>160</td>      <td>40</td></tr>
 </table>

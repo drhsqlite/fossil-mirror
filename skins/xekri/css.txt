@@ -1157,8 +1157,8 @@ body.branch .brlist > table > tbody > tr.selected {
 body.chat div.header, body.chat div.footer,
 body.chat div.mainmenu, body.chat div.submenu,
 body.chat div.content {
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
   margin-top: auto/*eliminates unnecessary scrollbars*/;
 }
 body.chat.chat-only-mode div.content {

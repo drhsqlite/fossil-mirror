@@ -12,6 +12,10 @@ body.chat .message-widget {
   border: none;
   align-items: flex-start;
 }
+body.chat button,
+body.chat input[type=button] {
+  line-height: inherit/*undo skin-specific funkiness*/;
+}
 body.chat .message-widget:last-of-type {
   /* Latest message: reduce bottom gap */
   margin-bottom: 0.1em;
@@ -38,8 +42,9 @@ body.chat .message-widget-content {
   white-space: normal;
 }
 body.chat.monospace-messages .message-widget-content,
-body.chat.monospace-messages textarea,
-body.chat.monospace-messages input[type=text]{
+/*body.chat.monospace-messages textarea,*/
+/*body.chat.monospace-messages input[type=text],*/
+body.chat.monospace-messages #chat-input-field{
   font-family: monospace;  
 }
 body.chat .message-widget-content > * {
@@ -129,7 +134,7 @@ body.chat #load-msg-toolbar > div > button {
 /* "Chat-only mode" hides the site header/footer, showing only
    the chat app. */
 body.chat.chat-only-mode{}
-body.chat #chat-settings-button {}
+body.chat #chat-button-settings {}
 /** Popup widget for the /chat settings. */
 body.chat .chat-settings-popup {
   font-size: 0.8em;
@@ -170,8 +175,7 @@ body.chat #chat-input-area {
   flex-direction: column;
   padding: 0;
   margin: 0;
-  position: initial /*sticky currently disabled due to scrolling-related issues*/;
-  /*bottom: 0;*/
+  flex: 0 1 auto;
 }
 body.chat:not(.chat-only-mode) #chat-input-area{
   /* Safari user reports that 2em is necessary to keep the file selection
@@ -179,42 +183,141 @@ body.chat:not(.chat-only-mode) #chat-input-area{
      for FF/Chrome (and 2em is a *huge* waste of space for those). */
   margin-bottom: 0;
 }
-
+#chat-input-field {
+  display: inline-block/*supposed workaround for Chrome weirdness*/;
+  padding: 0.2em;
+  flex: 10 1 auto;
+  background-color: rgba(156,156,156,0.3);
+  overflow: auto;
+  resize: vertical;
+}
+#chat-input-field:empty::before {
+  content: attr(data-placeholder);
+  opacity: 0.6;
+}
+#chat-input-field:not(:focus){
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.25em;
+}
+#chat-input-field:focus{
+  /* This transparent border helps avoid the text shifting around
+     when the contenteditable attribute causes a border (which we
+     apparently cannot style) to be added. */
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 0.25em;
+}
 /* Widget holding the chat message input field, send button, and
    settings button. */
 body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
   align-items: stretch;
+  flex-wrap: nowrap;
 }
-body.chat #chat-input-line.single-line {
-  flex-wrap: wrap;
-}
-body.chat #chat-edit-buttons {
-  flex: 1 1 auto;
-  display: flex;
+/*body.chat #chat-input-line:not(.compact) {
+  flex-wrap: nowrap;
+}*/
+body.chat #chat-input-line.compact {
+  /* "The problem" with wrapping, together with a contenteditable input
+     field, is that the latter grows as the user types, so causes
+     wrapping to happen while they type, then to unwrap as soon as the
+     input field is cleared (when the message is sent). When we stay
+     wrapped in compact mode, the wrapped buttons simply take up too
+     much space. */
+  /*flex-wrap: wrap;
+  justify-content: flex-end;*/
   flex-direction: column;
-  justify-content: space-between;
+  /**
+     We "really do" need column orientation here because it's the
+     only way to eliminate the possibility that (A) the buttons
+     get truncated in very narrow windows and (B) that they keep
+     stable positions.
+ */
 }
-body.chat #chat-input-line.single-line #chat-edit-buttons {
-  flex-direction: row;
-}
-body.chat #chat-edit-buttons > * {
-  flex: 1 1 auto;
-  padding: initial/*some skins mess this up for buttons*/;
-}
-body.chat #chat-input-line:not(.single-line) #chat-edit-buttons > * {
-  max-width: 4em;
-  margin: 0.25em;
-}
-body.chat #chat-input-line.single-line #chat-edit-buttons > * {
-  margin: 0 0.25em;
+body.chat #chat-input-line.compact #chat-input-field {
 }
 
-body.chat #chat-input-line > button {
-  max-width: 4em;
+body.chat #chat-buttons-wrapper {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 4em;
+  min-height: 1.5em;
+  align-self: flex-end
+  /*keep buttons stable at bottom/right even when input field
+    resizes */;
 }
-body.chat #chat-input-line > #chat-settings-button{
+body.chat #chat-input-line.compact #chat-buttons-wrapper {
+  flex-direction: row;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-content: flex-end;
+  /*flex-wrap: wrap;*/
+  /* Wrapping would be ideal except that the edit widget
+     grows in width as the user types, moving the buttons
+     around */
+}
+body.chat #chat-buttons-wrapper > .cbutton {
+  padding: 0;
+  display: inline-block;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.25em;
+  min-width: 4ex;
+  max-width: 4ex;
+  min-height: 4ex;
+  max-height: 4ex;
+  margin: 0.125em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 130%;
+}
+body.chat #chat-buttons-wrapper > .cbutton:hover {
+  background-color: rgba(200,200,200,0.3);
+}
+body.chat #chat-input-line.compact #chat-buttons-wrapper > .cbutton {
+  margin: 2px 0.125em 0 0.125em;
+  min-width: 6ex;
+  max-width: 6ex;
+  min-height: 2.3ex;
+  max-height: 2.3ex;
+  font-size: 120%;
+}
+body.chat #chat-input-line.compact #chat-buttons-wrapper #chat-button-submit {
+  min-width: 12ex;
+}
+body.chat #chat-input-line:not(.compact) #chat-input-field {
+  /*border-left-style: double;
+  border-left-width: 3px;
+  border-right-style: double;
+  border-right-width: 3px;*/
+  min-height: 4rem;
+  /*max-height: 50rem;*/
+/*
+  Problems related to max-height:
+
+  - If we do NOT set a max-height then pasting/typing a large amount
+  of text can cause this element to grow without bounds, larger than
+  the window, and there's no way to navigate it sensibly.  In this
+  case, manually resizing the element (desktop only - mobile doesn't
+  offer that) will force it to stay at the selected size even if more
+  content is added to it later.
+
+  - If we DO set a max-height then its growth is bounded but it also
+  cannot manually expanded by the user.
+
+  The lesser of the two evils seems to be to rely on the browser
+  feature that a manual resize of the element will pin its sits.
+*/
+}
+
+body.chat #chat-input-line > #chat-button-settings{
   margin: 0 0 0 0.25em;
   max-width: 2em;
 }
@@ -224,16 +327,14 @@ body.chat #chat-input-line > textarea {
   max-width: revert;
   min-width: 20em;
 }
-body.chat #chat-input-line.single-line > input[type=text] {
+body.chat #chat-input-line.compact > input[type=text] {
   margin: 0 0 0.25em 0/* gap for if/when buttons wrap*/;
 }
 /* Widget holding the file selection control and preview */
 body.chat #chat-input-file-area  {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 0.25em 0 0 0 /* avoid nudging input area */;
+  margin: 0;
 }
 body.chat #chat-input-file-area > .file-selection-wrapper {
   align-self: flex-start;
@@ -241,10 +342,6 @@ body.chat #chat-input-file-area > .file-selection-wrapper {
   flex: 0 1 auto;
   padding: 0.25em 0.5em;
   white-space: nowrap;
-}
-body.chat #chat-input-file-area .file-selection-wrapper > * {
-  vertical-align: middle;
-  margin: 0;
 }
 body.chat #chat-input-file {
   border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
@@ -260,11 +357,11 @@ body.chat #chat-input-file.dragover {
 }
 /* Widget holding the details of a selected/dropped file/image. */
 body.chat #chat-drop-details {
-  flex: 0 1 auto;
-  padding: 0.5em 1em;
-  margin-left: 0.5em;
+  padding: 0 1em;
   white-space: pre;
   font-family: monospace;
+  margin: auto;
+  flex: 0;
 }
 
 body.chat #chat-drop-details img {
@@ -273,7 +370,8 @@ body.chat #chat-drop-details img {
 }
 body.chat .chat-view {
   flex: 20 1 auto
-  /*ensure that these grow more than the non-.chat-view elements*/;
+  /*ensure that these grow more than the non-.chat-view elements.
+    Note that setting flex shrink to 0 breaks/disables scrolling!*/;
   margin-bottom: 0.2em;
 }
 body.chat #chat-config,
@@ -291,24 +389,37 @@ body.chat #chat-config #chat-config-options {
   /* /chat config options go here */
   flex: 1 1 auto;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   overflow: auto;
 }
 body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   flex-direction: row;
   flex-wrap: nowrap;
   padding: 1em;
 }
-body.chat #chat-config #chat-config-options .menu-entry > label {
+body.chat #chat-config #chat-config-options .menu-entry label[for] {
   cursor: pointer;
 }
-body.chat #chat-config #chat-config-options .menu-entry > input:first-child {
-  margin-right: 1em;
+body.chat #chat-config #chat-config-options .menu-entry > *:first-child {
+  min-width: 1.5rem;
 }
-body.chat #chat-config #chat-config-options .menu-entry > label:first-child {
-  margin-right: 0.5em;
+body.chat #chat-config #chat-config-options .menu-entry span.hint {
+  /* Config menu hint text */
+  font-size: 80%;
+  white-space: pre-wrap;
+  display: inline-block;
+}
+body.chat #chat-config #chat-config-options .menu-entry:first-child {
+}
+body.chat #chat-config #chat-config-options .menu-entry div.label-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-self: baseline;
+  margin-left: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry select {
 }
 body.chat #chat-preview #chat-preview-content {
   overflow: auto;
@@ -406,6 +517,12 @@ body.chat span[data-numtag]{
 
 body.chat #chat-clear-filter {
   margin: 0.25em 0.5em;
+}
+
+body.chat.fossil-dark-style #chat-button-attach > svg {
+  /* The black paperclip is barely visible in dark-mode
+     skins when they have dark buttons */
+  filter: invert(0.8);
 }
 
 body.chat .anim-rotate-360 {

@@ -144,11 +144,25 @@ static void chat_emit_alert_list(void){
 void chat_webpage(void){
   char *zAlert;
   char *zProjectName;
-  const char * zInputPlaceholder1 = /* Placeholder for 1-line input */
-    "Enter sends and Shift-Enter previews.";
-  const char * zInputPlaceholder2 = /* Placeholder for textarea input*/
-    "Ctrl-Enter sends and Shift-Enter previews.";
   char * zInputPlaceholder0;  /* Common text input placeholder value */
+  const char *zPaperclip =
+    "<svg height=\"8.0\" width=\"16.0\"><path "
+    "stroke=\"rgb(100,100,100)\" "
+    "d=\"M 15.93452,3.2530441 "
+    "A 4.1499493,4.1265346 0 0 0 11.804809,6.5256284e-4 H 2.8582923 A "
+    "2.8239899,2.8080565 0 0 0 0.68965668,0.96142476 2.874599,2.8583801 "
+    "0 0 0 0.03119302,3.2388108 2.7632589,2.7476682 0 0 0 "
+    "0.81132923,4.7689293 3.168132,3.1502569 0 0 0 3.0300653,5.66565 l "
+    "7.7297897,-4e-7 a 1.6802234,1.6707433 0 0 0 0.0072,-3.3377933 H "
+    "5.6138192 v 1.0105899 l 5.1460358,-0.00712 a 0.66804062,0.66427143 "
+    "0 0 1 0,1.3237305 l -7.7226325,0.00712 A 2.0243655,2.0129437 0 0 1 "
+    "1.0332029,3.0964741 1.8522944,1.8418435 0 0 1 2.8511351,1.0041257 h "
+    "8.9465169 a 3.1478884,3.1301275 0 0 1 3.134859,2.4339559 3.0365483,"
+    "3.0194156 0 0 1 -0.629835,2.4908908 3.0365483,3.0194156 0 0 1 "
+    "-2.31178,1.0746415 l -7.5437026,-0.014233 -0.00716,1.0034736 "
+    "7.5365456,0.00715 a 4.048731,4.0258875 0 0 0 3.957938,-4.7469259 z\""
+    "/></svg>";
+
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
@@ -163,28 +177,23 @@ void chat_webpage(void){
   style_header("Chat");
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line' class='single-line'>
-  @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="%h(zInputPlaceholder0) %h(zInputPlaceholder1)" \
-  @      autocomplete="off">
-  @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="%h(zInputPlaceholder0) %h(zInputPlaceholder2)" \
-  @      class="hidden"></textarea>
-  @     <div id='chat-edit-buttons'>
-  @       <button id="chat-preview-button" \
-  @         title="Preview message (Shift-Enter)">&#128065;</button>
-  @       <button id="chat-settings-button" \
-  @         title="Configure chat">&#9881;</button>
-  @       <button id="chat-message-submit" \
-  @         title="Send message (Ctrl-Enter)">&#128228;</button>
+  @     <div contenteditable id="chat-input-field" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class=""></div>
+  @     <div id='chat-buttons-wrapper'>
+  @       <span class='cbutton' id="chat-button-preview" \
+  @         title="Preview message (Shift-Enter)">&#128065;</span>
+  @       <span class='cbutton' id="chat-button-attach" \
+  @         title="Attach file to message">%s(zPaperclip)</span>
+  @       <span class='cbutton' id="chat-button-settings" \
+  @         title="Configure chat">&#9881;</span>
+  @       <span class='cbutton' id="chat-button-submit" \
+  @         title="Send message (Ctrl-Enter)">&#128228;</span>
   @     </div>
   @   </div>
   @   <div id='chat-input-file-area'>
-  @     <div class='file-selection-wrapper'>
-  @       <div class='help-buttonlet'>
-  @        Select a file to upload, drag/drop a file into this spot,
-  @        or paste an image from the clipboard if supported by
-  @        your environment.
-  @       </div>
+  @     <div class='file-selection-wrapper hidden'>
   @       <input type="file" name="file" id="chat-input-file">
   @     </div>
   @     <div id="chat-drop-details"></div>
