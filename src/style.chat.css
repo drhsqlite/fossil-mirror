@@ -276,7 +276,7 @@ body.chat #chat-buttons-wrapper > .cbutton {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  font-size: 150%;
+  font-size: 130%;
 }
 body.chat #chat-buttons-wrapper > .cbutton:hover {
   background-color: rgba(200,200,200,0.3);
