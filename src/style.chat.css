@@ -279,7 +279,7 @@ body.chat #chat-buttons-wrapper > .cbutton {
   font-size: 150%;
 }
 body.chat #chat-buttons-wrapper > .cbutton:hover {
-  backdrop-filter: contrast(0.5);
+  background-color: rgba(200,200,200,0.3);
 }
 body.chat #chat-input-line.compact #chat-buttons-wrapper > .cbutton {
   margin: 2px 0.125em 0 0.125em;
@@ -287,7 +287,7 @@ body.chat #chat-input-line.compact #chat-buttons-wrapper > .cbutton {
   max-width: 8ex;
   min-height: 2.3ex;
   max-height: 2.3ex;
-  font-size: 130%;
+  font-size: 120%;
 }
 body.chat #chat-input-line.compact #chat-buttons-wrapper #chat-button-submit {
   min-width: 16ex;
