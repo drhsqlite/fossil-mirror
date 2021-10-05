@@ -65,23 +65,26 @@ window.fossil.onPageLoad(function(){
       D.append(document.body,dbg);
     }
   })();
-  const ForceResizeKludge = 0 ? function(){} : (function f(){
+  const ForceResizeKludge = (function(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
        chat layout, but Safari chokes on that, so we calculate that
        height here: 85% when in "normal" mode and 95% in chat-only
        mode. Larger than ~95% is too big for Firefox on Android,
-       causing the input area to move off-screen. */
-    if(!f.elemsToCount){
-      f.elemsToCount = [
-        document.querySelector('body > div.header'),
-        document.querySelector('body > div.mainmenu'),
-        document.querySelector('body > #hbdrop'),
-        document.querySelector('body > div.footer')
-      ];
-      f.contentArea = E1('div.content');
-    }
-    const resized = function(){
+       causing the input area to move off-screen.
+
+       While we're here, we also use this to cap the max-height
+       of the input field so that pasting huge text does not scroll
+       the upper area of the input widget off-screen. */
+    const elemsToCount = [
+      document.querySelector('body > div.header'),
+      document.querySelector('body > div.mainmenu'),
+      document.querySelector('body > #hbdrop'),
+      document.querySelector('body > div.footer')
+    ];
+    const contentArea = E1('div.content');
+    const resized = function f(){
+      if(f.$disabled) return;
       const wh = window.innerHeight,
             com = document.body.classList.contains('chat-only-mode');
       var ht;
@@ -89,11 +92,14 @@ window.fossil.onPageLoad(function(){
       if(com){
         ht = wh;
       }else{
-        f.elemsToCount.forEach((e)=>e ? extra += D.effectiveHeight(e) : false);
+        elemsToCount.forEach((e)=>e ? extra += D.effectiveHeight(e) : false);
         ht = wh - extra;
       }
-      f.contentArea.style.height =
-        f.contentArea.style.maxHeight = [
+      f.chat.e.inputField.style.maxHeight = (ht/2)+"px";
+      /* ^^^^ this is a middle ground between having no size cap
+         on the input field and having a fixed arbitrary cap. */;
+      contentArea.style.height =
+        contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
           " - 0.75em"/*fudge value*/,")"
           /* ^^^^ hypothetically not needed, but both Chrome/FF on
@@ -102,8 +108,10 @@ window.fossil.onPageLoad(function(){
         ].join('');
       if(false){
         console.debug("resized.",wh, extra, ht,
-                      window.getComputedStyle(f.contentArea).maxHeight,
-                      f.contentArea);
+                      window.getComputedStyle(contentArea).maxHeight,
+                      contentArea);
+        console.debug("Set input max height to: ",
+                      f.chat.e.inputField.style.maxHeight);
       }
     };
     var doit;
@@ -111,11 +119,11 @@ window.fossil.onPageLoad(function(){
       clearTimeout(doit);
       doit = setTimeout(resized, 100);
     }, false);
-    resized();
     return resized;
   })();
+  ForceResizeKludge.$disabled = true/*gets deleted when setup is finished*/;
   fossil.FRK = ForceResizeKludge/*for debugging*/;
-  const Chat = (function(){
+  const Chat = ForceResizeKludge.chat = (function(){
     const cs = {
       verboseErrors: false /* if true then certain, mostly extraneous,
                               error messages may be sent to the console. */,
@@ -1170,14 +1178,29 @@ window.fossil.onPageLoad(function(){
                   }
                 });
               }
+              const toolbar3 = D.addClass(D.div(), 'toolbar');
+              D.append(this.e, toolbar3);
+              D.append(toolbar3, D.button(
+                "Locally remove all previous messages",
+                function(){
+                  self.hide();
+                  Chat.mnMsg = +eMsg.dataset.msgid;
+                  var e = eMsg.previousElementSibling;
+                  while(e && e.classList.contains('message-widget')){
+                    const n = e.previousElementSibling;
+                    D.remove(e);
+                    e = n;
+                  }
+                  eMsg.scrollIntoView();
+                }
+              ));
               const toolbar2 = D.addClass(D.div(), 'toolbar');
               D.append(this.e, toolbar2);
-              const btnToggleText = D.button("Toggle text mode");
-              btnToggleText.addEventListener('click', function(){
-                self.hide();
-                Chat.toggleTextMode(eMsg);
-              },false);
-              D.append(toolbar2, btnToggleText);
+              D.append(toolbar2, D.button(
+                "Toggle text mode", function(){
+                  self.hide();
+                  Chat.toggleTextMode(eMsg);
+                }));
               if(eMsg.dataset.xfrom){
                 /* Add a link to the /timeline filtered on this user. */
                 const timelineLink = D.attr(
@@ -1994,7 +2017,9 @@ window.fossil.onPageLoad(function(){
       e.addEventListener('click',flip, false);
     });
   }
-  setTimeout( ()=>Chat.inputFocus(), 0 );
+  delete ForceResizeKludge.$disabled;
+  ForceResizeKludge();
   Chat.animate.$disabled = false;
+  setTimeout( ()=>Chat.inputFocus(), 0 );
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 });
