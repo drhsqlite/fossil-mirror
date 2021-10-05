@@ -1,5 +1,5 @@
-C /chat:\sre-added\saccidentally-disabled\sanimation.\sAdded\sa\sbutton\sto\slocally\sdelete\sall\smessages\sprior\sto\sthe\scurrent\sone\sin\sthe\sper-message\scontrols.\sThe\sintent\sis\sto\sstop\sunbounded\sgrowth\s(and\spotential\slag)\sin\slong-running\schats\sand\sgive\sthe\suser\sto\sway\sto\sflag\s"have\sread\sup\suntil\sthis\spoint".
-D 2021-10-05T18:43:38.062
+C Fix\sthe\serror\sdisplay\srendering\sfor\sPikchr\sdiagrams.\n[forum:/forumpost/d5897397f5|Forum\s\spost\sd5897397f5].
+D 2021-10-05T21:53:33.139
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -550,7 +550,7 @@ F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
 F src/pikchr.c eff4cb60244a616647394abf359663e4cc0ef5c9a81627047b34f552c5a56dd3
-F src/pikchrshow.c 187c8b27b6d054917fdfaaf4c877189d888103c004b0c51d4c72a9714c45c65b
+F src/pikchrshow.c df3ca9e49839ffbc628691af2eb9f197a3428a748c75a185bff95efad7ce7fab
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84d4a0e8517292768383df51ea64e5ca27418073b52458a7e9075762283c776f
-R a064c978e8a07e3cfc618a2b297b41ff
-U stephan
-Z c5c27bc1235025cdf36283cacf84746a
+P fe0bcfaad1aed7d44a69541bb3d6f3f2e73046099eb042231f71e92377db960c
+R 96982b7f5fc7da02177437b2464ba9b1
+U drh
+Z 727da7a210ce51fda390d4ae80a3dfcd
