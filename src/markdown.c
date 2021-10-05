@@ -45,7 +45,8 @@ enum mkd_autolink {
 /* mkd_tagspan -- type of tagged <span> */
 enum mkd_tagspan {
   MKDT_ATREF,           /* @name references, as in /chat attention targeting */
-  MKDT_HASHTAG,         /* #hash tags, message IDs, etc. */
+  MKDT_HASHTAG,         /* #hashtags */
+  MKDT_NUMTAG           /* #123[.456] /chat or /forum message IDs. */
 };
 
 /* mkd_renderer -- functions for rendering parsed data */
@@ -956,7 +957,7 @@ static size_t char_hashref_tag(
 ){
   size_t end;
   struct Blob work = BLOB_INITIALIZER;
-  int nUscore = 0; /* Consecutive underscore counter */;
+  int nUscore = 0; /* Consecutive underscore counter */
   int numberMode = 0 /* 0 for normal, 1 for #NNN numeric,
                   and 2 for #NNN.NNN. */;
   if(offset>0 && !fossil_isspace(data[-1])){
@@ -969,10 +970,19 @@ static size_t char_hashref_tag(
   }
   assert( '#' == data[0] );
   if(size < 2) return 0;
+  end = 2;
   if(fossil_isdigit(data[1])){
     numberMode = 1;
   }else if(!fossil_isalpha(data[1])){
-    return 0;
+    switch(data[1] & 0xF0){
+      /* Reminder: UTF8 char lengths can be determined by
+         masking against 0xF0: 0xf0==4, 0xe0==3, 0xc0==2,
+         else 1. */
+      case 0xF0: end+=3; break;
+      case 0xE0: end+=2; break;
+      case 0xC0: end+=1; break;
+      default: return 0;
+    }
   }
 #if 0
   fprintf(stderr,"HASHREF offset=%d size=%d: %.*s\n",
@@ -982,32 +992,38 @@ static size_t char_hashref_tag(
       case ' ': case '\t': case '\r': case '\n': \
       case ':': case ';': case '!': case '?': case ','
       /* ^^^^ '.' is handled separately */
-  for(end = 2; end < size; ++end){
+  for(; end < size; ++end){
     char ch = data[end];
-    /* Potential TODO: if (ch & 0xF0), treat it as valid, skip that
-       multi-byte character's length characters, and continue
-       looping. Reminder: UTF8 char lengths can be determined by
-       masking against 0xF0: 0xf0==4, 0xe0==3, 0xc0==2, else 1. */
+    switch(ch & 0xF0){
+      case 0xF0: end+=3; continue;
+      case 0xE0: end+=2; continue;
+      case 0xC0: end+=1; continue;
+      case 0x80: goto hashref_bailout /*invalid UTF8*/;
+      default: break;
+    }
+#if 0
+    fprintf(stderr,"hashtag? checking... length=%d: %.*s\n",
+            (int)end, (int)end, data);
+#endif
     switch(ch){
       case '_':
         /* Multiple adjacent underscores not permitted. */
-        if(numberMode>0 || ++nUscore>1) goto hashref_bailout;
+        if(++nUscore>1) goto hashref_bailout;
+        numberMode = 0;
         break;
       case '.':
         if(1==numberMode) ++numberMode;
         ch = 0;
         break;
       HASHTAG_LEGAL_END:
-        if(numberMode==0 && end<3){
-          goto hashref_bailout/*require 2+ characters (arbitrary)*/;
-        }
         ch = 0;
         break;
       case '0': case '1': case '2': case '3': case '4':
       case '5': case '6': case '7': case '8': case '9':
+        nUscore = 0;
         break;
       default:
-        if(numberMode!=0 || !fossil_isalpha(ch)){
+        if(numberMode || !fossil_isalpha(ch)){
           goto hashref_bailout;
         }
         nUscore = 0;
@@ -1015,6 +1031,10 @@ static size_t char_hashref_tag(
     }
     if(ch) continue;
     break;
+  }
+  if((end<3/* #. or some such */ && !numberMode)
+     || end>size/*from truncated multi-byte char*/){
+    return 0;
   }
   if(numberMode>1){
     /* Check for trailing part of #NNN.nnn... */
@@ -1026,7 +1046,7 @@ static size_t char_hashref_tag(
     }
   }
 #if 0
-  fprintf(stderr,"?HASHREF length=%d: %.*s\n",
+  fprintf(stderr,"???HASHREF length=%d: %.*s\n",
           (int)end, (int)end, data);
 #endif
   if(end<size){
@@ -1042,7 +1062,9 @@ static size_t char_hashref_tag(
     }
   }
   blob_init(&work, data + 1, end - 1);
-  rndr->make.tagspan(ob, &work, MKDT_HASHTAG, rndr->make.opaque);
+  rndr->make.tagspan(ob, &work,
+                     numberMode ? MKDT_NUMTAG : MKDT_HASHTAG,
+                     rndr->make.opaque);
   return end;
   hashref_bailout:
 #if 0
