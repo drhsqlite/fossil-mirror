@@ -65,24 +65,27 @@ window.fossil.onPageLoad(function(){
       D.append(document.body,dbg);
     }
   })();
-  const ForceResizeKludge = 0 ? function(){} : (function f(){
+  const ForceResizeKludge = (function(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
        chat layout, but Safari chokes on that, so we calculate that
        height here: 85% when in "normal" mode and 95% in chat-only
        mode. Larger than ~95% is too big for Firefox on Android,
-       causing the input area to move off-screen. */
-    if(!f.elemsToCount){
-      f.elemsToCount = [
-        document.querySelector('body > div.header'),
-        document.querySelector('body > div.mainmenu'),
-        document.querySelector('body > #hbdrop'),
-        document.querySelector('body > div.footer')
-      ];
-      f.contentArea = E1('div.content');
-    }
+       causing the input area to move off-screen.
+
+       While we're here, we also use this to cap the max-height
+       of the input field so that pasting huge text does not scroll
+       the upper area of the input widget off-screen. */
+    const elemsToCount = [
+      document.querySelector('body > div.header'),
+      document.querySelector('body > div.mainmenu'),
+      document.querySelector('body > #hbdrop'),
+      document.querySelector('body > div.footer')
+    ];
+    const contentArea = E1('div.content');
     const bcl = document.body.classList;
-    const resized = function(){
+    const resized = function f(){
+      if(f.$disabled) return;
       const wh = window.innerHeight,
             com = bcl.contains('chat-only-mode');
       var ht;
@@ -90,11 +93,14 @@ window.fossil.onPageLoad(function(){
       if(com){
         ht = wh;
       }else{
-        f.elemsToCount.forEach((e)=>e ? extra += D.effectiveHeight(e) : false);
+        elemsToCount.forEach((e)=>e ? extra += D.effectiveHeight(e) : false);
         ht = wh - extra;
       }
-      f.contentArea.style.height =
-        f.contentArea.style.maxHeight = [
+      f.chat.e.inputField.style.maxHeight = (ht/2)+"px";
+      /* ^^^^ this is a middle ground between having no size cap
+         on the input field and having a fixed arbitrary cap. */;
+      contentArea.style.height =
+        contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
           " - 0.75em"/*fudge value*/,")"
           /* ^^^^ hypothetically not needed, but both Chrome/FF on
@@ -103,8 +109,10 @@ window.fossil.onPageLoad(function(){
         ].join('');
       if(false){
         console.debug("resized.",wh, extra, ht,
-                      window.getComputedStyle(f.contentArea).maxHeight,
-                      f.contentArea);
+                      window.getComputedStyle(contentArea).maxHeight,
+                      contentArea);
+        console.debug("Set input max height to: ",
+                      f.chat.e.inputField.style.maxHeight);
       }
     };
     var doit;
@@ -112,11 +120,11 @@ window.fossil.onPageLoad(function(){
       clearTimeout(doit);
       doit = setTimeout(resized, 100);
     }, false);
-    resized();
     return resized;
   })();
+  ForceResizeKludge.$disabled = true/*gets deleted when setup is finished*/;
   fossil.FRK = ForceResizeKludge/*for debugging*/;
-  const Chat = (function(){
+  const Chat = ForceResizeKludge.chat = (function(){
     const cs = {
       verboseErrors: false /* if true then certain, mostly extraneous,
                               error messages may be sent to the console. */,
@@ -1807,7 +1815,8 @@ window.fossil.onPageLoad(function(){
       e.addEventListener('click',flip, false);
     });
   }
+  delete ForceResizeKludge.$disabled;
+  ForceResizeKludge();
   setTimeout( ()=>Chat.inputFocus(), 0 );
-  Chat.animate.$disabled = false;
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 });
