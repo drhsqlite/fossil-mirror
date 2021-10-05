@@ -999,14 +999,29 @@ window.fossil.onPageLoad(function(){
                   }
                 });
               }
+              const toolbar3 = D.addClass(D.div(), 'toolbar');
+              D.append(this.e, toolbar3);
+              D.append(toolbar3, D.button(
+                "Locally remove all previous messages",
+                function(){
+                  self.hide();
+                  Chat.mnMsg = +eMsg.dataset.msgid;
+                  var e = eMsg.previousElementSibling;
+                  while(e && e.classList.contains('message-widget')){
+                    const n = e.previousElementSibling;
+                    D.remove(e);
+                    e = n;
+                  }
+                  eMsg.scrollIntoView();
+                }
+              ));
               const toolbar2 = D.addClass(D.div(), 'toolbar');
               D.append(this.e, toolbar2);
-              const btnToggleText = D.button("Toggle text mode");
-              btnToggleText.addEventListener('click', function(){
-                self.hide();
-                Chat.toggleTextMode(eMsg);
-              },false);
-              D.append(toolbar2, btnToggleText);
+              D.append(toolbar2, D.button(
+                "Toggle text mode", function(){
+                  self.hide();
+                  Chat.toggleTextMode(eMsg);
+                }));
               if(eMsg.dataset.xfrom){
                 /* Add a link to the /timeline filtered on this user. */
                 const timelineLink = D.attr(
@@ -1817,6 +1832,7 @@ window.fossil.onPageLoad(function(){
   }
   delete ForceResizeKludge.$disabled;
   ForceResizeKludge();
+  Chat.animate.$disabled = false;
   setTimeout( ()=>Chat.inputFocus(), 0 );
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 });
