@@ -282,8 +282,9 @@ window.fossil.onPageLoad(function(){
          && (this.pos.endLhs - this.pos.startLhs <= Diff.config.chunkLoadLines)){
         D.clearElement(this.e.btnWrapper);
         D.append(this.e.btnWrapper, this.createButton(this.FetchType.FillGap));
-        if( this.$fetchQueue && this.$fetchQueue.length>0 ){
-          this.$fetchQueue = [this.FetchType.FillGap];
+        if( this.$fetchQueue && this.$fetchQueue.length>1 ){
+          this.$fetchQueue[1] = this.FetchType.FillGap;
+          this.$fetchQueue.length = 2;
         }
       }
       return this;
@@ -580,7 +581,7 @@ window.fossil.onPageLoad(function(){
       //console.debug("fetchChunk(",fetchType,")",up);
       fOpt.onerror = function(err){
         self.msg(true,err.message);
-        self.$fetchQueue = [];
+        self.$fetchQueue.length = 0;
       };
       Diff.fetchArtifactChunk(fOpt);
       return this;
