@@ -400,7 +400,7 @@ window.fossil.onPageLoad(function(){
           "edit-compact-mode": true,
           /* When on, sets the font-family on messages and the edit
              field to monospace. */
-          "monospace-messages": true,
+          "monospace-messages": false,
           /* When on, non-chat UI elements (page header/footer) are
              hidden */
           "chat-only-mode": false,
