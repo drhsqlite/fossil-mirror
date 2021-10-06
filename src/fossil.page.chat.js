@@ -581,10 +581,12 @@ window.fossil.onPageLoad(function(){
         return this;
       }
     };
-    if(!D.attr(cs.e.inputField,'contenteditable','plaintext-only').isContentEditable){
-      /* Only the Chrome family supports contenteditable=plaintext-only,
-         but Chrome is the only engine for which we need this flag: */
-        D.attr(cs.e.inputField,'contenteditable','true');
+    if(D.attr(cs.e.inputField,'contenteditable','plaintext-only').isContentEditable){
+      cs.$browserHasPlaintextOnly = true;
+    }else{
+      /* Only the Chrome family supports contenteditable=plaintext-only */
+      cs.$browserHasPlaintextOnly = false;
+      D.attr(cs.e.inputField,'contenteditable','true');
     }
     cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
@@ -1145,19 +1147,26 @@ window.fossil.onPageLoad(function(){
       /* else continue propagating */
     };
     document.addEventListener('paste', pasteListener, true);
-    if(0){
-      const onPastePlainText = function(ev){
-        var pastedText = undefined;
-        if (window.clipboardData && window.clipboardData.getData) { // IE
-          pastedText = window.clipboardData.getData('Text');
-        }else if (ev.clipboardData && ev.clipboardData.getData) {
-          pastedText = ev.clipboardData.getData('text/plain');
-        }
-        ev.target.textContent += pastedText;
-        ev.preventDefault();
-        return false;
-      };
-      Chat.e.inputField.addEventListener('paste', onPastePlainText, false);
+    if(window.Selection && window.Range && !Chat.$browserHasPlaintextOnly){
+      /* Acrobatics to keep *some* installations of Firefox
+         from pasting formatting into contenteditable fields.
+         This also works on Chrome, but chrome has the
+         contenteditable=plaintext-only property which does this
+         for us. */
+      Chat.inputElement().addEventListener(
+        'paste',
+        function(ev){
+          if (ev.clipboardData && ev.clipboardData.getData) {
+            const pastedText = ev.clipboardData.getData('text/plain');
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return false;
+            selection.deleteFromDocument(/*remove selected content*/);
+            selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
+            selection.collapseToEnd(/*deselect pasted text and set cursor at the end*/);
+            ev.preventDefault();
+            return false;
+          }
+        }, false);
     }
     const noDragDropEvents = function(ev){
       /* contenteditable tries to do its own thing with dropped data,
