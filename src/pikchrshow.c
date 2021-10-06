@@ -216,7 +216,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
         if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
           blob_append(pOut, "<pre class='error'>\n", 20);
         }
-        blob_append(pOut, zOut, -1);
+        blob_appendf(pOut, "%h", zOut);
         if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
           blob_append(pOut, "\n</pre>\n", 8);
         }
