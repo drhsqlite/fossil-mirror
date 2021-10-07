@@ -706,7 +706,7 @@ permission.</p>
 <p>A server sends the uv-push-ok pragma to the client in response
 to a uv-hash pragma with a mismatched content hash argument.  This
 pragma indicates that there are differences in unversioned content
-between the client and server and that content can only be transferred
+between the client and server and that content can be transferred
 in either direction.  The server is willing to accept content from
 the client because the client login has the "write-unversioned"
 permission.</p>

@@ -1,5 +1,5 @@
-C /chat\sanother\sCSS-side\scontenteditable\sportability\sworkaround\sto\skeep\sFirefox\sfrom\slosing\snewlines\son\spasted-in\stext.
-D 2021-10-07T04:07:02.595
+C Fixed\sa\scopy/paste\serror\sin\swww/sync.wiki\sper\s[forum:/forumpost/3fd51c58d0\s|\san\sanonymous\sforum\spost].
+D 2021-10-07T13:01:30.212
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -970,7 +970,7 @@ F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3
 F www/ssl.wiki 857c82fac2af659a0482d4c984f08a7e27129cf087f2cecd5f23fbb074574132
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki 7575376b1427f526738b49b55f379b619368c3780119bfed1f7e62d164d4c4b2
+F www/sync.wiki fde4b649748dca3cf982b896fda8414e0ee80dffadc509571115ffbf073d08e0
 F www/tech_overview.wiki da5c3d1634fd953f7eacf0554cd5cb2895b654b478d8c428eac8bc780992524a
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 23e7b8566a7ad19e4f174811d75d582fdc4c319dd150dd804deae96909a9d756
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3cd13cb633e6aa62d832697c7699c409d9ea24264a26c9d7e60ccbfaf374279c
-R 369182b7ebe254ae9ece8473c3bb840b
-U stephan
-Z badc82fb5d75a4fb392006d3cd06cd43
+P c7fa9f150f5a9c0986e8a4b5aa713e1d5da6c1a3062d713be00b447588bcc007
+R 648ef7b4968b1daebf2f0f0db4c51324
+U wyoung
+Z a83d27116c09096ce4cc7375c8727089
