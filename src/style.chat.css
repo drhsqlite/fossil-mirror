@@ -193,6 +193,9 @@ body.chat:not(.chat-only-mode) #chat-input-area{
   white-space: pre-wrap;
   /* ^^^ Firefox, when pasting plain text into a contenteditable field,
      loses all newlines unless we explicitly set this. Chrome does not. */
+  cursor: text;
+  /* ^^^ In some browsers the cursor may not change for a contenteditable
+     element until it has focus, causing potential confusion. */
 }
 #chat-input-field:empty::before {
   content: attr(data-placeholder);
