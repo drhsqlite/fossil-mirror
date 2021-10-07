@@ -782,15 +782,16 @@ window.fossil.onPageLoad(function(){
       cs.pageIsActive = ('visible' === document.visibilityState);
       if(cs.pageIsActive){
         cs.e.pageTitle.innerText = cs.pageTitleOrig;
-        console.debug("Taking back input focus.");
-        cs.inputFocus(
+        if(document.activeElement!==cs.inputElement()){
           /* An attempt to resolve usability problem reported by Joe
              M. where the Pale Moon browser is giving input focus to
              the Preview button. The down-side of this is that it will
              deselect any text which was previously selected on this
              page. This also, unfortunately, places the focus at the
              start of the element, rather than the last cursor position
-             (like a textarea would). */);
+             (like a textarea would). */
+          cs.inputFocus();
+        }
       }
     }, true);
     cs.setCurrentView(cs.e.viewMessages);
