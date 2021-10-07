@@ -190,6 +190,9 @@ body.chat:not(.chat-only-mode) #chat-input-area{
   background-color: rgba(156,156,156,0.3);
   overflow: auto;
   resize: vertical;
+  white-space: pre-wrap;
+  /* ^^^ Firefox, when pasting plain text into a contenteditable field,
+     loses all newlines unless we explicitly set this. Chrome does not. */
 }
 #chat-input-field:empty::before {
   content: attr(data-placeholder);
