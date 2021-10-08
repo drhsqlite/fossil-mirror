@@ -1950,7 +1950,7 @@ void jchunk_page(void){
   }
   content_get(rid, &content);
   g.isConst = 1;
-  cgi_set_content_type("text/json");
+  cgi_set_content_type("application/json");
   ln = 0;
   while( go && ln<iFrom ){
     go = blob_line(&content, &line);

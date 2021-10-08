@@ -1,5 +1,5 @@
-C Documented\sfossil.fetch()'s\sbehavior\sof\sonerror()\sbeing\scalled\sif\sonload()\sthrows.\sAdded\sa\ssafety\snet\sin\sthe\sdiff\scontext\sloader\sto\shandle\sa\scorner\scase\snull\sdereference\swhen\san\sexception\sin\sonload()\striggers\sonerror()\safter\sthe\scontext\sloader's\sDOM\selements\shave\sbeen\sdestroyed.\s[forum:7bc8301eb191cf6d|Forum\spost\s7bc8301eb191cf6d].
-D 2021-10-08T17:42:14.971
+C Use\sapplication/json\sinstead\sof\stext/json\sfor\sJSON-format\sresponses.\s[forum:30629128c1|Forum\spost\s30629128c1].
+D 2021-10-08T17:49:27.051
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -502,7 +502,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c e414dce084c13bf35da951f45dc5ffdaed195f06ec6cfeb0fc22a83bee5bbbee
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
-F src/info.c 96a44645529426c345f0f2199529cb22ca5eebeb1b6caf362a756b7f5f3c7061
+F src/info.c 4ebf41eca247a4449af76101b7efcbebf035b88a59ed5072d91833e7fa3ce71d
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -623,7 +623,7 @@ F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1b
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
-F src/unversioned.c 2900b0a8eff959f1753a8af6c754a6c80e53069521cf307b1272b10c87f9c901
+F src/unversioned.c 1cd024480054ae480ca4e31f90be3a20d4c58f6e776b44c169739360dd81f00b
 F src/update.c 86d89109d9527d64712b198c3a2f23627c13c909ec6a1b1f2626c4e33b0b35a1
 F src/url.c 36ebb933ec401bc85fb4a0f631617d78e7d764ad31a9aaa26e34e2f6b3879f4a
 F src/user.c 14eb8bbf710d57bf440e46a70a016d65b3acb20bb7dd9ba37c9b258480006ccf
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aad4b78936f1543ffe2ee38deb8d27d4f77ae76b64e018ebceb24ff7b1c389c4
-R dfd357aa0bd828b24e397d2a3494cc26
+P 49e3bf7b1324afae10c34d7f52bd623687dae81949445b8b02f9783f73ce1578
+R edac8d582902e95565b236b338f74dbe
 U stephan
-Z 1e7ddda3486bf187917a963949d66e2c
+Z 20b92810d85fa5d5ad1cba75ed49daa2
