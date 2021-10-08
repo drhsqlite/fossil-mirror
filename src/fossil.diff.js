@@ -580,8 +580,12 @@ window.fossil.onPageLoad(function(){
       }
       //console.debug("fetchChunk(",fetchType,")",up);
       fOpt.onerror = function(err){
-        self.msg(true,err.message);
-        self.$fetchQueue.length = 0;
+        if(self.e/*guard against a late-stage onerror() call*/){
+          self.msg(true,err.message);
+          self.$fetchQueue.length = 0;
+        }else{
+          Diff.config.chunkFetch.onerror.call(this,e);
+        }
       };
       Diff.fetchArtifactChunk(fOpt);
       return this;
