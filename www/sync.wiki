@@ -720,7 +720,7 @@ trying to commit against CHECKIN-HASH, that indicates that a
 fork is about to occur, and the server will reply with
 a "ci-lock-fail" pragma (see below).  Check-in locks
 automatically expire when the check-in actually occurs, or
-after a timeout (currently 24-hours but subject to change).
+after a timeout (currently one minute but subject to change).
 
 <li><p><b>ci-lock-fail</b> <i>LOGIN MTIME</i></p>
 <p>When a server receives two or more "ci-lock" pragma messages
