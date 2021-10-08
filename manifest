@@ -1,5 +1,5 @@
-C /chat:\sremoved\ssome\sdebug\soutput.\sReformulated\spart\sof\sthe\sprevious\scheckin\sto\sonly\sre-grab\sinput\sfocus\sif\sthe\sinput\sfield\sis\snot\sdocument.activeElement.
-D 2021-10-07T16:45:51.599
+C Fix\sa\suse-after-free\swhen\sprinting\sthe\s"home\sdirectory\smust\sbe\swritable"\nerror\smessage.
+D 2021-10-08T12:18:49.266
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -444,7 +444,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
+F src/db.c 6060f0547c957700bf4b5b02ee061550e781d0eadf47727ee84d1a0fadb5e8c4
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 503395796e5f9772fc519b3b0399c848a5fd6d5a85128d0e04fbf0e7fd1b3a0d
-R fdfd4132abd17ded5266e704e5c63993
-U stephan
-Z 9e9e2b1a3705cdb69730db6b532d369c
+P 85a99733d543b965dd0bdeb0ae74d418e5c4c732e8e5eea2e8ecbf80a0b94c74
+R 99cd2868d8bc61553cb761e974afe680
+U drh
+Z 83edab23c29ac6ee1280ccfb0f62a70d
