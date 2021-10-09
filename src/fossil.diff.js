@@ -584,7 +584,7 @@ window.fossil.onPageLoad(function(){
           self.msg(true,err.message);
           self.$fetchQueue.length = 0;
         }else{
-          Diff.config.chunkFetch.onerror.call(this,e);
+          Diff.config.chunkFetch.onerror.call(this,err);
         }
       };
       Diff.fetchArtifactChunk(fOpt);

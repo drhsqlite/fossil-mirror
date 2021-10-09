@@ -1,5 +1,5 @@
-C /chat:\sa\slong-shot\spotential\sworkaround\sfor\sthe\sweird\sintermittent\sbug\swhere\sthe\sPale\sMoon\sbrowser\sgives\sfocus\sto\sthe\spreview\s(non-)button\sinstead\sof\sthe\sinput\sfield.\sWorst\scase,\sit\sbehaves\sthe\ssame\sas\sit\sdoes\snow.
-D 2021-10-09T04:12:37.039
+C Typo\sfix\sin\sdiff\scontext\sloader\sXHR\serror\shandler,\swith\sthanks\sto\sFlorian.
+D 2021-10-09T09:20:32.289
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -470,7 +470,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
-F src/fossil.diff.js ef85ccf0103a217eef7667fed4c71c2131d00828aff98a9cf2b68062dd75e781
+F src/fossil.diff.js 1af4152c5810da57ef5ab1377e480a6015da6175e4ea7a46d55e2202d2a6b34e
 F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e05e09
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62572ab606345d98d788156c79fc7e80b79739b8e91716d2873491c7b1deaf1d
-R 9e44b03487db17eef1ffbec6d53599c5
+P e3e62a0d3de314680b227c0b5965ddc759184a17ca4551b00de9c54e906f3b39
+R 846a0e7f9ca88d16db6156c03573ecb3
 U stephan
-Z 37381062e8e7816a61ea9a7ce7f25d5d
+Z 6e908444eca4b578266c536ab73c1b0d
