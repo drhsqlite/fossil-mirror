@@ -46,6 +46,12 @@ Possible uses for technotes include:
      team or acquisition of new project sponsors can be communicated as
      announcements which can be implemented as technotes.
 
+  *  <b>Signed Checksums</b>.  Technotes containing cryptographically signed
+     checksums can be linked to repository artifacts, thereby creating a
+     traceable, auditable chain so that users can readily verify the integrity
+     and authenticity of project deliverables. And the command line interface
+     to technotes enables embedding such processes in scripts.
+
 No project is required to use technotes.  But technotes can help many projects
 stay better organized and provide a better historical record of the
 development progress.
@@ -84,7 +90,7 @@ Different technotes can have the same timestamp.
 The first argument to create, <b>TECHNOTE-COMMENT</b>, is the title text for the technote
 that appears in the timeline. 
 
-To view technotes, use the <b>wiki ls</b> command:
+To view all technotes, use the <b>wiki ls</b> command:
 
 <blockquote>
 <b>
@@ -95,6 +101,21 @@ fossil wiki ls --technote --show-technote-ids<br>
 </blockquote>
 
 A technote ID is the UUID of the technote.
+
+To view an individual technote, use the <b>wiki export</b> command:
+
+<blockquote>
+<b>
+fossil wiki export --technote version-2.16<br>
+Release Notes 2021-07-02
+
+This note describes changes in the Fossil snapshot for ...
+</b>
+</blockquote>
+
+The <b>-t|--technote</b> option to the <b>export</b> subcommand takes one of
+three identifiers: <b>DATETIME</b>; <b>TECHNOTE-ID</b>; and <b>TAG</b>.
+See the [/help?cmd=wiki | wiki help] for specifics.
 
 Users must have check-in privileges (permission "i") in order to
 create or edit technotes.  In addition, users must have create-wiki

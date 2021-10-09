@@ -4,9 +4,7 @@ body {
   padding: 0px;
   background-color: white;
   font-family: sans-serif;
-  -moz-text-size-adjust: none;
-  -webkit-text-size-adjust: none;
-  -mx-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
 /* The page title centered at the top of each page */

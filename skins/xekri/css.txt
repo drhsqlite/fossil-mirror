@@ -24,9 +24,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  -moz-text-size-adjust: none;
-  -ms-text-size-adjust: none;
-  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
 a {
@@ -93,13 +91,22 @@ div.header, div.mainmenu, div.submenu, div.content, div.footer {
 
 div.header {
   margin: 0.5rem auto 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+div.logo {
+  display: inline;
+  max-height: 4em;
+  max-width: 4em;
+  flex: 0 1 auto;
 }
 
 div.logo img {
-  float: left;
   padding: 0;
-  box-shadow: 3px 3px 1px #000;
-  margin: 0 6px 6px 0;
+  box-shadow: 2px 4px 6px rgba(180,180,180,0.70);
+  border-radius: 2mm;
 }
 
 div.logo br {
@@ -124,6 +131,7 @@ div.title {
   padding: 0.5rem;
   text-align: center;
   text-shadow: 3px 3px 1px #000;
+  flex: 10 0 auto;
 }
 
 div.status {
@@ -132,6 +140,7 @@ div.status {
   padding: 0.25rem;
   text-align: right;
   text-shadow: 2px 2px 1px #000;
+  flex: 0 1 auto;
 }
 
 
@@ -230,7 +239,7 @@ div.footer div {
   box-shadow: 3px 3px 1px #000;
   border-radius: 0 0 1rem 1rem;
   margin: 0 0 10px 0;
-  padding: 0.5rem 0.75rem;
+  padding: 0.25rem 0.75rem;
 }
 
 div.footer div.page-time {
@@ -266,22 +275,31 @@ table.label-value th {
  * Diffs
  */
 
+tr.diffskip.jchunk {
+  background-color: black;
+}
+tr.diffskip > td.chunkctrl .jcbutton {
+  background-color: #303536;
+}
+
 /* Code Added */
-span.diffadd {
+td.diffln ins,
+td.difftxt ins > ins {
   background-color: #7f7;
   color: #000;
 }
-
-/* Code Changed */
-span.diffchng {
-  background-color: #77f;
-  color: #000;
+td.difftxt ins {
+  background-color: inherit;
 }
 
 /* Code Deleted */
-span.diffrm {
+td.diffln del,
+td.difftxt del > del {
   background-color: #f77;
   color: #000;
+}
+td.difftxt del {
+  background-color: inherit;
 }
 
 
@@ -290,46 +308,39 @@ span.diffrm {
  */
 
 /* display (column-based) */
-table.sbsdiffcols {
+table.splitdiff {
   border-spacing: 0;
   font-size: 0.85rem;
-  width: 90%;
 }
 
-table.sbsdiffcols pre {
+table.splitdiff pre {
   border: 0;
-  margin: 0;
+  margin: 0 0.5em;
   padding: 0;
 }
 
-table.sbsdiffcols td {
+table.splitdiff td {
   padding: 0;
   vertical-align: top;
 }
 
 /* line number column */
-div.difflncol {
+td.diffln {
   color: #ee0;
   padding-right: 0.75em;
   text-align: right;
 }
 
 /* diff text column */
-div.difftxtcol {
+td.difftxt {
   background-color: #111;
   overflow-x: auto;
   width: 45em;
 }
 
-/* suppressed lines */
-span.diffhr {
-  display: inline-block;
-  margin-bottom: 0.75em;
-  color: #ff0;
-}
 
 /* diff marker column */
-div.diffmkrcol {
+td.diffsep {
   padding: 0 0.5em;
 }
 
@@ -338,14 +349,8 @@ div.diffmkrcol {
  * Diffs : Unified
  */
 
-pre.udiff {
+table.udiff pre {
   background-color: #111;
-}
-
-/* line numbers */
-span.diffln {
-  background-color: #222;
-  color: #ee0;
 }
 
 
@@ -1147,4 +1152,18 @@ div.forumPostBody blockquote {
 body.branch .brlist > table > tbody > tr:hover:not(.selected),
 body.branch .brlist > table > tbody > tr.selected {
   background-color: #444;
+}
+
+body.chat div.header, body.chat div.footer,
+body.chat div.mainmenu, body.chat div.submenu,
+body.chat div.content {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  margin-top: auto/*eliminates unnecessary scrollbars*/;
+}
+body.chat.chat-only-mode div.content {
+  max-width: revert;
+}
+body.chat #chat-user-list .chat-user{
+  color: white;
 }

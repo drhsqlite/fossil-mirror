@@ -167,11 +167,9 @@ puts $out {
 <li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
 <li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
 <li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
-<li> <a href='http://fossil-scm.org/schimpf-book/home'>Jim Schimpf's
-book</a>
+<li> <a href='http://fossil-scm.org/fossil-book/home'>Fossil book</a>
 </ul>
-<a name="pindex"></a>
-<h2>Other Documents:</h2>
+<h2 id="pindex">Other Documents:</h2>
 <ul>}
 foreach entry $permindex {
   foreach {title file bold} $entry break

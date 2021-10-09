@@ -325,7 +325,7 @@ This wide range of options allows Fossil to talk to pretty much any
 SMTP setup.
 
 The first four options let Fossil delegate email handling to an existing
-[MTA][mta] so that Fossil does not need to implement the [roughly two
+[MTA] so that Fossil does not need to implement the [roughly two
 dozen][mprotos] separate [RFCs][rfcs] required in order to properly
 support SMTP email in this complex world we've built.  As well, this
 design choice means you do not need to do duplicate configuration, such
@@ -345,7 +345,7 @@ details we ignored which we'll cover now.
 Fossil pipes the email message in [RFC 822 format][rfc822] to the
 standard input of the command you gave as the "Email Send Method",
 defaulting to `sendmail -ti`. This constitutes a protocol between Fossil
-and the SMTP [message transfer agent (MTA)][mta]. Any other MTA which
+and the SMTP [message transfer agent (MTA)][MTA]. Any other MTA which
 speaks the same protocol can be used in place of the most common
 options: Sendmail, Exim, and Postfix.
 
@@ -380,7 +380,7 @@ or a how-to on [the Fossil forum][ff] would be appreciated.
 
 [ff]:     https://fossil-scm.org/forum/
 [msmtp]:  https://marlam.de/msmtp/
-[mta]:    https://en.wikipedia.org/wiki/Message_transfer_agent
+[MTA]:    https://en.wikipedia.org/wiki/Message_transfer_agent
 [pmdoc]:  http://pm-doc.sourceforge.net/doc/
 [rfc822]: https://www.w3.org/Protocols/rfc822/
 
@@ -445,7 +445,7 @@ from reading a message file as it's being written.
 
 It might be useful in testing and debugging to temporarily switch to
 this method, since you can easily read the generated email messages
-without needing to involve [an MTA][mta].
+without needing to involve an [MTA].
 
 
 <a id="relay"></a>

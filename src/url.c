@@ -198,6 +198,7 @@ void url_parse_local(
         pUrlData->port = pUrlData->port*10 + c - '0';
         i++;
       }
+      if( c!=0 && c!='/' ) fossil_fatal("url missing '/' after port number");
       pUrlData->hostname = mprintf("%s:%d", pUrlData->name, pUrlData->port);
     }else{
       pUrlData->port = pUrlData->dfltPort;
@@ -229,6 +230,7 @@ void url_parse_local(
       if( fossil_strcmp(zName,"fossil")==0 ){
         pUrlData->fossil = zValue;
         dehttpize(pUrlData->fossil);
+        fossil_free(zExe);
         zExe = mprintf("%cfossil=%T", cQuerySep, pUrlData->fossil);
         cQuerySep = '&';
       }
@@ -237,12 +239,12 @@ void url_parse_local(
     dehttpize(pUrlData->path);
     if( pUrlData->dfltPort==pUrlData->port ){
       pUrlData->canonical = mprintf(
-        "%s://%s%T%T%s",
+        "%s://%s%T%T%z",
         pUrlData->protocol, zLogin, pUrlData->name, pUrlData->path, zExe
       );
     }else{
       pUrlData->canonical = mprintf(
-        "%s://%s%T:%d%T%s",
+        "%s://%s%T:%d%T%z",
         pUrlData->protocol, zLogin, pUrlData->name, pUrlData->port,
         pUrlData->path, zExe
       );
@@ -296,6 +298,21 @@ void url_parse_local(
       }
     }
   }
+}
+
+/*
+** Reclaim malloced memory from a UrlData object
+*/
+void url_unparse(UrlData *p){
+  if( p==0 ){
+    p = &g.url;
+  }
+  fossil_free(p->canonical);
+  fossil_free(p->name);
+  fossil_free(p->path);
+  fossil_free(p->user);
+  fossil_free(p->passwd);
+  memset(p, 0, sizeof(*p));
 }
 
 /*
@@ -371,6 +388,7 @@ void cmd_test_urlparser(void){
       fossil_print("********\n");
       url_enable_proxy("Using proxy: ");
     }
+    url_unparse(0);
   }
 }
 
@@ -661,7 +679,8 @@ char *url_to_repo_basename(const char *zUrl){
     zTail += 4;
   }
   if( zTail[0]==0 ) return 0;
-  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
+  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?' &&
+           zTail[i]!=':' && zTail[i]!='/'; i++){}
   if( i==0 ) return 0;
   return mprintf("%.*s", i, zTail);
 }

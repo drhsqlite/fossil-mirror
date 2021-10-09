@@ -48,8 +48,8 @@ requires a slightly different set of options vs. `fossil server`:
 fossil winsrv create --repository D:/Path/to/Repos --repolist
 ```
 
-<a name='PowerShell'></a>
-### Advanced service installation using PowerShell
+
+### <a id='PowerShell'></a>Advanced service installation using PowerShell
 
 As great as `fossil winsrv` is, it does not have one to one reflection of all of
 the `fossil server` [options](/help?cmd=server).  When you need to use some of

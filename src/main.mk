@@ -216,20 +216,21 @@ EXTRA_FILES = \
   $(SRCDIR)/alerts/bflat3.wav \
   $(SRCDIR)/alerts/bloop.wav \
   $(SRCDIR)/alerts/plunk.wav \
-  $(SRCDIR)/chat.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
   $(SRCDIR)/default.css \
+  $(SRCDIR)/diff.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
   $(SRCDIR)/fossil.copybutton.js \
+  $(SRCDIR)/fossil.diff.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
-  $(SRCDIR)/fossil.info-diff.js \
   $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.brlist.js \
+  $(SRCDIR)/fossil.page.chat.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
@@ -246,7 +247,6 @@ EXTRA_FILES = \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
-  $(SRCDIR)/sbsdiff.js \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
@@ -267,6 +267,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/e.wav \
   $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/style.admin_log.css \
+  $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \

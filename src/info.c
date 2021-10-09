@@ -332,17 +332,18 @@ void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
 static void append_diff(
   const char *zFrom,    /* Diff from this artifact */
   const char *zTo,      /*  ... to this artifact */
-  u64 diffFlags,        /* Diff formatting flags */
-  ReCompiled *pRe       /* Only show change matching this regex */
+  DiffConfig *pCfg      /* The diff configuration */
 ){
   int fromid;
   int toid;
-  Blob from, to, out;
+  Blob from, to;
   if( zFrom ){
     fromid = uuid_to_rid(zFrom, 0);
     content_get(fromid, &from);
+    pCfg->zLeftHash = zFrom;
   }else{
     blob_zero(&from);
+    pCfg->zLeftHash = 0;
   }
   if( zTo ){
     toid = uuid_to_rid(zTo, 0);
@@ -350,20 +351,15 @@ static void append_diff(
   }else{
     blob_zero(&to);
   }
-  blob_zero(&out);
-  if( diffFlags & DIFF_SIDEBYSIDE ){
-    text_diff(&from, &to, &out, pRe, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
-    @ %s(blob_str(&out))
+  if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
+    pCfg->diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
   }else{
-    text_diff(&from, &to, &out, pRe,
-           diffFlags | DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG);
-    @ <pre class="udiff">
-    @ %s(blob_str(&out))
-    @ </pre>
+    pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  text_diff(&from, &to, cgi_output_blob(), pCfg);
+  pCfg->zLeftHash = 0;
   blob_reset(&from);
   blob_reset(&to);
-  blob_reset(&out);
 }
 
 /*
@@ -376,8 +372,7 @@ static void append_file_change_line(
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
-  u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
-  ReCompiled *pRe,      /* Only show diffs that match this regex, if not NULL */
+  DiffConfig *pCfg,     /* Flags for text_diff() or NULL to omit all */
   int mperm             /* executable or symlink permission for zNew */
 ){
   @ <p>
@@ -399,8 +394,8 @@ static void append_file_change_line(
     }else{
       @ Changes to %h(zName).
     }
-    if( diffFlags ){
-      append_diff(zOld, zNew, diffFlags, pRe);
+    if( pCfg ){
+      append_diff(zOld, zNew, pCfg);
     }
   }else{
     if( zOld && zNew ){
@@ -434,8 +429,8 @@ static void append_file_change_line(
       @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
-    if( diffFlags ){
-      append_diff(zOld, zNew, diffFlags, pRe);
+    if( pCfg ){
+      append_diff(zOld, zNew, pCfg);
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
@@ -447,41 +442,35 @@ static void append_file_change_line(
 /*
 ** Generate javascript to enhance HTML diffs.
 */
-void append_diff_javascript(int sideBySide){
-  if( !sideBySide ) return;
-  builtin_request_js("sbsdiff.js");
+void append_diff_javascript(int diffType){
+  if( diffType==0 ) return;
+  builtin_fossil_js_bundle_or("diff", NULL);
 }
 
 /*
 ** Construct an appropriate diffFlag for text_diff() based on query
 ** parameters and the to boolean arguments.
 */
-u64 construct_diff_flags(int diffType){
+DiffConfig *construct_diff_flags(int diffType, DiffConfig *pCfg){
   u64 diffFlags = 0;  /* Zero means do not show any diff */
   if( diffType>0 ){
     int x;
-    if( diffType==2 ){
-      diffFlags = DIFF_SIDEBYSIDE;
-
-      /* "dw" query parameter determines width of each column */
-      x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
-      if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
-      diffFlags += x;
-    }
-
-    if( P("w") ){
-      diffFlags |= DIFF_IGNORE_ALLWS;
-    }
-    /* "dc" query parameter determines lines of context */
-    x = atoi(PD("dc","7"));
-    if( x<0 || x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
-    diffFlags += x;
-
-    /* The "noopt" parameter disables diff optimization */
+    if( diffType==2 ) diffFlags = DIFF_SIDEBYSIDE;
+    if( P("w") )      diffFlags |= DIFF_IGNORE_ALLWS;
     if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
     diffFlags |= DIFF_STRIP_EOLCR;
+    diff_config_init(pCfg, diffFlags);
+
+    /* "dc" query parameter determines lines of context */
+    x = atoi(PD("dc","7"));
+    if( x>0 ) pCfg->nContext = x;
+
+    /* The "noopt" parameter disables diff optimization */
+    return pCfg;
+  }else{
+    diff_config_init(pCfg, 0);
+    return 0;
   }
-  return diffFlags;
 }
 
 /*
@@ -622,16 +611,16 @@ void ci_page(void){
   int rid;
   int isLeaf;
   int diffType;        /* 0: no diff,  1: unified,  2: side-by-side */
-  u64 diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the check-in to be displayed */
   const char *zUuid;   /* Hash of zName, found via blob.uuid */
   const char *zParent; /* Hash of the parent check-in (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
-  const char *zW;      /* URL param for ignoring whitespace */
+  const char *zW;               /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
-  const char *zBrName; /* Branch name */
+  const char *zBrName;          /* Branch name */
+  DiffConfig DCfg,*pCfg;        /* Type of diff */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -886,8 +875,9 @@ void ci_page(void){
   render_checkin_context(rid, 0, 0, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
-  diffFlags = construct_diff_flags(diffType);
-  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  DCfg.pRe = pRe;  
+  zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=0 ){
     @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
     @ Hide&nbsp;Diffs</a>
@@ -941,11 +931,10 @@ void ci_page(void){
     const char *zNew = db_column_text(&q3,3);
     const char *zOldName = db_column_text(&q3, 4);
     append_file_change_line(zUuid, zName, zOld, zNew, zOldName, 
-                            diffFlags,pRe,mperm);
+                            pCfg,mperm);
   }
   db_finalize(&q3);
-  append_diff_javascript(diffType==2);
-  builtin_fossil_js_bundle_or("info-diff",NULL);
+  append_diff_javascript(diffType);
   style_finish_page();
 }
 
@@ -1175,7 +1164,6 @@ static void checkin_description(int rid){
 void vdiff_page(void){
   int ridFrom, ridTo;
   int diffType = 0;        /* 0: none, 1: unified, 2: side-by-side */
-  u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
   const char *zBranch;
@@ -1185,6 +1173,7 @@ void vdiff_page(void){
   const char *zGlob;
   char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
+  DiffConfig DCfg, *pCfg = 0;
   int graphFlags = 0;
   Blob qp;
   int bInvert = PB("inv");
@@ -1237,8 +1226,8 @@ void vdiff_page(void){
     graphFlags |= TIMELINE_NOCOLOR;
     blob_appendf(&qp, "&nc");
   }
-  diffFlags = construct_diff_flags(diffType);
-  if( diffFlags & DIFF_IGNORE_ALLWS ){
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  if( DCfg.diffFlags & DIFF_IGNORE_ALLWS ){
     blob_appendf(&qp, "&w");
   }
   style_set_current_feature("vdiff");
@@ -1261,7 +1250,7 @@ void vdiff_page(void){
     style_submenu_element("Clear glob", "%R/vdiff?diff=%d&%b", diffType, &qp);
   }else{
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo,
-           (diffFlags & DIFF_IGNORE_ALLWS)?"&w":"");
+           (DCfg.diffFlags & DIFF_IGNORE_ALLWS)?"&w":"");
   }
   if( diffType!=0 ){
     style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
@@ -1309,6 +1298,7 @@ void vdiff_page(void){
   pFileFrom = manifest_file_next(pFrom, 0);
   manifest_file_rewind(pTo);
   pFileTo = manifest_file_next(pTo, 0);
+  DCfg.pRe = pRe;
   while( pFileFrom || pFileTo ){
     int cmp;
     if( pFileFrom==0 ){
@@ -1321,13 +1311,13 @@ void vdiff_page(void){
     if( cmp<0 ){
       if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
         append_file_change_line(zFrom, pFileFrom->zName,
-                                pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
+                                pFileFrom->zUuid, 0, 0, pCfg, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
         append_file_change_line(zTo, pFileTo->zName,
-                                0, pFileTo->zUuid, 0, diffFlags, pRe,
+                                0, pFileTo->zUuid, 0, pCfg,
                                 manifest_file_mperm(pFileTo));
       }
       pFileTo = manifest_file_next(pTo, 0);
@@ -1339,7 +1329,7 @@ void vdiff_page(void){
                 || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid,
-                                pFileTo->zUuid, 0, diffFlags, pRe,
+                                pFileTo->zUuid, 0, pCfg,
                                 manifest_file_mperm(pFileTo));
       }
       pFileFrom = manifest_file_next(pFrom, 0);
@@ -1348,8 +1338,7 @@ void vdiff_page(void){
   }
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
-  append_diff_javascript(diffType==2);
-  builtin_fossil_js_bundle_or("info-diff",NULL);
+  append_diff_javascript(diffType);
   style_finish_page();
 }
 
@@ -1730,6 +1719,7 @@ void diff_page(void){
   u64 diffFlags;
   u32 objdescFlags = 0;
   int verbose = PB("verbose");
+  DiffConfig DCfg;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -1776,12 +1766,15 @@ void diff_page(void){
   if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
     Blob c1, c2, *pOut;
+    DiffConfig DCfg;
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
     diffFlags = 4;
     content_get(v1, &c1);
     content_get(v2, &c2);
-    text_diff(&c1, &c2, pOut, pRe, diffFlags);
+    diff_config_init(&DCfg, diffFlags);
+    DCfg.pRe = pRe;
+    text_diff(&c1, &c2, pOut, &DCfg);
     blob_reset(&c1);
     blob_reset(&c2);
     return;
@@ -1789,7 +1782,8 @@ void diff_page(void){
 
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
-  diffFlags = construct_diff_flags(diffType) | DIFF_HTML;
+  construct_diff_flags(diffType, &DCfg);
+  DCfg.diffFlags |= DIFF_HTML;
 
   style_set_current_feature("fdiff");
   style_header("Diff");
@@ -1819,9 +1813,10 @@ void diff_page(void){
   if( pRe ){
     @ <b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b>
+    DCfg.pRe = pRe;
   }
   @ <hr />
-  append_diff(zV1, zV2, diffFlags, pRe);
+  append_diff(zV1, zV2, &DCfg);
   append_diff_javascript(diffType);
   style_finish_page();
 }
@@ -1887,6 +1882,94 @@ void secure_rawartifact_page(void){
   deliver_artifact(rid, P("m"));
 }
 
+
+/*
+** WEBPAGE: jchunk hidden
+** URL: /jchunk/HASH?from=N&to=M
+**
+** Return lines of text from a file as a JSON array - one entry in the
+** array for each line of text.
+**
+** **Warning:**  This is an internal-use-only interface that is subject to
+** change at any moment.  External application should not use this interface
+** since the application will break when this interface changes, and this
+** interface will undoubtedly change.
+**
+** This page is intended to be used in an XHR from javascript on a
+** diff page, to return unseen context to fill in additional context
+** when the user clicks on the appropriate button. The response is
+** always in JSON form and errors are reported as documented for
+** ajax_route_error().
+*/
+void jchunk_page(void){
+  int rid = 0;
+  const char *zName = PD("name", "");
+  int iFrom = atoi(PD("from","0"));
+  int iTo = atoi(PD("to","0"));
+  int ln;
+  int go = 1;
+  const char *zSep;
+  Blob content;
+  Blob line;
+  Blob *pOut;
+
+  if(0){
+    ajax_route_error(400, "Just testing client-side error handling.");
+    return;
+  }
+
+  login_check_credentials();
+  if( !g.perm.Read ){
+    ajax_route_error(403, "Access requires Read permissions.");
+    return;
+  }
+#if 1
+  /* Re-enable this block once this code is integrated somewhere into
+     the UI. */
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
+  if( rid==0 ){
+    ajax_route_error(404, "Unknown artifact: %h", zName);
+    return;
+  }
+#else
+  /* This impl is only to simplify "manual" testing via the JS
+     console. */
+  rid = symbolic_name_to_rid(zName, "*");
+  if( rid==0 ){
+    ajax_route_error(404, "Unknown artifact: %h", zName);
+    return;
+  }else if( rid<0 ){
+    ajax_route_error(418, "Ambiguous artifact name: %h", zName);
+    return;
+  }
+#endif
+  if( iFrom<1 || iTo<iFrom ){
+    ajax_route_error(500, "Invalid line range from=%d, to=%d.",
+                     iFrom, iTo);
+    return;
+  }
+  content_get(rid, &content);
+  g.isConst = 1;
+  cgi_set_content_type("application/json");
+  ln = 0;
+  while( go && ln<iFrom ){
+    go = blob_line(&content, &line);
+    ln++;
+  }
+  pOut = cgi_output_blob();
+  blob_append(pOut, "[\n", 2);
+  zSep = 0;
+  while( go && ln<=iTo ){
+    if( zSep ) blob_append(pOut, zSep, 2);
+    blob_trim(&line);
+    blob_append_json_literal(pOut, blob_buffer(&line), blob_size(&line));
+    zSep = ",\n";
+    go = blob_line(&content, &line);
+    ln++;
+  }
+  blob_appendf(pOut,"]\n");
+  blob_reset(&content);
+}
 
 /*
 ** Generate a verbatim artifact as the result of an HTTP request.
@@ -2167,7 +2250,7 @@ void output_text_with_line_numbers(
   }
   /*cgi_printf("<!-- ln span count=%d -->", nSpans);*/
   cgi_append_content("<table class='numbered-lines'><tbody>"
-                     "<tr><td class='line-numbers'>", -1);
+                     "<tr><td class='line-numbers'><pre>", -1);
   iStart = iEnd = 0;
   count_lines(z, nZ, &nLine);
   for( n=1 ; n<=nLine; ++n ){
@@ -2209,9 +2292,10 @@ void output_text_with_line_numbers(
     }else if( n>iStart && n<iEnd ){
       zAttr = " class='selected-line'";
     }
-    cgi_printf("<span%s%s>%6d</span>", zId, zAttr, n);
+    cgi_printf("<span%s%s>%6d</span>\n", zId, zAttr, n)
+      /* ^^^ explicit \n is necessary for text-mode browsers. */;
   }
-  cgi_append_content("</td><td class='file-content'><pre>",-1);
+  cgi_append_content("</pre></td><td class='file-content'><pre>",-1);
   if(zExt && *zExt){
     cgi_printf("<code class='language-%h'>",zExt);
   }else{
@@ -2363,7 +2447,7 @@ void artifact_page(void){
   if( zCI==0 && !isFile ){
     /* If there is no ci= query parameter, then prefer to interpret
     ** name= as a hash for /artifact and /whatis.  But for not for /file.
-    ** For /file, a name= without a ci= while prefer to use the default
+    ** For /file, a name= without a ci= will prefer to use the default
     ** "tip" value for ci=. */
     rid = name_to_rid(zName);
   }
@@ -3223,6 +3307,11 @@ void ci_edit_page(void){
     @ <input type="checkbox" name="pclr" />
   }
   @ Propagate color to descendants</label></div>
+  @ <div class='font-size-80'>Be aware that fixed background
+  @ colors will not interact well with all available skins.
+  @ It is recommended that fossil be allowed to select these
+  @ colors automatically so that it can take the skin's
+  @ preferences into account.</div>
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Tags:</th>

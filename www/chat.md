@@ -6,11 +6,11 @@ As of version 2.14,
 Fossil supports a developer chatroom feature.  The chatroom provides an
 ephemeral discussion venue for insiders.  Design goals include:
 
-  *  **Simple but functional** &rarr; Fossil chat is designed to provide a
-     convenient real-time communication mechanism for geographically
-     dispersed developers.  Fossil chat is *not* intended
-     as a replacement or 
-     competitor for IRC, Slack, Discord, Telegram, Google Hangouts, etc.
+  *  **Simple but functional** &rarr;
+     Fossil chat is designed to provide a convenient real-time
+     communication mechanism for geographically dispersed developers.
+     Fossil chat is *not* intended as a replacement or competitor for
+     IRC, Slack, Discord, Telegram, Google Hangouts, etc.
 
   *  **Low administration** &rarr;
      You can activate the chatroom in seconds without having to
@@ -55,7 +55,7 @@ cases those settings can be ignored.  The settings control things like
 the amount of time that chat messages are retained before being purged
 from the repository database.
 
-## Usage
+## <a id="usage"></a>Usage
 
 For users with appropriate permissions, simply browse to the
 [/chat](/help?cmd=/chat) to start up a chat session.  The default
@@ -64,21 +64,10 @@ people with chat privilege.  There is also a "Chat" option on
 the [Sitemap page](/sitemap), which means that chat will appear
 as an option under the hamburger menu for many [skins](./customskin.md).
 
-Message text is delivered verbatim.  There is no markup.  However,
-the chat system does try to identify and tag hyperlinks, as follows:
-
-  *  Any word that begins with "http://" or "https://" is assumed
-     to be a hyperlink and is tagged.
-
-  *  Text within `[...]` is parsed, and it if is a valid hyperlink
-     target (according to the way that [Fossil Wiki](/wiki_rules) or
-     [Markdown](/md_rules) understand hyperlinks), then that text is
-     tagged. Note that only URLs and Fossil-internal constructs such
-     as checkin hashes and wiki pages names are recognized here, not
-     constructs such as `[URL | label]` or `[label](URL)`.
-
-Apart from adding hyperlink anchor tags to bits of text that look
-like hyperlinks, no changes are made to the input text.
+As of version 2.17, chat messages are subject to [fossil's
+full range of markdown processing](/md_rules). Because chat messages are
+stored as-is when they arrive from a client, this change applies
+retroactively to messages stored by previous fossil versions.
 
 Files may be sent via chat using the file selection element at the
 bottom of the page. If the desktop environment system supports it,
@@ -101,6 +90,39 @@ may additionally choose to globally delete a message from the chat
 record, which deletes it not only from their own browser but also
 propagates the removal to all connected clients the next time they
 poll for new messages.
+
+### <a id='notifications'></a>Customizing New-message Notification Sounds
+
+By default, the list of new-message notification sounds is limited to
+a few built in to the fossil binary. In addition, any
+[unversioned files](./unvers.wiki) named `alert-sounds/*.{mp3,wav,ogg}`
+will be included in that list. To switch sounds, tap the "settings"
+button.
+
+### <a id='connection'></a> Who's Online?
+
+Because the chat app has to be able to work over transient CGI-based
+connections, as opposed to a stable socket connection to the server,
+real-time tracking of "who's online" is not feasible. As of version
+2.17, chat offers an optional feature, toggleable in the settings,
+which can list users who have posted messages in the client's current
+list of loaded messages. This is not the same thing as tracking who's
+online, but it gives an overview of which users have been active most
+recently, noting that "lurkers" (people who post no messages) will not
+show up in that list, nor does the chat infrastructure have a way to
+track and present those. That list can be used to filter messages on a
+specific user by tapping on that user's name, tapping a second time to
+remove the filter.
+
+Sidebar: message deletion is a type of message and deletions count
+towards updates in the recent activity list (counted for the person
+who performed the deletion, not the author of the deleted
+comment). That can potentially lead to odd corner cases where a user
+shows up in the list but has no messages which are currently visible
+because they were deleted, or an admin user who has not posted
+anything but deleted a message. That is a known minor cosmetic-only
+bug with a resolution of "will not fix."
+
 
 ## Implementation Details
 

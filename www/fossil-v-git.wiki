@@ -250,7 +250,7 @@ language.
 This difference is more than an implementation detail. It has important
 practical consequences.
 
-One notable consequence is that it is difficult to find the descendents
+One notable consequence is that it is difficult to find the descendants
 of check-ins in Git.
 One can easily locate the ancestors of a particular Git check-in
 by following the pointers embedded in the check-in object, but it is
@@ -258,7 +258,7 @@ difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
 GitHub provide this capability short of crawling the
 [https://www.git-scm.com/docs/git-log|commit log].  With Fossil,
-on the other hand, finding descendents is a simple SQL query.
+on the other hand, finding descendants is a simple SQL query.
 It is common in Fossil to ask to see
 [/timeline?df=release&y=ci|all check-ins since the last release].
 Git lets you see "what came before".  Fossil makes it just as
@@ -405,13 +405,16 @@ repository it originally cloned from. Git encourages siloed development.
 Select work in a developer's local repository may remain private
 indefinitely.
 
-The Git preference for siloed development has been strongly adopted by Github,
+The Git preference for siloed development has been strongly adopted by GitHub,
 who say
 "[https://guides.github.com/activities/forking|Forking is at the core of social coding at GitHub]".
-As a result, as of January 2021,
-[https://github.com/search?q=is:public|Github hosts 43 million distinct software projects],
-most of them created as a results of Git/Github forking and very many
-of them discontinued.
+As of September 2021,
+[https://github.com/search?q=is:public|Github hosts 46 million distinct software projects],
+most of them created by forking a previously-existing project. Since
+this is [https://evansdata.com/reports/viewRelease.php?reportID=9 |
+roughly twice the number of developers in the world], it beggars belief
+that most of these forks are still under active development. We expect
+that the vast bulk of these are abandoned one-off efforts.
 
 All of this is exactly what one wants when doing bazaar-style
 development.
@@ -442,8 +445,8 @@ development model:
     [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
     a low-friction path to accepting
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
-    contributions]. Fossil's closest equivalent is its unique
-    [/help?cmd=bundle|bundle] feature, which requires higher engagement
+    contributions]. Fossil's closest equivalents are its unique
+    [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
     than firing off a PR.⁷ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
     accept outside contributions from previously-unknown developers, but
@@ -480,7 +483,7 @@ development model:
     choice here is a direct reflection of the Linux vs. SQLite project
     outlook: SQLite's developers collaborate closely on a single
     coherent project, whereas Linux's developers go off on tangents and
-    occasionally sync changes up with each other.</p></li>
+    occasionally send selected change sets to each other.</p></li>
 
     <li><p><b>Private branches are rare:</b>
     [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
@@ -508,9 +511,7 @@ directly affect the speed at which any system can safely make changes.
 The larger the feedback loop, the slower the whole system must run in
 order to avoid loss of control. The same concept shows up in other
 contexts, such as in the [https://en.wikipedia.org/wiki/OODA_loop | OODA
-loop] concept originally developed to explain the success of the US F-86
-Sabre fighter aircraft over the on-paper superior MiG-15, then later
-applied in other contexts, such as business process management.
+loop] concept.
 Committing your changes to private branches in order to delay a public
 push to the parent repo increases the size of your collaborators'
 control loops, either causing them to slow their work in order to safely
@@ -926,10 +927,15 @@ for years now, so that the solution is now almost universally deployed.
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
-    files], a common way to allow drive-by contributions, but it's a
+    files] — unified diff formatted output — for accepting drive-by contributions, but it's a
     lossy contribution path for both systems. Unlike Git PRs and Fossil
     bundles, patch files collapse multiple checkins together, they don't
     include check-in comments, and they cannot encode changes made above
     the individual file content layer: you lose branching decisions,
-    tag changes, file renames, and more when using patch files.</p></li>
+    tag changes, file renames, and more when using patch files. Fossil
+    2.16 adds [./patchcmd.md | a <tt>fossil patch</tt> command] that
+    also solves these problems, but it is because it works like a Fossil
+    bundle, only for uncommitted changes; it doesn't use Larry Wall's
+    <tt>patch</tt> tool to apply unified diff output to the receiving
+    Fossil checkout.</p></li>
 </ol></i></small>

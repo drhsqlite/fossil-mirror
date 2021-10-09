@@ -16,7 +16,7 @@ branch.  Horror stories of misused rebase abound, and the rebase
 documentation devotes considerable space toward explaining how to
 recover from rebase errors and/or misuse.
 
-## <a name="cap-loss"></a>2.0 Rebase provides no new capabilities
+## <a id="cap-loss"></a>2.0 Rebase provides no new capabilities
 
 Sometimes sharp and dangerous tools are justified,
 because they accomplish things that cannot be
@@ -24,7 +24,7 @@ done otherwise, or at least cannot be done easily.
 Rebase does not fall into that category,
 because it provides no new capabilities.
 
-### <a name="orphaning"></a>2.1 A rebase is just a merge with historical references omitted
+### <a id="orphaning"></a>2.1 A rebase is just a merge with historical references omitted
 
 A rebase is really nothing more than a merge (or a series of merges)
 that deliberately forgets one of the parents of each merge step.
@@ -90,7 +90,7 @@ Wouldn't it be better, less error-prone, and easier on users
 to enhance the history display mechanisms in Git so that rebasing 
 for a clean, linear history became unnecessary?
 
-### <a name="clean-diffs"></a>2.2 Rebase does not actually provide better feature-branch diffs
+### <a id="clean-diffs"></a>2.2 Rebase does not actually provide better feature-branch diffs
 
 Another argument, often cited, is that rebasing a feature branch
 allows one to see just the changes in the feature branch without
@@ -214,7 +214,7 @@ So, to help with the problem of viewing changes associated with a feature
 branch, perhaps what is needed is not rebase but rather better tools to 
 help users identify an appropriate baseline for their diffs.
 
-## <a name="siloing"></a>3.0 Rebase encourages siloed development
+## <a id="siloing"></a>3.0 Rebase encourages siloed development
 
 The [golden rule of rebasing][golden] is that you should never do it
 on public branches, so if you are using rebase as intended, that means
@@ -253,7 +253,7 @@ wait until you finally push a collapsed version of a private working
 branch to the parent repo? Will the many eyeballs even see those errors
 when they’re intermingled with code implementing some compelling new feature?
 
-## <a name="timestamps"></a>4.0 Rebase causes timestamp confusion
+## <a id="timestamps"></a>4.0 Rebase causes timestamp confusion
 
 Consider the earlier example of rebasing a feature branch:
 
@@ -295,7 +295,7 @@ about when those check-ins were originally created, which can make
 historical analysis of changes more difficult. It might also
 complicate the legal defense of prior art claims.
 
-## <a name="lying"></a>5.0 Rebase misrepresents the project history
+## <a id="lying"></a>5.0 Rebase misrepresents the project history
 
 By discarding parentage information, rebase attempts to deceive the
 reader about how the code actually came together.
@@ -331,7 +331,7 @@ modifying history?  Wouldn't it be better to fix the version control
 tool rather than requiring users to fabricate a fictitious project
 history?
 
-## <a name="collapsing"></a>6.0 Collapsing check-ins throws away valuable information
+## <a id="collapsing"></a>6.0 Collapsing check-ins throws away valuable information
 
 One of the oft-cited advantages of rebasing in Git is that it lets you
 collapse multiple check-ins down to a single check-in to make the
@@ -346,7 +346,7 @@ The common counterargument is that collapsed check-ins represent a
 better world, the ideal we're striving for. What that argument overlooks
 is that we must throw away valuable information to get there.
 
-### <a name="empathy"></a>6.1 Individual check-ins support mutual understanding
+### <a id="empathy"></a>6.1 Individual check-ins support mutual understanding
 
 Ideally, future developers of our software can understand every feature
 in it using only context available in the version of the code they start
@@ -391,7 +391,7 @@ finished feature.
 
 [sdm]: ./fossil-v-git.wiki#durable
 
-### <a name="bisecting"></a>6.2 Bisecting works better on small check-ins
+### <a id="bisecting"></a>6.2 Bisecting works better on small check-ins
 
 Git lets a developer write a feature in ten check-ins but collapse it
 down to an eleventh check-in and then deliberately push only that final
@@ -406,7 +406,7 @@ repository so that a later investigator doing the same sort of bisect
 sees the complete check-in history. That bisect will point the
 investigator at the single original check-in that caused the problem.
 
-### <a name="comments"></a>6.3 Multiple check-ins require multiple check-in comments
+### <a id="comments"></a>6.3 Multiple check-ins require multiple check-in comments
 
 The more comments you have from a given developer on a given body of
 code, the more concise documentation you have of that developer's
@@ -418,7 +418,7 @@ accomplish than if they must work that out from the eleventh check-in's
 comment, which only explains the "clean" version of the collapsed
 feature.
 
-### <a name="cherrypicking"></a>6.4 Cherry-picks work better with small check-ins
+### <a id="cherrypicking"></a>6.4 Cherry-picks work better with small check-ins
 
 While working on a new feature in one branch, you may come across a bug
 in the pre-existing code that you need to fix in order for work on that
@@ -460,7 +460,7 @@ them more time to do the cherry-pick that way.
 
 [rh]: https://en.wikipedia.org/wiki/Red_Hat
 
-### <a name="backouts"></a>6.5 Back-outs also work better with small check-ins
+### <a id="backouts"></a>6.5 Back-outs also work better with small check-ins
 
 The inverse of the cherry-pick merge is the back-out merge. If you push
 only a collapsed version of a private working branch up to the parent
@@ -469,7 +469,7 @@ any of the individual check-ins that went into that private branch.
 Others must either manually disentangle the problematic part of your
 merge check-in or back out the entire feature.
 
-## <a name="better-plan"></a>7.0 Cherry-pick merges work better than rebase
+## <a id="better-plan"></a>7.0 Cherry-pick merges work better than rebase
 
 Perhaps there are some cases where a rebase-like transformation
 is actually helpful, but those cases are rare, and when they do
@@ -503,7 +503,7 @@ topology with several advantages:
 
 [tbc]: ./fossil-v-git.wiki#testing
 
-## <a name="conclusion"></a>8.0 Summary and conclusion
+## <a id="conclusion"></a>8.0 Summary and conclusion
 
 Rebasing is an anti-pattern.  It is dishonest.  It deliberately
 omits historical information.  It causes problems for collaboration.

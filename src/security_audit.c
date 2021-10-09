@@ -284,6 +284,17 @@ void secaudit0_page(void){
     @ on the <a href="setup_ulist">User Configuration</a> page.
   }
 
+  /* Check to see if any TH1 scripts are configured to run on a sync
+  */
+  if( db_exists("SELECT 1 FROM config WHERE name GLOB 'xfer-*-script'"
+                " AND length(value)>0") ){
+    @ <li><p><b>WARNING:</b>
+    @ TH1 scripts might be configured to run on any sync, push, pull, or
+    @ clone operation.  See the the <a href="%R/xfersetup">/xfersetup</a>
+    @ page for more information.  These TH1 scripts are a potential
+    @ security concern and so should be carefully audited by a human.
+  } 
+
   /* The strict-manifest-syntax setting should be on. */
   if( db_get_boolean("strict-manifest-syntax",1)==0 ){
     @ <li><p><b>WARNING:</b>
