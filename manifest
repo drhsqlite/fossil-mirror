@@ -1,5 +1,5 @@
-C Typo\sfix\sin\sdiff\scontext\sloader\sXHR\serror\shandler,\swith\sthanks\sto\sFlorian.
-D 2021-10-09T09:20:32.289
+C Version\s2.17
+D 2021-10-09T14:43:10.768
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -887,7 +887,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 7dd2176c54f2b29de1cbae6743160d26d11862c28400127d2a4212c1f7b643dc
+F www/index.wiki cd75130a2f4f9a9d750a667022ba08b32b84e022cd1f7e8093655abe8b9c8f85
 F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
 F www/interwiki.md bdd1cc9e3f97ef0d7262470ffa866f4c40c346c880a2601c496ab06ffd88dd35
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
@@ -986,7 +986,9 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3e62a0d3de314680b227c0b5965ddc759184a17ca4551b00de9c54e906f3b39
-R 846a0e7f9ca88d16db6156c03573ecb3
-U stephan
-Z 6e908444eca4b578266c536ab73c1b0d
+P a75476100fe7091e30e5d79000361b77999ae32bd5dc63ca50d2fd4e586cc930
+R 35d583d3eb57809db45e71b32fc183a3
+T +sym-release *
+T +sym-version-2.17 *
+U drh
+Z 7d7e139372bd83710061e0e898dffa2d
