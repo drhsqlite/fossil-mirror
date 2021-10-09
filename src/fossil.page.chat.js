@@ -790,7 +790,7 @@ window.fossil.onPageLoad(function(){
              page. This also, unfortunately, places the focus at the
              start of the element, rather than the last cursor position
              (like a textarea would). */
-          cs.inputFocus();
+          setTimeout(()=>cs.inputFocus(), 0);
         }
       }
     }, true);
