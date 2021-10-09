@@ -492,7 +492,7 @@ void urllist_page(void){
   style_submenu_element("Stat", "stat");
   style_submenu_element("Schema", "repo_schema");
   iNow = db_int64(0, "SELECT strftime('%%s','now')");
-  @ <div class="section">URLs used to access</div>
+  @ <div class="section">URLs used to access this repository</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch'), mtime"
                  "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 3 DESC");
@@ -534,36 +534,30 @@ void urllist_page(void){
     @ </table>
   }
   cnt = 0;
-  db_prepare(&q, "SELECT substr(name,10), datetime(mtime,'unixepoch')"
-                 "  FROM config WHERE name GLOB 'syncwith:*' ORDER BY 2 DESC");
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zURL = db_column_text(&q,0);
-    if( cnt==0 ){
-      @ <div class="section">Sync to these URLs</div>
-      @ <table border='0' width='100%%'>
-    }
-    @ <tr><td width='100%%'><a href='%h(zURL)'>%h(zURL)</a>
-    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
-    cnt++;
-  }
-  db_finalize(&q);
-  if( cnt ){
-    @ </table>
-  }
-  cnt = 0;
-  db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
-                 "  FROM config WHERE name GLOB 'gitpush:*' ORDER BY 2 DESC");
+  db_prepare(&q,
+    "SELECT substr(name,10), datetime(mtime,'unixepoch')"
+    "  FROM config WHERE name GLOB 'syncwith:*'"
+    "UNION ALL "
+    "SELECT substr(name,10), datetime(mtime,'unixepoch')"
+    "  FROM config WHERE name GLOB 'syncfrom:*'"
+    "UNION ALL "
+    "SELECT substr(name,9), datetime(mtime,'unixepoch')"
+    "  FROM config WHERE name GLOB 'gitpush:*'"
+    "ORDER BY 2 DESC"
+  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zURL = db_column_text(&q,0);
     UrlData x;
     if( cnt==0 ){
-      @ <div class="section">Git Mirrors</div>
+      @ <div class="section">Sync with these URLs</div>
       @ <table border='0' width='100%%'>
     }
+    memset(&x, 0, sizeof(x));
     url_parse_local(zURL, URL_OMIT_USER, &x);
     @ <tr><td width='100%%'><a href='%h(x.canonical)'>%h(x.canonical)</a>
     @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
     cnt++;
+    url_unparse(&x);
   }
   db_finalize(&q);
   if( cnt ){

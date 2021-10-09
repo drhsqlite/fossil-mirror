@@ -198,6 +198,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
   int useCrLf = 0;
+  DiffConfig DCfg;
 
   blob_zero(pOut);         /* Merge results stored in pOut */
   
@@ -226,8 +227,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** pivot, and the third integer is the number of lines of text that are
   ** inserted.  The edit array ends with a triple of 0,0,0.
   */
-  aC1 = text_diff(pPivot, pV1, 0, 0, 0);
-  aC2 = text_diff(pPivot, pV2, 0, 0, 0);
+  diff_config_init(&DCfg, 0);
+  aC1 = text_diff(pPivot, pV1, 0, &DCfg);
+  aC2 = text_diff(pPivot, pV2, 0, &DCfg);
   if( aC1==0 || aC2==0 ){
     free(aC1);
     free(aC2);

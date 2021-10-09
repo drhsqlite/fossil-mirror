@@ -42,7 +42,7 @@
 #include "hook.h"
 
 /*
-** SETTING: hooks sensitive
+** SETTING: hooks sensitive width=40 block-text
 ** The "hooks" setting contains JSON that describes all defined
 ** hooks.  The value is an array of objects.  Each object describes
 ** a single hook.  Example:

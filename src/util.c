@@ -33,6 +33,8 @@
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
+# include <sys/types.h>
+# include <sys/stat.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <errno.h>
@@ -648,14 +650,53 @@ const char *fossil_text_editor(void){
 */
 char *fossil_temp_filename(void){
   char *zTFile = 0;
-  sqlite3 *db;
+  const char *zDir;
+  char cDirSep;
+  char zSep[2];
+  size_t nDir;
+  u64 r[2];
+#ifdef _WIN32
+  char *zTempDirA = NULL;
+  WCHAR zTempDirW[MAX_PATH+1];
+  const DWORD dwTempSizeW = sizeof(zTempDirW)/sizeof(zTempDirW[0]);
+  DWORD dwTempLenW;
+#else
+  int i;
+  static const char *azTmp[] = {"/var/tmp","/usr/tmp","/tmp"};
+#endif
   if( g.db ){
-    db = g.db;
-  }else{
-    sqlite3_open("",&db);
+    sqlite3_file_control(g.db, 0, SQLITE_FCNTL_TEMPFILENAME, (void*)&zTFile);
+    if( zTFile ) return zTFile;
   }
-  sqlite3_file_control(db, 0, SQLITE_FCNTL_TEMPFILENAME, (void*)&zTFile);
-  if( g.db==0 ) sqlite3_close(db);
+  sqlite3_randomness(sizeof(r), &r);
+#if _WIN32
+  cDirSep = '\\';
+  dwTempLenW = GetTempPathW(dwTempSizeW, zTempDirW);
+  if( dwTempLenW>0 && dwTempLenW<dwTempSizeW
+      && ( zTempDirA = fossil_path_to_utf8(zTempDirW) )){
+    zDir = zTempDirA;
+  }else{
+    zDir = fossil_getenv("LOCALAPPDATA");
+    if( zDir==0 ) zDir = ".";
+  }
+#else
+  for(i=0; i<sizeof(azTmp)/sizeof(azTmp[0]); i++){
+    struct stat buf;
+    zDir = azTmp[i];
+    if( stat(zDir,&buf)==0 && S_ISDIR(buf.st_mode) && access(zDir,03)==0 ){
+      break;
+    }
+  }
+  if( i>=sizeof(azTmp)/sizeof(azTmp[0]) ) zDir = ".";
+  cDirSep = '/';
+#endif
+  nDir = strlen(zDir);
+  zSep[1] = 0;
+  zSep[0] = (nDir && zDir[nDir-1]==cDirSep) ? 0 : cDirSep;
+  zTFile = sqlite3_mprintf("%s%sfossil%016llx%016llx", zDir,zSep,r[0],r[1]);
+#ifdef _WIN32
+  if( zTempDirA ) fossil_path_free(zTempDirA);
+#endif
   return zTFile;
 }
 
@@ -835,7 +876,7 @@ static int binaryOnPath(const char *zBinary){
 const char *fossil_web_browser(void){
   const char *zBrowser = 0;
 #if defined(_WIN32)
-  zBrowser = db_get("web-browser", "start");
+  zBrowser = db_get("web-browser", "start \"\"");
 #elif defined(__DARWIN__) || defined(__APPLE__) || defined(__HAIKU__)
   zBrowser = db_get("web-browser", "open");
 #else

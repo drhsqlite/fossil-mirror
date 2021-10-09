@@ -284,7 +284,7 @@ in `fossil` commands. The remainder of this section gives remedies and
 workarounds for these problems.
 
 
-### <a name="posix"></a>POSIX Systems
+### <a id="posix"></a>POSIX Systems
 
 If you are using Fossil on a system with a POSIX-compatible shell
 &mdash; Linux, macOS, the BSDs, Unix, Cygwin, WSL etc. &mdash; the shell
@@ -371,7 +371,7 @@ private half of a public cryptographic key into Fossil repository that
 can be read by people who should not have such secrets.
 
 
-### <a name="windows"></a>Windows
+### <a id="windows"></a>Windows
 
 Before we get into Windows-specific details here, beware that this
 section does not apply to the several Microsoft Windows extensions that

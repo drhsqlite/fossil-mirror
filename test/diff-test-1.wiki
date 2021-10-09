@@ -22,7 +22,10 @@ configuration page.
      target="testwindow">Large diff of sqlite3.c</a>.  This diff was very
      slow prior to the performance enhancement change [9e15437e97].
   *  <a href="../../../info/bda00cbada#chunk49" target="testwindow">
-     A difficult indentation change.</a>
+     A difficult indentation change.</a>  UPDATE:  Notice also the improved
+      multi-segment update marks on lines 122648 and 122763 on the new side.
+  *  <a href="../../../fdiff?v1=bc8100c9ee01b8c2&v2=1d2acc1a2a65c2bf#chunk42"
+      target="testwindow">Inverse of the previous.</a>
   *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk13"
       target="testwindow">Another tricky indentation.</a>  Notice especially
       lines 59398 and 59407 on the left.

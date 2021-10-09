@@ -465,6 +465,18 @@ the other box.
 
 _Graceful Fallback:_ Manually scroll both boxes to sync their views.
 
+### <a id="diffcontext"></a>Diff Context Loading
+
+As of version 2.17, fossil adds the ability for the diff views to
+dynamically load more lines of context around changed blocks. The UI
+controls for this feature are injected using JavaScript when the page
+initializes and make use of XHR requests to fetch data from the
+fossil instance.
+
+_Graceful Fallback:_ The UI controls for this feature do not appear
+when JS is unavailable, leaving the user with the "legacy" static diff
+view.
+
 
 ### <a id="sort"></a>Table Sorting
 
@@ -518,7 +530,7 @@ by default.
 
 ### <a id="hbm"></a>Hamburger Menu
 
-The default skin includes a “hamburger menu” (&#9776;) which uses
+Several of the stock skins (including the default) include a “hamburger menu” (&#9776;) which uses
 JavaScript to show a simplified version of the Fossil UI site map using
 an animated-in dropdown.
 
@@ -587,7 +599,7 @@ regular expession and put it into the "Tag Filter" entry of the
 
 ### <a id="wcontent"></a>Wiki content listing
 
-[Since](/timeline?r=wcontent-subsets) version 2.16 it is possible to
+[Since](/timeline?r=wcontent-subsets) version 2.18 it is possible to
 add [configurable](/help?cmd=wiki-classes) checkbox controls to the
 submenu of [available wiki pages](/wcontent) for the interactive
 adjustment of a subset of wiki pages that are shown.

@@ -216,7 +216,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
         if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
           blob_append(pOut, "<pre class='error'>\n", 20);
         }
-        blob_append(pOut, zOut, -1);
+        blob_appendf(pOut, "%h", zOut);
         if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
           blob_append(pOut, "\n</pre>\n", 8);
         }
@@ -251,7 +251,7 @@ void pikchrshow_page(void){
 
   login_check_credentials();
   if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
-    cgi_redirectf("%R/login?g=%R/pikchrshow");
+    cgi_redirectf("%R/login?g=pikchrshow");
   }
   zContent = PD("content",P("p"));
   if(P("ajax")!=0){
@@ -337,7 +337,7 @@ void pikchrshow_page(void){
        "}\n");
     CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   } CX("</style>");
-  CX("<div>Input pikchr code and tap Preview (or Ctrl-Enter) to render "
+  CX("<div>Input pikchr code and tap Preview (or Shift-Enter) to render "
      "it:</div>");
   CX("<div id='sbs-wrapper'>"); {
     CX("<div id='pikchrshow-form'>"); {

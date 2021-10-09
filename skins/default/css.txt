@@ -161,17 +161,6 @@ hr {
   color: #ccc;
 }
 
-
-/* Exceptions for /info diff views */
-
-.udiff, .sbsdiff {
-  font-size: .85em !important;
-  overflow: auto;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-
 /* Forum */
 
 .forum a:visited {

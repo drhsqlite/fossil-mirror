@@ -81,7 +81,7 @@ char *hash_color(const char *z){
 ** This list is intended to be relatively short.  The idea is to only use
 ** this map to resolve color collisions between common users.
 **
-** Visit /test-hash-color?rand for a list of suggested names for the
+** Visit /hash-color-test?rand for a list of suggested names for the
 ** second word of each pair in the list.
 */
 char *user_color(const char *zLogin){

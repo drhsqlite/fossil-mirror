@@ -12,7 +12,8 @@ stay in synchronization with (1) via a
 <a href="http://en.wikipedia.org/wiki/Cron">cron job</a> that invokes
 "fossil sync" at regular intervals.
 Repository (2) also publishes a
-[./mirrortogithub.md|GitHub mirror of Fossil] as a demonstration.
+[https://github.com/drhsqlite/fossil-mirror|GitHub mirror of Fossil]
+as a demonstration of [./mirrortogithub.md|how that can be done].
 
 Note that the two secondary repositories are more than just read-only mirrors.
 All three servers support full read/write capabilities.

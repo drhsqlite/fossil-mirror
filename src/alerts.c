@@ -130,7 +130,7 @@ void alert_schema(int bOnlyIfEnabled){
     return;
   }
   db_multi_exec(
-    "DROP TABLE IF EXISTS repository.alert_bounde;\n"
+    "DROP TABLE IF EXISTS repository.alert_bounce;\n"
     "ALTER TABLE repository.subscriber ADD COLUMN lastContact INT;\n"
     "UPDATE subscriber SET lastContact=mtime/86400;"
   );

@@ -21,7 +21,7 @@ array set CFG {
   CHNG_BG    #d0d0ff
   ADD_BG     #c0ffc0
   RM_BG      #ffc0c0
-  HR_FG      #888888
+  HR_FG      #444444
   HR_PAD_TOP 4
   HR_PAD_BTM 8
   FN_BG      #444444
@@ -72,64 +72,104 @@ proc readDiffs {fossilcmd} {
   set N [llength $difftxt]
   set ii 0
   set nDiffs 0
-  array set widths {txt 0 ln 0 mkr 0}
+  set n1 0
+  set n2 0  
+  array set widths {txt 3 ln 3 mkr 1}
   while {[set line [getLine $difftxt $N ii]] != -1} {
-    set fn2 {}
-    if {![regexp {^=+ (.*?) =+ versus =+ (.*?) =+$} $line all fn fn2]
-     && ![regexp {^=+ (.*?) =+$} $line all fn]
-    } {
-      continue
-    }
-    set errMsg ""
-    set line [getLine $difftxt $N ii]
-    if {[string compare -length 6 $line "<table"]
-     && ![regexp {<p[^>]*>(.+)} $line - errMsg]} {
-      continue
-    }
-    incr nDiffs
-    set idx [expr {$nDiffs > 1 ? [.txtA index end] : "1.0"}]
-    .wfiles.lb insert end $fn
-
-    foreach c [cols] {
-      if {$nDiffs > 1} {
-        $c insert end \n -
-      }
-      if {[colType $c] eq "txt"} {
-        $c insert end $fn\n fn
-        if {$fn2!=""} {set fn $fn2}
-      } else {
-        $c insert end \n fn
-      }
-      $c insert end \n -
-
-      if {$errMsg ne ""} continue
-      while {[getLine $difftxt $N ii] ne "<pre>"} continue
-      set type [colType $c]
-      set str {}
-      while {[set line [getLine $difftxt $N ii]] ne "</pre>"} {
-        set len [string length [dehtml $line]]
-        if {$len > $widths($type)} {
-          set widths($type) $len
+    switch -- [lindex $line 0] {
+      FILE {
+        incr nDiffs
+        foreach wx [list [string length $n1] [string length $n2]] {
+          if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
-        append str $line\n
+        .lnA insert end \n fn \n -
+        .txtA insert end [lindex $line 1]\n fn \n -
+        .mkr insert end \n fn \n -
+        .lnB insert end \n fn \n -
+        .txtB insert end [lindex $line 2]\n fn \n -
+        .wfiles.lb insert end [lindex $line 2]
+        set n1 0
+        set n2 0
       }
-
-      set re {<span class="diff([a-z]+)">([^<]*)</span>}
-      # Use \r as separator since it can't appear in the diff output (it gets
-      # converted to a space).
-      set str [regsub -all $re $str "\r\\1\r\\2\r"]
-      foreach {pre class mid} [split $str \r] {
-        if {$class ne ""} {
-          $c insert end [dehtml $pre] - [dehtml $mid] [list $class -]
-        } else {
-          $c insert end [dehtml $pre] -
+      SKIP {
+        set n [lindex $line 1]
+        incr n1 $n
+        incr n2 $n
+        .lnA insert end ...\n hrln
+        .txtA insert end [string repeat . 30]\n hrtxt
+        .mkr insert end \n hrln
+        .lnB insert end ...\n hrln
+        .txtB insert end [string repeat . 30]\n hrtxt
+      }
+      COM {
+        set x [lindex $line 1]
+        incr n1
+        incr n2
+        .lnA insert end $n1\n -
+        .txtA insert end $x\n -
+        .mkr insert end \n -
+        .lnB insert end $n2\n -
+        .txtB insert end $x\n -
+      }
+      INS {
+        set x [lindex $line 1]
+        incr n2
+        .lnA insert end \n -
+        .txtA insert end \n -
+        .mkr insert end >\n -
+        .lnB insert end $n2\n -
+        .txtB insert end $x add \n -
+      }
+      DEL {
+        set x [lindex $line 1]
+        incr n1
+        .lnA insert end $n1\n -
+        .txtA insert end $x rm \n -
+        .mkr insert end <\n -
+        .lnB insert end \n -
+        .txtB insert end \n -
+      }
+      EDIT {
+        incr n1
+        incr n2
+        .lnA insert end $n1\n -
+        .lnB insert end $n2\n -
+        .mkr insert end |\n -
+        set nn [llength $line]
+        for {set i 1} {$i<$nn} {incr i 3} {
+          set x [lindex $line $i]
+          if {$x ne ""} {
+            .txtA insert end $x -
+            .txtB insert end $x -
+          }
+          if {$i+2<$nn} {
+            set x1 [lindex $line [expr {$i+1}]]
+            set x2 [lindex $line [expr {$i+2}]]
+            if {"$x1" eq ""} {
+              .txtB insert end $x2 add
+            } elseif {"$x2" eq ""} {
+              .txtA insert end $x1 rm
+            } else {
+              .txtA insert end $x1 chng
+              .txtB insert end $x2 chng
+            }
+          }
+        }
+        .txtA insert end \n -
+        .txtB insert end \n -
+      }
+      "" {
+        foreach wx [list [string length $n1] [string length $n2]] {
+          if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
       }
-    }
-
-    if {$errMsg ne ""} {
-      foreach c {.txtA .txtB} {$c insert end [string trim $errMsg] err}
-      foreach c [cols] {$c insert end \n -}
+      default {
+        .lnA insert end \n -
+        .txtA insert end $line\n err
+        .mkr insert end \n -
+        .lnB insert end \n -
+        .txtB insert end $line\n err
+      }
     }
   }
 
@@ -332,8 +372,10 @@ foreach c [cols] {
   if {[tk windowingsystem] eq "win32"} {$c config -font {courier 9}}
   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
     -padx $CFG(PADX) -yscroll sync-y
-  $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
-     -foreground $CFG(HR_FG)
+  $c tag config hrln -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
+     -foreground $CFG(HR_FG) -justify right
+  $c tag config hrtxt  -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
+     -foreground $CFG(HR_FG) -justify center
   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
   bindtags $c ". $c Text all"
   bind $c <1> {focus %W}

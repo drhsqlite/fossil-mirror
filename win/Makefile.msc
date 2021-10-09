@@ -567,20 +567,21 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\alerts\bflat3.wav" \
         "$(SRCDIR)\alerts\bloop.wav" \
         "$(SRCDIR)\alerts\plunk.wav" \
-        "$(SRCDIR)\chat.js" \
         "$(SRCDIR)\ci_edit.js" \
         "$(SRCDIR)\copybtn.js" \
         "$(SRCDIR)\default.css" \
+        "$(SRCDIR)\diff.js" \
         "$(SRCDIR)\diff.tcl" \
         "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
         "$(SRCDIR)\fossil.confirmer.js" \
         "$(SRCDIR)\fossil.copybutton.js" \
+        "$(SRCDIR)\fossil.diff.js" \
         "$(SRCDIR)\fossil.dom.js" \
         "$(SRCDIR)\fossil.fetch.js" \
-        "$(SRCDIR)\fossil.info-diff.js" \
         "$(SRCDIR)\fossil.numbered-lines.js" \
         "$(SRCDIR)\fossil.page.brlist.js" \
+        "$(SRCDIR)\fossil.page.chat.js" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
         "$(SRCDIR)\fossil.page.pikchrshow.js" \
@@ -597,7 +598,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\login.js" \
         "$(SRCDIR)\markdown.md" \
         "$(SRCDIR)\menu.js" \
-        "$(SRCDIR)\sbsdiff.js" \
         "$(SRCDIR)\scroll.js" \
         "$(SRCDIR)\skin.js" \
         "$(SRCDIR)\sorttable.js" \
@@ -618,6 +618,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\sounds\e.wav" \
         "$(SRCDIR)\sounds\f.wav" \
         "$(SRCDIR)\style.admin_log.css" \
+        "$(SRCDIR)\style.chat.css" \
         "$(SRCDIR)\style.fileedit.css" \
         "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
@@ -1175,20 +1176,21 @@ realclean: clean
 	echo "$(SRCDIR)\alerts/bflat3.wav" >> $@
 	echo "$(SRCDIR)\alerts/bloop.wav" >> $@
 	echo "$(SRCDIR)\alerts/plunk.wav" >> $@
-	echo "$(SRCDIR)\chat.js" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
 	echo "$(SRCDIR)\copybtn.js" >> $@
 	echo "$(SRCDIR)\default.css" >> $@
+	echo "$(SRCDIR)\diff.js" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
 	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
 	echo "$(SRCDIR)\fossil.confirmer.js" >> $@
 	echo "$(SRCDIR)\fossil.copybutton.js" >> $@
+	echo "$(SRCDIR)\fossil.diff.js" >> $@
 	echo "$(SRCDIR)\fossil.dom.js" >> $@
 	echo "$(SRCDIR)\fossil.fetch.js" >> $@
-	echo "$(SRCDIR)\fossil.info-diff.js" >> $@
 	echo "$(SRCDIR)\fossil.numbered-lines.js" >> $@
 	echo "$(SRCDIR)\fossil.page.brlist.js" >> $@
+	echo "$(SRCDIR)\fossil.page.chat.js" >> $@
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshow.js" >> $@
@@ -1205,7 +1207,6 @@ realclean: clean
 	echo "$(SRCDIR)\login.js" >> $@
 	echo "$(SRCDIR)\markdown.md" >> $@
 	echo "$(SRCDIR)\menu.js" >> $@
-	echo "$(SRCDIR)\sbsdiff.js" >> $@
 	echo "$(SRCDIR)\scroll.js" >> $@
 	echo "$(SRCDIR)\skin.js" >> $@
 	echo "$(SRCDIR)\sorttable.js" >> $@
@@ -1226,6 +1227,7 @@ realclean: clean
 	echo "$(SRCDIR)\sounds/e.wav" >> $@
 	echo "$(SRCDIR)\sounds/f.wav" >> $@
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
+	echo "$(SRCDIR)\style.chat.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@

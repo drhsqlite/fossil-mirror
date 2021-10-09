@@ -259,6 +259,7 @@ static int lappend_command(
     Th_ListAppend(interp, &zList, &nList, argv[i], argl[i]);
   }
 
+  Th_SetVar(interp, argv[1], argl[1], zList, nList);
   Th_SetResult(interp, zList, nList);
   Th_Free(interp, zList);
 

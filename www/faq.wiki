@@ -1,9 +1,7 @@
 <title>Fossil FAQ</title>
 <h1 align="center">Frequently Asked Questions</h1>
 
-<p>Note:
-This page is old and has not been kept up-to-date.  See the
-[/finfo?name=www/faq.wiki|change history of this page].</p>
+<p>Note: See also <a href="qandc.wiki">Questions and Criticisms</a>.
 
 <ol>
 <li><a href="#q1">What GUIs are available for fossil?</a></li>
@@ -17,8 +15,7 @@ This page is old and has not been kept up-to-date.  See the
 <li><a href="#q8">How do I import or export content from and to other version control systems?</a></li>
 </ol>
 <hr>
-<a name="q1"></a>
-<p><b>(1) What GUIs are available for fossil?</b></p>
+<p id="q1"><b>(1) What GUIs are available for fossil?</b></p>
 
 <blockquote>The fossil executable comes with a [./webui.wiki | web-based GUI] built in.
 Just run:
@@ -29,20 +26,15 @@ Just run:
 
 And your default web browser should pop up and automatically point to
 the fossil interface.  (Hint:  You can omit the <i>REPOSITORY-FILENAME</i>
-if you are within an open check-out.)
+if you are within an open check-out.)</blockquote></li>
 
-See also: [http://fuelscm.org/]
-</blockquote></li>
-
-<a name="q2"></a>
-<p><b>(2) What is the difference between a "branch" and a "fork"?</b></p>
+<p id="q2"><b>(2) What is the difference between a "branch" and a "fork"?</b></p>
 
 <blockquote>This is a big question - too big to answer in a FAQ.  Please
 read the <a href="branching.wiki">Branching, Forking, Merging,
 and Tagging</a> document.</blockquote></li>
 
-<a name="q3"></a>
-<p><b>(3) How do I create a new branch?</b></p>
+<p id="q3"><b>(3) How do I create a new branch?</b></p>
 
 <blockquote>There are lots of ways:
 
@@ -71,8 +63,7 @@ link (near the "Commands:" label) and click on that.  On the
 the name of your new branch to the right and press the "Apply Changes"
 button.</blockquote></li>
 
-<a name="q4"></a>
-<p><b>(4) How do I tag a check-in?</b></p>
+<p id="q4"><b>(4) How do I tag a check-in?</b></p>
 
 <blockquote>There are several ways:
 
@@ -100,8 +91,7 @@ link (near the "Commands:" label) and click on that.  There are
 controls on the edit page that allow new tags to be added and existing
 tags to be removed.</blockquote></li>
 
-<a name="q5"></a>
-<p><b>(5) How do I create a private branch that won't get pushed back to the
+<p id="q5"><b>(5) How do I create a private branch that won't get pushed back to the
   main repository.</b></p>
 
 <blockquote>Use the <b>--private</b> command-line option on the
@@ -125,13 +115,11 @@ by not merging the changes in the private branch back into the trunk.
 
 [./private.wiki | Additional information]</blockquote></li>
 
-<a name="q6"></a>
-<p><b>(6) How can I delete inappropriate content from my fossil repository?</b></p>
+<p id="q6"><b>(6) How can I delete inappropriate content from my fossil repository?</b></p>
 
 <blockquote>See the article on [./shunning.wiki | "shunning"] for details.</blockquote></li>
 
-<a name="q7"></a>
-<p><b>(7) How do I make a clone of the fossil self-hosting repository?</b></p>
+<p id="q7"><b>(7) How do I make a clone of the fossil self-hosting repository?</b></p>
 
 <blockquote>Any of the following commands should work:
 <blockquote><pre>
@@ -150,8 +138,7 @@ with the latest code in the public repository by typing:
 fossil [/help/update|update]
 </pre></blockquote></blockquote></li>
 
-<a name="q8"></a>
-<p><b>(8) How do I import or export content from and to other version control systems?</b></p>
+<p id="q8"><b>(8) How do I import or export content from and to other version control systems?</b></p>
 
 <blockquote>Please see [./inout.wiki | Import And Export]</blockquote></li>
 

@@ -1667,6 +1667,7 @@ static size_t parse_atxheader(
 
   while( level<size && level<6 && data[level]=='#' ){ level++; }
   for(i=level; i<size && (data[i]==' ' || data[i]=='\t'); i++);
+  if ( i == level ) return parse_paragraph(ob, rndr, data, size);
   span_beg = i;
 
   for(end=i; end<size && data[end]!='\n'; end++);

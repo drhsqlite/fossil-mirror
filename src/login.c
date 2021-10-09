@@ -107,7 +107,7 @@ char *login_cookie_name(void){
 static void redirect_to_g(void){
   const char *zGoto = P("g");
   if( zGoto ){
-    cgi_redirect(zGoto);
+    cgi_redirectf("%R/%s",zGoto);
   }else{
     fossil_redirect_home();
   }
@@ -551,7 +551,6 @@ void login_page(void){
   int uid;                     /* User id logged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
-  const char *zReferer;
   const int noAnon = P("noanon")!=0;
   int rememberMe;              /* If true, use persistent cookie, else
                                   session cookie. Toggled per
@@ -642,7 +641,6 @@ void login_page(void){
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
-  zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
   if(zUsername==0){
     /* Initial login page hit. */
@@ -710,8 +708,6 @@ void login_page(void){
   }
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
-  }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
-    @ <input type="hidden" name="g" value="%h(zReferer)" />
   }
   if( anonFlag ){
     @ <input type="hidden" name="anon" value="1" />
@@ -1028,7 +1024,7 @@ void login_check_credentials(void){
       uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
     }
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
-    zCap = "sx";
+    zCap = "sxy";
     g.noPswd = 1;
     g.isHuman = 1;
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "localhost");
@@ -1057,7 +1053,7 @@ void login_check_credentials(void){
       /* Invalid cookie */
     }else if( fossil_strcmp(zUser, "anonymous")==0 ){
       /* Cookies of the form "HASH/TIME/anonymous".  The TIME must not be
-      ** too old and the sha1 hash of TIME/IPADDR/SECRET must match HASH.
+      ** too old and the sha1 hash of TIME/SECRET must match HASH.
       ** SECRET is the "captcha-secret" value in the repository.
       */
       double rTime = atof(zArg);
@@ -1481,18 +1477,15 @@ void login_needed(int anonOk){
   }else
 #endif /* FOSSIL_ENABLE_JSON */
   {
-    const char *zUrl = PD("REQUEST_URI", "index");
     const char *zQS = P("QUERY_STRING");
-    char *zUrlNoQS;
-    int i;
+    const char *zPathInfo = PD("PATH_INFO","");
     Blob redir;
     blob_init(&redir, 0, 0);
-    for(i=0; zUrl[i] && zUrl[i]!='?'; i++){}
-    zUrlNoQS = fossil_strndup(zUrl, i);
+    if( zPathInfo[0]=='/' ) zPathInfo++; /* skip leading slash */
     if( fossil_wants_https(1) ){
-      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrlNoQS);
+      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zPathInfo);
     }else{
-      blob_appendf(&redir, "%R/login?g=%T", zUrlNoQS);
+      blob_appendf(&redir, "%R/login?g=%T", zPathInfo);
     }
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);
@@ -1512,7 +1505,7 @@ void login_needed(int anonOk){
 */
 void login_anonymous_available(void){
   if( !g.perm.Hyperlink && g.anon.Hyperlink ){
-    const char *zUrl = PD("REQUEST_URI", "index");
+    const char *zUrl = PD("PATH_INFO", "");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
     @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
@@ -1615,9 +1608,9 @@ void register_page(void){
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
-  canDoAlerts = alert_tables_exist() && db_int(0,
+  canDoAlerts = alert_tables_exist() && (db_int(0,
     "SELECT fullcap(%Q) GLOB '*7*'", zPerms
-  );
+  ) || db_get_boolean("selfreg-verify",0));
   doAlerts = canDoAlerts && atoi(PD("alerts","1"))!=0;
 
   zUserID = PDT("u","");

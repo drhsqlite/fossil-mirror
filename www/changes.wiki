@@ -1,7 +1,13 @@
 <title>Change Log</title>
 
-<a name='v2_17'></a>
-<h2>Changes for version 2.17 (pending)</h2>
+<h2 id='v2_17'>Changes for version 2.17 (2021-10-09)</h2>
+  *  Major improvements to the "diff" subsystem, including: <ul>
+     <li> Added new [/help?cmd=diff|formatting options]: --by, -b, --webpage, --json, --tcl.
+     <li> Partial-line matching for unified diffs
+     <li> Better partial-line matching for side-by-side diffs
+     <li> Buttons on web-based diffs to show more context
+     <li> Performance improvements
+     </ul>
   *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
      [/help?cmd=amend|fossil amend] can now take the value "auto" to
      force Fossil to use its built-in automatic color choosing algorithm.
@@ -12,8 +18,8 @@
      to be displayed below the search box in the /ticket page.
   *  The "nc" query parameter to the [/help?cmd=/timeline|/timeline] page
      causes all graph coloring to be omitted.
-  *  Improvements and bug fixes to the new "fossil ui REMOTE" feature so
-     that it works better on a wider variety of platforms.
+  *  Improvements and bug fixes to the new "[/help?cmd=ui|fossil ui REMOTE]"
+     feature so that it works better on a wider variety of platforms.
   *  In [/help?cmd=/wikiedit|/wikiedit], show the list of attachments for 
      the current page and list URLs suitable for pasting them into the page.
   *  Add the --no-http-compression option to [/help?cmd=sync|fossil sync]
@@ -22,18 +28,36 @@
      the --verbose option.
   *  Add the <tt>close</tt>, <tt>reopen</tt>, <tt>hide</tt>, and
      </tt>unhide</tt> subcommands to [/help?cmd=branch|the branch command].
-  *  The [/mdrules|Markdown formatter] now interprets the content of
+  *  The "-p" option to [/help?cmd=branch|fossil branch list] shows only
+     private branches.
+  *  The [/md_rules|Markdown formatter] now interprets the content of
      block HTML markup (such as &lt;table&gt;) in most cases.  Only content
      of &lt;pre&gt; and &lt;script&gt; is passed through verbatim.
-  *  [/wcontent|Listing] of the available wiki pages
-     [/timeline?r=wcontent-subsets|gained] the ability to
-     [./javascript.md#wcontent|interactively] adjust a subset of
-     wiki pages that are shown; this is based on the
-     classification of wiki page names according to the
-     [/help?cmd=wiki-classes|configurable] glob patterns.
+  *  The [/help?cmd=wiki|wiki list command] no longer lists "deleted"
+     pages by default. Use the new <tt>--all</tt> option to include deleted
+     pages in the output.
+  *  The [/help?cmd=all|fossil all git status] command only shows reports for
+     the subset of repositories that have a configured Git export.
+  *  The [/help?cmd=/chat|/chat] configuration was reimplemented and
+     provides new options, including the ability for a repository
+     administrator to
+     [./chat.md#notifications|extend the selection of notification sounds]
+     using unversioned files.
+  *  Chat now uses fossil's full complement of markdown features,
+     instead of the prior small subset of markup it previously supported.
+     This retroactively applies to all chat messages, as they are
+     markdown-processed when they are sent instead of when they
+     are saved.
+  *  Added a chat message preview mode so messages can be previewed
+     before being sent. Similarly, added a per-message ability to view
+     the raw un-parsed message text.
+  *  The hotkey to activate preview mode in [/help?cmd=/wikiedit|/wikiedit],
+     [/help?cmd=/fileedit|/fileedit], and [/help?cmd=/pikchrshow|/pikchrshow]
+     was changed from ctrl-enter to shift-enter in order to align with
+     [/help?cmd=/chat|/chat]'s new preview feature and related future
+     changes.
 
-<a name='v2_16'></a>
-<h2>Changes for Version 2.16 (2021-07-02)</h2>
+<h2 id='v2_16'>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
      server hostname matches its certificate.
   *  The default "ssh" command on Windows is changed to "ssh" instead of the
@@ -79,8 +103,7 @@
   *  Update the built-in SQLite to version 3.36.0.
   *  Numerous other minor enhancements.
 
-<a name='v2_15'></a>
-<h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)
+<h2 id='v2_15'>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)
     and 2.15.2 on (2021-06-15)</h2>
   *  <b>Patch 2.15.2:</b> Fix the client-side TLS so that it verifies that the
      server hostname matches its certificate. <b>Upgrading to
@@ -164,8 +187,7 @@
      and the ability to squeeze several sequential edits made by the same
      user into a single "recycled" row (the latest edit in that sequence).
 
-<a name='v2_14'></a>
-<h2>Changes for Version 2.14 (2021-01-20) and Patch 2.14.1 on (2021-04-07)
+<h2 id='v2_14'>Changes for Version 2.14 (2021-01-20) and Patch 2.14.1 on (2021-04-07)
     and 2.14.2 on (2021-06-15)</h2>
   *  <b>Patch 2.14.2:</b> Fix the client-side TLS so that it verifies that the
      server hostname matches its certificate. <b>Upgrading to
@@ -231,8 +253,7 @@
   *  Performance optimizations to Fossil itself.
   *  Countless improvements and enhancements to the documentation
 
-<a name='v2_13'></a>
-<h2>Changes for Version 2.13 (2020-11-01)</h2>
+<h2 id='v2_13'>Changes for Version 2.13 (2020-11-01)</h2>
 
   *  Added support for [./interwiki.md|interwiki links].
   *  Enable &lt;del&gt; and &lt;ins&gt; markup in  wiki.
@@ -262,8 +283,7 @@
      SQLite 3.34.0 and later.
   *  Countless other minor refinements and documentation improvements.
 
-<a name='v2_12'></a>
-<h2>Changes for Version 2.12.1 (2020-08-20)</h2>
+<h2 id='v2_12'>Changes for Version 2.12.1 (2020-08-20)</h2>
 
   *  (2.12.1): Fix client-side vulnerabilities discovered by Max Justicz.
   *  Security fix in the "[/help?cmd=git|fossil git export]" command.
@@ -335,7 +355,7 @@
   *  [./delta_format.wiki|Delta compression] is now applied to forum edits.
   *  The [/help?cmd=/wikiedit|wiki editor] has been modernized and is
      now Ajax-based. The WYSIWYG editing option for Fossil-format wiki
-     pages was removed. (Please let us know, via the site's Support menu,
+     pages was removed. (Please let us know, via the site's Forum menu,
      if that removal unduly impacts you.) This also changes the semantics
      of the wiki "Sandbox": that pseudo-page may be freely edited but
      no longer saved via the UI (the [/help?cmd=wiki|wiki CLI command]
@@ -345,8 +365,7 @@
      symlinks.
   *  Countless documentation enhancements.
 
-<a name='v2_11'></a>
-<h2>Changes for Version 2.11 (2020-05-25)</h2>
+<h2 id='v2_11'>Changes for Version 2.11 (2020-05-25)</h2>
 
   *  (2.11.2): Backport security fixes from 2.12.1
   *  (2.11.1): Backport security fix for the "fossil git export" command.
@@ -436,8 +455,7 @@
   *  Many documentation enhancements.
   *  Many minor enhancements to existing features.
 
-<a name='v2_10'></a>
-<h2>Changes for Version 2.10 (2019-10-04)</h2>
+<h2 id='v2_10'>Changes for Version 2.10 (2019-10-04)</h2>
 
   *  (2.10.2): backport security fixes from 2.12.1
   *  (2.10.1): backport security fix for the "fossil git export" command.
@@ -473,8 +491,7 @@
   *  Performance optimizations.
   *  Many documentation improvements.
 
-<a name='v2_9'></a>
-<h2>Changes for Version 2.9 (2019-07-13)</h2>
+<h2 id='v2_9'>Changes for Version 2.9 (2019-07-13)</h2>
 
   *  Added the [/help?cmd=git|fossil git export] command and instructions
      for [./mirrortogithub.md|creating a GitHub mirror of a Fossil project].
@@ -544,8 +561,7 @@
      CGI debugging is enabled, and even then is a rare occurrence, but it is
      obviously an important fix.
 
-<a name='v2_8'></a>
-<h2>Changes for Version 2.8 (2019-02-20)</h2>
+<h2 id='v2_8'>Changes for Version 2.8 (2019-02-20)</h2>
 
   *  Show cherry-pick merges as dotted lines on the timeline graph.
      &rarr; The "fossil rebuild" command must be run to create and
@@ -611,8 +627,7 @@
   *  Various other small enhancements to webpages and documentation.
 
 
-<a name='v2_7'></a>
-<h2>Changes for Version 2.7 (2018-09-22)</h2>
+<h2 id='v2_7'>Changes for Version 2.7 (2018-09-22)</h2>
 
   *  Add the [./alerts.md|email alerts] feature for commits, ticket
      changes, wiki changes, forum posts, and announcements.  This is
@@ -654,8 +669,7 @@
      <tt>fossil set mv-rm-files 1</tt> to enable it on each repository
      where you want hard <tt>mv/rm</tt> behavior.
 
-<a name='v2_6'></a>
-<h2>Changes for Version 2.6 (2018-05-04)</h2>
+<h2 id='v2_6'>Changes for Version 2.6 (2018-05-04)</h2>
 
   *  Fix a bug that was causing crashes while trying to clone the TCL
      repository.  This fix is the main reason for the current release.
@@ -683,8 +697,7 @@
      any known vulnerabilities.  We are just being paranoid.
   *  Update the built-in SQLite to an alpha version of 3.24.0.
 
-<a name='v2_5'></a>
-<h2>Changes for Version 2.5 (2018-02-07)</h2>
+<h2 id='v2_5'>Changes for Version 2.5 (2018-02-07)</h2>
 
   *  Numerous enhancements to the look and feel of the web interface.
      Especially:  Added separate "Modern", "Compact", "Verbose", and
@@ -719,8 +732,7 @@
   *  Initial infrastructure is in place to make use of the pledge()
      system call in OpenBSD.  More work is to be done.
 
-<a name='v2_4'></a>
-<h2>Changes for Version 2.4 (2017-11-03)</h2>
+<h2 id='v2_4'>Changes for Version 2.4 (2017-11-03)</h2>
 
   *  New feature: URL Aliases.  URL Aliases allow an administrator
      to define their own URLs on the web interface that are rewritten to
@@ -759,8 +771,7 @@
      new repositories.
   *  Update the built-in SQLite to version 3.21.0.
 
-<a name='v2_3'></a>
-<h2>Changes for Version 2.3 (2017-07-21)</h2>
+<h2 id='v2_3'>Changes for Version 2.3 (2017-07-21)</h2>
 
   *  Update the built-in SQLite to version 3.20.0 (beta).
   *  Update internal Unicode character tables, used in regular expression
@@ -780,8 +791,7 @@
      [/help?cmd=/help|/help] webpage.
   *  Documentation updates
 
-<a name='v2_2'></a>
-<h2>Changes for Version 2.2 (2017-04-11)</h2>
+<h2 id='v2_2'>Changes for Version 2.2 (2017-04-11)</h2>
 
   *  GIT comment tags are now handled by Fossil during import/export.
   *  Show the content of README files on directory listings.
@@ -797,8 +807,7 @@
   *  Run "[https://www.sqlite.org/pragma.html#pragma_optimize|PRAGMA optimize]"
      on the database connection as it is closing.
 
-<a name='v2_1'></a>
-<h2>Changes for Version 2.1 (2017-03-10)</h2>
+<h2 id='v2_1'>Changes for Version 2.1 (2017-03-10)</h2>
 
   *  Add support for [./hashpolicy.wiki|hash policies] that control which
      of the Hardened-SHA1 or SHA3-256 algorithms is used to name new
@@ -808,8 +817,7 @@
      the [/uv/download.html|Download Page] of the Fossil self-hosting website
      using Ajax.
 
-<a name='v2_0'></a>
-<h2>Changes for Version 2.0 (2017-03-03)</h2>
+<h2 id='v2_0'>Changes for Version 2.0 (2017-03-03)</h2>
 
   *  Use the
      [https://github.com/cr-marcstevens/sha1collisiondetection|hardened SHA1]
@@ -820,8 +828,7 @@
   *  Added the [/help?cmd=sha3sum|sha3sum] command.
   *  Update the built-in SQLite to version 3.17.0.
 
-<a name='v1_37'></a>
-<h2>Changes for Version 1.37 (2017-01-16)</h2>
+<h2 id='v1_37'>Changes for Version 1.37 (2017-01-16)</h2>
 
   *  Add checkbox widgets to various web pages.  See [/technote/8d18bf27e9|
      this technote] for more information.  To get the checkboxes to look as
@@ -858,8 +865,7 @@
   *  Update the built-in Zlib to version 1.2.11.
 
 
-<a name='v1_36'></a>
-<h2>Changes for Version 1.36 (2016-10-24)</h2>
+<h2 id='v1_36'>Changes for Version 1.36 (2016-10-24)</h2>
 
   *  Add support for [./unvers.wiki|unversioned content],
      the [/help?cmd=unversioned|fossil unversioned] command and the
@@ -889,8 +895,7 @@
   *  Added support for the chng=GLOBLIST query parameter on the
      [/help?cmd=/timeline|/timeline] webpage.
 
-<a name='v1_35'></a>
-<h2>Changes for Version 1.35 (2016-06-14)</h2>
+<h2 id='v1_35'>Changes for Version 1.35 (2016-06-14)</h2>
 
   *  Enable symlinks by default on all non-Windows platforms.
   *  Enhance the [/md_rules|Markdown formatting] so that hyperlinks that begin
@@ -933,8 +938,7 @@
   *  Numerous documentation improvements.
   *  Update the built-in SQLite to version 3.13.0.
 
-<a name='v1_34'></a>
-<h2>Changes for Version 1.34 (2015-11-02)</h2>
+<h2 id='v1_34'>Changes for Version 1.34 (2015-11-02)</h2>
 
   *  Make the [/help?cmd=clean|fossil clean] command undoable for files less
      than 10MiB.
@@ -969,8 +973,7 @@
   *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
      support (both currently unused within Fossil).
 
-<a name='v1_33'></a>
-<h2>Changes for Version 1.33 (2015-05-23)</h2>
+<h2 id='v1_33'>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],
      [/help?cmd=status|fossil status] and related commands.
   *  Change the default skin to what used to be called "San Francisco Modern".
@@ -1019,8 +1022,7 @@
      already exist.
   *  Inhibit timeline links to wiki pages that have been deleted.
 
-<a name='v1_33'></a>
-<h2>Changes for Version 1.32 (2015-03-14)</h2>
+<h2 id='v1_33'>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
      that the new repository is fully compatible with historical versions of
      Fossil by having a valid manifest as RID 1.
@@ -1036,8 +1038,7 @@
   *  Added [/help?cmd=forget|fossil forget] as an alias for
      [/help?cmd=rm|fossil rm].
 
-<a name='v1_31'></a>
-<h2>Changes For Version 1.31 (2015-02-23)</h2>
+<h2 id='v1_31'>Changes For Version 1.31 (2015-02-23)</h2>
   *  Change the auxiliary schema by adding columns MLINK.ISAUX and MLINK.PMID
      columns to the schema, to support better drawing of file change graphs.
      A [/help?cmd=rebuild|fossil rebuild] is recommended but is not required.
@@ -1088,8 +1089,7 @@
   *  Break out the components (css, footer, and header) for the
      various built-in skins into separate files in the source tree.
 
-<a name='v1_30'></a>
-<h2>Changes For Version 1.30 (2015-01-19)</h2>
+<h2 id='v1_30'>Changes For Version 1.30 (2015-01-19)</h2>
   *  Added the [/help?cmd=bundle|fossil bundle] command.
   *  Added the [/help?cmd=purge|fossil purge] command.
   *  Added the [/help?cmd=publish|fossil publish] command.
@@ -1159,8 +1159,7 @@
   *  Numerous documentation fixes and improvements.
   *  Other obscure and minor bug fixes - see the timeline for details.
 
-<a name='v1_29'></a>
-<h2>Changes For Version 1.29 (2014-06-12)</h2>
+<h2 id='v1_29'>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
      text files in the web interface.
   *  Add the "SaveAs..." and "Invert" buttons

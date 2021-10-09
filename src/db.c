@@ -1916,12 +1916,12 @@ int db_open_config(int useAttach, int isOptional){
       file_mkdir(zHome, ExtFILE, 0);
     }
     rc = file_access(zHome, W_OK);
-    fossil_free(zHome);
     if( rc ){
       if( isOptional ) return 0;
       fossil_fatal("home directory \"%s\" must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
+    fossil_free(zHome);
   }
   if( file_access(zDbName, W_OK) ){
     if( isOptional ) return 0;

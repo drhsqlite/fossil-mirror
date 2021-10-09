@@ -34,8 +34,7 @@ The local state is not composed of artifacts and is not intended to be enduring.
 This document is concerned with global state only.  Local state is only
 mentioned here in order to distinguish it from global state.
 
-<a id="names"></a>
-<h2>1.0 Artifact Names</h2>
+<h2 id="names">1.0 Artifact Names</h2>
 
 Each artifact in the repository is named by a hash of its content.
 No prefixes, suffixes, or other information is added to an artifact before
@@ -56,8 +55,7 @@ Prior to Fossil version 2.0, all names were formed from the SHA1 hash of
 the artifact.  The key innovation in Fossil 2.0 was adding support for
 alternative hash algorithms.
 
-<a id="structural"></a>
-<h2>2.0 Structural Artifacts</h2>
+<h2 id="structural">2.0 Structural Artifacts</h2>
 
 A structural artifact is an artifact with a particular format
 that is used to define the relationships between other artifacts in the
@@ -102,8 +100,7 @@ is intended to be enduring.  The specifics of how artifacts are stored on
 disk, though stable, is not intended to live as long as the
 artifact format.
 
-<a id="manifest"></a>
-<h3>2.1 The Manifest</h3>
+<h3 id="manifest">2.1 The Manifest</h3>
 
 A manifest defines a check-in.
 A manifest contains a list of artifacts for
@@ -258,8 +255,7 @@ consistent.
 A sample manifest from Fossil itself can be seen
 [/artifact/28987096ac | here].
 
-<a id="cluster"></a>
-<h3>2.2 Clusters</h3>
+<h3 id="cluster">2.2 Clusters</h3>
 
 A cluster is an artifact that declares the existence of other artifacts.
 Clusters are used during repository synchronization to help
@@ -284,8 +280,7 @@ prior cards in the cluster.  The <b>Z</b> card is required.
 An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
 
-<a id="ctrl"></a>
-<h3>2.3 Control Artifacts</h3>
+<h3 id="ctrl">2.3 Control Artifacts</h3>
 
 Control artifacts are used to assign properties to other artifacts
 within the repository.
@@ -338,8 +333,7 @@ artifact.  The <b>Z</b> card is the usual required artifact checksum.
 An example control artifact can be seen [/info/9d302ccda8 | here].
 
 
-<a id="wikichng"></a>
-<h3>2.4 Wiki Pages</h3>
+<h3 id="wikichng">2.4 Wiki Pages</h3>
 
 A wiki artifact defines a single version of a
 single wiki page.
@@ -382,8 +376,7 @@ artifact that includes a <b>C</b> card.
 An example wiki artifact can be seen
 [/artifact?name=7b2f5fd0e0&txt=1 | here].
 
-<a id="tktchng"></a>
-<h3>2.5 Ticket Changes</h3>
+<h3 id="tktchng">2.5 Ticket Changes</h3>
 
 A ticket-change artifact represents a change to a trouble ticket.
 The following cards are allowed on a ticket change artifact:
@@ -428,8 +421,7 @@ escapes defined for the <b>C</b> card of a manifest.
 An example ticket-change artifact can be seen
 [/artifact/91f1ec6af053 | here].
 
-<a id="attachment"></a>
-<h3>2.6 Attachments</h3>
+<h3 id="attachment">2.6 Attachments</h3>
 
 An attachment artifact associates some other artifact that is the
 attachment (the source artifact) with a ticket or wiki page or
@@ -470,8 +462,7 @@ The <b>Z</b> card is the usual checksum over the rest of the attachment artifact
 The <b>Z</b> card is required.
 
 
-<a id="event"></a>
-<h3>2.7 Technical Notes</h3>
+<h3 id="event">2.7 Technical Notes</h3>
 
 A technical note or "technote" artifact (formerly known as an "event" artifact)
 associates a timeline comment and a page of text
@@ -538,8 +529,7 @@ technote.  The format of the <b>W</b> card is exactly the same as for a
 
 The <b>Z</b> card is the required checksum over the rest of the artifact.
 
-<a id="forum"></a>
-<h3>2.8 Forum Posts</h3>
+<h3 id="forum">2.8 Forum Posts</h3>
 
 Forum posts are intended as a mechanism for users and developers to
 discuss a project.  Forum posts are like messages on a mailing list.
@@ -613,8 +603,7 @@ The format of the <b>W</b> card is exactly the same as for a
 The <b>Z</b> card is the required checksum over the rest of the artifact.
 
 
-<a id="summary"></a>
-<h2>3.0 Card Summary</h2>
+<h2 id="summary">3.0 Card Summary</h2>
 
 The following table summarizes the various kinds of cards that appear
 on Fossil artifacts. A blank entry means that combination of card and
@@ -889,14 +878,12 @@ Footnotes:
 5) [#forum | Forum Post] P-cards may have only a single parent
    hash. i.e. they may not have merge parents.
 
-<a id="addenda"></a>
-<h2>4.0 Addenda</h2>
+<h2 id="addenda">4.0 Addenda</h2>
 
 This section contains additional information which may be useful when
 implementing algorithms described above.
 
-<a id="outofordercards"></a>
-<h3>4.1 Relaxed Card Ordering Due To An Historical Bug</h3>
+<h3 id="outofordercards">4.1 Relaxed Card Ordering Due To An Historical Bug</h3>
 
 All cards of a structural artifact should be in lexicographical order.
 The Fossil implementation verifies this and rejects any structural

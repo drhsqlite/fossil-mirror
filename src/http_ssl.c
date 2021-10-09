@@ -145,7 +145,7 @@ void ssl_global_init(void){
       identityFile = db_get("ssl-identity", 0);
     }
     if( identityFile!=0 && identityFile[0]!='\0' ){
-      if( SSL_CTX_use_certificate_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
+      if( SSL_CTX_use_certificate_chain_file(sslCtx,identityFile)!=1
        || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
       ){
         fossil_fatal("Could not load SSL identity from %s", identityFile);
@@ -399,6 +399,7 @@ int ssl_open(UrlData *pUrlData){
       prompt_user("remember this exception (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='y' || cReply=='Y') {
+        db_open_config(0,0);
         ssl_remember_certificate_exception(pUrlData, zHash);
       }
       blob_reset(&ans);

@@ -33,7 +33,8 @@ fossil merge private
 fossil commit
 </pre></blockquote>
 
-The private branch remains private, but all of the changes associated with
+The private branch remains private and is not recorded as a parent
+in the merge manifest's P-card, but all of the changes associated with
 the private branch are now folded into the public branch and are hence
 visible to other users of the project.
 
