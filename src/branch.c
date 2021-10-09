@@ -235,6 +235,7 @@ void branch_new(void){
 **      mergeto        Another branch this branch was merged into
 **      nckin          Number of checkins on this branch
 **      ckin           Hash of the last checkin on this branch
+**      isprivate      True if the branch is private
 **      bgclr          Background color for this branch
 */
 static const char createBrlistQuery[] =
@@ -254,7 +255,8 @@ static const char createBrlistQuery[] =
 @      AND tagtype>0) AS mergeto,
 @   count(*) AS nckin,
 @   (SELECT uuid FROM blob WHERE rid=tagxref.rid) AS ckin,
-@   event.bgcolor AS bgclr
+@   event.bgcolor AS bgclr,
+@   EXISTS(SELECT 1 FROM private WHERE rid=tagxref.rid) AS isprivate
 @  FROM tagxref, tag, event
 @ WHERE tagxref.tagid=tag.tagid
 @   AND tagxref.tagtype>0
@@ -279,6 +281,7 @@ static void brlist_create_temp_table(void){
 #define BRL_OPEN_CLOSED_MASK 0x003
 #define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
 #define BRL_REVERSE          0x008 /* Reverse the sort order */
+#define BRL_PRIVATE          0x010 /* Show only private branches */
 
 #endif /* INTERFACE */
 
@@ -296,23 +299,24 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags, const char *zBrNameGlo
   switch( brFlags & BRL_OPEN_CLOSED_MASK ){
     case BRL_CLOSED_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name FROM tmp_brlist WHERE isclosed"
+        "SELECT name, isprivate FROM tmp_brlist WHERE isclosed"
       );
       break;
     }
     case BRL_BOTH: {
       blob_append_sql(&sql,
-        "SELECT name FROM tmp_brlist WHERE 1"
+        "SELECT name, isprivate FROM tmp_brlist WHERE 1"
       );
       break;
     }
     case BRL_OPEN_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name FROM tmp_brlist WHERE NOT isclosed"
+        "SELECT name, isprivate FROM tmp_brlist WHERE NOT isclosed"
       );
       break;
     }
   }
+  if( brFlags & BRL_PRIVATE ) blob_append_sql(&sql, " AND isprivate");
   if(zBrNameGlob) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
   if( brFlags & BRL_ORDERBY_MTIME ){
     blob_append_sql(&sql, " ORDER BY -mtime");
@@ -587,10 +591,12 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        List all branches. Options:
 **          -a|--all      List all branches.  Default show only open branches
 **          -c|--closed   List closed branches.
+**          -p            List only private branches.
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
 **
-**        The current branch is marked with an asterisk.
+**        The current branch is marked with an asterisk.  Private branches are
+**        marked with a hash sign.
 **
 **        If GLOB is given, show only branches matching the pattern.
 **
@@ -657,6 +663,7 @@ void branch_cmd(void){
     if( find_option("closed","c",0)!=0 ) brFlags = BRL_CLOSED_ONLY;
     if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
     if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
+    if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
     if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
 
     if( g.localOpen ){
@@ -667,8 +674,11 @@ void branch_cmd(void){
     branch_prepare_list_query(&q, brFlags, zBrNameGlob);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
+      int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
-      fossil_print("%s%s\n", (isCur ? "* " : "  "), zBr);
+      fossil_print("%s%s%s\n", 
+        ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ), 
+        (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);
   }else if( strncmp(zCmd,"new",n)==0 ){

@@ -1133,7 +1133,7 @@ table.login_out td {
 
 /* Diff displays
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
-pre.udiff, table.sbsdiffcols {
+table.diff {
   width: 100%;
   overflow: auto;
   border: 1px solid #ccc;
@@ -1141,7 +1141,7 @@ pre.udiff, table.sbsdiffcols {
   font-size: 1rem;
 }
 
-pre.udiff:focus, table.sbsdiffcols:focus {
+table.diff:focus {
   outline: none;
 }
 

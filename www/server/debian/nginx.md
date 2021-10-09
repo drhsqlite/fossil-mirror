@@ -18,7 +18,7 @@ widely considered part of the baseline configuration these days.
 [vps]:   https://en.wikipedia.org/wiki/Virtual_private_server
 
 
-## <a name="benefits"></a>Benefits
+## <a id="benefits"></a>Benefits
 
 This scheme is considerably more complicated than the [standalone HTTP
 server](../any/none.md) and [CGI options](../any/cgi.md). Even with the
@@ -61,7 +61,7 @@ participate seamlessly as part of a larger web stack.
 package repositories, so you don’t need to go out of your way to get it.
 
 
-## <a name="modes"></a>Fossil Service Modes
+## <a id="modes"></a>Fossil Service Modes
 
 Fossil provides four major ways to access a repository it’s serving
 remotely, three of which are straightforward to use with nginx:
@@ -96,7 +96,7 @@ SCGI it is, then.
 [scgip]: https://en.wikipedia.org/wiki/Simple_Common_Gateway_Interface
 
 
-## <a name="deps"></a>Installing the Dependencies
+## <a id="deps"></a>Installing the Dependencies
 
 The first step is to install some non-default packages we’ll need. SSH into
 your server, then say:
@@ -108,7 +108,7 @@ source to get a more up-to-date version than is shipped with the host
 OS.
 
 
-## <a name="scgi"></a>Running Fossil in SCGI Mode
+## <a id="scgi"></a>Running Fossil in SCGI Mode
 
 For the following nginx configuration to work, it needs to contact a
 Fossil instance speaking the SCGI protocol. There are [many ways](../)
@@ -120,7 +120,7 @@ nginx, but however you do it, you need to match up the TCP port numbers between 
 and those in the nginx configuration below.
 
 
-## <a name="config"></a>Configuration
+## <a id="config"></a>Configuration
 
 On Debian and Ubuntu systems the primary user-level configuration file
 for nginx is `/etc/nginx/sites-enabled/default`. I recommend that this
@@ -196,7 +196,7 @@ The configuration for `foo.net` is similar.
 See [the nginx docs](https://nginx.org/en/docs/) for more ideas.
 
 
-## <a name="http"></a>Proxying HTTP Anyway
+## <a id="http"></a>Proxying HTTP Anyway
 
 [Above](#modes), we argued that proxying SCGI is a better option than
 making nginx reinterpret Fossil’s own implementation of HTTP.  If you
@@ -220,7 +220,7 @@ instance, Fossil will not collapse double slashes down to a single
 slash, as some other HTTP servers will.
 
 
-## <a name="large-uv"></a> Allowing Large Unversioned Files
+## <a id="large-uv"></a> Allowing Large Unversioned Files
 
 By default, nginx only accepts HTTP messages [up to a
 meg](http://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size)
@@ -236,7 +236,7 @@ limit. Within the `location` block:
 [uv]: ../../unvers.wiki
 
 
-## <a name="fail2ban"></a> Integrating `fail2ban`
+## <a id="fail2ban"></a> Integrating `fail2ban`
 
 One of the nice things that falls out of proxying Fossil behind nginx is
 that it makes it easier to configure `fail2ban` to recognize attacks on
@@ -281,7 +281,7 @@ this guide.
 [dof2b]: https://www.digitalocean.com/community/tutorials/how-to-protect-an-nginx-server-with-fail2ban-on-ubuntu-14-04
 
 
-## <a name="tls"></a> Adding TLS (HTTPS) Support
+## <a id="tls"></a> Adding TLS (HTTPS) Support
 
 One of the [many ways](../../ssl.wiki) to provide TLS-encrypted HTTP access
 (a.k.a. HTTPS) to Fossil is to run it behind a web proxy that supports

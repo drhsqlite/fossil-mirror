@@ -169,8 +169,7 @@ puts {</ol>}
 puts {<hr>}
 
 for {set i 1} {$i<$cnt} {incr i} {
-  puts "<a name=\"q$i\"></a>"
-  puts "<p><b>($i) [lindex $faq($i) 0]</b></p>\n"
+  puts "<p id=\"q$i\"><b>($i) [lindex $faq($i) 0]</b></p>\n"
   set body [lindex $faq($i) 1]
   regsub -all "\n *" [string trim $body] "\n" body
   puts "<blockquote>$body</blockquote></li>\n"

@@ -38,7 +38,7 @@ TH1 Hook Related Variables for Web Pages
   *  web\_args -- _Current web page arguments._
   *  web\_flags -- _Bitmask of CMDFLAG values for the web page being rendered._
 
-<a name="cmdReturnCodes"></a>TH1 Hook Related Return Codes for Commands
+<a id="cmdReturnCodes"></a>TH1 Hook Related Return Codes for Commands
 -----------------------------------------------------------------------
 
   *  TH\_OK -- _Command will be executed, notification will be executed._
@@ -53,7 +53,7 @@ execution will cause the standard "unknown command" error message to be
 generated, which will typically exit the process.  Therefore, adding a
 new command generally requires using the TH_CONTINUE return code.
 
-<a name="webReturnCodes"></a>TH1 Hook Related Return Codes for Web Pages
+<a id="webReturnCodes"></a>TH1 Hook Related Return Codes for Web Pages
 ------------------------------------------------------------------------
 
   *  TH\_OK -- _Web page will be rendered, notification will be executed._
@@ -68,7 +68,7 @@ rendering will cause the standard "Not Found" error message to be generated,
 which will cause an HTTP 404 status code to be sent.  Therefore, adding a
 new web page generally requires using the TH_CONTINUE return code.
 
-<a name="triggerReturnCodes"></a>Triggering TH1 Return Codes from a Script
+<a id="triggerReturnCodes"></a>Triggering TH1 Return Codes from a Script
 --------------------------------------------------------------------------
 
   *  TH\_OK -- _This is the default return code, nothing special needed._
@@ -77,7 +77,7 @@ new web page generally requires using the TH_CONTINUE return code.
   *  TH\_RETURN -- _Use the **return -code 5** command._
   *  TH\_CONTINUE -- _Use the **continue** command._
 
-<a name="command_hook"></a>TH1 command_hook Procedure
+<a id="command_hook"></a>TH1 command_hook Procedure
 -----------------------------------------------------
 
   *  command\_hook
@@ -91,7 +91,7 @@ variable.  Before exiting, the procedure should trigger the return
 <a href="#cmdReturnCodes">code</a> that corresponds to the desired action
 to take next.
 
-<a name="command_notify"></a>TH1 command_notify Procedure
+<a id="command_notify"></a>TH1 command_notify Procedure
 ---------------------------------------------------------
 
   *  command\_notify
@@ -105,7 +105,7 @@ variable.  Before exiting, the procedure should trigger the return
 <a href="#cmdReturnCodes">code</a> that corresponds to the desired action
 to take next.
 
-<a name="webpage_hook"></a>TH1 webpage_hook Procedure
+<a id="webpage_hook"></a>TH1 webpage_hook Procedure
 -----------------------------------------------------
 
   *  webpage\_hook
@@ -119,7 +119,7 @@ variable.  Before exiting, the procedure should trigger the return
 <a href="#webReturnCodes">code</a> that corresponds to the desired action
 to take next.
 
-<a name="webpage_notify"></a>TH1 webpage_notify Procedure
+<a id="webpage_notify"></a>TH1 webpage_notify Procedure
 ---------------------------------------------------------
 
   *  webpage\_notify

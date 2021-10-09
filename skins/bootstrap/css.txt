@@ -4402,3 +4402,27 @@ textarea[name="w"], textarea[name="r"], textarea[name="css"], textarea[name="hea
 body.branch .submenu > a.timeline-link {
   color: black;
 }
+
+tr.diffskip > td.chunkctrl .jcbutton {
+  min-width: 3.5ex;
+  max-width: revert;
+}
+
+/* Bootstrap installs a 'table' class on tables which causes its
+   styles to be more specific matches than our diff tables, so we have
+   to fight that fire with more fire... */
+table.diff.table>thead>tr>th, table.diff.table>tbody>tr>th,
+table.diff.table>tfoot>tr>th, table.diff.table>thead>tr>td,
+table.diff.table>tbody>tr>td, table.diff.table>tfoot>tr>td {
+  padding: 0;
+  line-height: revert;
+  vertical-align: top;
+  border-top: none;
+}
+table.diff tr.diffskip.jchunk > td {
+  padding: 0.25em 0.5em;
+}
+table.diff pre {
+  border: none;
+  word-wrap: initial;
+}

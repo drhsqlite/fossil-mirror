@@ -374,10 +374,24 @@ void patch_apply(unsigned mFlags){
   Stmt q;
   Blob cmd;
 
-  if( (mFlags & PATCH_FORCE)==0 && unsaved_changes(0) ){
-    fossil_fatal("there are unsaved changes in the current checkout");
-  }
   blob_init(&cmd, 0, 0);
+  if( unsaved_changes(0) ){
+    if( (mFlags & PATCH_FORCE)==0 ){
+      fossil_fatal("there are unsaved changes in the current checkout");
+    }else{
+      blob_appendf(&cmd, "%$ revert", g.nameOfExe);
+      if( mFlags & PATCH_DRYRUN ){
+        fossil_print("%s\n", blob_str(&cmd));
+      }else{
+        int rc = fossil_system(blob_str(&cmd));
+        if( rc ){
+          fossil_fatal("unable to revert preexisting changes: %s",
+                       blob_str(&cmd));
+        }
+      }
+      blob_reset(&cmd);
+    }
+  }
   file_chdir(g.zLocalRoot, 0);
   db_prepare(&q,
     "SELECT patch.cfg.value"
@@ -564,7 +578,7 @@ void patch_apply(unsigned mFlags){
     if( mFlags & PATCH_DRYRUN ){
       fossil_print("%s", blob_str(&cmd));
     }else{
-      int rc = fossil_system(blob_str(&cmd));
+      int rc = fossil_unsafe_system(blob_str(&cmd));
       if( rc ){
         fossil_fatal("unable to add new files:\n%s",
                      blob_str(&cmd));
@@ -649,13 +663,21 @@ static FILE *patch_remote_command(
   unsigned mFlags,             /* flags */
   const char *zThisCmd,        /* "push" or "pull" */
   const char *zRemoteCmd,      /* "apply" or "create" */
+  const char *zFossilCmd,      /* Name of "fossil" on remote system */
   const char *zRW              /* "w" or "r" */
 ){
   char *zRemote;
   char *zDir;
   Blob cmd;
   FILE *f;
-  const char *zForce = (mFlags & PATCH_FORCE)!=0 ? " -f" : "";
+  Blob flgs;
+  char *zForce;
+
+  blob_init(&flgs, 0, 0);
+  if( mFlags & PATCH_FORCE )  blob_appendf(&flgs, " -f");
+  if( mFlags & PATCH_VERBOSE )  blob_appendf(&flgs, " -v");
+  if( mFlags & PATCH_DRYRUN )  blob_appendf(&flgs, " -n");
+  zForce = blob_size(&flgs)>0 ? blob_str(&flgs) : "";
   if( g.argc!=4 ){
     usage(mprintf("%s [USER@]HOST:DIRECTORY", zThisCmd));
   }
@@ -673,8 +695,9 @@ static FILE *patch_remote_command(
     blob_appendf(&cmd, " -T");
     blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);
-    blob_appendf(&remote, "fossil patch %s%s --dir64 %z -", 
-                 zRemoteCmd, zForce, encode64(zDir, -1));
+    if( zFossilCmd==0 ) zFossilCmd = "fossil";
+    blob_appendf(&remote, "%$ patch %s%s --dir64 %z -", 
+                 zFossilCmd, zRemoteCmd, zForce, encode64(zDir, -1));
     blob_append_escaped_arg(&cmd, blob_str(&remote), 0);
     blob_reset(&remote);
   }
@@ -687,6 +710,7 @@ static FILE *patch_remote_command(
     fossil_fatal("cannot run command: %s", blob_str(&cmd));
   }
   blob_reset(&cmd);
+  blob_reset(&flgs);
   return f;
 }
 
@@ -695,13 +719,11 @@ static FILE *patch_remote_command(
 */
 static void patch_diff(
   unsigned mFlags,         /* Patch flags.  only -f is allowed */
-  const char *zDiffCmd,    /* Command used for diffing */
-  const char *zBinGlob,    /* GLOB pattern to determine binary files */
-  int fIncludeBinary,      /* Do diffs against binary files */
-  u64 diffFlags            /* Other diff flags */
+  DiffConfig *pCfg         /* Diff options */
 ){
   int nErr = 0;
   Stmt q;
+  int bWebpage = (pCfg->diffFlags & DIFF_WEBPAGE)!=0;
   Blob empty;
   blob_zero(&empty);
 
@@ -740,7 +762,8 @@ static void patch_diff(
       }
     }
   }
-  
+
+  diff_begin(pCfg);
   db_prepare(&q,
      "SELECT"
        " (SELECT blob.rid FROM blob WHERE blob.uuid=chng.hash),"
@@ -754,7 +777,6 @@ static void patch_diff(
   while( db_step(&q)==SQLITE_ROW ){
     int rid;
     const char *zName;
-    int isBin1, isBin2;
     Blob a, b;
  
     if( db_column_type(&q,0)!=SQLITE_INTEGER
@@ -779,22 +801,16 @@ static void patch_diff(
     rid = db_column_int(&q, 0);
 
     if( db_column_type(&q,3)==SQLITE_NULL ){
-      fossil_print("DELETE %s\n", zName);
-      diff_print_index(zName, diffFlags, 0);
-      isBin2 = 0;
+      if( !bWebpage ) fossil_print("DELETE %s\n", zName);
+      diff_print_index(zName, pCfg, 0);
       content_get(rid, &a);
-      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      diff_file_mem(&a, &empty, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, diffFlags);
+      diff_file_mem(&a, &empty, zName, pCfg);
     }else if( rid==0 ){
       db_ephemeral_blob(&q, 3, &a);
       blob_uncompress(&a, &a);
-      fossil_print("ADDED %s\n", zName);
-      diff_print_index(zName, diffFlags, 0);
-      isBin1 = 0;
-      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      diff_file_mem(&empty, &a, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, diffFlags);
+      if( !bWebpage ) fossil_print("ADDED %s\n", zName);
+      diff_print_index(zName, pCfg, 0);
+      diff_file_mem(&empty, &a, zName, pCfg);
       blob_reset(&a);
     }else if( db_column_bytes(&q, 3)>0 ){
       Blob delta;
@@ -802,16 +818,14 @@ static void patch_diff(
       blob_uncompress(&delta, &delta);
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
-      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
-      diff_file_mem(&a, &b, isBin1, isBin2, zName,
-                    zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+      diff_file_mem(&a, &b, zName, pCfg);
       blob_reset(&a);
       blob_reset(&b);
       blob_reset(&delta);
     }
   }
   db_finalize(&q);
+  diff_end(pCfg, nErr);
   if( nErr ) fossil_fatal("abort due to prior errors");
 }
 
@@ -841,7 +855,8 @@ static void patch_diff(
 **       in the current directory if DIRECTORY is omitted. Options:
 **
 **           -f|--force     Apply the patch even though there are unsaved
-**                          changes in the current check-out.
+**                          changes in the current check-out.  Unsaved changes
+**                          are reverted and permanently lost.
 **           -n|--dryrun    Do nothing, but print what would have happened.
 **           -v|--verbose   Extra output explaining what happens.
 **
@@ -864,25 +879,28 @@ static void patch_diff(
 **           *   HOST:DIRECTORY
 **           *   USER@HOST:DIRECTORY
 **
-**       This command will only work if "fossil" is on the default PATH
-**       of the remote machine.
+**       Command-line options:
+**
+**           -f|--force         Apply the patch even though there are unsaved
+**                              changes in the current check-out.  Unsaved
+**                              changes will be reverted and then the patch is
+**                              applied.
+**           --fossilcmd EXE    Name of the "fossil" executable on the remote  
+**           -n|--dryrun        Do nothing, but print what would have happened.
+**           -v|--verbose       Extra output explaining what happens.
+**
 **
 ** > fossil patch pull REMOTE-CHECKOUT
 **
-**       Create a patch on a remote check-out, transfer that patch to the
-**       local machine (using ssh) and apply the patch in the local checkout.
-**
-**           -f|--force     Apply the patch even though there are unsaved
-**                          changes in the current check-out.
-**           -n|--dryrun    Do nothing, but print what would have happened.
-**           -v|--verbose   Extra output explaining what happens.
+**       Like "fossil patch push" except that the transfer is from remote
+**       to local.  All the same command-line options apply.
 **
 ** > fossil patch view FILENAME
 **
 **       View a summary of the changes in the binary patch FILENAME.
 **       Use "fossil patch diff" for detailed patch content.
 **
-**           -v|--verbose   Show extra detail about the patch.
+**           -v|--verbose       Show extra detail about the patch.
 **
 */
 void patch_cmd(void){
@@ -917,44 +935,35 @@ void patch_cmd(void){
     fossil_free(zOut);
   }else
   if( strncmp(zCmd, "diff", n)==0 ){
-    const char *zDiffCmd = 0;
-    const char *zBinGlob = 0;
-    int fIncludeBinary = 0;
-    u64 diffFlags;
     char *zIn;
     unsigned flags = 0;
+    DiffConfig DCfg;
 
     if( find_option("tk",0,0)!=0 ){
       db_close(0);
       diff_tk("patch diff", 3);
       return;
     }
-    if( find_option("internal","i",0)==0 ){
-      zDiffCmd = diff_command_external(zCmd[0]=='g');
-    }
-    diffFlags = diff_options();
-    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
-    if( zDiffCmd ){
-      zBinGlob = diff_get_binary_glob();
-      fIncludeBinary = diff_include_binary_files();
-    }
+    diff_options(&DCfg, zCmd[0]=='g', 0);
     db_find_and_open_repository(0, 0);
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     verify_all_options();
     zIn = patch_find_patch_filename("apply");
     patch_attach(zIn, stdin);
-    patch_diff(flags, zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+    patch_diff(flags, &DCfg);
     fossil_free(zIn);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){
     FILE *pIn = 0;
     unsigned flags = 0;
+    const char *zFossilCmd = find_option("fossilcmd",0,1);
     if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
     verify_all_options();
-    pIn = patch_remote_command(flags & (~PATCH_FORCE), "pull", "create", "r");
+    pIn = patch_remote_command(flags & (~PATCH_FORCE), 
+                 "pull", "create", zFossilCmd, "r");
     if( pIn ){
       patch_attach(0, pIn);
       pclose(pIn);
@@ -964,12 +973,13 @@ void patch_cmd(void){
   if( strncmp(zCmd, "push", n)==0 ){
     FILE *pOut = 0;
     unsigned flags = 0;
+    const char *zFossilCmd = find_option("fossilcmd",0,1);
     if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
     verify_all_options();
-    pOut = patch_remote_command(flags, "push", "apply", "w");
+    pOut = patch_remote_command(flags, "push", "apply", zFossilCmd, "w");
     if( pOut ){
       patch_create(0, 0, pOut);
       pclose(pOut);

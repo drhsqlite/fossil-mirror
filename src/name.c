@@ -226,6 +226,14 @@ static int most_recent_event_with_tag(const char *zTag, const char *zType){
   );
 }
 
+/*
+** Return true if character "c" is a character that might have been
+** accidentally appended to the end of a URL.
+*/
+static int is_trailing_punct(char c){
+  return c=='.' || c=='_' || c==')' || c=='>' || c=='!' || c=='?' || c==',';
+}
+
 
 /*
 ** Convert a symbolic name into a RID.  Acceptable forms:
@@ -487,6 +495,30 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
           "   AND event.type GLOB '%q'", zTag /*safe-for-%s*/, zType);
       }
     }
+    return rid;
+  }
+
+  /* If nothing matches and the name ends with punctuation,
+  ** then the name might have originated from a URL in plain text
+  ** that was incorrectly extracted from the text.  Try to remove
+  ** the extra punctuation and rerun the match.
+  */
+  if( nTag>4
+   && is_trailing_punct(zTag[nTag-1])
+   && !is_trailing_punct(zTag[nTag-2])
+  ){
+    char *zNew = fossil_strndup(zTag, nTag-1);
+    rid = symbolic_name_to_rid(zNew,zType);
+    fossil_free(zNew);
+  }else 
+  if( nTag>5
+   && is_trailing_punct(zTag[nTag-1])
+   && is_trailing_punct(zTag[nTag-2])
+   && !is_trailing_punct(zTag[nTag-3])
+  ){
+    char *zNew = fossil_strndup(zTag, nTag-2);
+    rid = symbolic_name_to_rid(zNew,zType);
+    fossil_free(zNew);
   }
   return rid;
 }

@@ -136,8 +136,6 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
-    setup_menu_entry("Email-Server", "setup_smtp",
-      "Activate and configure the built-in email server");
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
   }
@@ -686,9 +684,6 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
-    @ <br />For best results, use the same number of <a href="setup_access#ipt">
-    @ IP octets</a> in the login cookie across all repositories in the
-    @ same Login Group.
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>

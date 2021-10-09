@@ -23,6 +23,12 @@ body.wikiedit #wikiedit-tabs {
 body.wikiedit #wikiedit-tab-preview-wrapper {
   overflow: auto;
 }
+body.wikiedit #wikiedit-tab-diff-wrapper {
+  /*overflow: hidden;*/
+  /* ^^^ we "really" want hidden and let a sub-sub-child element
+     handle that, but that isn't working, for unknown reasons. */
+  overflow-x: auto;
+}
 body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options {
   margin-top: 0;
   border: none;

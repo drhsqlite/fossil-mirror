@@ -39,8 +39,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
      </ol>
   </ol>
 
-<a name='definitions'></a>
-<p><b>II. Definitions</b></p>
+<p id="definitions"><b>II. Definitions</b></p>
 
 <ul>
 <li><p><b>Project</b> &rarr;

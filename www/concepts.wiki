@@ -98,7 +98,7 @@ repositories are identified by URL.  You can also point a web browser
 at a repository and get human-readable status, history, and tracking
 information about the project.
 
-<h3><a id="artifacts"></a>2.1 Identification Of Artifacts</h3>
+<h3 id="artifacts">2.1 Identification Of Artifacts</h3>
 
 A particular version of a particular file is called an "artifact".  Each
 artifact has a universally unique name which is the <a
@@ -184,8 +184,7 @@ is derived.  There is also a couple of checksums used to verify
 the integrity of the check-in.  And the whole manifest might
 be PGP clearsigned.</p>
 
-<a name="keyconc"></a>
-<h3>2.3 Key concepts</h3>
+<h3 id="keyconc">2.3 Key concepts</h3>
 
 <ul>
 <li>A <b>check-in</b> is a set of files arranged
@@ -249,8 +248,7 @@ In the next section, when we say things like "use the <b>help</b>
 command" we mean to use the command name "help" as the first
 token after the name of the Fossil executable, as shown above.
 
-<a name="workflow"></a>
-<h2>4.0 Workflow</h2>
+<h2 id="workflow">4.0 Workflow</h2>
 
 <verbatim type="pikchr float-right">
     down

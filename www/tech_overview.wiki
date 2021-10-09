@@ -107,8 +107,7 @@ database files are used by Fossil, with detailed discussion following.
 </tr>
 </table>
 
-<a name='configdb'></a>
-<h3>2.1 The Configuration Database</h3>
+<h3 id="configdb">2.1 The Configuration Database</h3>
 
 The configuration database holds cross-repository preferences and a list of all
 repositories for a single user.
@@ -127,8 +126,7 @@ The configuration database also maintains a list of repositories.  This
 list is used by the [/help/all | fossil all] command in order to run various
 operations such as "sync" or "rebuild" on all repositories managed by a user.
 
-<a name='configloc'></a>
-<h4>2.1.1 Location Of The Configuration Database</h4>
+<h4 id="configloc">2.1.1 Location Of The Configuration Database</h4>
 
 On Unix systems, the configuration database is named by the following
 algorithm:
@@ -331,8 +329,7 @@ The shun table can be pushed or pulled using
 the [/help/config | fossil config] command with the "shun" AREA argument.
 The shun table is also copied during a [/help/clone | clone].
 
-<a name='localdb'></a>
-<h3>2.3 Checkout Databases</h3>
+<h3 id="localdb">2.3 Checkout Databases</h3>
 
 Fossil allows a single repository
 to have multiple working checkouts.  Each working checkout has a single

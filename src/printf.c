@@ -960,9 +960,8 @@ static int stdoutAtBOL = 1;
 ** text when done.
 ** No translation ever occurs on unix.
 */
-void fossil_puts(const char *z, int toStdErr){
+void fossil_puts(const char *z, int toStdErr, int n){
   FILE* out = (toStdErr ? stderr : stdout);
-  int n = (int)strlen(z);
   if( n==0 ) return;
   assert( toStdErr==0 || toStdErr==1 );
   if( toStdErr==0 ) stdoutAtBOL = (z[n-1]=='\n');
@@ -986,7 +985,7 @@ void fossil_puts(const char *z, int toStdErr){
 */
 int fossil_force_newline(void){
   if( g.cgiOutput==0 && stdoutAtBOL==0 ){
-    fossil_puts("\n", 0);
+    fossil_puts("\n", 0, 1);
     return 1;
   }
   return 0;
@@ -1011,10 +1010,7 @@ void fossil_print(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_vprintf(zFormat, ap);
   }else{
-    Blob b = empty_blob;
-    vxprintf(&b, zFormat, ap);
-    fossil_puts(blob_str(&b), 0);
-    blob_reset(&b);
+    vxprintf(0, zFormat, ap);
   }
   va_end(ap);
 }
@@ -1022,10 +1018,7 @@ void fossil_vprint(const char *zFormat, va_list ap){
   if( g.cgiOutput ){
     cgi_vprintf(zFormat, ap);
   }else{
-    Blob b = empty_blob;
-    vxprintf(&b, zFormat, ap);
-    fossil_puts(blob_str(&b), 0);
-    blob_reset(&b);
+    vxprintf(0, zFormat, ap);
   }
 }
 
@@ -1038,7 +1031,7 @@ void fossil_trace(const char *zFormat, ...){
   va_start(ap, zFormat);
   b = empty_blob;
   vxprintf(&b, zFormat, ap);
-  fossil_puts(blob_str(&b), 1);
+  fossil_puts(blob_buffer(&b), 1, blob_size(&b));
   blob_reset(&b);
   va_end(ap);
 }
