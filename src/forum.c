@@ -1053,10 +1053,10 @@ void forum_page_init(void){
     return;
   }
   if( sqlite3_strglob("*edit*", g.zPath)==0 ){
-    zGoto = mprintf("%R/forume2?fpid=%S",PD("fpid",""));
+    zGoto = mprintf("forume2?fpid=%S",PD("fpid",""));
     isEdit = 1;
   }else{
-    zGoto = mprintf("%R/forume1");
+    zGoto = mprintf("forume1");
     isEdit = 0;
   }
   if( login_is_individual() ){

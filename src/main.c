@@ -2743,13 +2743,31 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 }
 
 /*
-** Note that the following command is used by ssh:// processing.
-**
 ** COMMAND: test-http
 **
-** Works like the [[http]] command but gives setup permission to all users.
+** Works like the [[http]] command but gives setup permission to all users,
+** or whatever permission is described by "--usercap CAP".
+**
+** This command can used for interactive debugging of web pages.  For
+** example, one can put a simple HTTP request in a file like this:
+**
+**     echo 'GET /timeline' >request.txt
+**
+** Then run (in a debugger) a command like this:
+**
+**     fossil test-http --debug <request.txt
+**
+** This command is also used internally by the "ssh" sync protocol.  Some
+** special processing to support sync happens when this command is run
+** and the SSH_CONNECTION environment variable is set.  Use the --test
+** option on interactive sessions to avoid that special processing when
+** using this command interactively over SSH.  A better solution would be
+** to use a different command for "ssh" sync, but we cannot do that without
+** breaking legacy.
 **
 ** Options:
+**   --test              Do not do special "sync" processing when operating
+**                       over an SSH link.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usercap   CAP     User capability string (Default: "sxy")
 **
@@ -2757,6 +2775,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 void cmd_test_http(void){
   const char *zIpAddr;    /* IP address of remote client */
   const char *zUserCap;
+  int bTest = 0;
 
   Th_InitTraceLog();
   zUserCap = find_option("usercap",0,1);
@@ -2764,6 +2783,7 @@ void cmd_test_http(void){
     g.useLocalauth = 1;
     zUserCap = "sxy";
   }
+  bTest = find_option("test",0,0)!=0;
   login_set_capabilities(zUserCap, 0);
   g.httpIn = stdin;
   g.httpOut = stdout;
@@ -2775,7 +2795,7 @@ void cmd_test_http(void){
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
   g.sslNotAvailable = 1;  /* Avoid attempts to redirect */
-  zIpAddr = cgi_ssh_remote_addr(0);
+  zIpAddr = bTest ? 0 : cgi_ssh_remote_addr(0);
   if( zIpAddr && zIpAddr[0] ){
     g.fSshClient |= CGI_SSH_CLIENT;
     ssh_request_loop(zIpAddr, 0);
@@ -2861,8 +2881,9 @@ void fossil_set_timeout(int N){
 **
 ** For the special case REPOSITORY name of "/", the global configuration
 ** database is consulted for a list of all known repositories.  The --repolist
-** option is implied by this special case.  See also the "fossil all ui"
-** command.
+** option is implied by this special case.  The "fossil ui /" command is
+** equivalent to "fossil all ui".  To see all repositories owned by "user"
+** on machine "remote" via ssh, run "fossil ui user@remote:/".
 **
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by turning off the "localauth"
@@ -2896,6 +2917,8 @@ void fossil_set_timeout(int N){
 **                       and bundled modes might result in a single
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nobrowser         Do not automatically launch a web-browser for the
@@ -2907,12 +2930,10 @@ void fossil_set_timeout(int N){
 **   --notfound URL      Redirect
 **   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   -P|--port TCPPORT   listen to request on port TCPPORT
-**   --th-trace          trace TH1 execution (for debugging purposes)
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --mainmenu FILE     Override the mainmenu config setting with the contents
-**                       of the given file.
+**   --th-trace          trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
@@ -3074,11 +3095,7 @@ void cmd_webserver(void){
     }else{
       zBrowserArg = mprintf("http://%s:%%d/%s", zIpAddr, zInitPage);
     }
-#ifdef _WIN32
-    zBrowserCmd = mprintf("%s %s &", zBrowser, zBrowserArg);
-#else
     zBrowserCmd = mprintf("%s %!$ &", zBrowser, zBrowserArg);
-#endif
     fossil_free(zBrowserArg);
   }
   if( zRemote ){
@@ -3124,11 +3141,14 @@ void cmd_webserver(void){
     fossil_free(zBrowserCmd);
     return;
   }
-#if !defined(_WIN32)
-  /* Unix implementation */
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
+
+  /* Start up an HTTP server
+  */
+#if !defined(_WIN32)
+  /* Unix implementation */
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
@@ -3148,12 +3168,8 @@ void cmd_webserver(void){
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
-
-#if !defined(_WIN32)
   signal(SIGSEGV, sigsegv_handler);
   signal(SIGPIPE, sigpipe_handler);
-#endif
-
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Subprocess %d *****/\n", getpid());
   }
@@ -3176,9 +3192,6 @@ void cmd_webserver(void){
   }
 #else
   /* Win32 implementation */
-  if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
-  if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
-  db_close(1);
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }

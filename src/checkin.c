@@ -1340,11 +1340,14 @@ static void prepare_commit_comment(
     );
   }
   if( p->verboseFlag ){
+    DiffConfig DCfg;
     blob_appendf(&prompt,
         "#\n%.78c\n"
         "# The following diff is excluded from the commit message:\n#\n",
         '#'
     );
+    diff_options(&DCfg, 0, 1);
+    DCfg.diffFlags |= DIFF_VERBOSE;
     if( g.aCommitFile ){
       FileDirList *diffFiles;
       int i;
@@ -1360,17 +1363,13 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-      diff_against_disk(0, 0, diff_get_binary_glob(),
-                        db_get_boolean("diff-binary", 1),
-                        DIFF_VERBOSE, diffFiles, &prompt);
+       diff_against_disk(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
       fossil_free(diffFiles);
     }else{
-      diff_against_disk(0, 0, diff_get_binary_glob(),
-                        db_get_boolean("diff-binary", 1),
-                        DIFF_VERBOSE, 0, &prompt);
+      diff_against_disk(0, &DCfg, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);
@@ -2575,7 +2574,7 @@ void commit_cmd(void){
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
-    "WHERE chnged IN (1, 7, 9) AND NOT deleted AND is_selected(id)",
+    "WHERE chnged<>0 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
     glob_expr("pathname", db_get("crlf-glob",db_get("crnl-glob",""))),
     glob_expr("pathname", db_get("binary-glob","")),
@@ -2613,12 +2612,14 @@ void commit_cmd(void){
     }
     nrid = content_put(&content);
     blob_reset(&content);
-    if( rid>0 ){
-      content_deltify(rid, &nrid, 1, 0);
+    if( nrid!=rid ){
+      if( rid>0 ){
+        content_deltify(rid, &nrid, 1, 0);
+      }
+      db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
+                    nrid,nrid,id);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
     }
-    db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
-                  nrid,nrid,id);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   }
   db_finalize(&q);
   if( nConflict && !allowConflict ){

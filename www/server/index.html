@@ -108,13 +108,14 @@ the server is running</a>.</p>
 
 <h2 id="methods">Activation Methods</h2>
 
-<p>There are basically four ways to run a Fossil server:</p>
+<p>There are basically five ways to run a Fossil server:</p>
 
 <ol>
-  <li><a id="cgi"        href="any/cgi.md">CGI</a>
-  <li>Socket listener
-  <li><a id="standalone" href="any/none.md">Stand-alone HTTP server</a>
-  <li><a id="scgi"       href="any/scgi.md">SCGI</a>
+  <li><a href="any/cgi.md">CGI</a>
+  <li><a href="#slist">Socket listener</a>
+  <li><a href="any/none.md">Stand-alone HTTP server</a>
+  <li><a href="any/scgi.md">SCGI</a>
+  <li><a href="#ssh">SSH</a>
 </ol>
 
 <p>All of these methods can serve either a single repository or a
@@ -127,7 +128,7 @@ interfaces (CGI, SCGI, and HTTP) which allow you to easily migrate from
 one method to another in response to changes in hosting providers or
 administrator preferences.</p>
 
-<h3>CGI</h3>
+<h3 id="cgi">CGI</h3>
 
 <p>Most ordinary web servers can <a href="any/cgi.md">run Fossil as a
 CGI script</a>. This method is known to work with Apache,
@@ -143,7 +144,7 @@ particularly on hosts that have CGI set up and working.
 The Fossil <a href="../selfhost.wiki">self-hosting repositories</a> are
 implemented with CGI underneath <tt>althttpd</tt>.</p>
 
-<h3>Socket Listener</h3>
+<h3 id="slist">Socket Listener</h3>
 
 <p>Socket listener daemons such as
 <a id="inetd" href="any/inetd.md"><tt>inetd</tt></a>, <a id="xinetd"
@@ -161,7 +162,7 @@ The socket listener daemon takes care of relaying content to and from
 the client, and (in the case of <a href="any/stunnel.md">stunnel</a>) 
 handling TLS decryption and encryption.
 
-<h3>Stand-alone HTTP Server</h3>
+<h3 id="standalone">Stand-alone HTTP Server</h3>
 
 <p>This is the <a href="any/none.md">easiest method</a>.
 A stand-alone server uses the
@@ -172,7 +173,7 @@ expose Fossil directly to the clients in this way or you can interpose a
 <a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
 layer between the clients and Fossil.</p>
 
-<h3>SCGI</h3>
+<h3 id="scgi"3>SCGI</h3>
 
 <p>The Fossil standalone server can also handle <a href="any/scgi.md">SCGI</a>.
 When the <a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command is
@@ -186,6 +187,14 @@ up because you also have to set up an SCGI-to-HTTP proxy for it. It is
 worth taking on this difficulty only when you need to integrate Fossil
 into an existing web site already being served by an SCGI-capable web
 server.</p>
+
+<h3 id="ssh">SSH</h3>
+
+<p>Fossil supports <tt>ssh://</tt> URLs, but there are <a
+href="../caps/#webonly">practical limitations</a> with the default
+behavior. You can get the full power of <a href="../caps/">Fossil's RBAC
+system</a> over SSH <a href="any/http-over-ssh.md">with a bit of clever
+configuration</a>.</p>
 
 <h2 id="matrix">Activation Tutorials</h2>
 

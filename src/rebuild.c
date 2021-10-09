@@ -927,14 +927,22 @@ void scrub_cmd(void){
     db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "UPDATE user SET pw='';"
-      "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-      "DELETE FROM config WHERE name GLOB 'sync-*:*';"
-      "DELETE FROM config WHERE name GLOB 'peer-*';"
-      "DELETE FROM config WHERE name GLOB 'login-group-*';"
-      "DELETE FROM config WHERE name GLOB 'skin:*';"
-      "DELETE FROM config WHERE name GLOB 'subrepo:*';"
-      "DELETE FROM config WHERE name GLOB 'http-auth:*';"
-      "DELETE FROM config WHERE name GLOB 'cert:*';"
+      "DELETE FROM config WHERE name IN"
+      "(WITH pattern(x) AS (VALUES"
+      "  ('last-sync-*'),"
+      "  ('sync-*'),"
+      "  ('peer-*'),"
+      "  ('login-group-*'),"
+      "  ('skin:*'),"
+      "  ('subrepo:*'),"
+      "  ('http-auth:*'),"
+      "  ('cert:*'),"
+      "  ('syncwith:*'),"
+      "  ('gitpush:*'),"
+      "  ('ckout:*'),"
+      "  ('draft[1-9]-*'),"
+      "  ('baseurl:*')"
+      ") SELECT name FROM config, pattern WHERE name GLOB x);"
     );
     if( bVerily ){
       db_multi_exec(

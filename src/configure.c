@@ -815,7 +815,9 @@ void configuration_cmd(void){
     }else{
       groupMask = CONFIGSET_ALL;
     }
+    db_unprotect(PROTECT_USER);
     configure_receive_all(&in, groupMask);
+    db_protect_pop();
     db_end_transaction(0);
   }else
   if( strncmp(zMethod, "pull", n)==0

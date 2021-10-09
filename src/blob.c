@@ -277,21 +277,31 @@ void blob_zero(Blob *pBlob){
 }
 
 /*
-** Append text or data to the end of a blob.
+** Append text or data to the end of a blob.  Or, if pBlob==NULL, send
+** the text to standard output in terminal mode, or to standard CGI output
+** in CGI mode.
 **
-** The blob_append_full() routine is a complete implementation.
-** The blob_append() routine only works for cases where nData>0 and
-** no resizing is required, and falls back to blob_append_full() if
-** either condition is not met, but runs faster in the common case
-** where all conditions are met.  The use of blob_append() is
-** recommended, unless it is known in advance that nData<0.
+** If nData<0 then output all of aData up to the first 0x00 byte.
+**
+** Use the blob_append() routine in all application code.  The blob_append()
+** routine is faster, but blob_append_full() handles all the corner cases.
+** The blob_append() routine automatically calls blob_append_full() if
+** necessary.
 */
-void blob_append_full(Blob *pBlob, const char *aData, int nData){
+static void blob_append_full(Blob *pBlob, const char *aData, int nData){
   sqlite3_int64 nNew;
-  assert( aData!=0 || nData==0 );
-  blob_is_init(pBlob);
+  /* assert( aData!=0 || nData==0 ); // omitted for speed */
+  /* blob_is_init(pBlob); // omitted for speed */
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
+  if( pBlob==0 ){
+    if( g.cgiOutput ){
+      pBlob = cgi_output_blob();
+    }else{
+      fossil_puts(aData, 0, nData);
+      return;
+    }
+  }
   nNew = pBlob->nUsed;
   nNew += nData;
   if( nNew >= pBlob->nAlloc ){
@@ -311,9 +321,8 @@ void blob_append_full(Blob *pBlob, const char *aData, int nData){
 }
 void blob_append(Blob *pBlob, const char *aData, int nData){
   sqlite3_int64 nUsed;
-  assert( aData!=0 || nData==0 );
-  /* blob_is_init(pBlob); // omitted for speed */
-  if( nData<=0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
+  /* assert( aData!=0 || nData==0 ); // omitted for speed */
+  if( nData<=0 || pBlob==0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
     blob_append_full(pBlob, aData, nData);
     return;
   }
@@ -331,10 +340,11 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 #endif
 
 /*
-** Append a single character to the blob
+** Append a single character to the blob.  If pBlob is zero then the
+** character is written directly to stdout.
 */
 void blob_append_char(Blob *pBlob, char c){
-  if( pBlob->nUsed+1 >= pBlob->nAlloc ){
+  if( pBlob==0 || pBlob->nUsed+1 >= pBlob->nAlloc ){
     blob_append_full(pBlob, &c, 1);
   }else{
     pBlob->aData[pBlob->nUsed++] = c;
@@ -342,13 +352,97 @@ void blob_append_char(Blob *pBlob, char c){
 }
 
 /*
-** Copy a blob
+** Copy a blob.  pTo is reinitialized to be a copy of pFrom.
 */
 void blob_copy(Blob *pTo, Blob *pFrom){
   blob_is_init(pFrom);
   blob_zero(pTo);
   blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));
 }
+
+/*
+** Append the second blob onto the end of the first blob and reset the
+** second blob.  If the first blob (pTo) is NULL, then the content
+** of the second blob is written to stdout or to CGI depending on if the
+** Fossil is running in terminal or CGI mode.
+*/
+void blob_append_xfer(Blob *pTo, Blob *pFrom){
+  blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));
+  blob_reset(pFrom);
+}
+
+/*
+** Write into pOut, a string literal representation for the first n bytes
+** of z[].  The string literal representation is compatible with C, TCL,
+** and JSON.  Double-quotes are added to both ends.  Double-quote and
+** backslash characters are escaped.
+*/
+void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    char c = z[i];
+    switch( c ){
+      case '\r':  c = 'r';
+      case '[':
+      case ']':
+      case '$':
+      case '"':
+      case '\\':
+        blob_append_char(pOut, '\\');
+      default:
+        blob_append_char(pOut, c);
+    }
+  }
+  blob_append_char(pOut, '"');
+}
+void blob_append_json_literal(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    char c = z[i];
+    switch( c ){
+      case 0x00:
+      case 0x01:
+      case 0x02:
+      case 0x03:
+      case 0x04:
+      case 0x05:
+      case 0x06:
+      case 0x07: c += '0' - 0x00; blob_append(pOut, "\\u000",5); break;
+      case 0x0b:
+      case 0x0e:
+      case 0x0f: c += 'a' - 0x0a; blob_append(pOut, "\\u000",5); break;
+      case 0x10:
+      case 0x11:
+      case 0x12:
+      case 0x13:
+      case 0x14:
+      case 0x15:
+      case 0x16:
+      case 0x17:
+      case 0x18:
+      case 0x19: c += '0' - 0x10; blob_append(pOut, "\\u001",5); break;
+      case 0x1a:
+      case 0x1b:
+      case 0x1c:
+      case 0x1d:
+      case 0x1e:
+      case 0x1f: c += 'a' - 0x1a; blob_append(pOut, "\\u001",5); break;
+      case '\b': c = 'b';         blob_append_char(pOut, '\\');  break;
+      case '\t': c = 't';         blob_append_char(pOut, '\\');  break;
+      case '\r': c = 'r';         blob_append_char(pOut, '\\');  break;
+      case '\n': c = 'n';         blob_append_char(pOut, '\\');  break;
+      case '\f': c = 'f';         blob_append_char(pOut, '\\');  break;
+      case '"':                   blob_append_char(pOut, '\\');  break;
+      case '\\':                  blob_append_char(pOut, '\\');  break;
+      default:                                                   break;
+    }
+    blob_append_char(pOut, c);
+  }
+  blob_append_char(pOut, '"');
+}
+
 
 /*
 ** Return a pointer to a null-terminated string for a blob.
@@ -837,30 +931,27 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 }
 
 /*
-** Do printf-style string rendering and append the results to a blob.
+** Do printf-style string rendering and append the results to a blob.  Or
+** if pBlob==0, do printf-style string rendering directly to stdout.
 **
 ** The blob_appendf() version sets the BLOBFLAG_NotSQL bit in Blob.blobFlags
 ** whereas blob_append_sql() does not.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
-  if( pBlob ){
-    va_list ap;
-    va_start(ap, zFormat);
-    vxprintf(pBlob, zFormat, ap);
-    va_end(ap);
-    pBlob->blobFlags |= BLOBFLAG_NotSQL;
-  }
+  va_list ap;
+  va_start(ap, zFormat);
+  vxprintf(pBlob, zFormat, ap);
+  va_end(ap);
+  if( pBlob ) pBlob->blobFlags |= BLOBFLAG_NotSQL;
 }
 void blob_append_sql(Blob *pBlob, const char *zFormat, ...){
-  if( pBlob ){
-    va_list ap;
-    va_start(ap, zFormat);
-    vxprintf(pBlob, zFormat, ap);
-    va_end(ap);
-  }
+  va_list ap;
+  va_start(ap, zFormat);
+  vxprintf(pBlob, zFormat, ap);
+  va_end(ap);
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  if( pBlob ) vxprintf(pBlob, zFormat, ap);
+  vxprintf(pBlob, zFormat, ap);
 }
 
 /*

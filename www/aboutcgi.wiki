@@ -186,7 +186,7 @@ Here is what happens:
 <li> Fossil looks at the rest of PATH_INFO to see that the webpage
      requested is "timeline".
 </ol>
-<a name="cgivar"></a>
+<a id="cgivar"></a>
 The web server sets many environment variables in step 2 in addition
 to just PATH_INFO.  The following diagram shows a few of these variables
 and their relationship to the request URL:

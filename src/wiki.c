@@ -127,7 +127,7 @@ void home_page(void){
     cgi_redirectf("%R/%s", zIndexPage);
   }
   if( !g.perm.RdWiki ){
-    cgi_redirectf("%R/login?g=%R/home");
+    cgi_redirectf("%R/login?g=home");
   }
   if( zPageName ){
     login_check_credentials();
@@ -614,7 +614,11 @@ void wiki_page(void){
   }
   manifest_destroy(pWiki);
   if( !isPopup ){
-    attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
+    char * zLabel = mprintf("<hr /><h2><a href='%R/attachlist?name=%T'>"
+                            "Attachments</a>:</h2><ul>",
+                            zPageName);
+    attachment_list(zPageName, zLabel);
+    fossil_free(zLabel);
     document_emit_js(/*for optional pikchr support*/);
     style_finish_page();
   }
@@ -1060,6 +1064,7 @@ static void wiki_ajax_route_diff(void){
   Manifest * pParent = 0;
   const char * zContent = P("content");
   u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR;
+  char * zParentUuid = 0;
 
   if( zPageName==0 || zPageName[0]==0 ){
     ajax_route_error(400,"Missing page name.");
@@ -1077,6 +1082,9 @@ static void wiki_ajax_route_diff(void){
     default: break;
   }
   wiki_fetch_by_name( zPageName, 0, 0, &pParent );
+  if( pParent ){
+    zParentUuid = rid_to_uuid(pParent->rid);
+  }
   if( pParent && pParent->zWiki && *pParent->zWiki ){
     blob_init(&contentOrig, pParent->zWiki, -1);
   }else{
@@ -1084,9 +1092,10 @@ static void wiki_ajax_route_diff(void){
   }
   blob_init(&contentNew, zContent ? zContent : "", -1);
   cgi_set_content_type("text/html");
-  ajax_render_diff(&contentOrig, &contentNew, diffFlags);
+  ajax_render_diff(&contentOrig, zParentUuid, &contentNew, diffFlags);
   blob_reset(&contentNew);
   blob_reset(&contentOrig);
+  fossil_free(zParentUuid);
   manifest_destroy(pParent);
 }
 
@@ -1187,7 +1196,7 @@ static void wiki_ajax_route_list(void){
 }
 
 /*
-** WEBPAGE: wikiajax
+** WEBPAGE: wikiajax hidden
 **
 ** An internal dispatcher for wiki AJAX operations. Not for direct
 ** client use. All routes defined by this interface are app-internal,
@@ -1452,7 +1461,7 @@ void wikiedit_page(void){
   builtin_fossil_js_bundle_or("fetch", "dom", "tabs", "confirmer",
                               "storage", "popupwidget", "copybutton",
                               "pikchr", NULL);
-  builtin_request_js("sbsdiff.js");
+  builtin_fossil_js_bundle_or("diff", NULL);
   builtin_request_js("fossil.page.wikiedit.js");
   builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
@@ -1813,7 +1822,7 @@ void wdiff_page(void){
   Manifest *pW1, *pW2 = 0;
   int rid1, rid2, nextRid;
   Blob w1, w2, d;
-  u64 diffFlags;
+  DiffConfig DCfg;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1856,8 +1865,9 @@ void wdiff_page(void){
   style_set_current_feature("wiki");
   style_header("Changes To %s", pW1->zWikiTitle);
   blob_zero(&d);
-  diffFlags = construct_diff_flags(1);
-  text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
+  construct_diff_flags(1, &DCfg);
+  DCfg.diffFlags |= DIFF_HTML | DIFF_LINENO;
+  text_diff(&w2, &w1, &d, &DCfg);
   @ <pre class="udiff">
   @ %s(blob_str(&d))
   @ <pre>
@@ -2046,8 +2056,8 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
 }
 
 /*
-** Determine the rid for a tech note given either its id or its
-** timestamp. Returns 0 if there is no such item and -1 if the details
+** Determine the rid for a tech note given either its id, its timestamp,
+** or its tag. Returns 0 if there is no such item and -1 if the details
 ** are ambiguous and could refer to multiple items.
 */
 int wiki_technote_to_rid(const char *zETime) {
@@ -2082,6 +2092,27 @@ int wiki_technote_to_rid(const char *zETime) {
                    zETime);
     }
   }
+  if( !rid ) {
+      /*
+      ** At present, technote tags are prefixed with 'sym-', which shouldn't
+      ** be the case, so we check for both with and without the prefix until
+      ** such time as tags have the errant prefix dropped.
+      */
+      rid = db_int(0, "SELECT e.objid"
+		      "  FROM event e, tag t, tagxref tx"
+		      " WHERE e.type='e'"
+		      "   AND e.tagid IS NOT NULL"
+		      "   AND e.objid IN"
+                      "       (SELECT rid FROM tagxref"
+                      "         WHERE tagid=(SELECT tagid FROM tag"
+                      "                       WHERE tagname GLOB '%q'))"
+		      "    OR e.objid IN"
+                      "       (SELECT rid FROM tagxref"
+                      "         WHERE tagid=(SELECT tagid FROM tag"
+                      "                       WHERE tagname GLOB 'sym-%q'))"
+		      "   ORDER BY e.mtime DESC LIMIT 1",
+		   zETime, zETime);
+  }
   return rid;
 }
 
@@ -2093,7 +2124,7 @@ int wiki_technote_to_rid(const char *zETime) {
 ** Run various subcommands to work with wiki entries or tech notes.
 **
 ** > fossil wiki export ?OPTIONS? PAGENAME ?FILE?
-** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
+** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID|TAG ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech
 **       note to the given file or standard output.  A filename of "-"
@@ -2102,11 +2133,12 @@ int wiki_technote_to_rid(const char *zETime) {
 **       If PAGENAME is provided, the named wiki page will be output.
 **
 **       Options:
-**         -t|--technote DATETIME|TECHNOTE-ID
+**         -t|--technote DATETIME|TECHNOTE-ID|TAG
 **                    Specifies that a technote, rather than a wiki page,
 **                    will be exported. If DATETIME is used, the most
 **                    recently modified tech note with that DATETIME will
-**                    output.
+**                    output. If TAG is used, the most recently modified
+**                    tech note with that TAG will be output.
 **         -h|--html  The body (only) is rendered in HTML form, without
 **                    any page header/foot or HTML/BODY tag wrappers.
 **         -H|--HTML  Works like -h|-html but wraps the output in
@@ -2154,6 +2186,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **       case-insensitively by name.
 **
 **       Options:
+**         --all                       Include "deleted" pages in output.
+**                                     By default deleted pages are elided.
 **         -t|--technote               Technotes will be listed instead of
 **                                     pages. The technotes will be in order
 **                                     of timestamp with the most recent
@@ -2177,6 +2211,7 @@ int wiki_technote_to_rid(const char *zETime) {
 void wiki_cmd(void){
   int n;
   int isSandbox = 0;     /* true if dealing with sandbox pseudo-page */
+  const int showAll = find_option("all", 0, 0)!=0;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -2392,13 +2427,10 @@ void wiki_cmd(void){
     const int showIds = find_option("show-technote-ids","s",0)!=0;
     verify_all_options();
     if (fTechnote==0){
-      db_prepare(&q,
-        "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
-        " ORDER BY lower(tagname) /*sort*/"
-      );
+      db_prepare(&q, listAllWikiPages/*works-like:""*/);
     }else{
       db_prepare(&q,
-        "SELECT datetime(e.mtime), substr(t.tagname,7)"
+        "SELECT datetime(e.mtime), substr(t.tagname,7), e.objid"
          " FROM event e, tag t"
         " WHERE e.type='e'"
           " AND e.tagid IS NOT NULL"
@@ -2408,6 +2440,10 @@ void wiki_cmd(void){
     }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      const int wrid = db_column_int(&q, 2);
+      if(!showAll && !wrid){
+        continue;
+      }
       if( showIds ){
         const char *zUuid = db_column_text(&q, 1);
         fossil_print("%s ",zUuid);

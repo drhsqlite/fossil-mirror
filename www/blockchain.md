@@ -13,21 +13,20 @@ The [Wikipedia definition of "blockchain"][bcwp] begins:
 
 >
   "A blockchain…is a growing list of records, called blocks, which are linked using
-   cryptography. Each block contains a cryptographic hash of the previous
+   cryptography… Each block contains a cryptographic hash of the previous
    block, a timestamp, and transaction data (generally represented as a Merkle tree)."
 
-
-By that partial definition, Fossil is indeed a blockchain. The blocks
+Point-for-point, Fossil follows this partial definition.
+The blocks
 are Fossil’s ["manifest" artifacts](./fileformat.wiki#manifest). Each
 manifest has a cryptographically-strong [SHA-1] or [SHA-3] hash linking it to
 one or more “parent” blocks. The manifest also contains a timestamp and
-the transactional data needed to express a commit to the repository. If
-you traverse the Fossil repository from the tips of its [DAG] to the
-root by following the parent hashes in each manifest, you will then have
-a Merkle tree. Point-for-point, Fossil follows that definition.
-
+the transactional data needed to express a commit to the repository.
+To traverse the Fossil repository from the tips of its [DAG] to the
+root by following the parent hashes in each manifest is to traverse
+a Merkle tree.
 Every change in Fossil starts by adding one or more manifests to
-the repository, extending this tree.
+the repository, extending this Merkle tree.
 
 [bcwp]:  https://en.wikipedia.org/wiki/Blockchain
 [DAG]:   https://en.wikipedia.org/wiki/Directed_acyclic_graph
@@ -63,7 +62,8 @@ Cryptocurrencies must prevent three separate types of fraud to be useful:
     US $10 bills. There are two sub-types to this fraud. In terms of
     our analogy, they are:
 
-    *  **Type 2a**: copying of an existing legitimate $10 bill
+    *  **Type 2a**: copying an existing legitimate $10 bill<p>
+
     *  **Type 2b**: printing a new $10 bill that is unlike an existing
        legitimate one, yet which will still pass in commerce
 
@@ -94,7 +94,7 @@ How does all of this compare to Fossil?
 
     Fossil has [a disabled-by-default feature][cs] to call out to an
     external copy of [PGP] or [GPG] to sign commit manifests before
-    inserting them into the repository. You may wish to couple that with
+    inserting them into the repository. You can couple that with
     a server-side [after-receive hook][arh] to reject unsigned commits.
 
     Although there are several distinctions you can draw between the way
@@ -114,7 +114,7 @@ How does all of this compare to Fossil?
     committer’s private signing key, and you cannot forge new commits
     attesting to come from some other trusted committer (Type 2) because
     you don’t have any of their private signing keys, either.
-    Cyrptocurrencies also use the work problem to prevent Type 2
+    Cryptocurrencies use the work problem to prevent Type 2
     forgeries, but the application of that to Fossil is a matter we get
     to [later](#work).
 
@@ -126,20 +126,22 @@ How does all of this compare to Fossil?
     modification from being pushed into another repository: the remote
     Fossil instance says, “I’ve already got that one, thanks,” and
     ignores the push.  Thus, short of breaking into the remote server
-    and modifying the repository in place, you couldn’t even make use of
-    a preimage attack if you had that power. This is an attack on the
+    and modifying the repository in place, you couldn’t make use of
+    a preimage attack even if you had that power. Further, that would be an attack on the
     server itself, not on Fossil’s data structures, so while it is
-    useful to think through this problem, it is not helpful to answering
+    useful to think through this problem, it is not helpful in answering
     our questions here.
 
-    The Fossil sync protocol also prevents the closest analog to Type 3
+    The Fossil sync protocol’s duplication detection also prevents the closest analog to Type 3
     frauds in Fossil: copying a commit manifest in your local repo clone
     won’t result in a double-commit on sync.
 
     In the absence of digital signatures, Fossil’s [RBAC system][caps]
     restricts Type 2 forgery to trusted committers. Thus once again
     we’re reduced to an infosec problem, not a data structure design
-    question.  (Inversely, enabling commit clearsigning is a good idea
+    question.
+
+    (Inversely, enabling commit clearsigning is a good idea
     if you have committers on your repo whom you don’t trust not to
     commit Type 2 frauds. But let us be clear: your choice of setting
     does not answer the question of whether Fossil is a blockchain.)
@@ -247,15 +249,18 @@ the repository (Type 2).
 
 What if we removed those features from Fossil, creating an append-only
 Fossil variant? Is it a DLT then? Arguably still not, because [today’s Fossil
-is an AP-mode system][ctap] in the [CAP theorem][cap] sense, which means
+is an AP-mode system][ctap], which means
 there can be no guaranteed consensus on the content of the ledger at any
-given time. If you had an AP-mode accounts receivable system, it could
-have different bottom-line totals at different sites, because you’ve
-cast away “C” to get AP-mode operation.
+given time. An AP-mode accounts receivable system would allow
+different bottom-line totals at different sites, because you’ve
+cast away “C” to get AP-mode operation. (See the prior link or
+[Wikipedia’s article on the CAP theorem][cap] if you aren’t following
+this terminology.)
 
-Because of this, you could still not guarantee that the command
-“`fossil info tip`” gives the same result everywhere. A CA or CP-mode Fossil
-variant would guarantee that everyone got the same result. (Everyone not
+By the same token, you cannot guarantee that the command
+“`fossil info tip`” gives the same result everywhere. You would need to
+recast Fossil as a CA or CP-mode system to solve that.
+(Everyone not
 partitioned away from the majority of the network at any rate, in the CP
 case.)
 
@@ -368,9 +373,9 @@ It is possible to configure Fossil so it doesn’t do this:
 On the server side, you can also [scrub] the logging that remembers
 where each commit came from.
 
-That info isn’t transmitted from the remote server on clone or pull.
-Instead, the size of the `rcvfrom` table after initial clone is 1: it
-contains the remote server’s IP address. On each pull containing new
+Commit source info isn’t transmitted from the remote server on clone or pull:
+the size of the `rcvfrom` table after initial clone is 1, containing
+only the remote server’s IP address. On each pull containing new
 artifacts, your local `fossil` instance adds another entry to this
 table, likely with the same IP address unless the server has moved or
 you’re using [multiple remotes][mrep]. This table is far more
@@ -454,14 +459,10 @@ self-contained, and with a smaller attack surface.
 
 This author believes it is technologically indefensible to call Fossil a
 “blockchain” in any sense likely to be understood by a majority of those
-you’re communicating with.
-
-Within a certain narrow scope, you can defend this usage, but if you do
-that, you’ve failed any goal that requires clear communication: it
-doesn’t work to use a term in a nonstandard way just because you can
-defend it.  The people you’re communicating your ideas to must have the
+you’re communicating with. Using a term in a nonstandard way just because you can
+defend it means you’ve failed any goal that requires clear communication.
+The people you’re communicating your ideas to must have the
 same concept of the terms you use.
-
 
 What term should you use instead? Fossil stores a DAG of hash-chained
 commits, so an indisputably correct term is a [Merkle tree][mt], named

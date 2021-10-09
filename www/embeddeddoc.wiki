@@ -50,7 +50,7 @@ the check-in, or it might be the name of a branch or tag, or it might
 be a timestamp.  See the prior link
 for more possibilities and examples.
 
-<a id="ckout"></a>The <i>&lt;version&gt;</i> can
+The <i id="ckout">&lt;version&gt;</i> can
 also be the special identifier "<b>ckout</b>".
 The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
@@ -100,9 +100,9 @@ are rendered with the standard fossil header and footer added.
 Most other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
-<h2>1.1 HTML Rendering With Fossil Headers And Footers</h2>
+<h2 id="html">1.1 HTML Rendering With Fossil Headers And Footers</h2>
 
-<a name="html"></a>Files with the mimetype "text/html" (the .html or .htm suffix) are
+Files with the mimetype "text/html" (the .html or .htm suffix) are
 usually rendered directly to the browser without interpretation.
 However, if the file begins with a &lt;div&gt; element like this:
 

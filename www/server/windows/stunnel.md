@@ -109,7 +109,7 @@ Export-PfxCertificate -FilePath fossil-scm.pfx -Password $passwd
 
 You will now have your certificate stored as a PFX file.
 
-<a name="convert"></a>
+<a id="convert"></a>
 ### Convert Certificate from PFX to PEM
 
 For this step you will need the openssl tools that were installed with stunnel.

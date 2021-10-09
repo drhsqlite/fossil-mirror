@@ -50,6 +50,8 @@ struct CmdOrPage {
 #define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 #define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret POST content */
+/* NOTE:                    0x0400 = CMDFLAG_SENSITIVE in mkindex.c! */
+#define CMDFLAG_HIDDEN      0x0800      /* Elide from most listings */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
@@ -553,6 +555,7 @@ static void display_all_help(int mask, int useHtml, int rawOut){
   }
   for(i=0; i<MX_COMMAND; i++){
     if( (aCommand[i].eCmdFlags & mask)==0 ) continue;
+    else if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
     if( useHtml ){
       Blob html;
       blob_init(&html, 0, 0);
@@ -831,6 +834,7 @@ void help_page(void){
       const char *zBoldOff = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"</b>":"";
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a></li>
     }
     @ </ul></div>
@@ -842,6 +846,7 @@ void help_page(void){
     for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( '/'!=*z ) continue;
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
@@ -857,6 +862,7 @@ void help_page(void){
     for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( strncmp(z,"test",4)!=0 ) continue;
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
@@ -872,6 +878,7 @@ void help_page(void){
     for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
@@ -987,6 +994,7 @@ static void command_list(int cmdMask, int verboseFlag, int useHtml){
     const char *aCmd[MX_COMMAND];
     for(i=nCmd=0; i<MX_COMMAND; i++){
       if( (aCommand[i].eCmdFlags & cmdMask)==0 ) continue;
+      else if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
       aCmd[nCmd++] = aCommand[i].zName;
     }
     multi_column_list(aCmd, nCmd);

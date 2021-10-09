@@ -1146,8 +1146,10 @@ static void fileedit_ajax_diff(void){
   blob_init(&content, zContent, -1);
   {
     Blob orig = empty_blob;
+    char * const zOrigUuid = rid_to_uuid(frid);
     content_get(frid, &orig);
-    ajax_render_diff(&orig, &content, diffFlags);
+    ajax_render_diff(&orig, zOrigUuid, &content, diffFlags);
+    fossil_free(zOrigUuid);
     blob_reset(&orig);
   }
   fossil_free(zRevUuid);
@@ -1847,7 +1849,7 @@ void fileedit_page(void){
     style_labeled_checkbox("cb-dry-run",
                            "dry_run", "Dry-run?", "1",
                            0,
-                           "In dry-run mode, the Commit button performs"
+                           "In dry-run mode, the Commit button performs "
                            "all work needed for committing changes but "
                            "then rolls back the transaction, and thus "
                            "does not really commit.");
@@ -2001,7 +2003,7 @@ void fileedit_page(void){
   ** the JS multiple times.
   */
   ajax_emit_js_preview_modes(1);
-  builtin_request_js("sbsdiff.js");
+  builtin_fossil_js_bundle_or("diff", NULL);
   builtin_request_js("fossil.page.fileedit.js");
   builtin_fulfill_js_requests();
   {

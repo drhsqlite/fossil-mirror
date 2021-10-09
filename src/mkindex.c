@@ -93,6 +93,7 @@
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 #define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret webpage content */
 #define CMDFLAG_SENSITIVE   0x0400      /* Security-sensitive setting */
+#define CMDFLAG_HIDDEN      0x0800      /* Elide from most listings */
 /**************************************************************************/
 
 /*
@@ -259,6 +260,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].zDflt = string_dup(&zLine[i+8], j-8);
     }else if( j>9 && strncmp(&zLine[i], "variable=", 9)==0 ){
       aEntry[nUsed].zVar = string_dup(&zLine[i+9], j-9);
+    }else if( j==6 && strncmp(&zLine[i], "hidden", 6)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_HIDDEN;
     }else{
       fprintf(stderr, "%s:%d: unknown option: '%.*s'\n",
               zFile, nLine, j, &zLine[i]);

@@ -74,6 +74,8 @@
   dom.span = dom.createElemFactory('span');
   dom.strong = dom.createElemFactory('strong');
   dom.em = dom.createElemFactory('em');
+  dom.ins = dom.createElemFactory('ins');
+  dom.del = dom.createElemFactory('del');
   /**
      Returns a LABEL element. If passed an argument,
      it must be an id or an HTMLElement with an id,
@@ -119,9 +121,14 @@
   dom.text = function(/*...*/){
     return document.createTextNode(argsToArray(arguments).join(''));
   };
-  dom.button = function(label){
+  /** Returns a new Button element with the given optional
+      label and on-click event listener function. */
+  dom.button = function(label,callback){
     const b = this.create('button');
     if(label) b.appendChild(this.text(label));
+    if('function' === typeof callback){
+      b.addEventListener('click', callback, false);
+    }
     return b;
   };
   /**
@@ -431,7 +438,7 @@
 
   /**
      Toggles CSS class c on e (a single element for forEach-capable
-     collection of elements. Returns its first argument.
+     collection of elements). Returns its first argument.
   */
   dom.toggleClass = function f(e,c){
     if(e.forEach){
@@ -676,6 +683,76 @@
      to dom.flashOnce().
   */
   dom.flashOnce.eventHandler = (event)=>dom.flashOnce(event.target)
+
+  /**
+     This variant of flashOnce() flashes the element e n times
+     for a duration of howLongMs milliseconds then calls the
+     afterFlashCallback() callback. It may also be called with 2
+     or 3 arguments, in which case:
+
+     2 arguments: default flash time and no callback.
+
+     3 arguments: 3rd may be a flash delay time or a callback
+     function.
+
+     Returns this object but the flashing is asynchronous.
+
+     Depending on system load and related factors, a multi-flash
+     animation might stutter and look suboptimal.
+  */
+  dom.flashNTimes = function(e,n,howLongMs,afterFlashCallback){
+    const args = argsToArray(arguments);
+    args.splice(1,1);
+    if(arguments.length===3 && 'function'===typeof howLongMs){
+      afterFlashCallback = howLongMs;
+      howLongMs = args[1] = this.flashOnce.defaultTimeMs;
+    }else if(arguments.length<3){
+      args[1] = this.flashOnce.defaultTimeMs;
+    }
+    n = +n;
+    const self = this;
+    const cb = args[2] = function f(){
+      if(--n){
+        setTimeout(()=>self.flashOnce(e, howLongMs, f),
+                   howLongMs+(howLongMs*0.1)/*we need a slight gap here*/);
+      }else if(afterFlashCallback){
+        afterFlashCallback();
+      }
+    };
+    this.flashOnce.apply(this, args);
+    return this;
+  };
+
+  /**
+     Adds the given CSS class or array of CSS classes to the given
+     element or forEach-capable list of elements for howLongMs, then
+     removes it. If afterCallack is a function, it is called after the
+     CSS class is removed from all elements. If called with 3
+     arguments and the 3rd is a function, the 3rd is treated as a
+     callback and the default time (addClassBriefly.defaultTimeMs) is
+     used. If called with only 2 arguments, a time of
+     addClassBriefly.defaultTimeMs is used.
+
+     Passing a value of 0 for howLongMs causes the default value
+     to be applied.
+
+     Returns this object but the CSS removal is asynchronous.
+  */
+  dom.addClassBriefly = function f(e, className, howLongMs, afterCallback){
+    if(arguments.length<4 && 'function'===typeof howLongMs){
+      afterCallback = howLongMs;
+      howLongMs = f.defaultTimeMs;
+    }else if(arguments.length<3 || !+howLongMs){
+      howLongMs = f.defaultTimeMs;
+    }
+    this.addClass(e, className);
+    setTimeout(function(){
+      dom.removeClass(e, className);
+      if(afterCallback) afterCallback();
+    }, howLongMs);
+    return this;
+  };
+  dom.addClassBriefly.defaultTimeMs = 1000;
 
   /**
      Attempts to copy the given text to the system clipboard. Returns
