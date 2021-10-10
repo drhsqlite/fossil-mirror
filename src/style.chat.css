@@ -279,8 +279,8 @@ body.chat #chat-buttons-wrapper > .cbutton {
   border-radius: 0.25em;
   min-width: 4ex;
   max-width: 4ex;
-  min-height: 4ex;
-  max-height: 4ex;
+  min-height: 3ex;
+  max-height: 3ex;
   margin: 0.125em;
   display: inline-flex;
   justify-content: center;
@@ -408,23 +408,29 @@ body.chat #chat-config #chat-config-options {
 body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
   align-items: center;
-  flex-direction: row;
+  flex-direction: row-reverse;
   flex-wrap: nowrap;
   padding: 1em;
   flex: 1 1 auto;
   align-self: stretch;
 }
-body.chat #chat-config #chat-config-options .menu-entry.indent {
-  padding-left: 2.5em;
+body.chat #chat-config #chat-config-options .menu-entry.parent{
+  border-radius: 1em 1em 0 1em;
+  margin-top: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry.child {
+  /*padding-left: 2.5em;*/
+  margin-left: 2em;
 }
 body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(even){
-  background-color: rgba(175,175,175,0.1);
+  background-color: rgba(175,175,175,0.15);
 }
 body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(odd){
-  background-color: rgba(175,175,175,0.25);
+  background-color: rgba(175,175,175,0.35);
 }
 body.chat #chat-config #chat-config-options .menu-entry:first-child {
   /* Config list header */
+  border-radius: 0 0 1em 1em;
 }
 body.chat #chat-config #chat-config-options .menu-entry:first-child .label-wrapper {
   align-items: start;
@@ -432,7 +438,7 @@ body.chat #chat-config #chat-config-options .menu-entry:first-child .label-wrapp
 body.chat #chat-config #chat-config-options .menu-entry > .toggle-wrapper {
   /* Holder for a checkbox, if any */
   min-width: 1.5rem;
-  margin-left: 1rem;
+  margin-right: 1rem;
 }
 body.chat #chat-config #chat-config-options .menu-entry .label-wrapper {
   /* Wrapper for a LABEL and a .hint element. */
@@ -452,6 +458,7 @@ body.chat #chat-config #chat-config-options .menu-entry label[for] {
 body.chat #chat-config #chat-config-options .menu-entry .hint {
   /* Config menu hint text */
   font-size: 85%;
+  font-weight: normal;
   white-space: pre-wrap;
   display: inline-block;
   opacity: 0.85;

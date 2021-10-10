@@ -1,5 +1,5 @@
-C Integrated\sa\sdebouncer\sinto\sthe\swindow-resize\smonitor\scallbacks\sused\sby\sthe\sdiff\stable\sviews\sand\s/chat\sto\seliminate\sa\sflurry\sof\sUI\sresizing\swhile\sresizing\sa\swindow,\sper\ssuggestion\sfrom\sFlorian\sin\s[forum:7807e0dbcca1dc45\s|\sforum\spost\s7807e0dbcca1dc45].
-D 2021-10-10T14:07:26.763
+C /chat:\sgrouped\sconfig\ssettings\sinto\scategories.\sMoved\sconfig\scheckboxes\sback\sto\sthe\sleft,\sper\s/chat\sfeedback,\sbut\snow\sclicking\sanywhere\son\stheir\srow\stoggles\sthem.\sSlightly\sshrunk\sthe\smain\sbuttons\swhen\sin\snon-compact\smode.\sVarious\slook-and-feel\sand\shelp\stext\stweaks\sto\sthe\sconfig\sview.
+D 2021-10-10T15:44:46.045
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -475,7 +475,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 204842965f159238115d6ae641e6e9ba73f9e6ef064f22f7f10900be5dde0907
+F src/fossil.page.chat.js aefafea624e4e672dd15b516f4421d25a3bc8ed84b408d02272a2d04815890bf
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 2d34fdc1a79eb8b36976bf2f966a702dacc8350eaca5ff4611d15d7eb9e853be
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 2a8d6e531962e3e739f9f5dac8c247b65983325a6604791711c5080cece37c6d
+F src/style.chat.css 9bbfe71f6d5c71909201a5bb01bbee938f0addf5ef61afa2b6f763f60c4e0402
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db54f4b7066c564301f18af876dd12b66cc7fc0c28588115155ab13f3fb5263b
-R c5f8b54ced9a046fee56922135f793dc
+P df0e2ca16877a093f0b9d707d48db241ced1b5068758ad55c4d657da330046ba
+R 7a0652be6263d03fa6d9bfd722726188
 U stephan
-Z 00e9cf675e1aa5ce677883198ac83b32
+Z dbb6d979c07a2f957c408bfb817d1d2e

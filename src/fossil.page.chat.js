@@ -1430,59 +1430,70 @@ window.fossil.onPageLoad(function(){
     */
     const settingsOps = [{
       label: "Chat Configuration Options",
-      hint: "Most of these settings are persistent via window.localStorage."
+      hint: F.storage.isTransient()
+        ? "Local store is unavailable. These settings are transient."
+        : ["Most of these settings are persistent via ",
+           F.storage.storageImplName(), ": ",
+           F.storage.storageHelpDescription()].join('')
     },{
-      label: "Chat-only mode",
-      hint: "Toggle the page between normal fossil view and chat-only view.",
-      boolValue: 'chat-only-mode'
+      label: "Editing Options...",
+      children:[{
+        label: "Chat-only mode",
+        hint: "Toggle the page between normal fossil view and chat-only view.",
+        boolValue: 'chat-only-mode'
+      },{
+        label: "Ctrl-enter to Send",
+        hint: [
+          "When on, only Ctrl-Enter will send messages and Enter adds ",
+          "blank lines. When off, both Enter and Ctrl-Enter send. ",
+          "When the input field has focus and is empty ",
+          "then Ctrl-Enter toggles this setting."
+        ].join(''),
+        boolValue: 'edit-ctrl-send'
+      },{
+        label: "Compact mode",
+        hint: [
+          "Toggle between a space-saving or more spacious writing area. ",
+          "When the input field has focus, is empty, and preview mode ",
+          "is NOT active then Shift-Enter toggles this setting."].join(''),
+        boolValue: 'edit-compact-mode'
+      },{
+        label: "Use 'contenteditable' editing mode",
+        boolValue: 'edit-widget-x',
+        hint: [
+          "When enabled, chat input uses a so-called 'contenteditable' ",
+          "field. Though generally more comfortable and modern than ",
+          "plain-text input fields, browser-specific quirks and bugs ",
+          "may lead to frustration. Ideal for mobile devices."
+        ].join('')
+      }]
     },{
-      label: "Ctrl-enter to Send",
-      hint: [
-        "When on, only Ctrl-Enter will send messages and Enter adds ",
-        "blank lines. When off, both Enter and Ctrl-Enter send. ",
-        "When the input field has focus, is empty, and preview ",
-        "mode is NOT active then Ctrl-Enter toggles this setting."
-      ].join(''),
-      boolValue: 'edit-ctrl-send'
-    },{
-      label: "Compact mode",
-      hint: [
-        "Toggle between a space-saving or more spacious writing area. ",
-        "When the input field has focus, is empty, and preview mode ",
-        "is NOT active then Shift-Enter toggles this setting."].join(''),
-      boolValue: 'edit-compact-mode'
-    },{
-      label: "Left-align my posts",
-      hint: "Default alignment of your own messages is selected "
-        + "based window width/height relationship.",
-      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
-      callback: function f(){
-        document.body.classList[
-          this.checkbox.checked ? 'remove' : 'add'
-        ]('my-messages-right');
-      }
-    },{
-      label: "Monospace message font",
-      hint: "Use monospace font for message and input text.",
-      boolValue: 'monospace-messages',
-      callback: function(setting){
-        document.body.classList[
-          setting.value ? 'add' : 'remove'
-        ]('monospace-messages');
-      }
-    },{
-      label: "Show images inline",
-      hint: "Show attached images inline or as a download link.",
-      boolValue: 'images-inline'
-    },{
-      label: "Use 'contenteditable' editing mode.",
-      boolValue: 'edit-widget-x',
-      hint: [
-        "When enabled, chat input uses a so-called 'contenteditable' ",
-        "field. Though generally more comfortable and modern than ",
-        "plain-text input fields, browser-specific quirks and bugs ",
-        "may lead to frustration."
-      ].join('')
+      label: "Appearance Options...",
+      children:[{
+        label: "Left-align my posts",
+        hint: "Default alignment of your own messages is selected "
+          + "based window width/height ratio.",
+        boolValue: ()=>!document.body.classList.contains('my-messages-right'),
+        callback: function f(){
+          document.body.classList[
+            this.checkbox.checked ? 'remove' : 'add'
+          ]('my-messages-right');
+        }
+      },{
+        label: "Monospace message font",
+        hint: "Use monospace font for message and input text.",
+        boolValue: 'monospace-messages',
+        callback: function(setting){
+          document.body.classList[
+            setting.value ? 'add' : 'remove'
+          ]('monospace-messages');
+        }
+      },{
+        label: "Show images inline",
+        hint: "When enabled, attached images are shown inline, "+
+          "else they appear as a download link.",
+        boolValue: 'images-inline'
+      }]
     }];
 
     /** Set up selection list of notification sounds. */
@@ -1517,7 +1528,7 @@ window.fossil.onPageLoad(function(){
             if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
           }
         },{
-          label: "Play notification for your own messages.",
+          label: "Play notification for your own messages",
           hint: "When enabled, the audio notification will be played for all messages, "+
             "including your own. When disabled only messages from other users "+
             "will trigger a notification.",
@@ -1526,7 +1537,7 @@ window.fossil.onPageLoad(function(){
       });
     }/*audio notification config*/
     settingsOps.push({
-      label: "Active User List",
+      label: "Active User List...",
       hint: [
         "/chat cannot track active connections, but it can tell ",
         "you who has posted recently..."].join(''),
@@ -1543,19 +1554,19 @@ window.fossil.onPageLoad(function(){
        Build UI for config options...
     */
     settingsOps.forEach(function f(op,indentOrIndex){
-      const line = D.addClass(D.div(), 'menu-entry');
-      if(true===indentOrIndex) D.addClass(line, 'indent');
+      const menuEntry = D.addClass(D.div(), 'menu-entry');
+      if(true===indentOrIndex) D.addClass(menuEntry, 'child');
       const label = op.label
             ? D.append(D.label(),op.label) : undefined;
       const labelWrapper = D.addClass(D.div(), 'label-wrapper');
       var hint;
       if(op.hint){
-        hint = D.append(D.addClass(D.span(),'hint'),op.hint);
+        hint = D.append(D.addClass(D.label(),'hint'),op.hint);
       }
       if(op.hasOwnProperty('select')){
         const col0 = D.addClass(D.span(/*empty, but for spacing*/),
                                 'toggle-wrapper');
-        D.append(line, labelWrapper, col0);
+        D.append(menuEntry, labelWrapper, col0);
         D.append(labelWrapper, op.select);
         if(hint) D.append(labelWrapper, hint);
         if(label) D.append(label);
@@ -1578,7 +1589,8 @@ window.fossil.onPageLoad(function(){
         check.checked = op.boolValue();
         op.checkbox = check;
         D.attr(check, 'id', id);
-        D.append(line, labelWrapper, col0);
+        if(hint) D.attr(hint, 'for', id);
+        D.append(menuEntry, labelWrapper, col0);
         D.append(col0, check);
         if(label){
           D.attr(label, 'for', id);
@@ -1587,13 +1599,13 @@ window.fossil.onPageLoad(function(){
         if(hint) D.append(labelWrapper, hint);
       }else{
         if(op.callback){
-          line.addEventListener('click', (ev)=>op.callback(ev));
+          menuEntry.addEventListener('click', (ev)=>op.callback(ev));
         }
-        D.append(line, labelWrapper);
+        D.append(menuEntry, labelWrapper);
         if(label) D.append(labelWrapper, label);
         if(hint) D.append(labelWrapper, hint);
       }
-      D.append(optionsMenu, line);
+      D.append(optionsMenu, menuEntry);
       if(op.persistentSetting){
         Chat.settings.addListener(
           op.persistentSetting,
@@ -1612,7 +1624,10 @@ window.fossil.onPageLoad(function(){
       }else if(op.callback && op.checkbox){
         op.checkbox.addEventListener('change', (ev)=>op.callback(ev), false);
       }
-      if(op.children) op.children.forEach((x)=>f(x,true));
+      if(op.children){
+        D.addClass(menuEntry, 'parent');
+        op.children.forEach((x)=>f(x,true));
+      }
     });
   })()/*#chat-button-settings setup*/;
 
