@@ -1,5 +1,5 @@
-C /chat:\sadded\soption\sto\stoggle\sbetween\stext\sand\scontenteditable\swidget,\sdefaulting\sto\sthe\sformer.\sPrettied\sup\sthe\sconfig\sview\sa\sbit\sand\smade\sit\smore\sright-handed\sfriendly.
-D 2021-10-10T05:53:22.911
+C More\s/chat\sconfig\scosmetics.\sStarted\s2.18\schange\snotes.
+D 2021-10-10T06:31:46.312
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -475,7 +475,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 5d1aabe312a024ad1d78342496845e83bf9a7bc200f3c844d8448408a13e147c
+F src/fossil.page.chat.js 411a26f7e96e4205f531033ef9d35157b25eac1c8788d825f2ac1511a002f168
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 2d34fdc1a79eb8b36976bf2f966a702dacc8350eaca5ff4611d15d7eb9e853be
@@ -604,7 +604,7 @@ F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css a9b09d9a0a0537a9e029f4ac2a63e22c353dd09e04d4522abb7233e397eefe26
+F src/style.chat.css 2a8d6e531962e3e739f9f5dac8c247b65983325a6604791711c5080cece37c6d
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
@@ -817,7 +817,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 4dfefb354731c6db021c08d59728cd17619641224909dfacfc55084fac9e3938
+F www/changes.wiki 4677ac709f5b1fa25e6a14202670c809f79a6e9011856e88b53aa7c43e5b951f
 F www/chat.md f63efa9b306a591c61b5e7814b3a4fb08b33100e06a7bba00e8eff50ae55d615
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 136d95b6f172d9b24ed2ca0164177216cde8c13350127931c42c9d076ed1ab96
-R d9d0e405c32e11fa297d3f069629d1f6
+P 5d7c98ef92046b068c663327b9cf12187654fdbf1e835c68860da3ea561ea9fc
+R bf2a09ed7fe33144142632bb06679ca7
 U stephan
-Z 720b3110f244cefc087cebe09416ee4e
+Z b9535d79130f0747b64f644fc0f1820e

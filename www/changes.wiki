@@ -1,5 +1,9 @@
 <title>Change Log</title>
 
+<h2 id='v2_18'>Changes for version 2.18 (pending)</h2>
+  *  [/help?cmd=/chat|The /chat page] input options have been reworked
+     again for better cross-browser portability.
+
 <h2 id='v2_17'>Changes for version 2.17 (pending)</h2>
   *  Major improvements to the "diff" subsystem, including: <ul>
      <li> Added new [/help?cmd=diff|formatting options]: --by, -b, --webpage, --json, --tcl.

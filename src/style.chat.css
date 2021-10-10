@@ -414,6 +414,9 @@ body.chat #chat-config #chat-config-options .menu-entry {
   flex: 1 1 auto;
   align-self: stretch;
 }
+body.chat #chat-config #chat-config-options .menu-entry.indent {
+  padding-left: 2.5em;
+}
 body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(even){
   background-color: rgba(175,175,175,0.1);
 }

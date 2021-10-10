@@ -1416,6 +1416,13 @@ window.fossil.onPageLoad(function(){
        in response to the config option's UI widget being activated,
        normally a 'change' event.
 
+       children: [array of settings objects]. These get listed under
+       this element and indented slightly for visual grouping. Only
+       one level of indention is supported.
+
+       Elements which only have a label and maybe a hint and
+       children can be used as headings.
+
        If a setting has a boolValue set, that gets rendered as a
        checkbox which toggles the given persistent setting (if
        boolValue is a string) AND listens for changes to that setting
@@ -1471,12 +1478,6 @@ window.fossil.onPageLoad(function(){
       label: "Show images inline",
       hint: "Show attached images inline or as a download link.",
       boolValue: 'images-inline'
-    },
-    namedOptions.activeUsers,
-    {
-      label: "Timestamps in active users list",
-      hint: "Show most recent message timestamps in the active user list.",
-      boolValue: 'active-user-list-timestamps'
     },{
       label: "Use 'contenteditable' editing mode.",
       boolValue: 'edit-widget-x',
@@ -1509,30 +1510,45 @@ window.fossil.onPageLoad(function(){
       Chat.setNewMessageSound(selectSound.value);
       settingsOps.push({
         label: "Sound Options...",
-        hint: "How to enable audio playback is browser-specific!"
-      },{
-        hint: "Audio alert",
-        select: selectSound,
-        callback: function(ev){
-          const v = ev.target.value;
-          Chat.setNewMessageSound(v);
-          F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-          if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
-        }
+        hint: "How to enable audio playback is browser-specific!",
+        children:[{
+          hint: "Audio alert",
+          select: selectSound,
+          callback: function(ev){
+            const v = ev.target.value;
+            Chat.setNewMessageSound(v);
+            F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+            if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
+          }
+        },{
+          label: "Play notification for your own messages.",
+          hint: "When enabled, the audio notification will be played for all messages, "+
+            "including your own. When disabled only messages from other users "+
+            "will trigger a notification.",
+          boolValue: 'alert-own-messages'
+        }]
       });
     }/*audio notification config*/
     settingsOps.push({
-      label: "Play notification for your own messages.",
-      hint: "When enabled, the audio notification will be played for all messages, "+
-        "including your own. When disabled only messages from other users "+
-        "will trigger a notification.",
-      boolValue: 'alert-own-messages'
+      label: "Active User List",
+      hint: [
+        "/chat cannot track active connections, but it can tell ",
+        "you who has posted recently..."].join(''),
+      children:[
+        namedOptions.activeUsers,{
+          label: "Timestamps in active users list",
+          indent: true,
+          hint: "Show most recent message timestamps in the active user list.",
+          boolValue: 'active-user-list-timestamps'
+        }
+      ]
     });
     /**
        Build UI for config options...
     */
-    settingsOps.forEach(function f(op){
+    settingsOps.forEach(function f(op,indentOrIndex){
       const line = D.addClass(D.div(), 'menu-entry');
+      if(true===indentOrIndex) D.addClass(line, 'indent');
       const label = op.label
             ? D.append(D.label(),op.label) : undefined;
       const labelWrapper = D.addClass(D.div(), 'label-wrapper');
@@ -1600,6 +1616,7 @@ window.fossil.onPageLoad(function(){
       }else if(op.callback && op.checkbox){
         op.checkbox.addEventListener('change', (ev)=>op.callback(ev), false);
       }
+      if(op.children) op.children.forEach((x)=>f(x,true));
     });
   })()/*#chat-button-settings setup*/;
 
