@@ -96,7 +96,7 @@ window.fossil.onPageLoad(function(){
         elemsToCount.forEach((e)=>e ? extra += D.effectiveHeight(e) : false);
         ht = wh - extra;
       }
-      f.chat.e.inputField.style.maxHeight = (ht/2)+"px";
+      f.chat.e.inputX.style.maxHeight = (ht/2)+"px";
       /* ^^^^ this is a middle ground between having no size cap
          on the input field and having a fixed arbitrary cap. */;
       contentArea.style.height =
@@ -112,7 +112,7 @@ window.fossil.onPageLoad(function(){
                       window.getComputedStyle(contentArea).maxHeight,
                       contentArea);
         console.debug("Set input max height to: ",
-                      f.chat.e.inputField.style.maxHeight);
+                      f.chat.e.inputX.style.maxHeight);
       }
     };
     var doit;
@@ -133,12 +133,14 @@ window.fossil.onPageLoad(function(){
         pageTitle: E1('head title'),
         loadOlderToolbar: undefined /* the load-posts toolbar (dynamically created) */,
         inputWrapper: E1("#chat-input-area"),
-        inputLine: E1('#chat-input-line'),
+        inputElementWrapper: E1('#chat-input-line-wrapper'),
         fileSelectWrapper: E1('#chat-input-file-area'),
         viewMessages: E1('#chat-messages-wrapper'),
         btnSubmit: E1('#chat-button-submit'),
         btnAttach: E1('#chat-button-attach'),
-        inputField: E1('#chat-input-field'),
+        inputX: E1('#chat-input-field-x'),
+        input1: E1('#chat-input-field-single'),
+        inputM: E1('#chat-input-field-multi'),
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
         viewConfig: E1('#chat-config'),
@@ -178,10 +180,11 @@ window.fossil.onPageLoad(function(){
       inputValue: function(){
         const e = this.inputElement();
         if(arguments.length){
-          e.innerText = arguments[0];
+          if(e.isContentEditable) e.innerText = arguments[0];
+          else e.value = arguments[0];
           return this;
         }
-        return e.innerText;
+        return e.isContentEditable ? e.innerText : e.value;
       },
       /** Asks the current user input field to take focus. Returns this. */
       inputFocus: function(){
@@ -190,7 +193,7 @@ window.fossil.onPageLoad(function(){
       },
       /** Returns the current message input element. */
       inputElement: function(){
-        return this.e.inputField;
+        return this.e.inputFields[this.e.inputFields.$currentIndex];
       },
       /** Enables (if yes is truthy) or disables all elements in
        * this.disableDuringAjax. */
@@ -581,12 +584,18 @@ window.fossil.onPageLoad(function(){
         return this;
       }
     };
-    if(D.attr(cs.e.inputField,'contenteditable','plaintext-only').isContentEditable){
+    cs.e.inputFields = [ cs.e.input1, cs.e.inputM, cs.e.inputX ];
+    cs.e.inputFields.$currentIndex = 0;
+    cs.e.inputFields.forEach(function(e,ndx){
+      if(ndx===cs.e.inputFields.$currentIndex) D.removeClass(e,'hidden');
+      else D.addClass(e,'hidden');
+    });
+    if(D.attr(cs.e.inputX,'contenteditable','plaintext-only').isContentEditable){
       cs.$browserHasPlaintextOnly = true;
     }else{
       /* Only the Chrome family supports contenteditable=plaintext-only */
       cs.$browserHasPlaintextOnly = false;
-      D.attr(cs.e.inputField,'contenteditable','true');
+      D.attr(cs.e.inputX,'contenteditable','true');
     }
     cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
@@ -1163,7 +1172,7 @@ window.fossil.onPageLoad(function(){
          This also works on Chrome, but chrome has the
          contenteditable=plaintext-only property which does this
          for us. */
-      Chat.inputElement().addEventListener(
+      Chat.e.inputX.addEventListener(
         'paste',
         function(ev){
           if (ev.clipboardData && ev.clipboardData.getData) {
@@ -1187,11 +1196,8 @@ window.fossil.onPageLoad(function(){
       ev.stopPropagation();
       return false;
     };
-
     ['drop','dragenter','dragleave','dragend'].forEach(
-      (k)=>{
-        Chat.inputElement().addEventListener(k, noDragDropEvents, false);
-      }
+      (k)=>Chat.e.inputX.addEventListener(k, noDragDropEvents, false)
     );
     return bxs;
   })()/*drag/drop/paste*/;
@@ -1325,7 +1331,9 @@ window.fossil.onPageLoad(function(){
       return false;
     }
   };  
-  Chat.e.inputField.addEventListener('keydown', inputWidgetKeydown, false);
+  Chat.e.inputFields.forEach(
+    (e)=>e.addEventListener('keydown', inputWidgetKeydown, false)
+  );
   Chat.e.btnSubmit.addEventListener('click',(e)=>{
     e.preventDefault();
     Chat.submitMessage();
@@ -1573,14 +1581,30 @@ window.fossil.onPageLoad(function(){
       Chat.chatOnlyMode(s.value);
     });
     Chat.settings.addListener('edit-compact-mode',function(s){
-      Chat.e.inputLine.classList[
+      if(Chat.e.inputX!==Chat.inputElement()){
+        /* text field/textarea mode: swap them if needed. */
+        const a = s.value
+              ? [Chat.e.input1, Chat.e.inputM, 0]
+              : [Chat.e.inputM, Chat.e.input1, 1];
+        const v = Chat.inputValue();
+        Chat.inputValue('');
+        D.removeClass(a[0], 'hidden');
+        D.addClass(a[1], 'hidden');
+        Chat.e.inputFields.$currentIndex = a[2];
+        Chat.inputValue(v);
+        a[0].focus();
+      }
+      Chat.e.inputElementWrapper.classList[
         s.value ? 'add' : 'remove'
       ]('compact');
     });
     Chat.settings.addListener('edit-ctrl-send',function(s){
       const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
-      const eInput = Chat.inputElement();
-      eInput.dataset.placeholder = eInput.dataset.placeholder0 + " " +label;
+      Chat.e.inputFields.forEach((e)=>{
+        const v = e.dataset.placeholder0 + " " +label;
+        if(e.isContentEditable) e.dataset.placeholder = v;
+        else D.attr(e,'placeholder',v);
+      });
       Chat.e.btnSubmit.title = label;
     });
     const valueKludges = {
@@ -1609,7 +1633,7 @@ window.fossil.onPageLoad(function(){
     Chat.e.viewPreview.querySelector('#chat-preview-close').
       addEventListener('click', ()=>Chat.setCurrentView(Chat.e.viewMessages), false);
     let previewPending = false;
-    const elemsToEnable = [btnPreview, Chat.e.btnSubmit, Chat.e.inputField];
+    const elemsToEnable = [btnPreview, Chat.e.btnSubmit, Chat.e.inputFields];
     const submit = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
