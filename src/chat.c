@@ -176,11 +176,19 @@ void chat_webpage(void){
   style_set_current_feature("chat");
   style_header("Chat");
   @ <div id='chat-input-area'>
-  @   <div id='chat-input-line' class='single-line'>
-  @     <div contenteditable id="chat-input-field" \
+  @   <div id='chat-input-line-wrapper' class='compact'>
+  @     <input type="text" id="chat-input-field-single" \
   @      data-placeholder0="%h(zInputPlaceholder0)" \
   @      data-placeholder="%h(zInputPlaceholder0)" \
-  @      class=""></div>
+  @      class="chat-input-field"></input>
+  @     <textarea id="chat-input-field-multi" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class="chat-input-field hidden"></textarea>
+  @     <div contenteditable id="chat-input-field-x" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class="chat-input-field hidden"></div>
   @     <div id='chat-buttons-wrapper'>
   @       <span class='cbutton' id="chat-button-preview" \
   @         title="Preview message (Shift-Enter)">&#128065;</span>
