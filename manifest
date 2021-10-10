@@ -1,5 +1,5 @@
-C /chat:\sgrouped\sconfig\ssettings\sinto\scategories.\sMoved\sconfig\scheckboxes\sback\sto\sthe\sleft,\sper\s/chat\sfeedback,\sbut\snow\sclicking\sanywhere\son\stheir\srow\stoggles\sthem.\sSlightly\sshrunk\sthe\smain\sbuttons\swhen\sin\snon-compact\smode.\sVarious\slook-and-feel\sand\shelp\stext\stweaks\sto\sthe\sconfig\sview.
-D 2021-10-10T15:44:46.045
+C Removed\sa\sno-longer-correct\sdoc\spassage\swhich\sreferenced\sthe\solder\spractice\sof\susing\san\sIP\scomponent\sin\sthe\slogin\scookie.
+D 2021-10-10T15:55:53.600
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -921,7 +921,7 @@ F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f6
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
 F www/mkindex.tcl e84e0d0dc2bc00c14da915d0205992dc2bfb20c433b62c68a63881fefa7d0fe7 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
-F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
+F www/password.wiki 4cbeee5a141ebfc021ad2c23b7f992572e2ddb594be55b1ebff4477307911a63
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
 F www/permutedindex.html a00ef54c43544f68c50754c27d1297f4da6c0e83da71b98827f438b173f6a3e2
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df0e2ca16877a093f0b9d707d48db241ced1b5068758ad55c4d657da330046ba
-R 7a0652be6263d03fa6d9bfd722726188
+P 67e8599874c2401585aa81686cff02f4d51ce18e8e10c7801ef3c6bc7d5d7025
+R 83bf1273345635e91f640415142fe28c
 U stephan
-Z dbb6d979c07a2f957c408bfb817d1d2e
+Z 95dd4d680c2ce8b63527997f401b46dc
