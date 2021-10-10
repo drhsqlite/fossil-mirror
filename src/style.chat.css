@@ -181,13 +181,19 @@ body.chat:not(.chat-only-mode) #chat-input-area{
      for FF/Chrome (and 2em is a *huge* waste of space for those). */
   margin-bottom: 0;
 }
+.chat-input-field {
+  flex: 10 1 auto;
+  margin: 0;
+}
+#chat-input-field-x,
+#chat-input-field-multi {
+  overflow: auto;
+  resize: vertical;
+}
 #chat-input-field-x {
   display: inline-block/*supposed workaround for Chrome weirdness*/;
   padding: 0.2em;
-  flex: 10 1 auto;
   background-color: rgba(156,156,156,0.3);
-  overflow: auto;
-  resize: vertical;
   white-space: pre-wrap;
   /* ^^^ Firefox, when pasting plain text into a contenteditable field,
      loses all newlines unless we explicitly set this. Chrome does not. */
@@ -397,33 +403,55 @@ body.chat #chat-config #chat-config-options {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  align-items: stretch;
 }
 body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-direction: row;
   flex-wrap: nowrap;
   padding: 1em;
+  flex: 1 1 auto;
+  align-self: stretch;
+}
+body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(even){
+  background-color: rgba(175,175,175,0.1);
+}
+body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(odd){
+  background-color: rgba(175,175,175,0.25);
+}
+body.chat #chat-config #chat-config-options .menu-entry:first-child {
+  /* Config list header */
+}
+body.chat #chat-config #chat-config-options .menu-entry:first-child .label-wrapper {
+  align-items: start;
+}
+body.chat #chat-config #chat-config-options .menu-entry > .toggle-wrapper {
+  /* Holder for a checkbox, if any */
+  min-width: 1.5rem;
+  margin-left: 1rem;
+}
+body.chat #chat-config #chat-config-options .menu-entry .label-wrapper {
+  /* Wrapper for a LABEL and a .hint element. */
+  display: flex;
+  flex-direction: column;
+  align-self: baseline;
+  flex: 1 1 auto;
+}
+body.chat #chat-config #chat-config-options .menu-entry label {
+  /* Config option label. */
+  font-weight: bold;
+  white-space: initial;
 }
 body.chat #chat-config #chat-config-options .menu-entry label[for] {
   cursor: pointer;
 }
-body.chat #chat-config #chat-config-options .menu-entry > *:first-child {
-  min-width: 1.5rem;
-}
-body.chat #chat-config #chat-config-options .menu-entry span.hint {
+body.chat #chat-config #chat-config-options .menu-entry .hint {
   /* Config menu hint text */
-  font-size: 80%;
+  font-size: 85%;
   white-space: pre-wrap;
   display: inline-block;
-}
-body.chat #chat-config #chat-config-options .menu-entry:first-child {
-}
-body.chat #chat-config #chat-config-options .menu-entry div.label-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-self: baseline;
-  margin-left: 1em;
+  opacity: 0.85;
 }
 body.chat #chat-config #chat-config-options .menu-entry select {
 }

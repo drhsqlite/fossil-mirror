@@ -422,7 +422,13 @@ window.fossil.onPageLoad(function(){
           /* When on, the [audible-alert] is played for one's own
              messages, else it is only played for other users'
              messages. */
-          "alert-own-messages": false
+          "alert-own-messages": false,
+          /* "Experimental mode" input: use a contenteditable field
+             for input. This is generally more comfortable to use,
+             and more modern, than plain text input fields, but
+             the list of browser-specific quirks and bugs is...
+             not short. */
+          "edit-widget-x": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -1393,39 +1399,59 @@ window.fossil.onPageLoad(function(){
 
        label: string for the UI
 
-       boolValue: string (name of Chat.settings setting) or a
-       function which returns true or false.
+       boolValue: string (name of Chat.settings setting) or a function
+       which returns true or false. If it is a string, it gets
+       replaced by a function which returns
+       Chat.settings.getBool(thatString) and the string gets assigned
+       to the persistentSetting property of this object.
 
        select: SELECT element (instead of boolValue)
 
        callback: optional handler to call after setting is modified.
+       Its "this" is the options object. If this object has a
+       boolValue string or a persistentSetting property, the argument
+       passed to the callback is a settings object in the form {key:K,
+       value:V}. If this object does not have boolValue string or
+       persistentSetting then the callback is passed an event object
+       in response to the config option's UI widget being activated,
+       normally a 'change' event.
 
-       If a setting has a boolValue set, that gets transformed into a
+       If a setting has a boolValue set, that gets rendered as a
        checkbox which toggles the given persistent setting (if
        boolValue is a string) AND listens for changes to that setting
        fired via Chat.settings.set() so that the checkbox can stay in
        sync with external changes to that setting. Various Chat UI
        elements stay in sync with the config UI via those settings
-       events.
-     */
+       events. The checkbox element gets added to the options object
+       so that the callback() can reference it via this.checkbox.
+    */
     const settingsOps = [{
+      label: "Chat Configuration Options",
+      hint: "Most of these settings are persistent via window.localStorage."
+    },{
+      label: "Chat-only mode",
+      hint: "Toggle the page between normal fossil view and chat-only view.",
+      boolValue: 'chat-only-mode'
+    },{
       label: "Ctrl-enter to Send",
-      hint: "When on, only Ctrl-Enter will send messages and Enter adds "+
-        "blank lines. "+
-        "When off, both Enter and Ctrl-Enter send. "+
-        "When the input field has focus, is empty, and preview "+
-        "mode is NOT active then Ctrl-Enter toggles this setting.",
+      hint: [
+        "When on, only Ctrl-Enter will send messages and Enter adds ",
+        "blank lines. When off, both Enter and Ctrl-Enter send. ",
+        "When the input field has focus, is empty, and preview ",
+        "mode is NOT active then Ctrl-Enter toggles this setting."
+      ].join(''),
       boolValue: 'edit-ctrl-send'
     },{
       label: "Compact mode",
-      hint: "Toggle between a space-saving or more spacious writing area. "+
-        "When the input field has focus, is empty, and preview mode "+
-        "is NOT active then Shift-Enter toggles this setting.",
+      hint: [
+        "Toggle between a space-saving or more spacious writing area. ",
+        "When the input field has focus, is empty, and preview mode ",
+        "is NOT active then Shift-Enter toggles this setting."].join(''),
       boolValue: 'edit-compact-mode'
     },{
       label: "Left-align my posts",
       hint: "Default alignment of your own messages is selected "
-        +"based window width/height relationship.",
+        + "based window width/height relationship.",
       boolValue: ()=>!document.body.classList.contains('my-messages-right'),
       callback: function f(){
         document.body.classList[
@@ -1434,7 +1460,7 @@ window.fossil.onPageLoad(function(){
       }
     },{
       label: "Monospace message font",
-      hint: "Use monospace font for message text?",
+      hint: "Use monospace font for message and input text.",
       boolValue: 'monospace-messages',
       callback: function(setting){
         document.body.classList[
@@ -1442,17 +1468,24 @@ window.fossil.onPageLoad(function(){
         ]('monospace-messages');
       }
     },{
-      label: "Chat-only mode",
-      hint: "Toggle the page between normal fossil view and chat-only view.",
-      boolValue: 'chat-only-mode'
-    },{
       label: "Show images inline",
-      hint: "Whether to show images inline or as a hyperlink.",
+      hint: "Show attached images inline or as a download link.",
       boolValue: 'images-inline'
-    },namedOptions.activeUsers,{
+    },
+    namedOptions.activeUsers,
+    {
       label: "Timestamps in active users list",
-      hint: "Whether to show last-message timestamps.",
+      hint: "Show most recent message timestamps in the active user list.",
       boolValue: 'active-user-list-timestamps'
+    },{
+      label: "Use 'contenteditable' editing mode.",
+      boolValue: 'edit-widget-x',
+      hint: [
+        "When enabled, chat input uses a so-called 'contenteditable' ",
+        "field. Though generally more comfortable and modern than ",
+        "plain-text input fields, browser-specific quirks and bugs ",
+        "may lead to frustration."
+      ].join('')
     }];
 
     /** Set up selection list of notification sounds. */
@@ -1475,7 +1508,10 @@ window.fossil.onPageLoad(function(){
       }
       Chat.setNewMessageSound(selectSound.value);
       settingsOps.push({
-        hint: "Audio alert. How to enable audio playback is browser-specific!",
+        label: "Sound Options...",
+        hint: "How to enable audio playback is browser-specific!"
+      },{
+        hint: "Audio alert",
         select: selectSound,
         callback: function(ev){
           const v = ev.target.value;
@@ -1501,15 +1537,16 @@ window.fossil.onPageLoad(function(){
             ? D.append(D.label(),op.label) : undefined;
       const labelWrapper = D.addClass(D.div(), 'label-wrapper');
       var hint;
-      const col0 = D.span();
       if(op.hint){
         hint = D.append(D.addClass(D.span(),'hint'),op.hint);
       }
       if(op.hasOwnProperty('select')){
-        D.append(line, col0, labelWrapper);
+        const col0 = D.addClass(D.span(/*empty, but for spacing*/),
+                                'toggle-wrapper');
+        D.append(line, labelWrapper, col0);
         D.append(labelWrapper, op.select);
         if(hint) D.append(labelWrapper, hint);
-        if(label) D.append(col0, label);
+        if(label) D.append(label);
         if(op.callback){
           op.select.addEventListener('change', (ev)=>op.callback(ev), false);
         }
@@ -1525,10 +1562,11 @@ window.fossil.onPageLoad(function(){
               = D.attr(D.checkbox(1, op.boolValue()),
                        'aria-label', op.label);
         const id = 'cfgopt'+f.$id;
+        const col0 = D.addClass(D.span(), 'toggle-wrapper');
         check.checked = op.boolValue();
         op.checkbox = check;
         D.attr(check, 'id', id);
-        D.append(line, col0, labelWrapper);
+        D.append(line, labelWrapper, col0);
         D.append(col0, check);
         if(label){
           D.attr(label, 'for', id);
@@ -1536,8 +1574,10 @@ window.fossil.onPageLoad(function(){
         }
         if(hint) D.append(labelWrapper, hint);
       }else{
-        line.addEventListener('click', callback);
-        D.append(line, col0, labelWrapper);
+        if(op.callback){
+          line.addEventListener('click', (ev)=>op.callback(ev));
+        }
+        D.append(line, labelWrapper);
         if(label) D.append(labelWrapper, label);
         if(hint) D.append(labelWrapper, hint);
       }
@@ -1580,23 +1620,45 @@ window.fossil.onPageLoad(function(){
     Chat.settings.addListener('chat-only-mode',function(s){
       Chat.chatOnlyMode(s.value);
     });
+    Chat.settings.addListener('edit-widget-x',function(s){
+      let eSelected;
+      if(s.value){
+        if(Chat.e.inputX===Chat.inputElement()) return;
+        eSelected = Chat.e.inputX;
+      }else{
+        eSelected = Chat.settings.getBool('edit-compact-mode')
+          ? Chat.e.input1 : Chat.e.inputM;
+      }
+      const v = Chat.inputValue();
+      Chat.inputValue('');
+      Chat.e.inputFields.forEach(function(e,ndx){
+        if(eSelected===e){
+          Chat.e.inputFields.$currentIndex = ndx;
+          D.removeClass(e, 'hidden');
+        }
+        else D.addClass(e,'hidden');
+      });
+      Chat.inputValue(v);
+      eSelected.focus();
+    });
     Chat.settings.addListener('edit-compact-mode',function(s){
       if(Chat.e.inputX!==Chat.inputElement()){
-        /* text field/textarea mode: swap them if needed. */
+        /* Text field/textarea mode: swap them if needed.
+           Compact mode of inputX is toggled via CSS. */
         const a = s.value
               ? [Chat.e.input1, Chat.e.inputM, 0]
               : [Chat.e.inputM, Chat.e.input1, 1];
         const v = Chat.inputValue();
         Chat.inputValue('');
-        D.removeClass(a[0], 'hidden');
-        D.addClass(a[1], 'hidden');
         Chat.e.inputFields.$currentIndex = a[2];
         Chat.inputValue(v);
-        a[0].focus();
+        D.removeClass(a[0], 'hidden');
+        D.addClass(a[1], 'hidden');
       }
       Chat.e.inputElementWrapper.classList[
         s.value ? 'add' : 'remove'
       ]('compact');
+      Chat.e.inputFields[Chat.e.inputFields.$currentIndex].focus();
     });
     Chat.settings.addListener('edit-ctrl-send',function(s){
       const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
