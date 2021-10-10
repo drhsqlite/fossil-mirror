@@ -115,14 +115,10 @@ window.fossil.onPageLoad(function(){
                       f.chat.e.inputX.style.maxHeight);
       }
     };
-    var doit;
-    window.addEventListener('resize',function(ev){
-      clearTimeout(doit);
-      doit = setTimeout(resized, 100);
-    }, false);
+    resized.$disabled = true/*gets deleted when setup is finished*/;
+    window.addEventListener('resize', F.debounce(resized, 250), false);
     return resized;
   })();
-  ForceResizeKludge.$disabled = true/*gets deleted when setup is finished*/;
   fossil.FRK = ForceResizeKludge/*for debugging*/;
   const Chat = ForceResizeKludge.chat = (function(){
     const cs = {
