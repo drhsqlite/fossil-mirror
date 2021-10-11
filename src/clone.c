@@ -299,7 +299,7 @@ void clone_cmd(void){
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " open ", -1);
     blob_append_escaped_arg(&cmd, zRepo, 1);
-    blob_append(&cmd, " --workdir ", -1);
+    blob_append(&cmd, " --nosync --workdir ", -1);
     blob_append_escaped_arg(&cmd, zWorkDir, 1);
     if( allowNested ){
       blob_append(&cmd, " --nested", -1);

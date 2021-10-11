@@ -1,5 +1,5 @@
-C Removed\sa\sno-longer-correct\sdoc\spassage\swhich\sreferenced\sthe\solder\spractice\sof\susing\san\sIP\scomponent\sin\sthe\slogin\scookie.
-D 2021-10-10T15:55:53.600
+C When\sdoing\san\sautomatic\sopen\sfollowing\sa\sclone,\sdo\snot\sautosync.\s\sThe\srepo\nwas\sjust\scloned\sand\sshould\salready\sbe\scurrent.\s\sSee\n[forum:/forumpost/0dbfeab2ff|forum\spost\s0dbfeab2ff].
+D 2021-10-11T10:11:57.305
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 60a3abb4227053868a4d817fd3e8e1d4e454cf9de8ec32d4cfaf8f18b216c525
+F src/clone.c 23fc36c6a905e309ff64a5e2b45663e19b2545066621f8e09c75a8314421ea8c
 F src/codecheck1.c a8331266f3851f7f01bd2777de07d954a721d698e432c79fe3c2d753b0c98ead
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67e8599874c2401585aa81686cff02f4d51ce18e8e10c7801ef3c6bc7d5d7025
-R 83bf1273345635e91f640415142fe28c
-U stephan
-Z 95dd4d680c2ce8b63527997f401b46dc
+P 1dc5e1ce6da482c7abda63f21830a137f58aff5565417cce107eb07205913194
+R 558f7dea66d7e516962bd0c46c143c35
+U drh
+Z ae4791de17cd1c76ff084a03b431691d
