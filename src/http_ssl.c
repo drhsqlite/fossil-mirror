@@ -588,14 +588,12 @@ void test_tlsconfig_info(void){
     db_begin_transaction();
     blob_init(&sql, 0, 0);
     if( g.argc==4 && find_option("all",0,0)!=0 ){
-      db_unprotect(PROTECT_CONFIG);
       blob_append_sql(&sql,
         "DELETE FROM global_config WHERE name GLOB 'cert:*';\n"
         "DELETE FROM global_config WHERE name GLOB 'trusted:*';\n"
         "DELETE FROM config WHERE name GLOB 'cert:*';\n"
         "DELETE FROM config WHERE name GLOB 'trusted:*';\n"
       );
-      db_protect_pop();
     }else{
       if( g.argc<4 ){
         usage("remove-exception DOMAIN-NAME ...");
@@ -616,7 +614,9 @@ void test_tlsconfig_info(void){
       }
       blob_append_sql(&sql,");");
     }
+    db_unprotect(PROTECT_CONFIG);
     db_exec_sql(blob_str(&sql));
+    db_protect_pop();
     db_commit_transaction();
     blob_reset(&sql);
   }else

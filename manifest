@@ -1,5 +1,5 @@
-C When\sdoing\san\sautomatic\sopen\sfollowing\sa\sclone,\sdo\snot\sautosync.\s\sThe\srepo\nwas\sjust\scloned\sand\sshould\salready\sbe\scurrent.\s\sSee\n[forum:/forumpost/0dbfeab2ff|forum\spost\s0dbfeab2ff].
-D 2021-10-11T10:11:57.305
+C Fix\sthe\s"fossil\stls-config\sremove-exception"\scommand\sso\sthat\sit\sworks\swithout\ntriggering\sauthorizer\sexceptions.\n[forum:/forumpost/64d919b2cf|Forum\spost\s64d919b2cf].
+D 2021-10-11T10:18:37.433
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -499,7 +499,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
-F src/http_ssl.c e414dce084c13bf35da951f45dc5ffdaed195f06ec6cfeb0fc22a83bee5bbbee
+F src/http_ssl.c fc935b971a314e42f63f040f71956a03007aae48833b8872fc1fae374300fdcd
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c 4ebf41eca247a4449af76101b7efcbebf035b88a59ed5072d91833e7fa3ce71d
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1dc5e1ce6da482c7abda63f21830a137f58aff5565417cce107eb07205913194
-R 558f7dea66d7e516962bd0c46c143c35
+P 160bd677316cc8dd2a2af2de222528aa08e023aa40b9c7b3b4902a9719d8fb81
+R 1ac5cf3fe66ac77cda590a5ad3134bab
 U drh
-Z ae4791de17cd1c76ff084a03b431691d
+Z 6203d0da30aa0bb353e7ec8710e6f02f
