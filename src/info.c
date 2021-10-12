@@ -495,7 +495,7 @@ void ci_tags_page(void){
   rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Check-in Information Error");
-    @ No such object: %h(g.argv[2])
+    @ No such object: %h(PD("name",""))
     style_finish_page();
     return;
   }
@@ -629,7 +629,7 @@ void ci_page(void){
   rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Check-in Information Error");
-    @ No such object: %h(g.argv[2])
+    @ No such object: %h(zName)
     style_finish_page();
     return;
   }

@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\stls-config\sremove-exception"\scommand\sso\sthat\sit\sworks\swithout\ntriggering\sauthorizer\sexceptions.\n[forum:/forumpost/64d919b2cf|Forum\spost\s64d919b2cf].
-D 2021-10-11T10:18:37.433
+C Corrected\smisuse\sof\sg.argv\sin\s/ci\sand\s/ci_tag\spages,\sper\s[forum:74ec2261df|forum\spost\s74ec2261df].
+D 2021-10-12T17:11:59.671
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -502,7 +502,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c fc935b971a314e42f63f040f71956a03007aae48833b8872fc1fae374300fdcd
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
-F src/info.c 4ebf41eca247a4449af76101b7efcbebf035b88a59ed5072d91833e7fa3ce71d
+F src/info.c ff144feffd3d62ef59c9aee33a3f8afc3afa2b7c2e9389302aa5c49bfa73d5cb
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 160bd677316cc8dd2a2af2de222528aa08e023aa40b9c7b3b4902a9719d8fb81
-R 1ac5cf3fe66ac77cda590a5ad3134bab
-U drh
-Z 6203d0da30aa0bb353e7ec8710e6f02f
+P 156c890a2e71d980b3f1b4565b24584130e7677df8b9a79c5f11fe4813ddf45f
+R 8fa06f4c304d36031c644467466d6c50
+U stephan
+Z fbe0e2fd4982fd436397fef2589a481b
