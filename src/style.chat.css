@@ -58,6 +58,27 @@ body.chat .message-widget-content > .markdown > *:first-child {
 body.chat .message-widget-content > .markdown > *:last-child {
   margin-bottom: 0;
 }
+body.chat .message-widget-content.error .buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+body.chat .message-widget-content.error .buttons > button {
+  margin: 0.25em;
+}
+
+body.chat .message-widget-content.error a {
+  color: inherit;
+}
+body.chat .message-widget-content.error .failed-message {
+  display: flex;
+  flex-direction: column;
+}
+body.chat .message-widget-content.error .failed-message textarea {
+  min-height: 5rem;
+}
+
 /* User name and timestamp (a LEGEND-like element) */
 body.chat .message-widget .message-widget-tab {
   border-radius: 0.25em 0.25em 0 0;

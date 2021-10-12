@@ -360,7 +360,7 @@ void chat_send_webpage(void){
   const char *zMsg;
   const char *zUserName;
   login_check_credentials();
-  if( !g.perm.Chat ) {
+  if( 0==g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
   }

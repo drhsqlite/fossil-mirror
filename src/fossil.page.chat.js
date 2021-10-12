@@ -45,6 +45,7 @@ window.fossil.onPageLoad(function(){
         .replace('T',' ').replace(/\.\d+/,'')
         .replace('Z', ' zulu');
   };
+  const pad2 = (x)=>('0'+x).substr(-2);
   /** Returns the local time string of Date object d, defaulting
       to the current time. */
   const localTimeString = function ff(d){
@@ -622,14 +623,17 @@ window.fossil.onPageLoad(function(){
        using fossil.dom.append(), so may be of any type supported by
        that function.
     */
-    cs.reportErrorAsMessage = function(/*msg args*/){
-      const args = argsToArray(arguments);
+    cs.reportErrorAsMessage = function f(/*msg args*/){
+      if(undefined === f.$msgid) f.$msgid=0;
+      const args = argsToArray(arguments).map(function(v){
+        return (v instanceof Error) ? v.message : v;
+      });
       console.error("chat error:",args);
       const d = new Date().toISOString(),
             mw = new this.MessageWidget({
               isError: true,
               xfrom: null,
-              msgid: -1,
+              msgid: "error-"+(++f.$msgid),
               mtime: d,
               lmtime: d,
               xmsg: args
@@ -835,6 +839,16 @@ window.fossil.onPageLoad(function(){
     return cs;
   })()/*Chat initialization*/;
 
+
+  /** Returns the first .message-widget element in DOM element
+      e's lineage. */
+  const findMessageWidgetParent = function(e){
+    while( e && !e.classList.contains('message-widget')){
+      e = e.parentNode;
+    }
+    return e;
+  };
+
   /**
      Custom widget type for rendering messages (one message per
      instance). These are modelled after FIELDSET elements but we
@@ -861,7 +875,6 @@ window.fossil.onPageLoad(function(){
       }
     };
     /* Left-zero-pad a number to at least 2 digits */
-    const pad2 = (x)=>(''+x).length>1 ? x : '0'+x;
     const dowMap = {
       /* Map of Date.getDay() values to weekday names. */
       0: "Sunday", 1: "Monday", 2: "Tuesday",
@@ -879,6 +892,7 @@ window.fossil.onPageLoad(function(){
         ' ', dowMap[d.getDay()]
       ].join('');
     };
+
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -913,7 +927,7 @@ window.fossil.onPageLoad(function(){
           }
           D.append(
             this.e.tab,
-            D.text('notification @ ',theTime(d))
+            D.append(D.code(), 'notification @ ',theTime(d))
           );
         }
         if( m.xfrom && m.fsize>0 ){
@@ -950,7 +964,7 @@ window.fossil.onPageLoad(function(){
           //
           // Hence, even though innerHTML is normally frowned upon, it is
           // perfectly safe to use in this context.
-          if(m.xmsg instanceof Array){
+          if(m.xmsg && 'string' !== typeof m.xmsg){
             // Used by Chat.reportErrorAsMessage()
             D.append(contentTarget, m.xmsg);
           }else{
@@ -961,6 +975,8 @@ window.fossil.onPageLoad(function(){
             }
           }
         }
+        //console.debug("tab",this.e.tab);
+        //console.debug("this.e.tab.firstElementChild",this.e.tab.firstElementChild);
         this.e.tab.firstElementChild.addEventListener('click', this._handleLegendClicked, false);
         /*if(eXFrom){
           eXFrom.addEventListener('click', ()=>this.e.tab.click(), false);
@@ -1101,10 +1117,7 @@ window.fossil.onPageLoad(function(){
             }
           }/*f.popup*/;
         }/*end static init*/
-        let theMsg = ev.target;
-        while( theMsg && !theMsg.classList.contains('message-widget')){
-          theMsg = theMsg.parentNode;
-        }
+        const theMsg = findMessageWidgetParent(ev.target);
         if(theMsg) f.popup.show(theMsg);
       }/*_handleLegendClicked()*/
     };
@@ -1125,7 +1138,7 @@ window.fossil.onPageLoad(function(){
     /** Updates the paste/drop zone with details of the pasted/dropped
         data. The argument must be a Blob or Blob-like object (File) or
         it can be falsy to reset/clear that state.*/
-    const updateDropZoneContent = function(blob){
+    const updateDropZoneContent = bxs.updateDropZoneContent = function(blob){
       //console.debug("updateDropZoneContent()",blob);
       const dd = bxs.dropDetails;
       bxs.blob = blob;
@@ -1208,12 +1221,45 @@ window.fossil.onPageLoad(function(){
     const hours = Math.round(off/60), min = Math.round(off % 30);
     return ''+(hours + (min ? '.5' : ''));
   };
-  const pad2 = (x)=>('0'+x).substr(-2);
   const localTime8601 = function(d){
     return [
       d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()),
       'T', pad2(d.getHours()),':', pad2(d.getMinutes()),':',pad2(d.getSeconds())
     ].join('');
+  };
+
+  /**
+     Called by Chat.submitMessage() when message sending failed. Injects a fake message
+     containing the content and attachment of the failed message and gives the user buttons
+     to discard it or edit and retry.
+   */
+  const recoverFailedMessage = function(state){
+    const w = D.addClass(D.div(), 'failed-message');
+    D.append(w, D.append(
+      D.span(),"This message was not successfully sent to the server:"
+    ));
+    if(state.msg){
+      const ta = D.textarea();
+      ta.value = state.msg;
+      D.append(w,ta);
+    }
+    if(state.blob){
+      D.append(w,D.append(D.span(),"Attachment: ",(state.blob.name||"unnamed")));
+      //console.debug("blob = ",state.blob);
+    }
+    const buttons = D.addClass(D.div(), 'buttons');
+    D.append(w, buttons);
+    D.append(buttons, D.button("Discard message?", function(){
+      let theMsg = findMessageWidgetParent(w);
+      if(theMsg) Chat.deleteMessageElem(theMsg);
+    }));
+    D.append(buttons, D.button("Edit message and try again?", function(){
+      if(state.msg) Chat.inputValue(ta.value);
+      if(state.blob) BlobXferState.updateDropZoneContent(state.blob);
+      let theMsg = findMessageWidgetParent(w);
+      if(theMsg) Chat.deleteMessageElem(theMsg);
+    }));
+    Chat.reportErrorAsMessage(w);
   };
 
   /**
@@ -1228,7 +1274,8 @@ window.fossil.onPageLoad(function(){
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
-    var msg = this.inputValue().trim();
+    const fallback = {msg: this.inputValue()};
+    var msg = fallback.msg.trim();
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
       /* Cosmetic: trim whitespace from the ends of lines to try to
          keep copy/paste from terminals, especially wide ones, from
@@ -1251,12 +1298,16 @@ window.fossil.onPageLoad(function(){
     const file = BlobXferState.blob || this.e.inputFile.files[0];
     if(file) fd.set("file", file);
     if( !msg && !file ) return;
+    fallback.blob = file;
     const self = this;
     fd.set("lmtime", localTime8601(new Date()));
     F.fetch("chat-send",{
       payload: fd,
       responseType: 'text',
-      onerror:(err)=>this.reportErrorAsMessage(err),
+      onerror:function(err){
+        self.reportErrorAsMessage(err);
+        recoverFailedMessage(fallback);
+      },
       onload:function(txt){
         if(!txt) return/*success response*/;
         try{
@@ -1264,8 +1315,8 @@ window.fossil.onPageLoad(function(){
           self.newContent({msgs:[json]});
         }catch(e){
           self.reportError(e);
-          return;
         }
+        recoverFailedMessage(fallback);
       }
     });
     BlobXferState.clear();
