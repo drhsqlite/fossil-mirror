@@ -1,5 +1,5 @@
-C /chat:\sfixed\san\serror\sreporting\sbug\swhich\scould\scause\sserver-triggered\serrors\sto\snot\sbe\sdisplayed.\sWhen\ssending\sa\smessage\sfails,\sthe\sfailed\smessage\sis\snow\spresented\sas\san\serror\smessage,\salong\swith\sbuttons\sto\seither\sretry\sor\sdiscard\sthe\smessage.
-D 2021-10-12T20:28:20.653
+C Applied\sSSL\sfingerprint\scomparison\spatch\sfrom\s[forum:c1e3c18afb|forum\spost\sc1e3c18afb].\sIncremented\sversion\sto\s2.18.
+D 2021-10-13T10:01:46.776
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -17,7 +17,7 @@ F Makefile.classic f7ab827cf2c75b8580e6d5f09fe7a3a09a5b580131870924c0c72259328a4
 F Makefile.in 45eba548fec261c3800734ba8ca3802a2b23cd7654941422d45b7576d2ccbf17 x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION eed54c14b5188ea3939dadeadae7901fd2c0d99bbdcbd23f80099747d15868bc
+F VERSION c8a78fc24f9432587c0fabc2277234181bd5c6f5598a51155429068db589f506
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -499,7 +499,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
-F src/http_ssl.c fc935b971a314e42f63f040f71956a03007aae48833b8872fc1fae374300fdcd
+F src/http_ssl.c 402c4773503671cfed363ae2ddf0696bfcf617bbb6966c17af948a06211a62e4
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c ff144feffd3d62ef59c9aee33a3f8afc3afa2b7c2e9389302aa5c49bfa73d5cb
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba3323da9f16a2671466d2f699e07ca3868cc268f79f1e76ef34c0762d053e9e
-R 3f3d13502b96268fd81e9045feccf659
+P 9d693ef80a00290cf9a8daaf8a6efdfc8e51105f7b7927c4e9b23ead59985366
+R c969c1227c64d90850acb5ed09982ca5
 U stephan
-Z 84e1c00c98a9302039e16006f25afa5b
+Z 995af639f316a05687d3f8047e503fe6

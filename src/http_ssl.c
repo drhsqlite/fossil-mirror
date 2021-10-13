@@ -381,20 +381,21 @@ int ssl_open(UrlData *pUrlData){
       desclen = BIO_get_mem_data(mem, &desc);
   
       prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
-          "accept this cert and continue (y/N)? ",
+          "accept this cert and continue (y/N/fingerprint)? ",
           pUrlData->name, desclen, desc);
       BIO_free(mem);
   
       prompt_user(prompt, &ans);
       free(prompt);
       cReply = blob_str(&ans)[0];
-      blob_reset(&ans);
-      if( cReply!='y' && cReply!='Y' ){
+      if( cReply!='y' && cReply!='Y' && fossil_stricmp(blob_str(&ans),zHash)!=0 ){
         X509_free(cert);
         ssl_set_errmsg("SSL cert declined");
         ssl_close();
+        blob_reset(&ans);
         return 1;
       }
+      blob_reset(&ans);
       ssl_one_time_exception(pUrlData, zHash);
       prompt_user("remember this exception (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
