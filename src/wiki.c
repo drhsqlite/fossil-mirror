@@ -668,7 +668,7 @@ void mimetype_option_menu(const char *zMimetype){
 */
 static const char *mimetype_common_name(const char *zMimetype){
   int i;
-  for(i=4; i>=2; i-=2){
+  for(i=6; i>=0; i-=3){
     if( zMimetype && fossil_strcmp(zMimetype, azStyles[i])==0 ){
       return azStyles[i+1];
     }
@@ -1594,19 +1594,24 @@ static void appendRemark(Blob *p, const char *zMimetype){
 void wikiappend_page(void){
   char *zTag;
   int rid = 0;
-  int isSandbox;
   const char *zPageName;
   const char *zUser;
   const char *zMimetype;
   int goodCaptcha = 1;
   const char *zFormat;
+  Manifest *pWiki = 0;
+  int isSandbox;
 
   login_check_credentials();
+  if( !g.perm.ApndWiki ){
+    login_needed(g.anon.ApndWiki);
+    return;
+  }
   zPageName = PD("name","");
   zMimetype = wiki_filter_mimetypes(P("mimetype"));
   if( check_name(zPageName) ) return;
   isSandbox = is_sandbox(zPageName);
-  if( !isSandbox ){
+  if(!isSandbox){
     zTag = mprintf("wiki-%s", zPageName);
     rid = db_int(0,
       "SELECT rid FROM tagxref"
@@ -1614,63 +1619,54 @@ void wikiappend_page(void){
       " ORDER BY mtime DESC", zTag
     );
     free(zTag);
-    if( !rid ){
+    pWiki = rid ? manifest_get(rid, CFTYPE_WIKI, 0) : 0;
+    if( !pWiki ){
       fossil_redirect_home();
       return;
     }
+    zMimetype = wiki_filter_mimetypes(pWiki->zMimetype)
+      /* see https://fossil-scm.org/forum/forumpost/0acfdaac80 */;
   }
-  if( !g.perm.ApndWiki ){
-    login_needed(g.anon.ApndWiki);
-    return;
-  }
-  if( P("submit")!=0 && P("r")!=0 && P("u")!=0
+  if( !isSandbox && P("submit")!=0 && P("r")!=0 && P("u")!=0
    && (goodCaptcha = captcha_is_correct(0))
   ){
     char *zDate;
     Blob cksum;
     Blob body;
     Blob wiki;
-    Manifest *pWiki = 0;
 
     blob_zero(&body);
-    if( isSandbox ){
-      blob_append(&body, db_get("sandbox",""), -1);
-      appendRemark(&body, zMimetype);
-      db_set("sandbox", blob_str(&body), 0);
-    }else{
-      login_verify_csrf_secret();
-      pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
-      if( pWiki ){
-        blob_append(&body, pWiki->zWiki, -1);
-        manifest_destroy(pWiki);
-      }
-      blob_zero(&wiki);
-      db_begin_transaction();
-      zDate = date_in_standard_format("now");
-      blob_appendf(&wiki, "D %s\n", zDate);
-      blob_appendf(&wiki, "L %F\n", zPageName);
-      if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")!=0 ){
-        blob_appendf(&wiki, "N %s\n", zMimetype);
-      }
-      if( rid ){
-        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-        blob_appendf(&wiki, "P %s\n", zUuid);
-        free(zUuid);
-      }
-      if( !login_is_nobody() ){
-        blob_appendf(&wiki, "U %F\n", login_name());
-      }
-      appendRemark(&body, zMimetype);
-      blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
-      md5sum_blob(&wiki, &cksum);
-      blob_appendf(&wiki, "Z %b\n", &cksum);
-      blob_reset(&cksum);
-      wiki_put(&wiki, rid, wiki_need_moderation(0));
-      db_end_transaction(0);
+    login_verify_csrf_secret();
+    blob_append(&body, pWiki->zWiki, -1);
+    blob_zero(&wiki);
+    db_begin_transaction();
+    zDate = date_in_standard_format("now");
+    blob_appendf(&wiki, "D %s\n", zDate);
+    blob_appendf(&wiki, "L %F\n", zPageName);
+    if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")!=0 ){
+      blob_appendf(&wiki, "N %s\n", zMimetype);
     }
+    if( rid ){
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      blob_appendf(&wiki, "P %s\n", zUuid);
+      free(zUuid);
+    }
+    if( !login_is_nobody() ){
+      blob_appendf(&wiki, "U %F\n", login_name());
+    }
+    appendRemark(&body, zMimetype);
+    blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
+    md5sum_blob(&wiki, &cksum);
+    blob_appendf(&wiki, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+    wiki_put(&wiki, rid, wiki_need_moderation(0));
+    db_end_transaction(0);
+    manifest_destroy(pWiki);
     cgi_redirectf("wiki?name=%T", zPageName);
+    return;
   }
-  if( P("cancel")!=0 ){
+  if( !isSandbox && P("cancel")!=0 ){
+    manifest_destroy(pWiki);
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
@@ -1680,7 +1676,11 @@ void wikiappend_page(void){
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
   }
-  if( P("preview")!=0 ){
+  if( isSandbox ){
+    @ <p class="generalError">Error: the Sandbox page may not
+    @ be appended to.</p>
+  }
+  if( !isSandbox && P("preview")!=0 ){
     Blob preview;
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
@@ -1707,6 +1707,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="cancel" value="Cancel" />
   captcha_generate(0);
   @ </form>
+  manifest_destroy(pWiki);
   style_finish_page();
 }
 

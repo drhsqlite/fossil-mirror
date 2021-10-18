@@ -1,5 +1,5 @@
-C A\spikchr\serror\soutput\sformatting\sfix,\sper\s[forum:e167e2e622|forum\spost\se167e2e622],\sand\san\sunrelated\stypo\sfix.
-D 2021-10-18T08:13:06.196
+C /wikiappend:\sremoved\sability\sto\sappend\sto\ssandbox\s(wikiedit\slong\ssince\sremoved\sthat\scapability).\sFixed\sselection\sof\smimetype\sname\sfor\stext/plain\spages.\sMoved\spermissions\scheck\sto\sthe\stop\sof\sthe\sfunction.\sLargely\sbased\son\ssuggestions\sfrom\s[forum:0acfdaac80|forum\spost\s0acfdaac80].
+D 2021-10-18T11:11:20.793
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -632,7 +632,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 5f0d2fcdb67ee5433c9151892af3681f91ccdfffbaff8f09aa46ea61ec163e77
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 584e1447b168a3350c7d1a7448426506f9d366f032ddebe5f7e3291c7db3ce6f
+F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f53093dca13c13d573fafc3bbb30c16ca5499ea20594735e6d5810621e8a7bc
-R 5e6536fee5fb11e98d6b43afb70448ef
+P c440011b74eb591d463707c30f3647694446b24a4bbc88bd1c55e89038541d3d
+R 851ee6a78690803ca4252f990dfd2e7a
 U stephan
-Z b8e2ea44d90cb5f9101a6bb186f35e9b
+Z ad82611e6033f95dbd15427baaa2c1bc
