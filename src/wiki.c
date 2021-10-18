@@ -213,8 +213,8 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
       @ %s(zOut)
       @ </div>
     }else{
-      @ <pre class='error'>\n">
-      @ %s(zOut);
+      @ <pre class='error'>
+      @ %h(zOut)
       @ </pre>
     }
     free(zOut);
