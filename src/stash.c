@@ -310,8 +310,10 @@ static void stash_apply(int stashid, int nConflict){
   Stmt q;
   db_prepare(&q,
      "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
-     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash",
-     stashid
+     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash"
+     " UNION ALL SELECT 0, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile WHERE stashid=%d AND stashfile.hash IS NULL",
+     stashid, stashid
   );
   vid = db_lget_int("checkout",0);
   db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
@@ -414,8 +416,10 @@ static void stash_diff(
   diff_begin(pCfg);
   db_prepare(&q,
      "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
-     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash",
-     stashid
+     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash"
+     " UNION ALL SELECT 0, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile WHERE stashid=%d AND stashfile.hash IS NULL",
+     stashid, stashid
   );
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);

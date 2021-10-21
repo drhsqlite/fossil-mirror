@@ -1,5 +1,5 @@
-C Improve\shelp\stext\sof\slogin-group\scommand.\sMention\sabout\sthe\s-R|--repository\noption\sand\sformat\ssubcommand\sdescription\sto\sfollow\sa\sbit\smore\sthe\sconventions\nof\sother\scommands.
-D 2021-10-21T01:15:58.223
+C stash\spatch\sfrom\s[forum:b96b0755a0|forum\spost\sb96b0755a0]\swhich\supdates\sit\sto\shandle\sthe\sNULL\sstashfile.hash\scase\sintroduced\sin\s[ed06585f41].\sThis\sresolves\sthe\s11\sfailing\sstash\stests.
+D 2021-10-21T08:42:36.963
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -599,7 +599,7 @@ F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F src/sqlite3.c 87588aebfffe306ce90b9ca5d823243f9af45a21327680d528617c4d99ac43ea
 F src/sqlite3.h b7324e8f65132942f2da36d76b1d47686fca787ec93c22cde13b3eb9e11ae963
-F src/stash.c 7f0b31cfa631787397dafa8041f41b0fd259efa93e13e9a3474dbd5b872af167
+F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 960c9e8bd69531ebca9664afadd49326b1d336c877bdd7253eae000e6d5203c6
-R e3b2917682c5464302d2712b5bacb29f
-U mgagnon
-Z 53a4a35373257b632c3752ab3b409ac1
+P b9107e42cdb3badaae678fff0f7230088fb8907c5b04130937f8404e7bacb85a
+R 6d8a16d2f579b27c164ad974f3be3847
+U stephan
+Z 733875ec182c5dc2480f2efa95579e96
