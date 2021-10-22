@@ -1,5 +1,5 @@
-C On\sthis\sbranch,\sthe\sschema\smakes\suse\sof\sthe\sSTRICT\skeyword\snew\sto\sSQLite\n3.37.0.\s\sFossil\sdoes\snot\sbenefit\sfrom\sthis.\s\sThe\spoint\sof\sthis\sbranch\sis\sto\nbeta-test\sthe\snew\sSTRICT\smode\sof\sSQLite.
-D 2021-10-22T10:10:55.007
+C New\ssqlite3.c\sto\sfix\sa\sharmless\scompiler\swarning.
+D 2021-10-22T11:18:36.909
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -597,8 +597,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c 2c21802d421c60d6f08a3f2e6dd7792949e5d95335db57136aa6928eaededf2b
-F src/sqlite3.h e11df16953e017172a310444282ac75e2c99f82f9251e01bbf905e92f305c479
+F src/sqlite3.c 812179fb78c8220856c5e5044da13794175ee84972c9ac92166fe04bae521470
+F src/sqlite3.h 4ae01a93a709d45a11209dfc5884ffb75cda1aec1b5ee2e35ee8f5996f8ce4f3
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -986,10 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4531bcd49774708cfd9746f33d09f6fa715389036bc7b5bbdf3db7366e08552f
-R c56f6c638755d1d9d1b2abcfaca84faa
-T *branch * strict
-T *sym-strict *
-T -sym-trunk *
+P 632ffb82e1658722fa5796a1a430030d8ec703f991775464ebc02639219c2c79
+R f7d7724c5bde04b0b5908380fa20df87
 U drh
-Z 96bb0b6316de0bb63d8963472c7352fa
+Z d76bf8f511709133c6e948906ecfac59
