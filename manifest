@@ -1,5 +1,5 @@
-C stash\spatch\sfrom\s[forum:b96b0755a0|forum\spost\sb96b0755a0]\swhich\supdates\sit\sto\shandle\sthe\sNULL\sstashfile.hash\scase\sintroduced\sin\s[ed06585f41].\sThis\sresolves\sthe\s11\sfailing\sstash\stests.
-D 2021-10-21T08:42:36.963
+C On\sthis\sbranch,\sthe\sschema\smakes\suse\sof\sthe\sSTRICT\skeyword\snew\sto\sSQLite\n3.37.0.\s\sFossil\sdoes\snot\sbenefit\sfrom\sthis.\s\sThe\spoint\sof\sthis\sbranch\sis\sto\nbeta-test\sthe\snew\sSTRICT\smode\sof\sSQLite.
+D 2021-10-22T10:10:55.007
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -36,7 +36,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 7d0a4e5f3296516db2692356b9682f991416a990c64d4d9929e1ac7971480bb4
+F auto.def 7ebf7158be654a9f191cf603c1264d97d7b6fc17c6d3de7bba6a491f4b2b56e1
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -527,7 +527,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c d741fc6df0f1e44b0e47385c5ba18735f9a1a19c80e3b2ad64e6b4358976e8ce
+F src/main.c 5489280905c1812f71c992ceaef7aa7a0f3f90f68b628ead2864c75ce1665405
 F src/main.mk 26c53f45dcbb378ec24b6dd69567834250ceb2b21c4c31f3caa3482fe8f07887
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -562,7 +562,7 @@ F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b407807
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
-F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
+F src/schema.c 1a4a9960217b6397e2901e4e6c76c27ffb911b1d1f4c2109ac9ec5ee546dc271
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c 11e895c3060231df2db1b742be76179c647603190ee43b3fc6badf1c5804519f
@@ -571,7 +571,7 @@ F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e6
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c a1e041a06978302366ec83775424cab69f3a427aec56d455d9d7a2fdb27fda94
-F src/shell.c 8881d5c54ff26727c65d78bf6aff0565e71bc937b5bd8004d33824fb0559e455
+F src/shell.c e4ea9763bc25a1957d563ea441e40f58d37711eda7a089651ab51d914b6c3415
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
 F src/sitemap.c 7d1d409a80c19429f33660e1d167fc146fce4ecf5da9f3ed692534d7a535cb69
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -597,8 +597,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c 87588aebfffe306ce90b9ca5d823243f9af45a21327680d528617c4d99ac43ea
-F src/sqlite3.h b7324e8f65132942f2da36d76b1d47686fca787ec93c22cde13b3eb9e11ae963
+F src/sqlite3.c 2c21802d421c60d6f08a3f2e6dd7792949e5d95335db57136aa6928eaededf2b
+F src/sqlite3.h e11df16953e017172a310444282ac75e2c99f82f9251e01bbf905e92f305c479
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -986,7 +986,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9107e42cdb3badaae678fff0f7230088fb8907c5b04130937f8404e7bacb85a
-R 6d8a16d2f579b27c164ad974f3be3847
-U stephan
-Z 733875ec182c5dc2480f2efa95579e96
+P 4531bcd49774708cfd9746f33d09f6fa715389036bc7b5bbdf3db7366e08552f
+R c56f6c638755d1d9d1b2abcfaca84faa
+T *branch * strict
+T *sym-strict *
+T -sym-trunk *
+U drh
+Z 96bb0b6316de0bb63d8963472c7352fa

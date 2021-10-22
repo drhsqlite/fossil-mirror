@@ -84,11 +84,11 @@ const char zRepositorySchema1[] =
 @   uuid TEXT UNIQUE NOT NULL,      -- hash of the content
 @   content BLOB,                   -- Compressed content of this record
 @   CHECK( length(uuid)>=40 AND rid>0 )
-@ );
+@ ) STRICT;
 @ CREATE TABLE delta(
 @   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed
 @   srcid INTEGER NOT NULL REFERENCES blob   -- Baseline for delta-compression
-@ );
+@ ) STRICT;
 @ CREATE INDEX delta_i1 ON delta(srcid);
 @
 @ -------------------------------------------------------------------------
@@ -104,10 +104,10 @@ const char zRepositorySchema1[] =
 @ CREATE TABLE rcvfrom(
 @   rcvid INTEGER PRIMARY KEY,      -- Received-From ID
 @   uid INTEGER REFERENCES user,    -- User login
-@   mtime DATETIME,                 -- Time of receipt.  Julian day.
+@   mtime REAL,                     -- Time of receipt.  Julian day.
 @   nonce TEXT UNIQUE,              -- Nonce used for login
 @   ipaddr TEXT                     -- Remote IP address.  NULL for direct.
-@ );
+@ ) STRICT;
 @
 @ -- Information about users
 @ --
@@ -136,10 +136,10 @@ const char zRepositorySchema1[] =
 @ --
 @ CREATE TABLE config(
 @   name TEXT PRIMARY KEY NOT NULL,  -- Primary name of the entry
-@   value CLOB,                      -- Content of the named parameter
-@   mtime DATE,                      -- last modified.  seconds since 1970
-@   CHECK( typeof(name)='text' AND length(name)>=1 )
-@ );
+@   value ANY,                       -- Content of the named parameter
+@   mtime INT,                       -- last modified.  seconds since 1970
+@   CHECK( length(name)>=1 )
+@ ) STRICT;
 @
 @ -- Artifacts that should not be processed are identified in the
 @ -- "shun" table.  Artifacts that are control-file forgeries or
@@ -152,10 +152,10 @@ const char zRepositorySchema1[] =
 @ -- UUID.
 @ --
 @ CREATE TABLE shun(
-@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
-@   mtime DATE,           -- When added.  seconds since 1970
-@   scom TEXT             -- Optional text explaining why the shun occurred
-@ );
+@   uuid TEXT PRIMARY KEY,  -- UUID of artifact to be shunned. Canonical form
+@   mtime INT,              -- When added.  seconds since 1970
+@   scom TEXT               -- Optional text explaining why the shun occurred
+@ ) WITHOUT ROWID, STRICT;
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
 @ -- table.  Private artifacts are omitted from the "unclustered" and
@@ -176,10 +176,10 @@ const char zRepositorySchema1[] =
 @    rn INTEGER PRIMARY KEY,  -- Report number
 @    owner TEXT,              -- Owner of this report format (not used)
 @    title TEXT UNIQUE,       -- Title of this report
-@    mtime DATE,              -- Last modified.  seconds since 1970
+@    mtime REAL,              -- Last modified.  seconds since 1970
 @    cols TEXT,               -- A color-key specification
 @    sqlcode TEXT             -- An SQL SELECT statement for this report
-@ );
+@ ) STRICT;
 @
 @ -- Some ticket content (such as the originators email address or contact
 @ -- information) needs to be obscured to protect privacy.  This is achieved
@@ -191,9 +191,9 @@ const char zRepositorySchema1[] =
 @ --
 @ CREATE TABLE concealed(
 @   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
-@   mtime DATE,               -- Time created.  Seconds since 1970
+@   mtime INT,                -- Time created.  Seconds since 1970
 @   content TEXT              -- Content intended to be concealed
-@ );
+@ ) STRICT;
 @
 @ -- The application ID helps the unix "file" command to identify the
 @ -- database as a fossil repository.
@@ -234,7 +234,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE filename(
 @   fnid INTEGER PRIMARY KEY,    -- Filename ID
 @   name TEXT UNIQUE             -- Name of file page
-@ );
+@ ) STRICT;
 @
 @ -- Linkages between check-ins, files created by each check-in, and
 @ -- the names of those files.
@@ -270,8 +270,8 @@ const char zRepositorySchema2[] =
 @   fnid INTEGER REFERENCES filename,  -- Name of the file
 @   pfnid INTEGER,                     -- Previous name. 0 if unchanged
 @   mperm INTEGER,                     -- File permissions.  1==exec
-@   isaux BOOLEAN DEFAULT 0            -- TRUE if pmid is the primary
-@ );
+@   isaux INT DEFAULT 0                -- TRUE if pmid is the primary
+@ ) STRICT;
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
 @ CREATE INDEX mlink_i3 ON mlink(fid);
@@ -282,11 +282,11 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
 @   cid INTEGER REFERENCES blob,    -- Child manifest
-@   isprim BOOLEAN,                 -- pid is the primary parent of cid
-@   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
+@   isprim INT,                     -- pid is the primary parent of cid
+@   mtime REAL,                     -- the date/time stamp on cid.  Julian day.
 @   baseid INTEGER REFERENCES blob, -- Baseline if cid is a delta manifest.
 @   UNIQUE(pid, cid)
-@ );
+@ ) STRICT;
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
 @
 @ -- A "leaf" check-in is a check-in that has no children in the same
@@ -308,7 +308,7 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE event(
 @   type TEXT,                      -- Type of event: ci, e, f, g, t, w
-@   mtime DATETIME,                 -- Time of occurrence. Julian day.
+@   mtime REAL,                     -- Time of occurrence. Julian day.
 @   objid INTEGER PRIMARY KEY,      -- Associated record ID
 @   tagid INTEGER,                  -- Associated ticket or wiki name tag
 @   uid INTEGER REFERENCES user,    -- User who caused the event
@@ -318,8 +318,8 @@ const char zRepositorySchema2[] =
 @   ecomment TEXT,                  -- Comment set by 'comment' property
 @   comment TEXT,                   -- Comment describing the event
 @   brief TEXT,                     -- Short comment when tagid already seen
-@   omtime DATETIME                 -- Original unchanged date+time, or NULL
-@ );
+@   omtime REAL                     -- Original unchanged date+time, or NULL
+@ ) STRICT;
 @ CREATE INDEX event_i1 ON event(mtime);
 @
 @ -- A record of phantoms.  A phantom is a record for which we know the
@@ -336,7 +336,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE orphan(
 @   rid INTEGER PRIMARY KEY,        -- Delta manifest with a phantom baseline
 @   baseline INTEGER                -- Phantom baseline of this orphan
-@ );
+@ ) STRICT;
 @ CREATE INDEX orphan_baseline ON orphan(baseline);
 @
 @ -- Unclustered records.  An unclustered record is a record (including
@@ -372,7 +372,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE tag(
 @   tagid INTEGER PRIMARY KEY,       -- Numeric tag ID
 @   tagname TEXT UNIQUE              -- Tag name.
-@ );
+@ ) STRICT;
 @ INSERT INTO tag VALUES(1, 'bgcolor');         -- TAG_BGCOLOR
 @ INSERT INTO tag VALUES(2, 'comment');         -- TAG_COMMENT
 @ INSERT INTO tag VALUES(3, 'user');            -- TAG_USER
@@ -396,10 +396,10 @@ const char zRepositorySchema2[] =
 @   srcid INTEGER REFERENCES blob,  -- Artifact of tag. 0 for propagated tags
 @   origid INTEGER REFERENCES blob, -- check-in holding propagated tag
 @   value TEXT,                     -- Value of the tag.  Might be NULL.
-@   mtime TIMESTAMP,                -- Time of addition or removal. Julian day
-@   rid INTEGER REFERENCE blob,     -- Artifact tag is applied to
+@   mtime REAL,                     -- Time of addition or removal. Julian day
+@   rid INTEGER REFERENCES blob,    -- Artifact tag is applied to
 @   UNIQUE(rid, tagid)
-@ );
+@ ) STRICT;
 @ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
 @
 @ -- When a hyperlink occurs from one artifact to another (for example
@@ -411,9 +411,9 @@ const char zRepositorySchema2[] =
 @   target TEXT,           -- Where the hyperlink points to
 @   srctype INT,           -- 0=comment 1=ticket 2=wiki. See BKLNK_* below.
 @   srcid INT,             -- EVENT.OBJID for the source document
-@   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
+@   mtime REAL,            -- time that the hyperlink was added. Julian day.
 @   UNIQUE(target, srctype, srcid)
-@ );
+@ ) STRICT;
 @ CREATE INDEX backlink_src ON backlink(srcid, srctype);
 @
 @ -- Each attachment is an entry in the following table.  Only
@@ -421,14 +421,14 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE attachment(
 @   attachid INTEGER PRIMARY KEY,   -- Local id for this attachment
-@   isLatest BOOLEAN DEFAULT 0,     -- True if this is the one to use
-@   mtime TIMESTAMP,                -- Last changed.  Julian day.
+@   isLatest INT DEFAULT 0,         -- True if this is the one to use
+@   mtime REAL,                     -- Last changed.  Julian day.
 @   src TEXT,                       -- Hash of the attachment.  NULL to delete
 @   target TEXT,                    -- Object attached to. Wikiname or Tkt hash
 @   filename TEXT,                  -- Filename for the attachment
 @   comment TEXT,                   -- Comment associated with this attachment
 @   user TEXT                       -- Name of user adding attachment
-@ );
+@ ) STRICT;
 @ CREATE INDEX attachment_idx1 ON attachment(target, filename, mtime);
 @ CREATE INDEX attachment_idx2 ON attachment(src);
 @
@@ -472,9 +472,9 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE cherrypick(
 @   parentid INT,
 @   childid INT,
-@   isExclude BOOLEAN DEFAULT false,
+@   isExclude INT DEFAULT false,
 @   PRIMARY KEY(parentid, childid)
-@ ) WITHOUT ROWID;
+@ ) WITHOUT ROWID, STRICT;
 @ CREATE INDEX cherrypick_cid ON cherrypick(childid);
 ;
 
@@ -525,9 +525,9 @@ const char zLocalSchema[] =
 @ --
 @ CREATE TABLE vvar(
 @   name TEXT PRIMARY KEY NOT NULL,  -- Primary name of the entry
-@   value CLOB,                      -- Content of the named parameter
-@   CHECK( typeof(name)='text' AND length(name)>=1 )
-@ );
+@   value ANY,                       -- Content of the named parameter
+@   CHECK( length(name)>=1 )
+@ ) STRICT, WITHOUT ROWID;
 @
 @ -- Each entry in the vfile table represents a single file in the
 @ -- current checkout.
@@ -546,9 +546,9 @@ const char zLocalSchema[] =
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The checkin this file is part of.
 @   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
-@   deleted BOOLEAN DEFAULT 0,        -- True if deleted
-@   isexe BOOLEAN,                    -- True if file should be executable
-@   islink BOOLEAN,                   -- True if file should be symlink
+@   deleted INT DEFAULT 0,            -- True if deleted
+@   isexe INT,                        -- True if file should be executable
+@   islink INT,                       -- True if file should be symlink
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
 @   mtime INTEGER,                    -- Mtime of file on disk. sec since 1970
@@ -556,7 +556,7 @@ const char zLocalSchema[] =
 @   origname TEXT,                    -- Original pathname. NULL if unchanged
 @   mhash TEXT,                       -- Hash of mrid iff mrid!=rid
 @   UNIQUE(pathname,vid)
-@ );
+@ ) STRICT;
 @
 @ -- Identifier for this file type.
 @ -- The integer is the same as 'FSLC'.
@@ -581,7 +581,7 @@ const char zLocalSchemaVmerge[] =
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
 @   merge INTEGER,                    -- Merged with this record
 @   mhash TEXT                        -- SHA1/SHA3 hash for merge object
-@ );
+@ ) STRICT;
 @ CREATE UNIQUE INDEX vmergex1 ON vmerge(id,mhash);
 @
 @ -- The following trigger will prevent older versions of Fossil that
@@ -610,7 +610,7 @@ static const char zForumSchema[] =
 @   fprev INT,                 -- Previous version of this same post
 @   firt INT,                  -- This post is in-reply-to
 @   fmtime REAL                -- When posted.  Julian day
-@ );
+@ ) STRICT;
 @ CREATE INDEX repository.forumthread ON forumpost(froot,fmtime);
 ;
 
