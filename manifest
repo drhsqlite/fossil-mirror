@@ -1,5 +1,5 @@
-C stash\spatch\sfrom\s[forum:b96b0755a0|forum\spost\sb96b0755a0]\swhich\supdates\sit\sto\shandle\sthe\sNULL\sstashfile.hash\scase\sintroduced\sin\s[ed06585f41].\sThis\sresolves\sthe\s11\sfailing\sstash\stests.
-D 2021-10-21T08:42:36.963
+C Show\snotBefore\sand\snotAfter\stimestamps\sfor\sunknown\sTLS\scertificates.
+D 2021-10-22T19:26:56.588
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -499,7 +499,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
-F src/http_ssl.c 402c4773503671cfed363ae2ddf0696bfcf617bbb6966c17af948a06211a62e4
+F src/http_ssl.c 7c021edd86c3999884f1fa8f5155990c9dc3531965416bcc50ed73d87905b3bc
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c ff144feffd3d62ef59c9aee33a3f8afc3afa2b7c2e9389302aa5c49bfa73d5cb
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9107e42cdb3badaae678fff0f7230088fb8907c5b04130937f8404e7bacb85a
-R 6d8a16d2f579b27c164ad974f3be3847
-U stephan
-Z 733875ec182c5dc2480f2efa95579e96
+P 4531bcd49774708cfd9746f33d09f6fa715389036bc7b5bbdf3db7366e08552f
+R cdc3cb8dc1bc95482abbe8a3b42090d0
+U danield
+Z 85eb2889fd82f3ac81033296066c26b5

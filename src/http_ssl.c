@@ -340,6 +340,13 @@ int ssl_open(UrlData *pUrlData){
     return 1;
   }
 
+  /* Debugging hint:   On unix-like system, run something like:
+  **
+  **     SSL_CERT_DIR=/tmp  ./fossil sync
+  **
+  ** to cause certificate validation to fail, and thus test the fallback
+  ** logic.
+  */
   if( !sslNoCertVerify && SSL_get_verify_result(ssl)!=X509_V_OK ){
     int x, desclen;
     char *desc, *prompt;
@@ -373,11 +380,15 @@ int ssl_open(UrlData *pUrlData){
     }else{
       /* Tell the user about the failure and ask what to do */
       mem = BIO_new(BIO_s_mem());
-      BIO_puts(mem,     "  subject: ");
+      BIO_puts(mem,     "  subject:   ");
       X509_NAME_print_ex(mem, X509_get_subject_name(cert), 0, XN_FLAG_ONELINE);
-      BIO_puts(mem,   "\n  issuer:  ");
+      BIO_puts(mem,   "\n  issuer:    ");
       X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 0, XN_FLAG_ONELINE);
-      BIO_printf(mem, "\n  sha256:  %s", zHash);
+      BIO_puts(mem,   "\n  notBefore: ");
+      ASN1_TIME_print(mem, X509_get_notBefore(cert));
+      BIO_puts(mem,   "\n  notAfter:  ");
+      ASN1_TIME_print(mem, X509_get_notAfter(cert));
+      BIO_printf(mem, "\n  sha256:    %s", zHash);
       desclen = BIO_get_mem_data(mem, &desc);
   
       prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
@@ -388,7 +399,9 @@ int ssl_open(UrlData *pUrlData){
       prompt_user(prompt, &ans);
       free(prompt);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' && fossil_stricmp(blob_str(&ans),zHash)!=0 ){
+      if( cReply!='y' && cReply!='Y'
+       && fossil_stricmp(blob_str(&ans),zHash)!=0
+      ){
         X509_free(cert);
         ssl_set_errmsg("SSL cert declined");
         ssl_close();
