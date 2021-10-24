@@ -22,6 +22,68 @@
 #include <assert.h>
 
 /*
+** Explain what type of sync operation is about to occur
+*/
+static void sync_explain(unsigned syncFlags){
+  if( g.url.isAlias ){
+    if( (syncFlags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
+      fossil_print("Sync with %s\n", g.url.canonical);
+    }else if( syncFlags & SYNC_PUSH ){
+      fossil_print("Push to %s\n", g.url.canonical);
+    }else if( syncFlags & SYNC_PULL ){
+      fossil_print("Pull from %s\n", g.url.canonical);
+    }
+  }
+}
+
+
+/*
+** Call client_sync() one or more times in order to complete a
+** sync operation.  Usually, client_sync() is called only once, though
+** is can be called multiple times if the SYNC_ALLURL flags is set.
+*/
+static int client_sync_all_urls(
+  unsigned syncFlags,      /* Mask of SYNC_* flags */
+  unsigned configRcvMask,  /* Receive these configuration items */
+  unsigned configSendMask, /* Send these configuration items */
+  const char *zAltPCode    /* Alternative project code (usually NULL) */
+){
+  int nErr;
+  int nOther;
+  char **azOther;
+  int i;
+  Stmt q;
+
+  sync_explain(syncFlags);
+  nErr = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
+  if( (syncFlags & SYNC_ALLURL)==0 ) return nErr;
+  nOther = 0;
+  azOther = 0;
+  db_prepare(&q,
+    "SELECT substr(name,10) FROM config"
+    " WHERE name glob 'sync-url:*'"
+    "   AND value<>(SELECT value FROM config WHERE name='last-sync-url')"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    azOther = fossil_realloc(azOther, sizeof(*azOther)*(nOther+1));
+    azOther[nOther++] = fossil_strdup(zUrl);
+  }
+  db_finalize(&q);
+  for(i=0; i<nOther; i++){
+    url_unparse(&g.url);
+    url_parse(azOther[i], URL_PROMPT_PW);
+    sync_explain(syncFlags);
+    nErr += client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
+    fossil_free(azOther[i]);
+    azOther[i] = 0;
+  }
+  fossil_free(azOther);
+  return nErr;
+}
+
+
+/*
 ** If the repository is configured for autosyncing, then do an
 ** autosync.  Bits of the "flags" parameter determine details of behavior:
 **
@@ -151,6 +213,9 @@ static void process_sync_args(
   if( find_option("no-http-compression",0,0)!=0 ){
     *pSyncFlags |= SYNC_NOHTTPCOMPRESS;
   }
+  if( find_option("all",0,0)!=0 ){
+    *pSyncFlags |= SYNC_ALLURL;
+  }
   url_proxy_options();
   clone_ssh_find_options();
   if( !uvOnly ) db_find_and_open_repository(0, 0);
@@ -159,6 +224,10 @@ static void process_sync_args(
     if( db_get_boolean("auto-shun",0) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
+    if( (*pSyncFlags) & SYNC_ALLURL ){
+      fossil_fatal("cannot use both the --all option and specific URL \"%s\"",
+          zUrl);
+    }
   }
   if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
    && db_get_boolean("uv-sync",0)
@@ -177,18 +246,10 @@ static void process_sync_args(
     usage("URL");
   }
   user_select();
-  if( g.url.isAlias ){
-    if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      fossil_print("Sync with %s\n", g.url.canonical);
-    }else if( (*pSyncFlags) & SYNC_PUSH ){
-      fossil_print("Push to %s\n", g.url.canonical);
-    }else if( (*pSyncFlags) & SYNC_PULL ){
-      fossil_print("Pull from %s\n", g.url.canonical);
-    }
-  }
   url_enable_proxy("via proxy: ");
   *pConfigFlags |= configSync;
 }
+
 
 /*
 ** COMMAND: pull
@@ -207,6 +268,7 @@ static void process_sync_args(
 **
 ** Options:
 **
+**   --all                      Pull from all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --from-parent-project      Pull content from the parent project
@@ -239,7 +301,7 @@ void pull_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  client_sync(syncFlags, configFlags, 0, zAltPCode);
+  client_sync_all_urls(syncFlags, configFlags, 0, zAltPCode);
 }
 
 /*
@@ -259,6 +321,7 @@ void pull_cmd(void){
 **
 ** Options:
 **
+**   --all                      Push to all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --ipv4                     Use only IPv4, not IPv6
@@ -286,7 +349,7 @@ void push_cmd(void){
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
-  client_sync(syncFlags, 0, 0, 0);
+  client_sync_all_urls(syncFlags, 0, 0, 0);
 }
 
 
@@ -305,6 +368,7 @@ void push_cmd(void){
 **
 ** Options:
 **
+**   --all                      Sync with all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --ipv4                     Use only IPv4, not IPv6
@@ -334,10 +398,10 @@ void sync_cmd(void){
   verify_all_options();
 
   if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
-  client_sync(syncFlags, configFlags, 0, 0);
   if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
   }
+  client_sync_all_urls(syncFlags, configFlags, 0, 0);
 }
 
 /*

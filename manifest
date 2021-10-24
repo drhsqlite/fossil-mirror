@@ -1,5 +1,5 @@
-C Show\snotBefore\sand\snotAfter\stimestamps\sfor\sunknown\sTLS\scertificates.
-D 2021-10-22T19:26:56.588
+C Add\sthe\s--all\soption\sto\s"fossil\ssync"\sand\ssimilar,\scausing\sthe\ssync\sto\soccur\nagainst\sall\sremote\srepositories\sshown\sin\s"fossil\sremote\slist".
+D 2021-10-24T19:47:47.805
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 935e732d431712d62440dd2f697b2fb6487fbe863f30f58b6c48703339df3edc
+F src/sync.c eadb76d2efb4b817f0c91e06d6bdeae7d1537ce9b0f78dddcd088e065f282820
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -637,7 +637,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
-F src/xfer.c 9cc4482c2264ec069268f5f84468c76bae566a7611f41e883ddd3acefc80da8a
+F src/xfer.c c5e87f6a24f63fae0cf65c21eeb11305c9f62ae3fca0da7913d49362d56298be
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4531bcd49774708cfd9746f33d09f6fa715389036bc7b5bbdf3db7366e08552f
-R cdc3cb8dc1bc95482abbe8a3b42090d0
-U danield
-Z 85eb2889fd82f3ac81033296066c26b5
+P 5623188de389363cc376148a06f8ded872eb7c0c2e99c6124d49f035d28ad77e
+R f65324fca62ff678cbe883aea2b88345
+U drh
+Z 314e7bcfc159a34f0f8d347b99d95d19
