@@ -123,7 +123,9 @@ int autosync(int flags){
   zAutosync = db_get("autosync", 0);
   if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
-  if( db_get_boolean("dont-push",0) || fossil_strncmp(zAutosync,"pull",4)==0 ){
+  if( db_get_boolean("dont-push",0) 
+   || sqlite3_strglob("*pull*", zAutosync)==0
+  ){
     flags &= ~SYNC_CKIN_LOCK;
     if( flags & SYNC_PUSH ) return 0;
   }
@@ -136,7 +138,7 @@ int autosync(int flags){
     url_prompt_for_password();
   }
   g.zHttpAuth = get_httpauth();
-  if( fossil_strcmp(zAutosync,"all")==0 ){
+  if( sqlite3_strglob("*all*", zAutosync)==0 ){
     rc = client_sync_all_urls(flags|SYNC_ALLURL, configSync, 0, 0);
   }else{
     url_remember();

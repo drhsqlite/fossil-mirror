@@ -3809,11 +3809,16 @@ struct Setting {
 */
 /*
 ** SETTING: autosync        width=16 default=on
-** This setting can take either a boolean value or "pullonly"
-** If enabled, automatically pull prior to commit
+** This setting can be a boolean value  (0, 1, on, off, true, false)
+** or "pullonly" or "all".
+**
+** If not false, automatically pull prior to commit
 ** or update and automatically push after commit or
-** tag or branch creation.  If the value is "pullonly"
-** then only pull operations occur automatically.
+** tag or branch creation.  Except, if the value is
+** "pullonly" then only pull operations occur automatically.
+** Normally, only the default remote is used, but if the
+** value is "all" then push/pull operations occur on all
+** remotes.
 */
 /*
 ** SETTING: autosync-tries  width=16 default=1
