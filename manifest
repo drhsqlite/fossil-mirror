@@ -1,5 +1,5 @@
-C Add\sthe\s--all\soption\sto\s"fossil\ssync"\sand\ssimilar,\scausing\sthe\ssync\sto\soccur\nagainst\sall\sremote\srepositories\sshown\sin\s"fossil\sremote\slist".
-D 2021-10-24T19:47:47.805
+C Add\sthe\s"fossil\sremote\sscrub"\scommand.\s\sPrompt\sfor\smissing\spasswords\son\nauxiliary\sremotes\swhen\sthey\sare\sneeded.
+D 2021-10-25T09:22:13.833
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c eadb76d2efb4b817f0c91e06d6bdeae7d1537ce9b0f78dddcd088e065f282820
+F src/sync.c 8bae247920972ecf5c3c9ebff870542b24c3af386f8078ed3240108c319c745b
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -625,8 +625,8 @@ F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 1cd024480054ae480ca4e31f90be3a20d4c58f6e776b44c169739360dd81f00b
 F src/update.c 86d89109d9527d64712b198c3a2f23627c13c909ec6a1b1f2626c4e33b0b35a1
-F src/url.c 36ebb933ec401bc85fb4a0f631617d78e7d764ad31a9aaa26e34e2f6b3879f4a
-F src/user.c 14eb8bbf710d57bf440e46a70a016d65b3acb20bb7dd9ba37c9b258480006ccf
+F src/url.c 15e14656dc02196cb72888a35509b362a6867990988ced5e10c8651cf6f95939
+F src/user.c ad2161de86a5ea87a0f98c89b9bc03264b3489c85b95a408d93f60a78eaf3258
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 5f0d2fcdb67ee5433c9151892af3681f91ccdfffbaff8f09aa46ea61ec163e77
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5623188de389363cc376148a06f8ded872eb7c0c2e99c6124d49f035d28ad77e
-R f65324fca62ff678cbe883aea2b88345
+P 6b4a04d4494faae2ad66bb54d85616b058000f43500a1122b25da508a04e8992
+R 55cd6ef3424b2a5cf6c0f716fdf11159
 U drh
-Z 314e7bcfc159a34f0f8d347b99d95d19
+Z cce3402bd7fc3e79a40d287122a210ae

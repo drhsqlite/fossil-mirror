@@ -601,7 +601,7 @@ void url_prompt_for_password_local(UrlData *pUrlData){
    && (pUrlData->flags & URL_PROMPTED)==0
   ){
     pUrlData->flags |= URL_PROMPTED;
-    pUrlData->passwd = prompt_for_user_password(pUrlData->user);
+    pUrlData->passwd = prompt_for_user_password(pUrlData->canonical);
     if( pUrlData->passwd[0]
      && (pUrlData->flags & (URL_REMEMBER|URL_ASK_REMEMBER_PW))!=0
     ){

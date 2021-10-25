@@ -71,10 +71,21 @@ static int client_sync_all_urls(
   }
   db_finalize(&q);
   for(i=0; i<nOther; i++){
+    int rc;
     url_unparse(&g.url);
-    url_parse(azOther[i], URL_PROMPT_PW);
+    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
     sync_explain(syncFlags);
-    nErr += client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
+    rc = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
+    nErr += rc;
+    if( (g.url.flags & URL_REMEMBER_PW)!=0 && rc==0 ){
+      char *zKey = mprintf("sync-pw:%s", azOther[i]);
+      char *zPw = obscure(g.url.passwd);
+      if( zPw && zPw[0] ){
+        db_set(zKey/*works-like:""*/, zPw, 0);
+      }
+      fossil_free(zPw);
+      fossil_free(zKey);
+    }
     fossil_free(azOther[i]);
     azOther[i] = 0;
   }
@@ -468,6 +479,12 @@ void sync_unversioned(unsigned syncFlags){
 **     To disable use of the default remote without forgetting its URL,
 **     say "fossil set autosync 0" instead.
 **
+** > fossil remote scrub
+**
+**     Forget any saved passwords for remote repositories, but continue
+**     to remember the URLs themselves.  You will be prompted for the
+**     password the next time it is needed.
+**
 ** > fossil remote REF
 **
 **     Make REF the new default URL, replacing the prior default.
@@ -558,6 +575,16 @@ remote_delete_default:
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec("DELETE FROM config WHERE name glob 'sync-url:%q'", zName);
     db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:%q'", zName);
+    db_protect_pop();
+    db_commit_transaction();
+    return;
+  }
+  if( strncmp(zArg, "scrub", nArg)==0 ){
+    if( g.argc!=3 ) usage("scrub");
+    db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:*'");
+    db_multi_exec("DELETE FROM config WHERE name = 'last-sync-pw'");
     db_protect_pop();
     db_commit_transaction();
     return;
