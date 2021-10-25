@@ -127,6 +127,7 @@ int autosync(int flags){
     flags &= ~SYNC_CKIN_LOCK;
     if( flags & SYNC_PUSH ) return 0;
   }
+  if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
   url_parse(0, URL_REMEMBER);
   if( g.url.protocol==0 ) return 0;
   if( g.url.user!=0 && g.url.passwd==0 ){
@@ -135,11 +136,14 @@ int autosync(int flags){
     url_prompt_for_password();
   }
   g.zHttpAuth = get_httpauth();
-  url_remember();
-  if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  fossil_print("Autosync:  %s\n", g.url.canonical);
-  url_enable_proxy("via proxy: ");
-  rc = client_sync(flags, configSync, 0, 0);
+  if( fossil_strcmp(zAutosync,"all")==0 ){
+    rc = client_sync_all_urls(flags|SYNC_ALLURL, configSync, 0, 0);
+  }else{
+    url_remember();
+    sync_explain(flags);
+    url_enable_proxy("via proxy: ");
+    rc = client_sync(flags, configSync, 0, 0);
+  }
   return rc;
 }
 
