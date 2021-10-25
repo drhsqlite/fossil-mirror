@@ -1,5 +1,5 @@
-C Improved\shelp\stext\sfor\sthe\sautosync\ssetting.
-D 2021-10-25T10:09:17.965
+C Add\sa\scomment\sthat\sdocuments\sthe\sCONFIG\stable\skeys\sused\sby\s"fossil\sremote".\nNo\schanges\sto\scode.
+D 2021-10-25T10:36:57.511
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 667fd3a98d701b8056f09ff223d88d36c73ec9829d3d3067881a03db9cfae03f
+F src/sync.c d3967d8a90536e8896765c3c4d83d7bb57babea6db8e7fc7761138a1b5850abe
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 241ade812bebdbcaadd47f11c9f0dc5d7fdd05da4dd79e3ac192a07440482a10
-R 40eabb8c66c0929a4852bcf9aca3f483
+P 19d7c5ff7b2f48f6373e85b38d1746cd4bd8b75c8b015155c8b94ffbe02e55d2
+R 93aaff2fe44330839694e596669f27ce
 U drh
-Z 81d9925ae17b7c04678a2ac93e1c04ab
+Z 338a8c56c12137ffbe78b505b3ab2723

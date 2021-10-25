@@ -504,6 +504,27 @@ void remote_url_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
+  /* 2021-10-25: A note about data structures.
+  **
+  ** The remote URLs are stored in the CONFIG table.  The URL is stored
+  ** separately from the password.  The password is obscured using the
+  ** obscure() function.
+  **
+  ** Originally, Fossil only preserved a single remote URL.  That URL
+  ** is stored in "last-sync-url" and the password in "last-sync-pw".  The
+  ** ability to have multiple remotes was added later so these names
+  ** were retained for backwards compatibility.  The other remotes are
+  ** stored in "sync-url:NAME" and "sync-pw:NAME" where NAME is the name
+  ** of the remote.
+  **
+  ** The last-sync-url is called "default" for the display list.
+  **
+  ** The last-sync-url might be duplicated into one of the sync-url:NAME
+  ** entries.  Thus, when doing a "fossil sync --all" or an autosync with
+  ** autosync=all, each sync-url:NAME entry is checked to see if it is the
+  ** same as last-sync-url and if it is then that entry is skipped.
+  */ 
+
   if( g.argc==2 ){
     /* "fossil remote" with no arguments:  Show the last sync URL. */
     zUrl = db_get("last-sync-url", 0);
