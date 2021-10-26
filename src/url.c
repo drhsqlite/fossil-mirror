@@ -282,7 +282,7 @@ void url_parse_local(
     free(zFile);
     zFile = 0;
     pUrlData->protocol = "file";
-    pUrlData->path = "";
+    pUrlData->path = mprintf("");
     pUrlData->name = mprintf("%b", &cfile);
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
