@@ -806,13 +806,15 @@ void chat_delete_webpage(void){
 ** Fossil repository and the --remote option is omitted, then this
 ** command fails with an error.
 **
-** When there is no SUBCOMMAND (when this command is simply "fossil chat")
-** the response is to bring up a web-browser window to the chatroom
-** on the default system web-browser.  You can accomplish the same by
-** typing the appropriate URL into the web-browser yourself.  This
-** command is merely a convenience for command-line oriented people.
+** Subcommands:
 **
-** The following subcommands are supported:
+** > fossil chat
+**
+**      When there is no SUBCOMMAND (when this command is simply "fossil chat")
+**      the response is to bring up a web-browser window to the chatroom
+**      on the default system web-browser.  You can accomplish the same by
+**      typing the appropriate URL into the web-browser yourself.  This
+**      command is merely a convenience for command-line oriented people.
 **
 ** > fossil chat send [ARGUMENTS]
 **
@@ -821,7 +823,12 @@ void chat_delete_webpage(void){
 **
 **        -f|--file FILENAME     File to attach to the message
 **        -m|--message TEXT      Text of the chat message
+**        --remote URL           Send to this remote URL
 **        --unsafe               Allow the use of unencrypted http://
+**
+** > fossil chat url
+**
+**      Show the default URL used to access the chat server.
 **
 ** Additional subcommands may be added in the future.
 */
@@ -950,7 +957,7 @@ void chat_command(void){
     }
     blob_reset(&down);
   }else if( strcmp(g.argv[2],"url")==0 ){
-    /* Undocumented command.  Show the URL to access chat. */
+    /* Show the URL to access chat. */
     fossil_print("%s/chat\n", zUrl);
   }else{
     fossil_fatal("no such subcommand \"%s\".  Use --help for help", g.argv[2]);
