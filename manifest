@@ -1,5 +1,5 @@
-C More\swork\sto\sensure\sthat\sUrlData.path\sis\salways\sdynamically\sallocated.
-D 2021-10-26T15:47:20.313
+C Ensure\sthat\sUrlData.fossil\sis\salways\sdynamically\sallocated.\s\sFix\sa\nharmless\svalgrind\swarnings.\s\sImprove\scomments\son\sUrlData.
+D 2021-10-26T16:11:30.115
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -498,7 +498,7 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
-F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
+F src/http_socket.c f5a27fa020e8af26700f326eca4b5a3275de1d2685295d72cd090dcf4a550d7c
 F src/http_ssl.c 7c021edd86c3999884f1fa8f5155990c9dc3531965416bcc50ed73d87905b3bc
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
@@ -625,7 +625,7 @@ F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 1cd024480054ae480ca4e31f90be3a20d4c58f6e776b44c169739360dd81f00b
 F src/update.c 86d89109d9527d64712b198c3a2f23627c13c909ec6a1b1f2626c4e33b0b35a1
-F src/url.c f76970e17aa3ee22dd8b3d4f648ac8be8589dea9281202b5b8197872fb2b0e30
+F src/url.c cf0b8f21d36e371fad10ec17772f778339d2cae80b384a7fdc84e2a5452cadaa
 F src/user.c ad2161de86a5ea87a0f98c89b9bc03264b3489c85b95a408d93f60a78eaf3258
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9c9d39df94f0af185bbca8566a97c5170debb2c2a71c46aab242c916fa4a413
-R 4784b7e84daad4319631f59d7fd8e25e
+P 6d78082cb594cb7ffda35ba798d6f46e1b6cad545fe4550895830bbb1b15cfad
+R 6631b11baee1916a295486283ffe9111
 U drh
-Z 941ec07ca760b8244a9532af72e7c595
+Z 7b96630d6becdec4eabf36d325e6a691
