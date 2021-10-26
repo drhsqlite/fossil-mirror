@@ -249,7 +249,11 @@ void url_parse_local(
         pUrlData->path, zExe
       );
     }
-    if( pUrlData->isSsh && pUrlData->path[1] ) pUrlData->path++;
+    if( pUrlData->isSsh && pUrlData->path[1] ){
+      char *zOld = pUrlData->path;
+      pUrlData->path = mprintf("%s", zOld+1);
+      fossil_free(zOld);
+    }
     free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     pUrlData->isFile = 1;
