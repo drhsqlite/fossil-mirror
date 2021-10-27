@@ -1,5 +1,5 @@
-C In\scontribute.wiki,\smention\s'fossil\spatch'\sfor\ssubmitting\sbinary\spatches.
-D 2021-10-27T10:14:08.462
+C Fix\soff-by-one\serror\sin\scgi_iso8601_datestamp().\s\sAdd\sthe\stest-date\scommand\nfor\stesting.
+D 2021-10-27T13:01:13.654
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -426,7 +426,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
+F src/cgi.c 53239fff3634a5dca529171af8ae30ac14520cf1731909af501566130f8f73ed
 F src/chat.c 6a13bd5ed624c6d8a453d4e26867f1adc8e5f18e1bf7dab45c5cd8b9d65adb60
 F src/checkin.c cf4d62a0586ec7e618cd6ca92a2fa7e9cb55d638375079f282f657940bc521f3
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 56d23baba1d41912fd446d32c6ae412192ee1b9ebf9247347f9209e8b9ceab76
-R 76290b6dd009318603283a874de8c234
-U dumitriu
-Z 5e5cb0f0c7af10fa99c5b7104cf21f64
+P f3f3c1db6f913a7dceb0be90117eed1191e9cad421abe2e7d97be6055710cb9a
+R 6e7bc1e275699971878950e3dec83406
+U drh
+Z 90bc69f204ed809838d09bd4b602077c
