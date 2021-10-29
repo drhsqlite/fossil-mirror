@@ -1,5 +1,5 @@
-C Retrieve\sthe\svalue\sof\san\sSQL\scount(*)\sas\san\sinteger,\snot\sa\sfloat\s(discovered\sby\saccident\swhile\splaying\swith\scompiler\swarnings).
-D 2021-10-29T17:05:13.997
+C When\s"open"\swarn\sabout\salready\sexisting\sfiles,\salso\smention\s\s-k\s(--keep)\sas\san\nalternative\sto\s-f\s(--force).
+D 2021-10-29T18:22:38.660
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -444,7 +444,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e3bb48b7062564f92a3e792b7225446314e0fca63291c1301735b22f52c10f1f
+F src/db.c 175bc35d92bb4f0af9db55e858a8b717c50c9b89a6a9302dd1f2a9515d511e96
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d847300f3b59fa136536f6d48a8472dfbacfc84d783dba5354530713d44d3d56
-R b6af475beb219aa36352c84a8290efdb
-U danield
-Z 7fe3f2a343dc64fc53e37f3da0b0fee6
+P 735b6be7ea8cc686a7b61db36198ab51845d270572ee0b1d30a215634e55f3e9
+R f486a03a4ebadd7cedf2db66685fe0fa
+U mgagnon
+Z 70892a6526175948183767da67c3048f

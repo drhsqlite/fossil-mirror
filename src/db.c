@@ -3584,7 +3584,9 @@ void cmd_open(void){
    && (nLocal>1 || isUri || !file_in_cwd(zRepo))
   ){
     fossil_fatal("directory %s is not empty\n"
-                 "use the -f or --force option to override", file_getcwd(0,0));
+                 "use the -f (--force) option to override\n"
+                 "or the -k (--keep) option to keep local files unchanged", 
+                 file_getcwd(0,0));
   }
 
   if( db_open_local_v2(0, allowNested) ){
