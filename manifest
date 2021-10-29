@@ -1,5 +1,5 @@
-C Fix\soff-by-one\serror\sin\scgi_iso8601_datestamp().\s\sAdd\sthe\stest-date\scommand\nfor\stesting.
-D 2021-10-27T13:01:13.654
+C Disable\sthe\suse\sof\sthe\sOpenSSL\simplementation\sof\sMD5,\swhich\sis\sdeprecated\nas\sof\sOpenSSL\s3.0.0.
+D 2021-10-29T14:31:36.190
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -536,7 +536,7 @@ F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
-F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
+F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c bda6b2485d422d129799e443a762df5d5fc62cdb0a1669370e4da307f2f04645
 F src/merge3.c 3d10459a137d0870e9d442b0de2bf5dc2344af08cbf2b9d632f6369e8b954fca
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3f3c1db6f913a7dceb0be90117eed1191e9cad421abe2e7d97be6055710cb9a
-R 6e7bc1e275699971878950e3dec83406
+P 6389c999cee8e07c6af9788e75277d75c775b9b95ba299ef3c6bb379fa28e5b1
+R bcb647ea5ecf9e869404bed6cc1b2a66
 U drh
-Z 90bc69f204ed809838d09bd4b602077c
+Z 68ea6d5acc4a00c3b83981c1439e6483
