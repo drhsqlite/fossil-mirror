@@ -1,5 +1,5 @@
-C Display\sSSL\scertificate\svalidity\stimestamps\sin\sISO8601\sformat
-D 2021-10-29T15:22:27.215
+C Retrieve\sthe\svalue\sof\san\sSQL\scount(*)\sas\san\sinteger,\snot\sa\sfloat\s(discovered\sby\saccident\swhile\splaying\swith\scompiler\swarnings).
+D 2021-10-29T17:05:13.997
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -548,7 +548,7 @@ F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef9
 F src/name.c 8859f5d0cd49e99d4d326fd125a5e65dac19acfdfb3ded0286cebe4528a02f57
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
-F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
+F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
 F src/pikchr.c eff4cb60244a616647394abf359663e4cc0ef5c9a81627047b34f552c5a56dd3
 F src/pikchrshow.c df3ca9e49839ffbc628691af2eb9f197a3428a748c75a185bff95efad7ce7fab
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a517c30c794adb8e03bd4c69e642a869a3080bb2999f21f5c4483b9d683fb1cd
-R dee3907dc43c3b778475906852958991
+P d847300f3b59fa136536f6d48a8472dfbacfc84d783dba5354530713d44d3d56
+R b6af475beb219aa36352c84a8290efdb
 U danield
-Z f441641b023f27ab267c2e0f4398514f
+Z 7fe3f2a343dc64fc53e37f3da0b0fee6
