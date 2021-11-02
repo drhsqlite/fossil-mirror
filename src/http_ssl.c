@@ -101,7 +101,7 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 ** If showUtc==1, add " UTC" at the end of the returned string. This is
 ** not ISO8601-compliant, but makes the displayed value more user-friendly.
 */
-static const char *ssl_asn1time_to_iso8601(const ASN1_TIME *asn1_time,
+static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
                                            int showUtc){
   assert( showUtc==0 || showUtc==1 );
   if( !ASN1_TIME_check(asn1_time) ){
@@ -109,7 +109,7 @@ static const char *ssl_asn1time_to_iso8601(const ASN1_TIME *asn1_time,
   }else{
     char res[20];
     char *pr = res;
-    char *pt = (char *)asn1_time->data;
+    const char *pt = (char *)asn1_time->data;
     /*                   0123456789 1234
     **  UTCTime:         YYMMDDHHMMSSZ      (YY >= 50 ? 19YY : 20YY)
     **  GeneralizedTime: YYYYMMDDHHMMSSZ */

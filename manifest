@@ -1,5 +1,5 @@
-C When\s"open"\swarn\sabout\salready\sexisting\sfiles,\salso\smention\s\s-k\s(--keep)\sas\san\nalternative\sto\s-f\s(--force).
-D 2021-10-29T18:22:38.660
+C Walk\saround\sa\swarning\sin\solder\sversions\sof\sOpenSSL\s(e.g.\s1.0.2g)\swhere\sASN1_time_check()\sis\sdeclared\swith\sa\snon-const\sASN1_TIME*\sparameter.
+D 2021-11-02T15:52:24.239
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -499,7 +499,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 8a9ff761de4ce2e648afa83b8b28b1d811d86d0682114cb0909a3d87ed2b5035
+F src/http_ssl.c de5e6b0ab85bae395304345f7f4d5a639eb9de991d27e013b80b296fcec9f904
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c ff144feffd3d62ef59c9aee33a3f8afc3afa2b7c2e9389302aa5c49bfa73d5cb
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 735b6be7ea8cc686a7b61db36198ab51845d270572ee0b1d30a215634e55f3e9
-R f486a03a4ebadd7cedf2db66685fe0fa
-U mgagnon
-Z 70892a6526175948183767da67c3048f
+P d70ea01c83ff75694865872e432b8c6dd0480ad3d769409083778083566d79c0
+R 5d973a5271deb31360b2351dfe7e38e8
+U danield
+Z d12821975851e7a6a6320d93aab6c136
