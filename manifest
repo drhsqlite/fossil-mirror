@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\salpha\sfor\s3.37.0\sthat\sincludes\nthe\sfix\sfor\susing\sthe\spreferred\sschema\stable\sname\sin\sPRAGMA\stable_list\soutput.
-D 2021-11-04T14:16:33.610
+C Update\sthe\sbuilt-in\sPikchr\simplementation\sto\sfix\sa\scompiler\swarning.
+D 2021-11-04T18:37:31.036
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -549,7 +549,7 @@ F src/name.c 8859f5d0cd49e99d4d326fd125a5e65dac19acfdfb3ded0286cebe4528a02f57
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
-F src/pikchr.c eff4cb60244a616647394abf359663e4cc0ef5c9a81627047b34f552c5a56dd3
+F src/pikchr.c 3646f513ef1631193851b3499f7e1089784795d09a1c58d3a29596abee6eea53
 F src/pikchrshow.c df3ca9e49839ffbc628691af2eb9f197a3428a748c75a185bff95efad7ce7fab
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00650cf0208528e12131a06c3e7fe0bfb0e0d09595ed5fdd618fd2a3232d0776
-R bc54f303b6e80f6bdc9fc5bc277b6471
+P d6d4c14b0e1d10c837f735b1fd7339c53d630bf2abbb1a8204b2da1535b42818
+R d1249920393c5e8d4aba01e41124e9ce
 U drh
-Z c2a8580eb6d43e370f0aaf9799c714a6
+Z 640e3ea4ee4cbdf4c4e21ee9efe7d411
