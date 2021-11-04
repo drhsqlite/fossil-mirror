@@ -1,5 +1,5 @@
-C Update\sthe\slatest\sSQLite\sto\sthe\slatest\s3.37.0\sbeta,\sto\stest\sSQLite.
-D 2021-11-03T19:10:56.714
+C Update\sthe\sbuilt-in\sSQLite\swith\sthe\sfix\sfor\sthe\sbroken\sshadow\stable\nprotections.
+D 2021-11-04T00:59:59.977
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -597,8 +597,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c e40f66dd0c82e713ebfbb9afc1458a8dfe82d9e507135119d075083db177601f
-F src/sqlite3.h 9f424b791effbbad429e74ce662c6ff7e4adef2cb74ebf4c79cf5af4138e38d6
+F src/sqlite3.c b6b47a7a59c2f7d4f6a7e636c6e78454cf69773804aa6a3ecd537e3ed3004eaf
+F src/sqlite3.h 872202ff8ad2d9de2d1394f32313331fe7d66a1a5467704b08fd964bdf88be6d
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af8109c00d0d5a5ebd1d5829c3e26c381029ace57343dfa8f966af74d6f14373
-R b0890674169f4046b08a746258e6d214
+P 51bb976fb971819e7def4e75f9841b1c05c9632b8612f0fc6f6b1fe3f7b1dcba
+R 8f4a9102cfb2e33a4cde36ef67910fa5
 U drh
-Z 59f926aec8e939367f194b03b1641dff
+Z d3c638bad4af949f655a132d24df6465
