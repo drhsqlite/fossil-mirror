@@ -143,7 +143,6 @@ void ssl_global_init(void){
   if( sslIsInit==0 ){
     SSL_library_init();
     SSL_load_error_strings();
-    ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();
     sslCtx = SSL_CTX_new(SSLv23_client_method());
     /* Disable SSLv2 and SSLv3 */

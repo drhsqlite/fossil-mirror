@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sPikchr\simplementation\sto\sfix\sa\scompiler\swarning.
-D 2021-11-04T18:37:31.036
+C Remove\sOpenSSL\sinitialization\scall\sthat\sis\snot\sneeded\sand\swhich\sis\ndeprecated\sin\snewer\sversions\sof\sOpenSSL.
+D 2021-11-05T15:54:12.049
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -499,7 +499,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c de5e6b0ab85bae395304345f7f4d5a639eb9de991d27e013b80b296fcec9f904
+F src/http_ssl.c 3b47015114f20fbbf2dbb03d484ad273c5800b873459797d1c1af264a812225c
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c ff144feffd3d62ef59c9aee33a3f8afc3afa2b7c2e9389302aa5c49bfa73d5cb
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6d4c14b0e1d10c837f735b1fd7339c53d630bf2abbb1a8204b2da1535b42818
-R d1249920393c5e8d4aba01e41124e9ce
+P 7f7df29bfc47efc036815a8fabb85928adba6f4974142f285aa561be0656c0d4
+R 1925c0335e9321ee9a865286960c91dd
 U drh
-Z 640e3ea4ee4cbdf4c4e21ee9efe7d411
+Z 2f939cb672bc8915ae1b526b56037019
