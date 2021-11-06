@@ -1,5 +1,5 @@
-C Remove\sOpenSSL\sinitialization\scall\sthat\sis\snot\sneeded\sand\swhich\sis\ndeprecated\sin\snewer\sversions\sof\sOpenSSL.
-D 2021-11-05T15:54:12.049
+C Add\ssome\sline-number\sinformation\sto\sthe\sconflict\smarks\son\sa\s3-way\smerge.\nMore\swork\scould\sbe\sdone\shere,\sbut\sthis\sis\sa\sstart.
+D 2021-11-06T15:19:21.285
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -539,7 +539,7 @@ F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b7
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c bda6b2485d422d129799e443a762df5d5fc62cdb0a1669370e4da307f2f04645
-F src/merge3.c 3d10459a137d0870e9d442b0de2bf5dc2344af08cbf2b9d632f6369e8b954fca
+F src/merge3.c 73083af574ff36b97396f56b21348346a0952eccd7da172f8a507e2df7918453
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F src/mkindex.c b5c2cf8c00e9ae8d2bc1f4eba68b59fcde6febdff3a2a9a791b20c96526d074a
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7f7df29bfc47efc036815a8fabb85928adba6f4974142f285aa561be0656c0d4
-R 1925c0335e9321ee9a865286960c91dd
+P 8c1263754c66005d5697f9e98dbadb90e0e0d688e8564eebba8e3eaae59ebd0a
+R 2712d12544e6e057968e5bf6a7745939
 U drh
-Z 2f939cb672bc8915ae1b526b56037019
+Z 436177bc4ea98f504b053160309f5290
