@@ -3511,6 +3511,8 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --verbose         If passed a URI then this flag is passed on to the clone
+**                     operation, otherwise it has no effect.
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
 **
@@ -3531,6 +3533,7 @@ void cmd_open(void){
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
   int bNosync = 0;               /* --nosync.  Omit auto-sync */
+  int bVerbose = 0;              /* --verbose option for clone */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3542,6 +3545,7 @@ void cmd_open(void){
   zRepoDir = find_option("repodir",0,1);
   bForce = find_option("force","f",0)!=0;  
   bNosync = find_option("nosync",0,0)!=0;
+  bVerbose = find_option("verbose",0,0)!=0;
   zPwd = file_getcwd(0,0);
   
 
@@ -3613,6 +3617,9 @@ void cmd_open(void){
     blob_init(&cmd, 0, 0);
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " clone", -1);
+    if(0!=bVerbose){
+      blob_append(&cmd, " --verbose", -1);
+    }
     blob_append_escaped_arg(&cmd, zUri, 1);
     blob_append_escaped_arg(&cmd, zRepo, 1);
     zCmd = blob_str(&cmd);

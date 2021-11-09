@@ -1,5 +1,5 @@
-C Add\ssome\sline-number\sinformation\sto\sthe\sconflict\smarks\son\sa\s3-way\smerge.\nMore\swork\scould\sbe\sdone\shere,\sbut\sthis\sis\sa\sstart.
-D 2021-11-06T15:19:21.285
+C Added\s--verbose\soption\sto\sopen\swhich\ssimply\spasses\sthat\sflag\son\sto\sthe\sclone\soperation\swhen\sopening\sa\sURL,\sper\srequest\sin\s[forum:ab3807edc65ab115|form\spost\sab3807edc65ab115].
+D 2021-11-09T14:39:34.492
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -444,7 +444,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 175bc35d92bb4f0af9db55e858a8b717c50c9b89a6a9302dd1f2a9515d511e96
+F src/db.c b88e6cb552078c9c4f01e4a0ed1de994fe166c1c319cae4ffa80aa85f473b900
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c1263754c66005d5697f9e98dbadb90e0e0d688e8564eebba8e3eaae59ebd0a
-R 2712d12544e6e057968e5bf6a7745939
-U drh
-Z 436177bc4ea98f504b053160309f5290
+P 14f44e933c0c0c2c6fef25909916d1a297c00fca89f51f1cb043f832eb0771a4
+R 50709c58cb24eccfb148f04cac3d4fa0
+U stephan
+Z dfc557039abb487a066c3b1315c8284c
