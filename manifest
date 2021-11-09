@@ -1,5 +1,5 @@
-C Added\s--verbose\soption\sto\sopen\swhich\ssimply\spasses\sthat\sflag\son\sto\sthe\sclone\soperation\swhen\sopening\sa\sURL,\sper\srequest\sin\s[forum:ab3807edc65ab115|form\spost\sab3807edc65ab115].
-D 2021-11-09T14:39:34.492
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.37.0\salpha,\sfor\stesting.
+D 2021-11-09T17:07:02.026
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -597,8 +597,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c 836c4ae334c38ca06a714ad1bc054798687d5cfb5a8a4799cf2df93e0f3fef3a
-F src/sqlite3.h e5cf42f5c0e077cbdfd9fdb11dd7c7382af4b6ac8b241da33eb0205acd04b9d1
+F src/sqlite3.c d6b331687fdc31a69e6e20eccb5d57371a7bf1454e3a3f35613b31540aa9f624
+F src/sqlite3.h 0cf7455cb82d637599edb9967bac92978a132c0c0e378b7cfbb526d5166ffdec
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14f44e933c0c0c2c6fef25909916d1a297c00fca89f51f1cb043f832eb0771a4
-R 50709c58cb24eccfb148f04cac3d4fa0
-U stephan
-Z dfc557039abb487a066c3b1315c8284c
+P c9f3d9c2a92344d10da9142f90acf2f76ad94577e0c9eca28afab52a5c4152df
+R eb534d9926fbddcd00c1611d3e0d542e
+U drh
+Z 3c3a59c020e78bdca2242aa9747854dd
