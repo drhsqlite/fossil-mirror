@@ -2129,10 +2129,58 @@ int db_allow_symlinks(void){
 }
 
 /*
+** Return TRUE if the file in the argument seems like it might be an
+** SQLite database file that contains a Fossil repository schema.
+*/
+int db_looks_like_a_repository(const char *zDbName){
+  sqlite3 *db = 0;
+  i64 sz;
+  int rc;
+  int res = 0;
+  sqlite3_stmt *pStmt = 0;
+
+  sz = file_size(zDbName, ExtFILE);
+  if( sz<16834 ) return 0;
+  if( sz & 0x1ff ) return 0;
+  rc = sqlite3_open(zDbName, &db);
+  if( rc ) goto is_repo_end;
+  rc = sqlite3_prepare_v2(db, 
+       "SELECT count(*) FROM sqlite_schema"
+       " WHERE name COLLATE nocase IN"
+       "('blob','delta','rcvfrom','user','config','mlink','plink');",
+       -1, &pStmt, 0);
+  if( rc ) goto is_repo_end;
+  rc = sqlite3_step(pStmt);
+  if( rc!=SQLITE_ROW ) goto is_repo_end;
+  if( sqlite3_column_int(pStmt, 0)!=7 ) goto is_repo_end;
+  res = 1;
+
+is_repo_end:
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return res;
+}
+
+/*
+** COMMAND: test-is-repo
+*/
+void test_is_repo(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s: %s\n",
+       db_looks_like_a_repository(g.argv[i]) ? "yes" : " no",
+       g.argv[i]
+    );
+  }
+}
+
+
+/*
 ** Open the repository database given by zDbName.  If zDbName==NULL then
 ** get the name from the already open local database.
 */
 void db_open_repository(const char *zDbName){
+  i64 sz;
   if( g.repositoryOpen ) return;
   if( zDbName==0 ){
     if( g.localOpen ){
@@ -2142,7 +2190,10 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( file_access(zDbName, R_OK) || file_size(zDbName, ExtFILE)<1024 ){
+  if( file_access(zDbName, R_OK) 
+   || (sz = file_size(zDbName, ExtFILE))<16384
+   || (sz&0x1ff)!=0
+  ){
     if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
