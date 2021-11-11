@@ -56,6 +56,7 @@ static int client_sync_all_urls(
 
   sync_explain(syncFlags);
   nErr = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
+  if( nErr==0 ) url_remember();
   if( (syncFlags & SYNC_ALLURL)==0 ) return nErr;
   nOther = 0;
   azOther = 0;
@@ -257,7 +258,6 @@ static void process_sync_args(
   }
   url_parse(zUrl, urlFlags);
   remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
-  url_remember();
   if( g.url.protocol==0 ){
     if( urlOptional ) fossil_exit(0);
     usage("URL");
