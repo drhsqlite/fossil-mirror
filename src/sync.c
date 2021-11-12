@@ -616,6 +616,35 @@ remote_delete_default:
     db_commit_transaction();
     return;
   }
+  if( strncmp(zArg, "config-data", nArg)==0 ){
+    /* Undocumented command:  "fossil remote config-data"
+    **
+    ** Show the CONFIG table entries that relate to remembering remote URLs
+    */
+    Stmt q;
+    int n;
+    n = db_int(13,
+       "SELECT max(length(name))"
+       "  FROM config"
+       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
+    );
+    db_prepare(&q,
+       "SELECT name,"
+       "       CASE WHEN name LIKE '%%sync-pw%%'"
+                  " THEN printf('%%.*c',length(value),'*') ELSE value END"
+       "  FROM config"
+       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
+       " ORDER BY name LIKE '%%sync-pw%%', name"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%-*s  %s\n",
+        n, db_column_text(&q,0),
+        db_column_text(&q,1)
+      );
+    }
+    db_finalize(&q);
+    return;
+  }
   if( sqlite3_strlike("http://%",zArg,0)==0
    || sqlite3_strlike("https://%",zArg,0)==0
    || sqlite3_strlike("ssh:%",zArg,0)==0
