@@ -1,5 +1,5 @@
-C Add\slink\sto\s"embedded\sdoc"\sversion\sthe\sfile\sbeing\sviewed\svia\sthe\s/file\spage.
-D 2021-11-13T17:48:37.209
+C Minor\sdocumentation\stweaks.
+D 2021-11-13T19:33:26.974
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -826,7 +826,7 @@ F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
 F www/ckout-workflows.md ab6e6458629a8716980e3b11dfdb0123b199bc2444365ccf587b04938c20a588
 F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e854d
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
-F www/concepts.wiki 0ac8a4ae56914fa1d9049620f374ffda9734c26053fb5b343d7129f1bdaff0d5
+F www/concepts.wiki 4d0793a2c77e383604ba84608bca3bc2269f79fa08670144df68226a0dc6853c
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
@@ -983,10 +983,10 @@ F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
-F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
+F www/whyusefossil.wiki 30b7f556ead7c4c5bf2532776b7452e44901d124c164d7b6db4a8c06f35a508d
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cedac53a4728c8daa13f93abc54798086a98792f4098e2e32116b979276c88da
-R 192c1e713e7fb6f319c7066a8e769d1d
-U mgagnon
-Z b8e450e032f5cc959dab0066a3fedaac
+P d7c40d457507f88ff7717e01047bfe778eafa8f69485946c6d8606db9be459aa
+R f50bebf3da2ba34ed53484b68230157a
+U drh
+Z 9bbb210f540cbd65330dde7fa4b6e82f

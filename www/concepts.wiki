@@ -26,12 +26,12 @@ See also:
 R1: cylinder "Remote" "Repository" fill 0xadd8e6 rad 70%
 R2: cylinder same "Remote" "Repository" at 2.5*R1.wid right of R1
     spline <-> from R1.e to 0.6<R1.se,R2.sw> then to 0.4<R1.ne,R2.nw> then to R2.w
-    text "HTTP" at .5<R1.ne,R2.nw>
+    text "HTTPS" at .5<R1.ne,R2.nw>
 R3: cylinder same "Local" "Repository" fill 0x90ee90 \
     at dist(R1.e,R2.w) below .5<R1,R2>
-    spline <-> from .5<R1.s,R1.se> to 0.6<R1.s,R3.w> to 0.5<R1.se,R3.n> to .5<R3.nw,R3.n> "HTTP" \
-      behind R1
-    spline <-> from R2.sw to .6<R2.sw,R3.n> to .5<R2.s,R3.e> to R3.ne "HTTP" ljust
+    spline <-> from .5<R1.s,R1.se> to 0.6<R1.s,R3.w> to 0.5<R1.se,R3.n> to .5<R3.nw,R3.n> \
+      "HTTPS" above behind R1
+    spline <-> from R2.sw to .6<R2.sw,R3.n> to .5<R2.s,R3.e> to R3.ne "HTTPS" ljust
 T1: line from 1.0cm heading 200 from R3.sw go 2.2cm heading 150 then 2.2cm west close \
        fill 0xffff00 "Local" below "Source Tree" below
 T2: line from 1.0cm heading 160 from R3.se same "Local" below "Source Tree" below
@@ -93,7 +93,8 @@ except that instead of beginning with an existing local repository,
 a clone begins with nothing and creates a new local repository that
 is a duplicate of a remote repository.
 
-Communication between repositories is via HTTP.  Remote
+Communication between repositories is normally via HTTPS.  (SSH is also
+supported, as is unencrypted HTTP.) Remote
 repositories are identified by URL.  You can also point a web browser
 at a repository and get human-readable status, history, and tracking
 information about the project.
