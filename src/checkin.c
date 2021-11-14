@@ -1351,8 +1351,9 @@ static void prepare_commit_comment(
     if( g.aCommitFile ){
       FileDirList *diffFiles;
       int i;
-      diffFiles = fossil_malloc_zero((g.argc-1) * sizeof(*diffFiles));
-      for( i=0; g.aCommitFile[i]!=0; ++i ){
+      for(i=0; g.aCommitFile[i]!=0; ++i){}
+      diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
+      for(i=0; g.aCommitFile[i]!=0; ++i){
         diffFiles[i].zName  = db_text(0,
          "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
         if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
@@ -1363,7 +1364,7 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-       diff_against_disk(0, &DCfg, diffFiles, &prompt);
+      diff_against_disk(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }

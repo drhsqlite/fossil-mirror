@@ -3312,3 +3312,4 @@ void test_warning_page(void){
   @ <p>End of test</p>
   style_finish_page();
 }
+/*hi*/

@@ -4831,3 +4831,4 @@ int db_fingerprint_ok(void){
   fossil_free(zCkout);
   return rc;
 }
+/*hi*/
