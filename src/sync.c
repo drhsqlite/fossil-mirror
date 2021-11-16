@@ -706,4 +706,3 @@ void backup_cmd(void){
   db_unprotect(PROTECT_ALL);
   db_multi_exec("VACUUM repository INTO %Q", zDest);
 }
-/*hi*/
