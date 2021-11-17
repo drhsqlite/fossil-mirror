@@ -354,6 +354,18 @@ static void chat_emit_permissions_error(int fAsMessageList){
 ** it emits a JSON response in the same form as described for
 ** /chat-poll errors, but as a standalone object instead of a
 ** list of objects.
+**
+** Requests to this page should be POST, not GET.  POST parameters
+** include:
+**
+**    msg        The (Markdown) text of the message to be sent
+**
+**    file       The content of the file attachment
+**
+**    lmtime     ISO-8601 formatted date-time string showing the local time
+**               of the sender.
+**
+** At least one of the "msg" or "file" POST parameters must be provided.
 */
 void chat_send_webpage(void){
   int nByte;
@@ -767,7 +779,9 @@ void chat_download_webpage(void){
 ** a new entry with the current timestamp and with:
 **
 **   *  xmsg = NULL
+**
 **   *  file = NULL
+**
 **   *  mdel = The msgid of the row that was deleted
 **
 ** This new entry will then be propagated to all listeners so that they

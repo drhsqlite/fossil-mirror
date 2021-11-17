@@ -2540,6 +2540,7 @@ void artifact_page(void){
                           zName, zCI);
     style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
                           zName, zCI);
+    style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{
