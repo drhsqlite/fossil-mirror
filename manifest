@@ -1,5 +1,5 @@
-C Add\ssome\sline-number\sinformation\sto\sthe\sconflict\smarks\son\sa\s3-way\smerge.\nMore\swork\scould\sbe\sdone\shere,\sbut\sthis\sis\sa\sstart.
-D 2021-11-06T15:19:21.285
+C Document\show\sto\sadd\sHTTPS=on\sfor\sthe\scase\swhere\sFossil\sis\sused\sin\sCGI\smode\swith\sApache\sbehind\sNginx.
+D 2021-11-17T15:49:46.221
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -936,7 +936,7 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
 F www/selfhost.wiki 1fd025edaf770792a624efb9178d1fce212c578b35445df63b769720d1c359fc
 F www/server/any/althttpd.md fe4538a33990079b84d585ee8ba26df1b2c43cd147bc7aee18fa11ebfb2b6a20
-F www/server/any/cgi.md 56a20818656ab26eb2640671c869baffc20741153962557e3945c05c6b12ed98
+F www/server/any/cgi.md 6dc21692b83c7366968c3b001baac95b4327e232948697f001cbbd82603e0ca8
 F www/server/any/http-over-ssh.md 52ed3ad473026a50fbd5c9cd2c8df8006fef24e677448a23453dca4f2a95e6ff
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9c3e1340e98b2508cb1ec99655ed67e9d2e4a4498981c01d5ebc11c639ca8e46
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c1263754c66005d5697f9e98dbadb90e0e0d688e8564eebba8e3eaae59ebd0a
-R 2712d12544e6e057968e5bf6a7745939
-U drh
-Z 436177bc4ea98f504b053160309f5290
+P 14f44e933c0c0c2c6fef25909916d1a297c00fca89f51f1cb043f832eb0771a4
+R 92b9d6b5b13c216ca02abea8fe39f30a
+U danield
+Z 5d1ea9ea69ecb488223612089bf5f1da
