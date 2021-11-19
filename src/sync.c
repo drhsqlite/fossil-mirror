@@ -22,6 +22,80 @@
 #include <assert.h>
 
 /*
+** Explain what type of sync operation is about to occur
+*/
+static void sync_explain(unsigned syncFlags){
+  if( g.url.isAlias ){
+    if( (syncFlags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
+      fossil_print("Sync with %s\n", g.url.canonical);
+    }else if( syncFlags & SYNC_PUSH ){
+      fossil_print("Push to %s\n", g.url.canonical);
+    }else if( syncFlags & SYNC_PULL ){
+      fossil_print("Pull from %s\n", g.url.canonical);
+    }
+  }
+}
+
+
+/*
+** Call client_sync() one or more times in order to complete a
+** sync operation.  Usually, client_sync() is called only once, though
+** is can be called multiple times if the SYNC_ALLURL flags is set.
+*/
+static int client_sync_all_urls(
+  unsigned syncFlags,      /* Mask of SYNC_* flags */
+  unsigned configRcvMask,  /* Receive these configuration items */
+  unsigned configSendMask, /* Send these configuration items */
+  const char *zAltPCode    /* Alternative project code (usually NULL) */
+){
+  int nErr;
+  int nOther;
+  char **azOther;
+  int i;
+  Stmt q;
+
+  sync_explain(syncFlags);
+  nErr = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
+  if( nErr==0 ) url_remember();
+  if( (syncFlags & SYNC_ALLURL)==0 ) return nErr;
+  nOther = 0;
+  azOther = 0;
+  db_prepare(&q,
+    "SELECT substr(name,10) FROM config"
+    " WHERE name glob 'sync-url:*'"
+    "   AND value<>(SELECT value FROM config WHERE name='last-sync-url')"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    azOther = fossil_realloc(azOther, sizeof(*azOther)*(nOther+1));
+    azOther[nOther++] = fossil_strdup(zUrl);
+  }
+  db_finalize(&q);
+  for(i=0; i<nOther; i++){
+    int rc;
+    url_unparse(&g.url);
+    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
+    sync_explain(syncFlags);
+    rc = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
+    nErr += rc;
+    if( (g.url.flags & URL_REMEMBER_PW)!=0 && rc==0 ){
+      char *zKey = mprintf("sync-pw:%s", azOther[i]);
+      char *zPw = obscure(g.url.passwd);
+      if( zPw && zPw[0] ){
+        db_set(zKey/*works-like:""*/, zPw, 0);
+      }
+      fossil_free(zPw);
+      fossil_free(zKey);
+    }
+    fossil_free(azOther[i]);
+    azOther[i] = 0;
+  }
+  fossil_free(azOther);
+  return nErr;
+}
+
+
+/*
 ** If the repository is configured for autosyncing, then do an
 ** autosync.  Bits of the "flags" parameter determine details of behavior:
 **
@@ -50,10 +124,13 @@ int autosync(int flags){
   zAutosync = db_get("autosync", 0);
   if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
-  if( db_get_boolean("dont-push",0) || fossil_strncmp(zAutosync,"pull",4)==0 ){
+  if( db_get_boolean("dont-push",0) 
+   || sqlite3_strglob("*pull*", zAutosync)==0
+  ){
     flags &= ~SYNC_CKIN_LOCK;
     if( flags & SYNC_PUSH ) return 0;
   }
+  if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
   url_parse(0, URL_REMEMBER);
   if( g.url.protocol==0 ) return 0;
   if( g.url.user!=0 && g.url.passwd==0 ){
@@ -62,11 +139,14 @@ int autosync(int flags){
     url_prompt_for_password();
   }
   g.zHttpAuth = get_httpauth();
-  url_remember();
-  if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  fossil_print("Autosync:  %s\n", g.url.canonical);
-  url_enable_proxy("via proxy: ");
-  rc = client_sync(flags, configSync, 0, 0);
+  if( sqlite3_strglob("*all*", zAutosync)==0 ){
+    rc = client_sync_all_urls(flags|SYNC_ALLURL, configSync, 0, 0);
+  }else{
+    url_remember();
+    sync_explain(flags);
+    url_enable_proxy("via proxy: ");
+    rc = client_sync(flags, configSync, 0, 0);
+  }
   return rc;
 }
 
@@ -151,6 +231,9 @@ static void process_sync_args(
   if( find_option("no-http-compression",0,0)!=0 ){
     *pSyncFlags |= SYNC_NOHTTPCOMPRESS;
   }
+  if( find_option("all",0,0)!=0 ){
+    *pSyncFlags |= SYNC_ALLURL;
+  }
   url_proxy_options();
   clone_ssh_find_options();
   if( !uvOnly ) db_find_and_open_repository(0, 0);
@@ -159,6 +242,10 @@ static void process_sync_args(
     if( db_get_boolean("auto-shun",0) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
+    if( (*pSyncFlags) & SYNC_ALLURL ){
+      fossil_fatal("cannot use both the --all option and specific URL \"%s\"",
+          zUrl);
+    }
   }
   if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
    && db_get_boolean("uv-sync",0)
@@ -171,24 +258,15 @@ static void process_sync_args(
   }
   url_parse(zUrl, urlFlags);
   remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
-  url_remember();
   if( g.url.protocol==0 ){
     if( urlOptional ) fossil_exit(0);
     usage("URL");
   }
   user_select();
-  if( g.url.isAlias ){
-    if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      fossil_print("Sync with %s\n", g.url.canonical);
-    }else if( (*pSyncFlags) & SYNC_PUSH ){
-      fossil_print("Push to %s\n", g.url.canonical);
-    }else if( (*pSyncFlags) & SYNC_PULL ){
-      fossil_print("Pull from %s\n", g.url.canonical);
-    }
-  }
   url_enable_proxy("via proxy: ");
   *pConfigFlags |= configSync;
 }
+
 
 /*
 ** COMMAND: pull
@@ -207,6 +285,7 @@ static void process_sync_args(
 **
 ** Options:
 **
+**   --all                      Pull from all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --from-parent-project      Pull content from the parent project
@@ -239,7 +318,7 @@ void pull_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  client_sync(syncFlags, configFlags, 0, zAltPCode);
+  client_sync_all_urls(syncFlags, configFlags, 0, zAltPCode);
 }
 
 /*
@@ -259,6 +338,7 @@ void pull_cmd(void){
 **
 ** Options:
 **
+**   --all                      Push to all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --ipv4                     Use only IPv4, not IPv6
@@ -286,7 +366,7 @@ void push_cmd(void){
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
-  client_sync(syncFlags, 0, 0, 0);
+  client_sync_all_urls(syncFlags, 0, 0, 0);
 }
 
 
@@ -305,6 +385,7 @@ void push_cmd(void){
 **
 ** Options:
 **
+**   --all                      Sync with all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --ipv4                     Use only IPv4, not IPv6
@@ -334,10 +415,10 @@ void sync_cmd(void){
   verify_all_options();
 
   if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
-  client_sync(syncFlags, configFlags, 0, 0);
   if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
   }
+  client_sync_all_urls(syncFlags, configFlags, 0, 0);
 }
 
 /*
@@ -404,6 +485,12 @@ void sync_unversioned(unsigned syncFlags){
 **     To disable use of the default remote without forgetting its URL,
 **     say "fossil set autosync 0" instead.
 **
+** > fossil remote scrub
+**
+**     Forget any saved passwords for remote repositories, but continue
+**     to remember the URLs themselves.  You will be prompted for the
+**     password the next time it is needed.
+**
 ** > fossil remote REF
 **
 **     Make REF the new default URL, replacing the prior default.
@@ -416,6 +503,27 @@ void remote_url_cmd(void){
 
   /* We should be done with options.. */
   verify_all_options();
+
+  /* 2021-10-25: A note about data structures.
+  **
+  ** The remote URLs are stored in the CONFIG table.  The URL is stored
+  ** separately from the password.  The password is obscured using the
+  ** obscure() function.
+  **
+  ** Originally, Fossil only preserved a single remote URL.  That URL
+  ** is stored in "last-sync-url" and the password in "last-sync-pw".  The
+  ** ability to have multiple remotes was added later so these names
+  ** were retained for backwards compatibility.  The other remotes are
+  ** stored in "sync-url:NAME" and "sync-pw:NAME" where NAME is the name
+  ** of the remote.
+  **
+  ** The last-sync-url is called "default" for the display list.
+  **
+  ** The last-sync-url might be duplicated into one of the sync-url:NAME
+  ** entries.  Thus, when doing a "fossil sync --all" or an autosync with
+  ** autosync=all, each sync-url:NAME entry is checked to see if it is the
+  ** same as last-sync-url and if it is then that entry is skipped.
+  */ 
 
   if( g.argc==2 ){
     /* "fossil remote" with no arguments:  Show the last sync URL. */
@@ -496,6 +604,45 @@ remote_delete_default:
     db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:%q'", zName);
     db_protect_pop();
     db_commit_transaction();
+    return;
+  }
+  if( strncmp(zArg, "scrub", nArg)==0 ){
+    if( g.argc!=3 ) usage("scrub");
+    db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:*'");
+    db_multi_exec("DELETE FROM config WHERE name = 'last-sync-pw'");
+    db_protect_pop();
+    db_commit_transaction();
+    return;
+  }
+  if( strncmp(zArg, "config-data", nArg)==0 ){
+    /* Undocumented command:  "fossil remote config-data"
+    **
+    ** Show the CONFIG table entries that relate to remembering remote URLs
+    */
+    Stmt q;
+    int n;
+    n = db_int(13,
+       "SELECT max(length(name))"
+       "  FROM config"
+       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
+    );
+    db_prepare(&q,
+       "SELECT name,"
+       "       CASE WHEN name LIKE '%%sync-pw%%'"
+                  " THEN printf('%%.*c',length(value),'*') ELSE value END"
+       "  FROM config"
+       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
+       " ORDER BY name LIKE '%%sync-pw%%', name"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%-*s  %s\n",
+        n, db_column_text(&q,0),
+        db_column_text(&q,1)
+      );
+    }
+    db_finalize(&q);
     return;
   }
   if( sqlite3_strlike("http://%",zArg,0)==0

@@ -1823,6 +1823,7 @@ static const char zBriefFormat[] =
 #define SYNC_IFABLE         0x1000    /* Inability to sync is not fatal */
 #define SYNC_CKIN_LOCK      0x2000    /* Lock the current check-in */
 #define SYNC_NOHTTPCOMPRESS 0x4000    /* Do not compression HTTP messages */
+#define SYNC_ALLURL         0x8000    /* The --all flag - sync to all URLs */
 #endif
 
 /*

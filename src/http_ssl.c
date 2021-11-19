@@ -93,6 +93,46 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 }
 
 /*
+** Convert an OpenSSL ASN1_TIME to an ISO8601 timestamp.
+**
+** Per RFC 5280, ASN1 timestamps in X.509 certificates must 
+** be in UTC (Zulu timezone) with no fractional seconds.
+**
+** If showUtc==1, add " UTC" at the end of the returned string. This is
+** not ISO8601-compliant, but makes the displayed value more user-friendly.
+*/
+static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
+                                           int showUtc){
+  assert( showUtc==0 || showUtc==1 );
+  if( !ASN1_TIME_check(asn1_time) ){
+    return mprintf("Bad time value");
+  }else{
+    char res[20];
+    char *pr = res;
+    const char *pt = (char *)asn1_time->data;
+    /*                   0123456789 1234
+    **  UTCTime:         YYMMDDHHMMSSZ      (YY >= 50 ? 19YY : 20YY)
+    **  GeneralizedTime: YYYYMMDDHHMMSSZ */
+    if( asn1_time->length < 15 ){
+      /* UTCTime, fill out century digits */
+      *pr++ = pt[0]>='5' ? '1' : '2';
+      *pr++ = pt[0]>='5' ? '9' : '0';
+    }else{
+      /* GeneralizedTime, copy century digits and advance source */
+      *pr++ = pt[0]; *pr++ = pt[1];
+      pt += 2;
+    }
+    *pr++ = pt[0]; *pr++ = pt[1]; *pr++ = '-';
+    *pr++ = pt[2]; *pr++ = pt[3]; *pr++ = '-';
+    *pr++ = pt[4]; *pr++ = pt[5]; *pr++ = ' ';
+    *pr++ = pt[6]; *pr++ = pt[7]; *pr++ = ':';
+    *pr++ = pt[8]; *pr++ = pt[9]; *pr++ = ':';
+    *pr++ = pt[10]; *pr++ = pt[11]; *pr = '\0';
+    return mprintf("%s%s", res, (showUtc ? " UTC" : ""));
+  }
+}
+
+/*
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
@@ -103,7 +143,6 @@ void ssl_global_init(void){
   if( sslIsInit==0 ){
     SSL_library_init();
     SSL_load_error_strings();
-    ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();
     sslCtx = SSL_CTX_new(SSLv23_client_method());
     /* Disable SSLv2 and SSLv3 */
@@ -340,6 +379,13 @@ int ssl_open(UrlData *pUrlData){
     return 1;
   }
 
+  /* Debugging hint:   On unix-like system, run something like:
+  **
+  **     SSL_CERT_DIR=/tmp  ./fossil sync
+  **
+  ** to cause certificate validation to fail, and thus test the fallback
+  ** logic.
+  */
   if( !sslNoCertVerify && SSL_get_verify_result(ssl)!=X509_V_OK ){
     int x, desclen;
     char *desc, *prompt;
@@ -373,11 +419,15 @@ int ssl_open(UrlData *pUrlData){
     }else{
       /* Tell the user about the failure and ask what to do */
       mem = BIO_new(BIO_s_mem());
-      BIO_puts(mem,     "  subject: ");
+      BIO_puts(mem,     "  subject:   ");
       X509_NAME_print_ex(mem, X509_get_subject_name(cert), 0, XN_FLAG_ONELINE);
-      BIO_puts(mem,   "\n  issuer:  ");
+      BIO_puts(mem,   "\n  issuer:    ");
       X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 0, XN_FLAG_ONELINE);
-      BIO_printf(mem, "\n  sha256:  %s", zHash);
+      BIO_printf(mem, "\n  notBefore: %s",
+                 ssl_asn1time_to_iso8601(X509_get_notBefore(cert), 1));
+      BIO_printf(mem, "\n  notAfter:  %s",
+                 ssl_asn1time_to_iso8601(X509_get_notAfter(cert), 1));
+      BIO_printf(mem, "\n  sha256:    %s", zHash);
       desclen = BIO_get_mem_data(mem, &desc);
   
       prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
@@ -388,7 +438,9 @@ int ssl_open(UrlData *pUrlData){
       prompt_user(prompt, &ans);
       free(prompt);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' && fossil_stricmp(blob_str(&ans),zHash)!=0 ){
+      if( cReply!='y' && cReply!='Y'
+       && fossil_stricmp(blob_str(&ans),zHash)!=0
+      ){
         X509_free(cert);
         ssl_set_errmsg("SSL cert declined");
         ssl_close();

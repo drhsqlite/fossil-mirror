@@ -2320,9 +2320,19 @@ char *cgi_iso8601_datestamp(void){
     return mprintf("");
   }else{
     return mprintf("%04d-%02d-%02d %02d:%02d:%02d",
-                   pTm->tm_year+1900, pTm->tm_mon, pTm->tm_mday,
+                   pTm->tm_year+1900, pTm->tm_mon+1, pTm->tm_mday,
                    pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }
+}
+
+/*
+** COMMAND: test-date
+**
+** Show the current date and time in both RFC822 and ISO8601.
+*/
+void test_date(void){
+  fossil_print("%z = ", cgi_iso8601_datestamp());
+  fossil_print("%z\n", cgi_rfc822_datestamp(time(0)));
 }
 
 /*

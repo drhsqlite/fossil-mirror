@@ -76,7 +76,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
  <li><p>A single project typically has multiple, redundant repositories on
  separate machines.
  <li><p>All repositories stay synchronized with one another by exchanging
-     information via HTTP or SSH.
+     information via HTTPS or SSH.
  <li><p>All repos for a single project redundantly store all information
      about that project.  So if any one repo is lost due to a disk
      crash, all content is preserved in the surviving repos.
