@@ -370,13 +370,8 @@ static void rebuild_tag_trunk(void){
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
 ** from scratch.
-**
-** If the randomize parameter is true, then the BLOBs are deliberately
-** extracted in a random order.  This feature is used to test the
-** ability of fossil to accept records in any order and still
-** construct a sane repository.
 */
-int rebuild_db(int randomize, int doOut, int doClustering){
+int rebuild_db(int doOut, int doClustering){
   Stmt s, q;
   int errCnt = 0;
   int incrSize;
@@ -607,14 +602,12 @@ static void reconstruct_private_table(void){
 **   --noindex         Always omit the full-text search index
 **   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
 **   --quiet           Only show output if there are errors
-**   --randomize       Scan artifacts in a random order
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
 **   --wal             Set Write-Ahead-Log journalling mode on the database
 */
 void rebuild_database(void){
   int forceFlag;
-  int randomizeFlag;
   int errCnt = 0;
   int omitVerify;
   int doClustering;
@@ -634,7 +627,6 @@ void rebuild_database(void){
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
-  randomizeFlag = find_option("randomize", 0, 0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
   runDeanalyze = find_option("deanalyze",0,0)!=0;
@@ -681,7 +673,7 @@ void rebuild_database(void){
   if( !compressOnlyFlag ){
     search_drop_index();
     ttyOutput = 1;
-    errCnt = rebuild_db(randomizeFlag, 1, doClustering);
+    errCnt = rebuild_db(1, doClustering);
     reconstruct_private_table();
   }
   db_multi_exec(
@@ -965,7 +957,7 @@ void scrub_cmd(void){
     db_multi_exec("VACUUM;");
     db_protect_pop();
   }else{
-    rebuild_db(0, 1, 0);
+    rebuild_db(1, 0);
     db_end_transaction(0);
   }
 }
@@ -1257,7 +1249,7 @@ void reconstruct_cmd(void) {
   recon_read_dir(g.argv[3]);
   fossil_print("\nBuilding the Fossil repository...\n");
 
-  rebuild_db(0, 1, 1);
+  rebuild_db(1, 1);
 
   /* Backwards compatibility: Mark check-ins with "+private" tags as private. */
   reconstruct_private_table();

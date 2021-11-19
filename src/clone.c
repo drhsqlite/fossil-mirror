@@ -272,7 +272,7 @@ void clone_cmd(void){
                  " the clone is probably incomplete and unusable.");
   }
   fossil_print("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1, 0);
+  rebuild_db(1, 0);
   if( !noCompress ){
     fossil_print("Extra delta compression... "); fflush(stdout);
     extra_deltification();
