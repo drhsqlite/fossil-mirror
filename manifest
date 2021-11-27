@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.37.0\sbeta.
-D 2021-11-22T16:12:43.530
+C Fox\stypo\sin\sdocumentation,\sas\sreported\s\n[forum:/forumpost/599f8ad48e|on\sthe\sforum].
+D 2021-11-27T12:05:08.401
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -920,7 +920,7 @@ F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f297687
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
 F www/mkindex.tcl e84e0d0dc2bc00c14da915d0205992dc2bfb20c433b62c68a63881fefa7d0fe7 x
-F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
+F www/newrepo.wiki bbc20d277cfb9787824a4fc83cfec571b379e116a7765808d481370793c22611
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
 F www/permutedindex.html a00ef54c43544f68c50754c27d1297f4da6c0e83da71b98827f438b173f6a3e2
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 30b7f556ead7c4c5bf2532776b7452e44901d124c164d7b6db4a8c06f35a508d
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54ebad01169cc1dd5469581d5817e59820c6258ae2c8e0a60c7c91adac86917a
-R a8ba36a6d0dc0a523785de5bbe8858bd
+P f96e9dfad3164354481e3e346636a35927caed62b01fd7a5b891c52f4250e8ca
+R f5d926d3db4f35bb8f8c0d4149a71922
 U drh
-Z 5c184e1b22351896112be20b9db332d6
+Z 71329492a345104b44a3b61dd2af3cc3
