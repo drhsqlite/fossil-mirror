@@ -1,5 +1,5 @@
-C Fox\stypo\sin\sdocumentation,\sas\sreported\s\n[forum:/forumpost/599f8ad48e|on\sthe\sforum].
-D 2021-11-27T12:05:08.401
+C Removed\sdead\swikipedia\slink\sfrom\sinterwiki.md,\sreported\sin\s[forum:295d5bcc8b\s|\sforum\spost\s295d5bcc8b].
+D 2021-11-28T14:03:35.078
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -889,7 +889,7 @@ F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5b
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki cd75130a2f4f9a9d750a667022ba08b32b84e022cd1f7e8093655abe8b9c8f85
 F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
-F www/interwiki.md bdd1cc9e3f97ef0d7262470ffa866f4c40c346c880a2601c496ab06ffd88dd35
+F www/interwiki.md 42ea9a1d5eace76fde87aafb6169de968fa1174c8f2a2529cc6cbec61a0a8540
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 30b7f556ead7c4c5bf2532776b7452e44901d124c164d7b6db4a8c06f35a508d
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f96e9dfad3164354481e3e346636a35927caed62b01fd7a5b891c52f4250e8ca
-R f5d926d3db4f35bb8f8c0d4149a71922
-U drh
-Z 71329492a345104b44a3b61dd2af3cc3
+P 1764410aabe5c763719f261f9b3e0d00b32fe3cfdd5b15261d4895703d376df7
+R d9624fd5ab64588b2c17b9c20ee6a626
+U stephan
+Z b4ae5da9d4f35437717fb791946f367b
