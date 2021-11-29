@@ -1,5 +1,5 @@
-C Removed\sdead\swikipedia\slink\sfrom\sinterwiki.md,\sreported\sin\s[forum:295d5bcc8b\s|\sforum\spost\s295d5bcc8b].
-D 2021-11-28T14:03:35.078
+C Remove\sa\sdead\slink\sto\san\sexternal\sdescription\sof\sTH1\sfrom\sthe\sbugtheory.wiki\ndocument.\s\sReplace\sit\swith\sthe\sinternal\sTH1\sdocumentation.
+D 2021-11-29T00:05:51.457
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -802,7 +802,7 @@ F www/backup.md aad7d07b4e0b26bc56d2ca35ae6b8aa289c860037b2adb21035a2d06573222a1
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md e35729693c1342f8ce29934749b78b12e0cba91e683954612fd78d6dafc5b5e2
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
-F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
+F www/bugtheory.wiki 05d4c22d09171d3077d0662a940dfddd8290d34ea83b48847978ece08021c1fa
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
 F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 30b7f556ead7c4c5bf2532776b7452e44901d124c164d7b6db4a8c06f35a508d
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1764410aabe5c763719f261f9b3e0d00b32fe3cfdd5b15261d4895703d376df7
-R d9624fd5ab64588b2c17b9c20ee6a626
-U stephan
-Z b4ae5da9d4f35437717fb791946f367b
+P d5f322ef46286147018ae35d36bce1f88411c3bb8d7282a30b54902bee7941fe
+R 7285478bb545dc840c7468e4a23f230f
+U drh
+Z a59f3a66a0a122e38fdec433effa417b
