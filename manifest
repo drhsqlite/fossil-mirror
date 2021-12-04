@@ -1,5 +1,8 @@
-C Updated\sMINIMUM_SQLITE_VERSION\sto\s3.37,\sas\sreported\sin\s[forum:81cd206073\s|\sforum\spost\s81cd206073].
-D 2021-12-04T08:23:09.180
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+C diffcmd.c:\sFix\sa\stypo\sin\scomment\sfor\sfile_same_as_blob()
+D 2021-12-04T13:23:12.074
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -453,7 +456,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c 06600800f4dd59b00f7729ed0a1d6f1316073c6da289e7ee368907a0d68bb09c
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c cfd548b3f94c8a791a3fc3ca9ffde4ece6e0598deca50b4cfd8ac550308dbc66
+F src/diffcmd.c b0720c2b74db135e1284a890d158b2c4bc41a7c891d526f3b8529ae0ae2d788b
 F src/dispatch.c 5d92dfc903345990a4bc48fe7a6daa4759f0e008e07d0001fcbebe4f977c1c1a
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -986,7 +989,14 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 30b7f556ead7c4c5bf2532776b7452e44901d124c164d7b6db4a8c06f35a508d
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c128f93042ac8920eccb91fadcd6eace0458765ecd18a78c567bc103ec9056af
-R aa102306d0f59799c6a8d565b0cb571d
-U stephan
-Z a7db283ccae9c9cc70ab7934ee424078
+P ebea00c5bd0a06e3698d40ad965e0381ad21c305621d44fccc3cee48a1bf73f0
+R 7e6eadcb69b9efe83bc96c7f5f4b3c67
+U js
+Z 4357a8d5e25387288729390d5d11f588
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQQMxqxUHHrcczxkFhBjZwNXc5UxLwUCYatrwAAKCRBjZwNXc5Ux
+L/P9APwPC4W9UjE+ddGom81FcfsZzG/ZjFUYO1Phv0Nbi+1igAD8DZ6EES/4gTO3
+Jz5nfmfDwejYoTS2rRVpYms2pN6Qigc=
+=nQz7
+-----END PGP SIGNATURE-----
