@@ -1,5 +1,5 @@
-C Remove\sa\sdead\slink\sto\san\sexternal\sdescription\sof\sTH1\sfrom\sthe\sbugtheory.wiki\ndocument.\s\sReplace\sit\swith\sthe\sinternal\sTH1\sdocumentation.
-D 2021-11-29T00:05:51.457
+C Updated\sMINIMUM_SQLITE_VERSION\sto\s3.37,\sas\sreported\sin\s[forum:81cd206073\s|\sforum\spost\s81cd206073].
+D 2021-12-04T08:23:09.180
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -36,7 +36,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 7d0a4e5f3296516db2692356b9682f991416a990c64d4d9929e1ac7971480bb4
+F auto.def 7ebf7158be654a9f191cf603c1264d97d7b6fc17c6d3de7bba6a491f4b2b56e1
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -527,7 +527,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c d741fc6df0f1e44b0e47385c5ba18735f9a1a19c80e3b2ad64e6b4358976e8ce
+F src/main.c 5489280905c1812f71c992ceaef7aa7a0f3f90f68b628ead2864c75ce1665405
 F src/main.mk 26c53f45dcbb378ec24b6dd69567834250ceb2b21c4c31f3caa3482fe8f07887
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -986,7 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 30b7f556ead7c4c5bf2532776b7452e44901d124c164d7b6db4a8c06f35a508d
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5f322ef46286147018ae35d36bce1f88411c3bb8d7282a30b54902bee7941fe
-R 7285478bb545dc840c7468e4a23f230f
-U drh
-Z a59f3a66a0a122e38fdec433effa417b
+P c128f93042ac8920eccb91fadcd6eace0458765ecd18a78c567bc103ec9056af
+R aa102306d0f59799c6a8d565b0cb571d
+U stephan
+Z a7db283ccae9c9cc70ab7934ee424078
