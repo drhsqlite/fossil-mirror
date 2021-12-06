@@ -951,7 +951,7 @@ int win32_http_service(
 **              from the operating system. If TYPE is set to "auto", the service
 **              will be started automatically by the system during startup.
 **
-**         -U|--username USERNAME
+**         --username USERNAME
 **
 **              Specifies the user account which will be used to run the
 **              service. The account needs the "Logon as a service" right
@@ -1055,7 +1055,7 @@ void cmd_win32_service(void){
     const char *zAltBase    = find_option("baseurl", 0, 1);
     const char *zDisplay    = find_option("display", "D", 1);
     const char *zStart      = find_option("start", "S", 1);
-    const char *zUsername   = find_option("username", "U", 1);
+    const char *zUsername   = find_option("username", 0, 1);
     const char *zPassword   = find_option("password", "W", 1);
     const char *zPort       = find_option("port", "P", 1);
     const char *zNotFound   = find_option("notfound", 0, 1);

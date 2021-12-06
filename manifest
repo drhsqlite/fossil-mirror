@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-C diffcmd.c:\sFix\sa\stypo\sin\scomment\sfor\sfile_same_as_blob()
-D 2021-12-04T13:23:12.074
+C Disable\sthe\sshort\soption\sof\s`-U|--username\sUSERNAME'\sfor\sthe\s`winsrv'\scommand,\sas\sit\sconflicts\swith\sthe\sglobal\s`-U|--user\sUSER'\soption,\sand\scould\snever\sbe\sused,\sanyway.
+D 2021-12-06T07:24:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -639,7 +636,7 @@ F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
+F src/winhttp.c ab75eacf2ae2378f15330dd86c75b5802e4ad91a0e7c02273ad223d7ca1c3266
 F src/xfer.c c5e87f6a24f63fae0cf65c21eeb11305c9f62ae3fca0da7913d49362d56298be
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
@@ -989,14 +986,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 30b7f556ead7c4c5bf2532776b7452e44901d124c164d7b6db4a8c06f35a508d
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebea00c5bd0a06e3698d40ad965e0381ad21c305621d44fccc3cee48a1bf73f0
-R 7e6eadcb69b9efe83bc96c7f5f4b3c67
-U js
-Z 4357a8d5e25387288729390d5d11f588
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQQMxqxUHHrcczxkFhBjZwNXc5UxLwUCYatrwAAKCRBjZwNXc5Ux
-L/P9APwPC4W9UjE+ddGom81FcfsZzG/ZjFUYO1Phv0Nbi+1igAD8DZ6EES/4gTO3
-Jz5nfmfDwejYoTS2rRVpYms2pN6Qigc=
-=nQz7
------END PGP SIGNATURE-----
+P fb2d6374f5e34230bdeb2af3810f2804b1a6cbb25a105f8b95c52e896296e7cc
+R 7a448eeecb392a88d752dd329432587d
+U florian
+Z 2b307d6fa90b2caa5068c0f37ce80559
