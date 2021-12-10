@@ -394,8 +394,12 @@ void dbstat_cmd(void){
     fossil_print("%*s%,d\n", colWidth, "check-ins:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
     fossil_print("%*s%,d across all branches\n", colWidth, "files:", n);
-    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
-                  " WHERE tagname GLOB 'wiki-*'");
+    n = db_int(0, "SELECT count(*) FROM ("
+               "SELECT DISTINCT substr(tagname,6) "
+               "FROM tag JOIN tagxref USING('tagid')"
+               " WHERE tagname GLOB 'wiki-*'"
+               " AND TYPEOF(tagxref.value+0)='integer'"
+               ")");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
     fossil_print("%*s%,d (%,d changes)\n", colWidth, "wiki-pages:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
@@ -403,6 +407,7 @@ void dbstat_cmd(void){
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
     fossil_print("%*s%,d (%,d changes)\n", colWidth, "tickets:", n, m);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
+    fossil_print("%*s%,d\n", colWidth, "events:", n);
     if( db_table_exists("repository","forumpost") ){
       n = db_int(0, "SELECT count(*) FROM forumpost/*scan*/");
       if( n>0 ){
@@ -412,7 +417,6 @@ void dbstat_cmd(void){
                      n, nThread);
       }
     }
-    fossil_print("%*s%,d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
     fossil_print("%*s%,d\n", colWidth, "tag-changes:", n);
     z = db_text(0, "SELECT datetime(mtime) || ' - about ' ||"
