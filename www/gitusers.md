@@ -442,19 +442,21 @@ hash tree.
 ## <a id="slcom"></a> Summary Line Convention In Commit Comments
 
 The Git convention of a [length-limited summary line][lsl] at the start
-of commit comments has no equivalent in Fossil. You’re welcome to style
-your commit comments thus, but the convention isn’t used or enforced
-anywhere in Fossil. For instance, setting `EDITOR=vim` and making a
-commit doesn’t do syntax highlighting on the commit message to warn that
-you’ve gone over the conventional limit on the first line, and the
-Fossil web timeline display doesn’t show the summary line in bold.
+of commit comments is not enforced or obeyed by default in Fossil.
+However, there is a setting under Admin → Timeline → “Truncate comment
+at first blank line (Git-style)” to change this for `/timeline`
+displays.  Alternately, you could enable the “Allow block-markup in
+timeline” setting under Admin → Timeline, then apply [local skin
+customizations][cskin] to put that first comment in in bold or whatever
+suits.
 
-If you wish to follow such conventions in a Fossil project, you may want
-to enable the “Allow block-markup in timeline” setting under Admin →
-Timeline in the web UI to prevent Fossil from showing the message as a
-single paragraph, sans line breaks. [Skin customization][cskin] would
-allow you to style the first line of the commit message in bold in
-`/timeline` views.
+Because this isn’t a typical Fossil convention, you’re likely to find
+other odd differences between it and Git-based infrastructure.  For
+instance, Vim doesn’t ship with syntax support for Fossil commit
+messages if you set `EDITOR=vim` in your shell environment, so you won’t
+get over-limit highlighting for first-line text beyond the 50th
+character and such, because it doesn’t recognize Fossil commit messages
+and apply similar rules as to Git commit messages.
 
 [cskin]: ./customskin.md
 [lsl]:   https://chris.beams.io/posts/git-commit/#limit-50

@@ -1,5 +1,5 @@
-C Extracted\sthe\sglossary\sto\sa\snew\sdocument\sfrom\sthe\sold\s"why\suse\sFossil"\ndoc,\sexpanded\sit\sconsiderably,\sconverted\sit\sfrom\sWiki\sto\sMarkdown,\sand\nupdated\sthe\slinks\sto\spoint\sto\sits\snew\slocation.
-D 2021-12-12T15:41:29.069
+C The\s"Summary\sLine\sConvention\sIn\sCommit\sComments"\ssection\sin\sgitusers.md\nnow\scovers\sthe\srelated\ssetting\sunder\sAdmin\s->\sTimeline.
+D 2021-12-12T16:18:55.103
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -874,7 +874,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md a91246b9e9ffea79be1ef61412fa103964509a9fd035ab6a353434603c78ecec
+F www/gitusers.md 64bc9b1dc811cbc32cd76c04effd063e7154dd8950fa384ad8c90898a780fb71
 F www/globs.md 4bc9898e3f228ca63fb7c599bcd8cab041ad7cb30006b7ef893c2094ac5dbee1
 F www/glossary.md 75de086c7cd88bac3dd398d9250c0c17dc066c9d91f437beb442f858c788e8f1
 F www/grep.md c50868f95cce9b135240e8fc8d8998d01cf6a8f25c5c5d8ab56f48df1a4277f6
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 28a60efcf99db20350b555c932a0a33c8ceca91725dc609c4cec7a082802add0
-R e8485508d7401498df91e02863c8cef0
+P a58d952fa68c1955fbf5f49cbfa406aa043fd4adee94aa6e0f2fc18d7480de8b
+R c6b4d4217db28b3138263ca641e8d0fd
 U wyoung
-Z 1e82eae501887a76671ebf8d76808a90
+Z 6fb00b8bef7520a17345dd01b22811ba
