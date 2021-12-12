@@ -5,7 +5,7 @@
      [./quotes.wiki | Quotes] about Fossil and other DVCSes.
   *  [./faq.wiki | Frequently Asked Questions]
   *  The [./concepts.wiki | concepts] behind Fossil.
-     [./whyusefossil.wiki#definitions | Another viewpoint].
+     [./glossary.md | Another viewpoint].
   *  [./quickstart.wiki | Quick Start] guide to using Fossil.
   *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
   *  [./build.wiki | Compiling and Installing]

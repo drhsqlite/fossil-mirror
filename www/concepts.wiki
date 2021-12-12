@@ -17,8 +17,8 @@ behind Fossil.
 
 See also:
 
-  *  [./whyusefossil.wiki#definitions|Definitions]
-  *  [./quickstart.wiki|Quick start guide]
+  *  [./glossary.md | Glossary]
+  *  [./quickstart.wiki | Quick start guide]
 
 <h2>2.0 Composition Of A Project</h2>
 

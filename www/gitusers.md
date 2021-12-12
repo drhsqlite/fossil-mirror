@@ -133,52 +133,6 @@ We think this is a more sensible command design than `git pull` vs
 [gcokoan]: https://stevelosh.com/blog/2013/04/git-koans/#s2-one-thing-well
 
 
-#### <a id="rname"></a> Naming Repositories
-
-The Fossil repository database file can be named anything
-you want, with a single exception: if you’re going to use the
-[`fossil server DIRECTORY`][server] feature, the repositories you wish
-to serve need to be stored together in a flat directory and have
-"`.fossil`" suffixes. That aside, you can follow any other convention that
-makes sense to you.
-
-This author uses a scheme like the following on mobile machines that
-shuttle between home and the office:
-
-``` pikchr toggle indent
-scale=0.8
-box "~/museum/" fit
-move right 0.1
-line right dotted
-move right 0.05
-box invis "where one stores valuable fossils" ljust
-
-arrow down 50% from first box.s then right 50%
-box "work/" fit
-move right 0.1
-line dotted
-move right 0.05
-box invis "projects from $dayjob" ljust
-
-arrow down 50% from 2nd vertex of previous arrow then right 50%
-box "home/" fit
-move right 0.1
-line dotted right until even with previous line.end
-move right 0.05
-box invis "personal at-home projects" ljust
-
-arrow down 50% from 2nd vertex of previous arrow then right 50%
-box "other/" fit
-move right 0.1
-line dotted right until even with previous line.end
-move right 0.05
-box invis "clones of Fossil itself, SQLite, etc." ljust
-```
-
-On a Windows box, you might instead choose "`C:\Fossils`"
-and do without the subdirectory scheme, for example.
-
-
 #### <a id="close" name="dotfile"></a> Closing a Check-Out
 
 The [`fossil close`][close] command dissociates a check-out directory from the
@@ -326,7 +280,7 @@ repo DB file or what you name it.
 
 [clone]:  /help?cmd=clone
 [close]:  /help?cmd=close
-[gloss]:  ./whyusefossil.wiki#definitions
+[gloss]:  ./glossary.md
 [open]:   /help?cmd=open
 [set]:    /help?cmd=setting
 [server]: /help?cmd=server
