@@ -3588,7 +3588,7 @@ void cmd_open(void){
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
-  keepFlag = find_option("keep",0,0)!=0;
+  keepFlag = find_option("keep","k",0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;

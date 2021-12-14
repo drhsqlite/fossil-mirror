@@ -1,5 +1,5 @@
-C The\s"Summary\sLine\sConvention\sIn\sCommit\sComments"\ssection\sin\sgitusers.md\nnow\scovers\sthe\srelated\ssetting\sunder\sAdmin\s->\sTimeline.
-D 2021-12-12T16:18:55.103
+C Add\s'-k'\sas\sshort\soption\sfor\s'--keep'\sin\s'fossil\sopen',\sper\sforum\sobservation.
+D 2021-12-14T14:45:52.217
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -444,7 +444,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c dc195f567fc65cba7dddeac459da32980da47bf0cc025a2078ddb23623215477
+F src/db.c 34c899575f7d8798a9021b655fc4ae6a1de463cfe0dddc1ba0d8f055630f1539
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a58d952fa68c1955fbf5f49cbfa406aa043fd4adee94aa6e0f2fc18d7480de8b
-R c6b4d4217db28b3138263ca641e8d0fd
-U wyoung
-Z 6fb00b8bef7520a17345dd01b22811ba
+P c33ffed3ebfe4beaaaf48325780afe50d8bba10067ed89906917e2e374f90e26
+R c57bdb082e2d1e12197fba05a6add19f
+U danield
+Z 9521a62d9391e9f1a08d36b63463fbcf
