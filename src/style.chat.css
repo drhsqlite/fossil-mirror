@@ -42,9 +42,7 @@ body.chat .message-widget-content {
   white-space: normal;
 }
 body.chat.monospace-messages .message-widget-content,
-/*body.chat.monospace-messages textarea,*/
-/*body.chat.monospace-messages input[type=text],*/
-body.chat.monospace-messages #chat-input-field{
+body.chat.monospace-messages .chat-input-field{
   font-family: monospace;  
 }
 body.chat .message-widget-content > * {
@@ -60,6 +58,27 @@ body.chat .message-widget-content > .markdown > *:first-child {
 body.chat .message-widget-content > .markdown > *:last-child {
   margin-bottom: 0;
 }
+body.chat .message-widget-content.error .buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+body.chat .message-widget-content.error .buttons > button {
+  margin: 0.25em;
+}
+
+body.chat .message-widget-content.error a {
+  color: inherit;
+}
+body.chat .message-widget-content.error .failed-message {
+  display: flex;
+  flex-direction: column;
+}
+body.chat .message-widget-content.error .failed-message textarea {
+  min-height: 5rem;
+}
+
 /* User name and timestamp (a LEGEND-like element) */
 body.chat .message-widget .message-widget-tab {
   border-radius: 0.25em 0.25em 0 0;
@@ -183,24 +202,36 @@ body.chat:not(.chat-only-mode) #chat-input-area{
      for FF/Chrome (and 2em is a *huge* waste of space for those). */
   margin-bottom: 0;
 }
-#chat-input-field {
-  display: inline-block/*supposed workaround for Chrome weirdness*/;
-  padding: 0.2em;
+.chat-input-field {
   flex: 10 1 auto;
-  background-color: rgba(156,156,156,0.3);
+  margin: 0;
+}
+#chat-input-field-x,
+#chat-input-field-multi {
   overflow: auto;
   resize: vertical;
 }
-#chat-input-field:empty::before {
+#chat-input-field-x {
+  display: inline-block/*supposed workaround for Chrome weirdness*/;
+  padding: 0.2em;
+  background-color: rgba(156,156,156,0.3);
+  white-space: pre-wrap;
+  /* ^^^ Firefox, when pasting plain text into a contenteditable field,
+     loses all newlines unless we explicitly set this. Chrome does not. */
+  cursor: text;
+  /* ^^^ In some browsers the cursor may not change for a contenteditable
+     element until it has focus, causing potential confusion. */
+}
+#chat-input-field-x:empty::before {
   content: attr(data-placeholder);
   opacity: 0.6;
 }
-#chat-input-field:not(:focus){
+.chat-input-field:not(:focus){
   border-width: 1px;
   border-style: solid;
   border-radius: 0.25em;
 }
-#chat-input-field:focus{
+.chat-input-field:focus{
   /* This transparent border helps avoid the text shifting around
      when the contenteditable attribute causes a border (which we
      apparently cannot style) to be added. */
@@ -211,16 +242,16 @@ body.chat:not(.chat-only-mode) #chat-input-area{
 }
 /* Widget holding the chat message input field, send button, and
    settings button. */
-body.chat #chat-input-line {
+body.chat #chat-input-line-wrapper {
   display: flex;
   flex-direction: row;
   align-items: stretch;
   flex-wrap: nowrap;
 }
-/*body.chat #chat-input-line:not(.compact) {
+/*body.chat #chat-input-line-wrapper:not(.compact) {
   flex-wrap: nowrap;
 }*/
-body.chat #chat-input-line.compact {
+body.chat #chat-input-line-wrapper.compact {
   /* "The problem" with wrapping, together with a contenteditable input
      field, is that the latter grows as the user types, so causes
      wrapping to happen while they type, then to unwrap as soon as the
@@ -237,7 +268,7 @@ body.chat #chat-input-line.compact {
      stable positions.
  */
 }
-body.chat #chat-input-line.compact #chat-input-field {
+body.chat #chat-input-line-wrapper.compact #chat-input-field-x {
 }
 
 body.chat #chat-buttons-wrapper {
@@ -251,7 +282,7 @@ body.chat #chat-buttons-wrapper {
   /*keep buttons stable at bottom/right even when input field
     resizes */;
 }
-body.chat #chat-input-line.compact #chat-buttons-wrapper {
+body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper {
   flex-direction: row;
   flex: 1 1 auto;
   align-self: stretch;
@@ -269,8 +300,8 @@ body.chat #chat-buttons-wrapper > .cbutton {
   border-radius: 0.25em;
   min-width: 4ex;
   max-width: 4ex;
-  min-height: 4ex;
-  max-height: 4ex;
+  min-height: 3ex;
+  max-height: 3ex;
   margin: 0.125em;
   display: inline-flex;
   justify-content: center;
@@ -281,7 +312,7 @@ body.chat #chat-buttons-wrapper > .cbutton {
 body.chat #chat-buttons-wrapper > .cbutton:hover {
   background-color: rgba(200,200,200,0.3);
 }
-body.chat #chat-input-line.compact #chat-buttons-wrapper > .cbutton {
+body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper > .cbutton {
   margin: 2px 0.125em 0 0.125em;
   min-width: 6ex;
   max-width: 6ex;
@@ -289,16 +320,15 @@ body.chat #chat-input-line.compact #chat-buttons-wrapper > .cbutton {
   max-height: 2.3ex;
   font-size: 120%;
 }
-body.chat #chat-input-line.compact #chat-buttons-wrapper #chat-button-submit {
+body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper #chat-button-submit {
   min-width: 12ex;
 }
-body.chat #chat-input-line:not(.compact) #chat-input-field {
-  /*border-left-style: double;
-  border-left-width: 3px;
-  border-right-style: double;
-  border-right-width: 3px;*/
+.chat-input-field {
+  font-family: inherit
+}
+body.chat #chat-input-line-wrapper:not(.compact) #chat-input-field-multi,
+body.chat #chat-input-line-wrapper:not(.compact) #chat-input-field-x {
   min-height: 4rem;
-  /*max-height: 50rem;*/
 /*
   Problems related to max-height:
 
@@ -313,21 +343,21 @@ body.chat #chat-input-line:not(.compact) #chat-input-field {
   cannot manually expanded by the user.
 
   The lesser of the two evils seems to be to rely on the browser
-  feature that a manual resize of the element will pin its sits.
+  feature that a manual resize of the element will pin its size.
 */
 }
 
-body.chat #chat-input-line > #chat-button-settings{
+body.chat #chat-input-line-wrapper > #chat-button-settings{
   margin: 0 0 0 0.25em;
   max-width: 2em;
 }
-body.chat #chat-input-line > input[type=text],
-body.chat #chat-input-line > textarea {
+body.chat #chat-input-line-wrapper > input[type=text],
+body.chat #chat-input-line-wrapper > textarea {
   flex: 20 1 auto;
   max-width: revert;
   min-width: 20em;
 }
-body.chat #chat-input-line.compact > input[type=text] {
+body.chat #chat-input-line-wrapper.compact > input[type=text] {
   margin: 0 0 0.25em 0/* gap for if/when buttons wrap*/;
 }
 /* Widget holding the file selection control and preview */
@@ -363,7 +393,10 @@ body.chat #chat-drop-details {
   margin: auto;
   flex: 0;
 }
-
+body.chat #chat-drop-details:empty {
+  padding: 0;
+  margin: 0;
+}
 body.chat #chat-drop-details img {
   max-width: 45%;
   max-height: 45%;
@@ -391,33 +424,65 @@ body.chat #chat-config #chat-config-options {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  align-items: stretch;
 }
 body.chat #chat-config #chat-config-options .menu-entry {
   display: flex;
-  align-items: baseline;
-  flex-direction: row;
+  align-items: center;
+  flex-direction: row-reverse;
   flex-wrap: nowrap;
   padding: 1em;
+  flex: 1 1 auto;
+  align-self: stretch;
+}
+body.chat #chat-config #chat-config-options .menu-entry.parent{
+  border-radius: 1em 1em 0 1em;
+  margin-top: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry.child {
+  /*padding-left: 2.5em;*/
+  margin-left: 2em;
+}
+body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(even){
+  background-color: rgba(175,175,175,0.15);
+}
+body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(odd){
+  background-color: rgba(175,175,175,0.35);
+}
+body.chat #chat-config #chat-config-options .menu-entry:first-child {
+  /* Config list header */
+  border-radius: 0 0 1em 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry:first-child .label-wrapper {
+  align-items: start;
+}
+body.chat #chat-config #chat-config-options .menu-entry > .toggle-wrapper {
+  /* Holder for a checkbox, if any */
+  min-width: 1.5rem;
+  margin-right: 1rem;
+}
+body.chat #chat-config #chat-config-options .menu-entry .label-wrapper {
+  /* Wrapper for a LABEL and a .hint element. */
+  display: flex;
+  flex-direction: column;
+  align-self: baseline;
+  flex: 1 1 auto;
+}
+body.chat #chat-config #chat-config-options .menu-entry label {
+  /* Config option label. */
+  font-weight: bold;
+  white-space: initial;
 }
 body.chat #chat-config #chat-config-options .menu-entry label[for] {
   cursor: pointer;
 }
-body.chat #chat-config #chat-config-options .menu-entry > *:first-child {
-  min-width: 1.5rem;
-}
-body.chat #chat-config #chat-config-options .menu-entry span.hint {
+body.chat #chat-config #chat-config-options .menu-entry .hint {
   /* Config menu hint text */
-  font-size: 80%;
+  font-size: 85%;
+  font-weight: normal;
   white-space: pre-wrap;
   display: inline-block;
-}
-body.chat #chat-config #chat-config-options .menu-entry:first-child {
-}
-body.chat #chat-config #chat-config-options .menu-entry div.label-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-self: baseline;
-  margin-left: 1em;
+  opacity: 0.85;
 }
 body.chat #chat-config #chat-config-options .menu-entry select {
 }

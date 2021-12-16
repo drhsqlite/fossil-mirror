@@ -555,6 +555,25 @@ void diff_file_mem(
 }
 
 /*
+** Return true if the disk file is identical to the Blob.  Return zero
+** if the files differ in any way.
+*/
+static int file_same_as_blob(Blob *blob, const char *zDiskFile){
+  Blob file;
+  int rc = 0;
+  if( blob_size(blob)!=file_size(zDiskFile, ExtFILE) ) return 0;
+  blob_zero(&file);
+  blob_read_from_file(&file, zDiskFile, ExtFILE);
+  if( blob_size(&file)!=blob_size(blob) ){
+    rc = 0;
+  }else{
+    rc = memcmp(blob_buffer(&file), blob_buffer(blob), blob_size(&file))==0;
+  }
+  blob_reset(&file);
+  return rc;
+}
+
+/*
 ** Run a diff between the version zFrom and files on disk.  zFrom might
 ** be NULL which means to simply show the difference between the edited
 ** files on disk and the check-out on which they are based.
@@ -674,8 +693,10 @@ void diff_against_disk(
       }else{
         blob_zero(&content);
       }
-      diff_print_index(zPathname, pCfg, pOut);
-      diff_file(&content, zFullName, zPathname, pCfg, pOut);
+      if( isChnged==0 || !file_same_as_blob(&content, zFullName) ){
+        diff_print_index(zPathname, pCfg, pOut);
+        diff_file(&content, zFullName, zPathname, pCfg, pOut);
+      }
       blob_reset(&content);
     }
     blob_reset(&fname);

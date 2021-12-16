@@ -495,7 +495,7 @@ void ci_tags_page(void){
   rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Check-in Information Error");
-    @ No such object: %h(g.argv[2])
+    @ No such object: %h(PD("name",""))
     style_finish_page();
     return;
   }
@@ -629,7 +629,7 @@ void ci_page(void){
   rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Check-in Information Error");
-    @ No such object: %h(g.argv[2])
+    @ No such object: %h(zName)
     style_finish_page();
     return;
   }
@@ -1950,7 +1950,7 @@ void jchunk_page(void){
   }
   content_get(rid, &content);
   g.isConst = 1;
-  cgi_set_content_type("text/json");
+  cgi_set_content_type("application/json");
   ln = 0;
   while( go && ln<iFrom ){
     go = blob_line(&content, &line);
@@ -2540,6 +2540,7 @@ void artifact_page(void){
                           zName, zCI);
     style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
                           zName, zCI);
+    style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{
@@ -3309,7 +3310,7 @@ void ci_edit_page(void){
   @ Propagate color to descendants</label></div>
   @ <div class='font-size-80'>Be aware that fixed background
   @ colors will not interact well with all available skins.
-  @ It is recommended that fossil be allowed to select these
+  @ It is recommended that Fossil be allowed to select these
   @ colors automatically so that it can take the skin's
   @ preferences into account.</div>
   @ </td></tr>

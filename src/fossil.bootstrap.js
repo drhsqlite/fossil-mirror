@@ -293,4 +293,34 @@
   };
   F.onPageLoad(()=>F.page.setPageTitle.$orig
                = document.querySelector('title').innerText);
+  /**
+     Returns a function, that, as long as it continues to be invoked,
+     will not be triggered. The function will be called after it stops
+     being called for N milliseconds. If `immediate` is passed, call
+     the callback immediately and hinder future invocations until at
+     least the given time has passed.
+
+     If passed only 1 argument, or passed a falsy 2nd argument,
+     the default wait time set in this function's $defaultDelay
+     property is used.
+
+     Source: underscore.js, by way of https://davidwalsh.name/javascript-debounce-function
+  */
+  F.debounce = function f(func, wait, immediate) {
+    var timeout;
+    if(!wait) wait = f.$defaultDelay;
+    return function() {
+      const context = this, args = Array.prototype.slice.call(arguments);
+      const later = function() {
+        timeout = undefined;
+        if(!immediate) func.apply(context, args);
+      };
+      const callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if(callNow) func.apply(context, args);
+    };
+  };
+  F.debounce.$defaultDelay = 500 /*arbitrary*/;
+
 })(window);

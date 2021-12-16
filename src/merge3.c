@@ -118,17 +118,18 @@ static int output_one_side(
   Blob *pSrc,     /* The edited file that is to be copied to pOut */
   int *aC,        /* Array of integer triples describing the edit */
   int i,          /* Index in aC[] of current location in pSrc */
-  int sz          /* Number of lines in unedited source to output */
+  int sz,         /* Number of lines in unedited source to output */
+  int *pLn        /* Line number counter */
 ){
   while( sz>0 ){
     if( aC[i]==0 && aC[i+1]==0 && aC[i+2]==0 ) break;
     if( aC[i]>=sz ){
-      blob_copy_lines(pOut, pSrc, sz);
+      blob_copy_lines(pOut, pSrc, sz);  *pLn += sz;
       aC[i] -= sz;
       break;
     }
-    blob_copy_lines(pOut, pSrc, aC[i]);
-    blob_copy_lines(pOut, pSrc, aC[i+2]);
+    blob_copy_lines(pOut, pSrc, aC[i]);      *pLn += aC[i];
+    blob_copy_lines(pOut, pSrc, aC[i+2]);    *pLn += aC[i+2];
     sz -= aC[i] + aC[i+1];
     i += 3;
   }
@@ -140,10 +141,10 @@ static int output_one_side(
 */
 static const char *const mergeMarker[] = {
  /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
-  "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<",
-  "||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||",
-  "======= MERGED IN content follows ==================================",
-  ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<",
+  "||||||| COMMON ANCESTOR content follows |||||||||||||||||||||||||",
+  "======= MERGED IN content follows ===============================",
+  ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 };
 
 /*
@@ -179,6 +180,16 @@ void ensure_line_end(Blob *pBlob, int useCrLf){
 }
 
 /*
+** Write out one of the four merge-marks.
+*/
+void append_merge_mark(Blob *pOut, int iMark, int ln, int useCrLf){
+  ensure_line_end(pOut, useCrLf);
+  blob_append(pOut, mergeMarker[iMark], -1);
+  if( ln>0 ) blob_appendf(pOut, " (line %d)", ln);
+  ensure_line_end(pOut, useCrLf);
+}
+
+/*
 ** Do a three-way merge.  Initialize pOut to contain the result.
 **
 ** The merge is an edit against pV2.  Both pV1 and pV2 have a
@@ -198,6 +209,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
   int useCrLf = 0;
+  int ln1, ln2, lnPivot; /* Line numbers for all files */
   DiffConfig DCfg;
 
   blob_zero(pOut);         /* Merge results stored in pOut */
@@ -261,6 +273,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** processed
   */
   i1 = i2 = 0;
+  ln1 = ln2 = lnPivot = 1;
   while( i1<limit1 && i2<limit2 ){
     DEBUG( printf("%d: %2d %2d %2d   %d: %2d %2d %2d\n",
            i1/3, aC1[i1], aC1[i1+1], aC1[i1+2],
@@ -270,9 +283,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       /* Output text that is unchanged in both V1 and V2 */
       nCpy = min(aC1[i1], aC2[i2]);
       DEBUG( printf("COPY %d\n", nCpy); )
-      blob_copy_lines(pOut, pPivot, nCpy);
-      blob_copy_lines(0, pV1, nCpy);
-      blob_copy_lines(0, pV2, nCpy);
+      blob_copy_lines(pOut, pPivot, nCpy); lnPivot += nCpy;
+      blob_copy_lines(0, pV1, nCpy);       ln1 += nCpy;
+      blob_copy_lines(0, pV2, nCpy);       ln2 += nCpy;
       aC1[i1] -= nCpy;
       aC2[i2] -= nCpy;
     }else
@@ -281,9 +294,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       nDel = aC2[i2+1];
       nIns = aC2[i2+2];
       DEBUG( printf("EDIT -%d+%d left\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);
-      blob_copy_lines(0, pV1, nDel);
-      blob_copy_lines(pOut, pV2, nIns);
+      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
+      blob_copy_lines(0, pV1, nDel);       ln1 += nDel;
+      blob_copy_lines(pOut, pV2, nIns);    ln2 += nIns;
       aC1[i1] -= nDel;
       i2 += 3;
     }else
@@ -292,9 +305,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
       DEBUG( printf("EDIT -%d+%d right\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);
-      blob_copy_lines(0, pV2, nDel);
-      blob_copy_lines(pOut, pV1, nIns);
+      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
+      blob_copy_lines(0, pV2, nDel);       ln2 += nDel;
+      blob_copy_lines(pOut, pV1, nIns);    ln1 += nIns;
       aC2[i2] -= nDel;
       i1 += 3;
     }else
@@ -304,9 +317,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
       DEBUG( printf("EDIT -%d+%d both\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);
-      blob_copy_lines(pOut, pV1, nIns);
-      blob_copy_lines(0, pV2, nIns);
+      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
+      blob_copy_lines(pOut, pV1, nIns);    ln1 += nIns;
+      blob_copy_lines(0, pV2, nIns);       ln2 += nIns;
       i1 += 3;
       i2 += 3;
     }else
@@ -321,21 +334,17 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
         sz++;
       }
       DEBUG( printf("CONFLICT %d\n", sz); )
-      ensure_line_end(pOut, useCrLf);
-      blob_append(pOut, mergeMarker[0], -1);
-      ensure_line_end(pOut, useCrLf);
-      i1 = output_one_side(pOut, pV1, aC1, i1, sz);
-      ensure_line_end(pOut, useCrLf);
-      blob_append(pOut, mergeMarker[1], -1);
-      ensure_line_end(pOut, useCrLf);
-      blob_copy_lines(pOut, pPivot, sz);
-      ensure_line_end(pOut, useCrLf);
-      blob_append(pOut, mergeMarker[2], -1);
-      ensure_line_end(pOut, useCrLf);
-      i2 = output_one_side(pOut, pV2, aC2, i2, sz);
-      ensure_line_end(pOut, useCrLf);
-      blob_append(pOut, mergeMarker[3], -1);
-      ensure_line_end(pOut, useCrLf);
+
+      append_merge_mark(pOut, 0, ln1, useCrLf);
+      i1 = output_one_side(pOut, pV1, aC1, i1, sz, &ln1);
+
+      append_merge_mark(pOut, 1, lnPivot, useCrLf);
+      blob_copy_lines(pOut, pPivot, sz);   lnPivot += sz;
+
+      append_merge_mark(pOut, 2, ln2, useCrLf);
+      i2 = output_one_side(pOut, pV2, aC2, i2, sz, &ln2);
+
+      append_merge_mark(pOut, 3, -1, useCrLf);
    }
 
     /* If we are finished with an edit triple, advance to the next
@@ -380,8 +389,9 @@ int contains_merge_marker(Blob *p){
   assert( count(mergeMarker)==4 );
   for(i=0; i<n; ){
     for(j=0; j<4; j++){
-      if( (memcmp(&z[i], mergeMarker[j], len)==0)
-          && (i+1==n || z[i+len]=='\n' || z[i+len]=='\r') ) return 1;
+      if( (memcmp(&z[i], mergeMarker[j], len)==0) ){
+        return 1;
+      }
     }
     while( i<n && z[i]!='\n' ){ i++; }
     while( i<n && (z[i]=='\n' || z[i]=='\r') ){ i++; }

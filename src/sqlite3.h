@@ -146,9 +146,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.37.0"
-#define SQLITE_VERSION_NUMBER 3037000
-#define SQLITE_SOURCE_ID      "2021-10-04 11:10:15 8b24c177061c38361588f419eda9b7943b72a0c6b2855b6f39272451b8a1b813"
+#define SQLITE_VERSION        "3.38.0"
+#define SQLITE_VERSION_NUMBER 3038000
+#define SQLITE_SOURCE_ID      "2021-12-09 20:06:18 633bfeeea2bccdd44126acf3f61ecca163c9d933bdc787a2c18a697dc9406882"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -539,7 +539,6 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_CANTOPEN_CONVPATH       (SQLITE_CANTOPEN | (4<<8))
 #define SQLITE_CANTOPEN_DIRTYWAL       (SQLITE_CANTOPEN | (5<<8)) /* Not Used */
 #define SQLITE_CANTOPEN_SYMLINK        (SQLITE_CANTOPEN | (6<<8))
-#define SQLITE_CANTOPEN_EXISTS         (SQLITE_CANTOPEN | (7<<8))
 #define SQLITE_CORRUPT_VTAB            (SQLITE_CORRUPT | (1<<8))
 #define SQLITE_CORRUPT_SEQUENCE        (SQLITE_CORRUPT | (2<<8))
 #define SQLITE_CORRUPT_INDEX           (SQLITE_CORRUPT | (3<<8))
@@ -575,6 +574,19 @@ SQLITE_API int sqlite3_exec(
 ** These bit values are intended for use in the
 ** 3rd parameter to the [sqlite3_open_v2()] interface and
 ** in the 4th parameter to the [sqlite3_vfs.xOpen] method.
+**
+** Only those flags marked as "Ok for sqlite3_open_v2()" may be
+** used as the third argument to the [sqlite3_open_v2()] interface.
+** The other flags have historically been ignored by sqlite3_open_v2(),
+** though future versions of SQLite might change so that an error is
+** raised if any of the disallowed bits are passed into sqlite3_open_v2().
+** Applications should not depend on the historical behavior.
+**
+** Note in particular that passing the SQLITE_OPEN_EXCLUSIVE flag into
+** [sqlite3_open_v2()] does *not* cause the underlying database file
+** to be opened using O_EXCL.  Passing SQLITE_OPEN_EXCLUSIVE into
+** [sqlite3_open_v2()] has historically be a no-op and might become an
+** error in future versions of SQLite.
 */
 #define SQLITE_OPEN_READONLY         0x00000001  /* Ok for sqlite3_open_v2() */
 #define SQLITE_OPEN_READWRITE        0x00000002  /* Ok for sqlite3_open_v2() */
@@ -597,6 +609,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_OPEN_PRIVATECACHE     0x00040000  /* Ok for sqlite3_open_v2() */
 #define SQLITE_OPEN_WAL              0x00080000  /* VFS only */
 #define SQLITE_OPEN_NOFOLLOW         0x01000000  /* Ok for sqlite3_open_v2() */
+#define SQLITE_OPEN_EXRESCODE        0x02000000  /* Extended result codes */
 
 /* Reserved:                         0x00F00000 */
 /* Legacy compatibility: */
@@ -3417,20 +3430,30 @@ SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 ** the default shared cache setting provided by
 ** [sqlite3_enable_shared_cache()].)^
 **
+** [[OPEN_EXRESCODE]] ^(<dt>[SQLITE_OPEN_EXRESCODE]</dt>
+** <dd>The database connection comes up in "extended result code mode".
+** In other words, the database behaves has if
+** [sqlite3_extended_result_codes(db,1)] where called on the database
+** connection as soon as the connection is created. In addition to setting
+** the extended result code mode, this flag also causes [sqlite3_open_v2()]
+** to return an extended result code.</dd>
+**
 ** [[OPEN_NOFOLLOW]] ^(<dt>[SQLITE_OPEN_NOFOLLOW]</dt>
 ** <dd>The database filename is not allowed to be a symbolic link</dd>
-**
-** [[OPEN_EXCLUSIVE]] ^(<dt>[SQLITE_OPEN_EXCLUSIVE]</dt>
-** <dd>This flag causes the open to fail if the database file already
-** exists.  The open will only be success if this flag is used in combination
-** with the SQLITE_OPEN_CREATE and SQLITE_OPEN_READWRITE flags and if
-** the file does not previously exist.</dd>
 ** </dl>)^
 **
 ** If the 3rd parameter to sqlite3_open_v2() is not one of the
 ** required combinations shown above optionally combined with other
 ** [SQLITE_OPEN_READONLY | SQLITE_OPEN_* bits]
-** then the behavior is undefined.
+** then the behavior is undefined.  Historic versions of SQLite
+** have silently ignored surplus bits in the flags parameter to
+** sqlite3_open_v2(), however that behavior might not be carried through
+** into future versions of SQLite and so applications should not rely
+** upon it.  Note in particular that the SQLITE_OPEN_EXCLUSIVE flag is a no-op
+** for sqlite3_open_v2().  The SQLITE_OPEN_EXCLUSIVE does *not* cause
+** the open to fail if the database already exists.  The SQLITE_OPEN_EXCLUSIVE
+** flag is intended for use by the [sqlite3_vfs|VFS interface] only, and not
+** by sqlite3_open_v2().
 **
 ** ^The fourth parameter to sqlite3_open_v2() is the name of the
 ** [sqlite3_vfs] object that defines the operating system interface that
@@ -6393,6 +6416,72 @@ SQLITE_API void *sqlite3_commit_hook(sqlite3*, int(*)(void*), void*);
 SQLITE_API void *sqlite3_rollback_hook(sqlite3*, void(*)(void *), void*);
 
 /*
+** CAPI3REF: Autovacuum Compaction Amount Callback
+** METHOD: sqlite3
+**
+** ^The sqlite3_autovacuum_pages(D,C,P,X) interface registers a callback
+** function C that is invoked prior to each autovacuum of the database
+** file.  ^The callback is passed a copy of the generic data pointer (P),
+** the schema-name of the attached database that is being autovacuumed,
+** the the size of the database file in pages, the number of free pages,
+** and the number of bytes per page, respectively.  The callback should
+** return the number of free pages that should be removed by the
+** autovacuum.  ^If the callback returns zero, then no autovacuum happens.
+** ^If the value returned is greater than or equal to the number of
+** free pages, then a complete autovacuum happens.
+**
+** <p>^If there are multiple ATTACH-ed database files that are being
+** modified as part of a transaction commit, then the autovacuum pages
+** callback is invoked separately for each file.
+**
+** <p><b>The callback is not reentrant.</b> The callback function should
+** not attempt to invoke any other SQLite interface.  If it does, bad
+** things may happen, including segmentation faults and corrupt database
+** files.  The callback function should be a simple function that
+** does some arithmetic on its input parameters and returns a result.
+**
+** ^The X parameter to sqlite3_autovacuum_pages(D,C,P,X) is an optional
+** destructor for the P parameter.  ^If X is not NULL, then X(P) is
+** invoked whenever the database connection closes or when the callback
+** is overwritten by another invocation of sqlite3_autovacuum_pages().
+**
+** <p>^There is only one autovacuum pages callback per database connection.
+** ^Each call to the sqlite3_autovacuum_pages() interface overrides all
+** previous invocations for that database connection.  ^If the callback
+** argument (C) to sqlite3_autovacuum_pages(D,C,P,X) is a NULL pointer,
+** then the autovacuum steps callback is cancelled.  The return value
+** from sqlite3_autovacuum_pages() is normally SQLITE_OK, but might
+** be some other error code if something goes wrong.  The current
+** implementation will only return SQLITE_OK or SQLITE_MISUSE, but other
+** return codes might be added in future releases.
+**
+** <p>If no autovacuum pages callback is specified (the usual case) or
+** a NULL pointer is provided for the callback,
+** then the default behavior is to vacuum all free pages.  So, in other
+** words, the default behavior is the same as if the callback function
+** were something like this:
+**
+** <blockquote><pre>
+** &nbsp;   unsigned int demonstration_autovac_pages_callback(
+** &nbsp;     void *pClientData,
+** &nbsp;     const char *zSchema,
+** &nbsp;     unsigned int nDbPage,
+** &nbsp;     unsigned int nFreePage,
+** &nbsp;     unsigned int nBytePerPage
+** &nbsp;   ){
+** &nbsp;     return nFreePage;
+** &nbsp;   }
+** </pre></blockquote>
+*/
+SQLITE_API int sqlite3_autovacuum_pages(
+  sqlite3 *db,
+  unsigned int(*)(void*,const char*,unsigned int,unsigned int,unsigned int),
+  void*,
+  void(*)(void*)
+);
+
+
+/*
 ** CAPI3REF: Data Change Notification Callbacks
 ** METHOD: sqlite3
 **
@@ -7855,7 +7944,8 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_SEEK_COUNT              30
 #define SQLITE_TESTCTRL_TRACEFLAGS              31
 #define SQLITE_TESTCTRL_TUNE                    32
-#define SQLITE_TESTCTRL_LAST                    32  /* Largest TESTCTRL */
+#define SQLITE_TESTCTRL_LOGEST                  33
+#define SQLITE_TESTCTRL_LAST                    33  /* Largest TESTCTRL */
 
 /*
 ** CAPI3REF: SQL Keyword Checking
@@ -8378,6 +8468,16 @@ SQLITE_API int sqlite3_stmt_status(sqlite3_stmt*, int op,int resetFlg);
 ** The counter is incremented on the first [sqlite3_step()] call of each
 ** cycle.
 **
+** [[SQLITE_STMTSTATUS_FILTER_MISS]]
+** [[SQLITE_STMTSTATUS_FILTER HIT]]
+** <dt>SQLITE_STMTSTATUS_FILTER_HIT<br>
+** SQLITE_STMTSTATUS_FILTER_MISS</dt>
+** <dd>^SQLITE_STMTSTATUS_FILTER_HIT is the number of times that a join
+** step was bypassed because a Bloom filter returned not-found.  The
+** corresponding SQLITE_STMTSTATUS_FILTER_MISS value is the number of
+** times that the Bloom filter returned a find, and thus the join step
+** had to be processed as normal.
+**
 ** [[SQLITE_STMTSTATUS_MEMUSED]] <dt>SQLITE_STMTSTATUS_MEMUSED</dt>
 ** <dd>^This is the approximate number of bytes of heap memory
 ** used to store the prepared statement.  ^This value is not actually
@@ -8392,6 +8492,8 @@ SQLITE_API int sqlite3_stmt_status(sqlite3_stmt*, int op,int resetFlg);
 #define SQLITE_STMTSTATUS_VM_STEP           4
 #define SQLITE_STMTSTATUS_REPREPARE         5
 #define SQLITE_STMTSTATUS_RUN               6
+#define SQLITE_STMTSTATUS_FILTER_MISS       7
+#define SQLITE_STMTSTATUS_FILTER_HIT        8
 #define SQLITE_STMTSTATUS_MEMUSED           99
 
 /*

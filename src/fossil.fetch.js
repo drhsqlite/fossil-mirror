@@ -29,9 +29,14 @@ const fossil = namespace;
 
    - onerror: callback(Error object) (default = output error message
    to console.error() and fossil.error()). Triggered if the request
-   generates any response other than HTTP 200 or suffers a connection
-   error or timeout while awaiting a response. In the context of the
-   callback, the options object is "this".
+   generates any response other than HTTP 200, suffers a connection
+   error or timeout while awaiting a response, or if the onload()
+   handler throws an exception. In the context of the callback, the
+   options object is "this". Note that this function is intended to be
+   used solely for error reporting, not error recovery. Because
+   onerror() may be called if onload() throws, it is up to the caller
+   to ensure that their onerror() callback references only state which
+   is valid in such a case.
 
    - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 

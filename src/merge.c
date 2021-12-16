@@ -309,10 +309,6 @@ void test_show_vfile_cmd(void){
 **                           and do not try to merge parallel changes.  This
 **                           option overrides the "binary-glob" setting.
 **
-**   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
-**                           files whose names differ only in case are taken
-**                           to be the same file.
-**
 **   --cherrypick            Do a cherrypick merge VERSION into the current
 **                           checkout.  A cherrypick merge pulls in the changes
 **                           of the single check-in VERSION, rather than all

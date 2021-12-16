@@ -180,6 +180,9 @@ int transport_open(UrlData *pUrlData){
 #endif
     }else if( pUrlData->isFile ){
       sqlite3_uint64 iRandId;
+      if( !db_looks_like_a_repository(pUrlData->name) ){
+        fossil_fatal("not a fossil repository: \"%s\"", pUrlData->name);
+      }
       sqlite3_randomness(sizeof(iRandId), &iRandId);
       transport.zOutFile = mprintf("%s-%llu-out.http",
                                        g.zRepositoryName, iRandId);

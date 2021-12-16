@@ -1916,12 +1916,12 @@ int db_open_config(int useAttach, int isOptional){
       file_mkdir(zHome, ExtFILE, 0);
     }
     rc = file_access(zHome, W_OK);
-    fossil_free(zHome);
     if( rc ){
       if( isOptional ) return 0;
       fossil_fatal("home directory \"%s\" must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
+    fossil_free(zHome);
   }
   if( file_access(zDbName, W_OK) ){
     if( isOptional ) return 0;
@@ -2129,10 +2129,58 @@ int db_allow_symlinks(void){
 }
 
 /*
+** Return TRUE if the file in the argument seems like it might be an
+** SQLite database file that contains a Fossil repository schema.
+*/
+int db_looks_like_a_repository(const char *zDbName){
+  sqlite3 *db = 0;
+  i64 sz;
+  int rc;
+  int res = 0;
+  sqlite3_stmt *pStmt = 0;
+
+  sz = file_size(zDbName, ExtFILE);
+  if( sz<16834 ) return 0;
+  if( sz & 0x1ff ) return 0;
+  rc = sqlite3_open(zDbName, &db);
+  if( rc ) goto is_repo_end;
+  rc = sqlite3_prepare_v2(db, 
+       "SELECT count(*) FROM sqlite_schema"
+       " WHERE name COLLATE nocase IN"
+       "('blob','delta','rcvfrom','user','config','mlink','plink');",
+       -1, &pStmt, 0);
+  if( rc ) goto is_repo_end;
+  rc = sqlite3_step(pStmt);
+  if( rc!=SQLITE_ROW ) goto is_repo_end;
+  if( sqlite3_column_int(pStmt, 0)!=7 ) goto is_repo_end;
+  res = 1;
+
+is_repo_end:
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return res;
+}
+
+/*
+** COMMAND: test-is-repo
+*/
+void test_is_repo(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s: %s\n",
+       db_looks_like_a_repository(g.argv[i]) ? "yes" : " no",
+       g.argv[i]
+    );
+  }
+}
+
+
+/*
 ** Open the repository database given by zDbName.  If zDbName==NULL then
 ** get the name from the already open local database.
 */
 void db_open_repository(const char *zDbName){
+  i64 sz;
   if( g.repositoryOpen ) return;
   if( zDbName==0 ){
     if( g.localOpen ){
@@ -2142,7 +2190,10 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( file_access(zDbName, R_OK) || file_size(zDbName, ExtFILE)<1024 ){
+  if( file_access(zDbName, R_OK) 
+   || (sz = file_size(zDbName, ExtFILE))<16384
+   || (sz&0x1ff)!=0
+  ){
     if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
@@ -3503,7 +3554,7 @@ void db_record_repository_filename(const char *zName){
 **   -f|--force        Continue with the open even if the working directory is
 **                     not empty.
 **   --force-missing   Force opening a repository with missing content
-**   --keep            Only modify the manifest and manifest.uuid files
+**   -k|--keep         Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
 **   --nosync          Do not auto-sync the repository prior to opening
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
@@ -3511,6 +3562,8 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --verbose         If passed a URI then this flag is passed on to the clone
+**                     operation, otherwise it has no effect.
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
 **
@@ -3531,10 +3584,11 @@ void cmd_open(void){
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
   int bNosync = 0;               /* --nosync.  Omit auto-sync */
+  int bVerbose = 0;              /* --verbose option for clone */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
-  keepFlag = find_option("keep",0,0)!=0;
+  keepFlag = find_option("keep","k",0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
@@ -3542,6 +3596,7 @@ void cmd_open(void){
   zRepoDir = find_option("repodir",0,1);
   bForce = find_option("force","f",0)!=0;  
   bNosync = find_option("nosync",0,0)!=0;
+  bVerbose = find_option("verbose",0,0)!=0;
   zPwd = file_getcwd(0,0);
   
 
@@ -3584,7 +3639,9 @@ void cmd_open(void){
    && (nLocal>1 || isUri || !file_in_cwd(zRepo))
   ){
     fossil_fatal("directory %s is not empty\n"
-                 "use the -f or --force option to override", file_getcwd(0,0));
+                 "use the -f (--force) option to override\n"
+                 "or the -k (--keep) option to keep local files unchanged", 
+                 file_getcwd(0,0));
   }
 
   if( db_open_local_v2(0, allowNested) ){
@@ -3611,6 +3668,9 @@ void cmd_open(void){
     blob_init(&cmd, 0, 0);
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " clone", -1);
+    if(0!=bVerbose){
+      blob_append(&cmd, " --verbose", -1);
+    }
     blob_append_escaped_arg(&cmd, zUri, 1);
     blob_append_escaped_arg(&cmd, zRepo, 1);
     zCmd = blob_str(&cmd);
@@ -3809,11 +3869,16 @@ struct Setting {
 */
 /*
 ** SETTING: autosync        width=16 default=on
-** This setting can take either a boolean value or "pullonly"
-** If enabled, automatically pull prior to commit
+** This setting can be a boolean value  (0, 1, on, off, true, false)
+** or "pullonly" or "all".
+**
+** If not false, automatically pull prior to commit
 ** or update and automatically push after commit or
-** tag or branch creation.  If the value is "pullonly"
-** then only pull operations occur automatically.
+** tag or branch creation.  Except, if the value is
+** "pullonly" then only pull operations occur automatically.
+** Normally, only the default remote is used, but if the
+** value is "all" then push/pull operations occur on all
+** remotes.
 */
 /*
 ** SETTING: autosync-tries  width=16 default=1

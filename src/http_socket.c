@@ -245,9 +245,12 @@ void socket_ssh_resolve_addr(UrlData *pUrlData){
   struct addrinfo *ai = 0;
   struct addrinfo hints;
   char zRemote[NI_MAXHOST];
+  memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;
+  fossil_free(g.zIpAddr);
+  g.zIpAddr = 0;
   if( getaddrinfo(pUrlData->name, NULL, &hints, &ai)==0
    && ai!=0
    && getnameinfo(ai->ai_addr, ai->ai_addrlen, zRemote,

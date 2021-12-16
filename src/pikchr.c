@@ -6274,7 +6274,7 @@ static void pik_set_var(Pik *p, PToken *pId, PNum val, PToken *pOp){
 */
 static int pik_round(PNum v){
   if( isnan(v) ) return 0;
-  if( v < -2147483647 ) return -2147483648;
+  if( v < -2147483647 ) return (-2147483647-1);
   if( v >= 2147483647 ) return 2147483647;
   return (int)v;
 }

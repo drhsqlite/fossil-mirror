@@ -46,25 +46,25 @@
 ** The URL related data used with this subsystem.
 */
 struct UrlData {
-  int isFile;      /* True if a "file:" url */
-  int isHttps;     /* True if a "https:" url */
-  int isSsh;       /* True if an "ssh:" url */
-  int isAlias;     /* Input URL was an alias */
-  char *name;      /* Hostname for http: or filename for file: */
-  char *hostname;  /* The HOST: parameter on http headers */
+  int isFile;           /* True if a "file:" url */
+  int isHttps;          /* True if a "https:" url */
+  int isSsh;            /* True if an "ssh:" url */
+  int isAlias;          /* Input URL was an alias */
+  char *name;           /* Hostname for http: or filename for file: */
+  char *hostname;       /* The HOST: parameter on http headers */
   const char *protocol; /* "http" or "https" or "ssh" or "file" */
-  int port;        /* TCP port number for http: or https: */
-  int dfltPort;    /* The default port for the given protocol */
-  char *path;      /* Pathname for http: */
-  char *user;      /* User id for http: */
-  char *passwd;    /* Password for http: */
-  char *canonical; /* Canonical representation of the URL */
-  char *proxyAuth; /* Proxy-Authorizer: string */
-  char *fossil;    /* The fossil query parameter on ssh: */
-  unsigned flags;  /* Boolean flags controlling URL processing */
-  int useProxy;    /* Used to remember that a proxy is in use */
+  int port;             /* TCP port number for http: or https: */
+  int dfltPort;         /* The default port for the given protocol */
+  char *path;           /* Pathname for http: */
+  char *user;           /* User id for http: */
+  char *passwd;         /* Password for http: */
+  char *canonical;      /* Canonical representation of the URL */
+  char *proxyAuth;      /* Proxy-Authorizer: string */
+  char *fossil;         /* The fossil query parameter on ssh: */
+  unsigned flags;       /* Boolean flags controlling URL processing */
+  int useProxy;         /* Used to remember that a proxy is in use */
   char *proxyUrlPath;
-  int proxyOrigPort; /* Tunneled port number for https through proxy */
+  int proxyOrigPort;    /* Tunneled port number for https through proxy */
 };
 #endif /* INTERFACE */
 
@@ -143,7 +143,7 @@ void url_parse_local(
       pUrlData->isSsh = 1;
       pUrlData->protocol = "ssh";
       pUrlData->dfltPort = 22;
-      pUrlData->fossil = "fossil";
+      pUrlData->fossil = fossil_strdup("fossil");
       iStart = 6;
     }else{
       pUrlData->isHttps = 0;
@@ -228,7 +228,7 @@ void url_parse_local(
         i++;
       }
       if( fossil_strcmp(zName,"fossil")==0 ){
-        pUrlData->fossil = zValue;
+        pUrlData->fossil = fossil_strdup(zValue);
         dehttpize(pUrlData->fossil);
         fossil_free(zExe);
         zExe = mprintf("%cfossil=%T", cQuerySep, pUrlData->fossil);
@@ -249,7 +249,11 @@ void url_parse_local(
         pUrlData->path, zExe
       );
     }
-    if( pUrlData->isSsh && pUrlData->path[1] ) pUrlData->path++;
+    if( pUrlData->isSsh && pUrlData->path[1] ){
+      char *zOld = pUrlData->path;
+      pUrlData->path = mprintf("%s", zOld+1);
+      fossil_free(zOld);
+    }
     free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     pUrlData->isFile = 1;
@@ -282,7 +286,7 @@ void url_parse_local(
     free(zFile);
     zFile = 0;
     pUrlData->protocol = "file";
-    pUrlData->path = "";
+    pUrlData->path = mprintf("");
     pUrlData->name = mprintf("%b", &cfile);
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
@@ -312,6 +316,7 @@ void url_unparse(UrlData *p){
   fossil_free(p->path);
   fossil_free(p->user);
   fossil_free(p->passwd);
+  fossil_free(p->fossil);
   memset(p, 0, sizeof(*p));
 }
 
@@ -601,7 +606,7 @@ void url_prompt_for_password_local(UrlData *pUrlData){
    && (pUrlData->flags & URL_PROMPTED)==0
   ){
     pUrlData->flags |= URL_PROMPTED;
-    pUrlData->passwd = prompt_for_user_password(pUrlData->user);
+    pUrlData->passwd = prompt_for_user_password(pUrlData->canonical);
     if( pUrlData->passwd[0]
      && (pUrlData->flags & (URL_REMEMBER|URL_ASK_REMEMBER_PW))!=0
     ){

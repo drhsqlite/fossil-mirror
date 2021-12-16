@@ -1351,8 +1351,9 @@ static void prepare_commit_comment(
     if( g.aCommitFile ){
       FileDirList *diffFiles;
       int i;
-      diffFiles = fossil_malloc_zero((g.argc-1) * sizeof(*diffFiles));
-      for( i=0; g.aCommitFile[i]!=0; ++i ){
+      for(i=0; g.aCommitFile[i]!=0; ++i){}
+      diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
+      for(i=0; g.aCommitFile[i]!=0; ++i){
         diffFiles[i].zName  = db_text(0,
          "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
         if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
@@ -1363,7 +1364,7 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-       diff_against_disk(0, &DCfg, diffFiles, &prompt);
+      diff_against_disk(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
@@ -2135,6 +2136,10 @@ static int tagCmp(const void *a, const void *b){
 **    --delta                    use a delta manifest in the commit process
 **    --hash                     verify file status using hashing rather
 **                               than relying on file mtimes
+**    --ignore-clock-skew        If a clock skew is detected, ignore it and
+**                               behave as if the user had entered 'yes' to
+**                               the question of whether to proceed despite
+**                               the skew.
 **    --integrate                close all merged-in branches
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
@@ -2208,6 +2213,7 @@ void commit_cmd(void){
   char cReply;           /* First character of ans */
   int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
   int bAutoBrClr = 0;    /* Value of "--branchcolor" is "auto" */
+  int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2265,6 +2271,7 @@ void commit_cmd(void){
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
+  bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
   outputManifest = db_get_manifest_setting();
   verify_all_options();
 
@@ -2348,7 +2355,10 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    if( !noPrompt ){
+    if( bIgnoreSkew!=0 ){
+      cReply = 'y';
+      fossil_warning("Clock skew ignored due to --ignore-clock-skew.");
+    }else if( !noPrompt ){
       prompt_user("continue in spite of time skew (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       blob_reset(&ans);

@@ -272,7 +272,7 @@ void clone_cmd(void){
                  " the clone is probably incomplete and unusable.");
   }
   fossil_print("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1, 0);
+  rebuild_db(1, 0);
   if( !noCompress ){
     fossil_print("Extra delta compression... "); fflush(stdout);
     extra_deltification();
@@ -299,7 +299,7 @@ void clone_cmd(void){
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " open ", -1);
     blob_append_escaped_arg(&cmd, zRepo, 1);
-    blob_append(&cmd, " --workdir ", -1);
+    blob_append(&cmd, " --nosync --workdir ", -1);
     blob_append_escaped_arg(&cmd, zWorkDir, 1);
     if( allowNested ){
       blob_append(&cmd, " --nested", -1);

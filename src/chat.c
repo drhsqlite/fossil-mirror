@@ -176,11 +176,19 @@ void chat_webpage(void){
   style_set_current_feature("chat");
   style_header("Chat");
   @ <div id='chat-input-area'>
-  @   <div id='chat-input-line' class='single-line'>
-  @     <div contenteditable id="chat-input-field" \
+  @   <div id='chat-input-line-wrapper' class='compact'>
+  @     <input type="text" id="chat-input-field-single" \
   @      data-placeholder0="%h(zInputPlaceholder0)" \
   @      data-placeholder="%h(zInputPlaceholder0)" \
-  @      class=""></div>
+  @      class="chat-input-field"></input>
+  @     <textarea id="chat-input-field-multi" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class="chat-input-field hidden"></textarea>
+  @     <div contenteditable id="chat-input-field-x" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class="chat-input-field hidden"></div>
   @     <div id='chat-buttons-wrapper'>
   @       <span class='cbutton' id="chat-button-preview" \
   @         title="Preview message (Shift-Enter)">&#128065;</span>
@@ -347,13 +355,25 @@ static void chat_emit_permissions_error(int fAsMessageList){
 ** it emits a JSON response in the same form as described for
 ** /chat-poll errors, but as a standalone object instead of a
 ** list of objects.
+**
+** Requests to this page should be POST, not GET.  POST parameters
+** include:
+**
+**    msg        The (Markdown) text of the message to be sent
+**
+**    file       The content of the file attachment
+**
+**    lmtime     ISO-8601 formatted date-time string showing the local time
+**               of the sender.
+**
+** At least one of the "msg" or "file" POST parameters must be provided.
 */
 void chat_send_webpage(void){
   int nByte;
   const char *zMsg;
   const char *zUserName;
   login_check_credentials();
-  if( !g.perm.Chat ) {
+  if( 0==g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
   }
@@ -760,7 +780,9 @@ void chat_download_webpage(void){
 ** a new entry with the current timestamp and with:
 **
 **   *  xmsg = NULL
+**
 **   *  file = NULL
+**
 **   *  mdel = The msgid of the row that was deleted
 **
 ** This new entry will then be propagated to all listeners so that they
@@ -799,13 +821,15 @@ void chat_delete_webpage(void){
 ** Fossil repository and the --remote option is omitted, then this
 ** command fails with an error.
 **
-** When there is no SUBCOMMAND (when this command is simply "fossil chat")
-** the response is to bring up a web-browser window to the chatroom
-** on the default system web-browser.  You can accomplish the same by
-** typing the appropriate URL into the web-browser yourself.  This
-** command is merely a convenience for command-line oriented people.
+** Subcommands:
 **
-** The following subcommands are supported:
+** > fossil chat
+**
+**      When there is no SUBCOMMAND (when this command is simply "fossil chat")
+**      the response is to bring up a web-browser window to the chatroom
+**      on the default system web-browser.  You can accomplish the same by
+**      typing the appropriate URL into the web-browser yourself.  This
+**      command is merely a convenience for command-line oriented people.
 **
 ** > fossil chat send [ARGUMENTS]
 **
@@ -814,7 +838,12 @@ void chat_delete_webpage(void){
 **
 **        -f|--file FILENAME     File to attach to the message
 **        -m|--message TEXT      Text of the chat message
+**        --remote URL           Send to this remote URL
 **        --unsafe               Allow the use of unencrypted http://
+**
+** > fossil chat url
+**
+**      Show the default URL used to access the chat server.
 **
 ** Additional subcommands may be added in the future.
 */
@@ -943,7 +972,7 @@ void chat_command(void){
     }
     blob_reset(&down);
   }else if( strcmp(g.argv[2],"url")==0 ){
-    /* Undocumented command.  Show the URL to access chat. */
+    /* Show the URL to access chat. */
     fossil_print("%s/chat\n", zUrl);
   }else{
     fossil_fatal("no such subcommand \"%s\".  Use --help for help", g.argv[2]);

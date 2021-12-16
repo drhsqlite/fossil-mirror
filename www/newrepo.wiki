@@ -114,7 +114,7 @@ assume you have some web space where you can store your fossil file
 and run a CGI script. If not, then this option is not for you. If
 you do, then here's how...
 
-Copy copy the fossil repository file to your web server (it doesn't
+Copy the fossil repository file to your web server (it doesn't
 matter where, really).
 
 In your <tt>cgi-bin</tt> (or equivalent) directory, create a file
