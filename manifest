@@ -1,5 +1,5 @@
-C Added\shelp\stext\sdoc\sfor\s-k\salias\sfor\s--keep\sfor\sthe\sopen\scommand,\sper\s[forum:6f17cf142f80e2c3\s|\sforum\spost\s6f17cf142f80e2c3].
-D 2021-12-14T14:49:37.668
+C Added\smissing\shelp\stext\sreference\sto\sthe\s-o/--options\shelp\sflag,\sper\s[forum:9b3a25eb2b\s|\sforum\spost\s9b3a25eb2b].
+D 2021-12-16T09:43:56.309
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -454,7 +454,7 @@ F src/diff.c 06600800f4dd59b00f7729ed0a1d6f1316073c6da289e7ee368907a0d68bb09c
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c b0720c2b74db135e1284a890d158b2c4bc41a7c891d526f3b8529ae0ae2d788b
-F src/dispatch.c 5d92dfc903345990a4bc48fe7a6daa4759f0e008e07d0001fcbebe4f977c1c1a
+F src/dispatch.c 3707f49c1d612ec3f8ad5008e4050df906ff716cf9fb8761d1c4eac3be87505b
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bbd3d25654f45cfb1f9c2062729dc2e62586b50f39ebe96ff84c941c65f1368b
-R 8912fd78ef5e655a175f20c99c81ea30
+P 8fee91d408132393ddf5fe3a139bca0a40b6dc21f8c664240bd56f96c67c2872
+R 5cbab3298db2083dc5c94b61bf9355b6
 U stephan
-Z f09f672d06dcc7fc2c5114734e9863de
+Z a4ce1e87f7d664fee2f54580cde7bd40
