@@ -2722,7 +2722,7 @@ void cmd_http(void){
     }
   }
   if( zChRoot ){
-    enter_chroot_jail(zChRoot, noJail);
+    enter_chroot_jail((char*)zChRoot, noJail);
   }else{
     g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   }
@@ -2956,6 +2956,7 @@ void cmd_webserver(void){
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
 #if !defined(_WIN32)
+  const char *zChRoot;      /* Use for chroot instead of repository path */
   int noJail;               /* Do not enter the chroot jail */
   const char *zTimeout = 0; /* Max runtime of any single HTTP request */
 #endif
@@ -3188,7 +3189,7 @@ void cmd_webserver(void){
     allowRepoList = 1;
   }else{
     if( zChRoot ){
-      enter_chroot_jail(zChRoot, noJail);
+      enter_chroot_jail((char*)zChRoot, noJail);
     }else{
       g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
     }
