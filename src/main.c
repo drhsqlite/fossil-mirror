@@ -2599,6 +2599,7 @@ void test_pid_page(void){
 **
 ** Options:
 **   --baseurl URL    base URL (useful with reverse proxies)
+**   --chroot DIR     Use directory for chroot instead of repository path.
 **   --ckout-alias N  Treat URIs of the form /doc/N/... as if they were
 **                       /doc/ckout/...
 **   --extroot DIR    document root for the /ext extension mechanism
@@ -2646,6 +2647,7 @@ void cmd_http(void){
   const char *zFileGlob;
   const char *zInFile;
   const char *zOutFile;
+  const char *zChRoot;
   int useSCGI;
   int noJail;
   int allowRepoList;
@@ -2667,6 +2669,7 @@ void cmd_http(void){
   }
   skin_override();
   zNotFound = find_option("notfound", 0, 1);
+  zChRoot = find_option("chroot",0,1);
   noJail = find_option("nojail",0,0)!=0;
   allowRepoList = find_option("repolist",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
@@ -2718,7 +2721,11 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+  if( zChRoot ){
+    enter_chroot_jail((char*)zChRoot, noJail);
+  }else{
+    g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+  }
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -2894,6 +2901,7 @@ void fossil_set_timeout(int N){
 **
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
 **                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
@@ -2948,6 +2956,7 @@ void cmd_webserver(void){
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
 #if !defined(_WIN32)
+  const char *zChRoot;      /* Use for chroot instead of repository path */
   int noJail;               /* Do not enter the chroot jail */
   const char *zTimeout = 0; /* Max runtime of any single HTTP request */
 #endif
@@ -2985,6 +2994,7 @@ void cmd_webserver(void){
   }
   skin_override();
 #if !defined(_WIN32)
+  zChRoot = find_option("chroot",0,1);
   noJail = find_option("nojail",0,0)!=0;
   zTimeout = find_option("max-latency",0,1);
 #endif
@@ -3178,7 +3188,11 @@ void cmd_webserver(void){
   if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
     allowRepoList = 1;
   }else{
-    g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+    if( zChRoot ){
+      enter_chroot_jail((char*)zChRoot, noJail);
+    }else{
+      g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+    }
   }
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();

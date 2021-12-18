@@ -1,5 +1,5 @@
-C Added\smissing\shelp\stext\sreference\sto\sthe\s-o/--options\shelp\sflag,\sper\s[forum:9b3a25eb2b\s|\sforum\spost\s9b3a25eb2b].
-D 2021-12-16T09:43:56.309
+C Add\s--chroot\soption\sto\sthe\s'http'\sand\s'server'\scommands.
+D 2021-12-18T19:38:09.318
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -527,7 +527,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 5489280905c1812f71c992ceaef7aa7a0f3f90f68b628ead2864c75ce1665405
+F src/main.c 40c472a092f7c192a52d78db388cc1a438995907e373f87dcf8a54c124d2e056
 F src/main.mk 26c53f45dcbb378ec24b6dd69567834250ceb2b21c4c31f3caa3482fe8f07887
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -987,7 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8fee91d408132393ddf5fe3a139bca0a40b6dc21f8c664240bd56f96c67c2872
-R 5cbab3298db2083dc5c94b61bf9355b6
-U stephan
-Z a4ce1e87f7d664fee2f54580cde7bd40
+P 784f147dc457991d271bd1fbd2b79b3d361920581afdd20a795aedbcded2b736 6397ece5891ba17c0c939b1be3bd2be6d08aa6d046293ed194a774c27ea75518
+R 05d9a28b73449acbff8f72a2dec627e2
+T +closed 6397ece5891ba17c0c939b1be3bd2be6d08aa6d046293ed194a774c27ea75518
+U mistachkin
+Z 123dd01cf6934884aab0edb57905f422
