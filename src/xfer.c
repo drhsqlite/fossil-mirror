@@ -1887,17 +1887,26 @@ int client_sync(
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
-     && configRcvMask==0 && configSendMask==0 ) return 0;
+     && configRcvMask==0 && configSendMask==0 ){
+    return 0;
+  }
+  if( zPCode==0 && (syncFlags & SYNC_CLONE)==0 ){
+    /* Every established repository must have a project-code */
+    fossil_fatal("no project-code defined for this repository");
+  }
   if( syncFlags & SYNC_FROMPARENT ){
     configRcvMask = 0;
     configSendMask = 0;
     syncFlags &= ~(SYNC_PUSH);
-    zPCode = db_get("parent-project-code", 0);
-    if( zPCode==0 || db_get("parent-project-name",0)==0 ){
+    zAltPCode = db_get("parent-project-code", 0);
+    if( zAltPCode==0 || db_get("parent-project-name",0)==0 ){
       fossil_fatal("there is no parent project: set the 'parent-project-code'"
                    " and 'parent-project-name' config parameters in order"
                    " to pull from a parent project");
     }
+  }
+  if( zAltPCode!=0 && zPCode!=0 && sqlite3_stricmp(zPCode,zAltPCode)==0 ){
+    zAltPCode = 0;
   }
 
   transport_stats(0, 0, 1);
@@ -2683,6 +2692,10 @@ int client_sync(
      fossil_warning("*** time skew *** server is slow by %s",
                     db_timespan_name(-rSkew));
      g.clockSkewSeen = 1;
+  }
+
+  if( nErr==0 ){
+    sync_log_entry(syncFlags, g.url.canonical,  zAltPCode!=0 ? "import" : 0);
   }
 
   fossil_force_newline();

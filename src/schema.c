@@ -620,3 +620,27 @@ void schema_forum(void){
     db_multi_exec("%s",zForumSchema/*safe-for-%s*/);
   }
 }
+
+/*
+** The following table holds information about servers with which
+** this repository has synced, as well as servers with which those 
+** servers have synced, and so forth.
+*/
+static const char zSynclogSchema[] =
+@ CREATE TABLE repository.synclog(
+@   sfrom TEXT,        -- Sync client. "self" means this repo
+@   sto TEXT,          -- Sync server
+@   spush DATETIME,    -- Time of last push (julian day)
+@   spull DATETIME,    -- Time of last pull (julian day)
+@   sdist INT,         -- Distance from this repo.  0 means self
+@   stype TEXT,        -- Type of "sto". ex: "git","backup". NULL means fossil
+@   PRIMARY KEY(sfrom,sto)
+@ ) WITHOUT ROWID;
+;
+
+/* Create the forum-post schema if it does not already exist */
+void schema_synclog(void){
+  if( !db_table_exists("repository","synclog") ){
+    db_multi_exec("%s",zSynclogSchema/*safe-for-%s*/);
+  }
+}

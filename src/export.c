@@ -1372,6 +1372,7 @@ void gitmirror_export_command(void){
   int nLimit = 0x7fffffff;        /* Numeric value of the --limit flag */
   int nTotal = 0;                 /* Total number of check-ins to export */
   char *zMirror;                  /* Name of the mirror */
+  char *zMirrorAbs;               /* Canonicalized name of the mirror */
   char *z;                        /* Generic string */
   char *zCmd;                     /* git command to run as a subprocess */
   const char *zDebug = 0;         /* Value of the --debug flag */
@@ -1699,6 +1700,11 @@ void gitmirror_export_command(void){
     fossil_system(zRepack);
   }
 
+  /* Record this export into the sync log */
+  zMirrorAbs = file_canonical_name_dup(zMirror);
+  sync_log_entry(SYNC_PUSH, zMirrorAbs, "git");
+  fossil_free(zMirrorAbs);
+
   /* Optionally do a "git push" */
   zPushUrl = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
   if( zPushUrl ){
@@ -1721,6 +1727,7 @@ void gitmirror_export_command(void){
       db_multi_exec("REPLACE INTO config(name,value,mtime)"
                     "VALUES('gitpush:%q',1,now())", zPushUrl);
       db_protect_pop();
+      sync_log_entry(SYNC_PUSH, zPushUrl, "git-push");
     }
     fossil_free(zPushCmd);
   }

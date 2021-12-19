@@ -94,6 +94,49 @@ static int client_sync_all_urls(
   return nErr;
 }
 
+/*
+** Make a new entry, or update an existing entry, in the SYNCLOG table
+** for a push or pull from this repository to another server named zRemote.
+**
+** For an ordinary push/pull, zType is NULL.  But it may also be a string
+** describing non-standard operations.  For example zType might be "git"
+** when doing a "fossil git export", or zType might be "import" when doing
+** a "fossil pull --from-parent-project".
+**
+** For this routine, the sfrom value is always 'self'.  The sto value is
+** the zRemote parameter.  sto+sfrom form the primary key.  If an entry
+** already exists with the same primary key, then the spull or spush times
+** are updated (or both).
+*/
+void sync_log_entry(
+  int syncFlags,            /* Indicates whether a PUSH or PULL or both */
+  const char *zRemote,      /* Server with which we push or pull */
+  const char *zType         /* Type of sync.  NULL for normal */
+){
+  const char *zPush;
+  const char *zPull;
+  if( syncFlags & (SYNC_PULL|SYNC_CLONE) ){
+    zPull = "julianday()";
+  }else{
+    zPull = "NULL";
+  }
+  if( syncFlags & (SYNC_PUSH) ){
+    zPush = "julianday()";
+  }else{
+    zPush = "NULL";
+  }
+  schema_synclog();
+  db_multi_exec(
+    "INSERT INTO repository.synclog(sfrom,sto,spush,spull,sdist,stype)"
+    " VALUES('self',%Q,%s,%s,0,%Q)"
+    " ON CONFLICT DO UPDATE"
+    "   SET spush=coalesce(%s,spush),"
+    "       spull=coalesce(%s,spull);",
+    zRemote, zPush/*safe-for-%s*/, zPull/*safe-for-%s*/, zType,
+    zPush/*safe-for-%s*/, zPull/*safe-for-%s*/
+  );
+}
+
 
 /*
 ** If the repository is configured for autosyncing, then do an
@@ -684,6 +727,7 @@ remote_add_default:
 void backup_cmd(void){
   char *zDest;
   int bOverwrite = 0;
+  char *zFullName;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   bOverwrite = find_option("overwrite",0,0)!=0;
   verify_all_options();
@@ -705,4 +749,7 @@ void backup_cmd(void){
   }
   db_unprotect(PROTECT_ALL);
   db_multi_exec("VACUUM repository INTO %Q", zDest);
+  zFullName = file_canonical_name_dup(zDest);
+  sync_log_entry(SYNC_PUSH, zFullName, "backup");
+  fossil_free(zFullName);
 }
