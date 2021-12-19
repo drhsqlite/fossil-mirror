@@ -1,5 +1,5 @@
-C Change\sthe\sschema\sfor\sthe\ssynclog\stable\sso\sthat\sthere\sare\sseparate\srows\nfor\stransfers\sin\seach\sdirection.
-D 2021-12-19T19:59:25.019
+C Minor\sperformance\simprovement\sin\ssync_log_entry().
+D 2021-12-19T20:14:05.179
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c e9fcbf5787c5feeb363cdb34b4b8289282c1709cde7e131f3b962fcb6781ea17
+F src/sync.c a62e33b74e648345ae99d694e4e0f94dbcb92b9cfe4a897981da6dfa60d4f2a2
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94709e8ed24f09cebb62b75d0d01f142092d8d28ea38c5fb51fd2447d4d57599
-R a3a6effc26f51bae9062fbea0c950f5e
+P 1ec46849ff5e065f9edc1469c09ee95ad4e5b58c8353e5055c3c4e83d9008f1c
+R 6df4a17a6ae3e9e5466950d5e5db0931
 U drh
-Z 9eeec280eb1d9c87a4b58b09e3a51dfd
+Z b2c64c5cf5c6d27d025aee9ee8bbb8cb

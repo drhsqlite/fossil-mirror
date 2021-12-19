@@ -113,23 +113,27 @@ void sync_log_entry(
   const char *zRemote,      /* Server with which we push or pull */
   const char *zType         /* Type of sync.  NULL for normal */
 ){
+  Stmt s;
+  db_prepare(&s,
+    "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
+    " VALUES(:sfrom,:sto,julianday(),:stype)"
+    " ON CONFLICT DO UPDATE SET stime=julianday()"
+  );
   schema_synclog();
   if( syncFlags & (SYNC_PULL|SYNC_CLONE) ){
-    db_multi_exec(
-      "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
-      " VALUES(%Q,'this',julianday(),%Q)"
-      " ON CONFLICT DO UPDATE SET stime=julianday()",
-      zRemote, zType
-    );
+    db_bind_text(&s, ":sfrom", zRemote);
+    db_bind_text(&s, ":sto", "this");
+    db_bind_text(&s, ":stype", zType);
+    db_step(&s);
+    db_reset(&s);
   }
   if( syncFlags & (SYNC_PUSH) ){
-    db_multi_exec(
-      "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
-      " VALUES('this',%Q,julianday(),%Q)"
-      " ON CONFLICT DO UPDATE SET stime=julianday()",
-      zRemote, zType
-    );
+    db_bind_text(&s, ":sfrom", "this");
+    db_bind_text(&s, ":sto", zRemote);
+    db_bind_text(&s, ":stype", zType);
+    db_step(&s);
   }
+  db_finalize(&s);
 }
 
 
