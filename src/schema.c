@@ -630,10 +630,8 @@ static const char zSynclogSchema[] =
 @ CREATE TABLE repository.synclog(
 @   sfrom TEXT,        -- Sync client. "self" means this repo
 @   sto TEXT,          -- Sync server
-@   spush DATETIME,    -- Time of last push (julian day)
-@   spull DATETIME,    -- Time of last pull (julian day)
-@   sdist INT,         -- Distance from this repo.  0 means self
-@   stype TEXT,        -- Type of "sto". ex: "git","backup". NULL means fossil
+@   stime DATETIME,    -- Time of transfer (julian day)
+@   stype TEXT,        -- "push", "pull", "git", "backup", "import", etc...
 @   PRIMARY KEY(sfrom,sto)
 @ ) WITHOUT ROWID;
 ;

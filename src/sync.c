@@ -113,28 +113,23 @@ void sync_log_entry(
   const char *zRemote,      /* Server with which we push or pull */
   const char *zType         /* Type of sync.  NULL for normal */
 ){
-  const char *zPush;
-  const char *zPull;
+  schema_synclog();
   if( syncFlags & (SYNC_PULL|SYNC_CLONE) ){
-    zPull = "julianday()";
-  }else{
-    zPull = "NULL";
+    db_multi_exec(
+      "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
+      " VALUES(%Q,'this',julianday(),%Q)"
+      " ON CONFLICT DO UPDATE SET stime=julianday()",
+      zRemote, zType
+    );
   }
   if( syncFlags & (SYNC_PUSH) ){
-    zPush = "julianday()";
-  }else{
-    zPush = "NULL";
+    db_multi_exec(
+      "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
+      " VALUES('this',%Q,julianday(),%Q)"
+      " ON CONFLICT DO UPDATE SET stime=julianday()",
+      zRemote, zType
+    );
   }
-  schema_synclog();
-  db_multi_exec(
-    "INSERT INTO repository.synclog(sfrom,sto,spush,spull,sdist,stype)"
-    " VALUES('self',%Q,%s,%s,0,%Q)"
-    " ON CONFLICT DO UPDATE"
-    "   SET spush=coalesce(%s,spush),"
-    "       spull=coalesce(%s,spull);",
-    zRemote, zPush/*safe-for-%s*/, zPull/*safe-for-%s*/, zType,
-    zPush/*safe-for-%s*/, zPull/*safe-for-%s*/
-  );
 }
 
 
