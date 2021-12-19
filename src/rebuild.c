@@ -394,9 +394,10 @@ int rebuild_db(int doOut, int doClustering){
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned',"
-                       "'subscriber','pending_alert','chat')"
+                       "'subscriber','pending_alert','chat','synclog')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
+     " AND name NOT GLOB 'ftsidx_*'"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(&sql, "DROP TABLE IF EXISTS \"%w\";\n", db_column_text(&q,0));
@@ -947,6 +948,7 @@ void scrub_cmd(void){
         "DROP TABLE IF EXISTS admin_log;\n"
         "DROP TABLE IF EXISTS vcache;\n"
         "DROP TABLE IF EXISTS chat;\n"
+        "DROP TABLE IF EXISTS synclog;\n"
       );
     }
     db_protect_pop();

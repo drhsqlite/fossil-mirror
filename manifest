@@ -1,5 +1,5 @@
-C Add\sthe\s"E"\sand\s"F"\scapability\sletters\sto\scontrol\sreading\sand\swriting\sto\sthe\nsynclog.
-D 2021-12-19T18:10:04.715
+C Remove\sthe\ssynclog\stable\swhen\sdoing\sa\s"fossil\sscrub\s--verily".
+D 2021-12-19T18:22:09.106
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -557,7 +557,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 193a7fe4f5d50623ed6ef3e2e7e3d4b0df32dbeff26806e52733709ed98b2d2b
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
-F src/rebuild.c 13c40e226411d6f082db300ac84b87ab1424f7618fd5dea48e7420c9bb6fd8bc
+F src/rebuild.c 7d9e7c66c285e13f1a37d4985e015a45e1c3604c9075b39851661fc63ba835b8
 F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b407807
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42a6191e9366a2f156123e41b5b4f5d3e83c0e3d094056054b99ec0eae227dc0
-R ab3043c8e2f4fc54914925d37c5bb870
+P 06b3ace4ce190c5f7d95e0b5a220eafca1d5e1559d834073324dce892b8afe26
+R 339a4283d62222f4cd0d59dfb350b96f
 U drh
-Z 16c9c763071b06675a39f6fa6af673aa
+Z 5c098df66f1a10456354216b0a1d4496
