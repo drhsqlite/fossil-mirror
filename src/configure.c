@@ -515,6 +515,7 @@ int configure_send_group(
   Blob rec;
   int ii;
   int nCard = 0;
+  int bPrepped;
 
   blob_zero(&rec);
   if( groupMask & CONFIGSET_SHUN ){
@@ -649,10 +650,14 @@ int configure_send_group(
     }
     db_finalize(&q);
   }
-  db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
-                 " WHERE name=:name AND mtime>=%lld", iStart);
+  bPrepped = 0;
   for(ii=0; ii<count(aConfig); ii++){
     if( (aConfig[ii].groupMask & groupMask)!=0 && aConfig[ii].zName[0]!='@' ){
+      if( !bPrepped ){
+        db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
+                       " WHERE name=:name AND mtime>=%lld", iStart);
+        bPrepped = 1;
+      }
       db_bind_text(&q, ":name", aConfig[ii].zName);
       while( db_step(&q)==SQLITE_ROW ){
         blob_appendf(&rec,"%s %s value %s",
@@ -668,7 +673,9 @@ int configure_send_group(
       db_reset(&q);
     }
   }
-  db_finalize(&q);
+  if( bPrepped ){
+    db_finalize(&q);
+  }
   return nCard;
 }
 
