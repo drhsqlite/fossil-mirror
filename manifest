@@ -1,5 +1,5 @@
-C Minor\sperformance\simprovement\sin\ssync_log_entry().
-D 2021-12-19T20:14:05.179
+C Add\sthe\s"public_url()"\sinternal\sinterface\sfor\scomputing\sthe\scanonical\sURL\nused\sto\saccess\sthe\srepository.\s\sAdd\sa\sreport\sabout\sthe\scanonical\sURL\sto\nthe\ssecurity_audit\spage.
+D 2021-12-19T21:04:22.204
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -565,7 +565,7 @@ F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/schema.c 2ccf5172d9624fe73aefacd4c72a0f5ab8f05431759aab978d7efdca817ff634
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
-F src/security_audit.c 11e895c3060231df2db1b742be76179c647603190ee43b3fc6badf1c5804519f
+F src/security_audit.c eae389dad3990fbac78d8704f1d9c95bd04bb2a1753bdb8aeeade88994947f28
 F src/setup.c 72700e8d952e7f3472638274d9eb64a38d3bfbd0a79b98645b011e072cd9f66f
 F src/setupuser.c edc4252116c4457b3de2477e8a04b959c737db3b17549170a5fd72d71f57caaa
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
@@ -600,7 +600,7 @@ F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece
 F src/sqlite3.c 10f699203768ef6a10006bf578752d4fb255db4653bbbc68c359bcde7559830e
 F src/sqlite3.h 2ba5af54f57390263c62f9cb66321ddb0ab586c458f5e8aa58b0b01a3a1735c2
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
-F src/stat.c 64d0c3289301e853668c93e55af30f6a06f154e8c91be384e11e15234103f54e
+F src/stat.c 0ee4593c0a992fe209e8d3ee7b46d78b13d9f8c03e50273d9f3a7f01aee1316c
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ec46849ff5e065f9edc1469c09ee95ad4e5b58c8353e5055c3c4e83d9008f1c
-R 6df4a17a6ae3e9e5466950d5e5db0931
+P c0fd8338f616a72afc961fab54e3fe7a937db8f14d489e4fe91c42f383b120e4
+R 887e066d36213600f5f2bad6e982e3b6
 U drh
-Z b2c64c5cf5c6d27d025aee9ee8bbb8cb
+Z 39727011daf06a256a2cffa34e62a53b
