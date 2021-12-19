@@ -1276,7 +1276,8 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum = p->Chat = 
-                             p->EmailAlert = p->Announce = p->Debug = 1;
+                             p->EmailAlert = p->Announce = p->Debug =
+                             p->RdSLog = p->WrSLog = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
@@ -1314,6 +1315,8 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'A':   p->Announce = 1;                             break;
       case 'C':   p->Chat = 1;                                 break;
       case 'D':   p->Debug = 1;                                break;
+      case 'E':   p->RdSLog = 1;                               break;
+      case 'F':   p->WrSLog = 1;                               break;
 
       /* The "u" privilege recursively
       ** inherits all privileges of the user named "reader" */
@@ -1401,6 +1404,8 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'A':  rc = p->Announce;  break;
       case 'C':  rc = p->Chat;      break;
       case 'D':  rc = p->Debug;     break;
+      case 'E':  rc = p->RdSLog;    break;
+      case 'F':  rc = p->WrSLog;    break;
       case 'L':  rc = g.zLogin && *g.zLogin; break;
       /* Mainenance reminder: '@' should not be used because
          it would semantically collide with the @ in the

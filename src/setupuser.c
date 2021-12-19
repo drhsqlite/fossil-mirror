@@ -693,6 +693,10 @@ void user_edit(void){
   @  Chatroom%s(B('C'))</label>
   @  <li><label><input type="checkbox" name="aD"%s(oa['D']) />
   @  Enable Debug%s(B('D'))</label>
+  @  <li><label><input type="checkbox" name="aE"%s(oa['E']) />
+  @  Read SyncLog%s(B('E'))</label>
+  @  <li><label><input type="checkbox" name="aF"%s(oa['F']) />
+  @  Update SyncLog%s(B('F'))</label>
   @ </ul></div>
   @   </td>
   @ </tr>

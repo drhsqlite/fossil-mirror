@@ -102,7 +102,7 @@ void capability_expand(CapabilityString *pIn){
   static char *zAnon = 0;
   static char *zReader = 0;
   static char *zDev = 0;
-  static char *zAdmin = "bcdefghijklmnopqrtwz234567AD";
+  static char *zAdmin = "bcdefghijklmnopqrtwz234567ADEF";
   int doneV = 0;
 
   if( pIn==0 ){
@@ -310,6 +310,10 @@ static struct Caps {
     "Chat",  "Read and/or writes messages in the chatroom" },
   { 'D', CAPCLASS_OTHER, 0,
     "Debug", "Enable debugging features" },
+  { 'E', CAPCLASS_SUPER, 0,
+    "Read SyncLog", "Read the SyncLog" },
+  { 'F', CAPCLASS_SUPER, 0,
+    "Update SyncLog", "Add or modify entries in the SyncLog" },
 };
 
 /*

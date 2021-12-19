@@ -111,6 +111,8 @@ struct FossilUserPerms {
   char Announce;         /* A: Send announcements */
   char Chat;             /* C: read or write the chatroom */
   char Debug;            /* D: show extra Fossil debugging features */
+  char RdSLog;           /* E: read the synclog */
+  char WrSLog;           /* F: add to the synclog */
   /* These last two are included to block infinite recursion */
   char XReader;          /* u: Inherit all privileges of "reader" */
   char XDeveloper;       /* v: Inherit all privileges of "developer" */
