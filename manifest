@@ -1,5 +1,5 @@
-C Add\s--chroot\soption\sto\sthe\s'http'\sand\s'server'\scommands.
-D 2021-12-18T19:38:09.318
+C Update\sthe\scustom\smakefile\sfor\sMinGW.
+D 2021-12-19T01:33:01.857
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -782,7 +782,7 @@ F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc c95e9640bd533628b6d2257dd655c450643f39530d015a7523b6f809abe3dab0
 F win/Makefile.mingw f5b0063097ab2404c51a6a940c30ec92b42a936d06a7fa14e53dfc88e1590088
-F win/Makefile.mingw.mistachkin 3d185a1d292f64e2b28ec13a68c3db09f781fe8748b163322cb66a1bd92d7ffc
+F win/Makefile.mingw.mistachkin 2825e5983b74352f8b8b57a3e638c865c2619260038c80a26ef1fc516777e783
 F win/Makefile.msc a40646da2ab616e2c6e4191599aba6385851eb965949c8e0dbde1c0d923ce143
 F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -987,8 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 784f147dc457991d271bd1fbd2b79b3d361920581afdd20a795aedbcded2b736 6397ece5891ba17c0c939b1be3bd2be6d08aa6d046293ed194a774c27ea75518
-R 05d9a28b73449acbff8f72a2dec627e2
-T +closed 6397ece5891ba17c0c939b1be3bd2be6d08aa6d046293ed194a774c27ea75518
+P bf6be1e3259b9e67478708ce227730c7bf459ab884e262bed71e6da1e269fe85
+R a08b2d5d5bbde197c49773b877d72be1
 U mistachkin
-Z 123dd01cf6934884aab0edb57905f422
+Z d93e2fa289c64252ae0bcc7c61a755a4
