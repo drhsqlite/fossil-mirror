@@ -543,6 +543,92 @@ void urllist_page(void){
     style_finish_page();
     return;
   }
+
+  if( db_table_exists("repository","synclog") ){
+    /* This code derived from the "synclog" command in "sync.c" */
+    const nIndent = 3;
+    db_prepare(&q,
+      "WITH allpull(xfrom,xto,xtime) AS MATERIALIZED (\n"
+      "  SELECT sfrom, sto, max(stime) FROM synclog GROUP BY 1\n"
+      "),\n"
+      "pull(level, url, mtime, ex) AS (\n"
+      "  SELECT 0, xfrom, xtime, '|this|' || xfrom || '|'\n"
+      "    FROM allpull WHERE xto='this'\n"
+      "  UNION\n"
+      "  SELECT level+1, xfrom, xtime, ex || xfrom || '|'\n"
+      "    FROM pull, allpull\n"
+      "   WHERE xto=url\n"
+      "     AND ex NOT GLOB ('*|' || xfrom || '|*')\n"
+      "   ORDER BY 1 DESC, 3 DESC\n"
+      ")\n"
+      "SELECT level, url, datetime(mtime,'auto') FROM pull"
+    );
+    cnt = 0;
+    while( db_step(&q)==SQLITE_ROW ){
+      int iLevel = db_column_int(&q,0)*nIndent;
+      const char *zUrl = db_column_text(&q,1);
+      const char *zDate = db_column_text(&q,2);
+      if( cnt==0 ){
+        @ <div class="section">Pulls</div>
+        @ <table border="0" width='100%%'>
+      }
+      if( strncmp(zUrl,"http",4)==0 ){
+        @ <tr><td width='100%%'><span style='margin-left:%d(iLevel)em'>\
+        @ <a href='%s(zUrl)'>%h(zUrl)</a></td>\
+        @ <td><nobr>%h(zDate)</nobr></td></tr>
+      }else{
+        @ <tr><td width='100%%'><span style='margin-left:%d(iLevel)em'>\
+        @ %h(zUrl)</td><td><nobr>%h(zDate)</nobr></td></tr>
+      }
+      cnt++;
+    }
+    db_finalize(&q);
+    if( cnt ){
+      @ </table>
+    }
+
+    db_prepare(&q,
+      "WITH allpush(xfrom,xto,xtime) AS MATERIALIZED (\n"
+      "  SELECT sfrom, sto, max(stime) FROM synclog GROUP BY 2\n"
+      "),\n"
+      "push(level, url, mtime, ex) AS (\n"
+      "  SELECT 0, xto, xtime, '|this|' || xto || '|'\n"
+      "    FROM allpush WHERE xfrom='this'\n"
+      "  UNION\n"
+      "  SELECT level+1, xto, xtime, ex || xto || '|'\n"
+      "    FROM push, allpush\n"
+      "   WHERE xfrom=url\n"
+      "     AND ex NOT GLOB ('*|' || xto || '|*')\n"
+      "   ORDER BY 1 DESC, 3 DESC\n"
+      ")\n"
+      "SELECT level, url, datetime(mtime,'auto') FROM push"
+    );
+    cnt = 0;
+    while( db_step(&q)==SQLITE_ROW ){
+      int iLevel = db_column_int(&q,0)*nIndent;
+      const char *zUrl = db_column_text(&q,1);
+      const char *zDate = db_column_text(&q,2);
+      if( cnt==0 ){
+        @ <div class="section">Pushes</div>
+        @ <table border="0" width='100%%'>
+      }
+      if( strncmp(zUrl,"http",4)==0 ){
+        @ <tr><td width='100%%'><span style='margin-left:%d(iLevel)em'>\
+        @ <a href='%s(zUrl)'>%h(zUrl)</a></td>\
+        @ <td><nobr>%h(zDate)</nobr></td></tr>
+      }else{
+        @ <tr><td width='100%%'><span style='margin-left:%d(iLevel)em'>\
+        @ %h(zUrl)</td><td><nobr>%h(zDate)</nobr></td></tr>
+      }
+      cnt++;
+    }
+    db_finalize(&q);
+    if( cnt ){
+      @ </table>
+    }
+  }
+
+
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
                  "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
@@ -562,6 +648,8 @@ void urllist_page(void){
   if( cnt ){
     @ </table>
   }
+
+
   cnt = 0;
   db_prepare(&q,
     "SELECT substr(name,10), datetime(mtime,'unixepoch')"
