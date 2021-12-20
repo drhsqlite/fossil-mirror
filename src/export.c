@@ -1702,7 +1702,7 @@ void gitmirror_export_command(void){
 
   /* Record this export into the sync log */
   zMirrorAbs = file_canonical_name_dup(zMirror);
-  sync_log_entry(SYNC_PUSH, zMirrorAbs, "git");
+  sync_log_entry(SYNC_PUSH, zMirrorAbs, "git", 0);
   fossil_free(zMirrorAbs);
 
   /* Optionally do a "git push" */
@@ -1727,7 +1727,7 @@ void gitmirror_export_command(void){
       db_multi_exec("REPLACE INTO config(name,value,mtime)"
                     "VALUES('gitpush:%q',1,now())", zPushUrl);
       db_protect_pop();
-      sync_log_entry(SYNC_PUSH, zPushUrl, "git-push");
+      sync_log_entry(SYNC_PUSH, zPushUrl, "git-push", 0);
     }
     fossil_free(zPushCmd);
   }

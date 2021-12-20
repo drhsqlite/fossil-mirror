@@ -111,26 +111,35 @@ static int client_sync_all_urls(
 void sync_log_entry(
   int syncFlags,            /* Indicates whether a PUSH or PULL or both */
   const char *zRemote,      /* Server with which we push or pull */
-  const char *zType         /* Type of sync.  NULL for normal */
+  const char *zType,        /* Type of sync.  NULL for normal */
+  i64 iTime                 /* Seconds since 1970, or 0 for "now" */
 ){
   Stmt s;
-  db_prepare(&s,
-    "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
-    " VALUES(:sfrom,:sto,julianday(),:stype)"
-    " ON CONFLICT DO UPDATE SET stime=julianday()"
-  );
   schema_synclog();
+  if( iTime<=0 ){
+    db_prepare(&s,
+      "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
+      " VALUES(:sfrom,:sto,unixepoch(),%Q)"
+      " ON CONFLICT DO UPDATE SET stime=unixepoch()",
+      zType
+    );
+  }else{
+    db_prepare(&s,
+      "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
+      " VALUES(:sfrom,:sto,%lld,%Q)"
+      " ON CONFLICT DO UPDATE SET stime=%lld WHERE stime<%lld",
+      iTime, zType, iTime, iTime
+    );
+  }
   if( syncFlags & (SYNC_PULL|SYNC_CLONE) ){
     db_bind_text(&s, ":sfrom", zRemote);
     db_bind_text(&s, ":sto", "this");
-    db_bind_text(&s, ":stype", zType);
     db_step(&s);
     db_reset(&s);
   }
   if( syncFlags & (SYNC_PUSH) ){
     db_bind_text(&s, ":sfrom", "this");
     db_bind_text(&s, ":sto", zRemote);
-    db_bind_text(&s, ":stype", zType);
     db_step(&s);
   }
   db_finalize(&s);
@@ -275,6 +284,9 @@ static void process_sync_args(
   }
   if( find_option("all",0,0)!=0 ){
     *pSyncFlags |= SYNC_ALLURL;
+  }
+  if( find_option("synclog",0,0)!=0 ){
+    *pSyncFlags |= SYNC_PUSH_SYNCLOG;
   }
   url_proxy_options();
   clone_ssh_find_options();
@@ -749,6 +761,6 @@ void backup_cmd(void){
   db_unprotect(PROTECT_ALL);
   db_multi_exec("VACUUM repository INTO %Q", zDest);
   zFullName = file_canonical_name_dup(zDest);
-  sync_log_entry(SYNC_PUSH, zFullName, "backup");
+  sync_log_entry(SYNC_PUSH, zFullName, "backup", 0);
   fossil_free(zFullName);
 }

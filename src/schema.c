@@ -628,10 +628,10 @@ void schema_forum(void){
 */
 static const char zSynclogSchema[] =
 @ CREATE TABLE repository.synclog(
-@   sfrom TEXT,        -- Sync client. "self" means this repo
-@   sto TEXT,          -- Sync server
-@   stime DATETIME,    -- Time of transfer (julian day)
-@   stype TEXT,        -- "push", "pull", "git", "backup", "import", etc...
+@   sfrom TEXT,          -- Sync client. "self" means this repo
+@   sto TEXT,            -- Sync server
+@   stime INT NOT NULL,  -- Time of transfer (unixepoch)
+@   stype TEXT,          -- "push", "pull", "git", "backup", "import", etc...
 @   PRIMARY KEY(sfrom,sto)
 @ ) WITHOUT ROWID;
 ;

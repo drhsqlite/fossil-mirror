@@ -1809,21 +1809,22 @@ static const char zBriefFormat[] =
 /*
 ** Flag options for controlling client_sync()
 */
-#define SYNC_PUSH           0x0001    /* push content client to server */
-#define SYNC_PULL           0x0002    /* pull content server to client */
-#define SYNC_CLONE          0x0004    /* clone the repository */
-#define SYNC_PRIVATE        0x0008    /* Also transfer private content */
-#define SYNC_VERBOSE        0x0010    /* Extra diagnostics */
-#define SYNC_RESYNC         0x0020    /* --verily */
-#define SYNC_FROMPARENT     0x0040    /* Pull from the parent project */
-#define SYNC_UNVERSIONED    0x0100    /* Sync unversioned content */
-#define SYNC_UV_REVERT      0x0200    /* Copy server unversioned to client */
-#define SYNC_UV_TRACE       0x0400    /* Describe UV activities */
-#define SYNC_UV_DRYRUN      0x0800    /* Do not actually exchange files */
-#define SYNC_IFABLE         0x1000    /* Inability to sync is not fatal */
-#define SYNC_CKIN_LOCK      0x2000    /* Lock the current check-in */
-#define SYNC_NOHTTPCOMPRESS 0x4000    /* Do not compression HTTP messages */
-#define SYNC_ALLURL         0x8000    /* The --all flag - sync to all URLs */
+#define SYNC_PUSH           0x00001    /* push content client to server */
+#define SYNC_PULL           0x00002    /* pull content server to client */
+#define SYNC_CLONE          0x00004    /* clone the repository */
+#define SYNC_PRIVATE        0x00008    /* Also transfer private content */
+#define SYNC_VERBOSE        0x00010    /* Extra diagnostics */
+#define SYNC_RESYNC         0x00020    /* --verily */
+#define SYNC_FROMPARENT     0x00040    /* Pull from the parent project */
+#define SYNC_UNVERSIONED    0x00100    /* Sync unversioned content */
+#define SYNC_UV_REVERT      0x00200    /* Copy server unversioned to client */
+#define SYNC_UV_TRACE       0x00400    /* Describe UV activities */
+#define SYNC_UV_DRYRUN      0x00800    /* Do not actually exchange files */
+#define SYNC_IFABLE         0x01000    /* Inability to sync is not fatal */
+#define SYNC_CKIN_LOCK      0x02000    /* Lock the current check-in */
+#define SYNC_NOHTTPCOMPRESS 0x04000    /* Do not compression HTTP messages */
+#define SYNC_ALLURL         0x08000    /* The --all flag - sync to all URLs */
+#define SYNC_PUSH_SYNCLOG   0x10000    /* Uplink SYNCLOG info */
 #endif
 
 /*
@@ -2525,6 +2526,17 @@ int client_sync(
           }
         }
 
+        /*   pragma synclog FROM TO MTIME TYPE
+        **
+        ** The server is downloading an entry from its SYNCLOG table.  Merge
+        ** this into the local SYNCLOG table if appropriate.
+        ** is running.  The DATE and TIME are a pure numeric ISO8601 time
+        ** for the specific check-in of the client.
+        */
+        if( xfer.nToken==5 && blob_eq(&xfer.aToken[1], "synclog") ){
+          /* TBD */
+        }
+
         /*   pragma uv-pull-only
         **   pragma uv-push-ok
         **
@@ -2695,7 +2707,7 @@ int client_sync(
   }
 
   if( nErr==0 ){
-    sync_log_entry(syncFlags, g.url.canonical,  zAltPCode!=0 ? "import" : 0);
+    sync_log_entry(syncFlags, g.url.canonical,  zAltPCode!=0 ? "import" : 0, 0);
   }
 
   fossil_force_newline();
