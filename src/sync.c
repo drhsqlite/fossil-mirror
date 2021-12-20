@@ -745,3 +745,86 @@ void backup_cmd(void){
   sync_log_entry("this", zFullName, 0, "backup");
   fossil_free(zFullName);
 }
+
+/*
+** COMMAND: synclog
+**
+** Usage: %fossil synclog
+**
+** Show other repositories with which this repository has pushed or pulled,
+** together with the time since the most recent push or pull.
+*/
+void synclog_cmd(void){
+  Stmt q;
+  int cnt;
+  const int nIndent = 3;
+  db_find_and_open_repository(0,0);
+  db_prepare(&q,
+    "WITH allpull(xfrom,xto,xtime) AS MATERIALIZED (\n"
+    "  SELECT sfrom, sto, max(stime) FROM synclog GROUP BY 1\n"
+    "),\n"
+    "pull(level, url, mtime, ex) AS (\n"
+    "  SELECT 0, xfrom, xtime, '|this|' || xfrom || '|'\n"
+    "    FROM allpull WHERE xto='this'\n"
+    "  UNION\n"
+    "  SELECT level+1, xfrom, xtime, ex || xfrom || '|'\n"
+    "    FROM pull, allpull\n"
+    "   WHERE xto=url\n"
+    "     AND ex NOT GLOB ('*|' || xfrom || '|*')\n"
+    "   ORDER BY 1 DESC, 3 DESC\n"
+    ")\n"
+    "SELECT level, url, julianday() - julianday(mtime,'auto') FROM pull"
+  );
+  cnt = 0;
+  fossil_print("PULL:\n");
+  while( db_step(&q)==SQLITE_ROW ){
+    int iLevel = (db_column_int(&q,0)+1)*nIndent;
+    const char *zUrl = db_column_text(&q,1);
+    double rTimeAgo = db_column_double(&q,2);
+    if( rTimeAgo*86400.0<=2.0 ){
+      fossil_print("%.*c%s (current)\n", iLevel, ' ', zUrl);
+    }else{
+      char *zAgo = human_readable_age(rTimeAgo);
+      fossil_print("%.*c%s (%z ago)\n", iLevel, ' ', zUrl, zAgo);
+    }
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt==0 ){
+    fossil_print("  (none)\n");
+  }
+  db_prepare(&q,
+    "WITH allpush(xfrom,xto,xtime) AS MATERIALIZED (\n"
+    "  SELECT sfrom, sto, max(stime) FROM synclog GROUP BY 2\n"
+    "),\n"
+    "push(level, url, mtime, ex) AS (\n"
+    "  SELECT 0, xto, xtime, '|this|' || xto || '|'\n"
+    "    FROM allpush WHERE xfrom='this'\n"
+    "  UNION\n"
+    "  SELECT level+1, xto, xtime, ex || xto || '|'\n"
+    "    FROM push, allpush\n"
+    "   WHERE xfrom=url\n"
+    "     AND ex NOT GLOB ('*|' || xto || '|*')\n"
+    "   ORDER BY 1 DESC, 3 DESC\n"
+    ")\n"
+    "SELECT level, url, julianday() - julianday(mtime,'auto') FROM push"
+  );
+  cnt = 0;
+  fossil_print("PUSH:\n");
+  while( db_step(&q)==SQLITE_ROW ){
+    int iLevel = (db_column_int(&q,0)+1)*nIndent;
+    const char *zUrl = db_column_text(&q,1);
+    double rTimeAgo = db_column_double(&q,2);
+    if( rTimeAgo*86400.0<=2.0 ){
+      fossil_print("%.*c%s (current)\n", iLevel, ' ', zUrl);
+    }else{
+      char *zAgo = human_readable_age(rTimeAgo);
+      fossil_print("%.*c%s (%z ago)\n", iLevel, ' ', zUrl, zAgo);
+    }
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt==0 ){
+    fossil_print("  (none)\n");
+  }
+}

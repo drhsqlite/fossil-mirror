@@ -1,5 +1,5 @@
-C More\sfixes\sto\sthe\ssynclog\sxfer\sprotocol.
-D 2021-12-20T10:17:53.443
+C Add\sthe\s"fossil\ssynclog"\scommand\sto\sdisplay\ssyncing\shistory.
+D 2021-12-20T12:32:12.542
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 06b5f29ded0597d8ccdcb968e2c66b6d1767d10cf54ac5eea0965914cb2b6f89
+F src/sync.c 58466f678d2f5c0a12cd92468fd2b12a76f5f2d1d0fca2dbfa8a7f90affc68c4
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ef61c4782c47b3c7e486c391d9c70ca008092f3a9fde34bd443f8463b8036bd
-R 5293d9821c0c438fdf929b14fabc44b0
+P 555e36595ff6d59142afda38ce1cc111f8a6e8836e1e48726b0f75391ece4149
+R edccbe28d7ca4139cc32885488c55268
 U drh
-Z 96327e55c4d429cd724283ed2c27bb3e
+Z 8b0d5970af62c731d0944e50d8140f61
