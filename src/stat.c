@@ -476,6 +476,27 @@ void dbstat_cmd(void){
 }
 
 /*
+** Return a string which is the public URL used to access this repository.
+** Or return a NULL pointer if this repository does not have a public
+** access URL.
+**
+** Algorithm:
+**
+** The public URL is given by the email-url property.  But it is only
+** returned if there have been one more more accesses (as recorded by
+** "baseurl:URL" entries in the CONFIG table).
+*/
+const char *public_url(void){
+  const char *zUrl = db_get("email-url", 0);
+  if( zUrl==0 ) return 0;
+  if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", zUrl) ){
+    return 0;
+  }
+  return zUrl;
+}
+
+
+/*
 ** WEBPAGE: urllist
 **
 ** Show ways in which this repository has been accessed
@@ -518,6 +539,10 @@ void urllist_page(void){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
   @ </table>
+  if( P("urlonly") ){
+    style_finish_page();
+    return;
+  }
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
                  "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
