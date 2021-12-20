@@ -1753,7 +1753,9 @@ void page_xfer(void){
         Stmt qSynclog;
         if( xfer.nToken>=2 ){
           zClientUrl = blob_str(&xfer.aToken[2]);
-          if( sqlite3_strlike("http%//localhost%", zClientUrl, 0)==0 ){
+          if( zClientUrl!=0
+           && sqlite3_strlike("http%//localhost%", zClientUrl, 0)==0
+          ){
             zClientUrl = 0;
           }
         }
@@ -2212,7 +2214,9 @@ int client_sync(
     /* Transfer SYNCLOG data on the first roundtrip, if appropriate */
     if( nCycle==0 ){
       const char *zSelfUrl = public_url();
-      if( sqlite3_strlike("http%//localhost%", zSelfUrl, 0)==0 ){
+      if( zSelfUrl!=0
+       && sqlite3_strlike("http%//localhost%", zSelfUrl, 0)==0
+      ){
         zSelfUrl = 0;
       }
       if( zSelfUrl==0 ){
@@ -2726,7 +2730,8 @@ int client_sync(
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
         if( (syncFlags & SYNC_IFABLE)!=0
-         && sqlite3_strlike("%not authorized to write%",zMsg,0)==0 ){
+         && sqlite3_strlike("%not authorized to write%",zMsg,0)==0
+        ){
           autopushFailed = 1;
           nErr++;
         }else if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
