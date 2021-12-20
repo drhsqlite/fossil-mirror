@@ -95,12 +95,30 @@ static int client_sync_all_urls(
 }
 
 /*
+** Modify the URL to remove the username/password.
+*/
+static void remove_url_username(char *z){
+  int i, j;
+  for(i=0; z[i] && z[i]!='/'; i++){}
+  if( z[i+1]!='/' ) return;
+  i += 2;
+  for(j=i; z[j] && z[j]!='@'; j++){}
+  if( z[j]==0 ) return;
+  j++;
+  do{
+    z[i++] = z[j];
+  }while( z[j++]!=0 );
+}
+
+/*
 ** Make a new entry, or update an existing entry, in the SYNCLOG table.
 **
 ** For an ordinary push/pull, zType is NULL.  But it may also be a string
 ** describing non-standard operations.  For example zType might be "git"
 ** when doing a "fossil git export", or zType might be "import" when doing
 ** a "fossil pull --from-parent-project".
+**
+** Usernames are stripped from the zFrom and zTo URLs
 */
 void sync_log_entry(
   const char *zFrom,        /* Content comes from this machine */
@@ -108,7 +126,19 @@ void sync_log_entry(
   i64 iTime,                /* Transfer time, or 0 for "now" */  
   const char *zType         /* Type of sync.  NULL for normal */
 ){
+  char *zFree1 = 0;
+  char *zFree2 = 0;
   schema_synclog();
+  if( sqlite3_strglob("http*://*@*", zFrom)==0 ){
+    zFree1 = fossil_strdup(zFrom);
+    remove_url_username(zFree1);
+    zFrom = zFree1;
+  }
+  if( sqlite3_strglob("http*://*@*", zTo)==0 ){
+    zFree2 = fossil_strdup(zTo);
+    remove_url_username(zFree2);
+    zTo = zFree2;
+  }
   if( iTime<=0 ){
     db_multi_exec(
       "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
@@ -124,6 +154,8 @@ void sync_log_entry(
       zFrom, zTo, iTime, zType, iTime, iTime
     );
   }
+  fossil_free(zFree1);
+  fossil_free(zFree2);
 }
 
 
@@ -757,7 +789,7 @@ void backup_cmd(void){
 void synclog_cmd(void){
   Stmt q;
   int cnt;
-  const int nIndent = 3;
+  const int nIndent = 2;
   db_find_and_open_repository(0,0);
   db_prepare(&q,
     "WITH allpull(xfrom,xto,xtime) AS MATERIALIZED (\n"
