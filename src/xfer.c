@@ -1749,7 +1749,10 @@ void page_xfer(void){
       ** Request synclog data.  If the CLIENT-URL  argument is provided,
       ** it will be the canonical URL for the client.
       */
-      if( blob_eq(&xfer.aToken[1], "req-synclog") && g.perm.RdSLog ){
+      if( blob_eq(&xfer.aToken[1], "req-synclog") 
+       && g.perm.RdSLog
+       && db_table_exists("repository","synclog")
+      ){
         Stmt qSynclog;
         if( xfer.nToken>=2 ){
           zClientUrl = blob_str(&xfer.aToken[2]);
@@ -2223,7 +2226,9 @@ int client_sync(
         blob_appendf(&send,"pragma req-synclog\n");
       }else{
         blob_appendf(&send,"pragma req-synclog %s\n", zSelfUrl);
-        if( syncFlags & SYNC_PUSH_SYNCLOG ){
+        if( (syncFlags & SYNC_PUSH_SYNCLOG)!=0
+         && db_table_exists("repository","synclog")
+        ){
           Stmt qSynclog;
           db_prepare(&qSynclog,
             "SELECT sfrom, sto, unixepoch(stime), stype FROM synclog"
