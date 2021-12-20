@@ -1,5 +1,5 @@
-C Prevent\sa\sduplicate\s'Logout'\smenu\sin\sthe\sEagle\sskin.
-D 2021-12-19T02:08:49.933
+C Adds\sa\scontent-length\scheck\safter\sreading\sCGI\sstdin\sto\sensure\sthat\swe\sdon't\scontinue\swith\sa\sshort\sread.\sPatch\sfrom\sWarren\sin\s/chat.
+D 2021-12-20T08:33:10.523
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -426,7 +426,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 53239fff3634a5dca529171af8ae30ac14520cf1731909af501566130f8f73ed
+F src/cgi.c a45bba7c9730d33533ce48c4224b07aa768aa2961fefde3d76816a5def772034
 F src/chat.c 834f406b750e33301797aa5af3e0038c03bf3a4a373f2d4716313c87ad653f3f
 F src/checkin.c dee878bb57082c264db1a9ce67e7c98086ba48685343a1e67d53473f479b216f
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
@@ -987,7 +987,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14c92366f96b65d1bcc948afe05588e88737dfd61dac713eee90706b4ed776cf
-R 7fb0492c43de23e4a829c29c2b1de7d0
-U mistachkin
-Z ccb833df8e0ee00be953f5e9880c5401
+P fb683a3e02fb8adda8f4ead6d6a5a80d9b4d23a851343b2ce8813fdd3135c295
+R 3c84ab717f82f310a01bffe4de33bfca
+T *branch * content-length-patch
+T *sym-content-length-patch *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z fb5a6571fa6df44c389524b3dee8bf54

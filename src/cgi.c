@@ -1198,7 +1198,9 @@ void cgi_init(void){
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
     if( fossil_strcmp(zType, "application/x-fossil")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+      if( blob_read_from_channel(&g.cgiIn, g.httpIn, len)!=len ){
+        malformed_request("CGI content-length mismatch");
+      }
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
