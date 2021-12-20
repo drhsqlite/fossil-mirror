@@ -794,6 +794,7 @@ void synclog_cmd(void){
   int cnt;
   const int nIndent = 2;
   db_find_and_open_repository(0,0);
+  schema_synclog();
   db_prepare(&q,
     "WITH allpull(xfrom,xto,xtime) AS MATERIALIZED (\n"
     "  SELECT sfrom, sto, max(stime) FROM synclog GROUP BY 1\n"

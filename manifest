@@ -1,5 +1,5 @@
-C Fix\sa\scompiler\swarning\sand\sreduce\sthe\sindentation\sfor\snested\ssynclog\ndisplay\son\sthe\s/urllist\spage.
-D 2021-12-20T13:28:17.507
+C Make\ssure\sthe\ssynclog\stable\sexists\swhen\srunning\sthe\ssynclog\scommand.
+D 2021-12-20T13:43:27.022
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 856c865bab38b9e1d28f35b0fd6a14e9de841b1795e95efaf47a40ab4e3d8a2a
+F src/sync.c 0d8f47d9932ecd20732a4e8133bf8a79807ac04e700e0a3b8e0134c1b80ce6b1
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a2b980d0d1a288c793e397a29fb14bd9e97a089ba00cf2d0747f58cc9c2f4c8
-R 66a9c95daceba2dfb165345dac9b3820
+P 59bd2ec738a381cd7f09b897538b30ad85b6c52a73241db6d5f5d3350843135e
+R ebc96ddd4fdf7b10ca1a3cad7769379f
 U drh
-Z 830adec5e8de68aa8e25b53fdff8e369
+Z 89a5e6565b0253a2fad09f9d8125603d
