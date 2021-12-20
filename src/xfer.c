@@ -1154,6 +1154,39 @@ int xfer_run_common_script(void){
 }
 
 /*
+** The current line is a "pragma synclog".  Accept this line into
+** the SYNCLOG table, if appropriate.
+**
+**    pragma synclog FROM TO MTIME ?TYPE?
+**
+** The name of the remote size is zRemote.  The value of "this" for
+** either the FROM or TO fields is converted into zRemote.
+**
+** If either FROM or TO is an alias for the current repository, then
+** silently reject the entry.
+*/
+static void xfer_accept_synclog_pragma(
+  Xfer *pXfer,             /* Current line of xfer script */
+  const char *zRemote      /* The name of the remote repository */
+){
+  const char *zFrom = blob_str(&pXfer->aToken[2]);
+  const char *zTo = blob_str(&pXfer->aToken[3]);
+  i64 iTime = strtoll(blob_str(&pXfer->aToken[4]), 0, 0);
+  const char *zType = pXfer->nToken>=5 ? blob_str(&pXfer->aToken[5]) : 0;
+  if( strcmp(zFrom, "this")==0 ){
+    zFrom = zRemote;
+  }else if( db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'",zFrom) ){
+    iTime = 0;
+  }
+  if( strcmp(zTo, "this")==0 ){
+    zTo = zRemote;
+  }else if( db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'",zTo) ){
+    iTime = 0;
+  }
+  if( iTime>0 ) sync_log_entry(zFrom, zTo, iTime, zType);
+}
+
+/*
 ** If this variable is set, disable login checks.  Used for debugging
 ** only.
 */
@@ -1189,6 +1222,7 @@ void page_xfer(void){
   char **pzUuidList = 0;
   int *pnUuidList = 0;
   int uvCatalogSent = 0;
+  const char *zClientUrl = 0;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1688,7 +1722,7 @@ void page_xfer(void){
         if( db_get_boolean("forbid-delta-manifests",0) ){
           @ pragma avoid-delta-manifests
         }
-      }
+      }else
 
       /*   pragma ci-unlock CLIENT-ID
       **
@@ -1708,6 +1742,57 @@ void page_xfer(void){
           blob_str(&xfer.aToken[2])
         );
         db_protect_pop();
+      }else
+
+      /*   pragma req-synclog ?CLIENT-URL?
+      **
+      ** Request synclog data.  If the CLIENT-URL  argument is provided,
+      ** it will be the canonical URL for the client.
+      */
+      if( blob_eq(&xfer.aToken[1], "req-synclog") && g.perm.RdSLog ){
+        Stmt qSynclog;
+        if( xfer.nToken>=2 ){
+          zClientUrl = blob_str(&xfer.aToken[2]);
+          if( sqlite3_strlike("http%//localhost%", zClientUrl, 0)==0 ){
+            zClientUrl = 0;
+          }
+        }
+        db_prepare(&qSynclog,
+          "SELECT sfrom, sto, unixepoch(stime), stype FROM synclog"
+        );
+        while( db_step(&qSynclog)==SQLITE_ROW ){
+          const char *zFrom = db_column_text(&qSynclog,0);
+          const char *zTo = db_column_text(&qSynclog,1);
+          const char *zTime = db_column_text(&qSynclog,2);
+          const char *zType = db_column_text(&qSynclog,3);
+          if( zClientUrl ){
+            if( strcmp(zFrom, zClientUrl)==0 ) continue;
+            if( strcmp(zTo, zClientUrl)==0 ) continue;
+          }
+          if( zType!=0 && zType[0]!=0 ){
+            @ pragma synclog %s(zFrom) %s(zTo) %s(zTime) %s(zType)
+          }else{
+            @ pragma synclog %s(zFrom) %s(zTo) %s(zTime)
+          }
+        }
+      }else
+
+      /*   pragma synclog FROM TO MTIME ?TYPE?
+      **
+      ** The client is uploading an entry from its SYNCLOG table.  This
+      ** will only be accepted if both:
+      **
+      **    (1) The client as WrSLog permission
+      **    (2) A prior req-synclog pragma has identified the URL of the client
+      **
+      ** Insert the entry into the SYNC log if appropriate.
+      */
+      if( xfer.nToken>=4
+       && blob_eq(&xfer.aToken[1], "synclog")
+       && g.perm.WrSLog
+       && zClientUrl!=0
+      ){
+        xfer_accept_synclog_pragma(&xfer, zClientUrl);
       }
 
     }else
@@ -2124,6 +2209,40 @@ int client_sync(
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
 
+    /* Transfer SYNCLOG data on the first roundtrip, if appropriate */
+    if( nCycle==0 ){
+      const char *zSelfUrl = public_url();
+      if( sqlite3_strlike("http%//localhost%", zSelfUrl, 0)==0 ){
+        zSelfUrl = 0;
+      }
+      if( zSelfUrl==0 ){
+        blob_appendf(&send,"pragma req-synclog\n");
+      }else{
+        blob_appendf(&send,"pragma req-synclog %s\n", zSelfUrl);
+        if( syncFlags & SYNC_PUSH_SYNCLOG ){
+          Stmt qSynclog;
+          db_prepare(&qSynclog,
+            "SELECT sfrom, sto, unixepoch(stime), stype FROM synclog"
+            " WHERE sfrom!=%Q AND sto!=%Q",
+            g.url.canonical, g.url.canonical
+          );
+          while( db_step(&qSynclog)==SQLITE_ROW ){
+            const char *zFrom = db_column_text(&qSynclog,0);
+            const char *zTo = db_column_text(&qSynclog,1);
+            const char *zTime = db_column_text(&qSynclog,2);
+            const char *zType = db_column_text(&qSynclog,3);
+            if( zType!=0 && zType[0]!=0 ){
+              blob_appendf(&send,"pragma synclog %s %s %s %s\n",
+                   zFrom, zTo, zTime, zType);
+            }else{
+              blob_appendf(&send,"pragma synclog %s %s %s\n",
+                   zFrom, zTo, zTime);
+            }
+          }
+        }
+      }
+    }
+
     /* Append randomness to the end of the uplink message.  This makes all
     ** messages unique so that that the login-card nonce will always
     ** be unique.
@@ -2526,15 +2645,15 @@ int client_sync(
           }
         }
 
-        /*   pragma synclog FROM TO MTIME TYPE
+        /*   pragma synclog FROM TO MTIME ?TYPE?
         **
         ** The server is downloading an entry from its SYNCLOG table.  Merge
         ** this into the local SYNCLOG table if appropriate.
         ** is running.  The DATE and TIME are a pure numeric ISO8601 time
         ** for the specific check-in of the client.
         */
-        if( xfer.nToken==5 && blob_eq(&xfer.aToken[1], "synclog") ){
-          /* TBD */
+        if( xfer.nToken>=4 && blob_eq(&xfer.aToken[1], "synclog") ){
+          xfer_accept_synclog_pragma(&xfer, g.url.canonical);
         }
 
         /*   pragma uv-pull-only
@@ -2707,7 +2826,16 @@ int client_sync(
   }
 
   if( nErr==0 ){
-    sync_log_entry(syncFlags, g.url.canonical,  zAltPCode!=0 ? "import" : 0, 0);
+    if( zAltPCode!=0 ){
+      sync_log_entry(g.url.canonical, "this", 0, "import");
+    }else{
+      if( syncFlags & SYNC_PUSH ){
+        sync_log_entry("this", g.url.canonical, 0, 0);
+      }
+      if( syncFlags & SYNC_PULL ){
+        sync_log_entry(g.url.canonical, "this", 0, 0);
+      }
+    }
   }
 
   fossil_force_newline();

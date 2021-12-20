@@ -95,54 +95,35 @@ static int client_sync_all_urls(
 }
 
 /*
-** Make a new entry, or update an existing entry, in the SYNCLOG table
-** for a push or pull from this repository to another server named zRemote.
+** Make a new entry, or update an existing entry, in the SYNCLOG table.
 **
 ** For an ordinary push/pull, zType is NULL.  But it may also be a string
 ** describing non-standard operations.  For example zType might be "git"
 ** when doing a "fossil git export", or zType might be "import" when doing
 ** a "fossil pull --from-parent-project".
-**
-** For this routine, the sfrom value is always 'self'.  The sto value is
-** the zRemote parameter.  sto+sfrom form the primary key.  If an entry
-** already exists with the same primary key, then the spull or spush times
-** are updated (or both).
 */
 void sync_log_entry(
-  int syncFlags,            /* Indicates whether a PUSH or PULL or both */
-  const char *zRemote,      /* Server with which we push or pull */
-  const char *zType,        /* Type of sync.  NULL for normal */
-  i64 iTime                 /* Seconds since 1970, or 0 for "now" */
+  const char *zFrom,        /* Content comes from this machine */
+  const char *zTo,          /* Content goes to this machine */
+  i64 iTime,                /* Transfer time, or 0 for "now" */  
+  const char *zType         /* Type of sync.  NULL for normal */
 ){
-  Stmt s;
   schema_synclog();
   if( iTime<=0 ){
-    db_prepare(&s,
+    db_multi_exec(
       "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
-      " VALUES(:sfrom,:sto,unixepoch(),%Q)"
+      " VALUES(%Q,%Q,unixepoch(),%Q)"
       " ON CONFLICT DO UPDATE SET stime=unixepoch()",
-      zType
+      zFrom, zTo, zType
     );
   }else{
-    db_prepare(&s,
+    db_multi_exec(
       "INSERT INTO repository.synclog(sfrom,sto,stime,stype)"
-      " VALUES(:sfrom,:sto,%lld,%Q)"
+      " VALUES(%Q,%Q,%lld,%Q)"
       " ON CONFLICT DO UPDATE SET stime=%lld WHERE stime<%lld",
-      iTime, zType, iTime, iTime
+      zFrom, zTo, iTime, zType, iTime, iTime
     );
   }
-  if( syncFlags & (SYNC_PULL|SYNC_CLONE) ){
-    db_bind_text(&s, ":sfrom", zRemote);
-    db_bind_text(&s, ":sto", "this");
-    db_step(&s);
-    db_reset(&s);
-  }
-  if( syncFlags & (SYNC_PUSH) ){
-    db_bind_text(&s, ":sfrom", "this");
-    db_bind_text(&s, ":sto", zRemote);
-    db_step(&s);
-  }
-  db_finalize(&s);
 }
 
 
@@ -761,6 +742,6 @@ void backup_cmd(void){
   db_unprotect(PROTECT_ALL);
   db_multi_exec("VACUUM repository INTO %Q", zDest);
   zFullName = file_canonical_name_dup(zDest);
-  sync_log_entry(SYNC_PUSH, zFullName, "backup", 0);
+  sync_log_entry("this", zFullName, 0, "backup");
   fossil_free(zFullName);
 }
