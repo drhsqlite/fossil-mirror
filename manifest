@@ -1,5 +1,5 @@
-C ardoise\sskin:\sfix\smisalignment\sof\schanged\slines\sand\sline\snumbers\sin\sthe\sunified\sview.
-D 2021-12-20T12:30:51.436
+C In\sthe\sdiff\sgenerator,\sallow\soptimial-LCS\sruns\sto\sbe\s4\stimes\sas\slarge.\nFix\sfor\sthe\sissue\sreported\sat\n[forum:/forumpost/298bcd17cd|forum\spost\s298bcd17cd]
+D 2021-12-20T16:10:57.613
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -450,7 +450,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 06600800f4dd59b00f7729ed0a1d6f1316073c6da289e7ee368907a0d68bb09c
+F src/diff.c 2ec589cfa6c6149d04e5402ba2a167d5563cf6825b403ccb132dfdb57b399109
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c b0720c2b74db135e1284a890d158b2c4bc41a7c891d526f3b8529ae0ae2d788b
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22e41fe344d2b98423203b4c513ba9b4c4c25599e53e2c3e931d844ed2ffed65
-R acd750d36575e97ee0c5fd5bb74e3634
-U danield
-Z d82e1e1a38f7bb4e9a34e1024b437b9b
+P 44b92c79de0b84362040de93ed059192fd8121d7eae03a20607c0c2d243e47e3
+R 969a9d9e8d743f091342cad9a665e0fa
+U drh
+Z b3f3d9af43478d5fbbcf0244336cf7ed
