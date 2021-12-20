@@ -574,6 +574,12 @@ code {
 table.numbered-lines td.file-content > pre {
   margin-top: -2px/*offset CODE tag border*/;
 }
+table.numbered-lines {
+  font-family: monospace;
+}
+table.numbered-lines pre {
+  font-family: inherit;
+}
 pre > code {
   padding: 1rem 1.5rem;
   white-space: pre
@@ -1129,7 +1135,7 @@ table.diff pre {
   scrollbar-color: black #999;
 }
 table.udiff pre {
-  padding: 10px 0
+  padding: 0 0
 }
 td.difftxt {
   width: 52rem;

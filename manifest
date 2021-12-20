@@ -1,5 +1,5 @@
-C Document\sthe\s--synclog\soption\son\s"fossil\ssync"\sand\ssimilar.\s\s\nAdd\s--synclog\sto\s"fossil\sall\ssync"\sand\ssimilar.
-D 2021-12-20T13:02:33.364
+C Merge\sthe\sardoise\sskin\sCSS\sfix\sfrom\strunk.
+D 2021-12-20T13:06:46.932
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -313,7 +313,7 @@ F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 6b83527a4bc17ad7f855dbdfb7d5d1e456fb77e9b0c8f9b63bdf2c4faa74003c
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 1f7ee6a03fcdcf068d33103d0f017b2e01304e7d66f29bdf50e05610cb5416ff
+F skins/ardoise/css.txt d01376b825fb58bea8399662b232fe08dc39bbac9a12bd27005cfe7581814c63
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
 F skins/ardoise/footer.txt 3158faf0fe96034417cac8a4e210aaa2d79094cf108db8a7546c6be4ba037e22
 F skins/ardoise/header.txt 164e896364d9603946e3f0a055413b8502e689bbb09ba839abd8abf9d4c29e23
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42a23ae71f3923db839c0cd12d25cb1b6439fe5cc139c8a87d7b64453ef8ebfb
-R 5a6a83a85ac66d1327c3d1254c451c80
+P aa9e43bf28c1c439c1e37b9dc52899e871787931c679a28c37832c88cb4ef7ca 44b92c79de0b84362040de93ed059192fd8121d7eae03a20607c0c2d243e47e3
+R 8feea0134440873e9e6545304236e0f0
 U drh
-Z 162a19fd024aa638536397d6a87796b3
+Z 17bd81485a68f982126b4eaa1c2f87cb
