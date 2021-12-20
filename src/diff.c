@@ -2291,6 +2291,8 @@ static void longestCommonSequence(
   sqlite3_int64 bestScore;      /* Best score so far */
   sqlite3_int64 score;          /* Score for current candidate LCS */
   int span;                     /* combined width of the input sequences */
+  int cutoff = 4;            /* Max hash chain entries to follow */
+  int nextCutoff = -1;       /* Value of cutoff for next iteration */
 
   span = (iE1 - iS1) + (iE2 - iS2);
   bestScore = -10000;
@@ -2300,57 +2302,61 @@ static void longestCommonSequence(
   iSYb = iSYp = iS2;
   iEYb = iEYp = iS2;
   mid = (iE1 + iS1)/2;
-  for(i=iS1; i<iE1; i++){
-    int limit = 0;
-    j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
-    while( j>0
-      && (j-1<iS2 || j>=iE2 || p->xDiffer(&p->aFrom[i], &p->aTo[j-1]))
-    ){
-      if( limit++ > 10 ){
-        j = 0;
-        break;
+  do{
+    nextCutoff = 0;
+    for(i=iS1; i<iE1; i++){
+      int limit = 0;
+      j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
+      while( j>0
+        && (j-1<iS2 || j>=iE2 || p->xDiffer(&p->aFrom[i], &p->aTo[j-1]))
+      ){
+        if( limit++ > cutoff ){
+          j = 0;
+          nextCutoff = cutoff*4;
+          break;
+        }
+        j = p->aTo[j-1].iNext;
       }
-      j = p->aTo[j-1].iNext;
+      if( j==0 ) continue;
+      assert( i>=iSXb && i>=iSXp );
+      if( i<iEXb && j>=iSYb && j<iEYb ) continue;
+      if( i<iEXp && j>=iSYp && j<iEYp ) continue;
+      iSX = i;
+      iSY = j-1;
+      pA = &p->aFrom[iSX-1];
+      pB = &p->aTo[iSY-1];
+      n = minInt(iSX-iS1, iSY-iS2);
+      for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA--, pB--){}
+      iSX -= k;
+      iSY -= k;
+      iEX = i+1;
+      iEY = j;
+      pA = &p->aFrom[iEX];
+      pB = &p->aTo[iEY];
+      n = minInt(iE1-iEX, iE2-iEY);
+      for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA++, pB++){}
+      iEX += k;
+      iEY += k;
+      skew = (iSX-iS1) - (iSY-iS2);
+      if( skew<0 ) skew = -skew;
+      dist = (iSX+iEX)/2 - mid;
+      if( dist<0 ) dist = -dist;
+      score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
+      if( score>bestScore ){
+        bestScore = score;
+        iSXb = iSX;
+        iSYb = iSY;
+        iEXb = iEX;
+        iEYb = iEY;
+      }else if( iEX>iEXp ){
+        iSXp = iSX;
+        iSYp = iSY;
+        iEXp = iEX;
+        iEYp = iEY;
+      }
     }
-    if( j==0 ) continue;
-    assert( i>=iSXb && i>=iSXp );
-    if( i<iEXb && j>=iSYb && j<iEYb ) continue;
-    if( i<iEXp && j>=iSYp && j<iEYp ) continue;
-    iSX = i;
-    iSY = j-1;
-    pA = &p->aFrom[iSX-1];
-    pB = &p->aTo[iSY-1];
-    n = minInt(iSX-iS1, iSY-iS2);
-    for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA--, pB--){}
-    iSX -= k;
-    iSY -= k;
-    iEX = i+1;
-    iEY = j;
-    pA = &p->aFrom[iEX];
-    pB = &p->aTo[iEY];
-    n = minInt(iE1-iEX, iE2-iEY);
-    for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA++, pB++){}
-    iEX += k;
-    iEY += k;
-    skew = (iSX-iS1) - (iSY-iS2);
-    if( skew<0 ) skew = -skew;
-    dist = (iSX+iEX)/2 - mid;
-    if( dist<0 ) dist = -dist;
-    score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
-    if( score>bestScore ){
-      bestScore = score;
-      iSXb = iSX;
-      iSYb = iSY;
-      iEXb = iEX;
-      iEYb = iEY;
-    }else if( iEX>iEXp ){
-      iSXp = iSX;
-      iSYp = iSY;
-      iEXp = iEX;
-      iEYp = iEY;
-    }
-  }
-  if( iSXb==iEXb && (sqlite3_int64)(iE1-iS1)*(iE2-iS2)<1600 ){
+  }while( iSXb==iEXb && nextCutoff && (cutoff=nextCutoff)<=64 );
+  if( iSXb==iEXb && (sqlite3_int64)(iE1-iS1)*(iE2-iS2)<2500 ){
     /* If no common sequence is found using the hashing heuristic and
     ** the input is not too big, use the expensive exact solution */
     optimalLCS(p, iS1, iE1, iS2, iE2, piSX, piEX, piSY, piEY);
