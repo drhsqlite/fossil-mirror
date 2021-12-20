@@ -1709,13 +1709,15 @@ void gitmirror_export_command(void){
   zPushUrl = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
   if( zPushUrl ){
     char *zPushCmd;
+    const char *zUrl;
     UrlData url;
     if( sqlite3_strglob("http*", zPushUrl)==0 ){
       url_parse_local(zPushUrl, 0, &url);
-      zPushCmd = mprintf("git push --mirror %s", url.canonical);
+      zUrl = url.canonical;
     }else{
-      zPushCmd = mprintf("git push --mirror %s", zPushUrl);
+      zUrl = zPushUrl;
     }
+    zPushCmd = mprintf("git push --mirror %s", url.canonical);
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
     zPushCmd = mprintf("git push --mirror %$", zPushUrl);
@@ -1727,7 +1729,7 @@ void gitmirror_export_command(void){
       db_multi_exec("REPLACE INTO config(name,value,mtime)"
                     "VALUES('gitpush:%q',1,now())", zPushUrl);
       db_protect_pop();
-      sync_log_entry("this", zPushUrl, 0, "git-push");
+      sync_log_entry("this", zUrl, 0, "git-push");
     }
     fossil_free(zPushCmd);
   }

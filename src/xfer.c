@@ -1760,7 +1760,7 @@ void page_xfer(void){
           }
         }
         db_prepare(&qSynclog,
-          "SELECT sfrom, sto, unixepoch(stime), stype FROM synclog"
+          "SELECT sfrom, sto, unixepoch(stime,'auto'), stype FROM synclog"
         );
         while( db_step(&qSynclog)==SQLITE_ROW ){
           const char *zFrom = db_column_text(&qSynclog,0);
