@@ -546,7 +546,7 @@ void urllist_page(void){
 
   if( db_table_exists("repository","synclog") ){
     /* This code derived from the "synclog" command in "sync.c" */
-    const nIndent = 3;
+    const int nIndent = 2;
     db_prepare(&q,
       "WITH allpull(xfrom,xto,xtime) AS MATERIALIZED (\n"
       "  SELECT sfrom, sto, max(stime) FROM synclog GROUP BY 1\n"
