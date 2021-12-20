@@ -365,6 +365,7 @@ static void process_sync_args(
 **   -R|--repository REPO       Local repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --synclog                  Push local synclog information to the server
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -416,6 +417,7 @@ void pull_cmd(void){
 **   -R|--repository REPO       Local repository to push from
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --synclog                  Push local synclog information to the server
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -463,6 +465,7 @@ void push_cmd(void){
 **   -R|--repository REPO       Local repository to sync with
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --synclog                  Push local synclog information to the server
 **   -u|--unversioned           Also sync unversioned content
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote

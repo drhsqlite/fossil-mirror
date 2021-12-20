@@ -100,18 +100,18 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    info        Run the "info" command on all repositories.
 **
 **    pull        Run a "pull" operation on all repositories.  Only the
-**                --verbose option is supported.
+**                --verbose and --synclog options are supported.
 **
 **    push        Run a "push" on all repositories.  Only the --verbose
-**                option is supported.
+**                and --synclog options is supported.
 **
 **    rebuild     Rebuild on all repositories.  The command line options
 **                supported by the rebuild command itself, if any are
 **                present, are passed along verbatim.  The --force and
 **                --randomize options are not supported.
 **
-**    sync        Run a "sync" on all repositories.  Only the --verbose
-**                and --unversioned options are supported.
+**    sync        Run a "sync" on all repositories.  Only the --verbose,
+**                --unversioned, and --synclog options are supported.
 **
 **    set         Run the "setting" or "set" commands on all
 **                repositories.  These command are particularly useful in
@@ -266,9 +266,11 @@ void all_cmd(void){
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
     collect_argument(&extra, "verbose","v");
+    collect_argument(&extra, "synclog",0);
   }else if( strncmp(zCmd, "pull", n)==0 ){
     zCmd = "pull -autourl -R";
     collect_argument(&extra, "verbose","v");
+    collect_argument(&extra, "synclog",0);
   }else if( strncmp(zCmd, "rebuild", n)==0 ){
     zCmd = "rebuild";
     collect_argument(&extra, "cluster",0);
@@ -297,6 +299,7 @@ void all_cmd(void){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
+    collect_argument(&extra, "synclog",0);
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);

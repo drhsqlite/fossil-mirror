@@ -1,5 +1,5 @@
-C Ensure\sthat\sthe\ssynclog\stable\sexists\sbefore\strying\sto\squery\sit.
-D 2021-12-20T12:54:24.926
+C Document\sthe\s--synclog\soption\son\s"fossil\ssync"\sand\ssimilar.\s\s\nAdd\s--synclog\sto\s"fossil\sall\ssync"\sand\ssimilar.
+D 2021-12-20T13:02:33.364
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -412,7 +412,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 54bc8b2d0d03ff2241d20a5f60ca6b6e20521176d85a0b3f07a79e83a9e04485
+F src/allrepo.c 1ee23f65836de314ed880f3fc7d499ace9fc9a83e7e0bb3784888508448048c0
 F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
 F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 9945a85b036402fb4281a32f46a340aaf508e8a24d211dbfb0b66c3c63a003e4
+F src/sync.c 856c865bab38b9e1d28f35b0fd6a14e9de841b1795e95efaf47a40ab4e3d8a2a
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40170e6164a2b7e1dfccc4fd92528c01e1e5828a899ffdc05855ac561436cbb3
-R 42eca218bdcea4b79b8d51332e39ce81
+P 42a23ae71f3923db839c0cd12d25cb1b6439fe5cc139c8a87d7b64453ef8ebfb
+R 5a6a83a85ac66d1327c3d1254c451c80
 U drh
-Z a6f47e1ef033f1e6f0f983e71ca2fdb1
+Z 162a19fd024aa638536397d6a87796b3
