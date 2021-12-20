@@ -1135,7 +1135,7 @@ table.diff pre {
   scrollbar-color: black #999;
 }
 table.udiff pre {
-  padding: 10px 0
+  padding: 0 0
 }
 td.difftxt {
   width: 52rem;

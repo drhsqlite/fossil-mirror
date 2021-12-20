@@ -1,5 +1,5 @@
-C ardoise\sskin:\sfixed\smisalignment\sof\sline\snumber\sand\scontent\scolumns\sin\sthe\s/file\sline-number\sview.\sReported\sby\sDaniel\sD.\sin\s/chat.
-D 2021-12-20T11:54:38.838
+C ardoise\sskin:\sfix\smisalignment\sof\schanged\slines\sand\sline\snumbers\sin\sthe\sunified\sview.
+D 2021-12-20T12:30:51.436
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -313,7 +313,7 @@ F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 6b83527a4bc17ad7f855dbdfb7d5d1e456fb77e9b0c8f9b63bdf2c4faa74003c
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 26b6b8de5793888feee8a098a25063286517e1661fd1821de61d552c05c15b01
+F skins/ardoise/css.txt d01376b825fb58bea8399662b232fe08dc39bbac9a12bd27005cfe7581814c63
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
 F skins/ardoise/footer.txt 3158faf0fe96034417cac8a4e210aaa2d79094cf108db8a7546c6be4ba037e22
 F skins/ardoise/header.txt 164e896364d9603946e3f0a055413b8502e689bbb09ba839abd8abf9d4c29e23
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5bb5a7764aff998ba48868b507553a4b93a0e36c70dc444c6eaee419a778eab
-R 92723fc3a2009397266f60590ec827b3
-U stephan
-Z 245121b8c632ed068f422af80d128e6d
+P 22e41fe344d2b98423203b4c513ba9b4c4c25599e53e2c3e931d844ed2ffed65
+R acd750d36575e97ee0c5fd5bb74e3634
+U danield
+Z d82e1e1a38f7bb4e9a34e1024b437b9b
