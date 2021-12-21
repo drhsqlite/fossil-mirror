@@ -507,6 +507,7 @@ void urllist_page(void){
   int showAll = P("all")!=0;
   int nOmitted;
   sqlite3_int64 iNow;
+  char *zPriorRepo = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
@@ -589,6 +590,48 @@ void urllist_page(void){
     url_unparse(&x);
   }
   db_finalize(&q);
+  if( cnt ){
+    @ </table>
+  }
+
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT"
+    " substr(name,6),"
+    " datetime(mtime,'unixepoch'),"
+    " json_extract(value,'$.type'),"
+    " json_extract(value,'$.src')\n"
+    "FROM config\n"
+    "WHERE name GLOB 'link:*'\n"
+    "AND json_valid(value)\n"
+    "ORDER BY 4, 2 DESC"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    const char *zType = db_column_text(&q, 2);
+    const char *zSrc = db_column_text(&q, 3);
+    if( zUrl==0 || zSrc==0 ) continue;
+    if( cnt++==0 ){
+      @ <div class="section">Links from other repositories</div>
+      @ <table border='0' width='100%%'>
+    }
+    if( zPriorRepo==0 || strcmp(zUrl,zSrc)!=0 ){
+      fossil_free(zPriorRepo);
+      zPriorRepo = fossil_strdup(zSrc);
+      @ <tr><td colspan="4">\
+      @ From <a href='%T(zSrc)'>%h(zSrc)</a>...</td></tr>
+    }
+    @ <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    @ <td width='90%%'><a href='%h(zUrl)'>%h(zUrl)</a></td>
+    if( zType ){
+      @ <td>&nbsp;(%h(zType))&nbsp;</td>
+    }else{
+      @ <td>&nbsp;</td>
+    }
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+  }
+  db_finalize(&q);
+  fossil_free(zPriorRepo);
   if( cnt ){
     @ </table>
   }

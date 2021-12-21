@@ -1,5 +1,5 @@
-C The\s--share-links\soption\son\s"fossil\ssync"\sand\ssimilar\scauses\sthe\sserver\sto\nreply\swith\s"pragma\slink"\slines\sthat\sidentify\sother\srepositories\swith\swhich\nthe\sserver\shas\sinteracted\swithin\sthe\spast\smonth.\s\sThose\slinks\sare\srecorded\nin\s"link:URL"\sentries\sof\sthe\sCONFIG\stable\son\sthe\sclient.
-D 2021-12-21T19:50:31.088
+C Add\sthe\s"Links\sfrom\sother\srepositories"\ssection\son\sthe\s/urllist\spage.
+D 2021-12-21T20:20:24.262
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -600,7 +600,7 @@ F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece
 F src/sqlite3.c 10f699203768ef6a10006bf578752d4fb255db4653bbbc68c359bcde7559830e
 F src/sqlite3.h 2ba5af54f57390263c62f9cb66321ddb0ab586c458f5e8aa58b0b01a3a1735c2
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
-F src/stat.c 0ee4593c0a992fe209e8d3ee7b46d78b13d9f8c03e50273d9f3a7f01aee1316c
+F src/stat.c ed27388a39c62c3f9e1a1fd65e5720197a9d2e8813a2ed08403bed1df4745ce8
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ff45df4294c178cbb7c5556432427b9c5bc62b348b6984c9c98afb9a397871c
-R 77c2988ba3b0fa3ce7d5bad8c13341aa
+P 12d2f70bdff55411e8a0df1a62d50215185e1ab3200aa350ce78959b3d8c133a
+R e936110edf1e2505e1fb1e9dca1b4c4f
 U drh
-Z a008aaef2313498e9b5a35ccd5bbacce
+Z 430f1ddfa8dd447d55947de41e980aa3
 # Remove this line to create a well-formed Fossil manifest.
