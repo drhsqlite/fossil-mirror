@@ -1,5 +1,5 @@
-C Better\sdocumentation\sfor\sthe\semail-url\ssetting.\s\sAdd\sa\snew\sentry\sform\sfor\nthe\semail-url\ssetting\son\sthe\s/setup_config\spage.
-D 2021-12-20T20:52:50.526
+C Add\sthe\s"pragma\sclient-url"\scard\sto\sthe\ssync\sprotocol.
+D 2021-12-21T12:43:58.445
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -637,7 +637,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c ab75eacf2ae2378f15330dd86c75b5802e4ad91a0e7c02273ad223d7ca1c3266
-F src/xfer.c c5e87f6a24f63fae0cf65c21eeb11305c9f62ae3fca0da7913d49362d56298be
+F src/xfer.c aa68e8ece40239928f0b116cfa567514de272b8eef75b08c6f627a8357d2f037
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1865cf4ce233237fd3658ddc5546e2b32b29892efbc5257286a70a1a619798f3
-R d29d5f61b661f643b3ef3e6a411c2f19
+P 7e993c709ad18efbced3db9055b674c5140876e1cee4c2091754cc63717cc0d6
+R 38b3dcaf81c7690a6ab22439391e9dcc
 U drh
-Z 90aca5daaf00fc5b8b863e038e0247b1
+Z 2207cae548f48b478db7aff9a125b48b

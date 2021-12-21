@@ -1154,6 +1154,25 @@ int xfer_run_common_script(void){
 }
 
 /*
+** This routine makes a "syncwith:URL" entry in the CONFIG table to
+** indicate that a sync is occuring with zUrl.
+*/
+static void xfer_syncwith(const char *zUrl){
+  UrlData x;
+  memset(&x, 0, sizeof(x));
+  url_parse_local(zUrl, URL_OMIT_USER, &x);
+  if( x.protocol && strncmp(x.protocol,"http",4)==0
+   && x.name && sqlite3_strlike("%localhost%", x.name, 0)!=0
+  ){
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec("REPLACE INTO config(name,value,mtime)"
+                  "VALUES('syncwith:%q',1,now())", x.canonical);
+    db_protect_pop();
+  }
+  url_unparse(&x);
+}
+
+/*
 ** If this variable is set, disable login checks.  Used for debugging
 ** only.
 */
@@ -1710,6 +1729,19 @@ void page_xfer(void){
         db_protect_pop();
       }
 
+      /*   pragma client-url URL
+      **
+      ** This pragma is an informational notification to the server that
+      ** their relationship could, in theory, be inverted by having the
+      ** server call the client at URL.
+      */
+      if( blob_eq(&xfer.aToken[1], "client-url")
+       && xfer.nToken==3
+       && g.perm.Write
+      ){
+        xfer_syncwith(blob_str(&xfer.aToken[2]));
+      }
+
     }else
 
     /* Unknown message
@@ -2147,10 +2179,17 @@ int client_sync(
     /* Remember the URL of the sync target in the config file on the
     ** first successful round-trip */
     if( nCycle==0 && db_is_writeable("repository") ){
-      db_unprotect(PROTECT_CONFIG);
-      db_multi_exec("REPLACE INTO config(name,value,mtime)"
-                    "VALUES('syncwith:%q',1,now())", g.url.canonical);
-      db_protect_pop();
+      xfer_syncwith(g.url.canonical);
+    }
+
+    /* Send the client-url pragma on the first cycle if the client has
+    ** a known public url.
+    */
+    if( nCycle==0 ){
+      const char *zSelfUrl = public_url();
+      if( zSelfUrl ){
+        blob_appendf(&send, "pragma client-url %s\n", zSelfUrl);
+      }
     }
 
     /* Output current stats */
