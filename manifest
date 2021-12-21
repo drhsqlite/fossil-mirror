@@ -1,5 +1,5 @@
-C For\s"fossil\sgit\sexport",\sadd\sthe\scomment\sline\sat\sthe\send\sof\sautomatically\ngenerated\s"manifest"\sfiles\sso\sthat\sthey\sdo\snot\sappear\sto\sbe\svalid\sFossil\nartifacts.
-D 2021-12-21T18:22:40.618
+C The\s--share-links\soption\son\s"fossil\ssync"\sand\ssimilar\scauses\sthe\sserver\sto\nreply\swith\s"pragma\slink"\slines\sthat\sidentify\sother\srepositories\swith\swhich\nthe\sserver\shas\sinteracted\swithin\sthe\spast\smonth.\s\sThose\slinks\sare\srecorded\nin\s"link:URL"\sentries\sof\sthe\sCONFIG\stable\son\sthe\sclient.
+D 2021-12-21T19:50:31.088
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c ba887c19c71d3721227f5d964cc925233ccb1efb763f4978279d8d60cb48124c
+F src/sync.c a7f2b02b27b782b3f044926a2c3a6cb6d240753c8c9067599a2ffa63aa63e6aa
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -637,7 +637,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c ab75eacf2ae2378f15330dd86c75b5802e4ad91a0e7c02273ad223d7ca1c3266
-F src/xfer.c aec9baf099bd9954643d2f258f58d6698137311801cc27d5bccde11a22de37a6
+F src/xfer.c d0807f64fee8eccdb332e44329d8500e727a3ec8567cc946a5a0034597bc0ff6
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -987,7 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebcce3ccddf2c404a609cbf23f7d96220c9ee2dd0fc92abef82b5b5823c68341
-R 4e112f13988d68f2755b39fd57d12f8f
+P 4ff45df4294c178cbb7c5556432427b9c5bc62b348b6984c9c98afb9a397871c
+R 77c2988ba3b0fa3ce7d5bad8c13341aa
 U drh
-Z 9b41ac99200baff4e061eaa6b0960c32
+Z a008aaef2313498e9b5a35ccd5bbacce
+# Remove this line to create a well-formed Fossil manifest.

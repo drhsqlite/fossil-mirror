@@ -1211,6 +1211,7 @@ void page_xfer(void){
   char **pzUuidList = 0;
   int *pnUuidList = 0;
   int uvCatalogSent = 0;
+  int bSendLinks = 0;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1601,7 +1602,7 @@ void page_xfer(void){
         }else{
           xfer.syncPrivate = 1;
         }
-      }
+      }else
 
       /*   pragma send-catalog
       **
@@ -1611,7 +1612,7 @@ void page_xfer(void){
       */
       if( blob_eq(&xfer.aToken[1], "send-catalog") ){
         xfer.resync = 0x7fffffff;
-      }
+      }else
 
       /*   pragma client-version VERSION ?DATE? ?TIME?
       **
@@ -1627,7 +1628,7 @@ void page_xfer(void){
           @ pragma server-version %d(RELEASE_VERSION_NUMBER) \
           @ %d(MANIFEST_NUMERIC_DATE) %d(MANIFEST_NUMERIC_TIME)
         }
-      }
+      }else
 
       /*   pragma uv-hash HASH
       **
@@ -1650,7 +1651,7 @@ void page_xfer(void){
           send_unversioned_catalog(&xfer);
         }
         uvCatalogSent = 1;
-      }
+      }else
 
       /*   pragma ci-lock CHECKIN-HASH CLIENT-ID
       **
@@ -1710,7 +1711,7 @@ void page_xfer(void){
         if( db_get_boolean("forbid-delta-manifests",0) ){
           @ pragma avoid-delta-manifests
         }
-      }
+      }else
 
       /*   pragma ci-unlock CLIENT-ID
       **
@@ -1730,7 +1731,7 @@ void page_xfer(void){
           blob_str(&xfer.aToken[2])
         );
         db_protect_pop();
-      }
+      }else
 
       /*   pragma client-url URL
       **
@@ -1743,6 +1744,15 @@ void page_xfer(void){
        && g.perm.Write
       ){
         xfer_syncwith(blob_str(&xfer.aToken[2]), 1);
+      }else
+
+      /*    pragma req-links
+      **
+      ** The client sends this message to the server to ask the server
+      ** to tell it about alternative repositories  in the reply.
+      */
+      if( blob_eq(&xfer.aToken[1], "req-links") ){
+        bSendLinks = 1;
       }
 
     }else
@@ -1788,6 +1798,41 @@ void page_xfer(void){
   hook_expecting_more_artifacts(xfer.nGimmeSent?60:0);
   db_multi_exec("DROP TABLE onremote; DROP TABLE unk;");
   manifest_crosslink_end(MC_PERMIT_HOOKS);
+
+  /* Send URLs for alternative repositories for the same project,
+  ** if requested by the client. */
+  if( bSendLinks && g.zBaseURL ){
+    Stmt q;
+    db_prepare(&q,
+      "WITH remote(mtime, url, arg) AS (\n"
+      "  SELECT mtime, substr(name,10), '{}' FROM config\n"
+      "   WHERE name GLOB 'syncwith:http*'\n"
+      "  UNION ALL\n"
+      "  SELECT mtime, substr(name,10), '{}' FROM config\n"
+      "   WHERE name GLOB 'syncfrom:http*'\n"
+      "  UNION ALL\n"
+      "  SELECT mtime, substr(name,9), '{\"type\":\"git\"}' FROM config\n"
+      "   WHERE name GLOB 'gitpush:*'\n"
+      ")\n"
+      "SELECT url, json_insert(arg,'$.src',%Q), max(mtime)\n"
+      "  FROM remote WHERE mtime>unixepoch('now','-1 month')\n"
+      " GROUP BY url;",
+      g.zBaseURL
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      UrlData x;
+      const char *zUrl = db_column_text(&q, 0);
+      const char *zArg = db_column_text(&q, 1);
+      i64 iMtime = db_column_int64(&q, 2);
+      memset(&x, 0, sizeof(x));
+      url_parse_local(zUrl, URL_OMIT_USER, &x);
+      if( x.name!=0 && sqlite3_strlike("%localhost%", x.name, 0)!=0 ){
+        @ pragma link %F(x.canonical) %F(zArg) %lld(iMtime)
+      }
+      url_unparse(&x);      
+    }
+    db_finalize(&q);
+  }
 
   /* Send the server timestamp last, in case prior processing happened
   ** to use up a significant fraction of our time window.
@@ -1844,21 +1889,22 @@ static const char zBriefFormat[] =
 /*
 ** Flag options for controlling client_sync()
 */
-#define SYNC_PUSH           0x0001    /* push content client to server */
-#define SYNC_PULL           0x0002    /* pull content server to client */
-#define SYNC_CLONE          0x0004    /* clone the repository */
-#define SYNC_PRIVATE        0x0008    /* Also transfer private content */
-#define SYNC_VERBOSE        0x0010    /* Extra diagnostics */
-#define SYNC_RESYNC         0x0020    /* --verily */
-#define SYNC_FROMPARENT     0x0040    /* Pull from the parent project */
-#define SYNC_UNVERSIONED    0x0100    /* Sync unversioned content */
-#define SYNC_UV_REVERT      0x0200    /* Copy server unversioned to client */
-#define SYNC_UV_TRACE       0x0400    /* Describe UV activities */
-#define SYNC_UV_DRYRUN      0x0800    /* Do not actually exchange files */
-#define SYNC_IFABLE         0x1000    /* Inability to sync is not fatal */
-#define SYNC_CKIN_LOCK      0x2000    /* Lock the current check-in */
-#define SYNC_NOHTTPCOMPRESS 0x4000    /* Do not compression HTTP messages */
-#define SYNC_ALLURL         0x8000    /* The --all flag - sync to all URLs */
+#define SYNC_PUSH           0x00001    /* push content client to server */
+#define SYNC_PULL           0x00002    /* pull content server to client */
+#define SYNC_CLONE          0x00004    /* clone the repository */
+#define SYNC_PRIVATE        0x00008    /* Also transfer private content */
+#define SYNC_VERBOSE        0x00010    /* Extra diagnostics */
+#define SYNC_RESYNC         0x00020    /* --verily */
+#define SYNC_FROMPARENT     0x00040    /* Pull from the parent project */
+#define SYNC_UNVERSIONED    0x00100    /* Sync unversioned content */
+#define SYNC_UV_REVERT      0x00200    /* Copy server unversioned to client */
+#define SYNC_UV_TRACE       0x00400    /* Describe UV activities */
+#define SYNC_UV_DRYRUN      0x00800    /* Do not actually exchange files */
+#define SYNC_IFABLE         0x01000    /* Inability to sync is not fatal */
+#define SYNC_CKIN_LOCK      0x02000    /* Lock the current check-in */
+#define SYNC_NOHTTPCOMPRESS 0x04000    /* Do not compression HTTP messages */
+#define SYNC_ALLURL         0x08000    /* The --all flag - sync to all URLs */
+#define SYNC_SHARE_LINKS    0x10000    /* Request alternate repo links */
 #endif
 
 /*
@@ -2054,10 +2100,10 @@ int client_sync(
     }
   }
 
-  /* Request names of alternative repositories
+  /* Request URLs of alternative repositories
   */
-  if( zAltPCode==0 ){
-    blob_appendf(&send, "pragma req-alt-repo\n");
+  if( zAltPCode==0 && (syncFlags & SYNC_SHARE_LINKS)!=0 ){
+    blob_appendf(&send, "pragma req-links\n");
   }
 
   while( go ){
@@ -2592,7 +2638,7 @@ int client_sync(
         ** bandwidth trying to upload unversioned content.  If the server
         ** does accept new unversioned content, it sends "uv-push-ok".
         */
-        if( syncFlags & SYNC_UNVERSIONED ){
+        else if( syncFlags & SYNC_UNVERSIONED ){
           if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
             uvPullOnly = 1;
             if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
@@ -2632,6 +2678,42 @@ int client_sync(
         else if( blob_eq(&xfer.aToken[1], "avoid-delta-manifests") ){
           g.bAvoidDeltaManifests = 1;
         }
+
+        /*    pragma link URL ARG MTIME
+        **
+        ** The server has sent the URL for a link to another repository.
+        ** Record this as a link:URL entry in the config table.
+        */
+        else if( blob_eq(&xfer.aToken[1], "link")
+              && xfer.nToken==5
+              && (syncFlags & SYNC_SHARE_LINKS)!=0
+        ){
+          UrlData x;
+          char *zUrl = blob_str(&xfer.aToken[2]);
+          char *zArg = blob_str(&xfer.aToken[3]);
+          i64 iTime = strtoll(blob_str(&xfer.aToken[4]),0,0);
+          memset(&x, 0, sizeof(x));
+          defossilize(zUrl);
+          defossilize(zArg);
+          url_parse_local(zUrl, URL_OMIT_USER, &x);
+          if( x.protocol
+           && strncmp(x.protocol,"http",4)==0
+           && iTime>0
+          ){
+            db_unprotect(PROTECT_CONFIG);
+            db_multi_exec(
+              "INSERT INTO config(name,value,mtime)\n"
+              " VALUES('link:%q',%Q,%lld)\n"
+              " ON CONFLICT DO UPDATE\n"
+              "   SET value=excluded.value, mtime=excluded.mtime\n"
+              "   WHERE mtime<excluded.mtime;",
+              zUrl, zArg, iTime
+            );
+            db_protect_pop();
+          }
+          url_unparse(&x);
+        }
+
       }else
 
       /*   error MESSAGE

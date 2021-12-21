@@ -234,6 +234,11 @@ static void process_sync_args(
   if( find_option("all",0,0)!=0 ){
     *pSyncFlags |= SYNC_ALLURL;
   }
+  if( ((*pSyncFlags) & SYNC_PULL)!=0
+   && find_option("share-links",0,0)!=0
+  ){
+    *pSyncFlags |= SYNC_SHARE_LINKS;
+  }
   url_proxy_options();
   clone_ssh_find_options();
   if( !uvOnly ) db_find_and_open_repository(0, 0);
@@ -296,6 +301,7 @@ static void process_sync_args(
 **   --project-code CODE        Use CODE as the project code
 **   --proxy PROXY              Use the specified HTTP proxy
 **   -R|--repository REPO       Local repository to pull into
+**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   -v|--verbose               Additional (debugging) output
@@ -394,6 +400,7 @@ void push_cmd(void){
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Sync private branches too
 **   -R|--repository REPO       Local repository to sync with
+**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   -u|--unversioned           Also sync unversioned content
