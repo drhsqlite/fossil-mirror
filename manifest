@@ -1,5 +1,5 @@
-C For\ssync,\sthe\sclient\sshould\sonly\ssend\s"pragma\sclient-url"\sif\snot\sdoing\sa\ncross-project\simport.
-D 2021-12-21T14:04:18.747
+C Fix\sthe\s"pragma\sclient-url"\sand\s"pragma\sreq-alt-repo"\spragmas\sto\sthat\sthey\nare\sin\sfact\ssent\son\sthe\sfirst\smessage.\s\sBegin\susing\s"{}"\sas\sthe\svalue\sfor\nconfig\ssetings\ssuch\sas\s"syncwith"\sso\sthat\sthe\svalue\scan\slater\sbe\sextended\nto\shold\sJSON.
+D 2021-12-21T15:18:36.277
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -459,7 +459,7 @@ F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
-F src/export.c fdd2a3ade2983635187915ad753dadfbd106c8422ec41bdd6e8cfbd30fc7669e
+F src/export.c 8ff36da9cd3d5e2bb3fbc80e422e881f73f17e7c0210180a7864a2913bb26340
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
 F src/file.c b039e06983973c7d58a59d844cf2f26dcfb9f68ddd2a514bb9f238fd6da8910c
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
@@ -637,7 +637,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c ab75eacf2ae2378f15330dd86c75b5802e4ad91a0e7c02273ad223d7ca1c3266
-F src/xfer.c 932ad26778894f4fa096dea8ae6e7e5605fabe382e4e23cce508848dc984314b
+F src/xfer.c aec9baf099bd9954643d2f258f58d6698137311801cc27d5bccde11a22de37a6
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84358b7db1bfe5d7e2afd701fcd0a08b0672c9b39d4b81b7b985eaff7001ca20
-R 037988f711ee5c0ec75c711e8dda3b36
+P b330ce6cfb817d77424df5ceb7529f44c5696185133e2e89c2204486684d62e0
+R b2164aaec464757abf01627b2434c89d
 U drh
-Z 2ac8fd23f1bcb5dc92d87f538e5f76ce
+Z 426290328dfa83306e95df42759f5bcd
