@@ -1,5 +1,5 @@
-C Fix\sthe\s"pragma\sclient-url"\sand\s"pragma\sreq-alt-repo"\spragmas\sto\sthat\sthey\nare\sin\sfact\ssent\son\sthe\sfirst\smessage.\s\sBegin\susing\s"{}"\sas\sthe\svalue\sfor\nconfig\ssetings\ssuch\sas\s"syncwith"\sso\sthat\sthe\svalue\scan\slater\sbe\sextended\nto\shold\sJSON.
-D 2021-12-21T15:18:36.277
+C For\s"fossil\sgit\sexport",\sadd\sthe\scomment\sline\sat\sthe\send\sof\sautomatically\ngenerated\s"manifest"\sfiles\sso\sthat\sthey\sdo\snot\sappear\sto\sbe\svalid\sFossil\nartifacts.
+D 2021-12-21T18:22:40.618
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -459,7 +459,7 @@ F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
-F src/export.c 8ff36da9cd3d5e2bb3fbc80e422e881f73f17e7c0210180a7864a2913bb26340
+F src/export.c 901a7a0f7d401ddbd220978abdf7327bda0dc73a793ded2195985925ad6999cf
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
 F src/file.c b039e06983973c7d58a59d844cf2f26dcfb9f68ddd2a514bb9f238fd6da8910c
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
@@ -987,7 +987,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b330ce6cfb817d77424df5ceb7529f44c5696185133e2e89c2204486684d62e0
-R b2164aaec464757abf01627b2434c89d
+P ebcce3ccddf2c404a609cbf23f7d96220c9ee2dd0fc92abef82b5b5823c68341
+R 4e112f13988d68f2755b39fd57d12f8f
 U drh
-Z 426290328dfa83306e95df42759f5bcd
+Z 9b41ac99200baff4e061eaa6b0960c32
