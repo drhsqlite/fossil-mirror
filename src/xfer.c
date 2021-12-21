@@ -1919,17 +1919,36 @@ int client_sync(
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
-     && configRcvMask==0 && configSendMask==0 ) return 0;
+     && configRcvMask==0
+     && configSendMask==0
+  ){
+    return 0;  /* Nothing to do */
+  }
+
+  /* Compute an appropriate project code.  zPCode is the project code
+  ** for the local repository.  zAltPCode will usually be NULL, but might
+  ** also be an alternative project code to expect on the server.  When
+  ** zAltPCode is not NULL, that means we are doing a cross-project import -
+  ** in other words, reading content from one project into a different
+  ** project.
+  */
   if( syncFlags & SYNC_FROMPARENT ){
+    const char *zPX;
     configRcvMask = 0;
     configSendMask = 0;
     syncFlags &= ~(SYNC_PUSH);
-    zPCode = db_get("parent-project-code", 0);
-    if( zPCode==0 || db_get("parent-project-name",0)==0 ){
+    zPX = db_get("parent-project-code", 0);
+    if( zPX==0 || db_get("parent-project-name",0)==0 ){
       fossil_fatal("there is no parent project: set the 'parent-project-code'"
                    " and 'parent-project-name' config parameters in order"
                    " to pull from a parent project");
     }
+    if( zPX ){
+      zAltPCode = zPX;
+    }
+  }
+  if( zAltPCode!=0 && zPCode!=0 && sqlite3_stricmp(zPCode, zAltPCode)==0 ){
+    zAltPCode = 0;
   }
 
   transport_stats(0, 0, 1);
@@ -2185,7 +2204,7 @@ int client_sync(
     /* Send the client-url pragma on the first cycle if the client has
     ** a known public url.
     */
-    if( nCycle==0 ){
+    if( nCycle==0 && zAltPCode==0 ){
       const char *zSelfUrl = public_url();
       if( zSelfUrl ){
         blob_appendf(&send, "pragma client-url %s\n", zSelfUrl);
