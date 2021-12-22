@@ -234,7 +234,7 @@ static int http_exchange_external(
   fossil_free(zFullUrl);
   blob_write_to_file(pSend, zUplink);
   if( g.fHttpTrace ){
-    fossil_print("RUN: %s\n", zCmd);
+    fossil_print("RUN %s\n", zCmd);
   }
   rc = fossil_system(zCmd);
   if( rc ){

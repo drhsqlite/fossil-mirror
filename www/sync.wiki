@@ -79,7 +79,7 @@ or handheld device.  For the purposes of this article "client" simply means
 the repository that initiates the conversation and "server" is the repository
 that responds.  Nothing more.</p>
 
-<h4>2.0.1 Encrypted Transport</h4>
+<h4>2.0.1 HTTPS Transport</h4>
 
 <p>In the current implementation of Fossil, the server only
 understands HTTP requests.  The client can send either
@@ -87,6 +87,29 @@ clear-text HTTP requests or encrypted HTTPS requests.  But when
 HTTPS requests are sent, they first must be decrypted by a web server
 or proxy before being passed to the Fossil server.  This limitation
 may be relaxed in a future release.</p>
+
+<h4>2.0.2 SSH Transport</h4>
+
+<p>When doing a sync using an "ssh:..." URL, the same HTTP transport protocol
+is used.  Fossil simply uses [https://en.wikipedia.org/wiki/Secure_Shell|ssh]
+to start an instance of the [/help?cmd=test-http|fossil test-http] command
+running on the remote machine.  It then sends HTTP requests and gets back HTTP
+replies over the SSH connection, rather than sending and receiving over an
+internet socket.  To see the specific "ssh" command that the Fossil client
+runs in order to set up a connection, add either of the the "--httptrace" or
+"--sshtrace" options to the "fossil sync" command line.
+
+<h4>2.0.3 FILE Transport</h4>
+
+<p>When doing a sync using a "file:..." URL, the same HTTP protocol is
+still used.  But instead of sending each HTTP request over a socket or
+via SSH, the HTTP request is written into a temporary file.  The client
+then invokes the [/help?cmd=http|fossil http] command in a subprocess
+to process the request and and generate a reply.  The client then reads
+the HTTP reply out of a temporary file on disk, and deletes the two
+temporary files.  To see the specific "fossil http" command that is run
+in order to implement the "file:" transport, add the "--httptrace"
+option to the "fossil sync" command.
 
 <h3>2.1 Server Identification</h3>
 
@@ -1007,3 +1030,39 @@ cluster and send igot messages for those artifacts.
 <li>Repositories keep track of all the phantoms they hold and send
 gimme messages for those artifacts.
 </ol>
+
+<h2>7.0 Troubleshooting And Debugging Hints</h2>
+
+<p>
+If you run the [/help?cmd=sync|fossil sync] command
+(or [/help?cmd=pull|pull] or [/help?cmd=push|push] or
+[/help?cmd=clone|clone]) with the --httptrace option, Fossil
+will keep a copy of each HTTP request and reply in files
+named:
+<ul>
+<li> <tt>http-request-</tt><i>N</i><tt>.txt</tt>
+<li> <tt>http-reply-</tt><i>N</i><tt>.txt</tt>
+</ul>
+
+<p>In the above, <i>N</i> is a integer that increments with each
+round-trip.  If you are having trouble on the server side,
+you can run the "[/help?cmd=test-http|fossil test-http]" command in a
+debugger using one the "http-request-N.txt" files as input and
+single step through the processing performed by the server.
+
+<p>The "--transport-command CMD" option on [/help?cmd=sync|fossil sync]
+(and similar) causes the external program "CMD" to be used to move
+the sync message to the server and retrieve the sync reply.  The
+CMD is given three arguments:
+<ol>
+<li> The URL of the server
+<li> The name of a temporary file that contains the output-bound sync
+     protocol text, with the HTTP headers
+<li> The name of a temporary file into which the CMD should write the
+     reply sync protocol text, again without any HTTP headers
+</ol>
+
+<p>In a complex debugging situation, you can run the command
+"fossil sync --transport-command ./debugging_script" where
+"debugging_script" is some script of your own that invokes
+the anomolous behavior your are trying to debug.

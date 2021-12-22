@@ -240,7 +240,7 @@ static void process_sync_args(
     *pSyncFlags |= SYNC_SHARE_LINKS;
   }
 
-  /* Undocumented option:  --transport-command COMMAND
+  /* Option:  --transport-command COMMAND
   **
   ** Causes COMMAND to be run with three arguments in order to talk
   ** to the server.
@@ -251,6 +251,11 @@ static void process_sync_args(
   ** that will contain the xfer-protocol payload to send to the server.
   ** REPLY is a temporary filename in which COMMAND should write the
   ** content of the reply from the server.
+  **
+  ** CMD is reponsible for HTTP redirects.  The following Fossil command
+  ** can be used for CMD to achieve a working sync:
+  **
+  **      fossil test-httpmsg --xfer
   */
   g.zHttpCmd = find_option("transport-command",0,1);
 
@@ -319,6 +324,8 @@ static void process_sync_args(
 **   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --transport-command CMD    Use external command CMD to move messages
+**                              between client and server
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -370,6 +377,8 @@ void pull_cmd(void){
 **   -R|--repository REPO       Local repository to push from
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --transport-command CMD    Use external command CMD to communicate with
+**                              the server
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -418,6 +427,8 @@ void push_cmd(void){
 **   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --transport-command CMD    Use external command CMD to move message
+**                              between the client and the server
 **   -u|--unversioned           Also sync unversioned content
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
