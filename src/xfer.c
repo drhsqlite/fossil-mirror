@@ -2853,9 +2853,11 @@ int client_sync(
   }
 
   fossil_force_newline();
-  fossil_print(
-     "%s done, wire bytes sent: %lld  received: %lld  ip: %s\n",
-     zOpType, nSent, nRcvd, g.zIpAddr);
+  if( g.zHttpCmd==0 ){
+    fossil_print(
+       "%s done, wire bytes sent: %lld  received: %lld  ip: %s\n",
+       zOpType, nSent, nRcvd, g.zIpAddr);
+  }
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(
       "Uncompressed payload sent: %lld  received: %lld\n", nUncSent, nUncRcvd);

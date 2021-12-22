@@ -224,11 +224,14 @@ static int http_exchange_external(
   char *zUplink;
   char *zDownlink;
   char *zCmd;
+  char *zFullUrl;
   int rc;
 
   zUplink = fossil_temp_filename();
   zDownlink = fossil_temp_filename();
-  zCmd = mprintf("%s %$ %$ %$", g.zHttpCmd, g.url.canonical,zUplink,zDownlink);
+  zFullUrl = url_full(&g.url);
+  zCmd = mprintf("%s %$ %$ %$", g.zHttpCmd, zFullUrl,zUplink,zDownlink);
+  fossil_free(zFullUrl);
   blob_write_to_file(pSend, zUplink);
   if( g.fHttpTrace ){
     fossil_print("RUN: %s\n", zCmd);

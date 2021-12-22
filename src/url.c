@@ -305,6 +305,33 @@ void url_parse_local(
 }
 
 /*
+** Construct the complete URL for a UrlData object, including the
+** login name and password, into memory obtained from fossil_malloc()
+** and return a pointer to that URL text.
+*/
+char *url_full(const UrlData *p){
+  Blob x = BLOB_INITIALIZER;
+  if( p->isFile || p->user==0 || p->user[0]==0 ){
+    return fossil_strdup(p->canonical);
+  }
+  blob_appendf(&x, "%s://", p->protocol);
+  if( p->user && p->user[0] ){
+    blob_appendf(&x, "%t", p->user);
+    if( p->passwd && p->passwd[0] ){
+      blob_appendf(&x, ":%t", p->passwd);
+    }
+    blob_appendf(&x, "@");
+  }
+  blob_appendf(&x, "%T", p->name);
+  if( p->dfltPort!=p->port ){
+    blob_appendf(&x, ":%d", p->port);
+  }
+  blob_appendf(&x, "%T", p->path);
+  (void)blob_str(&x);
+  return x.aData;
+}
+
+/*
 ** Reclaim malloced memory from a UrlData object
 */
 void url_unparse(UrlData *p){
@@ -388,6 +415,7 @@ void cmd_test_urlparser(void){
     fossil_print("g.url.canonical = %s\n", g.url.canonical);
     fossil_print("g.url.fossil    = %s\n", g.url.fossil);
     fossil_print("g.url.flags     = 0x%02x\n", g.url.flags);
+    fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
     if( g.url.isFile || g.url.isSsh ) break;
     if( i==0 ){
       fossil_print("********\n");
