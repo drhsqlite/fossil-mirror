@@ -1,6 +1,12 @@
 <title>Change Log</title>
 
 <h2 id='v2_18'>Changes for version 2.18 (pending)</h2>
+  *  Added the --share-links option to [/help?cmd=sync|fossil sync] and
+     [/help?cmd=pull|fossil pull].  Enhance the 
+     [/doc/trunk/www/sync.wiki|sync protocol] so that it is able to support
+     sharing of links to other clones.
+  *  Added the --transport-command option to [/help?cmd=sync|fossil sync]
+     and similar.
   *  [/help?cmd=/chat|The /chat page] input options have been reworked
      again for better cross-browser portability.
   *  When sending a [/help?cmd=/chat|/chat] message fails, it is no longer
