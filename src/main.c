@@ -179,6 +179,7 @@ struct Global {
   int fSshClient;         /* HTTP client flags for SSH client */
   int fNoHttpCompress;    /* Do not compress HTTP traffic (for debugging) */
   char *zSshCmd;          /* SSH command string */
+  const char *zHttpCmd;   /* External program to do HTTP requests */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
   char *zPath;            /* Name of webpage being served */

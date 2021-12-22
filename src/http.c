@@ -209,6 +209,46 @@ char *prompt_for_httpauth_creds(void){
 }
 
 /*
+** Send content pSend to the the server identified by g.url using the
+** external program given by g.zHttpCmd.  Capture the reply from that
+** program and load it into pReply.
+**
+** This routine implements the --transport-command option for "fossil sync".
+*/
+static int http_exchange_external(
+  Blob *pSend,                /* Message to be sent */
+  Blob *pReply,               /* Write the reply here */
+  int mHttpFlags,             /* Flags.  See above */
+  const char *zAltMimetype    /* Alternative mimetype if not NULL */
+){
+  char *zUplink;
+  char *zDownlink;
+  char *zCmd;
+  int rc;
+
+  zUplink = fossil_temp_filename();
+  zDownlink = fossil_temp_filename();
+  zCmd = mprintf("%s %$ %$ %$", g.zHttpCmd, g.url.canonical,zUplink,zDownlink);
+  blob_write_to_file(pSend, zUplink);
+  if( g.fHttpTrace ){
+    fossil_print("RUN: %s\n", zCmd);
+  }
+  rc = fossil_system(zCmd);
+  if( rc ){
+    fossil_warning("Transport command failed: %s\n", zCmd);
+  }    
+  fossil_free(zCmd);
+  file_delete(zUplink);
+  if( file_size(zDownlink, ExtFILE)<0 ){
+    blob_zero(pReply);
+  }else{
+    blob_read_from_file(pReply, zDownlink, ExtFILE);
+    file_delete(zDownlink);
+  }
+  return rc; 
+}
+
+/*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
 ** in pRecv.  pRecv is assumed to be uninitialized when
@@ -237,6 +277,11 @@ int http_exchange(
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
   int isCompressed = 1; /* True if the reply is compressed */
+
+  if( g.zHttpCmd!=0 ){
+    /* Handle the --transport-command option for "fossil sync" and similar */
+    return http_exchange_external(pSend,pReply,mHttpFlags,zAltMimetype);
+  }
 
   if( transport_open(&g.url) ){
     fossil_warning("%s", transport_errmsg(&g.url));
@@ -521,7 +566,7 @@ void test_httpmsg_command(void){
   if( g.argc<3 || g.argc>5 ){
     usage("URL ?PAYLOAD? ?OUTPUT?");
   }
-  zInFile = g.argc==4 ? g.argv[3] : 0;
+  zInFile = g.argc>=4 ? g.argv[3] : 0;
   if( g.argc==5 ){
     if( zOutFile ){
       fossil_fatal("output file specified twice: \"--out %s\" and \"%s\"",

@@ -1,5 +1,5 @@
-C Add\scomments\sto\sthe\s3\sdifferent\stemp-filename\sgenerator\sroutines\sto\ncross-link\sthem\sto\sone\sanother.\s\sAdd\sfossil_temp_filename()\sas\san\noption\sto\sthe\s"test-tempfile"\scommand.
-D 2021-12-22T15:17:10.299
+C Add\sthe\s--transport-command\soption\sto\s"fossil\ssync"\sand\ssimilar.\s\sThe\noption\sis\scurrently\sundocumented.
+D 2021-12-22T15:46:28.566
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -497,7 +497,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
-F src/http.c 0861421b6dffbe9a74b7baec58f2e9699a374796a6ff092d63770acb189c3f4a
+F src/http.c 1ef6802a8a3022a9a8746b5623954c62aa5ac0ef82c26732ebd761ad805f0f58
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
 F src/http_ssl.c 3b47015114f20fbbf2dbb03d484ad273c5800b873459797d1c1af264a812225c
 F src/http_transport.c c1af11f9ca58d50afee083fd07c17fc3f602b640efd8ecf05bdc6c7e1c2e7f0e
@@ -527,7 +527,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 40c472a092f7c192a52d78db388cc1a438995907e373f87dcf8a54c124d2e056
+F src/main.c 32e4780936d2cdd116c1a29408b7a4e3513ebd710b38272f1adaa95444af8fb4
 F src/main.mk 26c53f45dcbb378ec24b6dd69567834250ceb2b21c4c31f3caa3482fe8f07887
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -607,7 +607,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 350e852b1089a24aa8fccad61e3425e93bedcd47325b460addf450d7b211da78
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c a7f2b02b27b782b3f044926a2c3a6cb6d240753c8c9067599a2ffa63aa63e6aa
+F src/sync.c 3d381e810e4ce9f2322bb6c3bb632b1c9860b13877bd0172ae9af2ca93f0d8d4
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 6459b768da651cb539dc67dd87702732574e71e4bb75d4f68242b6556fd2837f
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 450cfbbfac77886dba8e62521d41c2fe74c057bbf31d95e93c39000c4060cde5
-R 096a399c54fde581c398f8757b629fb6
+P 1aff463371d637654b72e4c0131a351fb65b6c61c845a5fc70c0b46aba58d85a
+R b7fce15e90df1fc0ca9b88eb6c425015
 U drh
-Z fb3d920b4b95246aca50e2c8dce1c77f
+Z dd39ddbdfd97a05dd8ad1aa8c786565c
 # Remove this line to create a well-formed Fossil manifest.

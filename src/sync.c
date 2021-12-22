@@ -239,6 +239,21 @@ static void process_sync_args(
   ){
     *pSyncFlags |= SYNC_SHARE_LINKS;
   }
+
+  /* Undocumented option:  --transport-command COMMAND
+  **
+  ** Causes COMMAND to be run with three arguments in order to talk
+  ** to the server.
+  **
+  **       COMMAND URL PAYLOAD REPLY
+  **
+  ** URL is the server name.  PAYLOAD is the name of a temporary file
+  ** that will contain the xfer-protocol payload to send to the server.
+  ** REPLY is a temporary filename in which COMMAND should write the
+  ** content of the reply from the server.
+  */
+  g.zHttpCmd = find_option("transport-command",0,1);
+
   url_proxy_options();
   clone_ssh_find_options();
   if( !uvOnly ) db_find_and_open_repository(0, 0);
