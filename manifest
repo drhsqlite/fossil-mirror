@@ -1,5 +1,5 @@
-C The\s--transport-command\snow\sdeals\scorrectly\swith\spasswords\sin\sthe\sURL.
-D 2021-12-22T16:41:57.839
+C Add\sthe\s--transport-command\soption\sto\sthe\s"fossil\sclone"\scommand.
+D 2021-12-22T17:11:39.507
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/checkin.c dee878bb57082c264db1a9ce67e7c98086ba48685343a1e67d53473f479b216f
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c e8490fcc24519ed37efa7fefa2b7afd309014396018020f66dee3fbc26ba5606
+F src/clone.c 22eef2acfaee4869a343378b3e31d55f3e1540bb27afb06bc9fa43b1f6b7041e
 F src/codecheck1.c a8331266f3851f7f01bd2777de07d954a721d698e432c79fe3c2d753b0c98ead
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3cd412eb5ca7387a309d8668c9f2f1fac7bc8000538b00f90ecf87aabbef83cf
-R ff152c2051214d3a3a20d64095d53f92
+P f485a164af2f9cb71e34239aec9d0d2f4c700af0b20c3ab86a993ed4aee43d1d
+R 4079ef380e8b6d486efb9f92bcd0eaf9
 U drh
-Z a05509ce162052447b9354246a1a452c
+Z 8ae56e08378173afba03587f12c09df7
 # Remove this line to create a well-formed Fossil manifest.

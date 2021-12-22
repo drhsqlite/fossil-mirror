@@ -168,6 +168,7 @@ void clone_cmd(void){
   zWorkDir = find_option("workdir", 0, 1);
   clone_ssh_find_options();
   url_proxy_options();
+  g.zHttpCmd = find_option("transport-command",0,1);
 
   /* We should be done with options.. */
   verify_all_options();
