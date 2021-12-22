@@ -103,16 +103,18 @@ A single file that contains all historical versions of all files in a
 project, which can be [cloned] to other machines and
 [synchronized][sync] with them. Jargon: repo.
 
-*   A Fossil repo is similar to a zip archive in that it is a single
+*   A Fossil repo is similar to an archive file in that it is a single
     file that stores compressed versions of one or more files.  Files can be
     extracted from the repo, and new files can be added to the repo,
-    just as with a zip archive, but a Fossil repo has other capabilities
+    but a Fossil repo has other capabilities
     above and beyond what simple archive formats can do.
 
 *   Fossil does not care what you name your repository files, though
-    we do suggest appending “`.fossil` as a standard extension. There is
-    only one place in Fossil where that’s required, being the “directory
-    name” form of [the `fossil server DIRECTORY` command][svrcmd].
+    we do suggest “`.fossil`” as a standard extension. There is
+    only one place in Fossil where that convention is required, being the
+    [`fossil server DIRECTORY`][svrcmd] command, since it serves up
+    `*.fossil` files from `DIRECTORY`. If you don’t use that feature,
+    you can name your repo files anything you like.
 
 *   Cloned and synced repos redundantly store all available information
     about that project, so if any one repo is lost, all of the cloned
