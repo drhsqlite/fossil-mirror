@@ -1,5 +1,5 @@
-C A\sfew\sclarifications\sto\sthe\snew\sglossary.
-D 2021-12-22T09:14:06.880
+C Added\smore\sreasons\snot\sto\suse\sFossil\sas\sa\swhole-system\sconfiguration\nbackup\sutility\sin\sthe\sglossary\spoint\sabout\snot\susing\sFossil\sto\sstore\nfiles\sscattered\shither-and-yon\sover\sa\sfilesystem.
+D 2021-12-22T09:18:10.819
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -876,7 +876,7 @@ F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe6
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/gitusers.md 64bc9b1dc811cbc32cd76c04effd063e7154dd8950fa384ad8c90898a780fb71
 F www/globs.md 4bc9898e3f228ca63fb7c599bcd8cab041ad7cb30006b7ef893c2094ac5dbee1
-F www/glossary.md 851dc7b6e7b857180cf621868df800c0da7ab706e4c9be7303ee32394dba745f
+F www/glossary.md 262d650bf1aa66ab4025f113249adb48403f243c2b80c87183b92af8f527dedb
 F www/grep.md c50868f95cce9b135240e8fc8d8998d01cf6a8f25c5c5d8ab56f48df1a4277f6
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 65dbf97eb8a6e70de332702bdf9b78879fffa396b7c4fb85ba6d01f6e2ab7617
-R 099647d84d0d34bbc8e1a6a3b3ed773d
+P 78aa43940719f3c065f23ffd76ce134b89e36fc43e6287e0e850cd2bb993a31a
+R 1084f88d1f0d9d31c0b361653141f896
 U wyoung
-Z 608cda115ae9bff7458c62754f17a430
+Z 45308e0ef757574e051c3ff1a57a848f
 # Remove this line to create a well-formed Fossil manifest.

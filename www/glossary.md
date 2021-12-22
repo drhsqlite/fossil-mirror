@@ -86,6 +86,12 @@ history of that project being a valuable record.
     the user who did the extraction, which probably isn’t want you were
     wanting.
 
+    Even with these problems aside, do you really want a `.fslckout`
+    SQLite database at the root of your filesystem? Are you prepared for
+    the consequences of saying `fossil clean --verily` on such a system?
+    We believe Fossil is a poor choice for a whole-system configuration
+    backup utility.
+
     And as a counter-counterexample, a project made of your user’s [Vim]
     configuration is a much better use of Fossil, because it’s all held
     within `~/.vim`, and your user has full rights to that subdirectory.
