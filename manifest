@@ -1,5 +1,5 @@
-C Fixed\sa\snull-pointer\sderef\sin\s/chat\sJS\sin\sthe\stry-to-resend-message\serror\shandler.
-D 2021-12-22T10:57:14.908
+C Add\sthe\s--host\soption\sto\sthe\s"fossil\stest-xfer"\scommand.\s\sImprove\sthe\shelp\ntext\son\sthat\scommand,\stoo.
+D 2021-12-22T13:45:38.511
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -637,7 +637,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c ab75eacf2ae2378f15330dd86c75b5802e4ad91a0e7c02273ad223d7ca1c3266
-F src/xfer.c d0807f64fee8eccdb332e44329d8500e727a3ec8567cc946a5a0034597bc0ff6
+F src/xfer.c cacbbf985cba9d3a7a317d4eb74edf26a3d3cde0d1d254e9223d64119cd8aa2f
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7994809763365ac6acb2c08f39c1b119cd69ac9fa88587b296e5657e2bc0a5c2
-R 8798d0136dac328fc54db7a31c9da6c3
-U stephan
-Z 9725e45d6b77d10a3da91f718aea455a
+P 86bba486c5689d361b6492d2ff21a385ae878c309110d6013e8010d3c5253dea
+R 3f248a69c64e951fec819872ef81d123
+U drh
+Z 619a319e29995b9ab8a728ab745ecf73
 # Remove this line to create a well-formed Fossil manifest.

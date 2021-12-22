@@ -1848,33 +1848,51 @@ void page_xfer(void){
 /*
 ** COMMAND: test-xfer
 **
-** This command is used for debugging the server.  There is a single
-** argument which is the uncompressed content of an "xfer" message
-** from client to server.  This command interprets that message as
-** if had been received by the server.
+** Usage: %fossil test-xfer ?OPTIONS? XFERFILE
 **
-** On the client side, run:
+** Pass the sync-protocol input file XFERFILE into the server-side sync
+** protocol handler.  Generate a reply on standard output.
 **
-**      fossil push http://bogus/ --httptrace
+** This command was original created to help debug the server side of
+** sync messages.  The XFERFILE is the uncompressed content of an 
+** "xfer" HTTP request from client to server.  This command interprets
+** that message and generates the content of an HTTP reply (without any
+** encoding and without the HTTP reply headers) and writes that reply
+** on standard output.
 **
-** Or a similar command to provide the output.  The content of the
-** message will appear on standard output.  Capture this message
-** into a file named (for example) out.txt.  Then run the
-** server in gdb:
+** One possible usages scenario is to capture some XFERFILE examples
+** using a command like:
 **
-**     gdb fossil
-**     r test-xfer out.txt
+**     fossil push http://bogus/ --httptrace
+**
+** The complete HTTP requests are stored in files named "http-request-N.txt".
+** Find one of those requests, remove the HTTP header, and make other edits
+** as necessary to generate an appropriate XFERFILE test case.  Then run:
+**
+**     fossil test-xfer xferfile.txt
+**
+** Options:
+**
+**    --host  HOSTNAME             Supply a server hostname used to populate
+**                                 g.zBaseURL and similar.
 */
 void cmd_test_xfer(void){
+  const char *zHost;
   db_find_and_open_repository(0,0);
+  zHost = find_option("host",0,1);
+  verify_all_options();
   if( g.argc!=2 && g.argc!=3 ){
     usage("?MESSAGEFILE?");
   }
+  if( zHost==0 ) zHost = "localhost:8080";
+  g.zBaseURL = mprintf("http://%s", zHost);
+  g.zHttpsURL = mprintf("https://%s", zHost);
+  g.zTop = mprintf("");
   blob_zero(&g.cgiIn);
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2], ExtFILE);
   disableLogin = 1;
   page_xfer();
-  fossil_print("%s\n", cgi_extract_content());
+  fossil_print("%s", cgi_extract_content());
 }
 
 /*
