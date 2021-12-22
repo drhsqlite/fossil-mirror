@@ -1,5 +1,5 @@
-C Enhance\sthe\stest-httpmsg\scommand\swith\sthe\snew\s--xfer\soption\sand\swith\san\noptional\sextra\sargument\sto\sspecify\sthe\soutput\sfile.
-D 2021-12-22T14:03:32.851
+C Add\scomments\sto\sthe\s3\sdifferent\stemp-filename\sgenerator\sroutines\sto\ncross-link\sthem\sto\sone\sanother.\s\sAdd\sfossil_temp_filename()\sas\san\noption\sto\sthe\s"test-tempfile"\scommand.
+D 2021-12-22T15:17:10.299
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -461,7 +461,7 @@ F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 901a7a0f7d401ddbd220978abdf7327bda0dc73a793ded2195985925ad6999cf
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
-F src/file.c b039e06983973c7d58a59d844cf2f26dcfb9f68ddd2a514bb9f238fd6da8910c
+F src/file.c e81ff8a9952f588baaabfeb4a02635b62e20c8c39a439a2a0799fddcfe4f15bc
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
 F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -629,7 +629,7 @@ F src/url.c cf0b8f21d36e371fad10ec17772f778339d2cae80b384a7fdc84e2a5452cadaa
 F src/user.c ad2161de86a5ea87a0f98c89b9bc03264b3489c85b95a408d93f60a78eaf3258
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
-F src/util.c 5f0d2fcdb67ee5433c9151892af3681f91ccdfffbaff8f09aa46ea61ec163e77
+F src/util.c 3d241c367ec9e8eab844a15ba791b86035508f04efb49b7730971faf431fd5c6
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 601948b19ba6e44841cb521b435485012bf4d44891d186a3381506a3e906bdf8
-R 3a90f582845a09dc46c72928950c42b5
+P 450cfbbfac77886dba8e62521d41c2fe74c057bbf31d95e93c39000c4060cde5
+R 096a399c54fde581c398f8757b629fb6
 U drh
-Z a717c8d3549b8fd98c8c9c43fb714cfd
+Z fb3d920b4b95246aca50e2c8dce1c77f
 # Remove this line to create a well-formed Fossil manifest.
