@@ -481,12 +481,17 @@ write_err:
 /*
 ** COMMAND: test-httpmsg
 **
-** Usage: %fossil test-httpmsg URL ?PAYLOAD? ?OPTIONS?
+** Usage: %fossil test-httpmsg ?OPTIONS? URL ?PAYLOAD? ?OUTPUT?
 **
 ** Send an HTTP message to URL and get the reply. PAYLOAD is a file containing
 ** the payload, or "-" to read payload from standard input.  a POST message
 ** is sent if PAYLOAD is specified and is non-empty.  If PAYLOAD is omitted
 ** or is an empty file, then a GET message is sent.
+**
+** If a second filename (OUTPUT) is given after PAYLOAD, then the reply
+** is written into that second file instead of being written on standard
+** output.  Use the "--out OUTPUT" option to specify an output file for
+** a GET request where there is no PAYLOAD.
 **
 ** Options:
 **
@@ -494,6 +499,7 @@ write_err:
 **     --mimetype TYPE            Mimetype of the payload
 **     --out FILE                 Store the reply in FILE
 **     -v                         Verbose output
+**     --xfer                     PAYLOAD in a Fossil xfer protocol message
 */
 void test_httpmsg_command(void){
   const char *zMimetype;
@@ -506,18 +512,30 @@ void test_httpmsg_command(void){
   zOutFile = find_option("out","o",1);
   if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
   if( find_option("compress",0,0)!=0 ) mHttpFlags &= ~HTTP_NOCOMPRESS;
+  if( find_option("xfer",0,0)!=0 ){
+    mHttpFlags |= HTTP_USE_LOGIN;
+    mHttpFlags &= ~HTTP_GENERIC;
+  }
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_ANY_SCHEMA, 0);
-  if( g.argc!=3 && g.argc!=4 ){
-    usage("URL ?PAYLOAD?");
+  verify_all_options();
+  if( g.argc<3 || g.argc>5 ){
+    usage("URL ?PAYLOAD? ?OUTPUT?");
   }
   zInFile = g.argc==4 ? g.argv[3] : 0;
+  if( g.argc==5 ){
+    if( zOutFile ){
+      fossil_fatal("output file specified twice: \"--out %s\" and \"%s\"",
+        zOutFile, g.argv[4]);
+    }
+    zOutFile = g.argv[4];
+  }
   url_parse(g.argv[2], 0);
   if( g.url.protocol[0]!='h' ){
     fossil_fatal("the %s command supports only http: and https:", g.argv[1]);
   }
   if( zInFile ){
     blob_read_from_file(&in, zInFile, ExtFILE);
-    if( zMimetype==0 ){
+    if( zMimetype==0 && (mHttpFlags & HTTP_GENERIC)!=0 ){
       if( fossil_strcmp(zInFile,"-")==0 ){
         zMimetype = "application/x-unknown";
       }else{

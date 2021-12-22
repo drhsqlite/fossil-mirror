@@ -1,5 +1,5 @@
-C Add\sthe\s--host\soption\sto\sthe\s"fossil\stest-xfer"\scommand.\s\sImprove\sthe\shelp\ntext\son\sthat\scommand,\stoo.
-D 2021-12-22T13:45:38.511
+C Enhance\sthe\stest-httpmsg\scommand\swith\sthe\snew\s--xfer\soption\sand\swith\san\noptional\sextra\sargument\sto\sspecify\sthe\soutput\sfile.
+D 2021-12-22T14:03:32.851
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -497,7 +497,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
-F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
+F src/http.c 0861421b6dffbe9a74b7baec58f2e9699a374796a6ff092d63770acb189c3f4a
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
 F src/http_ssl.c 3b47015114f20fbbf2dbb03d484ad273c5800b873459797d1c1af264a812225c
 F src/http_transport.c c1af11f9ca58d50afee083fd07c17fc3f602b640efd8ecf05bdc6c7e1c2e7f0e
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86bba486c5689d361b6492d2ff21a385ae878c309110d6013e8010d3c5253dea
-R 3f248a69c64e951fec819872ef81d123
+P 601948b19ba6e44841cb521b435485012bf4d44891d186a3381506a3e906bdf8
+R 3a90f582845a09dc46c72928950c42b5
 U drh
-Z 619a319e29995b9ab8a728ab745ecf73
+Z a717c8d3549b8fd98c8c9c43fb714cfd
 # Remove this line to create a well-formed Fossil manifest.
