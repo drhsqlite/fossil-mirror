@@ -1250,13 +1250,13 @@ window.fossil.onPageLoad(function(){
     const buttons = D.addClass(D.div(), 'buttons');
     D.append(w, buttons);
     D.append(buttons, D.button("Discard message?", function(){
-      let theMsg = findMessageWidgetParent(w);
+      const theMsg = findMessageWidgetParent(w);
       if(theMsg) Chat.deleteMessageElem(theMsg);
     }));
     D.append(buttons, D.button("Edit message and try again?", function(){
-      if(state.msg) Chat.inputValue(ta.value);
+      if(state.msg) Chat.inputValue(state.msg);
       if(state.blob) BlobXferState.updateDropZoneContent(state.blob);
-      let theMsg = findMessageWidgetParent(w);
+      const theMsg = findMessageWidgetParent(w);
       if(theMsg) Chat.deleteMessageElem(theMsg);
     }));
     Chat.reportErrorAsMessage(w);
