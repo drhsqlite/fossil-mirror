@@ -1411,8 +1411,9 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "protected_setting", 1, SQLITE_UTF8, 0,
                           db_protected_setting_func, 0, 0);
   sqlite3_create_function(db, "win_reserved", 1, SQLITE_UTF8, 0,
-                          db_win_reserved_func,0,0
-  );
+                          db_win_reserved_func,0,0);
+  sqlite3_create_function(db, "url_nouser", 1, SQLITE_UTF8, 0,
+                          url_nouser_func,0,0);
 }
 
 #if USE_SEE

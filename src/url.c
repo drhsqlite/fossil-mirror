@@ -332,6 +332,43 @@ char *url_full(const UrlData *p){
 }
 
 /*
+** Construct a URL for a UrlData object that omits the
+** login name and password, into memory obtained from fossil_malloc()
+** and return a pointer to that URL text.
+*/
+char *url_nouser(const UrlData *p){
+  Blob x = BLOB_INITIALIZER;
+  if( p->isFile || p->user==0 || p->user[0]==0 ){
+    return fossil_strdup(p->canonical);
+  }
+  blob_appendf(&x, "%s://", p->protocol);
+  blob_appendf(&x, "%T", p->name);
+  if( p->dfltPort!=p->port ){
+    blob_appendf(&x, ":%d", p->port);
+  }
+  blob_appendf(&x, "%T", p->path);
+  (void)blob_str(&x);
+  return x.aData;
+}
+
+/*
+** SQL function to remove the username/password from a URL
+*/
+void url_nouser_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zOrig = (const char*)sqlite3_value_text(argv[0]);
+  UrlData x;
+  if( zOrig==0 ) return;
+  memset(&x, 0, sizeof(x));
+  url_parse_local(zOrig, URL_OMIT_USER, &x);
+  sqlite3_result_text(context, x.canonical, -1, SQLITE_TRANSIENT);
+  url_unparse(&x);
+}
+
+/*
 ** Reclaim malloced memory from a UrlData object
 */
 void url_unparse(UrlData *p){
