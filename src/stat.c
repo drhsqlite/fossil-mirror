@@ -590,7 +590,7 @@ void urllist_page(void){
     const char *zURL = db_column_text(&q,0);
     UrlData x;
     if( cnt==0 ){
-      @ <div class="section">Sync with these URLs</div>
+      @ <div class="section">Recently synced with these URLs</div>
       @ <table border='0' width='100%%'>
     }
     memset(&x, 0, sizeof(x));
@@ -641,6 +641,34 @@ void urllist_page(void){
       @ <td>&nbsp;</td>
     }
     @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+  }
+  db_finalize(&q);
+  fossil_free(zPriorRepo);
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT"
+    " value,"
+    " substr(name,10),"
+    " datetime(mtime,'unixepoch')"
+    "FROM config\n"
+    "WHERE name GLOB 'sync-url:*'\n"
+    "ORDER BY 2"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    const char *zName = db_column_text(&q, 1);
+    if( cnt++==0 ){
+      @ <div class="section">Defined sync targets</div>
+      @ <table border='0' width='100%%'>
+    }
+    @ <tr><td>%h(zName)</td><td>&nbsp;&nbsp;</td>
+    @ <td width='95%%'><a href='%h(zUrl)'>%h(zUrl)</a></td>
+    @ <td><nobr>%h(db_column_text(&q,2))</nobr></td></tr>
   }
   db_finalize(&q);
   fossil_free(zPriorRepo);
