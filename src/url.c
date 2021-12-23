@@ -41,6 +41,7 @@
 #define URL_REMEMBER_PW      0x008  /* Should remember pw */
 #define URL_PROMPTED         0x010  /* Prompted for PW already */
 #define URL_OMIT_USER        0x020  /* Omit the user name from URL */
+#define URL_USE_CONFIG       0x040  /* Use remembered URLs from CONFIG table */
 
 /*
 ** The URL related data used with this subsystem.
@@ -70,10 +71,8 @@ struct UrlData {
 
 
 /*
-** Parse the given URL.  Or if zUrl is NULL, parse the URL in the
-** last-sync-url setting using last-sync-pw as the password.  Store
-** the parser results in the pUrlData object.  Populate members of pUrlData
-** as follows:
+** Parse the URL in the zUrl argument. Store results in the pUrlData object.
+** Populate members of pUrlData as follows:
 **
 **      isFile      True if FILE:
 **      isHttps     True if HTTPS:
@@ -88,6 +87,11 @@ struct UrlData {
 **      hostname    HOST:PORT or just HOST if port is the default.
 **      canonical   The URL in canonical form, omitting the password
 **
+** If zUrl==0, then parse the URL store in last-sync-url and last-sync-pw
+** of the CONFIG table.  Or if zUrl is a symbolic name, look up the URL
+** in sync-url:%Q and sync-pw:%Q elements of the CONFIG table.  But only
+** use the CONFIG table alternatives if the URL_FROM_CONFIG flag is set.
+**
 ** This routine differs from url_parse() in that this routine stores the
 ** results in pUrlData and does not change the values of global variables.
 ** The url_parse() routine puts its result in g.url.
@@ -100,27 +104,31 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
-  if( zUrl==0 || strcmp(zUrl,"default")==0 ){
-    zUrl = db_get("last-sync-url", 0);
-    if( zUrl==0 ) return;
-    if( pUrlData->passwd==0 ){
-      pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
-    }
-    pUrlData->isAlias = 1;
-  }else{
-    char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
-    char *zAlt = db_get(zKey, 0);
-    sqlite3_free(zKey);
-    if( zAlt ){
-      pUrlData->passwd = unobscure(
-        db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
-      );
-      zUrl = zAlt;
-      urlFlags |= URL_REMEMBER_PW;
+  if( urlFlags & URL_USE_CONFIG ){
+    if( zUrl==0 || strcmp(zUrl,"default")==0 ){
+      zUrl = db_get("last-sync-url", 0);
+      if( zUrl==0 ) return;
+      if( pUrlData->passwd==0 ){
+        pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
+      }
       pUrlData->isAlias = 1;
     }else{
-      pUrlData->isAlias = 0;
+      char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
+      char *zAlt = db_get(zKey, 0);
+      sqlite3_free(zKey);
+      if( zAlt ){
+        pUrlData->passwd = unobscure(
+          db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
+        );
+        zUrl = zAlt;
+        urlFlags |= URL_REMEMBER_PW;
+        pUrlData->isAlias = 1;
+      }else{
+        pUrlData->isAlias = 0;
+      }
     }
+  }else{
+    if( zUrl==0 ) return;
   }
 
   if( strncmp(zUrl, "http://", 7)==0

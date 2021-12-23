@@ -74,7 +74,7 @@ static int client_sync_all_urls(
   for(i=0; i<nOther; i++){
     int rc;
     url_unparse(&g.url);
-    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
+    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW|URL_USE_CONFIG);
     sync_explain(syncFlags);
     rc = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
     nErr += rc;
@@ -131,7 +131,7 @@ int autosync(int flags){
     if( flags & SYNC_PUSH ) return 0;
   }
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  url_parse(0, URL_REMEMBER);
+  url_parse(0, URL_REMEMBER|URL_USE_CONFIG);
   if( g.url.protocol==0 ) return 0;
   if( g.url.user!=0 && g.url.passwd==0 ){
     g.url.passwd = unobscure(db_get("last-sync-pw", 0));
@@ -281,7 +281,7 @@ static void process_sync_args(
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();
   }
-  url_parse(zUrl, urlFlags);
+  url_parse(zUrl, urlFlags|URL_USE_CONFIG);
   remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
   if( g.url.protocol==0 ){
     if( urlOptional ) fossil_exit(0);

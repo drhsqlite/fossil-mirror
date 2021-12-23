@@ -46,7 +46,7 @@ void xfersetup_page(void){
     "Specific TH1 code to run after processing a ticket change.");
   @ </table>
 
-  url_parse(0, 0);
+  url_parse(0, URL_USE_CONFIG);
   if( g.url.protocol ){
     unsigned syncFlags;
     const char *zButton;
