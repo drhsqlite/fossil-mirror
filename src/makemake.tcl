@@ -314,7 +314,7 @@ writeln {#
 #
 
 XBCC = $(BCC) $(BCCFLAGS)
-XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
+XTCC = $(TCC) $(CFLAGS_INCLUDE) -I$(OBJDIR) $(TCCFLAGS)
 
 TESTFLAGS := -quiet
 }
@@ -405,12 +405,16 @@ SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
 # Setup the options used to compile the included miniz library.
 MINIZ_OPTIONS = <<<MINIZ_OPTIONS>>>
 
-# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
-# to 1. If it is set to 1, then there is no need to build or link
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0 or 1.
+# If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
+#
+# Closely related is SQLITE3_ORIGIN, with the same numeric mapping plus
+# a value of 2 means that we are building a client-provided sqlite3.c.
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.1 =
+# SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -434,14 +438,16 @@ LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 # 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
 # the source tree) is used and extra flags are provided to enable
 # the SQLite Encryption Extension.
-SQLITE3_SRC.0 = sqlite3.c
-SQLITE3_SRC.1 = sqlite3-see.c
-SQLITE3_SRC. = sqlite3.c
-SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
-SQLITE3_SHELL_SRC.0 = shell.c
-SQLITE3_SHELL_SRC.1 = shell-see.c
-SQLITE3_SHELL_SRC. = shell.c
-SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
+SQLITE3_SRC.0 = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR)/sqlite3-see.c
+# SQLITE3_SRC.2 is set by top-level configure/makefile process.
+SQLITE3_SRC. = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
+SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
+# SQLITE3_SHELL_SRC.2 comes from the configure process
+SQLITE3_SHELL_SRC. = $(SRCDIR)/shell.c
+SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SEE_FLAGS. =
@@ -450,7 +456,7 @@ SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
 EXTRAOBJ = <<<NEXT_LINE>>>
- $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
+ $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) <<<NEXT_LINE>>>
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
  $(LINENOISE_OBJ.$(USE_LINENOISE)) <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
@@ -1105,12 +1111,17 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSIO
 $(OBJDIR)/phony.h:
 	# Force rebuild of VERSION.h every time "make" is run
 
-# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
-# to 1. If it is set to 1, then there is no need to build or link
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0 or 1.
+# If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
+#
+# Closely related is SQLITE3_ORIGIN, with the same 0/1 mapping,
+# plus a value of 2 means that we are building a client-provided
+# sqlite3.c.
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.1 =
+# SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -1124,14 +1135,16 @@ MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 # 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
 # the source tree) is used and extra flags are provided to enable
 # the SQLite Encryption Extension.
-SQLITE3_SRC.0 = sqlite3.c
-SQLITE3_SRC.1 = sqlite3-see.c
-SQLITE3_SRC. = sqlite3.c
-SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
-SQLITE3_SHELL_SRC.0 = shell.c
-SQLITE3_SHELL_SRC.1 = shell-see.c
-SQLITE3_SHELL_SRC. = shell.c
-SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
+SQLITE3_SRC.0 = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR)/sqlite3-see.c
+# SQLITE3_SRC.2 is set by top-level configure/makefile process.
+SQLITE3_SRC. = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
+SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
+# SQLITE3_SHELL_SRC.2 comes from the configure process
+SQLITE3_SHELL_SRC. = $(SRCDIR)/shell.c
+SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SEE_FLAGS. =
@@ -1140,7 +1153,7 @@ SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
 EXTRAOBJ = <<<NEXT_LINE>>>
- $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
+ $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) <<<NEXT_LINE>>>
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
  $(OBJDIR)/th.o <<<NEXT_LINE>>>

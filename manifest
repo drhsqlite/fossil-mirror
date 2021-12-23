@@ -1,5 +1,5 @@
-C Initial\sgo\sat\sa\snew\s--with-sqlite=tree|path|auto\sconfigure\sflag\swhich\senables\sbuilding\sagainst\sout-of-tree\ssqlite3.o\sor\slibsqlite3,\swith\sthe\scaveat\sthat\swe\sdo\snot\sknow\swhether\sthe\sexternal\ssqlite3\sis\sbuilt\swith\sall\sfeatures\swe\sneed,\se.g.\sJSON1.
-D 2021-12-23T20:38:02.174
+C Extended\sconfigure\s--with-sqlite=PATH\sto\ssupport\spointing\sto\sa\sdirectory\swhich\scontains\ssqlite3.c\sand\ssqlite3.h.\sIt's\snot\syet\stested\swith\sout-of-tree\sSEE\sdistributions\s(TODO).
+D 2021-12-23T23:35:53.807
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -14,7 +14,7 @@ F BUILD.txt fd92e4922f1ea4f58ca56032f1aa7265a312ca0dc2bff37f52769ac15e693b05
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 51328029ebbdc85b9fde5892f40e3d26cdfbbb8874b44bd652d9ad6854de89ea
 F Makefile.classic f7ab827cf2c75b8580e6d5f09fe7a3a09a5b580131870924c0c72259328a4cf3
-F Makefile.in 45eba548fec261c3800734ba8ca3802a2b23cd7654941422d45b7576d2ccbf17 x
+F Makefile.in cd428225cde87408488e2d7ba627433e4764ecd225f19b508a69d5f71670595d x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION c8a78fc24f9432587c0fabc2277234181bd5c6f5598a51155429068db589f506
@@ -36,7 +36,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def c81d4b846d79fd05e5fa2498facfddf89d9ffbb89b7c4398d370b28643db5cc1
+F auto.def a18c74eab6e9d6797d6618337e292caafe6605e17aa49fc5a31759c979cdeb99
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -528,10 +528,10 @@ F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 32e4780936d2cdd116c1a29408b7a4e3513ebd710b38272f1adaa95444af8fb4
-F src/main.mk 26c53f45dcbb378ec24b6dd69567834250ceb2b21c4c31f3caa3482fe8f07887
+F src/main.mk e299195667d63a14a8a47a8d0ed54bc19d5be77a53e51584aac2a18dd59800d0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
-F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
+F src/makemake.tcl 9e023e7503352a367dad3981470ead3efce6df10e74c153f6c6b71ee2806dd7c x
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
@@ -781,7 +781,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc c95e9640bd533628b6d2257dd655c450643f39530d015a7523b6f809abe3dab0
-F win/Makefile.mingw f5b0063097ab2404c51a6a940c30ec92b42a936d06a7fa14e53dfc88e1590088
+F win/Makefile.mingw 7fff69437f062183310b5106077ed1f9639acf88ee13a88b30b603c68e3972cb
 F win/Makefile.mingw.mistachkin 2825e5983b74352f8b8b57a3e638c865c2619260038c80a26ef1fc516777e783
 F win/Makefile.msc a40646da2ab616e2c6e4191599aba6385851eb965949c8e0dbde1c0d923ce143
 F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0aff8d8744c613114b8268e8e3a60643191be83192935e5337907a26caf24a50
-R d0e8353ae770746ccdd3d9a284a9c513
+P dfa758b016a90cff09fa6c6201ce2e1632b001b5eee9453d45e53c22fbb1a07f
+R 0b0010fe12bb729cf71a08052f6679f7
 U stephan
-Z 2c13bc01495fc155d634c807a908b349
+Z 396fc351d2a4e7379c8e5979a70edbb9
 # Remove this line to create a well-formed Fossil manifest.
