@@ -504,6 +504,7 @@ const char *public_url(void){
 void urllist_page(void){
   Stmt q;
   int cnt;
+  int total = 0;
   int showAll = P("all")!=0;
   int nOmitted;
   sqlite3_int64 iNow;
@@ -518,13 +519,17 @@ void urllist_page(void){
   style_submenu_element("Stat", "stat");
   style_submenu_element("Schema", "repo_schema");
   iNow = db_int64(0, "SELECT strftime('%%s','now')");
-  @ <div class="section">URLs used to access this repository</div>
-  @ <table border="0" width='100%%'>
+
+
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch'), mtime"
                  "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 3 DESC");
   cnt = 0;
   nOmitted = 0;
   while( db_step(&q)==SQLITE_ROW ){
+    if( cnt==0 ){
+      @ <div class="section">URLs used to access this repository</div>
+      @ <table border="0" width='100%%'>
+    }
     if( !showAll && db_column_int64(&q,2)<(iNow - 3600*24*30) && cnt>8 ){
       nOmitted++;
     }else{
@@ -534,16 +539,20 @@ void urllist_page(void){
     cnt++;
   }
   db_finalize(&q);
-  if( cnt==0 ){
-    @ <tr><td>(none)</td>
-  }else if( nOmitted ){
+  
+  if( nOmitted ){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
-  @ </table>
+  if( cnt ){
+    @ <tr><td>(none)</td>
+    total += cnt;
+  }
   if( P("urlonly") ){
     style_finish_page();
     return;
   }
+
+
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
                  "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
@@ -562,7 +571,9 @@ void urllist_page(void){
   db_finalize(&q);
   if( cnt ){
     @ </table>
+    total += cnt;
   }
+
   cnt = 0;
   db_prepare(&q,
     "SELECT substr(name,10), datetime(mtime,'unixepoch')"
@@ -573,7 +584,7 @@ void urllist_page(void){
     "UNION ALL "
     "SELECT substr(name,9), datetime(mtime,'unixepoch')"
     "  FROM config WHERE name GLOB 'gitpush:*'"
-    "ORDER BY 2 DESC"
+    "GROUP BY 1 ORDER BY 2 DESC"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zURL = db_column_text(&q,0);
@@ -592,6 +603,7 @@ void urllist_page(void){
   db_finalize(&q);
   if( cnt ){
     @ </table>
+    total += cnt;
   }
 
   cnt = 0;
@@ -615,7 +627,7 @@ void urllist_page(void){
       @ <div class="section">Links from other repositories</div>
       @ <table border='0' width='100%%'>
     }
-    if( zPriorRepo==0 || strcmp(zUrl,zSrc)!=0 ){
+    if( zPriorRepo==0 || strcmp(zPriorRepo,zSrc)!=0 ){
       fossil_free(zPriorRepo);
       zPriorRepo = fossil_strdup(zSrc);
       @ <tr><td colspan="4">\
@@ -634,6 +646,12 @@ void urllist_page(void){
   fossil_free(zPriorRepo);
   if( cnt ){
     @ </table>
+    total += cnt;
+  }
+
+
+  if( total==0 ){
+    @ <p>No record of any URLs or checkouts</p>
   }
   style_finish_page();
 }
