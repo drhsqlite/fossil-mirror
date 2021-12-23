@@ -1,5 +1,5 @@
-C Fix\sthe\sURL\sparser\sso\sthat\sit\sonly\shas\saccess\sto\sthe\sCONFIG\stable\sentries\nfor\sURL\saliases\sif\sthe\sURL_USE_CONFIG\sflag\sis\sset\sin\sthe\ssecond\sparameter.
-D 2021-12-23T14:09:34.395
+C Initial\sgo\sat\sa\snew\s--with-sqlite=tree|path|auto\sconfigure\sflag\swhich\senables\sbuilding\sagainst\sout-of-tree\ssqlite3.o\sor\slibsqlite3,\swith\sthe\scaveat\sthat\swe\sdo\snot\sknow\swhether\sthe\sexternal\ssqlite3\sis\sbuilt\swith\sall\sfeatures\swe\sneed,\se.g.\sJSON1.
+D 2021-12-23T20:38:02.174
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -36,7 +36,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 7ebf7158be654a9f191cf603c1264d97d7b6fc17c6d3de7bba6a491f4b2b56e1
+F auto.def c81d4b846d79fd05e5fa2498facfddf89d9ffbb89b7c4398d370b28643db5cc1
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0cdbd8b95f5b8eb69ebe21bdd2d30cd47a5827a13c53d1ea5072e6a2bdd2e9e
-R 3ad94b30c6650d5efe4f356e733535cc
-U drh
-Z 4dcae2d12e5f25e7ae54e4db91291fcf
+P 0aff8d8744c613114b8268e8e3a60643191be83192935e5337907a26caf24a50
+R d0e8353ae770746ccdd3d9a284a9c513
+U stephan
+Z 2c13bc01495fc155d634c807a908b349
 # Remove this line to create a well-formed Fossil manifest.

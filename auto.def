@@ -10,6 +10,8 @@ options {
     with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path|auto|tree
                          => {Look for zlib in the given path, automatically, or in the source tree}
+    with-sqlite:path|auto|tree
+                         => {Look for sqlite in the given path, automatically, or in the source tree}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-sanitizer:      => {Build with C compiler's -fsanitize=LIST; e.g. address,enum,null,undefined}
@@ -449,6 +451,42 @@ if {$ssldirs ne "none"} {
     if {[info exists ::zlib_lib]} {
         define-append LIBS $::zlib_lib
     }
+}
+
+# Check for sqlite3, using the given location if specified
+set sq3path [opt-val with-sqlite]
+if {$sq3path in {tree ""}} {
+  msg-result "Using sqlite3.c from this source tree."
+} else {
+  if {$sq3path != "auto"} {
+    # Look for sqlite3.o or libsqlite3.*
+    if {[file exists $sq3path/sqlite3.o]} {
+      # Prefer sqlite3.o if found. TODO: if we find sqlite3.c,
+      # include it in our build process.
+      define-append EXTRA_CFLAGS -I$sq3path
+      define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread -lm
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using sqlite3.o from $sq3path"
+    } elseif { ([llength [glob -directory $sq3path/lib libsqlite3*]] != 0) \
+                 && ([file exists $sq3path/include/sqlite3.h]) } {
+      # e.g. --with-sqlite=/usr/local. Try $sq3path/lib
+      # and $sq3path/include/sqlite3.h
+      define-append EXTRA_CFLAGS -I$sq3path/include
+      define-append EXTRA_LDFLAGS -L$sq3path/lib -lsqlite3 -lpthread -lm
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using -lsqlite3 from $sq3path"
+    } else {
+      # Assume $sq3path holds both the lib and header
+      cc-with [list -cflags "-I$sq3path -L$sq3path"]
+      define-append EXTRA_CFLAGS -I$sq3path
+      define-append EXTRA_LDFLAGS -L$sq3path -lsqlite3 -lpthread -lm
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using -lsqlite3 from $sq3path"
+    }
+  } elseif {![cc-check-includes sqlite3.h] || ![check-function-in-lib sqlite3_open_v2 sqlite3]} {
+    user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
+  }
+  define USE_SYSTEM_SQLITE 1
 }
 
 set tclpath [opt-val with-tcl]
