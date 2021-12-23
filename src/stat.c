@@ -544,7 +544,7 @@ void urllist_page(void){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
   if( cnt ){
-    @ <tr><td>(none)</td>
+    @ </table>
     total += cnt;
   }
   if( P("urlonly") ){
