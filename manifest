@@ -1,5 +1,5 @@
-C Extended\sconfigure\s--with-sqlite=PATH\sto\ssupport\spointing\sto\sa\sdirectory\swhich\scontains\ssqlite3.c\sand\ssqlite3.h.\sIt's\snot\syet\stested\swith\sout-of-tree\sSEE\sdistributions\s(TODO).
-D 2021-12-23T23:35:53.807
+C Update\sthe\sbuilt-in\spikchr\sformatter\sto\sthe\slatest\sversion.
+D 2021-12-24T12:49:23.174
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -549,7 +549,7 @@ F src/name.c 8859f5d0cd49e99d4d326fd125a5e65dac19acfdfb3ded0286cebe4528a02f57
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
-F src/pikchr.c 3646f513ef1631193851b3499f7e1089784795d09a1c58d3a29596abee6eea53
+F src/pikchr.c dc374dad64dbe9738c6e899317ea333699c06db1d955b824f8b80605e19d209a
 F src/pikchrshow.c df3ca9e49839ffbc628691af2eb9f197a3428a748c75a185bff95efad7ce7fab
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -987,8 +987,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfa758b016a90cff09fa6c6201ce2e1632b001b5eee9453d45e53c22fbb1a07f
-R 0b0010fe12bb729cf71a08052f6679f7
-U stephan
-Z 396fc351d2a4e7379c8e5979a70edbb9
+P 31d431e358b3b8571cfa6c8eaa244e7bdd2c1576a9ff9f8800c3aadb309a0b6e
+R f539bdfc6b1ffa309cd0a0ef09e922c3
+U drh
+Z a16186353e5e4afb6fbd47fe535bedb8
 # Remove this line to create a well-formed Fossil manifest.
