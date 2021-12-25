@@ -10,6 +10,7 @@
 #
 B       = ..
 SRCDIR  = $(B)\src
+SRCDIRX = $(B)\extsrc
 T       = .
 OBJDIR  = $(T)
 OX      = $(OBJDIR)
@@ -461,7 +462,6 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\patch_.c" \
         "$(OX)\path_.c" \
         "$(OX)\piechart_.c" \
-        "$(OX)\pikchr_.c" \
         "$(OX)\pikchrshow_.c" \
         "$(OX)\pivot_.c" \
         "$(OX)\popen_.c" \
@@ -1039,7 +1039,7 @@ SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
 SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3-see.c
 !else
 SEE_FLAGS =
-SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR.extsrc)\shell.c
 SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 !endif
 
@@ -1058,8 +1058,11 @@ SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 "$(OX)\th_tcl$O" : "$(SRCDIR)\th_tcl.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-"$(OX)\miniz$O" : "$(SRCDIR)\miniz.c"
+"$(OX)\miniz$O" : "$(SRCDIR.extsrc)\miniz.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
+
+"$(OX)\pikchr$O" : "$(SRCDIR.extsrc)" "$(B)\win\Makefile.msc"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
@@ -1067,7 +1070,7 @@ SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 "$(B)\phony.h" :
 	rem Force rebuild of VERSION.h whenever nmake is run
 
-"$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
+"$(OX)\cson_amalgamation$O" : "$(SRCDIR.extsrc)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\page_index.h": "$(OBJDIR)\mkindex$E" $(SRC)
@@ -1792,12 +1795,6 @@ realclean: clean
 "$(OX)\piechart_.c" : "$(SRCDIR)\piechart.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
-"$(OX)\pikchr$O" : "$(OX)\pikchr_.c" "$(OX)\pikchr.h"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\pikchr_.c"
-
-"$(OX)\pikchr_.c" : "$(SRCDIR)\pikchr.c"
-	"$(OBJDIR)\translate$E" $** > $@
-
 "$(OX)\pikchrshow$O" : "$(OX)\pikchrshow_.c" "$(OX)\pikchrshow.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\pikchrshow_.c"
 
@@ -2219,7 +2216,6 @@ realclean: clean
 			"$(OX)\patch_.c":"$(OX)\patch.h" \
 			"$(OX)\path_.c":"$(OX)\path.h" \
 			"$(OX)\piechart_.c":"$(OX)\piechart.h" \
-			"$(OX)\pikchr_.c":"$(OX)\pikchr.h" \
 			"$(OX)\pikchrshow_.c":"$(OX)\pikchrshow.h" \
 			"$(OX)\pivot_.c":"$(OX)\pivot.h" \
 			"$(OX)\popen_.c":"$(OX)\popen.h" \
@@ -2277,5 +2273,5 @@ realclean: clean
 			"$(SRCDIR.extsrc)\sqlite3.h" \
 			"$(SRCDIR)\th.h" \
 			"$(OX)\VERSION.h" \
-			"$(SRCDIR)\cson_amalgamation.h"
+			"$(SRCDIR.extsrc)\cson_amalgamation.h"
 	@copy /Y nul: $@

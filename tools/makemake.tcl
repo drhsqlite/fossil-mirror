@@ -37,6 +37,9 @@
 # replacing it only here (should it ever changes) is not sufficient.
 #
 set srcDir ../src
+# Directory $srcDirExt houses single-file source code solutions which
+# are imported directly into the fossil source tree.
+set srcDirExt ../extsrc
 
 # Basenames of all source files that get preprocessed using
 # "translate" and "makeheaders".  To add new C-language source files to the
@@ -139,7 +142,6 @@ set src {
   patch
   path
   piechart
-  pikchr
   pikchrshow
   pivot
   popen
@@ -195,6 +197,14 @@ set src {
   xfersetup
   zip
   http_ssl
+}
+
+# Source files which live under $srcDirExt, but only those for which
+# we need to run makeheaders. External sources which have their own
+# header files must not be in this list.
+set src_ext {
+  miniz
+  pikchr
 }
 
 # Additional resource files that get built into the executable.
@@ -460,10 +470,10 @@ SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
 SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
 SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
-SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
-SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
+SQLITE3_SHELL_SRC.0 = $(SRCDIR.extsrc)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR.extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
-SQLITE3_SHELL_SRC. = $(SRCDIR)/shell.c
+SQLITE3_SHELL_SRC. = $(SRCDIR.extsrc)/shell.c
 SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -476,6 +486,7 @@ EXTRAOBJ = <<<NEXT_LINE>>>
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) <<<NEXT_LINE>>>
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
  $(LINENOISE_OBJ.$(USE_LINENOISE)) <<<NEXT_LINE>>>
+ $(OBJDIR)/pikchr.o <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
  $(OBJDIR)/th.o <<<NEXT_LINE>>>
  $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
@@ -504,9 +515,13 @@ foreach s [lsort $src] {
   append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
   set extra_h($s) { }
 }
+foreach s [lsort $src_ext] {
+  append mhargs "\$(SRCDIR.extsrc)/${s}.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
+  set extra_h($s) { }
+}
 append mhargs "\$(SRCDIR.extsrc)/sqlite3.h <<<NEXT_LINE>>>"
 append mhargs "\$(SRCDIR)/th.h <<<NEXT_LINE>>>"
-#append mhargs "\$(SRCDIR)/cson_amalgamation.h <<<NEXT_LINE>>>"
+#append mhargs "\$(SRCDIR.extsrc)/cson_amalgamation.h <<<NEXT_LINE>>>"
 append mhargs "\$(OBJDIR)/VERSION.h "
 set mhargs [string map [list <<<NEXT_LINE>>> \\\n\t] $mhargs]
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
@@ -540,8 +555,8 @@ writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR.extsrc)/sqlite3.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
-writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
-writeln "\t\$(XTCC) -c \$(SRCDIR)/linenoise.c -o \$@\n"
+writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR.extsrc)/linenoise.c \$(SRCDIR.extsrc)/linenoise.h"
+writeln "\t\$(XTCC) -c \$(SRCDIR.extsrc)/linenoise.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
@@ -553,11 +568,14 @@ writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
 writeln {
-$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $@
+$(OBJDIR)/miniz.o:	$(SRCDIR.extsrc)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR.extsrc)/miniz.c -o $@
 
-$(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $@
+$(OBJDIR)/pikchr.o:	$(SRCDIR.extsrc)/pikchr.c
+	$(XTCC) -c $(SRCDIR.extsrc)/pikchr.c -o $@
+
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR.extsrc)/cson_amalgamation.c
+	$(XTCC) -c $(SRCDIR.extsrc)/cson_amalgamation.c -o $@
 
 #
 # The list of all the targets that do not correspond to real files. This stops
@@ -1070,12 +1088,12 @@ all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
-	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
+	$(CAT) $(subst /,\,$(SRCDIR.extsrc)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
-	$(CAT) $(SRCDIR)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
+	$(CAT) $(SRCDIR.extsrc)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
@@ -1157,10 +1175,10 @@ SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
 SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
-SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
-SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
+SQLITE3_SHELL_SRC.0 = $(SRCDIR.extsrc)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR.extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
-SQLITE3_SHELL_SRC. = $(SRCDIR)/shell.c
+SQLITE3_SHELL_SRC. = $(SRCDIR.extsrc)/shell.c
 SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -1251,6 +1269,10 @@ foreach s [lsort $src] {
   append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) { }
 }
+foreach s [lsort $src_ext] {
+  append mhargs "\$(SRCDIR.extsrc)/${s}.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
+  set extra_h($s) { }
+}
 append mhargs " \\\n\t\t\$(SRCDIR.extsrc)/sqlite3.h"
 append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
 append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
@@ -1300,8 +1322,8 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC) \$(SRCDIR)/../win/Makefile.mingw
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@\n"
 
-writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
+writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR.extsrc)/cson_amalgamation.c"
+writeln "\t\$(XTCC) -c \$(SRCDIR.extsrc)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR.extsrc)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
@@ -1316,8 +1338,11 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$@\n"
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
-writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR)/miniz.c"
-writeln "\t\$(XTCC) \$(MINIZ_OPTIONS) -c \$(SRCDIR)/miniz.c -o \$@\n"
+writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR.extsrc)/miniz.c"
+writeln "\t\$(XTCC) \$(MINIZ_OPTIONS) -c \$(SRCDIR.extsrc)/miniz.c -o \$@\n"
+
+writeln "\$(OBJDIR)/pikchr.o:\t\$(SRCDIR.extsrc)/pikchr.c"
+writeln "\t\$(XTCC) -c \$(SRCDIR.extsrc)/pikchr.c -o \$@\n"
 
 close $output_file
 #
@@ -1419,10 +1444,10 @@ mkversion$E: $(SRCDIR.tools)\mkversion.c
 codecheck1$E: $(SRCDIR.tools)\codecheck1.c
 	$(BCC) -o$@ $**
 
-$(OBJDIR)\shell$O : $(SRCDIR)\shell.c
+$(OBJDIR)\shell$O : $(SRCDIR.extsrc)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
-$(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
+$(OBJDIR)\sqlite3$O : $(SRCDIR.extsrc)\sqlite3.c
 	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
@@ -1431,7 +1456,7 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) -o$@ -c $**
 
-$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
+$(OBJDIR)\cson_amalgamation.h : $(SRCDIR.extsrc)\cson_amalgamation.h
 	cp $@ $@
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
@@ -1478,7 +1503,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR.extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln "\$(SRCDIR.extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR.extsrc)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 close $output_file
@@ -1505,6 +1530,7 @@ writeln {#
 #
 B       = ..
 SRCDIR  = $(B)\src
+SRCDIRX = $(B)\extsrc
 T       = .
 OBJDIR  = $(T)
 OX      = $(OBJDIR)
@@ -1829,7 +1855,7 @@ foreach s [lsort $extra_files] {
   writeln -nonewline "\"\$(SRCDIR)\\${s}\""; incr i
 }
 writeln "\n"
-set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation]
+set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation pikchr]
 writeln -nonewline "OBJ   = "
 set i 0
 foreach s [lsort [concat $src $AdditionalObj]] {
@@ -1954,7 +1980,7 @@ SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
 SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3-see.c
 !else
 SEE_FLAGS =
-SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR.extsrc)\shell.c
 SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 !endif
 
@@ -1973,8 +1999,11 @@ SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 "$(OX)\th_tcl$O" : "$(SRCDIR)\th_tcl.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-"$(OX)\miniz$O" : "$(SRCDIR)\miniz.c"
+"$(OX)\miniz$O" : "$(SRCDIR.extsrc)\miniz.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
+
+"$(OX)\pikchr$O" : "$(SRCDIR.extsrc)" "$(B)\win\Makefile.msc"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
@@ -1982,7 +2011,7 @@ SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 "$(B)\phony.h" :
 	rem Force rebuild of VERSION.h whenever nmake is run
 
-"$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
+"$(OX)\cson_amalgamation$O" : "$(SRCDIR.extsrc)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\page_index.h": "$(OBJDIR)\mkindex$E" $(SRC)
@@ -2072,7 +2101,7 @@ foreach s [lsort $src] {
 writeln " \\\n\t\t\t\"\$(SRCDIR.extsrc)\\sqlite3.h\" \\"
 writeln "\t\t\t\"\$(SRCDIR)\\th.h\" \\"
 writeln "\t\t\t\"\$(OX)\\VERSION.h\" \\"
-writeln "\t\t\t\"\$(SRCDIR)\\cson_amalgamation.h\""
+writeln "\t\t\t\"\$(SRCDIR.extsrc)\\cson_amalgamation.h\""
 writeln "\t@copy /Y nul: $@"
 
 
@@ -2147,6 +2176,7 @@ endif
 # define the project directories
 B=..
 SRCDIR=$(B)/src/
+SRCDIRX=$(B)/extsrc/
 WINDIR=$(B)/win/
 ZLIBSRCDIR=../../zlib/
 
@@ -2160,7 +2190,7 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 CC=$(PellesCDir)\bin\pocc.exe
 DEFINES=-D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
-INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
+INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR) /I $(SRCDIRX)
 
 # define commands for building the windows resource files
 RESOURCE=fossil.res
@@ -2171,17 +2201,17 @@ RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 # the automatically generated source files
 UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
-UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
+UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIRX)$(uf:.exe=.c))
 
 # define the SQLite files, which need special flags on compile
 SQLITESRC=sqlite3.c
-ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
+ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIRX)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
 SQLITEDEFINES=<<<SQLITE_OPTIONS>>>
 
 # define the SQLite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
-ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
+ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIRX)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
 SQLITESHELLDEFINES=<<<SHELL_OPTIONS>>>
 
@@ -2251,10 +2281,10 @@ headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/extsrc/sql
 $(TRANSLATEDOBJ):	%_.obj:	%_.c %.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(SQLITEOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)%.h
+$(SQLITEOBJ):	%.obj:	$(SRCDIRX)%.c $(SRCDIRX)%.h
 	$(CC) $(CCFLAGS) $(SQLITEDEFINES) $(INCLUDE) "$<" -Fo"$@"
 
-$(SQLITESHELLOBJ):	%.obj:	$(SRCDIR)%.c
+$(SQLITESHELLOBJ):	%.obj:	$(SRCDIRX)%.c
 	$(CC) $(CCFLAGS) $(SQLITESHELLDEFINES) $(INCLUDE) "$<" -Fo"$@"
 
 $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h

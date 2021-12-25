@@ -109,7 +109,6 @@ SRC = \
   $(SRCDIR)/patch.c \
   $(SRCDIR)/path.c \
   $(SRCDIR)/piechart.c \
-  $(SRCDIR)/pikchr.c \
   $(SRCDIR)/pikchrshow.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
@@ -368,7 +367,6 @@ TRANS_SRC = \
   $(OBJDIR)/patch_.c \
   $(OBJDIR)/path_.c \
   $(OBJDIR)/piechart_.c \
-  $(OBJDIR)/pikchr_.c \
   $(OBJDIR)/pikchrshow_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
@@ -518,7 +516,6 @@ OBJ = \
  $(OBJDIR)/patch.o \
  $(OBJDIR)/path.o \
  $(OBJDIR)/piechart.o \
- $(OBJDIR)/pikchr.o \
  $(OBJDIR)/pikchrshow.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
@@ -730,10 +727,10 @@ SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
 SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
 SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
-SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
-SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
+SQLITE3_SHELL_SRC.0 = $(SRCDIR.extsrc)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR.extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
-SQLITE3_SHELL_SRC. = $(SRCDIR)/shell.c
+SQLITE3_SHELL_SRC. = $(SRCDIR.extsrc)/shell.c
 SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -745,6 +742,7 @@ EXTRAOBJ = \
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) \
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) \
  $(LINENOISE_OBJ.$(USE_LINENOISE)) \
+ $(OBJDIR)/pikchr.o \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
@@ -866,7 +864,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/patch_.c:$(OBJDIR)/patch.h \
 	$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
 	$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
-	$(OBJDIR)/pikchr_.c:$(OBJDIR)/pikchr.h \
 	$(OBJDIR)/pikchrshow_.c:$(OBJDIR)/pikchrshow.h \
 	$(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h \
 	$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
@@ -921,6 +918,8 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
+	$(SRCDIR.extsrc)/miniz.c:$(OBJDIR)/miniz.h \
+	$(SRCDIR.extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
 	$(SRCDIR.extsrc)/sqlite3.h \
 	$(SRCDIR)/th.h \
 	$(OBJDIR)/VERSION.h 
@@ -1672,14 +1671,6 @@ $(OBJDIR)/piechart.o:	$(OBJDIR)/piechart_.c $(OBJDIR)/piechart.h $(SRCDIR)/confi
 
 $(OBJDIR)/piechart.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/pikchr_.c:	$(SRCDIR)/pikchr.c $(OBJDIR)/translate
-	$(OBJDIR)/translate $(SRCDIR)/pikchr.c >$@
-
-$(OBJDIR)/pikchr.o:	$(OBJDIR)/pikchr_.c $(OBJDIR)/pikchr.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/pikchr.o -c $(OBJDIR)/pikchr_.c
-
-$(OBJDIR)/pikchr.h:	$(OBJDIR)/headers
-
 $(OBJDIR)/pikchrshow_.c:	$(SRCDIR)/pikchrshow.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/pikchrshow.c >$@
 
@@ -2118,8 +2109,8 @@ $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR.extsrc)/sqlite3.h
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
-$(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
-	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@
+$(OBJDIR)/linenoise.o:	$(SRCDIR.extsrc)/linenoise.c $(SRCDIR.extsrc)/linenoise.h
+	$(XTCC) -c $(SRCDIR.extsrc)/linenoise.c -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $@
@@ -2131,11 +2122,14 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $@
 
 
-$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $@
+$(OBJDIR)/miniz.o:	$(SRCDIR.extsrc)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR.extsrc)/miniz.c -o $@
 
-$(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $@
+$(OBJDIR)/pikchr.o:	$(SRCDIR.extsrc)/pikchr.c
+	$(XTCC) -c $(SRCDIR.extsrc)/pikchr.c -o $@
+
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR.extsrc)/cson_amalgamation.c
+	$(XTCC) -c $(SRCDIR.extsrc)/cson_amalgamation.c -o $@
 
 #
 # The list of all the targets that do not correspond to real files. This stops
