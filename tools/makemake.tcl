@@ -2007,7 +2007,7 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 "$(OX)\miniz$O" : "$(SRCDIR_extsrc)\miniz.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
 
-"$(OX)\pikchr$O" : "$(SRCDIR_extsrc)" "$(B)\win\Makefile.msc"
+"$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c" "$(B)\win\Makefile.msc"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
