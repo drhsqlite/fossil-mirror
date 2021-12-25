@@ -1,6 +1,8 @@
 #!/usr/bin/tclsh
 #
 #    ### Run this Tcl script EVERY time you modify it in any way! ###
+#    ### It must be run from the directory it lives in so that    ###
+#    ### directories resolve properly!                            ###
 #
 # This Tcl script generates make files for various platforms. The makefiles
 # then need to be committed.
@@ -30,6 +32,12 @@
 #
 #############################################################################
 
+# $srcDir is used to set the target source dir in several places. Not
+# all code-generation bits use $srcDir and instead hard-code, so
+# replacing it only here (should it ever changes) is not sufficient.
+#
+set srcDir ../src
+
 # Basenames of all source files that get preprocessed using
 # "translate" and "makeheaders".  To add new C-language source files to the
 # project, simply add the basename to this list and rerun this script.
@@ -37,6 +45,7 @@
 # Set the separate extra_files variable further down for how to add non-C
 # files, such as string and BLOB resources.
 #
+
 set src {
   add
   ajax
@@ -189,7 +198,8 @@ set src {
 }
 
 # Additional resource files that get built into the executable.
-#
+# These paths are all resolved from the src/ directory, so must
+# be relative to that.
 set extra_files {
   diff.tcl
   markdown.md
@@ -286,9 +296,15 @@ proc writeln {args} {
 # Expand any wildcards in "extra_files"
 set new_extra_files {}
 foreach file $extra_files {
-  foreach x [glob -nocomplain $file] {
+  # we need $file to resolve from $srcDir, but simply prepending
+  # $srcDir to each name breaks how the names are stringified and
+  # looked up from C.
+  set cwd [pwd]
+  cd $srcDir
+  foreach x [glob $file] { # -nocomplain flag?
     lappend new_extra_files $x
   }
+  cd $cwd
 }
 set extra_files $new_extra_files
 
@@ -297,7 +313,7 @@ set extra_files $new_extra_files
 ##############################################################################
 # Start by generating the "main.mk" makefile used for all unix systems.
 #
-set mainMk ../src/main.mk
+set mainMk $srcDir/main.mk
 puts "building $mainMk"
 set output_file [open $mainMk w]
 fconfigure $output_file -translation binary
