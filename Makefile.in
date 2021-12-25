@@ -9,6 +9,7 @@
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = @srcdir@/src
+SRCDIR.tools = @srcdir@/tools
 
 #### The directory into which object code files should be written.
 #    Having a "./" prefix in the value of this variable breaks our use of the
