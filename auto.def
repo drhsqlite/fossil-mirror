@@ -188,7 +188,7 @@ if {![opt-bool internal-sqlite]} {
     set cmdline {}
     lappend cmdline {*}[get-define CCACHE]
     lappend cmdline {*}[get-define CC] {*}[get-define CFLAGS]
-    lappend cmdline $::autosetup(dir)/../src/sqlcompattest.c -o conftest__
+    lappend cmdline $::autosetup(dir)/../tools/sqlcompattest.c -o conftest__
     lappend cmdline {*}[get-define LDFLAGS]
     lappend cmdline {*}[get-define LIBS]
     set sqlite-version [string cat "-D MINIMUM_SQLITE_VERSION=" [get-define MINIMUM_SQLITE_VERSION]]
@@ -473,7 +473,7 @@ if {$sq3path in {tree ""}} {
   msg-result "Using sqlite3.c from this source tree."
 } else {
   # SQLITE3_ORIGIN:
-  #   0 = (local source tree)
+  #   0 = local source tree
   #   1 = use external lib or sqlite3.o
   #   2 = use external sqlite3.c and (if found) shell.c
   define USE_SYSTEM_SQLITE 1
@@ -523,7 +523,7 @@ if {$sq3path in {tree ""}} {
     user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
   }
 }
-define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR)}
+define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}
 
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {
