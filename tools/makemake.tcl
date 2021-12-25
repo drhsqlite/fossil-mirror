@@ -381,23 +381,23 @@ codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 $(OBJDIR):
 	-mkdir $(OBJDIR)
 
-$(OBJDIR)/translate:	$(SRCDIR.tools)/translate.c
-	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR.tools)/translate.c
+$(OBJDIR)/translate:	$(SRCDIR_tools)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR_tools)/translate.c
 
-$(OBJDIR)/makeheaders:	$(SRCDIR.tools)/makeheaders.c
-	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR.tools)/makeheaders.c
+$(OBJDIR)/makeheaders:	$(SRCDIR_tools)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR_tools)/makeheaders.c
 
-$(OBJDIR)/mkindex:	$(SRCDIR.tools)/mkindex.c
-	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR.tools)/mkindex.c
+$(OBJDIR)/mkindex:	$(SRCDIR_tools)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR_tools)/mkindex.c
 
-$(OBJDIR)/mkbuiltin:	$(SRCDIR.tools)/mkbuiltin.c
-	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR.tools)/mkbuiltin.c
+$(OBJDIR)/mkbuiltin:	$(SRCDIR_tools)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR_tools)/mkbuiltin.c
 
-$(OBJDIR)/mkversion:	$(SRCDIR.tools)/mkversion.c
-	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR.tools)/mkversion.c
+$(OBJDIR)/mkversion:	$(SRCDIR_tools)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR_tools)/mkversion.c
 
-$(OBJDIR)/codecheck1:	$(SRCDIR.tools)/codecheck1.c
-	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR.tools)/codecheck1.c
+$(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR_tools)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
@@ -465,15 +465,15 @@ LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 # in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
 # source tree) is used and extra flags are provided to enable the
 # SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
+SQLITE3_SRC.0 = $(SRCDIR_extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR_extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR_extsrc)/sqlite3.c
 SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
-SQLITE3_SHELL_SRC.0 = $(SRCDIR.extsrc)/shell.c
-SQLITE3_SHELL_SRC.1 = $(SRCDIR.extsrc)/shell-see.c
+SQLITE3_SHELL_SRC.0 = $(SRCDIR_extsrc)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR_extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
-SQLITE3_SHELL_SRC. = $(SRCDIR.extsrc)/shell.c
+SQLITE3_SHELL_SRC. = $(SRCDIR_extsrc)/shell.c
 SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -516,12 +516,12 @@ foreach s [lsort $src] {
   set extra_h($s) { }
 }
 foreach s [lsort $src_ext] {
-  append mhargs "\$(SRCDIR.extsrc)/${s}.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
+  append mhargs "\$(SRCDIR_extsrc)/${s}.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
   set extra_h($s) { }
 }
-append mhargs "\$(SRCDIR.extsrc)/sqlite3.h <<<NEXT_LINE>>>"
+append mhargs "\$(SRCDIR_extsrc)/sqlite3.h <<<NEXT_LINE>>>"
 append mhargs "\$(SRCDIR)/th.h <<<NEXT_LINE>>>"
-#append mhargs "\$(SRCDIR.extsrc)/cson_amalgamation.h <<<NEXT_LINE>>>"
+#append mhargs "\$(SRCDIR_extsrc)/cson_amalgamation.h <<<NEXT_LINE>>>"
 append mhargs "\$(OBJDIR)/VERSION.h "
 set mhargs [string map [list <<<NEXT_LINE>>> \\\n\t] $mhargs]
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
@@ -552,11 +552,11 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC)"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR.extsrc)/sqlite3.h"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR_extsrc)/sqlite3.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
-writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR.extsrc)/linenoise.c \$(SRCDIR.extsrc)/linenoise.h"
-writeln "\t\$(XTCC) -c \$(SRCDIR.extsrc)/linenoise.c -o \$@\n"
+writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR_extsrc)/linenoise.c \$(SRCDIR_extsrc)/linenoise.h"
+writeln "\t\$(XTCC) -c \$(SRCDIR_extsrc)/linenoise.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
@@ -568,14 +568,14 @@ writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
 writeln {
-$(OBJDIR)/miniz.o:	$(SRCDIR.extsrc)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR.extsrc)/miniz.c -o $@
+$(OBJDIR)/miniz.o:	$(SRCDIR_extsrc)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR_extsrc)/miniz.c -o $@
 
-$(OBJDIR)/pikchr.o:	$(SRCDIR.extsrc)/pikchr.c
-	$(XTCC) -c $(SRCDIR.extsrc)/pikchr.c -o $@
+$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
+	$(XTCC) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
-$(OBJDIR)/cson_amalgamation.o: $(SRCDIR.extsrc)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR.extsrc)/cson_amalgamation.c -o $@
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
+	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
 #
 # The list of all the targets that do not correspond to real files. This stops
@@ -1088,12 +1088,12 @@ all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
-	$(CAT) $(subst /,\,$(SRCDIR.extsrc)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
+	$(CAT) $(subst /,\,$(SRCDIR_extsrc)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
-	$(CAT) $(SRCDIR.extsrc)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
+	$(CAT) $(SRCDIR_extsrc)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
@@ -1116,23 +1116,23 @@ else
 	$(MKDIR) $(OBJDIR)
 endif
 
-$(TRANSLATE):	$(SRCDIR.tools)/translate.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/translate.c
+$(TRANSLATE):	$(SRCDIR_tools)/translate.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/translate.c
 
-$(MAKEHEADERS):	$(SRCDIR.tools)/makeheaders.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/makeheaders.c
+$(MAKEHEADERS):	$(SRCDIR_tools)/makeheaders.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/makeheaders.c
 
-$(MKINDEX):	$(SRCDIR.tools)/mkindex.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/mkindex.c
+$(MKINDEX):	$(SRCDIR_tools)/mkindex.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/mkindex.c
 
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
 
-$(MKVERSION): $(SRCDIR.tools)/mkversion.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/mkversion.c
+$(MKVERSION): $(SRCDIR_tools)/mkversion.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/mkversion.c
 
-$(CODECHECK1):	$(SRCDIR.tools)/codecheck1.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/codecheck1.c
+$(CODECHECK1):	$(SRCDIR_tools)/codecheck1.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -1170,15 +1170,15 @@ MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 # in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
 # source tree) is used and extra flags are provided to enable the
 # SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
+SQLITE3_SRC.0 = $(SRCDIR_extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR_extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR_extsrc)/sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
-SQLITE3_SHELL_SRC.0 = $(SRCDIR.extsrc)/shell.c
-SQLITE3_SHELL_SRC.1 = $(SRCDIR.extsrc)/shell-see.c
+SQLITE3_SHELL_SRC.0 = $(SRCDIR_extsrc)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR_extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
-SQLITE3_SHELL_SRC. = $(SRCDIR.extsrc)/shell.c
+SQLITE3_SHELL_SRC. = $(SRCDIR_extsrc)/shell.c
 SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -1270,10 +1270,10 @@ foreach s [lsort $src] {
   set extra_h($s) { }
 }
 foreach s [lsort $src_ext] {
-  append mhargs "\$(SRCDIR.extsrc)/${s}.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
+  append mhargs "\$(SRCDIR_extsrc)/${s}.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
   set extra_h($s) { }
 }
-append mhargs " \\\n\t\t\$(SRCDIR.extsrc)/sqlite3.h"
+append mhargs " \\\n\t\t\$(SRCDIR_extsrc)/sqlite3.h"
 append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
 append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
@@ -1322,11 +1322,11 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC) \$(SRCDIR)/../win/Makefile.mingw
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@\n"
 
-writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR.extsrc)/cson_amalgamation.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR.extsrc)/cson_amalgamation.c -o \$@\n"
+writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR_extsrc)/cson_amalgamation.c"
+writeln "\t\$(XTCC) -c \$(SRCDIR_extsrc)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR.extsrc)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR_extsrc)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
@@ -1338,11 +1338,11 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$@\n"
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
-writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR.extsrc)/miniz.c"
-writeln "\t\$(XTCC) \$(MINIZ_OPTIONS) -c \$(SRCDIR.extsrc)/miniz.c -o \$@\n"
+writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR_extsrc)/miniz.c"
+writeln "\t\$(XTCC) \$(MINIZ_OPTIONS) -c \$(SRCDIR_extsrc)/miniz.c -o \$@\n"
 
-writeln "\$(OBJDIR)/pikchr.o:\t\$(SRCDIR.extsrc)/pikchr.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR.extsrc)/pikchr.c -o \$@\n"
+writeln "\$(OBJDIR)/pikchr.o:\t\$(SRCDIR_extsrc)/pikchr.c"
+writeln "\t\$(XTCC) -c \$(SRCDIR_extsrc)/pikchr.c -o \$@\n"
 
 close $output_file
 #
@@ -1426,28 +1426,28 @@ writeln "\t+echo. >> \$@"
 writeln "\t+echo fossil >> \$@"
 
 writeln {
-translate$E: $(SRCDIR.tools)\translate.c
+translate$E: $(SRCDIR_tools)\translate.c
 	$(BCC) -o$@ $**
 
-makeheaders$E: $(SRCDIR.tools)\makeheaders.c
+makeheaders$E: $(SRCDIR_tools)\makeheaders.c
 	$(BCC) -o$@ $**
 
-mkindex$E: $(SRCDIR.tools)\mkindex.c
+mkindex$E: $(SRCDIR_tools)\mkindex.c
 	$(BCC) -o$@ $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
 	$(BCC) -o$@ $**
 
-mkversion$E: $(SRCDIR.tools)\mkversion.c
+mkversion$E: $(SRCDIR_tools)\mkversion.c
 	$(BCC) -o$@ $**
 
-codecheck1$E: $(SRCDIR.tools)\codecheck1.c
+codecheck1$E: $(SRCDIR_tools)\codecheck1.c
 	$(BCC) -o$@ $**
 
-$(OBJDIR)\shell$O : $(SRCDIR.extsrc)\shell.c
+$(OBJDIR)\shell$O : $(SRCDIR_extsrc)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
-$(OBJDIR)\sqlite3$O : $(SRCDIR.extsrc)\sqlite3.c
+$(OBJDIR)\sqlite3$O : $(SRCDIR_extsrc)\sqlite3.c
 	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
@@ -1456,7 +1456,7 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) -o$@ -c $**
 
-$(OBJDIR)\cson_amalgamation.h : $(SRCDIR.extsrc)\cson_amalgamation.h
+$(OBJDIR)\cson_amalgamation.h : $(SRCDIR_extsrc)\cson_amalgamation.h
 	cp $@ $@
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
@@ -1503,7 +1503,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR.extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR.extsrc)\\cson_amalgamation.h"
+writeln "\$(SRCDIR_extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR_extsrc)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 close $output_file
@@ -1956,32 +1956,32 @@ writeln "\techo \"\$(OX)\\miniz.obj\" $redir \$@"
 writeln "!endif"
 writeln "\techo \$(LIBS) $redir \$@"
 writeln {
-"$(OBJDIR)\translate$E": "$(SRCDIR.tools)\translate.c"
+"$(OBJDIR)\translate$E": "$(SRCDIR_tools)\translate.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\makeheaders$E": "$(SRCDIR.tools)\makeheaders.c"
+"$(OBJDIR)\makeheaders$E": "$(SRCDIR_tools)\makeheaders.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\mkindex$E": "$(SRCDIR.tools)\mkindex.c"
+"$(OBJDIR)\mkindex$E": "$(SRCDIR_tools)\mkindex.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
 "$(OBJDIR)\mkbuiltin$E": "$(SRCDIR)\mkbuiltin.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\mkversion$E": "$(SRCDIR.tools)\mkversion.c"
+"$(OBJDIR)\mkversion$E": "$(SRCDIR_tools)\mkversion.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\codecheck1$E": "$(SRCDIR.tools)\codecheck1.c"
+"$(OBJDIR)\codecheck1$E": "$(SRCDIR_tools)\codecheck1.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
 !if $(USE_SEE)!=0
 SEE_FLAGS = /DSQLITE_HAS_CODEC=1 /DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
-SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3-see.c
+SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3-see.c
 !else
 SEE_FLAGS =
-SQLITE3_SHELL_SRC = $(SRCDIR.extsrc)\shell.c
-SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
+SQLITE3_SHELL_SRC = $(SRCDIR_extsrc)\shell.c
+SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 !endif
 
 "$(OX)\shell$O" : "$(SQLITE3_SHELL_SRC)" "$(B)\win\Makefile.msc"
@@ -1999,10 +1999,10 @@ SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 "$(OX)\th_tcl$O" : "$(SRCDIR)\th_tcl.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-"$(OX)\miniz$O" : "$(SRCDIR.extsrc)\miniz.c"
+"$(OX)\miniz$O" : "$(SRCDIR_extsrc)\miniz.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
 
-"$(OX)\pikchr$O" : "$(SRCDIR.extsrc)" "$(B)\win\Makefile.msc"
+"$(OX)\pikchr$O" : "$(SRCDIR_extsrc)" "$(B)\win\Makefile.msc"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
@@ -2011,7 +2011,7 @@ SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 "$(B)\phony.h" :
 	rem Force rebuild of VERSION.h whenever nmake is run
 
-"$(OX)\cson_amalgamation$O" : "$(SRCDIR.extsrc)\cson_amalgamation.c"
+"$(OX)\cson_amalgamation$O" : "$(SRCDIR_extsrc)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\page_index.h": "$(OBJDIR)\mkindex$E" $(SRC)
@@ -2098,10 +2098,10 @@ foreach s [lsort $src] {
   }
   writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
 }
-writeln " \\\n\t\t\t\"\$(SRCDIR.extsrc)\\sqlite3.h\" \\"
+writeln " \\\n\t\t\t\"\$(SRCDIR_extsrc)\\sqlite3.h\" \\"
 writeln "\t\t\t\"\$(SRCDIR)\\th.h\" \\"
 writeln "\t\t\t\"\$(OX)\\VERSION.h\" \\"
-writeln "\t\t\t\"\$(SRCDIR.extsrc)\\cson_amalgamation.h\""
+writeln "\t\t\t\"\$(SRCDIR_extsrc)\\cson_amalgamation.h\""
 writeln "\t@copy /Y nul: $@"
 
 
@@ -2253,7 +2253,7 @@ $(UTILS_OBJ):	%.obj:	$(SRCDIR)%.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # compile special windows utils
-version.obj:	$(SRCDIR.tools)mkversion.c
+version.obj:	$(SRCDIR_tools)mkversion.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # generate the translated c-source files

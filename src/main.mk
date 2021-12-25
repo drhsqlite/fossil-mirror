@@ -582,23 +582,23 @@ codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 $(OBJDIR):
 	-mkdir $(OBJDIR)
 
-$(OBJDIR)/translate:	$(SRCDIR.tools)/translate.c
-	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR.tools)/translate.c
+$(OBJDIR)/translate:	$(SRCDIR_tools)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR_tools)/translate.c
 
-$(OBJDIR)/makeheaders:	$(SRCDIR.tools)/makeheaders.c
-	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR.tools)/makeheaders.c
+$(OBJDIR)/makeheaders:	$(SRCDIR_tools)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR_tools)/makeheaders.c
 
-$(OBJDIR)/mkindex:	$(SRCDIR.tools)/mkindex.c
-	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR.tools)/mkindex.c
+$(OBJDIR)/mkindex:	$(SRCDIR_tools)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR_tools)/mkindex.c
 
-$(OBJDIR)/mkbuiltin:	$(SRCDIR.tools)/mkbuiltin.c
-	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR.tools)/mkbuiltin.c
+$(OBJDIR)/mkbuiltin:	$(SRCDIR_tools)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR_tools)/mkbuiltin.c
 
-$(OBJDIR)/mkversion:	$(SRCDIR.tools)/mkversion.c
-	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR.tools)/mkversion.c
+$(OBJDIR)/mkversion:	$(SRCDIR_tools)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR_tools)/mkversion.c
 
-$(OBJDIR)/codecheck1:	$(SRCDIR.tools)/codecheck1.c
-	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR.tools)/codecheck1.c
+$(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR_tools)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
@@ -722,15 +722,15 @@ LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 # in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
 # source tree) is used and extra flags are provided to enable the
 # SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
+SQLITE3_SRC.0 = $(SRCDIR_extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR_extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR_extsrc)/sqlite3.c
 SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
-SQLITE3_SHELL_SRC.0 = $(SRCDIR.extsrc)/shell.c
-SQLITE3_SHELL_SRC.1 = $(SRCDIR.extsrc)/shell-see.c
+SQLITE3_SHELL_SRC.0 = $(SRCDIR_extsrc)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR_extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
-SQLITE3_SHELL_SRC. = $(SRCDIR.extsrc)/shell.c
+SQLITE3_SHELL_SRC. = $(SRCDIR_extsrc)/shell.c
 SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -918,9 +918,9 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
-	$(SRCDIR.extsrc)/miniz.c:$(OBJDIR)/miniz.h \
-	$(SRCDIR.extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
-	$(SRCDIR.extsrc)/sqlite3.h \
+	$(SRCDIR_extsrc)/miniz.c:$(OBJDIR)/miniz.h \
+	$(SRCDIR_extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
+	$(SRCDIR_extsrc)/sqlite3.h \
 	$(SRCDIR)/th.h \
 	$(OBJDIR)/VERSION.h 
 	touch $(OBJDIR)/headers
@@ -2106,11 +2106,11 @@ $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
-$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR.extsrc)/sqlite3.h
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR_extsrc)/sqlite3.h
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
-$(OBJDIR)/linenoise.o:	$(SRCDIR.extsrc)/linenoise.c $(SRCDIR.extsrc)/linenoise.h
-	$(XTCC) -c $(SRCDIR.extsrc)/linenoise.c -o $@
+$(OBJDIR)/linenoise.o:	$(SRCDIR_extsrc)/linenoise.c $(SRCDIR_extsrc)/linenoise.h
+	$(XTCC) -c $(SRCDIR_extsrc)/linenoise.c -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $@
@@ -2122,14 +2122,14 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $@
 
 
-$(OBJDIR)/miniz.o:	$(SRCDIR.extsrc)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR.extsrc)/miniz.c -o $@
+$(OBJDIR)/miniz.o:	$(SRCDIR_extsrc)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR_extsrc)/miniz.c -o $@
 
-$(OBJDIR)/pikchr.o:	$(SRCDIR.extsrc)/pikchr.c
-	$(XTCC) -c $(SRCDIR.extsrc)/pikchr.c -o $@
+$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
+	$(XTCC) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
-$(OBJDIR)/cson_amalgamation.o: $(SRCDIR.extsrc)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR.extsrc)/cson_amalgamation.c -o $@
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
+	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
 #
 # The list of all the targets that do not correspond to real files. This stops

@@ -1024,12 +1024,12 @@ all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
-	$(CAT) $(subst /,\,$(SRCDIR.extsrc)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
+	$(CAT) $(subst /,\,$(SRCDIR_extsrc)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
-	$(CAT) $(SRCDIR.extsrc)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
+	$(CAT) $(SRCDIR_extsrc)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
@@ -1052,23 +1052,23 @@ else
 	$(MKDIR) $(OBJDIR)
 endif
 
-$(TRANSLATE):	$(SRCDIR.tools)/translate.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/translate.c
+$(TRANSLATE):	$(SRCDIR_tools)/translate.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/translate.c
 
-$(MAKEHEADERS):	$(SRCDIR.tools)/makeheaders.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/makeheaders.c
+$(MAKEHEADERS):	$(SRCDIR_tools)/makeheaders.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/makeheaders.c
 
-$(MKINDEX):	$(SRCDIR.tools)/mkindex.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/mkindex.c
+$(MKINDEX):	$(SRCDIR_tools)/mkindex.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/mkindex.c
 
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
 
-$(MKVERSION): $(SRCDIR.tools)/mkversion.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/mkversion.c
+$(MKVERSION): $(SRCDIR_tools)/mkversion.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/mkversion.c
 
-$(CODECHECK1):	$(SRCDIR.tools)/codecheck1.c
-	$(XBCC) -o $@ $(SRCDIR.tools)/codecheck1.c
+$(CODECHECK1):	$(SRCDIR_tools)/codecheck1.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -1106,15 +1106,15 @@ MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 # in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
 # source tree) is used and extra flags are provided to enable the
 # SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
+SQLITE3_SRC.0 = $(SRCDIR_extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR_extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR_extsrc)/sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
-SQLITE3_SHELL_SRC.0 = $(SRCDIR.extsrc)/shell.c
-SQLITE3_SHELL_SRC.1 = $(SRCDIR.extsrc)/shell-see.c
+SQLITE3_SHELL_SRC.0 = $(SRCDIR_extsrc)/shell.c
+SQLITE3_SHELL_SRC.1 = $(SRCDIR_extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
-SQLITE3_SHELL_SRC. = $(SRCDIR.extsrc)/shell.c
+SQLITE3_SHELL_SRC. = $(SRCDIR_extsrc)/shell.c
 SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -1349,8 +1349,8 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
 		$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 		$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
-		$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h$(SRCDIR.extsrc)/miniz.c:$(OBJDIR)/miniz.h <<<NEXT_LINE>>>$(SRCDIR.extsrc)/pikchr.c:$(OBJDIR)/pikchr.h <<<NEXT_LINE>>> \
-		$(SRCDIR.extsrc)/sqlite3.h \
+		$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h$(SRCDIR_extsrc)/miniz.c:$(OBJDIR)/miniz.h <<<NEXT_LINE>>>$(SRCDIR_extsrc)/pikchr.c:$(OBJDIR)/pikchr.h <<<NEXT_LINE>>> \
+		$(SRCDIR_extsrc)/sqlite3.h \
 		$(SRCDIR)/th.h \
 		$(OBJDIR)/VERSION.h
 	echo Done >$(OBJDIR)/headers
@@ -2611,12 +2611,12 @@ $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC) $(SRCDIR)/../win/Makefile.mingw
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 
-$(OBJDIR)/cson_amalgamation.o:	$(SRCDIR.extsrc)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR.extsrc)/cson_amalgamation.c -o $@
+$(OBJDIR)/cson_amalgamation.o:	$(SRCDIR_extsrc)/cson_amalgamation.c
+	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/jsos_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 
-$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR.extsrc)/sqlite3.h $(SRCDIR)/../win/Makefile.mingw
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR_extsrc)/sqlite3.h $(SRCDIR)/../win/Makefile.mingw
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
@@ -2628,9 +2628,9 @@ $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $@
 
-$(OBJDIR)/miniz.o:	$(SRCDIR.extsrc)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR.extsrc)/miniz.c -o $@
+$(OBJDIR)/miniz.o:	$(SRCDIR_extsrc)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR_extsrc)/miniz.c -o $@
 
-$(OBJDIR)/pikchr.o:	$(SRCDIR.extsrc)/pikchr.c
-	$(XTCC) -c $(SRCDIR.extsrc)/pikchr.c -o $@
+$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
+	$(XTCC) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 

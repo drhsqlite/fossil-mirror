@@ -11,10 +11,10 @@
 SRCDIR = @srcdir@/src
 #### Upstream source files included directly in this repository.
 #
-SRCDIR.extsrc = @srcdir@/extsrc
+SRCDIR_extsrc = @srcdir@/extsrc
 #### In-tree tools such as code generators and translators:
 #
-SRCDIR.tools = @srcdir@/tools
+SRCDIR_tools = @srcdir@/tools
 
 #### The directory into which object code files should be written.
 #    Having a "./" prefix in the value of this variable breaks our use of the
