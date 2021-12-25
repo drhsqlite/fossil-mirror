@@ -9,6 +9,11 @@
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = @srcdir@/src
+#### Upstream source files included directly in this repository.
+#
+SRCDIR.extsrc = @srcdir@/extsrc
+#### In-tree tools such as code generators and translators:
+#
 SRCDIR.tools = @srcdir@/tools
 
 #### The directory into which object code files should be written.

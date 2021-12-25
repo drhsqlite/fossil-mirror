@@ -1036,11 +1036,11 @@ APPTARGETS = $(APPTARGETS) openssl
 !if $(USE_SEE)!=0
 SEE_FLAGS = /DSQLITE_HAS_CODEC=1 /DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
-SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
+SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3-see.c
 !else
 SEE_FLAGS =
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
-SQLITE3_SRC = $(SRCDIR)\sqlite3.c
+SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 !endif
 
 "$(OX)\shell$O" : "$(SQLITE3_SHELL_SRC)" "$(B)\win\Makefile.msc"
@@ -2274,7 +2274,7 @@ realclean: clean
 			"$(OX)\xfer_.c":"$(OX)\xfer.h" \
 			"$(OX)\xfersetup_.c":"$(OX)\xfersetup.h" \
 			"$(OX)\zip_.c":"$(OX)\zip.h" \
-			"$(SRCDIR)\sqlite3.h" \
+			"$(SRCDIR.extsrc)\sqlite3.h" \
 			"$(SRCDIR)\th.h" \
 			"$(OX)\VERSION.h" \
 			"$(SRCDIR)\cson_amalgamation.h"

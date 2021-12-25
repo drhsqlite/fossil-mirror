@@ -451,14 +451,14 @@ LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
 LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 
-# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
-# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
-# the source tree) is used and extra flags are provided to enable
-# the SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR)/sqlite3-see.c
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or 0,
+# in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
+# source tree) is used and extra flags are provided to enable the
+# SQLite Encryption Extension.
+SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
 SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
 SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
 SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
@@ -504,7 +504,7 @@ foreach s [lsort $src] {
   append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
   set extra_h($s) { }
 }
-append mhargs "\$(SRCDIR)/sqlite3.h <<<NEXT_LINE>>>"
+append mhargs "\$(SRCDIR.extsrc)/sqlite3.h <<<NEXT_LINE>>>"
 append mhargs "\$(SRCDIR)/th.h <<<NEXT_LINE>>>"
 #append mhargs "\$(SRCDIR)/cson_amalgamation.h <<<NEXT_LINE>>>"
 append mhargs "\$(OBJDIR)/VERSION.h "
@@ -537,7 +537,7 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC)"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR.extsrc)/sqlite3.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
@@ -1148,14 +1148,14 @@ MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 
-# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
-# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
-# the source tree) is used and extra flags are provided to enable
-# the SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR)/sqlite3-see.c
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or 0,
+# in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
+# source tree) is used and extra flags are provided to enable the
+# SQLite Encryption Extension.
+SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
 SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
 SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
@@ -1251,7 +1251,7 @@ foreach s [lsort $src] {
   append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) { }
 }
-append mhargs " \\\n\t\t\$(SRCDIR)/sqlite3.h"
+append mhargs " \\\n\t\t\$(SRCDIR.extsrc)/sqlite3.h"
 append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
 append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
@@ -1304,7 +1304,7 @@ writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR.extsrc)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
@@ -1478,7 +1478,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln "\$(SRCDIR.extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 close $output_file
@@ -1951,11 +1951,11 @@ writeln {
 !if $(USE_SEE)!=0
 SEE_FLAGS = /DSQLITE_HAS_CODEC=1 /DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
-SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
+SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3-see.c
 !else
 SEE_FLAGS =
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
-SQLITE3_SRC = $(SRCDIR)\sqlite3.c
+SQLITE3_SRC = $(SRCDIR.extsrc)\sqlite3.c
 !endif
 
 "$(OX)\shell$O" : "$(SQLITE3_SHELL_SRC)" "$(B)\win\Makefile.msc"
@@ -2069,7 +2069,7 @@ foreach s [lsort $src] {
   }
   writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
 }
-writeln " \\\n\t\t\t\"\$(SRCDIR)\\sqlite3.h\" \\"
+writeln " \\\n\t\t\t\"\$(SRCDIR.extsrc)\\sqlite3.h\" \\"
 writeln "\t\t\t\"\$(SRCDIR)\\th.h\" \\"
 writeln "\t\t\t\"\$(OX)\\VERSION.h\" \\"
 writeln "\t\t\t\"\$(SRCDIR)\\cson_amalgamation.h\""
@@ -2242,8 +2242,8 @@ VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  >$@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h
-	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/extsrc/sqlite3.h ../src/th.h
+	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/extsrc/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
 
 # compile C sources with relevant options

@@ -721,14 +721,14 @@ LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
 LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 
-# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
-# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
-# the source tree) is used and extra flags are provided to enable
-# the SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR)/sqlite3-see.c
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or 0,
+# in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
+# source tree) is used and extra flags are provided to enable the
+# SQLite Encryption Extension.
+SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
 SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
 SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
 SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
@@ -921,7 +921,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
-	$(SRCDIR)/sqlite3.h \
+	$(SRCDIR.extsrc)/sqlite3.h \
 	$(SRCDIR)/th.h \
 	$(OBJDIR)/VERSION.h 
 	touch $(OBJDIR)/headers
@@ -2115,7 +2115,7 @@ $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
-$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR.extsrc)/sqlite3.h
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h

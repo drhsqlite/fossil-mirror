@@ -523,7 +523,7 @@ if {$sq3path in {tree ""}} {
     user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
   }
 }
-define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR)}
+define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR.extsrc)}
 
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {

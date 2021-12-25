@@ -1105,14 +1105,14 @@ MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 
-# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
-# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
-# the source tree) is used and extra flags are provided to enable
-# the SQLite Encryption Extension.
-SQLITE3_SRC.0 = $(SRCDIR)/sqlite3.c
-SQLITE3_SRC.1 = $(SRCDIR)/sqlite3-see.c
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or 0,
+# in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
+# source tree) is used and extra flags are provided to enable the
+# SQLite Encryption Extension.
+SQLITE3_SRC.0 = $(SRCDIR.extsrc)/sqlite3.c
+SQLITE3_SRC.1 = $(SRCDIR.extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
-SQLITE3_SRC. = $(SRCDIR)/sqlite3.c
+SQLITE3_SRC. = $(SRCDIR.extsrc)/sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
 SQLITE3_SHELL_SRC.0 = $(SRCDIR)/shell.c
 SQLITE3_SHELL_SRC.1 = $(SRCDIR)/shell-see.c
@@ -1354,7 +1354,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 		$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 		$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
-		$(SRCDIR)/sqlite3.h \
+		$(SRCDIR.extsrc)/sqlite3.h \
 		$(SRCDIR)/th.h \
 		$(OBJDIR)/VERSION.h
 	echo Done >$(OBJDIR)/headers
@@ -2628,7 +2628,7 @@ $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/jsos_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 
-$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h $(SRCDIR)/../win/Makefile.mingw
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR.extsrc)/sqlite3.h $(SRCDIR)/../win/Makefile.mingw
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
