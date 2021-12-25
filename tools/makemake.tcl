@@ -1970,7 +1970,7 @@ writeln {
 "$(OBJDIR)\mkindex$E": "$(SRCDIR_tools)\mkindex.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\mkbuiltin$E": "$(SRCDIR)\mkbuiltin.c"
+"$(OBJDIR)\mkbuiltin$E": "$(SRCDIR_tools)\mkbuiltin.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
 "$(OBJDIR)\mkversion$E": "$(SRCDIR_tools)\mkversion.c"

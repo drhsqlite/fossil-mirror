@@ -1,5 +1,5 @@
-C Ensure\sthat\sSRCDIR_extsrc\sand\sSRCDIR_tools\sare\sdefined\sin\sthe\sWindows\smakefiles\s(they\sare\snot\sinherited\sfrom\sthe\smain\smakefile).
-D 2021-12-25T19:25:13.870
+C Corrected\spath\sto\smkbuiltin.c\sin\sMakefile.msc.\sCorrected,\sperhaps,\sbuild\sof\stools/*.c,\sin\sMakefile.PellesCGMake.
+D 2021-12-25T19:29:35.066
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -753,7 +753,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F tools/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
-F tools/makemake.tcl a2c3c038fd9d2a5417978d7071872b3b341a505b3e3b553e40241f4128114d70 x
+F tools/makemake.tcl 1202f92c53d0394d9e8263c9ffeccc3a4e70d55481f7edd827eaf8d243151633 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F tools/mkindex.c b5c2cf8c00e9ae8d2bc1f4eba68b59fcde6febdff3a2a9a791b20c96526d074a
@@ -761,11 +761,11 @@ F tools/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d
 F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
 F tools/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
-F win/Makefile.PellesCGMake becfedccac00104d2df566b2b4ba153eacfcd656b6f2a42536acebef4e93c949
+F win/Makefile.PellesCGMake 3e385b91eab6662fe2a51cf08d531dc0f8952deab0423ae9a8a81386cf5191f5
 F win/Makefile.dmc 9efaedafd7cb9b75dfec63e14c0cddd397551cbd09133d44ffe88dc667e563f1
 F win/Makefile.mingw 60ba9fc41d028693ac70e2d8ffa80b2f35175fcfc184b3c0d0d749cd205444b5
 F win/Makefile.mingw.mistachkin 2825e5983b74352f8b8b57a3e638c865c2619260038c80a26ef1fc516777e783
-F win/Makefile.msc fd073a5926c3758532590936bcb0348cb635c9214feab2e713f6b4d201cda9c8
+F win/Makefile.msc 83dbab383a8cdaabe34da9870a40003639444e2703be17507d67996868d3dee0
 F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6454f7bcd1cff6b8abebc91105a560f5cac5b5e5a4edcf88847c2b749b78f4b2
-R 9fd74efd1bddbd408bb6df7ff558bdcc
+P 5e203da667e656c8ecefbd9f9a08330d730fe013ec3c7f897e84d21172e937d5
+R 7e5f8dcdbe7caeba4da26242278c86d7
 U stephan
-Z 29c8deb98582ecd8e0647fcefd960306
+Z 3b3c0efdb9ed2a9d390f29b086603917
 # Remove this line to create a well-formed Fossil manifest.

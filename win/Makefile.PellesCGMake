@@ -56,6 +56,7 @@ endif
 B=..
 SRCDIR=$(B)/src/
 SRCDIR_extsrc=$(B)/extsrc/
+SRCDIR_tools=$(B)/tools/
 WINDIR=$(B)/win/
 ZLIBSRCDIR=../../zlib/
 
@@ -80,7 +81,7 @@ RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 # the automatically generated source files
 UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
-UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR_extsrc)$(uf:.exe=.c))
+UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR_tools)$(uf:.exe=.c))
 
 # define the SQLite files, which need special flags on compile
 SQLITESRC=sqlite3.c
