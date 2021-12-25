@@ -1,5 +1,5 @@
-C Part\sthree\sof\scode\srelocation.\sAll\s3rd-party/upstream\ssource\sfiles\sin\ssrc/\shave\sbeen\smoved\sto\sextsrc/.\sIt\sis\svery\slikely\sthat\sMakefile.msc\srequires\sfixing,\sand\sa\s100%\scertainty\sthat\sMakefile.PellesCGMake\sneeded\sfixing.
-D 2021-12-25T14:39:42.124
+C Removed\sthe\slong-unused\sart/\sand\sajax/\sdirs,\sper\s/chat\sdiscussion.
+D 2021-12-25T14:55:30.474
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -18,24 +18,6 @@ F Makefile.in 0a2e805823897581ad1ad51decf6c6715801d2548696392fd741f074f160dae0 x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION c8a78fc24f9432587c0fabc2277234181bd5c6f5598a51155429068db589f506
-F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
-F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
-F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
-F ajax/i-test/rhino-test.js c0e2d874caa424a8cb1628c8d85a4a6b197b8d32
-F ajax/index.html f4f8d1b79b51a12dd167f5e16a1e3e6e38f8903e
-F ajax/js/fossil-ajaj.js fd8e12d69fc9cd13e29c78030380045843b5de03
-F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
-F ajax/js/whajaj.js 64b3ef7eeef5155fd772b3b28e7901713542db0375342c735ab8d4f68a49a3a1
-F ajax/wiki-editor.html 1f630ecf988838dcfe5abd2548b9e5461da77c38
-F art/encode1.tex bb4fa24df875f09c104ac535727a885ecd1b0126
-F art/encode2.tex 0a86eb21bb6fd8ccec597e6651d5d038aaf07baf
-F art/encode3.tex e14430ac5a65400a5c2c4f0fef0274bfe94c69ea
-F art/encode4.tex ef19f3297df533c6baa0500dbcda54de333b8830
-F art/encode5.tex 8c67f6dc7e52de7d4f46b140627e14466a73a180
-F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
-F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
-F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
-F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F auto.def 696988bb6f304ff4e63c50207d699ea88a5814ce029bd69eaa73cd1316e555ac
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
@@ -308,13 +290,13 @@ F compat/zlib/zutil.c 2f1fcc93488ac84acf984415b6ea0bd63c72aa49
 F compat/zlib/zutil.h f32dab3880d47eca1b71c308cf6542b32941b23c
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
-F extsrc/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618 w src/cson_amalgamation.c
-F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569 w src/cson_amalgamation.h
-F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06 w src/linenoise.c
-F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1 w src/linenoise.h
-F extsrc/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7 w src/miniz.c
-F extsrc/pikchr.c dc374dad64dbe9738c6e899317ea333699c06db1d955b824f8b80605e19d209a w src/pikchr.c
-F extsrc/shell.c 2df76ca891cd1a409626758f4bb32afd75bb9561d01ea654b881fd74adb0b07e w src/shell.c
+F extsrc/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
+F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
+F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
+F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
+F extsrc/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
+F extsrc/pikchr.c dc374dad64dbe9738c6e899317ea333699c06db1d955b824f8b80605e19d209a
+F extsrc/shell.c 2df76ca891cd1a409626758f4bb32afd75bb9561d01ea654b881fd74adb0b07e
 F extsrc/sqlite3.c 10f699203768ef6a10006bf578752d4fb255db4653bbbc68c359bcde7559830e
 F extsrc/sqlite3.h 2ba5af54f57390263c62f9cb66321ddb0ab586c458f5e8aa58b0b01a3a1735c2
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
@@ -987,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3e204dce1fbb43528453d59d11df44a9ad65c4929f9a2ca526e25c275d3cdc9
-R fa34274ae3626cfddc799146589a093c
+P 9e8c47381e60263a9cd46cf6904db4f69c065389d8bf6b443574ccdb85781c3d
+R 214973fb8f6b23d6e14bb25492e8c411
 U stephan
-Z 27c3769d9f4143612222be885535be5e
+Z 25427352fbac25ef40fa1ae37d069a31
 # Remove this line to create a well-formed Fossil manifest.
