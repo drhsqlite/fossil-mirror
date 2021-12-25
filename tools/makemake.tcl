@@ -629,6 +629,8 @@ PREFIX =
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = src
+SRCDIR_extsrc = extsrc
+SCRDIR_tools = tools
 
 #### The directory into which object code files should be written.
 #
@@ -1174,7 +1176,7 @@ SQLITE3_SRC.0 = $(SRCDIR_extsrc)/sqlite3.c
 SQLITE3_SRC.1 = $(SRCDIR_extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
 SQLITE3_SRC. = $(SRCDIR_extsrc)/sqlite3.c
-SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
+SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
 SQLITE3_SHELL_SRC.0 = $(SRCDIR_extsrc)/shell.c
 SQLITE3_SHELL_SRC.1 = $(SRCDIR_extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
@@ -1367,6 +1369,8 @@ writeln {#
 #
 B      = ..
 SRCDIR = $B\src
+SRCDIR_extsrc = $B\extsrc
+SRCDIR_tools = $B\tools
 OBJDIR = .
 O      = .obj
 E      = .exe
@@ -1374,7 +1378,7 @@ E      = .exe
 
 # Maybe DMDIR, SSL or INCL needs adjustment
 DMDIR  = c:\DM
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(DMDIR)\extra\include
+INCL   = -I. -I$(SRCDIR) -I$(SRCDIR_extsrc) -I$B\win\include -I$(DMDIR)\extra\include
 
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
@@ -1530,7 +1534,8 @@ writeln {#
 #
 B       = ..
 SRCDIR  = $(B)\src
-SRCDIRX = $(B)\extsrc
+SRCDIR_extsrc = $(B)\extsrc
+SRCDIR_tools = $(B)\tools
 T       = .
 OBJDIR  = $(T)
 OX      = $(OBJDIR)
@@ -1687,7 +1692,7 @@ ZLIB      = zdll.lib
 ZLIB      = zlib.lib
 !endif
 
-INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(B)\win\include"
+INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(SRCDIR_extsrc)" /I"$(B)\win\include"
 
 !if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I"$(ZINCDIR)"
@@ -2176,7 +2181,8 @@ endif
 # define the project directories
 B=..
 SRCDIR=$(B)/src/
-SRCDIRX=$(B)/extsrc/
+SRCDIR_extsrc=$(B)/extsrc/
+SRCDIR_tools=$(B)/tools/
 WINDIR=$(B)/win/
 ZLIBSRCDIR=../../zlib/
 
@@ -2190,7 +2196,7 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 CC=$(PellesCDir)\bin\pocc.exe
 DEFINES=-D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
-INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR) /I $(SRCDIRX)
+INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR) /I $(SRCDIR_extsrc)
 
 # define commands for building the windows resource files
 RESOURCE=fossil.res
@@ -2201,17 +2207,17 @@ RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 # the automatically generated source files
 UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
-UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIRX)$(uf:.exe=.c))
+UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR_tools)$(uf:.exe=.c))
 
 # define the SQLite files, which need special flags on compile
 SQLITESRC=sqlite3.c
-ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIRX)$(sf))
+ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR_extsrc)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
 SQLITEDEFINES=<<<SQLITE_OPTIONS>>>
 
 # define the SQLite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
-ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIRX)$(sf))
+ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR_extsrc)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
 SQLITESHELLDEFINES=<<<SHELL_OPTIONS>>>
 
@@ -2281,10 +2287,10 @@ headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/extsrc/sql
 $(TRANSLATEDOBJ):	%_.obj:	%_.c %.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(SQLITEOBJ):	%.obj:	$(SRCDIRX)%.c $(SRCDIRX)%.h
+$(SQLITEOBJ):	%.obj:	$(SRCDIR_extsrc)%.c $(SRCDIR_extsrc)%.h
 	$(CC) $(CCFLAGS) $(SQLITEDEFINES) $(INCLUDE) "$<" -Fo"$@"
 
-$(SQLITESHELLOBJ):	%.obj:	$(SRCDIRX)%.c
+$(SQLITESHELLOBJ):	%.obj:	$(SRCDIR_extsrc)%.c
 	$(CC) $(CCFLAGS) $(SQLITESHELLDEFINES) $(INCLUDE) "$<" -Fo"$@"
 
 $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h

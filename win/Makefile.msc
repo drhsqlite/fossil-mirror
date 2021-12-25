@@ -10,7 +10,8 @@
 #
 B       = ..
 SRCDIR  = $(B)\src
-SRCDIRX = $(B)\extsrc
+SRCDIR_extsrc = $(B)\extsrc
+SRCDIR_tools = $(B)\tools
 T       = .
 OBJDIR  = $(T)
 OX      = $(OBJDIR)
@@ -167,7 +168,7 @@ ZLIB      = zdll.lib
 ZLIB      = zlib.lib
 !endif
 
-INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(B)\win\include"
+INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(SRCDIR_extsrc)" /I"$(B)\win\include"
 
 !if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I"$(ZINCDIR)"

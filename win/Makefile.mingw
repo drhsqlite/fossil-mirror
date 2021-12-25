@@ -30,6 +30,8 @@ PREFIX =
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = src
+SRCDIR_extsrc = extsrc
+SCRDIR_tools = tools
 
 #### The directory into which object code files should be written.
 #
@@ -1110,7 +1112,7 @@ SQLITE3_SRC.0 = $(SRCDIR_extsrc)/sqlite3.c
 SQLITE3_SRC.1 = $(SRCDIR_extsrc)/sqlite3-see.c
 # SQLITE3_SRC.2 is set by top-level configure/makefile process.
 SQLITE3_SRC. = $(SRCDIR_extsrc)/sqlite3.c
-SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(SQLITE3_ORIGIN))
+SQLITE3_SRC = $(SQLITE3_SRC.$(SQLITE3_ORIGIN))
 SQLITE3_SHELL_SRC.0 = $(SRCDIR_extsrc)/shell.c
 SQLITE3_SHELL_SRC.1 = $(SRCDIR_extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process

@@ -9,6 +9,8 @@
 #
 B      = ..
 SRCDIR = $B\src
+SRCDIR_extsrc = $B\extsrc
+SRCDIR_tools = $B\tools
 OBJDIR = .
 O      = .obj
 E      = .exe
@@ -16,7 +18,7 @@ E      = .exe
 
 # Maybe DMDIR, SSL or INCL needs adjustment
 DMDIR  = c:\DM
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(DMDIR)\extra\include
+INCL   = -I. -I$(SRCDIR) -I$(SRCDIR_extsrc) -I$B\win\include -I$(DMDIR)\extra\include
 
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
