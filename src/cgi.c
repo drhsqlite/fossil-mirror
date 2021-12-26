@@ -283,6 +283,7 @@ static int is_gzippable(void){
 ** Do a normal HTTP reply
 */
 void cgi_reply(void){
+  Blob hdr = BLOB_INITIALIZER;
   int total_size;
   if( iReplyStatus<=0 ){
     iReplyStatus = 200;
@@ -297,35 +298,35 @@ void cgi_reply(void){
       iReplyStatus = 206;
       zReplyStatus = "Partial Content";
     }
-    fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
-    fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
-    fprintf(g.httpOut, "Connection: close\r\n");
-    fprintf(g.httpOut, "X-UA-Compatible: IE=edge\r\n");
+    blob_appendf(&hdr, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
+    blob_appendf(&hdr, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
+    blob_appendf(&hdr, "Connection: close\r\n");
+    blob_appendf(&hdr, "X-UA-Compatible: IE=edge\r\n");
   }else{
     assert( rangeEnd==0 );
-    fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
+    blob_appendf(&hdr, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
   if( etag_tag()[0]!=0 ){
-    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
-    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
+    blob_appendf(&hdr, "ETag: %s\r\n", etag_tag());
+    blob_appendf(&hdr, "Cache-Control: max-age=%d\r\n", etag_maxage());
     if( etag_mtime()>0 ){
-      fprintf(g.httpOut, "Last-Modified: %s\r\n",
+      blob_appendf(&hdr, "Last-Modified: %s\r\n",
               cgi_rfc822_datestamp(etag_mtime()));
     }
   }else if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
-    fprintf(g.httpOut, "Cache-Control: max-age=315360000, immutable\r\n");
+    blob_appendf(&hdr, "Cache-Control: max-age=315360000, immutable\r\n");
   }else{
-    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
+    blob_appendf(&hdr, "Cache-control: no-cache\r\n");
   }
 
   if( blob_size(&extraHeader)>0 ){
-    fprintf(g.httpOut, "%s", blob_buffer(&extraHeader));
+    blob_appendf(&hdr, "%s", blob_buffer(&extraHeader));
   }
 
   /* Add headers to turn on useful security options in browsers. */
-  fprintf(g.httpOut, "X-Frame-Options: SAMEORIGIN\r\n");
+  blob_appendf(&hdr, "X-Frame-Options: SAMEORIGIN\r\n");
   /* This stops fossil pages appearing in frames or iframes, preventing
   ** click-jacking attacks on supporting browsers.
   **
@@ -346,7 +347,7 @@ void cgi_reply(void){
   ** the browser, not some shared location.
   */
   if( iReplyStatus!=304 ) {
-    fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
+    blob_appendf(&hdr, "Content-Type: %s; charset=utf-8\r\n", zContentType);
     if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
       cgi_combine_header_and_body();
       blob_compress(&cgiContent[0], &cgiContent[0]);
@@ -361,20 +362,22 @@ void cgi_reply(void){
         blob_reset(&cgiContent[i]);
       }
       gzip_finish(&cgiContent[0]);
-      fprintf(g.httpOut, "Content-Encoding: gzip\r\n");
-      fprintf(g.httpOut, "Vary: Accept-Encoding\r\n");
+      blob_appendf(&hdr, "Content-Encoding: gzip\r\n");
+      blob_appendf(&hdr, "Vary: Accept-Encoding\r\n");
     }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     if( iReplyStatus==206 ){
-      fprintf(g.httpOut, "Content-Range: bytes %d-%d/%d\r\n",
+      blob_appendf(&hdr, "Content-Range: bytes %d-%d/%d\r\n",
               rangeStart, rangeEnd-1, total_size);
       total_size = rangeEnd - rangeStart; 
     }
-    fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
+    blob_appendf(&hdr, "Content-Length: %d\r\n", total_size);
   }else{
     total_size = 0;
   }
-  fprintf(g.httpOut, "\r\n");
+  blob_appendf(&hdr, "\r\n");
+  fwrite(blob_buffer(&hdr), 1, blob_size(&hdr), g.httpOut);
+  blob_reset(&hdr);
   if( total_size>0
    && iReplyStatus!=304
    && fossil_strcmp(P("REQUEST_METHOD"),"HEAD")!=0
@@ -1744,8 +1747,10 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken==0 ){
     malformed_request("malformed HTTP header");
   }
-  if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
-      && fossil_strcmp(zToken,"HEAD")!=0 ){
+  if( fossil_strcmp(zToken,"GET")!=0
+   && fossil_strcmp(zToken,"POST")!=0
+   && fossil_strcmp(zToken,"HEAD")!=0
+  ){
     malformed_request("unsupported HTTP method");
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
