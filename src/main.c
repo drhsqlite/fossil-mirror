@@ -198,6 +198,7 @@ struct Global {
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
   int httpUseSSL;         /* True to use an SSL codec for HTTP traffic */
+  void *httpSSLConn;      /* The SSL connection */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
   int *aCommitFile;       /* Array of files to be committed */
@@ -2838,6 +2839,19 @@ void fossil_set_timeout(int N){
 }
 
 /*
+** Check for options to "fossil server" or "fossil ui" that imply that
+** SSL should be used, and initialize the SSL decoder.
+*/
+static void decode_ssl_options(void){
+  const char *zCertFile = 0;
+  zCertFile = find_option("tls-cert-file",0,1);
+  if( zCertFile ){
+    g.httpUseSSL = 1;
+    ssl_init_server(zCertFile, zCertFile);
+  }
+}
+
+/*
 ** COMMAND: server*
 ** COMMAND: ui
 **
@@ -3011,7 +3025,8 @@ void cmd_webserver(void){
   }
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
   fNoBrowser = find_option("nobrowser", 0, 0)!=0;
-  if( find_option("https",0,0)!=0 ){
+  decode_ssl_options();
+  if( find_option("https",0,0)!=0 || g.httpUseSSL ){
     cgi_replace_parameter("HTTPS","on");
   }
   if( find_option("localhost", 0, 0)!=0 ){
@@ -3089,14 +3104,15 @@ void cmd_webserver(void){
   }
   if( isUiCmd && !fNoBrowser ){
     char *zBrowserArg;
+    const char *zProtocol = g.httpUseSSL ? "https" : "http";
     if( zRemote ) db_open_config(0,0);
     zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
-      zBrowserArg = mprintf("http://localhost:%%d/%s", zInitPage);
+      zBrowserArg = mprintf("%s://localhost:%%d/%s", zProtocol, zInitPage);
     }else if( strchr(zIpAddr,':') ){
-      zBrowserArg = mprintf("http://[%s]:%%d/%s", zIpAddr, zInitPage);
+      zBrowserArg = mprintf("%s://[%s]:%%d/%s", zProtocol, zIpAddr, zInitPage);
     }else{
-      zBrowserArg = mprintf("http://%s:%%d/%s", zIpAddr, zInitPage);
+      zBrowserArg = mprintf("%s://%s:%%d/%s", zProtocol, zIpAddr, zInitPage);
     }
     zBrowserCmd = mprintf("%s %!$ &", zBrowser, zBrowserArg);
     fossil_free(zBrowserArg);
@@ -3189,6 +3205,9 @@ void cmd_webserver(void){
   }
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
+  }else if( g.httpUseSSL ){
+    g.httpSSLConn = ssl_new_server(fileno(stdin),fileno(stdout));
+    cgi_handle_http_request(0);
   }else{
     cgi_handle_http_request(0);
   }
@@ -3196,6 +3215,10 @@ void cmd_webserver(void){
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Webpage finished in subprocess %d *****/\n",
             getpid());
+  }
+  if( g.httpUseSSL && g.httpSSLConn ){
+    ssl_close_server(g.httpSSLConn);
+    g.httpSSLConn = 0;
   }
 #else
   /* Win32 implementation */

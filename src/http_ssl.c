@@ -18,8 +18,11 @@
 ** This file manages low-level SSL communications.
 **
 ** This file implements a singleton.  A single SSL connection may be active
-** at a time.  State information is stored in static variables.  The identity
-** of the server is held in global variables that are set by url_parse().
+** at a time.  State information is stored in static variables.
+**
+** The SSL connections can be either a client or a server.  But all
+** connections for a single process must be of the same type, either client
+** or server.
 **
 ** SSL support is abstracted out into this module because Fossil can
 ** be compiled without SSL support (which requires OpenSSL library)
@@ -43,7 +46,7 @@
 ** State information about that IO is stored in the following
 ** local variables:
 */
-static int sslIsInit = 0;    /* True after global initialization */
+static int sslIsInit = 0;    /* 0: uninit 1: init as client 2: init as server */
 static BIO *iBio = 0;        /* OpenSSL I/O abstraction */
 static char *sslErrMsg = 0;  /* Text of most recent OpenSSL error */
 static SSL_CTX *sslCtx;      /* SSL context */
@@ -136,7 +139,7 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
-void ssl_global_init(void){
+static void ssl_global_init_client(void){
   const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
   const char *identityFile;
 
@@ -195,6 +198,8 @@ void ssl_global_init(void){
     SSL_CTX_set_client_cert_cb(sslCtx, ssl_client_cert_callback);
 
     sslIsInit = 1;
+  }else{
+    assert( sslIsInit==1 );
   }
 }
 
@@ -210,10 +215,10 @@ void ssl_global_shutdown(void){
 }
 
 /*
-** Close the currently open SSL connection.  If no connection is open,
+** Close the currently open client SSL connection.  If no connection is open,
 ** this routine is a no-op.
 */
-void ssl_close(void){
+void ssl_close_client(void){
   if( iBio!=NULL ){
     (void)BIO_reset(iBio);
     BIO_free_all(iBio);
@@ -282,8 +287,10 @@ void ssl_disable_cert_verification(void){
 }
 
 /*
-** Open an SSL connection.  The identify of the server is determined
-** as follows:
+** Open an SSL connection as a client that is to connect to the server
+** identified by pUrlData.
+**
+*  The identify of the server is determined as follows:
 **
 **    pUrlData->name  Name of the server.  Ex: fossil-scm.org
 **    g.url.name      Name of the proxy server, if proxying.
@@ -291,11 +298,11 @@ void ssl_disable_cert_verification(void){
 **
 ** Return the number of errors.
 */
-int ssl_open(UrlData *pUrlData){
+int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
 
-  ssl_global_init();
+  ssl_global_init_client();
   if( pUrlData->useProxy ){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
@@ -305,7 +312,7 @@ int ssl_open(UrlData *pUrlData){
       ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
             pUrlData->name, pUrlData->port,
             ERR_reason_error_string(ERR_get_error()));
-      ssl_close();
+      ssl_close_client();
       return 1;
     }
     rc = establish_proxy_tunnel(pUrlData, sBio);
@@ -357,7 +364,7 @@ int ssl_open(UrlData *pUrlData){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
          pUrlData->name, pUrlData->port,
          ERR_reason_error_string(ERR_get_error()));
-      ssl_close();
+      ssl_close_client();
       return 1;
     }
   }
@@ -367,7 +374,7 @@ int ssl_open(UrlData *pUrlData){
         pUrlData->useProxy?pUrlData->hostname:pUrlData->name,
         pUrlData->useProxy?pUrlData->proxyOrigPort:pUrlData->port,
         ERR_reason_error_string(ERR_get_error()));
-    ssl_close();
+    ssl_close_client();
     return 1;
   }
   /* Check if certificate is valid */
@@ -375,7 +382,7 @@ int ssl_open(UrlData *pUrlData){
 
   if ( cert==NULL ){
     ssl_set_errmsg("No SSL certificate was presented by the peer");
-    ssl_close();
+    ssl_close_client();
     return 1;
   }
 
@@ -443,7 +450,7 @@ int ssl_open(UrlData *pUrlData){
       ){
         X509_free(cert);
         ssl_set_errmsg("SSL cert declined");
-        ssl_close();
+        ssl_close_client();
         blob_reset(&ans);
         return 1;
       }
@@ -530,7 +537,8 @@ LOCAL void ssl_one_time_exception(
 }
 
 /*
-** Send content out over the SSL connection.
+** Send content out over the SSL connection from the client to
+** the server.
 */
 size_t ssl_send(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
@@ -550,7 +558,8 @@ size_t ssl_send(void *NotUsed, void *pContent, size_t N){
 }
 
 /*
-** Receive content back from the SSL connection.
+** Receive content back from the client SSL connection.  In other
+** words read the reply back from the server.
 */
 size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
@@ -567,6 +576,139 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
     pContent = (void*)&((char*)pContent)[got];
   }
   return total;
+}
+
+/*
+** Initialize the SSL library so that it is able to handle
+** server-side connections.  Invoke fossil_fatal() if there are
+** any problems.
+**
+** zKeyFile may be NULL, in which case zCertFile will contain both
+** the private key and the cert.
+*/
+void ssl_init_server(const char *zCertFile, const char *zKeyFile){
+  if( sslIsInit==0 ){
+    SSL_library_init();
+    SSL_load_error_strings();
+    OpenSSL_add_all_algorithms();
+    sslCtx = SSL_CTX_new(SSLv23_server_method());
+    if( sslCtx==0 ){
+      ERR_print_errors_fp(stderr);
+      fossil_fatal("Error initializing the SSL server");
+    }
+    if( SSL_CTX_use_certificate_file(sslCtx, zCertFile, SSL_FILETYPE_PEM)<=0 ){
+      ERR_print_errors_fp(stderr);
+      fossil_fatal("Error loading CERT file \"%s\"", zCertFile);
+    }
+    if( zKeyFile==0 ) zKeyFile = zCertFile;
+    if( SSL_CTX_use_PrivateKey_file(sslCtx, zKeyFile, SSL_FILETYPE_PEM)<=0 ){
+      ERR_print_errors_fp(stderr);
+      fossil_fatal("Error loading PRIVATE KEY from file \"%s\"", zKeyFile);
+    }
+    if( !SSL_CTX_check_private_key(sslCtx) ){
+      fossil_fatal("PRIVATE KEY \"%s\" does not match CERT \"%s\"",
+           zKeyFile, zCertFile);
+    }
+    sslIsInit = 2;
+  }else{
+    assert( sslIsInit==2 );
+  }
+}
+
+typedef struct SslServerConn {
+  SSL *ssl;          /* The SSL codec */
+  int atEof;         /* True when EOF reached. */
+  int fd0;           /* Read channel, or socket */
+  int fd1;           /* Write channel */
+} SslServerConn;
+
+/*
+** Create a new server-side codec.  The arguments are the file
+** descriptors from which teh codec reads and writes, respectively.
+**
+** If the writeFd is negative, then use then the readFd is a socket
+** over which we both read and write.
+*/
+void *ssl_new_server(int readFd, int writeFd){
+  SslServerConn *pServer = fossil_malloc_zero(sizeof(*pServer));
+  pServer->ssl = SSL_new(sslCtx);
+  pServer->fd0 = readFd;
+  pServer->fd1 = writeFd;
+  if( writeFd<0 ){
+    SSL_set_fd(pServer->ssl, readFd);
+  }else{
+    SSL_set_rfd(pServer->ssl, readFd);
+    SSL_set_wfd(pServer->ssl, writeFd);
+  }
+  return (void*)pServer;
+}
+
+/*
+** Close a server-side code previously returned from ssl_new_server().
+*/
+void ssl_close_server(void *pServerArg){
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  SSL_free(pServer->ssl);
+  close(pServer->fd0);
+  if( pServer->fd1>=0 ) close(pServer->fd0);
+  fossil_free(pServer);
+}
+
+/*
+** Return TRUE if there are no more bytes available to be read from
+** the client.
+*/
+int ssl_eof(void *pServerArg){
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  return pServer->atEof;
+}
+
+/*
+** Read cleartext bytes that have been received from the client and
+** decrypted by the SSL server codec.
+*/
+size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
+  int n;
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  if( pServer->atEof ) return 0;
+  if( nBuf>0x7fffffff ){ fossil_fatal("SSL read too big"); }
+  n = SSL_read(pServer->ssl, zBuf, (int)nBuf);
+  if( n<nBuf ) pServer->atEof = 1;
+  return n;
+}
+
+/*
+** Read a single line of text from the client.
+*/
+char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
+  int n = 0;
+  int i;
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  
+  if( pServer->atEof ) return 0;
+  n = SSL_peek(pServer->ssl, zBuf, nBuf-1);
+  if( n==0 ){
+    pServer->atEof = 1;
+    return 0;
+  }
+  for(i=0; i<n && zBuf[i]!='\n'; i++){}
+  SSL_read(pServer->ssl, zBuf, i);
+  zBuf[i+1] = 0;
+  return zBuf;
+}
+
+
+/*
+** Write cleartext bytes into the SSL server codec so that they can
+** be encrypted and sent back to the client.
+*/
+size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
+  int n;
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  if( pServer->atEof ) return 0;
+  if( nBuf>0x7fffffff ){ fossil_fatal("SSL write too big"); }
+  n = SSL_write(pServer->ssl, zBuf, (int)nBuf);
+  return n;
 }
 
 #endif /* FOSSIL_ENABLE_SSL */

@@ -172,7 +172,7 @@ int transport_open(UrlData *pUrlData){
       if( rc==0 ) transport.isOpen = 1;
     }else if( pUrlData->isHttps ){
 #ifdef FOSSIL_ENABLE_SSL
-      rc = ssl_open(pUrlData);
+      rc = ssl_open_client(pUrlData);
       if( rc==0 ) transport.isOpen = 1;
 #else
       socket_set_errmsg("HTTPS: Fossil has been compiled without SSL support");
@@ -215,7 +215,7 @@ void transport_close(UrlData *pUrlData){
       transport_ssh_close();
     }else if( pUrlData->isHttps ){
       #ifdef FOSSIL_ENABLE_SSL
-      ssl_close();
+      ssl_close_client();
       #endif
     }else if( pUrlData->isFile ){
       if( transport.pFile ){

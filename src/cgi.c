@@ -356,7 +356,11 @@ static char *cgi_fgets(char *s, int size){
   if( !g.httpUseSSL ){
     return fgets(s, size, g.httpIn);
   }
-  assert( !"SSL Server not yet implemented" );
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_gets(g.httpSSLConn, s, size);
+#else
+  fossil_fatal("SSL not available");
+#endif
 }
 
 /* Works like fread():
@@ -369,7 +373,11 @@ size_t cgi_fread(void *ptr, size_t nmemb){
   if( !g.httpUseSSL ){
     return fread(ptr, 1, nmemb, g.httpIn);
   }
-  assert( !"SSL Server not yet implemented" );
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_read_server(g.httpSSLConn, ptr, nmemb);
+#else
+  fossil_fatal("SSL not available");
+#endif
 }
 
 /* Works like feof():
@@ -380,7 +388,11 @@ int cgi_feof(void){
   if( !g.httpUseSSL ){
     return feof(g.httpIn);
   }
-  assert( !"SSL Server not yet implemented" );
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_eof(g.httpSSLConn);
+#else
+  return 1;
+#endif
 }
 
 /* Works like fwrite():
@@ -392,7 +404,11 @@ static size_t cgi_fwrite(void *ptr, size_t nmemb){
   if( !g.httpUseSSL ){
     return fwrite(ptr, 1, nmemb, g.httpOut);
   }
-  assert( !"SSL Server not yet implemented" );
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_write_server(g.httpSSLConn, ptr, nmemb);
+#else
+  fossil_fatal("SSL not available");
+#endif
 }
 
 /* Works like fflush():
