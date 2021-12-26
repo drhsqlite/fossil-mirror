@@ -19,12 +19,7 @@
 ** or binary data.
 */
 #include "config.h"
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "blob.h"
 #if defined(_WIN32)
 #include <fcntl.h>

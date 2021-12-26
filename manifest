@@ -1,5 +1,5 @@
-C Add\shooks\sin\sthe\sHTTP\srequest\sdecoder\sand\sreply\sgenerator\sthat\sallow\sus\nto\sredirect\straffic\sthrough\san\sSSL\scodec.
-D 2021-12-26T13:53:36.336
+C Remove\sminiz\sinclude
+D 2021-12-26T18:45:37.115
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -408,7 +408,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c 13d813ea97639dd77fb3235e0ded40805a2a5de4853c5b4ca6d0cce36f3191e9
+F src/blob.c 9d1bd444649ce04e1328775c913af0e73aea9d0d873b896cd994be9ce221249b
 F src/branch.c 40edc441a60d2b655dcdc015003c5d84711582f14a4db978c41197592da9224f
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c e744959a71b209c879ad6c391d97220f63d5fc94cdd4942b2af598de9b50dc0b
@@ -968,11 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37ccaafddb2bd4e95f288d62a0e0e1e32be756fee7bb0902c389888d29286925
-R 398bdcd37d766ae326e9f7be74151253
-T *branch * ssl-server
-T *sym-ssl-server *
-T -sym-trunk *
-U drh
-Z 3e9c9aba98c4c9606de1281c011673ec
+P 5674f776e9f03efe9d2dd10b6185b29888f9b6f166c87e04a50d45e70d5dfba9
+R c4b41e9a107e81d7c85f61a99afcdf91
+U danield
+Z b71ff699829388c5b6a0ecd4d7ff4e62
 # Remove this line to create a well-formed Fossil manifest.
