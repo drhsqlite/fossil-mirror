@@ -2352,7 +2352,8 @@ int cgi_http_server(
   if( iPort>mxPort ) return 1;
   listen(listener,10);
   fossil_print("Listening for %s requests on TCP port %d\n",
-     (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
+     (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+        g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
   fflush(stdout);
   if( zBrowser ){
     assert( strstr(zBrowser,"%d")!=0 );

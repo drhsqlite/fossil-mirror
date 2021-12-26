@@ -2843,12 +2843,14 @@ void fossil_set_timeout(int N){
 ** SSL should be used, and initialize the SSL decoder.
 */
 static void decode_ssl_options(void){
+#if FOSSIL_ENABLE_SSL
   const char *zCertFile = 0;
   zCertFile = find_option("tls-cert-file",0,1);
   if( zCertFile ){
     g.httpUseSSL = 1;
     ssl_init_server(zCertFile, zCertFile);
   }
+#endif
 }
 
 /*
@@ -3046,12 +3048,18 @@ void cmd_webserver(void){
   */
   if( find_option("debug-nofork",0,0)!=0 ){
     flags |= HTTP_SERVER_NOFORK;
+#if !defined(_WIN32)
+    /* Disable the timeout during debugging */
     zTimeout = "100000000";
+#endif
   }
   /* We should be done with options.. */
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
+  if( g.httpUseSSL && (flags & HTTP_SERVER_SCGI)!=0 ){
+    fossil_fatal("SCGI does not (yet) support TLS-encrypted connections");
+  }
   if( isUiCmd && 3==g.argc && file_isdir(g.argv[2], ExtFILE)>0 ){
     /* If REPOSITORY arg is the root of a checkout,
     ** chdir to that checkout so that the current version
@@ -3217,7 +3225,9 @@ void cmd_webserver(void){
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else if( g.httpUseSSL ){
+#if FOSSIL_ENABLE_SSL
     g.httpSSLConn = ssl_new_server(0,-1);
+#endif
     cgi_handle_http_request(0);
   }else{
     cgi_handle_http_request(0);
@@ -3227,12 +3237,18 @@ void cmd_webserver(void){
     fprintf(stderr, "/***** Webpage finished in subprocess %d *****/\n",
             getpid());
   }
+#if FOSSIL_ENABLE_SSL
   if( g.httpUseSSL && g.httpSSLConn ){
     ssl_close_server(g.httpSSLConn);
     g.httpSSLConn = 0;
   }
-#else
+#endif /* FOSSIL_ENABLE_SSL */
+
+#else /* WIN32 */
   /* Win32 implementation */
+  if( g.httpUseSSL ){
+    fossil_fatal("TLS-encrypted server is not (yet) supported on Windows");
+  }
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }
