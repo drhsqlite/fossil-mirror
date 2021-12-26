@@ -197,6 +197,7 @@ struct Global {
   int th1Flags;           /* The TH1 integration state flags */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
+  int httpUseSSL;         /* True to use an SSL codec for HTTP traffic */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
   int *aCommitFile;       /* Array of files to be committed */
