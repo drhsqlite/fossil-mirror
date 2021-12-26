@@ -684,11 +684,6 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
                 -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
 
-# Setup the options used to compile the included miniz library.
-MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
-                -DMINIZ_NO_TIME \
-                -DMINIZ_NO_ARCHIVE_APIS
-
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0 or 1.
 # If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
@@ -700,13 +695,6 @@ SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.1 =
 # SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
-
-# The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
-# set to 1.  If it is set to 1, the miniz library included in the
-# source tree should be used; otherwise, it should not.
-MINIZ_OBJ.0 =
-MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
-MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 
 # The USE_LINENOISE variable may be undefined, set to 0, or set
 # to 1. If it is set to 0, then there is no need to build or link
@@ -740,7 +728,6 @@ SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 EXTRAOBJ = \
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) \
- $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) \
  $(LINENOISE_OBJ.$(USE_LINENOISE)) \
  $(OBJDIR)/pikchr.o \
  $(OBJDIR)/shell.o \
@@ -918,7 +905,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
-	$(SRCDIR_extsrc)/miniz.c:$(OBJDIR)/miniz.h \
 	$(SRCDIR_extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
 	$(SRCDIR_extsrc)/sqlite3.h \
 	$(SRCDIR)/th.h \
@@ -2121,9 +2107,6 @@ $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $@
 
-
-$(OBJDIR)/miniz.o:	$(SRCDIR_extsrc)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR_extsrc)/miniz.c -o $@
 
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 	$(XTCC) -c $(SRCDIR_extsrc)/pikchr.c -o $@

@@ -80,11 +80,6 @@ FOSSIL_ENABLE_EXEC_REL_PATHS = 0
 FOSSIL_ENABLE_JSON = 0
 !endif
 
-# Enable use of miniz instead of zlib?
-!ifndef FOSSIL_ENABLE_MINIZ
-FOSSIL_ENABLE_MINIZ = 0
-!endif
-
 # Enable OpenSSL support?
 !ifndef FOSSIL_ENABLE_SSL
 FOSSIL_ENABLE_SSL = 0
@@ -170,9 +165,7 @@ ZLIB      = zlib.lib
 
 INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(SRCDIR_extsrc)" /I"$(B)\win\include"
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I"$(ZINCDIR)"
-!endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
 INCL      = $(INCL) /I"$(SSLINCDIR)"
@@ -250,15 +243,8 @@ TCC       = $(TCC) /DFOSSIL_DYNAMIC_BUILD=1
 RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
 !endif
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 LIBS      = $(LIBS) $(ZLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:"$(ZLIBDIR)"
-!endif
-
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
-RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
-!endif
 
 !if $(FOSSIL_ENABLE_JSON)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
@@ -365,10 +351,6 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /Dsystem=fossil_system \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
-
-MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
-                /DMINIZ_NO_TIME \
-                /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = "$(OX)\add_.c" \
         "$(OX)\ajax_.c" \
@@ -780,9 +762,6 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\xfer$O" \
         "$(OX)\xfersetup$O" \
         "$(OX)\zip$O" \
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-        "$(OX)\miniz$O" \
-!endif
         "$(OX)\fossil.res"
 
 
@@ -838,10 +817,8 @@ clean-openssl:
 	@pushd "$(SSLDIR)" && $(MAKE) clean && popd
 !endif
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 !if $(FOSSIL_BUILD_ZLIB)!=0
 APPTARGETS = $(APPTARGETS) zlib
-!endif
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
@@ -1011,9 +988,6 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\xfer.obj" >> $@
 	echo "$(OX)\xfersetup.obj" >> $@
 	echo "$(OX)\zip.obj" >> $@
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-	echo "$(OX)\miniz.obj" >> $@
-!endif
 	echo $(LIBS) >> $@
 
 "$(OBJDIR)\translate$E": "$(SRCDIR_tools)\translate.c"
@@ -1058,9 +1032,6 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 
 "$(OX)\th_tcl$O" : "$(SRCDIR)\th_tcl.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
-
-"$(OX)\miniz$O" : "$(SRCDIR_extsrc)\miniz.c"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
 
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c" "$(B)\win\Makefile.msc"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**

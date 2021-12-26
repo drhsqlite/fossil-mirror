@@ -7,7 +7,6 @@ use cc cc-lib
 options {
     with-openssl:path|auto|tree|none
                          => {Look for OpenSSL in the given path, automatically, in the source tree, or none}
-    with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path|auto|tree
                          => {Look for zlib in the given path, automatically, or in the source tree}
     with-sqlite:path|auto|tree
@@ -102,7 +101,6 @@ define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
-define FOSSIL_ENABLE_MINIZ 0
 define USE_MMAN_H 0
 define USE_SEE 0
 define SQLITE3_ORIGIN 0
@@ -346,41 +344,33 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
     }
 }
 
-if {[opt-bool with-miniz]} {
-    define FOSSIL_ENABLE_MINIZ 1
-    msg-result "Using miniz for compression"
+# Check for zlib, using the given location if specified
+set zlibpath [opt-val with-zlib]
+if {$zlibpath eq "tree"} {
+  set zlibdir [file dirname $autosetup(dir)]/compat/zlib
+  if {![file isdirectory $zlibdir]} {
+    user-error "The zlib in source tree directory does not exist"
+  }
+  cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
+  define-append EXTRA_CFLAGS -I$zlibdir
+  define-append LIBS $zlibdir/libz.a
+  set ::zlib_lib $zlibdir/libz.a
+  msg-result "Using zlib in source tree"
 } else {
-    # Check for zlib, using the given location if specified
-    set zlibpath [opt-val with-zlib]
-    if {$zlibpath eq "tree"} {
-        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-        if {![file isdirectory $zlibdir]} {
-            user-error "The zlib in source tree directory does not exist"
-        }
-        cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
-        define-append EXTRA_CFLAGS -I$zlibdir
-        define-append LIBS $zlibdir/libz.a
-        set ::zlib_lib $zlibdir/libz.a
-        msg-result "Using zlib in source tree"
-    } else {
-        if {$zlibpath ni {auto ""}} {
-            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-            define-append EXTRA_CFLAGS -I$zlibpath
-            define-append EXTRA_LDFLAGS -L$zlibpath
-            msg-result "Using zlib from $zlibpath"
-        }
-        if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
-            user-error "zlib not found please install it or specify the location with --with-zlib"
-        }
-        set ::zlib_lib -lz
-    }
+  if {$zlibpath ni {auto ""}} {
+    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+    define-append EXTRA_CFLAGS -I$zlibpath
+    define-append EXTRA_LDFLAGS -L$zlibpath
+    msg-result "Using zlib from $zlibpath"
+  }
+  if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
+    user-error "zlib not found please install it or specify the location with --with-zlib"
+  }
+  set ::zlib_lib -lz
 }
 
 set ssldirs [opt-val with-openssl]
 if {$ssldirs ne "none"} {
-    if {[opt-bool with-miniz]} {
-        user-error "The --with-miniz option is incompatible with OpenSSL"
-    }
     set found 0
     if {$ssldirs eq "tree"} {
         set ssldir [file dirname $autosetup(dir)]/compat/openssl
@@ -469,6 +459,9 @@ define CFLAGS_INCLUDE {}
 # to the root of sqlite3's own build tree because that dir has a
 # config.h which ends up shadowing src/config.h, breaking our build.
 set sq3path [opt-val with-sqlite]
+define SQLITE3_SRC.2 {}
+define SQLITE3_OBJ.2 {}
+define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
 if {$sq3path in {tree ""}} {
   msg-result "Using sqlite3.c from this source tree."
 } else {
@@ -477,9 +470,6 @@ if {$sq3path in {tree ""}} {
   #   1 = use external lib or sqlite3.o
   #   2 = use external sqlite3.c and (if found) shell.c
   define USE_SYSTEM_SQLITE 1
-  define SQLITE3_SRC.2 {}
-  define SQLITE3_OBJ.2 {}
-  define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
   define SQLITE3_ORIGIN 2
   if {$sq3path != "auto"} {
     if {([file exists $sq3path/sqlite3.c]) && \

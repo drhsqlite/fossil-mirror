@@ -23,13 +23,7 @@
 #include "config.h"
 #include "sqlcmd.h"
 #include <stdlib.h> /* atexit() */
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
-
+#include <zlib.h>
 #ifndef _WIN32
 #  include "linenoise.h"
 #endif

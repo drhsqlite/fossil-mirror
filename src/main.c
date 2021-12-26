@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h> /* atexit() */
+#include <zlib.h>
 #if !defined(_WIN32)
 #  include <errno.h> /* errno global */
 #  include <unistd.h>
@@ -41,12 +42,6 @@
 #endif
 #ifdef FOSSIL_ENABLE_SSL
 #  include "openssl/crypto.h"
-#endif
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
 #endif
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_TCL
@@ -1197,11 +1192,7 @@ void fossil_version_blob(
   fossil_get_page_size(&pageSize);
   blob_appendf(pOut, "Detected memory page size is %lu bytes\n",
                (unsigned long)pageSize);
-#if defined(FOSSIL_ENABLE_MINIZ)
-  blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
-#else
   blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
-#endif
 #if FOSSIL_HARDENED_SHA1
   blob_appendf(pOut, "hardened-SHA1 by Marc Stevens and Dan Shumow\n");
 #endif
