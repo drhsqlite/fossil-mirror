@@ -1,5 +1,5 @@
-C Add\sthe\s(undocumented)\s--debug-nofork\soption\sto\s"fossil\sui"\sand\s"fossil\sserver",\nfor\suse\sin\sdebugging.
-D 2021-12-26T20:53:33.339
+C Now\sactually\sworks.
+D 2021-12-26T21:27:27.904
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 6d9b37bc5d36ec81bec63407e9394e5ddc45893d7634494087236af9ed2f2168
+F src/http_ssl.c ee08eb8435117d2178128304d92e3111683700b5ff9572ed2c922498707b8ecd
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c b24804aaed5e98fd65e87de1ffd3754b6086e3700cb5892dc83aae038529eb15
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c b6e630590b4d2898e8c79f5425da74e9778a5433599519bf2452b6a430da2688
+F src/main.c 84d4a2a99f3066fa60fd44c9bbc6aa180d7a3356f76a85a11ee423b40aa1e737
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -968,8 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89af3b0a4761df7690aced022a2e060aef05daa8b2f23e8b6377be3395d02fb0
-R 220c5a08c2ea8d673dd3a21ccc36472f
+P ed4a96d8ece279312e5a0ef9037d12e2d577696e89208109ee17d5d8c03e867e
+R f6fc8728a3ef87c07e9163cec63ccdbb
 U drh
-Z a20c603b5deaffda90aedc28528a0f82
+Z cd365c8a892f4e0d9b736018e3a586ef
 # Remove this line to create a well-formed Fossil manifest.

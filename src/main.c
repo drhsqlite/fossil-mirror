@@ -3046,6 +3046,7 @@ void cmd_webserver(void){
   */
   if( find_option("debug-nofork",0,0)!=0 ){
     flags |= HTTP_SERVER_NOFORK;
+    zTimeout = "100000000";
   }
   /* We should be done with options.. */
   verify_all_options();
@@ -3216,7 +3217,7 @@ void cmd_webserver(void){
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else if( g.httpUseSSL ){
-    g.httpSSLConn = ssl_new_server(fileno(stdin),fileno(stdout));
+    g.httpSSLConn = ssl_new_server(0,-1);
     cgi_handle_http_request(0);
   }else{
     cgi_handle_http_request(0);

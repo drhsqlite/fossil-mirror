@@ -640,6 +640,7 @@ void *ssl_new_server(int readFd, int writeFd){
     SSL_set_rfd(pServer->ssl, readFd);
     SSL_set_wfd(pServer->ssl, writeFd);
   }
+  SSL_accept(pServer->ssl);
   return (void*)pServer;
 }
 
@@ -686,13 +687,13 @@ char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
   SslServerConn *pServer = (SslServerConn*)pServerArg;
   
   if( pServer->atEof ) return 0;
-  n = SSL_peek(pServer->ssl, zBuf, nBuf-1);
-  if( n==0 ){
-    pServer->atEof = 1;
-    return 0;
+  for(i=0; i<nBuf-1; i++){
+    n = SSL_read(pServer->ssl, &zBuf[i], 1);
+    if( n<=0 ){
+      return 0;
+    }
+    if( zBuf[i]=='\n' ) break;
   }
-  for(i=0; i<n && zBuf[i]!='\n'; i++){}
-  SSL_read(pServer->ssl, zBuf, i);
   zBuf[i+1] = 0;
   return zBuf;
 }
