@@ -2267,6 +2267,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 #define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
+#define HTTP_SERVER_NOFORK         0x0020     /* Do not call fork() */
 
 #endif /* INTERFACE */
 
@@ -2386,7 +2387,11 @@ int cgi_http_server(
       lenaddr = sizeof(inaddr);
       connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
       if( connection>=0 ){
-        child = fork();
+        if( flags & HTTP_SERVER_NOFORK ){
+          child = 0;
+        }else{
+          child = fork();
+        }
         if( child!=0 ){
           if( child>0 ){
             nchildren++;

@@ -3037,6 +3037,16 @@ void cmd_webserver(void){
   if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
+
+  /* Undocumented option:  --debug-nofork
+  **
+  ** This sets the HTTP_SERVER_NOFORK flag, which causes only the
+  ** very first incoming TCP/IP connection to be processed.  Used for
+  ** debugging, since debugging across a fork() can be tricky
+  */
+  if( find_option("debug-nofork",0,0)!=0 ){
+    flags |= HTTP_SERVER_NOFORK;
+  }
   /* We should be done with options.. */
   verify_all_options();
 
