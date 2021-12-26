@@ -1,5 +1,5 @@
-C Build\sthe\sHTTP\sreply\sheader\sin\sa\sBlob\sbefore\ssending\sit\son\sthe\swire\sall\nat\sonce.
-D 2021-12-26T11:41:50.632
+C Got\sMakefile.classic\smostly\sworking\sagain,\swith\sthe\scaveat\sthat\sit\sassumes\san\sSSL\sbuild.
+D 2021-12-26T13:05:26.115
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -13,7 +13,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt fd92e4922f1ea4f58ca56032f1aa7265a312ca0dc2bff37f52769ac15e693b05
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 51328029ebbdc85b9fde5892f40e3d26cdfbbb8874b44bd652d9ad6854de89ea
-F Makefile.classic f7ab827cf2c75b8580e6d5f09fe7a3a09a5b580131870924c0c72259328a4cf3
+F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 2817bc84b6cecc326c630cff59c11cb7750bf209829b1e773927d679bd2b818f x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b62f651cc00280ece87865b10993c749ef4382b5f70918e1b58aace956cc53c4
-R fb6e9badb14bd2d45fa60b0f83b5ee57
-U drh
-Z bb187e43ed9290ca80c9d73506789493
+P 2ac4ab2b2f195f1839c910cf877399839b70202b9620243b08c030107bb941e2
+R 93fb4c38485aad07700dee823b0b7e52
+U stephan
+Z 6ab010da1564743868e26a47ac2cc0dd
 # Remove this line to create a well-formed Fossil manifest.
