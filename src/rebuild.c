@@ -918,6 +918,7 @@ void scrub_cmd(void){
   if( !privateOnly ){
     db_unprotect(PROTECT_ALL);
     db_multi_exec(
+      "PRAGMA secure_delete=ON;"
       "UPDATE user SET pw='';"
       "DELETE FROM config WHERE name IN"
       "(WITH pattern(x) AS (VALUES"
@@ -935,7 +936,8 @@ void scrub_cmd(void){
       "  ('subrepo:*'),"
       "  ('sync-*'),"
       "  ('syncfrom:*'),"
-      "  ('syncwith:*')"
+      "  ('syncwith:*'),"
+      "  ('ssl-*')"
       ") SELECT name FROM config, pattern WHERE name GLOB x);"
     );
     if( bVerily ){

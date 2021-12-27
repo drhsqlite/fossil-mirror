@@ -699,9 +699,9 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 ** zCertFile is assumed to be a concatenation of the certificate and
 ** the private-key in the PEM format.
 **
-** If zCertFile is NULL, then "tls-server-cert" setting is consulted
+** If zCertFile is NULL, then "ssl-cert" setting is consulted
 ** to get the certificate and private-key (concatenated together, in
-** the PEM format).  If there is no tls-server-cert setting, then
+** the PEM format).  If there is no ssl-cert setting, then
 ** a built-in self-signed cert is used.
 */
 void ssl_init_server(const char *zCertFile, const char *zKeyFile){
@@ -726,12 +726,12 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
         fossil_fatal("Error loading PRIVATE KEY from file \"%s\"", zKeyFile);
       }
     }else
-    if( (zTlsCert = db_get("tls-server-cert",0))!=0 ){
+    if( (zTlsCert = db_get("ssl-cert",0))!=0 ){
       if( sslctx_use_cert_from_mem(sslCtx, zTlsCert, -1)
        || sslctx_use_pkey_from_mem(sslCtx, zTlsCert, -1)
       ){
         fossil_fatal("Error loading the CERT from the"
-                     " 'tls-server-cert' setting");
+                     " 'ssl-cert' setting");
       }
     }else if( sslctx_use_cert_from_mem(sslCtx, sslSelfCert, -1)
            || sslctx_use_pkey_from_mem(sslCtx, sslSelfPKey, -1) ){
@@ -848,8 +848,9 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 
 /*
 ** COMMAND: tls-config*
+** COMMAND: ssl-config
 **
-** Usage: %fossil tls-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
+** Usage: %fossil ssl-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
 **
 ** This command is used to view or modify the TLS (Transport Layer
 ** Security) configuration for Fossil.  TLS (formerly SSL) is the
@@ -857,12 +858,27 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 **
 ** Sub-commands:
 **
-**    show                            Show the TLS configuration
+**   clear-cert                  Remove information about server certificates.
+**                               This is a subset of the "scrub" command.
 **
-**    remove-exception DOMAIN...      Remove TLS cert exceptions
-**                                    for the domains listed.  Or if
-**                                    the --all option is specified,
-**                                    remove all TLS cert exceptions.
+**   load-cert PEM-FILES...      Identify server certificate files. These
+**                               should be in the PEM format.  There are
+**                               normally two files, the certificate and the
+**                               private-key.  By default, the text of both
+**                               files is concatenated and added to the
+**                               "ssl-cert" setting.  Use --filename to store
+**                               just the filenames.
+**
+**   remove-exception DOMAINS    Remove TLS cert exceptions for the domains
+**                               listed.  Or remove them all if the --all
+**                               option is specified.
+**
+**   scrub ?--force?             Remove all SSL configuration data from the
+**                               repository. Use --force to omit the
+**                               confirmation.
+**
+**   show ?-v?                   Show the TLS configuration. Add -v to see
+**                               additional explaination
 */
 void test_tlsconfig_info(void){
 #if !defined(FOSSIL_ENABLE_SSL)
@@ -873,16 +889,155 @@ void test_tlsconfig_info(void){
   int nHit = 0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   db_open_config(1,0);
-  zCmd = g.argc>=3 ? g.argv[2] : "show";
-  nCmd = strlen(zCmd);
+  if( g.argc==2 || (g.argc>=3 && g.argv[2][0]=='-') ){
+    zCmd = "show";
+    nCmd = 4;
+  }else{
+    zCmd = g.argv[2];
+    nCmd = strlen(zCmd);
+  }
+  if( strncmp("clear-cert",zCmd,nCmd)==0 && nCmd>=4 ){
+    int bForce = find_option("force","f",0)!=0;
+    verify_all_options();
+    if( !bForce ){
+      Blob ans;
+      char cReply;
+      prompt_user(
+        "Confirm removing of the SSL server certificate from this repository.\n"
+        "The removal cannot be undone.  Continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
+    }
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec(
+      "PRAGMA secure_delete=ON;"
+      "DELETE FROM config "
+      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
+    );
+    db_protect_pop();
+  }else
+  if( strncmp("load-cert",zCmd,nCmd)==0 && nCmd>=4 ){
+    int bFN = find_option("filename",0,0)!=0;
+    int i;
+    Blob allText = BLOB_INITIALIZER;
+    int haveCert = 0;
+    int haveKey = 0;
+    verify_all_options();
+    db_begin_transaction();
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec(
+      "PRAGMA secure_delete=ON;"
+      "DELETE FROM config "
+      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
+    );
+    nHit = 0;
+    for(i=3; i<g.argc; i++){
+      Blob x;
+      int isCert;
+      int isKey;
+      if( !file_isfile(g.argv[i], ExtFILE) ){
+        fossil_fatal("no such file: \"%s\"", g.argv[i]);
+      }
+      blob_read_from_file(&x, g.argv[i], ExtFILE);
+      isCert = strstr(blob_str(&x),"-----BEGIN CERTIFICATE-----")!=0;
+      isKey = strstr(blob_str(&x),"-----BEGIN PRIVATE KEY-----")!=0;
+      if( !isCert && !isKey ){
+        fossil_fatal("not a certificate or a private key: \"%s\"", g.argv[i]);
+      }
+      if( isCert ){
+        if( haveCert ){
+          fossil_fatal("more than one certificate provided");
+        }
+        haveCert = 1;
+        if( bFN ){
+          db_set("ssl-cert-file", file_canonical_name_dup(g.argv[i]), 0);
+        }else{
+          blob_append(&allText, blob_buffer(&x), blob_size(&x));
+        }
+        if( isKey && !haveKey ){
+          haveKey = 1;
+          isKey = 0;
+        }
+      }
+      if( isKey ){
+        if( haveKey ){
+          fossil_fatal("more than one private key provided");
+        }
+        haveKey = 1;
+        if( bFN ){
+          db_set("ssl-key-file", file_canonical_name_dup(g.argv[i]), 0);
+        }else{
+          blob_append(&allText, blob_buffer(&x), blob_size(&x));
+        }
+      }
+    }
+    db_protect_pop();
+    if( !haveCert ){
+      if( !haveKey ){
+        fossil_fatal("missing certificate and private-key");
+      }else{
+        fossil_fatal("missing certificate");
+      }
+    }else if( !haveKey ){
+      fossil_fatal("missing private-key");
+    }
+    if( !bFN ){
+      db_set("ssl-cert", blob_str(&allText), 0);
+    }
+    db_commit_transaction();
+  }else
+  if( strncmp("scrub",zCmd,nCmd)==0 && nCmd>4 ){
+    int bForce = find_option("force","f",0)!=0;
+    verify_all_options();
+    if( !bForce ){
+      Blob ans;
+      char cReply;
+      prompt_user(
+        "Scrubbing the SSL configuration will permanently delete information.\n"
+        "Changes cannot be undone.  Continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
+    }
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec(
+      "PRAGMA secure_delete=ON;"
+      "DELETE FROM config WHERE name GLOB 'ssl-*';"
+    );
+    db_protect_pop();
+  }else
   if( strncmp("show",zCmd,nCmd)==0 ){
     const char *zName, *zValue;
     size_t nName;
     Stmt q;
+    int verbose = find_option("verbose","v",0)!=0;
+    verify_all_options();
+
     fossil_print("OpenSSL-version:   %s  (0x%09x)\n",
          SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+    if( verbose ){
+      fossil_print("\n"
+         "  The version of the OpenSSL library being used\n"
+         "  by this instance of Fossil.  Version 3.0.0 or\n"
+         "  later is recommended.\n\n"
+      );
+    }
+
     fossil_print("OpenSSL-cert-file: %s\n", X509_get_default_cert_file());
     fossil_print("OpenSSL-cert-dir:  %s\n", X509_get_default_cert_dir());
+    if( verbose ){
+      fossil_print("\n"
+         "  The default locations for the set of root certificates\n"
+         "  used by the \"fossil sync\" and similar commands to verify\n"
+         "  the identity of servers for \"https:\" URLs. These values\n"
+         "  come into play when Fossil is used as a TLS client.  These\n"
+         "  values are built into your OpenSSL library.\n\n"
+      );
+    }
+
     zName = X509_get_default_cert_file_env();
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
@@ -893,21 +1048,81 @@ void test_tlsconfig_info(void){
     if( zValue==0 ) zValue = "";
     nName = strlen(zName);
     fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
-    nHit++;
+    if( verbose ){
+      fossil_print("\n"
+         "  Alternative locations for the root certificates used by Fossil\n"
+         "  when it is acting as a SSL client in order to verify the identity\n"
+         "  of servers. If specified, these alternative locations override\n"
+         "  the built-in locations.\n\n"
+      );
+    }
+
     fossil_print("ssl-ca-location:   %s\n", db_get("ssl-ca-location",""));
+    if( verbose ){
+      fossil_print("\n"
+         "  This setting is the name of a file or directory that contains\n"
+         "  the complete set of root certificates to used by Fossil when it\n"
+         "  is acting as a SSL client. If defined, this setting takes\n"
+         "  priority over built-in paths and environment variables\n\n"
+      );
+    }
+
     fossil_print("ssl-identity:      %s\n", db_get("ssl-identity",""));
+    if( verbose ){
+      fossil_print("\n"
+         "  This setting is the name of a file that contains the PEM-format\n"
+         "  certificate and private-key used by Fossil clients to authentice\n"
+         "  with servers. Few servers actually require this, so this setting\n"
+         "  is usually blank.\n\n"
+      );
+    }
+
+    zValue = db_get("ssl-cert",0);
+    if( zValue ){
+      fossil_print("ssl-cert:          (%d-byte PEM)\n", (int)strlen(zValue));
+    }else{
+      fossil_print("ssl-cert:\n");
+    }
+    if( verbose ){
+      fossil_print("\n"
+         "  This setting is the PEM-formatted value of the SSL server\n"
+         "  certificate and private-key, used by Fossil when it is acting\n"
+         "  as a server via the \"fossil server\" command or similar.\n\n"
+      );
+    }
+    
+    fossil_print("ssl-cert-file:     %s\n", db_get("ssl-cert-file",""));
+    fossil_print("ssl-key-file:      %s\n", db_get("ssl-key-file",""));
+    if( verbose ){
+      fossil_print("\n"
+         "  This settings are the names of files that contin the certificate\n"
+         "  private-key used by Fossil when it is acting as a server.\n\n"
+      );
+    }
+
     db_prepare(&q,
-       "SELECT name FROM global_config"
+       "SELECT name, '' FROM global_config"
        " WHERE name GLOB 'cert:*'"
        "UNION ALL "
-       "SELECT name FROM config"
+       "SELECT name, date(mtime,'unixepoch') FROM config"
        " WHERE name GLOB 'cert:*'"
        " ORDER BY name"
     );
+    nHit = 0;
     while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("exception:         %s\n", db_column_text(&q,0)+5);
+      fossil_print("exception:         %-40s %s\n",
+           db_column_text(&q,0)+5, db_column_text(&q,1));
+      nHit++;
     }
     db_finalize(&q);
+    if( nHit && verbose ){
+      fossil_print("\n"
+         "  The exceptions are server certificates that the Fossil client\n"
+         "  is unable to verify using root certificates, but which should be\n"
+         "  accepted anyhow.\n\n"
+      );
+    }
+
   }else
   if( strncmp("remove-exception",zCmd,nCmd)==0 ){
     int i;
@@ -950,7 +1165,7 @@ void test_tlsconfig_info(void){
   }else
   /*default*/{
     fossil_fatal("unknown sub-command \"%s\".\nshould be one of:"
-                 " remove-exception show",
+                 " load-certs remove-exception scrub show",
        zCmd);
   }
 #endif
