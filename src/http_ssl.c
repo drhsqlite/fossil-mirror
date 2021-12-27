@@ -858,6 +858,10 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 **
 ** Sub-commands:
 **
+**   acme ON/OFF                 Activate or deactivate web access to files in
+**                               the "./well-known" directory.  This must be on
+**                               to support "certbot".
+**
 **   clear-cert                  Remove information about server certificates.
 **                               This is a subset of the "scrub" command.
 **
@@ -881,9 +885,6 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 **                               additional explaination
 */
 void test_tlsconfig_info(void){
-#if !defined(FOSSIL_ENABLE_SSL)
-  fossil_print("TLS disabled in this build\n");
-#else
   const char *zCmd;
   size_t nCmd;
   int nHit = 0;
@@ -896,6 +897,18 @@ void test_tlsconfig_info(void){
     zCmd = g.argv[2];
     nCmd = strlen(zCmd);
   }
+  if( strncmp("acme",zCmd,nCmd)==0 ){
+    if( g.argc!=4 ) usage("acme ON/OFF");
+    db_unprotect(PROTECT_CONFIG);
+    if( is_truth(g.argv[3]) ){
+      db_set_int("ssl-acme",1,0);
+    }else if( is_false(g.argv[3]) ){
+      db_unset("ssl-acme",0);
+    }else{
+      fossil_fatal("unknown argument: \"%s\"", g.argv[3]);
+    }
+    db_protect_pop();
+  }else
   if( strncmp("clear-cert",zCmd,nCmd)==0 && nCmd>=4 ){
     int bForce = find_option("force","f",0)!=0;
     verify_all_options();
@@ -1016,6 +1029,14 @@ void test_tlsconfig_info(void){
     int verbose = find_option("verbose","v",0)!=0;
     verify_all_options();
 
+#if !defined(FOSSIL_ENABLE_SSL)
+    fossil_print("OpenSSL-version:   (none)\n");
+    if( verbose ){
+      fossil_print("\n"
+         "  The OpenSSL library is not used by this build of Fossil\n\n"
+      );
+    }
+#else
     fossil_print("OpenSSL-version:   %s  (0x%09x)\n",
          SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
     if( verbose ){
@@ -1050,12 +1071,13 @@ void test_tlsconfig_info(void){
     fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
     if( verbose ){
       fossil_print("\n"
-         "  Alternative locations for the root certificates used by Fossil\n"
-         "  when it is acting as a SSL client in order to verify the identity\n"
-         "  of servers. If specified, these alternative locations override\n"
-         "  the built-in locations.\n\n"
+        "  Alternative locations for the root certificates used by Fossil\n"
+        "  when it is acting as a SSL client in order to verify the identity\n"
+        "  of servers. If specified, these alternative locations override\n"
+        "  the built-in locations.\n\n"
       );
     }
+#endif /* FOSSIL_ENABLE_SSL */
 
     fossil_print("ssl-ca-location:   %s\n", db_get("ssl-ca-location",""));
     if( verbose ){
@@ -1074,6 +1096,17 @@ void test_tlsconfig_info(void){
          "  certificate and private-key used by Fossil clients to authentice\n"
          "  with servers. Few servers actually require this, so this setting\n"
          "  is usually blank.\n\n"
+      );
+    }
+
+    fossil_print("ssl-acme:          %s\n",
+           db_get_boolean("ssl-acme",0) ? "on" : "off");
+    if( verbose ){
+      fossil_print("\n"
+         "  This setting enables web access to files in the \".well-known\""
+         "  subdirectory in the same directory as the repository. Such access\n"
+         "  is required to obtain a certificate from services like\n"
+         "  \"Let's Encrypt\" using the tools like \"certbot\".\n\n"
       );
     }
 
@@ -1165,8 +1198,38 @@ void test_tlsconfig_info(void){
   }else
   /*default*/{
     fossil_fatal("unknown sub-command \"%s\".\nshould be one of:"
-                 " load-certs remove-exception scrub show",
+                 " clear-certs load-certs remove-exception scrub show",
        zCmd);
   }
-#endif
+}
+
+/*
+** WEBPAGE: .well-known
+**
+** If the "ssl-acme" setting is true, then this page returns the content
+** of files found in the ".well-known" subdirectory of the same directory
+** that contains the repository file.  This facilitates Automated Certificate
+** Management using tools like "certbot".
+**
+** The content is returned directly, without any interpretation, using
+** a generic mimetype.
+*/
+void wellknown_page(void){
+  char *zPath;
+  const char *zTail = P("name");
+  Blob content;
+  if( !db_get_boolean("ssl-acme",0) ) goto wellknown_notfound;
+  if( g.zRepositoryName==0 ) goto wellknown_notfound;
+  if( zTail==0 ) goto wellknown_notfound;
+  zPath = mprintf("%z/.well-known/%s", file_dirname(g.zRepositoryName), zTail);
+  if( !file_isfile(zPath, ExtFILE) ) goto wellknown_notfound;
+  blob_read_from_file(&content, zPath, ExtFILE);
+  cgi_set_content(&content);
+  cgi_set_content_type(mimetype_from_name(zPath));
+  cgi_reply();
+  return;
+
+wellknown_notfound:
+  webpage_notfound_error(0);
+  return;
 }

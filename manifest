@@ -1,5 +1,5 @@
-C Rename\sthe\s"tls-config"\scommand\sinto\s"ssl-config"\sfor\sconsistency.\s\sThe\nolder\s"tls-config"\scommand\sis\sretained\sas\san\salias.\s\sEnhance\sthe\scommand\nto\ssupport\sserver\scertificate\smanagement.
-D 2021-12-27T16:13:33.734
+C Enable\saccess\sto\sthe\s".well-known"\ssubdirectory,\sto\sfacilitate\sACME.
+D 2021-12-27T17:01:13.585
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c d80af26a0527d2b144a14462ba4e35d9469b6e66c6beb800f282002a4635662a
+F src/http_ssl.c 40ddf12165951d062207682485d36967dd0b13b03c26cb16f8b6a9929ea616aa
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c b24804aaed5e98fd65e87de1ffd3754b6086e3700cb5892dc83aae038529eb15
@@ -968,8 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7532ffa4e34e3174ae44e8e7b8567ad36f3e915c1d76666f92ebb48b397b4315
-R 56ea7ec66b5ac61c1fb4150e8c8030ff
+P f6051784c5eef7377e70eed4100584912f9a8f6db272505409749b0f913ed52c
+R c397f3c8d2e2ae8846c2a9271feaf1df
 U drh
-Z b0b7a0202f4040ac301d930790855dfb
+Z 0f4ad2f097eb6db9c4811a31c2c0aa6e
 # Remove this line to create a well-formed Fossil manifest.
