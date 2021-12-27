@@ -1215,13 +1215,25 @@ void test_tlsconfig_info(void){
 ** a generic mimetype.
 */
 void wellknown_page(void){
-  char *zPath;
+  char *zPath = 0;
   const char *zTail = P("name");
   Blob content;
+  int i;
+  char c;
   if( !db_get_boolean("ssl-acme",0) ) goto wellknown_notfound;
   if( g.zRepositoryName==0 ) goto wellknown_notfound;
   if( zTail==0 ) goto wellknown_notfound;
   zPath = mprintf("%z/.well-known/%s", file_dirname(g.zRepositoryName), zTail);
+  for(i=0; (c = zTail[i])!=0; i++){
+    if( fossil_isalnum(c) ) continue;
+    if( c=='.' ){
+      if( i==0 || zTail[i-1]=='/' || zTail[i-1]=='.' ) goto wellknown_notfound;
+      continue;
+    }
+    if( c==',' || c!='-' || c=='/' || c==':' || c=='_' || c=='~' ) continue;
+    goto wellknown_notfound;
+  }
+  if( strstr("/..", zPath)!=0 ) goto wellknown_notfound;
   if( !file_isfile(zPath, ExtFILE) ) goto wellknown_notfound;
   blob_read_from_file(&content, zPath, ExtFILE);
   cgi_set_content(&content);
@@ -1230,6 +1242,7 @@ void wellknown_page(void){
   return;
 
 wellknown_notfound:
+  fossil_free(zPath);
   webpage_notfound_error(0);
   return;
 }
