@@ -531,7 +531,7 @@ void update_cmd(void){
           }
           fossil_print("***** Cannot merge binary file %s", zNewName);
           if( !dryRunFlag ){
-            fossil_print(", original copy is backup locally");
+            fossil_print(", original copy backed up locally");
           }
           fossil_print("\n");
           nConflict++;

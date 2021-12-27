@@ -1,5 +1,5 @@
-C Prevent\slost\sof\slocal\schange\son\sbinary\sfiles\swhen\shaving\sa\smerge\sconflict\nusing\sthe\supdate\scommand\swithout\sthe\s--keep-merge-files\sflag.
-D 2021-12-27T06:16:14.042
+C improve\swarning\smessage\sfor\sbinary\smerge\sconflict\son\supdate.
+D 2021-12-27T12:02:54.481
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -596,7 +596,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 55bf7d95086bb42c5e4568d626ffc890c3ea31231fcccdab6c132565451113a0
-F src/update.c 6ee68033465d6559a2615bbeb87d1d105cac494aa4433b84a491872a2b0ce7cd
+F src/update.c 898006906c345f5c7171e40c466103f7108f5052630cb8863deb5e8c6a655386
 F src/url.c 3eeb8f98932acddf66c57a010a4c23a8ab08d22bfab58e882bee395d812b60d0
 F src/user.c 73679fd1b6535b849e0027c38ab8bf677faf6c076d8f47683a1594ee6b973d9a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -968,11 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37ccaafddb2bd4e95f288d62a0e0e1e32be756fee7bb0902c389888d29286925
-R 4a040f11c373d2f92fce7b543f267bd4
-T *branch * binary_merge_conflict_fix
-T *sym-binary_merge_conflict_fix *
-T -sym-trunk *
+P d2b02566a788bf6701953560018817b9d585aacbd18968e717d0d2d0101b806f
+R b3e68289dba0b7fa683eb713a35be4a6
 U mgagnon
-Z 69aeb850e870c00da540c226a03f78c1
+Z f77996f0a1f1f7c241369e77c904538d
 # Remove this line to create a well-formed Fossil manifest.
