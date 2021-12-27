@@ -518,10 +518,22 @@ void update_cmd(void){
           }
         }else{
           if( !dryRunFlag ){
+            if( !keepMergeFlag ){
+              /* Name of backup file with Original content */
+              char *zOrig = file_newname(zFullPath, "original", 1);
+              /* Backup non-mergeable binary file when --keep-merge-files is
+                 not specified */
+              file_copy(zFullPath, zOrig);
+              fossil_free(zOrig);
+            }
             blob_write_to_file(&t, zFullNewPath);
             file_setexe(zFullNewPath, isexe);
           }
-          fossil_print("***** Cannot merge binary file %s\n", zNewName);
+          fossil_print("***** Cannot merge binary file %s", zNewName);
+          if( !dryRunFlag ){
+            fossil_print(", original copy is backup locally");
+          }
+          fossil_print("\n");
           nConflict++;
         }
       }
