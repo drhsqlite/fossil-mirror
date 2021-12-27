@@ -1103,7 +1103,7 @@ void test_tlsconfig_info(void){
            db_get_boolean("ssl-acme",0) ? "on" : "off");
     if( verbose ){
       fossil_print("\n"
-         "  This setting enables web access to files in the \".well-known\""
+         "  This setting enables web access to files in the \".well-known\"\n"
          "  subdirectory in the same directory as the repository. Such access\n"
          "  is required to obtain a certificate from services like\n"
          "  \"Let's Encrypt\" using the tools like \"certbot\".\n\n"

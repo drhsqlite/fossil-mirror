@@ -4265,6 +4265,14 @@ struct Setting {
 ** SETTING: ssh-command      width=40 sensitive
 ** The command used to talk to a remote machine with  the "ssh://" protocol.
 */
+
+/*
+** SETTING: ssl-acme         boolean default=off
+** If true, allow web pages with a path of "/.well-known/..." to retrieve
+** files stored in the ".well-known" subdirectory in the same directory as
+** the repository.  This is needed by tools such as "certbot" to verify a
+** certificate signing request.
+*/
 /*
 ** SETTING: ssl-ca-location  width=40 sensitive
 ** The full pathname to a file containing PEM encoded
@@ -4280,6 +4288,20 @@ struct Setting {
 ** application.
 */
 /*
+** SETTING: ssl-cert          width=40 block-text sensitive
+** The text of SSL server certificate and private key used by commands
+** like "fossil server".  The text should be in the PEM format.  Use
+** the "fossil ssl-config load-certs" command to change this setting.
+*/
+/*
+** SETTING: ssl-cert-file     width=40 sensitive
+** The name of a file that contains the SSL server certificate, or
+** optionally the concatenation of the certificate and private key,
+** for use by Fossil when it is acting as a server.  If this file
+** contains only the certificate, then the ssl-key-file setting must
+** contain the name of a file containing the private key.
+*/
+/*
 ** SETTING: ssl-identity     width=40 sensitive
 ** The full pathname to a file containing a certificate
 ** and private key in PEM format. Create by concatenating
@@ -4288,6 +4310,11 @@ struct Setting {
 ** This identity will be presented to SSL servers to
 ** authenticate this client, in addition to the normal
 ** password authentication.
+*/
+/*
+** SETTING: ssl-key-file     width=40 sensitive
+** The name of a file that contains the SSL server certificate private
+** key.  Used in combination with "ssl-cert-file".
 */
 #ifdef FOSSIL_ENABLE_TCL
 /*
