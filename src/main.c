@@ -2850,6 +2850,16 @@ static void decode_ssl_options(void){
     g.httpUseSSL = 1;
     ssl_init_server(zCertFile, zCertFile);
   }
+  if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
+    g.httpUseSSL = 1;
+    ssl_init_server(0,0);
+  }
+#if !defined(_WIN32)
+  if( db_get_int("redirect-to-https",0)==2 ){
+    g.httpUseSSL = 1;
+    ssl_init_server(0,0);
+  }
+#endif
 #endif
 }
 
@@ -2950,7 +2960,10 @@ static void decode_ssl_options(void){
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
+**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
 **   --th-trace          trace TH1 execution (for debugging purposes)
+**   --tls               Use TLS (HTTPS) encryption.
+**   --tls-cert-file FN  Read the TLS certificate and private key from FN
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **

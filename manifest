@@ -1,5 +1,5 @@
-C Fix\sthe\sbuild\son\sWindows\sand\son\sbuilds\sthat\somit\sOpenSSL.\s\sImproved\nerror\smessages.
-D 2021-12-26T21:50:29.180
+C Add\sa\sbuilt-in\sself-signed\scertificate\sfor\suse\swith\sTLS\sservers.\s\sAdd\s--tls\nand\s--ssl\soptions\sto\sactive\sTLS\sfor\s"fossil\sui"\sand\s"fossil\sserver".\s\sAdd\nthe\s"tls-server-cert"\ssetting.\s\sAutomatically\sstart\sservers\sas\sTLS\sif\sthe\nredirect-to-https\sproperty\sis\s2.
+D 2021-12-27T12:49:00.148
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c ee08eb8435117d2178128304d92e3111683700b5ff9572ed2c922498707b8ecd
+F src/http_ssl.c 6059c35300595f55b8615bb0ba239b2e978f1b7a51b40f55744fbf7497059c72
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c b24804aaed5e98fd65e87de1ffd3754b6086e3700cb5892dc83aae038529eb15
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c f0fca2ff6cf7579f60d803f8657e2de774354e9bd6eb7ed37590fddce95673d3
+F src/main.c 24c3e29d3760dedebc7c0b3537a45796503c802c8a01f46936c3beb7b54189c2
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -968,8 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 977fa519d365f7700c9714a1bec92c5e9bd9f674926b282116c37b9b78a3d183
-R 04ccf83705b6b12a9ab2d0a8ac6b606d
+P 637516c447d6e01f3aae84adfc219f6fbf3b148de381c842edd268016af505f1
+R 68d95ef789b6c00ae3e4de34c6fbb39a
 U drh
-Z 80958c002a0b261782d6633f32762acf
+Z 0e14185cad2d2202ee44868db35464ab
 # Remove this line to create a well-formed Fossil manifest.
