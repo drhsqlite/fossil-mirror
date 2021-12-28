@@ -1666,6 +1666,7 @@ static void process_one_web_page(
 #endif
     }
     while( 1 ){
+      size_t nBase = strlen(zBase);
       while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
 
       /* The candidate repository name is some prefix of the PATH_INFO
@@ -1686,7 +1687,7 @@ static void process_one_web_page(
       ** satisfy these constraints is converted into "_".
       */
       szFile = 0;
-      for(j=strlen(zBase)+1, k=0; zRepo[j] && k<i-1; j++, k++){
+      for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
         if( fossil_isalnum(c) ) continue;
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -1699,6 +1700,10 @@ static void process_one_web_page(
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
         if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+          continue;
+        }
+        if( c=='.' && strncmp(&zRepo[j-1],"/.well-known/",12)==0 && j==nBase+1){
+          /* We allow .well-known as the top-level directory for ACME */
           continue;
         }
         /* If we reach this point, it means that the request URI contains
@@ -1759,7 +1764,7 @@ static void process_one_web_page(
         */
         if( pFileGlob!=0
          && file_isfile(zCleanRepo, ExtFILE)
-         && glob_match(pFileGlob, file_cleanup_fullpath(zRepo))
+         && glob_match(pFileGlob, file_cleanup_fullpath(zRepo+nBase))
          && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
