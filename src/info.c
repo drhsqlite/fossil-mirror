@@ -1769,7 +1769,7 @@ void diff_page(void){
     DiffConfig DCfg;
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
-    diffFlags = 4;
+    diffFlags = DIFF_VERBOSE;
     content_get(v1, &c1);
     content_get(v2, &c2);
     diff_config_init(&DCfg, diffFlags);
