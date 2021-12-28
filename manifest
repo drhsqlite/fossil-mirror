@@ -1,5 +1,5 @@
-C Sanitize\sthe\spathname\son\sthe\s/.well-known\swebpage.\n[forum:/forumpost/ba46d8e333|Forum\spost\sba46d8e333].
-D 2021-12-27T21:43:18.068
+C Add\ssupport\sfor\s--tls\son\sthe\s"fossil\shttp"\scommand.
+D 2021-12-28T14:45:35.744
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 24c3e29d3760dedebc7c0b3537a45796503c802c8a01f46936c3beb7b54189c2
+F src/main.c 2f2be07e7e153aa0acbbfded90050466155d1beaaf1e563d2d4dca6bfb3b7252
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -968,8 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f81d64cace5e5335a135e30e92b8dba433655119a71a4dd88c7e3c60ab221fe0
-R 00deb6e27a550d58b103b2799cd8aa4c
+P b265013b66091f1cc8b6a6077060df811abb42e3cbad033d5484f537e2b12693
+R 8b83623dca1283ceaac22c5f8d50dc6e
 U drh
-Z 60d9a89618f903951378431573efe0d6
+Z 7ace75cf40d119094966d40aab3cc2a1
 # Remove this line to create a well-formed Fossil manifest.

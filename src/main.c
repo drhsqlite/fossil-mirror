@@ -2560,6 +2560,25 @@ void test_pid_page(void){
 }
 
 /*
+** Check for options to "fossil server" or "fossil ui" that imply that
+** SSL should be used, and initialize the SSL decoder.
+*/
+static void decode_ssl_options(void){
+#if FOSSIL_ENABLE_SSL
+  const char *zCertFile = 0;
+  zCertFile = find_option("tls-cert-file",0,1);
+  if( zCertFile ){
+    g.httpUseSSL = 1;
+    ssl_init_server(zCertFile, zCertFile);
+  }
+  if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
+    g.httpUseSSL = 1;
+    ssl_init_server(0,0);
+  }
+#endif
+}
+
+/*
 ** COMMAND: http*
 **
 ** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
@@ -2592,16 +2611,16 @@ void test_pid_page(void){
 ** enabled.
 **
 ** Options:
-**   --baseurl URL    base URL (useful with reverse proxies)
-**   --chroot DIR     Use directory for chroot instead of repository path.
-**   --ckout-alias N  Treat URIs of the form /doc/N/... as if they were
-**                       /doc/ckout/...
-**   --extroot DIR    document root for the /ext extension mechanism
-**   --files GLOB     comma-separate glob patterns for static file to serve
-**   --host NAME      specify hostname of the server
-**   --https          signal a request coming in via https
-**   --in FILE        Take input from FILE instead of standard input
-**   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --baseurl URL       base URL (useful with reverse proxies)
+**   --chroot DIR        Use directory for chroot instead of repository path.
+**   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
+**                          /doc/ckout/...
+**   --extroot DIR       document root for the /ext extension mechanism
+**   --files GLOB        comma-separate glob patterns for static file to serve
+**   --host NAME         specify hostname of the server
+**   --https             signal a request coming in via https
+**   --in FILE           Take input from FILE instead of standard input
+**   --ipaddr ADDR       Assume the request comes from the given IP address
 **   --jsmode MODE       Determine how JavaScript is delivered with pages.
 **                       Mode can be one of:
 **                          inline       All JavaScript is inserted inline at
@@ -2615,21 +2634,25 @@ void test_pid_page(void){
 **                       and bundled modes might result in a single
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
-**   --localauth      enable automatic login for local connections
-**   --nocompress     do not compress HTTP replies
-**   --nodelay        omit backoffice processing if it would delay process exit
-**   --nojail         drop root privilege but do not enter the chroot jail
-**   --nossl          signal that no SSL connections are available
-**   --notfound URL   use URL as "HTTP 404, object not found" page.
-**   --out FILE       write results to FILE instead of to standard output
-**   --repolist       If REPOSITORY is directory, URL "/" lists all repos
-**   --scgi           Interpret input as SCGI rather than HTTP
-**   --skin LABEL     Use override skin LABEL
-**   --th-trace       trace TH1 execution (for debugging purposes)
-**   --mainmenu FILE  Override the mainmenu config setting with the contents
-**                    of the given file.
-**   --usepidkey      Use saved encryption key from parent process.  This is
-**                    only necessary when using SEE on Windows.
+**   --localauth         enable automatic login for local connections
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
+**   --nocompress        do not compress HTTP replies
+**   --nodelay           omit backoffice processing if it would delay
+**                       process exit
+**   --nojail            drop root privilege but do not enter the chroot jail
+**   --nossl             signal that no SSL connections are available
+**   --notfound URL      use URL as "HTTP 404, object not found" page.
+**   --out FILE          write results to FILE instead of to standard output
+**   --repolist          If REPOSITORY is directory, URL "/" lists all repos
+**   --scgi              Interpret input as SCGI rather than HTTP
+**   --skin LABEL        Use override skin LABEL
+**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
+**   --th-trace          trace TH1 execution (for debugging purposes)
+**   --tls               Use TLS (HTTPS) encryption.
+**   --tls-cert-file FN  Read the TLS certificate and private key from FN
+**   --usepidkey         Use saved encryption key from parent process. This is
+**                       only necessary when using SEE on Windows.
 **
 ** See also: [[cgi]], [[server]], [[winsrv]]
 */
@@ -2701,9 +2724,22 @@ void cmd_http(void){
   if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
+  decode_ssl_options();
 
   /* We should be done with options.. */
   verify_all_options();
+  if( g.httpUseSSL ){
+    if( useSCGI ){
+      fossil_fatal("SSL not (yet) supported for SCGI");
+    }
+    if( g.fSshClient & CGI_SSH_CLIENT ){
+      fossil_fatal("SSL not compatible with SSH");
+    }
+    if( zInFile || zOutFile ){
+      fossil_fatal("SSL usable only on a socket");
+    }
+    cgi_replace_parameter("HTTPS","on");
+  }
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   g.cgiOutput = 1;
@@ -2725,9 +2761,20 @@ void cmd_http(void){
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
     ssh_request_loop(zIpAddr, glob_create(zFileGlob));
   }else{
+#if FOSSIL_ENABLE_SSL
+    if( g.httpUseSSL ){
+      g.httpSSLConn = ssl_new_server(0,-1);
+    }
+#endif
     cgi_handle_http_request(zIpAddr);
   }
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
+#if FOSSIL_ENABLE_SSL
+  if( g.httpUseSSL && g.httpSSLConn ){
+    ssl_close_server(g.httpSSLConn);
+    g.httpSSLConn = 0;
+  }
+#endif /* FOSSIL_ENABLE_SSL */
 }
 
 /*
@@ -2835,31 +2882,6 @@ void fossil_set_timeout(int N){
   signal(SIGALRM, sigalrm_handler);
   alarm(N);
   nAlarmSeconds = N;
-#endif
-}
-
-/*
-** Check for options to "fossil server" or "fossil ui" that imply that
-** SSL should be used, and initialize the SSL decoder.
-*/
-static void decode_ssl_options(void){
-#if FOSSIL_ENABLE_SSL
-  const char *zCertFile = 0;
-  zCertFile = find_option("tls-cert-file",0,1);
-  if( zCertFile ){
-    g.httpUseSSL = 1;
-    ssl_init_server(zCertFile, zCertFile);
-  }
-  if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
-    g.httpUseSSL = 1;
-    ssl_init_server(0,0);
-  }
-#if !defined(_WIN32)
-  if( db_get_int("redirect-to-https",0)==2 ){
-    g.httpUseSSL = 1;
-    ssl_init_server(0,0);
-  }
-#endif
 #endif
 }
 
