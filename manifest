@@ -1,5 +1,5 @@
-C Add\sinitial\ssupport\sfor\sSSL\s(TLS)\sservers\son\sunix\susing\s"fossil\sserver"\sor\n"fossil\shttp".\s\sRename\sthe\s"tls-config"\scommand\sto\s"ssl-config".\s\sExtend\sthat\ncommand\sto\ssupport\sspecifying\scertificates.\s\sAdd\ssupport\sfor\sdelivering\scontent\nfrom\sthe\s".well-known"\sdirectory\sto\ssupport\sobtaining\scerts\sfrom\sLet's\sEncrypt.
-D 2021-12-28T19:04:28.775
+C Improved\smanagement\sof\sunmergeable\sbinary\sfiles\sfor\s"fossil\supdate".
+D 2021-12-28T19:09:13.418
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -596,7 +596,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 55bf7d95086bb42c5e4568d626ffc890c3ea31231fcccdab6c132565451113a0
-F src/update.c 86d89109d9527d64712b198c3a2f23627c13c909ec6a1b1f2626c4e33b0b35a1
+F src/update.c 898006906c345f5c7171e40c466103f7108f5052630cb8863deb5e8c6a655386
 F src/url.c 3eeb8f98932acddf66c57a010a4c23a8ab08d22bfab58e882bee395d812b60d0
 F src/user.c 73679fd1b6535b849e0027c38ab8bf677faf6c076d8f47683a1594ee6b973d9a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -968,9 +968,9 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 280c3584e421bc5e1f2d2f58a3ad85f72c573d13455aa2a569b2422d35cc462c 4ef059bc2a73205e19b2f3eeb04f7b4de0f0164c1d2f2bb57227c74fc202f12b
-R 7c9c7d22917ede4ed9a4171c125644dc
-T +closed 4ef059bc2a73205e19b2f3eeb04f7b4de0f0164c1d2f2bb57227c74fc202f12b
+P f6263bb64195b07fab7374ed253bbd66a7de5175718195cd9d46afbbf2bd2e10 d4d739898dc5de0c2cf7b48395d3d80a50aa44a7b9da25ba040459edaaa79f91
+R da879daef3afeee6a62a6fa8ef562a36
+T +closed d4d739898dc5de0c2cf7b48395d3d80a50aa44a7b9da25ba040459edaaa79f91
 U drh
-Z 3d2cdae6ff2cd12c8221acaadb40f50c
+Z 26fa6d30b5c3c52fcf78cb73056db044
 # Remove this line to create a well-formed Fossil manifest.
