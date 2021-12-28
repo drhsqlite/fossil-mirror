@@ -974,6 +974,30 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 }
 
 /*
+** Initialize a blob to the data read from HTTP input.  Return
+** the number of bytes read into the blob.  Any prior content
+** of the blob is discarded, not freed.
+*/
+int blob_read_from_cgi(Blob *pBlob, int nToRead){
+  size_t n;
+  blob_zero(pBlob);
+  if( nToRead<0 ){
+    char zBuf[10000];
+    while( !cgi_feof() ){
+      n = cgi_fread(zBuf, sizeof(zBuf));
+      if( n>0 ){
+        blob_append(pBlob, zBuf, n);
+      }
+    }
+  }else{
+    blob_resize(pBlob, nToRead);
+    n = cgi_fread(blob_buffer(pBlob), nToRead);
+    blob_resize(pBlob, n);
+  }
+  return blob_size(pBlob);
+}
+
+/*
 ** Initialize a blob to be the content of a file.  If the filename
 ** is blank or "-" then read from standard input.
 **

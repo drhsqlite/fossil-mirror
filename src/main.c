@@ -168,6 +168,7 @@ struct Global {
   int fJail;              /* True if running with a chroot jail */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fAnyTrace;          /* Any kind of tracing */
+  int fAllowACME;         /* Deliver files from .well-known */
   char *zHttpAuth;        /* HTTP Authorization user:pass information */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
@@ -197,6 +198,8 @@ struct Global {
   int th1Flags;           /* The TH1 integration state flags */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
+  int httpUseSSL;         /* True to use an SSL codec for HTTP traffic */
+  void *httpSSLConn;      /* The SSL connection */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
   int *aCommitFile;       /* Array of files to be committed */
@@ -1664,6 +1667,7 @@ static void process_one_web_page(
 #endif
     }
     while( 1 ){
+      size_t nBase = strlen(zBase);
       while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
 
       /* The candidate repository name is some prefix of the PATH_INFO
@@ -1684,7 +1688,7 @@ static void process_one_web_page(
       ** satisfy these constraints is converted into "_".
       */
       szFile = 0;
-      for(j=strlen(zBase)+1, k=0; zRepo[j] && k<i-1; j++, k++){
+      for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
         if( fossil_isalnum(c) ) continue;
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -1697,6 +1701,12 @@ static void process_one_web_page(
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
         if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+          continue;
+        }
+        if( c=='.' && g.fAllowACME && j==nBase+1
+         && strncmp(&zRepo[j-1],"/.well-known/",12)==0
+        ){
+          /* We allow .well-known as the top-level directory for ACME */
           continue;
         }
         /* If we reach this point, it means that the request URI contains
@@ -1757,7 +1767,7 @@ static void process_one_web_page(
         */
         if( pFileGlob!=0
          && file_isfile(zCleanRepo, ExtFILE)
-         && glob_match(pFileGlob, file_cleanup_fullpath(zRepo))
+         && glob_match(pFileGlob, file_cleanup_fullpath(zRepo+nBase))
          && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
@@ -1765,6 +1775,21 @@ static void process_one_web_page(
           Blob content;
           blob_read_from_file(&content, file_cleanup_fullpath(zRepo), ExtFILE);
           cgi_set_content_type(zMimetype);
+          cgi_set_content(&content);
+          cgi_reply();
+          return;
+        }
+
+        /* In support of the ACME protocol, files under the .well-known/
+        ** directory is always accepted.
+        */
+        if( g.fAllowACME
+         && strncmp(&zRepo[nBase],"/.well-known/",12)==0
+         && file_isfile(zCleanRepo, ExtFILE)
+        ){
+          Blob content;
+          blob_read_from_file(&content, file_cleanup_fullpath(zRepo), ExtFILE);
+          cgi_set_content_type(mimetype_from_name(zRepo));
           cgi_set_content(&content);
           cgi_reply();
           return;
@@ -2558,6 +2583,25 @@ void test_pid_page(void){
 }
 
 /*
+** Check for options to "fossil server" or "fossil ui" that imply that
+** SSL should be used, and initialize the SSL decoder.
+*/
+static void decode_ssl_options(void){
+#if FOSSIL_ENABLE_SSL
+  const char *zCertFile = 0;
+  zCertFile = find_option("tls-cert-file",0,1);
+  if( zCertFile ){
+    g.httpUseSSL = 1;
+    ssl_init_server(zCertFile, zCertFile);
+  }
+  if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
+    g.httpUseSSL = 1;
+    ssl_init_server(0,0);
+  }
+#endif
+}
+
+/*
 ** COMMAND: http*
 **
 ** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
@@ -2590,16 +2634,17 @@ void test_pid_page(void){
 ** enabled.
 **
 ** Options:
-**   --baseurl URL    base URL (useful with reverse proxies)
-**   --chroot DIR     Use directory for chroot instead of repository path.
-**   --ckout-alias N  Treat URIs of the form /doc/N/... as if they were
-**                       /doc/ckout/...
-**   --extroot DIR    document root for the /ext extension mechanism
-**   --files GLOB     comma-separate glob patterns for static file to serve
-**   --host NAME      specify hostname of the server
-**   --https          signal a request coming in via https
-**   --in FILE        Take input from FILE instead of standard input
-**   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --acme              Deliver files from the ".well-known" subdirectory
+**   --baseurl URL       base URL (useful with reverse proxies)
+**   --chroot DIR        Use directory for chroot instead of repository path.
+**   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
+**                          /doc/ckout/...
+**   --extroot DIR       document root for the /ext extension mechanism
+**   --files GLOB        comma-separate glob patterns for static file to serve
+**   --host NAME         specify hostname of the server
+**   --https             signal a request coming in via https
+**   --in FILE           Take input from FILE instead of standard input
+**   --ipaddr ADDR       Assume the request comes from the given IP address
 **   --jsmode MODE       Determine how JavaScript is delivered with pages.
 **                       Mode can be one of:
 **                          inline       All JavaScript is inserted inline at
@@ -2613,21 +2658,25 @@ void test_pid_page(void){
 **                       and bundled modes might result in a single
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
-**   --localauth      enable automatic login for local connections
-**   --nocompress     do not compress HTTP replies
-**   --nodelay        omit backoffice processing if it would delay process exit
-**   --nojail         drop root privilege but do not enter the chroot jail
-**   --nossl          signal that no SSL connections are available
-**   --notfound URL   use URL as "HTTP 404, object not found" page.
-**   --out FILE       write results to FILE instead of to standard output
-**   --repolist       If REPOSITORY is directory, URL "/" lists all repos
-**   --scgi           Interpret input as SCGI rather than HTTP
-**   --skin LABEL     Use override skin LABEL
-**   --th-trace       trace TH1 execution (for debugging purposes)
-**   --mainmenu FILE  Override the mainmenu config setting with the contents
-**                    of the given file.
-**   --usepidkey      Use saved encryption key from parent process.  This is
-**                    only necessary when using SEE on Windows.
+**   --localauth         enable automatic login for local connections
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
+**   --nocompress        do not compress HTTP replies
+**   --nodelay           omit backoffice processing if it would delay
+**                       process exit
+**   --nojail            drop root privilege but do not enter the chroot jail
+**   --nossl             signal that no SSL connections are available
+**   --notfound URL      use URL as "HTTP 404, object not found" page.
+**   --out FILE          write results to FILE instead of to standard output
+**   --repolist          If REPOSITORY is directory, URL "/" lists all repos
+**   --scgi              Interpret input as SCGI rather than HTTP
+**   --skin LABEL        Use override skin LABEL
+**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
+**   --th-trace          trace TH1 execution (for debugging purposes)
+**   --tls               Use TLS (HTTPS) encryption.
+**   --tls-cert-file FN  Read the TLS certificate and private key from FN
+**   --usepidkey         Use saved encryption key from parent process. This is
+**                       only necessary when using SEE on Windows.
 **
 ** See also: [[cgi]], [[server]], [[winsrv]]
 */
@@ -2699,9 +2748,23 @@ void cmd_http(void){
   if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
+  decode_ssl_options();
+  if( find_option("acme",0,0)!=0 ) g.fAllowACME = 1;
 
   /* We should be done with options.. */
   verify_all_options();
+  if( g.httpUseSSL ){
+    if( useSCGI ){
+      fossil_fatal("SSL not (yet) supported for SCGI");
+    }
+    if( g.fSshClient & CGI_SSH_CLIENT ){
+      fossil_fatal("SSL not compatible with SSH");
+    }
+    if( zInFile || zOutFile ){
+      fossil_fatal("SSL usable only on a socket");
+    }
+    cgi_replace_parameter("HTTPS","on");
+  }
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   g.cgiOutput = 1;
@@ -2723,9 +2786,20 @@ void cmd_http(void){
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
     ssh_request_loop(zIpAddr, glob_create(zFileGlob));
   }else{
+#if FOSSIL_ENABLE_SSL
+    if( g.httpUseSSL ){
+      g.httpSSLConn = ssl_new_server(0,-1);
+    }
+#endif
     cgi_handle_http_request(zIpAddr);
   }
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
+#if FOSSIL_ENABLE_SSL
+  if( g.httpUseSSL && g.httpSSLConn ){
+    ssl_close_server(g.httpSSLConn);
+    g.httpSSLConn = 0;
+  }
+#endif /* FOSSIL_ENABLE_SSL */
 }
 
 /*
@@ -2892,6 +2966,7 @@ void fossil_set_timeout(int N){
 ** by default.
 **
 ** Options:
+**   --acme              Deliver files from the ".well-known" subdirectory.
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
@@ -2933,7 +3008,10 @@ void fossil_set_timeout(int N){
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
+**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
 **   --th-trace          trace TH1 execution (for debugging purposes)
+**   --tls               Use TLS (HTTPS) encryption.
+**   --tls-cert-file FN  Read the TLS certificate and private key from FN
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
@@ -3010,7 +3088,8 @@ void cmd_webserver(void){
   }
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
   fNoBrowser = find_option("nobrowser", 0, 0)!=0;
-  if( find_option("https",0,0)!=0 ){
+  decode_ssl_options();
+  if( find_option("https",0,0)!=0 || g.httpUseSSL ){
     cgi_replace_parameter("HTTPS","on");
   }
   if( find_option("localhost", 0, 0)!=0 ){
@@ -3021,10 +3100,28 @@ void cmd_webserver(void){
   if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
+  if( find_option("acme",0,0)!=0 ) g.fAllowACME = 1;
+
+  /* Undocumented option:  --debug-nofork
+  **
+  ** This sets the HTTP_SERVER_NOFORK flag, which causes only the
+  ** very first incoming TCP/IP connection to be processed.  Used for
+  ** debugging, since debugging across a fork() can be tricky
+  */
+  if( find_option("debug-nofork",0,0)!=0 ){
+    flags |= HTTP_SERVER_NOFORK;
+#if !defined(_WIN32)
+    /* Disable the timeout during debugging */
+    zTimeout = "100000000";
+#endif
+  }
   /* We should be done with options.. */
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
+  if( g.httpUseSSL && (flags & HTTP_SERVER_SCGI)!=0 ){
+    fossil_fatal("SCGI does not (yet) support TLS-encrypted connections");
+  }
   if( isUiCmd && 3==g.argc && file_isdir(g.argv[2], ExtFILE)>0 ){
     /* If REPOSITORY arg is the root of a checkout,
     ** chdir to that checkout so that the current version
@@ -3088,14 +3185,15 @@ void cmd_webserver(void){
   }
   if( isUiCmd && !fNoBrowser ){
     char *zBrowserArg;
+    const char *zProtocol = g.httpUseSSL ? "https" : "http";
     if( zRemote ) db_open_config(0,0);
     zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
-      zBrowserArg = mprintf("http://localhost:%%d/%s", zInitPage);
+      zBrowserArg = mprintf("%s://localhost:%%d/%s", zProtocol, zInitPage);
     }else if( strchr(zIpAddr,':') ){
-      zBrowserArg = mprintf("http://[%s]:%%d/%s", zIpAddr, zInitPage);
+      zBrowserArg = mprintf("%s://[%s]:%%d/%s", zProtocol, zIpAddr, zInitPage);
     }else{
-      zBrowserArg = mprintf("http://%s:%%d/%s", zIpAddr, zInitPage);
+      zBrowserArg = mprintf("%s://%s:%%d/%s", zProtocol, zIpAddr, zInitPage);
     }
     zBrowserCmd = mprintf("%s %!$ &", zBrowser, zBrowserArg);
     fossil_free(zBrowserArg);
@@ -3188,6 +3286,11 @@ void cmd_webserver(void){
   }
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
+  }else if( g.httpUseSSL ){
+#if FOSSIL_ENABLE_SSL
+    g.httpSSLConn = ssl_new_server(0,-1);
+#endif
+    cgi_handle_http_request(0);
   }else{
     cgi_handle_http_request(0);
   }
@@ -3196,8 +3299,18 @@ void cmd_webserver(void){
     fprintf(stderr, "/***** Webpage finished in subprocess %d *****/\n",
             getpid());
   }
-#else
+#if FOSSIL_ENABLE_SSL
+  if( g.httpUseSSL && g.httpSSLConn ){
+    ssl_close_server(g.httpSSLConn);
+    g.httpSSLConn = 0;
+  }
+#endif /* FOSSIL_ENABLE_SSL */
+
+#else /* WIN32 */
   /* Win32 implementation */
+  if( g.httpUseSSL ){
+    fossil_fatal("TLS-encrypted server is not (yet) supported on Windows");
+  }
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }

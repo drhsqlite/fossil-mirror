@@ -86,6 +86,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <assert.h>
 #include "cgi.h"
 #include "cygsup.h"
 
@@ -336,6 +337,91 @@ static int is_gzippable(void){
     || sqlite3_strglob("application/*javascript", zContentType)==0;
 }
 
+
+/*
+** The following routines read or write content from/to the wire for
+** an HTTP request.  Depending on settings the content might be coming
+** from or going to a socket, or a file, or it might come from or go
+** to an SSL decoder/encoder.
+*/
+/*
+** Works like fgets():
+**
+** Read a single line of input into s[].  Ensure that s[] is zero-terminated.
+** The s[] buffer is size bytes and so at most size-1 bytes will be read.
+**
+** Return a pointer to s[] on success, or NULL at end-of-input.
+*/
+static char *cgi_fgets(char *s, int size){
+  if( !g.httpUseSSL ){
+    return fgets(s, size, g.httpIn);
+  }
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_gets(g.httpSSLConn, s, size);
+#else
+  fossil_fatal("SSL not available");
+#endif
+}
+
+/* Works like fread():
+**
+** Read as many as bytes of content as we can, up to a maximum of nmemb
+** bytes.  Return the number of bytes read.  Return -1 if there is no
+** further input or if an I/O error occurs.
+*/
+size_t cgi_fread(void *ptr, size_t nmemb){
+  if( !g.httpUseSSL ){
+    return fread(ptr, 1, nmemb, g.httpIn);
+  }
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_read_server(g.httpSSLConn, ptr, nmemb);
+#else
+  fossil_fatal("SSL not available");
+#endif
+}
+
+/* Works like feof():
+**
+** Return true if end-of-input has been reached.
+*/
+int cgi_feof(void){
+  if( !g.httpUseSSL ){
+    return feof(g.httpIn);
+  }
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_eof(g.httpSSLConn);
+#else
+  return 1;
+#endif
+}
+
+/* Works like fwrite():
+**
+** Try to output nmemb bytes of content.  Return the number of
+** bytes actually written.
+*/
+static size_t cgi_fwrite(void *ptr, size_t nmemb){
+  if( !g.httpUseSSL ){
+    return fwrite(ptr, 1, nmemb, g.httpOut);
+  }
+#ifdef FOSSIL_ENABLE_SSL
+  return ssl_write_server(g.httpSSLConn, ptr, nmemb);
+#else
+  fossil_fatal("SSL not available");
+#endif
+}
+
+/* Works like fflush():
+**
+** Make sure I/O has completed.
+*/
+static void cgi_fflush(void){
+  if( !g.httpUseSSL ){
+    fflush(g.httpOut);
+  }
+}
+
+
 /*
 ** Generate the reply to a web request.  The output might be an
 ** full HTTP response, or a CGI response, depending on how things have
@@ -438,7 +524,7 @@ void cgi_reply(void){
     total_size = 0;
   }
   blob_appendf(&hdr, "\r\n");
-  fwrite(blob_buffer(&hdr), 1, blob_size(&hdr), g.httpOut);
+  cgi_fwrite(blob_buffer(&hdr), blob_size(&hdr));
   blob_reset(&hdr);
   if( total_size>0
    && iReplyStatus!=304
@@ -454,13 +540,13 @@ void cgi_reply(void){
         if( n>total_size ){
           n = total_size;
         }
-        fwrite(blob_buffer(&cgiContent[i])+rangeStart, 1, n, g.httpOut);
+        cgi_fwrite(blob_buffer(&cgiContent[i])+rangeStart, n);
         rangeStart = 0;
         total_size -= n;
       }
     }
   }
-  fflush(g.httpOut);
+  cgi_fflush();
   CGIDEBUG(("-------- END cgi ---------\n"));
 
   /* After the webpage has been sent, do any useful background
@@ -1264,14 +1350,15 @@ void cgi_init(void){
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
     if( fossil_strcmp(zType, "application/x-fossil")==0 ){
-      if( blob_read_from_channel(&g.cgiIn, g.httpIn, len)!=len ){
+      if( blob_read_from_cgi(&g.cgiIn, len)!=len ){
         malformed_request("CGI content-length mismatch");
       }
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( noJson==0 && g.json.isJsonMode!=0 
+    else if( noJson==0 && g.json.isJsonMode!=0
              && json_can_consume_content_type(zType)!=0 ){
+      assert( !g.httpUseSSL );
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
       /*
        Potential TODOs:
@@ -1283,7 +1370,7 @@ void cgi_init(void){
     }
 #endif /* FOSSIL_ENABLE_JSON */
     else{
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+      blob_read_from_cgi(&g.cgiIn, len);
     }
   }
 }
@@ -1801,7 +1888,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   const char *zScheme = "http";
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
-  if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
+  if( cgi_fgets(zLine, sizeof(zLine))==0 ){
     malformed_request("missing HTTP header");
   }
   blob_append(&g.httpHeader, zLine, -1);
@@ -1839,7 +1926,7 @@ void cgi_handle_http_request(const char *zIpAddr){
 
   /* Get all the optional fields that follow the first line.
   */
-  while( fgets(zLine,sizeof(zLine),g.httpIn) ){
+  while( cgi_fgets(zLine,sizeof(zLine)) ){
     char *zFieldName;
     char *zVal;
 
@@ -1918,6 +2005,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   int i, content_length = 0;
   char zLine[2000];     /* A single line of input. */
 
+  assert( !g.httpUseSSL );
 #ifdef FOSSIL_ENABLE_JSON
   if( nCycles==0 ){ json_bootstrap_early(); }
 #endif
@@ -2059,6 +2147,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
 */
 char *cgi_handle_ssh_probes(char *zLine, int zSize, char *z, char *zToken){
   /* Start looking for probes */
+  assert( !g.httpUseSSL );
   while( fossil_strcmp(zToken, "echo")==0 ){
     zToken = extract_token(z, &z);
     if( zToken==0 ){
@@ -2096,6 +2185,7 @@ void cgi_handle_ssh_transport(const char *zCmd){
   char *z, *zToken;
   char zLine[2000];     /* A single line of input. */
 
+  assert( !g.httpUseSSL );
   /* look for second newline of transport_flip */
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request("incorrect transport_flip");
@@ -2145,6 +2235,7 @@ void cgi_handle_scgi_request(void){
   int nRead;
   int c, n, m;
 
+  assert( !g.httpUseSSL );
   while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit((char)c) ){
     nHdr = nHdr*10 + (char)c - '0';
   }
@@ -2176,6 +2267,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 #define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
+#define HTTP_SERVER_NOFORK         0x0020     /* Do not call fork() */
 
 #endif /* INTERFACE */
 
@@ -2260,7 +2352,8 @@ int cgi_http_server(
   if( iPort>mxPort ) return 1;
   listen(listener,10);
   fossil_print("Listening for %s requests on TCP port %d\n",
-     (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
+     (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+        g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
   fflush(stdout);
   if( zBrowser ){
     assert( strstr(zBrowser,"%d")!=0 );
@@ -2295,7 +2388,11 @@ int cgi_http_server(
       lenaddr = sizeof(inaddr);
       connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
       if( connection>=0 ){
-        child = fork();
+        if( flags & HTTP_SERVER_NOFORK ){
+          child = 0;
+        }else{
+          child = fork();
+        }
         if( child!=0 ){
           if( child>0 ){
             nchildren++;

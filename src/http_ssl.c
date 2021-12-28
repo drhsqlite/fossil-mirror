@@ -18,8 +18,11 @@
 ** This file manages low-level SSL communications.
 **
 ** This file implements a singleton.  A single SSL connection may be active
-** at a time.  State information is stored in static variables.  The identity
-** of the server is held in global variables that are set by url_parse().
+** at a time.  State information is stored in static variables.
+**
+** The SSL connections can be either a client or a server.  But all
+** connections for a single process must be of the same type, either client
+** or server.
 **
 ** SSL support is abstracted out into this module because Fossil can
 ** be compiled without SSL support (which requires OpenSSL library)
@@ -43,7 +46,7 @@
 ** State information about that IO is stored in the following
 ** local variables:
 */
-static int sslIsInit = 0;    /* True after global initialization */
+static int sslIsInit = 0;    /* 0: uninit 1: init as client 2: init as server */
 static BIO *iBio = 0;        /* OpenSSL I/O abstraction */
 static char *sslErrMsg = 0;  /* Text of most recent OpenSSL error */
 static SSL_CTX *sslCtx;      /* SSL context */
@@ -53,6 +56,116 @@ static struct {              /* Accept this SSL cert for this session only */
   char *zHash;                  /* SHA2-256 hash of the cert */
 } sException;
 static int sslNoCertVerify = 0;  /* Do not verify SSL certs */
+
+
+/* This is a self-signed cert in the PEM format that can be used when
+** no other certs are available.
+*/
+static const char sslSelfCert[] = 
+"-----BEGIN CERTIFICATE-----\n"
+"MIIDMTCCAhkCFGrDmuJkkzWERP/ITBvzwwI2lv0TMA0GCSqGSIb3DQEBCwUAMFQx\n"
+"CzAJBgNVBAYTAlVTMQswCQYDVQQIDAJOQzESMBAGA1UEBwwJQ2hhcmxvdHRlMRMw\n"
+"EQYDVQQKDApGb3NzaWwtU0NNMQ8wDQYDVQQDDAZGb3NzaWwwIBcNMjExMjI3MTEz\n"
+"MTU2WhgPMjEyMTEyMjcxMTMxNTZaMFQxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJO\n"
+"QzESMBAGA1UEBwwJQ2hhcmxvdHRlMRMwEQYDVQQKDApGb3NzaWwtU0NNMQ8wDQYD\n"
+"VQQDDAZGb3NzaWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCCbTU2\n"
+"6GRQHQqLq7vyZ0OxpAxmgfAKCxt6eIz+jBi2ZM/CB5vVXWVh2+SkSiWEA3UZiUqX\n"
+"xZlzmS/CglZdiwLLDJML8B4OiV72oivFH/vJ7+cbvh1dTxnYiHuww7GfQngPrLfe\n"
+"fiIYPDk1GTUJHBQ7Ue477F7F8vKuHdVgwktF/JDM6M60aSqlo2D/oysirrb+dlur\n"
+"Tlv0rjsYOfq6bLAajoL3qi/vek6DNssoywbge4PfbTgS9g7Gcgncbcet5pvaS12J\n"
+"avhFcd4JU4Ity49Hl9S/C2MfZ1tE53xVggRwKz4FPj65M5uymTdcxtjKXtCxIE1k\n"
+"KxJxXQh7rIYjm+RTAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAFkdtpqcybAzJN8G\n"
+"+ONuUm5sXNbWta7JGvm8l0BTSBcCUtJA3hn16iJqXA9KmLnaF2denC4EYk+KlVU1\n"
+"QXxskPJ4jB8A5B05jMijYv0nzCxKhviI8CR7GLEEGKzeg9pbW0+O3vaVehoZtdFX\n"
+"z3SsCssr9QjCLiApQxMzW1Iv3od2JXeHBwfVMFrWA1VCEUCRs8OSW/VOqDPJLVEi\n"
+"G6wxc4kN9dLK+5S29q3nzl24/qzXoF8P9Re5KBCbrwaHgy+OEEceq5jkmfGFxXjw\n"
+"pvVCNry5uAhH5NqbXZampUWqiWtM4eTaIPo7Y2mDA1uWhuWtO6F9PsnFJlQHCnwy\n"
+"s/TsrXk=\n"
+"-----END CERTIFICATE-----\n";
+
+/* This is the private-key corresponding to the cert above
+*/
+static const char sslSelfPKey[] = 
+"-----BEGIN PRIVATE KEY-----\n"
+"MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCCbTU26GRQHQqL\n"
+"q7vyZ0OxpAxmgfAKCxt6eIz+jBi2ZM/CB5vVXWVh2+SkSiWEA3UZiUqXxZlzmS/C\n"
+"glZdiwLLDJML8B4OiV72oivFH/vJ7+cbvh1dTxnYiHuww7GfQngPrLfefiIYPDk1\n"
+"GTUJHBQ7Ue477F7F8vKuHdVgwktF/JDM6M60aSqlo2D/oysirrb+dlurTlv0rjsY\n"
+"Ofq6bLAajoL3qi/vek6DNssoywbge4PfbTgS9g7Gcgncbcet5pvaS12JavhFcd4J\n"
+"U4Ity49Hl9S/C2MfZ1tE53xVggRwKz4FPj65M5uymTdcxtjKXtCxIE1kKxJxXQh7\n"
+"rIYjm+RTAgMBAAECggEANfTH1vc8yIe7HRzmm9lsf8jF+II4s2705y2H5qY+cvYx\n"
+"nKtZJGOG1X0KkYy7CGoFv5K0cSUl3lS5FVamM/yWIzoIex/Sz2C1EIL2aI5as6ez\n"
+"jB6SN0/J+XI8+Vt7186/rHxfdIPpxuzjHbxX3HTpScETNWcLrghbrPxakbTPPxwt\n"
+"+x7QlPmmkFNuMfvkzToFf9NdwL++44TeBPOpvD/Lrw+eyqdth9RJPq9cM96plh9V\n"
+"HuRqeD8+QNafaXBdSQs3FJK/cDK/vWGKZWIfFVSDbDhwYljkXGijreFjtXQfkkpF\n"
+"rl1J87/H9Ee7z8fTD2YXQHl+0/rghAVtac3u54dpQQKBgQC2XG3OEeMrOp9dNkUd\n"
+"F8VffUg0ecwG+9L3LCe7U71K0kPmXjV6xNnuYcNQu84kptc5vI8wD23p29LaxdNc\n"
+"9m0lcw06/YYBOPkNphcHkINYZTvVJF10mL3isymzMaTtwDkZUkOjL1B+MTiFT/qp\n"
+"ARKrTYGJ4HxY7+tUkI5pUmg4PQKBgQC3GA4d1Rz3Pb/RRpcsZgWknKsKhoN36mSn\n"
+"xFJ3wPBvVv2B1ltTMzh/+the0ty6clzMrvoLERzRcheDsNrc/j/TUVG8sVdBYJwX\n"
+"tMZyFW4NVMOErT/1ukh6jBqIMBo6NJL3EV/AKj0yniksgKOr0/AAduAccnGST8Jd\n"
+"SHOdjwvHzwKBgGZBq/zqgNTDuYseHGE07CMgcDWkumiMGv8ozlq3mSR0hUiPOTPP\n"
+"YFjQjyIdPXnF6FfiyPPtIvgIoNK2LVAqiod+XUPf152l4dnqcW13dn9BvOxGyPTR\n"
+"lWCikFaAFviOWjY9r9m4dU1dslDmySqthFd0TZgPvgps9ivkJ0cdw30NAoGAMC/E\n"
+"h1VvKiK2OP27C5ROJ+STn1GHiCfIFd81VQ8SODtMvL8NifgRBp2eFFaqgOdYRQZI\n"
+"CGGYlAbS6XXCJCdF5Peh62dA75PdgN+y2pOJQzjrvB9cle9Q4++7i9wdCvSLOTr5\n"
+"WDnFoWy+qVexu6crovOmR9ZWzYrwPFy1EOJ010ECgYBl7Q+jmjOSqsVwhFZ0U7LG\n"
+"diN+vXhWfn1wfOWd8u79oaqU/Oy7xyKW2p3H5z2KFrBM/vib53Lh4EwFZjcX+jVG\n"
+"krAmbL+M/hP7z3TD2UbESAzR/c6l7FU45xN84Lsz5npkR8H/uAHuqLgb9e430Mjx\n"
+"YNMwdb8rChHHChNZu6zuxw==\n"
+"-----END PRIVATE KEY-----\n";
+
+/*
+** Read a PEM certificate from memory and push it into an SSL_CTX.
+** Return the number of errors.
+*/
+static int sslctx_use_cert_from_mem(
+  SSL_CTX *ctx,
+  const char *pData,
+  int nData
+){
+  BIO *in;
+  int rc = 1;
+  X509 *x = 0;
+  X509 *cert = 0;
+
+  in = BIO_new_mem_buf(pData, nData);
+  if( in==0 ) goto end_of_ucfm;
+  // x = X509_new_ex(ctx->libctx, ctx->propq);
+  x = X509_new();
+  if( x==0 ) goto end_of_ucfm;
+  cert = PEM_read_bio_X509(in, &x, 0, 0);
+  if( cert==0 ) goto end_of_ucfm;
+  rc = SSL_CTX_use_certificate(ctx, x)<=0;
+end_of_ucfm:
+  X509_free(x);
+  BIO_free(in);
+  return rc;
+}
+
+/*
+** Read a PEM private key from memory and add it to an SSL_CTX.
+** Return the number of errors.
+*/
+static int sslctx_use_pkey_from_mem(
+  SSL_CTX *ctx,
+  const char *pData,
+  int nData
+){
+  int rc = 1;
+  BIO *in;
+  EVP_PKEY *pkey = 0;
+
+  in = BIO_new_mem_buf(pData, nData);
+  if( in==0 ) goto end_of_upkfm;
+  pkey = PEM_read_bio_PrivateKey(in, 0, 0, 0);
+  if( pkey==0 ) goto end_of_upkfm;
+  rc = SSL_CTX_use_PrivateKey(ctx, pkey)<=0;
+  EVP_PKEY_free(pkey);
+end_of_upkfm:
+  BIO_free(in);
+  return rc;
+}
 
 /*
 ** Clear the SSL error message
@@ -136,7 +249,7 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
-void ssl_global_init(void){
+static void ssl_global_init_client(void){
   const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
   const char *identityFile;
 
@@ -195,6 +308,8 @@ void ssl_global_init(void){
     SSL_CTX_set_client_cert_cb(sslCtx, ssl_client_cert_callback);
 
     sslIsInit = 1;
+  }else{
+    assert( sslIsInit==1 );
   }
 }
 
@@ -210,10 +325,10 @@ void ssl_global_shutdown(void){
 }
 
 /*
-** Close the currently open SSL connection.  If no connection is open,
+** Close the currently open client SSL connection.  If no connection is open,
 ** this routine is a no-op.
 */
-void ssl_close(void){
+void ssl_close_client(void){
   if( iBio!=NULL ){
     (void)BIO_reset(iBio);
     BIO_free_all(iBio);
@@ -282,8 +397,10 @@ void ssl_disable_cert_verification(void){
 }
 
 /*
-** Open an SSL connection.  The identify of the server is determined
-** as follows:
+** Open an SSL connection as a client that is to connect to the server
+** identified by pUrlData.
+**
+*  The identify of the server is determined as follows:
 **
 **    pUrlData->name  Name of the server.  Ex: fossil-scm.org
 **    g.url.name      Name of the proxy server, if proxying.
@@ -291,11 +408,11 @@ void ssl_disable_cert_verification(void){
 **
 ** Return the number of errors.
 */
-int ssl_open(UrlData *pUrlData){
+int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
 
-  ssl_global_init();
+  ssl_global_init_client();
   if( pUrlData->useProxy ){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
@@ -305,7 +422,7 @@ int ssl_open(UrlData *pUrlData){
       ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
             pUrlData->name, pUrlData->port,
             ERR_reason_error_string(ERR_get_error()));
-      ssl_close();
+      ssl_close_client();
       return 1;
     }
     rc = establish_proxy_tunnel(pUrlData, sBio);
@@ -357,7 +474,7 @@ int ssl_open(UrlData *pUrlData){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
          pUrlData->name, pUrlData->port,
          ERR_reason_error_string(ERR_get_error()));
-      ssl_close();
+      ssl_close_client();
       return 1;
     }
   }
@@ -367,7 +484,7 @@ int ssl_open(UrlData *pUrlData){
         pUrlData->useProxy?pUrlData->hostname:pUrlData->name,
         pUrlData->useProxy?pUrlData->proxyOrigPort:pUrlData->port,
         ERR_reason_error_string(ERR_get_error()));
-    ssl_close();
+    ssl_close_client();
     return 1;
   }
   /* Check if certificate is valid */
@@ -375,7 +492,7 @@ int ssl_open(UrlData *pUrlData){
 
   if ( cert==NULL ){
     ssl_set_errmsg("No SSL certificate was presented by the peer");
-    ssl_close();
+    ssl_close_client();
     return 1;
   }
 
@@ -443,7 +560,7 @@ int ssl_open(UrlData *pUrlData){
       ){
         X509_free(cert);
         ssl_set_errmsg("SSL cert declined");
-        ssl_close();
+        ssl_close_client();
         blob_reset(&ans);
         return 1;
       }
@@ -530,7 +647,8 @@ LOCAL void ssl_one_time_exception(
 }
 
 /*
-** Send content out over the SSL connection.
+** Send content out over the SSL connection from the client to
+** the server.
 */
 size_t ssl_send(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
@@ -550,7 +668,8 @@ size_t ssl_send(void *NotUsed, void *pContent, size_t N){
 }
 
 /*
-** Receive content back from the SSL connection.
+** Receive content back from the client SSL connection.  In other
+** words read the reply back from the server.
 */
 size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
@@ -569,12 +688,169 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
   return total;
 }
 
+/*
+** Initialize the SSL library so that it is able to handle
+** server-side connections.  Invoke fossil_fatal() if there are
+** any problems.
+**
+** If zKeyFile and zCertFile are not NULL, then they are the names
+** of disk files that hold the certificate and private-key for the
+** server.  If zCertFile is not NULL but zKeyFile is NULL, then
+** zCertFile is assumed to be a concatenation of the certificate and
+** the private-key in the PEM format.
+**
+** If zCertFile is NULL, then "ssl-cert" setting is consulted
+** to get the certificate and private-key (concatenated together, in
+** the PEM format).  If there is no ssl-cert setting, then
+** a built-in self-signed cert is used.
+*/
+void ssl_init_server(const char *zCertFile, const char *zKeyFile){
+  if( sslIsInit==0 ){
+    const char *zTlsCert;
+    SSL_library_init();
+    SSL_load_error_strings();
+    OpenSSL_add_all_algorithms();
+    sslCtx = SSL_CTX_new(SSLv23_server_method());
+    if( sslCtx==0 ){
+      ERR_print_errors_fp(stderr);
+      fossil_fatal("Error initializing the SSL server");
+    }
+    if( zCertFile && zCertFile[0] ){
+      if( SSL_CTX_use_certificate_file(sslCtx,zCertFile,SSL_FILETYPE_PEM)<=0 ){
+        ERR_print_errors_fp(stderr);
+        fossil_fatal("Error loading CERT file \"%s\"", zCertFile);
+      }
+      if( zKeyFile==0 ) zKeyFile = zCertFile;
+      if( SSL_CTX_use_PrivateKey_file(sslCtx, zKeyFile, SSL_FILETYPE_PEM)<=0 ){
+        ERR_print_errors_fp(stderr);
+        fossil_fatal("Error loading PRIVATE KEY from file \"%s\"", zKeyFile);
+      }
+    }else
+    if( (zTlsCert = db_get("ssl-cert",0))!=0 ){
+      if( sslctx_use_cert_from_mem(sslCtx, zTlsCert, -1)
+       || sslctx_use_pkey_from_mem(sslCtx, zTlsCert, -1)
+      ){
+        fossil_fatal("Error loading the CERT from the"
+                     " 'ssl-cert' setting");
+      }
+    }else if( sslctx_use_cert_from_mem(sslCtx, sslSelfCert, -1)
+           || sslctx_use_pkey_from_mem(sslCtx, sslSelfPKey, -1) ){
+      fossil_fatal("Error loading self-signed CERT");
+    }
+    if( !SSL_CTX_check_private_key(sslCtx) ){
+      fossil_fatal("PRIVATE KEY \"%s\" does not match CERT \"%s\"",
+           zKeyFile, zCertFile);
+    }
+    sslIsInit = 2;
+  }else{
+    assert( sslIsInit==2 );
+  }
+}
+
+typedef struct SslServerConn {
+  SSL *ssl;          /* The SSL codec */
+  int atEof;         /* True when EOF reached. */
+  int fd0;           /* Read channel, or socket */
+  int fd1;           /* Write channel */
+} SslServerConn;
+
+/*
+** Create a new server-side codec.  The arguments are the file
+** descriptors from which teh codec reads and writes, respectively.
+**
+** If the writeFd is negative, then use then the readFd is a socket
+** over which we both read and write.
+*/
+void *ssl_new_server(int readFd, int writeFd){
+  SslServerConn *pServer = fossil_malloc_zero(sizeof(*pServer));
+  pServer->ssl = SSL_new(sslCtx);
+  pServer->fd0 = readFd;
+  pServer->fd1 = writeFd;
+  if( writeFd<0 ){
+    SSL_set_fd(pServer->ssl, readFd);
+  }else{
+    SSL_set_rfd(pServer->ssl, readFd);
+    SSL_set_wfd(pServer->ssl, writeFd);
+  }
+  SSL_accept(pServer->ssl);
+  return (void*)pServer;
+}
+
+/*
+** Close a server-side code previously returned from ssl_new_server().
+*/
+void ssl_close_server(void *pServerArg){
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  SSL_free(pServer->ssl);
+  close(pServer->fd0);
+  if( pServer->fd1>=0 ) close(pServer->fd0);
+  fossil_free(pServer);
+}
+
+/*
+** Return TRUE if there are no more bytes available to be read from
+** the client.
+*/
+int ssl_eof(void *pServerArg){
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  return pServer->atEof;
+}
+
+/*
+** Read cleartext bytes that have been received from the client and
+** decrypted by the SSL server codec.
+*/
+size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
+  int n;
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  if( pServer->atEof ) return 0;
+  if( nBuf>0x7fffffff ){ fossil_fatal("SSL read too big"); }
+  n = SSL_read(pServer->ssl, zBuf, (int)nBuf);
+  if( n<nBuf ) pServer->atEof = 1;
+  return n;
+}
+
+/*
+** Read a single line of text from the client.
+*/
+char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
+  int n = 0;
+  int i;
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  
+  if( pServer->atEof ) return 0;
+  for(i=0; i<nBuf-1; i++){
+    n = SSL_read(pServer->ssl, &zBuf[i], 1);
+    if( n<=0 ){
+      return 0;
+    }
+    if( zBuf[i]=='\n' ) break;
+  }
+  zBuf[i+1] = 0;
+  return zBuf;
+}
+
+
+/*
+** Write cleartext bytes into the SSL server codec so that they can
+** be encrypted and sent back to the client.
+*/
+size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
+  int n;
+  SslServerConn *pServer = (SslServerConn*)pServerArg;
+  if( pServer->atEof ) return 0;
+  if( nBuf>0x7fffffff ){ fossil_fatal("SSL write too big"); }
+  n = SSL_write(pServer->ssl, zBuf, (int)nBuf);
+  return n;
+}
+
 #endif /* FOSSIL_ENABLE_SSL */
 
 /*
 ** COMMAND: tls-config*
+** COMMAND: ssl-config
 **
-** Usage: %fossil tls-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
+** Usage: %fossil ssl-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
 **
 ** This command is used to view or modify the TLS (Transport Layer
 ** Security) configuration for Fossil.  TLS (formerly SSL) is the
@@ -582,32 +858,191 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 **
 ** Sub-commands:
 **
-**    show                            Show the TLS configuration
+**   clear-cert                  Remove information about server certificates.
+**                               This is a subset of the "scrub" command.
 **
-**    remove-exception DOMAIN...      Remove TLS cert exceptions
-**                                    for the domains listed.  Or if
-**                                    the --all option is specified,
-**                                    remove all TLS cert exceptions.
+**   load-cert PEM-FILES...      Identify server certificate files. These
+**                               should be in the PEM format.  There are
+**                               normally two files, the certificate and the
+**                               private-key.  By default, the text of both
+**                               files is concatenated and added to the
+**                               "ssl-cert" setting.  Use --filename to store
+**                               just the filenames.
+**
+**   remove-exception DOMAINS    Remove TLS cert exceptions for the domains
+**                               listed.  Or remove them all if the --all
+**                               option is specified.
+**
+**   scrub ?--force?             Remove all SSL configuration data from the
+**                               repository. Use --force to omit the
+**                               confirmation.
+**
+**   show ?-v?                   Show the TLS configuration. Add -v to see
+**                               additional explaination
 */
 void test_tlsconfig_info(void){
-#if !defined(FOSSIL_ENABLE_SSL)
-  fossil_print("TLS disabled in this build\n");
-#else
   const char *zCmd;
   size_t nCmd;
   int nHit = 0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   db_open_config(1,0);
-  zCmd = g.argc>=3 ? g.argv[2] : "show";
-  nCmd = strlen(zCmd);
+  if( g.argc==2 || (g.argc>=3 && g.argv[2][0]=='-') ){
+    zCmd = "show";
+    nCmd = 4;
+  }else{
+    zCmd = g.argv[2];
+    nCmd = strlen(zCmd);
+  }
+  if( strncmp("clear-cert",zCmd,nCmd)==0 && nCmd>=4 ){
+    int bForce = find_option("force","f",0)!=0;
+    verify_all_options();
+    if( !bForce ){
+      Blob ans;
+      char cReply;
+      prompt_user(
+        "Confirm removing of the SSL server certificate from this repository.\n"
+        "The removal cannot be undone.  Continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
+    }
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec(
+      "PRAGMA secure_delete=ON;"
+      "DELETE FROM config "
+      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
+    );
+    db_protect_pop();
+  }else
+  if( strncmp("load-cert",zCmd,nCmd)==0 && nCmd>=4 ){
+    int bFN = find_option("filename",0,0)!=0;
+    int i;
+    Blob allText = BLOB_INITIALIZER;
+    int haveCert = 0;
+    int haveKey = 0;
+    verify_all_options();
+    db_begin_transaction();
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec(
+      "PRAGMA secure_delete=ON;"
+      "DELETE FROM config "
+      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
+    );
+    nHit = 0;
+    for(i=3; i<g.argc; i++){
+      Blob x;
+      int isCert;
+      int isKey;
+      if( !file_isfile(g.argv[i], ExtFILE) ){
+        fossil_fatal("no such file: \"%s\"", g.argv[i]);
+      }
+      blob_read_from_file(&x, g.argv[i], ExtFILE);
+      isCert = strstr(blob_str(&x),"-----BEGIN CERTIFICATE-----")!=0;
+      isKey = strstr(blob_str(&x),"-----BEGIN PRIVATE KEY-----")!=0;
+      if( !isCert && !isKey ){
+        fossil_fatal("not a certificate or a private key: \"%s\"", g.argv[i]);
+      }
+      if( isCert ){
+        if( haveCert ){
+          fossil_fatal("more than one certificate provided");
+        }
+        haveCert = 1;
+        if( bFN ){
+          db_set("ssl-cert-file", file_canonical_name_dup(g.argv[i]), 0);
+        }else{
+          blob_append(&allText, blob_buffer(&x), blob_size(&x));
+        }
+        if( isKey && !haveKey ){
+          haveKey = 1;
+          isKey = 0;
+        }
+      }
+      if( isKey ){
+        if( haveKey ){
+          fossil_fatal("more than one private key provided");
+        }
+        haveKey = 1;
+        if( bFN ){
+          db_set("ssl-key-file", file_canonical_name_dup(g.argv[i]), 0);
+        }else{
+          blob_append(&allText, blob_buffer(&x), blob_size(&x));
+        }
+      }
+    }
+    db_protect_pop();
+    if( !haveCert ){
+      if( !haveKey ){
+        fossil_fatal("missing certificate and private-key");
+      }else{
+        fossil_fatal("missing certificate");
+      }
+    }else if( !haveKey ){
+      fossil_fatal("missing private-key");
+    }
+    if( !bFN ){
+      db_set("ssl-cert", blob_str(&allText), 0);
+    }
+    db_commit_transaction();
+  }else
+  if( strncmp("scrub",zCmd,nCmd)==0 && nCmd>4 ){
+    int bForce = find_option("force","f",0)!=0;
+    verify_all_options();
+    if( !bForce ){
+      Blob ans;
+      char cReply;
+      prompt_user(
+        "Scrubbing the SSL configuration will permanently delete information.\n"
+        "Changes cannot be undone.  Continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
+    }
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec(
+      "PRAGMA secure_delete=ON;"
+      "DELETE FROM config WHERE name GLOB 'ssl-*';"
+    );
+    db_protect_pop();
+  }else
   if( strncmp("show",zCmd,nCmd)==0 ){
     const char *zName, *zValue;
     size_t nName;
     Stmt q;
+    int verbose = find_option("verbose","v",0)!=0;
+    verify_all_options();
+
+#if !defined(FOSSIL_ENABLE_SSL)
+    fossil_print("OpenSSL-version:   (none)\n");
+    if( verbose ){
+      fossil_print("\n"
+         "  The OpenSSL library is not used by this build of Fossil\n\n"
+      );
+    }
+#else
     fossil_print("OpenSSL-version:   %s  (0x%09x)\n",
          SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+    if( verbose ){
+      fossil_print("\n"
+         "  The version of the OpenSSL library being used\n"
+         "  by this instance of Fossil.  Version 3.0.0 or\n"
+         "  later is recommended.\n\n"
+      );
+    }
+
     fossil_print("OpenSSL-cert-file: %s\n", X509_get_default_cert_file());
     fossil_print("OpenSSL-cert-dir:  %s\n", X509_get_default_cert_dir());
+    if( verbose ){
+      fossil_print("\n"
+         "  The default locations for the set of root certificates\n"
+         "  used by the \"fossil sync\" and similar commands to verify\n"
+         "  the identity of servers for \"https:\" URLs. These values\n"
+         "  come into play when Fossil is used as a TLS client.  These\n"
+         "  values are built into your OpenSSL library.\n\n"
+      );
+    }
+
     zName = X509_get_default_cert_file_env();
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
@@ -618,21 +1053,82 @@ void test_tlsconfig_info(void){
     if( zValue==0 ) zValue = "";
     nName = strlen(zName);
     fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
-    nHit++;
+    if( verbose ){
+      fossil_print("\n"
+        "  Alternative locations for the root certificates used by Fossil\n"
+        "  when it is acting as a SSL client in order to verify the identity\n"
+        "  of servers. If specified, these alternative locations override\n"
+        "  the built-in locations.\n\n"
+      );
+    }
+#endif /* FOSSIL_ENABLE_SSL */
+
     fossil_print("ssl-ca-location:   %s\n", db_get("ssl-ca-location",""));
+    if( verbose ){
+      fossil_print("\n"
+         "  This setting is the name of a file or directory that contains\n"
+         "  the complete set of root certificates to used by Fossil when it\n"
+         "  is acting as a SSL client. If defined, this setting takes\n"
+         "  priority over built-in paths and environment variables\n\n"
+      );
+    }
+
     fossil_print("ssl-identity:      %s\n", db_get("ssl-identity",""));
+    if( verbose ){
+      fossil_print("\n"
+         "  This setting is the name of a file that contains the PEM-format\n"
+         "  certificate and private-key used by Fossil clients to authentice\n"
+         "  with servers. Few servers actually require this, so this setting\n"
+         "  is usually blank.\n\n"
+      );
+    }
+
+    zValue = db_get("ssl-cert",0);
+    if( zValue ){
+      fossil_print("ssl-cert:          (%d-byte PEM)\n", (int)strlen(zValue));
+    }else{
+      fossil_print("ssl-cert:\n");
+    }
+    if( verbose ){
+      fossil_print("\n"
+         "  This setting is the PEM-formatted value of the SSL server\n"
+         "  certificate and private-key, used by Fossil when it is acting\n"
+         "  as a server via the \"fossil server\" command or similar.\n\n"
+      );
+    }
+    
+    fossil_print("ssl-cert-file:     %s\n", db_get("ssl-cert-file",""));
+    fossil_print("ssl-key-file:      %s\n", db_get("ssl-key-file",""));
+    if( verbose ){
+      fossil_print("\n"
+         "  This settings are the names of files that contin the certificate\n"
+         "  private-key used by Fossil when it is acting as a server.\n\n"
+      );
+    }
+
     db_prepare(&q,
-       "SELECT name FROM global_config"
+       "SELECT name, '' FROM global_config"
        " WHERE name GLOB 'cert:*'"
        "UNION ALL "
-       "SELECT name FROM config"
+       "SELECT name, date(mtime,'unixepoch') FROM config"
        " WHERE name GLOB 'cert:*'"
        " ORDER BY name"
     );
+    nHit = 0;
     while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("exception:         %s\n", db_column_text(&q,0)+5);
+      fossil_print("exception:         %-40s %s\n",
+           db_column_text(&q,0)+5, db_column_text(&q,1));
+      nHit++;
     }
     db_finalize(&q);
+    if( nHit && verbose ){
+      fossil_print("\n"
+         "  The exceptions are server certificates that the Fossil client\n"
+         "  is unable to verify using root certificates, but which should be\n"
+         "  accepted anyhow.\n\n"
+      );
+    }
+
   }else
   if( strncmp("remove-exception",zCmd,nCmd)==0 ){
     int i;
@@ -675,8 +1171,52 @@ void test_tlsconfig_info(void){
   }else
   /*default*/{
     fossil_fatal("unknown sub-command \"%s\".\nshould be one of:"
-                 " remove-exception show",
+                 " clear-certs load-certs remove-exception scrub show",
        zCmd);
   }
-#endif
+}
+
+/*
+** WEBPAGE: .well-known
+**
+** If the "--acme" option was supplied to "fossil server" or "fossil http" or
+** similar, then this page returns the content of files found in the
+** ".well-known" subdirectory of the same directory that contains the
+** repository file.  This facilitates Automated Certificate
+** Management using tools like "certbot".
+**
+** The content is returned directly, without any interpretation, using
+** a generic mimetype.
+*/
+void wellknown_page(void){
+  char *zPath = 0;
+  const char *zTail = P("name");
+  Blob content;
+  int i;
+  char c;
+  if( !g.fAllowACME ) goto wellknown_notfound;
+  if( g.zRepositoryName==0 ) goto wellknown_notfound;
+  if( zTail==0 ) goto wellknown_notfound;
+  zPath = mprintf("%z/.well-known/%s", file_dirname(g.zRepositoryName), zTail);
+  for(i=0; (c = zTail[i])!=0; i++){
+    if( fossil_isalnum(c) ) continue;
+    if( c=='.' ){
+      if( i==0 || zTail[i-1]=='/' || zTail[i-1]=='.' ) goto wellknown_notfound;
+      continue;
+    }
+    if( c==',' || c!='-' || c=='/' || c==':' || c=='_' || c=='~' ) continue;
+    goto wellknown_notfound;
+  }
+  if( strstr("/..", zPath)!=0 ) goto wellknown_notfound;
+  if( !file_isfile(zPath, ExtFILE) ) goto wellknown_notfound;
+  blob_read_from_file(&content, zPath, ExtFILE);
+  cgi_set_content(&content);
+  cgi_set_content_type(mimetype_from_name(zPath));
+  cgi_reply();
+  return;
+
+wellknown_notfound:
+  fossil_free(zPath);
+  webpage_notfound_error(0);
+  return;
 }
