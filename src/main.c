@@ -168,6 +168,7 @@ struct Global {
   int fJail;              /* True if running with a chroot jail */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fAnyTrace;          /* Any kind of tracing */
+  int fAllowACME;         /* Deliver files from .well-known */
   char *zHttpAuth;        /* HTTP Authorization user:pass information */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
@@ -1702,7 +1703,9 @@ static void process_one_web_page(
         if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
           continue;
         }
-        if( c=='.' && strncmp(&zRepo[j-1],"/.well-known/",12)==0 && j==nBase+1){
+        if( c=='.' && g.fAllowACME && j==nBase+1
+         && strncmp(&zRepo[j-1],"/.well-known/",12)==0
+        ){
           /* We allow .well-known as the top-level directory for ACME */
           continue;
         }
@@ -1772,6 +1775,21 @@ static void process_one_web_page(
           Blob content;
           blob_read_from_file(&content, file_cleanup_fullpath(zRepo), ExtFILE);
           cgi_set_content_type(zMimetype);
+          cgi_set_content(&content);
+          cgi_reply();
+          return;
+        }
+
+        /* In support of the ACME protocol, files under the .well-known/
+        ** directory is always accepted.
+        */
+        if( g.fAllowACME
+         && strncmp(&zRepo[nBase],"/.well-known/",12)==0
+         && file_isfile(zCleanRepo, ExtFILE)
+        ){
+          Blob content;
+          blob_read_from_file(&content, file_cleanup_fullpath(zRepo), ExtFILE);
+          cgi_set_content_type(mimetype_from_name(zRepo));
           cgi_set_content(&content);
           cgi_reply();
           return;
@@ -2616,6 +2634,7 @@ static void decode_ssl_options(void){
 ** enabled.
 **
 ** Options:
+**   --acme              Deliver files from the ".well-known" subdirectory
 **   --baseurl URL       base URL (useful with reverse proxies)
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
@@ -2730,6 +2749,7 @@ void cmd_http(void){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
   decode_ssl_options();
+  if( find_option("acme",0,0)!=0 ) g.fAllowACME = 1;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2946,6 +2966,7 @@ void fossil_set_timeout(int N){
 ** by default.
 **
 ** Options:
+**   --acme              Deliver files from the ".well-known" subdirectory.
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
@@ -3079,6 +3100,7 @@ void cmd_webserver(void){
   if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
+  if( find_option("acme",0,0)!=0 ) g.fAllowACME = 1;
 
   /* Undocumented option:  --debug-nofork
   **

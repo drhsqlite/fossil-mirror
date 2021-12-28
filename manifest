@@ -1,5 +1,5 @@
-C Fix\sthe\s--files\soption\son\s"fossil\shttp"\sso\sthat\sif\sa\sglob\spattern\sdoes\snot\nbegin\swith\s'*'\sthen\sit\swill\smatch\sbeginning\swith\sthe\s"/"\sof\sthe\sPATH_INFO.
-D 2021-12-28T18:17:02.910
+C Omit\sthe\s"ssl-acme"\ssetting.\s\sAccess\sto\s".well-known"\sis\snow\scontrolled\sby\nthe\s--acme\scommand-line\soption\son\s"fossil\shttp"\sand\s"fossil\sserver".\s\sThis\nchange\sis\srequired\sfor\swhen\sthose\scommands\sspecify\sa\sdirectory\srather\sthan\na\sparticular\srepository,\ssince\swithout\sa\sspecific\srepository,\sthere\sare\sno\nsettings\sto\scheck.
+D 2021-12-28T19:00:38.745
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -431,7 +431,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 1b4287c2858f08464badae51d6a53011d70484fffe6b6335b682401dc84ffaaf
+F src/db.c 2fc66f6bbc15b50b018087a87108e50f77c3abac86937a8e5a6377836d14e832
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -486,7 +486,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c a72e04f747eb316c5c13b421dc7f5580251186719a4a4207ee5f94b476a05a13
+F src/http_ssl.c 64a6c4dc8021ce96dedb875000339792bd61e2330297cf37ad8a5d8da7ce78d5
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c b24804aaed5e98fd65e87de1ffd3754b6086e3700cb5892dc83aae038529eb15
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 4eb55bd85ac2ecf80b99c3492d2048ad316851f036967641a92cd0dbc84d72dd
+F src/main.c 78ee25df2fc4141c671b3ee2e6b1397500998a2b970ae2b27ca43931bd82adfe
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -968,9 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8429f8a3df60ba1227373afee23cba40593d94b716d5912c1f4ab4e2ade97de9
-R 8c361fbed139ff1d177ca26c5841c31a
-T +closed 8429f8a3df60ba1227373afee23cba40593d94b716d5912c1f4ab4e2ade97de9
+P 5ac65aa496508468844d380d23d329dc6d93300e8375c18eec21abb3a31bfa00
+R c111e79b58ce0a5448e22f779ec76244
 U drh
-Z 7b9df33ff8b94be801f1d8e8848c5d96
+Z 2826f5e62704e26f2572b17feb9b97cb
 # Remove this line to create a well-formed Fossil manifest.

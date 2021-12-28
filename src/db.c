@@ -4267,13 +4267,6 @@ struct Setting {
 */
 
 /*
-** SETTING: ssl-acme         boolean default=off
-** If true, allow web pages with a path of "/.well-known/..." to retrieve
-** files stored in the ".well-known" subdirectory in the same directory as
-** the repository.  This is needed by tools such as "certbot" to verify a
-** certificate signing request.
-*/
-/*
 ** SETTING: ssl-ca-location  width=40 sensitive
 ** The full pathname to a file containing PEM encoded
 ** CA root certificates, or a directory of certificates

@@ -858,10 +858,6 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 **
 ** Sub-commands:
 **
-**   acme ON/OFF                 Activate or deactivate web access to files in
-**                               the "./well-known" directory.  This must be on
-**                               to support "certbot".
-**
 **   clear-cert                  Remove information about server certificates.
 **                               This is a subset of the "scrub" command.
 **
@@ -897,18 +893,6 @@ void test_tlsconfig_info(void){
     zCmd = g.argv[2];
     nCmd = strlen(zCmd);
   }
-  if( strncmp("acme",zCmd,nCmd)==0 ){
-    if( g.argc!=4 ) usage("acme ON/OFF");
-    db_unprotect(PROTECT_CONFIG);
-    if( is_truth(g.argv[3]) ){
-      db_set_int("ssl-acme",1,0);
-    }else if( is_false(g.argv[3]) ){
-      db_unset("ssl-acme",0);
-    }else{
-      fossil_fatal("unknown argument: \"%s\"", g.argv[3]);
-    }
-    db_protect_pop();
-  }else
   if( strncmp("clear-cert",zCmd,nCmd)==0 && nCmd>=4 ){
     int bForce = find_option("force","f",0)!=0;
     verify_all_options();
@@ -1099,17 +1083,6 @@ void test_tlsconfig_info(void){
       );
     }
 
-    fossil_print("ssl-acme:          %s\n",
-           db_get_boolean("ssl-acme",0) ? "on" : "off");
-    if( verbose ){
-      fossil_print("\n"
-         "  This setting enables web access to files in the \".well-known\"\n"
-         "  subdirectory in the same directory as the repository. Such access\n"
-         "  is required to obtain a certificate from services like\n"
-         "  \"Let's Encrypt\" using the tools like \"certbot\".\n\n"
-      );
-    }
-
     zValue = db_get("ssl-cert",0);
     if( zValue ){
       fossil_print("ssl-cert:          (%d-byte PEM)\n", (int)strlen(zValue));
@@ -1206,9 +1179,10 @@ void test_tlsconfig_info(void){
 /*
 ** WEBPAGE: .well-known
 **
-** If the "ssl-acme" setting is true, then this page returns the content
-** of files found in the ".well-known" subdirectory of the same directory
-** that contains the repository file.  This facilitates Automated Certificate
+** If the "--acme" option was supplied to "fossil server" or "fossil http" or
+** similar, then this page returns the content of files found in the
+** ".well-known" subdirectory of the same directory that contains the
+** repository file.  This facilitates Automated Certificate
 ** Management using tools like "certbot".
 **
 ** The content is returned directly, without any interpretation, using
@@ -1220,7 +1194,7 @@ void wellknown_page(void){
   Blob content;
   int i;
   char c;
-  if( !db_get_boolean("ssl-acme",0) ) goto wellknown_notfound;
+  if( !g.fAllowACME ) goto wellknown_notfound;
   if( g.zRepositoryName==0 ) goto wellknown_notfound;
   if( zTail==0 ) goto wellknown_notfound;
   zPath = mprintf("%z/.well-known/%s", file_dirname(g.zRepositoryName), zTail);
