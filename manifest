@@ -1,5 +1,5 @@
-C Modify\s"/fdiff?patch"\sto\sgenerate\sunified\spatches\swith\sthe\sdefault\snumber\sof\scontext\slines,\sanalogous\sto\s"/vdiff?patch".\sIt\slooks\slike\s"/fdiff?patch"\swas\sswitched\sto\sside-by-side\sduring\sthe\srecent\sdiff\srefactoring,\swhen\s"diffFlags\s=\s4"\sin\sits\scode\spath\sno\slonger\smeant\s"4\slines\sof\sdiff\scontext"\s(packed\sinto\sthe\snow\sobsoleted\sDIFF_CONTEXT_MASK\srange),\sbut\sDIFF_SIDEBYSIDE.\s(Please\sroll\sback\sthis\scommit\sor\smove\sit\sto\sa\ssiding\sbranch\sif\sincorrect.)
-D 2021-12-28T06:47:00.000
+C Remove\sreference\sto\sminiz\sin\s"The\sFossil\sBuild\sProcess".
+D 2021-12-28T13:55:09.019
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -897,7 +897,7 @@ F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
-F www/makefile.wiki 5ddaea274c2e5043c47c61fd5b741361deeafbc038a3893c84ba1940c0f92524
+F www/makefile.wiki 3a3700df48edcc03c5cc39aec79db038bf70755646467f44d0351ccdc7771090
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
@@ -968,8 +968,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37ccaafddb2bd4e95f288d62a0e0e1e32be756fee7bb0902c389888d29286925
-R 01cde3cf1ce39d63f5b61dd46c756091
-U florian
-Z ae43616c725b3aff886bf519ca47fca2
+P 5aa1ec37890fe6d505d410df5f1b0864e7894414867c305c1a78e4c26279be6a
+U danield
+Z ae46c972eb174f2d7397592f30116d01
 # Remove this line to create a well-formed Fossil manifest.
