@@ -1,6 +1,8 @@
 <title>Change Log</title>
 
 <h2 id='v2_18'>Changes for version 2.18 (pending)</h2>
+  *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
+     like "[/help?cmd=server|fossil server]" and "[/help?cmd=http|fossil http]"
   *  Added the --share-links option to [/help?cmd=sync|fossil sync] and
      [/help?cmd=pull|fossil pull].  Enhance the 
      [/doc/trunk/www/sync.wiki|sync protocol] so that it is able to support

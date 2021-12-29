@@ -1,5 +1,5 @@
-C Another\ssimplification\sof\sSEE\smemory\shandling\sfor\sthe\s'sql'\scommand.
-D 2021-12-29T14:45:04.430
+C Preliminary\sdocumentation\sfor\sserver-side\sSSL.
+D 2021-12-29T15:44:38.543
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,7 +798,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki a3c72252f3facfa3b06b418b2e73d2d0d65071b03a31592fb50fee7c45d66a3c
+F www/changes.wiki 3ae6382571f9ee23c0d71e73f4e45efd63d7d21c8c6dd95fdb4f646e654b5d38
 F www/chat.md c43235a6bd0ade2987ec0967d78ea6238d989e4b2aa04059a3fd267a13e6c5b7
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -949,6 +949,7 @@ F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524
 F www/serverext.wiki 7b38c1cb3fceb59c0270b73d51f55c1b50cd076f0ad63ea417f8d0d8f84e9a84
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
+F www/ssl-server.md daa116737220463da1dce17df5fded9fc7fc575dcd38d297287abdcebf1336bc
 F www/ssl.wiki 857c82fac2af659a0482d4c984f08a7e27129cf087f2cecd5f23fbb074574132
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -968,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b4a45535ed72a879c811c607a65dd348a7d5aa09f4892d9a7bc464b03234c9d
-R efeda9c90dba0b2af0ff37fab6460ebd
-U mistachkin
-Z 03cde3b53ace31566481177064dfa4be
+P 531434900bbc15a5325424085bcf20eb7decd1af755062cab07b4059b733e1c4
+R c7b488adf32777009b93090de58de47c
+U drh
+Z 01b94a7f52b502a75936302a2ec99305
 # Remove this line to create a well-formed Fossil manifest.
