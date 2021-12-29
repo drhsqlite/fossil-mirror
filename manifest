@@ -1,5 +1,5 @@
-C Improved\smanagement\sof\sunmergeable\sbinary\sfiles\sfor\s"fossil\supdate".
-D 2021-12-28T19:09:13.418
+C Update\sbuildmsvc.bat\safter\stesting\ssuccessful\scompilation\swith\sthe\sVisual\sStudio\s2022\stoolchain.
+D 2021-12-29T00:49:19.803
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -765,7 +765,7 @@ F win/Makefile.dmc 9efaedafd7cb9b75dfec63e14c0cddd397551cbd09133d44ffe88dc667e56
 F win/Makefile.mingw e692e7f1e8a657071794d58fc9c8f70ee684ad26c41d8b38c43daa348933b6ab
 F win/Makefile.mingw.mistachkin 2825e5983b74352f8b8b57a3e638c865c2619260038c80a26ef1fc516777e783
 F win/Makefile.msc cc0ad56c121a3f0a203b605bb9683792cd856713d7ec9a690141db18f43b5e5e
-F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
+F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
@@ -968,9 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6263bb64195b07fab7374ed253bbd66a7de5175718195cd9d46afbbf2bd2e10 d4d739898dc5de0c2cf7b48395d3d80a50aa44a7b9da25ba040459edaaa79f91
-R da879daef3afeee6a62a6fa8ef562a36
-T +closed d4d739898dc5de0c2cf7b48395d3d80a50aa44a7b9da25ba040459edaaa79f91
-U drh
-Z 26fa6d30b5c3c52fcf78cb73056db044
+P 52a389d3dbd4b6cc8647e2a09c68305eb0fffe4d8bd69046a6b318ad0015d2be
+R 35257015c60cd69c37890d76468be3bf
+U danield
+Z 34371b84d595a09b7aed0e86b39b60e7
 # Remove this line to create a well-formed Fossil manifest.
