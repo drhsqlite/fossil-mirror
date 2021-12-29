@@ -1145,6 +1145,9 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(p->pOut, "5,[", 3);
   oneLineChange(pX, pY, &chng);
   for(i=x=0; i<chng.n; i++){
+    if(i>0){
+      blob_append_char(p->pOut, ',');
+    }
     blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iStart1 - x);
     x = chng.a[i].iStart1;
     blob_append_char(p->pOut, ',');
