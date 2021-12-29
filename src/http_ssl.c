@@ -755,11 +755,9 @@ typedef struct SslServerConn {
 } SslServerConn;
 
 /*
-** Create a new server-side codec.  The arguments are the file
-** descriptors from which teh codec reads and writes, respectively.
-**
-** If the writeFd is negative, then use then the readFd is a socket
-** over which we both read and write.
+** Create a new server-side codec.  The argument is the socket's file
+** descriptor from which the codec reads and writes. The returned
+** memory must eventually be passed to ssl_close_server().
 */
 void *ssl_new_server(int iSocket){
   SslServerConn *pServer = fossil_malloc_zero(sizeof(*pServer));
