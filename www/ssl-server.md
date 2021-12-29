@@ -122,7 +122,7 @@ at /home/www and drop all root privileges.
 The [ACME Protocol][2] is used to prove to a CA that you control a
 website.  CAs require proof that you control a domain before they
 will issue a cert for that domain.  The usual means of dealing
-with ACME is to run the separate [certbot](/certbot.eff.org) tool.
+with ACME is to run the separate [certbot](https://certbot.eff.org) tool.
 Here is, in a nutshell, what certbot will do to obtain your cert:
 
   1.  Certbot sends your "signing request" (the document that contains
