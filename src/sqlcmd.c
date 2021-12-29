@@ -280,7 +280,7 @@ void sqlcmd_init_proc(void){
 /*
 ** This routine is called by the patched sqlite3 command-line shell in order
 ** to load the encryption key for the open Fossil database.  The memory that
-** is pointed to by the value placed in pzKey must be obtained from SQLite.
+** is pointed to by the value placed in pzKey must be obtained from malloc.
 */
 void fossil_key(const char **pzKey, int *pnKey){
   char *zSavedKey = db_get_saved_encryption_key();
@@ -290,7 +290,7 @@ void fossil_key(const char **pzKey, int *pnKey){
 
   if( zSavedKey==0 || savedKeySize==0 ) return;
   nByte = savedKeySize * sizeof(char);
-  zKey = sqlite3_malloc( (int)nByte );
+  zKey = (char*)malloc( nByte );
   if( zKey ){
     memcpy(zKey, zSavedKey, nByte);
     *pzKey = zKey;
