@@ -1,5 +1,5 @@
-C Update\sbuildmsvc.bat\safter\stesting\ssuccessful\scompilation\swith\sthe\sVisual\sStudio\s2022\stoolchain.
-D 2021-12-29T00:49:19.803
+C Fix\sthe\sSSL-server\scode\sso\sthat\sthe\s"fossil\sui\s--tls"\scommand\s(and\ssimilar)\nnow\swork\son\sWindows.
+D 2021-12-29T02:59:38.883
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 5f7e56e6b161bae1f88f231ecac213d044d64c47699a39d62a730cad6fc2b24c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 64a6c4dc8021ce96dedb875000339792bd61e2330297cf37ad8a5d8da7ce78d5
+F src/http_ssl.c 29165f69b683883615f23e72d39e00667daab1df4db5246d84919e164087e269
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 78ee25df2fc4141c671b3ee2e6b1397500998a2b970ae2b27ca43931bd82adfe
+F src/main.c ac0ba3ee87875bf3640007cc116988bd2856cb4c39827d4ca16f88613bbd1e24
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -608,7 +608,7 @@ F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c ab75eacf2ae2378f15330dd86c75b5802e4ad91a0e7c02273ad223d7ca1c3266
+F src/winhttp.c dadaf755f21931398be2aaf956177fb6c02a3c757b4d5e02c0e6741fce074221
 F src/xfer.c 925db61bc721930fb693f312005d0bc179b2e713e791c87f51330528a51a9df0
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c 868c65c39dbe5577a9d6b2e1aa9fd74f9dcdb3640cc3dad5fb022b8530c18ca4
@@ -968,8 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52a389d3dbd4b6cc8647e2a09c68305eb0fffe4d8bd69046a6b318ad0015d2be
-R 35257015c60cd69c37890d76468be3bf
-U danield
-Z 34371b84d595a09b7aed0e86b39b60e7
+P 2ed7465cf74af8a47e82ae106379414cfff90b697caa5302a22c267309960f00
+R 8d440338d1f9e2e80adbba12227eaea6
+U drh
+Z 04c0e6e911915cd218d6c8bf776654cb
 # Remove this line to create a well-formed Fossil manifest.

@@ -741,6 +741,7 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
       fossil_fatal("PRIVATE KEY \"%s\" does not match CERT \"%s\"",
            zKeyFile, zCertFile);
     }
+    SSL_CTX_set_mode(sslCtx, SSL_MODE_AUTO_RETRY);
     sslIsInit = 2;
   }else{
     assert( sslIsInit==2 );
@@ -750,8 +751,7 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
 typedef struct SslServerConn {
   SSL *ssl;          /* The SSL codec */
   int atEof;         /* True when EOF reached. */
-  int fd0;           /* Read channel, or socket */
-  int fd1;           /* Write channel */
+  int iSocket;       /* The socket */
 } SslServerConn;
 
 /*
@@ -761,17 +761,13 @@ typedef struct SslServerConn {
 ** If the writeFd is negative, then use then the readFd is a socket
 ** over which we both read and write.
 */
-void *ssl_new_server(int readFd, int writeFd){
+void *ssl_new_server(int iSocket){
   SslServerConn *pServer = fossil_malloc_zero(sizeof(*pServer));
+  BIO *b = BIO_new_socket(iSocket, 0);
   pServer->ssl = SSL_new(sslCtx);
-  pServer->fd0 = readFd;
-  pServer->fd1 = writeFd;
-  if( writeFd<0 ){
-    SSL_set_fd(pServer->ssl, readFd);
-  }else{
-    SSL_set_rfd(pServer->ssl, readFd);
-    SSL_set_wfd(pServer->ssl, writeFd);
-  }
+  pServer->atEof = 0;
+  pServer->iSocket = iSocket;
+  SSL_set_bio(pServer->ssl, b, b);
   SSL_accept(pServer->ssl);
   return (void*)pServer;
 }
@@ -782,8 +778,6 @@ void *ssl_new_server(int readFd, int writeFd){
 void ssl_close_server(void *pServerArg){
   SslServerConn *pServer = (SslServerConn*)pServerArg;
   SSL_free(pServer->ssl);
-  close(pServer->fd0);
-  if( pServer->fd1>=0 ) close(pServer->fd0);
   fossil_free(pServer);
 }
 
@@ -806,8 +800,8 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
   if( pServer->atEof ) return 0;
   if( nBuf>0x7fffffff ){ fossil_fatal("SSL read too big"); }
   n = SSL_read(pServer->ssl, zBuf, (int)nBuf);
-  if( n<nBuf ) pServer->atEof = 1;
-  return n;
+  if( n==0 ) pServer->atEof = 1;
+  return n<=0 ? 0 : n;
 }
 
 /*
@@ -838,10 +832,14 @@ char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
 size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
   int n;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
-  if( pServer->atEof ) return 0;
+  if( nBuf<=0 ) return 0;
   if( nBuf>0x7fffffff ){ fossil_fatal("SSL write too big"); }
   n = SSL_write(pServer->ssl, zBuf, (int)nBuf);
-  return n;
+  if( n<=0 ){
+    return -SSL_get_error(pServer->ssl, n);
+  }else{
+    return n;
+  }
 }
 
 #endif /* FOSSIL_ENABLE_SSL */

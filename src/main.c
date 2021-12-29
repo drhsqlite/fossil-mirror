@@ -2788,7 +2788,7 @@ void cmd_http(void){
   }else{
 #if FOSSIL_ENABLE_SSL
     if( g.httpUseSSL ){
-      g.httpSSLConn = ssl_new_server(0,-1);
+      g.httpSSLConn = ssl_new_server(0);
     }
 #endif
     cgi_handle_http_request(zIpAddr);
@@ -3288,7 +3288,7 @@ void cmd_webserver(void){
     cgi_handle_scgi_request();
   }else if( g.httpUseSSL ){
 #if FOSSIL_ENABLE_SSL
-    g.httpSSLConn = ssl_new_server(0,-1);
+    g.httpSSLConn = ssl_new_server(0);
 #endif
     cgi_handle_http_request(0);
   }else{
@@ -3308,9 +3308,6 @@ void cmd_webserver(void){
 
 #else /* WIN32 */
   /* Win32 implementation */
-  if( g.httpUseSSL ){
-    fossil_fatal("TLS-encrypted server is not (yet) supported on Windows");
-  }
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }
