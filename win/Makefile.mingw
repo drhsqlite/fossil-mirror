@@ -1092,6 +1092,7 @@ SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 EXTRAOBJ = \
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) \
+ $(OBJDIR)/pikchr.o \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \

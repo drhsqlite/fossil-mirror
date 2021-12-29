@@ -1134,6 +1134,7 @@ SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 writeln [string map [list <<<NEXT_LINE>>> \\] {
 EXTRAOBJ = <<<NEXT_LINE>>>
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) <<<NEXT_LINE>>>
+ $(OBJDIR)/pikchr.o <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
  $(OBJDIR)/th.o <<<NEXT_LINE>>>
  $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
