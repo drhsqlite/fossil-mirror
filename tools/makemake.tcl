@@ -358,7 +358,8 @@ foreach s [lsort $src] {
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
-    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "]] {
+    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
+    <<<NEXT_LINE>>> \\] {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	all
@@ -406,8 +407,8 @@ test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
-	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
-		$(SRCDIR)/../manifest \
+	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid <<<NEXT_LINE>>>
+		$(SRCDIR)/../manifest <<<NEXT_LINE>>>
 		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 $(OBJDIR)/phony.h:
@@ -606,7 +607,7 @@ PREFIX =
 #
 SRCDIR = src
 SRCDIR_extsrc = extsrc
-SCRDIR_tools = tools
+SRCDIR_tools = tools
 
 #### The directory into which object code files should be written.
 #
@@ -715,8 +716,12 @@ endif
 #
 ifndef X64
 SSLCONFIG = mingw
+ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
+ZLIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
 else
 SSLCONFIG = mingw64
+ZLIBCONFIG =
+ZLIBTARGETS =
 endif
 
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
@@ -787,6 +792,7 @@ TCCEXE = gcc
 #    for building intermediate code-generator tools.
 #
 TCC = $(PREFIX)$(TCCEXE) -Wall -Wdeclaration-after-statement
+TCC += -I$(SRCDIR_extsrc)
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -803,6 +809,7 @@ TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
 #    on the target platform.
 #
 RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
+RCC += -I$(SRCDIR_extsrc)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -1070,8 +1077,8 @@ $(MAKEHEADERS):	$(SRCDIR_tools)/makeheaders.c
 $(MKINDEX):	$(SRCDIR_tools)/mkindex.c
 	$(XBCC) -o $@ $(SRCDIR_tools)/mkindex.c
 
-$(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
-	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
+$(MKBUILTIN):	$(SRCDIR_tools)/mkbuiltin.c
+	$(XBCC) -o $@ $(SRCDIR_tools)/mkbuiltin.c
 
 $(MKVERSION): $(SRCDIR_tools)/mkversion.c
 	$(XBCC) -o $@ $(SRCDIR_tools)/mkversion.c
@@ -1142,7 +1149,7 @@ $(ZLIBDIR)/match.o:
 	$(TCC) -c -o $@ -DASMV $(ZLIBDIR)/contrib/asm686/match.S
 
 zlib:	$(ZLIBTARGETS)
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) -f win32/Makefile.gcc libz.a
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
 
 clean-zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) -f win32/Makefile.gcc clean
@@ -1198,17 +1205,19 @@ innosetup: $(OBJDIR) $(APPNAME)
 
 set mhargs {}
 foreach s [lsort $src] {
-  if {[string length $mhargs] > 0} {append mhargs " \\\n\t\t"}
+  if {[string length $mhargs] > 0} {append mhargs " <<<NEXT_LINE>>>"}
   append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) { }
 }
 foreach s [lsort $src_ext] {
-  append mhargs "\$(SRCDIR_extsrc)/${s}.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
+  if {[string length $mhargs] > 0} {append mhargs " <<<NEXT_LINE>>>"}
+  append mhargs "\$(SRCDIR_extsrc)/${s}.c:\$(OBJDIR)/$s.h"
   set extra_h($s) { }
 }
-append mhargs " \\\n\t\t\$(SRCDIR_extsrc)/sqlite3.h"
-append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
-append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
+append mhargs " <<<NEXT_LINE>>>\$(SRCDIR_extsrc)/sqlite3.h"
+append mhargs " <<<NEXT_LINE>>>\$(SRCDIR)/th.h"
+append mhargs " <<<NEXT_LINE>>>\$(OBJDIR)/VERSION.h"
+set mhargs [string map [list <<<NEXT_LINE>>> \\\n\t] $mhargs]
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >\$@\n"
 
@@ -1363,7 +1372,7 @@ makeheaders$E: $(SRCDIR_tools)\makeheaders.c
 mkindex$E: $(SRCDIR_tools)\mkindex.c
 	$(BCC) -o$@ $**
 
-mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
+mkbuiltin$E: $(SRCDIR_tools)\mkbuiltin.c
 	$(BCC) -o$@ $**
 
 mkversion$E: $(SRCDIR_tools)\mkversion.c

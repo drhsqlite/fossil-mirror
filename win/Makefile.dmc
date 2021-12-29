@@ -69,7 +69,7 @@ makeheaders$E: $(SRCDIR_tools)\makeheaders.c
 mkindex$E: $(SRCDIR_tools)\mkindex.c
 	$(BCC) -o$@ $**
 
-mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
+mkbuiltin$E: $(SRCDIR_tools)\mkbuiltin.c
 	$(BCC) -o$@ $**
 
 mkversion$E: $(SRCDIR_tools)\mkversion.c
