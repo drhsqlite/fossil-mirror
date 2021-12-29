@@ -1,5 +1,5 @@
-C Final\sfix\sfor\sthe\sMinGW\sbuild.
-D 2021-12-29T16:02:38.408
+C Tweaks\sto\sthe\sSSL\sserver\sdocumentation.
+D 2021-12-29T17:12:46.777
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -949,7 +949,7 @@ F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524
 F www/serverext.wiki 7b38c1cb3fceb59c0270b73d51f55c1b50cd076f0ad63ea417f8d0d8f84e9a84
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
-F www/ssl-server.md daa116737220463da1dce17df5fded9fc7fc575dcd38d297287abdcebf1336bc
+F www/ssl-server.md 2ef09981dc164a7a8d26fdb38de94455ce2746b9de9d6c58914d71ed6c8cb645
 F www/ssl.wiki 857c82fac2af659a0482d4c984f08a7e27129cf087f2cecd5f23fbb074574132
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a015ab64cac586460649f8583926726fd0fa7f0b70436d72155cd8188ecee8bf
-R ddd156a2d5d14d250ae0d7301d829c3b
-U mistachkin
-Z b35568ad29aecc5a399beb7e2374fd9f
+P 44f4d624f11071f59bdd37a9d4eeb312896db9c35aa5a482f708e7f125997424
+R 491a7be58ed8719d3e7ed29e911a2fd1
+U drh
+Z e5da0d8be18a6498f6c4a2a48e7f17ce
 # Remove this line to create a well-formed Fossil manifest.

@@ -22,7 +22,7 @@ this has been fixed.  Commands like
 now all handle server-mode SSL/TLS encryption natively.  It is now possible
 to run a secure Fossil server without having to put Fossil behind an encrypting
 web server or reverse proxy.  Hence, it is now possible to stand up a complete
-Fossil project set on an inexpensive VPS with no added software other than
+Fossil project website on an inexpensive VPS with no added software other than
 Fossil itself and something like [certbot](https://certbot.eff.org) for
 obtaining a CA-signed certificate.
 
@@ -100,7 +100,7 @@ Similarly, a PEM-encoded cert will look like this:
 In both formats, text outside of the delimiters is ignored.  That means
 that if you have a PEM-formatted private key and a separate PEM-formatted
 certificate, you can concatenate the two into a single file and the
-individual components will still be readily accessible.
+individual components will still be easily accessible.
 
 If you have a single file that holds both your private key and your
 cert, you can hand it off to the "[fossil server](/help?cmd=server)"
@@ -111,7 +111,7 @@ fossil server --port 443 --tls-cert-file mycert.pem /home/www/myproject.fossil
 ~~~
 
 The command above is sufficient to run a fully-encrypted web site for
-the "myproject.fossil" Fossil repository.  This command must be root as
+the "myproject.fossil" Fossil repository.  This command must be run as
 root, since it wants to listen on TCP port 443, and only root processes are
 allowed to do that.  This is safe, however, since before reading any
 information off of the wire, Fossil will put itself inside a chroot jail
@@ -119,9 +119,10 @@ at /home/www and drop all root privileges.
 
 ## The ACME Protocol
 
-The [ACME Protocol][2] is used to prove to a CA that you really control a
-website so that the CA will issue a cert for you.  The usual means of
-dealing with ACME is to run the separate [certbot](/certbot.eff.org) tool.
+The [ACME Protocol][2] is used to prove to a CA that you control a
+website.  CAs require proof that you control a domain before they
+will issue a cert for that domain.  The usual means of dealing
+with ACME is to run the separate [certbot](/certbot.eff.org) tool.
 Here is, in a nutshell, what certbot will do to obtain your cert:
 
   1.  Certbot sends your "signing request" (the document that contains
@@ -146,7 +147,7 @@ In order for all of this to happen, certbot needs to be able to create
 a subdirectory named ".well-known", within a directory you specify, and
 then populate that subdirectory with a token file of some kind.  To support
 this, the "[fossil server](/help?cmd=server)" and
-"[fossil http](/help?cmd=http)" commands support the --acme option.
+"[fossil http](/help?cmd=http)" commands have the --acme option.
 When the --acme option is specified and Fossil sees a URL where the path
 begins with ".well-known", then instead of doing its normal processing, it
 looks for a file with that pathname and returns it to the client.  If
