@@ -1,5 +1,5 @@
-C Adapted\sssl_new_server()\sdocs\sto\saccount\sfor\scode\schanges.
-D 2021-12-29T03:15:36.653
+C Added\smissing\s-nocomplain\sflag\sto\sa\sglob\scommand\scall\sto\savoid\sconfigure\sdying\sif\sit\scannot\sfind\slibsqlite*.
+D 2021-12-29T03:49:06.762
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -18,7 +18,7 @@ F Makefile.in 736e36ffd4ed58dfa99910f5239f8af6d7c9f4204279b21fad70a4752cf9c4ac x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION c8a78fc24f9432587c0fabc2277234181bd5c6f5598a51155429068db589f506
-F auto.def 029e44a298710b2f725347fc80582f2e0dee294e8725c60921de1ff21b946d67
+F auto.def 3b3ed3995073265b16ce8d09f721803d8350545a0a9268231baeed03bdfa100c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -968,8 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a3bf55f5489f5348830c5f116d872c26207121fbfd916653463f189bfa754ab
-R 85df3297530e565ceb48e21fec46692a
+P 258479650bdfdb6910eae9bfe213831e3859d8937cc4f86388d4349812a5405d
+R 3e21c91b34a835e9de312eb2fb7ed3f5
 U stephan
-Z a9a4063abf745db256448ae27d1582d6
+Z 7be4f4b0c9d946eba6d0645132da89ed
 # Remove this line to create a well-formed Fossil manifest.

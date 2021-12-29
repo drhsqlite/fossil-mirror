@@ -493,7 +493,7 @@ if {$sq3path in {tree ""}} {
       define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread
       # ^^^ additional -lXXX flags are conservative estimates
       msg-result "Using sqlite3.o from $sq3path"
-    } elseif { ([llength [glob -directory $sq3path/lib libsqlite3*]] != 0) \
+    } elseif { ([llength [glob -nocomplain -directory $sq3path/lib libsqlite3*]] != 0) \
                  && ([file exists $sq3path/include/sqlite3.h]) } {
       # e.g. --with-sqlite=/usr/local. Try $sq3path/lib/libsqlite3*
       # and $sq3path/include/sqlite3.h
