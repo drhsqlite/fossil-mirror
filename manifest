@@ -1,5 +1,5 @@
-C Correction\sto\sSEE\smemory\shandling\sused\sby\sthe\s'sql'\scommand.
-D 2021-12-29T14:34:03.583
+C Another\ssimplification\sof\sSEE\smemory\shandling\sfor\sthe\s'sql'\scommand.
+D 2021-12-29T14:45:04.430
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -571,7 +571,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c 9200e24d5e45d10577a3ad3903f1c6087909cd0c6cad1e51415b5d412fcb92b7
+F src/sqlcmd.c 18704c72a26fdfcf54865653e91635af75239d51447acecd83fd726d6291d164
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 846a2ad27b6aaaf9f94c727647dd82b27264fbc338d10f678c7258ff0fe93373
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -968,8 +968,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e2dbcc6fe611bf5868b5c88f4eb530b07dfc4cb3152520cb7afa36566285d7b
-R c13114ea7131e251c5314aee790b4c2a
+P 3b4a45535ed72a879c811c607a65dd348a7d5aa09f4892d9a7bc464b03234c9d
+R efeda9c90dba0b2af0ff37fab6460ebd
 U mistachkin
-Z fedc515c0895ca045840b36b4e0f1e68
+Z 03cde3b53ace31566481177064dfa4be
 # Remove this line to create a well-formed Fossil manifest.

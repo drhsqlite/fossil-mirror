@@ -286,13 +286,11 @@ void fossil_key(const char **pzKey, int *pnKey){
   char *zSavedKey = db_get_saved_encryption_key();
   char *zKey;
   size_t savedKeySize = db_get_saved_encryption_key_size();
-  size_t nByte;
 
   if( zSavedKey==0 || savedKeySize==0 ) return;
-  nByte = savedKeySize * sizeof(char);
-  zKey = (char*)malloc( nByte );
+  zKey = (char*)malloc( savedKeySize );
   if( zKey ){
-    memcpy(zKey, zSavedKey, nByte);
+    memcpy(zKey, zSavedKey, savedKeySize);
     *pzKey = zKey;
     if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
       *pnKey = (int)strlen(zKey);
@@ -300,7 +298,7 @@ void fossil_key(const char **pzKey, int *pnKey){
       *pnKey = -1;
     }
   }else{
-    fossil_fatal("failed to allocate %u bytes for key", nByte);
+    fossil_fatal("failed to allocate %u bytes for key", savedKeySize);
   }
 }
 #endif
