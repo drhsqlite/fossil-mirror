@@ -938,14 +938,34 @@ window.fossil.onPageLoad(function(){
             contentTarget.appendChild(D.img("chat-download/" + m.msgid));
             ds.hasImage = 1;
           }else{
-            const a = D.a(
-              window.fossil.rootPath+
-                'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname),
+            // Add a download link.
+            const downloadUri = window.fossil.rootPath+
+                  'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname);
+            const w = D.addClass(D.div(), 'attachment-link');
+            const a = D.a(downloadUri,
               // ^^^ add m.fname to URL to cause downloaded file to have that name.
               "(" + m.fname + " " + m.fsize + " bytes)"
             )
             D.attr(a,'target','_blank');
-            contentTarget.appendChild(a);
+            D.append(w, a);
+            if(/\.html$/i.test(m.fname)){
+              /* Add an option to embed HTML attachments in an iframe. The primary
+                 use case is attached diffs. */
+              D.addClass(contentTarget, 'wide');
+              const embedTarget = this.e.content;
+              const btnEmbed = D.button("Embed", function(){
+                D.remove(btnEmbed);
+                const iframe = document.createElement('iframe');
+                D.append(embedTarget, iframe);
+                iframe.addEventListener('load', function(){
+                  iframe.style.maxHeight = iframe.style.height
+                    = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
+                });
+                iframe.setAttribute('src', downloadUri);
+              });
+              D.append(w, btnEmbed);
+            }
+            contentTarget.appendChild(w);
           }
         }
         if(m.xmsg){

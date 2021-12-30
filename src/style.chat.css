@@ -31,7 +31,8 @@ body.chat.my-messages-right .message-widget.notification {
 }
 /* The content area of a message. */
 body.chat .message-widget-content {
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
   border-radius: 0.25em;
   border: 1px solid rgba(0,0,0,0.2);
   box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
@@ -40,6 +41,24 @@ body.chat .message-widget-content {
   min-width: 9em /*avoid unsightly "underlap" with the neighboring
                    .message-widget-tab element*/;
   white-space: normal;
+}
+body.chat .message-widget-content.wide {
+  /* Special case for when embedding content which we really want to
+     expand, namely iframes. */
+  width: 98%;
+}
+body.chat .message-widget-content > .attachment-link > a {
+  margin-right: 1em;
+}
+body.chat .message-widget-content > iframe {
+  width: 100%;
+  max-width: 100%;
+  resize: both;
+}
+body.chat .message-widget-content> a {
+  /* Cosmetic: keep skin-induced on-hover underlining from shifting
+     content placed below this. */
+  border-bottom: 1px transparent;
 }
 body.chat.monospace-messages .message-widget-content,
 body.chat.monospace-messages .chat-input-field{
