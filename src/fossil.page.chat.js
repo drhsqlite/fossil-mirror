@@ -703,7 +703,7 @@ window.fossil.onPageLoad(function(){
       if(!e || !id) return false;
       else if(e.$isToggling) return;
       e.$isToggling = true;
-      const content = e.querySelector('.message-widget-content');
+      const content = e.querySelector('.content-target');
       if(!content.$elems){
         content.$elems = [
           content.firstElementChild, // parsed elem
@@ -893,6 +893,17 @@ window.fossil.onPageLoad(function(){
       ].join('');
     };
 
+    const canEmbedFile = function f(msg){
+      if(!f.$rx){
+        f.$rx = /\.((html?)|(txt))$/i;
+      }
+      return msg.fname && (
+        f.$rx.test(msg.fname)
+          || (msg.fmime
+              && msg.fmime.startsWith("image/"))
+      );
+    };
+
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -938,14 +949,53 @@ window.fossil.onPageLoad(function(){
             contentTarget.appendChild(D.img("chat-download/" + m.msgid));
             ds.hasImage = 1;
           }else{
-            const a = D.a(
-              window.fossil.rootPath+
-                'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname),
+            // Add a download link.
+            const downloadUri = window.fossil.rootPath+
+                  'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname);
+            const w = D.addClass(D.div(), 'attachment-link');
+            const a = D.a(downloadUri,
               // ^^^ add m.fname to URL to cause downloaded file to have that name.
               "(" + m.fname + " " + m.fsize + " bytes)"
             )
             D.attr(a,'target','_blank');
-            contentTarget.appendChild(a);
+            D.append(w, a);
+            if(canEmbedFile(m)){
+              /* Add an option to embed HTML attachments in an iframe. The primary
+                 use case is attached diffs. */
+              D.addClass(contentTarget, 'wide');
+              const embedTarget = this.e.content;
+              const self = this;
+              const btnEmbed = D.attr(D.checkbox("1", false), 'id',
+                                      'embed-'+ds.msgid);
+              const btnLabel = D.label(btnEmbed, "Embed");
+              btnEmbed.addEventListener('change',function(){
+                if(self.e.iframe){
+                  if(btnEmbed.checked) D.removeClass(self.e.iframe, 'hidden');
+                  else D.addClass(self.e.iframe, 'hidden');
+                  return;
+                }
+                D.disable(btnEmbed);
+                const iframe = self.e.iframe = document.createElement('iframe');
+                D.append(embedTarget, iframe);                
+                iframe.addEventListener('load', function(){
+                  D.enable(btnEmbed);
+                  const body = iframe.contentWindow.document.querySelector('body');
+                  if(body && !body.style.fontSize){
+                    /** _Attempt_ to force the iframe to inherit the message's text size
+                        if the body has no explicit size set. On desktop systems
+                        the size is apparently being inherited in that case, but on mobile
+                        not. */
+                    const cs = window.getComputedStyle(self.e.content);
+                    body.style.fontSize = cs.fontSize;
+                  }
+                  iframe.style.maxHeight = iframe.style.height
+                    = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
+                });
+                iframe.setAttribute('src', downloadUri);
+              });
+              D.append(w, btnEmbed, btnLabel);
+            }
+            contentTarget.appendChild(w);
           }
         }
         if(m.xmsg){
@@ -955,6 +1005,8 @@ window.fossil.onPageLoad(function(){
             contentTarget = D.div();
             D.append(this.e.content, contentTarget);
           }
+          D.addClass(contentTarget, 'content-target'
+                     /*target element for the 'toggle text mode' feature*/);
           // The m.xmsg text comes from the same server as this script and
           // is guaranteed by that server to be "safe" HTML - safe in the
           // sense that it is not possible for a malefactor to inject HTML
