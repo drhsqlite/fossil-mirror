@@ -31,8 +31,6 @@ body.chat.my-messages-right .message-widget.notification {
 }
 /* The content area of a message. */
 body.chat .message-widget-content {
-  display: flex;
-  flex-direction: column;
   border-radius: 0.25em;
   border: 1px solid rgba(0,0,0,0.2);
   box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);

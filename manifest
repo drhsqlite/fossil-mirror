@@ -1,5 +1,5 @@
-C /chat:\sadded\stxt\sto\sthe\slist\sof\siframe-embeddable\sextensions.
-D 2021-12-30T18:02:49.036
+C Remove\sdisplay:flex\sfrom\s.message-widget-content\selements,\sas\sit\scauses\sIMG\selements\sto\sstretch\sto\sfill\sup\sall\savailable\sspace.
+D 2021-12-30T18:08:51.619
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -577,7 +577,7 @@ F src/stat.c 846a2ad27b6aaaf9f94c727647dd82b27264fbc338d10f678c7258ff0fe93373
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 7596c750687dd88dd53c007b124a473e1081ff281bd716a6a863a3a9ab576c17
+F src/style.chat.css 2ab56c453ca71bad61ee513650972a431918b7d5e9bf2d64d39e4b3d4137df63
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c e1aec7eae05d2950feee1f86f42585227d768d2355f3d8edb3ac64d93b504ad9
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 956515f67734b42c4889d9e17e1cbfd504643e0db8fb4b9bcd74f0d018591b2b
-R 10bb6a9d5ee770e66c6a907c8614b7d6
+P 1721d3089a7fbcff136f4dbc2fca1cb1c0bcd3941089677ea603ac61172566d5
+R 38c4c8647070b0889e38a07ff3188a7f
 U stephan
-Z 854aa91b4578a5ec365eddaa5c7f55dd
+Z dbd041af3cedf35d1fbd193ec6a8a943
 # Remove this line to create a well-formed Fossil manifest.
