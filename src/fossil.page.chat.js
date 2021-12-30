@@ -963,7 +963,7 @@ window.fossil.onPageLoad(function(){
               const self = this;
               const btnEmbed = D.attr(D.checkbox("1", false), 'id',
                                       'embed-'+ds.msgid);
-              const btnLabel = D.label(btnEmbed, "Toggle embedded");
+              const btnLabel = D.label(btnEmbed, "Embed");
               btnEmbed.addEventListener('change',function(){
                 if(self.e.iframe){
                   if(btnEmbed.checked) D.removeClass(self.e.iframe, 'hidden');
