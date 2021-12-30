@@ -893,6 +893,13 @@ window.fossil.onPageLoad(function(){
       ].join('');
     };
 
+    const canEmbedFile = function f(filename){
+      if(!f.$rx){
+        f.$rx = /\.html$/i;
+      }
+      return f.$rx.test(filename);
+    };
+
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -948,22 +955,32 @@ window.fossil.onPageLoad(function(){
             )
             D.attr(a,'target','_blank');
             D.append(w, a);
-            if(/\.html$/i.test(m.fname)){
+            if(canEmbedFile(m.fname)){
               /* Add an option to embed HTML attachments in an iframe. The primary
                  use case is attached diffs. */
               D.addClass(contentTarget, 'wide');
               const embedTarget = this.e.content;
-              const btnEmbed = D.button("Embed", function(){
-                D.remove(btnEmbed);
-                const iframe = document.createElement('iframe');
-                D.append(embedTarget, iframe);
+              const self = this;
+              const btnEmbed = D.attr(D.checkbox("1", false), 'id',
+                                      'embed-'+ds.msgid);
+              const btnLabel = D.label(btnEmbed, "Toggle embedded");
+              btnEmbed.addEventListener('change',function(){
+                if(self.e.iframe){
+                  if(btnEmbed.checked) D.removeClass(self.e.iframe, 'hidden');
+                  else D.addClass(self.e.iframe, 'hidden');
+                  return;
+                }
+                D.disable(btnEmbed);
+                const iframe = self.e.iframe = document.createElement('iframe');
+                D.append(embedTarget, iframe);                
                 iframe.addEventListener('load', function(){
+                  D.enable(btnEmbed);
                   iframe.style.maxHeight = iframe.style.height
                     = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
                 });
                 iframe.setAttribute('src', downloadUri);
               });
-              D.append(w, btnEmbed);
+              D.append(w, btnEmbed, btnLabel);
             }
             contentTarget.appendChild(w);
           }
