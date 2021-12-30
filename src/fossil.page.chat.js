@@ -703,7 +703,7 @@ window.fossil.onPageLoad(function(){
       if(!e || !id) return false;
       else if(e.$isToggling) return;
       e.$isToggling = true;
-      const content = e.querySelector('.message-widget-content');
+      const content = e.querySelector('.content-target');
       if(!content.$elems){
         content.$elems = [
           content.firstElementChild, // parsed elem
@@ -975,6 +975,8 @@ window.fossil.onPageLoad(function(){
             contentTarget = D.div();
             D.append(this.e.content, contentTarget);
           }
+          D.addClass(contentTarget, 'content-target'
+                     /*target element for the 'toggle text mode' feature*/);
           // The m.xmsg text comes from the same server as this script and
           // is guaranteed by that server to be "safe" HTML - safe in the
           // sense that it is not possible for a malefactor to inject HTML
