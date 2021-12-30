@@ -195,6 +195,9 @@ static const char zWebpageHdr[] =
 @ <head>
 @ <meta charset="UTF-8">
 @ <style>
+@ body {
+@    background-color: white;
+@ }
 @ h1 {
 @   font-size: 150%;
 @ }
