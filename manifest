@@ -1,5 +1,5 @@
-C /chat:\sif\san\siframe's\sbody\shas\sno\sfontSize\sset,\stry\sto\sforce\sit\sto\smatch\sthe\smessage\swrapper's\sfont\ssize.\sWhether\sthis\sworks\smight\sbe\senvironment-dependent.\sAdd\ssupport\sfor\sembedding\simages\sin\siframes\sif\sthe\swhen\sthe\s'inline\simages'\soption\sis\soff.
-D 2021-12-30T19:02:16.713
+C Force\sinheritance\sof\sthe\sHTML-mode\sdiff\sfont-size\sand\sline-height\sattributes\sto\sfix\smisalignment\sin\ssome\sbrowsers.
+D 2021-12-30T19:14:02.658
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -440,7 +440,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c 72a4cc9afe795fc17dea1caf84018437e3a12765de0e8fa3a3358f0d3fba6fa9
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c 62a08f5f150071862c8e79fbf15ca7498daaf00fbedd182099408e922eb136fd
+F src/diffcmd.c 5e177e68580b6fb6d99ce9dac7c1e295ac44b1255535b1cd56f1aa710a807537
 F src/dispatch.c 3707f49c1d612ec3f8ad5008e4050df906ff716cf9fb8761d1c4eac3be87505b
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 490c7b435f8b2912ffbe43344adafbba221d0fa5f5fec338a74ce0e828920c10
-R d47ed0bd854d390b617cfa8ba579b4e6
+P d4b167bd9756de9207b437b150551fa4a8837114e175246a15c0288217dae4b5
+R cfad513971d432923a1cc3b4661a5c48
 U stephan
-Z d2fadd8b54b919fabac0862808dbba3d
+Z d981f62c3f1e8002705a44b153622f19
 # Remove this line to create a well-formed Fossil manifest.

@@ -206,12 +206,18 @@ static const char zWebpageHdr[] =
 @   width: 100%;
 @   border-spacing: 0;
 @   border: 1px solid black;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ table.diff td {
 @   vertical-align: top;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ table.diff pre {
 @   margin: 0 0 0 0;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.diffln {
 @   width: 1px;
@@ -224,6 +230,12 @@ static const char zWebpageHdr[] =
 @ td.diffsep {
 @   width: 1px;
 @   padding: 0 0.3em 0 1em;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffsep pre {
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt pre {
 @   overflow-x: auto;
@@ -231,14 +243,20 @@ static const char zWebpageHdr[] =
 @ td.diffln ins {
 @   background-color: #a0e4b2;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.diffln del {
 @   background-color: #ffc0c0;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt del {
 @   background-color: #ffe8e8;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt del > del {
 @   background-color: #ffc0c0;
@@ -253,6 +271,8 @@ static const char zWebpageHdr[] =
 @ td.difftxt ins {
 @   background-color: #dafbe1;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt ins > ins {
 @   background-color: #a0e4b2;
