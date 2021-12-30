@@ -895,7 +895,7 @@ window.fossil.onPageLoad(function(){
 
     const canEmbedFile = function f(filename){
       if(!f.$rx){
-        f.$rx = /\.html$/i;
+        f.$rx = /\.((html?)|(txt))$/i;
       }
       return f.$rx.test(filename);
     };
