@@ -1,5 +1,5 @@
-C /chat:\sadded\sa\sbit\sof\sgap\sbetween\sthe\sEmbed\scheckbox\sand\sits\slabel.
-D 2021-12-30T19:21:54.199
+C Updated\schange\slog\sfor\snew\s/chat\sembedding\sfeature.
+D 2021-12-30T19:25:25.958
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,7 +798,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 3ae6382571f9ee23c0d71e73f4e45efd63d7d21c8c6dd95fdb4f646e654b5d38
+F www/changes.wiki a4b8308a29c5a5aa91c16e6f8861d83da466b6aa81d8424fafedf01475426850
 F www/chat.md c43235a6bd0ade2987ec0967d78ea6238d989e4b2aa04059a3fd267a13e6c5b7
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 432ff8d8c1b1896948d16aacd4a34e84835aca9cc99beeb15e1dc3f753f75654
-R 96f4851f8fc26dfc0a54f7569685fe9d
+P 90d89f886a1e2c22ebd45fffe2196630c9e4e059b1596c53ed26ef00780c8030
+R 50783803d572928a929f766baefe5523
 U stephan
-Z 605a6971cdd67cf35d8d05766c9836a5
+Z 100bce4dc2470296ae643f63e791c0a6
 # Remove this line to create a well-formed Fossil manifest.
