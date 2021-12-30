@@ -46,6 +46,7 @@ body.chat .message-widget-content.wide {
   width: 98%;
 }
 body.chat .message-widget-content label[for] {
+  margin-left: 0.25em;
   cursor: pointer;
 }
 body.chat .message-widget-content > .attachment-link {
