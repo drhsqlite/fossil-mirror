@@ -1,5 +1,5 @@
-C /chat:\sshorted\s'Toggle\sEmbedded'\slabel\sto\s'Embed'.
-D 2021-12-30T18:26:40.148
+C /chat:\sif\san\siframe's\sbody\shas\sno\sfontSize\sset,\stry\sto\sforce\sit\sto\smatch\sthe\smessage\swrapper's\sfont\ssize.\sWhether\sthis\sworks\smight\sbe\senvironment-dependent.\sAdd\ssupport\sfor\sembedding\simages\sin\siframes\sif\sthe\swhen\sthe\s'inline\simages'\soption\sis\soff.
+D 2021-12-30T19:02:16.713
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -462,7 +462,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 22252ea29dfd152497a83e6c8348f5fdf3186be9c6d1a30e2a4956e68c587f48
+F src/fossil.page.chat.js b2f257d0cbc49ecdd248ac07da2eab3cf8a42e8f66fe760f6b61f13be8870598
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 2d34fdc1a79eb8b36976bf2f966a702dacc8350eaca5ff4611d15d7eb9e853be
@@ -577,7 +577,7 @@ F src/stat.c 846a2ad27b6aaaf9f94c727647dd82b27264fbc338d10f678c7258ff0fe93373
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
-F src/style.chat.css 2ab56c453ca71bad61ee513650972a431918b7d5e9bf2d64d39e4b3d4137df63
+F src/style.chat.css bc2858a291968497e88d985082e787e279a52e4e3cf3333d6e2972037eb4fa30
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c e1aec7eae05d2950feee1f86f42585227d768d2355f3d8edb3ac64d93b504ad9
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf4a17c8b4d0208646d529f73200abb2c75e3e21865aa88b81596a9efb114db5
-R 598796b2bd8e6a7d359606c3d5294d16
+P 490c7b435f8b2912ffbe43344adafbba221d0fa5f5fec338a74ce0e828920c10
+R d47ed0bd854d390b617cfa8ba579b4e6
 U stephan
-Z 248d328b81547033d751382c73840b6a
+Z d2fadd8b54b919fabac0862808dbba3d
 # Remove this line to create a well-formed Fossil manifest.

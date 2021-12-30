@@ -45,6 +45,9 @@ body.chat .message-widget-content.wide {
      expand, namely iframes. */
   width: 98%;
 }
+body.chat .message-widget-content label[for] {
+  cursor: pointer;
+}
 body.chat .message-widget-content > .attachment-link {
   display: flex;
   flex-direction: row;

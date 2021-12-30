@@ -893,11 +893,15 @@ window.fossil.onPageLoad(function(){
       ].join('');
     };
 
-    const canEmbedFile = function f(filename){
+    const canEmbedFile = function f(msg){
       if(!f.$rx){
         f.$rx = /\.((html?)|(txt))$/i;
       }
-      return f.$rx.test(filename);
+      return msg.fname && (
+        f.$rx.test(msg.fname)
+          || (msg.fmime
+              && msg.fmime.startsWith("image/"))
+      );
     };
 
     cf.prototype = {
@@ -955,7 +959,7 @@ window.fossil.onPageLoad(function(){
             )
             D.attr(a,'target','_blank');
             D.append(w, a);
-            if(canEmbedFile(m.fname)){
+            if(canEmbedFile(m)){
               /* Add an option to embed HTML attachments in an iframe. The primary
                  use case is attached diffs. */
               D.addClass(contentTarget, 'wide');
@@ -975,6 +979,15 @@ window.fossil.onPageLoad(function(){
                 D.append(embedTarget, iframe);                
                 iframe.addEventListener('load', function(){
                   D.enable(btnEmbed);
+                  const body = iframe.contentWindow.document.querySelector('body');
+                  if(body && !body.style.fontSize){
+                    /** _Attempt_ to force the iframe to inherit the message's text size
+                        if the body has no explicit size set. On desktop systems
+                        the size is apparently being inherited in that case, but on mobile
+                        not. */
+                    const cs = window.getComputedStyle(self.e.content);
+                    body.style.fontSize = cs.fontSize;
+                  }
                   iframe.style.maxHeight = iframe.style.height
                     = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
                 });
