@@ -100,7 +100,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    info        Run the "info" command on all repositories.
 **
 **    pull        Run a "pull" operation on all repositories.  Only the
-**                --verbose option is supported.
+**                --verbose and --share-links options are supported.
 **
 **    push        Run a "push" on all repositories.  Only the --verbose
 **                option is supported.
@@ -111,7 +111,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                --randomize options are not supported.
 **
 **    sync        Run a "sync" on all repositories.  Only the --verbose
-**                and --unversioned options are supported.
+**                and --unversioned and --share-links options are supported.
 **
 **    set         Run the "setting" or "set" commands on all
 **                repositories.  These command are particularly useful in
@@ -269,6 +269,7 @@ void all_cmd(void){
   }else if( strncmp(zCmd, "pull", n)==0 ){
     zCmd = "pull -autourl -R";
     collect_argument(&extra, "verbose","v");
+    collect_argument(&extra, "share-links",0);
   }else if( strncmp(zCmd, "rebuild", n)==0 ){
     zCmd = "rebuild";
     collect_argument(&extra, "cluster",0);
@@ -295,6 +296,7 @@ void all_cmd(void){
     collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+    collect_argument(&extra, "share-links",0);
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){

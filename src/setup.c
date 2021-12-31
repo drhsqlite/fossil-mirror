@@ -1033,6 +1033,17 @@ void setup_config(void){
   @ engines as well as a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr />
+  entry_attribute("Canonical Server URL", 40, "email-url",
+                   "eurl", "", 0);
+  @ <p>This is the URL used access this repository as a server.
+  @ Other repositories use this URL to clone or sync against this repository.
+  @ This is also the basename for hyperlinks included in email alert text.
+  @ Omit the trailing "/".
+  @ If this repo will not be set up as a persistent server and will not
+  @ be sending email alerts, then leave this entry blank.
+  @ Suggested value: "%h(g.zBaseURL)"
+  @ (Property: "email-url")</p>
+  @ <hr>
   entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
                   "spn", "", 0);
   @ <p>This is used as a prefix on the names of generated tarballs and

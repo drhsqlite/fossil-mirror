@@ -1274,6 +1274,7 @@ static int gitmirror_send_checkin(
   if( fManifest & MFESTFLG_RAW ){
     Blob manifest;
     content_get(rid, &manifest);
+    sterilize_manifest(&manifest, CFTYPE_MANIFEST);
     fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
       blob_strlen(&manifest), blob_str(&manifest));
     blob_reset(&manifest);
@@ -1719,7 +1720,7 @@ void gitmirror_export_command(void){
     }else if( db_is_writeable("repository") ){
       db_unprotect(PROTECT_CONFIG);
       db_multi_exec("REPLACE INTO config(name,value,mtime)"
-                    "VALUES('gitpush:%q',1,now())", zPushUrl);
+                    "VALUES('gitpush:%q','{}',now())", zPushUrl);
       db_protect_pop();
     }
     fossil_free(zPushCmd);

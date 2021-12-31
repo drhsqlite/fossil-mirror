@@ -134,6 +134,7 @@ void delete_private_content(void){
 **    --save-http-password       Remember the HTTP password without asking
 **    --ssh-command|-c SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
+**    --transport-command CMD    Use CMD to move messages to the server and back
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
 **    --workdir DIR              Also open a checkout in DIR
@@ -168,6 +169,7 @@ void clone_cmd(void){
   zWorkDir = find_option("workdir", 0, 1);
   clone_ssh_find_options();
   url_proxy_options();
+  g.zHttpCmd = find_option("transport-command",0,1);
 
   /* We should be done with options.. */
   verify_all_options();

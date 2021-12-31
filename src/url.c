@@ -41,6 +41,7 @@
 #define URL_REMEMBER_PW      0x008  /* Should remember pw */
 #define URL_PROMPTED         0x010  /* Prompted for PW already */
 #define URL_OMIT_USER        0x020  /* Omit the user name from URL */
+#define URL_USE_CONFIG       0x040  /* Use remembered URLs from CONFIG table */
 
 /*
 ** The URL related data used with this subsystem.
@@ -70,10 +71,8 @@ struct UrlData {
 
 
 /*
-** Parse the given URL.  Or if zUrl is NULL, parse the URL in the
-** last-sync-url setting using last-sync-pw as the password.  Store
-** the parser results in the pUrlData object.  Populate members of pUrlData
-** as follows:
+** Parse the URL in the zUrl argument. Store results in the pUrlData object.
+** Populate members of pUrlData as follows:
 **
 **      isFile      True if FILE:
 **      isHttps     True if HTTPS:
@@ -88,6 +87,11 @@ struct UrlData {
 **      hostname    HOST:PORT or just HOST if port is the default.
 **      canonical   The URL in canonical form, omitting the password
 **
+** If zUrl==0, then parse the URL store in last-sync-url and last-sync-pw
+** of the CONFIG table.  Or if zUrl is a symbolic name, look up the URL
+** in sync-url:%Q and sync-pw:%Q elements of the CONFIG table.  But only
+** use the CONFIG table alternatives if the URL_FROM_CONFIG flag is set.
+**
 ** This routine differs from url_parse() in that this routine stores the
 ** results in pUrlData and does not change the values of global variables.
 ** The url_parse() routine puts its result in g.url.
@@ -100,27 +104,31 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
-  if( zUrl==0 || strcmp(zUrl,"default")==0 ){
-    zUrl = db_get("last-sync-url", 0);
-    if( zUrl==0 ) return;
-    if( pUrlData->passwd==0 ){
-      pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
-    }
-    pUrlData->isAlias = 1;
-  }else{
-    char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
-    char *zAlt = db_get(zKey, 0);
-    sqlite3_free(zKey);
-    if( zAlt ){
-      pUrlData->passwd = unobscure(
-        db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
-      );
-      zUrl = zAlt;
-      urlFlags |= URL_REMEMBER_PW;
+  if( urlFlags & URL_USE_CONFIG ){
+    if( zUrl==0 || strcmp(zUrl,"default")==0 ){
+      zUrl = db_get("last-sync-url", 0);
+      if( zUrl==0 ) return;
+      if( pUrlData->passwd==0 ){
+        pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
+      }
       pUrlData->isAlias = 1;
     }else{
-      pUrlData->isAlias = 0;
+      char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
+      char *zAlt = db_get(zKey, 0);
+      sqlite3_free(zKey);
+      if( zAlt ){
+        pUrlData->passwd = unobscure(
+          db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
+        );
+        zUrl = zAlt;
+        urlFlags |= URL_REMEMBER_PW;
+        pUrlData->isAlias = 1;
+      }else{
+        pUrlData->isAlias = 0;
+      }
     }
+  }else{
+    if( zUrl==0 ) return;
   }
 
   if( strncmp(zUrl, "http://", 7)==0
@@ -305,6 +313,70 @@ void url_parse_local(
 }
 
 /*
+** Construct the complete URL for a UrlData object, including the
+** login name and password, into memory obtained from fossil_malloc()
+** and return a pointer to that URL text.
+*/
+char *url_full(const UrlData *p){
+  Blob x = BLOB_INITIALIZER;
+  if( p->isFile || p->user==0 || p->user[0]==0 ){
+    return fossil_strdup(p->canonical);
+  }
+  blob_appendf(&x, "%s://", p->protocol);
+  if( p->user && p->user[0] ){
+    blob_appendf(&x, "%t", p->user);
+    if( p->passwd && p->passwd[0] ){
+      blob_appendf(&x, ":%t", p->passwd);
+    }
+    blob_appendf(&x, "@");
+  }
+  blob_appendf(&x, "%T", p->name);
+  if( p->dfltPort!=p->port ){
+    blob_appendf(&x, ":%d", p->port);
+  }
+  blob_appendf(&x, "%T", p->path);
+  (void)blob_str(&x);
+  return x.aData;
+}
+
+/*
+** Construct a URL for a UrlData object that omits the
+** login name and password, into memory obtained from fossil_malloc()
+** and return a pointer to that URL text.
+*/
+char *url_nouser(const UrlData *p){
+  Blob x = BLOB_INITIALIZER;
+  if( p->isFile || p->user==0 || p->user[0]==0 ){
+    return fossil_strdup(p->canonical);
+  }
+  blob_appendf(&x, "%s://", p->protocol);
+  blob_appendf(&x, "%T", p->name);
+  if( p->dfltPort!=p->port ){
+    blob_appendf(&x, ":%d", p->port);
+  }
+  blob_appendf(&x, "%T", p->path);
+  (void)blob_str(&x);
+  return x.aData;
+}
+
+/*
+** SQL function to remove the username/password from a URL
+*/
+void url_nouser_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zOrig = (const char*)sqlite3_value_text(argv[0]);
+  UrlData x;
+  if( zOrig==0 ) return;
+  memset(&x, 0, sizeof(x));
+  url_parse_local(zOrig, URL_OMIT_USER, &x);
+  sqlite3_result_text(context, x.canonical, -1, SQLITE_TRANSIENT);
+  url_unparse(&x);
+}
+
+/*
 ** Reclaim malloced memory from a UrlData object
 */
 void url_unparse(UrlData *p){
@@ -388,6 +460,7 @@ void cmd_test_urlparser(void){
     fossil_print("g.url.canonical = %s\n", g.url.canonical);
     fossil_print("g.url.fossil    = %s\n", g.url.fossil);
     fossil_print("g.url.flags     = 0x%02x\n", g.url.flags);
+    fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
     if( g.url.isFile || g.url.isSsh ) break;
     if( i==0 ){
       fossil_print("********\n");

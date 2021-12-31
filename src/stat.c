@@ -476,6 +476,27 @@ void dbstat_cmd(void){
 }
 
 /*
+** Return a string which is the public URL used to access this repository.
+** Or return a NULL pointer if this repository does not have a public
+** access URL.
+**
+** Algorithm:
+**
+** The public URL is given by the email-url property.  But it is only
+** returned if there have been one more more accesses (as recorded by
+** "baseurl:URL" entries in the CONFIG table).
+*/
+const char *public_url(void){
+  const char *zUrl = db_get("email-url", 0);
+  if( zUrl==0 ) return 0;
+  if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", zUrl) ){
+    return 0;
+  }
+  return zUrl;
+}
+
+
+/*
 ** WEBPAGE: urllist
 **
 ** Show ways in which this repository has been accessed
@@ -483,9 +504,11 @@ void dbstat_cmd(void){
 void urllist_page(void){
   Stmt q;
   int cnt;
+  int total = 0;
   int showAll = P("all")!=0;
   int nOmitted;
   sqlite3_int64 iNow;
+  char *zPriorRepo = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
@@ -496,13 +519,17 @@ void urllist_page(void){
   style_submenu_element("Stat", "stat");
   style_submenu_element("Schema", "repo_schema");
   iNow = db_int64(0, "SELECT strftime('%%s','now')");
-  @ <div class="section">URLs used to access this repository</div>
-  @ <table border="0" width='100%%'>
+
+
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch'), mtime"
                  "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 3 DESC");
   cnt = 0;
   nOmitted = 0;
   while( db_step(&q)==SQLITE_ROW ){
+    if( cnt==0 ){
+      @ <div class="section">URLs used to access this repository</div>
+      @ <table border="0" width='100%%'>
+    }
     if( !showAll && db_column_int64(&q,2)<(iNow - 3600*24*30) && cnt>8 ){
       nOmitted++;
     }else{
@@ -512,12 +539,20 @@ void urllist_page(void){
     cnt++;
   }
   db_finalize(&q);
-  if( cnt==0 ){
-    @ <tr><td>(none)</td>
-  }else if( nOmitted ){
+  
+  if( nOmitted ){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
-  @ </table>
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+  if( P("urlonly") ){
+    style_finish_page();
+    return;
+  }
+
+
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
                  "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
@@ -536,7 +571,9 @@ void urllist_page(void){
   db_finalize(&q);
   if( cnt ){
     @ </table>
+    total += cnt;
   }
+
   cnt = 0;
   db_prepare(&q,
     "SELECT substr(name,10), datetime(mtime,'unixepoch')"
@@ -547,13 +584,13 @@ void urllist_page(void){
     "UNION ALL "
     "SELECT substr(name,9), datetime(mtime,'unixepoch')"
     "  FROM config WHERE name GLOB 'gitpush:*'"
-    "ORDER BY 2 DESC"
+    "GROUP BY 1 ORDER BY 2 DESC"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zURL = db_column_text(&q,0);
     UrlData x;
     if( cnt==0 ){
-      @ <div class="section">Sync with these URLs</div>
+      @ <div class="section">Recently synced with these URLs</div>
       @ <table border='0' width='100%%'>
     }
     memset(&x, 0, sizeof(x));
@@ -566,6 +603,84 @@ void urllist_page(void){
   db_finalize(&q);
   if( cnt ){
     @ </table>
+    total += cnt;
+  }
+
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT"
+    " substr(name,6),"
+    " datetime(mtime,'unixepoch'),"
+    " json_extract(value,'$.type'),"
+    " json_extract(value,'$.src')\n"
+    "FROM config\n"
+    "WHERE name GLOB 'link:*'\n"
+    "AND json_valid(value)\n"
+    "ORDER BY 4, 2 DESC"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    const char *zType = db_column_text(&q, 2);
+    const char *zSrc = db_column_text(&q, 3);
+    if( zUrl==0 || zSrc==0 ) continue;
+    if( cnt++==0 ){
+      @ <div class="section">Links from other repositories</div>
+      @ <table border='0' width='100%%'>
+    }
+    if( zPriorRepo==0 || strcmp(zPriorRepo,zSrc)!=0 ){
+      fossil_free(zPriorRepo);
+      zPriorRepo = fossil_strdup(zSrc);
+      @ <tr><td colspan="4">\
+      @ From <a href='%T(zSrc)'>%h(zSrc)</a>...</td></tr>
+    }
+    @ <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    @ <td width='90%%'><a href='%h(zUrl)'>%h(zUrl)</a></td>
+    if( zType ){
+      @ <td>&nbsp;(%h(zType))&nbsp;</td>
+    }else{
+      @ <td>&nbsp;</td>
+    }
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+  }
+  db_finalize(&q);
+  fossil_free(zPriorRepo);
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT"
+    " value,"
+    " url_nouser(value),"
+    " substr(name,10),"
+    " datetime(mtime,'unixepoch')"
+    "FROM config\n"
+    "WHERE name GLOB 'sync-url:*'\n"
+    "ORDER BY 2"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    const char *zLink = db_column_text(&q, 1);
+    const char *zName = db_column_text(&q, 2);
+    if( cnt++==0 ){
+      @ <div class="section">Defined sync targets</div>
+      @ <table border='0' width='100%%'>
+    }
+    @ <tr><td>%h(zName)</td><td>&nbsp;&nbsp;</td>
+    @ <td width='95%%'><a href='%h(zLink)'>%h(zUrl)</a></td>
+    @ <td><nobr>%h(db_column_text(&q,3))</nobr></td></tr>
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+
+
+  if( total==0 ){
+    @ <p>No record of any URLs or checkouts</p>
   }
   style_finish_page();
 }

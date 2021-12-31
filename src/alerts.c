@@ -950,8 +950,12 @@ void alert_send(
 
 /*
 ** SETTING: email-url                 width=40
-** This URL is used as the basename for hyperlinks included in email alert
-** text. Omit the trailing "/".
+** This is the main URL used to access the repository for cloning or
+** syncing or for operating the web interface.  It is also
+** the basename for hyperlinks included in email alert text.
+** Omit the trailing "/".  If the repository is not intended to be
+** a long-running server and will not be sending email notifications,
+** then leave this setting blank.
 */
 /*
 ** SETTING: email-admin               width=40

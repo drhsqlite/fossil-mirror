@@ -74,7 +74,7 @@ static int client_sync_all_urls(
   for(i=0; i<nOther; i++){
     int rc;
     url_unparse(&g.url);
-    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
+    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW|URL_USE_CONFIG);
     sync_explain(syncFlags);
     rc = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
     nErr += rc;
@@ -131,7 +131,7 @@ int autosync(int flags){
     if( flags & SYNC_PUSH ) return 0;
   }
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  url_parse(0, URL_REMEMBER);
+  url_parse(0, URL_REMEMBER|URL_USE_CONFIG);
   if( g.url.protocol==0 ) return 0;
   if( g.url.user!=0 && g.url.passwd==0 ){
     g.url.passwd = unobscure(db_get("last-sync-pw", 0));
@@ -234,6 +234,31 @@ static void process_sync_args(
   if( find_option("all",0,0)!=0 ){
     *pSyncFlags |= SYNC_ALLURL;
   }
+  if( ((*pSyncFlags) & SYNC_PULL)!=0
+   && find_option("share-links",0,0)!=0
+  ){
+    *pSyncFlags |= SYNC_SHARE_LINKS;
+  }
+
+  /* Option:  --transport-command COMMAND
+  **
+  ** Causes COMMAND to be run with three arguments in order to talk
+  ** to the server.
+  **
+  **       COMMAND URL PAYLOAD REPLY
+  **
+  ** URL is the server name.  PAYLOAD is the name of a temporary file
+  ** that will contain the xfer-protocol payload to send to the server.
+  ** REPLY is a temporary filename in which COMMAND should write the
+  ** content of the reply from the server.
+  **
+  ** CMD is reponsible for HTTP redirects.  The following Fossil command
+  ** can be used for CMD to achieve a working sync:
+  **
+  **      fossil test-httpmsg --xfer
+  */
+  g.zHttpCmd = find_option("transport-command",0,1);
+
   url_proxy_options();
   clone_ssh_find_options();
   if( !uvOnly ) db_find_and_open_repository(0, 0);
@@ -256,7 +281,7 @@ static void process_sync_args(
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();
   }
-  url_parse(zUrl, urlFlags);
+  url_parse(zUrl, urlFlags|URL_USE_CONFIG);
   remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
   if( g.url.protocol==0 ){
     if( urlOptional ) fossil_exit(0);
@@ -296,8 +321,11 @@ static void process_sync_args(
 **   --project-code CODE        Use CODE as the project code
 **   --proxy PROXY              Use the specified HTTP proxy
 **   -R|--repository REPO       Local repository to pull into
+**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --transport-command CMD    Use external command CMD to move messages
+**                              between client and server
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -349,6 +377,8 @@ void pull_cmd(void){
 **   -R|--repository REPO       Local repository to push from
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --transport-command CMD    Use external command CMD to communicate with
+**                              the server
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -394,8 +424,11 @@ void push_cmd(void){
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Sync private branches too
 **   -R|--repository REPO       Local repository to sync with
+**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   --transport-command CMD    Use external command CMD to move message
+**                              between the client and the server
 **   -u|--unversioned           Also sync unversioned content
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote

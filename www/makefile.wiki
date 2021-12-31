@@ -294,9 +294,6 @@ the appropriate SSL implementation.  And, of course, Fossil needs to
 link against the standard C library.  No other libraries or external
 dependences are used.
 
-Fossil includes a copy of [https://github.com/richgel999/miniz | miniz]
-which can be used as an alternative to zlib.
-
 <h1>7.0 Debugging</h1>
 
 Debug mode is controlled via FOSSIL_DEBUG preprocessor macro which could be

@@ -143,8 +143,8 @@ int transport_ssh_open(UrlData *pUrlData){
   }else{
     fossil_fatal("ssh:// URI does not specify a path to the repository");
   }
-  if( g.fSshTrace ){
-    fossil_print("%s\n", blob_str(&zCmd));  /* Show the whole SSH command */
+  if( g.fSshTrace || g.fHttpTrace ){
+    fossil_print("RUN %s\n", blob_str(&zCmd));  /* Show the whole SSH command */
   }
   popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid, 0);
   if( sshPid==0 ){
@@ -172,22 +172,18 @@ int transport_open(UrlData *pUrlData){
       if( rc==0 ) transport.isOpen = 1;
     }else if( pUrlData->isHttps ){
 #ifdef FOSSIL_ENABLE_SSL
-      rc = ssl_open(pUrlData);
+      rc = ssl_open_client(pUrlData);
       if( rc==0 ) transport.isOpen = 1;
 #else
       socket_set_errmsg("HTTPS: Fossil has been compiled without SSL support");
       rc = 1;
 #endif
     }else if( pUrlData->isFile ){
-      sqlite3_uint64 iRandId;
       if( !db_looks_like_a_repository(pUrlData->name) ){
         fossil_fatal("not a fossil repository: \"%s\"", pUrlData->name);
       }
-      sqlite3_randomness(sizeof(iRandId), &iRandId);
-      transport.zOutFile = mprintf("%s-%llu-out.http",
-                                       g.zRepositoryName, iRandId);
-      transport.zInFile = mprintf("%s-%llu-in.http",
-                                       g.zRepositoryName, iRandId);
+      transport.zOutFile = fossil_temp_filename();
+      transport.zInFile = fossil_temp_filename();
       transport.pFile = fossil_fopen(transport.zOutFile, "wb");
       if( transport.pFile==0 ){
         fossil_fatal("cannot output temporary file: %s", transport.zOutFile);
@@ -219,7 +215,7 @@ void transport_close(UrlData *pUrlData){
       transport_ssh_close();
     }else if( pUrlData->isHttps ){
       #ifdef FOSSIL_ENABLE_SSL
-      ssl_close();
+      ssl_close_client();
       #endif
     }else if( pUrlData->isFile ){
       if( transport.pFile ){
@@ -228,8 +224,8 @@ void transport_close(UrlData *pUrlData){
       }
       file_delete(transport.zInFile);
       file_delete(transport.zOutFile);
-      free(transport.zInFile);
-      free(transport.zOutFile);
+      sqlite3_free(transport.zInFile);
+      sqlite3_free(transport.zOutFile);
     }else{
       socket_close();
     }
@@ -282,6 +278,7 @@ void transport_flip(UrlData *pUrlData){
                    " %$ --localauth",
        g.nameOfExe, transport.zOutFile, transport.zInFile, pUrlData->name
     );
+    if( g.fHttpTrace ) fossil_print("RUN %s\n", zCmd);
     fossil_system(zCmd);
     free(zCmd);
     transport.pFile = fossil_fopen(transport.zInFile, "rb");
