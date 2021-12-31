@@ -582,6 +582,7 @@ static int textLineChanges(
     int x, i;
     int aLCS[4];
     struct Span *a, *b;
+    memset(aLCS, 0, sizeof(aLCS));
     for(i=0; i<p->n; i++){
       if( p->a[i].isMin ) continue;
       x = p->a[i].iLen1;

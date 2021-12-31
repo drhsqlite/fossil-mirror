@@ -1033,7 +1033,7 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 "$(OX)\th_tcl$O" : "$(SRCDIR)\th_tcl.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-"$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c" "$(B)\win\Makefile.msc"
+"$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
