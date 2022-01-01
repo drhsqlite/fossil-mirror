@@ -896,14 +896,42 @@ window.fossil.onPageLoad(function(){
     const canEmbedFile = function f(msg){
       if(!f.$rx){
         f.$rx = /\.((html?)|(txt))$/i;
+        f.$specificTypes = [
+          'text/plain',
+          'text/html'
+          // add more as we discover which ones Firefox won't
+          // force the user to try to download.
+        ];
       }
       if(msg.fmime){
-        return (msg.fmime.startsWith("text/")
-                || msg.fmime.startsWith("image/"));
+        return (msg.fmime.startsWith("image/")
+                || f.$specificTypes.indexOf(msg.fmime)>=0);
       }
       return msg.fname && f.$rx.test(msg.fname);
     };
 
+    const adjustIFrameSize = function(msgObj){
+      const iframe = msgObj.e.iframe;
+      const body = iframe.contentWindow.document.querySelector('body');
+      if(body && !body.style.fontSize){
+        /** _Attempt_ to force the iframe to inherit the message's text size
+            if the body has no explicit size set. On desktop systems
+            the size is apparently being inherited in that case, but on mobile
+            not. */
+        body.style.fontSize = window.getComputedStyle(msgObj.e.content);
+      }
+      if('' === iframe.style.maxHeight){
+        /* Resize iframe height to fit the content. Workaround: if we
+           adjust the iframe height while it's hidden then its height
+           is 0, so we must briefly unhide it. */
+        const isHidden = iframe.classList.contains('hidden');
+        if(isHidden) D.removeClass(iframe, 'hidden');
+        iframe.style.maxHeight = iframe.style.height
+          = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
+        if(isHidden) D.addClass(iframe, 'hidden');
+      }
+    };
+    
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -971,28 +999,26 @@ window.fossil.onPageLoad(function(){
               const btnEmbed = D.attr(D.checkbox("1", false), 'id',
                                       'embed-'+ds.msgid);
               const btnLabel = D.label(btnEmbed, "Embed");
+              /* Maintenance reminder: do not disable the toggle
+                 button while the content is loading because that will
+                 cause it to get stuck in disabled mode if the browser
+                 decides that loading the content should prompt the
+                 user to download it, rather than embed it in the
+                 iframe. */
               btnEmbed.addEventListener('change',function(){
                 if(self.e.iframe){
-                  if(btnEmbed.checked) D.removeClass(self.e.iframe, 'hidden');
+                  if(btnEmbed.checked){
+                    D.removeClass(self.e.iframe, 'hidden');
+                    if(self.e.$iframeLoaded) adjustIFrameSize(self);
+                  }
                   else D.addClass(self.e.iframe, 'hidden');
                   return;
                 }
-                D.disable(btnEmbed);
                 const iframe = self.e.iframe = document.createElement('iframe');
-                D.append(embedTarget, iframe);                
+                D.append(embedTarget, iframe);
                 iframe.addEventListener('load', function(){
-                  D.enable(btnEmbed);
-                  const body = iframe.contentWindow.document.querySelector('body');
-                  if(body && !body.style.fontSize){
-                    /** _Attempt_ to force the iframe to inherit the message's text size
-                        if the body has no explicit size set. On desktop systems
-                        the size is apparently being inherited in that case, but on mobile
-                        not. */
-                    const cs = window.getComputedStyle(self.e.content);
-                    body.style.fontSize = cs.fontSize;
-                  }
-                  iframe.style.maxHeight = iframe.style.height
-                    = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
+                  self.e.$iframeLoaded = true;
+                  adjustIFrameSize(self);
                 });
                 iframe.setAttribute('src', downloadUri);
               });
