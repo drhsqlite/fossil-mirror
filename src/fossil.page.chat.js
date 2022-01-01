@@ -897,11 +897,11 @@ window.fossil.onPageLoad(function(){
       if(!f.$rx){
         f.$rx = /\.((html?)|(txt))$/i;
       }
-      return msg.fname && (
-        f.$rx.test(msg.fname)
-          || (msg.fmime
-              && msg.fmime.startsWith("image/"))
-      );
+      if(msg.fmime){
+        return (msg.fmime.startsWith("text/")
+                || msg.fmime.startsWith("image/"));
+      }
+      return msg.fname && f.$rx.test(msg.fname);
     };
 
     cf.prototype = {
@@ -946,7 +946,10 @@ window.fossil.onPageLoad(function(){
               && m.fmime.startsWith("image/")
               && Chat.settings.getBool('images-inline',true)
             ){
-            contentTarget.appendChild(D.img("chat-download/" + m.msgid));
+            const extension = m.fname.split('.').pop();
+            contentTarget.appendChild(D.img("chat-download/" + m.msgid +(
+              extension ? ('.'+extension) : ''/*So that IMG tag mimetype guessing works*/
+            )));
             ds.hasImage = 1;
           }else{
             // Add a download link.
