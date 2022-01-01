@@ -1,5 +1,5 @@
-C New\ssetting\s"large-file-size"\sis\sa\s64-bit\sinteger.\s\sIf\sany\sfile\sof\sa\scheck-in\nis\slarger\sthan\sthis\samount,\sa\swarning\sis\sissues\sthat\sthe\susers\shas\sto\sconfirm\nbefore\scontinuing.\s\sWarnings\scan\sbe\sbypassed\susing\s--ignore-oversize\sor\n--no-warnings.\s\sUse\s"fossil\sset\slarge-file-size\s0"\sto\spermanently\sdisable\sthis\nwarning.\s\sDefault\svalue\sis\s20,000,000.
-D 2022-01-01T00:36:52.509
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.38.0\salpha,\sfor\stesting.
+D 2022-01-01T00:41:27.797
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -295,9 +295,9 @@ F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr.c dc374dad64dbe9738c6e899317ea333699c06db1d955b824f8b80605e19d209a
-F extsrc/shell.c 2df76ca891cd1a409626758f4bb32afd75bb9561d01ea654b881fd74adb0b07e
-F extsrc/sqlite3.c 10f699203768ef6a10006bf578752d4fb255db4653bbbc68c359bcde7559830e
-F extsrc/sqlite3.h 2ba5af54f57390263c62f9cb66321ddb0ab586c458f5e8aa58b0b01a3a1735c2
+F extsrc/shell.c 2cfd06c9cb8f747e0b459ace750014baed30d321ffc26d4fb1edc107278db306
+F extsrc/sqlite3.c 67780015a4e856b1d40f0b5a81f18a0272c1c40fb53869e3f2729e878cf240d8
+F extsrc/sqlite3.h aa36cefffb27f7c1842f5cba1ea9f82a9f1df8b0afce99bdfbda8fdfec0a52a6
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96a66d75f8da2f8c36a72795947086c927e5a2ed7c2da617ec8a7656d8feaed8
-R bb1a15c4d8732dc3a8c8c40da1855ca2
+P 3ffe893f88a4b65b6a1ac6e9d5f2039a1d4d7f390d83a2697a380a03fe0eeeef
+R ff3ca4c005ced7beb1516ea6161f705e
 U drh
-Z ab3c46d1b1a925db93360eae842b0e60
+Z ca0024e97c5979ee276345d4e5d406cb
 # Remove this line to create a well-formed Fossil manifest.
