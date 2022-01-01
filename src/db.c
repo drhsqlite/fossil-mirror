@@ -3326,6 +3326,10 @@ int db_get_int(const char *zName, int dflt){
   }
   return v;
 }
+i64 db_large_file_size(void){
+  /* Return size of the largest file that is not considered oversized */
+  return strtoll(db_get("large-file-size","20000000"),0,0);
+}
 void db_set_int(const char *zName, int value, int globalFlag){
   db_assert_protection_off_or_not_sensitive(zName);
   db_unprotect(PROTECT_CONFIG);
@@ -4396,6 +4400,13 @@ struct Setting {
 ** web browser when given a URL as an argument.
 ** Defaults to "start" on windows, "open" on Mac,
 ** and "firefox" on Unix.
+*/
+/*
+** SETTING: large-file-size     width=10 default=200000000
+** Fossil considers any file whose size is greater than this value
+** to be a "large file".  Fossil might issue warnings if you try to
+** "add" or "commit" a "large file".  Set this value to 0 or less 
+** to disable all such warnings.
 */
 
 /*
