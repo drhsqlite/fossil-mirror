@@ -1,5 +1,5 @@
-C Warn\sagainst\sadding\sthe\sprivate-key\sused\sby\sFossil's\sbuilt-in\sself-signed\ncert\sto\sthe\sOS's\strust\sstore.
-D 2022-01-02T20:20:28.808
+C In\sthe\sforum,\somit\sunnecessary\squery\sparameters\son\sgenerated\sURLs,\sso\sthat\sit\nis\seasier\sto\scopy/paste\sURLs\sinto\scommit\smessages\sor\schat\swindows.
+D 2022-01-02T20:46:47.648
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -452,7 +452,7 @@ F src/file.c e81ff8a9952f588baaabfeb4a02635b62e20c8c39a439a2a0799fddcfe4f15bc
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
 F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c d32fbf091ddeaba3c47239f44dce1cb66b3a75e4503b5538a1c99c447f48fabf
+F src/forum.c 74204138c764aa66f18d21552d5a4727b2a3882a055d30e140343dbfa51acab4
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0423fb8d7b2a6423cc50799f816a7695130b526e0028814c3d7f685441cbe2a2
-R 5b88ae9cda080b4b67a0a3f399ad0567
+P 890b49f8e00f90835eb9c3674afab840dd2450450251b5cbdc9198b8b5967926
+R 06b2e10bf34ec81e6c2c158b8f96cf76
 U drh
-Z f1d88e394994c0a25686513de589665a
+Z cd576a02c9075c1326cbc8b46ccdc146
 # Remove this line to create a well-formed Fossil manifest.
