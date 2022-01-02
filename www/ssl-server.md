@@ -76,9 +76,11 @@ If you do not tell Fossil about a cert and private key, it uses a
 generic "private key" and self-signed cert that is built into Fossil.
 This is wildly insecure, since the private key is not really private - 
 it is [in plain sight](/info/c2a7b14c3f541edb96?ln=89-116) in the Fossil
-source tree for anybody to read.  So the built-in cert is only useful
-for testing.  If you want actual security, you will need to come up with
-your own private key and cert.
+source tree for anybody to read.  <b>Never add the private key that is
+built into Fossil to your OS's trust store</b> as doing so will severely
+compromise your computer.  The built-in cert is only useful for testing.
+If you want actual security, you will need to come up with your own private
+key and cert.
 
 Fossil wants to read certs and public keys in the 
 [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail).

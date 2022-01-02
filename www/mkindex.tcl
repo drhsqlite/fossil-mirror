@@ -109,6 +109,7 @@ set doclist {
   stats.wiki {Performance Statistics}
   style.wiki {Source Code Style Guidelines}
   ssl.wiki {Using SSL with Fossil}
+  ssl-server.md {SSL/TLS Server Mode}
   sync.wiki {The Fossil Sync Protocol}
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}

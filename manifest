@@ -1,5 +1,5 @@
-C /chat:\sbe\smore\srestrictive\sin\swhat\smimetypes\swe\senable\sembedding\sfor\sbecause\sloading\san\siframe\swith\san\sarbitrary\smimetype\smight\sforce\sthe\sbrowser\sto\sprompt\sto\sdownload\sthe\scontent.\sLeave\sthe\sEmbed\stoggle\senabled,\seven\sduring\sloading,\sto\savoid\sthat\ssuch\sa\sdownload\sprompt\sleaves\sthe\stoggle\spermanently\sdisabled.\sThat\slatter\sbit\srequired\ssome\srefactoring\sof\sthe\sauto-iframe-resize\sto\saccount\sfor\stoggling\swhile\sthe\scontent\sis\sstill\sin\stransit.
-D 2022-01-01T23:09:40.314
+C Warn\sagainst\sadding\sthe\sprivate-key\sused\sby\sFossil's\sbuilt-in\sself-signed\ncert\sto\sthe\sOS's\strust\sstore.
+D 2022-01-02T20:20:28.808
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -901,11 +901,11 @@ F www/makefile.wiki 3a3700df48edcc03c5cc39aec79db038bf70755646467f44d0351ccdc777
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
-F www/mkindex.tcl 63288b8934764ef22125d60135616233e0ad0b59a463c85e10431884e2915062 x
+F www/mkindex.tcl f8bb1ef18bdbb9fc0e62db3390e2ee91c2f03b9b777b2aefbcc24ff34ad8f1dc x
 F www/newrepo.wiki bbc20d277cfb9787824a4fc83cfec571b379e116a7765808d481370793c22611
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
-F www/permutedindex.html a4e0b88f2928d14be61e031099e0f17ab7bd3b9089380158fdfc825c1d5a8614
+F www/permutedindex.html 181ee07cb1bc965821c674106aca07a4012be455696e3ad36861463ddcd49c3f
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
@@ -949,7 +949,7 @@ F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524
 F www/serverext.wiki 7b38c1cb3fceb59c0270b73d51f55c1b50cd076f0ad63ea417f8d0d8f84e9a84
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
-F www/ssl-server.md ca077438fbd3db4046cf86ac2c9a694224b24f1364ea84ca8f0391cd10f065b6
+F www/ssl-server.md 41c8d89c8ccdcdcceb571a07f5ba30c91cd04ed3dc2a2d438a63ea8be915f380
 F www/ssl.wiki 857c82fac2af659a0482d4c984f08a7e27129cf087f2cecd5f23fbb074574132
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cead9178c8c90076a0e3647d6a486d60f73c528f8c8dca4ce1d016f1a4bbd534
-R 0a492de25480061e1c280a208e91f5c3
-U stephan
-Z 6868c0546f60d061d17524c30f9564d6
+P 0423fb8d7b2a6423cc50799f816a7695130b526e0028814c3d7f685441cbe2a2
+R 5b88ae9cda080b4b67a0a3f399ad0567
+U drh
+Z f1d88e394994c0a25686513de589665a
 # Remove this line to create a well-formed Fossil manifest.
