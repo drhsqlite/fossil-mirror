@@ -2,7 +2,7 @@
 
 ## History
 
-Fossil has supported client-side SSL/TLS since [2010][1].  This means
+Fossil has supported [client-side SSL/TLS][0] since [2010][1].  This means
 that commands like "[fossil sync](/help?cmd=sync)" could use SSL/TLS when
 contacting a server.  But on the server side, commands like
 "[fossil server](/help?cmd=server)" operated in clear-text only.  To implement
@@ -10,6 +10,7 @@ an encrypted server, you had to put Fossil behind a web server or reverse
 proxy that handled the SSL/TLS decryption/encryption and passed cleartext
 down to Fossil.
 
+[0]: ./ssl.wiki
 [1]: /timeline?c=b05cb4a0e15d0712&y=ci&n=13
 
 Beginning in [late December 2021](/timeline?c=f6263bb64195b07f&y=a&n=13),

@@ -1,5 +1,5 @@
-C In\sthe\sforum,\somit\sunnecessary\squery\sparameters\son\sgenerated\sURLs,\sso\sthat\sit\nis\seasier\sto\scopy/paste\sURLs\sinto\scommit\smessages\sor\schat\swindows.
-D 2022-01-02T20:46:47.648
+C Cross-link\sthe\sssl-server.md\sand\sssl.wiki\sdocuments.\s\sBoth\sof\sthem\sstill\sneed\nimprovements.\s\sSome\sPikchr\sdiagrams\swould\sbe\sa\sgreat\saddition.
+D 2022-01-04T01:13:47.199
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -949,8 +949,8 @@ F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524
 F www/serverext.wiki 7b38c1cb3fceb59c0270b73d51f55c1b50cd076f0ad63ea417f8d0d8f84e9a84
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
-F www/ssl-server.md 41c8d89c8ccdcdcceb571a07f5ba30c91cd04ed3dc2a2d438a63ea8be915f380
-F www/ssl.wiki 857c82fac2af659a0482d4c984f08a7e27129cf087f2cecd5f23fbb074574132
+F www/ssl-server.md b926996931618c47f317e288d05a89c81558fb7962d431e63a305447050307ba
+F www/ssl.wiki b78e0a9c5d5899eaf5730c24e750a5239bd22ff2d472f8d82b8b7b9df7edd8fb
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki b7c1944c3d2d3e1d1a2f041561a7b227fce60e251fd94e246e09e225b4986418
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 890b49f8e00f90835eb9c3674afab840dd2450450251b5cbdc9198b8b5967926
-R 06b2e10bf34ec81e6c2c158b8f96cf76
+P 168eb71643a47549b901243a5061df5e1afcd683dd7731f05e7bcafa397ed37a
+R 6043d410a09fa51b544e771dda8aca33
 U drh
-Z cd576a02c9075c1326cbc8b46ccdc146
+Z 72d4a53010dec3c7e9567badd0c17c9d
 # Remove this line to create a well-formed Fossil manifest.
