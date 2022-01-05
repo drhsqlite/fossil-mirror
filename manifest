@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sin\scheckin.c\sthat\sresulted\sfrom\sthe\soversize\nfile\scheck-in\swarning\senhancements\sof\s[3ffe893f88a4b65b].
-D 2022-01-05T13:09:53.308
+C Make\sthe\smerge\scommand\sbehave\sas\sif\s--cherrypick\swere\spassed\sin\sif\smerge\sis\sinvoked\swith\sthe\sname\scherry-pick,\sper\s[forum:/forumpost/7ca2e5dc4c\s|\sforum\spost\s7ca2e5dc4c]\sand\s/chat\sdiscussion.\sFixed\san\sunrelated\sinternal\sdoc\stypo.
+D 2022-01-05T23:26:07.376
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -520,7 +520,7 @@ F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d864
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c bda6b2485d422d129799e443a762df5d5fc62cdb0a1669370e4da307f2f04645
+F src/merge.c 0aacf3f3f8ca2dab82ae637ddf6db4a5b6b2310b4c880b5cf4df532d505677c9
 F src/merge3.c 73083af574ff36b97396f56b21348346a0952eccd7da172f8a507e2df7918453
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8859f5d0cd49e99d4d326fd125a5e65dac19acfdfb3ded0286cebe4528a02f57
@@ -536,7 +536,7 @@ F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c f867d77a6ce890f281491b44a01fb06f11add0b08af59930ea0f65012c4cb44f
 F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
-F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b407807
+F src/repolist.c af5ac929fd967d73ac292f9974a89e9d7b4fbbab97eb54167e523a3464135384
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8681a9c062042d86d53a5017ea5d90c05a0c8d2c0f29070d1915765226ecc99
-R 0549ae245c3e936b80b8e400ad9d3269
-U drh
-Z fdb9a1298f1ac18256b7d9580d820971
+P a36cddb453114de50b3c222cdf1ec0e0471120139e7f8c21feefb77b75418740
+R 3a4bc70faf925a1af411e560c153d37a
+U stephan
+Z 9671d7e3c5abdb9877191e9db1d1ba1d
 # Remove this line to create a well-formed Fossil manifest.

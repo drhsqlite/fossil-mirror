@@ -276,6 +276,7 @@ void test_show_vfile_cmd(void){
 
 /*
 ** COMMAND: merge
+** COMMAND: cherry-pick
 **
 ** Usage: %fossil merge ?OPTIONS? ?VERSION?
 **
@@ -285,7 +286,8 @@ void test_show_vfile_cmd(void){
 ** --backout options are used only the changes associated with the
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
-** checkout rather than added.
+** checkout rather than added. When invoked with the name cherry-pick,
+** this command works exactly like merge --cherrypick.
 **
 ** If the VERSION argument is omitted, then Fossil attempts to find
 ** a recent fork on the current branch to merge.
@@ -366,6 +368,9 @@ void merge_cmd(void){
     verboseFlag = find_option("detail",0,0)!=0; /* deprecated */
   }
   pickFlag = find_option("cherrypick",0,0)!=0;
+  if(0==fossil_strcmp("cherry-pick", g.zCmdName)){
+    pickFlag = 1;
+  }
   integrateFlag = find_option("integrate",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
