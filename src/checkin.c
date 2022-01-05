@@ -1883,6 +1883,7 @@ static int commit_warning(
     fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
   }else{
     fUnicode = fHasAnyCr = fBinary = fHasInvalidUtf8 = 0;
+    fHasLoneCrOnly = fHasCrLfOnly = 0;
   }
   if( !sizeOk || fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
     const char *zWarning = 0;

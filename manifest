@@ -1,5 +1,5 @@
-C Added\syear=YYYY\sfilter\sto\s/timeline,\sper\srequest\sin\s[forum:/forumpost/7c923903ad45c8ea\s|\sforum\spost\s7c923903ad45c8ea].
-D 2022-01-04T18:49:51.058
+C Fix\sa\sharmless\scompiler\swarning\sin\scheckin.c\sthat\sresulted\sfrom\sthe\soversize\nfile\scheck-in\swarning\senhancements\sof\s[3ffe893f88a4b65b].
+D 2022-01-05T13:09:53.308
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -418,7 +418,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 388cc696697ecbf2f8ef6cc87d3838a21fd63b29ebbc879466fe108b21028615
 F src/chat.c 21b6c03b9493f6d072caca2145c715d6386ddbbdb69f7953fe7b3c279186ab6f
-F src/checkin.c b8de75b0d55892f9be4f1e7aab64acc0c94051b431e9d4ee5df70baaa77ea9a0
+F src/checkin.c 4dc8519e881827fd2ca6cc243045c32fe77e92460749b929a432b78acaa5c018
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 939753d046ced49cce93d55cb380e1fdd8bdd2cd0a96cc61d74b96e2598d360b
-R 728d884bf6f7cde1ae1879f6d27d3163
-U stephan
-Z 35a9838c80e944ec2d1cb3b68adefa33
+P f8681a9c062042d86d53a5017ea5d90c05a0c8d2c0f29070d1915765226ecc99
+R 0549ae245c3e936b80b8e400ad9d3269
+U drh
+Z fdb9a1298f1ac18256b7d9580d820971
 # Remove this line to create a well-formed Fossil manifest.
