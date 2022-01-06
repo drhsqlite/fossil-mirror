@@ -368,7 +368,7 @@ void merge_cmd(void){
     verboseFlag = find_option("detail",0,0)!=0; /* deprecated */
   }
   pickFlag = find_option("cherrypick",0,0)!=0;
-  if(0==fossil_strcmp("cherry-pick", g.zCmdName)){
+  if('c'==*g.zCmdName/*called as cherry-pick, possibly a short form*/){
     pickFlag = 1;
   }
   integrateFlag = find_option("integrate",0,0)!=0;
