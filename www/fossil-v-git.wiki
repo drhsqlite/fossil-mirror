@@ -547,7 +547,7 @@ impact wrench] running at 8000 RPM driving an M8 socket-cap bolt at 16
 cm/s is not the best way to hang a picture on the living room wall.
 
 Fossil works well for projects several times the size of SQLite,
-[such as Tcl](https://core.tcl-lang.org/tcl/), with a repository over
+[https://core.tcl-lang.org/tcl/ | such as Tcl], with a repository over
 twice the size and with many more core committers.
 
 
