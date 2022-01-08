@@ -331,7 +331,9 @@ void hook_cmd(void){
     for(i=3; i<g.argc; i++){
       const char *zId = g.argv[i];
       if( strcmp(zId,"all")==0 ){
+        db_unprotect(PROTECT_ALL);
         db_set("hooks","[]", 0);
+        db_protect_pop();
         break;
       }
       if( sqlite3_strglob("*[^0-9]*", g.argv[i])==0 ){
