@@ -1167,7 +1167,7 @@ void test_tlsconfig_info(void){
   }else
   /*default*/{
     fossil_fatal("unknown sub-command \"%s\".\nshould be one of:"
-                 " clear-certs load-cert remove-exception scrub show",
+                 " clear-cert load-cert remove-exception scrub show",
        zCmd);
   }
 }
