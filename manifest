@@ -1,5 +1,5 @@
-C Another\shelp\stext\stypo\sfix:\ss/clear-certs/clear-cert/.
-D 2022-01-09T00:22:41.817
+C Refactored\sthe\sQUERY_STRING\sinitialization\sso\sthat\sa\sredirect\sto\sthe\sindex-page\swhen\svisiting\sthe\stop\sof\sa\srepo\scan\scatch\sthe\sskin\sURL\sparameter.
+D 2022-01-09T10:15:58.168
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -416,7 +416,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 388cc696697ecbf2f8ef6cc87d3838a21fd63b29ebbc879466fe108b21028615
+F src/cgi.c 50fca2549b98e1123bc54cd69e131d4e12f8887c177248378a151c07230bc19e
 F src/chat.c 21b6c03b9493f6d072caca2145c715d6386ddbbdb69f7953fe7b3c279186ab6f
 F src/checkin.c 4dc8519e881827fd2ca6cc243045c32fe77e92460749b929a432b78acaa5c018
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c ac0ba3ee87875bf3640007cc116988bd2856cb4c39827d4ca16f88613bbd1e24
+F src/main.c 34b45e42f99137102fac2e83da10c59834cb6fd808750c3e7f827d224210ad0b
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67e0be1ec09494a8f110573996d5f70529f373c1a7239638567ef749182a14a5
-R adf0bc2f9658d813dea6b7d2074b2ed1
+P c4ab04b59d14223e6c71be61e9a0493b86ac00171ff72cac32f1cb83c0611f5c
+R 87c1d61f13bb626e469bc4aa4cbd4489
 U stephan
-Z b767d05c1cf23ec957ac00d5f7e667e9
+Z 1687842de48451ee9edbfba1c42d40c8
 # Remove this line to create a well-formed Fossil manifest.

@@ -1448,6 +1448,14 @@ void set_base_url(const char *zAltBase){
 ** Send an HTTP redirect back to the designated Index Page.
 */
 NORETURN void fossil_redirect_home(void){
+  /* In order for ?skin=... to work when visiting the site from
+  ** a typical external link, we have to process is here, as
+  ** that parameter gets lost during the redirect. We "could"
+  ** pass the whole query string along instead, but that seems
+  ** unnecessary. */
+  if(cgi_setup_query_string()>1){
+    cookie_render();
+  }
   cgi_redirectf("%R%s", db_get("index-page", "/index"));
 }
 
