@@ -1,5 +1,5 @@
-C Resolved\scrash\sin\s(hook\sdelete\sall)\sreported\sin\s[/forumpost/8a3a2f7df6\s|\sforum\spost\s8a3a2f7df6].
-D 2022-01-08T08:28:59.615
+C Doc/help\sfix\sfor\sthe\sssl-config\scommand:\ss/load-certs/load-cert/,\sper\sforum\sreport.
+D 2022-01-09T00:21:25.320
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 6a3410e77918d32c2c45f7ad93d4fd341d8f521bc2c25f767e76489f70bd5497
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c c2a7b14c3f541edb96722b702dc2c0b07495487d5dc1c6e74d804bf4f0aa5a90
+F src/http_ssl.c cb6b04f31a99d5b25c3aa01d338522be9910b03801dcdba5e7bff5de5208e270
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -949,7 +949,7 @@ F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524
 F www/serverext.wiki 7b38c1cb3fceb59c0270b73d51f55c1b50cd076f0ad63ea417f8d0d8f84e9a84
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
-F www/ssl-server.md b926996931618c47f317e288d05a89c81558fb7962d431e63a305447050307ba
+F www/ssl-server.md 9d24edcd323ede806634ad5e998ce0e7d527a929a784c4cf2d40334d5f13738f
 F www/ssl.wiki b78e0a9c5d5899eaf5730c24e750a5239bd22ff2d472f8d82b8b7b9df7edd8fb
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0269e34774f0f27f5e4dd031a2208a315a2fe22ab26aa0fe1bca5f627b9820c
-R 52934ae390b756474d44b78d173cd263
+P faa39ea31a7921319089f8d2d6e6f4f0f140bed2f0bc5330e380790386f12011
+R 8b0c68b0462a041ae8e8d8000fae0e1f
 U stephan
-Z 90f64b779e38ed2c5f31f749b6dcda41
+Z 924119dc73441a7b0668e6532840f5a5
 # Remove this line to create a well-formed Fossil manifest.

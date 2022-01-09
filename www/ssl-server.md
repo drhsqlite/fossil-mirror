@@ -182,7 +182,7 @@ tell Fossil about the files separately using settings.  Run a command
 like this on your repository:
 
 > ~~~
-fossil ssl-config load-certs --filename CERT-FILE.pem PRIVATE-KEY.pem
+fossil ssl-config load-cert --filename CERT-FILE.pem PRIVATE-KEY.pem
 ~~~
 
 Substitute whatever filenames are appropriate in the command above, of
