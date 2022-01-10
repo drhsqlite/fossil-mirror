@@ -1,5 +1,5 @@
-C Fixed\srecently-broken\slinks\sto\smakeheaders,\scaused\sby\sits\smove\sfrom\ssrc/\sto\stools/.\sReported\sin\sthe\sforum.
-D 2022-01-10T05:16:35.241
+C A\scouple\smore\ssrc-to-tools\slink\sfixes.
+D 2022-01-10T05:18:14.367
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -773,7 +773,7 @@ F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/aboutcgi.wiki ce21bace27dc5b36a4134246014e6ec1e37dcedd7f2cf2f057a043fea0867bad
 F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
-F www/adding_code.wiki a159c577010de52eae7fef63e57a890caad9f10a7befa7b12dfd9d1bb49cafd1
+F www/adding_code.wiki 8c0f5442792cc531f8b923622f50d58dd8f837dd63afc6b851f2b14be526ff1d
 F www/alerts.md 15f2758b9b922c5c1ff835e82e939ca0034f0ac87cf4931eac79fc3284c272c2
 F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0c45
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b6ec17d59c765e2c1a8a877c6a02bdd35474f47c559ef6a49bf6f504cb8ff3b
-R 81cb41ae171016b53644db797eaaa464
+P 78c484d153af793f5edc52db237494923a9a39d4e1aa34704eabb749540fecc1
+R b23a2103b0b357df059feee1bffbca2b
 U stephan
-Z ab132607f12a76eabe5f1bf93b6ffd32
+Z 8aeb6affe9036966b4554b8c6c858a42
 # Remove this line to create a well-formed Fossil manifest.
