@@ -27,7 +27,7 @@ are:
 
   1.  [/file/src/mkindex.c | mkindex.c]
   2.  [/file/src/translate.c | translate.c]
-  3.  [/file/src/makeheaders.c | makeheaders.c]
+  3.  [/file/tools/makeheaders.c | makeheaders.c]
 
 Fossil uses [http://www.sqlite.org/ | SQLite] for on-disk
 storage.  The SQLite implementation is contained in three source
@@ -83,7 +83,7 @@ resources files are added to the "extra_files" variable in
 The src/ subdirectory also contains documentation about the
 makeheaders preprocessor program:
 
-  13.  [../src/makeheaders.html | makeheaders.html]
+  13.  [../tools/makeheaders.html | makeheaders.html]
 
 Click on the link to read this documentation.  In addition there is
 a [http://www.tcl-lang.org/ | Tcl] script used to build the various makefiles:
@@ -228,7 +228,7 @@ header module "src.h" that contains all of the datatype and procedure
 declarations needed by the source module.  These header files are generated
 automatically by the makeheaders program.  The sources to makeheaders
 are contained in a single file "makeheaders.c".  Additional documentation
-on makeheaders can be found in [../src/makeheaders.html | src/makeheaders.html].
+on makeheaders can be found in [../tools/makeheaders.html | tools/makeheaders.html].
 
 The makeheaders program is run once.  It scans all inputs source files and
 generates header files for each one.  Note that the sqlite3.c and shell.c
