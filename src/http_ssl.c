@@ -716,7 +716,7 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
       fossil_fatal("Error initializing the SSL server");
     }
     if( zCertFile && zCertFile[0] ){
-      if( SSL_CTX_use_certificate_file(sslCtx,zCertFile,SSL_FILETYPE_PEM)<=0 ){
+      if( SSL_CTX_use_certificate_chain_file(sslCtx,zCertFile)!=1 ){
         ERR_print_errors_fp(stderr);
         fossil_fatal("Error loading CERT file \"%s\"", zCertFile);
       }
