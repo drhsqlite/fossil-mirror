@@ -25,8 +25,8 @@ Each preprocessor program is a separate C program implemented in
 a single file of C source code.  The three preprocessor programs
 are:
 
-  1.  [/file/src/mkindex.c | mkindex.c]
-  2.  [/file/src/translate.c | translate.c]
+  1.  [/file/tools/mkindex.c | mkindex.c]
+  2.  [/file/tools/translate.c | translate.c]
   3.  [/file/tools/makeheaders.c | makeheaders.c]
 
 Fossil uses [http://www.sqlite.org/ | SQLite] for on-disk
