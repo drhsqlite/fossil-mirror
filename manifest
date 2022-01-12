@@ -1,5 +1,5 @@
-C Possibly\sfix\sthe\sassertion\sfault\sreported\sby\n[forum:/forumpost/4baa888c5743e3e1|forum\spost\s4baa888c5743e3e1]
-D 2022-01-12T00:46:03.811
+C sync.wiki:\sfixed\sa\stypo\sand\sstruck\sallow-symlinks\sfrom\sthe\slist\sof\ssync'd\sconfig\soptions.
+D 2022-01-12T03:46:21.225
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -953,7 +953,7 @@ F www/ssl-server.md 9d24edcd323ede806634ad5e998ce0e7d527a929a784c4cf2d40334d5f13
 F www/ssl.wiki b78e0a9c5d5899eaf5730c24e750a5239bd22ff2d472f8d82b8b7b9df7edd8fb
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki b7c1944c3d2d3e1d1a2f041561a7b227fce60e251fd94e246e09e225b4986418
+F www/sync.wiki 194982be00ac12c7d07eb1848834ea7421c379c10a85f88ea6917ac0e000e446
 F www/tech_overview.wiki da5c3d1634fd953f7eacf0554cd5cb2895b654b478d8c428eac8bc780992524a
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 23e7b8566a7ad19e4f174811d75d582fdc4c319dd150dd804deae96909a9d756
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cae03867de3c44e65e1105404d297c031249a9cf5c86ba5c95319f23d18f8ad6
-R a9f9a3d222e959cbe175dd88daf1f49f
-U drh
-Z 32de353fcbb69a66555c6e113e4cf31e
+P 3f8ee9e1f3b5bafa23c4b513a70da4cba9a10045fc784bb2ce0350ab67fcdf3e
+R 457f46c51096b301b4fdc64bc539fd91
+U stephan
+Z a6d038810778bbf79bd892a07c45f3e7
 # Remove this line to create a well-formed Fossil manifest.
