@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.38.0\salpha\sfor\stesting.\s\sWith\nthis\schange,\sSQL\snow\shas\saccess\sto\sthe\snew\s->\sand\s->>\soperators\sfor\sJSON.
-D 2022-01-12T00:42:11.768
+C Possibly\sfix\sthe\sassertion\sfault\sreported\sby\n[forum:/forumpost/4baa888c5743e3e1|forum\spost\s4baa888c5743e3e1]
+D 2022-01-12T00:46:03.811
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 6a3410e77918d32c2c45f7ad93d4fd341d8f521bc2c25f767e76489f70bd5497
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 6c57620b62fdcddd8081dcfcfc0714460141d4886d05801400838a49ed986dc7
+F src/http_ssl.c 0b988c2fbfd235f07e28a01eba63c22affd4e05b0e5dc276cdf8f58bdea74601
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P def53f04199562e18f6ae128f5c2876b8c386b49b603852bdac45e58749573a6
-R 0e1386bc1ae4522a573c14fc0b0649c0
+P cae03867de3c44e65e1105404d297c031249a9cf5c86ba5c95319f23d18f8ad6
+R a9f9a3d222e959cbe175dd88daf1f49f
 U drh
-Z 9124b772ce3b9bc0d95211817ec5fe5e
+Z 32de353fcbb69a66555c6e113e4cf31e
 # Remove this line to create a well-formed Fossil manifest.

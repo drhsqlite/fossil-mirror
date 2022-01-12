@@ -966,7 +966,6 @@ void test_tlsconfig_info(void){
         }
       }
     }
-    db_protect_pop();
     if( !haveCert ){
       if( !haveKey ){
         fossil_fatal("missing certificate and private-key");
@@ -979,6 +978,7 @@ void test_tlsconfig_info(void){
     if( !bFN ){
       db_set("ssl-cert", blob_str(&allText), 0);
     }
+    db_protect_pop();
     db_commit_transaction();
   }else
   if( strncmp("scrub",zCmd,nCmd)==0 && nCmd>4 ){
