@@ -357,9 +357,9 @@ void hook_cmd(void){
     verify_all_options();
     db_prepare(&q,
       "SELECT jx.key,"
-      "       json_extract(jx.value,'$.seq'),"
-      "       json_extract(jx.value,'$.cmd'),"
-      "       json_extract(jx.value,'$.type')"
+      "       jx.value->>'seq',"
+      "       jx.value->>'cmd',"
+      "       jx.value->>'type'"
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
     );
@@ -397,8 +397,7 @@ void hook_cmd(void){
       zOrigRcvid = db_text(0, "SELECT max(rcvid)-1 FROM rcvfrom");
     }
     db_prepare(&q,
-      "SELECT json_extract(value,'$[%d].cmd'), "
-      "       json_extract(value,'$[%d].type')=='after-receive'"
+      "SELECT value->>'$[%d].cmd', value->>'$[%d].type'=='after-receive'"
       "  FROM config"
       " WHERE name='hooks' AND json_valid(value)",
       id, id
@@ -464,11 +463,11 @@ int hook_backoffice(void){
   }
   blob_init(&chng, 0, 0);
   db_prepare(&q,
-      "SELECT json_extract(jx.value,'$.cmd') "
+      "SELECT jx.value->>'cmd'"
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
-      "   AND json_extract(jx.value,'$.type')='after-receive'"
-      " ORDER BY json_extract(jx.value,'$.seq');"
+      "   AND jx.value->>'type'='after-receive'"
+      " ORDER BY jx.value->>'seq';"
   );
   while( db_step(&q)==SQLITE_ROW ){
     char *zCmd;
@@ -504,8 +503,7 @@ int hook_exists(const char *zType){
       "SELECT 1"
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
-      "   AND json_extract(jx.value,'$.type')=%Q"
-      " ORDER BY json_extract(jx.value,'$.seq');",
+      "   AND jx.value->>'type'=%Q;",
       zType
   );
 }
@@ -524,11 +522,11 @@ int hook_run(const char *zType, const char *zAuxFile, int traceFlag){
     return 0;
   }
   db_prepare(&q,
-      "SELECT json_extract(jx.value,'$.cmd') "
+      "SELECT jx.value->>'cmd' "
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
-      "   AND json_extract(jx.value,'$.type')=%Q"
-      " ORDER BY json_extract(jx.value,'$.seq');",
+      "   AND jx.value->>'type'==%Q"
+      " ORDER BY jx.value->'seq';",
       zType
   );
   while( db_step(&q)==SQLITE_ROW ){
