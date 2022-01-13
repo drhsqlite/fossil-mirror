@@ -1,5 +1,5 @@
-C Change\sall\scalls\sto\sjson_extract()\sinto\suses\sof\sthe\snew\s->>\soperator.
-D 2022-01-13T12:50:02.588
+C Promote\sthe\stest-detach\sto\sbe\sjust\s"detach".\s\sProvide\sbetter\shelp.\s\sRequire\nuser\sconfirmation.\s\sFor\s"fossil\spull\s--from-parent-project"\sremember\sthe\sURL\nof\sthe\slast\sparent\sproject\spull.\s\sRemove\sparent-project\ssettings\son\sa\n"fossil\sscrub".
+D 2022-01-13T19:45:25.300
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -534,7 +534,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 193a7fe4f5d50623ed6ef3e2e7e3d4b0df32dbeff26806e52733709ed98b2d2b
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
-F src/rebuild.c f867d77a6ce890f281491b44a01fb06f11add0b08af59930ea0f65012c4cb44f
+F src/rebuild.c fd479da3ba776efac143dec5aceaeca12f628a1785fbe2dfb58b768c7c7c3379
 F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c af5ac929fd967d73ac292f9974a89e9d7b4fbbab97eb54167e523a3464135384
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
@@ -580,7 +580,7 @@ F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c e1aec7eae05d2950feee1f86f42585227d768d2355f3d8edb3ac64d93b504ad9
+F src/sync.c 5304710eec95f846ff82090b0ea044713f4cab3c54f082b801ed64e630962b9a
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 72f12cbbae1825cdbd6b1814aeb1fc0d8a7d98737bca7d5e1088ee5713785d13
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -597,7 +597,7 @@ F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 55bf7d95086bb42c5e4568d626ffc890c3ea31231fcccdab6c132565451113a0
 F src/update.c 898006906c345f5c7171e40c466103f7108f5052630cb8863deb5e8c6a655386
-F src/url.c 3eeb8f98932acddf66c57a010a4c23a8ab08d22bfab58e882bee395d812b60d0
+F src/url.c 69ff1d710d47cf95811b415374372db85f2dba5f9e28e230901a9072ad3d59ae
 F src/user.c 73679fd1b6535b849e0027c38ab8bf677faf6c076d8f47683a1594ee6b973d9a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1ac2f90da44dcf592aeb9cd907ac069920f4f639e22414d7d41ab3a44c82dc8
-R c7741f10c4f30b4e4d6515d459295f23
+P 50d433e5b0b483a7b910f1c76fc252ae46b5f3ab18dff0ef2cb96077e5141b0a
+R e5ec70e9f0f39c14df8e9d671babc015
 U drh
-Z 2b97b2058f9de32e82946f9b7267fbc1
+Z 0b418c3e10299b071f62e142995d8879
 # Remove this line to create a well-formed Fossil manifest.
