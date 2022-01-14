@@ -81,6 +81,7 @@ void delete_private_content(void){
 
 /*
 ** COMMAND: clone
+** COMMAND: clonly
 **
 ** Usage: %fossil clone ?OPTIONS? URI ?FILENAME?
 **
@@ -154,6 +155,10 @@ void clone_cmd(void){
   const char *zRepo = 0;      /* Name of the new local repository file */
   const char *zWorkDir = 0;   /* Open in this directory, if not zero */
 
+  /* Support alt command that is less verbose than clone --no-open */
+  if(0==fossil_strcmp("clonly", g.zCmdName)){
+    noOpen = 1;
+  }
 
   /* Also clone private branches */
   if( find_option("private",0,0)!=0 ) syncFlags |= SYNC_PRIVATE;
