@@ -1063,7 +1063,7 @@ void test_tlsconfig_info(void){
     if( verbose ){
       fossil_print("\n"
          "  This setting is the name of a file or directory that contains\n"
-         "  the complete set of root certificates to used by Fossil when it\n"
+         "  the complete set of root certificates used by Fossil when it\n"
          "  is acting as a SSL client. If defined, this setting takes\n"
          "  priority over built-in paths and environment variables\n\n"
       );
@@ -1073,7 +1073,7 @@ void test_tlsconfig_info(void){
     if( verbose ){
       fossil_print("\n"
          "  This setting is the name of a file that contains the PEM-format\n"
-         "  certificate and private-key used by Fossil clients to authentice\n"
+         "  certificate and private-key used by Fossil clients to authenticate\n"
          "  with servers. Few servers actually require this, so this setting\n"
          "  is usually blank.\n\n"
       );
@@ -1097,7 +1097,7 @@ void test_tlsconfig_info(void){
     fossil_print("ssl-key-file:      %s\n", db_get("ssl-key-file",""));
     if( verbose ){
       fossil_print("\n"
-         "  This settings are the names of files that contin the certificate\n"
+         "  This settings are the names of files that contain the certificate\n"
          "  private-key used by Fossil when it is acting as a server.\n\n"
       );
     }

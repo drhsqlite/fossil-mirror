@@ -1,5 +1,5 @@
-C fossil\sinit:\sadded\soptions\sto\sset\sthe\sproject\sname\sand/or\sdescription\sduring\sfossil\sinit.\n\n--project-name\n--project-desc\n\nquote\s"string\sthat\scontain\sspaces"
-D 2022-01-15T04:11:12.645
+C ssl-config\sshow\stypo\sfixes\sreported\sin\s[forum:/forumpost/dde10203ae3dfe36\s|\sforum\spost\sdde10203ae3dfe36].
+D 2022-01-15T04:41:23.897
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 0b988c2fbfd235f07e28a01eba63c22affd4e05b0e5dc276cdf8f58bdea74601
+F src/http_ssl.c 342884a7459ba003af6bad0434c5788a9d7dab8dd1e094c4f25e63842e6a8382
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3f3a898c8dd9751632471d382ed5b0132b250c31feb5e8522e949e93a138857
-R 15c11196cbd361b86bc4f7db61140ca4
-U rdb
-Z 84fa4ccaee8c87d1a60accab9ab1b3ee
+P 9d98d861e559579e6f665e53f8e16885691a8b1d45d7aafbc4138b06043065a5
+R f2d4d28c78547012dab8bc7186baaa39
+U stephan
+Z 0f3237fd2d37304955204e2eddd8bd6e
 # Remove this line to create a well-formed Fossil manifest.
