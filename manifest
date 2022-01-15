@@ -1,5 +1,5 @@
-C tls:\sfix\sreading\sa\sloaded\scert\sto\sbe\sused\swith\sfossil\sserver\s--tls\srepo.fossil
-D 2022-01-15T16:44:32.457
+C add\sFOSSIL_ENABLE_SSL\sguards\sto\snew\scode
+D 2022-01-15T16:49:06.921
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c f39e68789e87008c37b1899a14a6e3ae30957bee113f54fb13612175c71460ab
+F src/main.c 0f4cfc0dd49ce006e4553321a1ea0f092b4c3e5df8643446bbd3c45835303c43
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2562490d491a656fe3c8f4fce8ffcb1e2dd655964a2f33db77bb0f1cf1ed9db
-R 6bd153da3aba673e8de3fe5efd9af8b7
+P 81c486badfaa806b6bd00bdf62ab1b7f4b887b48bf6c2bc249c5fe68b30c46e9
+R d10030ee1e17d1a9c026faaa1748b344
 U rdb
-Z d2603903605620d71e0fa22578018561
+Z 67bc8d77c6e2470967ac295e1d702fc6
 # Remove this line to create a well-formed Fossil manifest.

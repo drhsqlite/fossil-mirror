@@ -3121,11 +3121,12 @@ void cmd_webserver(void){
   ** we get and store them now, as find_option removes them from
   ** argv
   */
+#if FOSSIL_ENABLE_SSL
   zCertFile = find_option("tls-cert-file",0,1);
   if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
     zTls = 1;
   }
-
+#endif
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
@@ -3195,7 +3196,9 @@ void cmd_webserver(void){
   **     
   ** The database has only just been found and made available
   */
-  init_ssl_decoder(zCertFile, zTls);
+#if FOSSIL_ENABLE_SSL
+    init_ssl_decoder(zCertFile, zTls);
+#endif
   if( find_option("https",0,0)!=0 || g.httpUseSSL ){
     cgi_replace_parameter("HTTPS","on");
   }
