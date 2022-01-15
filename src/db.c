@@ -2825,8 +2825,8 @@ void create_repository_cmd(void){
     g.eHashPolicy = HPOLICY_SHA1;
     db_set_int("hash-policy", HPOLICY_SHA1, 0);
   }
-  if ( zProjectName ) db_set("project-name", zProjectName, 0);
-  if ( zProjectDesc ) db_set("project-description", zProjectDesc, 0);
+  if( zProjectName ) db_set("project-name", zProjectName, 0);
+  if( zProjectDesc ) db_set("project-description", zProjectDesc, 0);
   if( zDate==0 ) zDate = "now";
   db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
