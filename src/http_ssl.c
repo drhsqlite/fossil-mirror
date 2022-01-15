@@ -706,6 +706,8 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 */
 void ssl_init_server(const char *zCertFile, const char *zKeyFile){
   if( sslIsInit==0 ){
+    db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+    db_open_config(1,0);
     const char *zTlsCert;
     SSL_library_init();
     SSL_load_error_strings();
@@ -907,7 +909,7 @@ void test_tlsconfig_info(void){
     db_multi_exec(
       "PRAGMA secure_delete=ON;"
       "DELETE FROM config "
-      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
+      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-key-file');"
     );
     db_protect_pop();
   }else
@@ -923,7 +925,7 @@ void test_tlsconfig_info(void){
     db_multi_exec(
       "PRAGMA secure_delete=ON;"
       "DELETE FROM config "
-      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
+      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-key-file');"
     );
     nHit = 0;
     for(i=3; i<g.argc; i++){
@@ -946,7 +948,6 @@ void test_tlsconfig_info(void){
         haveCert = 1;
         if( bFN ){
           db_set("ssl-cert-file", file_canonical_name_dup(g.argv[i]), 0);
-        }else{
           blob_append(&allText, blob_buffer(&x), blob_size(&x));
         }
         if( isKey && !haveKey ){
@@ -961,7 +962,6 @@ void test_tlsconfig_info(void){
         haveKey = 1;
         if( bFN ){
           db_set("ssl-key-file", file_canonical_name_dup(g.argv[i]), 0);
-        }else{
           blob_append(&allText, blob_buffer(&x), blob_size(&x));
         }
       }
@@ -975,7 +975,7 @@ void test_tlsconfig_info(void){
     }else if( !haveKey ){
       fossil_fatal("missing private-key");
     }
-    if( !bFN ){
+    if( bFN ){
       db_set("ssl-cert", blob_str(&allText), 0);
     }
     db_protect_pop();
