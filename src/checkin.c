@@ -1849,6 +1849,7 @@ static int commit_warning(
   int crlfOk,            /* Non-zero if CR/LF warnings should be disabled. */
   int binOk,             /* Non-zero if binary warnings should be disabled. */
   int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
+  int sizeOk,            /* Non-zero if oversize warnings are disabled */
   int noPrompt,          /* 0 to always prompt, 1 for 'N', 2 for 'Y'. */
   const char *zFilename, /* The full name of the file being committed. */
   Blob *pReason          /* Reason for warning, if any (non-fatal only). */
@@ -1866,23 +1867,29 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = could_be_utf16(pContent, &bReverse);
-  if( fUnicode ){
-    lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
-  }else{
-    lookFlags = looks_like_utf8(pContent, LOOK_NUL);
-    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
-      fHasInvalidUtf8 = 1;
+  if( sizeOk ){
+    fUnicode = could_be_utf16(pContent, &bReverse);
+    if( fUnicode ){
+      lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
+    }else{
+      lookFlags = looks_like_utf8(pContent, LOOK_NUL);
+      if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
+        fHasInvalidUtf8 = 1;
+      }
     }
+    fHasAnyCr = (lookFlags & LOOK_CR);
+    fBinary = (lookFlags & LOOK_BINARY);
+    fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
+    fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
+  }else{
+    fUnicode = fHasAnyCr = fBinary = fHasInvalidUtf8 = 0;
+    fHasLoneCrOnly = fHasCrLfOnly = 0;
   }
-  fHasAnyCr = (lookFlags & LOOK_CR);
-  fBinary = (lookFlags & LOOK_BINARY);
-  fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
-  fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
-  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
-    const char *zWarning;
-    const char *zDisable;
+  if( !sizeOk || fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
+    const char *zWarning = 0;
+    const char *zDisable = 0;
     const char *zConvert = "c=convert/";
+    const char *zIn = "in";
     Blob ans;
     char cReply;
 
@@ -1930,6 +1937,9 @@ static int commit_warning(
         zWarning = "mixed line endings";
       }
       zDisable = "\"crlf-glob\" setting";
+    }else if( !sizeOk ){
+      zWarning = "oversize";
+      zIn = "file";
     }else{
       if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
@@ -1938,11 +1948,18 @@ static int commit_warning(
       zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
-    zMsg = mprintf(
-         "%s contains %s. Use --no-warnings or the %s to"
-                 " disable this warning.\n"
-         "Commit anyhow (a=all/%sy/N)? ",
-         blob_str(&fname), zWarning, zDisable, zConvert);
+    if( !sizeOk ){
+      zMsg = mprintf(
+           "%s is more than %,lld bytes in size.\n"
+           "Commit anyhow (a=all/y/N)? ",
+           blob_str(&fname), db_large_file_size());
+    }else{
+      zMsg = mprintf(
+           "%s contains %s. Use --no-warnings or the %s to"
+                   " disable this warning.\n"
+           "Commit anyhow (a=all/%sy/N)? ",
+           blob_str(&fname), zWarning, zDisable, zConvert);
+    }
     if( noPrompt==0 ){
       prompt_user(zMsg, &ans);
       cReply = blob_str(&ans)[0];
@@ -1980,8 +1997,8 @@ static int commit_warning(
       }
       return 1;
     }else if( cReply!='y' && cReply!='Y' ){
-      fossil_fatal("Abandoning commit due to %s in %s",
-                   zWarning, blob_str(&fname));
+      fossil_fatal("Abandoning commit due to %s %s %s",
+                   zWarning, zIn, blob_str(&fname));
     }else if( noPrompt==2 ){
       if( pReason ){
         blob_append(pReason, zWarning, -1);
@@ -2011,11 +2028,13 @@ void test_commit_warning(void){
   int rc = 0;
   int noSettings;
   int verboseFlag;
+  i64 mxSize;
   Stmt q;
   noSettings = find_option("no-settings",0,0)!=0;
   verboseFlag = find_option("verbose","v",0)!=0;
   verify_all_options();
   db_must_be_within_tree();
+  mxSize = db_large_file_size();
   db_prepare(&q,
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
       " WHERE NOT deleted",
@@ -2030,7 +2049,7 @@ void test_commit_warning(void){
     const char *zName;
     Blob content;
     Blob reason;
-    int crlfOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk, sizeOk;
     int fileRc;
 
     zFullname = db_column_text(&q, 0);
@@ -2038,10 +2057,11 @@ void test_commit_warning(void){
     crlfOk = db_column_int(&q, 2);
     binOk = db_column_int(&q, 3);
     encodingOk = db_column_int(&q, 4);
+    sizeOk = mxSize<=0 || file_size(zFullname, ExtFILE)<=mxSize;
     blob_zero(&content);
     blob_read_from_file(&content, zFullname, RepoFILE);
     blob_zero(&reason);
-    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, 2,
+    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, sizeOk, 2,
                             zFullname, &reason);
     if( fileRc || verboseFlag ){
       fossil_print("%d\t%s\t%s\n", fileRc, zName, blob_str(&reason));
@@ -2140,6 +2160,7 @@ static int tagCmp(const void *a, const void *b){
 **                               behave as if the user had entered 'yes' to
 **                               the question of whether to proceed despite
 **                               the skew.
+**    --ignore-oversize          Do not warning the user about oversized files
 **    --integrate                close all merged-in branches
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
@@ -2214,6 +2235,7 @@ void commit_cmd(void){
   int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
   int bAutoBrClr = 0;    /* Value of "--branchcolor" is "auto" */
   int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
+  int mxSize;
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2273,6 +2295,8 @@ void commit_cmd(void){
   useCksum = db_get_boolean("repo-cksum", 1);
   bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
   outputManifest = db_get_manifest_setting();
+  mxSize = db_large_file_size();
+  if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
   verify_all_options();
 
   /* Get the ID of the parent manifest artifact */
@@ -2594,7 +2618,7 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crlfOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk, sizeOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
@@ -2602,13 +2626,14 @@ void commit_cmd(void){
     crlfOk = db_column_int(&q, 3);
     binOk = db_column_int(&q, 4);
     encodingOk = db_column_int(&q, 5);
+    sizeOk = mxSize<=0 || file_size(zFullname, ExtFILE)<=mxSize;
 
     blob_zero(&content);
     blob_read_from_file(&content, zFullname, RepoFILE);
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crlfOk, binOk,
-                                    encodingOk, noPrompt,
+                                    encodingOk, sizeOk, noPrompt,
                                     zFullname, 0);
     }
     if( contains_merge_marker(&content) ){

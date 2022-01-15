@@ -699,8 +699,10 @@ int fossil_main(int argc, char **argv){
   /* When updating the minimum SQLite version, change the number here,
   ** and also MINIMUM_SQLITE_VERSION value set in ../auto.def.  Take
   ** care that both places agree! */
-  if( sqlite3_libversion_number()<3037000 ){
-    fossil_panic("Unsuitable SQLite version %s, must be at least 3.37.0",
+  if( sqlite3_libversion_number()<3038000
+   || strncmp(sqlite3_sourceid(),"2022-01-12",10)<0
+  ){
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.38.0",
                  sqlite3_libversion());
   }
 
@@ -1448,6 +1450,14 @@ void set_base_url(const char *zAltBase){
 ** Send an HTTP redirect back to the designated Index Page.
 */
 NORETURN void fossil_redirect_home(void){
+  /* In order for ?skin=... to work when visiting the site from
+  ** a typical external link, we have to process is here, as
+  ** that parameter gets lost during the redirect. We "could"
+  ** pass the whole query string along instead, but that seems
+  ** unnecessary. */
+  if(cgi_setup_query_string()>1){
+    cookie_render();
+  }
   cgi_redirectf("%R%s", db_get("index-page", "/index"));
 }
 

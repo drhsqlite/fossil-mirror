@@ -837,6 +837,8 @@ void chat_delete_webpage(void){
 **      to be sent is determined by arguments as follows:
 **
 **        -f|--file FILENAME     File to attach to the message
+**        --as FILENAME2         Causes --file FILENAME to be sent with
+**                               the attachment name FILENAME2
 **        -m|--message TEXT      Text of the chat message
 **        --remote URL           Send to this remote URL
 **        --unsafe               Allow the use of unencrypted http://
@@ -894,6 +896,7 @@ void chat_command(void){
     fossil_system(zCmd);
   }else if( strcmp(g.argv[2],"send")==0 ){
     const char *zFilename = find_option("file","r",1);
+    const char *zAs = find_option("as",0,1);
     const char *zMsg = find_option("message","m",1);
     int allowUnsafe = find_option("unsafe",0,0)!=0;
     const int mFlags = HTTP_GENERIC | HTTP_QUIET | HTTP_NOCOMPRESS;
@@ -943,9 +946,9 @@ void chat_command(void){
                        "\r\n%s\r\n%s", zMsg, zBoundary);
     }
     if( zFilename && blob_read_from_file(&fcontent, zFilename, ExtFILE)>0 ){
-      char *zFN = mprintf("%s", file_tail(zFilename));
+      char *zFN = mprintf("%s", file_tail(zAs ? zAs : zFilename));
       int i;
-      const char *zMime = mimetype_from_name(zFilename);
+      const char *zMime = mimetype_from_name(zFN);
       for(i=0; zFN[i]; i++){
         char c = zFN[i];
         if( fossil_isalnum(c) ) continue;

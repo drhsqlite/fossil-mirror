@@ -1669,12 +1669,14 @@ void page_xfer(void){
         sqlite3_int64 maxAge = db_get_int("lock-timeout",60);
         int seenFault = 0;
         db_prepare(&q,
-          "SELECT json_extract(value,'$.login'),"
+          "SELECT value->>'login',"
           "       mtime,"
-          "       json_extract(value,'$.clientid'),"
+          "       value->>'clientid',"
           "       (SELECT rid FROM blob WHERE uuid=substr(name,9)),"
           "       name"
-          " FROM config WHERE name GLOB 'ci-lock-*'"
+          " FROM config"
+          " WHERE name GLOB 'ci-lock-*'"
+          "   AND json_valid(value)"
         );
         while( db_step(&q)==SQLITE_ROW ){
           int x = db_column_int(&q,3);
@@ -1727,7 +1729,7 @@ void page_xfer(void){
         db_multi_exec(
           "DELETE FROM config"
           " WHERE name GLOB 'ci-lock-*'"
-          "   AND json_extract(value,'$.clientid')=%Q",
+          "   AND (NOT json_valid(value) OR value->>'clientid'==%Q)",
           blob_str(&xfer.aToken[2])
         );
         db_protect_pop();

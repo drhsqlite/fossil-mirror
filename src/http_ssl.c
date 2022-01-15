@@ -716,7 +716,7 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
       fossil_fatal("Error initializing the SSL server");
     }
     if( zCertFile && zCertFile[0] ){
-      if( SSL_CTX_use_certificate_file(sslCtx,zCertFile,SSL_FILETYPE_PEM)<=0 ){
+      if( SSL_CTX_use_certificate_chain_file(sslCtx,zCertFile)!=1 ){
         ERR_print_errors_fp(stderr);
         fossil_fatal("Error loading CERT file \"%s\"", zCertFile);
       }
@@ -966,7 +966,6 @@ void test_tlsconfig_info(void){
         }
       }
     }
-    db_protect_pop();
     if( !haveCert ){
       if( !haveKey ){
         fossil_fatal("missing certificate and private-key");
@@ -979,6 +978,7 @@ void test_tlsconfig_info(void){
     if( !bFN ){
       db_set("ssl-cert", blob_str(&allText), 0);
     }
+    db_protect_pop();
     db_commit_transaction();
   }else
   if( strncmp("scrub",zCmd,nCmd)==0 && nCmd>4 ){
@@ -1063,7 +1063,7 @@ void test_tlsconfig_info(void){
     if( verbose ){
       fossil_print("\n"
          "  This setting is the name of a file or directory that contains\n"
-         "  the complete set of root certificates to used by Fossil when it\n"
+         "  the complete set of root certificates used by Fossil when it\n"
          "  is acting as a SSL client. If defined, this setting takes\n"
          "  priority over built-in paths and environment variables\n\n"
       );
@@ -1073,7 +1073,7 @@ void test_tlsconfig_info(void){
     if( verbose ){
       fossil_print("\n"
          "  This setting is the name of a file that contains the PEM-format\n"
-         "  certificate and private-key used by Fossil clients to authentice\n"
+         "  certificate and private-key used by Fossil clients to authenticate\n"
          "  with servers. Few servers actually require this, so this setting\n"
          "  is usually blank.\n\n"
       );
@@ -1097,7 +1097,7 @@ void test_tlsconfig_info(void){
     fossil_print("ssl-key-file:      %s\n", db_get("ssl-key-file",""));
     if( verbose ){
       fossil_print("\n"
-         "  This settings are the names of files that contin the certificate\n"
+         "  This settings are the names of files that contain the certificate\n"
          "  private-key used by Fossil when it is acting as a server.\n\n"
       );
     }
@@ -1167,7 +1167,7 @@ void test_tlsconfig_info(void){
   }else
   /*default*/{
     fossil_fatal("unknown sub-command \"%s\".\nshould be one of:"
-                 " clear-certs load-certs remove-exception scrub show",
+                 " clear-cert load-cert remove-exception scrub show",
        zCmd);
   }
 }

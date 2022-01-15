@@ -747,22 +747,68 @@ void rebuild_database(void){
 }
 
 /*
-** COMMAND: test-detach
+** COMMAND: detach*
 **
-** Usage: %fossil test-detach  ?REPOSITORY?
+** Usage: %fossil detach ?REPOSITORY?
 **
-** Change the project-code and make other changes in order to prevent
-** the repository from ever again pushing or pulling to other
-** repositories.  Used to create a "test" repository for development
-** testing by cloning a working project repository.
+** Change the project-code and make other changes to REPOSITORY so that
+** it becomes a new and distinct child project.  After being detached,
+** REPOSITORY will not longer be able to push and pull from other clones
+** of the original project.  However REPOSITORY will still be able to pull
+** from those other clones using the --from-parent-project option of the
+** "fossil pull" command.
+**
+** This is an experts-only command. You should not use this command unless
+** you fully understand what you are doing.
+**
+** The original use-case for this command was to create test repositories
+** from real-world working repositories that could be safely altered by
+** making strange commits or other changes, without having to worry that
+** those test changes would leak back into the original project via an
+** accidental auto-sync.
 */
 void test_detach_cmd(void){
+  const char *zXfer[] = {
+     "project-name",  "parent-project-name",
+     "project-code",  "parent-project-code",
+     "last-sync-url", "parent-project-url",
+     "last-sync-pw",  "parent-project-pw"
+  };
+  int i;
+  Blob ans;
+  char cReply;
   db_find_and_open_repository(0, 2);
+  prompt_user("This change will be difficult to undo. Are you sure (y/N)? ",
+              &ans);
+  cReply = blob_str(&ans)[0];
+  if( cReply!='y' && cReply!='Y' ) return;
   db_begin_transaction();
   db_unprotect(PROTECT_CONFIG);
+  for(i=0; i<ArraySize(zXfer)-1; i+=2 ){
+    db_multi_exec(
+      "REPLACE INTO config(name,value,mtime)"
+        " SELECT %Q, value, now() FROM config WHERE name=%Q",
+      zXfer[i+1], zXfer[i]
+    );
+  }
   db_multi_exec(
-    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-    "DELETE FROM config WHERE name GLOB 'sync-*:*';"
+    "DELETE FROM config WHERE name IN"
+    "(WITH pattern(x) AS (VALUES"
+    "  ('baseurl:*'),"
+    "  ('cert:*'),"
+    "  ('ckout:*'),"
+    "  ('gitpush:*'),"
+    "  ('http-auth:*'),"
+    "  ('last-sync-*'),"
+    "  ('link:*'),"
+    "  ('login-group-*'),"
+    "  ('peer-*'),"
+    "  ('subrepo:*'),"
+    "  ('sync-*'),"
+    "  ('syncfrom:*'),"
+    "  ('syncwith:*'),"
+    "  ('ssl-*')"
+    ") SELECT name FROM config, pattern WHERE name GLOB x);"
     "UPDATE config SET value=lower(hex(randomblob(20)))"
     " WHERE name='project-code';"
     "UPDATE config SET value='detached-' || value"
@@ -770,6 +816,7 @@ void test_detach_cmd(void){
   );
   db_protect_pop();
   db_end_transaction(0);
+  fossil_print("New project code: %s\n", db_get("project-code",""));
 }
 
 /*
@@ -931,6 +978,7 @@ void scrub_cmd(void){
       "  ('last-sync-*'),"
       "  ('link:*'),"
       "  ('login-group-*'),"
+      "  ('parent-project-*'),"
       "  ('peer-*'),"
       "  ('skin:*'),"
       "  ('subrepo:*'),"

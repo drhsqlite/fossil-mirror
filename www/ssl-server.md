@@ -2,7 +2,7 @@
 
 ## History
 
-Fossil has supported client-side SSL/TLS since [2010][1].  This means
+Fossil has supported [client-side SSL/TLS][0] since [2010][1].  This means
 that commands like "[fossil sync](/help?cmd=sync)" could use SSL/TLS when
 contacting a server.  But on the server side, commands like
 "[fossil server](/help?cmd=server)" operated in clear-text only.  To implement
@@ -10,6 +10,7 @@ an encrypted server, you had to put Fossil behind a web server or reverse
 proxy that handled the SSL/TLS decryption/encryption and passed cleartext
 down to Fossil.
 
+[0]: ./ssl.wiki
 [1]: /timeline?c=b05cb4a0e15d0712&y=ci&n=13
 
 Beginning in [late December 2021](/timeline?c=f6263bb64195b07f&y=a&n=13),
@@ -76,9 +77,11 @@ If you do not tell Fossil about a cert and private key, it uses a
 generic "private key" and self-signed cert that is built into Fossil.
 This is wildly insecure, since the private key is not really private - 
 it is [in plain sight](/info/c2a7b14c3f541edb96?ln=89-116) in the Fossil
-source tree for anybody to read.  So the built-in cert is only useful
-for testing.  If you want actual security, you will need to come up with
-your own private key and cert.
+source tree for anybody to read.  <b>Never add the private key that is
+built into Fossil to your OS's trust store</b> as doing so will severely
+compromise your computer.  The built-in cert is only useful for testing.
+If you want actual security, you will need to come up with your own private
+key and cert.
 
 Fossil wants to read certs and public keys in the 
 [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail).
@@ -179,7 +182,7 @@ tell Fossil about the files separately using settings.  Run a command
 like this on your repository:
 
 > ~~~
-fossil ssl-config load-certs --filename CERT-FILE.pem PRIVATE-KEY.pem
+fossil ssl-config load-cert --filename CERT-FILE.pem PRIVATE-KEY.pem
 ~~~
 
 Substitute whatever filenames are appropriate in the command above, of

@@ -42,6 +42,7 @@
 #define URL_PROMPTED         0x010  /* Prompted for PW already */
 #define URL_OMIT_USER        0x020  /* Omit the user name from URL */
 #define URL_USE_CONFIG       0x040  /* Use remembered URLs from CONFIG table */
+#define URL_USE_PARENT       0x080  /* Use the URL of the parent project */
 
 /*
 ** The URL related data used with this subsystem.
@@ -87,10 +88,15 @@ struct UrlData {
 **      hostname    HOST:PORT or just HOST if port is the default.
 **      canonical   The URL in canonical form, omitting the password
 **
-** If zUrl==0, then parse the URL store in last-sync-url and last-sync-pw
-** of the CONFIG table.  Or if zUrl is a symbolic name, look up the URL
-** in sync-url:%Q and sync-pw:%Q elements of the CONFIG table.  But only
-** use the CONFIG table alternatives if the URL_FROM_CONFIG flag is set.
+** If zUrl==0 and URL_USE_CONFIG is set, then parse the URL stored
+** in last-sync-url and last-sync-pw of the CONFIG table.  Or if 
+** URL_USE_PARENT is also set, then use parent-project-url and
+** parent-project-pw from the CONFIG table instead of last-sync-url
+** and last-sync-pw.
+**
+** If zUrl is a symbolic name and URL_USE_CONFIG is true, then look up
+** the URL in sync-url:%Q and sync-pw:%Q elements of the CONFIG table where
+** %Q is the symbolic name.
 **
 ** This routine differs from url_parse() in that this routine stores the
 ** results in pUrlData and does not change the values of global variables.
@@ -106,10 +112,20 @@ void url_parse_local(
 
   if( urlFlags & URL_USE_CONFIG ){
     if( zUrl==0 || strcmp(zUrl,"default")==0 ){
-      zUrl = db_get("last-sync-url", 0);
+      const char *zPwConfig = "last-sync-pw";
+      if( urlFlags & URL_USE_PARENT ){
+        zUrl = db_get("parent-project-url", 0);
+        if( zUrl==0 ){
+          zUrl = db_get("last-sync-url",0);
+        }else{
+          zPwConfig = "parent-project-pw";
+        }
+      }else{
+        zUrl = db_get("last-sync-url", 0);
+      }
       if( zUrl==0 ) return;
       if( pUrlData->passwd==0 ){
-        pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
+        pUrlData->passwd = unobscure(db_get(zPwConfig, 0));
       }
       pUrlData->isAlias = 1;
     }else{
@@ -708,9 +724,17 @@ void url_prompt_for_password(void){
 */
 void url_remember(void){
   if( g.url.flags & URL_REMEMBER ){
-    db_set("last-sync-url", g.url.canonical, 0);
+    if( g.url.flags & URL_USE_PARENT ){
+      db_set("parent-project-url", g.url.canonical, 0);
+    }else{
+      db_set("last-sync-url", g.url.canonical, 0);
+    }
     if( g.url.user!=0 && g.url.passwd!=0 && ( g.url.flags & URL_REMEMBER_PW ) ){
-      db_set("last-sync-pw", obscure(g.url.passwd), 0);
+      if( g.url.flags & URL_USE_PARENT ){
+        db_set("parent-project-pw", obscure(g.url.passwd), 0);
+      }else{
+        db_set("last-sync-pw", obscure(g.url.passwd), 0);
+      }
     }
   }
 }

@@ -34,16 +34,16 @@ commands.
 
 <h3 id="crdt">1.1 Conflict-Free Replicated Datatypes</h3>
 
-<p>The "bag of artifacts" data model used by Fossil
-Fossil is apparently an implementation of a particular 
-[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|Conflict-Free Replicated
-Datatype (CRDT)]
-called a "G-Set" or "Grow-only Set".
-The academic literature on CRDTs only began to appear in about 2011, and
-Fossil predates that research by at least 4 years.  But it is nice to know
-that theorists have now proven that the underlying data model of Fossil can
-provide strongly-consistent replicas using only peer-to-peer communication
-and without any kind of central authority.</p>
+<p>The "bag of artifacts" data model used by Fossil is apparently an
+implementation of a particular
+[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|Conflict-Free
+Replicated Datatype (CRDT)] called a "G-Set" or "Grow-only Set".  The
+academic literature on CRDTs only began to appear in about 2011, and
+Fossil predates that research by at least 4 years.  But it is nice to
+know that theorists have now proven that the underlying data model of
+Fossil can provide strongly-consistent replicas using only
+peer-to-peer communication and without any kind of central
+authority.</p>
 
 <p>If you are already familiar with CRDTs and were wondering if Fossil
 used them, the answer is "yes".  We just don't call them by that name.</p>
@@ -595,7 +595,7 @@ following values:
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs
-<li> allow-symlinks
+<li> <s>allow-symlinks</s> (removed 2020-08, version 2.12.1)
 <li> dotfiles
 <li> parent-project-code
 <li> parent-projet-name

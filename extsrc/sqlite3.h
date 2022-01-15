@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.38.0"
 #define SQLITE_VERSION_NUMBER 3038000
-#define SQLITE_SOURCE_ID      "2021-12-09 20:06:18 633bfeeea2bccdd44126acf3f61ecca163c9d933bdc787a2c18a697dc9406882"
+#define SQLITE_SOURCE_ID      "2022-01-12 00:28:12 adebb9d7478d092f16fb0ef7d5246ce152b166479d6f949110b5878b89ea2cec"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3824,13 +3824,14 @@ SQLITE_API void sqlite3_free_filename(char*);
 ** sqlite3_extended_errcode() might change with each API call.
 ** Except, there are some interfaces that are guaranteed to never
 ** change the value of the error code.  The error-code preserving
-** interfaces are:
+** interfaces include the following:
 **
 ** <ul>
 ** <li> sqlite3_errcode()
 ** <li> sqlite3_extended_errcode()
 ** <li> sqlite3_errmsg()
 ** <li> sqlite3_errmsg16()
+** <li> sqlite3_error_offset()
 ** </ul>
 **
 ** ^The sqlite3_errmsg() and sqlite3_errmsg16() return English-language
@@ -3844,6 +3845,13 @@ SQLITE_API void sqlite3_free_filename(char*);
 ** that describes the [result code], as UTF-8.
 ** ^(Memory to hold the error message string is managed internally
 ** and must not be freed by the application)^.
+**
+** ^If the most recent error references a specific token in the input
+** SQL, the sqlite3_error_offset() interface returns the byte offset
+** of the start of that token.  ^The byte offset returned by
+** sqlite3_error_offset() assumes that the input SQL is UTF8.
+** ^If the most error does not reference a specific token in the input
+** SQL, then the sqlite3_error_offset() function returns -1.
 **
 ** When the serialized [threading mode] is in use, it might be the
 ** case that a second error occurs on a separate thread in between
@@ -3864,6 +3872,7 @@ SQLITE_API int sqlite3_extended_errcode(sqlite3 *db);
 SQLITE_API const char *sqlite3_errmsg(sqlite3*);
 SQLITE_API const void *sqlite3_errmsg16(sqlite3*);
 SQLITE_API const char *sqlite3_errstr(int);
+SQLITE_API int sqlite3_error_offset(sqlite3 *db);
 
 /*
 ** CAPI3REF: Prepared Statement Object
@@ -9464,14 +9473,33 @@ SQLITE_API int sqlite3_vtab_nochange(sqlite3_context*);
 ** CAPI3REF: Determine The Collation For a Virtual Table Constraint
 **
 ** This function may only be called from within a call to the [xBestIndex]
-** method of a [virtual table].
+** method of a [virtual table].  This function returns a pointer to a string
+** that is the name of the appropriate collation sequence to use for text
+** comparisons on the constraint identified by its arguments.
 **
-** The first argument must be the sqlite3_index_info object that is the
-** first parameter to the xBestIndex() method. The second argument must be
-** an index into the aConstraint[] array belonging to the sqlite3_index_info
-** structure passed to xBestIndex. This function returns a pointer to a buffer
-** containing the name of the collation sequence for the corresponding
-** constraint.
+** The first argument must be the pointer to the sqlite3_index_info object
+** that is the first parameter to the xBestIndex() method. The second argument
+** must be an index into the aConstraint[] array belonging to the
+** sqlite3_index_info structure passed to xBestIndex.
+**
+** Important:
+** The first parameter must be the same pointer that is passed into the
+** xBestMethod() method.  The first parameter may not be a pointer to a
+** different sqlite3_index_info object, even an exact copy.
+**
+** The return value is computed as follows:
+**
+** <ol>
+** <li><p> If the constraint comes from a WHERE clause expression that contains
+**         a [COLLATE operator], then the name of the collation specified by
+**         that COLLATE operator is returned.
+** <li><p> If there is no COLLATE operator, but the column that is the subject
+**         of the constraint specifies an alternative collating sequence via
+**         a [COLLATE clause] on the column definition within the CREATE TABLE
+**         statement that was passed into [sqlite3_declare_vtab()], then the
+**         name of that alternative collating sequence is returned.
+** <li><p> Otherwise, "BINARY" is returned.
+** </ol>
 */
 SQLITE_API SQLITE_EXPERIMENTAL const char *sqlite3_vtab_collation(sqlite3_index_info*,int);
 

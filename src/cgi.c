@@ -1189,6 +1189,33 @@ void cgi_trace(const char *z){
 static NORETURN void malformed_request(const char *zMsg);
 
 /*
+** Checks the QUERY_STRING environment variable, sets it up
+** via add_param_list() and, if found, applies its "skin"
+** setting. Returns 0 if no QUERY_STRING is set, 1 if it is,
+** and 2 if it sets the skin (in which case the cookie may
+** still need flushing by the page, via cookie_render()).
+*/
+int cgi_setup_query_string(void){
+  int rc = 0;
+  char * z = (char*)P("QUERY_STRING");
+  if( z ){
+    ++rc;
+    z = fossil_strdup(z);
+    add_param_list(z, '&');
+    z = (char*)P("skin");
+    if(z){
+      char *zErr = skin_use_alternative(z, 2);
+      ++rc;
+      if(!zErr && !P("once")){
+        cookie_write_parameter("skin","skin",z);
+      }
+      fossil_free(zErr);
+    }
+  }
+  return rc;
+}
+
+/*
 ** Initialize the query parameter database.  Information is pulled from
 ** the QUERY_STRING environment variable (if it exists), from standard
 ** input if there is POST data, and from HTTP_COOKIE.
@@ -1319,19 +1346,7 @@ void cgi_init(void){
     }
   }
 
-  z = (char*)P("QUERY_STRING");
-  if( z ){
-    z = fossil_strdup(z);
-    add_param_list(z, '&');
-    z = (char*)P("skin");
-    if(z){
-      char *zErr = skin_use_alternative(z, 2);
-      if(!zErr && !P("once")){
-        cookie_write_parameter("skin","skin",z);
-      }
-      fossil_free(zErr);
-    }
-  }
+  cgi_setup_query_string();
 
   z = (char*)P("REMOTE_ADDR");
   if( z ){

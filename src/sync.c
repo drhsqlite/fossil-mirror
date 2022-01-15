@@ -210,7 +210,7 @@ static void process_sync_args(
   }
   zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
-  if( (*pSyncFlags) & SYNC_FROMPARENT ) urlFlags &= ~URL_REMEMBER;
+  if( (*pSyncFlags) & SYNC_FROMPARENT ) urlFlags |= URL_USE_PARENT;
   if( !uvOnly ){
     if( find_option("private",0,0)!=0 ){
       *pSyncFlags |= SYNC_PRIVATE;
