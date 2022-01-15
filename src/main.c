@@ -2593,6 +2593,22 @@ void test_pid_page(void){
 }
 
 /*
+** Initialize the SSL decoder.
+*/
+static void init_ssl_decoder(const char *zCertFile, int tls){
+#if FOSSIL_ENABLE_SSL
+  if( zCertFile ){
+    g.httpUseSSL = 1;
+    ssl_init_server(zCertFile, zCertFile);
+  }
+  if( 1 == tls ){
+    g.httpUseSSL = 1;
+    ssl_init_server(0,0);
+  }
+#endif
+}
+
+/*
 ** Check for options to "fossil server" or "fossil ui" that imply that
 ** SSL should be used, and initialize the SSL decoder.
 */
@@ -2601,12 +2617,10 @@ static void decode_ssl_options(void){
   const char *zCertFile = 0;
   zCertFile = find_option("tls-cert-file",0,1);
   if( zCertFile ){
-    g.httpUseSSL = 1;
-    ssl_init_server(zCertFile, zCertFile);
+    init_ssl_decoder(zCertFile, 0);
   }
   if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
-    g.httpUseSSL = 1;
-    ssl_init_server(0,0);
+    init_ssl_decoder(0, 1);
   }
 #endif
 }
@@ -3051,8 +3065,10 @@ void cmd_webserver(void){
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
-  
-
+#if FOSSIL_ENABLE_SSL 
+  const char *zCertFile =0;  /* Internal - TLS/SSL cert filename of the --tls-cert-file option */
+  int zTls =0;               /* Internal - 1 = use a TLS/SSL cert that has been previously loaded by ssl-config load-cert command or 0 if no TLS / SSL has been loaeded  */
+#endif
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
   zStopperFile = find_option("stopper", 0, 1);
@@ -3098,10 +3114,18 @@ void cmd_webserver(void){
   }
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
   fNoBrowser = find_option("nobrowser", 0, 0)!=0;
-  decode_ssl_options();
-  if( find_option("https",0,0)!=0 || g.httpUseSSL ){
-    cgi_replace_parameter("HTTPS","on");
+
+  /* 
+  ** get tls / ssl options, the calls that use these options need 
+  ** access to the repo database which has not been found yet.
+  ** we get and store them now, as find_option removes them from
+  ** argv
+  */
+  zCertFile = find_option("tls-cert-file",0,1);
+  if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
+    zTls = 1;
   }
+
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
@@ -3129,9 +3153,6 @@ void cmd_webserver(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
-  if( g.httpUseSSL && (flags & HTTP_SERVER_SCGI)!=0 ){
-    fossil_fatal("SCGI does not (yet) support TLS-encrypted connections");
-  }
   if( isUiCmd && 3==g.argc && file_isdir(g.argv[2], ExtFILE)>0 ){
     /* If REPOSITORY arg is the root of a checkout,
     ** chdir to that checkout so that the current version
@@ -3168,6 +3189,20 @@ void cmd_webserver(void){
   if( !zRemote ){
     find_server_repository(findServerArg, fCreate);
   }
+  /* 
+  ** We need call enable TLS / SSL here as we need query the 
+  ** repo database to access the certificate if its been loaded
+  **     
+  ** The database has only just been found and made available
+  */
+  init_ssl_decoder(zCertFile, zTls);
+  if( find_option("https",0,0)!=0 || g.httpUseSSL ){
+    cgi_replace_parameter("HTTPS","on");
+  }
+  if( g.httpUseSSL && (flags & HTTP_SERVER_SCGI)!=0 ){
+    fossil_fatal("SCGI does not (yet) support TLS-encrypted connections");
+  }
+
   if( zInitPage==0 ){
     if( isUiCmd && g.localOpen ){
       zInitPage = "timeline?c=current";
