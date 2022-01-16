@@ -706,9 +706,9 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 */
 void ssl_init_server(const char *zCertFile, const char *zKeyFile){
   if( sslIsInit==0 ){
+    const char *zTlsCert;
     db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
     db_open_config(1,0);
-    const char *zTlsCert;
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
