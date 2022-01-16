@@ -725,8 +725,7 @@ static void export_config(
 **
 ** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **
-** Where METHOD is one of: export import merge pull push reset.  All methods
-** accept the -R or --repository option to specify a repository.
+** Where METHOD is one of: export import merge pull push reset.
 **
 ** >  fossil configuration export AREA FILENAME
 **
@@ -771,7 +770,7 @@ static void export_config(
 **         the remote repository at URL.
 **
 ** Options:
-**    -R|--repository REPO       Extract info from repository REPO
+**    -R|--repository REPO       Affect repository REPO with changes
 **
 ** See also: [[settings]], [[unset]]
 */
