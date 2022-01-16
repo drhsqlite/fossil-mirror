@@ -1029,6 +1029,12 @@ const char *diff_get_binary_glob(void){
 ** as binary when considering if they should be used with external diff program.
 ** This option overrides the "binary-glob" setting.
 **
+** The "--prototype" option is specific to C/C++ source code, and only applies
+** to the standard unified diff, where the enclosing function of each change
+** will be shown in the chunk header; for example:
+**
+**   @@ -2360,10 +2361,11 @@ draw_commits(struct fnc_view *view)
+**
 ** These command show differences between managed files. Use the "fossil xdiff"
 ** command to see differences in unmanaged files.
 **
@@ -1045,6 +1051,7 @@ const char *diff_get_binary_glob(void){
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
+**   -p|--prototype              Show which C function each change is in
 **   -r|--from VERSION           Select VERSION as source for the diff
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -i|--internal               Use internal diff logic

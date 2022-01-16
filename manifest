@@ -1,5 +1,5 @@
-C When\sreading\sPOST\svia\sTLS,\sfail\sfatally\son\sa\sread\serror.\sAdd\sSERVER_SOFTWARE\sto\sthe\senvironment\swhen\srunning\sin\sserver\smode.
-D 2022-01-16T02:03:04.211
+C Implement\s-p|--prototype\soption\sfor\sdiff\scommand.\n\nThis\scommit\sintroduces\ssupport\sfor\sdisplaying\sin\sthe\schunk\sheader\swhich\sC\nfunction\seach\schange\sis\sin.\sTested\son\sOpenBSD,\sUbuntu,\sand\smacOS.
+D 2022-01-16T10:09:35.593
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -437,10 +437,10 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 5147f16addccd86f601b96806505ae9f477aa7ee65de9930d649c12832f873bd
+F src/diff.c e4a05eb00f0fa3c67746f47bd9444e2a80a8c5a623c5e29c99a4ecd00431b0b8
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c 5e177e68580b6fb6d99ce9dac7c1e295ac44b1255535b1cd56f1aa710a807537
+F src/diffcmd.c c08ba01a11d6bb0f184a32c0b01bd093d2a4d01bf8408f8ed926d81f9b0cacab
 F src/dispatch.c 3707f49c1d612ec3f8ad5008e4050df906ff716cf9fb8761d1c4eac3be87505b
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -969,8 +969,11 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f1729c4736558d674d8c5c6ff6096f431fa2a2aa381b837f77e9e86635c976b1
-R 66900360522e3e61af66b1d6c4aefd01
-U stephan
-Z 55cd4e588abb9499fb5c2f61d443feb6
+P ba95498d36d0176955f05aab476d4f4647690467a6141b257458a0901bb3a6ae
+R 29eb17c893e090b142bf30453013386c
+T *branch * diff-show-func
+T *sym-diff-show-func *
+T -sym-trunk *
+U jamsek
+Z 8509affd044636cd8161e181aff227d8
 # Remove this line to create a well-formed Fossil manifest.

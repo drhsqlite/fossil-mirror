@@ -49,6 +49,7 @@
 #define DIFF_RAW               0x00040000 /* Raw triples - for debugging */
 #define DIFF_TCL               0x00080000 /* For the --tk option */
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
+#define DIFF_PROTOTYPE         0x00200000 /* Function prototype in chunk head */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -99,6 +100,17 @@ struct DiffConfig {
   const char *zBinGlob;    /* GLOB pattern for binary files */
   ReCompiled *pRe;         /* Show only changes matching this pattern */
   const char *zLeftHash;   /* HASH-id of the left file */
+  struct {
+    /*
+     * DIFF_PROTOTYPE (fossil diff -p|--prototype) data types for matching
+     * each chunk change in the diff to it's enclosing function.
+     */
+    const Blob *pFileLHS;  /* Pointer to "from" file content */
+    char *zSignature;      /* Enclosing function signature */
+    uint32_t iLastMatch;   /* Line index of the last function match */
+    uint32_t iLastLine;    /* Starting line index of the last chunk scanned */
+    size_t iOffset;        /* Byte offset into pFileLHS->aData of iLastMatch */
+  } proto;
 };
 
 #endif /* INTERFACE */
@@ -366,6 +378,113 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB){
 }
 
 /*
+** Starting from iSeek lines, copy n lines from pSrc to pDest.  The seek starts
+** from iOffset bytes into pSrc->aData.  This routine does _not_ modify pSrc.
+*/
+static void blob_copy_lines_from(
+  Blob * const pDest,       /* Destination blob */
+  const Blob * const pSrc,  /* Source blob from which to copy line(s) */
+  size_t *iOffset,          /* Begin seek from this byte offset */
+  size_t iSeek,             /* Skip this many lines before copying */
+  size_t n                  /* Copy this many lines */
+){
+  const char *z = (const char *)pSrc->aData;
+  size_t idx = *iOffset, ln = 0, start = 0;
+
+  if( n==0 ){
+    return;
+  }
+
+  while( idx<pSrc->nUsed ){
+    if( z[idx]=='\n' ){
+      if( ++ln==iSeek ){
+        start = idx + 1;  /* skip '\n' */
+      }
+      if( ln==iSeek + n ){
+        ++idx;
+        break;
+      }
+    }
+    ++idx;
+  }
+
+  if( pDest ){
+    blob_append(pDest, &pSrc->aData[start], idx - start - 1);  /* trim '\n' */
+  }
+  *iOffset = start;
+  return;
+}
+
+#define starts_with(_str, _pfx) (fossil_strncmp(_str, _pfx, sizeof(_pfx)-1)==0)
+
+/*
+ * Scan the diffed file from the line preceding the start of the current chunk
+ * for the enclosing function in which the change resides. Return first match.
+ */
+static char * matchChunkFunction(
+  DiffConfig *const pCfg,  /* Diff config options */
+  uint32_t iPos            /* Line position in file from which to start scan */
+){
+  Blob pBuf;               /* Matching function prototype */
+  const char *zLine;       /* Text of line being scanned */
+  char *zSpec = NULL;      /* Access specifier: private, protected, public */
+  size_t iOffset;          /* Byte offset to the last matching line */
+  uint32_t iLast;          /* Line index to start of the last chunk matched */
+
+  blob_zero(&pBuf);
+  iLast = pCfg->proto.iLastLine;
+  pCfg->proto.iLastLine = iPos;
+  iOffset = pCfg->proto.iOffset;  /* Begin seeking from last match */
+
+  /* Scan backwards from the line immediately preceding this chunk. */
+  while( iPos > 1 && iPos > iLast ){
+    blob_copy_lines_from(&pBuf, pCfg->proto.pFileLHS, &iOffset,
+     iPos - pCfg->proto.iLastMatch, 1);
+    zLine = blob_str(&pBuf);
+    if ( zLine ){
+      /*
+       * GNU C and MSVC allow '$' in identifier names.
+       * https://gcc.gnu.org/onlinedocs/gcc/Dollar-Signs.html
+       * https://docs.microsoft.com/en-us/cpp/cpp/identifiers-cpp
+       */
+      if( fossil_isalpha(zLine[0]) || zLine[0] == '_' || zLine[0] == '$' ){
+        if( starts_with(zLine, "private:") ){
+          if( !zSpec ){
+            zSpec = " (private)";
+          }
+        }else if( starts_with(zLine, "protected:") ){
+          if( !zSpec ){
+            zSpec = " (protected)";
+          }
+        }else if( starts_with(zLine, "public:") ){
+          if( !zSpec ){
+            zSpec = " (public)";
+          }
+        }else{
+          /* Don't exceed 80 cols: chunk header consumes ~25, cap sig at 55. */
+          char *zSig = mprintf("%s%s", zLine, zSpec ? zSpec : "");
+          fossil_free(pCfg->proto.zSignature);
+          pCfg->proto.zSignature = mprintf("%.55s", zSig);
+          /*
+           * It's expensive to seek from the beginning of the file when diffing
+           * large files, so record byte offset and line index of this match.
+           */
+          pCfg->proto.iLastMatch = iPos;
+          pCfg->proto.iOffset = iOffset;
+          fossil_free(zSig);
+          blob_reset(&pBuf);
+          return pCfg->proto.zSignature;
+        }
+      }
+    }
+    iOffset = pCfg->proto.iOffset;  /* No match, revert offset to previous */
+    blob_reset(&pBuf);
+    --iPos;
+  }
+  return pCfg->proto.iLastMatch > 0 ? pCfg->proto.zSignature : NULL;
+}
+
+/*
 ** Output a patch-style text diff.
 */
 static void contextDiff(
@@ -449,6 +568,12 @@ static void contextDiff(
       blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
         na ? a+skip+1 : a+skip, na,
         nb ? b+skip+1 : b+skip, nb);
+      if((DIFF_PROTOTYPE & pCfg->diffFlags) && a+skip > 1) {
+        char *f = matchChunkFunction(pCfg, (a+skip) - 1);
+        if( f != NULL ){
+          blob_appendf(pOut, " %s", f);
+        }
+      }
       blob_append(pOut, "\n", 1);
     }
 
@@ -497,6 +622,7 @@ static void contextDiff(
       appendDiffLine(pOut, ' ', &A[a+j]);
     }
   }
+  fossil_free(pCfg->proto.zSignature);
 }
 
 #define MX_CSN  8  /* Maximum number of change spans across a change region */
@@ -2701,6 +2827,10 @@ int *text_diff(
   int ignoreWs; /* Ignore whitespace */
   DContext c;
 
+  if( pCfg->diffFlags & DIFF_PROTOTYPE ){
+    memset(&pCfg->proto, 0, sizeof(pCfg->proto));
+    pCfg->proto.pFileLHS = pA_Blob;
+  }
   if( pCfg->diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
     pA_Blob = pB_Blob;
@@ -2827,6 +2957,7 @@ int *text_diff(
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
 **   --noopt                      Disable optimization       DIFF_NOOPT
 **   --numstat                    Show change counts         DIFF_NUMSTAT
+**   -p|--prototype               Show enclosing function    DIFF_PROTOTYPE
 **   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
 **   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
 **   -w|--ignore-all-space        Ignore all whitespaces     DIFF_IGNORE_ALLWS
@@ -2845,6 +2976,9 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   }
   if( find_option("ignore-all-space","w",0)!=0 ){
     diffFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_EOLWS */
+  }
+  if( find_option("prototype","p",0)!=0 ){
+    diffFlags = DIFF_PROTOTYPE;
   }
   if( find_option("strip-trailing-cr",0,0)!=0 ){
     diffFlags |= DIFF_STRIP_EOLCR;
