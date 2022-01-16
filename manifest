@@ -1,5 +1,5 @@
-C Cherrypicked\s[5fd1ca6f]\s(was\schecked\sin\sto\swrong\sbranch).
-D 2022-01-15T13:58:01.156
+C Show\sthe\svalue\sof\sSERVER_SOFTWARE\son\sthe\s/test_env\spage.
+D 2022-01-16T01:34:24.271
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 85162f631e5bd16ec2db296c7e6406ae76c992ded7acb97513df144063e0ef84
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
+F src/style.c df745c115d0f783022262472fef2809d2bdac48d7990310955ab314947aaf23d
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -969,9 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9769c4f756390a715df90e91c0f23eece95f26de102c56c4132bcd05812682a5
-Q +5fd1ca6fba31668888a610488d1afdcfac7d61124d188b1ffd0fa5d295727cce
-R 368cfe806340f08973de1f589c6f55ef
-U stephan
-Z c0bb2fa4ad3cc5fb9df6212e976eff60
+P 8d456a5b772edadd2adefaad8da9d6c03758bce0d5b21fe75ef1fffc901f0e44
+R e211fc1e1a06c2e0e5cf156803cee157
+U drh
+Z 9627773afd435b451afe8db1035a5173
 # Remove this line to create a well-formed Fossil manifest.
