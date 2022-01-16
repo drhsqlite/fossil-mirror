@@ -3295,6 +3295,8 @@ void cmd_webserver(void){
 
   /* Start up an HTTP server
   */
+  fossil_setenv("SERVER_SOFTWARE", "fossil version " RELEASE_VERSION
+                " " MANIFEST_VERSION " " MANIFEST_DATE);
 #if !defined(_WIN32)
   /* Unix implementation */
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
