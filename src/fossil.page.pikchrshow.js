@@ -505,7 +505,7 @@ ellipse "ellipse" at 1in right of previous
 
 # second row of objects
 OVAL1: oval "oval" at 1in below first box
-oval "(tall &amp;" "thin)" "oval" width OVAL1.height height OVAL1.width \
+oval "(tall &" "thin)" "oval" width OVAL1.height height OVAL1.width \
     at 1in right of previous
 cylinder "cylinder" at 1in right of previous
 file "file" at 1in right of previous
@@ -592,7 +592,7 @@ C1: circle same as A1 at B1-(0,$laneh) "1"
     arrow right 0.8in "goes" "offline"
 C5: circle same as A3 "5"
     arrow right until even with first ellipse.w \
-      "back online" above "pushes 5" below "pulls 3 &amp; 4" below
+      "back online" above "pushes 5" below "pulls 3 & 4" below
     ellipse same "future"
 
     # content for the Darlene lane
