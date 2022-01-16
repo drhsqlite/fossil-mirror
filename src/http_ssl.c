@@ -809,6 +809,8 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
     if(0==err){
       rc += n;
       pServer->atEof = BIO_eof(pServer->bio);
+    }else{
+      fossil_fatal("SSL read error.");
     }
   }
   return rc;

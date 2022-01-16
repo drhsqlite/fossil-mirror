@@ -1,5 +1,5 @@
-C Show\sthe\svalue\sof\sSERVER_SOFTWARE\son\sthe\s/test_env\spage.
-D 2022-01-16T01:34:24.271
+C When\sreading\sPOST\svia\sTLS,\sfail\sfatally\son\sa\sread\serror.\sAdd\sSERVER_SOFTWARE\sto\sthe\senvironment\swhen\srunning\sin\sserver\smode.
+D 2022-01-16T02:03:04.211
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 631c49fe034077eabe09c0625824475b464e49f37168ba0bcab4586ea3afa7f1
+F src/http_ssl.c fe3bf76f37fc443d7c3ca960c633cba775405565935119f78952c2bcb2553ac8
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 2ca145c98bc38d2d25bde07ba7856f37ce083e8d539813cd3d323899baa3d30e
+F src/main.c 92d51630cf25b22039e2d0fe168fb7a55c10164cd42ba3cc5abd750ed9c45a66
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d456a5b772edadd2adefaad8da9d6c03758bce0d5b21fe75ef1fffc901f0e44
-R e211fc1e1a06c2e0e5cf156803cee157
-U drh
-Z 9627773afd435b451afe8db1035a5173
+P f1729c4736558d674d8c5c6ff6096f431fa2a2aa381b837f77e9e86635c976b1
+R 66900360522e3e61af66b1d6c4aefd01
+U stephan
+Z 55cd4e588abb9499fb5c2f61d443feb6
 # Remove this line to create a well-formed Fossil manifest.
