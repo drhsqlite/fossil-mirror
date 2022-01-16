@@ -839,7 +839,7 @@ void configuration_cmd(void){
     if( g.argc==5 ){
       zServer = g.argv[4];
     }
-    url_parse(zServer, URL_PROMPT_PW);
+    url_parse(zServer, URL_PROMPT_PW|URL_USE_CONFIG);
     if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
