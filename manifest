@@ -1,5 +1,5 @@
-C The\soutput\sof\s"fossil\sconfiguration\s--help"\shad\stwo\sdifferent\sways\s-R\nwas\sdescribed,\sone\swrong.\s\sThe\snewer\sone\swas\sof\sa\smore\sconsistent\sformat\nwith\sthe\srest\sof\sthe\shelp\s([decd537016\s|\sthus\swhy\sit\swas\sadded])\sso\nremoved\sthe\solder\sone\sand\sreworked\sthe\snewer\sone\sto\sbe\smore\saccurate.
-D 2022-01-16T18:42:03.892
+C A\sgeneral\ssimplification\sof\sthe\sserver-side\sTLS\slogic:\nDo\snot\sstore\sserver-certs\sin\ssettings.\s\sRemove\sthe\sssl-config\ssubcommands\nthat\stry\sto\sdo\sthat.\sChange\scommand-line\soptions\sfor\sserver-TLS\smode\son\n"fossil\sserver"\sand\s"fossil\shttp":\s\s--cert\sfor\sthe\scert\sfile,\s--pkey\sfor\nthe\sprivate\skey,\sand\somit\s--tls\sand\s--ssl.\nThis\scheck-in\ssupercedes\s[/timeline?r=tls-server-fix|the\stls-server-fix\sbranch].\nSee\s[forum:/forumpost/de470658fdf45100|forum\spost\sde470658fdf45100].
+D 2022-01-17T16:56:51.467
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -431,7 +431,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c f0f4b4b154ce6b23a262ed8cbc429992ceffc88af789666d749f416daac3d786
+F src/db.c 4da2658323cab60edb5ecbb942144e6a2cefc2f753bff777b356b5271444b62d
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -486,7 +486,7 @@ F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 284701477c2d21e361669391b0cd929a7f31cbc0329971b8f29e94e4970091ef
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c fe3bf76f37fc443d7c3ca960c633cba775405565935119f78952c2bcb2553ac8
+F src/http_ssl.c 69903d05256623469c724e49d863de004ef50ff45b4dcf4efe04a8056a64795c
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 92d51630cf25b22039e2d0fe168fb7a55c10164cd42ba3cc5abd750ed9c45a66
+F src/main.c 1b560149a4277cff7f7fcc9a3c377561d0cde0c3bd403dc7cd681f5e0ec31ca4
 F src/main.mk 2cddfdc64219ac95e0f04846bf29c98195fbf10f57eb1435abb82d0ae99a401b
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 661ea3315940eefb9daf09a37369a0e76ed8c790b55e4da288653c24ed849bcd
-R d6512d2ea51d6758068fa0e5d1183084
-U wyoung
-Z f360de85b65b8a1f2f4f8186a11ec583
+P 6cb0fc259128b939ea75b50af4c763f45e3180034a9d4b4d314454a592cfe2b1
+R 7eeb324d59c1cb6779f5dd45d5acefd9
+U drh
+Z 67e874e4081c6706e02247617bf96035
 # Remove this line to create a well-formed Fossil manifest.

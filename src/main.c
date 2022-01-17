@@ -2599,14 +2599,14 @@ void test_pid_page(void){
 static void decode_ssl_options(void){
 #if FOSSIL_ENABLE_SSL
   const char *zCertFile = 0;
-  zCertFile = find_option("tls-cert-file",0,1);
+  const char *zKeyFile = 0;
+  zCertFile = find_option("cert",0,1);
+  zKeyFile = find_option("pkey",0,1);
   if( zCertFile ){
     g.httpUseSSL = 1;
-    ssl_init_server(zCertFile, zCertFile);
-  }
-  if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
-    g.httpUseSSL = 1;
-    ssl_init_server(0,0);
+    ssl_init_server(zCertFile, zKeyFile);
+  }else if( zKeyFile ){
+    fossil_fatal("--pkey without a corresponding --cert");
   }
 #endif
 }
@@ -2646,6 +2646,8 @@ static void decode_ssl_options(void){
 ** Options:
 **   --acme              Deliver files from the ".well-known" subdirectory
 **   --baseurl URL       base URL (useful with reverse proxies)
+**   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
+**                       fullchain.pem) taken from FILE.
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
 **                          /doc/ckout/...
@@ -2678,13 +2680,11 @@ static void decode_ssl_options(void){
 **   --nossl             signal that no SSL connections are available
 **   --notfound URL      use URL as "HTTP 404, object not found" page.
 **   --out FILE          write results to FILE instead of to standard output
+**   --pkey FILE         Read the private key used for TLS from FILE.
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi              Interpret input as SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
 **   --th-trace          trace TH1 execution (for debugging purposes)
-**   --tls               Use TLS (HTTPS) encryption.
-**   --tls-cert-file FN  Read the TLS certificate and private key from FN
 **   --usepidkey         Use saved encryption key from parent process. This is
 **                       only necessary when using SEE on Windows.
 **
@@ -2978,6 +2978,8 @@ void fossil_set_timeout(int N){
 ** Options:
 **   --acme              Deliver files from the ".well-known" subdirectory.
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
+**                       fullchain.pem) taken from FILE.
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
 **                       /doc/ckout/...
@@ -3010,18 +3012,17 @@ void fossil_set_timeout(int N){
 **                       "fossil ui" command.
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available (Always
-**                       set by default for the "ui" command)
-**   --notfound URL      Redirect
+**   --nossl             do not force redirects to SSL even if the repository
+**                       setting "redirect-to-https" requests it.  This is set
+**                       by default for the "ui" command.
+**   --notfound URL      Redirect to URL if a page is not found.
 **   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
+**   --pkey FILE         Read the private key used for TLS from FILE.
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
 **   --th-trace          trace TH1 execution (for debugging purposes)
-**   --tls               Use TLS (HTTPS) encryption.
-**   --tls-cert-file FN  Read the TLS certificate and private key from FN
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
