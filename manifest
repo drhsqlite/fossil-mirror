@@ -1,5 +1,5 @@
-C A\sgeneral\ssimplification\sof\sthe\sserver-side\sTLS\slogic:\nDo\snot\sstore\sserver-certs\sin\ssettings.\s\sRemove\sthe\sssl-config\ssubcommands\nthat\stry\sto\sdo\sthat.\sChange\scommand-line\soptions\sfor\sserver-TLS\smode\son\n"fossil\sserver"\sand\s"fossil\shttp":\s\s--cert\sfor\sthe\scert\sfile,\s--pkey\sfor\nthe\sprivate\skey,\sand\somit\s--tls\sand\s--ssl.\nThis\scheck-in\ssupercedes\s[/timeline?r=tls-server-fix|the\stls-server-fix\sbranch].\nSee\s[forum:/forumpost/de470658fdf45100|forum\spost\sde470658fdf45100].
-D 2022-01-17T16:56:51.467
+C Fix\sthe\s"fossil\ssync"\scommand\sso\sthat\sit\sworks\swith\soptions\s-u\sand\s--all\sat\nthe\ssame\stime.
+D 2022-01-17T18:10:10.455
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -609,7 +609,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c dadaf755f21931398be2aaf956177fb6c02a3c757b4d5e02c0e6741fce074221
-F src/xfer.c 7d6b838ff884d162bad836fa7d6e76b86c77fe610ae99f4b0b30901fc762f15e
+F src/xfer.c 57932b933b3a4b437d57b1dde6a82074c6dd56519031ba807a10d762e0332739
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c 868c65c39dbe5577a9d6b2e1aa9fd74f9dcdb3640cc3dad5fb022b8530c18ca4
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6cb0fc259128b939ea75b50af4c763f45e3180034a9d4b4d314454a592cfe2b1
-R 7eeb324d59c1cb6779f5dd45d5acefd9
+P d7008b34579d2f411784cedca493b05c7be6a9723094acd2c0bb6f11bd8468bb
+R f29419d1e4826a5d9ccd7304d84a13b4
 U drh
-Z 67e874e4081c6706e02247617bf96035
+Z f11d4b6423bf13cdd80f4d82ba219738
 # Remove this line to create a well-formed Fossil manifest.
