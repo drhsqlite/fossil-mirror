@@ -3069,6 +3069,7 @@ void cmd_webserver(void){
   const char *zCertFile =0;  /* Internal - TLS/SSL cert filename of the --tls-cert-file option */
   int zTls =0;               /* Internal - 1 = use a TLS/SSL cert that has been previously loaded by ssl-config load-cert command or 0 if no TLS / SSL has been loaeded  */
 #endif
+  const char *zHttps =0;     /* Internal - set if if --https is present */
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
   zStopperFile = find_option("stopper", 0, 1);
@@ -3150,6 +3151,7 @@ void cmd_webserver(void){
     zTimeout = "100000000";
 #endif
   }
+  zHttps = find_option("https",0,0);
   /* We should be done with options.. */
   verify_all_options();
 
@@ -3199,7 +3201,7 @@ void cmd_webserver(void){
 #if FOSSIL_ENABLE_SSL
     init_ssl_decoder(zCertFile, zTls);
 #endif
-  if( find_option("https",0,0)!=0 || g.httpUseSSL ){
+  if( zHttps !=0 || g.httpUseSSL ){
     cgi_replace_parameter("HTTPS","on");
   }
   if( g.httpUseSSL && (flags & HTTP_SERVER_SCGI)!=0 ){
