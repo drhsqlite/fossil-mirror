@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2022-01-17T19:57:50.887
+C Update\sthe\sssl-server.md\sdocument\sto\sconform\sto\sthe\slatest\schanges.
+D 2022-01-17T20:32:37.426
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -949,7 +949,7 @@ F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524
 F www/serverext.wiki 7b38c1cb3fceb59c0270b73d51f55c1b50cd076f0ad63ea417f8d0d8f84e9a84
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
-F www/ssl-server.md 9d24edcd323ede806634ad5e998ce0e7d527a929a784c4cf2d40334d5f13738f
+F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d960eda
 F www/ssl.wiki b78e0a9c5d5899eaf5730c24e750a5239bd22ff2d472f8d82b8b7b9df7edd8fb
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 95014ae9968180a704597a199927fad7310de8b4b4c4cb330c0be88a67b2cc88
-R 03b27514c2cfc67784365138e72ff7a7
+P a0623f6928bf6bd53012cb5d21f78562631e0d37aa1adf196ed4a566c1dbe75e
+R 984c3ca9dfdd8d46cf6295d109a50508
 U drh
-Z d093ebbb0c72c818a83e7cb72c5694d8
+Z 63311c859ff0df2096d872591936e852
 # Remove this line to create a well-formed Fossil manifest.
