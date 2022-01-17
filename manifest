@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\ssync"\scommand\sso\sthat\sit\sworks\swith\soptions\s-u\sand\s--all\sat\nthe\ssame\stime.
-D 2022-01-17T18:10:10.455
+C Updates\sto\sthe\schange\slog.
+D 2022-01-17T19:57:50.887
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,7 +798,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 928199ad182fcd4d4eb3e78aa26c89c1e7d6e93921be43999a5392d40463cc1b
+F www/changes.wiki 48731b67e26dfda07cb9e027674c0772712dbe31af72363bcabf5d89e9bd5a11
 F www/chat.md c43235a6bd0ade2987ec0967d78ea6238d989e4b2aa04059a3fd267a13e6c5b7
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7008b34579d2f411784cedca493b05c7be6a9723094acd2c0bb6f11bd8468bb
-R f29419d1e4826a5d9ccd7304d84a13b4
+P 95014ae9968180a704597a199927fad7310de8b4b4c4cb330c0be88a67b2cc88
+R 03b27514c2cfc67784365138e72ff7a7
 U drh
-Z f11d4b6423bf13cdd80f4d82ba219738
+Z d093ebbb0c72c818a83e7cb72c5694d8
 # Remove this line to create a well-formed Fossil manifest.
