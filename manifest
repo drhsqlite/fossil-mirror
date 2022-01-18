@@ -1,5 +1,5 @@
-C Update\sthe\sssl-server.md\sdocument\sto\sconform\sto\sthe\slatest\schanges.
-D 2022-01-17T20:32:37.426
+C When\srenaming\sa\suser,\srename\sany\smatching\ssubscription\sentry\sto\savoid\sthat\sthe\suser\scan\sno\slonger\ssubscribe\swith\sthe\snew\sname\sbecause\sthe\semail\saddress\sis\salready\smapped.\sAlso\slog\suser\srenames\sto\sthe\sadmin\slog.\sThis\sdoes\snot\swork\sacross\sall\slogin\sgroups\sbecause\swe\sdon't\sknow\sif\seach\smember\shas\sthe\ssubscriber\stable.
+D 2022-01-18T03:59:33.371
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -396,7 +396,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c feca4f3e28189e2ece07ee5260ff0ed7fb4c1125f39c3e30f5c7d916745eb62a
 F src/ajax.c 4d31ef8e51bdd3c3ac74f346d3604e27893ab5a879846312b576d76d15d38d41
-F src/alerts.c ea5abdb63a38dc1cd6855155c851c8fd78479cd4d36506a1655db1d12478d4d9
+F src/alerts.c 900693a1221b99b4d14e20ac8ec83960d3a434c1d57a17048dfbbfaec6b44de0
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -544,7 +544,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c eae389dad3990fbac78d8704f1d9c95bd04bb2a1753bdb8aeeade88994947f28
 F src/setup.c a61b7aedf80ffb632a977b339521d5770e82d620055373b82ac3471ecb58acfe
-F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
+F src/setupuser.c 7fe18356b3fe5f7855f2b87a62a7abe3b28716dc77e563dfb6073d9583449969
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c a1e041a06978302366ec83775424cab69f3a427aec56d455d9d7a2fdb27fda94
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0623f6928bf6bd53012cb5d21f78562631e0d37aa1adf196ed4a566c1dbe75e
-R 984c3ca9dfdd8d46cf6295d109a50508
-U drh
-Z 63311c859ff0df2096d872591936e852
+P 593c13baf27e01c69fbfe951ef0f7d4013006cde0866ca7b807045e1b920d2c7
+R 8477b8472f5a45d8b536d6d6c61be4b9
+U stephan
+Z 01b92a39f2131c9e34c868ff8795b14a
 # Remove this line to create a well-formed Fossil manifest.

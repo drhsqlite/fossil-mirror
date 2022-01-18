@@ -1533,7 +1533,7 @@ void subscribe_page(void){
     if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
   @ <p>To receive email notifications for changes to this
-  @ repository, fill out the form below and press "Submit" button.</p>
+  @ repository, fill out the form below and press the "Submit" button.</p>
   form_begin(0, "%R/subscribe");
   @ <table class="subscribe">
   @ <tr>
