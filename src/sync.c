@@ -692,7 +692,8 @@ remote_delete_default:
 remote_add_default:
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
-    url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
+    url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|
+                         URL_USE_CONFIG|URL_ASK_REMEMBER_PW);
     url_remember();
     return;
   }
