@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\son-line\shelp\stext\sfor\sthe\s"fossil\sremote"\scommand.
-D 2022-01-18T19:59:10.747
+C Fix\sa\stypo\son\sthe\s/secaudit0\spage.
+D 2022-01-18T20:53:37.340
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -542,7 +542,7 @@ F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
-F src/security_audit.c eae389dad3990fbac78d8704f1d9c95bd04bb2a1753bdb8aeeade88994947f28
+F src/security_audit.c 600d74dd513a97f6f9be99d4a3df3e5ade80f7aaf38113dd27a6baeb6d8be994
 F src/setup.c a61b7aedf80ffb632a977b339521d5770e82d620055373b82ac3471ecb58acfe
 F src/setupuser.c 7fe18356b3fe5f7855f2b87a62a7abe3b28716dc77e563dfb6073d9583449969
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bcb09d6511ca740209618035cc64c280c0ba4308382a81294b8044d1ff52d9bd
-R 07f223f3afa4d99823e297027e783b22
+P bbf17aeb87ab0a0d121a5a9cb2bc0f6931073c7fb92b92046eeac0807a0cd987
+R 7dd85a05fd290f7eaef99b28b3a1c62f
 U drh
-Z 4cc861510973829c46b8e76dbc6d2ef7
+Z ea49d23ad937b0d8383888effd515454
 # Remove this line to create a well-formed Fossil manifest.

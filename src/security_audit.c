@@ -225,8 +225,8 @@ void secaudit0_page(void){
                          " WHERE name GLOB 'baseurl:*'");
     @ <li><p>This repository does not have a canonical access URL.
     if( nUrl==1 ){
-      @ There 1
-      @ <a href="urllist?urlonly">1 non-canonical URLs</a>
+      @ There is
+      @ <a href="urllist?urlonly">1 non-canonical URL</a>
       @ that has been used to access this repository.
     }else if( nUrl>=2 ){
       @ There are
