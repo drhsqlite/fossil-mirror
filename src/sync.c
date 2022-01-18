@@ -609,8 +609,13 @@ remote_delete_default:
     zName = g.argv[3];
     zUrl = g.argv[4];
     if( strcmp(zName,"default")==0 ) goto remote_add_default;
-    url_parse_local(zUrl, URL_PROMPT_PW, &x);
     db_begin_write();
+    if( fossil_strcmp(zUrl,"default")==0 ){
+      x.canonical = db_get("last-sync-url",0);
+      x.passwd = unobscure(db_get("last-sync-pw",0));
+    }else{
+      url_parse_local(zUrl, URL_PROMPT_PW, &x);
+    }
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "REPLACE INTO config(name, value, mtime)"
