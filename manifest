@@ -1,5 +1,5 @@
-C Accept\ssymbolic\snames\sfor\sthe\sURL\sin\s"fossil\sremote\sURL"\scommand.
-D 2022-01-18T19:18:43.683
+C Improvements\sto\sthe\son-line\shelp\stext\sfor\sthe\s"fossil\sremote"\scommand.
+D 2022-01-18T19:59:10.747
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -580,7 +580,7 @@ F src/style.c df745c115d0f783022262472fef2809d2bdac48d7990310955ab314947aaf23d
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c a78b8c0e17a17c09196d8897c32e95d25ec1f7ea13f96029b473a09a2f73824b
+F src/sync.c a81c4e6f1079e776808ac3ce6ba41c56608e6d289c0b3e05f237ae082dbef758
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c 72f12cbbae1825cdbd6b1814aeb1fc0d8a7d98737bca7d5e1088ee5713785d13
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -969,8 +969,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce1a1fd1d17659f2a94770135a3286986fb858742a837502c9de5d5b082dfc01
-R 7611d06605c2361b814c1c5e4e457544
+P bcb09d6511ca740209618035cc64c280c0ba4308382a81294b8044d1ff52d9bd
+R 07f223f3afa4d99823e297027e783b22
 U drh
-Z 01391d31372cb48c75d6611a21b0d60f
+Z 4cc861510973829c46b8e76dbc6d2ef7
 # Remove this line to create a well-formed Fossil manifest.
