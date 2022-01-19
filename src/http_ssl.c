@@ -250,10 +250,14 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
 ** This routine does initial configuration of the SSL module.
 */
 static void ssl_global_init_client(void){
-  const char *zCaSetting = 0;
   const char *identityFile;
 
   if( sslIsInit==0 ){
+    const char *zFile;
+    const char *zCaFile = 0;
+    const char *zCaDirectory = 0;
+    int i;
+
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
@@ -261,34 +265,48 @@ static void ssl_global_init_client(void){
     /* Disable SSLv2 and SSLv3 */
     SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2|SSL_OP_NO_SSLv3);
 
-    /* Set up acceptable CA root certificates */
-    zCaSetting = db_get("ssl-ca-location", 0);
-    if( zCaSetting==0 || zCaSetting[0]=='\0' ){
-      /* CA location not specified, use platform's default certificate store */
-      X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
-    }else{
-      /* User has specified a CA location, make sure it exists and use it */
-      const char *zCaFile = 0;
-      const char *zCaDirectory = 0;
-      switch( file_isdir(zCaSetting, ExtFILE) ){
+    /* Find the trust store */
+    zFile = 0;
+    for(i=0; zFile==0 && i<5; i++){
+      switch( i ){
+        case 0: /* First priority is environmentn variables */
+          zFile = fossil_getenv(X509_get_default_cert_file_env());
+          break;
+        case 1:
+          zFile = fossil_getenv(X509_get_default_cert_dir_env());
+          break;
+        case 2:
+          zFile = db_get("ssl-ca-location",0);
+          break;
+        case 3:
+          zFile = X509_get_default_cert_file();
+          break;
+        case 4:
+          zFile = X509_get_default_cert_dir();
+          break;
+      }
+      if( zFile==0 ) continue;
+      switch( file_isdir(zFile, ExtFILE) ){
         case 0: { /* doesn't exist */
-          fossil_fatal("ssl-ca-location is set to '%s', "
-              "but is not a file or directory", zCaSetting);
+          zFile = 0;
           break;
         }
         case 1: { /* directory */
-          zCaDirectory = zCaSetting;
+          zCaFile = 0;
+          zCaDirectory = zFile;
           break;
         }
         case 2: { /* file */
-          zCaFile = zCaSetting;
+          zCaFile = zFile;
+          zCaDirectory = 0;
           break;
         }
       }
-      if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
-        fossil_fatal("Failed to use CA root certificates from "
-          "ssl-ca-location '%s'", zCaSetting);
-      }
+    }
+    if( zFile==0 ){
+      /* fossil_fatal("Cannot find a trust store"); */
+    }else if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
+      fossil_fatal("Cannot load CA root certificates from %s", zFile);
     }
 
     /* Load client SSL identity, preferring the filename specified on the
@@ -956,18 +974,6 @@ void test_tlsconfig_info(void){
     }
 
     fossil_print("Trust store location\n");
-    zValue = db_get("ssl-ca-location","");
-    trust_location_usable(zValue, &zUsed);
-    fossil_print("  ssl-ca-location:    %s\n", zValue);
-    if( verbose ){
-      fossil_print("\n"
-         "    This setting is the name of a file or directory that contains\n"
-         "    the complete set of root certificates used by Fossil when it\n"
-         "    is acting as a SSL client. If defined, this setting takes\n"
-         "    priority over built-in paths and environment variables\n\n"
-      );
-    }
-
     zName = X509_get_default_cert_file_env();
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
@@ -984,10 +990,23 @@ void test_tlsconfig_info(void){
       fossil_print("\n"
         "    Environment variables that determine alternative locations for\n"
         "    the root certificates used by Fossil when it is acting as a SSL\n"
-        "    client. If specified, these alternative locations override\n"
-        "    the built-in locations.\n\n"
+        "    client. If specified, these alternative locations take top\n"
+        "    priority.\n\n"
       );
     }
+
+    zValue = db_get("ssl-ca-location","");
+    trust_location_usable(zValue, &zUsed);
+    fossil_print("  ssl-ca-location:    %s\n", zValue);
+    if( verbose ){
+      fossil_print("\n"
+         "    This setting is the name of a file or directory that contains\n"
+         "    the complete set of root certificates used by Fossil when it\n"
+         "    is acting as a SSL client. If defined, this setting takes\n"
+         "    priority over built-in paths.\n\n"
+      );
+    }
+
 
     zValue = X509_get_default_cert_file();
     trust_location_usable(zValue, &zUsed);
