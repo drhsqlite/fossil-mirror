@@ -276,6 +276,7 @@ static void ssl_global_init_client(void){
           zFile = fossil_getenv(X509_get_default_cert_dir_env());
           break;
         case 2:
+          if( !g.repositoryOpen ) db_open_config(0,0);
           zFile = db_get("ssl-ca-location",0);
           break;
         case 3:
