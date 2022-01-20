@@ -1,5 +1,5 @@
-C Per\sa\s/chat\sdiscussion\sin\sDecember,\sno\slonger\s"sterilize"\smanifests\ssaved\sin\szip/tar\sexports,\sas\sthat\schanges\stheir\shash\sfor\sclient-side\svalidation\spurposes\sand\sthere\sis\slittle\srisk\sof\ssuch\sexports\sbeing\sre-imported\sinto\sa\sfossil\srepo.
-D 2022-01-20T04:48:00.371
+C Add\sSERVER_SOFTWARE\sto\sthe\sset\sof\sCGI\sparameters\semitted\sby\s/ext
+D 2022-01-20T13:17:02.829
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -447,7 +447,7 @@ F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 901a7a0f7d401ddbd220978abdf7327bda0dc73a793ded2195985925ad6999cf
-F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
+F src/extcgi.c 401b08e918d699a68562ea1312c6601bd7b29c9c13f185f577c50048edaa570e
 F src/file.c e81ff8a9952f588baaabfeb4a02635b62e20c8c39a439a2a0799fddcfe4f15bc
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
 F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki 0391dc7a5212e72cfd32500fca8acea045e51848ec3e76fd36ff5e3883c453bd
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc214897fb850425d7fa89a970d1ee125a7e943814b011d4fefd6f3238bcf1db
-R 0a24098c2211f6304a0183e227ccfeec
-U stephan
-Z ecba968565335aa1dc42026af25e4f93
+P 722c248d5381b3e8ccddbc203fe88ed42471f2fd600a21cb5791f0ce8122b3dd
+R 29125579b5a10da19d923692a7988de3
+U drh
+Z ba04be7f3fa09a2ec02c2f6b98e6d004
 # Remove this line to create a well-formed Fossil manifest.
