@@ -679,7 +679,6 @@ static void zip_of_checkin(
         if( listFlag ) fossil_print("%s\n", zName);
         if( pZip ){
           zip_add_folders(&sArchive, zName);
-          sterilize_manifest(&mfile, CFTYPE_MANIFEST);
           zip_add_file(&sArchive, zName, &mfile, 0);
         }
       }

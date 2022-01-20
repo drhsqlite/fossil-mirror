@@ -525,7 +525,6 @@ void tarball_of_checkin(
           zName = blob_str(&filename);
           if( listFlag ) fossil_print("%s\n", zName);
           if( pTar ){
-            sterilize_manifest(&mfile, CFTYPE_MANIFEST);
             tar_add_file(zName, &mfile, 0, mTime);
           }
         }
