@@ -564,7 +564,6 @@ void test_httpmsg_command(void){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;
   }
-  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_ANY_SCHEMA, 0);
   verify_all_options();
   if( g.argc<3 || g.argc>5 ){
     usage("URL ?PAYLOAD? ?OUTPUT?");
