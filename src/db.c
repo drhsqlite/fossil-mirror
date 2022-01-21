@@ -4293,6 +4293,9 @@ struct Setting {
 ** Checking your platform behaviour is required if the
 ** exact contents of the CA root is critical for your
 ** application.
+**
+** This setting is overridden by environment variables
+** SSL_CERT_FILE and SSL_CERT_DIR.
 */
 /*
 ** SETTING: ssl-identity     width=40 sensitive

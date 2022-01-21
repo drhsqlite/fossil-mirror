@@ -1,5 +1,5 @@
-C The\stest-httpmsg\scommand\sdoes\snot\sneed\sto\sopen\sa\srepository.
-D 2022-01-20T21:43:14.594
+C Add\sa\sfew\senvironment\svariables\smentioned\sin\srecent\scheck-in\scomments\sto\sthe\sdocumentation.
+D 2022-01-21T06:12:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -431,7 +431,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 4da2658323cab60edb5ecbb942144e6a2cefc2f753bff777b356b5271444b62d
+F src/db.c 55d641d0c10ac800553c7e6dd233655e3fea3d5b2f4d4343408caaf216e7efa2
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -833,7 +833,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
-F www/env-opts.md 09f2f3ad82dcdf08f9483c0e667e8aa544b5a1d0460ba9e3147566390e8ebb63
+F www/env-opts.md 044c9559c25120a66e3073a76ff4bffde7f678ae84fa1def8cfbdf19e5402a19
 F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e360
 F www/faq.tcl 144b3860f55d014da205fdb486f3774040662507a9ae5eae6e364b145a7cc860
 F www/faq.wiki 2e7d144c6e09aa720bf05042fd00ddcca8770d5be37ec216acbde0d8074686f2
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki 0391dc7a5212e72cfd32500fca8acea045e51848ec3e76fd36ff5e3883c453bd
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9a1bd84d8278a4585160786282074decb5b027de468d80b843c634fff3ab00d
-R ada358521696aa0ef5de2e77285d5ed3
-U drh
-Z e7cdd369c7212d3d6c835ed993683b7b
+P b145f19df5de3a27e634d7a703bf043271f64e7fa1c4ba63a78b753d6072ff3e
+R 031c55a374402a88a1e61ce6a37caee8
+U florian
+Z b5359e712f479f60acd15b898854c7fe
 # Remove this line to create a well-formed Fossil manifest.

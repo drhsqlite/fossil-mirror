@@ -230,7 +230,14 @@ the remote host.
 
 `SCRIPT_NAME`: If defined, included in error log messages.
 
+`SERVER_SOFTWARE`: Set to the Fossil version when invoking [CGI-based
+extensions](/help?cmd=/ext).  Also includes the program name if the
+variable was already defined for the current server environment.
+
 `SSH_CONNECTION`: Informs CGI processing if the remote client is SSH.
+
+`SSL_CERT_FILE`, `SSL_CERT_DIR`: Override the [`ssl-ca-location`]
+(/help?cmd=ssl-ca-location) setting.
 
 `SQLITE_FORCE_PROXY_LOCKING`: From `sqlite3.c`, 1 means force always
 use proxy, 0 means never use proxy, and undefined means use proxy for
