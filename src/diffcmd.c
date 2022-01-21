@@ -195,6 +195,9 @@ static const char zWebpageHdr[] =
 @ <head>
 @ <meta charset="UTF-8">
 @ <style>
+@ body {
+@    background-color: white;
+@ }
 @ h1 {
 @   font-size: 150%;
 @ }
@@ -203,12 +206,18 @@ static const char zWebpageHdr[] =
 @   width: 100%;
 @   border-spacing: 0;
 @   border: 1px solid black;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ table.diff td {
 @   vertical-align: top;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ table.diff pre {
 @   margin: 0 0 0 0;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.diffln {
 @   width: 1px;
@@ -221,6 +230,12 @@ static const char zWebpageHdr[] =
 @ td.diffsep {
 @   width: 1px;
 @   padding: 0 0.3em 0 1em;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffsep pre {
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt pre {
 @   overflow-x: auto;
@@ -228,14 +243,20 @@ static const char zWebpageHdr[] =
 @ td.diffln ins {
 @   background-color: #a0e4b2;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.diffln del {
 @   background-color: #ffc0c0;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt del {
 @   background-color: #ffe8e8;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt del > del {
 @   background-color: #ffc0c0;
@@ -250,6 +271,8 @@ static const char zWebpageHdr[] =
 @ td.difftxt ins {
 @   background-color: #dafbe1;
 @   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
 @ }
 @ td.difftxt ins > ins {
 @   background-color: #a0e4b2;
@@ -555,6 +578,25 @@ void diff_file_mem(
 }
 
 /*
+** Return true if the disk file is identical to the Blob.  Return zero
+** if the files differ in any way.
+*/
+static int file_same_as_blob(Blob *blob, const char *zDiskFile){
+  Blob file;
+  int rc = 0;
+  if( blob_size(blob)!=file_size(zDiskFile, ExtFILE) ) return 0;
+  blob_zero(&file);
+  blob_read_from_file(&file, zDiskFile, ExtFILE);
+  if( blob_size(&file)!=blob_size(blob) ){
+    rc = 0;
+  }else{
+    rc = memcmp(blob_buffer(&file), blob_buffer(blob), blob_size(&file))==0;
+  }
+  blob_reset(&file);
+  return rc;
+}
+
+/*
 ** Run a diff between the version zFrom and files on disk.  zFrom might
 ** be NULL which means to simply show the difference between the edited
 ** files on disk and the check-out on which they are based.
@@ -674,8 +716,10 @@ void diff_against_disk(
       }else{
         blob_zero(&content);
       }
-      diff_print_index(zPathname, pCfg, pOut);
-      diff_file(&content, zFullName, zPathname, pCfg, pOut);
+      if( isChnged==0 || !file_same_as_blob(&content, zFullName) ){
+        diff_print_index(zPathname, pCfg, pOut);
+        diff_file(&content, zFullName, zPathname, pCfg, pOut);
+      }
       blob_reset(&content);
     }
     blob_reset(&fname);
@@ -995,7 +1039,7 @@ const char *diff_get_binary_glob(void){
 **   --brief                     Show filenames only
 **   -b|--browser                Show the diff output in a web-browser
 **   --by                        Shorthand for "--browser -y"
-**   --checkin VERSION           Show diff of all changes in VERSION
+**   -ci|--checkin VERSION       Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
 **   -c|--context N              Show N lines of context around each change
 **   --diff-binary BOOL          Include binary files with external commands
@@ -1037,7 +1081,7 @@ void diff_cmd(void){
   isGDiff = g.argv[1][0]=='g';
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
-  zCheckin = find_option("checkin", 0, 1);
+  zCheckin = find_option("checkin", "ci", 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
   if( againstUndo && ( zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){

@@ -647,6 +647,8 @@ const char *fossil_text_editor(void){
 **
 ** The returned string is obtained from sqlite3_malloc() and must be
 ** freed by the caller.
+**
+** See also:  file_tempname() and file_time_timename();
 */
 char *fossil_temp_filename(void){
   char *zTFile = 0;

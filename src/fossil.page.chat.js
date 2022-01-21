@@ -45,6 +45,7 @@ window.fossil.onPageLoad(function(){
         .replace('T',' ').replace(/\.\d+/,'')
         .replace('Z', ' zulu');
   };
+  const pad2 = (x)=>('0'+x).substr(-2);
   /** Returns the local time string of Date object d, defaulting
       to the current time. */
   const localTimeString = function ff(d){
@@ -96,7 +97,7 @@ window.fossil.onPageLoad(function(){
         elemsToCount.forEach((e)=>e ? extra += D.effectiveHeight(e) : false);
         ht = wh - extra;
       }
-      f.chat.e.inputField.style.maxHeight = (ht/2)+"px";
+      f.chat.e.inputX.style.maxHeight = (ht/2)+"px";
       /* ^^^^ this is a middle ground between having no size cap
          on the input field and having a fixed arbitrary cap. */;
       contentArea.style.height =
@@ -112,17 +113,13 @@ window.fossil.onPageLoad(function(){
                       window.getComputedStyle(contentArea).maxHeight,
                       contentArea);
         console.debug("Set input max height to: ",
-                      f.chat.e.inputField.style.maxHeight);
+                      f.chat.e.inputX.style.maxHeight);
       }
     };
-    var doit;
-    window.addEventListener('resize',function(ev){
-      clearTimeout(doit);
-      doit = setTimeout(resized, 100);
-    }, false);
+    resized.$disabled = true/*gets deleted when setup is finished*/;
+    window.addEventListener('resize', F.debounce(resized, 250), false);
     return resized;
   })();
-  ForceResizeKludge.$disabled = true/*gets deleted when setup is finished*/;
   fossil.FRK = ForceResizeKludge/*for debugging*/;
   const Chat = ForceResizeKludge.chat = (function(){
     const cs = {
@@ -133,12 +130,14 @@ window.fossil.onPageLoad(function(){
         pageTitle: E1('head title'),
         loadOlderToolbar: undefined /* the load-posts toolbar (dynamically created) */,
         inputWrapper: E1("#chat-input-area"),
-        inputLine: E1('#chat-input-line'),
+        inputElementWrapper: E1('#chat-input-line-wrapper'),
         fileSelectWrapper: E1('#chat-input-file-area'),
         viewMessages: E1('#chat-messages-wrapper'),
         btnSubmit: E1('#chat-button-submit'),
         btnAttach: E1('#chat-button-attach'),
-        inputField: E1('#chat-input-field'),
+        inputX: E1('#chat-input-field-x'),
+        input1: E1('#chat-input-field-single'),
+        inputM: E1('#chat-input-field-multi'),
         inputFile: E1('#chat-input-file'),
         contentDiv: E1('div.content'),
         viewConfig: E1('#chat-config'),
@@ -178,10 +177,11 @@ window.fossil.onPageLoad(function(){
       inputValue: function(){
         const e = this.inputElement();
         if(arguments.length){
-          e.innerText = arguments[0];
+          if(e.isContentEditable) e.innerText = arguments[0];
+          else e.value = arguments[0];
           return this;
         }
-        return e.innerText;
+        return e.isContentEditable ? e.innerText : e.value;
       },
       /** Asks the current user input field to take focus. Returns this. */
       inputFocus: function(){
@@ -190,7 +190,7 @@ window.fossil.onPageLoad(function(){
       },
       /** Returns the current message input element. */
       inputElement: function(){
-        return this.e.inputField;
+        return this.e.inputFields[this.e.inputFields.$currentIndex];
       },
       /** Enables (if yes is truthy) or disables all elements in
        * this.disableDuringAjax. */
@@ -419,7 +419,13 @@ window.fossil.onPageLoad(function(){
           /* When on, the [audible-alert] is played for one's own
              messages, else it is only played for other users'
              messages. */
-          "alert-own-messages": false
+          "alert-own-messages": false,
+          /* "Experimental mode" input: use a contenteditable field
+             for input. This is generally more comfortable to use,
+             and more modern, than plain text input fields, but
+             the list of browser-specific quirks and bugs is...
+             not short. */
+          "edit-widget-x": false
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -581,12 +587,18 @@ window.fossil.onPageLoad(function(){
         return this;
       }
     };
-    if(D.attr(cs.e.inputField,'contenteditable','plaintext-only').isContentEditable){
+    cs.e.inputFields = [ cs.e.input1, cs.e.inputM, cs.e.inputX ];
+    cs.e.inputFields.$currentIndex = 0;
+    cs.e.inputFields.forEach(function(e,ndx){
+      if(ndx===cs.e.inputFields.$currentIndex) D.removeClass(e,'hidden');
+      else D.addClass(e,'hidden');
+    });
+    if(D.attr(cs.e.inputX,'contenteditable','plaintext-only').isContentEditable){
       cs.$browserHasPlaintextOnly = true;
     }else{
       /* Only the Chrome family supports contenteditable=plaintext-only */
       cs.$browserHasPlaintextOnly = false;
-      D.attr(cs.e.inputField,'contenteditable','true');
+      D.attr(cs.e.inputX,'contenteditable','true');
     }
     cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
@@ -611,14 +623,17 @@ window.fossil.onPageLoad(function(){
        using fossil.dom.append(), so may be of any type supported by
        that function.
     */
-    cs.reportErrorAsMessage = function(/*msg args*/){
-      const args = argsToArray(arguments);
+    cs.reportErrorAsMessage = function f(/*msg args*/){
+      if(undefined === f.$msgid) f.$msgid=0;
+      const args = argsToArray(arguments).map(function(v){
+        return (v instanceof Error) ? v.message : v;
+      });
       console.error("chat error:",args);
       const d = new Date().toISOString(),
             mw = new this.MessageWidget({
               isError: true,
               xfrom: null,
-              msgid: -1,
+              msgid: "error-"+(++f.$msgid),
               mtime: d,
               lmtime: d,
               xmsg: args
@@ -688,7 +703,7 @@ window.fossil.onPageLoad(function(){
       if(!e || !id) return false;
       else if(e.$isToggling) return;
       e.$isToggling = true;
-      const content = e.querySelector('.message-widget-content');
+      const content = e.querySelector('.content-target');
       if(!content.$elems){
         content.$elems = [
           content.firstElementChild, // parsed elem
@@ -824,6 +839,16 @@ window.fossil.onPageLoad(function(){
     return cs;
   })()/*Chat initialization*/;
 
+
+  /** Returns the first .message-widget element in DOM element
+      e's lineage. */
+  const findMessageWidgetParent = function(e){
+    while( e && !e.classList.contains('message-widget')){
+      e = e.parentNode;
+    }
+    return e;
+  };
+
   /**
      Custom widget type for rendering messages (one message per
      instance). These are modelled after FIELDSET elements but we
@@ -850,7 +875,6 @@ window.fossil.onPageLoad(function(){
       }
     };
     /* Left-zero-pad a number to at least 2 digits */
-    const pad2 = (x)=>(''+x).length>1 ? x : '0'+x;
     const dowMap = {
       /* Map of Date.getDay() values to weekday names. */
       0: "Sunday", 1: "Monday", 2: "Tuesday",
@@ -868,6 +892,46 @@ window.fossil.onPageLoad(function(){
         ' ', dowMap[d.getDay()]
       ].join('');
     };
+
+    const canEmbedFile = function f(msg){
+      if(!f.$rx){
+        f.$rx = /\.((html?)|(txt))$/i;
+        f.$specificTypes = [
+          'text/plain',
+          'text/html'
+          // add more as we discover which ones Firefox won't
+          // force the user to try to download.
+        ];
+      }
+      if(msg.fmime){
+        return (msg.fmime.startsWith("image/")
+                || f.$specificTypes.indexOf(msg.fmime)>=0);
+      }
+      return msg.fname && f.$rx.test(msg.fname);
+    };
+
+    const adjustIFrameSize = function(msgObj){
+      const iframe = msgObj.e.iframe;
+      const body = iframe.contentWindow.document.querySelector('body');
+      if(body && !body.style.fontSize){
+        /** _Attempt_ to force the iframe to inherit the message's text size
+            if the body has no explicit size set. On desktop systems
+            the size is apparently being inherited in that case, but on mobile
+            not. */
+        body.style.fontSize = window.getComputedStyle(msgObj.e.content);
+      }
+      if('' === iframe.style.maxHeight){
+        /* Resize iframe height to fit the content. Workaround: if we
+           adjust the iframe height while it's hidden then its height
+           is 0, so we must briefly unhide it. */
+        const isHidden = iframe.classList.contains('hidden');
+        if(isHidden) D.removeClass(iframe, 'hidden');
+        iframe.style.maxHeight = iframe.style.height
+          = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
+        if(isHidden) D.addClass(iframe, 'hidden');
+      }
+    };
+    
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -902,7 +966,7 @@ window.fossil.onPageLoad(function(){
           }
           D.append(
             this.e.tab,
-            D.text('notification @ ',theTime(d))
+            D.append(D.code(), 'notification @ ',theTime(d))
           );
         }
         if( m.xfrom && m.fsize>0 ){
@@ -910,17 +974,57 @@ window.fossil.onPageLoad(function(){
               && m.fmime.startsWith("image/")
               && Chat.settings.getBool('images-inline',true)
             ){
-            contentTarget.appendChild(D.img("chat-download/" + m.msgid));
+            const extension = m.fname.split('.').pop();
+            contentTarget.appendChild(D.img("chat-download/" + m.msgid +(
+              extension ? ('.'+extension) : ''/*So that IMG tag mimetype guessing works*/
+            )));
             ds.hasImage = 1;
           }else{
-            const a = D.a(
-              window.fossil.rootPath+
-                'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname),
+            // Add a download link.
+            const downloadUri = window.fossil.rootPath+
+                  'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname);
+            const w = D.addClass(D.div(), 'attachment-link');
+            const a = D.a(downloadUri,
               // ^^^ add m.fname to URL to cause downloaded file to have that name.
               "(" + m.fname + " " + m.fsize + " bytes)"
             )
             D.attr(a,'target','_blank');
-            contentTarget.appendChild(a);
+            D.append(w, a);
+            if(canEmbedFile(m)){
+              /* Add an option to embed HTML attachments in an iframe. The primary
+                 use case is attached diffs. */
+              D.addClass(contentTarget, 'wide');
+              const embedTarget = this.e.content;
+              const self = this;
+              const btnEmbed = D.attr(D.checkbox("1", false), 'id',
+                                      'embed-'+ds.msgid);
+              const btnLabel = D.label(btnEmbed, "Embed");
+              /* Maintenance reminder: do not disable the toggle
+                 button while the content is loading because that will
+                 cause it to get stuck in disabled mode if the browser
+                 decides that loading the content should prompt the
+                 user to download it, rather than embed it in the
+                 iframe. */
+              btnEmbed.addEventListener('change',function(){
+                if(self.e.iframe){
+                  if(btnEmbed.checked){
+                    D.removeClass(self.e.iframe, 'hidden');
+                    if(self.e.$iframeLoaded) adjustIFrameSize(self);
+                  }
+                  else D.addClass(self.e.iframe, 'hidden');
+                  return;
+                }
+                const iframe = self.e.iframe = document.createElement('iframe');
+                D.append(embedTarget, iframe);
+                iframe.addEventListener('load', function(){
+                  self.e.$iframeLoaded = true;
+                  adjustIFrameSize(self);
+                });
+                iframe.setAttribute('src', downloadUri);
+              });
+              D.append(w, btnEmbed, btnLabel);
+            }
+            contentTarget.appendChild(w);
           }
         }
         if(m.xmsg){
@@ -930,6 +1034,8 @@ window.fossil.onPageLoad(function(){
             contentTarget = D.div();
             D.append(this.e.content, contentTarget);
           }
+          D.addClass(contentTarget, 'content-target'
+                     /*target element for the 'toggle text mode' feature*/);
           // The m.xmsg text comes from the same server as this script and
           // is guaranteed by that server to be "safe" HTML - safe in the
           // sense that it is not possible for a malefactor to inject HTML
@@ -939,7 +1045,7 @@ window.fossil.onPageLoad(function(){
           //
           // Hence, even though innerHTML is normally frowned upon, it is
           // perfectly safe to use in this context.
-          if(m.xmsg instanceof Array){
+          if(m.xmsg && 'string' !== typeof m.xmsg){
             // Used by Chat.reportErrorAsMessage()
             D.append(contentTarget, m.xmsg);
           }else{
@@ -950,6 +1056,8 @@ window.fossil.onPageLoad(function(){
             }
           }
         }
+        //console.debug("tab",this.e.tab);
+        //console.debug("this.e.tab.firstElementChild",this.e.tab.firstElementChild);
         this.e.tab.firstElementChild.addEventListener('click', this._handleLegendClicked, false);
         /*if(eXFrom){
           eXFrom.addEventListener('click', ()=>this.e.tab.click(), false);
@@ -1090,10 +1198,7 @@ window.fossil.onPageLoad(function(){
             }
           }/*f.popup*/;
         }/*end static init*/
-        let theMsg = ev.target;
-        while( theMsg && !theMsg.classList.contains('message-widget')){
-          theMsg = theMsg.parentNode;
-        }
+        const theMsg = findMessageWidgetParent(ev.target);
         if(theMsg) f.popup.show(theMsg);
       }/*_handleLegendClicked()*/
     };
@@ -1114,7 +1219,7 @@ window.fossil.onPageLoad(function(){
     /** Updates the paste/drop zone with details of the pasted/dropped
         data. The argument must be a Blob or Blob-like object (File) or
         it can be falsy to reset/clear that state.*/
-    const updateDropZoneContent = function(blob){
+    const updateDropZoneContent = bxs.updateDropZoneContent = function(blob){
       //console.debug("updateDropZoneContent()",blob);
       const dd = bxs.dropDetails;
       bxs.blob = blob;
@@ -1163,7 +1268,7 @@ window.fossil.onPageLoad(function(){
          This also works on Chrome, but chrome has the
          contenteditable=plaintext-only property which does this
          for us. */
-      Chat.inputElement().addEventListener(
+      Chat.e.inputX.addEventListener(
         'paste',
         function(ev){
           if (ev.clipboardData && ev.clipboardData.getData) {
@@ -1187,11 +1292,8 @@ window.fossil.onPageLoad(function(){
       ev.stopPropagation();
       return false;
     };
-
     ['drop','dragenter','dragleave','dragend'].forEach(
-      (k)=>{
-        Chat.inputElement().addEventListener(k, noDragDropEvents, false);
-      }
+      (k)=>Chat.e.inputX.addEventListener(k, noDragDropEvents, false)
     );
     return bxs;
   })()/*drag/drop/paste*/;
@@ -1200,12 +1302,45 @@ window.fossil.onPageLoad(function(){
     const hours = Math.round(off/60), min = Math.round(off % 30);
     return ''+(hours + (min ? '.5' : ''));
   };
-  const pad2 = (x)=>('0'+x).substr(-2);
   const localTime8601 = function(d){
     return [
       d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()),
       'T', pad2(d.getHours()),':', pad2(d.getMinutes()),':',pad2(d.getSeconds())
     ].join('');
+  };
+
+  /**
+     Called by Chat.submitMessage() when message sending failed. Injects a fake message
+     containing the content and attachment of the failed message and gives the user buttons
+     to discard it or edit and retry.
+   */
+  const recoverFailedMessage = function(state){
+    const w = D.addClass(D.div(), 'failed-message');
+    D.append(w, D.append(
+      D.span(),"This message was not successfully sent to the server:"
+    ));
+    if(state.msg){
+      const ta = D.textarea();
+      ta.value = state.msg;
+      D.append(w,ta);
+    }
+    if(state.blob){
+      D.append(w,D.append(D.span(),"Attachment: ",(state.blob.name||"unnamed")));
+      //console.debug("blob = ",state.blob);
+    }
+    const buttons = D.addClass(D.div(), 'buttons');
+    D.append(w, buttons);
+    D.append(buttons, D.button("Discard message?", function(){
+      const theMsg = findMessageWidgetParent(w);
+      if(theMsg) Chat.deleteMessageElem(theMsg);
+    }));
+    D.append(buttons, D.button("Edit message and try again?", function(){
+      if(state.msg) Chat.inputValue(state.msg);
+      if(state.blob) BlobXferState.updateDropZoneContent(state.blob);
+      const theMsg = findMessageWidgetParent(w);
+      if(theMsg) Chat.deleteMessageElem(theMsg);
+    }));
+    Chat.reportErrorAsMessage(w);
   };
 
   /**
@@ -1220,7 +1355,8 @@ window.fossil.onPageLoad(function(){
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
-    var msg = this.inputValue().trim();
+    const fallback = {msg: this.inputValue()};
+    var msg = fallback.msg.trim();
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
       /* Cosmetic: trim whitespace from the ends of lines to try to
          keep copy/paste from terminals, especially wide ones, from
@@ -1243,12 +1379,16 @@ window.fossil.onPageLoad(function(){
     const file = BlobXferState.blob || this.e.inputFile.files[0];
     if(file) fd.set("file", file);
     if( !msg && !file ) return;
+    fallback.blob = file;
     const self = this;
     fd.set("lmtime", localTime8601(new Date()));
     F.fetch("chat-send",{
       payload: fd,
       responseType: 'text',
-      onerror:(err)=>this.reportErrorAsMessage(err),
+      onerror:function(err){
+        self.reportErrorAsMessage(err);
+        recoverFailedMessage(fallback);
+      },
       onload:function(txt){
         if(!txt) return/*success response*/;
         try{
@@ -1256,8 +1396,8 @@ window.fossil.onPageLoad(function(){
           self.newContent({msgs:[json]});
         }catch(e){
           self.reportError(e);
-          return;
         }
+        recoverFailedMessage(fallback);
       }
     });
     BlobXferState.clear();
@@ -1325,7 +1465,9 @@ window.fossil.onPageLoad(function(){
       return false;
     }
   };  
-  Chat.e.inputField.addEventListener('keydown', inputWidgetKeydown, false);
+  Chat.e.inputFields.forEach(
+    (e)=>e.addEventListener('keydown', inputWidgetKeydown, false)
+  );
   Chat.e.btnSubmit.addEventListener('click',(e)=>{
     e.preventDefault();
     Chat.submitMessage();
@@ -1385,66 +1527,105 @@ window.fossil.onPageLoad(function(){
 
        label: string for the UI
 
-       boolValue: string (name of Chat.settings setting) or a
-       function which returns true or false.
+       boolValue: string (name of Chat.settings setting) or a function
+       which returns true or false. If it is a string, it gets
+       replaced by a function which returns
+       Chat.settings.getBool(thatString) and the string gets assigned
+       to the persistentSetting property of this object.
 
        select: SELECT element (instead of boolValue)
 
        callback: optional handler to call after setting is modified.
+       Its "this" is the options object. If this object has a
+       boolValue string or a persistentSetting property, the argument
+       passed to the callback is a settings object in the form {key:K,
+       value:V}. If this object does not have boolValue string or
+       persistentSetting then the callback is passed an event object
+       in response to the config option's UI widget being activated,
+       normally a 'change' event.
 
-       If a setting has a boolValue set, that gets transformed into a
+       children: [array of settings objects]. These get listed under
+       this element and indented slightly for visual grouping. Only
+       one level of indention is supported.
+
+       Elements which only have a label and maybe a hint and
+       children can be used as headings.
+
+       If a setting has a boolValue set, that gets rendered as a
        checkbox which toggles the given persistent setting (if
        boolValue is a string) AND listens for changes to that setting
        fired via Chat.settings.set() so that the checkbox can stay in
        sync with external changes to that setting. Various Chat UI
        elements stay in sync with the config UI via those settings
-       events.
-     */
+       events. The checkbox element gets added to the options object
+       so that the callback() can reference it via this.checkbox.
+    */
     const settingsOps = [{
-      label: "Ctrl-enter to Send",
-      hint: "When on, only Ctrl-Enter will send messages and Enter adds "+
-        "blank lines. "+
-        "When off, both Enter and Ctrl-Enter send. "+
-        "When the input field has focus, is empty, and preview "+
-        "mode is NOT active then Ctrl-Enter toggles this setting.",
-      boolValue: 'edit-ctrl-send'
+      label: "Chat Configuration Options",
+      hint: F.storage.isTransient()
+        ? "Local store is unavailable. These settings are transient."
+        : ["Most of these settings are persistent via ",
+           F.storage.storageImplName(), ": ",
+           F.storage.storageHelpDescription()].join('')
     },{
-      label: "Compact mode",
-      hint: "Toggle between a space-saving or more spacious writing area. "+
-        "When the input field has focus, is empty, and preview mode "+
-        "is NOT active then Shift-Enter toggles this setting.",
-      boolValue: 'edit-compact-mode'
+      label: "Editing Options...",
+      children:[{
+        label: "Chat-only mode",
+        hint: "Toggle the page between normal fossil view and chat-only view.",
+        boolValue: 'chat-only-mode'
+      },{
+        label: "Ctrl-enter to Send",
+        hint: [
+          "When on, only Ctrl-Enter will send messages and Enter adds ",
+          "blank lines. When off, both Enter and Ctrl-Enter send. ",
+          "When the input field has focus and is empty ",
+          "then Ctrl-Enter toggles this setting."
+        ].join(''),
+        boolValue: 'edit-ctrl-send'
+      },{
+        label: "Compact mode",
+        hint: [
+          "Toggle between a space-saving or more spacious writing area. ",
+          "When the input field has focus, is empty, and preview mode ",
+          "is NOT active then Shift-Enter toggles this setting."].join(''),
+        boolValue: 'edit-compact-mode'
+      },{
+        label: "Use 'contenteditable' editing mode",
+        boolValue: 'edit-widget-x',
+        hint: [
+          "When enabled, chat input uses a so-called 'contenteditable' ",
+          "field. Though generally more comfortable and modern than ",
+          "plain-text input fields, browser-specific quirks and bugs ",
+          "may lead to frustration. Ideal for mobile devices."
+        ].join('')
+      }]
     },{
-      label: "Left-align my posts",
-      hint: "Default alignment of your own messages is selected "
-        +"based window width/height relationship.",
-      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
-      callback: function f(){
-        document.body.classList[
-          this.checkbox.checked ? 'remove' : 'add'
-        ]('my-messages-right');
-      }
-    },{
-      label: "Monospace message font",
-      hint: "Use monospace font for message text?",
-      boolValue: 'monospace-messages',
-      callback: function(setting){
-        document.body.classList[
-          setting.value ? 'add' : 'remove'
-        ]('monospace-messages');
-      }
-    },{
-      label: "Chat-only mode",
-      hint: "Toggle the page between normal fossil view and chat-only view.",
-      boolValue: 'chat-only-mode'
-    },{
-      label: "Show images inline",
-      hint: "Whether to show images inline or as a hyperlink.",
-      boolValue: 'images-inline'
-    },namedOptions.activeUsers,{
-      label: "Timestamps in active users list",
-      hint: "Whether to show last-message timestamps.",
-      boolValue: 'active-user-list-timestamps'
+      label: "Appearance Options...",
+      children:[{
+        label: "Left-align my posts",
+        hint: "Default alignment of your own messages is selected "
+          + "based window width/height ratio.",
+        boolValue: ()=>!document.body.classList.contains('my-messages-right'),
+        callback: function f(){
+          document.body.classList[
+            this.checkbox.checked ? 'remove' : 'add'
+          ]('my-messages-right');
+        }
+      },{
+        label: "Monospace message font",
+        hint: "Use monospace font for message and input text.",
+        boolValue: 'monospace-messages',
+        callback: function(setting){
+          document.body.classList[
+            setting.value ? 'add' : 'remove'
+          ]('monospace-messages');
+        }
+      },{
+        label: "Show images inline",
+        hint: "When enabled, attached images are shown inline, "+
+          "else they appear as a download link.",
+        boolValue: 'images-inline'
+      }]
     }];
 
     /** Set up selection list of notification sounds. */
@@ -1467,41 +1648,60 @@ window.fossil.onPageLoad(function(){
       }
       Chat.setNewMessageSound(selectSound.value);
       settingsOps.push({
-        hint: "Audio alert. How to enable audio playback is browser-specific!",
-        select: selectSound,
-        callback: function(ev){
-          const v = ev.target.value;
-          Chat.setNewMessageSound(v);
-          F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-          if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
-        }
+        label: "Sound Options...",
+        hint: "How to enable audio playback is browser-specific!",
+        children:[{
+          hint: "Audio alert",
+          select: selectSound,
+          callback: function(ev){
+            const v = ev.target.value;
+            Chat.setNewMessageSound(v);
+            F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+            if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
+          }
+        },{
+          label: "Play notification for your own messages",
+          hint: "When enabled, the audio notification will be played for all messages, "+
+            "including your own. When disabled only messages from other users "+
+            "will trigger a notification.",
+          boolValue: 'alert-own-messages'
+        }]
       });
     }/*audio notification config*/
     settingsOps.push({
-      label: "Play notification for your own messages.",
-      hint: "When enabled, the audio notification will be played for all messages, "+
-        "including your own. When disabled only messages from other users "+
-        "will trigger a notification.",
-      boolValue: 'alert-own-messages'
+      label: "Active User List...",
+      hint: [
+        "/chat cannot track active connections, but it can tell ",
+        "you who has posted recently..."].join(''),
+      children:[
+        namedOptions.activeUsers,{
+          label: "Timestamps in active users list",
+          indent: true,
+          hint: "Show most recent message timestamps in the active user list.",
+          boolValue: 'active-user-list-timestamps'
+        }
+      ]
     });
     /**
        Build UI for config options...
     */
-    settingsOps.forEach(function f(op){
-      const line = D.addClass(D.div(), 'menu-entry');
+    settingsOps.forEach(function f(op,indentOrIndex){
+      const menuEntry = D.addClass(D.div(), 'menu-entry');
+      if(true===indentOrIndex) D.addClass(menuEntry, 'child');
       const label = op.label
             ? D.append(D.label(),op.label) : undefined;
       const labelWrapper = D.addClass(D.div(), 'label-wrapper');
       var hint;
-      const col0 = D.span();
       if(op.hint){
-        hint = D.append(D.addClass(D.span(),'hint'),op.hint);
+        hint = D.append(D.addClass(D.label(),'hint'),op.hint);
       }
       if(op.hasOwnProperty('select')){
-        D.append(line, col0, labelWrapper);
+        const col0 = D.addClass(D.span(/*empty, but for spacing*/),
+                                'toggle-wrapper');
+        D.append(menuEntry, labelWrapper, col0);
         D.append(labelWrapper, op.select);
         if(hint) D.append(labelWrapper, hint);
-        if(label) D.append(col0, label);
+        if(label) D.append(label);
         if(op.callback){
           op.select.addEventListener('change', (ev)=>op.callback(ev), false);
         }
@@ -1517,10 +1717,12 @@ window.fossil.onPageLoad(function(){
               = D.attr(D.checkbox(1, op.boolValue()),
                        'aria-label', op.label);
         const id = 'cfgopt'+f.$id;
+        const col0 = D.addClass(D.span(), 'toggle-wrapper');
         check.checked = op.boolValue();
         op.checkbox = check;
         D.attr(check, 'id', id);
-        D.append(line, col0, labelWrapper);
+        if(hint) D.attr(hint, 'for', id);
+        D.append(menuEntry, labelWrapper, col0);
         D.append(col0, check);
         if(label){
           D.attr(label, 'for', id);
@@ -1528,12 +1730,14 @@ window.fossil.onPageLoad(function(){
         }
         if(hint) D.append(labelWrapper, hint);
       }else{
-        line.addEventListener('click', callback);
-        D.append(line, col0, labelWrapper);
+        if(op.callback){
+          menuEntry.addEventListener('click', (ev)=>op.callback(ev));
+        }
+        D.append(menuEntry, labelWrapper);
         if(label) D.append(labelWrapper, label);
         if(hint) D.append(labelWrapper, hint);
       }
-      D.append(optionsMenu, line);
+      D.append(optionsMenu, menuEntry);
       if(op.persistentSetting){
         Chat.settings.addListener(
           op.persistentSetting,
@@ -1551,6 +1755,10 @@ window.fossil.onPageLoad(function(){
         }
       }else if(op.callback && op.checkbox){
         op.checkbox.addEventListener('change', (ev)=>op.callback(ev), false);
+      }
+      if(op.children){
+        D.addClass(menuEntry, 'parent');
+        op.children.forEach((x)=>f(x,true));
       }
     });
   })()/*#chat-button-settings setup*/;
@@ -1572,15 +1780,53 @@ window.fossil.onPageLoad(function(){
     Chat.settings.addListener('chat-only-mode',function(s){
       Chat.chatOnlyMode(s.value);
     });
+    Chat.settings.addListener('edit-widget-x',function(s){
+      let eSelected;
+      if(s.value){
+        if(Chat.e.inputX===Chat.inputElement()) return;
+        eSelected = Chat.e.inputX;
+      }else{
+        eSelected = Chat.settings.getBool('edit-compact-mode')
+          ? Chat.e.input1 : Chat.e.inputM;
+      }
+      const v = Chat.inputValue();
+      Chat.inputValue('');
+      Chat.e.inputFields.forEach(function(e,ndx){
+        if(eSelected===e){
+          Chat.e.inputFields.$currentIndex = ndx;
+          D.removeClass(e, 'hidden');
+        }
+        else D.addClass(e,'hidden');
+      });
+      Chat.inputValue(v);
+      eSelected.focus();
+    });
     Chat.settings.addListener('edit-compact-mode',function(s){
-      Chat.e.inputLine.classList[
+      if(Chat.e.inputX!==Chat.inputElement()){
+        /* Text field/textarea mode: swap them if needed.
+           Compact mode of inputX is toggled via CSS. */
+        const a = s.value
+              ? [Chat.e.input1, Chat.e.inputM, 0]
+              : [Chat.e.inputM, Chat.e.input1, 1];
+        const v = Chat.inputValue();
+        Chat.inputValue('');
+        Chat.e.inputFields.$currentIndex = a[2];
+        Chat.inputValue(v);
+        D.removeClass(a[0], 'hidden');
+        D.addClass(a[1], 'hidden');
+      }
+      Chat.e.inputElementWrapper.classList[
         s.value ? 'add' : 'remove'
       ]('compact');
+      Chat.e.inputFields[Chat.e.inputFields.$currentIndex].focus();
     });
     Chat.settings.addListener('edit-ctrl-send',function(s){
       const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
-      const eInput = Chat.inputElement();
-      eInput.dataset.placeholder = eInput.dataset.placeholder0 + " " +label;
+      Chat.e.inputFields.forEach((e)=>{
+        const v = e.dataset.placeholder0 + " " +label;
+        if(e.isContentEditable) e.dataset.placeholder = v;
+        else D.attr(e,'placeholder',v);
+      });
       Chat.e.btnSubmit.title = label;
     });
     const valueKludges = {
@@ -1609,7 +1855,7 @@ window.fossil.onPageLoad(function(){
     Chat.e.viewPreview.querySelector('#chat-preview-close').
       addEventListener('click', ()=>Chat.setCurrentView(Chat.e.viewMessages), false);
     let previewPending = false;
-    const elemsToEnable = [btnPreview, Chat.e.btnSubmit, Chat.e.inputField];
+    const elemsToEnable = [btnPreview, Chat.e.btnSubmit, Chat.e.inputFields];
     const submit = function(ev){
       ev.preventDefault();
       ev.stopPropagation();

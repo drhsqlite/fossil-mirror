@@ -7,9 +7,10 @@ use cc cc-lib
 options {
     with-openssl:path|auto|tree|none
                          => {Look for OpenSSL in the given path, automatically, in the source tree, or none}
-    with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path|auto|tree
                          => {Look for zlib in the given path, automatically, or in the source tree}
+    with-sqlite:path|auto|tree
+                         => {Look for sqlite in the given path, automatically, or in the source tree.}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-sanitizer:      => {Build with C compiler's -fsanitize=LIST; e.g. address,enum,null,undefined}
@@ -34,7 +35,7 @@ options {
 # Update the minimum required SQLite version number here, and also
 # in src/main.c near the sqlite3_libversion_number() call.  Take care
 # that both places agree!
-define MINIMUM_SQLITE_VERSION "3.35.0"
+define MINIMUM_SQLITE_VERSION "3.38.0"
 
 # This is useful for people wanting Fossil to use an external SQLite library
 # to compare the one they have against the minimum required
@@ -100,10 +101,10 @@ define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
-define FOSSIL_ENABLE_MINIZ 0
 define USE_MMAN_H 0
 define USE_SEE 0
-
+define SQLITE3_ORIGIN 0
+# SQLITE3_ORIGIN 0 = src/sqlite3, 1=src/sqlite3-see.c, 2=client-provided
 
 # Maintain the C89/C90-style order of variable declarations before statements.
 # Check if the compiler supports the respective warning flag.
@@ -185,7 +186,7 @@ if {![opt-bool internal-sqlite]} {
     set cmdline {}
     lappend cmdline {*}[get-define CCACHE]
     lappend cmdline {*}[get-define CC] {*}[get-define CFLAGS]
-    lappend cmdline $::autosetup(dir)/../src/sqlcompattest.c -o conftest__
+    lappend cmdline $::autosetup(dir)/../tools/sqlcompattest.c -o conftest__
     lappend cmdline {*}[get-define LDFLAGS]
     lappend cmdline {*}[get-define LIBS]
     set sqlite-version [string cat "-D MINIMUM_SQLITE_VERSION=" [get-define MINIMUM_SQLITE_VERSION]]
@@ -233,7 +234,7 @@ if {[is_mingw]} {
 }
 
 if {[string match *-solaris* [get-define host]]} {
-    define-append EXTRA_CFLAGS {-D_XOPEN_SOURCE=500 -D__EXTENSIONS__}
+    define-append EXTRA_CFLAGS {-D__EXTENSIONS__}
 }
 
 if {[opt-bool fossil-debug]} {
@@ -259,6 +260,7 @@ if {[opt-bool with-mman]} {
 if {[opt-bool with-see]} {
     define-append EXTRA_CFLAGS -DUSE_SEE
     define USE_SEE 1
+    define SQLITE3_ORIGIN 1
     msg-result "Enabling encryption support"
 }
 
@@ -342,41 +344,33 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
     }
 }
 
-if {[opt-bool with-miniz]} {
-    define FOSSIL_ENABLE_MINIZ 1
-    msg-result "Using miniz for compression"
+# Check for zlib, using the given location if specified
+set zlibpath [opt-val with-zlib]
+if {$zlibpath eq "tree"} {
+  set zlibdir [file dirname $autosetup(dir)]/compat/zlib
+  if {![file isdirectory $zlibdir]} {
+    user-error "The zlib in source tree directory does not exist"
+  }
+  cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
+  define-append EXTRA_CFLAGS -I$zlibdir
+  define-append LIBS $zlibdir/libz.a
+  set ::zlib_lib $zlibdir/libz.a
+  msg-result "Using zlib in source tree"
 } else {
-    # Check for zlib, using the given location if specified
-    set zlibpath [opt-val with-zlib]
-    if {$zlibpath eq "tree"} {
-        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-        if {![file isdirectory $zlibdir]} {
-            user-error "The zlib in source tree directory does not exist"
-        }
-        cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
-        define-append EXTRA_CFLAGS -I$zlibdir
-        define-append LIBS $zlibdir/libz.a
-        set ::zlib_lib $zlibdir/libz.a
-        msg-result "Using zlib in source tree"
-    } else {
-        if {$zlibpath ni {auto ""}} {
-            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-            define-append EXTRA_CFLAGS -I$zlibpath
-            define-append EXTRA_LDFLAGS -L$zlibpath
-            msg-result "Using zlib from $zlibpath"
-        }
-        if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
-            user-error "zlib not found please install it or specify the location with --with-zlib"
-        }
-        set ::zlib_lib -lz
-    }
+  if {$zlibpath ni {auto ""}} {
+    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+    define-append EXTRA_CFLAGS -I$zlibpath
+    define-append EXTRA_LDFLAGS -L$zlibpath
+    msg-result "Using zlib from $zlibpath"
+  }
+  if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
+    user-error "zlib not found please install it or specify the location with --with-zlib"
+  }
+  set ::zlib_lib -lz
 }
 
 set ssldirs [opt-val with-openssl]
 if {$ssldirs ne "none"} {
-    if {[opt-bool with-miniz]} {
-        user-error "The --with-miniz option is incompatible with OpenSSL"
-    }
     set found 0
     if {$ssldirs eq "tree"} {
         set ssldir [file dirname $autosetup(dir)]/compat/openssl
@@ -450,6 +444,76 @@ if {$ssldirs ne "none"} {
         define-append LIBS $::zlib_lib
     }
 }
+
+
+
+########################################################################
+# --with-sqlite=PATH checks for the first it finds of the following...
+# - PATH/sqlite3.c and PATH/sqlite3.h
+# - PATH/sqlite3.o (and assumes sqlite3.h is with it)
+# - PATH/lib/libsqlite3* and PATH/include/sqlite3.h
+define CFLAGS_INCLUDE {}
+# ^^^ CFLAGS_INCLUDE is ONLY for -I... flags and their order is
+# significant so that --with-sqlite=PATH's header can shadow our
+# own. One caveat with this is that we cannot point --with-sqlite=PATH
+# to the root of sqlite3's own build tree because that dir has a
+# config.h which ends up shadowing src/config.h, breaking our build.
+set sq3path [opt-val with-sqlite]
+define SQLITE3_SRC.2 {}
+define SQLITE3_OBJ.2 {}
+define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
+if {$sq3path in {tree ""}} {
+  msg-result "Using sqlite3.c from this source tree."
+} else {
+  # SQLITE3_ORIGIN:
+  #   0 = local source tree
+  #   1 = use external lib or sqlite3.o
+  #   2 = use external sqlite3.c and (if found) shell.c
+  define USE_SYSTEM_SQLITE 1
+  define SQLITE3_ORIGIN 2
+  if {$sq3path != "auto"} {
+    if {([file exists $sq3path/sqlite3.c]) && \
+        ([file exists $sq3path/sqlite3.h]) } {
+      # Prefer sqlite3.[ch] if found.
+      define SQLITE3_SRC.2 $sq3path/sqlite3.c
+      define SQLITE3_OBJ.2 {$(SQLITE3_OBJ.0)}
+      define USE_SYSTEM_SQLITE 2
+      define SQLITE3_ORIGIN 2
+      if {[file exists $sq3path/shell.c]} {
+        define SQLITE3_SHELL_SRC.2 $sq3path/shell.c
+      }
+      define-append CFLAGS_INCLUDE -I$sq3path
+      define-append EXTRA_LDFLAGS -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using sqlite3.c and sqlite3.h from $sq3path"
+    } elseif {[file exists $sq3path/sqlite3.o]} {
+      # Use sqlite3.o if found.
+      define SQLITE3_OBJ.2 $sq3path/sqlite3.o
+      define-append CFLAGS_INCLUDE -I$sq3path
+      define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using sqlite3.o from $sq3path"
+    } elseif { ([llength [glob -nocomplain -directory $sq3path/lib libsqlite3*]] != 0) \
+                 && ([file exists $sq3path/include/sqlite3.h]) } {
+      # e.g. --with-sqlite=/usr/local. Try $sq3path/lib/libsqlite3*
+      # and $sq3path/include/sqlite3.h
+      define-append CFLAGS_INCLUDE -I$sq3path/include
+      define-append EXTRA_LDFLAGS -L$sq3path/lib -lsqlite3 -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using -lsqlite3 from $sq3path"
+    } else {
+      # Assume $sq3path holds both the lib and header
+      cc-with [list -cflags "-I$sq3path -L$sq3path"]
+      define-append CFLAGS_INCLUDE -I$sq3path
+      define-append EXTRA_LDFLAGS -L$sq3path -lsqlite3 -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using -lsqlite3 from $sq3path"
+    }
+  } elseif {![cc-check-includes sqlite3.h] || ![check-function-in-lib sqlite3_open_v2 sqlite3]} {
+    user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
+  }
+}
+define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}
 
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {

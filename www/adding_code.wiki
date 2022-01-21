@@ -47,7 +47,7 @@ write code.
 New source code files are added in the "src/" subdirectory of the Fossil
 source tree.  Suppose one wants to add a new source code file named
 "xyzzy.c".  The first step is to add this file to the various makefiles.
-Do so by editing the file src/makemake.tcl and adding "xyzzy" (without
+Do so by editing the file tools/makemake.tcl and adding "xyzzy" (without
 the final ".c") to the list of source modules at the top of that script.
 Save the result and then run the makemake.tcl script using a TCL
 interpreter.  The command to run the makemake.tcl script is:
@@ -93,7 +93,7 @@ The "#if INTERFACE ... #endif" section is optional and is only needed
 if there are structure definitions or typedefs or macros that need to
 be used by other source code files.  The makeheaders preprocessor
 uses definitions in the INTERFACE section to help it generate header
-files.  See [../src/makeheaders.html | makeheaders.html] for additional
+files.  See [../tools/makeheaders.html | makeheaders.html] for additional
 information.
 
 After creating a template file such as shown above, and after updating

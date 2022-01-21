@@ -120,7 +120,7 @@ the user upload a file using a form, and then displays that file in the reply.
 There is a link on the page that causes the fileup1 script to return a copy
 of its own source-code, so you can see how it works.
 
-<h2>3.0 CGI Inputs</h2>
+<h2 id="cgi-inputs">3.0 CGI Inputs</h2>
 
 The /ext extension mechanism is an ordinary CGI interface.  Parameters
 are passed to the CGI program using environment variables.  The following
@@ -154,6 +154,7 @@ standard CGI environment variables are supported:
   *  SERVER_NAME
   *  SERVER_PORT
   *  SERVER_PROTOCOL
+  *  SERVER_SOFTWARE
 
 Do a web search for
 "[https://duckduckgo.com/?q=cgi+environment_variables|cgi environment variables]"

@@ -1609,6 +1609,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **    yw=YYYY-MM-DD   Show events for the week that includes the given day
 **    ymd=YYYY-MM-DD  Show only events on the given day. The use "ymd=now"
 **                    to see all changes for the current week.
+**    year=YYYY       Show only events on the given year. The use "year=0"
+**                    to see all changes for the current year.
 **    days=N          Show events over the previous N days
 **    datefmt=N       Override the date format:  0=HH:MM, 1=HH:MM:SS,
 **                    2=YYYY-MM-DD HH:MM:SS, 3=YYMMDD HH:MM, and 4 means "off".
@@ -1620,6 +1622,10 @@ const char *timeline_expand_datetime(const char *zIn){
 ** appear, then u=, y=, a=, and b= are ignored.
 **
 ** If both a= and b= appear then both upper and lower bounds are honored.
+**
+** When multiple time-related filters are used, e.g. ym, yw, and ymd,
+** which one(s) is/are applied is unspecified and may change between
+** fossil versions.
 **
 ** CHECKIN or TIMEORTAG can be a check-in hash prefix, or a tag, or the
 ** name of a branch.
@@ -1652,6 +1658,7 @@ void page_timeline(void){
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   char *zYearWeekStart = 0;          /* YYYY-MM-DD for start of YYYY-WW */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zYear = P("year");     /* Events for the year YYYY */
   const char *zNDays = P("days");    /* Show events over the previous N days */
   int nDays = 0;                     /* Numeric value for zNDays */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
@@ -2316,6 +2323,44 @@ void page_timeline(void){
       if( nDays<1 ) nDays = 1;
       blob_append_sql(&cond, " AND event.mtime>=julianday('now','-%d days') ",
                       nDays);
+      nEntry = -1;
+    }
+    else if( zYear &&
+             ((4==strlen(zYear) && atoi(zYear)>1900)
+              || (1==strlen(zYear) && 0==atoi(zYear)))){
+      int year = atoi(zYear);
+      char *zNext = 0;
+      if(0==year){/*use current year*/
+        Stmt qy;
+        db_prepare(&qy, "SELECT strftime('%%Y','now')");
+        db_step(&qy);
+        year = db_column_int(&qy, 0);
+        zYear = fossil_strdup(db_column_text(&qy, 0));
+        db_finalize(&qy);
+      }else{
+        zNext = mprintf("%d", year+1);
+        if( db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid AND strftime('%%Y',mtime)=%Q %s)",
+          zNext, blob_sql_text(&cond))
+        ){
+          zNewerButton = fossil_strdup(url_render(&url, "year", zNext, 0, 0));
+          zNewerButtonLabel = "Following year";
+        }
+        fossil_free(zNext);
+      }
+      zNext = mprintf("%d", year-1);
+      if( db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid AND strftime('%%Y',mtime)=%Q %s)",
+          zNext, blob_sql_text(&cond))
+      ){
+        zOlderButton = fossil_strdup(url_render(&url, "year", zNext, 0, 0));
+        zOlderButtonLabel = "Previous year";
+      }
+      fossil_free(zNext);
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y',event.mtime) ",
+                      zYear);
       nEntry = -1;
     }
     if( zTagSql ){

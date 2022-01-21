@@ -1882,6 +1882,8 @@ void file_parse_uri(
 ** a bunch of random characters as the tag.
 **
 ** Dangerous characters in zBasis are changed.
+**
+** See also fossil_temp_filename() and file_time_tempname();
 */
 void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
 #if defined(_WIN32)
@@ -1961,11 +1963,12 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
     blob_zero(pBuf);
     if( cnt++>20 ) fossil_fatal("cannot generate a temporary filename");
     if( zTag==0 ){
-      sqlite3_randomness(15, zRand);
-      for(i=0; i<15; i++){
+      const int nRand = sizeof(zRand)-1;
+      sqlite3_randomness(nRand, zRand);
+      for(i=0; i<nRand; i++){
         zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
       }
-      zRand[15] = 0;
+      zRand[nRand] = 0;
       zTag = zRand;
     }
     blob_appendf(pBuf, "%s/%.*s~%s%s", zDir, nBasis, zBasis, zTag, zSuffix);
@@ -1991,6 +1994,8 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
 /*
 ** Compute a temporary filename in zDir.  The filename is based on
 ** the current time.
+**
+** See also fossil_temp_filename() and file_tempname();
 */
 char *file_time_tempname(const char *zDir, const char *zSuffix){
   struct tm *tm;
@@ -2013,6 +2018,10 @@ char *file_time_tempname(const char *zDir, const char *zSuffix){
 ** Generate temporary filenames derived from BASENAME.  Use the --time
 ** option to generate temp names based on the time of day.  If --tag NAME
 ** is specified, try to use NAME as the differentiator in the temp file.
+**
+** If --time is used, file_time_tempname() generates the filename.
+** If BASENAME is present, file_tempname() generates the filename.
+** Without --time or BASENAME, fossil_temp_filename() generates the filename.
 */
 void file_test_tempname(void){
   int i;
@@ -2021,6 +2030,11 @@ void file_test_tempname(void){
   char *z;
   const char *zTag = find_option("tag",0,1);
   verify_all_options();
+  if( g.argc<=2 ){
+    z = fossil_temp_filename();
+    fossil_print("%s\n", z);
+    sqlite3_free(z);
+  }
   for(i=2; i<g.argc; i++){
     if( zSuffix ){
       z = file_time_tempname(g.argv[i], zSuffix);

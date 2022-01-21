@@ -123,6 +123,38 @@ because they were deleted, or an admin user who has not posted
 anything but deleted a message. That is a known minor cosmetic-only
 bug with a resolution of "will not fix."
 
+### <a id="cli"></a> The `fossil chat` Command
+
+Type [fossil chat](/help?cmd=chat) from within any open check-out
+to bring up a chatroom for the project that is in that checkout.
+The new chat window will attempt to connect to the default sync
+target for that check-out (the server whose URL is shown by the
+[fossil remote](/help?cmd=remote) command).
+
+### <a id="robots"></a> Chat Messages From Robots
+
+The [fossil chat send](/help?cmd=chat) can be used by project-specific
+robots to send notifications to the chatroom.  For example, on the
+[SQLite project](https://sqlite.org/) (for which the Fossil chatroom
+feature, and indeed all of Fossil, was invented) there are long-running
+fuzz servers that sometimes run across obscure problems.  Whenever this
+happens, a message is sent to the SQLite developers chatroom altering
+them to the problem.
+
+The recommended way to allow robots to send chat messages is to create
+a new user on the server for each robot.  Give each such robot account
+the "C" privilege only.  That means that the robot user account will be 
+able to send chat messages, but not do anything else.  Then, in the
+program or script that runs the robot, when it wants to send a chat
+message, have it run a command like this:
+
+> ~~~~
+fossil chat send --remote https://robot:PASSWORD@project.org/fossil \
+  --message 'MESSAGE TEXT' --file file-to-attach.txt
+~~~~
+
+Substitute the appropriate project URL, robot account
+name and password, message text and file attachment, of course.
 
 ## Implementation Details
 
@@ -136,7 +168,7 @@ javascript uses XMLHttpRequest (XHR) to download chat content, post
 new content, or delete historical messages.  The following web
 interfaces are used by the XHR:
 
-  *  **/chat-poll** &rarr;
+  *  [/chat-poll](/help?name=/chat-poll) &rarr;
      Downloads chat content as JSON.
      Chat messages are numbered sequentially.
      The client tells the server the largest chat message it currently
@@ -144,10 +176,10 @@ interfaces are used by the XHR:
      are no subsequent messages, the /chat-poll page blocks until new
      messages are available.
 
-  *  **/chat-send** &rarr;
+  *  [/chat-send](/help?name=/chat-send) &rarr;
      Sends a new chat message to the server.
 
-  *  **/chat-delete** &rarr;
+  *  [/chat-delete](/help?name=/chat-delete) &rarr;
      Deletes a chat message.
 
 Fossil chat uses the venerable "hanging GET" or 
@@ -162,7 +194,7 @@ a chat system, but those technologies are not compatible with CGI.
 
 Downloading of posted files and images uses a separate, non-XHR interface:
 
-  * **/chat-download** &rarr;
+  * [/chat-download](/help?name=/chat-download) &rarr;
     Fetches the file content associated with a post (one file per
     post, maximum). In the UI, this is accessed via links to uploaded
     files and via inlined image tags.
@@ -170,18 +202,18 @@ Downloading of posted files and images uses a separate, non-XHR interface:
 Chat messages are stored on the server-side in the CHAT table of
 the repository.
 
-~~~
-   CREATE TABLE repository.chat(
-      msgid INTEGER PRIMARY KEY AUTOINCREMENT,
-      mtime JULIANDAY,
-      ltime TEXT,
-      xfrom TEXT,
-      xmsg  TEXT,
-      fname TEXT,
-      fmime TEXT,
-      mdel  INT,
-      file  BLOB)
-    );
+> ~~~
+CREATE TABLE repository.chat(
+  msgid INTEGER PRIMARY KEY AUTOINCREMENT,
+  mtime JULIANDAY,  -- Time for this entry - Julianday Zulu
+  lmtime TEXT,      -- Client YYYY-MM-DDZHH:MM:SS when message originally sent
+  xfrom TEXT,       -- Login of the sender
+  xmsg  TEXT,       -- Raw, unformatted text of the message
+  fname TEXT,       -- Filename of the uploaded file, or NULL
+  fmime TEXT,       -- MIMEType of the upload file, or NULL
+  mdel INT,         -- msgid of another message to delete
+  file  BLOB        -- Text of the uploaded file, or NULL
+);
 ~~~
 
 The CHAT table is not cross-linked with any other tables in the repository

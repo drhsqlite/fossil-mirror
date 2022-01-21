@@ -113,6 +113,5 @@ and extensions for Hash and Wiki links.
 
 ## See Also
 
-  1. [](https://en.wikipedia.org/wiki/Interwiki_links)
-  2. [](https://www.mediawiki.org/wiki/Manual:Interwiki)
-  3. [](https://duckduckgo.com/?q=interwiki+links&ia=web)
+  1. [](https://www.mediawiki.org/wiki/Manual:Interwiki)
+  2. [](https://duckduckgo.com/?q=interwiki+links&ia=web)
