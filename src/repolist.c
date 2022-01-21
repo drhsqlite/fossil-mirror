@@ -258,7 +258,7 @@ int repo_list_page(void){
     fossil_free(zSkinUrl);
   }
   if( g.repositoryOpen ){
-    /* This case runs if remote_repository_info() found a repository
+    /* This case runs if remote_repo_info() found a repository
     ** that has the "repolist_skin" property set to non-zero and left
     ** that repository open in g.db.  Use the skin of that repository
     ** for display. */

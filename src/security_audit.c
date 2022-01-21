@@ -101,6 +101,7 @@ void secaudit0_page(void){
   const char *zPubPages;     /* GLOB pattern for public pages */
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
+  const char *zPublicUrl;    /* Canonical access URL */
   char *z;
   int n;
   CapabilityString *pCap;
@@ -201,6 +202,36 @@ void secaudit0_page(void){
     if( zPubPages && zPubPages[0] ){
       @ <p>Change GLOB patterns exceptions using the "Public pages" setting
       @ on the <a href="setup_access">Access Settings</a> page.</p>
+    }
+  }
+
+  zPublicUrl = public_url();
+  if( zPublicUrl!=0 ){
+    int nOther = db_int(0, "SELECT count(*) FROM config"
+                           " WHERE name GLOB 'baseurl:*'"
+                           " AND name<>'baseurl:%q'", zPublicUrl);
+    @ <li><p>The canonical URL for this repository is
+    @ <a href="%s(zPublicUrl)">%h(zPublicUrl)</a>.
+    if( nOther==1 ){
+      @ This is also <a href="urllist?urlonly">1 other URL</a> that has
+      @ been used to access this repository.
+    }else if( nOther>=2 ){
+      @ There are also
+      @ <a href="urllist?all&urlonly">%d(nOther) other URLs</a> that have
+      @ been used to access this repository.
+    }
+  }else{
+    int nUrl = db_int(0, "SELECT count(*) FROM config"
+                         " WHERE name GLOB 'baseurl:*'");
+    @ <li><p>This repository does not have a canonical access URL.
+    if( nUrl==1 ){
+      @ There is
+      @ <a href="urllist?urlonly">1 non-canonical URL</a>
+      @ that has been used to access this repository.
+    }else if( nUrl>=2 ){
+      @ There are
+      @ <a href="urllist?all&urlonly">%d(nUrl) non-canonical URLs</a>
+      @ that have been used to access this repository.
     }
   }
 

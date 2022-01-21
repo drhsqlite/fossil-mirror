@@ -349,7 +349,7 @@ void user_edit(void){
     if( P("verifydelete") ){
       /* Verified delete user request */
       db_unprotect(PROTECT_USER);
-      if( db_table_exists("repository","subscriber") ){
+      if( alert_tables_exist() ){
         /* Also delete any subscriptions associated with this user */
         db_multi_exec("DELETE FROM subscriber WHERE suname="
                       "(SELECT login FROM user WHERE uid=%d)", uid);
@@ -449,6 +449,15 @@ void user_edit(void){
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, zLogin, P("info"), zPw, zCap
     );
+    if( zOldLogin && fossil_strcmp(zLogin, zOldLogin)!=0 ){
+      if( alert_tables_exist() ){
+        /* Rename matching subscriber entry, else the user cannot
+           re-subscribe with their same email address. */
+        db_multi_exec("UPDATE subscriber SET suname=%Q WHERE suname=%Q",
+                      zLogin, zOldLogin);
+      }
+      admin_log( "Renamed user [%q] to [%q].", zOldLogin, zLogin );
+    }
     db_protect_pop();
     setup_incr_cfgcnt();
     admin_log( "Updated user [%q] with capabilities [%q].",
@@ -465,6 +474,20 @@ void user_edit(void){
         );
         zOldLogin = zLogin;
       }
+#if 0
+      /* Problem: when renaming a user we need to update the subcriber
+      ** names to match but we cannot know from here if each member of
+      ** the login group has the subscriber tables, so we cannot blindly
+      ** include this SQL. */
+      else if( fossil_strcmp(zLogin, zOldLogin)!=0
+               && alert_tables_exist() ){
+        /* Rename matching subscriber entry, else the user cannot
+           re-subscribe with their same email address. */
+        blob_appendf(&sql,
+                     "UPDATE subscriber SET suname=%Q WHERE suname=%Q;",
+                     zLogin, zOldLogin);
+      }
+#endif
       blob_appendf(&sql,
         "UPDATE user SET login=%Q,"
         "  pw=coalesce(shared_secret(%Q,%Q,"

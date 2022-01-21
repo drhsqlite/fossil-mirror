@@ -272,10 +272,6 @@ void prompt_for_password(
 int save_password_prompt(const char *passwd){
   Blob x;
   char c;
-  const char *old = db_get("last-sync-pw", 0);
-  if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
-     return 0;
-  }
   if( fossil_security_level()>=1 ) return 0;
   prompt_user("remember password (Y/n)? ", &x);
   c = blob_str(&x)[0];
@@ -542,7 +538,7 @@ void user_select(void){
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
   memset(&url, 0, sizeof(url));
-  url_parse_local(0, 0, &url);
+  url_parse_local(0, URL_USE_CONFIG, &url);
   if( url.user && attempt_user(url.user) ) return;
 
   fossil_print(
@@ -572,7 +568,7 @@ void test_usernames_cmd(void){
   fossil_print("USER: %s\n", fossil_getenv("USER"));
   fossil_print("LOGNAME: %s\n", fossil_getenv("LOGNAME"));
   fossil_print("USERNAME: %s\n", fossil_getenv("USERNAME"));
-  url_parse(0, 0);
+  url_parse(0, URL_USE_CONFIG);
   fossil_print("URL user: %s\n", g.url.user);
   user_select();
   fossil_print("Final g.zLogin: %s\n", g.zLogin);

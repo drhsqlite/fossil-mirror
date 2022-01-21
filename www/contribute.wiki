@@ -30,6 +30,10 @@ against the current source tree:
 
     <tt>fossil diff -i > my-change.patch</tt>
 
+Alternatively, you can create a binary patch:
+
+    <tt>fossil patch create my-change.db</tt>
+
 Post patches to
 [https://fossil-scm.org/forum | the forum] or email them to
 <a href="mailto:drh@sqlite.org">drh@sqlite.org</a>.  Be sure to

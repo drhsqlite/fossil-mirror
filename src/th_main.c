@@ -849,7 +849,7 @@ int capexprCmd(
     }else{
       rc = login_has_capability(azCap[i], anCap[i], 0);
     }
-    break;
+    if( rc ) break;
   }
   Th_Free(interp, azCap);
   Th_SetResultInt(interp, rc);
