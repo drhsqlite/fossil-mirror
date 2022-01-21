@@ -1,5 +1,5 @@
-C Add\sa\sfew\senvironment\svariables\smentioned\sin\srecent\scheck-in\scomments\sto\sthe\sdocumentation.
-D 2022-01-21T06:12:00.000
+C Fix\sthe\sprevious\scheck-in\sto\slist\senvironment\svariables\sused\sby\sthe\sCGI\sServer\sExtensions\sfeature\sin\sthe\scorrect\splace.
+D 2022-01-21T11:38:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -833,7 +833,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
-F www/env-opts.md 044c9559c25120a66e3073a76ff4bffde7f678ae84fa1def8cfbdf19e5402a19
+F www/env-opts.md 8a3593c3f06b8d2b1813689a5ec622aeb0a3b6ab280d8a74a7da2c067caffce9
 F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e360
 F www/faq.tcl 144b3860f55d014da205fdb486f3774040662507a9ae5eae6e364b145a7cc860
 F www/faq.wiki 2e7d144c6e09aa720bf05042fd00ddcca8770d5be37ec216acbde0d8074686f2
@@ -946,7 +946,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md d6bf7b6ec94ff1abdb7c987d1df6aab516616b5a0af05c77eb27d417c0d6ac43
 F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524b356f3d5ab8b8ac8
-F www/serverext.wiki 7b38c1cb3fceb59c0270b73d51f55c1b50cd076f0ad63ea417f8d0d8f84e9a84
+F www/serverext.wiki 1f7594105c7e30ed1b20c9e1d87fba422cdee9b64bcd2f4c7476402f82ebdeac
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
 F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d960eda
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki 0391dc7a5212e72cfd32500fca8acea045e51848ec3e76fd36ff5e3883c453bd
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b145f19df5de3a27e634d7a703bf043271f64e7fa1c4ba63a78b753d6072ff3e
-R 031c55a374402a88a1e61ce6a37caee8
+P 85cfdd192ab3e012e324f1de0b28e89cd7318b21bce33363802a2789ab01a3f3
+R cd63d2610d7e84325e3d8c3828b4f64c
 U florian
-Z b5359e712f479f60acd15b898854c7fe
+Z 36624d6387cf872e945cb8ddfe074d1a
 # Remove this line to create a well-formed Fossil manifest.

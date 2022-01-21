@@ -230,10 +230,6 @@ the remote host.
 
 `SCRIPT_NAME`: If defined, included in error log messages.
 
-`SERVER_SOFTWARE`: Set to the Fossil version when invoking [CGI-based
-extensions](/help?cmd=/ext).  Also includes the program name if the
-variable was already defined for the current server environment.
-
 `SSH_CONNECTION`: Informs CGI processing if the remote client is SSH.
 
 `SSL_CERT_FILE`, `SSL_CERT_DIR`: Override the [`ssl-ca-location`]
@@ -316,6 +312,12 @@ See the comment above the implementation of [`json_getenv`][json.c]
 for some further discussion.
 
 [json.c]: /artifact/6df1d80dece8968b?ln=277,290
+
+### CGI Server Extensions
+
+The [CGI Server Extensions](/doc/trunk/www/serverext.wiki) feature passes
+parameters to the CGI program using environment variables, as listed in
+the [CGI Inputs](/doc/trunk/www/serverext.wiki#cgi-inputs) section.
 
 ### Comment Editor
 
