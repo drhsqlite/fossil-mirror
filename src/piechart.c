@@ -158,7 +158,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     db_bind_double(&q, ":amt", rTotal/OTHER_CUTOFF);
     if( db_step(&q)==SQLITE_ROW ){
       rTooSmall = db_column_double(&q, 0);
-      nTooSmall = db_column_double(&q, 1);
+      nTooSmall = db_column_int(&q, 1);
     }
     db_finalize(&q);
   }

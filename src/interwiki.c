@@ -85,10 +85,8 @@ char *interwiki_url(const char *zTarget){
   zPage = zTarget + nCode + 1;
   nPage = (int)strlen(zPage);
   db_static_prepare(&q, 
-     "SELECT json_extract(value,'$.base'),"
-           " json_extract(value,'$.hash'),"
-           " json_extract(value,'$.wiki')"
-     " FROM config WHERE name=lower($name)"
+     "SELECT value->>'base', value->>'hash', value->>'wiki'"
+     " FROM config WHERE name=lower($name) AND json_valid(value)"
   );
   zName = mprintf("interwiki:%.*s", nCode, zTarget);
   db_bind_text(&q, "$name", zName);
@@ -240,10 +238,8 @@ void interwiki_cmd(void){
     verify_all_options();
     db_prepare(&q,
       "SELECT substr(name,11),"
-      "       json_extract(value,'$.base'),"
-      "       json_extract(value,'$.hash'),"
-      "       json_extract(value,'$.wiki')"
-      "  FROM config WHERE name glob 'interwiki:*'"
+      "       value->>'base', value->>'hash', value->>'wiki'"
+      "  FROM config WHERE name glob 'interwiki:*' AND json_valid(value)"
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBase, *z, *zName;
@@ -277,8 +273,8 @@ void interwiki_append_map_table(Blob *out){
   int n = 0;
   Stmt q;
   db_prepare(&q,
-    "SELECT substr(name,11), json_extract(value,'$.base')"
-    "  FROM config WHERE name glob 'interwiki:*'"
+    "SELECT substr(name,11), value->>'base'"
+    "  FROM config WHERE name glob 'interwiki:*' AND json_valid(value)"
     " ORDER BY name;"
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -354,10 +350,8 @@ void interwiki_page(void){
   @ from <i>Tags</i> to complete Server URLs.
   db_prepare(&q,
     "SELECT substr(name,11),"
-    "       json_extract(value,'$.base'),"
-    "       json_extract(value,'$.hash'),"
-    "       json_extract(value,'$.wiki')"
-    "  FROM config WHERE name glob 'interwiki:*'"
+    "       value->>'base', value->>'hash', value->>'wiki'"
+    "  FROM config WHERE name glob 'interwiki:*' AND json_valid(value)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     if( n==0 ){

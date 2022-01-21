@@ -105,10 +105,5 @@ foreach {name url expr class} $mainmenu {
   if {[string match /* $url]} {set url $home$url}
   html "<a href='$url' class='$class'>$name</a>\n"
 }
-if {[info exists login]} {
-  html "<a href='$home/logout' class='desktoponly'>Logout</a>\n"
-} else {
-  html "<a href='$home/login' class='desktoponly'>Login</a>\n"
-}
 </th1></div>
 <div id="hbdrop"></div>

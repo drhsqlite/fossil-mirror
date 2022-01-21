@@ -64,8 +64,9 @@ set doclist {
   fossil-is-not-relational.md {Introduction to the (Non-relational) Fossil Data Model}
   fossil_prompt.wiki {Fossilized Bash Prompt}
   fossil-v-git.wiki {Fossil Versus Git}
-  globs.md {File Name Glob Patterns}
   gitusers.md {Git to Fossil Translation Guide}
+  globs.md {File Name Glob Patterns}
+  glossary.md {Glossary}
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hacker-howto.wiki {Fossil Developers Guide}
@@ -108,6 +109,7 @@ set doclist {
   stats.wiki {Performance Statistics}
   style.wiki {Source Code Style Guidelines}
   ssl.wiki {Using SSL with Fossil}
+  ssl-server.md {SSL/TLS Server Mode}
   sync.wiki {The Fossil Sync Protocol}
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}

@@ -2010,7 +2010,7 @@ void import_cmd(void){
   }else{
     db_begin_transaction();
     fossil_print("Rebuilding repository meta-data...\n");
-    rebuild_db(0, 1, !incrFlag);
+    rebuild_db(1, !incrFlag);
     verify_cancel();
     db_end_transaction(0);
   }

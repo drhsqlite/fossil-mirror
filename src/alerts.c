@@ -950,8 +950,12 @@ void alert_send(
 
 /*
 ** SETTING: email-url                 width=40
-** This URL is used as the basename for hyperlinks included in email alert
-** text. Omit the trailing "/".
+** This is the main URL used to access the repository for cloning or
+** syncing or for operating the web interface.  It is also
+** the basename for hyperlinks included in email alert text.
+** Omit the trailing "/".  If the repository is not intended to be
+** a long-running server and will not be sending email notifications,
+** then leave this setting blank.
 */
 /*
 ** SETTING: email-admin               width=40
@@ -1529,7 +1533,7 @@ void subscribe_page(void){
     if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
   @ <p>To receive email notifications for changes to this
-  @ repository, fill out the form below and press "Submit" button.</p>
+  @ repository, fill out the form below and press the "Submit" button.</p>
   form_begin(0, "%R/subscribe");
   @ <table class="subscribe">
   @ <tr>

@@ -232,6 +232,9 @@ the remote host.
 
 `SSH_CONNECTION`: Informs CGI processing if the remote client is SSH.
 
+`SSL_CERT_FILE`, `SSL_CERT_DIR`: Override the [`ssl-ca-location`]
+(/help?cmd=ssl-ca-location) setting.
+
 `SQLITE_FORCE_PROXY_LOCKING`: From `sqlite3.c`, 1 means force always
 use proxy, 0 means never use proxy, and undefined means use proxy for
 non-local files only.
@@ -309,6 +312,12 @@ See the comment above the implementation of [`json_getenv`][json.c]
 for some further discussion.
 
 [json.c]: /artifact/6df1d80dece8968b?ln=277,290
+
+### CGI Server Extensions
+
+The [CGI Server Extensions](/doc/trunk/www/serverext.wiki) feature passes
+parameters to the CGI program using environment variables, as listed in
+the [CGI Inputs](/doc/trunk/www/serverext.wiki#cgi-inputs) section.
 
 ### Comment Editor
 

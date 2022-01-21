@@ -1,6 +1,35 @@
 <title>Change Log</title>
 
+<h2 id='v2_18'>Changes for version 2.18 (pending)</h2>
+  *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
+     like "[/help?cmd=server|fossil server]" and "[/help?cmd=http|fossil http]"
+  *  Added the --share-links option to [/help?cmd=sync|fossil sync] and
+     [/help?cmd=pull|fossil pull].  Enhance the 
+     [/doc/trunk/www/sync.wiki|sync protocol] so that it is able to support
+     sharing of links to other clones.
+  *  Added the --transport-command option to [/help?cmd=sync|fossil sync]
+     and similar.
+  *  [/help?cmd=/chat|The /chat page] input options have been reworked
+     again for better cross-browser portability.
+  *  Add new setting "[/help?cmd=large-file-size|large-file-size]".  If the size
+     of any file in a commit exceeds this size, a warning is issued.
+  *  When sending a [/help?cmd=/chat|/chat] message fails, it is no longer
+     immediately lost and sending may optionally be retried.
+  *  [/help?cmd=/chat|/chat] can now optionally embed attachments of certain
+     types directly into message bodies via an iframe.
+  *  The new [/help?cmd=cherry-pick|cherry-pick command] is an alias for
+     [/help?cmd=merge|merge --cherrypick].
+  *  Promote the test-detach command into the [/help?cmd=detach|detach command].
+  *  For "fossil pull" with the --from-parent-project option, if not URL is
+     specified used the last URL specified for the --from-parent-project.
+  *  Add options --project-name and --project-desc to the 
+     "[/help?cmd=init|fossil init]" command.
+  *  Query parameter "year=YYYY" is now accepted by [/help?cmd=/timeline|/timeline].
+  *  Add the "--as FILENAME" option to the "[/help?cmd=chat|fossil chat send]"
+     command.
+
 <h2 id='v2_17'>Changes for version 2.17 (2021-10-09)</h2>
+
   *  Major improvements to the "diff" subsystem, including: <ul>
      <li> Added new [/help?cmd=diff|formatting options]: --by, -b, --webpage, --json, --tcl.
      <li> Partial-line matching for unified diffs

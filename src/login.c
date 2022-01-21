@@ -2118,36 +2118,46 @@ void login_group_leave(char **pzErrMsg){
 /*
 ** COMMAND: login-group*
 **
-** Usage: %fossil login-group
-**    or: %fossil login-group join REPO [-name NAME]
-**    or: %fossil login-group leave
+** Usage: %fossil login-group ?SUBCOMMAND? ?OPTIONS?
 **
-** With no arguments, this command shows the login-group to which the
-** repository belongs.
+** Run various subcommands to manage login-group related settings of the open
+** repository or of the repository identified by the -R or --repository option.
 **
-** The "join" command adds this repository to login group to which REPO
-** belongs, or creates a new login group between itself and REPO if REPO
-** does not already belong to a login-group.  When creating a new login-
-** group, the name of the new group is determined by the "--name" option.
+** >  fossil login-group
 **
-** The "leave" command takes the repository out of whatever login group
-** it is currently a part of.
+**     Show the login-group to which the repository belongs.
+**
+** >  fossil login-group join ?--name NAME?
+**
+**     Add this repository to login group to which REPO belongs, or creates a
+**     new login group between itself and REPO if REPO does not already belong
+**     to a login-group.  When creating a new login-group, the name of the new
+**     group is determined by the "--name" option.
+**
+** >  fossil login-group leave
+**
+**     Takes the repository out of whatever login group it is currently 
+**     a part of.
+**
+** Options valid for all subcommands:
+**
+**     -R|--repository REPO       Run commands on repository REPO
 **
 ** About Login Groups:
-**
-** A login-group is a set of repositories that share user credentials.
+** 
+** A login-group is a set of repositories that share user credentials.  
 ** If a user is logged into one member of the group, then that user can
-** access any other group member as long as they have an entry in the
-** USER table of that member.  If a user changes their password using
-** web interface, their password is also automatically changed in every
-** other member of the login group.
+** access any other group member as long as they have an entry in the USER
+** table of that member.  If a user changes their password using web
+** interface, their password is also automatically changed in every other
+** member of the login group.
 */
 void login_group_command(void){
   const char *zLGName;
   const char *zCmd;
   int nCmd;
   Stmt q;
-  db_find_and_open_repository(0,0);
+  db_find_and_open_repository(0, 0);
   if( g.argc>2 ){
     zCmd = g.argv[2];
     nCmd = (int)strlen(zCmd);

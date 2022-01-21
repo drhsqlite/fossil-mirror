@@ -133,52 +133,6 @@ We think this is a more sensible command design than `git pull` vs
 [gcokoan]: https://stevelosh.com/blog/2013/04/git-koans/#s2-one-thing-well
 
 
-#### <a id="rname"></a> Naming Repositories
-
-The Fossil repository database file can be named anything
-you want, with a single exception: if you’re going to use the
-[`fossil server DIRECTORY`][server] feature, the repositories you wish
-to serve need to be stored together in a flat directory and have
-"`.fossil`" suffixes. That aside, you can follow any other convention that
-makes sense to you.
-
-This author uses a scheme like the following on mobile machines that
-shuttle between home and the office:
-
-``` pikchr toggle indent
-scale=0.8
-box "~/museum/" fit
-move right 0.1
-line right dotted
-move right 0.05
-box invis "where one stores valuable fossils" ljust
-
-arrow down 50% from first box.s then right 50%
-box "work/" fit
-move right 0.1
-line dotted
-move right 0.05
-box invis "projects from $dayjob" ljust
-
-arrow down 50% from 2nd vertex of previous arrow then right 50%
-box "home/" fit
-move right 0.1
-line dotted right until even with previous line.end
-move right 0.05
-box invis "personal at-home projects" ljust
-
-arrow down 50% from 2nd vertex of previous arrow then right 50%
-box "other/" fit
-move right 0.1
-line dotted right until even with previous line.end
-move right 0.05
-box invis "clones of Fossil itself, SQLite, etc." ljust
-```
-
-On a Windows box, you might instead choose "`C:\Fossils`"
-and do without the subdirectory scheme, for example.
-
-
 #### <a id="close" name="dotfile"></a> Closing a Check-Out
 
 The [`fossil close`][close] command dissociates a check-out directory from the
@@ -326,7 +280,7 @@ repo DB file or what you name it.
 
 [clone]:  /help?cmd=clone
 [close]:  /help?cmd=close
-[gloss]:  ./whyusefossil.wiki#definitions
+[gloss]:  ./glossary.md
 [open]:   /help?cmd=open
 [set]:    /help?cmd=setting
 [server]: /help?cmd=server
@@ -488,19 +442,21 @@ hash tree.
 ## <a id="slcom"></a> Summary Line Convention In Commit Comments
 
 The Git convention of a [length-limited summary line][lsl] at the start
-of commit comments has no equivalent in Fossil. You’re welcome to style
-your commit comments thus, but the convention isn’t used or enforced
-anywhere in Fossil. For instance, setting `EDITOR=vim` and making a
-commit doesn’t do syntax highlighting on the commit message to warn that
-you’ve gone over the conventional limit on the first line, and the
-Fossil web timeline display doesn’t show the summary line in bold.
+of commit comments is not enforced or obeyed by default in Fossil.
+However, there is a setting under Admin → Timeline → “Truncate comment
+at first blank line (Git-style)” to change this for `/timeline`
+displays.  Alternately, you could enable the “Allow block-markup in
+timeline” setting under Admin → Timeline, then apply [local skin
+customizations][cskin] to put that first comment in in bold or whatever
+suits.
 
-If you wish to follow such conventions in a Fossil project, you may want
-to enable the “Allow block-markup in timeline” setting under Admin →
-Timeline in the web UI to prevent Fossil from showing the message as a
-single paragraph, sans line breaks. [Skin customization][cskin] would
-allow you to style the first line of the commit message in bold in
-`/timeline` views.
+Because this isn’t a typical Fossil convention, you’re likely to find
+other odd differences between it and Git-based infrastructure.  For
+instance, Vim doesn’t ship with syntax support for Fossil commit
+messages if you set `EDITOR=vim` in your shell environment, so you won’t
+get over-limit highlighting for first-line text beyond the 50th
+character and such, because it doesn’t recognize Fossil commit messages
+and apply similar rules as to Git commit messages.
 
 [cskin]: ./customskin.md
 [lsl]:   https://chris.beams.io/posts/git-commit/#limit-50
