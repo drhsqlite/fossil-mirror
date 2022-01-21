@@ -64,7 +64,7 @@ void pivot_set_primary(int rid){
 ** desired.
 */
 void pivot_set_secondary(int rid){
-  /* Insert the primary record */
+  /* Insert the secondary record */
   db_multi_exec(
     "INSERT OR IGNORE INTO aqueue(rid, mtime, pending, src)"
     "  SELECT %d, mtime, 1, 0 FROM event WHERE objid=%d AND type='ci'",

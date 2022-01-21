@@ -739,5 +739,5 @@ window.fossil.onPageLoad(function(){
     Diff.checkTableWidth();
   };
   Diff.initTableDiff().checkTableWidth();
-  window.addEventListener('resize', ()=>Diff.checkTableWidth());
+  window.addEventListener('resize', F.debounce(()=>Diff.checkTableWidth()));
 }, false);

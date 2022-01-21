@@ -596,11 +596,12 @@ static void display_all_help(int mask, int useHtml, int rawOut){
 **
 ** Options:
 **    -e|--everything   Show all commands and pages.
-**    -t|--test         Include test- commands
+**    -t|--test         Include test- commands.
 **    -w|--www          Show WWW pages.
 **    -s|--settings     Show settings.
 **    -h|--html         Transform output to HTML.
 **    -r|--raw          No output formatting.
+**    -o|--options      Show global options.
 */
 void test_all_help_cmd(void){
   int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
@@ -1158,6 +1159,7 @@ void help_cmd(void){
     fossil_print("   fossil help -a        ;# show all commands\n");
     fossil_print("   fossil help -w        ;# show all web-pages\n");
     fossil_print("   fossil help -s        ;# show all settings\n");
+    fossil_print("   fossil help -o        ;# show global options\n");
     fossil_exit(1);
   }
   z = pCmd->zHelp;

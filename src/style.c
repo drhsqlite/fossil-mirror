@@ -1396,6 +1396,7 @@ void webpage_error(const char *zFormat, ...){
     @ fossil_exe_id() = %h(fossil_exe_id())<br />
     @ <hr />
     P("HTTP_USER_AGENT");
+    P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0);
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr />

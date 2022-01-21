@@ -24,7 +24,10 @@
 #include <sqlite3.h>
 #include "md5.h"
 
-#ifdef FOSSIL_ENABLE_SSL
+#if  0  /* defined FOSSIL_ENABLE_SSL */
+
+/* MD5 is deprecated in OpenSSL.  So we have to fall back to our own
+** implementation */
 
 # include <openssl/md5.h>
 # define MD5Context MD5_CTX

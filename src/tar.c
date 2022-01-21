@@ -19,12 +19,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "tar.h"
 
 /*
@@ -530,7 +525,6 @@ void tarball_of_checkin(
           zName = blob_str(&filename);
           if( listFlag ) fossil_print("%s\n", zName);
           if( pTar ){
-            sterilize_manifest(&mfile, CFTYPE_MANIFEST);
             tar_add_file(zName, &mfile, 0, mTime);
           }
         }

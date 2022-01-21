@@ -370,13 +370,8 @@ static void rebuild_tag_trunk(void){
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
 ** from scratch.
-**
-** If the randomize parameter is true, then the BLOBs are deliberately
-** extracted in a random order.  This feature is used to test the
-** ability of fossil to accept records in any order and still
-** construct a sane repository.
 */
-int rebuild_db(int randomize, int doOut, int doClustering){
+int rebuild_db(int doOut, int doClustering){
   Stmt s, q;
   int errCnt = 0;
   int incrSize;
@@ -607,14 +602,12 @@ static void reconstruct_private_table(void){
 **   --noindex         Always omit the full-text search index
 **   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
 **   --quiet           Only show output if there are errors
-**   --randomize       Scan artifacts in a random order
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
 **   --wal             Set Write-Ahead-Log journalling mode on the database
 */
 void rebuild_database(void){
   int forceFlag;
-  int randomizeFlag;
   int errCnt = 0;
   int omitVerify;
   int doClustering;
@@ -634,7 +627,6 @@ void rebuild_database(void){
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
-  randomizeFlag = find_option("randomize", 0, 0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
   runDeanalyze = find_option("deanalyze",0,0)!=0;
@@ -681,7 +673,7 @@ void rebuild_database(void){
   if( !compressOnlyFlag ){
     search_drop_index();
     ttyOutput = 1;
-    errCnt = rebuild_db(randomizeFlag, 1, doClustering);
+    errCnt = rebuild_db(1, doClustering);
     reconstruct_private_table();
   }
   db_multi_exec(
@@ -755,22 +747,68 @@ void rebuild_database(void){
 }
 
 /*
-** COMMAND: test-detach
+** COMMAND: detach*
 **
-** Usage: %fossil test-detach  ?REPOSITORY?
+** Usage: %fossil detach ?REPOSITORY?
 **
-** Change the project-code and make other changes in order to prevent
-** the repository from ever again pushing or pulling to other
-** repositories.  Used to create a "test" repository for development
-** testing by cloning a working project repository.
+** Change the project-code and make other changes to REPOSITORY so that
+** it becomes a new and distinct child project.  After being detached,
+** REPOSITORY will not longer be able to push and pull from other clones
+** of the original project.  However REPOSITORY will still be able to pull
+** from those other clones using the --from-parent-project option of the
+** "fossil pull" command.
+**
+** This is an experts-only command. You should not use this command unless
+** you fully understand what you are doing.
+**
+** The original use-case for this command was to create test repositories
+** from real-world working repositories that could be safely altered by
+** making strange commits or other changes, without having to worry that
+** those test changes would leak back into the original project via an
+** accidental auto-sync.
 */
 void test_detach_cmd(void){
+  const char *zXfer[] = {
+     "project-name",  "parent-project-name",
+     "project-code",  "parent-project-code",
+     "last-sync-url", "parent-project-url",
+     "last-sync-pw",  "parent-project-pw"
+  };
+  int i;
+  Blob ans;
+  char cReply;
   db_find_and_open_repository(0, 2);
+  prompt_user("This change will be difficult to undo. Are you sure (y/N)? ",
+              &ans);
+  cReply = blob_str(&ans)[0];
+  if( cReply!='y' && cReply!='Y' ) return;
   db_begin_transaction();
   db_unprotect(PROTECT_CONFIG);
+  for(i=0; i<ArraySize(zXfer)-1; i+=2 ){
+    db_multi_exec(
+      "REPLACE INTO config(name,value,mtime)"
+        " SELECT %Q, value, now() FROM config WHERE name=%Q",
+      zXfer[i+1], zXfer[i]
+    );
+  }
   db_multi_exec(
-    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-    "DELETE FROM config WHERE name GLOB 'sync-*:*';"
+    "DELETE FROM config WHERE name IN"
+    "(WITH pattern(x) AS (VALUES"
+    "  ('baseurl:*'),"
+    "  ('cert:*'),"
+    "  ('ckout:*'),"
+    "  ('gitpush:*'),"
+    "  ('http-auth:*'),"
+    "  ('last-sync-*'),"
+    "  ('link:*'),"
+    "  ('login-group-*'),"
+    "  ('peer-*'),"
+    "  ('subrepo:*'),"
+    "  ('sync-*'),"
+    "  ('syncfrom:*'),"
+    "  ('syncwith:*'),"
+    "  ('ssl-*')"
+    ") SELECT name FROM config, pattern WHERE name GLOB x);"
     "UPDATE config SET value=lower(hex(randomblob(20)))"
     " WHERE name='project-code';"
     "UPDATE config SET value='detached-' || value"
@@ -778,6 +816,7 @@ void test_detach_cmd(void){
   );
   db_protect_pop();
   db_end_transaction(0);
+  fossil_print("New project code: %s\n", db_get("project-code",""));
 }
 
 /*
@@ -926,22 +965,27 @@ void scrub_cmd(void){
   if( !privateOnly ){
     db_unprotect(PROTECT_ALL);
     db_multi_exec(
+      "PRAGMA secure_delete=ON;"
       "UPDATE user SET pw='';"
       "DELETE FROM config WHERE name IN"
       "(WITH pattern(x) AS (VALUES"
-      "  ('last-sync-*'),"
-      "  ('sync-*'),"
-      "  ('peer-*'),"
-      "  ('login-group-*'),"
-      "  ('skin:*'),"
-      "  ('subrepo:*'),"
-      "  ('http-auth:*'),"
+      "  ('baseurl:*'),"
       "  ('cert:*'),"
-      "  ('syncwith:*'),"
-      "  ('gitpush:*'),"
       "  ('ckout:*'),"
       "  ('draft[1-9]-*'),"
-      "  ('baseurl:*')"
+      "  ('gitpush:*'),"
+      "  ('http-auth:*'),"
+      "  ('last-sync-*'),"
+      "  ('link:*'),"
+      "  ('login-group-*'),"
+      "  ('parent-project-*'),"
+      "  ('peer-*'),"
+      "  ('skin:*'),"
+      "  ('subrepo:*'),"
+      "  ('sync-*'),"
+      "  ('syncfrom:*'),"
+      "  ('syncwith:*'),"
+      "  ('ssl-*')"
       ") SELECT name FROM config, pattern WHERE name GLOB x);"
     );
     if( bVerily ){
@@ -965,7 +1009,7 @@ void scrub_cmd(void){
     db_multi_exec("VACUUM;");
     db_protect_pop();
   }else{
-    rebuild_db(0, 1, 0);
+    rebuild_db(1, 0);
     db_end_transaction(0);
   }
 }
@@ -1257,7 +1301,7 @@ void reconstruct_cmd(void) {
   recon_read_dir(g.argv[3]);
   fossil_print("\nBuilding the Fossil repository...\n");
 
-  rebuild_db(0, 1, 1);
+  rebuild_db(1, 1);
 
   /* Backwards compatibility: Mark check-ins with "+private" tags as private. */
   reconstruct_private_table();

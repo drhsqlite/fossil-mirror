@@ -539,11 +539,13 @@ static const char zDefaultView[] =
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
+@   html "<span class='tktDspCommenter'>"
 @   html "[htmlize $xlogin]"
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
 @     html " (claiming to be [htmlize $xusername])"
 @   }
-@   html " added on $xdate:\n"
+@   html " added on $xdate:"
+@   html "</span>\n"
 @   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
 @     set r [randhex]
 @     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}

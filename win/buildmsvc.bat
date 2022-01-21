@@ -48,13 +48,13 @@ IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
 )
 
 REM
-REM Visual Studio 2017 / 2019
+REM Visual Studio 2017 / 2019 / 2022
 REM
 CALL :fn_TryUseVsWhereExe
 IF NOT DEFINED VSWHEREINSTALLDIR GOTO skip_detectVisualStudio2017
 SET VSVARS32=%VSWHEREINSTALLDIR%\Common7\Tools\VsDevCmd.bat
 IF EXIST "%VSVARS32%" (
-  %_AECHO% Using Visual Studio 2017 / 2019...
+  %_AECHO% Using Visual Studio 2017 / 2019 / 2022...
   GOTO skip_detectVisualStudio
 )
 :skip_detectVisualStudio2017
@@ -378,10 +378,10 @@ GOTO no_errors
   :skip_setVsWhereInstallDir
   %_VECHO% VsWhereInstallDir = '%VSWHEREINSTALLDIR%'
   IF NOT DEFINED VSWHEREINSTALLDIR (
-    %_AECHO% Visual Studio 2017 / 2019 is not installed.
+    %_AECHO% Visual Studio 2017 / 2019 / 2022 is not installed.
     GOTO :EOF
   )
-  %_AECHO% Visual Studio 2017 / 2019 is installed.
+  %_AECHO% Visual Studio 2017 / 2019 / 2022 is installed.
   GOTO :EOF
 
 :usage

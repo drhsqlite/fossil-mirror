@@ -76,7 +76,7 @@ artifacts:
 
 These eight structural artifact types are described in subsections below.
 
-Structural artifacts are ASCII text.  The artifact may be PGP clearsigned.
+Structural artifacts are UTF-8 text.  The artifact may be PGP clearsigned.
 After removal of the PGP clearsign header and suffix (if any) a structural
 artifact consists of one or more "cards" separated by a single newline
 (ASCII: 0x0a) character. Each card begins with a single
