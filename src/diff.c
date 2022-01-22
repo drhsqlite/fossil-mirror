@@ -277,6 +277,7 @@ static DLine *break_into_lines(
       int numws = 0;
       for(s=0; s<k && z[s]<=' '; s++){}
       a[i].indent = s;
+      a[i].nw = k - s;
       for(h=0, x=s; x<k; x++){
         char c = z[x];
         if( diff_isspace(c) ){
@@ -286,7 +287,6 @@ static DLine *break_into_lines(
         }
       }
       k -= numws;
-      a[i].nw = k - s;
     }else{
       int k2 = k & ~0x7;
       u64 m;
