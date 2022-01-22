@@ -123,8 +123,9 @@ typedef struct DLine DLine;
 struct DLine {
   const char *z;          /* The text of the line */
   u64 h;                  /* Hash of the line */
-  unsigned short indent;  /* Index of first non-space, non-control char */
+  unsigned short indent;  /* Index of first non-space */
   unsigned short n;       /* number of bytes */
+  unsigned short nw;      /* number of bytes without leading/trailing space */
   unsigned int iNext;     /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
@@ -165,8 +166,30 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*xDiffer)(const DLine*,const DLine*); /* comparison function */
+  int (*xDiffer)(DLine*,DLine*); /* comparison function */
 };
+
+/* Fast isspace for use by diff */
+static const char diffIsSpace[] = {
+  0, 0, 0, 0, 0, 0, 0, 0,   1, 1, 1, 0, 1, 1, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+};
+#define diff_isspace(X)  (diffIsSpace[(unsigned char)(X)])
 
 /*
 ** Count the number of lines in the input string.  Include the last line
@@ -248,25 +271,26 @@ static DLine *break_into_lines(
     }
     a[i].n = k;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
-      while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
+      while( k>0 && diff_isspace(z[k-1]) ){ k--; }
     }
-    for(s=0; s<k && z[s]<=' '; s++){}
-    a[i].indent = s;
     if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
       int numws = 0;
+      for(s=0; s<k && z[s]<=' '; s++){}
+      a[i].indent = s;
       for(h=0, x=s; x<k; x++){
         char c = z[x];
-        if( fossil_isspace(c) ){
+        if( diff_isspace(c) ){
           ++numws;
         }else{
           h = (h^c)*9000000000000000041LL;
         }
       }
       k -= numws;
+      a[i].nw = k - s;
     }else{
       int k2 = k & ~0x7;
       u64 m;
-      for(h=x=0; x<k2; x += 8){
+      for(h=x=s=0; x<k2; x += 8){
         memcpy(&m, z+x, 8);
         h = (h^m)*9000000000000000041LL;
       }
@@ -291,7 +315,7 @@ static DLine *break_into_lines(
 /*
 ** Return zero if two DLine elements are identical.
 */
-static int compare_dline(const DLine *pA, const DLine *pB){
+static int compare_dline(DLine *pA, DLine *pB){
   if( pA->h!=pB->h ) return 1;
   return memcmp(pA->z,pB->z, pA->h&LENGTH_MASK);
 }
@@ -302,13 +326,13 @@ static int compare_dline(const DLine *pA, const DLine *pB){
 ** to the first non-space character in the string.
 */
 
-static int compare_dline_ignore_allws(const DLine *pA, const DLine *pB){
+static int compare_dline_ignore_allws(DLine *pA, DLine *pB){
   int a = pA->indent, b = pB->indent;
   if( pA->h==pB->h ){
     while( a<pA->n || b<pB->n ){
       if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 1;
-      while( a<pA->n && fossil_isspace(pA->z[a])) ++a;
-      while( b<pB->n && fossil_isspace(pB->z[b])) ++b;
+      while( a<pA->n && diff_isspace(pA->z[a])) ++a;
+      while( b<pB->n && diff_isspace(pB->z[b])) ++b;
     }
     return pA->n-a != pB->n-b;
   }
@@ -321,7 +345,7 @@ static int compare_dline_ignore_allws(const DLine *pA, const DLine *pB){
 */
 static int re_dline_match(
   ReCompiled *pRe,      /* The regular expression to be matched */
-  const DLine *aDLine,  /* First of N DLines to compare against */
+  DLine *aDLine,  /* First of N DLines to compare against */
   int N                 /* Number of DLines to check */
 ){
   while( N-- ){
@@ -620,7 +644,7 @@ static int textLineChanges(
 */
 static int allSpaces(const char *z, int n){
   int i;
-  for(i=0; i<n && fossil_isspace(z[i]); i++){}
+  for(i=0; i<n && diff_isspace(z[i]); i++){}
   return i==n;
 }
 
@@ -691,8 +715,8 @@ static void improveReadability(
 ** third parameter.
 */
 static void oneLineChange(
-  const DLine *pLeft,  /* Left line of the change */
-  const DLine *pRight, /* Right line of the change */
+  DLine *pLeft,  /* Left line of the change */
+  DLine *pRight, /* Right line of the change */
   LineChange *p        /* OUTPUT: Write the results here */
 ){
   int nLeft;           /* Length of left line in bytes */
@@ -746,13 +770,13 @@ static void oneLineChange(
     for(i=nShort-nSuffix; i<=nPrefix; i++){
        int iVal = 0;
        char c = zLeft[i];
-       if( fossil_isspace(c) ){
+       if( diff_isspace(c) ){
          iVal += 5;
        }else if( !fossil_isalnum(c) ){
          iVal += 2;
        }
        c = zLeft[i+nGap-1];
-       if( fossil_isspace(c) ){
+       if( diff_isspace(c) ){
          iVal += 5;
        }else if( !fossil_isalnum(c) ){
          iVal += 2;
@@ -887,11 +911,11 @@ static int minInt(int a, int b){ return a<b ? a : b; }
 typedef struct DiffBuilder DiffBuilder;
 struct DiffBuilder {
   void (*xSkip)(DiffBuilder*, unsigned int, int);
-  void (*xCommon)(DiffBuilder*,const DLine*);
-  void (*xInsert)(DiffBuilder*,const DLine*);
-  void (*xDelete)(DiffBuilder*,const DLine*);
-  void (*xReplace)(DiffBuilder*,const DLine*, const DLine*);
-  void (*xEdit)(DiffBuilder*,const DLine*,const DLine*);
+  void (*xCommon)(DiffBuilder*,DLine*);
+  void (*xInsert)(DiffBuilder*,DLine*);
+  void (*xDelete)(DiffBuilder*,DLine*);
+  void (*xReplace)(DiffBuilder*,DLine*, DLine*);
+  void (*xEdit)(DiffBuilder*,DLine*,DLine*);
   void (*xEnd)(DiffBuilder*);
   unsigned int lnLeft;              /* Lines seen on the left (delete) side */
   unsigned int lnRight;             /* Lines seen on the right (insert) side */
@@ -917,23 +941,23 @@ static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
   p->lnLeft += n;
   p->lnRight += n;
 }
-static void dfdebugCommon(DiffBuilder *p, const DLine *pLine){
+static void dfdebugCommon(DiffBuilder *p, DLine *pLine){
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut, "COMMON  %8u %8u %.*s\n",
       p->lnLeft, p->lnRight, (int)pLine->n, pLine->z);
 }
-static void dfdebugInsert(DiffBuilder *p, const DLine *pLine){
+static void dfdebugInsert(DiffBuilder *p, DLine *pLine){
   p->lnRight++;
   blob_appendf(p->pOut, "INSERT           %8d %.*s\n",
       p->lnRight, (int)pLine->n, pLine->z);
 }
-static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
+static void dfdebugDelete(DiffBuilder *p, DLine *pLine){
   p->lnLeft++;
   blob_appendf(p->pOut, "DELETE  %8u          %.*s\n",
       p->lnLeft, (int)pLine->n, pLine->z);
 }
-static void dfdebugReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfdebugReplace(DiffBuilder *p, DLine *pX, DLine *pY){
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut, "REPLACE %8u          %.*s\n",
@@ -941,7 +965,7 @@ static void dfdebugReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_appendf(p->pOut, "            %8u %.*s\n",
       p->lnRight, (int)pY->n, pY->z);
 }
-static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfdebugEdit(DiffBuilder *p, DLine *pX, DLine *pY){
   int i, j;
   int x;
   LineChange chng;
@@ -1033,29 +1057,29 @@ static DiffBuilder *dfdebugNew(Blob *pOut){
 static void dftclSkip(DiffBuilder *p, unsigned int n, int isFinal){
   blob_appendf(p->pOut, "SKIP %u\n", n);
 }
-static void dftclCommon(DiffBuilder *p, const DLine *pLine){
+static void dftclCommon(DiffBuilder *p, DLine *pLine){
   blob_appendf(p->pOut, "COM ");
   blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
-static void dftclInsert(DiffBuilder *p, const DLine *pLine){
+static void dftclInsert(DiffBuilder *p, DLine *pLine){
   blob_append(p->pOut, "INS ", -1);
   blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
-static void dftclDelete(DiffBuilder *p, const DLine *pLine){
+static void dftclDelete(DiffBuilder *p, DLine *pLine){
   blob_append(p->pOut, "DEL ", -1);
   blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
-static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dftclReplace(DiffBuilder *p, DLine *pX, DLine *pY){
   blob_append(p->pOut, "EDIT \"\" ", -1);
   blob_append_tcl_literal(p->pOut, pX->z, pX->n);
   blob_append_char(p->pOut, ' ');
   blob_append_tcl_literal(p->pOut, pY->z, pY->n);
   blob_append_char(p->pOut, '\n');
 }
-static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dftclEdit(DiffBuilder *p, DLine *pX, DLine *pY){
   int i, x;
   LineChange chng;
   blob_append(p->pOut, "EDIT", 4);
@@ -1117,29 +1141,29 @@ static DiffBuilder *dftclNew(Blob *pOut){
 static void dfjsonSkip(DiffBuilder *p, unsigned int n, int isFinal){
   blob_appendf(p->pOut, "1,%u,\n", n);
 }
-static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
+static void dfjsonCommon(DiffBuilder *p, DLine *pLine){
   blob_append(p->pOut, "2,",2);
   blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
   blob_append(p->pOut, ",\n",2);
 }
-static void dfjsonInsert(DiffBuilder *p, const DLine *pLine){
+static void dfjsonInsert(DiffBuilder *p, DLine *pLine){
   blob_append(p->pOut, "3,",2);
   blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
   blob_append(p->pOut, ",\n",2);
 }
-static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
+static void dfjsonDelete(DiffBuilder *p, DLine *pLine){
   blob_append(p->pOut, "4,",2);
   blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
   blob_append(p->pOut, ",\n",2);
 }
-static void dfjsonReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfjsonReplace(DiffBuilder *p, DLine *pX, DLine *pY){
   blob_append(p->pOut, "5,[\"\",",-1);
   blob_append_json_literal(p->pOut, pX->z, (int)pX->n);
   blob_append(p->pOut, ",",1);
   blob_append_json_literal(p->pOut, pY->z, (int)pY->n);
   blob_append(p->pOut, ",\"\"],\n",-1);
 }
-static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfjsonEdit(DiffBuilder *p, DLine *pX, DLine *pY){
   int i, x;
   LineChange chng;
   blob_append(p->pOut, "5,[", 3);
@@ -1272,7 +1296,7 @@ static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
   p->lnLeft += n;
   p->lnRight += n;
 }
-static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
+static void dfunifiedCommon(DiffBuilder *p, DLine *pLine){
   dfunifiedStartRow(p);
   dfunifiedFinishDelete(p);
   dfunifiedFinishInsert(p);
@@ -1284,7 +1308,7 @@ static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
   htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
   blob_append_char(&p->aCol[2], '\n');
 }
-static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
+static void dfunifiedInsert(DiffBuilder *p, DLine *pLine){
   dfunifiedStartRow(p);
   p->lnRight++;
   blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
@@ -1293,7 +1317,7 @@ static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
   blob_append(&p->aCol[4], "</ins>\n", 7);
   p->nPending++;
 }
-static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
+static void dfunifiedDelete(DiffBuilder *p, DLine *pLine){
   dfunifiedStartRow(p);
   dfunifiedFinishInsert(p);
   if( p->eState==0 ){
@@ -1310,7 +1334,7 @@ static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
   htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
   blob_append(&p->aCol[2], "</del>\n", 7);
 }
-static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfunifiedReplace(DiffBuilder *p, DLine *pX, DLine *pY){
   dfunifiedStartRow(p);
   if( p->eState==0 ){
     dfunifiedFinishInsert(p);
@@ -1333,7 +1357,7 @@ static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append_char(&p->aCol[4], '\n');
   p->nPending++;
 }
-static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfunifiedEdit(DiffBuilder *p, DLine *pX, DLine *pY){
   int i;
   int x;
   LineChange chng;
@@ -1502,7 +1526,7 @@ static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
   p->lnLeft += n;
   p->lnRight += n;
 }
-static void dfsplitCommon(DiffBuilder *p, const DLine *pLine){
+static void dfsplitCommon(DiffBuilder *p, DLine *pLine){
   dfsplitStartRow(p);
   dfsplitChangeState(p, 0);
   p->lnLeft++;
@@ -1515,7 +1539,7 @@ static void dfsplitCommon(DiffBuilder *p, const DLine *pLine){
   htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
   blob_append_char(&p->aCol[3], '\n');
 }
-static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
+static void dfsplitInsert(DiffBuilder *p, DLine *pLine){
   dfsplitStartRow(p);
   dfsplitChangeState(p, 2);
   p->lnRight++;
@@ -1527,7 +1551,7 @@ static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
   htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
   blob_append(&p->aCol[3], "</ins>\n", 7);
 }
-static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
+static void dfsplitDelete(DiffBuilder *p, DLine *pLine){
   dfsplitStartRow(p);
   dfsplitChangeState(p, 1);
   p->lnLeft++;
@@ -1539,7 +1563,7 @@ static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
   blob_append_char(&p->aCol[2],'\n');
   blob_append_char(&p->aCol[3],'\n');
 }
-static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfsplitReplace(DiffBuilder *p, DLine *pX, DLine *pY){
   dfsplitStartRow(p);
   dfsplitChangeState(p, 3);
   p->lnLeft++;
@@ -1555,7 +1579,7 @@ static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
   htmlize_to_blob(&p->aCol[3], pY->z,  pY->n);
   blob_append_char(&p->aCol[3], '\n');
 }
-static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfsplitEdit(DiffBuilder *p, DLine *pX, DLine *pY){
   int i;
   int x;
   LineChange chng;
@@ -1657,7 +1681,7 @@ static void dfsbsSkip(DiffBuilder *p, unsigned int n, int isFinal){
 ** This comment contains multibyte unicode characters (ü, Æ, ð) in order
 ** to test the ability of the diff code to handle such characters.
 */
-static void sbs_append_chars(Blob *p, int iMin, int iMax, const DLine *pX){
+static void sbs_append_chars(Blob *p, int iMin, int iMax, DLine *pX){
   int i;
   const char *z = pX->z;
   for(i=0; i<iMax && i<pX->n; i++){
@@ -1671,7 +1695,7 @@ static void sbs_append_chars(Blob *p, int iMin, int iMax, const DLine *pX){
   }
 }
 
-static void dfsbsCommon(DiffBuilder *p, const DLine *pLine){
+static void dfsbsCommon(DiffBuilder *p, DLine *pLine){
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut,"%6u ", p->lnLeft);
@@ -1680,20 +1704,20 @@ static void dfsbsCommon(DiffBuilder *p, const DLine *pLine){
   sbs_append_chars(p->pOut, 0, p->width, pLine);
   blob_append_char(p->pOut, '\n');
 }
-static void dfsbsInsert(DiffBuilder *p, const DLine *pLine){
+static void dfsbsInsert(DiffBuilder *p, DLine *pLine){
   p->lnRight++;
   blob_appendf(p->pOut,"%6s %*s > %6u ",
      "", p->width, "", p->lnRight);
   sbs_append_chars(p->pOut, 0, p->width, pLine);
   blob_append_char(p->pOut, '\n');
 }
-static void dfsbsDelete(DiffBuilder *p, const DLine *pLine){
+static void dfsbsDelete(DiffBuilder *p, DLine *pLine){
   p->lnLeft++;
   blob_appendf(p->pOut,"%6u ", p->lnLeft);
   sbs_append_chars(p->pOut, p->width, p->width, pLine);
   blob_append(p->pOut," <\n", 3);
 }
-static void dfsbsEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+static void dfsbsEdit(DiffBuilder *p, DLine *pX, DLine *pY){
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut,"%6u ", p->lnLeft);
@@ -1734,7 +1758,7 @@ static DiffBuilder *dfsbsNew(Blob *pOut, DiffConfig *pCfg){
 **     at least 150% longer than the common prefix.
 ** (5) Longer common subsequences yield lower scores.
 */
-static int match_dline(const DLine *pA, const DLine *pB){
+static int match_dline(DLine *pA, DLine *pB){
   const char *zA;            /* Left string */
   const char *zB;            /* right string */
   int nA;                    /* Bytes in zA[] */
@@ -1749,12 +1773,26 @@ static int match_dline(const DLine *pA, const DLine *pB){
   unsigned char aFirst[256]; /* aFirst[X] = index in zB[] of first char X */
   unsigned char aNext[252];  /* aNext[i] = index in zB[] of next zB[i] char */
 
-  zA = pA->z + pA->indent;
-  zB = pB->z + pB->indent;
-  nA = pA->n - pA->indent;
-  nB = pB->n - pB->indent;
-  while( nA>0 && (unsigned char)zA[nA-1]<=' ' ){ nA--; }
-  while( nB>0 && (unsigned char)zB[nB-1]<=' ' ){ nB--; }
+  zA = pA->z;
+  if( pA->nw==0 && pA->n ){
+    for(i=0; i<pA->n && diff_isspace(zA[i]); i++){}
+    pA->indent = i;
+    for(j=pA->n-1; j>i && diff_isspace(zA[j]); j--){}
+    pA->nw = j - i + 1;
+  }
+  zA += pA->indent;
+  nA = pA->nw;
+
+  zB = pB->z;
+  if( pB->nw==0 && pB->n ){
+    for(i=0; i<pB->n && diff_isspace(zB[i]); i++){}
+    pB->indent = i;
+    for(j=pB->n-1; j>i && diff_isspace(zB[j]); j--){}
+    pB->nw = j - i + 1;
+  }
+  zB += pB->indent;
+  nB = pB->nw;
+
   if( nA>250 ) nA = 250;
   if( nB>250 ) nB = 250;
   avg = (nA+nB)/2;
@@ -1849,8 +1887,8 @@ void test_dline_match(void){
 ** mismatch.
 */
 static unsigned char *diffBlockAlignment(
-  const DLine *aLeft, int nLeft,     /* Text on the left */
-  const DLine *aRight, int nRight,   /* Text on the right */
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
   DiffConfig *pCfg,                  /* Configuration options */
   int *pNResult                      /* OUTPUT: Bytes of result */
 ){
@@ -1880,8 +1918,8 @@ static unsigned char *diffBlockAlignment(
   ** trade-off for reduced precision.
   */
   if( nLeft*nRight>DIFF_ALIGN_MX && (pCfg->diffFlags & DIFF_SLOW_SBS)==0 ){
-    const DLine *aSmall;   /* The smaller of aLeft and aRight */
-    const DLine *aBig;     /* The larger of aLeft and aRight */
+    DLine *aSmall;   /* The smaller of aLeft and aRight */
+    DLine *aBig;     /* The larger of aLeft and aRight */
     int nSmall, nBig;      /* Size of aSmall and aBig.  nSmall<=nBig */
     int iDivSmall, iDivBig;  /* Divider point for aSmall and aBig */
     int iDivLeft, iDivRight; /* Divider point for aLeft and aRight */
@@ -2025,8 +2063,8 @@ static void formatDiff(
   DiffConfig *pCfg,      /* Configuration options */
   DiffBuilder *pBuilder  /* The formatter object */
 ){
-  const DLine *A;        /* Left side of the diff */
-  const DLine *B;        /* Right side of the diff */
+  DLine *A;        /* Left side of the diff */
+  DLine *B;        /* Right side of the diff */
   unsigned int a = 0;    /* Index of next line in A[] */
   unsigned int b = 0;    /* Index of next line in B[] */
   const int *R;          /* Array of COPY/DELETE/INSERT triples */
