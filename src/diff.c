@@ -123,7 +123,7 @@ typedef struct DLine DLine;
 struct DLine {
   const char *z;          /* The text of the line */
   u64 h;                  /* Hash of the line */
-  unsigned short indent;  /* Indent of the line. Only !=0 with -w/-Z option */
+  unsigned short indent;  /* Index of first non-space, non-control char */
   unsigned short n;       /* number of bytes */
   unsigned int iNext;     /* 1+(Index of next line with same the same hash) */
 
@@ -247,13 +247,13 @@ static DLine *break_into_lines(
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
     a[i].n = k;
-    s = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
     }
+    for(s=0; s<k && z[s]<=' '; s++){}
+    a[i].indent = s;
     if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
       int numws = 0;
-      while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
         char c = z[x];
         if( fossil_isspace(c) ){
@@ -266,7 +266,7 @@ static DLine *break_into_lines(
     }else{
       int k2 = k & ~0x7;
       u64 m;
-      for(h=0, x=s; x<k2; x += 8){
+      for(h=x=0; x<k2; x += 8){
         memcpy(&m, z+x, 8);
         h = (h^m)*9000000000000000041LL;
       }
@@ -274,7 +274,6 @@ static DLine *break_into_lines(
       memcpy(&m, z+x, k-k2);
       h ^= m;
     }
-    a[i].indent = s;
     a[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
@@ -1750,13 +1749,11 @@ static int match_dline(const DLine *pA, const DLine *pB){
   unsigned char aFirst[256]; /* aFirst[X] = index in zB[] of first char X */
   unsigned char aNext[252];  /* aNext[i] = index in zB[] of next zB[i] char */
 
-  zA = pA->z;
-  zB = pB->z;
-  nA = pA->n;
-  nB = pB->n;
-  while( nA>0 && (unsigned char)zA[0]<=' ' ){ nA--; zA++; }
+  zA = pA->z + pA->indent;
+  zB = pB->z + pB->indent;
+  nA = pA->n - pA->indent;
+  nB = pB->n - pB->indent;
   while( nA>0 && (unsigned char)zA[nA-1]<=' ' ){ nA--; }
-  while( nB>0 && (unsigned char)zB[0]<=' ' ){ nB--; zB++; }
   while( nB>0 && (unsigned char)zB[nB-1]<=' ' ){ nB--; }
   if( nA>250 ) nA = 250;
   if( nB>250 ) nB = 250;
