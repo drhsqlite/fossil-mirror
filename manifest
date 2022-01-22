@@ -1,5 +1,5 @@
-C Link\swsl_caveats.wiki\sinto\s"Links\sFor\sFossil\sUsers"
-D 2022-01-22T21:46:27.975
+C Remove\sexpired\slink\sin\suserlinks.wiki
+D 2022-01-22T22:37:10.643
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -962,7 +962,7 @@ F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
 F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d925966c
-F www/userlinks.wiki e1cd41f4311fb4008222a6c959dbc09464e872f9a912c86f98bf95e437f63d8d
+F www/userlinks.wiki adcb3fef040a87b554a8cdbf865fa0501001fd7902d3773a7044643152ee85af
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki 0391dc7a5212e72cfd32500fca8acea045e51848ec3e76fd36ff5e3883c453bd
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6eeb7ec10e32d904aa828f6c4774ab963e10eae85ec256b22c50ca4f102d9fcd
-R ab4333557cdf9b5e69bffe7cef87c5b4
+P 70ca1ce4d281ca4f39148d531e8ea30e594bdd679c208220f9a25115923e9e6a
+R 791af1fb50a20fc8499f8b577cc2f1bd
 U larrybr
-Z 1bb475a3afad5c1cc779ee51a9ac072f
+Z 6ca3ab3688843df270838b7c8d8d312f
 # Remove this line to create a well-formed Fossil manifest.
