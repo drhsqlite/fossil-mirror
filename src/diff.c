@@ -1857,6 +1857,165 @@ void test_dline_match(void){
   fossil_print("%d\n", x);
 }
 
+/* Forward declarations for recursion */
+static unsigned char *diffBlockAlignment(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+);
+static void longestCommonSequence(
+  DContext *p,               /* Two files being compared */
+  int iS1, int iE1,          /* Range of lines in p->aFrom[] */
+  int iS2, int iE2,          /* Range of lines in p->aTo[] */
+  int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
+  int *piSY, int *piEY       /* Write p->aTo[] common segment here */
+);
+
+/*
+** Make a copy of a list of nLine DLine objects from one array to
+** another.  Hash the new array to ignore whitespace.
+*/
+static void diffDLineXfer(
+  DLine *aTo,
+  const DLine *aFrom,
+  int nLine
+){
+  int i, j, k;
+  u64 h, h2;
+  for(i=0; i<nLine; i++) aTo[i].iHash = 0;
+  for(i=0; i<nLine; i++){
+    const char *z = aFrom[i].z;
+    int n = aFrom[i].n;
+    for(j=0; j<n && diff_isspace(z[j]); j++){}
+    aTo[i].z = &z[j];
+    for(k=aFrom[i].n; k>j && diff_isspace(z[k-1]); k--){}
+    aTo[i].n = n = k-j;
+    aTo[i].indent = 0;
+    aTo[i].nw = 0;
+    for(h=0; j<k; j++){
+      char c = z[j];
+      if( !diff_isspace(c) ){
+        h = (h^c)*9000000000000000041LL;
+      }
+    }
+    aTo[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | n;
+    h2 = h % nLine;
+    aTo[i].iNext = aTo[h2].iHash;
+    aTo[h2].iHash = i+1;
+  }
+}
+
+
+/*
+** For a difficult diff-block alignment that was originally for
+** the default consider-all-whitespace algorithm, try to find the
+** longest common subsequence between the two blocks that involves
+** only whitespace changes.
+*/
+static unsigned char *diffBlockAlignmentIgnoreSpace(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+){
+  DContext dc;
+  int iSX, iEX;                /* Start and end of LCS on the left */
+  int iSY, iEY;                /* Start and end of the LCS on the right */
+  unsigned char *a1, *a2;
+  int n1, n2, nLCS;
+
+  dc.aEdit = 0;
+  dc.nEdit = 0;
+  dc.nEditAlloc = 0;
+  dc.nFrom = nLeft;
+  dc.nTo = nRight;
+  dc.xDiffer = compare_dline_ignore_allws;
+  dc.aFrom = fossil_malloc( sizeof(DLine)*(nLeft+nRight) );
+  dc.aTo = &dc.aFrom[dc.nFrom];
+  diffDLineXfer(dc.aFrom, aLeft, nLeft);
+  diffDLineXfer(dc.aTo, aRight, nRight);
+  longestCommonSequence(&dc,0,nLeft,0,nRight,&iSX,&iEX,&iSY,&iEY);
+  fossil_free(dc.aFrom);
+  nLCS = iEX - iSX;
+  if( nLCS<5 ) return 0;   /* No good LCS was found */
+
+  a1 = diffBlockAlignment(aLeft,iSX,aRight,iSY,pCfg,&n1);
+  a2 = diffBlockAlignment(aLeft+iEX, nLeft-iEX,
+                          aRight+iEY, nRight-iEY,
+                          pCfg, &n2);
+  a1 = fossil_realloc(a1, n1+nLCS+n2);
+  memcpy(a1+n1+nLCS,a2,n2);
+  memset(a1+n1,3,nLCS);
+  fossil_free(a2);
+  *pNResult = n1+n2+nLCS;
+  return a1;
+}
+
+
+/*
+** This is a helper route for diffBlockAlignment().  In this case,
+** a very large block is encountered that might be too expensive to
+** use the O(N*N) Wagner edit distance algorithm.  So instead, this
+** block implements a less-precise but faster O(N*logN) divide-and-conquer
+** approach.
+*/
+static unsigned char *diffBlockAlignmentDivideAndConquer(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+){
+  DLine *aSmall;               /* The smaller of aLeft and aRight */
+  DLine *aBig;                 /* The larger of aLeft and aRight */
+  int nSmall, nBig;            /* Size of aSmall and aBig.  nSmall<=nBig */
+  int iDivSmall, iDivBig;      /* Divider point for aSmall and aBig */
+  int iDivLeft, iDivRight;     /* Divider point for aLeft and aRight */
+  unsigned char *a1, *a2;      /* Results of the alignments on two halves */
+  int n1, n2;                  /* Number of entries in a1 and a2 */
+  int score, bestScore;        /* Score and best score seen so far */
+  int i;                       /* Loop counter */
+
+  if( nLeft>nRight ){
+    aSmall = aRight;
+    nSmall = nRight;
+    aBig = aLeft;
+    nBig = nLeft;
+  }else{
+    aSmall = aLeft;
+    nSmall = nLeft;
+    aBig = aRight;
+    nBig = nRight;
+  }
+  iDivBig = nBig/2;
+  iDivSmall = nSmall/2;
+  bestScore = 10000;
+  for(i=0; i<nSmall; i++){
+    score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
+    if( score<bestScore ){
+      bestScore = score;
+      iDivSmall = i;
+    }
+  }
+  if( aSmall==aRight ){
+    iDivRight = iDivSmall;
+    iDivLeft = iDivBig;
+  }else{
+    iDivRight = iDivBig;
+    iDivLeft = iDivSmall;
+  }
+  a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,pCfg,&n1);
+  a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
+                          aRight+iDivRight, nRight-iDivRight,
+                          pCfg, &n2);
+  a1 = fossil_realloc(a1, n1+n2 );
+  memcpy(a1+n1,a2,n2);
+  fossil_free(a2);
+  *pNResult = n1+n2;
+  return a1;
+}
+
+
 /*
 ** The threshold at which diffBlockAlignment transitions from the
 ** O(N*N) Wagner minimum-edit-distance algorithm to a less process
@@ -1914,57 +2073,18 @@ static unsigned char *diffBlockAlignment(
     return aM;
   }
 
-  /* For large alignments, use a divide and conquer algorithm that is
-  ** O(NlogN).  The result is not as precise, but this whole thing is an
-  ** approximation anyhow, and the faster response time is an acceptable
-  ** trade-off for reduced precision.
+  /* For large alignments, try to use alternative algorithms that are
+  ** faster than the O(N*N) Wagner edit distance.
   */
   if( nLeft*nRight>DIFF_ALIGN_MX && (pCfg->diffFlags & DIFF_SLOW_SBS)==0 ){
-    DLine *aSmall;           /* The smaller of aLeft and aRight */
-    DLine *aBig;             /* The larger of aLeft and aRight */
-    int nSmall, nBig;        /* Size of aSmall and aBig.  nSmall<=nBig */
-    int iDivSmall, iDivBig;  /* Divider point for aSmall and aBig */
-    int iDivLeft, iDivRight; /* Divider point for aLeft and aRight */
-    unsigned char *a1, *a2;  /* Results of the alignments on two halves */
-    int n1, n2;              /* Number of entries in a1 and a2 */
-    int score, bestScore;    /* Score and best score seen so far */
-    if( nLeft>nRight ){
-      aSmall = aRight;
-      nSmall = nRight;
-      aBig = aLeft;
-      nBig = nLeft;
-    }else{
-      aSmall = aLeft;
-      nSmall = nLeft;
-      aBig = aRight;
-      nBig = nRight;
+    if( (pCfg->diffFlags & DIFF_IGNORE_ALLWS)==0 ){
+      unsigned char *aRes;
+      aRes = diffBlockAlignmentIgnoreSpace(
+                 aLeft, nLeft,aRight, nRight,pCfg,pNResult);
+      if( aRes ) return aRes;
     }
-    iDivBig = nBig/2;
-    iDivSmall = nSmall/2;
-    bestScore = 10000;
-    for(i=0; i<nSmall; i++){
-      score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
-      if( score<bestScore ){
-        bestScore = score;
-        iDivSmall = i;
-      }
-    }
-    if( aSmall==aRight ){
-      iDivRight = iDivSmall;
-      iDivLeft = iDivBig;
-    }else{
-      iDivRight = iDivBig;
-      iDivLeft = iDivSmall;
-    }
-    a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,pCfg,&n1);
-    a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
-                            aRight+iDivRight, nRight-iDivRight,
-                            pCfg, &n2);
-    a1 = fossil_realloc(a1, n1+n2 );
-    memcpy(a1+n1,a2,n2);
-    fossil_free(a2);
-    *pNResult = n1+n2;
-    return a1;
+    return diffBlockAlignmentDivideAndConquer(
+                 aLeft, nLeft,aRight, nRight,pCfg,pNResult);
   }
 
   /* If we reach this point, we will be doing an O(N*N) Wagner minimum
