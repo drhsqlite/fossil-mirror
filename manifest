@@ -1,5 +1,5 @@
-C When\strying\sto\sdo\san\salignment\sof\slarge\sblocks,\sfirst\stry\san\sLCS\son\sthe\nsame\sblock\susing\san\signore-whitespace\scomparison.\s\sIf\sa\slarge\sLCS\sis\sfound,\nuse\sthat\sto\ssubdivide\sthe\sproblem.\s\sOtherwise,\scontinue\swith\sthe\susual\ndivide-and-conquer\stechnique.
-D 2022-01-23T04:12:45.386
+C Additional\salignment\sdebugging\sinformation\soutput\sfor\s"fossil\sdiff\s--debug".
+D 2022-01-23T11:29:31.781
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -437,7 +437,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 8c83bc6b9ca48ae0ba2d4742a19d9dfe778d17f01fb4c024e581ae538177b08c
+F src/diff.c ab37533b1db0487e90534ad49cb12a93cb586410430409c547119add5f8fa8e2
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c c2d2deb1341d9f954c0107267daf2dddf07e2bcf62d23f73bd160d1a510876c0
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki 0391dc7a5212e72cfd32500fca8acea045e51848ec3e76fd36ff5e3883c453bd
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fbdbc09b402b19de63889436358041870aa6efe2a9bca7dd16db345ed8e1538c
-R aacda034fbfaccdbe228c6ab8d71ad44
+P c311efef078c87339dca5b919167d9fa9d94682c77279fa9cfdd97ec9177f2c2
+R c240327ef39bb82d4134ae0500f17739
 U drh
-Z 07aea9699f07d0118586d24224fcca3c
+Z 66ceb0f092424d562befc5a9f908da41
 # Remove this line to create a well-formed Fossil manifest.

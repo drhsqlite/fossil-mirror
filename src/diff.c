@@ -1824,7 +1824,7 @@ static int match_dline(DLine *pA, DLine *pB){
       if( k>best ) best = k;
     }
   }
-  score = (best>=avg) ? 0 : (avg - best)*100/avg;
+  score = 5 + ((best>=avg) ? 0 : (avg - best)*95/avg);
 
 #if 0
   fprintf(stderr, "A: [%.*s]\nB: [%.*s]\nbest=%d avg=%d score=%d\n",
@@ -1940,6 +1940,14 @@ static unsigned char *diffBlockAlignmentIgnoreSpace(
   nLCS = iEX - iSX;
   if( nLCS<5 ) return 0;   /* No good LCS was found */
 
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+     fossil_print("   LCS size=%d\n"
+                  "     [%.*s]\n"
+                  "     [%.*s]\n",
+                  nLCS, aLeft[iSX].n, aLeft[iSX].z,
+                  aLeft[iEX-1].n, aLeft[iEX-1].z);
+  }
+
   a1 = diffBlockAlignment(aLeft,iSX,aRight,iSY,pCfg,&n1);
   a2 = diffBlockAlignment(aLeft+iEX, nLeft-iEX,
                           aRight+iEY, nRight-iEY,
@@ -1989,6 +1997,12 @@ static unsigned char *diffBlockAlignmentDivideAndConquer(
   }
   iDivBig = nBig/2;
   iDivSmall = nSmall/2;
+
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+    fossil_print("  Divide at [%.*s]\n", 
+                 aBig[iDivBig].n, aBig[iDivBig].z);
+  }
+
   bestScore = 10000;
   for(i=0; i<nSmall; i++){
     score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
@@ -2071,6 +2085,12 @@ static unsigned char *diffBlockAlignment(
     memset(aM, 1, nLeft);
     *pNResult = nLeft;
     return aM;
+  }
+
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+    fossil_print("BlockAlignment:\n   [%.*s] + %d\n   [%.*s] + %d\n",
+                 aLeft[0].n, aLeft[0].z, nLeft,
+                 aRight[0].n, aRight[0].z, nRight);
   }
 
   /* For large alignments, try to use alternative algorithms that are
