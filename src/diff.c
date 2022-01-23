@@ -2591,6 +2591,62 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 }
 
 /*
+** A common subsequene between p->aFrom and p->aTo has been found.
+** This routine tries to judge if the subsequence really is a valid
+** match or rather is just an artifact of an indentation change.
+**
+** Return non-zero if the subsequence is valid.  Return zero if the
+** subsequence seems likely to be an editing artifact and should be
+** ignored.
+**
+** This routine is a heuristic optimization intended to give more
+** intuitive diff results following an indentation change it code that
+** is formatted similarly to C/C++, Javascript, Go, TCL, and similar
+** languages that use {...} for nesting.  A correct diff is computed
+** even if this routine always returns true (non-zero).  But sometimes
+** a more intuitive diff can result if this routine returns false.
+**
+** The subsequences consists of the rows iSX through iEX-1 (inclusive)
+** in p->aFrom[].  The total sequences is iS1 through iE1-1 (inclusive)
+** of p->aFrom[].
+**
+** Example where this heuristic is useful, see the diff at
+** https://www.sqlite.org/src/fdiff?v1=0e79dd15cbdb4f48&v2=33955a6fd874dd97
+**
+** See also discussion at https://fossil-scm.org/forum/forumpost/9ba3284295
+**
+** ALGORITHM (subject to change and refinement):
+**
+**    1.  If the subsequence is larger than 1/7th of the original span,
+**        then consider it valid.  --> return 1
+**
+**    2.  If the subsequence contains any charaters other than '}', '{",
+**        or whitespace, then consider it valid. --> return 1
+**
+**    3.  Otherwise, it is potentially an artifact of an indentation
+**        change. --> return 0
+*/
+static int likelyNotIndentChngArtifact(
+  DContext *p,     /* The complete diff context */
+  int iS1,         /* Start of the main segment */
+  int iSX,         /* Start of the subsequence */
+  int iEX,         /* First row past the end of the subsequence */
+  int iE1          /* First row past the end of the main segment */
+){
+  int i, j;
+  if( (iEX-iSX)*7 >= (iE1-iS1) ) return 1;
+  for(i=iSX; i<iEX; i++){
+    const char *z = p->aFrom[i].z;
+    for(j=p->aFrom[i].n-1; j>=0; j--){
+      char c = z[j];
+      if( c!='}' && c!='{' && !diff_isspace(c) ) return 1;
+    }
+  }
+  return 0;
+}
+
+
+/*
 ** Do a single step in the difference.  Compute a sequence of
 ** copy/delete/insert steps that will convert lines iS1 through iE1-1 of
 ** the input into lines iS2 through iE2-1 of the output and write
@@ -2621,7 +2677,9 @@ static void diff_step(DContext *p, int iS1, int iE1, int iS2, int iE2){
   /* Find the longest matching segment between the two sequences */
   longestCommonSequence(p, iS1, iE1, iS2, iE2, &iSX, &iEX, &iSY, &iEY);
 
-  if( iEX>iSX ){
+  if( iEX>iSX+5
+   || (iEX>iSX && likelyNotIndentChngArtifact(p,iS1,iSX,iEX,iE1) )
+  ){
     /* A common segment has been found.
     ** Recursively diff either side of the matching segment */
     diff_step(p, iS1, iSX, iS2, iSY);
