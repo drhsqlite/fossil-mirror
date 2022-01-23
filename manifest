@@ -1,5 +1,5 @@
-C Remove\sexpired\slink\sin\suserlinks.wiki
-D 2022-01-22T22:37:10.643
+C Another\sfollow-up\sto\scommits\s[85cfdd192a]\sand\s[6eeb7ec10e]:\sIn\sthe\sdocument\sto\sexplain\show\sFossil\sreads\senvironment\svariables\sto\scustomize\sits\sbehavior,\sdo\snot\smention\show\sFossil\swrites\senvironment\svariables\sto\scustomize\sthe\sbehavior\sof\sCGI\sprograms,\sas\sthat\sseems\soff-topic\sand\sconfusing.
+D 2022-01-23T09:16:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -833,7 +833,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
-F www/env-opts.md 8a3593c3f06b8d2b1813689a5ec622aeb0a3b6ab280d8a74a7da2c067caffce9
+F www/env-opts.md a6e30ef920d2b2c623c9f7a9ea3b737eb6355d34c3657c48afca9ff7c950111d
 F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e360
 F www/faq.tcl 144b3860f55d014da205fdb486f3774040662507a9ae5eae6e364b145a7cc860
 F www/faq.wiki 2e7d144c6e09aa720bf05042fd00ddcca8770d5be37ec216acbde0d8074686f2
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki 0391dc7a5212e72cfd32500fca8acea045e51848ec3e76fd36ff5e3883c453bd
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70ca1ce4d281ca4f39148d531e8ea30e594bdd679c208220f9a25115923e9e6a
-R 791af1fb50a20fc8499f8b577cc2f1bd
-U larrybr
-Z 6ca3ab3688843df270838b7c8d8d312f
+P 1a370bc3d05e96036d2ac6414c10526967b245816b9d455b8e077866e035cfea
+R 0a59124beb8fd3c30a6515a70e1d322e
+U florian
+Z 7d227a07a02b933836aa43e1c9260e02
 # Remove this line to create a well-formed Fossil manifest.

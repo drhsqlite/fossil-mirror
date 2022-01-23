@@ -313,12 +313,6 @@ for some further discussion.
 
 [json.c]: /artifact/6df1d80dece8968b?ln=277,290
 
-### CGI Server Extensions
-
-The [CGI Server Extensions](/doc/trunk/www/serverext.wiki) feature passes
-parameters to the CGI program using environment variables, as listed in
-the [CGI Inputs](/doc/trunk/www/serverext.wiki#cgi-inputs) section.
-
 ### Comment Editor
 
 The editor used to edit a check-in or stash comment is named by the
