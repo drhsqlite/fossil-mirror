@@ -325,10 +325,12 @@ static int compare_dline(const DLine *pA, const DLine *pB){
 ** all whitespace. The indent field of pA/pB already points
 ** to the first non-space character in the string.
 */
-
 static int compare_dline_ignore_allws(const DLine *pA, const DLine *pB){
-  int a = pA->indent, b = pB->indent;
   if( pA->h==pB->h ){
+    int a, b;
+    if( memcmp(pA->z, pB->z, pA->h&LENGTH_MASK)==0 ) return 0;
+    a = pA->indent;
+    b = pB->indent;
     while( a<pA->n || b<pB->n ){
       if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 1;
       while( a<pA->n && diff_isspace(pA->z[a])) ++a;
