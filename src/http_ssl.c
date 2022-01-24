@@ -772,7 +772,6 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
 
 typedef struct SslServerConn {
   SSL *ssl;          /* The SSL codec */
-  int atEof;         /* True when EOF reached. */
   int iSocket;       /* The socket */
   BIO *bio;          /* BIO object. Needed for EOF detection. */
 } SslServerConn;
@@ -786,7 +785,6 @@ void *ssl_new_server(int iSocket){
   SslServerConn *pServer = fossil_malloc_zero(sizeof(*pServer));
   BIO *b = BIO_new_socket(iSocket, 0);
   pServer->ssl = SSL_new(sslCtx);
-  pServer->atEof = 0;
   pServer->iSocket = iSocket;
   pServer->bio = b;
   SSL_set_bio(pServer->ssl, b, b);
@@ -809,7 +807,7 @@ void ssl_close_server(void *pServerArg){
 */
 int ssl_eof(void *pServerArg){
   SslServerConn *pServer = (SslServerConn*)pServerArg;
-  return pServer->atEof;
+  return BIO_eof(pServer->bio);
 }
 
 /*
@@ -821,16 +819,15 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
   size_t rc = 0;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
   if( nBuf>0x7fffffff ){ fossil_fatal("SSL read too big"); }
-  while( 0==err && nBuf!=rc && 0==pServer->atEof ){
+  else if( BIO_eof(pServer->bio) ) return 0;
+  while( 0==err && nBuf!=rc ){
     n = SSL_read(pServer->ssl, zBuf + rc, (int)(nBuf - rc));
     if( n==0 ){
-      pServer->atEof = 1;
       break;
     }
     err = SSL_get_error(pServer->ssl, n);
     if(0==err){
       rc += n;
-      pServer->atEof = BIO_eof(pServer->bio);
     }else{
       fossil_fatal("SSL read error.");
     }
@@ -845,8 +842,8 @@ char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
   int n = 0;
   int i;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
-  
-  if( pServer->atEof ) return 0;
+
+  if( BIO_eof(pServer->bio) ) return 0;
   for(i=0; i<nBuf-1; i++){
     n = SSL_read(pServer->ssl, &zBuf[i], 1);
     if( n<=0 ){
