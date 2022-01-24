@@ -822,14 +822,6 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
   else if( BIO_eof(pServer->bio) ) return 0;
   while( nBuf!=rc ){
     n = SSL_read(pServer->ssl, zBuf + rc, (int)(nBuf - rc));
-#ifdef _WIN32
-    /* Windows (XP and 10 tested with openssl 1.1.1m and 3.0.1) does
-    ** not require reading in a loop, returning all data in a single
-    ** call. If we read in a loop on Windows, SSL reads fail. Details:
-    ** https://fossil-scm.org/forum/forumpost/2f818850abb72719 */
-    rc += n;
-    break;
-#else
     if( n==0 ){
       break;
     }else if(n>0){
@@ -837,6 +829,12 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
     }else{
       fossil_fatal("SSL read error.");
     }
+#ifdef _WIN32
+    /* Windows (XP and 10 tested with openssl 1.1.1m and 3.0.1) does
+    ** not require reading in a loop, returning all data in a single
+    ** call. If we read in a loop on Windows, SSL reads fail. Details:
+    ** https://fossil-scm.org/forum/forumpost/2f818850abb72719 */
+    break;
 #endif
   }
   return rc;
