@@ -1385,7 +1385,9 @@ void cgi_init(void){
     }
 #endif /* FOSSIL_ENABLE_JSON */
     else{
-      blob_read_from_cgi(&g.cgiIn, len);
+      if( blob_read_from_cgi(&g.cgiIn, len)!=len ){
+        malformed_request("CGI content-length mismatch");
+      }
     }
   }
 }

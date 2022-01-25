@@ -822,12 +822,10 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
   else if( BIO_eof(pServer->bio) ) return 0;
   while( nBuf!=rc ){
     n = SSL_read(pServer->ssl, zBuf + rc, (int)(nBuf - rc));
-    if( n==0 ){
+    if( n<=0 ){
       break;
     }else if(n>0){
       rc += n;
-    }else{
-      fossil_fatal("SSL read error.");
     }
 #ifdef _WIN32
     /* Windows (XP and 10 tested with openssl 1.1.1m and 3.0.1) does
