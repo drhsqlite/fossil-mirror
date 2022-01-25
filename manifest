@@ -1,5 +1,5 @@
-C ssl_read_server()\snow\sreturns\s0\son\sread\serror\sand\slets\sthe\shigher-level\scode\sdeal\swith\sthe\sshort\sread.\sThis\smight\sresolve\sthe\sissue\sunder\sdiscussion\sin\s[forum:/forumpost/2f818850abb72719\s|\sforum\spost\s2f818850abb72719].
-D 2022-01-25T18:14:03.118
+C Corrected\sparsing\sof\s/json-mode\sPOST\sdata\sin\sTLS\smode.\sExtended\s/json/wiki/preview\sto\ssupport\sa\smimetype\soption.
+D 2022-01-25T19:36:45.061
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -416,7 +416,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 2c29bdd86cfdce6ae746d8271ce8cca7ba52a08f30ca7cc27a7533440e8ee1a4
+F src/cgi.c 485c628194768c1a6fec15a712a81784cbcf763be0f8a5cc92b60df037b48e6c
 F src/chat.c 945f4a5cb866b5cec32d8043fdb8226bb73aa1ea04cf142e8572857530e10573
 F src/checkin.c 4dc8519e881827fd2ca6cc243045c32fe77e92460749b929a432b78acaa5c018
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
@@ -491,7 +491,7 @@ F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
 F src/interwiki.c 9cbaedb286b1bec3eef15cc9be0f4240ae3bec1d8d832c8b53ec280731474d0e
-F src/json.c d486eccbd3ef8707bf437fd0d180d66524165c89f321deed7ac957042b973c99
+F src/json.c bdd2baa0ba08d29b7771a60f335b9907f3b1a4174bb621ef7079fc27beac0206
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c ade71599eeb430bac4b055ceee73b06e7499f6a63a1bfb9bb5787dc213c0fac5
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
@@ -506,7 +506,7 @@ F src/json_status.c 91593f5f65d4c146ebbcde800979b8e9a2623ae2e331ecb6d5aee4c3ff8f
 F src/json_tag.c e5831408c4967d13d949c6296d0f6c3bde69ecb2d1d67285128d04112ab94d70
 F src/json_timeline.c 25f5da14306f30a3ce31a8e2448708affddb0ba7f13be29fb7cdaae5383df762
 F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdecf9
-F src/json_wiki.c 3cc84b51428b93b6a6830747e1fd8a63eb26b02d27e2d07401d17e812d5cedb9
+F src/json_wiki.c 32a902096d496725781b9aeff5cbf5245d8e662b8785969020a66dbfde04f2f1
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
@@ -890,7 +890,7 @@ F www/json-api/api-ticket.md cca42b8a84488f474f7fa806996bee5a47b117129059a90a6b0
 F www/json-api/api-timeline.md 2b3190e7acaa6107db34e212dc248a641f08c91b5e00f19d3ae353d949065d74
 F www/json-api/api-user.md 73bb8d8fc50a5214ef8c19c7277d71f5538705d9337fef05314b126f71003ff1
 F www/json-api/api-version.md 25fd79470bbab485de7ffddfa658d923be0aa514f86e0b4d3570c5bf2f06f6d6
-F www/json-api/api-wiki.md b2e44efaf926e3089dbafabfe1ddcd14a866ba6b139ebf765f9ddd87df15f507
+F www/json-api/api-wiki.md b96ed708d50b3c54d0e223291e6ea3d788613e1393d5306beeba77e84b3e3172
 F www/json-api/conventions.md 53a8506dc13c23867f6e75f6f80cb2740f39273ab32df64d921a5eb745bd4f5a
 F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029e03be74080
 F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc4d605802
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 605064e656ca56c47dd686555d5262db568c8fb7d1885a83a06d2b517a104416
-R 4cf5253a9d52f54172e98af4eb651b71
+P acffc8f7858254ebb5c0c06b6af79fbc56085d5d4740047ca5aa46dc89e31689
+R ec59da0c7747393681edba0e7a1f70be
 U stephan
-Z 82a2e009f2cb3146fa0f149da2c4ca0a
+Z a663aeca17e3c26851ce7689d127dc91
 # Remove this line to create a well-formed Fossil manifest.

@@ -168,6 +168,9 @@ included in the response (only the metadata).
     Content is required for save (unless `createIfNotExists` is true *and*
     the page does not exist), optional for create. It *may* be an empty
     string.
+-   `mimetype=string` specifies the mimetype for the body, noting any any
+    unrecognized/unsupported mimetype is silently treated as
+    `text/x-fossil-wiki`.
 -   Save (not create) supports a `createIfNotExists` boolean option which
     makes it a functional superset of the create/save features. i.e. it
     will create if needed, else it will update. If createIfNotExists is
@@ -181,6 +184,7 @@ included in the response (only the metadata).
 -   **Potential TODO:** we *could* optionally also support
     multi-page saving using an array of pages in the request payload:\  
     `[… page objects … ]`
+
 
 
 <a id="diffs"></a>
@@ -240,23 +244,24 @@ This command wiki-processes arbitrary text sent from the client. To help
 curb potential abuse, its use is restricted to those with "k" access
 rights.
 
-The `POST.payload` property must be a string containing Fossil wiki
-markup. The response payload is also a string, but contains the
-HTML-processed form of the string. Whether or not "all HTML" is allowed
-depends on site-level configuration options, and that changes how the
-input is processed.
+The `POST.payload` property must be either:
+
+1) A string containing Fossil wiki markup.
+
+2) An Object with a `body` property holding the text to render and a
+   `mimetype` property describing the wiki format:
+   `text/x-fossil-wiki` (the default), `text/x-markdown`, or
+   `text/plain`. Any unknown type is treated as `text/x-fossil-wiki`.
+
+The response payload is a string containing the rendered page. Whether
+or not "all HTML" is allowed depends on site-level configuration
+options, and that changes how the input is processed.
 
 Note that the links in the generated page are for the HTML interface,
 and will not work as-is for arbitrary JSON clients. In order to
 integrate the parsed content with JSON-based clients the HTML will
 probably need to be post-processed, e.g. using jQuery to fish out the
 links and re-map wiki page links to a JSON-capable page handler.
-
-**TODO**: Update this to accept the other two wiki formats (which
-didn't exist when this API was implemented): markdown and plain text
-(which gets HTML-ized for preview purposes). That requires changing
-the payload to an object, perhaps simply submitting the same thing as
-`/json/save`. There's no reason we can't support both call forms.
 
 
 <a id="todo"></a>
