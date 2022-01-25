@@ -12165,6 +12165,7 @@ struct ShellState {
   u8 bSafeModePersist;   /* The long-term value of bSafeMode */
   unsigned statsOn;      /* True to display memory stats before each finalize */
   unsigned mEqpLines;    /* Mask of veritical lines in the EQP output graph */
+  int inputNesting;      /* Track nesting level of .read and other redirects */
   int outCount;          /* Revert to stdout when reaching zero */
   int cnt;               /* Number of records displayed so far */
   int lineno;            /* Line number of last line read from in */
@@ -12328,6 +12329,12 @@ static const char *modeDescr[] = {
 #define SEP_CrLf      "\r\n"
 #define SEP_Unit      "\x1F"
 #define SEP_Record    "\x1E"
+
+/*
+** Limit input nesting via .read or any other input redirect.
+** It's not too expensive, so a generous allowance can be made.
+*/
+#define MAX_INPUT_NESTING 25
 
 /*
 ** A callback for the sqlite3_log() interface.
@@ -15149,6 +15156,7 @@ static const char *(azHelp[]) = {
   "     --ascii               Use \\037 and \\036 as column and row separators",
   "     --csv                 Use , and \\n as column and row separators",
   "     --skip N              Skip the first N rows of input",
+  "     --schema S            Target table to be S.TABLE",
   "     -v                    \"Verbose\" - increase auxiliary output",
   "   Notes:",
   "     *  If TABLE does not exist, it is created.  The first row of input",
@@ -19461,6 +19469,7 @@ static int do_meta_command(char *zLine, ShellState *p){
 
   if( c=='i' && strncmp(azArg[0], "import", n)==0 ){
     char *zTable = 0;           /* Insert data into this table */
+    char *zSchema = "main";     /* within this schema */
     char *zFile = 0;            /* Name of file to extra content from */
     sqlite3_stmt *pStmt = NULL; /* A statement */
     int nCol;                   /* Number of columns in the table */
@@ -19503,6 +19512,8 @@ static int do_meta_command(char *zLine, ShellState *p){
         }
       }else if( strcmp(z,"-v")==0 ){
         eVerbose++;
+      }else if( strcmp(z,"-schema")==0 && i<nArg-1 ){
+        zSchema = azArg[++i];
       }else if( strcmp(z,"-skip")==0 && i<nArg-1 ){
         nSkip = integerValue(azArg[++i]);
       }else if( strcmp(z,"-ascii")==0 ){
@@ -19594,6 +19605,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       import_cleanup(&sCtx);
       goto meta_command_exit;
     }
+    /* Below, resources must be freed before exit. */
     if( eVerbose>=2 || (eVerbose>=1 && useOutputMode) ){
       char zSep[2];
       zSep[1] = 0;
@@ -19608,7 +19620,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     while( (nSkip--)>0 ){
       while( xRead(&sCtx) && sCtx.cTerm==sCtx.cColSep ){}
     }
-    zSql = sqlite3_mprintf("SELECT * FROM \"%w\"", zTable);
+    zSql = sqlite3_mprintf("SELECT * FROM \"%w\".\"%w\"", zSchema, zTable);
     if( zSql==0 ){
       import_cleanup(&sCtx);
       shell_out_of_memory();
@@ -19617,7 +19629,8 @@ static int do_meta_command(char *zLine, ShellState *p){
     rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     import_append_char(&sCtx, 0);    /* To ensure sCtx.z is allocated */
     if( rc && sqlite3_strglob("no such table: *", sqlite3_errmsg(p->db))==0 ){
-      char *zCreate = sqlite3_mprintf("CREATE TABLE \"%w\"", zTable);
+      char *zCreate = sqlite3_mprintf("CREATE TABLE \"%w\".\"%w\"",
+                                      zSchema, zTable);
       char cSep = '(';
       while( xRead(&sCtx) ){
         zCreate = sqlite3_mprintf("%z%c\n  \"%w\" TEXT", zCreate, cSep, sCtx.z);
@@ -19636,14 +19649,14 @@ static int do_meta_command(char *zLine, ShellState *p){
         utf8_printf(p->out, "%s\n", zCreate);
       }
       rc = sqlite3_exec(p->db, zCreate, 0, 0, 0);
-      sqlite3_free(zCreate);
       if( rc ){
-        utf8_printf(stderr, "CREATE TABLE \"%s\"(...) failed: %s\n", zTable,
-                sqlite3_errmsg(p->db));
+        utf8_printf(stderr, "%s failed:\n%s\n", zCreate, sqlite3_errmsg(p->db));
+        sqlite3_free(zCreate);
         import_cleanup(&sCtx);
         rc = 1;
         goto meta_command_exit;
       }
+      sqlite3_free(zCreate);
       rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     }
     sqlite3_free(zSql);
@@ -19663,7 +19676,8 @@ static int do_meta_command(char *zLine, ShellState *p){
       import_cleanup(&sCtx);
       shell_out_of_memory();
     }
-    sqlite3_snprintf(nByte+20, zSql, "INSERT INTO \"%w\" VALUES(?", zTable);
+    sqlite3_snprintf(nByte+20, zSql, "INSERT INTO \"%w\".\"%w\" VALUES(?",
+                     zSchema, zTable);
     j = strlen30(zSql);
     for(i=1; i<nCol; i++){
       zSql[j++] = ',';
@@ -22012,6 +22026,13 @@ static int process_input(ShellState *p){
   int startline = 0;        /* Line number for start of current input */
   QuickScanState qss = QSS_Start; /* Accumulated line status (so far) */
 
+  if( p->inputNesting==MAX_INPUT_NESTING ){
+    /* This will be more informative in a later version. */
+    utf8_printf(stderr,"Input nesting limit (%d) reached at line %d."
+                " Check recursion.\n", MAX_INPUT_NESTING, p->lineno);
+    return 1;
+  }
+  ++p->inputNesting;
   p->lineno = 0;
   while( errCnt==0 || !bail_on_error || (p->in==0 && stdin_is_interactive) ){
     fflush(p->out);
@@ -22094,6 +22115,7 @@ static int process_input(ShellState *p){
   }
   free(zSql);
   free(zLine);
+  --p->inputNesting;
   return errCnt>0;
 }
 
