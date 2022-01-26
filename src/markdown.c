@@ -131,9 +131,15 @@ void markdown(
 
 /* link_ref -- reference to a link */
 struct link_ref {
-  struct Blob id;
+  struct Blob id;     /* must be the first field as in footnote struct */
   struct Blob link;
   struct Blob title;
+};
+
+struct footnote {
+  struct Blob id;   /* must be the first field as in link_ref struct  */
+  struct Blob text; /* footnote's content that is rendered at the end */
+  int    index;     /* serial number, in the order of appearance */
 };
 
 
@@ -154,12 +160,13 @@ typedef size_t (*char_trigger)(
 struct render {
   struct mkd_renderer make;
   struct Blob refs;
+  struct Blob footnotes;
   char_trigger active_char[256];
   int iDepth;                    /* Depth of recursion */
   int nBlobCache;                /* Number of entries in aBlobCache */
   struct Blob *aBlobCache[20];   /* Cache of Blobs available for reuse */
+  int    nLabels;                /* Footnotes counter for the second pass */
 };
-
 
 /* html_tag -- structure for quick HTML tag search (inspired from discount) */
 struct html_tag {
@@ -249,6 +256,13 @@ static int cmp_link_ref_sort(const void *a, const void *b){
   return blob_compare(&lra->id, &lrb->id);
 }
 
+/* cmp_footnote_sort -- comparison function for footnotes qsort */
+static int cmp_footnote_sort(const void *a, const void *b){
+  const struct footnote *fna = (void *)a, *fnb = (void *)b;
+  assert( fna->index > 0 && fnb->index > 0 );
+  if( fna->index == fnb->index ) return 0;
+  return ( fna->index < fnb->index ? -1 : 1 );
+}
 
 /* cmp_html_tag -- comparison function for bsearch() (stolen from discount) */
 static int cmp_html_tag(const void *a, const void *b){
@@ -1005,6 +1019,35 @@ static int get_link_ref(
   return 0;
 }
 
+/* get_footnote -- resolve footnote by its id
+ * on success: fill text and return positive footnote's index
+ * on failure: return -1 */
+static int get_footnote(
+  struct render *rndr,
+  struct Blob *text,
+  const char *data,
+  size_t size
+){
+  struct footnote *fn;
+
+  blob_reset(text);   /* use text for temporary storage */
+  if( build_ref_id(text, data, size)<0 ) return -1;
+
+  fn = bsearch(text,
+               blob_buffer(&rndr->footnotes),
+               blob_size(&rndr->footnotes)/sizeof(struct footnote),
+               sizeof (struct footnote),
+               cmp_link_ref);
+  if( !fn ) return -1;
+
+  if( fn->index == 0 ){  /* the first reference to the footnote */
+    fn->index = ++(rndr->nLabels);
+  }
+  assert( fn->index > 0 );
+  blob_reset(text);
+  blob_append(text, blob_buffer(&fn->text), blob_size(&fn->text));
+  return fn->index;
+}
 
 /* char_link -- '[': parsing a link or an image */
 static size_t char_link(
@@ -1019,6 +1062,7 @@ static size_t char_link(
   struct Blob *content = 0;
   struct Blob *link = 0;
   struct Blob *title = 0;
+  const int is_note = (size && data[1] == '^');
   int ret;
 
   /* checking whether the correct renderer exists */
@@ -1085,16 +1129,22 @@ static size_t char_link(
       id_data = data+i+1;
       id_size = id_end-(i+1);
     }
-
     if( get_link_ref(rndr, link, title, id_data, id_size)<0 ){
       goto char_link_cleanup;
     }
-
     i = id_end+1;
 
   /* shortcut reference style link */
   }else{
-    if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
+    if( is_note ){
+      const int lbl = get_footnote(rndr, link, data+1, txt_e-1);
+      if( lbl <= 0 ){
+        goto char_link_cleanup;
+      }
+      blob_reset(link);
+      blob_appendf(link, "#footnote-%i", lbl);
+      blob_appendf(content,"<sup class='footnote'>%i</sup>",lbl);
+    }else if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
       goto char_link_cleanup;
     }
 
@@ -1105,7 +1155,7 @@ static size_t char_link(
   /* building content: img alt is escaped, link content is parsed */
   if( txt_e>1 ){
     if( is_img ) blob_append(content, data+1, txt_e-1);
-    else parse_inline(content, rndr, data+1, txt_e-1);
+    else if(!is_note) parse_inline(content, rndr, data+1, txt_e-1);
   }
 
   /* calling the relevant rendering function */
@@ -2097,7 +2147,7 @@ static int is_ref(
   i += beg;
 
   /* id part: anything but a newline between brackets */
-  if( data[i]!='[' ) return 0;
+  if( data[i]!='[' || data[i+1]=='^' ) return 0;
   i++;
   id_offset = i;
   while( i<end && data[i]!='\n' && data[i]!='\r' && data[i]!=']' ){ i++; }
@@ -2186,7 +2236,68 @@ static int is_ref(
   return 1;
 }
 
+/*********************
+ * FOOTNOTE PARSING  *
+ *********************/
 
+/* is_footnote -- returns whether a line is a footnote or not */
+static int is_footnote(
+  char *data,         /* input text */
+  size_t beg,         /* offset of the beginning of the line */
+  size_t end,         /* offset of the end of the text */
+  size_t *last,       /* last character of the link */
+  struct Blob * footnotes /* FIXME: struct render *rndr */
+){
+  size_t i = 0;
+  size_t id_offset, id_end;
+  size_t note_offset, note_end;
+  size_t line_end;
+  struct footnote fn = { empty_blob, empty_blob, 0 };
+
+  /* footnote definition must start at the begining of a line */
+  if( beg+4>=end ) return 0;
+  i += beg;
+
+  /* id part: anything but a newline between brackets */
+  if( data[i]!='[' || data[i+1]!='^' ) return 0;
+  i++;
+  id_offset = i;
+  while( i<end && data[i]!=']' && data[i]!='\n' && data[i]!='\r' ){ i++; }
+  if( i>=end || data[i]!=']' ) return 0;
+  id_end = i;
+
+  /* spacer: colon (space | tab)* newline? (space | tab)* */
+  i++;
+  if( i>=end || data[i]!=':' ) return 0;
+  i++;
+  while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
+  if( i<end && (data[i]=='\n' || data[i]=='\r') ){
+    i++;
+    if( i<end && data[i]=='\r' && data[i-1] == '\n' ) i++;
+  }
+  while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
+  if( i>=end ) return 0;
+
+  /* note is a single line of text (FIXME: support multiline notes) */
+  note_offset = i;
+  while( i<end && data[i]!='\r' && data[i]!='\n' ){ i++; }
+  note_end = i;
+
+  /* computing end-of-line */
+  line_end = 0;
+  if( i >=end || data[i]=='\r' || data[ i ]=='\n' ) line_end = i;
+  if( i+1<end && data[i]=='\n' && data[i+1]=='\r' ) line_end = i+1;
+
+  if( !line_end ) return 0; /* garbage after the link */
+
+  /* a valid note has been found, filling-in note's text */
+  if( last ) *last = line_end;
+  if( !footnotes ) return 1;
+  if( build_ref_id(&fn.id, data+id_offset, id_end-id_offset)<0 ) return 0;
+  blob_append(&fn.text, data+note_offset, note_end-note_offset);
+  blob_append(footnotes, (char *)&fn, sizeof fn);
+  return 1;
+}
 
 /**********************
  * EXPORTED FUNCTIONS *
@@ -2199,6 +2310,7 @@ void markdown(
   const struct mkd_renderer *rndrer  /* renderer descriptor (callbacks) */
 ){
   struct link_ref *lr;
+  struct footnote *fn;
   size_t i, beg, end = 0;
   struct render rndr;
   char *ib_data;
@@ -2210,6 +2322,8 @@ void markdown(
   rndr.nBlobCache = 0;
   rndr.iDepth = 0;
   rndr.refs = empty_blob;
+  rndr.footnotes = empty_blob;
+  rndr.nLabels = 0;
   for(i=0; i<256; i++) rndr.active_char[i] = 0;
   if( (rndr.make.emphasis
     || rndr.make.double_emphasis
@@ -2232,6 +2346,9 @@ void markdown(
   ib_data = blob_buffer(ib);
   while( beg<blob_size(ib) ){ /* iterating over lines */
     if( is_ref(ib_data, beg, blob_size(ib), &end, &rndr.refs) ){
+      beg = end;
+    }else if( is_footnote(ib_data, beg, blob_size(ib), &end, &rndr.footnotes) ){
+      /* FIXME: fossil_print("\nfootnote found at %i\n", beg); */
       beg = end;
     }else{ /* skipping to the next line */
       end = beg;
@@ -2260,10 +2377,38 @@ void markdown(
           sizeof(struct link_ref),
           cmp_link_ref_sort);
   }
+  /* sorting the footnotes array by id */
+  if( blob_size(&rndr.footnotes) ){
+    qsort(blob_buffer(&rndr.footnotes),
+          blob_size(&rndr.footnotes)/sizeof(struct footnote),
+          sizeof(struct footnote),
+          cmp_link_ref_sort);
+  }
 
   /* second pass: actual rendering */
   if( rndr.make.prolog ) rndr.make.prolog(ob, rndr.make.opaque);
   parse_block(ob, &rndr, blob_buffer(&text), blob_size(&text));
+
+  /* sorting the footnotes array by index */
+  if( blob_size(&rndr.footnotes) ){
+    qsort(blob_buffer(&rndr.footnotes),
+          blob_size(&rndr.footnotes)/sizeof(struct footnote),
+          sizeof(struct footnote),
+          cmp_footnote_sort);
+  }
+  /* FIXME: decouple parsing and HTML-specific rendering of footnotes */
+  if( rndr.nLabels ){
+    fn = (struct footnote *)blob_buffer(&rndr.footnotes);
+    end = blob_size(&rndr.footnotes)/sizeof(struct footnote);
+    blob_appendf(ob, "\n<ol class='footnotes'>\n");
+    for(i=0; i<end; i++){
+      if(fn[i].index == 0) continue;
+      blob_appendf(ob, "<li id='footnote-%i'>\n  ", fn[i].index );
+      parse_inline(ob,&rndr,blob_buffer(&fn[i].text),blob_size(&fn[i].text));
+      blob_append(ob,"\n</li>\n",7);
+    }
+    blob_append(ob, "</ol>\n", 7);
+  }
   if( rndr.make.epilog ) rndr.make.epilog(ob, rndr.make.opaque);
 
   /* clean-up */

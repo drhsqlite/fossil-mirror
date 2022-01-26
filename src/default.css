@@ -1667,6 +1667,12 @@ body.branch .submenu > a.timeline-link.selected {
 .monospace {
   font-family: monospace;
 }
+div.content  div.markdown > ol.footnotes {
+  font-size: 90%;
+}
+div.content  div.markdown > ol.footnotes > li {
+  margin-bottom: 0.5em;
+}
 
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
