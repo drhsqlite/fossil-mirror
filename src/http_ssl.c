@@ -878,6 +878,7 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 
 #endif /* FOSSIL_ENABLE_SSL */
 
+#ifdef FOSSIL_ENABLE_SSL
 /*
 ** zPath is a name that might be a file or directory containing a trust
 ** store.  *pzStore is the name of the trust store to actually use.
@@ -889,6 +890,7 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
   if( *pzStore!=0 ) return;
   if( file_isdir(zPath, ExtFILE)>0 ) *pzStore = zPath;
 }
+#endif /* FOSSIL_ENABLE_SSL */
 
 /*
 ** COMMAND: tls-config*

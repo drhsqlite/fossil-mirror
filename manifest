@@ -1,5 +1,5 @@
-C One\smore\scompiler\swarning\sfix.
-D 2022-01-26T14:33:51.927
+C Fix\scompiler\swarning\sof\sunused\sfunction\sfor\sbuilds\swithout\sOpenSSL.
+D 2022-01-26T14:36:30.541
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c e53bbeeae972751dfe9cca69aea1b95fd38d908b0387524dde1a5350937818fa
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 06aebe1801cb82ce0e0685acdb42125ba29bb445d672c306827db3692e889161
+F src/http_ssl.c feb548774f2c97a4bf0567a4ac532f3363e7ae905b5551dd1138ef36ae6c1cc2
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c1350c8a44236b401b7d6dc599b2171ffeb2edd344bd54e3dd2cfc1d31ca8200
-R 7e3099f653d333abee8b4ff153c8c457
+P 317c665ce6d548a4ad753a01b3c2b3c28b9ec4b63f0995195d179ed9b30a8f17
+R 539812bb880ac1616f20729d63e63029
 U drh
-Z 435125f9a18454be35b996d88a894356
+Z 82e67cb73fb0d139d9cce3cdd768e1c7
 # Remove this line to create a well-formed Fossil manifest.
