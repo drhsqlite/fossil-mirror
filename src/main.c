@@ -2731,6 +2731,9 @@ void cmd_http(void){
     if( g.httpIn==0 ) fossil_fatal("cannot open \"%s\" for reading", zInFile);
   }else{
     g.httpIn = stdin;
+#if defined(_WIN32)
+   _setmode(_fileno(stdin), _O_BINARY);
+#endif
   }
   zOutFile = find_option("out",0,1);
   if( zOutFile ){
@@ -2738,6 +2741,9 @@ void cmd_http(void){
     if( g.httpOut==0 ) fossil_fatal("cannot open \"%s\" for writing", zOutFile);
   }else{
     g.httpOut = stdout;
+#if defined(_WIN32)
+   _setmode(_fileno(stdout), _O_BINARY);
+#endif
   }
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
