@@ -949,8 +949,10 @@ void test_tlsconfig_info(void){
     db_protect_pop();
   }else
   if( strncmp("show",zCmd,nCmd)==0 ){
+#if defined(FOSSIL_ENABLE_SSL)
     const char *zName, *zValue;
     const char *zUsed = 0;       /* Trust store location actually used */
+#endif
     size_t nName;
     Stmt q;
     int verbose = find_option("verbose","v",0)!=0;
