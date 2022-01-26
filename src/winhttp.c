@@ -439,6 +439,9 @@ static void win32_http_request(void *pAppData){
   in = fossil_fopen(zReplyFName, "w+b");
   fflush(out);
   fflush(aux);
+  if( g.fHttpTrace ){
+    fossil_print("%s\n", zCmd);
+  }
   fossil_system(zCmd);
   if( in ){
     while( (got = fread(zBuf, 1, sizeof(zBuf), in))>0 ){
@@ -467,9 +470,11 @@ end_request:
   /* Make multiple attempts to delete the temporary files.  Sometimes AV
   ** software keeps the files open for a few seconds, preventing the file
   ** from being deleted on the first try. */
-  for(i=1; i<=10 && file_delete(zRequestFName); i++){ Sleep(1000*i); }
-  for(i=1; i<=10 && file_delete(zCmdFName); i++){ Sleep(1000*i); }
-  for(i=1; i<=10 && file_delete(zReplyFName); i++){ Sleep(1000*i); }
+  if( !g.fHttpTrace ){
+    for(i=1; i<=10 && file_delete(zRequestFName); i++){ Sleep(1000*i); }
+    for(i=1; i<=10 && file_delete(zCmdFName); i++){ Sleep(1000*i); }
+    for(i=1; i<=10 && file_delete(zReplyFName); i++){ Sleep(1000*i); }
+  }
   fossil_free(p);
 }
 
@@ -654,8 +659,12 @@ void win32_http_server(
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_panic("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d",
-                        fossil_unicode_to_utf8(zTmpPath), iPort);
+  if( g.fHttpTrace ){
+    zTempPrefix = mprintf("httptrace");
+  }else{
+    zTempPrefix = mprintf("%sfossil_server_P%d",
+                          fossil_unicode_to_utf8(zTmpPath), iPort);
+  }
   fossil_print("Temporary files: %s*\n", zTempPrefix);
   fossil_print("Listening for %s requests on TCP port %d\n",
                (flags&HTTP_SERVER_SCGI)!=0 ? "SCGI" :
