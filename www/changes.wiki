@@ -27,6 +27,10 @@
   *  Query parameter "year=YYYY" is now accepted by [/help?cmd=/timeline|/timeline].
   *  Add the "--as FILENAME" option to the "[/help?cmd=chat|fossil chat send]"
      command.
+  *  The [/help?cmd=/ext|/ext page] generates the SERVER_SOFTWARE environment
+     variable for clients.
+  *  The [/help?cmd=tar|tar] and [/help?cmd=zip|zip commands] no longer
+     sterilize the manifest file.
 
 <h2 id='v2_17'>Changes for version 2.17 (2021-10-09)</h2>
 

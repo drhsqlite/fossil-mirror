@@ -1,5 +1,5 @@
-C Corrected\sparsing\sof\s/json-mode\sPOST\sdata\sin\sTLS\smode.\sExtended\s/json/wiki/preview\sto\ssupport\sa\smimetype\soption.
-D 2022-01-25T19:36:45.061
+C Updates\sto\sthe\schange\slog.
+D 2022-01-26T13:10:27.616
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,7 +798,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 48731b67e26dfda07cb9e027674c0772712dbe31af72363bcabf5d89e9bd5a11
+F www/changes.wiki 1f84293acd3edae34a89116839b444d583ee0f2ce3af12392aa738e30494944c
 F www/chat.md c43235a6bd0ade2987ec0967d78ea6238d989e4b2aa04059a3fd267a13e6c5b7
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acffc8f7858254ebb5c0c06b6af79fbc56085d5d4740047ca5aa46dc89e31689
-R ec59da0c7747393681edba0e7a1f70be
-U stephan
-Z a663aeca17e3c26851ce7689d127dc91
+P 7f5877e8439531f8c0f758db922bf8a0e2fa58d1d3051386812edb4c91292fa7
+R f7ea19591af521db052dd0009675ef08
+U drh
+Z 0e8d304234e61bccb8f8c2fb44465ba2
 # Remove this line to create a well-formed Fossil manifest.
