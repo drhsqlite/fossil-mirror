@@ -1,5 +1,5 @@
-C Corrected\sparsing\sof\s/json-mode\sPOST\sdata\sin\sTLS\smode.\sExtended\s/json/wiki/preview\sto\ssupport\sa\smimetype\soption.
-D 2022-01-25T19:36:45.061
+C Alternative\sto\s[b890451cfb],\s[b70557f690]\sand\s[acffc8f785]\sto\sfix\sthe\sSSL_read()\sloops\son\sWindows.\sPending\stests\son\snon-Windows\splatforms.
+D 2022-01-26T07:41:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -408,7 +408,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c 9d1bd444649ce04e1328775c913af0e73aea9d0d873b896cd994be9ce221249b
+F src/blob.c a617372712220086051f7c31dff67f588e98eca43dcd460974124387efa9de84
 F src/branch.c 40edc441a60d2b655dcdc015003c5d84711582f14a4db978c41197592da9224f
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c e744959a71b209c879ad6c391d97220f63d5fc94cdd4942b2af598de9b50dc0b
@@ -486,7 +486,7 @@ F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c e53bbeeae972751dfe9cca69aea1b95fd38d908b0387524dde1a5350937818fa
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c 03f3aebccdeda4bfab3919d1fed78c6c035031f644603b29aeaac14025c94580
+F src/http_ssl.c f0f37b434529d5390b75cad8806615f1113aff5c903d2a631c9d60e34e743d4a
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
@@ -608,7 +608,7 @@ F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c dadaf755f21931398be2aaf956177fb6c02a3c757b4d5e02c0e6741fce074221
+F src/winhttp.c 45fe39ab2d4ae9b675d4e42ddfd36fd565711380339f9e8c5b774ff50d68e17e
 F src/xfer.c 57932b933b3a4b437d57b1dde6a82074c6dd56519031ba807a10d762e0332739
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c 4ad5063ab8bc416afca4479a826a0c476774604364bed6f4222b76e81fd2ed33
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acffc8f7858254ebb5c0c06b6af79fbc56085d5d4740047ca5aa46dc89e31689
-R ec59da0c7747393681edba0e7a1f70be
-U stephan
-Z a663aeca17e3c26851ce7689d127dc91
+P 7f5877e8439531f8c0f758db922bf8a0e2fa58d1d3051386812edb4c91292fa7
+R 9c709c8c7e1f0df836ce2e831865024c
+T *branch * ssl-read-loops
+T *sym-ssl-read-loops *
+T -sym-trunk *
+U florian
+Z 7d3edfec6d06bf1346fa00ad7c81e443
 # Remove this line to create a well-formed Fossil manifest.

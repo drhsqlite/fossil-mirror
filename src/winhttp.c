@@ -366,6 +366,7 @@ static void win32_http_request(void *pAppData){
     if( sslConn ){
 #ifdef FOSSIL_ENABLE_SSL
       got = ssl_read_server(sslConn, &zBuf[amt], szHdr-amt);
+      if( got<0 ) goto end_request;
 #endif
     }else{
       got = recv(p->s, &zBuf[amt], szHdr-amt, 0);
@@ -397,6 +398,7 @@ static void win32_http_request(void *pAppData){
     if( sslConn ){
 #ifdef FOSSIL_ENABLE_SSL
       got = ssl_read_server(sslConn, zBuf, sizeof(zBuf));
+      if( got<0 ) goto end_request;
 #endif
     }else{
       got = recv(p->s, zBuf, sizeof(zBuf), 0);

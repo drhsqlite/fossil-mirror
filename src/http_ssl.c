@@ -813,6 +813,7 @@ int ssl_eof(void *pServerArg){
 /*
 ** Read cleartext bytes that have been received from the client and
 ** decrypted by the SSL server codec.
+** Return (size_t)-1 on error.
 */
 size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
   int n;
@@ -823,17 +824,24 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
   while( nBuf!=rc ){
     n = SSL_read(pServer->ssl, zBuf + rc, (int)(nBuf - rc));
     if( n<=0 ){
-      break;
+      int error = SSL_get_error(pServer->ssl,n);
+      switch( error ){
+        case SSL_ERROR_NONE:
+        case SSL_ERROR_ZERO_RETURN:
+        /* Not all errors relevant with SSL_MODE_AUTO_RETRY. */
+        case SSL_ERROR_WANT_READ:
+        case SSL_ERROR_WANT_WRITE:
+        case SSL_ERROR_WANT_CONNECT:
+        case SSL_ERROR_WANT_ACCEPT:
+          return rc;
+        default:
+          return (size_t)-1;
+      }
     }else if(n>0){
       rc += n;
+      /* SSL_read() returns at most 16 KB of data, so retry in this case. */
+      if( n!=16384 ) break;
     }
-#ifdef _WIN32
-    /* Windows (XP and 10 tested with openssl 1.1.1m and 3.0.1) does
-    ** not require reading in a loop, returning all data in a single
-    ** call. If we read in a loop on Windows, SSL reads fail. Details:
-    ** https://fossil-scm.org/forum/forumpost/2f818850abb72719 */
-    break;
-#endif
   }
   return rc;
 }

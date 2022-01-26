@@ -985,6 +985,10 @@ int blob_read_from_cgi(Blob *pBlob, int nToRead){
     char zBuf[10000];
     while( !cgi_feof() ){
       n = cgi_fread(zBuf, sizeof(zBuf));
+      if( n==(size_t)-1 ){
+        blob_zero(pBlob);
+        return -1;
+      }
       if( n>0 ){
         blob_append(pBlob, zBuf, n);
       }
@@ -992,6 +996,10 @@ int blob_read_from_cgi(Blob *pBlob, int nToRead){
   }else{
     blob_resize(pBlob, nToRead);
     n = cgi_fread(blob_buffer(pBlob), nToRead);
+    if( n==(size_t)-1 ){
+      blob_zero(pBlob);
+      return -1;
+    }
     blob_resize(pBlob, n);
   }
   return blob_size(pBlob);
