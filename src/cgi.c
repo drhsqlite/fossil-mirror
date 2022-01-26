@@ -1318,24 +1318,21 @@ void cgi_init(void){
   }
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
+    if( blob_read_from_cgi(&g.cgiIn, len)<len ){
+      char *zMsg = mprintf("CGI content-length mismatch:  Wanted %d bytes"
+                           " but got only %d\n", len, blob_size(&g.cgiIn));
+      malformed_request(zMsg);
+    }
     if( fossil_strcmp(zType, "application/x-fossil")==0 ){
-      if( blob_read_from_cgi(&g.cgiIn, len)!=len ){
-        malformed_request("CGI content-length mismatch");
-      }
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
-    else{
-      if( blob_read_from_cgi(&g.cgiIn, len)!=len ){
-        malformed_request("CGI content-length mismatch");
-      }
 #ifdef FOSSIL_ENABLE_JSON
-      if( noJson==0 && g.json.isJsonMode!=0
-          && json_can_consume_content_type(zType)!=0 ){
-        cgi_parse_POST_JSON(&g.cgiIn);
-        cgi_set_content_type(json_guess_content_type());
-      }
-#endif /* FOSSIL_ENABLE_JSON */
+    if( noJson==0 && g.json.isJsonMode!=0
+        && json_can_consume_content_type(zType)!=0 ){
+      cgi_parse_POST_JSON(&g.cgiIn);
+      cgi_set_content_type(json_guess_content_type());
     }
+#endif /* FOSSIL_ENABLE_JSON */
   }
 }
 

@@ -1,5 +1,5 @@
-C Improved\shelp-page\sfor\sthe\s"http"\scommand.
-D 2022-01-26T13:34:15.327
+C Check-in\s[acffc8f7858254eb]\swas\scausing\s"CGI\scontent-length\smismatch"\serrors\non\sthe\smain\sFossil\swebsite\s(xinet.d->althttpd->Fossil).\s\sThis\scheck-in\sattempts\nto\sresolve\sthe\sproblem.
+D 2022-01-26T14:00:56.034
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -416,7 +416,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 485c628194768c1a6fec15a712a81784cbcf763be0f8a5cc92b60df037b48e6c
+F src/cgi.c 17372f3d7f65db7276f123954cb83ba1d37c9a7212469770334f31ef90248a0c
 F src/chat.c 945f4a5cb866b5cec32d8043fdb8226bb73aa1ea04cf142e8572857530e10573
 F src/checkin.c 4dc8519e881827fd2ca6cc243045c32fe77e92460749b929a432b78acaa5c018
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 076e7863c21e6489b712b56a1c11b0748035286a7ece5e4e9206abfbd092a23b
-R 780dac61400384559d0b56659d7d9f64
+P 42c4d045e10f40ba7ce413937955623c9b602e16ada8336e5310453988a728ba
+R f6e90eceb86a04218da92402ecc41b45
 U drh
-Z 02308eab3f26ae58371a2d7f17ed059e
+Z dd0e337361f1c1bf4d936fa82023f4ed
 # Remove this line to create a well-formed Fossil manifest.
