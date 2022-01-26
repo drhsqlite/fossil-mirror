@@ -952,8 +952,8 @@ void test_tlsconfig_info(void){
 #if defined(FOSSIL_ENABLE_SSL)
     const char *zName, *zValue;
     const char *zUsed = 0;       /* Trust store location actually used */
-#endif
     size_t nName;
+#endif
     Stmt q;
     int verbose = find_option("verbose","v",0)!=0;
     verify_all_options();
