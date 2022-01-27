@@ -1438,6 +1438,9 @@ writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
+foreach s [lsort $src_ext] {
+  writeln -nonewline "${s}_.c:$s.h "
+}
 writeln "\$(SRCDIR_extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR_extsrc)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
@@ -1761,6 +1764,11 @@ foreach s [lsort $src] {
   }
   writeln -nonewline "\"\$(OX)\\${s}_.c\""; incr i
 }
+foreach s [lsort $src_ext] {
+  writeln " \\"
+  writeln -nonewline "        "
+  writeln -nonewline "\"\$(OX)\\${s}_.c\""; incr i
+}
 writeln "\n"
 writeln -nonewline "EXTRA_FILES   = "
 set i 0
@@ -2002,6 +2010,11 @@ foreach s [lsort $src] {
     writeln " \\"
     writeln -nonewline "\t\t\t"
   }
+  writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
+}
+foreach s [lsort $src_ext] {
+  writeln " \\"
+  writeln -nonewline "\t\t\t"
   writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
 }
 writeln " \\\n\t\t\t\"\$(SRCDIR_extsrc)\\sqlite3.h\" \\"
