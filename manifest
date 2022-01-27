@@ -1,5 +1,5 @@
-C Additional\sfixes\sto\sthe\sbuild\sprocess\sto\sensure\sthat\spikchr.c\shas\sa\svalid\nheader\sfile.
-D 2022-01-27T16:27:39.265
+C Remove\sthe\sprototype\sfor\spikchr()\sfrom\sconfig.h,\ssince\spikchr.c\sgets\sa\svalid\sheader\sfile\son\sall\splatforms.
+D 2022-01-27T20:08:02.938
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -425,7 +425,7 @@ F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab353
 F src/clone.c ee99f31ce7f08a51e82afd061eafa6a5a6708591698a9c7146380393cf42ba53
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
-F src/config.h a32628c01eb78f53e6d15a46daf993f9a77a1e502199c21aa42956418b6c2195
+F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c c23a81d17796b6adb44fa1f5ea3daa57ea02bc7b5e0510f3bfcea1c55dc354d6
 F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
@@ -970,9 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57f16ce8e550f3eac0a22d6c83f24d92885e99cc97229a9550f95984831628fe 9f208a13bc82fa042a864d89a6e407797987e64431e952eae444c758f96b2c8d
-R e57624a8573d84b83fefad625eb76b8a
-T +closed 9f208a13bc82fa042a864d89a6e407797987e64431e952eae444c758f96b2c8d
-U drh
-Z 902f4a1dda98163b0070fa4e51420f4b
+P f46f8c3839ee3b710be05478b8d0ce50f43c1789c076270b281189ccdd2bcd4e
+R 32b9d219aa74de3828a1324683017168
+U danield
+Z 2a67ac12eeeb71b4de20a7e724a27091
 # Remove this line to create a well-formed Fossil manifest.
