@@ -1439,7 +1439,7 @@ foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
 foreach s [lsort $src_ext] {
-  writeln -nonewline "${s}_.c:$s.h "
+  writeln -nonewline "\$(SRCDIR_extsrc)\\${s}.c:$s.h "
 }
 writeln "\$(SRCDIR_extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR_extsrc)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"

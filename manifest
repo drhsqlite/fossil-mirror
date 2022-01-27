@@ -1,5 +1,5 @@
-C Fix\smakemake.tcl\sand\sMakefile.msc\sto\sbuild\son\sWindows.
-D 2022-01-27T15:17:39.509
+C Change\smakemake.tcl\saccordingly\sfor\sDMC\s(generated\sMakefile.dmc\snot\stested).
+D 2022-01-27T15:53:57.823
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -752,7 +752,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F tools/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
-F tools/makemake.tcl 97ae249e9290d6770c9fb225c1d98fa21a954695e9802ae00e6e035e97481197 x
+F tools/makemake.tcl ccecea41b850ab097bd0592e972cc9ea9ba1b19ae75974ae34d81f4653ad791d x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F tools/mkindex.c b5c2cf8c00e9ae8d2bc1f4eba68b59fcde6febdff3a2a9a791b20c96526d074a
@@ -761,7 +761,7 @@ F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd
 F tools/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.PellesCGMake c14d416e51cedd694ce8326a99009d28fffc39d80cc630a2d4c34d4244567778
-F win/Makefile.dmc a807ff24404bd860feff4c2aca785d46f77d36d0f4df1cc7b1c5626e9a0d3c12
+F win/Makefile.dmc 7e2369b8e26dfc9267b078b5ba494d0efd41e334b370de5e2a33d690c8725a7a
 F win/Makefile.mingw 2dc12db4bfd20ccf1998fce0583cf971fd9ce461a48a404e65d9e84dc9738619
 F win/Makefile.mingw.mistachkin fbaee5006f0376e00fd135fa4159c4a12a7183d61e933d67df08c3469ac97a2b
 F win/Makefile.msc 5b55635962376c2c07f8446f8572cce8a9eac5502826756f0611ce94a2be1652
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc6bda98a120343c1104af4032a59e5a13f61773fba6ab79e48317e240e79fa4
-R 74c65a1649d53f6f6e73a2714607117f
+P 2d354a6e7fca46ee6c90ce0b101bb14ec58c2e6f07d93016271fec11b46a3613
+R cf18bd6db236a046b229b92c73c02fa7
 U danield
-Z b54c90bbd8f725080fb99a20126f5396
+Z da40c2efc79461f804bd40d41ba41aa3
 # Remove this line to create a well-formed Fossil manifest.
