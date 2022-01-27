@@ -118,7 +118,7 @@ struct mkd_renderer {
 /* markdown -- parses the input buffer and renders it into the output buffer */
 void markdown(
   struct Blob *ob,
-  struct Blob *ib,
+  const struct Blob *ib,
   const struct mkd_renderer *rndr);
 
 
@@ -2115,7 +2115,7 @@ static void parse_block(
 
 /* is_ref -- returns whether a line is a reference or not */
 static int is_ref(
-  char *data,         /* input text */
+  const char *data,   /* input text */
   size_t beg,         /* offset of the beginning of the line */
   size_t end,         /* offset of the end of the text */
   size_t *last,       /* last character of the link */
@@ -2242,11 +2242,11 @@ static int is_ref(
 
 /* is_footnote -- returns whether a line is a footnote or not */
 static int is_footnote(
-  char *data,         /* input text */
+  const char *data,   /* input text */
   size_t beg,         /* offset of the beginning of the line */
   size_t end,         /* offset of the end of the text */
   size_t *last,       /* last character of the link */
-  struct Blob * footnotes /* FIXME: struct render *rndr */
+  struct Blob * footnotes
 ){
   size_t i = 0;
   size_t id_offset, id_end;
@@ -2306,15 +2306,14 @@ static int is_footnote(
 /* markdown -- parses the input buffer and renders it into the output buffer */
 void markdown(
   struct Blob *ob,                   /* output blob for rendered text */
-  struct Blob *ib,                   /* input blob in markdown */
+  const struct Blob *ib,             /* input blob in markdown */
   const struct mkd_renderer *rndrer  /* renderer descriptor (callbacks) */
 ){
   struct link_ref *lr;
   struct footnote *fn;
   size_t i, beg, end = 0;
   struct render rndr;
-  char *ib_data;
-  Blob text = BLOB_INITIALIZER;
+  Blob text = BLOB_INITIALIZER;      /* input after the first pass */
 
   /* filling the render structure */
   if( !rndrer ) return;
@@ -2341,27 +2340,26 @@ void markdown(
   rndr.active_char['\\'] = char_escape;
   rndr.active_char['&'] = char_entity;
 
-  /* first pass: looking for references, copying everything else */
+  /* first pass: iterate over lines looking for references,
+   * copying everything else into "text" */
   beg = 0;
-  ib_data = blob_buffer(ib);
-  while( beg<blob_size(ib) ){ /* iterating over lines */
-    if( is_ref(ib_data, beg, blob_size(ib), &end, &rndr.refs) ){
+  for(const size_t size = blob_size(ib); beg<size ;){
+    const char* const data = blob_buffer(ib);
+    if( is_ref(data, beg, size, &end, &rndr.refs) ){
       beg = end;
-    }else if( is_footnote(ib_data, beg, blob_size(ib), &end, &rndr.footnotes) ){
+    }else if( is_footnote(data, beg, size, &end, &rndr.footnotes) ){
       /* FIXME: fossil_print("\nfootnote found at %i\n", beg); */
       beg = end;
     }else{ /* skipping to the next line */
       end = beg;
-      while( end<blob_size(ib) && ib_data[end]!='\n' && ib_data[end]!='\r' ){
+      while( end<size && data[end]!='\n' && data[end]!='\r' ){
         end += 1;
       }
       /* adding the line body if present */
-      if( end>beg ) blob_append(&text, ib_data + beg, end - beg);
-      while( end<blob_size(ib) && (ib_data[end]=='\n' || ib_data[end]=='\r') ){
+      if( end>beg ) blob_append(&text, data + beg, end - beg);
+      while( end<size && (data[end]=='\n' || data[end]=='\r') ){
         /* add one \n per newline */
-        if( ib_data[end]=='\n'
-         || (end+1<blob_size(ib) && ib_data[end+1]!='\n')
-        ){
+        if( data[end]=='\n' || (end+1<size && data[end+1]!='\n') ){
           blob_append_char(&text, '\n');
         }
         end += 1;
