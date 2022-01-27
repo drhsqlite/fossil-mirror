@@ -1630,7 +1630,7 @@ INCL      = $(INCL) /I"$(SSLINCDIR)"
 INCL      = $(INCL) /I"$(TCLINCDIR)"
 !endif
 
-CFLAGS    = /nologo
+CFLAGS    = /nologo /W2 /WX
 LDFLAGS   =
 
 CFLAGS    = $(CFLAGS) /D_CRT_SECURE_NO_DEPRECATE /D_CRT_SECURE_NO_WARNINGS
