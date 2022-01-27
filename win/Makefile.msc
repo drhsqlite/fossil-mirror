@@ -492,7 +492,8 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\winhttp_.c" \
         "$(OX)\xfer_.c" \
         "$(OX)\xfersetup_.c" \
-        "$(OX)\zip_.c"
+        "$(OX)\zip_.c" \
+        "$(SRCDIR_extsrc)\pikchr.c"
 
 EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\..\skins\ardoise\details.txt" \
@@ -2236,6 +2237,7 @@ realclean: clean
 			"$(OX)\xfer_.c":"$(OX)\xfer.h" \
 			"$(OX)\xfersetup_.c":"$(OX)\xfersetup.h" \
 			"$(OX)\zip_.c":"$(OX)\zip.h" \
+			"$(SRCDIR_extsrc)\pikchr.c":"$(OX)\pikchr.h" \
 			"$(SRCDIR_extsrc)\sqlite3.h" \
 			"$(SRCDIR)\th.h" \
 			"$(OX)\VERSION.h" \
