@@ -1001,10 +1001,13 @@ void artifact_stats_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     r += db_column_int(&q, 0);
     if( n50pct==0 && r>=sumCmpr/2 ) n50pct = n;
-    if( n==(nTotal+99)/100 ) sz1pct = r;
-    if( n==(nTotal+9)/10 ) sz10pct = r;
-    if( n==(nTotal+4)/5 ) sz25pct = r;
-    if( n==(nTotal+1)/2 ){ sz50pct = r; medCmpr = db_column_int(&q,0); }
+    if( n==(nTotal+99)/100 ) sz1pct = (sqlite3_int64)r;
+    if( n==(nTotal+9)/10 ) sz10pct = (sqlite3_int64)r;
+    if( n==(nTotal+4)/5 ) sz25pct = (sqlite3_int64)r;
+    if( n==(nTotal+1)/2 ){
+      sz50pct = (sqlite3_int64)r;
+      medCmpr = db_column_int(&q,0);
+    }
     n++;
   }
   db_finalize(&q);

@@ -207,7 +207,9 @@ int repo_list_page(void){
         ** scan lists, but included in "fossil all ui" lists */
         continue;
       }
-      iAge = (rNow - x.rMTime)*86400;
+      /* Assert that the following cast will not narrow in fact. */
+      assert((rNow - x.rMTime)<=(((unsigned)~0)>>1)/86400.0);
+      iAge = (int)((rNow - x.rMTime)*86400);
       if( iAge<0 ) x.rMTime = rNow;
       zAge = human_readable_age(rNow - x.rMTime);
       blob_append_sql(&html, "<tr><td valign='top'>");
