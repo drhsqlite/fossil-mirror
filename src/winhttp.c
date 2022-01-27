@@ -365,10 +365,10 @@ static void win32_http_request(void *pAppData){
   while( amt<szHdr ){
     if( sslConn ){
 #ifdef FOSSIL_ENABLE_SSL
-      got = ssl_read_server(sslConn, &zBuf[amt], szHdr-amt);
+      got = ssl_read_server(sslConn, &zBuf[amt], szHdr-1-amt);
 #endif
     }else{
-      got = recv(p->s, &zBuf[amt], szHdr-amt, 0);
+      got = recv(p->s, &zBuf[amt], szHdr-1-amt, 0);
       if( got==SOCKET_ERROR ) goto end_request;
     }
     if( got==0 ){

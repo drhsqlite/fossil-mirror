@@ -1,5 +1,5 @@
-C Make\ssure\sthe\spikchr()\sfunction\shas\sa\sprototype().\s\sMSVC\sgenerates\sincorrect\ncode\s(and\sdoes\snot\sgive\sa\swarning)\sif\sthe\sprototype\sis\smissing.
-D 2022-01-27T03:57:27.529
+C Fix\san\soff\sby\s1\sbug\sin\s"win32_http_request()"\swhich\swas\scausing\sPOST\srequest\nto\sfail\son\swindows.\s(e.g.\swikiedit\spreview\sor\supload\sof\sa\sfile\son\sthe\schat)\n\nProblem\sappear\sin\scheckin\s[7a3bf55f5489f534]
+D 2022-01-27T04:34:35.268
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -608,7 +608,7 @@ F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 89491bfe3b363783e8169b74d80c2eb41f0aa47341f44df2750e916b9ff47c39
+F src/winhttp.c bd28c38913f466c7465e3595c76d725ef57154f27843cfa3e7424eb41dad6fad
 F src/xfer.c 57932b933b3a4b437d57b1dde6a82074c6dd56519031ba807a10d762e0332739
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c 4ad5063ab8bc416afca4479a826a0c476774604364bed6f4222b76e81fd2ed33
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be1c4d47f9a28743e9197c65b038569d7a116304a4713718ffbb911b28824bb9
-R 8fc0a3258203433a7987f436e305e4da
-U drh
-Z ca8151e05efd8eae52e9e220eb8cac38
+P a27b3364e3eba1004a7c5a33db0131fd01e819500e9a8ae57f6ab90e5073fab1
+R dc26e9a5ab401185746e86d1d4262dd7
+U mgagnon
+Z 8bc89aa23aa05762a14cb0cbebb609aa
 # Remove this line to create a well-formed Fossil manifest.
