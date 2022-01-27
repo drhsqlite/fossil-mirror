@@ -1,5 +1,5 @@
-C Fix\san\soff\sby\s1\sbug\sin\s"win32_http_request()"\swhich\swas\scausing\sPOST\srequest\nto\sfail\son\swindows.\s(e.g.\swikiedit\spreview\sor\supload\sof\sa\sfile\son\sthe\schat)\n\nProblem\sappear\sin\scheckin\s[7a3bf55f5489f534]
-D 2022-01-27T04:34:35.268
+C Create\snew\sbranch\snamed\s"msvc-warn2-fatal"
+D 2022-01-27T06:39:56.341
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a27b3364e3eba1004a7c5a33db0131fd01e819500e9a8ae57f6ab90e5073fab1
+P e4b49ce37d07f43a64759611bc5c67704a2b6d3dae7481fdb4af8e8d7d0a7438
 R dc26e9a5ab401185746e86d1d4262dd7
-U mgagnon
-Z 8bc89aa23aa05762a14cb0cbebb609aa
+T *branch * msvc-warn2-fatal
+T *sym-msvc-warn2-fatal *
+T -sym-trunk *
+U larrybr
+Z 5090efefaef452e8856c3b4e2423704b
 # Remove this line to create a well-formed Fossil manifest.
