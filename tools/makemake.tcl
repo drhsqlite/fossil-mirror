@@ -1767,7 +1767,7 @@ foreach s [lsort $src] {
 foreach s [lsort $src_ext] {
   writeln " \\"
   writeln -nonewline "        "
-  writeln -nonewline "\"\$(OX)\\${s}_.c\""; incr i
+  writeln -nonewline "\"\$(SRCDIR_extsrc)\\${s}.c\""; incr i
 }
 writeln "\n"
 writeln -nonewline "EXTRA_FILES   = "
@@ -2015,7 +2015,7 @@ foreach s [lsort $src] {
 foreach s [lsort $src_ext] {
   writeln " \\"
   writeln -nonewline "\t\t\t"
-  writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
+  writeln -nonewline "\"\$(SRCDIR_extsrc)\\${s}.c\":\"\$(OX)\\$s.h\""; incr i
 }
 writeln " \\\n\t\t\t\"\$(SRCDIR_extsrc)\\sqlite3.h\" \\"
 writeln "\t\t\t\"\$(SRCDIR)\\th.h\" \\"
