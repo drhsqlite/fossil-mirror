@@ -277,5 +277,7 @@ typedef signed char i8;
 # define fossil_pledge(A)
 #endif
 
+/* Need a prototype for pikchr() */
+extern char *pikchr(const char*,const char*,unsigned in, int*,int*);
 
 #endif /* _RC_COMPILE_ */
