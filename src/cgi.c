@@ -374,7 +374,7 @@ size_t cgi_fread(void *ptr, size_t nmemb){
     return fread(ptr, 1, nmemb, g.httpIn);
   }
 #ifdef FOSSIL_ENABLE_SSL
-  return ssl_read_server(g.httpSSLConn, ptr, nmemb);
+  return ssl_read_server(g.httpSSLConn, ptr, nmemb, 0);
 #else
   fossil_fatal("SSL not available");
 #endif
