@@ -829,8 +829,8 @@ size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf, int noLoop){
       break;
     }else if(n>0){
       rc += n;
-      if( noLoop ) break;
     }
+    if( noLoop ) break;
   }
   return rc;
 }
