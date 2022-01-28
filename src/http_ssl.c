@@ -813,33 +813,37 @@ int ssl_eof(void *pServerArg){
 /*
 ** Read cleartext bytes that have been received from the client and
 ** decrypted by the SSL server codec.
+**
+** If the expected payload size unknown, i.e. if the HTTP
+** Content-Length: header field has not been parsed, the doLoop
+** argument should be 0, or SSL_read() may block and wait for more
+** data than is eventually going to arrive (on Windows). On
+** non-Windows builds, it has been our experience that the final
+** argument must always be true, as discussed at length at:
+**
+** https://fossil-scm.org/forum/forumpost/2f818850abb72719
 */
-size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
+size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf, int doLoop){
   int n;
   size_t rc = 0;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
   if( nBuf>0x7fffffff ){ fossil_fatal("SSL read too big"); }
-  else if( BIO_eof(pServer->bio) ) return 0;
-  while( nBuf!=rc ){
+  while( nBuf!=rc && BIO_eof(pServer->bio)==0 ){
     n = SSL_read(pServer->ssl, zBuf + rc, (int)(nBuf - rc));
-    if( n<=0 ){
-      break;
-    }else if(n>0){
+    if( n>0 ){
       rc += n;
     }
-#ifdef _WIN32
-    /* Windows (XP and 10 tested with openssl 1.1.1m and 3.0.1) does
-    ** not require reading in a loop, returning all data in a single
-    ** call. If we read in a loop on Windows, SSL reads fail. Details:
-    ** https://fossil-scm.org/forum/forumpost/2f818850abb72719 */
-    break;
-#endif
+    if( doLoop==0 || n<=0 ){
+      break;
+    }
   }
   return rc;
 }
 
 /*
-** Read a single line of text from the client.
+** Read a single line of text from the client, up to nBuf-1 bytes. On
+** success, writes nBuf-1 bytes to zBuf and NUL-terminates zBuf.
+** Returns NULL on an I/O error or at EOF.
 */
 char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
   int n = 0;

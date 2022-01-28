@@ -366,7 +366,7 @@ static char *cgi_fgets(char *s, int size){
 /* Works like fread():
 **
 ** Read as many as bytes of content as we can, up to a maximum of nmemb
-** bytes.  Return the number of bytes read.  Return -1 if there is no
+** bytes.  Return the number of bytes read.  Return 0 if there is no
 ** further input or if an I/O error occurs.
 */
 size_t cgi_fread(void *ptr, size_t nmemb){
@@ -374,7 +374,7 @@ size_t cgi_fread(void *ptr, size_t nmemb){
     return fread(ptr, 1, nmemb, g.httpIn);
   }
 #ifdef FOSSIL_ENABLE_SSL
-  return ssl_read_server(g.httpSSLConn, ptr, nmemb);
+  return ssl_read_server(g.httpSSLConn, ptr, nmemb, 1);
 #else
   fossil_fatal("SSL not available");
 #endif
