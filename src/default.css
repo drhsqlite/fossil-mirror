@@ -1673,6 +1673,10 @@ div.content  div.markdown > ol.footnotes {
 div.content  div.markdown > ol.footnotes > li {
   margin-bottom: 0.5em;
 }
+div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
+  margin-right: 1em;
+  font-weight: bold;
+}
 
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {

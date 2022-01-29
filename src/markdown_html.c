@@ -31,6 +31,8 @@ void markdown_to_html(
 
 #endif /* INTERFACE */
 
+typedef union { uint64_t u; char c[8]; unsigned char b[8]; } bitfield64_t;
+
 /*
 ** An instance of the following structure is passed through the
 ** "opaque" pointer.
@@ -38,6 +40,7 @@ void markdown_to_html(
 typedef struct MarkdownToHtml MarkdownToHtml;
 struct MarkdownToHtml {
   Blob *output_title;     /* Store the title here */
+  bitfield64_t unique;    /* Enables construction of unique #id elements */
 };
 
 
@@ -58,6 +61,22 @@ struct MarkdownToHtml {
 #define BLOB_APPEND_BLOB(dest, src) \
   blob_append((dest), blob_buffer(src), blob_size(src))
 
+/* Converts an integer to a null-terminated base26 representation
+ * Return empty string if that integer is negative.   */
+static bitfield64_t to_base26(int i, int uppercase){
+  bitfield64_t x;
+  int j;
+  x.u = 0;
+  if( i >= 0 ){
+    for(j=7; j >= 0; j--){
+      x.b[j] = (unsigned char)(uppercase?'A':'a') + i%26;
+      if( (i /= 26) == 0 ) break;
+    }
+    x.u >>= 8*j;
+  }
+  x.c[7] = 0;
+  return x;
+}
 
 /* HTML escapes
 **
@@ -305,7 +324,74 @@ static void html_table_row(
   BLOB_APPEND_LITERAL(ob, "  </tr>\n");
 }
 
+static int html_footnote_ref(
+  struct Blob *ob, int index, int locus, void *opaque
+){
+  const struct MarkdownToHtml *ctx = (struct MarkdownToHtml*)opaque;
+  const bitfield64_t l = to_base26(locus-1,0);
+  char pos[32];
 
+  /* expect BUGs if the following yields compiler warnings */
+  memset(pos,0,32);
+  sprintf(pos, "%s%i-%s", ctx->unique.c, index, l.c);
+
+  BLOB_APPEND_LITERAL(ob,"<a class='noteref' href='#footnote-");
+  blob_appendf(ob,"%s' id='noteref-%s'><sup>%i</sup></a>",
+                   pos,            pos,   index);
+  return 1;
+}
+
+/* Render a single item of the footnotes list.
+ * Each backref gets a unique id to enable dynamic styling. */
+static void html_footnote_item(
+  struct Blob *ob, const struct Blob *text, int index, int nUsed, void *opaque
+){
+  const struct MarkdownToHtml *ctx = (struct MarkdownToHtml*)opaque;
+  char pos[24];
+  if( index <= 0 || nUsed < 0 || !text || !blob_size(text) ){
+    return;
+  }
+
+  /* expect BUGs if the following yields compiler warnings */
+  memset(pos,0,24);
+  sprintf(pos, "%s%i", ctx->unique.c, index);
+
+  blob_appendf(ob, "<li id='footnote-%s'>", pos);
+  BLOB_APPEND_LITERAL(ob,"<sup class='footnote-backrefs'>");
+  if( nUsed <= 1 ){
+    blob_appendf(ob,"<a id='footnote-%s-a' "
+                     "href='#noteref-%s-a'>^</a>", pos, pos);
+  }else{
+    int i;
+    blob_append_char(ob, '^');
+    for(i=0; i<nUsed && i<26; i++){
+      const int c = i + (unsigned)'a';
+      blob_appendf(ob," <a id='footnote-%s-%c'"
+                       " href='#noteref-%s-%c'>%c</a>", pos,c, pos,c, c);
+    }
+    /* It's unlikely that so many backrefs will be usefull */
+    /* but maybe for some machine generated documents... */
+    for(; i<nUsed && i<676; i++){
+      const bitfield64_t l = to_base26(i,0);
+      blob_appendf(ob," <a id='footnote-%s-%s'"
+                       " href='#noteref-%s-%s'>%s</a>",
+                       pos,l.c, pos,l.c, l.c);
+    }
+    if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
+  }
+  BLOB_APPEND_LITERAL(ob,"</sup>\n\t");
+  BLOB_APPEND_BLOB(ob, text);
+  BLOB_APPEND_LITERAL(ob, "\n</li>\n");
+}
+static void html_footnotes(
+  struct Blob *ob, const struct Blob *items, void *opaque
+){
+  if( items && blob_size(items) ){
+    BLOB_APPEND_LITERAL(ob, "<ol class='footnotes'>\n");
+    BLOB_APPEND_BLOB(ob, items);
+    BLOB_APPEND_LITERAL(ob, "</ol>\n");
+  }
+}
 
 /* HTML span tags */
 
@@ -565,6 +651,7 @@ void markdown_to_html(
     /* prolog and epilog */
     html_prolog,
     html_epilog,
+    html_footnotes,
 
     /* block level elements */
     html_blockcode,
@@ -578,6 +665,7 @@ void markdown_to_html(
     html_table,
     html_table_cell,
     html_table_row,
+    html_footnote_item,
 
     /* span level elements */
     html_autolink,
@@ -589,6 +677,7 @@ void markdown_to_html(
     html_link,
     html_raw_html_tag,
     html_triple_emphasis,
+    html_footnote_ref,
 
     /* low level elements */
     0,    /* entity */
@@ -598,9 +687,11 @@ void markdown_to_html(
     "*_", /* emph_chars */
     0     /* opaque */
   };
+  static int invocation = -1; /* no marker for the first document */
   MarkdownToHtml context;
   memset(&context, 0, sizeof(context));
   context.output_title = output_title;
+  context.unique = to_base26(invocation++,1);
   html_renderer.opaque = &context;
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
