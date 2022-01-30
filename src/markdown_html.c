@@ -72,9 +72,11 @@ static bitfield64_t to_base26(int i, int uppercase){
       x.b[j] = (unsigned char)(uppercase?'A':'a') + i%26;
       if( (i /= 26) == 0 ) break;
     }
-    x.u >>= 8*j;
+    assert( j > 0 );    /* because 2^32 < 26^7 */
+    for(i=0; i<8-j; i++)  x.b[i] = x.b[i+j];
+    for(   ; i<8  ; i++)  x.b[i] = 0;
   }
-  x.c[7] = 0;
+  assert( x.c[7] == 0 );
   return x;
 }
 
