@@ -823,8 +823,7 @@ openssl:
 #
 # If the build stops here, or if the custom linker flags are outside the scope
 # of `editbin` or `link /EDIT` (i.e. additional libraries), consider tweaking
-# the OpenSSL makefile by hand (or the templates, as the OpenSSL makefile can
-# rebuild itself when tampered).
+# the OpenSSL makefile by hand.
 #
 # Also note that this step changes the subsystem for the OpenSSL DLLs from
 # WINDOWS to CONSOLE, but which has no effect on DLLs.
