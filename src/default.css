@@ -1677,6 +1677,12 @@ div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
   margin-right: 1em;
   font-weight: bold;
 }
+div.markdown > ol.footnotes > li > .footnote-backrefs > a:target {
+  background: gold;
+}
+div.markdown a.noteref:target > sup {
+  background: gold;
+}
 
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
