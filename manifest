@@ -1,5 +1,5 @@
-C For\sthe\sMSVC\smakefile,\sfix\sforwarding\sof\sXPCFLAGS\sand\sXPLDFLAGS\sto\sOpenSSL.\sThis\sis\sonly\srelevant\sif\sthe\sMSVC\smakefile\sis\sused\sto\sbuild\sOpenSSL\sas\sa\ssub-project\s(FOSSIL_BUILD_SSL=1)\sfor\sWindows\sXP\s(FOSSIL_ENABLE_WINXP=1).\sXPLDFLAGS\sonly\smatters\sfor\sthe\sshared\slibrary\scase\s(FOSSIL_DYNAMIC_BUILD=1),\sand\sis\sapplied\sin\sa\spost\sbuild\sstep\s--\ssomewhat\swhacky,\sbut\sfixes\sthe\sproblem,\sand\sthere's\sa\slot\sof\scomments\sand\sdiagnostic\soutput\sto\shelp\swith\stroubleshooting.
-D 2022-01-31T05:42:00.000
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.38.0\salpha\sthat\sinclude\sthe\nnew\s".mode\sqbox"\scommand\sand\sother\senhancements\sin\sthe\sshell.
+D 2022-01-31T14:19:40.011
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -295,9 +295,9 @@ F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr.c dc374dad64dbe9738c6e899317ea333699c06db1d955b824f8b80605e19d209a
-F extsrc/shell.c 8144fe2f82eaf1a34af354bf82326a39d621f74145f21e5dec5faf2613896720
-F extsrc/sqlite3.c 50da9eaead90c202fb322899e7f29397a266ded324e956ea4a03dad3effcded6
-F extsrc/sqlite3.h 9092647e6ff636608c60bcc066d28432579d5e3086eab2cbe3bd709d5161bc50
+F extsrc/shell.c af50e8dfc72aecba4ae5fc75d8601b5a023da6b831f7a16b6e8eaf42e2962794
+F extsrc/sqlite3.c 8e25125ac664beb71df2f30d2c6f460c74fc964965fa44635139e7a9207e9076
+F extsrc/sqlite3.h 3c9899a4d271612e297175e51660e80ab4ebdc485c85a628bfb6e7e9af4e0f3c
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -970,9 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b0834be5d024d2fbb05d15ca53de4d6c1e0fdc0661eb586d856dd10e78bdfc06 771ab1943904d51fde81afca3afa163be42fb271e9a21ca1dd8b65252cd4971d
-R a476d100c212bbead1b7c97b2942e8a8
-T +closed 771ab1943904d51fde81afca3afa163be42fb271e9a21ca1dd8b65252cd4971d
-U florian
-Z d01717f5958a362dab049a8b9ab5d54a
+P fa3f60f694918d87fe17f240cc0fcd5c2b1b4dc295b50e96fc9811d40ecde00b
+R f547a97b9057f6b33ce87869ddbdbc23
+U drh
+Z 160bec420219989a773a623a778880df
 # Remove this line to create a well-formed Fossil manifest.
