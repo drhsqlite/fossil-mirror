@@ -1,5 +1,5 @@
-C Reduce\soutput\sverbosity,\sbut\sstill\sprovide\senough\shints\sin\scase\sof\san\serror.
-D 2022-01-30T11:32:00.000
+C Keep\sthe\sverbose\soutput\sas\sit's\shelpful\sfor\sdebugging,\sand\sbecause\sFossil\sbuild\soutput\sis\salso\svery\sdetailed.
+D 2022-01-31T05:29:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -764,7 +764,7 @@ F win/Makefile.PellesCGMake c14d416e51cedd694ce8326a99009d28fffc39d80cc630a2d4c3
 F win/Makefile.dmc 0580dba33b4fd956060d0ae66cfc8c98ae3e9ea63a3cb524e93ccce799e1a819
 F win/Makefile.mingw 2dc12db4bfd20ccf1998fce0583cf971fd9ce461a48a404e65d9e84dc9738619
 F win/Makefile.mingw.mistachkin fbaee5006f0376e00fd135fa4159c4a12a7183d61e933d67df08c3469ac97a2b
-F win/Makefile.msc 420e52a887fa9d22f73f280c71552b38a56f9f4e98d3090613a6cbd0f12a9d80
+F win/Makefile.msc 07043471c8ed7c79525bf48aaf44f8408e1d6df1c7861ef6c48a8774080af0f3
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki 0391dc7a5212e72cfd32500fca8acea045e51848ec3e76fd36ff5e3883c453bd
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 87dcc045dd473cb2309669c940a5cc9bdc7448062e341a80e6592db295b95652
-R fe4a4c66ef372fbcc8e635f945748d8b
+P 7dcf497daaea535048e905048e0475031c99813434be962e01f1e61df974804c
+R c8ca1b15b22ff5a99e2d50a8916b09de
 U florian
-Z a697dd30564d062a49b5242ff9bed403
+Z 91c7ce95d5a4677ba2cdba4b7f2c1f1c
 # Remove this line to create a well-formed Fossil manifest.

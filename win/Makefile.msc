@@ -806,6 +806,9 @@ clean-zlib:
 !if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
+!if $(FOSSIL_ENABLE_WINXP)!=0
+	@echo Passing XPCFLAGS = [ $(XPCFLAGS) ] to the OpenSSL configuration...
+!endif
 !ifdef PERLDIR
 	@pushd "$(SSLDIR)" && "$(PERLDIR)\$(PERL)" Configure $(SSLCONFIG) && popd
 !else
@@ -829,7 +832,7 @@ openssl:
 # Also note that this step changes the subsystem for the OpenSSL DLLs from
 # WINDOWS to CONSOLE, but which has no effect on DLLs.
 #
-	@echo Post-processing the OpenSSL DLLs...
+	@echo Applying XPLDFLAGS = [ $(XPLDFLAGS) ] to the OpenSSL DLLs...
 	@for /F "usebackq delims=" %F in (`dir /A:-D/B "$(SSLDIR)\*.dll" 2^>nul`) \
 		do @( \
 			echo %F & \
