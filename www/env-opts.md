@@ -29,6 +29,8 @@ insensitive file systems on any single platform. This option or the
 global setting should be used to force the case sensitivity to the
 most sensible condition.
 
+`--cgitrace`: Active CGI tracing.
+
 `--chdir DIRECTORY`: Change to the named directory before processing
 any commands.
 
