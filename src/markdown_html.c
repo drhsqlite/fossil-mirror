@@ -381,7 +381,7 @@ static void html_footnote_item(
     }
     if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
   }
-  BLOB_APPEND_LITERAL(ob,"</sup>\n\t");
+  BLOB_APPEND_LITERAL(ob,"</sup>\n");
   BLOB_APPEND_BLOB(ob, text);
   BLOB_APPEND_LITERAL(ob, "\n</li>\n");
 }

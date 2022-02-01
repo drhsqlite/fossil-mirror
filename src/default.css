@@ -1674,7 +1674,7 @@ div.content  div.markdown > ol.footnotes > li {
   margin-bottom: 0.5em;
 }
 div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
-  margin-right: 1em;
+  margin-right: 0.5em;
   font-weight: bold;
 }
 div.markdown > ol.footnotes > li > .footnote-backrefs > a:target {

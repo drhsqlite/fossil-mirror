@@ -1068,14 +1068,13 @@ static size_t char_link(
   size_t size
 ){
   const int is_img = (offset && data[-1] == '!');
-  const int is_inline = (offset && data[-1]=='^');
-  const int is_note = !is_img && (is_inline || (size>1 && data[1]=='^'));
   size_t i = 1, txt_e;
   struct Blob *content = 0;
   struct Blob *link = 0;
   struct Blob *title = 0;
   const struct footnote *fn = 0;
   int level, ret;
+  /* ? FIXME: assert( size>0 ); */
 
   /* checking whether the correct renderer exists */
   if( (is_img && !rndr->make.image) || (!is_img && !rndr->make.link) ){
@@ -1141,19 +1140,29 @@ static size_t char_link(
       id_data = data+i+1;
       id_size = id_end-(i+1);
     }
+
     if( get_link_ref(rndr, link, title, id_data, id_size)<0 ){
       goto char_link_cleanup;
     }
+
     i = id_end+1;
 
   /* shortcut reference style link */
   }else{
-    if( is_note ){
-      if( is_inline ){
-        //fn = put_footnote(rndr, data+1, txt_e-1);
-      }else{
-        fn = get_footnote(rndr, data+1, txt_e-1);
-      }
+    if( offset && data[-1]=='^' ){
+
+      /* free-standing inline note */
+      struct footnote note = {empty_blob,empty_blob,0,0};
+      note.index = ++(rndr->iNotesCount);
+      note.nUsed = 1;
+      blob_append(&note.text,data+1,txt_e-1);
+      blob_append(&rndr->notes, (char *)&note, sizeof note);
+      fn = (struct footnote*)(blob_buffer(&rndr->notes)
+              + blob_size(&rndr->notes) - sizeof(note));
+    }else if(!is_img && size>2 && data[1]=='^'){
+
+      /* free-standing reference */
+      fn = get_footnote(rndr, data+1, txt_e-1);
       if( !fn ) goto char_link_cleanup;
     }else if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
       goto char_link_cleanup;
@@ -1166,7 +1175,7 @@ static size_t char_link(
   /* building content: img alt is escaped, link content is parsed */
   if( txt_e>1 ){
     if( is_img ) blob_append(content, data+1, txt_e-1);
-    else if(is_inline) parse_inline(content, rndr, data+1, txt_e-1);
+    else if(!fn) parse_inline(content, rndr, data+1, txt_e-1);
   }
 
   /* calling the relevant rendering function */
@@ -1174,6 +1183,8 @@ static size_t char_link(
     if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='!' ) ob->nUsed--;
     ret = rndr->make.image(ob, link, title, content, rndr->make.opaque);
   }else if(fn){
+    if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='^' ) ob->nUsed--;
+    /* ? FIXME: the above line looks like a hack */
     if(rndr->make.footnote_ref){
       ret = rndr->make.footnote_ref(ob,fn->index,fn->nUsed,rndr->make.opaque);
     }
@@ -2162,8 +2173,10 @@ static int is_ref(
   i += beg;
 
   /* id part: anything but a newline between brackets */
-  if( data[i]!='[' || data[i+1]=='^' ) return 0;
+  if( data[i]!='[' ) return 0;
   i++;
+  if( i>=end || data[i]=='^' ) return 0;  /* see is_footnote() */
+
   id_offset = i;
   while( i<end && data[i]!='\n' && data[i]!='\r' && data[i]!=']' ){ i++; }
   if( i>=end || data[i]!=']' ) return 0;
@@ -2192,6 +2205,7 @@ static int is_ref(
   ){
     i += 1;
   }
+  /* ? FIXME: if( data[i-1]=='>' && data[link_offset-1]!='<' ) */
   if( data[i-1]=='>' ) link_end = i-1; else link_end = i;
 
   /* optional spacer: (space | tab)* (newline | '\'' | '"' | '(' ) */
@@ -2255,7 +2269,8 @@ static int is_ref(
  * FOOTNOTE PARSING  *
  *********************/
 
-/* is_footnote -- returns whether a line is a footnote or not */
+/* is_footnote -- check if data holds a definition of a labeled footnote.
+ * If so then append the corresponding element to `footnotes` array */
 static int is_footnote(
   const char *data,   /* input text */
   size_t beg,         /* offset of the beginning of the line */
@@ -2263,54 +2278,87 @@ static int is_footnote(
   size_t *last,       /* last character of the link */
   struct Blob * footnotes
 ){
-  size_t i = 0;
-  size_t id_offset, id_end;
-  size_t note_offset, note_end;
-  size_t line_end;
+  size_t i, id_offset, id_end;
   struct footnote fn = { empty_blob, empty_blob, 0, 0 };
 
+  /* failfast if data is too short */
+  if( beg+5>=end ) return 0;
+  i = beg;
+
   /* footnote definition must start at the begining of a line */
-  if( beg+4>=end ) return 0;
-  i += beg;
+  if( data[i]!='[' ) return 0;
+  i++;
+  if( data[i]!='^' ) return 0;
+  id_offset = i++;
 
   /* id part: anything but a newline between brackets */
-  if( data[i]!='[' || data[i+1]!='^' ) return 0;
-  i++;
-  id_offset = i;
   while( i<end && data[i]!=']' && data[i]!='\n' && data[i]!='\r' ){ i++; }
   if( i>=end || data[i]!=']' ) return 0;
-  id_end = i;
+  id_end = i++;
 
-  /* spacer: colon (space | tab)* newline? (space | tab)* */
-  i++;
+  /* spacer: colon (space | tab)* */
   if( i>=end || data[i]!=':' ) return 0;
   i++;
   while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
-  if( i<end && (data[i]=='\n' || data[i]=='\r') ){
+
+  /* passthrough truncated footnote definition
+   * FIXME: maybe omit it? */
+  if( i>=end ) return 0;
+
+  if( build_ref_id(&fn.id, data+id_offset, id_end-id_offset)<0 ) return 0;
+
+  /* footnote's text may start on the same line */
+  if( data[i]!='\n' && data[i]!='\r' ){
+    const size_t j = i;
+    do i++; while( i<end && data[i]!='\n' && data[i]!='\r' );
+    blob_append(&fn.text, data+j, i-j);
+    if( i<end ){
+      blob_append_char(&fn.text, data[i]);
+      i++;
+      if( i<end && data[i]=='\r' && data[i-1] == '\n' ){
+        blob_append_char(&fn.text, data[i]);
+        i++;
+      }
+    }
+  }else{
     i++;
     if( i<end && data[i]=='\r' && data[i-1] == '\n' ) i++;
   }
-  while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
-  if( i>=end ) return 0;
+  if( i<end ){
 
-  /* note is a single line of text (FIXME: support multiline notes) */
-  note_offset = i;
-  while( i<end && data[i]!='\r' && data[i]!='\n' ){ i++; }
-  note_end = i;
+    /* compute the indentation from the 2nd line  */
+    size_t indent = i;
+    const char *spaces = data+i;
+    while( i<end && data[i]==' ' ){ i++; }
+    if( i>=end )   goto footnote_finish;
+    indent = i - indent;
+    i -= indent;
+    if( indent<2 ) goto footnote_finish;
 
-  /* computing end-of-line */
-  line_end = 0;
-  if( i >=end || data[i]=='\r' || data[ i ]=='\n' ) line_end = i;
-  if( i+1<end && data[i]=='\n' && data[i+1]=='\r' ) line_end = i+1;
-
-  if( !line_end ) return 0; /* garbage after the link */
-
-  /* a valid note has been found, filling-in note's text */
-  if( last ) *last = line_end;
-  if( !footnotes ) return 1;
-  if( build_ref_id(&fn.id, data+id_offset, id_end-id_offset)<0 ) return 0;
-  blob_append(&fn.text, data+note_offset, note_end-note_offset);
-  blob_append(footnotes, (char *)&fn, sizeof fn);
+    /* process the 2nd and the following lines */
+    while( i+indent<end && memcmp(data+i,spaces,indent)==0 ){
+      size_t j;
+      i += indent;
+      j = i;
+      while( i<end && data[i]!='\n' && data[i]!='\r' ) i++;
+      blob_append(&fn.text, data+j, i-j);
+      if( i>=end ) break;
+      blob_append_char(&fn.text, data[i]);
+      i++;
+      if( i<end && data[i]=='\r' && data[i-1] == '\n' ){
+        blob_append_char(&fn.text, data[i]);
+        i++;
+      }
+    }
+  }
+footnote_finish:
+  if( !blob_size(&fn.text) ){
+    blob_reset(&fn.id);
+    return 0;
+  }
+  /* a valid note has been found */
+  if( last ) *last = i;
+  if( footnotes ) blob_append(footnotes, (char *)&fn, sizeof fn);
   return 1;
 }
 
@@ -2436,7 +2484,7 @@ void markdown(
   blob_reset(&rndr.refs);
   end = COUNT_FOOTNOTES(&rndr.notes);
   for(i=0; i<end; i++){
-    blob_reset(&fn[i].id);
+    if(blob_size(&fn[i].id)) blob_reset(&fn[i].id);
     blob_reset(&fn[i].text);
   }
   blob_reset(&rndr.notes);

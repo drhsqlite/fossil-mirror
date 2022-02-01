@@ -1,5 +1,5 @@
-C Do\snot\sassume\slittle-endian\sarchitecture\swithin\s<tt>to_base26()</tt>\sfunction.
-D 2022-01-30T17:38:02.013
+C Support\smultiline\sfootnote\sdefinitions\s(<tt>is_footnote()</tt>\sfunction)\sand\sinline\sfootnotes\svia\s<verbatim>^[...]</verbatim>\ssyntax\s(this\ssyntax\sis\snot\ssettled\syet).\sFix\soverall\slink\ssupport\sthat\swas\sbroken\sby\s[e3710ccd3a5a].
+D 2022-02-01T20:12:15.043
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -404,7 +404,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 6603ccbd4dc8f56b79d5ab291b1d9da313f62c833d71cbcc933c93831ff802b6
 F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
-F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
+F src/backlink.c ab9a0874ba0895285848246752df0c2be186d76368780ed0f19dd3cd9e0015b5
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
@@ -432,7 +432,7 @@ F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 55d641d0c10ac800553c7e6dd233655e3fea3d5b2f4d4343408caaf216e7efa2
-F src/default.css 1e464c905718603bcfac97e4c442d085481167b4714b645e897722fefc12b6b5
+F src/default.css 10308cfe3a10a7b570c18d04de20d4fbb02727214fc1918a8e378d7a87a7c9b0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -515,9 +515,9 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c 1b560149a4277cff7f7fcc9a3c377561d0cde0c3bd403dc7cd681f5e0ec31ca4
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 978d12915bfc2a4214f1aa0f4fc5d3bd7e0980c277edc91d493e289bd366fee2
+F src/markdown.c 0a68c6c568eddfbdd0b188a907cacdc5e19a13b63f374b28800826c1f8f3d54f
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
-F src/markdown_html.c 16d95eed17bcff6d6d5d1fe5ec4dcdd704b9f2073e5340dff39e3830881d620e
+F src/markdown_html.c 0c11060f771edb55f6ee311282729a1d9d3c04319730e84b7c4d22021173b7a7
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 02068d1648a62fd1dbe82ba187df460dd8ab83640e9728850a7c20f68effc21d
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50dcf92f85750f57baf5ac33e06a3c424103d10d6851edae600ce3c193ba79f2
-R fda1e118a8a04a1dfa2ec9a9874b2ce4
+P 4b63b1ee55c339b0a82b034b164dfa610cbfa034dbea19ec99d9a6acc0a505b5
+R f8a9aa2b611b33db694f277cbb2ffd62
 U george
-Z 5a22ba5cbbc208d23652292f7c38119c
+Z 5860bd41bf2c804904543b6fbcf9ca08
 # Remove this line to create a well-formed Fossil manifest.
