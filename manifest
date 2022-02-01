@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\s3.38.0\salpha\sthat\sincludes\ssupport\sfor\s--wordwrap\nin\sthe\sCLI.
-D 2022-02-01T13:20:40.061
+C Document\sthe\s"--chdir"\sglobal\soption.\s(on\s"fossil\shelp\s-o")
+D 2022-02-01T21:24:08.556
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -441,7 +441,7 @@ F src/diff.c a6c34430d9318823e87499ffef388bbd9e9a2d67fac1d413e306d1a7e373ebd6
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c c2d2deb1341d9f954c0107267daf2dddf07e2bcf62d23f73bd160d1a510876c0
-F src/dispatch.c 3707f49c1d612ec3f8ad5008e4050df906ff716cf9fb8761d1c4eac3be87505b
+F src/dispatch.c ef9df7cc45b56b4a1532ebe4943eb3ecd67b72f8be8113b881658ce45e0890bc
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52b0272fda7ec17146cbc7737e5a417a5f445d7a9563450144085478fa06b78f
-R dbbddf06548f6070cfb6c9bebd37fb5c
-U drh
-Z 38c85571b2f1010c46c25e2456b784d6
+P 0505bc82897e2a7bee3b95ae225a290d136d2e7240bc819f13dc181637a7cef6
+R 6d604ff5ac0e7bcaddb58e2d1edd33bb
+U mgagnon
+Z a22063a08aabdc8e916a4f6784134a18
 # Remove this line to create a well-formed Fossil manifest.

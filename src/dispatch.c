@@ -1011,6 +1011,7 @@ static const char zOptions[] =
 @ 
 @   --args FILENAME         Read additional arguments and options from FILENAME
 @   --cgitrace              Active CGI tracing
+@   --chdir PATH            Change to PATH before to perform any operations 
 @   --comfmtflags VALUE     Set comment formatting flags to VALUE
 @   --comment-format VALUE  Alias for --comfmtflags
 @   --errorlog FILENAME     Log errors to FILENAME 
