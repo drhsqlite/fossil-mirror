@@ -1,5 +1,5 @@
-C Add\s--case-sensitive\sand\s--nocgi\sto\sthe\soutput\sof\s'fossil\shelp\s-o',\sand\s--cgitrace\sto\sthe\swebpage\sfor\sglobal\soptions.
-D 2022-02-01T22:03:48.006
+C Fix\stypo\sin\sdefcsp.md:\sDSP\s-->\sCSP
+D 2022-02-02T21:50:32.755
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -818,7 +818,7 @@ F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f
 F www/custom_ticket.wiki b74e5f0b26dc99bc352b289ee82517818039889697d8c61f76ef9bc51ed621eb
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
 F www/customskin.md 0fe0613ca89b524be29a996adf80e1f6be36549c660bce983dccdfa8b19e7d99
-F www/defcsp.md f9d7c3c754e503a3a4c38789b53c09c65e95d59e58ef9288a5ea7a333324b92c
+F www/defcsp.md 81dabeac0054e46dbcb8f7633ff5fc6ab3ee38934a6d05c3c71d3a14209441f6
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 11757146dce0c3dcbd2f392a8c0f2233299b6a47eb9ea5934693667d780b5148
 F www/delta_format.wiki 5548f5376c04b82045f9b6701cac72ad85b0720b535e5a97aa96188fce2f4f60
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4bb209045483671e39075ffad7b2082c1edbdd4994020d74f8dc2daa9e59d503
-R 1ad5cc832d745974a239e092199a5937
-U danield
-Z 4be3847c01499153515cd318643df5d4
+P 54cdf297fde6a2756190f33530741f3f50241e56f356f905c0055b31ea938972
+R 00eb84de6eb3ad298387e77c336e4a5c
+U mgagnon
+Z caa76e0a66c7a7ab26a2dadfb9797c4a
 # Remove this line to create a well-formed Fossil manifest.
