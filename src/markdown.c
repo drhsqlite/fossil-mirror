@@ -173,6 +173,7 @@ struct render {
   struct Blob *aBlobCache[20];   /* Cache of Blobs available for reuse */
 
   struct Blob notes;  /* array of footnotes */
+  int nLabeled;       /* number of footnotes found by the first pass */
   int iNotesCount;    /* count distinct indices found in the second pass */
 };
 
@@ -1042,7 +1043,7 @@ static const struct footnote* get_footnote(
   struct Blob *id = new_work_buffer(rndr);
   if( build_ref_id(id, data, size)<0 ) goto cleanup;
   fn = bsearch(id, blob_buffer(&rndr->notes),
-               COUNT_FOOTNOTES(&rndr->notes),
+               rndr->nLabeled,
                sizeof (struct footnote),
                cmp_link_ref);
   if( !fn ) goto cleanup;
@@ -2377,7 +2378,6 @@ void markdown(
   size_t i, beg, end = 0;
   struct render rndr;
   Blob text = BLOB_INITIALIZER;        /* input after the first pass  */
-  int nLabeled;        /* number of footnotes found by the first pass */
 
   /* filling the render structure */
   if( !rndrer ) return;
@@ -2431,7 +2431,7 @@ void markdown(
       beg = end;
     }
   }
-
+  assert( rndr.iNotesCount==0 );
   /* sorting the reference array */
   if( blob_size(&rndr.refs) ){
     qsort(blob_buffer(&rndr.refs),
@@ -2439,10 +2439,10 @@ void markdown(
           sizeof(struct link_ref),
           cmp_link_ref_sort);
   }
-  nLabeled = COUNT_FOOTNOTES(&rndr.notes);
+  rndr.nLabeled = COUNT_FOOTNOTES(&rndr.notes);
   /* sorting the footnotes array by id */
-  if( nLabeled ){
-    qsort(blob_buffer(&rndr.notes), nLabeled, sizeof(struct footnote),
+  if( rndr.nLabeled ){
+    qsort(blob_buffer(&rndr.notes), rndr.nLabeled, sizeof(struct footnote),
           cmp_link_ref_sort);
   }
 
