@@ -176,7 +176,7 @@ int repo_list_page(void){
       char *zAge;
       char *zFull;
       RepoInfo x;
-      int iAge;
+      sqlite3_int64 iAge;
       if( nName<7 ) continue;
       zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
       if( zName[0]=='/'
@@ -207,10 +207,12 @@ int repo_list_page(void){
         ** scan lists, but included in "fossil all ui" lists */
         continue;
       }
-      /* Assert that the following cast will not narrow in fact. */
-      assert((rNow - x.rMTime)<=(((unsigned)~0)>>1)/86400.0);
-      iAge = (int)((rNow - x.rMTime)*86400);
-      if( iAge<0 ) x.rMTime = rNow;
+      if( rNow <= x.rMTime ){
+        x.rMTime = rNow;
+      }else if( x.rMTime<0.0 ){
+        x.rMTime = rNow;
+      }
+      iAge = (int)(rNow - x.rMTime)*86400;
       zAge = human_readable_age(rNow - x.rMTime);
       blob_append_sql(&html, "<tr><td valign='top'>");
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
