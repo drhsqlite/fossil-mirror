@@ -1680,13 +1680,15 @@ div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
 div.markdown > ol.footnotes > li > .footnote-backrefs > a:target {
   background: gold;
 }
-div.markdown a.noteref:target > sup {
+div.markdown sup > a.noteref:target {
   background: gold;
 }
+div.markdown span.notescope:hover,
 div.markdown span.notescope:target {
   border-bottom: 2px solid gold;
 }
-div.markdown span.notescope:target > a.noteref > sup {
+div.markdown span.notescope:hover  > sup > a.noteref,
+div.markdown span.notescope:target > sup > a.noteref {
   background: gold;
 }
 

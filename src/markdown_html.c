@@ -335,18 +335,18 @@ static int html_footnote_ref(
 
   /* expect BUGs if the following yields compiler warnings */
   memset(pos,0,32);
-  sprintf(pos, "%s%i-%s", ctx->unique.c, index, l.c);
+  sprintf(pos, "%s-%i-%s", ctx->unique.c, index, l.c);
   if(span && blob_size(span)) {
-    BLOB_APPEND_LITERAL(ob,"<span class='notescope' id='noteref-");
+    BLOB_APPEND_LITERAL(ob,"<span class='notescope' id='noteref");
     blob_appendf(ob,"%s'>",pos);
     BLOB_APPEND_BLOB(ob, span);
     blob_trim(ob);
-    BLOB_APPEND_LITERAL(ob,"<a class='noteref' href='#footnote-");
-    blob_appendf(ob,"%s'><sup>%i</sup></a></span>", pos, index);
+    BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
+    blob_appendf(ob,"%s'>%i</a></sup></span>", pos, index);
   }else{
     blob_trim(ob);
-    BLOB_APPEND_LITERAL(ob,"<a class='noteref' href='#footnote-");
-    blob_appendf(ob,"%s' id='noteref-%s'><sup>%i</sup></a>",
+    BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
+    blob_appendf(ob,"%s' id='noteref%s'>%i</a></sup>",
                     pos,            pos,   index);
   }
   return 1;
@@ -365,27 +365,27 @@ static void html_footnote_item(
 
   /* expect BUGs if the following yields compiler warnings */
   memset(pos,0,24);
-  sprintf(pos, "%s%i", ctx->unique.c, index);
+  sprintf(pos, "%s-%i", ctx->unique.c, index);
 
-  blob_appendf(ob, "<li id='footnote-%s'>", pos);
+  blob_appendf(ob, "<li id='footnote%s'>", pos);
   BLOB_APPEND_LITERAL(ob,"<sup class='footnote-backrefs'>");
   if( nUsed <= 1 ){
-    blob_appendf(ob,"<a id='footnote-%s-a' "
-                     "href='#noteref-%s-a'>^</a>", pos, pos);
+    blob_appendf(ob,"<a id='footnote%s-a' "
+                     "href='#noteref%s-a'>^</a>", pos, pos);
   }else{
     int i;
     blob_append_char(ob, '^');
     for(i=0; i<nUsed && i<26; i++){
       const int c = i + (unsigned)'a';
-      blob_appendf(ob," <a id='footnote-%s-%c'"
-                       " href='#noteref-%s-%c'>%c</a>", pos,c, pos,c, c);
+      blob_appendf(ob," <a id='footnote%s-%c'"
+                       " href='#noteref%s-%c'>%c</a>", pos,c, pos,c, c);
     }
     /* It's unlikely that so many backrefs will be usefull */
     /* but maybe for some machine generated documents... */
     for(; i<nUsed && i<676; i++){
       const bitfield64_t l = to_base26(i,0);
-      blob_appendf(ob," <a id='footnote-%s-%s'"
-                       " href='#noteref-%s-%s'>%s</a>",
+      blob_appendf(ob," <a id='footnote%s-%s'"
+                       " href='#noteref%s-%s'>%s</a>",
                        pos,l.c, pos,l.c, l.c);
     }
     if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
