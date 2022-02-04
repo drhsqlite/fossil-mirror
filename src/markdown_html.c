@@ -398,7 +398,8 @@ static void html_footnotes(
   struct Blob *ob, const struct Blob *items, void *opaque
 ){
   if( items && blob_size(items) ){
-    BLOB_APPEND_LITERAL(ob, "<ol class='footnotes'>\n");
+    BLOB_APPEND_LITERAL(ob,
+      "\n<hr class='footnotes-separator'/>\n<ol class='footnotes'>\n");
     BLOB_APPEND_BLOB(ob, items);
     BLOB_APPEND_LITERAL(ob, "</ol>\n");
   }
