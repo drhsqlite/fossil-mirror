@@ -1,5 +1,5 @@
-C Automatically\srender\sa\shorizontal\srule\sbefore\sthe\slist\sof\sfootnotes.\sIf\sdesired\sa\sparticular\sskin\scan\shide\sit\susing\sCSS\sselector\s"hr.footnotes-separator".
-D 2022-02-04T19:24:42.655
+C Minor\scode\srefactoring.
+D 2022-02-04T19:47:39.322
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -515,7 +515,7 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c 1b560149a4277cff7f7fcc9a3c377561d0cde0c3bd403dc7cd681f5e0ec31ca4
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c eb33ca24bddad6832e78ce72c4e7c4f7b23102df658b013873a35719f51eb99d
+F src/markdown.c 0d965359f5806213983e940156ec56b9e20eb7d6132c046687d2923e2a569e8c
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
 F src/markdown_html.c 52a3d97b835a7cfe23b8b17d9134b27ba4b7b9506b49576e6c04eff777e8a9e0
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fe9e6ff9eb7e49d24d6ece7310856b6feeb351b1b8d16d0fef74250610a53605
-R e32879de5a988bf47a5397c81027b0d3
+P 6807b434a9e85e08ce97d2c33250846fd1134a771093e06541d7fe6d198e070e
+R f1e290c2e23fde9cc1c0db6614cd9242
 U george
-Z 0b0830cc58d7070e76add9d6a7cbd6d7
+Z 97769d31863adf7a7179b94b357240c3
 # Remove this line to create a well-formed Fossil manifest.

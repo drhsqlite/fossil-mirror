@@ -173,9 +173,11 @@ struct render {
   int nBlobCache;                /* Number of entries in aBlobCache */
   struct Blob *aBlobCache[20];   /* Cache of Blobs available for reuse */
 
-  struct Blob notes;  /* array of footnotes */
-  int nLabeled;       /* number of footnotes found by the first pass */
-  int iNotesCount;    /* count distinct indices found in the second pass */
+  struct {
+    Blob all;    /* array of footnotes */
+    int nLbled;  /* number of labeled footnotes found during the first pass */
+    int nMarks;  /* count distinct indices found in the second pass */
+  } notes;
 };
 
 /* html_tag -- structure for quick HTML tag search (inspired from discount) */
@@ -1043,15 +1045,15 @@ static const struct footnote* get_footnote(
   struct footnote *fn = NULL;
   struct Blob *id = new_work_buffer(rndr);
   if( build_ref_id(id, data, size)<0 ) goto cleanup;
-  fn = bsearch(id, blob_buffer(&rndr->notes),
-               rndr->nLabeled,
+  fn = bsearch(id, blob_buffer(&rndr->notes.all),
+               rndr->notes.nLbled,
                sizeof (struct footnote),
                cmp_link_ref);
   if( !fn ) goto cleanup;
 
   if( fn->index == 0 ){  /* the first reference to the footnote */
     assert( fn->nUsed == 0 );
-    fn->index = ++(rndr->iNotesCount);
+    fn->index = ++(rndr->notes.nMarks);
   }
   fn->nUsed++;
   assert( fn->index > 0 );
@@ -1071,13 +1073,13 @@ static inline const struct footnote* add_inline_footnote(
   struct footnote fn = { empty_blob, empty_blob, 0, 0 };
   while(size && (*text==' ' || *text=='\t')){ text++; size--; }
   if(!size) return 0;
-  fn.index = ++(rndr->iNotesCount);
+  fn.index = ++(rndr->notes.nMarks);
   fn.nUsed = 1;
   assert( fn.index > 0 );
   blob_append(&fn.text, text, size);
-  blob_append(&rndr->notes, (char *)&fn, sizeof fn);
-  return (struct footnote*)( blob_buffer(&rndr->notes)
-                            +( blob_size(&rndr->notes)-sizeof fn ));
+  blob_append(&rndr->notes.all, (char *)&fn, sizeof fn);
+  return (struct footnote*)( blob_buffer(&rndr->notes.all)
+                            +( blob_size(&rndr->notes.all)-sizeof fn ));
 }
 
 /* Return the offset of the matching closing bracket or 0 if not found.
@@ -2455,8 +2457,8 @@ void markdown(
   rndr.nBlobCache = 0;
   rndr.iDepth = 0;
   rndr.refs  = empty_blob;
-  rndr.notes = empty_blob;
-  rndr.iNotesCount = 0;
+  rndr.notes.all = empty_blob;
+  rndr.notes.nMarks = 0;
   for(i=0; i<256; i++) rndr.active_char[i] = 0;
   if( (rndr.make.emphasis
     || rndr.make.double_emphasis
@@ -2482,7 +2484,7 @@ void markdown(
     const char* const data = blob_buffer(ib);
     if( is_ref(data, beg, size, &end, &rndr.refs) ){
       beg = end;
-    }else if(is_footnote(data, beg, size, &end, &rndr.notes)){
+    }else if(is_footnote(data, beg, size, &end, &rndr.notes.all)){
       /* FIXME: fossil_print("\nfootnote found at %i\n", beg); */
       beg = end;
     }else{ /* skipping to the next line */
@@ -2502,7 +2504,7 @@ void markdown(
       beg = end;
     }
   }
-  assert( rndr.iNotesCount==0 );
+  assert( rndr.notes.nMarks==0 );
   /* sorting the reference array */
   if( blob_size(&rndr.refs) ){
     qsort(blob_buffer(&rndr.refs),
@@ -2510,25 +2512,25 @@ void markdown(
           sizeof(struct link_ref),
           cmp_link_ref_sort);
   }
-  rndr.nLabeled = COUNT_FOOTNOTES(&rndr.notes);
+  rndr.notes.nLbled = COUNT_FOOTNOTES(&rndr.notes.all);
   /* sorting the footnotes array by id */
-  if( rndr.nLabeled ){
-    qsort(blob_buffer(&rndr.notes), rndr.nLabeled, sizeof(struct footnote),
-          cmp_link_ref_sort);
+  if( rndr.notes.nLbled ){
+    qsort(blob_buffer(&rndr.notes.all), rndr.notes.nLbled,
+          sizeof(struct footnote), cmp_link_ref_sort);
   }
 
   /* second pass: actual rendering */
   if( rndr.make.prolog ) rndr.make.prolog(ob, rndr.make.opaque);
   parse_block(ob, &rndr, blob_buffer(&text), blob_size(&text));
 
-  fn = (struct footnote*)blob_buffer(&rndr.notes);
-  if(rndr.iNotesCount && rndr.make.footnote_item && rndr.make.footnotes){
+  fn = (struct footnote*)blob_buffer(&rndr.notes.all);
+  if(rndr.notes.nMarks && rndr.make.footnote_item && rndr.make.footnotes){
     Blob * one_item  = new_work_buffer(&rndr);
     Blob * all_items = new_work_buffer(&rndr);
-    qsort( fn, COUNT_FOOTNOTES(&rndr.notes), sizeof(struct footnote),
+    qsort( fn, COUNT_FOOTNOTES(&rndr.notes.all), sizeof(struct footnote),
            cmp_footnote_sort /* sort footnotes by index */ );
     blob_reset( all_items );
-    for(i=0; i<rndr.iNotesCount; i++){
+    for(i=0; i<rndr.notes.nMarks; i++){
       assert( fn[i].index == i+1 );
 
       blob_reset( one_item );
@@ -2553,12 +2555,12 @@ void markdown(
     blob_reset(&lr[i].title);
   }
   blob_reset(&rndr.refs);
-  end = COUNT_FOOTNOTES(&rndr.notes);
+  end = COUNT_FOOTNOTES(&rndr.notes.all);
   for(i=0; i<end; i++){
     if(blob_size(&fn[i].id)) blob_reset(&fn[i].id);
     blob_reset(&fn[i].text);
   }
-  blob_reset(&rndr.notes);
+  blob_reset(&rndr.notes.all);
   for(i=0; i<rndr.nBlobCache; i++){
     fossil_free(rndr.aBlobCache[i]);
   }
