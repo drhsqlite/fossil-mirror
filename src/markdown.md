@@ -175,12 +175,11 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 > Format 5 reuses a fragment of text as a label.
 > Labels are case-insensitive.
 
->
-```
-[^label]: Footnote definition must start on the first column.
-      The second line (if any) must be indented by two or more spaces.
-      Definition continues until indentation drops below that of the 2nd line.
-```
+> ```
+> [^label]: Footnote definition must start on the first column.
+>      The second line (if any) must be indented by two or more spaces.
+>      Definition continues until indentation drops below that of the 2nd line.
+>```
 > Charachter **^** is not part of a label, it is part of the syntax.
 > Both a footnote's text and a fragment to which a footnote applies
 > are subject to further interpretation as Markdown sources.
