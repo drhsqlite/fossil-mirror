@@ -152,6 +152,39 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 ~~~
 
+<a id="ftnts"></a>
+## Footnotes ##
+
+> Footnotes (or "endnotes") is a Fossil's extention of classical Markdown.
+> Fossil's syntax for footnotes is similar to links and
+> is distinguished by the use of character **^**
+> that *immediately* follows an opening bracket.
+
+> 1. **\(^** footnote's text **)**
+> 2. **\[** fragment of text **]\(^** a comment about that fragment **\)**
+> 3. **\[^**&nbsp;label&nbsp;**\]**
+> 4. **\[** fragment of text **\]\[^**&nbsp;label&nbsp;**\]**
+> 5. **\[** fragment of text **\]\[^\]**
+
+> With formats 1 and 2 ("inline footnotes") text of a footnote is provided
+> in the place where the corresponding numeric mark will be rendered.
+> With formats 3, 4, and 5 ("reference footnotes") text of a footnote
+> is supplied elsewhere in the document, as shown below.
+> Formats 2, 4 and 5 ("span-specific footnotes") mark a specific fragment
+> that is being commented in the footnote.
+> Format 5 reuses a fragment of text as a label.
+> Labels are case-insensitive.
+
+>
+```
+[^label]: Footnote definition must start on the first column.
+      The second line (if any) must be indented by two or more spaces.
+      Definition continues until indentation drops below that of the 2nd line.
+```
+> Charachter **^** is not part of a label, it is part of the syntax.
+> Both a footnote's text and a fragment to which a footnote applies
+> are subject to further interpretation as Markdown sources.
+
 ## Miscellaneous ##
 
 > *   In-line images are made using **\!\[alt-text\]\(image-URL\)**.

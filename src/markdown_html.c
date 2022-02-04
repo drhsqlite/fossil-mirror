@@ -327,7 +327,7 @@ static void html_table_row(
 }
 
 static int html_footnote_ref(
-  struct Blob *ob, int index, int locus, void *opaque
+  struct Blob *ob, const struct Blob *span, int index, int locus, void *opaque
 ){
   const struct MarkdownToHtml *ctx = (struct MarkdownToHtml*)opaque;
   const bitfield64_t l = to_base26(locus-1,0);
@@ -336,10 +336,19 @@ static int html_footnote_ref(
   /* expect BUGs if the following yields compiler warnings */
   memset(pos,0,32);
   sprintf(pos, "%s%i-%s", ctx->unique.c, index, l.c);
-
-  BLOB_APPEND_LITERAL(ob,"<a class='noteref' href='#footnote-");
-  blob_appendf(ob,"%s' id='noteref-%s'><sup>%i</sup></a>",
-                   pos,            pos,   index);
+  if(span && blob_size(span)) {
+    BLOB_APPEND_LITERAL(ob,"<span class='notescope' id='noteref-");
+    blob_appendf(ob,"%s'>",pos);
+    BLOB_APPEND_BLOB(ob, span);
+    blob_trim(ob);
+    BLOB_APPEND_LITERAL(ob,"<a class='noteref' href='#footnote-");
+    blob_appendf(ob,"%s'><sup>%i</sup></a></span>", pos, index);
+  }else{
+    blob_trim(ob);
+    BLOB_APPEND_LITERAL(ob,"<a class='noteref' href='#footnote-");
+    blob_appendf(ob,"%s' id='noteref-%s'><sup>%i</sup></a>",
+                    pos,            pos,   index);
+  }
   return 1;
 }
 

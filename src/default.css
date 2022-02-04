@@ -1683,6 +1683,12 @@ div.markdown > ol.footnotes > li > .footnote-backrefs > a:target {
 div.markdown a.noteref:target > sup {
   background: gold;
 }
+div.markdown span.notescope:target {
+  border-bottom: 2px solid gold;
+}
+div.markdown span.notescope:target > a.noteref > sup {
+  background: gold;
+}
 
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {

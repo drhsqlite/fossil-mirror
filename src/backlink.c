@@ -281,7 +281,7 @@ void markdown_extract_links(
     /* link       */ backlink_md_link,
     /* r_html_tag */ (int(*)(Blob*,Blob*,void*))mkdn_noop1,
     /* tri_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
-    /* footnoteref*/ (int(*)(Blob*,int,int,void*))mkdn_noop1,
+    /* footnoteref*/ (int(*)(Blob*,const Blob*,int,int,void*))mkdn_noop1,
 
     0,  /* entity */
     0,  /* normal_text */

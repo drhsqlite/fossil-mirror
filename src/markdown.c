@@ -84,7 +84,8 @@ struct mkd_renderer {
   int (*raw_html_tag)(struct Blob *ob, struct Blob *tag, void *opaque);
   int (*triple_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
-  int (*footnote_ref)(struct Blob *ob, int index, int locus, void *opaque);
+  int (*footnote_ref)(struct Blob *ob, const struct Blob *span,
+                      int index, int locus, void *opaque);
 
   /* low level callbacks - NULL copies input directly into the output */
   void (*entity)(struct Blob *ob, struct Blob *entity, void *opaque);
@@ -1059,6 +1060,66 @@ cleanup:
   release_work_buffer( rndr, id );
   return fn;
 }
+/* Adds unlabeled footnote to the rndr.
+ * If text is blank then returns 0,
+ * otherwise returns the address of the added footnote. */
+static inline const struct footnote* add_inline_footnote(
+  struct render *rndr,
+  const char *text,
+  size_t size
+){
+  struct footnote fn = { empty_blob, empty_blob, 0, 0 };
+  while(size && (*text==' ' || *text=='\t')){ text++; size--; }
+  if(!size) return 0;
+  fn.index = ++(rndr->iNotesCount);
+  fn.nUsed = 1;
+  assert( fn.index > 0 );
+  blob_append(&fn.text, text, size);
+  blob_append(&rndr->notes, (char *)&fn, sizeof fn);
+  return (struct footnote*)( blob_buffer(&rndr->notes)
+                            +( blob_size(&rndr->notes)-sizeof fn ));
+}
+
+/* Return the offset of the matching closing bracket or 0 if not found.
+ * begin[0] must be either '[' or '('          */
+static inline size_t matching_bracket_offset(
+  const char* begin,
+  const char* end
+){
+  const char *i;
+  int level;
+  const char bra = *begin;
+  const char ket = bra=='[' ? ']' : ')';
+  assert( bra=='[' || bra=='(' );      /* FIXME: only when debugging */
+  for(i=begin+1,level=1; i!=end; i++){
+    if( *i=='\n' )        /* do nothing */;
+    else if( i[-1]=='\\' ) continue;   /* ? FIXME: what if \\( ? */
+    else if( *i==bra )     level++;
+    else if( *i==ket ){
+      if( --level<=0 ) return i-begin;
+    }
+  }
+  return 0;
+}
+
+/* char_footnote -- '(': parsing a standalone inline footnote */
+static size_t char_footnote(
+  struct Blob *ob,
+  struct render *rndr,
+  char *data,
+  size_t offset,
+  size_t size
+){
+  size_t end;
+  const struct footnote* fn;
+
+  if( size<4 || data[1]!='^' || !rndr->make.footnote_ref ) return 0;
+  end = matching_bracket_offset(data, data+size);
+  if( !end ) return 0;
+  fn = add_inline_footnote(rndr, data+2, end-2);
+  if(fn) rndr->make.footnote_ref(ob,0,fn->index,1,rndr->make.opaque);
+  return end+1;
+}
 
 /* char_link -- '[': parsing a link or an image */
 static size_t char_link(
@@ -1106,33 +1167,45 @@ static size_t char_link(
   link = new_work_buffer(rndr);
   ret = 0; /* error if we don't get to the callback */
 
-  /* inline style link */
+  /* inline style link or span-bounded inline footnote */
   if( i<size && data[i]=='(' ){
-    size_t span_end = i;
-    while( span_end<size
-     && !(data[span_end]==')' && (span_end==i || data[span_end-1]!='\\'))
-    ){
-      span_end++;
+
+    /* inline footnote */
+    if( i+2<size && data[i+1]=='^' ){
+
+      const size_t k = matching_bracket_offset(data+i, data+size);
+      if( !k ) goto char_link_cleanup;
+      fn = add_inline_footnote(rndr, data+(i+2), k-2);
+      i += k+1;
+    }else{
+      size_t span_end = i;
+      while( span_end<size
+       && !(data[span_end]==')' && (span_end==i || data[span_end-1]!='\\'))
+      ){
+        span_end++;
+      }
+
+      if( span_end>=size
+       || get_link_inline(link, title, data+i+1, span_end-(i+1))<0
+      ){
+        goto char_link_cleanup;
+      }
+
+      i = span_end+1;
     }
 
-    if( span_end>=size
-     || get_link_inline(link, title, data+i+1, span_end-(i+1))<0
-    ){
-      goto char_link_cleanup;
-    }
-
-    i = span_end+1;
-
-  /* reference style link */
+  /* reference style link or span-bounded footnote reference */
   }else if( i<size && data[i]=='[' ){
     char *id_data;
     size_t id_size, id_end = i;
+    int bFootnote;
 
     while( id_end<size && data[id_end]!=']' ){ id_end++; }
 
     if( id_end>=size ) goto char_link_cleanup;
+    bFootnote = data[i+1]=='^';
 
-    if( i+1==id_end ){
+    if( i+1==id_end || (bFootnote && i+2==id_end) ){
       /* implicit id - use the contents */
       id_data = data+1;
       id_size = txt_e-1;
@@ -1140,43 +1213,41 @@ static size_t char_link(
       /* explicit id - between brackets */
       id_data = data+i+1;
       id_size = id_end-(i+1);
+      if( bFootnote ){
+        id_data++;
+        id_size--;
+      }
     }
 
-    if( get_link_ref(rndr, link, title, id_data, id_size)<0 ){
+    if( bFootnote ){
+      fn = get_footnote(rndr, id_data, id_size);
+      if( !fn ) goto char_link_cleanup;
+    }else if( get_link_ref(rndr, link, title, id_data, id_size)<0 ){
       goto char_link_cleanup;
     }
 
     i = id_end+1;
 
-  /* shortcut reference style link */
+  /* shortcut reference style link or free-standing footnote refernece */
   }else{
-    if( offset && data[-1]=='^' ){
-
-      /* free-standing inline note */
-      struct footnote note = {empty_blob,empty_blob,0,0};
-      note.index = ++(rndr->iNotesCount);
-      note.nUsed = 1;
-      blob_append(&note.text,data+1,txt_e-1);
-      blob_append(&rndr->notes, (char *)&note, sizeof note);
-      fn = (struct footnote*)(blob_buffer(&rndr->notes)
-              + blob_size(&rndr->notes) - sizeof(note));
-    }else if(!is_img && size>2 && data[1]=='^'){
-
-      /* free-standing reference */
-      fn = get_footnote(rndr, data+1, txt_e-1);
+    if(!is_img && size>3 && data[1]=='^'){
+      /* free-standing footnote reference */
+      fn = get_footnote(rndr, data+2, txt_e-2);
       if( !fn ) goto char_link_cleanup;
+      release_work_buffer(rndr, content);
+      content = 0; 
     }else if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
       goto char_link_cleanup;
     }
 
-    /* rewinding the whitespace */
+    /* rewinding a closing square bracket */
     i = txt_e+1;
   }
 
   /* building content: img alt is escaped, link content is parsed */
-  if( txt_e>1 ){
+  if( txt_e>1 && content ){
     if( is_img ) blob_append(content, data+1, txt_e-1);
-    else if(!fn) parse_inline(content, rndr, data+1, txt_e-1);
+    else parse_inline(content, rndr, data+1, txt_e-1);
   }
 
   /* calling the relevant rendering function */
@@ -1184,10 +1255,9 @@ static size_t char_link(
     if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='!' ) ob->nUsed--;
     ret = rndr->make.image(ob, link, title, content, rndr->make.opaque);
   }else if(fn){
-    if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='^' ) ob->nUsed--;
-    /* ? FIXME: the above line looks like a hack */
     if(rndr->make.footnote_ref){
-      ret = rndr->make.footnote_ref(ob,fn->index,fn->nUsed,rndr->make.opaque);
+      ret = rndr->make.footnote_ref(ob, content, fn->index, fn->nUsed,
+                                    rndr->make.opaque);
     }
   }else{
     ret = rndr->make.link(ob, link, title, content, rndr->make.opaque);
@@ -2290,7 +2360,7 @@ static int is_footnote(
   if( data[i]!='[' ) return 0;
   i++;
   if( data[i]!='^' ) return 0;
-  id_offset = i++;
+  id_offset = ++i;
 
   /* id part: anything but a newline between brackets */
   while( i<end && data[i]!=']' && data[i]!='\n' && data[i]!='\r' ){ i++; }
@@ -2400,6 +2470,7 @@ void markdown(
   if( rndr.make.codespan ) rndr.active_char['`'] = char_codespan;
   if( rndr.make.linebreak ) rndr.active_char['\n'] = char_linebreak;
   if( rndr.make.image || rndr.make.link ) rndr.active_char['['] = char_link;
+  if( rndr.make.footnote_ref ) rndr.active_char['('] = char_footnote;
   rndr.active_char['<'] = char_langle_tag;
   rndr.active_char['\\'] = char_escape;
   rndr.active_char['&'] = char_entity;
