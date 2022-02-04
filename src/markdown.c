@@ -176,7 +176,9 @@ struct render {
   struct {
     Blob all;    /* array of footnotes */
     int nLbled;  /* number of labeled footnotes found during the first pass */
-    int nMarks;  /* count distinct indices found in the second pass */
+    int nMarks;  /* counts distinct indices found during the second pass */
+    struct footnote missing; /* a dummy footnote, its negative index
+                                counts missing refs */
   } notes;
 };
 
@@ -210,6 +212,7 @@ static const struct html_tag block_tags[] = {
  ***************************/
 
 /* build_ref_id -- collapse whitespace from input text to make it a ref id */
+/* FIXME: does this function handle non-Unix newlines? */
 static int build_ref_id(struct Blob *id, const char *data, size_t size){
   size_t beg, i;
   char *id_data;
@@ -1223,7 +1226,10 @@ static size_t char_link(
 
     if( bFootnote ){
       fn = get_footnote(rndr, id_data, id_size);
-      if( !fn ) goto char_link_cleanup;
+      if( !fn ) {
+        rndr->notes.missing.index--;
+        fn = &rndr->notes.missing;
+      }
     }else if( get_link_ref(rndr, link, title, id_data, id_size)<0 ){
       goto char_link_cleanup;
     }
@@ -1235,7 +1241,10 @@ static size_t char_link(
     if(!is_img && size>3 && data[1]=='^'){
       /* free-standing footnote reference */
       fn = get_footnote(rndr, data+2, txt_e-2);
-      if( !fn ) goto char_link_cleanup;
+      if( !fn ) {
+        rndr->notes.missing.index--;
+        fn = &rndr->notes.missing;
+      }
       release_work_buffer(rndr, content);
       content = 0; 
     }else if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
@@ -2459,6 +2468,11 @@ void markdown(
   rndr.refs  = empty_blob;
   rndr.notes.all = empty_blob;
   rndr.notes.nMarks = 0;
+  rndr.notes.missing.id    = empty_blob;
+  rndr.notes.missing.text  = empty_blob;
+  rndr.notes.missing.index = 0;
+  rndr.notes.missing.nUsed = 0;
+
   for(i=0; i<256; i++) rndr.active_char[i] = 0;
   if( (rndr.make.emphasis
     || rndr.make.double_emphasis

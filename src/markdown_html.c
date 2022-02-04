@@ -330,24 +330,39 @@ static int html_footnote_ref(
   struct Blob *ob, const struct Blob *span, int index, int locus, void *opaque
 ){
   const struct MarkdownToHtml *ctx = (struct MarkdownToHtml*)opaque;
-  const bitfield64_t l = to_base26(locus-1,0);
-  char pos[32];
-
   /* expect BUGs if the following yields compiler warnings */
-  memset(pos,0,32);
-  sprintf(pos, "%s-%i-%s", ctx->unique.c, index, l.c);
-  if(span && blob_size(span)) {
-    BLOB_APPEND_LITERAL(ob,"<span class='notescope' id='noteref");
-    blob_appendf(ob,"%s'>",pos);
+
+  if( index>0 && locus>0 ){
+    const bitfield64_t l = to_base26(locus-1,0);
+    char pos[32];
+    memset(pos,0,32);
+    sprintf(pos, "%s-%i-%s", ctx->unique.c, index, l.c);
+
+    if(span && blob_size(span)) {
+      BLOB_APPEND_LITERAL(ob,"<span class='notescope' id='noteref");
+      blob_appendf(ob,"%s'>",pos);
+      BLOB_APPEND_BLOB(ob, span);
+      blob_trim(ob);
+      BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
+      blob_appendf(ob,"%s'>%i</a></sup></span>", pos, index);
+    }else{
+      blob_trim(ob);
+      BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
+      blob_appendf(ob,"%s' id='noteref%s'>%i</a></sup>",
+                      pos,            pos,   index);
+    }
+  }else if(span && blob_size(span)) {
+    BLOB_APPEND_LITERAL(ob, "<span class='notescope' id='misref");
+    blob_appendf(ob, "%s-%i'>", ctx->unique.c, -index);
     BLOB_APPEND_BLOB(ob, span);
     blob_trim(ob);
-    BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
-    blob_appendf(ob,"%s'>%i</a></sup></span>", pos, index);
+    BLOB_APPEND_LITERAL(ob,
+          "<sup class='misref'>misreference</sup></span>");
   }else{
     blob_trim(ob);
-    BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
-    blob_appendf(ob,"%s' id='noteref%s'>%i</a></sup>",
-                    pos,            pos,   index);
+    BLOB_APPEND_LITERAL(ob, "<sup class='misref' id='misref");
+    blob_appendf(ob, "%s-%i", ctx->unique.c, -index);
+    BLOB_APPEND_LITERAL(ob, "'>misreference</sup>");
   }
   return 1;
 }

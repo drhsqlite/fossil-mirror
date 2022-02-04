@@ -1683,6 +1683,10 @@ div.markdown > ol.footnotes > li > .footnote-backrefs > a:target {
 div.markdown sup > a.noteref:target {
   background: gold;
 }
+div.markdown sup.misref {
+  color: red;
+  font-size: 90%;
+}
 div.markdown span.notescope:hover,
 div.markdown span.notescope:target {
   border-bottom: 2px solid gold;
