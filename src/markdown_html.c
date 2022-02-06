@@ -327,42 +327,48 @@ static void html_table_row(
 }
 
 static int html_footnote_ref(
-  struct Blob *ob, const struct Blob *span, int index, int locus, void *opaque
+  struct Blob *ob, const struct Blob *span, int iMark, int locus, void *opaque
 ){
-  const struct MarkdownToHtml *ctx = (struct MarkdownToHtml*)opaque;
+  const struct MarkdownToHtml* ctx = (struct MarkdownToHtml*)opaque;
+  const bitfield64_t l = to_base26(locus-1,0);
+  char pos[32];
+  memset(pos,0,32);
+  assert( locus > 0 );
   /* expect BUGs if the following yields compiler warnings */
+  if( iMark > 0 ){      /* a regular reference to a footnote */
 
-  if( index>0 && locus>0 ){
-    const bitfield64_t l = to_base26(locus-1,0);
-    char pos[32];
-    memset(pos,0,32);
-    sprintf(pos, "%s-%i-%s", ctx->unique.c, index, l.c);
-
+    sprintf(pos, "%s-%i-%s", ctx->unique.c, iMark, l.c);
     if(span && blob_size(span)) {
       BLOB_APPEND_LITERAL(ob,"<span class='notescope' id='noteref");
       blob_appendf(ob,"%s'>",pos);
       BLOB_APPEND_BLOB(ob, span);
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
-      blob_appendf(ob,"%s'>%i</a></sup></span>", pos, index);
+      BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='#footnote");
+      blob_appendf(ob,"%s'>%i</a></sup></span>", pos, iMark);
     }else{
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,"<sup><a class='noteref' href='#footnote");
+      BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='#footnote");
       blob_appendf(ob,"%s' id='noteref%s'>%i</a></sup>",
-                      pos,            pos,   index);
+                      pos,           pos,  iMark);
     }
-  }else if(span && blob_size(span)) {
-    BLOB_APPEND_LITERAL(ob, "<span class='notescope' id='misref");
-    blob_appendf(ob, "%s-%i'>", ctx->unique.c, -index);
-    BLOB_APPEND_BLOB(ob, span);
-    blob_trim(ob);
-    BLOB_APPEND_LITERAL(ob,
-          "<sup class='misref'>misreference</sup></span>");
-  }else{
-    blob_trim(ob);
-    BLOB_APPEND_LITERAL(ob, "<sup class='misref' id='misref");
-    blob_appendf(ob, "%s-%i", ctx->unique.c, -index);
-    BLOB_APPEND_LITERAL(ob, "'>misreference</sup>");
+  }else{              /* misreference */
+    assert( iMark == -1 );
+
+    sprintf(pos, "%s-%s", ctx->unique.c, l.c);
+    if(span && blob_size(span)) {
+      blob_appendf(ob, "<span class='notescope' id='misref%s'>", pos);
+      BLOB_APPEND_BLOB(ob, span);
+      blob_trim(ob);
+      BLOB_APPEND_LITERAL(ob,
+        "<sup class='noteref misref'><a href='#misreference");
+      blob_appendf(ob, "%s'>misref</a></sup></span>", pos);
+    }else{
+      blob_trim(ob);
+      BLOB_APPEND_LITERAL(ob,
+        "<sup class='noteref misref'><a href='#misreference");
+      blob_appendf(ob, "%s' id='misref%s'>", pos, pos);
+      BLOB_APPEND_LITERAL(ob, "misref</a></sup>");
+    }
   }
   return 1;
 }
@@ -370,43 +376,76 @@ static int html_footnote_ref(
 /* Render a single item of the footnotes list.
  * Each backref gets a unique id to enable dynamic styling. */
 static void html_footnote_item(
-  struct Blob *ob, const struct Blob *text, int index, int nUsed, void *opaque
+  struct Blob *ob, const struct Blob *text, int iMark, int nUsed, void *opaque
 ){
-  const struct MarkdownToHtml *ctx = (struct MarkdownToHtml*)opaque;
-  char pos[24];
-  if( index <= 0 || nUsed < 0 || !text || !blob_size(text) ){
-    return;
-  }
-
+  const char * const unique = ((struct MarkdownToHtml*)opaque)->unique.c;
+  assert( nUsed >= 0 );
   /* expect BUGs if the following yields compiler warnings */
-  memset(pos,0,24);
-  sprintf(pos, "%s-%i", ctx->unique.c, index);
 
-  blob_appendf(ob, "<li id='footnote%s'>", pos);
-  BLOB_APPEND_LITERAL(ob,"<sup class='footnote-backrefs'>");
-  if( nUsed <= 1 ){
-    blob_appendf(ob,"<a id='footnote%s-a' "
-                     "href='#noteref%s-a'>^</a>", pos, pos);
+  if( iMark < 0 ){                     /* misreferences */
+    assert( iMark == -1 );
+    if( !nUsed ) return;
+    BLOB_APPEND_LITERAL(ob,"<li class='misreferences'>"
+                              "<sup class='footnote-backrefs'>");
+    if( nUsed == 1 ){
+      blob_appendf(ob,"<a id='misreference%s-a' "
+                      "href='#misref%s-a'>^</a>", unique, unique);
+    }else{
+      int i;
+      blob_append_char(ob, '^');
+      for(i=0; i<nUsed && i<26; i++){
+        const int c = i + (unsigned)'a';
+        blob_appendf(ob," <a id='misreference%s-%c' "
+              "href='#misref%s-%c'>%c</a>", unique,c, unique,c, c);
+      }
+      if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
+    }
+    BLOB_APPEND_LITERAL(ob,"</sup>\nMisreference: use of undefined label.");
+
+  }else if( nUsed ){                   /* a regular footnote */
+    char pos[24];
+    assert( text );
+    assert( blob_size(text) );
+
+    memset(pos,0,24);
+    sprintf(pos, "%s-%i", unique, iMark);
+
+    blob_appendf(ob, "<li id='footnote%s'>", pos);
+    BLOB_APPEND_LITERAL(ob,"<sup class='footnote-backrefs'>");
+    if( nUsed <= 1 ){
+      blob_appendf(ob,"<a id='footnote%s-a' "
+                       "href='#noteref%s-a'>^</a>", pos, pos);
+    }else{
+      int i;
+      blob_append_char(ob, '^');
+      for(i=0; i<nUsed && i<26; i++){
+        const int c = i + (unsigned)'a';
+        blob_appendf(ob," <a id='footnote%s-%c'"
+                         " href='#noteref%s-%c'>%c</a>", pos,c, pos,c, c);
+      }
+      /* It's unlikely that so many backrefs will be usefull */
+      /* but maybe for some machine generated documents... */
+      for(; i<nUsed && i<676; i++){
+        const bitfield64_t l = to_base26(i,0);
+        blob_appendf(ob," <a id='footnote%s-%s'"
+                         " href='#noteref%s-%s'>%s</a>",
+                         pos,l.c, pos,l.c, l.c);
+      }
+      if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
+    }
+    BLOB_APPEND_LITERAL(ob,"</sup>\n");
+    BLOB_APPEND_BLOB(ob, text);
   }else{
-    int i;
-    blob_append_char(ob, '^');
-    for(i=0; i<nUsed && i<26; i++){
-      const int c = i + (unsigned)'a';
-      blob_appendf(ob," <a id='footnote%s-%c'"
-                       " href='#noteref%s-%c'>%c</a>", pos,c, pos,c, c);
-    }
-    /* It's unlikely that so many backrefs will be usefull */
-    /* but maybe for some machine generated documents... */
-    for(; i<nUsed && i<676; i++){
-      const bitfield64_t l = to_base26(i,0);
-      blob_appendf(ob," <a id='footnote%s-%s'"
-                       " href='#noteref%s-%s'>%s</a>",
-                       pos,l.c, pos,l.c, l.c);
-    }
-    if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
+    /* a footnote was defined but wasn't used */
+    assert( text );
+    assert( blob_size(text) );
+    /* FIXME: not yet implemented */
+    return;
+    BLOB_APPEND_LITERAL(ob,
+      "<li class='unreferenced-footnote' id='unreferenced-footnote");
+    blob_appendf(ob,"%s-%i'>\n", unique, iMark);
+    BLOB_APPEND_BLOB(ob, text);
   }
-  BLOB_APPEND_LITERAL(ob,"</sup>\n");
-  BLOB_APPEND_BLOB(ob, text);
   BLOB_APPEND_LITERAL(ob, "\n</li>\n");
 }
 static void html_footnotes(

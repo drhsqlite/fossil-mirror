@@ -1673,6 +1673,16 @@ div.content  div.markdown > ol.footnotes {
 div.content  div.markdown > ol.footnotes > li {
   margin-bottom: 0.5em;
 }
+div.markdown ol.footnotes > li.unreferenced-footnote,
+div.markdown ol.footnotes > li.misreferences {
+  background: #ffdddd;
+}
+div.markdown ol.footnotes > li.unreferenced-footnote:first-child,
+div.markdown ol.footnotes > li.misreferences {
+  margin-top:     0.75em;
+  padding-top:    0.25em;
+  padding-bottom: 0.25em;
+}
 div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
   margin-right: 0.5em;
   font-weight: bold;
@@ -1680,10 +1690,11 @@ div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
 div.markdown > ol.footnotes > li > .footnote-backrefs > a:target {
   background: gold;
 }
-div.markdown sup > a.noteref:target {
+div.markdown sup.noteref > a:target {
   background: gold;
 }
-div.markdown sup.misref {
+div.markdown sup.noteref.misref,
+div.markdown sup.noteref.misref > a {
   color: red;
   font-size: 90%;
 }
@@ -1691,8 +1702,8 @@ div.markdown span.notescope:hover,
 div.markdown span.notescope:target {
   border-bottom: 2px solid gold;
 }
-div.markdown span.notescope:hover  > sup > a.noteref,
-div.markdown span.notescope:target > sup > a.noteref {
+div.markdown span.notescope:hover  > sup.noteref > a,
+div.markdown span.notescope:target > sup.noteref > a {
   background: gold;
 }
 

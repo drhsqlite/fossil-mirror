@@ -1,5 +1,5 @@
-C Handle\smisreferences:\sa\sreference\sto\sundefined\sfootnote.
-D 2022-02-04T23:07:54.804
+C Handle\smisreferences\smore\sthoroughly.\sImplement\ssupport\sof\sfootnotes-within-footnotes\swith\s(hopefully)\sproper\scrosslinking\s(that's\swhere\sit's\sgetting\stricky).
+D 2022-02-06T22:53:22.649
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 55d641d0c10ac800553c7e6dd233655e3fea3d5b2f4d4343408caaf216e7efa2
-F src/default.css 25f03feed387ccfc5bb4c514202d2cbf100440f13efe452d17698b5fe5e5c93e
+F src/default.css 831fa63e18d71b4d351c29dc21d9807c02a83d6b05d5b2ebde1a9be4c5727616
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -515,9 +515,9 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c 1b560149a4277cff7f7fcc9a3c377561d0cde0c3bd403dc7cd681f5e0ec31ca4
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 9dc1506aa1c1c31f3ab8977e67a6225676b4eda5b3781296b0249397162d7b4c
+F src/markdown.c 954e6b45cbe56064d544433c9b5042934e33ab00bf0585cf7a0300664978e655
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
-F src/markdown_html.c d54c8e1ad33bdbde65aabb66dfa50dd95488a9f80c98e8962a09769051c1762d
+F src/markdown_html.c cd81c531ba631210a4bf03b930c07de51f1132b03cf41e60c0a26adece177b5d
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 02068d1648a62fd1dbe82ba187df460dd8ab83640e9728850a7c20f68effc21d
@@ -635,7 +635,7 @@ F test/json.test ef5f080b4c1853ad2433bbb591c86759b497019137ce4296b9a8704ab426bec
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
-F test/markdown-test3.md 5864be4613265a42ae88221f12fbb56d73d079b7256273e625cfffb7ed0fceef
+F test/markdown-test3.md 7f71c542b14225d6f91c098b77db726db26e15dd3dc87daa6440ebc9fb360d03
 F test/merge1.test b7b347a2faf5a6dba2eb1a57f2c6099f65541c2ddb730e5030d700dc9265b334
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 3ff4854352bea3e262d2710abadc8e85a5754734cc25072e21c400e65cff22ec
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2636e2245e7ed14fb529cd4ae63526465984b9b763f26bb27d1b5543186905ef
-R fb57ab78d88a6b13161621108ea6aab9
+P 28e6a9cd1355bb58d8644842e3906cbb2b6be171848d495f427b1bb9b103870b
+R 1f909a9662751e914f8b0e1464500a03
 U george
-Z 39ea9dc0d6c2fcfd0fb4511a62d483b4
+Z c9b07519bed449df9eb3681625338e0c
 # Remove this line to create a well-formed Fossil manifest.
