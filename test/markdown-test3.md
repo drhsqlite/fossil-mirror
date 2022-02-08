@@ -13,6 +13,8 @@ appear in this document.[^ if glitch occurs	]
 
 [^lost3]: This note was defined at the begining of the document.
 
+[^duplicate]: This came from the begining of the document.
+
 A footnote's label should be case insensitive[^ case INSENSITIVE ],
 it is whitespace-savvy and can even contain newlines.[^ a
 multiline
@@ -41,6 +43,9 @@ This can be overridden by the skin though.
 The refenrence at the end of this sentence is the sole reason of
 rendering of <s>`lost1` and</s> [lost2][^].
 
+If several labeled footnote definitions have the same equal label then texts
+from all these definitions are joined.[^duplicate]
+
 ## Footnotes
 
 [branch]: /timeline?r=markdown-footnotes&nowiki
@@ -60,6 +65,7 @@ rendering of <s>`lost1` and</s> [lost2][^].
     be written within square brackets
              on a single line.
 
+[^duplicate]: And that came from the end of the document.
 
 [^many-refs]:
    Each letter on the left is a back-reference to the place of use.
