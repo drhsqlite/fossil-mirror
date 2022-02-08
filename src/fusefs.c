@@ -285,6 +285,7 @@ static struct fuse_operations fusefs_methods = {
   .readdir = fusefs_readdir,
   .read    = fusefs_read,
 };
+#endif /* FOSSIL_HAVE_FUSEFS */
 
 /*
 ** COMMAND: fusefs*
@@ -316,6 +317,7 @@ static struct fuse_operations fusefs_methods = {
 ** again.
 */
 void fusefs_cmd(void){
+#ifdef FOSSIL_HAVE_FUSEFS
   char *zMountPoint;
   char *azNewArgv[5];
   int doDebug = find_option("debug","d",0)!=0;
@@ -337,8 +339,10 @@ void fusefs_cmd(void){
   fuse_main(4, azNewArgv, &fusefs_methods, NULL);
   fusefs_reset();
   fusefs_clear_path();
-}
+#else
+  fossil_fatal("The FuseFS is not available in this build.");
 #endif /* FOSSIL_HAVE_FUSEFS */
+}
 
 /*
 ** Return version numbers for the FUSE header that was used at compile-time
