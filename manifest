@@ -1,5 +1,5 @@
-C Make\sthe\s"fusefs"\scommand\sand\shelp\stext\savailable,\seven\son\sbuilds\sthat\nlack\ssupport\sfor\sFuseFS.
-D 2022-02-08T17:07:52.612
+C Fix\scompiler\swarning\son\sbuilds\sthat\slack\ssupport\sfor\sFuseFS.
+D 2022-02-08T17:14:04.026
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -474,7 +474,7 @@ F src/fossil.storage.js 767a7eba00b6ffbed8aba7fab3b9b4a1eb3052cb9d0730b2bd96941b
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
 F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
-F src/fusefs.c 152d23ea049b23081bf7d22c928adc8216f2c6fe01c65b6906ff9db8a63b55ba
+F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c 9da0f3859017b29ed9bc51c72185656ec8a77b0dc53f2569828ae6f4f8a5a772
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82bbde8d0f3d600526b51536114d5ec9dd386b6d1e81f0ed82720abf56c9d52f
-R bd2f0f2635434fe48995151973bb689e
+P b1a78a65f61e6fcc90567c9b066e7cadce9467f9a6b32f0ab565480f455edeaf
+R 5f6132ce4591a9f33335c991c377d940
 U drh
-Z 14a63db3e6fe8a29c09c80a968ec43d4
+Z 2402172b5a135bc56515263f46c763b6
 # Remove this line to create a well-formed Fossil manifest.

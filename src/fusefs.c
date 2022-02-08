@@ -22,10 +22,10 @@
 ** The FOSSIL_HAVE_FUSEFS should be omitted on systems that lack support for
 ** the Fuse Filesystem, of course.
 */
-#ifdef FOSSIL_HAVE_FUSEFS
 #include "config.h"
 #include <stdio.h>
 #include <string.h>
+#ifdef FOSSIL_HAVE_FUSEFS
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -340,7 +340,8 @@ void fusefs_cmd(void){
   fusefs_reset();
   fusefs_clear_path();
 #else
-  fossil_fatal("The FuseFS is not available in this build.");
+  fprintf(stderr, "The FuseFS is not available in this build.\n");
+  exit(1);
 #endif /* FOSSIL_HAVE_FUSEFS */
 }
 
