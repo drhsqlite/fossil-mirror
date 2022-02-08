@@ -2612,7 +2612,17 @@ void markdown(
     i = rndr.notes.nLbled;
     while( i && !blob_size(&fn[i-1].id) ){ i--; }
     rndr.notes.nLbled = i;
-    blob_truncate( &rndr.notes.all, i*sizeof(struct footnote) );
+    blob_resize( &rndr.notes.all, i*sizeof(struct footnote) );
+
+    /* FIXME: It was expected to work via truncation:
+     *
+     *    blob_truncate( &rndr.notes.all, i*sizeof(struct footnote) );
+     *
+     * but that way it crashes with
+     *
+     *    free(): double free detected in tcache 2
+     *
+     * This is strange. */
   }
   assert( COUNT_FOOTNOTES(&rndr.notes.all) == rndr.notes.nLbled );
   fn = CAST_AS_FOOTNOTES(&rndr.notes.all);
