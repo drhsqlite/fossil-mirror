@@ -437,14 +437,18 @@ static void html_footnote_item(
     BLOB_APPEND_BLOB(ob, text);
   }else{
     /* a footnote was defined but wasn't used */
+    /* make.footnote_item() invocations should pass args accordingly */
+    const struct Blob * id = text-1;
     assert( text );
     assert( blob_size(text) );
-    /* FIXME: not yet implemented */
-    return;
-    BLOB_APPEND_LITERAL(ob,
-      "<li class='unreferenced-footnote' id='unreferenced-footnote");
-    blob_appendf(ob,"%s-%i'>\n", unique, iMark);
-    BLOB_APPEND_BLOB(ob, text);
+    assert( blob_size(id) );
+    BLOB_APPEND_LITERAL(ob,"<li class='unreferenced'>\n[^&nbsp;<code>");
+    html_escape(ob, blob_buffer(id), blob_size(id));
+    BLOB_APPEND_LITERAL(ob, "</code>&nbsp;] "
+        "<i>was defined but is not referenced</i>\n"
+        "<pre><code class='language-markdown'>");
+    html_escape(ob, blob_buffer(text), blob_size(text));
+    BLOB_APPEND_LITERAL(ob,"</code></pre>");
   }
   BLOB_APPEND_LITERAL(ob, "\n</li>\n");
 }

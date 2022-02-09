@@ -5,11 +5,15 @@ Markdown Footnotes Test Document
 **This document** should help with testing of footnotes support that
 is introduced by the ["`markdown-footnotes`"][branch] branch.
 It **might look pretty misformatted unless rendered by the proper Fossil
-executable that incorporates the abovementioned branch.**[^1]
+executable** that incorporates the abovementioned branch.[^1]  
+That is also a humble attempt to explore the robustness of the Markdown parser.
+So please excuse for the mess in the [source code of this document][src].
+By no means the normal use of footnotes should look that scarry.
 
 Developers are invited to add test cases here[^here].
 It is suggested that the more simple is a test case the earlier it should
 appear in this document.[^ if glitch occurs	]
+
 
 [^lost3]: This note was defined at the begining of the document.
 
@@ -30,8 +34,12 @@ Another reference[^many-refs] to the preveously used footnote.
    It references [its previous][^lost3] 
    and [the forthcoming][^lost1] siblings.
 
-[^i am unreferenced]: If this is rendered wihin footnotes,
-  then there is a BUG!
+[^i am strayed]:
+  This should be presented **verbatim** (without any [markup][^])
+  in the end of the footnotes.
+  
+  Default skin renders label in red bold font and the main text as gray.
+  Other styling may also apply.
 
 Inline footnotes are supported.(^These may be usefull for adding
 <s>small</s> comments.)
@@ -54,6 +62,8 @@ from all these definitions are joined.[^duplicate]
         Markdown. Your other tools may have limited support for these.
 
 [^here]: [History of test/markdown-test3.md](/finfo/test/markdown-test3.md)
+
+[src]: /file/test/markdown-test3.md?ci=markdown-footnotes&txt&ln
 
 [^if glitch occurs]:
         So that simple cases are processed even if
@@ -78,6 +88,8 @@ from all these definitions are joined.[^duplicate]
    (^This is inline note defined inside of [a labeled note][^lost1].)
 
 [^markup]:   E.g. *emphasis*, and [so on](/md_rules).
+   BTW, this note may not have a backreference to the "stray".
 
 [^undefined label is used]: For example due to a typo.
 
+[^another stray]: Just to verify the correctness of ordering and styling.

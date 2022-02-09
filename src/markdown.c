@@ -2672,19 +2672,26 @@ void markdown(
     /* footnotes rendering */
     if( rndr.make.footnote_item && rndr.make.footnotes ){
       Blob *all_items = new_work_buffer(&rndr);
+      int j = -1;
       for(i=0; i<COUNT_FOOTNOTES(notes); i++){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + i;
         if( x->bRndred ){
           rndr.make.footnote_item(all_items, &x->text, x->iMark,
                                   x->nUsed, rndr.make.opaque);
+          j = i;
         }
       }
       if( rndr.notes.misref.nUsed ){
         rndr.make.footnote_item(all_items, 0, -1,
                     rndr.notes.misref.nUsed, rndr.make.opaque);
       }
-      /* TODO: handle unreferenced (defined but not used) footnotes */
-
+      while( ++j < COUNT_FOOTNOTES(notes) ){
+        const struct footnote* x = CAST_AS_FOOTNOTES(notes) + j;
+        assert( !x->nUsed );
+        assert( !x->bRndred );
+        assert( (&x->id) + 1 == &x->text ); /* see html_footnote_item() */
+        rndr.make.footnote_item(all_items,&x->text,0,0,rndr.make.opaque);
+      }
       rndr.make.footnotes(ob, all_items, rndr.make.opaque);
       release_work_buffer(&rndr, all_items);
     }

@@ -1673,15 +1673,28 @@ div.content  div.markdown > ol.footnotes {
 div.content  div.markdown > ol.footnotes > li {
   margin-bottom: 0.5em;
 }
-div.markdown ol.footnotes > li.unreferenced-footnote,
 div.markdown ol.footnotes > li.misreferences {
   background: #ffdddd;
 }
-div.markdown ol.footnotes > li.unreferenced-footnote:first-child,
+div.markdown ol.footnotes > li.unreferenced:first-child,
 div.markdown ol.footnotes > li.misreferences {
   margin-top:     0.75em;
   padding-top:    0.25em;
   padding-bottom: 0.25em;
+}
+div.markdown ol.footnotes > li.unreferenced {
+  padding-left: 0.5em;
+  color: gray;
+}
+div.markdown ol.footnotes > li.unreferenced > code {
+  color: red;
+  font-weight: bold;
+}
+div.markdown ol.footnotes > li.unreferenced > pre {
+  color: gray;
+  padding-left: 0.5em;
+  margin-top:  0.25em;
+  border-left: 3px solid red;
 }
 div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
   margin-right: 0.5em;
