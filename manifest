@@ -1,5 +1,5 @@
-C Display\sbuild/patch\snumber\sfor\sthe\sMSVC\scompiler.
-D 2022-02-09T06:59:26.025
+C Cherrypicked\s[92221aaa192e82]\sand\s[7283ae6e120c10]\son\sbehalf\sof\sGeorge.
+D 2022-02-09T20:23:01.374
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -408,7 +408,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c 9d1bd444649ce04e1328775c913af0e73aea9d0d873b896cd994be9ce221249b
+F src/blob.c 107a171bc6581ead07ec23e1dee93e60b553222ffef8f87c5a7075890d99f3c7
 F src/branch.c 40edc441a60d2b655dcdc015003c5d84711582f14a4db978c41197592da9224f
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c e744959a71b209c879ad6c391d97220f63d5fc94cdd4942b2af598de9b50dc0b
@@ -970,8 +970,10 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 398c5cd1a7fce2977ad515075976025bae1418deec3bd19499ff8f5b6064d380
-R dddef602c2b34b30a0f76277b6989c12
-U danield
-Z c97155e4bcea60dd57fe133aca6ff079
+P 487e465263fd21c37164a1aa074048717d9212e96744ffec3bacbfee310ebf20
+Q +7283ae6e120c10e2327d000879786db5ec60d375c915a0f5d098b661f448c47e
+Q +92221aaa192e82e89263e109098bd9bcda9ecf1128ae6f79b742321eada8793a
+R 5ee81a3cf96b0a84872f171de4d5e59a
+U stephan
+Z 300ec2376a9cee7b8784902c586de7ba
 # Remove this line to create a well-formed Fossil manifest.
