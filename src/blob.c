@@ -597,8 +597,8 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 void blob_reserve(Blob *pBlob, unsigned int newSize){
   if(newSize>=0x7fff0000 ){
     blob_panic();
-  }else if(newSize>pBlob->nUsed){
-    pBlob->xRealloc(pBlob, newSize);
+  }else if(newSize>pBlob->nAlloc){
+    pBlob->xRealloc(pBlob, newSize+1);
     pBlob->aData[newSize] = 0;
   }
 }
