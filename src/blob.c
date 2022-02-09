@@ -166,7 +166,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
     pBlob->blobFlags = 0;
-  }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
+  }else if( newSize>pBlob->nAlloc || newSize+4000<pBlob->nAlloc ){
     char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
     pBlob->nAlloc = newSize;
