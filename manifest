@@ -1,5 +1,5 @@
-C Fix\sa\smisuse\sof\san\sunsigned\sinteger\sin\sthe\s<tt>blobReallocMalloc()</tt>\swhich\scan\slead\sto\sredundant\smemory\sreallocations.
-D 2022-02-09T19:38:37.004
+C Join\sduplicated\sfootnotes\sslightly\sfaster.\sFix\sa\scomment\sabout\sauxiliary\s<tt>cmp_footnote_id()</tt>\sfunction.
+D 2022-02-09T20:09:51.394
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -515,7 +515,7 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c 1b560149a4277cff7f7fcc9a3c377561d0cde0c3bd403dc7cd681f5e0ec31ca4
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 1acc8925d8a72c4453038f0536519a88c1829cf1a26d750f31e2b092720c4333
+F src/markdown.c e6d28d306d3667784c3f2e16bc1f92e3724da986bea758f128a0ef9dfc1f8900
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
 F src/markdown_html.c cd81c531ba631210a4bf03b930c07de51f1132b03cf41e60c0a26adece177b5d
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7283ae6e120c10e2327d000879786db5ec60d375c915a0f5d098b661f448c47e
-R 0ba366f065bcff231d802832f9be8daf
+P 92221aaa192e82e89263e109098bd9bcda9ecf1128ae6f79b742321eada8793a
+R 26373e02c73ca9defb57545bf75be0b9
 U george
-Z 06931063a7474e969fb80dc6e6939f1b
+Z c7f228b8cda8ce3998b2ff421e236a87
 # Remove this line to create a well-formed Fossil manifest.

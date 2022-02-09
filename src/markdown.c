@@ -276,7 +276,7 @@ static int cmp_link_ref_sort(const void *a, const void *b){
 
 /* cmp_footnote_id -- comparison function for footnotes qsort.
  * Empty IDs sort last (in undetermined order).
- * Equal IDs are sorted in the REVERSED order of definition in the source */
+ * Equal IDs are sorted in the order of definition in the source */
 static int cmp_footnote_id(const void *fna, const void *fnb){
   const struct footnote *a = fna, *b = fnb;
   const int szA = blob_size(&a->id), szB = blob_size(&b->id);
@@ -2500,6 +2500,7 @@ void markdown(
   size_t i, beg, end = 0;
   struct render rndr;
   Blob text = BLOB_INITIALIZER;        /* input after the first pass  */
+  Blob *allNotes = &rndr.notes.all;
 
   /* filling the render structure */
   if( !rndrer ) return;
@@ -2567,11 +2568,12 @@ void markdown(
           sizeof(struct link_ref),
           cmp_link_ref_sort);
   }
-  rndr.notes.nLbled = COUNT_FOOTNOTES(&rndr.notes.all);
+  rndr.notes.nLbled = COUNT_FOOTNOTES( allNotes );
 
   /* sort footnotes by ID and join duplicates */
   if( rndr.notes.nLbled > 1 ){
-    fn = CAST_AS_FOOTNOTES(&rndr.notes.all);
+    int nDups = 0;
+    fn = CAST_AS_FOOTNOTES( allNotes );
     qsort(fn, rndr.notes.nLbled, sizeof(struct footnote), cmp_footnote_id);
 
     /* concatenate footnotes with equal labels */
@@ -2581,6 +2583,7 @@ void markdown(
       while(j<rndr.notes.nLbled && !blob_compare(&x->id, &fn[j].id)){
         k += blob_size(&fn[j].text) + 10;
         j++;
+        nDups++;
       }
       if( i+1<j ){
         Blob tmp = empty_blob;
@@ -2594,38 +2597,29 @@ void markdown(
 
           /* free memory buffer */
           blob_reset(&y->text);
-          if( k!=i ){
-            blob_reset(&y->id);
-            /* invalidate redundant elements (this is optional) */
-            memset(y,0,sizeof(struct footnote));
-            y->index = y->defno = y->iMark = y->nUsed = -42;
-          }
+          if( k!=i ) blob_reset(&y->id);
         }
         blob_append_string(&tmp, "</ul>\n");
         x->text = tmp;
       }
       i = j;
     }
-
-    /* move redundant elements to the end of array and truncate/resize */
-    qsort(fn, rndr.notes.nLbled, sizeof(struct footnote), cmp_footnote_id);
-    i = rndr.notes.nLbled;
-    while( i && !blob_size(&fn[i-1].id) ){ i--; }
-    rndr.notes.nLbled = i;
-    blob_resize( &rndr.notes.all, i*sizeof(struct footnote) );
-
-    /* FIXME: It was expected to work via truncation:
-     *
-     *    blob_truncate( &rndr.notes.all, i*sizeof(struct footnote) );
-     *
-     * but that way it crashes with
-     *
-     *    free(): double free detected in tcache 2
-     *
-     * This is strange. */
+    if( nDups ){  /* clean rndr.notes.all from invalidated footnotes */
+      const int n = rndr.notes.nLbled - nDups;
+      struct Blob filtered = empty_blob;
+      blob_reserve(&filtered, n*sizeof(struct footnote));
+      for(i=0; i<rndr.notes.nLbled; i++){
+        if( blob_size(&fn[i].id) ){
+          blob_append(&filtered, (char*)(fn+i), sizeof(struct footnote));
+        }
+      }
+      blob_reset( allNotes );
+      rndr.notes.all = filtered;
+      rndr.notes.nLbled = n;
+      assert( COUNT_FOOTNOTES(allNotes) == rndr.notes.nLbled );
+    }
   }
-  assert( COUNT_FOOTNOTES(&rndr.notes.all) == rndr.notes.nLbled );
-  fn = CAST_AS_FOOTNOTES(&rndr.notes.all);
+  fn = CAST_AS_FOOTNOTES( allNotes );
   for(i=0; i<rndr.notes.nLbled; i++){
     fn[i].index = i;
   }
@@ -2635,22 +2629,21 @@ void markdown(
   if( rndr.make.prolog ) rndr.make.prolog(ob, rndr.make.opaque);
   parse_block(ob, &rndr, blob_buffer(&text), blob_size(&text));
 
-  if( (blob_size(&rndr.notes.all) || rndr.notes.misref.nUsed) ){
+  if( (blob_size(allNotes) || rndr.notes.misref.nUsed) ){
 
     /* Footnotes must be parsed for the correct discovery of (back)links */
     Blob *notes = new_work_buffer( &rndr );
     Blob *tmp   = new_work_buffer( &rndr );
-    const struct Blob *origin = &rndr.notes.all;
     int nMarks = -1;
 
     /* inline notes may get appended to rndr.notes.all while rendering */
     while(1){
       struct footnote *aNotes;
-      const int N = COUNT_FOOTNOTES(origin);
+      const int N = COUNT_FOOTNOTES( allNotes );
 
       /* make a shallow copy of `origin` */
       blob_truncate(notes,0);
-      blob_append(notes, blob_buffer(origin), blob_size(origin));
+      blob_append(notes, blob_buffer(allNotes), blob_size(allNotes));
       aNotes = CAST_AS_FOOTNOTES(notes);
       qsort(aNotes, N, sizeof(struct footnote), cmp_footnote_sort);
 
@@ -2659,7 +2652,7 @@ void markdown(
 
       for(i=0; i<N; i++){
         const int j = aNotes[i].index;
-        struct footnote *x = CAST_AS_FOOTNOTES(origin) + j;
+        struct footnote *x = CAST_AS_FOOTNOTES(allNotes) + j;
         assert( 0<=j && j<N );
         if( x->bRndred || !x->nUsed ) continue;
         assert( x->iMark > 0 );
@@ -2710,8 +2703,8 @@ void markdown(
     blob_reset(&lr[i].title);
   }
   blob_reset(&rndr.refs);
-  fn = CAST_AS_FOOTNOTES(&rndr.notes.all);
-  end = COUNT_FOOTNOTES(&rndr.notes.all);
+  fn = CAST_AS_FOOTNOTES( allNotes );
+  end = COUNT_FOOTNOTES( allNotes );
   for(i=0; i<end; i++){
     if(blob_size(&fn[i].id)) blob_reset(&fn[i].id);
     blob_reset(&fn[i].text);
