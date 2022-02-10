@@ -176,7 +176,7 @@ int repo_list_page(void){
       char *zAge;
       char *zFull;
       RepoInfo x;
-      int iAge;
+      sqlite3_int64 iAge;
       if( nName<7 ) continue;
       zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
       if( zName[0]=='/'
@@ -207,9 +207,18 @@ int repo_list_page(void){
         ** scan lists, but included in "fossil all ui" lists */
         continue;
       }
-      iAge = (rNow - x.rMTime)*86400;
-      if( iAge<0 ) x.rMTime = rNow;
+      if( rNow <= x.rMTime ){
+        x.rMTime = rNow;
+      }else if( x.rMTime<0.0 ){
+        x.rMTime = rNow;
+      }
+      iAge = (int)(rNow - x.rMTime)*86400;
       zAge = human_readable_age(rNow - x.rMTime);
+      if( x.rMTime==0.0 ){
+        /* This repository has no entry in the "event" table.
+        ** Its age will still be maximum, so data-sortkey will work. */
+        zAge = mprintf("unknown");
+      }
       blob_append_sql(&html, "<tr><td valign='top'>");
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
