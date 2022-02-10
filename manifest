@@ -1,5 +1,5 @@
-C Cherrypicked\s[92221aaa192e82]\sand\s[7283ae6e120c10]\son\sbehalf\sof\sGeorge.
-D 2022-02-09T20:23:01.374
+C Remove\sunused\slocal\svariable\sfrom\scgi_parse_POST_JSON()\sto\sfix\sa\scompiler\swarning.
+D 2022-02-10T00:05:43.234
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -416,7 +416,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 16898370c9fc976c1b0945fbd782ed64378b26e8d74ee3842605f9bfe9c34f94
+F src/cgi.c 23024a9ef26c12c79b4ac712c47db4eb2e6ef585fc1a13872fb44dcac7fe17bd
 F src/chat.c 945f4a5cb866b5cec32d8043fdb8226bb73aa1ea04cf142e8572857530e10573
 F src/checkin.c 4dc8519e881827fd2ca6cc243045c32fe77e92460749b929a432b78acaa5c018
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
@@ -970,10 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 487e465263fd21c37164a1aa074048717d9212e96744ffec3bacbfee310ebf20
-Q +7283ae6e120c10e2327d000879786db5ec60d375c915a0f5d098b661f448c47e
-Q +92221aaa192e82e89263e109098bd9bcda9ecf1128ae6f79b742321eada8793a
-R 5ee81a3cf96b0a84872f171de4d5e59a
-U stephan
-Z 300ec2376a9cee7b8784902c586de7ba
+P f902814db6f76ccd9a5d400e4625b57b14fb71cd141223ae6013e9881e5b3520
+R 7f0e826eee978bd53db621016c783a73
+U george
+Z 483c9da2d41dcb8a7ea470addc3166b8
 # Remove this line to create a well-formed Fossil manifest.

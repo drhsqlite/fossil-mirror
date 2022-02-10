@@ -1072,10 +1072,8 @@ static void process_multipart_form_data(char *z, int len){
 */
 void cgi_parse_POST_JSON( Blob * pIn ){
   cson_value * jv = NULL;
-  cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
   assert(g.json.gc.a && "json_bootstrap_early() was not called!");
-  popt.maxDepth = 15;
   jv = cson_parse_Blob(pIn, &pinfo);
   if( jv==NULL ){
     goto invalidRequest;
