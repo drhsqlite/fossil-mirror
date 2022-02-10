@@ -13716,17 +13716,24 @@ static int run_table_dump_query(
 */
 static char *save_err_msg(
   sqlite3 *db,           /* Database to query */
-  const char *zWhen,     /* Qualifier (format) wrapper */
+  const char *zPhase,    /* When the error occcurs */
   int rc,                /* Error code returned from API */
   const char *zSql       /* SQL string, or NULL */
 ){
   char *zErr;
   char *zContext;
-  if( zWhen==0 ) zWhen = "%s (%d)%s";
+  sqlite3_str *pStr = sqlite3_str_new(0);
+  sqlite3_str_appendf(pStr, "%s, %s", zPhase, sqlite3_errmsg(db));
+  if( rc>1 ){
+    sqlite3_str_appendf(pStr, " (%d)", rc);
+  }
   zContext = shell_error_context(zSql, db);
-  zErr = sqlite3_mprintf(zWhen, sqlite3_errmsg(db), rc, zContext);
+  if( zContext ){
+    sqlite3_str_appendall(pStr, zContext);
+    sqlite3_free(zContext);
+  }
+  zErr = sqlite3_str_finish(pStr);
   shell_check_oom(zErr);
-  sqlite3_free(zContext);
   return zErr;
 }
 
@@ -14857,7 +14864,7 @@ static int shell_exec(
     rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
     if( SQLITE_OK != rc ){
       if( pzErrMsg ){
-        *pzErrMsg = save_err_msg(db, "in prepare, %s (%d)%s", rc, zSql);
+        *pzErrMsg = save_err_msg(db, "in prepare", rc, zSql);
       }
     }else{
       if( !pStmt ){
@@ -14973,7 +14980,7 @@ static int shell_exec(
         zSql = zLeftover;
         while( IsSpace(zSql[0]) ) zSql++;
       }else if( pzErrMsg ){
-        *pzErrMsg = save_err_msg(db, "stepping, %s (%d)", rc, 0);
+        *pzErrMsg = save_err_msg(db, "stepping", rc, 0);
       }
 
       /* clear saved stmt handle */
@@ -22258,19 +22265,30 @@ static int runOneSqlLine(ShellState *p, char *zSql, FILE *in, int startline){
   END_TIMER;
   if( rc || zErrMsg ){
     char zPrefix[100];
+    const char *zErrorTail;
+    const char *zErrorType;
+    if( zErrMsg==0 ){
+      zErrorType = "Error";
+      zErrorTail = sqlite3_errmsg(p->db);
+    }else if( strncmp(zErrMsg, "in prepare, ",12)==0 ){
+      zErrorType = "Parse error";
+      zErrorTail = &zErrMsg[12];
+    }else if( strncmp(zErrMsg, "stepping, ", 10)==0 ){
+      zErrorType = "Runtime error";
+      zErrorTail = &zErrMsg[10];
+    }else{
+      zErrorType = "Error";
+      zErrorTail = zErrMsg;
+    }
     if( in!=0 || !stdin_is_interactive ){
       sqlite3_snprintf(sizeof(zPrefix), zPrefix,
-                       "Error: near line %d:", startline);
+                       "%s near line %d:", zErrorType, startline);
     }else{
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "Error:");
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%s:", zErrorType);
     }
-    if( zErrMsg!=0 ){
-      utf8_printf(stderr, "%s %s\n", zPrefix, zErrMsg);
-      sqlite3_free(zErrMsg);
-      zErrMsg = 0;
-    }else{
-      utf8_printf(stderr, "%s %s\n", zPrefix, sqlite3_errmsg(p->db));
-    }
+    utf8_printf(stderr, "%s %s\n", zPrefix, zErrorTail);
+    sqlite3_free(zErrMsg);
+    zErrMsg = 0;
     return 1;
   }else if( ShellHasFlag(p, SHFLG_CountChanges) ){
     char zLineBuf[2000];
