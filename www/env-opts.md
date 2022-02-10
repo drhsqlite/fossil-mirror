@@ -29,6 +29,8 @@ insensitive file systems on any single platform. This option or the
 global setting should be used to force the case sensitivity to the
 most sensible condition.
 
+`--cgitrace`: Active CGI tracing.
+
 `--chdir DIRECTORY`: Change to the named directory before processing
 any commands.
 
@@ -312,12 +314,6 @@ See the comment above the implementation of [`json_getenv`][json.c]
 for some further discussion.
 
 [json.c]: /artifact/6df1d80dece8968b?ln=277,290
-
-### CGI Server Extensions
-
-The [CGI Server Extensions](/doc/trunk/www/serverext.wiki) feature passes
-parameters to the CGI program using environment variables, as listed in
-the [CGI Inputs](/doc/trunk/www/serverext.wiki#cgi-inputs) section.
 
 ### Comment Editor
 

@@ -166,7 +166,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
     pBlob->blobFlags = 0;
-  }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
+  }else if( newSize>pBlob->nAlloc || newSize+4000<pBlob->nAlloc ){
     char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
     pBlob->nAlloc = newSize;
@@ -597,8 +597,8 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 void blob_reserve(Blob *pBlob, unsigned int newSize){
   if(newSize>=0x7fff0000 ){
     blob_panic();
-  }else if(newSize>pBlob->nUsed){
-    pBlob->xRealloc(pBlob, newSize);
+  }else if(newSize>pBlob->nAlloc){
+    pBlob->xRealloc(pBlob, newSize+1);
     pBlob->aData[newSize] = 0;
   }
 }

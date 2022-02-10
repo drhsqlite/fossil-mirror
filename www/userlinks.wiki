@@ -33,10 +33,6 @@
   *  How to [./shunning.wiki | delete content] from a Fossil repository.
   *  How Fossil does [./password.wiki | password management].
   *  On-line [/help | help].
-  *  Documentation on the
-     [http://www.sqliteconcepts.org/THManual.pdf | TH1 scripting language],
-     used to customize [./custom_ticket.wiki | ticketing], and several other
-     subsystems, including [./customskin.md | theming].
   *  List of [./th1.md | TH1 commands provided by Fossil itself] that expose
      its key functionality to TH1 scripts.
   *  List of [./th1-hooks.md | TH1 hooks exposed by Fossil] that enable
@@ -51,3 +47,4 @@
   *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
      (contributed by Gilles Ganault on 2013-01-08).
   *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
+  *  [./wsl_caveats.wiki | Using Fossil on WSL], caveats and guidance.

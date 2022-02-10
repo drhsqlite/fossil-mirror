@@ -1438,6 +1438,9 @@ writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
+foreach s [lsort $src_ext] {
+  writeln -nonewline "\$(SRCDIR_extsrc)\\${s}.c:$s.h "
+}
 writeln "\$(SRCDIR_extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR_extsrc)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
@@ -1573,7 +1576,6 @@ SSLLIBDIR = $(SSLDIR)
 !else
 SSLLIBDIR = $(SSLDIR)
 !endif
-SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
@@ -1630,7 +1632,7 @@ INCL      = $(INCL) /I"$(SSLINCDIR)"
 INCL      = $(INCL) /I"$(TCLINCDIR)"
 !endif
 
-CFLAGS    = /nologo
+CFLAGS    = /nologo /W2 /WX
 LDFLAGS   =
 
 CFLAGS    = $(CFLAGS) /D_CRT_SECURE_NO_DEPRECATE /D_CRT_SECURE_NO_WARNINGS
@@ -1645,12 +1647,23 @@ LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
 !if $(FOSSIL_ENABLE_WINXP)!=0
 XPCFLAGS  = $(XPCFLAGS) /D_WIN32_WINNT=0x0501 /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
+#
+# NOTE: For regular builds, /OSVERSION defaults to the /SUBSYSTEM version and
+# explicit initialization is redundant, but is required for post-built edits.
+#
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
-XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02
+XPLDFLAGS = $(XPLDFLAGS) /OSVERSION:5.02 /SUBSYSTEM:CONSOLE,5.02
 !else
-XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
+XPLDFLAGS = $(XPLDFLAGS) /OSVERSION:5.01 /SUBSYSTEM:CONSOLE,5.01
 !endif
 LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
+#
+# NOTE: Only XPCFLAGS is forwarded to the OpenSSL configuration, and XPLDFLAGS
+# is applied in a separate post-build step, see below for more information.
+#
+!if $(FOSSIL_ENABLE_SSL)!=0
+SSLCONFIG = $(SSLCONFIG) $(XPCFLAGS)
+!endif
 !endif
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
@@ -1761,6 +1774,11 @@ foreach s [lsort $src] {
   }
   writeln -nonewline "\"\$(OX)\\${s}_.c\""; incr i
 }
+foreach s [lsort $src_ext] {
+  writeln " \\"
+  writeln -nonewline "        "
+  writeln -nonewline "\"\$(SRCDIR_extsrc)\\${s}.c\""; incr i
+}
 writeln "\n"
 writeln -nonewline "EXTRA_FILES   = "
 set i 0
@@ -1825,15 +1843,38 @@ clean-zlib:
 !if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
+!if $(FOSSIL_ENABLE_WINXP)!=0
+	@echo Passing XPCFLAGS = [ $(XPCFLAGS) ] to the OpenSSL configuration...
+!endif
 !ifdef PERLDIR
 	@pushd "$(SSLDIR)" && "$(PERLDIR)\$(PERL)" Configure $(SSLCONFIG) && popd
 !else
 	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
 !endif
-!if $(FOSSIL_ENABLE_WINXP)!=0
-	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
-!else
 	@pushd "$(SSLDIR)" && $(MAKE) && popd
+!if $(FOSSIL_ENABLE_WINXP)!=0 && $(FOSSIL_DYNAMIC_BUILD)!=0
+#
+# NOTE: Appending custom linker flags to the OpenSSL default linker flags is
+# somewhat difficult, as summarized in this Fossil Forum post:
+#
+#   https://fossil-scm.org/forum/forumpost/a9a2d6af28b
+#
+# Therefore the custom linker flags required for Windows XP dynamic builds are
+# applied in a separate post-build step.
+#
+# If the build stops here, or if the custom linker flags are outside the scope
+# of `editbin` or `link /EDIT` (i.e. additional libraries), consider tweaking
+# the OpenSSL makefile by hand.
+#
+# Also note that this step changes the subsystem for the OpenSSL DLLs from
+# WINDOWS to CONSOLE, but which has no effect on DLLs.
+#
+	@echo Applying XPLDFLAGS = [ $(XPLDFLAGS) ] to the OpenSSL DLLs...
+	@for /F "usebackq delims=" %F in (`dir /A:-D/B "$(SSLDIR)\*.dll" 2^>nul`) <<<NEXT_LINE>>>
+		do @( <<<NEXT_LINE>>>
+			echo %F & <<<NEXT_LINE>>>
+			link /EDIT /NOLOGO $(XPLDFLAGS) "$(SSLDIR)\%F" || exit 1 <<<NEXT_LINE>>>
+		)
 !endif
 
 clean-openssl:
@@ -2003,6 +2044,11 @@ foreach s [lsort $src] {
     writeln -nonewline "\t\t\t"
   }
   writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
+}
+foreach s [lsort $src_ext] {
+  writeln " \\"
+  writeln -nonewline "\t\t\t"
+  writeln -nonewline "\"\$(SRCDIR_extsrc)\\${s}.c\":\"\$(OX)\\$s.h\""; incr i
 }
 writeln " \\\n\t\t\t\"\$(SRCDIR_extsrc)\\sqlite3.h\" \\"
 writeln "\t\t\t\"\$(SRCDIR)\\th.h\" \\"
