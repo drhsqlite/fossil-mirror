@@ -614,7 +614,7 @@ remote_delete_default:
       x.canonical = db_get("last-sync-url",0);
       x.passwd = unobscure(db_get("last-sync-pw",0));
     }else{
-      url_parse_local(zUrl, URL_PROMPT_PW, &x);
+      url_parse_local(zUrl, URL_PROMPT_PW|URL_USE_CONFIG, &x);
     }
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(

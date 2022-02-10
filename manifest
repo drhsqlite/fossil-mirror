@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.38.0\sbeta\sthat\sincludes\sthe\nperformance\senhancements\son\sthe\sdatetime()\sfunction.
-D 2022-02-10T15:50:32.243
+C Fix\sthe\s"fossil\sremote\sadd\sNAME\sURL"\scommand\sso\sthat\sit\saccepts\saliases\sfor\sURL.
+D 2022-02-10T19:38:59.674
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -580,7 +580,7 @@ F src/style.c df745c115d0f783022262472fef2809d2bdac48d7990310955ab314947aaf23d
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c a81c4e6f1079e776808ac3ce6ba41c56608e6d289c0b3e05f237ae082dbef758
+F src/sync.c 15f505ead6f73a60fad83364ab855eb7990f3ce3e2426899dd913670ec33351c
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c d66ca7cd241f369cffe29a5e1c5ac1af0a4cc8f9dddeb92d1d62614577a6ac75
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96bf76a4b1cf2a7d896a385ac1424076667faebbe0a066feb74c667c7f2f1f50
-R baa62e1f3efdeb2cc7f83529cb6c8a24
+P 740d655e553f0ef184c78a96ed8dd62a3b4f22da683da773ab0dcb0c87358c90
+R af1ab793524d12762a37033cd0dae292
 U drh
-Z d53d460fdfb3750c072ee2c4ae7d2019
+Z 644c049c0e90feae485d904cb3e697d0
 # Remove this line to create a well-formed Fossil manifest.
