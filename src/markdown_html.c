@@ -385,8 +385,8 @@ static void html_footnote_item(
   if( iMark < 0 ){                     /* misreferences */
     assert( iMark == -1 );
     if( !nUsed ) return;
-    BLOB_APPEND_LITERAL(ob,"<li class='misreferences'>"
-                              "<sup class='footnote-backrefs'>");
+    BLOB_APPEND_LITERAL(ob,"<li class='fn-misreference'>"
+                              "<sup class='fn-backrefs'>");
     if( nUsed == 1 ){
       blob_appendf(ob,"<a id='misreference%s-a' "
                       "href='#misref%s-a'>^</a>", unique, unique);
@@ -400,24 +400,30 @@ static void html_footnote_item(
       }
       if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
     }
-    BLOB_APPEND_LITERAL(ob,"</sup>\nMisreference: use of undefined label.");
+    BLOB_APPEND_LITERAL(ob,"</sup>\n<span>Misreference</span>");
 
   }else if( nUsed ){                   /* a regular footnote */
     char pos[24];
+    const char *join = "";
+    #define _joined_footnote_indicator "<ul class='fn-joined'>"
+    #define _jfi_sz (sizeof(_joined_footnote_indicator)-1)
     assert( text );
     assert( blob_size(text) );
-
+    if( blob_size(text)>=_jfi_sz &&
+       !memcmp(blob_buffer(text),_joined_footnote_indicator,_jfi_sz)){
+      join = "fn-joined ";
+    }
     memset(pos,0,24);
     sprintf(pos, "%s-%i", unique, iMark);
+    blob_appendf(ob, "<li id='footnote%s' class='%s", pos, join);
 
-    blob_appendf(ob, "<li id='footnote%s'>", pos);
-    BLOB_APPEND_LITERAL(ob,"<sup class='footnote-backrefs'>");
-    if( nUsed <= 1 ){
+    if( nUsed == 1 ){
+      BLOB_APPEND_LITERAL(ob, "fn-monoref'><sup class='fn-backrefs'>");
       blob_appendf(ob,"<a id='footnote%s-a' "
                        "href='#noteref%s-a'>^</a>", pos, pos);
     }else{
       int i;
-      blob_append_char(ob, '^');
+      BLOB_APPEND_LITERAL(ob, "fn-polyref'><sup class='fn-backrefs'>^");
       for(i=0; i<nUsed && i<26; i++){
         const int c = i + (unsigned)'a';
         blob_appendf(ob," <a id='footnote%s-%c'"
@@ -434,7 +440,14 @@ static void html_footnote_item(
       if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
     }
     BLOB_APPEND_LITERAL(ob,"</sup>\n");
-    BLOB_APPEND_BLOB(ob, text);
+    if( join[0] ){
+      BLOB_APPEND_LITERAL(ob,"<sup class='fn-joined'></sup><ul>");
+      blob_append(ob,blob_buffer(text)+_jfi_sz,blob_size(text)-_jfi_sz);
+    }else{
+      BLOB_APPEND_BLOB(ob, text);
+    }
+    #undef _joined_footnote_indicator
+    #undef _jfi_sz
   }else{
     /* a footnote was defined but wasn't used */
     /* make.footnote_item() invocations should pass args accordingly */
@@ -442,10 +455,9 @@ static void html_footnote_item(
     assert( text );
     assert( blob_size(text) );
     assert( blob_size(id) );
-    BLOB_APPEND_LITERAL(ob,"<li class='unreferenced'>\n[^&nbsp;<code>");
+    BLOB_APPEND_LITERAL(ob,"<li class='fn-unreferenced'>\n[^&nbsp;<code>");
     html_escape(ob, blob_buffer(id), blob_size(id));
-    BLOB_APPEND_LITERAL(ob, "</code>&nbsp;] "
-        "<i>was defined but is not referenced</i>\n"
+    BLOB_APPEND_LITERAL(ob, "</code>&nbsp;]<i></i>\n"
         "<pre><code class='language-markdown'>");
     html_escape(ob, blob_buffer(text), blob_size(text));
     BLOB_APPEND_LITERAL(ob,"</code></pre>");

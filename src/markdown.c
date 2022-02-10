@@ -2588,7 +2588,8 @@ void markdown(
       if( i+1<j ){
         Blob tmp = empty_blob;
         blob_reserve(&tmp, k);
-        blob_append_string(&tmp, "<ul class='footnote-joined'>\n");
+        /* must match _joined_footnote_indicator in html_footnote_item() */
+        blob_append_string(&tmp, "<ul class='fn-joined'>\n");
         for(k=i; k<j; k++){
           struct footnote *y = fn + k;
           blob_append_string(&tmp, "<li>");

@@ -1667,57 +1667,73 @@ body.branch .submenu > a.timeline-link.selected {
 .monospace {
   font-family: monospace;
 }
-div.content  div.markdown > ol.footnotes {
+
+div.markdown > ol.footnotes {
   font-size: 90%;
 }
-div.content  div.markdown > ol.footnotes > li {
+div.markdown > ol.footnotes > li {
   margin-bottom: 0.5em;
 }
-div.markdown ol.footnotes > li.misreferences {
-  background: #ffdddd;
+div.markdown ol.footnotes > li.fn-joined > sup.fn-joined {
+  color: gray;
+  font-family: monospace;
 }
-div.markdown ol.footnotes > li.unreferenced:first-child,
-div.markdown ol.footnotes > li.misreferences {
-  margin-top:     0.75em;
-  padding-top:    0.25em;
-  padding-bottom: 0.25em;
+div.markdown ol.footnotes > li.fn-joined > sup.fn-joined::after {
+  content: "(joined from multiple locations) ";
 }
-div.markdown ol.footnotes > li.unreferenced {
-  padding-left: 0.5em;
+div.markdown ol.footnotes > li.fn-misreference {
+  margin-top:    0.75em;
+  margin-bottom: 0.75em;
+}
+div.markdown ol.footnotes > li.fn-misreference,
+div.markdown ol.footnotes > li.fn-unreferenced {
   color: gray;
 }
-div.markdown ol.footnotes > li.unreferenced > code {
+div.markdown ol.footnotes > li.fn-misreference > span {
   color: red;
-  font-weight: bold;
 }
-div.markdown ol.footnotes > li.unreferenced > pre {
+div.markdown ol.footnotes > li.fn-misreference > span::after {
+  content: " (use of undefined label).";
+}
+div.markdown ol.footnotes > li.fn-unreferenced {
+  padding-left: 0.5em;
+}
+div.markdown ol.footnotes > li.fn-unreferenced > code {
+  color: red;
+}
+div.markdown ol.footnotes > li.fn-unreferenced > i::after {
+  content: " was defined but is not referenced";
+}
+div.markdown ol.footnotes > li.fn-unreferenced > pre {
   color: gray;
+  font-size: 85%;
   padding-left: 0.5em;
   margin-top:  0.25em;
-  border-left: 3px solid red;
+  border-left: 2px solid red;
 }
-div.content  div.markdown > ol.footnotes > li > .footnote-backrefs {
+div.markdown > ol.footnotes > li > .fn-backrefs {
   margin-right: 0.5em;
   font-weight: bold;
 }
-div.markdown > ol.footnotes > li > .footnote-backrefs > a:target {
-  background: gold;
-}
-div.markdown sup.noteref > a:target {
-  background: gold;
+div.markdown > ol.footnotes > li > .fn-backrefs > a,
+div.markdown sup.noteref > a {
+  padding-left:  2px;
+  padding-right: 2px;
 }
 div.markdown sup.noteref.misref,
 div.markdown sup.noteref.misref > a {
   color: red;
   font-size: 90%;
 }
+div.markdown sup.noteref > a:target,
+div.markdown span.notescope:target > sup.noteref > a,
+div.markdown span.notescope:hover  > sup.noteref > a,
+div.markdown > ol.footnotes > li > .fn-backrefs > a:target {
+  background: gold;
+}
 div.markdown span.notescope:hover,
 div.markdown span.notescope:target {
   border-bottom: 2px solid gold;
-}
-div.markdown span.notescope:hover  > sup.noteref > a,
-div.markdown span.notescope:target > sup.noteref > a {
-  background: gold;
 }
 
 /* Objects in the "desktoponly" class are invisible on mobile */

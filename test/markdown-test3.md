@@ -54,6 +54,9 @@ rendering of <s>`lost1` and</s> [lost2][^].
 If several labeled footnote definitions have the same equal label then texts
 from all these definitions are joined.[^duplicate]
 
+Several references should be recognized as several distinct numbers.
+(^There should be an interval between numbers.) [^many-refs]
+
 ## Footnotes
 
 [branch]: /timeline?r=markdown-footnotes&nowiki
