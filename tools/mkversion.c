@@ -90,7 +90,7 @@ int main(int argc, char *argv[]){
 #if defined(__DMC__)            /* e.g. 0x857 */
     int i = 0;
 #endif
-    int j = 0, x = 0, d = 0, p = 0;
+    int j = 0, x = 0, d = 0;
     size_t n;
     int vn[3];
     char b[1000];
@@ -205,8 +205,8 @@ int main(int argc, char *argv[]){
     /* _MSC_FULL_VER also defined, e.g. 193030709 */
     d = (_MSC_VER / 100); /* major */
     x = (_MSC_VER % 100); /* minor */
-    p = (_MSC_FULL_VER % 100000); /* build (patch) */
-    printf("#define COMPILER_VERSION \"%d.%02d.%05d\"\n", d, x, p);
+    printf("#define COMPILER_VERSION \"%d.%02d.", d, x);
+    printf("%05d\"\n",(int)(_MSC_FULL_VER % 100000)); /* build (patch) */
 #endif
     return 0;
 }
