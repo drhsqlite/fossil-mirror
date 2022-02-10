@@ -275,10 +275,11 @@ static cson_value * json_wiki_get(){
 
 /*
 ** Implementation of /json/wiki/preview.
-**
 */
 static cson_value * json_wiki_preview(){
   char const * zContent = NULL;
+  char const * zMime = NULL;
+  cson_string * sContent = NULL;
   cson_value * pay = NULL;
   Blob contentOrig = empty_blob;
   Blob contentHtml = empty_blob;
@@ -287,14 +288,34 @@ static cson_value * json_wiki_preview(){
                  "Requires 'k' access.");
     return NULL;
   }
-  zContent = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
-  if(!zContent) {
+
+  if(g.json.reqPayload.o){
+    sContent = cson_value_get_string(
+                  cson_object_get(g.json.reqPayload.o, "body"));
+    zMime = cson_value_get_cstr(cson_object_get(g.json.reqPayload.o,
+                                                "mimetype"));
+  }else{
+    sContent = cson_value_get_string(g.json.reqPayload.v);
+  }
+  if(!sContent) {
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "The 'payload' property must be a string containing the wiki code to preview.");
+                 "The 'payload' property must be either a string containing the "
+                 "Fossil wiki code to preview or an object with body + mimetype "
+                 "properties.");
     return NULL;
   }
-  blob_append( &contentOrig, zContent, (int)cson_string_length_bytes(cson_value_get_string(g.json.reqPayload.v)) );
-  wiki_convert( &contentOrig, &contentHtml, 0 );
+  zContent = cson_string_cstr(sContent);
+  blob_append( &contentOrig, zContent, (int)cson_string_length_bytes(sContent) );
+  zMime = wiki_filter_mimetypes(zMime);
+  if( 0==fossil_strcmp(zMime, "text/x-markdown") ){
+    markdown_to_html(&contentOrig, 0, &contentHtml);
+  }else if( 0==fossil_strcmp(zMime, "text/plain") ){
+    blob_append(&contentHtml, "<pre class='textPlain'>", -1);
+    blob_append(&contentHtml, blob_str(&contentOrig), blob_size(&contentOrig));
+    blob_append(&contentHtml, "</pre>", -1);
+  }else{
+    wiki_convert( &contentOrig, &contentHtml, 0 );
+  }
   blob_reset( &contentOrig );
   pay = cson_value_new_string( blob_str(&contentHtml), (unsigned int)blob_size(&contentHtml));
   blob_reset( &contentHtml );

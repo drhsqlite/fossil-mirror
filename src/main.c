@@ -2618,8 +2618,8 @@ static void decode_ssl_options(void){
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
-** handler from inetd, for example.  The argument is the name of the
-** repository.
+** handler from inetd, for example.  The REPOSITORY argument is the name of
+** the repository.
 **
 ** If REPOSITORY is a directory that contains one or more repositories,
 ** either directly in REPOSITORY itself or in subdirectories, and
@@ -2634,15 +2634,6 @@ static void decode_ssl_options(void){
 ** returned if they match comma-separate GLOB pattern specified by --files
 ** and do not match "*.fossil*" and have a well-known suffix.
 **
-** The --host option can be used to specify the hostname for the server.
-** The --https option indicates that the request came from HTTPS rather
-** than HTTP. If --nossl is given, then SSL connections will not be available,
-** thus also no redirecting from http: to https: will take place.
-**
-** If the --localauth option is given, then automatic login is performed
-** for requests coming from localhost, if the "localauth" setting is not
-** enabled.
-**
 ** Options:
 **   --acme              Deliver files from the ".well-known" subdirectory
 **   --baseurl URL       base URL (useful with reverse proxies)
@@ -2651,10 +2642,12 @@ static void decode_ssl_options(void){
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
 **                          /doc/ckout/...
-**   --extroot DIR       document root for the /ext extension mechanism
-**   --files GLOB        comma-separate glob patterns for static file to serve
-**   --host NAME         specify hostname of the server
-**   --https             signal a request coming in via https
+**   --extroot DIR       Document root for the /ext extension mechanism
+**   --files GLOB        Comma-separate glob patterns for static file to serve
+**   --host NAME         DNS Hostname of the server
+**   --https             The HTTP request originated from https but has already
+**                       been decoded by a reverse proxy.  Hence, URLs created
+**                       by Fossil should use "https:" rather than "http:".
 **   --in FILE           Take input from FILE instead of standard input
 **   --ipaddr ADDR       Assume the request comes from the given IP address
 **   --jsmode MODE       Determine how JavaScript is delivered with pages.
@@ -2670,21 +2663,24 @@ static void decode_ssl_options(void){
 **                       and bundled modes might result in a single
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
-**   --localauth         enable automatic login for local connections
+**   --localauth         Connections from localhost are given "setup"
+**                       privileges without having to log in.
 **   --mainmenu FILE     Override the mainmenu config setting with the contents
 **                       of the given file.
-**   --nocompress        do not compress HTTP replies
-**   --nodelay           omit backoffice processing if it would delay
+**   --nocompress        Do not compress HTTP replies
+**   --nodelay           Omit backoffice processing if it would delay
 **                       process exit
-**   --nojail            drop root privilege but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available
-**   --notfound URL      use URL as "HTTP 404, object not found" page.
-**   --out FILE          write results to FILE instead of to standard output
+**   --nojail            Drop root privilege but do not enter the chroot jail
+**   --nossl             Do not do http: to https: redirects, regardless of
+**                       the redirect-to-https setting.
+**   --notfound URL      Use URL as the "HTTP 404, object not found" page.
+**   --out FILE          Write the HTTP reply to FILE instead of to 
+**                       standard output
 **   --pkey FILE         Read the private key used for TLS from FILE.
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi              Interpret input as SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --th-trace          trace TH1 execution (for debugging purposes)
+**   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process. This is
 **                       only necessary when using SEE on Windows.
 **
@@ -2735,6 +2731,9 @@ void cmd_http(void){
     if( g.httpIn==0 ) fossil_fatal("cannot open \"%s\" for reading", zInFile);
   }else{
     g.httpIn = stdin;
+#if defined(_WIN32)
+   _setmode(_fileno(stdin), _O_BINARY);
+#endif
   }
   zOutFile = find_option("out",0,1);
   if( zOutFile ){
@@ -2742,6 +2741,9 @@ void cmd_http(void){
     if( g.httpOut==0 ) fossil_fatal("cannot open \"%s\" for writing", zOutFile);
   }else{
     g.httpOut = stdout;
+#if defined(_WIN32)
+   _setmode(_fileno(stdout), _O_BINARY);
+#endif
   }
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;

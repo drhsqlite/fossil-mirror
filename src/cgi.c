@@ -366,7 +366,7 @@ static char *cgi_fgets(char *s, int size){
 /* Works like fread():
 **
 ** Read as many as bytes of content as we can, up to a maximum of nmemb
-** bytes.  Return the number of bytes read.  Return -1 if there is no
+** bytes.  Return the number of bytes read.  Return 0 if there is no
 ** further input or if an I/O error occurs.
 */
 size_t cgi_fread(void *ptr, size_t nmemb){
@@ -374,7 +374,7 @@ size_t cgi_fread(void *ptr, size_t nmemb){
     return fread(ptr, 1, nmemb, g.httpIn);
   }
 #ifdef FOSSIL_ENABLE_SSL
-  return ssl_read_server(g.httpSSLConn, ptr, nmemb);
+  return ssl_read_server(g.httpSSLConn, ptr, nmemb, 1);
 #else
   fossil_fatal("SSL not available");
 #endif
@@ -1063,67 +1063,19 @@ static void process_multipart_form_data(char *z, int len){
 
 #ifdef FOSSIL_ENABLE_JSON
 /*
-** Internal helper for cson_data_source_FILE_n().
+** Reads a JSON object from the given blob, which is assumed to have
+** been populated by the caller from stdin, the SSL API, or a file, as
+** appropriate for the particular use case. On success g.json.post is
+** updated to hold the content. On error a FSL_JSON_E_INVALID_REQUEST
+** response is output and fossil_exit() is called (in HTTP mode exit
+** code 0 is used).
 */
-typedef struct CgiPostReadState_ {
-    FILE * fh;
-    unsigned int len;
-    unsigned int pos;
-} CgiPostReadState;
-
-/*
-** cson_data_source_f() impl which reads only up to
-** a specified amount of data from its input FILE.
-** state MUST be a full populated (CgiPostReadState*).
-*/
-static int cson_data_source_FILE_n( void * state,
-                                    void * dest,
-                                    unsigned int * n ){
-    if( ! state || !dest || !n ) return cson_rc.ArgError;
-    else {
-      CgiPostReadState * st = (CgiPostReadState *)state;
-      if( st->pos >= st->len ){
-        *n = 0;
-        return 0;
-      }else if( !*n || ((st->pos + *n) > st->len) ){
-        return cson_rc.RangeError;
-      }else{
-        unsigned int rsz = (unsigned int)fread( dest, 1, *n, st->fh );
-        if( ! rsz ){
-          *n = rsz;
-          return feof(st->fh) ? 0 : cson_rc.IOError;
-        }else{
-          *n = rsz;
-          st->pos += *n;
-          return 0;
-        }
-      }
-    }
-}
-
-/*
-** Reads a JSON object from the first contentLen bytes of zIn.  On
-** g.json.post is updated to hold the content. On error a
-** FSL_JSON_E_INVALID_REQUEST response is output and fossil_exit() is
-** called (in HTTP mode exit code 0 is used).
-**
-** If contentLen is 0 then the whole file is read.
-*/
-void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
+void cgi_parse_POST_JSON( Blob * pIn ){
   cson_value * jv = NULL;
-  int rc;
-  CgiPostReadState state;
-  cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
   assert(g.json.gc.a && "json_bootstrap_early() was not called!");
-  popt.maxDepth = 15;
-  state.fh = zIn;
-  state.len = contentLen;
-  state.pos = 0;
-  rc = cson_parse( &jv,
-                   contentLen ? cson_data_source_FILE_n : cson_data_source_FILE,
-                   contentLen ? (void *)&state : (void *)zIn, &popt, &pinfo );
-  if(rc){
+  jv = cson_parse_Blob(pIn, &pinfo);
+  if( jv==NULL ){
     goto invalidRequest;
   }else{
     json_gc_add( "POST.JSON", jv );
@@ -1142,7 +1094,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
                            pinfo.line, pinfo.col, pinfo.length,
                            cson_rc_string(pinfo.errorCode));
       json_err( FSL_JSON_E_INVALID_REQUEST, msg, 1 );
-      free(msg);
+      fossil_free(msg);
   }else if(jv && !g.json.post.o){
       json_err( FSL_JSON_E_INVALID_REQUEST,
                 "Request envelope must be a JSON Object (not array).", 1 );
@@ -1364,29 +1316,21 @@ void cgi_init(void){
   }
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
+    if( blob_read_from_cgi(&g.cgiIn, len)<len ){
+      char *zMsg = mprintf("CGI content-length mismatch:  Wanted %d bytes"
+                           " but got only %d\n", len, blob_size(&g.cgiIn));
+      malformed_request(zMsg);
+    }
     if( fossil_strcmp(zType, "application/x-fossil")==0 ){
-      if( blob_read_from_cgi(&g.cgiIn, len)!=len ){
-        malformed_request("CGI content-length mismatch");
-      }
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( noJson==0 && g.json.isJsonMode!=0
-             && json_can_consume_content_type(zType)!=0 ){
-      assert( !g.httpUseSSL );
-      cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
-      /*
-       Potential TODOs:
-
-       1) If parsing fails, immediately return an error response
-       without dispatching the ostensibly-upcoming JSON API.
-      */
+    if( noJson==0 && g.json.isJsonMode!=0
+        && json_can_consume_content_type(zType)!=0 ){
+      cgi_parse_POST_JSON(&g.cgiIn);
       cgi_set_content_type(json_guess_content_type());
     }
 #endif /* FOSSIL_ENABLE_JSON */
-    else{
-      blob_read_from_cgi(&g.cgiIn, len);
-    }
   }
 }
 

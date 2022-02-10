@@ -485,6 +485,11 @@ void chat_test_formatter_cmd(void){
 **
 ** If "before" is provided, "name" is ignored.
 **
+** If "raw" is provided, the "xmsg" text is sent back as-is, in
+** markdown format, rather than being HTML-ized. This is not used or
+** supported by fossil's own chat client but is intended for 3rd-party
+** clients. (Specifically, for Brad Harder's curses-based client.)
+**
 ** The reply from this webpage is JSON that describes the new content.
 ** Format of the json:
 **
@@ -544,6 +549,7 @@ void chat_poll_webpage(void){
   int msgid = atoi(PD("name","0"));
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
+  const int bRaw = P("raw")!=0;
   Blob sql = empty_blob;
   Stmt q1;
   nDelay = db_get_int("chat-poll-timeout",420);  /* Default about 7 minutes */
@@ -621,9 +627,13 @@ void chat_poll_webpage(void){
       blob_appendf(&json, "\"uclr\":%!j,",
                    user_color(zFrom ? zFrom : "nobody"));
 
-      zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
-      blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
-      fossil_free(zMsg);
+      if(bRaw){
+        blob_appendf(&json, "\"xmsg\":%!j,", zRawMsg);
+      }else{
+        zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
+        blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
+        fossil_free(zMsg);
+      }
 
       if( nByte==0 ){
         blob_appendf(&json, "\"fsize\":0");

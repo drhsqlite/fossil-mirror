@@ -123,8 +123,9 @@ typedef struct DLine DLine;
 struct DLine {
   const char *z;          /* The text of the line */
   u64 h;                  /* Hash of the line */
-  unsigned short indent;  /* Indent of the line. Only !=0 with -w/-Z option */
+  unsigned short indent;  /* Index of first non-space */
   unsigned short n;       /* number of bytes */
+  unsigned short nw;      /* number of bytes without leading/trailing space */
   unsigned int iNext;     /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
@@ -165,8 +166,30 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*xDiffer)(const DLine*,const DLine*); /* comparison function */
+  int (*xDiffer)(const DLine *,const DLine *); /* comparison function */
 };
+
+/* Fast isspace for use by diff */
+static const char diffIsSpace[] = {
+  0, 0, 0, 0, 0, 0, 0, 0,   1, 1, 1, 0, 1, 1, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+};
+#define diff_isspace(X)  (diffIsSpace[(unsigned char)(X)])
 
 /*
 ** Count the number of lines in the input string.  Include the last line
@@ -247,16 +270,17 @@ static DLine *break_into_lines(
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
     a[i].n = k;
-    s = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
-      while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
+      while( k>0 && diff_isspace(z[k-1]) ){ k--; }
     }
     if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
       int numws = 0;
-      while( s<k && fossil_isspace(z[s]) ){ s++; }
+      for(s=0; s<k && z[s]<=' '; s++){}
+      a[i].indent = s;
+      a[i].nw = k - s;
       for(h=0, x=s; x<k; x++){
         char c = z[x];
-        if( fossil_isspace(c) ){
+        if( diff_isspace(c) ){
           ++numws;
         }else{
           h = (h^c)*9000000000000000041LL;
@@ -266,7 +290,7 @@ static DLine *break_into_lines(
     }else{
       int k2 = k & ~0x7;
       u64 m;
-      for(h=0, x=s; x<k2; x += 8){
+      for(h=x=s=0; x<k2; x += 8){
         memcpy(&m, z+x, 8);
         h = (h^m)*9000000000000000041LL;
       }
@@ -274,7 +298,6 @@ static DLine *break_into_lines(
       memcpy(&m, z+x, k-k2);
       h ^= m;
     }
-    a[i].indent = s;
     a[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
@@ -302,14 +325,16 @@ static int compare_dline(const DLine *pA, const DLine *pB){
 ** all whitespace. The indent field of pA/pB already points
 ** to the first non-space character in the string.
 */
-
 static int compare_dline_ignore_allws(const DLine *pA, const DLine *pB){
-  int a = pA->indent, b = pB->indent;
   if( pA->h==pB->h ){
+    int a, b;
+    if( memcmp(pA->z, pB->z, pA->h&LENGTH_MASK)==0 ) return 0;
+    a = pA->indent;
+    b = pB->indent;
     while( a<pA->n || b<pB->n ){
       if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 1;
-      while( a<pA->n && fossil_isspace(pA->z[a])) ++a;
-      while( b<pB->n && fossil_isspace(pB->z[b])) ++b;
+      while( a<pA->n && diff_isspace(pA->z[a])) ++a;
+      while( b<pB->n && diff_isspace(pB->z[b])) ++b;
     }
     return pA->n-a != pB->n-b;
   }
@@ -340,7 +365,7 @@ static int re_dline_match(
 static void appendDiffLine(
   Blob *pOut,         /* Where to write the line of output */
   char cPrefix,       /* One of " ", "+",  or "-" */
-  DLine *pLine        /* The line to be output */
+  const DLine *pLine  /* The line to be output */
 ){
   blob_append_char(pOut, cPrefix);
   blob_append(pOut, pLine->z, pLine->n);
@@ -373,10 +398,10 @@ static void contextDiff(
   Blob *pOut,       /* Output a context diff to here */
   DiffConfig *pCfg  /* Configuration options */
 ){
-  DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */
-  int a = 0;    /* Index of next line in A[] */
-  int b = 0;    /* Index of next line in B[] */
+  const DLine *A;   /* Left side of the diff */
+  const DLine *B;   /* Right side of the diff */
+  int a = 0;        /* Index of next line in A[] */
+  int b = 0;        /* Index of next line in B[] */
   int *R;       /* Array of COPY/DELETE/INSERT triples */
   int r;        /* Index into R[] */
   int nr;       /* Number of COPY/DELETE/INSERT triples to process */
@@ -621,7 +646,7 @@ static int textLineChanges(
 */
 static int allSpaces(const char *z, int n){
   int i;
-  for(i=0; i<n && fossil_isspace(z[i]); i++){}
+  for(i=0; i<n && diff_isspace(z[i]); i++){}
   return i==n;
 }
 
@@ -747,13 +772,13 @@ static void oneLineChange(
     for(i=nShort-nSuffix; i<=nPrefix; i++){
        int iVal = 0;
        char c = zLeft[i];
-       if( fossil_isspace(c) ){
+       if( diff_isspace(c) ){
          iVal += 5;
        }else if( !fossil_isalnum(c) ){
          iVal += 2;
        }
        c = zLeft[i+nGap-1];
-       if( fossil_isspace(c) ){
+       if( diff_isspace(c) ){
          iVal += 5;
        }else if( !fossil_isalnum(c) ){
          iVal += 2;
@@ -891,7 +916,7 @@ struct DiffBuilder {
   void (*xCommon)(DiffBuilder*,const DLine*);
   void (*xInsert)(DiffBuilder*,const DLine*);
   void (*xDelete)(DiffBuilder*,const DLine*);
-  void (*xReplace)(DiffBuilder*,const DLine*, const DLine*);
+  void (*xReplace)(DiffBuilder*,const DLine*,const DLine*);
   void (*xEdit)(DiffBuilder*,const DLine*,const DLine*);
   void (*xEnd)(DiffBuilder*);
   unsigned int lnLeft;              /* Lines seen on the left (delete) side */
@@ -1735,7 +1760,7 @@ static DiffBuilder *dfsbsNew(Blob *pOut, DiffConfig *pCfg){
 **     at least 150% longer than the common prefix.
 ** (5) Longer common subsequences yield lower scores.
 */
-static int match_dline(const DLine *pA, const DLine *pB){
+static int match_dline(DLine *pA, DLine *pB){
   const char *zA;            /* Left string */
   const char *zB;            /* right string */
   int nA;                    /* Bytes in zA[] */
@@ -1751,13 +1776,25 @@ static int match_dline(const DLine *pA, const DLine *pB){
   unsigned char aNext[252];  /* aNext[i] = index in zB[] of next zB[i] char */
 
   zA = pA->z;
+  if( pA->nw==0 && pA->n ){
+    for(i=0; i<pA->n && diff_isspace(zA[i]); i++){}
+    pA->indent = i;
+    for(j=pA->n-1; j>i && diff_isspace(zA[j]); j--){}
+    pA->nw = j - i + 1;
+  }
+  zA += pA->indent;
+  nA = pA->nw;
+
   zB = pB->z;
-  nA = pA->n;
-  nB = pB->n;
-  while( nA>0 && (unsigned char)zA[0]<=' ' ){ nA--; zA++; }
-  while( nA>0 && (unsigned char)zA[nA-1]<=' ' ){ nA--; }
-  while( nB>0 && (unsigned char)zB[0]<=' ' ){ nB--; zB++; }
-  while( nB>0 && (unsigned char)zB[nB-1]<=' ' ){ nB--; }
+  if( pB->nw==0 && pB->n ){
+    for(i=0; i<pB->n && diff_isspace(zB[i]); i++){}
+    pB->indent = i;
+    for(j=pB->n-1; j>i && diff_isspace(zB[j]); j--){}
+    pB->nw = j - i + 1;
+  }
+  zB += pB->indent;
+  nB = pB->nw;
+
   if( nA>250 ) nA = 250;
   if( nB>250 ) nB = 250;
   avg = (nA+nB)/2;
@@ -1787,7 +1824,7 @@ static int match_dline(const DLine *pA, const DLine *pB){
       if( k>best ) best = k;
     }
   }
-  score = (best>=avg) ? 0 : (avg - best)*100/avg;
+  score = 5 + ((best>=avg) ? 0 : (avg - best)*95/avg);
 
 #if 0
   fprintf(stderr, "A: [%.*s]\nB: [%.*s]\nbest=%d avg=%d score=%d\n",
@@ -1819,6 +1856,179 @@ void test_dline_match(void){
   x = match_dline(&a, &b);
   fossil_print("%d\n", x);
 }
+
+/* Forward declarations for recursion */
+static unsigned char *diffBlockAlignment(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+);
+static void longestCommonSequence(
+  DContext *p,               /* Two files being compared */
+  int iS1, int iE1,          /* Range of lines in p->aFrom[] */
+  int iS2, int iE2,          /* Range of lines in p->aTo[] */
+  int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
+  int *piSY, int *piEY       /* Write p->aTo[] common segment here */
+);
+
+/*
+** Make a copy of a list of nLine DLine objects from one array to
+** another.  Hash the new array to ignore whitespace.
+*/
+static void diffDLineXfer(
+  DLine *aTo,
+  const DLine *aFrom,
+  int nLine
+){
+  int i, j, k;
+  u64 h, h2;
+  for(i=0; i<nLine; i++) aTo[i].iHash = 0;
+  for(i=0; i<nLine; i++){
+    const char *z = aFrom[i].z;
+    int n = aFrom[i].n;
+    for(j=0; j<n && diff_isspace(z[j]); j++){}
+    aTo[i].z = &z[j];
+    for(k=aFrom[i].n; k>j && diff_isspace(z[k-1]); k--){}
+    aTo[i].n = n = k-j;
+    aTo[i].indent = 0;
+    aTo[i].nw = 0;
+    for(h=0; j<k; j++){
+      char c = z[j];
+      if( !diff_isspace(c) ){
+        h = (h^c)*9000000000000000041LL;
+      }
+    }
+    aTo[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | n;
+    h2 = h % nLine;
+    aTo[i].iNext = aTo[h2].iHash;
+    aTo[h2].iHash = i+1;
+  }
+}
+
+
+/*
+** For a difficult diff-block alignment that was originally for
+** the default consider-all-whitespace algorithm, try to find the
+** longest common subsequence between the two blocks that involves
+** only whitespace changes.
+*/
+static unsigned char *diffBlockAlignmentIgnoreSpace(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+){
+  DContext dc;
+  int iSX, iEX;                /* Start and end of LCS on the left */
+  int iSY, iEY;                /* Start and end of the LCS on the right */
+  unsigned char *a1, *a2;
+  int n1, n2, nLCS;
+
+  dc.aEdit = 0;
+  dc.nEdit = 0;
+  dc.nEditAlloc = 0;
+  dc.nFrom = nLeft;
+  dc.nTo = nRight;
+  dc.xDiffer = compare_dline_ignore_allws;
+  dc.aFrom = fossil_malloc( sizeof(DLine)*(nLeft+nRight) );
+  dc.aTo = &dc.aFrom[dc.nFrom];
+  diffDLineXfer(dc.aFrom, aLeft, nLeft);
+  diffDLineXfer(dc.aTo, aRight, nRight);
+  longestCommonSequence(&dc,0,nLeft,0,nRight,&iSX,&iEX,&iSY,&iEY);
+  fossil_free(dc.aFrom);
+  nLCS = iEX - iSX;
+  if( nLCS<5 ) return 0;   /* No good LCS was found */
+
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+     fossil_print("   LCS size=%d\n"
+                  "     [%.*s]\n"
+                  "     [%.*s]\n",
+                  nLCS, aLeft[iSX].n, aLeft[iSX].z,
+                  aLeft[iEX-1].n, aLeft[iEX-1].z);
+  }
+
+  a1 = diffBlockAlignment(aLeft,iSX,aRight,iSY,pCfg,&n1);
+  a2 = diffBlockAlignment(aLeft+iEX, nLeft-iEX,
+                          aRight+iEY, nRight-iEY,
+                          pCfg, &n2);
+  a1 = fossil_realloc(a1, n1+nLCS+n2);
+  memcpy(a1+n1+nLCS,a2,n2);
+  memset(a1+n1,3,nLCS);
+  fossil_free(a2);
+  *pNResult = n1+n2+nLCS;
+  return a1;
+}
+
+
+/*
+** This is a helper route for diffBlockAlignment().  In this case,
+** a very large block is encountered that might be too expensive to
+** use the O(N*N) Wagner edit distance algorithm.  So instead, this
+** block implements a less-precise but faster O(N*logN) divide-and-conquer
+** approach.
+*/
+static unsigned char *diffBlockAlignmentDivideAndConquer(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+){
+  DLine *aSmall;               /* The smaller of aLeft and aRight */
+  DLine *aBig;                 /* The larger of aLeft and aRight */
+  int nSmall, nBig;            /* Size of aSmall and aBig.  nSmall<=nBig */
+  int iDivSmall, iDivBig;      /* Divider point for aSmall and aBig */
+  int iDivLeft, iDivRight;     /* Divider point for aLeft and aRight */
+  unsigned char *a1, *a2;      /* Results of the alignments on two halves */
+  int n1, n2;                  /* Number of entries in a1 and a2 */
+  int score, bestScore;        /* Score and best score seen so far */
+  int i;                       /* Loop counter */
+
+  if( nLeft>nRight ){
+    aSmall = aRight;
+    nSmall = nRight;
+    aBig = aLeft;
+    nBig = nLeft;
+  }else{
+    aSmall = aLeft;
+    nSmall = nLeft;
+    aBig = aRight;
+    nBig = nRight;
+  }
+  iDivBig = nBig/2;
+  iDivSmall = nSmall/2;
+
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+    fossil_print("  Divide at [%.*s]\n", 
+                 aBig[iDivBig].n, aBig[iDivBig].z);
+  }
+
+  bestScore = 10000;
+  for(i=0; i<nSmall; i++){
+    score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
+    if( score<bestScore ){
+      bestScore = score;
+      iDivSmall = i;
+    }
+  }
+  if( aSmall==aRight ){
+    iDivRight = iDivSmall;
+    iDivLeft = iDivBig;
+  }else{
+    iDivRight = iDivBig;
+    iDivLeft = iDivSmall;
+  }
+  a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,pCfg,&n1);
+  a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
+                          aRight+iDivRight, nRight-iDivRight,
+                          pCfg, &n2);
+  a1 = fossil_realloc(a1, n1+n2 );
+  memcpy(a1+n1,a2,n2);
+  fossil_free(a2);
+  *pNResult = n1+n2;
+  return a1;
+}
+
 
 /*
 ** The threshold at which diffBlockAlignment transitions from the
@@ -1852,10 +2062,10 @@ void test_dline_match(void){
 ** mismatch.
 */
 static unsigned char *diffBlockAlignment(
-  const DLine *aLeft, int nLeft,     /* Text on the left */
-  const DLine *aRight, int nRight,   /* Text on the right */
-  DiffConfig *pCfg,                  /* Configuration options */
-  int *pNResult                      /* OUTPUT: Bytes of result */
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
 ){
   int i, j, k;                 /* Loop counters */
   int *a;                      /* One row of the Wagner matrix */
@@ -1877,57 +2087,24 @@ static unsigned char *diffBlockAlignment(
     return aM;
   }
 
-  /* For large alignments, use a divide and conquer algorithm that is
-  ** O(NlogN).  The result is not as precise, but this whole thing is an
-  ** approximation anyhow, and the faster response time is an acceptable
-  ** trade-off for reduced precision.
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+    fossil_print("BlockAlignment:\n   [%.*s] + %d\n   [%.*s] + %d\n",
+                 aLeft[0].n, aLeft[0].z, nLeft,
+                 aRight[0].n, aRight[0].z, nRight);
+  }
+
+  /* For large alignments, try to use alternative algorithms that are
+  ** faster than the O(N*N) Wagner edit distance.
   */
   if( nLeft*nRight>DIFF_ALIGN_MX && (pCfg->diffFlags & DIFF_SLOW_SBS)==0 ){
-    const DLine *aSmall;   /* The smaller of aLeft and aRight */
-    const DLine *aBig;     /* The larger of aLeft and aRight */
-    int nSmall, nBig;      /* Size of aSmall and aBig.  nSmall<=nBig */
-    int iDivSmall, iDivBig;  /* Divider point for aSmall and aBig */
-    int iDivLeft, iDivRight; /* Divider point for aLeft and aRight */
-    unsigned char *a1, *a2;  /* Results of the alignments on two halves */
-    int n1, n2;              /* Number of entries in a1 and a2 */
-    int score, bestScore;    /* Score and best score seen so far */
-    if( nLeft>nRight ){
-      aSmall = aRight;
-      nSmall = nRight;
-      aBig = aLeft;
-      nBig = nLeft;
-    }else{
-      aSmall = aLeft;
-      nSmall = nLeft;
-      aBig = aRight;
-      nBig = nRight;
+    if( (pCfg->diffFlags & DIFF_IGNORE_ALLWS)==0 ){
+      unsigned char *aRes;
+      aRes = diffBlockAlignmentIgnoreSpace(
+                 aLeft, nLeft,aRight, nRight,pCfg,pNResult);
+      if( aRes ) return aRes;
     }
-    iDivBig = nBig/2;
-    iDivSmall = nSmall/2;
-    bestScore = 10000;
-    for(i=0; i<nSmall; i++){
-      score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
-      if( score<bestScore ){
-        bestScore = score;
-        iDivSmall = i;
-      }
-    }
-    if( aSmall==aRight ){
-      iDivRight = iDivSmall;
-      iDivLeft = iDivBig;
-    }else{
-      iDivRight = iDivBig;
-      iDivLeft = iDivSmall;
-    }
-    a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,pCfg,&n1);
-    a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
-                            aRight+iDivRight, nRight-iDivRight,
-                            pCfg, &n2);
-    a1 = fossil_realloc(a1, n1+n2 );
-    memcpy(a1+n1,a2,n2);
-    fossil_free(a2);
-    *pNResult = n1+n2;
-    return a1;
+    return diffBlockAlignmentDivideAndConquer(
+                 aLeft, nLeft,aRight, nRight,pCfg,pNResult);
   }
 
   /* If we reach this point, we will be doing an O(N*N) Wagner minimum
@@ -2028,8 +2205,8 @@ static void formatDiff(
   DiffConfig *pCfg,      /* Configuration options */
   DiffBuilder *pBuilder  /* The formatter object */
 ){
-  const DLine *A;        /* Left side of the diff */
-  const DLine *B;        /* Right side of the diff */
+  DLine *A;              /* Left side of the diff */
+  DLine *B;              /* Right side of the diff */
   unsigned int a = 0;    /* Index of next line in A[] */
   unsigned int b = 0;    /* Index of next line in B[] */
   const int *R;          /* Array of COPY/DELETE/INSERT triples */
@@ -2414,6 +2591,62 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 }
 
 /*
+** A common subsequene between p->aFrom and p->aTo has been found.
+** This routine tries to judge if the subsequence really is a valid
+** match or rather is just an artifact of an indentation change.
+**
+** Return non-zero if the subsequence is valid.  Return zero if the
+** subsequence seems likely to be an editing artifact and should be
+** ignored.
+**
+** This routine is a heuristic optimization intended to give more
+** intuitive diff results following an indentation change it code that
+** is formatted similarly to C/C++, Javascript, Go, TCL, and similar
+** languages that use {...} for nesting.  A correct diff is computed
+** even if this routine always returns true (non-zero).  But sometimes
+** a more intuitive diff can result if this routine returns false.
+**
+** The subsequences consists of the rows iSX through iEX-1 (inclusive)
+** in p->aFrom[].  The total sequences is iS1 through iE1-1 (inclusive)
+** of p->aFrom[].
+**
+** Example where this heuristic is useful, see the diff at
+** https://www.sqlite.org/src/fdiff?v1=0e79dd15cbdb4f48&v2=33955a6fd874dd97
+**
+** See also discussion at https://fossil-scm.org/forum/forumpost/9ba3284295
+**
+** ALGORITHM (subject to change and refinement):
+**
+**    1.  If the subsequence is larger than 1/7th of the original span,
+**        then consider it valid.  --> return 1
+**
+**    2.  If the subsequence contains any charaters other than '}', '{",
+**        or whitespace, then consider it valid. --> return 1
+**
+**    3.  Otherwise, it is potentially an artifact of an indentation
+**        change. --> return 0
+*/
+static int likelyNotIndentChngArtifact(
+  DContext *p,     /* The complete diff context */
+  int iS1,         /* Start of the main segment */
+  int iSX,         /* Start of the subsequence */
+  int iEX,         /* First row past the end of the subsequence */
+  int iE1          /* First row past the end of the main segment */
+){
+  int i, j;
+  if( (iEX-iSX)*7 >= (iE1-iS1) ) return 1;
+  for(i=iSX; i<iEX; i++){
+    const char *z = p->aFrom[i].z;
+    for(j=p->aFrom[i].n-1; j>=0; j--){
+      char c = z[j];
+      if( c!='}' && c!='{' && !diff_isspace(c) ) return 1;
+    }
+  }
+  return 0;
+}
+
+
+/*
 ** Do a single step in the difference.  Compute a sequence of
 ** copy/delete/insert steps that will convert lines iS1 through iE1-1 of
 ** the input into lines iS2 through iE2-1 of the output and write
@@ -2444,7 +2677,9 @@ static void diff_step(DContext *p, int iS1, int iE1, int iS2, int iE2){
   /* Find the longest matching segment between the two sequences */
   longestCommonSequence(p, iS1, iE1, iS2, iE2, &iSX, &iEX, &iSY, &iEY);
 
-  if( iEX>iSX ){
+  if( iEX>iSX+5
+   || (iEX>iSX && likelyNotIndentChngArtifact(p,iS1,iSX,iEX,iE1) )
+  ){
     /* A common segment has been found.
     ** Recursively diff either side of the matching segment */
     diff_step(p, iS1, iSX, iS2, iSY);
@@ -3122,7 +3357,8 @@ static void annotate_file(
       mxTime = 0;
     }else if( sqlite3_strglob("*[0-9]s", zLimit)==0 ){
       iLimit = 0;
-      mxTime = current_time_in_milliseconds() + 1000.0*atof(zLimit);
+      mxTime =
+        (sqlite3_int64)(current_time_in_milliseconds() + 1000.0*atof(zLimit));
     }else{
       iLimit = atoi(zLimit);
       if( iLimit<=0 ) iLimit = 30;

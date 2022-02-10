@@ -2327,7 +2327,7 @@ void subscriber_list_page(void){
     int uid = db_column_int(&q, 8);
     const char *zUname = db_column_text(&q, 3);
     sqlite3_int64 iContact = db_column_int64(&q, 9);
-    double rContact = (iNow/86400) - iContact;
+    double rContact = (iNow/86400.0) - iContact;
     @ <tr>
     @ <td><a href='%R/alerts?sid=%d(db_column_int(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>

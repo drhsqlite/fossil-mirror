@@ -32,7 +32,7 @@ The default CSP used by Fossil is as follows:
 </pre>
 
 The default is recommended for most installations.  However,
-the site administrators can overwrite this default DSP using the
+the site administrators can overwrite this default CSP using the
 [default-csp setting](/help?cmd=default-csp).  For example,
 CSP restrictions can be completely disabled by setting the default-csp to:
 

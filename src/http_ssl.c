@@ -772,7 +772,6 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
 
 typedef struct SslServerConn {
   SSL *ssl;          /* The SSL codec */
-  int atEof;         /* True when EOF reached. */
   int iSocket;       /* The socket */
   BIO *bio;          /* BIO object. Needed for EOF detection. */
 } SslServerConn;
@@ -786,7 +785,6 @@ void *ssl_new_server(int iSocket){
   SslServerConn *pServer = fossil_malloc_zero(sizeof(*pServer));
   BIO *b = BIO_new_socket(iSocket, 0);
   pServer->ssl = SSL_new(sslCtx);
-  pServer->atEof = 0;
   pServer->iSocket = iSocket;
   pServer->bio = b;
   SSL_set_bio(pServer->ssl, b, b);
@@ -809,44 +807,50 @@ void ssl_close_server(void *pServerArg){
 */
 int ssl_eof(void *pServerArg){
   SslServerConn *pServer = (SslServerConn*)pServerArg;
-  return pServer->atEof;
+  return BIO_eof(pServer->bio);
 }
 
 /*
 ** Read cleartext bytes that have been received from the client and
 ** decrypted by the SSL server codec.
+**
+** If the expected payload size unknown, i.e. if the HTTP
+** Content-Length: header field has not been parsed, the doLoop
+** argument should be 0, or SSL_read() may block and wait for more
+** data than is eventually going to arrive (on Windows). On
+** non-Windows builds, it has been our experience that the final
+** argument must always be true, as discussed at length at:
+**
+** https://fossil-scm.org/forum/forumpost/2f818850abb72719
 */
-size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
-  int n, err = 0;
+size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf, int doLoop){
+  int n;
   size_t rc = 0;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
   if( nBuf>0x7fffffff ){ fossil_fatal("SSL read too big"); }
-  while( 0==err && nBuf!=rc && 0==pServer->atEof ){
+  while( nBuf!=rc && BIO_eof(pServer->bio)==0 ){
     n = SSL_read(pServer->ssl, zBuf + rc, (int)(nBuf - rc));
-    if( n==0 ){
-      pServer->atEof = 1;
-      break;
-    }
-    err = SSL_get_error(pServer->ssl, n);
-    if(0==err){
+    if( n>0 ){
       rc += n;
-      pServer->atEof = BIO_eof(pServer->bio);
-    }else{
-      fossil_fatal("SSL read error.");
+    }
+    if( doLoop==0 || n<=0 ){
+      break;
     }
   }
   return rc;
 }
 
 /*
-** Read a single line of text from the client.
+** Read a single line of text from the client, up to nBuf-1 bytes. On
+** success, writes nBuf-1 bytes to zBuf and NUL-terminates zBuf.
+** Returns NULL on an I/O error or at EOF.
 */
 char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
   int n = 0;
   int i;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
-  
-  if( pServer->atEof ) return 0;
+
+  if( BIO_eof(pServer->bio) ) return 0;
   for(i=0; i<nBuf-1; i++){
     n = SSL_read(pServer->ssl, &zBuf[i], 1);
     if( n<=0 ){
@@ -878,6 +882,7 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 
 #endif /* FOSSIL_ENABLE_SSL */
 
+#ifdef FOSSIL_ENABLE_SSL
 /*
 ** zPath is a name that might be a file or directory containing a trust
 ** store.  *pzStore is the name of the trust store to actually use.
@@ -889,6 +894,7 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
   if( *pzStore!=0 ) return;
   if( file_isdir(zPath, ExtFILE)>0 ) *pzStore = zPath;
 }
+#endif /* FOSSIL_ENABLE_SSL */
 
 /*
 ** COMMAND: tls-config*
@@ -949,9 +955,11 @@ void test_tlsconfig_info(void){
     db_protect_pop();
   }else
   if( strncmp("show",zCmd,nCmd)==0 ){
+#if defined(FOSSIL_ENABLE_SSL)
     const char *zName, *zValue;
     const char *zUsed = 0;       /* Trust store location actually used */
     size_t nName;
+#endif
     Stmt q;
     int verbose = find_option("verbose","v",0)!=0;
     verify_all_options();

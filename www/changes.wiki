@@ -27,6 +27,10 @@
   *  Query parameter "year=YYYY" is now accepted by [/help?cmd=/timeline|/timeline].
   *  Add the "--as FILENAME" option to the "[/help?cmd=chat|fossil chat send]"
      command.
+  *  The [/help?cmd=/ext|/ext page] generates the SERVER_SOFTWARE environment
+     variable for clients.
+  *  The [/help?cmd=tar|tar] and [/help?cmd=zip|zip commands] no longer
+     sterilize the manifest file.
   *  Submenu of the [/help?cmd=/rptview|/rptview] and
      [/help?cmd=/wiki|/wiki] pages may be
      [branch/rptview-submenu-paralink|extended with auxiliary hyperlinks].
