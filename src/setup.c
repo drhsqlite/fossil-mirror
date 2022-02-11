@@ -210,7 +210,7 @@ void onoff_attribute(
     }
   }
   @ <label><input type="checkbox" name="%s(zQParm)" \
-  @ aria-label="%s(zLabel[0]?zLabel:zQParm)" \
+  @ aria-label="%h(zLabel[0]?zLabel:zQParm)" \
   if( iVal ){
     @ checked="checked" \
   }
