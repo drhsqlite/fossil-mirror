@@ -461,6 +461,7 @@ void setup_access(void){
   @ might not work inside a chroot() jail.
   @ (Property: "max-loadavg")</p>
 
+  @ <a id="autoh"></a>
   @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
