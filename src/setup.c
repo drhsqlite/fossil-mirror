@@ -1733,9 +1733,7 @@ void sql_page(void){
             " WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
-    zQ = sqlite3_mprintf(
-            "SELECT name FROM repository.sqlite_schema WHERE type='table'"
-            " ORDER BY name");
+    zQ = sqlite3_mprintf("SELECT*FROM pragma_table_list ORDER BY schema, name");
     go = 1;
   }
   if( go ){
@@ -1748,6 +1746,7 @@ void sql_page(void){
     @ <hr />
     login_verify_csrf_secret();
     sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
+    search_sql_setup(g.db);
     rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
     if( rc!=SQLITE_OK ){
       @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
@@ -1761,7 +1760,7 @@ void sql_page(void){
         @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
       }
     }else{
-      @ <table border=1>
+      @ <table border="1" cellpadding="4" cellspacing="0">
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         if( nRow==0 ){
           @ <tr>
