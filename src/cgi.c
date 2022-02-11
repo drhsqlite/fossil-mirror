@@ -1868,10 +1868,10 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken==0 ){
     malformed_request("malformed URL in HTTP header");
   }
-  cgi_setenv("REQUEST_URI", zToken);
   cgi_setenv("SCRIPT_NAME", "");
   for(i=0; zToken[i] && zToken[i]!='?'; i++){}
   if( zToken[i] ) zToken[i++] = 0;
+  cgi_setenv("REQUEST_URI", zToken);
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 ){
