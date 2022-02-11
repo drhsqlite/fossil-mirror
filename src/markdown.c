@@ -2435,14 +2435,14 @@ static int is_footnote(
     if( i<end ){
       blob_append_char(&fn.text, data[i]);
       i++;
-      if( i<end && data[i]=='\r' && data[i-1] == '\n' ){
+      if( i<end && data[i]=='\n' && data[i-1]=='\r' ){
         blob_append_char(&fn.text, data[i]);
         i++;
       }
     }
   }else{
     i++;
-    if( i<end && data[i]=='\r' && data[i-1] == '\n' ) i++;
+    if( i<end && data[i]=='\n' && data[i-1]=='\r' ) i++;
   }
   if( i<end ){
 
@@ -2465,7 +2465,7 @@ static int is_footnote(
       if( i>=end ) break;
       blob_append_char(&fn.text, data[i]);
       i++;
-      if( i<end && data[i]=='\r' && data[i-1] == '\n' ){
+      if( i<end && data[i]=='\n' && data[i-1]=='\r' ){
         blob_append_char(&fn.text, data[i]);
         i++;
       }
