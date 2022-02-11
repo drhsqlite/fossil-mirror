@@ -449,6 +449,7 @@ void setup_access(void){
   @ to the download packet limit. 30s is a reasonable default.
   @ (Property: "max-download-time")</p>
 
+  @ <a id="slal"></a>
   @ <hr />
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
                   "0.0", 0);

@@ -553,14 +553,15 @@ void secaudit0_page(void){
       @ Load average limiting is turned off.  This can cause the server
       @ to bog down if many requests for expensive services (such as
       @ large diffs or tarballs) arrive at about the same time.
-      @ To fix this, set the "Server Load Average Limit" on the
-      @ <a href="setup_access">Access Control</a> page to approximately
+      @ To fix this, set the 
+      @ <a href='%R/setup_access#slal'>"Server Load Average Limit"</a> on the
+      @ <a href='%R/setup_access'>Access Control</a> page to the approximate
       @ the number of available cores on your server, or maybe just a little
       @ less.
     }else if( r>=8.0 ){
       @ <li><p>
-      @ The "Server Load Average Limit" on the
-      @ <a href="setup_access">Access Control</a> page is set to %g(r),
+      @ The <a href='%R/setup_access#slal'>"Server Load Average Limit"</a> on
+      @ the <a href="setup_access">Access Control</a> page is set to %g(r),
       @ which seems high.  Is this server really a %d((int)r)-core machine?
     }
   }
