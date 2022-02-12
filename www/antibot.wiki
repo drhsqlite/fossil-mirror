@@ -1,21 +1,20 @@
-<title>Defense Against Spiders</title>
+<title>Defense Against Robots</title>
 
-The website presented by a Fossil server has many hyperlinks.
-Even a modest project can have millions of pages in its
-tree, and many of those pages (for example diffs and annotations
-and ZIP archives of older check-ins) can be expensive to compute.
-If a spider or bot tries to walk a website implemented by
-Fossil, it can present a crippling bandwidth and CPU load.
+A typical Fossil website can have billions of pages, and many of
+those pages (for example diffs and annotations and tarballs) can
+be expensive to compute.
+If a robot walks a Fossil-generated website,
+it can present a crippling bandwidth and CPU load.
 
-The website presented by a Fossil server is intended to be used
-interactively by humans, not walked by spiders.  This article
+A Fossil website is intended to be used
+interactively by humans, not walked by robots.  This article
 describes the techniques used by Fossil to try to welcome human
-users while keeping out spiders.
+users while keeping out robots.
 
 <h2>The Hyperlink User Capability</h2>
 
 Every Fossil web session has a "user".  For random passers-by on the internet
-(and for spiders) that user is "nobody".  The "anonymous" user is also
+(and for robots) that user is "nobody".  The "anonymous" user is also
 available for humans who do not wish to identify themselves.  The difference
 is that "anonymous" requires a login (using a password supplied via
 a CAPTCHA) whereas "nobody" does not require a login.
@@ -24,19 +23,19 @@ passwords for specific individuals.
 
 Users without the <b>[./caps/ref.html#h | Hyperlink]</b> capability
 do not see most Fossil-generated hyperlinks. This is
-a simple defense against spiders, since [./caps/#ucat | the "nobody"
+a simple defense against robots, since [./caps/#ucat | the "nobody"
 user category] does not have this capability by default.
 Users must log in (perhaps as
-"anonymous") before they can see any of the hyperlinks.  A spider
+"anonymous") before they can see any of the hyperlinks.  A robot
 that cannot log into your Fossil repository will be unable to walk
 its historical check-ins, create diffs between versions, pull zip
-archives, etc. by visiting links, because they aren't there.
+archives, etc. by visiting links, because there are no links.
 
 A text message appears at the top of each page in this situation to
 invite humans to log in as anonymous in order to activate hyperlinks.
 
-Because this required login step is annoying to some,
-Fossil provides other techniques for blocking spiders which
+But requiring a login, even an anonymous login, can be annoying.
+Fossil provides other techniques for blocking robots which
 are less cumbersome to humans.
 
 <h2>Automatic Hyperlinks Based on UserAgent</h2>
@@ -47,7 +46,7 @@ HTTP request header and on the browsers ability to run Javascript.
 
 The UserAgent string is a text identifier that is included in the header
 of most HTTP requests that identifies the specific maker and version of
-the browser (or spider) that generated the request.  Typical UserAgent
+the browser (or robot) that generated the request.  Typical UserAgent
 strings look like this:
 
 <ul>
@@ -59,35 +58,39 @@ strings look like this:
 
 The first two UserAgent strings above identify Firefox 19 and
 Internet Explorer 8.0, both running on Windows NT.  The third
-example is the spider used by Google to index the internet.
+example is the robot used by Google to index the internet.
 The fourth example is the "wget" utility running on OpenBSD.
 Thus the first two UserAgent strings above identify the requester
-as human whereas the second two identify the requester as a spider.
+as human whereas the second two identify the requester as a robot.
 Note that the UserAgent string is completely under the control
-of the requester and so a malicious spider can forge a UserAgent
-string that makes it look like a human.  But most spiders truly
-seem to desire to "play nicely" on the internet and are quite open
-about the fact that they are a spider.  And so the UserAgent string
+of the requester and so a malicious robot can forge a UserAgent
+string that makes it look like a human.  But most robots want
+to "play nicely" on the internet and are quite open
+about the fact that they are a robot.  And so the UserAgent string
 provides a good first-guess about whether or not a request originates
-from a human or a spider.
+from a human or a robot.
 
-In Fossil, under the Admin/Access menu, there is a setting entitled
-"<b>Enable hyperlinks for "nobody" based on User-Agent and Javascript</b>".
-If this setting is enabled, and if the UserAgent string looks like a
-human and not a spider, then Fossil will enable hyperlinks even if
-the <b>Hyperlink</b> capability is omitted from the user permissions.  This setting
-gives humans easy access to the hyperlinks while preventing spiders
-from walking the millions of pages on a typical Fossil site.
+In Fossil, under the Admin/Robot-Defense menu, there is a setting entitled
+"<b>Enable hyperlinks based on User-Agent and/or Javascript</b>".
+If this setting is set to "UserAgent only" or "UserAgent and Javascript",
+and if the UserAgent string looks like a human and not a robot, then
+Fossil will enable hyperlinks even if the <b>Hyperlink</b> capability
+is omitted from the user permissions.  This settingn gives humans easy
+access to the hyperlinks while preventing robots
+from walking the billions of pages on a typical Fossil site.
 
-But the hyperlinks are not enabled directly with the setting above.
+If the setting is "UserAgent only", then the hyperlinks are simply
+enabled and that is all.  But if the setting is "UserAgent and Javascript",
+then the hyperlinks are not enabled directly .
 Instead, the HTML code that is generated contains anchor tags ("&lt;a&gt;")
-without "href=" attributes.  Then, JavaScript code is added to the
-end of the page that goes back and fills in the "href=" attributes of
-the anchor tags with the hyperlink targets, thus enabling the hyperlinks.
+with "href=" attributes that point to [/honeypot] rather than the correct
+link.  JavaScript code is added to the end of the page that goes back and
+fills in the correct "href=" attributes of
+the anchor tags with the true hyperlink targets, thus enabling the hyperlinks.
 This extra step of using JavaScript to enable the hyperlink targets
-is a security measure against spiders that forge a human-looking
-UserAgent string.  Most spiders do not bother to run JavaScript and
-so to the spider the empty anchor tag will be useless.  But all modern
+is a security measure against robots that forge a human-looking
+UserAgent string.  Most robots do not bother to run JavaScript and
+so to the robot the empty anchor tag will be useless.  But all modern
 web browsers implement JavaScript, so hyperlinks will show up
 normally for human users.
 
@@ -95,7 +98,7 @@ normally for human users.
 
 Recently (as of this writing, in the spring of 2013) the Fossil server
 on the SQLite website ([http://www.sqlite.org/src/]) has been hit repeatedly
-by Chinese spiders that use forged UserAgent strings to make them look
+by Chinese robots that use forged UserAgent strings to make them look
 like normal web browsers and which interpret JavaScript.  We do not
 believe these attacks to be nefarious since SQLite is public domain
 and the attackers could obtain all information they ever wanted to
@@ -105,29 +108,25 @@ of whether or not malice is involved, these attacks do present
 an unnecessary load on the server which reduces the responsiveness of
 the SQLite website for well-behaved and socially responsible users.
 For this reason, additional defenses against
-spiders have been put in place.
+robots have been put in place.
 
-On the Admin/Access page of Fossil, just below the
-"<b>Enable hyperlinks for "nobody" based on User-Agent and Javascript</b>"
+On the Admin/Robot-Defense page of Fossil, just below the
+"<b>Enable hyperlinks using User-Agent and/or Javascript</b>"
 setting, there are now two additional sub-settings that can be optionally
 enabled to control hyperlinks.
 
-The first sub-setting waits to run the
-JavaScript that sets the "href=" attributes on anchor tags until after
-at least one "mouseover" event has been detected on the &lt;body&gt;
-element of the page.  The thinking here is that spiders will not be
-simulating mouse motion and so no mouseover events will ever occur and
-hence the hyperlinks will never become enabled for spiders.
-
-The second new sub-setting is a delay (in milliseconds) before setting
+The first new sub-setting is a delay (in milliseconds) before setting
 the "href=" attributes on anchor tags.  The default value for this
-delay is 10 milliseconds.  The idea here is that a spider will try to
-render the page immediately, and will not wait for delayed scripts
-to be run, thus will never enable the hyperlinks.
+delay is 10 milliseconds.  The idea here is that a robots will try to
+interpret the links on the page immediately, and will not wait for delayed
+scripts to be run, and thus will never enable the true links.
 
-These two sub-settings can be used separately or together.  If used together,
-then the delay timer does not start until after the first mouse movement
-is detected.
+The second sub-setting waits to run the
+JavaScript that sets the "href=" attributes on anchor tags until after
+at least one "mousedown" or "mousemove" event has been detected on the
+&lt;body&gt; element of the page.  The thinking here is that robots will not be
+simulating mouse motion and so no mouse events will ever occur and
+hence the hyperlinks will never become enabled for robots.
 
 See also [./loadmgmt.md|Managing Server Load] for a description
 of how expensive pages can be disabled when the server is under heavy
@@ -136,13 +135,13 @@ load.
 <h2>The Ongoing Struggle</h2>
 
 Fossil currently does a very good job of providing easy access to humans
-while keeping out troublesome robots and spiders.  However, spiders and
-bots continue to grow more sophisticated, requiring ever more advanced
+while keeping out troublesome robots.  However, robots
+continue to grow more sophisticated, requiring ever more advanced
 defenses.  This "arms race" is unlikely to ever end.  The developers of
-Fossil will continue to try improve the spider defenses of Fossil so
+Fossil will continue to try improve the robot defenses of Fossil so
 check back from time to time for the latest releases and updates.
 
-Readers of this page who have suggestions on how to improve the spider
+Readers of this page who have suggestions on how to improve the robot
 defenses in Fossil are invited to submit your ideas to the Fossil Users
 forum:
 [https://fossil-scm.org/forum].

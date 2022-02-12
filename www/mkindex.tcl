@@ -16,7 +16,7 @@ set doclist {
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
   alerts.md {Email Alerts And Notifications}
-  antibot.wiki {Defense against Spiders and Bots}
+  antibot.wiki {Defense against Spiders and Robots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
   backup.md {Backing Up a Remote Fossil Repository}
   blame.wiki {The Annotate/Blame Algorithm Of Fossil}

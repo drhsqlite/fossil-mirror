@@ -1,5 +1,5 @@
-C Enhancement\sto\srobot\sdefense.\sThe\sauto-hyperlink\ssetting\scan\snow\sbe\s2\n(UserAgent\sonly)\sin\swhich\scase\sthe\sUserAgent\sstring\sis\sconsulted\sand\shyperlinks\nare\sgenerated\sif\sand\sonly\sif\sthe\sUserAgent\slooks\shuman.\s\sJavascript\sdoes\snot\ncome\sinto\splay.\s\sWhen\sauto-hyperlink\sis\s1,\sthe\straditional\sJavascript\schanges\nto\shref=\sin\sanchor\stags\sare\sstill\sused.
-D 2022-02-12T20:30:09.840
+C Update\sthe\sdefense-against-robots\sdocumentation\sto\salign\swith\scurrent\nbehavior.
+D 2022-02-12T20:53:11.970
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -775,7 +775,7 @@ F www/aboutcgi.wiki ce21bace27dc5b36a4134246014e6ec1e37dcedd7f2cf2f057a043fea086
 F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
 F www/adding_code.wiki 8c0f5442792cc531f8b923622f50d58dd8f837dd63afc6b851f2b14be526ff1d
 F www/alerts.md 15f2758b9b922c5c1ff835e82e939ca0034f0ac87cf4931eac79fc3284c272c2
-F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0c45
+F www/antibot.wiki 06dcac68ec73de88a4d2977912cd984e0ae74b26dc665196ac33a9464dec092d
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
@@ -901,7 +901,7 @@ F www/makefile.wiki 23bf5d796a453252bd54e91f7831962e597c299d3904df0f76d7edba34e5
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
-F www/mkindex.tcl f8bb1ef18bdbb9fc0e62db3390e2ee91c2f03b9b777b2aefbcc24ff34ad8f1dc x
+F www/mkindex.tcl 2cffe1fa0118a30c005f407d14b46fdccaadfb6bbad9c5106bb71b51d18c7c61 x
 F www/newrepo.wiki bbc20d277cfb9787824a4fc83cfec571b379e116a7765808d481370793c22611
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cef15ed3d3dcfefda6f38fab5cd04d70128315644749bd398a9b1e79ed145709
-R d085f8794d758b8c7f9dee0b79721528
+P df337eb61c8e6327449f315bfd57ec14e57f346583826ec43ccb2ac910078454
+R a802aaf04e36e464a3fdea1f3a5686f8
 U drh
-Z a1a44f2bad54ed4bcf072b9b2f822c35
+Z 9284bf1dcca3f7a88b0472d3828f42d1
 # Remove this line to create a well-formed Fossil manifest.
