@@ -491,8 +491,8 @@ void secaudit0_page(void){
     @     robots cannot see hyperlinks.
     @ <li>Activate <a href="%R/setup_access#autoh">autohyperlink</a> so that
     @     human readers can still see hyperlinks even if they are not logged in.
-    @     Require mouse movement before enabling hyperlinks and set the
-    @     delay to at least 50 milliseconds.
+    @     Set the delay to at least 50 milliseconds and require a mousedown
+    @     event for maximum robot defense.
     if( anonId>0 ){
       @ <li>Perhaps set the 'h' privilege on the
       @     <a href="%R/setup_uedit?id=%d(anonId)">'anonymous' user</a> so

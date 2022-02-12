@@ -1,5 +1,5 @@
-C The\sREQUEST_URI\sCGI\sparameter\sshould\snot\sinclude\sthe\sQUERY_STRING.
-D 2022-02-11T21:25:21.651
+C Robot\sdefense\suses\sa\smousedown\sevent\srather\sthan\smouse\smotion\sas\sone\sof\sthe\nsignals\sthat\sthe\srequest\sis\sfrom\sa\shuman.\s\sThis\sshould\smake\srobot\sdefense\nwork\sbetter\sfor\susers\son\smobile.
+D 2022-02-12T00:38:06.236
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -483,7 +483,7 @@ F src/gzip.c 91e63f775512d36ed388beff8e6c22cf5b4ccfd983a635ab5f4de651813e013e
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
-F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
+F src/href.js d6bdc1da332161a508b3b791143f38b84bb28e77de51bb344addfb8bf2325df5
 F src/http.c e53bbeeae972751dfe9cca69aea1b95fd38d908b0387524dde1a5350937818fa
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
 F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
@@ -542,8 +542,8 @@ F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
-F src/security_audit.c b2ab2e1b43da83cabff12a9a3612c8cbc42abd0743acd04fdf12297ddeaca388
-F src/setup.c 0cdd7ddbef960c2937f67fff7b0d4634ca41949a9683f8e02072411915ae70ac
+F src/security_audit.c 60bd9874dbbf66642aec43a6d02b716d196f5e197e679671d9a5a27429d34090
+F src/setup.c a0e34e9a8314625c8ae5dd99068d275151f5a0c9252d665d6173128f012f1853
 F src/setupuser.c 7fe18356b3fe5f7855f2b87a62a7abe3b28716dc77e563dfb6073d9583449969
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 0a1647d3322914518345eaee15d1c3a9631ce9bd2beb293f289f298abb77ee23
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c df745c115d0f783022262472fef2809d2bdac48d7990310955ab314947aaf23d
+F src/style.c 23c10ae9ee7dc6b602fdc0efdcf51609bb4e94f9994db439621868dc6607e908
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6325f81d0605d7acf3002923c499d612b26f44f68b04d72e05899387f8cb44fb
-R f095c268ad896d85775e9e3f02fabfcb
+P 5bb921dd0893a5486ff8c5de74cb986a3b168a44e170d4c53ddc11bbf0d75f35
+R dcce119461d6f561f06b40937de0150a
 U drh
-Z 093a9522fcddd2355de3b7a6f24c98a7
+Z 69302e352ed07a927c44cd767ff458c3
 # Remove this line to create a well-formed Fossil manifest.

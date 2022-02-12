@@ -474,8 +474,9 @@ void setup_access(void){
   @ being, and
   @ <li>the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks, and
-  @ <li>mouse movement is detected (optional - see the checkbox below), and
-  @ <li>a number of milliseconds have passed since the page loaded.</ol>
+  @ <li>a number of milliseconds have passed since the page loaded, and
+  @ <li>a mousedown event is detected (optional - see the checkbox below)
+  @ </ol>
   @
   @ <p>This setting is designed to give easy access to humans while
   @ keeping out robots and spiders.
@@ -487,16 +488,19 @@ void setup_access(void){
   @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
-  onoff_attribute("Require mouse movement before enabling hyperlinks",
-                  "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ <br />
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
                   "auto-hyperlink-delay", "ah-delay", "50", 0);
+  @ <br />
+  onoff_attribute("Also require a mousedown event before enabling hyperlinks",
+                  "auto-hyperlink-mouseover", "ahmo", 0, 0);
   @ </blockquote>
-  @ <p>For maximum robot defense, the "require mouse movement" should
-  @ be turned on and the "Delay" should be at least 50 milliseconds.</p>
-  @ (Properties: "auto-hyperlink",
-  @ "auto-hyperlink-mouseover", and "auto-hyperlink-delay")</p>
+  @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
+  @ and "require a mousedown event" should turned on.  To test to see that
+  @ this mechanism is working, visit the <a href="%R/test_env">/test_env</a>
+  @ page (from a separate web browser that is not logged in, even as
+  @ "anonymous") and verify that the "g.javascriptHyperlink" value is "1".</p>
+  @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
+  @ "auto-hyperlink-mouseover"")</p>
 
   @ <hr />
   onoff_attribute("Require a CAPTCHA if not logged in",

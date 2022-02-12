@@ -116,13 +116,14 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 **          0                    0                  (empty string)
 **          0                    1                  (empty string)
 **          1                    0                  <a href="URL">
-**          1                    1                  <a id="ID">
+**          1                    1                  <a data-href="URL">
 **
 ** No anchor tag is generated if g.perm.Hyperlink is false.
 ** The href="URL" form is used if g.javascriptHyperlink is false.
-** If g.javascriptHyperlink is true then the id="ID" form is used and
-** javascript is generated in the footer to cause href values to be
-** inserted after the page has loaded. The use of the id="ID" form
+** If g.javascriptHyperlink is true then the data-href="URL" and
+** href="/honeypot" is generated and javascript is added to the footer
+** to cause data-href values to be inserted into href
+** after the page has loaded. The use of the data-href="URL" form
 ** instead of href="URL" is a defense against bots.
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
@@ -144,8 +145,8 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 **  ------------  --------------      ----------------------
 **        0             0             (empty string)
 **        1             0             <a href="URL">
-**        0             1             <a id="ID">
-**        1             1             (can't happen)
+**        0             1             <a data-href="URL">
+**        1             1             <a href="URL">
 **
 ** The name of these routines are deliberately kept short so that can be
 ** easily used within @-lines.  Example:
@@ -1377,6 +1378,7 @@ void webpage_error(const char *zFormat, ...){
     @ g.userUid = %d(g.userUid)<br />
     @ g.zLogin = %h(g.zLogin)<br />
     @ g.isHuman = %d(g.isHuman)<br />
+    @ g.javascriptHyperlink = %d(g.javascriptHyperlink)<br />
     if( g.nRequest ){
       @ g.nRequest = %d(g.nRequest)<br />
     }
