@@ -208,7 +208,7 @@ struct Global {
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
   int wikiFlags;          /* Wiki conversion flags applied to %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
-  char javascriptHyperlink; /* If true, set href= using script, not HTML */
+  char jsHref;            /* If true, set href= using javascript, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
   UrlData url;            /* Information about current URL */
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */

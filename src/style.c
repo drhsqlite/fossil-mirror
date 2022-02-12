@@ -108,19 +108,19 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 **        <a href="URL">
 **  or    <a id="ID">
 **
-** The form of the anchor tag is determined by the g.javascriptHyperlink
+** The form of the anchor tag is determined by the g.jsHref
 ** and g.perm.Hyperlink variables.
 **
-**   g.perm.Hyperlink  g.javascriptHyperlink        Returned anchor format
-**   ----------------  ---------------------        ------------------------
-**          0                    0                  (empty string)
-**          0                    1                  (empty string)
-**          1                    0                  <a href="URL">
-**          1                    1                  <a data-href="URL">
+**   g.perm.Hyperlink  g.jsHref        Returned anchor format
+**   ----------------  --------        ------------------------
+**          0             0              (empty string)
+**          0             1              (empty string)
+**          1             0              <a href="URL">
+**          1             1              <a data-href="URL">
 **
 ** No anchor tag is generated if g.perm.Hyperlink is false.
-** The href="URL" form is used if g.javascriptHyperlink is false.
-** If g.javascriptHyperlink is true then the data-href="URL" and
+** The href="URL" form is used if g.jsHref is false.
+** If g.jsHref is true then the data-href="URL" and
 ** href="/honeypot" is generated and javascript is added to the footer
 ** to cause data-href values to be inserted into href
 ** after the page has loaded. The use of the data-href="URL" form
@@ -128,11 +128,11 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
 ** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
-** g.javascriptHyperlink is set to 1 by login_check_credentials().  Thus
+** g.jsHref is set to 1 by login_check_credentials().  Thus
 ** the g.perm.Hyperlink property will be true even if the user does not
 ** have the "h" privilege if the "auto-hyperlink" setting is true.
 **
-**  User has "h"  auto-hyperlink      g.perm.Hyperlink  g.javascriptHyperlink
+**  User has "h"  auto-hyperlink      g.perm.Hyperlink  g.jsHref
 **  ------------  --------------      ----------------  ---------------------
 **        0             0                    0                    0
 **        1             0                    1                    0
@@ -175,7 +175,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl;
     if( zExtra ){
       zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
@@ -200,7 +200,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl = mprintf("<a class=\"%s\" href=\"%h\">", zExtra, zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -216,7 +216,7 @@ char *href(const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -235,14 +235,14 @@ char *href(const char *zFormat, ...){
 ** changed into action= after the page loads.  Whether or not this happens
 ** depends on if the user has the "h" privilege and whether or not the
 ** auto-hyperlink setting is on.  These setings determine the values of
-** variables g.perm.Hyperlink and g.javascriptHyperlink.
+** variables g.perm.Hyperlink and g.jsHref.
 **
-**    User has "h"  auto-hyperlink      g.perm.Hyperlink  g.javascriptHyperlink
-**    ------------  --------------      ----------------  ---------------------
-**  1:      0             0                    0                    0
-**  2:      1             0                    1                    0
-**  3:      0             1                    1                    1
-**  4:      1             1                    1                    0
+**    User has "h"  auto-hyperlink      g.perm.Hyperlink  g.jsHref
+**    ------------  --------------      ----------------  --------
+**  1:      0             0                    0             0
+**  2:      1             0                    1             0
+**  3:      0             1                    1             1
+**  4:      1             1                    1             0
 **
 ** The data-action=ARG form is used for cases 1 and 3.  In case 1, the href.js
 ** javascript is omitted and so the form is effectively disabled.
@@ -1390,7 +1390,7 @@ void webpage_error(const char *zFormat, ...){
     @ g.userUid = %d(g.userUid)<br />
     @ g.zLogin = %h(g.zLogin)<br />
     @ g.isHuman = %d(g.isHuman)<br />
-    @ g.javascriptHyperlink = %d(g.javascriptHyperlink)<br />
+    @ g.jsHref = %d(g.jsHref)<br />
     if( g.nRequest ){
       @ g.nRequest = %d(g.nRequest)<br />
     }

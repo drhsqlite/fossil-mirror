@@ -3871,11 +3871,44 @@ struct Setting {
 ** at the expense of also making logins easier for malicious robots.
 */
 /*
-** SETTING: auto-hyperlink  boolean default=on
-** Use javascript to enable hyperlinks on web pages
-** for all users (regardless of the "h" privilege) if the
-** User-Agent string in the HTTP header look like it came
-** from real person, not a spider or bot.
+** SETTING: auto-hyperlink  width=16 default=1
+**
+** If non-zero, enable hyperlinks on web pages even for users that lack
+** the "h" privilege as long as the UserAgent string in the HTTP request
+** (The HTTP_USER_AGENT cgi variable) looks like it comes from a human and
+** not a robot.  Details depend on the value of the setting.
+**
+**   (0)  Off:  No adjustments are made to the 'h' privilege based on
+**        the user agent.
+**
+**   (1)  UserAgent and Javascript:  The the href= values of hyperlinks
+**        initially point to /honeypot and are changed to point to the
+**        correct target by javascript that runs after the page loads.
+**        The auto-hyperlink-delay and auto-hyperlink-mouseover settings
+**        influence that javascript.
+**
+**   (2)  UserAgent only:  If the HTTP_USER_AGENT looks human
+**        then generate hyperlinks, otherwise do not.
+**
+** Better robot exclusion is obtained when this setting is 1 versus 2.
+** However, a value of 1 causes the visited/unvisited colors of hyperlinks
+** to stop working on Safari-derived web browsers.  When this setting is 2,
+** the hyperlinks work better on Safari, but more robots are able to sneak
+** in.
+*/
+/* SETTING: auto-hyperlink-delay     width=16 default=0
+**
+** When the auto-hyperlink setting is 1, the javascript that runs to set
+** the href= attributes of hyperlinks delays by this many milliseconds
+** after the page load.  Suggested values:  50 to 200.
+*/
+/* Setting: auto-hyperlink-mouseover  boolean default=off
+**
+** When the auto-hyperlink setting is 1 and this setting is on, the 
+** javascript that runs to set the href= attributes of hyperlinks waits
+** until either a mousedown or mousemove event is seen.  This helps
+** to distinguish real users from robots. For maximum robot defense,
+** the recommended setting is ON.
 */
 /*
 ** SETTING: auto-shun       boolean default=on

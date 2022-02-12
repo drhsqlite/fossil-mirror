@@ -76,7 +76,7 @@ void sitemap_page(void){
     ** then disable anti-robot defenses */
     isPopup = 1;
     g.perm.Hyperlink = 1;
-    g.javascriptHyperlink = 0;
+    g.jsHref = 0;
   }
   srchFlags = search_restrict(SRCH_ALL);
   if( !isPopup ){
@@ -314,7 +314,7 @@ void sitemap_test_page(void){
     ** then disable anti-robot defenses */
     isPopup = 1;
     g.perm.Hyperlink = 1;
-    g.javascriptHyperlink = 0;
+    g.jsHref = 0;
   }
   if( !isPopup ){
     style_header("Test Page Map");
@@ -366,7 +366,7 @@ void sitemap_timeline_page(void){
     ** then disable anti-robot defenses */
     isPopup = 1;
     g.perm.Hyperlink = 1;
-    g.javascriptHyperlink = 0;
+    g.jsHref = 0;
   }
   if( !isPopup ){
     style_header("Timeline Examples");
