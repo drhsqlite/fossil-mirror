@@ -2585,6 +2585,7 @@ void artifact_page(void){
     }else{
       zHeader = mprintf("%s", file_tail(zName));
       style_set_current_page("doc/tip/%T", zName);
+      style_set_base_href_suffix("doc/tip/%T", zName);
     }
   }else if( descOnly ){
     zHeader = mprintf("Artifact Description [%S]", zUuid);
