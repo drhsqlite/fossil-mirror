@@ -1321,8 +1321,19 @@ void page_test_env(void){
 ** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
-  cgi_set_status(403, "Forbidden");
-  @ <p>Please enable javascript or log in to see this content</p>
+  style_header("I think you are a robot");
+  @ <p>You seem like a robot.</p>
+  @
+  @ <p>Is this wrong?  Are you really a human?  If so, please prove it
+  @ by <a href="%R/login">logging in</a>.
+  if( g.anon.Hyperlink ){
+    @ You can <a href="%R/login?anon=1">log in anonymously</a> if you
+    @ prefer.
+  }
+  @ <p>Sorry for the inconvenience. The point of this is to prevent
+  @ robots from following the countless of hyperlinks in this site and
+  @ soaking up all the available CPU time and network bandwidth.
+  style_finish_page();
 }
 
 /*
