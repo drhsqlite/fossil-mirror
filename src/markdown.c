@@ -1210,17 +1210,26 @@ static size_t char_link(
   link = new_work_buffer(rndr);
   ret = 0; /* error if we don't get to the callback */
 
-  /* inline style link or span-bounded inline footnote */
-  if( i<size && data[i]=='(' ){
+  /* free-standing footnote refernece */
+  if(!is_img && size>3 && data[1]=='^'){
+      /* free-standing footnote reference */
+      fn = get_footnote(rndr, data+2, txt_e-2);
+      if( !fn ) {
+        rndr->notes.misref.nUsed++;
+        fn = &rndr->notes.misref;
+      }
+      release_work_buffer(rndr, content);
+      content = 0;
 
-    /* inline footnote */
-    if( i+2<size && data[i+1]=='^' ){
+  }else if( i<size && data[i]=='(' ){
+
+    if( i+2<size && data[i+1]=='^' ){  /* span-bounded inline footnote */
 
       const size_t k = matching_bracket_offset(data+i, data+size);
       if( !k ) goto char_link_cleanup;
       fn = add_inline_footnote(rndr, data+(i+2), k-2);
       i += k+1;
-    }else{
+    }else{                             /* inline style link  */
       size_t span_end = i;
       while( span_end<size
        && !(data[span_end]==')' && (span_end==i || data[span_end-1]!='\\'))
@@ -1274,21 +1283,11 @@ static size_t char_link(
 
     i = id_end+1;
 
-  /* shortcut reference style link or free-standing footnote refernece */
+  /* shortcut reference style link */
   }else{
-    if(!is_img && size>3 && data[1]=='^'){
-      /* free-standing footnote reference */
-      fn = get_footnote(rndr, data+2, txt_e-2);
-      if( !fn ) {
-        rndr->notes.misref.nUsed++;
-        fn = &rndr->notes.misref;
-      }
-      release_work_buffer(rndr, content);
-      content = 0; 
-    }else if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
+    if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
       goto char_link_cleanup;
     }
-
     /* rewinding a closing square bracket */
     i = txt_e+1;
   }

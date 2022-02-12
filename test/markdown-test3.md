@@ -38,7 +38,7 @@ Another reference[^many-refs] to the preveously used footnote.
   This should be presented **verbatim** (without any [markup][^])
   in the end of the footnotes.
   
-  Default skin renders label in red bold font and the main text as gray.
+  Default skin renders label in red font and the main text in gray.
   Other styling may also apply.
 
 Inline footnotes are supported.(^These may be usefull for adding
@@ -56,6 +56,14 @@ from all these definitions are joined.[^duplicate]
 
 Several references should be recognized as several distinct numbers.
 (^There should be an interval between numbers.) [^many-refs]
+
+If markup is ambigous between a span-bounded footnote and
+a "free-standing" footnote followed by another footnote
+then interpret as the later case.
+This facilitates the usage in the usual case
+when several footnotes are refenrenced at the end
+of a phrase.[^scipub][^many-refs](^All these four should
+be parsed as "free-standing" footnotes)[^Coelurosauria]
 
 ## Footnotes
 
@@ -96,3 +104,5 @@ Several references should be recognized as several distinct numbers.
 [^undefined label is used]: For example due to a typo.
 
 [^another stray]: Just to verify the correctness of ordering and styling.
+
+[^scipub]: Which is common in the scientific publications.
