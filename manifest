@@ -1,5 +1,5 @@
-C New\sjavascript\sfor\shref.js\ssuch\sthat\sany\smousemove\sor\smousedown\sevent\sat\sany\ntime\sis\ssufficient\sto\strigger\sthe\smouse\sactivity\scondition\sfor\sactivation\nof\shyperlinks.\s\sThis\sworks\sbetter\son\sFF\sand\schrome,\sbut\swith\ssafari,\sthe\nvisited/unvisited\slink\scolor\sis\sdetermined\sby\sthe\sinitial\svalue\sof\shref=\nand\sis\snot\sadjusted\swhen\shref=\schanges,\sso\svisited/unvisited\scolors\sare\nnot\sbeing\supdated\son\ssafari.
-D 2022-02-12T13:29:25.211
+C Do\snot\srequire\smouse\sevents\sfor\sauto-hyperlink\sif\sthe\sUserAgent\sstring\nincludes\s"Android".\s\sDescribe\sthe\sSafari\svisited/unvisited\slink\slimitation\non\sthe\sauto-hyperlink\ssetting.
+D 2022-02-12T13:55:30.434
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -543,7 +543,7 @@ F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c 60bd9874dbbf66642aec43a6d02b716d196f5e197e679671d9a5a27429d34090
-F src/setup.c a0e34e9a8314625c8ae5dd99068d275151f5a0c9252d665d6173128f012f1853
+F src/setup.c 4fe927a64484f8ad896f218350ac2255fbce03e07242e4fbfeb12cfe8016e4fb
 F src/setupuser.c 7fe18356b3fe5f7855f2b87a62a7abe3b28716dc77e563dfb6073d9583449969
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 0a1647d3322914518345eaee15d1c3a9631ce9bd2beb293f289f298abb77ee23
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 5a64383cfb11350d9c5338cad4ca68d3ce3236ad9ccff9a57f0635c154392982
+F src/style.c a84d02e7a00d78133cc65c86dc97393ca025177578b99171eadb7ba84323bfe0
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 533c2c7144ad4bc9f5b0ca8b14482d387b055cc6efa2677ba1da92465d607fd5
-R 5847a7ff7117fb9942c259021ee2f1be
+P e7d67b7640414f6e66e8d4b582dcb383270ea3b42e46a6805f7942ab3025b5ff
+R 7602488764549366fdb10f51dc70378d
 U drh
-Z a9a40d72b3bf0505700bad4af4c0914f
+Z 1581b5af32c8239ca8d59069790e3842
 # Remove this line to create a well-formed Fossil manifest.

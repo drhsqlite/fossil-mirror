@@ -462,6 +462,9 @@ void setup_access(void){
   @ might not work inside a chroot() jail.
   @ (Property: "max-loadavg")</p>
 
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+
   @ <a id="autoh"></a>
   @ <hr />
   onoff_attribute(
@@ -486,16 +489,23 @@ void setup_access(void){
   @ every historical check-in, which can use a lot of CPU and bandwidth
   @ even for relatively small projects.</p>
   @
+  @ <p>Limitation: Hyperlink visited/unvisited colors will not work
+  @ correctly with this option on Safari-based browsers.  They work fine
+  @ on Chrome-based browsers and on Firefox, but not Safari.  Since
+  @ Safari is the underlying rendering engine on all iPhones and iPads,
+  @ this means that hyperlink visited/unvisited colors will not operate
+  @ on those platforms when this option is enabled.</p>
+  @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
                   "auto-hyperlink-delay", "ah-delay", "50", 0);
   @ <br />
-  onoff_attribute("Also require a mousedown event before enabling hyperlinks",
+  onoff_attribute("Also require a mouse event before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
   @ </blockquote>
   @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
-  @ and "require a mousedown event" should turned on.  To test to see that
+  @ and "require a mouse event" should be turned on.  To test to see that
   @ this mechanism is working, visit the <a href="%R/test_env">/test_env</a>
   @ page (from a separate web browser that is not logged in, even as
   @ "anonymous") and verify that the "g.javascriptHyperlink" value is "1".</p>

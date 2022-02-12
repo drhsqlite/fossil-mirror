@@ -885,7 +885,8 @@ void style_table_sorter(void){
 static void style_load_all_js_files(void){
   if( needHrefJs && g.perm.Hyperlink ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
-    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
+    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0)
+                   && sqlite3_strglob("*Android*",PD("HTTP_USER_AGENT",""));
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
