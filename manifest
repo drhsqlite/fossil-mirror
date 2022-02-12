@@ -1,5 +1,5 @@
-C Do\snot\srequire\smouse\sevents\sfor\sauto-hyperlink\sif\sthe\sUserAgent\sstring\nincludes\s"Android".\s\sDescribe\sthe\sSafari\svisited/unvisited\slink\slimitation\non\sthe\sauto-hyperlink\ssetting.
-D 2022-02-12T13:55:30.434
+C An\sattepmt\sto\sfix\sthe\n[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base|<code><base\shref="..."></code>]\nelement\sof\swebpages\sso\sthat\sthe\svalue\sof\s<var>href</var>\sattribute\nmatches\sthe\sURL\sbeing\sserved.\nThis\sshould\sfix\s"#fragment"\shyperlinks\son\sall\spages\swhere\sthese\nwere\sbroken\s(all\sexcept\s[/help?cmd=/doc|<code>/doc</code>]).\nThe\svalues\sfor\s[/help?cmd=/wiki|<code>/wiki</code>]\sand\n[/help?cmd=/info|<code>/info</code>]\swere\sleft\sunchanged\n(it's\syet\sunclear\sif\sthey\sshould\salso\sbe\schanged).
+D 2022-02-12T19:53:00.069
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -489,7 +489,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c dedd6134daec248f33aecb8a4ad9933894ac8fffe0962c15ab42053f90920697
+F src/info.c 5d6627b22c7cc6d8805c5eb9cc3d204261060993b91127b1f22d6e7976ae28db
 F src/interwiki.c 9cbaedb286b1bec3eef15cc9be0f4240ae3bec1d8d832c8b53ec280731474d0e
 F src/json.c bdd2baa0ba08d29b7771a60f335b9907f3b1a4174bb621ef7079fc27beac0206
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c ed3b3e89e44919da246c31fc40d3bc85fb1d42cbdafcdb44fc7e1cf2b52c290b
+F src/main.c 9632b068476e28e2941c11b4eefd195c4a4217c2133fbfaa5872e3273f81afed
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 0a1647d3322914518345eaee15d1c3a9631ce9bd2beb293f289f298abb77ee23
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c a84d02e7a00d78133cc65c86dc97393ca025177578b99171eadb7ba84323bfe0
+F src/style.c 4dc96c250d6717bd2fb2e5abdf8cabd65980a6ace358008abff2da5265abcedb
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -604,7 +604,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 3d241c367ec9e8eab844a15ba791b86035508f04efb49b7730971faf431fd5c6
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
+F src/wiki.c c728239175c162b85439b6176d45863eb74ff19ba10423c1b1f6fb6fe5190fba
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e7d67b7640414f6e66e8d4b582dcb383270ea3b42e46a6805f7942ab3025b5ff
-R 7602488764549366fdb10f51dc70378d
-U drh
-Z 1581b5af32c8239ca8d59069790e3842
+P cef15ed3d3dcfefda6f38fab5cd04d70128315644749bd398a9b1e79ed145709
+R 19480f97e7a1a361014fabc0936377da
+T *branch * base-href-fix
+T *sym-base-href-fix *
+T -sym-trunk *
+U george
+Z 313bb83315e4e729921f4551c5c0eaed
 # Remove this line to create a well-formed Fossil manifest.

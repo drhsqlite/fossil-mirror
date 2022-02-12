@@ -407,6 +407,26 @@ void style_set_current_page(const char *zFormat, ...){
   }
 }
 
+/* Use this for the $base_href_suffix variable if it is not NULL.
+** If it is NULL then use g.zUrlSuffix
+*/
+static char *local_zBaseHrefSuffix = 0;
+
+/*
+** Set the desired $base_href_suffix to something other than g.zUrlSuffix
+*/
+void style_set_base_href_suffix(const char *zFormat, ...){
+  fossil_free(local_zBaseHrefSuffix);
+  if( zFormat==0 ){
+    local_zBaseHrefSuffix = 0;
+  }else{
+    va_list ap;
+    va_start(ap, zFormat);
+    local_zBaseHrefSuffix = vmprintf(zFormat, ap);
+    va_end(ap);
+  }
+}
+
 /*
 ** Create a TH1 variable containing the URL for the stylesheet.
 **
@@ -649,7 +669,7 @@ void style_disable_csp(void){
 static const char zDfltHeader[] = 
 @ <html>
 @ <head>
-@ <base href="$baseurl/$current_page" />
+@ <base href="$baseurl/$base_href_suffix" />
 @ <meta charset="UTF-8">
 @ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -771,6 +791,12 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
+  if( local_zBaseHrefSuffix==0 ){
+    style_set_base_href_suffix("%s",g.zUrlSuffix);
+    /* %s because g.zUrlSuffix is already encoded (FIXME: really so?) */
+  }
+  Th_Store("base_href_suffix", local_zBaseHrefSuffix);
+  Th_Store("requested_url_suffix", g.zUrlSuffix);
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
@@ -1385,6 +1411,7 @@ void webpage_error(const char *zFormat, ...){
   #endif
     @ g.zBaseURL = %h(g.zBaseURL)<br />
     @ g.zHttpsURL = %h(g.zHttpsURL)<br />
+    @ g.zUrlSuffix = %h(g.zUrlSuffix)<br />
     @ g.zTop = %h(g.zTop)<br />
     @ g.zPath = %h(g.zPath)<br />
     @ g.userUid = %d(g.userUid)<br />

@@ -599,6 +599,7 @@ void wiki_page(void){
   }
   if( !isPopup ){
     style_set_current_page("%T?name=%T", g.zPath, zPageName);
+    style_set_base_href_suffix("%T?name=%T", g.zPath, zPageName);
     wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "");
     if( !noSubmenu ){
       wiki_standard_submenu(submenuFlags);
@@ -1671,6 +1672,7 @@ void wikiappend_page(void){
     return;
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
+  style_set_base_href_suffix("%T?name=%T", g.zPath, zPageName);
   style_set_current_feature("wiki");
   style_header("Append Comment To: %s", zPageName);
   if( !goodCaptcha ){

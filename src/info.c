@@ -1434,6 +1434,7 @@ int object_description(
         if( bNeedBase ){
           bNeedBase = 0;
           style_set_current_page("doc/%S/%s",zVers,zName);
+          style_set_base_href_suffix("doc/%S/%s",zVers,zName);
         }
       }
       objType |= OBJTYPE_CONTENT;
@@ -2576,9 +2577,11 @@ void artifact_page(void){
     if( isSymbolicCI ){
       zHeader = mprintf("%s at %s", file_tail(zName), zCI);
       style_set_current_page("doc/%t/%T", zCI, zName);
+      style_set_base_href_suffix("doc/%t/%T", zCI, zName);
     }else if( zCIUuid && zCIUuid[0] ){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
       style_set_current_page("doc/%S/%T", zCIUuid, zName);
+      style_set_base_href_suffix("doc/%S/%T", zCIUuid, zName);
     }else{
       zHeader = mprintf("%s", file_tail(zName));
       style_set_current_page("doc/tip/%T", zName);

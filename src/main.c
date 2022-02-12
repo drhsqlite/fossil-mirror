@@ -180,7 +180,9 @@ struct Global {
   int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
-  char *zBaseURL;         /* Full text of the URL being served */
+  char *zBaseURL;         /* Full URL for the toplevel of the fossil tree */
+  const char *zUrlSuffix; /* Suffix of the URL including query string
+     zBaseUrl/zUrlSuffix  == Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
   int nExtraURL;          /* Extra bytes added to SCRIPT_NAME */
@@ -1354,6 +1356,9 @@ void set_base_url(const char *zAltBase){
   const char *zHost;
   const char *zMode;
   const char *zCur;
+  const char *zRU;     /* REQUEST_URI      */
+  const char *zQS;     /* QUERY_STRING     */
+  size_t nTop;         /* length of g.zTop */
 
   if( g.zBaseURL!=0 ) return;
   if( zAltBase ){
@@ -1412,6 +1417,14 @@ void set_base_url(const char *zAltBase){
     }
     fossil_free(z);
   }
+
+  zRU  = PD("REQUEST_URI","");
+  nTop = strlen( g.zTop );
+  g.zUrlSuffix = strncmp(zRU,g.zTop,nTop) ? "" : zRU+nTop;
+  if(g.zUrlSuffix[0]=='/') g.zUrlSuffix++;
+  zQS  = PD("QUERY_STRING","");
+  if( zQS[0] ) g.zUrlSuffix = mprintf("%s?%s", g.zUrlSuffix, zQS);
+  else         g.zUrlSuffix = mprintf("%s",    g.zUrlSuffix);
 
   /* Try to record the base URL as a CONFIG table entry with a name
   ** of the form:  "baseurl:BASE".  This keeps a record of how the
