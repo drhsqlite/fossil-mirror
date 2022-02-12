@@ -1,5 +1,5 @@
-C Modify\sthe\s/honeypot\sto\sexplain\sthe\ssituation\sto\shuman\sreaders\swho\smight\naccidentally\sreach\sit,\sand\soffer\sthem\sa\slinks\sto\sthe\slogin\spage\sto\sprove\ntheir\shumanness.
-D 2022-02-12T01:01:55.747
+C New\sjavascript\sfor\shref.js\ssuch\sthat\sany\smousemove\sor\smousedown\sevent\sat\sany\ntime\sis\ssufficient\sto\strigger\sthe\smouse\sactivity\scondition\sfor\sactivation\nof\shyperlinks.\s\sThis\sworks\sbetter\son\sFF\sand\schrome,\sbut\swith\ssafari,\sthe\nvisited/unvisited\slink\scolor\sis\sdetermined\sby\sthe\sinitial\svalue\sof\shref=\nand\sis\snot\sadjusted\swhen\shref=\schanges,\sso\svisited/unvisited\scolors\sare\nnot\sbeing\supdated\son\ssafari.
+D 2022-02-12T13:29:25.211
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -483,7 +483,7 @@ F src/gzip.c 91e63f775512d36ed388beff8e6c22cf5b4ccfd983a635ab5f4de651813e013e
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
-F src/href.js d6bdc1da332161a508b3b791143f38b84bb28e77de51bb344addfb8bf2325df5
+F src/href.js abc0ea9ecf6f698aaf5044934ce51aa5419ea5b17f724e0302f63cd3afeec336
 F src/http.c e53bbeeae972751dfe9cca69aea1b95fd38d908b0387524dde1a5350937818fa
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
 F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d4e11432d2d54a7c3445b465d14c5ce99e2c10abfe97bbe5e659b31af5da146
-R 0dc6da2b79749e72f911fa4e6abb6f1c
+P 533c2c7144ad4bc9f5b0ca8b14482d387b055cc6efa2677ba1da92465d607fd5
+R 5847a7ff7117fb9942c259021ee2f1be
 U drh
-Z e1a238b733260fcde5ab2c0ace63606c
+Z a9a40d72b3bf0505700bad4af4c0914f
 # Remove this line to create a well-formed Fossil manifest.

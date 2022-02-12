@@ -17,10 +17,11 @@
 ** mouseover boolean is true, then the href= rewrite is further delayed
 ** until the first mousedown event that occurs after the timer expires.
 */
-var antiRobotOnce = 0;
-function antiRobotSetAllHrefs(){
-  if( antiRobotOnce ) return;
-  antiRobotOnce = 1;
+var antiRobot = 0;
+var antiRobotBody = document.getElementsByTagName("body")[0];
+function antiRobotGo(){
+  if( antiRobot!=3 ) return;
+  antiRobot = 7;
   var anchors = document.getElementsByTagName("a");
   for(var i=0; i<anchors.length; i++){
     var j = anchors[i];
@@ -32,20 +33,32 @@ function antiRobotSetAllHrefs(){
     if(j.hasAttribute("data-action")) j.action=j.getAttribute("data-action");
   }
 }
-function antiRobotSetMouseEventHandler(){
-  document.getElementsByTagName("body")[0].onmousedown=function(){
-    antiRobotSetAllHrefs();
-    document.getElementsByTagName("body")[0].onmousedown=null;
-  }
-}
 function antiRobotDefense(){
   var x = document.getElementById("href-data");
   var jx = x.textContent || x.innerText;
   var g = JSON.parse(jx);
   if( g.mouseover ){
-    setTimeout(antiRobotSetMouseEventHandler, g.delay);
+    antiRobotBody.onmousedown=function(){
+      antiRobot |= 2;
+      antiRobotGo();
+      antiRobotBody.onmousedown=null;
+    }
+    antiRobotBody.onmousemove=function(){
+      antiRobot |= 2;
+      antiRobotGo();
+      antiRobotBody.onmousemove=null;
+    }
   }else{
-    setTimeout(antiRobotSetAllHrefs, g.delay);
+    antiRobot |= 2;
   }
+  if( g.delay>0 ){
+    setTimeout(function(){
+      antiRobot |= 1;
+      antiRobotGo();
+    }, g.delay)
+  }else{
+    antiRobot |= 1;
+  }
+  antiRobotGo();
 }
 antiRobotDefense();
