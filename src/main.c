@@ -1357,7 +1357,6 @@ void set_base_url(const char *zAltBase){
   const char *zMode;
   const char *zCur;
   const char *zRU;     /* REQUEST_URI      */
-  const char *zQS;     /* QUERY_STRING     */
   size_t nTop;         /* length of g.zTop */
 
   if( g.zBaseURL!=0 ) return;
@@ -1422,9 +1421,7 @@ void set_base_url(const char *zAltBase){
   nTop = strlen( g.zTop );
   g.zUrlSuffix = strncmp(zRU,g.zTop,nTop) ? "" : zRU+nTop;
   if(g.zUrlSuffix[0]=='/') g.zUrlSuffix++;
-  zQS  = PD("QUERY_STRING","");
-  if( zQS[0] ) g.zUrlSuffix = mprintf("%s?%s", g.zUrlSuffix, zQS);
-  else         g.zUrlSuffix = mprintf("%s",    g.zUrlSuffix);
+  g.zUrlSuffix = fossil_strdup( g.zUrlSuffix );
 
   /* Try to record the base URL as a CONFIG table entry with a name
   ** of the form:  "baseurl:BASE".  This keeps a record of how the
