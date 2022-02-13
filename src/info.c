@@ -988,9 +988,9 @@ void winfo_page(void){
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zDate = db_text(0, "SELECT datetime(%.17g)", pWiki->rDate);
-  style_submenu_element("Raw", "artifact/%s", zUuid);
-  style_submenu_element("History", "whistory?name=%t", pWiki->zWikiTitle);
-  style_submenu_element("Page", "wiki?name=%t", pWiki->zWikiTitle);
+  style_submenu_element("Raw", "%R/artifact/%s", zUuid);
+  style_submenu_element("History", "%R/whistory?name=%t", pWiki->zWikiTitle);
+  style_submenu_element("Page", "%R/wiki?name=%t", pWiki->zWikiTitle);
   login_anonymous_available();
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -1016,7 +1016,7 @@ void winfo_page(void){
     @ <tr><th>Parent%s(pWiki->nParent==1?"":"s"):</th><td>
     for(i=0; i<pWiki->nParent; i++){
       char *zParent = pWiki->azParent[i];
-      @ %z(href("info/%!S",zParent))%s(zParent)</a>
+      @ %z(href("%R/info/%!S",zParent))%s(zParent)</a>
       @ %z(href("%R/wdiff?id=%!S&pid=%!S",zUuid,zParent))(diff)</a>
     }
     @ </td></tr>
