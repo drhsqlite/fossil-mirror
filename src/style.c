@@ -408,12 +408,12 @@ void style_set_current_page(const char *zFormat, ...){
 }
 
 /* Use this for the $base_href_suffix variable if it is not NULL.
-** If it is NULL then use g.zUrlSuffix
+** If it is NULL then use g.zRelReqURI
 */
 static char *local_zBaseHrefSuffix = 0;
 
 /*
-** Set the desired $base_href_suffix to something other than g.zUrlSuffix
+** Set the desired $base_href_suffix to something other than g.zRelReqURI
 */
 void style_set_base_href_suffix(const char *zFormat, ...){
   fossil_free(local_zBaseHrefSuffix);
@@ -792,11 +792,11 @@ static void style_init_th1_vars(const char *zTitle){
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
   if( local_zBaseHrefSuffix==0 ){
-    style_set_base_href_suffix("%s",g.zUrlSuffix);
-    /* %s because g.zUrlSuffix is already encoded (FIXME: really so?) */
+    style_set_base_href_suffix("%s",g.zRelReqURI);
+    /* %s because g.zRelReqURI is already encoded (FIXME: really so?) */
   }
   Th_Store("base_href_suffix", local_zBaseHrefSuffix);
-  Th_Store("requested_url_suffix", g.zUrlSuffix);
+  Th_Store("relrequri", g.zRelReqURI);
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
@@ -1411,7 +1411,7 @@ void webpage_error(const char *zFormat, ...){
   #endif
     @ g.zBaseURL = %h(g.zBaseURL)<br />
     @ g.zHttpsURL = %h(g.zHttpsURL)<br />
-    @ g.zUrlSuffix = %h(g.zUrlSuffix)<br />
+    @ g.zRelReqURI = %h(g.zRelReqURI)<br />
     @ g.zTop = %h(g.zTop)<br />
     @ g.zPath = %h(g.zPath)<br />
     @ g.userUid = %d(g.userUid)<br />
