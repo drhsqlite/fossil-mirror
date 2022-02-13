@@ -1176,6 +1176,10 @@ int cgi_setup_query_string(void){
 **
 **      REQUEST_URI == SCRIPT_NAME + PATH_INFO
 **
+** Or if QUERY_STRING is not empty:
+**
+**      REQUEST_URI == SCRIPT_NAME + PATH_INFO + '?' + QUERY_STRING
+**
 ** Where "+" means concatenate.  Fossil requires SCRIPT_NAME.  If
 ** REQUEST_URI is provided but PATH_INFO is not, then PATH_INFO is
 ** computed from REQUEST_URI and SCRIPT_NAME.  If PATH_INFO is provided
@@ -1194,14 +1198,16 @@ int cgi_setup_query_string(void){
 **
 ** CGI Parameter quick reference:
 **
-**                                      REQUEST_URI
-**                               _____________|____________
-**                              /                          \
-**    https://www.fossil-scm.org/forum/info/12736b30c072551a?t=c
-**            \________________/\____/\____________________/ \_/
-**                    |            |             |            |
-**               HTTP_HOST         |        PATH_INFO     QUERY_STRING
-**                            SCRIPT_NAME
+**                                   REQUEST_URI
+**                           _____________|________________
+**                          /                              \
+**    https://fossil-scm.org/forum/info/12736b30c072551a?t=c
+**    \___/   \____________/\____/\____________________/ \_/
+**      |           |          |             |            |
+**      |       HTTP_HOST      |        PATH_INFO     QUERY_STRING
+**      |                      |
+**    REQUEST_SCHEMA         SCRIPT_NAME
+**               
 */
 void cgi_init(void){
   char *z;
@@ -1224,16 +1230,14 @@ void cgi_init(void){
   /* We must have SCRIPT_NAME. If the web server did not supply it, try
   ** to compute it from REQUEST_URI and PATH_INFO. */
   if( zScriptName==0 ){
-    size_t nRU, nPI;
     if( zRequestUri==0 || zPathInfo==0 ){
       malformed_request("missing SCRIPT_NAME");  /* Does not return */
     }
-    nRU = strlen(zRequestUri);
-    nPI = strlen(zPathInfo);
-    if( nRU<nPI ){
-      malformed_request("PATH_INFO is longer than REQUEST_URI");
+    z = strstr(zRequestUri,zPathInfo);
+    if( z==0 ){
+      malformed_request("PATH_INFO not found in REQUEST_URI");
     }
-    zScriptName = fossil_strndup(zRequestUri,(int)(nRU-nPI));
+    zScriptName = fossil_strndup(zRequestUri,(int)(z-zRequestUri));
     cgi_set_parameter("SCRIPT_NAME", zScriptName);
   }
 
@@ -1253,11 +1257,16 @@ void cgi_init(void){
 #endif
   if( zRequestUri==0 ){
     const char *z = zPathInfo;
+    const char *zQS = cgi_parameter("QUERY_STRING",0);
     if( zPathInfo==0 ){
       malformed_request("missing PATH_INFO and/or REQUEST_URI");
     }
     if( z[0]=='/' ) z++;
-    zRequestUri = mprintf("%s/%s", zScriptName, z);
+    if( zQS && zQS[0] ){
+      zRequestUri = mprintf("%s/%s?%s", zScriptName, z, zQS);
+    }else{
+      zRequestUri = mprintf("%s/%s", zScriptName, z);
+    }
     cgi_set_parameter("REQUEST_URI", zRequestUri);
   }
   if( zPathInfo==0 ){
@@ -1868,10 +1877,10 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken==0 ){
     malformed_request("malformed URL in HTTP header");
   }
+  cgi_setenv("REQUEST_URI", zToken);
   cgi_setenv("SCRIPT_NAME", "");
   for(i=0; zToken[i] && zToken[i]!='?'; i++){}
   if( zToken[i] ) zToken[i++] = 0;
-  cgi_setenv("REQUEST_URI", zToken);
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 ){
