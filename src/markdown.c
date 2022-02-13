@@ -1220,6 +1220,7 @@ static size_t char_link(
       }
       release_work_buffer(rndr, content);
       content = 0;
+      i = txt_e+1;     /* rewinding a closing square bracket */
 
   }else if( i<size && data[i]=='(' ){
 
