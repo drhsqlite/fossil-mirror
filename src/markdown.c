@@ -1178,7 +1178,7 @@ static size_t char_link(
   struct Blob *link = 0;
   struct Blob *title = 0;
   const struct footnote *fn = 0;
-  int level, ret;
+  int ret;
   /* ? FIXME: assert( size>0 ); */
 
   /* checking whether the correct renderer exists */
@@ -1187,18 +1187,9 @@ static size_t char_link(
   }
 
   /* looking for the matching closing bracket */
-  for(level=1; i<size; i++){
-    if( data[i]=='\n' )        /* do nothing */;
-    else if( data[i-1]=='\\' ) continue;
-    else if( data[i]=='[' )    level += 1;
-    else if( data[i]==']' ){
-      level--;
-      if( level<=0 ) break;
-    }
-  }
-  if( i>=size ) return 0;
-  txt_e = i;
-  i++;
+  txt_e = matching_bracket_offset(data, data+size);
+  if( !txt_e ) return 0;
+  i = txt_e + 1;
 
   /* skip any amount of whitespace or newline */
   /* (this is much more laxist than original markdown syntax) */
@@ -2586,22 +2577,22 @@ void markdown(
         nDups++;
       }
       if( i+1<j ){
-        Blob tmp = empty_blob;
-        blob_reserve(&tmp, k);
+        Blob list = empty_blob;
+        blob_reserve(&list, k);
         /* must match _joined_footnote_indicator in html_footnote_item() */
-        blob_append_string(&tmp, "<ul class='fn-joined'>\n");
+        blob_append_string(&list, "<ul class='fn-joined'>\n");
         for(k=i; k<j; k++){
           struct footnote *y = fn + k;
-          blob_append_string(&tmp, "<li>");
-          blob_append(&tmp, blob_buffer(&y->text), blob_size(&y->text));
-          blob_append_string(&tmp, "</li>\n");
+          blob_append_string(&list, "<li>");
+          blob_append(&list, blob_buffer(&y->text), blob_size(&y->text));
+          blob_append_string(&list, "</li>\n");
 
           /* free memory buffer */
           blob_reset(&y->text);
           if( k!=i ) blob_reset(&y->id);
         }
-        blob_append_string(&tmp, "</ul>\n");
-        x->text = tmp;
+        blob_append_string(&list, "</ul>\n");
+        x->text = list;
       }
       i = j;
     }
