@@ -410,20 +410,24 @@ void style_set_current_page(const char *zFormat, ...){
 /* Use this for the $base_href_suffix variable if it is not NULL.
 ** If it is NULL then use g.zRelReqURI
 */
-static char *local_zBaseHrefSuffix = 0;
+static const char *local_zBaseHrefSuffix = 0;
 
 /*
 ** Set the desired $base_href_suffix to something other than g.zRelReqURI
 */
 void style_set_base_href_suffix(const char *zFormat, ...){
-  fossil_free(local_zBaseHrefSuffix);
+  fossil_free( (char*)local_zBaseHrefSuffix );
   if( zFormat==0 ){
     local_zBaseHrefSuffix = 0;
   }else{
+    char *z;
     va_list ap;
+
     va_start(ap, zFormat);
-    local_zBaseHrefSuffix = vmprintf(zFormat, ap);
+    z = vmprintf(zFormat, ap);
     va_end(ap);
+    local_zBaseHrefSuffix = escape_quotes( z );
+    if( local_zBaseHrefSuffix!=z ) fossil_free( z );
   }
 }
 
