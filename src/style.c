@@ -795,12 +795,9 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
-  if( local_zBaseHrefSuffix==0 ){
-    style_set_base_href_suffix("%s",g.zRelReqURI);
-    /* %s because g.zRelReqURI is already encoded (FIXME: really so?) */
-  }
+  if( !local_zBaseHrefSuffix ) style_set_base_href_suffix("%s",g.zRelReqURI);
   Th_Store("base_href_suffix", local_zBaseHrefSuffix);
-  Th_Store("relrequri", g.zRelReqURI);
+  Th_Store("webpagename", g.zPath);
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
