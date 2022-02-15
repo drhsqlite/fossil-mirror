@@ -885,7 +885,10 @@
           P.updateSaveButton();
         }
         if(theTab===P.e.tabs.preview){
-          P.baseHrefForWiki();
+
+          /* FIXME: P.baseHrefForWiki();
+          ** Overriding of base href disabled as part of 'base-href-fix' branch
+          */
           if(P.previewNeedsUpdate && P.e.cbAutoPreview.checked) P.preview();
         }else if(theTab===P.e.tabs.diff){
           /* Work around a weird bug where the page gets wider than
@@ -905,7 +908,10 @@
       'before-switch-from', function(ev){
         const theTab = ev.detail;
         if(theTab===P.e.tabs.preview){
-          P.baseHrefRestore();
+
+          /* FIXME: P.baseHrefRestore();
+          ** Overriding of base href disabled as part of 'base-href-fix' branch
+          */
         }else if(theTab===P.e.tabs.diff){
           /* See notes in the before-switch-to handler. */
           D.addClass(P.e.diffTarget, 'hidden');
