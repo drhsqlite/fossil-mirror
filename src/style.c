@@ -797,7 +797,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("current_page", local_zCurrentPage);
   if( !local_zBaseHrefSuffix ) style_set_base_href_suffix("%s",g.zRelReqURI);
   Th_Store("base_href_suffix", local_zBaseHrefSuffix);
-  Th_Store("webpagename", g.zPath);
+  Th_Store("webpagename", escape_quotes(g.zPath));
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);

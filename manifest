@@ -1,5 +1,5 @@
-C Move\s<code><meta\scharset="UTF-8"></code>\sto\sthe\sbegining\sof\sthe\sdefault\sheader.\nSupply\sBODY\selement\swith\sa\sclass\sthat\sderives\sfrom\s<var>$webpagename</var>.
-D 2022-02-15T00:14:31.006
+C When\ssetting\s<var>$webpagename</var>\spass\sthe\svalue\sof\s<var>g.zPath</var>\nthough\s<code>escape_quotes()</code>.\sThis\sis\sunclear\show\s<var>g.zPath</var>\ncan\scontain\squotes\sbut\slet\sthis\sstrange\scase\sbe\shandled\sin\sa\ssafe\sway.
+D 2022-02-15T00:58:41.861
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 0a1647d3322914518345eaee15d1c3a9631ce9bd2beb293f289f298abb77ee23
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 8d35bd5ede3e5b98cb66187868e90bbbd7f5e2b6e5f27dc3bbfe353c3f316123
+F src/style.c 97615a2b24707173c0d7aad772cecf5252238a0907a7364a11e611674d26e119
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ff4c7ed6096beceb2cf48055e3c475fd11499bb7dfb06abef3fdf41ca27f8e68
-R d515edb408cd02a0f6187aaa29aa6d67
+P 6d135904ad5169813f1f8d0257183d39fd8d95aa20754c409f3072a0f0247d7e
+R 5c0bae2639eb709c05495179acc2ada0
 U george
-Z 5e28ffcb16677280b36df9bdc0b464da
+Z 018fc8e32c9140ffd42942f2521a1cf0
 # Remove this line to create a well-formed Fossil manifest.
