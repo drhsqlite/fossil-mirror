@@ -1,5 +1,5 @@
-C Do\snot\soverride\sbase\shref\sfor\swiki\spages.\sThis\sneeds\stesting.
-D 2022-02-15T02:26:20.833
+C FIXME-comments\sin\sthe\scode\sdid\snot\sindicate\sissues\sand\sare\snow\srephrased\sto\nbe\smere\sreminders.
+D 2022-02-15T21:35:19.366
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -447,7 +447,7 @@ F src/encode.c 55f290baff5704e0e11b8245c2f1ce087f664ff8da884f0a1d7e2dad64fb9f64
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 901a7a0f7d401ddbd220978abdf7327bda0dc73a793ded2195985925ad6999cf
-F src/extcgi.c b11f859a68a877d8e27016f6a718ae4085b56c1d2692aaa1cd626f39e17651ee
+F src/extcgi.c b866f05abd55cfb8dce6fb57b7c3d29400a72f99df35d9d302c768a23b843327
 F src/file.c e81ff8a9952f588baaabfeb4a02635b62e20c8c39a439a2a0799fddcfe4f15bc
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
 F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
@@ -467,7 +467,7 @@ F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c2546801
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js f3d2a7ac7ec10d4f03decdcf14e90b0c08b49462d5c0bfacb3f53f07eb84ac4e
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
-F src/fossil.page.wikiedit.js 3065e783a7c2446b167c6feb1592423b956335c07485f946ad01dab6ede75552
+F src/fossil.page.wikiedit.js 544ad6129f942654eab61b18a9b85c18286938eec2c0f7a20fcb31a66fdd5414
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
 F src/fossil.popupwidget.js f91c1385bcbb45c9925f159926591e91df71a97e7ea111e3bc9d8a0ef7be3b96
 F src/fossil.storage.js 767a7eba00b6ffbed8aba7fab3b9b4a1eb3052cb9d0730b2bd96941baa7627a9
@@ -604,7 +604,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 3d241c367ec9e8eab844a15ba791b86035508f04efb49b7730971faf431fd5c6
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 1df5be1d87c3bc5aab24e8b59946d3ae4459602ab093966410593cd3eec0b328
+F src/wiki.c 573344f350c56f62f273dfbdae838d773a99bb155d86fefeeccb8bf2cff755e7
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 288fe34ced9099e0ccc5ce9cc90f091312d2435e6a913b4b037c8e5ae544b176
-R 241f46cc18262780ee3f68abc7b76ec7
+P 89dd34519f454333d777bf8d93cf858241b4702e4184bf5a8dcb4a186332199d
+R aaecff5861575b84933cd243159f5e2f
 U george
-Z 3dce37a58fc54f3c52ed76408970aa2a
+Z 638806e10f738946a2f6c4fbd9b31d86
 # Remove this line to create a well-formed Fossil manifest.

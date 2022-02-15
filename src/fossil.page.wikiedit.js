@@ -886,8 +886,9 @@
         }
         if(theTab===P.e.tabs.preview){
 
-          /* FIXME: P.baseHrefForWiki();
-          ** Overriding of base href disabled as part of 'base-href-fix' branch
+          /* Overriding of base href disabled as part of 'base-href-fix' branch
+          ** To bring back the old behavior uncomment the following call
+          ** P.baseHrefForWiki();
           */
           if(P.previewNeedsUpdate && P.e.cbAutoPreview.checked) P.preview();
         }else if(theTab===P.e.tabs.diff){
@@ -909,8 +910,9 @@
         const theTab = ev.detail;
         if(theTab===P.e.tabs.preview){
 
-          /* FIXME: P.baseHrefRestore();
-          ** Overriding of base href disabled as part of 'base-href-fix' branch
+          /* Overriding of base href disabled as part of 'base-href-fix' branch
+          ** To bring back the old behavior uncomment the following call
+          ** P.baseHrefRestore();
           */
         }else if(theTab===P.e.tabs.diff){
           /* See notes in the before-switch-to handler. */
