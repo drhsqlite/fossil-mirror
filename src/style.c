@@ -673,8 +673,8 @@ void style_disable_csp(void){
 static const char zDfltHeader[] = 
 @ <html>
 @ <head>
-@ <base href="$baseurl/$base_href_suffix" />
 @ <meta charset="UTF-8">
+@ <base href="$baseurl/$base_href_suffix" />
 @ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
@@ -682,7 +682,7 @@ static const char zDfltHeader[] =
 @  href="$home/timeline.rss" />
 @ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
 @ </head>
-@ <body class="$current_feature">
+@ <body class="$current_feature wpn-$webpagename">
 ;
 
 /*
