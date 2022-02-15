@@ -1600,6 +1600,26 @@ int fossil_redirect_to_https_if_needed(int iLevel){
 }
 
 /*
+** Send a 404 Not Found reply
+*/
+void fossil_not_found_page(void){
+#ifdef FOSSIL_ENABLE_JSON
+  if(g.json.isJsonMode){
+    json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
+    return;
+  }
+#endif
+  @ <html><head>
+  @ <meta name="viewport" \
+  @ content="width=device-width, initial-scale=1.0">
+  @ </head><body>
+  @ <h1>Not Found</h1>
+  @ </body>
+  cgi_set_status(404, "Not Found");
+  cgi_reply();
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -1821,20 +1841,7 @@ static void process_one_web_page(
         }else if( zNotFound ){
           cgi_redirect(zNotFound);
         }else{
-#ifdef FOSSIL_ENABLE_JSON
-          if(g.json.isJsonMode){
-            json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
-            return;
-          }
-#endif
-          @ <html><head>
-          @ <meta name="viewport" \
-          @ content="width=device-width, initial-scale=1.0">
-          @ </head><body>
-          @ <h1>Not Found</h1>
-          @ </body>
-          cgi_set_status(404, "Not Found");
-          cgi_reply();
+          fossil_not_found_page();
         }
         return;
       }
@@ -1889,6 +1896,11 @@ static void process_one_web_page(
   ){
     int iSkin = zPathInfo[6] - '0';
     char *zNewScript;
+    if( db_int(0,"SELECT count(*) FROM config WHERE name GLOB 'draft%d-*'",
+                iSkin)<5 ){
+      fossil_not_found_page();
+      fossil_exit(0);
+    }
     skin_use_draft(iSkin);
     zNewScript = mprintf("%T/draft%d", P("SCRIPT_NAME"), iSkin);
     if( g.zTop ) g.zTop = mprintf("%R/draft%d", iSkin);

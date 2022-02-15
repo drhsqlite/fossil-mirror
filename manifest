@@ -1,5 +1,5 @@
-C Back\sout\scheck-in\s[5bb921dd0893a548]\swhich\swas\swrong\s-\sthe\sREQUEST_URI\nCGI\sparameter\sshould\sinclude\sthe\squery\sstring.\s\sImprove\sthe\sCGI\svariable\ndocumentation\sin\scomments.\s\sImprove\srobustness\sto\smalformed\sCGI\svariables.
-D 2022-02-13T19:16:15.973
+C Return\sa\s404-Not\sFound\serror\son\sany\sattempt\sto\saccess\sa\s"draft"\sskin\sthat\nis\snot\sdefined.
+D 2022-02-15T21:46:21.057
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c a01bd0437f55ae9af7f81819ebafb71662fc52aa0cf4e58ac2be6a09c187d799
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c e524bfdd1688ef48883b5a154a3473f016d3905882ba6ecd519c0255bd30c6fc
+F src/main.c b747592d64ab9a47e62e77f2d72855acd4b2a9ff25d318c69f030bf241bc95da
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9082b29711617c0ca50634dd8acc7bfb58255d26b88b3a1d62e3fee5c8e7305 b8973500074aafd8b21cc13e2937f09a900c8882548ea63a7dea3f3045834093
-R 834fada204d8199f62aeeafe48b91dbd
+P e514eeea8f8598a899a6c0e1f76fd9bb9c736f96fc1165e0dedf1fdb37f5a3e6
+R f92fdb731be0d4d92ef22c0a25af2a39
 U drh
-Z 5ea3073625beab86bd677f9189d1ca60
+Z 20d860c5c3eb036f007c7e5a16089119
 # Remove this line to create a well-formed Fossil manifest.
