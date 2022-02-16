@@ -41,6 +41,10 @@ typedef struct MarkdownToHtml MarkdownToHtml;
 struct MarkdownToHtml {
   Blob *output_title;     /* Store the title here */
   bitfield64_t unique;    /* Enables construction of unique #id elements */
+
+  #ifndef FOOTNOTES_WITHOUT_URI
+  Blob reqURI;            /* REQUEST_URI with escaped quotes */
+  #endif
 };
 
 
@@ -60,6 +64,12 @@ struct MarkdownToHtml {
 /* BLOB_APPEND_BLOB -- append blob contents to another */
 #define BLOB_APPEND_BLOB(dest, src) \
   blob_append((dest), blob_buffer(src), blob_size(src))
+
+#ifndef FOOTNOTES_WITHOUT_URI
+  #define BLOB_APPEND_URI(dest,ctx) BLOB_APPEND_BLOB(dest,&((ctx)->reqURI))
+#else
+  #define BLOB_APPEND_URI(dest,ctx)
+#endif
 
 /* Converts an integer to a null-terminated base26 representation
  * Return empty string if that integer is negative.   */
@@ -343,12 +353,14 @@ static int html_footnote_ref(
       blob_appendf(ob,"%s'>",pos);
       BLOB_APPEND_BLOB(ob, span);
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='#footnote");
-      blob_appendf(ob,"%s'>%i</a></sup></span>", pos, iMark);
+      BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='");
+      BLOB_APPEND_URI(ob, ctx);
+      blob_appendf(ob,"#footnote%s'>%i</a></sup></span>", pos, iMark);
     }else{
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='#footnote");
-      blob_appendf(ob,"%s' id='noteref%s'>%i</a></sup>",
+      BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='");
+      BLOB_APPEND_URI(ob, ctx);
+      blob_appendf(ob,"#footnote%s' id='noteref%s'>%i</a></sup>",
                       pos,           pos,  iMark);
     }
   }else{              /* misreference */
@@ -359,14 +371,14 @@ static int html_footnote_ref(
       blob_appendf(ob, "<span class='notescope' id='misref%s'>", pos);
       BLOB_APPEND_BLOB(ob, span);
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,
-        "<sup class='noteref misref'><a href='#misreference");
-      blob_appendf(ob, "%s'>misref</a></sup></span>", pos);
+      BLOB_APPEND_LITERAL(ob, "<sup class='noteref misref'><a href='");
+      BLOB_APPEND_URI(ob, ctx);
+      blob_appendf(ob, "#misreference%s'>misref</a></sup></span>", pos);
     }else{
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,
-        "<sup class='noteref misref'><a href='#misreference");
-      blob_appendf(ob, "%s' id='misref%s'>", pos, pos);
+      BLOB_APPEND_LITERAL(ob, "<sup class='noteref misref'><a href='");
+      BLOB_APPEND_URI(ob, ctx);
+      blob_appendf(ob, "#misreference%s' id='misref%s'>", pos, pos);
       BLOB_APPEND_LITERAL(ob, "misref</a></sup>");
     }
   }
@@ -378,7 +390,8 @@ static int html_footnote_ref(
 static void html_footnote_item(
   struct Blob *ob, const struct Blob *text, int iMark, int nUsed, void *opaque
 ){
-  const char * const unique = ((struct MarkdownToHtml*)opaque)->unique.c;
+  const struct MarkdownToHtml* ctx = (struct MarkdownToHtml*)opaque;
+  const char * const unique = ctx->unique.c;
   assert( nUsed >= 0 );
   /* expect BUGs if the following yields compiler warnings */
 
@@ -388,15 +401,17 @@ static void html_footnote_item(
     BLOB_APPEND_LITERAL(ob,"<li class='fn-misreference'>"
                               "<sup class='fn-backrefs'>");
     if( nUsed == 1 ){
-      blob_appendf(ob,"<a id='misreference%s-a' "
-                      "href='#misref%s-a'>^</a>", unique, unique);
+      blob_appendf(ob,"<a id='misreference%s-a' href='", unique);
+      BLOB_APPEND_URI(ob, ctx);
+      blob_appendf(ob,"#misref%s-a'>^</a>", unique);
     }else{
       int i;
       blob_append_char(ob, '^');
       for(i=0; i<nUsed && i<26; i++){
         const int c = i + (unsigned)'a';
-        blob_appendf(ob," <a id='misreference%s-%c' "
-              "href='#misref%s-%c'>%c</a>", unique,c, unique,c, c);
+        blob_appendf(ob," <a id='misreference%s-%c' href='", unique,c);
+        BLOB_APPEND_URI(ob, ctx);
+        blob_appendf(ob,"#misref%s-%c'>%c</a>", unique,c, c);
       }
       if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
     }
@@ -419,23 +434,25 @@ static void html_footnote_item(
 
     if( nUsed == 1 ){
       BLOB_APPEND_LITERAL(ob, "fn-monoref'><sup class='fn-backrefs'>");
-      blob_appendf(ob,"<a id='footnote%s-a' "
-                       "href='#noteref%s-a'>^</a>", pos, pos);
+      blob_appendf(ob,"<a id='footnote%s-a' href='", pos);
+      BLOB_APPEND_URI(ob, ctx);
+      blob_appendf(ob,"#noteref%s-a'>^</a>", pos);
     }else{
       int i;
       BLOB_APPEND_LITERAL(ob, "fn-polyref'><sup class='fn-backrefs'>^");
       for(i=0; i<nUsed && i<26; i++){
         const int c = i + (unsigned)'a';
-        blob_appendf(ob," <a id='footnote%s-%c'"
-                         " href='#noteref%s-%c'>%c</a>", pos,c, pos,c, c);
+        blob_appendf(ob," <a id='footnote%s-%c' href='", pos,c);
+        BLOB_APPEND_URI(ob, ctx);
+        blob_appendf(ob,"#noteref%s-%c'>%c</a>", pos,c, c);
       }
       /* It's unlikely that so many backrefs will be usefull */
       /* but maybe for some machine generated documents... */
       for(; i<nUsed && i<676; i++){
         const bitfield64_t l = to_base26(i,0);
-        blob_appendf(ob," <a id='footnote%s-%s'"
-                         " href='#noteref%s-%s'>%s</a>",
-                         pos,l.c, pos,l.c, l.c);
+        blob_appendf(ob," <a id='footnote%s-%s' href='", pos, l.c);
+        BLOB_APPEND_URI(ob, ctx);
+        blob_appendf(ob,"#noteref%s-%s'>%s</a>", pos,l.c, l.c);
       }
       if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
     }
@@ -770,10 +787,15 @@ void markdown_to_html(
     0     /* opaque */
   };
   static int invocation = -1; /* no marker for the first document */
+  static const char* zRU = 0; /* REQUEST_URI with escaped quotes  */
   MarkdownToHtml context;
   memset(&context, 0, sizeof(context));
   context.output_title = output_title;
   context.unique = to_base26(invocation++,1);
+  if( !zRU ) zRU = escape_quotes(PD("REQUEST_URI",""));
+  #ifndef FOOTNOTES_WITHOUT_URI
+    blob_set( &context.reqURI, zRU );
+  #endif
   html_renderer.opaque = &context;
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
