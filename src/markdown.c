@@ -215,7 +215,7 @@ static const struct html_tag block_tags[] = {
  ***************************/
 
 /* build_ref_id -- collapse whitespace from input text to make it a ref id */
-/* FIXME: does this function handle non-Unix newlines? */
+/* TODO: maybe also handle CR+LF line endings? */
 static int build_ref_id(struct Blob *id, const char *data, size_t size){
   size_t beg, i;
   char *id_data;
@@ -286,9 +286,10 @@ static int cmp_footnote_id(const void *fna, const void *fnb){
       if( cmp ) return cmp;
     }else return -1;
   }else return szB ? 1 : 0;
-  /* ids are equal and non-empty */
+  /* IDs are equal and non-empty */
   if( a->defno < b->defno ) return -1;
   if( a->defno > b->defno ) return  1;
+  assert(!"reachable");
   return 0; /* should never reach here */
 }
 
@@ -1124,7 +1125,12 @@ static inline const struct footnote* add_inline_footnote(
 }
 
 /* Return the offset of the matching closing bracket or 0 if not found.
- * begin[0] must be either '[' or '('          */
+** begin[0] must be either '[' or '('
+**
+** TODO: It seems that things like "\\(" are not handled correctly.
+**       That is historical behavior for a corner-case,
+**       so it's left as it is until somebody complains.
+*/
 static inline size_t matching_bracket_offset(
   const char* begin,
   const char* end
@@ -1133,10 +1139,10 @@ static inline size_t matching_bracket_offset(
   int level;
   const char bra = *begin;
   const char ket = bra=='[' ? ']' : ')';
-  assert( bra=='[' || bra=='(' );      /* FIXME: only when debugging */
+  assert( bra=='[' || bra=='(' );
   for(i=begin+1,level=1; i!=end; i++){
     if( *i=='\n' )        /* do nothing */;
-    else if( i[-1]=='\\' ) continue;   /* ? FIXME: what if \\( ? */
+    else if( i[-1]=='\\' ) continue;
     else if( *i==bra )     level++;
     else if( *i==ket ){
       if( --level<=0 ) return i-begin;
@@ -2312,7 +2318,7 @@ static int is_ref(
   ){
     i += 1;
   }
-  /* ? FIXME: if( data[i-1]=='>' && data[link_offset-1]!='<' ) */
+  /* TODO: maybe require both data[i-1]=='>' && data[link_offset-1]=='<' ? */
   if( data[i-1]=='>' ) link_end = i-1; else link_end = i;
 
   /* optional spacer: (space | tab)* (newline | '\'' | '"' | '(' ) */
@@ -2408,8 +2414,7 @@ static int is_footnote(
   i++;
   while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
 
-  /* passthrough truncated footnote definition
-   * FIXME: maybe omit it? */
+  /* passthrough truncated footnote definition */
   if( i>=end ) return 0;
 
   if( build_ref_id(&fn.id, data+id_offset, id_end-id_offset)<0 ) return 0;
@@ -2528,7 +2533,6 @@ void markdown(
     if( is_ref(data, beg, size, &end, &rndr.refs) ){
       beg = end;
     }else if(is_footnote(data, beg, size, &end, &rndr.notes.all)){
-      /* FIXME: fossil_print("\nfootnote found at %i\n", beg); */
       beg = end;
     }else{ /* skipping to the next line */
       end = beg;
