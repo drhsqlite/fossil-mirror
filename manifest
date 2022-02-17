@@ -1,5 +1,5 @@
-C 'update'\sshows\sthe\scommit\sdate\sfor\sthe\supdated-from\sversion,\sfor\sconsistency."
-D 2022-02-17T15:04:55.630
+C Fix\sa\stypo\sin\sthe\shelp\sfor\sthe\s"fossil\sremote"\scommand.
+D 2022-02-17T18:13:34.847
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -580,7 +580,7 @@ F src/style.c 744bbf03abcb642e666bc61dfe4b779da997a5712530c54ff6fc4742ac0da7c0
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 15f505ead6f73a60fad83364ab855eb7990f3ce3e2426899dd913670ec33351c
+F src/sync.c e16d6628d101c4454a3c4076a9b01b5958a0de8e368b350f5bf02287587bf225
 F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
 F src/tar.c d66ca7cd241f369cffe29a5e1c5ac1af0a4cc8f9dddeb92d1d62614577a6ac75
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07ed3fedfa0a59f1a361f47b46d36d6a7cbd4e800cd345d64c6bda5c310ba471
-R 5764a14e026457946896a4b9605d8893
-U danield
-Z d176d528ac68a90a87bc0fff4aca21b3
+P 971dd2364df9f4ea2a420917c806dec7572556d15c11d04ce9880ed01eb2c752
+R d24dfbacc52033f6aa683f73ca5ce6c4
+U drh
+Z dd0a75caeeafd6dc87923338c5b8cad1
 # Remove this line to create a well-formed Fossil manifest.

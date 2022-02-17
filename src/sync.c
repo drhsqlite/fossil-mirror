@@ -489,7 +489,7 @@ void sync_unversioned(unsigned syncFlags){
 **     URL argument can be "default" or a prior symbolic name, to make
 **     a copy of an existing URL under a new name.
 **
-** > fossil config-data
+** > fossil remote config-data
 **
 **     DEBUG USE ONLY - Show the name and value of every CONFIG table
 **     entry in the repository that is associated with the remote URL store.
