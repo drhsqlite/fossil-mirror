@@ -1,5 +1,5 @@
-C Clean-up\sand\srephrase\ssome\scomments.
-D 2022-02-17T00:17:28.141
+C If\sa\sfootnote's\stext\sstarts\swith\sa\stoken\sof\sthe\sspecial\sform\nthen\suse\sthis\stoken\sto\sderive\sa\sset\sof\sCSS\sclasses\sthat\sare\sadded\nto\sthat\sfootnote\sand\sits\sreferences.\nThis\senables\susers\sto\sstyle\selements\sof\sa\sparticular\sfootnote\nprovided\sthat\sthe\sadministrator\sprovisioned\sand\sdocumented\nsome\sspecial\sCSS\sclasses\sin\sa\scustum\sskin.\nDefault\sskin\sdoes\snot\sprovide\sany\sof\ssuch\sspecial\sclasses\nwhich\smakes\sthis\sfeature\san\s"opt-in".
+D 2022-02-17T22:09:07.875
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -404,7 +404,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 6603ccbd4dc8f56b79d5ab291b1d9da313f62c833d71cbcc933c93831ff802b6
 F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
-F src/backlink.c 2558487a2a3c6979da10b295f1a06d6b1b5073acf439bda46c32a144cd030b20
+F src/backlink.c b433525f8dd8ad0eb1ad3c9d153294cb96bce870de62fe10bfdb18a62ffd976f
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
@@ -515,9 +515,9 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c 1b560149a4277cff7f7fcc9a3c377561d0cde0c3bd403dc7cd681f5e0ec31ca4
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c e26323e6c7bf24f46ae87a500a5619fc9e0c0fe6b7012d031f6cb48dc2387849
+F src/markdown.c 8ae95ea4f13cde8d77a4d62159801831d729c295327af2a35ae1db306fc5cdde
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
-F src/markdown_html.c 581b8d2f8576b37e43c83378e8321c03e60939b253976038b4899f06d26507c0
+F src/markdown_html.c 909cd7a9da4e49e739c7cb7c284ee13b38e12fb6b7bc69cc1f78d7c3ede20414
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 02068d1648a62fd1dbe82ba187df460dd8ab83640e9728850a7c20f68effc21d
@@ -635,7 +635,7 @@ F test/json.test ef5f080b4c1853ad2433bbb591c86759b497019137ce4296b9a8704ab426bec
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
-F test/markdown-test3.md a9fe2039dcd9bc66554c9bd40c99d2ec553774425925974bf2d93a624b39055d
+F test/markdown-test3.md 8bee0450ee49096dcf934465b537bedca2ba81af5ae7d8897e4f76b40dc41d8c
 F test/merge1.test b7b347a2faf5a6dba2eb1a57f2c6099f65541c2ddb730e5030d700dc9265b334
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 3ff4854352bea3e262d2710abadc8e85a5754734cc25072e21c400e65cff22ec
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a36dd09d17f3057f077c46be9c4b1a9f26e0f053bb640698eab474cd3c9599f9
-R 5846de286f8f3fbd34f67ae0e90d4740
+P a62c876896ae11002ba464a71fc92ef94a191be617042923dd0dd4db5dd461d3
+R ab89cc1546547634eb6b681c45f9744b
 U george
-Z b91325711f97337aef03b99d3b334e9d
+Z 8ff392132bff1cf0890ad1660bbd8897
 # Remove this line to create a well-formed Fossil manifest.

@@ -65,6 +65,48 @@ when several footnotes are refenrenced at the end
 of a phrase.[^scipub][^many-refs](^All these four should
 be parsed as "free-standing" footnotes)[^Coelurosauria]
 
+<style>
+  li.fn-upc-example span.fn-upc {
+    border: solid 2px lightgreen;
+    border-radius: 0.25em;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-bottom: 0.2em;
+  }
+  li.fn-upc-example span.fn-upcDot:first-child {
+    font-weight: bold;
+  }
+  sup.noteref.fn-upc-example,
+  span.notescope.fn-upc-example sup.noteref {
+    border: solid 2px lightgreen;
+    border-radius: 0.4em;
+    padding: 2px;
+  }
+  sup.noteref.fn-upc-example::after,
+  span.notescope.fn-upc-example sup.noteref::after {
+    content: " ⛄";
+  }
+  sup.noteref.fn-upc-example:hover::after,
+  span.notescope.fn-upc-example sup.noteref:hover::after {
+    content: " 👻";
+  }
+</style>
+
+It is possible to provide a list of classes for a particular footnote and
+all its references. This is achieved by prepending a footnote's text with
+a special token that starts with dot and ends with colon.
+(^
+   .alpha-Numeric123.EXAMPLE:
+   This token defines a dot-separated list of CSS classes
+   which are added to that particular footnote and also to the
+   corresponding reference(s). Hypens ('-') are also allowed.
+   Classes from the token are tranformed to lowercase and are prepended
+   with `"fn-upc-"` to avoid collisions.
+)
+This feature is "*opt-in*": there is nothing wrong in starting a footnote's
+text with a token of that form while not defining any corresponding classes
+in the stylesheet.[^nostyle]
+
 ## Footnotes
 
 [branch]: /timeline?r=markdown-footnotes&nowiki
@@ -106,3 +148,8 @@ be parsed as "free-standing" footnotes)[^Coelurosauria]
 [^another stray]: Just to verify the correctness of ordering and styling.
 
 [^scipub]: Which is common in the scientific publications.
+
+[^nostyle]:
+  .unused.classes:
+  In that case text of the footnote just looks like as if
+  no special processing occured.

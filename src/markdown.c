@@ -85,7 +85,7 @@ struct mkd_renderer {
   int (*triple_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
   int (*footnote_ref)(struct Blob *ob, const struct Blob *span,
-                      int index, int locus, void *opaque);
+              const struct Blob *upc, int index, int locus, void *opaque);
 
   /* low level callbacks - NULL copies input directly into the output */
   void (*entity)(struct Blob *ob, struct Blob *entity, void *opaque);
@@ -147,6 +147,7 @@ struct link_ref {
 struct footnote {
   struct Blob id;      /* must be the first field as in link_ref struct  */
   struct Blob text;    /* footnote's content that is rendered at the end */
+  struct Blob upc;     /* user-provided classes  .ASCII-alnum.or-hypen:  */
   int bRndred;         /* indicates if `text` holds a rendered content   */
 
   int defno;  /* serial number of definition, set during the first pass  */
@@ -154,7 +155,7 @@ struct footnote {
   int iMark;  /* user-visible numeric marker, assigned upon the first use*/
   int nUsed;  /* counts references to this note, increments upon each use*/
 };
-
+#define FOOTNOTE_INITIALIZER {empty_blob,empty_blob,empty_blob, 0,0,0,0,0}
 
 /* char_trigger -- function pointer to render active chars */
 /*   returns the number of chars taken care of */
@@ -1103,6 +1104,55 @@ cleanup:
   return fn;
 }
 
+/* Counts characters in the blank prefix within at most nHalfLines.
+** A sequence of spaces and tabs counts as odd halfline,
+** a newline counts as even halfline
+*/
+static inline size_t count_whitespaces(
+  const char *data, size_t size, int nHalfLines
+){
+  const char *p = data;
+  const char * const end = data+size;
+  while( nHalfLines > 0 ){
+    while( p!=end && (*p==' ' || *p=='\t' ) ){ p++; }
+    if( p==end || --nHalfLines == 0 ) break;
+    if( *p=='\n' || *p=='\r' ){
+      p++;
+      if( p==end ) break;
+      if( *p=='\n' && p[-1]=='\r' ){
+        p++;
+      }
+    }
+    nHalfLines--;
+  }
+  return (size_t)(p-data);
+}
+
+/* Check if the data starts with a classlist token of the special form.
+** If so then return the length of that token, otherwise return 0.
+**
+** The token must start with a dot and must end with a colon;
+** in between of these it must be a dot-separated list of words;
+** each word may contain only alphanumeric characters and hyphens.
+*/
+size_t is_footnote_classlist(const char * const data, size_t size){
+  const char *p;
+  const char * const end = data+size;
+  if( data==end || *data != '.' ) return 0;
+  for(p=data+1; p!=end; p++){
+    if( fossil_isalnum(*p) || *p=='-' ) continue;
+    if( *p==':' ){
+      return p[-1]!='.' ? (size_t)(p-data)+1 : 0;
+    }
+    if( *p=='.' ){
+      if( p[-1]!='.' ) continue;
+      else break;
+    }
+    break;
+  }
+  return 0;
+}
+
 /* Adds unlabeled footnote to the rndr.
  * If text is blank then returns 0,
  * otherwise returns the address of the added footnote. */
@@ -1111,14 +1161,37 @@ static inline const struct footnote* add_inline_footnote(
   const char *text,
   size_t size
 ){
-  struct footnote fn = { empty_blob, empty_blob, 0, 0, 0, 0, 0 };
-  while(size && (*text==' ' || *text=='\t')){ text++; size--; }
+  struct footnote fn = FOOTNOTE_INITIALIZER;
+  const char *zUPC = 0;
+  size_t nUPC = 0, n = count_whitespaces(text, size, 3);
+  if( n >= size ) return 0;
+  text += n;
+  size -= n;
+  n = is_footnote_classlist(text, size);
+  if( n && n < size ){
+    nUPC = n;
+    zUPC = text;
+    text += nUPC;
+    size -= nUPC;
+    n = count_whitespaces(text, size, 3);
+    /* naked classlist is treated as plain text */
+    if( n >= size || text[n]=='\n' || text[n]=='\r' ){
+      size += nUPC;
+      nUPC = 0;
+      text = zUPC;
+      zUPC = 0;
+    }else{
+      text += n;
+      size -= n;
+    }
+  }
   if(!size) return 0;
   fn.iMark = ++(rndr->notes.nMarks);
   fn.nUsed  = 1;
   fn.index  = COUNT_FOOTNOTES(&rndr->notes.all);
   assert( fn.iMark > 0 );
   blob_append(&fn.text, text, size);
+  if(nUPC) blob_append(&fn.upc, zUPC, nUPC);
   blob_append(&rndr->notes.all, (char *)&fn, sizeof fn);
   return (struct footnote*)( blob_buffer(&rndr->notes.all)
                             +( blob_size(&rndr->notes.all)-sizeof fn ));
@@ -1166,7 +1239,7 @@ static size_t char_footnote(
   end = matching_bracket_offset(data, data+size);
   if( !end ) return 0;
   fn = add_inline_footnote(rndr, data+2, end-2);
-  if(fn) rndr->make.footnote_ref(ob,0,fn->iMark,1,rndr->make.opaque);
+  if(fn) rndr->make.footnote_ref(ob,0,&fn->upc,fn->iMark,1,rndr->make.opaque);
   return end+1;
 }
 
@@ -1298,7 +1371,7 @@ static size_t char_link(
     ret = rndr->make.image(ob, link, title, content, rndr->make.opaque);
   }else if(fn){
     if(rndr->make.footnote_ref){
-      ret = rndr->make.footnote_ref(ob, content, fn->iMark, fn->nUsed,
+      ret = rndr->make.footnote_ref(ob, content, &fn->upc, fn->iMark, fn->nUsed,
                                     rndr->make.opaque);
     }
   }else{
@@ -2391,8 +2464,8 @@ static int is_footnote(
   size_t *last,       /* last character of the link */
   struct Blob * footnotes
 ){
-  size_t i, id_offset, id_end;
-  struct footnote fn = { empty_blob, empty_blob, 0, 0, 0, 0, 0 };
+  size_t i, id_offset, id_end, upc_offset = 0, upc_size = 0;
+  struct footnote fn = FOOTNOTE_INITIALIZER;
 
   /* failfast if data is too short */
   if( beg+5>=end ) return 0;
@@ -2420,6 +2493,19 @@ static int is_footnote(
   if( build_ref_id(&fn.id, data+id_offset, id_end-id_offset)<0 ) return 0;
 
   /* footnote's text may start on the same line */
+  upc_offset = 0;
+  if( data[i]!='\n' && data[i]!='\r' ){
+    upc_offset = i;    /* prevent a retry on the second line */
+    upc_size = is_footnote_classlist(data+i,end-i);
+    if( upc_size ){
+      i += upc_size;
+      while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
+      if( i>=end ){
+        upc_size = 0;  /* naked classlist is treated as plain text */
+        i = upc_offset;
+      }
+    }
+  }
   if( data[i]!='\n' && data[i]!='\r' ){
     const size_t j = i;
     do i++; while( i<end && data[i]!='\n' && data[i]!='\r' );
@@ -2452,6 +2538,21 @@ static int is_footnote(
       size_t j;
       i += indent;
       j = i;
+      if( !upc_offset ){
+        /* a classlist must be provided no later than at the 2nd line */
+        upc_offset = i + count_whitespaces(data+i, end-i, 1);
+        upc_size = is_footnote_classlist(data+upc_offset, end-upc_offset);
+        if( upc_size ){
+          i = upc_offset + upc_size;
+          while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
+          if( i>=end ){
+            upc_size = 0;  /* naked classlist is treated as plain text */
+            i = j;
+          }else{
+            j = i;
+          }
+        }
+      }
       while( i<end && data[i]!='\n' && data[i]!='\r' ) i++;
       blob_append(&fn.text, data+j, i-j);
       if( i>=end ) break;
@@ -2472,6 +2573,11 @@ footnote_finish:
   if( last ) *last = i;
   if( footnotes ){
     fn.defno = COUNT_FOOTNOTES( footnotes );
+    if( upc_size ){
+      assert( upc_offset );
+      assert( upc_offset+upc_size < end );
+      blob_append(&fn.upc, data+upc_offset, upc_size);
+    }
     blob_append(footnotes, (char *)&fn, sizeof fn);
   }
   return 1;
@@ -2682,6 +2788,7 @@ void markdown(
         assert( !x->nUsed );
         assert( !x->bRndred );
         assert( (&x->id) + 1 == &x->text ); /* see html_footnote_item() */
+        assert( (&x->upc)- 1 == &x->text );
         rndr.make.footnote_item(all_items,&x->text,0,0,rndr.make.opaque);
       }
       rndr.make.footnotes(ob, all_items, rndr.make.opaque);
@@ -2706,6 +2813,7 @@ void markdown(
   end = COUNT_FOOTNOTES( allNotes );
   for(i=0; i<end; i++){
     if(blob_size(&fn[i].id)) blob_reset(&fn[i].id);
+    if(blob_size(&fn[i].upc)) blob_reset(&fn[i].upc);
     blob_reset(&fn[i].text);
   }
   blob_reset(&rndr.notes.all);
