@@ -456,9 +456,9 @@ int http_exchange(
                           "application/x-fossil-uncompressed", -1)==0 ){
         isCompressed = 0;
       }else{
-        if( (mHttpFlags & HTTP_GENERIC)==0
-         && fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0
-        ){
+        if( mHttpFlags & HTTP_GENERIC ){
+          if( mHttpFlags & HTTP_NOCOMPRESS ) isCompressed = 0;
+        }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
           isError = 1;
         }
       }
