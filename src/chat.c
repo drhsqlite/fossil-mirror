@@ -1087,7 +1087,10 @@ void chat_command(void){
       nChat = db_int(0, "SELECT count(*) FROM chatbu.chat");
       fossil_print("Got %d new records, %d bytes\n", nChat, blob_size(&down));
       db_multi_exec(
-        "REPLACE INTO repository.chat SELECT * FROM chatbu.chat;"
+        "REPLACE INTO repository.chat(msgid,mtime,lmtime,xfrom,xmsg,"
+                                     "fname,fmime,mdel,file)"
+        " SELECT msgid,mtime,lmtime,xfrom,xmsg,fname,fmime,mdel,file"
+          " FROM chatbu.chat;"
       );
     }
   }else if( strcmp(g.argv[2],"url")==0 ){
