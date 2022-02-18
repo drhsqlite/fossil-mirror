@@ -2620,10 +2620,14 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 **    1.  If the subsequence is larger than 1/7th of the original span,
 **        then consider it valid.  --> return 1
 **
-**    2.  If the subsequence contains any charaters other than '}', '{",
-**        or whitespace, then consider it valid. --> return 1
+**    2.  If no lines of the subsequence contains more than one
+**        non-whitespace character,  --> return 0
 **
-**    3.  Otherwise, it is potentially an artifact of an indentation
+**    3.  If any line of the subsequence contains more than one non-whitespace
+**        character and is unique across the entire sequence after ignoring
+**        leading and trailing whitespace   --> return 1
+**
+**    4.  Otherwise, it is potentially an artifact of an indentation
 **        change. --> return 0
 */
 static int likelyNotIndentChngArtifact(
@@ -2633,16 +2637,71 @@ static int likelyNotIndentChngArtifact(
   int iEX,         /* First row past the end of the subsequence */
   int iE1          /* First row past the end of the main segment */
 ){
-  int i, j;
+  int i, j, n;
+
+  /* Rule (1) */
   if( (iEX-iSX)*7 >= (iE1-iS1) ) return 1;
+
+  /* Compute DLine.indent and DLine.nw for all lines of the subsequence.
+  ** If no lines contain more than one non-whitespace character return
+  ** 0 because the subsequence could be due to an indentation change.
+  ** Rule (2).
+  */
+  n = 0;
   for(i=iSX; i<iEX; i++){
-    const char *z = p->aFrom[i].z;
-    for(j=p->aFrom[i].n-1; j>=0; j--){
-      char c = z[j];
-      if( c!='}' && c!='{' && !diff_isspace(c) ) return 1;
+    DLine *pA = &p->aFrom[i];
+    if( pA->nw==0 && pA->n ){
+      const char *zA = pA->z;
+      const int nn = pA->n;
+      int ii, jj;
+      for(ii=0; ii<nn && diff_isspace(zA[ii]); ii++){}
+      pA->indent = ii;
+      for(jj=nn-1; jj>ii && diff_isspace(zA[jj]); jj--){}
+      pA->nw = jj - ii + 1;
+    }
+    if( pA->nw>1 ) n++;
+  }
+  if( n==0 ) return 0;
+
+  /* Compute DLine.indent and DLine.nw for the entire sequence */
+  for(i=iS1; i<iE1; i++){
+    DLine *pA;
+    if( i==iSX ){
+      i = iEX;
+      if( i>=iE1 ) break;
+    }
+    pA = &p->aFrom[i];
+    if( pA->nw==0 && pA->n ){
+      const char *zA = pA->z;
+      const int nn = pA->n;
+      int ii, jj;
+      for(ii=0; ii<nn && diff_isspace(zA[ii]); ii++){}
+      pA->indent = ii;
+      for(jj=nn-1; jj>ii && diff_isspace(zA[jj]); jj--){}
+      pA->nw = jj - ii + 1;
     }
   }
-  return 0;
+
+  /* Check to see if any subsequence line that has more than one
+  ** non-whitespace character is unique across the entire sequence.
+  ** Rule (3)
+  */
+  for(i=iSX; i<iEX; i++){
+    const char *z = p->aFrom[i].z + p->aFrom[i].indent;
+    const int nw = p->aFrom[i].nw;
+    if( nw<=1 ) continue;
+    for(j=iS1; j<iSX; j++){
+      if( p->aFrom[j].nw!=nw ) continue;
+      if( memcmp(p->aFrom[j].z+p->aFrom[j].indent,z,nw)==0 ) break;
+    }
+    if( j<iSX ) continue;
+    for(j=iEX; j<iE1; j++){
+      if( p->aFrom[j].nw!=nw ) continue;
+      if( memcmp(p->aFrom[j].z+p->aFrom[j].indent,z,nw)==0 ) break;
+    }
+    if( j>=iE1 ) break;
+  }
+  return i<iEX;
 }
 
 
