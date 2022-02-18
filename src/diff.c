@@ -2591,7 +2591,7 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 }
 
 /*
-** A common subsequene between p->aFrom and p->aTo has been found.
+** A common subsequence between p->aFrom and p->aTo has been found.
 ** This routine tries to judge if the subsequence really is a valid
 ** match or rather is just an artifact of an indentation change.
 **
