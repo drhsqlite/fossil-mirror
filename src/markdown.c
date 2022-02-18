@@ -2715,6 +2715,7 @@ void markdown(
       rndr.notes.all = filtered;
       rndr.notes.nLbled = n;
       assert( COUNT_FOOTNOTES(allNotes) == rndr.notes.nLbled );
+      g.ftntsIssues[2] += nDups;
     }
   }
   fn = CAST_AS_FOOTNOTES( allNotes );
@@ -2782,6 +2783,7 @@ void markdown(
       if( rndr.notes.misref.nUsed ){
         rndr.make.footnote_item(all_items, 0, -1,
                     rndr.notes.misref.nUsed, rndr.make.opaque);
+        g.ftntsIssues[0] += rndr.notes.misref.nUsed;
       }
       while( ++j < COUNT_FOOTNOTES(notes) ){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + j;
@@ -2790,6 +2792,7 @@ void markdown(
         assert( (&x->id) + 1 == &x->text ); /* see html_footnote_item() */
         assert( (&x->upc)- 1 == &x->text );
         rndr.make.footnote_item(all_items,&x->text,0,0,rndr.make.opaque);
+        g.ftntsIssues[1]++;
       }
       rndr.make.footnotes(ob, all_items, rndr.make.opaque);
       release_work_buffer(&rndr, all_items);

@@ -1,5 +1,5 @@
-C If\sa\sfootnote's\stext\sstarts\swith\sa\stoken\sof\sthe\sspecial\sform\nthen\suse\sthis\stoken\sto\sderive\sa\sset\sof\sCSS\sclasses\sthat\sare\sadded\nto\sthat\sfootnote\sand\sits\sreferences.\nThis\senables\susers\sto\sstyle\selements\sof\sa\sparticular\sfootnote\nprovided\sthat\sthe\sadministrator\sprovisioned\sand\sdocumented\nsome\sspecial\sCSS\sclasses\sin\sa\scustum\sskin.\nDefault\sskin\sdoes\snot\sprovide\sany\sof\ssuch\sspecial\sclasses\nwhich\smakes\sthis\sfeature\san\s"opt-in".
-D 2022-02-17T22:09:07.875
+C Add\s<code>--lint-footnotes</code>\soption\sto\sthe\s<code>test-markdown-render</code>\ncommand.\sIf\sthis\sflag\sis\sgiven\sand\sfootnotes\sin\sthe\sinput\shave\sissues,\sthen\nprint\sto\s<var>stderr</var>\sthe\scounters\sof\s"misrefs",\s"strays"\sand\s"split-defs"\nand\sexit\swith\serror.\sThis\sshould\spartially\saddress\sa\sconcern\n[forum:/forumpost/119b0be29a2b096b|raised\sat\sthe\sforum].
+D 2022-02-18T01:33:29.480
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,10 +512,10 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 1b560149a4277cff7f7fcc9a3c377561d0cde0c3bd403dc7cd681f5e0ec31ca4
+F src/main.c c4e5b1b1d0c8c563cf2117c7894eb888bfd78652ee8c8765aae179f238f95b6b
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 8ae95ea4f13cde8d77a4d62159801831d729c295327af2a35ae1db306fc5cdde
+F src/markdown.c f121314916dfe8cdf666de7730f1b719b231f9b4580d7aa02b61bed934222b54
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
 F src/markdown_html.c 909cd7a9da4e49e739c7cb7c284ee13b38e12fb6b7bc69cc1f78d7c3ede20414
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
@@ -606,7 +606,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
+F src/wikiformat.c 22a1f02c339292b9bdddb189051399f1906ca4f4e608397d8470e0420c5678bf
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c dadaf755f21931398be2aaf956177fb6c02a3c757b4d5e02c0e6741fce074221
 F src/xfer.c 57932b933b3a4b437d57b1dde6a82074c6dd56519031ba807a10d762e0332739
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a62c876896ae11002ba464a71fc92ef94a191be617042923dd0dd4db5dd461d3
-R ab89cc1546547634eb6b681c45f9744b
+P 92516ced8b0371a8b4df0a8775cfd2683b27c73f1d3ffdcdf8971a79da44bc86
+R 8167c05d05ac558b196db710008f32eb
 U george
-Z 8ff392132bff1cf0890ad1660bbd8897
+Z 035bc426a39359e3e0a84c0e095d8704
 # Remove this line to create a well-formed Fossil manifest.
