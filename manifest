@@ -1,5 +1,5 @@
-C Improved\sdiff\salignment\sfollowing\san\sindentation\schange.\s\sThe\sobjective\nof\sthis\schange\sis\sto\simprove\sthe\sdiff\soutput\sfor\sof\sthe\s[a36dd09d17f3057f]\ncheck-in.
-D 2022-02-18T15:23:24.501
+C Add\sthe\s"fossil\schat\sbackup"\scommand\sand\sthe\s"/chat-backup"\swebpage\sto\nsupport\sit.
+D 2022-02-18T20:25:15.823
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -417,7 +417,7 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c b10651443f5c35ae2d8968fe93f90f82b0af88962d2cf2c7d8a8638f230933f8
-F src/chat.c 945f4a5cb866b5cec32d8043fdb8226bb73aa1ea04cf142e8572857530e10573
+F src/chat.c 8591f5f76322d2fc917bdc4f3ecebcd8c858c531c2f00f3743d2119a1985b7a8
 F src/checkin.c 4dc8519e881827fd2ca6cc243045c32fe77e92460749b929a432b78acaa5c018
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2aed163ac6e7a8f84679ab39517b2ef2f4e7722ed439b9d2267f5f998c3da63
-R 5c89dd04bcd9b44b65cc4bea4fc10134
+P 868d1608382a9bb11c594bd88f4de8c41e9f63c45fb46e05942c35fc9cfe457a
+R 913d24813f1393ed86e3f36a43a2712c
 U drh
-Z 42f0515ed90d01c52cba2a9100d2ece7
+Z 93e3e118e307048382462ce7fdb7bb64
 # Remove this line to create a well-formed Fossil manifest.
