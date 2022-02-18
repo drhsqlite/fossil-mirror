@@ -1,5 +1,5 @@
-C For\s"fossil\schat\sbackup",\swhen\stransfering\scontent\sfrom\sthe\stransfer\stable\ninto\sthe\srepository,\sbe\sexplicit\sabout\scolumn\snames,\sas\sthe\scolumn\snames\smight\nbe\sin\sa\sdifferent\sorder.
-D 2022-02-18T20:32:27.987
+C Rename\sthe\s"fossil\schat\sbackup"\scommand\sto\s"fossil\schat\spull".
+D 2022-02-18T20:49:05.623
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -417,7 +417,7 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c b10651443f5c35ae2d8968fe93f90f82b0af88962d2cf2c7d8a8638f230933f8
-F src/chat.c beadb739d3fcc95aa520b1cb2c092226e846a76641a7fdbc5bba08c7168079c2
+F src/chat.c 7fde154a7bc901fd53492921a3b3b118a6cf77e557b92440190ffd436bef246b
 F src/checkin.c 4dc8519e881827fd2ca6cc243045c32fe77e92460749b929a432b78acaa5c018
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1827a314878fecb2d105e5fe3c67839bbd9e7c3969039e0b1bc6d1ff0ad3234c
-R a2b1b2b4366051277c1df89d6b010141
+P e983a7dc93296217125440af60edfe2c8f54fc43d328e490b75bcba5e8eeaba4
+R 0a7500330178e86865afa6381d68c7f9
 U drh
-Z 38dd8c30381a59a60a93ab8a47be2306
+Z 34830b2422655c7b0720657a2622b132
 # Remove this line to create a well-formed Fossil manifest.

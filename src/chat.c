@@ -824,6 +824,8 @@ void chat_delete_webpage(void){
 ** Download an SQLite database containing all chat content with a
 ** message-id larger than the "msgid" query parameter.  Setup
 ** privilege is required to use this URL.
+**
+** This is used to implement the "fossil chat pull" command.
 */
 void chat_backup_webpage(void){
   int msgid;
@@ -870,10 +872,10 @@ void chat_backup_webpage(void){
 **      typing the appropriate URL into the web-browser yourself.  This
 **      command is merely a convenience for command-line oriented people.
 **
-** > fossil chat backup
+** > fossil chat pull
 **
 **      Copy chat content from the server down into the local clone,
-**      as a backup.  Setup privilege is required on the server.
+**      as a backup or archive.  Setup privilege is required on the server.
 **
 **        --all                  Download all chat content. Normally only
 **                               previously undownloaded content is retrieved.
@@ -1025,7 +1027,7 @@ void chat_command(void){
       fossil_fatal("unable to send the chat message");
     }
     blob_reset(&down);
-  }else if( strcmp(g.argv[2],"backup")==0 ){
+  }else if( strcmp(g.argv[2],"pull")==0 ){
     /* Pull the CHAT table from the default server down into the repository
     ** here on the local side */
     int allowUnsafe = find_option("unsafe",0,0)!=0;
