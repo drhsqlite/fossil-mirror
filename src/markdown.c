@@ -1240,12 +1240,14 @@ static size_t char_footnote(
   size_t end;
   const struct footnote* fn;
 
-  if( size<4 || data[1]!='^' || !rndr->make.footnote_ref ) return 0;
+  if( size<4 || data[1]!='^' ) return 0;
   end = matching_bracket_offset(data, data+size);
   if( !end ) return 0;
   fn = add_inline_footnote(rndr, data+2, end-2);
   if( !fn ) return 0;
-  rndr->make.footnote_ref(ob,0,&fn->upc,fn->iMark,1,rndr->make.opaque);
+  if( rndr->make.footnote_ref ){
+    rndr->make.footnote_ref(ob,0,&fn->upc,fn->iMark,1,rndr->make.opaque);
+  }
   return end+1;
 }
 
@@ -1376,7 +1378,7 @@ static size_t char_link(
     if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='!' ) ob->nUsed--;
     ret = rndr->make.image(ob, link, title, content, rndr->make.opaque);
   }else if(fn){
-    if(rndr->make.footnote_ref){
+    if( rndr->make.footnote_ref ){
       ret = rndr->make.footnote_ref(ob, content, &fn->upc, fn->iMark, fn->nUsed,
                                     rndr->make.opaque);
     }
