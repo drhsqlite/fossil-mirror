@@ -1,5 +1,5 @@
-C Add\s<code>--lint-footnotes</code>\soption\sto\sthe\s<code>test-markdown-render</code>\ncommand.\sIf\sthis\sflag\sis\sgiven\sand\sfootnotes\sin\sthe\sinput\shave\sissues,\sthen\nprint\sto\s<var>stderr</var>\sthe\scounters\sof\s"misrefs",\s"strays"\sand\s"split-defs"\nand\sexit\swith\serror.\sThis\sshould\spartially\saddress\sa\sconcern\n[forum:/forumpost/119b0be29a2b096b|raised\sat\sthe\sforum].
-D 2022-02-18T01:33:29.480
+C Handle\ssome\scorner\scases\smore\sthoroughly:\sdismiss\sempty\sfootnotes,\npassthrough\s(more\scarefully)\suser-provided\sclasslist\sif\sthe\stoken\nis\snot\sfollowed\sby\sa\sblank\scharacter\sor\sif\sa\sfootnote's\stext\sconsists\njust\sof\ssuch\stoken\sand\sblank\scharacters.\sAlso\ssimplify\sa\slittle\sbit\na\sfew\splaces\sinside\sof\s<code>is_footnote()</code>\sfunction.
+D 2022-02-19T01:00:36.954
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -515,7 +515,7 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c c4e5b1b1d0c8c563cf2117c7894eb888bfd78652ee8c8765aae179f238f95b6b
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c f121314916dfe8cdf666de7730f1b719b231f9b4580d7aa02b61bed934222b54
+F src/markdown.c 373b9c39715f3942c9ad63144bd776f6ccef7f3ea14d0afcde1f432689234386
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
 F src/markdown_html.c 909cd7a9da4e49e739c7cb7c284ee13b38e12fb6b7bc69cc1f78d7c3ede20414
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
@@ -635,7 +635,7 @@ F test/json.test ef5f080b4c1853ad2433bbb591c86759b497019137ce4296b9a8704ab426bec
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
-F test/markdown-test3.md 8bee0450ee49096dcf934465b537bedca2ba81af5ae7d8897e4f76b40dc41d8c
+F test/markdown-test3.md d8b201e3ec341fa9c81dfa6eb915907d618fea9d34582d35352f74bdf45a001f
 F test/merge1.test b7b347a2faf5a6dba2eb1a57f2c6099f65541c2ddb730e5030d700dc9265b334
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 3ff4854352bea3e262d2710abadc8e85a5754734cc25072e21c400e65cff22ec
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92516ced8b0371a8b4df0a8775cfd2683b27c73f1d3ffdcdf8971a79da44bc86
-R 8167c05d05ac558b196db710008f32eb
+P 1f525713ff85cf5fc1ef0c61521c298bbb330eef69e073f01fc194c27ad2067a
+R 2618c01e8fb837b4779059275fdf07eb
 U george
-Z 035bc426a39359e3e0a84c0e095d8704
+Z 3f7b8e24dcb2d7022ae2376c3fd3c314
 # Remove this line to create a well-formed Fossil manifest.

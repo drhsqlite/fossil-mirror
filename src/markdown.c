@@ -1106,14 +1106,19 @@ cleanup:
 
 /* Counts characters in the blank prefix within at most nHalfLines.
 ** A sequence of spaces and tabs counts as odd halfline,
-** a newline counts as even halfline
+** a newline counts as even halfline.
+** If nHalfLines < 0 then procceed without constrains.
 */
-static inline size_t count_whitespaces(
+static inline size_t sizeof_blank_prefix(
   const char *data, size_t size, int nHalfLines
 ){
   const char *p = data;
   const char * const end = data+size;
-  while( nHalfLines > 0 ){
+  if( nHalfLines < 0 ){
+    while( p!=end && fossil_isspace(*p) ){
+      p++;
+    }
+  }else while( nHalfLines > 0 ){
     while( p!=end && (*p==' ' || *p=='\t' ) ){ p++; }
     if( p==end || --nHalfLines == 0 ) break;
     if( *p=='\n' || *p=='\r' ){
@@ -1125,7 +1130,7 @@ static inline size_t count_whitespaces(
     }
     nHalfLines--;
   }
-  return (size_t)(p-data);
+  return p-data;
 }
 
 /* Check if the data starts with a classlist token of the special form.
@@ -1134,20 +1139,26 @@ static inline size_t count_whitespaces(
 ** The token must start with a dot and must end with a colon;
 ** in between of these it must be a dot-separated list of words;
 ** each word may contain only alphanumeric characters and hyphens.
+**
+** If `bBlank` is non-zero then a blank character must follow
+** the token's ending colon: otherwise function returns 0
+** despite of the well-formed token.
 */
-size_t is_footnote_classlist(const char * const data, size_t size){
+size_t is_footnote_classlist(const char * const data, size_t size, int bBlank){
   const char *p;
   const char * const end = data+size;
   if( data==end || *data != '.' ) return 0;
   for(p=data+1; p!=end; p++){
     if( fossil_isalnum(*p) || *p=='-' ) continue;
     if( *p==':' ){
-      return p[-1]!='.' ? (size_t)(p-data)+1 : 0;
+      if( p[-1]=='.' ) break;
+      p++;
+      if( bBlank ){
+        if( p==end || !fossil_isspace(*p) ) break;
+      }
+      return p-data;
     }
-    if( *p=='.' ){
-      if( p[-1]!='.' ) continue;
-      else break;
-    }
+    if( *p=='.' && p[-1]!='.' ) continue;
     break;
   }
   return 0;
@@ -1163,29 +1174,23 @@ static inline const struct footnote* add_inline_footnote(
 ){
   struct footnote fn = FOOTNOTE_INITIALIZER;
   const char *zUPC = 0;
-  size_t nUPC = 0, n = count_whitespaces(text, size, 3);
+  size_t nUPC = 0, n = sizeof_blank_prefix(text, size, 3);
   if( n >= size ) return 0;
   text += n;
   size -= n;
-  n = is_footnote_classlist(text, size);
-  if( n && n < size ){
-    nUPC = n;
+  nUPC = is_footnote_classlist(text, size, 1);
+  if( nUPC ){
+    assert( nUPC<size );
     zUPC = text;
     text += nUPC;
     size -= nUPC;
-    n = count_whitespaces(text, size, 3);
-    /* naked classlist is treated as plain text */
-    if( n >= size || text[n]=='\n' || text[n]=='\r' ){
-      size += nUPC;
-      nUPC = 0;
-      text = zUPC;
-      zUPC = 0;
-    }else{
-      text += n;
-      size -= n;
-    }
   }
-  if(!size) return 0;
+  if( sizeof_blank_prefix(text,size,-1)==size ){
+    if( !nUPC ) return 0; /* empty inline footnote */
+    text = zUPC;
+    size = nUPC;          /* bare classlist is treated */
+    nUPC = 0;             /* as plain text */
+  }
   fn.iMark = ++(rndr->notes.nMarks);
   fn.nUsed  = 1;
   fn.index  = COUNT_FOOTNOTES(&rndr->notes.all);
@@ -1239,7 +1244,8 @@ static size_t char_footnote(
   end = matching_bracket_offset(data, data+size);
   if( !end ) return 0;
   fn = add_inline_footnote(rndr, data+2, end-2);
-  if(fn) rndr->make.footnote_ref(ob,0,&fn->upc,fn->iMark,1,rndr->make.opaque);
+  if( !fn ) return 0;
+  rndr->make.footnote_ref(ob,0,&fn->upc,fn->iMark,1,rndr->make.opaque);
   return end+1;
 }
 
@@ -2464,7 +2470,7 @@ static int is_footnote(
   size_t *last,       /* last character of the link */
   struct Blob * footnotes
 ){
-  size_t i, id_offset, id_end, upc_offset = 0, upc_size = 0;
+  size_t i, id_offset, id_end, upc_offset, upc_size;
   struct footnote fn = FOOTNOTE_INITIALIZER;
 
   /* failfast if data is too short */
@@ -2492,22 +2498,14 @@ static int is_footnote(
 
   if( build_ref_id(&fn.id, data+id_offset, id_end-id_offset)<0 ) return 0;
 
-  /* footnote's text may start on the same line */
-  upc_offset = 0;
+  /* footnote's text may start on the same line after [^id]: */
+  upc_offset = upc_size = 0;
   if( data[i]!='\n' && data[i]!='\r' ){
-    upc_offset = i;    /* prevent a retry on the second line */
-    upc_size = is_footnote_classlist(data+i,end-i);
-    if( upc_size ){
-      i += upc_size;
-      while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
-      if( i>=end ){
-        upc_size = 0;  /* naked classlist is treated as plain text */
-        i = upc_offset;
-      }
-    }
-  }
-  if( data[i]!='\n' && data[i]!='\r' ){
-    const size_t j = i;
+    size_t j;
+    upc_size = is_footnote_classlist(data+i, end-i, 1);
+    upc_offset = i; /* prevent further checks for a classlist */
+    i += upc_size;
+    j = i;
     do i++; while( i<end && data[i]!='\n' && data[i]!='\r' );
     blob_append(&fn.text, data+j, i-j);
     if( i<end ){
@@ -2537,22 +2535,15 @@ static int is_footnote(
     while( i+indent<end && memcmp(data+i,spaces,indent)==0 ){
       size_t j;
       i += indent;
-      j = i;
       if( !upc_offset ){
         /* a classlist must be provided no later than at the 2nd line */
-        upc_offset = i + count_whitespaces(data+i, end-i, 1);
-        upc_size = is_footnote_classlist(data+upc_offset, end-upc_offset);
+        upc_offset = i + sizeof_blank_prefix(data+i, end-i, 1);
+        upc_size = is_footnote_classlist(data+upc_offset, end-upc_offset, 1);
         if( upc_size ){
           i = upc_offset + upc_size;
-          while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
-          if( i>=end ){
-            upc_size = 0;  /* naked classlist is treated as plain text */
-            i = j;
-          }else{
-            j = i;
-          }
         }
       }
+      j = i;
       while( i<end && data[i]!='\n' && data[i]!='\r' ) i++;
       blob_append(&fn.text, data+j, i-j);
       if( i>=end ) break;
@@ -2569,13 +2560,22 @@ footnote_finish:
     blob_reset(&fn.id);
     return 0;
   }
+  if( !blob_trim(&fn.text) ){  /* if the content is all-blank */
+    if( upc_size ){            /* interpret UPC as plain text */
+      blob_append(&fn.text, data+upc_offset, upc_size);
+      upc_size = 0;
+    }else{
+      blob_reset(&fn.id);      /* or clean up and fail */
+      blob_reset(&fn.text);
+      return 0;
+    }
+  }
   /* a valid note has been found */
   if( last ) *last = i;
   if( footnotes ){
     fn.defno = COUNT_FOOTNOTES( footnotes );
     if( upc_size ){
-      assert( upc_offset );
-      assert( upc_offset+upc_size < end );
+      assert( upc_offset && upc_offset+upc_size<end );
       blob_append(&fn.upc, data+upc_offset, upc_size);
     }
     blob_append(footnotes, (char *)&fn, sizeof fn);

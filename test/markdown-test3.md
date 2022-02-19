@@ -65,6 +65,16 @@ when several footnotes are refenrenced at the end
 of a phrase.[^scipub][^many-refs](^All these four should
 be parsed as "free-standing" footnotes)[^Coelurosauria]
 
+A footnote may not be empty(^)
+or consist just of blank characters.(^        
+              )
+
+The same holds for labeled footnotes. If definition of a labeled footnote
+is blank then it is not accepted by the first pass of the parser and
+is recognized during the second pass as misreference.
+[^ This definition consists of just blanks ]:     
+     
+     
 <style>
   li.fn-upc-example span.fn-upc {
     border: solid 2px lightgreen;
@@ -79,6 +89,9 @@ be parsed as "free-standing" footnotes)[^Coelurosauria]
   sup.noteref.fn-upc-example,
   span.notescope.fn-upc-example sup.noteref {
     border: solid 2px lightgreen;
+[^duplicate]:
+      Labeled footnote definition may appear anywhere.
+      That part came from inside of an inline style definition.
     border-radius: 0.4em;
     padding: 2px;
   }
@@ -102,10 +115,16 @@ a special token that starts with dot and ends with colon.
    corresponding reference(s). Hypens ('-') are also allowed.
    Classes from the token are tranformed to lowercase and are prepended
    with `"fn-upc-"` to avoid collisions.
-)
+)  
 This feature is "*opt-in*": there is nothing wrong in starting a footnote's
 text with a token of that form while not defining any corresponding classes
 in the stylesheet.[^nostyle]
+If a footnote consists just of a valid userclass token then this token
+is not interpreted as such, instead it is emitted as plain text.
+(^  
+   .bare.classlist.inside.inline.footnote:  
+)[^bare1]
+[^bare2]
 
 ## Footnotes
 
@@ -148,6 +167,13 @@ in the stylesheet.[^nostyle]
 [^another stray]: Just to verify the correctness of ordering and styling.
 
 [^scipub]: Which is common in the scientific publications.
+
+[^bare1]:  .at.the.1st.line.of.labeled.footnote.definition:
+     
+
+[^bare2]:  
+           .at.the.2nd.line.of.labeled.footnote.definition:
+           
 
 [^nostyle]:
   .unused.classes:
