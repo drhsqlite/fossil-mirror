@@ -1150,16 +1150,15 @@ size_t is_footnote_classlist(const char * const data, size_t size, int bBlank){
   if( data==end || *data != '.' ) return 0;
   for(p=data+1; p!=end; p++){
     if( fossil_isalnum(*p) || *p=='-' ) continue;
+    if( p[-1]=='.' ) break;
     if( *p==':' ){
-      if( p[-1]=='.' ) break;
       p++;
       if( bBlank ){
         if( p==end || !fossil_isspace(*p) ) break;
       }
       return p-data;
     }
-    if( *p=='.' && p[-1]!='.' ) continue;
-    break;
+    if( *p!='.' ) break;
   }
   return 0;
 }
@@ -2701,6 +2700,7 @@ void markdown(
         }
         blob_append_string(&list, "</ul>\n");
         x->text = list;
+        g.ftntsIssues[2]++;
       }
       i = j;
     }
@@ -2717,7 +2717,6 @@ void markdown(
       rndr.notes.all = filtered;
       rndr.notes.nLbled = n;
       assert( COUNT_FOOTNOTES(allNotes) == rndr.notes.nLbled );
-      g.ftntsIssues[2] += nDups;
     }
   }
   fn = CAST_AS_FOOTNOTES( allNotes );

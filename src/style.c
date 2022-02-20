@@ -783,6 +783,11 @@ static void style_init_th1_vars(const char *zTitle){
     Th_Store("login", g.zLogin);
   }
   Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
+  if( g.ftntsIssues[0] || g.ftntsIssues[1] || g.ftntsIssues[2] ){
+    char buf[64];
+    sprintf(&buf[0],"%i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],g.ftntsIssues[2]);
+    Th_Store("footnotes_issues_counters", buf);
+  }
 }
 
 /*
