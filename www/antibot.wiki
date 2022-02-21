@@ -1,6 +1,6 @@
 <title>Defense Against Robots</title>
 
-A typical Fossil website can have billions of pages, and many of
+A typical Fossil website can have millions of pages, and many of
 those pages (for example diffs and annotations and tarballs) can
 be expensive to compute.
 If a robot walks a Fossil-generated website,

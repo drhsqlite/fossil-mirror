@@ -1,5 +1,5 @@
-C Per\schat\sdiscussion\sand\s[forum:fd49a822db5bc522\s|\sforum\spost\sfd49a822db5bc522],\sremoved\sPellesC\sbuild\sfrom\smakemake.tcl\sand\sthe\scorresponding\smakefile.
-D 2022-02-21T20:36:40.847
+C antibot.wiki:\schanged\s'billions'\sto\s'millions',\sper\s/chat\sdiscussion.
+D 2022-02-21T20:44:15.370
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -774,7 +774,7 @@ F www/aboutcgi.wiki ce21bace27dc5b36a4134246014e6ec1e37dcedd7f2cf2f057a043fea086
 F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
 F www/adding_code.wiki 8c0f5442792cc531f8b923622f50d58dd8f837dd63afc6b851f2b14be526ff1d
 F www/alerts.md 15f2758b9b922c5c1ff835e82e939ca0034f0ac87cf4931eac79fc3284c272c2
-F www/antibot.wiki 06dcac68ec73de88a4d2977912cd984e0ae74b26dc665196ac33a9464dec092d
+F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b4a729b71a0c365979a71a9c3e6fe2f76088c961d214ba12593948f8ef98bc8
-R f28cbd8b64d5dc230a2a684c60870e64
+P fcb33239b52340eed1b596ae96774f11c9c17d1f9a3240355b1b0d2913aea867
+R c962b5fab2fa42af29d266d8204592d3
 U stephan
-Z e6e5a445ab4e14964a98dc52bcee0472
+Z 83af8f6267f78c5769a8846bc553dc34
 # Remove this line to create a well-formed Fossil manifest.
