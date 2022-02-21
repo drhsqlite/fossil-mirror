@@ -470,25 +470,31 @@ static void html_footnote_item(
     }
     BLOB_APPEND_LITERAL(ob,"</sup>\n<span>Misreference</span>");
 
-  }else if( nUsed ){                   /* a regular footnote */
+  }else if( iMark > 0 ){               /* a regular footnote */
     char pos[24];
-    const char *join = "";
+    int bJoin = 0;
     /* make.footnote_item() invocations should pass args accordingly */
     const struct Blob * upc = text+1;
     #define _joined_footnote_indicator "<ul class='fn-joined'>"
     #define _jfi_sz (sizeof(_joined_footnote_indicator)-1)
     assert( text );
     assert( blob_size(text) );
-    if( blob_size(text)>=_jfi_sz &&
-       !memcmp(blob_buffer(text),_joined_footnote_indicator,_jfi_sz)){
-      join = "fn-joined ";
-    }
     memset(pos,0,24);
     sprintf(pos, "%s-%i", unique, iMark);
-    blob_appendf(ob, "<li id='footnote%s' class='%s", pos, join);
-    append_footnote_upc(ob, upc, 0);
 
-    if( nUsed == 1 ){
+    blob_appendf(ob, "<li id='footnote%s' class='", pos);
+    if( nUsed ){
+      if( blob_size(text)>=_jfi_sz &&
+         !memcmp(blob_buffer(text),_joined_footnote_indicator,_jfi_sz)){
+        bJoin = 1;
+        BLOB_APPEND_LITERAL(ob, "fn-joined ");
+      }
+      append_footnote_upc(ob, upc, 0);
+    }else{
+      BLOB_APPEND_LITERAL(ob, "fn-toodeep ");
+    }
+
+    if( nUsed <= 1 ){
       BLOB_APPEND_LITERAL(ob, "fn-monoref'><sup class='fn-backrefs'>");
       blob_appendf(ob,"<a id='footnote%s-a' href='", pos);
       BLOB_APPEND_URI(ob, ctx);
@@ -514,11 +520,16 @@ static void html_footnote_item(
     }
     BLOB_APPEND_LITERAL(ob,"</sup>\n");
     append_footnote_upc(ob, upc, 1);
-    if( join[0] ){
+    if( bJoin ){
       BLOB_APPEND_LITERAL(ob,"<sup class='fn-joined'></sup><ul>");
       blob_append(ob,blob_buffer(text)+_jfi_sz,blob_size(text)-_jfi_sz);
-    }else{
+    }else if( nUsed ){
       BLOB_APPEND_BLOB(ob, text);
+    }else{
+      BLOB_APPEND_LITERAL(ob,"<i></i>\n"
+          "<pre><code class='language-markdown'>");
+      html_escape(ob, blob_buffer(text), blob_size(text));
+      BLOB_APPEND_LITERAL(ob,"</code></pre>");
     }
     #undef _joined_footnote_indicator
     #undef _jfi_sz
@@ -526,6 +537,7 @@ static void html_footnote_item(
     /* a footnote was defined but wasn't used */
     /* make.footnote_item() invocations should pass args accordingly */
     const struct Blob * id = text-1;
+    assert( !nUsed );
     assert( text );
     assert( blob_size(text) );
     assert( blob_size(id) );

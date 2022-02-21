@@ -126,6 +126,50 @@ is not interpreted as such, instead it is emitted as plain text.
 )[^bare1]
 [^bare2]
 
+<html>
+  Click
+  <a href="?a=B&quote='&nonASCII=😂&script=<script>alert('Broken!');</script>">
+  here</a> and
+  <a href='?a=B&quote="&nonASCII=😂&script=<script>alert("Broken!");</script>'>
+  here</a>
+  to test escaping of REQUEST_URI in the generated footnote markers.
+</html>
+
+A depth of nesting must be limited.
+(^
+ A long chain of nested inline footnotes...
+ (^
+  is a rather unusual thing...
+  (^
+   and requires extra CPU cycles for processing.
+   (^
+    Theoretically speaking O(n<sup>2</sup>).
+    (^
+     Thus it is worth dismissing those footnotes...
+     (^
+      that are nested deeper than on a certain level.
+      (^
+       A particular value for that limit...
+       (^
+        is hard-coded in src/markdown.c ...
+        (^
+         in function `markdown()` ...
+         (^
+          in variable named `maxDepth`.
+          (^
+           For the time being, its value is **5**
+          )
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+)
+
 ## Footnotes
 
 [branch]: /timeline?r=markdown-footnotes&nowiki
@@ -179,3 +223,10 @@ is not interpreted as such, instead it is emitted as plain text.
   .unused.classes:
   In that case text of the footnote just looks like as if
   no special processing occured.
+
+
+[^ <script>alert("You have been pwned!");</script> ]: Labels are escaped
+
+[^ <textarea>"Last words here...' ]:
+  <textarea>Content is also escaped</textarea>
+

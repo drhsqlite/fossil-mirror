@@ -2734,7 +2734,7 @@ void markdown(
     /* Footnotes must be parsed for the correct discovery of (back)links */
     Blob *notes = new_work_buffer( &rndr );
     Blob *tmp   = new_work_buffer( &rndr );
-    int nMarks = -1;
+    int nMarks = -1, maxDepth = 5;
 
     /* inline notes may get appended to rndr.notes.all while rendering */
     while(1){
@@ -2747,7 +2747,7 @@ void markdown(
       aNotes = CAST_AS_FOOTNOTES(notes);
       qsort(aNotes, N, sizeof(struct footnote), cmp_footnote_sort);
 
-      if( nMarks == rndr.notes.nMarks ) break;
+      if( --maxDepth < 0 || nMarks == rndr.notes.nMarks ) break;
       nMarks = rndr.notes.nMarks;
 
       for(i=0; i<N; i++){
@@ -2775,9 +2775,9 @@ void markdown(
       int j = -1;
       for(i=0; i<COUNT_FOOTNOTES(notes); i++){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + i;
-        if( x->bRndred ){
+        if( x->iMark ){
           rndr.make.footnote_item(all_items, &x->text, x->iMark,
-                                  x->nUsed, rndr.make.opaque);
+                   x->bRndred ? x->nUsed : 0, rndr.make.opaque);
           j = i;
         }
       }
@@ -2788,11 +2788,11 @@ void markdown(
       }
       while( ++j < COUNT_FOOTNOTES(notes) ){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + j;
-        assert( !x->nUsed );
+        assert( !x->iMark );
         assert( !x->bRndred );
         assert( (&x->id) + 1 == &x->text ); /* see html_footnote_item() */
         assert( (&x->upc)- 1 == &x->text );
-        rndr.make.footnote_item(all_items,&x->text,0,0,rndr.make.opaque);
+        rndr.make.footnote_item(all_items,&x->text,x->iMark,0,rndr.make.opaque);
         g.ftntsIssues[1]++;
       }
       rndr.make.footnotes(ob, all_items, rndr.make.opaque);

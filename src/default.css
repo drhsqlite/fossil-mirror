@@ -1685,6 +1685,7 @@ div.markdown ol.footnotes > li.fn-misreference {
   margin-top:    0.75em;
   margin-bottom: 0.75em;
 }
+div.markdown ol.footnotes > li.fn-toodeep > i,
 div.markdown ol.footnotes > li.fn-misreference,
 div.markdown ol.footnotes > li.fn-unreferenced {
   color: gray;
@@ -1704,12 +1705,19 @@ div.markdown ol.footnotes > li.fn-unreferenced > code {
 div.markdown ol.footnotes > li.fn-unreferenced > i::after {
   content: " was defined but is not referenced";
 }
+div.markdown ol.footnotes > li.fn-toodeep > i::after {
+  content: " depth of nesting of inline footnotes exceeded the limit";
+}
+div.markdown ol.footnotes > li.fn-toodeep > pre,
 div.markdown ol.footnotes > li.fn-unreferenced > pre {
   color: gray;
   font-size: 85%;
   padding-left: 0.5em;
   margin-top:  0.25em;
   border-left: 2px solid red;
+}
+div.markdown ol.footnotes > li.fn-toodeep > pre {
+  margin-left: 0.5em;
 }
 div.markdown > ol.footnotes > li > .fn-backrefs {
   margin-right: 0.5em;

@@ -1,5 +1,5 @@
-C If\sthe\sare\sissues\swith\sfootnotes\sthen\sset\sTH1\svariable\s<var>$footnotes_issues_counters</var>\nas\sa\sspace\sseparated\slist\sof\sintegers\sthat\scounts\sfor\s"misref",\s"unref"\sand\s"joins".\nThis\seliminates\sthe\sneed\sfor\sJavaScript\sfor\sthe\scase\swhen\sa\scustom\sskin\nwants\sto\s[forum:/forumpost/119b0be29a2b096b|warn\sabout\sissues\swith\sfootnotes]\nin\sthe\sheader\sof\sa\spage.<br>\nAlso\sfix\scounting\sof\s"joins":\scount\sthe\snumber\sof\sunique\slabels\sthat\shave\smultiple\ndefinitions\s(and\snot\sthe\snumber\sof\ssuch\sdefinitions).
-D 2022-02-20T23:00:54.135
+C Impose\sa\slimit\son\sthe\sdepth\sof\snesting\sof\sinline\sfootnotes.\nAlso\sadd\sa\sfew\stest\scases:\sfor\sdepth\slimiting\sand\sHTML\shijacking.
+D 2022-02-21T04:29:46.422
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 55d641d0c10ac800553c7e6dd233655e3fea3d5b2f4d4343408caaf216e7efa2
-F src/default.css 39eca070394505d229e022cfbd2257332ef7092b1d3f6106f7ec62601066951e
+F src/default.css dee3ed57ab541524284ae62cfad98df523a0cd50b194ccbf659bc26640755407
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -515,9 +515,9 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c c4e5b1b1d0c8c563cf2117c7894eb888bfd78652ee8c8765aae179f238f95b6b
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c 1e145862d9d41c062b448effabbecf3a120d9d17176be7b575f82da11f1e7fe5
+F src/markdown.c d9ea0b47dc0af5d8113376a7bcfa8b24bd0040bbac2836e0c778cee93682a692
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
-F src/markdown_html.c 909cd7a9da4e49e739c7cb7c284ee13b38e12fb6b7bc69cc1f78d7c3ede20414
+F src/markdown_html.c 8ceb33d132af5c5e9a4f579a098805155aa8ba661c9978d8a1c70fbbf773990a
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 02068d1648a62fd1dbe82ba187df460dd8ab83640e9728850a7c20f68effc21d
@@ -635,7 +635,7 @@ F test/json.test ef5f080b4c1853ad2433bbb591c86759b497019137ce4296b9a8704ab426bec
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
-F test/markdown-test3.md d8b201e3ec341fa9c81dfa6eb915907d618fea9d34582d35352f74bdf45a001f
+F test/markdown-test3.md 5b12f022f379e62f80ad7486b26aec251bf9e10f65e0b8a4f31254828fc30185
 F test/merge1.test b7b347a2faf5a6dba2eb1a57f2c6099f65541c2ddb730e5030d700dc9265b334
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 3ff4854352bea3e262d2710abadc8e85a5754734cc25072e21c400e65cff22ec
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e06c12d1760bf49c0358835c733bdb6e63ee95c04ddc4e92e2b3e588469b26a1
-R 0b26b756ef7a38496e419d27fdf03ad6
+P 773cef5cf78a80e95e166a72620f51dd12ee8e75a9467e5e97bd5c493cb60a69
+R 159085f0011f87f3bb59336969a431ff
 U george
-Z 259662d5961cc48775c0da853845151a
+Z 285769132a55589e9859d13fb4b04ad8
 # Remove this line to create a well-formed Fossil manifest.
