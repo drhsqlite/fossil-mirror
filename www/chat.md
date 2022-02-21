@@ -138,7 +138,7 @@ robots to send notifications to the chatroom.  For example, on the
 [SQLite project](https://sqlite.org/) (for which the Fossil chatroom
 feature, and indeed all of Fossil, was invented) there are long-running
 fuzz servers that sometimes run across obscure problems.  Whenever this
-happens, a message is sent to the SQLite developers chatroom altering
+happens, a message is sent to the SQLite developers chatroom alerting
 them to the problem.
 
 The recommended way to allow robots to send chat messages is to create
