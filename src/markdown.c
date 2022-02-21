@@ -2792,7 +2792,7 @@ void markdown(
         assert( !x->bRndred );
         assert( (&x->id) + 1 == &x->text ); /* see html_footnote_item() */
         assert( (&x->upc)- 1 == &x->text );
-        rndr.make.footnote_item(all_items,&x->text,x->iMark,0,rndr.make.opaque);
+        rndr.make.footnote_item(all_items,&x->text,0,0,rndr.make.opaque);
         g.ftntsIssues[1]++;
       }
       rndr.make.footnotes(ob, all_items, rndr.make.opaque);

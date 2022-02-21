@@ -336,10 +336,14 @@ static void html_table_row(
   BLOB_APPEND_LITERAL(ob, "  </tr>\n");
 }
 
+/* Render a token of user provided classes.
+** If bHTML is true then render HTML for (presumably) visible text,
+** otherwise just a space-separated list of the derived classes
+*/
 static void append_footnote_upc(
   struct Blob *ob,
   const struct Blob *upc,  /* token of user-provided classes */
-  int bHTML /* if true then render markup, otherwise just a list of classes */
+  int bHTML
 ){
   const char *z = blob_buffer(upc);
   int i, n = blob_size(upc);
