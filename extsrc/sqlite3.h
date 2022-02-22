@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.38.0"
 #define SQLITE_VERSION_NUMBER 3038000
-#define SQLITE_SOURCE_ID      "2022-02-15 13:23:09 9edaeed56f2282fd4da935454178c38ab49d259aed96d4e720aae09050a53006"
+#define SQLITE_SOURCE_ID      "2022-02-22 18:58:40 40fa792d359f84c3b9e9d6623743e1a59826274e221df1bde8f47086968a1bab"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4284,6 +4284,10 @@ SQLITE_API const char *sqlite3_normalized_sql(sqlite3_stmt *pStmt);
 ** be false.  ^Similarly, a CREATE TABLE IF NOT EXISTS statement is a
 ** read-only no-op if the table already exists, but
 ** sqlite3_stmt_readonly() still returns false for such a statement.
+**
+** ^If prepared statement X is an [EXPLAIN] or [EXPLAIN QUERY PLAN]
+** statement, then sqlite3_stmt_readonly(X) returns the same value as
+** if the EXPLAIN or EXPLAIN QUERY PLAN prefix were omitted.
 */
 SQLITE_API int sqlite3_stmt_readonly(sqlite3_stmt *pStmt);
 

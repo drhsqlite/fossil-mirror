@@ -5451,7 +5451,7 @@ int sqlite3_ieee_init(
   SQLITE_EXTENSION_INIT2(pApi);
   (void)pzErrMsg;  /* Unused parameter */
   for(i=0; i<sizeof(aFunc)/sizeof(aFunc[0]) && rc==SQLITE_OK; i++){
-    rc = sqlite3_create_function(db, aFunc[i].zFName, aFunc[i].nArg,	
+    rc = sqlite3_create_function(db, aFunc[i].zFName, aFunc[i].nArg,
                                SQLITE_UTF8|SQLITE_INNOCUOUS,
                                (void*)&aFunc[i].iAux,
                                aFunc[i].xFunc, 0, 0);
@@ -15324,6 +15324,7 @@ static const char *(azHelp[]) = {
   ".auth ON|OFF             Show authorizer callbacks",
 #endif
   ".backup ?DB? FILE        Backup DB (default \"main\") to FILE",
+  "   Options:",
   "       --append            Use the appendvfs",
   "       --async             Write to FILE without journal and fsync()",
   ".bail on|off             Stop after hitting an error.  Default OFF",
@@ -15471,7 +15472,7 @@ static const char *(azHelp[]) = {
   "                            that are not also INTEGER PRIMARY KEYs",
 #endif
   ".restore ?DB? FILE       Restore content of DB (default \"main\") from FILE",
-  ".save FILE               Write in-memory database into FILE",
+  ".save ?OPTIONS? FILE     Write database to FILE (an alias for .backup ...)",
   ".scanstats on|off        Turn sqlite3_stmt_scanstatus() metrics on or off",
   ".schema ?PATTERN?        Show the CREATE statements matching PATTERN",
   "   Options:",
