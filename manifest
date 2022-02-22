@@ -1,5 +1,5 @@
-C Adjustments\sto\sthe\s"/md_rules"\spage,\ssuggested\son\sthe\sSQLite\sforum:\n<https://sqlite.org/forum/forumpost/b8e93aa66d>
-D 2022-02-22T21:20:30.280
+C Improved\sorganization\sand\sgrouping\sof\sthe\schange\slist\sfor\sversion\s2.18.
+D 2022-02-22T21:44:43.564
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -797,7 +797,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki d0d3aea08e629167a61400c867b3aec3dc572a527df7252960a7ffb0780c6f0e
+F www/changes.wiki 3210df8ac018b6cd5f052461ea9260f92933fd56fccaaecac7cb8076d0be2bc5
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c55e0f6ca37836ffa67bc4684ab29269b7420b59dc7861b6f7c142a5b34ed22e
-R fea3709b958b95fe37ec9fd88b10d7e6
+P c5e4c8b63aed6f48329e7dc7d22986ab3b36af14f014d18b9a0a7a5690b083e2
+R c8dd1f99371f5d2dc2b4826cdbd1ef79
 U drh
-Z fd08432a1a60053919a0febae3203e00
+Z 871bcc076a89ec1d39b0c7e8ac51aa3c
 # Remove this line to create a well-formed Fossil manifest.
