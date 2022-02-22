@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.38.0\sfinal.
-D 2022-02-22T19:13:01.410
+C Adjustments\sto\sthe\s"/md_rules"\spage,\ssuggested\son\sthe\sSQLite\sforum:\n<https://sqlite.org/forum/forumpost/b8e93aa66d>
+D 2022-02-22T21:20:30.280
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -516,7 +516,7 @@ F src/main.c b747592d64ab9a47e62e77f2d72855acd4b2a9ff25d318c69f030bf241bc95da
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
-F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
+F src/markdown.md 70049b659cc0e36e8dab80ab622198b6b5353bf6bf8cd3c9218dcf12e8f36753
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 841c78d2cd94b193e34fac6dfd15b1d6e41fa62723215872ccd7f9b1a013d6f1
-R 85e3135ed6f9de56862fe3c93c1c9f91
+P c55e0f6ca37836ffa67bc4684ab29269b7420b59dc7861b6f7c142a5b34ed22e
+R fea3709b958b95fe37ec9fd88b10d7e6
 U drh
-Z 6f0df80e695899a78e6acab3eee74786
+Z fd08432a1a60053919a0febae3203e00
 # Remove this line to create a well-formed Fossil manifest.
