@@ -61,12 +61,13 @@ struct MarkdownToHtml {
    * the error is not overly explicit.
    */
 
-/* BLOB_APPEND_BLOB -- append blob contents to another */
-#define BLOB_APPEND_BLOB(dest, src) \
-  blob_append((dest), blob_buffer(src), blob_size(src))
+/* BLOB_APPEND_BLOB -- append blob contents to another
+** TODO: Refactor all invocations to use globall macro blob_appendb()
+*/
+#define BLOB_APPEND_BLOB(dest, src) blob_appendb((dest), (src))
 
 #ifndef FOOTNOTES_WITHOUT_URI
-  #define BLOB_APPEND_URI(dest,ctx) BLOB_APPEND_BLOB(dest,&((ctx)->reqURI))
+  #define BLOB_APPEND_URI(dest,ctx) blob_appendb(dest,&((ctx)->reqURI))
 #else
   #define BLOB_APPEND_URI(dest,ctx)
 #endif
@@ -406,7 +407,7 @@ static int html_footnote_ref(
       append_footnote_upc(ob, upc, 0);
       BLOB_APPEND_LITERAL(ob,"notescope' id='noteref");
       blob_appendf(ob,"%s'>",pos);
-      BLOB_APPEND_BLOB(ob, span);
+      blob_appendb(ob, span);
       blob_trim(ob);
       BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
@@ -426,7 +427,7 @@ static int html_footnote_ref(
     sprintf(pos, "%s-%s", ctx->unique.c, l.c);
     if(span && blob_size(span)) {
       blob_appendf(ob, "<span class='notescope' id='misref%s'>", pos);
-      BLOB_APPEND_BLOB(ob, span);
+      blob_appendb(ob, span);
       blob_trim(ob);
       BLOB_APPEND_LITERAL(ob, "<sup class='noteref misref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
@@ -528,12 +529,12 @@ static void html_footnote_item(
       blob_append(ob,blob_buffer(text)+_jfi_sz,blob_size(text)-_jfi_sz);
     }else if( nUsed ){
       append_footnote_upc(ob, upc, 1);
-      BLOB_APPEND_BLOB(ob, text);
+      blob_appendb(ob, text);
     }else{
       BLOB_APPEND_LITERAL(ob,"<i></i>\n"
           "<pre><code class='language-markdown'>");
       if( blob_size(upc) ){
-        BLOB_APPEND_BLOB(ob, upc);
+        blob_appendb(ob, upc);
       }
       html_escape(ob, blob_buffer(text), blob_size(text));
       BLOB_APPEND_LITERAL(ob,"</code></pre>");
@@ -552,7 +553,7 @@ static void html_footnote_item(
     BLOB_APPEND_LITERAL(ob, "</code>&nbsp;]<i></i>\n"
         "<pre><code class='language-markdown'>");
     if( blob_size(upc) ){
-      BLOB_APPEND_BLOB(ob, upc);
+      blob_appendb(ob, upc);
     }
     html_escape(ob, blob_buffer(text), blob_size(text));
     BLOB_APPEND_LITERAL(ob,"</code></pre>");
@@ -565,7 +566,7 @@ static void html_footnotes(
   if( items && blob_size(items) ){
     BLOB_APPEND_LITERAL(ob,
       "\n<hr class='footnotes-separator'/>\n<ol class='footnotes'>\n");
-    BLOB_APPEND_BLOB(ob, items);
+    blob_appendb(ob, items);
     BLOB_APPEND_LITERAL(ob, "</ol>\n");
   }
 }

@@ -1073,8 +1073,8 @@ static int get_link_ref(
   /* fill the output buffers */
   blob_reset(link);
   blob_reset(title);
-  blob_append(link, blob_buffer(&lr->link), blob_size(&lr->link));
-  blob_append(title, blob_buffer(&lr->title), blob_size(&lr->title));
+  blob_appendb(link, &lr->link);
+  blob_appendb(title, &lr->title);
   return 0;
 }
 
@@ -2694,10 +2694,10 @@ void markdown(
           struct footnote *y = fn + k;
           blob_append_string(&list, "<li>");
           if( blob_size(&y->upc) ){
-            blob_append(&list, blob_buffer(&y->upc), blob_size(&y->upc));
+            blob_appendb(&list, &y->upc);
             blob_reset(&y->upc);
           }
-          blob_append(&list, blob_buffer(&y->text), blob_size(&y->text));
+          blob_appendb(&list, &y->text);
           blob_append_string(&list, "</li>\n");
 
           /* free memory buffer */
@@ -2749,7 +2749,7 @@ void markdown(
 
       /* make a shallow copy of `origin` */
       blob_truncate(notes,0);
-      blob_append(notes, blob_buffer(allNotes), blob_size(allNotes));
+      blob_appendb(notes, allNotes);
       aNotes = CAST_AS_FOOTNOTES(notes);
       qsort(aNotes, N, sizeof(struct footnote), cmp_footnote_sort);
 
@@ -2769,7 +2769,7 @@ void markdown(
         parse_inline(tmp, &rndr, blob_buffer(&x->text), blob_size(&x->text));
 
         blob_truncate(&x->text,0);
-        blob_append(&x->text, blob_buffer(tmp), blob_size(tmp));
+        blob_appendb(&x->text, tmp);
         x->bRndred = 1;
       }
     }

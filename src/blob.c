@@ -56,6 +56,12 @@ struct Blob {
 #define blob_buffer(X)  ((X)->aData)
 
 /*
+** Append blob contents to another
+*/
+#define blob_appendb(dest, src) \
+  blob_append((dest), blob_buffer(src), blob_size(src))
+
+/*
 ** Seek whence parameter values
 */
 #define BLOB_SEEK_SET 1
