@@ -1,5 +1,5 @@
-C The\s--share-links\soption\sseems\sto\sbe\scausing\sno\send\sof\sconfusion.\s\sSo\swe'll\njust\smake\sit\sundocumented\sand\sperhaps\sremove\sit\sor\sdocument\sit\sproperly\nlater.
-D 2022-02-23T13:09:32.877
+C Version\s2.18
+D 2022-02-23T13:22:20.620
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -797,7 +797,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 8ecd21c76a547904e8538fc3fe73e779d90eb3857028855f6a990a4664112a1d
+F www/changes.wiki 3e76319a310d217ed86e88e81e675ce81a5805a7177df2424e948aa43f95befd
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -969,8 +969,10 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0fa7f21f864b6fed70aafcfbf345008062f19f815ea075608fc6325030437fa
-R e7f26e89d0d480d721b6edfb56e07c16
+P 0a91005e3514633abf39374ecd57fa6f6fc40b2ed429461406f9d9928b8bed07
+R 7d1048e6dc54b51d97bd6d6133ffc3ba
+T +sym-release *
+T +sym-version-2.18 *
 U drh
-Z 7d2dc05a0832964370d4876a49338567
+Z 7effe6d0f492e935d67d98c31f0b1144
 # Remove this line to create a well-formed Fossil manifest.

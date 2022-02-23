@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2 id='v2_18'>Changes for version 2.18 (pending)</h2>
+<h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
      like "[/help?cmd=server|fossil server]" and "[/help?cmd=http|fossil http]"
   *  The new [/help?cmd=cherry-pick|cherry-pick command] is an alias for
