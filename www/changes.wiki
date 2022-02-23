@@ -11,7 +11,7 @@
   *  The [/help?cmd=tar|tar] and [/help?cmd=zip|zip commands] no longer
      sterilize the manifest file.
   *  Futher improvement to diff alignment in cases that involve both
-     edits and changes in indentation.
+     edits and indentation changes.
   *  [/doc/trunk/www/chat.md|Chat] improvements:<ul>
      <li>  [/help?cmd=/chat|The /chat page] input options have been reworked
            again for better cross-browser portability.
@@ -21,15 +21,20 @@
            types directly into message bodies via an iframe.
      <li>  Add the "--as FILENAME" option to the "[/help?cmd=chat|fossil chat send]"
            command.
+     <li>  Added the "[/help?cmd=chat|fossil chat pull]" command, available to
+           administrators only, for backing up the chat conversation.
      </ul>
   *  Promote the test-detach command into the [/help?cmd=detach|detach command].
-  *  For "fossil pull" with the --from-parent-project option, if no URL is
-     specified then use the last URL specified for the --from-parent-project.
+  *  For "[/help?cmd=pull|fossil pull]" with the --from-parent-project option,
+     if no URL is specified then use the last URL from the most recent prior
+     "fossil pull --from-parent-project".
   *  Add options --project-name and --project-desc to the 
      "[/help?cmd=init|fossil init]" command.
   *  The [/help?cmd=/ext|/ext page] generates the SERVER_SOFTWARE environment
      variable for clients.
-  *  Fix the REQUEST_URI CGI parameter such that it includes the query string.
+  *  Fix the REQUEST_URI [/doc/trunk/www/aboutcgi.wiki#cgivar|CGI variable] such
+     that it includes the query string.  This is how most other systems understand
+     REQUEST_URI.
   *  Added the --share-links option to [/help?cmd=sync|fossil sync] and
      [/help?cmd=pull|fossil pull].  Enhance the 
      [/doc/trunk/www/sync.wiki|sync protocol] so that it is able to support

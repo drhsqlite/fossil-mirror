@@ -1,5 +1,5 @@
-C Improved\sorganization\sand\sgrouping\sof\sthe\schange\slist\sfor\sversion\s2.18.
-D 2022-02-22T21:44:43.564
+C Improvements\sto\sthe\schange\slog\sfor\s2.18.\s\sFix\sthe\saboutcgi.wiki\sdocument\nso\sthat\sit\scorrectly\sshows\sthe\sscope\sof\sREQUEST_URI.
+D 2022-02-23T12:50:36.366
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -770,7 +770,7 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
-F www/aboutcgi.wiki ce21bace27dc5b36a4134246014e6ec1e37dcedd7f2cf2f057a043fea0867bad
+F www/aboutcgi.wiki ab814c742d1c69356d3cf1616b61c7d1eded1b4c220a680daed403f429ea1726
 F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
 F www/adding_code.wiki 8c0f5442792cc531f8b923622f50d58dd8f837dd63afc6b851f2b14be526ff1d
 F www/alerts.md 15f2758b9b922c5c1ff835e82e939ca0034f0ac87cf4931eac79fc3284c272c2
@@ -797,7 +797,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 3210df8ac018b6cd5f052461ea9260f92933fd56fccaaecac7cb8076d0be2bc5
+F www/changes.wiki 3e4281f3860f25d8e078d56c5745a04c66b78442e91d8bfe632eaba842b7d247
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5e4c8b63aed6f48329e7dc7d22986ab3b36af14f014d18b9a0a7a5690b083e2
-R c8dd1f99371f5d2dc2b4826cdbd1ef79
+P 1841ce67472f0edf12a69a974e2e0b81290878c6587eb826f3b8b16e776e55cf
+R e53b3ed44196a225c036b340b6b63cf5
 U drh
-Z 871bcc076a89ec1d39b0c7e8ac51aa3c
+Z 69fc87fbdc5cd9b2f6f069dec5a7a2e8
 # Remove this line to create a well-formed Fossil manifest.
