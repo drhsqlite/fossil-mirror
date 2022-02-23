@@ -527,7 +527,7 @@ void secaudit0_page(void){
   if( db_get_boolean("access-log",0)==0 ){
     @ <li><p>
     @ The <a href="access_log">User Log</a> is disabled.  The user log
-    @ keeps a record of successful and unsucessful login attempts and is
+    @ keeps a record of successful and unsuccessful login attempts and is
     @ useful for security monitoring.
   }
   if( db_get_boolean("admin-log",0)==0 ){

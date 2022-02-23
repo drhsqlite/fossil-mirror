@@ -277,7 +277,7 @@ static struct Caps {
   { 'r', CAPCLASS_TKT, 0,
     "Read-Tkt", "View tickets" },
   { 's', CAPCLASS_SUPER, 0,
-    "Superuser", "Setup and configure the respository" },
+    "Superuser", "Setup and configure the repository" },
   { 't', CAPCLASS_TKT, 0,
     "Reports", "Create new ticket report formats" },
   { 'u', CAPCLASS_OTHER, 0,
