@@ -62,6 +62,23 @@ struct Blob {
   blob_append((dest), blob_buffer(src), blob_size(src))
 
 /*
+** Append a string literal to a blob
+** TODO: Consider renaming to blob_appendl()
+*/
+#define blob_append_literal(blob, literal) \
+  blob_append((blob), "" literal, (sizeof literal)-1)
+  /*
+   * The empty string in the second argument leads to a syntax error
+   * when the macro is not used with a string literal. Unfortunately
+   * the error is not overly explicit.
+   */
+
+/*
+** TODO: Suggested for removal because the name seems misleading.
+*/
+#define blob_append_string blob_append_literal
+
+/*
 ** Seek whence parameter values
 */
 #define BLOB_SEEK_SET 1
@@ -332,13 +349,6 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
   pBlob->aData[pBlob->nUsed] = 0;
   memcpy(&pBlob->aData[nUsed], aData, nData);
 }
-
-/*
-** Append a string literal to a blob.
-*/
-#if INTERFACE
-#define blob_append_string(BLOB,STR) blob_append(BLOB,STR,sizeof(STR)-1)
-#endif
 
 /*
 ** Append a single character to the blob.  If pBlob is zero then the

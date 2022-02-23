@@ -52,17 +52,13 @@ struct MarkdownToHtml {
 #define INTER_BLOCK(ob) \
   do { if( blob_size(ob)>0 ) blob_append_char(ob, '\n'); } while (0)
 
-/* BLOB_APPEND_LITERAL -- append a string literal to a blob */
-#define BLOB_APPEND_LITERAL(blob, literal) \
-  blob_append((blob), "" literal, (sizeof literal)-1)
-  /*
-   * The empty string in the second argument leads to a syntax error
-   * when the macro is not used with a string literal. Unfortunately
-   * the error is not overly explicit.
-   */
+/* BLOB_APPEND_LITERAL -- append a string literal to a blob
+** TODO: Refactor all invocations to use global macro blob_append_literal()
+*/
+#define BLOB_APPEND_LITERAL  blob_append_literal
 
 /* BLOB_APPEND_BLOB -- append blob contents to another
-** TODO: Refactor all invocations to use globall macro blob_appendb()
+** TODO: Refactor all invocations to use global macro blob_appendb()
 */
 #define BLOB_APPEND_BLOB(dest, src) blob_appendb((dest), (src))
 
@@ -352,7 +348,7 @@ static void append_footnote_upc(
   assert( z[0]=='.' && z[n-1] == ':' );
 
   if( bHTML ){
-    BLOB_APPEND_LITERAL(ob, "<span class='fn-upc'>"
+    blob_append_literal(ob, "<span class='fn-upc'>"
                             "<span class='fn-upcDot'>.</span>");
   }
   n = 0;
@@ -364,29 +360,29 @@ static void append_footnote_upc(
       continue;
     }
     assert( n );
-    if(  bHTML ) BLOB_APPEND_LITERAL(ob, "<span class='");
-    BLOB_APPEND_LITERAL(ob, "fn-upc-");
+    if(  bHTML ) blob_append_literal(ob, "<span class='");
+    blob_append_literal(ob, "fn-upc-");
 
     for(i=-n; i<0; i++){
       blob_append_char(ob, fossil_tolower(z[i]) );
     }
     if( bHTML ){
-      BLOB_APPEND_LITERAL(ob, "'>");
+      blob_append_literal(ob, "'>");
       blob_append(ob, z-n, n);
-      BLOB_APPEND_LITERAL(ob, "</span>");
+      blob_append_literal(ob, "</span>");
     }else{
       blob_append_char(ob, ' ');
     }
     n = 0;
     if( bHTML ){
       if( *z==':' ){
-        BLOB_APPEND_LITERAL(ob,"<span class='fn-upcColon'>:</span>");
+        blob_append_literal(ob,"<span class='fn-upcColon'>:</span>");
       }else{
-        BLOB_APPEND_LITERAL(ob,"<span class='fn-upcDot'>.</span>");
+        blob_append_literal(ob,"<span class='fn-upcDot'>.</span>");
       }
     }
   }while( *z != ':' );
-  if( bHTML ) BLOB_APPEND_LITERAL(ob,"</span>\n");
+  if( bHTML ) blob_append_literal(ob,"</span>\n");
 }
 
 static int html_footnote_ref(
@@ -403,20 +399,20 @@ static int html_footnote_ref(
 
     sprintf(pos, "%s-%i-%s", ctx->unique.c, iMark, l.c);
     if(span && blob_size(span)) {
-      BLOB_APPEND_LITERAL(ob,"<span class='");
+      blob_append_literal(ob,"<span class='");
       append_footnote_upc(ob, upc, 0);
-      BLOB_APPEND_LITERAL(ob,"notescope' id='noteref");
+      blob_append_literal(ob,"notescope' id='noteref");
       blob_appendf(ob,"%s'>",pos);
       blob_appendb(ob, span);
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,"<sup class='noteref'><a href='");
+      blob_append_literal(ob,"<sup class='noteref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
       blob_appendf(ob,"#footnote%s'>%i</a></sup></span>", pos, iMark);
     }else{
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob,"<sup class='");
+      blob_append_literal(ob,"<sup class='");
       append_footnote_upc(ob, upc, 0);
-      BLOB_APPEND_LITERAL(ob,"noteref'><a href='");
+      blob_append_literal(ob,"noteref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
       blob_appendf(ob,"#footnote%s' id='noteref%s'>%i</a></sup>",
                       pos,           pos,  iMark);
@@ -429,15 +425,15 @@ static int html_footnote_ref(
       blob_appendf(ob, "<span class='notescope' id='misref%s'>", pos);
       blob_appendb(ob, span);
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob, "<sup class='noteref misref'><a href='");
+      blob_append_literal(ob, "<sup class='noteref misref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
       blob_appendf(ob, "#misreference%s'>misref</a></sup></span>", pos);
     }else{
       blob_trim(ob);
-      BLOB_APPEND_LITERAL(ob, "<sup class='noteref misref'><a href='");
+      blob_append_literal(ob, "<sup class='noteref misref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
       blob_appendf(ob, "#misreference%s' id='misref%s'>", pos, pos);
-      BLOB_APPEND_LITERAL(ob, "misref</a></sup>");
+      blob_append_literal(ob, "misref</a></sup>");
     }
   }
   return 1;
@@ -458,7 +454,7 @@ static void html_footnote_item(
   if( iMark < 0 ){                     /* misreferences */
     assert( iMark == -1 );
     assert( nUsed );
-    BLOB_APPEND_LITERAL(ob,"<li class='fn-misreference'>"
+    blob_append_literal(ob,"<li class='fn-misreference'>"
                               "<sup class='fn-backrefs'>");
     if( nUsed == 1 ){
       blob_appendf(ob,"<a id='misreference%s-a' href='", unique);
@@ -473,9 +469,9 @@ static void html_footnote_item(
         BLOB_APPEND_URI(ob, ctx);
         blob_appendf(ob,"#misref%s-%c'>%c</a>", unique,c, c);
       }
-      if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
+      if( i < nUsed ) blob_append_literal(ob," &hellip;");
     }
-    BLOB_APPEND_LITERAL(ob,"</sup>\n<span>Misreference</span>");
+    blob_append_literal(ob,"</sup>\n<span>Misreference</span>");
 
   }else if( iMark > 0 ){  /* regular, joined and overnested footnotes */
     char pos[24];
@@ -492,21 +488,21 @@ static void html_footnote_item(
       if( blob_size(text)>=_jfi_sz &&
          !memcmp(blob_buffer(text),_joined_footnote_indicator,_jfi_sz)){
         bJoin = 1;
-        BLOB_APPEND_LITERAL(ob, "fn-joined ");
+        blob_append_literal(ob, "fn-joined ");
       }
       append_footnote_upc(ob, upc, 0);
     }else{
-      BLOB_APPEND_LITERAL(ob, "fn-toodeep ");
+      blob_append_literal(ob, "fn-toodeep ");
     }
 
     if( nUsed <= 1 ){
-      BLOB_APPEND_LITERAL(ob, "fn-monoref'><sup class='fn-backrefs'>");
+      blob_append_literal(ob, "fn-monoref'><sup class='fn-backrefs'>");
       blob_appendf(ob,"<a id='footnote%s-a' href='", pos);
       BLOB_APPEND_URI(ob, ctx);
       blob_appendf(ob,"#noteref%s-a'>^</a>", pos);
     }else{
       int i;
-      BLOB_APPEND_LITERAL(ob, "fn-polyref'><sup class='fn-backrefs'>^");
+      blob_append_literal(ob, "fn-polyref'><sup class='fn-backrefs'>^");
       for(i=0; i<nUsed && i<26; i++){
         const int c = i + (unsigned)'a';
         blob_appendf(ob," <a id='footnote%s-%c' href='", pos,c);
@@ -521,23 +517,23 @@ static void html_footnote_item(
         BLOB_APPEND_URI(ob, ctx);
         blob_appendf(ob,"#noteref%s-%s'>%s</a>", pos,l.c, l.c);
       }
-      if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
+      if( i < nUsed ) blob_append_literal(ob," &hellip;");
     }
-    BLOB_APPEND_LITERAL(ob,"</sup>\n");
+    blob_append_literal(ob,"</sup>\n");
     if( bJoin ){
-      BLOB_APPEND_LITERAL(ob,"<sup class='fn-joined'></sup><ul>");
+      blob_append_literal(ob,"<sup class='fn-joined'></sup><ul>");
       blob_append(ob,blob_buffer(text)+_jfi_sz,blob_size(text)-_jfi_sz);
     }else if( nUsed ){
       append_footnote_upc(ob, upc, 1);
       blob_appendb(ob, text);
     }else{
-      BLOB_APPEND_LITERAL(ob,"<i></i>\n"
+      blob_append_literal(ob,"<i></i>\n"
           "<pre><code class='language-markdown'>");
       if( blob_size(upc) ){
         blob_appendb(ob, upc);
       }
       html_escape(ob, blob_buffer(text), blob_size(text));
-      BLOB_APPEND_LITERAL(ob,"</code></pre>");
+      blob_append_literal(ob,"</code></pre>");
     }
     #undef _joined_footnote_indicator
     #undef _jfi_sz
@@ -548,26 +544,26 @@ static void html_footnote_item(
     assert( text );
     assert( blob_size(text) );
     assert( blob_size(id) );
-    BLOB_APPEND_LITERAL(ob,"<li class='fn-unreferenced'>\n[^&nbsp;<code>");
+    blob_append_literal(ob,"<li class='fn-unreferenced'>\n[^&nbsp;<code>");
     html_escape(ob, blob_buffer(id), blob_size(id));
-    BLOB_APPEND_LITERAL(ob, "</code>&nbsp;]<i></i>\n"
+    blob_append_literal(ob, "</code>&nbsp;]<i></i>\n"
         "<pre><code class='language-markdown'>");
     if( blob_size(upc) ){
       blob_appendb(ob, upc);
     }
     html_escape(ob, blob_buffer(text), blob_size(text));
-    BLOB_APPEND_LITERAL(ob,"</code></pre>");
+    blob_append_literal(ob,"</code></pre>");
   }
-  BLOB_APPEND_LITERAL(ob, "\n</li>\n");
+  blob_append_literal(ob, "\n</li>\n");
 }
 static void html_footnotes(
   struct Blob *ob, const struct Blob *items, void *opaque
 ){
   if( items && blob_size(items) ){
-    BLOB_APPEND_LITERAL(ob,
+    blob_append_literal(ob,
       "\n<hr class='footnotes-separator'/>\n<ol class='footnotes'>\n");
     blob_appendb(ob, items);
-    BLOB_APPEND_LITERAL(ob, "</ol>\n");
+    blob_append_literal(ob, "</ol>\n");
   }
 }
 

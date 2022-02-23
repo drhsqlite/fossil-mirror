@@ -2689,22 +2689,22 @@ void markdown(
         Blob list = empty_blob;
         blob_reserve(&list, k);
         /* must match _joined_footnote_indicator in html_footnote_item() */
-        blob_append_string(&list, "<ul class='fn-joined'>\n");
+        blob_append_literal(&list, "<ul class='fn-joined'>\n");
         for(k=i; k<j; k++){
           struct footnote *y = fn + k;
-          blob_append_string(&list, "<li>");
+          blob_append_literal(&list, "<li>");
           if( blob_size(&y->upc) ){
             blob_appendb(&list, &y->upc);
             blob_reset(&y->upc);
           }
           blob_appendb(&list, &y->text);
-          blob_append_string(&list, "</li>\n");
+          blob_append_literal(&list, "</li>\n");
 
           /* free memory buffer */
           blob_reset(&y->text);
           if( k!=i ) blob_reset(&y->id);
         }
-        blob_append_string(&list, "</ul>\n");
+        blob_append_literal(&list, "</ul>\n");
         x->text = list;
         g.ftntsIssues[2]++;
       }
