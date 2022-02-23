@@ -1,5 +1,5 @@
-C Minor\srefactoring.\sMove\sthe\sdefinition\sof\s<code>BLOB_APPEND_LITERAL()</code>\nmacro\sfrom\s<code>markdown_html.c</code>\sto\s<code>blob.c</code>\sso\sthat\nit\scould\sbe\sused\soutside\sof\s<code>markdown_html.c</code>.\nAlso\srename\sit\sto\slowercase\sfor\sconsistency\swith\sother\sAPI.\nWithin\s<code>markdown.c</code>\suse\sthat\snewly\savailable\smacro\sinstead\sof\n<code>blob_append_string()</code>.\nWithin\s<code>markdown_html.c</code>\suse\sit\sfor\sfootnotes-relevant\scode.\nOther\sinvocations\sof\s<code>BLOB_APPEND_LITERAL()</code>\swithin\n<code>markdown_html.c</code>\sare\sleft\sintact\s(they\suse\san\salias)\sin\sorder\sto\nsimplify\sthe\spotential\smerge\swith\sthe\strunk.
-D 2022-02-23T09:45:17.972
+C Count\sovernesting\sas\sthe\sfourth\stype\sof\sthe\sfootnote-related\sissues\nand\sreport\saccordingly.
+D 2022-02-23T12:33:57.049
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,10 +512,10 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c ff4ed3d6ab5e710507306254aee2699c1892be39759cdf9f003dac49fcb62658
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c c4e5b1b1d0c8c563cf2117c7894eb888bfd78652ee8c8765aae179f238f95b6b
+F src/main.c 27e19fdba252ec9a90113768352833640938608b64fbe66e0bbf03d6bfb4b09d
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c c30c2629fb1d7ea1e8dd8970d8777189179b7012d0d5d63c3e718ed893e10ed1
+F src/markdown.c 4e0646a55c8458dbbb90c1b968aa504f78e82004223f21d88c57c614d1d84066
 F src/markdown.md 1d440b0101259e43130c60f32f9a315bea1a5f318c0218dcd56fb8fee0efb574
 F src/markdown_html.c a846526a824368069b0d8c25793b388cd8845a5d630a63b56041dba031ab2c85
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 85162f631e5bd16ec2db296c7e6406ae76c992ded7acb97513df144063e0ef84
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 7ece0ebfa656868fad928de957c756a0a4381e248a58c430fc2f1c94c15621b7
+F src/style.c 6ef4504c0955ae9dea964b46346eeb10b3ec85925de40994c29cc53839b52afc
 F src/style.chat.css 4d7590d0ba3a8c8cb1ac5468c0bf7e8c91b27b881758c6d51c1769d85cc4b249
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -606,7 +606,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c 22a1f02c339292b9bdddb189051399f1906ca4f4e608397d8470e0420c5678bf
+F src/wikiformat.c 19db2e290a69e0f0b3411b30b1c3f1c1bf4bfa04c5b7811d367a8fe405e1501d
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c dadaf755f21931398be2aaf956177fb6c02a3c757b4d5e02c0e6741fce074221
 F src/xfer.c 57932b933b3a4b437d57b1dde6a82074c6dd56519031ba807a10d762e0332739
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33a681ebee054f3d0346fbf992f19823120ce23f64ba5fb4b58e12e262803144
-R 9d70a391779ac0b37867a111d88649f9
+P c8a8d0c94cf5f055f5242d0d7b61b6422eb424ed4f6655b2c941077f89244968
+R 214eca8ac3eaa8aff0a57c702deb9658
 U george
-Z 967807687672ecc851330e7490b8cb29
+Z a4beacbb6d861e97a81067641efd63d7
 # Remove this line to create a well-formed Fossil manifest.

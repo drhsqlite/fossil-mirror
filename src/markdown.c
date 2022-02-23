@@ -2790,10 +2790,12 @@ void markdown(
 
       for(i=0; i<COUNT_FOOTNOTES(notes); i++){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + i;
+        const int xUsed = x->bRndred ? x->nUsed : 0;
         if( !x->iMark ) break;
         assert( x->nUsed );
         rndr.make.footnote_item(all_items, &x->text, x->iMark,
-                 x->bRndred ? x->nUsed : 0, rndr.make.opaque);
+                                     xUsed, rndr.make.opaque);
+        if( !xUsed ) g.ftntsIssues[3]++;  /* an overnested footnote */
         j = i;
       }
       if( rndr.notes.misref.nUsed ){
