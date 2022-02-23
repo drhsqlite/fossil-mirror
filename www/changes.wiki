@@ -35,10 +35,6 @@
   *  Fix the REQUEST_URI [/doc/trunk/www/aboutcgi.wiki#cgivar|CGI variable] such
      that it includes the query string.  This is how most other systems understand
      REQUEST_URI.
-  *  Added the --share-links option to [/help?cmd=sync|fossil sync] and
-     [/help?cmd=pull|fossil pull].  Enhance the 
-     [/doc/trunk/www/sync.wiki|sync protocol] so that it is able to support
-     sharing of links to other clones.
   *  Added the --transport-command option to [/help?cmd=sync|fossil sync]
      and similar.
 
