@@ -144,6 +144,9 @@ struct link_ref {
   struct Blob title;
 };
 
+/* A footnote's data.
+** id, text, and upc fields must be in that particular order.
+*/
 struct footnote {
   struct Blob id;      /* must be the first field as in link_ref struct  */
   struct Blob text;    /* footnote's content that is rendered at the end */
@@ -2507,8 +2510,8 @@ static int is_footnote(
     upc_offset = i; /* prevent further checks for a classlist */
     i += upc_size;
     j = i;
-    do i++; while( i<end && data[i]!='\n' && data[i]!='\r' );
-    blob_append(&fn.text, data+j, i-j);
+    while( i<end && data[i]!='\n' && data[i]!='\r' ){ i++; };
+    if( i!=j )blob_append(&fn.text, data+j, i-j);
     if( i<end ){
       blob_append_char(&fn.text, data[i]);
       i++;
@@ -2526,10 +2529,9 @@ static int is_footnote(
     /* compute the indentation from the 2nd line  */
     size_t indent = i;
     const char *spaces = data+i;
-    while( i<end && data[i]==' ' ){ i++; }
-    if( i>=end )   goto footnote_finish;
-    indent = i - indent;
-    i -= indent;
+    while( indent<end && data[indent]==' ' ){ indent++; }
+    if( indent>=end ) goto footnote_finish;
+    indent -= i;
     if( indent<2 ) goto footnote_finish;
 
     /* process the 2nd and the following lines */
@@ -2545,8 +2547,8 @@ static int is_footnote(
         }
       }
       j = i;
-      while( i<end && data[i]!='\n' && data[i]!='\r' ) i++;
-      blob_append(&fn.text, data+j, i-j);
+      while( i<end && data[i]!='\n' && data[i]!='\r' ){ i++; }
+      if( i!=j ) blob_append(&fn.text, data+j, i-j);
       if( i>=end ) break;
       blob_append_char(&fn.text, data[i]);
       i++;
@@ -2677,9 +2679,9 @@ void markdown(
     /* concatenate footnotes with equal labels */
     for(i=0; i<rndr.notes.nLbled ;){
       struct footnote *x = fn + i;
-      size_t j = i+1, k = blob_size(&x->text) + 64;
+      size_t j = i+1, k = blob_size(&x->text) + 64 + blob_size(&x->upc);
       while(j<rndr.notes.nLbled && !blob_compare(&x->id, &fn[j].id)){
-        k += blob_size(&fn[j].text) + 10;
+        k += blob_size(&fn[j].text) + 10 + blob_size(&fn[j].upc);
         j++;
         nDups++;
       }
@@ -2691,6 +2693,10 @@ void markdown(
         for(k=i; k<j; k++){
           struct footnote *y = fn + k;
           blob_append_string(&list, "<li>");
+          if( blob_size(&y->upc) ){
+            blob_append(&list, blob_buffer(&y->upc), blob_size(&y->upc));
+            blob_reset(&y->upc);
+          }
           blob_append(&list, blob_buffer(&y->text), blob_size(&y->text));
           blob_append_string(&list, "</li>\n");
 
@@ -2773,13 +2779,22 @@ void markdown(
     if( rndr.make.footnote_item && rndr.make.footnotes ){
       Blob *all_items = new_work_buffer(&rndr);
       int j = -1;
+
+      /* Assert that the in-memory layout of id, text and upc within
+      ** footnote struct matches the expectations of html_footnote_item()
+      ** If it doesn't then a compiler has done something very weird.
+      */
+      const struct footnote *dummy = 0;
+      assert( &(dummy->id)  == &(dummy->text) - 1 );
+      assert( &(dummy->upc) == &(dummy->text) + 1 );
+
       for(i=0; i<COUNT_FOOTNOTES(notes); i++){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + i;
-        if( x->iMark ){
-          rndr.make.footnote_item(all_items, &x->text, x->iMark,
-                   x->bRndred ? x->nUsed : 0, rndr.make.opaque);
-          j = i;
-        }
+        if( !x->iMark ) break;
+        assert( x->nUsed );
+        rndr.make.footnote_item(all_items, &x->text, x->iMark,
+                 x->bRndred ? x->nUsed : 0, rndr.make.opaque);
+        j = i;
       }
       if( rndr.notes.misref.nUsed ){
         rndr.make.footnote_item(all_items, 0, -1,
@@ -2789,9 +2804,8 @@ void markdown(
       while( ++j < COUNT_FOOTNOTES(notes) ){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + j;
         assert( !x->iMark );
+        assert( !x->nUsed );
         assert( !x->bRndred );
-        assert( (&x->id) + 1 == &x->text ); /* see html_footnote_item() */
-        assert( (&x->upc)- 1 == &x->text );
         rndr.make.footnote_item(all_items,&x->text,0,0,rndr.make.opaque);
         g.ftntsIssues[1]++;
       }

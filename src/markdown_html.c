@@ -449,12 +449,14 @@ static void html_footnote_item(
 ){
   const struct MarkdownToHtml* ctx = (struct MarkdownToHtml*)opaque;
   const char * const unique = ctx->unique.c;
+  /* make.footnote_item() invocations should pass args accordingly */
+  const struct Blob *upc = text+1;
   assert( nUsed >= 0 );
   /* expect BUGs if the following yields compiler warnings */
 
   if( iMark < 0 ){                     /* misreferences */
     assert( iMark == -1 );
-    if( !nUsed ) return;
+    assert( nUsed );
     BLOB_APPEND_LITERAL(ob,"<li class='fn-misreference'>"
                               "<sup class='fn-backrefs'>");
     if( nUsed == 1 ){
@@ -474,11 +476,9 @@ static void html_footnote_item(
     }
     BLOB_APPEND_LITERAL(ob,"</sup>\n<span>Misreference</span>");
 
-  }else if( iMark > 0 ){               /* a regular footnote */
+  }else if( iMark > 0 ){  /* regular, joined and overnested footnotes */
     char pos[24];
     int bJoin = 0;
-    /* make.footnote_item() invocations should pass args accordingly */
-    const struct Blob * upc = text+1;
     #define _joined_footnote_indicator "<ul class='fn-joined'>"
     #define _jfi_sz (sizeof(_joined_footnote_indicator)-1)
     assert( text );
@@ -523,22 +523,24 @@ static void html_footnote_item(
       if( i < nUsed ) BLOB_APPEND_LITERAL(ob," &hellip;");
     }
     BLOB_APPEND_LITERAL(ob,"</sup>\n");
-    append_footnote_upc(ob, upc, 1);
     if( bJoin ){
       BLOB_APPEND_LITERAL(ob,"<sup class='fn-joined'></sup><ul>");
       blob_append(ob,blob_buffer(text)+_jfi_sz,blob_size(text)-_jfi_sz);
     }else if( nUsed ){
+      append_footnote_upc(ob, upc, 1);
       BLOB_APPEND_BLOB(ob, text);
     }else{
       BLOB_APPEND_LITERAL(ob,"<i></i>\n"
           "<pre><code class='language-markdown'>");
+      if( blob_size(upc) ){
+        BLOB_APPEND_BLOB(ob, upc);
+      }
       html_escape(ob, blob_buffer(text), blob_size(text));
       BLOB_APPEND_LITERAL(ob,"</code></pre>");
     }
     #undef _joined_footnote_indicator
     #undef _jfi_sz
-  }else{
-    /* a footnote was defined but wasn't used */
+  }else{             /* a footnote was defined but wasn't referenced */
     /* make.footnote_item() invocations should pass args accordingly */
     const struct Blob * id = text-1;
     assert( !nUsed );
@@ -549,6 +551,9 @@ static void html_footnote_item(
     html_escape(ob, blob_buffer(id), blob_size(id));
     BLOB_APPEND_LITERAL(ob, "</code>&nbsp;]<i></i>\n"
         "<pre><code class='language-markdown'>");
+    if( blob_size(upc) ){
+      BLOB_APPEND_BLOB(ob, upc);
+    }
     html_escape(ob, blob_buffer(text), blob_size(text));
     BLOB_APPEND_LITERAL(ob,"</code></pre>");
   }

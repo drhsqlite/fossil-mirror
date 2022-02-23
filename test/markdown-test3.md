@@ -103,6 +103,13 @@ is recognized during the second pass as misreference.
   span.notescope.fn-upc-example sup.noteref:hover::after {
     content: " 👻";
   }
+  li.fn-upc-l span.fn-upc  {
+    font-size: 60%;
+    color: orange;
+  }
+  li.fn-upc-l span.fn-upc span.fn-upcDot {
+    display: none;
+  }
 </style>
 
 It is possible to provide a list of classes for a particular footnote and
@@ -126,6 +133,10 @@ is not interpreted as such, instead it is emitted as plain text.
 )[^bare1]
 [^bare2]
 
+[^duplicate]: .with.UPC.token:   
+   When duplicates are joined their UPC tokens are treated as plain-text.
+   Blank characters between token and main text must be preserved.
+
 <html>
   Click
   <a href="?a=B&quote='&nonASCII=😂&script=<script>alert('Broken!');</script>">
@@ -137,19 +148,19 @@ is not interpreted as such, instead it is emitted as plain text.
 
 A depth of nesting must be limited.
 (^
- A long chain of nested inline footnotes...
+ .L.1: A long chain of nested inline footnotes...
  (^
-  is a rather unusual thing...
+  .L.2: is a rather unusual thing...
   (^
-   and requires extra CPU cycles for processing.
+   .L.3: and requires extra CPU cycles for processing.
    (^
-    Theoretically speaking O(n<sup>2</sup>).
+    .L.4: Theoretically speaking O(n<sup>2</sup>).
     (^
-     Thus it is worth dismissing those footnotes...
+     .L.5: Thus it is worth dismissing those footnotes...
      (^
-      that are nested deeper than on a certain level.
+      .L.6: that are nested deeper than on a certain level.
       (^
-       A particular value for that limit...
+       .L.7: A particular value for that limit...
        (^
         is hard-coded in src/markdown.c ...
         (^
@@ -218,6 +229,9 @@ A depth of nesting must be limited.
 [^bare2]:  
            .at.the.2nd.line.of.labeled.footnote.definition:
            
+[^stray with UPC]: .UPC-token:
+    A token of user-provided classes must be rendered within strays.
+    Aslo: this and the previous line may not have extra indentation.
 
 [^nostyle]:
   .unused.classes:
