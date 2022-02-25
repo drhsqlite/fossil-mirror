@@ -1,5 +1,5 @@
-C Spelling\scorrections\scaught\sby\sDebian's\sautomated\stools,\sthanks\sto\sBarak\sA.\sPearlmutter.
-D 2022-02-23T17:18:03.285
+C Update\sthe\sversion\snumber\son\sthe\shomepage.
+D 2022-02-25T11:24:29.484
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -868,7 +868,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki cd75130a2f4f9a9d750a667022ba08b32b84e022cd1f7e8093655abe8b9c8f85
+F www/index.wiki 4e3bb20f6f7489653d23fc7ef77b029c3d63e1acefa2728af5475d924ff19066
 F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
 F www/interwiki.md 42ea9a1d5eace76fde87aafb6169de968fa1174c8f2a2529cc6cbec61a0a8540
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84f25d7eb10c0714109d69bb2809abfa8b4b5c3d73b151a5b10df724dacd46d8
-R 6e89b41f401381fe4da259a6f546a153
-U danshearer
-Z e038582f97b694878181568f818fe2f3
+P 9993c43b5cc37e1feb9391387f7395542299cb08a6d50cfa5d6889c182239668
+R d78d943eaa9e3172522c30250baf28df
+U drh
+Z 038422ea23d84587b85e1fea76fdf590
 # Remove this line to create a well-formed Fossil manifest.
