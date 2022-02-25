@@ -1,5 +1,8 @@
 <title>Change Log</title>
 
+<h2 id='v2_19'>Changes for version 2.19 (pending)</h2>
+  *  <i>none yet...</i>
+
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
      like "[/help?cmd=server|fossil server]" and "[/help?cmd=http|fossil http]"
