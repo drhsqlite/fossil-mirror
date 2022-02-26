@@ -4,7 +4,12 @@
 A [glob pattern][glob] is a text expression that matches one or more
 file names using wild cards familiar to most users of a command line.
 For example, `*` is a glob that matches any name at all and
-`Readme.txt` is a glob that matches exactly one file.
+`Readme.txt` is a glob that matches exactly one file. For purposes of
+Fossil's globs, a file name with a directory prefix is "just a string"
+and the globs do not apply any special meaning to the directory part
+of the name. Thus the glob `*` matches any name, including any
+directory prefix, and `*/*` matches a name with _one or more_
+directory components.
 
 A glob should not be confused with a [regular expression][regexp] (RE),
 even though they use some of the same special characters for similar
