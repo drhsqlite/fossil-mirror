@@ -2142,7 +2142,7 @@ int db_looks_like_a_repository(const char *zDbName){
 
   sz = file_size(zDbName, ExtFILE);
   if( sz<16834 ) return 0;
-  if( sz & 0x1ff ) return 0;
+  if( sz%512 ) return 0;
   rc = sqlite3_open(zDbName, &db);
   if( rc ) goto is_repo_end;
   rc = sqlite3_prepare_v2(db, 
@@ -2190,6 +2190,9 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
+  /* Don't change the file size test to call db_looks_like_a_repository()
+   * or copy code from it. The sz%512 bit in particular is wrong for the
+   * apndvfs case in db_open() above. */
   if( file_access(zDbName, R_OK) || file_size(zDbName, ExtFILE)<1024 ){
     if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
