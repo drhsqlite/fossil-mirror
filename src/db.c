@@ -2181,7 +2181,6 @@ void test_is_repo(void){
 ** get the name from the already open local database.
 */
 void db_open_repository(const char *zDbName){
-  i64 sz;
   if( g.repositoryOpen ) return;
   if( zDbName==0 ){
     if( g.localOpen ){
@@ -2191,10 +2190,7 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( file_access(zDbName, R_OK) 
-   || (sz = file_size(zDbName, ExtFILE))<16384
-   || (sz&0x1ff)!=0
-  ){
+  if( file_access(zDbName, R_OK) || file_size(zDbName, ExtFILE)<1024 ){
     if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
