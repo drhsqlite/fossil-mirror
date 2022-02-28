@@ -1637,15 +1637,22 @@ void db_maybe_set_encryption_key(sqlite3 *db, const char *zDbName){
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
+  Blob bNameCheck = BLOB_INITIALIZER;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
-  if( strcmp(zDbName, g.nameOfExe)==0 ){
+  file_canonical_name(zDbName, &bNameCheck, 0)
+    /* For purposes of the apndvfs check, g.nameOfExe and zDbName must
+    ** both be canonicalized, else chances are very good that they
+    ** will not match even if they're the same file. Details:
+    ** https://fossil-scm.org/forum/forumpost/16880a28aad1a868 */;
+  if( strcmp(blob_str(&bNameCheck), g.nameOfExe)==0 ){
     extern int sqlite3_appendvfs_init(
       sqlite3 *, char **, const sqlite3_api_routines *
     );
     sqlite3_appendvfs_init(0,0,0);
     g.zVfsName = "apndvfs";
   }
+  blob_zero(&bNameCheck);
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
