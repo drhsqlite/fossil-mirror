@@ -165,7 +165,7 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 >     rule.  Spaces and extra **-**/**\***/**_** are allowed.
 > *   Paragraphs enclosed in **\<html\>...\</html\>** is passed through unchanged.
 > *   See [daringfireball.net][] for additional information.
-> *   See this page's [Markdown source](/md_rules?txt=1) for complex examples.
+> *   See this page's [Markdown source](/md_rules?txt=1) for more examples.
 
 ## Special Features For Fossil ##
 
