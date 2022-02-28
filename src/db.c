@@ -2142,9 +2142,9 @@ int db_looks_like_a_repository(const char *zDbName){
 
   sz = file_size(zDbName, ExtFILE);
   if( sz<16834 ) return 0;
-  if( sz%512 ) return 0;
-  rc = sqlite3_open(zDbName, &db);
-  if( rc ) goto is_repo_end;
+  db = db_open(zDbName);
+  if( !db ) return 0;
+  if( !g.zVfsName && sz%512 ) return 0;
   rc = sqlite3_prepare_v2(db, 
        "SELECT count(*) FROM sqlite_schema"
        " WHERE name COLLATE nocase IN"
@@ -2190,10 +2190,7 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  /* Don't change the file size test to call db_looks_like_a_repository()
-   * or copy code from it. The sz%512 bit in particular is wrong for the
-   * apndvfs case in db_open() above. */
-  if( file_access(zDbName, R_OK) || file_size(zDbName, ExtFILE)<1024 ){
+  if( !db_looks_like_a_repository(zDbName) ){
     if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
