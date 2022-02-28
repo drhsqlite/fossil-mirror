@@ -1297,9 +1297,6 @@ char *file_canonical_name_dup(const char *zOrigName){
 ** type on a command-line.  This routine resolves that name into
 ** a full pathname.  The result is obtained from fossil_malloc()
 ** and should be freed by the caller.
-**
-** This routine only works on unix.  On Windows, simply return
-** a copy of the input.
 */
 char *file_fullexename(const char *zCmd){
 #ifdef _WIN32
