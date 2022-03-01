@@ -1,5 +1,5 @@
-C Resolve\sthe\sbug\srevealed\sin\s[forum:16880a28aad1a868\s|\sforum\spost\s16880a28aad1a868]\sin\swhich\sthe\sdb_open()\sappendvfs\scheck\scan\smisinteract\swith\sg.nameOfExe.\sThis\sis\sin\sa\sbranch\suntil\sa\sWindows\suser\scan\sconfirm\sthat\sthe\sg.nameOfExe\schange\sin\smain.c\sbehaves\sas\sdesired\son\sWindows.\sThis\swas\sa\scollaborative\sbug\sfix\svia\s/chat,\snot\smy\sown.
-D 2022-02-28T21:30:48.009
+C Fix\san\sunused\svar\swarning\sin\swindows
+D 2022-03-01T16:21:15.341
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c a01bd0437f55ae9af7f81819ebafb71662fc52aa0cf4e58ac2be6a09c187d799
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c b4b9abd8a7b5d78abb60bacc71c18c9af2195ee874c2c77dbf40fad07cbfd102
+F src/main.c 22c828dcf866b203c38b0a1ecce80a09a74e5e095d56828bab0c26eb8c1f860e
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -969,11 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 491b986d0de38fb55a86925267dbe9b1de4f590a055049592742bf78f7f25201
-R ca8d9a188740d4402ae28f817b83e881
-T *branch * nameofexe-appendvfs-check
-T *sym-nameofexe-appendvfs-check *
-T -sym-trunk *
-U stephan
-Z c40209a700538c930d2d7227dfba62fa
+P ec02acfd095752419ce85bc2482dfdb6f02935597989c1491e3d2cffe639d0d7
+R 80ed0fd401c68da326d284d97cb29b07
+U mgagnon
+Z 98e99afa19d7389c34e11d48d0776152
 # Remove this line to create a well-formed Fossil manifest.

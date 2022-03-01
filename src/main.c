@@ -422,9 +422,6 @@ void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   const char *zFileName;    /* input file name */
   FILE *inFile;             /* input FILE */
-#if defined(_WIN32)
-  wchar_t buf[MAX_PATH];
-#endif
 
   g.argc = argc;
   g.argv = argv;
