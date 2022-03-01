@@ -422,9 +422,6 @@ void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   const char *zFileName;    /* input file name */
   FILE *inFile;             /* input FILE */
-#if defined(_WIN32)
-  wchar_t buf[MAX_PATH];
-#endif
 
   g.argc = argc;
   g.argv = argv;
@@ -434,12 +431,7 @@ void expand_args_option(int argc, void *argv){
 #else
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
 #endif
-#if defined(_WIN32)
-  GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.nameOfExe = fossil_path_to_utf8(buf);
-#else
-  g.nameOfExe = g.argv[0];
-#endif
+  g.nameOfExe = file_fullexename(g.argv[0]);
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;

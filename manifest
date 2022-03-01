@@ -1,5 +1,5 @@
-C Allow\soptional\s"-"\scharacters\sin\sthe\shuge\sstring\sargument\sto\sbid=\son\s/timeline\nso\sthat\swhen\sthe\shyperlink\swill\shave\swrap\sopportunities\swhen\spasted\sinto\sthe\nchat.
-D 2022-03-01T17:21:14.757
+C Ensure\sthat\sdb_open()'s\sdb-is-an-appendvfs-binary\scheck\suses\scanonicalized\sfilenames\sto\savoid\sthe\sproblem\sreported\sin\s[forum:16880a28aad1a868\s|\sforum\spost\s16880a28aad1a868].
+D 2022-03-01T21:02:06.173
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -431,7 +431,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 0747ca14751011645194b9a88f1cbb5b2ffebe3d16c5ee156ffaf099870046fc
+F src/db.c 6b12076d72516fb64efb8b479a47ecda148093e51ce9e2d0fb56173eb13e09fe
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c a01bd0437f55ae9af7f81819ebafb71662fc52aa0cf4e58ac2be6a09c187d799
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c b747592d64ab9a47e62e77f2d72855acd4b2a9ff25d318c69f030bf241bc95da
+F src/main.c 22c828dcf866b203c38b0a1ecce80a09a74e5e095d56828bab0c26eb8c1f860e
 F src/main.mk e3a8fb3c2d8ee9743576a95549e5edf5865768081f85097cddcda2effd0b0f5e
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -969,8 +969,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69145d9d992f12e713316cf8a17692985b7916dc2c9e51751c7826b9056111d7
-R 9f88bae3c1786321cd912355c8ed0611
-U drh
-Z d8506fb5399f828f9418c6db391579eb
+P adfc1a6b601d274b09e73b00de93cf49426a829a771deb18d479160f3d9b99ec 169a3dabcf4445e5031a21bec61547855a14644945947cfb65643e9e6ed5dcfe
+R 6b9b6521aacb4504b1f8e98338504460
+T +closed 169a3dabcf4445e5031a21bec61547855a14644945947cfb65643e9e6ed5dcfe Closed\sby\sintegrate-merge.
+U stephan
+Z debf33ba244d946f811ef15cfd1903f4
 # Remove this line to create a well-formed Fossil manifest.
