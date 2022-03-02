@@ -1,5 +1,5 @@
-C Ensure\sthat\sdb_open()'s\sdb-is-an-appendvfs-binary\scheck\suses\scanonicalized\sfilenames\sto\savoid\sthe\sproblem\sreported\sin\s[forum:16880a28aad1a868\s|\sforum\spost\s16880a28aad1a868].
-D 2022-03-01T21:02:06.173
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sthat\sincludes\svarious\nperformance\senhancements.\s\sThe\spurpose\shere\sis\sto\stest\sthe\srecent\sSQLite\nenhancements\sin\sa\sreal-world\sapplication.
+D 2022-03-02T02:00:30.964
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -296,8 +296,8 @@ F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f1999
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr.c dc374dad64dbe9738c6e899317ea333699c06db1d955b824f8b80605e19d209a
 F extsrc/shell.c c6c2587814d3a4933308a133eb1cfb04b7e25d3031e59f8300172bdcc7d89b52
-F extsrc/sqlite3.c 0ce8f3d377d812c04d66a7ea11fca6de6cb5aa6d3ab10174d4dad1607eefc0ca
-F extsrc/sqlite3.h a232c2a6cd0cec866cc133bf165626a8ce2f73d6a7c9219822dee953733e763a
+F extsrc/sqlite3.c 6f80302ee4dee0e9d00029d05401715b7dfd6f7aa4741c62776781f34c805098
+F extsrc/sqlite3.h c3e9c9925ff1b954a929329416c5abda183cdd50317df9d48df95b39c1e98fba
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -969,9 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P adfc1a6b601d274b09e73b00de93cf49426a829a771deb18d479160f3d9b99ec 169a3dabcf4445e5031a21bec61547855a14644945947cfb65643e9e6ed5dcfe
-R 6b9b6521aacb4504b1f8e98338504460
-T +closed 169a3dabcf4445e5031a21bec61547855a14644945947cfb65643e9e6ed5dcfe Closed\sby\sintegrate-merge.
-U stephan
-Z debf33ba244d946f811ef15cfd1903f4
+P ab7ad2348c1a357c04d19c9bbaf57aba3f40c7bade3034c5633d793b0397017f
+R f7363365429498732e4c3e031afb9e29
+U drh
+Z f5c25128df75a40ac2eca741540fbb72
 # Remove this line to create a well-formed Fossil manifest.

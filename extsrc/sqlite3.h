@@ -146,9 +146,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.38.0"
-#define SQLITE_VERSION_NUMBER 3038000
-#define SQLITE_SOURCE_ID      "2022-02-22 18:58:40 40fa792d359f84c3b9e9d6623743e1a59826274e221df1bde8f47086968a1bab"
+#define SQLITE_VERSION        "3.39.0"
+#define SQLITE_VERSION_NUMBER 3039000
+#define SQLITE_SOURCE_ID      "2022-03-02 01:02:16 6497997aa80419688890ed5dbbb7d6acc26bf3732305ff4a728cba1fe4d1626b"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9767,7 +9767,7 @@ SQLITE_API int sqlite3_vtab_in_next(sqlite3_value *pVal, sqlite3_value **ppOut);
 ** ^When xBestIndex returns, the sqlite3_value object returned by
 ** sqlite3_vtab_rhs_value() is automatically deallocated.
 **
-** The "_rhs_" in the name of this routine is an appreviation for
+** The "_rhs_" in the name of this routine is an abbreviation for
 ** "Right-Hand Side".
 */
 SQLITE_API int sqlite3_vtab_rhs_value(sqlite3_index_info*, int, sqlite3_value **ppVal);
