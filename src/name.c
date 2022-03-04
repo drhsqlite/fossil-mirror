@@ -179,8 +179,9 @@ int start_of_branch(int rid, int eType){
   );
   fossil_free(zBr);
   rc = db_step(&q);
-  if( rc==SQLITE_ROW ) 
+  if( rc==SQLITE_ROW ){ 
     ans = db_column_int(&q, 0);
+  }
   db_finalize(&q);
   if( eType==2 && ans>0 ){
     zBr = branch_of_rid(ans);
