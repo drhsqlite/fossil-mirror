@@ -1,5 +1,5 @@
-C Use\sa\sCTE\sinstead\sof\squerying\sthe\sdatabase\sin\sa\sloop\swhen\sfinding\sthe\sstart\sof\sa\sbranch.\sThis\scan\sbring\ssignificant\sspeedup\son\ssome\smachines.
-D 2022-03-03T23:19:10.993
+C Fix\san\sassertion\sfailure.
+D 2022-03-04T15:32:43.827
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -523,7 +523,7 @@ F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 02068d1648a62fd1dbe82ba187df460dd8ab83640e9728850a7c20f68effc21d
 F src/merge3.c 73083af574ff36b97396f56b21348346a0952eccd7da172f8a507e2df7918453
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c df195af0ecf875ae4f59e7df7d0b1ce74f09a783de6a3390693003f8274bd6d7
+F src/name.c ddc99e45ef6cd8934320a34aa387381b91716ce1f9443b8655066823fdf446e6
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad744440dc89d439fef4b7988fbc7d00a5c51ce74242ad2f907afbedd797305b
-R 3b0176966f5b18c95633aafe00b807a1
+P c7749bb0a397c8e8470d8cbb5b26f00e253e2c7e2390a981b0b7f1315fe022d7
+R 3e137019d5b2da5442cbc6fa244c7d36
 U danield
-Z 3fda37e5cf39a4aea92e757066f208a8
+Z 1a34711f205170ecf2bda9f7d2f38991
 # Remove this line to create a well-formed Fossil manifest.
