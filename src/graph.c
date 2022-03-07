@@ -842,21 +842,41 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   find_max_rail(p);
 
   /*
-  ** Compute the rail mapping.
+  ** Compute the rail mapping that tries to put the branch named
+  ** zLeftBranch at the left margin.
+  **
+  ** aMap[X]=Y means that the X-th rail is drawn as the Y-th rail.
   */
   aMap = p->aiRailMap;
   for(i=0; i<=p->mxRail; i++) aMap[i] = i;
   if( zLeftBranch && nTimewarp==0 ){
     char *zLeft = persistBranchName(p, zLeftBranch);
+    u64 pureMergeRail = (BIT(p->mxRail)-1)<<1|1;
+    u64 toLeft = 0;
     j = 0;
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-      if( pRow->zBranch==zLeft && aMap[pRow->iRail]>=j ){
+      pureMergeRail &= ~BIT(pRow->iRail);
+      if( pRow->zBranch==zLeft ){
         for(i=0; i<=p->mxRail; i++){
-          if( aMap[i]>=j && aMap[i]<=pRow->iRail ) aMap[i]++;
+          if( pRow->mergeIn[i] ) toLeft |= BIT(i);
         }
-        aMap[pRow->iRail] = j++;
+        if( aMap[pRow->iRail]>=j ){
+          for(i=0; i<=p->mxRail; i++){
+            if( aMap[i]>=j && aMap[i]<=pRow->iRail ) aMap[i]++;
+          }
+          aMap[pRow->iRail] = j++;
+        }
       }
     }
+    toLeft &= pureMergeRail;
+    for(i=j; i<=p->mxRail; i++){
+      int k;
+      if( (BIT(i) & toLeft)==0 ) continue;
+      for(k=0; k<=p->mxRail; k++){
+        if( aMap[k]>=j && aMap[k]<=i ) aMap[k]++;
+      }
+      aMap[i] = j;
+    }    
     cgi_printf("<!-- aiRailMap =");
     for(i=0; i<=p->mxRail; i++) cgi_printf(" %d", aMap[i]);
     cgi_printf(" -->\n");
