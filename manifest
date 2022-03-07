@@ -1,5 +1,5 @@
-C When\sdisplaying\sthe\sgraph\sfor\sa\sbranch\ssuch\sthat\sthe\srail\sfor\sthat\sbranch\sis\non\sthe\sleft\smargin,\stry\sto\sdraw\smerge\slines\scoming\sinto\sthat\sbranch\son\srails\njust\sto\sthe\sright\sof\sthe\sbranch\sitself.
-D 2022-03-07T20:00:30.661
+C Fix\svery\sminor\scomment\stypos.
+D 2022-03-07T21:01:33.734
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -478,7 +478,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c 2b7b52bb361753058ece76eb1cd41eb31ab0beaedf406018d0d90f2a26525c9e
-F src/graph.js 64969f41d5da8334630a7ddb81385b6fc6c3a9c81b58fc02376caf2137d38348
+F src/graph.js bf5c57e1932629ba111dde7d7194c1a84bff7dc9757bbc843586f8d3029e5f12
 F src/gzip.c 91e63f775512d36ed388beff8e6c22cf5b4ccfd983a635ab5f4de651813e013e
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -589,7 +589,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 4130c13999e3d7c79ef44890cb4c0f921c33e2f98bb1f85e3bba81e4d5f1757e
+F src/timeline.c e707f926d3bdd8b0042904ae602c80e8d2a76906bd77cddeaa8df460ebc26798
 F src/tkt.c 5e67539aadbf8084b712e1543c06b31cc8a8a870cf477ae0e329362d1ad747ed
 F src/tktsetup.c cee83ae5c89d8e0dc765fbb212e413b7c318369fc4fbc44ce3d6bed226fd9142
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14da62eeb5641bf95ac5fa17bf5fef0cd98a9a6eab9d6713aa3b4b7f6a486dc7
-R 589386294826b224d5fd59ee0dc23426
+P 8b1e14df0b02c73c4c60d5d40332fad87c59ab7c9e4664ca98666952f4ad8b64
+R 117038dc206422ef728e1a09dd953fca
 U drh
-Z c9a8a9b238390207126d12bb8b3467e5
+Z f9c30633c44c24c66e3871b95cdf8941
 # Remove this line to create a well-formed Fossil manifest.

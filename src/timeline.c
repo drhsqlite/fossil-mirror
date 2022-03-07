@@ -913,7 +913,7 @@ void timeline_output_graph_javascript(
     **        merge line, if this value exists.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
-    **        the top of the page or just up a little wasy, -1 if there is
+    **        the top of the page or just up a little ways, -1 if there is
     **        no thick-line riser (if the node is a leaf).
     **   sb:  Draw a dotted child-line out of the top of this node up to the
     **        node with the id equal to the value.  This is like "u" except

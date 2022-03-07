@@ -357,7 +357,7 @@ function TimelineGraph(tx){
     drawLine(cpLine,null,x0,y0,x1,y1);
   }
   /* Draw an arrow representing an in-bound merge from the "rail"-th rail
-  ** over to the node of "p".  Make is a checkpoint merge is "isCP" is true */
+  ** over to the node of "p".  Make it a checkpoint merge is "isCP" is true */
   function drawMergeArrow(p,rail,isCP){
     var x0 = rail*railPitch + node.w/2;
     if( rail in mergeLines ){
