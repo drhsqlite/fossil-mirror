@@ -174,8 +174,8 @@ int start_of_branch(int rid, int eType){
     "     WHERE cid=par.pid AND isprim AND par.ex "
     "     LIMIT 100000 "
     "  )"
-    " SELECT pid FROM par ORDER BY cnt DESC LIMIT 1",
-    TAG_BRANCH, zBr, ans, TAG_BRANCH, zBr
+    " SELECT pid FROM par WHERE ex>=%d ORDER BY cnt DESC LIMIT 1",
+    TAG_BRANCH, zBr, ans, TAG_BRANCH, zBr, eType%2
   );
   fossil_free(zBr);
   rc = db_step(&q);
