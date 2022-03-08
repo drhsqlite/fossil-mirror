@@ -1380,10 +1380,63 @@ LOCAL void db_protected_setting_func(
 }
 
 /*
+** Copied from SQLite ext/misc/uint.c...
+**
+** Compare text in lexicographic order, except strings of digits
+** compare in numeric order.
+**
+** This version modified to also ignore case.
+*/
+static int uintNocaseCollFunc(
+  void *notUsed,
+  int nKey1, const void *pKey1,
+  int nKey2, const void *pKey2
+){
+  const unsigned char *zA = (const unsigned char*)pKey1;
+  const unsigned char *zB = (const unsigned char*)pKey2;
+  int i=0, j=0, x;
+  (void)notUsed;
+  while( i<nKey1 && j<nKey2 ){
+    if( fossil_isdigit(zA[i]) ){
+      int k;
+      if( !fossil_isdigit(zB[j]) ) return x;
+      while( i<nKey1 && zA[i]=='0' ){ i++; }
+      while( j<nKey2 && zB[j]=='0' ){ j++; }
+      k = 0;
+      while( i+k<nKey1 && fossil_isdigit(zA[i+k])
+          && j+k<nKey2 && fossil_isdigit(zB[j+k]) ){
+        k++;
+      }
+      if( i+k<nKey1 && fossil_isdigit(zA[i+k]) ){
+        return +1;
+      }else if( j+k<nKey2 && fossil_isdigit(zB[j+k]) ){
+        return -1;
+      }else{
+        x = memcmp(zA+i, zB+j, k);
+        if( x ) return x;
+        i += k;
+        j += k;
+      }
+    }else
+    if( zA[i]!=zB[j]
+     && (x = fossil_tolower(zA[i]) - fossil_tolower(zB[j]))!=0
+    ){
+      return x;
+    }else{
+      i++;
+      j++;
+    }
+  }
+  return (nKey1 - i) - (nKey2 - j);
+}
+
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
 void db_add_aux_functions(sqlite3 *db){
+  sqlite3_create_collation(db, "uintnocase", SQLITE_UTF8,0,uintNocaseCollFunc);
   sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
                           db_checkin_mtime_function, 0, 0);
   sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
