@@ -111,6 +111,7 @@ struct GraphContext {
   char **azBranch;           /* Names of the branches */
   int nRow;                  /* Number of rows */
   int nHash;                 /* Number of slots in apHash[] */
+  u64 mergeRail;             /* Rails used for merge lines */
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
   u8 aiRailMap[GR_MAX_RAIL]; /* Mapping of rails to actually columns */
 };
@@ -121,7 +122,7 @@ struct GraphContext {
 #define BIT(N)  (((u64)1)<<(N))
 
 /*
-** Number of rows before and answer a node with a riser or descender
+** Number of rows before and after a node with a riser or descender
 ** that goes off-screen before we can reuse that rail.
 */
 #define RISER_MARGIN 4
@@ -277,7 +278,8 @@ int graph_add_row(
 static int findFreeRail(
   GraphContext *p,         /* The graph context */
   int top, int btm,        /* Span of rows for which the rail is needed */
-  int iNearto              /* Find rail nearest to this rail */
+  int iNearto,             /* Find rail nearest to this rail */
+  int bMergeRail           /* This rail will be used for a merge line */
 ){
   GraphRow *pRow;
   int i;
@@ -289,11 +291,34 @@ static int findFreeRail(
     inUseMask |= pRow->railInUse;
     pRow = pRow->pNext;
   }
-  for(i=0; i<GR_MAX_RAIL; i++){
-    if( (inUseMask & BIT(i))==0 ){
+
+  /* First look for a match that honors bMergeRail */
+  for(i=0; i<=p->mxRail; i++){
+    u64 m = BIT(i);
+    int dist;
+    if( inUseMask & m ) continue;
+    if( (bMergeRail!=0) != ((p->mergeRail & m)!=0) ) continue;
+    if( iNearto<=0 ){
+      iBest = i;
+      iBestDist = 1;
+      break;
+    }
+    dist = i - iNearto;
+    if( dist<0 ) dist = -dist;
+    if( dist<iBestDist ){
+      iBestDist = dist;
+      iBest = i;
+    }
+  }
+  
+  /* If no match, consider all possible rails */
+  if( iBestDist>1000 ){
+    for(i=0; i<=p->mxRail+1; i++){
       int dist;
+      if( inUseMask & BIT(i) ) continue;
       if( iNearto<=0 ){
         iBest = i;
+        iBestDist = 1;
         break;
       }
       dist = i - iNearto;
@@ -306,6 +331,7 @@ static int findFreeRail(
   }
   if( iBestDist>1000 ) p->nErr++;
   if( iBest>p->mxRail ) p->mxRail = iBest;
+  if( bMergeRail ) p->mergeRail |= BIT(iBest);
   return iBest;
 }
 
@@ -371,7 +397,8 @@ static void createMergeRiser(
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
-      pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1, iTarget);
+      pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1,
+                                       iTarget, 1);
       mask = BIT(pParent->mergeOut);
       for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
            pLoop=pLoop->pNext){
@@ -648,7 +675,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       if( pRow->isDup ) continue;
       if( pRow->nParent<0 ) continue;
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
-        pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+riserMargin, 0);
+        pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+riserMargin,0,0);
         if( p->mxRail>=GR_MAX_RAIL ) return;
         mask = BIT(pRow->iRail);
         if( !omitDescenders ){
@@ -692,7 +719,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         /* Common case:  Child occurs after parent and is above the
         ** parent in the timeline */
         pRow->iRail = findFreeRail(p, pRow->idxTop, pParent->idx,
-                                   pParent->iRail);
+                                   pParent->iRail, 0);
         if( p->mxRail>=GR_MAX_RAIL ) return;
         pParent->aiRiser[pRow->iRail] = pRow->idx;
       }else{
@@ -743,7 +770,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       GraphRowId parentRid = pRow->aParent[i];
       if( i==pRow->nNonCherrypick ){
         /* Because full merges are laid out before cherrypicks,
-        ** it is ok to use a full-merge raise for a cherrypick.
+        ** it is ok to use a full-merge raiser for a cherrypick.
         ** See the graph on check-in 8ac66ef33b464d28 for example
         **    iReuseIdx = -1;
         **    iReuseRail = -1; */
@@ -763,7 +790,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           }
         }
         if( iMrail==-1 ){
-          iMrail = findFreeRail(p, pRow->idx, p->pLast->idx, 0);
+          iMrail = findFreeRail(p, pRow->idx, p->pLast->idx, 0, 1);
           if( p->mxRail>=GR_MAX_RAIL ) return;
           mergeRiserFrom[iMrail] = parentRid;
         }
@@ -849,34 +876,58 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   */
   aMap = p->aiRailMap;
   for(i=0; i<=p->mxRail; i++) aMap[i] = i;
-  if( zLeftBranch && nTimewarp==0 ){
-    char *zLeft = persistBranchName(p, zLeftBranch);
-    u64 pureMergeRail = (BIT(p->mxRail)-1)<<1|1;
-    u64 toLeft = 0;
-    j = 0;
-    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-      pureMergeRail &= ~BIT(pRow->iRail);
-      if( pRow->zBranch==zLeft ){
-        for(i=0; i<=p->mxRail; i++){
-          if( pRow->mergeIn[i] ) toLeft |= BIT(i);
-        }
-        if( aMap[pRow->iRail]>=j ){
+  if( nTimewarp==0 ){
+    u8 aPriority[GR_MAX_RAIL];
+    memset(aPriority, 0, p->mxRail+1);
+    if( zLeftBranch ){
+      char *zLeft = persistBranchName(p, zLeftBranch);
+      for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+        if( pRow->zBranch==zLeft ){
+          aPriority[pRow->iRail] |= 4;
           for(i=0; i<=p->mxRail; i++){
-            if( aMap[i]>=j && aMap[i]<=pRow->iRail ) aMap[i]++;
+            if( pRow->mergeIn[i] ) aPriority[i] |= 1;
           }
-          aMap[pRow->iRail] = j++;
+          if( pRow->mergeOut>=0 ) aPriority[pRow->mergeOut] |= 1;
+        }
+      }
+    }else{
+      j = 1;
+      aPriority[0] = 4;
+      for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+        if( pRow->iRail==0 ){
+          for(i=0; i<=p->mxRail; i++){
+            if( pRow->mergeIn[i] ) aPriority[i] |= 1;
+          }
+          if( pRow->mergeOut>=0 ) aPriority[pRow->mergeOut] |= 1;
         }
       }
     }
-    toLeft &= pureMergeRail;
-    for(i=j; i<=p->mxRail; i++){
-      int k;
-      if( (BIT(i) & toLeft)==0 ) continue;
-      for(k=0; k<=p->mxRail; k++){
-        if( aMap[k]>=j && aMap[k]<=i ) aMap[k]++;
+    j = 0;
+    for(i=0; i<=p->mxRail; i++){
+      if( p->mergeRail & BIT(i) ){
+        aPriority[i] |= 2;
       }
-      aMap[i] = j;
-    }    
+    }
+
+#if 0
+    fprintf(stderr,"mergeRail: 0x%llx\n", p->mergeRail);
+    fprintf(stderr,"Priority:");
+    for(i=0; i<=p->mxRail; i++) fprintf(stderr," %d", aPriority[i]);
+    fprintf(stderr,"\n");
+#endif
+
+    for(i=0; i<=p->mxRail; i++){
+      if( aPriority[i]>=4 ) aMap[i] = j++;
+    }
+    for(i=p->mxRail; i>=0; i--){
+      if( aPriority[i]==3 ) aMap[i] = j++;
+    }
+    for(i=0; i<=p->mxRail; i++){
+      if( aPriority[i]==1 || aPriority[i]==2 ) aMap[i] = j++;
+    }
+    for(i=0; i<=p->mxRail; i++){
+      if( aPriority[i]==0 ) aMap[i] = j++;
+    }
     cgi_printf("<!-- aiRailMap =");
     for(i=0; i<=p->mxRail; i++) cgi_printf(" %d", aMap[i]);
     cgi_printf(" -->\n");
