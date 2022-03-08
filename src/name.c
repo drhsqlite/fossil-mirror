@@ -159,22 +159,29 @@ int start_of_branch(int rid, int eType){
   int ans = rid;
   char *zBr = branch_of_rid(rid);
   db_prepare(&q,
-    "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
-                       " WHERE tagid=%d AND tagtype>0"
-                       "   AND value=%Q AND rid=plink.pid)"
-    "  FROM plink"
-    " WHERE cid=:cid AND isprim",
-    TAG_BRANCH, zBr
+    "WITH RECURSIVE"
+    "  par(pid, ex, cnt) as ("
+    "    SELECT pid, EXISTS(SELECT 1 FROM tagxref"
+    "                        WHERE tagid=%d AND tagtype>0"
+    "                          AND value=%Q AND rid=plink.pid), 1"
+    "    FROM plink WHERE cid=%d AND isprim"
+    "    UNION ALL "
+    "    SELECT plink.pid, EXISTS(SELECT 1 FROM tagxref "
+    "                              WHERE tagid=%d AND tagtype>0" 
+    "                                AND value=%Q AND rid=plink.pid),"
+    "           1+par.cnt"
+    "      FROM plink, par"
+    "     WHERE cid=par.pid AND isprim AND par.ex "
+    "     LIMIT 100000 "
+    "  )"
+    " SELECT pid FROM par WHERE ex>=%d ORDER BY cnt DESC LIMIT 1",
+    TAG_BRANCH, zBr, ans, TAG_BRANCH, zBr, eType%2
   );
   fossil_free(zBr);
-  do{
-    db_reset(&q);
-    db_bind_int(&q, ":cid", ans);
-    rc = db_step(&q);
-    if( rc!=SQLITE_ROW ) break;
-    if( eType==1 && db_column_int(&q,1)==0 ) break;
+  rc = db_step(&q);
+  if( rc==SQLITE_ROW ){ 
     ans = db_column_int(&q, 0);
-  }while( db_column_int(&q, 1)==1 && ans>0 );
+  }
   db_finalize(&q);
   if( eType==2 && ans>0 ){
     zBr = branch_of_rid(ans);
