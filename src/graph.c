@@ -400,7 +400,7 @@ static void createMergeRiser(
 
   if( pParent->mergeOut<0 ){
     u = pParent->aiRiser[pParent->iRail];
-    if( u<0 && railIsClear(pParent->pPrev, pChild->idx-1, pParent->iRail) ){
+    if( u<0 && railIsClear(pParent->pPrev, pChild->idx, pParent->iRail) ){
       /* pParent is a leaf and the merge-line can be drawn straight up.*/
       pParent->mergeOut = pParent->iRail;
       mask = BIT(pParent->iRail);
