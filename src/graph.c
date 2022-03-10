@@ -371,14 +371,28 @@ static void assignChildrenToRail(GraphRow *pBottom, u32 tmFlags){
   }
 }
 
+
+/*
+** Check to see if rail iRail is clear from pBottom up to and including
+** pTop.
+*/
+static int railIsClear(GraphRow *pBottom, int iTop, int iRail){
+  u64 m = BIT(iRail);
+  while( pBottom && pBottom->idx>=iTop ){
+    if( pBottom->railInUse & m ) return 0;
+    pBottom = pBottom->pPrev;
+  }
+  return 1;
+}
+
 /*
 ** Create a merge-arrow riser going from pParent up to pChild.
 */
 static void createMergeRiser(
   GraphContext *p,
-  GraphRow *pParent,
-  GraphRow *pChild,
-  int isCherrypick
+  GraphRow *pParent,    /* Lower node from which the merge line begins */
+  GraphRow *pChild,     /* Upper node at which the merge line ends */
+  int isCherrypick      /* True for a cherry-pick merge */
 ){
   int u;
   u64 mask;
@@ -386,7 +400,15 @@ static void createMergeRiser(
 
   if( pParent->mergeOut<0 ){
     u = pParent->aiRiser[pParent->iRail];
-    if( u>0 && u<pChild->idx ){
+    if( u<0 && railIsClear(pParent->pPrev, pChild->idx-1, pParent->iRail) ){
+      /* pParent is a leaf and the merge-line can be drawn straight up.*/
+      pParent->mergeOut = pParent->iRail;
+      mask = BIT(pParent->iRail);
+      for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
+           pLoop=pLoop->pNext){
+        pLoop->railInUse |= mask;
+      }
+    }else if( u>0 && u<pChild->idx ){
       /* The thick arrow up to the next primary child of pDesc goes
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */

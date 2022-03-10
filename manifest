@@ -1,5 +1,5 @@
-C On\sfile\slisting\spages,\ssort\sfiles\sthat\shave\snumbers\sas\spart\sof\stheir\sname\nin\snumeric\sorder.
-D 2022-03-08T20:47:08.210
+C Graph\slayout:\s\sStrive\sharder\sfor\smerge\sarrows\sto\scome\sstraight\sup\sout\sof\sthe\ntop\sof\sleaf\snodes.
+D 2022-03-10T12:35:34.244
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -477,7 +477,7 @@ F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
-F src/graph.c 2ea6e96a360710d3cd319368418b277e53c09954ede84d8d263e8a6e7ece0d3a
+F src/graph.c b058c9f891dc531cf21dd80a7e659611f73c3d332925306b42bc99a2dcd2eebc
 F src/graph.js 19b41cadaaeef5bcbca54e042c140cc9773a7a7919a7b8ffc8ef6a870924116e
 F src/gzip.c 91e63f775512d36ed388beff8e6c22cf5b4ccfd983a635ab5f4de651813e013e
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8736de8baad75d2630f96ef649bd3b85010eae6a89e4916f044695136aca2453
-R 4038a89c4b180b3070cb5a3eaaa7d4e7
+P 59dfca5ed575d6e321b895e392ca21405eedf13618254dc856f331ce866e3c66
+R 502aab82c16dfd4a2f1388874061c61e
 U drh
-Z c0ccaeb8f2399c79d8b1b068e28e8885
+Z c08b2b23eada522bf36f5c2cb5c763f0
 # Remove this line to create a well-formed Fossil manifest.
