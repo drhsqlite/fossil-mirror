@@ -1397,9 +1397,8 @@ static int uintNocaseCollFunc(
   int i=0, j=0, x;
   (void)notUsed;
   while( i<nKey1 && j<nKey2 ){
-    if( fossil_isdigit(zA[i]) ){
+    if( fossil_isdigit(zA[i]) && fossil_isdigit(zB[j]) ){
       int k;
-      if( !fossil_isdigit(zB[j]) ) return x;
       while( i<nKey1 && zA[i]=='0' ){ i++; }
       while( j<nKey2 && zB[j]=='0' ){ j++; }
       k = 0;
