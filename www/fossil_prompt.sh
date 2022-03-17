@@ -1,4 +1,3 @@
-
 #-------------------------------------------------------------------------
 #   get_fossil_data()
 #
@@ -28,7 +27,7 @@ function get_fossil_data2() {
 #
 # Set the PS1 variable. If the current directory is part of a fossil
 # checkout then the prompt contains information relating to the state
-# of the checkout.
+# of the checkout. 
 #
 # Otherwise, if the current directory is not part of a fossil checkout, it
 # is set to a fairly standard bash prompt containing the host name, user
@@ -36,15 +35,8 @@ function get_fossil_data2() {
 #
 function set_prompt() {
   get_fossil_data
-  if [ -n "$fossil_info_project_name" ] ; then
-    project=$fossil_info_project_name
-    checkout=`echo $fossil_info_checkout | sed 's/^\(........\).*/\1/'`
-    date=`echo $fossil_info_checkout | sed 's/^[^ ]* *..//' | sed 's/:[^:]*$//'`
-    tags=$fossil_info_tags
-    local_root=`echo $fossil_info_local_root | sed 's/\/$//'`
-    local=`pwd | sed "s*${local_root}**" | sed "s/^$/\//"`
-
-    # Color the first part of the prompt blue if this is a clean checkout.
+  if [ -n "$fossil_info_project_name" ] ; then 
+    # Color the path part of the prompt blue if this is a clean checkout
     # Or red if it has been edited in any way at all. Set $c1 to the escape
     # sequence required to change the type to the required color. And $c2
     # to the sequence that changes it back.
@@ -55,10 +47,9 @@ function set_prompt() {
       c1="\[\033[1;34m\]"           # blue
     fi
     c2="\[\033[0m\]"
-
-    PS1="$c1${project}.${tags}$c2 ${checkout} (${date}):${local}$c1\$$c2 "
+    PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:$c1\w\$$c2 "
   else
-    PS1="\u@\h:\w\$ "
+    PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\w\$ "
   fi
 }
 
