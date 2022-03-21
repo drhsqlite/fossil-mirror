@@ -1,5 +1,5 @@
-C Typo\sfix\sfrom\s[forum:a7a52ce98a\s|\sforum\spost\sa7a52ce98a].
-D 2022-03-21T16:42:32.317
+C Typo\sand\slink\sfixes\svia\s[forum:09c35aec52377b41\s|\sforum\spost\s09c35aec52377b41].
+D 2022-03-21T17:36:59.182
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -896,7 +896,7 @@ F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
-F www/makefile.wiki 23bf5d796a453252bd54e91f7831962e597c299d3904df0f76d7edba34e5c95d
+F www/makefile.wiki 19bd2d5843ee6277253dea41e7a540bc63bf55747a60909d22b24ad585287908
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cca805fa894784cc983bea387a6b8844bb8b90d3c1b2dbce77778e7b8baf344f
-R b794abae3fd01a3173933aab99a32673
+P c3d321fb6f27a0c6617b97eba29b6d96490232af20d684edd3f98bf83c091fae
+R d06e61d7f201881908e1313876c82330
 U stephan
-Z 0d01b48da101342e8fd8f0b9c9685bb3
+Z 7dcebd38e2cfa0a4accee12a2c55e1c9
 # Remove this line to create a well-formed Fossil manifest.
