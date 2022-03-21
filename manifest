@@ -1,5 +1,5 @@
-C Update\sthe\sfossil_prompt.sh\sscript\sso\sthat\sit\skeeps\sthe\susername\sand\shostname\npart\sof\sthe\sprompt\sgreen\sand\sonly\schanges\sthe\spath\sfrom\sred\sto\sgreen.
-D 2022-03-17T12:01:11.111
+C Typo\sfix\sfrom\s[forum:a7a52ce98a\s|\sforum\spost\sa7a52ce98a].
+D 2022-03-21T16:42:32.317
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -751,7 +751,7 @@ F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
-F tools/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
+F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 41c6473c6bd3df27e6bbe828ca107ac32475285b3d4272dee08c368ad8d1534d x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b39475b6253408c09f8af09e8517ac7c47f71e8c646d4916c47d7ed8cd5f615d
-R 6e74009db2ae7dfc5077b6574df506c0
-U drh
-Z f6d54efd7a090418b68442b756913d36
+P cca805fa894784cc983bea387a6b8844bb8b90d3c1b2dbce77778e7b8baf344f
+R b794abae3fd01a3173933aab99a32673
+U stephan
+Z 0d01b48da101342e8fd8f0b9c9685bb3
 # Remove this line to create a well-formed Fossil manifest.
