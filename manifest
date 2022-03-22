@@ -1,5 +1,5 @@
-C Typo\sand\slink\sfixes\svia\s[forum:09c35aec52377b41\s|\sforum\spost\s09c35aec52377b41].
-D 2022-03-21T17:36:59.182
+C For\sMSVC\sbuild,\suse\s/utf-8\soption\sfor\sCL\s(because\ssome\ssources\sneed\sit\sand\sthis\shelps\swhen\ssome\scodepages\sare\sin\seffect)
+D 2022-03-22T11:46:55.189
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -752,7 +752,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 41c6473c6bd3df27e6bbe828ca107ac32475285b3d4272dee08c368ad8d1534d x
+F tools/makemake.tcl fe1a25f58ff083d59de8dd37ba2a4420e66a66045ab668ef3895facf3510e7b6 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F tools/mkindex.c b5c2cf8c00e9ae8d2bc1f4eba68b59fcde6febdff3a2a9a791b20c96526d074a
@@ -763,7 +763,7 @@ F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e
 F win/Makefile.dmc 7e2369b8e26dfc9267b078b5ba494d0efd41e334b370de5e2a33d690c8725a7a
 F win/Makefile.mingw 2dc12db4bfd20ccf1998fce0583cf971fd9ce461a48a404e65d9e84dc9738619
 F win/Makefile.mingw.mistachkin fbaee5006f0376e00fd135fa4159c4a12a7183d61e933d67df08c3469ac97a2b
-F win/Makefile.msc 7c9ffee735ebb9871dbbb03c3e09fa7797cbb31d9309495215900a9ff1f5d21e
+F win/Makefile.msc 7d5c3c5a7400839b14ef591cae6408c69e75ecee18f1a9fd48f417280faeb417
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3d321fb6f27a0c6617b97eba29b6d96490232af20d684edd3f98bf83c091fae
-R d06e61d7f201881908e1313876c82330
-U stephan
-Z 7dcebd38e2cfa0a4accee12a2c55e1c9
+P 1b13f430c6e65ec61691c779c9b5a4a409253a8507f64c7bfb6ae2108044e138
+R e6c146ce67f21e24729b048a87b2ca5c
+U larrybr
+Z 212bcd2b02041c1eea8089932b31f95e
 # Remove this line to create a well-formed Fossil manifest.
