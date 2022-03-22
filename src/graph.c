@@ -84,7 +84,8 @@ struct GraphRow {
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 isLeaf;                  /* True if this is a leaf node */
-  u8 isStepParent;            /* pChild is actually a step-child */
+  u8 isStepParent;            /* pChild is actually a step-child. The thick
+                              ** arrow up to the child is dashed, not solid */
   u8 hasNormalOutMerge;       /* Is parent of at laest 1 non-cherrypick merge */
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
@@ -111,6 +112,8 @@ struct GraphContext {
   char **azBranch;           /* Names of the branches */
   int nRow;                  /* Number of rows */
   int nHash;                 /* Number of slots in apHash[] */
+  u8 hasOffsetMergeRiser;    /* Merge arrow from leaf goes up on a different
+                             ** rail that the node */
   u64 mergeRail;             /* Rails used for merge lines */
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
   u8 aiRailMap[GR_MAX_RAIL]; /* Mapping of rails to actually columns */
@@ -419,6 +422,7 @@ static void createMergeRiser(
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
+      if( u<0 ) p->hasOffsetMergeRiser = 1;
       pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1,
                                        iTarget, 1);
       mask = BIT(pParent->mergeOut);
@@ -471,7 +475,6 @@ static void riser_to_top(GraphRow *pRow){
     pRow = pRow->pPrev;
   }
 }
-
 
 /*
 ** Compute the complete graph
@@ -889,6 +892,70 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   ** Find the maximum rail number.
   */
   find_max_rail(p);
+
+  /* If a leaf node has a merge riser going up on a different rail,
+  ** try to move the rail of the node (and its ancestors) to be underneath
+  ** the merge riser.  This is an optimization that improves the
+  ** appearance of graph but is not strictly necessary.
+  */
+  if( nTimewarp==0 && p->hasOffsetMergeRiser ){
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      GraphRow *pBottom;       /* Bottom row of a branch */
+      GraphRow *pRoot;         /* Node off of which the branch diverges */
+      int iFrom;               /* Proposed to move from this rail */
+      int iTo;                 /* Move the branch to this rail */
+
+      iFrom = pRow->iRail;
+      if( pRow->aiRiser[iFrom]>=0 ) continue;  /* Not a leaf */
+      if( pRow->mergeOut<0 ) continue;         /* No merge riser */
+      if( pRow->mergeOut==iFrom ) continue;    /* Riser already aligned */
+      iTo = pRow->mergeOut;
+
+      /* Find the bottom (oldest) node in the branch */
+      pBottom = 0;
+      for(pLoop=pRow; pLoop; pLoop=pLoop->pNext){
+        if( pLoop->idxTop==pRow->idx ) pBottom = pLoop;
+      }
+      if( pBottom==0 ) continue;  /* Not possible */
+
+      /* Verify that the rail we want to shift into is clear */
+      pLoop = pBottom;
+      if( pLoop->pNext ) pLoop = pLoop->pNext;
+      if( !railIsClear(pLoop, pRow->idx+1, iTo) ){
+        /* Other nodes or risers are already using the space that
+        ** we propose to move the pRow branch into. */
+        continue;
+      }
+
+      /* Find the "root" of the branch.  The root is a different branch
+      ** from which the pRow branch emerges.  There might not be a root
+      ** if the pRow branch started off the bottom of the screen.
+      */
+      for(pRoot=pBottom->pNext; pRoot; pRoot=pRoot->pNext){
+        if( pRoot->aiRiser[iFrom]>=0 ) break;
+      }
+      if( pRoot && pRoot->iRail==iTo ){
+        /* The parent branch from which this branch emerges is on the
+        ** same rail as pRow.  Do not shift as that would stack a child
+        ** branch directly above its parent. */
+        continue;
+      }
+
+      /* All clear.  Make the translation
+      */      
+      for(pLoop=pRow; pLoop && pLoop->idx<=pBottom->idx; pLoop=pLoop->pNext){
+        if( pLoop->iRail==iFrom ){
+          pLoop->iRail = iTo;
+          pLoop->aiRiser[iTo] = pLoop->aiRiser[iFrom];
+          pLoop->aiRiser[iFrom] = -1;
+        }
+      }
+      if( pRoot ){
+        pRoot->aiRiser[iTo] = pRoot->aiRiser[iFrom];
+        pRoot->aiRiser[iFrom] = -1;
+      }
+    }
+  }
 
   /*
   ** Compute the rail mapping that tries to put the branch named
