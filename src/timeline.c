@@ -927,10 +927,9 @@ void timeline_output_graph_javascript(
     **        are no risers, this array does not exist.
     **   mi:  "merge-in".  An array of integer rail positions from which
     **        merge arrows should be drawn into this node.  If the value is
-    **        negative, then the rail position is the absolute value of mi[]
-    **        and a thin merge-arrow descender is drawn to the bottom of
-    **        the screen. This array is omitted if there are no inbound
-    **        merges.
+    **        negative, then the rail position is -1-mi[] and a thin merge-arrow
+    **        descender is drawn to the bottom of the screen. This array is
+    **        omitted if there are no inbound merges.
     **   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
     **        omitted if there are no cherrypick merges.
     **    h:  The artifact hash of the object being graphed
@@ -983,7 +982,7 @@ void timeline_output_graph_javascript(
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i]==1 ){
           int mi = aiMap[i];
-          if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
+          if( (pRow->mergeDown >> i) & 1 ) mi = -1-mi;
           if( k==0 ){
             cgi_printf("\"mi\":");
             cSep = '[';

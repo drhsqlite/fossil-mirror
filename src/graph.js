@@ -55,10 +55,9 @@
 **        are no risers, this array does not exist.
 **   mi:  "merge-in".  An array of integer rail positions from which
 **        merge arrows should be drawn into this node.  If the value is
-**        negative, then the rail position is the absolute value of mi[]
-**        and a thin merge-arrow descender is drawn to the bottom of
-**        the screen. This array is omitted if there are no inbound
-**        merges.
+**        negative, then the rail position is -1-mi[] and a thin merge-arrow
+**        descender is drawn to the bottom of the screen. This array is
+**        omitted if there are no inbound merges.
 **   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
 **        omitted if there are no cherrypick merges.
 **    h:  The artifact hash of the object being graphed
@@ -514,7 +513,7 @@ function TimelineGraph(tx){
       for( var i=0; i<p.mi.length; i++ ){
         var rail = p.mi[i];
         if( rail<0 ){
-          rail = -rail;
+          rail = -1-rail;
           mergeLines[rail] = -mLine.w/2;
           var x = rail*railPitch + (node.w-mLine.w)/2;
           var y = miLineY(p);
