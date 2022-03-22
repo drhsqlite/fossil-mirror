@@ -1,5 +1,5 @@
-C For\sMSVC\sbuild,\suse\s/utf-8\soption\sfor\sCL\s(because\ssome\ssources\sneed\sit\sand\sthis\shelps\swhen\ssome\scodepages\sare\sin\seffect)
-D 2022-03-22T11:46:55.189
+C Improved\scomments\son\sthe\sgraph\slayout\srail\sshuffling.
+D 2022-03-22T13:30:19.281
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -477,7 +477,7 @@ F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
-F src/graph.c b04f222a6b47810a982d9a6b040fbb99f21f25aeddcaa4f5bb47dd1f76a55804
+F src/graph.c 93cda230404773ab0e579f2d1d895af151c5d0b77f6d63927bedd891149eaf44
 F src/graph.js 19b41cadaaeef5bcbca54e042c140cc9773a7a7919a7b8ffc8ef6a870924116e
 F src/gzip.c 91e63f775512d36ed388beff8e6c22cf5b4ccfd983a635ab5f4de651813e013e
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b13f430c6e65ec61691c779c9b5a4a409253a8507f64c7bfb6ae2108044e138
-R e6c146ce67f21e24729b048a87b2ca5c
-U larrybr
-Z 212bcd2b02041c1eea8089932b31f95e
+P 0324515b5971557bb2e9df35badb482a80e09674728157736ceda0d932c2309f
+R c07ac18f89f84bb4fb61e9d1be0d611d
+U drh
+Z 09899638567c7a345c605bab91376b1f
 # Remove this line to create a well-formed Fossil manifest.
