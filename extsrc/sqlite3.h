@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.39.0"
 #define SQLITE_VERSION_NUMBER 3039000
-#define SQLITE_SOURCE_ID      "2022-03-11 15:42:05 0606e8e93edb5de4d154f377dbf91f15295d25ca9013c0f1612ae6d63a0139ea"
+#define SQLITE_SOURCE_ID      "2022-03-23 10:04:52 43143ad131f17734fd2eff849e0a1bc2e26daf6a28c7e07d697d38732e6af5fc"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5593,7 +5593,8 @@ SQLITE_API unsigned int sqlite3_value_subtype(sqlite3_value*);
 ** object D and returns a pointer to that copy.  ^The [sqlite3_value] returned
 ** is a [protected sqlite3_value] object even if the input is not.
 ** ^The sqlite3_value_dup(V) interface returns NULL if V is NULL or if a
-** memory allocation fails.
+** memory allocation fails. ^If V is a [pointer value], then the result
+** of sqlite3_value_dup(V) is a NULL value.
 **
 ** ^The sqlite3_value_free(V) interface frees an [sqlite3_value] object
 ** previously obtained from [sqlite3_value_dup()].  ^If V is a NULL pointer
@@ -9554,8 +9555,8 @@ SQLITE_API SQLITE_EXPERIMENTAL const char *sqlite3_vtab_collation(sqlite3_index_
 ** of a [virtual table] implementation. The result of calling this
 ** interface from outside of xBestIndex() is undefined and probably harmful.
 **
-** ^The sqlite3_vtab_distinct() interface returns an integer that is
-** either 0, 1, or 2.  The integer returned by sqlite3_vtab_distinct()
+** ^The sqlite3_vtab_distinct() interface returns an integer between 0 and
+** 3.  The integer returned by sqlite3_vtab_distinct()
 ** gives the virtual table additional information about how the query
 ** planner wants the output to be ordered. As long as the virtual table
 ** can meet the ordering requirements of the query planner, it may set
@@ -9587,6 +9588,13 @@ SQLITE_API SQLITE_EXPERIMENTAL const char *sqlite3_vtab_collation(sqlite3_index_
 ** that have the same value for all columns identified by "aOrderBy".
 ** ^However omitting the extra rows is optional.
 ** This mode is used for a DISTINCT query.
+** <li value="3"><p>
+** ^(If the sqlite3_vtab_distinct() interface returns 3, that means
+** that the query planner needs only distinct rows but it does need the
+** rows to be sorted.)^ ^The virtual table implementation is free to omit
+** rows that are identical in all aOrderBy columns, if it wants to, but
+** it is not required to omit any rows.  This mode is used for queries
+** that have both DISTINCT and ORDER BY clauses.
 ** </ol>
 **
 ** ^For the purposes of comparing virtual table output values to see if the

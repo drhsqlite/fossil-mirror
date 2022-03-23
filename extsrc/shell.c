@@ -7964,9 +7964,14 @@ static int zipfileFilter(
     zipfileCursorErr(pCsr, "zipfile() function requires an argument");
     return SQLITE_ERROR;
   }else if( sqlite3_value_type(argv[0])==SQLITE_BLOB ){
+    static const u8 aEmptyBlob = 0;
     const u8 *aBlob = (const u8*)sqlite3_value_blob(argv[0]);
     int nBlob = sqlite3_value_bytes(argv[0]);
     assert( pTab->pFirstEntry==0 );
+    if( aBlob==0 ){
+      aBlob = &aEmptyBlob;
+      nBlob = 0;
+    }
     rc = zipfileLoadDirectory(pTab, aBlob, nBlob);
     pCsr->pFreeEntry = pTab->pFirstEntry;
     pTab->pFirstEntry = pTab->pLastEntry = 0;
@@ -16080,8 +16085,10 @@ static void open_db(ShellState *p, int openFlags){
     sqlite3_dbdata_init(p->db, 0, 0);
 #endif
 #ifdef SQLITE_HAVE_ZLIB
-    sqlite3_zipfile_init(p->db, 0, 0);
-    sqlite3_sqlar_init(p->db, 0, 0);
+    if( !p->bSafeModePersist ){
+      sqlite3_zipfile_init(p->db, 0, 0);
+      sqlite3_sqlar_init(p->db, 0, 0);
+    }
 #endif
     sqlite3_create_function(p->db, "shell_add_schema", 3, SQLITE_UTF8, 0,
                             shellAddSchemaName, 0, 0);
@@ -20672,9 +20679,10 @@ static int do_meta_command(char *zLine, ShellState *p){
     int bTxtMode = 0;
     int i;
     int eMode = 0;
-    int bBOM = 0;
-    int bOnce = 0;  /* 0: .output, 1: .once, 2: .excel */
+    int bOnce = 0;            /* 0: .output, 1: .once, 2: .excel */
+    unsigned char zBOM[4];    /* Byte-order mark to using if --bom is present */
 
+    zBOM[0] = 0;
     failIfSafeMode(p, "cannot run .%s in safe mode", azArg[0]);
     if( c=='e' ){
       eMode = 'x';
@@ -20687,7 +20695,10 @@ static int do_meta_command(char *zLine, ShellState *p){
       if( z[0]=='-' ){
         if( z[1]=='-' ) z++;
         if( strcmp(z,"-bom")==0 ){
-          bBOM = 1;
+          zBOM[0] = 0xef;
+          zBOM[1] = 0xbb;
+          zBOM[2] = 0xbf;
+          zBOM[3] = 0;
         }else if( c!='e' && strcmp(z,"-x")==0 ){
           eMode = 'x';  /* spreadsheet */
         }else if( c!='e' && strcmp(z,"-e")==0 ){
@@ -20756,7 +20767,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         p->out = stdout;
         rc = 1;
       }else{
-        if( bBOM ) fprintf(p->out,"\357\273\277");
+        if( zBOM[0] ) fwrite(zBOM, 1, 3, p->out);
         sqlite3_snprintf(sizeof(p->outfile), p->outfile, "%s", zFile);
       }
 #endif
@@ -20769,7 +20780,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         p->out = stdout;
         rc = 1;
       } else {
-        if( bBOM ) fprintf(p->out,"\357\273\277");
+        if( zBOM[0] ) fwrite(zBOM, 1, 3, p->out);
         sqlite3_snprintf(sizeof(p->outfile), p->outfile, "%s", zFile);
       }
     }
@@ -22643,7 +22654,8 @@ static int process_input(ShellState *p){
       qss = QSS_Start;
     }
   }
-  if( nSql && QSS_PLAINDARK(qss) ){
+  if( nSql ){
+    /* This may be incomplete. Let the SQL parser deal with that. */
     errCnt += runOneSqlLine(p, zSql, p->in, startline);
   }
   free(zSql);
