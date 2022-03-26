@@ -1,7 +1,16 @@
 <title>Change Log</title>
 
 <h2 id='v2_19'>Changes for version 2.19 (pending)</h2>
-  *  <i>none yet...</i>
+  *  On file listing pages, sort filenames using the "uintnocase" collating
+     sequence, so that filenames that contains embedded integers sort in
+     numeric order even if they contain a different number of digits.
+     (Example:  "fossil_80_..." comes before "fossil_100.png" in the
+     [/dir?ci=92fd091703a28c07&name=skins/blitz|/skins/blitz] directory listing.)
+  *  Enhancements to the graph layout algorithm design to improve readability
+     and promote better situational awareness.
+  *  Performance enhancement for the 
+     [./checkin_names.wiki#root|"root:BRANCHNAME" style of tag],
+     accomplished using a Common Table Expression in the underlying SQL.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands

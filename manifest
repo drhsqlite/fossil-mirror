@@ -1,5 +1,5 @@
-C Fix\shyperlink\sas\sper\s[forum:381b1fa627\s|\sforum\spost\s381b1fa627].
-D 2022-03-24T10:25:05.330
+C Updates\sto\sthe\schange\slog.
+D 2022-03-26T13:09:19.955
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -797,7 +797,7 @@ F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 84154782efa309eac3ff39c7f76e4054ef121120f5bd64424c19f36030bd5ba1
+F www/changes.wiki 27b90c58a6a762b65bb96df75819dee959b438486544efcf68ae2522dc97908f
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92fd091703a28c0746b6afd4c959a538d9aedd09a4f76d1dd55e87914ccecd9e
-R ce5f76c28c44d8c0738faf74b41c3f32
-U danield
-Z 716ba62bc8596e688c7bdc147d687dcc
+P 7de6f15cd821a7a960601b2513c3438b183546f42a4f026ba5133056a7bb2faf
+R 81850fb6c26405255daed52d7a002e92
+U drh
+Z a7630e6db52f68bdc2f8c102eb638d79
 # Remove this line to create a well-formed Fossil manifest.
