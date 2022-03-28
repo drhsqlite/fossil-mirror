@@ -235,7 +235,7 @@ a different cipher algorithm; both changes are likely to weaken the
 encryption significantly, so you should install a newer version rather
 than work around the lack of these features.
 
-At the time of this writing — 2021.02.26 — macOS 11 (BigSur) ships an
+At the time of this writing — 2022.03.28 — macOS 12 (Monterey) still ships an
 outdated fork of OpenSSL 1.0 called [LibreSSL][lssl] that lacks this
 capability. Until Apple redresses this lack, we recommend use of the
 [Homebrew][hb] OpenSSL package rather than give up on the security
