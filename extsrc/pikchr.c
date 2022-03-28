@@ -6647,7 +6647,7 @@ static PNum pik_property_of(PObj *pObj, PToken *pProp){
 static PNum pik_func(Pik *p, PToken *pFunc, PNum x, PNum y){
   PNum v = 0.0;
   switch( pFunc->eCode ){
-    case FN_ABS:  v = v<0.0 ? -v : v;  break;
+    case FN_ABS:  v = x<0.0 ? -x : x;  break;
     case FN_COS:  v = cos(x);          break;
     case FN_INT:  v = rint(x);         break;
     case FN_SIN:  v = sin(x);          break;
