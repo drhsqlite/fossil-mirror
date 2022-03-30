@@ -3700,6 +3700,12 @@ typedef struct CommitDescr {
 ** Finds the closest ancestor (ignoring merge-ins) that has a non-propagating
 ** label tag and the number of steps backwards that we had to search in
 ** order to find that tag.
+**
+** Return values:
+**       0: ok
+**      -1: zName does not resolve to a commit
+**      -2: zName resolves to more than a commit
+**      -3: no ancestor commit with a fitting non-propagating tag found
 */
 int describe_commit(const char *zName, const char *matchGlob,
                     CommitDescr *descr){
@@ -3711,12 +3717,12 @@ int describe_commit(const char *zName, const char *matchGlob,
   rid = symbolic_name_to_rid(zName, "ci"); /* only commits */
 
   if( rid<=0 ){
-    /* Commit does not exist */
-    *(descr->zRelTagname) = 0;
+    /* Commit does not exist or is ambiguous */
+    descr->zRelTagname = mprintf("");
     descr->nCommitsSince = -1;
-    *(descr->zCommitHash) = 0;
+    descr->zCommitHash = mprintf("");
     descr->isDirty = -1;
-    return -1;
+    return (rid-1);
   }
 
   zUuid = rid_to_uuid(rid);
@@ -3780,9 +3786,9 @@ int describe_commit(const char *zName, const char *matchGlob,
     nRet = 0;
   }else{
     /* no ancestor commit with a fitting singleton tag found */
-    *(descr->zRelTagname) = 0;
+    descr->zRelTagname = mprintf("");
     descr->nCommitsSince = -1;
-    nRet = -2;
+    nRet = -3;
   }
 
   db_finalize(&q);
@@ -3846,6 +3852,9 @@ void describe_cmd(void){
       fossil_fatal("commit %s does not exist", zName);
       break;
     case -2:
+      fossil_fatal("commit %s is ambiguous", zName);
+      break;
+    case -3:
       fossil_print("%.*s%s\n", nDigits, descr.zCommitHash,
                   bDirtyFlag ? (descr.isDirty ? "-dirty" : "") : "");
       break;

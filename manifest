@@ -1,5 +1,5 @@
-C Add\scomments,\sformat\scode\sand\sremove\smagic\ssize\snumbers.
-D 2022-03-30T14:01:27.488
+C Fix\ssegfault\sand\sadd\smessage\sfor\sambiguous\scheckins.
+D 2022-03-30T14:36:42.338
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -489,7 +489,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c d5495c1402287fa4b2b71fecfd4322c15df7d00563981ac243e052c427f6e1c0
+F src/info.c de7d7f99923a7a54cd08b272cd6c5a9254d73c350f5761a40581c4bbaed8bf67
 F src/interwiki.c 9cbaedb286b1bec3eef15cc9be0f4240ae3bec1d8d832c8b53ec280731474d0e
 F src/json.c bdd2baa0ba08d29b7771a60f335b9907f3b1a4174bb621ef7079fc27beac0206
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f06ed14feddb8e2bb1102510aac168254b261ff0ddcc0f0a6fa4ec0363e585f
-R 9940669684103efb8ab63834f3ddeb69
+P 40de2cd9c3273f119d9a614d91f6519ae61570f6307df3803f10afd2afcbb9cb
+R a099c11c4ae87bc2272d37b5ac0f56a0
 U danield
-Z ab8836d26fbe9920c4de91f3ce92082a
+Z 29c7532738f91c8aa473842ebbdc41ef
 # Remove this line to create a well-formed Fossil manifest.
