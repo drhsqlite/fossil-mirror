@@ -3682,34 +3682,45 @@ void test_symlink_list_cmd(void){
 }
 
 #if INTERFACE
+/* 
+** Description of a checkin relative to an earlier, tagged checkin.
+*/
 typedef struct CommitDescr {
-  char zLastTag[100];
-  int nCommitsSince;
-  char zArtifactHash[65];
-  int isDirty;
+  char *zRelTagname;        /* Tag name on the relative checkin */
+  int nCommitsSince;        /* Number of commits since then */
+  char *zCommitHash;        /* Hash of the described checkin */
+  int isDirty;              /* Working directory has uncommitted changes */
 } CommitDescr;
 #endif
 
+/*
+** Describe the checkin given by 'zName', and possibly matching 'matchGlob',
+** relative to an earlier, tagged checkin. Use 'descr' for the output.
+**
+** Finds the closest ancestor (ignoring merge-ins) that has a non-propagating
+** label tag and the number of steps backwards that we had to search in
+** order to find that tag.
+*/
 int describe_commit(const char *zName, const char *matchGlob,
                     CommitDescr *descr){
-  int rid;
-  const char *zUuid;
-  int nRet = 0;
-  Stmt q;
+  int rid;             /* rid for zName */
+  const char *zUuid;   /* Hash of rid */
+  int nRet = 0;        /* Value to be returned */
+  Stmt q;              /* Query for tagged ancestors */
 
   rid = symbolic_name_to_rid(zName, "ci"); /* only commits */
 
   if( rid<=0 ){
     /* Commit does not exist */
-    *(descr->zLastTag) = 0;
+    *(descr->zRelTagname) = 0;
     descr->nCommitsSince = -1;
-    *(descr->zArtifactHash) = 0;
+    *(descr->zCommitHash) = 0;
     descr->isDirty = -1;
     return -1;
   }
 
   zUuid = rid_to_uuid(rid);
-  memcpy(descr->zArtifactHash, zUuid, strlen(zUuid)+1);
+  descr->zCommitHash = mprintf("%s", zUuid);
   descr->isDirty = unsaved_changes(0);
 
   db_multi_exec(
@@ -3764,12 +3775,12 @@ int describe_commit(const char *zName, const char *matchGlob,
 
   if( db_step(&q)==SQLITE_ROW ){
     const char *lastTag = db_column_text(&q, 4);
-    memcpy(descr->zLastTag, lastTag, strlen(lastTag)+1);
+    descr->zRelTagname = mprintf("%s", lastTag);
     descr->nCommitsSince = db_column_int(&q, 2)-1;
     nRet = 0;
   }else{
     /* no ancestor commit with a fitting singleton tag found */
-    *(descr->zLastTag) = 0;
+    *(descr->zRelTagname) = 0;
     descr->nCommitsSince = -1;
     nRet = -2;
   }
@@ -3835,16 +3846,16 @@ void describe_cmd(void){
       fossil_fatal("commit %s does not exist", zName);
       break;
     case -2:
-      fossil_print("%.*s%s\n", nDigits, descr.zArtifactHash,
+      fossil_print("%.*s%s\n", nDigits, descr.zCommitHash,
                   bDirtyFlag ? (descr.isDirty ? "-dirty" : "") : "");
       break;
     case 0:
       if( descr.nCommitsSince==0 && !bLongFlag ){
-        fossil_print("%s%s\n", descr.zLastTag,
+        fossil_print("%s%s\n", descr.zRelTagname,
                     bDirtyFlag ? (descr.isDirty ? "-dirty" : "") : "");
       }else{
-        fossil_print("%s-%d-%.*s%s\n", descr.zLastTag,
-                    descr.nCommitsSince, nDigits, descr.zArtifactHash,
+        fossil_print("%s-%d-%.*s%s\n", descr.zRelTagname,
+                    descr.nCommitsSince, nDigits, descr.zCommitHash,
                     bDirtyFlag ? (descr.isDirty ? "-dirty" : "") : "");
       }
       break;
