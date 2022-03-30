@@ -175,6 +175,7 @@ void manifest_to_disk(int vid){
   char *zManFile;
   Blob manifest;
   Blob taglist;
+  Blob descr;
   int flg;
 
   flg = db_get_manifest_setting();
@@ -218,6 +219,23 @@ void manifest_to_disk(int vid){
   }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.tags'") ){
       zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
+      file_delete(zManFile);
+      free(zManFile);
+    }
+  }
+  if( flg & MFESTFLG_DESCR ){
+    CommitDescr cd;
+    blob_zero(&descr);
+    zManFile = mprintf("%smanifest.descr", g.zLocalRoot);
+    describe_commit(rid_to_uuid(vid), "version*", &cd);
+    blob_appendf(&descr, "%s-%d-%10.10s%s\n", cd.zRelTagname, cd.nCommitsSince,
+                 cd.zCommitHash, cd.isDirty ? "-dirty" : "");
+    blob_write_to_file(&descr, zManFile);
+    free(zManFile);
+    blob_reset(&descr);
+  }else{
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.descr'") ){
+      zManFile = mprintf("%smanifest.descr", g.zLocalRoot);
       file_delete(zManFile);
       free(zManFile);
     }
@@ -354,9 +372,9 @@ void checkout_cmd(void){
     vfile_to_disk(vid, 0, !g.fQuiet, promptFlag);
   }
   checkout_set_all_exe(vid);
+  db_set_checkout(vid);
   manifest_to_disk(vid);
   ensure_empty_dirs_created(0);
-  db_set_checkout(vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
   if( !keepFlag && db_get_boolean("repo-cksum",1) ){

@@ -1166,13 +1166,29 @@ const char *get_version(){
 }
 
 /*
+** This function returns a human readable version string based on 'describe'.
+*/
+const char *get_describe_version(){
+#ifndef MANIFEST_DESCRIPTION
+#define MANIFEST_DESCRIPTION MANIFEST_VERSION
+#endif
+#ifndef DESCRIPTION_DATE
+#define DESCRIPTION_DATE MANIFEST_DATE
+#endif
+  static const char version[] = RELEASE_VERSION " " MANIFEST_DESCRIPTION " "
+                                DESCRIPTION_DATE " UTC";
+  return version;
+}
+
+/*
 ** This function populates a blob with version information.  It is used by
 ** the "version" command and "test-version" web page.  It assumes the blob
 ** passed to it is uninitialized; otherwise, it will leak memory.
 */
 void fossil_version_blob(
   Blob *pOut,                 /* Write the manifest here */
-  int bVerbose                /* Non-zero for full information. */
+  int bVerbose,               /* Non-zero for full information. */
+  int bDescribe               /* Non-zero for describe information. */
 ){
 #if defined(FOSSIL_ENABLE_TCL)
   int rc;
@@ -1181,7 +1197,8 @@ void fossil_version_blob(
   Stmt q;
   size_t pageSize = 0;
   blob_zero(pOut);
-  blob_appendf(pOut, "This is fossil version %s\n", get_version());
+  blob_appendf(pOut, "This is fossil version %s\n", 
+               bDescribe ? get_describe_version() : get_version());
   if( !bVerbose ) return;
   blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
                __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
@@ -1287,20 +1304,28 @@ const char *get_user_agent(){
 /*
 ** COMMAND: version
 **
-** Usage: %fossil version ?-v|--verbose?
+** Usage: %fossil version ?-v|--verbose? ?-d|--describe?
 **
 ** Print the source code version number for the fossil executable.
 ** If the verbose option is specified, additional details will
 ** be output about what optional features this binary was compiled
 ** with
+**
+** Options:
+**
+**    -d|--describe      Show an extended description based on the latest
+**                       tagged source code commit
+**    -v|--verbose       Show additional details will about what optional
+**                       features this binary was compiled with
 */
 void version_cmd(void){
   Blob versionInfo;
   int verboseFlag = find_option("verbose","v",0)!=0;
+  int describeFlag = find_option("describe","d",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
-  fossil_version_blob(&versionInfo, verboseFlag);
+  fossil_version_blob(&versionInfo, verboseFlag, describeFlag);
   fossil_print("%s", blob_str(&versionInfo));
 }
 
@@ -1317,13 +1342,15 @@ void version_cmd(void){
 void test_version_page(void){
   Blob versionInfo;
   int verboseFlag;
+  int describeFlag;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   verboseFlag = PD("verbose", 0) != 0;
+  describeFlag = PD("describe", 0) != 0;
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
-  fossil_version_blob(&versionInfo, verboseFlag);
+  fossil_version_blob(&versionInfo, verboseFlag, describeFlag);
   @ <pre>
   @ %h(blob_str(&versionInfo))
   @ </pre>

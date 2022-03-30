@@ -249,7 +249,7 @@ void info_cmd(void){
     if( verboseFlag || !g.repositoryOpen ){
       Blob vx;
       char *z;
-      fossil_version_blob(&vx, 0);
+      fossil_version_blob(&vx, 0, 0);
       z = strstr(blob_str(&vx), "version");
       if( z ){
         z += 8;

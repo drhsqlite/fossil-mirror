@@ -3487,6 +3487,7 @@ void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
 #define MFESTFLG_RAW  0x01
 #define MFESTFLG_UUID 0x02
 #define MFESTFLG_TAGS 0x04
+#define MFESTFLG_DESCR 0x08
 #endif /* INTERFACE */
 
 /*
@@ -3502,7 +3503,7 @@ int db_get_manifest_setting(void){
   if( zVal==0 || is_false(zVal) ){
     return 0;
   }else if( is_truth(zVal) ){
-    return MFESTFLG_RAW|MFESTFLG_UUID;
+    return MFESTFLG_RAW|MFESTFLG_UUID|MFESTFLG_DESCR;
   }
   flg = 0;
   while( *zVal ){
@@ -3510,6 +3511,7 @@ int db_get_manifest_setting(void){
       case 'r': flg |= MFESTFLG_RAW;  break;
       case 'u': flg |= MFESTFLG_UUID; break;
       case 't': flg |= MFESTFLG_TAGS; break;
+      case 'd': flg |= MFESTFLG_DESCR; break;
     }
     zVal++;
   }
@@ -4259,8 +4261,9 @@ struct Setting {
 ** in every checkout.
 **
 ** Optionally use combinations of characters 'r' for "manifest",
-** 'u' for "manifest.uuid" and 't' for "manifest.tags".  The SQLite
-** and Fossil repositories both require manifests.
+** 'u' for "manifest.uuid", 't' for "manifest.tags", and 'd'
+** for "manifest.descr".  The SQLite and Fossil repositories both
+** require manifests.
 */
 /*
 ** SETTING: max-loadavg      width=25 default=0.0

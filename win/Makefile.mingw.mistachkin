@@ -1051,8 +1051,8 @@ $(CODECHECK1):	$(SRCDIR_tools)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(OBJDIR)/phony.h
-	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(SRCDIR)/../manifest.descr $(OBJDIR)/phony.h
+	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(SRCDIR)/../manifest.descr >$@
 
 $(OBJDIR)/phony.h:
 	# Force rebuild of VERSION.h every time "make" is run

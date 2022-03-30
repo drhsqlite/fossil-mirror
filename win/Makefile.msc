@@ -1064,8 +1064,8 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
-	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
+"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" "$(B)\phony.h"
+	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" > $@
 
 "$(B)\phony.h" :
 	rem Force rebuild of VERSION.h whenever nmake is run

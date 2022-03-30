@@ -518,8 +518,12 @@ void tarball_of_checkin(
        && (flg & MFESTFLG_TAGS) ){
         eflg |= MFESTFLG_TAGS;
       }
-
-      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+      if( (pInclude==0 || glob_match(pInclude, "manifest.descr"))
+       && !glob_match(pExclude, "manifest.descr")
+       && (flg & MFESTFLG_DESCR) ){
+        eflg |= MFESTFLG_DESCR;
+      }
+      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID|MFESTFLG_DESCR) ){
         if( eflg & MFESTFLG_RAW ){
           blob_append(&filename, "manifest", -1);
           zName = blob_str(&filename);
@@ -551,6 +555,22 @@ void tarball_of_checkin(
           get_checkin_taglist(rid, &tagslist);
           tar_add_file(zName, &tagslist, 0, mTime);
           blob_reset(&tagslist);
+        }
+      }
+      if( eflg & MFESTFLG_DESCR ){
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.descr", -1);
+        zName = blob_str(&filename);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pTar ){
+          CommitDescr cd;
+          Blob descr;
+          blob_zero(&descr);
+          describe_commit(rid_to_uuid(rid), "version*", &cd);
+          blob_appendf(&descr, "%s-%d-%10.10s\n", cd.zRelTagname,
+                       cd.nCommitsSince, cd.zCommitHash);
+          tar_add_file(zName, &descr, 0, mTime);
+          blob_reset(&descr);
         }
       }
     }

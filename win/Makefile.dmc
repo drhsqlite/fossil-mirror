@@ -93,7 +93,7 @@ $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 $(OBJDIR)\cson_amalgamation.h : $(SRCDIR_extsrc)\cson_amalgamation.h
 	cp $@ $@
 
-VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
+VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION $B\manifest.descr
 	+$** > $@
 
 page_index.h: mkindex$E $(SRC)

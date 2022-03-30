@@ -1291,6 +1291,17 @@ static int gitmirror_send_checkin(
       blob_strlen(&tagslist), blob_str(&tagslist));
     blob_reset(&tagslist);
   }
+  if( fManifest & MFESTFLG_DESCR ){
+    CommitDescr cd;
+    Blob descr;
+    blob_init(&descr, 0, 0);
+    describe_commit(rid_to_uuid(rid), "version*", &cd);
+    blob_appendf(&descr, "%s-%d-%10.10s\n", cd.zRelTagname,
+                 cd.nCommitsSince, cd.zCommitHash);
+    fprintf(xCmd,"M 100644 inline manifest.descr\ndata %d\n%s\n",
+      blob_strlen(&descr), blob_str(&descr));
+    blob_reset(&descr);
+  }
 
   /* The check-in is finished, so decrement the counter */
   (*pnLimit)--;

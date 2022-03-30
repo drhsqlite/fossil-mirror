@@ -403,10 +403,11 @@ $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(SRCDIR)/../manifest.descr $(OBJDIR)/mkversion $(OBJDIR)/phony.h
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid <<<NEXT_LINE>>>
 		$(SRCDIR)/../manifest <<<NEXT_LINE>>>
-		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+		$(SRCDIR)/../VERSION <<<NEXT_LINE>>>
+		$(SRCDIR)/../manifest.descr >$(OBJDIR)/VERSION.h
 
 $(OBJDIR)/phony.h:
 	# Force rebuild of VERSION.h every time we run "make"
@@ -1089,8 +1090,8 @@ $(CODECHECK1):	$(SRCDIR_tools)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(OBJDIR)/phony.h
-	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(SRCDIR)/../manifest.descr $(OBJDIR)/phony.h
+	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(SRCDIR)/../manifest.descr >$@
 
 $(OBJDIR)/phony.h:
 	# Force rebuild of VERSION.h every time "make" is run
@@ -1394,7 +1395,7 @@ $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 $(OBJDIR)\cson_amalgamation.h : $(SRCDIR_extsrc)\cson_amalgamation.h
 	cp $@ $@
 
-VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
+VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION $B\manifest.descr
 	+$** > $@
 
 page_index.h: mkindex$E $(SRC)
@@ -1952,8 +1953,8 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
-	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
+"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" "$(B)\phony.h"
+	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" > $@
 
 "$(B)\phony.h" :
 	rem Force rebuild of VERSION.h whenever nmake is run

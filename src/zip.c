@@ -672,7 +672,11 @@ static void zip_of_checkin(
        && (flg & MFESTFLG_TAGS) ){
         eflg |= MFESTFLG_TAGS;
       }
-
+      if( (pInclude==0 || glob_match(pInclude, "manifest.descr"))
+       && !glob_match(pExclude, "manifest.descr")
+       && (flg & MFESTFLG_DESCR) ){
+        eflg |= MFESTFLG_DESCR;
+      }
       if( eflg & MFESTFLG_RAW ){
         blob_append(&filename, "manifest", -1);
         zName = blob_str(&filename);
@@ -705,6 +709,23 @@ static void zip_of_checkin(
           zip_add_folders(&sArchive, zName);
           zip_add_file(&sArchive, zName, &tagslist, 0);
           blob_reset(&tagslist);
+        }
+      }
+      if( eflg & MFESTFLG_DESCR ){
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.descr", -1);
+        zName = blob_str(&filename);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pZip ){
+          CommitDescr cd;
+          Blob descr;
+          blob_zero(&descr);
+          describe_commit(rid_to_uuid(rid), "version*", &cd);
+          blob_appendf(&descr, "%s-%d-%10.10s\n", cd.zRelTagname,
+                       cd.nCommitsSince, cd.zCommitHash);
+          zip_add_folders(&sArchive, zName);
+          zip_add_file(&sArchive, zName, &descr, 0);
+          blob_reset(&descr);
         }
       }
     }

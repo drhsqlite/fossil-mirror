@@ -64,9 +64,10 @@ const char *fossil_reserved_name(int N, int omitRepo){
   }aManifestflags[] = {
     { "manifest",      MFESTFLG_RAW },
     { "manifest.uuid", MFESTFLG_UUID },
-    { "manifest.tags", MFESTFLG_TAGS }
+    { "manifest.tags", MFESTFLG_TAGS },
+    { "manifest.descr", MFESTFLG_DESCR }
   };
-  static const char *azManifests[3];
+  static const char *azManifests[4];
 
   /*
   ** Names of repository files, if they exist in the checkout.

@@ -2213,6 +2213,7 @@ void commit_cmd(void){
   int allowFork = 0;     /* Allow the commit to fork */
   int allowOlder = 0;    /* Allow a commit older than its ancestor */
   char *zManifestFile;   /* Name of the manifest file */
+  char *zDescrFile;      /* Name of the description file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
   int dryRunFlag;        /* True for a test run.  Debugging only */
@@ -2224,6 +2225,7 @@ void commit_cmd(void){
   Manifest *pManifest;   /* Manifest structure */
   Blob manifest;         /* Manifest in baseline form */
   Blob muuid;            /* Manifest uuid */
+  Blob descr;            /* Commit description */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
   int szD;               /* Size of the delta manifest */
@@ -2779,6 +2781,18 @@ void commit_cmd(void){
     blob_write_to_file(&muuid, zManifestFile);
     free(zManifestFile);
     blob_reset(&muuid);
+  }
+
+  if( outputManifest & MFESTFLG_DESCR ){
+    CommitDescr cd;
+    zDescrFile = mprintf("%smanifest.descr", g.zLocalRoot);
+    blob_zero(&descr);
+    describe_commit(zUuid, "version*", &cd);
+    blob_appendf(&descr, "%s-%d-%10.10s%s\n", cd.zRelTagname, cd.nCommitsSince,
+                 cd.zCommitHash, cd.isDirty ? "-dirty" : "");
+    blob_write_to_file(&descr, zDescrFile);
+    free(zDescrFile);
+    blob_reset(&descr);
   }
 
   /* Update the vfile and vmerge tables */
