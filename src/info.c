@@ -3707,8 +3707,11 @@ typedef struct CommitDescr {
 **      -2: zName resolves to more than a commit
 **      -3: no ancestor commit with a fitting non-propagating tag found
 */
-int describe_commit(const char *zName, const char *matchGlob,
-                    CommitDescr *descr){
+int describe_commit(
+  const char *zName,       /* Name of the commit to be described */
+  const char *matchGlob,   /* Glob pattern for the tag */
+  CommitDescr *descr       /* Write the description here */
+){
   int rid;             /* rid for zName */
   const char *zUuid;   /* Hash of rid */
   int nRet = 0;        /* Value to be returned */
@@ -3730,59 +3733,51 @@ int describe_commit(const char *zName, const char *matchGlob,
   descr->isDirty = unsaved_changes(0);
 
   db_multi_exec(
-    "DROP TABLE IF EXISTS singletonTaggedAncestors;"
-    "CREATE TEMP TABLE singletonTaggedAncestors AS"
-    "  WITH RECURSIVE "
-    "  singletonTaggedCommits(rid,mtime,shorttag) AS ("
-    "    SELECT DISTINCT b.rid,e.mtime,substr(t.tagname,5) AS shorttag"
-    "          FROM blob b"
-    "    INNER JOIN event e ON e.objid=b.rid"
-    "    INNER JOIN tagxref tx ON tx.rid=b.rid"
-    "    INNER JOIN tag t ON t.tagid=tx.tagid"
-    "         WHERE e.type='ci'"
-    "           AND tx.tagtype=1"
-    "           AND t.tagname GLOB 'sym-%q'"
-    "  ),"
-    "  parent(pid,cid,isCP,isPrim) AS ("
-    "    SELECT plink.pid, plink.cid, 0, isPrim FROM plink"
-    "    UNION ALL"
-    "    SELECT parentid, childid, 1, 0 FROM cherrypick WHERE NOT isExclude"
-    "  ),"
-    "  ancestor(rid, mtime, isCP, isPrim) AS ("
-    "    SELECT objid, mtime, 0, 1 FROM event WHERE objid=%d"
-    "    UNION"
-    "    SELECT parent.pid, event.mtime, parent.isCP, parent.isPrim"
-    "      FROM ancestor, parent, event"
-    "     WHERE parent.cid=ancestor.rid"
-    "       AND event.objid=parent.pid"
-    "       AND NOT ancestor.isCP"
-    "       AND (event.mtime >= "
-    "              (SELECT max(mtime) FROM singletonTaggedCommits"
-    "                 WHERE mtime<=(SELECT mtime FROM event WHERE objid=%d)))"
-    "     ORDER BY mtime DESC"
-    "     LIMIT 1000000"
-    "  ) "
-    "SELECT rid, mtime, isCP, isPrim, ROW_NUMBER() OVER (ORDER BY mtime DESC) rn"
-    "  FROM ancestor",
-    (matchGlob ? matchGlob : "*"), rid, rid
+    "DROP TABLE IF EXISTS temp.singletonTag;"
+    "CREATE TEMP TABLE singletonTag("
+    "  rid INT,"
+    "  tagname TEXT,"
+    "  PRIMARY KEY (rid,tagname)"
+    ") WITHOUT ROWID;"
+    "INSERT OR IGNORE INTO singletonTag(rid, tagname)"
+    "  SELECT min(rid),"
+    "         substr(tagname,5)"
+    "    FROM tag, tagxref"
+    "   WHERE tag.tagid=tagxref.tagid"
+    "     AND tagxref.tagtype=1"
+    "     AND tagname GLOB 'sym-%q'"
+    "   GROUP BY tagname"
+    "  HAVING count(*)==1;",
+    (matchGlob ? matchGlob : "*")
   );
 
   db_prepare(&q,
-    "SELECT ta.rid, ta.mtime, ta.rn, b.uuid, substr(t.tagname, 5)"
-    "        FROM singletonTaggedAncestors ta"
-    "  INNER JOIN blob b ON b.rid=ta.rid"
-    "  INNER JOIN tagxref tx ON tx.rid=ta.rid"
-    "  INNER JOIN tag t ON tx.tagid=t.tagid"
-    "       WHERE tx.tagtype=1 AND t.tagname GLOB 'sym-%q' "
-    "         AND rn=(SELECT MAX(rn) FROM singletonTaggedAncestors)"
-    "    ORDER BY tx.mtime DESC, t.tagname DESC LIMIT 1",
-    (matchGlob ? matchGlob : "*")     
+    "WITH RECURSIVE"
+    "  ancestor(rid,mtime,tagname,n) AS ("
+    "    SELECT %d, event.mtime, singletonTag.tagname, 0 "
+    "      FROM event"
+    "      LEFT JOIN singletonTag ON singletonTag.rid=event.objid"
+    "     WHERE event.objid=%d"
+    "     UNION ALL"
+    "     SELECT plink.pid, event.mtime, singletonTag.tagname, n+1"
+    "       FROM ancestor, plink, event"
+    "       LEFT JOIN singletonTag ON singletonTag.rid=plink.pid"
+    "      WHERE plink.cid=ancestor.rid"
+    "        AND event.objid=plink.pid"
+    "        AND ancestor.tagname IS NULL"
+    "      ORDER BY mtime DESC"
+    "  )"
+    "SELECT tagname, n"
+    "  FROM ancestor"
+    " WHERE tagname IS NOT NULL"
+    " ORDER BY n LIMIT 1;",
+    rid, rid
   );
 
   if( db_step(&q)==SQLITE_ROW ){
-    const char *lastTag = db_column_text(&q, 4);
+    const char *lastTag = db_column_text(&q, 0);
     descr->zRelTagname = mprintf("%s", lastTag);
-    descr->nCommitsSince = db_column_int(&q, 2)-1;
+    descr->nCommitsSince = db_column_int(&q, 1);
     nRet = 0;
   }else{
     /* no ancestor commit with a fitting singleton tag found */
