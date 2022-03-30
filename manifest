@@ -1,5 +1,5 @@
-C Bug\sfix\sto\sthe\sabs()\sfunction\sof\spikchr.
-D 2022-03-28T13:39:31.815
+C Add\sthe\snew\s"fossil\sdescribe"\scommand.
+D 2022-03-30T14:45:15.066
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -489,7 +489,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c d03b83224ae4dd511bf98aa82b7aa06165aa395efa0a377b79b4a2a2101be680
+F src/info.c de7d7f99923a7a54cd08b272cd6c5a9254d73c350f5761a40581c4bbaed8bf67
 F src/interwiki.c 9cbaedb286b1bec3eef15cc9be0f4240ae3bec1d8d832c8b53ec280731474d0e
 F src/json.c bdd2baa0ba08d29b7771a60f335b9907f3b1a4174bb621ef7079fc27beac0206
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bb4147fd24009dafa5bf17f40ad9451f3f744ded836e831754f64e37c261144
-R 4704ce7f7056edb682622faf22a757fa
+P b80ae0215eb65fba0bad94290cd124d9d8430328d56ac11f0832290b9624c0b0 e501d74440abc5e6affbb0c58d31c5a8810b53e6080ef7518313fce5a634e5a6
+R a099c11c4ae87bc2272d37b5ac0f56a0
 U drh
-Z a7feca52da115bd27b284d0e5ef6511a
+Z 4ec6706901925f300eac11d19b9756da
 # Remove this line to create a well-formed Fossil manifest.
