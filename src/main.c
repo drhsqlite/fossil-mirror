@@ -208,7 +208,7 @@ struct Global {
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
   int wikiFlags;          /* Wiki conversion flags applied to %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
-  char javascriptHyperlink; /* If true, set href= using script, not HTML */
+  char jsHref;            /* If true, set href= using javascript, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
   UrlData url;            /* Information about current URL */
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
@@ -422,9 +422,6 @@ void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   const char *zFileName;    /* input file name */
   FILE *inFile;             /* input FILE */
-#if defined(_WIN32)
-  wchar_t buf[MAX_PATH];
-#endif
 
   g.argc = argc;
   g.argv = argv;
@@ -434,12 +431,7 @@ void expand_args_option(int argc, void *argv){
 #else
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
 #endif
-#if defined(_WIN32)
-  GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.nameOfExe = fossil_path_to_utf8(buf);
-#else
-  g.nameOfExe = g.argv[0];
-#endif
+  g.nameOfExe = file_fullexename(g.argv[0]);
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -1600,6 +1592,26 @@ int fossil_redirect_to_https_if_needed(int iLevel){
 }
 
 /*
+** Send a 404 Not Found reply
+*/
+void fossil_not_found_page(void){
+#ifdef FOSSIL_ENABLE_JSON
+  if(g.json.isJsonMode){
+    json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
+    return;
+  }
+#endif
+  @ <html><head>
+  @ <meta name="viewport" \
+  @ content="width=device-width, initial-scale=1.0">
+  @ </head><body>
+  @ <h1>Not Found</h1>
+  @ </body>
+  cgi_set_status(404, "Not Found");
+  cgi_reply();
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -1821,20 +1833,7 @@ static void process_one_web_page(
         }else if( zNotFound ){
           cgi_redirect(zNotFound);
         }else{
-#ifdef FOSSIL_ENABLE_JSON
-          if(g.json.isJsonMode){
-            json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
-            return;
-          }
-#endif
-          @ <html><head>
-          @ <meta name="viewport" \
-          @ content="width=device-width, initial-scale=1.0">
-          @ </head><body>
-          @ <h1>Not Found</h1>
-          @ </body>
-          cgi_set_status(404, "Not Found");
-          cgi_reply();
+          fossil_not_found_page();
         }
         return;
       }
@@ -1889,6 +1888,11 @@ static void process_one_web_page(
   ){
     int iSkin = zPathInfo[6] - '0';
     char *zNewScript;
+    if( db_int(0,"SELECT count(*) FROM config WHERE name GLOB 'draft%d-*'",
+                iSkin)<5 ){
+      fossil_not_found_page();
+      fossil_exit(0);
+    }
     skin_use_draft(iSkin);
     zNewScript = mprintf("%T/draft%d", P("SCRIPT_NAME"), iSkin);
     if( g.zTop ) g.zTop = mprintf("%R/draft%d", iSkin);
@@ -2599,14 +2603,14 @@ void test_pid_page(void){
 static void decode_ssl_options(void){
 #if FOSSIL_ENABLE_SSL
   const char *zCertFile = 0;
-  zCertFile = find_option("tls-cert-file",0,1);
+  const char *zKeyFile = 0;
+  zCertFile = find_option("cert",0,1);
+  zKeyFile = find_option("pkey",0,1);
   if( zCertFile ){
     g.httpUseSSL = 1;
-    ssl_init_server(zCertFile, zCertFile);
-  }
-  if( find_option("tls",0,0)!=0 || find_option("ssl",0,0)!=0 ){
-    g.httpUseSSL = 1;
-    ssl_init_server(0,0);
+    ssl_init_server(zCertFile, zKeyFile);
+  }else if( zKeyFile ){
+    fossil_fatal("--pkey without a corresponding --cert");
   }
 #endif
 }
@@ -2618,8 +2622,8 @@ static void decode_ssl_options(void){
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
-** handler from inetd, for example.  The argument is the name of the
-** repository.
+** handler from inetd, for example.  The REPOSITORY argument is the name of
+** the repository.
 **
 ** If REPOSITORY is a directory that contains one or more repositories,
 ** either directly in REPOSITORY itself or in subdirectories, and
@@ -2634,25 +2638,20 @@ static void decode_ssl_options(void){
 ** returned if they match comma-separate GLOB pattern specified by --files
 ** and do not match "*.fossil*" and have a well-known suffix.
 **
-** The --host option can be used to specify the hostname for the server.
-** The --https option indicates that the request came from HTTPS rather
-** than HTTP. If --nossl is given, then SSL connections will not be available,
-** thus also no redirecting from http: to https: will take place.
-**
-** If the --localauth option is given, then automatic login is performed
-** for requests coming from localhost, if the "localauth" setting is not
-** enabled.
-**
 ** Options:
 **   --acme              Deliver files from the ".well-known" subdirectory
 **   --baseurl URL       base URL (useful with reverse proxies)
+**   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
+**                       fullchain.pem) taken from FILE.
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
 **                          /doc/ckout/...
-**   --extroot DIR       document root for the /ext extension mechanism
-**   --files GLOB        comma-separate glob patterns for static file to serve
-**   --host NAME         specify hostname of the server
-**   --https             signal a request coming in via https
+**   --extroot DIR       Document root for the /ext extension mechanism
+**   --files GLOB        Comma-separate glob patterns for static file to serve
+**   --host NAME         DNS Hostname of the server
+**   --https             The HTTP request originated from https but has already
+**                       been decoded by a reverse proxy.  Hence, URLs created
+**                       by Fossil should use "https:" rather than "http:".
 **   --in FILE           Take input from FILE instead of standard input
 **   --ipaddr ADDR       Assume the request comes from the given IP address
 **   --jsmode MODE       Determine how JavaScript is delivered with pages.
@@ -2668,23 +2667,24 @@ static void decode_ssl_options(void){
 **                       and bundled modes might result in a single
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
-**   --localauth         enable automatic login for local connections
+**   --localauth         Connections from localhost are given "setup"
+**                       privileges without having to log in.
 **   --mainmenu FILE     Override the mainmenu config setting with the contents
 **                       of the given file.
-**   --nocompress        do not compress HTTP replies
-**   --nodelay           omit backoffice processing if it would delay
+**   --nocompress        Do not compress HTTP replies
+**   --nodelay           Omit backoffice processing if it would delay
 **                       process exit
-**   --nojail            drop root privilege but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available
-**   --notfound URL      use URL as "HTTP 404, object not found" page.
-**   --out FILE          write results to FILE instead of to standard output
+**   --nojail            Drop root privilege but do not enter the chroot jail
+**   --nossl             Do not do http: to https: redirects, regardless of
+**                       the redirect-to-https setting.
+**   --notfound URL      Use URL as the "HTTP 404, object not found" page.
+**   --out FILE          Write the HTTP reply to FILE instead of to 
+**                       standard output
+**   --pkey FILE         Read the private key used for TLS from FILE.
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi              Interpret input as SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
-**   --th-trace          trace TH1 execution (for debugging purposes)
-**   --tls               Use TLS (HTTPS) encryption.
-**   --tls-cert-file FN  Read the TLS certificate and private key from FN
+**   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process. This is
 **                       only necessary when using SEE on Windows.
 **
@@ -2735,6 +2735,9 @@ void cmd_http(void){
     if( g.httpIn==0 ) fossil_fatal("cannot open \"%s\" for reading", zInFile);
   }else{
     g.httpIn = stdin;
+#if defined(_WIN32)
+   _setmode(_fileno(stdin), _O_BINARY);
+#endif
   }
   zOutFile = find_option("out",0,1);
   if( zOutFile ){
@@ -2742,6 +2745,9 @@ void cmd_http(void){
     if( g.httpOut==0 ) fossil_fatal("cannot open \"%s\" for writing", zOutFile);
   }else{
     g.httpOut = stdout;
+#if defined(_WIN32)
+   _setmode(_fileno(stdout), _O_BINARY);
+#endif
   }
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
@@ -2978,6 +2984,8 @@ void fossil_set_timeout(int N){
 ** Options:
 **   --acme              Deliver files from the ".well-known" subdirectory.
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
+**                       fullchain.pem) taken from FILE.
 **   --chroot DIR        Use directory for chroot instead of repository path.
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
 **                       /doc/ckout/...
@@ -3010,18 +3018,17 @@ void fossil_set_timeout(int N){
 **                       "fossil ui" command.
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available (Always
-**                       set by default for the "ui" command)
-**   --notfound URL      Redirect
+**   --nossl             do not force redirects to SSL even if the repository
+**                       setting "redirect-to-https" requests it.  This is set
+**                       by default for the "ui" command.
+**   --notfound URL      Redirect to URL if a page is not found.
 **   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
+**   --pkey FILE         Read the private key used for TLS from FILE.
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --ssl               Use TLS (HTTPS) encryption.  Alias for --tls
 **   --th-trace          trace TH1 execution (for debugging purposes)
-**   --tls               Use TLS (HTTPS) encryption.
-**   --tls-cert-file FN  Read the TLS certificate and private key from FN
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
@@ -3257,6 +3264,8 @@ void cmd_webserver(void){
 
   /* Start up an HTTP server
   */
+  fossil_setenv("SERVER_SOFTWARE", "fossil version " RELEASE_VERSION
+                " " MANIFEST_VERSION " " MANIFEST_DATE);
 #if !defined(_WIN32)
   /* Unix implementation */
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){

@@ -177,7 +177,9 @@ body.chat #load-msg-toolbar > div > button {
 }
 /* "Chat-only mode" hides the site header/footer, showing only
    the chat app. */
-body.chat.chat-only-mode{}
+body.chat.chat-only-mode{
+  padding: 0;
+}
 body.chat #chat-button-settings {}
 /** Popup widget for the /chat settings. */
 body.chat .chat-settings-popup {
@@ -273,6 +275,10 @@ body.chat #chat-input-line-wrapper {
   align-items: stretch;
   flex-wrap: nowrap;
 }
+body.chat.chat-only-mode #chat-input-line-wrapper {
+  padding: 0 0.25em;
+}
+
 /*body.chat #chat-input-line-wrapper:not(.compact) {
   flex-wrap: nowrap;
 }*/

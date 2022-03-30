@@ -236,17 +236,14 @@ set SQLITE_OPTIONS {
   -DSQLITE_OMIT_SHARED_CACHE
   -DSQLITE_OMIT_LOAD_EXTENSION
   -DSQLITE_MAX_EXPR_DEPTH=0
-  -DSQLITE_USE_ALLOCA
   -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
   -DSQLITE_ENABLE_FTS4
   -DSQLITE_ENABLE_DBSTAT_VTAB
-  -DSQLITE_ENABLE_JSON1
   -DSQLITE_ENABLE_FTS5
   -DSQLITE_ENABLE_STMTVTAB
   -DSQLITE_HAVE_ZLIB
-  -DSQLITE_INTROSPECTION_PRAGMAS
   -DSQLITE_ENABLE_DBPAGE_VTAB
   -DSQLITE_TRUSTED_SCHEMA=0
 }
@@ -1441,6 +1438,9 @@ writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
+foreach s [lsort $src_ext] {
+  writeln -nonewline "\$(SRCDIR_extsrc)\\${s}.c:$s.h "
+}
 writeln "\$(SRCDIR_extsrc)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR_extsrc)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
@@ -1576,7 +1576,6 @@ SSLLIBDIR = $(SSLDIR)
 !else
 SSLLIBDIR = $(SSLDIR)
 !endif
-SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
@@ -1633,7 +1632,7 @@ INCL      = $(INCL) /I"$(SSLINCDIR)"
 INCL      = $(INCL) /I"$(TCLINCDIR)"
 !endif
 
-CFLAGS    = /nologo
+CFLAGS    = /nologo /W2 /WX /utf-8
 LDFLAGS   =
 
 CFLAGS    = $(CFLAGS) /D_CRT_SECURE_NO_DEPRECATE /D_CRT_SECURE_NO_WARNINGS
@@ -1648,12 +1647,23 @@ LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
 !if $(FOSSIL_ENABLE_WINXP)!=0
 XPCFLAGS  = $(XPCFLAGS) /D_WIN32_WINNT=0x0501 /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
+#
+# NOTE: For regular builds, /OSVERSION defaults to the /SUBSYSTEM version and
+# explicit initialization is redundant, but is required for post-built edits.
+#
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
-XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02
+XPLDFLAGS = $(XPLDFLAGS) /OSVERSION:5.02 /SUBSYSTEM:CONSOLE,5.02
 !else
-XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
+XPLDFLAGS = $(XPLDFLAGS) /OSVERSION:5.01 /SUBSYSTEM:CONSOLE,5.01
 !endif
 LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
+#
+# NOTE: Only XPCFLAGS is forwarded to the OpenSSL configuration, and XPLDFLAGS
+# is applied in a separate post-build step, see below for more information.
+#
+!if $(FOSSIL_ENABLE_SSL)!=0
+SSLCONFIG = $(SSLCONFIG) $(XPCFLAGS)
+!endif
 !endif
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
@@ -1764,6 +1774,11 @@ foreach s [lsort $src] {
   }
   writeln -nonewline "\"\$(OX)\\${s}_.c\""; incr i
 }
+foreach s [lsort $src_ext] {
+  writeln " \\"
+  writeln -nonewline "        "
+  writeln -nonewline "\"\$(SRCDIR_extsrc)\\${s}.c\""; incr i
+}
 writeln "\n"
 writeln -nonewline "EXTRA_FILES   = "
 set i 0
@@ -1828,15 +1843,38 @@ clean-zlib:
 !if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
+!if $(FOSSIL_ENABLE_WINXP)!=0
+	@echo Passing XPCFLAGS = [ $(XPCFLAGS) ] to the OpenSSL configuration...
+!endif
 !ifdef PERLDIR
 	@pushd "$(SSLDIR)" && "$(PERLDIR)\$(PERL)" Configure $(SSLCONFIG) && popd
 !else
 	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
 !endif
-!if $(FOSSIL_ENABLE_WINXP)!=0
-	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
-!else
 	@pushd "$(SSLDIR)" && $(MAKE) && popd
+!if $(FOSSIL_ENABLE_WINXP)!=0 && $(FOSSIL_DYNAMIC_BUILD)!=0
+#
+# NOTE: Appending custom linker flags to the OpenSSL default linker flags is
+# somewhat difficult, as summarized in this Fossil Forum post:
+#
+#   https://fossil-scm.org/forum/forumpost/a9a2d6af28b
+#
+# Therefore the custom linker flags required for Windows XP dynamic builds are
+# applied in a separate post-build step.
+#
+# If the build stops here, or if the custom linker flags are outside the scope
+# of `editbin` or `link /EDIT` (i.e. additional libraries), consider tweaking
+# the OpenSSL makefile by hand.
+#
+# Also note that this step changes the subsystem for the OpenSSL DLLs from
+# WINDOWS to CONSOLE, but which has no effect on DLLs.
+#
+	@echo Applying XPLDFLAGS = [ $(XPLDFLAGS) ] to the OpenSSL DLLs...
+	@for /F "usebackq delims=" %F in (`dir /A:-D/B "$(SSLDIR)\*.dll" 2^>nul`) <<<NEXT_LINE>>>
+		do @( <<<NEXT_LINE>>>
+			echo %F & <<<NEXT_LINE>>>
+			link /EDIT /NOLOGO $(XPLDFLAGS) "$(SSLDIR)\%F" || exit 1 <<<NEXT_LINE>>>
+		)
 !endif
 
 clean-openssl:
@@ -2007,6 +2045,11 @@ foreach s [lsort $src] {
   }
   writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
 }
+foreach s [lsort $src_ext] {
+  writeln " \\"
+  writeln -nonewline "\t\t\t"
+  writeln -nonewline "\"\$(SRCDIR_extsrc)\\${s}.c\":\"\$(OX)\\$s.h\""; incr i
+}
 writeln " \\\n\t\t\t\"\$(SRCDIR_extsrc)\\sqlite3.h\" \\"
 writeln "\t\t\t\"\$(SRCDIR)\\th.h\" \\"
 writeln "\t\t\t\"\$(OX)\\VERSION.h\" \\"
@@ -2019,208 +2062,3 @@ close $output_file
 # End of the win/Makefile.msc output
 ##############################################################################
 ##############################################################################
-##############################################################################
-# Begin win/Makefile.PellesCGMake output
-#
-puts "building ../win/Makefile.PellesCGMake"
-set output_file [open ../win/Makefile.PellesCGMake w]
-fconfigure $output_file -translation binary
-
-writeln [string map [list \
-    <<<SQLITE_OPTIONS>>> [join $SQLITE_WIN32_OPTIONS { }] \
-    <<<SHELL_OPTIONS>>> [join $SHELL_WIN32_OPTIONS { }]] {#
-##############################################################################
-# WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "tools/makemake.tcl")
-##############################################################################
-#
-# This file is automatically generated.  Instead of editing this
-# file, edit "makemake.tcl" then run "tclsh makemake.tcl"
-# to regenerate this file.
-#
-# HowTo
-# -----
-#
-# This is a Makefile to compile fossil with PellesC from
-#  http://www.smorgasbordet.com/pellesc/index.htm
-# In addition to the Compiler envrionment, you need
-#  gmake from http://sourceforge.net/projects/unxutils/, Pelles make version
-#        couldn't handle the complex dependencies in this build
-#  zlib sources
-# Then you do
-# 1. create a directory PellesC in the project root directory
-# 2. Change the variables PellesCDir/ZLIBSRCDIR to the path of your installation
-# 3. open a dos prompt window and change working directory into PellesC (step 1)
-# 4. run gmake -f ..\win\Makefile.PellesCGMake
-#
-# this file is tested with
-#   PellesC         5.00.13
-#   gmake           3.80
-#   zlib sources    1.2.5
-#   Windows XP SP 2
-# and
-#   PellesC         6.00.4
-#   gmake           3.80
-#   zlib sources    1.2.5
-#   Windows 7 Home Premium
-#
-
-#
-PellesCDir=c:\Programme\PellesC
-
-# Select between 32/64 bit code, default is 32 bit
-#TARGETVERSION=64
-
-ifeq ($(TARGETVERSION),64)
-# 64 bit version
-TARGETMACHINE_CC=amd64
-TARGETMACHINE_LN=amd64
-TARGETEXTEND=64
-else
-# 32 bit version
-TARGETMACHINE_CC=x86
-TARGETMACHINE_LN=ix86
-TARGETEXTEND=
-endif
-
-# define the project directories
-B=..
-SRCDIR=$(B)/src/
-SRCDIR_extsrc=$(B)/extsrc/
-SRCDIR_tools=$(B)/tools/
-WINDIR=$(B)/win/
-ZLIBSRCDIR=../../zlib/
-
-# define linker command and options
-LINK=$(PellesCDir)/bin/polink.exe
-LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib dnsapi.lib Crtmt$(TARGETEXTEND).lib
-
-# define standard C-compiler and flags, used to compile
-# the fossil binary. Some special definitions follow for
-# special files follow
-CC=$(PellesCDir)\bin\pocc.exe
-DEFINES=-D_pgmptr=g.argv[0]
-CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
-INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR) /I $(SRCDIR_extsrc)
-
-# define commands for building the windows resource files
-RESOURCE=fossil.res
-RC=$(PellesCDir)\bin\porc.exe
-RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
-
-# define the special utilities files, needed to generate
-# the automatically generated source files
-UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
-UTILS_OBJ=$(UTILS:.exe=.obj)
-UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR_tools)$(uf:.exe=.c))
-
-# define the SQLite files, which need special flags on compile
-SQLITESRC=sqlite3.c
-ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR_extsrc)$(sf))
-SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=<<<SQLITE_OPTIONS>>>
-
-# define the SQLite shell files, which need special flags on compile
-SQLITESHELLSRC=shell.c
-ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR_extsrc)$(sf))
-SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=<<<SHELL_OPTIONS>>>
-
-# define the th scripting files, which need special flags on compile
-THSRC=th.c th_lang.c
-ORIGTHSRC=$(foreach sf,$(THSRC),$(SRCDIR)$(sf))
-THOBJ=$(foreach sf,$(THSRC),$(sf:.c=.obj))
-
-# define the zlib files, needed by this compile
-ZLIBSRC=adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c gzread.c gzwrite.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
-ORIGZLIBSRC=$(foreach sf,$(ZLIBSRC),$(ZLIBSRCDIR)$(sf))
-ZLIBOBJ=$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
-
-# define all fossil sources, using the standard compile and
-# source generation. These are all files in SRCDIR, which are not
-# mentioned as special files above:
-ORIGSRC=$(filter-out $(UTILS_SRC) $(ORIGTHSRC) $(ORIGSQLITESRC) $(ORIGSQLITESHELLSRC),$(wildcard $(SRCDIR)*.c))
-SRC=$(subst $(SRCDIR),,$(ORIGSRC))
-TRANSLATEDSRC=$(SRC:.c=_.c)
-TRANSLATEDOBJ=$(TRANSLATEDSRC:.c=.obj)
-
-# main target file is the application
-APPLICATION=fossil.exe
-
-# define the standard make target
-.PHONY:	default
-default:	page_index.h builtin_data.h headers $(APPLICATION)
-
-# symbolic target to generate the source generate utils
-.PHONY:	utils
-utils:	$(UTILS)
-
-# link utils
-$(UTILS) version.exe:	%.exe:	%.obj
-	$(LINK) $(LINKFLAGS) -out:"$@" $<
-
-# compiling standard fossil utils
-$(UTILS_OBJ):	%.obj:	$(SRCDIR)%.c
-	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
-
-# compile special windows utils
-version.obj:	$(SRCDIR_tools)mkversion.c
-	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
-
-# generate the translated c-source files
-$(TRANSLATEDSRC):	%_.c:	$(SRCDIR)%.c translate.exe
-	translate.exe $< >$@
-
-# generate the index source, containing all web references,..
-page_index.h:	$(TRANSLATEDSRC) mkindex.exe
-	mkindex.exe $(TRANSLATEDSRC) >$@
-
-builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
-	mkbuiltin.exe --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
-
-# extracting version info from manifest
-VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
-	version.exe ..\manifest.uuid ..\manifest ..\VERSION  >$@
-
-# generate the simplified headers
-headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/extsrc/sqlite3.h ../src/th.h
-	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/extsrc/sqlite3.h ../src/th.h VERSION.h
-	echo Done >$@
-
-# compile C sources with relevant options
-
-$(TRANSLATEDOBJ):	%_.obj:	%_.c %.h
-	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
-
-$(SQLITEOBJ):	%.obj:	$(SRCDIR_extsrc)%.c $(SRCDIR_extsrc)%.h
-	$(CC) $(CCFLAGS) $(SQLITEDEFINES) $(INCLUDE) "$<" -Fo"$@"
-
-$(SQLITESHELLOBJ):	%.obj:	$(SRCDIR_extsrc)%.c
-	$(CC) $(CCFLAGS) $(SQLITESHELLDEFINES) $(INCLUDE) "$<" -Fo"$@"
-
-$(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
-	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
-
-$(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
-	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
-
-# create the windows resource with icon and version info
-$(RESOURCE):	%.res:	../win/%.rc ../win/*.ico
-	$(RC) $(RCFLAGS) $< -Fo"$@"
-
-# link the application
-$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBOBJ) headers $(RESOURCE)
-	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBOBJ) $(RESOURCE)
-
-# cleanup
-
-.PHONY: clean
-clean:
-	-del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
-	-del /F $(TRANSLATEDSRC)
-	-del /F *.h headers
-	-del /F $(RESOURCE)
-
-.PHONY: clobber
-clobber: clean
-	-del /F *.exe
-}]

@@ -316,7 +316,7 @@ void setup_notification(void){
   @ <p>When the send method is "pipe to a command", this is the command
   @ that is run.  Email messages are piped into the standard input of this
   @ command.  The command is expected to extract the sender address,
-  @ recepient addresses, and subject from the header of the piped email
+  @ recipient addresses, and subject from the header of the piped email
   @ text.  (Property: "email-send-command")</p>
 
   entry_attribute("Store Emails In This Database", 60, "email-send-db",
@@ -818,7 +818,7 @@ void email_header_to_free(int nTo, char **azTo){
 /*
 ** Send a single email message.
 **
-** The recepient(s) must be specified using  "To:" or "Cc:" or "Bcc:" fields
+** The recipient(s) must be specified using  "To:" or "Cc:" or "Bcc:" fields
 ** in the header.  Likewise, the header must contains a "Subject:" line.
 ** The header might also include fields like "Message-Id:" or
 ** "In-Reply-To:".
@@ -1533,7 +1533,7 @@ void subscribe_page(void){
     if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
   @ <p>To receive email notifications for changes to this
-  @ repository, fill out the form below and press "Submit" button.</p>
+  @ repository, fill out the form below and press the "Submit" button.</p>
   form_begin(0, "%R/subscribe");
   @ <table class="subscribe">
   @ <tr>
@@ -2327,7 +2327,7 @@ void subscriber_list_page(void){
     int uid = db_column_int(&q, 8);
     const char *zUname = db_column_text(&q, 3);
     sqlite3_int64 iContact = db_column_int64(&q, 9);
-    double rContact = (iNow/86400) - iContact;
+    double rContact = (iNow/86400.0) - iContact;
     @ <tr>
     @ <td><a href='%R/alerts?sid=%d(db_column_int(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>

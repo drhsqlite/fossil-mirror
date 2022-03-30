@@ -1180,13 +1180,14 @@ void login_check_credentials(void){
   ** are (potentially) copied to the anonymous permission set; otherwise,
   ** those will be out-of-sync.
   */
-  if( zCap[0]
-   && !g.perm.Hyperlink
-   && g.isHuman
-   && db_get_boolean("auto-hyperlink",1)
-  ){
-    g.perm.Hyperlink = 1;
-    g.javascriptHyperlink = 1;
+  if( zCap[0] && !g.perm.Hyperlink && g.isHuman ){
+    int autoLink = db_get_int("auto-hyperlink",1);
+    if( autoLink==1 ){
+      g.jsHref = 1;
+      g.perm.Hyperlink = 1;
+    }else if( autoLink==2 ){
+      g.perm.Hyperlink = 1;
+    }
   }
 
   /*

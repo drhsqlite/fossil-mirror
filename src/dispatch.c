@@ -1010,13 +1010,16 @@ static const char zOptions[] =
 @ Command-line options common to all commands:
 @ 
 @   --args FILENAME         Read additional arguments and options from FILENAME
+@   --case-sensitive BOOL   Set case sensitivity for file names
 @   --cgitrace              Active CGI tracing
+@   --chdir PATH            Change to PATH before performing any operations 
 @   --comfmtflags VALUE     Set comment formatting flags to VALUE
 @   --comment-format VALUE  Alias for --comfmtflags
 @   --errorlog FILENAME     Log errors to FILENAME 
 @   --help                  Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests
 @   --localtime             Display times using the local timezone
+@   --nocgi                 Do not act as CGI
 @   --no-th-hook            Do not run TH1 hooks
 @   --quiet                 Reduce the amount of output
 @   --sqlstats              Show SQL usage statistics when done

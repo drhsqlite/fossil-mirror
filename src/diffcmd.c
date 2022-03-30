@@ -1039,7 +1039,7 @@ const char *diff_get_binary_glob(void){
 **   --brief                     Show filenames only
 **   -b|--browser                Show the diff output in a web-browser
 **   --by                        Shorthand for "--browser -y"
-**   --checkin VERSION           Show diff of all changes in VERSION
+**   -ci|--checkin VERSION       Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
 **   -c|--context N              Show N lines of context around each change
 **   --diff-binary BOOL          Include binary files with external commands
@@ -1081,7 +1081,7 @@ void diff_cmd(void){
   isGDiff = g.argv[1][0]=='g';
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
-  zCheckin = find_option("checkin", 0, 1);
+  zCheckin = find_option("checkin", "ci", 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
   if( againstUndo && ( zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){

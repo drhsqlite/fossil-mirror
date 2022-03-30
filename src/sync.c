@@ -234,6 +234,9 @@ static void process_sync_args(
   if( find_option("all",0,0)!=0 ){
     *pSyncFlags |= SYNC_ALLURL;
   }
+
+  /* Undocumented option to cause links transitive links to other
+  ** repositories to be shared */
   if( ((*pSyncFlags) & SYNC_PULL)!=0
    && find_option("share-links",0,0)!=0
   ){
@@ -321,7 +324,6 @@ static void process_sync_args(
 **   --project-code CODE        Use CODE as the project code
 **   --proxy PROXY              Use the specified HTTP proxy
 **   -R|--repository REPO       Local repository to pull into
-**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to move messages
@@ -424,7 +426,6 @@ void push_cmd(void){
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Sync private branches too
 **   -R|--repository REPO       Local repository to sync with
-**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to move message
@@ -472,24 +473,10 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** Usage: %fossil remote ?SUBCOMMAND ...?
 **
-** View or modify the set of remote repository sync URLs used as the
-** target in any command that uses the sync protocol: "sync", "push",
-** and "pull", plus all other commands that trigger Fossil's autosync
-** feature.  (Collectively, "sync operations".)
-**
-** See "fossil help clone" for the format of these sync URLs.
-**
-** Fossil implicitly sets the default remote sync URL from the initial
-** "clone" or "open URL" command for a repository, then may subsequently
-** change it when given a URL in commands that take a sync URL, except
-** when given the --once flag.  Fossil uses this new sync URL as its
-** default when not explicitly given one in subsequent sync operations.
-**
-** Named remotes added by "remote add" allow use of those names in place
-** of a sync URL in any command that takes one.
-**
-** The full name of this command is "remote-url", but we anticipate no
-** future collision from use of its shortened form "remote".
+** View or modify the URLs of remote repositories used for syncing.
+** The "default" remote is the URL used in the most recent "sync",
+** "push", "pull", "clone", or similar command.  The default remote can
+** change with each sync command.  Other named remotes are persistent.
 **
 ** > fossil remote
 **
@@ -498,25 +485,39 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** > fossil remote add NAME URL
 **
-**     Add a new named URL to the set of remote sync URLs for use in
-**     place of a sync URL in commands that take one.
+**     Add a new named URL. Afterwards, NAME can be used as a short
+**     symbolic name for URL in contexts where a URL is required. The
+**     URL argument can be "default" or a prior symbolic name, to make
+**     a copy of an existing URL under a new name.
+**
+** > fossil remote config-data
+**
+**     DEBUG USE ONLY - Show the name and value of every CONFIG table
+**     entry in the repository that is associated with the remote URL store.
+**     Passwords are obscured in the output.
 **
 ** > fossil remote delete NAME
 **
-**     Delete a sync URL previously added by the "add" subcommand.
+**     Delete a named URL previously created by the "add" subcommand.
 **
 ** > fossil remote list|ls
 **
-**     Show all remote repository sync URLs.
+**     Show all remote repository URLs.
 **
 ** > fossil remote off
 **
-**     Forget the default sync URL, disabling autosync.  Combined with
-**     named sync URLs, it allows canceling this "airplane mode" with
-**     "fossil remote NAME" to select a previously-set named URL.
+**     Forget the default URL. This disables autosync. 
 **
-**     To disable use of the default remote without forgetting its URL,
-**     say "fossil set autosync 0" instead.
+**     This is a convenient way to enter "airplane mode".  To enter
+**     airplane mode, first save the current default URL, then turn the
+**     default off.  Perhaps like this:
+**
+**         fossil remote add main default
+**         fossil remote off
+**
+**     To exit airplane mode and turn autosync back on again:
+**
+**         fossil remote main
 **
 ** > fossil remote scrub
 **
@@ -609,8 +610,13 @@ remote_delete_default:
     zName = g.argv[3];
     zUrl = g.argv[4];
     if( strcmp(zName,"default")==0 ) goto remote_add_default;
-    url_parse_local(zUrl, URL_PROMPT_PW, &x);
     db_begin_write();
+    if( fossil_strcmp(zUrl,"default")==0 ){
+      x.canonical = db_get("last-sync-url",0);
+      x.passwd = unobscure(db_get("last-sync-pw",0));
+    }else{
+      url_parse_local(zUrl, URL_PROMPT_PW|URL_USE_CONFIG, &x);
+    }
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "REPLACE INTO config(name, value, mtime)"
@@ -687,7 +693,8 @@ remote_delete_default:
 remote_add_default:
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
-    url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
+    url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|
+                         URL_USE_CONFIG|URL_ASK_REMEMBER_PW);
     url_remember();
     return;
   }

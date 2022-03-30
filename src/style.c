@@ -108,30 +108,31 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 **        <a href="URL">
 **  or    <a id="ID">
 **
-** The form of the anchor tag is determined by the g.javascriptHyperlink
+** The form of the anchor tag is determined by the g.jsHref
 ** and g.perm.Hyperlink variables.
 **
-**   g.perm.Hyperlink  g.javascriptHyperlink        Returned anchor format
-**   ----------------  ---------------------        ------------------------
-**          0                    0                  (empty string)
-**          0                    1                  (empty string)
-**          1                    0                  <a href="URL">
-**          1                    1                  <a id="ID">
+**   g.perm.Hyperlink  g.jsHref        Returned anchor format
+**   ----------------  --------        ------------------------
+**          0             0              (empty string)
+**          0             1              (empty string)
+**          1             0              <a href="URL">
+**          1             1              <a data-href="URL">
 **
 ** No anchor tag is generated if g.perm.Hyperlink is false.
-** The href="URL" form is used if g.javascriptHyperlink is false.
-** If g.javascriptHyperlink is true then the id="ID" form is used and
-** javascript is generated in the footer to cause href values to be
-** inserted after the page has loaded. The use of the id="ID" form
+** The href="URL" form is used if g.jsHref is false.
+** If g.jsHref is true then the data-href="URL" and
+** href="/honeypot" is generated and javascript is added to the footer
+** to cause data-href values to be inserted into href
+** after the page has loaded. The use of the data-href="URL" form
 ** instead of href="URL" is a defense against bots.
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
 ** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
-** g.javascriptHyperlink is set to 1 by login_check_credentials().  Thus
+** g.jsHref is set to 1 by login_check_credentials().  Thus
 ** the g.perm.Hyperlink property will be true even if the user does not
 ** have the "h" privilege if the "auto-hyperlink" setting is true.
 **
-**  User has "h"  auto-hyperlink      g.perm.Hyperlink  g.javascriptHyperlink
+**  User has "h"  auto-hyperlink      g.perm.Hyperlink  g.jsHref
 **  ------------  --------------      ----------------  ---------------------
 **        0             0                    0                    0
 **        1             0                    1                    0
@@ -144,8 +145,8 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 **  ------------  --------------      ----------------------
 **        0             0             (empty string)
 **        1             0             <a href="URL">
-**        0             1             <a id="ID">
-**        1             1             (can't happen)
+**        0             1             <a data-href="URL">
+**        1             1             <a href="URL">
 **
 ** The name of these routines are deliberately kept short so that can be
 ** easily used within @-lines.  Example:
@@ -174,7 +175,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl;
     if( zExtra ){
       zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
@@ -199,7 +200,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl = mprintf("<a class=\"%s\" href=\"%h\">", zExtra, zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -215,7 +216,7 @@ char *href(const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -234,14 +235,14 @@ char *href(const char *zFormat, ...){
 ** changed into action= after the page loads.  Whether or not this happens
 ** depends on if the user has the "h" privilege and whether or not the
 ** auto-hyperlink setting is on.  These setings determine the values of
-** variables g.perm.Hyperlink and g.javascriptHyperlink.
+** variables g.perm.Hyperlink and g.jsHref.
 **
-**    User has "h"  auto-hyperlink      g.perm.Hyperlink  g.javascriptHyperlink
-**    ------------  --------------      ----------------  ---------------------
-**  1:      0             0                    0                    0
-**  2:      1             0                    1                    0
-**  3:      0             1                    1                    1
-**  4:      1             1                    1                    0
+**    User has "h"  auto-hyperlink      g.perm.Hyperlink  g.jsHref
+**    ------------  --------------      ----------------  --------
+**  1:      0             0                    0             0
+**  2:      1             0                    1             0
+**  3:      0             1                    1             1
+**  4:      1             1                    1             0
 **
 ** The data-action=ARG form is used for cases 1 and 3.  In case 1, the href.js
 ** javascript is omitted and so the form is effectively disabled.
@@ -884,7 +885,8 @@ void style_table_sorter(void){
 static void style_load_all_js_files(void){
   if( needHrefJs && g.perm.Hyperlink ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
-    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
+    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0)
+                   && sqlite3_strglob("*Android*",PD("HTTP_USER_AGENT",""));
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
@@ -1320,8 +1322,19 @@ void page_test_env(void){
 ** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
-  cgi_set_status(403, "Forbidden");
-  @ <p>Please enable javascript or log in to see this content</p>
+  style_header("I think you are a robot");
+  @ <p>You seem like a robot.</p>
+  @
+  @ <p>Is this wrong?  Are you really a human?  If so, please prove it
+  @ by <a href="%R/login">logging in</a>.
+  if( g.anon.Hyperlink ){
+    @ You can <a href="%R/login?anon=1">log in anonymously</a> if you
+    @ prefer.
+  }
+  @ <p>Sorry for the inconvenience. The point of this is to prevent
+  @ robots from following the countless of hyperlinks in this site and
+  @ soaking up all the available CPU time and network bandwidth.
+  style_finish_page();
 }
 
 /*
@@ -1377,6 +1390,7 @@ void webpage_error(const char *zFormat, ...){
     @ g.userUid = %d(g.userUid)<br />
     @ g.zLogin = %h(g.zLogin)<br />
     @ g.isHuman = %d(g.isHuman)<br />
+    @ g.jsHref = %d(g.jsHref)<br />
     if( g.nRequest ){
       @ g.nRequest = %d(g.nRequest)<br />
     }
@@ -1396,6 +1410,7 @@ void webpage_error(const char *zFormat, ...){
     @ fossil_exe_id() = %h(fossil_exe_id())<br />
     @ <hr />
     P("HTTP_USER_AGENT");
+    P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0);
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr />

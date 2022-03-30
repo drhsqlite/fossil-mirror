@@ -240,6 +240,7 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
       if( rid==0 ) break;
       blob_appendf(&log, "%d", rid);
       zDesc += i;
+      while( zDesc[0]=='-' ) zDesc++;
     }
   }else{
     zLog = db_lget("bisect-log","");
@@ -329,6 +330,7 @@ char *bisect_permalink(void){
       }
     }
     zUuid = db_text(0,"SELECT lower(uuid) FROM blob WHERE rid=%d", rid);
+    if( blob_size(&link)>0 ) blob_append(&link, "-", 1);
     blob_appendf(&link, "%c%.10s", cPrefix, zUuid);
   }
   zResult = mprintf("%s", blob_str(&link));

@@ -56,7 +56,7 @@
 > In format 8, then the URL becomes the display text.  This is useful for
 > hyperlinks that refer to wiki pages and check-in and ticket hashes.
 
-## Fonts ##
+## Text Style ##
 
 > *   _\*italic\*_
 > *   *\_italic\_*
@@ -71,19 +71,21 @@
 
 ## Lists ##
 
->
-     *   bullet item
-     +   bullet item
-     -   bullet item
-     1.  numbered item
-     2)  numbered item
+> ~~~
+   *   bullet item
+   +   bullet item
+   -   bullet item
+   1.  numbered item
+   2)  numbered item
+~~~
 
 > A two-level list is created by placing additional whitespace before the
 > **\***/**+**/**-**/**1.** of the secondary items.
 
->
-     *   top-level item
-       * secondary item
+> ~~~
+   *  top-level item
+      *  second-level item
+~~~
 
 ## Block Quotes ##
 
@@ -161,8 +163,9 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 >     using backslash (ex: **\\\[** **\\\(** **\\\|** **\\\***).
 > *   A line consisting of **---**, **\*\*\***, or **\_\_\_** is a horizontal
 >     rule.  Spaces and extra **-**/**\***/**_** are allowed.
+> *   Paragraphs enclosed in **\<html\>...\</html\>** is passed through unchanged.
 > *   See [daringfireball.net][] for additional information.
-> *   See this page's [Markdown source](/md_rules?txt=1) for complex examples.
+> *   See this page's [Markdown source](/md_rules?txt=1) for more examples.
 
 ## Special Features For Fossil ##
 

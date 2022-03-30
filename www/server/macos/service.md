@@ -18,7 +18,7 @@ However, we will still give two different configurations, just as in the
 socket activation.
 
 For more information on `launchd`, the single best resource we’ve found
-is [](launchd.info). The next best is:
+is [launchd.info](https://launchd.info). The next best is:
 
         $ man launchd.plist
 

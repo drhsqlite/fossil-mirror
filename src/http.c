@@ -456,9 +456,9 @@ int http_exchange(
                           "application/x-fossil-uncompressed", -1)==0 ){
         isCompressed = 0;
       }else{
-        if( (mHttpFlags & HTTP_GENERIC)==0
-         && fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0
-        ){
+        if( mHttpFlags & HTTP_GENERIC ){
+          if( mHttpFlags & HTTP_NOCOMPRESS ) isCompressed = 0;
+        }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
           isError = 1;
         }
       }
@@ -564,7 +564,6 @@ void test_httpmsg_command(void){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;
   }
-  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_ANY_SCHEMA, 0);
   verify_all_options();
   if( g.argc<3 || g.argc>5 ){
     usage("URL ?PAYLOAD? ?OUTPUT?");

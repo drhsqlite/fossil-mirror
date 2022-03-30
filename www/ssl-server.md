@@ -30,21 +30,23 @@ obtaining a CA-signed certificate.
 ## Usage
 
 To put any of the Fossil server commands into SSL/TLS mode, simply
-add the "--ssl" command-line option.  (Or use "--tls" which is an
-alias.)  Like this:
+add the "--cert" command-line option.
 
 > ~~~
-fossil ui --ssl
+fossil ui --cert unsafe-builtin
 ~~~
 
-Since no certificate (or "cert") has been specified, Fossil will use
-a self-signed cert that is built into Fossil itself.  The fact that the
-cert is self-signed, rather than being signed by a
+The --cert option is what tells Fossil to use TLS encryption.
+Normally, the argument to --cert is the name of a file containing
+the certificate (the "fullchain.pem" file) for the website.  In this
+example, the magic name "unsafe-builtin" is used, which causes Fossil
+to use a self-signed cert rather than a real cert obtained from a
 [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority)
-or "CA", means that your web-browser will complain bitterly and will refuse
-to display the pages that Fossil returns.  Some web browsers (ex: Firefox)
-will allow you to click an "I know the risks" button and continue.  Other
-web browsers will stubornly refuse to display the page, under the theory
+or "CA".  As the name implies, this self-signed cert is not secure and
+should only be used for testing.  Your web-browser will complain bitterly 
+and will refuse to display the pages using the "unsafe-builtin" cert.
+Firefox will allow you to click an "I know the risks" button and continue.
+Other web browsers will stubornly refuse to display the page, under the theory
 that weak encryption is worse than no encryption at all.  Continue reading
 to see how to solve this.
 
@@ -73,9 +75,9 @@ shared with anyone.
 
 ## How To Tell Fossil About Your Cert And Private Key
 
-If you do not tell Fossil about a cert and private key, it uses a
-generic "private key" and self-signed cert that is built into Fossil.
-This is wildly insecure, since the private key is not really private - 
+If you do not have your own cert and private key, you can ask Fossil
+to use "unsafe-builtin", which is a self-signed cert that is built into
+Fossil.  This is wildly insecure, since the private key is not really private - 
 it is [in plain sight](/info/c2a7b14c3f541edb96?ln=89-116) in the Fossil
 source tree for anybody to read.  <b>Never add the private key that is
 built into Fossil to your OS's trust store</b> as doing so will severely
@@ -107,10 +109,10 @@ individual components will still be easily accessible.
 
 If you have a single file that holds both your private key and your
 cert, you can hand it off to the "[fossil server](/help?cmd=server)"
-command using the --tls-cert-file option.  Like this:
+command using the --cert option.  Like this:
 
 > ~~~
-fossil server --port 443 --tls-cert-file mycert.pem /home/www/myproject.fossil
+fossil server --port 443 --cert mycert.pem /home/www/myproject.fossil
 ~~~
 
 The command above is sufficient to run a fully-encrypted web site for
@@ -119,6 +121,16 @@ root, since it wants to listen on TCP port 443, and only root processes are
 allowed to do that.  This is safe, however, since before reading any
 information off of the wire, Fossil will put itself inside a chroot jail
 at /home/www and drop all root privileges.
+
+### Keeping The Cert And Private Key In Separate Files
+
+If you do not want to combine your cert and private key into a single
+big PEM file, you can keep them separate using the --pkey option to
+Fossil.
+
+> ~~~
+fossil server --port 443 --cert fullchain.pem --pkey privkey.pem /home/www/myproject.fossil
+~~~
 
 ## The ACME Protocol
 
@@ -174,32 +186,5 @@ will verify.  Then certbot will store your new cert in a particular file.
 
 Once certbot has obtained your cert, then you can concatenate that
 cert with your private key and run Fossil in SSL/TLS mode as shown above.
-
-## Separate Cert And Private Key Files Using Settings
-
-If you do not want to concatenate your cert and private key, you can
-tell Fossil about the files separately using settings.  Run a command
-like this on your repository:
-
-> ~~~
-fossil ssl-config load-cert --filename CERT-FILE.pem PRIVATE-KEY.pem
-~~~
-
-Substitute whatever filenames are appropriate in the command above, of
-course.  Run "[fossil ssl-config](/help?cmd=ssl-config)" by itself to see
-the resulting configuration.  Once you have done this, you can then
-restart your TLS server using just:
-
-> ~~~
-fossil server --port 443 --tls /home/www/myproject.fossil
-~~~
-
-Note however that this technique only works if you are serving a single
-repository from your website.  If the argument to your "fossil server" command
-is the name of a directory that contains many Fossil repositories, then
-there is no one repository in which to put this setting, and so you have
-to specify the location of the combined cert and private key file using
-the --tls-cert-file option on the command-line.
-
 
 [2]: https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment

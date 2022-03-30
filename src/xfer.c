@@ -2066,11 +2066,11 @@ int client_sync(
   if( (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0 ){
     unversioned_schema();
     db_multi_exec(
-       "CREATE TEMP TABLE uv_tosend("
+       "CREATE TEMP TABLE IF NOT EXISTS uv_tosend("
        "  name TEXT PRIMARY KEY,"  /* Name of file to send client->server */
        "  mtimeOnly BOOLEAN"       /* True to only send mtime, not content */
        ") WITHOUT ROWID;"
-       "INSERT INTO uv_toSend(name,mtimeOnly)"
+       "REPLACE INTO uv_toSend(name,mtimeOnly)"
        "  SELECT name, 0 FROM unversioned WHERE hash IS NOT NULL;"
     );
   }

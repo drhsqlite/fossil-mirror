@@ -250,10 +250,14 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
 ** This routine does initial configuration of the SSL module.
 */
 static void ssl_global_init_client(void){
-  const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
   const char *identityFile;
 
   if( sslIsInit==0 ){
+    const char *zFile;
+    const char *zCaFile = 0;
+    const char *zCaDirectory = 0;
+    int i;
+
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
@@ -261,32 +265,49 @@ static void ssl_global_init_client(void){
     /* Disable SSLv2 and SSLv3 */
     SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2|SSL_OP_NO_SSLv3);
 
-    /* Set up acceptable CA root certificates */
-    zCaSetting = db_get("ssl-ca-location", 0);
-    if( zCaSetting==0 || zCaSetting[0]=='\0' ){
-      /* CA location not specified, use platform's default certificate store */
-      X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
-    }else{
-      /* User has specified a CA location, make sure it exists and use it */
-      switch( file_isdir(zCaSetting, ExtFILE) ){
+    /* Find the trust store */
+    zFile = 0;
+    for(i=0; zFile==0 && i<5; i++){
+      switch( i ){
+        case 0: /* First priority is environmentn variables */
+          zFile = fossil_getenv(X509_get_default_cert_file_env());
+          break;
+        case 1:
+          zFile = fossil_getenv(X509_get_default_cert_dir_env());
+          break;
+        case 2:
+          if( !g.repositoryOpen ) db_open_config(0,0);
+          zFile = db_get("ssl-ca-location",0);
+          break;
+        case 3:
+          zFile = X509_get_default_cert_file();
+          break;
+        case 4:
+          zFile = X509_get_default_cert_dir();
+          break;
+      }
+      if( zFile==0 ) continue;
+      switch( file_isdir(zFile, ExtFILE) ){
         case 0: { /* doesn't exist */
-          fossil_fatal("ssl-ca-location is set to '%s', "
-              "but is not a file or directory", zCaSetting);
+          zFile = 0;
           break;
         }
         case 1: { /* directory */
-          zCaDirectory = zCaSetting;
+          zCaFile = 0;
+          zCaDirectory = zFile;
           break;
         }
         case 2: { /* file */
-          zCaFile = zCaSetting;
+          zCaFile = zFile;
+          zCaDirectory = 0;
           break;
         }
       }
-      if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
-        fossil_fatal("Failed to use CA root certificates from "
-          "ssl-ca-location '%s'", zCaSetting);
-      }
+    }
+    if( zFile==0 ){
+      /* fossil_fatal("Cannot find a trust store"); */
+    }else if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
+      fossil_fatal("Cannot load CA root certificates from %s", zFile);
     }
 
     /* Load client SSL identity, preferring the filename specified on the
@@ -699,14 +720,12 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 ** zCertFile is assumed to be a concatenation of the certificate and
 ** the private-key in the PEM format.
 **
-** If zCertFile is NULL, then "ssl-cert" setting is consulted
-** to get the certificate and private-key (concatenated together, in
-** the PEM format).  If there is no ssl-cert setting, then
-** a built-in self-signed cert is used.
+** If zCertFile is "unsafe-builtin", then a built-in self-signed cert
+** is used.  This built-in cert is insecure and should only be used for
+** testing and debugging.
 */
 void ssl_init_server(const char *zCertFile, const char *zKeyFile){
-  if( sslIsInit==0 ){
-    const char *zTlsCert;
+  if( sslIsInit==0 && zCertFile ){
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
@@ -715,7 +734,13 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
       ERR_print_errors_fp(stderr);
       fossil_fatal("Error initializing the SSL server");
     }
-    if( zCertFile && zCertFile[0] ){
+    if( fossil_strcmp(zCertFile,"unsafe-builtin")==0 ){
+      if( sslctx_use_cert_from_mem(sslCtx, sslSelfCert, -1)
+       || sslctx_use_pkey_from_mem(sslCtx, sslSelfPKey, -1)
+      ){
+        fossil_fatal("Error loading self-signed CERT and KEY");
+      }
+    }else{
       if( SSL_CTX_use_certificate_chain_file(sslCtx,zCertFile)!=1 ){
         ERR_print_errors_fp(stderr);
         fossil_fatal("Error loading CERT file \"%s\"", zCertFile);
@@ -723,19 +748,16 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
       if( zKeyFile==0 ) zKeyFile = zCertFile;
       if( SSL_CTX_use_PrivateKey_file(sslCtx, zKeyFile, SSL_FILETYPE_PEM)<=0 ){
         ERR_print_errors_fp(stderr);
-        fossil_fatal("Error loading PRIVATE KEY from file \"%s\"", zKeyFile);
+        if( strcmp(zKeyFile,zCertFile)==0 ){
+          fossil_fatal("The private key is not found in \"%s\". "
+            "Either append the private key to the certification in that "
+            "file or use a separate --pkey option to specify the private key.",
+            zKeyFile);
+        }else{
+          fossil_fatal("Error loading the private key from file \"%s\"",
+             zKeyFile);
+        }
       }
-    }else
-    if( (zTlsCert = db_get("ssl-cert",0))!=0 ){
-      if( sslctx_use_cert_from_mem(sslCtx, zTlsCert, -1)
-       || sslctx_use_pkey_from_mem(sslCtx, zTlsCert, -1)
-      ){
-        fossil_fatal("Error loading the CERT from the"
-                     " 'ssl-cert' setting");
-      }
-    }else if( sslctx_use_cert_from_mem(sslCtx, sslSelfCert, -1)
-           || sslctx_use_pkey_from_mem(sslCtx, sslSelfPKey, -1) ){
-      fossil_fatal("Error loading self-signed CERT");
     }
     if( !SSL_CTX_check_private_key(sslCtx) ){
       fossil_fatal("PRIVATE KEY \"%s\" does not match CERT \"%s\"",
@@ -750,7 +772,6 @@ void ssl_init_server(const char *zCertFile, const char *zKeyFile){
 
 typedef struct SslServerConn {
   SSL *ssl;          /* The SSL codec */
-  int atEof;         /* True when EOF reached. */
   int iSocket;       /* The socket */
   BIO *bio;          /* BIO object. Needed for EOF detection. */
 } SslServerConn;
@@ -764,7 +785,6 @@ void *ssl_new_server(int iSocket){
   SslServerConn *pServer = fossil_malloc_zero(sizeof(*pServer));
   BIO *b = BIO_new_socket(iSocket, 0);
   pServer->ssl = SSL_new(sslCtx);
-  pServer->atEof = 0;
   pServer->iSocket = iSocket;
   pServer->bio = b;
   SSL_set_bio(pServer->ssl, b, b);
@@ -787,42 +807,50 @@ void ssl_close_server(void *pServerArg){
 */
 int ssl_eof(void *pServerArg){
   SslServerConn *pServer = (SslServerConn*)pServerArg;
-  return pServer->atEof;
+  return BIO_eof(pServer->bio);
 }
 
 /*
 ** Read cleartext bytes that have been received from the client and
 ** decrypted by the SSL server codec.
+**
+** If the expected payload size unknown, i.e. if the HTTP
+** Content-Length: header field has not been parsed, the doLoop
+** argument should be 0, or SSL_read() may block and wait for more
+** data than is eventually going to arrive (on Windows). On
+** non-Windows builds, it has been our experience that the final
+** argument must always be true, as discussed at length at:
+**
+** https://fossil-scm.org/forum/forumpost/2f818850abb72719
 */
-size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf){
-  int n, err = 0;
+size_t ssl_read_server(void *pServerArg, char *zBuf, size_t nBuf, int doLoop){
+  int n;
   size_t rc = 0;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
   if( nBuf>0x7fffffff ){ fossil_fatal("SSL read too big"); }
-  while( 0==err && nBuf!=rc && 0==pServer->atEof ){
+  while( nBuf!=rc && BIO_eof(pServer->bio)==0 ){
     n = SSL_read(pServer->ssl, zBuf + rc, (int)(nBuf - rc));
-    if( n==0 ){
-      pServer->atEof = 1;
-      break;
-    }
-    err = SSL_get_error(pServer->ssl, n);
-    if(0==err){
+    if( n>0 ){
       rc += n;
-      pServer->atEof = BIO_eof(pServer->bio);
+    }
+    if( doLoop==0 || n<=0 ){
+      break;
     }
   }
   return rc;
 }
 
 /*
-** Read a single line of text from the client.
+** Read a single line of text from the client, up to nBuf-1 bytes. On
+** success, writes nBuf-1 bytes to zBuf and NUL-terminates zBuf.
+** Returns NULL on an I/O error or at EOF.
 */
 char *ssl_gets(void *pServerArg, char *zBuf, int nBuf){
   int n = 0;
   int i;
   SslServerConn *pServer = (SslServerConn*)pServerArg;
-  
-  if( pServer->atEof ) return 0;
+
+  if( BIO_eof(pServer->bio) ) return 0;
   for(i=0; i<nBuf-1; i++){
     n = SSL_read(pServer->ssl, &zBuf[i], 1);
     if( n<=0 ){
@@ -854,6 +882,20 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 
 #endif /* FOSSIL_ENABLE_SSL */
 
+#ifdef FOSSIL_ENABLE_SSL
+/*
+** zPath is a name that might be a file or directory containing a trust
+** store.  *pzStore is the name of the trust store to actually use.
+**
+** If *pzStore is not NULL (meaning no trust store has been found yet)
+** and if zPath exists, then set *pzStore to point to zPath.
+*/
+static void trust_location_usable(const char *zPath, const char **pzStore){
+  if( *pzStore!=0 ) return;
+  if( file_isdir(zPath, ExtFILE)>0 ) *pzStore = zPath;
+}
+#endif /* FOSSIL_ENABLE_SSL */
+
 /*
 ** COMMAND: tls-config*
 ** COMMAND: ssl-config
@@ -865,17 +907,6 @@ size_t ssl_write_server(void *pServerArg, char *zBuf, size_t nBuf){
 ** encryption technology used for secure HTTPS transport.
 **
 ** Sub-commands:
-**
-**   clear-cert                  Remove information about server certificates.
-**                               This is a subset of the "scrub" command.
-**
-**   load-cert PEM-FILES...      Identify server certificate files. These
-**                               should be in the PEM format.  There are
-**                               normally two files, the certificate and the
-**                               private-key.  By default, the text of both
-**                               files is concatenated and added to the
-**                               "ssl-cert" setting.  Use --filename to store
-**                               just the filenames.
 **
 **   remove-exception DOMAINS    Remove TLS cert exceptions for the domains
 **                               listed.  Or remove them all if the --all
@@ -892,6 +923,7 @@ void test_tlsconfig_info(void){
   const char *zCmd;
   size_t nCmd;
   int nHit = 0;
+
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   db_open_config(1,0);
   if( g.argc==2 || (g.argc>=3 && g.argv[2][0]=='-') ){
@@ -901,98 +933,6 @@ void test_tlsconfig_info(void){
     zCmd = g.argv[2];
     nCmd = strlen(zCmd);
   }
-  if( strncmp("clear-cert",zCmd,nCmd)==0 && nCmd>=4 ){
-    int bForce = find_option("force","f",0)!=0;
-    verify_all_options();
-    if( !bForce ){
-      Blob ans;
-      char cReply;
-      prompt_user(
-        "Confirm removing of the SSL server certificate from this repository.\n"
-        "The removal cannot be undone.  Continue (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
-      }
-    }
-    db_unprotect(PROTECT_ALL);
-    db_multi_exec(
-      "PRAGMA secure_delete=ON;"
-      "DELETE FROM config "
-      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
-    );
-    db_protect_pop();
-  }else
-  if( strncmp("load-cert",zCmd,nCmd)==0 && nCmd>=4 ){
-    int bFN = find_option("filename",0,0)!=0;
-    int i;
-    Blob allText = BLOB_INITIALIZER;
-    int haveCert = 0;
-    int haveKey = 0;
-    verify_all_options();
-    db_begin_transaction();
-    db_unprotect(PROTECT_ALL);
-    db_multi_exec(
-      "PRAGMA secure_delete=ON;"
-      "DELETE FROM config "
-      " WHERE name IN ('ssl-cert','ssl-cert-file','ssl-cert-key');"
-    );
-    nHit = 0;
-    for(i=3; i<g.argc; i++){
-      Blob x;
-      int isCert;
-      int isKey;
-      if( !file_isfile(g.argv[i], ExtFILE) ){
-        fossil_fatal("no such file: \"%s\"", g.argv[i]);
-      }
-      blob_read_from_file(&x, g.argv[i], ExtFILE);
-      isCert = strstr(blob_str(&x),"-----BEGIN CERTIFICATE-----")!=0;
-      isKey = strstr(blob_str(&x),"-----BEGIN PRIVATE KEY-----")!=0;
-      if( !isCert && !isKey ){
-        fossil_fatal("not a certificate or a private key: \"%s\"", g.argv[i]);
-      }
-      if( isCert ){
-        if( haveCert ){
-          fossil_fatal("more than one certificate provided");
-        }
-        haveCert = 1;
-        if( bFN ){
-          db_set("ssl-cert-file", file_canonical_name_dup(g.argv[i]), 0);
-        }else{
-          blob_append(&allText, blob_buffer(&x), blob_size(&x));
-        }
-        if( isKey && !haveKey ){
-          haveKey = 1;
-          isKey = 0;
-        }
-      }
-      if( isKey ){
-        if( haveKey ){
-          fossil_fatal("more than one private key provided");
-        }
-        haveKey = 1;
-        if( bFN ){
-          db_set("ssl-key-file", file_canonical_name_dup(g.argv[i]), 0);
-        }else{
-          blob_append(&allText, blob_buffer(&x), blob_size(&x));
-        }
-      }
-    }
-    if( !haveCert ){
-      if( !haveKey ){
-        fossil_fatal("missing certificate and private-key");
-      }else{
-        fossil_fatal("missing certificate");
-      }
-    }else if( !haveKey ){
-      fossil_fatal("missing private-key");
-    }
-    if( !bFN ){
-      db_set("ssl-cert", blob_str(&allText), 0);
-    }
-    db_protect_pop();
-    db_commit_transaction();
-  }else
   if( strncmp("scrub",zCmd,nCmd)==0 && nCmd>4 ){
     int bForce = find_option("force","f",0)!=0;
     verify_all_options();
@@ -1015,21 +955,24 @@ void test_tlsconfig_info(void){
     db_protect_pop();
   }else
   if( strncmp("show",zCmd,nCmd)==0 ){
+#if defined(FOSSIL_ENABLE_SSL)
     const char *zName, *zValue;
+    const char *zUsed = 0;       /* Trust store location actually used */
     size_t nName;
+#endif
     Stmt q;
     int verbose = find_option("verbose","v",0)!=0;
     verify_all_options();
 
 #if !defined(FOSSIL_ENABLE_SSL)
-    fossil_print("OpenSSL-version:   (none)\n");
+    fossil_print("OpenSSL-version:      (none)\n");
     if( verbose ){
       fossil_print("\n"
          "  The OpenSSL library is not used by this build of Fossil\n\n"
       );
     }
 #else
-    fossil_print("OpenSSL-version:   %s  (0x%09x)\n",
+    fossil_print("OpenSSL-version:      %s  (0x%09x)\n",
          SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
     if( verbose ){
       fossil_print("\n"
@@ -1039,93 +982,102 @@ void test_tlsconfig_info(void){
       );
     }
 
-    fossil_print("OpenSSL-cert-file: %s\n", X509_get_default_cert_file());
-    fossil_print("OpenSSL-cert-dir:  %s\n", X509_get_default_cert_dir());
-    if( verbose ){
-      fossil_print("\n"
-         "  The default locations for the set of root certificates\n"
-         "  used by the \"fossil sync\" and similar commands to verify\n"
-         "  the identity of servers for \"https:\" URLs. These values\n"
-         "  come into play when Fossil is used as a TLS client.  These\n"
-         "  values are built into your OpenSSL library.\n\n"
-      );
-    }
-
+    fossil_print("Trust store location\n");
     zName = X509_get_default_cert_file_env();
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
+    trust_location_usable(zValue, &zUsed);
     nName = strlen(zName);
-    fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
+    fossil_print("  %s:%*s%s\n", zName, 19-nName, "", zValue);
     zName = X509_get_default_cert_dir_env();
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
+    trust_location_usable(zValue, &zUsed);
     nName = strlen(zName);
-    fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
+    fossil_print("  %s:%*s%s\n", zName, 19-nName, "", zValue);
     if( verbose ){
       fossil_print("\n"
-        "  Alternative locations for the root certificates used by Fossil\n"
-        "  when it is acting as a SSL client in order to verify the identity\n"
-        "  of servers. If specified, these alternative locations override\n"
-        "  the built-in locations.\n\n"
+        "    Environment variables that determine alternative locations for\n"
+        "    the root certificates used by Fossil when it is acting as a SSL\n"
+        "    client. If specified, these alternative locations take top\n"
+        "    priority.\n\n"
       );
     }
+
+    zValue = db_get("ssl-ca-location","");
+    trust_location_usable(zValue, &zUsed);
+    fossil_print("  ssl-ca-location:    %s\n", zValue);
+    if( verbose ){
+      fossil_print("\n"
+         "    This setting is the name of a file or directory that contains\n"
+         "    the complete set of root certificates used by Fossil when it\n"
+         "    is acting as a SSL client. If defined, this setting takes\n"
+         "    priority over built-in paths.\n\n"
+      );
+    }
+
+
+    zValue = X509_get_default_cert_file();
+    trust_location_usable(zValue, &zUsed);
+    fossil_print("  OpenSSL-cert-file:  %s\n", zValue);
+    zValue = X509_get_default_cert_dir();
+    trust_location_usable(zValue, &zUsed);
+    fossil_print("  OpenSSL-cert-dir:   %s\n", X509_get_default_cert_dir());
+    if( verbose ){
+      fossil_print("\n"
+         "    The default locations for the set of root certificates\n"
+         "    used by the \"fossil sync\" and similar commands to verify\n"
+         "    the identity of servers for \"https:\" URLs. These values\n"
+         "    come into play when Fossil is used as a TLS client.  These\n"
+         "    values are built into your OpenSSL library.\n\n"
+      );
+    }
+
+    if( zUsed==0 ) zUsed = "";
+    fossil_print("  Trust store used:   %s\n", zUsed);
+    if( verbose ){
+      fossil_print("\n"
+         "    The location that is actually used for the root certificates\n"
+         "    used to verify the identity of servers for \"https:\" URLs.\n"
+         "    This will be one of the first of the five locations listed\n"
+         "    above that actually exists.\n\n"
+      );
+    }
+
+
 #endif /* FOSSIL_ENABLE_SSL */
 
-    fossil_print("ssl-ca-location:   %s\n", db_get("ssl-ca-location",""));
-    if( verbose ){
-      fossil_print("\n"
-         "  This setting is the name of a file or directory that contains\n"
-         "  the complete set of root certificates used by Fossil when it\n"
-         "  is acting as a SSL client. If defined, this setting takes\n"
-         "  priority over built-in paths and environment variables\n\n"
-      );
-    }
 
-    fossil_print("ssl-identity:      %s\n", db_get("ssl-identity",""));
+    fossil_print("ssl-identity:        %s\n", db_get("ssl-identity",""));
     if( verbose ){
       fossil_print("\n"
-         "  This setting is the name of a file that contains the PEM-format\n"
-         "  certificate and private-key used by Fossil clients to authenticate\n"
-         "  with servers. Few servers actually require this, so this setting\n"
-         "  is usually blank.\n\n"
-      );
-    }
-
-    zValue = db_get("ssl-cert",0);
-    if( zValue ){
-      fossil_print("ssl-cert:          (%d-byte PEM)\n", (int)strlen(zValue));
-    }else{
-      fossil_print("ssl-cert:\n");
-    }
-    if( verbose ){
-      fossil_print("\n"
-         "  This setting is the PEM-formatted value of the SSL server\n"
-         "  certificate and private-key, used by Fossil when it is acting\n"
-         "  as a server via the \"fossil server\" command or similar.\n\n"
-      );
-    }
-    
-    fossil_print("ssl-cert-file:     %s\n", db_get("ssl-cert-file",""));
-    fossil_print("ssl-key-file:      %s\n", db_get("ssl-key-file",""));
-    if( verbose ){
-      fossil_print("\n"
-         "  This settings are the names of files that contain the certificate\n"
-         "  private-key used by Fossil when it is acting as a server.\n\n"
+        "  This setting is the name of a file that contains the PEM-format\n"
+        "  certificate and private-key used by Fossil clients to authenticate\n"
+        "  with servers. Few servers actually require this, so this setting\n"
+        "  is usually blank.\n\n"
       );
     }
 
     db_prepare(&q,
-       "SELECT name, '' FROM global_config"
+       "SELECT name, '', value FROM global_config"
        " WHERE name GLOB 'cert:*'"
        "UNION ALL "
-       "SELECT name, date(mtime,'unixepoch') FROM config"
+       "SELECT name, date(mtime,'unixepoch'), value FROM config"
        " WHERE name GLOB 'cert:*'"
        " ORDER BY name"
     );
     nHit = 0;
     while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("exception:         %-40s %s\n",
-           db_column_text(&q,0)+5, db_column_text(&q,1));
+                /*  123456789 123456789 123456789 */
+      if( verbose ){
+        fossil_print("exception:            %-40s %s\n"
+                     "     hash:            %.57s\n",
+             db_column_text(&q,0)+5, db_column_text(&q,1),
+             db_column_text(&q,2));
+      }else{
+        fossil_print("exception:            %-40s %s\n",
+             db_column_text(&q,0)+5, db_column_text(&q,1));
+      }
       nHit++;
     }
     db_finalize(&q);
@@ -1179,7 +1131,7 @@ void test_tlsconfig_info(void){
   }else
   /*default*/{
     fossil_fatal("unknown sub-command \"%s\".\nshould be one of:"
-                 " clear-cert load-cert remove-exception scrub show",
+                 " remove-exception scrub show",
        zCmd);
   }
 }

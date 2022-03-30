@@ -486,6 +486,11 @@ void chat_test_formatter_cmd(void){
 **
 ** If "before" is provided, "name" is ignored.
 **
+** If "raw" is provided, the "xmsg" text is sent back as-is, in
+** markdown format, rather than being HTML-ized. This is not used or
+** supported by fossil's own chat client but is intended for 3rd-party
+** clients. (Specifically, for Brad Harder's curses-based client.)
+**
 ** The reply from this webpage is JSON that describes the new content.
 ** Format of the json:
 **
@@ -545,6 +550,7 @@ void chat_poll_webpage(void){
   int msgid = atoi(PD("name","0"));
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
+  const int bRaw = P("raw")!=0;
   Blob sql = empty_blob;
   Stmt q1;
   nDelay = db_get_int("chat-poll-timeout",420);  /* Default about 7 minutes */
@@ -622,9 +628,13 @@ void chat_poll_webpage(void){
       blob_appendf(&json, "\"uclr\":%!j,",
                    user_color(zFrom ? zFrom : "nobody"));
 
-      zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
-      blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
-      fossil_free(zMsg);
+      if(bRaw){
+        blob_appendf(&json, "\"xmsg\":%!j,", zRawMsg);
+      }else{
+        zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
+        blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
+        fossil_free(zMsg);
+      }
 
       if( nByte==0 ){
         blob_appendf(&json, "\"fsize\":0");
@@ -810,6 +820,38 @@ void chat_delete_webpage(void){
 }
 
 /*
+** WEBPAGE: chat-backup hidden
+**
+** Download an SQLite database containing all chat content with a
+** message-id larger than the "msgid" query parameter.  Setup
+** privilege is required to use this URL.
+**
+** This is used to implement the "fossil chat pull" command.
+*/
+void chat_backup_webpage(void){
+  int msgid;
+  unsigned char *pDb = 0;
+  sqlite3_int64 szDb = 0;
+  Blob chatDb;
+  login_check_credentials();
+  if( !g.perm.Setup ) return;
+  msgid = atoi(PD("msgid","0"));
+  db_multi_exec(
+    "ATTACH ':memory:' AS mem1;\n"
+    "PRAGMA mem1.page_size=512;\n"
+    "CREATE TABLE mem1.chat AS SELECT * FROM repository.chat WHERE msgid>%d;\n",
+    msgid
+  );
+  pDb = sqlite3_serialize(g.db, "mem1", &szDb, 0);
+  if( pDb==0 ){
+    fossil_fatal("Out of memory");
+  }
+  blob_init(&chatDb, (const char*)pDb, (int)szDb);
+  cgi_set_content_type("application/x-sqlite3");
+  cgi_set_content(&chatDb);
+}
+
+/*
 ** COMMAND: chat
 **
 ** Usage: %fossil chat [SUBCOMMAND] [--remote URL] [ARGS...]
@@ -830,6 +872,18 @@ void chat_delete_webpage(void){
 **      on the default system web-browser.  You can accomplish the same by
 **      typing the appropriate URL into the web-browser yourself.  This
 **      command is merely a convenience for command-line oriented people.
+**
+** > fossil chat pull
+**
+**      Copy chat content from the server down into the local clone,
+**      as a backup or archive.  Setup privilege is required on the server.
+**
+**        --all                  Download all chat content. Normally only
+**                               previously undownloaded content is retrieved.
+**        --debug                Additional debugging output.
+**        --out DATABASE         Store CHAT table in separate database file
+**                               DATABASE rather that adding to local clone
+**        --unsafe               Allow the use of unencrypted http://
 **
 ** > fossil chat send [ARGUMENTS]
 **
@@ -974,6 +1028,74 @@ void chat_command(void){
       fossil_fatal("unable to send the chat message");
     }
     blob_reset(&down);
+  }else if( strcmp(g.argv[2],"pull")==0 ){
+    /* Pull the CHAT table from the default server down into the repository
+    ** here on the local side */
+    int allowUnsafe = find_option("unsafe",0,0)!=0;
+    int bDebug = find_option("debug",0,0)!=0;
+    const char *zOut = find_option("out",0,1);
+    int bAll = find_option("all",0,0)!=0;
+    int mFlags = HTTP_GENERIC | HTTP_QUIET | HTTP_NOCOMPRESS;
+    int msgid;
+    Blob reqUri;    /* The REQUEST_URI:  .../chat-backup?msgid=... */
+    char *zObs;
+    const char *zPw;
+    Blob up, down;
+    int nChat;
+    int rc;
+    verify_all_options();
+    chat_create_tables();
+    msgid = bAll ? 0 : db_int(0,"SELECT max(msgid) FROM chat");
+    if( !g.url.isHttps && !allowUnsafe ){
+      fossil_fatal("URL \"%s\" is unencrypted. Use https:// instead", zUrl);
+    }
+    blob_init(&reqUri, g.url.path, -1);
+    blob_appendf(&reqUri, "/chat-backup?msgid=%d", msgid);
+    if( g.url.user && g.url.user[0] ){
+      zObs = obscure(g.url.user);
+      blob_appendf(&reqUri, "&resid=%t", zObs);
+      fossil_free(zObs);
+    }
+    zPw = g.url.passwd;
+    if( zPw==0 && isDefaultUrl ) zPw = unobscure(db_get("last-sync-pw", 0));
+    if( zPw && zPw[0] ){
+      zObs = obscure(zPw);
+      blob_appendf(&reqUri, "&token=%t", zObs);
+      fossil_free(zObs);
+    }
+    g.url.path = blob_str(&reqUri);
+    if( bDebug ){
+      fossil_print("REQUEST_URI: %s\n", g.url.path);
+      mFlags &= ~HTTP_QUIET;
+      mFlags |= HTTP_VERBOSE;
+    }
+    blob_init(&up, 0, 0);
+    blob_init(&down, 0, 0);
+    http_exchange(&up, &down, mFlags, 4, 0);
+    if( zOut ){
+      blob_write_to_file(&down, zOut);
+      fossil_print("Chat database at %s is %d bytes\n", zOut, blob_size(&down));
+    }else{
+      db_multi_exec("ATTACH ':memory:' AS chatbu;");
+      if( g.fSqlTrace ){
+        fossil_trace("-- deserialize(\"chatbu\", pData, %d);\n",
+                     blob_size(&down));
+      }
+      rc = sqlite3_deserialize(g.db, "chatbu",
+                            (unsigned char*)blob_buffer(&down),
+                             blob_size(&down), blob_size(&down), 0);
+      if( rc ){
+        fossil_fatal("cannot open patch database: %s", sqlite3_errmsg(g.db));
+      }
+      nChat = db_int(0, "SELECT count(*) FROM chatbu.chat");
+      fossil_print("Got %d new records, %d bytes\n", nChat, blob_size(&down));
+      db_multi_exec(
+        "REPLACE INTO repository.chat(msgid,mtime,lmtime,xfrom,xmsg,"
+                                     "fname,fmime,mdel,file)"
+        " SELECT msgid,mtime,lmtime,xfrom,xmsg,fname,fmime,mdel,file"
+          " FROM chatbu.chat;"
+      );
+    }
   }else if( strcmp(g.argv[2],"url")==0 ){
     /* Show the URL to access chat. */
     fossil_print("%s/chat\n", zUrl);

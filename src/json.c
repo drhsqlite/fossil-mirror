@@ -1,6 +1,6 @@
 #ifdef FOSSIL_ENABLE_JSON
 /*
-** Copyright (c) 2011 D. Richard Hipp
+** Copyright (c) 2011-2022 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -175,17 +175,6 @@ int cson_data_dest_Blob(void * pState, void const * src, unsigned int n){
 }
 
 /*
-** Implements the cson_data_source_f() interface and reads input from
-** a fossil Blob object. pState must be-a (Blob*) populated with JSON
-** data.
-*/
-int cson_data_src_Blob(void * pState, void * dest, unsigned int * n){
-  Blob * b = (Blob*)pState;
-  *n = blob_read( b, dest, *n );
-  return 0;
-}
-
-/*
 ** Convenience wrapper around cson_output() which appends the output
 ** to pDest. pOpt may be NULL, in which case g.json.outOpt will be used.
 */
@@ -206,8 +195,7 @@ int cson_output_Blob( cson_value const * pVal, Blob * pDest, cson_output_opt con
 */
 cson_value * cson_parse_Blob( Blob * pSrc, cson_parse_info * pInfo ){
   cson_value * root = NULL;
-  blob_rewind( pSrc );
-  cson_parse( &root, cson_data_src_Blob, pSrc, NULL, pInfo );
+  cson_parse_string( &root, blob_str(pSrc), blob_size(pSrc), NULL, pInfo );
   return root;
 }
 
@@ -1067,6 +1055,7 @@ void json_bootstrap_late(){
     */
     FILE * inFile = NULL;
     char const * jfile = find_option("json-input",NULL,1);
+    Blob json = BLOB_INITIALIZER;
     if(!jfile || !*jfile){
       break;
     }
@@ -1079,8 +1068,10 @@ void json_bootstrap_late(){
         /* Does not return. */
         ;
     }
-    cgi_parse_POST_JSON(inFile, 0);
+    blob_read_from_channel(&json, inFile, -1);
     fossil_fclose(inFile);
+    cgi_parse_POST_JSON(&json);
+    blob_reset(&json);
     break;
   }
 
