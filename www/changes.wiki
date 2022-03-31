@@ -11,6 +11,7 @@
   *  Performance enhancement for the 
      [./checkin_names.wiki#root|"root:BRANCHNAME" style of tag],
      accomplished using a Common Table Expression in the underlying SQL.
+  *  Add the new "[/help?cmd=describe|fossil describe]" command.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
