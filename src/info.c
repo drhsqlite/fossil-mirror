@@ -3683,23 +3683,23 @@ void test_symlink_list_cmd(void){
 
 #if INTERFACE
 /* 
-** Description of a checkin relative to an earlier, tagged checkin.
+** Description of a check-in relative to an earlier, tagged check-in.
 */
 typedef struct CommitDescr {
-  char *zRelTagname;        /* Tag name on the relative checkin */
+  char *zRelTagname;        /* Tag name on the relative check-in */
   int nCommitsSince;        /* Number of commits since then */
-  char *zCommitHash;        /* Hash of the described checkin */
+  char *zCommitHash;        /* Hash of the described check-in */
   int isDirty;              /* Working directory has uncommitted changes */
 } CommitDescr;
 #endif
 
 /*
-** Describe the checkin given by 'zName', and possibly matching 'matchGlob',
-** relative to an earlier, tagged checkin. Use 'descr' for the output.
+** Describe the check-in given by 'zName', and possibly matching 'matchGlob',
+** relative to an earlier, tagged check-in. Use 'descr' for the output.
 **
 ** Finds the closest ancestor (ignoring merge-ins) that has a non-propagating
 ** label tag and the number of steps backwards that we had to search in
-** order to find that tag.
+** order to find that tag.  Tags applied to more than one check-in are ignored.
 **
 ** Return values:
 **       0: ok
@@ -3797,16 +3797,19 @@ int describe_commit(
 **
 ** Provide a description of the given VERSION by showing a non-propagating
 ** tag of the youngest tagged ancestor, followed by the number of commits
-** since that, and the short hash of VERSION.  If VERSION and the found 
-** ancestor refer to the same commit, the last two components are omitted,
-** unless --long is provided.
+** since that, and the short hash of VERSION.  Only tags applied to a single
+** check-in are considered.
 **
-** If no VERSION is provided, describe the current checked-out version.  When
-** no fitting tagged ancestor is found, show only the short hash of VERSION.
+** If no VERSION is provided, describe the current checked-out version.
+**
+** If VERSION and the found ancestor refer to the same commit, the last two
+** components are omitted, unless --long is provided.  When no fitting tagged
+** ancestor is found, show only the short hash of VERSION.
 **
 ** Options:
 **
-**    --digits           Display so many hex digits of the hash (default 10)
+**    --digits           Display so many hex digits of the hash 
+**                       (default: the larger of 6 and the 'hash-digit' setting)
 **    -d|--dirty         Show whether there are changes to be committed
 **    --long             Always show all three components
 **    --match GLOB       Consider only non-propagating tags matching GLOB
