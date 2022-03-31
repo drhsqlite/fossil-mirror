@@ -3827,7 +3827,7 @@ void describe_cmd(void){
   zDigits = find_option("digits", 0, 1);
 
   if ( !zDigits || ((nDigits=atoi(zDigits))==0) ){
-    nDigits = 10;
+    nDigits = hash_digits(0);
   }
 
   /* We should be done with options.. */
