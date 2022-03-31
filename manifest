@@ -1,5 +1,5 @@
-C Added\s"fossil\sdescribe"\sto\sthe\schange\slog.
-D 2022-03-31T09:37:14.518
+C For\s"fossil\stag\slist"\sand\sthe\s/taglist\spage,\ssort\sentries\staking\snumbers\sinto\sconsideration.\sThis\sputs\stags\sthat\sfollow\ssemantic\sversioning\sinto\sthe\sexpected\sorder.
+D 2022-03-31T12:10:13.059
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -581,7 +581,7 @@ F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057ba
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c cbafa4453ff308af3e84fdf5a9dcfdd40b11fcf279e5515ebc922610d65c3146
-F src/tag.c dffa086b5dc5cac3b38d59e3675ed6eda67262f8e84e25bfa65ce5e7e4d4151e
+F src/tag.c bb00f95b802dbb580fa4cc2bb1ba1b2e3b101aeec738c7878b1a2e871c76a45f
 F src/tar.c d66ca7cd241f369cffe29a5e1c5ac1af0a4cc8f9dddeb92d1d62614577a6ac75
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c 57a908f2f980541428d8a66518bdcb7c6b89b1564481127b362f486062bdcc3c
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52dd8a91bf2e689010ce8c0bfc2ae0e27d13abea814589d0f82c8d209dc6ad60
-R 752ae1c70f85afe6d2353ad74019edd1
+P 56ef05a5677216bc89910a4266d51855b7082093ca133176ea50212116090ec1
+R c26e05a9ef73f1d1d8784cc6472e435c
 U danield
-Z 1ef041437d94bd3ed0fb547c3d248fba
+Z 3a48a71ce209026b5104094ac328986b
 # Remove this line to create a well-formed Fossil manifest.
