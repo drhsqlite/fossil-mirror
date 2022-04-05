@@ -211,12 +211,17 @@ int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
 
 /*
 ** Fill Blob with a space-separated list of all command names that
-** match the prefix zPrefix.
+** match the prefix zPrefix and the eType CMDFLAGS_ bits.
 */
-void dispatch_matching_names(const char *zPrefix, Blob *pList){
+void dispatch_matching_names(
+  const char *zPrefix,        /* name prefix */
+  unsigned eType,             /* CMDFLAG_ bits */
+  Blob *pList                 /* space-separated list of command names */
+){
   int i;
   int nPrefix = (int)strlen(zPrefix);
   for(i=FOSSIL_FIRST_CMD; i<MX_COMMAND; i++){
+    if( (aCommand[i].eCmdFlags & eType)==0 ) continue;
     if( strncmp(zPrefix, aCommand[i].zName, nPrefix)==0 ){
       blob_appendf(pList, " %s", aCommand[i].zName);
     }

@@ -1,5 +1,5 @@
-C Don't\sgive\san\s"ambiguous\scommand\sprefix"\serror\swhen\sreported\sambiguous\ncommands\sare\saliases\sto\seach\sothers.\sAssume\salias\spoint\sto\ssame\sfunction\npointer\sand\sare\sall\sconsecutive\sin\sthe\saCommand[]\slist.
-D 2022-04-05T16:49:22.493
+C When\sreporting\sthe\slist\sof\smathing\sambiguous\ssub-command,\smake\ssure\ssettings\nwith\sthe\ssame\sprefix\sare\snot\slisted.
+D 2022-04-05T19:51:56.628
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -441,7 +441,7 @@ F src/diff.c 175b2cb4049592407f1946e44d59d18d5d1928cb5b1399fabcbe5f108ab96c4e
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c c2d2deb1341d9f954c0107267daf2dddf07e2bcf62d23f73bd160d1a510876c0
-F src/dispatch.c dcc4f7b87d3b2532a5c8683e909ee00bb18ec68d5f486a8c542546ad82de9543
+F src/dispatch.c 6fb0d0605fa63f95f22883f9edc6d2cc01c41a30bb2642476d194cbd2cd99692
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c a01bd0437f55ae9af7f81819ebafb71662fc52aa0cf4e58ac2be6a09c187d799
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 22c828dcf866b203c38b0a1ecce80a09a74e5e095d56828bab0c26eb8c1f860e
+F src/main.c e2908e33034ecf49632e6f3405a92e8955d3278b76c1d80ae0c2043108d973da
 F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -969,11 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 959807e91502d64467fcadade0655483e38dfa6d89e752058b19c2d8feae7e7b
-R 816aca52872a7612165e17d57ba28fc6
-T *branch * ambiguous_cmd_fix
-T *sym-ambiguous_cmd_fix *
-T -sym-trunk *
+P 862ce7ce2c5d9105e560bdad91e8ee6ab7d74adb4a0a31ea13b9efa42f967523
+R 67c99a17d697b86d50c2acf55b17dacc
 U mgagnon
-Z 44d36c5f5d9c57b8251ac9df7762bd44
+Z 6de70e65c56ec2ab21337b630f09a59d
 # Remove this line to create a well-formed Fossil manifest.
