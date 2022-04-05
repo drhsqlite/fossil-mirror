@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.39.0\salpha\sfor\stesting.
-D 2022-04-01T17:33:16.933
+C Update\sto\sthe\slatest\sPikchr\sversion\sthat\sincludes\simproved\sresistance\sto\nexponential\smacro-expansion\sattacks.
+D 2022-04-05T14:41:48.710
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -294,7 +294,7 @@ F extsrc/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edc
 F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
-F extsrc/pikchr.c 8abbc4a080e9a05ac0578746a556cc7dd7236304d1a0403be36a0621f71fb1de
+F extsrc/pikchr.c 313d783dcf2d9f1d3bccee6b7237e7a2c63b97eb17a5e72864be6a265edad2e1
 F extsrc/shell.c 4775dc6829dd10d5ebaa035b9e908766617e7d12ab34edd96711c27d2ac0b08b
 F extsrc/sqlite3.c 67032b59421b9e9a4a9dc412da173666db1c19b315408bcf1ece6faaf2c76e95
 F extsrc/sqlite3.h 78312f1b988068712f3ca15088bd90e47ee8f45755167fa447af39a3c0499574
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3500dbfd84fa90728ab0914fb9276ca3477aac3bbdd266a8e71318dbae00d394
-R e8b7e88f5e067c4b6d64dbb8b215416a
+P aa2066b5d257674854695b12b8a98caa9fdc4fd824db355657a5275fc69e53c3
+R 648cf26e8402040c2b178c6b2549274b
 U drh
-Z 36853e789a5be4adb724b35c60349d5f
+Z 2a19907827a6fe7c3b2732f6e23be9fb
 # Remove this line to create a well-formed Fossil manifest.
