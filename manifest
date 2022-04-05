@@ -1,5 +1,5 @@
-C Modify\sthe\smakefiles\sto\sprovide\sfor\scompile-time\soptions\sfor\spikchr.\nReduce\sthe\stoken-count\slimit\sin\spikchr\sto\s10,000.
-D 2022-04-05T15:04:22.280
+C Don't\sgive\san\s"ambiguous\scommand\sprefix"\serror\swhen\sreported\sambiguous\ncommands\sare\saliases\sto\seach\sothers.\sAssume\salias\spoint\sto\ssame\sfunction\npointer\sand\sare\sall\sconsecutive\sin\sthe\saCommand[]\slist.
+D 2022-04-05T16:49:22.493
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -441,7 +441,7 @@ F src/diff.c 175b2cb4049592407f1946e44d59d18d5d1928cb5b1399fabcbe5f108ab96c4e
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c c2d2deb1341d9f954c0107267daf2dddf07e2bcf62d23f73bd160d1a510876c0
-F src/dispatch.c 14efca09dbc6411c2cc65213c82be7f4e2131cc9f1aeb7798d6fb57a02abb6c0
+F src/dispatch.c dcc4f7b87d3b2532a5c8683e909ee00bb18ec68d5f486a8c542546ad82de9543
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
@@ -969,8 +969,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7530419619d7e671a80c5dcceee7f2bdc26bcf8ef6f60ed2eb517a7b905b72a
-R e8bc9c1869a9845bfa5d9b22142da9bd
-U drh
-Z 8831ebb35234d70fefd37c8a511dcdb0
+P 959807e91502d64467fcadade0655483e38dfa6d89e752058b19c2d8feae7e7b
+R 816aca52872a7612165e17d57ba28fc6
+T *branch * ambiguous_cmd_fix
+T *sym-ambiguous_cmd_fix *
+T -sym-trunk *
+U mgagnon
+Z 44d36c5f5d9c57b8251ac9df7762bd44
 # Remove this line to create a well-formed Fossil manifest.

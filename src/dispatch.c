@@ -127,7 +127,9 @@ int dispatch_name_search(
         if( mid<0 ){
           mid = lwr;  /* Potential ambiguous prefix */
         }else{
-          return 2;  /* Confirmed ambiguous prefix */
+          if( aCommand[lwr].xFunc != aCommand[mid].xFunc ){
+            return 2;  /* Confirmed ambiguous prefix */
+          }
         }
       }
     }
