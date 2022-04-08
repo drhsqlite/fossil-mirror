@@ -356,6 +356,8 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
 
+PIKCHR_OPTIONS = /DPIKCHR_TOKEN_LIMIT=10000
+
 SRC   = "$(OX)\add_.c" \
         "$(OX)\ajax_.c" \
         "$(OX)\alerts_.c" \
@@ -1062,7 +1064,7 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
+	$(TCC) $(PIKCHR_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@

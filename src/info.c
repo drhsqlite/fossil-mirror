@@ -3680,3 +3680,194 @@ void test_symlink_list_cmd(void){
   }
   db_finalize(&q);
 }
+
+#if INTERFACE
+/* 
+** Description of a check-in relative to an earlier, tagged check-in.
+*/
+typedef struct CommitDescr {
+  char *zRelTagname;        /* Tag name on the relative check-in */
+  int nCommitsSince;        /* Number of commits since then */
+  char *zCommitHash;        /* Hash of the described check-in */
+  int isDirty;              /* Working directory has uncommitted changes */
+} CommitDescr;
+#endif
+
+/*
+** Describe the check-in given by 'zName', and possibly matching 'matchGlob',
+** relative to an earlier, tagged check-in. Use 'descr' for the output.
+**
+** Finds the closest ancestor (ignoring merge-ins) that has a non-propagating
+** label tag and the number of steps backwards that we had to search in
+** order to find that tag.  Tags applied to more than one check-in are ignored.
+**
+** Return values:
+**       0: ok
+**      -1: zName does not resolve to a commit
+**      -2: zName resolves to more than a commit
+**      -3: no ancestor commit with a fitting non-propagating tag found
+*/
+int describe_commit(
+  const char *zName,       /* Name of the commit to be described */
+  const char *matchGlob,   /* Glob pattern for the tag */
+  CommitDescr *descr       /* Write the description here */
+){
+  int rid;             /* rid for zName */
+  const char *zUuid;   /* Hash of rid */
+  int nRet = 0;        /* Value to be returned */
+  Stmt q;              /* Query for tagged ancestors */
+
+  rid = symbolic_name_to_rid(zName, "ci"); /* only commits */
+
+  if( rid<=0 ){
+    /* Commit does not exist or is ambiguous */
+    descr->zRelTagname = mprintf("");
+    descr->nCommitsSince = -1;
+    descr->zCommitHash = mprintf("");
+    descr->isDirty = -1;
+    return (rid-1);
+  }
+
+  zUuid = rid_to_uuid(rid);
+  descr->zCommitHash = mprintf("%s", zUuid);
+  descr->isDirty = unsaved_changes(0);
+
+  db_multi_exec(
+    "DROP TABLE IF EXISTS temp.singletonTag;"
+    "CREATE TEMP TABLE singletonTag("
+    "  rid INT,"
+    "  tagname TEXT,"
+    "  PRIMARY KEY (rid,tagname)"
+    ") WITHOUT ROWID;"
+    "INSERT OR IGNORE INTO singletonTag(rid, tagname)"
+    "  SELECT min(rid),"
+    "         substr(tagname,5)"
+    "    FROM tag, tagxref"
+    "   WHERE tag.tagid=tagxref.tagid"
+    "     AND tagxref.tagtype=1"
+    "     AND tagname GLOB 'sym-%q'"
+    "   GROUP BY tagname"
+    "  HAVING count(*)==1;",
+    (matchGlob ? matchGlob : "*")
+  );
+
+  db_prepare(&q,
+    "WITH RECURSIVE"
+    "  ancestor(rid,mtime,tagname,n) AS ("
+    "    SELECT %d, event.mtime, singletonTag.tagname, 0 "
+    "      FROM event"
+    "      LEFT JOIN singletonTag ON singletonTag.rid=event.objid"
+    "     WHERE event.objid=%d"
+    "     UNION ALL"
+    "     SELECT plink.pid, event.mtime, singletonTag.tagname, n+1"
+    "       FROM ancestor, plink, event"
+    "       LEFT JOIN singletonTag ON singletonTag.rid=plink.pid"
+    "      WHERE plink.cid=ancestor.rid"
+    "        AND event.objid=plink.pid"
+    "        AND ancestor.tagname IS NULL"
+    "      ORDER BY mtime DESC"
+    "  )"
+    "SELECT tagname, n"
+    "  FROM ancestor"
+    " WHERE tagname IS NOT NULL"
+    " ORDER BY n LIMIT 1;",
+    rid, rid
+  );
+
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *lastTag = db_column_text(&q, 0);
+    descr->zRelTagname = mprintf("%s", lastTag);
+    descr->nCommitsSince = db_column_int(&q, 1);
+    nRet = 0;
+  }else{
+    /* no ancestor commit with a fitting singleton tag found */
+    descr->zRelTagname = mprintf("");
+    descr->nCommitsSince = -1;
+    nRet = -3;
+  }
+
+  db_finalize(&q);
+  return nRet;
+}
+
+/*
+** COMMAND: describe
+**
+** Usage: %fossil describe ?VERSION? ?OPTIONS?
+**
+** Provide a description of the given VERSION by showing a non-propagating
+** tag of the youngest tagged ancestor, followed by the number of commits
+** since that, and the short hash of VERSION.  Only tags applied to a single
+** check-in are considered.
+**
+** If no VERSION is provided, describe the current checked-out version.
+**
+** If VERSION and the found ancestor refer to the same commit, the last two
+** components are omitted, unless --long is provided.  When no fitting tagged
+** ancestor is found, show only the short hash of VERSION.
+**
+** Options:
+**
+**    --digits           Display so many hex digits of the hash 
+**                       (default: the larger of 6 and the 'hash-digit' setting)
+**    -d|--dirty         Show whether there are changes to be committed
+**    --long             Always show all three components
+**    --match GLOB       Consider only non-propagating tags matching GLOB
+*/
+void describe_cmd(void){
+  const char *zName;
+  const char *zMatchGlob;
+  const char *zDigits;
+  int nDigits;
+  int bDirtyFlag = 0;
+  int bLongFlag = 0;
+  CommitDescr descr;
+
+  db_find_and_open_repository(0,0);
+  bDirtyFlag = find_option("dirty","d",0)!=0;
+  bLongFlag = find_option("long","",0)!=0;
+  zMatchGlob = find_option("match", 0, 1);
+  zDigits = find_option("digits", 0, 1);
+
+  if ( !zDigits || ((nDigits=atoi(zDigits))==0) ){
+    nDigits = hash_digits(0);
+  }
+
+  /* We should be done with options.. */
+  verify_all_options();
+  if( g.argc<3 ){
+    zName = "current";
+  }else{
+    zName = g.argv[2];
+  }
+
+  if( bDirtyFlag ){
+    if ( g.argc>=3 ) fossil_fatal("cannot use --dirty with specific checkin");
+  }
+
+  switch( describe_commit(zName, zMatchGlob, &descr) ){
+    case -1:
+      fossil_fatal("commit %s does not exist", zName);
+      break;
+    case -2:
+      fossil_fatal("commit %s is ambiguous", zName);
+      break;
+    case -3:
+      fossil_print("%.*s%s\n", nDigits, descr.zCommitHash,
+                  bDirtyFlag ? (descr.isDirty ? "-dirty" : "") : "");
+      break;
+    case 0:
+      if( descr.nCommitsSince==0 && !bLongFlag ){
+        fossil_print("%s%s\n", descr.zRelTagname,
+                    bDirtyFlag ? (descr.isDirty ? "-dirty" : "") : "");
+      }else{
+        fossil_print("%s-%d-%.*s%s\n", descr.zRelTagname,
+                    descr.nCommitsSince, nDigits, descr.zCommitHash,
+                    bDirtyFlag ? (descr.isDirty ? "-dirty" : "") : "");
+      }
+      break;
+    default:
+      fossil_fatal("cannot describe commit");
+      break;
+  }
+}

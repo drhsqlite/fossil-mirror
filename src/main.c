@@ -913,7 +913,7 @@ int fossil_main(int argc, char **argv){
   }else if( rc==2 ){
     Blob couldbe;
     blob_init(&couldbe,0,0);
-    dispatch_matching_names(zCmdName, &couldbe);
+    dispatch_matching_names(zCmdName, CMDFLAG_COMMAND, &couldbe);
     fossil_print("%s: ambiguous command prefix: %s\n"
                  "%s: could be any of:%s\n"
                  "%s: use \"help\" for more information\n",
