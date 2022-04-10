@@ -1,5 +1,5 @@
-C Added\sthe\s"--page\swcontent"\sbit\sto\sthe\snew\swiki\sversioning\sexample\sin\sthe\nglossary.
-D 2022-04-10T18:56:27.371
+C mkheaders\scarriage-return\sfix\sfrom\s[forum:6b2e7dbee7\s|\sforum\spost\s6b2e7dbee7].
+D 2022-04-10T19:58:55.198
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -750,7 +750,7 @@ F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
-F tools/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
+F tools/makeheaders.c 7edd59e760e9c914ba81bf58d913525057d5136c415d7331710a05aa0cb8ef74
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 1e2de050ddf33518b6dae036f6ce580b65ed77e19c1d6bbd3802f23ec66e4424 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccd5cacc51fce3781655d3dce8c19e774e70b3a64cc64fea85f398c2ecca4bb1
-R 822e52b7af17b0f8078a9909c9db4d1b
-U wyoung
-Z 952c59dbbf5fd2e2b89c95f811253adf
+P b05a07a9a201ccf505f52fae1e03b26282aa737df558725db377b3dd1ea65462
+R 69ae9e4a66d1e78e8d9ee8ea847baba6
+U stephan
+Z 0970927f759add891f76dfd3af73032e
 # Remove this line to create a well-formed Fossil manifest.
