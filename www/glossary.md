@@ -320,13 +320,13 @@ files, but under Fossil’s powerful version control features.
     target documents, not to the version contemporaneous with the source
     document.
 
-    The consequence is that if say something like…
+    The consequence is that if you say something like…
 
           $ fossil up 2020-04-01
           $ fossil ui
 
-    …you will **not** see the wiki as of April Fool’s Day in 2020.
-    You’ll see the current wiki article versions, same as if you ran it
+    …you will **not** see the wiki as of April Fool’s Day in 2020, but
+    instead the current wiki article versions, the same as if you ran it
     from a check-out of the tip-of-trunk.
 
     Contrast embedded docs, which are not only version-controlled as
