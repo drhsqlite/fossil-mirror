@@ -1,5 +1,5 @@
-C Cherrypicked\s[2f3c84b3e9ed],\swhich\swash\sintended\sfor\strunk.
-D 2022-04-08T08:45:09.836
+C Added\s"Embedded\sDocumentation"\ssection\sto\sthe\sglossary\sper\slarrybr's\nrequest\sin\s/chat.\s\sIt's\sa\sFossil-specific\sterm\sof\sart.\s\sIt\salso\sgives\sus\na\splace\sto\scontrast\swith\sthe\swiki;\sthat\scould\slive\sin\sthe\sdocs\sfor\sthe\nwiki\sor\sembedded\sdocs\sinstead,\sbut\sthe\sglossary\sis\swhere\snewbies\sgo\sto\nget\soriented\son\sterms,\sso\sthe\s"but\swhich\sshould\sI\suse"\squestion\sfalls\nright\sout\sof\sthe\sterminology.
+D 2022-04-10T18:49:18.480
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -856,7 +856,7 @@ F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/gitusers.md 64bc9b1dc811cbc32cd76c04effd063e7154dd8950fa384ad8c90898a780fb71
 F www/globs.md 78e1eeb685aed7a5ce91b3896a3a87f3f9d2388523d80fa7a5dec2e22bd23432
-F www/glossary.md 262d650bf1aa66ab4025f113249adb48403f243c2b80c87183b92af8f527dedb
+F www/glossary.md 14dc1fc193a1837c97dd45b1bb406b8695cfbe6642beadcf59496d776339c166
 F www/grep.md c50868f95cce9b135240e8fc8d8998d01cf6a8f25c5c5d8ab56f48df1a4277f6
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -969,9 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 512905efd351e3b60dcc572f1d241187ed87db601a4256dcb8313574937d9467
-Q +2f3c84b3e9ed3b9f43c8384ffe71ac36a5e174b66bf8cdf4cfc822e650ff7355
-R 16b25a891e9440ac015ba69196ab0140
-U stephan
-Z 3ad53b799573eeaa27ae7fd1844c06d2
+P 834db57d95f6e16d56eb39312145f448769b47fde2964ffa5d593063fe478b1e
+R 939f1ca94ab664b134bd2c2c84747d24
+U wyoung
+Z 829e2e5f0e92f55d892d4ff15321b095
 # Remove this line to create a well-formed Fossil manifest.
