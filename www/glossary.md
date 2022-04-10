@@ -323,10 +323,10 @@ files, but under Fossil’s powerful version control features.
     The consequence is that if you say something like…
 
           $ fossil up 2020-04-01
-          $ fossil ui
+          $ fossil ui --page wcontent
 
-    …you will **not** see the wiki as of April Fool’s Day in 2020, but
-    instead the current wiki article versions, the same as if you ran it
+    …you will **not** see the list of wiki articles as of April Fool’s Day in 2020, but
+    instead the list of *current* wiki article versions, the same as if you ran it
     from a check-out of the tip-of-trunk.
 
     Contrast embedded docs, which are not only version-controlled as

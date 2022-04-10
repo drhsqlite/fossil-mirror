@@ -1,5 +1,5 @@
-C Grammar\stweaks\sto\sprevious
-D 2022-04-10T18:53:36.973
+C Added\sthe\s"--page\swcontent"\sbit\sto\sthe\snew\swiki\sversioning\sexample\sin\sthe\nglossary.
+D 2022-04-10T18:56:27.371
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -856,7 +856,7 @@ F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/gitusers.md 64bc9b1dc811cbc32cd76c04effd063e7154dd8950fa384ad8c90898a780fb71
 F www/globs.md 78e1eeb685aed7a5ce91b3896a3a87f3f9d2388523d80fa7a5dec2e22bd23432
-F www/glossary.md 98fc9dfeddf6d5a8dda9358448f70aed35065950e620d42316086bfb231f95da
+F www/glossary.md 86cb7eb2bfb00e0a1fb2662d47484b988481cb5641e5d8c18fd0603cda3d71bb
 F www/grep.md c50868f95cce9b135240e8fc8d8998d01cf6a8f25c5c5d8ab56f48df1a4277f6
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e583b48a0453c6a062aceba88648313b7dbed6dbea62591587304ff0e331fc88
-R 18f05f37e680b1ced83e7cc5e98a66ce
+P ccd5cacc51fce3781655d3dce8c19e774e70b3a64cc64fea85f398c2ecca4bb1
+R 822e52b7af17b0f8078a9909c9db4d1b
 U wyoung
-Z 40eb0b4f50f4afc36b643fc3c9bcb37d
+Z 952c59dbbf5fd2e2b89c95f811253adf
 # Remove this line to create a well-formed Fossil manifest.
