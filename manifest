@@ -1,5 +1,5 @@
-C Fixed\sa\scouple\smis-formatted\sSETTING\sdecls,\sper\s[forum:6f1b0483cd\s|\sforum\spost\s6f1b0483cd].
-D 2022-04-11T06:45:21.216
+C Brought\sthe\s"Fossil\sgrep\svs\sPOSIX\sgrep"\sdoc\sup\sto\sdate\srelative\sto\sthe\n[/info/f5f4471323d44a82\s|\smerged\sgrep-enhancements\sbranch].
+D 2022-04-11T09:33:10.691
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -857,7 +857,7 @@ F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c81
 F www/gitusers.md 64bc9b1dc811cbc32cd76c04effd063e7154dd8950fa384ad8c90898a780fb71
 F www/globs.md 78e1eeb685aed7a5ce91b3896a3a87f3f9d2388523d80fa7a5dec2e22bd23432
 F www/glossary.md 86cb7eb2bfb00e0a1fb2662d47484b988481cb5641e5d8c18fd0603cda3d71bb
-F www/grep.md c50868f95cce9b135240e8fc8d8998d01cf6a8f25c5c5d8ab56f48df1a4277f6
+F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 04d1741d9ee53d178b26c788b2c87b5305569e27c42bfa179d0ec1175bd28dd9
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74bd3fd4d91dd7e78ff22357475a8de7d8cb270d371e9434c1d86566eb31cd15
-R b92fa253ff6840f57611f2baec562591
-U stephan
-Z 76067277f2b6129879ebd914d98e474e
+P 0dd4118063d3c13a1b21155f4dfc0ef86cd6d1a5bf95d67d277e54c28d162bba
+R 031ebe09ff41da0d5f7d1a2af7c6a993
+U wyoung
+Z 2d495009a3bf5524d6d714d48ede236c
 # Remove this line to create a well-formed Fossil manifest.
