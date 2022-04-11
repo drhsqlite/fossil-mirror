@@ -1,5 +1,5 @@
-C Part\s2\sof\s[bb0118227f2c].
-D 2022-04-11T06:37:38.339
+C Fixed\sa\scouple\smis-formatted\sSETTING\sdecls,\sper\s[forum:6f1b0483cd\s|\sforum\spost\s6f1b0483cd].
+D 2022-04-11T06:45:21.216
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -431,7 +431,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 12d2f76a3f69ea94fdaad8301cb3daabe3c2f08a2b20b7da0cf0272ca9a6082b
+F src/db.c aebc80f51bab4d8d628982e5890d820408ec19fb11cee81ad60840cde43c3da0
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb0118227f2c83721f05f5731d0122f4d2b4a08daf4fc1fb50d7f47f6cf590b7
-R ef33c4ef98cb6622281f17ea41d341fc
+P 74bd3fd4d91dd7e78ff22357475a8de7d8cb270d371e9434c1d86566eb31cd15
+R b92fa253ff6840f57611f2baec562591
 U stephan
-Z 800e31188362c7d019ff710398a8c03d
+Z 76067277f2b6129879ebd914d98e474e
 # Remove this line to create a well-formed Fossil manifest.

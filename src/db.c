@@ -3951,13 +3951,15 @@ struct Setting {
 ** the hyperlinks work better on Safari, but more robots are able to sneak
 ** in.
 */
-/* SETTING: auto-hyperlink-delay     width=16 default=0
+/*
+** SETTING: auto-hyperlink-delay     width=16 default=0
 **
 ** When the auto-hyperlink setting is 1, the javascript that runs to set
 ** the href= attributes of hyperlinks delays by this many milliseconds
 ** after the page load.  Suggested values:  50 to 200.
 */
-/* Setting: auto-hyperlink-mouseover  boolean default=off
+/*
+** SETTING: auto-hyperlink-mouseover  boolean default=off
 **
 ** When the auto-hyperlink setting is 1 and this setting is on, the 
 ** javascript that runs to set the href= attributes of hyperlinks waits
