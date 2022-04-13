@@ -1,5 +1,5 @@
-C Brought\sthe\s"Fossil\sgrep\svs\sPOSIX\sgrep"\sdoc\sup\sto\sdate\srelative\sto\sthe\n[/info/f5f4471323d44a82\s|\smerged\sgrep-enhancements\sbranch].
-D 2022-04-11T09:33:10.691
+C On\sthe\s/info\sview\sfor\sa\scheckin\swhich\shas\sa\sbranch/branch-name\swiki\spage,\scorrect\sthe\sEdit\sWiki\slink\sto\suse\s/wikiedit\sinstead\sof\s/wiki\sif\spermissions\sallow,\sotherwise\sthe\s/wiki\spage's\sautomatic\sredirection\sof\sbranch/branch-name\swiki\spages\sto\sthe\stimeline\smakes\sit\simpossible\sto\sget\sto\sthe\seditor\sfor\sa\sbranch-specific\swiki\spage.
+D 2022-04-13T16:27:31.451
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -489,7 +489,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c 1976b9f2cb6b4c96a72af31a55587f6ecb0c4921b093bc88fa7e6d1dab929e45
+F src/info.c 71f8a71e300be76cb055d1b0ba2c626431511eff710d4e3b10d712c2d774f0af
 F src/interwiki.c 9cbaedb286b1bec3eef15cc9be0f4240ae3bec1d8d832c8b53ec280731474d0e
 F src/json.c bdd2baa0ba08d29b7771a60f335b9907f3b1a4174bb621ef7079fc27beac0206
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0dd4118063d3c13a1b21155f4dfc0ef86cd6d1a5bf95d67d277e54c28d162bba
-R 031ebe09ff41da0d5f7d1a2af7c6a993
-U wyoung
-Z 2d495009a3bf5524d6d714d48ede236c
+P caba4b0188c5bcff02e08801eb5ecb61323b8fd0fef46a8e4c007234ff2707a1
+R 6653a534dfc2df60883f6e90fb7264b5
+U stephan
+Z e15345d8d55ddf3ef823459b182aead9
 # Remove this line to create a well-formed Fossil manifest.

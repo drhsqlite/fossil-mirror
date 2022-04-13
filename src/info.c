@@ -737,7 +737,10 @@ void ci_page(void){
         cgi_printf("\n");
         if( wiki_tagid2("branch",zTagName)!=0 ){
           blob_appendf(&wiki_read_links, " | %z%h</a>",
-              href("%R/wiki?name=branch/%h",zTagName), zTagName);
+              href("%R/%s?name=branch/%h",
+                   (g.perm.Write && g.perm.WrWiki)
+                   ? "wikiedit" : "wiki",
+                   zTagName), zTagName);
         }else if( g.perm.Write && g.perm.WrWiki ){
           blob_appendf(&wiki_add_links, " | %z%h</a>",
               href("%R/wikiedit?name=branch/%h",zTagName), zTagName);
