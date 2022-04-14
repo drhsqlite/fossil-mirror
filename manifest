@@ -1,5 +1,5 @@
-C On\sthe\s/info\sview\sfor\sa\scheckin\swhich\shas\sa\sbranch/branch-name\swiki\spage,\scorrect\sthe\sEdit\sWiki\slink\sto\suse\s/wikiedit\sinstead\sof\s/wiki\sif\spermissions\sallow,\sotherwise\sthe\s/wiki\spage's\sautomatic\sredirection\sof\sbranch/branch-name\swiki\spages\sto\sthe\stimeline\smakes\sit\simpossible\sto\sget\sto\sthe\seditor\sfor\sa\sbranch-specific\swiki\spage.
-D 2022-04-13T16:27:31.451
+C Per\s/chat\sdiscussion,\sreplace\sload_control()\scalls\sin\sselective\spages\swith\snice()\sand\smove\sload_control()\sinto\sprocess_one_web_page().\sThere\sis\sstill\swork\sto\sdo\shere,\se.g.\sallowing\scertain\spages\sthrough\s(namely\s/chat,\sto\sfacilitate\scoordination\sof\ssite\sdefense)\sand\sperhaps\schecking\scredentials\sif\sthe\sload\sis\stoo\shigh\sand\salways\sallowing\sadmin\susers.
+D 2022-04-14T16:58:36.711
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -437,7 +437,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 175b2cb4049592407f1946e44d59d18d5d1928cb5b1399fabcbe5f108ab96c4e
+F src/diff.c 387e3faa3c65d96e38a093e2647935bcdc7c2b61ad5bce70c44bc566fed74d47
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c c2d2deb1341d9f954c0107267daf2dddf07e2bcf62d23f73bd160d1a510876c0
@@ -489,9 +489,9 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c 71f8a71e300be76cb055d1b0ba2c626431511eff710d4e3b10d712c2d774f0af
+F src/info.c 8d0ca75a711377dd1fb67e6f1300d52f4da6c36c8809b5ea08c9a0ceca64af2f
 F src/interwiki.c 9cbaedb286b1bec3eef15cc9be0f4240ae3bec1d8d832c8b53ec280731474d0e
-F src/json.c bdd2baa0ba08d29b7771a60f335b9907f3b1a4174bb621ef7079fc27beac0206
+F src/json.c c905f1f604ff6e9b075f0656de8491ae813d936643efc0a3efc30da6c362ad2a
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c ade71599eeb430bac4b055ceee73b06e7499f6a63a1bfb9bb5787dc213c0fac5
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
@@ -512,7 +512,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c a01bd0437f55ae9af7f81819ebafb71662fc52aa0cf4e58ac2be6a09c187d799
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c e2908e33034ecf49632e6f3405a92e8955d3278b76c1d80ae0c2043108d973da
+F src/main.c f181753c4cf7adfa392914773330251a7ede21cf7fa57535fc5ca4d467b9b9f5
 F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 517e31d3c483b50818c52cc9f79f021e94b0831a9fa46e33af6ea961bf0247ae
@@ -573,7 +573,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 18704c72a26fdfcf54865653e91635af75239d51447acecd83fd726d6291d164
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
-F src/stat.c 0a1647d3322914518345eaee15d1c3a9631ce9bd2beb293f289f298abb77ee23
+F src/stat.c 357934287d4c777d05168a06c58839023200aeb808ec9aad96c73a4f28e1f2e8
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 744bbf03abcb642e666bc61dfe4b779da997a5712530c54ff6fc4742ac0da7c0
@@ -582,7 +582,7 @@ F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c cbafa4453ff308af3e84fdf5a9dcfdd40b11fcf279e5515ebc922610d65c3146
 F src/tag.c bb00f95b802dbb580fa4cc2bb1ba1b2e3b101aeec738c7878b1a2e871c76a45f
-F src/tar.c d66ca7cd241f369cffe29a5e1c5ac1af0a4cc8f9dddeb92d1d62614577a6ac75
+F src/tar.c 65b4db97925d9e9fc7a8902c677e9e436fd6692404cd13deed644483f10e6a22
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c 57a908f2f980541428d8a66518bdcb7c6b89b1564481127b362f486062bdcc3c
 F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
@@ -601,7 +601,7 @@ F src/url.c 69ff1d710d47cf95811b415374372db85f2dba5f9e28e230901a9072ad3d59ae
 F src/user.c 73679fd1b6535b849e0027c38ab8bf677faf6c076d8f47683a1594ee6b973d9a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
-F src/util.c 3d241c367ec9e8eab844a15ba791b86035508f04efb49b7730971faf431fd5c6
+F src/util.c f4daee2e3eacd5359ef6b98200e4a2f34c4056d2016d78e1699eaea15ac5cf4d
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
@@ -611,7 +611,7 @@ F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c fe407b225cdb6453c033a4aee03ce2c1b8fa230487d88985e5789bcfeccbbd4d
 F src/xfer.c 57932b933b3a4b437d57b1dde6a82074c6dd56519031ba807a10d762e0332739
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
-F src/zip.c d43b290e60093fb57fe2d90c9313872b37f69b10a813f36a55d5f7dd2db6781c
+F src/zip.c 0670ae0d60adf3ac33e69af4d54f99720edcbdd463d7dfacf642ddb9a68d189b
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
@@ -969,8 +969,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P caba4b0188c5bcff02e08801eb5ecb61323b8fd0fef46a8e4c007234ff2707a1
-R 6653a534dfc2df60883f6e90fb7264b5
+P 82510672b8f61c5353c203943549bfb481f822b9f4aa76a6dece7aa8a8986ab5
+R 335df10757fd607a16844b630a9896bf
+T *branch * load-control-rework
+T *sym-load-control-rework *
+T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z e15345d8d55ddf3ef823459b182aead9
+Z c2eaa9ae58f8b9503196a4c1ce7993df
 # Remove this line to create a well-formed Fossil manifest.

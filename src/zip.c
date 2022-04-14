@@ -923,7 +923,7 @@ void baseline_zip_page(void){
     eType = ARCHIVE_ZIP;
     zType = "ZIP";
   }
-  load_control();
+  fossil_nice_default();
   zName = fossil_strdup(PD("name",""));
   z = P("r");
   if( z==0 ) z = P("uuid");

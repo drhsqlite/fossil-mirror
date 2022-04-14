@@ -1874,7 +1874,7 @@ static void process_one_web_page(
   /* At this point, the appropriate repository database file will have
   ** been opened.
   */
-
+  load_control();
 
   /*
   ** Check to see if the first term of PATH_INFO specifies an
