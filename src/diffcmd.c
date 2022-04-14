@@ -1184,6 +1184,7 @@ void vpatch_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
 
+  fossil_nice_default();
   cgi_set_content_type("text/plain");
   diff_config_init(&DCfg, DIFF_VERBOSE);
   diff_two_versions(zFrom, zTo, &DCfg, 0);

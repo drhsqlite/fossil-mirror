@@ -1,5 +1,5 @@
-C Per\s/chat\sdiscussion,\sreplace\sload_control()\scalls\sin\sselective\spages\swith\snice()\sand\smove\sload_control()\sinto\sprocess_one_web_page().\sThere\sis\sstill\swork\sto\sdo\shere,\se.g.\sallowing\scertain\spages\sthrough\s(namely\s/chat,\sto\sfacilitate\scoordination\sof\ssite\sdefense)\sand\sperhaps\schecking\scredentials\sif\sthe\sload\sis\stoo\shigh\sand\salways\sallowing\sadmin\susers.
-D 2022-04-14T16:58:36.711
+C Added\sa\sfossil_nice()\scall\sto\s/vpatch.
+D 2022-04-14T17:03:44.771
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -440,7 +440,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c 387e3faa3c65d96e38a093e2647935bcdc7c2b61ad5bce70c44bc566fed74d47
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c c2d2deb1341d9f954c0107267daf2dddf07e2bcf62d23f73bd160d1a510876c0
+F src/diffcmd.c ceb1de38c37cd9dd14803e6191dda9010ef068cc7f451ce70b47bbcda43fd271
 F src/dispatch.c 6fb0d0605fa63f95f22883f9edc6d2cc01c41a30bb2642476d194cbd2cd99692
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -969,11 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82510672b8f61c5353c203943549bfb481f822b9f4aa76a6dece7aa8a8986ab5
-R 335df10757fd607a16844b630a9896bf
-T *branch * load-control-rework
-T *sym-load-control-rework *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 9b0ebcaf23572a78e4a842dcde6dba4022af9a38f0cf51e1fad6dbaf64462e0a
+R e8abf5acc17e675c44e8bf4cf78ab6f7
 U stephan
-Z c2eaa9ae58f8b9503196a4c1ce7993df
+Z 9969a11efaacf2a906395b3058dc69a4
 # Remove this line to create a well-formed Fossil manifest.
