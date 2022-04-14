@@ -1,5 +1,5 @@
-C Exempt\sadmin\sand\ssetup\susers\sfrom\sthe\sload_control()\srestriction.
-D 2022-04-14T17:12:26.155
+C Doc\stypo\sfix\sand\smore\sdocs\sfor\sload_control().
+D 2022-04-14T17:15:30.210
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -508,7 +508,7 @@ F src/json_timeline.c 25f5da14306f30a3ce31a8e2448708affddb0ba7f13be29fb7cdaae538
 F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdecf9
 F src/json_wiki.c 32a902096d496725781b9aeff5cbf5245d8e662b8785969020a66dbfde04f2f1
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
-F src/loadctrl.c 9ee013b49d90b3274c6504faec1f6bfe5aa26c6cd43edbb654f6db5d0c2506f7
+F src/loadctrl.c 6653a09e5520413aab1c712300fd4de1f418c018bc90ae33c882a723bd3b7a1b
 F src/login.c 0e837a2d60ec0b17dc1ca9ea4d7cf713f5658dfda4179d15c06dd65dff1e83f3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cc86c16a2214c53f826f235c0dce1cf9495358c42a15387f680bc4f7e9030a6
-R 8c20b8b9026c884051f5916c2efbf6f5
+P 57cdf4f2b9c69e0859516f7791e8ef288d0089b94f6e7bd8d4b583dbe4c66cdb
+R 1d172624baade38113f186f1832608d7
 U stephan
-Z c0208284c51b2bfca43b8893ac6ffb24
+Z 66eedc84f137ef5e4e848b04332c6149
 # Remove this line to create a well-formed Fossil manifest.

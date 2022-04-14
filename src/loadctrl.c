@@ -47,8 +47,9 @@ void loadavg_test_cmd(void){
 }
 
 /*
-** Abort the current operation of the load average of the host computer
-** is too high.
+** Abort the current page request if the load average of the host
+** computer is too high. Admin and Setup users are exempt from this
+** restriction.
 */
 void load_control(void){
   double mxLoad = atof(db_get("max-loadavg", 0));
