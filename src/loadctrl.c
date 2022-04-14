@@ -54,6 +54,11 @@ void load_control(void){
   double mxLoad = atof(db_get("max-loadavg", 0));
   if( mxLoad<=0.0 || mxLoad>=load_average() ) return;
 
+  login_check_credentials();
+  if(g.perm.Admin || g.perm.Setup){
+    return;
+  }
+
   style_set_current_feature("test");
   style_header("Server Overload");
   @ <h2>The server load is currently too high.

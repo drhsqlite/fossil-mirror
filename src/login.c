@@ -987,6 +987,7 @@ static int login_basic_authentication(const char *zIpAddr){
 **    g.perm         Permissions granted to this user
 **    g.anon         Permissions that would be available to anonymous
 **    g.isHuman      True if the user is human, not a spider or robot
+**    g.perm         Populated based on user account's capabilities
 **
 */
 void login_check_credentials(void){
