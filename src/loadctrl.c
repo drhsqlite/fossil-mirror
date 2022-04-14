@@ -53,12 +53,15 @@ void loadavg_test_cmd(void){
 */
 void load_control(void){
   double mxLoad = atof(db_get("max-loadavg", 0));
+#if 1
+  /* Disable this block only to test load restrictions */
   if( mxLoad<=0.0 || mxLoad>=load_average() ) return;
 
   login_check_credentials();
   if(g.perm.Admin || g.perm.Setup){
     return;
   }
+#endif
 
   style_set_current_feature("test");
   style_header("Server Overload");
