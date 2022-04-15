@@ -3626,7 +3626,8 @@ void db_record_repository_filename(const char *zName){
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
-**   --nosync          Do not auto-sync the repository prior to opening
+**   --nosync          If autosync is on or set to pullonly, skip that step
+**                     prior to opening the repository
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
@@ -3655,6 +3656,7 @@ void cmd_open(void){
   int nLocal;                    /* Number of preexisting files in cwd */
   int bNosync = 0;               /* --nosync.  Omit auto-sync */
   int bVerbose = 0;              /* --verbose option for clone */
+  const char *zGAutosync;        /* global (pre-open) autosync setting */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3758,16 +3760,20 @@ void cmd_open(void){
                  "or file:");
   }
 
+  db_open_config(0, 0);
+  zGAutosync = db_get("autosync", 0);
   db_open_repository(zRepo);
 
   /* Figure out which revision to open. */
   if( !emptyFlag ){
+    const char *zAutosync = db_get("autosync", zGAutosync);
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
       g.zOpenRevision = db_get("main-branch", 0);
     }
     if( !bNosync
+     && (!zAutosync || !is_false(zAutosync))
      && autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1)
      && !bForce
     ){
