@@ -167,7 +167,7 @@ void update_cmd(void){
   vid = db_lget_int("checkout", 0);
   user_select();
   if( !dryRunFlag && !internalUpdate && !bNosync ){
-    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag, 1) ){
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag, 1, "update") ){
       fossil_fatal("update abandoned due to sync failure");
     }
   }
