@@ -152,15 +152,17 @@ int autosync(int flags){
 
 /*
 ** This routine will try a number of times to perform autosync with a
-** 0.5 second sleep between attempts.
+** 0.5 second sleep between attempts.  The number of attempts is determined
+** by the "autosync-tries" setting, which defaults to 1.
 **
 ** Return zero on success and non-zero on a failure.  If failure occurs
 ** and doPrompt flag is true, ask the user if they want to continue, and
 ** if they answer "yes" then return zero in spite of the failure.
 */
-int autosync_loop(int flags, int nTries, int doPrompt){
+int autosync_loop(int flags, int doPrompt){
   int n = 0;
   int rc = 0;
+  int nTries = db_get_int("autosync-tries", 1);
   if( (flags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
    && db_get_boolean("uv-sync",0)
   ){

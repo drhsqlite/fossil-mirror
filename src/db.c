@@ -3768,7 +3768,7 @@ void cmd_open(void){
       g.zOpenRevision = db_get("main-branch", 0);
     }
     if( !bNosync
-     && autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1)
+     && autosync_loop(SYNC_PULL, 1)
      && !bForce
     ){
       fossil_fatal("unable to auto-sync the repository");
