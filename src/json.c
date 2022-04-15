@@ -741,7 +741,7 @@ cson_value * json_req_payload_get(char const *pKey){
 ** there is genuine uncertainty about whether (or not) the JSON setup
 ** has already been called.
 */
-int json_is_bootstrapped_early(){
+int json_is_bootstrapped_early(void){
   return ((g.json.gc.v != NULL) && (g.json.gc.a != NULL));
 }
 
@@ -760,7 +760,7 @@ int json_is_bootstrapped_early(){
 **
 ** If called multiple times, calls after the first are a no-op.
 */
-void json_bootstrap_early(){
+void json_bootstrap_early(void){
   cson_value * v;
 
   if(g.json.gc.v!=NULL){

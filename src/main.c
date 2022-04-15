@@ -1875,7 +1875,6 @@ static void process_one_web_page(
   ** been opened.
   */
 
-
   /*
   ** Check to see if the first term of PATH_INFO specifies an
   ** alternative skin.  This will be the case if the first term of
@@ -2018,6 +2017,9 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+    if(0==(CMDFLAG_LDAVG_EXEMPT & pCmd->eCmdFlags)){
+      load_control();
+    }
 #ifdef FOSSIL_ENABLE_JSON
     static int jsonOnce = 0;
     if( jsonOnce==0 && g.json.isJsonMode!=0 ){

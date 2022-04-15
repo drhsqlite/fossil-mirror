@@ -1212,7 +1212,7 @@ static void page_style_css_append_page_style(Blob *pOut){
 }
 
 /*
-** WEBPAGE: style.css
+** WEBPAGE: style.css loadavg-exempt
 **
 ** Return the style sheet.   The style sheet is assemblied from
 ** multiple sources, in order:

@@ -965,7 +965,7 @@ void artifact_stats_page(void){
     login_needed(g.anon.Write);
     return;
   }
-  load_control();
+  fossil_nice_default();
 
   style_set_current_feature("stat");
   style_header("Artifact Statistics");

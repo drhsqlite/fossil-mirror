@@ -158,7 +158,7 @@ static void builtin_deliver_multiple_js_files(
 }
 
 /*
-** WEBPAGE: builtin
+** WEBPAGE: builtin loadavg-exempt
 **
 ** Return one of many built-in content files.  Query parameters:
 **

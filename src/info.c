@@ -1184,7 +1184,7 @@ void vdiff_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
-  load_control();
+  fossil_nice_default();
   blob_init(&qp, 0, 0);
   diffType = preferred_diff_type();
   zRe = P("regex");
