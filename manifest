@@ -1,5 +1,5 @@
-C Simplify\sthe\sautosync_loop()\sinterface\sby\somitting\sthe\ssecond\sparameter,\nwhich\swas\salways\sthe\svalue\sof\sthe\s"autosync-tries"\ssetting.\s\sHave\sthe\nautosync_loop()\sfunction\slook\sup\sthe\sautosync-tries\ssetting\sfor\sitself.
-D 2022-04-15T12:33:46.088
+C Fix\sthe\s"fossil\sopen"\scommand\sso\sthat\sit\shonors\sglobal\ssettings.
+D 2022-04-15T12:41:07.739
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -431,7 +431,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 44159b3860c0fa5724f7ca077149135fbba52dd7aad39f5f563d14247233ca24
+F src/db.c 9fd2276eb0ccada0158dc06d2ab4d8103ddeba52e9ea8a5722465e18d0a273d0
 F src/default.css 7563b15c2ebb84526c49a2bb3cfe5dc8369992c3cfd46ee052f4838af8bb4c26
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82510672b8f61c5353c203943549bfb481f822b9f4aa76a6dece7aa8a8986ab5
-R 335948b8dfd0578191192a28f1ca4aed
+P 9445f8a8a2b5177bab3ed4ec2e75a24aaa5b3ec151772a0d77f3a87beb95a4dd
+R d4de6264f30caa5ccc6c63500f48e974
 U drh
-Z a000ecde4535952c1fb2b0e20acc0978
+Z 736b99ffcc9b7c96ac6fdc1ecca3bf89
 # Remove this line to create a well-formed Fossil manifest.

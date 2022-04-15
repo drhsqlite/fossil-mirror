@@ -3758,6 +3758,7 @@ void cmd_open(void){
                  "or file:");
   }
 
+  db_open_config(0,0);
   db_open_repository(zRepo);
 
   /* Figure out which revision to open. */
