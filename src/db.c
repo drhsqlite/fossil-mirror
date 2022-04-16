@@ -3481,11 +3481,11 @@ void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
 }
 
 /*
-** Get a setting that is taylored to subsystem.  The return value is
+** Get a setting that is tailored to subsystem.  The return value is
 ** NULL if the setting does not exist, or a string obtained from mprintf()
 ** if the setting is available.
 **
-** The actual setting can be a comma-separated list of value of the form:
+** The actual setting can be a comma-separated list of values of the form:
 **
 **    *   VALUE
 **    *   SUBSYSTEM=VALUE
