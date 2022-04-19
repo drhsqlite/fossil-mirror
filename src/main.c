@@ -2017,15 +2017,17 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
-    static int jsonOnce = 0;
     if(0==(CMDFLAG_LDAVG_EXEMPT & pCmd->eCmdFlags)){
       load_control();
     }
 #ifdef FOSSIL_ENABLE_JSON
-    if( jsonOnce==0 && g.json.isJsonMode!=0 ){
-      assert(json_is_bootstrapped_early());
-      json_bootstrap_late();
-      jsonOnce = 1;
+    {
+      static int jsonOnce = 0;
+      if( jsonOnce==0 && g.json.isJsonMode!=0 ){
+        assert(json_is_bootstrapped_early());
+        json_bootstrap_late();
+        jsonOnce = 1;
+      }
     }
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
