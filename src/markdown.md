@@ -182,7 +182,7 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 >      The second line (if any) must be indented by two or more spaces.
 >      Definition continues until indentation drops below that of the 2nd line.
 >```
-> Charachter **^** is not part of a label, it is part of the syntax.
+> Character **^** is not part of a label, it is part of the syntax.
 > Both a footnote's text and a fragment to which a footnote applies
 > are subject to further interpretation as Markdown sources.
 

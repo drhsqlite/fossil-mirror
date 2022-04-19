@@ -1922,10 +1922,10 @@ void test_markdown_render(void){
   if( bFnLint && (g.ftntsIssues[0] || g.ftntsIssues[1]
       || g.ftntsIssues[2] || g.ftntsIssues[3] )){
     fossil_fatal("There were issues with footnotes:\n"
-                  " %8i misreference%s\n"
-                  " %8i unreferenced\n"
-                  " %8i splitted\n"
-                  " %8i overnested",
+                  " %8d misreference%s\n"
+                  " %8d unreferenced\n"
+                  " %8d splitted\n"
+                  " %8d overnested",
                   g.ftntsIssues[0], g.ftntsIssues[0]==1?"":"s",
                   g.ftntsIssues[1], g.ftntsIssues[2], g.ftntsIssues[3]);
   }

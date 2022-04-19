@@ -31,7 +31,15 @@ void markdown_to_html(
 
 #endif /* INTERFACE */
 
-typedef union { uint64_t u; char c[8]; unsigned char b[8]; } bitfield64_t;
+/*
+** Markdown-internal helper for generating unique link reference IDs.
+*/
+typedef union bitfield64_t bitfield64_t;
+union bitfield64_t{
+  uint64_t u;
+  char c[8];
+  unsigned char b[8];
+};
 
 /*
 ** An instance of the following structure is passed through the
@@ -51,16 +59,6 @@ struct MarkdownToHtml {
 /* INTER_BLOCK -- skip a line between block level elements */
 #define INTER_BLOCK(ob) \
   do { if( blob_size(ob)>0 ) blob_append_char(ob, '\n'); } while (0)
-
-/* BLOB_APPEND_LITERAL -- append a string literal to a blob
-** TODO: Refactor all invocations to use global macro blob_append_literal()
-*/
-#define BLOB_APPEND_LITERAL  blob_append_literal
-
-/* BLOB_APPEND_BLOB -- append blob contents to another
-** TODO: Refactor all invocations to use global macro blob_appendb()
-*/
-#define BLOB_APPEND_BLOB(dest, src) blob_appendb((dest), (src))
 
 #ifndef FOOTNOTES_WITHOUT_URI
   #define BLOB_APPEND_URI(dest,ctx) blob_appendb(dest,&((ctx)->reqURI))
@@ -108,15 +106,15 @@ static void html_quote(struct Blob *ob, const char *data, size_t size){
     blob_append(ob, data+beg, i-beg);
     while( i<size ){
       if( data[i]=='<' ){
-        BLOB_APPEND_LITERAL(ob, "&lt;");
+        blob_append_literal(ob, "&lt;");
       }else if( data[i]=='>' ){
-        BLOB_APPEND_LITERAL(ob, "&gt;");
+        blob_append_literal(ob, "&gt;");
       }else if( data[i]=='&' ){
-        BLOB_APPEND_LITERAL(ob, "&amp;");
+        blob_append_literal(ob, "&amp;");
       }else if( data[i]=='"' ){
-        BLOB_APPEND_LITERAL(ob, "&quot;");
+        blob_append_literal(ob, "&quot;");
       }else if( data[i]=='\'' ){
-        BLOB_APPEND_LITERAL(ob, "&#39;");
+        blob_append_literal(ob, "&#39;");
       }else{
         break;
       }
@@ -138,11 +136,11 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
     blob_append(ob, data+beg, i-beg);
     while( i<size ){
       if( data[i]=='<' ){
-        BLOB_APPEND_LITERAL(ob, "&lt;");
+        blob_append_literal(ob, "&lt;");
       }else if( data[i]=='>' ){
-        BLOB_APPEND_LITERAL(ob, "&gt;");
+        blob_append_literal(ob, "&gt;");
       }else if( data[i]=='&' ){
-        BLOB_APPEND_LITERAL(ob, "&amp;");
+        blob_append_literal(ob, "&amp;");
       }else{
         break;
       }
@@ -159,13 +157,13 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
 
 static void html_prolog(struct Blob *ob, void *opaque){
   INTER_BLOCK(ob);
-  BLOB_APPEND_LITERAL(ob, "<div class=\"markdown\">\n");
+  blob_append_literal(ob, "<div class=\"markdown\">\n");
   assert( blob_size(ob)==PROLOG_SIZE );
 }
 
 static void html_epilog(struct Blob *ob, void *opaque){
   INTER_BLOCK(ob);
-  BLOB_APPEND_LITERAL(ob, "</div>\n");
+  blob_append_literal(ob, "</div>\n");
 }
 
 static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
@@ -187,21 +185,21 @@ static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
   }
   INTER_BLOCK(ob);
   blob_append(ob, data, size);
-  BLOB_APPEND_LITERAL(ob, "\n");
+  blob_append_literal(ob, "\n");
 }
 
 static void html_blockcode(struct Blob *ob, struct Blob *text, void *opaque){
   INTER_BLOCK(ob);
-  BLOB_APPEND_LITERAL(ob, "<pre><code>");
+  blob_append_literal(ob, "<pre><code>");
   html_escape(ob, blob_buffer(text), blob_size(text));
-  BLOB_APPEND_LITERAL(ob, "</code></pre>\n");
+  blob_append_literal(ob, "</code></pre>\n");
 }
 
 static void html_blockquote(struct Blob *ob, struct Blob *text, void *opaque){
   INTER_BLOCK(ob);
-  BLOB_APPEND_LITERAL(ob, "<blockquote>\n");
-  BLOB_APPEND_BLOB(ob, text);
-  BLOB_APPEND_LITERAL(ob, "</blockquote>\n");
+  blob_append_literal(ob, "<blockquote>\n");
+  blob_appendb(ob, text);
+  blob_append_literal(ob, "</blockquote>\n");
 }
 
 static void html_header(
@@ -214,18 +212,18 @@ static void html_header(
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
   if( blob_size(ob)<=PROLOG_SIZE && title!=0 && blob_size(title)==0 ){
-    BLOB_APPEND_BLOB(title, text);
+    blob_appendb(title, text);
     return;
   }
   INTER_BLOCK(ob);
   blob_appendf(ob, "<h%d>", level);
-  BLOB_APPEND_BLOB(ob, text);
+  blob_appendb(ob, text);
   blob_appendf(ob, "</h%d>", level);
 }
 
 static void html_hrule(struct Blob *ob, void *opaque){
   INTER_BLOCK(ob);
-  BLOB_APPEND_LITERAL(ob, "<hr />\n");
+  blob_append_literal(ob, "<hr />\n");
 }
 
 
@@ -240,7 +238,7 @@ static void html_list(
   char *tag = (flags & MKD_LIST_ORDERED) ? ol : ul;
   INTER_BLOCK(ob);
   blob_appendf(ob, "<%s>\n", tag);
-  BLOB_APPEND_BLOB(ob, text);
+  blob_appendb(ob, text);
   blob_appendf(ob, "</%s>\n", tag);
 }
 
@@ -253,16 +251,16 @@ static void html_list_item(
   char *text_data = blob_buffer(text);
   size_t text_size = blob_size(text);
   while( text_size>0 && text_data[text_size-1]=='\n' ) text_size--;
-  BLOB_APPEND_LITERAL(ob, "<li>");
+  blob_append_literal(ob, "<li>");
   blob_append(ob, text_data, text_size);
-  BLOB_APPEND_LITERAL(ob, "</li>\n");
+  blob_append_literal(ob, "</li>\n");
 }
 
 static void html_paragraph(struct Blob *ob, struct Blob *text, void *opaque){
   INTER_BLOCK(ob);
-  BLOB_APPEND_LITERAL(ob, "<p>");
-  BLOB_APPEND_BLOB(ob, text);
-  BLOB_APPEND_LITERAL(ob, "</p>\n");
+  blob_append_literal(ob, "<p>");
+  blob_appendb(ob, text);
+  blob_append_literal(ob, "</p>\n");
 }
 
 
@@ -273,19 +271,19 @@ static void html_table(
   void *opaque
 ){
   INTER_BLOCK(ob);
-  BLOB_APPEND_LITERAL(ob, "<table>\n");
+  blob_append_literal(ob, "<table>\n");
   if( head_row && blob_size(head_row)>0 ){
-    BLOB_APPEND_LITERAL(ob, "<thead>\n");
-    BLOB_APPEND_BLOB(ob, head_row);
-    BLOB_APPEND_LITERAL(ob, "</thead>\n<tbody>\n");
+    blob_append_literal(ob, "<thead>\n");
+    blob_appendb(ob, head_row);
+    blob_append_literal(ob, "</thead>\n<tbody>\n");
   }
   if( rows ){
-    BLOB_APPEND_BLOB(ob, rows);
+    blob_appendb(ob, rows);
   }
   if( head_row && blob_size(head_row)>0 ){
-    BLOB_APPEND_LITERAL(ob, "</tbody>\n");
+    blob_append_literal(ob, "</tbody>\n");
   }
-  BLOB_APPEND_LITERAL(ob, "</table>\n");
+  blob_append_literal(ob, "</table>\n");
 }
 
 static void html_table_cell(
@@ -295,30 +293,30 @@ static void html_table_cell(
   void *opaque
 ){
   if( flags & MKD_CELL_HEAD ){
-    BLOB_APPEND_LITERAL(ob, "    <th");
+    blob_append_literal(ob, "    <th");
   }else{
-    BLOB_APPEND_LITERAL(ob, "    <td");
+    blob_append_literal(ob, "    <td");
   }
   switch( flags & MKD_CELL_ALIGN_MASK ){
     case MKD_CELL_ALIGN_LEFT: {
-      BLOB_APPEND_LITERAL(ob, " align=\"left\"");
+      blob_append_literal(ob, " align=\"left\"");
       break;
     }
     case MKD_CELL_ALIGN_RIGHT: {
-      BLOB_APPEND_LITERAL(ob, " align=\"right\"");
+      blob_append_literal(ob, " align=\"right\"");
       break;
     }
     case MKD_CELL_ALIGN_CENTER: {
-      BLOB_APPEND_LITERAL(ob, " align=\"center\"");
+      blob_append_literal(ob, " align=\"center\"");
       break;
     }
   }
-  BLOB_APPEND_LITERAL(ob, ">");
-  BLOB_APPEND_BLOB(ob, text);
+  blob_append_literal(ob, ">");
+  blob_appendb(ob, text);
   if( flags & MKD_CELL_HEAD ){
-    BLOB_APPEND_LITERAL(ob, "</th>\n");
+    blob_append_literal(ob, "</th>\n");
   }else{
-    BLOB_APPEND_LITERAL(ob, "</td>\n");
+    blob_append_literal(ob, "</td>\n");
   }
 }
 
@@ -328,14 +326,15 @@ static void html_table_row(
   int flags,
   void *opaque
 ){
-  BLOB_APPEND_LITERAL(ob, "  <tr>\n");
-  BLOB_APPEND_BLOB(ob, cells);
-  BLOB_APPEND_LITERAL(ob, "  </tr>\n");
+  blob_append_literal(ob, "  <tr>\n");
+  blob_appendb(ob, cells);
+  blob_append_literal(ob, "  </tr>\n");
 }
 
-/* Render a token of user provided classes.
+/*
+** Render a token of user provided classes.
 ** If bHTML is true then render HTML for (presumably) visible text,
-** otherwise just a space-separated list of the derived classes
+** otherwise just a space-separated list of the derived classes.
 */
 static void append_footnote_upc(
   struct Blob *ob,
@@ -344,9 +343,9 @@ static void append_footnote_upc(
 ){
   const char *z = blob_buffer(upc);
   int i, n = blob_size(upc);
+
   if( n<3 ) return;
   assert( z[0]=='.' && z[n-1] == ':' );
-
   if( bHTML ){
     blob_append_literal(ob, "<span class='fn-upc'>"
                             "<span class='fn-upcDot'>.</span>");
@@ -396,8 +395,7 @@ static int html_footnote_ref(
   assert( locus > 0 );
   /* expect BUGs if the following yields compiler warnings */
   if( iMark > 0 ){      /* a regular reference to a footnote */
-
-    sprintf(pos, "%s-%i-%s", ctx->unique.c, iMark, l.c);
+    sprintf(pos, "%s-%d-%s", ctx->unique.c, iMark, l.c);
     if(span && blob_size(span)) {
       blob_append_literal(ob,"<span class='");
       append_footnote_upc(ob, upc, 0);
@@ -407,14 +405,14 @@ static int html_footnote_ref(
       blob_trim(ob);
       blob_append_literal(ob,"<sup class='noteref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
-      blob_appendf(ob,"#footnote%s'>%i</a></sup></span>", pos, iMark);
+      blob_appendf(ob,"#footnote%s'>%d</a></sup></span>", pos, iMark);
     }else{
       blob_trim(ob);
       blob_append_literal(ob,"<sup class='");
       append_footnote_upc(ob, upc, 0);
       blob_append_literal(ob,"noteref'><a href='");
       BLOB_APPEND_URI(ob, ctx);
-      blob_appendf(ob,"#footnote%s' id='noteref%s'>%i</a></sup>",
+      blob_appendf(ob,"#footnote%s' id='noteref%s'>%d</a></sup>",
                       pos,           pos,  iMark);
     }
   }else{              /* misreference */
@@ -472,7 +470,6 @@ static void html_footnote_item(
       if( i < nUsed ) blob_append_literal(ob," &hellip;");
     }
     blob_append_literal(ob,"</sup>\n<span>Misreference</span>");
-
   }else if( iMark > 0 ){  /* regular, joined and overnested footnotes */
     char pos[24];
     int bJoin = 0;
@@ -481,8 +478,7 @@ static void html_footnote_item(
     assert( text );
     assert( blob_size(text) );
     memset(pos,0,24);
-    sprintf(pos, "%s-%i", unique, iMark);
-
+    sprintf(pos, "%s-%d", unique, iMark);
     blob_appendf(ob, "<li id='footnote%s' class='", pos);
     if( nUsed ){
       if( blob_size(text)>=_jfi_sz &&
@@ -494,7 +490,6 @@ static void html_footnote_item(
     }else{
       blob_append_literal(ob, "fn-toodeep ");
     }
-
     if( nUsed <= 1 ){
       blob_append_literal(ob, "fn-monoref'><sup class='fn-backrefs'>");
       blob_appendf(ob,"<a id='footnote%s-a' href='", pos);
@@ -556,6 +551,7 @@ static void html_footnote_item(
   }
   blob_append_literal(ob, "\n</li>\n");
 }
+
 static void html_footnotes(
   struct Blob *ob, const struct Blob *items, void *opaque
 ){
@@ -581,17 +577,17 @@ static int html_autolink(
   void *opaque
 ){
   if( !link || blob_size(link)<=0 ) return 0;
-  BLOB_APPEND_LITERAL(ob, "<a href=\"");
-  if( type==MKDA_IMPLICIT_EMAIL ) BLOB_APPEND_LITERAL(ob, "mailto:");
+  blob_append_literal(ob, "<a href=\"");
+  if( type==MKDA_IMPLICIT_EMAIL ) blob_append_literal(ob, "mailto:");
   html_quote(ob, blob_buffer(link), blob_size(link));
-  BLOB_APPEND_LITERAL(ob, "\">");
+  blob_append_literal(ob, "\">");
   if( type==MKDA_EXPLICIT_EMAIL && blob_size(link)>7 ){
     /* remove "mailto:" from displayed text */
     html_escape(ob, blob_buffer(link)+7, blob_size(link)-7);
   }else{
     html_escape(ob, blob_buffer(link), blob_size(link));
   }
-  BLOB_APPEND_LITERAL(ob, "</a>");
+  blob_append_literal(ob, "</a>");
   return 1;
 }
 
@@ -684,9 +680,9 @@ static int html_codespan(
     /* no-op */
   }else if( nSep<=2 ){
     /* One or two graves: an in-line code span */
-    BLOB_APPEND_LITERAL(ob, "<code>");
+    blob_append_literal(ob, "<code>");
     html_escape(ob, blob_buffer(text), blob_size(text));
-    BLOB_APPEND_LITERAL(ob, "</code>");
+    blob_append_literal(ob, "</code>");
   }else{
     /* Three or more graves: a fenced code block */
     int n = blob_size(text);
@@ -722,9 +718,9 @@ static int html_double_emphasis(
   char c,
   void *opaque
 ){
-  BLOB_APPEND_LITERAL(ob, "<strong>");
-  BLOB_APPEND_BLOB(ob, text);
-  BLOB_APPEND_LITERAL(ob, "</strong>");
+  blob_append_literal(ob, "<strong>");
+  blob_appendb(ob, text);
+  blob_append_literal(ob, "</strong>");
   return 1;
 }
 
@@ -734,9 +730,9 @@ static int html_emphasis(
   char c,
   void *opaque
 ){
-  BLOB_APPEND_LITERAL(ob, "<em>");
-  BLOB_APPEND_BLOB(ob, text);
-  BLOB_APPEND_LITERAL(ob, "</em>");
+  blob_append_literal(ob, "<em>");
+  blob_appendb(ob, text);
+  blob_append_literal(ob, "</em>");
   return 1;
 }
 
@@ -747,20 +743,20 @@ static int html_image(
   struct Blob *alt,
   void *opaque
 ){
-  BLOB_APPEND_LITERAL(ob, "<img src=\"");
+  blob_append_literal(ob, "<img src=\"");
   html_quote(ob, blob_buffer(link), blob_size(link));
-  BLOB_APPEND_LITERAL(ob, "\" alt=\"");
+  blob_append_literal(ob, "\" alt=\"");
   html_quote(ob, blob_buffer(alt), blob_size(alt));
   if( title && blob_size(title)>0 ){
-    BLOB_APPEND_LITERAL(ob, "\" title=\"");
+    blob_append_literal(ob, "\" title=\"");
     html_quote(ob, blob_buffer(title), blob_size(title));
   }
-  BLOB_APPEND_LITERAL(ob, "\" />");
+  blob_append_literal(ob, "\" />");
   return 1;
 }
 
 static int html_linebreak(struct Blob *ob, void *opaque){
-  BLOB_APPEND_LITERAL(ob, "<br />\n");
+  blob_append_literal(ob, "<br />\n");
   return 1;
 }
 
@@ -785,9 +781,9 @@ static int html_link(
     wiki_resolve_hyperlink(ob, flags, zLink, zClose, sizeof(zClose), 0, zTitle);
   }
   if( blob_size(content)==0 ){
-    if( link ) BLOB_APPEND_BLOB(ob, link);
+    if( link ) blob_appendb(ob, link);
   }else{
-    BLOB_APPEND_BLOB(ob, content);
+    blob_appendb(ob, content);
   }
   blob_append(ob, zClose, -1);
   return 1;
@@ -799,9 +795,9 @@ static int html_triple_emphasis(
   char c,
   void *opaque
 ){
-  BLOB_APPEND_LITERAL(ob, "<strong><em>");
-  BLOB_APPEND_BLOB(ob, text);
-  BLOB_APPEND_LITERAL(ob, "</em></strong>");
+  blob_append_literal(ob, "<strong><em>");
+  blob_appendb(ob, text);
+  blob_append_literal(ob, "</em></strong>");
   return 1;
 }
 
