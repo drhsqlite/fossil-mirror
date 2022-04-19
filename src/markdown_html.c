@@ -33,12 +33,12 @@ void markdown_to_html(
 
 /*
 ** Markdown-internal helper for generating unique link reference IDs.
+** Fields provide typed interpretation of the underline memory buffer.
 */
 typedef union bitfield64_t bitfield64_t;
 union bitfield64_t{
-  uint64_t u;
-  char c[8];
-  unsigned char b[8];
+  char c[8];           /* interpret as the array of  signed  characters */
+  unsigned char b[8];  /* interpret as the array of unsigned characters */
 };
 
 /*
@@ -60,18 +60,27 @@ struct MarkdownToHtml {
 #define INTER_BLOCK(ob) \
   do { if( blob_size(ob)>0 ) blob_append_char(ob, '\n'); } while (0)
 
+/*
+** FOOTNOTES_WITHOUT_URI macro was introduced by [2c1f8f3592ef00e0]
+** to enable flexibility in rendering of footnote-specific hyperlinks.
+** It may be defined for a particular build in order to omit
+** full REQUEST_URIs within footnote-specific (and page-local) hyperlinks.
+** This *is* used for the builds that incorporate 'base-href-fix' branch
+** (which in turn fixes footnotes on the preview tab of /wikiedit page).
+*/
 #ifndef FOOTNOTES_WITHOUT_URI
   #define BLOB_APPEND_URI(dest,ctx) blob_appendb(dest,&((ctx)->reqURI))
 #else
   #define BLOB_APPEND_URI(dest,ctx)
 #endif
 
-/* Converts an integer to a null-terminated base26 representation
+/* Converts an integer to a textual base26 representation
+** with proper null-termination.
  * Return empty string if that integer is negative.   */
 static bitfield64_t to_base26(int i, int uppercase){
   bitfield64_t x;
   int j;
-  x.u = 0;
+  memset( &x, 0, sizeof(x) );
   if( i >= 0 ){
     for(j=7; j >= 0; j--){
       x.b[j] = (unsigned char)(uppercase?'A':'a') + i%26;
