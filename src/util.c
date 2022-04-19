@@ -898,3 +898,22 @@ const char *fossil_web_browser(void){
 #endif
   return zBrowser;
 }
+
+/*
+** On non-Windows systems, calls nice(2) with the given level. Errors
+** are ignored. On Windows this is a no-op.
+*/
+void fossil_nice(int level){
+#ifndef _WIN32
+  nice(level);
+#else
+  (void)level;
+#endif
+}
+
+/*
+** Calls fossil_nice() with a default level.
+*/
+void fossil_nice_default(void){
+  fossil_nice(20);
+}

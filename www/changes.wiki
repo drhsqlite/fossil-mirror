@@ -1,32 +1,55 @@
 <title>Change Log</title>
 
-<h2 id='v2_18'>Changes for version 2.18 (pending)</h2>
+<h2 id='v2_19'>Changes for version 2.19 (pending)</h2>
+  *  On file listing pages, sort filenames using the "uintnocase" collating
+     sequence, so that filenames that contains embedded integers sort in
+     numeric order even if they contain a different number of digits.
+     (Example:  "fossil_80_..." comes before "fossil_100.png" in the
+     [/dir?ci=92fd091703a28c07&name=skins/blitz|/skins/blitz] directory listing.)
+  *  Enhancements to the graph layout algorithm design to improve readability
+     and promote better situational awareness.
+  *  Performance enhancement for the 
+     [./checkin_names.wiki#root|"root:BRANCHNAME" style of tag],
+     accomplished using a Common Table Expression in the underlying SQL.
+  *  Add the new "[/help?cmd=describe|fossil describe]" command.
+
+<h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
      like "[/help?cmd=server|fossil server]" and "[/help?cmd=http|fossil http]"
-  *  Added the --share-links option to [/help?cmd=sync|fossil sync] and
-     [/help?cmd=pull|fossil pull].  Enhance the 
-     [/doc/trunk/www/sync.wiki|sync protocol] so that it is able to support
-     sharing of links to other clones.
-  *  Added the --transport-command option to [/help?cmd=sync|fossil sync]
-     and similar.
-  *  [/help?cmd=/chat|The /chat page] input options have been reworked
-     again for better cross-browser portability.
-  *  Add new setting "[/help?cmd=large-file-size|large-file-size]".  If the size
-     of any file in a commit exceeds this size, a warning is issued.
-  *  When sending a [/help?cmd=/chat|/chat] message fails, it is no longer
-     immediately lost and sending may optionally be retried.
-  *  [/help?cmd=/chat|/chat] can now optionally embed attachments of certain
-     types directly into message bodies via an iframe.
   *  The new [/help?cmd=cherry-pick|cherry-pick command] is an alias for
      [/help?cmd=merge|merge --cherrypick].
+  *  Add new setting "[/help?cmd=large-file-size|large-file-size]".  If the size
+     of any file in a commit exceeds this size, a warning is issued.
+  *  Query parameter "year=YYYY" is now accepted by [/help?cmd=/timeline|/timeline].
+  *  The [/help?cmd=tar|tar] and [/help?cmd=zip|zip commands] no longer
+     sterilize the manifest file.
+  *  Futher improvement to diff alignment in cases that involve both
+     edits and indentation changes.
+  *  [/doc/trunk/www/chat.md|Chat] improvements:<ul>
+     <li>  [/help?cmd=/chat|The /chat page] input options have been reworked
+           again for better cross-browser portability.
+     <li>  When sending a [/help?cmd=/chat|/chat] message fails, it is no longer
+           immediately lost and sending may optionally be retried.
+     <li>  [/help?cmd=/chat|/chat] can now optionally embed attachments of certain
+           types directly into message bodies via an iframe.
+     <li>  Add the "--as FILENAME" option to the "[/help?cmd=chat|fossil chat send]"
+           command.
+     <li>  Added the "[/help?cmd=chat|fossil chat pull]" command, available to
+           administrators only, for backing up the chat conversation.
+     </ul>
   *  Promote the test-detach command into the [/help?cmd=detach|detach command].
-  *  For "fossil pull" with the --from-parent-project option, if not URL is
-     specified used the last URL specified for the --from-parent-project.
+  *  For "[/help?cmd=pull|fossil pull]" with the --from-parent-project option,
+     if no URL is specified then use the last URL from the most recent prior
+     "fossil pull --from-parent-project".
   *  Add options --project-name and --project-desc to the 
      "[/help?cmd=init|fossil init]" command.
-  *  Query parameter "year=YYYY" is now accepted by [/help?cmd=/timeline|/timeline].
-  *  Add the "--as FILENAME" option to the "[/help?cmd=chat|fossil chat send]"
-     command.
+  *  The [/help?cmd=/ext|/ext page] generates the SERVER_SOFTWARE environment
+     variable for clients.
+  *  Fix the REQUEST_URI [/doc/trunk/www/aboutcgi.wiki#cgivar|CGI variable] such
+     that it includes the query string.  This is how most other systems understand
+     REQUEST_URI.
+  *  Added the --transport-command option to [/help?cmd=sync|fossil sync]
+     and similar.
 
 <h2 id='v2_17'>Changes for version 2.17 (2021-10-09)</h2>
 

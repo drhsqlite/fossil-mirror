@@ -114,14 +114,14 @@ static int client_sync_all_urls(
 ** If dont-push setting is true, that is the same as having autosync
 ** set to pullonly.
 */
-int autosync(int flags){
+static int autosync(int flags, const char *zSubsys){
   const char *zAutosync;
   int rc;
   int configSync = 0;       /* configuration changes transferred */
   if( g.fNoSync ){
     return 0;
   }
-  zAutosync = db_get("autosync", 0);
+  zAutosync = db_get_for_subsystem("autosync", zSubsys);
   if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
   if( db_get_boolean("dont-push",0) 
@@ -152,21 +152,24 @@ int autosync(int flags){
 
 /*
 ** This routine will try a number of times to perform autosync with a
-** 0.5 second sleep between attempts.
+** 0.5 second sleep between attempts.  The number of attempts is determined
+** by the "autosync-tries" setting, which defaults to 1.
 **
 ** Return zero on success and non-zero on a failure.  If failure occurs
 ** and doPrompt flag is true, ask the user if they want to continue, and
 ** if they answer "yes" then return zero in spite of the failure.
 */
-int autosync_loop(int flags, int nTries, int doPrompt){
+int autosync_loop(int flags, int doPrompt, const char *zSubsystem){
   int n = 0;
   int rc = 0;
+  int nTries = db_get_int("autosync-tries", 1);
   if( (flags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
    && db_get_boolean("uv-sync",0)
   ){
     flags |= SYNC_UNVERSIONED;
   }
-  while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
+  if( nTries<1 ) nTries = 1;
+  while( (n==0 || n<nTries) && (rc=autosync(flags, zSubsystem)) ){
     if( rc ){
       if( ++n<nTries ){
         fossil_warning("Autosync failed, making another attempt.");
@@ -234,6 +237,9 @@ static void process_sync_args(
   if( find_option("all",0,0)!=0 ){
     *pSyncFlags |= SYNC_ALLURL;
   }
+
+  /* Undocumented option to cause links transitive links to other
+  ** repositories to be shared */
   if( ((*pSyncFlags) & SYNC_PULL)!=0
    && find_option("share-links",0,0)!=0
   ){
@@ -321,7 +327,6 @@ static void process_sync_args(
 **   --project-code CODE        Use CODE as the project code
 **   --proxy PROXY              Use the specified HTTP proxy
 **   -R|--repository REPO       Local repository to pull into
-**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to move messages
@@ -424,7 +429,6 @@ void push_cmd(void){
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Sync private branches too
 **   -R|--repository REPO       Local repository to sync with
-**   --share-links              Share links to mirror repos
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to move message
@@ -489,7 +493,7 @@ void sync_unversioned(unsigned syncFlags){
 **     URL argument can be "default" or a prior symbolic name, to make
 **     a copy of an existing URL under a new name.
 **
-** > fossil config-data
+** > fossil remote config-data
 **
 **     DEBUG USE ONLY - Show the name and value of every CONFIG table
 **     entry in the repository that is associated with the remote URL store.
@@ -614,7 +618,7 @@ remote_delete_default:
       x.canonical = db_get("last-sync-url",0);
       x.passwd = unobscure(db_get("last-sync-pw",0));
     }else{
-      url_parse_local(zUrl, URL_PROMPT_PW, &x);
+      url_parse_local(zUrl, URL_PROMPT_PW|URL_USE_CONFIG, &x);
     }
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(

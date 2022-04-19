@@ -229,11 +229,12 @@ which explains what to do to authenticate with the server.
 <h2 id="server">Fossil TLS Configuration: Server Side</h2>
 
 Fossil's built-in HTTP server feature did not add [./ssl-server.md|support HTTP over TLS]
-(a.k.a. HTTPS) until version 2.18 (2022).  Prior to that, system administrators
-that wanted to add HTTPS support to a Fossil server had to put Fossil
-behind a web-server or reverse-proxy that would do the HTTPS to HTTP
-translation.  [./server/ | Instructions for doing so] are found elsewhere
-in this documentation.  A few of the most useful of these are:
+(a.k.a. HTTPS) until version 2.18 (early 2022).  Prior to that, system
+administrators that wanted to add HTTPS support to a Fossil server had
+to put Fossil behind a web-server or reverse-proxy that would do the
+HTTPS to HTTP translation.  [./server/ | Instructions for doing so]
+are found elsewhere in this documentation.  A few of the most useful
+of these are:
 
   *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
   *  <a id="althttpd" href="./server/any/althttpd.md">Serving via stunnel + althttpd</a>

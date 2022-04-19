@@ -238,7 +238,7 @@ void zip_set_timedate(double rDate){
   char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
   zip_set_timedate_from_str(zDate);
   fossil_free(zDate);
-  unixTime = (rDate - 2440587.5)*86400.0;
+  unixTime = (int)((rDate - 2440587.5)*86400.0);
 }
 
 /*
@@ -923,7 +923,7 @@ void baseline_zip_page(void){
     eType = ARCHIVE_ZIP;
     zType = "ZIP";
   }
-  load_control();
+  fossil_nice_default();
   zName = fossil_strdup(PD("name",""));
   z = P("r");
   if( z==0 ) z = P("uuid");

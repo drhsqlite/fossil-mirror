@@ -987,6 +987,7 @@ static int login_basic_authentication(const char *zIpAddr){
 **    g.perm         Permissions granted to this user
 **    g.anon         Permissions that would be available to anonymous
 **    g.isHuman      True if the user is human, not a spider or robot
+**    g.perm         Populated based on user account's capabilities
 **
 */
 void login_check_credentials(void){
@@ -1180,13 +1181,14 @@ void login_check_credentials(void){
   ** are (potentially) copied to the anonymous permission set; otherwise,
   ** those will be out-of-sync.
   */
-  if( zCap[0]
-   && !g.perm.Hyperlink
-   && g.isHuman
-   && db_get_boolean("auto-hyperlink",1)
-  ){
-    g.perm.Hyperlink = 1;
-    g.javascriptHyperlink = 1;
+  if( zCap[0] && !g.perm.Hyperlink && g.isHuman ){
+    int autoLink = db_get_int("auto-hyperlink",1);
+    if( autoLink==1 ){
+      g.jsHref = 1;
+      g.perm.Hyperlink = 1;
+    }else if( autoLink==2 ){
+      g.perm.Hyperlink = 1;
+    }
   }
 
   /*

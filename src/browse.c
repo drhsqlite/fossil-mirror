@@ -332,7 +332,8 @@ void page_dir(void){
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
-  db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
+  db_prepare(&q, 
+     "SELECT x, u FROM localfiles ORDER BY x COLLATE uintnocase /*scan*/");
   @ <div class="columns files" style="columns: %d(mxLen)ex auto">
   @ <ul class="browser">
   while( db_step(&q)==SQLITE_ROW ){
@@ -370,7 +371,7 @@ void page_dir(void){
     "SELECT x, u FROM localfiles"
     " WHERE x COLLATE nocase IN"
     " ('readme','readme.txt','readme.md','readme.wiki','readme.markdown',"
-    " 'readme.html') ORDER BY x LIMIT 1;"
+    " 'readme.html') ORDER BY x COLLATE uintnocase LIMIT 1;"
   );
   if( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q,0);
@@ -792,7 +793,7 @@ void page_tree(void){
        "  FROM fileage, filename, blob\n"
        " WHERE filename.fnid=fileage.fnid\n"
        "   AND blob.rid=fileage.fid\n"
-       " ORDER BY filename.name COLLATE nocase;"
+       " ORDER BY filename.name COLLATE uintnocase;"
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFile = db_column_text(&q,0);
@@ -815,7 +816,7 @@ void page_tree(void){
       "    max(event.mtime)\n"
       "  FROM mlink JOIN event ON event.objid=mlink.mid\n"
       " GROUP BY mlink.fnid\n"
-      " ORDER BY 1 COLLATE nocase;");
+      " ORDER BY 1 COLLATE uintnocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUuid = db_column_text(&q,1);

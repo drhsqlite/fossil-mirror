@@ -167,8 +167,7 @@ void update_cmd(void){
   vid = db_lget_int("checkout", 0);
   user_select();
   if( !dryRunFlag && !internalUpdate && !bNosync ){
-    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
-                      db_get_int("autosync-tries", 1), 1) ){
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag, 1, "update") ){
       fossil_fatal("update abandoned due to sync failure");
     }
   }
@@ -563,6 +562,9 @@ void update_cmd(void){
     show_common_info(tid, "checkout:", 1, 0);
     fossil_print("%-13s None. Already up-to-date\n", "changes:");
   }else{
+    fossil_print("%-13s %.40s %s\n", "updated-from:", rid_to_uuid(vid), 
+                 db_text("", "SELECT datetime(mtime) || ' UTC' FROM event "
+                         "  WHERE objid=%d", vid));
     show_common_info(tid, "updated-to:", 1, 0);
     fossil_print("%-13s %d file%s modified.\n", "changes:",
                  nUpdate, nUpdate>1 ? "s" : "");

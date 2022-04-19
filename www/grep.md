@@ -1,7 +1,7 @@
 # Fossil grep vs POSIX grep
 
 As of Fossil 2.7, there is a `grep` command which acts roughly like
-POSIX's `grep -E` over all historical versions of a single file name.
+POSIX's `grep -E` over all historical versions of one or more managed files.
 This document explains the commonalities and divergences between [POSIX
 `grep`](http://pubs.opengroup.org/onlinepubs/9699919799/utilities/grep.html)
 and Fossil `grep`.
@@ -9,25 +9,27 @@ and Fossil `grep`.
 
 ## Options
 
-Fossil `grep` supports only a small subset of the options specified for
+Fossil `grep` implements about half of the options specified for
 POSIX `grep`:
 
 | Option | Meaning
 |--------|-------------------------------------------------------------
+| `-c`   | report the count of matches rather than the matched text
 | `-i`   | ignore case in matches
 | `-l`   | list a checkin ID prefix for matching historical versions of the file
-| `-v`   | print each checkin ID considered, regardless of whether it matches
+| `-q`   | no output; return only a status code indicating the success of the match
+| `-s`   | suppress error output about missing files
+| `-v`   | invert the sense of the match
 
-That leaves many divergences at the option level from POSIX `grep`:
+That leaves several divergences at the option level from POSIX `grep`:
 
-*   There is no built-in way to get a count of matches, as with
-    `grep -c`.
-
-*    You cannot give more than one pattern, as with `grep -e` or
-     `grep -f`.
+*   You cannot give more than one pattern, as with `grep -e` or
+    `grep -f`.
 
 *   There is no equivalent of `grep -F` to do literal fixed-string
     matches only.
+
+*   There is no `-x` option for doing a whole-line match.
 
 *   `fossil grep -l` does not do precisely the same thing as POSIX
     `grep -l`: it lists checkin ID prefixes, not file names.
@@ -36,21 +38,28 @@ That leaves many divergences at the option level from POSIX `grep`:
     that it acts like `grep -n`.  There is no way to disable the line
     number in `fossil grep` output.
 
-*   There is no way to suppress all output, returning only a status code
-    to indicate whether the pattern matched, as with `grep -q`.
-
-*   There is no way to suppress error output, as with `grep -s`.
-
-*   Fossil `grep` does not accept a directory name for Fossil to
-    expand to the set of all files under that directory. This means
-    Fossil `grep` has no equivalent of the common POSIX `grep -R`
-    extension. (And if it did, it would probably have a different
-    option letter, since `-R` in Fossil has a different meaning, by
-    convention.)
-
-*   You cannot invert the match, as with `grep -v`.
-
 Patches to remove those limitations will be thoughtfully considered.
+
+Fossil `grep` doesn’t support any of the GNU and BSD `grep` extensions.
+For instance, it doesn’t support the common `-R` extension to POSIX,
+which would presumably search a subtree of managed files. If Fossil does
+one day get this feature, it would have a different option letter, since
+`-R` in Fossil has a different meaning, by convention. Until then, you
+can get the same effect on systems with a POSIX shell like so:
+
+      $ fossil grep COMMAND: $(fossil ls src)
+
+If you run that in a check-out of the [Fossil self-hosting source
+repository][fshsr], that returns the first line of the built-in
+documentation for each Fossil command, across all historical verisons.
+
+Fossil `grep` has extensions relative to these other `grep` standards,
+such as `--verbose` to print each checkin ID considered, regardless of
+whether it matches. This one is noteworthy here because the behavior
+used to be under `-v` before we reassigned it to give POSIX-like `grep
+-v` behavior.
+
+[fshsr]: ./selfhost.wiki
 
 
 ## Regular Expression Dialect

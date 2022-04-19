@@ -409,8 +409,7 @@ void merge_cmd(void){
     fossil_fatal("cannot merge into a closed leaf. Use --force to override");
   }
   if( !dryRunFlag ){
-    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
-                      db_get_int("autosync-tries", 1), 1) ){
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag, 1, "merge") ){
       fossil_fatal("merge abandoned due to sync failure");
     }
   }

@@ -2591,7 +2591,7 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 }
 
 /*
-** A common subsequene between p->aFrom and p->aTo has been found.
+** A common subsequence between p->aFrom and p->aTo has been found.
 ** This routine tries to judge if the subsequence really is a valid
 ** match or rather is just an artifact of an indentation change.
 **
@@ -2620,10 +2620,14 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 **    1.  If the subsequence is larger than 1/7th of the original span,
 **        then consider it valid.  --> return 1
 **
-**    2.  If the subsequence contains any charaters other than '}', '{",
-**        or whitespace, then consider it valid. --> return 1
+**    2.  If no lines of the subsequence contains more than one
+**        non-whitespace character,  --> return 0
 **
-**    3.  Otherwise, it is potentially an artifact of an indentation
+**    3.  If any line of the subsequence contains more than one non-whitespace
+**        character and is unique across the entire sequence after ignoring
+**        leading and trailing whitespace   --> return 1
+**
+**    4.  Otherwise, it is potentially an artifact of an indentation
 **        change. --> return 0
 */
 static int likelyNotIndentChngArtifact(
@@ -2633,16 +2637,71 @@ static int likelyNotIndentChngArtifact(
   int iEX,         /* First row past the end of the subsequence */
   int iE1          /* First row past the end of the main segment */
 ){
-  int i, j;
+  int i, j, n;
+
+  /* Rule (1) */
   if( (iEX-iSX)*7 >= (iE1-iS1) ) return 1;
+
+  /* Compute DLine.indent and DLine.nw for all lines of the subsequence.
+  ** If no lines contain more than one non-whitespace character return
+  ** 0 because the subsequence could be due to an indentation change.
+  ** Rule (2).
+  */
+  n = 0;
   for(i=iSX; i<iEX; i++){
-    const char *z = p->aFrom[i].z;
-    for(j=p->aFrom[i].n-1; j>=0; j--){
-      char c = z[j];
-      if( c!='}' && c!='{' && !diff_isspace(c) ) return 1;
+    DLine *pA = &p->aFrom[i];
+    if( pA->nw==0 && pA->n ){
+      const char *zA = pA->z;
+      const int nn = pA->n;
+      int ii, jj;
+      for(ii=0; ii<nn && diff_isspace(zA[ii]); ii++){}
+      pA->indent = ii;
+      for(jj=nn-1; jj>ii && diff_isspace(zA[jj]); jj--){}
+      pA->nw = jj - ii + 1;
+    }
+    if( pA->nw>1 ) n++;
+  }
+  if( n==0 ) return 0;
+
+  /* Compute DLine.indent and DLine.nw for the entire sequence */
+  for(i=iS1; i<iE1; i++){
+    DLine *pA;
+    if( i==iSX ){
+      i = iEX;
+      if( i>=iE1 ) break;
+    }
+    pA = &p->aFrom[i];
+    if( pA->nw==0 && pA->n ){
+      const char *zA = pA->z;
+      const int nn = pA->n;
+      int ii, jj;
+      for(ii=0; ii<nn && diff_isspace(zA[ii]); ii++){}
+      pA->indent = ii;
+      for(jj=nn-1; jj>ii && diff_isspace(zA[jj]); jj--){}
+      pA->nw = jj - ii + 1;
     }
   }
-  return 0;
+
+  /* Check to see if any subsequence line that has more than one
+  ** non-whitespace character is unique across the entire sequence.
+  ** Rule (3)
+  */
+  for(i=iSX; i<iEX; i++){
+    const char *z = p->aFrom[i].z + p->aFrom[i].indent;
+    const int nw = p->aFrom[i].nw;
+    if( nw<=1 ) continue;
+    for(j=iS1; j<iSX; j++){
+      if( p->aFrom[j].nw!=nw ) continue;
+      if( memcmp(p->aFrom[j].z+p->aFrom[j].indent,z,nw)==0 ) break;
+    }
+    if( j<iSX ) continue;
+    for(j=iEX; j<iE1; j++){
+      if( p->aFrom[j].nw!=nw ) continue;
+      if( memcmp(p->aFrom[j].z+p->aFrom[j].indent,z,nw)==0 ) break;
+    }
+    if( j>=iE1 ) break;
+  }
+  return i<iEX;
 }
 
 
@@ -3357,7 +3416,8 @@ static void annotate_file(
       mxTime = 0;
     }else if( sqlite3_strglob("*[0-9]s", zLimit)==0 ){
       iLimit = 0;
-      mxTime = current_time_in_milliseconds() + 1000.0*atof(zLimit);
+      mxTime =
+        (sqlite3_int64)(current_time_in_milliseconds() + 1000.0*atof(zLimit));
     }else{
       iLimit = atoi(zLimit);
       if( iLimit<=0 ) iLimit = 30;
@@ -3536,7 +3596,7 @@ void annotation_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders() ) return;
-  load_control();
+  fossil_nice_default();
   zFilename = P("filename");
   zRevision = PD("checkin",0);
   zOrigin = P("origin");

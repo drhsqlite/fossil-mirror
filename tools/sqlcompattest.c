@@ -64,7 +64,6 @@ int main(int argc, char **argv){
   int i;
   static const char *zRequiredOpts[] = {
     "ENABLE_FTS4",        /* Required for repository search */
-    "ENABLE_JSON1",       /* Required for the check-in locking protocol */
     "ENABLE_DBSTAT_VTAB", /* Required by /repo-tabsize page */
   };
 
