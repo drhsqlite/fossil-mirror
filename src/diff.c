@@ -49,6 +49,7 @@
 #define DIFF_RAW               0x00040000 /* Raw triples - for debugging */
 #define DIFF_TCL               0x00080000 /* For the --tk option */
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
+#define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -3182,6 +3183,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
+  if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   if( find_option("internal","i",0)==0
