@@ -61,6 +61,7 @@
 #define FUZZ_WIKI       0      /* The Fossil-Wiki formatter */
 #define FUZZ_MARKDOWN   1      /* The Markdown formatter */
 #define FUZZ_ARTIFACT   2      /* Fuzz the artifact parser */
+#define FUZZ_WIKI2      3      /* FOSSIL_WIKI and FOSSIL_MARKDOWN */
 #endif
 
 /* The type of fuzzing to do */
@@ -75,6 +76,18 @@ int LLVMFuzzerTestOneInput(const uint8_t *aData, size_t nByte){
   blob_zero(&out);
   switch( eFuzzType ){
     case FUZZ_WIKI: {
+      wiki_convert(&in, &out, 0);
+      blob_reset(&out);
+      break;
+    }
+    case FUZZ_MARKDOWN: {
+      Blob title = BLOB_INITIALIZER;
+      blob_reset(&out);
+      markdown_to_html(&in, &title, &out);
+      blob_reset(&title);
+      break;
+    }
+    case FUZZ_WIKI2: {
       Blob title = BLOB_INITIALIZER;
       wiki_convert(&in, &out, 0);
       blob_reset(&out);
@@ -82,6 +95,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *aData, size_t nByte){
       blob_reset(&title);
       break;
     }
+    case FUZZ_ARTIFACT:
+      fossil_fatal("FUZZ_ARTIFACT is not implemented.");
+      break;
   }
   blob_reset(&in);
   blob_reset(&out);
@@ -100,6 +116,8 @@ static void fuzzer_options(void){
     eFuzzType = FUZZ_WIKI;
   }else if( fossil_strcmp(zType,"markdown")==0 ){
     eFuzzType = FUZZ_MARKDOWN;
+  }else if( fossil_strcmp(zType,"wiki2")==0 ){
+    eFuzzType = FUZZ_WIKI2;
   }else{
     fossil_fatal("unknown fuzz type: \"%s\"", zType);
   }
@@ -119,13 +137,14 @@ int LLVMFuzzerInitialize(int *pArgc, char ***pArgv){
 /*
 ** COMMAND: test-fuzz
 **
-** Usage: %fossil test-fuzz [-type TYPE] INPUTFILE...
+** Usage: %fossil test-fuzz [-fuzztype TYPE] INPUTFILE...
 **
 ** Run a fuzz test using INPUTFILE as the test data.  TYPE can be one of:
 **
 **     wiki                  Fuzz the Fossil-wiki translator
 **     markdown              Fuzz the markdown translator
 **     artifact              Fuzz the artifact parser
+**     wiki2                 Fuzz the Fossil-wiki and markdown translator
 */
 void fuzz_command(void){
   Blob in;
