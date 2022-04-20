@@ -450,8 +450,9 @@ But whether or not it will genuinely crash may depend on static
 app-level state which might not trigger the crash when running an
 individual test.
 
-For a detailed tutorial of the fuzzer's flags and features, see:
+For a detailed information about the fuzzer's flags and features, see:
 
+  *  [https://llvm.org/docs/LibFuzzer.html]
   *  [https://github.com/google/fuzzing/blob/master/tutorial/libFuzzerTutorial.md]
  
 Flags for the fuzzer can be passed directly to fossil, e.g. <tt>-jobs=4</tt>
