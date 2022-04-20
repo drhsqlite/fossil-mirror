@@ -31,7 +31,7 @@
 */
 struct gzip_state {
   int eState;           /* 0: idle   1: header  2: compressing */
-  int iCRC;             /* The checksum */
+  unsigned long iCRC;   /* The checksum */
   z_stream stream;      /* The working compressor */
   Blob out;             /* Results stored here */
 } gzip;

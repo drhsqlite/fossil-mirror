@@ -257,7 +257,7 @@ static void zip_add_file_to_zip(
   int nameLen;
   int toOut = 0;
   int iStart;
-  int iCRC = 0;
+  unsigned long iCRC = 0;
   int nByte = 0;
   int nByteCompr = 0;
   int nBlob;                 /* Size of the blob */
