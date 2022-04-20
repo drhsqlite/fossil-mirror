@@ -1,5 +1,5 @@
-C Correct\sfuzz.c\sto\shonor\s--fuzztype\smarkdown\sand\sadd\s--fuzztype\swiki2\swhich\sworks\slike\sits\sprevious\s--fuzztype\swiki\sbehavior,\ssending\sall\sinputs\sthrough\sboth\sthe\sfossil-wiki\sand\smarkdown\stranslators.\sAdded\sa\sfatal\serror\sfor\s--fuzztype\sartifact,\sas\sthat\stester\sis\snot\simplemented.
-D 2022-04-20T11:46:54.191
+C Added\sa\ssection\sto\sbuild.wiki\sabout\sbuilding\sfor\sfuzz\stesting.
+D 2022-04-20T13:55:54.412
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -789,7 +789,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki d8f7055f5d9fd6c5826290ad16208e17e356bcd1e6b626cd6d053798c25c322e
+F www/build.wiki 02674e840f67dd882e676120f6a8767d1fcd29ef3e3e4240fd87001457513373
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bf6686e76252efda0abf7c64da8d5abb61c663187016ff77c4ac3f774988fc6
-R 4df7da7034cd80836b22cd3b2ee0be17
+P 8d4c4792080ad0e9fcb0e3573cf8cdaaca0f35a3960fd086bd7fe1c8547541ef
+R d8481decb2a32fcac8835830924c7481
 U stephan
-Z 5107ffa61d3bec09be7d813a79eded12
+Z c252250613e06fe732ed65715fea887e
 # Remove this line to create a well-formed Fossil manifest.
