@@ -2643,6 +2643,8 @@ void markdown(
   rndr.notes.nMarks = 0;
   rndr.notes.misref.id    = empty_blob;
   rndr.notes.misref.text  = empty_blob;
+  rndr.notes.misref.upc   = empty_blob;
+  rndr.notes.misref.bRndred = 0;
   rndr.notes.misref.nUsed =  0;
   rndr.notes.misref.iMark = -1;
 
