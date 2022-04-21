@@ -1,5 +1,5 @@
-C In\sthe\scheck-in\snames\sdocumentation,\smention\sthat\ssome\sprefixes\scan\sbe\schained.
-D 2022-04-21T12:06:01.385
+C Changed\sfossil_nice_default()\sto\suse\snice\slevel\s19\sinstead\sof\s20,\sas\s19\sis\sthe\sdocumented\smax.
+D 2022-04-21T15:45:00.032
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -601,7 +601,7 @@ F src/url.c 69ff1d710d47cf95811b415374372db85f2dba5f9e28e230901a9072ad3d59ae
 F src/user.c 73679fd1b6535b849e0027c38ab8bf677faf6c076d8f47683a1594ee6b973d9a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
-F src/util.c f4daee2e3eacd5359ef6b98200e4a2f34c4056d2016d78e1699eaea15ac5cf4d
+F src/util.c 3e7d8d2521778eea0a2221504f96d1970d5b19a177df6b054f588715abf3656c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 0e2ef9b269be510370cbad4f41e83b024f2d65ef7e30db5fe668b35ed3dbb3ad
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfb1234f937c490540e95e133fee95f91e71fe565b90cc12efb1771cd3cf7fda
-R 2d45a03c670cbe6000297db26c28af96
-U danield
-Z 976da3938a877efd3bece9239d05dfa5
+P ef9e42acb84f6e20a325b7121be077cee62721f5a19871feb6ea9648745e7608
+R 07151c43b0c30a9e676071987d1763a1
+U stephan
+Z 8e895604162ab04cfdf5aa81f8ec0bfb
 # Remove this line to create a well-formed Fossil manifest.
