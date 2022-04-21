@@ -453,8 +453,6 @@ static void html_footnote_item(
 ){
   const struct MarkdownToHtml* ctx = (struct MarkdownToHtml*)opaque;
   const char * const unique = ctx->unique.c;
-  /* make.footnote_item() invocations should pass args accordingly */
-  const struct Blob *upc = text+1;
   assert( nUsed >= 0 );
   /* expect BUGs if the following yields compiler warnings */
 
@@ -484,6 +482,8 @@ static void html_footnote_item(
     int bJoin = 0;
     #define _joined_footnote_indicator "<ul class='fn-joined'>"
     #define _jfi_sz (sizeof(_joined_footnote_indicator)-1)
+    /* make.footnote_item() invocations should pass args accordingly */
+    const struct Blob *upc = text+1;
     assert( text );
     assert( blob_size(text) );
     memset(pos,0,24);
@@ -543,7 +543,7 @@ static void html_footnote_item(
     #undef _jfi_sz
   }else{             /* a footnote was defined but wasn't referenced */
     /* make.footnote_item() invocations should pass args accordingly */
-    const struct Blob * id = text-1;
+    const struct Blob *id = text-1, *upc = text+1;
     assert( !nUsed );
     assert( text );
     assert( blob_size(text) );

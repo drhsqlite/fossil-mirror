@@ -1,5 +1,5 @@
-C Revert\sMakefile.in\sto\snormal\sbuilds\s(leave\sa\sfew\scomments\sabout\sfuzzing).
-D 2022-04-21T13:36:29.492
+C Fix\sanother\suse-after-realloc\sbug\sin\shandling\sof\sinline\sfootnotes\swhich\swas\sdiscovered\sduring\sfuzzing.\sAlso\sfix\sa\sfew\sother\sissues\srevealed\svia\sfuzzer.
+D 2022-04-21T21:13:22.336
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -515,9 +515,9 @@ F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c49
 F src/main.c 16b23615b2170e13fd2b82607393190a1640e1070d8e60f4d95a9de74d3946b9
 F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
-F src/markdown.c c7ef8c85139f95d6c30d7107be9734e832ba1cd893554a9a29272e76ba8bac83
+F src/markdown.c 75ea36a490eebd6550353886ac9737295f51862dfa487d38fa315271eb3fcbe0
 F src/markdown.md 07b41fe14f22451e033ef189de183d3fca8b30e6a4ed5a1a0e7b978f020403d6
-F src/markdown_html.c b25aa940c880e1f5b1229fd7ab69b4053061d17e3ff7b9fe2ad2374159c6abdc
+F src/markdown_html.c 2e11c242577484cb3b5746d5b16da40cdab9cd04c6d0b8f04e56ceebb7a84cdc
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 3986c0a1746876f9098cba226b966313dfc63b9ab4e63311e40c0b2f57028097
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31e5df5fa2c6443f71f02b064e988e242579ee1fe406df3307ae373f6beba6c9
-R a1b67fe0655b16505d386ae4b39ec52a
+P 940779668fdd56905dbb9244d3cc061540d1421665df120ca3c597fdf84fe234
+R 64af43001d69120482f49709fb235131
 U george
-Z 68e6fca31d0e605f6c4743c840afe811
+Z 9c5205045ed10b6ac3e5994f6fb5a84a
 # Remove this line to create a well-formed Fossil manifest.
