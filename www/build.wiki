@@ -456,5 +456,9 @@ For a detailed information about the fuzzer's flags and features, see:
   *  [https://llvm.org/docs/LibFuzzer.html]
   *  [https://github.com/google/fuzzing/blob/master/tutorial/libFuzzerTutorial.md]
  
-Flags for the fuzzer can be passed directly to fossil, e.g. <tt>-jobs=4</tt>
-to start four fuzzer jobs in parallel.
+Flags for the fuzzer can be passed directly to fossil,
+e.g. <tt>-jobs=4</tt> to start four fuzzer jobs in parallel, but doing
+so may cause the fuzzer to <em>strip the --fuzztype flag</em>, leading
+to it testing the wrong thing. When passing on fuzzer-specific flags
+along with <tt>--fuzztype</tt>, be sure to check your system's process
+list to ensure that your <tt>--fuzztype</tt> flag is there.
