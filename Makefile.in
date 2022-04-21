@@ -48,7 +48,14 @@ CFLAGS = @CFLAGS@
 CFLAGS_INCLUDE = @CFLAGS_INCLUDE@
 LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
 BCCFLAGS =	@CPPFLAGS@ $(CFLAGS)
-TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H -D_HAVE_SQLITE_CONFIG_H  -fsanitize=fuzzer -DFOSSIL_FUZZ
+TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H -D_HAVE_SQLITE_CONFIG_H
+#
+# Fuzzing may be enable by appending -fsanitize=fuzzer -DFOSSIL_FUZZ
+# to the TCCFLAGS variable.
+# For more thorouth (but also slower) investigation
+#      -fsanitize=fuzzer,undefined,address
+# might be more useful.
+
 INSTALLDIR = $(DESTDIR)@prefix@/bin
 USE_SYSTEM_SQLITE = @USE_SYSTEM_SQLITE@
 SQLITE3_SRC.2 = @SQLITE3_SRC.2@
@@ -63,7 +70,10 @@ SQLITE3_ORIGIN = @SQLITE3_ORIGIN@
 USE_LINENOISE = @USE_LINENOISE@
 USE_MMAN_H = @USE_MMAN_H@
 USE_SEE = @USE_SEE@
-APPNAME = fossil-fuzz
+APPNAME = fossil
+#
+# APPNAME = fossil-fuzz
+# may be more appropriate for fuzzing.
 
 .PHONY: all tags
 

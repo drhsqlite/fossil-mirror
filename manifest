@@ -1,5 +1,5 @@
-C Fix\sa\suse-after-free\sbug\sin\shandling\sof\snested\sinline\sfootnotes.\sThe\sbug\swas\sdiscovered\sby\sfuzzing\swith\s<code>'-fsanitize=fuzzer,undefined,address\s-DFOSSIL_FUZZ'</code>\sappended\sto\s<var>TCCFLAGS</var>\sin\sMakefile.in.\sIt's\snoteworthy\sthat\sthe\s<code>',undefined,address'</code>\spart\swas\sessential\sto\sfind\sthe\sbug\s(otherwise\sjust\s'double-free'\swas\sreported).\sMany\sthanks\sto\sStephan\sfor\sdocumenting\sthe\sfuzzing\sprocedures\sand\ssupport.
-D 2022-04-21T13:16:17.985
+C Revert\sMakefile.in\sto\snormal\sbuilds\s(leave\sa\sfew\scomments\sabout\sfuzzing).
+D 2022-04-21T13:36:29.492
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -14,7 +14,7 @@ F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 51328029ebbdc85b9fde5892f40e3d26cdfbbb8874b44bd652d9ad6854de89ea
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 843934bd7dc364baad0de71fab804cadfb3971305a9be19997801a34769aecd9 x
+F Makefile.in df6471923d7cc8f0a6fc83d2b9384b27ac1a8327462468730916e3c5fd4c9ff2 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 6e4a3769893fd39138273b1ef03d3da97971a3b64cc66138a43b48a46566dfc8
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7209593814810f1e9f47f3829cccafbfc9c1cebc3baab44c848b22ab553f21de
-R 03da1ce24bac8e2722d2ce2739f3fa2f
+P 31e5df5fa2c6443f71f02b064e988e242579ee1fe406df3307ae373f6beba6c9
+R a1b67fe0655b16505d386ae4b39ec52a
 U george
-Z b7394bdd1ff60ffbbc34499b2ee2c447
+Z 68e6fca31d0e605f6c4743c840afe811
 # Remove this line to create a well-formed Fossil manifest.
