@@ -2779,7 +2779,7 @@ void markdown(
       struct footnote *aNotes;
       const int N = COUNT_FOOTNOTES( allNotes );
 
-      /* make a shallow copy of `origin` */
+      /* make a shallow copy of `allNotes` */
       blob_truncate(notes,0);
       blob_appendb(notes, allNotes);
       aNotes = CAST_AS_FOOTNOTES(notes);
@@ -2797,9 +2797,10 @@ void markdown(
         assert( blob_size(&x->text) );
         blob_truncate(tmp,0);
 
-        /* `origin` may be altered and extended through this call */
+        /* `allNotes` may be altered and extended through this call */
         parse_inline(tmp, &rndr, blob_buffer(&x->text), blob_size(&x->text));
 
+        x = CAST_AS_FOOTNOTES(allNotes) + j;
         blob_truncate(&x->text,0);
         blob_appendb(&x->text, tmp);
         x->bRndred = 1;
