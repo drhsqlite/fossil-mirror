@@ -14032,6 +14032,9 @@ static int str_in_array(const char *zStr, const char **azArray){
 **       all opcodes that occur between the p2 jump destination and the opcode
 **       itself by 2 spaces.
 **
+**     * Do the previous for "Return" instructions for when P2 is positive.
+**       See tag-20220407a in wherecode.c and vdbe.c.
+**
 **     * For each "Goto", if the jump destination is earlier in the program
 **       and ends on one of:
 **          Yield  SeekGt  SeekLt  RowSetRead  Rewind
@@ -14046,7 +14049,8 @@ static void explain_data_prepare(ShellState *p, sqlite3_stmt *pSql){
   int nAlloc = 0;                 /* Allocated size of p->aiIndent[], abYield */
   int iOp;                        /* Index of operation in p->aiIndent[] */
 
-  const char *azNext[] = { "Next", "Prev", "VPrev", "VNext", "SorterNext", 0 };
+  const char *azNext[] = { "Next", "Prev", "VPrev", "VNext", "SorterNext",
+                           "Return", 0 };
   const char *azYield[] = { "Yield", "SeekLT", "SeekGT", "RowSetRead",
                             "Rewind", 0 };
   const char *azGoto[] = { "Goto", 0 };
@@ -14104,7 +14108,7 @@ static void explain_data_prepare(ShellState *p, sqlite3_stmt *pSql){
     p->aiIndent[iOp] = 0;
     p->nIndent = iOp+1;
 
-    if( str_in_array(zOp, azNext) ){
+    if( str_in_array(zOp, azNext) && p2op>0 ){
       for(i=p2op; i<iOp; i++) p->aiIndent[i] += 2;
     }
     if( str_in_array(zOp, azGoto) && p2op<p->nIndent
@@ -14130,7 +14134,7 @@ static void explain_data_delete(ShellState *p){
 }
 
 /*
-** Disable and restore .wheretrace and .selecttrace settings.
+** Disable and restore .wheretrace and .treetrace/.selecttrace settings.
 */
 static unsigned int savedSelectTrace;
 static unsigned int savedWhereTrace;
@@ -14434,6 +14438,8 @@ static void exec_prepared_stmt_columnar(
   int bNextLine = 0;
   int bMultiLineRowExists = 0;
   int bw = p->cmOpts.bWordWrap;
+  const char *zEmpty = "";
+  const char *zShowNull = p->nullValue;
 
   rc = sqlite3_step(pStmt);
   if( rc!=SQLITE_ROW ) return;
@@ -14495,12 +14501,14 @@ static void exec_prepared_stmt_columnar(
       if( wx<0 ) wx = -wx;
       if( useNextLine ){
         uz = azNextLine[i];
+        if( uz==0 ) uz = (u8*)zEmpty;
       }else if( p->cmOpts.bQuote ){
         sqlite3_free(azQuoted[i]);
         azQuoted[i] = quoted_column(pStmt,i);
         uz = (const unsigned char*)azQuoted[i];
       }else{
         uz = (const unsigned char*)sqlite3_column_text(pStmt,i);
+        if( uz==0 ) uz = (u8*)zShowNull;
       }
       azData[nRow*nColumn + i]
         = translateForDisplayAndDup(uz, &azNextLine[i], wx, bw);
@@ -14514,7 +14522,7 @@ static void exec_prepared_stmt_columnar(
   nTotal = nColumn*(nRow+1);
   for(i=0; i<nTotal; i++){
     z = azData[i];
-    if( z==0 ) z = p->nullValue;
+    if( z==0 ) z = (char*)zEmpty;
     n = strlenChar(z);
     j = i%nColumn;
     if( n>p->actualWidth[j] ) p->actualWidth[j] = n;
@@ -14618,7 +14626,10 @@ columnar_end:
     utf8_printf(p->out, "Interrupt\n");
   }
   nData = (nRow+1)*nColumn;
-  for(i=0; i<nData; i++) free(azData[i]);
+  for(i=0; i<nData; i++){
+    z = azData[i];
+    if( z!=zEmpty && z!=zShowNull ) free(azData[i]);
+  }
   sqlite3_free(azData);
   sqlite3_free((void*)azNextLine);
   sqlite3_free(abRowDiv);
@@ -18917,7 +18928,7 @@ static int recoverDatabaseCmd(ShellState *pState, int nArg, char **azArg){
 #endif /* !(SQLITE_OMIT_VIRTUALTABLE) && defined(SQLITE_ENABLE_DBPAGE_VTAB) */
 
 
-/* 
+/*
  * zAutoColumn(zCol, &db, ?) => Maybe init db, add column zCol to it.
  * zAutoColumn(0, &db, ?) => (db!=0) Form columns spec for CREATE TABLE,
  *   close db and set it to 0, and return the columns spec, to later
@@ -19000,6 +19011,13 @@ UPDATE ColNames AS t SET reps=\
   static const char * const zColDigits = "\
 SELECT CAST(ceil(log(count(*)+0.5)) AS INT) FROM ColNames \
 ";
+#else
+  /* Counting on SQLITE_MAX_COLUMN < 100,000 here. (32767 is the hard limit.) */
+  static const char * const zColDigits = "\
+SELECT CASE WHEN (nc < 10) THEN 1 WHEN (nc < 100) THEN 2 \
+ WHEN (nc < 1000) THEN 3 WHEN (nc < 10000) THEN 4 \
+ ELSE 5 FROM (SELECT count(*) AS nc FROM ColNames) \
+";
 #endif
   static const char * const zRenameRank =
 #ifdef SHELL_COLUMN_RENAME_CLEAN
@@ -19046,12 +19064,12 @@ SELECT\
   ','||iif((cpos-1)%4>0, ' ', x'0a'||' '))\
  ||')' AS ColsSpec \
 FROM (\
- SELECT cpos, printf('\"%w\"',printf('%.*s%s', nlen-chop,name,suff)) AS cname \
+ SELECT cpos, printf('\"%w\"',printf('%!.*s%s', nlen-chop,name,suff)) AS cname \
  FROM ColNames ORDER BY cpos\
 )";
   static const char * const zRenamesDone =
     "SELECT group_concat("
-    " printf('\"%w\" to \"%w\"',name,printf('%.*s%s', nlen-chop, name, suff)),"
+    " printf('\"%w\" to \"%w\"',name,printf('%!.*s%s', nlen-chop, name, suff)),"
     " ','||x'0a')"
     "FROM ColNames WHERE suff<>'' OR chop!=0"
     ;
@@ -19085,11 +19103,7 @@ FROM (\
     /* Formulate the columns spec, close the DB, zero *pDb. */
     char *zColsSpec = 0;
     int hasDupes = db_int(*pDb, zHasDupes);
-#ifdef SQLITE_ENABLE_MATH_FUNCTIONS
     int nDigits = (hasDupes)? db_int(*pDb, zColDigits) : 0;
-#else
-# define nDigits 2
-#endif
     if( hasDupes ){
 #ifdef SHELL_COLUMN_RENAME_CLEAN
       rc = sqlite3_exec(*pDb, zDedoctor, 0, 0, 0);
@@ -21201,7 +21215,9 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
   }else
 
-  if( c=='s' && n==11 && strncmp(azArg[0], "selecttrace", n)==0 ){
+  if( (c=='s' && n==11 && strncmp(azArg[0], "selecttrace", n)==0)
+   || (c=='t' && n==9  && strncmp(azArg[0], "treetrace", n)==0)
+  ){
     unsigned int x = nArg>=2 ? (unsigned int)integerValue(azArg[1]) : 0xffffffff;
     sqlite3_test_control(SQLITE_TESTCTRL_TRACEFLAGS, 1, &x);
   }else
