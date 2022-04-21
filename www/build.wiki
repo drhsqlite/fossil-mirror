@@ -388,17 +388,18 @@ be found
 <h2>Building for Fuzz Testing</h2>
 
 This feature is primarily intended for fossil's developers and may
-change at any time. It is only known to work on x86/64 Linux systems.
+change at any time. It is only known to work on Linux systems and has
+been seen to work on x86/64 and ARM.
 
 Fossil has builtin support for processing specific features using
-<tt>libfuzzer</tt>. The specific features which can be tested this way
-are found in the help text for the [/help?cmd=test-fuzz|test-fuzz
+<tt>libfuzzer</tt>. The features which can be tested this way are
+found in the help text for the [/help?cmd=test-fuzz|test-fuzz
 command].
 
 Fuzzing requires:
 
   *  Customizing the build of fossil a small bit.
-  *  The clang compiler.
+  *  The clang C compiler.
   *  libfuzzer. On Ubuntu-derived systems, it can be installed with
      <tt>apt install libfuzzer-XYZ</tt>, where XYZ is a version number
      (several versions may be available on any given system)
@@ -434,10 +435,10 @@ directory of input files to seed the fuzzer with:
 $ ./fossil-fuzz --fuzztype markdown cases
 </code></pre>
 
-As it works, it writes its test files into the test-input directory,
-each one named in the form of a hash. When it finds a problem it will
-produce a stack trace for the offending code, will output the
-name of the file which triggered the crash (named
+As it works, it writes its mutated test files into the test-input
+directory, each one named in the form of a hash. When it finds a
+problem it will produce a stack trace for the offending code, will
+output the name of the file which triggered the crash (named
 <tt>cases/SOME_HASH</tt>) and may, depending on the nature of the
 problem, produce a file named <tt>crash-SOMETHING</tt>.  In theory the
 crash file can be fed directly back into the fuzzer to reproduce the
