@@ -26,7 +26,9 @@ label]
 
 A labeled footnote may be [referenced several times][^many-refs].
 
-A footnote's text should support Markdown [markup][^].
+A footnote's text should support Markdown [markup][^].  
+Markup within [a [text fragment](https://en.wikipedia.org/wiki/Lorem_ipsum)
+of a *span-bounded footnote*][^markup] should also be rendered.
 
 Another reference[^many-refs] to the preveously used footnote.
 

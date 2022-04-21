@@ -1,5 +1,5 @@
-C Fix\sanother\suse-after-realloc\sbug\sin\shandling\sof\sinline\sfootnotes\swhich\swas\sdiscovered\sduring\sfuzzing.\sAlso\sfix\sa\sfew\sother\sissues\srevealed\svia\sfuzzer.
-D 2022-04-21T21:13:22.336
+C Add\sa\stest\scase\sfor\sfragment-bounded\sfootnote\sthat\scontains\smarkup\swithin\sthe\scorresponding\stext\sfragment.
+D 2022-04-21T22:31:19.672
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -635,7 +635,7 @@ F test/json.test ef5f080b4c1853ad2433bbb591c86759b497019137ce4296b9a8704ab426bec
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
-F test/markdown-test3.md eb22620b4dab1545704acd5c84410c19096c2f279e2f79aa202460a2e9fca068
+F test/markdown-test3.md f52e58ccd2bf1661da48d2901a5a84b06e0bfb77c9f10a7045548735e1a03cdc
 F test/merge1.test b7b347a2faf5a6dba2eb1a57f2c6099f65541c2ddb730e5030d700dc9265b334
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 3ff4854352bea3e262d2710abadc8e85a5754734cc25072e21c400e65cff22ec
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 940779668fdd56905dbb9244d3cc061540d1421665df120ca3c597fdf84fe234
-R 64af43001d69120482f49709fb235131
+P c5456211f4652561b6166ee55d7839197b94438d5bd083159cb723056c1986e3
+R 82b9ca5f64e952ddb83b9b3c7968de4a
 U george
-Z 9c5205045ed10b6ac3e5994f6fb5a84a
+Z 094538f6104763006c5c5e568ead5f6d
 # Remove this line to create a well-formed Fossil manifest.
