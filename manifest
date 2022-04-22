@@ -1,5 +1,5 @@
-C Add\sa\stest\scase\sfor\sfragment-bounded\sfootnote\sthat\scontains\smarkup\swithin\sthe\scorresponding\stext\sfragment.
-D 2022-04-21T22:31:19.672
+C Remove\sredundant\s<code>assert()</code>\sthat\sfails\sfor\sthe\scase\swhen\sthe\scontent\sof\sa\sspan-bounded\sinline\sfootnote\sis\srendered\sinto\sa\svoid.\sThis\sis\sa\scorner\scase\sthat\swas\srevealed\svia\sfuzzing.
+D 2022-04-22T12:49:06.849
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -517,7 +517,7 @@ F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 75ea36a490eebd6550353886ac9737295f51862dfa487d38fa315271eb3fcbe0
 F src/markdown.md 07b41fe14f22451e033ef189de183d3fca8b30e6a4ed5a1a0e7b978f020403d6
-F src/markdown_html.c 2e11c242577484cb3b5746d5b16da40cdab9cd04c6d0b8f04e56ceebb7a84cdc
+F src/markdown_html.c 38a90709de369e067f475925861a6dec1cae1225739cb0a128d969c86b9f9ed7
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 3986c0a1746876f9098cba226b966313dfc63b9ab4e63311e40c0b2f57028097
@@ -635,7 +635,7 @@ F test/json.test ef5f080b4c1853ad2433bbb591c86759b497019137ce4296b9a8704ab426bec
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
-F test/markdown-test3.md f52e58ccd2bf1661da48d2901a5a84b06e0bfb77c9f10a7045548735e1a03cdc
+F test/markdown-test3.md 579dd8cccffc63dfb1b0cd70286029be364256e23a3a1a6cd8e7f5af9daf26d1
 F test/merge1.test b7b347a2faf5a6dba2eb1a57f2c6099f65541c2ddb730e5030d700dc9265b334
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 3ff4854352bea3e262d2710abadc8e85a5754734cc25072e21c400e65cff22ec
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5456211f4652561b6166ee55d7839197b94438d5bd083159cb723056c1986e3
-R 82b9ca5f64e952ddb83b9b3c7968de4a
+P d38ec43d00550b84b5ef71ecb54e755a8b1265eef3836b07d5805c413399c691
+R 14a2983c66dabfe1ab3210ce4797e69f
 U george
-Z 094538f6104763006c5c5e568ead5f6d
+Z 060dc7eebaf825ea4780aafe1709733f
 # Remove this line to create a well-formed Fossil manifest.

@@ -46,6 +46,8 @@ Another reference[^many-refs] to the preveously used footnote.
 Inline footnotes are supported.(^These may be usefull for adding
 <s>small</s> comments.)
 
+This is a corner case that is rendered as [an empty footnote](^  []  ()).
+
 If [undefined label is used][^] then red "`misref`" is emited instead of
 a numeric marker.[^ see it yourself ]
 This can be overridden by the skin though.

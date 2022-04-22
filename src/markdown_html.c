@@ -485,7 +485,7 @@ static void html_footnote_item(
     /* make.footnote_item() invocations should pass args accordingly */
     const struct Blob *upc = text+1;
     assert( text );
-    assert( blob_size(text) );
+    /* allow blob_size(text)==0 for constructs like  [...](^ [] ())  */
     memset(pos,0,24);
     sprintf(pos, "%s-%d", unique, iMark);
     blob_appendf(ob, "<li id='footnote%s' class='", pos);
