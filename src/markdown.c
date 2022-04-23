@@ -2110,7 +2110,8 @@ static size_t parse_htmlblock(
     /* Omit <html> tags */
     enum mkd_autolink dummy;
     int k = tag_length(data, size, &dummy);
-    blob_init(&work, data+k, i-(j+k));
+    int sz = i - (j+k);
+    if( sz>0 ) blob_init(&work, data+k, sz);
   }else{
     blob_init(&work, data, i);
   }
