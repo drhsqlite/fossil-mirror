@@ -56,6 +56,29 @@ struct Blob {
 #define blob_buffer(X)  ((X)->aData)
 
 /*
+** Append blob contents to another
+*/
+#define blob_appendb(dest, src) \
+  blob_append((dest), blob_buffer(src), blob_size(src))
+
+/*
+** Append a string literal to a blob
+** TODO: Consider renaming to blob_appendl()
+*/
+#define blob_append_literal(blob, literal) \
+  blob_append((blob), "" literal, (sizeof literal)-1)
+  /*
+   * The empty string in the second argument leads to a syntax error
+   * when the macro is not used with a string literal. Unfortunately
+   * the error is not overly explicit.
+   */
+
+/*
+** TODO: Suggested for removal because the name seems misleading.
+*/
+#define blob_append_string blob_append_literal
+
+/*
 ** Seek whence parameter values
 */
 #define BLOB_SEEK_SET 1
@@ -328,13 +351,6 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 }
 
 /*
-** Append a string literal to a blob.
-*/
-#if INTERFACE
-#define blob_append_string(BLOB,STR) blob_append(BLOB,STR,sizeof(STR)-1)
-#endif
-
-/*
 ** Append a single character to the blob.  If pBlob is zero then the
 ** character is written directly to stdout.
 */
@@ -505,7 +521,7 @@ char *blob_terminate(Blob *p){
 ** Compare two blobs.  Return negative, zero, or positive if the first
 ** blob is less then, equal to, or greater than the second.
 */
-int blob_compare(Blob *pA, Blob *pB){
+int blob_compare(const Blob *pA, const Blob *pB){
   int szA, szB, sz, rc;
   blob_is_init(pA);
   blob_is_init(pB);
