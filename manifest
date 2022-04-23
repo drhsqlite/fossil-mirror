@@ -1,5 +1,5 @@
-C Added\sJSON\sAPI\sdoc\slink\sto\sthe\spermuted\sindex.
-D 2022-04-23T15:39:51.930
+C Trivial\sdoc\supdates\sto\swww/json-api/...
+D 2022-04-23T16:09:30.420
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -890,8 +890,8 @@ F www/json-api/api-timeline.md 2b3190e7acaa6107db34e212dc248a641f08c91b5e00f19d3
 F www/json-api/api-user.md 73bb8d8fc50a5214ef8c19c7277d71f5538705d9337fef05314b126f71003ff1
 F www/json-api/api-version.md 25fd79470bbab485de7ffddfa658d923be0aa514f86e0b4d3570c5bf2f06f6d6
 F www/json-api/api-wiki.md b96ed708d50b3c54d0e223291e6ea3d788613e1393d5306beeba77e84b3e3172
-F www/json-api/conventions.md 53a8506dc13c23867f6e75f6f80cb2740f39273ab32df64d921a5eb745bd4f5a
-F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029e03be74080
+F www/json-api/conventions.md 1a716bef80f6d9499e0da86252664beeb851a17ccd59c45c7284bee5cdf2561b
+F www/json-api/hacking.md 5e916b51718458ceef1f2641c2c29774eaa89f8817f02dc77b91aab56f4d6a75
 F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc4d605802
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3c5a48926cf15afe79ab9069c29d7219a34eef81a668de8684d8321f9e549de
-R e1ede9fad1c98b5ff648698466166ca1
+P d355faf80cf68ca78af969479781fbc5bfc97072689093f731c2f6e021c75546
+R 95d736059e0ebb2d284385a2e06b4454
 U stephan
-Z 88a25f16359b035776ddebe296b0073f
+Z fd442b8de6da0a6c86a2c6a8060a898e
 # Remove this line to create a well-formed Fossil manifest.
