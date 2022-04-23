@@ -1,5 +1,5 @@
-C Bring\sin\sthe\slatest\sSQLite\s3.39.0\salpha,\swith\sover\s4,500\slines\sof\schange,\sfor\nthe\spurpose\sof\sbeta-testing\sSQLite.
-D 2022-04-21T22:53:14.654
+C Added\sJSON\sAPI\sdoc\slink\sto\sthe\spermuted\sindex.
+D 2022-04-23T15:39:51.930
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -900,11 +900,11 @@ F www/makefile.wiki 19bd2d5843ee6277253dea41e7a540bc63bf55747a60909d22b24ad58528
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
-F www/mkindex.tcl 2cffe1fa0118a30c005f407d14b46fdccaadfb6bbad9c5106bb71b51d18c7c61 x
+F www/mkindex.tcl 696ab10c32cec7eb35fcf4ffe3f6c88e1cbe10b7c34d70c83b15c0ddb78800cc x
 F www/newrepo.wiki bbc20d277cfb9787824a4fc83cfec571b379e116a7765808d481370793c22611
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
-F www/permutedindex.html 181ee07cb1bc965821c674106aca07a4012be455696e3ad36861463ddcd49c3f
+F www/permutedindex.html 6b12258fef9e865a13bec4dad96bc42f0233066230ff82a42cd736f78886d9e5
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df1d2569223045f377f60a2870dd269ae9ca0dc375743c82b40488067fbc643d
-R 9f5aec83a6a3e52677bb3e045bf65e9c
-U drh
-Z 7778d0fe92812afa5d3a677a0de6b526
+P b3c5a48926cf15afe79ab9069c29d7219a34eef81a668de8684d8321f9e549de
+R e1ede9fad1c98b5ff648698466166ca1
+U stephan
+Z 88a25f16359b035776ddebe296b0073f
 # Remove this line to create a well-formed Fossil manifest.
