@@ -188,7 +188,8 @@ struct render {
   struct Blob *aBlobCache[20];   /* Cache of Blobs available for reuse */
 
   struct {
-    Blob all;    /* array of footnotes */
+    Blob all;    /* Buffer that holds array of footnotes. Its underline
+                    memory may be reallocated when a new footnote is added. */
     int nLbled;  /* number of labeled footnotes found during the first pass */
     int nMarks;  /* counts distinct indices found during the second pass    */
     struct footnote misref; /* nUsed counts misreferences, iMark must be -1 */
@@ -1051,7 +1052,7 @@ static int get_link_inline(
 
   /* remove optional angle brackets around the link */
   if( data[link_b]=='<' ) link_b += 1;
-  if( data[link_e-1]=='>' ) link_e -= 1;  /* TODO: handle link_e == 0 */
+  if( link_e && data[link_e-1]=='>' ) link_e -= 1;
 
   /* escape backslashed character from link */
   blob_reset(link);
@@ -1202,17 +1203,17 @@ static size_t is_footnote_classlist(const char * const data, size_t size,
 }
 
 /*
-** Adds unlabeled footnote to the rndr.  If text is blank then returns
-** 0, otherwise returns the address of the added footnote, which lives
-** in rndr->notes, noting that the pointer may be invalidated via
-** reallocation the next time a footnote is added to that member.
+** Adds unlabeled footnote to the rndr->notes.all.
+** On success puts a shallow copy of the constructed footnote into pFN
+** and returns 1, otherwise pFN is unchanged and 0 is returned.
 */
-static inline const struct footnote* add_inline_footnote(
+static inline int add_inline_footnote(
   struct render *rndr,
   const char *text,
-  size_t size
+  size_t size,
+  struct footnote* pFN
 ){
-  struct footnote fn = FOOTNOTE_INITIALIZER;
+  struct footnote fn = FOOTNOTE_INITIALIZER, *last;
   const char *zUPC = 0;
   size_t nUPC = 0, n = sizeof_blank_prefix(text, size, 3);
   if( n >= size ) return 0;
@@ -1238,8 +1239,11 @@ static inline const struct footnote* add_inline_footnote(
   blob_append(&fn.text, text, size);
   if(nUPC) blob_append(&fn.upc, zUPC, nUPC);
   blob_append(&rndr->notes.all, (char *)&fn, sizeof fn);
-  return (struct footnote*)( blob_buffer(&rndr->notes.all)
+  last = (struct footnote*)( blob_buffer(&rndr->notes.all)
                             +( blob_size(&rndr->notes.all)-sizeof fn ));
+  assert( pFN );
+  memcpy( pFN, last, sizeof fn );
+  return 1;
 }
 
 /*
@@ -1281,15 +1285,14 @@ static size_t char_footnote(
   size_t size
 ){
   size_t end;
-  const struct footnote* fn;
+  struct footnote fn;
 
   if( size<4 || data[1]!='^' ) return 0;
   end = matching_bracket_offset(data, data+size);
   if( !end ) return 0;
-  fn = add_inline_footnote(rndr, data+2, end-2);
-  if( !fn ) return 0;
+  if( !add_inline_footnote(rndr, data+2, end-2, &fn) ) return 0;
   if( rndr->make.footnote_ref ){
-    rndr->make.footnote_ref(ob,0,&fn->upc,fn->iMark,1,rndr->make.opaque);
+    rndr->make.footnote_ref(ob,0,&fn.upc,fn.iMark,1,rndr->make.opaque);
   }
   return end+1;
 }
@@ -1343,10 +1346,8 @@ static size_t char_link(
       if( i+2<size && data[i+1]=='^' ){  /* span-bounded inline footnote */
 
         const size_t k = matching_bracket_offset(data+i, data+size);
-        const struct footnote *x;
         if( !k ) goto char_link_cleanup;
-        x = add_inline_footnote(rndr, data+(i+2), k-2);
-        if( x ) fn = *x;
+        add_inline_footnote(rndr, data+(i+2), k-2, &fn);
         i += k+1;
       }else{                             /* inline style link  */
         size_t span_end = i;
@@ -2318,10 +2319,12 @@ static void parse_block(
 ){
   size_t beg, end, i;
   char *txt_data;
-  int has_table = (rndr->make.table
+  int has_table;
+  if( !size ) return;
+  has_table = (rndr->make.table
     && rndr->make.table_row
     && rndr->make.table_cell
-    && memchr(data, '|', size)!=0); /* TODO: handle data == 0 */
+    && memchr(data, '|', size)!=0);
 
   beg = 0;
   while( beg<size ){
