@@ -1897,14 +1897,16 @@ void test_wiki_render(void){
 **
 ** Options:
 **
-**    --safe           Restrict the output to use only "safe" HTML
+**    --safe            Restrict the output to use only "safe" HTML
+**    --lint-footnotes  Print stats for footnotes-related issues
 */
 void test_markdown_render(void){
   Blob in, out;
   int i;
-  int bSafe = 0;
+  int bSafe = 0, bFnLint = 0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   bSafe = find_option("safe",0,0)!=0;
+  bFnLint = find_option("lint-footnotes",0,0)!=0;
   verify_all_options();
   for(i=2; i<g.argc; i++){
     blob_zero(&out);
@@ -1925,6 +1927,16 @@ void test_markdown_render(void){
     blob_write_to_file(&out, "-");
     blob_reset(&in);
     blob_reset(&out);
+  }
+  if( bFnLint && (g.ftntsIssues[0] || g.ftntsIssues[1]
+      || g.ftntsIssues[2] || g.ftntsIssues[3] )){
+    fossil_fatal("There were issues with footnotes:\n"
+                  " %8d misreference%s\n"
+                  " %8d unreferenced\n"
+                  " %8d splitted\n"
+                  " %8d overnested",
+                  g.ftntsIssues[0], g.ftntsIssues[0]==1?"":"s",
+                  g.ftntsIssues[1], g.ftntsIssues[2], g.ftntsIssues[3]);
   }
 }
 

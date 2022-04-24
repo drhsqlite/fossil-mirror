@@ -40,7 +40,7 @@ guidelines which must be followed before committing any changes:
 # JSON C API
 
 libcson, the underlying JSON API, is a separate project, included in
-fossil in "amalgamation" form: see `src/cson_amalgamation.[ch]`. It has
+fossil in "amalgamation" form: see `extsrc/cson_amalgamation.[ch]`. It has
 thorough API docs and a good deal of information is in its wiki:
 
 [](https://fossil.wanderinghorse.net/wikis/cson/)
@@ -53,8 +53,8 @@ gives an overview of its architecture. Occasionally new versions of it
 are pulled into the Fossil tree, but other developers generally need not
 concern themselves with that.
 
-(Trivia: the cson wiki's back-end is fossil, living on top of a
-JavaScript+HTML5 application.)
+(Trivia: the cson wiki's back-end is fossil using this very JSON API,
+living on top of a custom JavaScript+HTML5 application.)
 
 Only a small handful of low-level fossil routines actually input or
 output JSON text (only for reading in POST data and sending the
@@ -311,7 +311,7 @@ to Arrays or Objects, or convert single columns to a JSON-compatible
 form. See `json_stmt_to_array_of_obj()`,
 `json_stmt_to_array_of_array()` (both in `src/json.c`), and
 `cson_sqlite3_column_to_value()` and friends (in
-`src/cson_amalgamation.h`). They work in an intuitive way for numeric
+`extsrc/cson_amalgamation.h`). They work in an intuitive way for numeric
 types, but they optimistically/natively *assume* that any fields of type
 TEXT or BLOB are actually UTF8 data, and treat them as such. cson's
 string class only handles UTF8 data and it is semantically illegal to

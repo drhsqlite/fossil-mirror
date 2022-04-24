@@ -784,6 +784,13 @@ static void style_init_th1_vars(const char *zTitle){
     Th_Store("login", g.zLogin);
   }
   Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
+  if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
+      g.ftntsIssues[2] || g.ftntsIssues[3] ){
+    char buf[80];
+    sprintf(&buf[0],"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
+                                  g.ftntsIssues[2],g.ftntsIssues[3]);
+    Th_Store("footnotes_issues_counters", buf);
+  }
 }
 
 /*
@@ -1212,7 +1219,7 @@ static void page_style_css_append_page_style(Blob *pOut){
 }
 
 /*
-** WEBPAGE: style.css
+** WEBPAGE: style.css loadavg-exempt
 **
 ** Return the style sheet.   The style sheet is assemblied from
 ** multiple sources, in order:

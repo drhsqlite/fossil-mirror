@@ -257,6 +257,8 @@ void markdown_extract_links(
   struct mkd_renderer html_renderer = {
     /* prolog     */ (void(*)(Blob*,void*))mkdn_noop0,
     /* epilog     */ (void(*)(Blob*,void*))mkdn_noop0,
+    /* footnotes  */ (void(*)(Blob*,const Blob*, void*))mkdn_noop0,
+
     /* blockcode  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
     /* blockquote */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
     /* blockhtml  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
@@ -268,6 +270,8 @@ void markdown_extract_links(
     /* table      */ (void(*)(Blob*,Blob*,Blob*,void*))mkdn_noop0,
     /* table_cell */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
     /* table_row  */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
+    /* footnoteitm*/ (void(*)(Blob*,const Blob*,int,int,void*))mkdn_noop0,
+
     /* autolink   */ (int(*)(Blob*,Blob*,enum mkd_autolink,void*))mkdn_noop1,
     /* codespan   */ (int(*)(Blob*,Blob*,int,void*))mkdn_noop1,
     /* dbl_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
@@ -278,6 +282,8 @@ void markdown_extract_links(
     /* r_html_tag */ (int(*)(Blob*,Blob*,void*))mkdn_noop1,
     /* @/#tags    */ (int(*)(Blob*,Blob*,enum mkd_tagspan,void*))mkdn_noop1,
     /* tri_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
+    /* footnoteref*/ (int(*)(Blob*,const Blob*,const Blob*,int,int,void*))mkdn_noop1,
+
     0,  /* entity */
     0,  /* normal_text */
     "*_", /* emphasis characters */

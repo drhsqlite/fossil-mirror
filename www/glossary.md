@@ -301,4 +301,77 @@ particular [check-in](#ci) of the [project](#project).
 [mwd]:    ./ckout-workflows.md#mcw
 [update]: /help?cmd=update
 
+
+## <a id="docs"></a>Embedded Documentation
+
+Serving as an alternative to Fossil’s built-in [wiki], the [embedded
+documentation feature][edoc] stores the same type of marked-up text
+files, but under Fossil’s powerful version control features.
+
+*   The simple rule for determining whether to use the wiki or embedded
+    docs for any given document is whether the content is considered
+    “evergreen,” as with a Wikipedia article.
+
+    While Fossil’s wiki feature does store the history of each
+    document’s changes, Fossil always presents the current version of
+    the document unless you manually go out of your way to dig back into
+    the history.  Then, having done so, links from that historical
+    version of the wiki document take you to the current versions of the
+    target documents, not to the version contemporaneous with the source
+    document.
+
+    The consequence is that if you say something like…
+
+          $ fossil up 2020-04-01
+          $ fossil ui --page wcontent
+
+    …you will **not** see the list of wiki articles as of April Fool’s Day in 2020, but
+    instead the list of *current* wiki article versions, the same as if you ran it
+    from a check-out of the tip-of-trunk.
+
+    Contrast embedded docs, which are not only version-controlled as
+    normal files are in Fossil, they participate in all the tagging,
+    branching, and other versioning features. There are several
+    consequences of this, such as that Fossil’s [special check-in
+    names][ciname] work with embedded doc URLs:
+
+    *   <p>If you visit an embedded doc as `/doc/release/file.md` and
+        then click on a relative link from that document, you will remain on
+        the release branch. This lets you see not only the release
+        version of a software project but also the documentation as of
+        that release.</p>
+
+    *   <p>If you visit `/doc/2020-04-01/file.md`, you will not only
+        pull up the version of `file.md` as of that date, relative links
+        will take you to contemporaneous versions of those embedded docs
+        as well.</p>
+
+    *   <p>If you say `fossil up 2020-04-01 && fossil ui` and then visit
+        `/doc/ckout/file.md`, you’ll not only see the checked-out
+        version of the file as of that date, relative links will show
+        you other files within that checkout.</p>
+
+*   Fossil’s wiki presents a flat list of articles, while embedded docs
+    are stored in the repository’s file hierarchy, a powerful
+    organizational tool well-suited to complicated documentation.
+
+*   Your repository’s Home page is a good candidate for the wiki, as is
+    documentation meant for use only with the current version of the
+    repository’s contents.
+
+*   If you are at all uncertain whether to use the wiki or the embedded
+    documentation feature, prefer the latter, since it is more powerful
+    and, with the addition of the [`/fileedit` feature][fef] in Fossil
+    2.12, it’s nearly as easy to use.
+
+    (This very file is embedded documentation: clone
+    [Fossil’s self-hosting repository][fshr] and you will find it as
+    `www/glossary.md`.)
+
+[edoc]: ./embeddeddoc.wiki
+[fef]:  ./fileedit-page.md
+[fshr]: ./selfhost.wiki
+[wiki]: ./wikitheory.wiki
+
+
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>

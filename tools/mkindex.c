@@ -82,18 +82,19 @@
 ** These macros must match similar macros in dispatch.c.
 **
 ** Allowed values for CmdOrPage.eCmdFlags. */
-#define CMDFLAG_1ST_TIER    0x0001      /* Most important commands */
-#define CMDFLAG_2ND_TIER    0x0002      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST        0x0004      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE     0x0008      /* Web pages */
-#define CMDFLAG_COMMAND     0x0010      /* A command */
-#define CMDFLAG_SETTING     0x0020      /* A setting */
-#define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
-#define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
-#define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
-#define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret webpage content */
-#define CMDFLAG_SENSITIVE   0x0400      /* Security-sensitive setting */
-#define CMDFLAG_HIDDEN      0x0800      /* Elide from most listings */
+#define CMDFLAG_1ST_TIER     0x0001     /* Most important commands */
+#define CMDFLAG_2ND_TIER     0x0002     /* Obscure and seldom used commands */
+#define CMDFLAG_TEST         0x0004     /* Commands for testing only */
+#define CMDFLAG_WEBPAGE      0x0008     /* Web pages */
+#define CMDFLAG_COMMAND      0x0010     /* A command */
+#define CMDFLAG_SETTING      0x0020     /* A setting */
+#define CMDFLAG_VERSIONABLE  0x0040     /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT    0x0080     /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN      0x0100     /* A boolean setting */
+#define CMDFLAG_RAWCONTENT   0x0200     /* Do not interpret webpage content */
+#define CMDFLAG_SENSITIVE    0x0400     /* Security-sensitive setting */
+#define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
+#define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 /**************************************************************************/
 
 /*
@@ -262,6 +263,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].zVar = string_dup(&zLine[i+9], j-9);
     }else if( j==6 && strncmp(&zLine[i], "hidden", 6)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_HIDDEN;
+    }else if( j==14 && strncmp(&zLine[i], "loadavg-exempt", 14)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_LDAVG_EXEMPT;
     }else{
       fprintf(stderr, "%s:%d: unknown option: '%.*s'\n",
               zFile, nLine, j, &zLine[i]);

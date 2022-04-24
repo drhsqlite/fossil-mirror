@@ -3596,7 +3596,7 @@ void annotation_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders() ) return;
-  load_control();
+  fossil_nice_default();
   zFilename = P("filename");
   zRevision = PD("checkin",0);
   zOrigin = P("origin");
