@@ -381,3 +381,84 @@ The source of such warnings is not 100% certain.
 Some information about these (reportedly harmless) warnings can
 be found
 [https://stackoverflow.com/a/41900551 | on this StackOverflow post].
+
+
+
+<a id='fuzzer'></a>
+<h2>Building for Fuzz Testing</h2>
+
+This feature is primarily intended for fossil's developers and may
+change at any time. It is only known to work on Linux systems and has
+been seen to work on x86/64 and ARM.
+
+Fossil has builtin support for processing specific features using
+<tt>libfuzzer</tt>. The features which can be tested this way are
+found in the help text for the [/help?cmd=test-fuzz|test-fuzz
+command].
+
+Fuzzing requires:
+
+  *  Customizing the build of fossil a small bit.
+  *  The clang C compiler.
+  *  libfuzzer. On Ubuntu-derived systems, it can be installed with
+     <tt>apt install libfuzzer-XYZ</tt>, where XYZ is a version number
+     (several versions may be available on any given system)
+
+
+First, modify the top-level <tt>Makefile.in</tt>:
+
+  *  Extend the <tt>TCCFLAGS</tt> variable with: <tt>-fsanitize=fuzzer
+   -DFOSSIL_FUZZ</tt> (and see [/finfo/src/fuzz.c | src/fuzz.c] for
+   more options).
+  *  Rename <tt>APPNAME</tt> from <tt>fossil</tt> to <tt>fossil-fuzz</tt>.
+
+Then rebuild:
+
+<pre></code>$ make clean
+$ ./configure CC=/path/to/clang
+$ make
+</code></pre>
+
+If clang is your default compiler, the <tt>CC</tt> configure option is
+not required.
+
+The resulting <tt>fossil-fuzz</tt> binary differs from the standard
+one primarily in that it runs the <tt>test-fuzz</tt> command by
+default. It needs to be told what to fuzz and needs to be given a
+directory of input files to seed the fuzzer with:
+
+
+<pre></code>$ mkdir cases
+  # Copy input files into ./cases. e.g. when fuzzing the markdown
+  # processor, copy any to-be-tested .md files into that directory.
+  # Then start the fuzzer:
+$ ./fossil-fuzz --fuzztype markdown cases
+</code></pre>
+
+As it works, it writes its mutated test files into the test-input
+directory, each one named in the form of a hash. When it finds a
+problem it will produce a stack trace for the offending code, will
+output the name of the file which triggered the crash (named
+<tt>cases/SOME_HASH</tt>) and may, depending on the nature of the
+problem, produce a file named <tt>crash-SOMETHING</tt>.  In theory the
+crash file can be fed directly back into the fuzzer to reproduce the
+problem:
+
+<pre></code>$ ./fossil-fuzz --fuzztype markdown crash-SOMETHING
+</code></pre>
+
+But whether or not it will genuinely crash may depend on static
+app-level state which might not trigger the crash when running an
+individual test.
+
+For a detailed information about the fuzzer's flags and features, see:
+
+  *  [https://llvm.org/docs/LibFuzzer.html]
+  *  [https://github.com/google/fuzzing/blob/master/tutorial/libFuzzerTutorial.md]
+ 
+Flags for the fuzzer can be passed directly to fossil,
+e.g. <tt>-jobs=4</tt> to start four fuzzer jobs in parallel, but doing
+so may cause the fuzzer to <em>strip the --fuzztype flag</em>, leading
+to it testing the wrong thing. When passing on fuzzer-specific flags
+along with <tt>--fuzztype</tt>, be sure to check your system's process
+list to ensure that your <tt>--fuzztype</tt> flag is there.

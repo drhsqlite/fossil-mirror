@@ -915,5 +915,5 @@ void fossil_nice(int level){
 ** Calls fossil_nice() with a default level.
 */
 void fossil_nice_default(void){
-  fossil_nice(20);
+  fossil_nice(19);
 }

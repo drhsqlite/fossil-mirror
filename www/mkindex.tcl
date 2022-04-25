@@ -80,6 +80,7 @@ set doclist {
   interwiki.md {Interwiki Links}
   image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
   javascript.md {Use of JavaScript in Fossil}
+  json-api/index.md {JSON API}
   loadmgmt.md {Managing Server Load}
   makefile.wiki {The Fossil Build Process}
   mirrorlimitations.md {Limitations On Git Mirrors}
