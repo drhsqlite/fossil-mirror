@@ -10,6 +10,7 @@
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
 <li> <b>root <big>:</big></b> <i>branchname</i>
+<li> <b>start <big>:</big></b> <i>branchname</i>
 <li> <b>merge-in <big>:</big></b> <i>branchname</i>
 <li> Special names:
 <ul>
@@ -236,6 +237,9 @@ The resulting diff will then show only the changes in
 the branch itself, omitting
 any changes that have already been merged in from the parent branch.
 
+<a id="start"></a>
+The prefix "<tt>start:</tt>" gives the first check-in of the named branch.
+
 The prefixes "<tt>root:</tt>" and  "<tt>merge-in:</tt>" can be chained: one
 can say for example 
 
@@ -301,6 +305,7 @@ following order:
   #  [#timestamps | Timestamps], with preference to ISO8601 forms
   #  [#tagpfx | tag:TAGNAME]
   #  [#root | root:BRANCH]
+  #  [#start | start:BRANCH]
   #  [#merge-in | merge-in:BRANCH]
   #  [#tag-ts | TAGNAME:timestamp]
   #  Full artifact hash or hash prefix.

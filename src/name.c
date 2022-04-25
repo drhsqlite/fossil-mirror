@@ -263,6 +263,7 @@ static int is_trailing_punct(char c){
 ** The following modifier prefixes may be applied to the above forms:
 **
 **   *  "root:BR" = The origin of the branch named BR.
+**   *  "start:BR" = The first check-in of the branch named BR.
 **   *  "merge-in:BR" = The most recent merge-in for the branch named BR.
 **
 ** In those forms, BR may be any symbolic form but is assumed to be a
@@ -380,7 +381,14 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     rid = symbolic_name_to_rid(zTag+5, zType);
     return start_of_branch(rid, 0);
   }
-  /* merge-in:BR -> Most recent merge-in for the branch name BR */
+
+  /* start:BR -> The first check-in on branch named BR */
+  if( strncmp(zTag, "start:", 6)==0 ){
+    rid = symbolic_name_to_rid(zTag+6, zType);
+    return start_of_branch(rid, 1);
+  }  
+  
+  /* merge-in:BR -> Most recent merge-in for the branch named BR */
   if( strncmp(zTag, "merge-in:", 9)==0 ){
     rid = symbolic_name_to_rid(zTag+9, zType);
     return start_of_branch(rid, 2);

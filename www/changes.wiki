@@ -16,6 +16,8 @@
      See corresponding [../test/markdown-test3.md|test cases],
      [/wiki?name=branch/markdown-footnotes#il|known limitations] and
      [forum:/forumthread/ee1f1597e46ec07a|discussion].
+  *  Add the new special name "start:BRANCH" to refer to the first check-in of
+     the branch.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
