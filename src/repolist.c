@@ -212,7 +212,7 @@ int repo_list_page(void){
       }else if( x.rMTime<0.0 ){
         x.rMTime = rNow;
       }
-      iAge = (sqlite3_int64)(rNow - x.rMTime)*86400;
+      iAge = (sqlite3_int64)((rNow - x.rMTime)*86400);
       zAge = human_readable_age(rNow - x.rMTime);
       if( x.rMTime==0.0 ){
         /* This repository has no entry in the "event" table.
