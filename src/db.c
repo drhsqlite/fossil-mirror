@@ -3669,7 +3669,7 @@ void db_record_repository_filename(const char *zName){
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
 **   -f|--force        Continue with the open even if the working directory is
-**                     not empty.
+**                     not empty, or if auto-sync fails.
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
@@ -3680,8 +3680,6 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
-**   --sync            Auto-sync prior to opening even if the autosync setting
-**                     is off.
 **   --verbose         If passed a URI then this flag is passed on to the clone
 **                     operation, otherwise it has no effect.
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR

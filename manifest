@@ -1,5 +1,5 @@
-C Update\sto\sthe\slastest\sversion\sof\sPikchr\swhich\sfixes\sa\sbug\sin\sthe\scomputation\nof\sbounding\sboxes\sfor\scircles\swhen\sthe\ssize\sof\sthe\scircle\sis\sset\susing\sthe\n"diameter"\sattribute.
-D 2022-04-25T01:31:22.661
+C Follow-up\sto\s[346e45702c]:\sRemove\sthe\s(unused)\s--sync\soption\sfor\sthe\sopen\scommand,\sas\sconsidering\sit\sand\soverriding\slocal/global/pull-only/push-pull\ssettings\sgets\squite\sconvoluted.\sAlso\smention\sthat\s--force\sallows\sto\scontinue\sif\sauto-sync\sfails.
+D 2022-04-25T05:21:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -431,7 +431,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c db25d752ffdfd319b7ee2760871320fa3e850c1b3c26302bc5e3168f793fe0ae
+F src/db.c 5a46f6989631773e0489c9c76e3ed378367a9e1ea1ababaf02588069444f65c4
 F src/default.css dee3ed57ab541524284ae62cfad98df523a0cd50b194ccbf659bc26640755407
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54efe3aa569a2421958f9bf848af6cbaec6f7695eeb6db090fbff047952ecb1d
-R 91ff81d210491accf2b44cdbc0f3c673
-U drh
-Z 5e4c5a5bf3504dad0903e97a10c918cd
+P 287d13f3911a1e8fe7daeb542fac8f06d3b2a5bcc2704de80bdf04a26488501f
+R 16349734c74badc0e8213d63587436a8
+T *branch * open-sync
+T *sym-open-sync *
+T -sym-trunk *
+U florian
+Z 5c19481ead8ee53baa65a19698d24d4c
 # Remove this line to create a well-formed Fossil manifest.
