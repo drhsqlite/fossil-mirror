@@ -1,5 +1,5 @@
-C Better\sfix\sfor\sthe\srepolist.c\schange.
-D 2022-04-25T00:19:17.750
+C Update\sto\sthe\slastest\sversion\sof\sPikchr\swhich\sfixes\sa\sbug\sin\sthe\scomputation\nof\sbounding\sboxes\sfor\scircles\swhen\sthe\ssize\sof\sthe\scircle\sis\sset\susing\sthe\n"diameter"\sattribute.
+D 2022-04-25T01:31:22.661
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -294,7 +294,7 @@ F extsrc/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edc
 F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
-F extsrc/pikchr.c 313d783dcf2d9f1d3bccee6b7237e7a2c63b97eb17a5e72864be6a265edad2e1
+F extsrc/pikchr.c ec6f88c37683e48a0564e2dd710310253be88d6d9510dd0064ab6030e7fdb973
 F extsrc/shell.c ac2c39914bbc6b5ca2b8110fd8e3d50b32cf085020f8631d3b60484a58c91a9d
 F extsrc/sqlite3.c eaa9a358d048d5babd01d65cae376cecf707de42d714ca4921c59db36f90c1f2
 F extsrc/sqlite3.h 143969f7e660ab8b59f1ad1bf9046a6536d2e639d11487afb12d50c3f44351e9
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b7471a4beebd069ba06f6ed86bf35c2a4781b6370d3483c807a8852d5d046d32
-R 8a1835ccc89e68fc9fe66c717f608825
+P 54efe3aa569a2421958f9bf848af6cbaec6f7695eeb6db090fbff047952ecb1d
+R 91ff81d210491accf2b44cdbc0f3c673
 U drh
-Z 78afb83be3d36bb489aba75d7c37fb16
+Z 5e4c5a5bf3504dad0903e97a10c918cd
 # Remove this line to create a well-formed Fossil manifest.
