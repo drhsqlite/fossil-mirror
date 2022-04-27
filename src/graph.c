@@ -501,6 +501,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
   int nTimewarp = 0;
   int riserMargin = (tmFlags & TIMELINE_DISJOINT) ? 0 : RISER_MARGIN;
+  int offPageMergeRail = -1;
 
   /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
   ** coming up from the bottom of the graph from off-screen check-in Y
@@ -808,6 +809,27 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         if( iReuseIdx>=p->nRow+1 ){
           continue;  /* Suppress multiple off-screen merges */
         }
+
+#if 1
+        /* Display option #1 for off-page merge lines:
+        **
+        ** Use a single rail for all merge lines that go to the bottom of
+        ** the page.
+        */
+        if( offPageMergeRail>=0 ){
+          iMrail = offPageMergeRail;
+        }else{
+          iMrail = findFreeRail(p, pRow->idx, p->pLast->idx, 0, 1);
+          if( p->mxRail>=GR_MAX_RAIL ) return;
+          mergeRiserFrom[iMrail] = parentRid;
+          offPageMergeRail = iMrail;
+        }
+#else
+        /* Display option #2 for off-page merge lines:
+        **
+        ** Use separate rails for each distinct parent node that is
+        ** off of the bottom of the page.
+        */
         for(j=0; j<GR_MAX_RAIL; j++){
           if( mergeRiserFrom[j]==parentRid ){
             iMrail = j;
@@ -819,6 +841,8 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           if( p->mxRail>=GR_MAX_RAIL ) return;
           mergeRiserFrom[iMrail] = parentRid;
         }
+#endif
+
         iReuseIdx = p->nRow+1;
         iReuseRail = iMrail;
         mask = BIT(iMrail);
