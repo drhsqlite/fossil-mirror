@@ -26,12 +26,18 @@
 */
 static void sync_explain(unsigned syncFlags){
   if( g.url.isAlias ){
+    const char *url;
+    if( g.url.useProxy ){
+      url = g.url.canonicalCopy;
+    }else{
+      url = g.url.canonical;
+    }
     if( (syncFlags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      fossil_print("Sync with %s\n", g.url.canonical);
+      fossil_print("Sync with %s\n", url);
     }else if( syncFlags & SYNC_PUSH ){
-      fossil_print("Push to %s\n", g.url.canonical);
+      fossil_print("Push to %s\n", url);
     }else if( syncFlags & SYNC_PULL ){
-      fossil_print("Pull from %s\n", g.url.canonical);
+      fossil_print("Pull from %s\n", url);
     }
   }
 }

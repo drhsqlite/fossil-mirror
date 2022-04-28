@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\swhich\sincludes\nall\sof\sthe\sfixes\sthat\swent\sinto\sversion\s3.38.3.
-D 2022-04-27T12:11:38.850
+C attempt\sto\sfix\sissue\swhere\sthe\sremote-url\ssaved\sis\soverwritten\sby\sthe\sproxy\nurl.\s(issue\sintroduced\sby\scheckin\s[c129f29566439e5c])
+D 2022-04-28T14:25:27.072
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -580,7 +580,7 @@ F src/style.c 4d6d4c7c54838160217080509ff4ba61ad44b3d85fac12aa34bc15ec2324696b
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c e7726d51f2418c68def856a46232bae00a0dce3d543650b5d5840a409c2da413
+F src/sync.c 939cb75e4be12d6f85f8ea81c207ac30c6299792af8bd71dc27b2bd9274b19ed
 F src/tag.c bb00f95b802dbb580fa4cc2bb1ba1b2e3b101aeec738c7878b1a2e871c76a45f
 F src/tar.c 65b4db97925d9e9fc7a8902c677e9e436fd6692404cd13deed644483f10e6a22
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -597,7 +597,7 @@ F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 55bf7d95086bb42c5e4568d626ffc890c3ea31231fcccdab6c132565451113a0
 F src/update.c cb12028388fc98a50509f52adfbbb03dcc4865708760fccd284de7ffe8dcbf8b
-F src/url.c 69ff1d710d47cf95811b415374372db85f2dba5f9e28e230901a9072ad3d59ae
+F src/url.c 052656c251274bc8eff6113038860abc6cec4055d3c19655bbb4467abbba3154
 F src/user.c 73679fd1b6535b849e0027c38ab8bf677faf6c076d8f47683a1594ee6b973d9a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74250821b1f4b080730e442bb7ce260434235198e02df277b2dbae0da28d4439
-R 35660134dbd66eff351bba823e6a35fb
-U drh
-Z cbdcf74ca22c4a4be6f13228bf47f4da
+P f905bd0d8d5b70fe0670733d948e20261a7aa7db50bd6332a9cc8e30a6a4bb3d
+R 7fe5b1ff2b4d4c8d5430316f653c755f
+T *branch * fix_remote_url_overwrite_with_proxy
+T *sym-fix_remote_url_overwrite_with_proxy *
+T -sym-trunk *
+U mgagnon
+Z 07a4760beb9c56a5abf1b0a7f42e4c1d
 # Remove this line to create a well-formed Fossil manifest.
