@@ -25,7 +25,7 @@
 /*
 ** The list of database user-defined fields in the TICKET table.
 ** The real table also contains some addition fields for internal
-** used.  The internal-use fields begin with "tkt_".
+** use.  The internal-use fields begin with "tkt_".
 */
 static int nField = 0;
 static struct tktFieldInfo {
@@ -192,7 +192,9 @@ static void initializeVariablesFromCGI(void){
 ** Return the new rowid of the TICKET table entry.
 */
 static int ticket_insert(const Manifest *p, int rid, int tktid){
-  Blob sql1, sql2, sql3;
+  Blob sql1; /* update or replace TICKET ... */
+  Blob sql2; /* list of TICKETCHNG's fields that are in the manifest */
+  Blob sql3; /* list of values which correspond to the previous list */
   Stmt q;
   int i, j;
   char *aUsed;
@@ -213,27 +215,21 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   aUsed = fossil_malloc( nField );
   memset(aUsed, 0, nField);
   for(i=0; i<p->nField; i++){
-    const char *zName = p->aField[i].zName;
-    const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
+    const char * const zName = p->aField[i].zName;
+    const char * const zBaseName = zName[0]=='+' ? zName+1 : zName;
     j = fieldId(zBaseName);
     if( j<0 ) continue;
     aUsed[j] = 1;
     if( aField[j].mUsed & USEDBY_TICKET ){
-      const char *zUsedByName = zName;
-      if( zUsedByName[0]=='+' ){
-        zUsedByName++;
+      if( zName[0]=='+' ){
         blob_append_sql(&sql1,", \"%w\"=coalesce(\"%w\",'') || %Q",
-                        zUsedByName, zUsedByName, p->aField[i].zValue);
+                        zBaseName, zBaseName, p->aField[i].zValue);
       }else{
-        blob_append_sql(&sql1,", \"%w\"=%Q", zUsedByName, p->aField[i].zValue);
+        blob_append_sql(&sql1,", \"%w\"=%Q", zBaseName, p->aField[i].zValue);
       }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-      const char *zUsedByName = zName;
-      if( zUsedByName[0]=='+' ){
-        zUsedByName++;
-      }
-      blob_append_sql(&sql2, ",\"%w\"", zUsedByName);
+      blob_append_sql(&sql2, ",\"%w\"", zBaseName);
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( strcmp(zBaseName,"mimetype")==0 ){
@@ -259,7 +255,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   if( blob_size(&sql2)>0 || haveTicketChngRid ){
     int fromTkt = 0;
     if( haveTicketChngRid ){
-      blob_append(&sql2, ",tkt_rid", -1);
+      blob_append_literal(&sql2, ",tkt_rid");
       blob_append_sql(&sql3, ",%d", rid);
     }
     for(i=0; i<nField; i++){
