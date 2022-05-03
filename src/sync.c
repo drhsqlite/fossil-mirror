@@ -28,7 +28,7 @@ static void sync_explain(unsigned syncFlags){
   if( g.url.isAlias ){
     const char *url;
     if( g.url.useProxy ){
-      url = g.url.canonicalCopy;
+      url = g.url.proxyUrlCanonical;
     }else{
       url = g.url.canonical;
     }

@@ -61,14 +61,12 @@ struct UrlData {
   char *user;           /* User id for http: */
   char *passwd;         /* Password for http: */
   char *canonical;      /* Canonical representation of the URL */
-  char *userCopy;       /* Copy of user when proxy is enable */
-  char *passwdCopy;     /* copy of password when proxy is enable */
-  char *canonicalCopy;  /* Copy of canonical when proxy is enable */
   char *proxyAuth;      /* Proxy-Authorizer: string */
   char *fossil;         /* The fossil query parameter on ssh: */
   unsigned flags;       /* Boolean flags controlling URL processing */
   int useProxy;         /* Used to remember that a proxy is in use */
-  char *proxyUrlPath;
+  char *proxyUrlPath;   /* Remember path when proxy is use */
+  char *proxyUrlCanonical; /* Remember canonical path when proxy is use */
   int proxyOrigPort;    /* Tunneled port number for https through proxy */
 };
 #endif /* INTERFACE */
@@ -553,11 +551,6 @@ void url_enable_proxy(const char *zMsg){
     char *zOriginalUrlPath = g.url.path;
     int iOriginalPort = g.url.port;
     unsigned uOriginalFlags = g.url.flags;
-    if( g.url.useProxy == 0 ){
-      g.url.canonicalCopy = g.url.canonical;
-      g.url.userCopy = g.url.user;
-      g.url.passwdCopy = g.url.passwd;
-    }
     g.url.user = 0;
     g.url.passwd = "";
     url_parse(zProxy, 0);
@@ -574,6 +567,7 @@ void url_enable_proxy(const char *zMsg){
     g.url.passwd = zOriginalPasswd;
     g.url.isHttps = fOriginalIsHttps;
     g.url.useProxy = 1;
+    g.url.proxyUrlCanonical = zOriginalUrl;;
     g.url.proxyUrlPath = zOriginalUrlPath;
     g.url.proxyOrigPort = iOriginalPort;
     g.url.flags = uOriginalFlags;
@@ -732,14 +726,10 @@ void url_prompt_for_password(void){
 */
 void url_remember(void){
   if( g.url.flags & URL_REMEMBER ){
-    const char *url, *user, *passwd;
+    const char *url;
     if( g.url.useProxy ){
-      user = g.url.userCopy;
-      passwd = g.url.passwdCopy;
-      url = g.url.canonicalCopy;
+      url = g.url.proxyUrlCanonical;
     }else{
-      user = g.url.user;
-      passwd = g.url.passwd;
       url = g.url.canonical;
     }
     if( g.url.flags & URL_USE_PARENT ){
@@ -747,11 +737,11 @@ void url_remember(void){
     }else{
       db_set("last-sync-url", url, 0);
     }
-    if( user!=0 && passwd!=0 && ( g.url.flags & URL_REMEMBER_PW ) ){
+    if( g.url.user!=0 && g.url.passwd!=0 && ( g.url.flags & URL_REMEMBER_PW ) ){
       if( g.url.flags & URL_USE_PARENT ){
-        db_set("parent-project-pw", obscure(passwd), 0);
+        db_set("parent-project-pw", obscure(g.url.passwd), 0);
       }else{
-        db_set("last-sync-pw", obscure(passwd), 0);
+        db_set("last-sync-pw", obscure(g.url.passwd), 0);
       }
     }
   }
