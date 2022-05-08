@@ -41,7 +41,7 @@ static u8 haveTicket = 0;        /* True if the TICKET table exists */
 static u8 haveTicketCTime = 0;   /* True if TICKET.TKT_CTIME exists */
 static u8 haveTicketChng = 0;    /* True if the TICKETCHNG table exists */
 static u8 haveTicketChngRid = 0; /* True if TICKETCHNG.TKT_RID exists */
-static u8 haveTicketChngUcard=0; /* True if TICKETCHNG.TKT_UCARD exists */
+static u8 haveTicketChngUser = 0;/* True if TICKETCHNG.TKT_USER exists */
 
 /*
 ** Compare two entries in aField[] for sorting purposes
@@ -97,8 +97,11 @@ static void getAllTicketFields(void){
     const char *zFieldName = db_column_text(&q, 1);
     haveTicketChng = 1;
     if( memcmp(zFieldName,"tkt_",4)==0 ){
-      if( strcmp(zFieldName,"tkt_rid")==0 ) haveTicketChngRid = 1;
-      if( strcmp(zFieldName,"tkt_ucard")==0 ) haveTicketChngUcard = 1;
+      if( strcmp(zFieldName+4,"rid")==0 ){
+        haveTicketChngRid = 1;  /* tkt_rid */
+      }else if( strcmp(zFieldName+4,"user")==0 ){
+        haveTicketChngUser = 1; /* tkt_user */
+      }
       continue;
     }
     if( (i = fieldId(zFieldName))>=0 ){
@@ -254,15 +257,15 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   db_step(&q);
   db_finalize(&q);
   blob_reset(&sql1);
-  if( blob_size(&sql2)>0 || haveTicketChngRid || haveTicketChngUcard ){
+  if( blob_size(&sql2)>0 || haveTicketChngRid || haveTicketChngUser ){
     int fromTkt = 0;
     if( haveTicketChngRid ){
       blob_append_literal(&sql2, ",tkt_rid");
       blob_append_sql(&sql3, ",%d", rid);
     }
-    if( haveTicketChngUcard && p->zUser ){
-      blob_append_literal(&sql2, ",tkt_ucard");
-      blob_append_sql(&sql3, ",%Q", p->zUser );
+    if( haveTicketChngUser && p->zUser ){
+      blob_append_literal(&sql2, ",tkt_user");
+      blob_append_sql(&sql3, ",%Q", p->zUser);
     }
     for(i=0; i<nField; i++){
       if( aUsed[i]==0

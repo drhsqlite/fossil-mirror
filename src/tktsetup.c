@@ -88,7 +88,7 @@ static const char zDefaultTicketTable[] =
 @   tkt_id INTEGER REFERENCES ticket,
 @   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
-@   -- tkt_ucard TEXT, -- optional predefined field
+@   tkt_user TEXT,
 @   -- Add as many fields as required below this line
 @   login TEXT,
 @   username TEXT,
