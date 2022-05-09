@@ -1,5 +1,5 @@
-C /timeline:\scorrect\srendering\sof\sevent.comment\sentries\sfor\swiki\sattachments,\sper\sproblem\sreported\sin\s[forum:749baecf6d08ecb1\s|\sforum\spost\s749baecf6d08ecb1].
-D 2022-05-04T11:47:37.231
+C Supply\sTH1\sinterpreter\swith\stwo\sauxiliary\svariables:\s<var>$requested_page</var>\s(holds\sthe\sfirst\ssegment\sof\sthe\srequested\s[/file/src/cgi.c?ln=1199-1209&ci=2022-05-09|PATH_INFO])\sand\s<var>$canonical_page</var>\s(holds\sthe\scanonical\sname\sof\sa\sweb-page\sbeing\sserved).\sAlso\samend\sdefault\sHTML\sheader:\sadd\stwo\scorresponding\sclasses\sto\sthe\sBODY\selement\sand\smove\s<code><meta\scharset="UTF-8"></code>\sto\sthe\stop.
+D 2022-05-09T21:22:41.795
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 0e837a2d60ec0b17dc1ca9ea4d7cf713f5658dfda4179d15c06dd65dff1e83f3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 16b23615b2170e13fd2b82607393190a1640e1070d8e60f4d95a9de74d3946b9
+F src/main.c d6747d67eb06cfa6505255dc868af2f558572fa9af0a4af2c140f3b32c0e5f81
 F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 13fcec9f56b47c08d77cda0278830b4c37a64e4a6eb8337b1fd753af325f318d
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 357934287d4c777d05168a06c58839023200aeb808ec9aad96c73a4f28e1f2e8
 F src/statrep.c 60634663da58d1bd491a34ac541d864089d6e27607b9d4de47303423ac3add57
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 4d6d4c7c54838160217080509ff4ba61ad44b3d85fac12aa34bc15ec2324696b
+F src/style.c 968a7539ad3e4eb92ef232f742fd33528253734b0fae0cf7cb30076802a40f01
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2cb7bdb5a361c5d6138d4f774925f4272697aeefab0dfedad9c7bd97b14f6db
-R 68a7cd828ce74d65238bf91fb32094b8
-U stephan
-Z ced7a8883167b6723b733bb3dbbe6907
+P b3e534fa88c34de598ae3bf96679374f06e5fe641d2f05b2f700d7ac0cf4a1de
+R 7ca13f508310fcaf0a514feda0935edd
+U george
+Z 6cc34d9821ddf012641f1757805c7516
 # Remove this line to create a well-formed Fossil manifest.
