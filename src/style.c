@@ -772,9 +772,11 @@ static void style_init_th1_vars(const char *zTitle){
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
   /* store the first segment of a path; make a temporary cut if necessary */
-  if(( zSlash = strchr(g.zPath,'/') )) *zSlash = 0;
-  Th_Store("requested_page", escape_quotes(g.zPath));
-  if( zSlash ) *zSlash = '/';
+  if( g.zPath && (zSlash = strchr(g.zPath,'/'))!=0 ){
+    *zSlash = 0;
+    Th_Store("requested_page", escape_quotes(g.zPath));
+    *zSlash = '/';
+  }
   Th_Store("canonical_page", escape_quotes(g.zPhase+1));
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);

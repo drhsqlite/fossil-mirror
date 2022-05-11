@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.39.0\salpha\sfor\stesting.
-D 2022-05-10T11:54:16.238
+C Fix\sNULL\spointer\sdereference\sintroduced\sby\scheck-in\s[b05a6c6bc826d3c2].\nFix\sfor\sthe\sproblem\sreported\sby\n[forum:/forumpost/bfb99db2886ca3b5|forum\spost/bfb99db2886ca3b5].
+D 2022-05-11T11:08:57.245
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 357934287d4c777d05168a06c58839023200aeb808ec9aad96c73a4f28e1f2e8
 F src/statrep.c 60634663da58d1bd491a34ac541d864089d6e27607b9d4de47303423ac3add57
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 968a7539ad3e4eb92ef232f742fd33528253734b0fae0cf7cb30076802a40f01
+F src/style.c 02ae9c777b705aea0c8eac4bc62c5d792c63fe8893e951446c1a9069b6d903cd
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b05a6c6bc826d3c29a4b4a3bde3e20e7337293098c77db135475372ff310b27e
-R c3e15993cd111d5d9ff2040e97d0387a
+P 0833f7225b3d6c9bbf003be7a48370cdfd073e1f0b9f25458bf3312b10063680
+R ef443ed583c7764c84ba0e57a31342aa
 U drh
-Z c204f59ef79d3eaac932b75004d7f8bb
+Z bc6191b36b42d850a112f081755ae63b
 # Remove this line to create a well-formed Fossil manifest.
