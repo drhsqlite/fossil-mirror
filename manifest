@@ -1,5 +1,5 @@
-C Fix\sNULL\spointer\sdereference\sintroduced\sby\scheck-in\s[b05a6c6bc826d3c2].\nFix\sfor\sthe\sproblem\sreported\sby\n[forum:/forumpost/bfb99db2886ca3b5|forum\spost/bfb99db2886ca3b5].
-D 2022-05-11T11:08:57.245
+C Show\sthe\sOpenSSL\sversion\sand\sthe\sSERVER_SOFTWARE\sto\sadministrators\son\sthe\n/stat\spage.
+D 2022-05-11T11:50:53.415
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -486,7 +486,7 @@ F src/hook.c 2539a7366b1d7b839b89af6725cee7baf0e55a0e897c7458952fa7f105e35aae
 F src/href.js abc0ea9ecf6f698aaf5044934ce51aa5419ea5b17f724e0302f63cd3afeec336
 F src/http.c 1c4ead0bd1a51688c554e17d8ec1ec9b2e0fb20f65c25b5a236dc9665e2edde0
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
-F src/http_ssl.c a2531821ba9bd6f0b878e2807dfdc9384a8f40ed465bac6f94d1c49d38e826bb
+F src/http_ssl.c d281da4c5f5a4074d19289fb27ed4476e2c109ce8e572b0effafb304ad32688d
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
 F src/info.c 8d0ca75a711377dd1fb67e6f1300d52f4da6c36c8809b5ea08c9a0ceca64af2f
@@ -573,7 +573,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 18704c72a26fdfcf54865653e91635af75239d51447acecd83fd726d6291d164
 F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
-F src/stat.c 357934287d4c777d05168a06c58839023200aeb808ec9aad96c73a4f28e1f2e8
+F src/stat.c 3e526b120bbff71bfb7a4fa38d5beee4feb9a026d81193164875674ebaba2b70
 F src/statrep.c 60634663da58d1bd491a34ac541d864089d6e27607b9d4de47303423ac3add57
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 02ae9c777b705aea0c8eac4bc62c5d792c63fe8893e951446c1a9069b6d903cd
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0833f7225b3d6c9bbf003be7a48370cdfd073e1f0b9f25458bf3312b10063680
-R ef443ed583c7764c84ba0e57a31342aa
+P c68fa2edd76d9008b49d58170f565e99ec6b2f9c219330052fa003d092f613fa
+R 778bcad3b5a79580369cdd52bf14b463
 U drh
-Z bc6191b36b42d850a112f081755ae63b
+Z 2fe821699dfcac05e6c488298944c037
 # Remove this line to create a well-formed Fossil manifest.
