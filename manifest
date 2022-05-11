@@ -1,5 +1,5 @@
-C Fix\sremote-url\soverwriting\sby\sproxy\surl\sbug\sand\suse\sthe\shttp_proxy\senvironment\nvariable\sonly\swhen\sexplicitly\srequested\sby\ssetting\sthe\sproxy\ssetting\sto\n"system".
-D 2022-05-11T15:42:22.084
+C Ensure\sthat\s<var>$requested_page</var>\sis\salways\sinitialized.\sThis\sis\sa\sfollow-up\sto\s[c68fa2edd76d90]\sthat\sfixes\sa\sbug\sin\s[b05a6c6bc826d3].
+D 2022-05-11T21:23:35.788
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 0e837a2d60ec0b17dc1ca9ea4d7cf713f5658dfda4179d15c06dd65dff1e83f3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c d6747d67eb06cfa6505255dc868af2f558572fa9af0a4af2c140f3b32c0e5f81
+F src/main.c d9f5b92f1023e9e8163805a3d2c87582c90e1dd50086e1f950c516b5cc30d8df
 F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 13fcec9f56b47c08d77cda0278830b4c37a64e4a6eb8337b1fd753af325f318d
@@ -576,7 +576,7 @@ F src/stash.c 7f881485f1d0e71a548f9540aa604eec84ce5b9950c2361b3047b30504fb9944
 F src/stat.c 3e526b120bbff71bfb7a4fa38d5beee4feb9a026d81193164875674ebaba2b70
 F src/statrep.c 60634663da58d1bd491a34ac541d864089d6e27607b9d4de47303423ac3add57
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 02ae9c777b705aea0c8eac4bc62c5d792c63fe8893e951446c1a9069b6d903cd
+F src/style.c 3416c10e7106fbe73a9ef9cdb2cbbf861d6c556916c420725c4383cc9ce337c7
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -970,9 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb09ff84ae8a2982a2c109749841aebf0f80538c7eb8d9e921a0fd9305deef1c a242bb727ec0a7c28eb590fa1b10d19a39f22709c4bebb13aa9a609a3b1a48f5
-R 44b5f9135987b4a5c4f53242dac2d512
-T +closed a242bb727ec0a7c28eb590fa1b10d19a39f22709c4bebb13aa9a609a3b1a48f5
-U mgagnon
-Z 53c2479b8fe10b43a95297444da06dc4
+P a791d5e8058b32852d992a04a0b1d0f2814fc93660cb197568a5f1e6a384c0cd
+R c9083dfcc3c29765bfcc951821d02e13
+U george
+Z 094e75d8e3528731762eb37192b8fa40
 # Remove this line to create a well-formed Fossil manifest.

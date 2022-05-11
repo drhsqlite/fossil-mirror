@@ -751,7 +751,7 @@ const char*style_get_mainmenu(){
 */
 static void style_init_th1_vars(const char *zTitle){
   const char *zNonce = style_nonce();
-  char *zDfltCsp, *zSlash = 0;
+  char *zDfltCsp;
 
   zDfltCsp = style_csp(1);
   /*
@@ -771,11 +771,13 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
-  /* store the first segment of a path; make a temporary cut if necessary */
-  if( g.zPath && (zSlash = strchr(g.zPath,'/'))!=0 ){
-    *zSlash = 0;
+  if( g.zPath ){                /* store the first segment of a path; */
+    char *pSlash = strchr(g.zPath,'/');
+    if( pSlash ) *pSlash = 0;   /* make a temporary cut if necessary  */
     Th_Store("requested_page", escape_quotes(g.zPath));
-    *zSlash = '/';
+    if( pSlash ) *pSlash = '/';
+  }else{
+    Th_Store("requested_page", "");
   }
   Th_Store("canonical_page", escape_quotes(g.zPhase+1));
   Th_Store("csrf_token", g.zCsrfToken);
