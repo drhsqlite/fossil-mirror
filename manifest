@@ -1,5 +1,5 @@
-C Fix\sremote-url\soverwriting\sby\sproxy\surl\sbug\sand\suse\sthe\shttp_proxy\senvironment\nvariable\sonly\swhen\sexplicitly\srequested\sby\ssetting\sthe\sproxy\ssetting\sto\n"system".
-D 2022-05-11T15:42:22.084
+C Add\san\soption\sto\sthe\s'timeline'\scommand\sto\sdisplay\sonly\sitems\son\sa\sspecific\sbranch.
+D 2022-05-11T20:51:29.105
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -589,7 +589,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 41c316a2a69c69f8b5108e127c97756ff4c9468a9460d9f0206d3fc08c9c647a
+F src/timeline.c 043bd5fb8b50612766a2370ef0bcdcc0ad7f8cffdcb56c1b6e94af6b7a653595
 F src/tkt.c 5e67539aadbf8084b712e1543c06b31cc8a8a870cf477ae0e329362d1ad747ed
 F src/tktsetup.c cee83ae5c89d8e0dc765fbb212e413b7c318369fc4fbc44ce3d6bed226fd9142
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -970,9 +970,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb09ff84ae8a2982a2c109749841aebf0f80538c7eb8d9e921a0fd9305deef1c a242bb727ec0a7c28eb590fa1b10d19a39f22709c4bebb13aa9a609a3b1a48f5
-R 44b5f9135987b4a5c4f53242dac2d512
-T +closed a242bb727ec0a7c28eb590fa1b10d19a39f22709c4bebb13aa9a609a3b1a48f5
-U mgagnon
-Z 53c2479b8fe10b43a95297444da06dc4
+P a791d5e8058b32852d992a04a0b1d0f2814fc93660cb197568a5f1e6a384c0cd
+R f08526e128fcde12ad3bf66ecac4be1c
+T *branch * timeline-cmd-by-branch
+T *sym-timeline-cmd-by-branch *
+T -sym-trunk *
+U danield
+Z 4c4796c9be836c16b2b99462becd3f3d
 # Remove this line to create a well-formed Fossil manifest.
