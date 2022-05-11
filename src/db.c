@@ -4370,10 +4370,8 @@ struct Setting {
 */
 /*
 ** SETTING: proxy            width=32 default=off
-** URL of the HTTP proxy.  If undefined or "off" then
-** the "http_proxy" environment variable is consulted.
-** If the http_proxy environment variable is undefined
-** then a direct HTTP connection is used.
+** URL of the HTTP proxy. If "system", the "http_proxy" environment variable is
+** consulted. If undefined or "off", a direct HTTP connection is used.
 */
 /*
 ** SETTING: redirect-to-https   default=0 width=-1
