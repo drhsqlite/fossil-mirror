@@ -140,7 +140,8 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
-  const char *zPhase;     /* Phase of operation, for use by the error log */
+  const char *zPhase;     /* Phase of operation, for use by the error log
+                          ** and for deriving $canonical_page TH1 variable */
   int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */

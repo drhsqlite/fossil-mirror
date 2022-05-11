@@ -649,8 +649,8 @@ void style_disable_csp(void){
 static const char zDfltHeader[] = 
 @ <html>
 @ <head>
-@ <base href="$baseurl/$current_page" />
 @ <meta charset="UTF-8">
+@ <base href="$baseurl/$current_page" />
 @ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
@@ -658,7 +658,7 @@ static const char zDfltHeader[] =
 @  href="$home/timeline.rss" />
 @ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
 @ </head>
-@ <body class="$current_feature">
+@ <body class="$current_feature rpage-$requested_page cpage-$canonical_page">
 ;
 
 /*
@@ -751,7 +751,7 @@ const char*style_get_mainmenu(){
 */
 static void style_init_th1_vars(const char *zTitle){
   const char *zNonce = style_nonce();
-  char *zDfltCsp;
+  char *zDfltCsp, *zSlash = 0;
 
   zDfltCsp = style_csp(1);
   /*
@@ -771,6 +771,13 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
+  /* store the first segment of a path; make a temporary cut if necessary */
+  if( g.zPath && (zSlash = strchr(g.zPath,'/'))!=0 ){
+    *zSlash = 0;
+    Th_Store("requested_page", escape_quotes(g.zPath));
+    *zSlash = '/';
+  }
+  Th_Store("canonical_page", escape_quotes(g.zPhase+1));
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);

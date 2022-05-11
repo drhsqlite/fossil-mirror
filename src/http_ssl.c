@@ -1180,3 +1180,17 @@ wellknown_notfound:
   webpage_notfound_error(0);
   return;
 }
+
+/*
+** Return the OpenSSL version number being used.  Space to hold
+** this name is obtained from fossil_malloc() and should be
+** freed by the caller.
+*/
+char *fossil_openssl_version(void){
+#if defined(FOSSIL_ENABLE_SSL) 
+  return mprintf("%s (0x%09x)\n",
+         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+#else
+  return mprintf("none");
+#endif
+}
