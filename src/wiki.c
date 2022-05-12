@@ -1919,6 +1919,7 @@ void wcontent_page(void){
   double rNow;
   int showAll = P("all")!=0;
   int showRid = P("showid")!=0;
+  int showCkBr = P("showckbr")!=0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1929,6 +1930,7 @@ void wcontent_page(void){
   }else{
     style_submenu_element("All", "%R/wcontent?all=1");
   }
+  style_submenu_checkbox("showckbr", "Show associated wikis", 0, 0);
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   db_prepare(&q, listAllWikiPages/*works-like:""*/);
   @ <div class="brlist">
@@ -1956,6 +1958,11 @@ void wcontent_page(void){
       zWDisplayName = mprintf("%.25s...", zWName);
     }else{
       zWDisplayName = mprintf("%s", zWName);
+    }
+    if( !showCkBr && 
+        (sqlite3_strglob("checkin/*", zWName)==0 ||
+         sqlite3_strglob("branch/*", zWName)==0) ){
+      continue;
     }
     if( wrid==0 ){
       if( !showAll ) continue;
