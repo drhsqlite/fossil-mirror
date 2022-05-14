@@ -971,7 +971,7 @@ void alert_send(
 /*
 ** SETTING: email-renew-interval      width=16
 ** If this setting as an integer N that is 14 or greater then email
-** notification is suspected for subscriptions that have a "last contact
+** notification is suspended for subscriptions that have a "last contact
 ** time" of more than N days ago.  The "last contact time" is recorded
 ** in the SUBSCRIBER.LASTCONTACT entry of the database.  Logging in,
 ** sending a forum post, editing a wiki page, changing subscription settings

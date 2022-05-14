@@ -1,5 +1,5 @@
-C If\s<var>TICKETCHNG</var>\stable\shas\s<var>TKT_USER</var>\scolumn\nthen\smake\sthe\svalues\sin\sthat\scolumn\smatch\sto\sthe\ncorresponding\s[/doc/tkt-ucard/www/fileformat.wiki#tktchng|U-cards].\nAdd\s<var>TKT_USER</var>\sto\sthe\sdefault\sschema.\nSee\s[forum:/forumthread/5593538afb7746bf|forum\sthread\s5593538afb77]\sfor\srationale.
-D 2022-05-13T23:35:08.232
+C Typo\sfix\sin\semail-renew-interval\ssetting\sdocs,\sper\sforum\sreport.
+D 2022-05-14T06:37:00.006
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -396,7 +396,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c fcb33dcc8338d96ff679843871d516116846a3dda3f931ecc6163bd2a8553d89
 F src/ajax.c 4d31ef8e51bdd3c3ac74f346d3604e27893ab5a879846312b576d76d15d38d41
-F src/alerts.c 51dec530cea3502a9d4d99c7131e90539f65af43bf06b1a508107019c85d1957
+F src/alerts.c 9d86b2c6de58f95a7cdddad944a3ecfb79b2c736eddec7b6c183258b18c266b1
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -970,9 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef14017458238fa5bfb8b62956c8204ce401d68741a2d3bba23a6810197fa589 6d95ae4f888af00579130648bc93009239cab78a8c35d34ce5c2d05f081dc4ad
-R ab22535effa717c61dc6f63df3112669
-T +closed 6d95ae4f888af00579130648bc93009239cab78a8c35d34ce5c2d05f081dc4ad
-U george
-Z bafbb5373427182a28e8f6907b6d3f57
+P cf00d07c340e2d0a19ec487894ce03025f4f0e44ab390221a23bcb1167e2bae4
+R 9936f06a6e6439dc8db6341ee4196f94
+U stephan
+Z 3586b7fb641f30a78e84b2a8201a71bb
 # Remove this line to create a well-formed Fossil manifest.
