@@ -28,7 +28,10 @@ document.querySelectorAll(
 
 for(var j=0; j<checkboxes.length; j++){
   var cbx = checkboxes[j];
-  var ctrl = cbx.getAttribute("data-ctrl").toString();
+  // see also https://caniuse.com/mdn-css_selectors_attribute
+  var attr = cbx.getAttribute("data-ctrl");
+  if( 'undefined' == typeof attr || !attr ) continue;
+  var ctrl = attr.toString();
   var cname = cbx.parentElement.innerText.toString();
   var hidden = ( ctrl == 'h' || ctrl == 'd' );
   if( reloading )
