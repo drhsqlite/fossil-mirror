@@ -242,13 +242,15 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     }
   }
   if( rid>0 ){
+    int bReplace = 1;
     for(i=0; i<p->nField; i++){
       const char *zName = p->aField[i].zName;
       const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
       j = fieldId(zBaseName);
       if( j<0 ) continue;
       backlink_extract(p->aField[i].zValue, zMimetype, rid, BKLNK_TICKET,
-                       p->rDate, i==0);
+                       p->rDate, bReplace);
+      bReplace = 0;
     }
   }
   blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);
