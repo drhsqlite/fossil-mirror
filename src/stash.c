@@ -599,6 +599,7 @@ void stash_cmd(void){
     db_commit_transaction();
     g.argv[1] = "revert";
     revert_cmd();
+    fossil_print("stash %d saved\n", stashid);
     return;
   }else
   if( memcmp(zCmd, "snapshot", nCmd)==0 ){
