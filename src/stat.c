@@ -282,6 +282,14 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
   @ <a href='version?verbose'>(details)</a></td></tr>
+  if( g.perm.Admin ){
+    const char *zCgi = P("SERVER_SOFTWARE");
+    @ <tr><th>OpenSSL&nbsp;Version:</th>
+    @     <td>%z(fossil_openssl_version())</td></tr>
+    if( zCgi ){
+      @ <tr><th>Web&nbsp;Server:</th><td>%s(zCgi)</td></tr>
+    }
+  }
   if( g.eHashPolicy!=HPOLICY_AUTO ){
     @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema),
     @ %s(hpolicy_name())</td></tr>

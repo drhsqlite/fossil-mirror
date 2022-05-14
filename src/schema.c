@@ -460,6 +460,7 @@ const char zRepositorySchema2[] =
 @   tkt_id INTEGER REFERENCES ticket,
 @   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
+@   tkt_user TEXT,
 @   -- Add as many fields as required below this line
 @   login TEXT,
 @   username TEXT,

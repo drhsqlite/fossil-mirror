@@ -526,9 +526,10 @@ void www_print_timeline(
           @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
           @ %h(zCom+1)</a>"
         }else{
-          /* Legacy EVENT table entry that needs to be rebuilt */
-          @ Changes to a wiki page &rarr; Obsolete EVENT table information.
-          @ Run "fossil rebuild" on the repository.
+          /* Assume this is an attachment message. It _might_ also
+          ** be a legacy-format wiki log entry, in which case it
+          ** will simply be rendered in the older format. */
+          wiki_convert(&comment, 0, WIKI_INLINE);
         }
         wiki_hyperlink_override(0);
       }else{
