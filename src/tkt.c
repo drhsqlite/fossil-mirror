@@ -255,10 +255,10 @@ static int ticket_insert(const Manifest *p, const int rid, int tktid){
   db_prepare(&q, "%s", blob_sql_text(&sql1));
   db_bind_double(&q, ":mtime", p->rDate);
   db_step(&q);
-  db_finalize(&q);
   blob_reset(&sql1);
   if( blob_size(&sql2)>0 || haveTicketChngRid || haveTicketChngUser ){
     int fromTkt = 0;
+    db_finalize(&q);
     if( haveTicketChngRid ){
       blob_append_literal(&sql2, ",tkt_rid");
       blob_append_sql(&sql3, ",%d", rid);
@@ -293,10 +293,10 @@ static int ticket_insert(const Manifest *p, const int rid, int tktid){
     db_bind_double(&q, ":mtime", p->rDate);
     db_step(&q);
     if( haveTicketChngGenMt ){
-      zMimetype = db_column_malloc(&q, 0);
+      zMimetype = db_column_text(&q, 0);
     }
-    db_finalize(&q);
   }
+  fossil_free(aUsed);
   blob_reset(&sql2);
   blob_reset(&sql3);
   if( rid>0 ){
@@ -311,10 +311,7 @@ static int ticket_insert(const Manifest *p, const int rid, int tktid){
       bReplace = 0;
     }
   }
-  fossil_free(aUsed);
-  if( haveTicketChngGenMt && zMimetype ){
-    fossil_free((char*)zMimetype);
-  }
+  db_finalize(&q);
   return tktid;
 }
 
