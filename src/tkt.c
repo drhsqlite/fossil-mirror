@@ -42,6 +42,7 @@ static u8 haveTicketCTime = 0;   /* True if TICKET.TKT_CTIME exists */
 static u8 haveTicketChng = 0;    /* True if the TICKETCHNG table exists */
 static u8 haveTicketChngRid = 0; /* True if TICKETCHNG.TKT_RID exists */
 static u8 haveTicketChngUser = 0;/* True if TICKETCHNG.TKT_USER exists */
+static u8 haveTicketChngGenMt= 0;/* True if TICKETCHNG.MIMETYPE is generated */
 
 /*
 ** Compare two entries in aField[] for sorting purposes
@@ -72,7 +73,7 @@ static int fieldId(const char *zFieldName){
 */
 static void getAllTicketFields(void){
   Stmt q;
-  int i;
+  int i, bRegularMimetype = 0;
   static int once = 0;
   if( once ) return;
   once = 1;
@@ -104,6 +105,9 @@ static void getAllTicketFields(void){
       }
       continue;
     }
+    if( strcmp(zFieldName,"mimetype")==0 ){
+      bRegularMimetype = 1;
+    }
     if( (i = fieldId(zFieldName))>=0 ){
       aField[i].mUsed |= USEDBY_TICKETCHNG;
       continue;
@@ -120,6 +124,11 @@ static void getAllTicketFields(void){
   for(i=0; i<nField; i++){
     aField[i].zValue = "";
     aField[i].zAppend = 0;
+  }
+  if( !bRegularMimetype &&
+      db_exists("SELECT 1 FROM pragma_table_xinfo('ticketchng') "
+                "WHERE name = 'mimetype'") ){
+    haveTicketChngGenMt = 1;
   }
 }
 
@@ -196,7 +205,7 @@ static void initializeVariablesFromCGI(void){
 **
 ** Return the new rowid of the TICKET table entry.
 */
-static int ticket_insert(const Manifest *p, int rid, int tktid){
+static int ticket_insert(const Manifest *p, const int rid, int tktid){
   Blob sql1; /* update or replace TICKET ... */
   Blob sql2; /* list of TICKETCHNG's fields that are in the manifest */
   Blob sql3; /* list of values which correspond to the previous list */
@@ -238,19 +247,8 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( strcmp(zBaseName,"mimetype")==0 ){
+      assert(!haveTicketChngGenMt); /* aField is for regular columns */
       zMimetype = p->aField[i].zValue;
-    }
-  }
-  if( rid>0 ){
-    int bReplace = 1;
-    for(i=0; i<p->nField; i++){
-      const char *zName = p->aField[i].zName;
-      const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
-      j = fieldId(zBaseName);
-      if( j<0 ) continue;
-      backlink_extract(p->aField[i].zValue, zMimetype, rid, BKLNK_TICKET,
-                       p->rDate, bReplace);
-      bReplace = 0;
     }
   }
   blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);
@@ -282,21 +280,41 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     }
     if( fromTkt ){
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
-                     "SELECT %d,:mtime%s FROM ticket WHERE tkt_id=%d",
+                     "SELECT %d,:mtime%s FROM ticket WHERE tkt_id=%d%s",
                      blob_sql_text(&sql2), tktid,
-                     blob_sql_text(&sql3), tktid);
+                     blob_sql_text(&sql3), tktid,
+                     haveTicketChngGenMt ? " RETURNING mimetype" : "");
     }else{
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
-                     "VALUES(%d,:mtime%s)",
-                     blob_sql_text(&sql2), tktid, blob_sql_text(&sql3));
+                     "VALUES(%d,:mtime%s)%s",
+                     blob_sql_text(&sql2), tktid, blob_sql_text(&sql3),
+                     haveTicketChngGenMt ? " RETURNING mimetype" : "");
     }
     db_bind_double(&q, ":mtime", p->rDate);
     db_step(&q);
+    if( haveTicketChngGenMt ){
+      zMimetype = db_column_malloc(&q, 0);
+    }
     db_finalize(&q);
   }
   blob_reset(&sql2);
   blob_reset(&sql3);
+  if( rid>0 ){
+    int bReplace = 1;
+    for(i=0; i<p->nField; i++){
+      const char *zName = p->aField[i].zName;
+      const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
+      j = fieldId(zBaseName);
+      if( j<0 /*|| strcmp(zBaseName,"mimetype")==0*/ ) continue;
+      backlink_extract(p->aField[i].zValue, zMimetype, rid, BKLNK_TICKET,
+                       p->rDate, bReplace);
+      bReplace = 0;
+    }
+  }
   fossil_free(aUsed);
+  if( haveTicketChngGenMt && zMimetype ){
+    fossil_free((char*)zMimetype);
+  }
   return tktid;
 }
 
