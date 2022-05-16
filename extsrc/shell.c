@@ -12279,7 +12279,7 @@ struct ShellState {
 #define SHFLG_PreserveRowid  0x00000008 /* .dump preserves rowid values */
 #define SHFLG_Newlines       0x00000010 /* .dump --newline flag */
 #define SHFLG_CountChanges   0x00000020 /* .changes setting */
-#define SHFLG_Echo           0x00000040 /* .echo or --echo setting */
+#define SHFLG_Echo           0x00000040 /* .echo on/off, or --echo setting */
 #define SHFLG_HeaderSet      0x00000080 /* showHeader has been specified */
 #define SHFLG_DumpDataOnly   0x00000100 /* .dump show data only */
 #define SHFLG_DumpNoSys      0x00000200 /* .dump omits system tables */
@@ -14906,11 +14906,6 @@ static int shell_exec(
       if( pArg ){
         pArg->pStmt = pStmt;
         pArg->cnt = 0;
-      }
-
-      /* echo the sql statement if echo on */
-      if( pArg && ShellHasFlag(pArg, SHFLG_Echo) ){
-        utf8_printf(pArg->out, "%s\n", zStmtSql ? zStmtSql : zSql);
       }
 
       /* Show the EXPLAIN QUERY PLAN if .eqp is on */
@@ -19525,7 +19520,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     int i;
     int savedShowHeader = p->showHeader;
     int savedShellFlags = p->shellFlgs;
-    ShellClearFlag(p, 
+    ShellClearFlag(p,
        SHFLG_PreserveRowid|SHFLG_Newlines|SHFLG_Echo
        |SHFLG_DumpDataOnly|SHFLG_DumpNoSys);
     for(i=1; i<nArg; i++){
@@ -19950,16 +19945,12 @@ static int do_meta_command(char *zLine, ShellState *p){
 
     failIfSafeMode(p, "cannot run .import in safe mode");
     memset(&sCtx, 0, sizeof(sCtx));
-    sCtx.z = sqlite3_malloc64(120);
-    if( sCtx.z==0 ){
-      import_cleanup(&sCtx);
-      shell_out_of_memory();
-    }
     if( p->mode==MODE_Ascii ){
       xRead = ascii_read_one_field;
     }else{
       xRead = csv_read_one_field;
     }
+    rc = 1;
     for(i=1; i<nArg; i++){
       char *z = azArg[i];
       if( z[0]=='-' && z[1]=='-' ) z++;
@@ -19971,7 +19962,6 @@ static int do_meta_command(char *zLine, ShellState *p){
         }else{
           utf8_printf(p->out, "ERROR: extra argument: \"%s\".  Usage:\n", z);
           showHelp(p->out, "import");
-          rc = 1;
           goto meta_command_exit;
         }
       }else if( strcmp(z,"-v")==0 ){
@@ -19993,7 +19983,6 @@ static int do_meta_command(char *zLine, ShellState *p){
       }else{
         utf8_printf(p->out, "ERROR: unknown option: \"%s\".  Usage:\n", z);
         showHelp(p->out, "import");
-        rc = 1;
         goto meta_command_exit;
       }
     }
@@ -20001,7 +19990,6 @@ static int do_meta_command(char *zLine, ShellState *p){
       utf8_printf(p->out, "ERROR: missing %s argument. Usage:\n",
                   zFile==0 ? "FILE" : "TABLE");
       showHelp(p->out, "import");
-      rc = 1;
       goto meta_command_exit;
     }
     seenInterrupt = 0;
@@ -20013,21 +20001,18 @@ static int do_meta_command(char *zLine, ShellState *p){
       if( nSep==0 ){
         raw_printf(stderr,
                    "Error: non-null column separator required for import\n");
-        rc = 1;
         goto meta_command_exit;
       }
       if( nSep>1 ){
-        raw_printf(stderr, 
+        raw_printf(stderr,
               "Error: multi-character column separators not allowed"
               " for import\n");
-        rc = 1;
         goto meta_command_exit;
       }
       nSep = strlen30(p->rowSeparator);
       if( nSep==0 ){
         raw_printf(stderr,
             "Error: non-null row separator required for import\n");
-        rc = 1;
         goto meta_command_exit;
       }
       if( nSep==2 && p->mode==MODE_Csv && strcmp(p->rowSeparator,SEP_CrLf)==0 ){
@@ -20041,7 +20026,6 @@ static int do_meta_command(char *zLine, ShellState *p){
       if( nSep>1 ){
         raw_printf(stderr, "Error: multi-character row separators not allowed"
                            " for import\n");
-        rc = 1;
         goto meta_command_exit;
       }
       sCtx.cColSep = p->colSeparator[0];
@@ -20052,7 +20036,6 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( sCtx.zFile[0]=='|' ){
 #ifdef SQLITE_OMIT_POPEN
       raw_printf(stderr, "Error: pipes are not supported in this OS\n");
-      rc = 1;
       goto meta_command_exit;
 #else
       sCtx.in = popen(sCtx.zFile+1, "r");
@@ -20065,8 +20048,6 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
     if( sCtx.in==0 ){
       utf8_printf(stderr, "Error: cannot open \"%s\"\n", zFile);
-      rc = 1;
-      import_cleanup(&sCtx);
       goto meta_command_exit;
     }
     if( eVerbose>=2 || (eVerbose>=1 && useOutputMode) ){
@@ -20079,6 +20060,11 @@ static int do_meta_command(char *zLine, ShellState *p){
       zSep[0] = sCtx.cRowSep;
       output_c_string(p->out, zSep);
       utf8_printf(p->out, "\n");
+    }
+    sCtx.z = sqlite3_malloc64(120);
+    if( sCtx.z==0 ){
+      import_cleanup(&sCtx);
+      shell_out_of_memory();
     }
     /* Below, resources must be freed before exit. */
     while( (nSkip--)>0 ){
@@ -21717,7 +21703,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       goto meta_command_exit;
     }
     utf8_printf(p->out, "%12.12s: %s\n","echo",
-                                  azBool[ShellHasFlag(p, SHFLG_Echo)]);
+                azBool[ShellHasFlag(p, SHFLG_Echo)]);
     utf8_printf(p->out, "%12.12s: %s\n","eqp", azBool[p->autoEQP&3]);
     utf8_printf(p->out, "%12.12s: %s\n","explain",
          p->mode==MODE_Explain ? "on" : p->autoExplain ? "auto" : "off");
@@ -22467,7 +22453,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss){
           cWait = 0;
           qss = QSS_SETV(qss, 0);
           goto PlainScan;
-        default: assert(0); 
+        default: assert(0);
         }
       }
     }
@@ -22488,7 +22474,7 @@ static int line_is_command_terminator(char *zLine){
     zLine += 2; /* SQL Server */
   else
     return 0;
-  return quickscan(zLine,QSS_Start)==QSS_Start;
+  return quickscan(zLine, QSS_Start)==QSS_Start;
 }
 
 /*
@@ -22565,6 +22551,9 @@ static int runOneSqlLine(ShellState *p, char *zSql, FILE *in, int startline){
   return 0;
 }
 
+static void echo_group_input(ShellState *p, const char *zDo){
+  if( ShellHasFlag(p, SHFLG_Echo) ) utf8_printf(p->out, "%s\n", zDo);
+}
 
 /*
 ** Read input from *in and process it.  If *in==0 then input
@@ -22614,14 +22603,13 @@ static int process_input(ShellState *p){
     }
     qss = quickscan(zLine, qss);
     if( QSS_PLAINWHITE(qss) && nSql==0 ){
-      if( ShellHasFlag(p, SHFLG_Echo) )
-        printf("%s\n", zLine);
       /* Just swallow single-line whitespace */
+      echo_group_input(p, zLine);
       qss = QSS_Start;
       continue;
     }
     if( zLine && (zLine[0]=='.' || zLine[0]=='#') && nSql==0 ){
-      if( ShellHasFlag(p, SHFLG_Echo) ) printf("%s\n", zLine);
+      echo_group_input(p, zLine);
       if( zLine[0]=='.' ){
         rc = do_meta_command(zLine, p);
         if( rc==2 ){ /* exit requested */
@@ -22654,6 +22642,7 @@ static int process_input(ShellState *p){
       nSql += nLine;
     }
     if( nSql && QSS_SEMITERM(qss) && sqlite3_complete(zSql) ){
+      echo_group_input(p, zSql);
       errCnt += runOneSqlLine(p, zSql, p->in, startline);
       nSql = 0;
       if( p->outCount ){
@@ -22665,13 +22654,14 @@ static int process_input(ShellState *p){
       p->bSafeMode = p->bSafeModePersist;
       qss = QSS_Start;
     }else if( nSql && QSS_PLAINWHITE(qss) ){
-      if( ShellHasFlag(p, SHFLG_Echo) ) printf("%s\n", zSql);
+      echo_group_input(p, zSql);
       nSql = 0;
       qss = QSS_Start;
     }
   }
   if( nSql ){
     /* This may be incomplete. Let the SQL parser deal with that. */
+    echo_group_input(p, zSql);
     errCnt += runOneSqlLine(p, zSql, p->in, startline);
   }
   free(zSql);
@@ -22810,7 +22800,7 @@ static const char zOptions[] =
 #if !defined(SQLITE_OMIT_DESERIALIZE)
   "   -deserialize         open the database using sqlite3_deserialize()\n"
 #endif
-  "   -echo                print commands before execution\n"
+  "   -echo                print inputs before execution\n"
   "   -init FILENAME       read/process named file\n"
   "   -[no]header          turn headers on or off\n"
 #if defined(SQLITE_ENABLE_MEMSYS3) || defined(SQLITE_ENABLE_MEMSYS5)
@@ -22951,6 +22941,9 @@ int SQLITE_CDECL main(int argc, char **argv){
 #else
 int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   char **argv;
+#endif
+#ifdef SQLITE_DEBUG
+  sqlite3_uint64 mem_main_enter = sqlite3_memory_used();
 #endif
   char *zErrMsg = 0;
   ShellState data;
@@ -23518,5 +23511,11 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   /* Clear the global data structure so that valgrind will detect memory
   ** leaks */
   memset(&data, 0, sizeof(data));
+#ifdef SQLITE_DEBUG
+  if( sqlite3_memory_used()>mem_main_enter ){
+    utf8_printf(stderr, "Memory leaked: %u bytes\n",
+                (unsigned int)(sqlite3_memory_used()-mem_main_enter));
+  }
+#endif
   return rc;
 }
