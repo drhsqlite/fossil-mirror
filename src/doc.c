@@ -279,6 +279,7 @@ static const struct {
   { "viv",        3, "video/vnd.vivo"                    },
   { "vivo",       4, "video/vnd.vivo"                    },
   { "vrml",       4, "model/vrml"                        },
+  { "wasm",       4, "application/wasm"                  },
   { "wav",        3, "audio/x-wav"                       },
   { "wax",        3, "audio/x-ms-wax"                    },
   { "webp",       4, "image/webp"                        },
