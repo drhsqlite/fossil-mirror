@@ -1,5 +1,5 @@
-C A\stiny\soptimization\sinside\sof\s<tt>ticket_insert()</tt>:\srearrange\stwo\s<tt>db_finalize()</tt>\scalls\sin\sorder\sto\savoid\sadditional\s<tt>malloc()</tt>\sfor\s<var>zMimetype</var>.
-D 2022-05-14T19:12:07.421
+C Add\ssupport\sfor\sgenerated\s"mimetype"\scolumn\sin\sthe\s<var>TICKET</var>\stable.\nIntroduce\sinteger\smimetype\scodes\sand\srefactor\s<code>backlink_extract()</code>\saccordingly.\nMake\sthe\soverall\shandling\sof\sthe\sgenerated\s"mimetype"\scolumns\sa\sbit\smore\sclear.
+D 2022-05-18T20:21:25.002
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -404,7 +404,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 6603ccbd4dc8f56b79d5ab291b1d9da313f62c833d71cbcc933c93831ff802b6
 F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
-F src/backlink.c b433525f8dd8ad0eb1ad3c9d153294cb96bce870de62fe10bfdb18a62ffd976f
+F src/backlink.c 41afe7bed4e06ecd6ebe5eb80b7d55917564cf52c028945022a3e31d607d450d
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c f99a86f622b01376056d2ef0b5d2acae722599c85180ae1054878a85f1a9202c
@@ -539,7 +539,7 @@ F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 629083af3d0573e2dd16c59e92bd82859534581e02e6b5be7cfc5ce94323a779
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
-F src/schema.c e616ccdd468ad600dfa2b34c3b98ac77e40ea5a4dd97a64113e63989cd15efaf
+F src/schema.c 06d25c73309a102eba193e2431b1f6cf35896d282e432b41245cc64267219d2a
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c 5d9017b53cec0f35f83c807c2588bd1f7d723a45cc1182615b10c7ea363ccd6e
@@ -590,7 +590,7 @@ F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 41c316a2a69c69f8b5108e127c97756ff4c9468a9460d9f0206d3fc08c9c647a
-F src/tkt.c e3d928ccc4bd55888813e798b8cf23a4b307e9df4c658f17a49ec42b7566c408
+F src/tkt.c d78c42630dac098b6a9a838cb9619b8dc77e691a5690051d5a2257d6dfbcd0f5
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5ab73ab8c7be3a0c6eba55843e95d68f4c72d219e1b31beb03b49de1e16a2ce8
-R 6226e31c7d8173ed87b9474fa67e0811
+P 563c6b9e4e6d6682852fa2fdb1b2b34da16f8d601dab361cdd33609685f05e36
+R fa4fb1dfc1bc0d5f7341511be166b479
 U george
-Z af2ed1faaa491eb5bbf86ea52d0b468e
+Z 679d925dd7316542c8fce9394e087292
 # Remove this line to create a well-formed Fossil manifest.
