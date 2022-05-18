@@ -2311,7 +2311,7 @@ int cgi_http_server(
   }
   if( iPort>mxPort ){
     if( mnPort==mxPort ){
-      fossil_fatal("unable to open listening socket on ports %d", mnPort);
+      fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
       fossil_fatal("unable to open listening socket on any"
                    " port in the range %d..%d", mnPort, mxPort);
