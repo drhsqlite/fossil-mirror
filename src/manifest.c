@@ -2397,7 +2397,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
       );
-      backlink_extract(zCom, 0, rid, BKLNK_COMMENT, p->rDate, 1);
+      backlink_extract(zCom, MT_NONE, rid, BKLNK_COMMENT, p->rDate, 1);
       fossil_free(zCom);
 
       /* If this is a delta-manifest, record the fact that this repository
@@ -2855,7 +2855,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       fossil_free(zTitle);
     }
     if( p->zWiki[0] ){
-      backlink_extract(p->zWiki, p->zMimetype, rid, BKLNK_FORUM, p->rDate, 1);
+      int mimetype = parse_mimetype(p->zMimetype);
+      backlink_extract(p->zWiki, mimetype, rid, BKLNK_FORUM, p->rDate, 1);
     }
   }
 

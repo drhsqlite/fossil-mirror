@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sgenerated\s"mimetype"\scolumn\sin\sthe\s<var>TICKET</var>\stable.\nIntroduce\sinteger\smimetype\scodes\sand\srefactor\s<code>backlink_extract()</code>\saccordingly.\nMake\sthe\soverall\shandling\sof\sthe\sgenerated\s"mimetype"\scolumns\sa\sbit\smore\sclear.
-D 2022-05-18T20:21:25.002
+C Fix\sa\scouple\sof\sinvokations\sof\s<code>backlink_extract()</code>\sthat\swere\soverlooked\sin\sthe\sprevious\scheck-in.
+D 2022-05-18T22:52:06.733
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -514,7 +514,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c d9f5b92f1023e9e8163805a3d2c87582c90e1dd50086e1f950c516b5cc30d8df
 F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
-F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
+F src/manifest.c be9848ff7900c6174f01ca21c77c357cc502698c73406540a866ddc52b24303d
 F src/markdown.c 13fcec9f56b47c08d77cda0278830b4c37a64e4a6eb8337b1fd753af325f318d
 F src/markdown.md 07b41fe14f22451e033ef189de183d3fca8b30e6a4ed5a1a0e7b978f020403d6
 F src/markdown_html.c 38a90709de369e067f475925861a6dec1cae1225739cb0a128d969c86b9f9ed7
@@ -581,7 +581,7 @@ F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057ba
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
-F src/tag.c bb00f95b802dbb580fa4cc2bb1ba1b2e3b101aeec738c7878b1a2e871c76a45f
+F src/tag.c de6889b6f57c5cbd8acc584b15b71351e1b3edf824186b41d0495919e9345a54
 F src/tar.c 65b4db97925d9e9fc7a8902c677e9e436fd6692404cd13deed644483f10e6a22
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c 57a908f2f980541428d8a66518bdcb7c6b89b1564481127b362f486062bdcc3c
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 563c6b9e4e6d6682852fa2fdb1b2b34da16f8d601dab361cdd33609685f05e36
-R fa4fb1dfc1bc0d5f7341511be166b479
+P e39f77906e078d56058dc010e35cda46c14d57e44cb5821663d76da5841e683d
+R ea4513a2658dbdbaba2bfa7e728ce375
 U george
-Z 679d925dd7316542c8fce9394e087292
+Z 611f17f4a9662d423904e937dd5c608c
 # Remove this line to create a well-formed Fossil manifest.
