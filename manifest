@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\san\serror\smessage.
-D 2022-05-18T13:39:27.573
+C Added\sABBR\stag\sto\sthe\sHTML\swhitelist,\sper\s[forum:3ae85115a8253ae4|forum\spost\s3ae85115a82].\sAmmended\smarkdown\shelp\sto\srefer\sto\sthe\ssafe-html\ssetting.
+D 2022-05-23T18:21:35.010
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -516,7 +516,7 @@ F src/main.c d9f5b92f1023e9e8163805a3d2c87582c90e1dd50086e1f950c516b5cc30d8df
 F src/main.mk 81dd5e018d67ada01ea642aba160ff6ee13c3304c3009d4c7c90cbeaee254696
 F src/manifest.c 20428a1251ba2313e148ff9690ddefeae94f8a109cdd5ecbf11d924f8674d2a2
 F src/markdown.c 13fcec9f56b47c08d77cda0278830b4c37a64e4a6eb8337b1fd753af325f318d
-F src/markdown.md 07b41fe14f22451e033ef189de183d3fca8b30e6a4ed5a1a0e7b978f020403d6
+F src/markdown.md 067116403288c84cdbae04edd208d1db044b1f1fce144444c1d96ea6e2e57df3
 F src/markdown_html.c 38a90709de369e067f475925861a6dec1cae1225739cb0a128d969c86b9f9ed7
 F src/md5.c bb3e1317a225118056eff002064fe36d49732d0bbc9a1b6b03d6d7900dbb20d5
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -606,7 +606,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 981d934263ceeb26a0a985ec5062d37b0026d1b55e37b5a3a6df02fe7bb781af
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c 63b50b38792470ef87d401321a397bbd380adc99d85f5ec99aabd77c603c6064
+F src/wikiformat.c 903091ff10a1eec338055a8875fe8ae9556cb73c8bf75c977fd5f3663a4798a6
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c fe407b225cdb6453c033a4aee03ce2c1b8fa230487d88985e5789bcfeccbbd4d
 F src/xfer.c 57932b933b3a4b437d57b1dde6a82074c6dd56519031ba807a10d762e0332739
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c47abd6b61eac48ab55fd6edaff2fbfb4bab1d71d45af9d2fb5a942f453b7b4
-R 394359d12453cd7d68324c2c9e23a563
-U drh
-Z 66cfda4bea04504d29eb5e4659e2adbb
+P 3984c83848927473359dddaf33409aaace2f3fc3950e131f7451a980981f5ea9
+R e98d9aff0d8e34f5b14802175a43b566
+U stephan
+Z 10c14fac10c98872d0a07f562f1385ae
 # Remove this line to create a well-formed Fossil manifest.
