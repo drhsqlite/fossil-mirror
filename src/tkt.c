@@ -42,6 +42,9 @@ static u8 haveTicketCTime = 0;   /* True if TICKET.TKT_CTIME exists */
 static u8 haveTicketChng = 0;    /* True if the TICKETCHNG table exists */
 static u8 haveTicketChngRid = 0; /* True if TICKETCHNG.TKT_RID exists */
 static u8 haveTicketChngUser = 0;/* True if TICKETCHNG.TKT_USER exists */
+static u8 useTicketGenMt = 0;    /* use generated TICKET.MIMETYPE */
+static u8 useTicketChngGenMt = 0;/* use generated TICKETCHNG.MIMETYPE */
+
 
 /*
 ** Compare two entries in aField[] for sorting purposes
@@ -72,7 +75,7 @@ static int fieldId(const char *zFieldName){
 */
 static void getAllTicketFields(void){
   Stmt q;
-  int i;
+  int i, noRegularMimetype;
   static int once = 0;
   if( once ) return;
   once = 1;
@@ -117,9 +120,21 @@ static void getAllTicketFields(void){
   }
   db_finalize(&q);
   qsort(aField, nField, sizeof(aField[0]), nameCmpr);
+  noRegularMimetype = 1;
   for(i=0; i<nField; i++){
     aField[i].zValue = "";
     aField[i].zAppend = 0;
+    if( strcmp(aField[i].zName,"mimetype")==0 ){
+      noRegularMimetype = 0;
+    }
+  }
+  if( noRegularMimetype ){ /* check for generated "mimetype" columns */
+    useTicketGenMt = db_exists(
+      "SELECT 1 FROM pragma_table_xinfo('ticket') "
+      "WHERE name = 'mimetype'");
+    useTicketChngGenMt = db_exists(
+      "SELECT 1 FROM pragma_table_xinfo('ticketchng') "
+      "WHERE name = 'mimetype'");
   }
 }
 
@@ -196,14 +211,14 @@ static void initializeVariablesFromCGI(void){
 **
 ** Return the new rowid of the TICKET table entry.
 */
-static int ticket_insert(const Manifest *p, int rid, int tktid){
+static int ticket_insert(const Manifest *p, const int rid, int tktid){
   Blob sql1; /* update or replace TICKET ... */
   Blob sql2; /* list of TICKETCHNG's fields that are in the manifest */
   Blob sql3; /* list of values which correspond to the previous list */
   Stmt q;
   int i, j;
   char *aUsed;
-  const char *zMimetype = 0;
+  int mimetype_tkt = MT_NONE, mimetype_tktchng = MT_NONE;
 
   if( tktid==0 ){
     db_multi_exec("INSERT INTO ticket(tkt_uuid, tkt_mtime) "
@@ -238,23 +253,26 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( strcmp(zBaseName,"mimetype")==0 ){
-      zMimetype = p->aField[i].zValue;
-    }
-  }
-  if( rid>0 ){
-    for(i=0; i<p->nField; i++){
-      const char *zName = p->aField[i].zName;
-      const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
-      j = fieldId(zBaseName);
-      if( j<0 ) continue;
-      backlink_extract(p->aField[i].zValue, zMimetype, rid, BKLNK_TICKET,
-                       p->rDate, i==0);
+      const char *zMimetype = p->aField[i].zValue;
+      /* "mimetype" is a regular column => these two flags must be 0 */
+      assert(!useTicketGenMt);
+      assert(!useTicketChngGenMt);
+      mimetype_tkt = mimetype_tktchng = parse_mimetype( zMimetype );
     }
   }
   blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);
+  if( useTicketGenMt ){
+    blob_append_literal(&sql1, " RETURNING mimetype");
+  }
   db_prepare(&q, "%s", blob_sql_text(&sql1));
   db_bind_double(&q, ":mtime", p->rDate);
   db_step(&q);
+  if( useTicketGenMt ){
+    mimetype_tkt = parse_mimetype( db_column_text(&q,0) );
+    if( !useTicketChngGenMt ){
+      mimetype_tktchng = mimetype_tkt;
+    }
+  }
   db_finalize(&q);
   blob_reset(&sql1);
   if( blob_size(&sql2)>0 || haveTicketChngRid || haveTicketChngUser ){
@@ -280,21 +298,51 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     }
     if( fromTkt ){
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
-                     "SELECT %d,:mtime%s FROM ticket WHERE tkt_id=%d",
+                     "SELECT %d,:mtime%s FROM ticket WHERE tkt_id=%d%s",
                      blob_sql_text(&sql2), tktid,
-                     blob_sql_text(&sql3), tktid);
+                     blob_sql_text(&sql3), tktid,
+                     useTicketChngGenMt ? " RETURNING mimetype" : "");
     }else{
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
-                     "VALUES(%d,:mtime%s)",
-                     blob_sql_text(&sql2), tktid, blob_sql_text(&sql3));
+                     "VALUES(%d,:mtime%s)%s",
+                     blob_sql_text(&sql2), tktid, blob_sql_text(&sql3),
+                     useTicketChngGenMt ? " RETURNING mimetype" : "");
     }
     db_bind_double(&q, ":mtime", p->rDate);
     db_step(&q);
+    if( useTicketChngGenMt ){
+      mimetype_tktchng = parse_mimetype( db_column_text(&q, 0) );
+      /* substitute NULL with a value generated within another table */
+      if( !useTicketGenMt ){
+        mimetype_tkt = mimetype_tktchng;
+      }else if( mimetype_tktchng==MT_NONE ){
+        mimetype_tktchng = mimetype_tkt;
+      }else if( mimetype_tkt==MT_NONE ){
+        mimetype_tkt = mimetype_tktchng;
+      }
+    }
     db_finalize(&q);
   }
   blob_reset(&sql2);
   blob_reset(&sql3);
   fossil_free(aUsed);
+  if( rid>0 ){                   /* extract backlinks */
+    int bReplace = 1, mimetype;
+    for(i=0; i<p->nField; i++){
+      const char *zName = p->aField[i].zName;
+      const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
+      j = fieldId(zBaseName);
+      if( j<0 ) continue;
+      if( aField[j].mUsed & USEDBY_TICKETCHNG ){
+        mimetype = mimetype_tktchng;
+      }else{
+        mimetype = mimetype_tkt;
+      }
+      backlink_extract(p->aField[i].zValue, mimetype, rid, BKLNK_TICKET,
+                       p->rDate, bReplace);
+      bReplace = 0;
+    }
+  }
   return tktid;
 }
 

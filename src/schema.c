@@ -492,6 +492,17 @@ const char zRepositorySchema2[] =
 #endif
 
 /*
+** Allowed values for MIMEtype codes
+*/
+#if INTERFACE
+# define MT_NONE       0   /* unspecified */
+# define MT_WIKI       1   /* Wiki */
+# define MT_MARKDOWN   2   /* Markdonw */
+# define MT_UNKNOWN    3   /* unknown  */
+# define ValidMTC(X)  ((X)>=0 && (X)<=3)  /* True if MIMEtype code is valid */
+#endif
+
+/*
 ** Predefined tagid values
 */
 #if INTERFACE
