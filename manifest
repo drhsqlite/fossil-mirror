@@ -1,5 +1,5 @@
-C Provide\sthe\sability\sto\sadd\sa\sList-Id:\sheader\son\sout-bound\snotification\nemails.
-D 2022-05-25T20:03:43.301
+C Clarify\sthe\sdocumentation:\ssay\sexplicitly\sthat\s[/doc/trunk/www/caps/ref.html#g|Clone\scapability,\s"g"]\sprovides\sread\saccess\sto\stickets,\swiki\sand\sforum;\sand\sthat\s[/doc/trunk/www/caps/ref.html#g|Write\scapability,\s"i"]\simplies\sthat\schanges\sto\stickets,\swiki\sand\sforum\sare\salso\saccepted\sfrom\sclones\supon\ssyncronization.
+D 2022-05-25T20:52:43.960
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -794,9 +794,9 @@ F www/build.wiki a2f1cfa243c4f10066969208b93d8df8d4a1c65f8d186ac3ff5ed24e9902b5d
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
-F www/caps/index.md d92d9ca801194f5367bf39bb4a8d82e54292cf7c371bde4128b33219b19a15d2
+F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e01273
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
-F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
+F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
 F www/changes.wiki 7e80844e6e77976fe1e22ed53235310ab2b75f31d00a83ad10644222659f3241
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8a16fda7f180370223379ed8caa64a772315bb2f68b2a99f0f90e9078fe19dc
-R a64fee2dc84db51c9c6effbc1f0079fd
-U drh
-Z 3f7922c17c9d2eabe396f2bfb185c161
+P e50c3629b8cd6c8f2bb24ff9ab8fe4ec5fb37f8334113165269fe99a152c4aca
+R d6361fd7981bdaa195ab4df00cd1d9d8
+U george
+Z e2355a19d57c659e18dfa7ae3dda4a48
 # Remove this line to create a well-formed Fossil manifest.
