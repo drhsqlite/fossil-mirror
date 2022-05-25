@@ -1,5 +1,5 @@
-C If\sneither\s<var>TICKET</var>\snor\s<var>TICKETCHNG</var>\stable\shas\nregular\s"mimetype"\scolumn\sthen\sgenerated\s"mimetype"\scolumns\sof\sthese\ntwo\stables\sare\squeried\sand\sused\sduring\sthe\sextraction\sof\sbacklinks\nfrom\sticket\schange\sartifacts.\nSee\s[forum:/forumpost/40c1208a0f84fabe|forum\spost\s40c1208a0f84]\sfor\srationale.
-D 2022-05-24T20:32:27.500
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.39.0\sbeta\sfor\stesting.
+D 2022-05-25T15:12:42.829
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -295,9 +295,9 @@ F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr.c ec6f88c37683e48a0564e2dd710310253be88d6d9510dd0064ab6030e7fdb973
-F extsrc/shell.c 0c06101cbb97a040dff91e112734be3b6996b0c3981cf946a7ec864e94609d2d
-F extsrc/sqlite3.c a02b32caa44d616ae9afae2bfd14892ac8f9b2a60d5bd9f008fdca86da1c84e7
-F extsrc/sqlite3.h 49df36da95875aec5b2fb58c556e47f80947952e947367046cdae6d56d230bb7
+F extsrc/shell.c 161ac478697f5db1ce157bb72fe383c6344ae37b620f68bb4b223f3add58cb92
+F extsrc/sqlite3.c 753ad7fdadae35205444ef9f66c935ae6b313473c0c03ba1649b8f1b7a4eeb07
+F extsrc/sqlite3.h 01398b6833f8df3efa7611fb0718f81f219c1e2cb54242189bd1e9551616b6ed
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81deb15c53f53486fe4636a8dd4f597e1f2110a964eee189fbb03662a5c055e4 33c67c285143a73fee0eafef62ced31b91c3f500ada5846fd3f8f26051e5b90e
-R 08391b6c288ed07ea1ae070219f508c2
-U george
-Z c7e1d11761dc874e3fbb4766107c5de2
+P 6fb642c02b48ca7db95149e30836f654e2eec84f396b7b6f1a95b8eb9f7c7b28
+R e0534cf4076bc29c1e4436ff1bd12a2b
+U drh
+Z eecc9df2c9a8f554f5baf66ee786be3a
 # Remove this line to create a well-formed Fossil manifest.
