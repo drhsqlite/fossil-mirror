@@ -1,5 +1,5 @@
-C Clarify\sthe\sdocumentation:\ssay\sexplicitly\sthat\s[/doc/trunk/www/caps/ref.html#g|Clone\scapability,\s"g"]\sprovides\sread\saccess\sto\stickets,\swiki\sand\sforum;\sand\sthat\s[/doc/trunk/www/caps/ref.html#g|Write\scapability,\s"i"]\simplies\sthat\schanges\sto\stickets,\swiki\sand\sforum\sare\salso\saccepted\sfrom\sclones\supon\ssyncronization.
-D 2022-05-25T20:52:43.960
+C Removed\ssome\s404\sexternal\slinks,\sreported\sin\s[forum:61c585d0c3|forum\spost\s61c585d0c3].
+D 2022-05-27T02:05:21.472
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -913,7 +913,7 @@ F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2
 F www/quickstart.wiki deccf518d123c83a6bb83b7c1fc162d8f2310ab0f0e3621fe99702d6fc35906d
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
 F www/rebaseharm.md 3e1640e822b2ff579c995f12c3a5951d1ee86a2332d98f7bc6484c14aec56656
-F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
+F www/reviews.wiki 4213b62a5f69cbf2655f4eaa989d85153a8acb630bce72c9f83a7950d6393892
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
 F www/selfhost.wiki 1fd025edaf770792a624efb9178d1fce212c578b35445df63b769720d1c359fc
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e50c3629b8cd6c8f2bb24ff9ab8fe4ec5fb37f8334113165269fe99a152c4aca
-R d6361fd7981bdaa195ab4df00cd1d9d8
-U george
-Z e2355a19d57c659e18dfa7ae3dda4a48
+P 6e5337e8303e178a0298519fa71a56f4d52296ad7d7375f2806131dc6c12e375
+R 4345f02fe09d4cd594c29aeac63eed6c
+U stephan
+Z b12b29ba66b94705a7e52eae5492b693
 # Remove this line to create a well-formed Fossil manifest.
