@@ -87,6 +87,7 @@ static void getAllTicketFields(void){
       if( strcmp(zFieldName, "tkt_ctime")==0 ) haveTicketCTime = 1;
       continue;
     }
+    if( strchr(zFieldName,' ')!=0 ) continue;
     if( nField%10==0 ){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
@@ -107,6 +108,7 @@ static void getAllTicketFields(void){
       }
       continue;
     }
+    if( strchr(zFieldName,' ')!=0 ) continue;
     if( (i = fieldId(zFieldName))>=0 ){
       aField[i].mUsed |= USEDBY_TICKETCHNG;
       continue;
