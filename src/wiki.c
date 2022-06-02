@@ -2191,7 +2191,8 @@ int wiki_technote_to_rid(const char *zETime) {
 ** > fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
-**       case-insensitively by name.
+**       case-insensitively by name.  Wiki pages associated with
+**       check-ins and branches are NOT shown, unless -a is given.
 **
 **       Options:
 **         --all                       Include "deleted" pages in output.
@@ -2200,6 +2201,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     pages. The technotes will be in order
 **                                     of timestamp with the most recent
 **                                     first.
+**         -a|--show-associated        Show wiki pages associated with
+**                                     check-ins and branches.
 **         -s|--show-technote-ids      The id of the tech note will be listed
 **                                     along side the timestamp. The tech note
 **                                     id will be the first word on each line.
@@ -2433,6 +2436,7 @@ void wiki_cmd(void){
     Stmt q;
     const int fTechnote = find_option("technote","t",0)!=0;
     const int showIds = find_option("show-technote-ids","s",0)!=0;
+    const int showCkBr = find_option("show-associated","a",0)!=0;
     verify_all_options();
     if (fTechnote==0){
       db_prepare(&q, listAllWikiPages/*works-like:""*/);
@@ -2450,6 +2454,11 @@ void wiki_cmd(void){
       const char *zName = db_column_text(&q, 0);
       const int wrid = db_column_int(&q, 2);
       if(!showAll && !wrid){
+        continue;
+      }
+      if( !showCkBr && 
+          (sqlite3_strglob("checkin/*", zName)==0 ||
+           sqlite3_strglob("branch/*", zName)==0) ){
         continue;
       }
       if( showIds ){
