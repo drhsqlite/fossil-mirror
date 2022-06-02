@@ -1,5 +1,5 @@
-C By\sdefault,\sdo\snot\sshow\swikis\sassociated\swith\scheck-ins\sand\sbranches\sin\sthe\soutput\sof\s'fossil\swiki\sls'.\s\sThis\sis\sthe\sCLI\spendant\sto\s[29a24941e].
-D 2022-06-02T19:51:57.006
+C Updates\sto\sthe\schange\slog.
+D 2022-06-02T20:39:15.428
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,7 +798,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 7e80844e6e77976fe1e22ed53235310ab2b75f31d00a83ad10644222659f3241
+F www/changes.wiki 9b445d881ddacc33af568eb40c4bee93f07871281f4bef48170d8d02b5f79dfb
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dbcb446970c3028c22384135b9984ff45ca028e8b495268ef35b89d495c7a99f
-R 86ba4415d50ab3039de318cded50e205
+P 4877e77a97878c9422191c976f15c720ff0b46bf3fa65ee3cf07193ee68d1304
+R 775c8b71f553ae908372d459de826755
 U danield
-Z 97920564f51860ad909f8988844c5e75
+Z aaf2c9d5700a5a9937794e39cf3d1251
 # Remove this line to create a well-formed Fossil manifest.

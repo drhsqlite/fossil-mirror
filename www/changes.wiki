@@ -11,6 +11,10 @@
   *  Performance enhancement for the 
      [./checkin_names.wiki#root|"root:BRANCHNAME" style of tag],
      accomplished using a Common Table Expression in the underlying SQL.
+  *  Sort tag listings (command line and webpage) by taking numbers into
+     consideration so as to cater for tags that follow semantic versioning.
+  *  On the wiki listings, omit by default wiki pages that are associated with
+     check-ins and branches.     
   *  Add the new "[/help?cmd=describe|fossil describe]" command.
   *  Markdown subsystem extended with [../src/markdown.md#ftnts|footnotes support].
      See corresponding [../test/markdown-test3.md|test cases],
