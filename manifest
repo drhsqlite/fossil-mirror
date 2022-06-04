@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.39.0\sbeta.
-D 2022-06-03T15:23:46.537
+C Mention\sthe\sremote-url\surl\soverrite\sby\sproxy\sbug\sfix\sin\sthe\schange\slog.
+D 2022-06-04T16:21:44.795
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,7 +798,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 9b445d881ddacc33af568eb40c4bee93f07871281f4bef48170d8d02b5f79dfb
+F www/changes.wiki d5bba06ef21f99c97b40dd4193494afa469cfaa01fff016e5686b733dc355c84
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 952b06084b38cff1a4dd58abf95be0a84257998f17a1e05facc0eeb079fff898
-R db6c3dd5e0ab827388052bff3098a95a
-U drh
-Z 6d6ba186441f159120a856b0e2300427
+P e3e9544638a62a1b4b21cd1f61972b79456bfd5d4706d0157730b86dad9e1aaf
+R e12dcb02da362b23283af6d3e028e22a
+U mgagnon
+Z ab8d878cc386e21e766e8c94b329edab
 # Remove this line to create a well-formed Fossil manifest.

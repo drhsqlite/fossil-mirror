@@ -24,6 +24,10 @@
      the branch.
   *  Support [/wiki?name=branch/generated-tkt-mimetype&p|generated "mimetype"]
      columns in the <var>TICKET</var> and <var>TICKETCHNG</var> tables.
+  *  Fix [/timeline?r=fix_remote_url_overwrite_with_proxy|remote-url-overwrite]
+     bug where remote-url is overwritten by the proxy setting during sync
+     operation. Also require explicit "system" proxy setting to use
+     "http_proxy" environment variable. 
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
