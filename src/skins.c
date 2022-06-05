@@ -1016,7 +1016,9 @@ void setup_skin(void){
   @ <p>Customize the look of this Fossil repository by making changes
   @ to the CSS, Header, Footer, and Detail Settings in one of nine "draft"
   @ configurations.  Then, after verifying that all is working correctly,
-  @ publish the draft to become the new main Skin.<p>
+  @ publish the draft to become the new main Skin. Users can select a skin
+  @ of their choice from the built-in ones or the locally-edited one via
+  @ <a href='%R/skins'>the /skins page</a>.<p>
   @
   @ <a name='step1'></a>
   @ <h1>Step 1: Identify Which Draft To Use</h1>
