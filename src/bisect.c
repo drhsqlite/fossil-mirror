@@ -83,6 +83,7 @@ static const struct {
                              "merges\n" },
   { "display",    "chart",   "Command to run after \"next\".  \"chart\", "
                              "\"log\", \"status\", or \"none\"" },
+  { "linear",     "off",     "Do a linear scan rather than a true bisect" },
 };
 
 /*
@@ -377,7 +378,8 @@ static void bisect_chart(int sortByCkinTime){
 void bisect_reset(void){
   db_multi_exec(
     "DELETE FROM vvar WHERE name IN "
-    " ('bisect-good', 'bisect-bad', 'bisect-log', 'bisect-complete')"
+    " ('bisect-good', 'bisect-bad', 'bisect-log', 'bisect-complete',"
+    "  'bisect-linear')"
   );
 }
 
@@ -632,7 +634,11 @@ void bisect_cmd(void){
     char *zDisplay = db_lget("bisect-display","chart");
     int m = (int)strlen(zDisplay);
     bisect_path();
-    pMid = path_midpoint();
+    if( db_lget_boolean("bisect-linear",0) ){
+      pMid = path_next();
+    }else{
+      pMid = path_midpoint();
+    }
     if( pMid==0 ){
       fossil_print("bisect complete\n");
       db_lset_int("bisect-complete",1);
