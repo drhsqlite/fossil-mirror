@@ -1,5 +1,5 @@
-C In\sthe\s/setup_skin\spage,\sadd\sa\smention\sof/link\sto\s/skins,\sper\srequest\sin\sthe\sforum.
-D 2022-06-05T04:06:17.924
+C Corrected\sa\sclosing\sP\stag\sin\s/setup_skin,\sper\sreport\sin\sthe\sforum.
+D 2022-06-05T15:09:09.491
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -551,7 +551,7 @@ F src/sha3.c a1e041a06978302366ec83775424cab69f3a427aec56d455d9d7a2fdb27fda94
 F src/shun.c 55fa04634ce5cca243e36b39282f2b4c17be7c994b56328eb481bde97e72e4ec
 F src/sitemap.c c8c1da701ef6910d7db95f487ab54435ae5d4d52ce17c82d53b7c18bca05e003
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 8d09990021e84670ad4caff0182463a4377194f8c458706a06f1a0c2f9a6c62e
+F src/skins.c fb11895608596e7bd7e64d8c7106aa5a46b96539cb0d54864695daff9f738298
 F src/smtp.c 2da5334b00b731089c847d10de3f4c1c564b52f7c24245f8f729f119c464043c
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8a051e6a943a26c9c33a30df8ceda069c06c1747714cda73e1f10f4efce310d
-R a53799400e337405499a9541f7ae2e2b
+P 0fabc4f3566c7e7d9e528b17253de42e14dd5c7b9873b13af6092e200a39eb6a
+R 46d54b524c392173a601eaf0e7008282
 U stephan
-Z 8b65d00da9e2150b99d0a0c8626d8cf0
+Z 0505b90c5cc8ff6fec915e6faedd055e
 # Remove this line to create a well-formed Fossil manifest.
