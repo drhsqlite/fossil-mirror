@@ -165,6 +165,9 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../extsrc/pikchr-module.js \
+  $(SRCDIR)/../extsrc/pikchr-worker.js \
+  $(SRCDIR)/../extsrc/pikchr.wasm \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
@@ -233,6 +236,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
+  $(SRCDIR)/fossil.page.pikchrshowasm.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
@@ -268,6 +272,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.pikchrshow.css \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \

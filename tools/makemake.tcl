@@ -219,6 +219,8 @@ set extra_files {
   ../skins/*/*.txt
   sounds/*.wav
   alerts/*.wav
+  ../extsrc/pikchr.wasm
+  ../extsrc/pikchr-*.js
 }
 
 # Options used to compile the included SQLite library.

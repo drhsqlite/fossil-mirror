@@ -356,6 +356,10 @@ int main(int argc, char **argv){
       if( pData[nSkip]=='\n' ) nSkip++;
     }
 
+#if 1
+    /* 2022-06-06: temporarily disabled for the sake of the pikchr
+    ** wasm build, as "something" in this compression is breaking the
+    ** module loader. */
 #ifndef FOSSIL_DEBUG
     /* Compress javascript source files */
     nName = (int)strlen(aRes[i].zName);
@@ -366,6 +370,7 @@ int main(int argc, char **argv){
       compressJavascript(pData+nSkip, &x);
       sz = x + nSkip;
     }
+#endif
 #endif
 
     aRes[i].nByte = sz - nSkip;

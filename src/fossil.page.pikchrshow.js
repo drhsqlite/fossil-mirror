@@ -1,10 +1,18 @@
 (function(F/*the fossil object*/){
   "use strict";
   /**
-     Client-side implementation of the /pikchrshow app. Requires that
+     Client-side implementation of the /pikchrshowcs app. Requires that
      the fossil JS bootstrapping is complete and that these fossil JS
      APIs have been installed: fossil.fetch, fossil.dom,
      fossil.copybutton, fossil.popupwidget, fossil.storage
+
+     Maintenance funkiness note: this file is for the legacy
+     /pikchrshowcs app, which was formerly named /pikchrshow.  This
+     file and its replacement were not renamed because the replacement
+     impl would end up getting this file's name and cause confusion in
+     the file history. Whether that confusion would be less than this
+     file's name matching the _other_ /pikchrshow impl will cause more
+     or less confusion than that remains to be seen.
   */
   const E = (s)=>document.querySelector(s),
         D = F.dom,
