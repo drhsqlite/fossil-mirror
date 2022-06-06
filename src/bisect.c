@@ -636,6 +636,7 @@ void bisect_cmd(void){
     bisect_path();
     if( db_lget_boolean("bisect-linear",0) ){
       pMid = path_next();
+      if( pMid && pMid->rid==db_lget_int("checkout",0) ) pMid = 0;
     }else{
       pMid = path_midpoint();
     }
