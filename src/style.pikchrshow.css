@@ -189,7 +189,3 @@ span.labeled-input > *:nth-child(2) {
 #view-split > .fieldset.options {
   margin-top: 0.5em;
 }
-body.fossil-dark-style #pikchr-output svg {
-  /* Flip the colors to approximate a dark theme look */
-  filter: invert(1) hue-rotate(180deg);
-}

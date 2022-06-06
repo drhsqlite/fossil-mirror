@@ -28,6 +28,16 @@
   connection vary. The types are described below but subject to
   change at any time as this experiment evolves.
 
+  Main-to-Worker message types:
+
+  - pikchr: data=pikchr-format text to render or an object:
+
+  {
+    pikchr: source code for the pikchr,
+    darkMode: boolean true to adjust colors for a dark color scheme,
+    cssClass: CSS class name to add to the SVG
+  }
+
   Workers-to-Main types
 
   - stdout, stderr: indicate stdout/stderr output from the wasm
@@ -54,15 +64,16 @@
 
   - pikchr: 
 
-  {type: 'pikchr', data:{
-  text: input text,
-  pikchr: rendered result (SVG on success, HTML on error),
-  isError: bool, true if .pikchr holds an error report
+  {type: 'pikchr',
+    data:{
+      pikchr: input text,
+      result: rendered result (SVG on success, HTML on error),
+      isError: bool, true if .pikchr holds an error report,
+      flags: integer: flags used to configure the pikchr rendering,
+      width: if !isError, width (pixels) of the SVG,
+      height: if !isError, height (pixels) of the SVG
+    }
   }
-
-  Main-to-Worker message types:
-
-  - pikchr: data=pikchr-format text to render.
 
 */
 
@@ -101,13 +112,7 @@
     switch(ev.type){
           /**
              Runs the given text through pikchr and emits a 'pikchr'
-             message with the result:
-
-             {type:'pikchr', data:{
-             pikchr: input text,
-             result: result text,
-             isError: true if result holds an error
-             }}
+             message result (output format documented above).
 
              Fires a working/start event before it starts and
              working/end event when it finishes.
@@ -117,21 +122,47 @@
             stderr("wasm module has exit()ed. Cannot pikchr.");
             return;
           }
-          if(!f._) f._ = pikchrModule.cwrap('pikchr', 'string', ['string']);
+          if(!f._){
+            f._ = pikchrModule.cwrap('pikchr', 'string', [
+              'string'/*script*/, 'string'/*CSS class*/, 'number'/*flags*/,
+              'number'/*output: SVG width*/, 'number'/*output: SVG height*/
+            ]);
+          }
           wMsg('working','start');
+          const stack = pikchrModule.stackSave();
           try {
+            const pnWidth = pikchrModule.stackAlloc(4),
+                  pnHeight = pikchrModule.stackAlloc(4);
+            let script = '', flags = 0, cssClass = null;
+            if('string'===typeof ev.data){
+              script = ev.data;
+            }else if(ev.data && 'object'===typeof ev.data){
+              script = ev.data.pikchr;
+              flags = ev.data.darkMode ? 0x02 : 0;
+              if(ev.data.cssClass) cssClass = ev.data.cssClass;
+            }
+            pikchrModule.setValue(pnWidth, 0, "i32");
+            pikchrModule.setValue(pnHeight, 0, "i32");
             const msg = {
-              pikchr: ev.data,
-              result: (f._(ev.data) || "").trim()
+              pikchr: script,
+              result: (f._(script, cssClass, flags, pnWidth, pnHeight) || "").trim(),
+              flags: flags
             };
             msg.isError = !!(msg.result && msg.result.startsWith('<div'));
+            if(msg.isError){
+              msg.width = msg.height = null;
+            }else{
+              msg.width = pikchrModule.getValue(pnWidth, "i32");
+              msg.height = pikchrModule.getValue(pnHeight, "i32");
+            }
             wMsg('pikchr', msg);
           } finally {
+            pikchrModule.stackRestore(stack);
             wMsg('working','end');
           }
           return;
     };
-    console.warn("Unknown fiddle-worker message type:",ev);
+    console.warn("Unknown pikchr-worker message type:",ev);
   };
   
   /**
@@ -178,7 +209,6 @@
   };
 
   importScripts('pikchr-module.js');
-  //console.error("initPikchrModule =",initPikchrModule);
   /**
      initPikchrModule() is installed via pikchr-module.js due to
      building with:

@@ -283,7 +283,10 @@
        result. */
     PS.render = function f(txt){
       preStartWork();
-      this.wMsg('pikchr',txt);
+      this.wMsg('pikchr',{
+        pikchr: txt,
+        darkMode: !!window.fossil.config.skin.isDark
+      });
     };
 
     const eOut = E('#pikchr-output');
@@ -443,7 +446,7 @@
       PS.render(text || '');
     }, 800, false);
 
-    taInput.addEventListener('keyup',function f(ev){
+    taInput.addEventListener('keydown',function f(ev){
       if((ev.ctrlKey || ev.shiftKey) && 13 === ev.keyCode){
         // Ctrl-enter and shift-enter both run the current input
         PS._isDirty = false/*prevent a pending debounce from re-rendering*/;

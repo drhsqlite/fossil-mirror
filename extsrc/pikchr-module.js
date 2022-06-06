@@ -112,6 +112,72 @@ if (typeof WebAssembly != "object") {
  abort("no native wasm support detected");
 }
 
+function setValue(ptr, value, type = "i8", noSafe) {
+ if (type.endsWith("*")) type = "i32";
+ switch (type) {
+ case "i1":
+  HEAP8[ptr >> 0] = value;
+  break;
+
+ case "i8":
+  HEAP8[ptr >> 0] = value;
+  break;
+
+ case "i16":
+  HEAP16[ptr >> 1] = value;
+  break;
+
+ case "i32":
+  HEAP32[ptr >> 2] = value;
+  break;
+
+ case "i64":
+  tempI64 = [ value >>> 0, (tempDouble = value, +Math.abs(tempDouble) >= 1 ? tempDouble > 0 ? (Math.min(+Math.floor(tempDouble / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296) >>> 0 : 0) ], 
+  HEAP32[ptr >> 2] = tempI64[0], HEAP32[ptr + 4 >> 2] = tempI64[1];
+  break;
+
+ case "float":
+  HEAPF32[ptr >> 2] = value;
+  break;
+
+ case "double":
+  HEAPF64[ptr >> 3] = value;
+  break;
+
+ default:
+  abort("invalid type for setValue: " + type);
+ }
+}
+
+function getValue(ptr, type = "i8", noSafe) {
+ if (type.endsWith("*")) type = "i32";
+ switch (type) {
+ case "i1":
+  return HEAP8[ptr >> 0];
+
+ case "i8":
+  return HEAP8[ptr >> 0];
+
+ case "i16":
+  return HEAP16[ptr >> 1];
+
+ case "i32":
+  return HEAP32[ptr >> 2];
+
+ case "i64":
+  return HEAP32[ptr >> 2];
+
+ case "float":
+  return HEAPF32[ptr >> 2];
+
+ case "double":
+  return Number(HEAPF64[ptr >> 3]);
+
+ default:
+  abort("invalid type for getValue: " + type);
+ }
+}
+
 var wasmMemory;
 
 var ABORT = false;
@@ -485,6 +551,10 @@ function createWasm() {
  return {};
 }
 
+var tempDouble;
+
+var tempI64;
+
 function callRuntimeCallbacks(callbacks) {
  while (callbacks.length > 0) {
   var callback = callbacks.shift();
@@ -556,6 +626,14 @@ var stackAlloc = Module["stackAlloc"] = function() {
 };
 
 Module["cwrap"] = cwrap;
+
+Module["setValue"] = setValue;
+
+Module["getValue"] = getValue;
+
+Module["stackSave"] = stackSave;
+
+Module["stackRestore"] = stackRestore;
 
 var calledRun;
 
