@@ -25,6 +25,8 @@ div.emscripten_border { border: 1px solid black; }
 }
 
 /* The following styles are for app-level use. */
+/* TODO: consolidate the WASM- and legacy-mode CSS into this file.
+   Since they share a URI, they both load this file. */
 textarea {
   font-family: monospace;
   flex: 1 1 auto;
@@ -34,6 +36,7 @@ textarea {
   flex-direction: column-reverse;
   flex: 1 1 auto;
   margin: 0.5em 0;
+  overflow: hidden;
 }
 #main-wrapper.side-by-side {
   flex-direction: row-reverse;
@@ -44,23 +47,33 @@ textarea {
 #main-wrapper.side-by-side.swapio {
   flex-direction: row;
 }
+#main-wrapper .splitter-handle {
+  border: 1px outset;
+  border-radius: 0.25em;
+}
+#main-wrapper.side-by-side .splitter-handle {
+  width: 2px;
+}
+#main-wrapper:not(.side-by-side) .splitter-handle {
+  width: 100%;
+  height: 2px;
+}
 .zone-wrapper{
   display: flex;
   flex-direction: column;
   align-items: stretch;
   margin: 0 0.25em;
-  flex: 1 1 auto;
+  flex: 1 1 0%;
 }
 .zone-wrapper.output {
+  /*flex: 1 1 0%;*/
 }
-#main-wrapper.auto-render.side-by-side .zone-wrapper {
+#main-wrapper.side-by-side .zone-wrapper {
   /* Keep the layout from "flopping around" when
      render-while-typing mode is on. */
-  max-width: 50%;
+  /*max-width: 50%;*/
 }
 #pikchr-output {
-  /*flex: 1 1 auto;*/
-  /*overflow: auto;*/
   padding: 0;
   margin: 0;
 }
@@ -85,6 +98,7 @@ textarea {
 }
 .zone-wrapper.input {
   /*min-height: 10em;*/
+  /*width: 50%;*/
   min-width: 20em;
 }
 .zone-wrapper.output {
@@ -135,7 +149,7 @@ label[for] {
 .fieldset.options > div {
   display: flex;
   flex-wrap: wrap;
-  font-size: 70%;
+  font-size: 85%;
   margin: 0 0.5em 0.5em 0.5em;
 }
 .fieldset > .legend > span {
@@ -168,6 +182,9 @@ span.labeled-input {
   background: #0002;
   display: flex;
   align-items: center;
+}
+span.labeled-input > *:nth-child(2) {
+  margin-left: 0.5em;
 }
 .center { text-align: center; }
 .app-view {

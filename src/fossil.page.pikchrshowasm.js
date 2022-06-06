@@ -14,6 +14,8 @@
   /pikchrshow app. It sets up the various UI bits, loads a Worker for
   the pikchr process, and manages the communication between the UI and
   worker.
+
+  API dependencies: fossil.dom, fossil.storage
 */
 (function(F/*fossil object*/){
   'use strict';
@@ -161,7 +163,7 @@
      wasm module has finished loading. */
   PS.addMsgHandler('pikchrshow-ready', function(){
     PS.clearMsgHandlers('pikchrshow-ready');
-    F.onPikchrshowLoaded();
+    F.page.onPikchrshowLoaded();
   });
 
   /**
@@ -169,7 +171,7 @@
      worker module is loaded. This function removes itself when it's
      called.
   */
-  F.onPikchrshowLoaded = function(){
+  F.page.onPikchrshowLoaded = function(){
     delete this.onPikchrshowLoaded;
     // Unhide all elements which start out hidden
     EAll('.initially-hidden').forEach((e)=>e.classList.remove('initially-hidden'));
@@ -197,6 +199,63 @@
       ev.preventDefault();
       renderCurrentText();
     },false);
+
+    0 && (function(){
+      /* Set up split-view controls... This _almost_ works correctly,
+         just needs some tweaking to account for switching between
+         side-by-side and top-bottom views. */
+      // adapted from https://htmldom.dev/create-resizable-split-views/
+      const Split = {
+        e:{
+          left: E('.zone-wrapper.input'),
+          right: E('.zone-wrapper.output'),
+          handle: E('.splitter-handle'),
+          parent: E('#main-wrapper')
+        },
+        x: 0, y: 0,
+        widthLeft: 0,
+        heightLeft: 0
+      };
+      Split.mouseDownHandler = function(e){
+        this.x = e.clientX;
+        this.y = e.clientY;
+        const r = this.e.left.getBoundingClientRect();
+        this.widthLeft = r.width;
+        this.heightLeft = r.height;
+        document.addEventListener('mousemove', this.mouseMoveHandler);
+        document.addEventListener('mouseup', this.mouseUpHandler);
+      }.bind(Split);
+      Split.mouseMoveHandler = function(e){
+        const isHorizontal = this.e.parent.classList.contains('side-by-side');
+        const dx = e.clientX - this.x;
+        const dy = e.clientY - this.y;
+        if(isHorizontal){
+          const w = ((this.widthLeft + dx) * 100)
+                / this.e.parent.getBoundingClientRect().width;
+          this.e.left.style.width = w+'%';
+        }else{
+          const h = ((this.heightLeft + dy) * 100)
+                / this.e.parent.getBoundingClientRect().height;
+          this.e.left.style.height = h+'%';
+        }
+        document.body.style.cursor = isHorizontal ? 'col-resize' : 'row-resize';
+        this.e.left.style.userSelect = 'none';
+        this.e.left.style.pointerEvents = 'none';
+        this.e.right.style.userSelect = 'none';
+        this.e.right.style.pointerEvents = 'none';
+      }.bind(Split);
+      Split.mouseUpHandler = function(e){
+        this.e.handle.style.removeProperty('cursor');
+        document.body.style.removeProperty('cursor');
+        this.e.left.style.removeProperty('user-select');
+        this.e.left.style.removeProperty('pointer-events');
+        this.e.right.style.removeProperty('user-select');
+        this.e.right.style.removeProperty('pointer-events');
+        document.removeEventListener('mousemove', this.mouseMoveHandler);
+        document.removeEventListener('mouseup', this.mouseUpHandler);
+      }.bind(Split);
+      Split.e.handle.addEventListener('mousedown', Split.mouseDownHandler);
+    })();
 
     /** To be called immediately before work is sent to the
         worker. Updates some UI elements. The 'working'/'end'
@@ -368,41 +427,6 @@
         content.forEach((d)=>d.classList.toggle('hidden'));
       }, false);
     });
-    
-    /**
-       Given a DOM element, this routine measures its "effective
-       height", which is the bounding top/bottom range of this element
-       and all of its children, recursively. For some DOM structure
-       cases, a parent may have a reported height of 0 even though
-       children have non-0 sizes.
-
-       Returns 0 if !e or if the element really has no height.
-    */
-    const effectiveHeight = function f(e){
-      if(!e) return 0;
-      if(!f.measure){
-        f.measure = function callee(e, depth){
-          if(!e) return;
-          const m = e.getBoundingClientRect();
-          if(0===depth){
-            callee.top = m.top;
-            callee.bottom = m.bottom;
-          }else{
-            callee.top = m.top ? Math.min(callee.top, m.top) : callee.top;
-            callee.bottom = Math.max(callee.bottom, m.bottom);
-          }
-          Array.prototype.forEach.call(e.children,(e)=>callee(e,depth+1));
-          if(0===depth){
-            //console.debug("measure() height:",e.className, callee.top, callee.bottom, (callee.bottom - callee.top));
-            f.extra += callee.bottom - callee.top;
-          }
-          return f.extra;
-        };
-      }
-      f.extra = 0;
-      f.measure(e,0);
-      return f.extra;
-    };
 
     btnRender.click();
     
@@ -464,7 +488,7 @@
         const wh = window.innerHeight;
         var ht;
         var extra = 0;
-        elemsToCount.forEach((e)=>e ? extra += effectiveHeight(e) : false);
+        elemsToCount.forEach((e)=>e ? extra += F.dom.effectiveHeight(e) : false);
         ht = wh - extra;
         appViews.forEach(function(e){
           e.style.height =

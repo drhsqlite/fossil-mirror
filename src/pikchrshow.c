@@ -483,6 +483,7 @@ void pikchrshow_page(void){
           CX("<button id='btn-clear'>Clear Input</button>");
         CX("</div><!-- .button-bar -->");
       } CX("</div><!-- .zone-wrapper.input -->");
+      CX("<div class='splitter-handle hidden'></div>");
       CX("<div class='zone-wrapper output'>"); {
         CX("<div id='pikchr-output-wrapper'>");
           CX("<div id='pikchr-output'></div>");
@@ -493,7 +494,7 @@ void pikchrshow_page(void){
       } CX("</div> <!-- .zone-wrapper.output -->");
     } CX("</div><!-- #main-wrapper -->");
   } CX("</div><!-- #view-split -->");
-  builtin_fossil_js_bundle_or("storage", NULL);
+  builtin_fossil_js_bundle_or("dom", "storage", NULL);
   builtin_request_js("fossil.page.pikchrshowasm.js");
   builtin_fulfill_js_requests();
   style_finish_page();
