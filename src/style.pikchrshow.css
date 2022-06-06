@@ -53,6 +53,11 @@ textarea {
 }
 .zone-wrapper.output {
 }
+#main-wrapper.auto-render.side-by-side .zone-wrapper {
+  /* Keep the layout from "flopping around" when
+     render-while-typing mode is on. */
+  max-width: 50%;
+}
 #pikchr-output {
   /*flex: 1 1 auto;*/
   /*overflow: auto;*/
@@ -119,7 +124,7 @@ label[for] {
 }
 .fieldset > .legend {
   position: relative;
-  top: -1.5ex;
+  top: -1.25ex;
   padding: 0 0.5em;
   font-size: 85%;
   margin-left: 0.5em;

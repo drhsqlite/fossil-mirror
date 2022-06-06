@@ -1,5 +1,5 @@
-C Added\sCSS\sfile\smissing\sfrom\sprevious\scheckin.
-D 2022-06-06T18:04:24.209
+C Fixed\slegacy\spikchrshow\spreview\sbutton,\sbroken\sby\shijacking\sits\sURI\sfor\sthe\snew\spikchrshow\smode.\sIn\sside-by-side\smode\swhen\sauto-render\sis\son,\scap\seach\shalf\sat\smax-width\s50%\sto\shelp\skeep\sthe\sUI\sfrom\sflopping\saround.
+D 2022-06-06T18:51:37.518
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -531,7 +531,7 @@ F src/name.c bb3f5e33988ac171abad82380d05f901ffc5a178af710e5e65ce26d7c198032a
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
-F src/pikchrshow.c 9134c66233f73e172c0d7ce78810ad38de3c84cadce86c2c7478f5a8170bf56c
+F src/pikchrshow.c 25520969f3f00123b572c997f08d5d4570ff6b51f6c51cfe497784ae488166fd
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -583,7 +583,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c fdc6b813c11006f205e8d64b837a9be9842191c6b08989911d1556c38f419da3
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
-F src/style.pikchrshow.css 41e49f878efa2dfb0b04d2a747f917f82dd27cf3413e7e159ea3ef93bb1c280b
+F src/style.pikchrshow.css 00ae610dd2e9c54859f2afd6bf1c87a1086ee1231074fa015d7d6b8297da0d5a
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
 F src/tag.c de6889b6f57c5cbd8acc584b15b71351e1b3edf824186b41d0495919e9345a54
@@ -760,7 +760,7 @@ F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc9
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 0b2794265771850ee2350052c3a5ae8ec28144ee3fd18f2c33bb20fcdf425a85 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
-F tools/mkbuiltin.c 09f563b183edbae3e938368fd588805db8a1f87daa0851aae9f6bb654b864dc6
+F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F tools/mkindex.c 29c4349dc4802a30220c36be70c206ce3e82b4cc403a9b1cfc1866e57cf10aba
 F tools/mkversion.c 9844d975a6750a5307dc32105efa972d6be86c320987886fe15e9ed43648606d
 F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 321f01a86e835d37d4e9c4952f4eac2dc791b18b58aa8ef78468377e665b8f04
-R 94c4fccb6b9aac9df4bead053a029a8f
+P 9cd4f71f6874c9d0f42b3ab226fe3c0031800da804bf96d8b012afa05ae9158f
+R add5619e65b2c8761a4f4334160479a5
 U stephan
-Z f4b87139b36596f0cca9e765080cdcd4
+Z 7c254c0aae31b23c778c98e94308c01d
 # Remove this line to create a well-formed Fossil manifest.

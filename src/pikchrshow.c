@@ -346,7 +346,7 @@ void pikchrshowcs_page(void){
     CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   } CX("</style>");
   CX("<div>Input pikchr code and tap Preview (or Shift-Enter) to render "
-     "it:</div>");
+     "it. <a href='?wasm'>Switch to WASM mode</a>.</div>");
   CX("<div id='sbs-wrapper'>"); {
     CX("<div id='pikchrshow-form'>"); {
       CX("<textarea id='content' name='content' rows='15'>"
@@ -401,13 +401,13 @@ void pikchrshowcs_page(void){
 void pikchrshow_page(void){
   const char *zContent = 0;
 
+  if(P("legacy") || P("ajax")){
+    pikchrshowcs_page();
+    return;
+  }
   login_check_credentials();
   if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
     cgi_redirectf("%R/login?g=pikchrshow");
-  }
-  if(P("legacy")){
-    pikchrshowcs_page();
-    return;
   }
   style_emit_noscript_for_js_page();
   style_header("PikchrShow");
@@ -439,26 +439,28 @@ void pikchrshow_page(void){
       CX("<span class='legend'><span>Options</span></span>");
       CX("<div>");
       CX("<span class='labeled-input'>");
-        CX("<input type='checkbox' id='opt-cb-sbs'");
-        CX("data-csstgt='#main-wrapper'");
-        CX("data-cssclass='side-by-side'");
+        CX("<input type='checkbox' id='opt-cb-sbs' ");
+        CX("data-csstgt='#main-wrapper' ");
+        CX("data-cssclass='side-by-side' ");
         CX("data-config='sideBySide'>");
         CX("<label for='opt-cb-sbs'>Side-by-side</label>");
       CX("</span>");
       CX("<span class='labeled-input'>");
-        CX("<input type='checkbox' id='opt-cb-swapio'");
-        CX("data-csstgt='#main-wrapper'");
-        CX("data-cssclass='swapio'");
+        CX("<input type='checkbox' id='opt-cb-swapio' ");
+        CX("data-csstgt='#main-wrapper' ");
+        CX("data-cssclass='swapio' ");
         CX("data-config='swapInOut'>");
         CX("<label for='opt-cb-swapio'>Swap in/out</label>");
       CX("</span>");
       CX("<span class='labeled-input'>");
-        CX("<input type='checkbox' id='opt-cb-autoscale'");
+        CX("<input type='checkbox' id='opt-cb-autoscale' ");
         CX("data-config='renderAutoScale'>");
         CX("<label for='opt-cb-autoscale'>Auto-scale SVG</label>");
       CX("</span>");
       CX("<span class='labeled-input'>");
-        CX("<input type='checkbox' id='opt-cb-autorender'");
+        CX("<input type='checkbox' id='opt-cb-autorender' ");
+        CX("data-csstgt='#main-wrapper' ");
+        CX("data-cssclass='auto-render' ");
         CX("data-config='renderWhileTyping'>");
         CX("<label for='opt-cb-autorender'>Render while typing</label>");
       CX("</span>");
