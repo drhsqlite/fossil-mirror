@@ -39,13 +39,13 @@ textarea {
   overflow: hidden;
 }
 #main-wrapper.side-by-side {
-  flex-direction: row-reverse;
+  flex-direction: row;
 }
 #main-wrapper.swapio {
   flex-direction: column;
 }
 #main-wrapper.side-by-side.swapio {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 #main-wrapper .splitter-handle {
   border: 1px outset;
@@ -94,10 +94,10 @@ textarea {
   flex: 1 1 auto;
 }
 .zone-wrapper textarea {
-  flex: 10 1 auto;
+  flex: 1 1 auto;
 }
 .zone-wrapper.input {
-  /*min-height: 10em;*/
+  min-height: 10em;
   /*width: 50%;*/
   min-width: 20em;
 }
@@ -114,21 +114,8 @@ textarea {
 .button-bar button {
   margin: 0.25em 1em;
 }
-label[for] {
-  cursor: pointer;
-}
-.error {
-  color: red;
-  background-color: yellow;
-}
-.hidden, .initially-hidden {
-  position: absolute !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  display: none !important;
-}
 /* Safari supports neither styling of nor event handling on a
-         fieldset legend, so we emulate a fieldset-like widget. */
+   fieldset legend, so we emulate a fieldset-like widget. */
 .fieldset {
   border-radius: 0.5em;
   border: 1px inset;
@@ -184,7 +171,7 @@ span.labeled-input {
   align-items: center;
 }
 span.labeled-input > *:nth-child(2) {
-  margin-left: 0.5em;
+  margin-left: 0.3em;
 }
 .center { text-align: center; }
 .app-view {

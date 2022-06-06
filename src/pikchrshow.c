@@ -232,7 +232,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
 }
 
 /*
-** WEBPAGE: pikchrshowcs*
+** Legacy impl of /pikchrshow. pikchrshow_page() will delegate to
+** this one if the "legacy" or "ajax" request arguments are set.
 **
 ** A pikchr code editor and previewer, allowing users to experiment
 ** with pikchr code or prototype it for use in copy/pasting into forum
@@ -241,9 +242,6 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
 ** processing. The newer /pikchrshow applications runs pikchr on the
 ** client machine, without the need for back-and-forth network
 ** traffic.
-**
-** It optionally accepts a p=pikchr-script-code URL parameter or POST
-** value to pre-populate the editor with that code.
 */
 void pikchrshowcs_page(void){
   const char *zContent = 0;
@@ -395,8 +393,12 @@ void pikchrshowcs_page(void){
 ** posts, wiki pages, or embedded docs. This version of pikchrshow
 ** uses WebAssembly to run entirely in the client browser, without a
 ** need for back-and-forth client/server traffic to perform the
-** rendering. The "legacy" version of this application can be found at
-** /pikchrshowcs.
+** rendering. The "legacy" version of this application, which sends
+** all input to the server for rendering, can be accessed by adding
+** the "legacy" URL argument.
+**
+** It optionally accepts a p=pikchr-script-code URL parameter or POST
+** value to pre-populate the editor with that code.
 */
 void pikchrshow_page(void){
   const char *zContent = 0;
@@ -419,6 +421,7 @@ void pikchrshow_page(void){
       "arrow <-> down from last box.s\n"
       "box same \"Pikchr\" \"Formatter\" \"(pikchr.c)\" fit\n";
   }
+  /* Wasm load/init progress widget... */
   CX("<div class='emscripten'>"); {
     CX("<figure id='module-spinner'>");
       CX("<div class='spinner'></div>");
@@ -434,6 +437,7 @@ void pikchrshow_page(void){
     CX("<progress value='0' max='100' id='module-progress' hidden='1'>"
        "</progress>");
   } CX("</div><!-- .emscripten -->");
+  /* Main view... */
   CX("<div id='view-split' class='app-view initially-hidden'>"); {
     CX("<div class='fieldset options collapsible'>"); {
       CX("<span class='legend'><span>Options</span></span>");
@@ -472,7 +476,7 @@ void pikchrshow_page(void){
     CX("<div id='main-wrapper' class=''>"); {
       CX("<div class='zone-wrapper input'>"); {
         CX("<textarea id='input'");
-          CX("placeholder='Shell input. Ctrl-enter/shift-enter runs it.'>");
+          CX("placeholder='Pikchr input. Ctrl-enter/shift-enter runs it.'>");
           CX("/**\n");
           CX("  Use ctrl-enter or shift-enter to execute\n");
           CX("  pikchr code. If only a subset is currently\n");
