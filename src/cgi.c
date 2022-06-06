@@ -495,7 +495,7 @@ void cgi_reply(void){
   ** the browser, not some shared location.
   */
   if( iReplyStatus!=304 ) {
-    blob_appendf(&hdr, "Content-Type: %s; charset=utf-8\r\n", zContentType);
+    blob_appendf(&hdr, "Content-Type: %s\r\n", zContentType);
     if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
       cgi_combine_header_and_body();
       blob_compress(&cgiContent[0], &cgiContent[0]);

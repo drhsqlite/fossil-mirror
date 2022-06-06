@@ -1,5 +1,5 @@
-C Fix\sthe\snew\slinear\sbisect\sso\sthat\sit\salways\sgoes\sfrom\sgood\sto\sbad\sand\sstops\nat\sthe\sfirst\sbad\scheck-in\sfound.
-D 2022-06-06T00:41:05.040
+C Remove\sthe\s';\scharset=utf-8'\ssuffix\sfrom\sresponse\sContent-Type\sheaders.\sThat\smodifier\sis\stechnically\sincorrect\sfor\smany\smimetypes,\sbut\swasm\sloaders\sare\sextra\spicky\sabout\sit\sand\srefuse\sto\sload\swasm\sfiles\swith\sthe\scharset\sset.\sAn\sattempt\sat\sporting\sover\salthttpd's\ssolution\sfor\sthis\ssame\sproblem\sleads\sdown\sa\smuch\sdeeper\sand\sfar\smore\sinvasive\srabbit\shole\sbecause\show\sfossil\shandles/sets\sthe\sresponse\scontent\stype\sis\smore\sinvolved\sthan\sin\salthttpd.
+D 2022-06-06T15:51:10.772
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -416,7 +416,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82dc455
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 22d2fac0ab3e46d42c2739f17b07b263a8fe50629cb28d2b7905b2c2024c88a3
+F src/cgi.c 8a5e51e26f8615a8def652f18e8ff5afffd7908539f771a9dcff46d48a2829be
 F src/chat.c bb79d6e98b7fc0a369d9ea7c49fdaaf02cf33fbd0366a3d35efcd23fe87da94d
 F src/checkin.c 987faee812d72ba9afad585d4647e28c2bd2e6031a50aa66533789ce28e34276
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42f61b677e451b1864676dca9481d32811b752921e0ff1247008b0d91b818340
-R 0cf03885c5d79ad576fb9105fe4dda60
-U drh
-Z e8485fad1c748a1f4b1f8519b840ed89
+P e65544571e21c709a70af5bdd3a93217e1e9cb2023b4727ccc2c311995d8f117
+R 6a351877e1634f5e570fcfb13bf63137
+T *branch * content-type-no-charset
+T *sym-content-type-no-charset *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z 51d9bdaeffa9e4e994da5abe39405173
 # Remove this line to create a well-formed Fossil manifest.
