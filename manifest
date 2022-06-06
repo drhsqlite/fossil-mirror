@@ -1,5 +1,5 @@
-C darkmode\sskin:\sreplace\son-focus\scolor\schange\sof\sbuttons\swith\sa\slight\sborder,\selse\sthe\stext\shas\sillegibly\slittle\scontrast.
-D 2022-06-06T21:56:10.949
+C pikchrshow:\sswap\sdefault\sconfig\svalue\sfor\sposition\sof\sinput/output\sareas.
+D 2022-06-06T21:56:56.909
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -469,7 +469,7 @@ F src/fossil.page.chat.js ee39a5cb504def107fb0d40ad863d2f748a6d9efaaee5f3cf95ad5
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
-F src/fossil.page.pikchrshowasm.js f5808c8f3774b1ed66166e631a5a9b33a312f147ec550f5f12658f4204126788
+F src/fossil.page.pikchrshowasm.js fdec1fc013993b64c50f514972bc6d1fdf57563ff51e0714514b3e7ce85cbe25
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js aa823d629f61df524e8d1a37b683152f7378b48f8f8d381142862dd3536f016f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae8f2ebe4b61fb0e190de416aba03009bfbf397ad1e78d1e285d30d52db41425
-R f2f51cc4561d326f1f8b070aecd475e1
+P 63d510764e93fb9a5c8a19c231b916a23f0dad84707c7e9b4ba7bf6de8722ad8
+R 2a86654d2ebd84df567f4892ac835efe
 U stephan
-Z be36bc5b74fd3fd86a992b333f9e1389
+Z 4f219533bc074b232b20d5ef3aa5986a
 # Remove this line to create a well-formed Fossil manifest.

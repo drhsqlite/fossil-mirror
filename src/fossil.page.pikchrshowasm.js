@@ -23,7 +23,7 @@
   /* Recall that the 'self' symbol, except where locally
      overwritten, refers to the global window or worker object. */
 
-  /** Name of the stored copy of PikchrFiddle.config. */
+  /** Name of the stored copy of this app's config. */
   const configStorageKey = 'pikchrshow-config';
 
   /**
@@ -35,16 +35,16 @@
   const PS/*local convenience alias*/ = F.PikchrShow/*canonical name*/ = {
     /* Config options. */
     config: {
-      /* If true, display input/output areas side-by-side. */
+      /* If true, display input/output areas side-by-side, else stack
+         them vertically. */
       sideBySide: true,
       /* If true, swap positions of the input/output areas. */
-      swapInOut: true,
-      /* If true, the SVG is allowed to resize to fit the
-         parent content area, else the parent is resized to
-         fit the rendered SVG. */
+      swapInOut: false,
+      /* If true, the SVG is allowed to resize to fit the parent
+         content area, else the parent is resized to fit the rendered
+         SVG (as sized by pikchr). */
       renderAutoScale: false,
-      /* If true, automatically render while the user is
-         typing. */
+      /* If true, automatically render while the user is typing. */
       renderWhileTyping: false
     },
     renderMode: 'html'/*one of: 'text','html'*/,
