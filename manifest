@@ -1,5 +1,5 @@
-C Replace\s/pikchrshow\swith\sa\sWASM-based\sversion\sand\srename\sthe\sprior\sversion\sto\s/pikchrshowcs\s(cs=client/server).\sThere\sare\sstill\sa\scouple\slayout/style\squirks\sto\sresolve,\sand\sa\sfeature\sor\stwo\sto\sport\sfrom\sthe\slegacy\sapp,\sbut\sit\smore\sor\sless\sworks.
-D 2022-06-06T18:02:19.048
+C Added\sCSS\sfile\smissing\sfrom\sprevious\scheckin.
+D 2022-06-06T18:04:24.209
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -583,6 +583,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c fdc6b813c11006f205e8d64b837a9be9842191c6b08989911d1556c38f419da3
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
+F src/style.pikchrshow.css 41e49f878efa2dfb0b04d2a747f917f82dd27cf3413e7e159ea3ef93bb1c280b
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
 F src/tag.c de6889b6f57c5cbd8acc584b15b71351e1b3edf824186b41d0495919e9345a54
@@ -974,11 +975,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e65544571e21c709a70af5bdd3a93217e1e9cb2023b4727ccc2c311995d8f117 15e7b49ef3277b0638988228c7c8c4670e44ff0fef788fda1d4bc0268375dc6c
-R 0e61731dded897cc43060afc6c549602
-T *branch * pikchrshow-wasm
-T *sym-pikchrshow-wasm *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 321f01a86e835d37d4e9c4952f4eac2dc791b18b58aa8ef78468377e665b8f04
+R 94c4fccb6b9aac9df4bead053a029a8f
 U stephan
-Z e20997cb521402bd6558a94d244375df
+Z f4b87139b36596f0cca9e765080cdcd4
 # Remove this line to create a well-formed Fossil manifest.
