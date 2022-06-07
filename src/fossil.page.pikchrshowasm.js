@@ -307,9 +307,9 @@
        Event handler for 'pikchr' messages from the Worker thread.
     */
     PS.addMsgHandler('pikchr', function(ev){
-      const m = ev.data;
-      this.e.pikOut.classList[m.isError ? 'add' : 'remove']('error');
-      this.e.pikOut.dataset.pikchr = m.pikchr;
+      const m = ev.data, pikOut = this.e.pikOut;
+      pikOut.classList[m.isError ? 'add' : 'remove']('error');
+      pikOut.dataset.pikchr = m.pikchr;
       const mode = this.renderModes[this.renderModes.selectedIndex];
       switch(mode){
           case 'text': case 'markdown': case 'wiki': {
@@ -326,27 +326,35 @@
             }
             this.e.outText.value = body;
             this.e.outText.classList.remove('hidden');
-            this.e.pikOut.classList.add('hidden');
+            pikOut.classList.add('hidden');
             this.e.pikOutWrapper.classList.add('text');
             break;
           }
           case 'svg':
             this.e.outText.classList.add('hidden');
-            this.e.pikOut.classList.remove('hidden');
+            pikOut.classList.remove('hidden');
             this.e.pikOutWrapper.classList.remove('text');
-            this.e.pikOut.innerHTML = m.result;
+            pikOut.innerHTML = m.result;
             this.e.outText.value = m.result/*for clipboard copy*/;
             break;
           default: throw new Error("Unhandled render mode: "+mode);
       }
       let vw = null, vh = null;
-      if('svg'===mode && !this.config.renderAutofit && !m.isError){
-        vw = m.width+1; vh = m.height+1;
-        /* +1 is b/c the SVG uses floating point sizes but pikchr() returns
-           truncated integers. */
+      if('svg'===mode){
+        if(m.isError){
+          vw = vh = '100%';
+        }else if(this.config.renderAutofit){
+          /* FIXME: current behavior doesn't work as desired when width>height
+             (e.g. non-side-by-side mode).*/
+          vw = vh = '98%';
+        }else{
+          vw = m.width+1+'px'; vh = m.height+1+'px';
+          /* +1 is b/c the SVG uses floating point sizes but pikchr()
+             returns truncated integers. */
+        }
+        pikOut.style.width = vw;
+        pikOut.style.height = vh;
       }
-      this.e.pikOut.style.width = vw && vw+'px';
-      this.e.pikOut.style.height = vh && vh+'px';
     }.bind(PS))/*'pikchr' msg handler*/;
 
     E('#btn-render-mode').addEventListener('click',function(){

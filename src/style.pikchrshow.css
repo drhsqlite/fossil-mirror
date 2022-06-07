@@ -135,13 +135,16 @@ fieldset > legend {
   justify-content: space-between;
 }
 .button-bar {
-  display: flex;
+  /*display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
+  align-items: center;*/
 }
-.button-bar button {
-  margin: 0 0.5em;
+.button-bar > * {
+  margin-top: 0.1em/*avoid crowding if the controls wrap*/;
+  vertical-align: middle;
+}
+.button-bar > * + * /*all children except the first*/ {
+  margin-left: 0.65em;
 }
 fieldset.options {
   border-radius: 0.5em;

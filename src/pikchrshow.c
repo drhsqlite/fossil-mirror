@@ -496,10 +496,12 @@ void pikchrshow_page(void){
       CX("<fieldset class='zone-wrapper output'>"); {
         CX("<legend><div class='button-bar'>");
           CX("<button id='btn-render-mode'>Render Mode</button> ");
-          CX("<span id='preview-copy-button' "
-             "title='Tap to copy to clipboard.'></span>");
-          CX("<label for='preview-copy-button' "
-             "title='Tap to copy to clipboard.'></label>");
+          CX("<span style='white-space:nowrap'>"
+             "<span id='preview-copy-button' "
+             "title='Tap to copy to clipboard.'></span>"
+             "<label for='preview-copy-button' "
+             "title='Tap to copy to clipboard.'></label>"
+             "</span>");
         CX("</div></legend>");
         CX("<div id='pikchr-output-wrapper'>");
           CX("<div id='pikchr-output'></div>");
