@@ -28,6 +28,8 @@
      bug where remote-url is overwritten by the proxy setting during sync
      operation. Also require explicit "system" proxy setting to use
      "http_proxy" environment variable. 
+  *  Add the [/help?cmd=email-listid|email-listid setting]. If set, it is
+     used as the List-ID header for all outbound notification emails.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands

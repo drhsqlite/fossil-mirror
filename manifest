@@ -1,5 +1,5 @@
-C Corrected\sa\sbit\sof\smisinformation\sin\ssearch.c's\scomments,\sper\sa\sreport\sin\sthe\sforum.
-D 2022-06-07T06:22:12.419
+C Added\sentry\sfor\sthe\semail-listid\ssetting\sto\sthe\schange\slog.
+D 2022-06-07T16:13:02.040
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,7 +798,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki d5bba06ef21f99c97b40dd4193494afa469cfaa01fff016e5686b733dc355c84
+F www/changes.wiki aabb232d8ae6f3dad92abcff014338e5f0bb1d9766e955f25316f4d683dbf939
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e65544571e21c709a70af5bdd3a93217e1e9cb2023b4727ccc2c311995d8f117
-R 738497bbd447a52680a521a7070b87cb
+P 6d6880c8304dcf3993758d273158942315ddde7447b51dee2b7e4449876d5af3
+R 929f62d003f8e1ec5f6331c82456d2f1
 U stephan
-Z d531ec62db29a1d91115c222ffcd8a78
+Z 17b1593110d65423782b3cae63bc4605
 # Remove this line to create a well-formed Fossil manifest.
