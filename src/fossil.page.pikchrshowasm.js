@@ -58,6 +58,7 @@
     e: {
       previewCopyButton: E('#preview-copy-button'),
       previewModeLabel: E('label[for=preview-copy-button]'),
+      zoneInputButtons: E('.zone-wrapper.input > legend > .button-bar'),
       zoneOutputButtons: E('.zone-wrapper.output > legend > .button-bar'),
       outText: E('#pikchr-output-text'),
       pikOutWrapper: E('#pikchr-output-wrapper'),
@@ -205,6 +206,10 @@
       const text = getCurrentText();
       if(text) PS.render(text);
     };
+    const setCurrentText = function(txt){
+      taInput.value = txt;
+      renderCurrentText();        
+    };
     PS.e.btnRender.addEventListener('click',function(ev){
       ev.preventDefault();
       renderCurrentText();
@@ -336,7 +341,9 @@
       }
       let vw = null, vh = null;
       if('svg'===mode && !this.config.renderAutofit && !m.isError){
-        vw = m.width; vh = m.height;
+        vw = m.width+1; vh = m.height+1;
+        /* +1 is b/c the SVG uses floating point sizes but pikchr() returns
+           truncated integers. */
       }
       this.e.pikOut.style.width = vw && vw+'px';
       this.e.pikOut.style.height = vh && vh+'px';
@@ -409,6 +416,32 @@
     EAll('button[data-cmd]').forEach(
       e => e.addEventListener('click', cmdClick, false)
     );
+
+
+    ////////////////////////////////////////////////////////////
+    // Set up selection list of predefined scripts...
+    if(true){
+      const selectScript = PS.e.selectScript = D.select(),
+            cbWrap = D.addClass(D.span(),'labeled-input');
+      D.append(PS.e.zoneInputButtons, D.append(cbWrap, selectScript));
+      PS.predefinedPiks.forEach(function(script,ndx){
+        const opt = D.option(script.code ? script.code.trim() :'', script.name);
+        D.append(selectScript, opt);
+        if(!ndx) selectScript.selectedIndex = 0 /*timing/ordering workaround*/;
+        if(ndx && !script.code){
+          /* Treat entries w/ no code as separators EXCEPT for the
+             first one, which we want to keep selectable solely for
+             cosmetic reasons. */
+          D.disable(opt);
+        }
+      });
+      delete PS.predefinedPiks;
+      selectScript.addEventListener('change', function(ev){
+        const val = ev.target.value;
+        if(!val) return;
+        setCurrentText(val);
+      }, false);
+    }/*Examples*/
 
     /**
        TODO: Handle load/import of an external pikchr file.
@@ -528,4 +561,176 @@
     delete ForceResizeKludge.$disabled;
     ForceResizeKludge();
   }/*onPikchrshowLoaded()*/;
+
+
+  /**
+     Predefined scripts. Each entry is an object:
+
+     {
+     name: required string,
+     code: optional code string. An entry with a falsy code is treated
+           like a separator in the resulting SELECT element (a
+           disabled OPTION).
+     }
+  */
+  PS.predefinedPiks = [
+    {name: "-- Example Scripts --", code: false},
+/*
+  The following were imported from the pikchr test scripts:
+
+  https://fossil-scm.org/pikchr/dir/examples
+*/
+{name:"Cardinal headings",code:`   linerad = 5px
+C: circle "Center" rad 150%
+   circle "N"  at 1.0 n  of C; arrow from C to last chop ->
+   circle "NE" at 1.0 ne of C; arrow from C to last chop <-
+   circle "E"  at 1.0 e  of C; arrow from C to last chop <->
+   circle "SE" at 1.0 se of C; arrow from C to last chop ->
+   circle "S"  at 1.0 s  of C; arrow from C to last chop <-
+   circle "SW" at 1.0 sw of C; arrow from C to last chop <->
+   circle "W"  at 1.0 w  of C; arrow from C to last chop ->
+   circle "NW" at 1.0 nw of C; arrow from C to last chop <-
+   arrow from 2nd circle to 3rd circle chop
+   arrow from 4th circle to 3rd circle chop
+   arrow from SW to S chop <->
+   circle "ESE" at 2.0 heading 112.5 from Center \
+      thickness 150% fill lightblue radius 75%
+   arrow from Center to ESE thickness 150% <-> chop
+   arrow from ESE up 1.35 then to NE chop
+   line dashed <- from E.e to (ESE.x,E.y)
+   line dotted <-> thickness 50% from N to NW chop
+`},{name:"Core object types",code:`AllObjects: [
+
+# First row of objects
+box "box"
+box rad 10px "box (with" "rounded" "corners)" at 1in right of previous
+circle "circle" at 1in right of previous
+ellipse "ellipse" at 1in right of previous
+
+# second row of objects
+OVAL1: oval "oval" at 1in below first box
+oval "(tall &" "thin)" "oval" width OVAL1.height height OVAL1.width \
+    at 1in right of previous
+cylinder "cylinder" at 1in right of previous
+file "file" at 1in right of previous
+
+# third row shows line-type objects
+dot "dot" above at 1in below first oval
+line right from 1.8cm right of previous "lines" above
+arrow right from 1.8cm right of previous "arrows" above
+spline from 1.8cm right of previous \
+   go right .15 then .3 heading 30 then .5 heading 160 then .4 heading 20 \
+   then right .15
+"splines" at 3rd vertex of previous
+
+# The third vertex of the spline is not actually on the drawn
+# curve.  The third vertex is a control point.  To see its actual
+# position, uncomment the following line:
+#dot color red at 3rd vertex of previous spline
+
+# Draw various lines below the first line
+line dashed right from 0.3cm below start of previous line
+line dotted right from 0.3cm below start of previous
+line thin   right from 0.3cm below start of previous
+line thick  right from 0.3cm below start of previous
+
+
+# Draw arrows with different arrowhead configurations below
+# the first arrow
+arrow <-  right from 0.4cm below start of previous arrow
+arrow <-> right from 0.4cm below start of previous
+
+# Draw splines with different arrowhead configurations below
+# the first spline
+spline same from .4cm below start of first spline ->
+spline same from .4cm below start of previous <-
+spline same from .4cm below start of previous <->
+
+] # end of AllObjects
+
+# Label the whole diagram
+text "Examples Of Pikchr Objects" big bold  at .8cm above north of AllObjects
+`},{name:"Swimlanes",code:`    $laneh = 0.75
+
+    # Draw the lanes
+    down
+    box width 3.5in height $laneh fill 0xacc9e3
+    box same fill 0xc5d8ef
+    box same as first box
+    box same as 2nd box
+    line from 1st box.sw+(0.2,0) up until even with 1st box.n \
+      "Alan" above aligned
+    line from 2nd box.sw+(0.2,0) up until even with 2nd box.n \
+      "Betty" above aligned
+    line from 3rd box.sw+(0.2,0) up until even with 3rd box.n \
+      "Charlie" above aligned
+    line from 4th box.sw+(0.2,0) up until even with 4th box.n \
+       "Darlene" above aligned
+
+    # fill in content for the Alice lane
+    right
+A1: circle rad 0.1in at end of first line + (0.2,-0.2) \
+       fill white thickness 1.5px "1" 
+    arrow right 50%
+    circle same "2"
+    arrow right until even with first box.e - (0.65,0.0)
+    ellipse "future" fit fill white height 0.2 width 0.5 thickness 1.5px
+A3: circle same at A1+(0.8,-0.3) "3" fill 0xc0c0c0
+    arrow from A1 to last circle chop "fork!" below aligned
+
+    # content for the Betty lane
+B1: circle same as A1 at A1-(0,$laneh) "1"
+    arrow right 50%
+    circle same "2"
+    arrow right until even with first ellipse.w
+    ellipse same "future"
+B3: circle same at A3-(0,$laneh) "3"
+    arrow right 50%
+    circle same as A3 "4"
+    arrow from B1 to 2nd last circle chop
+
+    # content for the Charlie lane
+C1: circle same as A1 at B1-(0,$laneh) "1"
+    arrow 50%
+    circle same "2"
+    arrow right 0.8in "goes" "offline"
+C5: circle same as A3 "5"
+    arrow right until even with first ellipse.w \
+      "back online" above "pushes 5" below "pulls 3 & 4" below
+    ellipse same "future"
+
+    # content for the Darlene lane
+D1: circle same as A1 at C1-(0,$laneh) "1"
+    arrow 50%
+    circle same "2"
+    arrow right until even with C5.w
+    circle same "5"
+    arrow 50%
+    circle same as A3 "6"
+    arrow right until even with first ellipse.w
+    ellipse same "future"
+D3: circle same as B3 at B3-(0,2*$laneh) "3"
+    arrow 50%
+    circle same "4"
+    arrow from D1 to D3 chop
+`},{
+  name: "The Stuff of Dreams",
+  code:`
+O: text "DREAMS" color grey
+circle rad 0.9 at 0.6 above O thick color red
+text "INEXPENSIVE" big bold at 0.9 above O color red
+
+circle rad 0.9   at 0.6 heading  120 from O thick color green
+text "FAST" big bold at 0.9 heading  120 from O  color green
+
+circle rad 0.9 at 0.6 heading -120 from O thick color blue
+text "HIGH" big bold "QUALITY" big bold at 0.9 heading  -120 from O  color blue
+
+text "EXPENSIVE" at 0.55 below O  color cyan
+text "SLOW" at 0.55 heading  -60 from O  color magenta
+text "POOR" "QUALITY" at 0.55 heading   60 from O  color gold
+`}
+  ];
+
+
 })(window.fossil);

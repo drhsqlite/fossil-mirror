@@ -55,37 +55,37 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
   scriptDirectory = "";
  }
  {
-  read_ = (url => {
+  read_ = url => {
    var xhr = new XMLHttpRequest();
    xhr.open("GET", url, false);
    xhr.send(null);
    return xhr.responseText;
-  });
+  };
   if (ENVIRONMENT_IS_WORKER) {
-   readBinary = (url => {
+   readBinary = url => {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, false);
     xhr.responseType = "arraybuffer";
     xhr.send(null);
     return new Uint8Array(xhr.response);
-   });
+   };
   }
-  readAsync = ((url, onload, onerror) => {
+  readAsync = (url, onload, onerror) => {
    var xhr = new XMLHttpRequest();
    xhr.open("GET", url, true);
    xhr.responseType = "arraybuffer";
-   xhr.onload = (() => {
+   xhr.onload = () => {
     if (xhr.status == 200 || xhr.status == 0 && xhr.response) {
      onload(xhr.response);
      return;
     }
     onerror();
-   });
+   };
    xhr.onerror = onerror;
    xhr.send(null);
-  });
+  };
  }
- setWindowTitle = (title => document.title = title);
+ setWindowTitle = title => document.title = title;
 } else {}
 
 var out = Module["print"] || console.log.bind(console);
@@ -110,72 +110,6 @@ var noExitRuntime = Module["noExitRuntime"] || true;
 
 if (typeof WebAssembly != "object") {
  abort("no native wasm support detected");
-}
-
-function setValue(ptr, value, type = "i8", noSafe) {
- if (type.endsWith("*")) type = "i32";
- switch (type) {
- case "i1":
-  HEAP8[ptr >> 0] = value;
-  break;
-
- case "i8":
-  HEAP8[ptr >> 0] = value;
-  break;
-
- case "i16":
-  HEAP16[ptr >> 1] = value;
-  break;
-
- case "i32":
-  HEAP32[ptr >> 2] = value;
-  break;
-
- case "i64":
-  tempI64 = [ value >>> 0, (tempDouble = value, +Math.abs(tempDouble) >= 1 ? tempDouble > 0 ? (Math.min(+Math.floor(tempDouble / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296) >>> 0 : 0) ], 
-  HEAP32[ptr >> 2] = tempI64[0], HEAP32[ptr + 4 >> 2] = tempI64[1];
-  break;
-
- case "float":
-  HEAPF32[ptr >> 2] = value;
-  break;
-
- case "double":
-  HEAPF64[ptr >> 3] = value;
-  break;
-
- default:
-  abort("invalid type for setValue: " + type);
- }
-}
-
-function getValue(ptr, type = "i8", noSafe) {
- if (type.endsWith("*")) type = "i32";
- switch (type) {
- case "i1":
-  return HEAP8[ptr >> 0];
-
- case "i8":
-  return HEAP8[ptr >> 0];
-
- case "i16":
-  return HEAP16[ptr >> 1];
-
- case "i32":
-  return HEAP32[ptr >> 2];
-
- case "i64":
-  return HEAP32[ptr >> 2];
-
- case "float":
-  return HEAPF32[ptr >> 2];
-
- case "double":
-  return Number(HEAPF64[ptr >> 3]);
-
- default:
-  abort("invalid type for getValue: " + type);
- }
 }
 
 var wasmMemory;
@@ -207,7 +141,9 @@ function ccall(ident, returnType, argTypes, args, opts) {
   }
  };
  function convertReturnValue(ret) {
-  if (returnType === "string") return UTF8ToString(ret);
+  if (returnType === "string") {
+   return UTF8ToString(ret);
+  }
   if (returnType === "boolean") return Boolean(ret);
   return ret;
  }
@@ -575,8 +511,75 @@ function callRuntimeCallbacks(callbacks) {
  }
 }
 
+function getValue(ptr, type = "i8") {
+ if (type.endsWith("*")) type = "i32";
+ switch (type) {
+ case "i1":
+  return HEAP8[ptr >> 0];
+
+ case "i8":
+  return HEAP8[ptr >> 0];
+
+ case "i16":
+  return HEAP16[ptr >> 1];
+
+ case "i32":
+  return HEAP32[ptr >> 2];
+
+ case "i64":
+  return HEAP32[ptr >> 2];
+
+ case "float":
+  return HEAPF32[ptr >> 2];
+
+ case "double":
+  return Number(HEAPF64[ptr >> 3]);
+
+ default:
+  abort("invalid type for getValue: " + type);
+ }
+ return null;
+}
+
 function getWasmTableEntry(funcPtr) {
  return wasmTable.get(funcPtr);
+}
+
+function setValue(ptr, value, type = "i8") {
+ if (type.endsWith("*")) type = "i32";
+ switch (type) {
+ case "i1":
+  HEAP8[ptr >> 0] = value;
+  break;
+
+ case "i8":
+  HEAP8[ptr >> 0] = value;
+  break;
+
+ case "i16":
+  HEAP16[ptr >> 1] = value;
+  break;
+
+ case "i32":
+  HEAP32[ptr >> 2] = value;
+  break;
+
+ case "i64":
+  tempI64 = [ value >>> 0, (tempDouble = value, +Math.abs(tempDouble) >= 1 ? tempDouble > 0 ? (Math.min(+Math.floor(tempDouble / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296) >>> 0 : 0) ], 
+  HEAP32[ptr >> 2] = tempI64[0], HEAP32[ptr + 4 >> 2] = tempI64[1];
+  break;
+
+ case "float":
+  HEAPF32[ptr >> 2] = value;
+  break;
+
+ case "double":
+  HEAPF64[ptr >> 3] = value;
+  break;
+
+ default:
+  abort("invalid type for setValue: " + type);
+ }
 }
 
 function ___assert_fail(condition, filename, line, func) {
@@ -627,13 +630,13 @@ var stackAlloc = Module["stackAlloc"] = function() {
 
 Module["cwrap"] = cwrap;
 
-Module["setValue"] = setValue;
-
-Module["getValue"] = getValue;
-
 Module["stackSave"] = stackSave;
 
 Module["stackRestore"] = stackRestore;
+
+Module["setValue"] = setValue;
+
+Module["getValue"] = getValue;
 
 var calledRun;
 

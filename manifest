@@ -1,5 +1,5 @@
-C Added\soptional\sbuild\sinfrastructure\sfor\susing\semcc\sso\sthat\swe\shave\sa\sreproducible\spikchr.wasm\sinstead\sof\san\sopaque\s3rd-party\sblob.\sThis\sadds\sthe\s--with-emsdk\sconfigure\sflag.
-D 2022-06-07T18:05:47.703
+C Recompiled\spikchr.js/wasm\swith\slatest\semscripten.\sFixed\sa\sleft-shifted\sSVG\struncation\scase.\sPorted\sexample\sscript\sselection\sfrom\slegacy\spikchrshow\sinto\sthe\snew\sversion.
+D 2022-06-07T22:22:36.007
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -296,8 +296,8 @@ F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f1999
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr-worker.js b55a0b048ea02ebfe63fc595371e09f77b5c9fc951e0e18a379c1354d791815b
 F extsrc/pikchr.c ec6f88c37683e48a0564e2dd710310253be88d6d9510dd0064ab6030e7fdb973
-F extsrc/pikchr.js 77c2b90924a5882ec0b33e19b7cdf1857b54c7b222785526e93f59a06e6e1a41 w extsrc/pikchr-module.js
-F extsrc/pikchr.wasm c69c41fb6747f6312bf883e104ae86cd84c07d7e08ec6cd3b4cbe24c01474dca
+F extsrc/pikchr.js 9a028ca0abacac37a6526a5b306b670f872b11756f6f5f0ba76b53f35c36c6ae
+F extsrc/pikchr.wasm 39737d316b74f6401899b6b3454693ee664ffe04cdf11c51f63877a78a376236
 F extsrc/shell.c 8236f4bfd084750dac61511904f22b8aba7b491956d45097d0b1290b25354a21
 F extsrc/sqlite3.c 185bfe244aae876a34ccd823b16b7b9ebdc0f0417d45d3dd12f6abfc92d16c15
 F extsrc/sqlite3.h 47141018a8032ef71cf37ec6f02598bdc42fbe2b44f349fe3604db00040c6b75
@@ -469,7 +469,7 @@ F src/fossil.page.chat.js ee39a5cb504def107fb0d40ad863d2f748a6d9efaaee5f3cf95ad5
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
-F src/fossil.page.pikchrshowasm.js bfc5d800a064848dbaa29c0c0a582ad079397df068ce201a579b6502dd2812d5
+F src/fossil.page.pikchrshowasm.js c0006837a8f01794d743d5f4ccbc5a9cef005954806008f26efa5c251efb9d95
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js aa823d629f61df524e8d1a37b683152f7378b48f8f8d381142862dd3536f016f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -583,7 +583,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c fdc6b813c11006f205e8d64b837a9be9842191c6b08989911d1556c38f419da3
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
-F src/style.pikchrshow.css f06b1206265a3c46db5d890418b18fdd133e5e19715cedc387c431ef8e14986e
+F src/style.pikchrshow.css 4b9f84b36a9b4fa31aa5af4a9c4594e5e21344e1edf75a8f5b91b9cb34750815
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
 F src/tag.c de6889b6f57c5cbd8acc584b15b71351e1b3edf824186b41d0495919e9345a54
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e23286a60b03a9b43af8bb0a784ba50773f315f4399c7d3b20c499ac81d816db
-R 257a4ca425210a536011b46251aab479
+P 8f6886c90516d4f6a85242c86be737aaafc1f3dcff4a26422d83dfacee3c2ba9
+R 92eafc8faa8e14c6cc4dad8609202b4b
 U stephan
-Z 223b44ac88ce5c5422202725ff9eb397
+Z b9aa46fb200511dc71559e5276fcebee
 # Remove this line to create a well-formed Fossil manifest.
