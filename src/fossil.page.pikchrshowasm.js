@@ -61,7 +61,8 @@
       zoneOutputButtons: E('.zone-wrapper.output > legend > .button-bar'),
       outText: E('#pikchr-output-text'),
       pikOutWrapper: E('#pikchr-output-wrapper'),
-      pikOut: E('#pikchr-output')
+      pikOut: E('#pikchr-output'),
+      btnRender: E('#btn-render')      
     },
     renderModes: ['svg'/*SVG must be at index 0*/,'markdown', 'wiki', 'text'],
     renderModeLabels: {
@@ -191,8 +192,6 @@
     btnClearIn.addEventListener('click',function(){
       taInput.value = '';
     },false);
-    const taOutput = E('#output');
-    const btnRender = E('#btn-render');
     const getCurrentText = function(){
       let text;
       if(taInput.selectionStart<taInput.selectionEnd){
@@ -201,12 +200,12 @@
         text = taInput.value.trim();
       }
       return text;;
-    }
+    };
     const renderCurrentText = function(){
       const text = getCurrentText();
       if(text) PS.render(text);
     };
-    btnRender.addEventListener('click',function(ev){
+    PS.e.btnRender.addEventListener('click',function(ev){
       ev.preventDefault();
       renderCurrentText();
     },false);
@@ -280,13 +279,12 @@
       if(!f._){
         const title = E('title');
         f._ = {
-          btnLabel: btnRender.innerText,
           pageTitle: title,
           pageTitleOrig: title.innerText
         };
       }
       //f._.pageTitle.innerText = "[working...] "+f._.pageTitleOrig;
-      btnRender.setAttribute('disabled','disabled');
+      PS.e.btnRender.setAttribute('disabled','disabled');
     };
 
     /**
@@ -300,54 +298,58 @@
       });
     };
 
+    /**
+       Event handler for 'pikchr' messages from the Worker thread.
+    */
     PS.addMsgHandler('pikchr', function(ev){
       const m = ev.data;
-      PS.e.pikOut.classList[m.isError ? 'add' : 'remove']('error');
-      PS.e.pikOut.dataset.pikchr = m.pikchr;
-      const mode = PS.renderModes[PS.renderModes.selectedIndex];
+      this.e.pikOut.classList[m.isError ? 'add' : 'remove']('error');
+      this.e.pikOut.dataset.pikchr = m.pikchr;
+      const mode = this.renderModes[this.renderModes.selectedIndex];
       switch(mode){
-          case 'text':
-          case 'markdown':
-          case 'wiki': {
-            const body = [m.result];
-            if('markdown'===mode){
-              body.unshift('```pikchr');
-              body.push('```');
-            }else if('wiki'===mode){
-              body.unshift('<verbatim type="pikchr">');
-              body.push('</verbatim>');
+          case 'text': case 'markdown': case 'wiki': {
+            let body;
+            switch(mode){
+                case 'markdown':
+                  body = ['```pikchr', m.pikchr, '```'].join('\n');
+                  break;
+                case 'wiki':
+                  body = ['<verbatim type="pikchr">', m.pikchr, '</verbatim>'].join('');
+                  break;
+                default:
+                  body = m.result;
             }
-            PS.e.outText.value = body.join('\n');
-            PS.e.outText.classList.remove('hidden');
-            PS.e.pikOut.classList.add('hidden');
-            PS.e.pikOutWrapper.classList.add('text');
+            this.e.outText.value = body;
+            this.e.outText.classList.remove('hidden');
+            this.e.pikOut.classList.add('hidden');
+            this.e.pikOutWrapper.classList.add('text');
             break;
           }
           case 'svg':
-            PS.e.outText.classList.add('hidden');
-            PS.e.pikOut.classList.remove('hidden');
-            PS.e.pikOutWrapper.classList.remove('text');
-            PS.e.pikOut.innerHTML = m.result;
-            PS.e.outText.value = m.result/*for clipboard copy*/;
+            this.e.outText.classList.add('hidden');
+            this.e.pikOut.classList.remove('hidden');
+            this.e.pikOutWrapper.classList.remove('text');
+            this.e.pikOut.innerHTML = m.result;
+            this.e.outText.value = m.result/*for clipboard copy*/;
             break;
           default: throw new Error("Unhandled render mode: "+mode);
       }
       let vw = null, vh = null;
-      if('svg'===mode && !PS.config.renderAutofit && !m.isError){
+      if('svg'===mode && !this.config.renderAutofit && !m.isError){
         vw = m.width; vh = m.height;
       }
-      PS.e.pikOut.style.width = vw ? vw+'px' : null;
-      PS.e.pikOut.style.height = vh ? vh+'px' : null;
-    })/*'pikchr' msg handler*/;
+      this.e.pikOut.style.width = vw ? vw+'px' : null;
+      this.e.pikOut.style.height = vh ? vh+'px' : null;
+    }.bind(PS))/*'pikchr' msg handler*/;
 
     E('#btn-render-mode').addEventListener('click',function(){
-      const modes = PS.renderModes;
+      const modes = this.renderModes;
       modes.selectedIndex = (modes.selectedIndex + 1) % modes.length;
-      PS.e.previewModeLabel.innerText = PS.renderModeLabels[modes[modes.selectedIndex]];
-      if(PS.e.pikOut.dataset.pikchr){
-        PS.render(PS.e.pikOut.dataset.pikchr);
+      this.e.previewModeLabel.innerText = this.renderModeLabels[modes[modes.selectedIndex]];
+      if(this.e.pikOut.dataset.pikchr){
+        this.render(this.e.pikOut.dataset.pikchr);
       }
-    });
+    }.bind(PS));
     F.copyButton(PS.e.previewCopyButton, {copyFromElement: PS.e.outText});
     PS.e.previewModeLabel.addEventListener('click', ()=>PS.e.previewCopyButton.click(), false);
 
@@ -356,12 +358,12 @@
           case 'start': /* See notes in preStartWork(). */; return;
           case 'end':
             //preStartWork._.pageTitle.innerText = preStartWork._.pageTitleOrig;
-            btnRender.innerText = preStartWork._.btnLabel;
-            btnRender.removeAttribute('disabled');
+            this.e.btnRender.removeAttribute('disabled');
+            this.e.pikOutWrapper.classList[this.config.renderAutofit ? 'add' : 'remove']('autofit');
             return;
       }
       console.warn("Unhandled 'working' event:",ev.data);
-    });
+    }.bind(PS));
 
     /* For each checkbox with data-csstgt, set up a handler which
        toggles the given CSS class on the element matching
@@ -445,7 +447,7 @@
       }, false);
     });
 
-    btnRender.click();
+    PS.e.btnRender.click();
     
     /** Debounce handler for auto-rendering while typing. */
     const debounceAutoRender = F.debounce(function f(){

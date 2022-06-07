@@ -459,7 +459,11 @@ void pikchrshow_page(void){
       CX("<span class='labeled-input'>");
         CX("<input type='checkbox' id='opt-cb-autofit' ");
         CX("data-config='renderAutofit'>");
-        CX("<label for='opt-cb-autofit'>Auto-fit SVG</label>");
+        CX("<label for='opt-cb-autofit' "
+           "title='Attempt to scale SVG to fit viewport. "
+           "Whether it will work depends in part on the size "
+           "and shape of the image and the viewport.'"
+           ">Auto-fit SVG</label>");
       CX("</span>");
       CX("<span class='labeled-input'>");
         CX("<input type='checkbox' id='opt-cb-autorender' ");

@@ -94,6 +94,9 @@ textarea {
   flex: 1 1 auto;
   overflow: auto;
 }
+#pikchr-output-wrapper:not(.autofit) {
+  align-items: center;
+}
 #pikchr-output-wrapper.text {
   display: flex;
   align-items: stretch;
