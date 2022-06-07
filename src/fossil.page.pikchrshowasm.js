@@ -422,10 +422,10 @@
       r.readAsArrayBuffer(f);
     });
 
-    EAll('.fieldset.collapsible').forEach(function(fs){
-      const legend = E(fs,'span.legend'),
+    EAll('fieldset.collapsible').forEach(function(fs){
+      const btnToggle = E(fs,'legend > #btn-options-toggle'),
             content = EAll(fs,':scope > div');
-      legend.addEventListener('click', function(){
+      btnToggle.addEventListener('click', function(){
         fs.classList.toggle('collapsed');
         content.forEach((d)=>d.classList.toggle('hidden'));
       }, false);

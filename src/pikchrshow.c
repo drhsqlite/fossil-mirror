@@ -439,8 +439,8 @@ void pikchrshow_page(void){
   } CX("</div><!-- .emscripten -->");
   /* Main view... */
   CX("<div id='view-split' class='app-view initially-hidden'>"); {
-    CX("<div class='fieldset options collapsible'>"); {
-      CX("<span class='legend'><span>Options</span></span>");
+    CX("<fieldset class='options collapsible'>"); {
+      CX("<legend><button id='btn-options-toggle'>Options</button></legend>");
       CX("<div>");
       CX("<span class='labeled-input'>");
         CX("<input type='checkbox' id='opt-cb-sbs' ");
@@ -472,30 +472,31 @@ void pikchrshow_page(void){
         CX("<a href='?legacy'>Legacy mode</a>");
       CX("</span>");
       CX("</div><!-- options wrapper -->");
-    } CX("</div><!-- .fieldset -->");
+    } CX("</fieldset>");
     CX("<div id='main-wrapper' class=''>"); {
-      CX("<div class='zone-wrapper input'>"); {
-        CX("<textarea id='input'");
+      CX("<fieldset class='zone-wrapper input'>"); {
+        CX("<legend><div class='button-bar'>");
+          CX("<button id='btn-render' "
+             "title='Ctrl-Enter/Shift-Enter'>Render</button>");
+          CX("<button id='btn-clear'>Clear Input</button>");
+        CX("</div></legend>");
+        CX("<div><textarea id='input'");
           CX("placeholder='Pikchr input. Ctrl-enter/shift-enter runs it.'>");
           CX("/**\n");
           CX("  Use ctrl-enter or shift-enter to execute\n");
           CX("  pikchr code. If only a subset is currently\n");
           CX("  selected, only that part is evaluated.\n*/\n");
-        CX("%s</textarea>",zContent/*safe-for-%s*/);
-        CX("<div class='button-bar'>");
-          CX("<button id='btn-render'>Render</button>");
-          CX("<button id='btn-clear'>Clear Input</button>");
-        CX("</div><!-- .button-bar -->");
-      } CX("</div><!-- .zone-wrapper.input -->");
-      CX("<div class='splitter-handle hidden'></div>");
-      CX("<div class='zone-wrapper output'>"); {
+        CX("%s</textarea></div>",zContent/*safe-for-%s*/);
+      } CX("</fieldset><!-- .zone-wrapper.input -->");
+      /*CX("<div class='splitter-handle hidden'></div>");*/
+      CX("<fieldset class='zone-wrapper output'>"); {
+        CX("<legend><div class='button-bar'>");
+          CX("<button id='btn-render-mode'>Toggle Render Mode</button>");
+        CX("</div></legend>");
         CX("<div id='pikchr-output-wrapper'>");
           CX("<div id='pikchr-output'></div>");
         CX("</div>");
-        CX("<div class='button-bar'>");
-          CX("<button id='btn-render-mode'>Toggle Render Mode</button>");
-        CX("</div><!-- .button-bar -->");
-      } CX("</div> <!-- .zone-wrapper.output -->");
+      } CX("</fieldset> <!-- .zone-wrapper.output -->");
     } CX("</div><!-- #main-wrapper -->");
   } CX("</div><!-- #view-split -->");
   builtin_fossil_js_bundle_or("dom", "storage", NULL);
