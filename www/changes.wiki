@@ -27,7 +27,10 @@
   *  Fix [/timeline?r=fix_remote_url_overwrite_with_proxy|remote-url-overwrite]
      bug where remote-url is overwritten by the proxy setting during sync
      operation. Also require explicit "system" proxy setting to use
-     "http_proxy" environment variable. 
+     "http_proxy" environment variable.
+  *  Reimplemented the [/pikchrshow] app to use a WebAssembly build of
+     pikchr so that it can render pikchrs on the client instead of requiring
+     a server round-trip.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
