@@ -208,9 +208,9 @@
     }
   };
 
-  importScripts('pikchr-module.js');
+  importScripts('pikchr.js');
   /**
-     initPikchrModule() is installed via pikchr-module.js due to
+     initPikchrModule() is installed via pikchr.js due to
      building with:
 
      emcc ... -sMODULARIZE=1 -sEXPORT_NAME=initPikchrModule

@@ -338,8 +338,8 @@
       if('svg'===mode && !this.config.renderAutofit && !m.isError){
         vw = m.width; vh = m.height;
       }
-      this.e.pikOut.style.width = vw ? vw+'px' : null;
-      this.e.pikOut.style.height = vh ? vh+'px' : null;
+      this.e.pikOut.style.width = vw && vw+'px';
+      this.e.pikOut.style.height = vh && vh+'px';
     }.bind(PS))/*'pikchr' msg handler*/;
 
     E('#btn-render-mode').addEventListener('click',function(){

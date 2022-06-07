@@ -165,8 +165,8 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
-  $(SRCDIR)/../extsrc/pikchr-module.js \
   $(SRCDIR)/../extsrc/pikchr-worker.js \
+  $(SRCDIR)/../extsrc/pikchr.js \
   $(SRCDIR)/../extsrc/pikchr.wasm \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
@@ -2115,6 +2115,11 @@ $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
+
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry  -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore  -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c  -sENVIRONMENT=web  -sMODULARIZE  -sEXPORT_NAME=initPikchrModule  --minify 0
+	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
+wasm: $(SRCDIR_extsrc)/pikchr.js
 
 #
 # The list of all the targets that do not correspond to real files. This stops

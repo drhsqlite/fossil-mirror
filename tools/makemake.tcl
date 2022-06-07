@@ -220,7 +220,7 @@ set extra_files {
   sounds/*.wav
   alerts/*.wav
   ../extsrc/pikchr.wasm
-  ../extsrc/pikchr-*.js
+  ../extsrc/pikchr*.js
 }
 
 # Options used to compile the included SQLite library.
@@ -563,6 +563,17 @@ $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry \
+        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore \
+        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c \
+        -sENVIRONMENT=web \
+        -sMODULARIZE \
+        -sEXPORT_NAME=initPikchrModule \
+        --minify 0
+	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
+wasm: $(SRCDIR_extsrc)/pikchr.js
+
 #
 # The list of all the targets that do not correspond to real files. This stops
 # 'make' from getting confused when someone makes an error in a rule.
@@ -641,7 +652,7 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_SYMBOLS = 1
 
-#### Enable JSON (http://www.json.org) support using "cson"
+#### Enable JSON (https://www.json.org) support using "cson"
 #
 # FOSSIL_ENABLE_JSON = 1
 

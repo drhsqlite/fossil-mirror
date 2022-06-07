@@ -56,7 +56,7 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_SYMBOLS = 1
 
-#### Enable JSON (http://www.json.org) support using "cson"
+#### Enable JSON (https://www.json.org) support using "cson"
 #
 # FOSSIL_ENABLE_JSON = 1
 
@@ -551,8 +551,8 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
-  $(SRCDIR)/../extsrc/pikchr-module.js \
   $(SRCDIR)/../extsrc/pikchr-worker.js \
+  $(SRCDIR)/../extsrc/pikchr.js \
   $(SRCDIR)/../extsrc/pikchr.wasm \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \

@@ -507,8 +507,8 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\zip_.c" \
         "$(SRCDIR_extsrc)\pikchr.c"
 
-EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-module.js" \
-        "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
+EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
+        "$(SRCDIR)\..\extsrc\pikchr.js" \
         "$(SRCDIR)\..\extsrc\pikchr.wasm" \
         "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\..\skins\ardoise\details.txt" \
@@ -1136,8 +1136,8 @@ realclean: clean
 "$(OBJDIR)\json_wiki$O" : "$(SRCDIR)\json_detail.h"
 
 "$(OX)\builtin_data.reslist": $(EXTRA_FILES) "$(B)\win\Makefile.msc"
-	echo "$(SRCDIR)\../extsrc/pikchr-module.js" > $@
-	echo "$(SRCDIR)\../extsrc/pikchr-worker.js" >> $@
+	echo "$(SRCDIR)\../extsrc/pikchr-worker.js" > $@
+	echo "$(SRCDIR)\../extsrc/pikchr.js" >> $@
 	echo "$(SRCDIR)\../extsrc/pikchr.wasm" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/details.txt" >> $@
