@@ -421,9 +421,8 @@
     ////////////////////////////////////////////////////////////
     // Set up selection list of predefined scripts...
     if(true){
-      const selectScript = PS.e.selectScript = D.select(),
-            cbWrap = D.addClass(D.span(),'labeled-input');
-      D.append(PS.e.zoneInputButtons, D.append(cbWrap, selectScript));
+      const selectScript = PS.e.selectScript = D.select();
+      D.append(PS.e.zoneInputButtons, selectScript);
       PS.predefinedPiks.forEach(function(script,ndx){
         const opt = D.option(script.code ? script.code.trim() :'', script.name);
         D.append(selectScript, opt);
