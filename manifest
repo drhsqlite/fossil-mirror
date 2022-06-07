@@ -1,5 +1,5 @@
-C pikchrshow:\srefactored\slayout\sto\suse\sfieldsets\sfor\sthe\sinput/output\sarea\swrappers\sand\smoved\stheir\sbutton\scontrols\sinto\sthe\sLEGEND\selements.\sVarious\sminor\slayout\stweaks.
-D 2022-06-07T09:07:20.590
+C Ported\sthe\svarious\spreview\smode\stoggles\sand\sclipboard\scopy\sfrom\slegacy\spikchrshow\sto\swasm\spikchrshow.
+D 2022-06-07T11:37:40.580
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -469,7 +469,7 @@ F src/fossil.page.chat.js ee39a5cb504def107fb0d40ad863d2f748a6d9efaaee5f3cf95ad5
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
-F src/fossil.page.pikchrshowasm.js 3e9725ffae086d6d295d633e9bc02defd252b9b749d72931447e63aff61604db
+F src/fossil.page.pikchrshowasm.js d3ae252cb526097619dfc663a646d4942d81e15e0018a229d3c1372782d5e178
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js aa823d629f61df524e8d1a37b683152f7378b48f8f8d381142862dd3536f016f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -531,7 +531,7 @@ F src/name.c bb3f5e33988ac171abad82380d05f901ffc5a178af710e5e65ce26d7c198032a
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
-F src/pikchrshow.c 7c86dcd86469a421e52dfaff3f391b65730068e1dadb5ea8484b99482bd9aaf3
+F src/pikchrshow.c dc24c7a4a3527e5a45163c1f226d42995935cdde34b2c4554378e16fef110c70
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -583,7 +583,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c fdc6b813c11006f205e8d64b837a9be9842191c6b08989911d1556c38f419da3
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
-F src/style.pikchrshow.css 893ae1959d31af026d89fec33cde9bf292e666ce60a83921cb64fb90db865916
+F src/style.pikchrshow.css aabc1b8382cef1059ce378bad02af522ac7b52c1c5115bf1a4c0b7087040e085
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
 F src/tag.c de6889b6f57c5cbd8acc584b15b71351e1b3edf824186b41d0495919e9345a54
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 997bb954f404fab4384db9855f23530b8665329b8712aa066ef90c23fcc6aa27
-R 945b15314b574c78ad3ebef0a2ca19ae
+P 577ab3bede8d87f00dbbc8cc8a4fbebdbb6865de13525f81a4e6ef925af6bbdf
+R a0482e846960810ee07450283941ee5a
 U stephan
-Z 769be3f6ca831042a8c9a5877742bb8c
+Z 0d526315836c66df10eff5bc751a09f8
 # Remove this line to create a well-formed Fossil manifest.

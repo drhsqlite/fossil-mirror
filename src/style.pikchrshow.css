@@ -106,7 +106,7 @@ textarea {
 #pikchr-output-wrapper.text > #pikchr-output > textarea {
   flex: 1 1 auto;
 }
-.zone-wrapper > legend {
+fieldset > legend {
     font-size: 85%;
 }
 .zone-wrapper textarea {
@@ -133,9 +133,9 @@ textarea {
 }
 .button-bar {
   display: flex;
-  justify-content: center;
-  flex: 0 1 auto;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 .button-bar button {
   margin: 0 0.5em;
@@ -160,6 +160,7 @@ fieldset.options.collapsed > legend > #btn-options-toggle::after {
   content: " [show]";
   position: relative;
 }
+
 span.labeled-input {
   padding: 0.25em;
   margin: 0.25em 0.5em;

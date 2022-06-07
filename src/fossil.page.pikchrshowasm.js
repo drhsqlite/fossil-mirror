@@ -15,7 +15,7 @@
   the pikchr process, and manages the communication between the UI and
   worker.
 
-  API dependencies: fossil.dom, fossil.storage
+  API dependencies: fossil.dom, fossil.copybutton, fossil.storage
 */
 (function(F/*fossil object*/){
   'use strict';
@@ -23,16 +23,23 @@
   /* Recall that the 'self' symbol, except where locally
      overwritten, refers to the global window or worker object. */
 
+  const D = F.dom;
   /** Name of the stored copy of this app's config. */
   const configStorageKey = 'pikchrshow-config';
 
-  /**
-     The PikchrFiddle object is intended to be the primary app-level
-     object for the main-thread side of the fiddle application. It
-     uses a worker thread to load the WASM module and communicate
-     with it.
-  */
-  const PS/*local convenience alias*/ = F.PikchrShow/*canonical name*/ = {
+  /* querySelectorAll() proxy */
+  const EAll = function(/*[element=document,] cssSelector*/){
+    return (arguments.length>1 ? arguments[0] : document)
+      .querySelectorAll(arguments[arguments.length-1]);
+  };
+  /* querySelector() proxy */
+  const E = function(/*[element=document,] cssSelector*/){
+    return (arguments.length>1 ? arguments[0] : document)
+      .querySelector(arguments[arguments.length-1]);
+  };
+
+  /** The main application object. */
+  const PS = {
     /* Config options. */
     config: {
       /* If true, display input/output areas side-by-side, else stack
@@ -43,11 +50,23 @@
       /* If true, the SVG is allowed to resize to fit the parent
          content area, else the parent is resized to fit the rendered
          SVG (as sized by pikchr). */
-      renderAutoScale: false,
+      renderAutofit: false,
       /* If true, automatically render while the user is typing. */
       renderWhileTyping: false
     },
-    renderMode: 'html'/*one of: 'text','html'*/,
+    /* Various DOM elements. */
+    e: {
+      previewCopyButton: E('#preview-copy-button'),
+      previewModeLabel: E('label[for=preview-copy-button]'),
+      zoneOutputButtons: E('.zone-wrapper.output > legend > .button-bar'),
+      outText: E('#pikchr-output-text'),
+      pikOutWrapper: E('#pikchr-output-wrapper'),
+      pikOut: E('#pikchr-output')
+    },
+    renderModes: ['svg'/*SVG must be at index 0*/,'markdown', 'wiki', 'text'],
+    renderModeLabels: {
+      svg: 'SVG', markdown: 'Markdown', wiki: 'Fossil Wiki', text: 'Text'
+    },
     _msgMap: {},
     /** Adds a worker message handler for messages of the given
         type. */
@@ -87,7 +106,7 @@
       F.storage.setJSON(configStorageKey,this.config);
     }
   };
-
+  PS.renderModes.selectedIndex = 0;
   PS._config = F.storage.getJSON(configStorageKey);
   if(PS._config){
     /* Copy all properties to PS.config which are currently in
@@ -105,17 +124,6 @@
   PS.worker.onmessage = (ev)=>PS.runMsgHandlers(ev.data);
   PS.addMsgHandler('stdout', console.log.bind(console));
   PS.addMsgHandler('stderr', console.error.bind(console));
-
-  /* querySelectorAll() proxy */
-  const EAll = function(/*[element=document,] cssSelector*/){
-    return (arguments.length>1 ? arguments[0] : document)
-      .querySelectorAll(arguments[arguments.length-1]);
-  };
-  /* querySelector() proxy */
-  const E = function(/*[element=document,] cssSelector*/){
-    return (arguments.length>1 ? arguments[0] : document)
-      .querySelector(arguments[arguments.length-1]);
-  };
 
   /** Handles status updates from the Module object. */
   PS.addMsgHandler('module', function f(ev){
@@ -157,6 +165,9 @@
          leave f.ui.status and message listener intact. */
     }
   });
+
+  PS.e.previewModeLabel.innerText =
+    PS.renderModeLabels[PS.renderModes[PS.renderModes.selectedIndex]];
 
   /**
      The 'pikchrshow-ready' event is fired (with no payload) when the
@@ -289,53 +300,56 @@
       });
     };
 
-    const eOut = E('#pikchr-output');
-    const eOutWrapper = E('#pikchr-output-wrapper');
     PS.addMsgHandler('pikchr', function(ev){
       const m = ev.data;
-      eOut.classList[m.isError ? 'add' : 'remove']('error');
-      eOut.dataset.pikchr = m.pikchr;
-      let content;
-      let sz;
-      switch(PS.renderMode){
+      PS.e.pikOut.classList[m.isError ? 'add' : 'remove']('error');
+      PS.e.pikOut.dataset.pikchr = m.pikchr;
+      const mode = PS.renderModes[PS.renderModes.selectedIndex];
+      switch(mode){
           case 'text':
-            content = '<textarea>'+m.result+'</textarea>';
-            eOut.classList.add('text');
-            eOutWrapper.classList.add('text');
+          case 'markdown':
+          case 'wiki': {
+            const body = [m.result];
+            if('markdown'===mode){
+              body.unshift('```pikchr');
+              body.push('```');
+            }else if('wiki'===mode){
+              body.unshift('<verbatim type="pikchr">');
+              body.push('</verbatim>');
+            }
+            PS.e.outText.value = body.join('\n');
+            PS.e.outText.classList.remove('hidden');
+            PS.e.pikOut.classList.add('hidden');
+            PS.e.pikOutWrapper.classList.add('text');
             break;
-          default:
-            content = m.result;
-            eOut.classList.remove('text');
-            eOutWrapper.classList.remove('text');
+          }
+          case 'svg':
+            PS.e.outText.classList.add('hidden');
+            PS.e.pikOut.classList.remove('hidden');
+            PS.e.pikOutWrapper.classList.remove('text');
+            PS.e.pikOut.innerHTML = m.result;
+            PS.e.outText.value = m.result/*for clipboard copy*/;
             break;
+          default: throw new Error("Unhandled render mode: "+mode);
       }
-      eOut.innerHTML = content;
       let vw = null, vh = null;
-      if(!PS.config.renderAutoScale
-         && !m.isError && 'html'===PS.renderMode){
-        const svg = E(eOut,':scope > svg');
-        const vb = svg ? svg.getAttribute('viewBox').split(' ') : false;
-        if(vb && 4===vb.length){
-          vw = (+vb[2] + 10)+'px';
-          vh = (+vb[3] + 10)+'px';
-        }else if(svg){
-          console.warn("SVG element is missing viewBox attribute.");
-        }
+      if('svg'===mode && !PS.config.renderAutofit && !m.isError){
+        vw = m.width; vh = m.height;
       }
-      eOut.style.width = vw;
-      eOut.style.height = vh;
+      PS.e.pikOut.style.width = vw ? vw+'px' : null;
+      PS.e.pikOut.style.height = vh ? vh+'px' : null;
     })/*'pikchr' msg handler*/;
 
     E('#btn-render-mode').addEventListener('click',function(){
-      let mode = PS.renderMode;
-      const modes = ['text','html'];
-      let ndx = modes.indexOf(mode) + 1;
-      if(ndx>=modes.length) ndx = 0;
-      PS.renderMode = modes[ndx];
-      if(eOut.dataset.pikchr){
-        PS.render(eOut.dataset.pikchr);
+      const modes = PS.renderModes;
+      modes.selectedIndex = (modes.selectedIndex + 1) % modes.length;
+      PS.e.previewModeLabel.innerText = PS.renderModeLabels[modes[modes.selectedIndex]];
+      if(PS.e.pikOut.dataset.pikchr){
+        PS.render(PS.e.pikOut.dataset.pikchr);
       }
     });
+    F.copyButton(PS.e.previewCopyButton, {copyFromElement: PS.e.outText});
+    PS.e.previewModeLabel.addEventListener('click', ()=>PS.e.previewCopyButton.click(), false);
 
     PS.addMsgHandler('working',function f(ev){
       switch(ev.data){
@@ -380,11 +394,11 @@
           PS.storeConfig();
         }, false);
       });
-    E('#opt-cb-autoscale').addEventListener('change',function(){
-      /* PS.config.renderAutoScale was set by the data-config
+    E('#opt-cb-autofit').addEventListener('change',function(){
+      /* PS.config.renderAutofit was set by the data-config
          event handler. */
-      if('html'==PS.renderMode && eOut.dataset.pikchr){
-        PS.render(eOut.dataset.pikchr);
+      if(0==PS.renderModes.selectedIndex && PS.e.pikOut.dataset.pikchr){
+        PS.render(PS.e.pikOut.dataset.pikchr);
       }
     });
     /* For each button with data-cmd=X, map a click handler which

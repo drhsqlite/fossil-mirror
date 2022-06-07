@@ -457,9 +457,9 @@ void pikchrshow_page(void){
         CX("<label for='opt-cb-swapio'>Swap in/out</label>");
       CX("</span>");
       CX("<span class='labeled-input'>");
-        CX("<input type='checkbox' id='opt-cb-autoscale' ");
-        CX("data-config='renderAutoScale'>");
-        CX("<label for='opt-cb-autoscale'>Auto-scale SVG</label>");
+        CX("<input type='checkbox' id='opt-cb-autofit' ");
+        CX("data-config='renderAutofit'>");
+        CX("<label for='opt-cb-autofit'>Auto-fit SVG</label>");
       CX("</span>");
       CX("<span class='labeled-input'>");
         CX("<input type='checkbox' id='opt-cb-autorender' ");
@@ -491,15 +491,20 @@ void pikchrshow_page(void){
       /*CX("<div class='splitter-handle hidden'></div>");*/
       CX("<fieldset class='zone-wrapper output'>"); {
         CX("<legend><div class='button-bar'>");
-          CX("<button id='btn-render-mode'>Toggle Render Mode</button>");
+          CX("<button id='btn-render-mode'>Render Mode</button> ");
+          CX("<span id='preview-copy-button' "
+             "title='Tap to copy to clipboard.'></span>");
+          CX("<label for='preview-copy-button' "
+             "title='Tap to copy to clipboard.'></label>");
         CX("</div></legend>");
         CX("<div id='pikchr-output-wrapper'>");
           CX("<div id='pikchr-output'></div>");
+          CX("<textarea class='hidden' id='pikchr-output-text'></textarea>");
         CX("</div>");
       } CX("</fieldset> <!-- .zone-wrapper.output -->");
     } CX("</div><!-- #main-wrapper -->");
   } CX("</div><!-- #view-split -->");
-  builtin_fossil_js_bundle_or("dom", "storage", NULL);
+  builtin_fossil_js_bundle_or("dom", "storage", "copybutton", NULL);
   builtin_request_js("fossil.page.pikchrshowasm.js");
   builtin_fulfill_js_requests();
   style_finish_page();
