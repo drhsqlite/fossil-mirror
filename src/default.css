@@ -1009,6 +1009,9 @@ div.forumObs {
 label {
   white-space: nowrap;
 }
+label[for] {
+  cursor: pointer;
+}
 .copy-button {
   display: inline-block;
   width: 14px;
@@ -1077,12 +1080,17 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   color: black;
   background: yellow;
 }
-.hidden {
-  /* The framework-wide way of hiding elements is to assign them this
-     CSS class. To make them visible again, remove it. The !important
-     qualifiers are unfortunate but sometimes necessary when hidden
-     element has other classes which specify visibility-related
-     options. */
+.hidden, .initially-hidden {
+  /* The framework-wide way of hiding elements is to assign them th
+     .hidden class. To make them visible again, remove it. The
+     !important qualifiers are unfortunate but sometimes necessary
+     when hidden element has other classes which specify
+     visibility-related options. The .initially-hidden class is for
+     pages which need to show, e.g., a progress widget while a large
+     WASM blob loads. Elements aside from that load-time widget can be
+     made .initially-hidden and then have that class removed once the
+     long-running startup process is done. See /pikchrshow for an
+     example. */
   position: absolute !important;
   opacity: 0 !important;
   pointer-events: none !important;

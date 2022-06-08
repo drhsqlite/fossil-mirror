@@ -232,16 +232,18 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
 }
 
 /*
-** WEBPAGE: pikchrshow
+** Legacy impl of /pikchrshow. pikchrshow_page() will delegate to
+** this one if the "legacy" or "ajax" request arguments are set.
 **
 ** A pikchr code editor and previewer, allowing users to experiment
 ** with pikchr code or prototype it for use in copy/pasting into forum
-** posts, wiki pages, or embedded docs.
-**
-** It optionally accepts a p=pikchr-script-code URL parameter or POST
-** value to pre-populate the editor with that code.
+** posts, wiki pages, or embedded docs. This version of pikchrshow
+** uses JavaScript to send pikchr code to the server for
+** processing. The newer /pikchrshow applications runs pikchr on the
+** client machine, without the need for back-and-forth network
+** traffic.
 */
-void pikchrshow_page(void){
+void pikchrshowcs_page(void){
   const char *zContent = 0;
   int isDark;              /* true if the current skin is "dark" */
   int pikFlags =
@@ -251,7 +253,11 @@ void pikchrshow_page(void){
 
   login_check_credentials();
   if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
-    cgi_redirectf("%R/login?g=pikchrshow");
+    cgi_redirectf("%R/login?g=pikchrshowcs");
+  }
+  if(P("wasm")){
+    pikchrshow_page();
+    return;
   }
   zContent = PD("content",P("p"));
   if(P("ajax")!=0){
@@ -281,7 +287,7 @@ void pikchrshow_page(void){
       "arrow <-> down from last box.s\n"
       "box same \"Pikchr\" \"Formatter\" \"(pikchr.c)\" fit\n";
   }
-  style_header("PikchrShow");
+  style_header("PikchrShow Client/Server");
   CX("<style>"); {
     CX("div.content { padding-top: 0.5em }\n");
     CX("#sbs-wrapper {"
@@ -338,7 +344,7 @@ void pikchrshow_page(void){
     CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   } CX("</style>");
   CX("<div>Input pikchr code and tap Preview (or Shift-Enter) to render "
-     "it:</div>");
+     "it. <a href='?wasm'>Switch to WASM mode</a>.</div>");
   CX("<div id='sbs-wrapper'>"); {
     CX("<div id='pikchrshow-form'>"); {
       CX("<textarea id='content' name='content' rows='15'>"
@@ -378,6 +384,138 @@ void pikchrshow_page(void){
   builtin_fulfill_js_requests();
   style_finish_page();
 }
+
+/*
+** WEBPAGE: pikchrshow
+**
+** A pikchr code editor and previewer, allowing users to experiment
+** with pikchr code or prototype it for use in copy/pasting into forum
+** posts, wiki pages, or embedded docs. This version of pikchrshow
+** uses WebAssembly to run entirely in the client browser, without a
+** need for back-and-forth client/server traffic to perform the
+** rendering. The "legacy" version of this application, which sends
+** all input to the server for rendering, can be accessed by adding
+** the "legacy" URL argument.
+**
+** It optionally accepts a p=pikchr-script-code URL parameter or POST
+** value to pre-populate the editor with that code.
+*/
+void pikchrshow_page(void){
+  const char *zContent = 0;
+
+  if(P("legacy") || P("ajax")){
+    pikchrshowcs_page();
+    return;
+  }
+  login_check_credentials();
+  if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
+    cgi_redirectf("%R/login?g=pikchrshow");
+  }
+  style_emit_noscript_for_js_page();
+  style_header("PikchrShow");
+  zContent = PD("content",P("p"));
+  if(!zContent){
+    zContent = "arrow right 200% \"Markdown\" \"Source\"\n"
+      "box rad 10px \"Markdown\" \"Formatter\" \"(markdown.c)\" fit\n"
+      "arrow right 200% \"HTML+SVG\" \"Output\"\n"
+      "arrow <-> down from last box.s\n"
+      "box same \"Pikchr\" \"Formatter\" \"(pikchr.c)\" fit\n";
+  }
+  /* Wasm load/init progress widget... */
+  CX("<div class='emscripten'>"); {
+    CX("<figure id='module-spinner'>");
+      CX("<div class='spinner'></div>");
+      CX("<div class='center'><strong>Initializing app...</strong></div>");
+      CX("<div class='center'>");
+        CX("On a slow internet connection this may take a moment.  If this ");
+        CX("message displays for \"a long time\", intialization may have ");
+        CX("failed and the JavaScript console may contain clues as to why. ");
+      CX("</div>");
+      CX("<div><a href='?legacy'>Switch to legacy mode</a></div>");
+    CX("</figure>");
+    CX("<div class='emscripten' id='module-status'>Downloading...</div>");
+    CX("<progress value='0' max='100' id='module-progress' hidden='1'>"
+       "</progress>");
+  } CX("</div><!-- .emscripten -->");
+  /* Main view... */
+  CX("<div id='view-split' class='app-view initially-hidden'>"); {
+    CX("<fieldset class='options collapsible'>"); {
+      CX("<legend><button id='btn-options-toggle'>Options</button></legend>");
+      CX("<div>");
+      CX("<span class='labeled-input'>");
+        CX("<input type='checkbox' id='opt-cb-sbs' ");
+        CX("data-csstgt='#main-wrapper' ");
+        CX("data-cssclass='side-by-side' ");
+        CX("data-config='sideBySide'>");
+        CX("<label for='opt-cb-sbs'>Side-by-side</label>");
+      CX("</span>");
+      CX("<span class='labeled-input'>");
+        CX("<input type='checkbox' id='opt-cb-swapio' ");
+        CX("data-csstgt='#main-wrapper' ");
+        CX("data-cssclass='swapio' ");
+        CX("data-config='swapInOut'>");
+        CX("<label for='opt-cb-swapio'>Swap in/out</label>");
+      CX("</span>");
+      CX("<span class='labeled-input'>");
+        CX("<input type='checkbox' id='opt-cb-autofit' ");
+        CX("data-config='renderAutofit'>");
+        CX("<label for='opt-cb-autofit' "
+           "title='Attempt to scale SVG to fit viewport. "
+           "Whether it will work depends in part on the size "
+           "and shape of the image and the viewport.'"
+           ">Auto-fit SVG</label>");
+      CX("</span>");
+      CX("<span class='labeled-input'>");
+        CX("<input type='checkbox' id='opt-cb-autorender' ");
+        CX("data-csstgt='#main-wrapper' ");
+        CX("data-cssclass='auto-render' ");
+        CX("data-config='renderWhileTyping'>");
+        CX("<label for='opt-cb-autorender'>Render while typing</label>");
+      CX("</span>");
+      CX("<span class='labeled-input'>");
+        CX("<a href='?legacy'>Legacy mode</a>");
+      CX("</span>");
+      CX("</div><!-- options wrapper -->");
+    } CX("</fieldset>");
+    CX("<div id='main-wrapper' class=''>"); {
+      CX("<fieldset class='zone-wrapper input'>"); {
+        CX("<legend><div class='button-bar'>");
+          CX("<button id='btn-render' "
+             "title='Ctrl-Enter/Shift-Enter'>Render</button>");
+          CX("<button id='btn-clear'>Clear Input</button>");
+        CX("</div></legend>");
+        CX("<div><textarea id='input'");
+          CX("placeholder='Pikchr input. Ctrl-enter/shift-enter runs it.'>");
+          CX("/**\n");
+          CX("  Use ctrl-enter or shift-enter to execute\n");
+          CX("  pikchr code. If only a subset is currently\n");
+          CX("  selected, only that part is evaluated.\n*/\n");
+        CX("%s</textarea></div>",zContent/*safe-for-%s*/);
+      } CX("</fieldset><!-- .zone-wrapper.input -->");
+      /*CX("<div class='splitter-handle hidden'></div>");*/
+      CX("<fieldset class='zone-wrapper output'>"); {
+        CX("<legend><div class='button-bar'>");
+          CX("<button id='btn-render-mode'>Render Mode</button> ");
+          CX("<span style='white-space:nowrap'>"
+             "<span id='preview-copy-button' "
+             "title='Tap to copy to clipboard.'></span>"
+             "<label for='preview-copy-button' "
+             "title='Tap to copy to clipboard.'></label>"
+             "</span>");
+        CX("</div></legend>");
+        CX("<div id='pikchr-output-wrapper'>");
+          CX("<div id='pikchr-output'></div>");
+          CX("<textarea class='hidden' id='pikchr-output-text'></textarea>");
+        CX("</div>");
+      } CX("</fieldset> <!-- .zone-wrapper.output -->");
+    } CX("</div><!-- #main-wrapper -->");
+  } CX("</div><!-- #view-split -->");
+  builtin_fossil_js_bundle_or("dom", "storage", "copybutton", NULL);
+  builtin_request_js("fossil.page.pikchrshowasm.js");
+  builtin_fulfill_js_requests();
+  style_finish_page();
+}
+
 
 /*
 ** COMMAND: pikchr*

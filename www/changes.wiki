@@ -27,7 +27,10 @@
   *  Fix [/timeline?r=fix_remote_url_overwrite_with_proxy|remote-url-overwrite]
      bug where remote-url is overwritten by the proxy setting during sync
      operation. Also require explicit "system" proxy setting to use
-     "http_proxy" environment variable. 
+     "http_proxy" environment variable.
+  *  Reimplemented the [/pikchrshow] app to use a WebAssembly build of
+     pikchr so that it can render pikchrs on the client instead of requiring
+     a server round-trip.
   *  Add the [/help?cmd=email-listid|email-listid setting]. If set, it is
      used as the List-ID header for all outbound notification emails.
 

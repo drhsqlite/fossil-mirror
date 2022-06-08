@@ -903,7 +903,7 @@ static void style_load_all_js_files(void){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0)
                    && sqlite3_strglob("*Android*",PD("HTTP_USER_AGENT",""));
-    @ <script id='href-data' type='application/json'>\
+    @ <script id='href-data' type='text/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
   @ <script nonce="%h(style_nonce())">/* style.c:%d(__LINE__) */
@@ -1222,7 +1222,7 @@ void page_script_js(void){
     cgi_set_content_type("text/plain");
   }else{
     /* Default behavior is to return javascript */
-    cgi_set_content_type("application/javascript");
+    cgi_set_content_type("text/javascript");
   }
   style_init_th1_vars(0);
   Th_Render(zScript?zScript:"");
