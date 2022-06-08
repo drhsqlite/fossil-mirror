@@ -491,11 +491,18 @@ has the Emscripten SDK (a.k.a. emsdk) installed, as documented at:
 
 [https://emscripten.org/docs/getting_started/downloads.html]
 
+For instructions on keeping the SDK up to date, see:
+
+[https://emscripten.org/docs/tools_reference/emsdk.html]
+
     Sidebar: getting Emscripten up and running is trivial and
-    painless, at least on Linux systems, but the installer
-    downloads many hundreds of megabytes of tools and dependencies,
-    all of which will be installed under the single SDK directory (as
-    opposed to being installed at the system level).
+    painless, at least on Linux systems, but the installer downloads
+    many hundreds of megabytes of tools and dependencies, all of which
+    will be installed under the single SDK directory (as opposed to
+    being installed at the system level). It does, however, require
+    that python3 be installed at the system level and it can
+    optionally make use of a system-level cmake for certain tasks
+    unrelated to how fossil uses the SDK.
 
 After installing the SDK, configure the fossil tree with emsdk
 support:

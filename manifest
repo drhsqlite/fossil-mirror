@@ -1,5 +1,5 @@
-C Added\smjs\s(ES6\smodules)\smimetype.\sChanged\sJS\smimetype\sfrom\sapplication/javascript\sto\stext/javascript\sto\sconform\swith\sthe\sHTML\sspec.\sapplication/javascript\sis\scommonly\sused\sin\sthe\swild.
-D 2022-06-08T10:08:50.919
+C build.wiki:\sadded\snotes\sabout\semsdk\srequirements\sand\skeeping\sit\sup\sto\sdate.
+D 2022-06-08T10:09:22.883
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -796,7 +796,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 4e06bd491e9dd4a9e7a5b919fd29cd007207c107fc38f481e7b2bd61305ca707
+F www/build.wiki 06de3cc3ff98400f867f043d86430f0d725d500fe0d3b2a213703623e34c5e03
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb9f3dcce6d33533edbea6b240a957da0086b214cc869b5be68383f7d93dc15a
-R 797e1ea2717b80dcc172ba1bdd8c4f9f
+P a54a2c6ac3d7850b1373ee62fb3a245e79964701dbebe8241052ba6d537b4d7f
+R eea4bf9e9564ab7a025cb1ad21dbed96
 U stephan
-Z cb8e2d3a974927f0bee9d1b71d8bdcb1
+Z dc0b0cfe98712a95aa63d6122ca2f563
 # Remove this line to create a well-formed Fossil manifest.
