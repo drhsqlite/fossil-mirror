@@ -334,7 +334,7 @@ Note the IDs of the images named <tt>fossil_static</tt> and <tt>alpine</tt>, the
 
 <h3>6.1 Cross-compiling from Linux</h3>
 
-The following instructions for building Fossil for Android,
+The following instructions for building Fossil for Android via Linux,
 without requiring a rooted OS, are adapted from
 [https://fossil-scm.org/forum/forumpost/e0e9de4a7e | forumpost/e0e9de4a7e].
 
@@ -383,9 +383,8 @@ be found
 [https://stackoverflow.com/a/41900551 | on this StackOverflow post].
 
 
-
 <a id='fuzzer'></a>
-<h2>Building for Fuzz Testing</h2>
+<h2>7.0 Building for Fuzz Testing</h2>
 
 This feature is primarily intended for fossil's developers and may
 change at any time. It is only known to work on Linux systems and has
@@ -465,7 +464,7 @@ list to ensure that your <tt>--fuzztype</tt> flag is there.
 
 
 <a id='wasm'></a>
-<h2>Building WebAssembly Components</h2>
+<h2>8.0 Building WebAssembly Components</h2>
 
 As of version 2.19, fossil uses one component built as
 [https://developer.mozilla.org/en-US/docs/WebAssembly | WebAssembly]
