@@ -10,8 +10,8 @@
 
   ***********************************************************************
 
-  This is the JS Worker file for the pikchr fiddle app. It loads the
-  pikchr wasm module and offers access to it via the Worker
+  This is a JS Worker file for use with the pikchr wasm build. It
+  loads the pikchr wasm module and offers access to it via the Worker
   message-passing interface.
 
   Because we can have only a single message handler, as opposed to an
@@ -68,10 +68,10 @@
     data:{
       pikchr: input text,
       result: rendered result (SVG on success, HTML on error),
-      isError: bool, true if .pikchr holds an error report,
+      isError: bool, true if .result holds an error report,
       flags: integer: flags used to configure the pikchr rendering,
-      width: if !isError, width (pixels) of the SVG,
-      height: if !isError, height (pixels) of the SVG
+      width: if !isError, width (integer pixels) of the SVG,
+      height: if !isError, height (integer pixels) of the SVG
     }
   }
 
