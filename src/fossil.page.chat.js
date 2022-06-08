@@ -1352,25 +1352,31 @@ window.fossil.onPageLoad(function(){
     if(!f.spaces){
       f.spaces = /\s+$/;
       f.markdownContinuation = /\\\s+$/;
+      f.spaces2 = /\s{3,}$/;
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
     const fallback = {msg: this.inputValue()};
-    var msg = fallback.msg.trim();
+    var msg = fallback.msg;
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
-      /* Cosmetic: trim whitespace from the ends of lines to try to
+      /* Cosmetic: trim most whitespace from the ends of lines to try to
          keep copy/paste from terminals, especially wide ones, from
          forcing a horizontal scrollbar on all clients. This breaks
          markdown's use of blackslash-space-space for paragraph
          continuation, but *not* doing this affects all clients every
          time someone pastes in console copy/paste from an affected
          platform. We seem to have narrowed to the console pasting
-         problem to users of tmux. Most consoles don't behave
-         that way. */
+         problem to users of tmux together with certain apps (vim, at
+         a minimum). Most consoles don't behave that way.
+
+         We retain two trailing spaces so that markdown conventions
+         which use end-of-line spacing aren't broken by this
+         stripping.
+      */
       const xmsg = msg.split('\n');
       xmsg.forEach(function(line,ndx){
         if(!f.markdownContinuation.test(line)){
-          xmsg[ndx] = line.trimRight();
+          xmsg[ndx] = line.replace(f.spaces2, '  ');
         }
       });
       msg = xmsg.join('\n');
