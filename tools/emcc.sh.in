@@ -14,39 +14,47 @@
 EMSDK_HOME="@EMSDK_HOME@"
 EMSDK_ENV="@EMSDK_ENV@"
 
-if [ x = "x${EMSDK_HOME}" ]; then
-  echo "EMSDK_HOME is not set. Pass --with-emsdk=/path/to/emsdk" \
-       "to the configure script." 1>&2
-  exit 1
-fi
+emcc=$(which emcc 2>/dev/null)
 
-if [ x = "x${EMSDK_ENV}" ]; then
-  if [ -f "${EMSDK_HOME}/emsdk_env.sh" ]; then
-    EMSDK_ENV="${EMSDK_HOME}/emsdk_env.sh"
-  else
-    echo "EMSDK_ENV is not set. Expecting configure script to set it." 1>&2
-    exit 2
+if [ x = "x${emcc}" ]; then
+  # If emcc is not found in the path, try to find it via an emsdk
+  # installation. The SDK variant is the official installation
+  # style supported by the Emscripten folks, but emcc is also
+  # available via package managers on some OSes.
+  if [ x = "x${EMSDK_HOME}" ]; then
+    echo "EMSDK_HOME is not set. Pass --with-emsdk=/path/to/emsdk" \
+         "to the configure script." 1>&2
+    exit 1
   fi
-fi
 
-if [ ! -f "${EMSDK_ENV}" ]; then
-  echo "emsdk_env script not found: $EMSDK_ENV" 1>&2
-  exit 3
-fi
+  if [ x = "x${EMSDK_ENV}" ]; then
+    if [ -f "${EMSDK_HOME}/emsdk_env.sh" ]; then
+      EMSDK_ENV="${EMSDK_HOME}/emsdk_env.sh"
+    else
+      echo "EMSDK_ENV is not set. Expecting configure script to set it." 1>&2
+      exit 2
+    fi
+  fi
 
-# $EMSDK is part of the state set by emsdk_env.sh.
-if [ x = "x${EMSDK}" ]; then
-  source "${EMSDK_ENV}" >/dev/null 2>&1 || {
-    # ^^^ unfortunately outputs lots of noise to stderr
-    rc=$?
-    echo "Error sourcing ${EMSDK_ENV}"
-    exit $rc
-  }
-fi
+  if [ ! -f "${EMSDK_ENV}" ]; then
+    echo "emsdk_env script not found: $EMSDK_ENV" 1>&2
+    exit 3
+  fi
 
-if ! which emcc >/dev/null; then
-  echo "emcc not found in PATH. Expecting EMSDK_ENV to set that." 1>&2
-  exit 4
+  # $EMSDK is part of the state set by emsdk_env.sh.
+  if [ x = "x${EMSDK}" ]; then
+    source "${EMSDK_ENV}" >/dev/null 2>&1 || {
+      # ^^^ unfortunately outputs lots of noise to stderr
+      rc=$?
+      echo "Error sourcing ${EMSDK_ENV}"
+      exit $rc
+    }
+  fi
+  emcc=$(which emcc 2>/dev/null)
+  if [ x = "x${emcc}" ]; then
+    echo "emcc not found in PATH. Normally that's set up by EMSDK_ENV." 1>&2
+    exit 4
+  fi
 fi
 
 exec emcc "$@"

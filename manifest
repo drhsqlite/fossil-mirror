@@ -1,5 +1,5 @@
-C build.wiki:\sadded\snotes\sabout\semsdk\srequirements\sand\skeeping\sit\sup\sto\sdate.
-D 2022-06-08T10:09:22.883
+C Refactored\sthe\sconfigure\sscript's\semsdk\sdetection\sin\sthe\shopes\sthat\sthis\sreformulation\swill\swork\son\ssystems\swhere\semcc\sis\sinstalled\svia\sa\spackage\smanager.
+D 2022-06-08T12:19:29.190
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -18,7 +18,7 @@ F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 6e4a3769893fd39138273b1ef03d3da97971a3b64cc66138a43b48a46566dfc8
-F auto.def 9f7f7ece321aa13af67c72e62672f7c305541434167c5312b5eb1677d73dff60
+F auto.def 088f036f91236a700562c00f8b82b25f6c172aa8c1360e8fdda2583ecfe7393e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -749,7 +749,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073 x
 F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
-F tools/emcc.sh.in a6e5ad05394b64c2d857f768991cc8a77773a158519e16db2ee4be24aa68c1a0
+F tools/emcc.sh.in 19f6186e5280c287f7576ca7a9dfcbd5677586f4e77c54a354359490cd5b5552
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a54a2c6ac3d7850b1373ee62fb3a245e79964701dbebe8241052ba6d537b4d7f
-R eea4bf9e9564ab7a025cb1ad21dbed96
+P b256c5bc7bb0b16f95290c50785bc31bef0a7d285f40e6ea97cdc36cf69ce468
+R 9e8b68d510396ee13c15a1a2a3b7d83e
 U stephan
-Z dc0b0cfe98712a95aa63d6122ca2f563
+Z 7e66c45cdaa7144eb9d66e1cdac92cbc
 # Remove this line to create a well-formed Fossil manifest.

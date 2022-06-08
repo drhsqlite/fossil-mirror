@@ -756,7 +756,7 @@ if {[opt-bool static]} {
     define-append LIBS -lpthread
 }
 
-if {[get-define EMSDK_ENV] ne ""} {
+if {[get-define EMSDK_HOME] ne ""} {
   define EMCC_WRAPPER $::autosetup(dir)/../tools/emcc.sh
   make-template tools/emcc.sh.in
   catch {exec chmod u+x tools/emcc.sh}
