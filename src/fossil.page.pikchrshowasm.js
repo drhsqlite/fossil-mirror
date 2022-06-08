@@ -215,63 +215,6 @@
       renderCurrentText();
     },false);
 
-    0 && (function(){
-      /* Set up split-view controls... This _almost_ works correctly,
-         just needs some tweaking to account for switching between
-         side-by-side and top-bottom views. */
-      // adapted from https://htmldom.dev/create-resizable-split-views/
-      const Split = {
-        e:{
-          left: E('.zone-wrapper.input'),
-          right: E('.zone-wrapper.output'),
-          handle: E('.splitter-handle'),
-          parent: E('#main-wrapper')
-        },
-        x: 0, y: 0,
-        widthLeft: 0,
-        heightLeft: 0
-      };
-      Split.mouseDownHandler = function(e){
-        this.x = e.clientX;
-        this.y = e.clientY;
-        const r = this.e.left.getBoundingClientRect();
-        this.widthLeft = r.width;
-        this.heightLeft = r.height;
-        document.addEventListener('mousemove', this.mouseMoveHandler);
-        document.addEventListener('mouseup', this.mouseUpHandler);
-      }.bind(Split);
-      Split.mouseMoveHandler = function(e){
-        const isHorizontal = this.e.parent.classList.contains('side-by-side');
-        const dx = e.clientX - this.x;
-        const dy = e.clientY - this.y;
-        if(isHorizontal){
-          const w = ((this.widthLeft + dx) * 100)
-                / this.e.parent.getBoundingClientRect().width;
-          this.e.left.style.width = w+'%';
-        }else{
-          const h = ((this.heightLeft + dy) * 100)
-                / this.e.parent.getBoundingClientRect().height;
-          this.e.left.style.height = h+'%';
-        }
-        document.body.style.cursor = isHorizontal ? 'col-resize' : 'row-resize';
-        this.e.left.style.userSelect = 'none';
-        this.e.left.style.pointerEvents = 'none';
-        this.e.right.style.userSelect = 'none';
-        this.e.right.style.pointerEvents = 'none';
-      }.bind(Split);
-      Split.mouseUpHandler = function(e){
-        this.e.handle.style.removeProperty('cursor');
-        document.body.style.removeProperty('cursor');
-        this.e.left.style.removeProperty('user-select');
-        this.e.left.style.removeProperty('pointer-events');
-        this.e.right.style.removeProperty('user-select');
-        this.e.right.style.removeProperty('pointer-events');
-        document.removeEventListener('mousemove', this.mouseMoveHandler);
-        document.removeEventListener('mouseup', this.mouseUpHandler);
-      }.bind(Split);
-      Split.e.handle.addEventListener('mousedown', Split.mouseDownHandler);
-    })();
-
     /** To be called immediately before work is sent to the
         worker. Updates some UI elements. The 'working'/'end'
         event will apply the inverse, undoing the bits this
