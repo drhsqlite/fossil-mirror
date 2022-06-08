@@ -1,5 +1,5 @@
-C In\s/chat,\schange\sthe\sEOL\swhitespace-stripping\spolicy\sto\sretain\sup\sto\s2\sspaces,\sonly\sstripping\safter\sthe\s3rd,\sto\savoid\sbreaking\scertain\smarkdown\sconstructs.\sPer\s/chat\sdiscussion.
-D 2022-06-08T15:17:29.133
+C /chat:\sdo\snot\sshow\sthe\sToggle\sText\sMode\sfeature\sfor\smessages\swith\sno\stext,\se.g.\simage-only\sposts\s(resolves\san\sunhandled\sexception).\sWhen\stext\sis\stoggled\sto\sthe\sunparsed\sstate,\sshow\sa\scopy-to-clipboard\sbutton\swhich\scopies\sthe\sraw\smessage\stext\sto\sthe\sclipboard.\sThat\sis\sa\sworkaround\sfor\smouse-copying\sof\sthat\stext\scollecting\sextraneous\snewlines\sfor\sreasons\sonly\sthe\sbrowsers\sunderstand.
+D 2022-06-08T15:52:08.791
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -456,13 +456,13 @@ F src/forum.c 74204138c764aa66f18d21552d5a4727b2a3882a055d30e140343dbfa51acab4
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
-F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
+F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
 F src/fossil.diff.js 2a34fb4752408827809917a4e09d91f1882f366004a95e0bbdd4223b231c6132
 F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e05e09
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 40a78d2cd05e5556857580a8ac0fb9f191da89f83376efa37f88ba7c34233a5e
+F src/fossil.page.chat.js 6173560b37a25e7bc3ecc09b99f920e1e1beb584cb1a3b8433e729e4716389d9
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js f3d2a7ac7ec10d4f03decdcf14e90b0c08b49462d5c0bfacb3f53f07eb84ac4e
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6aaeb1b6df6424164ddbc3a11703275ae9c60c3c17af6abb47e4d38346187a5
-R a40be08ed34aa8fed17522ec6af721b6
+P cd7f2ddc9884884bfa7cc3ae487386862216d214886db3907e89086c19d2630e
+R e12e1913925eab8917a51c40fe207d45
 U stephan
-Z 18f4ff777acafd0685aa52c151522b2b
+Z 9821ef03117538114ae6158c3e5c470d
 # Remove this line to create a well-formed Fossil manifest.

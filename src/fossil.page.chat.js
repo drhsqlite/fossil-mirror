@@ -704,6 +704,11 @@ window.fossil.onPageLoad(function(){
       else if(e.$isToggling) return;
       e.$isToggling = true;
       const content = e.querySelector('.content-target');
+      if(!content){
+        console.warn("Should not be possible: trying to toggle text",
+                     "mode of a message with no .content-target.", e);
+        return;
+      }
       if(!content.$elems){
         content.$elems = [
           content.firstElementChild, // parsed elem
@@ -716,8 +721,25 @@ window.fossil.onPageLoad(function(){
             ? content.$elems[1]
             : content.$elems[0]
         );
+        D.clearElement(content);
+        if(child===content.$elems[1]){
+          /* When showing the unformatted version, inject a
+             copy-to-clipboard button. This is a workaround for
+             mouse-copying from that field collecting twice as many
+             newlines as it should (for unknown reasons). */
+          const cpId = 'copy-to-clipboard-'+id;
+          /* ^^^ copy button element ID, needed for LABEL element
+             pairing.  Recall that we destroy all child elements of
+             `content` each time we hit this block, so we can reuse
+             that element ID on subsequent toggles. */
+          const btnCp = D.attr(D.addClass(D.span(),'copy-button'), 'id', cpId);
+          F.copyButton(btnCp, {extractText: ()=>child._xmsgRaw});
+          const lblCp = D.label(cpId, "Copy unformatted text");
+          lblCp.addEventListener('click',()=>btnCp.click(), false);
+          D.append(content, D.append(D.addClass(D.span(), 'nobr'), btnCp, lblCp));
+        }
         delete e.$isToggling;
-        D.append(D.clearElement(content), child);
+        D.append(content, child);
         return;
       }
       // We need to fetch the plain-text version...
@@ -727,6 +749,7 @@ window.fossil.onPageLoad(function(){
         responseType: 'json',
         onload: function(msg){
           content.$elems[1] = D.append(D.pre(),msg.xmsg);
+          content.$elems[1]._xmsgRaw = msg.xmsg/*used for copy-to-clipboard feature*/;
           self.toggleTextMode(e);
         },
         aftersend:function(){
@@ -1137,11 +1160,15 @@ window.fossil.onPageLoad(function(){
               ));
               const toolbar2 = D.addClass(D.div(), 'toolbar');
               D.append(this.e, toolbar2);
-              D.append(toolbar2, D.button(
-                "Toggle text mode", function(){
-                  self.hide();
-                  Chat.toggleTextMode(eMsg);
-                }));
+              if(eMsg.querySelector('.content-target')){
+                /* ^^^ messages with only an embedded image have no
+                   .content-target area. */
+                D.append(toolbar2, D.button(
+                  "Toggle text mode", function(){
+                    self.hide();
+                    Chat.toggleTextMode(eMsg);
+                  }));
+              }
               if(eMsg.dataset.xfrom){
                 /* Add a link to the /timeline filtered on this user. */
                 const timelineLink = D.attr(

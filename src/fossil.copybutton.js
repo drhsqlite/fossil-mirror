@@ -19,9 +19,6 @@
 
      .copyFromId: DOM element ID
 
-     One of copyFromElement or copyFromId must be provided, but copyFromId
-     may optionally be provided via e.dataset.copyFromId.
-
      .extractText: optional callback which is triggered when the copy
      button is clicked. It must return the text to copy to the
      clipboard. The default is to extract it from the copy-from
@@ -32,6 +29,11 @@
      called with the fully expanded/resolved options object as its
      "this" (that's a different instance than the one passed to this
      function!).
+
+     At least one of copyFromElement, copyFromId, or extractText must
+     be provided, but if copyFromId is not set and e.dataset.copyFromId
+     is then that value is used in its place. extractText() trumps the
+     other two options.
 
      .cssClass: optional CSS class, or list of classes, to apply to e.
 
