@@ -566,8 +566,19 @@ $ ls -la extsrc/pikchr.{js,wasm}
 -rw-rw-r-- 1 stephan stephan 97578 Jun  8 03:59 extsrc/pikchr.wasm
 </code></pre>
 
-Then run the normal build so that those files can be compiled in to
-the fossil binary, accessible via the [/help?cmd=/builtin|/builtin page]:
+<blockquote>Sidebar: if that fails with a message along the lines of:
+
+<pre><code>setting `EXPORTED_RUNTIME_METHODS` expects `<class 'list'>` but got `<class 'str'>`</code></pre>
+
+then the emcc being invoked is too old: emcc changed the format of
+list-type arguments at some point. The required minimum version is
+unknown, but any SDK version from May 2022 or later "should" (as of
+this writing) suffice. Any older version may or may not work.
+</blockquote>
+
+After that succeeds, we need to run the normal build so that those
+generated files can be compiled in to the fossil binary, accessible
+via the [/help?cmd=/builtin|/builtin page]:
 
 <pre><code>$ make</code></pre>
 
@@ -579,6 +590,20 @@ likely provides at least a small hint (and <em>sometimes</em> a useful
 hint) about the nature of the problem. Don't check those files in
 until [/pikchrshow] runs, though!
 
-Should pikchr's C interface ever changes, <tt>pikchr-worker.js</tt>
+Should pikchr's C interface ever change, <tt>pikchr-worker.js</tt>
 will need to be updated to accommodate it, but such modification is
 typically trivial.
+
+<h3>8.1 Solutions other than Emscripten?</h3>
+
+Emscripten is not the only option for building C as WASM, but it
+provides a complete toolchain which eliminates many other steps which
+must otherwise be accounted for on a per-project basis.  Despite its
+convenience, it behooves us to explore other build options for the
+sake of portability and avoiding what amounts to vendor lock-in.
+
+For later refererence, here are articles specifically covering
+building WASM projects without using Emscripten:
+
+   *  [https://surma.dev/things/c-to-webassembly/]
+   *  [https://schellcode.github.io/webassembly-without-emscripten]
