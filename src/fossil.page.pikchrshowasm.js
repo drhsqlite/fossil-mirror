@@ -422,7 +422,7 @@
     });
 
     EAll('fieldset.collapsible').forEach(function(fs){
-      const btnToggle = E(fs,'legend > #btn-options-toggle'),
+      const btnToggle = E(fs,'legend > .fieldset-toggle'),
             content = EAll(fs,':scope > div');
       btnToggle.addEventListener('click', function(){
         fs.classList.toggle('collapsed');

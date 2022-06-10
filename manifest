@@ -1,5 +1,5 @@
-C In\sthe\s/winfo\sview\s(/info/WIKI_ARTIFACT_ID),\shonor\sthe\stimeline-utc\sconfiguration\sflag,\sper\srequest\sin\s[forum:7e7219e59120b2db].\sThough\sthat\ssetting\sis\sostensibly\sonly\sfor\sthe\stimeline,\sit\sseems\sto\sbe\sused\sjust\sabout\swhere\sexcept\swhere\stimes\sare\sexplicitly\slabeled\sas\sUTC.
-D 2022-06-10T14:11:28.867
+C Minor\s/pikchrshow\sCSS\scleanups.
+D 2022-06-10T14:12:35.908
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -469,7 +469,7 @@ F src/fossil.page.chat.js 6173560b37a25e7bc3ecc09b99f920e1e1beb584cb1a3b8433e729
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
-F src/fossil.page.pikchrshowasm.js 78740fc61e15f2fc2c83e2631f3ef69164af152c6901482e0f02991b4905e528
+F src/fossil.page.pikchrshowasm.js e5220eaebde27ac80876e18667ac3490ba7e3108df3b8cd93986311d870459b6
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js aa823d629f61df524e8d1a37b683152f7378b48f8f8d381142862dd3536f016f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -531,7 +531,7 @@ F src/name.c bb3f5e33988ac171abad82380d05f901ffc5a178af710e5e65ce26d7c198032a
 F src/patch.c 06d64bf49e8704469d3a9197ff2fde8495309ffe14a310f49437385bbae2aa10
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
-F src/pikchrshow.c 6c66b5af436819ac72985c8f9894e98e9f9c464ec79a8f4284284bd88e4ce866
+F src/pikchrshow.c 9794857564533fad5cc68e050019027459b5d25dc78c341d33e0793146986ae3
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -583,7 +583,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c e87edf43c0fc8b517865290c97708dc2ead6bdda362de1b922cca82e607d31dc
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
-F src/style.pikchrshow.css d5427e3bc2683288cdec2ab2f859a8e6024a4c8669644e26bff8012bbecd73e2
+F src/style.pikchrshow.css 7abaff39cdcdd32c827d8829349902f3de8e2b81f9f965bd6eade2b1c380acba
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
 F src/tag.c de6889b6f57c5cbd8acc584b15b71351e1b3edf824186b41d0495919e9345a54
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7d53fa82af04a2e4e74b59d33765197e3fcd19c464bce89555cb2e2f2617712
-R 20cb8507574be7b76befe63e87367eb0
+P 17ebe42d6183ed601599632b8d3a7ebebda01032f3ffd487aa152503fe16495f
+R 057cce9c626c705ee4de2f13a2e017d7
 U stephan
-Z f83086ae25e255c347203d843c5d48cf
+Z 47b789efd5276cb72e7bfe2ade99a2dd
 # Remove this line to create a well-formed Fossil manifest.

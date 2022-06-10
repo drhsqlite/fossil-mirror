@@ -440,7 +440,7 @@ void pikchrshow_page(void){
   /* Main view... */
   CX("<div id='view-split' class='app-view initially-hidden'>"); {
     CX("<fieldset class='options collapsible'>"); {
-      CX("<legend><button id='btn-options-toggle'>Options</button></legend>");
+      CX("<legend><button class='fieldset-toggle'>Options</button></legend>");
       CX("<div>");
       CX("<span class='labeled-input'>");
         CX("<input type='checkbox' id='opt-cb-sbs' ");
@@ -492,7 +492,6 @@ void pikchrshow_page(void){
           CX("  selected, only that part is evaluated.\n*/\n");
         CX("%s</textarea></div>",zContent/*safe-for-%s*/);
       } CX("</fieldset><!-- .zone-wrapper.input -->");
-      /*CX("<div class='splitter-handle hidden'></div>");*/
       CX("<fieldset class='zone-wrapper output'>"); {
         CX("<legend><div class='button-bar'>");
           CX("<button id='btn-render-mode'>Render Mode</button> ");
