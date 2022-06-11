@@ -1,5 +1,5 @@
-C Minor\s/pikchrshow\sCSS\scleanups.
-D 2022-06-10T14:12:35.908
+C Typo\sfix\sreport\sin\s[forum:099e10c762b43add].
+D 2022-06-11T08:32:22.640
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -960,7 +960,7 @@ F www/ssl.wiki d86333efb04e0fa3b8a07740a2724a4925f6d5b1c7ceeab1d579faf7a3d7c2cd
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 194982be00ac12c7d07eb1848834ea7421c379c10a85f88ea6917ac0e000e446
-F www/tech_overview.wiki da5c3d1634fd953f7eacf0554cd5cb2895b654b478d8c428eac8bc780992524a
+F www/tech_overview.wiki ad89f32bfc3beb0bd7a01262bafc2e0e6b3693cb464011132efdd2b4b88cf85a
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 23e7b8566a7ad19e4f174811d75d582fdc4c319dd150dd804deae96909a9d756
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17ebe42d6183ed601599632b8d3a7ebebda01032f3ffd487aa152503fe16495f
-R 057cce9c626c705ee4de2f13a2e017d7
+P 864ed8d0a391b5b4ba7d485fd274e280437e3ce027940c3074e625898b01466a
+R 307da1e430a066462fd9e550a4abeffa
 U stephan
-Z 47b789efd5276cb72e7bfe2ade99a2dd
+Z 6c75aecf21fa9f33be2a910881287497
 # Remove this line to create a well-formed Fossil manifest.
