@@ -797,6 +797,11 @@ window.fossil.onPageLoad(function(){
       else if(e.$isToggling) return;
       e.$isToggling = true;
       const content = e.querySelector('.content-target');
+      if(!content){
+        console.warn("Should not be possible: trying to toggle text",
+                     "mode of a message with no .content-target.", e);
+        return;
+      }
       if(!content.$elems){
         content.$elems = [
           content.firstElementChild, // parsed elem
@@ -809,8 +814,25 @@ window.fossil.onPageLoad(function(){
             ? content.$elems[1]
             : content.$elems[0]
         );
+        D.clearElement(content);
+        if(child===content.$elems[1]){
+          /* When showing the unformatted version, inject a
+             copy-to-clipboard button. This is a workaround for
+             mouse-copying from that field collecting twice as many
+             newlines as it should (for unknown reasons). */
+          const cpId = 'copy-to-clipboard-'+id;
+          /* ^^^ copy button element ID, needed for LABEL element
+             pairing.  Recall that we destroy all child elements of
+             `content` each time we hit this block, so we can reuse
+             that element ID on subsequent toggles. */
+          const btnCp = D.attr(D.addClass(D.span(),'copy-button'), 'id', cpId);
+          F.copyButton(btnCp, {extractText: ()=>child._xmsgRaw});
+          const lblCp = D.label(cpId, "Copy unformatted text");
+          lblCp.addEventListener('click',()=>btnCp.click(), false);
+          D.append(content, D.append(D.addClass(D.span(), 'nobr'), btnCp, lblCp));
+        }
         delete e.$isToggling;
-        D.append(D.clearElement(content), child);
+        D.append(content, child);
         return;
       }
       // We need to fetch the plain-text version...
@@ -820,6 +842,7 @@ window.fossil.onPageLoad(function(){
         responseType: 'json',
         onload: function(msg){
           content.$elems[1] = D.append(D.pre(),msg.xmsg);
+          content.$elems[1]._xmsgRaw = msg.xmsg/*used for copy-to-clipboard feature*/;
           self.toggleTextMode(e);
         },
         aftersend:function(){
@@ -1315,11 +1338,15 @@ window.fossil.onPageLoad(function(){
               ));
               const toolbar2 = D.addClass(D.div(), 'toolbar');
               D.append(this.e, toolbar2);
-              D.append(toolbar2, D.button(
-                "Toggle text mode", function(){
-                  self.hide();
-                  Chat.toggleTextMode(eMsg);
-                }));
+              if(eMsg.querySelector('.content-target')){
+                /* ^^^ messages with only an embedded image have no
+                   .content-target area. */
+                D.append(toolbar2, D.button(
+                  "Toggle text mode", function(){
+                    self.hide();
+                    Chat.toggleTextMode(eMsg);
+                  }));
+              }
               if(eMsg.dataset.xfrom){
                 /* Add a link to the /timeline filtered on this user. */
                 const timelineLink = D.attr(
@@ -1532,25 +1559,31 @@ window.fossil.onPageLoad(function(){
     if(!f.spaces){
       f.spaces = /\s+$/;
       f.markdownContinuation = /\\\s+$/;
+      f.spaces2 = /\s{3,}$/;
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
     const fallback = {msg: this.inputValue()};
-    var msg = fallback.msg.trim();
+    var msg = fallback.msg;
     if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
-      /* Cosmetic: trim whitespace from the ends of lines to try to
+      /* Cosmetic: trim most whitespace from the ends of lines to try to
          keep copy/paste from terminals, especially wide ones, from
          forcing a horizontal scrollbar on all clients. This breaks
          markdown's use of blackslash-space-space for paragraph
          continuation, but *not* doing this affects all clients every
          time someone pastes in console copy/paste from an affected
          platform. We seem to have narrowed to the console pasting
-         problem to users of tmux. Most consoles don't behave
-         that way. */
+         problem to users of tmux together with certain apps (vim, at
+         a minimum). Most consoles don't behave that way.
+
+         We retain two trailing spaces so that markdown conventions
+         which use end-of-line spacing aren't broken by this
+         stripping.
+      */
       const xmsg = msg.split('\n');
       xmsg.forEach(function(line,ndx){
         if(!f.markdownContinuation.test(line)){
-          xmsg[ndx] = line.trimRight();
+          xmsg[ndx] = line.replace(f.spaces2, '  ');
         }
       });
       msg = xmsg.join('\n');

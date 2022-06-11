@@ -3439,6 +3439,16 @@ void db_lset(const char *zName, const char *zValue){
 int db_lget_int(const char *zName, int dflt){
   return db_int(dflt, "SELECT value FROM vvar WHERE name=%Q", zName);
 }
+int db_lget_boolean(const char *zName, int dflt){
+  char *zVal = db_lget(zName, dflt ? "on" : "off");
+  if( is_truth(zVal) ){
+    dflt = 1;
+  }else if( is_false(zVal) ){
+    dflt = 0;
+  }
+  fossil_free(zVal);
+  return dflt;
+}
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
@@ -4370,10 +4380,8 @@ struct Setting {
 */
 /*
 ** SETTING: proxy            width=32 default=off
-** URL of the HTTP proxy.  If undefined or "off" then
-** the "http_proxy" environment variable is consulted.
-** If the http_proxy environment variable is undefined
-** then a direct HTTP connection is used.
+** URL of the HTTP proxy. If "system", the "http_proxy" environment variable is
+** consulted. If undefined or "off", a direct HTTP connection is used.
 */
 /*
 ** SETTING: redirect-to-https   default=0 width=-1

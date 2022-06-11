@@ -649,8 +649,8 @@ void style_disable_csp(void){
 static const char zDfltHeader[] = 
 @ <html>
 @ <head>
-@ <base href="$baseurl/$current_page" />
 @ <meta charset="UTF-8">
+@ <base href="$baseurl/$current_page" />
 @ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
@@ -658,7 +658,7 @@ static const char zDfltHeader[] =
 @  href="$home/timeline.rss" />
 @ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
 @ </head>
-@ <body class="$current_feature">
+@ <body class="$current_feature rpage-$requested_page cpage-$canonical_page">
 ;
 
 /*
@@ -771,6 +771,15 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
+  if( g.zPath ){                /* store the first segment of a path; */
+    char *pSlash = strchr(g.zPath,'/');
+    if( pSlash ) *pSlash = 0;   /* make a temporary cut if necessary  */
+    Th_Store("requested_page", escape_quotes(g.zPath));
+    if( pSlash ) *pSlash = '/';
+  }else{
+    Th_Store("requested_page", "");
+  }
+  Th_Store("canonical_page", escape_quotes(g.zPhase+1));
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
@@ -894,7 +903,7 @@ static void style_load_all_js_files(void){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0)
                    && sqlite3_strglob("*Android*",PD("HTTP_USER_AGENT",""));
-    @ <script id='href-data' type='application/json'>\
+    @ <script id='href-data' type='text/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
   @ <script nonce="%h(style_nonce())">/* style.c:%d(__LINE__) */
@@ -913,6 +922,37 @@ static void style_load_all_js_files(void){
   }
   @ </script>
   builtin_fulfill_js_requests();
+}
+
+/*
+** Transorm input string into a token that is safe for inclusion into
+** class attribute. Digits and low-case letter are passed unchanged,
+** upper-case letters are transformed to low-case, everything else is
+** tranformed into hyphens; consequtive and pending hyphens are squeezed.
+** If result does not fit into szOut chars then it is truncated.
+** Result is always terminated with null.
+*/
+void style_derive_classname(const char *zIn, char *zOut, int szOut){
+  assert(  zOut );
+  assert( szOut>0 );
+  if( zIn ){
+    int n = 0;  /* number of chars written to zOut */
+    char c;
+    for(--szOut; (c=*zIn) && n<szOut; zIn++) {
+      if( ('a'<=c && c<='z') || ('0'<=c && c<='9') ){
+        *zOut = c;
+      }else if( 'A'<=c && c<='Z' ){
+        *zOut = c - 'A' + 'a';
+      }else{
+        if( n==0 || zOut[-1]=='-' ) continue;
+        *zOut = '-';
+      }
+      zOut++;
+      n++;
+    }
+    if( n && zOut[-1]=='-' ) zOut--;
+  }
+  *zOut = 0;
 }
 
 /*
@@ -943,6 +983,7 @@ void style_finish_page(){
   cgi_destination(CGI_HEADER);
   if( submenuEnable && nSubmenu+nSubmenuCtrl>0 ){
     int i;
+    char zClass[32]; /* reduced form of the main attribute */
     if( nSubmenuCtrl ){
       @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>
       @ <input type='hidden' name='udc' value='1'>
@@ -953,17 +994,19 @@ void style_finish_page(){
       qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
       for(i=0; i<nSubmenu; i++){
         struct Submenu *p = &aSubmenu[i];
+        style_derive_classname(p->zLabel, zClass, sizeof zClass);
         /* switching away from the %h formatting below might be dangerous
         ** because some places use %s to compose zLabel and zLink;
-        ** e.g. /rptview page
+        ** e.g. /rptview page.  "sml" stands for submenu link.
         */
         if( p->zLink==0 ){
-          @ <span class="label">%h(p->zLabel)</span>
+          @ <span class="label sml-%s(zClass)">%h(p->zLabel)</span>
         }else{
-          @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
+          @ <a class="label sml-%s(zClass)" href="%h(p->zLink)">%h(p->zLabel)</a>
         }
       }
     }
+    strcpy(zClass,"smc-");   /* common prefix for submenu controls */
     for(i=0; i<nSubmenuCtrl; i++){
       const char *zQPN = aSubmenuCtrl[i].zName;
       const char *zDisabled = "";
@@ -973,9 +1016,10 @@ void style_finish_page(){
       }else if( zQPN ){
         cgi_tag_query_parameter(zQPN);
       }
+      style_derive_classname(zQPN, zClass+4, sizeof(zClass)-4);
       switch( aSubmenuCtrl[i].eType ){
         case FF_ENTRY:
-          @ <span class='submenuctrl%s(zXtraClass)'>\
+          @ <span class='submenuctrl%s(zXtraClass) %s(zClass)'>\
           @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           @ <input type='text' name='%s(zQPN)' value='%h(PD(zQPN, ""))' \
           if( aSubmenuCtrl[i].iSize<0 ){
@@ -990,12 +1034,12 @@ void style_finish_page(){
           int j;
           const char *zVal = P(zQPN);
           if( zXtraClass[0] ){
-            @ <span class='%s(zXtraClass+1)'>
+            @ <span class='%s(zXtraClass+1) %s(zClass)'>
           }
           if( aSubmenuCtrl[i].zLabel ){
             @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           }
-          @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
+          @ <select class='submenuctrl %s(zClass)' size='1' name='%s(zQPN)' \
           @ id='submenuctrl-%d(i)'%s(zDisabled)>
           for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
             const char *zQPV = aSubmenuCtrl[i].azChoice[j];
@@ -1029,7 +1073,7 @@ void style_finish_page(){
           break;
         }
         case FF_CHECKBOX: {
-          @ <label class='submenuctrl submenuckbox%s(zXtraClass)'>\
+          @ <label class='submenuctrl submenuckbox%s(zXtraClass) %s(zClass)'>\
           @ <input type='checkbox' name='%s(zQPN)' id='submenuctrl-%d(i)' \
           if( PB(zQPN) ){
             @ checked \
@@ -1178,7 +1222,7 @@ void page_script_js(void){
     cgi_set_content_type("text/plain");
   }else{
     /* Default behavior is to return javascript */
-    cgi_set_content_type("application/javascript");
+    cgi_set_content_type("text/javascript");
   }
   style_init_th1_vars(0);
   Th_Render(zScript?zScript:"");

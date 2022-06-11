@@ -905,7 +905,9 @@ const char *fossil_web_browser(void){
 */
 void fossil_nice(int level){
 #ifndef _WIN32
-  nice(level);
+  /* dummy if() condition to avoid nuisance warning about unused result on
+     certain compiler */
+  if( nice(level) ){ /*ignored*/ }
 #else
   (void)level;
 #endif

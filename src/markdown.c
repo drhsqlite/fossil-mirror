@@ -2835,6 +2835,7 @@ void markdown(
   struct footnote *fn;
   size_t i, beg, end = 0;
   struct render rndr;
+  size_t size;
   Blob text = BLOB_INITIALIZER;        /* input after the first pass  */
   Blob * const allNotes = &rndr.notes.all;
 
@@ -2876,7 +2877,7 @@ void markdown(
   /* first pass: iterate over lines looking for references,
    * copying everything else into "text" */
   beg = 0;
-  for(const size_t size = blob_size(ib); beg<size ;){
+  for(size = blob_size(ib); beg<size ;){
     const char* const data = blob_buffer(ib);
     if( is_ref(data, beg, size, &end, &rndr.refs) ){
       beg = end;

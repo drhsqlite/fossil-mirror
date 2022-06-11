@@ -132,16 +132,15 @@ void test_builtin_get(void){
 
 /*
 ** Input zList is a list of numeric identifiers for files in
-** aBuiltinFiles[].  Return the concatenation of all of those
-** files using mimetype zType, or as application/javascript if
-** zType is 0.
+** aBuiltinFiles[].  Return the concatenation of all of those files
+** using mimetype zType, or as text/javascript if zType is 0.
 */
 static void builtin_deliver_multiple_js_files(
   const char *zList,   /* List of numeric identifiers */
   const char *zType    /* Override mimetype */
 ){
   Blob *pOut;
-  if( zType==0 ) zType = "application/javascript";
+  if( zType==0 ) zType = "text/javascript";
   cgi_set_content_type(zType);
   pOut = cgi_output_blob();
   while( zList[0] ){
@@ -205,7 +204,7 @@ void builtin_webpage(void){
   }
   if( zType==0 ){
     if( sqlite3_strglob("*.js", zName)==0 ){
-      zType = "application/javascript";
+      zType = "text/javascript";
     }else{
       zType = mimetype_from_name(zName);
     }

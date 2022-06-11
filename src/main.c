@@ -140,7 +140,8 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
-  const char *zPhase;     /* Phase of operation, for use by the error log */
+  const char *zPhase;     /* Phase of operation, for use by the error log
+                          ** and for deriving $canonical_page TH1 variable */
   int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
@@ -178,7 +179,7 @@ struct Global {
   const char *zHttpCmd;   /* External program to do HTTP requests */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
-  char *zPath;            /* Name of webpage being served */
+  char *zPath;            /* Name of webpage being served (may be NULL) */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */

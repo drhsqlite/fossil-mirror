@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.39.0"
 #define SQLITE_VERSION_NUMBER 3039000
-#define SQLITE_SOURCE_ID      "2022-04-21 19:38:17 f766dff012af0ea3c28a8ce4db850cd0205729a8283bce1e442992aded7c734b"
+#define SQLITE_SOURCE_ID      "2022-06-03 14:08:40 d18818afc6021a32989499c26ab38fa442e5a55e662e39bb06e5c0daa9c65e25"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -6275,6 +6275,28 @@ SQLITE_API int sqlite3_get_autocommit(sqlite3*);
 ** create the statement in the first place.
 */
 SQLITE_API sqlite3 *sqlite3_db_handle(sqlite3_stmt*);
+
+/*
+** CAPI3REF: Return The Schema Name For A Database Connection
+** METHOD: sqlite3
+**
+** ^The sqlite3_db_name(D,N) interface returns a pointer to the schema name
+** for the N-th database on database connection D, or a NULL pointer of N is
+** out of range.  An N alue of 0 means the main database file.  An N of 1 is
+** the "temp" schema.  Larger values of N correspond to various ATTACH-ed
+** databases.
+**
+** Space to hold the string that is returned by sqlite3_db_name() is managed
+** by SQLite itself.  The string might be deallocated by any operation that
+** changes the schema, including [ATTACH] or [DETACH] or calls to
+** [sqlite3_serialize()] or [sqlite3_deserialize()], even operations that
+** occur on a different thread.  Applications that need to
+** remember the string long-term should make their own copy.  Applications that
+** are accessing the same database connection simultaneously on multiple
+** threads should mutex-protect calls to this API and should make their own
+** private copy of the result prior to releasing the mutex.
+*/
+SQLITE_API const char *sqlite3_db_name(sqlite3 *db, int N);
 
 /*
 ** CAPI3REF: Return The Filename For A Database Connection

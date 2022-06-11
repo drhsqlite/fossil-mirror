@@ -11,11 +11,28 @@
   *  Performance enhancement for the 
      [./checkin_names.wiki#root|"root:BRANCHNAME" style of tag],
      accomplished using a Common Table Expression in the underlying SQL.
+  *  Sort tag listings (command line and webpage) by taking numbers into
+     consideration so as to cater for tags that follow semantic versioning.
+  *  On the wiki listings, omit by default wiki pages that are associated with
+     check-ins and branches.     
   *  Add the new "[/help?cmd=describe|fossil describe]" command.
   *  Markdown subsystem extended with [../src/markdown.md#ftnts|footnotes support].
      See corresponding [../test/markdown-test3.md|test cases],
      [/wiki?name=branch/markdown-footnotes#il|known limitations] and
      [forum:/forumthread/ee1f1597e46ec07a|discussion].
+  *  Add the new special name "start:BRANCH" to refer to the first check-in of
+     the branch.
+  *  Support [/wiki?name=branch/generated-tkt-mimetype&p|generated "mimetype"]
+     columns in the <var>TICKET</var> and <var>TICKETCHNG</var> tables.
+  *  Fix [/timeline?r=fix_remote_url_overwrite_with_proxy|remote-url-overwrite]
+     bug where remote-url is overwritten by the proxy setting during sync
+     operation. Also require explicit "system" proxy setting to use
+     "http_proxy" environment variable.
+  *  Reimplemented the [/pikchrshow] app to use a WebAssembly build of
+     pikchr so that it can render pikchrs on the client instead of requiring
+     a server round-trip.
+  *  Add the [/help?cmd=email-listid|email-listid setting]. If set, it is
+     used as the List-ID header for all outbound notification emails.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands

@@ -65,7 +65,8 @@ struct UrlData {
   char *fossil;         /* The fossil query parameter on ssh: */
   unsigned flags;       /* Boolean flags controlling URL processing */
   int useProxy;         /* Used to remember that a proxy is in use */
-  char *proxyUrlPath;
+  char *proxyUrlPath;   /* Remember path when proxy is use */
+  char *proxyUrlCanonical; /* Remember canonical path when proxy is use */
   int proxyOrigPort;    /* Tunneled port number for https through proxy */
 };
 #endif /* INTERFACE */
@@ -536,7 +537,7 @@ void url_enable_proxy(const char *zMsg){
   zProxy = zProxyOpt;
   if( zProxy==0 ){
     zProxy = db_get("proxy", 0);
-    if( zProxy==0 || zProxy[0]==0 || is_false(zProxy) ){
+    if( fossil_strcmp(zProxy, "system")==0 ){
       zProxy = fossil_getenv("http_proxy");
     }
   }
@@ -566,6 +567,7 @@ void url_enable_proxy(const char *zMsg){
     g.url.passwd = zOriginalPasswd;
     g.url.isHttps = fOriginalIsHttps;
     g.url.useProxy = 1;
+    g.url.proxyUrlCanonical = zOriginalUrl;;
     g.url.proxyUrlPath = zOriginalUrlPath;
     g.url.proxyOrigPort = iOriginalPort;
     g.url.flags = uOriginalFlags;
@@ -724,10 +726,16 @@ void url_prompt_for_password(void){
 */
 void url_remember(void){
   if( g.url.flags & URL_REMEMBER ){
-    if( g.url.flags & URL_USE_PARENT ){
-      db_set("parent-project-url", g.url.canonical, 0);
+    const char *url;
+    if( g.url.useProxy ){
+      url = g.url.proxyUrlCanonical;
     }else{
-      db_set("last-sync-url", g.url.canonical, 0);
+      url = g.url.canonical;
+    }
+    if( g.url.flags & URL_USE_PARENT ){
+      db_set("parent-project-url", url, 0);
+    }else{
+      db_set("last-sync-url", url, 0);
     }
     if( g.url.user!=0 && g.url.passwd!=0 && ( g.url.flags & URL_REMEMBER_PW ) ){
       if( g.url.flags & URL_USE_PARENT ){

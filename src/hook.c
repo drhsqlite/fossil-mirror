@@ -478,7 +478,7 @@ int hook_backoffice(void){
       hook_changes(&chng, zLastRcvid, 0);
     }
     zCmd = hook_subst(db_column_text(&q,0), 0);
-    if( popen2(zCmd, &fdFromChild, &toChild, &childPid, 0) ){
+    if( popen2(zCmd, &fdFromChild, &toChild, &childPid, 0)==0 ){
       if( toChild ){
         fwrite(blob_buffer(&chng),1,blob_size(&chng),toChild);
       }
