@@ -1,8 +1,8 @@
-C Typo\sfix\sreport\sin\s[forum:099e10c762b43add].
-D 2022-06-11T08:32:22.640
+C Add\s<code>extsrc/pikchr.wasm</code>\sto\sthe\s[/help?cmd=binary-glob|list\sof\sbinary\sblobs].
+D 2022-06-12T19:32:22.528
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
-F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
+F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
 F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 864ed8d0a391b5b4ba7d485fd274e280437e3ce027940c3074e625898b01466a
-R 307da1e430a066462fd9e550a4abeffa
-U stephan
-Z 6c75aecf21fa9f33be2a910881287497
+P b942cd2155f47243b97259ca9be54375ceb2a36b500144ef0fab557f28f2209a
+R db449c61389759f6ee152c887022fc03
+U george
+Z 3e252036e92b8fb4e32225dc6b872ec5
 # Remove this line to create a well-formed Fossil manifest.
