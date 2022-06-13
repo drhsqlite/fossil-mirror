@@ -1,5 +1,5 @@
-C Add\s<code>extsrc/pikchr.wasm</code>\sto\sthe\s[/help?cmd=binary-glob|list\sof\sbinary\sblobs].
-D 2022-06-12T19:32:22.528
+C Removed\sthe\sinadvertent\svertically-centered\salignment\sof\sthe\s/pikchrshow\spikchr\swhen\snot\sin\sauto-fit\smode.
+D 2022-06-13T22:18:12.420
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -583,7 +583,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c e87edf43c0fc8b517865290c97708dc2ead6bdda362de1b922cca82e607d31dc
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
-F src/style.pikchrshow.css 7abaff39cdcdd32c827d8829349902f3de8e2b81f9f965bd6eade2b1c380acba
+F src/style.pikchrshow.css 25f0a2db166301e46383c959b691513612f62129cb2fca59e3a445fe2815e18a
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
 F src/tag.c de6889b6f57c5cbd8acc584b15b71351e1b3edf824186b41d0495919e9345a54
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b942cd2155f47243b97259ca9be54375ceb2a36b500144ef0fab557f28f2209a
-R db449c61389759f6ee152c887022fc03
-U george
-Z 3e252036e92b8fb4e32225dc6b872ec5
+P 13cd92de7762c7133eca6248a8024fea1558654f85baeb0be6060bdea3bb08bf
+R 33ec1b709c3b4aeae15d45dc6af89fe0
+U stephan
+Z 4715996ee4f76910f7485b2946698702
 # Remove this line to create a well-formed Fossil manifest.
