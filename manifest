@@ -1,5 +1,5 @@
-C Updated\spikchr.c\sfor\sHTML\sentity\sescaping\sfix.
-D 2022-06-14T14:34:17.597
+C Latest\supstream\spikchr.c\sto\senable\sHTML\sentities\swhich\scontain\sdigits.
+D 2022-06-14T17:42:17.920
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -295,9 +295,9 @@ F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr-worker.js 2fd2fd26ef16b16aa1a2d993947a3273440ee2bee7ad1f63bd0a1cc8ffabdcda
-F extsrc/pikchr.c 50dc15132750d836df7172f4f2563422e63b417110a23a3394a874f713f6db9d
+F extsrc/pikchr.c ee9dd1787247b3e094c6084a2cfdd42dd480b7cfb85229d7c8e5de3c015761e5
 F extsrc/pikchr.js 9a028ca0abacac37a6526a5b306b670f872b11756f6f5f0ba76b53f35c36c6ae
-F extsrc/pikchr.wasm 4903dc6a557f30a84d4d59cdccfce11de6999a0937f82c65d69b54cff78af01a
+F extsrc/pikchr.wasm aebb1cec7a94727ee8dd2a6192f77c7194a9c84c934426a4f5ef5e5c0cf1df06
 F extsrc/shell.c 8236f4bfd084750dac61511904f22b8aba7b491956d45097d0b1290b25354a21
 F extsrc/sqlite3.c 185bfe244aae876a34ccd823b16b7b9ebdc0f0417d45d3dd12f6abfc92d16c15
 F extsrc/sqlite3.h 47141018a8032ef71cf37ec6f02598bdc42fbe2b44f349fe3604db00040c6b75
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b258a41cf87dcca830f5c1e77e10bfb313c16b14cf541e706154043075fb38fd
-R f245d50f35f62e4342460e14e4af1628
+P b3a0a4cdfbab7c6a8a82c2bf9b4ddfd7a74147d98ae91eaeb2a15b0ccb9e9b41
+R b75f8310ce6d67b447c96929d682b69e
 U stephan
-Z b300e45426b45f87e7767c92ba96974d
+Z 79127adbc982e91c7822b4ac697cbd28
 # Remove this line to create a well-formed Fossil manifest.
