@@ -1,5 +1,5 @@
-C On\sWindows,\sforward\sthe\s--jsmode\soption\sto\sindividual\sHTTP\srequests.
-D 2022-06-14T06:58:00.000
+C build.wiki:\sremove\soutdated\snote\sabout\sAlpine\sLinux\s3.14.
+D 2022-06-14T08:59:50.662
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -796,7 +796,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki ea1a602e124da01a79b6dc28e079155718bd8a2ae5a4dee4db54a9e260a412f7
+F www/build.wiki a895266ec0a97bd61504bfd9f18ead7df636f83d2a460d296e2c80b044b04f97
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d9bd5603ae59c98bcad9c4da1f3a996a7d31d251ddaf0d90d0b919c3fb386143
-R acf9835dcfb93c454ec9cdb1500d3bb5
-U florian
-Z 99cc8f3ffbfe66aec439d7d2cbf0ff24
+P 1142db3091bbb7d2b6f5d21b581c66f910f017b07329df9076cf5d7ea43cc37d
+R 7ac3f41d1d0cc20b0eda059027be58ef
+U stephan
+Z 044f72bb90c86a9d35eac94525b3ea51
 # Remove this line to create a well-formed Fossil manifest.
