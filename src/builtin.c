@@ -271,6 +271,19 @@ int builtin_get_js_delivery_mode(void){
 }
 
 /*
+** Returns the name of the current JS delivery mode for reuse with the --jsmode
+** option, i.e. the other way around than builtin_set_js_delivery_mode().
+*/
+const char *builtin_get_js_delivery_mode_name(void){
+  switch( builtin.eDelivery ){
+    case JS_INLINE: return "inline";
+    case JS_BUNDLED: return "bundled";
+    case JS_SEPARATE: return "separate";
+  }
+  return "";  /* builtin_set_js_delivery_mode() handles invalid names. */
+}
+
+/*
 ** The caller wants the Javascript file named by zFilename to be
 ** included in the generated page.  Add the file to the queue of
 ** requested javascript resources, if it is not there already.
