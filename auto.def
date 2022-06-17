@@ -756,6 +756,20 @@ if {[opt-bool static]} {
     define-append LIBS -lpthread
 }
 
+# If manifest.descr does not exist, create one. It's needed by the
+# build process. It will normally be updated by way of the
+# repository's `manifest` setting, but this file is a new (2022-06)
+# part of that setting so we need to create a dummy placeholder as a
+# transitionary step. We can remove this after the manifest.descr
+# support has been around for a few versions.
+if {![file exists manifest.descr]} {
+  msg-result "Creating dummy manifest.descr as transitionary step."
+  set fid [open manifest.descr w]
+  puts $fid "Placeholder manifest.descr. Will be udpated by fossil."
+  close $fid
+}
+
+# Create or remove tools/emcc.sh...
 if {[get-define EMSDK_HOME] ne ""} {
   define EMCC_WRAPPER $::autosetup(dir)/../tools/emcc.sh
   make-template tools/emcc.sh.in
@@ -764,6 +778,5 @@ if {[get-define EMSDK_HOME] ne ""} {
   define EMCC_WRAPPER ""
   catch {exec rm -f tools/emcc.sh}
 }
-
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

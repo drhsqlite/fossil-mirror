@@ -1,5 +1,5 @@
-C Merged\sin\strunk.
-D 2022-06-17T09:43:42.006
+C Create\sa\splaceholder\smanifest.descr\sfile\svia\sauto.def,\sanalog\sto\s[a198cde661ca].
+D 2022-06-17T10:57:00.097
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -18,7 +18,7 @@ F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 6e4a3769893fd39138273b1ef03d3da97971a3b64cc66138a43b48a46566dfc8
-F auto.def 088f036f91236a700562c00f8b82b25f6c172aa8c1360e8fdda2583ecfe7393e
+F auto.def 01540b9760f112e9331b7612c5de5ae31d262a34743d48f26f0ea29ce16b392f
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a198cde661ca13910b0376564ab060b7029e0c299feadcc9ed221615058695b0 b0f84d8d1742a22d39d2c4cb047d57c10ec625fb1dbc9514b0e1f8f61fcb3119
-R bd8a6172b6d5823c3213ca1eec9aae17
-U danield
-Z 980b3b70680c141de92f6e54e598a796
+P 6bdb2fbe99fccf7c4c837bddb441721b3b64935a35e5821a14a200f972912322
+R be0297bb4ca74bc1012f2d87bef1b1d3
+U stephan
+Z d569031c95918c9b4360312f09b307a2
 # Remove this line to create a well-formed Fossil manifest.
