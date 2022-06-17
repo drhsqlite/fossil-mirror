@@ -20,8 +20,8 @@
 ** and/or forum posts.
 **
 ** The search can be either a per-query "grep"-like search that scans
-** the entire corpus.  Or it can use the FTS4 or FTS5 search engine of
-** SQLite.  The choice is a administrator configuration option.
+** the entire corpus.  Or it can use the FTS4 search engine of SQLite.
+** The choice is a administrator configuration option.
 **
 ** The first option is referred to as "full-scan search".  The second
 ** option is called "indexed search".

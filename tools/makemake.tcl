@@ -219,6 +219,8 @@ set extra_files {
   ../skins/*/*.txt
   sounds/*.wav
   alerts/*.wav
+  ../extsrc/pikchr.wasm
+  ../extsrc/pikchr*.js
 }
 
 # Options used to compile the included SQLite library.
@@ -251,6 +253,12 @@ set SQLITE_OPTIONS {
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
 #lappend SQLITE_OPTIONS -DSQLITE_WIN32_NO_ANSI
 #lappend SQLITE_OPTIONS -DSQLITE_WINNT_MAX_PATH_CHARS=4096
+
+# Options used to compile the Pikchr library.
+#
+set PIKCHR_OPTIONS {
+  -DPIKCHR_TOKEN_LIMIT=10000
+}
 
 # Options used to compile the included SQLite shell.
 #
@@ -356,6 +364,7 @@ foreach s [lsort $src] {
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
     <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
+    <<<PIKCHR_OPTIONS>>> [join $PIKCHR_OPTIONS " \\\n                "] \
     <<<NEXT_LINE>>> \\] {
 all:	$(OBJDIR) $(APPNAME)
 
@@ -417,6 +426,9 @@ SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
+
+# Setup the options used to compile the included Pikchr formatter.
+PIKCHR_OPTIONS = <<<PIKCHR_OPTIONS>>>
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0 or 1.
 # If it is set to 1, then there is no need to build or link
@@ -547,10 +559,21 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
 writeln {
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
-	$(XTCC) -c $(SRCDIR_extsrc)/pikchr.c -o $@
+	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
+
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry \
+        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore \
+        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c \
+        -sENVIRONMENT=web \
+        -sMODULARIZE \
+        -sEXPORT_NAME=initPikchrModule \
+        --minify 0
+	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
+wasm: $(SRCDIR_extsrc)/pikchr.js
 
 #
 # The list of all the targets that do not correspond to real files. This stops
@@ -630,7 +653,7 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_SYMBOLS = 1
 
-#### Enable JSON (http://www.json.org) support using "cson"
+#### Enable JSON (https://www.json.org) support using "cson"
 #
 # FOSSIL_ENABLE_JSON = 1
 
@@ -1250,10 +1273,12 @@ lappend MINGW_SQLITE_OPTIONS {$(MINGW_OPTIONS)}
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 
+set MINGW_PIKCHR_OPTIONS $PIKCHR_OPTIONS
+
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
-set j " \\\n                "
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
+writeln "PIKCHR_OPTIONS = [join $MINGW_PIKCHR_OPTIONS $j]\n"
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC) \$(SRCDIR)/../win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
@@ -1276,7 +1301,7 @@ writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
 writeln "\$(OBJDIR)/pikchr.o:\t\$(SRCDIR_extsrc)/pikchr.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR_extsrc)/pikchr.c -o \$@\n"
+writeln "\t\$(XTCC) \$(PIKCHR_OPTIONS) -c \$(SRCDIR_extsrc)/pikchr.c -o \$@\n"
 
 close $output_file
 #
@@ -1322,6 +1347,7 @@ LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32 dnsapi
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
+writeln "PIKCHR_OPTIONS = [join $PIKCHR_OPTIONS { }]\n"
 writeln -nonewline "SRC   ="
 foreach s [lsort $src] {
   writeln -nonewline " ${s}_.c"
@@ -1766,6 +1792,10 @@ regsub -all {[-]D} [join $SHELL_WIN32_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
 set j " \\\n                "
 writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
 
+regsub -all {[-]D} [join $PIKCHR_OPTIONS { }] {/D} MSC_PIKCHR_OPTIONS
+set j " \\\n                "
+writeln "PIKCHR_OPTIONS = [join $MSC_PIKCHR_OPTIONS $j]\n"
+
 writeln -nonewline "SRC   = "
 set i 0
 foreach s [lsort $src] {
@@ -1951,7 +1981,7 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
+	$(TCC) $(PIKCHR_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" > $@

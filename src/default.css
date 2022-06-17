@@ -1009,6 +1009,9 @@ div.forumObs {
 label {
   white-space: nowrap;
 }
+label[for] {
+  cursor: pointer;
+}
 .copy-button {
   display: inline-block;
   width: 14px;
@@ -1077,12 +1080,17 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   color: black;
   background: yellow;
 }
-.hidden {
-  /* The framework-wide way of hiding elements is to assign them this
-     CSS class. To make them visible again, remove it. The !important
-     qualifiers are unfortunate but sometimes necessary when hidden
-     element has other classes which specify visibility-related
-     options. */
+.hidden, .initially-hidden {
+  /* The framework-wide way of hiding elements is to assign them th
+     .hidden class. To make them visible again, remove it. The
+     !important qualifiers are unfortunate but sometimes necessary
+     when hidden element has other classes which specify
+     visibility-related options. The .initially-hidden class is for
+     pages which need to show, e.g., a progress widget while a large
+     WASM blob loads. Elements aside from that load-time widget can be
+     made .initially-hidden and then have that class removed once the
+     long-running startup process is done. See /pikchrshow for an
+     example. */
   position: absolute !important;
   opacity: 0 !important;
   pointer-events: none !important;
@@ -1666,6 +1674,82 @@ body.branch .submenu > a.timeline-link.selected {
 
 .monospace {
   font-family: monospace;
+}
+
+div.markdown > ol.footnotes {
+  font-size: 90%;
+}
+div.markdown > ol.footnotes > li {
+  margin-bottom: 0.5em;
+}
+div.markdown ol.footnotes > li.fn-joined > sup.fn-joined {
+  color: gray;
+  font-family: monospace;
+}
+div.markdown ol.footnotes > li.fn-joined > sup.fn-joined::after {
+  content: "(joined from multiple locations) ";
+}
+div.markdown ol.footnotes > li.fn-misreference {
+  margin-top:    0.75em;
+  margin-bottom: 0.75em;
+}
+div.markdown ol.footnotes > li.fn-toodeep > i,
+div.markdown ol.footnotes > li.fn-misreference,
+div.markdown ol.footnotes > li.fn-unreferenced {
+  color: gray;
+}
+div.markdown ol.footnotes > li.fn-misreference > span {
+  color: red;
+}
+div.markdown ol.footnotes > li.fn-misreference > span::after {
+  content: " (use of undefined label).";
+}
+div.markdown ol.footnotes > li.fn-unreferenced {
+  padding-left: 0.5em;
+}
+div.markdown ol.footnotes > li.fn-unreferenced > code {
+  color: red;
+}
+div.markdown ol.footnotes > li.fn-unreferenced > i::after {
+  content: " was defined but is not referenced";
+}
+div.markdown ol.footnotes > li.fn-toodeep > i::after {
+  content: " depth of nesting of inline footnotes exceeded the limit";
+}
+div.markdown ol.footnotes > li.fn-toodeep > pre,
+div.markdown ol.footnotes > li.fn-unreferenced > pre {
+  color: gray;
+  font-size: 85%;
+  padding-left: 0.5em;
+  margin-top:  0.25em;
+  border-left: 2px solid red;
+}
+div.markdown ol.footnotes > li.fn-toodeep > pre {
+  margin-left: 0.5em;
+}
+div.markdown > ol.footnotes > li > .fn-backrefs {
+  margin-right: 0.5em;
+  font-weight: bold;
+}
+div.markdown > ol.footnotes > li > .fn-backrefs > a,
+div.markdown sup.noteref > a {
+  padding-left:  2px;
+  padding-right: 2px;
+}
+div.markdown sup.noteref.misref,
+div.markdown sup.noteref.misref > a {
+  color: red;
+  font-size: 90%;
+}
+div.markdown sup.noteref > a:target,
+div.markdown span.notescope:target > sup.noteref > a,
+div.markdown span.notescope:hover  > sup.noteref > a,
+div.markdown > ol.footnotes > li > .fn-backrefs > a:target {
+  background: gold;
+}
+div.markdown span.notescope:hover,
+div.markdown span.notescope:target {
+  border-bottom: 2px solid gold;
 }
 
 /* Objects in the "desktoponly" class are invisible on mobile */

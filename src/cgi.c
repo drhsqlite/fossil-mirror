@@ -309,7 +309,7 @@ void cgi_set_cookie(
     zPath = g.zTop;
     if( zPath[0]==0 ) zPath = "/";
   }
-  if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
+  if( g.zBaseURL!=0 && fossil_strncmp(g.zBaseURL, "https:", 6)==0 ){
     zSecure = " secure;";
   }
   if( lifetime!=0 ){
@@ -332,9 +332,33 @@ void cgi_set_cookie(
 static int is_gzippable(void){
   if( g.fNoHttpCompress ) return 0;
   if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
-  return strncmp(zContentType, "text/", 5)==0
-    || sqlite3_strglob("application/*xml", zContentType)==0
-    || sqlite3_strglob("application/*javascript", zContentType)==0;
+  /* Maintenance note: this oddball structure is intended to make
+  ** adding new mimetypes to this list less of a performance hit than
+  ** doing a strcmp/glob over a growing set of compressible types. */
+  switch(zContentType ? *zContentType : 0){
+    case (int)'a':
+      if(0==fossil_strncmp("application/",zContentType,12)){
+        const char * z = &zContentType[12];
+        switch(*z){
+          case (int)'j':
+            return fossil_strcmp("javascript", z)==0
+                || fossil_strcmp("json", z)==0;
+          case (int)'w': return fossil_strcmp("wasm", z)==0;
+          case (int)'x':
+            return fossil_strcmp("x-tcl", z)==0
+                || fossil_strcmp("x-tar", z)==0;
+          default:
+            return sqlite3_strglob("*xml", z)==0;
+        }
+      }
+      break;
+    case (int)'i':
+      return fossil_strcmp(zContentType, "image/svg+xml")==0
+        || fossil_strcmp(zContentType, "image/vnd.microsoft.icon")==0;
+    case (int)'t':
+      return fossil_strncmp(zContentType, "text/", 5)==0;
+  }
+  return 0;
 }
 
 
@@ -421,6 +445,25 @@ static void cgi_fflush(void){
   }
 }
 
+/*
+** Given a Content-Type value, returns a string suitable for appending
+** to the Content-Type header for adding (or not) the "; charset=..."
+** part. It returns an empty string for most types or if zContentType
+** is NULL.
+**
+** See forum post f60dece061c364d1 for the discussions which lead to
+** this. Previously we always appended the charset, but WASM loaders
+** are pedantic and refuse to load any responses which have a
+** charset. Also, adding a charset is not strictly appropriate for
+** most types (and not required for many others which may ostensibly
+** benefit from one, as detailed in that forum post).
+*/
+static const char * content_type_charset(const char *zContentType){
+  if(0==fossil_strncmp(zContentType,"text/",5)){
+    return "; charset=utf-8";
+  }
+  return "";
+}
 
 /*
 ** Generate the reply to a web request.  The output might be an
@@ -495,7 +538,8 @@ void cgi_reply(void){
   ** the browser, not some shared location.
   */
   if( iReplyStatus!=304 ) {
-    blob_appendf(&hdr, "Content-Type: %s; charset=utf-8\r\n", zContentType);
+    blob_appendf(&hdr, "Content-Type: %s%s\r\n", zContentType,
+                 content_type_charset(zContentType));
     if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
       cgi_combine_header_and_body();
       blob_compress(&cgiContent[0], &cgiContent[0]);
@@ -571,7 +615,8 @@ NORETURN void cgi_redirect_with_status(
 ){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
-  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
+  if( fossil_strncmp(zURL,"http:",5)==0
+      || fossil_strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
   }else if( *zURL=='/' ){
     int n1 = (int)strlen(g.zBaseURL);
@@ -655,7 +700,7 @@ int cgi_csrf_safe(int requirePost){
     if( strcmp(zMethod,"POST")!=0 ) return 0;
   }
   nBase = (int)strlen(g.zBaseURL);
-  if( strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
+  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
   if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
   return 1;
 }
@@ -922,7 +967,8 @@ static char *get_bounded_content(
   int nBoundary = strlen(zBoundary);
   *pnContent = len;
   for(i=0; i<len; i++){
-    if( z[i]=='\n' && strncmp(zBoundary, &z[i+1], nBoundary)==0 ){
+    if( z[i]=='\n' && fossil_strncmp(zBoundary, &z[i+1],
+                                     nBoundary)==0 ){
       if( i>0 && z[i-1]=='\r' ) i--;
       z[i] = 0;
       *pnContent = i;
@@ -1350,7 +1396,7 @@ void cgi_decode_post_parameters(void){
   int len = blob_size(&g.cgiIn);
   if( len==0 ) return;
   if( fossil_strcmp(g.zContentType,"application/x-www-form-urlencoded")==0
-   || strncmp(g.zContentType,"multipart/form-data",19)==0
+   || fossil_strncmp(g.zContentType,"multipart/form-data",19)==0
   ){
     char *z = blob_str(&g.cgiIn);
     cgi_trace(z);
@@ -2311,7 +2357,7 @@ int cgi_http_server(
   }
   if( iPort>mxPort ){
     if( mnPort==mxPort ){
-      fossil_fatal("unable to open listening socket on ports %d", mnPort);
+      fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
       fossil_fatal("unable to open listening socket on any"
                    " port in the range %d..%d", mnPort, mxPort);
@@ -2328,7 +2374,7 @@ int cgi_http_server(
     zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)
     /* On Cygwin, we can do better than "echo" */
-    if( strncmp(zBrowser, "echo ", 5)==0 ){
+    if( fossil_strncmp(zBrowser, "echo ", 5)==0 ){
       wchar_t *wUrl = fossil_utf8_to_unicode(zBrowser+5);
       wUrl[wcslen(wUrl)-2] = 0; /* Strip terminating " &" */
       if( (size_t)ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
@@ -2488,7 +2534,7 @@ time_t cgi_rfc822_parsedate(const char *zDate){
                        &mday, zMonth, &year, &hour, &min, &sec)){
     if( year > 1900 ) year -= 1900;
     for(mon=0; azMonths[mon]; mon++){
-      if( !strncmp( azMonths[mon], zMonth, 3 )){
+      if( !fossil_strncmp( azMonths[mon], zMonth, 3 )){
         int nDay;
         int isLeapYr;
         static int priorDays[] =

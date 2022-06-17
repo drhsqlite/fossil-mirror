@@ -121,8 +121,9 @@ href="./impl.md#choices">some extent</a>, this is unavoidable.</p>
     <th>Clone</th>
     <td>
       Clone the repository. Note that this is distinct from <a
-      href="#o">check-out capability, <b>o</b></a>. Mnemonic:
-      <b>g</b>et.
+      href="#o">check-out capability, <b>o</b></a>; and that upon cloning
+      not just files, but also tickets, wikis, technotes and forum posts
+      are tranferred. Mnemonic: <b>g</b>et.
     </td>
   </tr> 
 
@@ -147,6 +148,8 @@ href="./impl.md#choices">some extent</a>, this is unavoidable.</p>
       capability does not prevent you from checking changes into your
       local clone, only from syncing those changes up to the parent
       repo, and then <a href="./basics.md#webonly">only over HTTP</a>.
+      Also note that not just files, but also tickets, wikis, technotes
+      and forum posts will be accepted from clones upon syncronization.
       Granting this capability also grants <b>o (Read)</b>  Mnemonics:
       <b>i</b>nput, check <b>i</b>n changes.
     </td>
@@ -204,7 +207,7 @@ href="./impl.md#choices">some extent</a>, this is unavoidable.</p>
     <th>o</th>
     <th>Read</th>
     <td>
-      Read repository content from a remote Fossil instance over
+      Read content and history of files from a remote Fossil instance over
       HTTP. See <a href="index.md#read-v-clone">Reading vs.
       Cloning</a>. Mnemonic: check <b>o</b>ut remote repo contents.
     </td>

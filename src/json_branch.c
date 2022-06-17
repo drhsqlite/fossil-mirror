@@ -308,10 +308,6 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   /* Commit */
   db_end_transaction(0);
 
-#if 0 /* Do an autosync push, if requested */
-  /* arugable for JSON mode? */
-  if( !g.isHTTP && !isPrivate ) autosync(SYNC_PUSH);
-#endif
   return 0;
 }
 

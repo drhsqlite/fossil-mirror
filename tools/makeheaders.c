@@ -2209,6 +2209,7 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
     }
     if( *zArg==0 || *zArg=='\n' ){ return 0; }
     nArg = pToken->nText + (int)(pToken->zText - zArg);
+    if (pToken->zText[pToken->nText-1] == '\r') { nArg--; }
     if( nArg==9 && strncmp(zArg,"INTERFACE",9)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Interface);
     }else if( nArg==16 && strncmp(zArg,"EXPORT_INTERFACE",16)==0 ){
@@ -2230,6 +2231,7 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
     }
     if( *zArg==0 || *zArg=='\n' ){ return 0; }
     nArg = pToken->nText + (int)(pToken->zText - zArg);
+    if (pToken->zText[pToken->nText-1] == '\r') { nArg--; }
     PushIfMacro("defined",zArg,nArg,pToken->nLine,0);
   }else if( nCmd==6 && strncmp(zCmd,"ifndef",6)==0 ){
     /*
@@ -2241,6 +2243,7 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
     }
     if( *zArg==0 || *zArg=='\n' ){ return 0; }
     nArg = pToken->nText + (int)(pToken->zText - zArg);
+    if (pToken->zText[pToken->nText-1] == '\r') { nArg--; }
     PushIfMacro("!defined",zArg,nArg,pToken->nLine,0);
   }else if( nCmd==4 && strncmp(zCmd,"else",4)==0 ){
     /*

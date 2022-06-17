@@ -140,7 +140,8 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
-  const char *zPhase;     /* Phase of operation, for use by the error log */
+  const char *zPhase;     /* Phase of operation, for use by the error log
+                          ** and for deriving $canonical_page TH1 variable */
   int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
@@ -178,7 +179,7 @@ struct Global {
   const char *zHttpCmd;   /* External program to do HTTP requests */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
-  char *zPath;            /* Name of webpage being served */
+  char *zPath;            /* Name of webpage being served (may be NULL) */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */
@@ -326,6 +327,7 @@ struct Global {
     int timerId;               /* fetched from fossil_timer_start() */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
+  int ftntsIssues[4];     /* Counts for misref, strayed, joined, overnested */
   int diffCnt[3];         /* Counts for DIFF_NUMSTAT: files, ins, del */
 };
 
@@ -913,7 +915,7 @@ int fossil_main(int argc, char **argv){
   }else if( rc==2 ){
     Blob couldbe;
     blob_init(&couldbe,0,0);
-    dispatch_matching_names(zCmdName, &couldbe);
+    dispatch_matching_names(zCmdName, CMDFLAG_COMMAND, &couldbe);
     fossil_print("%s: ambiguous command prefix: %s\n"
                  "%s: could be any of:%s\n"
                  "%s: use \"help\" for more information\n",
@@ -1902,7 +1904,6 @@ static void process_one_web_page(
   ** been opened.
   */
 
-
   /*
   ** Check to see if the first term of PATH_INFO specifies an
   ** alternative skin.  This will be the case if the first term of
@@ -2045,12 +2046,17 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+    if(0==(CMDFLAG_LDAVG_EXEMPT & pCmd->eCmdFlags)){
+      load_control();
+    }
 #ifdef FOSSIL_ENABLE_JSON
-    static int jsonOnce = 0;
-    if( jsonOnce==0 && g.json.isJsonMode!=0 ){
-      assert(json_is_bootstrapped_early());
-      json_bootstrap_late();
-      jsonOnce = 1;
+    {
+      static int jsonOnce = 0;
+      if( jsonOnce==0 && g.json.isJsonMode!=0 ){
+        assert(json_is_bootstrapped_early());
+        json_bootstrap_late();
+        jsonOnce = 1;
+      }
     }
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){

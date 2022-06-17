@@ -165,6 +165,9 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../extsrc/pikchr-worker.js \
+  $(SRCDIR)/../extsrc/pikchr.js \
+  $(SRCDIR)/../extsrc/pikchr.wasm \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
@@ -233,6 +236,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
+  $(SRCDIR)/fossil.page.pikchrshowasm.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
@@ -268,6 +272,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.pikchrshow.css \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
@@ -678,6 +683,9 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
                 -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
+
+# Setup the options used to compile the included Pikchr formatter.
+PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0 or 1.
 # If it is set to 1, then there is no need to build or link
@@ -2104,10 +2112,15 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 
 
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
-	$(XTCC) -c $(SRCDIR_extsrc)/pikchr.c -o $@
+	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
+
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry  -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore  -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c  -sENVIRONMENT=web  -sMODULARIZE  -sEXPORT_NAME=initPikchrModule  --minify 0
+	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
+wasm: $(SRCDIR_extsrc)/pikchr.js
 
 #
 # The list of all the targets that do not correspond to real files. This stops

@@ -209,6 +209,36 @@ char *urlize(const char *z, int n){
 }
 
 /*
+** If input string does not contain quotes (niether ' nor ")
+** then return the argument itself. Otherwise return a newly allocated
+** copy of input with all quotes %-escaped.
+*/
+const char* escape_quotes(const char *zIn){
+  char *zRet, *zOut;
+  size_t i, n = 0;
+  for(i=0; zIn[i]; i++){
+    if( zIn[i]== '"' || zIn[i]== '\'' ) n++;
+  }
+  if( !n ) return zIn;
+  zRet = zOut = fossil_malloc( i + 2*n + 1 );
+  for(i=0; zIn[i]; i++){
+    if( zIn[i]=='"' ){
+      *(zOut++) = '%';
+      *(zOut++) = '2';
+      *(zOut++) = '2';
+    }else if( zIn[i]=='\'' ){
+      *(zOut++) = '%';
+      *(zOut++) = '2';
+      *(zOut++) = '7';
+    }else{
+      *(zOut++) = zIn[i];
+    }
+  }
+  *zOut = 0;
+  return zRet;
+}
+
+/*
 ** Convert a single HEX digit to an integer
 */
 static int AsciiToHex(int c){

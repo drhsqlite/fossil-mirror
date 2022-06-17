@@ -3439,6 +3439,16 @@ void db_lset(const char *zName, const char *zValue){
 int db_lget_int(const char *zName, int dflt){
   return db_int(dflt, "SELECT value FROM vvar WHERE name=%Q", zName);
 }
+int db_lget_boolean(const char *zName, int dflt){
+  char *zVal = db_lget(zName, dflt ? "on" : "off");
+  if( is_truth(zVal) ){
+    dflt = 1;
+  }else if( is_false(zVal) ){
+    dflt = 0;
+  }
+  fossil_free(zVal);
+  return dflt;
+}
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
@@ -3480,7 +3490,54 @@ void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
   fossil_free(zName);
 }
 
-
+/*
+** Get a setting that is tailored to subsystem.  The return value is
+** NULL if the setting does not exist, or a string obtained from mprintf()
+** if the setting is available.
+**
+** The actual setting can be a comma-separated list of values of the form:
+**
+**    *   VALUE
+**    *   SUBSYSTEM=VALUE
+**
+** A VALUE without the SUBSYSTEM= prefix is the default.  This routine
+** returns the VALUE that with the matching SUBSYSTEM, or the default
+** VALUE if there is no match.
+*/
+char *db_get_for_subsystem(const char *zName, const char *zSubsys){
+  int nSubsys;
+  char *zToFree = 0;
+  char *zCopy;
+  char *zNext;
+  char *zResult = 0;
+  const char *zSetting = db_get(zName, 0);
+  if( zSetting==0 ) return 0;
+  zCopy = zToFree = fossil_strdup(zSetting);
+  if( zSubsys==0 ) zSubsys = "";
+  nSubsys = (int)strlen(zSubsys);
+  while( zCopy ){
+    zNext = strchr(zCopy, ',');
+    if( zNext ){
+      zNext[0] = 0;
+      do{ zNext++; }while( fossil_isspace(zNext[0]) );
+      if( zNext[0]==0 ) zNext = 0;
+    }
+    if( strchr(zCopy,'=')==0 ){
+      if( zResult==0 ) zResult = zCopy;
+    }else
+    if( nSubsys
+     && strncmp(zCopy, zSubsys, nSubsys)==0
+     && zCopy[nSubsys]=='='
+    ){
+      zResult = &zCopy[nSubsys+1];
+      break;
+    }
+    zCopy = zNext;
+  }
+  if( zResult ) zResult = fossil_strdup(zResult);
+  fossil_free(zToFree);
+  return zResult;
+}
 
 #if INTERFACE
 /* Manifest generation flags */
@@ -3628,12 +3685,15 @@ void db_record_repository_filename(const char *zName){
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
-**   --nosync          Do not auto-sync the repository prior to opening
+**   --nosync          Do not auto-sync the repository prior to opening even
+**                     if the autosync setting is on.
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --sync            Auto-sync prior to opening even if the autosync setting
+**                     is off.
 **   --verbose         If passed a URI then this flag is passed on to the clone
 **                     operation, otherwise it has no effect.
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
@@ -3655,7 +3715,6 @@ void cmd_open(void){
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
-  int bNosync = 0;               /* --nosync.  Omit auto-sync */
   int bVerbose = 0;              /* --verbose option for clone */
 
   url_proxy_options();
@@ -3666,11 +3725,10 @@ void cmd_open(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
-  bForce = find_option("force","f",0)!=0;  
-  bNosync = find_option("nosync",0,0)!=0;
+  bForce = find_option("force","f",0)!=0;
+  if( find_option("nosync",0,0) ) g.fNoSync = 1;
   bVerbose = find_option("verbose",0,0)!=0;
   zPwd = file_getcwd(0,0);
-  
 
   /* We should be done with options.. */
   verify_all_options();
@@ -3760,6 +3818,7 @@ void cmd_open(void){
                  "or file:");
   }
 
+  db_open_config(0,0);
   db_open_repository(zRepo);
 
   /* Figure out which revision to open. */
@@ -3769,10 +3828,7 @@ void cmd_open(void){
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
       g.zOpenRevision = db_get("main-branch", 0);
     }
-    if( !bNosync
-     && autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1)
-     && !bForce
-    ){
+    if( autosync_loop(SYNC_PULL, !bForce, "open") && !bForce ){
       fossil_fatal("unable to auto-sync the repository");
     }
   }
@@ -3953,13 +4009,15 @@ struct Setting {
 ** the hyperlinks work better on Safari, but more robots are able to sneak
 ** in.
 */
-/* SETTING: auto-hyperlink-delay     width=16 default=0
+/*
+** SETTING: auto-hyperlink-delay     width=16 default=0
 **
 ** When the auto-hyperlink setting is 1, the javascript that runs to set
 ** the href= attributes of hyperlinks delays by this many milliseconds
 ** after the page load.  Suggested values:  50 to 200.
 */
-/* Setting: auto-hyperlink-mouseover  boolean default=off
+/*
+** SETTING: auto-hyperlink-mouseover  boolean default=off
 **
 ** When the auto-hyperlink setting is 1 and this setting is on, the 
 ** javascript that runs to set the href= attributes of hyperlinks waits
@@ -3974,16 +4032,26 @@ struct Setting {
 */
 /*
 ** SETTING: autosync        width=16 default=on
-** This setting can be a boolean value  (0, 1, on, off, true, false)
-** or "pullonly" or "all".
+** This setting determines when autosync occurs.  The setting is a
+** string that provides a lot of flexibility for determining when and
+** when not to autosync.  Examples:
 **
-** If not false, automatically pull prior to commit
-** or update and automatically push after commit or
-** tag or branch creation.  Except, if the value is
-** "pullonly" then only pull operations occur automatically.
-** Normally, only the default remote is used, but if the
-** value is "all" then push/pull operations occur on all
-** remotes.
+**    on                     Always autosync for command where autosync
+**                           makes sense ("commit", "merge", "open", "update")
+**
+**    off                    Never autosync.
+**
+**    pullonly               Only to pull autosyncs
+**
+**    on,open=off            Autosync for most commands, but not for "open"
+**
+**    off,commit=pullonly    Do not autosync, except do a pull before each
+**                           "commit", presumably to avoid undesirable
+**                           forks.
+**
+** The syntax is a comma-separated list of VALUE and COMMAND=VALUE entries.
+** A plain VALUE entry is the default that is used if no COMMAND matches.
+** Otherwise, the VALUE of the matching command is used.
 */
 /*
 ** SETTING: autosync-tries  width=16 default=1
@@ -4315,10 +4383,8 @@ struct Setting {
 */
 /*
 ** SETTING: proxy            width=32 default=off
-** URL of the HTTP proxy.  If undefined or "off" then
-** the "http_proxy" environment variable is consulted.
-** If the http_proxy environment variable is undefined
-** then a direct HTTP connection is used.
+** URL of the HTTP proxy. If "system", the "http_proxy" environment variable is
+** consulted. If undefined or "off", a direct HTTP connection is used.
 */
 /*
 ** SETTING: redirect-to-https   default=0 width=-1
@@ -4563,6 +4629,9 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
+  /* Undocumented "--test-for-subsystem SUBSYS" option used to test
+  ** the db_get_for_subsystem() interface: */
+  const char *zSubsys = find_option("test-for-subsystem",0,1);
   int unsetFlag = g.argv[1][0]=='u';
   int nSetting;
   const Setting *aSetting = setting_info(&nSetting);
@@ -4627,7 +4696,17 @@ void setting_cmd(void){
         }else{
           if( fossil_strncmp(pSetting->name,zName,n)!=0 ) break;
         }
-        print_setting(pSetting);
+        if( zSubsys ){
+          char *zValue = db_get_for_subsystem(pSetting->name, zSubsys);
+          fossil_print("%s (subsystem %s) ->",  pSetting->name, zSubsys);
+          if( zValue ){
+            fossil_print(" [%s]", zValue);
+            fossil_free(zValue);
+          }
+          fossil_print("\n");
+        }else{
+          print_setting(pSetting);
+        }
         pSetting++;
       }
     }

@@ -40,18 +40,19 @@ struct CmdOrPage {
 ** These macros must match similar macros in mkindex.c
 ** Allowed values for CmdOrPage.eCmdFlags.
 */
-#define CMDFLAG_1ST_TIER    0x0001      /* Most important commands */
-#define CMDFLAG_2ND_TIER    0x0002      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST        0x0004      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE     0x0008      /* Web pages */
-#define CMDFLAG_COMMAND     0x0010      /* A command */
-#define CMDFLAG_SETTING     0x0020      /* A setting */
-#define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
-#define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
-#define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
-#define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret POST content */
-/* NOTE:                    0x0400 = CMDFLAG_SENSITIVE in mkindex.c! */
-#define CMDFLAG_HIDDEN      0x0800      /* Elide from most listings */
+#define CMDFLAG_1ST_TIER     0x0001     /* Most important commands */
+#define CMDFLAG_2ND_TIER     0x0002     /* Obscure and seldom used commands */
+#define CMDFLAG_TEST         0x0004     /* Commands for testing only */
+#define CMDFLAG_WEBPAGE      0x0008     /* Web pages */
+#define CMDFLAG_COMMAND      0x0010     /* A command */
+#define CMDFLAG_SETTING      0x0020     /* A setting */
+#define CMDFLAG_VERSIONABLE  0x0040     /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT    0x0080     /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN      0x0100     /* A boolean setting */
+#define CMDFLAG_RAWCONTENT   0x0200     /* Do not interpret POST content */
+/* NOTE:                     0x0400 = CMDFLAG_SENSITIVE in mkindex.c! */
+#define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
+#define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
@@ -127,7 +128,9 @@ int dispatch_name_search(
         if( mid<0 ){
           mid = lwr;  /* Potential ambiguous prefix */
         }else{
-          return 2;  /* Confirmed ambiguous prefix */
+          if( aCommand[lwr].xFunc != aCommand[mid].xFunc ){
+            return 2;  /* Confirmed ambiguous prefix */
+          }
         }
       }
     }
@@ -209,12 +212,17 @@ int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
 
 /*
 ** Fill Blob with a space-separated list of all command names that
-** match the prefix zPrefix.
+** match the prefix zPrefix and the eType CMDFLAGS_ bits.
 */
-void dispatch_matching_names(const char *zPrefix, Blob *pList){
+void dispatch_matching_names(
+  const char *zPrefix,        /* name prefix */
+  unsigned eType,             /* CMDFLAG_ bits */
+  Blob *pList                 /* space-separated list of command names */
+){
   int i;
   int nPrefix = (int)strlen(zPrefix);
   for(i=FOSSIL_FIRST_CMD; i<MX_COMMAND; i++){
+    if( (aCommand[i].eCmdFlags & eType)==0 ) continue;
     if( strncmp(zPrefix, aCommand[i].zName, nPrefix)==0 ){
       blob_appendf(pList, " %s", aCommand[i].zName);
     }

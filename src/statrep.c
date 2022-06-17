@@ -346,7 +346,6 @@ static void stats_report_by_month_year(char includeMonth,
 static void stats_report_by_user(){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
-  int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   int nMaxEvents = 1;                /* max number of events for
@@ -394,7 +393,6 @@ static void stats_report_by_user(){
     if(!nCount) continue /* arguable! Possible? */;
     else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
-    nEventTotal += nCount;
     @ <tr class='row%d(rowClass)'>
     @ <td>
     @ <a href="?view=bymonth&user=%h(zUser)&type=%c(y)">%h(zUser)</a>
@@ -477,7 +475,6 @@ static void stats_report_by_file(const char *zUserName){
 static void stats_report_day_of_week(const char *zUserName){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
-  int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   int nMaxEvents = 1;                /* max number of events for
@@ -551,7 +548,6 @@ static void stats_report_day_of_week(const char *zUserName){
     if(!nCount) continue /* arguable! Possible? */;
     else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
-    nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>%d(dayNum)</td>
     @ <td>%s(daysOfWeek[dayNum])</td>

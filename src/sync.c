@@ -26,12 +26,18 @@
 */
 static void sync_explain(unsigned syncFlags){
   if( g.url.isAlias ){
+    const char *url;
+    if( g.url.useProxy ){
+      url = g.url.proxyUrlCanonical;
+    }else{
+      url = g.url.canonical;
+    }
     if( (syncFlags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      fossil_print("Sync with %s\n", g.url.canonical);
+      fossil_print("Sync with %s\n", url);
     }else if( syncFlags & SYNC_PUSH ){
-      fossil_print("Push to %s\n", g.url.canonical);
+      fossil_print("Push to %s\n", url);
     }else if( syncFlags & SYNC_PULL ){
-      fossil_print("Pull from %s\n", g.url.canonical);
+      fossil_print("Pull from %s\n", url);
     }
   }
 }
@@ -114,14 +120,14 @@ static int client_sync_all_urls(
 ** If dont-push setting is true, that is the same as having autosync
 ** set to pullonly.
 */
-int autosync(int flags){
+static int autosync(int flags, const char *zSubsys){
   const char *zAutosync;
   int rc;
   int configSync = 0;       /* configuration changes transferred */
   if( g.fNoSync ){
     return 0;
   }
-  zAutosync = db_get("autosync", 0);
+  zAutosync = db_get_for_subsystem("autosync", zSubsys);
   if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
   if( db_get_boolean("dont-push",0) 
@@ -152,21 +158,24 @@ int autosync(int flags){
 
 /*
 ** This routine will try a number of times to perform autosync with a
-** 0.5 second sleep between attempts.
+** 0.5 second sleep between attempts.  The number of attempts is determined
+** by the "autosync-tries" setting, which defaults to 1.
 **
 ** Return zero on success and non-zero on a failure.  If failure occurs
 ** and doPrompt flag is true, ask the user if they want to continue, and
 ** if they answer "yes" then return zero in spite of the failure.
 */
-int autosync_loop(int flags, int nTries, int doPrompt){
+int autosync_loop(int flags, int doPrompt, const char *zSubsystem){
   int n = 0;
   int rc = 0;
+  int nTries = db_get_int("autosync-tries", 1);
   if( (flags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
    && db_get_boolean("uv-sync",0)
   ){
     flags |= SYNC_UNVERSIONED;
   }
-  while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
+  if( nTries<1 ) nTries = 1;
+  while( (n==0 || n<nTries) && (rc=autosync(flags, zSubsystem)) ){
     if( rc ){
       if( ++n<nTries ){
         fossil_warning("Autosync failed, making another attempt.");

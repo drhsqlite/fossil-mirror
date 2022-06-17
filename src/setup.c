@@ -362,7 +362,7 @@ static void addAutoHyperlinkSettings(void){
   @ <p>The "UserAgent and Javascript" value for this setting provides
   @ superior protection from robots.  However, that setting also prevents
   @ the visited/unvisited colors on hyperlinks from displaying correctly
-  @ on Safara-derived browsers.  (Chrome and Firefox work fine.)  Since
+  @ on Safari-derived browsers.  (Chrome and Firefox work fine.)  Since
   @ Safari is the underlying rendering engine on all iPhones and iPads,
   @ this means that hyperlink visited/unvisited colors will not operate
   @ on those platforms when "UserAgent and Javascript" is selected.</p>

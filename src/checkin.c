@@ -2350,7 +2350,7 @@ void commit_cmd(void){
     if( vid!=0 && !allowFork && !forceFlag ){
       syncFlags |= SYNC_CKIN_LOCK;
     }
-    if( autosync_loop(syncFlags, db_get_int("autosync-tries", 1), 1) ){
+    if( autosync_loop(syncFlags, 1, "commit") ){
       fossil_exit(1);
     }
   }
@@ -2556,7 +2556,7 @@ void commit_cmd(void){
         ** bRecheck so that we loop back above to verify that the check-in
         ** is still not against a closed branch and still won't fork. */
         int syncFlags = SYNC_PULL|SYNC_CKIN_LOCK;
-        if( autosync_loop(syncFlags, db_get_int("autosync-tries", 1), 1) ){
+        if( autosync_loop(syncFlags, 1, "commit") ){
           fossil_fatal("Auto-pull failed. Commit aborted.");
         }
         bRecheck = 1;
@@ -2881,8 +2881,7 @@ void commit_cmd(void){
 
   if( !g.markPrivate ){
     int syncFlags = SYNC_PUSH | SYNC_PULL | SYNC_IFABLE;
-    int nTries = db_get_int("autosync-tries",1);
-    autosync_loop(syncFlags, nTries, 0);
+    autosync_loop(syncFlags, 0, "commit");
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

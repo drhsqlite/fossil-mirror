@@ -257,7 +257,7 @@ static void zip_add_file_to_zip(
   int nameLen;
   int toOut = 0;
   int iStart;
-  int iCRC = 0;
+  unsigned long iCRC = 0;
   int nByte = 0;
   int nByteCompr = 0;
   int nBlob;                 /* Size of the blob */
@@ -944,7 +944,7 @@ void baseline_zip_page(void){
     eType = ARCHIVE_ZIP;
     zType = "ZIP";
   }
-  load_control();
+  fossil_nice_default();
   zName = fossil_strdup(PD("name",""));
   z = P("r");
   if( z==0 ) z = P("uuid");

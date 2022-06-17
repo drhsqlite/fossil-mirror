@@ -222,7 +222,7 @@ int tag_insert(
                   zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
       char *zCopy = mprintf("%s", zValue);
-      backlink_extract(zCopy, 0, rid, BKLNK_COMMENT, mtime, 1);
+      backlink_extract(zCopy, MT_NONE, rid, BKLNK_COMMENT, mtime, 1);
       free(zCopy);
     }
   }
@@ -658,7 +658,7 @@ void tag_cmd(void){
         "               WHERE tagid=tag.tagid"
         "                 AND tagtype%s%d)"
         " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' "
-        " END ORDER BY tagname",
+        " END ORDER BY tagname COLLATE uintnocase",
         zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
         nTagType, zTagPrefix, zTagPrefix
       );
@@ -700,7 +700,7 @@ void tag_cmd(void){
         "SELECT tagname, value FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
         "   AND tagtype%s%d"
-        " ORDER BY tagname",
+        " ORDER BY tagname COLLATE uintnocase",
         rid,
         zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
         nTagType
@@ -819,7 +819,7 @@ void taglist_page(void){
     "               WHERE tagid=tag.tagid"
     "                 AND tagtype=1)"
     " AND tagname GLOB 'sym-*'"
-    " ORDER BY tagname"
+    " ORDER BY tagname COLLATE uintnocase"
   );
   @ <ul>
   while( db_step(&q)==SQLITE_ROW ){

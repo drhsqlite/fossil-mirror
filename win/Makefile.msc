@@ -356,6 +356,8 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
 
+PIKCHR_OPTIONS = /DPIKCHR_TOKEN_LIMIT=10000
+
 SRC   = "$(OX)\add_.c" \
         "$(OX)\ajax_.c" \
         "$(OX)\alerts_.c" \
@@ -505,7 +507,10 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\zip_.c" \
         "$(SRCDIR_extsrc)\pikchr.c"
 
-EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
+EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
+        "$(SRCDIR)\..\extsrc\pikchr.js" \
+        "$(SRCDIR)\..\extsrc\pikchr.wasm" \
+        "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\..\skins\ardoise\details.txt" \
         "$(SRCDIR)\..\skins\ardoise\footer.txt" \
         "$(SRCDIR)\..\skins\ardoise\header.txt" \
@@ -573,6 +578,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
         "$(SRCDIR)\fossil.page.pikchrshow.js" \
+        "$(SRCDIR)\fossil.page.pikchrshowasm.js" \
         "$(SRCDIR)\fossil.page.whistory.js" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.pikchr.js" \
@@ -608,6 +614,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\style.admin_log.css" \
         "$(SRCDIR)\style.chat.css" \
         "$(SRCDIR)\style.fileedit.css" \
+        "$(SRCDIR)\style.pikchrshow.css" \
         "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
         "$(SRCDIR)\useredit.js" \
@@ -1062,7 +1069,7 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
+	$(TCC) $(PIKCHR_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\manifest.descr" > $@
@@ -1132,7 +1139,10 @@ realclean: clean
 "$(OBJDIR)\json_wiki$O" : "$(SRCDIR)\json_detail.h"
 
 "$(OX)\builtin_data.reslist": $(EXTRA_FILES) "$(B)\win\Makefile.msc"
-	echo "$(SRCDIR)\../skins/ardoise/css.txt" > $@
+	echo "$(SRCDIR)\../extsrc/pikchr-worker.js" > $@
+	echo "$(SRCDIR)\../extsrc/pikchr.js" >> $@
+	echo "$(SRCDIR)\../extsrc/pikchr.wasm" >> $@
+	echo "$(SRCDIR)\../skins/ardoise/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/header.txt" >> $@
@@ -1200,6 +1210,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshow.js" >> $@
+	echo "$(SRCDIR)\fossil.page.pikchrshowasm.js" >> $@
 	echo "$(SRCDIR)\fossil.page.whistory.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.pikchr.js" >> $@
@@ -1235,6 +1246,7 @@ realclean: clean
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
 	echo "$(SRCDIR)\style.chat.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
+	echo "$(SRCDIR)\style.pikchrshow.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@
 	echo "$(SRCDIR)\useredit.js" >> $@
