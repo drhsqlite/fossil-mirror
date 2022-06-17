@@ -990,7 +990,7 @@ void winfo_page(void){
   }
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  zDate = db_text(0, "SELECT datetime(%.17g)", pWiki->rDate);
+  zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pWiki->rDate);
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   style_submenu_element("History", "%R/whistory?name=%t", pWiki->zWikiTitle);
   style_submenu_element("Page", "%R/wiki?name=%t", pWiki->zWikiTitle);

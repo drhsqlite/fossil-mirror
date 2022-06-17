@@ -460,6 +460,7 @@ const char zRepositorySchema2[] =
 @   tkt_id INTEGER REFERENCES ticket,
 @   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
+@   tkt_user TEXT,
 @   -- Add as many fields as required below this line
 @   login TEXT,
 @   username TEXT,
@@ -488,6 +489,17 @@ const char zRepositorySchema2[] =
 # define BKLNK_EVENT      3   /* Technote */
 # define BKLNK_FORUM      4   /* Forum post */
 # define ValidBklnk(X)   (X>=0 && X<=4)  /* True if backlink.srctype is valid */
+#endif
+
+/*
+** Allowed values for MIMEtype codes
+*/
+#if INTERFACE
+# define MT_NONE       0   /* unspecified */
+# define MT_WIKI       1   /* Wiki */
+# define MT_MARKDOWN   2   /* Markdonw */
+# define MT_UNKNOWN    3   /* unknown  */
+# define ValidMTC(X)  ((X)>=0 && (X)<=3)  /* True if MIMEtype code is valid */
 #endif
 
 /*

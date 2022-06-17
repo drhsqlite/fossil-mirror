@@ -158,7 +158,12 @@ static const struct {
   { "jpe",        3, "image/jpeg"                        },
   { "jpeg",       4, "image/jpeg"                        },
   { "jpg",        3, "image/jpeg"                        },
-  { "js",         2, "application/javascript"            },
+  { "js",         2, "text/javascript"                   },
+  /* application/javascript is commonly used for JS, but the
+  ** spec says text/javascript is correct:
+  ** https://html.spec.whatwg.org/multipage/scripting.html
+  ** #scriptingLanguages:javascript-mime-type */
+  { "json",       4, "application/json"                  },
   { "kar",        3, "audio/midi"                        },
   { "latex",      5, "application/x-latex"               },
   { "lha",        3, "application/octet-stream"          },
@@ -175,6 +180,7 @@ static const struct {
   { "midi",       4, "audio/midi"                        },
   { "mif",        3, "application/x-mif"                 },
   { "mime",       4, "www/mime"                          },
+  { "mjs",        3, "text/javascript" /*EM6 modules*/   },
   { "mkd",        3, "text/x-markdown"                   },
   { "mov",        3, "video/quicktime"                   },
   { "movie",      5, "video/x-sgi-movie"                 },
@@ -279,6 +285,7 @@ static const struct {
   { "viv",        3, "video/vnd.vivo"                    },
   { "vivo",       4, "video/vnd.vivo"                    },
   { "vrml",       4, "model/vrml"                        },
+  { "wasm",       4, "application/wasm"                  },
   { "wav",        3, "audio/x-wav"                       },
   { "wax",        3, "audio/x-ms-wax"                    },
   { "webp",       4, "image/webp"                        },

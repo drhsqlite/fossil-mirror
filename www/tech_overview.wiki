@@ -179,7 +179,7 @@ the configuration database on a line that starts with "config-db:".
 The repository database is the file that is commonly referred to as
 "the repository".  This is because the repository database contains,
 among other things, the complete revision, ticket, and wiki history for
-a project.  It is customary to name the repository database after then
+a project.  It is customary to name the repository database after the
 name of the project, with a ".fossil" suffix.  For example, the repository
 database for the self-hosting Fossil repository is called "fossil.fossil"
 and the repository database for SQLite is called "sqlite.fossil".

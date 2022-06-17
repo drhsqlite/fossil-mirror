@@ -209,6 +209,16 @@ PathNode *path_midpoint(void){
 }
 
 /*
+** Find the next most recent node on a path.
+*/
+PathNode *path_next(void){
+  PathNode *p;
+  p = path.pStart;
+  if( p ) p = p->u.pTo;
+  return p;
+}
+
+/*
 ** Return an estimate of the number of comparisons remaining in order
 ** to bisect path.  This is based on the log2() of path.nStep.
 */

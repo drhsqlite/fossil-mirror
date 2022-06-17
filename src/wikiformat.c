@@ -177,72 +177,75 @@ static int findAttr(const char *z){
 ** Except for MARKUP_INVALID, this must all be in alphabetical order
 ** and in numerical sequence.  The first markup type must be zero.
 ** The value for MARKUP_XYZ must correspond to the <xyz> entry
-** in aAllowedMarkup[].
+** in aMarkup[].
 */
-#define MARKUP_INVALID            0
-#define MARKUP_A                  1
-#define MARKUP_ADDRESS            2
-#define MARKUP_HTML5_ARTICLE      3
-#define MARKUP_HTML5_ASIDE        4
-#define MARKUP_B                  5
-#define MARKUP_BIG                6
-#define MARKUP_BLOCKQUOTE         7
-#define MARKUP_BR                 8
-#define MARKUP_CENTER             9
-#define MARKUP_CITE               10
-#define MARKUP_CODE               11
-#define MARKUP_COL                12
-#define MARKUP_COLGROUP           13
-#define MARKUP_DD                 14
-#define MARKUP_DEL                15
-#define MARKUP_DFN                16
-#define MARKUP_DIV                17
-#define MARKUP_DL                 18
-#define MARKUP_DT                 19
-#define MARKUP_EM                 20
-#define MARKUP_FONT               21
-#define MARKUP_HTML5_FOOTER       22
-#define MARKUP_H1                 23
-#define MARKUP_H2                 24
-#define MARKUP_H3                 25
-#define MARKUP_H4                 26
-#define MARKUP_H5                 27
-#define MARKUP_H6                 28
-#define MARKUP_HTML5_HEADER       29
-#define MARKUP_HR                 30
-#define MARKUP_I                  31
-#define MARKUP_IMG                32
-#define MARKUP_INS                33
-#define MARKUP_KBD                34
-#define MARKUP_LI                 35
-#define MARKUP_HTML5_NAV          36
-#define MARKUP_NOBR               37
-#define MARKUP_NOWIKI             38
-#define MARKUP_OL                 39
-#define MARKUP_P                  40
-#define MARKUP_PRE                41
-#define MARKUP_S                  42
-#define MARKUP_SAMP               43
-#define MARKUP_HTML5_SECTION      44
-#define MARKUP_SMALL              45
-#define MARKUP_SPAN               46
-#define MARKUP_STRIKE             47
-#define MARKUP_STRONG             48
-#define MARKUP_SUB                49
-#define MARKUP_SUP                50
-#define MARKUP_TABLE              51
-#define MARKUP_TBODY              52
-#define MARKUP_TD                 53
-#define MARKUP_TFOOT              54
-#define MARKUP_TH                 55
-#define MARKUP_THEAD              56
-#define MARKUP_TITLE              57
-#define MARKUP_TR                 58
-#define MARKUP_TT                 59
-#define MARKUP_U                  60
-#define MARKUP_UL                 61
-#define MARKUP_VAR                62
-#define MARKUP_VERBATIM           63
+enum markup_t {
+  MARKUP_INVALID = 0,
+  MARKUP_A,
+  MARKUP_ABBR,
+  MARKUP_ADDRESS,
+  MARKUP_HTML5_ARTICLE,
+  MARKUP_HTML5_ASIDE,
+  MARKUP_B,
+  MARKUP_BIG,
+  MARKUP_BLOCKQUOTE,
+  MARKUP_BR,
+  MARKUP_CENTER,
+  MARKUP_CITE,
+  MARKUP_CODE,
+  MARKUP_COL,
+  MARKUP_COLGROUP,
+  MARKUP_DD,
+  MARKUP_DEL,
+  MARKUP_DFN,
+  MARKUP_DIV,
+  MARKUP_DL,
+  MARKUP_DT,
+  MARKUP_EM,
+  MARKUP_FONT,
+  MARKUP_HTML5_FOOTER,
+  MARKUP_H1,
+  MARKUP_H2,
+  MARKUP_H3,
+  MARKUP_H4,
+  MARKUP_H5,
+  MARKUP_H6,
+  MARKUP_HTML5_HEADER,
+  MARKUP_HR,
+  MARKUP_I,
+  MARKUP_IMG,
+  MARKUP_INS,
+  MARKUP_KBD,
+  MARKUP_LI,
+  MARKUP_HTML5_NAV,
+  MARKUP_NOBR,
+  MARKUP_NOWIKI,
+  MARKUP_OL,
+  MARKUP_P,
+  MARKUP_PRE,
+  MARKUP_S,
+  MARKUP_SAMP,
+  MARKUP_HTML5_SECTION,
+  MARKUP_SMALL,
+  MARKUP_SPAN,
+  MARKUP_STRIKE,
+  MARKUP_STRONG,
+  MARKUP_SUB,
+  MARKUP_SUP,
+  MARKUP_TABLE,
+  MARKUP_TBODY,
+  MARKUP_TD,
+  MARKUP_TFOOT,
+  MARKUP_TH,
+  MARKUP_THEAD,
+  MARKUP_TITLE,
+  MARKUP_TR,
+  MARKUP_TT,
+  MARKUP_U,
+  MARKUP_UL,
+  MARKUP_VAR,
+  MARKUP_VERBATIM
+};
 
 /*
 ** The various markup is divided into the following types:
@@ -281,6 +284,8 @@ static const struct AllowedMarkup {
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
                     AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET|AMSK_STYLE|
                     AMSK_TITLE},
+ { "abbr",          MARKUP_ABBR,         MUTYPE_FONT,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE|AMSK_TITLE },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         AMSK_STYLE },
  { "article",       MARKUP_HTML5_ARTICLE, MUTYPE_BLOCK,
                                             AMSK_ID|AMSK_CLASS|AMSK_STYLE },
