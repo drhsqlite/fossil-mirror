@@ -2214,7 +2214,6 @@ static void formatDiff(
   unsigned int r;        /* Index into R[] */
   unsigned int nr;       /* Number of COPY/DELETE/INSERT triples to process */
   unsigned int mxr;      /* Maximum value for r */
-  unsigned int na, nb;   /* Number of lines shown from A and B */
   unsigned int i, j;     /* Loop counters */
   unsigned int m, ma, mb;/* Number of lines to output */
   signed int skip = 0;   /* Number of lines to skip */
@@ -2260,28 +2259,10 @@ static void formatDiff(
     ** for this change block.
     */
     if( R[r]>nContext ){
-      na = nb = nContext;
       skip = R[r] - nContext;
     }else{
-      na = nb = R[r];
       skip = 0;
     }
-    for(i=0; i<nr; i++){
-      na += R[r+i*3+1];
-      nb += R[r+i*3+2];
-    }
-    if( R[r+nr*3]>nContext ){
-      na += nContext;
-      nb += nContext;
-    }else{
-      na += R[r+nr*3];
-      nb += R[r+nr*3];
-    }
-    for(i=1; i<nr; i++){
-      na += R[r+i*3];
-      nb += R[r+i*3];
-    }
-
     /* Show the initial common area */
     a += skip;
     b += skip;

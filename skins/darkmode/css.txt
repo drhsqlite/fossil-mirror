@@ -133,9 +133,8 @@ button:focus,
 input[type=button]:focus,
 input[type=reset]:focus,
 input[type=submit]:focus {
-  color: #333;
+  outline: 2px outset #333;
   border-color: #888;
-  outline: 0
 }
 
 /* All page content from the bottom of the menu or submenu down to

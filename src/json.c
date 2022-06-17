@@ -560,7 +560,7 @@ int json_setenv( char const * zKey, cson_value * v ){
 ** HTTP_ACCEPT header.
 **
 ** It will try to figure out if the client can support
-** application/json or application/javascript, and will fall back to
+** application/json, text/javascript, and will fall back to
 ** text/plain if it cannot figure out anything more specific.
 **
 ** Returned memory is static and immutable, but if the environment
@@ -575,8 +575,8 @@ char const * json_guess_content_type(){
     ? 1 : 0;
   if( g.json.jsonp ){
     return doUtf8
-      ? "application/javascript; charset=utf-8"
-      : "application/javascript";
+      ? "text/javascript; charset=utf-8"
+      : "text/javascript";
   }else{
     /*
       Content-type
@@ -607,14 +607,15 @@ char const * json_guess_content_type(){
  ** Given a request CONTENT_TYPE value, this function returns true
  ** if it is of a type which the JSON API can ostensibly read.
  **
- ** It accepts any of application/json, text/plain, or
- ** application/javascript. The former is preferred, but was not
- ** widespread when this API was initially built, so the latter forms
- ** are permitted as fallbacks.
+ ** It accepts any of application/json, text/plain,
+ ** application/javascript, or text/javascript. The former is
+ ** preferred, but was not widespread when this API was initially
+ ** built, so the latter forms are permitted as fallbacks.
  */
 int json_can_consume_content_type(const char * zType){
   return fossil_strcmp(zType, "application/json")==0
     || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
+    || fossil_strcmp(zType,"text/javascript")==0
     || fossil_strcmp(zType,"application/javascript")==0;
 }
 
@@ -629,7 +630,7 @@ int json_can_consume_content_type(const char * zType){
 ** is not called to flush the output.
 **
 ** If g.json.jsonp is not NULL then the content type is set to
-** application/javascript and the output is wrapped in a jsonp
+** text/javascript and the output is wrapped in a jsonp
 ** wrapper.
 */
 void json_send_response( cson_value const * pResponse ){
@@ -637,6 +638,7 @@ void json_send_response( cson_value const * pResponse ){
   if( g.isHTTP ){
     cgi_reset_content();
     if( g.json.jsonp ){
+      cgi_set_content_type("text/javascript");
       cgi_printf("%s(",g.json.jsonp);
     }
     cson_output( pResponse, cson_data_dest_cgi, NULL, &g.json.outOpt );

@@ -281,6 +281,14 @@ void setup_notification(void){
   @ can handle bounces. (Property: "email-self")</p>
   @ <hr>
 
+  entry_attribute("List-ID", 40, "email-listid",
+                   "elistid", "", 0);
+  @ <p>
+  @ If this is not an empty string, then it becomes the argument to
+  @ a "List-ID:" header on all out-bound notification emails.
+  @ (Property: "email-listid")</p>
+  @ <hr>
+
   entry_attribute("Repository Nickname", 16, "email-subname",
                    "enn", "", 0);
   @ <p><b>Required.</b>
@@ -411,6 +419,7 @@ struct AlertSender {
   const char *zDir;          /* Directory in which to store as email files */
   const char *zCmd;          /* Command to run for each email */
   const char *zFrom;         /* Emails come from here */
+  const char *zListId;       /* Argument to List-ID header */
   SmtpSession *pSmtp;        /* SMTP relay connection */
   Blob out;                  /* For zDest=="blob" */
   char *zErr;                /* Error message */
@@ -436,6 +445,7 @@ static void emailerShutdown(AlertSender *p){
   p->zDb = 0;
   p->zDir = 0;
   p->zCmd = 0;
+  p->zListId = 0;
   if( p->pSmtp ){
     smtp_client_quit(p->pSmtp);
     smtp_session_free(p->pSmtp);
@@ -516,6 +526,7 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
   }
   if( fossil_strcmp(p->zDest,"off")==0 ) return p;
   if( emailerGetSetting(p, &p->zFrom, "email-self") ) return p;
+  p->zListId = db_get("email-listid", 0);
   if( fossil_strcmp(p->zDest,"db")==0 ){
     char *zErr;
     int rc;
@@ -883,6 +894,9 @@ void alert_send(
     blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
   }
   blob_appendf(pOut, "Date: %z\r\n", cgi_rfc822_datestamp(time(0)));
+  if( p->zListId  && p->zListId[0] ){
+    blob_appendf(pOut, "List-Id: %s\r\n", p->zListId);
+  }
   if( strstr(blob_str(pHdr), "\r\nMessage-Id:")==0 ){
     /* Message-id format:  "<$(date)x$(random)@$(from-host)>" where $(date) is
     ** the current unix-time in hex, $(random) is a 64-bit random number,
@@ -971,7 +985,7 @@ void alert_send(
 /*
 ** SETTING: email-renew-interval      width=16
 ** If this setting as an integer N that is 14 or greater then email
-** notification is suspected for subscriptions that have a "last contact
+** notification is suspended for subscriptions that have a "last contact
 ** time" of more than N days ago.  The "last contact time" is recorded
 ** in the SUBSCRIBER.LASTCONTACT entry of the database.  Logging in,
 ** sending a forum post, editing a wiki page, changing subscription settings
@@ -1030,6 +1044,11 @@ void alert_send(
 ** SETTING: email-self               width=40
 ** This is the email address for the repository.  Outbound emails add
 ** this email address as the "From:" field.
+*/
+/*
+** SETTING: email-listid             width=40
+** If this setting is not an empty string, then it becomes the argument to
+** a "List-ID:" header that is added to all out-bound notification emails.
 */
 /*
 ** SETTING: email-send-relayhost      width=40 sensitive

@@ -183,8 +183,8 @@ but few, if any, use negative values).
 **Boolean** parameters are a bit schizophrenic...
 
 In **CLI mode**, boolean flags do not have a value, per se, and thus
-require no string-to-bool conversion. e.g. `fossil foo -aBoolOpt
--non-bool-opt value`.
+require no string-to-bool conversion. e.g.
+`fossil foo -aBoolOpt -non-bool-opt value`.
 
 Those which arrive as strings via **GET parameters** treat any of the
 following as true: a string starting with a character in the set

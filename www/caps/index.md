@@ -195,12 +195,12 @@ affected only by OS file permissions and such. If you need to prevent
 that, you want to deny **Clone** capability instead.
 
 Withholding the **Read** capability has a different effect: it
-prevents a web client from viewing [embedded
-documentation][edoc], using [the file
-browser](/help?name=/dir), and pulling file content via the
-[`/artifact`](/help?name=/artifact), [`/file`](/help?name=/file), and
-[`/raw`](/help?name=/raw) URLs.
-It is is common to withhold **Read** capability from low-status visitors
+prevents a web client from viewing [embedded documentation][edoc],
+using [the file browser](/help?name=/dir),
+exploring the [history](/help?name=/timeline) of check-ins,
+and pulling file content via the [`/artifact`](/help?name=/artifact),
+[`/file`](/help?name=/file), and [`/raw`](/help?name=/raw) URLs.
+It is common to withhold **Read** capability from low-status visitors
 on private or semi-private repos to prevent them from pulling individual
 elements of the repo over the web one at a time, as someone may do when
 denied the bulk **Clone** capability.

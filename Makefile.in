@@ -49,6 +49,13 @@ CFLAGS_INCLUDE = @CFLAGS_INCLUDE@
 LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
 BCCFLAGS =	@CPPFLAGS@ $(CFLAGS)
 TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H -D_HAVE_SQLITE_CONFIG_H
+#
+# Fuzzing may be enable by appending -fsanitize=fuzzer -DFOSSIL_FUZZ
+# to the TCCFLAGS variable.
+# For more thorouth (but also slower) investigation
+#      -fsanitize=fuzzer,undefined,address
+# might be more useful.
+
 INSTALLDIR = $(DESTDIR)@prefix@/bin
 USE_SYSTEM_SQLITE = @USE_SYSTEM_SQLITE@
 SQLITE3_SRC.2 = @SQLITE3_SRC.2@
@@ -64,6 +71,20 @@ USE_LINENOISE = @USE_LINENOISE@
 USE_MMAN_H = @USE_MMAN_H@
 USE_SEE = @USE_SEE@
 APPNAME = fossil
+#
+# APPNAME = fossil-fuzz
+# may be more appropriate for fuzzing.
+
+#### Emscripten stuff for optionally doing in-tree builds
+# of any WASM components. We store precompiled WASM in the the SCM, so
+# this is only useful for people who actively work on WASM
+# components. EMSDK_ENV refers to the "environment" script which comes
+# with the Emscripten SDK package:
+# https://emscripten.org/docs/getting_started/downloads.html
+EMSDK_HOME = @EMSDK_HOME@
+EMSDK_ENV = @EMSDK_ENV@
+EMCC_OPT = @EMCC_OPT@
+EMCC_WRAPPER = $(SRCDIR_tools)/emcc.sh
 
 .PHONY: all tags
 

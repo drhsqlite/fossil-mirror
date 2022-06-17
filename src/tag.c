@@ -222,7 +222,7 @@ int tag_insert(
                   zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
       char *zCopy = mprintf("%s", zValue);
-      backlink_extract(zCopy, 0, rid, BKLNK_COMMENT, mtime, 1);
+      backlink_extract(zCopy, MT_NONE, rid, BKLNK_COMMENT, mtime, 1);
       free(zCopy);
     }
   }

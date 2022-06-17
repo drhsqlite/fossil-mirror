@@ -165,6 +165,9 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../extsrc/pikchr-worker.js \
+  $(SRCDIR)/../extsrc/pikchr.js \
+  $(SRCDIR)/../extsrc/pikchr.wasm \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
@@ -233,6 +236,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
+  $(SRCDIR)/fossil.page.pikchrshowasm.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
@@ -268,6 +272,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.pikchrshow.css \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
@@ -2110,6 +2115,11 @@ $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
+
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry  -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore  -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c  -sENVIRONMENT=web  -sMODULARIZE  -sEXPORT_NAME=initPikchrModule  --minify 0
+	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
+wasm: $(SRCDIR_extsrc)/pikchr.js
 
 #
 # The list of all the targets that do not correspond to real files. This stops

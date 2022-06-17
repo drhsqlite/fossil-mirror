@@ -884,7 +884,9 @@ void addremove_cmd(void){
   db_finalize(&q);
   /* show command summary */
   fossil_print("added %d files, deleted %d files\n", nAdd, nDelete);
-
+  if(dryRunFlag!=0){
+    fossil_print("Dry-run mode: no changes were made.\n");
+  }
   db_end_transaction(dryRunFlag);
 }
 

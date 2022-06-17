@@ -1919,6 +1919,7 @@ void wcontent_page(void){
   double rNow;
   int showAll = P("all")!=0;
   int showRid = P("showid")!=0;
+  int showCkBr = P("showckbr")!=0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1929,6 +1930,7 @@ void wcontent_page(void){
   }else{
     style_submenu_element("All", "%R/wcontent?all=1");
   }
+  style_submenu_checkbox("showckbr", "Show associated wikis", 0, 0);
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   db_prepare(&q, listAllWikiPages/*works-like:""*/);
   @ <div class="brlist">
@@ -1956,6 +1958,11 @@ void wcontent_page(void){
       zWDisplayName = mprintf("%.25s...", zWName);
     }else{
       zWDisplayName = mprintf("%s", zWName);
+    }
+    if( !showCkBr && 
+        (sqlite3_strglob("checkin/*", zWName)==0 ||
+         sqlite3_strglob("branch/*", zWName)==0) ){
+      continue;
     }
     if( wrid==0 ){
       if( !showAll ) continue;
@@ -2184,7 +2191,8 @@ int wiki_technote_to_rid(const char *zETime) {
 ** > fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
-**       case-insensitively by name.
+**       case-insensitively by name.  Wiki pages associated with
+**       check-ins and branches are NOT shown, unless -a is given.
 **
 **       Options:
 **         --all                       Include "deleted" pages in output.
@@ -2193,6 +2201,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     pages. The technotes will be in order
 **                                     of timestamp with the most recent
 **                                     first.
+**         -a|--show-associated        Show wiki pages associated with
+**                                     check-ins and branches.
 **         -s|--show-technote-ids      The id of the tech note will be listed
 **                                     along side the timestamp. The tech note
 **                                     id will be the first word on each line.
@@ -2426,6 +2436,7 @@ void wiki_cmd(void){
     Stmt q;
     const int fTechnote = find_option("technote","t",0)!=0;
     const int showIds = find_option("show-technote-ids","s",0)!=0;
+    const int showCkBr = find_option("show-associated","a",0)!=0;
     verify_all_options();
     if (fTechnote==0){
       db_prepare(&q, listAllWikiPages/*works-like:""*/);
@@ -2443,6 +2454,11 @@ void wiki_cmd(void){
       const char *zName = db_column_text(&q, 0);
       const int wrid = db_column_int(&q, 2);
       if(!showAll && !wrid){
+        continue;
+      }
+      if( !showCkBr && 
+          (sqlite3_strglob("checkin/*", zName)==0 ||
+           sqlite3_strglob("branch/*", zName)==0) ){
         continue;
       }
       if( showIds ){

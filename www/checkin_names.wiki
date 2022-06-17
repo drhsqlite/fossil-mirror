@@ -10,6 +10,7 @@
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
 <li> <b>root <big>:</big></b> <i>branchname</i>
+<li> <b>start <big>:</big></b> <i>branchname</i>
 <li> <b>merge-in <big>:</big></b> <i>branchname</i>
 <li> Special names:
 <ul>
@@ -100,9 +101,9 @@ share a common tag, so the same mechanism that resolves tag names
 also resolves branch names.
 
 <a id="tagpfx"></a>
-Note also that there can — in theory, if rarely in practice — be an ambiguity between tag names
-and canonical names.  Suppose, for example, you had a check-in with
-the canonical name deed28aa99… and you
+Note also that there can — in theory, if rarely in practice — be an ambiguity
+between tag names and canonical names.  Suppose, for example, you had a
+check-in with the canonical name deed28aa99… and you
 also happened to have tagged a different check-in with "deed2".  If
 you use the "deed2" name, does it choose the canonical name or the tag
 name?  In such cases, you can prefix the tag name with "tag:".
@@ -185,8 +186,8 @@ consider the homepage for the Fossil website itself:
 http://fossil-scm.org/home/doc/<b>trunk</b>/www/index.wiki
 </blockquote>
 
-The bold component of that URL is a check-in name.  To see the stored
-content of the Fossil website repository as of January 1, 2009, one has merely to change
+The bold component of that URL is a check-in name.  To see the stored content
+of the Fossil website repository as of January 1, 2009, one has merely to change
 the URL to the following:
 
 <blockquote>
@@ -204,9 +205,9 @@ a colon and then a timestamp.  The combination means to take the most
 recent check-in with the given tag or branch which is not more recent than
 the timestamp.  So, for example:
 
-<blockquote>
+<blockquote><tt>
 fossil update trunk:2010-07-01T14:30
-</blockquote>
+</tt></blockquote>
 
 Would cause Fossil to update the working check-out to be the most recent
 check-in on the trunk that is not more recent than 14:30 (UTC) on
@@ -220,9 +221,9 @@ Such a label is useful, for example, in computing all diffs for a single
 branch.  The following example will show all changes in the hypothetical
 branch "xyzzy":
 
-<blockquote>
+<blockquote><tt>
 fossil diff --from root:xyzzy --to xyzzy
-</blockquote>
+</tt></blockquote>
 
 <a id="merge-in"></a>
 That doesn't do what you might expect after you merge the parent
@@ -236,6 +237,18 @@ The resulting diff will then show only the changes in
 the branch itself, omitting
 any changes that have already been merged in from the parent branch.
 
+<a id="start"></a>
+The prefix "<tt>start:</tt>" gives the first check-in of the named branch.
+
+The prefixes "<tt>root:</tt>" and  "<tt>merge-in:</tt>" can be chained: one
+can say for example 
+
+<blockquote><tt>
+fossil info merge-in:xyzzy:2022-03-01
+</tt></blockquote>
+
+to get informations about the most recent merge-in point on the branch 
+"xyzzy" that happened on or before March 1, 2022.
 
 <h2 id="special">Special Tags</h2>
 
@@ -292,6 +305,7 @@ following order:
   #  [#timestamps | Timestamps], with preference to ISO8601 forms
   #  [#tagpfx | tag:TAGNAME]
   #  [#root | root:BRANCH]
+  #  [#start | start:BRANCH]
   #  [#merge-in | merge-in:BRANCH]
   #  [#tag-ts | TAGNAME:timestamp]
   #  Full artifact hash or hash prefix.
