@@ -1,5 +1,5 @@
-C Add\s"--describe"\sflag\sto\sthe\s"version"\scommand\sto\sprovide\scontext\sto\sthe\smost\srecent\smajor\scommit\stagged\swith\s"version*".
-D 2022-03-30T15:08:27.489
+C Add\sgeneration\sof\smanifest.descr\sto\sMakefile.msc\s(via\smakemake.tcl);\sthis\scan\sbe\sremoved\safter\s'version\s--describe'\ssupport\sgets\sbuilt\sin.
+D 2022-06-17T09:32:39.169
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -752,7 +752,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 651e176399bf38aa9bb37d238465073d5c6f8b4310e6eaea5974900239c6ff4b x
+F tools/makemake.tcl d8c684ef832880ba6a3c47af23a3e480ccb2bda753e408541a54cdc98f3e7c22 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F tools/mkindex.c b5c2cf8c00e9ae8d2bc1f4eba68b59fcde6febdff3a2a9a791b20c96526d074a
@@ -763,7 +763,7 @@ F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e
 F win/Makefile.dmc 4a02fb7b371d4abbf1442096246bcd7f61f7ad196b4afda113773eb0b7e0f1bd
 F win/Makefile.mingw 92d02642a62c72d19d6224673dbfef45e0517bc85bb97de7de5a6fc2aa3fbddb
 F win/Makefile.mingw.mistachkin 80b184359c5377d4c8e20d90e26d15840d8d10307ab8b75ef27c48477d2cbcbc
-F win/Makefile.msc e79bb623aa4a7dd15dd55260093e73c635eba676557396fbf3cae472ecff2f67
+F win/Makefile.msc 7baf4b5b9b7e049be7c0967f128c7d983f136dcad57b3b25358256bea15da8ed
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -969,11 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36ca26647977e7e96678e11cebc55f31f70713c7004014db07fa9030e83491b0
-R 45b75ed7243a0747465b967068d9b561
-T *branch * version-cmd-describe
-T *sym-version-cmd-describe *
-T -sym-trunk *
+P 4329553d517f7d13037c19bb590f7f42b98a459e2b9b57c7afa45e1cd090e054
+R b101933bdc03acd7ee17ae35e6a8f0b0
 U danield
-Z 035b08accd5db3b8ba30381bdd970dab
+Z fd6348b5d2d11e77c50073cbd586598b
 # Remove this line to create a well-formed Fossil manifest.

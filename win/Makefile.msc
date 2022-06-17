@@ -1070,6 +1070,9 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 "$(B)\phony.h" :
 	rem Force rebuild of VERSION.h whenever nmake is run
 
+"$(B)\manifest.descr" :
+	type NUL >> $@
+
 "$(OX)\cson_amalgamation$O" : "$(SRCDIR_extsrc)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
