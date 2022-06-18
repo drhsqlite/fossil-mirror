@@ -10,3 +10,4 @@ compat/zlib/contrib/blast/test.pk
 compat/zlib/contrib/dotzlib/DotZLib.chm
 compat/zlib/contrib/puff/zeros.raw
 compat/zlib/zlib.3.pdf
+extsrc/pikchr.wasm

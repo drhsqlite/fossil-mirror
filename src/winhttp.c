@@ -618,6 +618,10 @@ void win32_http_server(
     blob_appendf(&options, " --mainmenu ");
     blob_append_escaped_arg(&options, g.zMainMenuFile, 1);
   }
+  if( builtin_get_js_delivery_mode()!=0 /* JS_INLINE==0 may change? */ ){
+    blob_appendf(&options, " --jsmode ");
+    blob_append_escaped_arg(&options, builtin_get_js_delivery_mode_name(), 0);
+  }
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();
   savedKeySize = db_get_saved_encryption_key_size();

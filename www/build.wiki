@@ -267,10 +267,7 @@ are a member of the <tt>docker</tt> group).
 First, create a file named <tt>Dockerfile</tt> with the following contents:
 
 <pre><code>
-# Alpine >3.13 breaks stuff on many host OSes! For details see:
-# https://wiki.alpinelinux.org/wiki/Draft_Release_Notes_for_Alpine_3.14.0#faccessat2
-# FROM    alpine:edge
-FROM    alpine:3.13
+FROM    alpine:edge
 RUN     apk update                                                                                      \
         && apk upgrade                                                                                  \
         && apk add --no-cache                                                                           \

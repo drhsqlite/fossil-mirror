@@ -568,7 +568,7 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
     fossil_error(iErrPriority, "ambiguous name: %s", zName);
     return 2;
   }else if( rid==0 ){
-    fossil_error(iErrPriority, "not found: %s", zName);
+    fossil_error(iErrPriority, "cannot resolve name: %s", zName);
     return 1;
   }else{
     blob_reset(pName);
@@ -678,7 +678,7 @@ int name_to_typed_rid(const char *zName, const char *zType){
   if( rid<0 ){
     fossil_fatal("ambiguous name: %s", zName);
   }else if( rid==0 ){
-    fossil_fatal("not found: %s", zName);
+    fossil_fatal("cannot resolve name: %s", zName);
   }
   return rid;
 }

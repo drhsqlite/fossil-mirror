@@ -232,6 +232,8 @@ static struct {
 
 #if INTERFACE
 /* Various delivery mechanisms.  The 0 option is the default.
+** MAINTENANCE NOTE: Review/update the builtin_set_js_delivery_mode() and
+** builtin_get_js_delivery_mode_name() functions if values are changed/added.
 */
 #define JS_INLINE   0    /* inline, batched together at end of file */
 #define JS_SEPARATE 1    /* Separate HTTP request for each JS file */
@@ -268,6 +270,26 @@ void builtin_set_js_delivery_mode(const char *zMode, int bSilent){
 */
 int builtin_get_js_delivery_mode(void){
   return builtin.eDelivery;
+}
+
+/*
+** Returns the name of the current JS delivery mode for reuse with the --jsmode
+** option, i.e. the other way around than builtin_set_js_delivery_mode().
+*/
+const char *builtin_get_js_delivery_mode_name(void){
+  switch( builtin.eDelivery ){
+    case JS_SEPARATE: {
+      return "separate";
+    }
+    case JS_BUNDLED: {
+      return "bundled";
+    }
+    case JS_INLINE:
+      /*FALLTHROUGH*/
+    default: {
+      return "inline";
+    }
+  }
 }
 
 /*
