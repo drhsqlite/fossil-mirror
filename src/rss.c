@@ -59,6 +59,7 @@ void page_timeline_rss(void){
     @   blob.rid,
     @   uuid,
     @   event.mtime,
+    @   event.type,
     @   coalesce(ecomment,comment),
     @   coalesce(euser,user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
@@ -82,27 +83,23 @@ void page_timeline_rss(void){
     if( zType[0]=='c' && !g.perm.Read ) zType = "x";
     if( zType[0]=='w' && !g.perm.RdWiki ) zType = "x";
     if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
+    if( zType[0]=='f' && !g.perm.RdForum ) zType = "x";
     blob_append_sql(&bSQL, " AND event.type=%Q", zType);
   }else{
-    if( !g.perm.Read ){
-      if( g.perm.RdTkt && g.perm.RdWiki ){
-        blob_append(&bSQL, " AND event.type!='ci'", -1);
-      }else if( g.perm.RdTkt ){
-        blob_append(&bSQL, " AND event.type=='t'", -1);
-
-      }else{
-        blob_append(&bSQL, " AND event.type=='w'", -1);
-      }
-    }else if( !g.perm.RdWiki ){
-      if( g.perm.RdTkt ){
-        blob_append(&bSQL, " AND event.type!='w'", -1);
-      }else{
-        blob_append(&bSQL, " AND event.type=='ci'", -1);
-      }
-    }else if( !g.perm.RdTkt ){
-      assert( !g.perm.RdTkt && g.perm.Read && g.perm.RdWiki );
-      blob_append(&bSQL, " AND event.type!='t'", -1);
+    blob_append(&bSQL, " AND event.type in (", -1);
+    if( g.perm.Read ){
+      blob_append(&bSQL, "'ci',", 4);
     }
+    if( g.perm.RdTkt ){
+      blob_append(&bSQL, "'t',", 4);
+    }
+    if( g.perm.RdWiki ){
+      blob_append(&bSQL, "'w',", 4);
+    }
+    if( g.perm.RdForum ){
+      blob_append(&bSQL, "'f',", -1);
+    }
+    blob_append(&bSQL, "'x')", 4);
   }
 
   if( zTicketUuid ){
@@ -170,26 +167,36 @@ void page_timeline_rss(void){
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<nLimit ){
     const char *zId = db_column_text(&q, 1);
-    const char *zCom = db_column_text(&q, 3);
-    const char *zAuthor = db_column_text(&q, 4);
+    const char *zType = db_column_text(&q, 3);
+    const char *zCom = db_column_text(&q, 4);
+    const char *zAuthor = db_column_text(&q, 5);
     char *zPrefix = "";
     char *zSuffix = 0;
     char *zDate;
     int nChild = db_column_int(&q, 5);
-    int nParent = db_column_int(&q, 6);
-    const char *zTagList = db_column_text(&q, 7);
+    int nParent = db_column_int(&q, 7);
+    const char *zTagList = db_column_text(&q, 8);
     time_t ts;
 
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
     zDate = cgi_rfc822_datestamp(ts);
 
-    if( nParent>1 && nChild>1 ){
-      zPrefix = "*MERGE/FORK* ";
-    }else if( nParent>1 ){
-      zPrefix = "*MERGE* ";
-    }else if( nChild>1 ){
-      zPrefix = "*FORK* ";
+    if('c'==zType[0]){
+      if( nParent>1 && nChild>1 ){
+        zPrefix = "*MERGE/FORK* ";
+      }else if( nParent>1 ){
+        zPrefix = "*MERGE* ";
+      }else if( nChild>1 ){
+        zPrefix = "*FORK* ";
+      }
+    }else if('w'==zType[0]){
+      switch(zCom ? zCom[0] : 0){
+        case ':': zPrefix = "Edit wiki page: "; break;
+        case '+': zPrefix = "Add wiki page: "; break;
+        case '-': zPrefix = "Delete wiki page: "; break;
+      }
+      if(*zPrefix) ++zCom;
     }
 
     if( zTagList ){
