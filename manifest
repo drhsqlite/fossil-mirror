@@ -1,5 +1,5 @@
-C Fix\sa\sminor\sfootnotes-related\sbug\sthat\swas\sdiscovered\sby\sStephan:\sif\sa\sfree-standing\sfootnote\sreference\sfollows\simmediately\safter\sthe\sexclamation\smark\sthen\sparse\sthat\sas\sa\sfootnote\s(and\snot\sas\san\simage).\sThis\scheck-in\salso\spostpones\sinitialization\sof\sa\sfew\slocal\svariables\swithin\s<code>char_link()</code>\sfunction\s(which\smay\ssave\sa\sfew\sCPU\scycles).
-D 2022-06-22T12:35:58.505
+C Add\san\soption\sto\sthe\s'timeline'\scommand\sto\sdisplay\sonly\sitems\son\sa\sspecific\sbranch.
+D 2022-06-22T13:33:05.007
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -594,7 +594,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 41c316a2a69c69f8b5108e127c97756ff4c9468a9460d9f0206d3fc08c9c647a
+F src/timeline.c 043bd5fb8b50612766a2370ef0bcdcc0ad7f8cffdcb56c1b6e94af6b7a653595
 F src/tkt.c 992429510522cad383e553cd5e778b3551ea147e1c833000ea223b3ec939eca0
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9584806cc6a8c005f93dcb4498caa9a08465c5c69d185798feaaddabfe3ade1a
-R 6579e7f6c38b86a5ef1e83d18b3bf30e
-U george
-Z c15bf4b2c0bfb462e4d2381d79c9fc96
+P 97b28feae320b8f1ff00e3f794f28ac9d12e644240f6a8fb3e50c980bf1e54c3 20c1ba2ea932b8d91646f1946b2ae08d1e78107659ee2f7a558be2007e262c56
+R 7da45daf5dfba952107e8f476d085cdd
+U danield
+Z ea308dea49c9e68fa6892bb85660304f
 # Remove this line to create a well-formed Fossil manifest.
