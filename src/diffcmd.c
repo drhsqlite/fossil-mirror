@@ -113,6 +113,33 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 }
 
 /*
+** Print details about the compared versions - possibly the working directory
+** or the undo buffer.  For check-ins, show hash and commit time.
+** 
+** This is intended primarily to go into the "header garbage" that is ignored
+** by patch(1).
+**
+** zFrom and zTo are interpreted as symbolic version names, unless they
+** start with '(', in which case they are printed directly.
+*/
+void diff_print_versions(const char *zFrom, const char *zTo, DiffConfig *pCfg){
+  if( (pCfg->diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|
+        DIFF_HTML|DIFF_WEBPAGE|DIFF_BROWSER|DIFF_JSON|DIFF_TCL))==0 ){
+    fossil_print("Fossil-Diff-From:  %s\n",
+      zFrom[0]=='(' ? zFrom : mprintf("%S %s",
+        rid_to_uuid(symbolic_name_to_rid(zFrom, "ci")),
+        db_text("","SELECT datetime(%f)||' UTC'",
+          symbolic_name_to_mtime(zFrom, 0))));
+    fossil_print("Fossil-Diff-To:    %s\n",
+      zTo[0]=='(' ? zTo : mprintf("%S %s",
+        rid_to_uuid(symbolic_name_to_rid(zTo, "ci")),
+        db_text("","SELECT datetime(%f)||' UTC'",
+          symbolic_name_to_mtime(zTo, 0))));
+    fossil_print("%.66c\n", '-');
+  }
+}
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, DiffConfig *pCfg, Blob *pOut){
@@ -127,6 +154,7 @@ void diff_print_index(const char *zFile, DiffConfig *pCfg, Blob *pOut){
 /*
 ** Print the +++/--- filename lines or whatever filename information
 ** is appropriate for the output format.
+**
 */
 void diff_print_filenames(
   const char *zLeft,      /* Name of the left file */
@@ -662,6 +690,10 @@ void diff_against_disk(
       vid
     );
   }
+  if( (pCfg->diffFlags & DIFF_SHOW_VERS)!=0 ){
+    diff_print_versions(zFrom ? zFrom : db_lget("checkout-hash", 0),
+      "(workdir)", pCfg);
+  }
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   while( db_step(&q)==SQLITE_ROW ){
@@ -746,6 +778,9 @@ static void diff_against_undo(
   Blob content;
   db_prepare(&q, "SELECT pathname, content FROM undo");
   blob_init(&content, 0, 0);
+  if( (pCfg->diffFlags & DIFF_SHOW_VERS)!=0 ){
+    diff_print_versions("(undo)", "(workdir)", pCfg);
+  }  
   while( db_step(&q)==SQLITE_ROW ){
     char *zFullName;
     const char *zFile = (const char*)db_column_text(&q, 0);
@@ -830,7 +865,9 @@ static void diff_two_versions(
   pTo = manifest_get_by_name(zTo, 0);
   manifest_file_rewind(pTo);
   pToFile = manifest_file_next(pTo,0);
-
+  if( (pCfg->diffFlags & DIFF_SHOW_VERS)!=0 ){
+    diff_print_versions(zFrom, zTo, pCfg);
+  }    
   while( pFromFile || pToFile ){
     int cmp;
     if( pFromFile==0 ){
@@ -1060,6 +1097,7 @@ const char *diff_get_binary_glob(void){
 **   --undo                      Diff against the "undo" buffer
 **   --unified                   Unified diff
 **   -v|--verbose                Output complete text of added or deleted files
+**   -h|--versions               Show compared versions in the diff header
 **   --webpage                   Format output as a stand-alone HTML webpage
 **   -W|--width N                Width of lines in side-by-side diff
 **   -Z|--ignore-trailing-space  Ignore changes to end-of-line whitespace

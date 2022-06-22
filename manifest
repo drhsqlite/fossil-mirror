@@ -1,5 +1,5 @@
-C Add\san\soption\sto\sthe\s'timeline'\scommand\sto\sdisplay\sonly\sitems\son\sa\sspecific\sbranch.
-D 2022-06-22T13:33:05.007
+C Add\s'--versions'\soption\sto\s'fossil\sdiff'\sto\sdisplay\sdetails\sabout\sthe\scompared\sversions.
+D 2022-06-22T13:37:21.709
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -440,10 +440,10 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c a863cee30e2c607f95e33eb9168fa79e74c45d9fa6b1b1f182205ebf6eeec2a7
+F src/diff.c f1cabfb71ed1f0b251df39983e683a47166ec2dff2838f5155d98c19c4a81d5f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c ceb1de38c37cd9dd14803e6191dda9010ef068cc7f451ce70b47bbcda43fd271
+F src/diffcmd.c 82ad4626b2a77ea52f3e5672f556e223fd4108fe6e82b879320e4190bc94f7a6
 F src/dispatch.c 03d4f3e634555ce9af15ef373e23b6ff9a573103d00393dcd1170e4e5fe8a83e
 F src/doc.c 2f4ca7eadfc314697a610cd6b9a4191c407fc14a0443a20a6f6193f937bcff81
 F src/encode.c 55f290baff5704e0e11b8245c2f1ce087f664ff8da884f0a1d7e2dad64fb9f64
@@ -976,8 +976,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 97b28feae320b8f1ff00e3f794f28ac9d12e644240f6a8fb3e50c980bf1e54c3 20c1ba2ea932b8d91646f1946b2ae08d1e78107659ee2f7a558be2007e262c56
-R 7da45daf5dfba952107e8f476d085cdd
+P 213ca339c2951ad19123d68c0d33c5cf954021896d6d292140e557711535ebc8 c97ad9d6d2d4f4c2020ef69657b9996bf3eb1ffd843c730c97e0cc5e62a7080e
+R 47e13df1e0172678a6a1de03ac90fe76
+T +closed c97ad9d6d2d4f4c2020ef69657b9996bf3eb1ffd843c730c97e0cc5e62a7080e
 U danield
-Z ea308dea49c9e68fa6892bb85660304f
+Z 01f1e7d19a13efc829181b4f47a5e3de
 # Remove this line to create a well-formed Fossil manifest.
