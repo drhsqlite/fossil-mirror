@@ -232,6 +232,26 @@ int repo_list_page(void){
         blob_append_sql(&html,
           "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
           zUrl, zName);
+      }else if( sqlite3_strglob("*/*.fossil", zName)==0 ){
+        /* As described in
+        ** https://fossil-scm.org/forum/info/f50f647c97c72fc1: if
+        ** foo.fossil and foo/bar.fossil both exist and we create a
+        ** link to foo/bar/... then the URI dispatcher will instead
+        ** see that as a link to foo.fossil. In such cases, do not
+        ** emit a link to foo/bar.fossil. */
+        char * zDirPart = file_dirname(zName);
+        if( db_exists("SELECT 1 FROM sfile "
+                      "WHERE pathname=(%Q || '.fossil') COLLATE nocase",
+                      zDirPart) ){
+          blob_append_sql(&html,
+            "<s>%h</s> (directory/repo name collision)\n",
+            zName);
+        }else{
+          blob_append_sql(&html,
+            "<a href='%R/%T/home' target='_blank'>%h</a>\n",
+            zUrl, zName);
+        }
+        fossil_free(zDirPart);
       }else{
         blob_append_sql(&html,
           "<a href='%R/%T/home' target='_blank'>%h</a>\n",
