@@ -1307,17 +1307,20 @@ static size_t char_link(
   size_t offset,
   size_t size     /* parse_inline() ensures that size > 0 */
 ){
-  const int is_img = (offset && data[-1] == '!');
-  size_t i = 1, txt_e;
-  struct Blob *content = 0;
-  struct Blob *link = 0;
-  struct Blob *title = 0;
+  const int bFsfn = (size>3 && data[1]=='^'); /*free-standing footnote ref*/
+  const int bImg = !bFsfn && (offset && data[-1] == '!');
+  size_t i, txt_e;
+  struct Blob *content;
+  struct Blob *link;
+  struct Blob *title;
   struct footnote fn;
   int ret;
 
   /* checking whether the correct renderer exists */
-  if( (is_img && !rndr->make.image) || (!is_img && !rndr->make.link) ){
-    return 0;
+  if( !bFsfn ){
+    if( (bImg && !rndr->make.image) || (!bImg && !rndr->make.link) ){
+      return 0;
+    }
   }
 
   /* looking for the matching closing bracket */
@@ -1325,12 +1328,13 @@ static size_t char_link(
   if( !txt_e ) return 0;
   i = txt_e + 1;
   ret = 0; /* error if we don't get to the callback */
-  fn.nUsed = 0;
 
-  /* free-standing footnote refernece */
-  if(!is_img && size>3 && data[1]=='^'){
+  /* free-standing footnote reference */
+  if( bFsfn ){
     fn = get_footnote(rndr, data+2, txt_e-2);
+    content = link = title = 0;
   }else{
+    fn.nUsed = 0;
 
     /* skip "inter-bracket-whitespace" - any amount of whitespace or newline */
     /* (this is much more lax than original markdown syntax) */
@@ -1401,12 +1405,12 @@ static size_t char_link(
   }
   /* building content: img alt is escaped, link content is parsed */
   if( txt_e>1 && content ){
-    if( is_img ) blob_append(content, data+1, txt_e-1);
+    if( bImg ) blob_append(content, data+1, txt_e-1);
     else parse_inline(content, rndr, data+1, txt_e-1);
   }
 
   /* calling the relevant rendering function */
-  if( is_img ){
+  if( bImg ){
     if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='!' ){
       ob->nUsed--;
     }
