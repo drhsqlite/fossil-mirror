@@ -33,6 +33,10 @@
      a server round-trip.
   *  Add the [/help?cmd=email-listid|email-listid setting]. If set, it is
      used as the List-ID header for all outbound notification emails.
+  *  Add the "--branch" option to the "[/help?cmd=timeline|timeline]" command
+     to restrict the displayed items to a specific branch.
+  *  Add the "--versions" option to "[/help?cmd=diff|fossil diff]"
+     to display details about the compared versions into the patch header.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands

@@ -1,5 +1,5 @@
-C Add\s'--versions'\soption\sto\s'fossil\sdiff'\sto\sdisplay\sdetails\sabout\sthe\scompared\sversions.
-D 2022-06-22T13:37:21.709
+C Updates\sto\sthe\schange\slog.
+D 2022-06-22T13:51:11.557
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -804,7 +804,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 2800f5c4fa18a942be10ae1913f8e9475ad645bc0be4baad1a1704ec29bb4034
+F www/changes.wiki 1963aa30077f0bd2d1151a333314d2656172f28579f8ce2db596ab8724dd1429
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -976,9 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 213ca339c2951ad19123d68c0d33c5cf954021896d6d292140e557711535ebc8 c97ad9d6d2d4f4c2020ef69657b9996bf3eb1ffd843c730c97e0cc5e62a7080e
-R 47e13df1e0172678a6a1de03ac90fe76
-T +closed c97ad9d6d2d4f4c2020ef69657b9996bf3eb1ffd843c730c97e0cc5e62a7080e
+P 41f6a4519e07185722aaac0b32d0240cf401f42986c7968fe8599bd334caeca6
+R 45191295ff4c9a1f7bcfcd0a6525307b
 U danield
-Z 01f1e7d19a13efc829181b4f47a5e3de
+Z 1b8808abd7bb918289ce52826a95c66f
 # Remove this line to create a well-formed Fossil manifest.
