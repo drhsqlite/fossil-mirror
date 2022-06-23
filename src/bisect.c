@@ -83,7 +83,8 @@ static const struct {
                              "merges\n" },
   { "display",    "chart",   "Command to run after \"next\".  \"chart\", "
                              "\"log\", \"status\", or \"none\"" },
-  { "linear",     "off",     "Do a linear scan rather than a true bisect" },
+  { "linear",     "off",     "Do a linear scan rather than a true bisect, "
+                             "stopping at the first \"bad\" result"},
 };
 
 /*
