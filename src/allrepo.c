@@ -155,7 +155,6 @@ static void collect_argv(Blob *pExtra, int iStart){
 **   --stop-on-error   Halt immediately if any subprocess fails.
 */
 void all_cmd(void){
-  int n;
   Stmt q;
   const char *zCmd;
   char *zSyscmd;
@@ -178,21 +177,21 @@ void all_cmd(void){
   if( g.argc<3 ){
     usage("SUBCOMMAND ...");
   }
-  n = strlen(g.argv[2]);
   db_open_config(1, 0);
   blob_zero(&extra);
   zCmd = g.argv[2];
   if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
-  if( strncmp(zCmd, "ui", n)==0 || strncmp(zCmd, "server", n)==0 ){
+  if( fossil_strcmp(zCmd, "ui")==0
+      || fossil_strcmp(zCmd, "server")==0 ){
     g.argv[1] = g.argv[2];
     g.argv[2] = "/";
     cmd_webserver();
     return;
   }
-  if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
+  if( fossil_strcmp(zCmd, "list")==0 || fossil_strcmp(zCmd,"ls")==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
-  }else if( strncmp(zCmd, "backup", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "backup")==0 ){
     char *zDest;
     zCmd = "backup -R";
     collect_argument(&extra, "overwrite",0);
@@ -202,7 +201,7 @@ void all_cmd(void){
       fossil_fatal("argument to \"fossil all backup\" must be a directory");
     }
     blob_appendf(&extra, " %$", zDest);
-  }else if( strncmp(zCmd, "clean", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "clean")==0 ){
     zCmd = "clean --chdir";
     collect_argument(&extra, "allckouts",0);
     collect_argument_value(&extra, "case-sensitive");
@@ -219,7 +218,7 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
-  }else if( strncmp(zCmd, "config", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "config")==0 ){
     zCmd = "config -R";
     collect_argv(&extra, 3);
     (void)find_option("legacy",0,0);
@@ -228,14 +227,14 @@ void all_cmd(void){
     if( g.argc!=5 || fossil_strcmp(g.argv[3],"pull")!=0 ){
       usage("configure pull AREA ?OPTIONS?");
     }
-  }else if( strncmp(zCmd, "dbstat", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "dbstat")==0 ){
     zCmd = "dbstat --omit-version-info -R";
     showLabel = 1;
     quiet = 1;
     collect_argument(&extra, "brief", "b");
     collect_argument(&extra, "db-check", 0);
     collect_argument(&extra, "db-verify", 0);
-  }else if( strncmp(zCmd, "extras", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "extras")==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
     }else{
@@ -249,28 +248,27 @@ void all_cmd(void){
     useCheckouts = 1;
     stopOnError = 0;
     quiet = 1;
-  }else if( strncmp(zCmd, "git", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "git")==0 ){
     if( g.argc<4 ){
       usage("git (export|status)");
     }else{
-      int n3 = (int)strlen(g.argv[3]);
-      if( strncmp(g.argv[3], "export", n3)==0 ){
+      if( fossil_strcmp(g.argv[3], "export")==0 ){
         zCmd = "git export --if-mirrored -R";
-      }else if( strncmp(g.argv[3], "status", n3)==0 ){
+      }else if( fossil_strcmp(g.argv[3], "status")==0 ){
         zCmd = "git status --by-all -q -R";
         quiet = 1;
       }else{
         usage("git (export|status)");
       }
     }
-  }else if( strncmp(zCmd, "push", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "push")==0 ){
     zCmd = "push -autourl -R";
     collect_argument(&extra, "verbose","v");
-  }else if( strncmp(zCmd, "pull", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "pull")==0 ){
     zCmd = "pull -autourl -R";
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "share-links",0);
-  }else if( strncmp(zCmd, "rebuild", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "rebuild")==0 ){
     zCmd = "rebuild";
     collect_argument(&extra, "cluster",0);
     collect_argument(&extra, "compress",0);
@@ -285,36 +283,36 @@ void all_cmd(void){
     collect_argument(&extra, "index",0);
     collect_argument(&extra, "noindex",0);
     collect_argument(&extra, "ifneeded", 0);
-  }else if( strncmp(zCmd, "setting", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "setting")==0 ){
     zCmd = "setting -R";
     collect_argv(&extra, 3);
-  }else if( strncmp(zCmd, "unset", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "unset")==0 ){
     zCmd = "unset -R";
     collect_argv(&extra, 3);
-  }else if( strncmp(zCmd, "fts-config", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "fts-config")==0 ){
     zCmd = "fts-config -R";
     collect_argv(&extra, 3);
-  }else if( strncmp(zCmd, "sync", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "sync")==0 ){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "share-links",0);
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
-  }else if( strncmp(zCmd, "test-integrity", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "test-integrity")==0 ){
     collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);
     collect_argument(&extra, "quick", "q");
     zCmd = "test-integrity";
-  }else if( strncmp(zCmd, "test-orphans", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "test-orphans")==0 ){
     zCmd = "test-orphans -R";
-  }else if( strncmp(zCmd, "test-missing", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "test-missing")==0 ){
     zCmd = "test-missing -q -R";
     collect_argument(&extra, "notshunned",0);
-  }else if( strncmp(zCmd, "changes", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "changes")==0 ){
     zCmd = "changes --quiet --header --chdir";
     useCheckouts = 1;
     stopOnError = 0;
     quiet = 1;
-  }else if( strncmp(zCmd, "ignore", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "ignore")==0 ){
     int j;
     Blob fn = BLOB_INITIALIZER;
     Blob sql = BLOB_INITIALIZER;
@@ -340,7 +338,7 @@ void all_cmd(void){
     blob_reset(&fn);
     blob_reset(&extra);
     return;
-  }else if( strncmp(zCmd, "add", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "add")==0 ){
     int j;
     Blob fn = BLOB_INITIALIZER;
     Blob sql = BLOB_INITIALIZER;
@@ -377,11 +375,11 @@ void all_cmd(void){
     blob_reset(&fn);
     blob_reset(&extra);
     return;
-  }else if( strncmp(zCmd, "info", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "info")==0 ){
     zCmd = "info";
     showLabel = 1;
     quiet = 1;
-  }else if( strncmp(zCmd, "cache", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "cache")==0 ){
     zCmd = "cache -R";
     showLabel = 1;
     collect_argv(&extra, 3);
