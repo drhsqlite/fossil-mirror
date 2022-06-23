@@ -1194,10 +1194,9 @@ void cmd_test_simplify_name(void){
 ** or if zBuf==0, allocate space to hold the result using fossil_malloc().
 */
 char *file_getcwd(char *zBuf, int nBuf){
-  char zTemp[2000];
   if( zBuf==0 ){
-    zBuf = zTemp;
-    nBuf = sizeof(zTemp);
+    char zTemp[2000];
+    return fossil_strdup(file_getcwd(zTemp, sizeof(zTemp)));
   }
 #ifdef _WIN32
   win32_getcwd(zBuf, nBuf);
@@ -1211,7 +1210,7 @@ char *file_getcwd(char *zBuf, int nBuf){
     }
   }
 #endif
-  return zBuf==zTemp ? fossil_strdup(zBuf) : zBuf;
+  return zBuf;
 }
 
 /*

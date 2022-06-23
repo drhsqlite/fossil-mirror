@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.39.0\sbeta,\sfor\sSQLite\stesting.
-D 2022-06-23T12:10:54.859
+C Changes\sto\sthe\sfile_getcwd()\sroutine\sto\savoid\sa\sfalse-positive\scompiler\nwarning\sfrom\sgcc\s10.2.1.
+D 2022-06-23T12:44:23.659
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -451,7 +451,7 @@ F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 901a7a0f7d401ddbd220978abdf7327bda0dc73a793ded2195985925ad6999cf
 F src/extcgi.c 401b08e918d699a68562ea1312c6601bd7b29c9c13f185f577c50048edaa570e
-F src/file.c 496f0a6ee2cf1de25b56fc8e094ccab55c413a0227a2d0b1a96ee021a233ec05
+F src/file.c 86544db96f7659b4e5b5d626761ebe601f354caa3c3c8caec790e462a2522238
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
 F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca2248ec2c97e47eb7237639b07cdc348ac05ac4d9175ffe41977728621bb445
-R e2d37a98155368606fea9f1ce047adab
+P d7a2bda91238bdcc5f2dcec9dd99e89a505375f4b121fab7374a5dc793d494b5
+R 35c6b6d183c8104ecaa539077b2f2ced
 U drh
-Z 0ee0a54ecd8c9e9cabcff751c5c493a1
+Z dd77e16bc9dcfda62d43efc43dd0a17f
 # Remove this line to create a well-formed Fossil manifest.
