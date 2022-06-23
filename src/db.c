@@ -3681,7 +3681,7 @@ void db_record_repository_filename(const char *zName){
 **   -f|--force        Continue with the open even if the working directory is
 **                     not empty.
 **   --force-missing   Force opening a repository with missing content
-**   -k|--keep         Only modify the manifest and manifest.uuid files
+**   -k|--keep         Only modify the manifest file(s)
 **   --nested          Allow opening a repository inside an opened checkout
 **   --nosync          Do not auto-sync the repository prior to opening even
 **                     if the autosync setting is on.

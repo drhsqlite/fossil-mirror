@@ -1,5 +1,5 @@
-C www/cgi.wiki:\sdocument\sthe\snew\srepolist\sbehavior\sintroduced\sin\s[9584806cc6a8].
-D 2022-06-23T10:13:04.078
+C Update\sthe\sopen/checkout\s--keep\sflag\shelp\stext\sto\sbe\smore\sgeneric\sabout\sthe\smanifest\sfiles,\sto\saccount\sfor\smanifest.tags,\s(potentially)\smanifest.descr,\sand\sany\sfuture\smanifest.*\sfiles.\sNo\scode\schanges.
+D 2022-06-23T10:25:04.344
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -422,7 +422,7 @@ F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c f59d373ccd9a5b2de9c70d0ad1c9d56a0caf8855e7295ef1b366e4f738a6c430
 F src/chat.c c84696e1e7c2509d42d154cb356fa174cb1c306c2a0dc06aa77c1c14f9c524ba
 F src/checkin.c 987faee812d72ba9afad585d4647e28c2bd2e6031a50aa66533789ce28e34276
-F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
+F src/checkout.c c8a5cc91faa5f05b2394d332ee70f4580fabddda3daa849471a185774e1bea66
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c ee99f31ce7f08a51e82afd061eafa6a5a6708591698a9c7146380393cf42ba53
@@ -434,7 +434,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e172b7bc9e3b9daaa1a04671ac2a17a0384a0c89ca01549a71c74feb900e7011
+F src/db.c 1eb09726dc8d3e24d6ca9afc02e5b26649d5026d05a7249f1f1a6b21fd2b880c
 F src/default.css bcb6084f5da20313be70e2696c321c1d71f859fb320d3789887dd5af6bd95fa4
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b7e638f8e5baa1e806bc062d91652fb243f3f31b62ace453e96f8d6857e97303
-R b579150c5abb25d65c676d10bce30911
+P c7b9f05f2e20846039a8f273b994388b9a72d64fed1fed5e0b9756394dc11049
+R 4258c091a206160911ac09b4ff7e465f
 U stephan
-Z 6c3d4c1a3e4a152eb207e1e4420c4085
+Z 03baa69c056417f367a630d5089def7f
 # Remove this line to create a well-formed Fossil manifest.

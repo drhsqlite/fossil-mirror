@@ -280,7 +280,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **
 ** Options:
 **    --force           Ignore edited files in the current checkout
-**    --keep            Only update the manifest and manifest.uuid files
+**    --keep            Only update the manifest file(s)
 **    --force-missing   Force checkout even if content is missing
 **    --setmtime        Set timestamps of all files to match their SCM-side
 **                      times (the timestamp of the last checkin which modified
