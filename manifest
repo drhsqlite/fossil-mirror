@@ -1,5 +1,5 @@
-C Minor\sbisect\slinear\sdoc\stweak\ssuggested\sin\s[forum:0ff3db6e4a5b218a|forum\spost\s0ff3db6e4a5b218a].
-D 2022-06-23T21:16:47.699
+C In\sthe\sWindows\sapplication\smanifest,\suse\sgeneric\splaceholder\svalues\sfor\sthe\s'processorArchitecture'\sattributes\sof\sthe\s'assemblyIdentity'\selements.\sThis\sshould\senable\sFossil\sto\srun\son\s64-bit\ssystems\swithout\sthe\sWOW64\semulator\sinstalled,\ssee\s[forum:9a3eaa6ad5|\sForum\sPost\s9a3eaa6ad5]\sand\sfollowing\sfor\sthe\sproblem\sreport\sand\sdiscussion.
+D 2022-06-24T05:40:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -772,7 +772,7 @@ F win/Makefile.mingw 2a3f148a870cec8d98294d4020b25b3b424eaccfe2196993b5d2d5975cb
 F win/Makefile.mingw.mistachkin fbaee5006f0376e00fd135fa4159c4a12a7183d61e933d67df08c3469ac97a2b
 F win/Makefile.msc d141a9548b02f72c98ccce8e6c2fe1e7aa57ef97e15e47e3d47534faad5066de
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
-F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
+F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e098d810dcaded1e40a81ddd93126b538faf2c0dc9e8dce1b2e5550c1d3f9cd0
-R a23aa2f2fee7eefee0e4415f1ad368b9
-U stephan
-Z 6b58844f5db0c1958e33b64756d0fd80
+P ed4ac9716ba03ecfb5fb3ee07987a81486c556a2f12806bc84dcb6a8f26e3864
+R 3193bc657508d6e0300e2065899e16c0
+U florian
+Z a703cc1fb3bec5d6bbf16a7055672446
 # Remove this line to create a well-formed Fossil manifest.
