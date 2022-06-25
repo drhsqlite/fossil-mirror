@@ -1,5 +1,5 @@
-C In\sthe\sWindows\sapplication\smanifest,\suse\sgeneric\splaceholder\svalues\sfor\sthe\s'processorArchitecture'\sattributes\sof\sthe\s'assemblyIdentity'\selements.\sThis\sshould\senable\sFossil\sto\srun\son\s64-bit\ssystems\swithout\sthe\sWOW64\semulator\sinstalled,\ssee\s[forum:9a3eaa6ad5|\sForum\sPost\s9a3eaa6ad5]\sand\sfollowing\sfor\sthe\sproblem\sreport\sand\sdiscussion.
-D 2022-06-24T05:40:00.000
+C Fixed\sy=all\sarg\sfor\stimeline.rss\s(broken\sin\s[cb651568fbfe6])\sand\srenamed\sa\sshadowed\svariable,\sboth\sproblems\sreported\sin\s[forum:d48f7f12656a291f|forum\spost\sd48f7f12656a291f].
+D 2022-06-25T08:22:34.309
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -542,7 +542,7 @@ F src/rebuild.c fd479da3ba776efac143dec5aceaeca12f628a1785fbe2dfb58b768c7c7c3379
 F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 9e01f4520d813d1ef4e41f00e68e551a49b4e7d4bf2b69c2ebb4a2713e507ba4
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
-F src/rss.c 6f42990d50996a03a1360957e6cce08d5b343383be079889fa00fd5abe7ef310
+F src/rss.c 21a3beb190ee03bf5a8ae18b36ff8307e4708bf0e0e0b37cffb2395f51449836
 F src/schema.c 06d25c73309a102eba193e2431b1f6cf35896d282e432b41245cc64267219d2a
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 251e34cb3f86878c94fc81a67f4178af1848e1aa41757495190c496a3a42a736
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed4ac9716ba03ecfb5fb3ee07987a81486c556a2f12806bc84dcb6a8f26e3864
-R 3193bc657508d6e0300e2065899e16c0
-U florian
-Z a703cc1fb3bec5d6bbf16a7055672446
+P 12ac6727e1a0f25c1e161e0a275a04243b9b2e0ab17922bfe957bfdde825cef9
+R be652be0347c673d1d6a5d6cdfb87f51
+U stephan
+Z 3ed79a63689d9c8cfc756d1ab850ea84
 # Remove this line to create a well-formed Fossil manifest.
