@@ -1579,6 +1579,12 @@ div.pikchr-wrapper.center.source.source-inline > pre.pikchr-src,
 div.pikchr-wrapper.center.source.source-inline > div.pikchr-svg
 /* ^^^ Centered inline-source-view elements */{
   display:inline-block/*allows parent text-align to do the alignment*/;
+  /* ^^^^ Browser incompatibility: inline-block causes the centered
+     pikchr to shrink to the point of illegiblity in Chrome. The
+     closest match on Chrome seems to be using 'unset', which centers
+     by virtue of stretching it to the width of the window. Similarly,
+     using {display: grid; place-items: center} centers and sizes well
+     on FF but Chrome shrinks it in the same way. */
 }
 div.pikchr-wrapper.indent:not(.source),
 div.pikchr-wrapper.indent.source.source-inline{
