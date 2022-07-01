@@ -1,5 +1,5 @@
-C Documented\sa\sbrowser\sincompatibility\sin\sthe\spikchr-centering\sCSS,\sfor\slater\sanalysis/hacking.\sComment\schanges\sonly,\sno\sCSS.
-D 2022-06-30T22:05:27.406
+C Update\sthe\scustom\smakefile\sfor\sMinGW.
+D 2022-07-01T01:31:15.356
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -769,7 +769,7 @@ F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882b
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.dmc 0f84b947a1126f1b1c8e78cf93925066fd1be4f04ebdab749b518ab1cef02794
 F win/Makefile.mingw 2a3f148a870cec8d98294d4020b25b3b424eaccfe2196993b5d2d5975cbb54b1
-F win/Makefile.mingw.mistachkin fbaee5006f0376e00fd135fa4159c4a12a7183d61e933d67df08c3469ac97a2b
+F win/Makefile.mingw.mistachkin 04d7812f768c04da767d90f5ec4251363f81f1b8485541bc5995535735077f50
 F win/Makefile.msc d141a9548b02f72c98ccce8e6c2fe1e7aa57ef97e15e47e3d47534faad5066de
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 720f0956e0767f342382c4b9a3f107ed2ac5bcd52ac8eb9e557a7249d96f4d5e
-R 3914dc63f9a4b7a527a3a76367f0977e
-U stephan
-Z a2cfc057812d132ef85fd577424ae468
+P d32df118afcce8965ad7a71b7423cbc1c3a2f79013d1c9bbae60ea8a717c323e
+R 822701f4eca0684e0dfe967b98784bf0
+U mistachkin
+Z 3d3e9e3782bdb47a23fdbe33c0cd2860
 # Remove this line to create a well-formed Fossil manifest.
