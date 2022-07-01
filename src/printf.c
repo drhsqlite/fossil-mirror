@@ -709,7 +709,7 @@ int vxprintf(
           bufpt = "";
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
-        }else if( xtype==etSTRINGID ){
+        }else if( xtype==etSTRINGID && validate16(bufpt, -1) ){
           precision = hash_digits(flag_altform2);
         }
         length = StrNLen32(bufpt, limit);

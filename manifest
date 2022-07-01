@@ -1,5 +1,5 @@
-C Update\sthe\scustom\smakefile\sfor\sMinGW.
-D 2022-07-01T01:31:15.356
+C Experimental\sfix\sto\smake\s'%!S'\sin\shyperlinks\sstop\struncating\sthings\sthat\sare\snot\scheck-in\sidentifiers.\s\sThis\sshould\sprobably\sbe\soptimzied\sby\srefactoring\sthe\ssurrounding\scode\sto\savoid\scalculating\sthe\slength\smore\sthan\sonce.
+D 2022-07-01T01:44:58.826
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -535,7 +535,7 @@ F src/pikchrshow.c 9794857564533fad5cc68e050019027459b5d25dc78c341d33e0793146986
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 193a7fe4f5d50623ed6ef3e2e7e3d4b0df32dbeff26806e52733709ed98b2d2b
+F src/printf.c 641b0eadbe7d8a099207cc8f415952b3c406f0c5d7aa6a1221221e9b447ef6d1
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c fd479da3ba776efac143dec5aceaeca12f628a1785fbe2dfb58b768c7c7c3379
@@ -976,8 +976,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d32df118afcce8965ad7a71b7423cbc1c3a2f79013d1c9bbae60ea8a717c323e
-R 822701f4eca0684e0dfe967b98784bf0
+P eddd6b4ad5d15835bff6389768d275c7744dce94171ae3e6283a5d7c91ae9140
+R 7bfcabe3afb045de5e57e2ee85e6111b
+T *branch * nonHashFix
+T *sym-nonHashFix *
+T -sym-trunk *
 U mistachkin
-Z 3d3e9e3782bdb47a23fdbe33c0cd2860
+Z 7dd767a914eaffba9b2ce693ad3916b1
 # Remove this line to create a well-formed Fossil manifest.
