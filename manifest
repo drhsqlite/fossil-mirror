@@ -1,5 +1,5 @@
-C Enhance\s"Changes\sto\swiki\spage"\sentries\swithin\s<code>/timeline</code>:\sturn\sthe\sword\s"Changes"\sinto\sa\shyperlink\sto\sthe\scorresponding\s[/help?cmd=/wdiff|/wdiff]\spage.
-D 2022-07-02T12:24:59.959
+C Honor\s'timeline-utc'\ssetting\swhile\srendering\sof\s<code>/wdiff</code>\spages.\sThis\sis\ssimilar\sto\s[17ebe42d6183ed].
+D 2022-07-02T20:05:51.772
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -609,7 +609,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c da69b3c5ef84c5702321160d50e80dc097e4fcd587ef735034c71f1c155a7d3d
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 2fe6680a16b917b1dbb6eb92e94a7f60b93edb7de0f0b2939cdacf9a8552c961
+F src/wiki.c 8397b6a220ffb9f2f6714a2e8c3dc3e2b2ad365661f74fca541f3c0b8f6ab2de
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 79e3b8e7784532143a9e88e3176fd8f3694d0c7e90081b155d87b847bf9ce07d
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eddd6b4ad5d15835bff6389768d275c7744dce94171ae3e6283a5d7c91ae9140
-R dc6803a5a78f8c4740d3cfd93119290e
+P 3a9090fc5adc6c119700b6fd20dfb1077b437be9a9f2f15c903b35516209b9b3
+R 7a356052d7efb714ce100715913af6f2
 U george
-Z 805fadb6228033997be13091c79d4995
+Z b72872a59865c918a56e4f391aa4ee71
 # Remove this line to create a well-formed Fossil manifest.
