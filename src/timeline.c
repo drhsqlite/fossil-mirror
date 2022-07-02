@@ -523,8 +523,8 @@ void www_print_timeline(
         }else if( zCom[0]=='+' ){
           @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else if( zCom[0]==':' ){
-          @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
-          @ %h(zCom+1)</a>"
+          @ %z(href("%R/wdiff?id=%!S",zUuid))Changes</a> to wiki page
+          @ "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else{
           /* Assume this is an attachment message. It _might_ also
           ** be a legacy-format wiki log entry, in which case it

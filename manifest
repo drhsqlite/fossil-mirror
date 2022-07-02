@@ -1,5 +1,5 @@
-C Update\sthe\scustom\smakefile\sfor\sMinGW.
-D 2022-07-01T01:31:15.356
+C Enhance\s"Changes\sto\swiki\spage"\sentries\swithin\s<code>/timeline</code>:\sturn\sthe\sword\s"Changes"\sinto\sa\shyperlink\sto\sthe\scorresponding\s[/help?cmd=/wdiff|/wdiff]\spage.
+D 2022-07-02T12:24:59.959
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -594,7 +594,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 043bd5fb8b50612766a2370ef0bcdcc0ad7f8cffdcb56c1b6e94af6b7a653595
+F src/timeline.c b5db0de375e8bc7d0833b6c2a612581a54addaab5a9175988f0773a1c891c64e
 F src/tkt.c 992429510522cad383e553cd5e778b3551ea147e1c833000ea223b3ec939eca0
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d32df118afcce8965ad7a71b7423cbc1c3a2f79013d1c9bbae60ea8a717c323e
-R 822701f4eca0684e0dfe967b98784bf0
-U mistachkin
-Z 3d3e9e3782bdb47a23fdbe33c0cd2860
+P eddd6b4ad5d15835bff6389768d275c7744dce94171ae3e6283a5d7c91ae9140
+R dc6803a5a78f8c4740d3cfd93119290e
+U george
+Z 805fadb6228033997be13091c79d4995
 # Remove this line to create a well-formed Fossil manifest.
