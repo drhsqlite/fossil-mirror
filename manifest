@@ -1,5 +1,5 @@
-C Honor\s'timeline-utc'\ssetting\swhile\srendering\sof\s<code>/wdiff</code>\spages.\sThis\sis\ssimilar\sto\s[17ebe42d6183ed].
-D 2022-07-02T20:05:51.772
+C When\sdoing\sconfigure\spull\s--overwrite,\sensure\sthat\sthe\sUSER\stable\scan\sbe\soverwritten\sby\sremoving\sthe\sdb-protect\sflag\son\sit.
+D 2022-07-04T01:06:03.155
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -429,7 +429,7 @@ F src/clone.c ee99f31ce7f08a51e82afd061eafa6a5a6708591698a9c7146380393cf42ba53
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
-F src/configure.c c23a81d17796b6adb44fa1f5ea3daa57ea02bc7b5e0510f3bfcea1c55dc354d6
+F src/configure.c 16b8c30184575aa083010363dbd8c3e674b0b3c343cda294bd852248a5fe8638
 F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a9090fc5adc6c119700b6fd20dfb1077b437be9a9f2f15c903b35516209b9b3
-R 7a356052d7efb714ce100715913af6f2
-U george
-Z b72872a59865c918a56e4f391aa4ee71
+P 46de798a6af2219344af239f6bd32dc440ce71041d8ba064ce07967c07989435
+R a7e503acf11771d500c6dd844798e7ea
+U stephan
+Z b3380c5ff7f9ebe0cefb9312c4f34241
 # Remove this line to create a well-formed Fossil manifest.
