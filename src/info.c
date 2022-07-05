@@ -3541,7 +3541,6 @@ void ci_amend_cmd(void){
   fClose = find_option("close",0,0)!=0;
   fHide = find_option("hide",0,0)!=0;
   fDryRun = find_option("dry-run","n",0)!=0;
-  if( fDryRun==0 ) fDryRun = find_option("dryrun","n",0)!=0;
   zChngTime = find_option("date-override",0,1);
   if( zChngTime==0 ) zChngTime = find_option("chngtime",0,1);
   zUserOvrd = find_option("user-override",0,1);

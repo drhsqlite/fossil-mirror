@@ -4771,7 +4771,7 @@ void test_timespan_cmd(void){
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
 **
 ** Options:
-**    --dryrun | -n         No changes.  Just print what would happen.
+**    --dry-run | -n        No changes.  Just print what would happen.
 */
 void test_without_rowid(void){
   int i, j;
