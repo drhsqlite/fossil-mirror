@@ -1,5 +1,5 @@
-C When\sdoing\sconfigure\spull\s--overwrite,\sensure\sthat\sthe\sUSER\stable\scan\sbe\soverwritten\sby\sremoving\sthe\sdb-protect\sflag\son\sit.
-D 2022-07-04T01:06:03.155
+C Added\sthe\sobligator\sgeneric\s'other\senhancements'\sline\sto\sthe\s2.19\schange\slog.
+D 2022-07-05T06:52:00.755
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -804,7 +804,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 1963aa30077f0bd2d1151a333314d2656172f28579f8ce2db596ab8724dd1429
+F www/changes.wiki 66a3fe1bafa6d596a6ffcde9dde02df6f9091960eb195f29090cec3d4d51d177
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 46de798a6af2219344af239f6bd32dc440ce71041d8ba064ce07967c07989435
-R a7e503acf11771d500c6dd844798e7ea
+P 7384cf515274dd4ca660164c8d681d587a5f340a58c51c8dbe61c06595c8fa71
+R 9bed635328d06bf5d31aa9e820547ace
 U stephan
-Z b3380c5ff7f9ebe0cefb9312c4f34241
+Z bcaba0484b2bdbfe276aeb90705896b4
 # Remove this line to create a well-formed Fossil manifest.
