@@ -93,7 +93,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    fts-config  Run the "fts-config" command on all repositories.
 **
-**    git CMD     Do the "git export" or "git status" command (which every
+**    git CMD     Do the "git export" or "git status" command (whichever
 **                is specified by CMD) on all repositories for which
 **                a Git mirror has been previously established.
 **
