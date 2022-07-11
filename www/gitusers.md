@@ -273,7 +273,7 @@ purposes of this example.
 We’ve drawn this example to create a tight parallel between Fossil and
 Git, not to commend this `.fsl`-at-project-root trick to you. A better
 choice would be `~/museum/home/long-established-project.fossil`, if
-you’re following [the directory scheme exemplified in the glossary](#repository). That said, it
+you’re following [the directory scheme exemplified in the glossary](./glossary.md#repository). That said, it
 does emphasize an earlier point: Fossil doesn’t care where you put the
 repo DB file or what you name it.
 
