@@ -4254,16 +4254,17 @@ struct Setting {
 */
 /*
 ** SETTING: ignore-glob      width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB
-** patterns specifying files that the "add", "addremove",
-** "clean", and "extras" commands will ignore.
+** The value is a list of GLOB patterns, separated by spaces,
+** commas, or newlines, specifying files that the "add",
+** "addremove", "clean", and "extras" commands will ignore.
 **
-** Example:  *.log customCode.c notes.txt
+** Example:  *.log, customCode.c, notes.txt
 */
 /*
 ** SETTING: keep-glob        width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB
-** patterns specifying files that the "clean" command will keep.
+** The value is list of GLOB patterns, separated by spaces,
+** commas, or newlines, specifying files that the "clean"
+** command will keep.
 */
 /*
 ** SETTING: localauth        boolean default=off
