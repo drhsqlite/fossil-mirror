@@ -183,7 +183,7 @@ static void showParentProject(void){
 ** If the argument is a repository name, then the --verbose option shows
 ** all known check-out locations for that repository and all URLs used
 ** to access the repository.  The --verbose is (currently) a no-op if
-** the argument is the name of a object within the repository.
+** the argument is the name of an object within the repository.
 **
 ** Use the "finfo" command to get information about a specific
 ** file in a checkout.

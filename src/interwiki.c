@@ -169,7 +169,7 @@ static int interwiki_valid_name(const char *zName){
 **
 ** >  fossil interwiki edit TAG --base URL --hash PATH --wiki PATH
 **
-**        Create a interwiki referenced call TAG.  The base URL is
+**        Create an interwiki referenced call TAG.  The base URL is
 **        the --base option, which is required.  The --hash and --wiki
 **        paths are optional.  The TAG must be lower-case alphanumeric
 **        and must be unique.  A new entry is created if it does not

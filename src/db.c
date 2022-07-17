@@ -3049,7 +3049,7 @@ LOCAL void db_win_reserved_func(
 }
 
 /*
-** Convert the input string into a artifact hash.  Make a notation in the
+** Convert the input string into an artifact hash.  Make a notation in the
 ** CONCEALED table so that the hash can be undo using the db_reveal()
 ** function at some later time.
 **

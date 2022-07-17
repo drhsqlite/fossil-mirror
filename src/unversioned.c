@@ -163,7 +163,7 @@ static void unversioned_write(
 **
 **    0:     zName does not exist in the unversioned table.
 **    1:     zName exists and should be replaced by the mtime/zHash remote.
-**    2:     zName exists and is the same as zHash but has a older mtime
+**    2:     zName exists and is the same as zHash but has an older mtime
 **    3:     zName exists and is identical to mtime/zHash in all respects.
 **    4:     zName exists and is the same as zHash but has a newer mtime.
 **    5:     zName exists and should override the mtime/zHash remote.

@@ -278,7 +278,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf){
 }
 
 /*
-** The state of a incremental SHA1 checksum computation.  Only one
+** The state of an incremental SHA1 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static SHA1Context incrCtx;

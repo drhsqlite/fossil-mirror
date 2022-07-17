@@ -40,7 +40,7 @@
 
 #if INTERFACE
 
-/* Many APIs take a eFType argument which must be one of ExtFILE, RepoFILE,
+/* Many APIs take an eFType argument which must be one of ExtFILE, RepoFILE,
 ** or SymFILE.
 **
 ** The difference is in the handling of symbolic links.  RepoFILE should be

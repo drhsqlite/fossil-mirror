@@ -367,7 +367,7 @@ void test_backlinks_cmd(void){
   }
   srctype = atoi(g.argv[2]);
   if( srctype<0 || srctype>2 ){
-    fossil_fatal("SRCTYPE should be a integer 0, 1, or 2");
+    fossil_fatal("SRCTYPE should be an integer 0, 1, or 2");
   }
   srcid = atoi(g.argv[3]);
   blob_read_from_file(&in, g.argv[4], ExtFILE);

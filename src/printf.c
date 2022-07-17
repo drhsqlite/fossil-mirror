@@ -283,7 +283,7 @@ static int wiki_convert_flags(int altForm2){
 **
 ** OUTPUTS:
 **          The return value is the total number of characters sent to
-**          the function "func".  Returns -1 on a error.
+**          the function "func".  Returns -1 on error.
 **
 ** Note that the order in which automatic variables are declared below
 ** seems to make a big difference in determining how fast this beast

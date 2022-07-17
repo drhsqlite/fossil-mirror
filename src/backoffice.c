@@ -474,7 +474,7 @@ static void backoffice_error_check_one(int *pOnce){
 ** If no backoffice processes are running at all, this routine becomes
 ** the main backoffice.
 **
-** If a primary backoffice is running, but a on-deck backoffice is
+** If a primary backoffice is running, but an on-deck backoffice is
 ** needed, this routine becomes that on-deck backoffice.
 */
 static void backoffice_thread(void){

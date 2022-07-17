@@ -301,7 +301,7 @@ void setup_notification(void){
   entry_attribute("Subscription Renewal Interval In Days", 8,
                   "email-renew-interval", "eri", "", 0);
   @ <p>
-  @ If this value is a integer N greater than or equal to 14, then email
+  @ If this value is an integer N greater than or equal to 14, then email
   @ notification subscriptions will be suspended N days after the last known
   @ interaction with the user.  This prevents sending notifications
   @ to abandoned accounts.  If a subscription comes within 7 days of expiring,

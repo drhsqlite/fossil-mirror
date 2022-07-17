@@ -246,7 +246,7 @@ static int is_trailing_punct(char c){
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
 **   *  artifact hash (optionally enclosed in [...])
-**   *  4-character or larger prefix of a artifact
+**   *  4-character or larger prefix of an artifact
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
 **   *  Date or date-time
