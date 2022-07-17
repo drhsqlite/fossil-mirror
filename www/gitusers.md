@@ -520,7 +520,12 @@ we’d expect it to be an interactive form of
 [`fossil stash apply`][stash], rather than follow Git’s ill-considered
 design leads.
 
+Until then, there’s the third-party tool [`fnc`][fnc] and
+[its interactive `stash` command][fncsta].
+
 [ctrb]:      https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
+[fnc]:       https://fnc.bsdbox.org/
+[fncsta]:    https://fnc.bsdbox.org/uv/doc/fnc.1.html#stash
 [gcspl]:     https://git-scm.com/docs/git-rebase#_splitting_commits
 [Patchouli]: https://pypi.org/project/patchouli/
 
