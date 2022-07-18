@@ -289,12 +289,12 @@ work, the question is seldom asked.
 
 The ease of querying Fossil data using SQL means that status or
 history information about the project under management is easier
-to obtain.  And being easier means that it is more likely to happen.
+to obtain. Being easier means that it is more likely to happen.
 Fossil reports tend to be more detailed and useful.
 Consider the [/timeline?c=6df7a853ec16865b|this Fossil timeline] 
-compared to its
-[https://github.com/drhsqlite/fossil-mirror/commits/master?after=f720c106d297ca1f61bccb30c5c191b88a626d01+34|its
-closest equivalent in GitHub].  Judge for yourself: Which of those
+compared to
+[https://github.com/drhsqlite/fossil-mirror/commits/master?after=f720c106d297ca1f61bccb30c5c191b88a626d01+34 |
+its closest equivalent in GitHub].  Judge for yourself: Which of those
 reports is more useful to a developer trying to understand what happened?
 
 The bottom line is that even though Fossil and Git are built around
