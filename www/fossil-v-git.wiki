@@ -291,10 +291,10 @@ The ease of querying Fossil data using SQL means that status or
 history information about the project under management is easier
 to obtain. Being easier means that it is more likely to happen.
 Fossil reports tend to be more detailed and useful.
-Consider the [/timeline?c=6df7a853ec16865b|this Fossil timeline] 
-compared to
+Compare [/timeline?c=6df7a853ec16865b|this Fossil timeline] 
+to
 [https://github.com/drhsqlite/fossil-mirror/commits/master?after=f720c106d297ca1f61bccb30c5c191b88a626d01+34 |
-its closest equivalent in GitHub].  Judge for yourself: Which of those
+its closest equivalent in GitHub].  Judge for yourself: which of those
 reports is more useful to a developer trying to understand what happened?
 
 The bottom line is that even though Fossil and Git are built around
@@ -515,7 +515,7 @@ loop] concept.
 Committing your changes to private branches in order to delay a public
 push to the parent repo increases the size of your collaborators'
 control loops, either causing them to slow their work in order to safely
-react to your work, or to overcorrect in response to each change.
+react to your work, or to over-correct in response to each change.
 
 Each DVCS can be used in the opposite style, but doing so works against
 their low-friction paths.
@@ -525,7 +525,7 @@ their low-friction paths.
 
 The Linux kernel has a far bigger developer community than that of
 SQLite: there are thousands and thousands of contributors to Linux, most
-of whom do not know each others names. These thousands are responsible
+of whom do not know each other's names. These thousands are responsible
 for producing roughly 89× more code than is in SQLite. (10.7
 [https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs. 0.12 MLOC
 according to [https://dwheeler.com/sloccount/|SLOCCount].) The Linux
@@ -572,9 +572,9 @@ This difference in emphasis arises from the different purposes of
 the two systems.  Git focuses on individual branches, because that
 is exactly what you want for a highly-distributed bazaar-style project
 such as Linux.  Linus Torvalds does not want to see every check-in
-by every contributor to Linux, as such extreme visibility does not scale
-well.  But Fossil was written for the cathedral-style SQLite project
-with just a handful of active committers.  Seeing all
+by every contributor to Linux: such extreme visibility does not scale
+well.  Contrast Fossil, which was written for the cathedral-style SQLite project
+and its handful of active committers.  Seeing all
 changes on all branches all at once helps keep the whole team
 up-to-date with what everybody else is doing, resulting in a more 
 tightly focused and cohesive implementation.
@@ -641,8 +641,10 @@ that you switch to a stable branch to answer questions in terms of the
 version that customer is running. You don't want to stop the test in
 order to switch your lone working directory to the stable branch.
 
-Disk space is cheap. Having several working directories, each with its
-own local state, makes switching versions cheap and fast. Plus,
+Disk space is cheap. Having several working directories — each with its
+own local state — makes switching versions cheap and fast.
+
+Plus,
 <tt>cd</tt> is faster to type than <tt>git checkout</tt> or <tt>fossil
 update</tt>.
 
@@ -665,7 +667,7 @@ including all of the messy errors, dead-ends, experimental branches, and
 so forth.  One might argue that this
 makes the history of a Fossil project "messy," but another point of view
 is that this makes the history "accurate."  In actual practice, the
-superior reporting tools available in Fossil mean that the added "mess"
+superior reporting tools available in Fossil mean that this incidental mess
 is not a factor.
 
 Like Git, Fossil has an [/help?cmd=amend|amend command] for modifying
