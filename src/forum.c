@@ -864,7 +864,6 @@ void forumthread_page(void){
   if( froot==0 ){
     webpage_notfound_error("Not a forum post: \"%s\"", zName);
   }
-  if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
 
   /* Decode the mode parameters. */
   if( bRaw ){
@@ -918,6 +917,7 @@ void forumthread_page(void){
   style_submenu_checkbox("hist", "History", 0, 0);
 
   /* Display the thread. */
+  if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
   forum_display_thread(froot, fpid, mode, autoMode, bUnf, bHist);
 
   /* Emit Forum Javascript. */
