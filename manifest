@@ -1,5 +1,5 @@
-C Still\smoer\sgrammar\sfixes\sin\sfossil-v-git
-D 2022-07-18T01:39:01.839
+C Added\sa\snote\sto\sthe\scgi\scommand's\shelp\sabout\sthe\sprocessing\sorder\sof\sdirectives,\sper\sforum\srequest.
+D 2022-07-18T12:07:41.678
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -516,7 +516,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 0e837a2d60ec0b17dc1ca9ea4d7cf713f5658dfda4179d15c06dd65dff1e83f3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c d9f5b92f1023e9e8163805a3d2c87582c90e1dd50086e1f950c516b5cc30d8df
+F src/main.c 25506338dac7fe8c7d12314b175d6eedcf287d3be8934d8289d4f9cbbb7b20e3
 F src/main.mk a93836d078cd9a1944b34911f9a1e34882eaf26fb90bdc6c170a131ca0c0517d
 F src/manifest.c be9848ff7900c6174f01ca21c77c357cc502698c73406540a866ddc52b24303d
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f135f2f4c753f9775cadabec55869b1a47709dfde2b7e95834e8cd3d3504569
-R e596ed4216773fb05c2df042ccdd78aa
-U wyoung
-Z 420dbeea2f50e6851eff86a95ed45200
+P e28c25e497a462b46fd029faa5406a26003068829bdd1a3fe858a5c9d8d72f89
+R 055211187888633a59d1a082546d7c50
+U stephan
+Z e6dd29f6ea51fac7e2607d4f3006e709
 # Remove this line to create a well-formed Fossil manifest.

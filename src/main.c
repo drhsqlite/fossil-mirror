@@ -2260,6 +2260,11 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
 **
+** The lines are processed in the order they are read, which is most
+** significant for "errorlog:", which should be set before "repository:"
+** so that any warnings from the database when opening the repository
+** go to that log file.
+**
 ** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
