@@ -3148,7 +3148,7 @@ static int fossil_is_julianday(const char *zDate){
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the check-in comment.
 **   -W|--width N         Width of lines (default is to auto-detect). N must be
-**                        either greater than 20 or it ust be zero 0 to
+**                        either greater than 20 or it must be zero 0 to
 **                        indicate no limit, resulting in a single line per
 **                        entry.
 */
