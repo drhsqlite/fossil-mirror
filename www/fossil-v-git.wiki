@@ -269,7 +269,7 @@ difficult to locate and subject to garbage collection. This
 [http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
 state] problem has caused grief for
 [https://www.google.com/search?q=git+detached+head+state | many
-of Git users]. With
+Git users]. With
 Fossil, detached heads are simply impossible because we can always find
 our way back into the Merkle tree using one or more of the relations
 in the SQL database.
