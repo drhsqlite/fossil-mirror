@@ -1399,6 +1399,7 @@ void forum_main_page(void){
   }
   style_set_current_feature("forum");
   style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
+  style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
   }else{

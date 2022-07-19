@@ -1,5 +1,5 @@
-C Typo\sfix\sin\sthe\s'timeline'\scommand's\shelp\sas\sper\sforum\spost\s[forum:27bc0a9716].
-D 2022-07-18T18:02:53.515
+C Add\sa\s"Timeline"\slink\sto\sthe\s/forum\spage.
+D 2022-07-19T13:15:36.260
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -455,7 +455,7 @@ F src/file.c 2d661c3136cd39236994805177def4be1f4ac2bc378dc49265bb676438aea614
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
 F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 5bbf7d42fb7fcb3f7f8a2fe360c73658a4ea201a7825f87c5b8db45db19ee45d
+F src/forum.c 7945df05a0f042432ed2e8b0d6c1fc2119322e01f3aaf5f820fddee48f772ea5
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ffd32a9f70172eae514e0655026e1ca5ae463e46e97496e988ec078fa0681501
-R 792d8898f3436af56932d22092623e81
-U danield
-Z 236254772283ee13befe6f6c1092946d
+P c8a39b661bf488cba0689c9d50615c090fb43f661c147a812a803b7f01307f86
+R c4913f2cec6b32693b5a6a361abd7494
+U drh
+Z c9eef985bb215fcf757d0022f0ada0ef
 # Remove this line to create a well-formed Fossil manifest.
