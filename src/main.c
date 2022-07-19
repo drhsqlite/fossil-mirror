@@ -439,7 +439,11 @@ void expand_args_option(int argc, void *argv){
     if( z[0]!='-' ) continue;
     z++;
     if( z[0]=='-' ) z++;
-    if( z[0]==0 ) return;   /* Stop searching at "--" */
+    /* Maintenance reminder: we do not stop at a "--" flag here,
+    ** instead delegating that to find_option(). Doing it here
+    ** introduces some weird corner cases, as covered in forum thread
+    ** 4382bbc66757c39f. e.g. (fossil -U -- --args ...) is handled
+    ** differently when we stop at "--" here. */
     if( fossil_strcmp(z, "args")==0 ) break;
   }
   if( i>=g.argc-1 ) return;
