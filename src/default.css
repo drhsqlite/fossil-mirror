@@ -238,6 +238,9 @@ div.columns > ul li:first-child {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+body.help .columns li {
+  white-space: nowrap /* keep command name aliases from wrapping */;
+}
 .filetree {
   margin: 1em 0;
   line-height: 1.5;
