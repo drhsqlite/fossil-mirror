@@ -1,5 +1,5 @@
-C Removed\sthe\s--\sflag\shandling\sfrom\sexpand_args_option(),\sinstead\sletting\sit\sfall\sthrough\sto\sfind_option(),\sto\seliminate\sinconsistencies\sand\scorner\scases\suncovered\sin\s[forum:4382bbc66757c39f|forum\sthread\s4382bbc66757c39f].
-D 2022-07-19T13:23:33.588
+C Add\sa\squote\sfrom\s[https://wholesomedonut.prose.sh/using-fossil-not-git]\sto\nthe\s"quotes.wiki"\spage\sof\sthe\sdocumentation.
+D 2022-07-19T23:33:05.485
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -917,7 +917,7 @@ F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
 F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2d
 F www/quickstart.wiki deccf518d123c83a6bb83b7c1fc162d8f2310ab0f0e3621fe99702d6fc35906d
-F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
+F www/quotes.wiki bd1bf1c07466e0fe1853eac4ff0ddd7b70c7ed8d1690606d5067b4e2d3277cbf
 F www/rebaseharm.md 3e1640e822b2ff579c995f12c3a5951d1ee86a2332d98f7bc6484c14aec56656
 F www/reviews.wiki 4213b62a5f69cbf2655f4eaa989d85153a8acb630bce72c9f83a7950d6393892
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5be71d6acc1aaaaf0843c2cad3042f15f2bf7e28ee4a762eec369be0da7e1a5
-R 731270d062af18caf78efb96e5bbec40
-U stephan
-Z 36d57eda706e731926ba57d434540f19
+P 62a1688205348d0d41dd08a4665aa05861f70e33a2bb56bf02cc1668dbb8ab53
+R b53c00df5b29b37ecfc1371007d33321
+U drh
+Z d15786b8b8b12dc33f431088a4f9b51d
 # Remove this line to create a well-formed Fossil manifest.

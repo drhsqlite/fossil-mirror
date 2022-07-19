@@ -162,4 +162,10 @@ than what you actually did.
 <blockquote>
 <i>dkf on the Tcl chatroom, 2013-12-06</i>
 </blockquote>
+
+<li>&#91;With fossil&#93; I actually enjoy keeping track of source files again.
+
+<blockquote>
+<a href="https://wholesomedonut.prose.sh/using-fossil-not-git">https://wholesomedonut.prose.sh/using-fossil-not-git</a>
+</blockquote>
 </ol>
