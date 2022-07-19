@@ -416,7 +416,6 @@ int e_compare(const void *a, const void *b){
 void build_table(void){
   int i;
   int nWeb = 0;
-  int nAlias = 0;
   int mxLen = 0;
 
   qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
@@ -468,8 +467,6 @@ void build_table(void){
       printf("%s", aEntry[i].zIf);
     }else if( (aEntry[i].eType & CMDFLAG_WEBPAGE)!=0 ){
       nWeb++;
-    }else if( (aEntry[i].eType & CMDFLAG_ALIAS)!=0 ){
-      nAlias++;
     }
     printf("  { \"%.*s\",%*s%s,%*szHelp%03d, %3d, 0x%03x },\n",
       n, z,

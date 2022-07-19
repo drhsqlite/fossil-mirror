@@ -1,5 +1,5 @@
-C Add\saliases\sas\sa\snew\scommand\stype\sand\sdisplay\sthese\snext\sto\sthe\scorresponding\smain\scommand\sin\s/help.\sMake\ssure\sthat\sfor\s'test-all-help'\scommand\sand\swebpage\seach\shelp\sstring\sis\soutput\sat\smost\sonce.
-D 2022-07-19T14:47:38.999
+C Remove\ssome\sunneeded\scode.
+D 2022-07-19T14:51:04.902
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -762,7 +762,7 @@ F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa760664
 F tools/makemake.tcl 4565fc354b37918a5678ed2c45fa65b22136cf9da2a15f6ba3411ba5d850eb72 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
-F tools/mkindex.c 94fb6e098cede76313aff660d19ff6e34448f0788b4500a7d1d9cf324b1ba540
+F tools/mkindex.c 2f26c2f69977e5ca1821628460b1d9b5885301b011aad7273207349659d78c8e
 F tools/mkversion.c 9844d975a6750a5307dc32105efa972d6be86c320987886fe15e9ed43648606d
 F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
 F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882ba5095c15
@@ -976,11 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62a1688205348d0d41dd08a4665aa05861f70e33a2bb56bf02cc1668dbb8ab53
-R c51441abd9a1aad4f5e88675f1816e73
-T *branch * help-aliases-unique
-T *sym-help-aliases-unique *
-T -sym-trunk *
+P 4b8efc05d7f70f9c8009da69291d3ea32b361ba43d1cbec0e6b9d46ac8926810
+R ad5643eddff9d7e4331a3a938daf315b
 U danield
-Z 9d38648c2bc02b86a5629bfaec9976ec
+Z 46f8569760b238ba8d54850d866f8a33
 # Remove this line to create a well-formed Fossil manifest.
