@@ -1331,7 +1331,6 @@ void version_cmd(void){
 */
 void test_version_page(void){
   Blob versionInfo;
-  char *zVerbose;
   int verboseFlag;
 
   login_check_credentials();
