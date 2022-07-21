@@ -1,5 +1,5 @@
-C Version\s2.19
-D 2022-07-21T16:10:55.906
+C Updated\schanges.wiki\sand\sVERSION\sto\s2.20.
+D 2022-07-21T16:11:41.844
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -17,7 +17,7 @@ F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c
 F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 6e4a3769893fd39138273b1ef03d3da97971a3b64cc66138a43b48a46566dfc8
+F VERSION 30cfb93eb69beedbe51305d5a2d551e238c679b4a1e97a32950ef5b37fc78825
 F auto.def 088f036f91236a700562c00f8b82b25f6c172aa8c1360e8fdda2583ecfe7393e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
@@ -804,7 +804,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 7971ff8787a6f0ac6bb193b3c141f0289ff8211401993bca077cb49c1a0bf3e8
+F www/changes.wiki f7cf7df29a1abf9767ae99d528b5567c328e0b5176bbfeb47daf55b0361338c9
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -976,10 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c36dad3ba1110546daf56dfd6ec505d7c0600a35b9d252406af5a06b7423dcc
-R b50e544928afc7dcbf486f8507d193a9
-T +sym-release *
-T +sym-version-2.19 *
+P 1e131febd3fbb028d00cab6d020214e8fe36be95daaf93237523c29c542e9a5f
+R 242a5cdea60d45482d8682dfde314aaa
 U stephan
-Z 6230bf67fc25a606a20837580856fdaa
+Z 910471718a1679e8fcdb81d88e415d45
 # Remove this line to create a well-formed Fossil manifest.
