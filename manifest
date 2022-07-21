@@ -1,5 +1,5 @@
-C Updated\schanges.wiki\sand\sVERSION\sto\s2.20.
-D 2022-07-21T16:11:41.844
+C Revise\sthe\s"fossil\sversion\s-v"\scommand\sto\sgive\sless\sdetail.\s\sUse\s-vv\sor\s-v\s-v\nto\sget\sthe\soriginal\sfull\sdetail.
+D 2022-07-21T20:00:56.988
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -516,7 +516,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 0e837a2d60ec0b17dc1ca9ea4d7cf713f5658dfda4179d15c06dd65dff1e83f3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 0a9413507a6eee76e81724ca617feb62afa1f516490d86976c6ed77e969a4d85
+F src/main.c 6f6cc83ae7c1df7d27c7c8c62142da86fb1b6a9195659952c5750bf883d70674
 F src/main.mk a93836d078cd9a1944b34911f9a1e34882eaf26fb90bdc6c170a131ca0c0517d
 F src/manifest.c be9848ff7900c6174f01ca21c77c357cc502698c73406540a866ddc52b24303d
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e131febd3fbb028d00cab6d020214e8fe36be95daaf93237523c29c542e9a5f
-R 242a5cdea60d45482d8682dfde314aaa
-U stephan
-Z 910471718a1679e8fcdb81d88e415d45
+P a3bdee629d124fa55b7f4eb080117c9449e566d0638dc92d0d52737918fbcb33
+R edd3b90ae0a0eb3712f40ded4f43ed80
+U drh
+Z 7655159645c638b13b41a04de7213485
 # Remove this line to create a well-formed Fossil manifest.

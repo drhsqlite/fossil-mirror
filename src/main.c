@@ -1178,7 +1178,7 @@ const char *get_version(){
 */
 void fossil_version_blob(
   Blob *pOut,                 /* Write the manifest here */
-  int bVerbose                /* Non-zero for full information. */
+  int eVerbose                /* 0: brief.  1: more text,  2: lots of text */
 ){
 #if defined(FOSSIL_ENABLE_TCL)
   int rc;
@@ -1188,23 +1188,36 @@ void fossil_version_blob(
   size_t pageSize = 0;
   blob_zero(pOut);
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
-  if( !bVerbose ) return;
+  if( eVerbose<=0 ) return;
+
   blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
                __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
+  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
+               sqlite3_sourceid());
+#if defined(FOSSIL_ENABLE_SSL)
+  blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
+#endif
+  blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
+#if defined(FOSSIL_HAVE_FUSEFS)
+  blob_appendf(pOut, "libfuse %s, loaded %s\n", fusefs_inc_version(),
+               fusefs_lib_version());
+#endif
+#if defined(FOSSIL_ENABLE_TCL)
+  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+  rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
+  zRc = Th_ReturnCodeName(rc, 0);
+  blob_appendf(pOut, "TCL (Tcl %s, loaded %s: %s)\n",
+    TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+  );
+#endif
+  if( eVerbose<=1 ) return;
+
   blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
   fossil_get_page_size(&pageSize);
   blob_appendf(pOut, "Detected memory page size is %lu bytes\n",
                (unsigned long)pageSize);
-  blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if FOSSIL_HARDENED_SHA1
   blob_appendf(pOut, "hardened-SHA1 by Marc Stevens and Dan Shumow\n");
-#endif
-#if defined(FOSSIL_ENABLE_SSL)
-  blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
-#endif
-#if defined(FOSSIL_HAVE_FUSEFS)
-  blob_appendf(pOut, "libfuse %s, loaded %s\n", fusefs_inc_version(),
-               fusefs_lib_version());
 #endif
 #if defined(FOSSIL_DEBUG)
   blob_append(pOut, "FOSSIL_DEBUG\n", -1);
@@ -1221,14 +1234,6 @@ void fossil_version_blob(
 #endif
 #if defined(FOSSIL_ENABLE_TH1_HOOKS)
   blob_append(pOut, "FOSSIL_ENABLE_TH1_HOOKS\n", -1);
-#endif
-#if defined(FOSSIL_ENABLE_TCL)
-  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
-  rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
-  zRc = Th_ReturnCodeName(rc, 0);
-  blob_appendf(pOut, "TCL (Tcl %s, loaded %s: %s)\n",
-    TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
-  );
 #endif
 #if defined(USE_TCL_STUBS)
   blob_append(pOut, "USE_TCL_STUBS\n", -1);
@@ -1265,8 +1270,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ALLOW_OUT_OF_ORDER_DATES)
   blob_append(pOut, "FOSSIL_ALLOW_OUT_OF_ORDER_DATES\n");
 #endif
-  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
-               sqlite3_sourceid());
+
   if( g.db==0 ) sqlite3_open(":memory:", &g.db);
   db_prepare(&q,
      "pragma compile_options");
@@ -1298,11 +1302,16 @@ const char *get_user_agent(){
 ** Print the source code version number for the fossil executable.
 ** If the verbose option is specified, additional details will
 ** be output about what optional features this binary was compiled
-** with
+** with.
+**
+** Repeat the -v option or use -vv for even more information.
 */
 void version_cmd(void){
   Blob versionInfo;
-  int verboseFlag = find_option("verbose","v",0)!=0;
+  int verboseFlag = 0;
+
+  while( find_option("verbose","v",0)!=0 ) verboseFlag++;
+  while( find_option("vv",0,0)!=0 )        verboseFlag += 2;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -1322,11 +1331,12 @@ void version_cmd(void){
 */
 void test_version_page(void){
   Blob versionInfo;
+  char *zVerbose;
   int verboseFlag;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = PD("verbose", 0) != 0;
+  verboseFlag = P("verbose")!=0 ? 2 : 1;
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
   fossil_version_blob(&versionInfo, verboseFlag);
