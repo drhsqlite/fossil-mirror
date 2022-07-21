@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2 id='v2_19'>Changes for version 2.19 (pending)</h2>
+<h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating
      sequence, so that filenames that contains embedded integers sort in
      numeric order even if they contain a different number of digits.
