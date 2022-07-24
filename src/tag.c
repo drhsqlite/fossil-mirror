@@ -284,7 +284,7 @@ void testtag_cmd(void){
 /*
 ** OR this value into the tagtype argument to tag_add_artifact to
 ** cause the tag to be displayed on standard output rather than be
-** inserted.  Used for --dryrun options and debugging.
+** inserted.  Used for --dry-run options and debugging.
 */
 #if INTERFACE
 #define TAG_ADD_DRYRUN  0x04
@@ -409,7 +409,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **           --propagate                Propagating tag.
 **           --date-override DATETIME   Set date and time added.
 **           --user-override USER       Name USER when adding the tag.
-**           -n|--dryrun                Display the tag text, but do not
+**           -n|--dry-run               Display the tag text, but do not
 **                                      actually insert it into the database.
 **
 **         The --date-override and --user-override options support
@@ -424,7 +424,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **
 **         Remove the tag TAGNAME from the artifact referenced by
 **         ARTIFACT-ID, and also remove the propagation of the tag to
-**         any descendants.  Use the the -n|--dryrun option to see
+**         any descendants.  Use the the -n|--dry-run option to see
 **         what would have happened. Certain tag name prefixes are
 **         forbidden, as documented for the 'add' subcommand.
 **
@@ -433,7 +433,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                                       non-CHECK-IN artifacts.
 **           --date-override DATETIME    Set date and time deleted.
 **           --user-override USER        Name USER when deleting the tag.
-**           -n|--dryrun                 Display the control artifact, but do
+**           -n|--dry-run                Display the control artifact, but do
 **                                       not insert it into the database.
 **
 ** > fossil tag find ?OPTIONS? TAGNAME
@@ -516,7 +516,7 @@ void tag_cmd(void){
     const char *zTag;
     const char *zObjId;
     int objType;
-    if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+    if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 && g.argc!=6 ){
       usage("add ?options? TAGNAME ARTIFACT-ID ?VALUE?");
     }
@@ -554,7 +554,7 @@ void tag_cmd(void){
     const char *zTag;
     const char *zObjId;
     int objType;
-    if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+    if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
       usage("cancel ?options? TAGNAME ARTIFACT-ID");
     }
@@ -753,7 +753,7 @@ tag_cmd_usage:
 **    --test           Make database entries but do not add the tag artifact.
 **                     So the reparent operation will be undone by the next
 **                     "fossil rebuild" command.
-**    -n|--dryrun      Print the tag that would have been created but do not
+**    -n|--dry-run     Print the tag that would have been created but do not
 **                     actually change the database in any way.
 **    --date-override DATETIME  Set the change time on the control artifact
 **    --user-override USER      Set the user name on the control artifact
@@ -768,7 +768,7 @@ void reparent_cmd(void){
   const char *zDateOvrd;  /* The change time on the control artifact */
   const char *zUserOvrd;  /* The user name on the control artifact */
 
-  if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+  if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
   db_find_and_open_repository(0, 0);
