@@ -1,5 +1,5 @@
-C Replaced\sthe\sremaining\s--dryrun\sflags\swith\s--dry-run,\sfor\sconsistency,\sper\sdiscussion/monologue\sin\s[forum:d732b4026f44bdba|forum\spost\sd732b4026f44bdba].
-D 2022-07-24T14:51:50.803
+C Added\s--dry-run\schange\sto\sthe\schange\slog.
+D 2022-07-24T14:53:54.843
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -804,7 +804,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki f7cf7df29a1abf9767ae99d528b5567c328e0b5176bbfeb47daf55b0361338c9
+F www/changes.wiki c82ad9fa708aec04195a796855213fb405088dd8a83fb6cb0222fbad6ec40117
 F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -976,9 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ca55e926ce45734ee031fe21633515779300cec9f00411752e9258fbf058a6f 360d8652e76ca0930a2ba52353843d45d594201194f84e70b01c9b95028a56cb
-R aca7ad6343f70de5461211a5295c3a44
-T +closed 360d8652e76ca0930a2ba52353843d45d594201194f84e70b01c9b95028a56cb Closed\sby\sintegrate-merge.
+P 4a720c262189706d119728dc3c4d9ccff7ed6f983c07fd0d5293296381f6d07f
+R 0682d9d2a07bf2a8719824227bc40897
 U stephan
-Z 0176985677988e21f8aa45e4fbeeb47b
+Z 2e2b82408a408930b0b5ae874be34422
 # Remove this line to create a well-formed Fossil manifest.
