@@ -694,9 +694,10 @@ PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000
 # Closely related is SQLITE3_ORIGIN, with the same numeric mapping plus
 # a value of 2 means that we are building a client-provided sqlite3.c.
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
-SQLITE3_OBJ.1 =
+SQLITE3_OBJ.1 = $(OBJDIR)/sqlite3-see.o
 # SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 
 # The USE_LINENOISE variable may be undefined, set to 0, or set
 # to 1. If it is set to 0, then there is no need to build or link
@@ -2091,7 +2092,7 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
+$(SQLITE3_OBJ):	$(SQLITE3_SRC)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR_extsrc)/sqlite3.h

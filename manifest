@@ -1,5 +1,5 @@
-C Added\s--dry-run\schange\sto\sthe\schange\slog.
-D 2022-07-24T14:53:54.843
+C Corrected\sthe\s--with-see\sbuild\sto\suse\ssqlite3-see.c.\sProblem\sreported\sin\s[forum:b3653991172dcd14|forum\spost\sb3653991172dcd14].\sThe\sSEE\sbuild\swas\sbroken\sby\sthe\slate-December\s2021\sreworking\sof\sthe\s--with-sqlite\sflag\sand\sits\srelated\sbuild\sinfrastructure.
+D 2022-07-25T16:47:52.258
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -517,7 +517,7 @@ F src/login.c 0e837a2d60ec0b17dc1ca9ea4d7cf713f5658dfda4179d15c06dd65dff1e83f3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c c9005674824163d1d350ea936b2ce7e75b71bde77c329ee65a302bcdfc792aad
-F src/main.mk a93836d078cd9a1944b34911f9a1e34882eaf26fb90bdc6c170a131ca0c0517d
+F src/main.mk 3cfb5b741f534f21044e391027e1fc52155092ec62c73faeb994b1d9d47b699a
 F src/manifest.c be9848ff7900c6174f01ca21c77c357cc502698c73406540a866ddc52b24303d
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
 F src/markdown.md 067116403288c84cdbae04edd208d1db044b1f1fce144444c1d96ea6e2e57df3
@@ -759,7 +759,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc96ce529
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 4565fc354b37918a5678ed2c45fa65b22136cf9da2a15f6ba3411ba5d850eb72 x
+F tools/makemake.tcl 9be1f08bfc4a8e56bf34ce9b77d00923be370db012b6fe98ebcacbd13d68c033 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F tools/mkindex.c 29c4349dc4802a30220c36be70c206ce3e82b4cc403a9b1cfc1866e57cf10aba
@@ -768,7 +768,7 @@ F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd
 F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882ba5095c15
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.dmc 0f84b947a1126f1b1c8e78cf93925066fd1be4f04ebdab749b518ab1cef02794
-F win/Makefile.mingw 2a3f148a870cec8d98294d4020b25b3b424eaccfe2196993b5d2d5975cbb54b1
+F win/Makefile.mingw 246a9200c85baaec28d0d1e3cde55110c627653d08b421d0a75f7fa7b7d7b878
 F win/Makefile.mingw.mistachkin 04d7812f768c04da767d90f5ec4251363f81f1b8485541bc5995535735077f50
 F win/Makefile.msc d141a9548b02f72c98ccce8e6c2fe1e7aa57ef97e15e47e3d47534faad5066de
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a720c262189706d119728dc3c4d9ccff7ed6f983c07fd0d5293296381f6d07f
-R 0682d9d2a07bf2a8719824227bc40897
+P 5960a16f9a70692b88c4295fce07d1351e8147f234e99830e1887a24290fcce9
+R ee6da708b98921e759147438f88608b6
 U stephan
-Z 2e2b82408a408930b0b5ae874be34422
+Z 7e72d90bf5d5eb2275ceec5f3b2e6aab
 # Remove this line to create a well-formed Fossil manifest.

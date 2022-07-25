@@ -437,9 +437,10 @@ PIKCHR_OPTIONS = <<<PIKCHR_OPTIONS>>>
 # Closely related is SQLITE3_ORIGIN, with the same numeric mapping plus
 # a value of 2 means that we are building a client-provided sqlite3.c.
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
-SQLITE3_OBJ.1 =
+SQLITE3_OBJ.1 = $(OBJDIR)/sqlite3-see.o
 # SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 
 # The USE_LINENOISE variable may be undefined, set to 0, or set
 # to 1. If it is set to 0, then there is no need to build or link
@@ -537,7 +538,7 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers\n"
 }
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC)"
+writeln "\$(SQLITE3_OBJ):\t\$(SQLITE3_SRC)"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
@@ -1127,9 +1128,10 @@ $(OBJDIR)/phony.h:
 # plus a value of 2 means that we are building a client-provided
 # sqlite3.c.
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
-SQLITE3_OBJ.1 =
+SQLITE3_OBJ.1 = $(OBJDIR)/sqlite3-see.o
 # SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 
 # The USE_SEE variable may be undefined, 0 or 1.  If undefined or 0,
 # in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
@@ -1144,7 +1146,7 @@ SQLITE3_SHELL_SRC.0 = $(SRCDIR_extsrc)/shell.c
 SQLITE3_SHELL_SRC.1 = $(SRCDIR_extsrc)/shell-see.c
 # SQLITE3_SHELL_SRC.2 comes from the configure process
 SQLITE3_SHELL_SRC. = $(SRCDIR_extsrc)/shell.c
-SQLITE3_SHELL_SRC = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
+SQLITE3_SHELL_SRC  = $(SQLITE3_SHELL_SRC.$(SQLITE3_ORIGIN))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SEE_FLAGS. =
@@ -1279,7 +1281,7 @@ writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
 writeln "PIKCHR_OPTIONS = [join $MINGW_PIKCHR_OPTIONS $j]\n"
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC) \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\$(SQLITE3_OBJ):\t\$(SQLITE3_SRC) \$(SRCDIR)/../win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@\n"
 
