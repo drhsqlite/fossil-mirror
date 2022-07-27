@@ -81,7 +81,7 @@ of the Fossil code you find running on the main Fossil website.
 
 <li><i>(Optional, Debian-compatible Linux only)</i>
 Make sure you have all the necessary tools and libraries at hand by running:
-<b>sudo apt install tcl-dev tk libssl-dev</b>.
+<b>sudo apt install tcl-dev tk libssl-dev zlib1g-dev</b>.
 
 <li><i>(Optional, Unix only)</i>
 Run <b>./configure</b> to construct a makefile.
