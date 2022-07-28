@@ -1,5 +1,5 @@
-C Fix\sa\sbuild\sproblem\swith\szlib\son\sWindows.
-D 2022-07-28T17:38:50.605
+C Patch\sthe\sjavascript\scompressor\sso\sthat\sit\sdoes\snot\selide\stext\safter\s//\sif\nthe\s//\simmediately\sfollows\sa\s:,\sas\sthat\stext\smight\sbe\spart\sof\sa\sURI\sstring\nliteral.
+D 2022-07-28T18:19:07.687
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -763,7 +763,7 @@ F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc9
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 9be1f08bfc4a8e56bf34ce9b77d00923be370db012b6fe98ebcacbd13d68c033 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
-F tools/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
+F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 29c4349dc4802a30220c36be70c206ce3e82b4cc403a9b1cfc1866e57cf10aba
 F tools/mkversion.c 9844d975a6750a5307dc32105efa972d6be86c320987886fe15e9ed43648606d
 F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P adb9e8e0bc01144ebc33b96721992c24f03bd15bbea0790448ff96a2e9a8dfdb
-R 0308e2f4d37f15b613559173664696ca
+P 8bd19cad6346b570335aacaf1999f7bf243b70e7f29642a4a72e9561c23cb7a3
+R 4c7cf0b2660553da671a5895ed648daf
 U drh
-Z 38930c4764e755016b60f0a8b1785f8a
+Z 726e98c53c7925a1335932d78b1bf1f2
 # Remove this line to create a well-formed Fossil manifest.
