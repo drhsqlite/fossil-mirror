@@ -1,5 +1,5 @@
-C Patch\sthe\sjavascript\scompressor\sso\sthat\sit\sdoes\snot\selide\stext\safter\s//\sif\nthe\s//\simmediately\sfollows\sa\s:,\sas\sthat\stext\smight\sbe\spart\sof\sa\sURI\sstring\nliteral.
-D 2022-07-28T18:19:07.687
+C Consolidated\ssome\sminor\scode\sdrift\sbetween\spikchr's\sfiddle\sand\sfossil's\spikchrshow.
+D 2022-07-28T18:59:01.225
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -296,7 +296,7 @@ F extsrc/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edc
 F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
-F extsrc/pikchr-worker.js 2fd2fd26ef16b16aa1a2d993947a3273440ee2bee7ad1f63bd0a1cc8ffabdcda
+F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
 F extsrc/pikchr.c 90493bcb588f7a7b0c05406d33c17e1812fe92097d34e6c9349aabaa52ad89ea
 F extsrc/pikchr.js 9a028ca0abacac37a6526a5b306b670f872b11756f6f5f0ba76b53f35c36c6ae
 F extsrc/pikchr.wasm e388cf3f1a0bc65fc1d36dddc9a64fab370760450945c8f5f0c9cb1585167b6f
@@ -471,7 +471,7 @@ F src/fossil.page.chat.js 6173560b37a25e7bc3ecc09b99f920e1e1beb584cb1a3b8433e729
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
-F src/fossil.page.pikchrshowasm.js e5220eaebde27ac80876e18667ac3490ba7e3108df3b8cd93986311d870459b6
+F src/fossil.page.pikchrshowasm.js 1865c84326ea83b3bb0f366db712b95c42b7a2414b3820f9177a66151a9ffdec
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js aa823d629f61df524e8d1a37b683152f7378b48f8f8d381142862dd3536f016f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8bd19cad6346b570335aacaf1999f7bf243b70e7f29642a4a72e9561c23cb7a3
-R 4c7cf0b2660553da671a5895ed648daf
-U drh
-Z 726e98c53c7925a1335932d78b1bf1f2
+P ffa1c7d0a0e6b32eab1a6b7f217a8f653f76fe650e80de407a15dab9dfe05c79
+R 83ec7662f2099401c654436b85a6391a
+U stephan
+Z 5ef1b8ba8a21f9aa356166f2c60133b7
 # Remove this line to create a well-formed Fossil manifest.
