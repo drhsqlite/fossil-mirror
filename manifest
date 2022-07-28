@@ -1,5 +1,5 @@
-C (Manual)\scherry-pick\sof\s[0f8bae079e]\sto\scarry\sforward\sthe\sonly\schange\sagainst\szlib\s1.2.11\sto\sthe\s1.2.12\supdate.
-D 2022-04-26T04:17:00.000
+C Corrected\s-DPIC\sto\s-fPIC\sin\scompaq/zlib/Makefile.in\sand\sfiled\supstream\sticket\sfor\sthat\schange\sat\s[https://github.com/madler/zlib/issues/684].
+D 2022-07-28T15:38:41.267
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -45,7 +45,7 @@ F compat/zlib/ChangeLog 95fda7bda6162fd885e9fb5e5acbadeafc7e12a1e1713770a9ef801f
 F compat/zlib/FAQ 832bb73adff252fa426a141ee4756daa9b8a4db4
 F compat/zlib/INDEX 74611a0f2bcc004caa1fa07bdeb4c44b01f0a5d6
 F compat/zlib/Makefile b04f62dd1002b9ca07068c90651432dec60029f3
-F compat/zlib/Makefile.in 28f118fc043a9ee41ca9096f76e9d7e08ec596aa2fed0d94b4ed359a0392fa7e
+F compat/zlib/Makefile.in 349d5251c5c28803bea885c2b43fc4ea49897a93e778d12ebef6ac72daaa94c9
 F compat/zlib/README 37888ac3e4519a5a13534b23abd73d4ad985bd911a596453238699affee780b7
 F compat/zlib/adler32.c 6c1114794db137af50f9b060aaade1a1a35ed784
 F compat/zlib/amiga/Makefile.pup 79461cdcf8eda434edca3c32781982d2082af5fe
@@ -972,8 +972,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6567d4b998c36d3cd5e333917c8826d88c81c52dec5d86ec135d842cdd0f45f
-R 17c6ceac73f8fddaa855c52d84b346d5
-U florian
-Z 6ca69835c3fa85108bb8c8bb4ac60cd0
+P cc3765eb12c857711235bfbe02ff0475c67139a49325e69212eeb82c0fac3496
+R 803e60eb3613a72873e51231a12ed9c2
+U stephan
+Z 6a23492113535284cbaab956cb2a7a8c
 # Remove this line to create a well-formed Fossil manifest.
