@@ -860,7 +860,7 @@ function TimelineGraph(tx){
         var ti = JSON.parse(td.textContent || td.innerText);
         for( var k=0; k<ti.rowinfo.length; k++ ){
           if( id=='m' + ti.rowinfo[k].id ) return {
-            'b': ti.baseUrl, 'h': ti.rowinfo[k].h
+            'baseurl': ti.baseUrl, 'hash': ti.rowinfo[k].h
           };
         }
       }
@@ -920,8 +920,8 @@ function TimelineGraph(tx){
       if( id && dx==0 ){
         var ri = focusRowinfoFromId(id);
         if( ri ){
-          var page = ( key==75/*K*/ ) ? '/info/' : '/timeline?c=';
-          var href = ri.b + page + ri.h;
+          var page = key==kVIEW ? '/info/' : '/timeline?c=';
+          var href = ri.baseurl + page + ri.hash;
           if( href!=location.href.slice(-href.length) ){
             location.href = href;
             return;
