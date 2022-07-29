@@ -914,7 +914,7 @@ function TimelineGraph(tx){
           'fossil_timeline_kbnav=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
         return;
       }
-      document.cookie = 'fossil_timeline_kbnav=1;expires=0;path=/';
+      document.cookie = 'fossil_timeline_kbnav=1;path=/';
       var id = kf.value;
       if( id && dx==0 ){
         var ri = focusRowinfoFromId(id);
