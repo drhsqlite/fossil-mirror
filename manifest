@@ -1,5 +1,5 @@
-C The\s/unsubscribe\spage\snow\srequests\scomformation.\s\sAnd\sso\semail\snotifications\ncontain\sonly\san\s"Unsubscribe"\slink,\sand\snot\sa\slink\sto\ssubscription\smanagement.
-D 2022-07-29T18:57:29.842
+C Fix\sthe\s/alerts\spage\sso\sthat\saccess\sis\sprovided\seven\sfor\susers\sthat\sare\nnot\slogged\sin\sas\slong\sas\sa\scomplete\ssubscription\scode\sis\sprovided\sas\sthe\n"name"\squery\sparameter.
+D 2022-07-29T19:03:24.410
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -401,7 +401,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c fcb33dcc8338d96ff679843871d516116846a3dda3f931ecc6163bd2a8553d89
 F src/ajax.c 4d31ef8e51bdd3c3ac74f346d3604e27893ab5a879846312b576d76d15d38d41
-F src/alerts.c 85e988722f812e2baaff924fba7fd6213c8dbfcb6cdb26b5eda0d8609417f9b3
+F src/alerts.c 8d49b884e4d4ff60f9e4d3b20acc092aede8e9be16b97f8cae7136e1791a3414
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44cd9753925065c6efe985cfbd0bbe00fdd5d6cd07b554f132cc5c19bbf81143
-R 96d5db605fba36703c752b59562c6594
+P f045c5dd2631d92c8ad143a9a9801029e9f345e76892120855a3f0b273606b66
+R 27359429bda8181dea76e71b5778377d
 U drh
-Z b94c7e1031b5f2378e564d8a3e7de33b
+Z 27e912598778822fe3044896d2a86877
 # Remove this line to create a well-formed Fossil manifest.

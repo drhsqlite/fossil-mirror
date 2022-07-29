@@ -1750,11 +1750,6 @@ void alert_page(void){
     return;
   }
   login_check_credentials();
-  if( !g.perm.EmailAlert ){
-    db_commit_transaction();
-    login_needed(g.anon.EmailAlert);
-    /*NOTREACHED*/
-  }
   isLogin = login_is_individual();
   zName = P("name");
   nName = zName ? (int)strlen(zName) : 0;
@@ -1769,7 +1764,7 @@ void alert_page(void){
        " LIMIT 1", zName, zName);
     if( sid ) keepAlive = 1;
   }
-  if( sid==0 && isLogin ){
+  if( sid==0 && isLogin && g.perm.EmailAlert ){
     sid = db_int(0, "SELECT subscriberId FROM subscriber"
                     " WHERE suname=%Q", g.zLogin);
   }
