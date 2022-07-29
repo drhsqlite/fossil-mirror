@@ -1,5 +1,5 @@
-C Omit\sthe\sexpiration\sdate\swhen\screating\sthe\ssession\scookie.
-D 2022-07-29T10:24:00.000
+C Fix\sdynamic\sstyle\sassignment.
+D 2022-07-29T10:26:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -484,7 +484,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js ee6150c0b4a509c290cd0adf76d77b439f9aabc2901c157b01a216e286989950
+F src/graph.js ee6578115e2905f7e370a9628060cc07ad81bc6fc06638ef92be46479948e97c
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b18c4256308c783e327e402e0e64c9d6e99e9d5e64e5c699f1cc2150b0e267fe
-R 0d99e5a740122f8443412043567eeed4
+P 540955bd365dad8a672da3fb9cb1136383dcd80f86e00d5fde52183f554dd929
+R c132a42796544d309cf92c6f52dd0bd9
 U florian
-Z 4a445b6c9b1d517fab2d8cb003f512b7
+Z 97fba5676b35691411e1484f369efdab
 # Remove this line to create a well-formed Fossil manifest.

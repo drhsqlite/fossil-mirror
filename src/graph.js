@@ -888,7 +888,8 @@ function TimelineGraph(tx){
     if( !kf ){
       kf = document.createElement('input');
       kf.type = 'text';
-      kf.style = 'display:none;visibility:hidden;';
+      kf.style.display = 'none';
+      kf.style.visibility = 'hidden';
       kf.id = 'timeline-kbfocus';
       document.body.appendChild(kf);
     }
