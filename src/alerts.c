@@ -2130,13 +2130,40 @@ void unsubscribe_page(void){
   char *zCode = 0;
   int sid = 0;
 
-  /* If a valid subscriber code is supplied, then unsubscribe immediately.
+  if( zName==0 ) zName = P("scode");
+
+  /* If a valid subscriber code is supplied, then either present the user
+  ** with a comformation, or if already confirmed, unsubscribe immediately.
   */
   if( zName 
    && (sid = db_int(0, "SELECT subscriberId FROM subscriber"
                        " WHERE subscriberCode=hextoblob(%Q)", zName))!=0
   ){
-    alert_unsubscribe(sid);
+    char *zUnsubName = mprintf("confirm%04x", sid);
+    if( P(zUnsubName)!=0 ){
+      alert_unsubscribe(sid);
+    }else if( P("manage")!=0 ){
+      cgi_redirectf("%R/alerts/%s", zName);
+    }else{
+      style_header("Unsubscribed");
+      form_begin(0, "%R/unsubscribe");
+      @ <input type="hidden" name="scode" value="%h(zName)">
+      @ <table border="0" cellpadding="10" width="100%%">
+      @ <tr><td align="right">
+      @ <input type="submit" name="%h(zUnsubName)" value="Unsubscribe">
+      @ </td><td><big><b>&larr;</b></big></td>
+      @ <td>Cancel your subscription to %h(g.zBaseURL) notifications
+      @ </td><tr>
+      @ <tr><td align="right">
+      @ <input type="submit" name="manage" \
+      @ value="Manage Subscription Settings">
+      @ </td><td><big><b>&larr;</b></big></td>
+      @ <td>Make changes to your subscription preferences
+      @ </td><tr>
+      @ </table>
+      @ </form>
+      style_finish_page();
+    }
     return;
   }
 
@@ -2965,8 +2992,10 @@ int alert_send_alerts(u32 flags){
         blob_appendf(&fhdr, "To: <%s>\r\n", zEmail);
         blob_append(&fhdr, blob_buffer(&p->hdr), blob_size(&p->hdr));
         blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
-        blob_appendf(&fbody, "\n-- \nSubscription info: %s/alerts/%s\n",
+        blob_appendf(&fbody, "\n-- \nUnsubscribe: %s/unsubscribe/%s\n",
            zUrl, zCode);
+        /* blob_appendf(&fbody, "Subscription settings: %s/alerts/%s\n",
+        **   zUrl, zCode); */
         alert_send(pSender,&fhdr,&fbody,p->zFromName);
         nSent++;
         blob_reset(&fhdr);
