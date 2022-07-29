@@ -949,7 +949,7 @@ function TimelineGraph(tx){
         if( document.cookie.match(/fossil_timeline_kbnav=1/) ){
           id = focusDefaultId();
           kf.value = id;
-          if( id ) focusVisualize(id,false);
+          focusVisualize(id,false);
         }
       }
     },false);
