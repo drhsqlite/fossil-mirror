@@ -800,3 +800,157 @@ function TimelineGraph(tx){
     TimelineGraph(tx);
   }
 }());
+
+/*
+** Timeline keyboard navigation shortcuts:
+**
+** N - Select next (newer) entry.
+** M - Select previous (older) entry.
+** J - View timeline of selected entry.
+** K - View details of selected entry.
+** L - Disable keyboard navigation mode.
+**
+** When navigating to a page with a timeline display, such as /timeline, /info,
+** or /finfo, keyboard navigation mode needs to be "activated" first, i.e. if no
+** timeline entry is focused yet, pressing any of the listed keys (except L)
+** sets the visual focus indicator to the highlighted or current (check-out)
+** entry if available, or to the topmost entry otherwise. A session cookie[0] is
+** used to direct pages loaded in the future to enable keyboard navigation mode
+** and automatically set the focus indicator to the highlighted, current, or
+** topmost entry. Pressing N and M on the /timeline page while the topmost or
+** bottommost entry is focused loads the next or previous page if available,
+** similar to the [↑ More] and [↓ More] links. Pressing L disables keyboard
+** navigation, i.e. removes the focus indicator and deletes the session cookie.
+** When navigating backwards or forwards in browser history, the focused entry
+** is restored using a hidden[1] input field.
+**
+** [0]: The lifetime and values of cookies can be tracked on the /cookies page.
+** A session cookie is preferred over other storage APIs because Fossil already
+** requires cookies to be enabled for reasonable functionality, and it's more
+** likely that other storage APIs are blocked by users for privacy reasons, for
+** example.
+** [1]: This feature only works with a normal (text) input field hidden by CSS
+** styles, instead of a true hidden (by type) input field, so may cause side
+** effects, for example with screen readers. Moreover, this feature currently
+** only works with Chrome, but not with FF or IE.
+**
+** Ideas and TODOs:
+**
+**  o Shortcut to select the topmost or bottommost entry, either by separate
+**    key, or with modifiers (SHIFT+N, SHIFT+M)?
+**  o Improve scrolling the focused element into view for browsers without the
+**    Element.scrollIntoViewIfNeeded() function, maybe with a Polyfill, or
+**    something similar to the scrollToSelected() function in this source file.
+*/
+(function(){
+  window.addEventListener('load',function(){
+    function focusDefaultId(){
+      var tn = document.querySelector('.timelineSelected .tl-nodemark') ||
+                document.querySelector('.timelineCurrent .tl-nodemark');
+      return tn ? tn.id : 'm1';
+    }
+    function focusNextId(id,dx){
+      var m = /^m(\d+)$/.exec(id);
+      return m!==null ? 'm' + (parseInt(m[1]) + dx) : null;
+    }
+    function focusRowinfoFromId(id){
+      for(var i=0; true; i++){
+        var td = document.getElementById('timeline-data-' + i);
+        if( !td ) break;
+        var ti = JSON.parse(td.textContent || td.innerText);
+        for( var k=0; k<ti.rowinfo.length; k++ ){
+          if( id=='m' + ti.rowinfo[k].id ) return {
+            'b': ti.baseUrl, 'h': ti.rowinfo[k].h
+          };
+        }
+      }
+      return null;
+    }
+    function focusVisualize(id,scroll){
+      var td = document.querySelector('.timelineFocused');
+      if( td ) td.classList.remove('timelineFocused');
+      if( !id ) return true;
+      var tn = document.getElementById(id);
+      if( tn ){
+        td = tn.parentElement.nextElementSibling;
+        if( td ) {
+          td.classList.add('timelineFocused');
+          if( scroll ){
+            if( td.scrollIntoViewIfNeeded ) td.scrollIntoViewIfNeeded();
+            else td.scrollIntoView(false);
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+    var kf = document.getElementById('timeline-kbfocus');
+    if( !kf ){
+      kf = document.createElement('input');
+      kf.type = 'text';
+      kf.style = 'display:none;visibility:hidden;';
+      kf.id = 'timeline-kbfocus';
+      document.body.appendChild(kf);
+    }
+    document.addEventListener('keydown',function(evt){
+      var
+        kNEXT = 78 /* N */,
+        kPREV = 77 /* M */,
+        kTMLN = 74 /* J */,
+        kVIEW = 75 /* K */,
+        kDONE = 76 /* L */;
+      var key = evt.which || evt.keyCode;
+      if( evt.target.tagName=='INPUT' ) return;
+      if( evt.altKey || evt.ctrlKey || evt.shiftKey ) return;
+      var dx = 0;
+      if( key==kPREV ) dx++;
+      else if( key==kNEXT ) dx--;
+      else if( key!=kTMLN && key!=kVIEW && key!=kDONE ) return;
+      var kf = document.getElementById('timeline-kbfocus');
+      if( key==kDONE ){
+        kf.value = '';
+        focusVisualize(null,false);
+        document.cookie =
+          'fossil_timeline_kbnav=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        return;
+      }
+      document.cookie = 'fossil_timeline_kbnav=1;expires=0;path=/';
+      var id = kf.value;
+      if( id && dx==0 ){
+        var ri = focusRowinfoFromId(id);
+        if( ri ){
+          var page = ( key==75/*K*/ ) ? '/info/' : '/timeline?c=';
+          var href = ri.b + page + ri.h;
+          if( href!=location.href.slice(-href.length) ){
+            location.href = href;
+            return;
+          }
+        }
+      }
+      else if ( id && dx!=0 ){
+        id = focusNextId(id,dx);
+        if( id && !document.getElementById(id) ){
+          var btn =
+            document.querySelector('.tl-button-' + ( dx>0 ? 'prev' : 'next' ));
+          if( btn ) btn.click();
+          return;
+        }
+      }
+      else if ( !id ) id = focusDefaultId();
+      kf.value = id;
+      focusVisualize(id,true);
+    }/*,true*/);
+    window.addEventListener('pageshow',function(evt){
+      var id;
+      var kf = document.getElementById('timeline-kbfocus');
+      if( kf ) id = kf.value;
+      if( !id || !focusVisualize(id,false) ){
+        if( document.cookie.match(/fossil_timeline_kbnav=1/) ){
+          id = focusDefaultId();
+          kf.value = id;
+          if( id ) focusVisualize(id,false);
+        }
+      }
+    },false);
+  },false);
+}());

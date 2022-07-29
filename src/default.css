@@ -53,6 +53,15 @@ tr.timelineCurrent td {
   border-radius: 0;
   border-width: 0;
 }
+.timelineFocused {
+  background-image: url("data:image/svg+xml,%3Csvg \
+xmlns='http://www.w3.org/2000/svg' viewBox='0,0,1,1'%3E%3Cpath \
+style='fill:orange;opacity:0.5' d='M0,0h1v1h-1z'/%3E%3C/svg%3E") !important;
+/*Note: IE requires explicit declarations for the next three properties.*/
+  background-position: top left;
+  background-repeat: repeat repeat;
+  background-size: 64px 64px;
+}
 span.timelineLeaf {
   font-weight: bold;
 }

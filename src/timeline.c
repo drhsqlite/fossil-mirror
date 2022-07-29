@@ -2731,14 +2731,14 @@ void page_timeline(void){
   }
 
   if( zNewerButton ){
-    @ %z(chref("button","%s",zNewerButton))%h(zNewerButtonLabel)\
+    @ %z(chref("button tl-button-next","%s",zNewerButton))%h(zNewerButtonLabel)\
     @ &nbsp;&uarr;</a>
   }
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, zBrName,
                      selectedRid, secondaryRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
-    @ %z(chref("button","%s",zOlderButton))%h(zOlderButtonLabel)\
+    @ %z(chref("button tl-button-prev","%s",zOlderButton))%h(zOlderButtonLabel)\
     @ &nbsp;&darr;</a>
   }
   document_emit_js(/*handles pikchrs rendered above*/);
