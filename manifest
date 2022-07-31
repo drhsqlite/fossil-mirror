@@ -1,5 +1,5 @@
-C Remove\san\sunnecessary\s!important\sCSS\sdirective\sthat\sprevents\soverriding\sby\sskins.\s(This\sis\sa\sleftover\sfrom\smy\sprivate\spatches,\swhere\sthe\ssame\stechnique\sis\sused\sto\salpha-blend\san\sadditional\sSVG\sbackground\scolor\swith\sthe\soriginal\sbackground\scolor.)
-D 2022-07-31T08:48:00.000
+C Take\snote\sof\sa\spossible\sTODO\spoint.
+D 2022-07-31T08:56:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -484,7 +484,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js e474a9668f1d05cc069faafb426fee0b1dc8bfe0e3c48c289afeb894851fc88f
+F src/graph.js 1828032d13fe50019cf16c1b148c79eff4995b6f52af579b1659ea9428e2b608
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af89065ec5a84766ad15c7e7ea8bb8dfbb3808147ad6c39abbcb97a0ba521a75
-R 4da672104dceb7a93781897b2b4d7f59
+P 72dc40da49c4dec2bd096b765fb8df19a64a14c5475cfd0d5fee517f61ecf7c6
+R b1ec981e0db044551849db772359f96b
 U florian
-Z e5d0871ca95c13937c9cda77ff7f3d48
+Z 9cf818b5f1a0503a6c1989847a99a42f
 # Remove this line to create a well-formed Fossil manifest.

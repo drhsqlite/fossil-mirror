@@ -838,6 +838,7 @@ function TimelineGraph(tx){
 **
 **  o Shortcut to select the topmost or bottommost entry, either by separate
 **    key, or with modifiers (SHIFT+N, SHIFT+M)?
+**  o Shortcut to toggle the tick-mark for the focused check-in node.
 **  o Improve scrolling the focused element into view for browsers without the
 **    Element.scrollIntoViewIfNeeded() function, maybe with a Polyfill, or
 **    something similar to the scrollToSelected() function in this source file.
