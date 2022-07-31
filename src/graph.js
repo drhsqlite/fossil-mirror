@@ -896,15 +896,15 @@ function TimelineGraph(tx){
       document.body.appendChild(kf);
     }
     document.addEventListener('keydown',function(evt){
+      if( evt.target.tagName=='INPUT' ) return;
       var
         kNEXT = 78 /* N */,
         kPREV = 77 /* M */,
         kTMLN = 74 /* J */,
         kVIEW = 75 /* K */,
         kDONE = 76 /* L */;
-      var key = evt.which || evt.keyCode;
-      if( evt.target.tagName=='INPUT' ) return;
-      if( evt.altKey || evt.ctrlKey || evt.shiftKey ) return;
+        var key = ( evt.which || evt.keyCode )
+                    | evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13;
       var dx = 0;
       if( key==kPREV ) dx++;
       else if( key==kNEXT ) dx--;
