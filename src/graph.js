@@ -853,12 +853,14 @@ function TimelineGraph(tx){
       var m = /^m(\d+)$/.exec(id);
       return m!==null ? 'm' + (parseInt(m[1]) + dx) : null;
     }
+    function focusRowinfoEnum(i){
+      var td = document.getElementById('timeline-data-' + i);
+      return td ? JSON.parse(td.textContent || td.innerText) : null;
+    }
     function focusRowinfoFromId(id){
-      for(var i=0; true; i++){
-        var td = document.getElementById('timeline-data-' + i);
-        if( !td ) break;
-        var ti = JSON.parse(td.textContent || td.innerText);
-        for( var k=0; k<ti.rowinfo.length; k++ ){
+      var ti;
+        for(var i=0; ti=focusRowinfoEnum(i); i++){
+          for( var k=0; k<ti.rowinfo.length; k++ ){
           if( id=='m' + ti.rowinfo[k].id ) return {
             'baseurl': ti.baseUrl, 'hash': ti.rowinfo[k].h
           };
