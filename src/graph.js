@@ -921,7 +921,7 @@ function TimelineGraph(tx){
         var ri = focusRowinfoFromId(id);
         if( ri ){
           var page = key==kVIEW ? '/info/' : '/timeline?c=';
-          var href = ri.baseurl + page + ri.hash;
+          var href = ri.baseurl + page + encodeURIComponent(ri.hash);
           if( href!=location.href.slice(-href.length) ){
             location.href = href;
             return;
