@@ -282,6 +282,7 @@ static void brlist_create_temp_table(void){
 #define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
 #define BRL_REVERSE          0x008 /* Reverse the sort order */
 #define BRL_PRIVATE          0x010 /* Show only private branches */
+#define BRL_LIMIT            0x020 /* Limit entries to specified number */
 
 #endif /* INTERFACE */
 
@@ -292,7 +293,12 @@ static void brlist_create_temp_table(void){
 ** (which>0) then the query pulls all (closed and opened)
 ** branches. Else the query pulls currently-opened branches.
 */
-void branch_prepare_list_query(Stmt *pQuery, int brFlags, const char *zBrNameGlob){
+void branch_prepare_list_query(
+  Stmt *pQuery,
+  int brFlags,
+  const char *zBrNameGlob,
+  int nLimit
+){
   Blob sql;
   blob_init(&sql, 0, 0);
   brlist_create_temp_table();
@@ -325,6 +331,9 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags, const char *zBrNameGlo
   }
   if( brFlags & BRL_REVERSE ){
     blob_append_sql(&sql," DESC");
+  }
+  if( brFlags & BRL_LIMIT && nLimit>0 ){
+    blob_append_sql(&sql," LIMIT %d",nLimit);
   }
   db_prepare_blob(pQuery, &sql);
   blob_reset(&sql);
@@ -594,11 +603,14 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **          -p            List only private branches.
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
+**          -h ?N?        Show N recently changed branches (or 5 if N omitted)
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
 **
-**        If GLOB is given, show only branches matching the pattern.
+**        If GLOB is given, show only branches matching the pattern.  With the
+**        -h option set, no GLOB argument is allowed, but an (optional) number
+**        of entries to output.
 **
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
@@ -658,20 +670,29 @@ void branch_cmd(void){
     int vid;
     char *zCurrent = 0;
     const char *zBrNameGlob = 0;
+    int nLimit = 5;
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
     if( find_option("closed","c",0)!=0 ) brFlags = BRL_CLOSED_ONLY;
     if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
     if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
     if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
-    if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
+    if( find_option("h",0,0)!=0 ) brFlags |= BRL_LIMIT;
+    if( (brFlags & BRL_LIMIT)==0 ){
+      if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
+    }else{
+      if( g.argc>4 || g.argc==4 && (nLimit = atoi(g.argv[3]))==0 ){
+        fossil_fatal("only one numeric or no argument allowed following -h");
+      }
+      brFlags |= BRL_ORDERBY_MTIME;
+    }
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_list_query(&q, brFlags, zBrNameGlob);
+    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
@@ -864,7 +885,7 @@ void brlist_page(void){
   style_sidebox_end();
 #endif
 
-  branch_prepare_list_query(&q, brFlags, 0);
+  branch_prepare_list_query(&q, brFlags, 0, 0);
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
