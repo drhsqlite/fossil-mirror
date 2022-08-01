@@ -830,9 +830,11 @@ function TimelineGraph(tx){
 ** likely that other storage APIs are blocked by users for privacy reasons, for
 ** example.
 ** [1]: This feature only works with a normal (text) input field hidden by CSS
-** styles, instead of a true hidden (by type) input field, so may cause side
-** effects, for example with screen readers. Moreover, this feature currently
-** only works with Chrome, but not with FF or IE.
+** styles, instead of a true hidden (by type) input field, but according to MDN,
+** screen readers should ignore it even without an aria-hidden="true" attribute
+** (which is even discouraged for hidden by CSS elements). Also, this feature
+** breaks if disabled[=true] or tabindex="-1" attributes are added to the input
+** field, or (in FF) if page unload handlers are present.
 **
 ** Ideas and TODOs:
 **
