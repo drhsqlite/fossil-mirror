@@ -854,17 +854,16 @@ function TimelineGraph(tx){
       var m = /^m(\d+)$/.exec(id);
       return m!==null ? 'm' + (parseInt(m[1]) + dx) : null;
     }
-    function focusRowinfoEnum(i){
-      var td = document.getElementById('timeline-data-' + i);
-      return td ? JSON.parse(td.textContent || td.innerText) : null;
+    function timelineGetDataBlock(i){
+      var tb = document.getElementById('timeline-data-' + i);
+      return tb ? JSON.parse(tb.textContent || tb.innerText) : null;
     }
-    function focusRowinfoFromId(id){
+    function timelineGetRowInfo(id){
       var ti;
-        for(var i=0; ti=focusRowinfoEnum(i); i++){
-          for( var k=0; k<ti.rowinfo.length; k++ ){
-          if( id=='m' + ti.rowinfo[k].id ) return {
-            'baseurl': ti.baseUrl, 'hash': ti.rowinfo[k].h
-          };
+      for(var i=0; ti=timelineGetDataBlock(i); i++){
+        for( var k=0; k<ti.rowinfo.length; k++ ){
+        if( id=='m' + ti.rowinfo[k].id ) return {
+          'baseurl': ti.baseUrl, 'hash': ti.rowinfo[k].h };
         }
       }
       return null;
@@ -903,9 +902,9 @@ function TimelineGraph(tx){
         kPREV = 77 /* M */,
         kTMLN = 74 /* J */,
         kVIEW = 75 /* K */,
-        kDONE = 76 /* L */;
-        var key = ( evt.which || evt.keyCode )
-                    | evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13;
+        kDONE = 76 /* L */,
+        mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
+        key = ( evt.which || evt.keyCode ) | mod;
       var dx = 0;
       if( key==kPREV ) dx++;
       else if( key==kNEXT ) dx--;
@@ -921,7 +920,7 @@ function TimelineGraph(tx){
       document.cookie = 'fossil_timeline_kbnav=1;path=/';
       var id = kf.value;
       if( id && dx==0 ){
-        var ri = focusRowinfoFromId(id);
+        var ri = timelineGetRowInfo(id);
         if( ri ){
           var page = key==kVIEW ? '/info/' : '/timeline?c=';
           var href = ri.baseurl + page + encodeURIComponent(ri.hash);
