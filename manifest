@@ -1,5 +1,5 @@
-C Corrected\sbroken\slink\sintroduced\sin\sthe\sprevious\scommit\swhich\sworks\sunder\s(fossil\sui)\sbut\snot\son\sthe\slive\sserver\s(due\sto\sthe\saddition\sof\sanother\sURI\spath\selement).
-D 2022-08-02T00:45:45.829
+C Put\sall\ssections\sof\sthe\s/vinfo\spage\s(or\sthe\s/info\spage\sfor\sa\scheck-in)\sinside\nan\saccordion\swidget.
+D 2022-08-02T20:55:10.130
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -409,7 +409,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c c44b1457d797d6441837499a80bc8b8d39a7a9d3bd285b0d6c68fbb7fc13d01c
 F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
-F src/backlink.c f80504dca23ee5b7858ed2696890649a166a3e4e4f21cf8f6e71c013031585fe
+F src/backlink.c ac564de19c77d97cd948f427c695ba83e5758cd385464b4d582070b03c1c2780
 F src/backoffice.c 8adea4679b279e8b697c1ca1810a75ca7f4c48e1ddb384de520b83f0a4819ec7
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 50da7d17a2b7513744d1283489fad3284e15a4f014c17b6477cdf0487decd251
@@ -495,7 +495,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c 29537acefeb9417741cec3d293d5eee1b4005563b3ad2f86e15b458823975f33
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c 4eb467e0f8c43ee19f644786cc80c9b02489af40d770fad79f479d735279400a
+F src/info.c f909f3daf34c62a17230d661ff8103794815e5f204aa18aa3218a38c755558c6
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
 F src/json.c 264c757355a12c4c9efcef77f7f5d0f73dfc93a03f7ebdafbc4caa319e3bbc26
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f3945fc09b5b2c45ab98340c24c3314c8b71fc66ea1f981b61e07d1fa03b914
-R 2815dfdf8c755716eef5729ab9faa858
-U stephan
-Z 0a2faf72a1eb70ad1e5a3aff6941dec8
+P bf0efda7063a8fd682bd5c0b212c5aed1d6bf65a5679078dc203f3d59a306f28
+R fdbe8cd087ca7cc664002b8040bb0abe
+U drh
+Z 0f3d25a76d836ed85fc6777b860d3953
 # Remove this line to create a well-formed Fossil manifest.
