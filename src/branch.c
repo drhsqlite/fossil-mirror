@@ -282,7 +282,6 @@ static void brlist_create_temp_table(void){
 #define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
 #define BRL_REVERSE          0x008 /* Reverse the sort order */
 #define BRL_PRIVATE          0x010 /* Show only private branches */
-#define BRL_LIMIT            0x020 /* Limit entries to specified number */
 
 #endif /* INTERFACE */
 
@@ -292,32 +291,47 @@ static void brlist_create_temp_table(void){
 ** If (which<0) then the query pulls only closed branches. If
 ** (which>0) then the query pulls all (closed and opened)
 ** branches. Else the query pulls currently-opened branches.
+**
+** If the BRL_ORDERBY_MTIME flag is set and nLimitMRU ("Limit Most Recently Used
+** style") is a non-zero number, the result is limited to nLimitMRU entries, and
+** the BRL_REVERSE flag is applied in an outer query after processing the limit,
+** so that it's possible to generate short lists with the most recently modified
+** branches sorted chronologically in either direction, as does the "branch lsh"
+** command.
+** For other cases, the outer query is also generated, but works as a no-op. The
+** code to build the outer query is marked with *//* OUTER QUERY *//* comments.
 */
 void branch_prepare_list_query(
   Stmt *pQuery,
   int brFlags,
   const char *zBrNameGlob,
-  int nLimit
+  int nLimitMRU
 ){
   Blob sql;
   blob_init(&sql, 0, 0);
   brlist_create_temp_table();
+  /* Ignore nLimitMRU if no chronological sort requested. */
+  if( (brFlags & BRL_ORDERBY_MTIME)==0 ) nLimitMRU = 0;
+  /* Undocumented: invert negative values for nLimitMRU, so that command-line
+  ** arguments similar to `head -5' with "option numbers" are possible. */
+  if( nLimitMRU<0 ) nLimitMRU = -nLimitMRU;
+  blob_append_sql(&sql,"SELECT name, isprivate FROM ("); /* OUTER QUERY */
   switch( brFlags & BRL_OPEN_CLOSED_MASK ){
     case BRL_CLOSED_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate FROM tmp_brlist WHERE isclosed"
+        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE isclosed"
       );
       break;
     }
     case BRL_BOTH: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate FROM tmp_brlist WHERE 1"
+        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE 1"
       );
       break;
     }
     case BRL_OPEN_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate FROM tmp_brlist WHERE NOT isclosed"
+        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE NOT isclosed"
       );
       break;
     }
@@ -329,11 +343,15 @@ void branch_prepare_list_query(
   }else{
     blob_append_sql(&sql, " ORDER BY name COLLATE nocase");
   }
-  if( brFlags & BRL_REVERSE ){
+  if( brFlags & BRL_REVERSE && !nLimitMRU ){
     blob_append_sql(&sql," DESC");
   }
-  if( brFlags & BRL_LIMIT && nLimit>0 ){
-    blob_append_sql(&sql," LIMIT %d",nLimit);
+  if( nLimitMRU ){
+    blob_append_sql(&sql," LIMIT %d",nLimitMRU);
+  }
+  blob_append_sql(&sql,")"); /* OUTER QUERY */
+  if( brFlags & BRL_REVERSE && nLimitMRU ){
+    blob_append_sql(&sql," ORDER BY mtime"); /* OUTER QUERY */
   }
   db_prepare_blob(pQuery, &sql);
   blob_reset(&sql);
@@ -596,6 +614,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        Print information about a branch
 **
 ** >  fossil branch list|ls ?OPTIONS? ?GLOB?
+** >  fossil branch lsh ?OPTIONS? ?LIMIT?
 **
 **        List all branches. Options:
 **          -a|--all      List all branches.  Default show only open branches
@@ -603,14 +622,16 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **          -p            List only private branches.
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
-**          -h ?N?        Show N recently changed branches (or 5 if N omitted)
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
 **
-**        If GLOB is given, show only branches matching the pattern.  With the
-**        -h option set, no GLOB argument is allowed, but an (optional) number
-**        of entries to output.
+**        If GLOB is given, show only branches matching the pattern.
+**
+**        The "lsh" variant of this subcommand shows recently changed branches,
+**        and accepts an optional LIMIT argument (defaults to 5) to cap output,
+**        but no GLOB argument.  All other options are supported, with -t being
+**        an implied no-op.
 **
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
@@ -665,26 +686,29 @@ void branch_cmd(void){
         fossil_print("%s: open as of %s on %.16s\n", zBrName, zDate, zUuid);
       }
     }
-  }else if( (strncmp(zCmd,"list",n)==0)||(strncmp(zCmd, "ls", n)==0) ){
+  }else if( strncmp(zCmd,"list",n)==0 ||
+            strncmp(zCmd, "ls", n)==0 ||
+            strcmp(zCmd, "lsh")==0 ){
     Stmt q;
     int vid;
     char *zCurrent = 0;
     const char *zBrNameGlob = 0;
-    int nLimit = 5;
+    int nLimit = 0;
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
     if( find_option("closed","c",0)!=0 ) brFlags = BRL_CLOSED_ONLY;
     if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
     if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
     if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
-    if( find_option("h",0,0)!=0 ) brFlags |= BRL_LIMIT;
-    if( (brFlags & BRL_LIMIT)==0 ){
-      if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
-    }else{
+
+    if( strcmp(zCmd, "lsh")==0 ){
+      nLimit = 5;
       if( g.argc>4 || g.argc==4 && (nLimit = atoi(g.argv[3]))==0 ){
-        fossil_fatal("only one numeric or no argument allowed following -h");
+        fossil_fatal("the lsh subcommand allows one optional numeric argument");
       }
       brFlags |= BRL_ORDERBY_MTIME;
+    }else{
+      if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
     }
 
     if( g.localOpen ){
@@ -726,7 +750,7 @@ void branch_cmd(void){
     branch_cmd_hide(3,0);
   }else{
     fossil_fatal("branch subcommand should be one of: "
-                 "close current hide info list ls new reopen unhide");
+                 "close current hide info list ls lsh new reopen unhide");
   }
 }
 
