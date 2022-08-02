@@ -1,5 +1,5 @@
-C login-group\scommand:\scorrected\shelp\stext\sfor\s'join'\soption\sto\sinclude\sREPO\sand\sextended\scode\sto\sallow\sREPO\sto\soptionally\sbe\spassed\son\sas\s-R\sREPO.\sResolves\sissue\sreported\sin\s[forum:240b6d856a3dd4b5|forum\spost\s240b6d856a3dd4b5].
-D 2022-07-30T20:33:20.618
+C doc\sindex:\sadded\sa\slink\sto\sthe\sRelease\sBuild\sHow-To\swiki\spage,\sper\s[forum:94d62e6758613057|forum\srequest].
+D 2022-08-02T00:42:08.441
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -909,11 +909,11 @@ F www/makefile.wiki 19bd2d5843ee6277253dea41e7a540bc63bf55747a60909d22b24ad58528
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
-F www/mkindex.tcl 696ab10c32cec7eb35fcf4ffe3f6c88e1cbe10b7c34d70c83b15c0ddb78800cc x
+F www/mkindex.tcl bf168ff48a355143ec064c1d3c05234618d2759d1cfd836feb22f365b6823eb6 x
 F www/newrepo.wiki bbc20d277cfb9787824a4fc83cfec571b379e116a7765808d481370793c22611
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
-F www/permutedindex.html 6b12258fef9e865a13bec4dad96bc42f0233066230ff82a42cd736f78886d9e5
+F www/permutedindex.html 9d6f106e0557539aeaabe5113c64e44d39ab877ca7c035a557c555aaf68e2a33
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a27c908f5d89b30eaf82a34e0d881236f252ad424a8e24bff50bc9cc6504739e
-R 73acd07e321b786a1ea18935b44f607b
+P 769a7651e46a6425e9c9b69ac2e346b39bf55249022f3ed7d72a2b9148cca154
+R 221a03c463855474f033a0a0bad21969
 U stephan
-Z 706509522ba802e34ba7ecb77407521f
+Z 5f1e0dd1c0e500a8c6d731dd018666a1
 # Remove this line to create a well-formed Fossil manifest.
