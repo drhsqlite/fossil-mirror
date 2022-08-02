@@ -842,6 +842,8 @@ function TimelineGraph(tx){
 **    key, or with modifiers (SHIFT+N, SHIFT+M)?
 **  o Shortcut to toggle the tick-mark for the focused check-in node.
 **  o Shortcuts to copy branch name or hash of the focused entry to clipboard.
+**  o Shortcut to put the focus indicator to the default item(s), in (cyclic)
+**    order ticked → highlighted → check-out → ticked → ...
 **  o Improve scrolling the focused element into view for browsers without the
 **    Element.scrollIntoViewIfNeeded() function, maybe with a Polyfill, or
 **    something similar to the scrollToSelected() function in this source file.
