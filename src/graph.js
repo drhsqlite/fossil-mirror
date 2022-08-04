@@ -950,7 +950,7 @@ function TimelineGraph(tx){
         kCPYB = mSHIFT | 66 /* SHIFT+B */,
         kTMLN = 74 /* J */,
         kVIEW = 75 /* K */,
-        kDONE = 76 /* L */,
+        kDONE = 27 /* ESC */,
         mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
         key = ( evt.which || evt.keyCode ) | mod;
       var dx = 0;
