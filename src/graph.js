@@ -891,15 +891,26 @@ function TimelineGraph(tx){
       }
       return false;
     }
-    var kf = document.getElementById('timeline-kbfocus');
-    if( !kf ){
-      kf = document.createElement('input');
-      kf.type = 'text';
-      kf.style.display = 'none';
-      kf.style.visibility = 'hidden';
-      kf.id = 'timeline-kbfocus';
-      document.body.appendChild(kf);
+    function focusCacheInit(){
+      var e = document.getElementById('timeline-kbfocus');
+      if( !e ){
+        e = document.createElement('input');
+        e.type = 'text';
+        e.style.display = 'none';
+        e.style.visibility = 'hidden';
+        e.id = 'timeline-kbfocus';
+        document.body.appendChild(e);
+      }
     }
+    function focusCacheGet(){
+      var e = document.getElementById('timeline-kbfocus');
+      return e ? e.value : null;
+    }
+    function focusCacheSet(v){
+      var e = document.getElementById('timeline-kbfocus');
+      if( e ) e.value = v;
+    }
+    focusCacheInit();
     document.addEventListener('keydown',function(evt){
       if( evt.target.tagName=='INPUT' ) return;
       var
@@ -914,16 +925,15 @@ function TimelineGraph(tx){
       if( key==kPREV ) dx++;
       else if( key==kNEXT ) dx--;
       else if( key!=kTMLN && key!=kVIEW && key!=kDONE ) return;
-      var kf = document.getElementById('timeline-kbfocus');
       if( key==kDONE ){
-        kf.value = '';
+        focusCacheSet(null);
         focusVisualize(null,false);
         document.cookie =
           'fossil_timeline_kbnav=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
         return;
       }
       document.cookie = 'fossil_timeline_kbnav=1;path=/';
-      var id = kf.value;
+      var id = focusCacheGet();
       if( id && dx==0 ){
         var ri = timelineGetRowInfo(id);
         if( ri ){
@@ -945,17 +955,15 @@ function TimelineGraph(tx){
         }
       }
       else if ( !id ) id = focusDefaultId();
-      kf.value = id;
+      focusCacheSet(id);
       focusVisualize(id,true);
     }/*,true*/);
     window.addEventListener('pageshow',function(evt){
-      var id;
-      var kf = document.getElementById('timeline-kbfocus');
-      if( kf ) id = kf.value;
+      var id = focusCacheGet();
       if( !id || !focusVisualize(id,false) ){
         if( document.cookie.match(/fossil_timeline_kbnav=1/) ){
           id = focusDefaultId();
-          kf.value = id;
+          focusCacheSet(id);
           focusVisualize(id,false);
         }
       }
