@@ -851,12 +851,19 @@ function TimelineGraph(tx){
 (function(){
   window.addEventListener('load',function(){
     function focusDefaultId(){
-      var tn = document.querySelector('.timelineSelected .tl-nodemark') ||
-                document.querySelector('.timelineCurrent .tl-nodemark');
+      var tn = document.querySelector(
+                '.timelineSelected:not(.timelineSecondary) .tl-nodemark')
+                || document.querySelector('.timelineSelected .tl-nodemark')
+                || document.querySelector('.timelineCurrent .tl-nodemark');
       return tn ? tn.id : 'm1';
     }
     function focusSelectedId(){
-      var tn = document.querySelector('.timelineSelected .tl-nodemark');
+      var tn = document.querySelector(
+                '.timelineSelected:not(.timelineSecondary) .tl-nodemark');
+      return tn ? tn.id : null;
+    }
+    function focus2ndSelectedId(){
+      var tn = document.querySelector('.timelineSecondary .tl-nodemark');
       return tn ? tn.id : null;
     }
     function focusCurrentId(){
@@ -1001,12 +1008,14 @@ function TimelineGraph(tx){
       if( id && dx==0 ){
         if( key==kCYCL ){
           var sel = focusSelectedId();
+          var sl2 = focus2ndSelectedId();
           var cur = focusCurrentId();
           var tik = focusTickedId();
-          if( id==sel ) id = cur || tik || sel;
-          else if( id==cur ) id = tik || sel || cur;
-          else if( id==tik ) id = sel || cur || tik;
-          else id = sel || cur || tik || id;
+          if( id==sel ) id = sl2 || cur || tik || sel;
+          else if( id==sl2 ) id = cur || tik || sel || sl2;
+          else if( id==cur ) id = tik || sel || sl2 || cur;
+          else if( id==tik ) id = sel || sl2 || cur || tik;
+          else id = sel || sl2 || cur || tik || id;
         }
         else if( key==kTICK ){
           var gn = document.getElementById('tln'+id.slice(1));
