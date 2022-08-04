@@ -2129,12 +2129,13 @@ void login_group_leave(char **pzErrMsg){
 **
 **     Show the login-group to which the repository belongs.
 **
-** >  fossil login-group join ?--name NAME?
+** >  fossil login-group join REPO ?--name NAME?
 **
 **     Add this repository to login group to which REPO belongs, or creates a
 **     new login group between itself and REPO if REPO does not already belong
 **     to a login-group.  When creating a new login-group, the name of the new
-**     group is determined by the "--name" option.
+**     group is determined by the "--name" option. REPO may optionally be
+**     specified using the -R REPO flag.
 **
 ** >  fossil login-group leave
 **
@@ -2165,13 +2166,13 @@ void login_group_command(void){
     nCmd = (int)strlen(zCmd);
     if( strncmp(zCmd,"join",nCmd)==0 && nCmd>=1 ){
       const char *zNewName = find_option("name",0,1);
-      const char *zOther;
+      const char *zOther = g.zRepositoryOption
+        ? g.zRepositoryOption : (g.argc>3 ? g.argv[3] : 0);
       char *zErr = 0;
       verify_all_options();
-      if( g.argc!=4 ){
-        fossil_fatal("unknown extra arguments to \"login-group join\"");
+      if( g.zRepositoryOption ? g.argc!=3 : g.argc!=4 ){
+        fossil_fatal("unexpected argument count for \"login-group join\"");
       }
-      zOther = g.argv[3];
       login_group_leave(&zErr);
       sqlite3_free(zErr);
       zErr = 0;
