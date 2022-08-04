@@ -1,5 +1,5 @@
-C Comment\sand\sTODO\supdates.
-D 2022-08-04T06:14:00.000
+C Experimental\schange\sto\sscroll\sthe\sfocused\sentry\sinto\sview\swith\sa\sFossil-style\sscrolling\sfunction\sto\skeep\sthe\sentry\scentered\svertically.\sThis\sis\smuch\sbetter\sthan\s`Element.scrollIntoView()'\sfor\sFF\s(but\smaybe\sa\smatter\sof\stweaking\sthe\sfunction\sarguments).\sKudos\sto\sthe\swiz\swho\sprogrammed\sthe\s`scrollToSelected()'\sfunction!
+D 2022-08-04T06:57:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -484,7 +484,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js 1da80e885390dcd4c6cd144fdc93ae469471db47aae3b8bc08d0dc6a83066d3f
+F src/graph.js d16cab97d0dbe79a328ca5d857ce1e2c75627bf153f613f1da32ffc0ac81559e
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0c024627dc03fc23fce442aa6089fcf8e87f8a18bea2f2f4bb31809b4995bf8d
-R 5237f4857eb7c27d434fe3f1328663b1
+P ec8b53a9bc6490c666e17676e73834711ffd0658aa6bdd73567649b4553b6330
+R 55b431384e33b15e75c838448fc7f521
 U florian
-Z f84f42d75ab42b493905ce128231fed0
+Z c76bef656f51ed11364fbac23e7df856
 # Remove this line to create a well-formed Fossil manifest.

@@ -908,6 +908,14 @@ function TimelineGraph(tx){
       }
       return null;
     }
+    function focusScrollToIntoViewTheFossilWay(e){
+      var y = 0;
+      do{
+        y += e.offsetTop;
+      }while( e = e.offsetParent );
+      y -= window.innerHeight/2;
+      if( y>0 ) window.scrollTo(0,y);
+    }
     function focusVisualize(id,scroll){
       var td = document.querySelector('.timelineFocused');
       if( td ) td.classList.remove('timelineFocused');
@@ -918,8 +926,9 @@ function TimelineGraph(tx){
         if( td ) {
           td.classList.add('timelineFocused');
           if( scroll ){
-            if( td.scrollIntoViewIfNeeded ) td.scrollIntoViewIfNeeded();
-            else td.scrollIntoView(false);
+            focusScrollToIntoViewTheFossilWay(td);
+            //if( td.scrollIntoViewIfNeeded ) td.scrollIntoViewIfNeeded();
+            //else td.scrollIntoView(false);
           }
           return true;
         }
