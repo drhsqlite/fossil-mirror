@@ -1,5 +1,5 @@
-C Experimental\schange\sto\sscroll\sthe\sfocused\sentry\sinto\sview\swith\sa\sFossil-style\sscrolling\sfunction\sto\skeep\sthe\sentry\scentered\svertically.\sThis\sis\smuch\sbetter\sthan\s`Element.scrollIntoView()'\sfor\sFF\s(but\smaybe\sa\smatter\sof\stweaking\sthe\sfunction\sarguments).\sKudos\sto\sthe\swiz\swho\sprogrammed\sthe\s`scrollToSelected()'\sfunction!
-D 2022-08-04T06:57:00.000
+C Try\sto\sfix\sthe\sfocus\sindicator\sCSS\sto\swork\sfor\sall\sskins:\salpha-blending\s"10%\sblack"\swith\slight-mode\sbackground\scolors,\sor\s"20%\swhite"\swith\sdark-mode\sbackground\scolors,\slooks\ssurprisingly\swell\sand\sconflicts\sless\swith\sbranch\scolors\s(which\scan\sbe\sorange-ish,\sbut\snever\sblack\sor\swhite).\sNote\sthat\sthe\sdark-mode\sskins\sArdoise,\sDark\sMode\sand\sXekri\s(but\snot\sEagle)\srequire\sthe\spreviously\sremoved\s!important\sdirective.\sIt\\'s\sstill\spossible\sfor\sskins\sto\soverwrite\sthe\sfocus\sindicator\sCSS\swhen\sduplicating\sthe\s!important\sdirective.
+D 2022-08-04T11:42:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -308,7 +308,7 @@ F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 6b83527a4bc17ad7f855dbdfb7d5d1e456fb77e9b0c8f9b63bdf2c4faa74003c
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt d01376b825fb58bea8399662b232fe08dc39bbac9a12bd27005cfe7581814c63
+F skins/ardoise/css.txt 66862472ce087798e33ed87327016e90887761c5558f3f1ca828c64641919d70
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
 F skins/ardoise/footer.txt 3158faf0fe96034417cac8a4e210aaa2d79094cf108db8a7546c6be4ba037e22
 F skins/ardoise/header.txt 164e896364d9603946e3f0a055413b8502e689bbb09ba839abd8abf9d4c29e23
@@ -366,7 +366,7 @@ F skins/bootstrap/css.txt e196e8a3fd98e7c4877a64a5d332867261f83332be791e972ba554
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 7e02dfdcc09bf622744011d460d2422b8cead4687b66f753519e9a75b93db8ca
 F skins/bootstrap/header.txt ba52ec8100c2c05be73863d8b35b5d322b21fa53acfcb236b661219fd0c8487f
-F skins/darkmode/css.txt e4c057b334166eb4e9a2f07bec4a1094932f1a3fe0ff064427158b45c95d8ffd
+F skins/darkmode/css.txt b6755fb3fab291efcb70cab0905433db6fe14f8d7f50b35b3b568510a40a6c55
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
@@ -376,7 +376,7 @@ F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 9919fc591a630e1919e6827341c877ccf2e54092a58a7f352ff747f5f55a48e0
+F skins/eagle/css.txt 371b8281a047d584c37e6eff060b0d64a2c582bf6c3153317be9944bc29ac561
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 1cc12e949701ca75072c0357364891fb911a9b6720ccbbaa2dac823f15611a2e
@@ -393,7 +393,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt d84f9196b9f9dd07c08578ec5e84381fbc7d05b725a87537f35913e4794ada2e
+F skins/xekri/css.txt 7badc17dc6ba3f7504658abb78f6fb164fc6be3a441274ed1cfb49db2234b004
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt e75e1af0572c2cfe44e3882d18e0f71aac5fecc504b9a193205c9b7dbaaa56da
@@ -437,7 +437,7 @@ F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 82e761a8b2be6586a1077efccd16b08961cc261a51eb9eaf298bb00fd9df6c02
-F src/default.css e2911454beee2bd83a4034269966740107e0a8d8c593cdc8ef7c619afd32791a
+F src/default.css 73b60721cc97ad9ba7dd0bf3719c3197d5e90fd7b784fcad529ae4f56e11e15c
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec8b53a9bc6490c666e17676e73834711ffd0658aa6bdd73567649b4553b6330
-R 55b431384e33b15e75c838448fc7f521
+P ad3a8e0b87ea716f416daa0719ad161c151eb02f7403161cc0930fa9df1c5548
+R 7e64fe814d49ff2da3f76cd967624a37
 U florian
-Z c76bef656f51ed11364fbac23e7df856
+Z fb53595aa956b28a65530497d2379e85
 # Remove this line to create a well-formed Fossil manifest.
