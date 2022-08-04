@@ -808,11 +808,11 @@ function TimelineGraph(tx){
 ** M - Select previous (older) entry.
 ** J - View timeline of selected entry.
 ** K - View details of selected entry.
-** L - Disable keyboard navigation mode.
+** ESC - Disable keyboard navigation mode.
 **
 ** When navigating to a page with a timeline display, such as /timeline, /info,
 ** or /finfo, keyboard navigation mode needs to be "activated" first, i.e. if no
-** timeline entry is focused yet, pressing any of the listed keys (except L)
+** timeline entry is focused yet, pressing any of the listed keys (except ESC)
 ** sets the visual focus indicator to the highlighted or current (check-out)
 ** entry if available, or to the topmost entry otherwise. A session cookie[0] is
 ** used to direct pages loaded in the future to enable keyboard navigation mode
@@ -838,12 +838,15 @@ function TimelineGraph(tx){
 **
 ** Ideas and TODOs:
 **
-**  o Shortcut to select the topmost or bottommost entry, either by separate
-**    key, or with modifiers (SHIFT+N, SHIFT+M)?
-**  o Shortcut to toggle the tick-mark for the focused check-in node.
-**  o Shortcuts to copy branch name or hash of the focused entry to clipboard.
-**  o Shortcut to put the focus indicator to the default item(s), in (cyclic)
-**    order ticked → highlighted → check-out → ticked → ...
+**  o kTMLN: ensure the correct page is opened when used from /finfo (it seems
+**    the tooltip also gets this "wrong", but maybe that's acceptable, because
+**    in order to be able to construct /file URLs, the information provided by
+**    the timeline-data-N blocks would have to be extended).
+**  o kFRST, kLAST: check if the previous/next page should be opened if focus is
+**    already at the top/bottom.
+**  o Tweak the focus indicator background color and opacity to be suitable for
+**    the light-background skins, and override it for the dark-background skins
+**    (Ardoise, Dark Mode, Eagle, Xekri).
 **  o Improve scrolling the focused element into view for browsers without the
 **    Element.scrollIntoViewIfNeeded() function, maybe with a Polyfill, or
 **    something similar to the scrollToSelected() function in this source file.
