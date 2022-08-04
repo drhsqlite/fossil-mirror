@@ -929,6 +929,7 @@ function TimelineGraph(tx){
         kNEXT = 78 /* N */,
         kPREV = 77 /* M */,
         kLAST = mSHIFT | 77 /* SHIFT+M */,
+        kTICK = 188 /* , */,
         kTMLN = 74 /* J */,
         kVIEW = 75 /* K */,
         kDONE = 76 /* L */,
@@ -940,6 +941,7 @@ function TimelineGraph(tx){
         case kNEXT: dx = -1; break;
         case kPREV: dx = +1; break;
         case kLAST: dx = +2; break;
+        case kTICK: break;
         case kTMLN: break;
         case kVIEW: break;
         case kDONE: break;
@@ -955,13 +957,19 @@ function TimelineGraph(tx){
       document.cookie = 'fossil_timeline_kbnav=1;path=/';
       var id = focusCacheGet();
       if( id && dx==0 ){
-        var ri = timelineGetRowInfo(id);
-        if( ri ){
-          var page = key==kVIEW ? '/info/' : '/timeline?c=';
-          var href = ri.baseurl + page + encodeURIComponent(ri.hash);
-          if( href!=location.href.slice(-href.length) ){
-            location.href = href;
-            return;
+        if( key==kTICK ){
+          var gn = document.getElementById('tln'+id.slice(1));
+          if( gn ) gn.click();
+        }
+        else/* if( key==kTMLN || key==kVIEW )*/{
+          var ri = timelineGetRowInfo(id);
+          if( ri ){
+            var page = key==kVIEW ? '/info/' : '/timeline?c=';
+            var href = ri.baseurl + page + encodeURIComponent(ri.hash);
+            if( href!=location.href.slice(-href.length) ){
+              location.href = href;
+              return;
+            }
           }
         }
       }
