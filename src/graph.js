@@ -855,6 +855,18 @@ function TimelineGraph(tx){
                 document.querySelector('.timelineCurrent .tl-nodemark');
       return tn ? tn.id : 'm1';
     }
+    function focusSelectedId(){
+      var tn = document.querySelector('.timelineSelected .tl-nodemark');
+      return tn ? tn.id : null;
+    }
+    function focusCurrentId(){
+      var tn = document.querySelector('.timelineCurrent .tl-nodemark');
+      return tn ? tn.id : null;
+    }
+    function focusTickedId(){
+      var nd = document.querySelector('.tl-node.sel');
+      return nd ? 'm' + nd.id.slice(3) : null;
+    }
     function focusFirstId(id){
       return 'm1';
     }
@@ -932,6 +944,7 @@ function TimelineGraph(tx){
         kNEXT = 78 /* N */,
         kPREV = 77 /* M */,
         kLAST = mSHIFT | 77 /* SHIFT+M */,
+        kCYCL = 72 /* H */,
         kTICK = 188 /* , */,
         kCPYH = 66 /* B */,
         kCPYB = mSHIFT | 66 /* SHIFT+B */,
@@ -946,6 +959,7 @@ function TimelineGraph(tx){
         case kNEXT: dx = -1; break;
         case kPREV: dx = +1; break;
         case kLAST: dx = +2; break;
+        case kCYCL: break;
         case kTICK: break;
         case kCPYH: break;
         case kCPYB: break;
@@ -964,7 +978,16 @@ function TimelineGraph(tx){
       document.cookie = 'fossil_timeline_kbnav=1;path=/';
       var id = focusCacheGet();
       if( id && dx==0 ){
-        if( key==kTICK ){
+        if( key==kCYCL ){
+          var sel = focusSelectedId();
+          var cur = focusCurrentId();
+          var tik = focusTickedId();
+          if( id==sel ) id = cur || tik || sel;
+          else if( id==cur ) id = tik || sel || cur;
+          else if( id==tik ) id = sel || cur || tik;
+          else id = sel || cur || tik || id;
+        }
+        else if( key==kTICK ){
           var gn = document.getElementById('tln'+id.slice(1));
           if( gn ) gn.click();
         }

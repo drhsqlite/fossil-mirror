@@ -1,5 +1,5 @@
-C Shortcuts\sB\sand\sSHIFT+B\stop\scopy\sthe\shash\sor\sbranch\sname\sof\sthe\sfocused\sentry\sto\sclipboard.
-D 2022-08-04T03:51:00.000
+C Shortcut\sH\sto\shop\sbetween\sthe\sselected,\scurrent\s(check-out)\sand\sticked\sentries.
+D 2022-08-04T03:57:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -484,7 +484,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js 4a86b04abbb47e4da2be44ce482ebe530b077a2b3e4ca9a434a849f54cb0f9a0
+F src/graph.js 570ff0eba121144b7c2fd0345856f40483df95559de308519c65ccdf63652307
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15f943f0c2f062c676e14fc37381e0f5ec544a9d04b2b9c0dfd64cc8e53f0c5e
-R b81193584753e8b4ce250fe3628fd250
+P f23a6d13a2d4cc6fdbbdf6f7f775cf621388ac3577da3a9498cb17870bc46b88
+R 696f7b9c0e9b617af8c2e09843d62ff2
 U florian
-Z 663dede312611187a670a0d8ab9e795d
+Z 22ac4526ff06ba0485e018205a20fc00
 # Remove this line to create a well-formed Fossil manifest.
