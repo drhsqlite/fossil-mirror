@@ -1629,6 +1629,21 @@ const char *timeline_expand_datetime(const char *zIn){
 **
 ** CHECKIN or TIMEORTAG can be a check-in hash prefix, or a tag, or the
 ** name of a branch.
+**
+** Keyboard navigation shortcuts:
+**
+**    N     Focus first (newest) entry.
+**    n     Focus next (newer) entry, or open next page.
+**    m     Focus previous (older) entry, or open previous page.
+**    M     Focus last (oldest) entry.
+**    h     Move focus between selected, current (check-out) and ticked entries.
+**    ,     Tick/untick the node of the focused entry.
+**    ;     Untick the nodes of all entries.
+**    b     Copy the commit hash of the focused entry to clipboard.
+**    B     Copy the branch name of the focused entry to clipboard.
+**    j     View timeline of focused entry.
+**    k     View details of focused entry.
+**    ESC   Disable keyboard navigation mode.
 */
 void page_timeline(void){
   Stmt q;                            /* Query used to generate the timeline */
