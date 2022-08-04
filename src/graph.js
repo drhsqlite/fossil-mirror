@@ -855,7 +855,17 @@ function TimelineGraph(tx){
                 document.querySelector('.timelineCurrent .tl-nodemark');
       return tn ? tn.id : 'm1';
     }
+    function focusFirstId(id){
+      return 'm1';
+    }
+    function focusLastId(id){
+      var el = document.getElementsByClassName('tl-nodemark');
+      var tn = el ? el[el.length-1] : null;
+      return tn ? tn.id : id;
+    }
     function focusNextId(id,dx){
+      if( dx<-1 ) return focusFirstId(id);
+      if( dx>+1 ) return focusLastId(id);
       var m = /^m(\d+)$/.exec(id);
       return m!==null ? 'm' + (parseInt(m[1]) + dx) : null;
     }
@@ -914,17 +924,27 @@ function TimelineGraph(tx){
     document.addEventListener('keydown',function(evt){
       if( evt.target.tagName=='INPUT' ) return;
       var
+        mSHIFT = 1<<13,
+        kFRST = mSHIFT | 78 /* SHIFT+N */,
         kNEXT = 78 /* N */,
         kPREV = 77 /* M */,
+        kLAST = mSHIFT | 77 /* SHIFT+M */,
         kTMLN = 74 /* J */,
         kVIEW = 75 /* K */,
         kDONE = 76 /* L */,
         mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
         key = ( evt.which || evt.keyCode ) | mod;
       var dx = 0;
-      if( key==kPREV ) dx++;
-      else if( key==kNEXT ) dx--;
-      else if( key!=kTMLN && key!=kVIEW && key!=kDONE ) return;
+      switch( key ){
+        case kFRST: dx = -2; break;
+        case kNEXT: dx = -1; break;
+        case kPREV: dx = +1; break;
+        case kLAST: dx = +2; break;
+        case kTMLN: break;
+        case kVIEW: break;
+        case kDONE: break;
+        default: return;
+      }
       if( key==kDONE ){
         focusCacheSet(null);
         focusVisualize(null,false);
