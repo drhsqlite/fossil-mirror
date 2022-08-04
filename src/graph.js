@@ -946,6 +946,7 @@ function TimelineGraph(tx){
         kLAST = mSHIFT | 77 /* SHIFT+M */,
         kCYCL = 72 /* H */,
         kTICK = 188 /* , */,
+        kUNTK = mSHIFT | 188 /* , */,
         kCPYH = 66 /* B */,
         kCPYB = mSHIFT | 66 /* SHIFT+B */,
         kTMLN = 74 /* J */,
@@ -961,6 +962,7 @@ function TimelineGraph(tx){
         case kLAST: dx = +2; break;
         case kCYCL: break;
         case kTICK: break;
+        case kUNTK: break;
         case kCPYH: break;
         case kCPYB: break;
         case kTMLN: break;
@@ -990,6 +992,13 @@ function TimelineGraph(tx){
         else if( key==kTICK ){
           var gn = document.getElementById('tln'+id.slice(1));
           if( gn ) gn.click();
+        }
+        else if( key==kUNTK ){
+          var tid = focusTickedId();
+          if( tid ){
+            var gn = document.getElementById('tln'+tid.slice(1));
+            if( gn ) gn.click();
+          }
         }
         else if( key==kCPYH || key==kCPYB ){
           var ri = timelineGetRowInfo(id);
