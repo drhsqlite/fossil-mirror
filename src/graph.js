@@ -913,8 +913,7 @@ function TimelineGraph(tx){
       do{
         y += e.offsetTop;
       }while( e = e.offsetParent );
-      y -= window.innerHeight/2;
-      if( y>0 ) window.scrollTo(0,y);
+      window.scrollTo(0,y-window.innerHeight/2);
     }
     function focusVisualize(id,scroll){
       var td = document.querySelector('.timelineFocused');
