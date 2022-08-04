@@ -970,7 +970,26 @@ function TimelineGraph(tx){
         case kDONE: break;
         default: return;
       }
-      if( key==kDONE ){
+      if( key==kUNTK ){
+        var tid = focusTickedId();
+        if( tid ){
+          var gn = document.getElementById('tln'+tid.slice(1));
+          if( gn ) gn.click();
+        }
+        return;
+      }
+      else if( key==kCPYH || key==kCPYB ){
+        var fid = focusCacheGet();
+        if( fid ){
+          var ri = timelineGetRowInfo(fid);
+          if( ri ){
+            copyTextToClipboard(
+              key==kCPYH ? ri.hash.slice(0,ri.hashdigits) : ri.branch);
+          }
+        }
+        return;
+      }
+      else if( key==kDONE ){
         focusCacheSet(null);
         focusVisualize(null,false);
         document.cookie =
@@ -992,20 +1011,6 @@ function TimelineGraph(tx){
         else if( key==kTICK ){
           var gn = document.getElementById('tln'+id.slice(1));
           if( gn ) gn.click();
-        }
-        else if( key==kUNTK ){
-          var tid = focusTickedId();
-          if( tid ){
-            var gn = document.getElementById('tln'+tid.slice(1));
-            if( gn ) gn.click();
-          }
-        }
-        else if( key==kCPYH || key==kCPYB ){
-          var ri = timelineGetRowInfo(id);
-          if( ri ){
-            copyTextToClipboard(
-              key==kCPYH ? ri.hash.slice(0,ri.hashdigits) : ri.branch);
-          }
         }
         else/* if( key==kTMLN || key==kVIEW )*/{
           var ri = timelineGetRowInfo(id);
