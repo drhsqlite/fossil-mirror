@@ -804,11 +804,7 @@ function TimelineGraph(tx){
 /*
 ** Timeline keyboard navigation shortcuts:
 **
-** N - Select next (newer) entry.
-** M - Select previous (older) entry.
-** J - View timeline of selected entry.
-** K - View details of selected entry.
-** ESC - Disable keyboard navigation mode.
+** ### NOTE: The keyboard shortcuts are listed in /timeline help text. ###
 **
 ** When navigating to a page with a timeline display, such as /timeline, /info,
 ** or /finfo, keyboard navigation mode needs to be "activated" first, i.e. if no
@@ -844,9 +840,6 @@ function TimelineGraph(tx){
 **    the timeline-data-N blocks would have to be extended).
 **  o kFRST, kLAST: check if the previous/next page should be opened if focus is
 **    already at the top/bottom.
-**  o Tweak the focus indicator background color and opacity to be suitable for
-**    the light-background skins, and override it for the dark-background skins
-**    (Ardoise, Dark Mode, Eagle, Xekri).
 **  o Improve scrolling the focused element into view for browsers without the
 **    Element.scrollIntoViewIfNeeded() function, maybe with a Polyfill, or
 **    something similar to the scrollToSelected() function in this source file.
@@ -899,12 +892,13 @@ function TimelineGraph(tx){
       var ti;
       for(var i=0; ti=timelineGetDataBlock(i); i++){
         for( var k=0; k<ti.rowinfo.length; k++ ){
-        if( id=='m' + ti.rowinfo[k].id ) return {
-          'baseurl': ti.baseUrl,
-          'filediff': ti.fileDiff,
-          'hashdigits': ti.hashDigits,
-          'hash': ti.rowinfo[k].h,
-          'branch': ti.rowinfo[k].br };
+          if( id=='m' + ti.rowinfo[k].id ) return {
+            'baseurl': ti.baseUrl,
+            'filediff': ti.fileDiff,
+            'hashdigits': ti.hashDigits,
+            'hash': ti.rowinfo[k].h,
+            'branch': ti.rowinfo[k].br
+          };
         }
       }
       return null;
@@ -980,14 +974,14 @@ function TimelineGraph(tx){
         case kNEXT: dx = -1; break;
         case kPREV: dx = +1; break;
         case kLAST: dx = +2; break;
-        case kCYCL: break;
-        case kTICK: break;
-        case kUNTK: break;
-        case kCPYH: break;
-        case kCPYB: break;
-        case kTMLN: break;
-        case kTMLB: break;
-        case kVIEW: break;
+        case kCYCL:
+        case kTICK:
+        case kUNTK:
+        case kCPYH:
+        case kCPYB:
+        case kTMLN:
+        case kTMLB:
+        case kVIEW:
         case kDONE: break;
         default: return;
       }
@@ -1043,7 +1037,7 @@ function TimelineGraph(tx){
             var page;
             switch( key ){
               case kTMLN:
-                page = '/timeline?m&c=' + hh;
+                page = '/timeline' + ( ri.filediff ? '?m&cf=' : '?m&c=' ) + hh;
                 break;
               case kTMLB:
                 page = '/timeline?r=' + br +

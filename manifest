@@ -1,5 +1,5 @@
-C Shortcut\sSHIFT+J\sto\sview\sthe\stimeline\sof\sthe\sfocused\sentry\sfiltered\sby\sbranch.\sAdd\sthe\s'm'\squery\sparameter\sto\s/timeline\slinks.
-D 2022-08-05T06:22:00.000
+C Also\sfix\sURLs\sfor\snon-filtered\s/timeline\slinks\sopened\sfrom\s/finfo\spages,\splus\ssome\scode\sand\scomment\scleanups.
+D 2022-08-05T06:39:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -484,7 +484,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js 135c254c4ec43b778dcdecc3d36cbc4c0a3647206df876e972e71e558853d427
+F src/graph.js c7833314c4e0d8793979210a1cbf960653da38e41a6c65656234107ccb671fc5
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fff09df34ff57b8d0c95c6b3910646adde05376d23e3537de0217257692e2fd2
-R 5cbbd3b9cd08f832238de7820e2265b0
+P 7bbd1b99183068b04c9344ed6646f3ed11875f50de4eba4d7803dde3f5e4f3de
+R 946e0e144ad5290515411d3bdf13e569
 U florian
-Z c78b96b1ea45d9c4e4fe4456efb637f6
+Z 709cc7cf4e733489f95a8393bab18311
 # Remove this line to create a well-formed Fossil manifest.
