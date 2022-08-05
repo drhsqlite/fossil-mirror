@@ -21,14 +21,18 @@ for(var i=0; i<a.length; i++){
   img.src = acc_svgdata[0]+acc_svgdata[3]+acc_svgdata[1];
   img.className = "accordion_btn accordion_btn_minus";
   a[i].insertBefore(img,a[i].firstChild);
-  var p = a[i].nextElementSibling;
-  p.style.maxHeight = p.scrollHeight + "px";
   a[i].addEventListener("click",function(){
     var x = this.nextElementSibling;
     if( this.classList.contains("accordion_closed") ){
       x.style.maxHeight = x.scrollHeight + "px";
+      setTimeout(function(){
+        this.style.maxHeight = "";
+      }.bind(x),250); // default.css: .accordion_panel { transition-duration }
     }else{
-      x.style.maxHeight = "0";
+      x.style.maxHeight = x.scrollHeight + "px";
+      setTimeout(function(){
+        x.style.maxHeight = "0";
+      }.bind(x),1);
     }
     this.classList.toggle("accordion_closed");
   });

@@ -880,7 +880,8 @@ void ci_page(void){
        "<div class=\"section accordion\">References</div>\n");
   @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
-  @ </div><div class="section">Changes</div>
+  @ </div><div class="section accordion">Changes</div>
+  @ <div class="accordion_panel">
   @ <div class="sectionmenu">
   pCfg = construct_diff_flags(diffType, &DCfg);
   DCfg.pRe = pRe;  
@@ -941,6 +942,7 @@ void ci_page(void){
                             pCfg,mperm);
   }
   db_finalize(&q3);
+  @ </div>
   append_diff_javascript(diffType);
   style_finish_page();
 }
