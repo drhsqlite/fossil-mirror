@@ -901,6 +901,7 @@ function TimelineGraph(tx){
         for( var k=0; k<ti.rowinfo.length; k++ ){
         if( id=='m' + ti.rowinfo[k].id ) return {
           'baseurl': ti.baseUrl,
+          'filediff': ti.fileDiff,
           'hashdigits': ti.hashDigits,
           'hash': ti.rowinfo[k].h,
           'branch': ti.rowinfo[k].br };
@@ -968,6 +969,7 @@ function TimelineGraph(tx){
         kCPYH = 66 /* B */,
         kCPYB = mSHIFT | 66 /* SHIFT+B */,
         kTMLN = 74 /* J */,
+        kTMLB = mSHIFT | 74 /* J */,
         kVIEW = 75 /* K */,
         kDONE = 27 /* ESC */,
         mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
@@ -984,6 +986,7 @@ function TimelineGraph(tx){
         case kCPYH: break;
         case kCPYB: break;
         case kTMLN: break;
+        case kTMLB: break;
         case kVIEW: break;
         case kDONE: break;
         default: return;
@@ -1032,11 +1035,25 @@ function TimelineGraph(tx){
           var gn = document.getElementById('tln'+id.slice(1));
           if( gn ) gn.click();
         }
-        else/* if( key==kTMLN || key==kVIEW )*/{
+        else/* if( key==kTMLN || key==kTMLB || key==kVIEW )*/{
           var ri = timelineGetRowInfo(id);
           if( ri ){
-            var page = key==kVIEW ? '/info/' : '/timeline?c=';
-            var href = ri.baseurl + page + encodeURIComponent(ri.hash);
+            var hh = encodeURIComponent(ri.hash.slice(0,ri.hashdigits));
+            var br = encodeURIComponent(ri.branch);
+            var page;
+            switch( key ){
+              case kTMLN:
+                page = '/timeline?m&c=' + hh;
+                break;
+              case kTMLB:
+                page = '/timeline?r=' + br +
+                  ( ri.filediff ? '&m&cf=' : '&m&c=' ) + hh;
+                break;
+              case kVIEW:
+                page = '/info/' + hh;
+                break;
+            }
+            var href = ri.baseurl + page;
             if( href!=location.href.slice(-href.length) ){
               location.href = href;
               return;

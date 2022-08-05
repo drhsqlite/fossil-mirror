@@ -1642,6 +1642,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    b     Copy the commit hash of the focused entry to clipboard.
 **    B     Copy the branch name of the focused entry to clipboard.
 **    j     View timeline of focused entry.
+**    J     View timeline of focused entry filtered by branch.
 **    k     View details of focused entry.
 **    ESC   Disable keyboard navigation mode.
 */
