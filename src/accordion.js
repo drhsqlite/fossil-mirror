@@ -26,13 +26,13 @@ for(var i=0; i<a.length; i++){
     if( this.classList.contains("accordion_closed") ){
       x.style.maxHeight = x.scrollHeight + "px";
       setTimeout(function(){
-        this.style.maxHeight = "";
-      }.bind(x),250); // default.css: .accordion_panel { transition-duration }
+        x.style.maxHeight = "";
+      },250); // default.css: .accordion_panel { transition-duration }
     }else{
       x.style.maxHeight = x.scrollHeight + "px";
       setTimeout(function(){
         x.style.maxHeight = "0";
-      }.bind(x),1);
+      },1);
     }
     this.classList.toggle("accordion_closed");
   });
