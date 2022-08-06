@@ -315,12 +315,12 @@ the easiest way to build a purely static Fossil binary for Linux. Most
 modern Linux distros make this surprisingly difficult, but Alpine's
 back-to-basics nature makes static builds work the way they used to,
 back in the day. If that's what you're after, you can skip the "run"
-command above and extract the executable from the image instead:
+command above and create a tmporary container from the image, then
+extract the executable from it instead:
 
-<pre><code>  $ docker create --name fossil_static fossil_static
-  $ docker cp fossil_static:/jail/bin/fossil .
-  $ docker container rm fossil_static
-  $ docker image rm fossil_static
+<pre><code>  $ docker create --name fossil-static-tmp fossil
+  $ docker cp fossil-static-tmp:/jail/bin/fossil .
+  $ docker container rm fossil-static-tmp
 </code></pre>
 
 The resulting binary is the single largest file inside that container,
