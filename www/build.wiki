@@ -250,81 +250,80 @@ To uninstall, just delete the binary.</p>
 </pre></blockquote>
 </ul>
 
-<h2>5.0 Building a Static Binary on Linux using Docker</h2>
 
-Building a static binary on Linux is not as straightforward as it
-could be because the GNU C library requires that certain components be
-dynamically loadable. That can be worked around by building against a
-different C library, which is simplest to do by way of a container
-environment like [https://www.docker.com/ | Docker].
+<h2 id="docker">5.0 Building a Docker Container</h2>
 
-The following instructions for building fossil using Docker
-were adapted from [https://fossil-scm.org/forum/forumpost/5dd2d61e5f | forumpost/5dd2d61e5f].
-These instructions assume that docker is installed and that the user running
-these instructions has permission to do so (i.e., they are <tt>root</tt> or
-are a member of the <tt>docker</tt> group).
+Fossil ships a <tt>Dockerfile</tt> at the top of its source tree which
+you can build like so:
 
-First, create a file named <tt>Dockerfile</tt> with the following contents:
+<pre><code>  $ docker build -t fossil --no-cache .</code></pre>
 
-<pre><code>
-FROM    alpine:edge
-RUN     apk update                                                                                      \
-        && apk upgrade                                                                                  \
-        && apk add --no-cache                                                                           \
-        curl gcc make tcl                                                                               \
-        musl-dev                                                                                        \
-        openssl-dev zlib-dev                                                                            \
-        openssl-libs-static zlib-static                                                                 \
-        && curl                                                                                         \
-        "https://fossil-scm.org/home/tarball/fossil-src.tar.gz?name=fossil-src&uuid=trunk"    \
-        -o fossil-src.tar.gz                                                                            \
-        && tar xf fossil-src.tar.gz                                                                     \
-        && cd fossil-src                                                                                \
-        && ./configure                                                                                  \
-        --static                                                                                        \
-        --disable-fusefs                                                                                \
-        --with-th1-docs                                                                                 \
-        --with-th1-hooks                                                                                \
-        && make
+If the image built successfully, you can create a container from it and
+test that it runs:
+
+<pre><code>  $ docker run --name fossil -p 9999:8080/tcp fossil</code></pre>
+
+This shows us remapping the internal TCP listening port as 9999 on the
+host. As a rule, there's little point to using the "<tt>fossil server
+--port</tt>" feature inside a Docker container. Let it default to 8080
+internally, then remap it to wherever you want it on the host instead.
+
+Our stock <tt>Dockerfile</tt> configures Fossil with the default feature
+set, so you may wish to modify the <tt>Dockerfile</tt> to add
+configuration options, add APK packages to support those options, and so
+forth.
+
+It builds tip-of-trunk. To get a release version instead, append
+"<tt>?r=release</tt>" to the URL in the <tt>Dockerfile</tt>, then
+(re)build it.
+
+You may wish to direct Docker to copy an existing repo into the image at
+build time, rather than let it create a blank one automatically. Simply
+add this to the <tt>Dockerfile</tt> before the first "RUN" directive:
+
+<pre><code>  COPY /local/path/to/my-project.fossil /jail/repo.fossil</code></pre>
+
+A potentially surprising feature of this container is that it runs
+Fossil as root, which causes [./chroot.md | Fossil's chroot jail
+feature] to kick in. Since a Docker container is a type of über-jail
+already, you may be wondering why we don't either:
+
+  #  run <tt>fossil server --nojail</tt> to skip the internal chroot; or
+  #  create a non-root user and force Docker to use that instead
+
+The reason is, although this container is quite stripped-down by today's
+standards, it's based on the [https://www.busybox.net/BusyBox.html |
+surprisingly powerful Busybox project].  (This author made a living for
+years in the early 1990s using Unix systems that were less powerful than
+this container.) If someone ever figured out how to make a Fossil binary
+execute arbitrary commands on the host or to open up a remote shell,
+they'd likely be able to island-hop from there into the rest of your
+network. We need this cute double-jail dance to keep the Fossil instance
+from accessing the Busybox features.
+
+We deem this risk low since a) it's never happened, that we know of;
+and b) we've turned off all of the risky features like TH1 docs.
+Nevertheless, we believe in defense-in-depth.
+
+Our 2-stage build process uses Alpine Linux only as a build host. Once
+we've got everything reduced to the two key static binaries — Fossil and
+Busybox — we throw all the rest of it away.
+
+A secondary benefit falls out of this process for free: it's arguably
+the easiest way to build a purely static Fossil binary for Linux. Most
+modern Linux distros make this surprisingly difficult, but Alpine's
+back-to-basics nature makes static builds work the way they used to,
+back in the day. If that's what you're after, you can skip the "run"
+command above and extract the executable from the image instead:
+
+<pre><code>  $ docker create --name fossil_static fossil_static
+  $ docker cp fossil_static:/jail/bin/fossil .
+  $ docker container rm fossil_static
+  $ docker image rm fossil_static
 </code></pre>
 
-Be sure to modify the <tt>configure</tt> flags, if desired. e.g., add <tt>--json</tt>
-for JSON support.
-
-From the directory containing that file, build it with docker:
-
-<pre><code># docker build -t fossil_static .</code></pre>
-
-If you get permissions errors when running that as a non-root user,
-be sure to add the user to the <tt>docker</tt> group before trying
-again.
-
-That creates a docker image and builds a static fossil binary inside
-it. That step will take several minutes or more, depending on the
-speed of the build environment.
-
-Next, create a docker container to host the image we just created:
-
-<pre><code># docker create --name fossil fossil_static</code></pre>
-
-Then copy the fossil binary from that container:
-
-<pre><code># docker cp fossil:/fossil-src/fossil fossil</code></pre>
-
-The resulting binary will be <em>huge</em> because it is built with
-debug info. To strip that information, reducing the size greatly:
-
-<pre><code># strip fossil</code></pre>
-
-To delete the Docker container and image (if desired), run:
-
-<pre><code># docker container rm fossil
-# docker image ls
-</code></pre>
-
-Note the IDs of the images named <tt>fossil_static</tt> and <tt>alpine</tt>, then:
-
-<pre><code>docker image rm THE_FOSSIL_ID THE_ALPINE_ID</code></pre>
+The resulting binary is the single largest file inside that container,
+at about 6 MiB. (It's built stripped.)
 
 
 <h2>6.0 Building on/for Android</h2>
