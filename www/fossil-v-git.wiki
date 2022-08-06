@@ -183,10 +183,10 @@ restrictive container, anything from [./chroot.md | classic chroot
 jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
 | OS-level virtualization mechanisms] such as
 [https://en.wikipedia.org/wiki/Docker_(software) | Docker]. Our
-([src:/file?name=Dockerfile&ci=trunk | stock <tt>Dockerfile</tt>]
+[src:/file?name=Dockerfile&ci=trunk | stock <tt>Dockerfile</tt>]
 creates a container that's under 9 MiB on 64-bit Linux, including
 a capable [https://www.busybox.net/ | Busybox] environment for live
-debugging of the container's innards.)
+debugging of the container's innards.
 
 Modern Linux systems tend to make full static linking
 [https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
