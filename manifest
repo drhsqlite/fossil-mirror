@@ -1,5 +1,5 @@
-C The\sbuild\sdocks\son\s./configure\s--static\snow\sreferences\sthe\ssection\slater\nin\sthe\sdoc\son\sDocker,\ssince\syou\smay\sneed\sto\suse\sthis\sindirection\sto\sget\n--static\sto\sproduce\ssomething\ssuitable.
-D 2022-08-06T19:34:59.107
+C Did\saway\swith\sthe\stemporary\ssrc.tar.gz\sfile\sin\sthe\snew\sDocker\scontainer\nby\sstreaming\sthe\soutput\sof\swget\sstraight\sinto\star's\sstdin.\s\sThis\scuts\nthe\sbuild\stime\sby\sabout\sfive\sseconds,\spresumably\sdue\sto\sthe\ssaving\sfrom\nunnecessary\sfile\sI/O.\s\sAlso\sreplaced\sthe\sexplicit\s"cd\ssrc"\safterward\nwith\san\sout-of-tree\sbuild\sconfiguration,\ssince\sit\sdoesn't\smatter\sif\swe\nclutter\sthe\sfirst\sstage's\s/tmp\sdir.
+D 2022-08-06T19:56:26.501
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -12,7 +12,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 73dfe01bb87c50757750836a89f6a089e88ecf8a070f43e59df14746e5ded2dc
+F Dockerfile 6544dd045bbf6ff0b59a35fda3537be8cb4f7e220c26858e74082f93ed3952a9
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77d603c6a194a8941a028a5d43f38122b86114ca6525a5dd2658f3483c99a7a8
-R e9a7394a21e899cdcba5a95e24c84b52
+P 7bfd741355e24e61bf408fd779856bcd23e77b8942e49dd2763dcace3d4f360e
+R 96921ece30435ba845bba628a58a3111
 U wyoung
-Z 1c32d9e0b325b3a480e29b82350e33df
+Z 29e596e026f36af5aaf998d4be825ac0
 # Remove this line to create a well-formed Fossil manifest.

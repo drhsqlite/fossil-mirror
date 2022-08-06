@@ -9,17 +9,15 @@
 
 FROM alpine:latest AS builder
 WORKDIR /tmp
-RUN apk update                                               \
-     && apk upgrade --no-cache                               \
-     && apk add --no-cache                                   \
-         busybox-static gcc make                             \
-         musl-dev                                            \
-         openssl-dev openssl-libs-static                     \
-         zlib-dev zlib-static                                \
-     && wget https://fossil-scm.org/home/tarball/src.tar.gz  \
-     && tar -xf src.tar.gz                                   \
-     && cd src                                               \
-     && ./configure --static CFLAGS='-Os -s'                 \
+RUN apk update                                                         \
+     && apk upgrade --no-cache                                         \
+     && apk add --no-cache                                             \
+         busybox-static gcc make                                       \
+         musl-dev                                                      \
+         openssl-dev openssl-libs-static                               \
+         zlib-dev zlib-static                                          \
+     && wget -O - https://fossil-scm.org/home/tarball/src | tar -xz    \
+     && src/configure --static CFLAGS='-Os -s'                         \
      && make -j
 
 # STAGE 2: Pare that back to the bare essentials.
@@ -27,7 +25,7 @@ RUN apk update                                               \
 FROM scratch
 ENV JAIL=/jail
 WORKDIR ${JAIL}
-COPY --from=builder /tmp/src/fossil ${JAIL}/bin/
+COPY --from=builder /tmp/fossil ${JAIL}/bin/
 COPY --from=builder /bin/busybox.static /bin/busybox
 RUN [ "/bin/busybox", "--install", "/bin" ]
 RUN mkdir -m 700 dev                   \
