@@ -114,7 +114,8 @@ discussion in the "TLS and Fossil" document].</p>
 
 <li><p>
 To build a statically linked binary (suitable for use inside a chroot
-jail) add the <b>--static</b> option.
+jail) add the <b>--static</b> option. (See the [#docker | Docker section
+below].)
 
 <li><p>
 To enable the native [./th1.md#tclEval | Tcl integration feature] feature,

@@ -1,5 +1,5 @@
-C Replaced\sJan\sNijtman's\sDockerfile\swith\sa\snew\sone\sthat\sdoes\sa\s2-stage\nbuild.\s\sThe\sfirst\sstage\sruns\satop\sAlpine\sLinux\sinstead\sof\sFedora,\nreducing\sthe\sinitial\sbuild\sfrom\s~635 MiB\sto\sabout\s16.\n\nRather\sthan\sstop\sthere,\sI\sthen\smade\sit\smulti-stage,\scopying\stwo\skey\nstatic\sbinaries\s—\sFossil\sand\sBusybox\s—\sover\sfrom\sthe\sfirst\sstage\sinto\sa\nfresh-from-scratch\scontainer\sand\sset\sit\sup\sto\srun\sthe\sformer\sjailed\saway\nfrom\sthe\slatter.\n\nThe\sresult\sis\sunder\s9 MiB,\sand\sit's\sas\ssecure\sas\sone\scan\shope,\sgiven\nthat\sit\sstarts\sup\sin\s"PUBLIC"\smode.\s\sThe\snew\sbuild\sdoesn't\shave\sall\sthe\nextra\sfeatures\sturned\son\sthat\sthe\sold\sone\sdid,\sbut\sit\sseems\sright\sto\nbuild\sthe\scontainer\swith\sFossil\sin\sits\sdefault\sconfiguration.\sIf\syou\nwant\ssomething\selse,\scopy\sthe\sDockerfile,\shack\sit,\sand\smake\sit\sdo\swhat\nyou\swant\sinstead.\n\nHaving\sdone\sall\sthis,\sI\sreplaced\sthe\sone-off\sDockerfile\sinline\sin\ssection\n5.0\sof\sthe\sbuild\sdoc\swith\sa\sreference\sto\sthis\snew\sDockerfile\sand\srewrote\nthe\ssection\sin\sterms\sof\sthe\snew\scapabilities.\n\nFinally,\sthis\slets\sus\sbrag\son\show\ssmall\sthe\scontainer\scan\sbe,\sas\ncompared\sto\sthe\sGitlab-CE\scontainer.\s\sBefore,\swe\swere\scomparing\sa\nstandalone\sbinary\sto\sthe\scontainer,\swhich\swan't\sentirely\sfair.\s\s(The\ndesire\sto\sproduce\ssuch\sa\scontainer\swas\sthe\sspark\sthat\skicked\sthis\nproject\soff.)
-D 2022-08-06T04:24:33.344
+C The\sbuild\sdocks\son\s./configure\s--static\snow\sreferences\sthe\ssection\slater\nin\sthe\sdoc\son\sDocker,\ssince\syou\smay\sneed\sto\suse\sthis\sindirection\sto\sget\n--static\sto\sproduce\ssomething\ssuitable.
+D 2022-08-06T19:34:59.107
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -798,7 +798,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki ed9c2e72f4fd537d11641ea6b88a9c3ea7b7eb7ca44013d0b9119c3d3c68de4a
+F www/build.wiki ccbfdf3c447846bf494c6c9255d53d5c169360e3efeab22092528c3a6ec68475
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7afd68b9410f4111d1c2a7e47d216338a728675704aa6ab95478baa14c63cb4
-R 9f6f90a5a927ac65e3bf0268b9a87bdb
+P 77d603c6a194a8941a028a5d43f38122b86114ca6525a5dd2658f3483c99a7a8
+R e9a7394a21e899cdcba5a95e24c84b52
 U wyoung
-Z 4c43289d3c8ff0fa9883fbfa6ae46428
+Z 1c32d9e0b325b3a480e29b82350e33df
 # Remove this line to create a well-formed Fossil manifest.
