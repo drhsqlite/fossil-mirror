@@ -804,7 +804,7 @@ function TimelineGraph(tx){
 /*
 ** Timeline keyboard navigation shortcuts:
 **
-** ### NOTE: The keyboard shortcuts are listed in /timeline help text. ###
+** ### NOTE: The keyboard shortcuts are listed in the /timeline help screen. ###
 **
 ** When navigating to a page with a timeline display, such as /timeline, /info,
 ** or /finfo, keyboard navigation mode needs to be "activated" first, i.e. if no
@@ -815,7 +815,7 @@ function TimelineGraph(tx){
 ** and automatically set the focus indicator to the highlighted, current, or
 ** topmost entry. Pressing N and M on the /timeline page while the topmost or
 ** bottommost entry is focused loads the next or previous page if available,
-** similar to the [↑ More] and [↓ More] links. Pressing L disables keyboard
+** similar to the [↑ More] and [↓ More] links. Pressing ESC disables keyboard
 ** navigation, i.e. removes the focus indicator and deletes the session cookie.
 ** When navigating backwards or forwards in browser history, the focused entry
 ** is restored using a hidden[1] input field.
@@ -840,9 +840,6 @@ function TimelineGraph(tx){
 **    the timeline-data-N blocks would have to be extended).
 **  o kFRST, kLAST: check if the previous/next page should be opened if focus is
 **    already at the top/bottom.
-**  o Improve scrolling the focused element into view for browsers without the
-**    Element.scrollIntoViewIfNeeded() function, maybe with a Polyfill, or
-**    something similar to the scrollToSelected() function in this source file.
 */
 (function(){
   window.addEventListener('load',function(){
@@ -894,7 +891,7 @@ function TimelineGraph(tx){
         for( var k=0; k<ti.rowinfo.length; k++ ){
           if( id=='m' + ti.rowinfo[k].id ) return {
             'baseurl': ti.baseUrl,
-            'filediff': ti.fileDiff,
+            'filehash': ti.fileDiff,
             'hashdigits': ti.hashDigits,
             'hash': ti.rowinfo[k].h,
             'branch': ti.rowinfo[k].br
@@ -903,7 +900,7 @@ function TimelineGraph(tx){
       }
       return null;
     }
-    function focusScrollToIntoViewTheFossilWay(e){
+    function fossilScrollIntoView(e){
       var y = 0;
       do{
         y += e.offsetTop;
@@ -919,11 +916,7 @@ function TimelineGraph(tx){
         td = tn.parentElement.nextElementSibling;
         if( td ) {
           td.classList.add('timelineFocused');
-          if( scroll ){
-            focusScrollToIntoViewTheFossilWay(td);
-            //if( td.scrollIntoViewIfNeeded ) td.scrollIntoViewIfNeeded();
-            //else td.scrollIntoView(false);
-          }
+          if( scroll ) fossilScrollIntoView(td);
           return true;
         }
       }
@@ -989,7 +982,7 @@ function TimelineGraph(tx){
       }
       if( key==kSCRL ){
         var td = document.querySelector('.timelineFocused');
-        if( td ) focusScrollToIntoViewTheFossilWay(td);
+        if( td ) fossilScrollIntoView(td);
         return;
       }
       else if( key==kUNTK ){
@@ -1044,11 +1037,11 @@ function TimelineGraph(tx){
             var page;
             switch( key ){
               case kTMLN:
-                page = '/timeline' + ( ri.filediff ? '?m&cf=' : '?m&c=' ) + hh;
+                page = '/timeline' + ( ri.filehash ? '?m&cf=' : '?m&c=' ) + hh;
                 break;
               case kTMLB:
                 page = '/timeline?r=' + br +
-                  ( ri.filediff ? '&m&cf=' : '&m&c=' ) + hh;
+                  ( ri.filehash ? '&m&cf=' : '&m&c=' ) + hh;
                 break;
               case kVIEW:
                 page = '/info/' + hh;
