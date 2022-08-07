@@ -4,7 +4,7 @@
 ** wiki page "branch/accordion-experiments" in the Fossil repository.
 */
 var acc_svgdata = ["data:image/svg+xml,"+
-  "%3Csvg xmlns='http:"+"/"+"/www.w3.org/2000/svg' viewBox='0 0 16 16'%3E"+
+  "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E"+
   "%3Cpath style='fill:black;opacity:0' d='M16,16H0V0h16v16z'/%3E"+
   "%3Cpath style='fill:rgb(240,240,240)' d='M14,14H2V2h12v12z'/%3E"+
   "%3Cpath style='fill:rgb(64,64,64)' d='M13,13H3V3h10v10z'/%3E"+
