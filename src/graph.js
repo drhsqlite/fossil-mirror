@@ -958,6 +958,7 @@ function TimelineGraph(tx){
         kPREV = 77 /* M */,
         kLAST = mSHIFT | 77 /* SHIFT+M */,
         kCYCL = 72 /* H */,
+        kSCRL = mSHIFT | 72 /* H */,
         kTICK = 188 /* , */,
         kUNTK = mSHIFT | 188 /* , */,
         kCPYH = 66 /* B */,
@@ -975,6 +976,7 @@ function TimelineGraph(tx){
         case kPREV: dx = +1; break;
         case kLAST: dx = +2; break;
         case kCYCL:
+        case kSCRL:
         case kTICK:
         case kUNTK:
         case kCPYH:
@@ -985,7 +987,12 @@ function TimelineGraph(tx){
         case kDONE: break;
         default: return;
       }
-      if( key==kUNTK ){
+      if( key==kSCRL ){
+        var td = document.querySelector('.timelineFocused');
+        if( td ) focusScrollToIntoViewTheFossilWay(td);
+        return;
+      }
+      else if( key==kUNTK ){
         var tid = focusTickedId();
         if( tid ){
           var gn = document.getElementById('tln'+tid.slice(1));
