@@ -1,5 +1,5 @@
-C Fixed\sa\sfew\sstray\sparens\sin\sthe\snew\smaterial\sin\sthe\sfossil-v-git\sdoc,\nleft\sbehind\sfrom\sa\sprior\sedit.
-D 2022-08-06T22:13:18.669
+C /setup_config\stypo\sfix\sreported\sin\s[forum:ec5bd222a2|forum\spost\sec5bd222a2].
+D 2022-08-08T11:52:10.973
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -549,7 +549,7 @@ F src/schema.c ac410fb807fa79df6a398893b1d7cc070f8353435d11bbe3a2e32c212be69a31
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c213316a65d88240053756dda3471539ab4b6005b0823675cf2cac58e8992029
 F src/security_audit.c 62dda75ae7de213789b8fe99aae74d8ffe7195c594a06d8e26ff80f54b7b53be
-F src/setup.c fb9a74002b8d43f4792d39fee53974fc258d24c61f63b3151f9fa8e9ba8b7401
+F src/setup.c dffa51d51c0a5f2696c7f42056c4d0a09ca03e701b31763352465656114be7f8
 F src/setupuser.c 7fe18356b3fe5f7855f2b87a62a7abe3b28716dc77e563dfb6073d9583449969
 F src/sha1.c facdc05434dd765d1469cbbb6aebceaf2fd05c0eb6ace251db03cb721cecaa82
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b628a883b10bca1432f4cbe525bafb05607f4b72cb8b4fa8591e7e383fed91aa
-R 7ddaca3c611cb7aa7cc57a6d0950cd32
-U wyoung
-Z acfedc00734c04c2fa4c8b52b4dd62c3
+P ea13701cbf5d21617010c6b4219937f943a7cdabbdacc3826605b98e655937bf
+R 689e8c9b282bb73d1d79085a28656675
+U stephan
+Z 6bb9c02145bd75cb76fbebd30257c80e
 # Remove this line to create a well-formed Fossil manifest.
