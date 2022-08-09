@@ -1,5 +1,5 @@
-C /setup_config\stypo\sfix\sreported\sin\s[forum:ec5bd222a2|forum\spost\sec5bd222a2].
-D 2022-08-08T11:52:10.973
+C Do\snot\sshow\sinformation\sabout\sthe\snumber\sof\schat\smessages\sunless\sthe\nuser\shas\sread\sprivilege\son\sthe\schat.
+D 2022-08-09T12:35:12.248
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -579,7 +579,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 18704c72a26fdfcf54865653e91635af75239d51447acecd83fd726d6291d164
 F src/stash.c ebcb9bb2def77273c8511ad039d129c4c735c3869e28bc667b7d333c44f8b1e8
-F src/stat.c 3e526b120bbff71bfb7a4fa38d5beee4feb9a026d81193164875674ebaba2b70
+F src/stat.c 457b602ab000291bfcb889e1ec5f7fcfac229e9c1c3f04c3545a1eb6348387b9
 F src/statrep.c 60634663da58d1bd491a34ac541d864089d6e27607b9d4de47303423ac3add57
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c cd0cec491f41c5ece5b6898fff0cbcc4059eca9498471c02e1ca1c981436092c
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea13701cbf5d21617010c6b4219937f943a7cdabbdacc3826605b98e655937bf
-R 689e8c9b282bb73d1d79085a28656675
-U stephan
-Z 6bb9c02145bd75cb76fbebd30257c80e
+P 6d5d5f0239d5bb0fb803fac07118ba8b7b7b059382c2c0f50cb2350879f770ca
+R 2bb6be881dd575c0a6282647b2cd4194
+U drh
+Z f4c57089983b83891dbd5b91c0865d2f
 # Remove this line to create a well-formed Fossil manifest.
