@@ -703,7 +703,7 @@ void branch_cmd(void){
 
     if( strcmp(zCmd, "lsh")==0 ){
       nLimit = 5;
-      if( g.argc>4 || g.argc==4 && (nLimit = atoi(g.argv[3]))==0 ){
+      if( g.argc>4 || (g.argc==4 && (nLimit = atoi(g.argv[3]))==0) ){
         fossil_fatal("the lsh subcommand allows one optional numeric argument");
       }
       brFlags |= BRL_ORDERBY_MTIME;
