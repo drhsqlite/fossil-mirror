@@ -1,7 +1,29 @@
-/* Attach appropriate javascript to each ".accordion" button so that
-** it expands and contracts when clicked.
-** The uncompressed source code for the SVG icons can be found on the
-** wiki page "branch/accordion-experiments" in the Fossil repository.
+/*
+** Attach appropriate javascript to each ".accordion" button so that it expands
+** and contracts when clicked.
+**
+** The uncompressed source code for the SVG icons can be found on the wiki page
+** "branch/accordion-experiments" in the Fossil repository.
+**
+** Implementation notes:
+**
+** The `maxHeight' CSS property is quite restrictive for vertical resizing of
+** elements, especially for dynamic-content areas like the diff panels. That's
+** why `maxHeight' is set only during animation, to prevent truncated elements.
+** (The diff panels may get truncated right after page loading, and other
+** elements may get truncated when resizing the browser window to a smaller
+** width, causing vertical growth.)
+**
+** Another problem is that `scrollHeight' used to calculate the expanded height
+** while still in the contracted state may return values with small errors on
+** some browsers, especially for large elements, presumably due to omitting the
+** space required by the vertical scrollbar that may become necessary, causing
+** additional horizontal shrinking and consequently more vertical growth than
+** calculated. That's why setting `maxHeight' to `scrollHeight' is considered
+** "good enough" only during animation, but cleared afterwards.
+**
+** https://fossil-scm.org/forum/forumpost/66d7075f40
+** https://fossil-scm.org/home/timeline?r=accordion-fix
 */
 var acc_svgdata = ["data:image/svg+xml,"+
   "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E"+

@@ -1,5 +1,5 @@
-C Remove\sa\sconstruct\sto\sescape\sthe\sJS\scompressor\sobsoleted\sby\s[ffa1c7d0a0].
-D 2022-08-07T08:07:00.000
+C Record\sa\scomment\son\sthe\sfindings\sdiscovered\sduring\srepair\sof\sthe\saccordion\spanel\sJS\sscript.
+D 2022-08-10T06:02:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -398,7 +398,7 @@ F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt e75e1af0572c2cfe44e3882d18e0f71aac5fecc504b9a193205c9b7dbaaa56da
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/accordion.js b0a21a5b75f334370be64f817745cfe0d2ad2364547630b4837c3904b6862bcd
+F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c fcb33dcc8338d96ff679843871d516116846a3dda3f931ecc6163bd2a8553d89
 F src/ajax.c 4d31ef8e51bdd3c3ac74f346d3604e27893ab5a879846312b576d76d15d38d41
 F src/alerts.c 8d49b884e4d4ff60f9e4d3b20acc092aede8e9be16b97f8cae7136e1791a3414
@@ -978,8 +978,7 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b8dd9ca70e5171717b09f7e71d56dcdb38dfb554c1b2464cddbf5b18088b52f
-R 47953cc7f387fc3490be8282769baa30
+P 0e7357d2fc340a5e779abb4745ad5e7f6b793804854af137c15405138287910e
 U florian
-Z d6badb31800a06e7ad9a074205cfdbfc
+Z 1ff2cfbedd6533cea6d91bc72667df39
 # Remove this line to create a well-formed Fossil manifest.
