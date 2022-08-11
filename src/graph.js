@@ -941,6 +941,16 @@ function TimelineGraph(tx){
       var e = document.getElementById('timeline-kbfocus');
       if( e ) e.value = v;
     }
+    function focusCookieInit(){
+      document.cookie = 'fossil_timeline_kbnav=1;path=/';
+    }
+    function focusCookieClear(){
+      document.cookie =
+        'fossil_timeline_kbnav=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+    }
+    function focusCookieQuery(){
+      return document.cookie.match(/fossil_timeline_kbnav=1/);
+    }
     focusCacheInit();
     document.addEventListener('keydown',function(evt){
       if( evt.target.tagName=='INPUT' ) return;
@@ -1007,11 +1017,10 @@ function TimelineGraph(tx){
       else if( key==kDONE ){
         focusCacheSet(null);
         focusVisualize(null,false);
-        document.cookie =
-          'fossil_timeline_kbnav=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        focusCookieClear();
         return;
       }
-      document.cookie = 'fossil_timeline_kbnav=1;path=/';
+      focusCookieInit();
       var id = focusCacheGet();
       if( id && dx==0 ){
         if( key==kCYCL ){
@@ -1071,7 +1080,7 @@ function TimelineGraph(tx){
     window.addEventListener('pageshow',function(evt){
       var id = focusCacheGet();
       if( !id || !focusVisualize(id,false) ){
-        if( document.cookie.match(/fossil_timeline_kbnav=1/) ){
+        if( focusCookieQuery() ){
           id = focusDefaultId();
           focusCacheSet(id);
           focusVisualize(id,false);
