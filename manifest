@@ -1,5 +1,5 @@
-C Merge\sfixes\sto\sthe\saccordion\spanel\sJS\sscript.
-D 2022-08-10T06:03:00.000
+C Fix\sa\sbuild\serror\sintroduced\sby\sthe\sprevious\scheck-in\s[44a7149dc7].
+D 2022-08-11T03:53:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -499,7 +499,7 @@ F src/info.c f909f3daf34c62a17230d661ff8103794815e5f204aa18aa3218a38c755558c6
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
 F src/json.c 264c757355a12c4c9efcef77f7f5d0f73dfc93a03f7ebdafbc4caa319e3bbc26
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
-F src/json_branch.c 028db556d2745bb127d23822f172dbc77e23eddc0214da63ecf6d7bc8971ef54
+F src/json_branch.c f76d13715906f043d945e99710004bd4c850a20a05c9f77e7b758efb8e0daf28
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
 F src/json_detail.h 327749d70dbbe785dbcc03d63c6c7372db920d28382d8992a06b42aaa31399a9
 F src/json_diff.c a3af88f5a95dd3084b09c12c9cac280a7fb89583af4cdeb9034c75245c8f2de3
@@ -978,7 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8e5750d7b05e78565b6d9a1f5d7c94c52e86a6a7d60cca9e49be78e611c964 2fc93df48f9ce81ca10a65a04abe9144043c971d34f02495334d5bab277adc0d
+P 44a7149dc78046d7884790b84e6d8b4c65c87acf48d3c2cf3ecb614a6c178887
+R 0aed9f8a80ef9df2e6bc057678c6d82f
 U florian
-Z 72bead7b4f1b19a6603a5a18243c7ede
+Z d5313c9d17f70aa685f12ad1db316c83
 # Remove this line to create a well-formed Fossil manifest.
