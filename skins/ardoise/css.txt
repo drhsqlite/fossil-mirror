@@ -999,15 +999,6 @@ span.timelineSecondary {
   border-radius: 5px;
   border: dashed #ff8000
 }
-.timelineFocused {
-  background-image: url("data:image/svg+xml,%3Csvg \
-xmlns='http://www.w3.org/2000/svg' viewBox='0,0,1,1'%3E%3Cpath \
-style='fill:white;opacity:0.2' d='M0,0h1v1h-1z'/%3E%3C/svg%3E") !important;
-/*Note: IE requires explicit declarations for the next three properties.*/
-  background-position: top left;
-  background-repeat: repeat repeat;
-  background-size: 64px 64px;
-}
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
   background-color: #000
 }
