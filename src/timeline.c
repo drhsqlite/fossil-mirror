@@ -1637,6 +1637,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    m     Focus previous (older) entry, or open previous page.
 **    M     Focus last (oldest) entry.
 **    h     Move focus between selected, current (check-out) and ticked entries.
+**    .     Focus entry closest to center of viewport.
 **    H     Scroll to focused entry.
 **    ,     Tick/untick the node of the focused entry.
 **    ;     Untick the nodes of all entries.

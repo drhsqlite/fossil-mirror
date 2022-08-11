@@ -881,6 +881,37 @@ function TimelineGraph(tx){
       var m = /^m(\d+)$/.exec(id);
       return m!==null ? 'm' + (parseInt(m[1]) + dx) : null;
     }
+    // NOTE: This code relies on `getElementsByClassName()' returning elements
+    // in document order; however, attempts to use binary searching (using the
+    // signed distance to the vertical center) or 2-pass searching (to get the
+    // 1000-block first) didn't yield any significant speedups -- probably the
+    // calls to `getBoundingClientRect()' are cached because `initGraph()' has
+    // already done so, or because they depend on their previous siblings, and
+    // so `e(N).getBoundingClientRect()' ≈ `e(0..N).getBoundingClientRect()'?
+    function focusViewportCenterId(){
+      var
+        fe = null,
+        fd = 0,
+        wt = 0,
+        wb = wt + window.innerHeight,
+        wc = wt + window.innerHeight/2,
+        el = document.getElementsByClassName('timelineGraph');
+      for( var i=0; i<el.length; i++ ){
+        var
+          rc = el[i].getBoundingClientRect(),
+          et = rc.top,
+          eb = rc.bottom;
+        if( (et>=wt && et<=wb) || (eb>=wt && eb<=wb) ){
+          var ed = Math.min(Math.abs(et-wc),Math.abs(eb-wc));
+          if( !fe || ed<fd ){
+            fe = el[i];
+            fd = ed;
+          }
+          else break;
+        }
+      }
+      return fe ? fe.querySelector('.tl-nodemark').id : null;
+    }
     function timelineGetDataBlock(i){
       var tb = document.getElementById('timeline-data-' + i);
       return tb ? JSON.parse(tb.textContent || tb.innerText) : null;
@@ -961,6 +992,7 @@ function TimelineGraph(tx){
         kPREV = 77 /* M */,
         kLAST = mSHIFT | 77 /* SHIFT+M */,
         kCYCL = 72 /* H */,
+        kCNTR = 190 /* . */,
         kSCRL = mSHIFT | 72 /* H */,
         kTICK = 188 /* , */,
         kUNTK = mSHIFT | 188 /* , */,
@@ -979,6 +1011,7 @@ function TimelineGraph(tx){
         case kPREV: dx = +1; break;
         case kLAST: dx = +2; break;
         case kCYCL:
+        case kCNTR:
         case kSCRL:
         case kTICK:
         case kUNTK:
@@ -990,7 +1023,16 @@ function TimelineGraph(tx){
         case kDONE: break;
         default: return;
       }
-      if( key==kSCRL ){
+      if( key==kCNTR ){
+        var cid = focusViewportCenterId();
+        if( cid ){
+          focusCacheSet(cid);
+          focusVisualize(cid,false);
+          focusCookieInit();
+        }
+        return;
+      }
+      else if( key==kSCRL ){
         var td = document.querySelector('.timelineFocused');
         if( td ) fossilScrollIntoView(td);
         return;
