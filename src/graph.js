@@ -843,20 +843,25 @@ function TimelineGraph(tx){
 */
 (function(){
   window.addEventListener('load',function(){
+// "Primary" (1) and "secondary" (2) selections swapped compared to CSS classes:
+// (1)  .timelineSecondary →
+//          /vdiff?to=, /timeline?sel2=
+// (2)  .timelineSelected:not(.timelineSecondary) →
+//          /vdiff?from=, /timeline?c=, /timeline?sel1=
     function focusDefaultId(){
-      var tn = document.querySelector(
-                '.timelineSelected:not(.timelineSecondary) .tl-nodemark')
-                || document.querySelector('.timelineSelected .tl-nodemark')
+      var tn = document.querySelector('.timelineSecondary .tl-nodemark')
+                || document.querySelector(
+                    '.timelineSelected:not(.timelineSecondary) .tl-nodemark')
                 || document.querySelector('.timelineCurrent .tl-nodemark');
       return tn ? tn.id : 'm1';
     }
     function focusSelectedId(){
-      var tn = document.querySelector(
-                '.timelineSelected:not(.timelineSecondary) .tl-nodemark');
+      var tn = document.querySelector('.timelineSecondary .tl-nodemark');
       return tn ? tn.id : null;
     }
     function focus2ndSelectedId(){
-      var tn = document.querySelector('.timelineSecondary .tl-nodemark');
+      var tn = document.querySelector(
+                '.timelineSelected:not(.timelineSecondary) .tl-nodemark');
       return tn ? tn.id : null;
     }
     function focusCurrentId(){
