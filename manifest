@@ -1,5 +1,5 @@
-C Merge\sfixes\sto\sthe\saccordion\spanel\sJS\sscript.
-D 2022-08-10T06:03:00.000
+C Potential,\sminimally-tested\sfix\sfor\s(remote\sadd\sdefault\sURL)\snot\sworking,\sas\sreported\sin\s[forum:5748fcb117a99b43|forum\spost\s5748fcb117a99b43].
+D 2022-08-11T10:02:34.920
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -587,7 +587,7 @@ F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057ba
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 25f0a2db166301e46383c959b691513612f62129cb2fca59e3a445fe2815e18a
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 01a44496b2d81334abac7203ec2571bcf4b2d95aca2817454c7d9f9de639a854
+F src/sync.c b44601723754a3da5004c49e70611aee97f9ab1f6be7292f370e4b86fe032bab
 F src/tag.c 6a3e74f90e9959827faa335aeda08cfb874facbc32cf6f980164802d2622cde8
 F src/tar.c 26e0ff9be1dbc5d76df274c1749262a1a3496ddc7c0a53027fffd0147232a5ae
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -978,7 +978,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8e5750d7b05e78565b6d9a1f5d7c94c52e86a6a7d60cca9e49be78e611c964 2fc93df48f9ce81ca10a65a04abe9144043c971d34f02495334d5bab277adc0d
-U florian
-Z 72bead7b4f1b19a6603a5a18243c7ede
+P 44a7149dc78046d7884790b84e6d8b4c65c87acf48d3c2cf3ecb614a6c178887
+R 32cf600e093ff3f987d0dbd8ae45fd47
+T *branch * remote-add-fix
+T *sym-remote-add-fix *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z 502db1781d642081918abe354ae0ffa0
 # Remove this line to create a well-formed Fossil manifest.
