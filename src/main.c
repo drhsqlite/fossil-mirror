@@ -1473,8 +1473,11 @@ NORETURN void fossil_redirect_home(void){
 ** repository zRepo and then drop root privileges.  Return the
 ** new repository name.
 **
-** zRepo might be a directory itself.  In that case chroot into
-** the directory zRepo.
+** zRepo can be a directory.  If so and if the repo name was saved
+** to g.zRepositoryName before we were called, we canonicalize the
+** two paths and check that one is the prefix of the other, else you
+** won't be able to open the repo inside the jail.  If it all works
+** out, we return the "jailed" version of the repo name.
 **
 ** Assume the user-id and group-id of the repository, or if zRepo
 ** is a directory, of that directory.
@@ -1483,7 +1486,7 @@ NORETURN void fossil_redirect_home(void){
 ** privileges are still lowered to that of the user-id and group-id
 ** of the repository file.
 */
-char *enter_chroot_jail(char *zRepo, int noJail){
+static char *enter_chroot_jail(const char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1502,7 +1505,19 @@ char *enter_chroot_jail(char *zRepo, int noJail){
           fossil_panic("unable to chroot into %s", zDir);
         }
         g.fJail = 1;
-        zRepo = "/";
+        if( g.zRepositoryName ){
+          size_t n = strlen(zDir);
+          Blob repo;
+          file_canonical_name(g.zRepositoryName, &repo, 0);
+          zRepo = blob_str(&repo);
+          if( strncmp(zRepo, zDir, n)!=0 ){
+            fossil_fatal("repo %s not under chroot dir %s", zRepo, zDir);
+          }
+          zRepo += n;
+          if( *zRepo == '\0' ) zRepo = "/";
+        }else {
+          zRepo = "/";
+        }
       }else{
         for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
         if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
@@ -1529,7 +1544,7 @@ char *enter_chroot_jail(char *zRepo, int noJail){
     }
   }
 #endif
-  return zRepo;
+  return (char*)zRepo;  /* no longer const: always reassigned from blob_str() */
 }
 
 /*
@@ -2816,11 +2831,8 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  if( zChRoot ){
-    enter_chroot_jail((char*)zChRoot, noJail);
-  }else{
-    g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
-  }
+  g.zRepositoryName = enter_chroot_jail(
+      zChRoot ? zChRoot : g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -3321,11 +3333,8 @@ void cmd_webserver(void){
   if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
     allowRepoList = 1;
   }else{
-    if( zChRoot ){
-      enter_chroot_jail((char*)zChRoot, noJail);
-    }else{
-      g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
-    }
+    g.zRepositoryName = enter_chroot_jail(
+        zChRoot ? zChRoot : g.zRepositoryName, noJail);
   }
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
