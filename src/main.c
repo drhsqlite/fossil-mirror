@@ -1501,9 +1501,6 @@ static char *enter_chroot_jail(const char *zRepo, int noJail){
     zDir = blob_str(&dir);
     if( !noJail ){
       if( file_isdir(zDir, ExtFILE)==1 ){
-        if( file_chdir(zDir, 1) ){
-          fossil_panic("unable to chroot into %s", zDir);
-        }
         if( g.zRepositoryName ){
           size_t n = strlen(zDir);
           Blob repo;
@@ -1517,6 +1514,9 @@ static char *enter_chroot_jail(const char *zRepo, int noJail){
         }else {
           zRepo = "/";
           g.fJail = 1;
+        }
+        if( file_chdir(zDir, 1) ){
+          fossil_panic("unable to chroot into %s", zDir);
         }
       }else{
         for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
