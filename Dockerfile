@@ -23,12 +23,11 @@ RUN apk update                                                         \
 # STAGE 2: Pare that back to the bare essentials.
 
 FROM scratch
-ENV JAIL=/jail
-WORKDIR ${JAIL}
-COPY --from=builder /tmp/fossil ${JAIL}/bin/
+WORKDIR /jail
+COPY --from=builder /tmp/fossil /jail/bin/
 COPY --from=builder /bin/busybox.static /bin/busybox
 RUN [ "/bin/busybox", "--install", "/bin" ]
-RUN mkdir -m 700 dev                   \
+RUN mkdir -m 700 dev museum            \
     && mknod -m 600 dev/null    c 1 3  \
     && mknod -m 600 dev/urandom c 1 9
 
@@ -38,7 +37,8 @@ RUN mkdir -m 700 dev                   \
 EXPOSE 8080/tcp
 CMD [ \
     "bin/fossil", "server", \
+    "--chroot", "/jail",    \
     "--create",             \
     "--jsmode", "bundled",  \
     "--user", "admin",      \
-    "repo.fossil"]
+    "museum/repo.fossil"]

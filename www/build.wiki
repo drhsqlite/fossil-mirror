@@ -278,11 +278,62 @@ It builds tip-of-trunk. To get a release version instead, append
 "<tt>?r=release</tt>" to the URL in the <tt>Dockerfile</tt>, then
 (re)build it.
 
-You may wish to direct Docker to copy an existing repo into the image at
-build time, rather than let it create a blank one automatically. Simply
-add this to the <tt>Dockerfile</tt> before the first "RUN" directive:
 
-<pre><code>  COPY /local/path/to/my-project.fossil /jail/repo.fossil</code></pre>
+<h3>5.1 Running It in Production</h3>
+
+If you want the container to serve an existing repository, there are at
+least two right ways to do it.
+
+The wrong way is to use the <tt>Dockerfile COPY</tt> command to bake it
+into the container at build time. It will become one of the container's
+base layers, so that each time you restart the container, it gets reset
+to its prior state. This almost certainly is not what you want.
+
+The simplest correct method is to stop the container if it was running,
+then say:
+
+<pre><code>  $ docker cp /path/to/repo.fossil fossil:/jail/museum/repo.fossil
+  $ docker start fossil
+  $ docker exec fossil chown 0 /jail/museum/repo.fossil</code></pre>
+
+That copies the local Fossil repo into the container where the server
+expects to find it, so that the "start" command causes it to serve from
+that copied-in file instead. Since it lives atop the base layers, it
+persists as part of the container proper, surviving restarts.
+
+(The same is true of the default mode of operation: the <tt>fossil
+server --create</tt> flag initializes a fresh Fossil repo atop the base
+layer.)
+
+If you skip the "chown" command and put "http://localhost:9999/" into
+your browser, expecting to see the copied-in repo's home page, you will
+get an opaque "Not Found" error instead. This is because the user and
+group ID of the file will be that of your local user on the container's
+host machine, which won't map to anything in the container's
+<tt>/etc/passwd</tt> and <tt>/etc/group</tt> files, effectively
+preventing the server from reading the copied-in repository file. You
+don't have to restart the server after fixing this: simply reload the
+browser, and Fossil will try again.
+
+This simple method has a problem: Docker containers are designed to be
+killed off at the slightest cause, rebuilt, and redeployed. If you do
+that with the repo inside the container, it gets destroyed, too. The
+solution is to replace the "run" command above with the following:
+
+<pre><code>  $ docker create \
+    --name fossil -p 9999:8080/tcp \
+    -v museum:/jail/museum fossil
+</code></pre>
+
+Now when you "docker cp" the local repo into the container, it lands on
+a separate [https://docs.docker.com/storage/volumes/ | Docker volume]
+mounted inside it, which has an independent lifetime.  When you need to
+rebuild the container — such as to upgrade to a newer version of Fossil
+— the volume remains behind and gets remapped into the new contanier
+when you recreate it by giving the above command again.
+
+
+<h3>5.2 Why Chroot?</h3>
 
 A potentially surprising feature of this container is that it runs
 Fossil as root, which causes [./chroot.md | Fossil's chroot jail
@@ -305,6 +356,9 @@ from accessing the Busybox features.
 We deem this risk low since a) it's never happened, that we know of;
 and b) we've turned off all of the risky features like TH1 docs.
 Nevertheless, we believe in defense-in-depth.
+
+
+<h3>5.3 Extracting a Static Binary</h3>
 
 Our 2-stage build process uses Alpine Linux only as a build host. Once
 we've got everything reduced to the two key static binaries — Fossil and
