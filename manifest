@@ -1,5 +1,5 @@
-C Fixed\sthe\s--chroot\sflag\sto\s"fossil\sserver"\sand\s"fossil\shttp"\sto\sallow\sit\nto\swork\sin\sconjunction\swith\sthe\ssingle-repository\scase.\s\sBefore,\sit\nblindly\sassumed\s--repolist\smode.
-D 2022-08-13T21:21:42.141
+C Moved\sthe\ssetting\sof\sg.fJail\sflag\sinto\sthe\srepo\s=\s"/"\scase\ssince\sit\nexists\sonly\sto\scommunicate\sthe\schroot\sstatus\sto\s--repolist\smode.\s\s(This\nconfirms\sthe\sspeculation\sin\sthe\sprior\scommit's\scomment:\sthe\sprior\nbehavior\sexisted\sto\sserve\srepolist\smode\sonly.)
+D 2022-08-13T22:14:19.862
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -518,7 +518,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 320b8e6f7bc95fa4d9e86733d77cd0742c7665de02210f6e99a3f308e21d8be5
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 0afdbee04aab644df0e8404847a373a630a674af4778ecc30b40b0de5167338f
+F src/main.c 06fc6234be73a509d240cd7f0696e882ecbb92731325aeeca954bbc300e038b5
 F src/main.mk 3cfb5b741f534f21044e391027e1fc52155092ec62c73faeb994b1d9d47b699a
 F src/manifest.c be9848ff7900c6174f01ca21c77c357cc502698c73406540a866ddc52b24303d
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 73c95307c94c423527ce3bf1e89e72c9417526993482f215a35f0b735245c2f3
-R 690f6ee544a6e9605d2239561da7b5c5
+P 6f92ad99d992f61c0dee9b3f67422f877ae5917e1fac601714a16e172d4d37ac
+R 195be015635ec4cdba90d88203dc8e84
 U wyoung
-Z 58dc46940230d78fc627b488017b25a6
+Z 1c1e266371e4a5a777726f6a31f64578
 # Remove this line to create a well-formed Fossil manifest.
