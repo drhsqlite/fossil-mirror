@@ -1636,15 +1636,15 @@ const char *timeline_expand_datetime(const char *zIn){
 **    n     Focus next (newer) entry, or open next page.
 **    m     Focus previous (older) entry, or open previous page.
 **    M     Focus last (oldest) entry.
-**    h     Move focus between selected, current (check-out) and ticked entries.
-**    .     Focus entry closest to center of viewport.
-**    H     Scroll to focused entry.
-**    ,     Tick/untick node of focused entry, or open diff if two nodes ticked.
-**    ;     Untick nodes of all entries.
+**    j     Move focus between selected, current (check-out) and ticked entries.
+**    ,     Focus entry closest to center of viewport.
+**    J     Scroll to focused entry.
+**    h     Tick/untick node of focused entry, or open diff if two nodes ticked.
+**    H     Untick nodes of all entries.
 **    b     Copy the commit hash of the focused entry to clipboard.
 **    B     Copy the branch name of the focused entry to clipboard.
-**    j     View timeline of focused entry.
-**    J     View timeline of focused entry filtered by branch.
+**    l     View timeline of focused entry.
+**    L     View timeline of focused entry filtered by branch.
 **    k     View details of focused entry.
 **    ESC   Disable keyboard navigation mode.
 */
