@@ -292,7 +292,7 @@ will do the same thing, since the base image layers are immutable in
 Docker. This is almost certainly not what you want.
 
 The correct ways put the repo into the <i>container</i> created from the
-image, not in the <i>image</i> itself.
+<i>image</i>, not in the image itself.
 
 The simplest method is to stop the container if it was running,
 then say:
