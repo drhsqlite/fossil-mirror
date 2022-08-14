@@ -1,26 +1,44 @@
-###
-#   Dockerfile for Fossil
-###
-FROM fedora:29
+# STAGE 1: Build a static Fossil binary atop Alpine Linux
 
-### Now install some additional parts we will need for the build
-RUN dnf update -y && dnf install -y gcc make tcl tcl-devel zlib-devel openssl-devel tar && dnf clean all && groupadd -r fossil -g 433 && useradd -u 431 -r -g fossil -d /opt/fossil -s /sbin/nologin -c "Fossil user" fossil
+# Avoid the temptation to swap the wget call below out for an ADD URL
+# directive.  The URL is fixed for a given release tag, which triggers
+# Docker's caching behavior, causing it to reuse that version as long
+# as it remains in the cache.  We prefer to rely on the caching of the
+# server instance on fossil-scm.org, which will keep these trunk
+# tarballs around until the next trunk commit.
 
-### If you want to build "trunk", change the next line accordingly.
-ENV FOSSIL_INSTALL_VERSION release
+FROM alpine:latest AS builder
+WORKDIR /tmp
+RUN apk update                                                         \
+     && apk upgrade --no-cache                                         \
+     && apk add --no-cache                                             \
+         busybox-static gcc make                                       \
+         musl-dev                                                      \
+         openssl-dev openssl-libs-static                               \
+         zlib-dev zlib-static                                          \
+     && wget -O - https://fossil-scm.org/home/tarball/src | tar -xz    \
+     && src/configure --static CFLAGS='-Os -s'                         \
+     && make -j
 
-RUN curl "https://fossil-scm.org/home/tarball/fossil-src.tar.gz?name=fossil-src&uuid=${FOSSIL_INSTALL_VERSION}" | tar zx
-RUN cd fossil-src && ./configure --disable-fusefs --json --with-th1-docs --with-th1-hooks --with-tcl=1 --with-tcl-stubs --with-tcl-private-stubs
-RUN cd fossil-src/src && mv main.c main.c.orig && sed s/\"now\"/0/ <main.c.orig >main.c
-RUN cd fossil-src && make && strip fossil && cp fossil /usr/bin && cd .. && rm -rf fossil-src && chmod a+rx /usr/bin/fossil && mkdir -p /opt/fossil && chown fossil:fossil /opt/fossil
+# STAGE 2: Pare that back to the bare essentials.
 
-### Build is done, remove modules no longer needed
-RUN dnf remove -y gcc make zlib-devel tcl-devel openssl-devel tar && dnf clean all
+FROM scratch
+WORKDIR /jail
+COPY --from=builder /tmp/fossil /jail/bin/
+COPY --from=builder /bin/busybox.static /bin/busybox
+RUN [ "/bin/busybox", "--install", "/bin" ]
+RUN mkdir -m 700 dev museum            \
+    && mknod -m 600 dev/null    c 1 3  \
+    && mknod -m 600 dev/urandom c 1 9
 
-USER fossil
+# Now we can run the stripped-down environment in a chroot jail, while
+# leaving open the option to debug it live via the Busybox shell.
 
-ENV HOME /opt/fossil
-
-EXPOSE 8080
-
-CMD ["/usr/bin/fossil", "server", "--create", "--user", "admin", "/opt/fossil/repository.fossil"]
+EXPOSE 8080/tcp
+CMD [ \
+    "bin/fossil", "server", \
+    "--chroot", "/jail",    \
+    "--create",             \
+    "--jsmode", "bundled",  \
+    "--user", "admin",      \
+    "museum/repo.fossil"]
