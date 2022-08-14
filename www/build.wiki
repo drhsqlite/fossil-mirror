@@ -312,7 +312,7 @@ image.)
 
 Notice that the name of the repository database likely needs to change
 in the copy. The container configuration expects it to be called
-<tt>repo.fossil<//tt>, which it almost certainly was not out on the host
+<tt>repo.fossil</tt>, which it almost certainly was not out on the host
 system. This is because there is only one repository inside this
 container, so we don't have to name it after the project it contains, as
 is traditional.
