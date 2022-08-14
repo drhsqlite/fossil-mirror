@@ -1,5 +1,5 @@
-C Fossil's\schroot\sfeature\sdrops\sroot\spermissions\sbased\son\sfile\sownership,\nbut\ssince\sthe\scontainer\swas\sbuilt\swith\severything-root,\sits\sHTTP\shit\nhandling\schildren\swould\srun\sas\swhatever\shost-side\sUID/GID\spair\syou\sused\nfor\sfile\sownership.\s\sWhat\shappened\snext\swas\scomplex.\n\nIf\syou\slet\sthe\scontainer\screate\sthe\srepo\sinternally,\sit\swould\sbe\sowned\nas\sroot,\sso\sit\swould\sdrop\sroot\spermissions\sfor…root!\s\sThis\sisn't\nsuper-bad,\ssince\sFossil\sis\spresumed\ssecure\sand\sis\sdouble-jailed\sbesides.\nThe\srisk\sis,\sif\sanyone\sworks\sout\san\sRCE\sfor\sFossil,\sthey\smight\sbe\sable\nto\sget\sit\sto\screate\sraw\ssockets\sor\sdo\svarious\sother\stypes\sof\sescapes\ndespite\sthe\sdouble-jail\sdance.\n\nAttaching\sa\sDocker\svolume\sbrings\sexternal\spermisssions\sinto\sthe\ncontainer.\s\sWe\swere\srecommending\sa\s"chown\s0"\scommand\son\sthe\sshared\nvolume\sto\smake\sit\ssimilar\sto\sthe\sin-container\scase,\sbut\sthat\sopens\syou\nto\sthe\ssame\srisks\sabove.\s\sIf\syou\signored\sthis\sand\sused\shost-side\sUID/GID\npairs,\sFossil\swould\sthen\sbe\sleft\srunning\sunder\sIDs\sthat\sdidn't\sexist\ninternally,\swhich\scould\scause\sassorted\sweirdness.\n\nWe're\snow\screating\san\sexplicit\s"fossil"\suser/group\spair\sinside\sthe\ncontainer\sand\srecommending\sthat\sDocker\svolumes\suse\sthese\sIDs\sfor\ncopied-in\sfiles\sto\sbatten\sdown\ssomething\sthat\sshouldn't've\sbeen\sleft\nflapping.\n\nUpdated\sbuild.wiki\sto\scover\sall\sthis.
-D 2022-08-14T19:42:21.654
+C The\schown\s-R\sbit\sadded\sto\sthe\sDockerfile\stouches\s/jail/bin/fossil,\swhich\ncauses\s"docker\sbuild"\sto\spromote\sit\sback\sinto\sa\snew\slayer,\snearly\ndoubling\sthe\scontainer\ssize.\sDoing\sa\schown\snow\sonly\son\stwo\ndirectories,\srestoring\sit\sto\sits\ssub-9M\ssize.
+D 2022-08-14T19:53:10.819
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -12,7 +12,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 9db6e72a16994e3e8c1b32a61a60d262d3938a42b1684b144e44deadd4703645
+F Dockerfile f54c7bc3419249942608d9b6146e40c0d3cd3c2ce652690b1b6f167c083dea0a
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20eab7859231cd388514bf3784066065fdb4515be9733e50c8f332ffff84f795
-R 4962dae0d693c949d3bb9496e663e382
+P ba21bc0b8fcf754d20de4a65a5640c9f7de441eac5bcbfa9c892a3f202cf48e0
+R 55539a7ada1d8481afaad10d5b922fa5
 U wyoung
-Z f3c8d0ffd7de2d34ea88902441d89a9c
+Z 4a7d1c80470f31c5c134a027ceeac351
 # Remove this line to create a well-formed Fossil manifest.

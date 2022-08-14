@@ -36,7 +36,7 @@ RUN mkdir -m 700 dev museum                                            \
     && echo 'root:x:0:root'                         > /etc/group       \
     && addgroup -g ${UID} fossil                                       \
     && adduser -h `pwd` -g 'Fossil User' -G fossil -u ${UID} -S fossil \
-    && chown -R fossil:fossil .
+    && chown fossil:fossil . museum
 
 # Now we can run the stripped-down environment in a chroot jail, while
 # leaving open the option to debug it live via the Busybox shell.
