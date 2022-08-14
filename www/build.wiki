@@ -299,7 +299,7 @@ then say:
 
 <pre><code>  $ docker cp /path/to/my-project.fossil fossil:/jail/museum/repo.fossil
   $ docker start fossil
-  $ docker exec fossil chown 0 /jail/museum/repo.fossil</code></pre>
+  $ docker exec fossil chown -R 499 /jail/museum</code></pre>
 
 That copies the local Fossil repo into the container where the server
 expects to find it, so that the "start" command causes it to serve from
@@ -317,15 +317,27 @@ system. This is because there is only one repository inside this
 container, so we don't have to name it after the project it contains, as
 is traditional.
 
-If you skip the following "chown" command and put "http://localhost:9999/" into
+If you skip the "chown" command above and put "http://localhost:9999/" into
 your browser, expecting to see the copied-in repo's home page, you will
 get an opaque "Not Found" error. This is because the user and
 group ID of the file will be that of your local user on the container's
-host machine, which won't map to anything in the container's
+host machine, which is unlikely to map to anything in the container's
 <tt>/etc/passwd</tt> and <tt>/etc/group</tt> files, effectively
-preventing the server from reading the copied-in repository file. You
-don't have to restart the server after fixing this with <tt>chmod</tt>: simply reload the
-browser, and Fossil will try again.
+preventing the server from reading the copied-in repository file.
+499 is the default "fossil" user ID inside the container, causing Fossil to run
+with that user's privileges after it enters the chroot.
+You don't have to restart the server after fixing this with
+<tt>chmod</tt>: simply reload the browser, and Fossil will try again.
+
+(Why 499? Because regular user IDs start at 500 or 1000 on most Unix
+type systems, leaving those below it for "system" users like this Fossil
+daemon owner; standard OS system users start at 0 and go upward, so we
+started at 500 and went down one to avoid a conflict. If you use Docker
+volumes, you may wish to override this at container creation time — the
+"run" or "create" command — by passing an option like "<tt>-e
+UID=501</tt>". The internal container user IDs are used for permissions
+on the volume, where the host's user/group IDs come into play, so
+syncing the in-container user ID with the host can be useful.)
 
 This simple method has a problem: Docker containers are designed to be
 killed off at the slightest cause, rebuilt, and redeployed. If you do
@@ -348,12 +360,13 @@ when you recreate it by giving the above command again.
 <h3>5.2 Why Chroot?</h3>
 
 A potentially surprising feature of this container is that it runs
-Fossil as root, which causes [./chroot.md | Fossil's chroot jail
-feature] to kick in. Since a Docker container is a type of über-jail
+Fossil as root. Since that causes [./chroot.md | Fossil's chroot jail
+feature] to kick in, and a Docker container is a type of über-jail
 already, you may be wondering why we don't either:
 
   #  run <tt>fossil server --nojail</tt> to skip the internal chroot; or
-  #  create a non-root user and force Docker to use that instead
+  #  set "<tt>USER fossil</tt>" in the Dockerfile so it starts Fossil as
+     that user instead
 
 The reason is, although this container is quite stripped-down by today's
 standards, it's based on the [https://www.busybox.net/BusyBox.html |
@@ -368,6 +381,16 @@ from accessing the Busybox features.
 We deem this risk low since a) it's never happened, that we know of;
 and b) we've turned off all of the risky features like TH1 docs.
 Nevertheless, we believe in defense-in-depth.
+
+If you shell into the container and do a <tt>ps</tt>, you'll find
+<tt>fossil</tt> running as <tt>root</tt>. Why? Because that's the parent
+process, which may need to do rootly things like listening on port 80 or
+443. Fossil's chroot feature takes effect in the child processes forked
+off to handle each HTTP/CGI hit. This is why you can fix broken
+permissions with <tt>chown</tt> after the container is already running,
+without restarting it: each hit reevaluates the repository file
+permissions when deciding what user to become when dropping root
+privileges.
 
 
 <h3>5.3 Extracting a Static Binary</h3>

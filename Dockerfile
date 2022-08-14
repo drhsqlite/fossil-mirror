@@ -24,15 +24,27 @@ RUN apk update                                                         \
 
 FROM scratch
 WORKDIR /jail
-COPY --from=builder /tmp/fossil /jail/bin/
+ENV UID 499
+ENV PATH "/bin:/jail/bin"
+COPY --from=builder /tmp/fossil bin/
 COPY --from=builder /bin/busybox.static /bin/busybox
 RUN [ "/bin/busybox", "--install", "/bin" ]
-RUN mkdir -m 700 dev museum            \
-    && mknod -m 600 dev/null    c 1 3  \
-    && mknod -m 600 dev/urandom c 1 9
+RUN mkdir -m 700 dev museum                                            \
+    && mknod -m 600 dev/null    c 1 3                                  \
+    && mknod -m 600 dev/urandom c 1 9                                  \
+    && echo 'root:x:0:0:Fossil Init:/:/bin/nologin' > /etc/passwd      \
+    && echo 'root:x:0:root'                         > /etc/group       \
+    && addgroup -g ${UID} fossil                                       \
+    && adduser -h `pwd` -g 'Fossil User' -G fossil -u ${UID} -S fossil \
+    && chown -R fossil:fossil .
 
 # Now we can run the stripped-down environment in a chroot jail, while
 # leaving open the option to debug it live via the Busybox shell.
+#
+# Implicit: We don't set USER here on purpose because we want Fossil to
+# start as root so it can chroot itself away inside /jail.  Since that's
+# owned by the special fossil user, it drops root privileges for that
+# user, preventing exotic root-based hacks on Docker.
 
 EXPOSE 8080/tcp
 CMD [ \
@@ -40,5 +52,4 @@ CMD [ \
     "--chroot", "/jail",    \
     "--create",             \
     "--jsmode", "bundled",  \
-    "--user", "admin",      \
     "museum/repo.fossil"]

@@ -1,5 +1,5 @@
-C Resolved\stimeline\ssegfault\sreported\sin\s[forum:0bbb66eee4ba35db|forum\spost\s0bbb66eee4ba35db],\striggered\sby\sentries\swith\sNULL\scheckin\smessages.
-D 2022-08-14T19:33:41.863
+C Fossil's\schroot\sfeature\sdrops\sroot\spermissions\sbased\son\sfile\sownership,\nbut\ssince\sthe\scontainer\swas\sbuilt\swith\severything-root,\sits\sHTTP\shit\nhandling\schildren\swould\srun\sas\swhatever\shost-side\sUID/GID\spair\syou\sused\nfor\sfile\sownership.\s\sWhat\shappened\snext\swas\scomplex.\n\nIf\syou\slet\sthe\scontainer\screate\sthe\srepo\sinternally,\sit\swould\sbe\sowned\nas\sroot,\sso\sit\swould\sdrop\sroot\spermissions\sfor…root!\s\sThis\sisn't\nsuper-bad,\ssince\sFossil\sis\spresumed\ssecure\sand\sis\sdouble-jailed\sbesides.\nThe\srisk\sis,\sif\sanyone\sworks\sout\san\sRCE\sfor\sFossil,\sthey\smight\sbe\sable\nto\sget\sit\sto\screate\sraw\ssockets\sor\sdo\svarious\sother\stypes\sof\sescapes\ndespite\sthe\sdouble-jail\sdance.\n\nAttaching\sa\sDocker\svolume\sbrings\sexternal\spermisssions\sinto\sthe\ncontainer.\s\sWe\swere\srecommending\sa\s"chown\s0"\scommand\son\sthe\sshared\nvolume\sto\smake\sit\ssimilar\sto\sthe\sin-container\scase,\sbut\sthat\sopens\syou\nto\sthe\ssame\srisks\sabove.\s\sIf\syou\signored\sthis\sand\sused\shost-side\sUID/GID\npairs,\sFossil\swould\sthen\sbe\sleft\srunning\sunder\sIDs\sthat\sdidn't\sexist\ninternally,\swhich\scould\scause\sassorted\sweirdness.\n\nWe're\snow\screating\san\sexplicit\s"fossil"\suser/group\spair\sinside\sthe\ncontainer\sand\srecommending\sthat\sDocker\svolumes\suse\sthese\sIDs\sfor\ncopied-in\sfiles\sto\sbatten\sdown\ssomething\sthat\sshouldn't've\sbeen\sleft\nflapping.\n\nUpdated\sbuild.wiki\sto\scover\sall\sthis.
+D 2022-08-14T19:42:21.654
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -12,7 +12,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 3445035c8dfa23bcc8556581763292692103b225c98a9c08c6ce0c834185689e
+F Dockerfile 9db6e72a16994e3e8c1b32a61a60d262d3938a42b1684b144e44deadd4703645
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -798,7 +798,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 5f266938df2d6f70f9b5a29e625533b7163161de1f54db6e7a7a9f6bf61852e8
+F www/build.wiki 475ef5bbd85df4323d9e0f7fbd54d4c5f4ea7186839cffd780a5ab99f5ba71e7
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3c55fe02466006331fb82aacfafb7ccd2a2bdb92fa90844944d0676359e876c
-R 8d7e4f47811a78928e77346a0e226956
-U stephan
-Z e25f4c5772a3b64a2462057927b0b05b
+P 20eab7859231cd388514bf3784066065fdb4515be9733e50c8f332ffff84f795
+R 4962dae0d693c949d3bb9496e663e382
+U wyoung
+Z f3c8d0ffd7de2d34ea88902441d89a9c
 # Remove this line to create a well-formed Fossil manifest.
