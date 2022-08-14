@@ -285,11 +285,16 @@ If you want the container to serve an existing repository, there are at
 least two right ways to do it.
 
 The wrong way is to use the <tt>Dockerfile COPY</tt> command to bake it
-into the container at build time. It will become one of the container's
-base layers, so that each time you restart the container, it gets reset
-to its prior state. This almost certainly is not what you want.
+into the image at build time. It will become one of the image's base
+layers, so that each time you build a container from that image, the
+repo gets reset to its build-time state. Worse, restarting the container
+will do the same thing, since the base image layers are immutable in
+Docker. This is almost certainly not what you want.
 
-The simplest correct method is to stop the container if it was running,
+The correct ways put the repo into the <i>container</i> created from the
+image, not in the <i>image</i> itself.
+
+The simplest method is to stop the container if it was running,
 then say:
 
 <pre><code>  $ docker cp /path/to/repo.fossil fossil:/jail/museum/repo.fossil
@@ -298,21 +303,21 @@ then say:
 
 That copies the local Fossil repo into the container where the server
 expects to find it, so that the "start" command causes it to serve from
-that copied-in file instead. Since it lives atop the base layers, it
+that copied-in file instead. Since it lives atop the immutable base layers, it
 persists as part of the container proper, surviving restarts.
 
 (The same is true of the default mode of operation: the <tt>fossil
 server --create</tt> flag initializes a fresh Fossil repo atop the base
-layer.)
+image.)
 
 If you skip the "chown" command and put "http://localhost:9999/" into
 your browser, expecting to see the copied-in repo's home page, you will
-get an opaque "Not Found" error instead. This is because the user and
+get an opaque "Not Found" error. This is because the user and
 group ID of the file will be that of your local user on the container's
 host machine, which won't map to anything in the container's
 <tt>/etc/passwd</tt> and <tt>/etc/group</tt> files, effectively
 preventing the server from reading the copied-in repository file. You
-don't have to restart the server after fixing this: simply reload the
+don't have to restart the server after fixing this with <tt>chmod</tt>: simply reload the
 browser, and Fossil will try again.
 
 This simple method has a problem: Docker containers are designed to be
@@ -327,9 +332,9 @@ solution is to replace the "run" command above with the following:
 
 Now when you "docker cp" the local repo into the container, it lands on
 a separate [https://docs.docker.com/storage/volumes/ | Docker volume]
-mounted inside it, which has an independent lifetime.  When you need to
-rebuild the container — such as to upgrade to a newer version of Fossil
-— the volume remains behind and gets remapped into the new contanier
+mounted inside it, giving those files an independent lifetime.  When you need to
+rebuild the container or its underlying image — such as to upgrade to a newer version of Fossil
+— the volume remains behind and gets remapped into the new container
 when you recreate it by giving the above command again.
 
 
