@@ -3332,7 +3332,7 @@ void cmd_webserver(void){
     ** container or similar, so we do want to exit immediately, to
     ** allow the container to shut down quickly.
     **/
-    signal(SIGTERM, exit);
+    signal(SIGTERM, fossil_exit);
   }
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Subprocess %d *****/\n", getpid());
