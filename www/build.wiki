@@ -297,7 +297,7 @@ The correct ways put the repo into the <i>container</i> created from the
 The simplest method is to stop the container if it was running,
 then say:
 
-<pre><code>  $ docker cp /path/to/repo.fossil fossil:/jail/museum/repo.fossil
+<pre><code>  $ docker cp /path/to/my-project.fossil fossil:/jail/museum/repo.fossil
   $ docker start fossil
   $ docker exec fossil chown 0 /jail/museum/repo.fossil</code></pre>
 
@@ -310,7 +310,14 @@ persists as part of the container proper, surviving restarts.
 server --create</tt> flag initializes a fresh Fossil repo atop the base
 image.)
 
-If you skip the "chown" command and put "http://localhost:9999/" into
+Notice that the name of the repository database likely needs to change
+in the copy. The container configuration expects it to be called
+<tt>repo.fossil<//tt>, which it almost certainly was not out on the host
+system. This is because there is only one repository inside this
+container, so we don't have to name it after the project it contains, as
+is traditional.
+
+If you skip the following "chown" command and put "http://localhost:9999/" into
 your browser, expecting to see the copied-in repo's home page, you will
 get an opaque "Not Found" error. This is because the user and
 group ID of the file will be that of your local user on the container's
