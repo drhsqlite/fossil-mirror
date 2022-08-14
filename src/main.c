@@ -3325,6 +3325,15 @@ void cmd_webserver(void){
   g.httpOut = stdout;
   signal(SIGSEGV, sigsegv_handler);
   signal(SIGPIPE, sigpipe_handler);
+  if( getpid()==1 ){
+    /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
+    ** rebooting the system by nuking the init system.  The only way
+    ** Fossil becomes that PID 1 is when it's running solo in a Linux
+    ** container or similar, so we do want to exit immediately, to
+    ** allow the container to shut down quickly.
+    **/
+    signal(SIGTERM, exit);
+  }
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Subprocess %d *****/\n", getpid());
   }
