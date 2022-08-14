@@ -839,7 +839,14 @@ function TimelineGraph(tx){
 **    in order to be able to construct /file URLs, the information provided by
 **    the timeline-data-N blocks would have to be extended).
 **  o kFRST, kLAST: check if the previous/next page should be opened if focus is
-**    already at the top/bottom.
+**    already at the top/bottom. UPDATE: the current behavior seems to be "more
+**    predictable", i.e. these shortcuts reliably focus the top/bottom item.
+**  o Shortcut(s) to (re)load /timeline with different View Style or Entry Limit
+**    by appending query parameters `&ss={ViewStyle}&n={EntryLimit±N}&udc=1' to
+**    the URL; alternatively set keyboard focus to the "View Style" <select> or
+**    to the "Max:" <input> field.
+**  o Auto-expand the hidden details (hash, user, tags) for focused entries in
+**    Compact View (by inheritance via CSS class `.timelineFocused').
 */
 (function(){
   window.addEventListener('load',function(){
