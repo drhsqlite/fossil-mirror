@@ -1071,15 +1071,33 @@ function TimelineGraph(tx){
       var id = focusCacheGet();
       if( id && dx==0 ){
         if( key==kCYCL ){
-          var sel = focusSelectedId();
-          var sl2 = focus2ndSelectedId();
-          var cur = focusCurrentId();
-          var tik = focusTickedId();
-          if( id==sel ) id = sl2 || cur || tik || sel;
-          else if( id==sl2 ) id = cur || tik || sel || sl2;
-          else if( id==cur ) id = tik || sel || sl2 || cur;
-          else if( id==tik ) id = sel || sl2 || cur || tik;
-          else id = sel || sl2 || cur || tik || id;
+          function uniqIds(){
+            var a = Array.prototype.slice.call(arguments,0), k=[], v=[];
+            for( var i=0; i<a.length; i++ ){
+              if( a[i] && !(a[i] in k) ){
+                k[a[i]] = 1;
+                v.push(a[i]);
+              }
+            }
+            return v;
+          }
+          var ids = uniqIds(
+            focusTickedId(),
+            focusSelectedId(),
+            focus2ndSelectedId(),
+            focusCurrentId()
+          );
+          if( ids.length>1 ){
+            var m = 0;
+            for( var i=0; i<ids.length; i++ ){
+              if( id==ids[i] ){
+                m = i<ids.length-1 ? i+1 : 0;
+                break;
+              }
+            }
+            id = ids[m];
+          }
+          else if( ids.length==1 ) id = ids[0];
         }
         else if( key==kTICK ){
           var gn = document.getElementById('tln'+id.slice(1));
