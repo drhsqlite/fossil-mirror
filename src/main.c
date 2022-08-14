@@ -3297,6 +3297,19 @@ void cmd_webserver(void){
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
+  if( getpid()==1 ){
+    /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
+    ** rebooting the system by nuking the init system.  The only way
+    ** Fossil becomes that PID 1 is when it's running solo in a Linux
+    ** container or similar, so we do want to exit immediately, to
+    ** allow the container to shut down quickly.
+    **
+    ** This has to happen ahead of the other signal() calls below.
+    ** They apply after the HTTP hit is handled, but this one needs
+    ** to be registered while we're waiting for that to occur.
+    **/
+    signal(SIGTERM, fossil_exit);
+  }
 
   /* Start up an HTTP server
   */
@@ -3325,15 +3338,6 @@ void cmd_webserver(void){
   g.httpOut = stdout;
   signal(SIGSEGV, sigsegv_handler);
   signal(SIGPIPE, sigpipe_handler);
-  if( getpid()==1 ){
-    /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
-    ** rebooting the system by nuking the init system.  The only way
-    ** Fossil becomes that PID 1 is when it's running solo in a Linux
-    ** container or similar, so we do want to exit immediately, to
-    ** allow the container to shut down quickly.
-    **/
-    signal(SIGTERM, fossil_exit);
-  }
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Subprocess %d *****/\n", getpid());
   }
