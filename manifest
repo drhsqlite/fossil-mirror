@@ -1,6 +1,5 @@
-C Add\s#ifdef's\sto\sfix\sthe\sWindows\sbuild.
-D 2022-08-15T10:28:00.000
-F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
+C The\scontainer\snow\sbuilds\sBusybox\sfrom\ssource\sso\swe\scan\sremove\sutilities\nthat\sare\sunhelpful\sinside\sthe\scontainer.\s\sWe\sleave\sa\slot\sbehind\sfor\nexpansion\s(e.g.\sthe\srunit\sinit\ssystem,\scrond,\sinetd…)\sbut\swe\sremove\nthings\sthat\shave\sno\spossible\sjustification,\ssuch\sas\smodprobe.\nWe\sremove\severything\sfrom\s/bin\sthat's\sa\sshell\sbuiltin\s(echo,\sprintf,\ntest…)\sand\swe\sreplace\sa\sfew\sBusyBox\scommands\s(sha[13]sum)\swith\swrapper\nshell\sscripts\sthat\scall\sFossil\sbuiltins.\s\sWe\scap\sthat\soff\sby\sadding\sa\n"sqlite3"\swrapper\sthat\scalls\s"fossil\ssqlite3\s--no-repository",\sjust\sfor\nfun.\s\sAll\stogether,\sthis\strims\sabout\sa\smeg\sof\sfat.
+D 2022-08-15T14:42:23.620
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -12,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile f54c7bc3419249942608d9b6146e40c0d3cd3c2ce652690b1b6f167c083dea0a
+F Dockerfile 32f7dc5bedda436cd57ae67493029e014a116841515bbab09e9ee733cbd777e4
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -694,6 +693,7 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
+F tools/busybox-config 0334ac451272e8d2ac857ff5d6d7c6765919ec9b385f62fae66deeb6e8b969a4
 F tools/co-rsync.tcl bcc9d6d68374f0d03cb4db5a06b0680015df8ed1d185c235939e7a0b0b966e17 x
 F tools/codecheck1.c a8331266f3851f7f01bd2777de07d954a721d698e432c79fe3c2d753b0c98ead
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00cc9c3eb1040c787a1982256be01282353243380c5fd062e559f5105ed9966d
-R 0d94f811469be5ccc37352ef0e10a7d1
-U florian
-Z 77ff1412276aca7b7c24f7a4ee923007
+P f572f7524d453876e7f72d288ea9752dab014131107f9ac69c47982a80ac1dfc
+R 62dc1a305a188fa1e019832004d62a0e
+U wyoung
+Z 58f7e8a00b1cdfa2a5a3a3fdffab8209
 # Remove this line to create a well-formed Fossil manifest.
