@@ -767,5 +767,12 @@ if {[get-define EMSDK_HOME] ne ""} {
   catch {exec rm -f tools/emcc.sh}
 }
 
+# Insert a prefix of the checkin ID into the Dockerfile so repeated
+# builds of this version generate and fetch the tarball only once,
+# keeping it in the local Docker cache.
+set ci [readfile "$::autosetup(srcdir)/manifest.uuid"]
+define FOSSIL_CI_PFX [string range $ci 0 12]
+make-template Dockerfile.in
+
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

@@ -257,7 +257,7 @@ To uninstall, just delete the binary.</p>
 Fossil ships a <tt>Dockerfile</tt> at the top of its source tree which
 you can build like so:
 
-<pre><code>  $ docker build -t fossil --no-cache .</code></pre>
+<pre><code>  $ docker build -t fossil .</code></pre>
 
 If the image built successfully, you can create a container from it and
 test that it runs:
@@ -273,10 +273,6 @@ Our stock <tt>Dockerfile</tt> configures Fossil with the default feature
 set, so you may wish to modify the <tt>Dockerfile</tt> to add
 configuration options, add APK packages to support those options, and so
 forth.
-
-It builds tip-of-trunk. To get a release version instead, append
-"<tt>?r=release</tt>" to the URL in the <tt>Dockerfile</tt>, then
-(re)build it.
 
 
 <h3>5.1 Running It in Production</h3>
@@ -326,18 +322,9 @@ host machine, which is unlikely to map to anything in the container's
 preventing the server from reading the copied-in repository file.
 499 is the default "fossil" user ID inside the container, causing Fossil to run
 with that user's privileges after it enters the chroot.
+(See [#docker-args | below] for how to change this default.)
 You don't have to restart the server after fixing this with
 <tt>chmod</tt>: simply reload the browser, and Fossil will try again.
-
-(Why 499? Because regular user IDs start at 500 or 1000 on most Unix
-type systems, leaving those below it for "system" users like this Fossil
-daemon owner; standard OS system users start at 0 and go upward, so we
-started at 500 and went down one to avoid a conflict. If you use Docker
-volumes, you may wish to override this at container creation time — the
-"run" or "create" command — by passing an option like "<tt>-e
-UID=501</tt>". The internal container user IDs are used for permissions
-on the volume, where the host's user/group IDs come into play, so
-syncing the in-container user ID with the host can be useful.)
 
 This simple method has a problem: Docker containers are designed to be
 killed off at the slightest cause, rebuilt, and redeployed. If you do
@@ -357,7 +344,7 @@ rebuild the container or its underlying image — such as to upgrade to a newer 
 when you recreate it by giving the above command again.
 
 
-<h3>5.2 Why Chroot?</h3>
+<h3 id="docker-chroot">5.2 Why Chroot?</h3>
 
 A potentially surprising feature of this container is that it runs
 Fossil as root. Since that causes [./chroot.md | Fossil's chroot jail
@@ -393,7 +380,7 @@ permissions when deciding what user to become when dropping root
 privileges.
 
 
-<h3>5.3 Extracting a Static Binary</h3>
+<h3 id="docker-static">5.3 Extracting a Static Binary</h3>
 
 Our 2-stage build process uses Alpine Linux only as a build host. Once
 we've got everything reduced to the two key static binaries — Fossil and
@@ -414,6 +401,67 @@ extract the executable from it instead:
 
 The resulting binary is the single largest file inside that container,
 at about 6 MiB. (It's built stripped.)
+
+
+<h3 id="docker-args">5.4 Container Build Arguments</h3>
+
+<h4>5.4.1 Package Versions</h4>
+
+You can override the default versions of Fossil and BusyBox that get
+fetched in the build step.  To get the latest-and-greatest of
+everything, you could say:
+
+<pre><code>  $ docker build -t fossil \
+    --build-arg FSLVER=trunk \
+    --build-arg BBXVER=master .</code></pre>
+
+(But don't, for reasons we will get to.)
+
+Because the BusyBox configuration file we ship was created with and
+tested against a specific stable release, that's the version we pull by
+default. It does try to merge the defaults for any new configuration
+settings into the stock set, but since it's possible this will fail, we
+don't blindly update the BusyBox version merely because a new release
+came out.  Someone needs to get around to vetting it against our stock
+configuration first.
+
+As for Fossil, it defaults to fetching the same version as the checkout
+you're running the build command from, based on checkin ID. The most
+common reason to override this is to get a release version:
+
+<pre><code>  $ docker build -t fossil \
+    --build-arg FSLVER=version-2.19 .</code></pre>
+
+It's best to use a specific version number rather than the generic
+"release" tag because Docker caches downloaded files and tries to reuse
+them across builds. If you ask for "release" before a new version is
+tagged and then immediately after, you expect to get two different
+tarballs, but because the URL hasn't changed, if you have an old release
+tarball in your Docker cache, you'll get the old version even if you
+pass the "docker build --no-cache" option.
+
+This is why we default to a checkin ID rather than a generic tag like
+"trunk": so the URL will change each time you update your Fossil source
+tree, forcing Docker to pull a fresh tarball.
+
+<h4>5.4.2 User & Group IDs</h4>
+
+The "fossil" user and group IDs inside the container default to 499.
+Why?  Regular user IDs start at 500 or 1000 on most Unix type systems,
+leaving those below it for "system" users like this Fossil daemon owner.
+Since standard OS system users start at 0 and go upward, we started at
+500 and went down one to reduce the chance of a conflict to as close to
+zero as we can manage.
+
+To change it to something else, say:
+
+<pre><code>  $ docker build -t fossil --build-arg UID=501 .</code></pre>
+
+This is particularly useful if you're putting your repository on a
+Docker volume since the IDs "leak" out into the host environment via
+file permissions.  You may therefore wish them to mean something on both
+sides of the container barrier rather than have "499" appear on the host
+in "<tt>ls -l</tt>" output.
 
 
 <h2>6.0 Building on/for Android</h2>

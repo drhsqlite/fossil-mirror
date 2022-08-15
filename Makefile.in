@@ -115,6 +115,6 @@ tags:
 # This is also why we repeat the reconfig target's command here instead
 # of delegating to it with "$(MAKE) reconfig": having children running
 # around interfering makes this failure mode even worse.
-Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
+Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@ @srcdir@/Dockerfile.in
 	@AUTOREMAKE@
 	touch @builddir@/Makefile

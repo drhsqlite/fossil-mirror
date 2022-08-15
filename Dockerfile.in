@@ -1,17 +1,13 @@
 # STAGE 1: Build a static Fossil binary atop Alpine Linux
 
-# Avoid the temptation to swap the wget call below out for an ADD URL
-# directive.  That URL is fixed for a given release tag, which triggers
-# Docker's caching behavior, causing it to reuse that version as long
-# as it remains in the cache.  We prefer to rely on the caching of the
-# server instance on fossil-scm.org, which will keep these trunk
-# tarballs around until the next trunk commit.
-
 FROM alpine:latest AS builder
 COPY tools/busybox-config /tmp/bbx/.config
-ENV BBXVER "1_35_0"
-ENV BBXURL "https://github.com/mirror/busybox/archive/refs/tags/${BBXVER}.tar.gz"
-ADD $BBXURL /tmp
+ARG BBXVER="1_35_0"
+ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
+ARG FSLVER="@FOSSIL_CI_PFX@"
+ENV FSLURL "https://fossil-scm.org/home/tarball/?r=${FSLVER}"
+ADD $BBXURL /tmp/bbx/src.tar.gz
+ADD $FSLURL /tmp/fsl/src.tar.gz
 WORKDIR /tmp
 RUN apk update                                                         \
      && apk upgrade --no-cache                                         \
@@ -20,17 +16,17 @@ RUN apk update                                                         \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
          zlib-dev zlib-static                                          \
-     && tar --strip-components=1 -C bbx -xzf ${BBXVER}.tar.gz          \
-     && wget -O - https://fossil-scm.org/home/tarball/src | tar -xz    \
-     && ( cd bbx; make -j )                                            \
-     && src/configure --static CFLAGS='-Os -s'                         \
+     && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz            \
+     && ( cd bbx && yes "" | make oldconfig && make -j )               \
+     && tar -C fsl -xzf fsl/src.tar.gz                                 \
+     && fsl/configure --static CFLAGS='-Os -s'                         \
      && make -j
 
 # STAGE 2: Pare that back to the bare essentials.
 
 FROM scratch
 WORKDIR /jail
-ENV UID 499
+ARG UID=499
 ENV PATH "/bin:/jail/bin"
 COPY --from=builder /tmp/fossil bin/
 COPY --from=builder /tmp/bbx/busybox /bin/
