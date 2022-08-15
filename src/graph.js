@@ -996,7 +996,7 @@ function TimelineGraph(tx){
     }
     focusCacheInit();
     document.addEventListener('keydown',function(evt){
-      if( evt.target.tagName=='INPUT' ) return;
+      if( evt.target.tagName=='INPUT' || evt.target.tagName=='SELECT' ) return;
       var
         mSHIFT = 1<<13,
         kFRST = mSHIFT | 78 /* SHIFT+N */,
