@@ -275,7 +275,7 @@ configuration options, add APK packages to support those options, and so
 forth.
 
 
-<h3>5.1 Running It in Production</h3>
+<h3 id="docker-storage">5.1 Repository Storage Options</h3>
 
 If you want the container to serve an existing repository, there are at
 least two right ways to do it.
@@ -289,6 +289,9 @@ Docker. This is almost certainly not what you want.
 
 The correct ways put the repo into the <i>container</i> created from the
 <i>image</i>, not in the image itself.
+
+
+<h4>5.1.1 Storing the Repo Inside the Container</h4>
 
 The simplest method is to stop the container if it was running,
 then say:
@@ -306,12 +309,13 @@ persists as part of the container proper, surviving restarts.
 server --create</tt> flag initializes a fresh Fossil repo atop the base
 image.)
 
-Notice that the name of the repository database likely needs to change
-in the copy. The container configuration expects it to be called
+Notice that the copy command changes the name of the repository database.
+The container configuration expects it to be called
 <tt>repo.fossil</tt>, which it almost certainly was not out on the host
 system. This is because there is only one repository inside this
 container, so we don't have to name it after the project it contains, as
-is traditional.
+is traditional. A generic name lets us hard-code the server start
+command.
 
 If you skip the "chown" command above and put "http://localhost:9999/" into
 your browser, expecting to see the copied-in repo's home page, you will
@@ -326,7 +330,10 @@ with that user's privileges after it enters the chroot.
 You don't have to restart the server after fixing this with
 <tt>chmod</tt>: simply reload the browser, and Fossil will try again.
 
-This simple method has a problem: Docker containers are designed to be
+
+<h4>5.1.2 Storing the Repo Outside the Container</h4>
+
+The simple storage method above has a problem: Docker containers are designed to be
 killed off at the slightest cause, rebuilt, and redeployed. If you do
 that with the repo inside the container, it gets destroyed, too. The
 solution is to replace the "run" command above with the following:
