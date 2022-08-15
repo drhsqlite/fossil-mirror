@@ -3297,6 +3297,7 @@ void cmd_webserver(void){
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
+#if !defined(_WIN32)
   if( getpid()==1 ){
     /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
     ** rebooting the system by nuking the init system.  The only way
@@ -3310,6 +3311,7 @@ void cmd_webserver(void){
     **/
     signal(SIGTERM, fossil_exit);
   }
+#endif /* !WIN32 */
 
   /* Start up an HTTP server
   */
