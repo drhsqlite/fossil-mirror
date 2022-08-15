@@ -1,5 +1,5 @@
-C Also\sdisable\sshortcut\shandling\sif\sthe\sView\sStyle\sdrop-down\slist\shas\skeyboard\sfocus.
-D 2022-08-15T10:21:00.000
+C Simplification\sand\sharmonisation\sof\sthe\shelp\stext.
+D 2022-08-15T10:25:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
@@ -596,7 +596,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 7013f0df817882646697109a6712bbd63c077d8a6569815a3cf7ecee4017e123
+F src/timeline.c 32887803297b900b59db5d709574322b113c55b3229dbcbfa1f3702a8ef89c33
 F src/tkt.c 992429510522cad383e553cd5e778b3551ea147e1c833000ea223b3ec939eca0
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e317872280cbbb9f36bbd8099a7cb0f5beb28716c95be8de579ac01039eec1aa
-R a3496636f984ce9dc4ba0b35f8203a93
+P f419c7ebe7193a328e36826cdc1ac36e916e258f8e2833fe8622048271faa458
+R df985501050aa4244457a3aa2a22693b
 U florian
-Z 97978bf5d59c74eae5eac982313a04ee
+Z 90c8aa1e09d3ebc39f39ee59f8244c38
 # Remove this line to create a well-formed Fossil manifest.

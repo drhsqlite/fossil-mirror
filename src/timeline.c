@@ -1639,10 +1639,10 @@ const char *timeline_expand_datetime(const char *zIn){
 **    j     Move focus between selected, current (check-out) and ticked entries.
 **    ,     Focus entry closest to center of viewport.
 **    J     Scroll to focused entry.
-**    h     Tick/untick node of focused entry, or open diff if two nodes ticked.
-**    H     Untick nodes of all entries.
-**    b     Copy the commit hash of the focused entry to clipboard.
-**    B     Copy the branch name of the focused entry to clipboard.
+**    h     Tick/untick focused entry, or open diff if two entries ticked.
+**    H     Untick all entries.
+**    b     Copy commit hash of focused entry to clipboard.
+**    B     Copy branch name of focused entry to clipboard.
 **    l     View timeline of focused entry.
 **    L     View timeline of focused entry filtered by branch.
 **    k     View details of focused entry.
