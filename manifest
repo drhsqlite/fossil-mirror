@@ -1,5 +1,5 @@
-C Noted\sthe\scontainer\ssize\sshrinkage\sin\sthe\sfossil-v-git\sdoc
-D 2022-08-15T14:48:39.938
+C Adding\sthe\sBusyBox\starball\sto\sthe\scontainer\simage\swith\san\sADD\scommand\nrather\sthan\swget\sto\savoid\striggering\sGitHub\sthrottling.\s\sUnlike\sthe\nFossil\srepo\sURL,\sit\shas\sa\sversion\snumber\sbaked\sinto\sit,\sso\sit's\ssafe\sto\ngive\sit\sover\sto\sDocker's\scaching\sbehavior.
+D 2022-08-15T15:32:27.580
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 32f7dc5bedda436cd57ae67493029e014a116841515bbab09e9ee733cbd777e4
+F Dockerfile 06b2d5a8e9544e28c81d0158d5859bdba0b1c1acda2dae5b488267cf9c7d0b8a
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in b2a32502179a9e8fd0a2ee2ac2cafb06ba7907b9bb38ff104c75e2420f542d84 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 953f367e949fc2265d14632d45c049c1e400b465770e318c97d4949e8734c8f2
-R 44005071290d58f02b47e4c1e345dd1f
+P f21de33e97d5357e38ceceec4acaa248e4d77551a1c26dcac623815651591979
+R 2a2dd99f07e71dddee3f4d20aa6668e8
 U wyoung
-Z 93a16ad5e8ec2a1d43c60029817caef4
+Z a2b7c2bfddad1c82a644dc2bb5b58179
 # Remove this line to create a well-formed Fossil manifest.

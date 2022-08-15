@@ -1,7 +1,7 @@
 # STAGE 1: Build a static Fossil binary atop Alpine Linux
 
 # Avoid the temptation to swap the wget call below out for an ADD URL
-# directive.  The URL is fixed for a given release tag, which triggers
+# directive.  That URL is fixed for a given release tag, which triggers
 # Docker's caching behavior, causing it to reuse that version as long
 # as it remains in the cache.  We prefer to rely on the caching of the
 # server instance on fossil-scm.org, which will keep these trunk
@@ -11,6 +11,7 @@ FROM alpine:latest AS builder
 COPY tools/busybox-config /tmp/bbx/.config
 ENV BBXVER "1_35_0"
 ENV BBXURL "https://github.com/mirror/busybox/archive/refs/tags/${BBXVER}.tar.gz"
+ADD $BBXURL /tmp
 WORKDIR /tmp
 RUN apk update                                                         \
      && apk upgrade --no-cache                                         \
@@ -19,9 +20,9 @@ RUN apk update                                                         \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
          zlib-dev zlib-static                                          \
-     && wget -O - ${BBXURL} | tar --strip-components=1 -C bbx -xz      \
-     && ( cd bbx; make -j )                                            \
+     && tar --strip-components=1 -C bbx -xzf ${BBXVER}.tar.gz          \
      && wget -O - https://fossil-scm.org/home/tarball/src | tar -xz    \
+     && ( cd bbx; make -j )                                            \
      && src/configure --static CFLAGS='-Os -s'                         \
      && make -j
 
