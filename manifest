@@ -1,5 +1,5 @@
-C Polishing\spass\son\sthe\scontainer\srepo\sstorage\ssection\sof\sthe\sbuild\sdocs.
-D 2022-08-15T22:13:38.253
+C Put\sthe\s"--user\sfossil"\sbit\sback\sinto\sthe\sfossil\sserver\scommand\sfor\sthe\ncontainer.\sJust\sran\sinto\sa\ssituations\swhere\sit's\sstill\sneeded.
+D 2022-08-15T23:07:19.415
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile.in 00615fd7e9b73a219f67b7046c29c5b4994513c28fcc8a73717feb50384a3e07
+F Dockerfile.in 311a594b2040ce6b46a931fa3ab3986f69feaa534c1339d51e386bf98634d1d3
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 45f47ce65e9e653c70d1d26183a5b2ab6e5e5ee538cfec182570b827602b8f7d x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f938438380885766c7b4eaf0af2d8c1d11b5ea4053cb86414f287d70b09801c2
-R a3517adc428f6199a6ac757b81fd4fd6
+P 3e332637f15f88ffa3690e183be559ed1a1da1dd25bc52a6fb8551239f193031
+R 3b69145967d8d436104737fd8a6dc876
 U wyoung
-Z 245332852bf1bedfb11da8f074ec048c
+Z 1648955a23e9e123fd22eeb3e5734882
 # Remove this line to create a well-formed Fossil manifest.
