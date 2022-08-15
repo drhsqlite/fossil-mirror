@@ -1,5 +1,5 @@
-C The\scontainer\snow\sbuilds\sBusybox\sfrom\ssource\sso\swe\scan\sremove\sutilities\nthat\sare\sunhelpful\sinside\sthe\scontainer.\s\sWe\sleave\sa\slot\sbehind\sfor\nexpansion\s(e.g.\sthe\srunit\sinit\ssystem,\scrond,\sinetd…)\sbut\swe\sremove\nthings\sthat\shave\sno\spossible\sjustification,\ssuch\sas\smodprobe.\nWe\sremove\severything\sfrom\s/bin\sthat's\sa\sshell\sbuiltin\s(echo,\sprintf,\ntest…)\sand\swe\sreplace\sa\sfew\sBusyBox\scommands\s(sha[13]sum)\swith\swrapper\nshell\sscripts\sthat\scall\sFossil\sbuiltins.\s\sWe\scap\sthat\soff\sby\sadding\sa\n"sqlite3"\swrapper\sthat\scalls\s"fossil\ssqlite3\s--no-repository",\sjust\sfor\nfun.\s\sAll\stogether,\sthis\strims\sabout\sa\smeg\sof\sfat.
-D 2022-08-15T14:42:23.620
+C Noted\sthe\scontainer\ssize\sshrinkage\sin\sthe\sfossil-v-git\sdoc
+D 2022-08-15T14:48:39.938
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -852,7 +852,7 @@ F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md d3c6746788ff42e46197729d9755e82affa5f1728b7d302aa9b41200e834e4a7
-F www/fossil-v-git.wiki d44efd17656301e255abd5f2be7d44968f63c4a3b623aabd2815204491a68759
+F www/fossil-v-git.wiki 302d02cb9253525d8b0e3084b5e1fc9aa0e8a1642a8698e286ca9ea871a8e823
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f572f7524d453876e7f72d288ea9752dab014131107f9ac69c47982a80ac1dfc
-R 62dc1a305a188fa1e019832004d62a0e
+P 953f367e949fc2265d14632d45c049c1e400b465770e318c97d4949e8734c8f2
+R 44005071290d58f02b47e4c1e345dd1f
 U wyoung
-Z 58f7e8a00b1cdfa2a5a3a3fdffab8209
+Z 93a16ad5e8ec2a1d43c60029817caef4
 # Remove this line to create a well-formed Fossil manifest.
