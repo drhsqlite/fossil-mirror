@@ -115,6 +115,17 @@ tags:
 # This is also why we repeat the reconfig target's command here instead
 # of delegating to it with "$(MAKE) reconfig": having children running
 # around interfering makes this failure mode even worse.
-Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@ @srcdir@/Dockerfile.in
+Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 	@AUTOREMAKE@
 	touch @builddir@/Makefile
+
+# Container stuff
+container-image: @srcdir@/Dockerfile
+	docker build -t fossil:@FOSSIL_CI_PFX@ $(DBFLAGS) @srcdir@
+
+container-run: container
+	docker run --name fossil-@FOSSIL_CI_PFX@ $(DRFLAGS) fossil:@FOSSIL_CI_PFX@
+
+@srcdir@/Dockerfile: @srcdir@/Dockerfile.in @srcdir@/manifest.uuid
+	@AUTOREMAKE@
+

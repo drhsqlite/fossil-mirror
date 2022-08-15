@@ -274,6 +274,24 @@ set, so you may wish to modify the <tt>Dockerfile</tt> to add
 configuration options, add APK packages to support those options, and so
 forth.
 
+There are two convenience targets for you, <tt>make container-image</tt>
+and <tt>make container-run</tt>. The first creates a versioned container
+image, and the second does that and then launches a fresh container
+based on that image. You can pass extra arguments to the first command
+via the Makefile's <tt>DBFLAGS</tt> variable and to the second with the
+<tt>DRFLAGS</tt> variable. To get the custom port setting as in second
+command above, say:
+
+<pre><code>  $ make container-run DRFLAGS='-p 9999:8080/tcp'</code></pre>
+
+Contrast the raw "<tt>docker</tt>" commands above, which create an
+<i>unversioned</i> image called <tt>fossil:latest</tt> and from that a
+container simply called <tt>fossil</tt>. The unversioned names are more
+convenient for interactive use, while the versioned ones are good for
+CI/CD type applications since they avoid a conflict with past versions;
+it lets you keep old containers around for quick roll-backs while
+replacing them with fresh ones.
+
 
 <h3 id="docker-storage">5.1 Repository Storage Options</h3>
 
