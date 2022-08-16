@@ -12,15 +12,16 @@ WORKDIR /tmp
 RUN apk update                                                         \
      && apk upgrade --no-cache                                         \
      && apk add --no-cache                                             \
-         gcc make                                                      \
+         gcc make moreutils upx                                        \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
          zlib-dev zlib-static                                          \
      && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz            \
      && ( cd bbx && yes "" | make oldconfig && make -j )               \
      && tar -C fsl -xzf fsl/src.tar.gz                                 \
+     && m=fsl/src/main.mk ; grep -v '/skins/[a-ce-z]' $m | sponge $m   \
      && fsl/configure --static CFLAGS='-Os -s'                         \
-     && make -j
+     && make -j && upx -9 fossil bbx/busybox
 
 # STAGE 2: Pare that back to the bare essentials.
 

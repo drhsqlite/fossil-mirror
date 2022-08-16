@@ -272,7 +272,8 @@ internally, then remap it to wherever you want it on the host instead.
 Our stock <tt>Dockerfile</tt> configures Fossil with the default feature
 set, so you may wish to modify the <tt>Dockerfile</tt> to add
 configuration options, add APK packages to support those options, and so
-forth.
+forth. It also strips out all but the default and darkmode skins to save
+executable space.
 
 There are two convenience targets for you, <tt>make container-image</tt>
 and <tt>make container-run</tt>. The first creates a versioned container

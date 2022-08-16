@@ -1,5 +1,5 @@
-C Fixed\san\sObi\sWan\serror\sin\sthe\snew\sFossil\sversion\sprefix\sstuff\sin\nauto.def:\sit\swas\sextracting\sthe\sfirst\s13\scharacters\sof\sthe\shash,\snot\sthe\nfirst\s12.
-D 2022-08-16T06:49:19.006
+C Carved\sthe\sDocker\scontainer\simage\ssize\sdown\sstill\sfurther\sby\sstripping\nout\sall\sbut\stwo\sof\sthe\sstock\sskins\s(d*\sso\swe\sget\sdefault\sand\sdarkmode)\nand\spacking\sFossil\sand\sBusyBox\swith\sUPX.
+D 2022-08-16T07:03:19.256
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile.in 311a594b2040ce6b46a931fa3ab3986f69feaa534c1339d51e386bf98634d1d3
+F Dockerfile.in 805e24a7bdf127d20986d98d9118e5a6c343fb1192efd616beb6fca264ae55e7
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 69eb42582b324f498a465057fcb3e1df124dc79965ba70f62a6b08be286175d6 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -798,7 +798,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 2d73b5a56dfe3e9d7ba58389a80943ff86df3a4b2306aa2f264a33694684d79c
+F www/build.wiki aa1a7bb3aba90d8412ac2e19e7f308581684b000ba711b277a51dcdb4f550a35
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
@@ -852,7 +852,7 @@ F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md d3c6746788ff42e46197729d9755e82affa5f1728b7d302aa9b41200e834e4a7
-F www/fossil-v-git.wiki 302d02cb9253525d8b0e3084b5e1fc9aa0e8a1642a8698e286ca9ea871a8e823
+F www/fossil-v-git.wiki 33f93f4da0f5ce275924756e65ab4d8e8fb736c1e5092ca82604080c27e89aa9
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67386c75f539a0d640b3d073dba8538dd02aef53df10ab7f5fd9ddcc7ca347d0
-R 37e73b8b86c9adb81e04ec60fe7674dd
+P 7ecd23e0efde0d3dc94c4b85aef3f448fae54d36ad6fe957e3366f4604f62636
+R 9f564646dd96324696441d81950f338a
 U wyoung
-Z 6491798f9f6757e0cb48c0520286dacc
+Z 2b3bfb875719ab4453dc58107777fc36
 # Remove this line to create a well-formed Fossil manifest.
