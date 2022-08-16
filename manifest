@@ -1,5 +1,5 @@
-C ARM\sbuild\sfixes\sfor\sthe\scontainer:\n\n\s\s*\s\sQEMU\scouldn't\scope\swith\s"make\s-j"\son\sthe\sBusyBox\sstep\s(too\smany\n\s\s\s\s\sprocesses)\sso\sI\schanged\sit\sto\s-j11\n\s\s*\s\sMade\sthe\snew\sexecutable\sstep\sconditional,\ssince\sthere\sis\sno\supx\n\s\s\s\s\spackage\sin\sAlpine\sfor\seither\sARM\sflavor.\s\sThere's\sa\slong\sbug\sthread\n\s\s\s\s\sfor\sit\son\sGitHub,\swhich\sdoesn't\slook\sto\sbe\sgetting\sresolved\sany\n\s\s\s\s\stime\ssoon.
-D 2022-08-16T11:04:33.115
+C Changed\sthe\s"fossil\sserver\s--user"\sflag's\sargument\sback\sto\s"admin"\sfrom\n"fossil"\sfor\sthe\scontainer:\sI\swas\sconfusing\sthe\sUnix\suser\sname\swith\sthe\ndefault\sFossil\srepo\suser\sname.\s\sThe\snew\s"adduser\sfossil"\sstuff\sdoesn't\nhelp\shere;\swe\sstill\swant\sit\sto\sbe\scalled\s"admin".
+D 2022-08-16T11:05:50.808
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile.in e8e76ba19eb88d8573e26c28a3d4439e2000e09a0afaf72b9edb53ceb2ad0009
+F Dockerfile.in 318fe67bc2e51080d990ae8b97a0a81bd91dedb0584c1c0241b41b752ea36b49
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 195cda4e7f3c4e374f57939e2ba709f728679d6d8312c0581f28420ec3e388fc x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 454397b0cd891a6aa55dc088d4d8702e32f1f95106e9f83b30c6f9359e937852
-R f9bda4b6f25f9b6d649612bb78060779
+P 8849abb733c619b8efd8a84a6636a704c96510d5f06ec8b35e49e8373030b10b
+R 3c051bb517042d52c134942fc1210a39
 U wyoung
-Z 375bdab9a85f287096b4e0f9ab8077a5
+Z 842153eb8f7634c3218cdba12a18f725
 # Remove this line to create a well-formed Fossil manifest.

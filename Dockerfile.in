@@ -60,5 +60,5 @@ CMD [ \
     "--chroot", "/jail",    \
     "--create",             \
     "--jsmode", "bundled",  \
-    "--user", "fossil",     \
+    "--user", "admin",      \
     "museum/repo.fossil"]
