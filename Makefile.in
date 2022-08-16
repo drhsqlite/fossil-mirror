@@ -123,7 +123,7 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 container-image: @srcdir@/Dockerfile
 	docker build -t fossil:@FOSSIL_CI_PFX@ $(DBFLAGS) @srcdir@
 
-container-run: container
+container-run: container-image
 	docker run --name fossil-@FOSSIL_CI_PFX@ $(DRFLAGS) fossil:@FOSSIL_CI_PFX@
 
 @srcdir@/Dockerfile: @srcdir@/Dockerfile.in @srcdir@/manifest.uuid
