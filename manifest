@@ -1,5 +1,5 @@
-C Changed\sthe\s"fossil\sserver\s--user"\sflag's\sargument\sback\sto\s"admin"\sfrom\n"fossil"\sfor\sthe\scontainer:\sI\swas\sconfusing\sthe\sUnix\suser\sname\swith\sthe\ndefault\sFossil\srepo\suser\sname.\s\sThe\snew\s"adduser\sfossil"\sstuff\sdoesn't\nhelp\shere;\swe\sstill\swant\sit\sto\sbe\scalled\s"admin".
-D 2022-08-16T11:05:50.808
+C Removed\sa\sdigression\sin\sthe\sgitusers\sdoc\sabout\sFossil's\snew\nclone-and-open\smechanisms.\s\sThat\sgot\smoved\sto\sthe\sckout-workflows\sdoc\nquite\ssome\stime\sback,\sand\swe\salready\spoint\sto\sit\sfrom\sthat\ssame\ssection.\nThere's\sno\sreason\sfor\sthe\sredundancy.\s\sAlso\scleaned\sup\ssome\sgrammar\sand\ntypos\swhile\sin\sthere.
+D 2022-08-17T05:30:34.907
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -863,7 +863,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md 56617cd7874f3942597dfba556e55f06f7e62f62e9f0eea01baedc6e9566f17a
+F www/gitusers.md 22ac08b3da6af22f8db79ce2ca2f1491d1bbc9b414a1f3ee70de2a56c274154b
 F www/globs.md 78e1eeb685aed7a5ce91b3896a3a87f3f9d2388523d80fa7a5dec2e22bd23432
 F www/glossary.md 86cb7eb2bfb00e0a1fb2662d47484b988481cb5641e5d8c18fd0603cda3d71bb
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8849abb733c619b8efd8a84a6636a704c96510d5f06ec8b35e49e8373030b10b
-R 3c051bb517042d52c134942fc1210a39
+P 72d820f32049135f16de318f5051f461cd20e0ea496814b3851df68a4bb25a0b
+R 9f391c3846ce2ad7dbff8a8363509f8f
 U wyoung
-Z 842153eb8f7634c3218cdba12a18f725
+Z eee3d197e962420ff5f0aac757853be0
 # Remove this line to create a well-formed Fossil manifest.

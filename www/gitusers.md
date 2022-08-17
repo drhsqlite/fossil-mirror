@@ -185,9 +185,9 @@ trees:
 The symlink trick has a number of problems, the largest being that
 symlinks weren’t available on Windows until Vista, and until the Windows
 10 Creators Update was released in spring of 2017, you had to be an
-Administrator to use the feature besides. ([Source][wsyml]) Git solved
+Administrator to use the feature besides. ([Source][wsyml]) Git 2.5 solved
 this problem back when Windows XP was Microsoft’s current offering
-with the `git-worktree` command, added in Git 2.5:
+by adding the `git-worktree` command:
 
         git worktree add ../foo-branch foo-branch
         cd ../foo-branch
@@ -198,11 +198,11 @@ That is approximately equivalent to this in Fossil:
         cd ../foo-branch
         fossil open /path/to/repo.fossil foo-branch
 
-The Fossil alternative is wordier, but this tends to be one-time setup,
-not something you do everyday. This author keeps a “scratch” check-out
-for cases where is isn’t appropriate to reuse the “trunk” check-out,
+The Fossil alternative is wordier, but since this tends to be one-time setup,
+not something you do everyday, the overhead is insignificant. This author keeps a “scratch” check-out
+for cases where it’s inappropriate to reuse the “trunk” check-out,
 isolating all of my expedient switch-in-place actions to that one
-working directory. Since the other peer check-out track long-lived
+working directory. Since the other peer check-outs track long-lived
 branches, and that set rarely changes once a development machine is set
 up, I rarely pay the cost of these wordier commands.
 
@@ -224,23 +224,11 @@ This allows you to have your Git repository directory entirely separate
 from your working tree, with `.git` in the check-out directory being a
 file that points to `../repo.git`, in this example.
 
-As of Fossil 2.14, there is a direct equivalent:
-
-        fossil clone https://example.com/repo
-
-It’s a shorter command because we deduce `repo.fossil` and the `repo/`
-working directory from the last element of the path in the URI. If you
-wanted to override both deductions, you’d say:
-
-        fossil clone --workdir foo https://example.com/repo/bar
-
-That gets you `bar.fossil` with a `foo/` working directory alongside it.
-
 [mcw]:   ./ckout-workflows.md#mcw
 [wsyml]: https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
 
 
-#### <a id="iip"></a> Init In Place
+#### <a id="iip"></a> Init in Place
 
 To illustrate the differences that Fossil’s separation of repository
 from working directory creates in practice, consider this common Git “init in place”
