@@ -1032,13 +1032,11 @@ function TimelineGraph(tx){
         case kTMLN:
         case kTMLB:
         case kVIEW:
-        case kDONE:
-          evt.preventDefault();
-          evt.stopPropagation();
-          break;
-        default:
-          return;
+        case kDONE: break;
+        default: return;
       }
+      evt.preventDefault();
+      evt.stopPropagation();
       if( key==kCNTR ){
         var cid = focusViewportCenterId();
         if( cid ){
