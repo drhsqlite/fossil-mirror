@@ -32,11 +32,15 @@ static struct tktFieldInfo {
   char *zName;             /* Name of the database field */
   char *zValue;            /* Value to store */
   char *zAppend;           /* Value to append */
+  char *zBsln;             /* "baseline for $zName" if that field exists*/
   unsigned mUsed;          /* 01: TICKET  02: TICKETCHNG */
 } *aField;
 #define USEDBY_TICKET      01
 #define USEDBY_TICKETCHNG  02
 #define USEDBY_BOTH        03
+#define JCARD_ASSIGN     ('=')
+#define JCARD_APPEND     ('+')
+#define JCARD_PRIVATE    ('p')
 static u8 haveTicket = 0;        /* True if the TICKET table exists */
 static u8 haveTicketCTime = 0;   /* True if TICKET.TKT_CTIME exists */
 static u8 haveTicketChng = 0;    /* True if the TICKETCHNG table exists */
@@ -44,6 +48,7 @@ static u8 haveTicketChngRid = 0; /* True if TICKETCHNG.TKT_RID exists */
 static u8 haveTicketChngUser = 0;/* True if TICKETCHNG.TKT_USER exists */
 static u8 useTicketGenMt = 0;    /* use generated TICKET.MIMETYPE */
 static u8 useTicketChngGenMt = 0;/* use generated TICKETCHNG.MIMETYPE */
+static int nTicketBslns = 0;     /* number of valid "baseline for ..." */
 
 
 /*
@@ -75,10 +80,10 @@ static int fieldId(const char *zFieldName){
 */
 static void getAllTicketFields(void){
   Stmt q;
-  int i, noRegularMimetype;
+  int i, noRegularMimetype, noBaselines;
   static int once = 0;
   if( once ) return;
-  once = 1;
+  once = noBaselines = 1;
   db_prepare(&q, "PRAGMA table_info(ticket)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
@@ -87,15 +92,36 @@ static void getAllTicketFields(void){
       if( strcmp(zFieldName, "tkt_ctime")==0 ) haveTicketCTime = 1;
       continue;
     }
+    if( noBaselines && memcmp(zFieldName,"baseline for ",13)==0 ){
+      noBaselines = 0;
+      continue;
+    }
     if( strchr(zFieldName,' ')!=0 ) continue;
     if( nField%10==0 ){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
+    aField[nField].zBsln = 0;
     aField[nField].zName = mprintf("%s", zFieldName);
     aField[nField].mUsed = USEDBY_TICKET;
     nField++;
   }
   db_finalize(&q);
+  if( !noBaselines ){
+    db_prepare(&q, "SELECT 1 FROM pragma_table_info('ticket') "
+                   "WHERE type = 'INTEGER' AND name = :n");
+    for(i=0; i<nField; i++){
+      char *zBsln = mprintf("baseline for %s",aField[i].zName);
+      db_bind_text(&q, ":n", zBsln);
+      if( db_step(&q)==SQLITE_ROW ){
+        aField[i].zBsln = zBsln;
+        nTicketBslns++;
+      }else{
+        free(zBsln);
+      }
+      db_reset(&q);
+    }
+    db_finalize(&q);
+  }
   db_prepare(&q, "PRAGMA table_info(ticketchng)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
@@ -116,6 +142,7 @@ static void getAllTicketFields(void){
     if( nField%10==0 ){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
+    aField[nField].zBsln = 0;
     aField[nField].zName = mprintf("%s", zFieldName);
     aField[nField].mUsed = USEDBY_TICKETCHNG;
     nField++;
@@ -234,8 +261,7 @@ static int ticket_insert(const Manifest *p, const int rid, int tktid){
   if( haveTicketCTime ){
     blob_append_sql(&sql1, ", tkt_ctime=coalesce(tkt_ctime,:mtime)");
   }
-  aUsed = fossil_malloc( nField );
-  memset(aUsed, 0, nField);
+  aUsed = fossil_malloc_zero( nField );
   for(i=0; i<p->nField; i++){
     const char * const zName = p->aField[i].zName;
     const char * const zBaseName = zName[0]=='+' ? zName+1 : zName;
@@ -246,8 +272,12 @@ static int ticket_insert(const Manifest *p, const int rid, int tktid){
       if( zName[0]=='+' ){
         blob_append_sql(&sql1,", \"%w\"=coalesce(\"%w\",'') || %Q",
                         zBaseName, zBaseName, p->aField[i].zValue);
+        /* when appending keep "baseline for ..." unchanged */
       }else{
         blob_append_sql(&sql1,", \"%w\"=%Q", zBaseName, p->aField[i].zValue);
+        if( aField[j].zBsln ){
+          blob_append_sql(&sql1,", \"%w\"=%d", aField[j].zBsln, rid);
+        }
       }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
@@ -744,6 +774,7 @@ static int appendRemarkCmd(
 static int ticket_put(
   Blob *pTicket,           /* The text of the ticket change record */
   const char *zTktId,      /* The ticket to which this change is applied */
+  const char *aUsed,       /* Indicators for fields' modifications */
   int needMod              /* True if moderation is needed */
 ){
   int result;
@@ -752,6 +783,21 @@ static int ticket_put(
   rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
+  }
+  if( nTicketBslns ){
+    int i, s, buf[8], nSrc=0, *aSrc=&(buf[0]);
+    if( nTicketBslns > count(buf) ){
+      aSrc = (int*)fossil_malloc(sizeof(int)*nTicketBslns);
+    }
+    for(i=0; i<nField; i++){
+      if( aField[i].zBsln && aUsed[i]==JCARD_ASSIGN ){
+        s = db_int(0,"SELECT \"%w\" FROM ticket WHERE tkt_uuid = '%q'",
+                      aField[i].zBsln, zTktId );
+        if( s > 0 ) aSrc[nSrc++] = s;
+      }
+    }
+    if( nSrc ) content_deltify(rid, aSrc, nSrc, 0);
+    if( aSrc!=&(buf[0]) ) fossil_free( aSrc );
   }
   if( needMod ){
     moderation_table_create();
@@ -789,10 +835,10 @@ static int submitTicketCmd(
   const char **argv,
   int *argl
 ){
-  char *zDate;
+  char *zDate, *aUsed;
   const char *zUuid;
   int i;
-  int nJ = 0;
+  int nJ = 0, rc = TH_OK;
   Blob tktchng, cksum;
   int needMod;
 
@@ -806,11 +852,13 @@ static int submitTicketCmd(
   zDate = date_in_standard_format("now");
   blob_appendf(&tktchng, "D %s\n", zDate);
   free(zDate);
+  aUsed = fossil_malloc_zero( nField );
   for(i=0; i<nField; i++){
     if( aField[i].zAppend ){
       blob_appendf(&tktchng, "J +%s %z\n", aField[i].zName,
                    fossilize(aField[i].zAppend, -1));
       ++nJ;
+      aUsed[i] = JCARD_APPEND;
     }
   }
   for(i=0; i<nField; i++){
@@ -827,8 +875,10 @@ static int submitTicketCmd(
         if( memcmp(aField[i].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, nValue);
           blob_appendf(&tktchng, "J %s %s\n", aField[i].zName, zValue);
+          aUsed[i] = JCARD_PRIVATE;
         }else{
           blob_appendf(&tktchng, "J %s %#F\n", aField[i].zName, nValue, zValue);
+          aUsed[i] = JCARD_ASSIGN;
         }
         nJ++;
       }
@@ -848,7 +898,7 @@ static int submitTicketCmd(
   blob_appendf(&tktchng, "Z %b\n", &cksum);
   if( nJ==0 ){
     blob_reset(&tktchng);
-    return TH_OK;
+    goto finish;
   }
   needMod = ticket_need_moderation(0);
   if( g.zPath[0]=='d' ){
@@ -860,16 +910,18 @@ static int submitTicketCmd(
     @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
     @ </div>
     @ <hr />
-    return TH_OK;
   }else{
     if( g.thTrace ){
       Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
                "}<br />\n",
          blob_str(&tktchng));
     }
-    ticket_put(&tktchng, zUuid, needMod);
+    ticket_put(&tktchng, zUuid, aUsed, needMod);
+    rc = ticket_change(zUuid);
   }
-  return ticket_change(zUuid);
+  finish:
+    fossil_free( aUsed );
+    return rc;
 }
 
 
@@ -1462,6 +1514,7 @@ void ticket_cmd(void){
       enum { set,add,history,err } eCmd = err;
       int i = 0;
       Blob tktchng, cksum;
+      char *aUsed;
 
       /* get command type (set/add) and get uuid, if needed for set */
       if( strncmp(g.argv[2],"set",n)==0 || strncmp(g.argv[2],"change",n)==0 ||
@@ -1604,6 +1657,7 @@ void ticket_cmd(void){
           }
         }
       }
+      aUsed = fossil_malloc_zero( nField );
 
       /* now add the needed artifacts to the repository */
       blob_zero(&tktchng);
@@ -1617,15 +1671,18 @@ void ticket_cmd(void){
         if( aField[i].zAppend && aField[i].zAppend[0] ){
           zPfx = " +";
           zValue = aField[i].zAppend;
+          aUsed[i] = JCARD_APPEND;
         }else if( aField[i].zValue && aField[i].zValue[0] ){
           zPfx = " ";
           zValue = aField[i].zValue;
+          aUsed[i] = JCARD_ASSIGN;
         }else{
           continue;
         }
         if( memcmp(aField[i].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, strlen(zValue));
           blob_appendf(&tktchng, "J%s%s %s\n", zPfx, aField[i].zName, zValue);
+          aUsed[i] = JCARD_PRIVATE;
         }else{
           blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
                        aField[i].zName, strlen(zValue), zValue);
@@ -1635,12 +1692,14 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1))==0 ){
+      if( ticket_put(&tktchng, zTktUuid, aUsed,
+                      ticket_need_moderation(1) )==0 ){
         fossil_fatal("%s", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
       }
+      fossil_free( aUsed );
     }
   }
 }
