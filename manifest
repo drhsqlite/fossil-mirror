@@ -1,5 +1,5 @@
-C Correct\sa\sNULL\sbeing\spassed\sto\sstrcmp()\swhich\scaused\sany\ssubmit\sof\sJS\sscript\scode\sin\sthe\sskin\seditor\sto\ssegfault.\sReported\sin\s[forum:9d9f0580fd\s|\sforum\spost\s9d9f0580fd].
-D 2022-08-23T11:14:21.691
+C Made\sa\sbetter\sdistinction\sbetween\sbind\smounts\sand\sDocker\svolumes\sin\sthe\nnew\sDocker\ssection\sof\sthe\sbuild\sdoc.
+D 2022-08-28T17:52:28.127
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -798,7 +798,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki aa1a7bb3aba90d8412ac2e19e7f308581684b000ba711b277a51dcdb4f550a35
+F www/build.wiki 20f33bf1031ec2476815e447cc8faf3bc31c93cbe9d92cc9bb1d1a3f23dd6813
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 74ded491a2ab988c27992595cbeb6e55b3249e1dd29e5a5f173255dd17a2d6af
 F www/caps/impl.md 42556ecf8259328963cebb7b5ae064f8c2c02264514ec6bc2655ed3c7f89ed8e
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f70a236ce66fa2adf74f21145791c30d925612f6cd74fbe57c418a662e117f0
-R 89ce3a15ff7007a3a4d71d567cb2c940
-U stephan
-Z bca73dbee1fa7d633ea52f1a644be709
+P a88478391e555ed70e1b5342e0712fbfd8d26a1c094dd05ab4d34bc079d40115
+R 65d8c858792d12694041bb8d58fa65e7
+U wyoung
+Z f6a99edf70ac393ba828d01b4e324fe6
 # Remove this line to create a well-formed Fossil manifest.

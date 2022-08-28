@@ -324,10 +324,6 @@ expects to find it, so that the "start" command causes it to serve from
 that copied-in file instead. Since it lives atop the immutable base layers, it
 persists as part of the container proper, surviving restarts.
 
-(The same is true of the default mode of operation: the <tt>fossil
-server --create</tt> flag initializes a fresh Fossil repo atop the base
-image.)
-
 Notice that the copy command changes the name of the repository database.
 The container configuration expects it to be called
 <tt>repo.fossil</tt>, which it almost certainly was not out on the host
@@ -357,17 +353,30 @@ killed off at the slightest cause, rebuilt, and redeployed. If you do
 that with the repo inside the container, it gets destroyed, too. The
 solution is to replace the "run" command above with the following:
 
-<pre><code>  $ docker create \
-    --name fossil -p 9999:8080/tcp \
-    -v museum:/jail/museum fossil
+<pre><code>  $ docker run \
+    --name fossil-bind-mount -p 9999:8080 \
+    -v ~/museum:/jail/museum fossil
 </code></pre>
 
-Now when you "docker cp" the local repo into the container, it lands on
-a separate [https://docs.docker.com/storage/volumes/ | Docker volume]
-mounted inside it, giving those files an independent lifetime.  When you need to
+Because this bind mount maps a host-side directory (<tt>~/museum</tt>)
+into the container, you don't need to <tt>docker cp</tt> the repo into
+the container at all.  It still expects to find the repository as
+<tt>repo.fossil</tt> under that directory, but now both the host and the
+container can see that file.  (Beware: This may create a
+[https://www.sqlite.org/howtocorrupt.html | risk of data corruption] due
+to SQLite locking issues if you try to modify the DB from both sides at
+once.)
+
+Instead of a bind mount, you could instead set up
+a separate [https://docs.docker.com/storage/volumes/ | Docker volume],
+at which point you <i>would</i> need to <tt>docker cp</tt> the repo file
+into the container.
+
+Either way, files in these mounted directories have a lifetime independent
+of the container(s) they're mounted into.  When you need to
 rebuild the container or its underlying image — such as to upgrade to a newer version of Fossil
-— the volume remains behind and gets remapped into the new container
-when you recreate it by giving the above command again.
+— the external directory remains behind and gets remapped into the new container
+when you recreate it with <tt>-v</tt>.
 
 
 <h3 id="docker-chroot">5.2 Why Chroot?</h3>
