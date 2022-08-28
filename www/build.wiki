@@ -405,10 +405,14 @@ and b) we've turned off all of the risky features like TH1 docs.
 Nevertheless, we believe in defense-in-depth.
 
 If you shell into the container and do a <tt>ps</tt>, you'll find
-<tt>fossil</tt> running as <tt>root</tt>. Why? Because that's the parent
+<tt>fossil</tt> running as <tt>root</tt> even though the chroot feature
+is documented as causing Fossil to drop its root privileges in favor of
+the owner of the repository database or its containing folder.
+If the repo file is owned by "fossil," why is it still running as root?
+It's because you're likley seeing only the parent
 process, which may need to do rootly things like listening on port 80 or
-443. Fossil's chroot feature takes effect in the child processes forked
-off to handle each HTTP/CGI hit. This is why you can fix broken
+443. Fossil's chroot feature only takes effect in the child processes,
+the ones forked off to handle each HTTP/CGI hit. This is why you can fix broken
 permissions with <tt>chown</tt> after the container is already running,
 without restarting it: each hit reevaluates the repository file
 permissions when deciding what user to become when dropping root
