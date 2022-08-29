@@ -500,14 +500,16 @@ container creation commands. Specifically:
      translate external HTTPS calls into HTTP directed at this internal
      port 12345.)<p>
   *  <b><tt>NET_RAW</tt></b>: Fossil itself doesn't use raw sockets, and
-     our build process leaves out <tt>ping</tt> and <tt>traceroute</tt>,
-     the only Busybox utilities that require that ability.  If you need
-     to ping something, you can almost certainly do it just as well out
-     on the host; we foresee no compelling reason to use ping or
-     traceroute from inside the container.<p> If we did not take this
-     hard-line stance, an attacker that broke into the container and
-     gained root privileges could use raw sockets to do a wide array of
-     bad things to any network the container is bound to.<p>
+     our build process leaves out all the Busybox utilities that require
+     them. Although that set includes common tools like <tt>ping</tt>,
+     we foresee no compelling reason to use that or any of these other
+     elided utilities — <tt>ether-wake</tt>, <tt>netstat</tt>,
+     <tt>traceroute</tt>, and <tt>udhcp</tt> — inside the container. If
+     you need to ping something, do it on the host.<p>
+     If we did not take this hard-line stance, an attacker that broke
+     into the container and gained root privileges might use raw sockets
+     to do a wide array of bad things to any network the container is
+     bound to.<p>
   *  <b><tt>SETFCAP, SETPCAP</tt></b>: There isn't much call for file
      permission granularity beyond the classic Unix ones inside the
      container, so we drop root's ability to change them.
