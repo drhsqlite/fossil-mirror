@@ -80,10 +80,11 @@ static int fieldId(const char *zFieldName){
 */
 static void getAllTicketFields(void){
   Stmt q;
-  int i, noRegularMimetype, noBaselines;
+  int i, noRegularMimetype, nBaselines;
   static int once = 0;
   if( once ) return;
-  once = noBaselines = 1;
+  once = 1;
+  nBaselines = 0;
   db_prepare(&q, "PRAGMA table_info(ticket)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
@@ -92,8 +93,10 @@ static void getAllTicketFields(void){
       if( strcmp(zFieldName, "tkt_ctime")==0 ) haveTicketCTime = 1;
       continue;
     }
-    if( noBaselines && memcmp(zFieldName,"baseline for ",13)==0 ){
-      noBaselines = 0;
+    if( memcmp(zFieldName,"baseline for ",13)==0 ){
+      if( strcmp(db_column_text(&q,2),"INTEGER")==0 ){
+        nBaselines++;
+      }
       continue;
     }
     if( strchr(zFieldName,' ')!=0 ) continue;
@@ -106,15 +109,16 @@ static void getAllTicketFields(void){
     nField++;
   }
   db_finalize(&q);
-  if( !noBaselines ){
+  if( nBaselines ){
     db_prepare(&q, "SELECT 1 FROM pragma_table_info('ticket') "
                    "WHERE type = 'INTEGER' AND name = :n");
-    for(i=0; i<nField; i++){
+    for(i=0; i<nField && nBaselines!=0; i++){
       char *zBsln = mprintf("baseline for %s",aField[i].zName);
       db_bind_text(&q, ":n", zBsln);
       if( db_step(&q)==SQLITE_ROW ){
         aField[i].zBsln = zBsln;
         nTicketBslns++;
+        nBaselines--;
       }else{
         free(zBsln);
       }
