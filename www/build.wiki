@@ -412,16 +412,20 @@ and b) we haven't enabled any of the risky features of Fossil such as
 [https://fossil-scm.org/forum/forumpost/42e0c16544 | TH1 docs].
 Nevertheless, we believe in defense-in-depth.
 
-If you say "<tt>docker exec fossil ps</tt>", you're likely to find
-a single <tt>fossil</tt> process running as <tt>root</tt> even though the chroot feature
-is documented as causing Fossil to drop its privileges in favor of
-the owner of the repository database or its containing folder.
-If the repo file is owned by "fossil," why is the server still running as root?
+If you say something like "<tt>docker exec fossil ps</tt>" while the
+system is idle, it's likely to report a single <tt>fossil</tt> process
+running as <tt>root</tt> even though the chroot feature is documented as
+causing Fossil to drop its privileges in favor of the owner of the
+repository database or its containing folder.  If the repo file is owned
+by the in-container user "<tt>fossil</tt>", why is the server still
+running as root?
 
-It's because you're likely seeing only the parent
-process, which may need to do rootly things like listening on port 80 or
-443. Fossil's chroot feature only takes effect in the child processes,
-the ones forked off to handle each HTTP/CGI hit. This is why you can fix broken
+It's because you're seeing only the parent
+process, which assumes it's running on bare metal or a VM and thus
+may need to do rootly things like listening on port 80 or
+443 before forking off any children to handle HTTP hits.
+Fossil's chroot feature only takes effect in these child processes.
+This is why you can fix broken
 permissions with <tt>chown</tt> after the container is already running,
 without restarting it: each hit reevaluates the repository file
 permissions when deciding what user to become when dropping root
