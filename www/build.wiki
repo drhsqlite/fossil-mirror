@@ -346,7 +346,7 @@ You don't have to restart the server after fixing this with
 <tt>chmod</tt>: simply reload the browser, and Fossil will try again.
 
 
-<h4>5.1.2 Storing the Repo Outside the Container</h4>
+<h4 id="docker-bind-mount">5.1.2 Storing the Repo Outside the Container</h4>
 
 The simple storage method above has a problem: Docker containers are designed to be
 killed off at the slightest cause, rebuilt, and redeployed. If you do
@@ -379,7 +379,9 @@ rebuild the container or its underlying image — such as to upgrade to a newer 
 when you recreate it with <tt>-v</tt>.
 
 
-<h3 id="docker-chroot">5.2 Why Chroot?</h3>
+<h3 id="docker-security">5.2 Security</h3>
+
+<h4 id="docker-chroot">5.2.1 Why Chroot?</h4>
 
 A potentially surprising feature of this container is that it runs
 Fossil as root. Since that causes [./chroot.md | Fossil's chroot jail
@@ -424,6 +426,106 @@ permissions with <tt>chown</tt> after the container is already running,
 without restarting it: each hit reevaluates the repository file
 permissions when deciding what user to become when dropping root
 privileges.
+
+
+<h4 id="docker-caps">5.2.2 Dropping Unnecessary Capabilities</h4>
+
+The example commands given in this section create the container with
+[https://docs.docker.com/engine/security/#linux-kernel-capabilities | a
+default set of Linux kernel capabilities]. Although Docker strips almost
+all of the traditional root capabilities away by default, and Fossil
+doesn't need any of those it does take away, Docker does leave some
+enabled that Fossil doesn't actually need. You can tighten the scope of
+capabilities by adding a "<tt>--cap-drop LIST</tt>" option to your
+container creation commands. Specifically:
+
+  *  <b><tt>AUDIT_WRITE</tt></b>: Fossil doesn't write to the kernel's
+     auditing log, and we can't see any reason you'd want to be able to
+     do that as an administrator shelled into the container, either.
+     Auditing is something done on the host, not from inside each
+     individual container.<p>
+  *  <b><tt>CHOWN</tt></b>: The Fossil server never even calls
+     <tt>chown(2)</tt>, and our image build process sets up all file
+     ownership properly, to the extent that this is possible under the
+     limitations of our automation.<p>
+     Curiously, stripping this capability doesn't affect your ability to
+     run commands like "<tt>chown -R fossil:fossil /jail/museum</tt>"
+     when you're using bind mounts or external volumes — as we recommend
+     [#docker-bind-mount | above] — because it's the host OS's kernel
+     capabilities that affect the underlying <tt>chown(2)</tt> call in
+     that case, not those of the container.<p>
+     If for some reason you did have to change file ownership of
+     in-container files, it's best to do that by changing the
+     <tt>Dockerfile</tt> to suit, then rebuilding the container, since
+     that bakes the need for the change into your reproducible build
+     process. If you had to do it without rebuilding the container,
+     [https://stackoverflow.com/a/45752205/142454 | there's a
+     workaround] for the fact that capabilities are a create-time
+     change, baked semi-indelibly into the container configuration.<p>
+  *  <b><tt>FSETID</tt></b>: Fossil doesn't use the SUID and SGID bits
+     itself, and our build process doesn't set those flags on any of the
+     files.  Although the second fact means we can't see any harm from
+     leaving this enabled, we also can't see any good reason to allow
+     it, so we strip it.<p>
+  *  <b><tt>KILL</tt></b>: The only place Fossil calls <tt>kill(2)</tt>
+     is in the [./backoffice.md | backoffice], and then only for
+     processes it created on earlier runs; it doesn't need the ability
+     to kill processes created by other users. You might wish for this
+     ability as an administrator shelled into the container, but you can
+     pass the "<tt>docker exec --user</tt>" option to run commands
+     within your container as the legitimate owner of the process,
+     removing the need for this capability.<p>
+  *  <b><tt>MKNOD</tt></b>: All device nodes are created at build time
+     and are never changed at run time. Realize that the virtualized
+     device nodes inside the container get mapped onto real devices on
+     the host, so if an attacker ever got a root shell on the container,
+     they might be able to do actual damage to the host if we didn't
+     preemptively strip this capability away.<p>
+  *  <b><tt>NET_BIND_SERVICE</tt></b>: With containerized deployment,
+     Fossil never needs the ability to bind the server to low-numbered
+     TCP ports, not even if you're running the server in production with
+     TLS enabled and want the service bound to port 443. It's perfectly
+     fine to let the Fossil instance inside the container bind to its
+     default port (8080) because you can rebind it on the host with the
+     "<tt>docker create --publish 443:8080</tt>" option. It's the
+     container's <i>host</i> that needs this ability, not the container
+     itself.<p> (Even the container runtime might not need that
+     capability if you're [./ssl.wiki#server | terminating TLS with a
+     front-end proxy]. You're more likely to say something like "<tt>-p
+     localhost:12345:8080</tt>", then configure the reverse proxy to
+     translate external HTTPS calls into HTTP directed at this internal
+     port 12345.)<p>
+  *  <b><tt>NET_RAW</tt></b>: Fossil itself doesn't use raw sockets, and
+     our build process leaves out <tt>ping</tt> and <tt>traceroute</tt>,
+     the only Busybox utilities that require that ability.  If you need
+     to ping something, you can almost certainly do it just as well out
+     on the host; we foresee no compelling reason to use ping or
+     traceroute from inside the container.<p> If we did not take this
+     hard-line stance, an attacker that broke into the container and
+     gained root privileges could use raw sockets to do a wide array of
+     bad things to any network the container is bound to.<p>
+  *  <b><tt>SETFCAP, SETPCAP</tt></b>: There isn't much call for file
+     permission granularity beyond the classic Unix ones inside the
+     container, so we drop root's ability to change them.
+
+All together, we recommend adding the following options to your
+"<tt>docker run</tt>" commands, as well as to any "<tt>docker
+create</tt>" command that will be followed by "<tt>docker start</tt>":
+
+<pre><code>  --cap-drop AUDIT_WRITE \
+  --cap-drop CHOWN \
+  --cap-drop FSETID \
+  --cap-drop KILL \
+  --cap-drop MKNOD \
+  --cap-drop NET_BIND_SERVICE \
+  --cap-drop NET_RAW \
+  --cap-drop SETFCAP \
+  --cap-drop SETPCAP
+</code></pre>
+
+In the next section, we'll show a case where you create a container
+without ever running it, making these options pointless.
+
 
 
 <h3 id="docker-static">5.3 Extracting a Static Binary</h3>

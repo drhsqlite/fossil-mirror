@@ -124,7 +124,18 @@ container-image: @srcdir@/Dockerfile
 	docker build -t fossil:@FOSSIL_CI_PFX@ $(DBFLAGS) @srcdir@
 
 container-run: container-image
-	docker run --name fossil-@FOSSIL_CI_PFX@ $(DRFLAGS) fossil:@FOSSIL_CI_PFX@
+	docker run \
+		--name fossil-@FOSSIL_CI_PFX@ \
+		--cap-drop AUDIT_WRITE \
+		--cap-drop CHOWN \
+		--cap-drop FSETID \
+		--cap-drop KILL \
+		--cap-drop MKNOD \
+		--cap-drop NET_BIND_SERVICE \
+		--cap-drop NET_RAW \
+		--cap-drop SETFCAP \
+		--cap-drop SETPCAP \
+		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
 
 @srcdir@/Dockerfile: @srcdir@/Dockerfile.in @srcdir@/manifest.uuid
 	@AUTOREMAKE@
