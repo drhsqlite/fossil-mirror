@@ -384,7 +384,7 @@ when you recreate it with <tt>-v</tt>.
 A potentially surprising feature of this container is that it runs
 Fossil as root. Since that causes [./chroot.md | Fossil's chroot jail
 feature] to kick in, and a Docker container is a type of über-jail
-already, you may be wondering why we don't either:
+already, you may be wondering why we bother. Instead, why not either:
 
   #  run <tt>fossil server --nojail</tt> to skip the internal chroot; or
   #  set "<tt>USER fossil</tt>" in the Dockerfile so it starts Fossil as
@@ -396,20 +396,27 @@ surprisingly powerful Busybox project].  (This author made a living for
 years in the early 1990s using Unix systems that were less powerful than
 this container.) If someone ever figured out how to make a Fossil binary
 execute arbitrary commands on the host or to open up a remote shell,
-they'd likely be able to island-hop from there into the rest of your
-network. We need this cute double-jail dance to keep the Fossil instance
-from accessing the Busybox features.
+the power available to them at that point would make it likely that
+they'd be able to island-hop from there into the rest of your network.
+That power is there for you as the system administrator, to let you
+inspect the container's runtime behavior, change things on the fly, and
+so forth. Fossil proper doesn't need that power; if we take it away via
+this cute double-jail dance, we keep any potential attacker from making
+use of it should they ever get in.
 
-We deem this risk low since a) it's never happened, that we know of;
-and b) we've turned off all of the risky features like TH1 docs.
+Having said this, know that
+we deem this risk low since a) it's never happened, that we know of;
+and b) we haven't enabled any of the risky features of Fossil such as
+[https://fossil-scm.org/forum/forumpost/42e0c16544 | TH1 docs].
 Nevertheless, we believe in defense-in-depth.
 
-If you shell into the container and do a <tt>ps</tt>, you'll find
-<tt>fossil</tt> running as <tt>root</tt> even though the chroot feature
-is documented as causing Fossil to drop its root privileges in favor of
+If you say "<tt>docker exec fossil ps</tt>", you're likely to find
+a single <tt>fossil</tt> process running as <tt>root</tt> even though the chroot feature
+is documented as causing Fossil to drop its privileges in favor of
 the owner of the repository database or its containing folder.
-If the repo file is owned by "fossil," why is it still running as root?
-It's because you're likley seeing only the parent
+If the repo file is owned by "fossil," why is the server still running as root?
+
+It's because you're likely seeing only the parent
 process, which may need to do rootly things like listening on port 80 or
 443. Fossil's chroot feature only takes effect in the child processes,
 the ones forked off to handle each HTTP/CGI hit. This is why you can fix broken
