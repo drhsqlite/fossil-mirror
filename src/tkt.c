@@ -1296,6 +1296,7 @@ void tkthistory_page(void){
       }
       manifest_destroy(pTicket);
     }
+    @ </li>
   }
   db_finalize(&q);
   if( nChng ){
