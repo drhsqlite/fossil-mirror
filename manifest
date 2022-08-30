@@ -1,5 +1,5 @@
-C The\scontainer\sdoc\sbit\son\sraw\ssockets\snow\scovers\sthe\sother\sthree\sBusybox\nutilities\swe\sleft\sout\spreviously.\s\sToday's\sremoval\sof\sping\sand\ntraceroute\smerely\scompletes\sthe\sset;\sit\swasn't\scomplete\sin\sitself.
-D 2022-08-29T18:21:51.991
+C Embroidered\sthe\s"make\scontainer-run"\starget\sto\smake\sit\smore\sconvenient.
+D 2022-08-30T01:49:29.085
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,7 +13,7 @@ F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile.in 318fe67bc2e51080d990ae8b97a0a81bd91dedb0584c1c0241b41b752ea36b49
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 5949bb4cf1eeaf5de59e99ddaa3843f6f022c2a59d4078a31dc41f2c0d03b743 x
+F Makefile.in db54f02179688c192f78f2b2f92abee97f7ca8d8346281272d2701195dfb4e68 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 30cfb93eb69beedbe51305d5a2d551e238c679b4a1e97a32950ef5b37fc78825
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2eaa60da9bde441aa45b317630e117236a8a719f09f5af927a09813406ec3c2
-R 07744ada8852f188be7cd8dbd4d38734
+P b429bd71db31318ea6597e04a4a962f47dcebaa6e70d6b84780f4a3636223a5f
+R 2f3e32f8ddb848989b807b0e85aa75d2
 U wyoung
-Z 1c060e8c38f925188040b86958509f58
+Z c215b09f5ede69ab60bf801b24153d3d
 # Remove this line to create a well-formed Fossil manifest.

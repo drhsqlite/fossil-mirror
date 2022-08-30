@@ -135,7 +135,9 @@ container-run: container-image
 		--cap-drop NET_RAW \
 		--cap-drop SETFCAP \
 		--cap-drop SETPCAP \
+		--detach --publish 8080:8080 \
 		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
+	docker container logs fossil-@FOSSIL_CI_PFX@
 
 @srcdir@/Dockerfile: @srcdir@/Dockerfile.in @srcdir@/manifest.uuid
 	@AUTOREMAKE@
