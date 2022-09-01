@@ -1,5 +1,5 @@
-C Add\saliases\sas\sa\snew\scommand\stype\sand\sdisplay\sthese\snext\sto\sthe\scorresponding\smain\scommand\sin\s/help.\sMake\ssure\sthat\sfor\sthe\s'test-all-help'\scommand\sand\swebpage\seach\shelp\sstring\sis\soutput\sat\smost\sonce.
-D 2022-09-01T10:52:59.039
+C Address\sbuiltin_deliver_multiple_js_files()\sendless\sloop\sreported\sin\s[forum:a9a60fab07|forum\spost\sa9a60fab07].
+D 2022-09-01T16:05:37.354
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/bisect.c 50da7d17a2b7513744d1283489fad3284e15a4f014c17b6477cdf0487decd251
 F src/blob.c 7d75b41aeb78d3e7185bfe65586a47cf004a91bd0c3de678069f33c1e6956a8f
 F src/branch.c 63efb20b5a55e1f0878ded0591a67fb9632ddc4a8df6cf61346498a039d3dfd1
 F src/browse.c 57995b642d840c272e6d317f2de7338739448641afe308bbc3e72d1ffa07a5d0
-F src/builtin.c a04a8c88a0d46a275e71324a8c31e4d49eb4407d957a338d3162e12ddaa805ab
+F src/builtin.c 8a0f3b41ccb25e30a161c6af3ec8c0bab1da080ca11b590a935e9f0a9e98a61c
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82dc455
@@ -978,9 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc09e28a26dec2d46dabc50c00bfb67d2b28c95ec6cbf2fc7498fc858485fe62 a257fbd92e7e77a350d18db650ab7e33a7947d23a9327a8e8cb9d7dec0cc5176
-R f960e73501cf9e283679a1f9f8cc501d
-T +closed a257fbd92e7e77a350d18db650ab7e33a7947d23a9327a8e8cb9d7dec0cc5176
-U danield
-Z 3689c9a11d8578f7c06a948a6589ce05
+P db708494958373595e26f95acf9c0c3847b1d2913df4dc2053b7830f37911273
+R a77d81a09b5780a11f9265e32967b05b
+U stephan
+Z d77776fa4f9ffcf96541cf88d25019a9
 # Remove this line to create a well-formed Fossil manifest.
