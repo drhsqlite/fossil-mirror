@@ -2805,7 +2805,7 @@ void db_initial_setup(
 }
 
 /*
-** COMMAND: new*
+** COMMAND: new#
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME

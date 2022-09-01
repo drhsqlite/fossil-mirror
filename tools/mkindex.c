@@ -39,10 +39,14 @@
 ** Commands are 1st-tier by default.  If the command name begins with
 ** "test-" or if the command name has a "test" argument, then it becomes
 ** a test command.  If the command name has a "2nd-tier" argument or ends
-** with a "*" character, it is second tier.  Examples:
+** with a "*" character, it is second tier.  If the command name has an "alias"
+** argument or ends with a "#" character, it is an alias: another name  
+** (a one-to-one replacement) for a command.  Examples:
 **
 **        COMMAND:  abcde*
 **        COMMAND:  fghij        2nd-tier
+**        COMMAND:  mnopq#
+**        COMMAND:  rstuv        alias
 **        COMMAND:  test-xyzzy
 **        COMMAND:  xyzzy        test
 **
@@ -95,6 +99,7 @@
 #define CMDFLAG_SENSITIVE    0x0400     /* Security-sensitive setting */
 #define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
+#define CMDFLAG_ALIAS        0x2000     /* Command aliases */
 /**************************************************************************/
 
 /*
@@ -221,6 +226,11 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       ** but move the command into the second tier */
       aEntry[nUsed].zPath[j-1] = 0;
       aEntry[nUsed].eType |= CMDFLAG_2ND_TIER;
+    }else if( zLine[i+j-1]=='#' ){
+      /* If the command name ends in '#', remove the '#' from the name
+      ** but move the command into aliases */
+      aEntry[nUsed].zPath[j-1] = 0;
+      aEntry[nUsed].eType |= CMDFLAG_ALIAS;
     }else{
       /* Otherwise, this is a first-tier command */
       aEntry[nUsed].eType |= CMDFLAG_1ST_TIER;
@@ -234,14 +244,17 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     if( zLine[i]==0 ) break;
     for(j=0; zLine[i+j] && !fossil_isspace(zLine[i+j]); j++){}
     if( j==8 && strncmp(&zLine[i], "1st-tier", j)==0 ){
-      aEntry[nUsed].eType &= ~(CMDFLAG_2ND_TIER|CMDFLAG_TEST);
+      aEntry[nUsed].eType &= ~(CMDFLAG_2ND_TIER|CMDFLAG_TEST|CMDFLAG_ALIAS);
       aEntry[nUsed].eType |= CMDFLAG_1ST_TIER;
     }else if( j==8 && strncmp(&zLine[i], "2nd-tier", j)==0 ){
-      aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_TEST);
+      aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_TEST|CMDFLAG_ALIAS);
       aEntry[nUsed].eType |= CMDFLAG_2ND_TIER;
     }else if( j==4 && strncmp(&zLine[i], "test", j)==0 ){
-      aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_2ND_TIER);
+      aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_2ND_TIER|CMDFLAG_ALIAS);
       aEntry[nUsed].eType |= CMDFLAG_TEST;
+    }else if( j==5 && strncmp(&zLine[i], "alias", j)==0 ){
+      aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_2ND_TIER|CMDFLAG_TEST);
+      aEntry[nUsed].eType |= CMDFLAG_ALIAS;
     }else if( j==11 && strncmp(&zLine[i], "raw-content", j)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_RAWCONTENT;
     }else if( j==7 && strncmp(&zLine[i], "boolean", j)==0 ){
@@ -455,11 +468,12 @@ void build_table(void){
     }else if( (aEntry[i].eType & CMDFLAG_WEBPAGE)!=0 ){
       nWeb++;
     }
-    printf("  { \"%.*s\",%*s%s,%*szHelp%03d, 0x%03x },\n",
+    printf("  { \"%.*s\",%*s%s,%*szHelp%03d, %3d, 0x%03x },\n",
       n, z,
       25-n, "",
       aEntry[i].zFunc,
       (int)(29-strlen(aEntry[i].zFunc)), "",
+      aEntry[i].iHelp,
       aEntry[i].iHelp,
       aEntry[i].eType
     );
@@ -469,6 +483,7 @@ void build_table(void){
   printf("#define FOSSIL_FIRST_CMD %d\n", nWeb);
   printf("#define FOSSIL_MX_CMDNAME %d /* max length of any command name */\n",
          mxLen);
+  printf("#define FOSSIL_MX_CMDIDX %d /* max index for commands */\n", nFixed);
 
   /* Generate the aSetting[] table */
   printf("const Setting aSetting[] = {\n");
