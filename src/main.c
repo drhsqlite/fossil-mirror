@@ -1178,7 +1178,7 @@ const char *get_version(){
 */
 void fossil_version_blob(
   Blob *pOut,                 /* Write the manifest here */
-  int bVerbose                /* Non-zero for full information. */
+  int eVerbose                /* 0: brief.  1: more text,  2: lots of text */
 ){
 #if defined(FOSSIL_ENABLE_TCL)
   int rc;
@@ -1188,23 +1188,36 @@ void fossil_version_blob(
   size_t pageSize = 0;
   blob_zero(pOut);
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
-  if( !bVerbose ) return;
+  if( eVerbose<=0 ) return;
+
   blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
                __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
+  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
+               sqlite3_sourceid());
+#if defined(FOSSIL_ENABLE_SSL)
+  blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
+#endif
+  blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
+#if defined(FOSSIL_HAVE_FUSEFS)
+  blob_appendf(pOut, "libfuse %s, loaded %s\n", fusefs_inc_version(),
+               fusefs_lib_version());
+#endif
+#if defined(FOSSIL_ENABLE_TCL)
+  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+  rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
+  zRc = Th_ReturnCodeName(rc, 0);
+  blob_appendf(pOut, "TCL (Tcl %s, loaded %s: %s)\n",
+    TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+  );
+#endif
+  if( eVerbose<=1 ) return;
+
   blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
   fossil_get_page_size(&pageSize);
   blob_appendf(pOut, "Detected memory page size is %lu bytes\n",
                (unsigned long)pageSize);
-  blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if FOSSIL_HARDENED_SHA1
   blob_appendf(pOut, "hardened-SHA1 by Marc Stevens and Dan Shumow\n");
-#endif
-#if defined(FOSSIL_ENABLE_SSL)
-  blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
-#endif
-#if defined(FOSSIL_HAVE_FUSEFS)
-  blob_appendf(pOut, "libfuse %s, loaded %s\n", fusefs_inc_version(),
-               fusefs_lib_version());
 #endif
 #if defined(FOSSIL_DEBUG)
   blob_append(pOut, "FOSSIL_DEBUG\n", -1);
@@ -1221,14 +1234,6 @@ void fossil_version_blob(
 #endif
 #if defined(FOSSIL_ENABLE_TH1_HOOKS)
   blob_append(pOut, "FOSSIL_ENABLE_TH1_HOOKS\n", -1);
-#endif
-#if defined(FOSSIL_ENABLE_TCL)
-  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
-  rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
-  zRc = Th_ReturnCodeName(rc, 0);
-  blob_appendf(pOut, "TCL (Tcl %s, loaded %s: %s)\n",
-    TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
-  );
 #endif
 #if defined(USE_TCL_STUBS)
   blob_append(pOut, "USE_TCL_STUBS\n", -1);
@@ -1265,8 +1270,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ALLOW_OUT_OF_ORDER_DATES)
   blob_append(pOut, "FOSSIL_ALLOW_OUT_OF_ORDER_DATES\n");
 #endif
-  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
-               sqlite3_sourceid());
+
   if( g.db==0 ) sqlite3_open(":memory:", &g.db);
   db_prepare(&q,
      "pragma compile_options");
@@ -1298,11 +1302,16 @@ const char *get_user_agent(){
 ** Print the source code version number for the fossil executable.
 ** If the verbose option is specified, additional details will
 ** be output about what optional features this binary was compiled
-** with
+** with.
+**
+** Repeat the -v option or use -vv for even more information.
 */
 void version_cmd(void){
   Blob versionInfo;
-  int verboseFlag = find_option("verbose","v",0)!=0;
+  int verboseFlag = 0;
+
+  while( find_option("verbose","v",0)!=0 ) verboseFlag++;
+  while( find_option("vv",0,0)!=0 )        verboseFlag += 2;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -1326,7 +1335,7 @@ void test_version_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = PD("verbose", 0) != 0;
+  verboseFlag = P("verbose")!=0 ? 2 : 1;
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
   fossil_version_blob(&versionInfo, verboseFlag);
@@ -1464,8 +1473,11 @@ NORETURN void fossil_redirect_home(void){
 ** repository zRepo and then drop root privileges.  Return the
 ** new repository name.
 **
-** zRepo might be a directory itself.  In that case chroot into
-** the directory zRepo.
+** zRepo can be a directory.  If so and if the repo name was saved
+** to g.zRepositoryName before we were called, we canonicalize the
+** two paths and check that one is the prefix of the other, else you
+** won't be able to open the repo inside the jail.  If it all works
+** out, we return the "jailed" version of the repo name.
 **
 ** Assume the user-id and group-id of the repository, or if zRepo
 ** is a directory, of that directory.
@@ -1474,7 +1486,7 @@ NORETURN void fossil_redirect_home(void){
 ** privileges are still lowered to that of the user-id and group-id
 ** of the repository file.
 */
-char *enter_chroot_jail(char *zRepo, int noJail){
+static char *enter_chroot_jail(const char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1489,11 +1501,23 @@ char *enter_chroot_jail(char *zRepo, int noJail){
     zDir = blob_str(&dir);
     if( !noJail ){
       if( file_isdir(zDir, ExtFILE)==1 ){
+        if( g.zRepositoryName ){
+          size_t n = strlen(zDir);
+          Blob repo;
+          file_canonical_name(g.zRepositoryName, &repo, 0);
+          zRepo = blob_str(&repo);
+          if( strncmp(zRepo, zDir, n)!=0 ){
+            fossil_fatal("repo %s not under chroot dir %s", zRepo, zDir);
+          }
+          zRepo += n;
+          if( *zRepo == '\0' ) zRepo = "/";
+        }else {
+          zRepo = "/";
+          g.fJail = 1;
+        }
         if( file_chdir(zDir, 1) ){
           fossil_panic("unable to chroot into %s", zDir);
         }
-        g.fJail = 1;
-        zRepo = "/";
       }else{
         for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
         if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
@@ -1520,7 +1544,7 @@ char *enter_chroot_jail(char *zRepo, int noJail){
     }
   }
 #endif
-  return zRepo;
+  return (char*)zRepo;  /* no longer const: always reassigned from blob_str() */
 }
 
 /*
@@ -2807,11 +2831,8 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  if( zChRoot ){
-    enter_chroot_jail((char*)zChRoot, noJail);
-  }else{
-    g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
-  }
+  g.zRepositoryName = enter_chroot_jail(
+      zChRoot ? zChRoot : g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -3276,6 +3297,21 @@ void cmd_webserver(void){
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
+#if !defined(_WIN32)
+  if( getpid()==1 ){
+    /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
+    ** rebooting the system by nuking the init system.  The only way
+    ** Fossil becomes that PID 1 is when it's running solo in a Linux
+    ** container or similar, so we do want to exit immediately, to
+    ** allow the container to shut down quickly.
+    **
+    ** This has to happen ahead of the other signal() calls below.
+    ** They apply after the HTTP hit is handled, but this one needs
+    ** to be registered while we're waiting for that to occur.
+    **/
+    signal(SIGTERM, fossil_exit);
+  }
+#endif /* !WIN32 */
 
   /* Start up an HTTP server
   */
@@ -3312,11 +3348,8 @@ void cmd_webserver(void){
   if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
     allowRepoList = 1;
   }else{
-    if( zChRoot ){
-      enter_chroot_jail((char*)zChRoot, noJail);
-    }else{
-      g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
-    }
+    g.zRepositoryName = enter_chroot_jail(
+        zChRoot ? zChRoot : g.zRepositoryName, noJail);
   }
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();

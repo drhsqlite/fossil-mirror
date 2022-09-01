@@ -233,7 +233,7 @@ void stat_page(void){
                   " WHERE +tagname GLOB 'wiki-*'");
     @ %,d(n)
     @ </td></tr>
-    if( db_table_exists("repository","chat") ){
+    if( g.perm.Chat && db_table_exists("repository","chat") ){
       sqlite3_int64 sz = 0;
       char zSz[100];
       n = db_int(0, "SELECT max(msgid) FROM chat");

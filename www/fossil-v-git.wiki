@@ -115,17 +115,22 @@ protected by [./caps/ | a fine-grained role-based
 access control system].
 These additional capabilities are available for Git as 3rd-party
 add-ons, but with Fossil they are integrated into
-the design.  One way to describe Fossil is that it is
+the design, to the point that it approximates
 "[https://github.com/ | GitHub]-in-a-box."
 
-Fossil can do operations over all local repo clones and check-out
-directories with a single command. For example, Fossil lets you say
-"<tt>fossil all sync</tt>" on a laptop prior to taking it off the network
-hosting those repos. You can sync up to all of the private repos on your
-company network plus those public Internet-hosted repos you use. Whether
-going out for a working lunch or on a transoceanic airplane trip, one
-command gets you in sync. This works with several other Fossil
-sub-commands, such as "<tt>fossil all changes</tt>" to get a list of files
+Even if you only want straight version control, Fossil has affordances
+not available in Git.
+
+For instance, Fossil can do operations over all local repo clones and
+check-out directories with a single command. You can say "<tt>fossil
+all sync</tt>" on a laptop prior to taking it off the network hosting
+those repos, as before going on a trip.  It doesn't matter if those
+repos are private and restricted to your company network or public
+Internet-hosted repos, you get synced up with everything you need while
+off-network.
+
+You get the same capability with several other Fossil
+sub-commands as well, such as "<tt>fossil all changes</tt>" to get a list of files
 that you forgot to commit prior to the end of your working day, across
 all repos.
 
@@ -133,14 +138,14 @@ Whenever Fossil is told to modify the local checkout in some destructive
 way ([/help?cmd=rm|fossil rm], [/help?cmd=update|fossil update],
 [/help?cmd=revert|fossil revert], etc.) Fossil remembers the prior state
 and is able to return the check-out directory to that state with a
-<tt>fossil undo</tt> command. You cannot undo a commit in Fossil
-([#history | on purpose!]) but as long as the change remains confined to
+<tt>fossil undo</tt> command. While you cannot undo a commit in Fossil
+— [#history | on purpose!] — as long as the change remains confined to
 the local check-out directory only, Fossil makes undo
 [https://git-scm.com/book/en/v2/Git-Basics-Undoing-Things|easier than in
 Git].
 
-For developers who choose to self-host projects (rather than using a
-3rd-party service such as GitHub) Fossil is much easier to set up, since
+For developers who choose to self-host projects rather than rely on a
+3rd-party service such as GitHub, Fossil is much easier to set up:
 the stand-alone Fossil executable together with a [./server/any/cgi.md|2-line CGI script]
 suffice to instantiate a full-featured developer website.  To accomplish
 the same using Git requires locating, installing, configuring, integrating,
@@ -167,23 +172,35 @@ manager, simply because the creation of complicated binary packages is
 best delegated to people skilled in their creation. Normal Git users are
 not expected to build Git from source and install it themselves.
 
-Fossil is a single self-contained stand-alone executable which by default
-depends only on common platform libraries.  You can statically link
-to get an executable with no external dependencies at all &mdash; a useful
-feature for running inside a restrictive 
-[https://en.wikipedia.org/wiki/Chroot|chroot jail].
+Fossil is a single self-contained stand-alone executable which
+depends only on common platform libraries in its default configuration.
+To install one of [https://fossil-scm.org/home/uv/download.html | our
+precompiled binaries], unpack the executable from the archive and put it
+somewhere in your <tt>PATH</tt>. To uninstall it, delete the executable.
 
-The precompiled Fossil binaries are delivered as just a single
-executable.  The precompiled Windows deliveries are just a ZIP archive
+This policy is particularly useful when running Fossil inside a
+restrictive container, anything from [./chroot.md | classic chroot
+jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
+| OS-level virtualization mechanisms] such as
+[https://en.wikipedia.org/wiki/Docker_(software) | Docker]. By using
+executable compression, our
+[/file?name=Dockerfile.in&ci=trunk | stock <tt>Dockerfile</tt>]
+creates a container that's under 4 MiB on 64-bit Linux, including
+a capable [https://www.busybox.net/ | Busybox] environment for live
+debugging of the container's innards.
+
+Modern Linux systems tend to make full static linking
+[https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
+| difficult], but our official executables do statically link to OpenSSL
+to remove a version dependency, resulting in an executable that's around
+6 MiB, depending on the platform. ([Release Build How-To | Details].)
+The result is dependent only upon widespread platform libraries with
+stable ABIs such as glibc, zlib, etc.
+
+Full static linking is easier on Windows, so our precompiled Windows
+binaries are just a ZIP archive
 containing only "<tt>fossil.exe</tt>".  There is no "<tt>setup.exe</tt>"
-to run.  Linux and Mac precompiled binaries are a tarball containing
-just the "<tt>fossil</tt>" executable.  To install, just put the
-executable on your PATH.  To uninstall, just delete the executable.
-To upgrade (or downgrade) simply replace the executable.
-
-A typical Fossil executable is between 5 and 7 megabytes uncompressed
-(as of 2020-12-12),
-assuming that the executable is statically linked against OpenSSL.  
+to run.
 
 Fossil is easy to build from sources. Just run
 "<tt>./configure && make</tt>" on POSIX systems and
@@ -210,14 +227,16 @@ this.
 
 The above size comparisons aren't apples-to-apples anyway. We've
 compared the size of Fossil with all of its [#features | many built-in
-features] to a fairly minimal Git installation. You must add a lot
-of third-party
-software to Git to give it a Fossil-equivalent feature set. Consider
-[https://about.gitlab.com/|GitLab], a third-party extension to Git
-wrapping it in many features, making it roughly Fossil-equivalent,
+features] to a fairly minimal Git installation. You must add a lot of
+third-party software to Git to give it a Fossil-equivalent feature set.
+Consider [https://about.gitlab.com/|GitLab], a third-party extension to
+Git wrapping it in many features, making it roughly Fossil-equivalent,
 though [https://docs.gitlab.com/ee/install/requirements.html|much more
-resource hungry] and hence more costly to run than the equivalent
-Fossil setup. GitLab's basic requirements are easy to accept when you're dedicating
+resource hungry] and hence more costly to run than the equivalent Fossil
+setup. [https://hub.docker.com/r/gitlab/gitlab-ce/ | The official GitLab
+Community Edition container] currently clocks in at 2.66 GiB!
+
+GitLab's requirements are easy to accept when you're dedicating
 a local rack server or blade to it, since its minimum requirements are
 more or less a description of the smallest
 thing you could call a "server" these days, but when you go to host that

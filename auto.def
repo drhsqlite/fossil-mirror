@@ -351,6 +351,8 @@ if {$zlibpath eq "tree"} {
   set zlibdir [file dirname $autosetup(dir)]/compat/zlib
   if {![file isdirectory $zlibdir]} {
     user-error "The zlib in source tree directory does not exist"
+  } elseif { ([llength [glob -nocomplain -directory $zlibdir libz*]] == 0) } {
+    user-error "With --with-zlib=tree, $zlibdir must be configured and built first."
   }
   cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
   define-append EXTRA_CFLAGS -I$zlibdir
@@ -764,6 +766,13 @@ if {[get-define EMSDK_HOME] ne ""} {
   define EMCC_WRAPPER ""
   catch {exec rm -f tools/emcc.sh}
 }
+
+# Insert a prefix of the checkin ID into the Dockerfile so repeated
+# builds of this version generate and fetch the tarball only once,
+# keeping it in the local Docker cache.
+set ci [readfile "$::autosetup(srcdir)/manifest.uuid"]
+define FOSSIL_CI_PFX [string range $ci 0 11]
+make-template Dockerfile.in
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

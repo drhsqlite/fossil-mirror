@@ -68,7 +68,7 @@
     data:{
       pikchr: input text,
       result: rendered result (SVG on success, HTML on error),
-      isError: bool, true if .result holds an error report,
+      isError: bool, true if .pikchr holds an error report,
       flags: integer: flags used to configure the pikchr rendering,
       width: if !isError, width (integer pixels) of the SVG,
       height: if !isError, height (integer pixels) of the SVG
@@ -216,6 +216,6 @@
      emcc ... -sMODULARIZE=1 -sEXPORT_NAME=initPikchrModule
   */
   initPikchrModule(pikchrModule).then(function(thisModule){
-    wMsg('pikchrshow-ready');
+    wMsg('pikchr-ready');
   });
 })();

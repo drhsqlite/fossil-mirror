@@ -1014,7 +1014,6 @@ void test_all_help_page(void){
     if( occHelp[aCommand[i].iHelp] > 0 ){
       int j;
       for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
-        const char *zDesc;
         unsigned int e = aCommand[bktHelp[aCommand[i].iHelp][j]].eCmdFlags;
         if( e & CMDFLAG_1ST_TIER ){
           zDesc = "1st tier command";

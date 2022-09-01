@@ -1104,7 +1104,7 @@ void setup_config(void){
   @ <hr />
   entry_attribute("Canonical Server URL", 40, "email-url",
                    "eurl", "", 0);
-  @ <p>This is the URL used access this repository as a server.
+  @ <p>This is the URL used to access this repository as a server.
   @ Other repositories use this URL to clone or sync against this repository.
   @ This is also the basename for hyperlinks included in email alert text.
   @ Omit the trailing "/".

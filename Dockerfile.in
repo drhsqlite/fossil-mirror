@@ -1,0 +1,64 @@
+# STAGE 1: Build a static Fossil binary atop Alpine Linux
+
+FROM alpine:latest AS builder
+COPY tools/busybox-config /tmp/bbx/.config
+ARG BBXVER="1_35_0"
+ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
+ARG FSLVER="@FOSSIL_CI_PFX@"
+ENV FSLURL "https://fossil-scm.org/home/tarball/?r=${FSLVER}"
+ADD $BBXURL /tmp/bbx/src.tar.gz
+ADD $FSLURL /tmp/fsl/src.tar.gz
+WORKDIR /tmp
+RUN apk update                                                         \
+     && apk upgrade --no-cache                                         \
+     && apk add --no-cache                                             \
+         gcc make moreutils                                            \
+         linux-headers musl-dev                                        \
+         openssl-dev openssl-libs-static                               \
+         zlib-dev zlib-static                                          \
+     && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz            \
+     && ( cd bbx && yes "" | make oldconfig && make -j11 )             \
+     && tar -C fsl -xzf fsl/src.tar.gz                                 \
+     && m=fsl/src/main.mk ; grep -v '/skins/[a-ce-z]' $m | sponge $m   \
+     && fsl/configure --static CFLAGS='-Os -s' && make -j11            \
+     && if apk add upx ; then upx -9 fossil bbx/busybox ; fi
+
+# STAGE 2: Pare that back to the bare essentials.
+
+FROM scratch
+WORKDIR /jail
+ARG UID=499
+ENV PATH "/bin:/jail/bin"
+COPY --from=builder /tmp/fossil bin/
+COPY --from=builder /tmp/bbx/busybox /bin/
+RUN [ "/bin/busybox", "--install", "/bin" ]
+RUN mkdir -m 700 dev museum                                            \
+    && mknod -m 600 dev/null    c 1 3                                  \
+    && mknod -m 600 dev/urandom c 1 9                                  \
+    && echo 'root:x:0:0:Fossil Init:/:/bin/nologin' > /etc/passwd      \
+    && echo 'root:x:0:root'                         > /etc/group       \
+    && addgroup -g ${UID} fossil                                       \
+    && adduser -h `pwd` -g 'Fossil User' -G fossil -u ${UID} -S fossil \
+    && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /bin/sha1sum         \
+    && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /bin/sha3sum         \
+    && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' > /bin/sqlite3 \
+    && ln -s /jail/bin/fossil /bin/f                                   \
+    && chmod +x /bin/sha?sum /bin/sqlite3                              \
+    && chown fossil:fossil . museum
+
+# Now we can run the stripped-down environment in a chroot jail, while
+# leaving open the option to debug it live via the Busybox shell.
+#
+# Implicit: We don't set USER here on purpose because we want Fossil to
+# start as root so it can chroot itself away inside /jail.  Since that's
+# owned by the special fossil user, it drops root privileges for that
+# user, preventing exotic root-based hacks on Docker.
+
+EXPOSE 8080/tcp
+CMD [ \
+    "bin/fossil", "server", \
+    "--chroot", "/jail",    \
+    "--create",             \
+    "--jsmode", "bundled",  \
+    "--user", "admin",      \
+    "museum/repo.fossil"]
