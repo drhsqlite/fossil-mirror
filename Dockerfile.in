@@ -37,9 +37,9 @@ COPY --from=builder /tmp/bbx/busybox /bin/
 RUN [ "/bin/busybox", "--install", "/bin" ]
 RUN set -x                                                             \
     && mkdir -m 755 dev                                                \
-    && mkdir -m 700 museum                                             \
     && mknod -m 666 dev/null    c 1 3                                  \
     && mknod -m 444 dev/urandom c 1 9                                  \
+    && mkdir -m 700 log museum                                         \
     && echo 'root:x:0:0:SysAdmin:/:/bin/nologin' > /etc/passwd         \
     && echo 'root:x:0:root'                      > /etc/group          \
     && addgroup -g ${UID} fossil                                       \
@@ -49,7 +49,7 @@ RUN set -x                                                             \
     && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' > /bin/sqlite3 \
     && ln -s /jail/bin/fossil /bin/f                                   \
     && chmod +x /bin/sha?sum /bin/sqlite3                              \
-    && chown fossil:fossil . museum
+    && chown fossil:fossil . log museum
 
 # Now we can run the stripped-down environment in a chroot jail, while
 # leaving open the option to debug it live via the Busybox shell.
