@@ -3,7 +3,7 @@
 # STAGE 1: Build a static Fossil binary atop Alpine Linux
 
 FROM alpine:latest AS builder
-COPY tools/busybox-config /tmp/bbx/.config
+COPY containers/busybox-config /tmp/bbx/.config
 ARG BBXVER="1_35_0"
 ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
 ARG FSLVER="@FOSSIL_CI_PFX@"
