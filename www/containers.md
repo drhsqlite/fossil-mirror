@@ -407,4 +407,107 @@ sides of the container barrier rather than have “499” appear on the host
 in “`ls -l`” output.
 
 
+## <a id="light"></a>Lightweight Alternatives to Docker
+
+Those afflicted with sticker shock at seeing the size of a [Docker
+Desktop][DD] installation — 1.65 GB here — might’ve immediately
+“noped” out of the whole concept of containers. The first thing to
+realize is that when it comes to actually serving simple containers like
+the ones shown above is that [Docker Engine][DE] suffices, at about a
+quarter of the size.
+
+Yet on a small server — say, a $4/month 10 GiB Digital Ocean droplet —
+that’s still a big chunk of your storage budget. It takes 100:1 overhead
+just to run a 4 MiB Fossil server container? Once again, I wouldn’t
+blame you if you noped right on out of here, but if you will be patient,
+you will find that there are ways to run Fossil inside a container even
+on entry-level cloud VPSes. These are well-suited to running Fossil; you
+don’t have to resort to [raw Fossil service](./server/) to succeed,
+leaving the benefits of containerization to those with bigger budgets.
+
+For the sake of simple examples in this section, we’ll assume you’re
+integrating Fossil into a larger web site, such as with our [Debian +
+nginx + TLS][DNT] plan. The Fossil server instance listens on a
+high-numbered port, on localhost only, and the front-end web server
+reverse-proxies this out to the public.  Containers are a fine addition
+to such a system, isolating those elements of the site, thus greatly
+reducing the chance that they’ll ever be used to break into the host as
+a whole.
+
+(If you wanted to be double-safe, you could put the web server into
+another container, restricting it only to reading from the static web
+site directory and connecting across localhost to back-end dynamic
+content servers such as Fossil. That’s way outside the scope of this
+document, but you can find ready advice for that elsewhere. Seeing how
+we do this with Fossil should help you bridge the gap in extending
+this idea to the rest of your site.)
+
+[DD]:  https://www.docker.com/products/docker-desktop/
+[DE]:  https://docs.docker.com/engine/
+[DNT]: ./server/debian/nginx.md
+
+
+
+### <a id="runc" name="containerd"></a>Stripping Docker Engine Down
+
+The core of Docker Engine is its [containerd] daemon and the [runc]
+container runner. It’s possible to run our Fossil container using only
+these tools, leaving out all the rest. Those two pieces come to about a
+tenth the size of Docker Engine on the system where I tested this.
+
+**TODO:** Work out how to do this and document it.
+
+[containerd]: https://containerd.io/
+[runc]: https://github.com/opencontainers/runc
+
+
+### <a id="podman"></a>Podman
+
+The biggest downside of that method is that you don’t have all of the
+userland tools for managing the containers.
+
+A lighter-weight alternative to Docker Engine that doesn’t give up so
+much of its administrator affordances is [Podman], initially created by
+Red Hat and thus popular on that family of OSes, although it will run on
+any flavor of Linux. On Ubuntu 22.04, it’s about a quarter the size of
+Docker Engine.
+
+Although Podman [bills itself][whatis] as a drop-in replacement for the
+`docker` command and everything that sits behind it, some of the tool’s
+design decisions affect how our Fossil containers run, as compared to
+using Docker. The most important of these is that, by default, Podman
+wants to run your container “rootless,” meaning that it runs as a
+regular user.  This is generally better for security, but [we dealt with
+that risk differently above](#chroot) already. Since neither choice is
+unassailably correct in all conditions, we’ll document both options
+here.
+
+
+#### <a id="podman-rootless"></a>Fossil in a Rootless Podman Container
+
+If you build the stock Fossil container under `podman`, it will fail at
+two key steps:
+
+1.  The `mknod` calls in the second stage, which create the `/jail/dev`
+    nodes. For a rootless container, we want it to use the “real” `/dev`
+    tree mounted into the container’s root filesystem instead.
+
+2. Anything that depends on the `/jail` directory and the fact that it
+   becomes the root once the Fossil server is up and running.
+
+[The changes to fix this](/file/containers/Dockerfile-nojail.patch)
+aren’t complicated. Simply apply that patch to our stock `Dockerfile`
+and rebuild.
+
+Do realize that by doing this, if an attacker ever managed to get shell
+access on your container, they’d have a BusyBox installation to play
+around in. That shouldn’t be enough to let them break out of the
+container entirely, but they’ll have powerful tools like `wget`, and
+they’ll be connected to the network the container runs on. Once the bad
+guy is inside the house, he doesn’t necessarily have to go after the
+residents directly to cause problems for them.
+
+[Podman]: https://podman.io/
+[whatis]: https://podman.io/whatis.html
+
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>

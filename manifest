@@ -1,5 +1,5 @@
-C Moved\sthe\sbusybox-config\sfile\sfrom\stools/\sinto\sa\snew\scontainers/\nsubdirectory.\s\sWe\swere\susing\sthat\sas\sa\sjunk-drawer\sdirectory,\sfor\slack\nof\sa\sbetter\splace\sto\sput\sit.\s\sNow\sthat\swe're\sabout\sto\shave\sa\ssecond\ncontainer-related\sfile\sin\sthe\srepo,\sthat\sweak\sexcuse\sis\swearing\sthin.
-D 2022-09-04T01:53:35.110
+C Added\sthe\s"Lightweight\sAlternatives\sto\sDocker"\ssection\sto\sthe\snew\ncontainers\sdoc,\scurrently\slimited\sto\sa\stutorial\son\sconverting\sthe\sstock\nDockerfile\sto\swork\sunder\sPodman\sin\sits\sdefault\smode,\screating\sa\srootless\ncontainer.\s\sThis\sbrings\sin\sthe\ssecond\scontainer-related\sfile\sat\sthe\sroot\nof\sthe\srepo,\sthe\spatch\sfile\sfor\sthis,\sso\swe\sdon't\shave\sto\smaintain\stwo\nnearly-parallel\sDockerfiles.\s\sAs\sa\sbonus,\sit\sallows\sus\sto\spoint\sto\sthe\npatch\sfrom\sthe\sprose,\smaking\sexplicit\swhat\swe\shad\sto\schange.
+D 2022-09-04T02:01:38.753
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -290,7 +290,8 @@ F compat/zlib/zlib2ansi e9859eecf47ae66280573d73969c061989615134 x
 F compat/zlib/zutil.c d6c15b1c6ab285ab052b0c2c3cb650a7dee2760d30a18f0ea9fa23af5183373a
 F compat/zlib/zutil.h 9425615e056adada78afce8ca95f7e540407e0f60d4ab6dabece4f68bceb0f77
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
-F containers/busybox-config 989bbe1d8d6e5ed3c53db27413f301d73089d49ff39ad2715043c38b2aaabef4 w tools/busybox-config
+F containers/Dockerfile-nojail.patch 007b3cf7f99b15fde1d7d4b7510bdfc9008ca278a744c0b09929006fc83a35db
+F containers/busybox-config 989bbe1d8d6e5ed3c53db27413f301d73089d49ff39ad2715043c38b2aaabef4
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
@@ -817,7 +818,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 86f5dc3228713834e0a1b94cc8ab1de8e960905d7d2e348a6859462ed19a25e1
+F www/containers.md f84fc7a14f26c50ab81790f31f3be0816f30bf2889874ef7721999ff4860a23f
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -979,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be8f721d61ff60af3b392e0c50965e8a6c183d99de18ba6168d9804019136542
-R bf3ed2aebeace8505f98c3e67d674528
+P b08e2bb747834cb6bafa6b7d44deced641b824a4adc455a2eb6f1d1b0d97f28b
+R 8a7f3d5db4e4d02ee57b93207d7955c6
 U wyoung
-Z 6d33b09c907b449ed035fd3fb6b696ac
+Z 982d9d2ecda2ccd3914ec09000457113
 # Remove this line to create a well-formed Fossil manifest.
