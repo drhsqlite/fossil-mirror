@@ -764,6 +764,101 @@ This suggests one method around the problem of rootless Podman containers:
 [crun]:   https://github.com/containers/crun
 
 
+#### <a id="podman-rootful"></a>Fossil in a Rootful Podman Container
+
+##### Simple Method
+
+As we saw above with `runc`, switching to `crun` just to get your
+containers to run as root loses a lot of functionality and requires a
+bunch of cryptic commands to get the same effect as a single command
+under Podman.
+
+Fortunately, it’s easy enough to have it both ways. Simply run your
+`podman` commands as root:
+
+```
+  $ sudo podman build -t fossil --cap-add MKNOD .
+  $ sudo podman create \
+    --name fossil \
+    --cap-drop AUDIT_WRITE \
+    --cap-drop CHOWN \
+    --cap-drop FSETID \
+    --cap-drop KILL \
+    --cap-drop NET_BIND_SERVICE \
+    --cap-drop NET_RAW \
+    --cap-drop SETFCAP \
+    --cap-drop SETPCAP \
+    --publish 9999:8080 \
+    localhost/fossil
+  $ sudo podman start fossil
+```
+
+It’s obvious why we have to start the container as root, but why create
+and build it as root, too? Isn’t that a regression from the modern
+practice of doing as much as possible with a normal user?
+
+We have to do the build under `sudo` in part because we’re doing rootly
+things with the file system image layers we’re building up. Just because
+it’s done inside a container runtime’s build environment doesn’t mean we
+can get away without root privileges to do things like create the
+`/jail/dev/null` node.
+
+The other reason we need “`sudo podman build`” is because it puts the result
+into root’s Podman image repository, where the next steps look for it.
+
+That in turn explains why we need “`sudo podman create`:” because it’s
+creating a container based on an image that was created by root. If you
+ran that step without `sudo`, it wouldn’t be able to find the image.
+
+If Docker is looking better and better to you as a result of all this,
+realize that it’s doing the same thing. It just hides it better by
+creating the `docker` group, so that when your user gets added to that
+group, you get silent root privilege escalation on your build machine.
+This is why Podman defaults to rootless containers.  If you can get away
+with it, it’s a better way to work.  We would not be recommending
+running `podman` under `sudo` if it didn’t buy us [something we wanted
+badly](#chroot).
+
+Notice that we had to add the ability to run `mknod(8)` during the
+build.  Unlike Docker, Podman sensibly denies this by default, which
+lets us leave off the corresponding `--cap-drop` option.
+
+
+##### <a id="pm-root-workaround"></a>Building Under Docker, Running Under Podman
+
+If you have a remote host where the Fossil instance needs to run, it’s
+possible to get around this need to build the image as root on the
+remote system. You still have to build as root on the local system, but
+as I said above, Docker already does this. What we’re doing is shifting
+the risk of running as root from the public host to the local one.
+
+Once you have the image built on the local machine, create a “`fossil`”
+repository on your container repository of choice, such as [Docker
+Hub](https://hub.docker.com). Then say:
+
+```
+  $ docker login
+  $ docker tag fossil:latest mydockername/fossil:latest
+  $ docker image push mydockername/fossil:latest
+```
+
+That will push the image up to your account, so that you can then switch
+to the remote machine and say:
+
+```
+  $ sudo podman create \
+    --any-options-you-like \
+    docker.io/mydockername/fossil
+```
+
+This round-trip through the public image repository has another side
+benefit: your local system might be a lot faster than your remote one,
+as when the remote is a small VPS. Even with the overhead of schlepping
+container images across the Internet, it can be a net win in terms of
+build time.
+
+
+
 ### <a id="nspawn"></a>`systemd-nspawn`
 
 As of `systemd` version 242, its optional `nspawn` piece
