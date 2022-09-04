@@ -447,14 +447,114 @@ this idea to the rest of your site.)
 [DNT]: ./server/debian/nginx.md
 
 
+### <a id="runc" name="containerd"></a>Stripping Docker Engine Down
+
+The core of Docker Engine is its [`containerd`][ctrd] daemon and the
+[`runc`][runc] container runner. It’s possible to dig into the subtree
+managed by `containerd` on the build host and extract what we need to
+run our Fossil container elsewhere with `runc`, leaving out all the
+rest. `runc` alone is about 18 MiB, and you can do without `containerd`
+entirely, if you want.
+
+The method isn’t complicated, but it *is* cryptic enough to want a shell
+script:
+
+```shell
+#!/bin/sh
+c=fossil
+r=/containers/$c/rootfs
+sudo mkdir -p $r
+docker container export $c | sudo tar -C $r -xf -
+id=$(docker inspect --format="{{.Id}}" $c)
+sudo cat /run/containerd/io.containerd.runtime.v2.task/moby/$id/config.json |
+    jq '.root.path = "'$r'"' |
+    jq '.linux.cgroupsPath = ""' > $r/../config.json
+```
+
+The first two lines set configurables: the name of the Docker container
+you’re exporting for use with `runc` and the path where you want its
+file system root to live. They can be anything you like.
+
+The rest is generic, but you’re welcome to freestyle here. For instance,
+you could untar the rootfs through SSH in order to transfer the
+container to a remote system. Or, you could get really clever: unpack it
+in a local temp directory, then `rsync` it to the remote system to avoid
+transferring elements of the rootfs that haven’t changed since the last
+update.
+
+We’re using [jq] for two separate purposes:
+
+1.  To change the container configuration for `runc`:
+
+    *   point it where we unpacked the container’s exported rootfs
+    *   accede to its wish to [manage cgroups by itself][ecg]
+
+2.  To make the Docker-managed machine-readable `config.json` more
+    human-readable, in case there are other things you want changed in
+    this version of the container.  Exposing the `config.json` file like
+    this means you don’t have to rebuild the container merely to change
+    a value like a mount point, the kernel capability set, and so forth.
+
+With the container exported like this, you can start it as:
+
+```
+  $ cd /path/to/rootfs
+  $ c=any-name-you-like
+  $ sudo runc create $c
+  $ sudo runc start  $c
+  $ sudo runc exec $c -t sh -l
+  ~ $ ls museum
+  repo.fossil
+  ~ $ ps -eaf
+  PID   USER     TIME  COMMAND
+      1 fossil    0:00 bin/fossil server --create …
+  ~ $ exit
+  $ sudo runc kill fossil-runc
+  $ sudo runc delete fossil-runc
+```
+
+The first command refers to wherever the rootfs ended up on the `runc`
+host.  If it’s the same as the export host, then this is simply `$r`
+from the shell script above. If instead you’re doing something like the
+SSH/rsync trickery suggested above, the remote rootfs directory might be
+named differently on the `runc` host.
+
+There’s nothing that says the container name on the build host has to be
+the same as that on the runc host, so we’ve defined a separate `c`
+variable here to keep the commands short.
+
+The rest should be straightforward: create and start the container as
+root so the `chroot(2)` call inside the container will succeed, then get
+into it with a login shell and poke around to prove to ourselves that
+everything is working properly. It is. Yay!
+
+The remaining commands show shutting the container down and destroying
+it, simply to show how these commands change relative to using the
+Docker Engine commands. It’s “kill,” not “stop,” and it’s “delete,” not
+“rm.”
+
+[ctrd]: https://containerd.io/
+[ecg]:  https://github.com/opencontainers/runc/pull/3131
+[jq]:   https://stedolan.github.io/jq/
+[runc]: https://github.com/opencontainers/runc
+
+
 ### <a id="podman"></a>Podman
+
+Although your humble author claims the `runc` method above is not
+complicated, you might be recollecting the carefree commands at the top
+of this document, pondering whether you can live without the
+abstractions a proper container runtime system provides.
 
 A lighter-weight alternative to Docker Engine that doesn’t give up so
 much of its administrator affordances is [Podman], initially created by
 Red Hat and thus popular on that family of OSes, although it will run on
-any flavor of Linux. On Ubuntu 22.04, it’s about a quarter the size of
-Docker Engine. It can even be made to run [on macOS via Homebrew][pmmac]
+any flavor of Linux. It can even be made to run [on macOS via Homebrew][pmmac]
 or [on Windows via WSL2][pmwin].
+
+On Ubuntu 22.04, it’s about a quarter the size of Docker Engine. That
+isn’t nearly so slim as `runc`, but we may be willing to pay this
+overhead to get shorter and fewer commands.
 
 Although Podman [bills itself][whatis] as a drop-in replacement for the
 `docker` command and everything that sits behind it, some of the tool’s
@@ -466,8 +566,10 @@ that risk differently above](#chroot) already. Since neither choice is
 unassailably correct in all conditions, we’ll document both options
 here.
 
-[pmmac]: https://podman.io/getting-started/installation.html#macos
-[pmwin]: https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
+[pmmac]:  https://podman.io/getting-started/installation.html#macos
+[pmwin]:  https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
+[Podman]: https://podman.io/
+[whatis]: https://podman.io/whatis.html
 
 
 #### <a id="podman-rootless"></a>Fossil in a Rootless Podman Container
@@ -514,7 +616,19 @@ they’ll be connected to the network the container runs on. Once the bad
 guy is inside the house, he doesn’t necessarily have to go after the
 residents directly to cause problems for them.
 
-[Podman]: https://podman.io/
-[whatis]: https://podman.io/whatis.html
+
+#### <a id="crun"></a>`crun`
+
+In the same way that [Docker Engine is based on `runc`](#runc), Podman’s
+engine is based on [`crun`][crun], a lighter-weight alternative to
+`runc`. It’s only 1.4 MiB on the system I tested it on, yet it will run
+the same container bundles as in my `runc` examples above. This makes it
+a great option for tiny remote hosts. Above, we saved more than that by
+compressing the container’s Fossil executable with UPX!
+
+This suggests a method around the problem of rootless Podman containers:
+`sudo crun`, following the examples above.
+
+[crun]:   https://github.com/containers/crun
 
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>
