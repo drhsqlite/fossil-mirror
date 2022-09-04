@@ -780,12 +780,10 @@ Fortunately, it’s easy enough to have it both ways. Simply run your
   $ sudo podman build -t fossil --cap-add MKNOD .
   $ sudo podman create \
     --name fossil \
-    --cap-drop AUDIT_WRITE \
     --cap-drop CHOWN \
     --cap-drop FSETID \
     --cap-drop KILL \
     --cap-drop NET_BIND_SERVICE \
-    --cap-drop NET_RAW \
     --cap-drop SETFCAP \
     --cap-drop SETPCAP \
     --publish 9999:8080 \
@@ -820,8 +818,13 @@ running `podman` under `sudo` if it didn’t buy us [something we wanted
 badly](#chroot).
 
 Notice that we had to add the ability to run `mknod(8)` during the
-build.  Unlike Docker, Podman sensibly denies this by default, which
-lets us leave off the corresponding `--cap-drop` option.
+build. [Podman sensibly denies this by default][nomknod], which lets us
+leave off the corresponding `--cap-drop` option. Podman also denies
+`CAP_NET_RAW` and `CAP_AUDIT_WRITE` by default, which we don’t need, so
+we’ve simply removed them from the `--cap-drop` list relative to the
+commands for Docker above.
+
+[nomknod]: https://github.com/containers/podman/issues/15626
 
 
 ##### <a id="pm-root-workaround"></a>Building Under Docker, Running Under Podman
