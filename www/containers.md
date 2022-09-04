@@ -764,4 +764,45 @@ This suggests one method around the problem of rootless Podman containers:
 [crun]:   https://github.com/containers/crun
 
 
+### <a id="nspawn"></a>`systemd-nspawn`
+
+As of `systemd` version 242, its optional `nspawn` piece
+[reportedly](https://www.phoronix.com/news/Systemd-Nspawn-OCI-Runtime)
+now has the ability to run OCI container bundles directly. You might
+have it installed already, but if not, it’s only about 2 MiB.  It’s
+in the `systemd-containers` package as of Ubuntu 22.04 LTS:
+
+```
+  $ sudo apt install systemd-containers
+```
+
+It’s also in CentOS Stream 9, under the same name.
+
+You create the bundles the same way as with [the `runc` method
+above](#runc). The only thing that changes are the top-level management
+commands:
+
+```
+  $ sudo systemd-nspawn \
+    --oci-bundle=/var/lib/machines/fossil \
+    --machine=fossil \
+    --network-veth \
+    --port 48331:8080
+  $ sudo machinectl list
+  No machines.
+```
+
+This is why I wrote “reportedly” above: it doesn’t work on two different
+Linux distributions, and I can’t see why. I’m putting this here to give
+someone else a leg up, with the hope that they will work out what’s
+needed to get the container running and registered with `machinectl`.
+
+As of this writing, the tool expects an OCI container version of
+“1.0.0”. I had to edit this at the top of my `config.json` file to get
+the first command to read the bundle. The fact that it errored out when
+I had “`1.0.2-dev`” in there proves it’s reading the file, but it
+doesn’t seem able to make sense of what it finds there, and it doesn’t
+give any diagnostics to say why.
+
+
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>
