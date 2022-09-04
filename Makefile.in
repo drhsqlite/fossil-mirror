@@ -120,8 +120,11 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 	touch @builddir@/Makefile
 
 # Container stuff
-container-image: @srcdir@/Dockerfile
-	docker build -t fossil:@FOSSIL_CI_PFX@ $(DBFLAGS) @srcdir@
+container-image:
+	docker build \
+		--tag fossil:@FOSSIL_CI_PFX@ \
+		--build-arg FSLVER=@FOSSIL_CI_PFX@ \
+		$(DBFLAGS) @srcdir@
 
 container-run: container-image
 	docker run \
@@ -138,7 +141,3 @@ container-run: container-image
 		--detach --publish 8080:8080 \
 		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
 	docker container logs fossil-@FOSSIL_CI_PFX@
-
-@srcdir@/Dockerfile: @srcdir@/Dockerfile.in @srcdir@/manifest.uuid
-	@AUTOREMAKE@
-

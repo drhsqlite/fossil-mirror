@@ -1,5 +1,5 @@
-C Added\sa\s/jail/log\sdirectory\sto\sthe\scontainer\sso\ssomeone\scan\spass\n--errorlog\sand\ssuch\sto\sthe\sFossil\sinstance\sand\shave\sa\splace\sto\sput\nit.\s\sIt\salso\sacts\sas\sa\smountpoint\sfor\sappending\sto\sa\slog\sout\son\sthe\nhost.
-D 2022-09-04T22:20:41.264
+C Renamed\sDockerfile.in\sback\sto\sDockerfile\sso\sit\scan\sbe\sused\sas-is\son\nnon-autosetup\ssystems.\s\sRealized\sthat\swe\scan\spass\sthe\sFossil\scheckin\nhash\sprefix\sin\sas\sa\sbuild\sarg\sinstead\sof\sregenerating\sthe\sfile\son\sdisk\nfrom\sauto.def.\s\sIf\syou\suse\sthe\sDockerfile\sas-shipped,\syou\sget\sa\s"trunk"\nbuild,\swhich\srisks\sa\sstale\scache\s—\sit\sthinks\sit\salready\shas\sa\starball\sby\nthat\sname\sand\shelpfully\srefuses\sto\spull\sit\sagain\s—\sbut\sat\sleast\sWindows\nusers\sget\s*something*\swithout\shand-hacking\sthe\sfile.
+D 2022-09-04T23:46:56.683
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,13 +11,13 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile.in dd53e5caf21a899fb87c16b0b0114c449157f05f723405e116181c6741027af4
+F Dockerfile a1a85a4456e423aed80acd03ef4ec2a888ecaa67774dde33dd4b198658b96188 w Dockerfile.in
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in db54f02179688c192f78f2b2f92abee97f7ca8d8346281272d2701195dfb4e68 x
+F Makefile.in a3ea95e71cf1e5cb0826d6768f6dd0f18aca90ec04f0c7ccc5012b8d35b46310 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 30cfb93eb69beedbe51305d5a2d551e238c679b4a1e97a32950ef5b37fc78825
-F auto.def ca06ede837d6337e0884f1fbc2ddd67febac0220b5bcbe324e5ca49bd9036c72
+F auto.def 3b9044a2a444b948f87cbb5d3eb87b7ad268f240743b6f96cf6812cd74de88cf
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8eeb95e127a837acd20ee53c4365345c3dd19a66bb844e53bb1235756dc05857
-R f26169268007616bd3cae70a2c3148e3
+P ed50ceee0db1ad8e089f89439ab4b1a726cec1b364cb0c3c10b48cc3052b2d78
+R f366690f9a7ca868c72b2c1d6903cd0e
 U wyoung
-Z a5a91b3474a25990f5f0e1136d2073f5
+Z 3067ae26c6c51d68e0e158db7bee4a8c
 # Remove this line to create a well-formed Fossil manifest.

@@ -6,7 +6,7 @@ FROM alpine:latest AS builder
 COPY containers/busybox-config /tmp/bbx/.config
 ARG BBXVER="1_35_0"
 ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
-ARG FSLVER="@FOSSIL_CI_PFX@"
+ARG FSLVER="trunk"
 ENV FSLURL "https://fossil-scm.org/home/tarball/?r=${FSLVER}"
 ADD $BBXURL /tmp/bbx/src.tar.gz
 ADD $FSLURL /tmp/fsl/src.tar.gz
