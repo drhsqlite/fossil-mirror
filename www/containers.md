@@ -475,7 +475,13 @@ then
     id=$(docker inspect --format="{{.Id}}" $c)
     sudo cat $m/$id/config.json |
         jq '.root.path = "'$r'"' |
-        jq '.linux.cgroupsPath = ""' > $b/config.json
+        jq '.linux.cgroupsPath = ""' |
+        jq 'del(.linux.sysctl)' |
+        jq 'del(.linux.namespaces[] | select(.type == "network"))' |
+        jq 'del(.mounts[] | select(.destination == "/etc/hostname"))' |
+        jq 'del(.mounts[] | select(.destination == "/etc/resolv.conf"))' |
+        jq 'del(.mounts[] | select(.destination == "/etc/hosts"))' |
+        jq 'del(.hooks)' > $b/config.json
 fi
 ```
 
@@ -502,10 +508,21 @@ example of this below.
 
 We’re using [jq] for two separate purposes:
 
-1.  To change the container configuration for `runc`:
+1.  To automatically transmogrify Docker’s container configuration so it
+    will work with `runc`:
 
     *   point it where we unpacked the container’s exported rootfs
     *   accede to its wish to [manage cgroups by itself][ecg]
+    *   remove the `sysctl` calls that will break after…
+    *   …we remove the network namespace to allow Fossil’s TCP listening
+        port to be available on the host; `runc` doesn’t offer the
+        equivalent of `docker create --publish`, and we can’t be
+        bothered to set up a manual mapping from the host port into the
+        container
+    *   remove file bindings that point into the local runtime managed
+        directories; one of the things we give up by using a bare
+        container runner is automatic management of these files
+    *   remove the hooks for essentially the same reason
 
 2.  To make the Docker-managed machine-readable `config.json` more
     human-readable, in case there are other things you want changed in
@@ -574,7 +591,13 @@ then
     id=$(docker inspect --format="{{.Id}}" $c)
     sudo cat $m/$id/config.json |
         jq '.root.path = "'$b/rootfs'"' |
-        jq '.linux.cgroupsPath = ""' > $t/config.json
+        jq '.linux.cgroupsPath = ""' |
+        jq 'del(.linux.sysctl)' |
+        jq 'del(.linux.namespaces[] | select(.type == "network"))' |
+        jq 'del(.mounts[] | select(.destination == "/etc/hostname"))' |
+        jq 'del(.mounts[] | select(.destination == "/etc/resolv.conf"))' |
+        jq 'del(.mounts[] | select(.destination == "/etc/hosts"))' |
+        jq 'del(.hooks)' > $t/config.json
     scp -r $t $h:tmp
         ssh -t $h "{
                 mv ./$t/config.json $b &&
