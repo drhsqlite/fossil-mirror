@@ -447,30 +447,17 @@ this idea to the rest of your site.)
 [DNT]: ./server/debian/nginx.md
 
 
-
-### <a id="runc" name="containerd"></a>Stripping Docker Engine Down
-
-The core of Docker Engine is its [containerd] daemon and the [runc]
-container runner. It’s possible to run our Fossil container using only
-these tools, leaving out all the rest. Those two pieces come to about a
-tenth the size of Docker Engine on the system where I tested this.
-
-**TODO:** Work out how to do this and document it.
-
-[containerd]: https://containerd.io/
-[runc]: https://github.com/opencontainers/runc
-
-
 ### <a id="podman"></a>Podman
 
 The biggest downside of that method is that you don’t have all of the
-userland tools for managing the containers.
+user-land tools for managing the containers.
 
 A lighter-weight alternative to Docker Engine that doesn’t give up so
 much of its administrator affordances is [Podman], initially created by
 Red Hat and thus popular on that family of OSes, although it will run on
 any flavor of Linux. On Ubuntu 22.04, it’s about a quarter the size of
-Docker Engine.
+Docker Engine. It can even be made to run [on macOS via Homebrew][pmmac]
+or [on Windows via WSL2][pmwin].
 
 Although Podman [bills itself][whatis] as a drop-in replacement for the
 `docker` command and everything that sits behind it, some of the tool’s
@@ -481,6 +468,9 @@ regular user.  This is generally better for security, but [we dealt with
 that risk differently above](#chroot) already. Since neither choice is
 unassailably correct in all conditions, we’ll document both options
 here.
+
+[pmmac]: https://podman.io/getting-started/installation.html#macos
+[pmwin]: https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
 
 
 #### <a id="podman-rootless"></a>Fossil in a Rootless Podman Container
@@ -493,7 +483,7 @@ two key steps:
     tree mounted into the container’s root filesystem instead.
 
 2. Anything that depends on the `/jail` directory and the fact that it
-   becomes the root once the Fossil server is up and running.
+   becomes the file system’s root once the Fossil server is up and running.
 
 [The changes to fix this](/file/containers/Dockerfile-nojail.patch)
 aren’t complicated. Simply apply that patch to our stock `Dockerfile`
