@@ -787,7 +787,7 @@ commands:
     --oci-bundle=/var/lib/machines/fossil \
     --machine=fossil \
     --network-veth \
-    --port 48331:8080
+    --port=9999:8080
   $ sudo machinectl list
   No machines.
 ```
