@@ -449,9 +449,6 @@ this idea to the rest of your site.)
 
 ### <a id="podman"></a>Podman
 
-The biggest downside of that method is that you don’t have all of the
-user-land tools for managing the containers.
-
 A lighter-weight alternative to Docker Engine that doesn’t give up so
 much of its administrator affordances is [Podman], initially created by
 Red Hat and thus popular on that family of OSes, although it will run on
@@ -487,7 +484,27 @@ two key steps:
 
 [The changes to fix this](/file/containers/Dockerfile-nojail.patch)
 aren’t complicated. Simply apply that patch to our stock `Dockerfile`
-and rebuild.
+and rebuild:
+
+```
+  $ patch -p0 < containers/Dockerfile-nojail.patch
+  $ make reconfig      # re-generate Dockerfile from the changed .in file
+  $ docker build -t fossil:nojail .
+  $ docker create \
+    --name fossil-nojail \
+    --publish 9999:8080 \
+    --volume ~/museum/my-project.fossil:/museum/repo.fossil \
+    fossil:nojail
+```
+
+This shows a new trick: mapping a single file into the container, rather
+than mapping a whole directory. That’s only suitable if you aren’t using
+WAL mode on that repository, or you aren’t going to use that repository
+outside the container. It isn’t yet clear to me if WAL can work safely
+across the container boundary, so for now, I advise that you either do
+not use WAL mode with these containers, or that you clone the repository
+locally for use outside the container and rely on Fossil’s autosync
+feature to keep the two copies synchronized.
 
 Do realize that by doing this, if an attacker ever managed to get shell
 access on your container, they’d have a BusyBox installation to play
