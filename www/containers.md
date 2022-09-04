@@ -427,15 +427,29 @@ leaving the benefits of containerization to those with bigger budgets.
 
 For the sake of simple examples in this section, we’ll assume you’re
 integrating Fossil into a larger web site, such as with our [Debian +
-nginx + TLS][DNT] plan. The Fossil server instance listens on a
-high-numbered port, on localhost only, and the front-end web server
-reverse-proxies this out to the public.  Containers are a fine addition
-to such a system, isolating those elements of the site, thus greatly
-reducing the chance that they’ll ever be used to break into the host as
-a whole.
+nginx + TLS][DNT] plan. This is why all of the examples below create
+the container with this option:
+
+```
+  --publish 127.0.0.1:9999:8080
+```
+
+The assumption is that there’s a reverse proxy running somewhere that
+redirects public web hits to localhost port 9999, which in turn goes to
+port 8080 inside the container.  This use of Docker/Podman port
+publishing effectively replaces the use of the
+“`fossil server --localhost`” option.
+
+For the nginx case, you need to add `--scgi` to these commands, and you
+might also need to specify `--baseurl`.
+
+Containers are a fine addition to such a scheme as they isolate the
+Fossil sections of the site from the rest of the back-end resources,
+thus greatly reducing the chance that they’ll ever be used to break into
+the host as a whole.
 
 (If you wanted to be double-safe, you could put the web server into
-another container, restricting it only to reading from the static web
+another container, restricting it to reading from the static web
 site directory and connecting across localhost to back-end dynamic
 content servers such as Fossil. That’s way outside the scope of this
 document, but you can find ready advice for that elsewhere. Seeing how
@@ -721,7 +735,7 @@ and rebuild:
   $ docker build -t fossil:nojail .
   $ docker create \
     --name fossil-nojail \
-    --publish 9999:8080 \
+    --publish 127.0.0.1:9999:8080 \
     --volume ~/museum/my-project.fossil:/museum/repo.fossil \
     fossil:nojail
 ```
@@ -786,7 +800,7 @@ Fortunately, it’s easy enough to have it both ways. Simply run your
     --cap-drop NET_BIND_SERVICE \
     --cap-drop SETFCAP \
     --cap-drop SETPCAP \
-    --publish 9999:8080 \
+    --publish 127.0.0.1:9999:8080 \
     localhost/fossil
   $ sudo podman start fossil
 ```
@@ -885,7 +899,7 @@ commands:
     --oci-bundle=/var/lib/machines/fossil \
     --machine=fossil \
     --network-veth \
-    --port=9999:8080
+    --port=127.0.0.1:127.0.0.1:9999:8080
   $ sudo machinectl list
   No machines.
 ```

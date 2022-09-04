@@ -1,5 +1,5 @@
-C Folded\sinfo\sfrom\san\sexchange\swith\sthe\sPodman\sdevs\sinto\sthe\scontainer\sdoc.
-D 2022-09-04T12:14:15.518
+C Restricted\sthe\scontainer\slisteners\sto\slocalhost\sin\ssection\s6\sof\sthe\ncontainers\sdoc,\sand\smentioned\sa\sfew\sother\sitems\srelated\sto\sreverse\nproxying\swith\snginx.
+D 2022-09-04T12:55:10.779
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -818,7 +818,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md fe06e358882bdcce8d731b0cc542529071cd9f347478a672e0784ab1f0096b91
+F www/containers.md 0b3f4617273689f34d30587851abe095f81c5e21f0b414d098a2b53f3edd3bad
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d51d52417a3ec058c327274279ec398dc1f6515d61163cc1670165779b7ca8e
-R b7d87c00aed0b15c8973508bbd050bad
+P 80f4a1dd4999a21f3b236f7e8a8989176cd482247a905dd7a8385f2a8dfc0242
+R 59a873ce264505c2e7bfcbcc6be5c933
 U wyoung
-Z 4d3214762f2b32556d222a90d49ab97f
+Z 034538e073a0b5add2cc5371585cbdf6
 # Remove this line to create a well-formed Fossil manifest.
