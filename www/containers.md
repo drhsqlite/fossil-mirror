@@ -459,28 +459,45 @@ entirely, if you want.
 The method isn’t complicated, but it *is* cryptic enough to want a shell
 script:
 
+----
+
 ```shell
 #!/bin/sh
 c=fossil
-r=/containers/$c/rootfs
-sudo mkdir -p $r
-docker container export $c | sudo tar -C $r -xf -
-id=$(docker inspect --format="{{.Id}}" $c)
-sudo cat /run/containerd/io.containerd.runtime.v2.task/moby/$id/config.json |
-    jq '.root.path = "'$r'"' |
-    jq '.linux.cgroupsPath = ""' > $r/../config.json
+b=$HOME/containers/$c
+r=$b/rootfs
+m=/run/containerd/io.containerd.runtime.v2.task/moby
+
+if [ -d "$t" ] && mkdir -p $r
+then
+    docker container export $c | sudo tar -C $r -xf -
+    id=$(docker inspect --format="{{.Id}}" $c)
+    sudo cat $m/$id/config.json |
+        jq '.root.path = "'$r'"' |
+        jq '.linux.cgroupsPath = ""' > $b/config.json
+fi
 ```
 
-The first two lines set configurables: the name of the Docker container
-you’re exporting for use with `runc` and the path where you want its
-file system root to live. They can be anything you like.
+----
 
-The rest is generic, but you’re welcome to freestyle here. For instance,
-you could untar the rootfs through SSH in order to transfer the
-container to a remote system. Or, you could get really clever: unpack it
-in a local temp directory, then `rsync` it to the remote system to avoid
-transferring elements of the rootfs that haven’t changed since the last
-update.
+The first several lines list configurables:
+
+*   **b**: the path of the exported container, called the “bundle” in OCI
+    jargon
+*   **c**: the name of the Docker container you’re bundling up for use
+    with `runc`
+*   **m**: the [moby] directory, both because it’s long and because it’s
+    been known to change from one version of Docker to the next
+*   **r**: the path of the directory containing the bundle’s root file
+    system.
+
+That last doesn’t have to be called `rootfs/`, and it doesn’t have to
+live in the same directory as `config.json`, but it is conventional.
+Because some OCI tools use those names as defaults, it’s best to follow
+suit.
+
+The rest is generic, but you’re welcome to freestyle here. We’ll show an
+example of this below.
 
 We’re using [jq] for two separate purposes:
 
@@ -498,7 +515,7 @@ We’re using [jq] for two separate purposes:
 With the container exported like this, you can start it as:
 
 ```
-  $ cd /path/to/rootfs
+  $ cd /path/to/bundle
   $ c=any-name-you-like
   $ sudo runc create $c
   $ sudo runc start  $c
@@ -513,15 +530,11 @@ With the container exported like this, you can start it as:
   $ sudo runc delete fossil-runc
 ```
 
-The first command refers to wherever the rootfs ended up on the `runc`
-host.  If it’s the same as the export host, then this is simply `$r`
-from the shell script above. If instead you’re doing something like the
-SSH/rsync trickery suggested above, the remote rootfs directory might be
-named differently on the `runc` host.
-
-There’s nothing that says the container name on the build host has to be
-the same as that on the runc host, so we’ve defined a separate `c`
-variable here to keep the commands short.
+If you’re doing this on the export host, the first command is “`cd $b`”
+if we’re using the variables from the shell script above. We do this
+because `runc` assumes you’re running it from the bundle directory. If
+you prefer, the `runc` commands that care about this take a
+`--bundle/-b` flag to let you avoid switching directories.
 
 The rest should be straightforward: create and start the container as
 root so the `chroot(2)` call inside the container will succeed, then get
@@ -533,21 +546,74 @@ it, simply to show how these commands change relative to using the
 Docker Engine commands. It’s “kill,” not “stop,” and it’s “delete,” not
 “rm.”
 
-[ctrd]: https://containerd.io/
-[ecg]:  https://github.com/opencontainers/runc/pull/3131
-[jq]:   https://stedolan.github.io/jq/
-[runc]: https://github.com/opencontainers/runc
+Beware that if you’re doing this on a remote host, your bundle export
+directory on the build host might not be the same as where it ended up
+on the remote host. If so, the shell script above will create a broken
+bundle because it’s assuming the `mkdir` command should go to the same
+directory as the “`rootfs`” value it set in the `config.json` value.
+This is a more realistic shell script for that case:
+
+----
+
+```shell
+#!/bin/sh
+c=fossil
+b=/var/lib/machines/$c
+m=/run/containerd/io.containerd.runtime.v2.task/moby
+t=$(mktemp -d /tmp/$c-bundle.XXXXXX)
+r=$t/rootfs
+
+if [ -d "$t" ] && mkdir -p $r
+then
+    docker container export $c | sudo tar -C $r -xf -
+    id=$(docker inspect --format="{{.Id}}" $c)
+    sudo cat $m/$id/config.json |
+        jq '.root.path = "'$r'"' |
+        jq '.linux.cgroupsPath = ""' > $t/config.json
+    rsync -av $t/* remotehost:$b
+    sudo rm -rf $t
+fi
+```
+
+----
+
+We’ve introduced the “`t`” variable, a temporary directory we populate
+locally, then `rsync` across to the remote machine, updating a
+*different* bundle directory, `$b`. We’re using the convention for
+systemd based machines here, which will play into the [`nspawn`][sdnsp]
+alternative below. Even if you aren’t using `nspawn`, it’s a reasonable
+place to put containers under the [Linux FHS rules][LFHS].
+
+[ctrd]:  https://containerd.io/
+[ecg]:   https://github.com/opencontainers/runc/pull/3131
+[LFHS]:  https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+[jq]:    https://stedolan.github.io/jq/
+[moby]:  https://github.com/moby/moby
+[sdnsp]: #nspawn
+[runc]:  https://github.com/opencontainers/runc
 
 
 ### <a id="podman"></a>Podman
 
-Although your humble author claims the `runc` method above is not
-complicated, you might be recollecting the carefree commands at the top
-of this document, pondering whether you can live without the
-abstractions a proper container runtime system provides.
+Although your humble author claims the `runc` methods above are not
+complicated, merely cryptic, you might be fondly recollecting the
+carefree commands at the top of this document, pondering whether you can
+live without the abstractions a proper container runtime system
+provides.
+
+More than that, there’s a hidden cost to the `runc` method: there is no
+layer sharing among containers. If you have multiple Fossil containers
+on a single host — perhaps because each serves an independent section of
+the overall web site — and you export them to a remote host using the
+shell script above, you’ll end up with redundant copies of the `rootfs`
+in each. A proper OCI container runtime knows they’re all derived from
+the same base image, differing only in minor configuration details,
+giving us one of the major advantages of containerization: if none of
+the running containers can change these immutable base layers, it
+doesn’t have to copy them.
 
 A lighter-weight alternative to Docker Engine that doesn’t give up so
-much of its administrator affordances is [Podman], initially created by
+many of its administrator affordances is [Podman], initially created by
 Red Hat and thus popular on that family of OSes, although it will run on
 any flavor of Linux. It can even be made to run [on macOS via Homebrew][pmmac]
 or [on Windows via WSL2][pmwin].
@@ -622,11 +688,16 @@ residents directly to cause problems for them.
 In the same way that [Docker Engine is based on `runc`](#runc), Podman’s
 engine is based on [`crun`][crun], a lighter-weight alternative to
 `runc`. It’s only 1.4 MiB on the system I tested it on, yet it will run
-the same container bundles as in my `runc` examples above. This makes it
-a great option for tiny remote hosts. Above, we saved more than that by
-compressing the container’s Fossil executable with UPX!
+Above, we saved more than that by compressing the container’s Fossil
+executable with UPX!  the same container bundles as in my `runc`
+examples above.
 
-This suggests a method around the problem of rootless Podman containers:
+This makes `crun` a great option for tiny remote hosts with a single
+container, or at least where none of the containers share base layers,
+so that there is no effective cost to duplicating the immutable base
+layers of the containers’ source images.
+
+This suggests one method around the problem of rootless Podman containers:
 `sudo crun`, following the examples above.
 
 [crun]:   https://github.com/containers/crun
