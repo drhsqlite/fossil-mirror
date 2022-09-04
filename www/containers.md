@@ -10,7 +10,7 @@ show some of these options later on.
 [OCI]:    https://opencontainers.org/
 
 
-## Quick Start
+## 1. Quick Start
 
 Fossil ships a `Dockerfile` at the top of its source tree which you can
 build like so:
@@ -59,7 +59,7 @@ keep old containers around for quick roll-backs while replacing them
 with fresh ones.
 
 
-## <a id="storage"></a>Repository Storage Options
+## 2. <a id="storage"></a>Repository Storage Options
 
 If you want the container to serve an existing repository, there are at
 least two right ways to do it.
@@ -76,7 +76,7 @@ The correct ways put the repo into the _container_ created from the
 _image_, not in the image itself.
 
 
-### Storing the Repo Inside the Container
+### <a id="repo-inside"></a> 2.1 Storing the Repo Inside the Container
 
 The simplest method is to stop the container if it was running, then
 say:
@@ -112,7 +112,7 @@ change this default.) You don’t have to restart the server after fixing
 this with `chmod`: simply reload the browser, and Fossil will try again.
 
 
-### <a id="bind-mount"></a>Storing the Repo Outside the Container
+### 2.2 <a id="bind-mount"></a>Storing the Repo Outside the Container
 
 The simple storage method above has a problem: Docker containers are
 designed to be killed off at the slightest cause, rebuilt, and
@@ -147,9 +147,9 @@ remapped into the new container when you recreate it with `-v`.
 [dbcorr]: https://www.sqlite.org/howtocorrupt.html
 
 
-## <a id="security"></a>Security
+## 3. <a id="security"></a>Security
 
-### <a id="chroot"></a>Why Chroot?
+### 3.1 <a id="chroot"></a>Why Chroot?
 
 A potentially surprising feature of this container is that it runs
 Fossil as root. Since that causes [the chroot jail feature](./chroot.md)
@@ -198,7 +198,7 @@ become when dropping root privileges.
 [th1docrisk]: https://fossil-scm.org/forum/forumpost/42e0c16544
 
 
-### <a id="caps"></a>Dropping Unnecessary Capabilities
+### 3.2 <a id="caps"></a>Dropping Unnecessary Capabilities
 
 The example commands above create the container with [a default set of
 Linux kernel capabilities][defcap]. Although Docker strips away almost
@@ -312,7 +312,7 @@ without ever running it, making these options pointless.
 
 
 
-## <a id="static"></a>Extracting a Static Binary
+## 4. <a id="static"></a>Extracting a Static Binary
 
 Our 2-stage build process uses Alpine Linux only as a build host. Once
 we’ve got everything reduced to the two key static binaries — Fossil and
@@ -338,9 +338,9 @@ at about 4 MiB. (It’s built stripped and packed with [UPX].)
 [UPX]: https://upx.github.io/
 
 
-## <a id="args"></a>Container Build Arguments
+## 5. <a id="args"></a>Container Build Arguments
 
-### Package Versions
+### <a id="pkg-vers"></a> 5.1 Package Versions
 
 You can override the default versions of Fossil and BusyBox that get
 fetched in the build step. To get the latest-and-greatest of everything,
@@ -385,7 +385,7 @@ change each time you update your Fossil source tree, forcing Docker to
 pull a fresh tarball.
 
 
-### <a id="uids"></a>User & Group IDs
+### 5.2 <a id="uids"></a>User & Group IDs
 
 The “`fossil`” user and group IDs inside the container default to 499.
 Why? Regular user IDs start at 500 or 1000 on most Unix type systems,
@@ -407,7 +407,7 @@ sides of the container barrier rather than have “499” appear on the host
 in “`ls -l`” output.
 
 
-## <a id="light"></a>Lightweight Alternatives to Docker
+## 6. <a id="light"></a>Lightweight Alternatives to Docker
 
 Those afflicted with sticker shock at seeing the size of a [Docker
 Desktop][DD] installation — 1.65 GB here — might’ve immediately
@@ -447,7 +447,7 @@ this idea to the rest of your site.)
 [DNT]: ./server/debian/nginx.md
 
 
-### <a id="runc" name="containerd"></a>Stripping Docker Engine Down
+### 6.1 <a id="runc" name="containerd"></a>Stripping Docker Engine Down
 
 The core of Docker Engine is its [`containerd`][ctrd] daemon and the
 [`runc`][runc] container runner. It’s possible to dig into the subtree
@@ -654,7 +654,7 @@ containers under the [Linux FHS rules][LFHS].
 [runc]:  https://github.com/opencontainers/runc
 
 
-### <a id="podman"></a>Podman
+### 6.2 <a id="podman"></a>Podman
 
 Although your humble author claims the `runc` methods above are not
 complicated, merely cryptic, you might be fondly recollecting the
@@ -699,7 +699,7 @@ here.
 [whatis]: https://podman.io/whatis.html
 
 
-#### <a id="podman-rootless"></a>Fossil in a Rootless Podman Container
+#### 6.2.1 <a id="podman-rootless"></a>Fossil in a Rootless Podman Container
 
 If you build the stock Fossil container under `podman`, it will fail at
 two key steps:
@@ -744,7 +744,7 @@ guy is inside the house, he doesn’t necessarily have to go after the
 residents directly to cause problems for them.
 
 
-#### <a id="crun"></a>`crun`
+#### 6.2.2 <a id="crun"></a>`crun`
 
 In the same way that [Docker Engine is based on `runc`](#runc), Podman’s
 engine is based on [`crun`][crun], a lighter-weight alternative to
@@ -764,7 +764,7 @@ This suggests one method around the problem of rootless Podman containers:
 [crun]:   https://github.com/containers/crun
 
 
-#### <a id="podman-rootful"></a>Fossil in a Rootful Podman Container
+#### 6.2.3 <a id="podman-rootful"></a>Fossil in a Rootful Podman Container
 
 ##### Simple Method
 
@@ -833,8 +833,8 @@ as I said above, Docker already does this. What we’re doing is shifting
 the risk of running as root from the public host to the local one.
 
 Once you have the image built on the local machine, create a “`fossil`”
-repository on your container repository of choice, such as [Docker
-Hub](https://hub.docker.com). Then say:
+repository on your container repository of choice such as [Docker
+Hub](https://hub.docker.com), then say:
 
 ```
   $ docker login
@@ -859,7 +859,7 @@ build time.
 
 
 
-### <a id="nspawn"></a>`systemd-nspawn`
+### 6.3 <a id="nspawn"></a>`systemd-nspawn`
 
 As of `systemd` version 242, its optional `nspawn` piece
 [reportedly](https://www.phoronix.com/news/Systemd-Nspawn-OCI-Runtime)
