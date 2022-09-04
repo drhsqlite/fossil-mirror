@@ -470,6 +470,7 @@ m=/run/containerd/io.containerd.runtime.v2.task/moby
 
 if [ -d "$t" ] && mkdir -p $r
 then
+    docker container start  $c
     docker container export $c | sudo tar -C $r -xf -
     id=$(docker inspect --format="{{.Id}}" $c)
     sudo cat $m/$id/config.json |
@@ -482,13 +483,13 @@ fi
 
 The first several lines list configurables:
 
-*   **b**: the path of the exported container, called the “bundle” in OCI
+*   **`b`**: the path of the exported container, called the “bundle” in OCI
     jargon
-*   **c**: the name of the Docker container you’re bundling up for use
+*   **`c`**: the name of the Docker container you’re bundling up for use
     with `runc`
-*   **m**: the [moby] directory, both because it’s long and because it’s
+*   **`m`**: the [moby] directory, both because it’s long and because it’s
     been known to change from one version of Docker to the next
-*   **r**: the path of the directory containing the bundle’s root file
+*   **`r`**: the path of the directory containing the bundle’s root file
     system.
 
 That last doesn’t have to be called `rootfs/`, and it doesn’t have to
@@ -511,6 +512,12 @@ We’re using [jq] for two separate purposes:
     this version of the container.  Exposing the `config.json` file like
     this means you don’t have to rebuild the container merely to change
     a value like a mount point, the kernel capability set, and so forth.
+
+<a id="why-sudo"></a>
+We have to do this transformation of `config.json` as the local root
+user because it isn’t readable by your normal user. Additionally, that
+input file is only available while the container is started, which is
+why we ensure that before exporting the container’s rootfs.
 
 With the container exported like this, you can start it as:
 
@@ -546,43 +553,71 @@ it, simply to show how these commands change relative to using the
 Docker Engine commands. It’s “kill,” not “stop,” and it’s “delete,” not
 “rm.”
 
-Beware that if you’re doing this on a remote host, your bundle export
-directory on the build host might not be the same as where it ended up
-on the remote host. If so, the shell script above will create a broken
-bundle because it’s assuming the `mkdir` command should go to the same
-directory as the “`rootfs`” value it set in the `config.json` value.
-This is a more realistic shell script for that case:
+If you want the bundle to run on a remote host, the local and remote
+bundle directories likely will not match, as the shell script above
+assumes.  This is a more realistic shell script for that case:
 
 ----
 
 ```shell
-#!/bin/sh
+#!/bin/bash -ex
 c=fossil
 b=/var/lib/machines/$c
+h=my-host.example.com
 m=/run/containerd/io.containerd.runtime.v2.task/moby
 t=$(mktemp -d /tmp/$c-bundle.XXXXXX)
-r=$t/rootfs
 
-if [ -d "$t" ] && mkdir -p $r
+if [ -d "$t" ]
 then
-    docker container export $c | sudo tar -C $r -xf -
+    docker container start  $c
+    docker container export $c > $t/rootfs.tar
     id=$(docker inspect --format="{{.Id}}" $c)
     sudo cat $m/$id/config.json |
-        jq '.root.path = "'$r'"' |
+        jq '.root.path = "'$b/rootfs'"' |
         jq '.linux.cgroupsPath = ""' > $t/config.json
-    rsync -av $t/* remotehost:$b
-    sudo rm -rf $t
+    scp -r $t $h:tmp
+        ssh -t $h "{
+                mv ./$t/config.json $b &&
+                sudo tar -C $b/rootfs -xf ./$t/rootfs.tar &&
+                rm -r ./$t
+        }"
+    rm -r $t
 fi
 ```
 
 ----
 
-We’ve introduced the “`t`” variable, a temporary directory we populate
-locally, then `rsync` across to the remote machine, updating a
-*different* bundle directory, `$b`. We’re using the convention for
-systemd based machines here, which will play into the [`nspawn`][sdnsp]
-alternative below. Even if you aren’t using `nspawn`, it’s a reasonable
-place to put containers under the [Linux FHS rules][LFHS].
+We’ve introduced two new variables:
+
+*   **`h`**: the remote host name
+*   **`t`**: a temporary bundle directory we populate locally, then
+    `scp` to the remote machine, where it’s unpacked
+
+We dropped the **`r`** variable because now we have two different
+“rootfs” types: the tarball and the unpacked version of that tarball.
+To avoid confusing ourselves between these cases, we’ve replaced uses of
+`$r` with explicit paths.
+
+You need to be aware that this script uses `sudo` for two different purposes:
+
+1. To read the local `config.json` file out of the `containerd` managed
+   directory. ([Details above](#why-sudo).)
+
+2. To unpack the bundle onto the remote machine. If you try to get
+   clever and unpack it locally, then `rsync` it to the remote host to
+   avoid re-copying files that haven’t changed since the last update,
+   you’ll find that it fails when it tries to copy device nodes, to
+   create files owned only by the remote root user, and so forth. If the
+   container bundle is small, it’s simpler to re-copy and unpack it
+   fresh each time.
+
+I point that out because it might ask for your password twice: once for
+the local sudo command, and once for the remote.
+
+The default for the **`b`** variable is the convention for systemd based
+machines, which will play into the [`nspawn`][sdnsp] alternative below.
+Even if you aren’t using `nspawn`, it’s a reasonable place to put
+containers under the [Linux FHS rules][LFHS].
 
 [ctrd]:  https://containerd.io/
 [ecg]:   https://github.com/opencontainers/runc/pull/3131
