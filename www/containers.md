@@ -688,9 +688,9 @@ residents directly to cause problems for them.
 In the same way that [Docker Engine is based on `runc`](#runc), Podman’s
 engine is based on [`crun`][crun], a lighter-weight alternative to
 `runc`. It’s only 1.4 MiB on the system I tested it on, yet it will run
+the same container bundles as in my `runc` examples above.
 Above, we saved more than that by compressing the container’s Fossil
-executable with UPX!  the same container bundles as in my `runc`
-examples above.
+executable with UPX!
 
 This makes `crun` a great option for tiny remote hosts with a single
 container, or at least where none of the containers share base layers,
@@ -701,5 +701,6 @@ This suggests one method around the problem of rootless Podman containers:
 `sudo crun`, following the examples above.
 
 [crun]:   https://github.com/containers/crun
+
 
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>
