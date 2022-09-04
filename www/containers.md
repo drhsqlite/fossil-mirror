@@ -493,8 +493,12 @@ The first several lines list configurables:
     jargon
 *   **`c`**: the name of the Docker container you’re bundling up for use
     with `runc`
-*   **`m`**: the [moby] directory, both because it’s long and because it’s
-    been known to change from one version of Docker to the next
+*   **`m`**: the directory holding the running machines, configurable
+    because:
+    *   it’s long
+    *   it’s been known to change from one version of Docker to the next
+    *   you might be using [Podman](#podman)/[`crun`](#crun), so it has
+        to be “`/run/user/$UID/crun`” instead
 *   **`r`**: the path of the directory containing the bundle’s root file
     system.
 
@@ -638,7 +642,7 @@ I point that out because it might ask for your password twice: once for
 the local sudo command, and once for the remote.
 
 The default for the **`b`** variable is the convention for systemd based
-machines, which will play into the [`nspawn`][sdnsp] alternative below.
+machines, which will play into the [`nspawn` alternative below][sdnsp].
 Even if you aren’t using `nspawn`, it’s a reasonable place to put
 containers under the [Linux FHS rules][LFHS].
 
@@ -646,7 +650,6 @@ containers under the [Linux FHS rules][LFHS].
 [ecg]:   https://github.com/opencontainers/runc/pull/3131
 [LFHS]:  https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
 [jq]:    https://stedolan.github.io/jq/
-[moby]:  https://github.com/moby/moby
 [sdnsp]: #nspawn
 [runc]:  https://github.com/opencontainers/runc
 
