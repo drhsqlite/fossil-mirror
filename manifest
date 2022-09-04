@@ -1,5 +1,5 @@
-C Extracted\sthe\sDocker\scontainers\smaterial\sfrom\swww/build.wiki\sand\smoved\nit\sinto\sa\snew\sdocument\sdedicated\sto\sthe\stopic,\scontainers.md.\s\sIt\swas\nalready\spushing\sthe\sbounds\sof\show\smuch\sinfo\swe\swant\sto\sprovide\sin\sa\nsingle\ssection\sof\sthat\sdoc,\sand\sit's\sabout\sto\sget\sbigger.\n\nAs\spart\sof\sthe\sconversion\sfrom\swiki\sformat\sto\sMarkdown,\sdid\sanother\sedit\npass\son\sthe\sdoc,\simproving\sa\sfew\sthings\salong\sthe\sway.\n\nDropped\sthe\s"docker-"\sprefix\sfrom\sall\sinternal\sIDs,\sas\swe\sno\slonger\sneed\nthem\sto\sdisambiguate\sreferences\sto\sother\sparts\sof\sthe\sbuild\sdoc.
-D 2022-09-03T23:34:42.403
+C Referencing\sthe\snew\scontainers.md\sfile\sfrom\sDockerfile.in\sso\swe\scan\nremove\sa\sbig\sredundant\sblock\scomment\sfrom\sit.\s\sWhile\sin\sthere,\smade\sa\nfew\sstyle\stweaks\sthat\swill\shelp\sthe\songoing\scontainer\sdocument\nexpansion.
+D 2022-09-04T01:39:52.010
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile.in 318fe67bc2e51080d990ae8b97a0a81bd91dedb0584c1c0241b41b752ea36b49
+F Dockerfile.in 5acaba072ba25c2e897a5f2a2c481d71a4d6ceb1c0adb597c6f5cc4a2082a697
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in db54f02179688c192f78f2b2f92abee97f7ca8d8346281272d2701195dfb4e68 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76c9bbb3bd2d708f064c64d92bfe2a0fe52d5a3de0fa9825b29f46b508e7446d
-R f64bac3fd3914ced0f02dad6dade013b
+P 7129dc986832851da748453d180110c440421c354d33390219224cd17f4a4a5a
+R 31e94583c5fd1d0e8cf54e851bfbca01
 U wyoung
-Z 8c4496ee4ce1d912abfb13c06d407c21
+Z 352c313c3fac42b935e93a4832ff7e0e
 # Remove this line to create a well-formed Fossil manifest.
