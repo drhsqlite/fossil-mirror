@@ -122,17 +122,16 @@ the following:
 
 ```
   $ docker run \
-    --name fossil-bind-mount -p 9999:8080 \
-    -v ~/museum:/jail/museum fossil
+    --publish 9999:8080 \
+    --name fossil-bind-mount \
+    --volume ~/museum:/jail/museum \
+    fossil
 ```
 
 Because this bind mount maps a host-side directory (`~/museum`) into the
 container, you don’t need to `docker cp` the repo into the container at
 all. It still expects to find the repository as `repo.fossil` under that
-directory, but now both the host and the container can see that file.
-(Beware: This may create a [risk of data corruption][dbcorr] due to
-SQLite locking issues if you try to modify the DB from both sides at
-once.)
+directory, but now both the host and the container can see that repo DB.
 
 Instead of a bind mount, you could instead set up a separate [Docker
 volume](https://docs.docker.com/storage/volumes/), at which point you
@@ -142,9 +141,81 @@ Either way, files in these mounted directories have a lifetime
 independent of the container(s) they’re mounted into. When you need to
 rebuild the container or its underlying image — such as to upgrade to a
 newer version of Fossil — the external directory remains behind and gets
-remapped into the new container when you recreate it with `-v`.
+remapped into the new container when you recreate it with `--volume/-v`.
 
-[dbcorr]: https://www.sqlite.org/howtocorrupt.html
+
+#### 2.2.1 <a id="wal-mode"></a>WAL Mode Interactions
+
+You might be aware that OCI containers allow mapping a single file into
+the repository rather than a whole directory.  Since Fossil repositories
+are specially-formatted SQLite databases, you might be wondering why we
+don’t say things like:
+
+```
+  --volume ~/museum/my-project.fossil:/jail/museum/repo.fossil
+```
+
+That lets us have a convenient file name for the project outside the
+container while letting the configuration inside the container refer to
+the generic “`/museum/repo.fossil`” name. Why should we have to rename
+the container generically on the outside just to placate the container?
+
+The reason is, you might be serving that repo with [WAL mode][wal]
+enabled. If you map the repo DB alone into the container, the Fossil
+instance inside the container will write the `-journal` and `-wal` files
+alongside the mapped-in repository inside the container.  That’s fine as
+far as it goes, but if you then try using the same repo DB from outside
+the container while there’s an active WAL, the Fossil instance outside
+won’t know about it. It will think it needs to write *its own*
+`-journal` and `-wal` files *outside* the container, creating a high
+risk of [database corruption][dbcorr].
+
+If we map a whole directory, both sides see the same set of WAL files,
+so there is at least a *hope* that WAL will work properly across that
+boundary. The success of the scheme depends on the `mmap()` and shared
+memory system calls being coordinated properly by the OS kernel the two
+worlds share. 
+
+At some point, someone should perform tests in the hopes of *failing* to
+create database corruption in this scenario.
+
+Why the tortured grammar? Because you cannot prove a negative, being in
+this case “SQLite will not corrupt the database in WAL mode if there’s a
+container barrier in the way.” All you can prove is that a given test
+didn’t cause corruption. With enough tests of sufficient power, you can
+begin to make definitive statements, but even then, science is always
+provisional, awaiting a single disproving experiment. Atop that, OCI
+container runtimes give the sysadmin freedom to impose barriers between
+the two worlds, so even if you convince yourself that WAL mode is safe
+in a given setup, it’s possible to configure it to fail. As if that
+weren’t enough, different container runtimes have different defaults,
+including details like whether shared memory is truly shared between
+the host and its containers.
+
+Until someone gets around to establishing this ground truth and scoping
+its applicable range, my advice to those who want to use WAL mode on
+containerized servers is to map the whole directory as shown in these
+examples, but then isolate the two sides with a secondary clone. On the
+outside, you say something like this:
+
+```
+  $ fossil clone https://user@example.com/myproject ~/museum/myproject.fossil
+```
+
+That lands you with two side-by-side clones of the repository on the
+server:
+
+```
+  ~/museum/myproject.fossil          ← local-use clone
+  ~/museum/myproject/repo.fossil     ← served by container only
+```
+
+You open the secondary clone for local use, not the one being served by
+the container. When you commit, Fossil’s autosync feature pushes the
+change up through the HTTPS link to land safely inside the container.
+
+[dbcorr]: https://www.sqlite.org/howtocorrupt.html#_deleting_a_hot_journal
+[wal]:    https://www.sqlite.org/wal.html
 
 
 ## 3. <a id="security"></a>Security
@@ -736,18 +807,9 @@ and rebuild:
   $ docker create \
     --name fossil-nojail \
     --publish 127.0.0.1:9999:8080 \
-    --volume ~/museum/my-project.fossil:/museum/repo.fossil \
+    --volume ~/museum:/museum \
     fossil:nojail
 ```
-
-This shows a new trick: mapping a single file into the container, rather
-than mapping a whole directory. That’s only suitable if you aren’t using
-WAL mode on that repository, or you aren’t going to use that repository
-outside the container. It isn’t yet clear to me if WAL can work safely
-across the container boundary, so for now, I advise that you either do
-not use WAL mode with these containers, or that you clone the repository
-locally for use outside the container and rely on Fossil’s autosync
-feature to keep the two copies synchronized.
 
 Do realize that by doing this, if an attacker ever managed to get shell
 access on your container, they’d have a BusyBox installation to play
