@@ -1,5 +1,5 @@
-C Expanded\sthe\sparagraph\son\sWAL\smode\sinteractions\sin\sthe\scontainer\sdoc\ninto\sa\sfull\ssection,\splaced\shigher\sup,\simmediately\safter\sthe\sfirst\suse\nof\sDocker's\s"--volume"\sflag,\sto\sexplain\swhy\swe\sdon't\smap\sjust\sthe\srepo\nDB\sfile,\sbut\sthe\swhole\sdirectory\sit\ssits\sin.\s\sEven\sif\swe\slater\sconvince\nourselves\sWAL\sis\ssafe\sunder\sthis\sscenario,\sit'll\sbe\sconditional\sat\sbest,\nso\ssome\sremnant\sof\sthis\ssection\smust\sremain,\sno\smatter\swhich\sway\sthe\nexperiments\sgo.
-D 2022-09-05T01:42:03.993
+C Broke\sthe\sDockerfile\sup\sinto\smore\slayers\sto\sallow\sbetter\slocal\scaching\nat\sbuild\stime.\s\sFurther\soptimized\sbuild\stime\sby\sproducing\sthe\sFossil\nsource\starball\sfrom\sthe\slocal\srepo\sinstead\sof\shitting\sthe\shome\ssite\sif\nyou\suse\sthe\scontainer-image\starget,\ssince\swe\scan\sbe\sreasonably\scertain\nyou're\sworking\sfrom\sa\srepo\scheckout\sand\sthus\shave\sall\sthe\sinfo\savailable\nhere\slocally\salready.
+D 2022-09-05T08:15:27.642
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,9 +11,9 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile a1a85a4456e423aed80acd03ef4ec2a888ecaa67774dde33dd4b198658b96188
+F Dockerfile 918a6f397e89bc379a63c8ec559937967b256ed061c242d0aaabc57b7de14e18
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in a3ea95e71cf1e5cb0826d6768f6dd0f18aca90ec04f0c7ccc5012b8d35b46310 x
+F Makefile.in a1a3422bd97f80d9088ad7a49f39a1aa70aa0c233fd24688f634173e35be2f69 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 30cfb93eb69beedbe51305d5a2d551e238c679b4a1e97a32950ef5b37fc78825
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b0c9c26a9c7fadb0d5a9eff9d47d99d469f0bc1876b24cd1e58532c459159ffd
-R 755582f8924a13893284cfbbba85a7b2
+P 698587d41d0110b08b23bd007d510ab624a603d0b7fefae160d391cc70bb011d
+R 7495272e859d5092c0bf1daf5b5ac1b6
 U wyoung
-Z 419525fe1c34e1da195be654ba9068d5
+Z f7cc799433a67146cf1ee1a09ad95216
 # Remove this line to create a well-formed Fossil manifest.

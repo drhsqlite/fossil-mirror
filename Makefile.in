@@ -120,11 +120,14 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 	touch @builddir@/Makefile
 
 # Container stuff
+SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
 container-image:
+	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
 	docker build \
 		--tag fossil:@FOSSIL_CI_PFX@ \
-		--build-arg FSLVER=@FOSSIL_CI_PFX@ \
+		--build-arg FSLURL=$(SRCTB) \
 		$(DBFLAGS) @srcdir@
+	rm -f $(SRCTB)
 
 container-run: container-image
 	docker run \
