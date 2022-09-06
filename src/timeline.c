@@ -2780,6 +2780,10 @@ static char *timeline_entry_subst(
   blob_init(&r, 0, 0);
   blob_init(&co, 0, 0);
 
+  if( 0==zCom ){
+    zCom = "(NULL)";
+  }
+
   /* Replace LF and tab with space, delete CR */
   while( zCom[0] ){
     for(j=0; zCom[j] && zCom[j]!='\r' && zCom[j]!='\n' && zCom[j]!='\t'; j++){}

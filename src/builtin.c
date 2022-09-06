@@ -150,8 +150,8 @@ static void builtin_deliver_multiple_js_files(
       blob_append(pOut, (const char*)aBuiltinFiles[i-1].pData,
                   aBuiltinFiles[i-1].nByte);
     }
-    while( fossil_isdigit(zList[0]) ) zList++;
-    if( zList[0]==',' ) zList++;
+    while( zList[0] && fossil_isdigit(zList[0]) ) zList++;
+    while( zList[0] && !fossil_isdigit(zList[0]) ) zList++;
   }
   return;
 }

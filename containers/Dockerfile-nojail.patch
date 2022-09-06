@@ -1,0 +1,49 @@
+Index: Dockerfile.in
+==================================================================
+--- Dockerfile.in
++++ Dockerfile.in
+@@ -27,37 +27,35 @@
+      && if apk add upx ; then upx -9 fossil bbx/busybox ; fi
+ 
+ # STAGE 2: Pare that back to the bare essentials.
+ 
+ FROM scratch
+-WORKDIR /jail
++WORKDIR /
+ ARG UID=499
+-ENV PATH "/bin:/jail/bin"
++ENV PATH "/bin"
+ COPY --from=builder /tmp/fossil bin/
+ COPY --from=builder /tmp/bbx/busybox /bin/
+ RUN [ "/bin/busybox", "--install", "/bin" ]
+ RUN set -x                                                             \
+-    && mkdir -m 700 dev museum                                         \
+-    && mknod -m 600 dev/null    c 1 3                                  \
+-    && mknod -m 600 dev/urandom c 1 9                                  \
++    && mkdir -m 700 museum                                             \
+     && echo 'root:x:0:0:SysAdmin:/:/bin/nologin' > /etc/passwd         \
+     && echo 'root:x:0:root'                      > /etc/group          \
+     && addgroup -g ${UID} fossil                                       \
+     && adduser -h `pwd` -g 'Fossil User' -G fossil -u ${UID} -S fossil \
+     && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /bin/sha1sum         \
+     && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /bin/sha3sum         \
+     && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' > /bin/sqlite3 \
+-    && ln -s /jail/bin/fossil /bin/f                                   \
++    && ln -s /bin/fossil /bin/f                                        \
+     && chmod +x /bin/sha?sum /bin/sqlite3                              \
+-    && chown fossil:fossil . museum
++    && chown fossil:fossil museum
+ 
+ # Now we can run the stripped-down environment in a chroot jail, while
+ # leaving open the option to debug it live via the Busybox shell.
+ 
+ EXPOSE 8080/tcp
++USER fossil
+ CMD [ \
+     "bin/fossil", "server", \
+-    "--chroot", "/jail",    \
+     "--create",             \
+     "--jsmode", "bundled",  \
+     "--user", "admin",      \
+     "museum/repo.fossil"]
+
