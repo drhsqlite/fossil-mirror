@@ -802,7 +802,6 @@ and rebuild:
 
 ```
   $ patch -p0 < containers/Dockerfile-nojail.patch
-  $ make reconfig      # re-generate Dockerfile from the changed .in file
   $ docker build -t fossil:nojail .
   $ docker create \
     --name fossil-nojail \
