@@ -532,241 +532,41 @@ this idea to the rest of your site.)
 [DNT]: ./server/debian/nginx.md
 
 
-### 6.1 <a id="runc" name="containerd"></a>Stripping Docker Engine Down
+### 6.1 <a id="nerdctl" name="containerd"></a>Stripping Docker Engine Down
 
 The core of Docker Engine is its [`containerd`][ctrd] daemon and the
-[`runc`][runc] container runner. It’s possible to dig into the subtree
-managed by `containerd` on the build host and extract what we need to
-run our Fossil container elsewhere with `runc`, leaving out all the
-rest. `runc` alone is about 18 MiB, and you can do without `containerd`
-entirely, if you want.
+[`runc`][runc] container runner. Add to this the out-of-core CLI program
+[`nerdctl`][nerdctl] and you have enough of the engine to run Fossil
+containers. The big things you’re missing are:
 
-The method isn’t complicated, but it *is* cryptic enough to want a shell
-script:
+*   **BuildKit**: The container build engine, which doesn’t matter if
+    you’re building elsewhere and using a container registry as an
+    intermediary between that build host and the deployment host.
 
-----
+*   **SwarmKit**: A powerful yet simple orchestrator for Docker that you
+    probably aren’t using with Fossil anyway.
 
-```shell
-#!/bin/sh
-c=fossil
-b=$HOME/containers/$c
-r=$b/rootfs
-m=/run/containerd/io.containerd.runtime.v2.task/moby
+In exchange, you get a runtime that’s about half the size of Docker
+Engine. The commands are essentially the same as above, but you say
+“`nerdctl`” instead of “`docker`”. You might alias one to the other,
+because you’re still going to be using Docker to build and ship your
+container images.
 
-if [ -d "$t" ] && mkdir -p $r
-then
-    docker container start  $c
-    docker container export $c | sudo tar -C $r -xf -
-    id=$(docker inspect --format="{{.Id}}" $c)
-    sudo cat $m/$id/config.json |
-        jq '.root.path = "'$r'"' |
-        jq '.linux.cgroupsPath = ""' |
-        jq 'del(.linux.sysctl)' |
-        jq 'del(.linux.namespaces[] | select(.type == "network"))' |
-        jq 'del(.mounts[] | select(.destination == "/etc/hostname"))' |
-        jq 'del(.mounts[] | select(.destination == "/etc/resolv.conf"))' |
-        jq 'del(.mounts[] | select(.destination == "/etc/hosts"))' |
-        jq 'del(.hooks)' > $b/config.json
-fi
-```
-
-----
-
-The first several lines list configurables:
-
-*   **`b`**: the path of the exported container, called the “bundle” in OCI
-    jargon
-*   **`c`**: the name of the Docker container you’re bundling up for use
-    with `runc`
-*   **`m`**: the directory holding the running machines, configurable
-    because:
-    *   it’s long
-    *   it’s been known to change from one version of Docker to the next
-    *   you might be using [Podman](#podman)/[`crun`](#crun), so it has
-        to be “`/run/user/$UID/crun`” instead
-*   **`r`**: the path of the directory containing the bundle’s root file
-    system.
-
-That last doesn’t have to be called `rootfs/`, and it doesn’t have to
-live in the same directory as `config.json`, but it is conventional.
-Because some OCI tools use those names as defaults, it’s best to follow
-suit.
-
-The rest is generic, but you’re welcome to freestyle here. We’ll show an
-example of this below.
-
-We’re using [jq] for two separate purposes:
-
-1.  To automatically transmogrify Docker’s container configuration so it
-    will work with `runc`:
-
-    *   point it where we unpacked the container’s exported rootfs
-    *   accede to its wish to [manage cgroups by itself][ecg]
-    *   remove the `sysctl` calls that will break after…
-    *   …we remove the network namespace to allow Fossil’s TCP listening
-        port to be available on the host; `runc` doesn’t offer the
-        equivalent of `docker create --publish`, and we can’t be
-        bothered to set up a manual mapping from the host port into the
-        container
-    *   remove file bindings that point into the local runtime managed
-        directories; one of the things we give up by using a bare
-        container runner is automatic management of these files
-    *   remove the hooks for essentially the same reason
-
-2.  To make the Docker-managed machine-readable `config.json` more
-    human-readable, in case there are other things you want changed in
-    this version of the container.  Exposing the `config.json` file like
-    this means you don’t have to rebuild the container merely to change
-    a value like a mount point, the kernel capability set, and so forth.
-
-<a id="why-sudo"></a>
-We have to do this transformation of `config.json` as the local root
-user because it isn’t readable by your normal user. Additionally, that
-input file is only available while the container is started, which is
-why we ensure that before exporting the container’s rootfs.
-
-With the container exported like this, you can start it as:
-
-```
-  $ cd /path/to/bundle
-  $ c=any-name-you-like
-  $ sudo runc create $c
-  $ sudo runc start  $c
-  $ sudo runc exec $c -t sh -l
-  ~ $ ls museum
-  repo.fossil
-  ~ $ ps -eaf
-  PID   USER     TIME  COMMAND
-      1 fossil    0:00 bin/fossil server --create …
-  ~ $ exit
-  $ sudo runc kill fossil-runc
-  $ sudo runc delete fossil-runc
-```
-
-If you’re doing this on the export host, the first command is “`cd $b`”
-if we’re using the variables from the shell script above. We do this
-because `runc` assumes you’re running it from the bundle directory. If
-you prefer, the `runc` commands that care about this take a
-`--bundle/-b` flag to let you avoid switching directories.
-
-The rest should be straightforward: create and start the container as
-root so the `chroot(2)` call inside the container will succeed, then get
-into it with a login shell and poke around to prove to ourselves that
-everything is working properly. It is. Yay!
-
-The remaining commands show shutting the container down and destroying
-it, simply to show how these commands change relative to using the
-Docker Engine commands. It’s “kill,” not “stop,” and it’s “delete,” not
-“rm.”
-
-If you want the bundle to run on a remote host, the local and remote
-bundle directories likely will not match, as the shell script above
-assumes.  This is a more realistic shell script for that case:
-
-----
-
-```shell
-#!/bin/bash -ex
-c=fossil
-b=/var/lib/machines/$c
-h=my-host.example.com
-m=/run/containerd/io.containerd.runtime.v2.task/moby
-t=$(mktemp -d /tmp/$c-bundle.XXXXXX)
-
-if [ -d "$t" ]
-then
-    docker container start  $c
-    docker container export $c > $t/rootfs.tar
-    id=$(docker inspect --format="{{.Id}}" $c)
-    sudo cat $m/$id/config.json |
-        jq '.root.path = "'$b/rootfs'"' |
-        jq '.linux.cgroupsPath = ""' |
-        jq 'del(.linux.sysctl)' |
-        jq 'del(.linux.namespaces[] | select(.type == "network"))' |
-        jq 'del(.mounts[] | select(.destination == "/etc/hostname"))' |
-        jq 'del(.mounts[] | select(.destination == "/etc/resolv.conf"))' |
-        jq 'del(.mounts[] | select(.destination == "/etc/hosts"))' |
-        jq 'del(.hooks)' > $t/config.json
-    scp -r $t $h:tmp
-        ssh -t $h "{
-                mv ./$t/config.json $b &&
-                sudo tar -C $b/rootfs -xf ./$t/rootfs.tar &&
-                rm -r ./$t
-        }"
-    rm -r $t
-fi
-```
-
-----
-
-We’ve introduced two new variables:
-
-*   **`h`**: the remote host name
-*   **`t`**: a temporary bundle directory we populate locally, then
-    `scp` to the remote machine, where it’s unpacked
-
-We dropped the **`r`** variable because now we have two different
-“rootfs” types: the tarball and the unpacked version of that tarball.
-To avoid confusing ourselves between these cases, we’ve replaced uses of
-`$r` with explicit paths.
-
-You need to be aware that this script uses `sudo` for two different purposes:
-
-1. To read the local `config.json` file out of the `containerd` managed
-   directory. ([Details above](#why-sudo).)
-
-2. To unpack the bundle onto the remote machine. If you try to get
-   clever and unpack it locally, then `rsync` it to the remote host to
-   avoid re-copying files that haven’t changed since the last update,
-   you’ll find that it fails when it tries to copy device nodes, to
-   create files owned only by the remote root user, and so forth. If the
-   container bundle is small, it’s simpler to re-copy and unpack it
-   fresh each time.
-
-I point that out because it might ask for your password twice: once for
-the local sudo command, and once for the remote.
-
-The default for the **`b`** variable is the convention for systemd based
-machines, which will play into the [`nspawn` alternative below][sdnsp].
-Even if you aren’t using `nspawn`, it’s a reasonable place to put
-containers under the [Linux FHS rules][LFHS].
-
-[ctrd]:  https://containerd.io/
-[ecg]:   https://github.com/opencontainers/runc/pull/3131
-[LFHS]:  https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
-[jq]:    https://stedolan.github.io/jq/
-[sdnsp]: #nspawn
-[runc]:  https://github.com/opencontainers/runc
+[ctrd]:    https://containerd.io/
+[nerdctl]: https://github.com/containerd/nerdctl
+[runc]:    https://github.com/opencontainers/runc
 
 
 ### 6.2 <a id="podman"></a>Podman
 
-Although your humble author claims the `runc` methods above are not
-complicated, merely cryptic, you might be fondly recollecting the
-carefree commands at the top of this document, pondering whether you can
-live without the abstractions a proper container runtime system
-provides.
-
-More than that, there’s a hidden cost to the `runc` method: there is no
-layer sharing among containers. If you have multiple Fossil containers
-on a single host — perhaps because each serves an independent section of
-the overall web site — and you export them to a remote host using the
-shell script above, you’ll end up with redundant copies of the `rootfs`
-in each. A proper OCI container runtime knows they’re all derived from
-the same base image, differing only in minor configuration details,
-giving us one of the major advantages of containerization: if none of
-the running containers can change these immutable base layers, it
-doesn’t have to copy them.
-
-A lighter-weight alternative to Docker Engine that doesn’t give up so
-many of its administrator affordances is [Podman], initially created by
-Red Hat and thus popular on that family of OSes, although it will run on
+A lighter-weight alternative to either of the prior options that doesn’t
+give up the image builder is [Podman]. Initially created by
+Red Hat and thus popular on that family of OSes, it will run on
 any flavor of Linux. It can even be made to run [on macOS via Homebrew][pmmac]
 or [on Windows via WSL2][pmwin].
 
-On Ubuntu 22.04, it’s about a quarter the size of Docker Engine. That
-isn’t nearly so slim as `runc`, but we may be willing to pay this
-overhead to get shorter and fewer commands.
+On Ubuntu 22.04, it’s about a quarter the size of Docker Engine, or half
+that of the “full” distribution of `nerdctl` and all its dependencies.
 
 Although Podman [bills itself][whatis] as a drop-in replacement for the
 `docker` command and everything that sits behind it, some of the tool’s
@@ -819,34 +619,9 @@ guy is inside the house, he doesn’t necessarily have to go after the
 residents directly to cause problems for them.
 
 
-#### 6.2.2 <a id="crun"></a>`crun`
-
-In the same way that [Docker Engine is based on `runc`](#runc), Podman’s
-engine is based on [`crun`][crun], a lighter-weight alternative to
-`runc`. It’s only 1.4 MiB on the system I tested it on, yet it will run
-the same container bundles as in my `runc` examples above.
-Above, we saved more than that by compressing the container’s Fossil
-executable with UPX!
-
-This makes `crun` a great option for tiny remote hosts with a single
-container, or at least where none of the containers share base layers,
-so that there is no effective cost to duplicating the immutable base
-layers of the containers’ source images.
-
-This suggests one method around the problem of rootless Podman containers:
-`sudo crun`, following the examples above.
-
-[crun]:   https://github.com/containers/crun
-
-
-#### 6.2.3 <a id="podman-rootful"></a>Fossil in a Rootful Podman Container
+#### 6.2.2 <a id="podman-rootful"></a>Fossil in a Rootful Podman Container
 
 ##### Simple Method
-
-As we saw above with `runc`, switching to `crun` just to get your
-containers to run as root loses a lot of functionality and requires a
-bunch of cryptic commands to get the same effect as a single command
-under Podman.
 
 Fortunately, it’s easy enough to have it both ways. Simply run your
 `podman` commands as root:
@@ -877,7 +652,7 @@ can get away without root privileges to do things like create the
 `/jail/dev/null` node.
 
 The other reason we need “`sudo podman build`” is because it puts the result
-into root’s Podman image repository, where the next steps look for it.
+into root’s Podman image registry, where the next steps look for it.
 
 That in turn explains why we need “`sudo podman create`:” because it’s
 creating a container based on an image that was created by root. If you
@@ -929,7 +704,7 @@ to the remote machine and say:
     docker.io/mydockername/fossil
 ```
 
-This round-trip through the public image repository has another side
+This round-trip through the public image registry has another side
 benefit: your local system might be a lot faster than your remote one,
 as when the remote is a small VPS. Even with the overhead of schlepping
 container images across the Internet, it can be a net win in terms of
@@ -937,11 +712,215 @@ build time.
 
 
 
-### 6.3 <a id="nspawn"></a>`systemd-nspawn`
+### 6.3 <a id="barebones"></a>Bare-Bones OCI Bundle Runners
+
+If even the Podman stack is too big for you, you still have options for
+running containers that are considerably slimmer, at a high cost to
+administration complexity and loss of features.
+
+Part of the OCI standard is the notion of a “bundle,” being a consistent
+way to present a pre-built and configured container to the runtime.
+Essentially, it consists of a directory containing a `config.json` file
+and a `rootfs/` subdirectory containing the root filesystem image. Many
+tools can produce these for you. We’ll show only one method in the first
+section below, then reuse that in the following sections.
+
+
+#### 6.3.1 <a id="runc"></a>`runc`
+
+We mentioned `runc` [above](#nerdctl), but it’s possible to use it
+standalone, without `containerd` or its CLI frontend `nerdctl`. You also
+lose the build engine, intelligent image layer sharing, image registry
+connections, and much more.  The plus side is that `runc` alone is
+18 MiB.
+
+Using it without all the support tooling isn’t complicated, but it *is*
+cryptic enough to want a shell script. Let’s say we want to build on our
+big desktop machine but ship the resulting container to a small remote
+host. This should serve:
+
+----
+
+```shell
+#!/bin/bash -ex
+c=fossil
+b=/var/lib/machines/$c
+h=my-host.example.com
+m=/run/containerd/io.containerd.runtime.v2.task/moby
+t=$(mktemp -d /tmp/$c-bundle.XXXXXX)
+
+if [ -d "$t" ]
+then
+    docker container start  $c
+    docker container export $c > $t/rootfs.tar
+    id=$(docker inspect --format="{{.Id}}" $c)
+    sudo cat $m/$id/config.json \
+        | jq '.root.path = "'$b/rootfs'"'
+        | jq '.linux.cgroupsPath = ""'
+        | jq 'del(.linux.sysctl)'
+        | jq 'del(.linux.namespaces[] | select(.type == "network"))'
+        | jq 'del(.mounts[] | select(.destination == "/etc/hostname"))'
+        | jq 'del(.mounts[] | select(.destination == "/etc/resolv.conf"))'
+        | jq 'del(.mounts[] | select(.destination == "/etc/hosts"))'
+        | jq 'del(.hooks)' > $t/config.json
+    scp -r $t $h:tmp
+    ssh -t $h "{
+        mv ./$t/config.json $b &&
+        sudo tar -C $b/rootfs -xf ./$t/rootfs.tar &&
+        rm -r ./$t
+    }"
+    rm -r $t
+fi
+```
+
+----
+
+The first several lines list configurables:
+
+*   **`c`**: the name of the Docker container you’re bundling up for use
+    with `runc`
+*   **`b`**: the path of the exported container, called the “bundle” in
+    OCI jargon; we’re using the [`nspawn`](#nspawn) convention, a
+    reasonable choice under the [Linux FHS rules][LFHS]
+*   **`h`**: the remote host name
+*   **`m`**: the local directory holding the running machines, configurable
+    because:
+    *   the path name is longer than we want to use inline
+    *   it’s been known to change from one version of Docker to the next
+    *   you might be building and testing with [Podman](#podman), so it
+        has to be “`/run/user/$UID/crun`” instead
+*   **`t`**: the temporary bundle directory we populate locally, then
+    `scp` to the remote machine, where it’s unpacked
+
+[LFHS]:  https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+
+
+##### Why All That `sudo` Stuff?
+
+This script uses `sudo` for two different purposes:
+
+1. To read the local `config.json` file out of the `containerd` managed
+   directory, which is owned by `root` on Docker systems. Additionally,
+   that input file is only available while the container is started, so
+   we must ensure that before extracting it.
+
+2. To unpack the bundle onto the remote machine. If you try to get
+   clever and unpack it locally, then `rsync` it to the remote host to
+   avoid re-copying files that haven’t changed since the last update,
+   you’ll find that it fails when it tries to copy device nodes, to
+   create files owned only by the remote root user, and so forth. If the
+   container bundle is small, it’s simpler to re-copy and unpack it
+   fresh each time.
+
+I point all this out because it might ask for your password twice: once for
+the local sudo command, and once for the remote.
+
+
+
+##### Why All That `jq` Stuff?
+
+We’re using [jq] for two separate purposes:
+
+1.  To automatically transmogrify Docker’s container configuration so it
+    will work with `runc`:
+
+    *   point it where we unpacked the container’s exported rootfs
+    *   accede to its wish to [manage cgroups by itself][ecg]
+    *   remove the `sysctl` calls that will break after…
+    *   …we remove the network namespace to allow Fossil’s TCP listening
+        port to be available on the host; `runc` doesn’t offer the
+        equivalent of `docker create --publish`, and we can’t be
+        bothered to set up a manual mapping from the host port into the
+        container
+    *   remove file bindings that point into the local runtime managed
+        directories; one of the things we give up by using a bare
+        container runner is automatic management of these files
+    *   remove the hooks for essentially the same reason
+
+2.  To make the Docker-managed machine-readable `config.json` more
+    human-readable, in case there are other things you want changed in
+    this version of the container.  Exposing the `config.json` file like
+    this means you don’t have to rebuild the container merely to change
+    a value like a mount point, the kernel capability set, and so forth.
+
+
+##### Running the Bundle
+
+With the container exported to a bundle like this, you can start it as:
+
+```
+  $ cd /path/to/bundle
+  $ c=fossil-runc            ← …or anything else you prefer
+  $ sudo runc create $c
+  $ sudo runc start  $c
+  $ sudo runc exec $c -t sh -l
+  ~ $ ls museum
+  repo.fossil
+  ~ $ ps -eaf
+  PID   USER     TIME  COMMAND
+      1 fossil    0:00 bin/fossil server --create …
+  ~ $ exit
+  $ sudo runc kill $c
+  $ sudo runc delete $c
+```
+
+If you’re doing this on the export host, the first command is “`cd $b`”
+if we’re using the variables from the shell script above. Alternately,
+the `runc` subcommands that need to read the bundle files take a
+`--bundle/-b` flag to let you avoid switching directories.
+
+The rest should be straightforward: create and start the container as
+root so the `chroot(2)` call inside the container will succeed, then get
+into it with a login shell and poke around to prove to ourselves that
+everything is working properly. It is. Yay!
+
+The remaining commands show shutting the container down and destroying
+it, simply to show how these commands change relative to using the
+Docker Engine commands. It’s “kill,” not “stop,” and it’s “delete,” not
+“rm.”
+
+[ecg]:   https://github.com/opencontainers/runc/pull/3131
+[jq]:    https://stedolan.github.io/jq/
+
+
+##### Lack of Layer Sharing
+
+The bundle export process collapses Docker’s union filesystem down to a
+single layer. Atop that, it makes all files mutable.
+
+All of this is fine for tiny remote hosts with a single container, or at
+least one where none of the containers share base layers. Where it
+becomes a problem is when you have multiple Fossil containers on a
+single host, since they all derive from the same base image.
+
+The full-featured container runtimes above will intelligently share
+these immutable base layers among the containers, storing only the
+differences in each individual container. More, when pulling images from
+a registry host, they’ll transfer only the layers you don’t have copies
+of locally, so you don’t have to burn bandwidth sending copies of Alpine
+and BusyBox each time, even though they’re unlikely to change from one
+build to the next.
+
+
+#### 6.3.2 <a id="crun"></a>`crun`
+
+In the same way that [Docker Engine is based on `runc`](#runc), Podman’s
+engine is based on [`crun`][crun], a lighter-weight alternative to
+`runc`. It’s only 1.4 MiB on the system I tested it on, yet it will run
+the same container bundles as in my `runc` examples above.  We saved
+more than that by compressing the container’s Fossil executable with
+UPX, making the runtime virtually free in this case. The only question
+is whether you can put up with its limitations, which are the same as
+for `runc`.
+
+[crun]:   https://github.com/containers/crun
+
+
+#### 6.3.3 <a id="nspawn"></a>`systemd-nspawn`
 
 As of `systemd` version 242, its optional `nspawn` piece
 [reportedly](https://www.phoronix.com/news/Systemd-Nspawn-OCI-Runtime)
-now has the ability to run OCI container bundles directly. You might
+got the ability to run OCI bundles directly. You might
 have it installed already, but if not, it’s only about 2 MiB.  It’s
 in the `systemd-containers` package as of Ubuntu 22.04 LTS:
 
@@ -965,8 +944,8 @@ commands:
   No machines.
 ```
 
-This is why I wrote “reportedly” above: it doesn’t work on two different
-Linux distributions, and I can’t see why. I’m putting this here to give
+This is why I wrote “reportedly” above: I couldn’t get it to work on two different
+Linux distributions, and I can’t see why. I’m leaving this here to give
 someone else a leg up, with the hope that they will work out what’s
 needed to get the container running and registered with `machinectl`.
 
