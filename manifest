@@ -1,5 +1,5 @@
-C Sync\sup\scustom\smakefile\sfor\sMinGW.
-D 2022-09-09T17:22:53.620
+C Minor\simprovement\sto\sSEE\sintegration.
+D 2022-09-09T18:26:04.272
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -437,7 +437,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c cf910242281c11d4b1568f2717fdadebc00ceb2adb634ded9eb48caa0d7c9065
+F src/db.c 2c3b35cd18099a003fa1ba2eb2ae6ae84399fba87c6c05ad54b24671ed353dc8
 F src/default.css daea7fcd08b5055d7e5a457228972b184c7c9f4db0cd89b31c13eb6fe805ebb2
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 457c14a490c76ef168505d9e17456fe470ff6c47c3068038e25595905ef5a5ad
-R ed98ea7a74600f1b58d4e4fb708f5fea
+P a3ed29ea34830e3f9dec17675c5dc92f5fb712b8657dc6487cbf3a98b0bf8538
+R 46e2a69a9a7a1c0dd3f802746412dfc1
 U mistachkin
-Z a0d782839f0b1856528c3a102603f40a
+Z f4bdd9f03fa6274307d7d064f40ade8a
 # Remove this line to create a well-formed Fossil manifest.

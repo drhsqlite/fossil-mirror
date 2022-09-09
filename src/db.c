@@ -1616,6 +1616,7 @@ void db_read_saved_encryption_key_from_process_via_th1(
 ){
   int rc;
   char *zResult;
+  char *zPwd = file_getcwd(0, 0);
   Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_NEED_CONFIG | TH_INIT_NO_REPO);
   rc = Th_Eval(g.interp, 0, zConfig, -1);
   zResult = (char*)Th_GetResult(g.interp, 0);
@@ -1629,6 +1630,8 @@ void db_read_saved_encryption_key_from_process_via_th1(
     parse_pid_key_value(zResult, &processId, &pAddress, &nSize);
     db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
   }
+  file_chdir(zPwd, 0);
+  fossil_free(zPwd);
 }
 #endif /* defined(_WIN32) */
 #endif /* USE_SEE */
