@@ -56,7 +56,7 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_SYMBOLS = 1
 
-#### Enable JSON (http://www.json.org) support using "cson"
+#### Enable JSON (https://www.json.org) support using "cson"
 #
 FOSSIL_ENABLE_JSON = 1
 
@@ -1071,9 +1071,10 @@ $(OBJDIR)/phony.h:
 # plus a value of 2 means that we are building a client-provided
 # sqlite3.c.
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
-SQLITE3_OBJ.1 =
+SQLITE3_OBJ.1 = $(OBJDIR)/sqlite3-see.o
 # SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 
 # The USE_SEE variable may be undefined, 0 or 1.  If undefined or 0,
 # in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
@@ -2569,7 +2570,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
 
 PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000
 
-$(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC) $(SRCDIR)/../win/Makefile.mingw.mistachkin
+$(SQLITE3_OBJ):	$(SQLITE3_SRC) $(SRCDIR)/../win/Makefile.mingw.mistachkin
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 
