@@ -1354,6 +1354,14 @@ void setup_chat(void){
   @ should be larger rather than smaller.
   @ (Property: "chat-poll-timeout")</p>
   @ <hr />
+  entry_attribute("Chat Timeline Robot Username", 15,
+                  "chat-timeout-user", "chatrobot", "", 0);
+  @ <p>If this setting is the name of a user that has "C" privilege, then
+  @ all changes to the timeline will result in a new chat message from this
+  @ user.  Leave this blank to omit notifications of check-ins and other
+  @ timeline events from appearing in chat.
+  @ (Property: "chat-timeout-user")</p>
+  @ <hr />
 
   multiple_choice_attribute("Alert sound",
      "chat-alert-sound", "snd", azAlerts[0],

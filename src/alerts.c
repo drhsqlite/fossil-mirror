@@ -145,24 +145,44 @@ void alert_schema(int bOnlyIfEnabled){
 
 /*
 ** Enable triggers that automatically populate the pending_alert
-** table.
+** table. (Later:) Also add triggers that automatically relay timeline
+** events to chat, if chat is configured for that.
 */
 void alert_create_trigger(void){
-  if( !db_table_exists("repository","pending_alert") ) return;
-  db_multi_exec(
-    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
-    /* "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" Very old legacy */
-    "CREATE TRIGGER temp.alert_trigger1\n"
-    "AFTER INSERT ON repository.event BEGIN\n"
-    "  INSERT INTO pending_alert(eventid)\n"
-    "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
-    "    ON CONFLICT(eventId) DO NOTHING;\n"
-    "END;"
-  );
+  if( db_table_exists("repository","pending_alert") ){
+    db_multi_exec(
+      "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+      "CREATE TRIGGER temp.alert_trigger1\n"
+      "AFTER INSERT ON repository.event BEGIN\n"
+      "  INSERT INTO pending_alert(eventid)\n"
+      "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
+      "    ON CONFLICT(eventId) DO NOTHING;\n"
+      "END;"
+    );
+  }
+  if( db_table_exists("repository","chat") ){
+    const char *zChatUser = db_get("chat-timeline-user", 0);
+    char *zChatCaps;
+    if( zChatUser==0 || zChatUser[0]==0 ) return;
+    zChatCaps = db_text(0, "SELECT cap FROM user WHERE login=%Q", zChatUser);
+    if( zChatCaps && strchr(zChatCaps,'C')!=0 ){
+      db_multi_exec(
+         "CREATE TRIGGER temp.chat_trigger1\n"
+         "AFTER INSERT ON repository.event BEGIN\n"
+         "  INSERT INTO chat(mtime,xfrom,xmsg)"
+         "  SELECT julianday(), %Q,"
+                 " format('[%%.12s]: %%s', blob.uuid, new.comment)"
+         "  FROM blob WHERE rid=new.objid;\n"
+         "END;\n",
+         zChatUser
+      );
+    }
+    fossil_free(zChatCaps);
+  }
 }
 
 /*
-** Disable triggers the event_pending triggers.
+** Disable triggers the event_pending and chat triggers.
 **
 ** This must be called before rebuilding the EVENT table, for example
 ** via the "fossil rebuild" command.
@@ -171,6 +191,7 @@ void alert_drop_trigger(void){
   db_multi_exec(
     "DROP TRIGGER IF EXISTS temp.alert_trigger1;\n"
     "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+    "DROP TRIGGER IF EXISTS temp.chat_trigger1;\n"
   );
 }
 
