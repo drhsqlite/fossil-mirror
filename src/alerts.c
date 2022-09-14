@@ -162,10 +162,7 @@ void alert_create_trigger(void){
   }
   if( db_table_exists("repository","chat") ){
     const char *zChatUser = db_get("chat-timeline-user", 0);
-    char *zChatCaps;
-    if( zChatUser==0 || zChatUser[0]==0 ) return;
-    zChatCaps = db_text(0, "SELECT cap FROM user WHERE login=%Q", zChatUser);
-    if( zChatCaps && strchr(zChatCaps,'C')!=0 ){
+    if( zChatUser && zChatUser[0] ){
       db_multi_exec(
          "CREATE TRIGGER temp.chat_trigger1\n"
          "AFTER INSERT ON repository.event BEGIN\n"
@@ -177,7 +174,6 @@ void alert_create_trigger(void){
          zChatUser
       );
     }
-    fossil_free(zChatCaps);
   }
 }
 

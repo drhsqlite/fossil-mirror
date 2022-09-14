@@ -1355,12 +1355,11 @@ void setup_chat(void){
   @ (Property: "chat-poll-timeout")</p>
   @ <hr />
   entry_attribute("Chat Timeline Robot Username", 15,
-                  "chat-timeout-user", "chatrobot", "", 0);
-  @ <p>If this setting is the name of a user that has "C" privilege, then
-  @ all changes to the timeline will result in a new chat message from this
-  @ user.  Leave this blank to omit notifications of check-ins and other
-  @ timeline events from appearing in chat.
-  @ (Property: "chat-timeout-user")</p>
+                  "chat-timeline-user", "chatrobot", "", 0);
+  @ <p>If this setting is not an empty string, then any changes that appear
+  @ on the timeline are announced in the chatroom under the username
+  @ supplied.  That user does not need to actually exist in the USER table.
+  @ (Property: "chat-timeline-user")</p>
   @ <hr />
 
   multiple_choice_attribute("Alert sound",

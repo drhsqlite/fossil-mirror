@@ -132,8 +132,7 @@ static void chat_emit_alert_list(void){
 /*
 ** SETTING: chat-timeline-user    width=10
 **
-** If this setting is defined and is not an empty string and its value is
-** the name of a user that hash chat privilege (privilege letter "C"), then
+** If this setting is defined and is not an empty string, then
 ** timeline events are posted to the chat as they arrive. The synthesized
 ** chat messages appear to come from the user identified by this setting,
 ** not the user on the timeline event.
