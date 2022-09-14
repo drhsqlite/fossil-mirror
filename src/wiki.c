@@ -1869,9 +1869,7 @@ void wdiff_page(void){
   construct_diff_flags(1, &DCfg);
   DCfg.diffFlags |= DIFF_HTML | DIFF_LINENO;
   text_diff(&w2, &w1, &d, &DCfg);
-  @ <pre class="udiff">
   @ %s(blob_str(&d))
-  @ <pre>
   manifest_destroy(pW1);
   manifest_destroy(pW2);
   style_finish_page();

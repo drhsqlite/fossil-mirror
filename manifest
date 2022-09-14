@@ -1,5 +1,5 @@
-C Add\sa\smissing\sclosing\sLI\stag\sfor\sthe\s/tkthistory\spage.
-D 2022-08-29T14:27:45.443
+C Remove\sredundant\sPRE\stags\son\sthe\s<code>/wdiff</code>\spages.
+D 2022-09-14T13:12:08.125
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -610,7 +610,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c da69b3c5ef84c5702321160d50e80dc097e4fcd587ef735034c71f1c155a7d3d
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 8397b6a220ffb9f2f6714a2e8c3dc3e2b2ad365661f74fca541f3c0b8f6ab2de
+F src/wiki.c 15e9582c6987b1c2587e598318d88a24bce527dfa7fe294390f4de387d654ad0
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1b715beb1c20edde1acc22cbdfc4424afbcd3d03f48d0e45d22b800876d569bf
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3e7ed308900482e761dda2be1a1319c541f9da852bc9474aba2db5493c97a7c
-R 4cc7e42c737136f5b96329688f8c5fa6
+P 2d0b2bda87ddea99a27ff48967a51998d92c752748e3e2486811764cb57be204
+R 91fcf57a47b147ba4273321454475018
 U george
-Z 60109e8decf174eb5e521d33d5e6791e
+Z c66266f6418aeee28e25482eb9720cf6
 # Remove this line to create a well-formed Fossil manifest.
