@@ -153,8 +153,10 @@ static int alert_process_deferred_triggers(void){
     const char *zChatUser = db_get("chat-timeline-user", 0);
     if( zChatUser && zChatUser[0] ){
       db_multi_exec(
-        "INSERT INTO chat(mtime,xfrom,xmsg)"
-        " SELECT julianday(), %Q,"
+        "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
+        " SELECT julianday(), "
+               " strftime('%%Y-%%m-%%dT%%H:%%M:%%S','now','localtime'),"
+               " %Q,"
                " chat_msg_from_event(type, objid, user, comment)\n"
         "   FROM deferred_chat_events;\n",
         zChatUser

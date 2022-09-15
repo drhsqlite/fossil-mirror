@@ -573,7 +573,7 @@ void chat_poll_webpage(void){
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
   const int bRaw = P("raw")!=0;
-  
+
   Blob sql = empty_blob;
   Stmt q1;
   nDelay = db_get_int("chat-poll-timeout",420);  /* Default about 7 minutes */
