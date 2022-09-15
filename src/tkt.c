@@ -1206,6 +1206,7 @@ void tkthistory_page(void){
   const char *zUuid;
   int tagid;
   int nChng = 0;
+  Blob *aLastVal = 0;
 
   login_check_credentials();
   if( !g.perm.Hyperlink || !g.perm.RdTkt ){
@@ -1235,6 +1236,8 @@ void tkthistory_page(void){
     @ <h2>Raw Artifacts Associated With Ticket %h(zUuid)</h2>
   }else{
     @ <h2>Artifacts Associated With Ticket %h(zUuid)</h2>
+    getAllTicketFields();
+    aLastVal = blobarray_new(nField);
   }
   db_prepare(&q,
     "SELECT datetime(mtime,toLocal()), objid, uuid, NULL, NULL, NULL"
@@ -1291,7 +1294,7 @@ void tkthistory_page(void){
           @ </pre></blockquote>
           blob_reset(&c);
         }else{
-          ticket_output_change_artifact(pTicket, "a", nChng);
+          ticket_output_change_artifact(pTicket, "a", nChng, aLastVal);
         }
       }
       manifest_destroy(pTicket);
@@ -1303,6 +1306,7 @@ void tkthistory_page(void){
     @ </ol>
   }
   style_finish_page();
+  if( aLastVal ) blobarray_delete(aLastVal, nField);
 }
 
 /*
@@ -1324,20 +1328,22 @@ static int contains_newline(Blob *p){
 void ticket_output_change_artifact(
   Manifest *pTkt,           /* Parsed artifact for the ticket change */
   const char *zListType,    /* Which type of list */
-  int n                     /* Which ticket change is this */
+  int n,                    /* Which ticket change is this */
+  Blob *aLastVal            /* Array of latest values for the diffs */
 ){
   int i;
   if( zListType==0 ) zListType = "1";
   getAllTicketFields();
   @ <ol type="%s(zListType)">
   for(i=0; i<pTkt->nField; i++){
-    Blob val;
-    const char *z, *zX;
-    int id;
-    z = pTkt->aField[i].zName;
-    blob_set(&val, pTkt->aField[i].zValue);
-    zX = z[0]=='+' ? z+1 : z;
-    id = fieldId(zX);
+    const char *z  = pTkt->aField[i].zName;
+    const char *zX = z[0]=='+' ? z+1 : z;
+    const int id = fieldId(zX);
+    const char  *zValue = pTkt->aField[i].zValue;
+    const size_t nValue = strlen(zValue);
+    const int bLong = nValue>50 || memchr(zValue,'\n',nValue)!=NULL;
+    const int bCanDiff = aLastVal && id>=0 && aField[id].zBsln;
+    int bAppend = 0, bRegular = 0;
     @ <li>\
     if( id<0 ){
       @ Untracked field %h(zX):
@@ -1347,17 +1353,57 @@ void ticket_output_change_artifact(
       @ %h(zX) initialized to:
     }else if( z[0]=='+' && (aField[id].mUsed&USEDBY_TICKET)!=0 ){
       @ Appended to %h(zX):
+      bAppend = 1;
     }else{
-      @ %h(zX) changed to:
+      if( !bCanDiff ){
+        @ %h(zX) changed to: \
+      }
+      bRegular = 1;
     }
-    if( blob_size(&val)>50 || contains_newline(&val) ){
-      @ <blockquote><pre class='verbatim'>
-      @ %h(blob_str(&val))
-      @ </pre></blockquote></li>
+    if( bCanDiff ){
+      Blob *prev = aLastVal+id;
+      Blob val = BLOB_INITIALIZER;
+      if( nValue ){
+        blob_init(&val, zValue, nValue+1);
+        val.nUsed--;  /* makes blob_str() faster */
+      }
+      if( bRegular && nValue && blob_buffer(prev) && blob_size(prev) ){
+        Blob d = BLOB_INITIALIZER;
+        DiffConfig DCfg;
+        construct_diff_flags(1, &DCfg);
+        DCfg.diffFlags |= DIFF_HTML | DIFF_LINENO;
+        text_diff(prev, &val, &d, &DCfg);
+        @ %h(zX) changed as:
+        @ %s(blob_str(&d))
+        @ </li>
+        blob_reset(&d);
+      }else if( bLong ){
+        if( bRegular ){
+          @ %h(zX) changed to:
+        }
+        @ <blockquote><pre class='verbatim'>
+        @ %h(zValue)
+        @ </pre></blockquote></li>
+      }else{
+        if( bRegular ){
+          @ %h(zX) changed to: \
+        }
+        @ "%h(zValue)"</li>
+      }
+      if( blob_buffer(prev) && blob_size(prev) && !bAppend ){
+        blob_truncate(prev,0);
+      }
+      if( nValue ) blob_appendb(prev, &val);
+      blob_reset(&val);
     }else{
-      @ "%h(blob_str(&val))"</li>
+      if( bLong ){
+        @ <blockquote><pre class='verbatim'>
+        @ %h(zValue)
+        @ </pre></blockquote></li>
+      }else{
+        @ "%h(zValue)"</li>
+      }
     }
-    blob_reset(&val);
   }
   @ </ol>
 }

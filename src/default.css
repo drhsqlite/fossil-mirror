@@ -705,7 +705,10 @@ td.difftxt ins > ins.edit {
   text-decoration: none;
   font-weight: bold;
 }
-
+body.tkt div.content li > table.udiff {
+  margin-left: 1.5em;
+  margin-top: 0.5em;
+}
 
 span.modpending {
   color: #b03800;

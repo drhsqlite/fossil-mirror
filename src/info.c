@@ -2830,7 +2830,7 @@ void tinfo_page(void){
 
   @ <div class="section">Changes</div>
   @ <p>
-  ticket_output_change_artifact(pTktChng, 0, 1);
+  ticket_output_change_artifact(pTktChng, 0, 1, 0);
   manifest_destroy(pTktChng);
   style_finish_page();
 }
