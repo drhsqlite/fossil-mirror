@@ -1848,9 +1848,9 @@ void wdiff_page(void){
     blob_init(&w2, pW2->zWiki, -1);
     @ <h2>Changes to \
     @ "%z(href("%R/whistory?name=%s",pW1->zWikiTitle))%h(pW1->zWikiTitle)</a>" \
-    zDate = db_text(0, "SELECT datetime(%.16g)",pW2->rDate);
+    zDate = db_text(0, "SELECT datetime(%.16g,toLocal())",pW2->rDate);
     @ between %z(href("%R/info/%s",zPid))%z(zDate)</a> \
-    zDate = db_text(0, "SELECT datetime(%.16g)",pW1->rDate);
+    zDate = db_text(0, "SELECT datetime(%.16g,toLocal())",pW1->rDate);
     @ and %z(href("%R/info/%s",zId))%z(zDate)</a></h2>
     style_submenu_element("Previous", "%R/wdiff?id=%S", zPid);
   }else{

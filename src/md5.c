@@ -305,7 +305,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf){
 }
 
 /*
-** The state of a incremental MD5 checksum computation.  Only one
+** The state of an incremental MD5 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static MD5Context incrCtx;

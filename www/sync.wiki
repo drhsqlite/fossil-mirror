@@ -1044,7 +1044,7 @@ named:
 <li> <tt>http-reply-</tt><i>N</i><tt>.txt</tt>
 </ul>
 
-<p>In the above, <i>N</i> is a integer that increments with each
+<p>In the above, <i>N</i> is an integer that increments with each
 round-trip.  If you are having trouble on the server side,
 you can run the "[/help?cmd=test-http|fossil test-http]" command in a
 debugger using one the "http-request-N.txt" files as input and

@@ -238,6 +238,9 @@ div.columns > ul li:first-child {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+body.help .columns li {
+  white-space: nowrap /* keep command name aliases from wrapping */;
+}
 .filetree {
   margin: 1em 0;
   line-height: 1.5;
@@ -1579,6 +1582,12 @@ div.pikchr-wrapper.center.source.source-inline > pre.pikchr-src,
 div.pikchr-wrapper.center.source.source-inline > div.pikchr-svg
 /* ^^^ Centered inline-source-view elements */{
   display:inline-block/*allows parent text-align to do the alignment*/;
+  /* ^^^^ Browser incompatibility: inline-block causes the centered
+     pikchr to shrink to the point of illegiblity in Chrome. The
+     closest match on Chrome seems to be using 'unset', which centers
+     by virtue of stretching it to the width of the window. Similarly,
+     using {display: grid; place-items: center} centers and sizes well
+     on FF but Chrome shrinks it in the same way. */
 }
 div.pikchr-wrapper.indent:not(.source),
 div.pikchr-wrapper.indent.source.source-inline{

@@ -1104,7 +1104,7 @@ void setup_config(void){
   @ <hr />
   entry_attribute("Canonical Server URL", 40, "email-url",
                    "eurl", "", 0);
-  @ <p>This is the URL used access this repository as a server.
+  @ <p>This is the URL used to access this repository as a server.
   @ Other repositories use this URL to clone or sync against this repository.
   @ This is also the basename for hyperlinks included in email alert text.
   @ Omit the trailing "/".
@@ -1353,6 +1353,14 @@ void setup_chat(void){
   @ or web-servers with short timeouts.  For best efficiency, this value
   @ should be larger rather than smaller.
   @ (Property: "chat-poll-timeout")</p>
+  @ <hr />
+  entry_attribute("Chat Timeline Robot Username", 15,
+                  "chat-timeline-user", "chatrobot", "", 0);
+  @ <p>If this setting is not an empty string, then any changes that appear
+  @ on the timeline are announced in the chatroom under the username
+  @ supplied.  The username does not need to actually exist in the USER table.
+  @ Suggested username:  "chat-robot".
+  @ (Property: "chat-timeline-user")</p>
   @ <hr />
 
   multiple_choice_attribute("Alert sound",

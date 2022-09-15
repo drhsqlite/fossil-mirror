@@ -933,7 +933,7 @@ static void win32_http_service_running(DualSocket *pS){
 
 /*
 ** Try to start the http server as a windows service. If we are running in
-** a interactive console session, this routine fails and returns a non zero
+** an interactive console session, this routine fails and returns a non zero
 ** integer value. When running as service, this routine does not return until
 ** the service is stopped. In this case, the return value is zero.
 */

@@ -851,7 +851,7 @@ void setup_skinedit(void){
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(zTitle):</h2>
-  if( P("submit") && cgi_csrf_safe(0) && strcmp(zOrig,zContent)!=0 ){
+  if( P("submit") && cgi_csrf_safe(0) && (zOrig==0 || strcmp(zOrig,zContent)!=0) ){
     db_set_mprintf(zContent, 0, "draft%d-%s",iSkin,zFile);
   }
   @ <textarea name="%s(zFile)" rows="10" cols="80">\

@@ -172,10 +172,10 @@
     PS.renderModeLabels[PS.renderModes[PS.renderModes.selectedIndex]];
 
   /**
-     The 'pikchrshow-ready' event is fired (with no payload) when the
+     The 'pikchr-ready' event is fired (with no payload) when the
      wasm module has finished loading. */
-  PS.addMsgHandler('pikchrshow-ready', function(){
-    PS.clearMsgHandlers('pikchrshow-ready');
+  PS.addMsgHandler('pikchr-ready', function(){
+    PS.clearMsgHandlers('pikchr-ready');
     F.page.onPikchrshowLoaded();
   });
 

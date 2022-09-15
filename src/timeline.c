@@ -523,8 +523,8 @@ void www_print_timeline(
         }else if( zCom[0]=='+' ){
           @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else if( zCom[0]==':' ){
-          @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
-          @ %h(zCom+1)</a>"
+          @ %z(href("%R/wdiff?id=%!S",zUuid))Changes</a> to wiki page
+          @ "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else{
           /* Assume this is an attachment message. It _might_ also
           ** be a legacy-format wiki log entry, in which case it
@@ -2780,6 +2780,10 @@ static char *timeline_entry_subst(
   blob_init(&r, 0, 0);
   blob_init(&co, 0, 0);
 
+  if( 0==zCom ){
+    zCom = "(NULL)";
+  }
+
   /* Replace LF and tab with space, delete CR */
   while( zCom[0] ){
     for(j=0; zCom[j] && zCom[j]!='\r' && zCom[j]!='\n' && zCom[j]!='\t'; j++){}
@@ -3110,6 +3114,8 @@ static int fossil_is_julianday(const char *zDate){
 **
 **
 ** Options:
+**   -b|--branch BRANCH   Show only items on the branch named BRANCH
+**   -c|--current-branch  Show only items on the current branch
 **   -F|--format          Entry format. Values "oneline", "medium", and "full"
 **                        get mapped to the full options below. Otherwise a 
 **                        string which can contain these placeholders:
@@ -3127,7 +3133,6 @@ static int fossil_is_julianday(const char *zDate){
 **   --oneline            Show only short hash and comment for each entry
 **   --medium             Medium-verbose entry formatting
 **   --full               Extra verbose entry formatting
-**
 **   -n|--limit N         If N is positive, output the first N entries.  If
 **                        N is negative, output the first -N lines.  If N is
 **                        zero, no limit.  Default is -20 meaning 20 lines.
@@ -3136,7 +3141,6 @@ static int fossil_is_julianday(const char *zDate){
 **                        PATH can be a file or a sub directory.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current checkout's repository.
-
 **   --sql                Show the SQL used to generate the timeline
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
@@ -3148,7 +3152,7 @@ static int fossil_is_julianday(const char *zDate){
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the check-in comment.
 **   -W|--width N         Width of lines (default is to auto-detect). N must be
-**                        either greater than 20 or it ust be zero 0 to
+**                        either greater than 20 or it must be zero 0 to
 **                        indicate no limit, resulting in a single line per
 **                        entry.
 */
@@ -3169,6 +3173,7 @@ void timeline_cmd(void){
   int iOffset;
   const char *zFilePattern = 0;
   const char *zFormat = 0;
+  const char *zBr = 0;
   Blob treeName;
   int showSql = 0;
 
@@ -3182,6 +3187,16 @@ void timeline_cmd(void){
   zType = find_option("type","t",1);
   zFilePattern = find_option("path","p",1);
   zFormat = find_option("format","F",1);
+  zBr = find_option("branch","b",1);
+  if( find_option("current-branch","c",0)!=0 ){
+    if( !g.localOpen ){
+      fossil_fatal("not within an open checkout");
+    }else{
+      int vid = db_lget_int("checkout", 0);
+      zBr = db_text(0, "SELECT value FROM tagxref WHERE rid=%d AND tagid=%d",
+                    vid, TAG_BRANCH);
+    }
+  }
   if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 )
     zFormat = "%h %c";
   if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
@@ -3326,6 +3341,27 @@ void timeline_cmd(void){
         blob_str(&treeName), blob_str(&treeName));
     }
     blob_append(&sql, ")", -1);
+  }
+  if( zBr ){
+    blob_append_sql(&sql,
+      "\n  AND blob.rid IN (\n"                          /* Commits */
+      "      SELECT rid FROM tagxref NATURAL JOIN tag\n"
+      "        WHERE tagtype>0 AND tagname='sym-%q'\n"
+      "      UNION\n"                                    /* Tags */
+      "      SELECT srcid FROM tagxref WHERE origid IN (\n"
+      "        SELECT rid FROM tagxref NATURAL JOIN tag\n"
+      "          WHERE tagname='sym-%q')\n"
+      "      UNION\n"                                    /* Branch wikis */
+      "      SELECT objid FROM event WHERE comment LIKE '_branch/%q'\n"
+      "      UNION\n"                                    /* Checkin wikis */
+      "      SELECT e.objid FROM event e\n"
+      "        INNER JOIN blob b ON b.uuid=substr(e.comment, 10)\n"
+      "                          AND e.comment LIKE '_checkin/%%'\n"
+      "        LEFT JOIN tagxref tx ON tx.rid=b.rid AND tx.tagid=%d\n"
+      "          WHERE tx.value='%q'\n"
+      ")\n"                                              /* No merge closures */
+      "  AND (tagxref.value IS NULL OR tagxref.value='%q')",
+      zBr, zBr, zBr, TAG_BRANCH, zBr, zBr);
   }
   blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
   if( iOffset>0 ){

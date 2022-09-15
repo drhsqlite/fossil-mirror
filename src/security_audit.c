@@ -210,8 +210,8 @@ void secaudit0_page(void){
     int nOther = db_int(0, "SELECT count(*) FROM config"
                            " WHERE name GLOB 'baseurl:*'"
                            " AND name<>'baseurl:%q'", zPublicUrl);
-    @ <li><p>The canonical URL for this repository is
-    @ <a href="%s(zPublicUrl)">%h(zPublicUrl)</a>.
+    @ <li><p>The <a href="setup_config#eurl">canonical URL</a> for this
+    @ repository is <a href="%s(zPublicUrl)">%h(zPublicUrl)</a>.
     if( nOther==1 ){
       @ This is also <a href="urllist?urlonly">1 other URL</a> that has
       @ been used to access this repository.
@@ -223,7 +223,8 @@ void secaudit0_page(void){
   }else{
     int nUrl = db_int(0, "SELECT count(*) FROM config"
                          " WHERE name GLOB 'baseurl:*'");
-    @ <li><p>This repository does not have a canonical access URL.
+    @ <li><p>This repository does not have a
+    @ <a href="setup_config#eurl">canonical access URL</a>.
     if( nUrl==1 ){
       @ There is
       @ <a href="urllist?urlonly">1 non-canonical URL</a>

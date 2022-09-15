@@ -486,7 +486,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf, int nByte){
 }
 
 /*
-** The state of a incremental SHA3 checksum computation.  Only one
+** The state of an incremental SHA3 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static SHA3Context incrCtx;

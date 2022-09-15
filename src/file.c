@@ -40,7 +40,7 @@
 
 #if INTERFACE
 
-/* Many APIs take a eFType argument which must be one of ExtFILE, RepoFILE,
+/* Many APIs take an eFType argument which must be one of ExtFILE, RepoFILE,
 ** or SymFILE.
 **
 ** The difference is in the handling of symbolic links.  RepoFILE should be
@@ -1194,10 +1194,9 @@ void cmd_test_simplify_name(void){
 ** or if zBuf==0, allocate space to hold the result using fossil_malloc().
 */
 char *file_getcwd(char *zBuf, int nBuf){
-  char zTemp[2000];
   if( zBuf==0 ){
-    zBuf = zTemp;
-    nBuf = sizeof(zTemp);
+    char zTemp[2000];
+    return fossil_strdup(file_getcwd(zTemp, sizeof(zTemp)));
   }
 #ifdef _WIN32
   win32_getcwd(zBuf, nBuf);
@@ -1211,7 +1210,7 @@ char *file_getcwd(char *zBuf, int nBuf){
     }
   }
 #endif
-  return zBuf==zTemp ? fossil_strdup(zBuf) : zBuf;
+  return zBuf;
 }
 
 /*
@@ -2495,8 +2494,7 @@ void touch_cmd(){
 
   verboseFlag = find_option("verbose","v",0)!=0;
   quietFlag = find_option("quiet","q",0)!=0 || g.fQuiet;
-  dryRunFlag = find_option("dry-run","n",0)!=0
-    || find_option("dryrun",0,0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
   zGlobList = find_option("glob", "g",1);
   zGlobFile = find_option("globfile", "G",1);
 

@@ -69,6 +69,9 @@ when several footnotes are refenrenced at the end
 of a phrase.[^scipub][^many-refs](^All these four should
 be parsed as "free-standing" footnotes)[^Coelurosauria]
 
+An ambiguity between a link to an image and a *free-standing referenced
+footnote* should be resolved as a footnote![^not-image]
+
 A footnote may not be empty(^)
 or consist just of blank characters.(^        
               )
@@ -222,6 +225,10 @@ A depth of nesting must be limited.
    BTW, this note may not have a backreference to the "stray".
 
 [^undefined label is used]: For example due to a typo.
+
+[^not-image]: The rationale is that URLs do not start with **^**
+  while a footnote may follow *immediately* after an exclamation mark
+  at the end of a sentence.
 
 [^another stray]: Just to verify the correctness of ordering and styling.
 

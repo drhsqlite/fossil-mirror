@@ -50,10 +50,12 @@ Many Fossil CGI scripts have this one property and no other.
 <h2 id="directory">directory: <i>PATH</i></h2>
 
 The PATH is the name of a directory that contains one or more Fossil
-repository files having the suffix ".fossil".  If this property is used
-instead of [#repository|<b>repository:</b>], then the Fossil server is
-able to serve all of the repositories in the directory.  The specific
-repository used is selected by a prefix on the PATH_INFO.
+repository files having the suffix ".fossil".  If this property is
+used instead of [#repository|<b>repository:</b>], then the Fossil
+server is able to serve all of the repositories in the directory.  The
+specific repository used is selected by a prefix on the PATH_INFO. See
+the notes for the [#repolist|<b>repolist</b>] option regarding name
+collisions between subdirectories and repository files.
 
 
 <h2 id="notfound">notfound: <i>URL</i></h2>
@@ -75,6 +77,24 @@ repository in the list that has a non-zero
 [/help?cmd=repolist-skin|repolist-skin] setting.
 If no repository has such a non-zero repolist-skin setting, then
 the repository list is generic HTML without any decoration.
+
+The repolist-generated page recurses into subdirectories and will list
+all <tt>*.fossil</tt> files found, with the following exceptions:
+
+   *  Filenames starting with a period are treated as "hidden" and skipped.
+
+   *  Subdirectory names which match the base name of a fossil file in
+      the same directory are listed in the resulting page but are not
+      hyperlinked because the links would be ambiguous and the
+      repositories in the subdirectories would be unreachable to
+      clients. For example, any repositories under subdirectory
+      <tt>XYZ</tt> are unreachable if <tt>XYZ.fossil</tt> exists in
+      the same directory as <tt>XYZ</tt>, noting that this particular
+      name check is case-insensitive. The entries for such
+      repositories are clearly marked in the repolist page's output to
+      make the user aware of the problem. To make them accessible,
+      move them into a directory which does not share a base name with
+      a repository file.
 
 
 <h2 id="localauth">localauth</h2>

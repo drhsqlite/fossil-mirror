@@ -155,7 +155,8 @@ static void status_report(
     /* Start with a list of all managed files. */
     blob_append_sql(&sql,
       "SELECT pathname, %s as mtime, %s as size, deleted, chnged, rid,"
-      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed"
+      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed,"
+      "       origname"
       "  FROM vfile LEFT JOIN blob USING (rid)"
       " WHERE is_selected(id)%s",
       flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
@@ -176,7 +177,7 @@ static void status_report(
       blob_append_sql(&sql, " UNION ALL");
     }
     blob_append_sql(&sql,
-      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0"
+      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0, NULL"
       " FROM sfile WHERE pathname NOT IN (%s)%s",
       flags & C_MTIME ? "datetime(mtime, 'unixepoch', toLocal())" : "''",
       flags & C_SIZE ? "size" : "0",
@@ -213,6 +214,7 @@ static void status_report(
     int isChnged = db_column_int(&q, 4);
     int isNew = isManaged && !db_column_int(&q, 5);
     int isRenamed = db_column_int(&q, 6);
+    const char *zOrigName = 0;
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     int isMissing = !file_isfile_or_link(zFullName);
 
@@ -267,6 +269,7 @@ static void status_report(
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
+      zOrigName = db_column_text(&q,8);
     }else if( (flags & C_UNCHANGED) && isManaged && !isNew
                                     && !isChnged && !isRenamed ){
       zClass = "UNCHANGED";
@@ -297,7 +300,11 @@ static void status_report(
         if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
           zDisplayName += 2;  /* no unnecessary ./ prefix */
         }
-        blob_append(report, zDisplayName, -1);
+        if( (flags & (C_FILTER ^ C_RENAMED)) && zOrigName ){
+          blob_appendf(report, "%s  ->  %s", zOrigName, zDisplayName);
+        }else{
+          blob_append(report, zDisplayName, -1);
+        }
       }else{
         /* If not C_RELPATH, display paths relative to project root. */
         blob_append(report, zPathname, -1);
@@ -2083,7 +2090,7 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
-** COMMAND: ci*
+** COMMAND: ci#
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?

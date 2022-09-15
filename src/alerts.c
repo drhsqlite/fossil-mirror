@@ -144,25 +144,73 @@ void alert_schema(int bOnlyIfEnabled){
 }
 
 /*
-** Enable triggers that automatically populate the pending_alert
-** table.
+** Process deferred alert events.  Return the number of errors.
 */
-void alert_create_trigger(void){
-  if( !db_table_exists("repository","pending_alert") ) return;
-  db_multi_exec(
-    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
-    /* "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" Very old legacy */
-    "CREATE TRIGGER temp.alert_trigger1\n"
-    "AFTER INSERT ON repository.event BEGIN\n"
-    "  INSERT INTO pending_alert(eventid)\n"
-    "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
-    "    ON CONFLICT(eventId) DO NOTHING;\n"
-    "END;"
-  );
+static int alert_process_deferred_triggers(void){
+  if( db_table_exists("temp","deferred_chat_events")
+   && db_table_exists("repository","chat")
+  ){
+    const char *zChatUser = db_get("chat-timeline-user", 0);
+    if( zChatUser && zChatUser[0] ){
+      db_multi_exec(
+        "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
+        " SELECT julianday(), "
+               " strftime('%%Y-%%m-%%dT%%H:%%M:%%S','now','localtime'),"
+               " %Q,"
+               " chat_msg_from_event(type, objid, user, comment)\n"
+        "   FROM deferred_chat_events;\n",
+        zChatUser
+      );
+    }
+  }
+  return 0;
 }
 
 /*
-** Disable triggers the event_pending triggers.
+** Enable triggers that automatically populate the pending_alert
+** table. (Later:) Also add triggers that automatically relay timeline
+** events to chat, if chat is configured for that.
+*/
+void alert_create_trigger(void){
+  if( db_table_exists("repository","pending_alert") ){
+    db_multi_exec(
+      "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+      "CREATE TRIGGER temp.alert_trigger1\n"
+      "AFTER INSERT ON repository.event BEGIN\n"
+      "  INSERT INTO pending_alert(eventid)\n"
+      "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
+      "    ON CONFLICT(eventId) DO NOTHING;\n"
+      "END;"
+    );
+  }
+  if( db_table_exists("repository","chat")
+   && db_get("chat-timeline-user", "")[0]!=0 
+  ){
+    /* Record events that will be relayed to chat, but do not relay
+    ** them immediately, as the chat_msg_from_event() function requires
+    ** that TAGXREF be up-to-date, and that has not happened yet when
+    ** the insert into the EVENT table occurs.  Make arrangements to
+    ** invoke alert_process_deferred_triggers() when the transaction
+    ** commits.  The TAGXREF table will be ready by then. */
+    db_multi_exec(
+       "CREATE TABLE temp.deferred_chat_events(\n"
+       "  type TEXT,\n"
+       "  objid INT,\n"
+       "  user TEXT,\n"
+       "  comment TEXT\n"
+       ");\n"
+       "CREATE TRIGGER temp.chat_trigger1\n"
+       "AFTER INSERT ON repository.event BEGIN\n"
+       "  INSERT INTO deferred_chat_events"
+       "   VALUES(new.type,new.objid,new.user,new.comment);\n"
+       "END;\n"
+    );
+    db_commit_hook(alert_process_deferred_triggers, 1);
+  }
+}
+
+/*
+** Disable triggers the event_pending and chat triggers.
 **
 ** This must be called before rebuilding the EVENT table, for example
 ** via the "fossil rebuild" command.
@@ -171,6 +219,7 @@ void alert_drop_trigger(void){
   db_multi_exec(
     "DROP TRIGGER IF EXISTS temp.alert_trigger1;\n"
     "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+    "DROP TRIGGER IF EXISTS temp.chat_trigger1;\n"
   );
 }
 
@@ -301,7 +350,7 @@ void setup_notification(void){
   entry_attribute("Subscription Renewal Interval In Days", 8,
                   "email-renew-interval", "eri", "", 0);
   @ <p>
-  @ If this value is a integer N greater than or equal to 14, then email
+  @ If this value is an integer N greater than or equal to 14, then email
   @ notification subscriptions will be suspended N days after the last known
   @ interaction with the user.  This prevents sending notifications
   @ to abandoned accounts.  If a subscription comes within 7 days of expiring,
@@ -1750,11 +1799,6 @@ void alert_page(void){
     return;
   }
   login_check_credentials();
-  if( !g.perm.EmailAlert ){
-    db_commit_transaction();
-    login_needed(g.anon.EmailAlert);
-    /*NOTREACHED*/
-  }
   isLogin = login_is_individual();
   zName = P("name");
   nName = zName ? (int)strlen(zName) : 0;
@@ -1769,7 +1813,7 @@ void alert_page(void){
        " LIMIT 1", zName, zName);
     if( sid ) keepAlive = 1;
   }
-  if( sid==0 && isLogin ){
+  if( sid==0 && isLogin && g.perm.EmailAlert ){
     sid = db_int(0, "SELECT subscriberId FROM subscriber"
                     " WHERE suname=%Q", g.zLogin);
   }
@@ -2130,13 +2174,40 @@ void unsubscribe_page(void){
   char *zCode = 0;
   int sid = 0;
 
-  /* If a valid subscriber code is supplied, then unsubscribe immediately.
+  if( zName==0 ) zName = P("scode");
+
+  /* If a valid subscriber code is supplied, then either present the user
+  ** with a comformation, or if already confirmed, unsubscribe immediately.
   */
   if( zName 
    && (sid = db_int(0, "SELECT subscriberId FROM subscriber"
                        " WHERE subscriberCode=hextoblob(%Q)", zName))!=0
   ){
-    alert_unsubscribe(sid);
+    char *zUnsubName = mprintf("confirm%04x", sid);
+    if( P(zUnsubName)!=0 ){
+      alert_unsubscribe(sid);
+    }else if( P("manage")!=0 ){
+      cgi_redirectf("%R/alerts/%s", zName);
+    }else{
+      style_header("Unsubscribed");
+      form_begin(0, "%R/unsubscribe");
+      @ <input type="hidden" name="scode" value="%h(zName)">
+      @ <table border="0" cellpadding="10" width="100%%">
+      @ <tr><td align="right">
+      @ <input type="submit" name="%h(zUnsubName)" value="Unsubscribe">
+      @ </td><td><big><b>&larr;</b></big></td>
+      @ <td>Cancel your subscription to %h(g.zBaseURL) notifications
+      @ </td><tr>
+      @ <tr><td align="right">
+      @ <input type="submit" name="manage" \
+      @ value="Manage Subscription Settings">
+      @ </td><td><big><b>&larr;</b></big></td>
+      @ <td>Make changes to your subscription preferences
+      @ </td><tr>
+      @ </table>
+      @ </form>
+      style_finish_page();
+    }
     return;
   }
 
@@ -2965,8 +3036,10 @@ int alert_send_alerts(u32 flags){
         blob_appendf(&fhdr, "To: <%s>\r\n", zEmail);
         blob_append(&fhdr, blob_buffer(&p->hdr), blob_size(&p->hdr));
         blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
-        blob_appendf(&fbody, "\n-- \nSubscription info: %s/alerts/%s\n",
+        blob_appendf(&fbody, "\n-- \nUnsubscribe: %s/unsubscribe/%s\n",
            zUrl, zCode);
+        /* blob_appendf(&fbody, "Subscription settings: %s/alerts/%s\n",
+        **   zUrl, zCode); */
         alert_send(pSender,&fhdr,&fbody,p->zFromName);
         nSent++;
         blob_reset(&fhdr);

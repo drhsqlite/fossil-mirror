@@ -56,7 +56,7 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_SYMBOLS = 1
 
-#### Enable JSON (http://www.json.org) support using "cson"
+#### Enable JSON (https://www.json.org) support using "cson"
 #
 FOSSIL_ENABLE_JSON = 1
 
@@ -551,6 +551,9 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../extsrc/pikchr-worker.js \
+  $(SRCDIR)/../extsrc/pikchr.js \
+  $(SRCDIR)/../extsrc/pikchr.wasm \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
@@ -619,6 +622,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
+  $(SRCDIR)/fossil.page.pikchrshowasm.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
@@ -654,6 +658,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.pikchrshow.css \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
@@ -1066,9 +1071,10 @@ $(OBJDIR)/phony.h:
 # plus a value of 2 means that we are building a client-provided
 # sqlite3.c.
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
-SQLITE3_OBJ.1 =
+SQLITE3_OBJ.1 = $(OBJDIR)/sqlite3-see.o
 # SQLITE3_OBJ.2 is set by the configure process
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 
 # The USE_SEE variable may be undefined, 0 or 1.  If undefined or 0,
 # in-tree SQLite is used.  If 1, then sqlite3-see.c (not part of the
@@ -2514,17 +2520,14 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_OMIT_SHARED_CACHE \
                  -DSQLITE_OMIT_LOAD_EXTENSION \
                  -DSQLITE_MAX_EXPR_DEPTH=0 \
-                 -DSQLITE_USE_ALLOCA \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
-                 -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
-                 -DSQLITE_INTROSPECTION_PRAGMAS \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
                  -DSQLITE_TRUSTED_SCHEMA=0 \
                  -DSQLITE_WIN32_NO_ANSI \
@@ -2533,42 +2536,41 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_USE_MSIZE
 
 SHELL_OPTIONS = -DNDEBUG=1 \
-                -DSQLITE_DQS=0 \
-                -DSQLITE_THREADSAFE=0 \
-                -DSQLITE_DEFAULT_MEMSTATUS=0 \
-                -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
-                -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
-                -DSQLITE_OMIT_DECLTYPE \
-                -DSQLITE_OMIT_DEPRECATED \
-                -DSQLITE_OMIT_PROGRESS_CALLBACK \
-                -DSQLITE_OMIT_SHARED_CACHE \
-                -DSQLITE_OMIT_LOAD_EXTENSION \
-                -DSQLITE_MAX_EXPR_DEPTH=0 \
-                -DSQLITE_USE_ALLOCA \
-                -DSQLITE_ENABLE_LOCKING_STYLE=0 \
-                -DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                -DSQLITE_ENABLE_FTS4 \
-                -DSQLITE_ENABLE_DBSTAT_VTAB \
-                -DSQLITE_ENABLE_JSON1 \
-                -DSQLITE_ENABLE_FTS5 \
-                -DSQLITE_ENABLE_STMTVTAB \
-                -DSQLITE_HAVE_ZLIB \
-                -DSQLITE_INTROSPECTION_PRAGMAS \
-                -DSQLITE_ENABLE_DBPAGE_VTAB \
-                -DSQLITE_TRUSTED_SCHEMA=0 \
-                -Dmain=sqlite3_shell \
-                -DSQLITE_SHELL_IS_UTF8=1 \
-                -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
-                -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
-                -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
-                -Daccess=file_access \
-                -Dsystem=fossil_system \
-                -Dgetenv=fossil_getenv \
-                -Dfopen=fossil_fopen
+                 -DSQLITE_DQS=0 \
+                 -DSQLITE_THREADSAFE=0 \
+                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                 -DSQLITE_OMIT_DECLTYPE \
+                 -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                 -DSQLITE_OMIT_SHARED_CACHE \
+                 -DSQLITE_OMIT_LOAD_EXTENSION \
+                 -DSQLITE_MAX_EXPR_DEPTH=0 \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 -DSQLITE_ENABLE_FTS4 \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
+                 -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_STMTVTAB \
+                 -DSQLITE_HAVE_ZLIB \
+                 -DSQLITE_ENABLE_DBPAGE_VTAB \
+                 -DSQLITE_TRUSTED_SCHEMA=0 \
+                 -Dmain=sqlite3_shell \
+                 -DSQLITE_SHELL_IS_UTF8=1 \
+                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
+                 -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
+                 -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
+                 -Daccess=file_access \
+                 -Dsystem=fossil_system \
+                 -Dgetenv=fossil_getenv \
+                 -Dfopen=fossil_fopen
 
-$(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC) $(SRCDIR)/../win/Makefile.mingw.mistachkin
+PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000
+
+$(SQLITE3_OBJ):	$(SQLITE3_SRC) $(SRCDIR)/../win/Makefile.mingw.mistachkin
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 
@@ -2590,5 +2592,5 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $@
 
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
-	$(XTCC) -c $(SRCDIR_extsrc)/pikchr.c -o $@
+	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 

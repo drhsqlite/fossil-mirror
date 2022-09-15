@@ -1545,7 +1545,7 @@ void page_xfer(void){
 
     /*    cookie TEXT
     **
-    ** A cookie contains a arbitrary-length argument that is server-defined.
+    ** A cookie contains an arbitrary-length argument that is server-defined.
     ** The argument must be encoded so as not to contain any whitespace.
     ** The server can optionally send a cookie to the client.  The client
     ** might then return the same cookie back to the server on its next

@@ -624,7 +624,7 @@ int ssl_open_client(UrlData *pUrlData){
 }
 
 /*
-** Remember that the cert with the given hash is a acceptable for
+** Remember that the cert with the given hash is acceptable for
 ** use with pUrlData->name.
 */
 LOCAL void ssl_remember_certificate_exception(
