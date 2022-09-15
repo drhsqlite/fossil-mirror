@@ -144,7 +144,7 @@ void alert_schema(int bOnlyIfEnabled){
 }
 
 /*
-** Process deferred alert events
+** Process deferred alert events.  Return the number of errors.
 */
 static int alert_process_deferred_triggers(void){
   if( db_table_exists("temp","deferred_chat_events")
@@ -187,7 +187,9 @@ void alert_create_trigger(void){
     /* Record events that will be relayed to chat, but do not relay
     ** them immediately, as the chat_msg_from_event() function requires
     ** that TAGXREF be up-to-date, and that has not happened yet when
-    ** the insert into the EVENT table occurs. */
+    ** the insert into the EVENT table occurs.  Make arrangements to
+    ** invoke alert_process_deferred_triggers() when the transaction
+    ** commits.  The TAGXREF table will be ready by then. */
     db_multi_exec(
        "CREATE TABLE temp.deferred_chat_events(\n"
        "  type TEXT,\n"

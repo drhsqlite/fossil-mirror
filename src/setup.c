@@ -1358,7 +1358,8 @@ void setup_chat(void){
                   "chat-timeline-user", "chatrobot", "", 0);
   @ <p>If this setting is not an empty string, then any changes that appear
   @ on the timeline are announced in the chatroom under the username
-  @ supplied.  That user does not need to actually exist in the USER table.
+  @ supplied.  The username does not need to actually exist in the USER table.
+  @ Suggested username:  "chat-robot".
   @ (Property: "chat-timeline-user")</p>
   @ <hr />
 
