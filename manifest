@@ -1,5 +1,5 @@
-C Add\sthe\schat-timeline-user\ssetting\sto\sthe\s2.20\schange\slog.
-D 2022-09-15T17:08:59.343
+C Add\sdocumentation\sfor\schat-timeline-user.
+D 2022-09-15T17:11:44.781
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -807,8 +807,8 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 65eb0951f55bd7ad225f3a653baaff0008ea0c38f5628aa7ce9662d75ec91c83
-F www/chat.md 295069f17c3388b766622e554db813072a8ff1cab5503a465dc1013653217174
+F www/changes.wiki 4b71170c0d1dd67c7d2622ae89318cd270ab4cc85ca0137934354f948bcfd8f9
+F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1ad499265a23e434f48abcd34949a9ade0df48a8b06f65b597327d60491017a
-R 1951f26853c71815af4b0b0404f08ceb
-U stephan
-Z 182a379e4fb243226f9d4fb2abda9f83
+P 0efd583a54e3fb6273dc79a42fc66c33cabec843742eb469d2c87f51a26c856c
+R 50a92159f235cf45f6a8587737acb862
+U drh
+Z 8468d81a3ee0957f0c138dc9ea19d8a8
 # Remove this line to create a well-formed Fossil manifest.

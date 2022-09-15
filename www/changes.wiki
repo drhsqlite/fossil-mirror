@@ -1,11 +1,14 @@
 <title>Change Log</title>
 
 <h2 id='v2_20'>Changes for version 2.20 (pending)</h2>
+  *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If
+     it is not an empty string, then any changes that would appear on the timeline
+     are announced in [./chat.md|the chat room].
+  *  The /unsubscribe page now requests comformation. [./alerts.md|Email notifications]
+     now contain only an "Unsubscribe" link, and not a link to subscription management.
+  *  More elements of the /info page are now inside of an accordion.
   *  Replace the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
      commands which still used the former name, for consistency.
-  *  Add the [/help?cmd=chat-timeline-user|chat-timeline-user setting],
-     which enables posting of new timeline entries to [/help?cmd=/chat|the
-     /chat page].
 
 <h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating
