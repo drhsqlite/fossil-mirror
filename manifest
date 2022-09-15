@@ -1,5 +1,5 @@
-C Do\snot\srequire\sthat\sthe\schat-timeline\srobot\susername\sbe\san\sactual\suser\sin\sthe\nUSER\stable.\s\sIf\sthe\schat-timeline-user\sconfig\svariable\sexists,\sthen\stimeline\nevents\sare\sannounced\sin\schat,\sregardless.
-D 2022-09-14T19:24:31.815
+C Improved\schat\smessages\sfor\sthe\schat-timeline-robot.
+D 2022-09-15T15:35:01.748
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -402,7 +402,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c fcb33dcc8338d96ff679843871d516116846a3dda3f931ecc6163bd2a8553d89
 F src/ajax.c 4d31ef8e51bdd3c3ac74f346d3604e27893ab5a879846312b576d76d15d38d41
-F src/alerts.c ceb9d50600b834eb31afe08b3fef86b8fcc69101a2c973646b19c3baefefe2d9
+F src/alerts.c efff28191c8638ab8e8fcf7dde76cd7cdf5f08cbc577c21b24d18dc0087b0c88
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -423,7 +423,7 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82dc455
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c f59d373ccd9a5b2de9c70d0ad1c9d56a0caf8855e7295ef1b366e4f738a6c430
-F src/chat.c 2573728c61ada9b7d52dc1deb37e14c37ea1938005b4c143945cedad2c0d5bf2
+F src/chat.c 8dcf651d28d7c2b55cac3968c37c123415e610935e9d10cfb9bf80512afdc9e9
 F src/checkin.c db4022ca9d2038f47dc331cb0c948daff3522f665658f779728e1d5e5ce7b173
 F src/checkout.c 82666644cefcd168b95cbc2dd8601fd1f56777583646756c0698531d453d7b3c
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -437,7 +437,7 @@ F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 2c3b35cd18099a003fa1ba2eb2ae6ae84399fba87c6c05ad54b24671ed353dc8
+F src/db.c f7c42502077050d615b15dfbf4068d541459c7722a2f17a3b3e24699864f9647
 F src/default.css daea7fcd08b5055d7e5a457228972b184c7c9f4db0cd89b31c13eb6fe805ebb2
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9d7cf3e92a3d11fafd83a0ba200e4e66fc17fdd7e2b490362f310f413dcc4cf
-R 070b8d8daa259567f6641378e3f538bc
+P 1f5474ec319780d36a6b1c3098e53f0abd81f24ce4683f43490adf4776898434
+R c0783aad6184d00a34e3d42db7891209
 U drh
-Z 801c3b6d21a983b096199718c52c11ac
+Z 0e28b2ddefaf7e75effc88bc5c6e63f2
 # Remove this line to create a well-formed Fossil manifest.

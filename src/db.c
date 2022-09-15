@@ -127,7 +127,7 @@ static struct DbLocalData {
   struct sCommitHook {
     int (*xHook)(void);         /* Functions to call at db_end_transaction() */
     int sequence;               /* Call functions in sequence order */
-  } aHook[5];
+  } aHook[6];
   char *azDeleteOnFail[3];  /* Files to delete on a failure */
   char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
   int nBeforeCommit;        /* Number of entries in azBeforeCommit */
@@ -1466,6 +1466,10 @@ void db_add_aux_functions(sqlite3 *db){
                           db_win_reserved_func,0,0);
   sqlite3_create_function(db, "url_nouser", 1, SQLITE_UTF8, 0,
                           url_nouser_func,0,0);
+  sqlite3_create_function(db, "chat_msg_from_event", 4,
+        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0, 
+        chat_msg_from_event, 0, 0);
+                           
 }
 
 #if USE_SEE

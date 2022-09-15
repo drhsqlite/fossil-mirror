@@ -883,6 +883,84 @@ void chat_backup_webpage(void){
 }
 
 /*
+** SQL Function: chat_msg_from_event(TYPE,OBJID,USER,MSG)
+**
+** This function returns HTML text that describes an entry from the EVENT
+** table (that is, a timeline event) for display in chat.  Parameters:
+**
+**    TYPE         The event type.  'ci', 'w', 't', 'g', and so forth
+**    OBJID        EVENT.OBJID
+**    USER         coalesce(EVENT.EUSER,EVENT.USER)
+**    MSG          coalesce(EVENT.ECOMMENT, EVENT.COMMENT)
+**
+** This function is intended to be called by the temp.chat_trigger1 trigger
+** which is created by alert_create_trigger() routine.
+*/
+void chat_msg_from_event(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zType = (const char*)sqlite3_value_text(argv[0]);
+  int rid = sqlite3_value_int(argv[1]);
+  const char *zUser = (const char*)sqlite3_value_text(argv[2]);
+  const char *zMsg = (const char*)sqlite3_value_text(argv[3]);
+  char *zRes = 0;
+  
+  if( zType==0 || zUser==0 || zMsg==0 ) return;
+  if( zType[0]=='c' ){
+    /* Check-ins */
+    char *zBranch;
+    char *zUuid;
+
+    zBranch = db_text(0,
+       "SELECT value FROM tagxref"
+       " WHERE tagxref.rid=%d"
+       "   AND tagxref.tagid=%d"
+       "   AND tagxref.tagtype>0",
+       rid, TAG_BRANCH);
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    zRes = mprintf("%W (check-in: <a href='%R/info/%S'>%S</a>, "
+                   "user: <a href='%R/timeline?u=%t&c=%S'>%h</a>, "
+                   "branch: <a href='%R/timeline?r=%t&c=%S'>%h</a>)",
+             zMsg,
+             zUuid, zUuid,
+             zUser, zUuid, zUser,
+             zBranch, zUuid, zBranch
+    );
+    fossil_free(zBranch);
+    fossil_free(zUuid);
+  }else if( zType[0]=='w' ){
+    /* Wiki page changes */
+    char *zUuid;
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    wiki_hyperlink_override(zUuid);
+    if( zMsg[0]=='-' ){
+      zRes = mprintf("Delete wiki page <a href='%R/whistory?name=%t'>%h</a>",
+         zMsg+1, zMsg+1);
+    }else if( zMsg[0]=='+' ){
+      zRes = mprintf("Added wiki page <a href='%R/whistory?name=%t'>%h</a>",
+         zMsg+1, zMsg+1);
+    }else if( zMsg[0]==':' ){
+      zRes = mprintf("<a href='%R/wdiff?id=%!S'>Changes</a> to wiki page "
+                     "<a href='%R/whistory?name=%t'>%h</a>",
+         zUuid, zMsg+1, zMsg+1);
+    }else{
+      zRes = mprintf("%W", zMsg);
+    }
+    wiki_hyperlink_override(0);
+    fossil_free(zUuid);
+  }else{
+    /* Anything else */
+    zRes = mprintf("%W", zMsg);
+  }
+  if( zRes ){
+    sqlite3_result_text(context, zRes, -1, fossil_free);
+  }
+}
+
+
+/*
 ** COMMAND: chat
 **
 ** Usage: %fossil chat [SUBCOMMAND] [--remote URL] [ARGS...]

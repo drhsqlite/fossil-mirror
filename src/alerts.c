@@ -144,6 +144,27 @@ void alert_schema(int bOnlyIfEnabled){
 }
 
 /*
+** Process deferred alert events
+*/
+static int alert_process_deferred_triggers(void){
+  if( db_table_exists("temp","deferred_chat_events")
+   && db_table_exists("repository","chat")
+  ){
+    const char *zChatUser = db_get("chat-timeline-user", 0);
+    if( zChatUser && zChatUser[0] ){
+      db_multi_exec(
+        "INSERT INTO chat(mtime,xfrom,xmsg)"
+        " SELECT julianday(), %Q,"
+               " chat_msg_from_event(type, objid, user, comment)\n"
+        "   FROM deferred_chat_events;\n",
+        zChatUser
+      );
+    }
+  }
+  return 0;
+}
+
+/*
 ** Enable triggers that automatically populate the pending_alert
 ** table. (Later:) Also add triggers that automatically relay timeline
 ** events to chat, if chat is configured for that.
@@ -160,20 +181,27 @@ void alert_create_trigger(void){
       "END;"
     );
   }
-  if( db_table_exists("repository","chat") ){
-    const char *zChatUser = db_get("chat-timeline-user", 0);
-    if( zChatUser && zChatUser[0] ){
-      db_multi_exec(
-         "CREATE TRIGGER temp.chat_trigger1\n"
-         "AFTER INSERT ON repository.event BEGIN\n"
-         "  INSERT INTO chat(mtime,xfrom,xmsg)"
-         "  SELECT julianday(), %Q,"
-                 " format('[%%.12s]: %%s', blob.uuid, new.comment)"
-         "  FROM blob WHERE rid=new.objid;\n"
-         "END;\n",
-         zChatUser
-      );
-    }
+  if( db_table_exists("repository","chat")
+   && db_get("chat-timeline-user", "")[0]!=0 
+  ){
+    /* Record events that will be relayed to chat, but do not relay
+    ** them immediately, as the chat_msg_from_event() function requires
+    ** that TAGXREF be up-to-date, and that has not happened yet when
+    ** the insert into the EVENT table occurs. */
+    db_multi_exec(
+       "CREATE TABLE temp.deferred_chat_events(\n"
+       "  type TEXT,\n"
+       "  objid INT,\n"
+       "  user TEXT,\n"
+       "  comment TEXT\n"
+       ");\n"
+       "CREATE TRIGGER temp.chat_trigger1\n"
+       "AFTER INSERT ON repository.event BEGIN\n"
+       "  INSERT INTO deferred_chat_events"
+       "   VALUES(new.type,new.objid,new.user,new.comment);\n"
+       "END;\n"
+    );
+    db_commit_hook(alert_process_deferred_triggers, 1);
   }
 }
 
