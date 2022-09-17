@@ -1,5 +1,5 @@
-C Add\sdocumentation\sfor\schat-timeline-user.
-D 2022-09-15T17:11:44.781
+C Add\sa\scomment\sto\sthe\stree-view\sto\sexplain\sthat\sfile\sages\sare\srelative\nto\sthe\scheck-in\stime.
+D 2022-09-17T12:45:03.566
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 50da7d17a2b7513744d1283489fad3284e15a4f014c17b6477cdf0487decd251
 F src/blob.c 7d75b41aeb78d3e7185bfe65586a47cf004a91bd0c3de678069f33c1e6956a8f
 F src/branch.c 63efb20b5a55e1f0878ded0591a67fb9632ddc4a8df6cf61346498a039d3dfd1
-F src/browse.c 57995b642d840c272e6d317f2de7338739448641afe308bbc3e72d1ffa07a5d0
+F src/browse.c d3c5905872c7cf09a4d77d40c20993083e82754ad6a96cb94ac36e5a0946e106
 F src/builtin.c 8a0f3b41ccb25e30a161c6af3ec8c0bab1da080ca11b590a935e9f0a9e98a61c
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0efd583a54e3fb6273dc79a42fc66c33cabec843742eb469d2c87f51a26c856c
-R 50a92159f235cf45f6a8587737acb862
+P 24c71dfb1ea93f0cdaa8e8dbc8d0a18943c46142c73389ec4c6bb0d1b578e62a
+R bf5a81776bc9304a93bb9c5069864e5d
 U drh
-Z 8468d81a3ee0957f0c138dc9ea19d8a8
+Z ad6aee8ee8a52aaff16b308bbd972595
 # Remove this line to create a well-formed Fossil manifest.
