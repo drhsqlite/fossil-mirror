@@ -1268,10 +1268,10 @@ void tkthistory_page(void){
       const char *zUser = db_column_text(&q, 5);
       if( zSrc==0 || zSrc[0]==0 ){
         @
-        @ <li><p>Delete attachment "%h(zFile)"
+        @ <li id="%S(zChngUuid)"><p>Delete attachment "%h(zFile)"
       }else{
         @
-        @ <li><p>Add attachment
+        @ <li id="%S(zChngUuid)"><p>Add attachment
         @ "%z(href("%R/artifact/%!S",zSrc))%s(zFile)</a>"
       }
       @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
@@ -1282,7 +1282,7 @@ void tkthistory_page(void){
       pTicket = manifest_get(rid, CFTYPE_TICKET, 0);
       if( pTicket ){
         @
-        @ <li><p>Ticket change
+        @ <li id="%S(zChngUuid)"><p>Ticket change
         @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");

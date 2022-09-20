@@ -1,5 +1,5 @@
-C Minor\soptimization\sand\srefactoring.
-D 2022-09-20T13:56:24.096
+C On\sthe\s[/help?cmd=/tkthistory|/tkthistory\spage]\ssupply\seach\sticket\schange\sitem\nwith\sa\scorresponding\sid\sattribute\sand\smake\sthe\s'History'\sbutton\nwithin\sa\ssubmenu\sof\sa\s[/help?cmd=/tinfo|/tinfo\spage]\sto\slink\sback\nto\sthat\sparticular\selement\son\sthe\s<code>/tkthistory</code>\spage.
+D 2022-09-20T14:13:07.861
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -494,7 +494,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c 29537acefeb9417741cec3d293d5eee1b4005563b3ad2f86e15b458823975f33
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c f8f7867abe196f6ac59d33fc30816ba24b624ecc6401456cb24194cf4a955653
+F src/info.c db2be0093e839a79f7c54aadc990a579b54adeee969d7a19400847488512b0c0
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
 F src/json.c 264c757355a12c4c9efcef77f7f5d0f73dfc93a03f7ebdafbc4caa319e3bbc26
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -596,7 +596,7 @@ F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c c3865971f754cf18a9c10d0efe54dac1be269ae2d69ff9e6a036d102609d7b5a
-F src/tkt.c 9b1abb4156f5d499141d104ce4204bb27a6bbd2420fae56eedb3a12aa10d5ec7
+F src/tkt.c 702a507bde16ba4bc38c06fe6bc1fe27e243658812a9fe46a5db31aba743c674
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b75a9d0fa383b5747d8c239bbcd961d6d6535c21da4065cf024a9cf8e29cfb79
-R 96de11e7d581348b64a5bdeb839d7ec8
+P b2049d643b6a3a3a10b9e7cdda266f4da8837ee525eda4cfb5fa8ea1dc0b76c7
+R 7923d66c679d30596e0be776135da128
 U george
-Z c9577834fed5e29d33492f06afa3c7a9
+Z 0e60ec2b69a2471f3dc58c41cf56b953
 # Remove this line to create a well-formed Fossil manifest.

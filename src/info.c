@@ -2785,7 +2785,7 @@ void tinfo_page(void){
   style_set_current_feature("tinfo");
   style_header("Ticket Change Details");
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
-  style_submenu_element("History", "%R/tkthistory/%s", zTktName);
+  style_submenu_element("History", "%R/tkthistory/%s#%S", zTktName,zUuid);
   style_submenu_element("Page", "%R/tktview/%t", zTktName);
   style_submenu_element("Timeline", "%R/tkttimeline/%t", zTktName);
   if( P("plaintext") ){
