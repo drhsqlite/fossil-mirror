@@ -1237,7 +1237,9 @@ void tkthistory_page(void){
   }else{
     @ <h2>Artifacts Associated With Ticket %h(zUuid)</h2>
     getAllTicketFields();
-    aLastVal = blobarray_new(nField);
+    if( nTicketBslns ){
+      aLastVal = blobarray_new(nField);
+    }
   }
   db_prepare(&q,
     "SELECT datetime(mtime,toLocal()), objid, uuid, NULL, NULL, NULL"
@@ -1377,18 +1379,17 @@ void ticket_output_change_artifact(
         @ %s(blob_str(&d))
         @ </li>
         blob_reset(&d);
-      }else if( bLong ){
+      }else{
         if( bRegular ){
           @ %h(zX) changed to:
         }
-        @ <blockquote><pre class='verbatim'>
-        @ %h(zValue)
-        @ </pre></blockquote></li>
-      }else{
-        if( bRegular ){
-          @ %h(zX) changed to: \
+        if( bLong ){
+          @ <blockquote><pre class='verbatim'>
+          @ %h(zValue)
+          @ </pre></blockquote></li>
+        }else{
+          @ "%h(zValue)"</li>
         }
-        @ "%h(zValue)"</li>
       }
       if( blob_buffer(prev) && blob_size(prev) && !bAppend ){
         blob_truncate(prev,0);
