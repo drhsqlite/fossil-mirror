@@ -1,5 +1,5 @@
-C Fix\sthe\s"finfo"\scommand\sso\sthat\s-r\sis\snot\srequired\swith\s-i.\s\sIf\sthe\s-r\nis\somitted,\sthen\s"current"\sis\sused\sin\sits\splace.
-D 2022-09-23T16:44:25.475
+C Fix\sthe\shelp\stext\sfor\sthe\sprevious\scheck-in.
+D 2022-09-23T16:44:54.793
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -456,7 +456,7 @@ F src/export.c 901a7a0f7d401ddbd220978abdf7327bda0dc73a793ded2195985925ad6999cf
 F src/extcgi.c 401b08e918d699a68562ea1312c6601bd7b29c9c13f185f577c50048edaa570e
 F src/file.c e343760badaf97816f6319506433c99a815a605331a77600c10a71409490dd49
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
-F src/finfo.c ee65d26010c7df49c352661b1f5633c56cf57f65d364119550c48eaa4a814506
+F src/finfo.c 56ea6099f6b9fbcb19f24daee9b7ba5bb0f0700c0fe62cc56a26f826ad50a9a6
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 7945df05a0f042432ed2e8b0d6c1fc2119322e01f3aaf5f820fddee48f772ea5
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76bc66a950c4f2cc47af8fe6b78430da327045f321991ff4e05a22a22e765c72
-R fdfdc78c8000674f0f5ad2492bcc4e89
+P 35c6d15a08f1e3f7f1a8782c95b182bd5322cfd64978997ee513839db5217a81
+R faf901793acf7b16da53ddf0fdee1197
 U drh
-Z a8b8b577bb2c0f61f8439c7855ab18a0
+Z 891ca68661fedd952b5fb8595e982873
 # Remove this line to create a well-formed Fossil manifest.

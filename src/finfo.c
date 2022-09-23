@@ -47,7 +47,7 @@
 **   -b|--brief           Display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
-**   -i|--id              Print the artifact ID (requires -r)
+**   -i|--id              Print the artifact ID
 **   -l|--log             Select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N less than 0 means no limit.
