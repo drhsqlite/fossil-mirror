@@ -694,7 +694,7 @@ remote_delete_default:
     zBase = url_nouser(&g.url);
     blob_init(&url, 0, 0);
     if( g.argc==3 ){
-      blob_appendf(&url, "%s/info/%!S\n",
+      blob_appendf(&url, "%s/info/%!S",
         zBase,
         db_text("???",
           "SELECT uuid FROM blob, vvar"

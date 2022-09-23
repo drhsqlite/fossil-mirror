@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sremote\shyperlink"\sand\s"fossil\sremote\sui"\ssubcommands.
-D 2022-09-23T13:04:09.068
+C Remove\san\sextra\snewline\scharacter\sfrom\sthe\soutput\sof\sthe\nnew\s"fossil\sremote\shyperlink"\scommand.
+D 2022-09-23T13:17:08.776
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -588,7 +588,7 @@ F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057ba
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 25f0a2db166301e46383c959b691513612f62129cb2fca59e3a445fe2815e18a
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 3aadc410193949e50d2bec07a4844c76962b2f7f0db268038f0fe6f154f3cfe4
+F src/sync.c ef0aee5f31e39558ad3fe3e132870793d4f552d1981d2e79a054ae121355b43f
 F src/tag.c 6a3e74f90e9959827faa335aeda08cfb874facbc32cf6f980164802d2622cde8
 F src/tar.c 26e0ff9be1dbc5d76df274c1749262a1a3496ddc7c0a53027fffd0147232a5ae
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e99e58c5680716427d1da7144d81a5014df530139daaa9c4ce8b9ad35b46b0b9
-R b37b0ff78006c9000545d5766b612433
+P b2e2fc0372a08df1f8355d9952e497ad851ac926b827896e40bf3346d38f870f
+R 56562cd2d6039890fefa2500ed29c474
 U drh
-Z fb0ba49e5786971e0f3591bf2c74d44f
+Z eff70b5e4f769de4bdf385fa2633224b
 # Remove this line to create a well-formed Fossil manifest.
