@@ -148,8 +148,8 @@ void finfo_cmd(void){
 
     verify_all_options();
 
-    if( zRevision==0 ) usage("-i|--id also requires -r|--revision");
-    if( g.argc!=3 ) usage("-r|--revision REVISION FILENAME");
+    if( zRevision==0 ) zRevision = "current";
+    if( g.argc!=3 ) usage("FILENAME");
     file_tree_name(g.argv[2], &fname, 0, 1);
     rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
                     "  (SELECT uuid FROM files_of_checkin(%Q)"

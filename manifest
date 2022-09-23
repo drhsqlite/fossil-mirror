@@ -1,5 +1,5 @@
-C Remove\san\sextra\snewline\scharacter\sfrom\sthe\soutput\sof\sthe\nnew\s"fossil\sremote\shyperlink"\scommand.
-D 2022-09-23T13:17:08.776
+C Fix\sthe\s"finfo"\scommand\sso\sthat\s-r\sis\snot\srequired\swith\s-i.\s\sIf\sthe\s-r\nis\somitted,\sthen\s"current"\sis\sused\sin\sits\splace.
+D 2022-09-23T16:44:25.475
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -456,7 +456,7 @@ F src/export.c 901a7a0f7d401ddbd220978abdf7327bda0dc73a793ded2195985925ad6999cf
 F src/extcgi.c 401b08e918d699a68562ea1312c6601bd7b29c9c13f185f577c50048edaa570e
 F src/file.c e343760badaf97816f6319506433c99a815a605331a77600c10a71409490dd49
 F src/fileedit.c a2929d6f2ba1593ee919702f4aa8f41618a3217c2fdd3f29f394719eab0c5d65
-F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
+F src/finfo.c ee65d26010c7df49c352661b1f5633c56cf57f65d364119550c48eaa4a814506
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 7945df05a0f042432ed2e8b0d6c1fc2119322e01f3aaf5f820fddee48f772ea5
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -597,7 +597,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c c3865971f754cf18a9c10d0efe54dac1be269ae2d69ff9e6a036d102609d7b5a
+F src/timeline.c 02fe059d8975e091aef97ab1d45c1afc96670b4b33580d42ac36b0edf1aff384
 F src/tkt.c 992429510522cad383e553cd5e778b3551ea147e1c833000ea223b3ec939eca0
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2e2fc0372a08df1f8355d9952e497ad851ac926b827896e40bf3346d38f870f
-R 56562cd2d6039890fefa2500ed29c474
+P 76bc66a950c4f2cc47af8fe6b78430da327045f321991ff4e05a22a22e765c72
+R fdfdc78c8000674f0f5ad2492bcc4e89
 U drh
-Z eff70b5e4f769de4bdf385fa2633224b
+Z a8b8b577bb2c0f61f8439c7855ab18a0
 # Remove this line to create a well-formed Fossil manifest.
