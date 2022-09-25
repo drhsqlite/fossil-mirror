@@ -509,6 +509,14 @@ void sync_unversioned(unsigned syncFlags){
 **
 **     Delete a named URL previously created by the "add" subcommand.
 **
+** > fossil remote hyperlink ?FILENAME? ?LINENUM? ?LINENUM?
+**
+**     Print a URL that will access the current checkout on the remote
+**     repository.  Or if the FILENAME argument is included, print the
+**     URL to access that particular file within the current checkout.
+**     If one or two linenumber arguments are provided after the filename,
+**     then the URL is for the line or range of lines specified.
+**
 ** > fossil remote list|ls
 **
 **     Show all remote repository URLs.
@@ -533,6 +541,15 @@ void sync_unversioned(unsigned syncFlags){
 **     Forget any saved passwords for remote repositories, but continue
 **     to remember the URLs themselves.  You will be prompted for the
 **     password the next time it is needed.
+**
+** > fossil remote ui ?FILENAME? ?LINENUM? ?LINENUM?
+**
+**     Bring up a web browser pointing at the remote repository, and
+**     specifically to the page that describes the current checkout
+**     on that remote repository.  Or if FILENAME and/or LINENUM arguments
+**     are provided, to the specific file and range of lines.  This
+**     command is similar to "fossil remote hyperlink" except that instead
+**     of printing the URL, it passes the URL off to the web browser.
 **
 ** > fossil remote REF
 **
@@ -654,6 +671,80 @@ remote_delete_default:
     db_commit_transaction();
     return;
   }
+  if( strncmp(zArg, "hyperlink", nArg)==0
+   || (nArg==2 && strcmp(zArg, "ui")==0)
+  ){
+    char *zBase;
+    char *zUuid;
+    Blob fname;
+    Blob url;
+    char *zSubCmd = g.argv[2][0]=='u' ? "ui" : "hyperlink";
+    if( !db_table_exists("localdb","vvar") ){
+      fossil_fatal("the \"remote %s\" command only works from "
+                   "within an open check-out", zSubCmd);
+    }
+    zUrl = db_get("last-sync-url", 0);
+    if( zUrl==0 ){
+      zUrl = "http://localhost:8080/";
+    }
+    url_parse(zUrl, 0);
+    if( g.url.isFile ){
+      url_parse("http://localhost:8080/", 0);
+    }
+    zBase = url_nouser(&g.url);
+    blob_init(&url, 0, 0);
+    if( g.argc==3 ){
+      blob_appendf(&url, "%s/info/%!S",
+        zBase,
+        db_text("???",
+          "SELECT uuid FROM blob, vvar"
+          " WHERE blob.rid=0+vvar.value"
+          "   AND vvar.name='checkout';"
+        ));
+    }else{
+      blob_init(&fname, 0, 0);
+      file_tree_name(g.argv[3], &fname, 0, 1);
+      zUuid = db_text(0,
+        "SELECT uuid FROM files_of_checkin"
+        " WHERE checkinID=(SELECT value FROM vvar WHERE name='checkout')"
+        "   AND filename=%Q",
+        blob_str(&fname)
+      );
+      if( zUuid==0 ){
+        fossil_fatal("not a managed file: \"%s\"", g.argv[3]);
+      }
+      blob_appendf(&url, "%s/info/%S",zBase,zUuid);
+      if( g.argc>4 ){
+        int ln1 = atoi(g.argv[4]);
+        if( ln1<=0 || sqlite3_strglob("*[^0-9]*",g.argv[4])==0 ){
+          fossil_fatal("\"%s\" is not a valid line number", g.argv[4]);
+        }
+        if( g.argc>5 ){
+          int ln2 = atoi(g.argv[5]);
+          if( ln2==0 || sqlite3_strglob("*[^0-9]*",g.argv[5])==0 ){
+            fossil_fatal("\"%s\" is not a valid line number", g.argv[5]);
+          }
+          if( ln2<=ln1 ){
+            fossil_fatal("second line number should be greater than the first");
+          }
+          blob_appendf(&url,"?ln=%d,%d", ln1, ln2);
+        }else{
+          blob_appendf(&url,"?ln=%d", ln1);
+        }
+      }
+      if( g.argc>6 ){
+        usage(mprintf("%s ?FILENAME? ?LINENUMBER? ?LINENUMBER?", zSubCmd));
+      }
+    }
+    if( g.argv[2][0]=='u' ){
+      char *zCmd;
+      zCmd = mprintf("%s %!$ &", fossil_web_browser(), blob_str(&url));
+      fossil_system(zCmd);
+    }else{
+      fossil_print("%s\n", blob_str(&url));
+    }
+    return;
+  }
   if( strncmp(zArg, "scrub", nArg)==0 ){
     if( g.argc!=3 ) usage("scrub");
     db_begin_write();
@@ -708,7 +799,7 @@ remote_add_default:
     return;
   }
   fossil_fatal("unknown command \"%s\" - should be a URL or one of: "
-               "add delete list off", zArg);
+               "add delete hyperlink list off scrub", zArg);
 }
 
 /*

@@ -437,7 +437,14 @@ void update_cmd(void){
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       if( file_isfile_or_link(zFullPath) ){
-        fossil_print("ADD %s - overwrites an unmanaged file\n", zName);
+        /* Name of backup file with Original content */
+        char *zOrig = file_newname(zFullPath, "original", 1);
+        /* Backup previously unanaged file before to be overwritten */
+        file_copy(zFullPath, zOrig);
+        fossil_free(zOrig);
+        fossil_print("ADD %s - overwrites an unmanaged file", zName);
+        if( !dryRunFlag ) fossil_print(", original copy backed up locally");
+        fossil_print("\n");
         nOverwrite++;
       }else{
         fossil_print("ADD %s\n", zName);

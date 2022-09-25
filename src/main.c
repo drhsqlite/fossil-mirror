@@ -3050,7 +3050,7 @@ void fossil_set_timeout(int N){
 **                       of the given file.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
-**   --nobrowser         Do not automatically launch a web-browser for the
+**   -B|--nobrowser      Do not automatically launch a web-browser for the
 **                       "fossil ui" command.
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
@@ -3058,7 +3058,7 @@ void fossil_set_timeout(int N){
 **                       setting "redirect-to-https" requests it.  This is set
 **                       by default for the "ui" command.
 **   --notfound URL      Redirect to URL if a page is not found.
-**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
+**   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --pkey FILE         Read the private key used for TLS from FILE.
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
@@ -3126,7 +3126,7 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
-    zInitPage = find_option("page", 0, 1);
+    zInitPage = find_option("page", "p", 1);
     if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
   }
@@ -3140,7 +3140,7 @@ void cmd_webserver(void){
     set_base_url(zAltBase);
   }
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
-  fNoBrowser = find_option("nobrowser", 0, 0)!=0;
+  fNoBrowser = find_option("nobrowser", "B", 0)!=0;
   decode_ssl_options();
   if( find_option("https",0,0)!=0 || g.httpUseSSL ){
     cgi_replace_parameter("HTTPS","on");
@@ -3232,6 +3232,7 @@ void cmd_webserver(void){
       }
     }
     iPort = mxPort = atoi(zPort);
+    if( iPort<=0 ) fossil_fatal("port number must be greater than zero");
   }else{
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
@@ -3297,6 +3298,21 @@ void cmd_webserver(void){
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
+#if !defined(_WIN32)
+  if( getpid()==1 ){
+    /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
+    ** rebooting the system by nuking the init system.  The only way
+    ** Fossil becomes that PID 1 is when it's running solo in a Linux
+    ** container or similar, so we do want to exit immediately, to
+    ** allow the container to shut down quickly.
+    **
+    ** This has to happen ahead of the other signal() calls below.
+    ** They apply after the HTTP hit is handled, but this one needs
+    ** to be registered while we're waiting for that to occur.
+    **/
+    signal(SIGTERM, fossil_exit);
+  }
+#endif /* !WIN32 */
 
   /* Start up an HTTP server
   */

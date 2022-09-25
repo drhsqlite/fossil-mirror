@@ -259,7 +259,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
 
 /*
 ** COMMAND: checkout*
-** COMMAND: co*
+** COMMAND: co#
 **
 ** Usage: %fossil checkout ?VERSION | --latest? ?OPTIONS?
 **    or: %fossil co ?VERSION | --latest? ?OPTIONS?

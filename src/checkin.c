@@ -2090,7 +2090,7 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
-** COMMAND: ci*
+** COMMAND: ci#
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?

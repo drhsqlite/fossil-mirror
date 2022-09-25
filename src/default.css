@@ -252,6 +252,9 @@ div.columns > ul li:first-child {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+body.help .columns li {
+  white-space: nowrap /* keep command name aliases from wrapping */;
+}
 .filetree {
   margin: 1em 0;
   line-height: 1.5;
@@ -593,6 +596,7 @@ table.diff td.difftxt > pre {
   max-width: 100%;
 }
 table.diff td > pre {
+  box-sizing: border-box;
   /* Workaround for "slight wiggle" when using mouse-wheel in some FF
      versions, apparently caused by the increased line-height forcing
      these elements to be a *tick* larger than they should be but not

@@ -1354,6 +1354,14 @@ void setup_chat(void){
   @ should be larger rather than smaller.
   @ (Property: "chat-poll-timeout")</p>
   @ <hr />
+  entry_attribute("Chat Timeline Robot Username", 15,
+                  "chat-timeline-user", "chatrobot", "", 0);
+  @ <p>If this setting is not an empty string, then any changes that appear
+  @ on the timeline are announced in the chatroom under the username
+  @ supplied.  The username does not need to actually exist in the USER table.
+  @ Suggested username:  "chat-robot".
+  @ (Property: "chat-timeline-user")</p>
+  @ <hr />
 
   multiple_choice_attribute("Alert sound",
      "chat-alert-sound", "snd", azAlerts[0],

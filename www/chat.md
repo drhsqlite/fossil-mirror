@@ -156,6 +156,18 @@ fossil chat send --remote https://robot:PASSWORD@project.org/fossil \
 Substitute the appropriate project URL, robot account
 name and password, message text and file attachment, of course.
 
+### <a id="chat-robot"></a> Chat Messages For Timeline Events
+
+If the [chat-timeline-user setting](/help?cmd=chat-timeline-user) is not a
+empty string, then any change to the repository that would normally result
+in a new timeline entry is announced in the chatroom.  The announcement
+appears to come from a user whose name is given by the chat-timeline-user
+setting.
+
+This mechanism is similar to [email notification](./alerts.md) except that
+the notification is sent via chat instead of via email.
+
+
 ## Implementation Details
 
 *You do not need to understand how Fossil chat works in order to use it.

@@ -144,25 +144,73 @@ void alert_schema(int bOnlyIfEnabled){
 }
 
 /*
-** Enable triggers that automatically populate the pending_alert
-** table.
+** Process deferred alert events.  Return the number of errors.
 */
-void alert_create_trigger(void){
-  if( !db_table_exists("repository","pending_alert") ) return;
-  db_multi_exec(
-    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
-    /* "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" Very old legacy */
-    "CREATE TRIGGER temp.alert_trigger1\n"
-    "AFTER INSERT ON repository.event BEGIN\n"
-    "  INSERT INTO pending_alert(eventid)\n"
-    "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
-    "    ON CONFLICT(eventId) DO NOTHING;\n"
-    "END;"
-  );
+static int alert_process_deferred_triggers(void){
+  if( db_table_exists("temp","deferred_chat_events")
+   && db_table_exists("repository","chat")
+  ){
+    const char *zChatUser = db_get("chat-timeline-user", 0);
+    if( zChatUser && zChatUser[0] ){
+      db_multi_exec(
+        "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
+        " SELECT julianday(), "
+               " strftime('%%Y-%%m-%%dT%%H:%%M:%%S','now','localtime'),"
+               " %Q,"
+               " chat_msg_from_event(type, objid, user, comment)\n"
+        "   FROM deferred_chat_events;\n",
+        zChatUser
+      );
+    }
+  }
+  return 0;
 }
 
 /*
-** Disable triggers the event_pending triggers.
+** Enable triggers that automatically populate the pending_alert
+** table. (Later:) Also add triggers that automatically relay timeline
+** events to chat, if chat is configured for that.
+*/
+void alert_create_trigger(void){
+  if( db_table_exists("repository","pending_alert") ){
+    db_multi_exec(
+      "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+      "CREATE TRIGGER temp.alert_trigger1\n"
+      "AFTER INSERT ON repository.event BEGIN\n"
+      "  INSERT INTO pending_alert(eventid)\n"
+      "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
+      "    ON CONFLICT(eventId) DO NOTHING;\n"
+      "END;"
+    );
+  }
+  if( db_table_exists("repository","chat")
+   && db_get("chat-timeline-user", "")[0]!=0 
+  ){
+    /* Record events that will be relayed to chat, but do not relay
+    ** them immediately, as the chat_msg_from_event() function requires
+    ** that TAGXREF be up-to-date, and that has not happened yet when
+    ** the insert into the EVENT table occurs.  Make arrangements to
+    ** invoke alert_process_deferred_triggers() when the transaction
+    ** commits.  The TAGXREF table will be ready by then. */
+    db_multi_exec(
+       "CREATE TABLE temp.deferred_chat_events(\n"
+       "  type TEXT,\n"
+       "  objid INT,\n"
+       "  user TEXT,\n"
+       "  comment TEXT\n"
+       ");\n"
+       "CREATE TRIGGER temp.chat_trigger1\n"
+       "AFTER INSERT ON repository.event BEGIN\n"
+       "  INSERT INTO deferred_chat_events"
+       "   VALUES(new.type,new.objid,new.user,new.comment);\n"
+       "END;\n"
+    );
+    db_commit_hook(alert_process_deferred_triggers, 1);
+  }
+}
+
+/*
+** Disable triggers the event_pending and chat triggers.
 **
 ** This must be called before rebuilding the EVENT table, for example
 ** via the "fossil rebuild" command.
@@ -171,6 +219,7 @@ void alert_drop_trigger(void){
   db_multi_exec(
     "DROP TRIGGER IF EXISTS temp.alert_trigger1;\n"
     "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+    "DROP TRIGGER IF EXISTS temp.chat_trigger1;\n"
   );
 }
 
