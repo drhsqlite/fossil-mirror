@@ -483,9 +483,10 @@ void sync_unversioned(unsigned syncFlags){
 ** Usage: %fossil remote ?SUBCOMMAND ...?
 **
 ** View or modify the URLs of remote repositories used for syncing.
-** The "default" remote is the URL used in the most recent "sync",
-** "push", "pull", "clone", or similar command.  The default remote can
-** change with each sync command.  Other named remotes are persistent.
+** The "default" remote is specially named by Fossil and corresponds to
+** the URL used in the most recent "sync", "push", "pull", "clone", or
+** similar command.  As such, the default remote can be updated by
+** Fossil with each sync command.  Other named remotes are persistent.
 **
 ** > fossil remote
 **
@@ -496,8 +497,10 @@ void sync_unversioned(unsigned syncFlags){
 **
 **     Add a new named URL. Afterwards, NAME can be used as a short
 **     symbolic name for URL in contexts where a URL is required. The
-**     URL argument can be "default" or a prior symbolic name, to make
-**     a copy of an existing URL under a new name.
+**     URL argument can be "default" or a prior symbolic name to make
+**     a copy of an existing URL under the new NAME. The "default"
+**     remote cannot be defined with this subcommand; instead,
+**     use 'fossil remote REF' as documented below.
 **
 ** > fossil remote config-data
 **
@@ -635,7 +638,10 @@ remote_delete_default:
     memset(&x, 0, sizeof(x));
     zName = g.argv[3];
     zUrl = g.argv[4];
-    if( strcmp(zName,"default")==0 ) goto remote_add_default;
+    if( strcmp(zName,"default")==0 ){
+      fossil_fatal("update the \"default\" remote-url with 'fossil remote REF'"
+          "\nsee 'fossil help remote' for complete usage information");
+    }
     db_begin_write();
     if( fossil_strcmp(zUrl,"default")==0 ){
       x.canonical = db_get("last-sync-url",0);
@@ -790,7 +796,6 @@ remote_delete_default:
    || sqlite3_strlike("file:%",zArg,0)==0
    || db_exists("SELECT 1 FROM config WHERE name='sync-url:%q'",zArg)
   ){
-remote_add_default:
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|
