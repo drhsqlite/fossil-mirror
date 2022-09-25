@@ -99,9 +99,12 @@ static void locate_unmanaged_files(
       }else if( file_access(zName, R_OK) ){
         fossil_fatal("cannot open %s", &zName[nRoot]);
       }else{
+        /* Only add unmanaged file paths specified on the command line. */
         db_multi_exec(
-           "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
-           &zName[nRoot]
+            "INSERT OR IGNORE INTO sfile(pathname)"
+            " SELECT %Q WHERE NOT EXISTS"
+            " (SELECT 1 FROM vfile WHERE pathname=%Q)",
+            &zName[nRoot], &zName[nRoot]
         );
       }
       blob_reset(&name);

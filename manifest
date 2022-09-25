@@ -1,5 +1,5 @@
-C tweak\s`fossil\sremote`\scmd\sto\supdate\sthe\s"default"\sname\n\nDon't\sdelete\sthe\scurrent\sdefault\sremote-url\swhen\sthe\suser\sinvokes\sthe\sinvalid\n`fossil\sremote\sadd\sdefault`\scommand;\sinstead,\soutput\scorrect\susage\sto\supdate\nthe\sspecial\s"default"\ssymbolic\sname.\sTweak\shelp\stext\sto\smake\sthis\smore\sobvious.\nPrompted\sby\s[forum:5748fcb117a99b43].
-D 2022-09-25T13:44:29.768
+C fix\sspecified\sfile\spath\scase\sin\slocate_unmanaged_files()\n\nOnly\sinsert\sunmanaged\sfiles\sinto\sthe\stemp\ssfile\stable.\sThis\snow\smakes\sthe\nroutine\sbehave\sconsistently\swhether\sfile,\sdirectory,\sor\sno\spaths\sare\spassed\non\sthe\scommand\sline,\sand\sfixes\sthe\s`fossil\schanges\s--extra`\sbug\sreport\sin\n[forum:452ec8fac167].
+D 2022-09-25T14:18:26.523
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c f59d373ccd9a5b2de9c70d0ad1c9d56a0caf8855e7295ef1b366e4f738a6c430
 F src/chat.c c264840a8f8cde5e2cff553146d1818febe1e85bddcf9ca9aad1bff239508191
-F src/checkin.c db4022ca9d2038f47dc331cb0c948daff3522f665658f779728e1d5e5ce7b173
+F src/checkin.c 266299607cb30e98ad5277c3707d8987b80ce7e87b2be430b5fba49b92058d26
 F src/checkout.c 82666644cefcd168b95cbc2dd8601fd1f56777583646756c0698531d453d7b3c
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1431ebae3d3397488986b919a4776e3a2b4a1bf48230d90f941f4e44cb3b5eee
-R eeab95efe1854b351dd6348e720ee8bb
+P 2a3e851e7bb88c987d66ff5a2aae1ff74211b343167b2282e30a9da81c6e4868
+R 76d8beb75637f385a98a631fdfc5bf08
 U mark
-Z 5d9480d52fc72ca7583a1e5ed1f5670f
+Z 0cd13549a38d5a5328baef211009d819
 # Remove this line to create a well-formed Fossil manifest.
