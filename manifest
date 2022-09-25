@@ -1,5 +1,5 @@
-C Prevent\sthe\sweb\sUI\sside-by-side\sdiffs\sand\stheir\sscrollbars\sfrom\sgetting\struncated\son\sthe\sright.\s[forum:f9becc251c|\sForum\sPost\sf9becc251c].
-D 2022-09-25T06:50:00.000
+C Minor\schanges\sto\soption\shandling\sfor\sthe\s`ui'\scommand:\s(A)\sAbort\searly\swith\san\serror\smessage\sif\sthe\sspecified\sport\snumber\sis\sinvalid\s(instead\sof\slater\swith\san\sassertion\sfailure);\s(B)\sAdd\sshort\sform\s-p\sfor\s--page;\s(C)\sAdd\sshort\sform\s-B\sfor\s--nobrowser.
+D 2022-09-25T07:18:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -519,7 +519,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 320b8e6f7bc95fa4d9e86733d77cd0742c7665de02210f6e99a3f308e21d8be5
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 9aa598ff2fb77e8bfffc3be47c57152450d850f0d959b86b526c3ed3c0ec93d8
+F src/main.c b5e912c105f93f126431e9f8e8f653a79a39eaf21226c4181b5913e16e599dfb
 F src/main.mk 3cfb5b741f534f21044e391027e1fc52155092ec62c73faeb994b1d9d47b699a
 F src/manifest.c be9848ff7900c6174f01ca21c77c357cc502698c73406540a866ddc52b24303d
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac6edb35dff3cc1546f7896b75a253a2b813176a91beb1984ca520b13d0be470
-R 19b8df50dd874133cf8f4dd74206911b
+P 1a668d359a9615e22edd144376afa66eef9113c8271d9036d6dd8bd82dc578cf
+R e469f794a44f6c71231b287de1aea0eb
 U florian
-Z 084f21a332220f35a7b482e9e84c769e
+Z 084a21191684b9c9b59b43373568e31a
 # Remove this line to create a well-formed Fossil manifest.
