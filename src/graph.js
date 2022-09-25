@@ -1151,6 +1151,29 @@ function TimelineGraph(tx){
       focusCacheSet(id);
       focusVisualize(id,true);
     }/*,true*/);
+    // NOTE: To be able to override the default CTRL+CLICK behavior (to "select"
+    // the elements, indicated by an outline) for normal (non-input) elements in
+    // FF it's necessary to listen to `mousedown' instead of `click' events.
+    window.addEventListener('mousedown',function(evt){
+      var
+        bMAIN = 0,
+        mCTRL = 1<<14,
+        mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13;
+      if( evt.target.tagName in { 'INPUT':1, 'SELECT':1, 'A':1 } ||
+          evt.button!=bMAIN || mod!=mCTRL ){
+        return;
+      }
+      var e = evt.target;
+      while( e && !/\btimeline\w+Cell\b/.test(e.className) ){
+        e = e.parentElement;
+      }
+      if( e && (e = e.previousElementSibling.querySelector('.tl-nodemark')) ){
+        evt.preventDefault();
+        evt.stopPropagation();
+        focusCacheSet(e.id);
+        focusVisualize(e.id,false);
+      }
+    },false);
     window.addEventListener('pageshow',function(evt){
       var id = focusCacheGet();
       if( !id || !focusVisualize(id,false) ){

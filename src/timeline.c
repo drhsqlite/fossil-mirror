@@ -1638,6 +1638,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **    M     Focus last (oldest) entry.
 **    j     Move focus between selected, current (check-out) and ticked entries.
 **    ,     Focus entry closest to center of viewport.
+**    Ctrl+Click
+**          Focus clicked entry.
 **    J     Scroll to focused entry.
 **    h     Tick/untick focused entry, or open diff if two entries ticked.
 **    H     Untick all entries.
