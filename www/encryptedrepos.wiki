@@ -11,9 +11,9 @@ The SQLite Encryption Extension (SEE) is proprietary software and requires
 Assuming you have an SEE license, the first step of compiling Fossil to
 use SEE is to create an SEE-enabled version of the SQLite database source code.
 This alternative SQLite database source file should be called "sqlite3-see.c"
-and should be placed in the src/ subfolder of the Fossil sources, right beside
+and should be placed in the extsrc/ subfolder of the Fossil sources, right beside
 the public-domain "sqlite3.c" source file.  Also make a copy of the SEE-enabled
-"shell.c" file, renamed as "shell-see.c", and place it in the src/ subfolder
+"shell.c" file, renamed as "shell-see.c", and place it in the extsrc/ subfolder
 beside the original "shell.c".
 <p>
 Add the --with-see command-line option to the configuration script to enable
