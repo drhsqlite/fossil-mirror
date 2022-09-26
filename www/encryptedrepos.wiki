@@ -6,7 +6,7 @@ This technical note explains the process.
 </blockquote>
 <h2>Building An Encryption-Enabled Fossil</h2><blockquote>
 The SQLite Encryption Extension (SEE) is proprietary software and requires
-[http://www.hwaci.com/cgi-bin/see-step1|purchasing a license].
+[https://sqlite.org/purchase/see|purchasing a license].
 <p>
 Assuming you have an SEE license, the first step of compiling Fossil to
 use SEE is to create an SEE-enabled version of the SQLite database source code.

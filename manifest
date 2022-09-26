@@ -1,5 +1,5 @@
-C fix\sspecified\sfile\spath\scase\sin\slocate_unmanaged_files()\n\nOnly\sinsert\sunmanaged\sfiles\sinto\sthe\stemp\ssfile\stable.\sThis\snow\smakes\sthe\nroutine\sbehave\sconsistently\swhether\sfile,\sdirectory,\sor\sno\spaths\sare\spassed\non\sthe\scommand\sline,\sand\sfixes\sthe\s`fossil\schanges\s--extra`\sbug\sreport\sin\n[forum:452ec8fac167].
-D 2022-09-25T14:18:26.523
+C Update\sthe\shyperlink\sfor\spurchasing\sa\sSEE\slicense.
+D 2022-09-26T06:43:39.609
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -842,7 +842,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
+F www/encryptedrepos.wiki 5ec5d5e5c1194839660dfa84e7aa9e8ec86b8b84247dd7a9c503097a374f84c4
 F www/env-opts.md ab37f892ab4e2482046f7ffc6ab40ff04f8c6f72e4b68a4ade1d433ada784a53
 F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e360
 F www/faq.tcl 144b3860f55d014da205fdb486f3774040662507a9ae5eae6e364b145a7cc860
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a3e851e7bb88c987d66ff5a2aae1ff74211b343167b2282e30a9da81c6e4868
-R 76d8beb75637f385a98a631fdfc5bf08
-U mark
-Z 0cd13549a38d5a5328baef211009d819
+P 39eb451ad3326a65ff3f6e1638909213d3e833f2bf5615881ce64a99afc2a397
+R a68f6a2e390d2369630dd814d213848f
+U danield
+Z 64f7d2b9a167414662b6cae257cc6ef7
 # Remove this line to create a well-formed Fossil manifest.
