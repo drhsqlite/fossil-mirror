@@ -157,8 +157,8 @@ don’t say things like:
 
 That lets us have a convenient file name for the project outside the
 container while letting the configuration inside the container refer to
-the generic “`/museum/repo.fossil`” name. Why should we have to rename
-the container generically on the outside just to placate the container?
+the generic “`/museum/repo.fossil`” name. Why should we have to name
+the repo generically on the outside merely to placate the container?
 
 The reason is, you might be serving that repo with [WAL mode][wal]
 enabled. If you map the repo DB alone into the container, the Fossil
@@ -176,24 +176,12 @@ boundary. The success of the scheme depends on the `mmap()` and shared
 memory system calls being coordinated properly by the OS kernel the two
 worlds share. 
 
-At some point, someone should perform tests in the hopes of *failing* to
-create database corruption in this scenario.
+There is [a plan](https://tangentsoft.com/sqlite/dir/walbanger?ci=trunk)
+for proving to a reasonable level of confidence that using WAL across a
+container boundary is safe, but this effort is still in the early stages
+as of this writing.
 
-Why the tortured grammar? Because you cannot prove a negative, being in
-this case “SQLite will not corrupt the database in WAL mode if there’s a
-container barrier in the way.” All you can prove is that a given test
-didn’t cause corruption. With enough tests of sufficient power, you can
-begin to make definitive statements, but even then, science is always
-provisional, awaiting a single disproving experiment. Atop that, OCI
-container runtimes give the sysadmin freedom to impose barriers between
-the two worlds, so even if you convince yourself that WAL mode is safe
-in a given setup, it’s possible to configure it to fail. As if that
-weren’t enough, different container runtimes have different defaults,
-including details like whether shared memory is truly shared between
-the host and its containers.
-
-Until someone gets around to establishing this ground truth and scoping
-its applicable range, my advice to those who want to use WAL mode on
+Until that’s settled, my advice to those who want to use WAL mode on
 containerized servers is to map the whole directory as shown in these
 examples, but then isolate the two sides with a secondary clone. On the
 outside, you say something like this:
