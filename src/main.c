@@ -1513,7 +1513,6 @@ static char *enter_chroot_jail(const char *zRepo, int noJail){
           if( *zRepo == '\0' ) zRepo = "/";
         }else {
           zRepo = "/";
-          g.fJail = 1;
         }
         if( file_chdir(zDir, 1) ){
           fossil_panic("unable to chroot into %s", zDir);
