@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\schat-robot.
-D 2022-09-27T13:47:29.411
+C make\schatbot\smessage\sbox\stransparent\sto\savoid\scollisions\n\nSuggested\sby\smgagnon\sin\s/chat.\sHint\sfrom\sstephan.
+D 2022-09-27T14:39:07.861
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -423,7 +423,7 @@ F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82dc455
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c f59d373ccd9a5b2de9c70d0ad1c9d56a0caf8855e7295ef1b366e4f738a6c430
-F src/chat.c 7a9ed20216a03721c8f3304deba1c3d2df2c0be77e988dd00c9178a51b749787
+F src/chat.c 953ff79fdf1caaec47dcb770743dc4e88ba1b0949ccbd11bce05a9b107cbd309
 F src/checkin.c 266299607cb30e98ad5277c3707d8987b80ce7e87b2be430b5fba49b92058d26
 F src/checkout.c 82666644cefcd168b95cbc2dd8601fd1f56777583646756c0698531d453d7b3c
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1392710fb455840c17e9d8de7cd7d498ae4cb91acbf78896fb880974135ae341
-R aa89f61a2fd7f71e55516a9c5fb6df55
-U drh
-Z e94ccc758b90300c3bcedad71a1715d2
+P b3f87ef7c2349d57c2b093ae34075718daaeb515be3eef6cdece925d84b10d9e
+R 15241bb5a868c0f9e60fb54ca48b2e08
+U mark
+Z 50ca809bb82ad6ba215b30628c552f03
 # Remove this line to create a well-formed Fossil manifest.
