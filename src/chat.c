@@ -747,7 +747,7 @@ void chat_fetch_one(void){
     blob_append(&json, "\"xfrom\":", -1);
     if(zFrom){
       blob_appendf(&json, "%!j,", zFrom);
-      isWiki = fossil_strcmp(zFrom, zChatUser);
+      isWiki = fossil_strcmp(zFrom, zChatUser)==0;
     }else{
       /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
       blob_appendf(&json, "null,");
