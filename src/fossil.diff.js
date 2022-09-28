@@ -37,6 +37,7 @@ window.fossil.onPageLoad(function(){
 (function(){
   window.addEventListener('load',function(){
     function btnScrollIntoView(e){
+    //setTimeout(function(){
       e = e.parentElement;
       var rc = e.getBoundingClientRect();
       var y = 0;
@@ -44,6 +45,7 @@ window.fossil.onPageLoad(function(){
         y += e.offsetTop;
       }while( e = e.offsetParent );
       window.scrollTo(0,y-6*rc.height);
+    //},0);
     }
     document.addEventListener('keydown',function(evt){
     //if( evt.target.tagName=='INPUT' || evt.target.tagName=='SELECT' ) return;
@@ -108,7 +110,10 @@ window.fossil.onPageLoad(function(){
             btnScrollIntoView(btn[n]);
           }
         }
-        else btn[0].click();
+        else{
+          btn[0].click();
+          btnScrollIntoView(btn[0]);
+        }
       }
     }/*,true*/);
   },false);
