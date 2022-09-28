@@ -1,5 +1,5 @@
-C improve\slogin-group\scommand\sdocumentation\sand\soutput\n\nPrompted\sby\s[forum:58f01f6d92],\s[forum:a7d15cc071],\sand\s[forum:1c639bcdea].\nClarify\ssemantics\sof\s-R|--repository\sin\s'fossil\slogin-group\sjoin'\sand\smake\nuser\soutput\smore\shelpful.\sWhile\shere,\strim\ssome\strailing\swhitespace.
-D 2022-09-28T12:28:06.938
+C add\snew\s"Related\sWork"\spage\slinked\sfrom\sthe\sUser\sLinks\spage\n\nSuggested\sby\sdrh@\swith\slots\sof\stweaks\sfrom\swyoung@
+D 2022-09-28T15:35:02.487
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -923,6 +923,7 @@ F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2
 F www/quickstart.wiki deccf518d123c83a6bb83b7c1fc162d8f2310ab0f0e3621fe99702d6fc35906d
 F www/quotes.wiki bd1bf1c07466e0fe1853eac4ff0ddd7b70c7ed8d1690606d5067b4e2d3277cbf
 F www/rebaseharm.md 3e1640e822b2ff579c995f12c3a5951d1ee86a2332d98f7bc6484c14aec56656
+F www/relatedwork.md 00b99bbdd92756a3ca361b2ee16637ade67f92dc1f0a478a8b5dbc91914b246c
 F www/reviews.wiki 4213b62a5f69cbf2655f4eaa989d85153a8acb630bce72c9f83a7950d6393892
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
@@ -972,7 +973,7 @@ F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
 F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d925966c
-F www/userlinks.wiki adcb3fef040a87b554a8cdbf865fa0501001fd7902d3773a7044643152ee85af
+F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
@@ -980,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8b3ec1e6d3a5db21d87617b4c3917024f30fe5f924dd865e67299a459144fd5
-R 85f3fd2dbfe82957e3b8c932762adacc
+P 83bc81e88296200b67f09fce9b71929d3792ed14b3daac0b7bb7191621614573
+R 2bcc355ce2a81381b6251fc2c1deceb5
 U mark
-Z 91d8402fbd15c327a04139c6e080f64a
+Z 1fbca671c66482d9131a532b1fb4c2d7
 # Remove this line to create a well-formed Fossil manifest.
