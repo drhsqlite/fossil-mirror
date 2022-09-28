@@ -1,5 +1,5 @@
-C make\schatbot\smessage\sbox\stransparent\sto\savoid\scollisions\n\nSuggested\sby\smgagnon\sin\s/chat.\sHint\sfrom\sstephan.
-D 2022-09-27T14:39:07.861
+C improve\slogin-group\scommand\sdocumentation\sand\soutput\n\nPrompted\sby\s[forum:58f01f6d92],\s[forum:a7d15cc071],\sand\s[forum:1c639bcdea].\nClarify\ssemantics\sof\s-R|--repository\sin\s'fossil\slogin-group\sjoin'\sand\smake\nuser\soutput\smore\shelpful.\sWhile\shere,\strim\ssome\strailing\swhitespace.
+D 2022-09-28T12:28:06.938
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -516,7 +516,7 @@ F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdec
 F src/json_wiki.c 32a902096d496725781b9aeff5cbf5245d8e662b8785969020a66dbfde04f2f1
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c1
-F src/login.c 320b8e6f7bc95fa4d9e86733d77cd0742c7665de02210f6e99a3f308e21d8be5
+F src/login.c cf46d5690d0589d6762381737ade907c3003b2e2b2a4c8e23596207ff1dd1b82
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 8486ad6c781b251681fd839c96cf624859c6c031a911caad51433033c931166d
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3f87ef7c2349d57c2b093ae34075718daaeb515be3eef6cdece925d84b10d9e
-R 15241bb5a868c0f9e60fb54ca48b2e08
+P c8b3ec1e6d3a5db21d87617b4c3917024f30fe5f924dd865e67299a459144fd5
+R 85f3fd2dbfe82957e3b8c932762adacc
 U mark
-Z 50ca809bb82ad6ba215b30628c552f03
+Z 91d8402fbd15c327a04139c6e080f64a
 # Remove this line to create a well-formed Fossil manifest.
