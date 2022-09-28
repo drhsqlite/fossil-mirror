@@ -1,5 +1,5 @@
-C improve\slogin-group\scommand\sdocumentation\sand\soutput\n\nPrompted\sby\s[forum:58f01f6d92],\s[forum:a7d15cc071],\sand\s[forum:1c639bcdea].\nClarify\ssemantics\sof\s-R|--repository\sin\s'fossil\slogin-group\sjoin'\sand\smake\nuser\soutput\smore\shelpful.\sWhile\shere,\strim\ssome\strailing\swhitespace.
-D 2022-09-28T12:28:06.938
+C Implement\sJavascript-based\skeyboard\snavigation\sfor\sweb\sUI\sdiffs.\sShortcuts\sSHIFT+I\sor\sI\sshow\sor\shide\sall\sdiffs,\sand\sP\sor\sO\sshow\sthe\snext\sor\sprevious\sdiff.\sSee\s[forum:a78f44576c|\sForum\sPost\sa78f44576c]\sfor\smore\sinformation.
+D 2022-09-28T14:24:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -463,7 +463,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js 2a34fb4752408827809917a4e09d91f1882f366004a95e0bbdd4223b231c6132
+F src/fossil.diff.js f54b63bc4c834e19e200e1dd037876036d1b6edb8bf542c609be48ca1a0b6b32
 F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e05e09
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -980,8 +980,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8b3ec1e6d3a5db21d87617b4c3917024f30fe5f924dd865e67299a459144fd5
-R 85f3fd2dbfe82957e3b8c932762adacc
-U mark
-Z 91d8402fbd15c327a04139c6e080f64a
+P 83bc81e88296200b67f09fce9b71929d3792ed14b3daac0b7bb7191621614573
+R 9bb757d1a5b872d4bec2f65a34f341bd
+T *branch * diff-keyboard-navigation
+T *sym-diff-keyboard-navigation *
+T -sym-trunk *
+U florian
+Z d516fd370fb5120f260ef01750f115f0
 # Remove this line to create a well-formed Fossil manifest.

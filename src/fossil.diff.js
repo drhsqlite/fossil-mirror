@@ -20,6 +20,100 @@ window.fossil.onPageLoad(function(){
   document.querySelectorAll('table.diff').forEach(addToggle);
 });
 
+/*
+** Diff keyboard navigation shortcuts:
+**
+** SHIFT+I  - Show all diffs.
+** I        - Hide all diffs.
+** P        - Show only next diff, hide all others.
+** O        - Show only previous diff, hide all others.
+**
+** Ideas and TODOs:
+**
+**  o Documentation.
+**  o Restore shown/hidden state on back/forward navigation (or simply reset
+**    shown/hidden state to show all).
+*/
+(function(){
+  window.addEventListener('load',function(){
+    function btnScrollIntoView(e){
+      e = e.parentElement;
+      var rc = e.getBoundingClientRect();
+      var y = 0;
+      do{
+        y += e.offsetTop;
+      }while( e = e.offsetParent );
+      window.scrollTo(0,y-6*rc.height);
+    }
+    document.addEventListener('keydown',function(evt){
+    //if( evt.target.tagName=='INPUT' || evt.target.tagName=='SELECT' ) return;
+      var
+        mSHIFT = 1<<13,
+        kSHOW = mSHIFT | 73 /* SHIFT+I */,
+        kHIDE = 73 /* I */,
+        kNEXT = 80 /* P */,
+        kPREV = 79 /* O */,
+        mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
+        key = ( evt.which || evt.keyCode ) | mod;
+      switch( key ){
+        case kSHOW:
+        case kHIDE:
+        case kNEXT:
+        case kPREV: break;
+        default: return;
+      }
+      evt.preventDefault();
+      evt.stopPropagation();
+      if( key==kSHOW || key==kHIDE ){
+        var btn = document.getElementsByClassName('diff-toggle');
+        if( btn.length>0 ){
+          var chg = 0;
+          for( var i=0; i<btn.length; i++ ){
+            if( btn[i].checked && key==kHIDE ){
+              btn[i].click();
+              chg++;
+            }
+            else if( !btn[i].checked && key==kSHOW ){
+              btn[i].click();
+              chg++;
+            }
+          }
+          if( chg>0 ) btnScrollIntoView(btn[0]);
+        }
+      }
+      else if( key==kNEXT || key==kPREV ){
+        var btn = document.getElementsByClassName('diff-toggle');
+        if( btn.length>1 ){
+          var nFolded = 0, n = -2;
+          for( var i=0; i<btn.length; i++ ){
+            if( !btn[i].checked ) nFolded++;
+          }
+          if( nFolded==0 ){
+            n = ( key==kNEXT ? 0 : btn.length-1 );
+            for( var i=0; i<btn.length; i++ ){
+              if( n!=i ) btn[i].click();
+            }
+          }
+          else{
+            for( var i=0; i<btn.length; i++ ){
+              if( btn[i].checked ){
+                if( n==-2 ) n = ( key==kNEXT ? i+1 : i-1 );
+                if( n!=i ) btn[i].click();
+              }
+            }
+          }
+          if( n==-2 ) n = ( key==kNEXT ? 0 : btn.length-1 );
+          if( n in btn ){
+            if( !btn[n].checked ) btn[n].click();
+            btnScrollIntoView(btn[n]);
+          }
+        }
+        else btn[0].click();
+      }
+    }/*,true*/);
+  },false);
+}());
+
 window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
   const Diff = F.diff = {
