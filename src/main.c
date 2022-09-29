@@ -2458,7 +2458,9 @@ void cmd_cgi(void){
       ** Use one of the built-in skins defined by LABEL.  LABEL is the
       ** name of the subdirectory under the skins/ directory that holds
       ** the elements of the built-in skin.  If LABEL does not match,
-      ** this directive is a silent no-op.
+      ** this directive is a silent no-op. It may alternately be
+      ** an absolute path to a directory which holds skin definition
+      ** files (header.txt, footer.txt, etc.).
       */
       fossil_free(skin_use_alternative(blob_str(&value), 1));
       blob_reset(&value);
@@ -2721,7 +2723,8 @@ static void decode_ssl_options(void){
 **   --pkey FILE         Read the private key used for TLS from FILE.
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi              Interpret input as SCGI rather than HTTP
-**   --skin LABEL        Use override skin LABEL
+**   --skin LABEL        Use override skin LABEL. Use an empty string ("")
+**                       to force use of the current local skin config.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process. This is
 **                       only necessary when using SEE on Windows.
