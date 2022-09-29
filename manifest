@@ -1,5 +1,5 @@
-C 'skin:'\sCGI\sconfig\sdirective\snow\saccepts\san\sempty\svalue\sfor\sconsistency\swith\sthe\s--skin\sCLI\sflag.
-D 2022-09-29T09:25:09.337
+C Correct\sskintxt2config.c\sto\sbe\sable\sto\shandle\s0-byte\sinput\sfiles.
+D 2022-09-29T15:19:21.699
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -767,7 +767,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 2f26c2f69977e5ca1821628460b1d9b5885301b011aad7273207349659d78c8e
 F tools/mkversion.c 9844d975a6750a5307dc32105efa972d6be86c320987886fe15e9ed43648606d
-F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
+F tools/skintxt2config.c 042c3c712731ee32550caa0c5298cec50f125c6c5e8de65c25c975b72009861a
 F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882ba5095c15
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.dmc 0f84b947a1126f1b1c8e78cf93925066fd1be4f04ebdab749b518ab1cef02794
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 816f6c040d0739b2d631ccedc4da98b01543ece10fd89496de9f7b1862eaf440
-R 9b6f9cac75047341a40aabaf7f30974a
+P 6362a98fa67e1d7dddab2872aab419f657be3ae05ab563103c16b630c7a194ea
+R 409cc50bbb19cff71ffc3681d0dfcc6f
 U stephan
-Z f5f169236857a2170145f3138c5cd38d
+Z f263e232d6c4bbd18b531d4ca263266d
 # Remove this line to create a well-formed Fossil manifest.
