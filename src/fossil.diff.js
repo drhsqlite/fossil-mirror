@@ -41,6 +41,12 @@ window.fossil.onPageLoad(function(){
 ** Ideas and TODOs:
 **
 **  o Documentation.
+**  o The `timeline-keyboard-navigation' branch removes the unload handler from
+**    pages containing timeline snippets, so it's no longer necessary to reset
+**    the diff toggles on back/forward navigation in case the mentioned branch
+**    is merged with `diff-keyboard-navigation'.
+**  o The `diff-toggle' class was renamed to `toggle-diff' in my private Fossil
+**    patches to simplify completeness tests with my IE-compatible builds.
 */
 (function(){
   window.addEventListener('load',function(){

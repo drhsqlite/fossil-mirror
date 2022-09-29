@@ -1,5 +1,5 @@
-C Since\sdynamically\sadded\sCSS\sclasses\sto\shide\selements\sare\sdiscarded\son\sback/forward\snavigation,\sreset\sall\sdiff\stoggle\scheckboxes\sto\schecked\sto\smatch\swhat\sis\sactually\svisible.\sAn\salternative\sapproach\sis\sto\sfind\sthe\sunchecked\sdiff\stoggles\sand\sreapply\sthe\sCSS\sclasses\sto\shide\sthe\scorresponding\sdiff\sblocks.
-D 2022-09-29T11:30:00.000
+C Comment\supdates.
+D 2022-09-29T11:56:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -463,7 +463,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js 7b43b969c334fc7ebb3228474f6a5a5484095cc51a14b1d74004365ec592c424
+F src/fossil.diff.js d793b7580a040b1a1c366bb15c687e94c20053ac5a75d0027b42d19af2a0ca59
 F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e05e09
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e41214d25b0830da9470ac92ce4cac15099bf1cf7f72a0dc3ae5a641a5552379
-R e9a63140e55f502c8734ed510b543dde
+P 4368a1c99256f5d2bf48acd47fdc21f4b3647c0744d700d530d275ec548ff622
+R 7175ca31f8cdb3bc7bdda6a649a43a13
 U florian
-Z a74b5d56894eefd353e7891e9925a03b
+Z 495e578dc57919442714a5a8761fd322
 # Remove this line to create a well-formed Fossil manifest.
