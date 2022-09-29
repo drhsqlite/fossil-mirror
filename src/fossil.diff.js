@@ -18,6 +18,16 @@ window.fossil.onPageLoad(function(){
     }, false);
   };
   document.querySelectorAll('table.diff').forEach(addToggle);
+  function resetToggles(){
+    var cb = document.querySelectorAll(
+                        'input[type="checkbox"].diff-toggle:not(:checked)');
+    for( var i=0; i<cb.length; i++ ) cb[i].checked = true;
+  }
+  if( window.requestIdleCallback ){
+    window.requestIdleCallback(resetToggles);
+  }else{
+    setTimeout(resetToggles);
+  }
 });
 
 /*
@@ -31,8 +41,6 @@ window.fossil.onPageLoad(function(){
 ** Ideas and TODOs:
 **
 **  o Documentation.
-**  o Restore shown/hidden state on back/forward navigation (or simply reset
-**    shown/hidden state to show all).
 */
 (function(){
   window.addEventListener('load',function(){
