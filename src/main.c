@@ -2452,7 +2452,7 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
-    if( blob_eq(&key, "skin:") && blob_token(&line, &value) ){
+    if( blob_eq(&key, "skin:") ){
       /* skin: LABEL
       **
       ** Use one of the built-in skins defined by LABEL.  LABEL is the
@@ -2460,8 +2460,10 @@ void cmd_cgi(void){
       ** the elements of the built-in skin.  If LABEL does not match,
       ** this directive is a silent no-op. It may alternately be
       ** an absolute path to a directory which holds skin definition
-      ** files (header.txt, footer.txt, etc.).
+      ** files (header.txt, footer.txt, etc.). If LABEL is empty,
+      ** the skin stored in the CONFIG db table is used.
       */
+      blob_token(&line, &value);
       fossil_free(skin_use_alternative(blob_str(&value), 1));
       blob_reset(&value);
       continue;

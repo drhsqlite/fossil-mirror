@@ -1,5 +1,5 @@
-C --skin\s""\snow\sforces\suse\sof\sthe\scurrent\sedited\sskin\sand\sthe\swarning\son\sthe\s/skins\spage\sabout\sa\sforced\sskin\snow\sdistinguishes\sbetween\s/draft\sand\s--skin\s...\susage.
-D 2022-09-29T09:13:46.735
+C 'skin:'\sCGI\sconfig\sdirective\snow\saccepts\san\sempty\svalue\sfor\sconsistency\swith\sthe\s--skin\sCLI\sflag.
+D 2022-09-29T09:25:09.337
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -519,7 +519,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c cf46d5690d0589d6762381737ade907c3003b2e2b2a4c8e23596207ff1dd1b82
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 13d4f0e23b155f46d05cebd5b660fb0ad445b664bec970781ab21021c4cb69de
+F src/main.c a3714b03f602a31a294d79639d38dc1abf80052900f99fb8fa8361ea5c1299be
 F src/main.mk 3cfb5b741f534f21044e391027e1fc52155092ec62c73faeb994b1d9d47b699a
 F src/manifest.c be9848ff7900c6174f01ca21c77c357cc502698c73406540a866ddc52b24303d
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fbad2772263c7172efca1c39e0b17401f8b9e6013173ae7138bf5f179e8989bb
-R f0b5823a178c5d092add987ca6030001
+P 816f6c040d0739b2d631ccedc4da98b01543ece10fd89496de9f7b1862eaf440
+R 9b6f9cac75047341a40aabaf7f30974a
 U stephan
-Z e95c96f978e95949454902cba004d16d
+Z f5f169236857a2170145f3138c5cd38d
 # Remove this line to create a well-formed Fossil manifest.
