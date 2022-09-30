@@ -1,5 +1,5 @@
-C Correct\sskintxt2config.c\sto\sbe\sable\sto\shandle\s0-byte\sinput\sfiles.
-D 2022-09-29T15:19:21.699
+C Simplification\sto\sthe\sJS\sused\sas\spart\sof\santi-robot\sdefenses.
+D 2022-09-30T12:38:48.750
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -490,7 +490,7 @@ F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c a178d9d59b8cd83cd83e1621893ec37a1576c468e405b50ccc24e260cb3493b2
-F src/href.js abc0ea9ecf6f698aaf5044934ce51aa5419ea5b17f724e0302f63cd3afeec336
+F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c 1c4ead0bd1a51688c554e17d8ec1ec9b2e0fb20f65c25b5a236dc9665e2edde0
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
 F src/http_ssl.c 29537acefeb9417741cec3d293d5eee1b4005563b3ad2f86e15b458823975f33
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6362a98fa67e1d7dddab2872aab419f657be3ae05ab563103c16b630c7a194ea
-R 409cc50bbb19cff71ffc3681d0dfcc6f
-U stephan
-Z f263e232d6c4bbd18b531d4ca263266d
+P c7c1c4e8b9e49c59322aae7c5a4dc095a7bb768e0357a5c5d594d6384b621a66
+R d911d5bb606e8e02beff5b96417a9ec1
+U drh
+Z 2ebe72ee8d072e954187c52057570f19
 # Remove this line to create a well-formed Fossil manifest.
