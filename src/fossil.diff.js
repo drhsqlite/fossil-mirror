@@ -23,11 +23,7 @@ window.fossil.onPageLoad(function(){
                         'input[type="checkbox"].diff-toggle:not(:checked)');
     for( var i=0; i<cb.length; i++ ) cb[i].checked = true;
   }
-  if( window.requestIdleCallback ){
-    window.requestIdleCallback(resetToggles);
-  }else{
-    setTimeout(resetToggles);
-  }
+  setTimeout(resetToggles);
 });
 
 /*
@@ -41,13 +37,10 @@ window.fossil.onPageLoad(function(){
 **    pages containing timeline snippets, so it's no longer necessary to reset
 **    the diff toggles on back/forward navigation in case the mentioned branch
 **    is merged with `diff-keyboard-navigation'.
-**  o The `diff-toggle' class was renamed to `toggle-diff' in my private Fossil
-**    patches to simplify completeness tests with my IE-compatible builds.
 */
 (function(){
   window.addEventListener('load',function(){
     function btnScrollIntoView(e){
-    //setTimeout(function(){
       e = e.parentElement;
       var rc = e.getBoundingClientRect();
       var y = 0;
@@ -55,10 +48,9 @@ window.fossil.onPageLoad(function(){
         y += e.offsetTop;
       }while( e = e.offsetParent );
       window.scrollTo(0,y-6*rc.height);
-    //},0);
     }
     document.addEventListener('keydown',function(evt){
-    //if( evt.target.tagName=='INPUT' || evt.target.tagName=='SELECT' ) return;
+      if( evt.target.tagName=='INPUT' || evt.target.tagName=='SELECT' ) return;
       var
         mSHIFT = 1<<13,
         kSHOW = mSHIFT | 73 /* SHIFT+I */,
