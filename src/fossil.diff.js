@@ -33,14 +33,10 @@ window.fossil.onPageLoad(function(){
 /*
 ** Diff keyboard navigation shortcuts:
 **
-** SHIFT+I  - Show all diffs.
-** I        - Hide all diffs.
-** P        - Show only next diff, hide all others.
-** O        - Show only previous diff, hide all others.
+** ### NOTE: The keyboard shortcuts are listed in the /vdiff help screen. ###
 **
 ** Ideas and TODOs:
 **
-**  o Documentation.
 **  o The `timeline-keyboard-navigation' branch removes the unload handler from
 **    pages containing timeline snippets, so it's no longer necessary to reset
 **    the diff toggles on back/forward navigation in case the mentioned branch

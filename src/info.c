@@ -605,6 +605,9 @@ void ci_tags_page(void){
 **
 ** The ARTIFACTID can be a unique prefix for the HASH of the check-in,
 ** or a tag or branch name that identifies the check-in.
+**
+** See the help screen for the /vdiff web page for a list of available
+** keyboard shortcuts.
 */
 void ci_page(void){
   Stmt q1, q2, q3;
@@ -1169,6 +1172,16 @@ static void checkin_description(int rid){
 **   inv             "Invert".  Exchange the roles of from= and to=
 **
 ** Show all differences between two check-ins.
+**
+** Keyboard navigation shortcuts:
+**
+**    I     Show all file changes.
+**    i     Hide all file changes.
+**    p     Show only next file change.
+**    o     Show only previous file change.
+**
+** The keyboard shortcuts also apply to /vinfo, /ci and /fdiff pages,
+** and to /info pages describing check-in information.
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
@@ -1716,6 +1729,9 @@ int preferred_diff_type(void){
 **      sbs=BOOLEAN      Turn side-by-side diffs on and off (default: on)
 **      verbose=BOOLEAN  Show more detail when describing artifacts
 **      w=BOOLEAN        Ignore whitespace
+**
+** See the help screen for the /vdiff web page for a list of available
+** keyboard shortcuts.
 */
 void diff_page(void){
   int v1, v2;
@@ -2846,6 +2862,9 @@ void tinfo_page(void){
 ** Because NAME can match so many different things (commit artifacts,
 ** wiki pages, ticket comments, forum posts...) the format of the output
 ** page depends on the type of artifact that NAME matches.
+**
+** See the help screen for the /vdiff web page for a list of available
+** keyboard shortcuts (if the NAME argument refers to a check-in).
 */
 void info_page(void){
   const char *zName;
