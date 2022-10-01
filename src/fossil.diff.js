@@ -112,7 +112,7 @@ window.fossil.onPageLoad(function(){
             btnScrollIntoView(btn[n]);
           }
         }
-        else{
+        else if( btn.length>0 ){
           btn[0].click();
           btnScrollIntoView(btn[0]);
         }
