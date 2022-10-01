@@ -1,5 +1,7 @@
 <title>Links For Fossil Users:</title>
 
+  *  [./relatedwork.md | Related Work]: projects and links related to
+     Fossil and version control.
   *  [./permutedindex.html | Documentation index] with [/search?c=d | full text search].
   *  [./reviews.wiki | Testimonials] from satisfied Fossil users and
      [./quotes.wiki | Quotes] about Fossil and other DVCSes.

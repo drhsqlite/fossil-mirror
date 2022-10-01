@@ -73,6 +73,12 @@ static const char *const azSkinFile[] = {
 static struct BuiltinSkin *pAltSkin = 0;
 static char *zAltSkinDir = 0;
 static int iDraftSkin = 0;
+/*
+** Used by skin_use_alternative() to store the current skin rank skin
+** so that the /skins page can, if warranted, warn the user that skin
+** changes won't have any effect.
+*/
+static int nSkinRank = 5;
 
 /*
 ** Skin details are a set of key/value pairs that define display
@@ -141,11 +147,10 @@ static struct SkinDetail {
 ** be used (rank 3, above), then returns 0.
 */
 char *skin_use_alternative(const char *zName, int rank){
-  static int currentRank = 5;
   int i;
   Blob err = BLOB_INITIALIZER;
-  if(rank > currentRank) return 0;
-  currentRank = rank;
+  if(rank > nSkinRank) return 0;
+  nSkinRank = rank;
   if( zName && 1==rank && strchr(zName, '/')!=0 ){
     zAltSkinDir = fossil_strdup(zName);
     return 0;
@@ -1200,12 +1205,18 @@ void skins_page(void){
   } 
   login_check_credentials();
   style_header("Skins");
-  if(zAltSkinDir && zAltSkinDir[0]){
-    @ <p class="warning">Warning: this fossil instance was started with
-    @ a hard-coded skin value which trumps any option selected below.
-    @ A skins selected below will be recorded in your prefere cookie
-    @ but will not be used until/unless the site administrator
-    @ configures the site to run without a forced hard-coded skin.
+  if( iDraftSkin || nSkinRank<=1 ){
+    @ <p class="warning">Warning:
+    if( iDraftSkin>0 ){
+      @ you are using a draft skin,
+    }else{
+      @ this fossil instance was started with a hard-coded skin
+      @ value,
+    }
+    @ which trumps any option selected below. A skin selected
+    @ below will be recorded in your preference cookie
+    @ but will not be used so long as the site has a
+    @ higher-priority skin in place.
     @ </p>
   }
   @ <p>The following skins are available for this repository:</p>

@@ -18,7 +18,6 @@
 ** until the first mousedown event that occurs after the timer expires.
 */
 var antiRobot = 0;
-var antiRobotBody = document.getElementsByTagName("body")[0];
 function antiRobotGo(){
   if( antiRobot!=3 ) return;
   antiRobot = 7;
@@ -38,15 +37,15 @@ function antiRobotDefense(){
   var jx = x.textContent || x.innerText;
   var g = JSON.parse(jx);
   if( g.mouseover ){
-    antiRobotBody.onmousedown=function(){
+    document.body.onmousedown=function(){
       antiRobot |= 2;
       antiRobotGo();
-      antiRobotBody.onmousedown=null;
+      document.body.onmousedown=null;
     }
-    antiRobotBody.onmousemove=function(){
+    document.body.onmousemove=function(){
       antiRobot |= 2;
       antiRobotGo();
-      antiRobotBody.onmousemove=null;
+      document.body.onmousemove=null;
     }
   }else{
     antiRobot |= 2;
