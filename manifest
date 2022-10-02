@@ -1,5 +1,5 @@
-C Simplification\sto\sthe\sJS\sused\sas\spart\sof\santi-robot\sdefenses.
-D 2022-09-30T12:38:48.750
+C Typo\sfixes\sin\sthe\s/dir\sbrowser\sheader:\sAll\sFile\s==>\sAll\sFiles.
+D 2022-10-02T03:58:27.064
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 50da7d17a2b7513744d1283489fad3284e15a4f014c17b6477cdf0487decd251
 F src/blob.c 7d75b41aeb78d3e7185bfe65586a47cf004a91bd0c3de678069f33c1e6956a8f
 F src/branch.c 63efb20b5a55e1f0878ded0591a67fb9632ddc4a8df6cf61346498a039d3dfd1
-F src/browse.c d3c5905872c7cf09a4d77d40c20993083e82754ad6a96cb94ac36e5a0946e106
+F src/browse.c e1c19b348f2552bad8724661dfa70f2016f54e89bd95bf32289da0abca64c3e0
 F src/builtin.c 8a0f3b41ccb25e30a161c6af3ec8c0bab1da080ca11b590a935e9f0a9e98a61c
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7c1c4e8b9e49c59322aae7c5a4dc095a7bb768e0357a5c5d594d6384b621a66
-R d911d5bb606e8e02beff5b96417a9ec1
-U drh
-Z 2ebe72ee8d072e954187c52057570f19
+P 08535b229e39e4648418f00a70e2f2cd5cea1485d239da68ca75a953ee8f7d2d
+R b4e6c57255cd445d48e06abc8dda66f0
+U stephan
+Z 008b7caef908ba47bcd99ec88a1d51a1
 # Remove this line to create a well-formed Fossil manifest.
