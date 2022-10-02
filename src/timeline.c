@@ -1648,6 +1648,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **    l     View timeline of focused entry.
 **    L     View timeline of focused entry filtered by branch.
 **    k     View details of focused entry.
+**    g     View default timeline.
+**    G     View timeline around current (check-out) entry.
 **    ESC   Disable keyboard navigation mode.
 */
 void page_timeline(void){

@@ -1,5 +1,5 @@
-C Sync\swith\strunk.
-D 2022-10-01T06:48:00.000
+C Shortcuts\sG\sand\sSHIFT+G\sto\sload\sthe\sdefault\stimeline,\sor\sthe\stimeline\saround\sthe\scurrent\scheck-out.
+D 2022-10-02T09:15:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -485,7 +485,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js 3ec37feb820e87be955b4b51e09b86bef64e678836221d8b11ffa467180093c4
+F src/graph.js 8870320a12005551a1eaa76bf4e0a68955fa3ea7057493354eb3a77153f19245
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -597,7 +597,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 779ba8e5b2d2170b1d46f8676665aa9afe30db1c165da5b014b8e9b632846854
+F src/timeline.c 7bf5173b2fb5ccdf84aed622edeec6bb56dcbf929eac028ca92ffb5148d4cdcc
 F src/tkt.c 992429510522cad383e553cd5e778b3551ea147e1c833000ea223b3ec939eca0
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29824137be667a39ba034c8ac7cbee13d82cdb085345fd7ea993f76a398a7ed0 08535b229e39e4648418f00a70e2f2cd5cea1485d239da68ca75a953ee8f7d2d
-R 635542842f5ee1807878c79c5be6fc06
+P e5c5e6f0e9da7a09a40709850a503627d37d111ec15011bc7b95f688d66b4cb0
+R ac403610116b4051e5e30595de73c226
 U florian
-Z 6000490b94abf03fc64b308378ddcf92
+Z b1b8ffc4154035aa426e4169418ca95a
 # Remove this line to create a well-formed Fossil manifest.

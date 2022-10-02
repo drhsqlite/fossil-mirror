@@ -1013,6 +1013,8 @@ function TimelineGraph(tx){
         kTMLN = 76 /* L */,
         kTMLB = mSHIFT | 76 /* SHIFT+L */,
         kVIEW = 75 /* K */,
+        kVDEF = 71 /* G */,
+        kVCUR = mSHIFT | 71 /* SHIFT+G */,
         kDONE = 27 /* ESC */,
         mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
         key = ( evt.which || evt.keyCode ) | mod;
@@ -1032,6 +1034,8 @@ function TimelineGraph(tx){
         case kTMLN:
         case kTMLB:
         case kVIEW:
+        case kVDEF:
+        case kVCUR:
         case kDONE: break;
         default: return;
       }
@@ -1067,6 +1071,23 @@ function TimelineGraph(tx){
             copyTextToClipboard(
               key==kCPYH ? ri.hash.slice(0,ri.hashdigits) : ri.branch);
           }
+        }
+        return;
+      }
+      else if( key==kVDEF || key==kVCUR ){
+        var ri = timelineGetRowInfo('m1');
+        if( ri ){
+          var page;
+          switch( key ){
+            case kVDEF:
+              page = '/timeline';
+              break;
+            case kVCUR:
+              page = '/timeline?c=current';
+              break;
+          }
+          var href = ri.baseurl + page;
+          if( href!=location.href.slice(-href.length) ) location.href = href;
         }
         return;
       }
