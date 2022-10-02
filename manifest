@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sfor\sempty\schange\sviews\s(for\sexample\scheck-ins\screated\sby\s`fossil\sbranch\snew').
-D 2022-10-01T08:39:00.000
+C Shortcuts\sU\sand\sSHIFT+U\sto\sreload\sthe\scurrent\spage\sin\sUnified\sDiff\sor\sSide-By-Side\sDiff\smode.
+D 2022-10-02T08:11:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -463,7 +463,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js 19e100098367b696140d91862e8e7789306feae941cc89e6fc00dc356c799970
+F src/fossil.diff.js f47a322a536832d19732c44881a6863accd73e3cf04fee7373ee3278f2e339bd
 F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e05e09
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -496,7 +496,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c 29537acefeb9417741cec3d293d5eee1b4005563b3ad2f86e15b458823975f33
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 2ba916df77fe22161722704e424ccfd3cb65f6c0a49afcd6e03082dcc6f6d82c
-F src/info.c 7b7fb1d6c4a26c9f583fbe28f3aec17147bea989807fe93a2ef4b0a2ab929c64
+F src/info.c de9dfe9976cad745f7c26d82aa693f6fb8ee03e53ba2cd0491b2e8de1433af22
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
 F src/json.c 264c757355a12c4c9efcef77f7f5d0f73dfc93a03f7ebdafbc4caa319e3bbc26
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 901ae7258b0bc6f6fb46edebfba4194ec7545977251204adbed4517a0dd0125f
-R a9c6f07e6e37fd74913e35891507085d
+P 4c336f372eb0960d56ba07f43124627119b3eae5d4b6bfbe998f7c3e38388768
+R 98d1c14311b9ae6b15c8739d46593511
 U florian
-Z 797c52b2e8144e79eb0962f21d42211f
+Z 062c805b6c072757d44d9a24d0f4dfa3
 # Remove this line to create a well-formed Fossil manifest.

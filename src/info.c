@@ -894,11 +894,13 @@ void ci_page(void){
     @ Hide&nbsp;Diffs</a>
   }
   if( diffType!=1 ){
-    @ %z(chref("button","%R/%s/%T?diff=1%s",zPage,zName,zW))\
+    const char *zBtnClass = "button smb-unified-diff";
+    @ %z(chref(zBtnClass,"%R/%s/%T?diff=1%s",zPage,zName,zW))\
     @ Unified&nbsp;Diffs</a>
   }
   if( diffType!=2 ){
-    @ %z(chref("button","%R/%s/%T?diff=2%s",zPage,zName,zW))\
+    const char *zBtnClass = "button smb-side-by-side-diff";
+    @ %z(chref(zBtnClass,"%R/%s/%T?diff=2%s",zPage,zName,zW))\
     @ Side-by-Side&nbsp;Diffs</a>
   }
   if( diffType!=0 ){
@@ -1179,6 +1181,8 @@ static void checkin_description(int rid){
 **    i     Hide all file changes.
 **    p     Show only next file change.
 **    o     Show only previous file change.
+**    u     Reload page in Unified Diff mode.
+**    U     Reload page in Side-By-Side Diff mode.
 **
 ** The keyboard shortcuts also apply to /vinfo, /ci and /fdiff pages,
 ** and to /info pages describing check-in information.

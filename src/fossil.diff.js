@@ -57,13 +57,17 @@ window.fossil.onPageLoad(function(){
         kHIDE = 73 /* I */,
         kNEXT = 80 /* P */,
         kPREV = 79 /* O */,
+        kUNID = 85 /* U */,
+        kSBSD = mSHIFT | 85 /* SHIFT+U */,
         mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
         key = ( evt.which || evt.keyCode ) | mod;
       switch( key ){
         case kSHOW:
         case kHIDE:
         case kNEXT:
-        case kPREV: break;
+        case kPREV:
+        case kUNID:
+        case kSBSD: break;
         default: return;
       }
       evt.preventDefault();
@@ -115,6 +119,20 @@ window.fossil.onPageLoad(function(){
         else if( btn.length>0 ){
           btn[0].click();
           btnScrollIntoView(btn[0]);
+        }
+      }
+      else if( key==kUNID || key==kSBSD ){
+        var
+          type = ( key==kUNID ? 'unified' : 'side-by-side' ),
+          link = document.querySelector('.smb-'+type+'-diff')
+                  || document.querySelector('.sml-'+type+'-diff'),
+          href;
+        if( link ){
+          if( link.dataset.href ) href = link.dataset.href;   // anti-bot
+          else href = link.href;
+        }
+        if( href && href!=location.href.slice(-href.length) ){
+          location.href = href;
         }
       }
     }/*,true*/);
