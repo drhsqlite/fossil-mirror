@@ -1016,7 +1016,7 @@ function TimelineGraph(tx){
         kVDEF = 71 /* G */,
         kVCUR = mSHIFT | 71 /* SHIFT+G */,
         kDONE = 27 /* ESC */,
-        mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
+        mod = evt.altKey<<15|evt.ctrlKey<<14|evt.shiftKey<<13|evt.metaKey<<12,
         key = ( evt.which || evt.keyCode ) | mod;
       var dx = 0;
       switch( key ){
@@ -1179,7 +1179,7 @@ function TimelineGraph(tx){
       var
         bMAIN = 0,
         mCTRL = 1<<14,
-        mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13;
+        mod = evt.altKey<<15|evt.ctrlKey<<14|evt.shiftKey<<13|evt.metaKey<<12;
       if( evt.target.tagName in { 'INPUT':1, 'SELECT':1, 'A':1 } ||
           evt.button!=bMAIN || mod!=mCTRL ){
         return;
