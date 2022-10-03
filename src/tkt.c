@@ -234,6 +234,13 @@ static void initializeVariablesFromCGI(void){
   }
 }
 
+struct TicketField {
+  char  *zValue;
+  int    mimetype;
+  int    rid;
+  double mtime;
+};
+
 /*
 ** Update an entry of the TICKET and TICKETCHNG tables according to the
 ** information in the ticket artifact given in p.  Attempt to create
@@ -244,7 +251,8 @@ static void initializeVariablesFromCGI(void){
 **
 ** Return the new rowid of the TICKET table entry.
 */
-static int ticket_insert(const Manifest *p, const int rid, int tktid){
+static int ticket_insert(const Manifest *p, const int rid, int tktid,
+                         struct TicketField *fields){
   Blob sql1; /* update or replace TICKET ... */
   Blob sql2; /* list of TICKETCHNG's fields that are in the manifest */
   Blob sql3; /* list of values which correspond to the previous list */
@@ -363,20 +371,30 @@ static int ticket_insert(const Manifest *p, const int rid, int tktid){
   blob_reset(&sql3);
   fossil_free(aUsed);
   if( rid>0 ){                   /* extract backlinks */
-    int bReplace = 1, mimetype;
     for(i=0; i<p->nField; i++){
       const char *zName = p->aField[i].zName;
       const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
       j = fieldId(zBaseName);
       if( j<0 ) continue;
       if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-        mimetype = mimetype_tktchng;
+        backlink_extract(p->aField[i].zValue, mimetype_tktchng,
+                         rid, BKLNK_TICKET, p->rDate,
+                          /* existing backlinks must have been
+                           * already deleted by the caller */ 0 );
       }else{
-        mimetype = mimetype_tkt;
+        /* update field's data with the most recent values */
+        struct TicketField *f = fields + j;
+        char *zOld = f->zValue;
+        if( zOld && zName[0]=='+' ){
+          f->zValue = mprintf("%s%s", zOld, p->aField[i].zValue);
+        }else{
+          f->zValue = fossil_strdup(p->aField[i].zValue);
+        }
+        if( zOld ) fossil_free(zOld);
+        f->mimetype = mimetype_tkt;
+        f->rid = rid;
+        f->mtime = p->rDate;
       }
-      backlink_extract(p->aField[i].zValue, mimetype, rid, BKLNK_TICKET,
-                       p->rDate, bReplace);
-      bReplace = 0;
     }
   }
   return tktid;
@@ -413,8 +431,9 @@ void ticket_rebuild_entry(const char *zTktUuid){
   int tagid = tag_findid(zTag, 1);
   Stmt q;
   Manifest *pTicket;
-  int tktid;
+  int tktid, i;
   int createFlag = 1;
+  struct TicketField *fields;
 
   fossil_free(zTag);
   getAllTicketFields();
@@ -426,18 +445,29 @@ void ticket_rebuild_entry(const char *zTktUuid){
   }
   db_multi_exec("DELETE FROM ticket WHERE tkt_id=%d", tktid);
   tktid = 0;
+  fields = fossil_malloc_zero( sizeof(fields[0]) * nField );
+  db_multi_exec("DELETE FROM backlink WHERE srctype=%d AND srcid IN "
+                "(SELECT rid FROM tagxref WHERE tagid=%d)",BKLNK_TICKET, tagid);
   db_prepare(&q, "SELECT rid FROM tagxref WHERE tagid=%d ORDER BY mtime",tagid);
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     pTicket = manifest_get(rid, CFTYPE_TICKET, 0);
     if( pTicket ){
-      tktid = ticket_insert(pTicket, rid, tktid);
+      tktid = ticket_insert(pTicket, rid, tktid, fields);
       manifest_ticket_event(rid, pTicket, createFlag, tagid);
       manifest_destroy(pTicket);
     }
     createFlag = 0;
   }
   db_finalize(&q);
+  /* Extract backlinks from the most recent values of TICKET fields */
+  for(i=0; i<nField; i++){
+    struct TicketField *f = fields + i;
+    if( f->zValue==0 ) continue;
+    backlink_extract(f->zValue,f->mimetype,f->rid,BKLNK_TICKET,f->mtime,0);
+    fossil_free(f->zValue);
+  }
+  fossil_free(fields);
 }
 
 

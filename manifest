@@ -1,5 +1,5 @@
-C Fix\snaming\sof\scolumns\son\sthe\s[/test-backlinks]\spage.
-D 2022-10-03T01:31:18.042
+C Fix\sredundant\sback-references\soriginating\sfrom\soutdated/superseded\svalues\swithin\sTICKET\stable.\sSee\sforum\sthread\s[forum:/forumthread/a6ba08e926a8cfdf|a6ba08e926].
+D 2022-10-03T01:41:24.806
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -596,7 +596,7 @@ F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c c3865971f754cf18a9c10d0efe54dac1be269ae2d69ff9e6a036d102609d7b5a
-F src/tkt.c 702a507bde16ba4bc38c06fe6bc1fe27e243658812a9fe46a5db31aba743c674
+F src/tkt.c cd44159e36fa8affb18302402b5ba5120dc5232e3742328247c6f96228d6d27c
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4bb91f38a8c337a682335bc9863435b339fca5d7a9fa5926113c09d476a95353
-R c91e0e4dffff10e2c2710e1951e9bc25
+P 6a5604f481d04426535379dd1044d017c6affaea3d96299746187156a1fa2058
+R 99c2143ae67e7bedf6b15738d550bd3f
 U george
-Z 4bd5853b70219351964a9f85729cd497
+Z 9e6f4307fbc18cd40e6c257fd6389471
 # Remove this line to create a well-formed Fossil manifest.
