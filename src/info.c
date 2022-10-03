@@ -894,11 +894,13 @@ void ci_page(void){
     @ Hide&nbsp;Diffs</a>
   }
   if( diffType!=1 ){
+    /* Class "smb-unified-diff" required by the fossil.diff.js script. */
     const char *zBtnClass = "button smb-unified-diff";
     @ %z(chref(zBtnClass,"%R/%s/%T?diff=1%s",zPage,zName,zW))\
     @ Unified&nbsp;Diffs</a>
   }
   if( diffType!=2 ){
+    /* Class "smb-side-by-side-diff" required by the fossil.diff.js script. */
     const char *zBtnClass = "button smb-side-by-side-diff";
     @ %z(chref(zBtnClass,"%R/%s/%T?diff=2%s",zPage,zName,zW))\
     @ Side-by-Side&nbsp;Diffs</a>
