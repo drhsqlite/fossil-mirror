@@ -59,7 +59,7 @@ window.fossil.onPageLoad(function(){
         kPREV = 79 /* O */,
         kUNID = 85 /* U */,
         kSBSD = mSHIFT | 85 /* SHIFT+U */,
-        mod = evt.altKey<<15 | evt.ctrlKey<<14 | evt.shiftKey<<13,
+        mod = evt.altKey<<15|evt.ctrlKey<<14|evt.shiftKey<<13|evt.metaKey<<12,
         key = ( evt.which || evt.keyCode ) | mod;
       switch( key ){
         case kSHOW:

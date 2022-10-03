@@ -1,5 +1,5 @@
-C Cross\sreference\sthe\snew\sCSS\sclasses,\sas\sthey\sappear\sfragmented\sin\sthe\sJS\spart,\sand\stherefore\scan't\sbe\sfound\sby\scode\ssearch.
-D 2022-10-03T11:06:00.000
+C Check\sthe\smeta\skey\smodifier\s(⊞|⌘|◆)\swhen\sprocessing\skeyboard\sevents.
+D 2022-10-03T11:15:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -463,7 +463,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js f47a322a536832d19732c44881a6863accd73e3cf04fee7373ee3278f2e339bd
+F src/fossil.diff.js fd81a956b26b3b28559754bcd7ae428e51ee304141e83ec1fccdacfe1b388a3c
 F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e05e09
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35cf6f30223215ae9c3f7e959af955e7a303402ca2047afb8386b5a33e917a64
-R 06cfcbdc12d18f800bdd3afc9eb8fda4
+P ec955233b837aa1f19b0cedfe4ccc30bcde38235e835096ae2675284c3fc7ef2
+R 8d6e5e1054159d18be60f178872efc95
 U florian
-Z 49c823e0491dfed67972823ce261a04c
+Z 0c6206cc0e3a3097c95752ca2a51f0f7
 # Remove this line to create a well-formed Fossil manifest.
