@@ -4,8 +4,7 @@
 <p>This checklist is loosely derived from Tom "Spot" Callaway's Fail Score
 blog post <a href="http://spot.livejournal.com/308370.html">
 http://spot.livejournal.com/308370.html</a> (see also
-<a href="http://www.theopensourceway.org/book/The_Open_Source_Way-How_to_tell_if_a_FLOSS_project_is_doomed_to_FAIL.html">[1]</a> and
-<a href="https://www.theopensourceway.org/wiki/How_to_tell_if_a_FLOSS_project_is_doomed_to_FAIL">[2]</a>).
+<a href="http://www.theopensourceway.org/book/The_Open_Source_Way-How_to_tell_if_a_FLOSS_project_is_doomed_to_FAIL.html">[1]</a>).
 Tom's original post assigned point scores to the various elements and
 by adding together the individual points, the reader is supposed to be able
 to judge the likelihood that the project will fail.

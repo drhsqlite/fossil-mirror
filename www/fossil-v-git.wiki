@@ -285,7 +285,7 @@ easy to also see "what came after".
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
-[http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
+[http://gitfaq.org/1/01/what-is-a-detached-head/|detached head
 state] problem has caused grief for
 [https://www.google.com/search?q=git+detached+head+state | many
 Git users]. With
@@ -511,7 +511,7 @@ that everyone — especially the project leader — can maintain a better
 mental picture of what is happening, leading to better situational
 awareness.
 
-By contrast, "…[https://guides.github.com/activities/forking|forking is
+By contrast, "…[https://docs.github.com/en/get-started/quickstart/contributing-to-projects|forking is
 at the core of social coding at GitHub]".  As of January 2022,
 [https://github.com/search?q=is:public|Github hosts 47 million distinct
 software projects], most of which were created by forking a
