@@ -1,5 +1,5 @@
-C Fix\ssome\sbroken\shyperlinks\sin\sdocumentation\sfiles.
-D 2022-10-04T12:54:05.861
+C Closing\soff\sthe\scontainers\sproject:\sadded\sthe\sdoc\sto\sthe\spermuted\sindex,\nnoted\sthe\schanges\sin\sthe\schangelog,\sand\sremoved\sall\sthe\shedging\sabout\nWAL\smode\sin\sthe\sdoc,\shaving\sfailed\sto\smake\sWAL\sfail\sin\sthis\sscenario.
+D 2022-10-06T02:44:52.036
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -807,7 +807,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 4b71170c0d1dd67c7d2622ae89318cd270ab4cc85ca0137934354f948bcfd8f9
+F www/changes.wiki 582384d2a0a84b8195251e37a52d0ec94fb148a2d1fc2e7cf256f12d143190ca
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -818,7 +818,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md c4f2b6c4ae8a7d63228ca6dbda5b3e9864529469389ffd0c202658280fc7f48f
+F www/containers.md b5fc583689ab6958c0e81a3e1847ce6301bf241478e94494043128275c5ec3b9
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -911,11 +911,11 @@ F www/makefile.wiki 19bd2d5843ee6277253dea41e7a540bc63bf55747a60909d22b24ad58528
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
-F www/mkindex.tcl a8d83d0f9ff81f37acbc1643e203d3231e3da9e1808992ce80e85b109e8d8600 x
+F www/mkindex.tcl 070865282d3bea35ec44cf21c51ee3446d4cd8748f2f8d5dcbd347fd113923e4 x
 F www/newrepo.wiki bbc20d277cfb9787824a4fc83cfec571b379e116a7765808d481370793c22611
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
-F www/permutedindex.html f9af06bbca0522e20efe2f0fab5b24052a060937a1e0116f142e2d4d9ccbc9db
+F www/permutedindex.html 57888c1a36ff5814a8e22fea758800b6f8e471ebc047506459a9c3bc6bfb8709
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7727f9a6fbbde92d492f35fc95ecd858a8c2378960adb7e89a366cf40060881f
-R e0422c7a0bad877810fff6a364cffdd9
-U danield
-Z fc7c39dc306a8a37301fdeffe6a4c0e7
+P a59af25f60c56da28a764a1710afb90b3808bc796443e4ff34e12e3677d17c9c
+R 64867a376ec9c5482d16ad3a9606e8f4
+U wyoung
+Z f7587067d1e3be8903837d6f2bd0c14f
 # Remove this line to create a well-formed Fossil manifest.

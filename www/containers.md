@@ -170,37 +170,10 @@ won’t know about it. It will think it needs to write *its own*
 `-journal` and `-wal` files *outside* the container, creating a high
 risk of [database corruption][dbcorr].
 
-If we map a whole directory, both sides see the same set of WAL files,
-so there is at least a *hope* that WAL will work properly across that
-boundary. The success of the scheme depends on the `mmap()` and shared
-memory system calls being coordinated properly by the OS kernel the two
-worlds share. 
-
-There is [a plan](https://tangentsoft.com/sqlite/dir/walbanger?ci=trunk)
-for proving to a reasonable level of confidence that using WAL across a
-container boundary is safe, but this effort is still in the early stages
-as of this writing.
-
-Until that’s settled, my advice to those who want to use WAL mode on
-containerized servers is to map the whole directory as shown in these
-examples, but then isolate the two sides with a secondary clone. On the
-outside, you say something like this:
-
-```
-  $ fossil clone https://user@example.com/myproject ~/museum/myproject.fossil
-```
-
-That lands you with two side-by-side clones of the repository on the
-server:
-
-```
-  ~/museum/myproject.fossil          ← local-use clone
-  ~/museum/myproject/repo.fossil     ← served by container only
-```
-
-You open the secondary clone for local use, not the one being served by
-the container. When you commit, Fossil’s autosync feature pushes the
-change up through the HTTPS link to land safely inside the container.
+If we map a whole directory, both sides see the same set of WAL files.
+[Testing](https://tangentsoft.com/sqlite/dir/walbanger?ci=trunk)
+gives us a reasonable level of confidence that using WAL across a
+container boundary is safe when used in this manner.
 
 [dbcorr]: https://www.sqlite.org/howtocorrupt.html#_deleting_a_hot_journal
 [wal]:    https://www.sqlite.org/wal.html

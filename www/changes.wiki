@@ -9,6 +9,10 @@
   *  More elements of the /info page are now inside of an accordion.
   *  Replace the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
      commands which still used the former name, for consistency.
+  *  Rebuilt the stock Dockerfile to create a "from scratch" Busybox
+     based container image (via Alpine Linux) instead of Fedora
+  *  Added a new document describing how to customize, use, and run
+     that container.
 
 <h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating
