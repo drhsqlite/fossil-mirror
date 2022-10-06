@@ -134,6 +134,11 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
         blob_append(p, "&#39;", 5);
         j = i+1;
         break;
+      case '\r':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, " ", 1);
+        j = i+1;
+        break;
     }
   }
   if( j<i ) blob_append(p, zIn+j, i-j);
