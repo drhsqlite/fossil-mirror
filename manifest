@@ -1,5 +1,5 @@
-C Assorted\supdates\ssurrounding\smy\sfslsrv\swrapper:\n\n\s\s*\s\sReflected\simprovements\sfrom\sthe\stangentsoft.com\sversion\sinto\sthis\n\s\s\s\s\ssimpler\salternative.\sAlthough\swe\sdon't\sgenerally\srecommend\suse\sof\n\s\s\s\s\sthis\sscript\sany\smore,\spreferring\ssystemd\sto\sget\sautostart\son\sboot\n\s\s\s\s\sand\sautorestart\son\scrash,\swww/server/any/none.md\sstill\srefers\sto\n\s\s\s\s\sthis\sscript,\sand\sit\sfeels\slike\sa\sregression\sto\sremove\sit.\s\sIf\n\s\s\s\s\ssomeone\sis\sinterested\sin\ssimple-as-possible\sSCGI\sservice,\sfslsrv\n\s\s\s\s\sis\sa\sfit\scompanion.\n\s\s*\s\sRemoved\sdirect\sreference\sto\sfslsrv\sfrom\swww/server/debian/service.md\n\s\s\s\s\ssince\sthe\sindirect\sreference\svia\sthe\sSCGI\sdoc\ssuffices.\n\s\s*\s\sThe\sfull-strength\snginx\sdoc\snow\srefers\sto\sboth\sof\sthese\sfslsrv\n\s\s\s\s\svariants\sin\sa\shandwavy\sway,\ssince\sit's\soutside\sthe\sscope\sof\sthat\n\s\s\s\s\sdoc\sto\scare\show\syou\sget\syour\sbackground\sSCGI\sservers\srunning.
-D 2022-10-07T22:15:16.384
+C Fixed\sa\sfew\sreferences\sto\sthe\sobsolete\stls-nginx.md\sdoc.\s\s(It\sbecame\spart\nof\sthe\soverall\snginx.md\sserver\sdoc\slong\sago.)
+D 2022-10-07T22:21:07.856
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -828,7 +828,7 @@ F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f
 F www/custom_ticket.wiki b74e5f0b26dc99bc352b289ee82517818039889697d8c61f76ef9bc51ed621eb
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
 F www/customskin.md 0fe0613ca89b524be29a996adf80e1f6be36549c660bce983dccdfa8b19e7d99
-F www/defcsp.md 81dabeac0054e46dbcb8f7633ff5fc6ab3ee38934a6d05c3c71d3a14209441f6
+F www/defcsp.md 67b48b4e320129055663647ed1bb821bf5a1ef17aaec744f20c17e783b7d735d
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 11757146dce0c3dcbd2f392a8c0f2233299b6a47eb9ea5934693667d780b5148
 F www/delta_format.wiki 5548f5376c04b82045f9b6701cac72ad85b0720b535e5a97aa96188fce2f4f60
@@ -934,7 +934,7 @@ F www/server/any/http-over-ssh.md 52ed3ad473026a50fbd5c9cd2c8df8006fef24e677448a
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
-F www/server/any/scgi.md d64d83db364b4777a1a20285f6eb7bccb63195bf9c851e165506090057d514e9
+F www/server/any/scgi.md 5e4aafb89fcdbefe8b46392b6d454886f0c1fee1eb8460a36612875843d000be
 F www/server/any/stunnel.md aec77679087d174bcb58a82aac7c20e75398065055098b217ff3ec3d7778c798
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c127ba7aae43c548c6f9d9c9eedcb617f5420245eeefd8f54e55436fce0b4de
-R eeba348aa49924e31d8c3af1f7d45edc
+P 1cbcb38cc9b6de0aaaee4aff08a3ea90a2fe2744de47a213ac4a46b81492bac5
+R bc45db6a10d20b32187ce1d3aae7668c
 U wyoung
-Z b2393ce785cc2266547e713bbfc9f240
+Z 6fc4bd310d03b75e9f46a4bd62bc8336
 # Remove this line to create a well-formed Fossil manifest.
