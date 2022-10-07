@@ -1,5 +1,5 @@
-C Updated\sthe\sdebian/nginx.md\sdoc\sfor\sUbuntu\s22.04.\s\sThe\sbiggie\sis\nsimplifying\sthe\sTLS\sconfiguration,\ssince\sthe\smanual\smethod\swe\sused\sto\nhave\sno\slonger\sseems\sto\sbe\srequired\swith\scurrent\sversions\sof\sCertbot.
-D 2022-10-07T23:06:49.455
+C Assorted\sfixes\sand\simprovements\sto\sthe\sssl.wiki\sdoc
+D 2022-10-07T23:28:45.379
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -961,7 +961,7 @@ F www/serverext.wiki 1f7594105c7e30ed1b20c9e1d87fba422cdee9b64bcd2f4c7476402f82e
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
 F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d960eda
-F www/ssl.wiki d86333efb04e0fa3b8a07740a2724a4925f6d5b1c7ceeab1d579faf7a3d7c2cd
+F www/ssl.wiki 408d992f47b1dd9c9638a7f12d5a0bab28ac35c66cb4dc2e77d8d22803509bab
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 273bf21fea37c03fad972e7a61b3bc3d90f97d4bd5f761408b5ff450096c7ee4
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 780b58bccf8ae2fe8ddb622ed353598fdce37b24e4a1614f233a73cb47446bac
-R 108cc9e5559210032dc9db957fbf962f
+P 716ae7c06994b8ee3f31e90a7128762687f2d88d38729ca6e2b91e193a2fcf45
+R 993c4322f495f3afef0d3613ce9fa447
 U wyoung
-Z fc751cd91a519d26f2d1abb630db9615
+Z bb64e6ea4ce44bb036db9b8f8b493723
 # Remove this line to create a well-formed Fossil manifest.
