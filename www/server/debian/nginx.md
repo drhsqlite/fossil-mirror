@@ -111,13 +111,17 @@ OS.
 ## <a id="scgi"></a>Running Fossil in SCGI Mode
 
 For the following nginx configuration to work, it needs to contact a
-Fossil instance speaking the SCGI protocol. There are [many ways](../)
-to set that up. For Debian type systems, we recommend
-following [our systemd system service guide](service.md).
+background Fossil instance speaking the SCGI protocol. There are
+[many ways](../) to set that up, such as [with `systemd`](./service.md)
+on mainstream Linux distros.  Another way is to [containerize][ctz] your
+repository servers, then use the [`fslsrv` wrapper for Podman][fspm] to
+generate `systemd` units for use by the front-end proxy.
 
-There are other ways to arrange for Fossil to run as a service backing
-nginx, but however you do it, you need to match up the TCP port numbers between it
+However you do it, you need to match up the TCP port numbers between it
 and those in the nginx configuration below.
+
+[ctz]:  ../../containers.md
+[fspm]: https://tangentsoft.com/fossil/dir/bin
 
 
 ## <a id="config"></a>Configuration

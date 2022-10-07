@@ -1,5 +1,5 @@
-C Added\shyperlinks\sto\sthe\snew\schangelog\sentries\sreferencing\sthe\sfiles\sin\nquestion.
-D 2022-10-06T15:42:00.451
+C Assorted\supdates\ssurrounding\smy\sfslsrv\swrapper:\n\n\s\s*\s\sReflected\simprovements\sfrom\sthe\stangentsoft.com\sversion\sinto\sthis\n\s\s\s\s\ssimpler\salternative.\sAlthough\swe\sdon't\sgenerally\srecommend\suse\sof\n\s\s\s\s\sthis\sscript\sany\smore,\spreferring\ssystemd\sto\sget\sautostart\son\sboot\n\s\s\s\s\sand\sautorestart\son\scrash,\swww/server/any/none.md\sstill\srefers\sto\n\s\s\s\s\sthis\sscript,\sand\sit\sfeels\slike\sa\sregression\sto\sremove\sit.\s\sIf\n\s\s\s\s\ssomeone\sis\sinterested\sin\ssimple-as-possible\sSCGI\sservice,\sfslsrv\n\s\s\s\s\sis\sa\sfit\scompanion.\n\s\s*\s\sRemoved\sdirect\sreference\sto\sfslsrv\sfrom\swww/server/debian/service.md\n\s\s\s\s\ssince\sthe\sindirect\sreference\svia\sthe\sSCGI\sdoc\ssuffices.\n\s\s*\s\sThe\sfull-strength\snginx\sdoc\snow\srefers\sto\sboth\sof\sthese\sfslsrv\n\s\s\s\s\svariants\sin\sa\shandwavy\sway,\ssince\sit's\soutside\sthe\sscope\sof\sthat\n\s\s\s\s\sdoc\sto\scare\show\syou\sget\syour\sbackground\sSCGI\sservers\srunning.
+D 2022-10-07T22:15:16.384
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -759,7 +759,7 @@ F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab7
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
-F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
+F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc96ce529
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 989f68bfa855f21b8e4e68458c91712ee064371488c5bee48acf88d69e7bd94d x
@@ -938,8 +938,8 @@ F www/server/any/scgi.md d64d83db364b4777a1a20285f6eb7bccb63195bf9c851e165506090
 F www/server/any/stunnel.md aec77679087d174bcb58a82aac7c20e75398065055098b217ff3ec3d7778c798
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
-F www/server/debian/nginx.md dee03f099b154c1eb91c6cc3405a5c50e1356ddc705729c752b133de9a6aa4e3
-F www/server/debian/service.md 9ad83455f8fed9dba4e14a4789ec38af0620dba30cb118241fd9caba252ac094
+F www/server/debian/nginx.md 5e607d30424dba443da1ba34456773e177f6b61d9f84eff4662e0ba351d86baa
+F www/server/debian/service.md c0e5feb9554d4a2c97442dc8f8757c04e7e2224113b953e05c07b355dd62f47a
 F www/server/index.html 38df6ea34271a0dcf6986f71812505961d15834fc36881d875192dde660c5441
 F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
 F www/server/macos/service.md cd25e3b003e88cf07713c7c5fdf6b16e1f21dae7c75cb1d6ab69946d12262f5f
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 050ba62973bfea2f367ee7243177eae493c1cc4a8c5f82b0c66d69b0b48f61b9
-R 9186b7cea8bc7e8160055bb8b416cb2b
+P 2c127ba7aae43c548c6f9d9c9eedcb617f5420245eeefd8f54e55436fce0b4de
+R eeba348aa49924e31d8c3af1f7d45edc
 U wyoung
-Z 059965840f08acf49d961166bc6fc859
+Z b2393ce785cc2266547e713bbfc9f240
 # Remove this line to create a well-formed Fossil manifest.

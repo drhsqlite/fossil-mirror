@@ -53,10 +53,11 @@ back-off logic, making this much more robust than the by-hand launches
 of `fossil` in the platform-independent Fossil server instructions.  The
 service will stay up until we explicitly tell it to shut down.
 
-A simple and useful modification to the above scheme is to add the
-`--scgi` and `--localhost` flags to the `ExecStart` line to replace the
-use of `fslsrv` in [the generic SCGI instructions](../any/scgi.md),
-giving a much more robust configuration.
+This scheme couples well with [the generic SCGI instructions][scgi] as
+it requires a way to run the underlying repository server in the
+background. Given that its service port is then proxied by SCGI, it
+follows that it doesn’t need to run as a system service. A user service
+works perfectly well for this.
 
 Because we’ve set this up as a user service, the commands you give to
 manipulate the service vary somewhat from the sort you’re more likely to
@@ -85,6 +86,8 @@ allow background services to continue to run after logout, say:
 
 You can paste the command just like that into your terminal, since
 `$USER` will expand to your login name.
+
+[scgi]: ../any/scgi.md
 
 
 
