@@ -1,5 +1,5 @@
-C Fixed\sa\sfew\sreferences\sto\sthe\sobsolete\stls-nginx.md\sdoc.\s\s(It\sbecame\spart\nof\sthe\soverall\snginx.md\sserver\sdoc\slong\sago.)
-D 2022-10-07T22:21:07.856
+C Updated\sthe\sdebian/nginx.md\sdoc\sfor\sUbuntu\s22.04.\s\sThe\sbiggie\sis\nsimplifying\sthe\sTLS\sconfiguration,\ssince\sthe\smanual\smethod\swe\sused\sto\nhave\sno\slonger\sseems\sto\sbe\srequired\swith\scurrent\sversions\sof\sCertbot.
+D 2022-10-07T23:06:49.455
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -938,7 +938,7 @@ F www/server/any/scgi.md 5e4aafb89fcdbefe8b46392b6d454886f0c1fee1eb8460a36612875
 F www/server/any/stunnel.md aec77679087d174bcb58a82aac7c20e75398065055098b217ff3ec3d7778c798
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
-F www/server/debian/nginx.md 5e607d30424dba443da1ba34456773e177f6b61d9f84eff4662e0ba351d86baa
+F www/server/debian/nginx.md aa511263e5c910792d7623bc19ef8cd26878e26f1a383a8e861cf703bbdb85ca
 F www/server/debian/service.md c0e5feb9554d4a2c97442dc8f8757c04e7e2224113b953e05c07b355dd62f47a
 F www/server/index.html 38df6ea34271a0dcf6986f71812505961d15834fc36881d875192dde660c5441
 F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cbcb38cc9b6de0aaaee4aff08a3ea90a2fe2744de47a213ac4a46b81492bac5
-R bc45db6a10d20b32187ce1d3aae7668c
+P 780b58bccf8ae2fe8ddb622ed353598fdce37b24e4a1614f233a73cb47446bac
+R 108cc9e5559210032dc9db957fbf962f
 U wyoung
-Z 6fc4bd310d03b75e9f46a4bd62bc8336
+Z fc751cd91a519d26f2d1abb630db9615
 # Remove this line to create a well-formed Fossil manifest.
