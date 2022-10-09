@@ -56,6 +56,11 @@ struct Blob {
 #define blob_buffer(X)  ((X)->aData)
 
 /*
+** Number of elements that fits into the current blob's size
+*/
+#define blob_count(X,elType)  (blob_size(X)/sizeof(elType))
+
+/*
 ** Append blob contents to another
 */
 #define blob_appendb(dest, src) \

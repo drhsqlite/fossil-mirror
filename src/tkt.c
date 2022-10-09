@@ -234,7 +234,10 @@ static void initializeVariablesFromCGI(void){
   }
 }
 
-struct TicketField {
+/*
+** Information about a single J-card
+*/
+struct jCardInfo {
   char  *zValue;
   int    mimetype;
   int    rid;
@@ -252,7 +255,7 @@ struct TicketField {
 ** Return the new rowid of the TICKET table entry.
 */
 static int ticket_insert(const Manifest *p, const int rid, int tktid,
-                         struct TicketField *fields){
+                         Blob *fields){
   Blob sql1; /* update or replace TICKET ... */
   Blob sql2; /* list of TICKETCHNG's fields that are in the manifest */
   Blob sql3; /* list of values which correspond to the previous list */
@@ -383,17 +386,20 @@ static int ticket_insert(const Manifest *p, const int rid, int tktid,
                            * already deleted by the caller */ 0 );
       }else{
         /* update field's data with the most recent values */
-        struct TicketField *f = fields + j;
-        char *zOld = f->zValue;
-        if( zOld && zName[0]=='+' ){
-          f->zValue = mprintf("%s%s", zOld, p->aField[i].zValue);
-        }else{
-          f->zValue = fossil_strdup(p->aField[i].zValue);
+        Blob *cards = fields + j;
+        struct jCardInfo card = {
+          fossil_strdup(p->aField[i].zValue),
+          mimetype_tkt, rid, p->rDate
+        };
+        if( blob_size(cards) && zName[0]!='+' ){
+          struct jCardInfo *x = (struct jCardInfo *)blob_buffer(cards);
+          struct jCardInfo *end = x + blob_count(cards,struct jCardInfo);
+          for(; x!=end; x++){
+            fossil_free( x->zValue );
+          }
+          blob_truncate(cards,0);
         }
-        if( zOld ) fossil_free(zOld);
-        f->mimetype = mimetype_tkt;
-        f->rid = rid;
-        f->mtime = p->rDate;
+        blob_append(cards, (const char*)(&card), sizeof(card));
       }
     }
   }
@@ -433,7 +439,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   Manifest *pTicket;
   int tktid, i;
   int createFlag = 1;
-  struct TicketField *fields;
+  Blob *fields;  /* array of blobs; each blob holds array of jCardInfo */
 
   fossil_free(zTag);
   getAllTicketFields();
@@ -445,7 +451,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   }
   db_multi_exec("DELETE FROM ticket WHERE tkt_id=%d", tktid);
   tktid = 0;
-  fields = fossil_malloc_zero( sizeof(fields[0]) * nField );
+  fields = blobarray_new( nField );
   db_multi_exec("DELETE FROM backlink WHERE srctype=%d AND srcid IN "
                 "(SELECT rid FROM tagxref WHERE tagid=%d)",BKLNK_TICKET, tagid);
   db_prepare(&q, "SELECT rid FROM tagxref WHERE tagid=%d ORDER BY mtime",tagid);
@@ -462,12 +468,20 @@ void ticket_rebuild_entry(const char *zTktUuid){
   db_finalize(&q);
   /* Extract backlinks from the most recent values of TICKET fields */
   for(i=0; i<nField; i++){
-    struct TicketField *f = fields + i;
-    if( f->zValue==0 ) continue;
-    backlink_extract(f->zValue,f->mimetype,f->rid,BKLNK_TICKET,f->mtime,0);
-    fossil_free(f->zValue);
+    Blob *cards = fields + i;
+    if( blob_size(cards) ){
+      struct jCardInfo *x = (struct jCardInfo *)blob_buffer(cards);
+      struct jCardInfo *end = x + blob_count(cards,struct jCardInfo);
+      for(; x!=end; x++){
+        assert( x->zValue );
+        backlink_extract(x->zValue,x->mimetype,
+                         x->rid,BKLNK_TICKET,x->mtime,0);
+        fossil_free( x->zValue );
+      }
+    }
+    blob_truncate(cards,0);
   }
-  fossil_free(fields);
+  blobarray_delete(fields,nField);
 }
 
 
