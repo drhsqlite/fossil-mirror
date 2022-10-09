@@ -209,7 +209,7 @@ Fossil is easy to build from sources. Just run
 Contrast a basic installation of Git, which takes up about
 15&nbsp;MiB on Debian 10 across 230 files, not counting the contents of
 <tt>/usr/share/doc</tt> or <tt>/usr/share/locale</tt>. If you need to
-deploy to any platform where you cannot count facilities like the POSIX
+deploy to any platform where you cannot count on facilities like the POSIX
 shell, Perl interpreter, and Tcl/Tk platform needed to fully use Git
 as part of the base platform, the full footprint of a Git installation
 extends to more like 45&nbsp;MiB and thousands of files. This complicates

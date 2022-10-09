@@ -1,5 +1,5 @@
-C Assorted\sfixes\sand\simprovements\sto\sthe\sssl.wiki\sdoc
-D 2022-10-07T23:28:45.379
+C Grammar\sfix
+D 2022-10-09T01:11:55.805
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -854,7 +854,7 @@ F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d
 F www/foss-cklist.wiki 725b2e57d2d337473ffec6a6811877f1f2292b7ae1a38e40325a3f53488902e1
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 42373b5cb455cb12c130488eaf28a1c0daccdcc2c3506bbbde229ac5f03e1dec
-F www/fossil-v-git.wiki 403decfee661bf0f69acb388a86eddf70971e9bd18d02bb0b6ea86f5ee2202c3
+F www/fossil-v-git.wiki f1aa08d03134bf49639f8b59f450e1cf6a3597387a69fa32a487e02121dde44c
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 716ae7c06994b8ee3f31e90a7128762687f2d88d38729ca6e2b91e193a2fcf45
-R 993c4322f495f3afef0d3613ce9fa447
+P 27458ef7ba9e655637239a27e2ea8514007a465b0127bf130efc441a21169289
+R d79bd4d50bb3a399ba983cdd06bd4c68
 U wyoung
-Z bb64e6ea4ce44bb036db9b8f8b493723
+Z 5c7b08468c5032ffcc902a9b56a0fd12
 # Remove this line to create a well-formed Fossil manifest.
