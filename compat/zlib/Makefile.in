@@ -7,10 +7,6 @@
 # Normally configure builds both a static and a shared library.
 # If you want to build just a static library, use: ./configure --static
 
-# To use the asm code, type:
-#    cp contrib/asm?86/match.S ./match.S
-#    make LOC=-DASMV OBJA=match.o
-
 # To install /usr/local/lib/libz.* and /usr/local/include/zlib.h, type:
 #    make install
 # To install in $HOME instead of /usr/local, use:
@@ -26,13 +22,13 @@ CFLAGS=-O
 
 SFLAGS=-O
 LDFLAGS=
-TEST_LDFLAGS=-L. libz.a
+TEST_LDFLAGS=$(LDFLAGS) -L. libz.a
 LDSHARED=$(CC)
 CPP=$(CC) -E
 
 STATICLIB=libz.a
 SHAREDLIB=libz.so
-SHAREDLIBV=libz.so.1.2.12
+SHAREDLIBV=libz.so.1.2.13
 SHAREDLIBM=libz.so.1
 LIBS=$(STATICLIB) $(SHAREDLIBV)
 
@@ -87,7 +83,7 @@ test: all teststatic testshared
 
 teststatic: static
 	@TMPST=tmpst_$$; \
-	if echo hello world | ./minigzip | ./minigzip -d && ./example $$TMPST ; then \
+	if echo hello world | ${QEMU_RUN} ./minigzip | ${QEMU_RUN} ./minigzip -d && ${QEMU_RUN} ./example $$TMPST ; then \
 	  echo '		*** zlib test OK ***'; \
 	else \
 	  echo '		*** zlib test FAILED ***'; false; \
@@ -100,7 +96,7 @@ testshared: shared
 	DYLD_LIBRARY_PATH=`pwd`:$(DYLD_LIBRARY_PATH) ; export DYLD_LIBRARY_PATH; \
 	SHLIB_PATH=`pwd`:$(SHLIB_PATH) ; export SHLIB_PATH; \
 	TMPSH=tmpsh_$$; \
-	if echo hello world | ./minigzipsh | ./minigzipsh -d && ./examplesh $$TMPSH; then \
+	if echo hello world | ${QEMU_RUN} ./minigzipsh | ${QEMU_RUN} ./minigzipsh -d && ${QEMU_RUN} ./examplesh $$TMPSH; then \
 	  echo '		*** zlib shared test OK ***'; \
 	else \
 	  echo '		*** zlib shared test FAILED ***'; false; \
@@ -109,7 +105,7 @@ testshared: shared
 
 test64: all64
 	@TMP64=tmp64_$$; \
-	if echo hello world | ./minigzip64 | ./minigzip64 -d && ./example64 $$TMP64; then \
+	if echo hello world | ${QEMU_RUN} ./minigzip64 | ${QEMU_RUN} ./minigzip64 -d && ${QEMU_RUN} ./example64 $$TMP64; then \
 	  echo '		*** zlib 64-bit test OK ***'; \
 	else \
 	  echo '		*** zlib 64-bit test FAILED ***'; false; \
@@ -124,7 +120,7 @@ infcover: infcover.o libz.a
 
 cover: infcover
 	rm -f *.gcda
-	./infcover
+	${QEMU_RUN} ./infcover
 	gcov inf*.c
 
 libz.a: $(OBJS)
@@ -204,77 +200,77 @@ gzwrite.o: $(SRCDIR)gzwrite.c
 
 adler32.lo: $(SRCDIR)adler32.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/adler32.o $(SRCDIR)adler32.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/adler32.o $(SRCDIR)adler32.c
 	-@mv objs/adler32.o $@
 
 crc32.lo: $(SRCDIR)crc32.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/crc32.o $(SRCDIR)crc32.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/crc32.o $(SRCDIR)crc32.c
 	-@mv objs/crc32.o $@
 
 deflate.lo: $(SRCDIR)deflate.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/deflate.o $(SRCDIR)deflate.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/deflate.o $(SRCDIR)deflate.c
 	-@mv objs/deflate.o $@
 
 infback.lo: $(SRCDIR)infback.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/infback.o $(SRCDIR)infback.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/infback.o $(SRCDIR)infback.c
 	-@mv objs/infback.o $@
 
 inffast.lo: $(SRCDIR)inffast.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inffast.o $(SRCDIR)inffast.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inffast.o $(SRCDIR)inffast.c
 	-@mv objs/inffast.o $@
 
 inflate.lo: $(SRCDIR)inflate.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inflate.o $(SRCDIR)inflate.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inflate.o $(SRCDIR)inflate.c
 	-@mv objs/inflate.o $@
 
 inftrees.lo: $(SRCDIR)inftrees.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inftrees.o $(SRCDIR)inftrees.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inftrees.o $(SRCDIR)inftrees.c
 	-@mv objs/inftrees.o $@
 
 trees.lo: $(SRCDIR)trees.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/trees.o $(SRCDIR)trees.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/trees.o $(SRCDIR)trees.c
 	-@mv objs/trees.o $@
 
 zutil.lo: $(SRCDIR)zutil.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/zutil.o $(SRCDIR)zutil.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/zutil.o $(SRCDIR)zutil.c
 	-@mv objs/zutil.o $@
 
 compress.lo: $(SRCDIR)compress.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/compress.o $(SRCDIR)compress.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/compress.o $(SRCDIR)compress.c
 	-@mv objs/compress.o $@
 
 uncompr.lo: $(SRCDIR)uncompr.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/uncompr.o $(SRCDIR)uncompr.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/uncompr.o $(SRCDIR)uncompr.c
 	-@mv objs/uncompr.o $@
 
 gzclose.lo: $(SRCDIR)gzclose.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzclose.o $(SRCDIR)gzclose.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzclose.o $(SRCDIR)gzclose.c
 	-@mv objs/gzclose.o $@
 
 gzlib.lo: $(SRCDIR)gzlib.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzlib.o $(SRCDIR)gzlib.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzlib.o $(SRCDIR)gzlib.c
 	-@mv objs/gzlib.o $@
 
 gzread.lo: $(SRCDIR)gzread.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzread.o $(SRCDIR)gzread.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzread.o $(SRCDIR)gzread.c
 	-@mv objs/gzread.o $@
 
 gzwrite.lo: $(SRCDIR)gzwrite.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzwrite.o $(SRCDIR)gzwrite.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzwrite.o $(SRCDIR)gzwrite.c
 	-@mv objs/gzwrite.o $@
 
 
@@ -292,10 +288,10 @@ minigzip$(EXE): minigzip.o $(STATICLIB)
 	$(CC) $(CFLAGS) -o $@ minigzip.o $(TEST_LDFLAGS)
 
 examplesh$(EXE): example.o $(SHAREDLIBV)
-	$(CC) $(CFLAGS) -o $@ example.o -L. $(SHAREDLIBV)
+	$(CC) $(CFLAGS) -o $@ example.o $(LDFLAGS) -L. $(SHAREDLIBV)
 
 minigzipsh$(EXE): minigzip.o $(SHAREDLIBV)
-	$(CC) $(CFLAGS) -o $@ minigzip.o -L. $(SHAREDLIBV)
+	$(CC) $(CFLAGS) -o $@ minigzip.o $(LDFLAGS) -L. $(SHAREDLIBV)
 
 example64$(EXE): example64.o $(STATICLIB)
 	$(CC) $(CFLAGS) -o $@ example64.o $(TEST_LDFLAGS)
