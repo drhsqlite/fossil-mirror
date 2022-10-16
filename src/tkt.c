@@ -1305,20 +1305,20 @@ void tkthistory_page(void){
     const char *zChngUuid = db_column_text(&q, 2);
     const char *zFile = db_column_text(&q, 4);
     if( nChng==0 ){
-      @ <ol>
+      @ <ol class="tkt-changes">
     }
     if( zFile!=0 ){
       const char *zSrc = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 5);
+      @
+      @ <li id="%S(zChngUuid)"><p><span>
       if( zSrc==0 || zSrc[0]==0 ){
-        @
-        @ <li id="%S(zChngUuid)"><p>Delete attachment "%h(zFile)"
+        @ Delete attachment "%h(zFile)"
       }else{
-        @
-        @ <li id="%S(zChngUuid)"><p>Add attachment
+        @ Add attachment
         @ "%z(href("%R/artifact/%!S",zSrc))%s(zFile)</a>"
       }
-      @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
+      @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]</span>
       @ (rid %d(rid)) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
@@ -1326,8 +1326,8 @@ void tkthistory_page(void){
       pTicket = manifest_get(rid, CFTYPE_TICKET, 0);
       if( pTicket ){
         @
-        @ <li id="%S(zChngUuid)"><p>Ticket change
-        @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
+        @ <li id="%S(zChngUuid)"><p><span>Ticket change
+        @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]</span>
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
