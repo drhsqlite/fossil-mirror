@@ -864,7 +864,6 @@ void forumthread_page(void){
   if( froot==0 ){
     webpage_notfound_error("Not a forum post: \"%s\"", zName);
   }
-  if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
 
   /* Decode the mode parameters. */
   if( bRaw ){
@@ -918,6 +917,7 @@ void forumthread_page(void){
   style_submenu_checkbox("hist", "History", 0, 0);
 
   /* Display the thread. */
+  if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
   forum_display_thread(froot, fpid, mode, autoMode, bUnf, bHist);
 
   /* Emit Forum Javascript. */
@@ -1399,6 +1399,7 @@ void forum_main_page(void){
   }
   style_set_current_feature("forum");
   style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
+  style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
   }else{

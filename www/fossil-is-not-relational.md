@@ -140,7 +140,7 @@ Non-SCM-relevant state includes:
 
 - Fossil's list of users and their metadata (permissions, email
   address, etc.). Artifacts themselves reference users only by their
-  user names. Artifacts neither care whether, nor guaranty that, user
+  user names. Artifacts neither care whether, nor guarantee that, user
   "drh" in one artifact is in fact the same "drh" referenced in
   another artifact.
 

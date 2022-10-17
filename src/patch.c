@@ -857,7 +857,7 @@ static void patch_diff(
 **           -f|--force     Apply the patch even though there are unsaved
 **                          changes in the current check-out.  Unsaved changes
 **                          are reverted and permanently lost.
-**           -n|--dryrun    Do nothing, but print what would have happened.
+**           -n|--dry-run   Do nothing, but print what would have happened.
 **           -v|--verbose   Extra output explaining what happens.
 **
 ** > fossil patch diff [DIRECTORY] FILENAME
@@ -886,7 +886,7 @@ static void patch_diff(
 **                              changes will be reverted and then the patch is
 **                              applied.
 **           --fossilcmd EXE    Name of the "fossil" executable on the remote  
-**           -n|--dryrun        Do nothing, but print what would have happened.
+**           -n|--dry-run       Do nothing, but print what would have happened.
 **           -v|--verbose       Extra output explaining what happens.
 **
 **
@@ -915,7 +915,7 @@ void patch_cmd(void){
   if( strncmp(zCmd, "apply", n)==0 ){
     char *zIn;
     unsigned flags = 0;
-    if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
+    if( find_option("dry-run","n",0) )  flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     zIn = patch_find_patch_filename("apply");
@@ -957,7 +957,7 @@ void patch_cmd(void){
     FILE *pIn = 0;
     unsigned flags = 0;
     const char *zFossilCmd = find_option("fossilcmd",0,1);
-    if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
+    if( find_option("dry-run","n",0) )  flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
@@ -974,7 +974,7 @@ void patch_cmd(void){
     FILE *pOut = 0;
     unsigned flags = 0;
     const char *zFossilCmd = find_option("fossilcmd",0,1);
-    if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
+    if( find_option("dry-run","n",0) )  flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();

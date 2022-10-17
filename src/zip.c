@@ -816,7 +816,7 @@ static void archive_cmd(int eType){
 **
 ** If OUTPUTFILE is an empty string or "/dev/null" then no ZIP archive is
 ** actually generated.  This feature can be used in combination with
-** the --list option to get a list of the filename that would be in the
+** the --list option to get a list of the filenames that would be in the
 ** ZIP archive had it actually been generated.
 **
 ** Options:
@@ -848,7 +848,7 @@ void zip_cmd(void){
 **
 ** If OUTPUTFILE is an empty string or "/dev/null" then no SQLAR archive is
 ** actually generated.  This feature can be used in combination with
-** the --list option to get a list of the filename that would be in the
+** the --list option to get a list of the filenames that would be in the
 ** SQLAR archive had it actually been generated.
 **
 ** Options:

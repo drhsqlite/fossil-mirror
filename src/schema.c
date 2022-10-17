@@ -586,7 +586,7 @@ const char zLocalSchemaVmerge[] =
 @ -- merge is the RECORD table entry that the file merged against.
 @ -- An id of 0 or <-3 here means the version record itself.  When
 @ -- id==(-1) that is a cherrypick merge, id==(-2) that is a
-@ -- backout merge and id==(-4) is a integrate merge.
+@ -- backout merge and id==(-4) is an integrate merge.
 @ --
 @
 @ CREATE TABLE vmerge(

@@ -678,7 +678,7 @@ is not as secure as a separate password, but it has several virtues:
 
 *   No PII other than the subscriber's email address is available to an
     attacker with the `subscriberCode`.  Nor can knowledge of the
-    `subscriberCode` lead to a email flood or other annoyance attack, as
+    `subscriberCode` lead to an email flood or other annoyance attack, as
     far as I can see.
 
 If the `subscriberCodes` for a Fossil repository are ever compromised,

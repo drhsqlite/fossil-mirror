@@ -77,7 +77,7 @@ static void compressJavascript(unsigned char *z, int *pn){
   int i, j, k;
   for(i=j=0; i<n; i++){
     unsigned char c = z[i];
-    if( c=='/' ){
+    if( c=='/' && (i==0 || z[i-1]!=':')){
       if( z[i+1]=='*' ){
         while( j>0 && (z[j-1]==' ' || z[j-1]=='\t') ){ j--; }
         for(k=i+3; k<n && (z[k]!='/' || z[k-1]!='*'); k++){}

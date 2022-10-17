@@ -523,8 +523,8 @@ void www_print_timeline(
         }else if( zCom[0]=='+' ){
           @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else if( zCom[0]==':' ){
-          @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
-          @ %h(zCom+1)</a>"
+          @ %z(href("%R/wdiff?id=%!S",zUuid))Changes</a> to wiki page
+          @ "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else{
           /* Assume this is an attachment message. It _might_ also
           ** be a legacy-format wiki log entry, in which case it
@@ -1596,7 +1596,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       All qualifying check-ins are shown unless there is
 **                       also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                    name matches one of the comma-separate GLOBLIST
+**                       name matches one of the comma-separate GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green
@@ -2780,6 +2780,10 @@ static char *timeline_entry_subst(
   blob_init(&r, 0, 0);
   blob_init(&co, 0, 0);
 
+  if( 0==zCom ){
+    zCom = "(NULL)";
+  }
+
   /* Replace LF and tab with space, delete CR */
   while( zCom[0] ){
     for(j=0; zCom[j] && zCom[j]!='\r' && zCom[j]!='\n' && zCom[j]!='\t'; j++){}
@@ -3148,7 +3152,7 @@ static int fossil_is_julianday(const char *zDate){
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the check-in comment.
 **   -W|--width N         Width of lines (default is to auto-detect). N must be
-**                        either greater than 20 or it ust be zero 0 to
+**                        either greater than 20 or it must be zero 0 to
 **                        indicate no limit, resulting in a single line per
 **                        entry.
 */

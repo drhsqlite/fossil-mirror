@@ -163,7 +163,7 @@ static void unversioned_write(
 **
 **    0:     zName does not exist in the unversioned table.
 **    1:     zName exists and should be replaced by the mtime/zHash remote.
-**    2:     zName exists and is the same as zHash but has a older mtime
+**    2:     zName exists and is the same as zHash but has an older mtime
 **    3:     zName exists and is identical to mtime/zHash in all respects.
 **    4:     zName exists and is the same as zHash but has a newer mtime.
 **    5:     zName exists and should override the mtime/zHash remote.
@@ -202,7 +202,7 @@ static int unversioned_sync_flags(unsigned syncFlags){
   if( find_option("verbose","v",0)!=0 ){
     syncFlags |= SYNC_UV_TRACE | SYNC_VERBOSE;
   }
-  if( find_option("dryrun","n",0)!=0 ){
+  if( find_option("dry-run","n",0)!=0 ){
     syncFlags |= SYNC_UV_DRYRUN | SYNC_UV_TRACE | SYNC_VERBOSE;
   }
   return syncFlags;
@@ -220,7 +220,7 @@ static int contains_whitespace(const char *zName){
 }
 
 /*
-** COMMAND: uv*
+** COMMAND: uv#
 ** COMMAND: unversioned
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
@@ -266,7 +266,7 @@ static int contains_whitespace(const char *zName){
 **
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
-**                              -n|--dryrun      Show what would have happened
+**                              -n|--dry-run     Show what would have happened
 **
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
@@ -283,7 +283,7 @@ static int contains_whitespace(const char *zName){
 **
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
-**                              -n|--dryrun      Show what would have happened
+**                              -n|--dry-run     Show what would have happened
 **
 **    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **

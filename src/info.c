@@ -183,7 +183,7 @@ static void showParentProject(void){
 ** If the argument is a repository name, then the --verbose option shows
 ** all known check-out locations for that repository and all URLs used
 ** to access the repository.  The --verbose is (currently) a no-op if
-** the argument is the name of a object within the repository.
+** the argument is the name of an object within the repository.
 **
 ** Use the "finfo" command to get information about a specific
 ** file in a checkout.
@@ -682,7 +682,8 @@ void ci_page(void){
     zDate = db_column_text(&q1,1);
     zOrigDate = db_column_text(&q1, 4);
     if( zOrigDate==0 ) zOrigDate = zDate;
-    @ <div class="section">Overview</div>
+    @ <div class="section accordion">Overview</div>
+    @ <div class="accordion_panel">
     @ <table class="label-value">
     @ <tr><th>Comment:</th><td class="infoComment">\
     @ %!W(zEComment?zEComment:zComment)</td></tr>
@@ -870,13 +871,17 @@ void ci_page(void){
     login_anonymous_available();
   }
   db_finalize(&q1);
+  @ </div>
+  builtin_request_js("accordion.js");  
   if( !PB("nowiki") ){
     wiki_render_associated("checkin", zUuid, 0);
   }
-  render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
-  @ <div class="section">Context</div>
+  render_backlink_graph(zUuid, 
+       "<div class=\"section accordion\">References</div>\n");
+  @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
-  @ <div class="section">Changes</div>
+  @ </div><div class="section accordion">Changes</div>
+  @ <div class="accordion_panel">
   @ <div class="sectionmenu">
   pCfg = construct_diff_flags(diffType, &DCfg);
   DCfg.pRe = pRe;  
@@ -909,7 +914,7 @@ void ci_page(void){
   if( g.perm.Admin ){
     @ %z(chref("button","%R/mlink?ci=%!S",zUuid))MLink Table</a>
   }
-  @</div>
+  @ </div>
   if( pRe ){
     @ <p><b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b></p>
@@ -937,6 +942,7 @@ void ci_page(void){
                             pCfg,mperm);
   }
   db_finalize(&q3);
+  @ </div>
   append_diff_javascript(diffType);
   style_finish_page();
 }
@@ -2449,7 +2455,7 @@ void artifact_page(void){
 
   if( zCI==0 && !isFile ){
     /* If there is no ci= query parameter, then prefer to interpret
-    ** name= as a hash for /artifact and /whatis.  But for not for /file.
+    ** name= as a hash for /artifact and /whatis.  But not for /file.
     ** For /file, a name= without a ci= will prefer to use the default
     ** "tip" value for ci=. */
     rid = name_to_rid(zName);
@@ -3541,7 +3547,6 @@ void ci_amend_cmd(void){
   fClose = find_option("close",0,0)!=0;
   fHide = find_option("hide",0,0)!=0;
   fDryRun = find_option("dry-run","n",0)!=0;
-  if( fDryRun==0 ) fDryRun = find_option("dryrun","n",0)!=0;
   zChngTime = find_option("date-override",0,1);
   if( zChngTime==0 ) zChngTime = find_option("chngtime",0,1);
   zUserOvrd = find_option("user-override",0,1);

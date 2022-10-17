@@ -588,7 +588,10 @@ void user_edit(void){
   style_submenu_element("Cancel", "%s", cgi_referer("setup_ulist"));
   if( uid ){
     style_header("Edit User %h", zLogin);
-    style_submenu_element("Access Log", "%R/access_log?u=%t", zLogin);
+    if( !login_is_special(zLogin) ){
+      style_submenu_element("Access Log", "%R/access_log?u=%t", zLogin);
+      style_submenu_element("Timeline","%R/timeline?u=%t", zLogin);
+    }
   }else{
     style_header("Add A New User");
   }

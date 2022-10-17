@@ -40,7 +40,7 @@
 
 #if INTERFACE
 
-/* Many APIs take a eFType argument which must be one of ExtFILE, RepoFILE,
+/* Many APIs take an eFType argument which must be one of ExtFILE, RepoFILE,
 ** or SymFILE.
 **
 ** The difference is in the handling of symbolic links.  RepoFILE should be
@@ -495,6 +495,7 @@ int file_chdir(const char *zChDir, int bChroot){
   if( !rc && bChroot ){
     rc = chroot(zPath);
     if( !rc ) rc = chdir("/");
+    g.fJail = 1;
   }
 #endif
   fossil_path_free(zPath);
@@ -2494,8 +2495,7 @@ void touch_cmd(){
 
   verboseFlag = find_option("verbose","v",0)!=0;
   quietFlag = find_option("quiet","q",0)!=0 || g.fQuiet;
-  dryRunFlag = find_option("dry-run","n",0)!=0
-    || find_option("dryrun",0,0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
   zGlobList = find_option("glob", "g",1);
   zGlobFile = find_option("globfile", "G",1);
 

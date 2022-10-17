@@ -5838,10 +5838,7 @@ static void pik_move_hdg(
     n = pik_next_rpath(p, pErr);
   }while( n<1 );
   if( pHeading ){
-    if( rHdg<0.0 || rHdg>360.0 ){
-      pik_error(p, pHeading, "headings should be between 0 and 360");
-      return;
-    }
+    rHdg = fmod(rHdg,360.0);
   }else if( pEdgept->eEdge==CP_C ){
     pik_error(p, pEdgept, "syntax error");
     return;
@@ -7891,9 +7888,10 @@ static void usage(const char *argv0){
   fprintf(stderr, "usage: %s [OPTIONS] FILE ...\n", argv0);
   fprintf(stderr,
     "Convert Pikchr input files into SVG.  Filename \"-\" means stdin.\n"
+    "All output goes to stdout.\n"
     "Options:\n"
     "   --dont-stop      Process all files even if earlier files have errors\n"
-    "   --svg-only       Omit raw SVG without the HTML wrapper\n"
+    "   --svg-only       Emit raw SVG without the HTML wrapper\n"
   );
   exit(1);
 }
@@ -8133,4 +8131,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8161 "pikchr.c"
+#line 8159 "pikchr.c"

@@ -695,21 +695,34 @@ void stash_cmd(void){
       undo_finish();
     }
   }else
-  if( memcmp(zCmd, "pop", nCmd)==0 ){
-    if( g.argc>3 ) usage("pop");
-    stashid = stash_get_id(0);
+  if( memcmp(zCmd, "pop", nCmd)==0 ||  memcmp(zCmd, "apply", nCmd)==0 ){
+    char *zCom = 0, *zDate = 0, *zHash = 0;
+    int popped = *zCmd=='p';
+    if( popped ){
+      if( g.argc>3 ) usage("pop");
+      stashid = stash_get_id(0);
+    }else{
+      if( g.argc>4 ) usage("apply STASHID");
+      stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    }
+    zCom = db_text(0, "SELECT comment FROM stash WHERE stashid=%d", stashid);
+    zDate = db_text(0, "SELECT datetime(ctime) FROM stash WHERE stashid=%d",
+        stashid);
+    zHash = db_text(0, "SELECT hash FROM stash WHERE stashid=%d", stashid);
     undo_begin();
     stash_apply(stashid, 0);
-    undo_save_stash(stashid);
+    if( popped ) undo_save_stash(stashid);
+    fossil_print("%s stash:\n%5d: [%.14s] from %s\n",
+        popped ? "Popped" : "Applied", stashid, zHash, zDate);
+    if( zCom && *zCom ){
+      fossil_print("       ");
+      comment_print(zCom, 0, 7, -1, get_comment_format());
+    }
+    fossil_free(zCom);
+    fossil_free(zDate);
+    fossil_free(zHash);
     undo_finish();
-    stash_drop(stashid);
-  }else
-  if( memcmp(zCmd, "apply", nCmd)==0 ){
-    if( g.argc>4 ) usage("apply STASHID");
-    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    undo_begin();
-    stash_apply(stashid, 0);
-    undo_finish();
+    if( popped ) stash_drop(stashid);
   }else
   if( memcmp(zCmd, "goto", nCmd)==0 ){
     int nConflict;

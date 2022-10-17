@@ -36,6 +36,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   Blob sql;
   Stmt q;
   char *zGlob;
+  int needEndPanel = 0;
   zGlob = mprintf("%.5s*", zUuid);
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);\n"
@@ -51,7 +52,13 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
      zGlob, zUuid
   );
   if( !db_exists("SELECT 1 FROM ok") ) return;
-  if( zLabel ) cgi_printf("%s", zLabel);
+  if( zLabel ){
+    cgi_printf("%s", zLabel);
+    if( strstr(zLabel, "accordion")!=0 ){
+      cgi_printf("<div class=\"accordion_panel\">\n");
+      needEndPanel = 1;
+    }
+  }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
@@ -60,6 +67,9 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
       TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS,
                      0, 0, 0, 0, 0, 0);
   db_finalize(&q);
+  if( needEndPanel ){
+    cgi_printf("</div>\n");
+  }
 }
 
 /*
@@ -367,7 +377,7 @@ void test_backlinks_cmd(void){
   }
   srctype = atoi(g.argv[2]);
   if( srctype<0 || srctype>2 ){
-    fossil_fatal("SRCTYPE should be a integer 0, 1, or 2");
+    fossil_fatal("SRCTYPE should be an integer 0, 1, or 2");
   }
   srcid = atoi(g.argv[3]);
   blob_read_from_file(&in, g.argv[4], ExtFILE);

@@ -2125,29 +2125,29 @@ void login_group_leave(char **pzErrMsg){
 ** Run various subcommands to manage login-group related settings of the open
 ** repository or of the repository identified by the -R or --repository option.
 **
-** >  fossil login-group
+** >  fossil login-group ?-R REPO?
 **
-**     Show the login-group to which the repository belongs.
+**     Show the login-group to which REPO, or if invoked from within a checkout
+**     the repository on which the current checkout is based, belongs.
 **
-** >  fossil login-group join ?--name NAME?
+** >  fossil login-group join ?-R? REPO ?--name NAME?
 **
-**     Add this repository to login group to which REPO belongs, or creates a
-**     new login group between itself and REPO if REPO does not already belong
-**     to a login-group.  When creating a new login-group, the name of the new
-**     group is determined by the "--name" option.
+**     This subcommand must be invoked from within a checkout to either: add
+**     the open repository to the login group that REPO is a member, in which
+**     case the optional "--name" argument is not required; or create a new
+**     login group between the open repository and REPO, in which case the new
+**     group NAME is determined by the mandatory "--name" option. REPO may be
+**     specified with or without the -R flag.
 **
-** >  fossil login-group leave
+** >  fossil login-group leave ?-R REPO?
 **
-**     Takes the repository out of whatever login group it is currently 
-**     a part of.
-**
-** Options valid for all subcommands:
-**
-**     -R|--repository REPO       Run commands on repository REPO
+**     Take the repository REPO, or if invoked from within a checkout the
+**     repository on which the current checkout is based, out of whatever
+**     login group it is a member.
 **
 ** About Login Groups:
-** 
-** A login-group is a set of repositories that share user credentials.  
+**
+** A login-group is a set of repositories that share user credentials.
 ** If a user is logged into one member of the group, then that user can
 ** access any other group member as long as they have an entry in the USER
 ** table of that member.  If a user changes their password using web
@@ -2165,13 +2165,13 @@ void login_group_command(void){
     nCmd = (int)strlen(zCmd);
     if( strncmp(zCmd,"join",nCmd)==0 && nCmd>=1 ){
       const char *zNewName = find_option("name",0,1);
-      const char *zOther;
+      const char *zOther = g.zRepositoryOption
+        ? g.zRepositoryOption : (g.argc>3 ? g.argv[3] : 0);
       char *zErr = 0;
       verify_all_options();
-      if( g.argc!=4 ){
-        fossil_fatal("unknown extra arguments to \"login-group join\"");
+      if( g.zRepositoryOption ? g.argc!=3 : g.argc!=4 ){
+        fossil_fatal("unexpected argument count for \"login-group join\"");
       }
-      zOther = g.argv[3];
       login_group_leave(&zErr);
       sqlite3_free(zErr);
       zErr = 0;
@@ -2204,7 +2204,7 @@ void login_group_command(void){
     return;
   }
   fossil_print("Now part of login-group \"%s\" with:\n", zLGName);
-  db_prepare(&q, "SELECT value FROM config WHERE name LIKE 'peer-name-%%'");
+  db_prepare(&q, "SELECT value FROM config WHERE name LIKE 'peer-repo-%%'");
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("  %s\n", db_column_text(&q,0));
   }

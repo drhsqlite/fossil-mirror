@@ -259,8 +259,8 @@ decreasing order of simplicity and preference:
     domain, so the browser cannot distinguish Fossil-provided content
     from static content served directly by the proxy server.
 
-    This method opens up many other potential benefits, such as [TLS
-    encryption](./tls-nginx.md), high-performance tuning via custom HTTP
+    This method opens up many other potential benefits, such as
+    [TLS encryption][tls], high-performance tuning via custom HTTP
     headers, integration with other web technologies like PHP, etc.
 
 You might wonder why we rank in-repo content as most preferred above. It
@@ -302,6 +302,7 @@ Thus our recommendation that you refer to in-repo resources exclusively.
 [spof]: https://en.wikipedia.org/wiki/Single_point_of_failure
 [tkt]:  ./tickets.wiki
 [tn]:   ./event.wiki
+[tls]:  ./server/debian/nginx.md 
 [uu]:   /help?cmd=/uv
 [uv]:   ./unvers.wiki
 [wiki]: ./wikitheory.wiki

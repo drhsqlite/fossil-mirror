@@ -246,7 +246,7 @@ static int is_trailing_punct(char c){
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
 **   *  artifact hash (optionally enclosed in [...])
-**   *  4-character or larger prefix of a artifact
+**   *  4-character or larger prefix of an artifact
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
 **   *  Date or date-time
@@ -847,9 +847,17 @@ char const * whatis_rid_type_label(int rid){
 }
 
 /*
+** Flag values for whatis_rid().
+*/
+#if INTERFACE
+#define WHATIS_VERBOSE 0x01    /* Extra output */
+#define WHATIS_BRIEF   0x02    /* Omit unnecessary output */
+#endif
+
+/*
 ** Generate a description of artifact "rid"
 */
-void whatis_rid(int rid, int verboseFlag){
+void whatis_rid(int rid, int flags){
   Stmt q;
   int cnt;
 
@@ -861,7 +869,7 @@ void whatis_rid(int rid, int verboseFlag){
      "   AND rcvfrom.rcvid=blob.rcvid",
      rid);
   if( db_step(&q)==SQLITE_ROW ){
-    if( verboseFlag ){
+    if( flags & WHATIS_VERBOSE ){
       fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
       fossil_print("size:       %d bytes\n", db_column_int(&q,1));
       fossil_print("received:   %s from %s\n",
@@ -942,9 +950,13 @@ void whatis_rid(int rid, int verboseFlag){
     "   AND filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
-    " ORDER BY event.mtime DESC /*sort*/",
-    rid);
+    " ORDER BY event.mtime %s /*sort*/",
+    rid, 
+    (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
+    if( flags & WHATIS_BRIEF ){
+      fossil_print("mtime:      %s\n", db_column_text(&q,2));
+    }
     fossil_print("file:       %s\n", db_column_text(&q,0));
     fossil_print("            part of [%S] by %s on %s\n",
       db_column_text(&q, 1),
@@ -977,7 +989,7 @@ void whatis_rid(int rid, int verboseFlag){
     fossil_print("attachment: %s\n", db_column_text(&q,0));
     fossil_print("            attached to %s %s\n",
                  db_column_text(&q,5), db_column_text(&q,4));
-    if( verboseFlag ){
+    if( flags & WHATIS_VERBOSE ){
       fossil_print("            via %s (%d)\n",
                    db_column_text(&q,7), db_column_int(&q,6));
     }else{

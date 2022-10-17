@@ -599,7 +599,7 @@ static int listItemLength(const char *z, const char listChar){
 }
 
 /*
-** Check to see if the z[] string is the beginning of a enumeration value.
+** Check to see if the z[] string is the beginning of an enumeration value.
 ** If it is, return the length of the bullet text.  Otherwise return 0.
 **
 ** Syntax:

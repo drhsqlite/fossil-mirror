@@ -92,7 +92,7 @@ int read_file(char const *zFilename, unsigned char ** zContent,
     goto end;
   }
   zMem[fpos] = 0;
-  if((size_t)1 != fread(zMem, (size_t)fpos, 1, f)){
+  if(fpos && (size_t)1 != fread(zMem, (size_t)fpos, 1, f)){
     rc = EIO;
     err("Error #%d reading file %s", rc, zFilename);
     goto end;

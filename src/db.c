@@ -127,7 +127,7 @@ static struct DbLocalData {
   struct sCommitHook {
     int (*xHook)(void);         /* Functions to call at db_end_transaction() */
     int sequence;               /* Call functions in sequence order */
-  } aHook[5];
+  } aHook[6];
   char *azDeleteOnFail[3];  /* Files to delete on a failure */
   char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
   int nBeforeCommit;        /* Number of entries in azBeforeCommit */
@@ -1466,6 +1466,10 @@ void db_add_aux_functions(sqlite3 *db){
                           db_win_reserved_func,0,0);
   sqlite3_create_function(db, "url_nouser", 1, SQLITE_UTF8, 0,
                           url_nouser_func,0,0);
+  sqlite3_create_function(db, "chat_msg_from_event", 4,
+        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0, 
+        chat_msg_from_event, 0, 0);
+                           
 }
 
 #if USE_SEE
@@ -1616,6 +1620,7 @@ void db_read_saved_encryption_key_from_process_via_th1(
 ){
   int rc;
   char *zResult;
+  char *zPwd = file_getcwd(0, 0);
   Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_NEED_CONFIG | TH_INIT_NO_REPO);
   rc = Th_Eval(g.interp, 0, zConfig, -1);
   zResult = (char*)Th_GetResult(g.interp, 0);
@@ -1629,6 +1634,8 @@ void db_read_saved_encryption_key_from_process_via_th1(
     parse_pid_key_value(zResult, &processId, &pAddress, &nSize);
     db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
   }
+  file_chdir(zPwd, 0);
+  fossil_free(zPwd);
 }
 #endif /* defined(_WIN32) */
 #endif /* USE_SEE */
@@ -2805,7 +2812,7 @@ void db_initial_setup(
 }
 
 /*
-** COMMAND: new*
+** COMMAND: new#
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
@@ -3049,7 +3056,7 @@ LOCAL void db_win_reserved_func(
 }
 
 /*
-** Convert the input string into a artifact hash.  Make a notation in the
+** Convert the input string into an artifact hash.  Make a notation in the
 ** CONCEALED table so that the hash can be undo using the db_reveal()
 ** function at some later time.
 **
@@ -4254,16 +4261,17 @@ struct Setting {
 */
 /*
 ** SETTING: ignore-glob      width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB
-** patterns specifying files that the "add", "addremove",
-** "clean", and "extras" commands will ignore.
+** The value is a list of GLOB patterns, separated by spaces,
+** commas, or newlines, specifying files that the "add",
+** "addremove", "clean", and "extras" commands will ignore.
 **
-** Example:  *.log customCode.c notes.txt
+** Example:  *.log, customCode.c, notes.txt
 */
 /*
 ** SETTING: keep-glob        width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB
-** patterns specifying files that the "clean" command will keep.
+** The value is list of GLOB patterns, separated by spaces,
+** commas, or newlines, specifying files that the "clean"
+** command will keep.
 */
 /*
 ** SETTING: localauth        boolean default=off
@@ -4771,7 +4779,7 @@ void test_timespan_cmd(void){
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
 **
 ** Options:
-**    --dryrun | -n         No changes.  Just print what would happen.
+**    --dry-run | -n        No changes.  Just print what would happen.
 */
 void test_without_rowid(void){
   int i, j;

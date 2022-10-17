@@ -1,6 +1,20 @@
 <title>Change Log</title>
 
-<h2 id='v2_19'>Changes for version 2.19 (pending)</h2>
+<h2 id='v2_20'>Changes for version 2.20 (pending)</h2>
+  *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If
+     it is not an empty string, then any changes that would appear on the timeline
+     are announced in [./chat.md|the chat room].
+  *  The /unsubscribe page now requests comformation. [./alerts.md|Email notifications]
+     now contain only an "Unsubscribe" link, and not a link to subscription management.
+  *  More elements of the /info page are now inside of an accordion.
+  *  Replace the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
+     commands which still used the former name, for consistency.
+  *  Rebuilt [/file/Dockerfile | the stock Dockerfile] to create a "from scratch"
+     Busybox based container image via an Alpine Linux intermediary
+  *  Added [/doc/trunk/www/containers.md | a new document] describing how to
+     customize, use, and run that container.
+
+<h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating
      sequence, so that filenames that contains embedded integers sort in
      numeric order even if they contain a different number of digits.
@@ -37,6 +51,7 @@
      to restrict the displayed items to a specific branch.
   *  Add the "--versions" option to "[/help?cmd=diff|fossil diff]"
      to display details about the compared versions into the patch header.
+  *  Numerous other minor enhancements.
 
 <h2 id='v2_18'>Changes for version 2.18 (2022-02-23)</h2>
   *  Added support for [./ssl-server.md|SSL/TLS server mode] for commands
@@ -1731,7 +1746,7 @@
 <h2>Changes For Version 1.18 (2011-07-14)</h2>
   *  Added this Change Log
   *  Added sequential version numbering
-  *  Added a optional configure script - the Makefile still works for most
+  *  Added an optional configure script - the Makefile still works for most
      systems.
   *  Improvements to the "annotate" algorithm: only search primary
      ancestors and ignore branches.

@@ -42,11 +42,13 @@ you to understand some of the other Fossil docs better.
 
 
 <a id="mwd"></a>
-## Repositories And Checkouts Are Distinct
+## Repositories and Checkouts Are Distinct
 
-A repository and a check-out are distinct concepts in Fossil, whereas
-the two are collocated by default with Git. This difference shows up in
-several separate places when it comes to moving from Git to Fossil.
+A repository and a check-out are distinct in Fossil, allowing them to be
+stored in separate directory trees, whereas the two are commingled by
+default with Git, with the repository stored in a `.git` subdirectory
+underneath your working directory. This difference shows up in several
+separate places when it comes to moving from Git to Fossil.
 
 
 
@@ -54,13 +56,12 @@ several separate places when it comes to moving from Git to Fossil.
 
 A Fossil repository is a SQLite database storing the entire history of a
 project. It is not normally stored inside the working tree.
-A Fossil working tree — also called a check-out — is a directory
+A Fossil working tree — [also called a check-out](./glossary.md#check-out) — is a directory
 that contains a snapshot of your project that you are currently working
 on, extracted for you from the repository database file by the `fossil`
 program.
 
-Git commingles these two by default, with the repository stored in a
-`.git` subdirectory underneath your working directory. There are ways to
+There are ways to
 [emulate the Fossil working style in Git](#worktree), but because they’re not
 designed into the core concept of the tool, Git tutorials usually
 advocate a switch-in-place working mode instead, so that is how most
@@ -115,7 +116,7 @@ Someone coming from the Git perspective may perceive that `fossil up`
 has two purposes:
 
 *   Without the optional `VERSION` argument, it updates the working
-    checkout to the tip of the current branch, as `git pull` does.
+    check-out to the tip of the current branch, as `git pull` does.
 
 *   Given a `VERSION` argument, it updates to the named version. If that’s the
     name of a branch, it updates to the *tip* of that branch, as
@@ -184,9 +185,9 @@ trees:
 The symlink trick has a number of problems, the largest being that
 symlinks weren’t available on Windows until Vista, and until the Windows
 10 Creators Update was released in spring of 2017, you had to be an
-Administrator to use the feature besides. ([Source][wsyml]) Git solved
+Administrator to use the feature besides. ([Source][wsyml]) Git 2.5 solved
 this problem back when Windows XP was Microsoft’s current offering
-with the `git-worktree` command, added in Git 2.5:
+by adding the `git-worktree` command:
 
         git worktree add ../foo-branch foo-branch
         cd ../foo-branch
@@ -197,11 +198,13 @@ That is approximately equivalent to this in Fossil:
         cd ../foo-branch
         fossil open /path/to/repo.fossil foo-branch
 
-The Fossil alternative is wordier, but this tends to be one-time setup,
-not something you do everyday. This author keeps a “scratch” checkout
-for cases where is isn’t appropriate to reuse the “trunk” checkout. The
-other peer checkouts therefore tend to track long-lived branches, so
-they rarely change once a development machine is set up.
+The Fossil alternative is wordier, but since this tends to be one-time setup,
+not something you do everyday, the overhead is insignificant. This author keeps a “scratch” check-out
+for cases where it’s inappropriate to reuse the “trunk” check-out,
+isolating all of my expedient switch-in-place actions to that one
+working directory. Since the other peer check-outs track long-lived
+branches, and that set rarely changes once a development machine is set
+up, I rarely pay the cost of these wordier commands.
 
 That then leads us to the closest equivalent in Git to [closing a Fossil
 check-out](#close):
@@ -221,23 +224,11 @@ This allows you to have your Git repository directory entirely separate
 from your working tree, with `.git` in the check-out directory being a
 file that points to `../repo.git`, in this example.
 
-As of Fossil 2.14, there is a direct equivalent:
-
-        fossil clone https://example.com/repo
-
-It’s a shorter command because we deduce `repo.fossil` and the `repo/`
-working directory from the last element of the path in the URI. If you
-wanted to override both deductions, you’d say:
-
-        fossil clone --workdir foo https://example.com/repo/bar
-
-That gets you `bar.fossil` with a `foo/` working directory alongside it.
-
 [mcw]:   ./ckout-workflows.md#mcw
 [wsyml]: https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
 
 
-#### <a id="iip"></a> Init In Place
+#### <a id="iip"></a> Init in Place
 
 To illustrate the differences that Fossil’s separation of repository
 from working directory creates in practice, consider this common Git “init in place”
@@ -273,7 +264,7 @@ purposes of this example.
 We’ve drawn this example to create a tight parallel between Fossil and
 Git, not to commend this `.fsl`-at-project-root trick to you. A better
 choice would be `~/museum/home/long-established-project.fossil`, if
-you’re following [the directory scheme exemplified above](#rname). That said, it
+you’re following [the directory scheme exemplified in the glossary](./glossary.md#repository). That said, it
 does emphasize an earlier point: Fossil doesn’t care where you put the
 repo DB file or what you name it.
 
@@ -300,7 +291,9 @@ using indexed SQL lookups, which generally have the info you would have
 to manually extract from `git log`, produced much more quickly than Git
 can, all else being equal: operations over [SQLite’s B-tree data structures][btree]
 generally run in O(log n) time, faster than O(n) for equal *n* when the
-constants are equal. Yet the constants are *not* equal because Fossil
+constants are equal.
+
+Yet the constants are *not* equal because Fossil
 reads from a single disk file rather than visit potentially many
 files in sequence as Git must, so the OS’s buffer cache can result in
 [still better performance][35pct].
@@ -432,14 +425,14 @@ intermediate like “`f time desc curr`”, which is reasonably clear.
 
 ## <a id="dhead"></a> Detached HEAD State
 
-The SQL indexes in Fossil which we brought up above have a very useful
+The SQL indexes in Fossil which we brought up above have a useful
 side benefit: you cannot have a [detached HEAD state][gdh] in Fossil,
 the source of untold pain and data loss in Git. It simply cannot be done
 in Fossil, because the indexes always let us find our way back into the
 hash tree.
 
 
-## <a id="slcom"></a> Summary Line Convention In Commit Comments
+## <a id="slcom"></a> Summary Line Convention in Commit Comments
 
 The Git convention of a [length-limited summary line][lsl] at the start
 of commit comments is not enforced or obeyed by default in Fossil.
@@ -508,14 +501,19 @@ changes there, and only commit once we’re sure it’s right.
 
 This also explains why we don’t have anything like `git rebase -i`
 to split an existing commit: in Fossil, commits are *commitments,* not
-something you want to go back and rewrite later.
+something you’re allowed to go back and rewrite later.
 
 If someone does [contribute][ctrb] a commit splitting feature to Fossil,
 we’d expect it to be an interactive form of
 [`fossil stash apply`][stash], rather than follow Git’s ill-considered
 design leads.
 
+Until then, there’s the third-party tool [`fnc`][fnc] and
+[its interactive `stash` command][fncsta].
+
 [ctrb]:      https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
+[fnc]:       https://fnc.bsdbox.org/
+[fncsta]:    https://fnc.bsdbox.org/uv/doc/fnc.1.html#stash
 [gcspl]:     https://git-scm.com/docs/git-rebase#_splitting_commits
 [Patchouli]: https://pypi.org/project/patchouli/
 
@@ -605,7 +603,7 @@ system while retaining the advantages of distributed version control:
     disconnected; your changes will sync up with the remote once you get
     back online.
 
-3.  Because there is little distinction between the clones in the Fossil
+3.  Because there is [little distinction][bu] between the clones in the Fossil
     model — unlike in Git, where clones often quickly diverge from each
     other, quite possibly on purpose — the backup advantage applies in inverse
     as well: if the remote server falls over dead, one of those with a
@@ -614,8 +612,6 @@ system while retaining the advantages of distributed version control:
     remote.  If the failed remote comes back later, it can sync with the
     new central version, then perhaps take over as the primary source of
     truth once again.
-
-    (There are caveats to this, [covered elsewhere][bu].)
 
 [bu]:    ./backup.md
 [setup]: ./caps/admin-v-setup.md#apsu
@@ -669,7 +665,7 @@ this branch on the GitHub side.
 
 
 <a id="unmanaged"></a>
-## The "`fossil status`" Command Does Not Show Unmanaged Files
+## Status Does Not Show Unmanaged Files
 
 The "`fossil status`" command shows you what files in your check-out have
 been edited and scheduled for adding or removing at the next commit.
@@ -702,34 +698,48 @@ We [covered this and the workaround for its lack](#csplit) above.
 
 ## <a id="cdiff"></a> Colorized Diffs
 
-The graphical diffs in the Fossil web UI and `fossil diff --tk` use
-color to distinguish insertions, deletions, and replacements, but unlike
-with `git diff` when the output is to an ANSI X3.64 capable terminal,
-`fossil diff` does not.
+When you run `git diff` on an ANSI X3.64 capable terminal, it uses color
+to distinguish insertions, deletions, and replacements, but as of this
+writing, `fossil diff` produces traditional uncolored [unified diff
+format][udiff] output, suitable for producing a [patch file][pfile].
 
-There are a few easy ways to add this feature to Fossil, though.
+Nevertheless, there are multiple ways to get colorized diff output from
+Fossil:
 
-One is to install
-[`colordiff`][cdiff], which is included in [many package systems][cdpkg],
-then say:
+*   The most direct method is to delegate diff behavior back to Git:
 
-        fossil set --global diff-command 'colordiff -wu'
+          fossil set --global diff-command 'git diff --no-index'
 
-Because this is unconditional, unlike `git diff --color=auto`, you will
-then have to remember to add the `-i` option to `fossil diff` commands
-when you want color disabled, such as when producing `patch(1)` files
-or piping diff output to another
-command that doesn’t understand ANSI escape sequences. There’s an
-example of this [below](#dstat).
+    The flag permits it to diff files that aren’t inside a Git repository.
 
-Another way, which avoids this problem, is to say instead:
+*   Another method is to install [`colordiff`][cdiff] — included in
+    [many package systems][cdpkg] — then say:
 
-        fossil set --global diff-command 'git diff --no-index'
+          fossil set --global diff-command 'colordiff -wu'
 
-This delegates `fossil diff` to `git diff` by using the latter’s
-ability to run on files not inside any repository.
+    Because this is unconditional, unlike `git diff --color=auto`, you
+    will then have to remember to add the `-i` option to `fossil diff`
+    commands when you want color disabled, such as when producing
+    `patch(1)` files or piping diff output to another command that
+    doesn’t understand ANSI escape sequences. There’s an example of this
+    [below](#dstat).
+
+*   Use the Fossil web UI to diff existing commits.
+
+*   To diff the current working directory contents against some parent
+    instead, Fossil 2.17 expanded the diff command so it can produce
+    colorized HTML output and open it in the OS’s default web browser.
+    For example, `fossil diff -by` will show side-by-side diffs.
+
+*   Use the older `fossil diff --tk` option to do much the same using
+    Tcl/Tk instead of a browser.
+
+Viewed this way, Fossil doesn’t lack colorized diffs, it simply has
+*one* method where they *aren’t* colorized.
 
 [cdpkg]: https://repology.org/project/colordiff/versions
+[pfile]: https://en.wikipedia.org/wiki/Patch_(Unix)
+[udiff]: https://en.wikipedia.org/wiki/Diff#Unified_format
 
 
 ## <a id="show"></a> Showing Information About Commits
@@ -748,7 +758,7 @@ functionality is present in Fossil under other commands:
 
 …only without the patch email header. Git comes out of the [LKML] world,
 where emailing a patch is a normal thing to do. Fossil is [designed for
-cohesive teams][devorg] where such drive-by patches are rarer.
+cohesive teams][devorg] where drive-by patches are rarer.
 
 You can use any of [Fossil’s special check-in names][scin] in place of
 the `COMMIT_ID` in this and later examples. Fossil docs usually say
@@ -814,14 +824,14 @@ output won’t include info about any newly-added files.
 
 
 <a id="btnames"></a>
-## Branch And Tag Names
+## Branch and Tag Names
 
 Fossil has no special restrictions on the names of tags and branches,
 though you might want to keep [Git's tag and branch name restrictions][gcrf]
 in mind if you plan on [mirroring your Fossil repository to GitHub][mirgh].
 
 Fossil does not require tag and branch names to be unique.  It is
-common, for example, to put a "`release`" tag on every release for a
+common, for example, to put a “`release`” tag on every release for a
 Fossil-hosted project. This does not create a conflict in Fossil, since
 Fossil resolves the ambiguity in a predictable way: the newest match
 wins. Therefore, “`fossil up release`” always gets you the current
@@ -839,11 +849,12 @@ Git’s limitations.
 
 
 <a id="cpickrev"></a>
-## Cherry-Picking And Reverting Commits
+## Cherry-Picking and Reverting Commits
 
 Git’s separate "`git cherry-pick`" and “`git revert`” commands are
 options to the [`fossil merge` command][merge]: `--cherrypick` and
-`--backout`, respectively.
+`--backout`, respectively. We view this as sensible, since these are
+both merge operations, and the two actions differ only in direction.
 
 Unlike in Git, the Fossil file format remembers cherrypicks and backouts
 and can later show them as dashed lines on the graphical timeline.
@@ -853,7 +864,7 @@ and can later show them as dashed lines on the graphical timeline.
 
 
 <a id="mvrm"></a>
-## File Moves And Renames Are Soft By Default
+## File Moves and Renames Are Soft by Default
 
 The "[`fossil mv`][mv]" and "[`fossil rm`][rm]" commands work like they
 do in CVS in that they schedule the changes for the next commit by

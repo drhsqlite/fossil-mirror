@@ -103,7 +103,7 @@ static int needHrefJs = 0;      /* href.js */
 static Blob blobOnLoad = BLOB_INITIALIZER;
 
 /*
-** Generate and return a anchor tag like this:
+** Generate and return an anchor tag like this:
 **
 **        <a href="URL">
 **  or    <a id="ID">
