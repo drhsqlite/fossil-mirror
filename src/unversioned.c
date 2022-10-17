@@ -19,12 +19,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "unversioned.h"
 #include <time.h>
 
@@ -64,7 +59,10 @@ void unversioned_schema(void){
 */
 const char *unversioned_content_hash(int debugFlag){
   const char *zHash = debugFlag ? 0 : db_get("uv-hash", 0);
-  if( zHash==0 ){
+  if( zHash ) return zHash;
+  if( !db_table_exists("repository","unversioned") ){
+    return "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+  }else{
     Stmt q;
     db_prepare(&q,
       "SELECT printf('%%s %%s %%s\n',name,datetime(mtime,'unixepoch'),hash)"
@@ -87,21 +85,36 @@ const char *unversioned_content_hash(int debugFlag){
 /*
 ** Initialize pContent to be the content of an unversioned file zName.
 **
-** Return 0 on success.  Return 1 if zName is not found.
+** Return 0 on failures.
+** Return 1 if the file is found by name.
+** Return 2 if the file is found by hash.
 */
 int unversioned_content(const char *zName, Blob *pContent){
   Stmt q;
-  int rc = 1;
+  int rc = 0;
   blob_init(pContent, 0, 0);
-  db_prepare(&q, "SELECT encoding, content FROM unversioned WHERE name=%Q", zName);
+  db_prepare(&q, "SELECT encoding, content FROM unversioned WHERE name=%Q",
+                 zName);
   if( db_step(&q)==SQLITE_ROW ){
     db_column_blob(&q, 1, pContent);
     if( db_column_int(&q, 0)==1 ){
       blob_uncompress(pContent, pContent);
     }
-    rc = 0;
+    rc = 1;
   }
   db_finalize(&q);
+  if( rc==0 && validate16(zName,-1) ){
+    db_prepare(&q, "SELECT encoding, content FROM unversioned WHERE hash=%Q",
+                   zName);
+    if( db_step(&q)==SQLITE_ROW ){
+      db_column_blob(&q, 1, pContent);
+      if( db_column_int(&q, 0)==1 ){
+        blob_uncompress(pContent, pContent);
+      }
+      rc = 2;
+    }
+    db_finalize(&q);
+  }
   return rc;
 }
 
@@ -121,7 +134,7 @@ static void unversioned_write(
     "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,encoding,content)"
     " VALUES(:name,:rcvid,:mtime,:hash,:sz,:encoding,:content)"
   );
-  sha1sum_blob(pContent, &hash);
+  hname_hash(pContent, 0, &hash);
   blob_compress(pContent, &compressed);
   db_bind_text(&ins, ":name", zUVFile);
   db_bind_int(&ins, ":rcvid", g.rcvid);
@@ -145,17 +158,21 @@ static void unversioned_write(
 
 /*
 ** Check the status of unversioned file zName.  "mtime" and "zHash" are the
-** time of last change and SHA1 hash of a copy of this file on a remote
+** time of last change and hash of a copy of this file on a remote
 ** server.  Return an integer status code as follows:
 **
 **    0:     zName does not exist in the unversioned table.
 **    1:     zName exists and should be replaced by the mtime/zHash remote.
-**    2:     zName exists and is the same as zHash but has a older mtime
+**    2:     zName exists and is the same as zHash but has an older mtime
 **    3:     zName exists and is identical to mtime/zHash in all respects.
 **    4:     zName exists and is the same as zHash but has a newer mtime.
 **    5:     zName exists and should override the mtime/zHash remote.
 */
-int unversioned_status(const char *zName, sqlite3_int64 mtime, const char *zHash){
+int unversioned_status(
+  const char *zName,
+  sqlite3_int64 mtime,
+  const char *zHash
+){
   int iStatus = 0;
   Stmt q;
   db_prepare(&q, "SELECT mtime, hash FROM unversioned WHERE name=%Q", zName);
@@ -185,7 +202,7 @@ static int unversioned_sync_flags(unsigned syncFlags){
   if( find_option("verbose","v",0)!=0 ){
     syncFlags |= SYNC_UV_TRACE | SYNC_VERBOSE;
   }
-  if( find_option("dryrun","n",0)!=0 ){
+  if( find_option("dry-run","n",0)!=0 ){
     syncFlags |= SYNC_UV_DRYRUN | SYNC_UV_TRACE | SYNC_VERBOSE;
   }
   return syncFlags;
@@ -203,7 +220,7 @@ static int contains_whitespace(const char *zName){
 }
 
 /*
-** COMMAND: uv*
+** COMMAND: uv#
 ** COMMAND: unversioned
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
@@ -216,50 +233,65 @@ static int contains_whitespace(const char *zName){
 **
 ** Subcommands:
 **
-**    add FILE ...         Add or update an unversioned files in the local
-**                         repository so that it matches FILE on disk.
-**                         Use "--as UVFILE" to give the file a different name
-**                         in the repository than what it called on disk.
-**                         Changes are not pushed to other repositories until
-**                         the next sync.
+**    add FILE ...           Add or update one or more unversioned files in
+**                           the local repository so that they match FILEs
+**                           on disk. Changes are not pushed to other
+**                           repositories until the next sync.
 **
-**    cat FILE ...         Concatenate the content of FILEs to stdout.
+**    add FILE --as UVFILE   Add or update a single file named FILE on disk
+**                           and UVFILE in the repository unversioned file
+**                           namespace. This variant of the 'add' command allows
+**                           the name to be different in the repository versus
+**                           what appears on disk, but it only allows adding
+**                           a single file at a time.
 **
-**    edit FILE            Bring up FILE in a text editor for modification.
+**    cat FILE ...           Concatenate the content of FILEs to stdout.
 **
-**    export FILE OUTPUT   Write the content of FILE into OUTPUT on disk
+**    edit FILE              Bring up FILE in a text editor for modification.
 **
-**    list | ls            Show all unversioned files held in the local
-**                         repository.
+**    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
-**    revert ?URL?         Restore the state of all unversioned files in the
-**                         local repository to match the remote repository
-**                         URL.
+**    list | ls              Show all unversioned files held in the local
+**                           repository. Options:
 **
-**                         Options:
-**                            -v|--verbose     Extra diagnostic output
-**                            -n|--dryrun      Show what would have happened
+**                              --glob PATTERN   Show only files that match
+**                              --like PATTERN   Show only files that match
+**                              -l               Show additional details for
+**                                               files that match. Implied
+**                                               when 'list' is used.
+**
+**    revert ?URL?           Restore the state of all unversioned files in the
+**                           local repository to match the remote repository
+**                           URL.
+**
+**                           Options:
+**                              -v|--verbose     Extra diagnostic output
+**                              -n|--dry-run     Show what would have happened
 **
 **    remove|rm|delete FILE ...
-**                         Remove unversioned files from the local repository.
-**                         Changes are not pushed to other repositories until
-**                         the next sync.
+**                           Remove unversioned files from the local repository.
+**                           Changes are not pushed to other repositories until
+**                           the next sync.  Options:
 **
-**    sync ?URL?           Synchronize the state of all unversioned files with
-**                         the remote repository URL.  The most recent version
-**                         of each file is propagate to all repositories and
-**                         all prior versions are permanently forgotten.
+**                              --glob PATTERN   Remove files that match
+**                              --like PATTERN   Remove files that match
 **
-**                         Options:
-**                            -v|--verbose     Extra diagnostic output
-**                            -n|--dryrun      Show what would have happened
+**    sync ?URL?             Synchronize the state of all unversioned files with
+**                           the remote repository URL.  The most recent version
+**                           of each file is propagated to all repositories and
+**                           all prior versions are permanently forgotten.
 **
-**    touch FILE ...       Update the TIMESTAMP on all of the listed files
+**                           Options:
+**                              -v|--verbose     Extra diagnostic output
+**                              -n|--dry-run     Show what would have happened
+**
+**    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
 ** Options:
 **
-**   --mtime TIMESTAMP     Use TIMESTAMP instead of "now" for the "add",
-**                         "edit", "remove", and "touch" subcommands.
+**   --mtime TIMESTAMP       Use TIMESTAMP instead of "now" for the "add",
+**                           "edit", "remove", and "touch" subcommands.
+**   -R|--repository REPO    Use FILE as the repository
 */
 void unversioned_cmd(void){
   const char *zCmd;
@@ -277,26 +309,33 @@ void unversioned_cmd(void){
     if( mtime<=0 ) fossil_fatal("bad timestamp: %Q", zMtime);
   }
   if( memcmp(zCmd, "add", nCmd)==0 ){
+    const char *zError = 0;
     const char *zIn;
     const char *zAs;
     Blob file;
     int i;
 
     zAs = find_option("as",0,1);
-    if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
     verify_all_options();
+    if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
     db_begin_transaction();
     content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){
       zIn = zAs ? zAs : g.argv[i];
-      if( zIn[0]==0 || zIn[0]=='/' || !file_is_simple_pathname(zIn,1) ){
-        fossil_fatal("'%Q' is not an acceptable filename", zIn);
+      if( zIn[0]==0 ){
+        zError = "be empty string";
+      }else if( zIn[0]=='/' ){
+        zError = "be absolute";
+      }else if ( !file_is_simple_pathname(zIn,1) ){
+        zError = "contain complex paths";
+      }else if( contains_whitespace(zIn) ){
+        zError = "contain whitespace";
       }
-      if( contains_whitespace(zIn) ){
-        fossil_fatal("names of unversioned files may not contain whitespace");
+      if( zError ){
+        fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
       }
       blob_init(&file,0,0);
-      blob_read_from_file(&file, g.argv[i]);
+      blob_read_from_file(&file, g.argv[i], ExtFILE);
       unversioned_write(zIn, &file, mtime);
       blob_reset(&file);
     }
@@ -307,7 +346,7 @@ void unversioned_cmd(void){
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       Blob content;
-      if( unversioned_content(g.argv[i], &content)==0 ){
+      if( unversioned_content(g.argv[i], &content)!=0 ){
         blob_write_to_file(&content, "-");
       }
       blob_reset(&content);
@@ -324,12 +363,14 @@ void unversioned_cmd(void){
     if( g.argc!=4) usage("edit UVFILE");
     zUVFile = g.argv[3];
     zEditor = fossil_text_editor();
-    if( zEditor==0 ) fossil_fatal("no text editor - set the VISUAL env variable");
+    if( zEditor==0 ){
+      fossil_fatal("no text editor - set the VISUAL env variable");
+    }
     zTFile = fossil_temp_filename();
     if( zTFile==0 ) fossil_fatal("cannot find a temporary filename");
     db_begin_transaction();
     content_rcvid_init("#!fossil unversioned edit");
-    if( unversioned_content(zUVFile, &content) ){
+    if( unversioned_content(zUVFile, &content)==0 ){
       fossil_fatal("no such uv-file: %Q", zUVFile);
     }
     if( looks_like_binary(&content) ){
@@ -339,13 +380,13 @@ void unversioned_cmd(void){
     blob_add_cr(&content);
 #endif
     blob_write_to_file(&content, zTFile);
-    zCmd = mprintf("%s \"%s\"", zEditor, zTFile);
+    zCmd = mprintf("%s %$", zEditor, zTFile);
     if( fossil_system(zCmd) ){
       fossil_fatal("editor aborted: %Q", zCmd);
     }
     fossil_free(zCmd);
     blob_reset(&content);
-    blob_read_from_file(&content, zTFile);
+    blob_read_from_file(&content, zTFile, ExtFILE);
 #if defined(_WIN32) || defined(__CYGWIN__)
     blob_to_lf_only(&content);
 #endif
@@ -358,7 +399,7 @@ void unversioned_cmd(void){
     Blob content;
     verify_all_options();
     if( g.argc!=5 ) usage("export UVFILE OUTPUT");
-    if( unversioned_content(g.argv[3], &content) ){
+    if( unversioned_content(g.argv[3], &content)==0 ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
     }
     blob_write_to_file(&content, g.argv[4]);
@@ -371,13 +412,27 @@ void unversioned_cmd(void){
     Stmt q;
     int allFlag = find_option("all","a",0)!=0;
     int longFlag = find_option("l",0,0)!=0 || (nCmd>1 && zCmd[1]=='i');
+    char *zPattern = sqlite3_mprintf("true");
+    const char *zGlob;
+    zGlob = find_option("glob",0,1);
+    if( zGlob ){
+      sqlite3_free(zPattern);
+      zPattern = sqlite3_mprintf("(name GLOB %Q)", zGlob);
+    }
+    zGlob = find_option("like",0,1);
+    if( zGlob ){
+      sqlite3_free(zPattern);
+      zPattern = sqlite3_mprintf("(name LIKE %Q)", zGlob);
+    }
     verify_all_options();
     if( !longFlag ){
       if( allFlag ){
-        db_prepare(&q, "SELECT name FROM unversioned ORDER BY name");
+        db_prepare(&q, "SELECT name FROM unversioned WHERE %s ORDER BY name",
+                   zPattern/*safe-for-%s*/);
       }else{
-        db_prepare(&q, "SELECT name FROM unversioned WHERE hash IS NOT NULL"
-                       " ORDER BY name");
+        db_prepare(&q, "SELECT name FROM unversioned"
+                       " WHERE %s AND hash IS NOT NULL"
+                       " ORDER BY name", zPattern/*safe-for-%s*/);
       }
       while( db_step(&q)==SQLITE_ROW ){
         fossil_print("%s\n", db_column_text(&q,0));
@@ -385,8 +440,8 @@ void unversioned_cmd(void){
     }else{
       db_prepare(&q,
         "SELECT hash, datetime(mtime,'unixepoch'), sz, length(content), name"
-        "   FROM unversioned"
-        "  ORDER BY name;"
+        "   FROM unversioned WHERE %s"
+        "  ORDER BY name;", zPattern/*safe-for-%s*/
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zHash = db_column_text(&q, 0);
@@ -408,16 +463,33 @@ void unversioned_cmd(void){
       }
     }
     db_finalize(&q);
+    sqlite3_free(zPattern);
   }else if( memcmp(zCmd, "revert", nCmd)==0 ){
-    unsigned syncFlags = unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
+    unsigned syncFlags = 
+        unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
   }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0
          || memcmp(zCmd, "delete", nCmd)==0 ){
     int i;
-    verify_all_options();
+    const char *zGlob;
     db_begin_transaction();
+    while( (zGlob = find_option("glob",0,1))!=0 ){
+      db_multi_exec(
+        "UPDATE unversioned"
+        "   SET hash=NULL, content=NULL, mtime=%lld, sz=0 WHERE name GLOB %Q",
+        mtime, zGlob
+      );
+    }
+    while( (zGlob = find_option("like",0,1))!=0 ){
+      db_multi_exec(
+        "UPDATE unversioned"
+        "   SET hash=NULL, content=NULL, mtime=%lld, sz=0 WHERE name LIKE %Q",
+        mtime, zGlob
+      );
+    }
+    verify_all_options();
     for(i=3; i<g.argc; i++){
       db_multi_exec(
         "UPDATE unversioned"
@@ -470,91 +542,97 @@ void uvlist_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  etag_check(ETAG_DATA,0);
   style_header("Unversioned Files");
   if( !db_table_exists("repository","unversioned") ){
     @ No unversioned files on this server
-    style_footer();
+    style_finish_page();
     return;
   }
   if( PB("byage") ) zOrderBy = "mtime DESC";
   if( PB("showdel") ) showDel = 1;
   db_prepare(&q,
-     "SELECT"
-     "   name,"
-     "   mtime,"
-     "   hash,"
-     "   sz,"
-     "   (SELECT login FROM rcvfrom, user"
-     "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
-     "   rcvid"
-     " FROM unversioned %s ORDER BY %s",
-     showDel ? "" : "WHERE hash IS NOT NULL" /*safe-for-%s*/,
-     zOrderBy/*safe-for-%s*/
-   );
-   iNow = db_int64(0, "SELECT strftime('%%s','now');");
-   while( db_step(&q)==SQLITE_ROW ){
-     const char *zName = db_column_text(&q, 0);
-     sqlite3_int64 mtime = db_column_int(&q, 1);
-     const char *zHash = db_column_text(&q, 2);
-     int isDeleted = zHash==0;
-     int fullSize = db_column_int(&q, 3);
-     char *zAge = human_readable_age((iNow - mtime)/86400.0);
-     const char *zLogin = db_column_text(&q, 4);
-     int rcvid = db_column_int(&q,5);
-     if( zLogin==0 ) zLogin = "";
-     if( (n++)==0 ){
-       @ <div class="uvlist">
-       @ <table cellpadding="2" cellspacing="0" border="1" id="uvtab">
-       @ <thead><tr>
-       @   <th> Name
-       @   <th> Age
-       @   <th> Size
-       @   <th> User
-       @   <th> SHA1
-       if( g.perm.Admin ){
-         @ <th> rcvid
-       }
-       @ </tr></thead>
-       @ <tbody>
-     }
-     @ <tr>
-     if( isDeleted ){
-       sqlite3_snprintf(sizeof(zSzName), zSzName, "<i>Deleted</i>");
-       zHash = "";
-       fullSize = 0;
-       @ <td> %h(zName) </td>
-     }else{
-       approxSizeName(sizeof(zSzName), zSzName, fullSize);
-       iTotalSz += fullSize;
-       cnt++;
-       @ <td> <a href='%R/uv/%T(zName)'>%h(zName)</a> </td>
-     }
-     @ <td data-sortkey='%016llx(-mtime)'> %s(zAge) </td>
-     @ <td data-sortkey='%08x(fullSize)'> %s(zSzName) </td>
-     @ <td> %h(zLogin) </td>
-     @ <td> %h(zHash) </td>
-     if( g.perm.Admin ){
-       if( rcvid ){
-         @ <td> <a href="%R/rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a>
-       }else{
-         @ <td>
-       }
-     }
-     @ </tr>
-     fossil_free(zAge);
-   }
-   db_finalize(&q);
-   if( n ){
-     approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
-     @ </tbody>
-     @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)
-     @ <td><td></tfoot>
-     @ </table></div>
-     output_table_sorting_javascript("uvtab","tkKttN",1);
-   }else{
-     @ No unversioned files on this server.
-   }
-   style_footer();
+    "SELECT"
+    "   name,"
+    "   mtime,"
+    "   hash,"
+    "   sz,"
+    "   (SELECT login FROM rcvfrom, user"
+    "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
+    "   rcvid"
+    " FROM unversioned %s ORDER BY %s",
+    showDel ? "" : "WHERE hash IS NOT NULL" /*safe-for-%s*/,
+    zOrderBy/*safe-for-%s*/
+  );
+  iNow = db_int64(0, "SELECT strftime('%%s','now');");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    sqlite3_int64 mtime = db_column_int(&q, 1);
+    const char *zHash = db_column_text(&q, 2);
+    int isDeleted = zHash==0;
+    int fullSize = db_column_int(&q, 3);
+    char *zAge = human_readable_age((iNow - mtime)/86400.0);
+    const char *zLogin = db_column_text(&q, 4);
+    int rcvid = db_column_int(&q,5);
+    if( zLogin==0 ) zLogin = "";
+    if( (n++)==0 ){
+      style_table_sorter();
+      @ <div class="uvlist">
+      @ <table cellpadding="2" cellspacing="0" border="1" class='sortable' \
+      @  data-column-types='tkKttn' data-init-sort='1'>
+      @ <thead><tr>
+      @   <th> Name
+      @   <th> Age
+      @   <th> Size
+      @   <th> User
+      @   <th> Hash
+      if( g.perm.Admin ){
+        @ <th> rcvid
+      }
+      @ </tr></thead>
+      @ <tbody>
+    }
+    @ <tr>
+    if( isDeleted ){
+      sqlite3_snprintf(sizeof(zSzName), zSzName, "<i>Deleted</i>");
+      zHash = "";
+      fullSize = 0;
+      @ <td> %h(zName) </td>
+    }else{
+      approxSizeName(sizeof(zSzName), zSzName, fullSize);
+      iTotalSz += fullSize;
+      cnt++;
+      @ <td> <a href='%R/uv/%T(zName)'>%h(zName)</a> </td>
+    }
+    @ <td data-sortkey='%016llx(-mtime)'> %s(zAge) </td>
+    @ <td data-sortkey='%08x(fullSize)'> %s(zSzName) </td>
+    @ <td> %h(zLogin) </td>
+    @ <td> %h(zHash) </td>
+    if( g.perm.Admin ){
+      if( rcvid ){
+        @ <td> <a href="%R/rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a>
+      }else{
+        @ <td>
+      }
+    }
+    @ </tr>
+    fossil_free(zAge);
+  }
+  db_finalize(&q);
+  if( n ){
+    approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
+    @ </tbody>
+    @ <tfoot><tr><td><b>Total for %d(cnt) files</b><td><td>%s(zSzName)
+    @ <td><td>
+    if( g.perm.Admin ){
+      @ <td>
+    }
+    @ </tfoot>
+    @ </table></div>
+  }else{
+    @ No unversioned files on this server.
+  }
+  style_finish_page();
 }
 
 /*
@@ -576,7 +654,8 @@ void uvlist_json_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  cgi_set_content_type("text/json");
+  cgi_set_content_type("application/json");
+  etag_check(ETAG_DATA,0);
   if( !db_table_exists("repository","unversioned") ){
     blob_init(&json, "[]", -1);
     cgi_set_content(&json);
@@ -600,14 +679,12 @@ void uvlist_json_page(void){
      int fullSize = db_column_int(&q, 3);
      const char *zLogin = db_column_text(&q, 4);
      if( zLogin==0 ) zLogin = "";
-     blob_appendf(&json, "%s{\"name\":\"", zSep);
+     blob_appendf(&json, "%s{\"name\":\"%j\",\n", zSep, zName);
      zSep = ",\n ";
-     blob_append_json_string(&json, zName);
-     blob_appendf(&json, "\",\n  \"mtime\":%lld,\n  \"hash\":\"", mtime);
-     blob_append_json_string(&json, zHash);
-     blob_appendf(&json, "\",\n  \"size\":%d,\n  \"user\":\"", fullSize);
-     blob_append_json_string(&json, zLogin);
-     blob_appendf(&json, "\"}");
+     blob_appendf(&json, "  \"mtime\":%lld,\n", mtime);
+     blob_appendf(&json, "  \"hash\":\"%j\",\n", zHash);
+     blob_appendf(&json, "  \"size\":%d,\n", fullSize);
+     blob_appendf(&json, "  \"user\":\"%j\"}", zLogin);
    }
    db_finalize(&q);
    blob_appendf(&json,"]\n");

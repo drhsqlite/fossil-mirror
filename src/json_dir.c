@@ -27,10 +27,12 @@ static cson_value * json_page_dir_list();
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
 */
+#if 0 /* TODO: Not used? */
 static const JsonPageDef JsonPageDefs_Dir[] = {
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
+#endif
 
 #if 0 /* TODO: Not used? */
 static char const * json_dir_path_extra(){

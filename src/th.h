@@ -23,7 +23,7 @@ typedef struct Th_Interp Th_Interp;
 /*
 ** Create and delete interpreters.
 */
-Th_Interp * Th_CreateInterp(Th_Vtab *pVtab);
+Th_Interp * Th_CreateInterp(Th_Vtab *);
 void Th_DeleteInterp(Th_Interp *);
 
 /*
@@ -104,6 +104,7 @@ int Th_InFrame(Th_Interp *interp,
 #define TH_BREAK    2
 #define TH_RETURN   3
 #define TH_CONTINUE 4
+#define TH_RETURN2  5
 
 /*
 ** Set and get the interpreter result.
@@ -122,8 +123,27 @@ int Th_ErrorMessage(Th_Interp *, const char *, const char *, int);
 ** Access the memory management functions associated with the specified
 ** interpreter.
 */
-void *Th_Malloc(Th_Interp *, int);
-void Th_Free(Th_Interp *, void *);
+#if defined(TH_MEMDEBUG)
+void *Th_DbgMalloc(Th_Interp *, int);
+void Th_DbgFree(Th_Interp *, void *);
+#endif
+
+void *fossil_malloc_zero(size_t);
+void *fossil_realloc(void *, size_t);
+void fossil_free(void *);
+
+#define Th_SysMalloc(I,N)     fossil_malloc_zero((N))
+#define Th_SysRealloc(I,P,N)  fossil_realloc((P),(N))
+#define Th_SysFree(I,P)       fossil_free((P))
+
+#if defined(TH_MEMDEBUG)
+#  define Th_Malloc(I,N)      Th_DbgMalloc((I),(N))
+#  define Th_Free(I,P)        Th_DbgFree((I),(P))
+#else
+#  define Th_Malloc(I,N)      Th_SysMalloc((I),(N))
+#  define Th_Realloc(I,P,N)   Th_SysRealloc((I),(P),(N))
+#  define Th_Free(I,P)        Th_SysFree((I),(P))
+#endif
 
 /*
 ** Functions for handling TH lists.

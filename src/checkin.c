@@ -64,6 +64,9 @@ enum {
 ** all unmanaged files contained underneath those directories.  If there
 ** are no files or directories named on the command-line, then add all
 ** unmanaged files anywhere in the checkout.
+**
+** This routine never follows symlinks.  It always treats symlinks as
+** object unto themselves.
 */
 static void locate_unmanaged_files(
   int argc,           /* Number of command-line arguments to examine */
@@ -82,23 +85,26 @@ static void locate_unmanaged_files(
   nRoot = (int)strlen(g.zLocalRoot);
   if( argc==0 ){
     blob_init(&name, g.zLocalRoot, nRoot - 1);
-    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore, 0);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore, 0, SymFILE);
     blob_reset(&name);
   }else{
     for(i=0; i<argc; i++){
       file_canonical_name(argv[i], &name, 0);
       zName = blob_str(&name);
-      isDir = file_wd_isdir(zName);
+      isDir = file_isdir(zName, SymFILE);
       if( isDir==1 ){
-        vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0);
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0, SymFILE);
       }else if( isDir==0 ){
         fossil_warning("not found: %s", &zName[nRoot]);
       }else if( file_access(zName, R_OK) ){
         fossil_fatal("cannot open %s", &zName[nRoot]);
       }else{
+        /* Only add unmanaged file paths specified on the command line. */
         db_multi_exec(
-           "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
-           &zName[nRoot]
+            "INSERT OR IGNORE INTO sfile(pathname)"
+            " SELECT %Q WHERE NOT EXISTS"
+            " (SELECT 1 FROM vfile WHERE pathname=%Q)",
+            &zName[nRoot], &zName[nRoot]
         );
       }
       blob_reset(&name);
@@ -152,7 +158,8 @@ static void status_report(
     /* Start with a list of all managed files. */
     blob_append_sql(&sql,
       "SELECT pathname, %s as mtime, %s as size, deleted, chnged, rid,"
-      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed"
+      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed,"
+      "       origname"
       "  FROM vfile LEFT JOIN blob USING (rid)"
       " WHERE is_selected(id)%s",
       flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
@@ -173,7 +180,7 @@ static void status_report(
       blob_append_sql(&sql, " UNION ALL");
     }
     blob_append_sql(&sql,
-      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0"
+      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0, NULL"
       " FROM sfile WHERE pathname NOT IN (%s)%s",
       flags & C_MTIME ? "datetime(mtime, 'unixepoch', toLocal())" : "''",
       flags & C_SIZE ? "size" : "0",
@@ -210,8 +217,9 @@ static void status_report(
     int isChnged = db_column_int(&q, 4);
     int isNew = isManaged && !db_column_int(&q, 5);
     int isRenamed = db_column_int(&q, 6);
+    const char *zOrigName = 0;
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    int isMissing = !file_wd_isfile_or_link(zFullName);
+    int isMissing = !file_isfile_or_link(zFullName);
 
     /* Determine the file change classification, if any. */
     if( isDeleted ){
@@ -256,7 +264,7 @@ static void status_report(
       zClass = "UNEXEC";
     }else if( (flags & C_META) && isChnged==9 ){
       zClass = "UNLINK";
-    }else if( (flags & C_CONFLICT) && isChnged && !file_wd_islink(zFullName)
+    }else if( (flags & C_CONFLICT) && isChnged && !file_islink(zFullName)
            && file_contains_merge_marker(zFullName) ){
       zClass = "CONFLICT";
     }else if( (flags & (C_EDITED | C_CHANGED)) && isChnged
@@ -264,6 +272,7 @@ static void status_report(
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
+      zOrigName = db_column_text(&q,8);
     }else if( (flags & C_UNCHANGED) && isManaged && !isNew
                                     && !isChnged && !isRenamed ){
       zClass = "UNCHANGED";
@@ -294,7 +303,11 @@ static void status_report(
         if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
           zDisplayName += 2;  /* no unnecessary ./ prefix */
         }
-        blob_append(report, zDisplayName, -1);
+        if( (flags & (C_FILTER ^ C_RENAMED)) && zOrigName ){
+          blob_appendf(report, "%s  ->  %s", zOrigName, zDisplayName);
+        }else{
+          blob_append(report, zDisplayName, -1);
+        }
       }else{
         /* If not C_RELPATH, display paths relative to project root. */
         blob_append(report, zPathname, -1);
@@ -309,8 +322,7 @@ static void status_report(
   /* If C_MERGE, put merge contributors at the end of the report. */
 skipFiles:
   if( flags & C_MERGE ){
-    db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
-                   " WHERE id<=0");
+    db_prepare(&q, "SELECT mhash, id FROM vmerge WHERE id<=0" );
     while( db_step(&q)==SQLITE_ROW ){
       if( flags & C_COMMENT ){
         blob_append(report, "# ", 2);
@@ -416,10 +428,9 @@ static int determine_cwd_relative_option()
 **                      directory.
 **    --hash            Verify file status using hashing rather than
 **                      relying on file mtimes.
-**    --case-sensitive <BOOL>  Override case-sensitive setting.
+**    --case-sensitive BOOL  Override case-sensitive setting.
 **    --dotfiles        Include unmanaged files beginning with a dot.
 **    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
-**    --no-dir-symlinks Disables support for directory symlinks.
 **
 ** Options specific to the changes command:
 **    --header          Identify the repository if report is non-empty.
@@ -444,7 +455,7 @@ static int determine_cwd_relative_option()
 **    --merge           Display merge contributors.
 **    --no-merge        Do not display merge contributors.
 **
-** See also: extras, ls
+** See also: [[extras]], [[ls]]
 */
 void status_cmd(void){
   /* Affirmative and negative flag option tables. */
@@ -466,13 +477,16 @@ void status_cmd(void){
 
   Blob report = BLOB_INITIALIZER;
   enum {CHANGES, STATUS} command = *g.argv[1]=='s' ? STATUS : CHANGES;
-  int useHash = find_option("hash", 0, 0)!=0;
+  /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
+  int useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   int showHdr = command==CHANGES && find_option("header", 0, 0);
   int verboseFlag = command==CHANGES && find_option("verbose", "v", 0);
   const char *zIgnoreFlag = find_option("ignore", 0, 1);
   unsigned scanFlags = 0;
   unsigned flags = 0;
   int vid, i;
+
+  fossil_pledge("stdio rpath wpath cpath fattr id flock tty chown");
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
@@ -557,8 +571,9 @@ void status_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Changes for %s at %s:\n", db_get("project-name", "???"),
-                   g.zLocalRoot);
+      fossil_print(
+        "Changes for %s at %s:\n", db_get("project-name", "<unnamed>"),
+        g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");
   }else if( verboseFlag ){
@@ -674,9 +689,11 @@ static void ls_cmd_rev(
 **   -v|--verbose          Provide extra information about each file.
 **   -t                    Sort output in time order.
 **   -r VERSION            The specific check-in to list.
-**   -R|--repository FILE  Extract info from repository FILE.
+**   -R|--repository REPO  Extract info from repository REPO.
+**   --hash                With -v, verify file status using hashing
+**                         rather than relying on file sizes and mtimes.
 **
-** See also: changes, extras, status
+** See also: [[changes]], [[extras]], [[status]]
 */
 void ls_cmd(void){
   int vid;
@@ -687,6 +704,7 @@ void ls_cmd(void){
   char *zOrderBy = "pathname";
   Blob where;
   int i;
+  int useHash = 0;
   const char *zName;
   const char *zRev;
 
@@ -697,6 +715,9 @@ void ls_cmd(void){
   showAge = find_option("age",0,0)!=0;
   zRev = find_option("r","r",1);
   timeOrder = find_option("t","t",0)!=0;
+  if( verboseFlag ){
+    useHash = find_option("hash",0,0)!=0;
+  }
 
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
@@ -734,7 +755,7 @@ void ls_cmd(void){
        zName, filename_collation()
     );
   }
-  vfile_check_signature(vid, 0);
+  vfile_check_signature(vid, useHash ? CKSIG_HASH : 0);
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
@@ -766,7 +787,7 @@ void ls_cmd(void){
         type = "ADDED      ";
       }else if( isDeleted ){
         type = "DELETED    ";
-      }else if( !file_wd_isfile_or_link(zFullName) ){
+      }else if( !file_isfile_or_link(zFullName) ){
         if( file_access(zFullName, F_OK)==0 ){
           type = "NOT_A_FILE ";
         }else{
@@ -822,16 +843,15 @@ void ls_cmd(void){
 ** unless overridden by the --abs-paths or --rel-paths options.
 **
 ** Options:
-**    --abs-paths      Display absolute pathnames.
-**    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles       include files beginning with a dot (".")
-**    --header         Identify the repository if there are extras
-**    --ignore <CSG>   ignore files matching patterns from the argument
-**    --no-dir-symlinks Disables support for directory symlinks.
-**    --rel-paths      Display pathnames relative to the current working
-**                     directory.
+**    --abs-paths             Display absolute pathnames
+**    --case-sensitive BOOL   Override case-sensitive setting
+**    --dotfiles              Include files beginning with a dot (".")
+**    --header                Identify the repository if there are extras
+**    --ignore CSG            Ignore files matching patterns from the argument
+**    --rel-paths             Display pathnames relative to the current working
+**                            directory
 **
-** See also: changes, clean, status
+** See also: [[changes]], [[clean]], [[status]]
 */
 void extras_cmd(void){
   Blob report = BLOB_INITIALIZER;
@@ -864,7 +884,7 @@ void extras_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Extras for %s at %s:\n", db_get("project-name","???"),
+      fossil_print("Extras for %s at %s:\n", db_get("project-name","<unnamed>"),
                    g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");
@@ -902,60 +922,58 @@ void extras_cmd(void){
 ** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
 **
 ** The --verily option ignores the keep-glob and ignore-glob settings and
-** turns on the options --force, --emptydirs, --dotfiles, --disable-undo,
-** and --no-dir-symlinks.  Use the --verily option when you really want
-** to clean up everything.  Extreme care should be exercised when using
-** the --verily option.
+** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
+** --verily option when you really want to clean up everything.  Extreme
+** care should be exercised when using the --verily option.
 **
 ** Options:
-**    --allckouts      Check for empty directories within any checkouts
-**                     that may be nested within the current one.  This
-**                     option should be used with great care because the
-**                     empty-dirs setting (and other applicable settings)
-**                     belonging to the other repositories, if any, will
-**                     not be checked.
-**    --case-sensitive <BOOL> override case-sensitive setting
-**    --dirsonly       Only remove empty directories.  No files will
-**                     be removed.  Using this option will automatically
-**                     enable the --emptydirs option as well.
-**    --disable-undo   WARNING: This option disables use of the undo
-**                     mechanism for this clean operation and should be
-**                     used with extreme caution.
-**    --dotfiles       Include files beginning with a dot (".").
-**    --emptydirs      Remove any empty directories that are not
-**                     explicitly exempted via the empty-dirs setting
-**                     or another applicable setting or command line
-**                     argument.  Matching files, if any, are removed
-**                     prior to checking for any empty directories;
-**                     therefore, directories that contain only files
-**                     that were removed will be removed as well.
-**    -f|--force       Remove files without prompting.
-**    -i|--prompt      Prompt before removing each file.  This option
-**                     implies the --disable-undo option.
-**    -x|--verily      WARNING: Removes everything that is not a managed
-**                     file or the repository itself.  This option
-**                     implies the --force, --emptydirs, --dotfiles, and
-**                     --disable-undo, and --no-dir-symlinks options.
-**                     Furthermore, it completely disregards the keep-glob
-**                     and ignore-glob settings.  However, it does honor
-**                     the --ignore and --keep options.
-**    --clean <CSG>    WARNING: Never prompt to delete any files matching
-**                     this comma separated list of glob patterns.  Also,
-**                     deletions of any files matching this pattern list
-**                     cannot be undone.
-**    --ignore <CSG>   Ignore files matching patterns from the
-**                     comma separated list of glob patterns.
-**    --keep <CSG>     Keep files matching this comma separated
-**                     list of glob patterns.
-**    -n|--dry-run     Delete nothing, but display what would have been
-**                     deleted.
-**    --no-prompt      This option disables prompting the user for input
-**                     and assumes an answer of 'No' for every question.
-**    --no-dir-symlinks Disables support for directory symlinks.
-**    --temp           Remove only Fossil-generated temporary files.
-**    -v|--verbose     Show all files as they are removed.
+**    --allckouts            Check for empty directories within any checkouts
+**                           that may be nested within the current one.  This
+**                           option should be used with great care because the
+**                           empty-dirs setting (and other applicable settings)
+**                           belonging to the other repositories, if any, will
+**                           not be checked.
+**    --case-sensitive BOOL  Override case-sensitive setting
+**    --dirsonly             Only remove empty directories.  No files will
+**                           be removed.  Using this option will automatically
+**                           enable the --emptydirs option as well.
+**    --disable-undo         WARNING: This option disables use of the undo
+**                           mechanism for this clean operation and should be
+**                           used with extreme caution.
+**    --dotfiles             Include files beginning with a dot (".")
+**    --emptydirs            Remove any empty directories that are not
+**                           explicitly exempted via the empty-dirs setting
+**                           or another applicable setting or command line
+**                           argument.  Matching files, if any, are removed
+**                           prior to checking for any empty directories;
+**                           therefore, directories that contain only files
+**                           that were removed will be removed as well.
+**    -f|--force             Remove files without prompting
+**    -i|--prompt            Prompt before removing each file.  This option
+**                           implies the --disable-undo option.
+**    -x|--verily            WARNING: Removes everything that is not a managed
+**                           file or the repository itself.  This option
+**                           implies the --force, --emptydirs, --dotfiles, and
+**                           --disable-undo options. Furthermore, it
+**                           completely disregards the keep-glob
+**                           and ignore-glob settings.  However, it does honor
+**                           the --ignore and --keep options.
+**    --clean CSG            WARNING: Never prompt to delete any files matching
+**                           this comma separated list of glob patterns.  Also,
+**                           deletions of any files matching this pattern list
+**                           cannot be undone.
+**    --ignore CSG           Ignore files matching patterns from the
+**                           comma separated list of glob patterns
+**    --keep <CSG>           Keep files matching this comma separated
+**                           list of glob patterns
+**    -n|--dry-run           Delete nothing, but display what would have been
+**                           deleted
+**    --no-prompt            Do not prompt the user for input and assume an
+**                           answer of 'No' for every question
+**    --temp                 Remove only Fossil-generated temporary files
+**    -v|--verbose           Show all files as they are removed
 **
-** See also: addremove, extras, status
+** See also: [[addremove]], [[extras]], [[status]]
 */
 void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
@@ -1000,8 +1018,6 @@ void clean_cmd(void){
     disableUndo = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
-    g.fNoDirSymlinks = 1; /* Forbid symlink directory traversal. */
-    g.allowSymlinks = 1;  /* Treat symlink files as content. */
   }
   if( zIgnoreFlag==0 && !verilyFlag ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -1106,7 +1122,7 @@ void clean_cmd(void){
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
     vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore,
-                   pEmptyDirs);
+                   pEmptyDirs, RepoFILE);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
@@ -1175,51 +1191,50 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   char *zComment;
   int i;
 
-  zEditor = db_get("editor", 0);
+  zEditor = fossil_text_editor();
   if( zEditor==0 ){
-    zEditor = fossil_getenv("VISUAL");
-  }
-  if( zEditor==0 ){
-    zEditor = fossil_getenv("EDITOR");
-  }
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if( zEditor==0 ){
-    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
-#if defined(__CYGWIN__)
-    zEditor = fossil_utf8_to_path(zEditor, 0);
-    blob_add_cr(pPrompt);
-#endif
-  }
-#endif
-  if( zEditor==0 ){
-    blob_append(pPrompt,
-       "#\n"
-       "# Since no default text editor is set using EDITOR or VISUAL\n"
-       "# environment variables or the \"fossil set editor\" command,\n"
-       "# and because no comment was specified using the \"-m\" or \"-M\"\n"
-       "# command-line options, you will need to enter the comment below.\n"
-       "# Type \".\" on a line by itself when you are done:\n", -1);
+    if( blob_size(pPrompt)>0 ){
+      blob_append(pPrompt,
+         "#\n"
+         "# Since no default text editor is set using EDITOR or VISUAL\n"
+         "# environment variables or the \"fossil set editor\" command,\n"
+         "# and because no comment was specified using the \"-m\" or \"-M\"\n"
+         "# command-line options, you will need to enter the comment below.\n"
+         "# Type \".\" on a line by itself when you are done:\n", -1);
+    }
     zFile = mprintf("-");
   }else{
     Blob fname;
     blob_zero(&fname);
-    file_relative_name(g.zLocalRoot, &fname, 1);
-    zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
-                    blob_str(&fname));
+    if( g.zLocalRoot!=0 ){
+      file_relative_name(g.zLocalRoot, &fname, 1);
+      zFile = db_text(0, "SELECT '%qci-comment-'||hex(randomblob(6))||'.txt'",
+                      blob_str(&fname));
+    }else{
+      file_tempname(&fname, "ci-comment",0);
+      zFile = mprintf("%s", blob_str(&fname));
+    }
     blob_reset(&fname);
   }
 #if defined(_WIN32)
   blob_add_cr(pPrompt);
 #endif
-  blob_write_to_file(pPrompt, zFile);
+  if( blob_size(pPrompt)>0 ) blob_write_to_file(pPrompt, zFile);
   if( zEditor ){
-    zCmd = mprintf("%s \"%s\"", zEditor, zFile);
+    char *z, *zEnd;
+    zCmd = mprintf("%s %$", zEditor, zFile);
     fossil_print("%s\n", zCmd);
     if( fossil_system(zCmd) ){
       fossil_fatal("editor aborted: \"%s\"", zCmd);
     }
-
-    blob_read_from_file(&reply, zFile);
+    blob_read_from_file(&reply, zFile, ExtFILE);
+    z = blob_str(&reply);
+    zEnd = strstr(z, "##########");
+    if( zEnd ){
+      /* Truncate the reply at any sequence of 10 or more # characters.
+      ** The diff for the -v option occurs after such a sequence. */
+      blob_resize(&reply, (int)(zEnd - z));
+    }
   }else{
     char zIn[300];
     blob_zero(&reply);
@@ -1274,7 +1289,8 @@ static void prepare_commit_comment(
   Blob *pComment,
   char *zInit,
   CheckinInfo *p,
-  int parent_rid
+  int parent_rid,
+  int dryRunFlag
 ){
   Blob prompt;
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -1293,6 +1309,10 @@ static void prepare_commit_comment(
         " Lines beginning with # are ignored.\n"
     "#\n", -1
   );
+  if( dryRunFlag ){
+    blob_appendf(&prompt, "# DRY-RUN:  This is a test commit.  No changes "
+                          "will be made to the repository\n#\n");
+  }
   blob_appendf(&prompt, "# user: %s\n",
                p->zUserOvrd ? p->zUserOvrd : login_name());
   if( p->zBranch && p->zBranch[0] ){
@@ -1329,9 +1349,111 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
+  if( p->verboseFlag ){
+    DiffConfig DCfg;
+    blob_appendf(&prompt,
+        "#\n%.78c\n"
+        "# The following diff is excluded from the commit message:\n#\n",
+        '#'
+    );
+    diff_options(&DCfg, 0, 1);
+    DCfg.diffFlags |= DIFF_VERBOSE;
+    if( g.aCommitFile ){
+      FileDirList *diffFiles;
+      int i;
+      for(i=0; g.aCommitFile[i]!=0; ++i){}
+      diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
+      for(i=0; g.aCommitFile[i]!=0; ++i){
+        diffFiles[i].zName  = db_text(0,
+         "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
+        if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
+          diffFiles[0].zName[0] = '.';
+          diffFiles[0].zName[1] = 0;
+          break;
+        }
+        diffFiles[i].nName = strlen(diffFiles[i].zName);
+        diffFiles[i].nUsed = 0;
+      }
+      diff_against_disk(0, &DCfg, diffFiles, &prompt);
+      for( i=0; diffFiles[i].zName; ++i ){
+        fossil_free(diffFiles[i].zName);
+      }
+      fossil_free(diffFiles);
+    }else{
+      diff_against_disk(0, &DCfg, 0, &prompt);
+    }
+  }
   prompt_for_user_comment(pComment, &prompt);
   blob_reset(&prompt);
 }
+
+/*
+** Prepare text that describes a pending commit and write it into
+** a file at the root of the check-in.  Return the name of that file.
+**
+** Space to hold the returned filename is obtained from fossil_malloc()
+** and should be freed by the caller.  The caller should also unlink
+** the file when it is done.
+*/
+static char *prepare_commit_description_file(
+  CheckinInfo *p,     /* Information about this commit */
+  int parent_rid,     /* parent check-in */
+  Blob *pComment,     /* Check-in comment */
+  int dryRunFlag      /* True for a dry-run only */
+){
+  Blob *pDesc;
+  char *zTags;
+  char *zFilename;
+  Blob desc;
+  blob_init(&desc, 0, 0);
+  pDesc = &desc;
+  blob_appendf(pDesc, "checkout %s\n", g.zLocalRoot);
+  blob_appendf(pDesc, "repository %s\n", g.zRepositoryName);
+  blob_appendf(pDesc, "user %s\n",
+               p->zUserOvrd ? p->zUserOvrd : login_name());
+  blob_appendf(pDesc, "branch %s\n",
+    (p->zBranch && p->zBranch[0]) ? p->zBranch : "trunk");
+  zTags = info_tags_of_checkin(parent_rid, 1);
+  if( zTags || p->azTag ){
+    blob_append(pDesc, "tags ", -1);
+    if(zTags){
+      blob_appendf(pDesc, "%z%s", zTags, p->azTag ? ", " : "");
+    }
+    if(p->azTag){
+      int i = 0;
+      for( ; p->azTag[i]; ++i ){
+        blob_appendf(pDesc, "%s%s", p->azTag[i],
+                     p->azTag[i+1] ? ", " : "");
+      }
+    }
+    blob_appendf(pDesc, "\n");
+  }
+  status_report(pDesc, C_DEFAULT | C_FATAL);
+  if( g.markPrivate ){
+    blob_append(pDesc, "private-branch\n", -1);
+  }
+  if( p->integrateFlag ){
+    blob_append(pDesc, "integrate\n", -1);
+  }
+  if( pComment && blob_size(pComment)>0 ){
+    blob_appendf(pDesc, "checkin-comment\n%s\n", blob_str(pComment));
+  }
+  if( dryRunFlag ){
+    zFilename = 0;
+    fossil_print("******* Commit Description *******\n%s"
+                 "***** End Commit Description *****\n",
+                 blob_str(pDesc));
+  }else{
+    unsigned int r[2];
+    sqlite3_randomness(sizeof(r), r);
+    zFilename = mprintf("%scommit-description-%08x%08x.txt",
+                        g.zLocalRoot, r[0], r[1]);
+    blob_write_to_file(pDesc, zFilename);
+  }
+  blob_reset(pDesc);
+  return zFilename;
+}
+
 
 /*
 ** Populate the Global.aCommitFile[] based on the command line arguments
@@ -1395,28 +1517,41 @@ int select_commit_files(void){
 }
 
 /*
+** Returns true if the checkin identified by the first parameter is
+** older than the given (valid) date/time string, else returns false.
+** Also returns true if rid does not refer to a checkin, but it is not
+** intended to be used for that case.
+*/
+int checkin_is_younger(
+  int rid,              /* The record ID of the ancestor */
+  const char *zDate     /* Date & time of the current check-in */
+){
+  return db_exists(
+    "SELECT 1 FROM event"
+    " WHERE datetime(mtime)>=%Q"
+    "   AND type='ci' AND objid=%d",
+    zDate, rid
+  ) ? 0 : 1;
+}
+
+/*
 ** Make sure the current check-in with timestamp zDate is younger than its
 ** ancestor identified rid and zUuid.  Throw a fatal error if not.
 */
 static void checkin_verify_younger(
   int rid,              /* The record ID of the ancestor */
-  const char *zUuid,    /* The artifact ID of the ancestor */
+  const char *zUuid,    /* The artifact hash of the ancestor */
   const char *zDate     /* Date & time of the current check-in */
 ){
 #ifndef FOSSIL_ALLOW_OUT_OF_ORDER_DATES
-  int b;
-  b = db_exists(
-    "SELECT 1 FROM event"
-    " WHERE datetime(mtime)>=%Q"
-    "   AND type='ci' AND objid=%d",
-    zDate, rid
-  );
-  if( b ){
+  if(checkin_is_younger(rid,zDate)==0){
     fossil_fatal("ancestor check-in [%S] (%s) is not older (clock skew?)"
                  " Use --allow-older to override.", zUuid, zDate);
   }
 #endif
 }
+
+
 
 /*
 ** zDate should be a valid date string.  Convert this string into the
@@ -1466,6 +1601,7 @@ struct CheckinInfo {
   int verifyDate;             /* Verify that child is younger */
   int closeFlag;              /* Close the branch being committed */
   int integrateFlag;          /* Close merged-in branches */
+  int verboseFlag;            /* Show diff in editor for check-in comment */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd;      /* User override.  If 0 then use login_name() */
@@ -1481,14 +1617,14 @@ struct CheckinInfo {
 */
 static void create_manifest(
   Blob *pOut,                 /* Write the manifest here */
-  const char *zBaselineUuid,  /* UUID of baseline, or zero */
+  const char *zBaselineUuid,  /* Hash of baseline, or zero */
   Manifest *pBaseline,        /* Make it a delta manifest if not zero */
   int vid,                    /* BLOB.id for the parent check-in */
   CheckinInfo *p,             /* Information about the check-in */
   int *pnFBcard               /* OUT: Number of generated B- and F-cards */
 ){
   char *zDate;                /* Date of the check-in */
-  char *zParentUuid = 0;      /* UUID of parent check-in */
+  char *zParentUuid = 0;      /* Hash of parent check-in */
   Blob filename;              /* A single filename */
   int nBasename;              /* Size of base filename */
   Stmt q;                     /* Various queries */
@@ -1560,7 +1696,7 @@ static void create_manifest(
     if( isSelected ){
       int mPerm;
 
-      mPerm = file_wd_perm(blob_str(&filename));
+      mPerm = file_perm(blob_str(&filename), RepoFILE);
       isExe = ( mPerm==PERM_EXE );
       isLink = ( mPerm==PERM_LNK );
     }
@@ -1615,7 +1751,7 @@ static void create_manifest(
       if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ){
         continue;
       }
-      zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+      zMergeUuid = rid_to_uuid(mid);
       if( zMergeUuid ){
         blob_appendf(pOut, " %s", zMergeUuid);
         if( p->verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
@@ -1628,10 +1764,9 @@ static void create_manifest(
   free(zDate);
 
   db_prepare(&q,
-    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
-    "  FROM vmerge, blob"
+    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || mhash, merge"
+    "  FROM vmerge"
     " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
-    "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCherrypickUuid = db_column_text(&q, 0);
@@ -1660,7 +1795,7 @@ static void create_manifest(
   if( p->closeFlag ){
     blob_appendf(pOut, "T +closed *\n");
   }
-  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+  db_prepare(&q, "SELECT mhash,merge FROM vmerge"
                  " WHERE id %s ORDER BY 1",
                  p->integrateFlag ? "IN(0,-4)" : "=(-4)");
   while( db_step(&q)==SQLITE_ROW ){
@@ -1668,6 +1803,14 @@ static void create_manifest(
     int rid = db_column_int(&q, 1);
     if( is_a_leaf(rid) && !db_exists("SELECT 1 FROM tagxref "
         " WHERE tagid=%d AND rid=%d AND tagtype>0", TAG_CLOSED, rid)){
+#if 0
+      /* Make sure the check-in manifest of the resulting merge child does not
+      ** include a +close tag referring to the leaf check-in on a private
+      ** branch, so as not to generate a missing artifact reference on
+      ** repository clones without that private branch.  The merge command
+      ** should have dropped the --integrate option, at this point. */
+      assert( !content_is_private(rid) );
+#endif
       blob_appendf(pOut, "T +closed %s\n", zIntegrateUuid);
     }
   }
@@ -1716,6 +1859,7 @@ static int commit_warning(
   int crlfOk,            /* Non-zero if CR/LF warnings should be disabled. */
   int binOk,             /* Non-zero if binary warnings should be disabled. */
   int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
+  int sizeOk,            /* Non-zero if oversize warnings are disabled */
   int noPrompt,          /* 0 to always prompt, 1 for 'N', 2 for 'Y'. */
   const char *zFilename, /* The full name of the file being committed. */
   Blob *pReason          /* Reason for warning, if any (non-fatal only). */
@@ -1733,23 +1877,29 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = could_be_utf16(pContent, &bReverse);
-  if( fUnicode ){
-    lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
-  }else{
-    lookFlags = looks_like_utf8(pContent, LOOK_NUL);
-    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
-      fHasInvalidUtf8 = 1;
+  if( sizeOk ){
+    fUnicode = could_be_utf16(pContent, &bReverse);
+    if( fUnicode ){
+      lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
+    }else{
+      lookFlags = looks_like_utf8(pContent, LOOK_NUL);
+      if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
+        fHasInvalidUtf8 = 1;
+      }
     }
+    fHasAnyCr = (lookFlags & LOOK_CR);
+    fBinary = (lookFlags & LOOK_BINARY);
+    fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
+    fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
+  }else{
+    fUnicode = fHasAnyCr = fBinary = fHasInvalidUtf8 = 0;
+    fHasLoneCrOnly = fHasCrLfOnly = 0;
   }
-  fHasAnyCr = (lookFlags & LOOK_CR);
-  fBinary = (lookFlags & LOOK_BINARY);
-  fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
-  fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
-  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
-    const char *zWarning;
-    const char *zDisable;
+  if( !sizeOk || fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
+    const char *zWarning = 0;
+    const char *zDisable = 0;
     const char *zConvert = "c=convert/";
+    const char *zIn = "in";
     Blob ans;
     char cReply;
 
@@ -1797,6 +1947,9 @@ static int commit_warning(
         zWarning = "mixed line endings";
       }
       zDisable = "\"crlf-glob\" setting";
+    }else if( !sizeOk ){
+      zWarning = "oversize";
+      zIn = "file";
     }else{
       if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
@@ -1805,11 +1958,18 @@ static int commit_warning(
       zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
-    zMsg = mprintf(
-         "%s contains %s. Use --no-warnings or the %s to"
-                 " disable this warning.\n"
-         "Commit anyhow (a=all/%sy/N)? ",
-         blob_str(&fname), zWarning, zDisable, zConvert);
+    if( !sizeOk ){
+      zMsg = mprintf(
+           "%s is more than %,lld bytes in size.\n"
+           "Commit anyhow (a=all/y/N)? ",
+           blob_str(&fname), db_large_file_size());
+    }else{
+      zMsg = mprintf(
+           "%s contains %s. Use --no-warnings or the %s to"
+                   " disable this warning.\n"
+           "Commit anyhow (a=all/%sy/N)? ",
+           blob_str(&fname), zWarning, zDisable, zConvert);
+    }
     if( noPrompt==0 ){
       prompt_user(zMsg, &ans);
       cReply = blob_str(&ans)[0];
@@ -1847,8 +2007,8 @@ static int commit_warning(
       }
       return 1;
     }else if( cReply!='y' && cReply!='Y' ){
-      fossil_fatal("Abandoning commit due to %s in %s",
-                   zWarning, blob_str(&fname));
+      fossil_fatal("Abandoning commit due to %s %s %s",
+                   zWarning, zIn, blob_str(&fname));
     }else if( noPrompt==2 ){
       if( pReason ){
         blob_append(pReason, zWarning, -1);
@@ -1878,11 +2038,13 @@ void test_commit_warning(void){
   int rc = 0;
   int noSettings;
   int verboseFlag;
+  i64 mxSize;
   Stmt q;
   noSettings = find_option("no-settings",0,0)!=0;
   verboseFlag = find_option("verbose","v",0)!=0;
   verify_all_options();
   db_must_be_within_tree();
+  mxSize = db_large_file_size();
   db_prepare(&q,
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
       " WHERE NOT deleted",
@@ -1897,7 +2059,7 @@ void test_commit_warning(void){
     const char *zName;
     Blob content;
     Blob reason;
-    int crlfOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk, sizeOk;
     int fileRc;
 
     zFullname = db_column_text(&q, 0);
@@ -1905,14 +2067,11 @@ void test_commit_warning(void){
     crlfOk = db_column_int(&q, 2);
     binOk = db_column_int(&q, 3);
     encodingOk = db_column_int(&q, 4);
+    sizeOk = mxSize<=0 || file_size(zFullname, ExtFILE)<=mxSize;
     blob_zero(&content);
-    if( file_wd_islink(zFullname) ){
-      blob_read_link(&content, zFullname);
-    }else{
-      blob_read_from_file(&content, zFullname);
-    }
+    blob_read_from_file(&content, zFullname, RepoFILE);
     blob_zero(&reason);
-    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, 2,
+    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, sizeOk, 2,
                             zFullname, &reason);
     if( fileRc || verboseFlag ){
       fossil_print("%d\t%s\t%s\n", fileRc, zName, blob_str(&reason));
@@ -1934,10 +2093,11 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
-** COMMAND: ci*
+** COMMAND: ci#
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?
+**    or: %fossil ci ?OPTIONS? ?FILE...?
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
@@ -1999,23 +2159,34 @@ static int tagCmp(const void *a, const void *b){
 **    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
+**                                 ("auto" lets Fossil choose it automatically,
+**                                  even for private branches)
 **    --close                    close the branch being committed
+**    --date-override DATETIME   DATE to use instead of 'now'
 **    --delta                    use a delta manifest in the commit process
+**    --hash                     verify file status using hashing rather
+**                               than relying on file mtimes
+**    --ignore-clock-skew        If a clock skew is detected, ignore it and
+**                               behave as if the user had entered 'yes' to
+**                               the question of whether to proceed despite
+**                               the skew.
+**    --ignore-oversize          Do not warning the user about oversized files
 **    --integrate                close all merged-in branches
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
+**    -v|--verbose               Show a diff in the commit message prompt
 **    --no-prompt                This option disables prompting the user for
 **                               input and assumes an answer of 'No' for every
 **                               question.
 **    --no-warnings              omit all warnings about file contents
+**    --no-verify                do not run before-commit hooks
 **    --nosign                   do not attempt to sign this commit with gpg
+**    --override-lock            allow a check-in even though parent is locked
 **    --private                  do not sync changes and their descendants
-**    --hash                     verify file status using hashing rather
-**                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --date-override DATETIME   DATE to use instead of 'now'
+**    --trace                    debug tracing.
 **    --user-override USER       USER to use instead of the current default
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
@@ -2024,7 +2195,7 @@ static int tagCmp(const void *a, const void *b){
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
-** See also: branch, changes, checkout, extras, sync
+** See also: [[branch]], [[changes]], [[update]], [[extras]], [[sync]]
 */
 void commit_cmd(void){
   int hasChanges;        /* True if unsaved changes exist */
@@ -2034,11 +2205,15 @@ void commit_cmd(void){
   Blob comment;          /* Check-in comment */
   const char *zComment;  /* Check-in comment */
   Stmt q;                /* Various queries */
-  char *zUuid;           /* UUID of the new check-in */
+  char *zUuid;           /* Hash of the new check-in */
   int useHash = 0;       /* True to verify file status using hashing */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
+  int privateFlag = 0;   /* True if the --private option is present */
+  int privateParent = 0; /* True if the parent check-in is private */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
+  int noVerify = 0;      /* Do not run before-commit hooks */
+  int bTrace = 0;        /* Debug tracing */
   int noPrompt = 0;      /* True if skipping all prompts */
   int forceFlag = 0;     /* Undocumented: Disables all checks */
   int forceDelta = 0;    /* Force a delta-manifest */
@@ -2064,18 +2239,29 @@ void commit_cmd(void){
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
-  int abortCommit = 0;
-  Blob ans;
-  char cReply;
+  int abortCommit = 0;   /* Abort the commit due to text format conversions */
+  Blob ans;              /* Answer to continuation prompts */
+  char cReply;           /* First character of ans */
+  int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
+  int bAutoBrClr = 0;    /* Value of "--branchcolor" is "auto" */
+  int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
+  int mxSize;
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
-  useHash = find_option("hash", 0, 0)!=0;
+  /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
+  useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   noSign = find_option("nosign",0,0)!=0;
+  privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
-  if( forceDelta && forceBaseline ){
-    fossil_fatal("cannot use --delta and --baseline together");
+  if( forceDelta ){
+    if( forceBaseline ){
+      fossil_fatal("cannot use --delta and --baseline together");
+    }
+    if( db_get_boolean("forbid-delta-manifests",0) ){
+      fossil_fatal("delta manifests are prohibited in this repository");
+    }
   }
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -2086,15 +2272,23 @@ void commit_cmd(void){
   allowConflict = find_option("allow-conflict",0,0)!=0;
   allowEmpty = find_option("allow-empty",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
+  if( find_option("override-lock",0,0)!=0 ) allowFork = 1;
   allowOlder = find_option("allow-older",0,0)!=0;
   noPrompt = find_option("no-prompt", 0, 0)!=0;
   noWarningFlag = find_option("no-warnings", 0, 0)!=0;
+  noVerify = find_option("no-verify",0,0)!=0;
+  bTrace = find_option("trace",0,0)!=0;
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
+  if ( fossil_strncmp(sCiInfo.zBrClr, "auto", 4)==0 ) {
+    bAutoBrClr = 1;
+    sCiInfo.zBrClr = 0;
+  }
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
+  sCiInfo.verboseFlag = find_option("verbose", "v", 0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
     sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag,
@@ -2103,25 +2297,48 @@ void commit_cmd(void){
     sCiInfo.azTag[nTag] = 0;
   }
   zComFile = find_option("message-file", "M", 1);
-  if( find_option("private",0,0) ){
-    g.markPrivate = 1;
-    if( sCiInfo.zBranch==0 ) sCiInfo.zBranch = "private";
-    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 ){
-      sCiInfo.zBrClr = "#fec084";  /* Orange */
-    }
-  }
   sCiInfo.zDateOvrd = find_option("date-override",0,1);
   sCiInfo.zUserOvrd = find_option("user-override",0,1);
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
+  bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
   outputManifest = db_get_manifest_setting();
+  mxSize = db_large_file_size();
+  if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
   verify_all_options();
+
+  /* Get the ID of the parent manifest artifact */
+  vid = db_lget_int("checkout", 0);
+  if( vid==0 ){
+    useCksum = 1;
+    if( privateFlag==0 && sCiInfo.zBranch==0 ) {
+      sCiInfo.zBranch=db_get("main-branch", 0);
+    }
+  }else{
+    privateParent = content_is_private(vid);
+  }
+
+  /* Track the "private" status */
+  g.markPrivate = privateFlag || privateParent;
+  if( privateFlag && !privateParent ){
+    /* Apply default branch name ("private") and color ("orange") if not
+    ** specified otherwise on the command-line, and if the parent is not
+    ** already private. */
+    if( sCiInfo.zBranch==0 ) sCiInfo.zBranch = "private";
+    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 && !bAutoBrClr) {
+      sCiInfo.zBrClr = "#fec084";
+    }
+  }
 
   /* Do not allow the creation of a new branch using an existing open
   ** branch name unless the --force flag is used */
-  if( sCiInfo.zBranch!=0 && !forceFlag && branch_is_open(sCiInfo.zBranch) ){
+  if( sCiInfo.zBranch!=0
+   && !forceFlag
+   && fossil_strcmp(sCiInfo.zBranch,"private")!=0
+   && branch_is_open(sCiInfo.zBranch)
+  ){
     fossil_fatal("an open branch named \"%s\" already exists - use --force"
                  " to override", sCiInfo.zBranch);
   }
@@ -2133,38 +2350,49 @@ void commit_cmd(void){
     qsort((void*)sCiInfo.azTag, nTag, sizeof(sCiInfo.azTag[0]), tagCmp);
   }
 
+  /*
+  ** Autosync if autosync is enabled and this is not a private check-in.
+  */
+  if( !g.markPrivate ){
+    int syncFlags = SYNC_PULL;
+    if( vid!=0 && !allowFork && !forceFlag ){
+      syncFlags |= SYNC_CKIN_LOCK;
+    }
+    if( autosync_loop(syncFlags, 1, "commit") ){
+      fossil_exit(1);
+    }
+  }
+
   /* So that older versions of Fossil (that do not understand delta-
   ** manifest) can continue to use this repository, do not create a new
   ** delta-manifest unless this repository already contains one or more
   ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
+  **
+  ** The forbid-delta-manifests setting prevents new delta manifests.
+  **
+  ** If the remote repository sent an avoid-delta-manifests pragma on
+  ** the autosync above, then also try to avoid deltas, unless the
+  ** --delta option is specified.  The remote repo will send the
+  ** avoid-delta-manifests pragma if it has its "forbid-delta-manifests"
+  ** setting is enabled.
   */
-  if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
-    forceBaseline = 1;
+  if( !db_get_boolean("seen-delta-manifest",0)
+   || db_get_boolean("forbid-delta-manifests",0)
+   || g.bAvoidDeltaManifests
+  ){
+    if( !forceDelta ) forceBaseline = 1;
   }
 
-  /* Get the ID of the parent manifest artifact */
-  vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    useCksum = 1;
-  }else if( content_is_private(vid) ){
-    g.markPrivate = 1;
-  }
-
-  /*
-  ** Autosync if autosync is enabled and this is not a private check-in.
-  */
-  if( !g.markPrivate ){
-    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1) ){
-      fossil_exit(1);
-    }
-  }
 
   /* Require confirmation to continue with the check-in if there is
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    if( !noPrompt ){
+    if( bIgnoreSkew!=0 ){
+      cReply = 'y';
+      fossil_warning("Clock skew ignored due to --ignore-clock-skew.");
+    }else if( !noPrompt ){
       prompt_user("continue in spite of time skew (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       blob_reset(&ans);
@@ -2257,66 +2485,95 @@ void commit_cmd(void){
                  "--allow-empty to override.");
   }
 
-  /*
-  ** Do not allow a commit that will cause a fork unless the --allow-fork
-  ** or --force flags is used, or unless this is a private check-in.
-  ** The initial commit MUST have tags "trunk" and "sym-trunk".
+  /* This loop checks for potential forks and for check-ins against a
+  ** closed branch.  The checks are repeated once after interactive
+  ** check-in comment editing.
   */
-  if( !vid ){
-    if( sCiInfo.zBranch==0 ){
-      if( allowFork==0 && forceFlag==0 && g.markPrivate==0
-        && db_exists("SELECT 1 from event where type='ci'") ){
-        fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
-      }
-      sCiInfo.zBranch = db_get("main-branch", "trunk");
-    }
-  }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
-    && g.markPrivate==0 && !is_a_leaf(vid)
-  ){
-    fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
-  }
-
-  /*
-  ** Do not allow a commit against a closed leaf unless the commit
-  ** ends up on a different branch.
-  */
-  if(
-      /* parent check-in has the "closed" tag... */
-      db_exists("SELECT 1 FROM tagxref"
-                " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                TAG_CLOSED, vid)
-      /* ... and the new check-in has no --branch option or the --branch
-      ** option does not actually change the branch */
-   && (sCiInfo.zBranch==0
-       || db_exists("SELECT 1 FROM tagxref"
-                    " WHERE tagid=%d AND rid=%d AND tagtype>0"
-                    "   AND value=%Q", TAG_BRANCH, vid, sCiInfo.zBranch))
-  ){
-    fossil_fatal("cannot commit against a closed leaf");
-  }
-
-  if( zComment ){
-    blob_zero(&comment);
-    blob_append(&comment, zComment, -1);
-  }else if( zComFile ){
-    blob_zero(&comment);
-    blob_read_from_file(&comment, zComFile);
-    blob_to_utf8_no_bom(&comment, 1);
-  }else if( dryRunFlag ){
-    blob_zero(&comment);
-  }else if( !noPrompt ){
-    char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
-    prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
-    if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
-      prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
-      blob_reset(&ans);
-      if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
+  do{
+    /*
+    ** Do not allow a commit that will cause a fork unless the --allow-fork
+    ** or --force flags is used, or unless this is a private check-in.
+    ** The initial commit MUST have tags "trunk" and "sym-trunk".
+    */
+    if( sCiInfo.zBranch==0
+     && allowFork==0
+     && forceFlag==0
+     && g.markPrivate==0
+     && (vid==0 || !is_a_leaf(vid) || g.ckinLockFail)
+    ){
+      if( g.ckinLockFail ){
+        fossil_fatal("Might fork due to a check-in race with user \"%s\"\n"
+                     "Try \"update\" first, or --branch, or "
+                     "use --override-lock",
+                     g.ckinLockFail);
+      }else{
+        fossil_fatal("Would fork.  \"update\" first or use --branch or "
+                     "--allow-fork.");
       }
     }
-    free(zInit);
-  }
+  
+    /*
+    ** Do not allow a commit against a closed leaf unless the commit
+    ** ends up on a different branch.
+    */
+    if(
+        /* parent check-in has the "closed" tag... */
+       leaf_is_closed(vid)
+        /* ... and the new check-in has no --branch option or the --branch
+        ** option does not actually change the branch */
+     && (sCiInfo.zBranch==0
+         || db_exists("SELECT 1 FROM tagxref"
+                      " WHERE tagid=%d AND rid=%d AND tagtype>0"
+                      "   AND value=%Q", TAG_BRANCH, vid, sCiInfo.zBranch))
+    ){
+      fossil_fatal("cannot commit against a closed leaf");
+    }
+
+    /* Always exit the loop on the second pass */
+    if( bRecheck ) break;
+
+  
+    /* Get the check-in comment.  This might involve prompting the
+    ** user for the check-in comment, in which case we should resync
+    ** to renew the check-in lock and repeat the checks for conflicts.
+    */
+    if( zComment ){
+      blob_zero(&comment);
+      blob_append(&comment, zComment, -1);
+    }else if( zComFile ){
+      blob_zero(&comment);
+      blob_read_from_file(&comment, zComFile, ExtFILE);
+      blob_to_utf8_no_bom(&comment, 1);
+    }else if( !noPrompt ){
+      char *zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
+      prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
+      if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
+        prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+        if( cReply!='y' && cReply!='Y' ){
+          fossil_fatal("Commit aborted.");
+        }
+      }
+      free(zInit);
+      db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+      db_end_transaction(0);
+      db_begin_transaction();
+      if( !g.markPrivate && vid!=0 && !allowFork && !forceFlag ){
+        /* Do another auto-pull, renewing the check-in lock.  Then set
+        ** bRecheck so that we loop back above to verify that the check-in
+        ** is still not against a closed branch and still won't fork. */
+        int syncFlags = SYNC_PULL|SYNC_CKIN_LOCK;
+        if( autosync_loop(syncFlags, 1, "commit") ){
+          fossil_fatal("Auto-pull failed. Commit aborted.");
+        }
+        bRecheck = 1;
+      }
+    }else{
+      blob_zero(&comment);
+    }
+  }while( bRecheck );
+
   if( blob_size(&comment)==0 ){
     if( !dryRunFlag ){
       if( !noPrompt ){
@@ -2324,17 +2581,27 @@ void commit_cmd(void){
         cReply = blob_str(&ans)[0];
         blob_reset(&ans);
       }else{
-        fossil_print("Abandoning commit due to empty check-in comment\n");
         cReply = 'N';
       }
       if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
+        fossil_fatal("Abandoning commit due to empty check-in comment\n");
       }
     }
-  }else{
-    db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
-    db_end_transaction(0);
-    db_begin_transaction();
+  }
+
+  if( !noVerify && hook_exists("before-commit") ){
+    /* Run before-commit hooks */
+    char *zAuxFile;
+    zAuxFile = prepare_commit_description_file(
+                     &sCiInfo, vid, &comment, dryRunFlag);
+    if( zAuxFile ){
+      int rc = hook_run("before-commit",zAuxFile,bTrace);
+      file_delete(zAuxFile);
+      fossil_free(zAuxFile);
+      if( rc ){
+        fossil_fatal("Before-commit hook failed\n");
+      }
+    }
   }
 
   /*
@@ -2351,7 +2618,7 @@ void commit_cmd(void){
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
-    "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
+    "WHERE chnged<>0 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
     glob_expr("pathname", db_get("crlf-glob",db_get("crnl-glob",""))),
     glob_expr("pathname", db_get("binary-glob","")),
@@ -2361,7 +2628,7 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crlfOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk, sizeOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
@@ -2369,18 +2636,14 @@ void commit_cmd(void){
     crlfOk = db_column_int(&q, 3);
     binOk = db_column_int(&q, 4);
     encodingOk = db_column_int(&q, 5);
+    sizeOk = mxSize<=0 || file_size(zFullname, ExtFILE)<=mxSize;
 
     blob_zero(&content);
-    if( file_wd_islink(zFullname) ){
-      /* Instead of file content, put link destination path */
-      blob_read_link(&content, zFullname);
-    }else{
-      blob_read_from_file(&content, zFullname);
-    }
+    blob_read_from_file(&content, zFullname, RepoFILE);
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crlfOk, binOk,
-                                    encodingOk, noPrompt,
+                                    encodingOk, sizeOk, noPrompt,
                                     zFullname, 0);
     }
     if( contains_merge_marker(&content) ){
@@ -2394,11 +2657,14 @@ void commit_cmd(void){
     }
     nrid = content_put(&content);
     blob_reset(&content);
-    if( rid>0 ){
-      content_deltify(rid, nrid, 0);
+    if( nrid!=rid ){
+      if( rid>0 ){
+        content_deltify(rid, &nrid, 1, 0);
+      }
+      db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
+                    nrid,nrid,id);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
     }
-    db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d WHERE id=%d", nrid,nrid,id);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   }
   db_finalize(&q);
   if( nConflict && !allowConflict ){
@@ -2470,11 +2736,10 @@ void commit_cmd(void){
       cReply = blob_str(&ans)[0];
       blob_reset(&ans);
     }else{
-      fossil_print("Abandoning commit due to manifest signing failure\n");
       cReply = 'N';
     }
     if( cReply!='y' && cReply!='Y' ){
-      fossil_exit(1);
+      fossil_fatal("Abandoning commit due to manifest signing failure\n");
     }
   }
 
@@ -2488,7 +2753,7 @@ void commit_cmd(void){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManifestFile);
     blob_reset(&manifest);
-    blob_read_from_file(&manifest, zManifestFile);
+    blob_read_from_file(&manifest, zManifestFile, ExtFILE);
     free(zManifestFile);
   }
 
@@ -2502,11 +2767,10 @@ void commit_cmd(void){
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&manifest) );
-  content_deltify(vid, nvid, 0);
+  content_deltify(vid, &nvid, 1, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
 
-  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id=-4");
+  db_prepare(&q, "SELECT mhash,merge FROM vmerge WHERE id=-4");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
     if( is_a_leaf(db_column_int(&q, 1)) ){
@@ -2532,11 +2796,11 @@ void commit_cmd(void){
     "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND is_selected(id);"
     "DELETE FROM vmerge;"
     "UPDATE vfile SET vid=%d;"
-    "UPDATE vfile SET rid=mrid, chnged=0, deleted=0, origname=NULL"
+    "UPDATE vfile SET rid=mrid, mhash=NULL, chnged=0, deleted=0, origname=NULL"
     " WHERE is_selected(id);"
     , vid, nvid
   );
-  db_lset_int("checkout", nvid);
+  db_set_checkout(nvid);
 
   /* Update the isexe and islink columns of the vfile table */
   db_prepare(&q,
@@ -2597,7 +2861,7 @@ void commit_cmd(void){
   db_multi_exec("PRAGMA localdb.application_id=252006674;");
   if( dryRunFlag ){
     db_end_transaction(1);
-    exit(1);
+    return;
   }
   db_end_transaction(0);
 
@@ -2612,9 +2876,12 @@ void commit_cmd(void){
   }
 
   if( !g.markPrivate ){
-    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);
+    int syncFlags = SYNC_PUSH | SYNC_PULL | SYNC_IFABLE;
+    autosync_loop(syncFlags, 0, "commit");
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");
+  }else{
+    leaf_ambiguity_warning(nvid,nvid);
   }
 }

@@ -20,15 +20,27 @@
 
 test_setup
 
+# Disable backoffice for this test, otherwise its process lingers for some
+# time after the test has completed.
+# Perhaps, this should be done in test_setup and enabled explicitly only
+# when needed.
+fossil set backoffice-disable 1
+
 # Return true if two files are similar (i.e. not only compress trailing spaces
 # from a line, but remove any final LF from the file as well)
 proc similar_file {a b} {
-  set x [read_file $a]
-  regsub -all { +\n} $x \n x
-  regsub -all {\n$} $x {} x
-  set y [read_file $b]
-  regsub -all { +\n} $y \n y
-  regsub -all {\n$} $y {} y
+  set x ""
+  if {[file exists $a]} {
+    set x [read_file $a]
+    regsub -all { +\n} $x \n x
+    regsub -all {\n$} $x {} x
+  }
+  set y ""
+  if {[file exists $b]} {
+    set y [read_file $b]
+    regsub -all { +\n} $y \n y
+    regsub -all {\n$} $y {} y
+  }
   return [expr {$x==$y}]
 }
 
@@ -41,21 +53,21 @@ proc get_mime_type {name} {
   global CODE RESULT
   fossil http << "GET /wiki?name=$name"
   if {$CODE != 0} {
-    return error: /wiki?name=$name $CODE $RESULT"
+    return "error: /wiki?name=$name $CODE $RESULT"
   }
-  set CODE [regexp {href="/info/([0-9a-f]+)"} $RESULT match info]
-  if {$CODE == 0} {
-    return "error: No info link found for wiki page $name"
-  }
-  fossil http << "GET /artifact/$info"
+  fossil whatis --type w $name
   if {$CODE != 0} {
-    return "error: /artifact/$info $CODE $RESULT"
+    return "error: fossil whatis --type w $name $CODE $RESULT"
   }
-  set CODE [regexp {<pre>(.*)</pre>} $RESULT match pre]
+  set CODE [regexp -line {^artifact:\s*([0-9a-f]+)$} $RESULT match info]
   if {$CODE == 0} {
-    return "error: No pre block in /artifact/$info"
+    return "error: whatis returned no info for wiki page $name"
   }
-  set CODE [regexp -line {^N (.*)$} $pre match mimetype]
+  fossil artifact $info
+  if {$CODE != 0} {
+    return "error: fossil artifact $info $CODE $RESULT"
+  }
+  set CODE [regexp -line {^N (.*)$} $RESULT match mimetype]
   if {$CODE == 0} {
     return "text/x-fossil-wiki"
   }

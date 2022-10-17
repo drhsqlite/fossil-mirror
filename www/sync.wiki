@@ -9,12 +9,12 @@ content between two Fossil repositories.</p>
 collection of artifacts.  Each artifact is identified by a cryptographic
 hash of its content, expressed as a lower-case hexadecimal string.
 Synchronization is the process of sharing artifacts between
-servers so that all servers have copies of all artifacts.  Because
+repositories so that all repositories have copies of all artifacts.  Because
 artifacts are unordered, the order in which artifacts are received
-at a server is inconsequential.  It is assumed that the hash names
+is unimportant.  It is assumed that the hash names
 of artifacts are unique - that every artifact has a different hash.
 To a first approximation, synchronization proceeds by sharing lists
-hash values for available artifacts, then sharing the content of artifacts
+of hashes for available artifacts, then sharing the content of artifacts
 whose names are missing from one side or the other of the connection.
 In practice, a repository might contain millions of artifacts.  The list of
 hash names for this many artifacts can be large.  So optimizations are
@@ -24,12 +24,29 @@ shared to a few hundred.</p>
 <p>Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
-The local state is not using transferred during a sync.  Except,
+The local state is not usually transferred during a sync.  Except,
 some local state is transferred during a [/help?cmd=clone|clone]
-in order to initialize the local state of the new repository.  And
+in order to initialize the local state of the new repository.  Also,
+an administrator can sync local state using
 the [/help?cmd=configuration|config push] and
 [/help?cmd=configuration|config pull]
-commands can be an administrator to sync local state.</p>
+commands.
+
+<h3 id="crdt">1.1 Conflict-Free Replicated Datatypes</h3>
+
+<p>The "bag of artifacts" data model used by Fossil is apparently an
+implementation of a particular
+[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|Conflict-Free
+Replicated Datatype (CRDT)] called a "G-Set" or "Grow-only Set".  The
+academic literature on CRDTs only began to appear in about 2011, and
+Fossil predates that research by at least 4 years.  But it is nice to
+know that theorists have now proven that the underlying data model of
+Fossil can provide strongly-consistent replicas using only
+peer-to-peer communication and without any kind of central
+authority.</p>
+
+<p>If you are already familiar with CRDTs and were wondering if Fossil
+used them, the answer is "yes".  We just don't call them by that name.</p>
 
 
 <h2>2.0 Transport</h2>
@@ -43,7 +60,7 @@ request.</p>
 using the <b>server</b> command, or it might be launched from
 inetd or xinetd using the <b>http</b> command.  Or the server might
 be launched from CGI.
-(See "[./server.wiki|How To Configure A Fossil Server]" for details.)
+(See "[./server/|How To Configure A Fossil Server]" for details.)
 The specifics of how the server listens
 for incoming HTTP requests is immaterial to this protocol.
 The important point is that the server is listening for requests and
@@ -54,14 +71,45 @@ The client maintains state between all requests.  But on the server
 side, each request is independent.  The server does not preserve
 any information about the client from one request to the next.</p>
 
-<h4>2.0.1 Encrypted Transport</h4>
+<p>Note: Throughout this article, we use the terms "server" and "client"
+to represent the listener and initiator of the interaction, respectively.
+Nothing in this protocol requires that the server actually be a back-room
+processor housed in a datacenter, nor does the client need to be a desktop
+or handheld device.  For the purposes of this article "client" simply means
+the repository that initiates the conversation and "server" is the repository
+that responds.  Nothing more.</p>
+
+<h4>2.0.1 HTTPS Transport</h4>
 
 <p>In the current implementation of Fossil, the server only
 understands HTTP requests.  The client can send either
 clear-text HTTP requests or encrypted HTTPS requests.  But when
-HTTPS requests are sent, they first must be decrypted by a webserver
+HTTPS requests are sent, they first must be decrypted by a web server
 or proxy before being passed to the Fossil server.  This limitation
 may be relaxed in a future release.</p>
+
+<h4>2.0.2 SSH Transport</h4>
+
+<p>When doing a sync using an "ssh:..." URL, the same HTTP transport protocol
+is used.  Fossil simply uses [https://en.wikipedia.org/wiki/Secure_Shell|ssh]
+to start an instance of the [/help?cmd=test-http|fossil test-http] command
+running on the remote machine.  It then sends HTTP requests and gets back HTTP
+replies over the SSH connection, rather than sending and receiving over an
+internet socket.  To see the specific "ssh" command that the Fossil client
+runs in order to set up a connection, add either of the the "--httptrace" or
+"--sshtrace" options to the "fossil sync" command line.
+
+<h4>2.0.3 FILE Transport</h4>
+
+<p>When doing a sync using a "file:..." URL, the same HTTP protocol is
+still used.  But instead of sending each HTTP request over a socket or
+via SSH, the HTTP request is written into a temporary file.  The client
+then invokes the [/help?cmd=http|fossil http] command in a subprocess
+to process the request and and generate a reply.  The client then reads
+the HTTP reply out of a temporary file on disk, and deletes the two
+temporary files.  To see the specific "fossil http" command that is run
+in order to implement the "file:" transport, add the "--httptrace"
+option to the "fossil sync" command.
 
 <h3>2.1 Server Identification</h3>
 
@@ -398,6 +446,9 @@ using a gimme card in either the reply or in the next message.</p>
 identified by the first argument is private on the sender and should
 be ignored unless a "--private" [/help?cmd=sync|sync] is occurring.
 
+<p>The name "igot" comes from the English slang expression "I got" meaning
+"I have".
+
 <h4>3.6.1 Unversioned Igot Cards</h4>
 
 <p>Zero or more "uvigot" cards are sent from server to client when
@@ -424,7 +475,7 @@ but its reply message size is already oversized and hence unable to hold
 the usual uvfile reply.
 
 <p>When a client receives a "uvigot" card, it checks to see if the
-file needs to be transfered from client to server or from server to client.
+file needs to be transferred from client to server or from server to client.
 If a client-to-server transmission is needed, the client schedules that
 transfer to occur on a subsequent HTTP request.  If a server-to-client
 transfer is needed, then the client sends a "uvgimme" card back to the
@@ -444,6 +495,10 @@ artifact back to the sender.  The format of a gimme card is this:</p>
 the sender wants.  The receiver will typically respond to a
 gimme card by sending a file card in its reply or in the next
 message.</p>
+
+<p>The "gimme" name means "give me".  The imperative "give me" is
+pronounced as if it were a single word "gimme" in some dialects of 
+English (including the dialect spoken by the original author of Fossil).
 
 <h4>3.7.1 Unversioned Gimme Cards</h4>
 
@@ -499,7 +554,7 @@ data elements.
 <b>reqconfig</b> <i>configuration-name</i>
 </blockquote>
 
-<p>As of [/timeline?r=trunk&c=2015-03-19+03%3A57%3A46&n=20|2015-03-19], the configuration-name must be one of the
+<p>As of 2018-06-04, the configuration-name must be one of the
 following values:
 
 <table border=0 align="center">
@@ -508,6 +563,7 @@ following values:
 <li> css
 <li> header
 <li> footer
+<li> details
 <li> logo-mimetype
 <li> logo-image
 <li> background-mimetype
@@ -516,11 +572,15 @@ following values:
 <li> timeline-block-markup
 <li> timeline-max-comment
 <li> timeline-plaintext
-<ul></td><td valign="top"><ul>
 <li> adunit
 <li> adunit-omit-if-admin
 <li> adunit-omit-if-user
-<li> white-foreground
+<ul></td><td valign="top"><ul>
+<li> th1-docs
+<li> th1-hooks
+<li> th1-setup
+<li> tcl
+<li> tcl-setup
 <li> project-name
 <li> short-project-name
 <li> project-description
@@ -528,27 +588,35 @@ following values:
 <li> manifest
 <li> binary-glob
 <li> clean-glob
-<ul></td><td valign="top"><ul>
 <li> ignore-glob
 <li> keep-glob
 <li> crlf-glob
+<ul></td><td valign="top"><ul>
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs
-<li> allow-symlinks
+<li> <s>allow-symlinks</s> (removed 2020-08, version 2.12.1)
 <li> dotfiles
+<li> parent-project-code
+<li> parent-projet-name
+<li> hash-policy
+<li> mv-rm-files
 <li> ticket-table
 <li> ticket-common
 <li> ticket-change
 <li> ticket-newpage
-<ul></td><td valign="top"><ul>
 <li> ticket-viewpage
 <li> ticket-editpage
+<ul></td><td valign="top"><ul>
 <li> ticket-reportlist
 <li> ticket-report-template
 <li> ticket-key-template
 <li> ticket-title-expr
 <li> ticket-closed-expr
+<li> xfer-common-script
+<li> xfer-push-script
+<li> xfer-commit-script
+<li> xfer-ticket-script
 <li> @reportfmt
 <li> @user
 <li> @concealed
@@ -613,7 +681,7 @@ depending on the pragma name.
 in order to enhance the capabilities of Fossil.
 Unknown pragmas are silently ignored, for backwards compatibility.
 
-<p>The following are the known pragma names as of 2016-08-03:
+<p>The following are the known pragma names as of 2019-06-30:
 
 <ol>
 <li><p><b>send-private</b>
@@ -652,7 +720,7 @@ no further synchronization is required.
 <p>A server sends the uv-pull-only pragma to the client in response
 to a uv-hash pragma with a mismatched content hash argument.  This
 pragma indicates that there are differences in unversioned content
-between the client and server but that content can only be transfered
+between the client and server but that content can only be transferred
 from server to client.  The server is unwilling to accept content from
 the client because the client login lacks the "write-unversioned"
 permission.</p>
@@ -661,11 +729,39 @@ permission.</p>
 <p>A server sends the uv-push-ok pragma to the client in response
 to a uv-hash pragma with a mismatched content hash argument.  This
 pragma indicates that there are differences in unversioned content
-between the client and server and that content can only be transfered
+between the client and server and that content can be transferred
 in either direction.  The server is willing to accept content from
 the client because the client login has the "write-unversioned"
 permission.</p>
 
+<li><p><b>ci-lock</b> <i>CHECKIN-HASH CLIENT-ID</i></p>
+<p>A client sends the "ci-lock" pragma to the server to indicate
+that it is about to add a new check-in as a child of the
+CHECKIN-HASH check-in and on the same branch as CHECKIN-HASH.
+If some other client has already indicated that it was also
+trying to commit against CHECKIN-HASH, that indicates that a
+fork is about to occur, and the server will reply with
+a "ci-lock-fail" pragma (see below).  Check-in locks
+automatically expire when the check-in actually occurs, or
+after a timeout (currently one minute but subject to change).
+
+<li><p><b>ci-lock-fail</b> <i>LOGIN MTIME</i></p>
+<p>When a server receives two or more "ci-lock" pragma messages
+for the same check-in but from different clients, the second a
+subsequent ci-lock will provoke a ci-lock-fail pragma in the
+reply to let the client know that it if continues with the
+check-in it will likely generate a fork.  The LOGIN and MTIME
+arguments are intended to provide information to the client to
+help it generate a more useful error message.
+</p>
+
+<li><p><b>ci-unlock</b> <i>CLIENT-ID</i></p>
+<p>A client sends the "ci-unlock" pragma to the server after
+a successful commit.  This instructs the server to release
+any lock on any check-in previously held by that client.
+The ci-unlock pragma helps to avoid false-positive lock warnings
+that might arise if a check-in is aborted and then restarted
+on a branch.
 </ol>
 
 <h3>3.12 Comment Cards</h3>
@@ -673,7 +769,7 @@ permission.</p>
 <p>Any card that begins with "#" (ASCII 0x23) is a comment card and
 is silently ignored.</p>
 
-<h3>3.13 Error Cards</h3>
+<h3>3.13 Message and Error Cards</h3>
 
 <p>If the server discovers anything wrong with a request, it generates
 an error card in its reply.  When the client sees the error card,
@@ -692,6 +788,15 @@ newline (ASCII 0x0a) is "\n" (ASCII 0x6C, x6E).  A backslash
 space and newline, no other whitespace characters nor any
 unprintable characters are allowed in
 the error message.</p>
+
+<p>The server can also send a message card that also prints a
+message on the client console, but which is not an error:
+
+<blockquote>
+<b>message</b> <i>message-text</i>
+</blockquote>
+
+<p>The message-text uses the same format as an error message.
 
 <h3>3.14 Unknown Cards</h3>
 
@@ -832,7 +937,7 @@ pull, the client attempts to keep the size of the request from
 growing too large by suppressing file cards once the
 size of the request reaches 1MB.</p>
 
-<h3>5.3 Sync</h3>
+<h3 id="sync">5.3 Sync</h3>
 
 <p>A sync is just a pull and a push that happen at the same time.
 The first three steps of a pull are combined with the first five steps
@@ -914,6 +1019,7 @@ fit comfortably in a single HTTP request.
     <li> <b>config</b> <i>parameter-name size</i> <b>\n</b> <i>content</i>
     <li> <b>pragma</b> <i>name</i> <i>value...</i>
     <li> <b>error</b> <i>error-message</i>
+    <li> <b>message</b> <i>text-messate</i>
     <li> <b>#</b> <i>arbitrary-text...</i>
     </ul>
 <li>Phantoms are artifacts that a repository knows exist but does not possess.
@@ -924,3 +1030,39 @@ cluster and send igot messages for those artifacts.
 <li>Repositories keep track of all the phantoms they hold and send
 gimme messages for those artifacts.
 </ol>
+
+<h2>7.0 Troubleshooting And Debugging Hints</h2>
+
+<p>
+If you run the [/help?cmd=sync|fossil sync] command
+(or [/help?cmd=pull|pull] or [/help?cmd=push|push] or
+[/help?cmd=clone|clone]) with the --httptrace option, Fossil
+will keep a copy of each HTTP request and reply in files
+named:
+<ul>
+<li> <tt>http-request-</tt><i>N</i><tt>.txt</tt>
+<li> <tt>http-reply-</tt><i>N</i><tt>.txt</tt>
+</ul>
+
+<p>In the above, <i>N</i> is an integer that increments with each
+round-trip.  If you are having trouble on the server side,
+you can run the "[/help?cmd=test-http|fossil test-http]" command in a
+debugger using one the "http-request-N.txt" files as input and
+single step through the processing performed by the server.
+
+<p>The "--transport-command CMD" option on [/help?cmd=sync|fossil sync]
+(and similar) causes the external program "CMD" to be used to move
+the sync message to the server and retrieve the sync reply.  The
+CMD is given three arguments:
+<ol>
+<li> The URL of the server
+<li> The name of a temporary file that contains the output-bound sync
+     protocol text, with the HTTP headers
+<li> The name of a temporary file into which the CMD should write the
+     reply sync protocol text, again without any HTTP headers
+</ol>
+
+<p>In a complex debugging situation, you can run the command
+"fossil sync --transport-command ./debugging_script" where
+"debugging_script" is some script of your own that invokes
+the anomolous behavior your are trying to debug.

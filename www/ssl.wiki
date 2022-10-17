@@ -1,36 +1,310 @@
-<title>SSL and Fossil</title>
+<title>Securing a Repository with TLS</title>
 
-<h2>Using SSL with Fossil</h2>
+<h2>Using TLS-Encrypted Communications with Fossil</h2>
 
-If you are storing sensitive information in your repository, you should use SSL to encrypt all communications. This will protect the credentials used to access the server, as well preventing eavesdropping of the contents of your repository.
+If you are storing sensitive information in a repository accessible over
+a network whose integrity you do not fully trust, you should use TLS to
+encrypt all communications with it. This is most true for repositories
+accessed over the Internet, especially if they will be accessed from
+edge networks you do not control, since that admits of various forms of
+[https://en.wikipedia.org/wiki/Man-in-the-middle_attack|man in the
+middle attack].
 
-To host a repository with SSL, you need to use an web server which supports SSL in front of the Fossil server. You can host it using the CGI option or by proxying Fossil's built in HTTP server.
+TLS protects the credentials used to access the server, prevents
+eavesdropping, prevents in-flight data modification, prevents server
+identify spoofing, and more.
 
-Your fossil client must be built with SSL support. The <tt>configure</tt> script will attempt to find OpenSSL on your system, but if necessary, you can specify the location with the <tt>--with-openssl</tt> option. Type <tt>./configure --help</tt> for details.
-
-Make sure the URL you clone from uses the <tt>https:</tt> scheme to ensure you're using SSL. If your server is configured to serve the repository from http as well as https, it's easy to accidentally use unencrypted HTTP if you forget the all important 's'.
-
-
-<h2>Certificates</h2>
-
-To verify the identify of a server, SSL uses certificates. Fossil needs to know which certificates you trust.
-
-If you are using a self-signed certificate, you'll be asked if you want to accept the certificate the first time you communicate with the server. Verify the certificate fingerprint is correct, then answer "always" to remember your decision.
-
-If you are using a certificate signed by a certificate authority, you need to specify the certificates you trust with the <tt>ssl-ca-location</tt> setting. Set this globally with the <tt>-global</tt> option for convenience.
-
-This should be set to the location of a file containing all the PEM encoded certificates you trust. You can obtain a certificate using a web browser, for example, Firefox, or just refer to your system's trusted CA roots which are usually stored somewhere in <tt>/etc</tt>.
+There are two major aspects to this, both of which have to be addressed
+in different ways. Those are the subjects of the next two major
+sections.
 
 
-<h2>Client side certificates</h2>
+<h2 id="client">Client-Side Configuration</h2>
 
-You can also use client side certificates to add an extra layer of authentication, over and above Fossil's built in user management. If you are particularly paranoid, you'll want to use this to remove the ability of anyone on the internet from making any request to Fossil. Without presenting a valid client side certificate, the web server won't invoke the fossil CGI handler.
+You can build Fossil against [https://www.openssl.org/ |
+OpenSSL] to allow it to clone and sync with a remote
+Fossil repository via <tt>https</tt> URIs.
 
-Configure your server to request a client side certificate, and set up a certificate authority to sign your client certificates. For each person who needs to access the repository, create a private key and certificate signed with that CA.
 
-The PEM encoded private key and certificate should be stored in a single file, simply by concatenating the key and certificate files. Specify the location of this file with the <tt>ssl-identity</tt> setting, or the <tt>--ssl-identity</tt> option to the <tt>clone</tt> command.
+<h3 id="openssl-bin">Building Against OpenSSL Automatically</h3>
 
-If you've password protected the private key, the password will be requested every time you connect to the server. This password is not stored by fossil, as doing so would defeat the purpose of having a password.
+The <tt>configure</tt> script will attempt to find OpenSSL on your
+system automatically. It first tries asking the <tt>pkg-config</tt>
+system where the OpenSSL development files are, and if that fails, it
+falls back to looking through a list of likely directories.
 
-If you attempt to connect to a server which requests a client certificate, but don't provide one, fossil will show an error message which explains what to do to authenticate with the server.
+If it can't find the files it needs, the most common solution is to
+install the OpenSSL development package on your system via your OS's
+package manager. Examples:
 
+  *  <b>RHEL & Fedora</b>: <tt>sudo dnf install openssl-devel</tt>
+  *  <b>Debian & Ubuntu</b>: <tt>sudo apt install libssl-dev</tt>
+  *  <b>FreeBSD</b>: <tt>su -c 'pkg install openssl'</tt>
+  *  <b>macOS</b>: <tt>sudo brew install openssl</tt>
+  *  <b>Cygwin</b>: Install <tt>openssl-devel</tt> via Cygwin's
+     <tt>setup-*.exe</tt> program
+
+The macOS case requires explanation. Apple last shipped OpenSSL
+develpoment files in OS X 10.6 (Snow Leopard), choosing to deprecate it
+from that point forward. (Apple wants you to use their proprietary
+platform-specific encryption methods instead.) Since macOS has no
+built-in package manager, a number have sprung up out of the FOSS world.
+It is not known to this author whether Fossil's current build system can
+find OpenSSL as installed with any of these other package managers, so
+unless you have a particular reason to avoid it, we recomend that you
+use [https://brew.sh|Homebrew] on macOS to install OpenSSL as above.
+Fossil's build system will seek it out and use it automatically.
+
+
+<h3 id="openssl-src">Building Against a Non-Platform Version of
+OpenSSL</h3>
+
+The Fossil build system has a few other methods for finding OpenSSL when
+the automatic methods fail or when you'd prefer that Fossil use a
+different version of OpenSSL than the one Fossil's build system picks on
+its own.
+
+A good reason to do this is when the Fossil build system finds a
+functioning version of OpenSSL which is nevertheless unsuitable. One
+common case is that your OS is sufficiently outdated that the platform
+version of OpenSSL can no longer communicate with remote systems
+adhering to the latest advice on secure communications. An old OpenSSL
+might not support any of the
+[https://en.wikipedia.org/wiki/Cipher_suite|cipher suites] the remote
+Fossil repository's HTTPS proxy is willing to offer, for example, so
+that even though both sides are speaking a variant of TLS/SSL, the peers
+cannot come to an agreement on the cryptography.
+
+If you've installed the OpenSSL development files somewhere that
+Fossil's build system cannot find on its own, you can clue it in by
+passing the <tt>--with-openssl</tt> option to the <tt>configure</tt>
+script. Type <tt>./configure --help</tt> for details.
+
+Another option is to download the source code to OpenSSL and build
+Fossil against that private version of OpenSSL:
+
+<pre>
+    cd compat             # relative to the Fossil source tree root
+    tar xf /path/to/openssl-*.tar.gz
+    ln -fs openssl-x.y.z openssl
+    cd openssl
+    ./config              # or, e.g. ./Configure darwin64-x86_64-cc
+    make -j11
+    cd ../..
+    ./configure --with-openssl=tree
+    make -j11
+</pre>
+
+That will get you a Fossil binary statically linked to this in-tree
+version of OpenSSL.
+
+Beware, taking this path typically opens you up to new problems, which
+are conveniently covered in the next section!
+
+
+<h3 id="certs">Certificates</h3>
+
+To verify the identify of a server, TLS uses
+[https://en.wikipedia.org/wiki/X.509#Certificates|X.509 certificates], a
+scheme that depends on a trust hierarchy of so-called
+[https://en.wikipedia.org/wiki/Certificate_authority | Certificate
+Authorities]. The tree of trust relationships ultimately ends in the
+CA roots, which are considered the ultimate arbiters of who to trust in
+this scheme.
+
+The question then is, what CA roots does Fossil trust?
+
+If you are using a self-signed certificate, Fossil will initially not
+know that it can trust your certificate, so you'll be asked if you want
+to accept the certificate the first time you communicate with the
+server. Verify the certificate fingerprint is correct, then answer
+"always" if you want Fossil to remember your decision.
+
+If you are cloning from or syncing to Fossil servers that use a
+certificate signed by a well-known CA or one of its delegates, Fossil
+still has to know which CA roots to trust. When this fails, you get an
+error message that looks like this in Fossil 2.11 and newer:
+
+<pre>
+    Unable to verify SSL cert from fossil-scm.org
+      subject: CN = sqlite.org
+      issuer:  C = US, O = Let's Encrypt, CN = Let's Encrypt Authority X3
+      sha256:  bf26092dd97df6e4f7bf1926072e7e8d200129e1ffb8ef5276c1e5dd9bc95d52
+    accept this cert and continue (y/N)?
+</pre>
+
+In older versions, the message was much longer and began with this line:
+
+<pre>
+    SSL verification failed: unable to get local issuer certificate
+</pre>
+
+Fossil relies on the OpenSSL library to have some way to check a trusted
+list of CA signing keys. There are two common ways this fails:
+
+  #  <p>The OpenSSL library Fossil is linked to doesn't have a CA
+     signing key set at all, so that it initially trusts no certificates
+     at all.</p>
+  #  <p>The OpenSSL library does have a CA cert set, but your Fossil server's
+     TLS certificate was signed by a CA that isn't in that set.</p>
+
+A common reason to fall into the second trap is that you're using
+certificates signed by a local private CA, as often happens in large
+enterprises.  You can solve this sort of problem by getting your local
+CA's signing certificate in PEM format and pointing OpenSSL at it:
+
+<pre>
+     fossil set --global ssl-ca-location /path/to/local-ca.pem
+</pre>
+
+The use of <tt>--global</tt> with this option is common, since you may
+have multiple repositories served under certificates signed by that same
+CA. However, if you have a mix of publicly-signed and locally-signed
+certificates, you might want to drop the <tt>--global</tt> flag and set
+this option on a per-repository basis instead.
+
+A common way to run into the broader first problem is that you're on
+FreeBSD, which does not install a CA certificate set by default, even as
+a dependency of the OpenSSL library.  If you're using a certificate
+signed by one of the major public CAs, you can solve this by installing
+the <tt>ca_root_nss</tt> package. That package contains the Mozilla NSS
+certificate bundle, which gets installed in a location that OpenSSL
+checks by default, so you don't need to change any Fossil settings.
+(This is the same certificate set that ships with Firefox, by the way.)
+
+The same sort of thing happens with the Windows build of OpenSSL, but
+for a different core reason: Windows does ship with a stock CA
+certificate set, but it's not in a format that OpenSSL understands how
+to use.  Rather than try to find a way to convert the data format, you
+may find it acceptable to use the same Mozilla NSS cert set.  I do not
+know of a way to easily get this from Mozilla themselves, but I did find
+a [https://curl.se/docs/caextract.html | third party source] for the
+<tt>cacert.pem</tt> file. I suggest placing the file into your Windows
+user home directory so that you can then point Fossil at it like so:
+
+<pre>
+     fossil set --global ssl-ca-location %userprofile%\cacert.pem
+</pre>
+
+This can also happen if you've linked Fossil to a version of OpenSSL
+[#openssl-src|built from source]. That same <tt>cacert.pem</tt> fix can
+work in that case, too.
+
+When you build Fossil on Linux platforms against the binary OpenSSL
+package provided with the OS, you typically get a root cert store along
+with the platform OpenSSL package, either built-in or as a hard
+dependency.
+
+
+<h4>Client-Side Certificates</h4>
+
+You can also use client side certificates to add an extra layer of
+authentication, over and above Fossil's built in user management. If you
+are particularly paranoid, you'll want to use this to remove the ability
+of anyone on the internet from making any request to Fossil. Without
+presenting a valid client side certificate, the web server won't invoke
+the Fossil CGI handler.
+
+Configure your server to request a client side certificate, and set up a
+certificate authority to sign your client certificates. For each person
+who needs to access the repository, create a private key and certificate
+signed with that CA.
+
+The PEM encoded private key and certificate should be stored in a single
+file, simply by concatenating the key and certificate files. Specify the
+location of this file with the <tt>ssl-identity</tt> setting, or the
+<tt>--ssl-identity</tt> option to the <tt>clone</tt> command.
+
+If you've password protected the private key, the password will be
+requested every time you connect to the server. This password is not
+stored by fossil, as doing so would defeat the purpose of having a
+password.
+
+If you attempt to connect to a server which requests a client
+certificate, but don't provide one, fossil will show an error message
+which explains what to do to authenticate with the server.
+
+
+<h2 id="server">Server-Side Configuration</h2>
+
+Fossil's built-in HTTP server got [./ssl-server.md | TLS support] in
+December 2021, released as version 2.18 in early 2022.  Prior to that,
+system administrators that wanted to add TLS support to a Fossil server
+had to put it behind a reverse proxy that would do the translation.
+Since advantages remain for delegating TLS to another layer in the
+stack, instructions for doing so continue to be included in our
+documentation, such as:
+
+  *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
+  *  <a id="althttpd" href="./server/any/althttpd.md">Serving via stunnel + althttpd</a>
+  *  <a id="nginx"    href="./server/debian/nginx.md#tls">Serving via SCGI with nginx on Debian</a>
+
+
+<h2 id="enforcing">Enforcing TLS Access</h2>
+
+To use TLS encryption in cloning and syncing to a remote Fossil
+repository, be sure to use the <tt>https:</tt> URI scheme in
+<tt>clone</tt> and <tt>sync</tt> commands.  If your server is configured
+to serve the repository via both HTTP and HTTPS, it's easy to
+accidentally use unencrypted HTTP if you forget the all-important 's'.
+
+As of Fossil 2.9, using an <tt>http://</tt> URI with <tt>fossil
+clone</tt> or <tt>sync</tt> on a site that forwards to HTTPS will cause
+Fossil to remember the secure URL. However, there's a
+[https://en.wikipedia.org/wiki/Trust_on_first_use | TOFU problem] with
+this: it's still better to use <tt>https://</tt> from the start.
+
+As of Fossil 2.8, there is a setting in the Fossil UI under Admin &rarr;
+Access called "Redirect to HTTPS," which is set to "Off" by default.
+Changing this only affects web UI access to the Fossil repository. It
+doesn't affect clones and syncs done via the <tt>http</tt> URI scheme.
+
+In Fossil 2.7 and earlier, there was a much weaker form of this setting
+affecting the <tt>/login</tt> page only. If you're using this setting,
+you should migrate to the new setting as soon as possible, because the
+old setting allows multiple ways of defeating it.
+
+<b id="rloop">WARNING:</b> Enabling HTTPS redirects at the Fossil repo
+level while running Fossil behind an HTTPS proxy can result in an
+infinite redirect loop.  It happens when the proxy mechanism presents
+"<tt>http</tt>" URIs to Fossil, so Fossil issues a redirect, so the browser
+fetches the page again, causing Fossil to see an "<tt>http</tt>" URI again, so
+it issues a redirect...'round and 'round it goes until the web browser
+detects it's in a redirect loop and gives up. This problem prevents you
+from getting back into the Admin UI to fix it, but there are several
+ways to fix it:
+
+  #  <p><b>Reset via CLI.</b> You can turn the setting back off from the
+     CLI with the command "<tt>fossil -R /path/to/repo.fossil set
+     redirect-to-https 0</tt>". (Currently doesn't work.)</p>
+  #  <p><b>Backup first.</b> This setting is stored in the Fossil
+     repository, so if you make a backup first <i>on the server</i>, you
+     can restore the repo file if enabling this feature creates a
+     redirect loop.</p>
+  #  <p><b>Download, fix, and restore.</b> You can copy the remote
+     repository file down to a local machine, use <tt>fossil ui</tt> to
+     fix the setting, and then upload it to the repository server
+     again.</p>
+
+It's best to enforce TLS-only access at the front-end proxy level
+anyway. It not only avoids the problem entirely, it can be significantly
+more secure.  The [./server/debian/nginx.md#tls | nginx-on-Debian proxy guide] shows one way
+to achieve this.</p>
+
+
+<h2>Terminology Note</h2>
+
+This document is called <tt>ssl.wiki</tt> for historical reasons. The
+TLS protocol was originally called SSL, and it went through several
+revisions before being replaced by TLS. Years before this writing, SSL
+finally became entirely obsolete due to weaknesses in the protocol fixed
+in the later TLS series of protocols.
+
+Some people still use the term "SSL" when they actually mean "TLS," but
+in the Fossil project, we always use "TLS" except when we must preserve
+some sort of historical compatibility, as with this document's name in
+order to avoid broken external URLs.  The Fossil TLS-related settings
+also often use "<tt>ssl</tt>" in their names for the same reason.
+
+This series of protocols is also called "HTTPS" after the URI scheme
+used to specify "HTTP over TLS."

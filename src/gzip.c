@@ -23,12 +23,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "gzip.h"
 
 /*
@@ -36,7 +31,7 @@
 */
 struct gzip_state {
   int eState;           /* 0: idle   1: header  2: compressing */
-  int iCRC;             /* The checksum */
+  unsigned long iCRC;   /* The checksum */
   z_stream stream;      /* The working compressor */
   Blob out;             /* Results stored here */
 } gzip;
@@ -67,7 +62,7 @@ void gzip_begin(sqlite3_int64 now){
   }
   put32(&aHdr[4], now&0xffffffff);
   aHdr[8] = 2;
-  aHdr[9] = 255;
+  aHdr[9] = -1;
   blob_append(&gzip.out, aHdr, 10);
   gzip.iCRC = 0;
   gzip.eState = 1;
@@ -134,7 +129,7 @@ void test_gzip_cmd(void){
   if( g.argc!=3 ) usage("FILENAME");
   sqlite3_open(":memory:", &g.db);
   gzip_begin(-1);
-  blob_read_from_file(&b, g.argv[2]);
+  blob_read_from_file(&b, g.argv[2], ExtFILE);
   zOut = mprintf("%s.gz", g.argv[2]);
   gzip_step(blob_buffer(&b), blob_size(&b));
   blob_reset(&b);

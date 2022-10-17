@@ -50,6 +50,12 @@ struct Bag {
   int used;  /* Number of used slots in a[] */
   int *a;    /* Hash table of integers that are in the bag */
 };
+/*
+** An expression for statically initializing a Bag instance, to be
+** assigned to Bag instances at their declaration point. It has
+** the same effect as passing the Bag to bag_init().
+*/
+#define Bag_INIT {0,0,0,0}
 #endif
 
 /*

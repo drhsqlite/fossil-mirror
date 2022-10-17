@@ -13,14 +13,15 @@
 **   drh@hwaci.com
 **   http://www.hwaci.com/drh/
 **
-*******************************************************************************
+******************************************************************************
 **
-** This file was adapted from the test_regexp.c file in SQLite3.  That
+** This file was adapted from the ext/misc/regexp.c file in SQLite3.  That
 ** file is in the public domain.
 **
-** The code in this file implements a compact but reasonably
-** efficient regular-expression matcher for posix extended regular
-** expressions against UTF8 text.  The following syntax is supported:
+** See ../www/grep.md for details of the algorithm and RE dialect.
+**
+**
+**  The following regular expression syntax is supported:
 **
 **     X*      zero or more occurrences of X
 **     X+      one or more occurrences of X
@@ -124,7 +125,7 @@ struct ReCompiled {
 static void re_add_state(ReStateSet *pSet, int newState){
   unsigned i;
   for(i=0; i<pSet->nState; i++) if( pSet->aState[i]==newState ) return;
-  pSet->aState[pSet->nState++] = newState;
+  pSet->aState[pSet->nState++] = (ReStateNumber)newState;
 }
 
 /* Extract the next unicode character from *pzIn and return it.  Advance
@@ -144,7 +145,7 @@ static unsigned re_next_char(ReInput *p){
            && (p->z[p->i+1]&0xc0)==0x80 ){
       c = (c&0x0f)<<12 | ((p->z[p->i]&0x3f)<<6) | (p->z[p->i+1]&0x3f);
       p->i += 2;
-      if( c<=0x3ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
+      if( c<=0x7ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
     }else if( (c&0xf8)==0xf0 && p->i+3<p->mx && (p->z[p->i]&0xc0)==0x80
            && (p->z[p->i+1]&0xc0)==0x80 && (p->z[p->i+2]&0xc0)==0x80 ){
       c = (c&0x07)<<18 | ((p->z[p->i]&0x3f)<<12) | ((p->z[p->i+1]&0x3f)<<6)
@@ -159,7 +160,7 @@ static unsigned re_next_char(ReInput *p){
 }
 static unsigned re_next_char_nocase(ReInput *p){
   unsigned c = re_next_char(p);
-  return unicode_fold(c,1);
+  return unicode_fold(c,2);
 }
 
 /* Return true if c is a perl "word" character:  [A-Za-z0-9_] */
@@ -193,7 +194,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
 
   in.z = zIn;
   in.i = 0;
-  in.mx = nIn>=0 ? nIn : strlen((const char*)zIn);
+  in.mx = nIn>=0 ? nIn : (int)strlen((char const*)zIn);
 
   /* Look for the initial prefix match, if there is one. */
   if( pRe->nInit ){
@@ -207,7 +208,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
     if( in.i+pRe->nInit>in.mx ) return 0;
   }
 
-  if( pRe->nState<=count(aSpace)*2 ){
+  if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
     pToFree = 0;
     aStateSet[0].aState = aSpace;
   }else{
@@ -234,7 +235,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           break;
         }
         case RE_OP_ANY: {
-          re_add_state(pNext, x+1);
+          if( c!=0 ) re_add_state(pNext, x+1);
           break;
         }
         case RE_OP_WORD: {
@@ -242,7 +243,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           break;
         }
         case RE_OP_NOTWORD: {
-          if( !re_word_char(c) ) re_add_state(pNext, x+1);
+          if( !re_word_char(c) && c!=0 ) re_add_state(pNext, x+1);
           break;
         }
         case RE_OP_DIGIT: {
@@ -250,7 +251,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           break;
         }
         case RE_OP_NOTDIGIT: {
-          if( !re_digit_char(c) ) re_add_state(pNext, x+1);
+          if( !re_digit_char(c) && c!=0 ) re_add_state(pNext, x+1);
           break;
         }
         case RE_OP_SPACE: {
@@ -258,7 +259,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           break;
         }
         case RE_OP_NOTSPACE: {
-          if( !re_space_char(c) ) re_add_state(pNext, x+1);
+          if( !re_space_char(c) && c!=0 ) re_add_state(pNext, x+1);
           break;
         }
         case RE_OP_BOUNDARY: {
@@ -283,8 +284,11 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           rc = 1;
           goto re_match_end;
         }
-        case RE_OP_CC_INC:
         case RE_OP_CC_EXC: {
+          if( c==0 ) break;
+          /* fall-through */
+        }
+        case RE_OP_CC_INC: {
           int j = 1;
           int n = pRe->aArg[x];
           int hit = 0;
@@ -344,7 +348,7 @@ static int re_insert(ReCompiled *p, int iBefore, int op, int arg){
     p->aArg[i] = p->aArg[i-1];
   }
   p->nState++;
-  p->aOp[iBefore] = op;
+  p->aOp[iBefore] = (char)op;
   p->aArg[iBefore] = arg;
   return iBefore;
 }
@@ -633,7 +637,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   }
   pRe->sIn.z = (unsigned char*)zIn;
   pRe->sIn.i = 0;
-  pRe->sIn.mx = strlen(zIn);
+  pRe->sIn.mx = (int)strlen(zIn);
   zErr = re_subcompile_re(pRe);
   if( zErr ){
     re_free(pRe);
@@ -659,16 +663,16 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   ** regex engine over the string.  Do not worry able trying to match
   ** unicode characters beyond plane 0 - those are very rare and this is
   ** just an optimization. */
-  if( pRe->aOp[0]==RE_OP_ANYSTAR ){
-    for(j=0, i=1; j<sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
+  if( pRe->aOp[0]==RE_OP_ANYSTAR && !noCase ){
+    for(j=0, i=1; j<(int)sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
       unsigned x = pRe->aArg[i];
       if( x<=127 ){
-        pRe->zInit[j++] = x;
+        pRe->zInit[j++] = (unsigned char)x;
       }else if( x<=0xfff ){
-        pRe->zInit[j++] = 0xc0 | (x>>6);
+        pRe->zInit[j++] = (unsigned char)(0xc0 | (x>>6));
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else if( x<=0xffff ){
-        pRe->zInit[j++] = 0xd0 | (x>>12);
+        pRe->zInit[j++] = (unsigned char)(0xd0 | (x>>12));
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else{
@@ -699,13 +703,16 @@ static void re_sql_func(
   const char *zPattern;     /* The regular expression */
   const unsigned char *zStr;/* String being searched */
   const char *zErr;         /* Compile error message */
+  int setAux = 0;           /* True to invoke sqlite3_set_auxdata() */
 
+  (void)argc;  /* Unused */
   pRe = sqlite3_get_auxdata(context, 0);
   if( pRe==0 ){
     zPattern = (const char*)sqlite3_value_text(argv[0]);
     if( zPattern==0 ) return;
-    zErr = re_compile(&pRe, zPattern, 0);
+    zErr = re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
     if( zErr ){
+      re_free(pRe);
       sqlite3_result_error(context, zErr, -1);
       return;
     }
@@ -713,34 +720,38 @@ static void re_sql_func(
       sqlite3_result_error_nomem(context);
       return;
     }
-    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
+    setAux = 1;
   }
   zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
   if( zStr!=0 ){
     sqlite3_result_int(context, re_match(pRe, zStr, -1));
   }
+  if( setAux ){
+    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
+  }
 }
 
 /*
-** Invoke this routine in order to install the REGEXP function in an
+** Invoke this routine to register the regexp() function with the
 ** SQLite database connection.
-**
-** Use:
-**
-**      sqlite3_auto_extension(sqlite3_add_regexp_func);
-**
-** to cause this extension to be automatically loaded into each new
-** database connection.
 */
 int re_add_sql_func(sqlite3 *db){
-  return sqlite3_create_function(db, "regexp", 2, SQLITE_UTF8, 0,
-                                 re_sql_func, 0, 0);
+  int rc;
+  rc = sqlite3_create_function(db, "regexp", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
+                               0, re_sql_func, 0, 0);
+  if( rc==SQLITE_OK ){
+    /* The regexpi(PATTERN,STRING) function is a case-insensitive version
+    ** of regexp(PATTERN,STRING). */
+    rc = sqlite3_create_function(db, "regexpi", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
+                                 (void*)db, re_sql_func, 0, 0);
+  }
+  return rc;
 }
 
 /*
-** Run a "grep" over a single file
+** Run a "grep" over a single file read from disk.
 */
-static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
+static void grep_file(ReCompiled *pRe, const char *zFile, FILE *in){
   int ln = 0;
   int n;
   char zLine[2000];
@@ -749,9 +760,46 @@ static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
     n = (int)strlen(zLine);
     while( n && (zLine[n-1]=='\n' || zLine[n-1]=='\r') ) n--;
     if( re_match(pRe, (const unsigned char*)zLine, n) ){
-      printf("%s:%d:%.*s\n", zFile, ln, n, zLine);
+      fossil_print("%s:%d:%.*s\n", zFile, ln, n, zLine);
     }
   }
+}
+
+/*
+** Flags for grep_buffer()
+*/
+#define GREP_EXISTS    0x001    /* If any match, print only the name and stop */
+#define GREP_QUIET     0x002    /* Return code only */
+
+/*
+** Run a "grep" over a text file
+*/
+static int grep_buffer(
+  ReCompiled *pRe,
+  const char *zName,
+  const char *z,
+  u32 flags
+){
+  int i, j, n, ln, cnt;
+  for(i=j=ln=cnt=0; z[i]; i=j+1){
+    for(j=i; z[j] && z[j]!='\n'; j++){}
+    n = j - i;
+    ln++;
+    if( re_match(pRe, (const unsigned char*)(z+i), j-i) ){
+      cnt++;
+      if( flags & GREP_EXISTS ){
+        if( (flags & GREP_QUIET)==0 && zName ) fossil_print("%s\n", zName);
+        break;
+      }
+      if( (flags & GREP_QUIET)==0 ){
+        if( cnt==1 && zName ){
+          fossil_print("== %s\n", zName);
+        }
+        fossil_print("%d:%.*s\n", ln, n, z+i);
+      }
+    }
+  }
+  return cnt;
 }
 
 /*
@@ -776,7 +824,7 @@ void re_test_grep(void){
   zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
   if( g.argc==3 ){
-    grep(pRe, "-", stdin);
+    grep_file(pRe, "-", stdin);
   }else{
     int i;
     for(i=3; i<g.argc; i++){
@@ -784,10 +832,151 @@ void re_test_grep(void){
       if( in==0 ){
         fossil_warning("cannot open \"%s\"", g.argv[i]);
       }else{
-        grep(pRe, g.argv[i], in);
+        grep_file(pRe, g.argv[i], in);
         fclose(in);
       }
     }
   }
   re_free(pRe);
+}
+
+/*
+** COMMAND: grep
+**
+** Usage: %fossil grep [OPTIONS] PATTERN FILENAME ...
+**
+** Attempt to match the given POSIX extended regular expression PATTERN over
+** all historic versions of FILENAME.  The search begins with the most recent
+** version of the file and moves backwards in time.  Multiple FILENAMEs can
+** be specified, in which case all named files are searched in reverse
+** chronological order.
+**
+** For details of the supported regular expression dialect, see
+** https://fossil-scm.org/fossil/doc/trunk/www/grep.md
+**
+** Options:
+**
+**     -c|--count                 Suppress normal output; instead print a count
+**                                of the number of matching files
+**     -i|--ignore-case           Ignore case
+**     -l|--files-with-matches    List only hash for each match
+**     --once                     Stop searching after the first match
+**     -s|--no-messages           Suppress error messages about nonexistent
+**                                or unreadable files
+**     -v|--invert-match          Invert the sense of matching.  Show only
+**                                files that have no matches. Implies -l
+**     --verbose                  Show each file as it is analyzed
+*/
+void re_grep_cmd(void){
+  u32 flags = 0;
+  int bVerbose = 0;
+  ReCompiled *pRe;
+  const char *zErr;
+  int ignoreCase = 0;
+  Blob fullName;
+  int ii;
+  int nMatch = 0;
+  int bNoMsg;
+  int cntFlag;
+  int bOnce;
+  int bInvert;
+  int nSearch = 0;
+  Stmt q;
+
+
+  if( find_option("ignore-case","i",0)!=0 ) ignoreCase = 1;
+  if( find_option("files-with-matches","l",0)!=0 ) flags |= GREP_EXISTS;
+  if( find_option("verbose",0,0)!=0 ) bVerbose = 1;
+  if( find_option("quiet","q",0) ) flags |= GREP_QUIET|GREP_EXISTS;
+  bNoMsg = find_option("no-messages","s",0)!=0;
+  bOnce = find_option("once",0,0)!=0;
+  bInvert = find_option("invert-match","v",0)!=0;
+  if( bInvert ){
+    flags |= GREP_QUIET|GREP_EXISTS;
+  }
+  cntFlag = find_option("count","c",0)!=0;
+  if( cntFlag ){
+    flags |= GREP_QUIET|GREP_EXISTS;
+  }
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc<4 ){
+    usage("REGEXP FILENAME ...");
+  }
+  zErr = re_compile(&pRe, g.argv[2], ignoreCase);
+  if( zErr ) fossil_fatal("%s", zErr);
+
+  add_content_sql_commands(g.db);
+  db_multi_exec("CREATE TEMP TABLE arglist(iname,fname,fnid);");
+  for(ii=3; ii<g.argc; ii++){
+    const char *zTarget = g.argv[ii];
+    if( file_tree_name(zTarget, &fullName, 0, 1) ){
+      int fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q",
+                        blob_str(&fullName));
+      if( !fnid ){
+        if( bNoMsg ) continue;
+        if( file_size(zTarget, ExtFILE)<0 ){
+          fossil_fatal("no such file: %s", zTarget);
+        }
+        fossil_fatal("not a managed file: %s", zTarget);
+      }else{
+        db_multi_exec(
+          "INSERT INTO arglist(iname,fname,fnid) VALUES(%Q,%Q,%d)",
+          zTarget, blob_str(&fullName), fnid);
+      }
+    }
+    blob_reset(&fullName);
+  }
+  db_prepare(&q,
+    " SELECT"
+    "   A.uuid,"       /* file hash */
+    "   A.rid,"        /* file rid */
+    "   B.uuid,"       /* check-in hash */
+    "   datetime(min(event.mtime)),"  /* check-in time */
+    "   arglist.iname"                /* file name */
+    " FROM arglist, mlink, blob A, blob B, event"
+    " WHERE mlink.mid=event.objid"
+    "   AND mlink.fid=A.rid"
+    "   AND mlink.mid=B.rid"
+    "   AND mlink.fnid=arglist.fnid"
+    " GROUP BY A.uuid"
+    " ORDER BY min(event.mtime) DESC;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFileHash = db_column_text(&q,0);
+    int rid = db_column_int(&q,1);
+    const char *zCkinHash = db_column_text(&q,2);
+    const char *zDate = db_column_text(&q,3);
+    const char *zFN = db_column_text(&q,4);
+    char *zLabel;
+    Blob cx;
+    content_get(rid, &cx);
+    zLabel = mprintf("%.16s %s %S checkin %S", zDate, zFN,zFileHash,zCkinHash);
+    if( bVerbose ) fossil_print("Scanning: %s\n", zLabel);
+    nSearch++;
+    nMatch += grep_buffer(pRe, zLabel, blob_str(&cx), flags);
+    blob_reset(&cx);
+    if( bInvert && cntFlag==0 ){
+      if( nMatch==0 ){
+        fossil_print("== %s\n", zLabel);
+        if( bOnce ) nMatch = 1;
+      }else{
+        nMatch = 0;
+      }
+    }
+    fossil_free(zLabel);
+    if( nMatch ){
+      if( (flags & GREP_QUIET)!=0 ) break;
+      if( bOnce ) break;
+    }
+  }
+  db_finalize(&q);
+  re_free(pRe);
+  if( cntFlag ){
+    if( bInvert ){
+      fossil_print("%d\n", nSearch-nMatch);
+    }else{
+      fossil_print("%d\n", nMatch);
+    }
+  }
 }

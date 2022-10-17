@@ -65,7 +65,7 @@ void hyperlink_to_event_tagid(int tagid){
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
-  char *zUuid;             /* UUID corresponding to rid */
+  char *zUuid;             /* artifact hash corresponding to rid */
   const char *zId;         /* Event identifier */
   const char *zVerbose;    /* Value of verbose option */
   char *zETime;            /* Time of the tech-note */
@@ -112,10 +112,11 @@ void event_page(void){
     }
   }
   db_finalize(&q1);
+  style_set_current_feature("event");
   if( rid==0 || (specRid!=0 && specRid!=rid) ){
     style_header("No Such Tech-Note");
     @ Cannot locate a technical note called <b>%h(zId)</b>.
-    style_footer();
+    style_finish_page();
     return;
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -230,7 +231,8 @@ void event_page(void){
                        " WHERE tagname GLOB 'event-%q*'",
                     zId);
   attachment_list(zFullId, "<hr /><h2>Attachments:</h2><ul>");
-  style_footer();
+  document_emit_js();
+  style_finish_page();
   manifest_destroy(pTNote);
 }
 
@@ -271,13 +273,13 @@ int event_commit_common(
   zETime[10] = 'T';
   blob_appendf(&event, "E %s %s\n", zETime, zId);
   zETime[10] = ' ';
+  if( zMimetype && zMimetype[0] ){
+    blob_appendf(&event, "N %s\n", zMimetype);
+  }
   if( rid ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_appendf(&event, "P %s\n", zUuid);
     free(zUuid);
-  }
-  if( zMimetype && zMimetype[0] ){
-    blob_appendf(&event, "N %s\n", zMimetype);
   }
   if( zClr && zClr[0] ){
     blob_appendf(&event, "T +bgcolor * %F\n", zClr);
@@ -334,7 +336,7 @@ int event_commit_common(
     return 0;
   }
   assert( blob_is_reset(&event) );
-  content_deltify(rid, nrid, 0);
+  content_deltify(rid, &nrid, 1, 0);
   db_end_transaction(0);
   return 1;
 }
@@ -345,10 +347,24 @@ int event_commit_common(
 **
 ** Revise or create a technical note (formerly called an "event").
 **
-** Parameters:
+** Required query parameter:
 **
-**    name=ID           Hex hash ID of the tech-note. If omitted, a new
+**    name=ID           Hex hash ID of the technote. If omitted, a new
 **                      tech-note is created.
+**
+** POST parameters from the "Cancel", "Preview", or "Submit" buttons:
+**
+**    w=TEXT            Complete text of the technote.
+**    t=TEXT            Time of the technote on the timeline (ISO 8601)
+**    c=TEXT            Timeline comment
+**    g=TEXT            Tags associated with this technote
+**    mimetype=TEXT     Mimetype for w= text
+**    newclr            Use a background color
+**    clr=TEXT          Background color to use if newclr
+**
+** For GET requests, when editing an existing technote newclr and clr
+** are implied if a custom color has been set on the previous version
+** of the technote.
 */
 void eventedit_page(void){
   char *zTag;
@@ -357,12 +373,13 @@ void eventedit_page(void){
   const char *zId;
   int n;
   const char *z;
-  char *zBody = (char*)P("w");
-  char *zETime = (char*)P("t");
-  const char *zComment = P("c");
-  const char *zTags = P("g");
-  const char *zClr;
-  const char *zMimetype = P("mimetype");
+  char *zBody = (char*)P("w");             /* Text of the technote */
+  char *zETime = (char*)P("t");            /* Date this technote appears */
+  const char *zComment = P("c");           /* Timeline comment */
+  const char *zTags = P("g");              /* Tags added to this technote */
+  const char *zClrFlag = "";               /* "checked" for bg color */
+  const char *zClr;                        /* Name of the background color */
+  const char *zMimetype = P("mimetype");   /* Mimetype of zBody */
   int isNew = 0;
 
   if( zBody ){
@@ -401,17 +418,28 @@ void eventedit_page(void){
     login_needed(g.anon.Write && (rid ? g.anon.WrWiki : g.anon.NewWiki));
     return;
   }
+  style_set_current_feature("event");
 
   /* Figure out the color */
   if( rid ){
     zClr = db_text("", "SELECT bgcolor FROM event WHERE objid=%d", rid);
+    if( zClr && zClr[0] ){
+      const char * zRequestMethod = P("REQUEST_METHOD");
+      if(zRequestMethod && 'G'==zRequestMethod[0]){
+        /* Apply saved color by defaut for GET requests
+        ** (e.g., an Edit menu link).
+        */
+        zClrFlag = " checked";
+      }
+    }
   }else{
     zClr = "";
     isNew = 1;
   }
-  zClr = PD("clr",zClr);
-  if( fossil_strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
-
+  if( P("newclr") ){
+    zClr = PD("clr",zClr);
+    if( zClr[0] ) zClrFlag = " checked";
+  }
 
   /* If editing an existing event, extract the key fields to use as
   ** a starting point for the edit.
@@ -444,17 +472,18 @@ void eventedit_page(void){
   if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
     login_verify_csrf_secret();
     if ( !event_commit_common(rid, zId, zBody, zETime,
-                              zMimetype, zComment, zTags, zClr) ){
+                              zMimetype, zComment, zTags,
+                              zClrFlag[0] ? zClr : 0) ){
       style_header("Error");
       @ Internal error:  Fossil tried to make an invalid artifact for
       @ the edited technote.
-      style_footer();
+      style_finish_page();
       return;
     }
-    cgi_redirectf("technote?name=%T", zId);
+    cgi_redirectf("%R/technote?name=%T", zId);
   }
   if( P("cancel")!=0 ){
-    cgi_redirectf("technote?name=%T", zId);
+    cgi_redirectf("%R/technote?name=%T", zId);
     return;
   }
   if( zBody==0 ){
@@ -470,7 +499,7 @@ void eventedit_page(void){
     @ <p><b>Timeline comment preview:</b></p>
     @ <blockquote>
     @ <table border="0">
-    if( zClr && zClr[0] ){
+    if( zClrFlag[0] && zClr && zClr[0] ){
       @ <tr><td style="background-color: %h(zClr);">
     }else{
       @ <tr><td>
@@ -484,6 +513,7 @@ void eventedit_page(void){
     @ <blockquote>
     blob_init(&event, 0, 0);
     blob_append(&event, zBody, -1);
+    safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&event, zMimetype);
     @ </blockquote><hr />
     blob_reset(&event);
@@ -511,7 +541,9 @@ void eventedit_page(void){
 
   @ <tr><th align="right" valign="top">Timeline Background Color:</th>
   @ <td valign="top">
-  render_color_chooser(0, zClr, 0, "clr", "cclr");
+  @ <input type='checkbox' name='newclr'%s(zClrFlag) />
+  @ Use custom color: \
+  @ <input type='color' name='clr' value='%s(zClr[0]?zClr:"#c0f0ff")'>
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Tags:</th>
@@ -519,7 +551,8 @@ void eventedit_page(void){
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Markup Style:</th>
+  @ <tr><th align="right" valign="top">\
+  @ %z(href("%R/markup_help"))Markup Style</a>:</th>
   @ <td valign="top">
   mimetype_option_menu(zMimetype);
   @ </td></tr>
@@ -531,12 +564,14 @@ void eventedit_page(void){
   @ </td></tr>
 
   @ <tr><td colspan="2">
-  @ <input type="submit" name="preview" value="Preview Your Changes" />
-  @ <input type="submit" name="submit" value="Apply These Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
+  @ <input type="submit" name="preview" value="Preview" />
+  if( P("preview") ){
+    @ <input type="submit" name="submit" value="Submit" />
+  }
   @ </td></tr></table>
   @ </div></form>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -572,7 +607,7 @@ void event_cmd_commit(
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_ASSERT;
 #endif
-    fossil_fatal("Internal error: Fossil tried to make an "
+    fossil_panic("Internal error: Fossil tried to make an "
                  "invalid artifact for the technote.");
   }
 }

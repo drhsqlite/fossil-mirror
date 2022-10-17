@@ -19,12 +19,7 @@
 ** or binary data.
 */
 #include "config.h"
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "blob.h"
 #if defined(_WIN32)
 #include <fcntl.h>
@@ -61,11 +56,33 @@ struct Blob {
 #define blob_buffer(X)  ((X)->aData)
 
 /*
+** Append blob contents to another
+*/
+#define blob_appendb(dest, src) \
+  blob_append((dest), blob_buffer(src), blob_size(src))
+
+/*
+** Append a string literal to a blob
+** TODO: Consider renaming to blob_appendl()
+*/
+#define blob_append_literal(blob, literal) \
+  blob_append((blob), "" literal, (sizeof literal)-1)
+  /*
+   * The empty string in the second argument leads to a syntax error
+   * when the macro is not used with a string literal. Unfortunately
+   * the error is not overly explicit.
+   */
+
+/*
+** TODO: Suggested for removal because the name seems misleading.
+*/
+#define blob_append_string blob_append_literal
+
+/*
 ** Seek whence parameter values
 */
 #define BLOB_SEEK_SET 1
 #define BLOB_SEEK_CUR 2
-#define BLOB_SEEK_END 3
 
 #endif /* INTERFACE */
 
@@ -117,6 +134,14 @@ int fossil_isalnum(char c){
   return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9');
 }
 
+/* Return true if and only if the entire string consists of only
+** alphanumeric characters.
+*/
+int fossil_no_strange_characters(const char *z){
+  while( z && (fossil_isalnum(z[0]) || z[0]=='_' || z[0]=='-') ) z++;
+  return z[0]==0;
+}
+
 
 /*
 ** COMMAND: test-isspace
@@ -164,7 +189,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
     pBlob->blobFlags = 0;
-  }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
+  }else if( newSize>pBlob->nAlloc || newSize+4000<pBlob->nAlloc ){
     char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
     pBlob->nAlloc = newSize;
@@ -270,15 +295,40 @@ void blob_zero(Blob *pBlob){
 }
 
 /*
-** Append text or data to the end of a blob.
+** Append text or data to the end of a blob.  Or, if pBlob==NULL, send
+** the text to standard output in terminal mode, or to standard CGI output
+** in CGI mode.
+**
+** If nData<0 then output all of aData up to the first 0x00 byte.
+**
+** Use the blob_append() routine in all application code.  The blob_append()
+** routine is faster, but blob_append_full() handles all the corner cases.
+** The blob_append() routine automatically calls blob_append_full() if
+** necessary.
 */
-void blob_append(Blob *pBlob, const char *aData, int nData){
-  assert( aData!=0 || nData==0 );
-  blob_is_init(pBlob);
+static void blob_append_full(Blob *pBlob, const char *aData, int nData){
+  sqlite3_int64 nNew;
+  /* assert( aData!=0 || nData==0 ); // omitted for speed */
+  /* blob_is_init(pBlob); // omitted for speed */
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
-  if( pBlob->nUsed + nData >= pBlob->nAlloc ){
-    pBlob->xRealloc(pBlob, pBlob->nUsed + nData + pBlob->nAlloc + 100);
+  if( pBlob==0 ){
+    if( g.cgiOutput ){
+      pBlob = cgi_output_blob();
+    }else{
+      fossil_puts(aData, 0, nData);
+      return;
+    }
+  }
+  nNew = pBlob->nUsed;
+  nNew += nData;
+  if( nNew >= pBlob->nAlloc ){
+    nNew += pBlob->nAlloc;
+    nNew += 100;
+    if( nNew>=0x7fff0000 ){
+      blob_panic();
+    }
+    pBlob->xRealloc(pBlob, (int)nNew);
     if( pBlob->nUsed + nData >= pBlob->nAlloc ){
       blob_panic();
     }
@@ -287,9 +337,33 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
   pBlob->nUsed += nData;
   pBlob->aData[pBlob->nUsed] = 0;   /* Blobs are always nul-terminated */
 }
+void blob_append(Blob *pBlob, const char *aData, int nData){
+  sqlite3_int64 nUsed;
+  /* assert( aData!=0 || nData==0 ); // omitted for speed */
+  if( nData<=0 || pBlob==0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
+    blob_append_full(pBlob, aData, nData);
+    return;
+  }
+  nUsed = pBlob->nUsed;
+  pBlob->nUsed += nData;
+  pBlob->aData[pBlob->nUsed] = 0;
+  memcpy(&pBlob->aData[nUsed], aData, nData);
+}
 
 /*
-** Copy a blob
+** Append a single character to the blob.  If pBlob is zero then the
+** character is written directly to stdout.
+*/
+void blob_append_char(Blob *pBlob, char c){
+  if( pBlob==0 || pBlob->nUsed+1 >= pBlob->nAlloc ){
+    blob_append_full(pBlob, &c, 1);
+  }else{
+    pBlob->aData[pBlob->nUsed++] = c;
+  }
+}
+
+/*
+** Copy a blob.  pTo is reinitialized to be a copy of pFrom.
 */
 void blob_copy(Blob *pTo, Blob *pFrom){
   blob_is_init(pFrom);
@@ -298,18 +372,115 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 }
 
 /*
+** Append the second blob onto the end of the first blob and reset the
+** second blob.  If the first blob (pTo) is NULL, then the content
+** of the second blob is written to stdout or to CGI depending on if the
+** Fossil is running in terminal or CGI mode.
+*/
+void blob_append_xfer(Blob *pTo, Blob *pFrom){
+  blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));
+  blob_reset(pFrom);
+}
+
+/*
+** Write into pOut, a string literal representation for the first n bytes
+** of z[].  The string literal representation is compatible with C, TCL,
+** and JSON.  Double-quotes are added to both ends.  Double-quote and
+** backslash characters are escaped.
+*/
+void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    char c = z[i];
+    switch( c ){
+      case '\r':  c = 'r';
+      case '[':
+      case ']':
+      case '$':
+      case '"':
+      case '\\':
+        blob_append_char(pOut, '\\');
+      default:
+        blob_append_char(pOut, c);
+    }
+  }
+  blob_append_char(pOut, '"');
+}
+void blob_append_json_literal(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    char c = z[i];
+    switch( c ){
+      case 0x00:
+      case 0x01:
+      case 0x02:
+      case 0x03:
+      case 0x04:
+      case 0x05:
+      case 0x06:
+      case 0x07: c += '0' - 0x00; blob_append(pOut, "\\u000",5); break;
+      case 0x0b:
+      case 0x0e:
+      case 0x0f: c += 'a' - 0x0a; blob_append(pOut, "\\u000",5); break;
+      case 0x10:
+      case 0x11:
+      case 0x12:
+      case 0x13:
+      case 0x14:
+      case 0x15:
+      case 0x16:
+      case 0x17:
+      case 0x18:
+      case 0x19: c += '0' - 0x10; blob_append(pOut, "\\u001",5); break;
+      case 0x1a:
+      case 0x1b:
+      case 0x1c:
+      case 0x1d:
+      case 0x1e:
+      case 0x1f: c += 'a' - 0x1a; blob_append(pOut, "\\u001",5); break;
+      case '\b': c = 'b';         blob_append_char(pOut, '\\');  break;
+      case '\t': c = 't';         blob_append_char(pOut, '\\');  break;
+      case '\r': c = 'r';         blob_append_char(pOut, '\\');  break;
+      case '\n': c = 'n';         blob_append_char(pOut, '\\');  break;
+      case '\f': c = 'f';         blob_append_char(pOut, '\\');  break;
+      case '"':                   blob_append_char(pOut, '\\');  break;
+      case '\\':                  blob_append_char(pOut, '\\');  break;
+      default:                                                   break;
+    }
+    blob_append_char(pOut, c);
+  }
+  blob_append_char(pOut, '"');
+}
+
+
+/*
 ** Return a pointer to a null-terminated string for a blob.
 */
 char *blob_str(Blob *p){
   blob_is_init(p);
   if( p->nUsed==0 ){
-    blob_append(p, "", 1); /* NOTE: Changes nUsed. */
+    blob_append_char(p, 0); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
-  if( p->aData[p->nUsed]!=0 ){
+  if( p->nUsed<p->nAlloc ){
+    p->aData[p->nUsed] = 0;
+  }else{
     blob_materialize(p);
   }
   return p->aData;
+}
+
+/*
+** Compute the string length of a Blob.  If there are embedded
+** nul characters, truncate the to blob at the first nul.
+*/
+int blob_strlen(Blob *p){
+  char *z = blob_str(p);
+  if( z==0 ) return 0;
+  p->nUsed = (int)strlen(p->aData);
+  return p->nUsed;
 }
 
 /*
@@ -320,7 +491,7 @@ char *blob_str(Blob *p){
 char *blob_sql_text(Blob *p){
   blob_is_init(p);
   if( (p->blobFlags & BLOBFLAG_NotSQL) ){
-    fossil_fatal("Internal error: Use of blob_appendf() to construct SQL text");
+    fossil_panic("use of blob_appendf() to construct SQL text");
   }
   return blob_str(p);
 }
@@ -350,7 +521,7 @@ char *blob_terminate(Blob *p){
 ** Compare two blobs.  Return negative, zero, or positive if the first
 ** blob is less then, equal to, or greater than the second.
 */
-int blob_compare(Blob *pA, Blob *pB){
+int blob_compare(const Blob *pA, const Blob *pB){
   int szA, szB, sz, rc;
   blob_is_init(pA);
   blob_is_init(pB);
@@ -396,7 +567,7 @@ int blob_constant_time_cmp(Blob *pA, Blob *pB){
 int blob_eq_str(Blob *pBlob, const char *z, int n){
   Blob t;
   blob_is_init(pBlob);
-  if( n<=0 ) n = strlen(z);
+  if( n<=0 ) n = (int)strlen(z);
   t.aData = (char*)z;
   t.nUsed = n;
   t.xRealloc = blobReallocStatic;
@@ -410,7 +581,7 @@ int blob_eq_str(Blob *pBlob, const char *z, int n){
 */
 #if INTERFACE
 # define blob_eq(B,S) \
-     ((B)->nUsed==sizeof(S)-1 && memcmp((B)->aData,S,sizeof(S)-1)==0)
+     ((B)->nUsed==sizeof(S"")-1 && memcmp((B)->aData,S,sizeof(S)-1)==0)
 #endif
 
 
@@ -422,6 +593,30 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
   pBlob->xRealloc(pBlob, newSize+1);
   pBlob->nUsed = newSize;
   pBlob->aData[newSize] = 0;
+}
+
+/*
+** Ensures that the given blob has at least the given amount of memory
+** allocated to it. Does not modify pBlob->nUsed nor will it reduce
+** the currently-allocated amount of memory.
+**
+** For semantic compatibility with blob_append_full(), if newSize is
+** >=0x7fff000 (~2GB) then this function will trigger blob_panic(). If
+** it didn't, it would be possible to bypass that hard-coded limit via
+** this function.
+**
+** We've had at least one report:
+**   https://fossil-scm.org/forum/forumpost/b7bbd28db4
+** which implies that this is unconditionally failing on mingw 32-bit
+** builds.
+*/
+void blob_reserve(Blob *pBlob, unsigned int newSize){
+  if(newSize>=0x7fff0000 ){
+    blob_panic();
+  }else if(newSize>pBlob->nAlloc){
+    pBlob->xRealloc(pBlob, newSize+1);
+    pBlob->aData[newSize] = 0;
+  }
 }
 
 /*
@@ -476,6 +671,13 @@ void blob_rewind(Blob *p){
 }
 
 /*
+** Truncate a blob back to zero length
+*/
+void blob_truncate(Blob *p, int sz){
+  if( sz>=0 && sz<p->nUsed ) p->nUsed = sz;
+}
+
+/*
 ** Seek the cursor in a blob to the indicated offset.
 */
 int blob_seek(Blob *p, int offset, int whence){
@@ -483,8 +685,6 @@ int blob_seek(Blob *p, int offset, int whence){
     p->iCursor = offset;
   }else if( whence==BLOB_SEEK_CUR ){
     p->iCursor += offset;
-  }else if( whence==BLOB_SEEK_END ){
-    p->iCursor = p->nUsed + offset - 1;
   }
   if( p->iCursor>p->nUsed ){
     p->iCursor = p->nUsed;
@@ -649,6 +849,16 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 }
 
 /*
+** Ensure that the text in pBlob ends with '\n'
+*/
+void blob_add_final_newline(Blob *pBlob){
+  if( pBlob->nUsed<=0 ) return;
+  if( pBlob->aData[pBlob->nUsed-1]!='\n' ){
+    blob_append_char(pBlob, '\n');
+  }
+}
+
+/*
 ** Return true if the blob contains a valid base16 identifier artifact hash.
 **
 ** The value returned is actually one of HNAME_SHA1 OR HNAME_K256 if the
@@ -732,30 +942,27 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 }
 
 /*
-** Do printf-style string rendering and append the results to a blob.
+** Do printf-style string rendering and append the results to a blob.  Or
+** if pBlob==0, do printf-style string rendering directly to stdout.
 **
 ** The blob_appendf() version sets the BLOBFLAG_NotSQL bit in Blob.blobFlags
 ** whereas blob_append_sql() does not.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
-  if( pBlob ){
-    va_list ap;
-    va_start(ap, zFormat);
-    vxprintf(pBlob, zFormat, ap);
-    va_end(ap);
-    pBlob->blobFlags |= BLOBFLAG_NotSQL;
-  }
+  va_list ap;
+  va_start(ap, zFormat);
+  vxprintf(pBlob, zFormat, ap);
+  va_end(ap);
+  if( pBlob ) pBlob->blobFlags |= BLOBFLAG_NotSQL;
 }
 void blob_append_sql(Blob *pBlob, const char *zFormat, ...){
-  if( pBlob ){
-    va_list ap;
-    va_start(ap, zFormat);
-    vxprintf(pBlob, zFormat, ap);
-    va_end(ap);
-  }
+  va_list ap;
+  va_start(ap, zFormat);
+  vxprintf(pBlob, zFormat, ap);
+  va_end(ap);
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  if( pBlob ) vxprintf(pBlob, zFormat, ap);
+  vxprintf(pBlob, zFormat, ap);
 }
 
 /*
@@ -783,22 +990,64 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 }
 
 /*
+** Initialize a blob to the data read from HTTP input.  Return
+** the number of bytes read into the blob.  Any prior content
+** of the blob is discarded, not freed.
+*/
+int blob_read_from_cgi(Blob *pBlob, int nToRead){
+  size_t n;
+  blob_zero(pBlob);
+  if( nToRead<0 ){
+    char zBuf[10000];
+    while( !cgi_feof() ){
+      n = cgi_fread(zBuf, sizeof(zBuf));
+      if( n>0 ){
+        blob_append(pBlob, zBuf, n);
+      }
+    }
+  }else{
+    blob_resize(pBlob, nToRead);
+    n = cgi_fread(blob_buffer(pBlob), nToRead);
+    blob_resize(pBlob, n);
+  }
+  return blob_size(pBlob);
+}
+
+/*
 ** Initialize a blob to be the content of a file.  If the filename
 ** is blank or "-" then read from standard input.
+**
+** If zFilename is a symbolic link, behavior depends on the eFType
+** parameter:
+**
+**    *  If eFType is ExtFILE or allow-symlinks is OFF, then the
+**       pBlob is initialized to the *content* of the object to which
+**       the zFilename symlink points.
+**
+**    *  If eFType is RepoFILE and allow-symlinks is ON, then the
+**       pBlob is initialized to the *name* of the object to which
+**       the zFilename symlink points.
 **
 ** Any prior content of the blob is discarded, not freed.
 **
 ** Return the number of bytes read. Calls fossil_fatal() on error (i.e.
 ** it exit()s and does not return).
 */
-int blob_read_from_file(Blob *pBlob, const char *zFilename){
-  int size, got;
+sqlite3_int64 blob_read_from_file(
+  Blob *pBlob,               /* The blob to be initialized */
+  const char *zFilename,     /* Extract content from this file */
+  int eFType                 /* ExtFILE or RepoFILE - see above */
+){
+  sqlite3_int64 size, got;
   FILE *in;
   if( zFilename==0 || zFilename[0]==0
         || (zFilename[0]=='-' && zFilename[1]==0) ){
     return blob_read_from_channel(pBlob, stdin, -1);
   }
-  size = file_wd_size(zFilename);
+  if( file_islink(zFilename) ){
+    return blob_read_link(pBlob, zFilename);
+  }
+  size = file_size(zFilename, eFType);
   blob_zero(pBlob);
   if( size<0 ){
     fossil_fatal("no such file: %s", zFilename);
@@ -844,11 +1093,15 @@ int blob_read_link(Blob *pBlob, const char *zFilename){
 #endif
 }
 
-
 /*
 ** Write the content of a blob into a file.
 **
 ** If the filename is blank or "-" then write to standard output.
+**
+** This routine always assumes ExtFILE.  If zFilename is a symbolic link
+** then the content is written into the object that symbolic link points
+** to, not into the symbolic link itself.  This is true regardless of
+** the allow-symlinks setting.
 **
 ** Return the number of bytes written.
 */
@@ -870,10 +1123,10 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     _setmode(_fileno(stdout), _O_TEXT);
 #endif
   }else{
-    file_mkfolder(zFilename, 1, 0);
+    file_mkfolder(zFilename, ExtFILE, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
-#if _WIN32
+#if defined(_WIN32)
       const char *zReserved = file_is_win_reserved(zFilename);
       if( zReserved ){
         fossil_fatal("cannot open \"%s\" because \"%s\" is "
@@ -935,7 +1188,7 @@ void blob_compress(Blob *pIn, Blob *pOut){
 void compress_cmd(void){
   Blob f;
   if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
-  blob_read_from_file(&f, g.argv[2]);
+  blob_read_from_file(&f, g.argv[2], ExtFILE);
   blob_compress(&f, &f);
   blob_write_to_file(&f, g.argv[3]);
 }
@@ -994,8 +1247,8 @@ void blob_compress2(Blob *pIn1, Blob *pIn2, Blob *pOut){
 void compress2_cmd(void){
   Blob f1, f2;
   if( g.argc!=5 ) usage("INPUTFILE1 INPUTFILE2 OUTPUTFILE");
-  blob_read_from_file(&f1, g.argv[2]);
-  blob_read_from_file(&f2, g.argv[3]);
+  blob_read_from_file(&f1, g.argv[2], ExtFILE);
+  blob_read_from_file(&f2, g.argv[3], ExtFILE);
   blob_compress2(&f1, &f2, &f1);
   blob_write_to_file(&f1, g.argv[4]);
 }
@@ -1046,7 +1299,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 void uncompress_cmd(void){
   Blob f;
   if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
-  blob_read_from_file(&f, g.argv[2]);
+  blob_read_from_file(&f, g.argv[2], ExtFILE);
   blob_uncompress(&f, &f);
   blob_write_to_file(&f, g.argv[3]);
 }
@@ -1061,7 +1314,7 @@ void test_cycle_compress(void){
   int i;
   Blob b1, b2, b3;
   for(i=2; i<g.argc; i++){
-    blob_read_from_file(&b1, g.argv[i]);
+    blob_read_from_file(&b1, g.argv[i], ExtFILE);
     blob_compress(&b1, &b2);
     blob_uncompress(&b2, &b3);
     if( blob_compare(&b1, &b3) ){
@@ -1074,7 +1327,6 @@ void test_cycle_compress(void){
   fossil_print("ok\n");
 }
 
-#if defined(_WIN32) || defined(__CYGWIN__)
 /*
 ** Convert every \n character in the given blob into \r\n.
 */
@@ -1098,7 +1350,6 @@ void blob_add_cr(Blob *p){
     }
   }
 }
-#endif
 
 /*
 ** Remove every \r character from the given blob, replacing each one with
@@ -1171,24 +1422,321 @@ void blob_cp1252_to_utf8(Blob *p){
 }
 
 /*
-** Shell-escape the given string.  Append the result to a blob.
+** ASCII (for reference):
+**    x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf 
+** 0x ^`  ^a  ^b  ^c  ^d  ^e  ^f  ^g  \b  \t  \n  ()  \f  \r  ^n  ^o 
+** 1x ^p  ^q  ^r  ^s  ^t  ^u  ^v  ^w  ^x  ^y  ^z  ^{  ^|  ^}  ^~  ^ 
+** 2x ()  !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /  
+** 3x 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?  
+** 4x @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O  
+** 5x P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _  
+** 6x `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o  
+** 7x p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   ^_ 
 */
-void shell_escape(Blob *pBlob, const char *zIn){
+
+/*
+** Meanings for bytes in a filename:
+**
+**    0      Ordinary character.  No encoding required
+**    1      Needs to be escaped
+**    2      Illegal character.  Do not allow in a filename
+**    3      First byte of a 2-byte UTF-8
+**    4      First byte of a 3-byte UTF-8
+**    5      First byte of a 4-byte UTF-8
+*/
+static const char aSafeChar[256] = {
+#ifdef _WIN32
+/* Windows
+** Prohibit:  all control characters, including tab, \r and \n
+** Escape:    (space) " # $ % & ' ( ) * ; < > ? [ ] ^ ` { | }
+*/
+/*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
+     1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, /* 2x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  1,  1,  0, /* 5x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, /* 7x */
+#else
+/* Unix
+** Prohibit:  all control characters, including tab, \r and \n
+** Escape:    (space) ! " # $ % & ' ( ) * ; < > ? [ \ ] ^ ` { | }
+*/
+/*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
+     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, /* 2x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  0, /* 5x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, /* 7x */
+#endif
+    /* all bytes 0x80 through 0xbf are unescaped, being secondary
+    ** bytes to UTF8 characters.  Bytes 0xc0 through 0xff are the
+    ** first byte of a UTF8 character and do get escaped */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 8x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 9x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* ax */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* bx */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* cx */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* dx */
+     4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4, /* ex */
+     5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5  /* fx */
+};
+
+/*
+** pBlob is a shell command under construction.  This routine safely
+** appends filename argument zIn.
+**
+** The argument is escaped if it contains white space or other characters
+** that need to be escaped for the shell.  If zIn contains characters
+** that cannot be safely escaped, then throw a fatal error.
+**
+** If the isFilename argument is true, then the argument is expected
+** to be a filename.  As shell commands commonly have command-line
+** options that begin with "-" and since we do not want an attacker
+** to be able to invoke these switches using filenames that begin
+** with "-", if zIn begins with "-", prepend an additional "./"
+** (or ".\\" on Windows).
+*/
+void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
+  int i;
+  unsigned char c;
+  int needEscape = 0;
   int n = blob_size(pBlob);
-  int k = strlen(zIn);
-  int i, c;
-  char *z;
-  for(i=0; (c = zIn[i])!=0; i++){
-    if( fossil_isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
-      blob_appendf(pBlob, "\"%s\"", zIn);
-      z = blob_buffer(pBlob);
-      for(i=n+1; i<=n+k; i++){
-        if( z[i]=='"' ) z[i] = '_';
+  char *z = blob_buffer(pBlob);
+
+  /* Look for illegal byte-sequences and byte-sequences that require
+  ** escaping.  No control-characters are allowed.  All spaces and
+  ** non-ASCII unicode characters and some punctuation characters require
+  ** escaping. */
+  for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+    if( aSafeChar[c] ){
+      unsigned char x = aSafeChar[c];
+      needEscape = 1;
+      if( x==2 ){
+        Blob bad;
+        blob_token(pBlob, &bad);
+        fossil_fatal("the [%s] argument to the \"%s\" command contains "
+                     "a character (ascii 0x%02x) that is not allowed in "
+                     "filename arguments",
+                     zIn, blob_str(&bad), c);
+      }else if( x>2 ){
+        if( (zIn[i+1]&0xc0)!=0x80
+         || (x>=4 && (zIn[i+2]&0xc0)!=0x80)
+         || (x==5 && (zIn[i+3]&0xc0)!=0x80)
+        ){
+          Blob bad;
+          blob_token(pBlob, &bad);
+          fossil_fatal("the [%s] argument to the \"%s\" command contains "
+                       "an illegal UTF-8 character",
+                       zIn, blob_str(&bad));
+        }
+        i += x-2;
       }
-      return;
-    }
+    } 
   }
-  blob_append(pBlob, zIn, -1);
+
+  /* Separate from the previous argument by a space */
+  if( n>0 && !fossil_isspace(z[n-1]) ){
+    blob_append_char(pBlob, ' ');
+  }
+
+  /* Check for characters that need quoting */
+  if( !needEscape ){
+    if( isFilename && zIn[0]=='-' ){
+      blob_append_char(pBlob, '.');
+#if defined(_WIN32)
+      blob_append_char(pBlob, '\\');
+#else
+      blob_append_char(pBlob, '/');
+#endif
+    }
+    blob_append(pBlob, zIn, -1);
+  }else{
+#if defined(_WIN32)
+    /* Quoting strategy for windows:
+    ** Put the entire name inside of "...".  Any " characters within
+    ** the name get doubled.
+    */
+    blob_append_char(pBlob, '"');
+    if( isFilename && zIn[0]=='-' ){
+      blob_append_char(pBlob, '.');
+      blob_append_char(pBlob, '\\');
+    }else if( zIn[0]=='/' ){
+      blob_append_char(pBlob, '.');
+    }
+    for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+      blob_append_char(pBlob, (char)c);
+      if( c=='"' ) blob_append_char(pBlob, '"');
+    }
+    blob_append_char(pBlob, '"');
+#else
+    /* Quoting strategy for unix:
+    ** If the name does not contain ', then surround the whole thing
+    ** with '...'.   If there is one or more ' characters within the
+    ** name, then put \ before each special character.
+    */
+    if( strchr(zIn,'\'') ){
+      if( isFilename && zIn[0]=='-' ){
+        blob_append_char(pBlob, '.');
+        blob_append_char(pBlob, '/');
+      }
+      for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+        if( aSafeChar[c] && aSafeChar[c]!=2 ) blob_append_char(pBlob, '\\');
+        blob_append_char(pBlob, (char)c);
+      }
+    }else{
+      blob_append_char(pBlob, '\'');
+      if( isFilename && zIn[0]=='-' ){
+        blob_append_char(pBlob, '.');
+        blob_append_char(pBlob, '/');
+      }
+      blob_append(pBlob, zIn, -1);
+      blob_append_char(pBlob, '\'');
+    }
+#endif
+  }
+}
+
+/*
+** COMMAND: test-escaped-arg
+**
+** Usage %fossil ARGS ...
+**
+** Run each argument through blob_append_escaped_arg() and show the
+** result.  Append each argument to "fossil test-echo" and run that
+** using fossil_system() to verify that it really does get escaped
+** correctly.
+**
+** Other options:
+**
+**    --filename-args BOOL      Subsequent arguments are assumed to be
+**                              filenames if BOOL is true, or not if BOOL
+**                              is false.  Defaults on.
+**
+**    --hex HEX                 Skip the --hex flag and instead decode HEX
+**                              into ascii.  This provides a way to insert
+**                              unusual characters as an argument for testing.
+**
+**    --compare HEX ASCII       Verify that argument ASCII is identical to
+**                              to decoded HEX.
+**
+**    --fuzz N                  Run N fuzz cases.  Each cases is a call
+**                              to "fossil test-escaped-arg --compare HEX ARG"
+**                              where HEX and ARG are the same argument.
+**                              The argument is chosen at random.
+*/
+void test_escaped_arg_command(void){
+  int i;
+  Blob x;
+  const char *zArg;
+  int isFilename = 1;
+  char zBuf[100];
+  blob_init(&x, 0, 0);
+  for(i=2; i<g.argc; i++){
+    zArg = g.argv[i];
+    if( fossil_strcmp(zArg, "--hex")==0 && i+1<g.argc ){
+      size_t n = strlen(g.argv[++i]);
+      if( n>=(sizeof(zBuf)-1)*2 ){
+        fossil_fatal("Argument to --hex is too big");
+      }
+      memset(zBuf, 0, sizeof(zBuf));
+      decode16((const unsigned char*)g.argv[i], (unsigned char*)zBuf, (int)n);
+      zArg = zBuf;
+    }else if( fossil_strcmp(zArg, "--compare")==0 && i+2<g.argc ){
+      size_t n = strlen(g.argv[++i]);
+      if( n>=(sizeof(zBuf)-1)*2 ){
+        fossil_fatal("HEX argument to --compare is too big");
+      }
+      memset(zBuf, 0, sizeof(zBuf));
+      if( decode16((const unsigned char*)g.argv[i], (unsigned char*)zBuf,
+                   (int)n) ){
+        fossil_fatal("HEX decode of %s failed", g.argv[i]);
+      }
+      zArg = g.argv[++i];
+      if( zArg[0]=='-' ){
+        fossil_fatal("filename argument \"%s\" begins with \"-\"", zArg);
+      }
+#ifdef _WIN32
+      if( zBuf[0]=='-' && zArg[0]=='.' && zArg[1]=='\\' ) zArg += 2;
+#else
+      if( zBuf[0]=='-' && zArg[0]=='.' && zArg[1]=='/' ) zArg += 2;
+#endif
+      if( strcmp(zBuf, zArg)!=0 ){
+        fossil_fatal("argument disagree: \"%s\" (%s) versus \"%s\"", 
+                     zBuf, g.argv[i-1], zArg);
+      }
+      continue;
+    }else if( fossil_strcmp(zArg, "--fuzz")==0 && i+1<g.argc ){
+      int n = atoi(g.argv[++i]);
+      int j;
+      for(j=0; j<n; j++){
+        unsigned char m, k;
+        int rc;
+        unsigned char zWord[100];
+        sqlite3_randomness(sizeof(m), &m);
+        m = (m%40)+5;
+        sqlite3_randomness(m, zWord); /* Between 5 and 45 bytes of randomness */
+        for(k=0; k<m; k++){
+          unsigned char cx = zWord[k];
+          if( cx<0x20 || cx>=0x7f ){
+            /* Translate illegal bytes into various non-ASCII unicode
+            ** characters in order to exercise those code paths */
+            unsigned int u;
+            if( cx>=0x7f ){
+              u = cx;
+            }else if( cx>=0x08 ){
+              u = 0x800 + cx;
+            }else{
+              u = 0x10000 + cx;
+            }
+            if( u<0x00080 ){
+              zWord[k] = u & 0xFF;
+            }else if( u<0x00800 ){
+              zWord[k++] = 0xC0 + (u8)((u>>6)&0x1F);
+              zWord[k] =   0x80 + (u8)(u & 0x3F);
+            }else if( u<0x10000 ){
+              zWord[k++] = 0xE0 + (u8)((u>>12)&0x0F);
+              zWord[k++] = 0x80 + (u8)((u>>6) & 0x3F);
+              zWord[k] =   0x80 + (u8)(u & 0x3F);
+            }else{
+              zWord[k++] = 0xF0 + (u8)((u>>18) & 0x07);
+              zWord[k++] = 0x80 + (u8)((u>>12) & 0x3F);
+              zWord[k++] = 0x80 + (u8)((u>>6) & 0x3F);
+              zWord[k]   = 0x80 + (u8)(u & 0x3F);
+            }
+          }
+        }
+        zWord[k] = 0;
+        encode16(zWord, (unsigned char*)zBuf, (int)k);
+        blob_appendf(&x, "%$ test-escaped-arg --compare %s %$",
+                         g.nameOfExe, zBuf,zWord);
+        rc = fossil_system(blob_str(&x));
+        if( rc ) fossil_fatal("failed test (%d): %s\n", rc, blob_str(&x));
+        blob_reset(&x);
+      }
+      continue;
+    }else if( fossil_strcmp(zArg, "--filename-args")==0 ){
+       if( i+1<g.argc ){
+         i++;
+         isFilename = is_truth(g.argv[i]);
+       }
+       continue;
+    }
+    fossil_print("%3d [%s]: ", i, zArg);
+    if( isFilename ){
+      blob_appendf(&x, "%$ test-echo %$", g.nameOfExe, zArg);
+    }else{
+      blob_appendf(&x, "%$ test-echo %!$", g.nameOfExe, zArg);
+    }
+    fossil_print("%s\n", blob_str(&x));
+    fossil_system(blob_str(&x));
+    blob_reset(&x);
+  }
 }
 
 /*
@@ -1251,7 +1799,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     if( bomReverse ){
       /* Found BOM, but with reversed bytes */
       unsigned int i = blob_size(pBlob);
-      while( i>0 ){
+      while( i>1 ){
         /* swap bytes of unicode representation */
         char zTemp = zUtf8[--i];
         zUtf8[i] = zUtf8[i-1];
@@ -1259,9 +1807,10 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
       }
     }
     /* Make sure the blob contains two terminating 0-bytes */
-    blob_append(pBlob, "", 1);
+    blob_append(pBlob, "\000\000", 3);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
+    blob_reset(pBlob);
     blob_set_dynamic(pBlob, zUtf8);
   }else if( useMbcs && invalid_utf8(pBlob) ){
 #if defined(_WIN32) || defined(__CYGWIN__)

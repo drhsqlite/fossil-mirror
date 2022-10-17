@@ -54,6 +54,7 @@ static void rebuild_update_schema(void){
   /* Add the user.mtime column if it is missing. (2011-04-27)
   */
   if( !db_table_has_column("repository", "user", "mtime") ){
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
       "DROP TABLE user;"
@@ -74,15 +75,18 @@ static void rebuild_update_schema(void){
                " ipaddr, cexpire, info, now(), photo FROM temp_user;"
       "DROP TABLE temp_user;"
     );
+    db_protect_pop();
   }
 
   /* Add the config.mtime column if it is missing.  (2011-04-27)
   */
   if( !db_table_has_column("repository", "config", "mtime") ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "ALTER TABLE config ADD COLUMN mtime INTEGER;"
       "UPDATE config SET mtime=now();"
     );
+    db_protect_pop();
   }
 
   /* Add the shun.mtime and shun.scom columns if they are missing.
@@ -146,38 +150,51 @@ static void rebuild_update_schema(void){
 **       is greater than or equal to 40, not exactly equal to 40.
 */
 void rebuild_schema_update_2_0(void){
-  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master WHERE name='blob'");
+  char *z = db_text(0, "SELECT sql FROM repository.sqlite_schema"
+                       " WHERE name='blob'");
   if( z ){
     /* Search for:  length(uuid)==40
     **              0123456789 12345   */
     int i;
     for(i=10; z[i]; i++){
       if( z[i]=='=' && strncmp(&z[i-6],"(uuid)==40",10)==0 ){
+        int rc = 0;
         z[i] = '>';
+        sqlite3_db_config(g.db, SQLITE_DBCONFIG_DEFENSIVE, 0, &rc);
         db_multi_exec(
            "PRAGMA writable_schema=ON;"
-           "UPDATE repository.sqlite_master SET sql=%Q WHERE name LIKE 'blob';"
+           "UPDATE repository.sqlite_schema SET sql=%Q WHERE name LIKE 'blob';"
            "PRAGMA writable_schema=OFF;",
            z
         );
+        sqlite3_db_config(g.db, SQLITE_DBCONFIG_DEFENSIVE, 1, &rc);
         break;
       }
     }
     fossil_free(z);
   }
+  db_multi_exec(
+    "CREATE VIEW IF NOT EXISTS "
+    "  repository.artifact(rid,rcvid,size,atype,srcid,hash,content) AS "
+    "    SELECT blob.rid,rcvid,size,1,srcid,uuid,content"
+    "      FROM blob LEFT JOIN delta ON (blob.rid=delta.rid);"
+  );
 }
 
 /*
 ** Variables used to store state information about an on-going "rebuild"
 ** or "deconstruct".
 */
-static int totalSize;       /* Total number of artifacts to process */
-static int processCnt;      /* Number processed so far */
-static int ttyOutput;       /* Do progress output */
-static Bag bagDone;         /* Bag of records rebuilt */
+static int totalSize;          /* Total number of artifacts to process */
+static int processCnt;         /* Number processed so far */
+static int ttyOutput;          /* Do progress output */
+static Bag bagDone = Bag_INIT; /* Bag of records rebuilt */
 
 static char *zFNameFormat;  /* Format string for filenames on deconstruct */
+static int cchFNamePrefix;  /* Length of directory prefix in zFNameFormat */
+static const char *zDestDir;/* Destination directory on deconstruct */
 static int prefixLength;    /* Length of directory prefix for deconstruct */
+static int fKeepRid1;       /* Flag to preserve RID=1 on de- and reconstruct */
 
 
 /*
@@ -193,6 +210,13 @@ static void percent_complete(int permill){
   }
 }
 
+/*
+** Frees rebuild-level cached state. Intended only to be called by the
+** app-level atexit() handler.
+*/
+void rebuild_clear_cache(){
+  bag_clear(&bagDone);
+}
 
 /*
 ** Called after each artifact is processed
@@ -269,6 +293,17 @@ static void rebuild_step(int rid, int size, Blob *pBase){
       char *zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
                             zUuid, zUuid+prefixLength);
       blob_write_to_file(pUse,zFile);
+      if( rid==1 && fKeepRid1!=0 ){
+        char *zFnDotRid1 = mprintf("%s/.rid1", zDestDir);
+        char *zFnRid1 = zFile + cchFNamePrefix + 1; /* Skip directory slash */
+        Blob bFileContents = empty_blob;
+        blob_appendf(&bFileContents,
+          "# The file holding the artifact with RID=1\n"
+          "%s\n", zFnRid1);
+        blob_write_to_file(&bFileContents, zFnDotRid1);
+        blob_reset(&bFileContents);
+        free(zFnDotRid1);
+      }
       free(zFile);
       free(zUuid);
       blob_reset(pUse);
@@ -335,38 +370,36 @@ static void rebuild_tag_trunk(void){
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
 ** from scratch.
-**
-** If the randomize parameter is true, then the BLOBs are deliberately
-** extracted in a random order.  This feature is used to test the
-** ability of fossil to accept records in any order and still
-** construct a sane repository.
 */
-int rebuild_db(int randomize, int doOut, int doClustering){
+int rebuild_db(int doOut, int doClustering){
   Stmt s, q;
   int errCnt = 0;
   int incrSize;
   Blob sql;
 
-  bag_init(&bagDone);
+  bag_clear(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
   if (ttyOutput && !g.fQuiet) {
     percent_complete(0);
   }
+  manifest_disable_event_triggers();
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
+  db_unprotect(PROTECT_ALL);
   db_prepare(&q,
-     "SELECT name FROM sqlite_master /*scan*/"
+     "SELECT name FROM sqlite_schema /*scan*/"
      " WHERE type='table'"
      " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
-                       "'purgeevent','purgeitem','unversioned')"
+                       "'purgeevent','purgeitem','unversioned',"
+                       "'subscriber','pending_alert','chat')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    blob_appendf(&sql, "DROP TABLE \"%w\";\n", db_column_text(&q,0));
+    blob_appendf(&sql, "DROP TABLE IF EXISTS \"%w\";\n", db_column_text(&q,0));
   }
   db_finalize(&q);
   db_multi_exec("%s", blob_str(&sql)/*safe-for-%s*/);
@@ -446,8 +479,14 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     percent_complete(1000);
     fossil_print("\n");
   }
+  db_protect_pop();
   return errCnt;
 }
+
+/*
+** Number of neighbors to search
+*/
+#define N_NEIGHBOR 5
 
 /*
 ** Attempt to convert more full-text blobs into delta-blobs for
@@ -455,9 +494,15 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 */
 void extra_deltification(void){
   Stmt q;
-  int topid, previd, rid;
+  int aPrev[N_NEIGHBOR];
+  int nPrev;
+  int rid;
   int prevfnid, fnid;
   db_begin_transaction();
+
+  /* Look for manifests that have not been deltaed and try to make them
+  ** children of one of the 5 chronologically subsequent check-ins
+  */
   db_prepare(&q,
      "SELECT rid FROM event, blob"
      " WHERE blob.rid=event.objid"
@@ -465,22 +510,28 @@ void extra_deltification(void){
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
      " ORDER BY event.mtime DESC"
   );
-  topid = previd = 0;
+  nPrev = 0;
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
-    if( topid==0 ){
-      topid = previd = rid;
+    if( nPrev>0 ){
+      content_deltify(rid, aPrev, nPrev, 0);
+    }
+    if( nPrev<N_NEIGHBOR ){
+      aPrev[nPrev++] = rid;
     }else{
-      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
-        content_deltify(rid, topid, 0);
-      }
-      previd = rid;
+      int i;
+      for(i=0; i<N_NEIGHBOR-1; i++) aPrev[i] = aPrev[i+1];
+      aPrev[N_NEIGHBOR-1] = rid;
     }
   }
   db_finalize(&q);
 
+  /* For individual files that have not been deltaed, try to find
+  ** a parent which is an undeltaed file with the same name in a
+  ** more recent branch.
+  */
   db_prepare(&q,
-     "SELECT blob.rid, mlink.fnid FROM blob, mlink, plink"
+     "SELECT DISTINCT blob.rid, mlink.fnid FROM blob, mlink, plink"
      " WHERE NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
      "   AND mlink.fid=blob.rid"
      "   AND mlink.mid=plink.cid"
@@ -491,14 +542,17 @@ void extra_deltification(void){
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
     fnid = db_column_int(&q, 1);
-    if( prevfnid!=fnid ){
-      prevfnid = fnid;
-      topid = previd = rid;
+    if( fnid!=prevfnid ) nPrev = 0;
+    prevfnid = fnid;
+    if( nPrev>0 ){
+      content_deltify(rid, aPrev, nPrev, 0);
+    }
+    if( nPrev<N_NEIGHBOR ){
+      aPrev[nPrev++] = rid;
     }else{
-      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
-        content_deltify(rid, topid, 0);
-      }
-      previd = rid;
+      int i;
+      for(i=0; i<N_NEIGHBOR-1; i++) aPrev[i] = aPrev[i+1];
+      aPrev[N_NEIGHBOR-1] = rid;
     }
   }
   db_finalize(&q);
@@ -548,16 +602,12 @@ static void reconstruct_private_table(void){
 **   --noindex         Always omit the full-text search index
 **   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
 **   --quiet           Only show output if there are errors
-**   --randomize       Scan artifacts in a random order
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
 **   --wal             Set Write-Ahead-Log journalling mode on the database
-**
-** See also: deconstruct, reconstruct
 */
 void rebuild_database(void){
   int forceFlag;
-  int randomizeFlag;
   int errCnt = 0;
   int omitVerify;
   int doClustering;
@@ -577,7 +627,6 @@ void rebuild_database(void){
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
-  randomizeFlag = find_option("randomize", 0, 0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
   runDeanalyze = find_option("deanalyze",0,0)!=0;
@@ -620,10 +669,11 @@ void rebuild_database(void){
   verify_all_options();
 
   db_begin_transaction();
+  db_unprotect(PROTECT_ALL);
   if( !compressOnlyFlag ){
     search_drop_index();
     ttyOutput = 1;
-    errCnt = rebuild_db(randomizeFlag, 1, doClustering);
+    errCnt = rebuild_db(1, doClustering);
     reconstruct_private_table();
   }
   db_multi_exec(
@@ -673,6 +723,7 @@ void rebuild_database(void){
     }
   }
   if( runReindex ) search_rebuild_index();
+  db_protect_pop();
   if( showStats ){
     static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
@@ -696,26 +747,76 @@ void rebuild_database(void){
 }
 
 /*
-** COMMAND: test-detach
+** COMMAND: detach*
 **
-** Usage: %fossil test-detach  ?REPOSITORY?
+** Usage: %fossil detach ?REPOSITORY?
 **
-** Change the project-code and make other changes in order to prevent
-** the repository from ever again pushing or pulling to other
-** repositories.  Used to create a "test" repository for development
-** testing by cloning a working project repository.
+** Change the project-code and make other changes to REPOSITORY so that
+** it becomes a new and distinct child project.  After being detached,
+** REPOSITORY will not longer be able to push and pull from other clones
+** of the original project.  However REPOSITORY will still be able to pull
+** from those other clones using the --from-parent-project option of the
+** "fossil pull" command.
+**
+** This is an experts-only command. You should not use this command unless
+** you fully understand what you are doing.
+**
+** The original use-case for this command was to create test repositories
+** from real-world working repositories that could be safely altered by
+** making strange commits or other changes, without having to worry that
+** those test changes would leak back into the original project via an
+** accidental auto-sync.
 */
 void test_detach_cmd(void){
+  const char *zXfer[] = {
+     "project-name",  "parent-project-name",
+     "project-code",  "parent-project-code",
+     "last-sync-url", "parent-project-url",
+     "last-sync-pw",  "parent-project-pw"
+  };
+  int i;
+  Blob ans;
+  char cReply;
   db_find_and_open_repository(0, 2);
+  prompt_user("This change will be difficult to undo. Are you sure (y/N)? ",
+              &ans);
+  cReply = blob_str(&ans)[0];
+  if( cReply!='y' && cReply!='Y' ) return;
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
+  for(i=0; i<ArraySize(zXfer)-1; i+=2 ){
+    db_multi_exec(
+      "REPLACE INTO config(name,value,mtime)"
+        " SELECT %Q, value, now() FROM config WHERE name=%Q",
+      zXfer[i+1], zXfer[i]
+    );
+  }
   db_multi_exec(
-    "DELETE FROM config WHERE name='last-sync-url';"
+    "DELETE FROM config WHERE name IN"
+    "(WITH pattern(x) AS (VALUES"
+    "  ('baseurl:*'),"
+    "  ('cert:*'),"
+    "  ('ckout:*'),"
+    "  ('gitpush:*'),"
+    "  ('http-auth:*'),"
+    "  ('last-sync-*'),"
+    "  ('link:*'),"
+    "  ('login-group-*'),"
+    "  ('peer-*'),"
+    "  ('subrepo:*'),"
+    "  ('sync-*'),"
+    "  ('syncfrom:*'),"
+    "  ('syncwith:*'),"
+    "  ('ssl-*')"
+    ") SELECT name FROM config, pattern WHERE name GLOB x);"
     "UPDATE config SET value=lower(hex(randomblob(20)))"
     " WHERE name='project-code';"
     "UPDATE config SET value='detached-' || value"
     " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
   );
+  db_protect_pop();
   db_end_transaction(0);
+  fossil_print("New project code: %s\n", db_get("project-code",""));
 }
 
 /*
@@ -829,9 +930,9 @@ void test_clusters_cmd(void){
 ** is used.
 **
 ** Options:
-**   --force     do not prompt for confirmation
-**   --private   only private branches are removed from the repository
-**   --verily    scrub real thoroughly (see above)
+**   --force     Do not prompt for confirmation
+**   --private   Only private branches are removed from the repository
+**   --verily    Scrub real thoroughly (see above)
 */
 void scrub_cmd(void){
   int bVerily = find_option("verily",0,0)!=0;
@@ -862,13 +963,30 @@ void scrub_cmd(void){
     delete_private_content();
   }
   if( !privateOnly ){
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
+      "PRAGMA secure_delete=ON;"
       "UPDATE user SET pw='';"
-      "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-      "DELETE FROM config WHERE name GLOB 'peer-*';"
-      "DELETE FROM config WHERE name GLOB 'login-group-*';"
-      "DELETE FROM config WHERE name GLOB 'skin:*';"
-      "DELETE FROM config WHERE name GLOB 'subrepo:*';"
+      "DELETE FROM config WHERE name IN"
+      "(WITH pattern(x) AS (VALUES"
+      "  ('baseurl:*'),"
+      "  ('cert:*'),"
+      "  ('ckout:*'),"
+      "  ('draft[1-9]-*'),"
+      "  ('gitpush:*'),"
+      "  ('http-auth:*'),"
+      "  ('last-sync-*'),"
+      "  ('link:*'),"
+      "  ('login-group-*'),"
+      "  ('parent-project-*'),"
+      "  ('peer-*'),"
+      "  ('skin:*'),"
+      "  ('subrepo:*'),"
+      "  ('sync-*'),"
+      "  ('syncfrom:*'),"
+      "  ('syncwith:*'),"
+      "  ('ssl-*')"
+      ") SELECT name FROM config, pattern WHERE name GLOB x);"
     );
     if( bVerily ){
       db_multi_exec(
@@ -880,14 +998,18 @@ void scrub_cmd(void){
         "DROP TABLE IF EXISTS purgeitem;\n"
         "DROP TABLE IF EXISTS admin_log;\n"
         "DROP TABLE IF EXISTS vcache;\n"
+        "DROP TABLE IF EXISTS chat;\n"
       );
     }
+    db_protect_pop();
   }
   if( !bNeedRebuild ){
     db_end_transaction(0);
+    db_unprotect(PROTECT_ALL);
     db_multi_exec("VACUUM;");
+    db_protect_pop();
   }else{
-    rebuild_db(0, 1, 0);
+    rebuild_db(1, 0);
     db_end_transaction(0);
   }
 }
@@ -903,7 +1025,46 @@ void recon_read_dir(char *zPath){
   static int nFileRead = 0;
   void *zUnicodePath;
   char *zUtf8Name;
+  static int recursionLevel = 0;  /* Bookkeeping about the recursion level */
+  static char *zFnRid1 = 0;       /* The file holding the artifact with RID=1 */
+  static int cchPathInitial = 0;  /* The length of zPath on first recursion */
 
+  recursionLevel++;
+  if( recursionLevel==1 ){
+    cchPathInitial = strlen(zPath);
+    if( fKeepRid1!=0 ){
+      char *zFnDotRid1 = mprintf("%s/.rid1", zPath);
+      Blob bFileContents;
+      if( blob_read_from_file(&bFileContents, zFnDotRid1, ExtFILE)!=-1 ){
+        Blob line, value;
+        while( blob_line(&bFileContents, &line)>0 ){
+          if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
+          if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
+          blob_trim(&value);
+          zFnRid1 = mprintf("%s/%s", zPath, blob_str(&value));
+          break;
+        }
+        blob_reset(&bFileContents);
+        if( zFnRid1 ){
+          if( blob_read_from_file(&aContent, zFnRid1, ExtFILE)==-1 ){
+            fossil_fatal("some unknown error occurred while reading \"%s\"",
+                         zFnRid1);
+          }else{
+            recon_set_hash_policy(0, zFnRid1);
+            content_put(&aContent);
+            recon_restore_hash_policy();
+            blob_reset(&aContent);
+            fossil_print("\r%d", ++nFileRead);
+            fflush(stdout);
+          }
+        }else{
+          fossil_fatal("an error occurred while reading or parsing \"%s\"",
+                       zFnDotRid1);
+        }
+      }
+      free(zFnDotRid1);
+    }
+  }
   zUnicodePath = fossil_utf8_to_path(zPath, 1);
   d = opendir(zUnicodePath);
   if( d ){
@@ -919,20 +1080,22 @@ void recon_read_dir(char *zPath){
       fossil_path_free(zUtf8Name);
 #ifdef _DIRENT_HAVE_D_TYPE
       if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isdir(zSubpath)==1) : (pEntry->d_type==DT_DIR) )
+          ? (file_isdir(zSubpath, ExtFILE)==1) : (pEntry->d_type==DT_DIR) )
 #else
-      if( file_isdir(zSubpath)==1 )
+      if( file_isdir(zSubpath, ExtFILE)==1 )
 #endif
       {
         recon_read_dir(zSubpath);
-      }else{
+      }else if( fossil_strcmp(zSubpath, zFnRid1)!=0 ){
         blob_init(&path, 0, 0);
         blob_appendf(&path, "%s", zSubpath);
-        if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+        if( blob_read_from_file(&aContent, blob_str(&path), ExtFILE)==-1 ){
           fossil_fatal("some unknown error occurred while reading \"%s\"",
                        blob_str(&path));
         }
+        recon_set_hash_policy(cchPathInitial, blob_str(&path));
         content_put(&aContent);
+        recon_restore_hash_policy();
         blob_reset(&path);
         blob_reset(&aContent);
         fossil_print("\r%d", ++nFileRead);
@@ -946,26 +1109,181 @@ void recon_read_dir(char *zPath){
                   errno, g.argv[3]);
   }
   fossil_path_free(zUnicodePath);
+  if( recursionLevel==1 && zFnRid1!=0 ) free(zFnRid1);
+  recursionLevel--;
+}
+
+/*
+** Helper functions called from recon_read_dir() to set and restore the correct
+** hash policy for an artifact read from disk, inferred from the length of the
+** path name.
+*/
+static int saved_eHashPolicy = -1;
+
+void recon_set_hash_policy(
+  const int cchPathPrefix,    /* Directory prefix length for zUuidAsFilePath */
+  const char *zUuidAsFilePath /* Relative, well-formed, from recon_read_dir() */
+){
+  int cchUuidAsFilePath;
+  const char *zHashPart;
+  int cchHashPart = 0;
+  int new_eHashPolicy = -1;
+  assert( HNAME_COUNT==2 ); /* Review function if new hashes are implemented. */
+  if( zUuidAsFilePath==0 ) return;
+  cchUuidAsFilePath = strlen(zUuidAsFilePath);
+  if( cchUuidAsFilePath==0 ) return;
+  if( cchPathPrefix>=cchUuidAsFilePath ) return;
+  for( zHashPart = zUuidAsFilePath + cchPathPrefix; *zHashPart; zHashPart++ ){
+    if( *zHashPart!='/' ) cchHashPart++;
+  }
+  if( cchHashPart>=HNAME_LEN_K256 ){
+    new_eHashPolicy = HPOLICY_SHA3;
+  }else if( cchHashPart>=HNAME_LEN_SHA1 ){
+    new_eHashPolicy = HPOLICY_SHA1;
+  }
+  if( new_eHashPolicy!=-1 ){
+    saved_eHashPolicy = g.eHashPolicy;
+    g.eHashPolicy = new_eHashPolicy;
+  }
+}
+
+void recon_restore_hash_policy(){
+  if( saved_eHashPolicy!=-1 ){
+    g.eHashPolicy = saved_eHashPolicy;
+    saved_eHashPolicy = -1;
+  }
+}
+
+#if 0
+/*
+** COMMAND: test-hash-from-path*
+**
+** Usage: %fossil test-hash-from-path ?OPTIONS? DESTINATION UUID
+**
+** Generate a sample path name from DESTINATION and UUID, as the `deconstruct'
+** command would do.  Then try to guess the hash policy from the path name, as
+** the `reconstruct' command would do.
+**
+** No files or directories will be created.
+**
+** Options:
+**   -L|--prefixlength N     Set the length of the names of the DESTINATION
+**                           subdirectories to N
+*/
+void test_hash_from_path_cmd(void) {
+  char *zDest;
+  char *zUuid;
+  char *zFile;
+  const char *zHashPolicy = "unknown";
+  const char *zPrefixOpt = find_option("prefixlength","L",1);
+  int iPrefixLength;
+  if( !zPrefixOpt ){
+    iPrefixLength = 2;
+  }else{
+    iPrefixLength = atoi(zPrefixOpt);
+    if( iPrefixLength<0 || iPrefixLength>9 ){
+      fossil_fatal("N(%s) is not a valid prefix length!",zPrefixOpt);
+    }
+  }
+  if( g.argc!=4 ){
+    usage ("?OPTIONS? DESTINATION UUID");
+  }
+  zDest = g.argv[2];
+  zUuid = g.argv[3];
+  if( iPrefixLength ){
+    zFNameFormat = mprintf("%s/%%.%ds/%%s",zDest,iPrefixLength);
+  }else{
+    zFNameFormat = mprintf("%s/%%s",zDest);
+  }
+  cchFNamePrefix = strlen(zDest);
+  zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
+                  zUuid, zUuid+iPrefixLength);
+  recon_set_hash_policy(cchFNamePrefix,zFile);
+  if( saved_eHashPolicy!=-1 ){
+    zHashPolicy = hpolicy_name();
+  }
+  recon_restore_hash_policy();
+  fossil_print(
+    "\nPath Name:   %s"
+    "\nHash Policy: %s\n",
+    zFile,zHashPolicy);
+  free(zFile);
+  free(zFNameFormat);
+  zFNameFormat = 0;
+  cchFNamePrefix = 0;
+}
+#endif
+
+/*
+** Helper functions used by the `deconstruct' and `reconstruct' commands to
+** save and restore the contents of the PRIVATE table.
+*/
+void private_export(char *zFileName)
+{
+  Stmt q;
+  Blob fctx = empty_blob;
+  blob_append(&fctx, "# The hashes of private artifacts\n", -1);
+  db_prepare(&q,
+    "SELECT uuid FROM blob WHERE rid IN ( SELECT rid FROM private );");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    blob_append(&fctx, zUuid, -1);
+    blob_append(&fctx, "\n", -1);
+  }
+  db_finalize(&q);
+  blob_write_to_file(&fctx, zFileName);
+  blob_reset(&fctx);
+}
+void private_import(char *zFileName)
+{
+  Blob fctx;
+  if( blob_read_from_file(&fctx, zFileName, ExtFILE)!=-1 ){
+    Blob line, value;
+    while( blob_line(&fctx, &line)>0 ){
+      char *zUuid;
+      int nUuid;
+      if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
+      if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
+      blob_trim(&value);
+      zUuid = blob_buffer(&value);
+      nUuid = blob_size(&value);
+      zUuid[nUuid] = 0;
+      if( hname_validate(zUuid, nUuid)!=HNAME_ERROR ){
+        canonical16(zUuid, nUuid);
+        db_multi_exec(
+          "INSERT OR IGNORE INTO private"
+          " SELECT rid FROM blob WHERE uuid = %Q;",
+          zUuid);
+      }
+    }
+    blob_reset(&fctx);
+  }
 }
 
 /*
 ** COMMAND: reconstruct*
 **
-** Usage: %fossil reconstruct FILENAME DIRECTORY
+** Usage: %fossil reconstruct ?OPTIONS? FILENAME DIRECTORY
 **
-** This command studies the artifacts (files) in DIRECTORY and
-** reconstructs the fossil record from them. It places the new
-** fossil repository in FILENAME. Subdirectories are read, files
-** with leading '.' in the filename are ignored.
+** This command studies the artifacts (files) in DIRECTORY and reconstructs the
+** Fossil record from them.  It places the new Fossil repository in FILENAME.
+** Subdirectories are read, files with leading '.' in the filename are ignored.
 **
-** See also: deconstruct, rebuild
+** Options:
+**   -K|--keep-rid1     Read the filename of the artifact with RID=1 from the
+**                      file .rid in DIRECTORY.
+**   -P|--keep-private  Mark the artifacts listed in the file .private in
+**                      DIRECTORY as private in the new Fossil repository.
 */
 void reconstruct_cmd(void) {
   char *zPassword;
+  int fKeepPrivate;
+  fKeepRid1 = find_option("keep-rid1","K",0)!=0;
+  fKeepPrivate = find_option("keep-private","P",0)!=0;
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
-  if( file_isdir(g.argv[3])!=1 ){
+  if( file_isdir(g.argv[3], ExtFILE)!=1 ){
     fossil_print("\"%s\" is not a directory\n\n", g.argv[3]);
     usage("FILENAME DIRECTORY");
   }
@@ -983,8 +1301,16 @@ void reconstruct_cmd(void) {
   recon_read_dir(g.argv[3]);
   fossil_print("\nBuilding the Fossil repository...\n");
 
-  rebuild_db(0, 1, 1);
+  rebuild_db(1, 1);
+
+  /* Backwards compatibility: Mark check-ins with "+private" tags as private. */
   reconstruct_private_table();
+  /* Newer method: Import the list of private artifacts to the PRIVATE table. */
+  if( fKeepPrivate ){
+    char *zFnDotPrivate = mprintf("%s/.private", g.argv[3]);
+    private_import(zFnDotPrivate);
+    free(zFnDotPrivate);
+  }
 
   /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts
   ** will have been changed and verification therefore takes a really, really
@@ -1004,28 +1330,31 @@ void reconstruct_cmd(void) {
 **
 ** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **
-**
-** This command exports all artifacts of a given repository and
-** writes all artifacts to the file system. The DESTINATION directory
-** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
-** AABBBBBBBBB.. is the 40+ character artifact ID, AA the first 2 characters.
-** If -L|--prefixlength is given, the length (default 2) of the directory
-** prefix can be set to 0,1,..,9 characters.
+** This command exports all artifacts of a given repository and writes all
+** artifacts to the file system.  The DESTINATION directory will be populated
+** with subdirectories AA and files AA/BBBBBBBBB.., where AABBBBBBBBB.. is the
+** 40+ character artifact ID, AA the first 2 characters.
+** If -L|--prefixlength is given, the length (default 2) of the directory prefix
+** can be set to 0,1,..,9 characters.
 **
 ** Options:
-**   -R|--repository REPOSITORY  deconstruct given REPOSITORY
-**   -L|--prefixlength N         set the length of the names of the DESTINATION
-**                               subdirectories to N
+**   -R|--repository REPO        Deconstruct given REPOSITORY.
+**   -K|--keep-rid1              Save the filename of the artifact with RID=1 to
+**                               the file .rid1 in the DESTINATION directory.
+**   -L|--prefixlength N         Set the length of the names of the DESTINATION
+**                               subdirectories to N.
 **   --private                   Include private artifacts.
-**
-** See also: rebuild, reconstruct
+**   -P|--keep-private           Save the list of private artifacts to the file
+**                               .private in the DESTINATION directory (implies
+**                               the --private option).
 */
 void deconstruct_cmd(void){
-  const char *zDestDir;
   const char *zPrefixOpt;
   Stmt        s;
   int privateFlag;
+  int fKeepPrivate;
 
+  fKeepRid1 = find_option("keep-rid1","K",0)!=0;
   /* get and check prefix length argument and build format string */
   zPrefixOpt=find_option("prefixlength","L",1);
   if( !zPrefixOpt ){
@@ -1040,6 +1369,8 @@ void deconstruct_cmd(void){
   /* open repository and open query for all artifacts */
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   privateFlag = find_option("private",0,0)!=0;
+  fKeepPrivate = find_option("keep-private","P",0)!=0;
+  if( fKeepPrivate ) privateFlag = 1;
   verify_all_options();
   /* check number of arguments */
   if( g.argc!=3 ){
@@ -1047,7 +1378,7 @@ void deconstruct_cmd(void){
   }
   /* get and check argument destination directory */
   zDestDir = g.argv[g.argc-1];
-  if( !*zDestDir  || !file_isdir(zDestDir)) {
+  if( !*zDestDir  || !file_isdir(zDestDir, ExtFILE)) {
     fossil_fatal("DESTINATION(%s) is not a directory!",zDestDir);
   }
 #ifndef _WIN32
@@ -1064,6 +1395,7 @@ void deconstruct_cmd(void){
   }else{
     zFNameFormat = mprintf("%s/%%s",zDestDir);
   }
+  cchFNamePrefix = strlen(zDestDir);
 
   bag_init(&bagDone);
   ttyOutput = 1;
@@ -1106,6 +1438,14 @@ void deconstruct_cmd(void){
     }
   }
   db_finalize(&s);
+
+  /* Export the list of private artifacts. */
+  if( fKeepPrivate ){
+    char *zFnDotPrivate = mprintf("%s/.private", zDestDir);
+    private_export(zFnDotPrivate);
+    free(zFnDotPrivate);
+  }
+
   if(!g.fQuiet && ttyOutput ){
     fossil_print("\n");
   }

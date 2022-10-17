@@ -59,9 +59,9 @@ on ${PACKAGE_TIME}.
 
 The original sources for fossil can be downloaded for free from:
 
-http://www.fossil-scm.org/
+http://fossil-scm.org/
 
-fossil is released under the terms of the GNU General Public License.
+fossil is released under the terms of the 2-clause BSD License.
 
 EOF
 }
@@ -100,7 +100,7 @@ Description: Fossil is a unique SCM (Software Configuration Management) system.
  built-in HTTP server. It has a built-in wiki, file browsing, etc.
  Fossil home page: http://fossil-scm.org
  Fossil author: D. Richard Hipp
- License: GNU GPLv2
+ License: 2-clause BSD
 EOF
 
 }

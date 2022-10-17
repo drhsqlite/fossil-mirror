@@ -23,28 +23,141 @@
 
 /*
 ** SQL code to implement the tables needed by the stash.
+**
+** Historical schema changes:
+**
+**   2019-01-19:   stash.hash and stashfile.hash columns added.  The
+**                 corresponding stash.vid and stashfile.rid columns are
+**                 retained for compatibility with older versions of
+**                 fossil but are no longer used.
+**
+**   2016-10-16:   Change the PRIMARY KEY on stashfile from (origname,stashid)
+**                 to (newname,stashid).
+**
+**   2011-09-01:   stashfile.isLink column added
+**
 */
 static const char zStashInit[] =
 @ CREATE TABLE IF NOT EXISTS localdb.stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
-@   vid INTEGER,                     -- The baseline checkout for this stash
+@   vid INTEGER,                     -- Legacy baseline RID value. Do not use.
+@   hash TEXT,                       -- The SHA hash for the baseline
 @   comment TEXT,                    -- Comment for this stash.  Or NULL
 @   ctime TIMESTAMP                  -- When the stash was created
 @ );
 @ CREATE TABLE IF NOT EXISTS localdb.stashfile(
 @   stashid INTEGER REFERENCES stash,  -- Stash that contains this file
-@   rid INTEGER,                       -- Baseline content in BLOB table or 0.
 @   isAdded BOOLEAN,                   -- True if this is an added file
 @   isRemoved BOOLEAN,                 -- True if this file is deleted
 @   isExec BOOLEAN,                    -- True if file is executable
 @   isLink BOOLEAN,                    -- True if file is a symlink
+@   rid INTEGER,                       -- Legacy baseline RID value. Do not use
+@   hash TEXT,                         -- Hash for baseline or NULL
 @   origname TEXT,                     -- Original filename
 @   newname TEXT,                      -- New name for file at next check-in
-@   delta BLOB,                        -- Delta from baseline. Content if rid=0
+@   delta BLOB,                        -- Delta from baseline or raw content
 @   PRIMARY KEY(newname, stashid)
 @ );
 @ INSERT OR IGNORE INTO vvar(name, value) VALUES('stash-next', 1);
 ;
+
+/*
+** Make sure the stash and stashfile tables exist and have been
+** upgraded to their latest format.  Create and upgrade the tables
+** as necessary.
+*/
+static void stash_tables_exist_and_current(void){
+  if( db_table_has_column("localdb","stashfile","hash") ){
+    /* The schema is up-to-date.  But it could be that an older version
+    ** of Fossil that does no know about the stash.hash and stashfile.hash
+    ** columns has run since the schema was updated, and added entries that
+    ** have NULL hash columns.  Check for this case, and fill in any missing
+    ** hash values.
+    */
+    if( db_int(0, "SELECT hash IS NULL FROM stash"
+                  " ORDER BY stashid DESC LIMIT 1")
+    ){
+      db_multi_exec(
+        "UPDATE stash"
+        "   SET hash=(SELECT uuid FROM blob WHERE blob.rid=stash.vid)"
+        " WHERE hash IS NULL;"
+        "UPDATE stashfile"
+        "   SET hash=(SELECT uuid FROM blob WHERE blob.rid=stashfile.rid)"
+        " WHERE hash IS NULL AND rid>0;"
+      );
+    }
+    return;
+  }
+
+  if( !db_table_exists("localdb","stashfile")
+   || !db_table_exists("localdb","stash")
+  ){
+    /* Tables do not exist.  Create them from scratch. */
+    db_multi_exec("DROP TABLE IF EXISTS localdb.stash;");
+    db_multi_exec("DROP TABLE IF EXISTS localdb.stashfile;");
+    db_multi_exec(zStashInit /*works-like:""*/);
+    return;
+  }
+
+  /* The tables exists but are not necessarily current.  Upgrade them
+  ** to the latest format.
+  **
+  ** We can assume the 2011-09-01 format that includes the stashfile.isLink
+  ** column.  The only upgrades we need to worry about the PRIMARY KEY
+  ** change on 2016-10-16 and the addition of the "hash" columns on
+  ** 2019-01-19.
+  */
+  db_multi_exec(
+    "ALTER TABLE localdb.stash RENAME TO old_stash;"
+    "ALTER TABLE localdb.stashfile RENAME TO old_stashfile;"
+  );
+  db_multi_exec(zStashInit /*works-like:""*/);
+  db_multi_exec(
+    "INSERT INTO localdb.stash(stashid,vid,hash,comment,ctime)"
+    " SELECT stashid, vid,"
+    "   (SELECT uuid FROM blob WHERE blob.rid=old_stash.vid),"
+    "   comment, ctime FROM old_stash;"
+    "DROP TABLE old_stash;"
+  );
+  db_multi_exec(
+    "INSERT INTO localdb.stashfile(stashid,isAdded,isRemoved,isExec,"
+                                  "isLink,rid,hash,origname,newname,delta)"
+    " SELECT stashid, isAdded, isRemoved, isExec, isLink, rid,"
+    "   (SELECT uuid FROM blob WHERE blob.rid=old_stashfile.rid),"
+    "   origname, newname, delta FROM old_stashfile;"
+    "DROP TABLE old_stashfile;"
+  );
+}
+
+/*
+** Update the stash.vid and stashfile.rid values after a RID renumbering
+** event.
+*/
+void stash_rid_renumbering_event(void){
+  if( !db_table_has_column("localdb","stash","hash") ){
+    /* If the stash schema was the older style that lacked hash value, then
+    ** recovery is not possible.  Save off the old data, then reset the stash
+    ** to empty. */
+    if( db_table_exists("localdb","stash") ){
+      db_multi_exec("ALTER TABLE stash RENAME TO broken_stash;");
+      fossil_print("Unrecoverable stash content stored in \"broken_stash\"\n");
+    }
+    if( db_table_exists("localdb","stashfile") ){
+      db_multi_exec("ALTER TABLE stashfile RENAME TO broken_stashfile;");
+      fossil_print("Unrecoverable stashfile content stored"
+                   " in \"broken_stashfile\"\n");
+    }
+  }else{
+    /* Reset stash.vid and stash.rid values based on hashes */
+    db_multi_exec(
+      "UPDATE stash"
+      "   SET vid=(SELECT rid FROM blob WHERE blob.uuid=stash.hash);"
+      "UPDATE stashfile"
+      "   SET rid=(SELECT rid FROM blob WHERE blob.uuid=stashfile.hash)"
+      " WHERE hash IS NOT NULL;"
+    );
+  }
+}
 
 /*
 ** Add zFName to the stash given by stashid.  zFName might be the name of a
@@ -79,9 +192,10 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   db_prepare(&ins,
-     "INSERT INTO stashfile(stashid, rid, isAdded, isRemoved, isExec, isLink,"
-                           "origname, newname, delta)"
-     "VALUES(%d,:rid,:isadd,:isrm,:isexe,:islink,:orig,:new,:content)",
+     "INSERT INTO stashfile(stashid, isAdded, isRemoved, isExec, isLink, rid, "
+                           "hash, origname, newname, delta)"
+     "VALUES(%d,:isadd,:isrm,:isexe,:islink,:rid,"
+     "(SELECT uuid FROM blob WHERE rid=:rid),:orig,:new,:content)",
      stashid
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -91,7 +205,6 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     const char *zOrig = db_column_text(&q, 5);
     char *zPath = mprintf("%s%s", g.zLocalRoot, zName);
     Blob content;
-    int isNewLink = file_wd_islink(zPath);
 
     db_bind_int(&ins, ":rid", rid);
     db_bind_int(&ins, ":isadd", rid==0);
@@ -103,11 +216,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
 
     if( rid==0 ){
       /* A new file */
-      if( isNewLink ){
-        blob_read_link(&content, zPath);
-      }else{
-        blob_read_from_file(&content, zPath);
-      }
+      blob_read_from_file(&content, zPath, RepoFILE);
       db_bind_blob(&ins, ":content", &content);
     }else if( deleted ){
       blob_zero(&content);
@@ -117,18 +226,14 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       Blob orig;
       Blob disk;
 
-      if( isNewLink ){
-        blob_read_link(&disk, zPath);
-      }else{
-        blob_read_from_file(&disk, zPath);
-      }
+      blob_read_from_file(&disk, zPath, RepoFILE);
       content_get(rid, &orig);
       blob_delta_create(&orig, &disk, &content);
       blob_reset(&orig);
       blob_reset(&disk);
       db_bind_blob(&ins, ":content", &content);
     }
-    db_bind_int(&ins, ":islink", isNewLink);
+    db_bind_int(&ins, ":islink", file_islink(zPath));
     db_step(&ins);
     db_reset(&ins);
     fossil_free(zPath);
@@ -182,9 +287,9 @@ static int stash_create(void){
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0);
   db_multi_exec(
-    "INSERT INTO stash(stashid,vid,comment,ctime)"
-    "VALUES(%d,%d,%Q,julianday('now'))",
-    stashid, vid, zComment
+    "INSERT INTO stash(stashid,vid,hash,comment,ctime)"
+    "VALUES(%d,%d,(SELECT uuid FROM blob WHERE rid=%d),%Q,julianday('now'))",
+    stashid, vid, vid, zComment
   );
   if( g.argc>3 ){
     int i;
@@ -204,9 +309,11 @@ static void stash_apply(int stashid, int nConflict){
   int vid;
   Stmt q;
   db_prepare(&q,
-     "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
-     "  FROM stashfile WHERE stashid=%d",
-     stashid
+     "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash"
+     " UNION ALL SELECT 0, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile WHERE stashid=%d AND stashfile.hash IS NULL",
+     stashid, stashid
   );
   vid = db_lget_int("checkout",0);
   db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
@@ -227,19 +334,17 @@ static void stash_apply(int stashid, int nConflict){
       db_multi_exec("INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)", zNew);
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
-      file_wd_setexe(zNPath, isExec);
+      file_setexe(zNPath, isExec);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
+    }else if( file_unsafe_in_tree_path(zNPath) ){
+      /* Ignore the unsafe path */
     }else{
       Blob a, b, out, disk;
-      int isNewLink = file_wd_islink(zOPath);
+      int isNewLink = file_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
-      if( isNewLink ){
-        blob_read_link(&disk, zOPath);
-      }else{
-        blob_read_from_file(&disk, zOPath);
-      }
+      blob_read_from_file(&disk, zOPath, RepoFILE);
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
       if( isLink == isNewLink && blob_compare(&disk, &a)==0 ){
@@ -251,7 +356,7 @@ static void stash_apply(int stashid, int nConflict){
         }else{
           blob_write_to_file(&b, zNPath);
         }
-        file_wd_setexe(zNPath, isExec);
+        file_setexe(zNPath, isExec);
         fossil_print("UPDATE %s\n", zNew);
       }else{
         int rc;
@@ -260,10 +365,10 @@ static void stash_apply(int stashid, int nConflict){
           blob_zero(&b); /* because we reset it later */
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
-          rc = merge_3way(&a, zOPath, &b, &out, 0);
+          rc = merge_3way(&a, zOPath, &b, &out, MERGE_KEEP_FILES);
           blob_write_to_file(&out, zNPath);
           blob_reset(&out);
-          file_wd_setexe(zNPath, isExec);
+          file_setexe(zNPath, isExec);
         }
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
@@ -301,78 +406,68 @@ static void stash_apply(int stashid, int nConflict){
 */
 static void stash_diff(
   int stashid,             /* The stash entry to diff */
-  const char *zDiffCmd,    /* Command used for diffing */
-  const char *zBinGlob,    /* GLOB pattern to determine binary files */
   int fBaseline,           /* Diff against original baseline check-in if true */
-  int fIncludeBinary,      /* Do diffs against binary files */
-  u64 diffFlags            /* Other diff flags */
+  DiffConfig *pCfg         /* Diff formatting options */
 ){
   Stmt q;
   Blob empty;
+  int bWebpage = (pCfg->diffFlags & (DIFF_WEBPAGE|DIFF_JSON|DIFF_TCL))!=0;
   blob_zero(&empty);
+  diff_begin(pCfg);
   db_prepare(&q,
-     "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
-     "  FROM stashfile WHERE stashid=%d",
-     stashid
+     "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash"
+     " UNION ALL SELECT 0, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile WHERE stashid=%d AND stashfile.hash IS NULL",
+     stashid, stashid
   );
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
     int isLink = db_column_int(&q, 3);
-    int isBin1, isBin2;
     const char *zOrig = db_column_text(&q, 4);
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     Blob a, b;
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
-      fossil_print("ADDED %s\n", zNew);
-      diff_print_index(zNew, diffFlags);
-      isBin1 = 0;
-      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      diff_file_mem(&empty, &a, isBin1, isBin2, zNew, zDiffCmd,
-                    zBinGlob, fIncludeBinary, diffFlags);
+      if( !bWebpage ) fossil_print("ADDED %s\n", zNew);
+      diff_print_index(zNew, pCfg, 0);
+      diff_file_mem(&empty, &a, zNew, pCfg);
     }else if( isRemoved ){
-      fossil_print("DELETE %s\n", zOrig);
-      diff_print_index(zNew, diffFlags);
-      isBin2 = 0;
+      if( !bWebpage) fossil_print("DELETE %s\n", zOrig);
+      diff_print_index(zNew, pCfg, 0);
       if( fBaseline ){
         content_get(rid, &a);
-        isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-        diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
-                      zBinGlob, fIncludeBinary, diffFlags);
-      }else{
+        diff_file_mem(&a, &empty, zOrig, pCfg);
       }
     }else{
       Blob delta;
-      int isOrigLink = file_wd_islink(zOPath);
+      int isOrigLink = file_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
-      fossil_print("CHANGED %s\n", zNew);
+      if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
-        diff_print_index(zNew, diffFlags);
-        diff_print_filenames(zOrig, zNew, diffFlags);
+        diff_print_index(zNew, pCfg, 0);
+        diff_print_filenames(zOrig, zNew, pCfg, 0);
         printf(DIFF_CANNOT_COMPUTE_SYMLINK);
       }else{
         content_get(rid, &a);
         blob_delta_apply(&a, &delta, &b);
-        isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-        isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
         if( fBaseline ){
-          diff_file_mem(&a, &b, isBin1, isBin2, zNew,
-                        zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+          diff_file_mem(&a, &b, zNew, pCfg);
         }else{
-          /*Diff with file on disk using fSwapDiff=1 to show the diff in the
-            same direction as if fBaseline=1.*/
-          diff_file(&b, isBin2, zOPath, zNew, zDiffCmd,
-              zBinGlob, fIncludeBinary, diffFlags, 1);
+          pCfg->diffFlags ^= DIFF_INVERT;
+          diff_file(&b, zOPath, zNew, pCfg, 0);
+          pCfg->diffFlags ^= DIFF_INVERT;
         }
         blob_reset(&a);
         blob_reset(&b);
       }
       blob_reset(&delta);
     }
- }
+  }
   db_finalize(&q);
+  diff_end(pCfg, 0);
 }
 
 /*
@@ -411,93 +506,65 @@ static int stash_get_id(const char *zStashId){
 **
 ** Usage: %fossil stash SUBCOMMAND ARGS...
 **
-**  fossil stash
-**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+** > fossil stash
+** > fossil stash save ?-m|--comment COMMENT? ?FILES...?
+** > fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 **
-**     Save the current changes in the working tree as a new stash.
-**     Then revert the changes back to the last check-in.  If FILES
-**     are listed, then only stash and revert the named files.  The
-**     "save" verb can be omitted if and only if there are no other
-**     arguments.  The "snapshot" verb works the same as "save" but
-**     omits the revert, keeping the checkout unchanged.
+**      Save the current changes in the working tree as a new stash.
+**      Then revert the changes back to the last check-in.  If FILES
+**      are listed, then only stash and revert the named files.  The
+**      "save" verb can be omitted if and only if there are no other
+**      arguments.  The "snapshot" verb works the same as "save" but
+**      omits the revert, keeping the checkout unchanged.
 **
-**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
+** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **
-**     List all changes sets currently stashed.  Show information about
-**     individual files in each changeset if -v or --verbose is used.
+**      List all changes sets currently stashed.  Show information about
+**      individual files in each changeset if -v or --verbose is used.
 **
-**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
 **
-**     Show the contents of a stash as a diff against it's baseline.
-**     With gshow and gcat, gdiff-command is used instead of internal
-**     diff logic.
+**      Show the contents of a stash as a diff against its baseline.
+**      With gshow and gcat, gdiff-command is used instead of internal
+**      diff logic.
 **
-**  fossil stash pop
-**  fossil stash apply ?STASHID?
+** > fossil stash pop
+** > fossil stash apply ?STASHID?
 **
-**     Apply STASHID or the most recently create stash to the current
-**     working checkout.  The "pop" command deletes that changeset from
-**     the stash after applying it but the "apply" command retains the
-**     changeset.
+**      Apply STASHID or the most recently created stash to the current
+**      working checkout.  The "pop" command deletes that changeset from
+**      the stash after applying it but the "apply" command retains the
+**      changeset.
 **
-**  fossil stash goto ?STASHID?
+** > fossil stash goto ?STASHID?
 **
-**     Update to the baseline checkout for STASHID then apply the
-**     changes of STASHID.  Keep STASHID so that it can be reused
-**     This command is undoable.
+**      Update to the baseline checkout for STASHID then apply the
+**      changes of STASHID.  Keep STASHID so that it can be reused
+**      This command is undoable.
 **
-**  fossil stash drop|rm ?STASHID? ?-a|--all?
+** > fossil stash drop|rm ?STASHID? ?-a|--all?
 **
-**     Forget everything about STASHID.  Forget the whole stash if the
-**     -a|--all flag is used.  Individual drops are undoable but -a|--all
-**     is not.
+**      Forget everything about STASHID.  Forget the whole stash if the
+**      -a|--all flag is used.  Individual drops are undoable but -a|--all
+**      is not.
 **
-**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash diff ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 **
-**     Show diffs of the current working directory and what that
-**     directory would be if STASHID were applied. With gdiff,
-**     gdiff-command is used instead of internal diff logic.
-**
-** SUMMARY:
-**  fossil stash
-**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
-**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash pop
-**  fossil stash apply|goto ?STASHID?
-**  fossil stash drop|rm ?STASHID? ?-a|--all?
-**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
+**      Show diffs of the current working directory and what that
+**      directory would be if STASHID were applied. With gdiff,
+**      gdiff-command is used instead of internal diff logic.
 */
 void stash_cmd(void){
   const char *zCmd;
   int nCmd;
   int stashid = 0;
-  int rc;
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0, 0);
   db_begin_transaction();
-  db_multi_exec(zStashInit /*works-like:""*/);
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='stashfile'"
-                 "   AND sql GLOB '* PRIMARY KEY(origname, stashid)*'");
-  if( rc!=0 ){
-    db_multi_exec(
-      "CREATE TABLE localdb.stashfile_tmp AS SELECT * FROM stashfile;"
-      "DROP TABLE stashfile;"
-    );
-    db_multi_exec(zStashInit /*works-like:""*/);
-    db_multi_exec(
-      "INSERT INTO stashfile SELECT * FROM stashfile_tmp;"
-      "DROP TABLE stashfile_tmp;"
-    );
-  }
+  stash_tables_exist_and_current();
   if( g.argc<=2 ){
     zCmd = "save";
   }else{
@@ -505,6 +572,9 @@ void stash_cmd(void){
   }
   nCmd = strlen(zCmd);
   if( memcmp(zCmd, "save", nCmd)==0 ){
+    if( unsaved_changes(0)==0 ){
+      fossil_fatal("nothing to stash");
+    }
     stashid = stash_create();
     undo_disable();
     if( g.argc>=2 ){
@@ -524,8 +594,13 @@ void stash_cmd(void){
       g.argc = nFile+2;
       if( nFile==0 ) return;
     }
+    /* Make sure the stash has committed before running the revert, so that
+    ** we have a copy of the changes before deleting them. */
+    db_commit_transaction();
     g.argv[1] = "revert";
     revert_cmd();
+    fossil_print("stash %d saved\n", stashid);
+    return;
   }else
   if( memcmp(zCmd, "snapshot", nCmd)==0 ){
     stash_create();
@@ -549,8 +624,7 @@ void stash_cmd(void){
     }
     verify_all_options();
     db_prepare(&q,
-       "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
-       "       comment, datetime(ctime) FROM stash"
+       "SELECT stashid, hash, comment, datetime(ctime) FROM stash"
        " ORDER BY ctime"
     );
     if( verboseFlag ){
@@ -569,7 +643,7 @@ void stash_cmd(void){
       zCom = db_column_text(&q, 2);
       if( zCom && zCom[0] ){
         fossil_print("       ");
-        comment_print(zCom, 0, 7, width, g.comFmtFlags);
+        comment_print(zCom, 0, 7, width, get_comment_format());
       }
       if( verboseFlag ){
         db_bind_int(&q2, "$id", stashid);
@@ -621,21 +695,34 @@ void stash_cmd(void){
       undo_finish();
     }
   }else
-  if( memcmp(zCmd, "pop", nCmd)==0 ){
-    if( g.argc>3 ) usage("pop");
-    stashid = stash_get_id(0);
+  if( memcmp(zCmd, "pop", nCmd)==0 ||  memcmp(zCmd, "apply", nCmd)==0 ){
+    char *zCom = 0, *zDate = 0, *zHash = 0;
+    int popped = *zCmd=='p';
+    if( popped ){
+      if( g.argc>3 ) usage("pop");
+      stashid = stash_get_id(0);
+    }else{
+      if( g.argc>4 ) usage("apply STASHID");
+      stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    }
+    zCom = db_text(0, "SELECT comment FROM stash WHERE stashid=%d", stashid);
+    zDate = db_text(0, "SELECT datetime(ctime) FROM stash WHERE stashid=%d",
+        stashid);
+    zHash = db_text(0, "SELECT hash FROM stash WHERE stashid=%d", stashid);
     undo_begin();
     stash_apply(stashid, 0);
-    undo_save_stash(stashid);
+    if( popped ) undo_save_stash(stashid);
+    fossil_print("%s stash:\n%5d: [%.14s] from %s\n",
+        popped ? "Popped" : "Applied", stashid, zHash, zDate);
+    if( zCom && *zCom ){
+      fossil_print("       ");
+      comment_print(zCom, 0, 7, -1, get_comment_format());
+    }
+    fossil_free(zCom);
+    fossil_free(zDate);
+    fossil_free(zHash);
     undo_finish();
-    stash_drop(stashid);
-  }else
-  if( memcmp(zCmd, "apply", nCmd)==0 ){
-    if( g.argc>4 ) usage("apply STASHID");
-    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    undo_begin();
-    stash_apply(stashid, 0);
-    undo_finish();
+    if( popped ) stash_drop(stashid);
   }else
   if( memcmp(zCmd, "goto", nCmd)==0 ){
     int nConflict;
@@ -643,7 +730,8 @@ void stash_cmd(void){
     if( g.argc>4 ) usage("apply STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
-    vid = db_int(0, "SELECT vid FROM stash WHERE stashid=%d", stashid);
+    vid = db_int(0, "SELECT blob.rid FROM stash,blob"
+                    " WHERE stashid=%d AND blob.uuid=stash.hash", stashid);
     nConflict = update_to(vid);
     stash_apply(stashid, nConflict);
     db_multi_exec("UPDATE vfile SET mtime=0 WHERE pathname IN "
@@ -658,11 +746,8 @@ void stash_cmd(void){
    || memcmp(zCmd, "cat", nCmd)==0
    || memcmp(zCmd, "gcat", nCmd)==0
   ){
-    const char *zDiffCmd = 0;
-    const char *zBinGlob = 0;
-    int fIncludeBinary = 0;
     int fBaseline = 0;
-    u64 diffFlags;
+    DiffConfig DCfg;
 
     if( strstr(zCmd,"show")!=0 || strstr(zCmd,"cat")!=0 ){
       fBaseline = 1;
@@ -672,19 +757,9 @@ void stash_cmd(void){
       diff_tk(fBaseline ? "stash show" : "stash diff", 3);
       return;
     }
-    if( find_option("internal","i",0)==0 ){
-      zDiffCmd = diff_command_external(zCmd[0]=='g');
-    }
-    diffFlags = diff_options();
-    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
-    if( g.argc>4 ) usage(mprintf("%s ?STASHID? ?DIFF-OPTIONS?", zCmd));
-    if( zDiffCmd ){
-      zBinGlob = diff_get_binary_glob();
-      fIncludeBinary = diff_include_binary_files();
-    }
+    diff_options(&DCfg, zCmd[0]=='g', 0);
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd, zBinGlob, fBaseline, fIncludeBinary,
-               diffFlags);
+    stash_diff(stashid, fBaseline, &DCfg);
   }else
   if( memcmp(zCmd, "help", nCmd)==0 ){
     g.argv[1] = "help";

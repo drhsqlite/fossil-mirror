@@ -123,8 +123,9 @@ static int fociDisconnect(sqlite3_vtab *pVtab){
 */
 static int fociBestIndex(sqlite3_vtab *tab, sqlite3_index_info *pIdxInfo){
   int i;
-  pIdxInfo->estimatedCost = 10000.0;
+  pIdxInfo->estimatedCost = 1000000000.0;
   for(i=0; i<pIdxInfo->nConstraint; i++){
+    if( !pIdxInfo->aConstraint[i].usable ) continue;
     if( pIdxInfo->aConstraint[i].op==SQLITE_INDEX_CONSTRAINT_EQ
      && (pIdxInfo->aConstraint[i].iColumn==FOCI_CHECKINID
             || pIdxInfo->aConstraint[i].iColumn==FOCI_SYMNAME)
@@ -266,6 +267,9 @@ int foci_register(sqlite3 *db){
     0,                            /* xRollback */
     0,                            /* xFindMethod */
     0,                            /* xRename */
+    0,                            /* xSavepoint */
+    0,                            /* xRelease */
+    0                             /* xRollbackTo */
   };
   sqlite3_create_module(db, "files_of_checkin", &foci_module, 0);
   return SQLITE_OK;

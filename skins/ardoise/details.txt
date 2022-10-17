@@ -1,0 +1,5 @@
+timeline-arrowheads:        0
+timeline-circle-nodes:      1
+timeline-color-graph-lines: 1
+white-foreground:           1
+pikchr-background:          0x1d2021

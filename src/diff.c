@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -28,20 +28,28 @@
 ** Flag parameters to the text_diff() routine used to control the formatting
 ** of the diff output.
 */
-#define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
-#define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
-#define DIFF_IGNORE_ALLWS ((u64)0x03000000) /* Ignore all whitespace */
-#define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
-#define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
-#define DIFF_BRIEF        ((u64)0x10000000) /* Show filenames only */
-#define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
-#define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
-#define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
-#define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
-#define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
-#define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
-#define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
+#define DIFF_IGNORE_EOLWS      0x00000001 /* Ignore end-of-line whitespace */
+#define DIFF_IGNORE_ALLWS      0x00000003 /* Ignore all whitespace */
+#define DIFF_SIDEBYSIDE        0x00000004 /* Generate a side-by-side diff */
+#define DIFF_VERBOSE           0x00000008 /* Missing shown as empty files */
+#define DIFF_BRIEF             0x00000010 /* Show filenames only */
+#define DIFF_HTML              0x00000020 /* Render for HTML */
+#define DIFF_LINENO            0x00000040 /* Show line numbers */
+#define DIFF_NUMSTAT           0x00000080 /* Show line count of changes */
+#define DIFF_NOOPT             0x00000100 /* Suppress optimizations (debug) */
+#define DIFF_INVERT            0x00000200 /* Invert the diff (debug) */
+#define DIFF_CONTEXT_EX        0x00000400 /* Use context even if zero */
+#define DIFF_NOTTOOBIG         0x00000800 /* Only display if not too big */
+#define DIFF_STRIP_EOLCR       0x00001000 /* Strip trailing CR */
+#define DIFF_SLOW_SBS          0x00002000 /* Better but slower side-by-side */
+#define DIFF_WEBPAGE           0x00004000 /* Complete webpage */
+#define DIFF_BROWSER           0x00008000 /* The --browser option */
+#define DIFF_JSON              0x00010000 /* JSON output */
+#define DIFF_DEBUG             0x00020000 /* Debugging diff output */
+#define DIFF_RAW               0x00040000 /* Raw triples - for debugging */
+#define DIFF_TCL               0x00080000 /* For the --tk option */
+#define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
+#define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -60,12 +68,50 @@
     "whitespace changes only\n"
 
 /*
-** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
+** Maximum length of a line in a text file, in bytes.  (2**15 = 32768 bytes)
 */
-#define LENGTH_MASK_SZ  13
+#define LENGTH_MASK_SZ  15
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
+/*
+** An instance of this object describes the formatting and processing
+** details desired of a "diff" operation.
+**
+** Conceptually, this object is as an encoding of the command-line options
+** for the "fossil diff" command.  That is not a precise description, though,
+** because not all diff operations are started from the command-line.  But
+** the idea is sound.
+**
+** Information encoded by this object includes but is not limited to:
+**
+**    *   The desired output format (unified vs. side-by-side, 
+**        TCL, JSON, HTML vs. plain-text).
+**
+**    *   Number of lines of context surrounding each difference block
+**
+**    *   Width of output columns for text side-by-side diffop          
+*/
+struct DiffConfig {
+  u64 diffFlags;           /* Diff flags */
+  int nContext;            /* Number of lines of context */
+  int wColumn;             /* Column width in -y mode */
+  u32 nFile;               /* Number of files diffed so far */
+  const char *zDiffCmd;    /* External diff command to use instead of builtin */
+  const char *zBinGlob;    /* GLOB pattern for binary files */
+  ReCompiled *pRe;         /* Show only changes matching this pattern */
+  const char *zLeftHash;   /* HASH-id of the left file */
+};
+
 #endif /* INTERFACE */
+
+/*
+** Initialize memory for a DiffConfig based on just a diffFlags integer.
+*/
+DiffConfig *diff_config_init(DiffConfig *pCfg, u64 diffFlags){
+  memset(pCfg, 0, sizeof(*pCfg));
+  pCfg->diffFlags = diffFlags;
+  return pCfg;
+}
 
 /*
 ** Information about each line of a file being diffed.
@@ -76,22 +122,28 @@
 */
 typedef struct DLine DLine;
 struct DLine {
-  const char *z;        /* The text of the line */
-  unsigned int h;       /* Hash of the line */
-  unsigned short indent;  /* Indent of the line. Only !=0 with -w/-Z option */
-  unsigned short n;     /* number of bytes */
-  unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
+  const char *z;          /* The text of the line */
+  u64 h;                  /* Hash of the line */
+  unsigned short indent;  /* Index of first non-space */
+  unsigned short n;       /* number of bytes */
+  unsigned short nw;      /* number of bytes without leading/trailing space */
+  unsigned int iNext;     /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
   ** above are one per line of input text.  But each entry is also
   ** a bucket in a hash table, as follows: */
-  unsigned int iHash;   /* 1+(first entry in the hash chain) */
+  unsigned int iHash;     /* 1+(first entry in the hash chain) */
 };
 
 /*
 ** Length of a dline
 */
 #define LENGTH(X)   ((X)->n)
+
+/*
+** Number of diff chunks generated
+*/
+static int nChunk = 0;
 
 /*
 ** A context for running a raw diff.
@@ -115,8 +167,30 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*same_fn)(const DLine*,const DLine*); /* comparison function */
+  int (*xDiffer)(const DLine *,const DLine *); /* comparison function */
 };
+
+/* Fast isspace for use by diff */
+static const char diffIsSpace[] = {
+  0, 0, 0, 0, 0, 0, 0, 0,   1, 1, 1, 0, 1, 1, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+};
+#define diff_isspace(X)  (diffIsSpace[(unsigned char)(X)])
 
 /*
 ** Count the number of lines in the input string.  Include the last line
@@ -124,8 +198,12 @@ struct DContext {
 ** is specified, the number of lines is zero.  For the purposes of this
 ** function, a string is considered empty if it contains no characters
 ** -OR- it contains only NUL characters.
+**
+** Returns true if the input seems to be plain text input, else false.
+** If it returns false, pnLine is not modified, else it is set to the
+** number of lines in z.
 */
-static int count_lines(
+int count_lines(
   const char *z,
   int n,
   int *pnLine
@@ -164,7 +242,7 @@ static DLine *break_into_lines(
   u64 diffFlags
 ){
   int nLine, i, k, nn, s, x;
-  unsigned int h, h2;
+  u64 h, h2;
   DLine *a;
   const char *zNL;
 
@@ -193,31 +271,35 @@ static DLine *break_into_lines(
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
     a[i].n = k;
-    s = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
-      while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
+      while( k>0 && diff_isspace(z[k-1]) ){ k--; }
     }
     if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
       int numws = 0;
-      while( s<k && fossil_isspace(z[s]) ){ s++; }
+      for(s=0; s<k && z[s]<=' '; s++){}
+      a[i].indent = s;
+      a[i].nw = k - s;
       for(h=0, x=s; x<k; x++){
         char c = z[x];
-        if( fossil_isspace(c) ){
+        if( diff_isspace(c) ){
           ++numws;
         }else{
-          h += c;
-          h *= 0x9e3779b1;
+          h = (h^c)*9000000000000000041LL;
         }
       }
       k -= numws;
     }else{
-      for(h=0, x=s; x<k; x++){
-        h += z[x];
-        h *= 0x9e3779b1;
+      int k2 = k & ~0x7;
+      u64 m;
+      for(h=x=s=0; x<k2; x += 8){
+        memcpy(&m, z+x, 8);
+        h = (h^m)*9000000000000000041LL;
       }
+      m = 0;
+      memcpy(&m, z+x, k-k2);
+      h ^= m;
     }
-    a[i].indent = s;
-    a[i].h = h = (h<<LENGTH_MASK_SZ) | (k-s);
+    a[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
@@ -232,29 +314,32 @@ static DLine *break_into_lines(
 }
 
 /*
-** Return true if two DLine elements are identical.
+** Return zero if two DLine elements are identical.
 */
-static int same_dline(const DLine *pA, const DLine *pB){
-  return pA->h==pB->h && memcmp(pA->z,pB->z, pA->h&LENGTH_MASK)==0;
+static int compare_dline(const DLine *pA, const DLine *pB){
+  if( pA->h!=pB->h ) return 1;
+  return memcmp(pA->z,pB->z, pA->h&LENGTH_MASK);
 }
 
 /*
-** Return true if two DLine elements are identical, ignoring
+** Return zero if two DLine elements are identical, ignoring
 ** all whitespace. The indent field of pA/pB already points
 ** to the first non-space character in the string.
 */
-
-static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
-  int a = pA->indent, b = pB->indent;
+static int compare_dline_ignore_allws(const DLine *pA, const DLine *pB){
   if( pA->h==pB->h ){
+    int a, b;
+    if( memcmp(pA->z, pB->z, pA->h&LENGTH_MASK)==0 ) return 0;
+    a = pA->indent;
+    b = pB->indent;
     while( a<pA->n || b<pB->n ){
-      if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 0;
-      while( a<pA->n && fossil_isspace(pA->z[a])) ++a;
-      while( b<pB->n && fossil_isspace(pB->z[b])) ++b;
+      if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 1;
+      while( a<pA->n && diff_isspace(pA->z[a])) ++a;
+      while( b<pB->n && diff_isspace(pB->z[b])) ++b;
     }
-    return pA->n-a == pB->n-b;
+    return pA->n-a != pB->n-b;
   }
-  return 0;
+  return 1;
 }
 
 /*
@@ -262,9 +347,9 @@ static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
 ** N dlines
 */
 static int re_dline_match(
-  ReCompiled *pRe,    /* The regular expression to be matched */
-  DLine *aDLine,      /* First of N DLines to compare against */
-  int N               /* Number of DLines to check */
+  ReCompiled *pRe,      /* The regular expression to be matched */
+  const DLine *aDLine,  /* First of N DLines to compare against */
+  int N                 /* Number of DLines to check */
 ){
   while( N-- ){
     if( re_match(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
@@ -281,37 +366,19 @@ static int re_dline_match(
 static void appendDiffLine(
   Blob *pOut,         /* Where to write the line of output */
   char cPrefix,       /* One of " ", "+",  or "-" */
-  DLine *pLine,       /* The line to be output */
-  int html,           /* True if generating HTML.  False for plain text */
-  ReCompiled *pRe     /* Colorize only if line matches this Regex */
+  const DLine *pLine  /* The line to be output */
 ){
-  blob_append(pOut, &cPrefix, 1);
-  if( html ){
-    if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
-      cPrefix = ' ';
-    }else if( cPrefix=='+' ){
-      blob_append(pOut, "<span class=\"diffadd\">", -1);
-    }else if( cPrefix=='-' ){
-      blob_append(pOut, "<span class=\"diffrm\">", -1);
-    }
-    htmlize_to_blob(pOut, pLine->z, pLine->n);
-    if( cPrefix!=' ' ){
-      blob_append(pOut, "</span>", -1);
-    }
-  }else{
-    blob_append(pOut, pLine->z, pLine->n);
-  }
-  blob_append(pOut, "\n", 1);
+  blob_append_char(pOut, cPrefix);
+  blob_append(pOut, pLine->z, pLine->n);
+  blob_append_char(pOut, '\n');
 }
 
 /*
 ** Add two line numbers to the beginning of an output line for a context
 ** diff.  One or the other of the two numbers might be zero, which means
-** to leave that number field blank.  The "html" parameter means to format
-** the output for HTML.
+** to leave that number field blank.
 */
-static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
-  if( html ) blob_append(pOut, "<span class=\"diffln\">", -1);
+static void appendDiffLineno(Blob *pOut, int lnA, int lnB){
   if( lnA>0 ){
     blob_appendf(pOut, "%6d ", lnA);
   }else{
@@ -322,23 +389,20 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   }else{
     blob_append(pOut, "        ", 8);
   }
-  if( html ) blob_append(pOut, "</span>", -1);
 }
 
 /*
-** Given a raw diff p[] in which the p->aEdit[] array has been filled
-** in, compute a context diff into pOut.
+** Output a patch-style text diff.
 */
 static void contextDiff(
   DContext *p,      /* The difference */
   Blob *pOut,       /* Output a context diff to here */
-  ReCompiled *pRe,  /* Only show changes that match this regex */
-  u64 diffFlags     /* Flags controlling the diff format */
+  DiffConfig *pCfg  /* Configuration options */
 ){
-  DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */
-  int a = 0;    /* Index of next line in A[] */
-  int b = 0;    /* Index of next line in B[] */
+  const DLine *A;   /* Left side of the diff */
+  const DLine *B;   /* Right side of the diff */
+  int a = 0;        /* Index of next line in A[] */
+  int b = 0;        /* Index of next line in B[] */
   int *R;       /* Array of COPY/DELETE/INSERT triples */
   int r;        /* Index into R[] */
   int nr;       /* Number of COPY/DELETE/INSERT triples to process */
@@ -350,12 +414,10 @@ static void contextDiff(
   static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
-  int html;        /* Render as HTML */
   int showDivider = 0;  /* True to show the divider between diff blocks */
 
-  nContext = diff_context_lines(diffFlags);
-  showLn = (diffFlags & DIFF_LINENO)!=0;
-  html = (diffFlags & DIFF_HTML)!=0;
+  nContext = diff_context_lines(pCfg);
+  showLn = (pCfg->diffFlags & DIFF_LINENO)!=0;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -365,31 +427,6 @@ static void contextDiff(
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
-
-    /* If there is a regex, skip this block (generate no diff output)
-    ** if the regex matches or does not match both insert and delete.
-    ** Only display the block if one side matches but the other side does
-    ** not.
-    */
-    if( pRe ){
-      int hideBlock = 1;
-      int xa = a, xb = b;
-      for(i=0; hideBlock && i<nr; i++){
-        int c1, c2;
-        xa += R[r+i*3];
-        xb += R[r+i*3];
-        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
-        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
-        hideBlock = c1==c2;
-        xa += R[r+i*3+1];
-        xb += R[r+i*3+2];
-      }
-      if( hideBlock ){
-        a = xa;
-        b = xb;
-        continue;
-      }
-    }
 
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
@@ -426,23 +463,18 @@ static void contextDiff(
       if( !showDivider ){
         /* Do not show a top divider */
         showDivider = 1;
-      }else if( html ){
-        blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
       }else{
         blob_appendf(pOut, "%.80c\n", '.');
       }
-      if( html ) blob_appendf(pOut, "<span id=\"chunk%d\"></span>", nChunk);
     }else{
-      if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
       /*
        * If the patch changes an empty file or results in an empty file,
        * the block header must use 0,0 as position indicator and not 1,0.
        * Otherwise, patch would be confused and may reject the diff.
        */
       blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
-        na ? a+skip+1 : 0, na,
-        nb ? b+skip+1 : 0, nb);
-      if( html ) blob_appendf(pOut, "</span>");
+        na ? a+skip+1 : a+skip, na,
+        nb ? b+skip+1 : b+skip, nb);
       blob_append(pOut, "\n", 1);
     }
 
@@ -451,8 +483,8 @@ static void contextDiff(
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+      appendDiffLine(pOut, ' ', &A[a+j]);
     }
     a += m;
     b += m;
@@ -461,21 +493,21 @@ static void contextDiff(
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
-        appendDiffLine(pOut, '-', &A[a+j], html, pRe);
+        if( showLn ) appendDiffLineno(pOut, a+j+1, 0);
+        appendDiffLine(pOut, '-', &A[a+j]);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
-        appendDiffLine(pOut, '+', &B[b+j], html, pRe);
+        if( showLn ) appendDiffLineno(pOut, 0, b+j+1);
+        appendDiffLine(pOut, '+', &B[b+j]);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-          appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+          appendDiffLine(pOut, ' ', &A[a+j]);
         }
         b += m;
         a += m;
@@ -487,176 +519,29 @@ static void contextDiff(
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+      appendDiffLine(pOut, ' ', &A[a+j]);
     }
   }
 }
 
+#define MX_CSN  8  /* Maximum number of change spans across a change region */
+
 /*
-** Status of a single output line
+** A description of zero or more (up to MX_CSN) areas of difference
+** between two lines of text.
 */
-typedef struct SbsLine SbsLine;
-struct SbsLine {
-  Blob *apCols[5];         /* Array of pointers to output columns */
-  int width;               /* Maximum width of a column in the output */
-  unsigned char escHtml;   /* True to escape html characters */
-  int iStart;              /* Write zStart prior to character iStart */
-  const char *zStart;      /* A <span> tag */
-  int iEnd;                /* Write </span> prior to character iEnd */
-  int iStart2;             /* Write zStart2 prior to character iStart2 */
-  const char *zStart2;     /* A <span> tag */
-  int iEnd2;               /* Write </span> prior to character iEnd2 */
-  ReCompiled *pRe;         /* Only colorize matching lines, if not NULL */
+typedef struct LineChange LineChange;
+struct LineChange {
+  int n;            /* Number of change spans */
+  struct Span {
+    int iStart1;    /* Byte offset to start of a change on the left */
+    int iLen1;      /* Length of the left change in bytes */
+    int iStart2;    /* Byte offset to start of a change on the right */
+    int iLen2;      /* Length of the change on the right in bytes */
+    int isMin;      /* True if this change is known to have no useful subdivs */
+  } a[MX_CSN];     /* Array of change spans, sorted order */
 };
-
-/*
-** Column indices for SbsLine.apCols[]
-*/
-#define SBS_LNA  0     /* Left line number */
-#define SBS_TXTA 1     /* Left text */
-#define SBS_MKR  2     /* Middle separator column */
-#define SBS_LNB  3     /* Right line number */
-#define SBS_TXTB 4     /* Right text */
-
-/*
-** Append newlines to all columns.
-*/
-static void sbsWriteNewlines(SbsLine *p){
-  int i;
-  for( i=p->escHtml ? SBS_LNA : SBS_TXTB; i<=SBS_TXTB; i++ ){
-    blob_append(p->apCols[i], "\n", 1);
-  }
-}
-
-/*
-** Append n spaces to the column.
-*/
-static void sbsWriteSpace(SbsLine *p, int n, int col){
-  blob_appendf(p->apCols[col], "%*s", n, "");
-}
-
-/*
-** Write the text of pLine into column iCol of p.
-**
-** If outputting HTML, write the full line.  Otherwise, only write the
-** width characters.  Translate tabs into spaces.  Add newlines if col
-** is SBS_TXTB.  Translate HTML characters if escHtml is true.  Pad the
-** rendering to width bytes if col is SBS_TXTA and escHtml is false.
-**
-** This comment contains multibyte unicode characters (ü, Æ, ð) in order
-** to test the ability of the diff code to handle such characters.
-*/
-static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
-  Blob *pCol = p->apCols[col];
-  int n = pLine->n;
-  int i;   /* Number of input characters consumed */
-  int k;   /* Cursor position */
-  int needEndSpan = 0;
-  const char *zIn = pLine->z;
-  int w = p->width;
-  int colorize = p->escHtml;
-  if( colorize && p->pRe && re_dline_match(p->pRe, pLine, 1)==0 ){
-    colorize = 0;
-  }
-  for(i=k=0; (p->escHtml || k<w) && i<n; i++, k++){
-    char c = zIn[i];
-    if( colorize ){
-      if( i==p->iStart ){
-        int x = strlen(p->zStart);
-        blob_append(pCol, p->zStart, x);
-        needEndSpan = 1;
-        if( p->iStart2 ){
-          p->iStart = p->iStart2;
-          p->zStart = p->zStart2;
-          p->iStart2 = 0;
-        }
-      }else if( i==p->iEnd ){
-        blob_append(pCol, "</span>", 7);
-        needEndSpan = 0;
-        if( p->iEnd2 ){
-          p->iEnd = p->iEnd2;
-          p->iEnd2 = 0;
-        }
-      }
-    }
-    if( c=='\t' && !p->escHtml ){
-      blob_append(pCol, " ", 1);
-      while( (k&7)!=7 && (p->escHtml || k<w) ){
-        blob_append(pCol, " ", 1);
-        k++;
-      }
-    }else if( c=='\r' || c=='\f' ){
-      blob_append(pCol, " ", 1);
-    }else if( c=='<' && p->escHtml ){
-      blob_append(pCol, "&lt;", 4);
-    }else if( c=='&' && p->escHtml ){
-      blob_append(pCol, "&amp;", 5);
-    }else if( c=='>' && p->escHtml ){
-      blob_append(pCol, "&gt;", 4);
-    }else if( c=='"' && p->escHtml ){
-      blob_append(pCol, "&quot;", 6);
-    }else{
-      blob_append(pCol, &zIn[i], 1);
-      if( (c&0xc0)==0x80 ) k--;
-    }
-  }
-  if( needEndSpan ){
-    blob_append(pCol, "</span>", 7);
-  }
-  if( col==SBS_TXTB ){
-    sbsWriteNewlines(p);
-  }else if( !p->escHtml ){
-    sbsWriteSpace(p, w-k, SBS_TXTA);
-  }
-}
-
-/*
-** Append a column to the final output blob.
-*/
-static void sbsWriteColumn(Blob *pOut, Blob *pCol, int col){
-  blob_appendf(pOut,
-    "<td><div class=\"diff%scol\">\n"
-    "<pre>\n"
-    "%s"
-    "</pre>\n"
-    "</div></td>\n",
-    (col % 3) ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
-    blob_str(pCol)
-  );
-}
-
-/*
-** Append a separator line to column iCol
-*/
-static void sbsWriteSep(SbsLine *p, int len, int col){
-  char ch = '.';
-  if( len<1 ){
-    len = 1;
-    ch = ' ';
-  }
-  blob_appendf(p->apCols[col], "<span class=\"diffhr\">%.*c</span>\n", len, ch);
-}
-
-/*
-** Append the appropriate marker into the center column of the diff.
-*/
-static void sbsWriteMarker(SbsLine *p, const char *zTxt, const char *zHtml){
-  blob_append(p->apCols[SBS_MKR], p->escHtml ? zHtml : zTxt, -1);
-}
-
-/*
-** Append a line number to the column.
-*/
-static void sbsWriteLineno(SbsLine *p, int ln, int col){
-  if( p->escHtml ){
-    blob_appendf(p->apCols[col], "%d", ln+1);
-  }else{
-    char zLn[7];
-    sqlite3_snprintf(7, zLn, "%5d ", ln+1);
-    blob_appendf(p->apCols[col], "%s ", zLn);
-  }
-}
 
 /*
 ** The two text segments zLeft and zRight are known to be different on
@@ -679,119 +564,174 @@ static int textLCS(
 ){
   const unsigned char *zA = (const unsigned char*)zLeft;    /* left string */
   const unsigned char *zB = (const unsigned char*)zRight;   /* right string */
-  int nt;                    /* Number of target points */
-  int ti[3];                 /* Index for start of each 4-byte target */
-  unsigned int target[3];    /* 4-byte alignment targets */
-  unsigned int probe;        /* probe to compare against target */
-  int iAS, iAE, iBS, iBE;    /* Range of common segment */
-  int i, j;                  /* Loop counters */
-  int rc = 0;                /* Result code.  1 for success */
+  int i, j, k;               /* Loop counters */
+  int lenBest = 0;           /* Match length to beat */
 
-  if( nA<6 || nB<6 ) return 0;
-  memset(aLCS, 0, sizeof(int)*4);
-  ti[0] = i = nB/2-2;
-  target[0] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-  probe = 0;
-  if( nB<16 ){
-    nt = 1;
-  }else{
-    ti[1] = i = nB/4-2;
-    target[1] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-    ti[2] = i = (nB*3)/4-2;
-    target[2] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-    nt = 3;
-  }
-  probe = (zA[0]<<16) | (zA[1]<<8) | zA[2];
-  for(i=3; i<nA; i++){
-    probe = (probe<<8) | zA[i];
-    for(j=0; j<nt; j++){
-      if( probe==target[j] ){
-        iAS = i-3;
-        iAE = i+1;
-        iBS = ti[j];
-        iBE = ti[j]+4;
-        while( iAE<nA && iBE<nB && zA[iAE]==zB[iBE] ){ iAE++; iBE++; }
-        while( iAS>0 && iBS>0 && zA[iAS-1]==zB[iBS-1] ){ iAS--; iBS--; }
-        if( iAE-iAS > aLCS[1] - aLCS[0] ){
-          aLCS[0] = iAS;
-          aLCS[1] = iAE;
-          aLCS[2] = iBS;
-          aLCS[3] = iBE;
-          rc = 1;
+  for(i=0; i<nA-lenBest; i++){
+    unsigned char cA = zA[i];
+    if( (cA&0xc0)==0x80 ) continue;
+    for(j=0; j<nB-lenBest; j++ ){
+      if( zB[j]==cA ){
+        for(k=1; j+k<nB && i+k<nA && zB[j+k]==zA[i+k]; k++){}
+        while( (zB[j+k]&0xc0)==0x80 ){ k--; }
+        if( k>lenBest ){
+          lenBest = k;
+          aLCS[0] = i;
+          aLCS[1] = i+k;
+          aLCS[2] = j;
+          aLCS[3] = j+k;
         }
       }
     }
   }
-  return rc;
+  return lenBest>0;
 }
 
 /*
-** Try to shift iStart as far as possible to the left.
+** Find the smallest spans that are different between two text strings that
+** are known to be different on both ends.
 */
-static void sbsShiftLeft(SbsLine *p, const char *z){
-  int i, j;
-  while( (i=p->iStart)>0 && z[i-1]==z[i] ){
-    for(j=i+1; j<p->iEnd && z[j-1]==z[j]; j++){}
-    if( j<p->iEnd ) break;
-    p->iStart--;
-    p->iEnd--;
+static int textLineChanges(
+  const char *zLeft,  int nA,       /* String on the left */
+  const char *zRight,  int nB,      /* String on the right */
+  LineChange *p                     /* Write results here */
+){
+  p->n = 1;
+  p->a[0].iStart1 = 0;
+  p->a[0].iLen1 = nA;
+  p->a[0].iStart2 = 0;
+  p->a[0].iLen2 = nB;
+  p->a[0].isMin = 0;
+  while( p->n<MX_CSN-1 ){
+    int mxi = -1;
+    int mxLen = -1;
+    int x, i;
+    int aLCS[4];
+    struct Span *a, *b;
+    memset(aLCS, 0, sizeof(aLCS));
+    for(i=0; i<p->n; i++){
+      if( p->a[i].isMin ) continue;
+      x = p->a[i].iLen1;
+      if( p->a[i].iLen2<x ) x = p->a[i].iLen2;
+      if( x>mxLen ){
+        mxLen = x;
+        mxi = i;
+      }
+    }
+    if( mxLen<6 ) break;
+    x = textLCS(zLeft + p->a[mxi].iStart1, p->a[mxi].iLen1,
+                zRight + p->a[mxi].iStart2, p->a[mxi].iLen2, aLCS);
+    if( x==0 ){
+      p->a[mxi].isMin = 1;
+      continue;
+    }
+    a = p->a+mxi;
+    b = a+1;
+    if( mxi<p->n-1 ){
+      memmove(b+1, b, sizeof(*b)*(p->n-mxi-1));
+    }
+    p->n++;
+    b->iStart1 = a->iStart1 + aLCS[1];
+    b->iLen1 = a->iLen1 - aLCS[1];
+    a->iLen1 = aLCS[0];
+    b->iStart2 = a->iStart2 + aLCS[3];
+    b->iLen2 = a->iLen2 - aLCS[3];
+    a->iLen2 = aLCS[2];
+    b->isMin = 0;
   }
+  return p->n;
 }
 
 /*
-** Simplify iStart and iStart2:
+** Return true if the string starts with n spaces
+*/
+static int allSpaces(const char *z, int n){
+  int i;
+  for(i=0; i<n && diff_isspace(z[i]); i++){}
+  return i==n;
+}
+
+/*
+** Try to improve the human-readability of the LineChange p.
 **
-**    *  If iStart is a null-change then move iStart2 into iStart
-**    *  Make sure any null-changes are in canonoical form.
-**    *  Make sure all changes are at character boundaries for
-**       multi-byte characters.
+** (1)  If the first change span shows a change of indentation, try to
+**      move that indentation change to the left margin.
+**
+** (2)  Try to shift changes so that they begin or end with a space.
 */
-static void sbsSimplifyLine(SbsLine *p, const char *z){
-  if( p->iStart2==p->iEnd2 ){
-    p->iStart2 = p->iEnd2 = 0;
-  }else if( p->iStart2 ){
-    while( p->iStart2>0 && (z[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
-    while( (z[p->iEnd2]&0xc0)==0x80 ) p->iEnd2++;
+static void improveReadability(
+  const char *zA,  /* Left line of the change */
+  const char *zB,  /* Right line of the change */
+  LineChange *p    /* The LineChange to be adjusted */
+){
+  int j, n, len;
+  if( p->n<1 ) return;
+
+  /* (1) Attempt to move indentation changes to the left margin */
+  if( p->a[0].iLen1==0
+   && (len = p->a[0].iLen2)>0
+   && (j = p->a[0].iStart2)>0
+   && zB[0]==zB[j]
+   && allSpaces(zB, j)
+  ){
+    for(n=1; n<len && n<j && zB[j]==zB[j+n]; n++){}
+    if( n<len ){
+      memmove(&p->a[1], &p->a[0], sizeof(p->a[0])*p->n);
+      p->n++;
+      p->a[0] = p->a[1];
+      p->a[1].iStart2 += n;
+      p->a[1].iLen2 -= n;
+      p->a[0].iLen2 = n;
+    }
+    p->a[0].iStart1 = 0;
+    p->a[0].iStart2 = 0;
+  }else
+  if( p->a[0].iLen2==0
+   && (len = p->a[0].iLen1)>0
+   && (j = p->a[0].iStart1)>0
+   && zA[0]==zA[j]
+   && allSpaces(zA, j)
+  ){
+    for(n=1; n<len && n<j && zA[j]==zA[j+n]; n++){}
+    if( n<len ){
+      memmove(&p->a[1], &p->a[0], sizeof(p->a[0])*p->n);
+      p->n++;
+      p->a[0] = p->a[1];
+      p->a[1].iStart1 += n;
+      p->a[1].iLen1 -= n;
+      p->a[0].iLen1 = n;
+    }
+    p->a[0].iStart1 = 0;
+    p->a[0].iStart2 = 0;
   }
-  if( p->iStart==p->iEnd ){
-    p->iStart = p->iStart2;
-    p->iEnd = p->iEnd2;
-    p->zStart = p->zStart2;
-    p->iStart2 = 0;
-    p->iEnd2 = 0;
-  }
-  if( p->iStart==p->iEnd ){
-    p->iStart = p->iEnd = -1;
-  }else if( p->iStart>0 ){
-    while( p->iStart>0 && (z[p->iStart]&0xc0)==0x80 ) p->iStart--;
-    while( (z[p->iEnd]&0xc0)==0x80 ) p->iEnd++;
-  }
+
+  /* (2) Try to shift changes so that they begin or end with a
+  ** space.  (TBD) */
 }
 
+
 /*
-** Write out lines that have been edited.  Adjust the highlight to cover
-** only those parts of the line that actually changed.
+** Given two lines of text, pFrom and pTo, compute a set of changes
+** between those two lines, for enhanced display purposes.
+**
+** The result is written into the LineChange object given by the
+** third parameter.
 */
-static void sbsWriteLineChange(
-  SbsLine *p,          /* The SBS output line */
-  DLine *pLeft,        /* Left line of the change */
-  int lnLeft,          /* Line number for the left line */
-  DLine *pRight,       /* Right line of the change */
-  int lnRight          /* Line number of the right line */
+static void oneLineChange(
+  const DLine *pLeft,  /* Left line of the change */
+  const DLine *pRight, /* Right line of the change */
+  LineChange *p        /* OUTPUT: Write the results here */
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
   int nShort;          /* Shortest of left and right */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
+  int nCommon;         /* Total byte length of suffix and prefix */
   const char *zLeft;   /* Text of the left line */
   const char *zRight;  /* Text of the right line */
   int nLeftDiff;       /* nLeft - nPrefix - nSuffix */
   int nRightDiff;      /* nRight - nPrefix - nSuffix */
-  int aLCS[4];         /* Bounds of common middle segment */
-  static const char zClassRm[]   = "<span class=\"diffrm\">";
-  static const char zClassAdd[]  = "<span class=\"diffadd\">";
-  static const char zClassChng[] = "<span class=\"diffchng\">";
 
   nLeft = pLeft->n;
   zLeft = pLeft->z;
@@ -808,7 +748,8 @@ static void sbsWriteLineChange(
   }
   nSuffix = 0;
   if( nPrefix<nShort ){
-    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+    while( nSuffix<nShort
+           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
     }
     if( nSuffix<nShort ){
@@ -816,13 +757,14 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
+  nCommon = nPrefix + nSuffix;
 
   /* If the prefix and suffix overlap, that means that we are dealing with
   ** a pure insertion or deletion of text that can have multiple alignments.
   ** Try to find an alignment to begins and ends on whitespace, or on
   ** punctuation, rather than in the middle of a name or number.
   */
-  if( nPrefix+nSuffix > nShort ){
+  if( nCommon > nShort ){
     int iBest = -1;
     int iBestVal = -1;
     int i;
@@ -831,13 +773,13 @@ static void sbsWriteLineChange(
     for(i=nShort-nSuffix; i<=nPrefix; i++){
        int iVal = 0;
        char c = zLeft[i];
-       if( fossil_isspace(c) ){
+       if( diff_isspace(c) ){
          iVal += 5;
        }else if( !fossil_isalnum(c) ){
          iVal += 2;
        }
        c = zLeft[i+nGap-1];
-       if( fossil_isspace(c) ){
+       if( diff_isspace(c) ){
          iVal += 5;
        }else if( !fossil_isalnum(c) ){
          iVal += 2;
@@ -849,40 +791,28 @@ static void sbsWriteLineChange(
     }
     nPrefix = iBest;
     nSuffix = nShort - nPrefix;
+    nCommon = nPrefix + nSuffix;
   }
 
-  /* A single chunk of text inserted on the right */
-  if( nPrefix+nSuffix==nLeft ){
-    sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart2 = p->iEnd2 = 0;
-    p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pLeft, SBS_TXTA);
-    if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
-      sbsWriteMarker(p, "   ", "");
-    }else{
-      sbsWriteMarker(p, " | ", "|");
-    }
-    sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = nPrefix;
-    p->iEnd = nRight - nSuffix;
-    p->zStart = zClassAdd;
-    sbsWriteText(p, pRight, SBS_TXTB);
+  /* A single chunk of text inserted */
+  if( nCommon==nLeft ){
+    p->n = 1;
+    p->a[0].iStart1 = nPrefix;
+    p->a[0].iLen1 = 0;
+    p->a[0].iStart2 = nPrefix;
+    p->a[0].iLen2 = nRight - nCommon;
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
-  /* A single chunk of text deleted from the left */
-  if( nPrefix+nSuffix==nRight ){
-    /* Text deleted from the left */
-    sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart2 = p->iEnd2 = 0;
-    p->iStart = nPrefix;
-    p->iEnd = nLeft - nSuffix;
-    p->zStart = zClassRm;
-    sbsWriteText(p, pLeft, SBS_TXTA);
-    sbsWriteMarker(p, " | ", "|");
-    sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pRight, SBS_TXTB);
+  /* A single chunk of text deleted */
+  if( nCommon==nRight ){
+    p->n = 1;
+    p->a[0].iStart1 = nPrefix;
+    p->a[0].iLen1 = nLeft - nCommon;
+    p->a[0].iStart2 = nPrefix;
+    p->a[0].iLen2 = 0;
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
@@ -890,56 +820,80 @@ static void sbsWriteLineChange(
   ** changed between the left and the right.  Check to see if there
   ** is a large unchanged section in the middle of that changed block.
   */
-  nLeftDiff = nLeft - nSuffix - nPrefix;
-  nRightDiff = nRight - nSuffix - nPrefix;
-  if( p->escHtml
-   && nLeftDiff >= 6
-   && nRightDiff >= 6
-   && textLCS(&zLeft[nPrefix], nLeftDiff, &zRight[nPrefix], nRightDiff, aLCS)
+  nLeftDiff = nLeft - nCommon;
+  nRightDiff = nRight - nCommon;
+  if( nLeftDiff >= 4
+   && nRightDiff >= 4
+   && textLineChanges(&zLeft[nPrefix], nLeftDiff,
+                      &zRight[nPrefix], nRightDiff, p)>1
   ){
-    sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart = nPrefix;
-    p->iEnd = nPrefix + aLCS[0];
-    if( aLCS[2]==0 ){
-      sbsShiftLeft(p, pLeft->z);
-      p->zStart = zClassRm;
-    }else{
-      p->zStart = zClassChng;
+    int i;
+    for(i=0; i<p->n; i++){
+      p->a[i].iStart1 += nPrefix;
+      p->a[i].iStart2 += nPrefix;
     }
-    p->iStart2 = nPrefix + aLCS[1];
-    p->iEnd2 = nLeft - nSuffix;
-    p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    sbsSimplifyLine(p, zLeft);
-    sbsWriteText(p, pLeft, SBS_TXTA);
-    sbsWriteMarker(p, " | ", "|");
-    sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = nPrefix;
-    p->iEnd = nPrefix + aLCS[2];
-    if( aLCS[0]==0 ){
-      sbsShiftLeft(p, pRight->z);
-      p->zStart = zClassAdd;
-    }else{
-      p->zStart = zClassChng;
-    }
-    p->iStart2 = nPrefix + aLCS[3];
-    p->iEnd2 = nRight - nSuffix;
-    p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    sbsSimplifyLine(p, zRight);
-    sbsWriteText(p, pRight, SBS_TXTB);
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
   /* If all else fails, show a single big change between left and right */
-  sbsWriteLineno(p, lnLeft, SBS_LNA);
-  p->iStart2 = p->iEnd2 = 0;
-  p->iStart = nPrefix;
-  p->iEnd = nLeft - nSuffix;
-  p->zStart = zClassChng;
-  sbsWriteText(p, pLeft, SBS_TXTA);
-  sbsWriteMarker(p, " | ", "|");
-  sbsWriteLineno(p, lnRight, SBS_LNB);
-  p->iEnd = nRight - nSuffix;
-  sbsWriteText(p, pRight, SBS_TXTB);
+  p->n = 1;
+  p->a[0].iStart1 = nPrefix;
+  p->a[0].iLen1 = nLeft - nCommon;
+  p->a[0].iStart2 = nPrefix;
+  p->a[0].iLen2 = nRight - nCommon;
+  improveReadability(zLeft, zRight, p);
+}
+
+/*
+** COMMAND: test-line-diff
+** Usage: %fossil% test-line-diff STRING1 STRING2
+**
+** Show the differences between the two strings.  Used for testing
+** the oneLineChange() routine in the diff logic.
+*/
+void test_line_diff(void){
+  DLine a, b;
+  LineChange chng;
+  int i, j, x;
+  if( g.argc!=4 ) usage("STRING1 STRING2");
+  a.z = g.argv[2];
+  a.n = (int)strlen(a.z);
+  b.z = g.argv[3];
+  b.n = (int)strlen(b.z);
+  oneLineChange(&a, &b, &chng);
+  fossil_print("left:  [%s]\n", a.z);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      if( x==0 ){ fossil_print("%*s", 8, ""); }
+      while( ofst > x ){
+        if( (a.z[x]&0xc0)!=0x80 ) fossil_print(" ");
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (a.z[x]&0xc0)!=0x80 ) fossil_print("%d",i);
+      }
+    }
+  }
+  if( x ) fossil_print("\n");
+  fossil_print("right: [%s]\n", b.z);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      if( x==0 ){ fossil_print("%*s", 8, ""); }
+      while( ofst > x ){
+        if( (b.z[x]&0xc0)!=0x80 ) fossil_print(" ");
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (b.z[x]&0xc0)!=0x80 ) fossil_print("%d",i);
+      }
+    }
+  }
+  if( x ) fossil_print("\n");
 }
 
 /*
@@ -947,6 +901,852 @@ static void sbsWriteLineChange(
 */
 static int minInt(int a, int b){ return a<b ? a : b; }
 
+
+
+/*
+** This is an abstract superclass for an object that accepts difference
+** lines and formats them for display.  Subclasses of this object format
+** the diff output in different ways.
+**
+** To subclass, create an instance of the DiffBuilder object and fill
+** in appropriate method implementations.
+*/ 
+typedef struct DiffBuilder DiffBuilder;
+struct DiffBuilder {
+  void (*xSkip)(DiffBuilder*, unsigned int, int);
+  void (*xCommon)(DiffBuilder*,const DLine*);
+  void (*xInsert)(DiffBuilder*,const DLine*);
+  void (*xDelete)(DiffBuilder*,const DLine*);
+  void (*xReplace)(DiffBuilder*,const DLine*,const DLine*);
+  void (*xEdit)(DiffBuilder*,const DLine*,const DLine*);
+  void (*xEnd)(DiffBuilder*);
+  unsigned int lnLeft;              /* Lines seen on the left (delete) side */
+  unsigned int lnRight;             /* Lines seen on the right (insert) side */
+  unsigned int nPending;            /* Number of pending lines */
+  int eState;                       /* State of the output */
+  int width;                        /* Display width */
+  Blob *pOut;                       /* Output blob */
+  Blob aCol[5];                     /* Holding blobs */
+  DiffConfig *pCfg;                 /* Configuration information */
+};
+
+/************************* DiffBuilderDebug ********************************/
+/* This version of DiffBuilder is used for debugging the diff and diff
+** diff formatter logic.  It is accessed using the (undocumented) --debug
+** option to the diff command.  The output is human-readable text that
+** describes the various method calls that are invoked agains the DiffBuilder
+** object.
+*/
+static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "SKIP %d (%d..%d left and %d..%d right)%s\n",
+                n, p->lnLeft+1, p->lnLeft+n, p->lnRight+1, p->lnRight+n,
+                isFinal ? " FINAL" : "");
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfdebugCommon(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut, "COMMON  %8u %8u %.*s\n",
+      p->lnLeft, p->lnRight, (int)pLine->n, pLine->z);
+}
+static void dfdebugInsert(DiffBuilder *p, const DLine *pLine){
+  p->lnRight++;
+  blob_appendf(p->pOut, "INSERT           %8d %.*s\n",
+      p->lnRight, (int)pLine->n, pLine->z);
+}
+static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  blob_appendf(p->pOut, "DELETE  %8u          %.*s\n",
+      p->lnLeft, (int)pLine->n, pLine->z);
+}
+static void dfdebugReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut, "REPLACE %8u          %.*s\n",
+      p->lnLeft, (int)pX->n, pX->z);
+  blob_appendf(p->pOut, "            %8u %.*s\n",
+      p->lnRight, (int)pY->n, pY->z);
+}
+static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, j;
+  int x;
+  LineChange chng;
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut, "EDIT    %8u          %.*s\n",
+               p->lnLeft, (int)pX->n, pX->z);
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      char c = '0' + i;
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 26, ""); }
+      while( ofst > x ){
+        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, c);
+      }
+    }
+  }
+  if( x ) blob_append_char(p->pOut, '\n');
+  blob_appendf(p->pOut, "                 %8u %.*s\n",
+               p->lnRight, (int)pY->n, pY->z);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      char c = '0' + i;
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 26, ""); }
+      while( ofst > x ){
+        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, c);
+      }
+    }
+  }
+  if( x ) blob_append_char(p->pOut, '\n');
+}
+static void dfdebugEnd(DiffBuilder *p){
+  blob_appendf(p->pOut, "END with %u lines left and %u lines right\n",
+     p->lnLeft, p->lnRight);
+  fossil_free(p);
+}
+static DiffBuilder *dfdebugNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfdebugSkip;
+  p->xCommon = dfdebugCommon;
+  p->xInsert = dfdebugInsert;
+  p->xDelete = dfdebugDelete;
+  p->xReplace = dfdebugReplace;
+  p->xEdit = dfdebugEdit;
+  p->xEnd = dfdebugEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->pOut = pOut;
+  return p;
+}
+
+/************************* DiffBuilderTcl ********************************/
+/*
+** This formatter outputs a description of the diff formatted as TCL, for
+** use by the --tk option to "diff".   See also the "diff.tcl" file.  The
+** output can be viewed directly using the --tcl option.
+**
+** There is one line per method call:
+**
+**     SKIP n                      -- Skip "n" lines of input
+**     COM string                  -- "string" is an unchanged context line
+**     INS string                  -- "string" is in the right file only
+**     DEL string                  -- "string" is in the left file only
+**     EDIT string ....            -- Complex edit between left and right
+**
+** The EDIT verb will be followed by 3*N or 3*N+1 strings.  The triples
+** each show:
+**
+**     1.  Common text
+**     2.  Text from the left side
+**     3.  Text on the right that replaces (2) from the left
+**
+** For inserted text (2) will be an empty string.  For deleted text, (3)
+** will be an empty string.  (1) might be empty for the first triple if
+** the line begins with an edit.  After all triples, there might be one
+** additional string which is a common suffix.
+*/
+static void dftclSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "SKIP %u\n", n);
+}
+static void dftclCommon(DiffBuilder *p, const DLine *pLine){
+  blob_appendf(p->pOut, "COM ");
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclInsert(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "INS ", -1);
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclDelete(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "DEL ", -1);
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  blob_append(p->pOut, "EDIT \"\" ", -1);
+  blob_append_tcl_literal(p->pOut, pX->z, pX->n);
+  blob_append_char(p->pOut, ' ');
+  blob_append_tcl_literal(p->pOut, pY->z, pY->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, x;
+  LineChange chng;
+  blob_append(p->pOut, "EDIT", 4);
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iStart1 - x);
+    x = chng.a[i].iStart1;
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
+    x += chng.a[i].iLen1;
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, 
+                         pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
+  }
+  if( x<pX->n ){
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, pX->z + x, pX->n - x);
+  }
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclEnd(DiffBuilder *p){
+  fossil_free(p);
+}
+static DiffBuilder *dftclNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dftclSkip;
+  p->xCommon = dftclCommon;
+  p->xInsert = dftclInsert;
+  p->xDelete = dftclDelete;
+  p->xReplace = dftclReplace;
+  p->xEdit = dftclEdit;
+  p->xEnd = dftclEnd;
+  p->pOut = pOut;
+  return p;
+}
+
+/************************* DiffBuilderJson ********************************/
+/*
+** This formatter generates a JSON array that describes the difference.
+**
+** The Json array consists of integer opcodes with each opcode followed
+** by zero or more arguments:
+**
+**   Syntax        Mnemonic    Description
+**   -----------   --------    --------------------------
+**   0             END         This is the end of the diff
+**   1  INTEGER    SKIP        Skip N lines from both files
+**   2  STRING     COMMON      The line show by STRING is in both files
+**   3  STRING     INSERT      The line STRING is in only the right file
+**   4  STRING     DELETE      The STRING line is in only the left file
+**   5  SUBARRAY   EDIT        One line is different on left and right.
+**
+** The SUBARRAY is an array of 3*N+1 strings with N>=0.  The triples
+** represent common-text, left-text, and right-text.  The last string
+** in SUBARRAY is the common-suffix.  Any string can be empty if it does
+** not apply.
+*/
+static void dfjsonSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "1,%u,\n", n);
+}
+static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "2,",2);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
+}
+static void dfjsonInsert(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "3,",2);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
+}
+static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "4,",2);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
+}
+static void dfjsonReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  blob_append(p->pOut, "5,[\"\",",-1);
+  blob_append_json_literal(p->pOut, pX->z, (int)pX->n);
+  blob_append(p->pOut, ",",1);
+  blob_append_json_literal(p->pOut, pY->z, (int)pY->n);
+  blob_append(p->pOut, ",\"\"],\n",-1);
+}
+static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, x;
+  LineChange chng;
+  blob_append(p->pOut, "5,[", 3);
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    if(i>0){
+      blob_append_char(p->pOut, ',');
+    }
+    blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iStart1 - x);
+    x = chng.a[i].iStart1;
+    blob_append_char(p->pOut, ',');
+    blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
+    x += chng.a[i].iLen1;
+    blob_append_char(p->pOut, ',');
+    blob_append_json_literal(p->pOut, 
+                         pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
+  }
+  blob_append_char(p->pOut, ',');
+  blob_append_json_literal(p->pOut, pX->z + x, pX->n - x);
+  blob_append(p->pOut, "],\n",3);
+}
+static void dfjsonEnd(DiffBuilder *p){
+  blob_append(p->pOut, "0]}", 3);
+  fossil_free(p);
+}
+static DiffBuilder *dfjsonNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfjsonSkip;
+  p->xCommon = dfjsonCommon;
+  p->xInsert = dfjsonInsert;
+  p->xDelete = dfjsonDelete;
+  p->xReplace = dfjsonReplace;
+  p->xEdit = dfjsonEdit;
+  p->xEnd = dfjsonEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->pOut = pOut;
+  blob_append_char(pOut, '[');
+  return p;
+}
+
+/************************* DiffBuilderUnified********************************/
+/* This formatter generates a unified diff for HTML.
+**
+** The result is a <table> with four columns.  The four columns hold:
+**
+**     1.   The line numbers for the first file.
+**     2.   The line numbers for the second file.
+**     3.   The "diff mark":  "+" or "-" or just a space
+**     4.   Text of the line
+**
+** Inserted lines are marked with <ins> and deleted lines are marked
+** with <del>.  The whole line is marked this way, not just the part that
+** changed.  The part that change has an additional nested <ins> or <del>.
+** The CSS needs to be set up such that a single <ins> or <del> gives a
+** light background and a nested <ins> or <del> gives a darker background.
+** Additional attributes (like bold font) might also be added to nested
+** <ins> and <del> since those are the characters that have actually
+** changed.
+**
+** Accumulator strategy:
+**
+**    *   Delete line numbers are output directly to p->pOut
+**    *   Insert line numbers accumulate in p->aCol[0].
+**    *   Separator marks accumulate in p->aCol[1].
+**    *   Change text accumulates in p->aCol[2].
+**    *   Pending insert line numbers go into p->aCol[3].
+**    *   Pending insert text goes into p->aCol[4].
+**
+** eState is 1 if text has an open <del>
+*/
+static void dfunifiedFinishDelete(DiffBuilder *p){
+  if( p->eState==0 ) return;
+  blob_append(p->pOut, "</del>", 6);
+  blob_append(&p->aCol[2], "</del>", 6);
+  p->eState = 0;
+}
+static void dfunifiedFinishInsert(DiffBuilder *p){
+  unsigned int i;
+  if( p->nPending==0 ) return;
+  dfunifiedFinishDelete(p);
+
+  /* Blank lines for delete line numbers for each inserted line */
+  for(i=0; i<p->nPending; i++) blob_append_char(p->pOut, '\n');
+
+  /* Insert line numbers */
+  blob_append(&p->aCol[0], "<ins>", 5);
+  blob_append_xfer(&p->aCol[0], &p->aCol[3]);
+  blob_append(&p->aCol[0], "</ins>", 6);
+
+  /* "+" marks for the separator on inserted lines */
+  for(i=0; i<p->nPending; i++) blob_append(&p->aCol[1], "+\n", 2);
+
+  /* Text of the inserted lines */
+  blob_append(&p->aCol[2], "<ins>", 5);
+  blob_append_xfer(&p->aCol[2], &p->aCol[4]);
+  blob_append(&p->aCol[2], "</ins>", 6);
+  
+  p->nPending = 0;
+}
+static void dfunifiedFinishRow(DiffBuilder *p){
+  dfunifiedFinishDelete(p);
+  dfunifiedFinishInsert(p);
+  if( blob_size(&p->aCol[0])==0 ) return;
+  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[0]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[1]);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtu\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[2]);
+  blob_append(p->pOut, "</pre></td></tr>\n", -1);
+}
+static void dfunifiedStartRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])>0 ) return;
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
+}
+static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  dfunifiedFinishRow(p);
+  if( p->pCfg && p->pCfg->zLeftHash ){
+    blob_appendf(p->pOut,
+       "<tr class=\"diffskip\" data-startln=\"%d\" data-endln=\"%d\""
+       " id=\"skip%xh%xi%x\">\n",
+       p->lnLeft+1, p->lnLeft+n,
+       nChunk, p->lnLeft, n);
+  }else{
+    blob_append(p->pOut, "<tr>", 4);
+  }
+  blob_append(p->pOut, "<td class=\"diffln difflne\">"
+                       "&#xfe19;</td><td></td><td></td></tr>\n", -1);
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
+  dfunifiedStartRow(p);
+  dfunifiedFinishDelete(p);
+  dfunifiedFinishInsert(p);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_appendf(&p->aCol[0],"%d\n",p->lnRight);
+  blob_append_char(&p->aCol[1], '\n');
+  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
+  blob_append_char(&p->aCol[2], '\n');
+}
+static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
+  dfunifiedStartRow(p);
+  p->lnRight++;
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+  blob_append(&p->aCol[4], "<ins>", 5);
+  htmlize_to_blob(&p->aCol[4], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[4], "</ins>\n", 7);
+  p->nPending++;
+}
+static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
+  dfunifiedStartRow(p);
+  dfunifiedFinishInsert(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
+  p->lnLeft++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0],'\n');
+  blob_append(&p->aCol[1],"-\n",2);
+  blob_append(&p->aCol[2], "<del>", 5);
+  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[2], "</del>\n", 7);
+}
+static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  dfunifiedStartRow(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "-\n", 2);
+
+  htmlize_to_blob(&p->aCol[2], pX->z,  pX->n);
+  blob_append_char(&p->aCol[2], '\n');
+
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+
+  htmlize_to_blob(&p->aCol[4], pY->z,  pY->n);
+  blob_append_char(&p->aCol[4], '\n');
+  p->nPending++;
+}
+static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i;
+  int x;
+  LineChange chng;
+  oneLineChange(pX, pY, &chng);
+  dfunifiedStartRow(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "-\n", 2);
+
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      htmlize_to_blob(&p->aCol[2], pX->z+x, ofst - x);
+      x = ofst;
+      blob_append(&p->aCol[2], "<del>", 5);
+      htmlize_to_blob(&p->aCol[2], pX->z+x, len);
+      x += len;
+      blob_append(&p->aCol[2], "</del>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[2], pX->z+x,  pX->n - x);
+  blob_append_char(&p->aCol[2], '\n');
+
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      htmlize_to_blob(&p->aCol[4], pY->z+x, ofst - x);
+      x = ofst;
+      blob_append(&p->aCol[4], "<ins>", 5);
+      htmlize_to_blob(&p->aCol[4], pY->z+x, len);
+      x += len;
+      blob_append(&p->aCol[4], "</ins>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[4], pY->z+x,  pY->n - x);
+  blob_append_char(&p->aCol[4], '\n');
+  p->nPending++;
+}
+static void dfunifiedEnd(DiffBuilder *p){
+  dfunifiedFinishRow(p);
+  blob_append(p->pOut, "</table>\n",-1);
+  fossil_free(p);
+}
+static DiffBuilder *dfunifiedNew(Blob *pOut, DiffConfig *pCfg){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfunifiedSkip;
+  p->xCommon = dfunifiedCommon;
+  p->xInsert = dfunifiedInsert;
+  p->xDelete = dfunifiedDelete;
+  p->xReplace = dfunifiedReplace;
+  p->xEdit = dfunifiedEdit;
+  p->xEnd = dfunifiedEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->eState = 0;
+  p->nPending = 0;
+  p->pOut = pOut;
+  if( pCfg->zLeftHash ){
+    blob_appendf(pOut, "<table class=\"diff udiff\" data-lefthash=\"%s\">\n",
+                pCfg->zLeftHash);
+  }else{
+    blob_append(pOut, "<table class=\"diff udiff\">\n", -1);
+  }
+  blob_init(&p->aCol[0], 0, 0);
+  blob_init(&p->aCol[1], 0, 0);
+  blob_init(&p->aCol[2], 0, 0);
+  blob_init(&p->aCol[3], 0, 0);
+  blob_init(&p->aCol[4], 0, 0);
+  p->pCfg = pCfg;
+  return p;
+}
+
+/************************* DiffBuilderSplit  ******************************/
+/* This formatter creates a side-by-side diff in HTML.  The output is a
+** <table> with 5 columns:
+**
+**    1.  Line numbers for the first file.
+**    2.  Text for the first file.
+**    3.  The difference mark.  "<", ">", "|" or blank
+**    4.  Line numbers for the second file.
+**    5.  Text for the second file.
+**
+** The <ins> and <del> strategy is the same as for unified diff above.
+** In fact, the same CSS can be used for both.
+**
+** Accumulator strategy:
+**
+**    *   Left line numbers are output directly to p->pOut
+**    *   Left text accumulates in p->aCol[0].
+**    *   Edit marks accumulates in p->aCol[1].
+**    *   Right line numbers accumulate in p->aCol[2].
+**    *   Right text accumulates in p->aCol[3].
+**
+** eState:
+**    0   In common block
+**    1   Have <del> on the left
+**    2   Have <ins> on the right
+**    3   Have <del> on left and <ins> on the right
+*/
+static void dfsplitChangeState(DiffBuilder *p, int newState){
+  if( p->eState == newState ) return;
+  if( (p->eState&1)==0 && (newState & 1)!=0 ){
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[0], "<del>", 5);
+    p->eState |= 1;
+  }else if( (p->eState&1)!=0 && (newState & 1)==0 ){
+    blob_append(p->pOut, "</del>", 6);
+    blob_append(&p->aCol[0], "</del>", 6);
+    p->eState &= ~1;
+  }
+  if( (p->eState&2)==0 && (newState & 2)!=0 ){
+    blob_append(&p->aCol[2], "<ins>", 5);
+    blob_append(&p->aCol[3], "<ins>", 5);
+    p->eState |= 2;
+  }else if( (p->eState&2)!=0 && (newState & 2)==0 ){
+    blob_append(&p->aCol[2], "</ins>", 6);
+    blob_append(&p->aCol[3], "</ins>", 6);
+    p->eState &= ~2;
+  }
+}
+static void dfsplitFinishRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])==0 ) return;
+  dfsplitChangeState(p, 0);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtl\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[0]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[1]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[2]);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtr\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[3]);
+  blob_append(p->pOut, "</pre></td></tr>\n", -1);
+}
+static void dfsplitStartRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])>0 ) return;
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
+  p->eState = 0;
+}
+static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  dfsplitFinishRow(p);
+  if( p->pCfg && p->pCfg->zLeftHash ){
+    blob_appendf(p->pOut,
+       "<tr class=\"diffskip\" data-startln=\"%d\" data-endln=\"%d\""
+       " id=\"skip%xh%xi%x\">\n",
+       p->lnLeft+1, p->lnLeft+n,
+       nChunk,p->lnLeft,n);
+  }else{
+    blob_append(p->pOut, "<tr>", 4);
+  }
+  blob_append(p->pOut,
+       "<td class=\"diffln difflnl difflne\">&#xfe19;</td>"
+       "<td></td><td></td>"
+       "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
+       "<td/td></tr>\n", -1);
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfsplitCommon(DiffBuilder *p, const DLine *pLine){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 0);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append_char(&p->aCol[1], '\n');
+  blob_appendf(&p->aCol[2],"%d\n",p->lnRight);
+  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 2);
+  p->lnRight++;
+  blob_append_char(p->pOut, '\n');
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "&gt;\n", -1);
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+  blob_append(&p->aCol[3], "<ins>", 5);
+  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[3], "</ins>\n", 7);
+}
+static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 1);
+  p->lnLeft++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append(&p->aCol[0], "<del>", 5);
+  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[0], "</del>\n", 7);
+  blob_append(&p->aCol[1], "&lt;\n", -1);
+  blob_append_char(&p->aCol[2],'\n');
+  blob_append_char(&p->aCol[3],'\n');
+}
+static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 3);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  htmlize_to_blob(&p->aCol[0], pX->z,  pX->n);
+  blob_append_char(&p->aCol[0], '\n');
+
+  blob_append(&p->aCol[1], "|\n", 2);
+
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+
+  htmlize_to_blob(&p->aCol[3], pY->z,  pY->n);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i;
+  int x;
+  LineChange chng;
+  oneLineChange(pX, pY, &chng);
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 3);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      htmlize_to_blob(&p->aCol[0], pX->z+x, ofst - x);
+      x = ofst;
+      if( chng.a[i].iLen2 ){
+        blob_append(&p->aCol[0], "<del class='edit'>", -1);
+      }else{
+        blob_append(&p->aCol[0], "<del>", 5);
+      }
+      htmlize_to_blob(&p->aCol[0], pX->z+x, len);
+      x += len;
+      blob_append(&p->aCol[0], "</del>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x);
+  blob_append_char(&p->aCol[0], '\n');
+
+  blob_append(&p->aCol[1], "|\n", 2);
+
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      htmlize_to_blob(&p->aCol[3], pY->z+x, ofst - x);
+      x = ofst;
+      if( chng.a[i].iLen1 ){
+        blob_append(&p->aCol[3], "<ins class='edit'>", -1);
+      }else{
+        blob_append(&p->aCol[3], "<ins>", 5);
+      }
+      htmlize_to_blob(&p->aCol[3], pY->z+x, len);
+      x += len;
+      blob_append(&p->aCol[3], "</ins>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[3], pY->z+x,  pY->n - x);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitEnd(DiffBuilder *p){
+  dfsplitFinishRow(p);
+  blob_append(p->pOut, "</table>\n",-1);
+  fossil_free(p);
+}
+static DiffBuilder *dfsplitNew(Blob *pOut, DiffConfig *pCfg){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfsplitSkip;
+  p->xCommon = dfsplitCommon;
+  p->xInsert = dfsplitInsert;
+  p->xDelete = dfsplitDelete;
+  p->xReplace = dfsplitReplace;
+  p->xEdit = dfsplitEdit;
+  p->xEnd = dfsplitEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->eState = 0;
+  p->pOut = pOut;
+  if( pCfg->zLeftHash ){
+    blob_appendf(pOut,
+      "<table class=\"diff splitdiff\" data-lefthash=\"%s\">\n",
+      pCfg->zLeftHash);
+  }else{
+    blob_append(pOut, "<table class=\"diff splitdiff\">\n", -1);
+  }
+  blob_init(&p->aCol[0], 0, 0);
+  blob_init(&p->aCol[1], 0, 0);
+  blob_init(&p->aCol[2], 0, 0);
+  blob_init(&p->aCol[3], 0, 0);
+  blob_init(&p->aCol[4], 0, 0);
+  p->pCfg = pCfg;
+  return p;
+}
+
+/************************* DiffBuilderSbs  ******************************/
+/* This formatter creates a side-by-side diff in text.
+*/
+static void dfsbsSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  if( (p->lnLeft || p->lnRight) && !isFinal ){
+    blob_appendf(p->pOut, "%.*c\n", p->width*2 + 16, '.');
+  }
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+
+/*
+** Append at least iMin characters (not bytes) and at most iMax characters
+** from pX onto the into of p.
+**
+** This comment contains multibyte unicode characters (ü, Æ, ð) in order
+** to test the ability of the diff code to handle such characters.
+*/
+static void sbs_append_chars(Blob *p, int iMin, int iMax, const DLine *pX){
+  int i;
+  const char *z = pX->z;
+  for(i=0; i<iMax && i<pX->n; i++){
+    char c = z[i];
+    blob_append_char(p, c);
+    if( (c&0xc0)==0x80 ){ iMin++; iMax++; }
+  }
+  while( i<iMin ){
+    blob_append_char(p, ' ');
+    i++;
+  }
+}
+
+static void dfsbsCommon(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%6u ", p->lnLeft);
+  sbs_append_chars(p->pOut, p->width, p->width, pLine);
+  blob_appendf(p->pOut,"   %6u ", p->lnRight);
+  sbs_append_chars(p->pOut, 0, p->width, pLine);
+  blob_append_char(p->pOut, '\n');
+}
+static void dfsbsInsert(DiffBuilder *p, const DLine *pLine){
+  p->lnRight++;
+  blob_appendf(p->pOut,"%6s %*s > %6u ",
+     "", p->width, "", p->lnRight);
+  sbs_append_chars(p->pOut, 0, p->width, pLine);
+  blob_append_char(p->pOut, '\n');
+}
+static void dfsbsDelete(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  blob_appendf(p->pOut,"%6u ", p->lnLeft);
+  sbs_append_chars(p->pOut, p->width, p->width, pLine);
+  blob_append(p->pOut," <\n", 3);
+}
+static void dfsbsEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%6u ", p->lnLeft);
+  sbs_append_chars(p->pOut, p->width, p->width, pX);
+  blob_appendf(p->pOut, " | %6u ", p->lnRight);
+  sbs_append_chars(p->pOut, 0, p->width, pY);
+  blob_append_char(p->pOut, '\n');
+}
+static void dfsbsEnd(DiffBuilder *p){
+  fossil_free(p);
+}
+static DiffBuilder *dfsbsNew(Blob *pOut, DiffConfig *pCfg){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfsbsSkip;
+  p->xCommon = dfsbsCommon;
+  p->xInsert = dfsbsInsert;
+  p->xDelete = dfsbsDelete;
+  p->xReplace = dfsbsEdit;
+  p->xEdit = dfsbsEdit;
+  p->xEnd = dfsbsEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->width = diff_width(pCfg);
+  p->pOut = pOut;
+  return p;
+}
+/****************************************************************************/
 /*
 ** Return the number between 0 and 100 that is smaller the closer pA and
 ** pB match.  Return 0 for a perfect match.  Return 100 if pA and pB are
@@ -956,14 +1756,18 @@ static int minInt(int a, int b){ return a<b ? a : b; }
 **
 ** (1) Remove leading and trailing whitespace.
 ** (2) Truncate both strings to at most 250 characters
-** (3) Find the length of the longest common subsequence
-** (4) Longer common subsequences yield lower scores.
+** (3) If the two strings have a common prefix, measure that prefix
+** (4) Find the length of the longest common subsequence that is
+**     at least 150% longer than the common prefix.
+** (5) Longer common subsequences yield lower scores.
 */
 static int match_dline(DLine *pA, DLine *pB){
   const char *zA;            /* Left string */
   const char *zB;            /* right string */
   int nA;                    /* Bytes in zA[] */
   int nB;                    /* Bytes in zB[] */
+  int nMin;
+  int nPrefix;
   int avg;                   /* Average length of A and B */
   int i, j, k;               /* Loop counters */
   int best = 0;              /* Longest match found so far */
@@ -973,17 +1777,38 @@ static int match_dline(DLine *pA, DLine *pB){
   unsigned char aNext[252];  /* aNext[i] = index in zB[] of next zB[i] char */
 
   zA = pA->z;
+  if( pA->nw==0 && pA->n ){
+    for(i=0; i<pA->n && diff_isspace(zA[i]); i++){}
+    pA->indent = i;
+    for(j=pA->n-1; j>i && diff_isspace(zA[j]); j--){}
+    pA->nw = j - i + 1;
+  }
+  zA += pA->indent;
+  nA = pA->nw;
+
   zB = pB->z;
-  nA = pA->n;
-  nB = pB->n;
-  while( nA>0 && fossil_isspace(zA[0]) ){ nA--; zA++; }
-  while( nA>0 && fossil_isspace(zA[nA-1]) ){ nA--; }
-  while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
-  while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
+  if( pB->nw==0 && pB->n ){
+    for(i=0; i<pB->n && diff_isspace(zB[i]); i++){}
+    pB->indent = i;
+    for(j=pB->n-1; j>i && diff_isspace(zB[j]); j--){}
+    pB->nw = j - i + 1;
+  }
+  zB += pB->indent;
+  nB = pB->nw;
+
   if( nA>250 ) nA = 250;
   if( nB>250 ) nB = 250;
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
+  nMin = nA;
+  if( nB<nMin ) nMin = nB;
+  if( nMin==0 ) return 68;
+  for(nPrefix=0; nPrefix<nMin && zA[nPrefix]==zB[nPrefix]; nPrefix++){}
+  best = 0;
+  if( nPrefix>5 && nPrefix>nMin/2 ){
+    best = nPrefix*3/2;
+    if( best>=avg - 2 ) best = avg - 2;
+  }
   if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
   memset(aFirst, 0xff, sizeof(aFirst));
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
@@ -992,7 +1817,6 @@ static int match_dline(DLine *pA, DLine *pB){
     aNext[i] = aFirst[c];
     aFirst[c] = i;
   }
-  best = 0;
   for(i=1; i<=nA-best; i++){
     c = (unsigned char)zA[i];
     for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
@@ -1001,7 +1825,7 @@ static int match_dline(DLine *pA, DLine *pB){
       if( k>best ) best = k;
     }
   }
-  score = (best>avg) ? 0 : (avg - best)*100/avg;
+  score = 5 + ((best>=avg) ? 0 : (avg - best)*95/avg);
 
 #if 0
   fprintf(stderr, "A: [%.*s]\nB: [%.*s]\nbest=%d avg=%d score=%d\n",
@@ -1011,6 +1835,208 @@ static int match_dline(DLine *pA, DLine *pB){
   /* Return the result */
   return score;
 }
+
+/*
+** COMMAND:  test-line-match
+** Usage: %fossil test-line-match STRING1 STRING2
+**
+** Return a score from 0 to 100 that is how similar STRING1 is to
+** STRING2.  Smaller numbers mean more similar.  0 is an exact match.
+**
+** This command is used to test to match_dline() function in the
+** internal Fossil diff logic.
+*/
+void test_dline_match(void){
+  DLine a, b;
+  int x;
+  if( g.argc!=4 ) usage("STRING1 STRING2");
+  a.z = g.argv[2];
+  a.n = (int)strlen(a.z);
+  b.z = g.argv[3];
+  b.n = (int)strlen(b.z);
+  x = match_dline(&a, &b);
+  fossil_print("%d\n", x);
+}
+
+/* Forward declarations for recursion */
+static unsigned char *diffBlockAlignment(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+);
+static void longestCommonSequence(
+  DContext *p,               /* Two files being compared */
+  int iS1, int iE1,          /* Range of lines in p->aFrom[] */
+  int iS2, int iE2,          /* Range of lines in p->aTo[] */
+  int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
+  int *piSY, int *piEY       /* Write p->aTo[] common segment here */
+);
+
+/*
+** Make a copy of a list of nLine DLine objects from one array to
+** another.  Hash the new array to ignore whitespace.
+*/
+static void diffDLineXfer(
+  DLine *aTo,
+  const DLine *aFrom,
+  int nLine
+){
+  int i, j, k;
+  u64 h, h2;
+  for(i=0; i<nLine; i++) aTo[i].iHash = 0;
+  for(i=0; i<nLine; i++){
+    const char *z = aFrom[i].z;
+    int n = aFrom[i].n;
+    for(j=0; j<n && diff_isspace(z[j]); j++){}
+    aTo[i].z = &z[j];
+    for(k=aFrom[i].n; k>j && diff_isspace(z[k-1]); k--){}
+    aTo[i].n = n = k-j;
+    aTo[i].indent = 0;
+    aTo[i].nw = 0;
+    for(h=0; j<k; j++){
+      char c = z[j];
+      if( !diff_isspace(c) ){
+        h = (h^c)*9000000000000000041LL;
+      }
+    }
+    aTo[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | n;
+    h2 = h % nLine;
+    aTo[i].iNext = aTo[h2].iHash;
+    aTo[h2].iHash = i+1;
+  }
+}
+
+
+/*
+** For a difficult diff-block alignment that was originally for
+** the default consider-all-whitespace algorithm, try to find the
+** longest common subsequence between the two blocks that involves
+** only whitespace changes.
+*/
+static unsigned char *diffBlockAlignmentIgnoreSpace(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+){
+  DContext dc;
+  int iSX, iEX;                /* Start and end of LCS on the left */
+  int iSY, iEY;                /* Start and end of the LCS on the right */
+  unsigned char *a1, *a2;
+  int n1, n2, nLCS;
+
+  dc.aEdit = 0;
+  dc.nEdit = 0;
+  dc.nEditAlloc = 0;
+  dc.nFrom = nLeft;
+  dc.nTo = nRight;
+  dc.xDiffer = compare_dline_ignore_allws;
+  dc.aFrom = fossil_malloc( sizeof(DLine)*(nLeft+nRight) );
+  dc.aTo = &dc.aFrom[dc.nFrom];
+  diffDLineXfer(dc.aFrom, aLeft, nLeft);
+  diffDLineXfer(dc.aTo, aRight, nRight);
+  longestCommonSequence(&dc,0,nLeft,0,nRight,&iSX,&iEX,&iSY,&iEY);
+  fossil_free(dc.aFrom);
+  nLCS = iEX - iSX;
+  if( nLCS<5 ) return 0;   /* No good LCS was found */
+
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+     fossil_print("   LCS size=%d\n"
+                  "     [%.*s]\n"
+                  "     [%.*s]\n",
+                  nLCS, aLeft[iSX].n, aLeft[iSX].z,
+                  aLeft[iEX-1].n, aLeft[iEX-1].z);
+  }
+
+  a1 = diffBlockAlignment(aLeft,iSX,aRight,iSY,pCfg,&n1);
+  a2 = diffBlockAlignment(aLeft+iEX, nLeft-iEX,
+                          aRight+iEY, nRight-iEY,
+                          pCfg, &n2);
+  a1 = fossil_realloc(a1, n1+nLCS+n2);
+  memcpy(a1+n1+nLCS,a2,n2);
+  memset(a1+n1,3,nLCS);
+  fossil_free(a2);
+  *pNResult = n1+n2+nLCS;
+  return a1;
+}
+
+
+/*
+** This is a helper route for diffBlockAlignment().  In this case,
+** a very large block is encountered that might be too expensive to
+** use the O(N*N) Wagner edit distance algorithm.  So instead, this
+** block implements a less-precise but faster O(N*logN) divide-and-conquer
+** approach.
+*/
+static unsigned char *diffBlockAlignmentDivideAndConquer(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
+){
+  DLine *aSmall;               /* The smaller of aLeft and aRight */
+  DLine *aBig;                 /* The larger of aLeft and aRight */
+  int nSmall, nBig;            /* Size of aSmall and aBig.  nSmall<=nBig */
+  int iDivSmall, iDivBig;      /* Divider point for aSmall and aBig */
+  int iDivLeft, iDivRight;     /* Divider point for aLeft and aRight */
+  unsigned char *a1, *a2;      /* Results of the alignments on two halves */
+  int n1, n2;                  /* Number of entries in a1 and a2 */
+  int score, bestScore;        /* Score and best score seen so far */
+  int i;                       /* Loop counter */
+
+  if( nLeft>nRight ){
+    aSmall = aRight;
+    nSmall = nRight;
+    aBig = aLeft;
+    nBig = nLeft;
+  }else{
+    aSmall = aLeft;
+    nSmall = nLeft;
+    aBig = aRight;
+    nBig = nRight;
+  }
+  iDivBig = nBig/2;
+  iDivSmall = nSmall/2;
+
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+    fossil_print("  Divide at [%.*s]\n", 
+                 aBig[iDivBig].n, aBig[iDivBig].z);
+  }
+
+  bestScore = 10000;
+  for(i=0; i<nSmall; i++){
+    score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
+    if( score<bestScore ){
+      bestScore = score;
+      iDivSmall = i;
+    }
+  }
+  if( aSmall==aRight ){
+    iDivRight = iDivSmall;
+    iDivLeft = iDivBig;
+  }else{
+    iDivRight = iDivBig;
+    iDivLeft = iDivSmall;
+  }
+  a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,pCfg,&n1);
+  a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
+                          aRight+iDivRight, nRight-iDivRight,
+                          pCfg, &n2);
+  a1 = fossil_realloc(a1, n1+n2 );
+  memcpy(a1+n1,a2,n2);
+  fossil_free(a2);
+  *pNResult = n1+n2;
+  return a1;
+}
+
+
+/*
+** The threshold at which diffBlockAlignment transitions from the
+** O(N*N) Wagner minimum-edit-distance algorithm to a less process
+** O(NlogN) divide-and-conquer approach.
+*/
+#define DIFF_ALIGN_MX  1225
 
 /*
 ** There is a change block in which nLeft lines of text on the left are
@@ -1026,10 +2052,9 @@ static int match_dline(DLine *pA, DLine *pB){
 **    3.  The next line of pLeft changes into the next line of pRight.
 **    4.  Delete one line from pLeft and add one line to pRight.
 **
-** Values larger than three indicate better matches.
-**
-** The length of the returned array will be just large enough to cause
-** all elements of pLeft and pRight to be consumed.
+** The length of the returned array will be at most nLeft+nRight bytes.
+** If the first bytes is 4,  that means we could not compute reasonable
+** alignment between the two blocks.
 **
 ** Algorithm:  Wagner's minimum edit-distance algorithm, modified by
 ** adding a cost to each match based on how well the two rows match
@@ -1037,45 +2062,63 @@ static int match_dline(DLine *pA, DLine *pB){
 ** are between 0 and 100 where 0 is a perfect match 100 is a complete
 ** mismatch.
 */
-static unsigned char *sbsAlignment(
-   DLine *aLeft, int nLeft,       /* Text on the left */
-   DLine *aRight, int nRight      /* Text on the right */
+static unsigned char *diffBlockAlignment(
+  DLine *aLeft, int nLeft,     /* Text on the left */
+  DLine *aRight, int nRight,   /* Text on the right */
+  DiffConfig *pCfg,            /* Configuration options */
+  int *pNResult                /* OUTPUT: Bytes of result */
 ){
   int i, j, k;                 /* Loop counters */
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
   int nMatch, iMatch;          /* Number of matching lines and match score */
-  int mnLen;                   /* MIN(nLeft, nRight) */
-  int mxLen;                   /* MAX(nLeft, nRight) */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
-  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
   if( nLeft==0 ){
+    aM = fossil_malloc( nRight + 2 );
     memset(aM, 2, nRight);
+    *pNResult = nRight;
     return aM;
   }
   if( nRight==0 ){
+    aM = fossil_malloc( nLeft + 2 );
     memset(aM, 1, nLeft);
+    *pNResult = nLeft;
     return aM;
   }
 
-  /* This algorithm is O(N**2).  So if N is too big, bail out with a
-  ** simple (but stupid and ugly) result that doesn't take too long. */
-  mnLen = nLeft<nRight ? nLeft : nRight;
-  if( nLeft*nRight>100000 ){
-    memset(aM, 4, mnLen);
-    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
-    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
-    return aM;
+  if( pCfg->diffFlags & DIFF_DEBUG ){
+    fossil_print("BlockAlignment:\n   [%.*s] + %d\n   [%.*s] + %d\n",
+                 aLeft[0].n, aLeft[0].z, nLeft,
+                 aRight[0].n, aRight[0].z, nRight);
   }
 
+  /* For large alignments, try to use alternative algorithms that are
+  ** faster than the O(N*N) Wagner edit distance.
+  */
+  if( nLeft*nRight>DIFF_ALIGN_MX && (pCfg->diffFlags & DIFF_SLOW_SBS)==0 ){
+    if( (pCfg->diffFlags & DIFF_IGNORE_ALLWS)==0 ){
+      unsigned char *aRes;
+      aRes = diffBlockAlignmentIgnoreSpace(
+                 aLeft, nLeft,aRight, nRight,pCfg,pNResult);
+      if( aRes ) return aRes;
+    }
+    return diffBlockAlignmentDivideAndConquer(
+                 aLeft, nLeft,aRight, nRight,pCfg,pNResult);
+  }
+
+  /* If we reach this point, we will be doing an O(N*N) Wagner minimum
+  ** edit distance to compute the alignment.
+  */
   if( nRight < count(aBuf)-1 ){
     pToFree = 0;
     a = aBuf;
   }else{
     a = pToFree = fossil_malloc( sizeof(a[0])*(nRight+1) );
   }
+  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
+
 
   /* Compute the best alignment */
   for(i=0; i<=nRight; i++){
@@ -1096,7 +2139,7 @@ static unsigned char *sbsAlignment(
       }
       if( m>p ){
         int score = match_dline(&aLeft[j-1], &aRight[i-1]);
-        if( (score<=63 || (i<j+1 && i>j-1)) && m>p+score ){
+        if( (score<=90 || (i<j+1 && i>j-1)) && m>p+score ){
           m = p+score;
           d = 3 | score*4;
         }
@@ -1134,23 +2177,7 @@ static unsigned char *sbsAlignment(
   k++;
   i = (nRight+1)*(nLeft+1) - k;
   memmove(aM, &aM[k], i);
-
-  /* If:
-  **   (1) the alignment is more than 25% longer than the longest side, and
-  **   (2) the average match cost exceeds 15
-  ** Then this is probably an alignment that will be difficult for humans
-  ** to read.  So instead, just show all of the right side inserted followed
-  ** by all of the left side deleted.
-  **
-  ** The coefficients for conditions (1) and (2) above are determined by
-  ** experimentation.
-  */
-  mxLen = nLeft>nRight ? nLeft : nRight;
-  if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
-    memset(aM, 4, mnLen);
-    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
-    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
-  }
+  *pNResult = i;
 
   /* Return the result */
   fossil_free(pToFree);
@@ -1163,56 +2190,36 @@ static unsigned char *sbsAlignment(
 ** two differences is so small that they should be rendered as a single
 ** edit.
 */
-static int smallGap(int *R){
-  return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
+static int smallGap(const int *R, int ma, int mb){
+  int m = R[3];
+  ma += R[4] + m;
+  mb += R[5] + m;
+  if( ma*mb>DIFF_ALIGN_MX ) return 0;
+  return m<=2 || m<=(R[1]+R[2]+R[4]+R[5])/8;
 }
 
 /*
-** Given a diff context in which the aEdit[] array has been filled
-** in, compute a side-by-side diff into pOut.
+** Format a diff using a DiffBuilder object
 */
-static void sbsDiff(
-  DContext *p,       /* The computed diff */
-  Blob *pOut,        /* Write the results here */
-  ReCompiled *pRe,   /* Only show changes that match this regex */
-  u64 diffFlags      /* Flags controlling the diff */
+static void formatDiff(
+  DContext *p,           /* The computed diff */
+  DiffConfig *pCfg,      /* Configuration options */
+  DiffBuilder *pBuilder  /* The formatter object */
 ){
-  DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */
-  int a = 0;    /* Index of next line in A[] */
-  int b = 0;    /* Index of next line in B[] */
-  int *R;       /* Array of COPY/DELETE/INSERT triples */
-  int r;        /* Index into R[] */
-  int nr;       /* Number of COPY/DELETE/INSERT triples to process */
-  int mxr;      /* Maximum value for r */
-  int na, nb;   /* Number of lines shown from A and B */
-  int i, j;     /* Loop counters */
-  int m, ma, mb;/* Number of lines to output */
-  int skip;     /* Number of lines to skip */
-  static int nChunk = 0; /* Number of chunks of diff output seen so far */
-  SbsLine s;    /* Output line buffer */
-  int nContext; /* Lines of context above and below each change */
-  int showDivider = 0;  /* True to show the divider */
-  Blob aCols[5]; /* Array of column blobs */
+  DLine *A;              /* Left side of the diff */
+  DLine *B;              /* Right side of the diff */
+  unsigned int a = 0;    /* Index of next line in A[] */
+  unsigned int b = 0;    /* Index of next line in B[] */
+  const int *R;          /* Array of COPY/DELETE/INSERT triples */
+  unsigned int r;        /* Index into R[] */
+  unsigned int nr;       /* Number of COPY/DELETE/INSERT triples to process */
+  unsigned int mxr;      /* Maximum value for r */
+  unsigned int i, j;     /* Loop counters */
+  unsigned int m, ma, mb;/* Number of lines to output */
+  signed int skip = 0;   /* Number of lines to skip */
+  unsigned int nContext; /* Lines of context above and below each change */
 
-  memset(&s, 0, sizeof(s));
-  s.width = diff_width(diffFlags);
-  nContext = diff_context_lines(diffFlags);
-  s.escHtml = (diffFlags & DIFF_HTML)!=0;
-  if( s.escHtml ){
-    for(i=SBS_LNA; i<=SBS_TXTB; i++){
-      blob_zero(&aCols[i]);
-      s.apCols[i] = &aCols[i];
-    }
-  }else{
-    for(i=SBS_LNA; i<=SBS_TXTB; i++){
-      s.apCols[i] = pOut;
-    }
-  }
-  s.pRe = pRe;
-  s.iStart = -1;
-  s.iStart2 = 0;
-  s.iEnd = -1;
+  nContext = diff_context_lines(pCfg);
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -1222,22 +2229,21 @@ static void sbsDiff(
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
-    /* printf("r=%d nr=%d\n", r, nr); */
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
     ** Only display the block if one side matches but the other side does
     ** not.
     */
-    if( pRe ){
+    if( pCfg->pRe ){
       int hideBlock = 1;
       int xa = a, xb = b;
       for(i=0; hideBlock && i<nr; i++){
         int c1, c2;
         xa += R[r+i*3];
         xb += R[r+i*3];
-        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
-        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        c1 = re_dline_match(pCfg->pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pCfg->pRe, &B[xb], R[r+i*3+2]);
         hideBlock = c1==c2;
         xa += R[r+i*3+1];
         xb += R[r+i*3+2];
@@ -1249,149 +2255,105 @@ static void sbsDiff(
       }
     }
 
-    /* For the current block comprising nr triples, figure out
-    ** how many lines of A and B are to be displayed
+    /* Figure out how many lines of A and B are to be displayed
+    ** for this change block.
     */
     if( R[r]>nContext ){
-      na = nb = nContext;
       skip = R[r] - nContext;
     }else{
-      na = nb = R[r];
       skip = 0;
     }
-    for(i=0; i<nr; i++){
-      na += R[r+i*3+1];
-      nb += R[r+i*3+2];
-    }
-    if( R[r+nr*3]>nContext ){
-      na += nContext;
-      nb += nContext;
-    }else{
-      na += R[r+nr*3];
-      nb += R[r+nr*3];
-    }
-    for(i=1; i<nr; i++){
-      na += R[r+i*3];
-      nb += R[r+i*3];
-    }
-
-    /* Draw the separator between blocks */
-    if( showDivider ){
-      if( s.escHtml ){
-        char zLn[10];
-        sqlite3_snprintf(sizeof(zLn), zLn, "%d", a+skip+1);
-        sbsWriteSep(&s, strlen(zLn), SBS_LNA);
-        sbsWriteSep(&s, s.width, SBS_TXTA);
-        sbsWriteSep(&s, 0, SBS_MKR);
-        sqlite3_snprintf(sizeof(zLn), zLn, "%d", b+skip+1);
-        sbsWriteSep(&s, strlen(zLn), SBS_LNB);
-        sbsWriteSep(&s, s.width, SBS_TXTB);
-      }else{
-        blob_appendf(pOut, "%.*c\n", s.width*2+16, '.');
-      }
-    }
-    showDivider = 1;
-    nChunk++;
-    if( s.escHtml ){
-      blob_appendf(s.apCols[SBS_LNA], "<span id=\"chunk%d\"></span>", nChunk);
-    }
-
     /* Show the initial common area */
     a += skip;
     b += skip;
     m = R[r] - skip;
+    if( r ) skip -= nContext;
+    if( skip>0 ){
+      if( skip<nContext ){
+        /* If the amount to skip is less that the context band, then
+        ** go ahead and show the skip band as it is not worth eliding */
+        for(j=0; j<skip; j++){
+          pBuilder->xCommon(pBuilder, &A[a+j-skip]);
+        }
+      }else{
+        pBuilder->xSkip(pBuilder, skip, 0);
+      }
+    }
     for(j=0; j<m; j++){
-      sbsWriteLineno(&s, a+j, SBS_LNA);
-      s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_TXTA);
-      sbsWriteMarker(&s, "   ", "");
-      sbsWriteLineno(&s, b+j, SBS_LNB);
-      sbsWriteText(&s, &B[b+j], SBS_TXTB);
+      pBuilder->xCommon(pBuilder, &A[a+j]);
     }
     a += m;
     b += m;
 
     /* Show the differences */
     for(i=0; i<nr; i++){
+      int nAlign;
       unsigned char *alignment;
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
-      /* If the gap between the current diff and then next diff within the
-      ** same block is not too great, then render them as if they are a
-      ** single diff. */
-      while( i<nr-1 && smallGap(&R[r+i*3]) ){
+      /* Try merging the current block with subsequent blocks, if the
+      ** subsequent blocks are nearby and there result isn't too big.
+      */
+      while( i<nr-1 && smallGap(&R[r+i*3],ma,mb) ){
         i++;
         m = R[r+i*3];
         ma += R[r+i*3+1] + m;
         mb += R[r+i*3+2] + m;
       }
 
-      alignment = sbsAlignment(&A[a], ma, &B[b], mb);
+      /* Try to find an alignment for the lines within this one block */
+      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, pCfg, &nAlign);
+
       for(j=0; ma+mb>0; j++){
-        if( alignment[j]==1 ){
-          /* Delete one line from the left */
-          sbsWriteLineno(&s, a, SBS_LNA);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_TXTA);
-          sbsWriteMarker(&s, " <", "&lt;");
-          sbsWriteNewlines(&s);
-          assert( ma>0 );
-          ma--;
-          a++;
-        }else if( alignment[j]==3 ){
-          /* The left line is changed into the right line */
-          sbsWriteLineChange(&s, &A[a], a, &B[b], b);
-          assert( ma>0 && mb>0 );
-          ma--;
-          mb--;
-          a++;
-          b++;
-        }else if( alignment[j]==2 ){
-          /* Insert one line on the right */
-          if( !s.escHtml ){
-            sbsWriteSpace(&s, s.width + 7, SBS_TXTA);
+        assert( j<nAlign );
+        switch( alignment[j] ){
+          case 1: {
+            /* Delete one line from the left */
+            pBuilder->xDelete(pBuilder, &A[a]);
+            ma--;
+            a++;
+            break;
           }
-          sbsWriteMarker(&s, " > ", "&gt;");
-          sbsWriteLineno(&s, b, SBS_LNB);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_TXTB);
-          assert( mb>0 );
-          mb--;
-          b++;
-        }else{
-          /* Delete from the left and insert on the right */
-          sbsWriteLineno(&s, a, SBS_LNA);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_TXTA);
-          sbsWriteMarker(&s, " | ", "|");
-          sbsWriteLineno(&s, b, SBS_LNB);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_TXTB);
-          ma--;
-          mb--;
-          a++;
-          b++;
+          case 2: {
+            /* Insert one line on the right */
+            pBuilder->xInsert(pBuilder, &B[b]);
+            assert( mb>0 );
+            mb--;
+            b++;
+            break;
+          }
+          case 3: {
+            /* The left line is changed into the right line */
+            if( p->xDiffer(&A[a], &B[b])==0 ){
+              pBuilder->xCommon(pBuilder, &A[a]);
+            }else{
+              pBuilder->xEdit(pBuilder, &A[a], &B[b]);
+            }
+            assert( ma>0 && mb>0 );
+            ma--;
+            mb--;
+            a++;
+            b++;
+            break;
+          }
+          case 4: {
+            /* Delete from left then separately insert on the right */
+            pBuilder->xReplace(pBuilder, &A[a], &B[b]);
+            ma--;
+            a++;
+            mb--;
+            b++;
+            break;
+          }
         }
       }
+      assert( nAlign==j );
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          sbsWriteLineno(&s, a+j, SBS_LNA);
-          s.iStart = s.iEnd = -1;
-          sbsWriteText(&s, &A[a+j], SBS_TXTA);
-          sbsWriteMarker(&s, "   ", "");
-          sbsWriteLineno(&s, b+j, SBS_LNB);
-          sbsWriteText(&s, &B[b+j], SBS_TXTB);
+          pBuilder->xCommon(pBuilder, &A[a+j]);
         }
         b += m;
         a += m;
@@ -1402,25 +2364,16 @@ static void sbsDiff(
     assert( nr==i );
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
-    for(j=0; j<m; j++){
-      sbsWriteLineno(&s, a+j, SBS_LNA);
-      s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_TXTA);
-      sbsWriteMarker(&s, "   ", "");
-      sbsWriteLineno(&s, b+j, SBS_LNB);
-      sbsWriteText(&s, &B[b+j], SBS_TXTB);
+    for(j=0; j<m && j<nContext; j++){
+      pBuilder->xCommon(pBuilder, &A[a+j]);
     }
   }
-
-  if( s.escHtml && blob_size(s.apCols[SBS_LNA])>0 ){
-    blob_append(pOut, "<table class=\"sbsdiffcols\"><tr>\n", -1);
-    for(i=SBS_LNA; i<=SBS_TXTB; i++){
-      sbsWriteColumn(pOut, s.apCols[i], i);
-      blob_reset(s.apCols[i]);
-    }
-    blob_append(pOut, "</tr></table>\n", -1);
+  if( R[r]>nContext ){
+    pBuilder->xSkip(pBuilder, R[r] - nContext, 1);
   }
+  pBuilder->xEnd(pBuilder);
 }
+
 
 /*
 ** Compute the optimal longest common subsequence (LCS) using an
@@ -1443,12 +2396,12 @@ static void optimalLCS(
 
   for(i=iS1; i<iE1-mxLength; i++){
     for(j=iS2; j<iE2-mxLength; j++){
-      if( !p->same_fn(&p->aFrom[i], &p->aTo[j]) ) continue;
-      if( mxLength && !p->same_fn(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
+      if( p->xDiffer(&p->aFrom[i], &p->aTo[j]) ) continue;
+      if( mxLength && p->xDiffer(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
         continue;
       }
       k = 1;
-      while( i+k<iE1 && j+k<iE2 && p->same_fn(&p->aFrom[i+k],&p->aTo[j+k]) ){
+      while( i+k<iE1 && j+k<iE2 && p->xDiffer(&p->aFrom[i+k],&p->aTo[j+k])==0 ){
         k++;
       }
       if( k>mxLength ){
@@ -1495,12 +2448,14 @@ static void longestCommonSequence(
   int iSX, iSY, iEX, iEY;    /* Current match */
   int skew = 0;              /* How lopsided is the match */
   int dist = 0;              /* Distance of match from center */
-  int mid;                   /* Center of the span */
+  int mid;                   /* Center of the chng */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
   sqlite3_int64 bestScore;      /* Best score so far */
   sqlite3_int64 score;          /* Score for current candidate LCS */
   int span;                     /* combined width of the input sequences */
+  int cutoff = 4;            /* Max hash chain entries to follow */
+  int nextCutoff = -1;       /* Value of cutoff for next iteration */
 
   span = (iE1 - iS1) + (iE2 - iS2);
   bestScore = -10000;
@@ -1510,57 +2465,61 @@ static void longestCommonSequence(
   iSYb = iSYp = iS2;
   iEYb = iEYp = iS2;
   mid = (iE1 + iS1)/2;
-  for(i=iS1; i<iE1; i++){
-    int limit = 0;
-    j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
-    while( j>0
-      && (j-1<iS2 || j>=iE2 || !p->same_fn(&p->aFrom[i], &p->aTo[j-1]))
-    ){
-      if( limit++ > 10 ){
-        j = 0;
-        break;
+  do{
+    nextCutoff = 0;
+    for(i=iS1; i<iE1; i++){
+      int limit = 0;
+      j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
+      while( j>0
+        && (j-1<iS2 || j>=iE2 || p->xDiffer(&p->aFrom[i], &p->aTo[j-1]))
+      ){
+        if( limit++ > cutoff ){
+          j = 0;
+          nextCutoff = cutoff*4;
+          break;
+        }
+        j = p->aTo[j-1].iNext;
       }
-      j = p->aTo[j-1].iNext;
+      if( j==0 ) continue;
+      assert( i>=iSXb && i>=iSXp );
+      if( i<iEXb && j>=iSYb && j<iEYb ) continue;
+      if( i<iEXp && j>=iSYp && j<iEYp ) continue;
+      iSX = i;
+      iSY = j-1;
+      pA = &p->aFrom[iSX-1];
+      pB = &p->aTo[iSY-1];
+      n = minInt(iSX-iS1, iSY-iS2);
+      for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA--, pB--){}
+      iSX -= k;
+      iSY -= k;
+      iEX = i+1;
+      iEY = j;
+      pA = &p->aFrom[iEX];
+      pB = &p->aTo[iEY];
+      n = minInt(iE1-iEX, iE2-iEY);
+      for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA++, pB++){}
+      iEX += k;
+      iEY += k;
+      skew = (iSX-iS1) - (iSY-iS2);
+      if( skew<0 ) skew = -skew;
+      dist = (iSX+iEX)/2 - mid;
+      if( dist<0 ) dist = -dist;
+      score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
+      if( score>bestScore ){
+        bestScore = score;
+        iSXb = iSX;
+        iSYb = iSY;
+        iEXb = iEX;
+        iEYb = iEY;
+      }else if( iEX>iEXp ){
+        iSXp = iSX;
+        iSYp = iSY;
+        iEXp = iEX;
+        iEYp = iEY;
+      }
     }
-    if( j==0 ) continue;
-    assert( i>=iSXb && i>=iSXp );
-    if( i<iEXb && j>=iSYb && j<iEYb ) continue;
-    if( i<iEXp && j>=iSYp && j<iEYp ) continue;
-    iSX = i;
-    iSY = j-1;
-    pA = &p->aFrom[iSX-1];
-    pB = &p->aTo[iSY-1];
-    n = minInt(iSX-iS1, iSY-iS2);
-    for(k=0; k<n && p->same_fn(pA,pB); k++, pA--, pB--){}
-    iSX -= k;
-    iSY -= k;
-    iEX = i+1;
-    iEY = j;
-    pA = &p->aFrom[iEX];
-    pB = &p->aTo[iEY];
-    n = minInt(iE1-iEX, iE2-iEY);
-    for(k=0; k<n && p->same_fn(pA,pB); k++, pA++, pB++){}
-    iEX += k;
-    iEY += k;
-    skew = (iSX-iS1) - (iSY-iS2);
-    if( skew<0 ) skew = -skew;
-    dist = (iSX+iEX)/2 - mid;
-    if( dist<0 ) dist = -dist;
-    score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
-    if( score>bestScore ){
-      bestScore = score;
-      iSXb = iSX;
-      iSYb = iSY;
-      iEXb = iEX;
-      iEYb = iEY;
-    }else if( iEX>iEXp ){
-      iSXp = iSX;
-      iSYp = iSY;
-      iEXp = iEX;
-      iEYp = iEY;
-    }
-  }
-  if( iSXb==iEXb && (iE1-iS1)*(iE2-iS2)<400 ){
+  }while( iSXb==iEXb && nextCutoff && (cutoff=nextCutoff)<=64 );
+  if( iSXb==iEXb && (sqlite3_int64)(iE1-iS1)*(iE2-iS2)<2500 ){
     /* If no common sequence is found using the hashing heuristic and
     ** the input is not too big, use the expensive exact solution */
     optimalLCS(p, iS1, iE1, iS2, iE2, piSX, piEX, piSY, piEY);
@@ -1614,6 +2573,121 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 }
 
 /*
+** A common subsequence between p->aFrom and p->aTo has been found.
+** This routine tries to judge if the subsequence really is a valid
+** match or rather is just an artifact of an indentation change.
+**
+** Return non-zero if the subsequence is valid.  Return zero if the
+** subsequence seems likely to be an editing artifact and should be
+** ignored.
+**
+** This routine is a heuristic optimization intended to give more
+** intuitive diff results following an indentation change it code that
+** is formatted similarly to C/C++, Javascript, Go, TCL, and similar
+** languages that use {...} for nesting.  A correct diff is computed
+** even if this routine always returns true (non-zero).  But sometimes
+** a more intuitive diff can result if this routine returns false.
+**
+** The subsequences consists of the rows iSX through iEX-1 (inclusive)
+** in p->aFrom[].  The total sequences is iS1 through iE1-1 (inclusive)
+** of p->aFrom[].
+**
+** Example where this heuristic is useful, see the diff at
+** https://www.sqlite.org/src/fdiff?v1=0e79dd15cbdb4f48&v2=33955a6fd874dd97
+**
+** See also discussion at https://fossil-scm.org/forum/forumpost/9ba3284295
+**
+** ALGORITHM (subject to change and refinement):
+**
+**    1.  If the subsequence is larger than 1/7th of the original span,
+**        then consider it valid.  --> return 1
+**
+**    2.  If no lines of the subsequence contains more than one
+**        non-whitespace character,  --> return 0
+**
+**    3.  If any line of the subsequence contains more than one non-whitespace
+**        character and is unique across the entire sequence after ignoring
+**        leading and trailing whitespace   --> return 1
+**
+**    4.  Otherwise, it is potentially an artifact of an indentation
+**        change. --> return 0
+*/
+static int likelyNotIndentChngArtifact(
+  DContext *p,     /* The complete diff context */
+  int iS1,         /* Start of the main segment */
+  int iSX,         /* Start of the subsequence */
+  int iEX,         /* First row past the end of the subsequence */
+  int iE1          /* First row past the end of the main segment */
+){
+  int i, j, n;
+
+  /* Rule (1) */
+  if( (iEX-iSX)*7 >= (iE1-iS1) ) return 1;
+
+  /* Compute DLine.indent and DLine.nw for all lines of the subsequence.
+  ** If no lines contain more than one non-whitespace character return
+  ** 0 because the subsequence could be due to an indentation change.
+  ** Rule (2).
+  */
+  n = 0;
+  for(i=iSX; i<iEX; i++){
+    DLine *pA = &p->aFrom[i];
+    if( pA->nw==0 && pA->n ){
+      const char *zA = pA->z;
+      const int nn = pA->n;
+      int ii, jj;
+      for(ii=0; ii<nn && diff_isspace(zA[ii]); ii++){}
+      pA->indent = ii;
+      for(jj=nn-1; jj>ii && diff_isspace(zA[jj]); jj--){}
+      pA->nw = jj - ii + 1;
+    }
+    if( pA->nw>1 ) n++;
+  }
+  if( n==0 ) return 0;
+
+  /* Compute DLine.indent and DLine.nw for the entire sequence */
+  for(i=iS1; i<iE1; i++){
+    DLine *pA;
+    if( i==iSX ){
+      i = iEX;
+      if( i>=iE1 ) break;
+    }
+    pA = &p->aFrom[i];
+    if( pA->nw==0 && pA->n ){
+      const char *zA = pA->z;
+      const int nn = pA->n;
+      int ii, jj;
+      for(ii=0; ii<nn && diff_isspace(zA[ii]); ii++){}
+      pA->indent = ii;
+      for(jj=nn-1; jj>ii && diff_isspace(zA[jj]); jj--){}
+      pA->nw = jj - ii + 1;
+    }
+  }
+
+  /* Check to see if any subsequence line that has more than one
+  ** non-whitespace character is unique across the entire sequence.
+  ** Rule (3)
+  */
+  for(i=iSX; i<iEX; i++){
+    const char *z = p->aFrom[i].z + p->aFrom[i].indent;
+    const int nw = p->aFrom[i].nw;
+    if( nw<=1 ) continue;
+    for(j=iS1; j<iSX; j++){
+      if( p->aFrom[j].nw!=nw ) continue;
+      if( memcmp(p->aFrom[j].z+p->aFrom[j].indent,z,nw)==0 ) break;
+    }
+    if( j<iSX ) continue;
+    for(j=iEX; j<iE1; j++){
+      if( p->aFrom[j].nw!=nw ) continue;
+      if( memcmp(p->aFrom[j].z+p->aFrom[j].indent,z,nw)==0 ) break;
+    }
+    if( j>=iE1 ) break;
+  }
+  return i<iEX;
+}
+
+
+/*
 ** Do a single step in the difference.  Compute a sequence of
 ** copy/delete/insert steps that will convert lines iS1 through iE1-1 of
 ** the input into lines iS2 through iE2-1 of the output and write
@@ -1644,7 +2718,9 @@ static void diff_step(DContext *p, int iS1, int iE1, int iS2, int iE2){
   /* Find the longest matching segment between the two sequences */
   longestCommonSequence(p, iS1, iE1, iS2, iE2, &iSX, &iEX, &iSY, &iEY);
 
-  if( iEX>iSX ){
+  if( iEX>iSX+5
+   || (iEX>iSX && likelyNotIndentChngArtifact(p,iS1,iSX,iEX,iE1) )
+  ){
     /* A common segment has been found.
     ** Recursively diff either side of the matching segment */
     diff_step(p, iS1, iSX, iS2, iSY);
@@ -1680,12 +2756,12 @@ static void diff_all(DContext *p){
   /* Carve off the common header and footer */
   iE1 = p->nFrom;
   iE2 = p->nTo;
-  while( iE1>0 && iE2>0 && p->same_fn(&p->aFrom[iE1-1], &p->aTo[iE2-1]) ){
+  while( iE1>0 && iE2>0 && p->xDiffer(&p->aFrom[iE1-1], &p->aTo[iE2-1])==0 ){
     iE1--;
     iE2--;
   }
   mnE = iE1<iE2 ? iE1 : iE2;
-  for(iS=0; iS<mnE && p->same_fn(&p->aFrom[iS],&p->aTo[iS]); iS++){}
+  for(iS=0; iS<mnE && p->xDiffer(&p->aFrom[iS],&p->aTo[iS])==0; iS++){}
 
   /* do the difference */
   if( iS>0 ){
@@ -1754,7 +2830,7 @@ static void diff_optimize(DContext *p){
     while( cpy>0 && del==0 && ins>0 ){
       DLine *pTop = &p->aFrom[lnFrom-1];  /* Line before start of insert */
       DLine *pBtm = &p->aTo[lnTo+ins-1];  /* Last line inserted */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
       lnFrom--;
       lnTo--;
@@ -1767,7 +2843,7 @@ static void diff_optimize(DContext *p){
     while( r+3<p->nEdit && p->aEdit[r+3]>0 && del==0 && ins>0 ){
       DLine *pTop = &p->aTo[lnTo];       /* First line inserted */
       DLine *pBtm = &p->aTo[lnTo+ins];   /* First line past end of insert */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop+1)+LENGTH(pBtm) ) break;
       lnFrom++;
       lnTo++;
@@ -1780,7 +2856,7 @@ static void diff_optimize(DContext *p){
     while( cpy>0 && del>0 && ins==0 ){
       DLine *pTop = &p->aFrom[lnFrom-1];     /* Line before start of delete */
       DLine *pBtm = &p->aFrom[lnFrom+del-1]; /* Last line deleted */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
       lnFrom--;
       lnTo--;
@@ -1793,7 +2869,7 @@ static void diff_optimize(DContext *p){
     while( r+3<p->nEdit && p->aEdit[r+3]>0 && del>0 && ins==0 ){
       DLine *pTop = &p->aFrom[lnFrom];     /* First line deleted */
       DLine *pBtm = &p->aFrom[lnFrom+del]; /* First line past end of delete */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop)+LENGTH(pBtm) ) break;
       lnFrom++;
       lnTo++;
@@ -1809,21 +2885,53 @@ static void diff_optimize(DContext *p){
 
 /*
 ** Extract the number of lines of context from diffFlags.  Supply an
-** appropriate default if no context width is specified.
+** appropriate default if no context width is specified. If pCfg is
+** NULL then the compile-time default is used (which gets propagated
+** to JS-side state by certain pages).
 */
-int diff_context_lines(u64 diffFlags){
-  int n = diffFlags & DIFF_CONTEXT_MASK;
-  if( n==0 && (diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
-  return n;
+int diff_context_lines(DiffConfig *pCfg){
+  const int dflt = 5;
+  if(pCfg!=0){
+    int n = pCfg->nContext;
+    if( n<=0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
+    return n;
+  }else{
+    return dflt;
+  }
 }
 
 /*
 ** Extract the width of columns for side-by-side diff.  Supply an
 ** appropriate default if no width is given.
+**
+** Calculate the default automatically, based on terminal's current width:
+**   term-width = 2*diff-col + diff-marker + 1
+**   diff-col = lineno + lmargin + text-width + rmargin
+**
+**   text-width = (term-width - diff-marker - 1)/2 - lineno - lmargin - rmargin
 */
-int diff_width(u64 diffFlags){
-  int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
-  if( w==0 ) w = 80;
+int diff_width(DiffConfig *pCfg){
+  int w = pCfg->wColumn;
+  if( w==0 ){
+    static struct {
+      unsigned int lineno, lmargin, text, rmargin, marker;
+    } sbsW = { 5, 2, 0, 0, 3 };
+    const unsigned int wMin = 24, wMax = 132;
+    unsigned int tw = terminal_get_width(80);
+    unsigned int twMin =
+      (wMin + sbsW.lineno + sbsW.lmargin + sbsW.rmargin)*2 + sbsW.marker + 1;
+    unsigned int twMax =
+      (wMax + sbsW.lineno + sbsW.lmargin + sbsW.rmargin)*2 + sbsW.marker + 1;
+
+    if( tw<twMin ){
+      tw = twMin;
+    }else if( tw>twMax ){
+      tw = twMax;
+    }
+    sbsW.text =
+      (tw - sbsW.marker - 1)/2 - sbsW.lineno - sbsW.lmargin - sbsW.rmargin;
+    w = sbsW.text;
+  }
   return w;
 }
 
@@ -1839,14 +2947,22 @@ void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
 }
 
 /*
-** Generate a report of the differences between files pA and pB.
-** If pOut is not NULL then a unified diff is appended there.  It
-** is assumed that pOut has already been initialized.  If pOut is
-** NULL, then a pointer to an array of integers is returned.
-** The integers come in triples.  For each triple,
-** the elements are the number of lines copied, the number of
-** lines deleted, and the number of lines inserted.  The vector
-** is terminated by a triple of all zeros.
+** Generate a report of the differences between files pA_Blob and pB_Blob.
+**
+** If pOut!=NULL then append text to pOut that will be the difference,
+** formatted according to flags in diffFlags.  The pOut Blob must have
+** already been initialized.
+**
+** If pOut==NULL then no formatting occurs.  Instead, this routine
+** returns a pointer to an array of integers.  The integers come in
+** triples.  The elements of each triple are:
+**
+**   1.  The number of lines to copy
+**   2.  The number of lines to delete
+**   3.  The number of lines to insert
+**
+** The return vector is terminated bin a triple of all zeros.  The caller
+** should free the returned vector using fossil_free().
 **
 ** This diff utility does not work on binary files.  If a binary
 ** file is encountered, 0 is returned and pOut is written with
@@ -1856,37 +2972,36 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write diff here if not NULL */
-  ReCompiled *pRe, /* Only output changes where this Regexp matches */
-  u64 diffFlags    /* DIFF_* flags defined above */
+  DiffConfig *pCfg /* Configuration options */
 ){
   int ignoreWs; /* Ignore whitespace */
   DContext c;
 
-  if( diffFlags & DIFF_INVERT ){
+  if( pCfg->diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  ignoreWs = (diffFlags & DIFF_IGNORE_ALLWS)!=0;
+  ignoreWs = (pCfg->diffFlags & DIFF_IGNORE_ALLWS)!=0;
   blob_to_utf8_no_bom(pA_Blob, 0);
   blob_to_utf8_no_bom(pB_Blob, 0);
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
-  if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-    c.same_fn = same_dline_ignore_allws;
+  if( (pCfg->diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+    c.xDiffer = compare_dline_ignore_allws;
   }else{
-    c.same_fn = same_dline;
+    c.xDiffer = compare_dline;
   }
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
-                             &c.nFrom, diffFlags);
+                             &c.nFrom, pCfg->diffFlags);
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
-                           &c.nTo, diffFlags);
+                           &c.nTo, pCfg->diffFlags);
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     if( pOut ){
-      diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, diffFlags);
+      diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, pCfg->diffFlags);
     }
     return 0;
   }
@@ -1897,10 +3012,10 @@ int *text_diff(
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     fossil_free(c.aEdit);
-    if( pOut ) diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, diffFlags);
+    if( pOut ) diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, pCfg->diffFlags);
     return 0;
   }
-  if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
+  if( (pCfg->diffFlags & DIFF_NOTTOOBIG)!=0 ){
     int i, m, n;
     int *a = c.aEdit;
     int mx = c.nEdit;
@@ -1909,20 +3024,57 @@ int *text_diff(
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      if( pOut ) diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
+      if( pOut ) diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, pCfg->diffFlags);
       return 0;
     }
   }
-  if( (diffFlags & DIFF_NOOPT)==0 ){
+  if( (pCfg->diffFlags & DIFF_NOOPT)==0 ){
     diff_optimize(&c);
   }
 
   if( pOut ){
-    /* Compute a context or side-by-side diff into pOut */
-    if( diffFlags & DIFF_SIDEBYSIDE ){
-      sbsDiff(&c, pOut, pRe, diffFlags);
+    if( pCfg->diffFlags & DIFF_NUMSTAT ){
+      int nDel = 0, nIns = 0, i;
+      for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+        nDel += c.aEdit[i+1];
+        nIns += c.aEdit[i+2];
+      }
+      g.diffCnt[1] += nIns;
+      g.diffCnt[2] += nDel;
+      if( nIns+nDel ){
+        g.diffCnt[0]++;
+        blob_appendf(pOut, "%10d %10d", nIns, nDel);
+      }
+    }else if( pCfg->diffFlags & DIFF_RAW ){
+      const int *R = c.aEdit;
+      unsigned int r;
+      for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
+        blob_appendf(pOut, " copy %6d  delete %6d  insert %6d\n",
+                     R[r], R[r+1], R[r+2]);
+      }
+    }else if( pCfg->diffFlags & DIFF_JSON ){
+      DiffBuilder *pBuilder = dfjsonNew(pOut);
+      formatDiff(&c, pCfg, pBuilder);
+      blob_append_char(pOut, '\n');
+    }else if( pCfg->diffFlags & DIFF_TCL ){
+      DiffBuilder *pBuilder = dftclNew(pOut);
+      formatDiff(&c, pCfg, pBuilder);
+    }else if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
+      DiffBuilder *pBuilder;
+      if( pCfg->diffFlags & DIFF_HTML ){
+        pBuilder = dfsplitNew(pOut, pCfg);
+      }else{
+        pBuilder = dfsbsNew(pOut, pCfg);
+      }
+      formatDiff(&c, pCfg, pBuilder);
+    }else if( pCfg->diffFlags & DIFF_DEBUG ){
+      DiffBuilder *pBuilder = dfdebugNew(pOut);
+      formatDiff(&c, pCfg, pBuilder);
+    }else if( pCfg->diffFlags & DIFF_HTML ){
+      DiffBuilder *pBuilder = dfunifiedNew(pOut, pCfg);
+      formatDiff(&c, pCfg, pBuilder);
     }else{
-      contextDiff(&c, pOut, pRe, diffFlags);
+      contextDiff(&c, pOut, pCfg);
     }
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -1939,26 +3091,31 @@ int *text_diff(
 }
 
 /*
+** Initialize the DiffConfig object using command-line options.
+**
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
-**   --brief                    Show filenames only    DIFF_BRIEF
-**   -c|--context N             N lines of context.    DIFF_CONTEXT_MASK
-**   --html                     Format for HTML        DIFF_HTML
-**   --invert                   Invert the diff        DIFF_INVERT
-**   -n|--linenum               Show line numbers      DIFF_LINENO
-**   --noopt                    Disable optimization   DIFF_NOOPT
-**   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
-**   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
-**   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
-**   -W|--width N               N character lines.     DIFF_WIDTH_MASK
-**   -y|--side-by-side          Side-by-side diff.     DIFF_SIDEBYSIDE
-**   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
+**   --brief                      Show filenames only        DIFF_BRIEF
+**   -c|--context N               N lines of context.        nContext
+**   --html                       Format for HTML            DIFF_HTML
+**   --invert                     Invert the diff            DIFF_INVERT
+**   -n|--linenum                 Show line numbers          DIFF_LINENO
+**   --noopt                      Disable optimization       DIFF_NOOPT
+**   --numstat                    Show change counts         DIFF_NUMSTAT
+**   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
+**   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
+**   -w|--ignore-all-space        Ignore all whitespaces     DIFF_IGNORE_ALLWS
+**   -W|--width N                 N character lines.         wColumn
+**   -y|--side-by-side            Side-by-side diff.         DIFF_SIDEBYSIDE
+**   -Z|--ignore-trailing-space   Ignore eol-whitespaces     DIFF_IGNORE_EOLWS
 */
-u64 diff_options(void){
+void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   u64 diffFlags = 0;
   const char *z;
   int f;
+
+  memset(pCfg, 0, sizeof(*pCfg));
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     diffFlags = DIFF_IGNORE_EOLWS;
   }
@@ -1968,88 +3125,118 @@ u64 diff_options(void){
   if( find_option("strip-trailing-cr",0,0)!=0 ){
     diffFlags |= DIFF_STRIP_EOLCR;
   }
-  if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
-  if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
+  if( !bUnifiedTextOnly ){
+    if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+    if( find_option("yy",0,0)!=0 ){
+      diffFlags |= DIFF_SIDEBYSIDE | DIFF_SLOW_SBS;
+    }
+    if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
+    if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
+    if( find_option("webpage",0,0)!=0 ){
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO;
+    }
+    if( find_option("browser","b",0)!=0 ){
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER;
+    }
+    if( find_option("by",0,0)!=0 ){
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
+                     |DIFF_SIDEBYSIDE;
+    }
+    if( find_option("json",0,0)!=0 ){
+      diffFlags |= DIFF_JSON;
+    }
+    if( find_option("tcl",0,0)!=0 ){
+      diffFlags |= DIFF_TCL;
+    }
+
+    /* Undocumented and unsupported flags used for development
+    ** debugging and analysis: */
+    if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
+    if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
+  }
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
-    if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f + DIFF_CONTEXT_EX;
+    pCfg->nContext = f;
+    diffFlags |= DIFF_CONTEXT_EX;
   }
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
-    f *= DIFF_CONTEXT_MASK+1;
-    if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f;
+    pCfg->wColumn = f;
   }
-  if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
+  if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
+  if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
-  return diffFlags;
-}
-
-/*
-** COMMAND: test-rawdiff
-**
-** Usage: %fossil test-rawdiff FILE1 FILE2
-**
-** Show a minimal sequence of Copy/Delete/Insert operations needed to convert
-** FILE1 into FILE2.  This command is intended for use in testing and debugging
-** the built-in difference engine of Fossil.
-*/
-void test_rawdiff_cmd(void){
-  Blob a, b;
-  int r;
-  int i;
-  int *R;
-  u64 diffFlags = diff_options();
-  if( g.argc<4 ) usage("FILE1 FILE2 ...");
-  blob_read_from_file(&a, g.argv[2]);
-  for(i=3; i<g.argc; i++){
-    if( i>3 ) fossil_print("-------------------------------\n");
-    blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, 0, diffFlags);
-    for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
-      fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
+  if( find_option("internal","i",0)==0
+   && (diffFlags & (DIFF_HTML|DIFF_TCL|DIFF_DEBUG|DIFF_JSON))==0
+  ){
+    pCfg->zDiffCmd = find_option("command", 0, 1);
+    if( pCfg->zDiffCmd==0 ) pCfg->zDiffCmd = diff_command_external(isGDiff);
+    if( pCfg->zDiffCmd ){
+      const char *zDiffBinary;
+      pCfg->zBinGlob = diff_get_binary_glob();
+      zDiffBinary = find_option("diff-binary", 0, 1);
+      if( zDiffBinary ){
+        if( is_truth(zDiffBinary) ) diffFlags |= DIFF_INCBINARY;
+      }else if( db_get_boolean("diff-binary", 1) ){
+        diffFlags |= DIFF_INCBINARY;
+      }
     }
-    /* free(R); */
-    blob_reset(&b);
   }
+  if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
+  /* Deprecated, but retained for script compatibility. */
+  else if( find_option("new-file","N",0)!=0 ) diffFlags |= DIFF_VERBOSE;
+
+  pCfg->diffFlags = diffFlags;
 }
 
 /*
 ** COMMAND: test-diff
+** COMMAND: xdiff
 **
-** Usage: %fossil [options] FILE1 FILE2
+** Usage: %fossil xdiff [options] FILE1 FILE2
 **
-** Print the difference between two files.  The usual diff options apply.
+** Compute an "external diff" between two files. By "external diff" we mean
+** a diff between two disk files that are not necessarily under management.
+** In other words, this command provides a mechanism to use Fossil's file
+** difference engine on arbitrary disk files.  See the "diff" command for
+** computing differences between files that are* under management.
+**
+** This command prints the differences between the two files FILE1 and FILE2.
+** all of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
+** See the "diff" command for a full list of command-line options.
+**
+** This command used to be called "test-diff".  The older "test-diff" spelling
+** still works, for compatibility.
 */
-void test_diff_cmd(void){
+void xdiff_cmd(void){
   Blob a, b, out;
-  u64 diffFlag;
   const char *zRe;           /* Regex filter for diff output */
-  ReCompiled *pRe = 0;       /* Regex filter for diff output */
+  DiffConfig DCfg;
 
   if( find_option("tk",0,0)!=0 ){
-    diff_tk("test-diff", 2);
+    diff_tk("xdiff", 2);
     return;
   }
   find_option("i",0,0);
   find_option("v",0,0);
+  diff_options(&DCfg, 0, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&pRe, zRe, 0);
+    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
-  diffFlag = diff_options();
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
-  diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
-  blob_read_from_file(&a, g.argv[2]);
-  blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, pRe, diffFlag);
+  diff_begin(&DCfg);
+  diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
+  blob_read_from_file(&a, g.argv[2], ExtFILE);
+  blob_read_from_file(&b, g.argv[3], ExtFILE);
+  text_diff(&a, &b, &out, &DCfg);
   blob_write_to_file(&out, "-");
-  re_free(pRe);
+  diff_end(&DCfg, 0);
+  re_free(DCfg.pRe);
 }
 
 /**************************************************************************
@@ -2071,7 +3258,9 @@ struct Annotator {
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nVers;        /* Number of versions analyzed */
-  int bLimit;       /* True if the iLimit was reached */
+  int bMoreToDo;    /* True if the limit was reached */
+  int origId;       /* RID for the zOrigin version */
+  int showId;       /* RID for the version being analyzed */
   struct AnnVers {
     const char *zFUuid;   /* File being analyzed */
     const char *zMUuid;   /* Check-in containing the file */
@@ -2093,9 +3282,9 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 
   memset(p, 0, sizeof(*p));
   if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-    p->c.same_fn = same_dline_ignore_allws;
+    p->c.xDiffer = compare_dline_ignore_allws;
   }else{
-    p->c.same_fn = same_dline;
+    p->c.xDiffer = compare_dline;
   }
   p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
                               diffFlags);
@@ -2164,89 +3353,149 @@ static int annotation_step(
   return 0;
 }
 
-
-/* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS   (((u64)0x20)<<32) /* File vers not commit vers */
-#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer checkins in the ANCESTOR */
+/* Return the current time as milliseconds since the Julian epoch */
+static sqlite3_int64 current_time_in_milliseconds(void){
+  static sqlite3_vfs *clockVfs = 0;
+  sqlite3_int64 t;
+  if( clockVfs==0 ) clockVfs = sqlite3_vfs_find(0);
+  if( clockVfs->iVersion>=2 && clockVfs->xCurrentTimeInt64!=0 ){
+    clockVfs->xCurrentTimeInt64(clockVfs, &t);
+  }else{
+    double r;
+    clockVfs->xCurrentTime(clockVfs, &r);
+    t = (sqlite3_int64)(r*86400000.0);
+  }
+  return t;
+}
 
 /*
-** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and check-in (mlink.mid).
+** Compute a complete annotation on a file.  The file is identified by its
+** filename and check-in name (NULL for current check-in).
 */
 static void annotate_file(
-  Annotator *p,        /* The annotator */
-  int fnid,            /* The name of the file to be annotated */
-  int mid,             /* Use the version of the file in this check-in */
-  int iLimit,          /* Limit the number of levels if greater than zero */
-  u64 annFlags         /* Flags to alter the annotation */
+  Annotator *p,          /* The annotator */
+  const char *zFilename, /* The name of the file to be annotated */
+  const char *zRevision, /* Use the version of the file in this check-in */
+  const char *zLimit,    /* Limit the number of versions analyzed */
+  const char *zOrigin,   /* The origin check-in, or NULL for root-of-tree */
+  u64 annFlags           /* Flags to alter the annotation */
 ){
-  Blob toAnnotate;     /* Text of the final (mid) version of the file */
-  Blob step;           /* Text of previous revision */
-  int rid;             /* Artifact ID of the file being annotated */
-  Stmt q;              /* Query returning all ancestor versions */
-  Stmt ins;            /* Inserts into the temporary VSEEN table */
-  int cnt = 0;         /* Number of versions examined */
+  Blob toAnnotate;       /* Text of the final (mid) version of the file */
+  Blob step;             /* Text of previous revision */
+  int cid;               /* Selected check-in ID */
+  int origid = 0;        /* The origin ID or zero */
+  int rid;               /* Artifact ID of the file being annotated */
+  int fnid;              /* Filename ID */
+  Stmt q;                /* Query returning all ancestor versions */
+  int cnt = 0;           /* Number of versions analyzed */
+  int iLimit;            /* Maximum number of versions to analyze */
+  sqlite3_int64 mxTime;  /* Halt at this time if not already complete */
 
-  /* Initialize the annotation */
-  rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
-  if( rid==0 ){
-    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
+  memset(p, 0, sizeof(*p));
+
+  if( zLimit ){
+    if( strcmp(zLimit,"none")==0 ){
+      iLimit = 0;
+      mxTime = 0;
+    }else if( sqlite3_strglob("*[0-9]s", zLimit)==0 ){
+      iLimit = 0;
+      mxTime =
+        (sqlite3_int64)(current_time_in_milliseconds() + 1000.0*atof(zLimit));
+    }else{
+      iLimit = atoi(zLimit);
+      if( iLimit<=0 ) iLimit = 30;
+      mxTime = 0;
+    }
+  }else{
+    /* Default limit is as much as we can do in 1.000 seconds */
+    iLimit = 0;
+    mxTime = current_time_in_milliseconds()+1000;
   }
-  if( !content_get(rid, &toAnnotate) ){
-    fossil_fatal("unable to retrieve content of artifact #%d", rid);
-  }
-  if( iLimit<=0 ) iLimit = 1000000000;
-  blob_to_utf8_no_bom(&toAnnotate, 0);
-  annotation_start(p, &toAnnotate, annFlags);
   db_begin_transaction();
-  db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM vseen;"
-  );
 
-  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
+  /* Get the artifact ID for the check-in begin analyzed */
+  if( zRevision ){
+    cid = name_to_typed_rid(zRevision, "ci");
+  }else{
+    db_must_be_within_tree();
+    cid = db_lget_int("checkout", 0);
+  }
+  origid = zOrigin ? name_to_typed_rid(zOrigin, "ci") : 0;
+
+  /* Compute all direct ancestors of the check-in being analyzed into
+  ** the "ancestor" table. */
+  if( origid ){
+    path_shortest_stored_in_ancestor_table(origid, cid);
+  }else{
+    compute_direct_ancestors(cid);
+  }
+
+  /* Get filename ID */
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fnid==0 ){
+    fossil_fatal("no such file: %Q", zFilename);
+  }
+
   db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
-    "       date(event.mtime),"
-    "       coalesce(event.euser,event.user),"
-    "       mlink.pid"
-    "  FROM mlink, event"
-    " WHERE mlink.fid=:rid"
+    "SELECT DISTINCT"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.mid),"
+    "   date(event.mtime),"
+    "   coalesce(event.euser,event.user),"
+    "   mlink.fid"
+    "  FROM mlink, event, ancestor"
+    " WHERE mlink.fnid=%d"
+    "   AND ancestor.rid=mlink.mid"
     "   AND event.objid=mlink.mid"
-    "   AND mlink.pid NOT IN vseen"
-    " ORDER BY %s event.mtime",
-    (annFlags & ANN_FILE_ANCEST)!=0 ?
-         "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
+    "   AND mlink.mid!=mlink.pid"
+    " ORDER BY ancestor.generation;",
+    fnid
   );
 
-  db_bind_int(&q, ":rid", rid);
-  if( iLimit==0 ) iLimit = 1000000000;
-  while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    int prevId = db_column_int(&q, 4);
+  while( db_step(&q)==SQLITE_ROW ){
+    if( cnt>=3 ){  /* Process at least 3 rows before imposing limits */
+      if( (iLimit>0 && cnt>=iLimit)
+       || (cnt>0 && mxTime>0 && current_time_in_milliseconds()>mxTime)
+      ){
+        p->bMoreToDo = 1;
+        break;
+      }
+    }
+    rid = db_column_int(&q, 4);
+    if( cnt==0 ){
+      if( !content_get(rid, &toAnnotate) ){
+        fossil_fatal("unable to retrieve content of artifact #%d", rid);
+      }
+      blob_to_utf8_no_bom(&toAnnotate, 0);
+      annotation_start(p, &toAnnotate, annFlags);
+      p->bMoreToDo = origid!=0;
+      p->origId = origid;
+      p->showId = cid;
+    }
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
-    if( p->nVers ){
+    if( cnt>0 ){
       content_get(rid, &step);
       blob_to_utf8_no_bom(&step, 0);
       annotation_step(p, &step, p->nVers-1, annFlags);
       blob_reset(&step);
     }
     p->nVers++;
-    db_bind_int(&ins, ":rid", rid);
-    db_step(&ins);
-    db_reset(&ins);
-    db_reset(&q);
-    rid = prevId;
-    db_bind_int(&q, ":rid", prevId);
     cnt++;
   }
-  p->bLimit = iLimit==cnt;
+
+  if( p->nVers==0 ){
+    if( zRevision ){
+      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRevision);
+    }else{
+      fossil_fatal("no history for file: %s", zFilename);
+    }
+  }
+
   db_finalize(&q);
-  db_finalize(&ins);
   db_end_transaction(0);
 }
 
@@ -2283,26 +3532,43 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** the date of the changes and the check-in hash (with a link to the
 ** check-in).  /blame and /praise also show the user who made the check-in.
 **
+** Reverse Annotations:  Normally, these web pages look at versions of
+** FILENAME moving backwards in time back toward the root check-in.  However,
+** if the origin= query parameter is used to specify some future check-in
+** (example: "origin=trunk") then these pages show changes moving towards
+** that alternative origin.  Thus using "origin=trunk" on an historical
+** version of the file shows the first time each line in the file was changed
+** or removed by any subsequent check-in.
+**
 ** Query parameters:
 **
-**    checkin=ID          The manifest ID at which to start the annotation
+**    checkin=ID          The check-in at which to start the annotation
 **    filename=FILENAME   The filename.
-**    filevers            Show file versions rather than check-in versions
-**    limit=N             Limit the search depth to N ancestors
+**    filevers=BOOLEAN    Show file versions rather than check-in versions
+**    limit=LIMIT         Limit the amount of analysis.  LIMIT can be one of:
+**                           none   No limit
+**                           Xs     As much as can be computed in X seconds
+**                           N      N versions
 **    log=BOOLEAN         Show a log of versions analyzed
-**    w                   Ignore whitespace
-**
+**    origin=ID           The origin checkin.  If unspecified, the root
+**                        check-in over the entire repository is used.
+**                        Specify "origin=trunk" or similar for a reverse
+**                        annotation
+**    w=BOOLEAN           Ignore whitespace
 */
 void annotation_page(void){
-  int mid;
-  int fnid;
   int i;
-  int iLimit;            /* Depth limit */
-  u64 annFlags = (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
-  int showLog = 0;       /* True to display the log */
-  int ignoreWs = 0;      /* Ignore whitespace */
+  const char *zLimit;    /* Depth limit */
+  u64 annFlags = DIFF_STRIP_EOLCR;
+  int showLog;           /* True to display the log */
+  int fileVers;          /* Show file version instead of check-in versions */
+  int ignoreWs;          /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
+  const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
+  const char *zOrigin;   /* The origin of the analysis */
+  int szHash;            /* Number of characters in %S display */
+  char *zLink;
   Annotator ann;
   HQuery url;
   struct AnnVers *p;
@@ -2310,29 +3576,25 @@ void annotation_page(void){
   int bBlame = g.zPath[0]!='a';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
-  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders() ) return;
-  load_control();
-  mid = name_to_typed_rid(PD("checkin","0"),"ci");
+  fossil_nice_default();
   zFilename = P("filename");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
-  iLimit = atoi(PD("limit","20"));
-  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  ignoreWs = P("w")!=0;
+  zRevision = PD("checkin",0);
+  zOrigin = P("origin");
+  zLimit = P("limit");
+  showLog = PB("log");
+  fileVers = PB("filevers");
+  ignoreWs = PB("w");
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
-  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
-    fossil_redirect_home();
-  }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, zFilename, zRevision, zLimit, zOrigin, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
+  style_set_current_feature("annotate");
   style_header("Annotation For %h", zFilename);
   if( bBlame ){
     url_initialize(&url, "blame");
@@ -2341,34 +3603,18 @@ void annotation_page(void){
   }
   url_add_parameter(&url, "checkin", P("checkin"));
   url_add_parameter(&url, "filename", zFilename);
-  if( iLimit!=20 ){
-    url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
+  if( zLimit ){
+    url_add_parameter(&url, "limit", zLimit);
   }
+  url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
   url_add_parameter(&url, "log", showLog ? "1" : "0");
-  if( ignoreWs ){
-    url_add_parameter(&url, "w", "");
-    style_submenu_element("Show Whitespace Changes", "%s",
-        url_render(&url, "w", 0, 0, 0));
-  }else{
-    style_submenu_element("Ignore Whitespace", "%s",
-        url_render(&url, "w", "", 0, 0));
-  }
-  if( showLog ){
-    style_submenu_element("Hide Log", "%s", url_render(&url, "log", "0", 0, 0));
-  }else{
-    style_submenu_element("Show Log", "%s", url_render(&url, "log", "1", 0, 0));
-  }
-  if( ann.bLimit ){
-    char *z1, *z2;
+  url_add_parameter(&url, "filevers", fileVers ? "1" : "0");
+  style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
+  style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log");
+  style_submenu_checkbox("filevers", "Link to Files", 0, 0);
+  if( ann.bMoreToDo ){
     style_submenu_element("All Ancestors", "%s",
-       url_render(&url, "limit", "-1", 0, 0));
-    z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
-    z2 = sqlite3_mprintf("%d", iLimit+20);
-    style_submenu_element(z1, "%s", url_render(&url, "limit", z2, 0, 0));
-  }
-  if( iLimit>20 ){
-    style_submenu_element("20 Ancestors", "%s",
-       url_render(&url, "limit", "20", 0, 0));
+       url_render(&url, "limit", "none", 0, 0));
   }
   if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
@@ -2382,126 +3628,141 @@ void annotation_page(void){
     ann.aVers[i].zBgColor = mprintf("#%06x", clr);
   }
 
-  if( showLog ){
-    char *zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
-    @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
-    @ <ol>
-    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
-      @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
-      @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
-      @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
-      @ </span>
-#if 0
-      if( i>0 ){
-        char *zLink = xhref("target='infowindow'",
-                            "%R/fdiff?v1=%S&v2=%S&sbs=1",
-                            p->zFUuid,ann.aVers[0].zFUuid);
-        @ %z(zLink)[diff-to-top]</a>
-        if( i>1 ){
-           zLink = xhref("target='infowindow'",
-                         "%R/fdiff?v1=%S&v2=%S&sbs=1",
-                         p->zFUuid,p[-1].zFUuid);
-           @ %z(zLink)[diff-to-previous]</a>
-        }
-      }
-#endif
-    }
-    @ </ol>
-    @ <hr />
-  }
-  if( !ann.bLimit ){
-    @ <h2>Origin for each line in
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
-    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
-    iLimit = ann.nVers+10;
+  @ <div id="annotation_log" style='display:%s(showLog?"block":"none");'>
+  if( zOrigin ){
+    zLink = href("%R/finfo?name=%t&from=%!S&to=%!S",zFilename,zCI,zOrigin);
   }else{
-    @ <h2>Lines added by the %d(iLimit) most recent ancestors of
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    zLink = href("%R/finfo?name=%t&from=%!S",zFilename,zCI);
+  }
+  @ <h2>Versions of %z(zLink)%h(zFilename)</a> analyzed:</h2>
+  @ <ol>
+  for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+    @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
+    @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
+    @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
+    @ </span>
+  }
+  @ </ol>
+  @ <hr />
+  @ </div>
+
+  if( !ann.bMoreToDo ){
+    assert( ann.origId==0 );  /* bMoreToDo always set for a point-to-point */
+    @ <h2>Origin for each line in
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
+  }else if( ann.origId>0 ){
+    @ <h2>Lines of
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>
+    @ that are changed by the sequence of edits moving toward
+    @ check-in %z(href("%R/info/%!S",zOrigin))%S(zOrigin)</a>:</h2>
+  }else{
+    @ <h2>Lines added by the %d(ann.nVers) most recent ancestors of
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
+  szHash = 10;
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
     char zPrefix[300];
     z[n] = 0;
-    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers<0 && !ann.bMoreToDo ) iVers = ann.nVers-1;
 
     if( bBlame ){
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %13.13s:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
+             p->zBgColor, zLink, zUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s", szHash+26, "");
       }
     }else{
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %4d:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+             p->zBgColor, zLink, zUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s%4d:",szHash+12,"",i+1);
       }
     }
     @ %s(zPrefix) %h(z)
 
   }
   @ </pre>
-  style_footer();
+  style_finish_page();
 }
 
 /*
 ** COMMAND: annotate
 ** COMMAND: blame
-** COMMAND: praise
+** COMMAND: praise*
 **
-** Usage: %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
+** Usage: %fossil annotate|blame|praise ?OPTIONS? FILENAME
 **
-** Output the text of a file with markings to show when each line of
-** the file was last modified.  The "annotate" command shows line numbers
-** and omits the username.  The "blame" and "praise" commands show the user
-** who made each check-in and omits the line number.
+** Output the text of a file with markings to show when each line of the file
+** was last modified.  The version currently checked out is shown by default.
+** Other versions may be specified using the -r option.  The "annotate" command
+** shows line numbers and omits the username.  The "blame" and "praise" commands
+** show the user who made each check-in.
+**
+** Reverse Annotations:  Normally, these commands look at versions of
+** FILENAME moving backwards in time back toward the root check-in, and
+** thus the output shows the most recent change to each line.  However,
+** if the -o|--origin option is used to specify some future check-in
+** (example: "-o trunk") then these commands show changes moving towards
+** that alternative origin.  Thus using "-o trunk" on an historical version
+** of the file shows the first time each line in the file was changed or
+** removed by any subsequent check-in.
 **
 ** Options:
 **   --filevers                  Show file version numbers rather than
 **                               check-in versions
+**   -r|--revision VERSION       The specific check-in containing the file
 **   -l|--log                    List all versions analyzed
-**   -n|--limit N                Only look backwards in time by N versions
+**   -n|--limit LIMIT            LIMIT can be one of:
+**                                 N      Up to N versions
+**                                 Xs     As much as possible in X seconds
+**                                 none   No limit
+**   -o|--origin VERSION         The origin check-in. By default this is the
+**                               root of the repository. Set to "trunk" or
+**                               similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
-** See also: info, finfo, timeline
+** See also: [[info]], [[finfo]], [[timeline]]
 */
 void annotate_cmd(void){
-  int fnid;         /* Filename ID */
-  int fid;          /* File instance ID */
-  int mid;          /* Manifest where file was checked in */
-  int cid;          /* Checkout ID */
-  Blob treename;    /* FILENAME translated to canonical form */
-  char *zFilename;  /* Canonical filename */
-  Annotator ann;    /* The annotation of the file */
-  int i;            /* Loop counter */
-  const char *zLimit; /* The value to the -n|--limit option */
-  int iLimit;       /* How far back in time to look */
-  int showLog;      /* True to show the log */
-  int fileVers;     /* Show file version instead of check-in versions */
-  u64 annFlags = 0; /* Flags to control annotation properties */
-  int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
+  const char *zRevision; /* Revision name, or NULL for current check-in */
+  Annotator ann;         /* The annotation of the file */
+  int i;                 /* Loop counter */
+  const char *zLimit;    /* The value to the -n|--limit option */
+  const char *zOrig;     /* The value for -o|--origin */
+  int showLog;           /* True to show the log */
+  int fileVers;          /* Show file version instead of check-in versions */
+  u64 annFlags = 0;      /* Flags to control annotation properties */
+  int bBlame = 0;        /* True for BLAME output.  False for ANNOTATE. */
+  int szHash;            /* Display size of a version hash */
+  Blob treename;         /* Name of file to be annotated */
+  char *zFilename;       /* Name of file to be annotated */
 
   bBlame = g.argv[1][0]!='a';
+  zRevision = find_option("r","revision",1);
   zLimit = find_option("limit","n",1);
-  if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
-  iLimit = atoi(zLimit);
+  zOrig = find_option("origin","o",1);
   showLog = find_option("log","l",0)!=0;
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     annFlags = DIFF_IGNORE_EOLWS;
@@ -2518,31 +3779,11 @@ void annotate_cmd(void){
   if( g.argc<3 ) {
     usage("FILENAME");
   }
+
+  annFlags |= DIFF_STRIP_EOLCR;
   file_tree_name(g.argv[2], &treename, 0, 1);
   zFilename = blob_str(&treename);
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( fnid==0 ){
-    fossil_fatal("no such file: %s", zFilename);
-  }
-  fid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFilename);
-  if( fid==0 ){
-    fossil_fatal("not part of current checkout: %s", zFilename);
-  }
-  cid = db_lget_int("checkout", 0);
-  if( cid == 0 ){
-    fossil_fatal("Not in a checkout");
-  }
-  if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid);
-  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
-          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
-          " ORDER BY ancestor.generation ASC LIMIT 1",
-          fid, fnid);
-  if( mid==0 ){
-    fossil_fatal("unable to find manifest");
-  }
-  annFlags |= (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, zFilename, zRevision, zLimit, zOrig, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
@@ -2551,27 +3792,28 @@ void annotate_cmd(void){
     }
     fossil_print("---------------------------------------------------\n");
   }
+  szHash = length_of_S_display();
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
     struct AnnVers *p;
-    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    p = ann.aVers + iVers;
+    if( iVers<0 && !ann.bMoreToDo ) iVers = ann.nVers-1;
     if( bBlame ){
       if( iVers>=0 ){
+        p = ann.aVers + iVers;
         fossil_print("%S %s %13.13s: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
       }else{
-        fossil_print("%35s  %.*s\n", "", n, z);
+        fossil_print("%*s %.*s\n", szHash+26, "", n, z);
       }
     }else{
       if( iVers>=0 ){
+        p = ann.aVers + iVers;
         fossil_print("%S %s %5d: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
       }else{
-        fossil_print("%21s %5d: %.*s\n",
-             "", i+1, n, z);
+        fossil_print("%*s %5d: %.*s\n", szHash+11, "", i+1, n, z);
       }
     }
   }

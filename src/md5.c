@@ -24,7 +24,10 @@
 #include <sqlite3.h>
 #include "md5.h"
 
-#ifdef FOSSIL_ENABLE_SSL
+#if  0  /* defined FOSSIL_ENABLE_SSL */
+
+/* MD5 is deprecated in OpenSSL.  So we have to fall back to our own
+** implementation */
 
 # include <openssl/md5.h>
 # define MD5Context MD5_CTX
@@ -302,7 +305,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf){
 }
 
 /*
-** The state of a incremental MD5 checksum computation.  Only one
+** The state of an incremental MD5 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static MD5Context incrCtx;

@@ -1,0 +1,205 @@
+body.wikieedit.waiting * {
+  /* Triggered during AJAX requests. */
+  cursor: wait;
+}
+body.wikiedit textarea,
+body.wikiedit textarea:focus,
+body.wikiedit input,
+body.wikiedit input:focus,
+body.wikiedit select,
+body.wikiedit select:focus{
+  /* Depending on the skin, it might be useful to add one or both of
+     the following... */
+  /*border-width: 1px;*/
+  /*border: initial; */
+}
+body.wikiedit div.wikiedit-preview {
+  margin: 0;
+  padding: 0;
+}
+body.wikiedit #wikiedit-tabs {
+  margin: 0.5em 0 0 0;
+}
+body.wikiedit #wikiedit-tab-preview-wrapper {
+  overflow: auto;
+}
+body.wikiedit #wikiedit-tab-diff-wrapper {
+  /*overflow: hidden;*/
+  /* ^^^ we "really" want hidden and let a sub-sub-child element
+     handle that, but that isn't working, for unknown reasons. */
+  overflow-x: auto;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > input {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > .input-with-label {
+  vertical-align: middle;
+  margin: 0 0.5em 0.25em 0.5em;
+}
+body.wikiedit label {
+  display: inline; /* some skins set label display to block! */
+}
+body.wikiedit .wikiedit-options > div > * {
+  margin: 0.25em;
+}
+body.wikiedit .wikiedit-options.flex-container.flex-row {
+  align-items: first baseline;
+}
+body.wikiedit .WikiList {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+body.wikiedit .WikiList select {
+  font-size: 110%;
+  margin: initial;
+  height: initial /* some skins set these to a fixed height */;
+  font-family: monospace;
+  border: initial;
+}
+body.wikiedit select:focus {
+  border: initial;
+}
+body.wikiedit .WikiList select option {
+  margin: 0 0 0.5em 0.55em;
+}
+body.wikiedit select option,
+body.wikiedit select option:focus {
+  border: none;
+}
+body.wikiedit .WikiList select option.stashed,
+body.wikiedit .WikiList select option.stashed-new,
+body.wikiedit .WikiList select option.deleted {
+  margin-left: -0.4em;  
+}
+body.wikiedit .WikiList.hide-deleted select option.deleted {
+  display: none;
+}
+body.wikiedit textarea {
+  max-width: initial;
+}
+body.wikiedit .tabs .tab-panel {
+  /* Needed for wide diffs */
+  overflow: auto;
+}
+body.wikiedit .WikiList fieldset {
+  padding: 0.25em;
+  border-width: 1px /* Ardoise skin sets this to 0 */;
+  min-width: 6em;
+  border-style: inset;
+}
+body.wikiedit .WikiList label {
+  margin: 0 0.5em;
+  vertical-align: text-bottom;
+}
+body.wikiedit .WikiList legend {
+  margin: 0 0 0 0.5em;
+}
+body.wikiedit .WikiList > fieldset {
+  margin: 0;
+  width: calc(100% - 1em);
+}
+body.wikiedit .WikiList fieldset > :not(legend) {
+  /* Stretch page selection list when it's empty or only has short page names */
+  margin: 0;
+  width: 100%;
+}
+body.wikiedit .WikiList .fieldset-wrapper {
+  /* Container for the filter and edit status fieldsets */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: stretch;
+  margin: 0;
+}
+body.wikiedit .WikiList button.save {
+  margin: 1em 0 0 0;
+}
+body.wikiedit .WikiList .new-page {
+  align-items: flex-start;
+  max-width: 15em;
+}
+body.wikiedit .WikiList .new-page input {
+}
+body.wikiedit #wikiedit-tab-misc h3 {
+  margin: 0;
+}
+body.wikiedit span.mini-tip {
+  font-size: 80%;
+}
+
+body.wikiedit span.save-button-slot {
+  /* These invisible placeholders mark spots in the UI
+     (max. 1 per tab) to where the save button gets
+     relocated as we switch between tabs. */
+  display: none;
+}
+
+body.wikiedit #wikiedit-edit-status {
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  cursor: initial;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-family: monospace;
+}
+body.wikiedit #wikiedit-edit-status > span.name {
+  display: block;
+  word-break: break-word /* needed for long names, e.g. checkin/... */;
+}
+body.wikiedit #wikiedit-edit-status > span.links {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+body.wikiedit .WikiList span.is-new,
+body.wikiedit .WikiList span.is-modified,
+body.wikiedit .WikiList span.is-deleted {
+  font-family: monospace;
+}
+body.wikiedit #wikiedit-edit-status span.links > a {
+  margin: 0 0.25em;
+  white-space: nowrap;
+}
+body.wikiedit #wikiedit-edit-status span.links > a::before {
+  content: "[";
+}
+body.wikiedit #wikiedit-edit-status span.links > a::after {
+  content: "]";
+}
+body.wikiedit #wikiedit-stash-selector {
+  margin: 0.25em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body.wikiedit #wikiedit-stash-selector select {
+  margin: 0 1em 0 0.5em;
+  height: initial;
+  font-family: monospace;
+  flex: 1 1 auto;
+}
+body.wikiedit fieldset.page-types-list > div > span {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}

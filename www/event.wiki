@@ -25,7 +25,7 @@ Possible uses for technotes include:
       can contain release notes, for example.
 
   *  <b>Blog Entries</b>.  Blog entries from developers describing the current
-     state of a project, or rational for various design decisions, or
+     state of a project, or rationale for various design decisions, or
      roadmaps for future development, can be entered as technotes.
 
   *  <b>Process Checkpoints</b>.  For projects that have a formal process,
@@ -33,9 +33,10 @@ Possible uses for technotes include:
      various process steps.  For example, a technote can be used to record
      the successful completion of a long-running test, perhaps with
      performance results and details of where the test was run and who
-     ran it recorded in the wiki content.
+     ran it recorded in the wiki content. The technote can be added
+     from a script.
 
-  *  <b>News Articles</b>.  Significant occurrences in the lifecycle of
+  *  <b>News Articles</b>.  Significant occurrences in the life cycle of
      a project can be recorded as news articles using technotes.  Perhaps the
      domain name of the canonical website for a project changes, or new
      server hardware is obtained.  Such happenings are appropriate for
@@ -44,6 +45,12 @@ Possible uses for technotes include:
   *  <b>Announcements</b>.  Changes to the composition of the development
      team or acquisition of new project sponsors can be communicated as
      announcements which can be implemented as technotes.
+
+  *  <b>Signed Checksums</b>.  Technotes containing cryptographically signed
+     checksums can be linked to repository artifacts, thereby creating a
+     traceable, auditable chain so that users can readily verify the integrity
+     and authenticity of project deliverables. And the command line interface
+     to technotes enables embedding such processes in scripts.
 
 No project is required to use technotes.  But technotes can help many projects
 stay better organized and provide a better historical record of the
@@ -60,11 +67,55 @@ and technotes.
 Technotes show up on the timeline.  Click on the hyperlink beside the
 technote title to see the complete text.
 
-<h2>Creating And Editing Technotes</h2>
+<h2>Creating, Editing and Viewing Technotes</h2>
 
 There is a hyperlink under the /wikihelp menu that can be used to create
 new technotes.  And there is a submenu hyperlink on technote displays for
 editing existing technotes.
+
+Technotes can also be created using the <b>wiki create</b> command:
+
+<blockquote>
+<b>
+fossil wiki create TestTechnote -t now --technote-bgcolor lightgreen technote.md<br>
+<tt>Created new tech note 2021-03-15 13:05:56</tt><br>
+</b>
+</blockquote>
+
+This command inserts a light green technote in the timeline at 2021-03-15 13:05:56, with 
+the contents of file <b>technote.md</b> and comment "TestTechnote". Specifying a different time using
+<b>-t DATETIME</b> will insert the technote at the specified timestamp location in the timeline.
+Different technotes can have the same timestamp.
+
+The first argument to create, <b>TECHNOTE-COMMENT</b>, is the title text for the technote
+that appears in the timeline. 
+
+To view all technotes, use the <b>wiki ls</b> command:
+
+<blockquote>
+<b>
+fossil wiki ls --technote --show-technote-ids<br>
+<tt>z739263a134bf0da1d28e939f4c4367f51ef4c51 2020-12-19 13:20:19</tt><br>
+<tt>e15a918a8bed71c2ac091d74dc397b8d3340d5e1 2018-09-22 17:40:10</tt><br>
+</b>
+</blockquote>
+
+A technote ID is the UUID of the technote.
+
+To view an individual technote, use the <b>wiki export</b> command:
+
+<blockquote>
+<b>
+fossil wiki export --technote version-2.16<br>
+Release Notes 2021-07-02
+
+This note describes changes in the Fossil snapshot for ...
+</b>
+</blockquote>
+
+The <b>-t|--technote</b> option to the <b>export</b> subcommand takes one of
+three identifiers: <b>DATETIME</b>; <b>TECHNOTE-ID</b>; and <b>TAG</b>.
+See the [/help?cmd=wiki | wiki help] for specifics.
 
 Users must have check-in privileges (permission "i") in order to
 create or edit technotes.  In addition, users must have create-wiki

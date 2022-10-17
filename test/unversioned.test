@@ -20,7 +20,7 @@
 
 set path [file dirname [info script]]
 
-if {[catch {package require sha1}] != 0} then {
+if {[catch {package require sha1}] != 0} {
   puts "The \"sha1\" package is not available."
   test_cleanup_then_return
 }
@@ -121,7 +121,7 @@ test unversioned-13 {[normalize_result] eq {unversioned1.txt}}
 
 fossil unversioned add "unversioned space.txt" -expectError
 test unversioned-14 {[normalize_result] eq \
-{names of unversioned files may not contain whitespace}}
+{unversioned filenames may not contain whitespace: 'unversioned space.txt'}}
 
 ###############################################################################
 
@@ -242,15 +242,15 @@ test unversioned-35 {[::sha1::sha1 -hex -filename unversioned2-ex.txt] eq \
 ###############################################################################
 
 fossil unversioned hash
-test unversioned-36 {[regexp {^[0-9a-f]{40}$} [normalize_result]]}
+test unversioned-36 {[regexp {^[0-9a-f]{40,64}$} [normalize_result]]}
 
 ###############################################################################
 
 fossil unversioned hash --debug
 test unversioned-37 {[regexp \
-{^unversioned2\.txt 2016-10-01 00:00:00 [0-9a-f]{40}
-unversioned4\.txt 2016-10-01 00:00:00 [0-9a-f]{40}
-[0-9a-f]{40}$} [normalize_result]]}
+{^unversioned2\.txt 2016-10-01 00:00:00 [0-9a-f]{40,64}
+unversioned4\.txt 2016-10-01 00:00:00 [0-9a-f]{40,64}
+[0-9a-f]{40,64}$} [normalize_result]]}
 
 ###############################################################################
 
@@ -330,7 +330,7 @@ write_file unversioned-client1.txt "This is unversioned client file #1."
 ###############################################################################
 
 fossil_maybe_answer y clone $remote uvrepo.fossil
-fossil open uvrepo.fossil
+fossil open -f uvrepo.fossil
 
 ###############################################################################
 
@@ -345,7 +345,8 @@ test unversioned-46 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+[normalize_result]]}
 
 ###############################################################################
 
@@ -390,7 +391,8 @@ test unversioned-52 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+[normalize_result]]}
 
 ###############################################################################
 
@@ -414,7 +416,8 @@ test unversioned-55 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 1  received: 0
 Round-trips: 2   Artifacts sent: 1  received: 0
-\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+[normalize_result]]}
 
 ###############################################################################
 

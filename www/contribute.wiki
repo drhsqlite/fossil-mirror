@@ -1,63 +1,84 @@
 <title>Contributing To Fossil</title>
 
-Users are encouraged to contributed enhancements back to the Fossil
+Fossil users are encouraged to contributed enhancements back to the
 project.  This note outlines some of the procedures for making
 useful contributions.
 
 <h2>1.0 Contributor Agreement</h2>
 
-In order to accept your contributions, we <u>must</u> have a
+In order to accept non-trivial contributions, we <u>must</u> have a
 [./copyright-release.pdf | Contributor Agreement (PDF)]
 (or [./copyright-release.html | as HTML]) on file for you.  We require
 this in order to maintain clear title to the Fossil code and prevent
 the introduction of code with incompatible licenses or other entanglements
-that might cause legal problems for Fossil users.  Many larger companies
-and other lawyer-rich organizations require this as a precondition to using
+that might cause legal problems for Fossil users.  Many
+lawyer-rich organizations require this as a precondition to using
 Fossil.
 
 If you do not wish to submit a Contributor Agreement, we would still
 welcome your suggestions and example code, but we will not use your code
-directly - we will be forced to re-implement your changes from scratch which
+directly: we will be forced to re-implement your changes from scratch, which
 might take longer.
+
+We've made exceptions for "trivial" changes in the past, but the
+definition of that term is up to the project leader.
 
 <h2>2.0 Submitting Patches</h2>
 
 Suggested changes or bug fixes can be submitted by creating a patch
-against the current source tree.  Email patches to
+against the current source tree:
+
+    <tt>fossil diff -i > my-change.patch</tt>
+
+Alternatively, you can create a binary patch:
+
+    <tt>fossil patch create my-change.db</tt>
+
+Post patches to
+[https://fossil-scm.org/forum | the forum] or email them to
 <a href="mailto:drh@sqlite.org">drh@sqlite.org</a>.  Be sure to
 describe in detail what the patch does and which version of Fossil
-it is written against.
+it is written against. It's best to make patches against tip-of-trunk
+rather than against past releases.
 
-A contributor agreement is not strictly necessary to submit a patch.
-However, without a contributor agreement on file, your patch will be
-used for reference only - it will not be applied to the code.  This
-may delay acceptance of your patch.
+If your change is more complicated than a patch can properly encode, you
+may submit [/help?cmd=bundle | a Fossil bundle] instead. Unlike patches,
+bundles can contain multiple commits, check-in comments, file renames,
+file deletions, branching decisions, and more which <tt>patch(1)</tt>
+files cannot. It's best to make a bundle of a new branch so the change
+can be integrated, tested, enhanced, and merged down to trunk in a
+controlled fashion.
 
-Your patches or changes might not be accepted even if you do have
+A contributor agreement is not strictly necessary to submit a patch or bundle,
+but without a contributor agreement on file, your contribution will be
+used for reference only: it will not be applied to the code.  This
+may delay acceptance of your contribution.
+
+Your contribution might not be accepted even if you do have
 a contributor agreement on file.  Please do not take this personally
-or as an affront to your coding ability.  Sometimes patches are rejected
+or as an affront to your coding ability.  Sometimes contributions are rejected
 because they seem to be taking the project in a direction that the
-architect does not want to go.  Or, there might be an alternative
+architect does not want to go.  In other cases, there might be an alternative
 implementation of the same feature being prepared separately.
 
 <h2>3.0 Check-in Privileges</h2>
 
 Check-in privileges are granted on a case-by-case basis.   Your chances
 of getting check-in privileges are much improved if you have a history
-of submitting quality patches and/or making thoughtful posts on the
-[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/ | mailing list].
-A contributor agreement is, of course, a prerequisite for check-in
+of submitting quality patches and/or making thoughtful posts on
+[https://fossil-scm.org/forum | the forum].
+A signed contributor agreement is, of course, a prerequisite for check-in
 privileges.</p>
 
 Contributors are asked to make all non-trivial changes on a branch.  The
 Fossil Architect (Richard Hipp) will merge changes onto the trunk.</p>
 
-Contributors are required to following the
+Contributors are required to follow the
 [./checkin.wiki | pre-checkin checklist] prior to every check-in to
 the Fossil self-hosting repository.  This checklist is short and succinct
 and should only require a few seconds to follow.  Contributors
 should print out a copy of the pre-checkin checklist and keep
-it on a notecard beside their workstations, for quick reference.
+it on a note card beside their workstations for quick reference.
 
 Contributors should review the
 [./style.wiki | Coding Style Guidelines] and mimic the coding style
@@ -67,15 +88,39 @@ code from any other code in the source corpus.
 
 <h2>4.0 Testing</h2>
 
-Fossil has the beginnings of a
-[../test/release-checklist.wiki | release checklist] but this is an
-area that needs further work.  (Your contributions here are welcomed!)
-Contributors with check-in privileges are expected to run the release
-checklist on any major changes they contribute, and if appropriate expand
-the checklist and/or the automated test scripts to cover their additions.
+Fossil's [../test/release-checklist.wiki | release checklist] is of
+primary benefit to the project leader, followed by him at release time,
+but contributors are encouraged to run through its steps when making
+major changes, since if the change doesn't pass this checklist, it won't
+be included in the next release.
 
+<h2>5.0 UI and Documentation Language</h2>
 
-<h2>5.0 See Also</h2>
+The Fossil project uses American English in its web interface and
+documentation. Until there is some provision for translating the UI and
+docs into other languages and dialects, we ask that you do not commit
+changes that conflict with this.
+
+We aren't opposed to such a project, but it would be a huge amount of
+work, which no one's stepped up to do yet. Not only is each individual
+translation a large ongoing job its own right, there is no
+infrastructure for it yet, so the first few translations will be harder
+than any future translation built on that infrastructure.
+
+More immediately, we're likely to reject, revert, or rework commits that
+use other English dialects. One example that comes up occasionally is
+"artefact" versus "artifact." The UI and docs use the American English
+spelling pervasively, so you have poor options if you insist on
+"artefact:"
+
+  *  attempt to slip one-off changes by your peers
+  *  attempt to change all American English usages to Commonwealth English
+  *  make the Fossil UI and docs translatable, then contribute a
+     Commonwealth English translation
+
+Only the latter is likely to succeed.
+
+<h2>6.0 See Also</h2>
 
   *  [./build.wiki | How To Compile And Install Fossil]
   *  [./makefile.wiki | The Fossil Build Process]

@@ -47,19 +47,29 @@ void loadavg_test_cmd(void){
 }
 
 /*
-** Abort the current operation of the load average of the host computer
-** is too high.
+** Abort the current page request if the load average of the host
+** computer is too high. Admin and Setup users are exempt from this
+** restriction.
 */
 void load_control(void){
-  double mxLoad = atof(db_get("max-loadavg", "0"));
+  double mxLoad = atof(db_get("max-loadavg", 0));
+#if 1
+  /* Disable this block only to test load restrictions */
   if( mxLoad<=0.0 || mxLoad>=load_average() ) return;
 
+  login_check_credentials();
+  if(g.perm.Admin || g.perm.Setup){
+    return;
+  }
+#endif
+
+  style_set_current_feature("test");
   style_header("Server Overload");
   @ <h2>The server load is currently too high.
   @ Please try again later.</h2>
   @ <p>Current load average: %f(load_average()).<br />
   @ Load average limit: %f(mxLoad)</p>
-  style_footer();
+  style_finish_page();
   cgi_set_status(503,"Server Overload");
   cgi_reply();
   exit(0);

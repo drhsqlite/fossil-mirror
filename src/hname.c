@@ -135,14 +135,14 @@ int hname_verify_file_hash(const char *zFile, const char *zHash, int nHash){
   switch( nHash ){
     case HNAME_LEN_SHA1: {
       Blob hash;
-      sha1sum_file(zFile, &hash);
+      if( sha1sum_file(zFile, RepoFILE, &hash) ) break;
       if( memcmp(blob_buffer(&hash),zHash,HNAME_LEN_SHA1)==0 ) id = HNAME_SHA1;
       blob_reset(&hash);
       break;
     }
     case HNAME_LEN_K256: {
       Blob hash;
-      sha3sum_file(zFile, 256, &hash);
+      if( sha3sum_file(zFile, RepoFILE, 256, &hash) ) break;
       if( memcmp(blob_buffer(&hash),zHash,64)==0 ) id = HNAME_LEN_K256;
       blob_reset(&hash);
       break;
@@ -218,7 +218,7 @@ int hname_default_policy(void){
 /*
 ** Names of the hash policies.
 */
-static const char *azPolicy[] = {
+static const char *const azPolicy[] = {
   "sha1", "auto", "sha3", "sha3-only", "shun-sha1"
 };
 
@@ -251,7 +251,7 @@ const char *hpolicy_name(void){
 **
 **   shun-sha1         Shun any SHA1 artifacts received by sync operations
 **                     other than clones.  Older legacy SHA1 artifacts are
-**                     are allowed during a clone.
+**                     allowed during a clone.
 **
 ** The default hash policy for existing repositories is "auto", which will
 ** immediately promote to "sha3" if the repository contains one or more

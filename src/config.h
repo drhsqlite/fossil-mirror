@@ -68,6 +68,12 @@
 #  ifndef _WIN32
 #    define _WIN32
 #  endif
+# include <io.h>
+# include <fcntl.h>
+# undef popen
+# define popen _popen
+# undef pclose
+# define pclose _pclose
 #else
 # include <sys/types.h>
 # include <signal.h>
@@ -175,7 +181,23 @@
 
 #if !defined(_RC_COMPILE_) && !defined(SQLITE_AMALGAMATION)
 
-#include <stdint.h>
+/*
+** MSVC does not include the "stdint.h" header file until 2010.
+*/
+#if defined(_MSC_VER) && _MSC_VER<1600
+   typedef __int8 int8_t;
+   typedef unsigned __int8 uint8_t;
+   typedef __int32 int32_t;
+   typedef unsigned __int32 uint32_t;
+   typedef __int64 int64_t;
+   typedef unsigned __int64 uint64_t;
+#else
+#  include <stdint.h>
+#endif
+
+#if USE_SEE && !defined(SQLITE_HAS_CODEC)
+#  define SQLITE_HAS_CODEC
+#endif
 #include "sqlite3.h"
 
 /*
@@ -231,13 +253,29 @@ typedef signed char i8;
 */
 #if defined(__GNUC__) || defined(__clang__)
 # define NORETURN __attribute__((__noreturn__))
+# define NULL_SENTINEL __attribute__((sentinel))
+#elif defined(_MSC_VER) && (_MSC_VER >= 1310)
+# define NORETURN __declspec(noreturn)
+# define NULL_SENTINEL
 #else
 # define NORETURN
+# define NULL_SENTINEL
 #endif
 
 /*
 ** Number of elements in an array
 */
-#define count(X) (sizeof(X)/sizeof(X[0]))
+#define count(X)      (int)(sizeof(X)/sizeof(X[0]))
+#define ArraySize(X)  (int)(sizeof(X)/sizeof(X[0]))
+
+/*
+** The pledge() interface is currently only available on OpenBSD 5.9
+** and later.  Make calls to fossil_pledge() no-ops on all platforms
+** that omit the HAVE_PLEDGE configuration parameter.
+*/
+#if !defined(HAVE_PLEDGE)
+# define fossil_pledge(A)
+#endif
+
 
 #endif /* _RC_COMPILE_ */

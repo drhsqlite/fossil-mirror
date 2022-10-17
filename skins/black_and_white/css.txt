@@ -5,9 +5,7 @@ body {
     font-family:verdana, arial, helvetica, "sans serif";
     color:#333;
     background-color:white;
-    -moz-text-size-adjust: none;
-    -webkit-text-size-adjust: none;
-    -mx-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 /* consistent colours */
@@ -67,13 +65,13 @@ div.header {
 div.mainmenu {
   float: left;
   margin-left: 10px;
-  margin-right: 10px;
+  margin-right: 20px;
   font-size: 0.9em;
   font-weight: bold;
   padding:5px;
   background-color:#eee;
   border:1px solid #999;
-  width:8em;
+  width:6em;
 }
 
 /* Main menu is now a list */

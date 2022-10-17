@@ -1,0 +1,176 @@
+<title>Caveats and Precautions for Fossil Usage with Windows Subsystem for Linux</title>
+
+<h2>When These Issues Matter</h2>
+
+The discussion following is relevant to those who:
+
+  *  Are using the Windows Subsystem for Linux (aka "WSL");
+  *  Create a Fossil checkout in a directory accessible from WSL and Windows;
+  *  Use both Linux Fossil and Windows tools to modify files in a checkout;
+  *  Desire to or must preserve execute permissions set for repository files;
+  *  and Use Linux Fossil to commit changes made within the checkout.
+
+Note that these criteria apply conjunctively; if any are not met,
+then the consequences of the issues below are at worst annoying
+and otherwise harmless or absent.
+
+<h2>What Can Go Wrong (Why It Matters)</h2>
+
+The most readily seen manifestation of the problem occurs when
+"<tt>fossil status</tt>" or "<tt>fossil changes</tt>" is run,
+using Linux Fossil from WSL after Windows tools (including
+fossil.exe) have been used to modify files within a checkout.
+Unless filter options block it, those subcommands will tag
+some (and often many) checkout files with <b>EXECUTABLE</b>
+or <b>NOEXEC</b>, indicating that the file's user execute permission
+has been altered such that it differs from what is recorded
+in the repository for that version of the file.
+
+This "user execute permission" is referred to as "the X-bit"
+hereafter, referring to either the recorded version state
+or a checkout file attributes state.
+
+This is merely annoying and distracting if the altered X-bit
+will never be committed using Linux Fossil. It can be quite
+distracting because those tags tend to mask the presence or
+absence of other changes whose detection is the usual
+reason for using Fossil's changes or status subcommands.
+
+However, in the problematic usage scenario, those tags will
+most often represent inadvertant toggling of the X-bit on the
+affected file. The X-bit is kept in the repository for good
+reason (usually), and arbitrary changes to it by means of a
+commit when that change is not intended is virtually always
+a bad result. (At best, the change causes useless churn; at
+worst it frustrates the intended purpose of having an X-bit.)
+
+<h2>Technical Discusion of the Problem</h2>
+
+The genesis of altered X-bits, while not obvious at first glance,
+involves obvious facts. The Windows OS does not deal with the
+triple of user/group/other executable permissions the way that
+Unix and similar operating systems do. Hence, tools which run
+on Windows, including Fossil built for Windows, do not manage
+the X-bit; it may not even exist yet for files which have not
+had their permissions set by any Linux program running in WSL.
+When such tools modify a file which has had its X-bit set (or
+cleared) by a program in WSL, an existing X-bit value may not
+be preserved depending upon how the modification is effected.
+
+The WSL infrastructure (or virtual system) compensates for the
+absence of an X-bit in Windows filesystems with two stratagems:
+(1) Establishing a default for its value when no Linux program
+has yet set it; and (2) stashing Linux "mode" bits in a "special"
+place for each file once it has been subject to a chmod() call.
+That default's default can be changed by way of /etc/wsl.conf
+content. However, this default cannot be right for files which
+are tracked in a Fossil repository as having the other value.
+And Windows tools generally are not written to deal with "mode"
+bits in that "special" place. (They are kept in a NTFS extended
+file attribute named $LXMOD, not accessible through the WIN32
+API; the OS layer below WIN32 must be used to get at them.)
+Hence, inadvertant X-bit changes are unavoidable, or avoided
+only by luck, in the general usage case noted above.
+
+<h2>Problematic Usage Scenarios</h2>
+
+<h3>A Simple Example</h3>
+
+  *  Open a checkout in Windows (using fossil.exe) from a project
+whose files have a mixture of executable and non-executable files.
+Use a checkout directory visible when running under WSL.
+
+  *  Navigate to the same directory in a Linux shell on WSL, then
+run "fossil status".
+
+  *  Depending upon /etc/wsl.conf content (or defaults in its absence),
+the status ouput will tag checkout files as EXECUTABLE or NOEXEC.
+
+<h3>Continuation of Simple Example</h3>
+
+  *  In the same checkout as above "Simple Example", on WSL,
+run "fossil revert" to correct all those errant X-bit values.
+
+  *  Run "fossil status" again in WSL to verify absence of toggled X-bits.
+
+  *  Run "ls -l" from WSL to find two files, one with its X-bit set
+and the other with it clear.
+
+  *  From Windows, perform these steps on each of those files:<br>
+&nbsp;&nbsp;(1) read the_file content into a buffer<br>
+&nbsp;&nbsp;(2) rename the_file the_file.bak<br>
+&nbsp;&nbsp;(3) write buffer content to new file, the_file<br>
+&nbsp;&nbsp;(4) del the_file.bak (or leave it)<br>
+&nbsp;&nbsp;(Note that this sequence is similar to what many editors do when
+a user modifies a file then uses undo to reverse the changes.)
+
+  *  Run "fossil status" again in WSL and observe that one of the
+two files has had its X-bit toggled.
+
+<h3>A Fossil-Only Example</h3>
+
+  *  In the another (different) checkout of the same version,
+somehow cause "legitimate" X-bit toggles of two files whose
+X-bits differ. (This "somehow" probably will involve WSL to
+toggle file bits and fossil on WSL to commit the toggles.)
+
+  *  In the Simple Example checkout, use fossil.exe on Windows
+to update the checkout, ostensibly bringing the X-bit toggles
+into the affected checkout files.
+
+  *  In the Simple Example checkout, use fossil on WSL to run
+"fossil status", and observe at least one X-bit discrepancy.
+
+<h2>Recommended Workflow</h2>
+
+There are two simple approaches for dealing with this issue when
+one wishes to continue using the same checkout directory from
+Windows and WSL. Either one is effective. These are:
+
+  *  Do not use fossil on WSL for any operations which will modify
+the repository. Instead, block those operations in some manner.
+
+  *  Do not use any tools on Windows, (including certain subcommands
+of fossil.exe,) which may modify the X-bits on files within the
+shared checkout, instead restricting use of Windows tools to those
+which are known to only (and actually) modify file content in place
+while preserving X-bit values. (The "actually" proviso emphasizes
+that tools which only simulate in-place file modification, but do
+so via create combined with delete and rename, are to be avoided.
+A simulation which works flawlessly on Windows may not preserve
+the WSL X-bit.)
+
+There are more complex ways to deal with this issue, involving
+use of fossil on WSL to fix (or revert) toggled X-bits prior
+to any commit, together with actions needed to preserve all
+intended changes to the checkout as fossil revert is done.
+Such methods are overly clever or fragile for elaboration here.
+
+Another way to deal with this issue is to correct any toggled
+X-bits within a checkout before using "fossil commit" on WSL
+by means other than "fossil revert".
+
+<h2>Corrective Measures or Mitigation</h2>
+
+It is possible, by either manual or automated means, to perform
+a pre-commit check and/or correction for mis-toggled X-bits.
+
+The X-bit states are available from the repository for whatever
+versions it has stored. And several Linux tools are able to read
+or alter the X-bit state of files. With these components, a tool
+can be readily built to aid avoidance of a commit (via fossil on
+WSL) that would record mis-toggled X-bits into the repository.
+
+Fossil itself on WSL will detect mis-toggled X-bits for files
+which have not been otherise modified, but altered file content
+masks such detection, and it is just such modification that is
+among the problematic scenarios. So Fossil alone cannot yet
+reliably do the detection or correction needed to avoid or
+remedy the mis-toggled X-bit commit problem.
+
+It is also feasible to detect or correct the mis-toggled X-bit
+problem within Windows with a special-purpose tool which can
+read, create or modify the X-bits stored by WSL for any file
+which has been subject to the Linux chmod(...) system call.
+
+Creation of these tools is beyond the scope of this document.

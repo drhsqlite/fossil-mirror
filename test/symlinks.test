@@ -20,7 +20,7 @@
 
 set path [file dirname [info script]]
 
-if {$tcl_platform(platform) eq "windows"} {
+if {$is_windows} {
   puts "Symlinks are not supported on Windows."
   test_cleanup_then_return
 }

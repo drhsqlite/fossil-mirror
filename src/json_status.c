@@ -116,7 +116,7 @@ cson_value * json_page_status(){
                          BEFORE the isChnged checks. */;
     }else if( isRenamed ){
       zStatus = "renamed";
-    }else if( !file_wd_isfile_or_link(zFullName) ){
+    }else if( !file_isfile_or_link(zFullName) ){
       if( file_access(zFullName, F_OK)==0 ){
         zStatus = "notAFile";
         ++nErr;
@@ -156,8 +156,7 @@ cson_value * json_page_status(){
   /* TODO: add "merged with" status.  First need (A) to decide on a
      structure and (B) to set up some tests for the multi-merge
      case.*/
-  db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id<=0");
+  db_prepare(&q, "SELECT mhash, id FROM vmerge WHERE id<=0");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zLabel = "MERGED_WITH";
     switch( db_column_int(&q, 1) ){

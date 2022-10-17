@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -20,6 +20,23 @@
 #include "config.h"
 #include <assert.h>
 #include "setup.h"
+
+/*
+** Increment the "cfgcnt" variable, so that ETags will know that
+** the configuration has changed.
+*/
+void setup_incr_cfgcnt(void){
+  static int once = 1;
+  if( once ){
+    once = 0;
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec("UPDATE config SET value=value+1 WHERE name='cfgcnt'");
+    if( db_changes()==0 ){
+      db_multi_exec("INSERT INTO config(name,value) VALUES('cfgcnt',1)");
+    }
+    db_protect_pop();
+  }
+}
 
 /*
 ** Output a single entry for a menu generated using an HTML table.
@@ -46,14 +63,19 @@ void setup_menu_entry(
 /*
 ** WEBPAGE: setup
 **
-** Main menu for the administrative pages.  Requires Admin privileges.
+** Main menu for the administrative pages.  Requires Admin or Setup
+** privileges.  Links to sub-pages only usable by Setup users are
+** shown only to Setup users.
 */
 void setup_page(void){
+  int setup_user = 0;
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
   }
+  setup_user = g.perm.Setup;
 
+  style_set_current_feature("setup");
   style_header("Server Administration");
 
   /* Make sure the header contains <base href="...">.   Issue a warning
@@ -61,7 +83,8 @@ void setup_page(void){
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
     @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
-    @ <tt>&lt;head&gt;</tt> in the <a href="setup_skinedit?w=2">HTML header</a>!</p>
+    @ <tt>&lt;head&gt;</tt> in the
+    @ <a href="setup_skinedit?w=2">HTML header</a>!</p>
   }
 
 #if !defined(_WIN32)
@@ -81,23 +104,43 @@ void setup_page(void){
   @ <table border="0" cellspacing="3">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
-  setup_menu_entry("Access", "setup_access",
-    "Control access settings.");
-  setup_menu_entry("Configuration", "setup_config",
-    "Configure the WWW components of the repository");
-  setup_menu_entry("Settings", "setup_settings",
-    "Web interface to the \"fossil settings\" command");
+  if( setup_user ){
+    setup_menu_entry("Access", "setup_access",
+      "Control access settings.");
+    setup_menu_entry("Configuration", "setup_config",
+      "Configure the WWW components of the repository");
+  }
+  setup_menu_entry("Security-Audit", "secaudit0",
+    "Analyze the current configuration for security problems");
+  if( setup_user ){
+    setup_menu_entry("Robot-Defense", "setup_robot",
+      "Settings for configure defense against robots");
+    setup_menu_entry("Settings", "setup_settings",
+      "Web interface to the \"fossil settings\" command");
+  }
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
-  setup_menu_entry("Login-Group", "setup_login_group",
-    "Manage single sign-on between this repository and others"
-    " on the same server");
-  setup_menu_entry("Tickets", "tktsetup",
-    "Configure the trouble-ticketing system for this repository");
+  if( setup_user ){
+    setup_menu_entry("Login-Group", "setup_login_group",
+      "Manage single sign-on between this repository and others"
+      " on the same server");
+    setup_menu_entry("Tickets", "tktsetup",
+      "Configure the trouble-ticketing system for this repository");
+    setup_menu_entry("Wiki", "setup_wiki",
+      "Configure the wiki for this repository");
+    setup_menu_entry("Chat", "setup_chat",
+      "Configure the chatroom");
+  }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
-  setup_menu_entry("Transfers", "xfersetup",
-    "Configure the transfer system for this repository");
+  setup_menu_entry("URL Aliases", "waliassetup",
+    "Configure URL aliases");
+  if( setup_user ){
+    setup_menu_entry("Notification", "setup_notification",
+      "Automatic notifications of changes via outbound email");
+    setup_menu_entry("Transfers", "xfersetup",
+      "Configure the transfer system for this repository");
+  }
   setup_menu_entry("Skins", "setup_skin",
     "Select and/or modify the web interface \"skins\"");
   setup_menu_entry("Moderation", "setup_modreq",
@@ -105,8 +148,12 @@ void setup_page(void){
     " changes and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
-  setup_menu_entry("Web-Cache", "cachestat",
-    "View the status of the expensive-page cache");
+  setup_menu_entry("URLs & Checkouts", "urllist",
+    "Show URLs used to access this repo and known check-outs");
+  if( setup_user ){
+    setup_menu_entry("Web-Cache", "cachestat",
+      "View the status of the expensive-page cache");
+  }
   setup_menu_entry("Logo", "setup_logo",
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
@@ -117,814 +164,33 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
+  setup_menu_entry("Error Log", "errorlog",
+    "View the Fossil server error log");
   setup_menu_entry("Unversioned Files", "uvlist?byage=1",
     "Show all unversioned files held");
   setup_menu_entry("Stats", "stat",
     "Repository Status Reports");
   setup_menu_entry("Sitemap", "sitemap",
     "Links to miscellaneous pages");
-  setup_menu_entry("SQL", "admin_sql",
-    "Enter raw SQL commands");
-  setup_menu_entry("TH1", "admin_th1",
-    "Enter raw TH1 commands");
-  @ </table>
-
-  style_footer();
-}
-
-/*
-** WEBPAGE: setup_ulist
-**
-** Show a list of users.  Clicking on any user jumps to the edit
-** screen for that user.  Requires Admin privileges.
-*/
-void setup_ulist(void){
-  Stmt s;
-
-  login_check_credentials();
-  if( !g.perm.Admin ){
-    login_needed(0);
-    return;
-  }
-
-  style_submenu_element("Add", "setup_uedit");
-  style_submenu_element("Log", "access_log");
-  style_submenu_element("Help", "setup_ulist_notes");
-  style_header("User List");
-  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
-  @ <thead><tr>
-  @   <th>UID <th>Category
-  @   <th>Capabilities (<a href='%R/setup_ucap_list'>key</a>)
-  @   <th>Info <th>Last Change</tr></thead>
-  @ <tbody>
-  db_prepare(&s,
-     "SELECT uid, login, cap, date(mtime,'unixepoch')"
-     "  FROM user"
-     " WHERE login IN ('anonymous','nobody','developer','reader')"
-     " ORDER BY login"
-  );
-  while( db_step(&s)==SQLITE_ROW ){
-    int uid = db_column_int(&s, 0);
-    const char *zLogin = db_column_text(&s, 1);
-    const char *zCap = db_column_text(&s, 2);
-    const char *zDate = db_column_text(&s, 4);
-    @ <tr>
-    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
-    @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
-    @ <td>%h(zCap)
-
-    if( fossil_strcmp(zLogin,"anonymous")==0 ){
-      @ <td>All logged-in users
-    }else if( fossil_strcmp(zLogin,"developer")==0 ){
-      @ <td>Users with '<b>v</b>' capability
-    }else if( fossil_strcmp(zLogin,"nobody")==0 ){
-      @ <td>All users without login
-    }else if( fossil_strcmp(zLogin,"reader")==0 ){
-      @ <td>Users with '<b>u</b>' capability
-    }else{
-      @ <td>
-    }
-    if( zDate && zDate[0] ){
-      @ <td>%h(zDate)
-    }else{
-      @ <td>
-    }
-    @ </tr>
-  }
-  db_finalize(&s);
-  @ </tbody></table>
-  @ <div class='section'>Users</div>
-  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
-  @ <thead><tr>
-  @ <th>ID<th>Login<th>Caps<th>Info<th>Date<th>Expire</tr></thead>
-  @ <tbody>
-  db_prepare(&s,
-     "SELECT uid, login, cap, info, date(mtime,'unixepoch'), lower(login) AS sortkey, "
-     "       CASE WHEN info LIKE '%%expires 20%%'"
-             "    THEN substr(info,instr(lower(info),'expires')+8,10)"
-             "    END AS exp"
-     "  FROM user"
-     " WHERE login NOT IN ('anonymous','nobody','developer','reader')"
-     " ORDER BY sortkey"
-  );
-  while( db_step(&s)==SQLITE_ROW ){
-    int uid = db_column_int(&s, 0);
-    const char *zLogin = db_column_text(&s, 1);
-    const char *zCap = db_column_text(&s, 2);
-    const char *zInfo = db_column_text(&s, 3);
-    const char *zDate = db_column_text(&s, 4);
-    const char *zSortKey = db_column_text(&s,5);
-    const char *zExp = db_column_text(&s,6);
-    @ <tr>
-    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
-    @ <td data-sortkey='%h(zSortKey)'><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
-    @ <td>%h(zCap)
-    @ <td>%h(zInfo)
-    @ <td>%h(zDate?zDate:"")
-    @ <td>%h(zExp?zExp:"")
-    @ </tr>
-  }
-  @ </tbody></table>
-  db_finalize(&s);
-  output_table_sorting_javascript("userlist","nktxTT",2);
-  style_footer();
-}
-
-/*
-** Render the user-capability table
-*/
-static void setup_usercap_table(void){
-  @ <table>
-     @ <tr><th valign="top">a</th>
-     @   <td><i>Admin:</i> Create and delete users</td></tr>
-     @ <tr><th valign="top">b</th>
-     @   <td><i>Attach:</i> Add attachments to wiki or tickets</td></tr>
-     @ <tr><th valign="top">c</th>
-     @   <td><i>Append-Tkt:</i> Append to tickets</td></tr>
-     @ <tr><th valign="top">d</th>
-     @   <td><i>Delete:</i> Delete wiki and tickets</td></tr>
-     @ <tr><th valign="top">e</th>
-     @   <td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
-     @ <tr><th valign="top">f</th>
-     @   <td><i>New-Wiki:</i> Create new wiki pages</td></tr>
-     @ <tr><th valign="top">g</th>
-     @   <td><i>Clone:</i> Clone the repository</td></tr>
-     @ <tr><th valign="top">h</th>
-     @   <td><i>Hyperlinks:</i> Show hyperlinks to detailed
-     @   repository history</td></tr>
-     @ <tr><th valign="top">i</th>
-     @   <td><i>Check-In:</i> Commit new versions in the repository</td></tr>
-     @ <tr><th valign="top">j</th>
-     @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
-     @ <tr><th valign="top">k</th>
-     @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
-     @ <tr><th valign="top">l</th>
-     @   <td><i>Mod-Wiki:</i> Moderator for wiki pages</td></tr>
-     @ <tr><th valign="top">m</th>
-     @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
-     @ <tr><th valign="top">n</th>
-     @   <td><i>New-Tkt:</i> Create new tickets</td></tr>
-     @ <tr><th valign="top">o</th>
-     @   <td><i>Check-Out:</i> Check out versions</td></tr>
-     @ <tr><th valign="top">p</th>
-     @   <td><i>Password:</i> Change your own password</td></tr>
-     @ <tr><th valign="top">q</th>
-     @   <td><i>Mod-Tkt:</i> Moderator for tickets</td></tr>
-     @ <tr><th valign="top">r</th>
-     @   <td><i>Read-Tkt:</i> View tickets</td></tr>
-     @ <tr><th valign="top">s</th>
-     @   <td><i>Setup/Super-user:</i> Setup and configure this website</td></tr>
-     @ <tr><th valign="top">t</th>
-     @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
-     @ <tr><th valign="top">u</th>
-     @   <td><i>Reader:</i> Inherit privileges of
-     @   user <tt>reader</tt></td></tr>
-     @ <tr><th valign="top">v</th>
-     @   <td><i>Developer:</i> Inherit privileges of
-     @   user <tt>developer</tt></td></tr>
-     @ <tr><th valign="top">w</th>
-     @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
-     @ <tr><th valign="top">x</th>
-     @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
-     @ <tr><th valign="top">y</th>
-     @   <td><i>Write-Unver:</i> Push unversioned files</td></tr>
-     @ <tr><th valign="top">z</th>
-     @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
-  @ </table>
-}
-
-/*
-** WEBPAGE: setup_ulist_notes
-**
-** A documentation page showing notes about user configuration.  This information
-** used to be a side-bar on the user list page, but has been factored out for
-** improved presentation.
-*/
-void setup_ulist_notes(void){
-  style_header("User Configuration Notes");
-  @ <h1>User Configuration Notes:</h1>
-  @ <ol>
-  @ <li><p>
-  @ Every user, logged in or not, inherits the privileges of
-  @ <span class="usertype">nobody</span>.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ Any human can login as <span class="usertype">anonymous</span> since the
-  @ password is clearly displayed on the login page for them to type. The
-  @ purpose of requiring anonymous to log in is to prevent access by spiders.
-  @ Every logged-in user inherits the combined privileges of
-  @ <span class="usertype">anonymous</span> and
-  @ <span class="usertype">nobody</span>.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ Users with privilege <span class="capability">u</span> inherit the combined
-  @ privileges of <span class="usertype">reader</span>,
-  @ <span class="usertype">anonymous</span>, and
-  @ <span class="usertype">nobody</span>.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ Users with privilege <span class="capability">v</span> inherit the combined
-  @ privileges of <span class="usertype">developer</span>,
-  @ <span class="usertype">anonymous</span>, and
-  @ <span class="usertype">nobody</span>.
-  @ </p></li>
-  @
-  @ <li><p>The permission flags are as follows:</p>
-  setup_usercap_table();
-  @ </li>
-  @ </ol>
-  style_footer();
-}
-
-/*
-** WEBPAGE: setup_ucap_list
-**
-** A documentation page showing the meaning of the various user capabilities
-** code letters.
-*/
-void setup_ucap_list(void){
-  style_header("User Capability Codes");
-  setup_usercap_table();
-  style_footer();
-}
-
-/*
-** Return true if zPw is a valid password string.  A valid
-** password string is:
-**
-**  (1)  A zero-length string, or
-**  (2)  a string that contains a character other than '*'.
-*/
-static int isValidPwString(const char *zPw){
-  if( zPw==0 ) return 0;
-  if( zPw[0]==0 ) return 1;
-  while( zPw[0]=='*' ){ zPw++; }
-  return zPw[0]!=0;
-}
-
-/*
-** WEBPAGE: setup_uedit
-**
-** Edit information about a user or create a new user.
-** Requires Admin privileges.
-*/
-void user_edit(void){
-  const char *zId, *zLogin, *zInfo, *zCap, *zPw;
-  const char *zGroup;
-  const char *zOldLogin;
-  int doWrite;
-  int uid, i;
-  int higherUser = 0;  /* True if user being edited is SETUP and the */
-                       /* user doing the editing is ADMIN.  Disallow editing */
-  const char *inherit[128];
-  int a[128];
-  const char *oa[128];
-
-  /* Must have ADMIN privileges to access this page
-  */
-  login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(0); return; }
-
-  /* Check to see if an ADMIN user is trying to edit a SETUP account.
-  ** Don't allow that.
-  */
-  zId = PD("id", "0");
-  uid = atoi(zId);
-  if( zId && !g.perm.Setup && uid>0 ){
-    char *zOldCaps;
-    zOldCaps = db_text(0, "SELECT cap FROM user WHERE uid=%d",uid);
-    higherUser = zOldCaps && strchr(zOldCaps,'s');
-  }
-
-  if( P("can") ){
-    cgi_redirect("setup_ulist");  /* User pressed the Cancel button */
-    return;
-  }
-
-  /* If we have all the necessary information, write the new or
-  ** modified user record.  After writing the user record, redirect
-  ** to the page that displays a list of users.
-  */
-  doWrite = cgi_all("login","info","pw") && !higherUser;
-  if( doWrite ){
-    char c;
-    char zCap[50], zNm[4];
-    zNm[0] = 'a';
-    zNm[2] = 0;
-    for(i=0, c='a'; c<='z'; c++){
-      zNm[1] = c;
-      a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
-      if( a[c&0x7f] ) zCap[i++] = c;
-    }
-
-    zCap[i] = 0;
-    zPw = P("pw");
-    zLogin = P("login");
-    if( strlen(zLogin)==0 ){
-      style_header("User Creation Error");
-      @ <span class="loginError">Empty login not allowed.</span>
-      @
-      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
-      style_footer();
-      return;
-    }
-    if( isValidPwString(zPw) ){
-      zPw = sha1_shared_secret(zPw, zLogin, 0);
-    }else{
-      zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
-    }
-    zOldLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
-    if( db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid) ){
-      style_header("User Creation Error");
-      @ <span class="loginError">Login "%h(zLogin)" is already used by
-      @ a different user.</span>
-      @
-      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
-      style_footer();
-      return;
-    }
-    login_verify_csrf_secret();
-    db_multi_exec(
-       "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
-      uid, zLogin, P("info"), zPw, zCap
-    );
-    admin_log( "Updated user [%q] with capabilities [%q].",
-               zLogin, zCap );
-    if( atoi(PD("all","0"))>0 ){
-      Blob sql;
-      char *zErr = 0;
-      blob_zero(&sql);
-      if( zOldLogin==0 ){
-        blob_appendf(&sql,
-          "INSERT INTO user(login)"
-          "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM user WHERE login=%Q);",
-          zLogin, zLogin
-        );
-        zOldLogin = zLogin;
-      }
-      blob_appendf(&sql,
-        "UPDATE user SET login=%Q,"
-        "  pw=coalesce(shared_secret(%Q,%Q,"
-                "(SELECT value FROM config WHERE name='project-code')),pw),"
-        "  info=%Q,"
-        "  cap=%Q,"
-        "  mtime=now()"
-        " WHERE login=%Q;",
-        zLogin, P("pw"), zLogin, P("info"), zCap,
-        zOldLogin
-      );
-      login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
-      blob_reset(&sql);
-      admin_log( "Updated user [%q] in all login groups "
-                 "with capabilities [%q].",
-                 zLogin, zCap );
-      if( zErr ){
-        style_header("User Change Error");
-        admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
-        @ <span class="loginError">%s(zErr)</span>
-        @
-        @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
-        style_footer();
-        return;
-      }
-    }
-    cgi_redirect("setup_ulist");
-    return;
-  }
-
-  /* Load the existing information about the user, if any
-  */
-  zLogin = "";
-  zInfo = "";
-  zCap = "";
-  zPw = "";
-  for(i='a'; i<='z'; i++) oa[i] = "";
-  if( uid ){
-    zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
-    zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
-    zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
-    zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
-    for(i=0; zCap[i]; i++){
-      char c = zCap[i];
-      if( c>='a' && c<='z' ) oa[c&0x7f] = " checked=\"checked\"";
-    }
-  }
-
-  /* figure out inherited permissions */
-  memset((char *)inherit, 0, sizeof(inherit));
-  if( fossil_strcmp(zLogin, "developer") ){
-    char *z1, *z2;
-    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
-    while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] =
-         "<span class=\"ueditInheritDeveloper\"><sub>[D]</sub></span>";
-    }
-    free(z2);
-  }
-  if( fossil_strcmp(zLogin, "reader") ){
-    char *z1, *z2;
-    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
-    while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] =
-          "<span class=\"ueditInheritReader\"><sub>[R]</sub></span>";
-    }
-    free(z2);
-  }
-  if( fossil_strcmp(zLogin, "anonymous") ){
-    char *z1, *z2;
-    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
-    while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritAnonymous\"><sub>[A]</sub></span>";
-    }
-    free(z2);
-  }
-  if( fossil_strcmp(zLogin, "nobody") ){
-    char *z1, *z2;
-    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
-    while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritNobody\"><sub>[N]</sub></span>";
-    }
-    free(z2);
-  }
-
-  /* Begin generating the page
-  */
-  style_submenu_element("Cancel", "setup_ulist");
-  if( uid ){
-    style_header("Edit User %h", zLogin);
-  }else{
-    style_header("Add A New User");
-  }
-  @ <div class="ueditCapBox">
-  @ <form action="%s(g.zPath)" method="post"><div>
-  login_insert_csrf_secret();
-  if( login_is_special(zLogin) ){
-    @ <input type="hidden" name="login" value="%s(zLogin)">
-    @ <input type="hidden" name="info" value="">
-    @ <input type="hidden" name="pw" value="*">
-  }
-  @ <script>
-  @ function updateCapabilityString(){
-  @   /*
-  @   ** This function updates the "#usetupEditCapability" span content
-  @   ** with the capabilities selected by the interactive user, based
-  @   ** upon the state of the capability checkboxes.
-  @   */
-  @   try {
-  @     var inputs = document.getElementsByTagName('input');
-  @     if( inputs && inputs.length ){
-  @       var output = document.getElementById('usetupEditCapability');
-  @       if( output ){
-  @         var permsIds = [], x = 0;
-  @         for(var i = 0; i < inputs.length; i++){
-  @           var e = inputs[i];
-  @           if( !e.name || !e.type ) continue;
-  @           if( e.type.toLowerCase()!=='checkbox' ) continue;
-  @           if( e.name.length===2 && e.name[0]==='a' ){
-  @             // looks like a capability checkbox
-  @             if( e.checked ){
-  @               // grab the second character of the element
-  @               // name, which is the textual flag for this
-  @               // capability, and then add it to the result
-  @               // array.
-  @               permsIds[x++] = e.name[1];
-  @             }
-  @           }
-  @         }
-  @         permsIds.sort();
-  @         output.innerHTML = permsIds.join('');
-  @       }
-  @     }
-  @   } catch (e) {
-  @     /* ignore errors */
-  @   }
-  @ }
-  @ </script>
-  @ <table>
-  @ <tr>
-  @   <td class="usetupEditLabel">User ID:</td>
-  if( uid ){
-    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)" /></td>
-  }else{
-    @   <td>(new user)<input type="hidden" name="id" value="0" /></td>
-  }
-  @ </tr>
-  @ <tr>
-  @   <td class="usetupEditLabel">Login:</td>
-  if( login_is_special(zLogin) ){
-    @    <td><b>%h(zLogin)</b></td>
-  }else{
-    @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
-    @ </tr>
-    @ <tr>
-    @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
-    @   <td><textarea name="info" cols="40" rows="2">%h(zInfo)</textarea></td>
-  }
-  @ </tr>
-  @ <tr>
-  @   <td class="usetupEditLabel">Capabilities:</td>
-  @   <td>
-#define B(x) inherit[x]
-  @ <table border=0><tr><td valign="top">
-  if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s'])
-    @                onchange="updateCapabilityString()"/>
-    @  Setup%s(B('s'))</label><br />
-  }
-  @  <label><input type="checkbox" name="aa"%s(oa['a'])
-  @                onchange="updateCapabilityString()" />
-  @  Admin%s(B('a'))</label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d'])
-  @                onchange="updateCapabilityString()" />
-  @  Delete%s(B('d'))</label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e'])
-  @                onchange="updateCapabilityString()" />
-  @  Email%s(B('e'))</label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p'])
-  @                onchange="updateCapabilityString()" />
-  @  Password%s(B('p'))</label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i'])
-  @                onchange="updateCapabilityString()" />
-  @  Check-In%s(B('i'))</label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o'])
-  @                onchange="updateCapabilityString()" />
-  @  Check-Out%s(B('o'))</label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h'])
-  @                onchange="updateCapabilityString()" />
-  @  Hyperlinks%s(B('h'))</label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b'])
-  @                onchange="updateCapabilityString()" />
-  @  Attachments%s(B('b'))</label><br />
-  @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oa['u'])
-  @                onchange="updateCapabilityString()" />
-  @  Reader%s(B('u'))</label><br />
-  @  <label><input type="checkbox" name="av"%s(oa['v'])
-  @                onchange="updateCapabilityString()" />
-  @  Developer%s(B('v'))</label><br />
-  @  <label><input type="checkbox" name="ag"%s(oa['g'])
-  @                onchange="updateCapabilityString()" />
-  @  Clone%s(B('g'))</label><br />
-  @  <label><input type="checkbox" name="aj"%s(oa['j'])
-  @                onchange="updateCapabilityString()" />
-  @  Read Wiki%s(B('j'))</label><br />
-  @  <label><input type="checkbox" name="af"%s(oa['f'])
-  @                onchange="updateCapabilityString()" />
-  @  New Wiki%s(B('f'))</label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m'])
-  @                onchange="updateCapabilityString()" />
-  @  Append Wiki%s(B('m'))</label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k'])
-  @                onchange="updateCapabilityString()" />
-  @  Write Wiki%s(B('k'))</label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l'])
-  @                onchange="updateCapabilityString()" />
-  @  Moderate Wiki%s(B('l'))</label><br />
-  @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oa['r'])
-  @                onchange="updateCapabilityString()" />
-  @  Read Ticket%s(B('r'))</label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n'])
-  @                onchange="updateCapabilityString()" />
-  @  New Tickets%s(B('n'))</label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c'])
-  @                onchange="updateCapabilityString()" />
-  @  Append To Ticket%s(B('c'))</label><br />
-  @  <label><input type="checkbox" name="aw"%s(oa['w'])
-  @                onchange="updateCapabilityString()" />
-  @  Write Tickets%s(B('w'))</label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q'])
-  @                onchange="updateCapabilityString()" />
-  @  Moderate Tickets%s(B('q'))</label><br />
-  @  <label><input type="checkbox" name="at"%s(oa['t'])
-  @                onchange="updateCapabilityString()" />
-  @  Ticket Report%s(B('t'))</label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x'])
-  @                onchange="updateCapabilityString()" />
-  @  Private%s(B('x'))</label><br />
-  @  <label><input type="checkbox" name="ay"%s(oa['y'])
-  @                onchange="updateCapabilityString()" />
-  @  Write Unversioned%s(B('y'))</label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z'])
-  @                onchange="updateCapabilityString()" />
-  @  Download Zip%s(B('z'))</label>
-  @ </td></tr>
-  @ </table>
-  @   </td>
-  @ </tr>
-  @ <tr>
-  @   <td class="usetupEditLabel">Selected Cap.:</td>
-  @   <td>
-  @     <span id="usetupEditCapability">(missing JS?)</span>
-  @   </td>
-  @ </tr>
-  if( !login_is_special(zLogin) ){
-    @ <tr>
-    @   <td align="right">Password:</td>
-    if( zPw[0] ){
-      /* Obscure the password for all users */
-      @   <td><input type="password" name="pw" value="**********" /></td>
-    }else{
-      /* Show an empty password as an empty input field */
-      @   <td><input type="password" name="pw" value="" /></td>
-    }
-    @ </tr>
-  }
-  zGroup = login_group_name();
-  if( zGroup ){
-    @ <tr>
-    @ <td valign="top" align="right">Scope:</td>
-    @ <td valign="top">
-    @ <input type="radio" name="all" checked value="0">
-    @ Apply changes to this repository only.<br />
-    @ <input type="radio" name="all" value="1">
-    @ Apply changes to all repositories in the "<b>%h(zGroup)</b>"
-    @ login group.</td></tr>
-  }
-  if( !higherUser ){
-    @ <tr>
-    @   <td>&nbsp;</td>
-    @   <td><input type="submit" name="submit" value="Apply Changes" /></td>
-    @ </tr>
+  if( setup_user ){
+    setup_menu_entry("SQL", "admin_sql",
+      "Enter raw SQL commands");
+    setup_menu_entry("TH1", "admin_th1",
+      "Enter raw TH1 commands");
   }
   @ </table>
-  @ </div></form>
-  @ </div>
-  @ <script>updateCapabilityString();</script>
-  @ <h2>Privileges And Capabilities:</h2>
-  @ <ul>
-  if( higherUser ){
-    @ <li><p class="missingPriv">
-    @ User %h(zLogin) has Setup privileges and you only have Admin privileges
-    @ so you are not permitted to make changes to %h(zLogin).
-    @ </p></li>
-    @
-  }
-  @ <li><p>
-  @ The <span class="capability">Setup</span> user can make arbitrary
-  @ configuration changes. An <span class="usertype">Admin</span> user
-  @ can add other users and change user privileges
-  @ and reset user passwords.  Both automatically get all other privileges
-  @ listed below.  Use these two settings with discretion.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The "<span class="ueditInheritNobody"><sub>N</sub></span>" subscript suffix
-  @ indicates the privileges of <span class="usertype">nobody</span> that
-  @ are available to all users regardless of whether or not they are logged in.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The "<span class="ueditInheritAnonymous"><sub>A</sub></span>" subscript suffix
-  @ indicates the privileges of <span class="usertype">anonymous</span> that
-  @ are inherited by all logged-in users.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The "<span class="ueditInheritDeveloper"><sub>D</sub></span>" subscript suffix
-  @ indicates the privileges of <span class="usertype">developer</span> that
-  @ are inherited by all users with the
-  @ <span class="capability">Developer</span> privilege.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The "<span class="ueditInheritReader"><sub>R</sub></span>" subscript suffix
-  @ indicates the privileges of <span class="usertype">reader</span> that
-  @ are inherited by all users with the <span class="capability">Reader</span>
-  @ privilege.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="capability">Delete</span> privilege give the user the
-  @ ability to erase wiki, tickets, and attachments that have been added
-  @ by anonymous users.  This capability is intended for deletion of spam.
-  @ The delete capability is only in effect for 24 hours after the item
-  @ is first posted.  The <span class="usertype">Setup</span> user can
-  @ delete anything at any time.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="capability">Hyperlinks</span> privilege allows a user
-  @ to see most hyperlinks. This is recommended ON for most logged-in users
-  @ but OFF for user "nobody" to avoid problems with spiders trying to walk
-  @ every diff and annotation of every historical check-in and file.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="capability">Zip</span> privilege allows a user to
-  @ see the "download as ZIP"
-  @ hyperlink and permits access to the <tt>/zip</tt> page.  This allows
-  @ users to download ZIP archives without granting other rights like
-  @ <span class="capability">Read</span> or
-  @ <span class="capability">Hyperlink</span>.  The "z" privilege is recommended
-  @ for user <span class="usertype">nobody</span> so that automatic package
-  @ downloaders can obtain the sources without going through the login
-  @ procedure.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="capability">Check-in</span> privilege allows remote
-  @ users to "push". The <span class="capability">Check-out</span> privilege
-  @ allows remote users to "pull". The <span class="capability">Clone</span>
-  @ privilege allows remote users to "clone".
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="capability">Read Wiki</span>,
-  @ <span class="capability">New Wiki</span>,
-  @ <span class="capability">Append Wiki</span>, and
-  @ <b>Write Wiki</b> privileges control access to wiki pages.  The
-  @ <span class="capability">Read Ticket</span>,
-  @ <span class="capability">New Ticket</span>,
-  @ <span class="capability">Append Ticket</span>, and
-  @ <span class="capability">Write Ticket</span> privileges control access
-  @ to trouble tickets.
-  @ The <span class="capability">Ticket Report</span> privilege allows
-  @ the user to create or edit ticket report formats.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ Users with the <span class="capability">Password</span> privilege
-  @ are allowed to change their own password.  Recommended ON for most
-  @ users but OFF for special users <span class="usertype">developer</span>,
-  @ <span class="usertype">anonymous</span>,
-  @ and <span class="usertype">nobody</span>.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="capability">EMail</span> privilege allows the display of
-  @ sensitive information such as the email address of users and contact
-  @ information on tickets. Recommended OFF for
-  @ <span class="usertype">anonymous</span> and for
-  @ <span class="usertype">nobody</span> but ON for
-  @ <span class="usertype">developer</span>.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="capability">Attachment</span> privilege is needed in
-  @ order to add attachments to tickets or wiki.  Write privilege on the
-  @ ticket or wiki is also required.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ Login is prohibited if the password is an empty string.
-  @ </p></li>
-  @ </ul>
-  @
-  @ <h2>Special Logins</h2>
-  @
-  @ <ul>
-  @ <li><p>
-  @ No login is required for user <span class="usertype">nobody</span>. The
-  @ capabilities of the <span class="usertype">nobody</span> user are
-  @ inherited by all users, regardless of whether or not they are logged in.
-  @ To disable universal access to the repository, make sure that the
-  @ <span class="usertype">nobody</span> user has no capabilities
-  @ enabled. The password for <span class="usertype">nobody</span> is ignored.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ Login is required for user <span class="usertype">anonymous</span> but the
-  @ password is displayed on the login screen beside the password entry box
-  @ so anybody who can read should be able to login as anonymous.
-  @ On the other hand, spiders and web-crawlers will typically not
-  @ be able to login.  Set the capabilities of the
-  @ <span class="usertype">anonymous</span>
-  @ user to things that you want any human to be able to do, but not any
-  @ spider.  Every other logged-in user inherits the privileges of
-  @ <span class="usertype">anonymous</span>.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <span class="usertype">developer</span> user is intended as a template
-  @ for trusted users with check-in privileges. When adding new trusted users,
-  @ simply select the <span class="capability">developer</span> privilege to
-  @ cause the new user to inherit all privileges of the
-  @ <span class="usertype">developer</span>
-  @ user.  Similarly, the <span class="usertype">reader</span> user is a
-  @ template for users who are allowed more access than
-  @ <span class="usertype">anonymous</span>,
-  @ but less than a <span class="usertype">developer</span>.
-  @ </p></li>
-  @ </ul>
-  style_footer();
-}
 
+  style_finish_page();
+}
 
 /*
 ** Generate a checkbox for an attribute.
 */
-static void onoff_attribute(
+void onoff_attribute(
   const char *zLabel,   /* The text label on the checkbox */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQParm,   /* The query parameter */
-  int dfltVal,          /* Default value if VAR table entry does not exist */
+  int dfltVal,          /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zQ = P(zQParm);
@@ -936,18 +202,22 @@ static void onoff_attribute(
     int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
       login_verify_csrf_secret();
-      db_set(zVar, iQ ? "1" : "0", 0);
+      db_protect_only(PROTECT_NONE);
+      db_set(zVar/*works-like:"x"*/, iQ ? "1" : "0", 0);
+      db_protect_pop();
+      setup_incr_cfgcnt();
       admin_log("Set option [%q] to [%q].",
                 zVar, iQ ? "on" : "off");
       iVal = iQ;
     }
   }
-  @ <label><input type="checkbox" name="%s(zQParm)"
+  @ <label><input type="checkbox" name="%s(zQParm)" \
+  @ aria-label="%h(zLabel[0]?zLabel:zQParm)" \
   if( iVal ){
-    @ checked="checked"
+    @ checked="checked" \
   }
   if( disabled ){
-    @ disabled="disabled"
+    @ disabled="disabled" \
   }
   @ /> <b>%s(zLabel)</b></label>
 }
@@ -958,9 +228,9 @@ static void onoff_attribute(
 void entry_attribute(
   const char *zLabel,   /* The text label on the entry box */
   int width,            /* Width of the entry box */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQParm,   /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zVal = db_get(zVar, zDflt);
@@ -968,14 +238,18 @@ void entry_attribute(
   if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
-    db_set(zVar, zQ, 0);
+    setup_incr_cfgcnt();
+    db_protect_only(PROTECT_NONE);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
+    db_protect_pop();
     admin_log("Set entry_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
   }
-  @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
+  @ <input aria-label="%h(zLabel[0]?zLabel:zQParm)" type="text" \
+  @ id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)" \
   if( disabled ){
-    @ disabled="disabled"
+    @ disabled="disabled" \
   }
   @ /> <b>%s(zLabel)</b>
 }
@@ -987,9 +261,9 @@ const char *textarea_attribute(
   const char *zLabel,   /* The text label on the textarea */
   int rows,             /* Rows in the textarea */
   int cols,             /* Columns in the textarea */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQP,      /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if the textarea should  not be editable */
 ){
   const char *z = db_get(zVar, zDflt);
@@ -997,18 +271,22 @@ const char *textarea_attribute(
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
-    db_set(zVar, zQ, 0);
+    db_protect_only(PROTECT_NONE);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
+    db_protect_pop();
+    setup_incr_cfgcnt();
     admin_log("Set textarea_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
   if( rows>0 && cols>0 ){
-    @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)"
+    @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)" \
+    @ aria-label="%h(zLabel[0]?zLabel:zQP)" \
     if( disabled ){
-      @ disabled="disabled"
+      @ disabled="disabled" \
     }
     @ cols="%d(cols)">%h(z)</textarea>
-    if( zLabel && *zLabel ){
+    if( *zLabel ){
       @ <span class="textareaLabel">%s(zLabel)</span>
     }
   }
@@ -1018,13 +296,13 @@ const char *textarea_attribute(
 /*
 ** Generate a text box for an attribute.
 */
-static void multiple_choice_attribute(
+void multiple_choice_attribute(
   const char *zLabel,   /* The text label on the menu */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQP,      /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int nChoice,          /* Number of choices */
-  const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
+  const char *const *azChoice /* Choices in pairs (VAR value, Display) */
 ){
   const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
@@ -1032,12 +310,15 @@ static void multiple_choice_attribute(
   if( zQ && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
-    db_set(zVar, zQ, 0);
+    db_unprotect(PROTECT_ALL);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
+    setup_incr_cfgcnt();
+    db_protect_pop();
     admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
-  @ <select size="1" name="%s(zQP)" id="id%s(zQP)">
+  @ <select aria-label="%h(zLabel)" size="1" name="%s(zQP)" id="id%s(zQP)">
   for(i=0; i<nChoice*2; i+=2){
     const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
     @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
@@ -1045,31 +326,137 @@ static void multiple_choice_attribute(
   @ </select> <b>%h(zLabel)</b>
 }
 
+/*
+** Insert code into the current page that allows the user to configure
+** auto-hyperlink related robot defense settings.
+*/
+static void addAutoHyperlinkSettings(void){
+  static const char *const azDefenseOpts[] = {
+    "0", "Off",
+    "2", "UserAgent only",
+    "1", "UserAgent and Javascript",
+  };
+  multiple_choice_attribute(
+     "Enable hyperlinks base on User-Agent and/or Javascript",
+     "auto-hyperlink", "autohyperlink", "1",
+     count(azDefenseOpts)/2, azDefenseOpts);
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody", as long as the User-Agent string in the
+  @ HTTP header indicates that the request is coming from an actual human
+  @ being.  If this setting is "UserAgent only" (2) then the
+  @ UserAgent string is the only factor considered.  If the value of this
+  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
+  @ runs after the page loads and fills in the href= values of &lt;a&gt;
+  @ elements.  In either case, &lt;a&gt; tags are only generated if the
+  @ UserAgent string indicates that the request is coming from a human and
+  @ not a robot.
+  @
+  @ <p>This setting is designed to give easy access to humans while
+  @ keeping out robots.
+  @ You do not normally want a robot to walk your entire repository because
+  @ if it does, your server will end up computing diffs and annotations for
+  @ every historical version of every file and creating ZIPs and tarballs of
+  @ every historical check-in, which can use a lot of CPU and bandwidth
+  @ even for relatively small projects.</p>
+  @
+  @ <p>The "UserAgent and Javascript" value for this setting provides
+  @ superior protection from robots.  However, that setting also prevents
+  @ the visited/unvisited colors on hyperlinks from displaying correctly
+  @ on Safari-derived browsers.  (Chrome and Firefox work fine.)  Since
+  @ Safari is the underlying rendering engine on all iPhones and iPads,
+  @ this means that hyperlink visited/unvisited colors will not operate
+  @ on those platforms when "UserAgent and Javascript" is selected.</p>
+  @
+  @ <p>Additional parameters that control the behavior of Javascript:</p>
+  @ <blockquote>
+  entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
+                  "auto-hyperlink-delay", "ah-delay", "50", 0);
+  @ <br />
+  onoff_attribute("Also require a mouse event before enabling hyperlinks",
+                  "auto-hyperlink-mouseover", "ahmo", 0, 0);
+  @ </blockquote>
+  @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
+  @ and "require a mouse event" should be turned on.  These values only come
+  @ into play when the main auto-hyperlink settings is 2 ("UserAgent and
+  @ Javascript").</p>
+  @
+  @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
+  @ visit the <a href="%R/test_env">/test_env</a> page (from a separate
+  @ web browser that is not logged in, even as "anonymous") and verify
+  @ that the "g.jsHref" value is "1".</p>
+  @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
+  @ "auto-hyperlink-mouseover"")</p>
+}
+
+/*
+** WEBPAGE: setup_robot
+**
+** Settings associated with defense against robots.  Requires setup privilege.
+*/
+void setup_robots(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  style_set_current_feature("setup");
+  style_header("Robot Defense Settings");
+  db_begin_transaction();
+  @ <p>A Fossil website can have billions of pages in its tree, even for a
+  @ modest project.  Many of those pages (examples: diffs and tarballs)
+  @ might be expensive to compute. A robot that tries to walk the entire
+  @ website can present a crippling CPU and bandwidth load.
+  @
+  @ <p>The settings on this page are intended to help site administrators
+  @ defend the site against robots.
+  @
+  @ <form action="%R/setup_robot" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  addAutoHyperlinkSettings();
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
 
 /*
 ** WEBPAGE: setup_access
 **
-** The access-control settings page.  Requires Admin privileges.
+** The access-control settings page.  Requires Setup privileges.
 */
 void setup_access(void){
+  static const char *const azRedirectOpts[] = {
+    "0", "Off",
+    "1", "Login Page Only",
+    "2", "All Pages"
+  };
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Access Control Settings");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_access" method="post"><div>
+  @ <form action="%R/setup_access" method="post"><div>
   login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
-  onoff_attribute("Redirect to HTTPS on the Login page",
-     "redirect-to-https", "redirhttps", 0, 0);
-  @ <p>When selected, force the use of HTTPS for the Login page.
-  @ <p>Details:  When enabled, this option causes the $secureurl TH1
+  multiple_choice_attribute("Redirect to HTTPS",
+     "redirect-to-https", "redirhttps", "0",
+     count(azRedirectOpts)/2, azRedirectOpts);
+  @ <p>Force the use of HTTPS by redirecting to HTTPS when an
+  @ unencrypted request is received.  This feature can be enabled
+  @ for the Login page only, or for all pages.
+  @ <p>Further details:  When enabled, this option causes the $secureurl TH1
   @ variable is set to an "https:" variant of $baseurl.  Otherwise,
-  @ $secureurl is just an alias for $baseurl.  Also when enabled, the
-  @ Login page redirects to https if accessed via http.
+  @ $secureurl is just an alias for $baseurl.
+  @ (Property: "redirect-to-https".  "0" for off, "1" for Login page only,
+  @ "2" otherwise.)
   @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);
@@ -1094,6 +481,7 @@ void setup_access(void){
   @ <li> The server is started from CGI without the "localauth" keyword
   @ in the CGI script.
   @ </ol>
+  @ (Property: "localauth")
   @
   @ <hr />
   onoff_attribute("Enable /test_env",
@@ -1101,6 +489,16 @@ void setup_access(void){
   @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
   @ users.  When disabled (the default) only users Admin and Setup can visit
   @ the /test_env page.
+  @ (Property: "test_env_enable")
+  @ </p>
+  @
+  @ <hr />
+  onoff_attribute("Enable /artifact_stats",
+     "artifact_stats_enable", "artifact_stats_enable", 0, 0);
+  @ <p>When enabled, the %h(g.zBaseURL)/artifact_stats URL is available to all
+  @ users.  When disabled (the default) only users with check-in privilege may
+  @ access the /artifact_stats page.
+  @ (Property: "artifact_stats_enable")
   @ </p>
   @
   @ <hr />
@@ -1109,14 +507,16 @@ void setup_access(void){
   @ <p>When enabled, if the REMOTE_USER environment variable is set to the
   @ login name of a valid user and no other login credentials are available,
   @ then the REMOTE_USER is accepted as an authenticated user.
+  @ (Property: "remote_user_ok")
   @ </p>
   @
   @ <hr />
-  entry_attribute("IP address terms used in login cookie", 3,
-                  "ip-prefix-terms", "ipt", "2", 0);
-  @ <p>The number of octets of of the IP address used in the login cookie.
-  @ Set to zero to omit the IP address from the login cookie.  A value of
-  @ 2 is recommended.
+  onoff_attribute("Allow HTTP_AUTHENTICATION authentication",
+     "http_authentication_ok", "http_authentication_ok", 0, 0);
+  @ <p>When enabled, allow the use of the HTTP_AUTHENTICATION environment
+  @ variable or the "Authentication:" HTTP header to find the username and
+  @ password. This is another way of supporting Basic Authentication.
+  @ (Property: "http_authentication_ok")
   @ </p>
   @
   @ <hr />
@@ -1124,7 +524,8 @@ void setup_access(void){
                   "8766", 0);
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8766 hours which is approximately equal
-  @ to a year.</p>
+  @ to a year.
+  @ (Property: "cookie-expire")</p>
 
   @ <hr />
   entry_attribute("Download packet limit", 10, "max-download", "mxdwn",
@@ -1133,7 +534,7 @@ void setup_access(void){
   @ to this many bytes, uncompressed.  If the client requires more data
   @ than this, then the client will issue multiple HTTP requests.
   @ Values below 1 million are not recommended.  5 million is a
-  @ reasonable number.</p>
+  @ reasonable number.  (Property: "max-download")</p>
 
   @ <hr />
   entry_attribute("Download time limit", 11, "max-download-time", "mxdwnt",
@@ -1142,8 +543,10 @@ void setup_access(void){
   @ <p>Fossil tries to spend less than this many seconds gathering
   @ the out-bound data of sync, clone, and pull packets.
   @ If the client request takes longer, a partial reply is given similar
-  @ to the download packet limit. 30s is a reasonable default.</p>
+  @ to the download packet limit. 30s is a reasonable default.
+  @ (Property: "max-download-time")</p>
 
+  @ <a id="slal"></a>
   @ <hr />
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
                   "0.0", 0);
@@ -1153,72 +556,73 @@ void setup_access(void){
   @ computations here.  Set this to 0.0 to disable the load average limit.
   @ This limit is only enforced on Unix servers.  On Linux systems,
   @ access to the /proc virtual filesystem is required, which means this limit
-  @ might not work inside a chroot() jail.</p>
+  @ might not work inside a chroot() jail.
+  @ (Property: "max-loadavg")</p>
 
+  /* Add the auto-hyperlink settings controls.  These same controls
+  ** are also accessible from the /setup_robot page.
+  */
   @ <hr />
-  onoff_attribute(
-      "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
-      "auto-hyperlink", "autohyperlink", 1, 0);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
-  @ including user "nobody", as long as (1) the User-Agent string in the
-  @ HTTP header indicates that the request is coming from an actual human
-  @ being and not a robot or spider and (2) the user agent is able to
-  @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
-  @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most
-  @ bots do not go to that much trouble so this is normally an effective
-  @ defense.</p>
-  @
-  @ <p>You do not normally want a bot to walk your entire repository because
-  @ if it does, your server will end up computing diffs and annotations for
-  @ every historical version of every file and creating ZIPs and tarballs of
-  @ every historical check-in, which can use a lot of CPU and bandwidth
-  @ even for relatively small projects.</p>
-  @
-  @ <p>Additional parameters that control this behavior:</p>
-  @ <blockquote>
-  onoff_attribute("Enable hyperlinks for humans (as deduced from the UserAgent "
-                  " HTTP header string)",
-                  "auto-hyperlink-ishuman", "ahis", 0, 0);
-  @ <br />
-  onoff_attribute("Require mouse movement before enabling hyperlinks",
-                  "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ <br />
-  entry_attribute("Delay before enabling hyperlinks (milliseconds)", 5,
-                  "auto-hyperlink-delay", "ah-delay", "10", 0);
-  @ </blockquote>
-  @ <p>Hyperlinks for user "nobody" are normally enabled as soon as the page
-  @ finishes loading.  But the first check-box below can be set to require mouse
-  @ movement before enabling the links. One can also set a delay prior to enabling
-  @ links by enter a positive number of milliseconds in the entry box above.</p>
+  addAutoHyperlinkSettings();
 
   @ <hr />
   onoff_attribute("Require a CAPTCHA if not logged in",
                   "require-captcha", "reqcapt", 1, 0);
   @ <p>Require a CAPTCHA for edit operations (appending, creating, or
   @ editing wiki or tickets or adding attachments to wiki or tickets)
-  @ for users who are not logged in.</p>
+  @ for users who are not logged in. (Property: "require-captcha")</p>
 
   @ <hr />
   entry_attribute("Public pages", 30, "public-pages",
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
-  @ "Default privileges" setting below.  Example use case: Set this field
-  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the
+  @ "Default privileges" setting below. 
+  @
+  @ <p>Example use case: Set this field to "/doc/trunk/www/*" and set
+  @ the "Default privileges" to include the "o" privilege
+  @ to give anonymous users read-only permission to the
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
+  @ (Property: "public-pages")
   @ </p>
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
-                  "self-register", "selfregister", 0, 0);
-  @ <p>Allow users to register themselves through the HTTP UI.
-  @ The registration form always requires filling in a CAPTCHA
-  @ (<em>auto-captcha</em> setting is ignored). Still, bear in mind that anyone
-  @ can register under any user name. This option is useful for public projects
-  @ where you do not want everyone in any ticket discussion to be named
-  @ "Anonymous".</p>
+                  "self-register", "selfreg", 0, 0);
+  @ <p>Allow users to register themselves on the /register webpage.
+  @ A self-registration creates a new entry in the USER table and
+  @ perhaps also in the SUBSCRIBER table if email notification is
+  @ enabled.
+  @ (Property: "self-register")</p>
+
+  @ <hr />
+  onoff_attribute("Email verification required for self-registration",
+                  "selfreg-verify", "sfverify", 0, 0);
+  @ <p>If enabled, self-registration creates a new entry in the USER table
+  @ with only capabilities "7".  The default user capabilities are not
+  @ added until the email address associated with the self-registration
+  @ has been verified. This setting only makes sense if
+  @ email notifications are enabled.
+  @ (Property: "selfreg-verify")</p>
+
+  @ <hr />
+  onoff_attribute("Allow anonymous subscriptions",
+                  "anon-subscribe", "anonsub", 1, 0);
+  @ <p>If disabled, email notification subscriptions are only allowed
+  @ for users with a login.  If Nobody or Anonymous visit the /subscribe
+  @ page, they are redirected to /register or /login.
+  @ (Property: "anon-subscribe")</p>
+
+  @ <hr />
+  entry_attribute("Authorized subscription email addresses", 35,
+                  "auth-sub-email", "asemail", "", 0);
+  @ <p>This is a comma-separated list of GLOB patterns that specify
+  @ email addresses that are authorized to subscriptions.  If blank
+  @ (the usual case), then any email address can be used to self-register.
+  @ This setting is used to limit subscriptions to members of a particular
+  @ organization or group based on their email address.
+  @ (Property: "auth-sub-email")</p>
 
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",
@@ -1227,6 +631,9 @@ void setup_access(void){
   @ the self-registration procedure (if enabled), or <li>access "public"
   @ pages identified by the public-pages glob pattern above, or <li>
   @ are users newly created by the administrator.</ul>
+  @ <p>Recommended value: "u" for Reader.
+  @ <a href="%R/setup_ucap_list">Capability Key</a>.
+  @ (Property: "default-perms")
   @ </p>
 
   @ <hr />
@@ -1236,13 +643,13 @@ void setup_access(void){
   @ "anonymous" that will automatically fill in the CAPTCHA password.
   @ This is less secure than forcing the user to do it manually, but is
   @ probably secure enough and it is certainly more convenient for
-  @ anonymous users.</p>
+  @ anonymous users.  (Property: "auto-captcha")</p>
 
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1270,10 +677,11 @@ void setup_login_group(void){
   zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
-    login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
+    login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
   }
+  style_set_current_feature("setup");
   style_header("Login Group Configuration");
   if( zErrMsg ){
     @ <p class="generalError">%s(zErrMsg)</p>
@@ -1284,25 +692,30 @@ void setup_login_group(void){
     @ is not currently part of any login-group.
     @ To join a login group, fill out the form below.</p>
     @
-    @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
-    @ <tr><th align="right">Repository filename in group to join:</th>
+    @ <tr><th align="right" id="rfigtj">Repository filename \
+    @ in group to join:</th>
     @ <td width="5"></td><td>
-    @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
+    @ <input aria-labelledby="rfigtj" type="text" size="50" \
+    @ value="%h(zRepo)" name="repo"></td></tr>
     @
-    @ <tr><th align="right">Login on the above repo:</th>
+    @ <tr><th align="right" id="lotar">Login on the above repo:</th>
     @ <td width="5"></td><td>
-    @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
+    @ <input aria-labelledby="lotar" type="text" size="20" \
+    @ value="%h(zLogin)" name="login"></td></tr>
     @
-    @ <tr><th align="right">Password:</th>
+    @ <tr><th align="right" id="lgpw">Password:</th>
     @ <td width="5"></td><td>
-    @ <input type="password" size="20" name="pw"></td></tr>
+    @ <input aria-labelledby="lgpw" type="password" size="20" name="pw">\
+    @ </td></tr>
     @
-    @ <tr><th align="right">Name of login-group:</th>
+    @ <tr><th align="right" id="nolg">Name of login-group:</th>
     @ <td width="5"></td><td>
-    @ <input type="text" size="30" value="%h(zNewName)" name="newname">
+    @ <input aria-labelledby="nolg" type="text" size="30" \
+    @ value="%h(zNewName)" name="newname">
     @ (only used if creating a new login-group).</td></tr>
     @
     @ <tr><td colspan="3" align="center">
@@ -1335,7 +748,7 @@ void setup_login_group(void){
     db_finalize(&q);
     @ </table>
     @
-    @ <p><form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
@@ -1343,11 +756,15 @@ void setup_login_group(void){
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' id='configTab'>
-    @ <thead><tr><th>Config.Name<th>Config.Value<th>Config.mtime</tr></thead><tbody>
+    @ <table border='1' class='sortable' data-column-types='ttt' \
+    @ data-init-sort='1'>
+    @ <thead><tr>
+    @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
+    @ </thead><tbody>
     db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
                    " WHERE name GLOB 'peer-*'"
                    "    OR name GLOB 'project-*'"
+                   "    OR name GLOB 'login-group-*'"
                    " ORDER BY name");
     while( db_step(&q)==SQLITE_ROW ){
       @ <tr><td>%h(db_column_text(&q,0))</td>
@@ -1356,9 +773,9 @@ void setup_login_group(void){
     }
     db_finalize(&q);
     @ </tbody></table>
-    output_table_sorting_javascript("configTab","ttt",1);
+    style_table_sorter();
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1378,34 +795,46 @@ void setup_timeline(void){
       "4", "(off)"
   };
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Timeline Display Preferences");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
+  @ <form action="%R/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
 
   @ <hr />
   onoff_attribute("Allow block-markup in timeline",
                   "timeline-block-markup", "tbm", 0, 0);
   @ <p>In timeline displays, check-in comments can be displayed with or
-  @ without block markup (paragraphs, tables, etc.)</p>
+  @ without block markup such as paragraphs, tables, etc.
+  @ (Property: "timeline-block-markup")</p>
 
   @ <hr />
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
-  @ without any wiki or HTML interpretation.  (Note: Use CSS to change
-  @ display formatting features such as fonts and line-wrapping behavior.)</p>
+  @ without any wiki or HTML interpretation.  Use CSS to change
+  @ display formatting features such as fonts and line-wrapping behavior.
+  @ (Property: "timeline-plaintext")</p>
 
   @ <hr />
-  onoff_attribute("Truncate comment at first blank line",
+  onoff_attribute("Truncate comment at first blank line (Git-style)",
                   "timeline-truncate-at-blank", "ttb", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed only through
-  @ the first blank line.</p>
+  @ the first blank line.  This is the traditional way to display comments
+  @ in Git repositories (Property: "timeline-truncate-at-blank")</p>
+
+  @ <hr />
+  onoff_attribute("Break comments at newline characters",
+                  "timeline-hard-newlines", "thnl", 0, 0);
+  @ <p>In timeline displays, newline characters in check-in comments force
+  @ a line break on the display.
+  @ (Property: "timeline-hard-newlines")</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -1426,44 +855,87 @@ void setup_timeline(void){
   }else{
     @ %s(zTmDiff) hours ahead of UTC.</p>
   }
+  @ <p>(Property: "timeline-utc")
+
+  @ <hr />
+  multiple_choice_attribute("Style", "timeline-default-style",
+            "tdss", "0", N_TIMELINE_VIEW_STYLE, timeline_view_styles);
+  @ <p>The default timeline viewing style, for when the user has not
+  @ specified an alternative.  (Property: "timeline-default-style")</p>
+
+  @ <hr />
+  entry_attribute("Default Number Of Rows", 6, "timeline-default-length",
+                  "tldl", "50", 0);
+  @ <p>The maximum number of rows to show on a timeline in the absence
+  @ of a user display preference cookie setting or an explicit n= query
+  @ parameter.  (Property: "timeline-default-length")</p>
 
   @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
-  @ in a separate box (using CSS class "timelineDate") whenever the date changes.
-  @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
-  @ and time is shown on every timeline entry (using the CSS class "timelineTime").</p>
-
-  @ <hr />
-  onoff_attribute("Show version differences by default",
-                  "show-version-diffs", "vdiff", 0, 0);
-  @ <p>The version-information pages linked from the timeline can either
-  @ show complete diffs of all file changes, or can just list the names of
-  @ the files that have changed.  Users can get to either page by
-  @ clicking.  This setting selects the default.</p>
+  @ in a separate box (using CSS class "timelineDate") whenever the date
+  @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
+  @ the complete date and time is shown on every timeline entry using the
+  @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
 
   @ <hr />
   entry_attribute("Max timeline comment length", 6,
                   "timeline-max-comment", "tmc", "0", 0);
   @ <p>The maximum length of a comment to be displayed in a timeline.
-  @ "0" there is no length limit.</p>
+  @ "0" there is no length limit.
+  @ (Property: "timeline-max-comment")</p>
+
+  @ <hr />
+  entry_attribute("Tooltip dwell time (milliseconds)", 6,
+                  "timeline-dwelltime", "tdt", "100", 0);
+  @ <br>
+  entry_attribute("Tooltip close time (milliseconds)", 6,
+                  "timeline-closetime", "tct", "250", 0);
+  @ <p>The <strong>dwell time</strong> defines how long the mouse pointer
+  @ should be stationary above an object of the graph before a tooltip
+  @ appears.<br>
+  @ The <strong>close time</strong> defines how long the mouse pointer
+  @ can be away from an object before a tooltip is closed.</p>
+  @ <p>Set <strong>dwell time</strong> to "0" to disable tooltips.<br>
+  @ Set <strong>close time</strong> to "0" to keep tooltips visible until
+  @ the mouse is clicked elsewhere.<p>
+  @ <p>(Properties: "timeline-dwelltime", "timeline-closetime")</p>
+
+  @ <hr />
+  onoff_attribute("Timestamp hyperlinks to /info",
+                  "timeline-tslink-info", "ttlti", 0, 0);
+  @ <p>The hyperlink on the timestamp associated with each timeline entry,
+  @ on the far left-hand side of the screen, normally targets another
+  @ /timeline page that shows the entry in context.  However, if this
+  @ option is turned on, that hyperlink targets the /info page showing
+  @ the details of the entry.
+  @ <p>The /timeline link is the default since it is often useful to
+  @ see an entry in context, and because that link is not otherwise
+  @ accessible on the timeline.  The /info link is also accessible by
+  @ double-clicking the timeline node or by clicking on the hash that
+  @ follows "check-in:" in the supplemental information section on the
+  @ right of the entry.
+  @ <p>(Properties: "timeline-tslink-info")
 
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
 
 /*
 ** WEBPAGE: setup_settings
 **
 ** Change or view miscellaneous settings.  Part of the
-** Admin pages requiring Admin privileges.
+** /setup pages requiring Setup privileges.
 */
 void setup_settings(void){
+  int nSetting;
+  int i;
   Setting const *pSet;
+  const Setting *aSetting = setting_info(&nSetting);
 
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1471,6 +943,7 @@ void setup_settings(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Settings");
   if(!g.repositoryOpen){
     /* Provide read-only access to versioned settings,
@@ -1478,19 +951,23 @@ void setup_settings(void){
     db_open_local(0);
   }
   db_begin_transaction();
-  @ <p>This page provides a simple interface to the "fossil setting" command.
-  @ See the "fossil help setting" output below for further information on
-  @ the meaning of each setting.</p><hr />
-  @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
+  @ <p>Settings marked with (v) are "versionable" and will be overridden
+  @ by the contents of managed files named
+  @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
+  @ If the file for a versionable setting exists, the value cannot be
+  @ changed on this screen.</p><hr /><p>
+  @
+  @ <form action="%R/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
-  for(pSet=aSetting; pSet->name!=0; pSet++){
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
-      onoff_attribute(pSet->name, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+      onoff_attribute("", pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br />
       } else {
@@ -1500,51 +977,104 @@ void setup_settings(void){
   }
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable && !pSet->forceTextArea ){
-      entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def, 0);
-      @ <br />
+  @ <table>
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
+    if( pSet->width>0 && !pSet->forceTextArea ){
+      int hasVersionableValue = pSet->versionable &&
+          (db_get_versioned(pSet->name, NULL)!=0);
+      @ <tr><td>
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)
+      } else {
+        @
+      }
+      @</td><td>
+      entry_attribute("", /*pSet->width*/ 25, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
+                      (char*)pSet->def, hasVersionableValue);
+      @</td></tr>
     }
   }
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable && pSet->forceTextArea ){
-      @<b>%s(pSet->name)</b><br />
-      textarea_attribute("", /*rows*/ 3, /*cols*/ 50, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def, 0);
-      @ <br />
-    }
-  }
+  @</table>
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && pSet->versionable ){
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
+    if( pSet->width>0 && pSet->forceTextArea ){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
-      @<b>%s(pSet->name)</b> (v)<br />
-      textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
+      textarea_attribute("", /*rows*/ 2, /*cols*/ 35, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       (char*)pSet->def, hasVersionableValue);
       @<br />
     }
   }
   @ </td></tr></table>
   @ </div></form>
-  @ <p>Settings marked with (v) are 'versionable' and will be overridden
-  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>
-  @ in the check-out root.
-  @ If such a file is present, the corresponding field above is not
-  @ editable.</p><hr /><p>
-  @ These settings work the same as the
-  @ <a href='%R/help?cmd=settings'>fossil set</a> command.
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
+
+/*
+** SETTING:  mainmenu          width=70 block-text
+**
+** The mainmenu setting specifies the entries on the main menu
+** for many skins.  The mainmenu should be a TCL list.  Each set
+** of four consecutive values defines a single main menu item:
+**
+**   *   The first term is text that appears on the menu.
+**
+**   *   The second term is a hyperlink to take when a user clicks on the
+**       entry.  Hyperlinks that start with "/" are relative to the
+**       repository root.
+**
+**   *   The third term is an argument to the TH1 "capexpr" command.
+**       If capexpr evaluates to true, then the entry is shown.  If not,
+**       the entry is omitted.  "*" is always true.  "{}" is never true.
+**
+**   *   The fourth term is a list of extra class names to apply to the
+**       new menu entry.  Some skins use classes "desktoponly" and
+**       "wideonly" to only show the entries when the web browser
+**       screen is wide or very wide, respectively.
+**
+** Some custom skins might not use this property.  Whether the property
+** is used or not a choice made by the skin designer.  Some skins may add
+** extra choices (such as the hamburger button) to the menu.
+*/
+/*
+** SETTING: sitemap-extra      width=70 block-text
+**
+** The sitemap-extra setting defines extra links to appear on the
+** /sitemap web page as sub-items of the "Home Page" entry before the
+** "Documentation Search" entry (if any).  For skins that use the /sitemap
+** page to construct a hamburger menu dropdown, new entries added here
+** will appear on the hamburger menu.
+**
+** This setting should be a TCL list divided into triples.  Each
+** triple defines a new entry:
+**
+**   *   The first term is the display name of the /sitemap entry
+**
+**   *   The second term is a hyperlink to take when a user clicks on the
+**       entry.  Hyperlinks that start with "/" are relative to the
+**       repository root.
+**
+**   *   The third term is an argument to the TH1 "capexpr" command.
+**       If capexpr evaluates to true, then the entry is shown.  If not,
+**       the entry is omitted.  "*" is always true.
+**
+** The default value is blank, meaning no added entries.
+*/
+
 
 /*
 ** WEBPAGE: setup_config
 **
-** The "Admin/Configuration" page.  Requires Admin privilege.
+** The "Admin/Configuration" page.  Requires Setup privilege.
 */
 void setup_config(void){
   login_check_credentials();
@@ -1553,33 +1083,53 @@ void setup_config(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("WWW Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_config" method="post"><div>
+  @ <form action="%R/setup_config" method="post"><div>
   login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "", 0);
-  @ <p>Give your project a name so visitors know what this site is about.
+  @ <p>A brief project name so visitors know what this site is about.
   @ The project name will also be used as the RSS feed title.
+  @ (Property: "project-name")
   @ </p>
   @ <hr />
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
-  @ engines as well as a short RSS description.</p>
+  @ engines as well as a short RSS description.
+  @ (Property: "project-description")</p>
   @ <hr />
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name", "spn", "", 0);
-  @ <p>This is used as a prefix on the names of generated tarballs and ZIP archive.
-  @ For best results, keep this prefix brief and avoid special characters such
-  @ as "/" and "\".
+  entry_attribute("Canonical Server URL", 40, "email-url",
+                   "eurl", "", 0);
+  @ <p>This is the URL used to access this repository as a server.
+  @ Other repositories use this URL to clone or sync against this repository.
+  @ This is also the basename for hyperlinks included in email alert text.
+  @ Omit the trailing "/".
+  @ If this repo will not be set up as a persistent server and will not
+  @ be sending email alerts, then leave this entry blank.
+  @ Suggested value: "%h(g.zBaseURL)"
+  @ (Property: "email-url")</p>
+  @ <hr>
+  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
+                  "spn", "", 0);
+  @ <p>This is used as a prefix on the names of generated tarballs and
+  @ ZIP archive. For best results, keep this prefix brief and avoid special
+  @ characters such as "/" and "\".
   @ If no tarball prefix is specified, then the full Project Name above is used.
+  @ (Property: "short-project-name")
   @ </p>
   @ <hr />
-  onoff_attribute("Enable WYSIWYG Wiki Editing",
-                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
-  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
-  @ The WYSIWYG editor generates HTML instead of markup, which makes
-  @ subsequent manual editing more difficult.</p>
+  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
+  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
+  @ a convenient place for newbies
+  @ to download a ZIP archive or a tarball of the project.  By default,
+  @ the latest trunk check-in is downloaded.  Change this tag to something
+  @ else (ex: release) to alter the behavior of the /download page.
+  @ (Property: "download-tag")
+  @ </p>
   @ <hr />
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
@@ -1595,31 +1145,245 @@ void setup_config(void){
   @
   @ <p>The default "/home" page displays a Wiki page with the same name
   @ as the Project Name specified above.  Some sites prefer to redirect
-  @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
+  @ to a documentation page (ex: "/doc/trunk/index.wiki") or to "/timeline".</p>
   @
   @ <p>Note:  To avoid a redirect loop or other problems, this entry must
   @ begin with "/" and it must specify a valid page.  For example,
   @ "<b>/home</b>" will work but "<b>home</b>" will not, since it omits the
   @ leading "/".</p>
+  @ <p>(Property: "index-page")
+  @ <hr>
+  @ <p>The main menu for the web interface
+  @ <p>
+  @
+  @ <p>This setting should be a TCL list.  Each set of four consecutive
+  @ values defines a single main menu item:
+  @ <ol>
+  @ <li> The first term is text that appears on the menu.
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evaluates to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.  "{}" is never true.
+  @ <li> The fourth term is a list of extra class names to apply to the new
+  @      menu entry.  Some skins use classes "desktoponly" and "wideonly"
+  @      to only show the entries when the web browser screen is wide or
+  @      very wide, respectively.
+  @ </ol>
+  @
+  @ <p>Some custom skins might not use this property. Whether the property
+  @ is used or not a choice made by the skin designer. Some skins may add extra
+  @ choices (such as the hamburger button) to the menu that are not shown
+  @ on this list. (Property: mainmenu)
+  @ <p>
+  if(P("resetMenu")!=0){
+    db_unset("mainmenu", 0);
+    cgi_delete_parameter("mmenu");
+  }
+  textarea_attribute("Main Menu", 12, 80, 
+      "mainmenu", "mmenu", style_default_mainmenu(), 0);
+  @ </p>
+  @ <p><input type='checkbox' id='cbResetMenu' name='resetMenu' value='1'>
+  @ <label for='cbResetMenu'>Reset menu to default value</label>
+  @ </p>
+  @ <hr>
+  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page,
+  @ as sub-items of the "Home Page" entry, appearing before the
+  @ "Documentation Search" entry (if any).  In skins that use the /sitemap
+  @ page to construct a hamburger menu dropdown, new entries added here
+  @ will appear on the hamburger menu.
+  @
+  @ <p>This setting should be a TCL list divided into triples.  Each
+  @ triple defines a new entry:
+  @ <ol>
+  @ <li> The first term is the display name of the /sitemap entry
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evaluates to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.
+  @ </ol>
+  @
+  @ <p>The default value is blank, meaning no added entries.
+  @ (Property: sitemap-extra)
+  @ <p>
+  textarea_attribute("Custom Sitemap Entries", 8, 80, 
+      "sitemap-extra", "smextra", "", 0);
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_wiki
+**
+** The "Admin/Wiki" page.  Requires Setup privilege.
+*/
+void setup_wiki(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Wiki Configuration");
+  db_begin_transaction();
+  @ <form action="%R/setup_wiki" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+                  "wiki-about", "wiki-about", 1, 0);
+  @ <p>
+  @ Associate wiki pages with branches, tags, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
+  @ or "tag/" and which continue with the name of an existing branch, checkin
+  @ or tag are treated specially when this feature is enabled.
+  @ <ul>
+  @ <li> <b>branch/</b><i>branch-name</i>
+  @ <li> <b>checkin/</b><i>full-checkin-hash</i>
+  @ <li> <b>tag/</b><i>tag-name</i>
+  @ </ul>
+  @ (Property: "wiki-about")</p>
+  @ <hr />
+  entry_attribute("Allow Unsafe HTML In Markdown", 6,
+                  "safe-html", "safe-html", "", 0);
+  @ <p>Allow "unsafe" HTML (ex: &lt;script&gt;, &lt;form&gt;, etc) to be
+  @ generated by <a href="%R/md_rules">Markdown-formatted</a> documents.
+  @ This setting is a string where each character indicates a "type" of
+  @ document in which to allow unsafe HTML:
+  @ <ul>
+  @ <li> <b>b</b> &rarr; checked-in files, embedded documentation
+  @ <li> <b>f</b> &rarr; forum posts
+  @ <li> <b>t</b> &rarr; tickets
+  @ <li> <b>w</b> &rarr; wiki pages
+  @ </ul>
+  @ Include letters for each type of document for which unsafe HTML should
+  @ be allowed.  For example, to allow unsafe HTML only for checked-in files,
+  @ make this setting be just "<b>b</b>".  To allow unsafe HTML anywhere except
+  @ in forum posts, make this setting be "<b>btw</b>".  The default is an
+  @ empty string which means that Fossil never allows Markdown documents
+  @ to generate unsafe HTML.
+  @ (Property: "safe-html")</p>
+  @ <hr />
+  @ The current interwiki tag map is as follows:
+  interwiki_append_map_table(cgi_output_blob());
+  @ <p>Visit <a href="./intermap">%R/intermap</a> for details or to
+  @ modify the interwiki tag map.
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
   @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
-  @ but all other wiki formatting will be ignored. This option is helpful
-  @ if you have chosen to use a rich HTML editor for wiki markup such as
-  @ TinyMCE.</p>
+  @ but all other wiki formatting will be ignored.</p>
   @ <p><strong>CAUTION:</strong> when
   @ enabling, <i>all</i> HTML tags and attributes are accepted in the wiki.
   @ No sanitization is done. This means that it is very possible for malicious
   @ users to inject dangerous HTML, CSS and JavaScript code into your wiki.</p>
   @ <p>This should <strong>only</strong> be enabled when wiki editing is limited
-  @ to trusted users. It should <strong>not</strong> be used on a publically
+  @ to trusted users. It should <strong>not</strong> be used on a publicly
   @ editable wiki.</p>
+  @ (Property: "wiki-use-html")
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_chat
+**
+** The "Admin/Chat" page.  Requires Setup privilege.
+*/
+void setup_chat(void){
+  static const char *const azAlerts[] = {
+    "alerts/plunk.wav",  "Plunk",
+    "alerts/bflat3.wav", "Tone-1",
+    "alerts/bflat2.wav", "Tone-2",
+    "alerts/bloop.wav",  "Bloop",
+  };
+
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Chat Configuration");
+  db_begin_transaction();
+  @ <form action="%R/setup_chat" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  entry_attribute("Initial Chat History Size", 10,
+                  "chat-initial-history", "chatih", "50", 0);
+  @ <p>When /chat first starts up, it preloads up to this many historical
+  @ messages.
+  @ (Property: "chat-initial-history")</p>
+  @ <hr />
+  entry_attribute("Minimum Number Of Historical Messages To Retain", 10,
+                  "chat-keep-count", "chatkc", "50", 0);
+  @ <p>The chat subsystem purges older messages.  But it will always retain
+  @ the N most recent messages where N is the value of this setting.
+  @ (Property: "chat-keep-count")</p>
+  @ <hr />
+  entry_attribute("Maximum Message Age In Days", 10,
+                  "chat-keep-days", "chatkd", "7", 0);
+  @ <p>Chat message are removed after N days, where N is the value of
+  @ this setting.  N may be fractional.  So, for example, to only keep
+  @ an historical record of chat messages for 12 hours, set this value
+  @ to 0.5.
+  @ (Property: "chat-keep-days")</p>
+  @ <hr />
+  entry_attribute("Chat Polling Timeout", 10,
+                  "chat-poll-timeout", "chatpt", "420", 0);
+  @ <p>New chat content is downloaded using the "long poll" technique.
+  @ HTTP requests are made to /chat-poll which blocks waiting on new
+  @ content to arrive.  But the /chat-poll cannot block forever.  It
+  @ eventual must give up and return an empty message set.  This setting
+  @ determines how long /chat-poll will wait before giving up.  The
+  @ default setting of approximately 7 minutes works well on many systems.
+  @ Shorter delays might be required on installations that use proxies
+  @ or web-servers with short timeouts.  For best efficiency, this value
+  @ should be larger rather than smaller.
+  @ (Property: "chat-poll-timeout")</p>
+  @ <hr />
+  entry_attribute("Chat Timeline Robot Username", 15,
+                  "chat-timeline-user", "chatrobot", "", 0);
+  @ <p>If this setting is not an empty string, then any changes that appear
+  @ on the timeline are announced in the chatroom under the username
+  @ supplied.  The username does not need to actually exist in the USER table.
+  @ Suggested username:  "chat-robot".
+  @ (Property: "chat-timeline-user")</p>
+  @ <hr />
+
+  multiple_choice_attribute("Alert sound",
+     "chat-alert-sound", "snd", azAlerts[0],
+     count(azAlerts)/2, azAlerts);
+  @ <p>The sound used in the client-side chat to indicate that a new
+  @ chat message has arrived.
+  @ (Property: "chat-alert-sound")</p>
+  @ <hr/>
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  @ <script nonce="%h(style_nonce())">
+  @ (function(){
+  @   var w = document.getElementById('idsnd');
+  @   w.onchange = function(){
+  @     var audio = new Audio('%s(g.zBaseURL)/builtin/' + w.value);
+  @     audio.currentTime = 0;
+  @     audio.play();
+  @   }
+  @ })();
+  @ </script>
+  style_finish_page();
 }
 
 /*
@@ -1629,11 +1393,12 @@ void setup_config(void){
 */
 void setup_modreq(void){
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Moderator For Wiki And Tickets");
   db_begin_transaction();
   @ <form action="%R/setup_modreq" method="post"><div>
@@ -1647,7 +1412,7 @@ void setup_modreq(void){
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
   @ a user who has the Mod-Tkt privilege are never subject to
-  @ moderation.
+  @ moderation. (Property: "modreq-tkt")
   @
   @ <hr />
   onoff_attribute("Moderate wiki changes",
@@ -1658,14 +1423,14 @@ void setup_modreq(void){
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Wiki changes made by
   @ a user who has the Mod-Wiki privilege are never subject to
-  @ moderation.
+  @ moderation. (Property: "modreq-wiki")
   @ </p>
 
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 
 }
 
@@ -1677,18 +1442,23 @@ void setup_modreq(void){
 */
 void setup_adunit(void){
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
   db_begin_transaction();
-  if( P("clear")!=0 ){
+  if( P("clear")!=0 && cgi_csrf_safe(1) ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
+    db_protect_pop();
     cgi_replace_parameter("adunit","");
+    cgi_replace_parameter("adright","");
+    setup_incr_cfgcnt();
   }
 
+  style_set_current_feature("setup");
   style_header("Edit Ad Unit");
-  @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
+  @ <form action="%R/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
   @ <b>Banner Ad-Unit:</b><br />
  textarea_attribute("", 6, 80, "adunit", "adunit", "", 0);
@@ -1702,6 +1472,9 @@ void setup_adunit(void){
   onoff_attribute("Omit ads to logged-in users",
      "adunit-omit-if-user", "oiu", 0, 0);
   @ <br />
+  onoff_attribute("Temporarily disable all ads",
+     "adunit-disable", "oall", 0, 0);
+  @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Delete Ad-Unit" />
   @ </div></form>
@@ -1710,12 +1483,15 @@ void setup_adunit(void){
   @ <li>Leave both Ad-Units blank to disable all advertising.
   @ <li>The "Banner Ad-Unit" is used for wide pages.
   @ <li>The "Right-Column Ad-Unit" is used on pages with tall, narrow content.
-  @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is used on all pages.
+  @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is
+  @     used on all pages.
+  @ <li>Properties: "adunit", "adunit-right", "adunit-omit-if-admin", and
+  @     "adunit-omit-if-user".
   @ <li>Suggested <a href="setup_skinedit?w=0">CSS</a> changes:
   @ <blockquote><pre>
   @ div.adunit_banner {
   @   margin: auto;
-  @   width: 100%;
+  @   width: 100%%;
   @ }
   @ div.adunit_right {
   @   float: right;
@@ -1736,14 +1512,14 @@ void setup_adunit(void){
   @ '&gt;Demo Ad&lt;/div&gt;
   @ </pre></blockquote>
   @ </li>
-  style_footer();
+  style_finish_page();
   db_end_transaction(0);
 }
 
 /*
 ** WEBPAGE: setup_logo
 **
-** Administrative page for changing the logo image.
+** Administrative page for changing the logo, background, and icon images.
 */
 void setup_logo(void){
   const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
@@ -1754,22 +1530,32 @@ void setup_logo(void){
   const char *zBgMime = db_get("background-mimetype","image/gif");
   const char *aBgImg = P("bgim");
   int szBgImg = atoi(PD("bgim:bytes","0"));
+  const char *zIconMtime = db_get_mtime("icon-image", 0, 0);
+  const char *zIconMime = db_get("icon-mimetype","image/gif");
+  const char *aIconImg = P("iconim");
+  int szIconImg = atoi(PD("iconim:bytes","0"));
   if( szLogoImg>0 ){
     zLogoMime = PD("logoim:mimetype","image/gif");
   }
   if( szBgImg>0 ){
     zBgMime = PD("bgim:mimetype","image/gif");
   }
+  if( szIconImg>0 ){
+    zIconMime = PD("iconim:mimetype","image/gif");
+  }
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
   db_begin_transaction();
-  if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
+  if( !cgi_csrf_safe(1) ){
+    /* Allow no state changes if not safe from CSRF */
+  }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
     Stmt ins;
     blob_init(&img, aLogoImg, szLogoImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('logo-image',:bytes,now())"
@@ -1781,19 +1567,23 @@ void setup_logo(void){
        "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
        zLogoMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrlogo")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('logo-image','logo-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("setbg")!=0 && zBgMime && zBgMime[0] && szBgImg>0 ){
     Blob img;
     Stmt ins;
     blob_init(&img, aBgImg, szBgImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('background-image',:bytes,now())"
@@ -1806,23 +1596,57 @@ void setup_logo(void){
        " VALUES('background-mimetype',%Q,now())",
        zBgMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrbg")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('background-image','background-mimetype')"
     );
+    db_protect_pop();
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
+  }else if( P("seticon")!=0 && zIconMime && zIconMime[0] && szIconImg>0 ){
+    Blob img;
+    Stmt ins;
+    blob_init(&img, aIconImg, szIconImg);
+    db_unprotect(PROTECT_CONFIG);
+    db_prepare(&ins,
+        "REPLACE INTO config(name,value,mtime)"
+        " VALUES('icon-image',:bytes,now())"
+    );
+    db_bind_blob(&ins, ":bytes", &img);
+    db_step(&ins);
+    db_finalize(&ins);
+    db_multi_exec(
+       "REPLACE INTO config(name,value,mtime)"
+       " VALUES('icon-mimetype',%Q,now())",
+       zIconMime
+    );
+    db_protect_pop();
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
+  }else if( P("clricon")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+       "DELETE FROM config WHERE name IN "
+           "('icon-image','icon-mimetype')"
+    );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }
+  style_set_current_feature("setup");
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" alt="logo" border="1" />
+  @ <blockquote><p><img src="%R/logo/%z(zLogoMtime)" \
+  @ alt="logo" border="1" />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
@@ -1836,15 +1660,17 @@ void setup_logo(void){
   @ <p align="center">
   @ <input type="submit" name="setlogo" value="Change Logo" />
   @ <input type="submit" name="clrlogo" value="Revert To Default" /></p>
+  @ <p>(Properties: "logo-image" and "logo-mimetype")
   @ </div></form>
   @ <hr />
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" alt="background" border=1 />
+  @ <blockquote><p><img src="%R/background/%z(zBgMtime)" \
+  @ alt="background" border=1 />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The background image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/background">%s(g.zBaseURL)/background</a>.
@@ -1859,12 +1685,37 @@ void setup_logo(void){
   @ <input type="submit" name="setbg" value="Change Background" />
   @ <input type="submit" name="clrbg" value="Revert To Default" /></p>
   @ </div></form>
+  @ <p>(Properties: "background-image" and "background-mimetype")
+  @ <hr />
+  @
+  @ <p>The current icon image has a MIME-Type of <b>%h(zIconMime)</b>
+  @ and looks like this:</p>
+  @ <blockquote><p><img src="%R/favicon.ico/%z(zIconMtime)" \
+  @ alt="icon" border=1 />
+  @ </p></blockquote>
+  @
+  @ <form action="%R/setup_logo" method="post"
+  @  enctype="multipart/form-data"><div>
+  @ <p>The icon image is accessible to all users at this URL:
+  @ <a href="%s(g.zBaseURL)/favicon.ico">%s(g.zBaseURL)/favicon.ico</a>.
+  @ The icon image may or may not appear on each
+  @ page depending on the web browser in use and the MIME-Types that it
+  @ supports for icon images.
+  @ To change the icon image, use the following form:</p>
+  login_insert_csrf_secret();
+  @ Icon image file:
+  @ <input type="file" name="iconim" size="60" accept="image/*" />
+  @ <p align="center">
+  @ <input type="submit" name="seticon" value="Change Icon" />
+  @ <input type="submit" name="clricon" value="Revert To Default" /></p>
+  @ </div></form>
+  @ <p>(Properties: "icon-image" and "icon-mimetype")
   @ <hr />
   @
   @ <p><span class="note">Note:</span>  Your browser has probably cached these
   @ images, so you may need to press the Reload button before changes will
   @ take effect. </p>
-  style_footer();
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -1896,10 +1747,10 @@ int raw_sql_query_authorizer(
 ** WEBPAGE: admin_sql
 **
 ** Run raw SQL commands against the database file using the web interface.
-** Requires Admin privileges.
+** Requires Setup privileges.
 */
 void sql_page(void){
-  const char *zQ = P("q");
+  const char *zQ;
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1907,12 +1758,14 @@ void sql_page(void){
     return;
   }
   add_content_sql_commands(g.db);
-  db_begin_transaction();
+  zQ = cgi_csrf_safe(1) ? P("q") : 0;
+  style_set_current_feature("setup");
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
   @
+#if 0
   @ <p>Only the first statement in the entry box will be run.
   @ Any subsequent statements will be silently ignored.</p>
   @
@@ -1924,23 +1777,38 @@ void sql_page(void){
     @ <li>localdb
   }
   @ </ul></p>
+#endif
+
+  if( P("configtab") ){
+    /* If the user presses the "CONFIG Table Query" button, populate the
+    ** query text with a pre-packaged query against the CONFIG table */
+    zQ = "SELECT\n"
+         " CASE WHEN length(name)<50 THEN name ELSE printf('%.50s...',name)"
+         "  END AS name,\n"
+         " CASE WHEN typeof(value)<>'blob' AND length(value)<80 THEN value\n"
+         "           ELSE '...' END AS value,\n"
+         " datetime(mtime, 'unixepoch') AS mtime\n"
+         "FROM config\n"
+         "-- ORDER BY mtime DESC; -- optional";
+     go = 1;
+  }
   @
-  @ <form method="post" action="%s(g.zTop)/admin_sql">
+  @ <form method="post" action="%R/admin_sql">
   login_insert_csrf_secret();
   @ SQL:<br />
-  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br />
   @ <input type="submit" name="go" value="Run SQL">
   @ <input type="submit" name="schema" value="Show Schema">
   @ <input type="submit" name="tablelist" value="List Tables">
+  @ <input type="submit" name="configtab" value="CONFIG Table Query">
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL");
+            "SELECT sql FROM repository.sqlite_schema"
+            " WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
-    zQ = sqlite3_mprintf(
-            "SELECT name FROM repository.sqlite_master WHERE type='table'"
-            " ORDER BY name");
+    zQ = sqlite3_mprintf("SELECT*FROM pragma_table_list ORDER BY schema, name");
     go = 1;
   }
   if( go ){
@@ -1953,6 +1821,7 @@ void sql_page(void){
     @ <hr />
     login_verify_csrf_secret();
     sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
+    search_sql_setup(g.db);
     rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
     if( rc!=SQLITE_OK ){
       @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
@@ -1966,7 +1835,7 @@ void sql_page(void){
         @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
       }
     }else{
-      @ <table border=1>
+      @ <table border="1" cellpadding="4" cellspacing="0">
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         if( nRow==0 ){
           @ <tr>
@@ -2008,7 +1877,7 @@ void sql_page(void){
       @ </table>
     }
   }
-  style_footer();
+  style_finish_page();
 }
 
 
@@ -2027,13 +1896,13 @@ void th1_page(void){
     login_needed(0);
     return;
   }
-  db_begin_transaction();
+  style_set_current_feature("setup");
   style_header("Raw TH1 Commands");
   @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
   @ run by this page.  If Tcl integration was enabled at compile-time and
   @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
   @
-  @ <form method="post" action="%s(g.zTop)/admin_th1">
+  @ <form method="post" action="%R/admin_th1">
   login_insert_csrf_secret();
   @ TH1:<br />
   @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
@@ -2053,21 +1922,7 @@ void th1_page(void){
       @ <pre class="th1error">%h(zR)</pre>
     }
   }
-  style_footer();
-}
-
-static void admin_log_render_limits(){
-  int const count = db_int(0,"SELECT COUNT(*) FROM admin_log");
-  int i;
-  int limits[] = {
-  10, 20, 50, 100, 250, 500, 0
-  };
-  for(i = 0; limits[i]; ++i ){
-    cgi_printf("%s<a href='?n=%d'>%d</a>",
-               i ? " " : "",
-               limits[i], limits[i]);
-    if(limits[i]>count) break;
-  }
+  style_finish_page();
 }
 
 /*
@@ -2078,39 +1933,37 @@ static void admin_log_render_limits(){
 ** 's') permissions.
 */
 void page_admin_log(){
-  Stmt stLog = empty_Stmt;
-  Blob qLog = empty_blob;
-  int limit;
+  Stmt stLog;
+  int limit;                 /* How many entries to show */
+  int ofst;                  /* Offset to the first entry */
   int fLogEnabled;
   int counter = 0;
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Admin Log");
   create_admin_log_table();
-  limit = atoi(PD("n","20"));
+  limit = atoi(PD("n","200"));
+  ofst = atoi(PD("x","0"));
   fLogEnabled = db_get_boolean("admin-log", 0);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
-
-  @ <div>Limit results to: <span>
-  admin_log_render_limits();
-  @ </span></div>
-
-  blob_append_sql(&qLog,
-               "SELECT datetime(time,'unixepoch'), who, page, what "
-               "FROM admin_log "
-               "ORDER BY time DESC ");
-  if(limit>0){
-    @ %d(limit) Most recent entries:
-    blob_append_sql(&qLog, "LIMIT %d", limit);
+  if( ofst>0 ){
+    int prevx = ofst - limit;
+    if( prevx<0 ) prevx = 0;
+    @ <p><a href="admin_log?n=%d(limit)&x=%d(prevx)">[Newer]</a></p>
   }
-  db_prepare(&stLog, "%s", blob_sql_text(&qLog));
-  blob_reset(&qLog);
-  @ <table id="adminLogTable" class="adminLogTable" width="100%%">
+  db_prepare(&stLog,
+    "SELECT datetime(time,'unixepoch'), who, page, what "
+    "FROM admin_log "
+    "ORDER BY time DESC");
+  style_table_sorter();
+  @ <table class="sortable adminLogTable" width="100%%" \
+  @  data-column-types='Tttx' data-init-sort='1'>
   @ <thead>
   @ <th>Time</th>
   @ <th>User</th>
@@ -2122,18 +1975,22 @@ void page_admin_log(){
     const char *zUser = db_column_text(&stLog, 1);
     const char *zPage = db_column_text(&stLog, 2);
     const char *zMessage = db_column_text(&stLog, 3);
-    @ <tr class="row%d(counter++%2)">
+    counter++;
+    if( counter<ofst ) continue;
+    if( counter>ofst+limit ) break;
+    @ <tr class="row%d(counter%2)">
     @ <td class="adminTime">%s(zTime)</td>
     @ <td>%s(zUser)</td>
     @ <td>%s(zPage)</td>
     @ <td>%h(zMessage)</td>
     @ </tr>
   }
+  db_finalize(&stLog);
   @ </tbody></table>
-  if(limit>0 && counter<limit){
-    @ <div>%d(counter) entries shown.</div>
+  if( counter>ofst+limit ){
+    @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -2143,12 +2000,13 @@ void page_admin_log(){
 */
 void page_srchsetup(){
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Search Configuration");
-  @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
+  @ <form action="%R/srchsetup" method="post"><div>
   login_insert_csrf_secret();
   @ <div style="text-align:center;font-weight:bold;">
   @ Server-specific settings that affect the
@@ -2182,7 +2040,11 @@ void page_srchsetup(){
   @ <br />
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
   @ <br />
-  onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
+  onoff_attribute("Search Wiki", "search-wiki", "sw", 0, 0);
+  @ <br />
+  onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
+  @ <br />
+  onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -2200,6 +2062,7 @@ void page_srchsetup(){
     onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite FTS4 search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for
@@ -2208,5 +2071,164 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
-  style_footer();
+  style_finish_page();
+}
+
+/*
+** A URL Alias originally called zOldName is now zNewName/zValue.
+** Write SQL to make this change into pSql.
+**
+** If zNewName or zValue is an empty string, then delete the entry.
+**
+** If zOldName is an empty string, create a new entry.
+*/
+static void setup_update_url_alias(
+  Blob *pSql,
+  const char *zOldName,
+  const char *zNewName,
+  const char *zValue
+){
+  if( !cgi_csrf_safe(1) ) return;
+  if( zNewName[0]==0 || zValue[0]==0 ){
+    if( zOldName[0] ){
+      blob_append_sql(pSql,
+        "DELETE FROM config WHERE name='walias:%q';\n",
+        zOldName);
+    }
+    return;
+  }
+  if( zOldName[0]==0 ){
+    blob_append_sql(pSql,
+      "INSERT INTO config(name,value,mtime) VALUES('walias:%q',%Q,now());\n",
+      zNewName, zValue);
+    return;
+  }
+  if( strcmp(zOldName, zNewName)!=0 ){
+    blob_append_sql(pSql,
+       "UPDATE config SET name='walias:%q', value=%Q, mtime=now()"
+       " WHERE name='walias:%q';\n",
+       zNewName, zValue, zOldName);
+  }else{
+    blob_append_sql(pSql,
+       "UPDATE config SET value=%Q, mtime=now()"
+       " WHERE name='walias:%q' AND value<>%Q;\n",
+       zValue, zOldName, zValue);
+  }
+}
+
+/*
+** WEBPAGE: waliassetup
+**
+** Configure the URL aliases
+*/
+void page_waliassetup(){
+  Stmt q;
+  int cnt = 0;
+  Blob namelist;
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_set_current_feature("setup");
+  style_header("URL Alias Configuration");
+  if( P("submit")!=0 ){
+    Blob token;
+    Blob sql;
+    const char *zNewName;
+    const char *zValue;
+    char zCnt[10];
+    login_verify_csrf_secret();
+    blob_init(&namelist, PD("namelist",""), -1);
+    blob_init(&sql, 0, 0);
+    while( blob_token(&namelist, &token) ){
+      const char *zOldName = blob_str(&token);
+      sqlite3_snprintf(sizeof(zCnt), zCnt, "n%d", cnt);
+      zNewName = PD(zCnt, "");
+      sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
+      zValue = PD(zCnt, "");
+      setup_update_url_alias(&sql, zOldName, zNewName, zValue);
+      cnt++;
+      blob_reset(&token);
+    }
+    sqlite3_snprintf(sizeof(zCnt), zCnt, "n%d", cnt);
+    zNewName = PD(zCnt,"");
+    sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
+    zValue = PD(zCnt,"");
+    setup_update_url_alias(&sql, "", zNewName, zValue);
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec("%s", blob_sql_text(&sql));
+    db_protect_pop();
+    blob_reset(&sql);
+    blob_reset(&namelist);
+    cnt = 0;
+  }
+  db_prepare(&q,
+      "SELECT substr(name,8), value FROM config WHERE name GLOB 'walias:/*'"
+      " UNION ALL SELECT '', ''"
+  );
+  @ <form action="%R/waliassetup" method="post"><div>
+  login_insert_csrf_secret();
+  @ <table border=0 cellpadding=5>
+  @ <tr><th>Alias<th>URI That The Alias Maps Into
+  blob_init(&namelist, 0, 0);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zValue = db_column_text(&q, 1);
+    @ <tr><td>
+    @ <input type='text' size='20' value='%h(zName)' name='n%d(cnt)'>
+    @ </td><td>
+    @ <input type='text' size='80' value='%h(zValue)' name='v%d(cnt)'>
+    @ </td></tr>
+    cnt++;
+    if( blob_size(&namelist)>0 ) blob_append(&namelist, " ", 1);
+    blob_append(&namelist, zName, -1);
+  }
+  db_finalize(&q);
+  @ <tr><td>
+  @ <input type='hidden' name='namelist' value='%h(blob_str(&namelist))'>
+  @ <input type='submit' name='submit' value="Apply Changes">
+  @ </td><td></td></tr>
+  @ </table></form>
+  @ <hr>
+  @ <p>When the first term of an incoming URL exactly matches one of
+  @ the "Aliases" on the left-hand side (LHS) above, the URL is
+  @ converted into the corresponding form on the right-hand side (RHS).
+  @ <ul>
+  @ <li><p>
+  @ The LHS is compared against only the first term of the incoming URL.
+  @ All LHS entries in the alias table should therefore begin with a
+  @ single "/" followed by a single path element.
+  @ <li><p>
+  @ The RHS entries in the alias table should begin with a single "/"
+  @ followed by a path element, and optionally followed by "?" and a
+  @ list of query parameters.
+  @ <li><p>
+  @ Query parameters on the RHS are added to the set of query parameters
+  @ in the incoming URL.
+  @ <li><p>
+  @ If the same query parameter appears in both the incoming URL and
+  @ on the RHS of the alias, the RHS query parameter value overwrites
+  @ the value on the incoming URL.
+  @ <li><p>
+  @ If a query parameter on the RHS of the alias is of the form "X!"
+  @ (a name followed by "!") then the X query parameter is removed
+  @ from the incoming URL if
+  @ it exists.
+  @ <li><p>
+  @ Only a single alias operation occurs.  It is not possible to nest aliases.
+  @ The RHS entries must be built-in webpage names.
+  @ <li><p>
+  @ The alias table is only checked if no built-in webpage matches
+  @ the incoming URL.
+  @ Hence, it is not possible to override a built-in webpage using aliases.
+  @ This is by design.
+  @ </ul>
+  @
+  @ <p>To delete an entry from the alias table, change its name or value to an
+  @ empty string and press "Apply Changes".
+  @
+  @ <p>To add a new alias, fill in the name and value in the bottom row
+  @ of the table above and press "Apply Changes".
+  style_finish_page();
 }

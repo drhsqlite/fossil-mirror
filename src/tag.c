@@ -222,7 +222,7 @@ int tag_insert(
                   zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
       char *zCopy = mprintf("%s", zValue);
-      wiki_extract_links(zCopy, rid, 0, mtime, 1, WIKI_INLINE);
+      backlink_extract(zCopy, MT_NONE, rid, BKLNK_COMMENT, mtime, 1);
       free(zCopy);
     }
   }
@@ -284,7 +284,7 @@ void testtag_cmd(void){
 /*
 ** OR this value into the tagtype argument to tag_add_artifact to
 ** cause the tag to be displayed on standard output rather than be
-** inserted.  Used for --dryrun options and debugging.
+** inserted.  Used for --dry-run options and debugging.
 */
 #if INTERFACE
 #define TAG_ADD_DRYRUN  0x04
@@ -361,7 +361,30 @@ void tag_add_artifact(
     manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
   }
   assert( blob_is_reset(&ctrl) );
-  manifest_to_disk(rid);
+  if( g.localOpen ){
+    manifest_to_disk(rid);
+  }
+}
+
+/*
+** If zTag is NULL or valid for use as a tag for the `tag add` and
+** `tag cancel` commands, returns without side effects, else emits a
+** fatal error message. We reject certain prefixes to avoid that
+** clients cause undue grief by improperly tagging artifacts as being,
+** e.g., wiki pages or tickets.
+**
+** Note that we intentionally allow the "sym-" prefix, partly for
+** historical compatibility and partly because it can be applied
+** properly, whereas the other reserved name types have special
+** meanings for fossil and cannot be sensibly manually manipulated.
+*/
+static void tag_cmd_tagname_check(const char *zTag){
+  if(zTag && *zTag &&
+     (strncmp(zTag,"wiki-",5)==0
+      || strncmp(zTag,"tkt-",4)==0
+      || strncmp(zTag,"event-",6)==0)){
+    fossil_fatal("Invalid prefix for tag name: %s", zTag);
+  }
 }
 
 /*
@@ -371,46 +394,84 @@ void tag_add_artifact(
 **
 ** Run various subcommands to control tags and properties.
 **
-**     %fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
+** > fossil tag add ?OPTIONS? TAGNAME ARTIFACT-ID ?VALUE?
 **
-**         Add a new tag or property to CHECK-IN. The tag will
-**         be usable instead of a CHECK-IN in commands such as
-**         update and merge.  If the --propagate flag is present,
-**         the tag value propagates to all descendants of CHECK-IN
+**         Add a new tag or property to an artifact referenced by
+**         ARTIFACT-ID. For checkins, the tag will be usable instead
+**         of a CHECK-IN in commands such as update and merge. If the
+**         --propagate flag is present and ARTIFACT-ID refers to a
+**         wiki page, forum post, technote, or check-in, the tag
+**         propagates to all descendants of that artifact.
 **
 **         Options:
-**           --raw                       Raw tag name.
-**           --propagate                 Propagating tag.
-**           --date-override DATETIME    Set date and time added.
-**           --user-override USER        Name USER when adding the tag.
-**           --dryrun|-n                 Display the tag text, but do not
-**                                       actually insert it into the database.
+**           --raw                      Raw tag name. Ignored for
+**                                      non-CHECK-IN artifacts.
+**           --propagate                Propagating tag.
+**           --date-override DATETIME   Set date and time added.
+**           --user-override USER       Name USER when adding the tag.
+**           -n|--dry-run               Display the tag text, but do not
+**                                      actually insert it into the database.
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
 **         the form 'YYYY-MMM-DD HH:MM:SS'.
 **
-**     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
+**         Note that fossil uses some tag prefixes internally and this
+**         command will reject tags with these prefixes to avoid
+**         causing problems or confusion: "wiki-", "tkt-", "event-".
 **
-**         Remove the tag TAGNAME from CHECK-IN, and also remove
-**         the propagation of the tag to any descendants.  Use the
-**         the --dryrun or -n options to see what would have happened.
+** > fossil tag cancel ?--raw? TAGNAME ARTIFACT-ID
 **
-**     %fossil tag find ?OPTIONS? TAGNAME
-**
-**         List all objects that use TAGNAME.  TYPE can be "ci" for
-**         check-ins or "e" for events. The limit option limits the number
-**         of results to the given value.
+**         Remove the tag TAGNAME from the artifact referenced by
+**         ARTIFACT-ID, and also remove the propagation of the tag to
+**         any descendants.  Use the the -n|--dry-run option to see
+**         what would have happened. Certain tag name prefixes are
+**         forbidden, as documented for the 'add' subcommand.
 **
 **         Options:
-**           --raw           Raw tag name.
-**           -t|--type TYPE  One of "ci", or "e".
+**           --raw                       Raw tag name. Ignored for
+**                                       non-CHECK-IN artifacts.
+**           --date-override DATETIME    Set date and time deleted.
+**           --user-override USER        Name USER when deleting the tag.
+**           -n|--dry-run                Display the control artifact, but do
+**                                       not insert it into the database.
+**
+** > fossil tag find ?OPTIONS? TAGNAME
+**
+**         List all objects that use TAGNAME.
+**
+**         Options:
+**           --raw           Interprets tag as a raw name instead of a
+**                           branch name and matches any type of artifact.
+**                           Changes the output to include only the
+**                           hashes of matching objects.
+**           -t|--type TYPE  One of: ci (check-in), w (wiki),
+**                           e (event/technote), f (forum post),
+**                           t (ticket). Default is all types. Ignored
+**                           if --raw is used.
 **           -n|--limit N    Limit to N results.
 **
-**     %fossil tag list|ls ?--raw? ?CHECK-IN?
+** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
 **
-**         List all tags, or if CHECK-IN is supplied, list
-**         all tags and their values for CHECK-IN.
+**         List all tags or, if ARTIFACT-ID is supplied, all tags and
+**         their values for that artifact. The tagtype option accepts
+**         one of: propagated, singleton, cancel.  For historical
+**         scripting compatibility, the internal tag types "wiki-",
+**         "tkt-", and "event-" (technote) are elided by default
+**         unless the --raw or --prefix options are used.
+**
+**         Options:
+**           --raw           List raw names of tags
+**           --tagtype TYPE  List only tags of type TYPE, which must
+**                           be one of: cancel, singleton, propagated
+**           -v|--inverse    Inverse the meaning of --tagtype TYPE.
+**           --prefix        List only tags with the given prefix.
+**                           Fossil-internal prefixes include "sym-"
+**                           (branch name), "wiki-", "event-"
+**                           (technote), and "tkt-" (ticket). The
+**                           prefix is stripped from the resulting
+**                           list unless --raw is provided. Ignored if
+**                           ARTIFACT-ID is provided.
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -434,11 +495,6 @@ void tag_add_artifact(
 */
 void tag_cmd(void){
   int n;
-  int fRaw = find_option("raw","",0)!=0;
-  int fPropagate = find_option("propagate","",0)!=0;
-  const char *zPrefix = fRaw ? "" : "sym-";
-  const char *zFindLimit = find_option("limit","n",1);
-  const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -452,15 +508,34 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     int dryRun = 0;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = "";
+    int fPropagate = find_option("propagate","",0)!=0;
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
-    if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+    const char *zTag;
+    const char *zObjId;
+    int objType;
+    if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("add ?options? TAGNAME CHECK-IN ?VALUE?");
+      usage("add ?options? TAGNAME ARTIFACT-ID ?VALUE?");
     }
+    zTag = g.argv[3];
+    tag_cmd_tagname_check(zTag);
+    zObjId = g.argv[4];
     zValue = g.argc==6 ? g.argv[5] : 0;
+    objType = whatis_rid_type(symbolic_name_to_rid(zObjId, 0));
+    switch(objType){
+      case 0:
+        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+        break;
+      case CFTYPE_MANIFEST:
+        zPrefix = fRaw ? "" : "sym-";
+        break;
+      default: break;
+    }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue,
+    tag_add_artifact(zPrefix, zTag, zObjId, zValue,
                      1+fPropagate+dryRun,zDateOvrd,zUserOvrd);
     db_end_transaction(0);
   }else
@@ -472,17 +547,41 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"cancel",n)==0 ){
     int dryRun = 0;
-    if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = "";
+    const char *zDateOvrd = find_option("date-override",0,1);
+    const char *zUserOvrd = find_option("user-override",0,1);
+    const char *zTag;
+    const char *zObjId;
+    int objType;
+    if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
-      usage("cancel ?options? TAGNAME CHECK-IN");
+      usage("cancel ?options? TAGNAME ARTIFACT-ID");
+    }
+    zTag = g.argv[3];
+    tag_cmd_tagname_check(zTag);
+    zObjId = g.argv[4];
+    objType = whatis_rid_type(symbolic_name_to_rid(zObjId, 0));
+    switch(objType){
+      case 0:
+        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+        break;
+      case CFTYPE_MANIFEST:
+        zPrefix = fRaw ? "" : "sym-";
+        break;
+      default: break;
     }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun, 0, 0);
+    tag_add_artifact(zPrefix, zTag, zObjId, 0, dryRun,
+                     zDateOvrd, zUserOvrd);
     db_end_transaction(0);
   }else
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zFindLimit = find_option("limit","n",1);
+    const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
     const char *zType = find_option("type","t",1);
     Blob sql = empty_blob;
     if( zType==0 || zType[0]==0 ) zType = "*";
@@ -507,7 +606,10 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      int tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
+      int tagid = db_int(0, "SELECT tagid FROM tag "
+                         "WHERE tagname='%s%q'",
+                         (zType && 'c'==zType[0])
+                         ? "sym-" : ""/*safe-for-%s*/,
                          g.argv[3]);
       if( tagid>0 ){
         blob_append_sql(&sql,
@@ -517,12 +619,12 @@ void tag_cmd(void){
                     " SELECT rid FROM tagxref"
                     "  WHERE tagtype>0 AND tagid=%d"
                     ")"
-          " ORDER BY event.mtime DESC",
+          " ORDER BY event.mtime DESC /*sort*/",
           timeline_query_for_tty(), zType, tagid
         );
         db_prepare(&q, "%s", blob_sql_text(&sql));
         blob_reset(&sql);
-        print_timeline(&q, nFindLimit, 79, 0);
+        print_timeline(&q, nFindLimit, 79, 0, 0);
         db_finalize(&q);
       }
     }
@@ -530,39 +632,84 @@ void tag_cmd(void){
 
   if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
+    const int fRaw = find_option("raw","",0)!=0;
+    const char *zTagType = find_option("tagtype","t",1);
+    const int fInverse = find_option("inverse","v",0)!=0;
+    const char *zTagPrefix = find_option("prefix","",1);
+    int nTagType = fRaw ? -1 : 0;
+
+    if( zTagType!=0 ){
+      int l = strlen(zTagType);
+      if( strncmp(zTagType,"cancel",l)==0 ){
+        nTagType = 0;
+      }else if( strncmp(zTagType,"singleton",l)==0 ){ 
+        nTagType = 1;
+      }else if( strncmp(zTagType,"propagated",l)==0 ){ 
+        nTagType = 2;
+      }else{
+        fossil_fatal("unrecognized tag type");
+      }
+    }
     if( g.argc==3 ){
+      const int nTagPrefix = zTagPrefix ? (int)strlen(zTagPrefix) : 0;
       db_prepare(&q,
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
-        "                 AND tagtype>0)"
-        " ORDER BY tagname"
+        "                 AND tagtype%s%d)"
+        " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' "
+        " END ORDER BY tagname COLLATE uintnocase",
+        zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+        nTagType, zTagPrefix, zTagPrefix
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
         if( fRaw ){
           fossil_print("%s\n", zName);
+        }else if( nTagPrefix>0 ){
+          assert(db_column_bytes(&q,0)>=nTagPrefix);
+          fossil_print("%s\n", &zName[nTagPrefix]);
         }else if( strncmp(zName, "sym-", 4)==0 ){
           fossil_print("%s\n", &zName[4]);
         }
       }
       db_finalize(&q);
     }else if( g.argc==4 ){
-      int rid = name_to_rid(g.argv[3]);
+      char const *zObjId = g.argv[3];
+      const int rid = name_to_rid(zObjId);
+      const int objType = whatis_rid_type(rid);
+      int nTagOffset = 0;
+
+      zTagPrefix = 0;
+      if(objType<=0){
+        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+      }else if(fRaw==0){
+        /* Figure out the tag prefix to strip */
+        switch(objType){
+          case CFTYPE_MANIFEST: zTagPrefix = "sym-"; break;
+          case CFTYPE_WIKI: zTagPrefix = "wiki-"; break;
+          case CFTYPE_TICKET: zTagPrefix = "tkt-"; break;
+          case CFTYPE_EVENT: zTagPrefix = "event-"; break;
+          default: break;
+        }
+        if(zTagPrefix!=0){
+          nTagOffset = (int)strlen(zTagPrefix);
+        }
+      }
       db_prepare(&q,
         "SELECT tagname, value FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-        "   AND tagtype>%d"
-        " ORDER BY tagname",
+        "   AND tagtype%s%d"
+        " ORDER BY tagname COLLATE uintnocase",
         rid,
-        fRaw ? -1 : 0
+        zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+        nTagType
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
         const char *zValue = db_column_text(&q, 1);
-        if( fRaw==0 ){
-          if( strncmp(zName, "sym-", 4)!=0 ) continue;
-          zName += 4;
+        if( zTagPrefix && strncmp(zName, zTagPrefix, nTagOffset)==0 ){
+          zName += nTagOffset;
         }
         if( zValue && zValue[0] ){
           fossil_print("%s=%s\n", zName, zValue);
@@ -572,7 +719,7 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      usage("list ?CHECK-IN?");
+      usage("list ?OPTIONS? ?CHECK-IN?");
     }
   }else
   {
@@ -589,7 +736,7 @@ tag_cmd_usage:
 /*
 ** COMMAND: reparent*
 **
-** Usage: %fossil reparent [OPTIONS] CHECK-IN PARENT ....
+** Usage: %fossil reparent [OPTIONS] CHECK-IN PARENT ...
 **
 ** Create a "parent" tag that causes CHECK-IN to be interpreted as a
 ** child of PARENT.  If multiple PARENTs are listed, then the first is
@@ -606,8 +753,10 @@ tag_cmd_usage:
 **    --test           Make database entries but do not add the tag artifact.
 **                     So the reparent operation will be undone by the next
 **                     "fossil rebuild" command.
-**    --dryrun | -n    Print the tag that would have been created but do not
+**    -n|--dry-run     Print the tag that would have been created but do not
 **                     actually change the database in any way.
+**    --date-override DATETIME  Set the change time on the control artifact
+**    --user-override USER      Set the user name on the control artifact
 */
 void reparent_cmd(void){
   int bTest = find_option("test","",0)!=0;
@@ -616,12 +765,16 @@ void reparent_cmd(void){
   Blob value;
   char *zUuid;
   int dryRun = 0;
+  const char *zDateOvrd;  /* The change time on the control artifact */
+  const char *zUserOvrd;  /* The user name on the control artifact */
 
-  if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+  if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+  zDateOvrd = find_option("date-override",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){
-    usage("reparent [OPTIONS] PARENT ...");
+    usage("[OPTIONS] CHECK-IN PARENT ...");
   }
   rid = name_to_typed_rid(g.argv[2], "ci");
   blob_init(&value, 0, 0);
@@ -636,7 +789,8 @@ void reparent_cmd(void){
     tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid);
   }else{
     zUuid = rid_to_uuid(rid);
-    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,0,0);
+    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,
+                     zDateOvrd,zUserOvrd);
   }
 }
 
@@ -665,13 +819,13 @@ void taglist_page(void){
     "               WHERE tagid=tag.tagid"
     "                 AND tagtype=1)"
     " AND tagname GLOB 'sym-*'"
-    " ORDER BY tagname"
+    " ORDER BY tagname COLLATE uintnocase"
   );
   @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
-      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T&n=200",zName))
+      @ <li>%z(chref("taglink","%R/timeline?t=%T",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>
@@ -679,7 +833,7 @@ void taglist_page(void){
   }
   @ </ul>
   db_finalize(&q);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -687,9 +841,21 @@ void taglist_page(void){
 **
 ** Render a timeline with all check-ins that contain non-propagating
 ** symbolic tags.
+**
+** Query parameters:
+**
+**     ng            No graph
+**     nohidden      Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void tagtimeline_page(void){
+  Blob sql = empty_blob;
   Stmt q;
+  int tmFlags;                            /* Timeline display flags */
+  int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -697,17 +863,45 @@ void tagtimeline_page(void){
   style_header("Tagged Check-ins");
   style_submenu_element("List", "taglist");
   login_anonymous_available();
+  timeline_ss_submenu();
   @ <h2>Check-ins with non-propagating tags:</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype=1 AND srcid>0"
-    "                       AND tagid IN (SELECT tagid FROM tag "
-    "                                      WHERE tagname GLOB 'sym-*'))"
-    " ORDER BY event.mtime DESC",
-    timeline_query_for_www()
-  );
-  www_print_timeline(&q, 0, 0, 0, 0, 0);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+    "AND blob.rid IN (SELECT rid FROM tagxref"
+    "                  WHERE tagtype=1 AND srcid>0"
+    "                    AND tagid IN (SELECT tagid FROM tag "
+    "                                   WHERE tagname GLOB 'sym-*'))");
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
+    blob_append_sql(&sql,
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC /*sort*/", blob_sql_text(&sql));
+  blob_reset(&sql);
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_XMERGE | TIMELINE_FILLGAPS | TIMELINE_NOSCROLL;
+  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  style_footer();
+  style_finish_page();
+}
+
+/*
+** Returns true if the given blob.rid value has the given tag ID
+** applied to it, else false.
+*/
+int rid_has_tag(int rid, int tagId){
+  return db_exists(
+     "SELECT tag.tagid FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 "
+     " AND tag.tagid=%d"
+     " AND tagxref.tagid=tag.tagid",
+     rid, tagId
+  );
 }

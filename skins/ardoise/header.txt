@@ -1,0 +1,50 @@
+<div class="header">
+  <div class="container">
+    <div class="login pull-right">
+      <th1>
+        if {[info exists login]} {
+          html "<b>$login</b> — <a class='button' href='$home/login'>Logout</a>\n"
+        } else {
+          html "<a class='button' href='$home/login'>Login</a>\n"
+        }
+      </th1>
+    </div>
+    <div class='title'>
+      <h1>$<project_name>
+      <th1>
+      if {[anycap jor]} {
+        html "<a class='rss' href='$home/timeline.rss'></a>"
+      }
+      </th1>
+      <small> &nbsp;$<title></small></h1>
+    </div>
+
+    <!-- Main Menu -->
+    <div class="mainmenu">
+      <ul>
+        <th1>
+html "<li><a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a></li>\n"
+builtin_request_js hbmenu.js
+set once 1
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {$once && [string match $url\[/?#\]* /$current_page/]} {
+    set class "$class active"
+    set once 0
+  }
+  html "<li class='$class'>"
+  if {[string match /* $url]} {set url $home$url}
+  html "<a href='$url'>$name</a></li>\n"
+}
+</th1></ul>
+        </div> <!-- end div mainmenu -->
+        <div id="hbdrop"></div>
+      </div> <!-- end div container -->
+    </div> <!-- end div header -->
+    <div class="middle max-full-width">
+      <div class="container">
+        <th1>
+          if {[string first artifact $current_page] == 0 || [string first hexdump $current_page] == 0} {
+            html "<div class=\"artifact_content\">"
+          }
+        </th1>

@@ -1,4 +1,4 @@
-.TH FOSSIL "1" "February 2015" "http://fossil-scm.org" "User Commands"
+.TH FOSSIL "1" "July 2021" "https://fossil-scm.org" "User Commands"
 .SH NAME
 fossil \- Distributed Version Control System
 .SH SYNOPSIS
@@ -12,29 +12,26 @@ fossil \- Distributed Version Control System
 \fICOMMAND [OPTIONS]\fR
 .SH DESCRIPTION
 Fossil is a distributed version control system (DVCS) with built-in
-wiki, ticket tracker, CGI/http interface, and http server.
+forum, wiki, ticket tracker, CGI/HTTP interface, and HTTP server.
 
 .SH Common COMMANDs:
 
-add            changes        gdiff          publish        status
+add          cat          diff         ls           revert       timeline
 .br
-addremove      clean          help           pull           sync
+addremove    changes      extras       merge        rm           ui
 .br
-all            clone          import         push           tag
+all          chat         finfo        mv           settings     undo
 .br
-amend          commit         info           rebuild        timeline
+amend        clean        gdiff        open         sql          unversioned
 .br
-annotate       delete         init           remote-url     ui
+annotate     clone        grep         pull         stash        update
 .br
-bisect         diff           ls             revert         undo
+bisect       commit       help         push         status       version
 .br
-blame          export         merge          rm             unpublished
+blame        dbstat       info         rebuild      sync
 .br
-branch         extras         mv             settings       unversioned
+branch       delete       init         remote       tag
 .br
-bundle         finfo          open           sqlite3        update
-.br
-cat            fusefs         praise         stash          version
 
 .SH FEATURES
 
@@ -42,9 +39,10 @@ Features as described on the fossil home page.
 
 .HP
 1.
-.B Integrated Bug Tracking, Wiki, & Technotes
+.B Integrated Bug Tracking, Wiki, Forum, and Technotes
 - In addition to doing distributed version control like Git and
-Mercurial, Fossil also supports bug tracking, wiki, and technotes.
+Mercurial, Fossil also supports bug tracking, wiki, forum, and
+technotes.
 
 .HP
 2.
@@ -68,13 +66,14 @@ users on other platforms.
 - No custom protocols or TCP ports. Fossil uses plain old HTTP (or HTTPS
 or SSH) for all network communications, so it works fine from behind
 restrictive firewalls, including proxies. The protocol is bandwidth
-efficient to the point that Fossil can be used comfortably over dial-up.
+efficient to the point that Fossil can be used comfortably over dial-up
+or over the exceedingly slow Wifi on airliners.
 
 .HP
 5.
 .B CGI/SCGI Enabled
 - No server is required, but if you want to set one up, Fossil supports
-four simple server configurations.
+four easy server configurations.
 
 .HP
 6.
@@ -89,12 +88,15 @@ associated with distributed projects.
 - Fossil stores content using an enduring file format in an SQLite
 database so that transactions are atomic even if interrupted by a
 power loss or system crash. Automatic self-checks verify that all
-aspects of the repository are consistent prior to each commit. In
-over seven years of operation, no work has ever been lost after
-having been committed to a Fossil repository.
+aspects of the repository are consistent prior to each commit.
+
+.HP
+8.
+.B Free and Open-Source
+- Uses the 2-clause BSD license.
 
 .SH DOCUMENTATION
-http://www.fossil-scm.org/
+https://fossil-scm.org/
 .br
 .B fossil
 \fIui\fR

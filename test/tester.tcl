@@ -23,15 +23,27 @@
 # is the name of the executable to be tested.
 #
 
+# We use some things introduced in 8.6 such as lmap.  auto.def should
+# have found us a suitable Tcl installation.
+package require Tcl 8.6
+
 set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
+set is_windows [expr {$::tcl_platform(platform) eq "windows"}]
 
-if {$tcl_platform(platform) eq "windows" && \
-    [string length [file extension $fossilexe]] == 0} {
-  append fossilexe .exe
+if {$::is_windows} {
+  if {[string length [file extension $fossilexe]] == 0} {
+    append fossilexe .exe
+  }
+  set outside_fossil_repo [expr ![file exists "$::testfiledir\\..\\_FOSSIL_"]]
+} else {
+  set outside_fossil_repo [expr ![file exists "$::testfiledir/../.fslckout"]]
 }
+
+catch {exec $::fossilexe changes --changed} res
+set dirty_ckout [string length $res]
 
 set argv [lrange $argv 1 end]
 
@@ -115,6 +127,17 @@ proc protOut {msg {noQuiet 0}} {
   }
 }
 
+# write a dict with just enough formatting
+# to make it human readable
+#
+proc protOutDict {dict {pattern *}} {
+   set longest [tcl::mathfunc::max 0 {*}[lmap key [dict keys $dict $pattern] {string length $key}]]
+   dict for {key value} $dict {
+      protOut [format "%-${longest}s = %s" $key $value]
+   }
+}
+
+
 # Run the Fossil program with the specified arguments.
 #
 # Consults the VERBOSE global variable to determine if
@@ -149,35 +172,53 @@ proc fossil_maybe_answer {answer args} {
     set keepNewline 1
     set args [lreplace $args $index $index]
   }
+  set whatIf 0
+  set index [lsearch -exact $args -whatIf]
+  if {$index != -1} {
+    set whatIf 1
+    set args [lreplace $args $index $index]
+  }
   foreach a $args {
     lappend cmd $a
   }
   protOut $cmd
 
   flush stdout
-  if {[string length $answer] > 0} {
-    protOut $answer
-    set prompt_file [file join $::tempPath fossil_prompt_answer]
-    write_file $prompt_file $answer\n
-    if {$keepNewline} {
-      set rc [catch {eval exec -keepnewline $cmd <$prompt_file} result]
-    } else {
-      set rc [catch {eval exec $cmd <$prompt_file} result]
-    }
-    file delete $prompt_file
+  if {$whatIf} {
+    protOut [pwd]; protOut $answer
+    set result WHAT-IF-MODE; set rc 42
   } else {
-    if {$keepNewline} {
-      set rc [catch {eval exec -keepnewline $cmd} result]
+    if {[string length $answer] > 0} {
+      protOut $answer
+      set prompt_file [file join $::tempPath fossil_prompt_answer]
+      write_file $prompt_file $answer\n
+      set execCmd [list eval exec]
+      if {$keepNewline} {lappend execCmd -keepnewline}
+      lappend execCmd $cmd <$prompt_file
+      set rc [catch $execCmd result]
+      file delete $prompt_file
     } else {
-      set rc [catch {eval exec $cmd} result]
+      set execCmd [list eval exec]
+      if {$keepNewline} {lappend execCmd -keepnewline}
+      lappend execCmd $cmd
+      set rc [catch $execCmd result]
     }
+  }
+  set ab(str) {child process exited abnormally}
+  set ab(len) [string length $ab(str)]
+  set ab(off) [expr {$ab(len) - 1}]
+  if {$rc && $expectError && \
+      [string range $result end-$ab(off) end] eq $ab(str)} {
+    set result [string range $result 0 end-$ab(len)]
   }
   global RESULT CODE
   set CODE $rc
-  if {($rc && !$expectError) || (!$rc && $expectError)} {
-    protOut "ERROR: $result" 1
-  } elseif {$::VERBOSE} {
-    protOut "RESULT: $result"
+  if {!$whatIf} {
+    if {($rc && !$expectError) || (!$rc && $expectError)} {
+      protOut "ERROR ($rc): $result" 1
+    } elseif {$::VERBOSE} {
+      protOut "RESULT ($rc): $result"
+    }
   }
   set RESULT $result
 }
@@ -212,7 +253,6 @@ proc get_versionable_settings {} {
   #       this list (and procedure) most likely needs to be modified as well.
   #
   set result [list \
-      allow-symlinks \
       binary-glob \
       clean-glob \
       crlf-glob \
@@ -222,15 +262,7 @@ proc get_versionable_settings {} {
       encoding-glob \
       ignore-glob \
       keep-glob \
-      manifest \
-      th1-setup \
-      th1-uri-regexp]
-
-  fossil test-th-eval "hasfeature tcl"
-
-  if {[normalize_result] eq "1"} {
-    lappend result tcl-setup
-  }
+      manifest]
 
   return [lsort -dictionary $result]
 }
@@ -251,44 +283,80 @@ proc get_all_settings {} {
       auto-shun \
       autosync \
       autosync-tries \
+      backoffice-disable \
+      backoffice-logfile \
+      backoffice-nodelay \
       binary-glob \
       case-sensitive \
+      chat-alert-sound \
+      chat-initial-history \
+      chat-inline-images \
+      chat-keep-count \
+      chat-keep-days \
+      chat-poll-timeout \
       clean-glob \
       clearsign \
+      comment-format \
       crlf-glob \
       crnl-glob \
+      default-csp \
       default-perms \
       diff-binary \
       diff-command \
       dont-push \
       dotfiles \
       editor \
+      email-admin \
+      email-renew-interval \
+      email-self \
+      email-send-command \
+      email-send-db \
+      email-send-dir \
+      email-send-method \
+      email-send-relayhost \
+      email-subname \
+      email-url \
       empty-dirs \
       encoding-glob \
       exec-rel-paths \
+      fileedit-glob \
+      forbid-delta-manifests \
       gdiff-command \
       gmerge-command \
       hash-digits \
+      hooks \
       http-port \
       https-login \
       ignore-glob \
       keep-glob \
       localauth \
+      lock-timeout \
       main-branch \
+      mainmenu \
       manifest \
+      max-cache-entry \
       max-loadavg \
       max-upload \
+      mimetypes \
       mtime-changes \
       pgp-command \
+      preferred-diff-type \
       proxy \
+      redirect-to-https \
       relative-paths \
       repo-cksum \
+      repolist-skin \
+      safe-html \
       self-register \
+      sitemap-extra \
       ssh-command \
       ssl-ca-location \
       ssl-identity \
+      tclsh \
       th1-setup \
       th1-uri-regexp \
+      ticket-default-report \
+      user-color-map \
       uv-sync \
       web-browser]
 
@@ -326,8 +394,39 @@ proc same_file {a b} {
   regsub -all { +\n} $x \n x
   set y [read_file $b]
   regsub -all { +\n} $y \n y
-  return [expr {$x==$y}]
+  if {$x == $y} {
+    return 1
+  } else {
+    if {$::VERBOSE} {
+      protOut "NOT_SAME_FILE($a): \{\n$x\n\}"
+      protOut "NOT_SAME_FILE($b): \{\n$y\n\}"
+    }
+    return 0
+  }
 }
+
+# Return true if two strings refer to the
+# same uuid. That is, the shorter is a prefix
+# of the longer.
+#
+proc same_uuid {a b} {
+  set na [string length $a]
+  set nb [string length $b]
+  if {$na == $nb} {
+    return [expr {$a eq $b}]
+  }
+  if {$na < $nb} {
+    return [string match "$a*" $b]
+  }
+  return [string match "$b*" $a]
+}
+
+# Return a prefix of a uuid, defaulting to 10 chars.
+#
+proc short_uuid {uuid {len 10}} {
+  string range $uuid 0 $len-1
+}
+
 
 proc require_no_open_checkout {} {
   if {[info exists ::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT)] && \
@@ -335,7 +434,7 @@ proc require_no_open_checkout {} {
     return
   }
   catch {exec $::fossilexe info} res
-  if {![regexp {use --repository} $res]} {
+  if {[regexp {local-root:} $res]} {
     set projectName <unknown>
     set localRoot <unknown>
     regexp -line -- {^project-name: (.*)$} $res dummy projectName
@@ -407,7 +506,7 @@ proc test_cleanup {} {
 
 proc delete_temporary_home {} {
   if {$::KEEP} {return}; # All cleanup disabled?
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     robust_delete [file join $::tempHomePath _fossil]
   } else {
     robust_delete [file join $::tempHomePath .fossil]
@@ -480,13 +579,24 @@ proc are_th1_hooks_usable_by_fossil {} {
   return [info exists ::env(TH1_ENABLE_HOOKS)]
 }
 
-# This (rarely used) procedure is designed to run a test within the Fossil
-# source checkout (e.g. one that does NOT modify any state), while saving
-# and restoring the current directory (e.g. one used when running a test
-# file outside of the Fossil source checkout).  Please do NOT use this
-# procedure unless you are absolutely sure it does not modify the state of
-# the repository or source checkout in any way.
+# Run the given command script inside the Fossil source repo checkout.
 #
+# Callers of this function must ensure two things:
+#
+# 1. This test run is in fact being done from within a Fossil repo
+#    checkout directory.  If you are unsure, test $::outside_fossil_repo
+#    or call one of the test_* wrappers below which do that for you.
+#
+#    As a rule, you should not be calling this function directly!
+#
+# 2. This test run is being done from a repo checkout directory that
+#    doesn't have any uncommitted changes.  If it does, that affects the
+#    output of any test based on the output of "fossil status",
+#    "... diff", etc., which is likely to make the test appear to fail.
+#    If you must call this function directly, test $::dirty_ckout and
+#    skip the call if it's true.  The test_* wrappers do this for you.
+#
+# 3. The test does NOT modify the Fossil checkout tree in any way.
 proc run_in_checkout { script {dir ""} } {
   if {[string length $dir] == 0} {set dir $::testfiledir}
   set savedPwd [pwd]; cd $dir
@@ -495,6 +605,35 @@ proc run_in_checkout { script {dir ""} } {
   } result]
   cd $savedPwd; unset savedPwd
   return -code $code $result
+}
+
+# Wrapper for the above function pair.  The tscript parameter is an
+# optional post-run test script.  Some callers choose instead to put
+# the tests inline with the rscript commands.
+#
+# Be sure to adhere to the requirements of run_in_checkout!
+proc test_block_in_checkout { name rscript {tscript ""} } {
+  if {$::outside_fossil_repo || $::dirty_ckout} {
+    set $::CODE 0
+    set $::RESULT ""
+  } else {
+    uplevel 1 [list run_in_checkout $rscript]
+    if {[string length $tscript] == 0} {
+      return ""
+    } else {
+      set code [catch {
+        uplevel 1 $tscript
+      } result]
+      return -code $code $result
+    }
+  }
+}
+
+# Single-test wrapper for the above.
+proc test_in_checkout { name rscript tscript } {
+  return test_block_in_checkout name rscript {
+    test $name $tscript
+  }
 }
 
 # Normalize file status lists (like those returned by 'fossil changes')
@@ -592,7 +731,7 @@ proc getTemporaryPath {} {
   #
   # NOTE: On non-Windows systems, fallback to /tmp if it is usable.
   #
-  if {$::tcl_platform(platform) ne "windows"} {
+  if {!$::is_windows} {
     set value /tmp
 
     if {[file exists $value] && [file isdirectory $value]} {
@@ -688,7 +827,7 @@ proc test {name expr {constraints ""}} {
       protOut "test $name FAILED!" 1
       if {$::QUIET} {protOut "RESULT: $RESULT" 1}
       lappend bad_test $name
-      if {$::HALT} exit
+      if {$::HALT} {exit 1}
     }
   }
 }
@@ -764,7 +903,7 @@ proc test_start_server { repository {varName ""} } {
   if {[string length $varName] > 0} {
     upvar 1 $varName stopArg
   }
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     set stopArg [file join [getTemporaryPath] [appendArgs \
         [string trim [clock seconds] -] _ [getSeqNo] .stopper]]
     lappend command --stopper $stopArg
@@ -774,7 +913,7 @@ proc test_start_server { repository {varName ""} } {
       [getSeqNo]]].out
   lappend command $repository >&$outFileName &
   set pid [eval $command]
-  if {$::tcl_platform(platform) ne "windows"} {
+  if {!$::is_windows} {
     set stopArg $pid
   }
   after 1000; # output might not be there yet
@@ -791,7 +930,7 @@ proc test_start_server { repository {varName ""} } {
 # will vary by platform as will the exact method used to stop the server.
 # The fileName argument is the name of a temporary output file to delete.
 proc test_stop_server { stopArg pid fileName } {
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     #
     # NOTE: On Windows, the "stop argument" must be the name of a file
     #       that does NOT already exist.
@@ -856,7 +995,10 @@ proc test_fossil_http { repository dataFileName url } {
   set data [subst [read_file $dataFileName]]
 
   write_file $inFileName $data
-  fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
+
+  fossil http --in $inFileName --out $outFileName --ipaddr 127.0.0.1 \
+      $repository --localauth --th-trace
+
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
   if {1} {
@@ -918,7 +1060,7 @@ proc third_to_last_data_line {} {
 
 set tempPath [getTemporaryPath]
 
-if {$tcl_platform(platform) eq "windows"} {
+if {$is_windows} {
   set tempPath [string map [list \\ /] $tempPath]
 }
 
@@ -939,11 +1081,18 @@ if {[catch {
 please set TEMP variable in environment, error: $error"
 }
 
+
 protInit $fossilexe
 set ::tempKeepHome 1
 foreach testfile $argv {
   protOut "***** $testfile ******"
-  source $testdir/$testfile.test
+  if { [catch {source $testdir/$testfile.test} testerror testopts] } {
+    test test-framework-$testfile 0
+    protOut "!!!!! $testfile: $testerror"
+    protOutDict $testopts"
+  } else {
+    test test-framework-$testfile 1
+  }
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
 }
 unset ::tempKeepHome; delete_temporary_home

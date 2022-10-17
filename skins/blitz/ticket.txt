@@ -1,6 +1,6 @@
 <h4>$<title></h4>
 <table class="tktDsp">
-<tr><td class="tktDspLabel">Ticket&nbsp;UUID</td>
+<tr><td class="tktDspLabel">Ticket&nbsp;Hash</td>
 <th1>
 if {[info exists tkt_uuid]} {
   if {[hascap s]} {

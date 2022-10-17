@@ -29,6 +29,14 @@ static void report_format_hints(void);
 #  define SQLITE_RECURSIVE            33
 #endif
 
+/* Settings that can be used to control ticket reports */
+/*
+** SETTING: ticket-default-report   width=80
+** If this setting has a string value, then when the ticket
+** search page query is blank, the report with this title is shown.
+** If the setting is blank (default), then no report is shown.
+*/
+
 /*
 ** WEBPAGE: reportlist
 **
@@ -40,6 +48,7 @@ void view_list(void){
   Stmt q;
   int rn = 0;
   int cnt = 0;
+  char *defaultReport = db_get("ticket-default-report", 0);
 
   login_check_credentials();
   if( !g.perm.RdTkt && !g.perm.NewTkt ){
@@ -88,6 +97,9 @@ void view_list(void){
       blob_appendf(&ril, "[%zsql</a>]",
                          href("%R/rptsql?rn=%d", rn));
     }
+    if( fossil_strcmp(zTitle, defaultReport)==0 ){
+      blob_appendf(&ril, "&nbsp;← default");
+    }
     blob_appendf(&ril, "</li>\n");
   }
   db_finalize(&q);
@@ -99,7 +111,7 @@ void view_list(void){
   blob_reset(&ril);
   if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
 
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -163,8 +175,11 @@ char *remove_blank_lines(const char *zOrig){
 ** SQL statements entered by users do not try to do anything untoward.
 ** If anything suspicious is tried, set *(char**)pError to an error
 ** message obtained from malloc.
+**
+** Use the "fossil test-db-prepare --auth-report SQL" command to perform
+** manual testing of this authorizer.
 */
-int report_query_authorizer(
+static int report_query_authorizer(
   void *pError,
   int code,
   const char *zArg1,
@@ -185,28 +200,49 @@ int report_query_authorizer(
     }
     case SQLITE_READ: {
       static const char *const azAllowed[] = {
-         "ticket",
-         "ticketchng",
+         "backlink",
          "blob",
+         "event",
          "filename",
+         "json_each",
+         "json_tree",
          "mlink",
          "plink",
-         "event",
          "tag",
          "tagxref",
+         "ticket",
+         "ticketchng",
          "unversioned",
       };
-      int i;
-      if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
+      int lwr = 0;
+      int upr = count(azAllowed) - 1;
+      int cmp = 0;
+      if( zArg1==0 ){
+        /* Some legacy versions of SQLite will sometimes send spurious
+        ** READ authorizations that have no table name.  These can be
+        ** ignored. */
+        rc = SQLITE_IGNORE;
         break;
       }
-      for(i=0; i<count(azAllowed); i++){
-        if( fossil_stricmp(zArg1, azAllowed[i])==0 ) break;
+      while( lwr<=upr ){
+        int i = (lwr+upr)/2;
+        cmp = fossil_stricmp(zArg1, azAllowed[i]);
+        if( cmp<0 ){
+          upr = i - 1;
+        }else if( cmp>0 ){
+          lwr = i + 1;
+        }else{
+          break;
+        }
       }
-      if( i>=count(azAllowed) ){
+      if( cmp ){
+        /* Always ok to access tables whose names begin with "fx_" */
+        cmp = sqlite3_strnicmp(zArg1, "fx_", 3);
+      }
+      if( cmp ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
         rc = SQLITE_DENY;
-      }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
+      }else if( !g.perm.RdAddr && sqlite3_strnicmp(zArg2, "private_", 8)==0 ){
         rc = SQLITE_IGNORE;
       }
       break;
@@ -221,13 +257,15 @@ int report_query_authorizer(
 }
 
 /*
-** Activate the query authorizer
+** Activate the ticket report query authorizer. Must be followed by an
+** eventual call to report_unrestrict_sql().
 */
-static void report_restrict_sql(char **pzErr){
-  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)pzErr);
+void report_restrict_sql(char **pzErr){
+  db_set_authorizer(report_query_authorizer,(void*)pzErr,"Ticket-Report");
+  sqlite3_limit(g.db, SQLITE_LIMIT_VDBE_OP, 10000);
 }
-static void report_unrestrict_sql(void){
-  sqlite3_set_authorizer(g.db, 0, 0);
+void report_unrestrict_sql(void){
+  db_clear_authorizer();
 }
 
 
@@ -309,10 +347,11 @@ void view_see_sql(void){
   rn = atoi(PD("rn","0"));
   db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                    "FROM reportfmt WHERE rn=%d",rn);
+  style_set_current_feature("report");
   style_header("SQL For Report Format Number %d", rn);
   if( db_step(&q)!=SQLITE_ROW ){
     @ <p>Unknown report number: %d(rn)</p>
-    style_footer();
+    style_finish_page();
     db_finalize(&q);
     return;
   }
@@ -327,14 +366,14 @@ void view_see_sql(void){
   @ <td colspan="3">%h(zOwner)</td></tr>
   @ <tr><td valign="top" align="right">SQL:</td><td></td>
   @ <td valign="top"><pre>
-  @ %h(zSQL)
+  @ <code class="language-sql">%h(zSQL)</code>
   @ </pre></td>
   @ <td width=15></td><td valign="top">
   output_color_key(zClrKey, 0, "border=0 cellspacing=0 cellpadding=3");
   @ </td>
   @ </tr></table>
   report_format_hints();
-  style_footer();
+  style_finish_page();
   db_finalize(&q);
 }
 
@@ -359,12 +398,14 @@ void view_edit(void){
   const char *zClrKey;
   char *zSQL;
   char *zErr = 0;
+  int dflt = P("dflt") ? 1 : 0;
 
   login_check_credentials();
   if( !g.perm.TktFmt ){
     login_needed(g.anon.TktFmt);
     return;
   }
+  style_set_current_feature("report");
   /*view_add_functions(0);*/
   rn = atoi(PD("rn","0"));
   zTitle = P("t");
@@ -394,7 +435,7 @@ void view_edit(void){
     @ <input type="submit" name="del2" value="Delete The Report">
     @ <input type="submit" name="can" value="Cancel">
     @ </form>
-    style_footer();
+    style_finish_page();
     return;
   }else if( P("can") ){
     /* user cancelled */
@@ -427,6 +468,14 @@ void view_edit(void){
            zTitle, zSQL, zOwner, zClrKey);
         rn = db_last_insert_rowid();
       }
+      if( dflt ){
+        db_set("ticket-default-report", zTitle, 0);
+      }else{
+        char *defaultReport = db_get("ticket-default-report", 0);
+        if( fossil_strcmp(zTitle, defaultReport)==0 ){
+          db_set("ticket-default-report", "", 0);
+        }
+      }
       cgi_redirect(mprintf("rptview?rn=%d", rn));
       return;
     }
@@ -439,10 +488,12 @@ void view_edit(void){
     db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                      "FROM reportfmt WHERE rn=%d",rn);
     if( db_step(&q)==SQLITE_ROW ){
+      char *defaultReport = db_get("ticket-default-report", 0);
       zTitle = db_column_malloc(&q, 0);
       zSQL = db_column_malloc(&q, 1);
       zOwner = db_column_malloc(&q, 2);
       zClrKey = db_column_malloc(&q, 3);
+      dflt = fossil_strcmp(zTitle, defaultReport)==0;
     }
     db_finalize(&q);
     if( P("copy") ){
@@ -481,12 +532,14 @@ void view_edit(void){
   @ color for that line.<br />
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
+  @ <p><label><input type="checkbox" name="dflt" %s(dflt?"checked":"")> \
+  @ Make this the default report</label></p>
   if( !g.perm.Admin && fossil_strcmp(zOwner,g.zLogin)!=0 ){
     @ <p>This report format is owned by %h(zOwner).  You are not allowed
     @ to change it.</p>
     @ </form>
     report_format_hints();
-    style_footer();
+    style_finish_page();
     return;
   }
   @ <input type="submit" value="Apply Changes" />
@@ -495,7 +548,7 @@ void view_edit(void){
   }
   @ </div></form>
   report_format_hints();
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -504,14 +557,14 @@ void view_edit(void){
 */
 static void report_format_hints(void){
   char *zSchema;
-  zSchema = db_text(0,"SELECT sql FROM sqlite_master WHERE name='ticket'");
+  zSchema = db_text(0,"SELECT sql FROM sqlite_schema WHERE name='ticket'");
   if( zSchema==0 ){
-    zSchema = db_text(0,"SELECT sql FROM repository.sqlite_master"
+    zSchema = db_text(0,"SELECT sql FROM repository.sqlite_schema"
                         " WHERE name='ticket'");
   }
   @ <hr /><h3>TICKET Schema</h3>
   @ <blockquote><pre>
-  @ %h(zSchema)
+  @ <code class="language-sql">%h(zSchema)</code>
   @ </pre></blockquote>
   @ <h3>Notes</h3>
   @ <ul>
@@ -664,7 +717,7 @@ static int generate_html(
 ){
   struct GenerateHTML *pState = (struct GenerateHTML*)pUser;
   int i;
-  const char *zTid;  /* Ticket UUID.  (value of column named '#') */
+  const char *zTid;  /* Ticket hash.  (value of column named '#') */
   const char *zBg = 0; /* Use this background color */
 
   /* Do initialization
@@ -673,7 +726,7 @@ static int generate_html(
     /* Turn off the authorizer.  It is no longer doing anything since the
     ** query has already been prepared.
     */
-    sqlite3_set_authorizer(g.db, 0, 0);
+    db_clear_authorizer();
 
     /* Figure out the number of columns, the column that determines background
     ** color, and whether or not this row of data is represented by multiple
@@ -948,191 +1001,6 @@ static int db_exec_readonly(
 }
 
 /*
-** Output Javascript code that will enables sorting of the table with
-** the id zTableId by clicking.
-**
-** The javascript was originally derived from:
-**
-**     http://www.webtoolkit.info/sortable-html-table.html
-**
-** But there have been extensive modifications.
-**
-** This variation allows column types to be expressed using the second
-** argument.  Each character of the second argument represent a column.
-**
-**       t      Sort by text
-**       n      Sort numerically
-**       k      Sort by the data-sortkey property
-**       x      This column is not sortable
-**
-** Capital letters mean sort in reverse order.
-** If there are fewer characters in zColumnTypes[] than their are columns,
-** then all extra columns assume type "t" (text).
-**
-** The third parameter is the column that was initially sorted (using 1-based
-** column numbers, like SQL).  Make this value 0 if none of the columns are
-** initially sorted.  Make the value negative if the column is initially sorted
-** in reverse order.
-**
-** Clicking on the same column header twice in a row inverts the sort.
-*/
-void output_table_sorting_javascript(
-  const char *zTableId,      /* ID of table to sort */
-  const char *zColumnTypes,  /* String for column types */
-  int iInitSort              /* Initially sorted column. Leftmost is 1. 0 for NONE */
-){
-  @ <script>
-  @ function SortableTable(tableEl,columnTypes,initSort){
-  @   this.tbody = tableEl.getElementsByTagName('tbody');
-  @   this.columnTypes = columnTypes;
-  @   var ncols = tableEl.rows[0].cells.length;
-  @   for(var i = columnTypes.length; i<=ncols; i++){this.columnTypes += 't';}
-  @   this.sort = function (cell) {
-  @     var column = cell.cellIndex;
-  @     var sortFn;
-  @     switch( cell.sortType ){
-  if( strchr(zColumnTypes,'n') ){
-    @       case "n": sortFn = this.sortNumeric;  break;
-  }
-  if( strchr(zColumnTypes,'N') ){
-    @       case "N": sortFn = this.sortReverseNumeric;  break;
-  }
-  @       case "t": sortFn = this.sortText;  break;
-  if( strchr(zColumnTypes,'T') ){
-    @       case "T": sortFn = this.sortReverseText;  break;
-  }
-  if( strchr(zColumnTypes,'k') ){
-    @       case "k": sortFn = this.sortKey;  break;
-  }
-  if( strchr(zColumnTypes,'K') ){
-    @       case "K": sortFn = this.sortReverseKey;  break;
-  }
-  @       default:  return;
-  @     }
-  @     this.sortIndex = column;
-  @     var newRows = new Array();
-  @     for (j = 0; j < this.tbody[0].rows.length; j++) {
-  @        newRows[j] = this.tbody[0].rows[j];
-  @     }
-  @     if( this.sortIndex==Math.abs(this.prevColumn)-1 ){
-  @       newRows.reverse();
-  @       this.prevColumn = -this.prevColumn;
-  @     }else{
-  @       newRows.sort(sortFn);
-  @       this.prevColumn = this.sortIndex+1;
-  @     }
-  @     for (i=0;i<newRows.length;i++) {
-  @       this.tbody[0].appendChild(newRows[i]);
-  @     }
-  @     this.setHdrIcons();
-  @   }
-  @   this.setHdrIcons = function() {
-  @     for (var i=0; i<this.hdrRow.cells.length; i++) {
-  @       if( this.columnTypes[i]=='x' ) continue;
-  @       var sortType;
-  @       if( this.prevColumn==i+1 ){
-  @         sortType = 'asc';
-  @       }else if( this.prevColumn==(-1-i) ){
-  @         sortType = 'desc'
-  @       }else{
-  @         sortType = 'none';
-  @       }
-  @       var hdrCell = this.hdrRow.cells[i];
-  @       var clsName = hdrCell.className.replace(/\s*\bsort\s*\w+/, '');
-  @       clsName += ' sort ' + sortType;
-  @       hdrCell.className = clsName;
-  @     }
-  @   }
-  @   this.sortText = function(a,b) {
-  @     var i = thisObject.sortIndex;
-  @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-  @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-  @     if(aa<bb) return -1;
-  @     if(aa==bb) return a.rowIndex-b.rowIndex;
-  @     return 1;
-  @   }
-  if( strchr(zColumnTypes,'T') ){
-    @   this.sortReverseText = function(a,b) {
-    @     var i = thisObject.sortIndex;
-    @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-    @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-    @     if(aa<bb) return +1;
-    @     if(aa==bb) return a.rowIndex-b.rowIndex;
-    @     return -1;
-    @   }
-  }
-  if( strchr(zColumnTypes,'n') ){
-    @   this.sortNumeric = function(a,b) {
-    @     var i = thisObject.sortIndex;
-    @     aa = parseFloat(a.cells[i].textContent);
-    @     if (isNaN(aa)) aa = 0;
-    @     bb = parseFloat(b.cells[i].textContent);
-    @     if (isNaN(bb)) bb = 0;
-    @     if(aa==bb) return a.rowIndex-b.rowIndex;
-    @     return aa-bb;
-    @   }
-  }
-  if( strchr(zColumnTypes,'N') ){
-    @   this.sortReverseNumeric = function(a,b) {
-    @     var i = thisObject.sortIndex;
-    @     aa = parseFloat(a.cells[i].textContent);
-    @     if (isNaN(aa)) aa = 0;
-    @     bb = parseFloat(b.cells[i].textContent);
-    @     if (isNaN(bb)) bb = 0;
-    @     if(aa==bb) return a.rowIndex-b.rowIndex;
-    @     return bb-aa;
-    @   }
-  }
-  if( strchr(zColumnTypes,'k') ){
-    @   this.sortKey = function(a,b) {
-    @     var i = thisObject.sortIndex;
-    @     aa = a.cells[i].getAttribute("data-sortkey");
-    @     bb = b.cells[i].getAttribute("data-sortkey");
-    @     if(aa<bb) return -1;
-    @     if(aa==bb) return a.rowIndex-b.rowIndex;
-    @     return 1;
-    @   }
-  }
-  if( strchr(zColumnTypes,'K') ){
-    @   this.sortReverseKey = function(a,b) {
-    @     var i = thisObject.sortIndex;
-    @     aa = a.cells[i].getAttribute("data-sortkey");
-    @     bb = b.cells[i].getAttribute("data-sortkey");
-    @     if(aa<bb) return +1;
-    @     if(aa==bb) return a.rowIndex-b.rowIndex;
-    @     return -1;
-    @   }
-  }
-  @   var x = tableEl.getElementsByTagName('thead');
-  @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
-  @     return;
-  @   }
-  @   if(x && x[0].rows && x[0].rows.length > 0) {
-  @     this.hdrRow = x[0].rows[0];
-  @   } else {
-  @     return;
-  @   }
-  @   var thisObject = this;
-  @   this.prevColumn = initSort;
-  @   for (var i=0; i<this.hdrRow.cells.length; i++) {
-  @     if( columnTypes[i]=='x' ) continue;
-  @     var hdrcell = this.hdrRow.cells[i];
-  @     hdrcell.sTable = this;
-  @     hdrcell.style.cursor = "pointer";
-  @     hdrcell.sortType = columnTypes[i] || 't';
-  @     hdrcell.onclick = function () {
-  @       this.sTable.sort(this);
-  @       return false;
-  @     }
-  @   }
-  @   this.setHdrIcons()
-  @ }
-  @ var t = new SortableTable(gebi("%s(zTableId)"),"%s(zColumnTypes)",%d(iInitSort));
-  @ </script>
-}
-
-
-/*
 ** WEBPAGE: rptview
 **
 ** Generate a report.  The rn query parameter is the report number
@@ -1141,6 +1009,18 @@ void output_table_sorting_javascript(
 ** an HTML table.
 */
 void rptview_page(void){
+  rptview_page_content(0, 1, 1);
+}
+
+/*
+** Render a report.
+*/
+void rptview_page_content(
+  const char *defaultTitleSearch, /* If rn and title query parameters are
+                                     blank, search reports by this title. */
+  int pageWrap, /* If true, render full page; otherwise, just the report */
+  int redirectMissing /* If true and report not found, go to reportlist */
+){
   int count = 0;
   int rn, rc;
   char *zSql;
@@ -1160,15 +1040,20 @@ void rptview_page(void){
      atoi(PD("rn","0")));
   rc = db_step(&q);
   if( rc!=SQLITE_ROW ){
+    const char *titleSearch =
+      defaultTitleSearch==0 || trim_string(defaultTitleSearch)[0]==0 ?
+        P("title") : defaultTitleSearch;
     db_finalize(&q);
     db_prepare(&q,
       "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE title GLOB %Q",
-      P("title"));
+      titleSearch);
     rc = db_step(&q);
   }
   if( rc!=SQLITE_ROW ){
     db_finalize(&q);
-    cgi_redirect("reportlist");
+    if( redirectMissing ) {
+      cgi_redirect("reportlist");
+    }
     return;
   }
   zTitle = db_column_malloc(&q, 0);
@@ -1196,24 +1081,35 @@ void rptview_page(void){
   count = 0;
   if( !tabs ){
     struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    const char *zQS = PD("QUERY_STRING","");
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
-    style_submenu_element("Raw", "rptview?tablist=1&%h", PD("QUERY_STRING",""));
-    if( g.perm.Admin
-       || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
-      style_submenu_element("Edit", "rptedit?rn=%d", rn);
+    style_set_current_feature("report");
+    if( pageWrap ) {
+      /* style_finish_page() should provide escaping via %h formatting */
+      if( zQS[0] ){
+        style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+        style_submenu_element("Reports","%R/reportlist?%s",zQS);
+      } else {
+        style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+        style_submenu_element("Reports","%R/reportlist");
+      }
+      if( g.perm.Admin
+        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
+        style_submenu_element("Edit", "rptedit?rn=%d", rn);
+      }
+      if( g.perm.TktFmt ){
+        style_submenu_element("SQL", "rptsql?rn=%d",rn);
+      }
+      if( g.perm.NewTkt ){
+        style_submenu_element("New Ticket", "%R/tktnew");
+      }
+      style_header("%s", zTitle);
     }
-    if( g.perm.TktFmt ){
-      style_submenu_element("SQL", "rptsql?rn=%d",rn);
-    }
-    if( g.perm.NewTkt ){
-      style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
-    }
-    style_header("%s", zTitle);
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
-    @ <table border="1" cellpadding="2" cellspacing="0" class="report"
-    @  id="reportTable">
+    @ <table border="1" cellpadding="2" cellspacing="0" class="report sortable"
+    @  data-column-types='' data-init-sort='0'>
     sState.rn = rn;
     sState.nCount = 0;
     report_restrict_sql(&zErr1);
@@ -1225,8 +1121,10 @@ void rptview_page(void){
     }else if( zErr2 ){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
-    output_table_sorting_javascript("reportTable","",0);
-    style_footer();
+    style_table_sorter();
+    if( pageWrap ) {
+      style_finish_page();
+    }
   }else{
     report_restrict_sql(&zErr1);
     db_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);

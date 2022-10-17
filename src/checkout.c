@@ -41,17 +41,55 @@ int unsaved_changes(unsigned int cksigFlags){
 /*
 ** Undo the current check-out.  Unlink all files from the disk.
 ** Clear the VFILE table.
+**
+** Also delete any directory that becomes empty as a result of deleting
+** files due to this operation, as long as that directory is not the
+** current working directory and is not on the empty-dirs list.
 */
 void uncheckout(int vid){
-  if( vid>0 ){
-    vfile_unlink(vid);
-  }
+  char *zPwd;
+  if( vid<=0 ) return;
+  sqlite3_create_function(g.db, "dirname",1,SQLITE_UTF8,0,
+                          file_dirname_sql_function, 0, 0);
+  sqlite3_create_function(g.db, "unlink",1,SQLITE_UTF8|SQLITE_DIRECTONLY,0,
+                          file_delete_sql_function, 0, 0);
+  sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8|SQLITE_DIRECTONLY, 0,
+                          file_rmdir_sql_function, 0, 0);
+  db_multi_exec(
+    "CREATE TEMP TABLE dir_to_delete(name TEXT %s PRIMARY KEY)WITHOUT ROWID",
+    filename_collation()
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO dir_to_delete(name)"
+    "  SELECT dirname(pathname) FROM vfile"
+    "   WHERE vid=%d AND mrid>0",
+    vid
+  );
+  do{
+    db_multi_exec(
+      "INSERT OR IGNORE INTO dir_to_delete(name)"
+      " SELECT dirname(name) FROM dir_to_delete;"
+    );
+  }while( db_changes() );
+  db_multi_exec(
+    "SELECT unlink(%Q||pathname) FROM vfile"
+    " WHERE vid=%d AND mrid>0;",
+    g.zLocalRoot, vid
+  );
+  ensure_empty_dirs_created(1);
+  zPwd = file_getcwd(0,0);
+  db_multi_exec(
+    "SELECT rmdir(%Q||name) FROM dir_to_delete"
+    " WHERE (%Q||name)<>%Q ORDER BY name DESC",
+    g.zLocalRoot, g.zLocalRoot, zPwd
+  );
+  fossil_free(zPwd);
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
 }
 
 
 /*
-** Given the abbreviated UUID name of a version, load the content of that
+** Given the abbreviated hash of a version, load the content of that
 ** version in the VFILE table.  Return the VID for the version.
 **
 ** If anything goes wrong, panic.
@@ -116,7 +154,7 @@ void checkout_set_all_exe(int vid){
     int isExe;
     blob_append(&filename, pFile->zName, -1);
     isExe = pFile->zPerm && strstr(pFile->zPerm, "x");
-    file_wd_setexe(blob_str(&filename), isExe);
+    file_setexe(blob_str(&filename), isExe);
     set_or_clear_isexe(pFile->zName, vid, isExe);
     blob_resize(&filename, baseLen);
   }
@@ -144,7 +182,7 @@ void manifest_to_disk(int vid){
   if( flg & MFESTFLG_RAW ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
-    sterilize_manifest(&manifest);
+    sterilize_manifest(&manifest, CFTYPE_MANIFEST);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);
@@ -221,14 +259,19 @@ void get_checkin_taglist(int rid, Blob *pOut){
 
 /*
 ** COMMAND: checkout*
-** COMMAND: co*
+** COMMAND: co#
 **
 ** Usage: %fossil checkout ?VERSION | --latest? ?OPTIONS?
 **    or: %fossil co ?VERSION | --latest? ?OPTIONS?
 **
-** Check out a version specified on the command-line.  This command
-** will abort if there are edited files in the current checkout unless
-** the --force option appears on the command-line.  The --keep option
+** NOTE: Most people use "fossil update" instead of "fossil checkout" for
+** day-to-day operations.  If you are new to Fossil and trying to learn your
+** way around, it is recommended that you become familiar with the
+** "fossil update" command first.
+**
+** This command changes the current check-out to the version specified
+** as an argument.  The command aborts if there are edited files in the
+** current checkout unless the --force option is used.  The --keep option
 ** leaves files on disk unchanged, except the manifest and manifest.uuid
 ** files.
 **
@@ -237,10 +280,13 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **
 ** Options:
 **    --force           Ignore edited files in the current checkout
-**    --keep            Only update the manifest and manifest.uuid files
+**    --keep            Only update the manifest file(s)
 **    --force-missing   Force checkout even if content is missing
+**    --setmtime        Set timestamps of all files to match their SCM-side
+**                      times (the timestamp of the last checkin which modified
+**                      them)
 **
-** See also: update
+** See also: [[update]]
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
@@ -250,6 +296,7 @@ void checkout_cmd(void){
   char *zVers;                   /* Version to checkout */
   int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
+  int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   Blob cksum1, cksum1b, cksum2;
 
   db_must_be_within_tree();
@@ -259,6 +306,7 @@ void checkout_cmd(void){
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
+  setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -286,6 +334,7 @@ void checkout_cmd(void){
                          " ORDER BY event.mtime DESC");
     }
     if( zVers==0 ){
+      db_end_transaction(0);
       return;
     }
   }else{
@@ -293,6 +342,8 @@ void checkout_cmd(void){
   }
   vid = load_vfile(zVers, forceMissingFlag);
   if( prior==vid ){
+    if( setmtimeFlag ) vfile_check_signature(vid, CKSIG_SETMTIME);
+    db_end_transaction(0);
     return;
   }
   if( !keepFlag ){
@@ -304,8 +355,8 @@ void checkout_cmd(void){
   }
   checkout_set_all_exe(vid);
   manifest_to_disk(vid);
-  ensure_empty_dirs_created();
-  db_lset_int("checkout", vid);
+  ensure_empty_dirs_created(0);
+  db_set_checkout(vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
   if( !keepFlag && db_get_boolean("repo-cksum",1) ){
@@ -318,6 +369,7 @@ void checkout_cmd(void){
       fossil_print("WARNING: manifest checksum does not agree with manifest\n");
     }
   }
+  if( setmtimeFlag ) vfile_check_signature(vid, CKSIG_SETMTIME);
   db_end_transaction(0);
 }
 
@@ -342,14 +394,14 @@ static void unlink_local_database(int manifestOnly){
 **
 ** Usage: %fossil close ?OPTIONS?
 **
-** The opposite of "open".  Close the current database connection.
+** The opposite of "[[open]]".  Close the current database connection.
 ** Require a -f or --force flag if there are unsaved changes in the
 ** current check-out or if there is non-empty stash.
 **
 ** Options:
-**   --force|-f  necessary to close a check out with uncommitted changes
+**   -f|--force  necessary to close a check out with uncommitted changes
 **
-** See also: open
+** See also: [[open]]
 */
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
@@ -368,9 +420,7 @@ void close_cmd(void){
     fossil_fatal("closing the checkout will delete your stash");
   }
   if( db_is_writeable("repository") ){
-    char *zUnset = mprintf("ckout:%q", g.zLocalRoot);
-    db_unset(zUnset, 1);
-    fossil_free(zUnset);
+    db_unset_mprintf(1, "ckout:%q", g.zLocalRoot);
   }
   unlink_local_database(1);
   db_close(1);

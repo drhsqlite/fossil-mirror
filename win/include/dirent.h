@@ -1,6 +1,6 @@
 /*
  * Dirent interface for Microsoft Visual Studio
- * Version 1.22
+ * Version 1.23.1
  *
  * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -198,11 +198,11 @@
 #   define S_ISBLK(mode) (((mode) & S_IFMT) == S_IFBLK)
 #endif
 
-/* Return the exact length of d_namlen without zero terminator */
+/* Return the exact length of the file name without zero terminator */
 #define _D_EXACT_NAMLEN(p) ((p)->d_namlen)
 
-/* Return number of bytes needed to store d_namlen */
-#define _D_ALLOC_NAMLEN(p) (PATH_MAX)
+/* Return the maximum size of a file name */
+#define _D_ALLOC_NAMLEN(p) ((PATH_MAX)+1)
 
 
 #ifdef __cplusplus
@@ -215,6 +215,9 @@ struct _wdirent {
     /* Always zero */
     long d_ino;
 
+    /* File position within stream */
+    long d_off;
+
     /* Structure size */
     unsigned short d_reclen;
 
@@ -225,7 +228,7 @@ struct _wdirent {
     int d_type;
 
     /* File name */
-    wchar_t d_name[PATH_MAX];
+    wchar_t d_name[PATH_MAX+1];
 };
 typedef struct _wdirent _wdirent;
 
@@ -247,25 +250,13 @@ struct _WDIR {
 };
 typedef struct _WDIR _WDIR;
 
-static _WDIR *_wopendir (const wchar_t *dirname);
-static struct _wdirent *_wreaddir (_WDIR *dirp);
-static int _wclosedir (_WDIR *dirp);
-static void _wrewinddir (_WDIR* dirp);
-
-
-/* For compatibility with Symbian */
-#define wdirent _wdirent
-#define WDIR _WDIR
-#define wopendir _wopendir
-#define wreaddir _wreaddir
-#define wclosedir _wclosedir
-#define wrewinddir _wrewinddir
-
-
-/* Multi-byte character versions */
+/* Multi-byte character version */
 struct dirent {
     /* Always zero */
     long d_ino;
+
+    /* File position within stream */
+    long d_off;
 
     /* Structure size */
     unsigned short d_reclen;
@@ -277,7 +268,7 @@ struct dirent {
     int d_type;
 
     /* File name */
-    char d_name[PATH_MAX];
+    char d_name[PATH_MAX+1];
 };
 typedef struct dirent dirent;
 
@@ -287,10 +278,41 @@ struct DIR {
 };
 typedef struct DIR DIR;
 
+
+/* Dirent functions */
 static DIR *opendir (const char *dirname);
+static _WDIR *_wopendir (const wchar_t *dirname);
+
 static struct dirent *readdir (DIR *dirp);
+static struct _wdirent *_wreaddir (_WDIR *dirp);
+
+static int readdir_r(
+    DIR *dirp, struct dirent *entry, struct dirent **result);
+static int _wreaddir_r(
+    _WDIR *dirp, struct _wdirent *entry, struct _wdirent **result);
+
 static int closedir (DIR *dirp);
+static int _wclosedir (_WDIR *dirp);
+
 static void rewinddir (DIR* dirp);
+static void _wrewinddir (_WDIR* dirp);
+
+static int scandir (const char *dirname, struct dirent ***namelist,
+    int (*filter)(const struct dirent*),
+    int (*compare)(const struct dirent**, const struct dirent**));
+
+static int alphasort (const struct dirent **a, const struct dirent **b);
+
+static int versionsort (const struct dirent **a, const struct dirent **b);
+
+
+/* For compatibility with Symbian */
+#define wdirent _wdirent
+#define WDIR _WDIR
+#define wopendir _wopendir
+#define wreaddir _wreaddir
+#define wclosedir _wclosedir
+#define wrewinddir _wrewinddir
 
 
 /* Internal utility functions */
@@ -312,6 +334,7 @@ static int dirent_wcstombs_s(
     size_t count);
 
 static void dirent_set_errno (int error);
+
 
 /*
  * Open directory stream DIRNAME for read and return a pointer to the
@@ -342,9 +365,9 @@ _wopendir(
         dirp->cached = 0;
 
         /* Compute the length of full path plus zero terminator
-         * 
+         *
          * Note that on WinRT there's no way to convert relative paths
-         * into absolute paths, so just assume its an absolute path.
+         * into absolute paths, so just assume it is an absolute path.
          */
 #       if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
             n = wcslen(dirname);
@@ -360,9 +383,9 @@ _wopendir(
              * Convert relative directory name to an absolute one.  This
              * allows rewinddir() to function correctly even when current
              * working directory is changed between opendir() and rewinddir().
-             * 
+             *
              * Note that on WinRT there's no way to convert relative paths
-             * into absolute paths, so just assume its an absolute path.
+             * into absolute paths, so just assume it is an absolute path.
              */
 #           if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
                 wcsncpy_s(dirp->patt, n+1, dirname, n);
@@ -427,64 +450,88 @@ _wopendir(
 }
 
 /*
- * Read next directory entry.  The directory entry is returned in dirent
- * structure in the d_name field.  Individual directory entries returned by
- * this function include regular files, sub-directories, pseudo-directories
- * "." and ".." as well as volume labels, hidden files and system files.
+ * Read next directory entry.
+ *
+ * Returns pointer to static directory entry which may be overwritten by
+ * subsequent calls to _wreaddir().
  */
 static struct _wdirent*
 _wreaddir(
     _WDIR *dirp)
 {
+    struct _wdirent *entry;
+
+    /*
+     * Read directory entry to buffer.  We can safely ignore the return value
+     * as entry will be set to NULL in case of error.
+     */
+    (void) _wreaddir_r (dirp, &dirp->ent, &entry);
+
+    /* Return pointer to statically allocated directory entry */
+    return entry;
+}
+
+/*
+ * Read next directory entry.
+ *
+ * Returns zero on success.  If end of directory stream is reached, then sets
+ * result to NULL and returns zero.
+ */
+static int
+_wreaddir_r(
+    _WDIR *dirp,
+    struct _wdirent *entry,
+    struct _wdirent **result)
+{
     WIN32_FIND_DATAW *datap;
-    struct _wdirent *entp;
 
     /* Read next directory entry */
     datap = dirent_next (dirp);
     if (datap) {
         size_t n;
         DWORD attr;
-        
-        /* Pointer to directory entry to return */
-        entp = &dirp->ent;
 
-        /* 
+        /*
          * Copy file name as wide-character string.  If the file name is too
          * long to fit in to the destination buffer, then truncate file name
          * to PATH_MAX characters and zero-terminate the buffer.
          */
         n = 0;
-        while (n + 1 < PATH_MAX  &&  datap->cFileName[n] != 0) {
-            entp->d_name[n] = datap->cFileName[n];
+        while (n < PATH_MAX  &&  datap->cFileName[n] != 0) {
+            entry->d_name[n] = datap->cFileName[n];
             n++;
         }
-        dirp->ent.d_name[n] = 0;
+        entry->d_name[n] = 0;
 
         /* Length of file name excluding zero terminator */
-        entp->d_namlen = n;
+        entry->d_namlen = n;
 
         /* File type */
         attr = datap->dwFileAttributes;
         if ((attr & FILE_ATTRIBUTE_DEVICE) != 0) {
-            entp->d_type = DT_CHR;
+            entry->d_type = DT_CHR;
         } else if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0) {
-            entp->d_type = DT_DIR;
+            entry->d_type = DT_DIR;
         } else {
-            entp->d_type = DT_REG;
+            entry->d_type = DT_REG;
         }
 
         /* Reset dummy fields */
-        entp->d_ino = 0;
-        entp->d_reclen = sizeof (struct _wdirent);
+        entry->d_ino = 0;
+        entry->d_off = 0;
+        entry->d_reclen = sizeof (struct _wdirent);
+
+        /* Set result address */
+        *result = entry;
 
     } else {
 
-        /* Last directory entry read */
-        entp = NULL;
+        /* Return NULL to indicate end of directory */
+        *result = NULL;
 
     }
 
-    return entp;
+    return /*OK*/0;
 }
 
 /*
@@ -516,9 +563,11 @@ _wclosedir(
         ok = /*success*/0;
 
     } else {
+
         /* Invalid directory stream */
         dirent_set_errno (EBADF);
         ok = /*failure*/-1;
+
     }
     return ok;
 }
@@ -569,7 +618,11 @@ dirent_first(
     return datap;
 }
 
-/* Get next directory entry (internal) */
+/*
+ * Get next directory entry (internal).
+ *
+ * Returns 
+ */
 static WIN32_FIND_DATAW*
 dirent_next(
     _WDIR *dirp)
@@ -590,7 +643,7 @@ dirent_next(
             /* Got a file */
             p = &dirp->data;
         } else {
-            /* The very last entry has been processed or an error occured */
+            /* The very last entry has been processed or an error occurred */
             FindClose (dirp->handle);
             dirp->handle = INVALID_HANDLE_VALUE;
             p = NULL;
@@ -606,7 +659,7 @@ dirent_next(
     return p;
 }
 
-/* 
+/*
  * Open directory stream using plain old C-string.
  */
 static DIR*
@@ -625,11 +678,12 @@ opendir(
     /* Allocate memory for DIR structure */
     dirp = (DIR*) malloc (sizeof (struct DIR));
     if (dirp) {
-        wchar_t wname[PATH_MAX];
+        wchar_t wname[PATH_MAX + 1];
         size_t n;
 
         /* Convert directory name to wide-character string */
-        error = dirent_mbstowcs_s (&n, wname, PATH_MAX, dirname, PATH_MAX);
+        error = dirent_mbstowcs_s(
+            &n, wname, PATH_MAX + 1, dirname, PATH_MAX + 1);
         if (!error) {
 
             /* Open directory stream using wide-character name */
@@ -643,7 +697,7 @@ opendir(
             }
 
         } else {
-            /* 
+            /*
              * Cannot convert file name to wide-character string.  This
              * occurs if the string contains invalid multi-byte sequences or
              * the output buffer is too small to contain the resulting
@@ -668,23 +722,36 @@ opendir(
 
 /*
  * Read next directory entry.
- *
- * When working with text consoles, please note that file names returned by
- * readdir() are represented in the default ANSI code page while any output to
- * console is typically formatted on another code page.  Thus, non-ASCII
- * characters in file names will not usually display correctly on console.  The
- * problem can be fixed in two ways: (1) change the character set of console
- * to 1252 using chcp utility and use Lucida Console font, or (2) use
- * _cprintf function when writing to console.  The _cprinf() will re-encode
- * ANSI strings to the console code page so many non-ASCII characters will
- * display correcly.
  */
 static struct dirent*
 readdir(
-    DIR *dirp) 
+    DIR *dirp)
+{
+    struct dirent *entry;
+
+    /*
+     * Read directory entry to buffer.  We can safely ignore the return value
+     * as entry will be set to NULL in case of error.
+     */
+    (void) readdir_r (dirp, &dirp->ent, &entry);
+
+    /* Return pointer to statically allocated directory entry */
+    return entry;
+}
+
+/*
+ * Read next directory entry into called-allocated buffer.
+ *
+ * Returns zero on success.  If the end of directory stream is reached, then
+ * sets result to NULL and returns zero.
+ */
+static int
+readdir_r(
+    DIR *dirp,
+    struct dirent *entry,
+    struct dirent **result)
 {
     WIN32_FIND_DATAW *datap;
-    struct dirent *entp;
 
     /* Read next directory entry */
     datap = dirent_next (dirp->wdirp);
@@ -694,9 +761,9 @@ readdir(
 
         /* Attempt to convert file name to multi-byte string */
         error = dirent_wcstombs_s(
-            &n, dirp->ent.d_name, PATH_MAX, datap->cFileName, PATH_MAX);
+            &n, entry->d_name, PATH_MAX + 1, datap->cFileName, PATH_MAX + 1);
 
-        /* 
+        /*
          * If the file name cannot be represented by a multi-byte string,
          * then attempt to use old 8+3 file name.  This allows traditional
          * Unix-code to access some file names despite of unicode
@@ -708,55 +775,60 @@ readdir(
          */
         if (error  &&  datap->cAlternateFileName[0] != '\0') {
             error = dirent_wcstombs_s(
-                &n, dirp->ent.d_name, PATH_MAX, 
-                datap->cAlternateFileName, PATH_MAX);
+                &n, entry->d_name, PATH_MAX + 1,
+                datap->cAlternateFileName, PATH_MAX + 1);
         }
 
         if (!error) {
             DWORD attr;
 
-            /* Initialize directory entry for return */
-            entp = &dirp->ent;
-
             /* Length of file name excluding zero terminator */
-            entp->d_namlen = n - 1;
+            entry->d_namlen = n - 1;
 
             /* File attributes */
             attr = datap->dwFileAttributes;
             if ((attr & FILE_ATTRIBUTE_DEVICE) != 0) {
-                entp->d_type = DT_CHR;
+                entry->d_type = DT_CHR;
             } else if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0) {
-                entp->d_type = DT_DIR;
+                entry->d_type = DT_DIR;
             } else {
-                entp->d_type = DT_REG;
+                entry->d_type = DT_REG;
             }
 
             /* Reset dummy fields */
-            entp->d_ino = 0;
-            entp->d_reclen = sizeof (struct dirent);
+            entry->d_ino = 0;
+            entry->d_off = 0;
+            entry->d_reclen = sizeof (struct dirent);
 
         } else {
-            /* 
+
+            /*
              * Cannot convert file name to multi-byte string so construct
-             * an errornous directory entry and return that.  Note that
+             * an erroneous directory entry and return that.  Note that
              * we cannot return NULL as that would stop the processing
              * of directory entries completely.
              */
-            entp = &dirp->ent;
-            entp->d_name[0] = '?';
-            entp->d_name[1] = '\0';
-            entp->d_namlen = 1;
-            entp->d_type = DT_UNKNOWN;
-            entp->d_ino = 0;
-            entp->d_reclen = 0;
+            entry->d_name[0] = '?';
+            entry->d_name[1] = '\0';
+            entry->d_namlen = 1;
+            entry->d_type = DT_UNKNOWN;
+            entry->d_ino = 0;
+            entry->d_off = -1;
+            entry->d_reclen = 0;
+
         }
 
+        /* Return pointer to directory entry */
+        *result = entry;
+
     } else {
+
         /* No more directory entries */
-        entp = NULL;
+        *result = NULL;
+
     }
 
-    return entp;
+    return /*OK*/0;
 }
 
 /*
@@ -764,7 +836,7 @@ readdir(
  */
 static int
 closedir(
-    DIR *dirp) 
+    DIR *dirp)
 {
     int ok;
     if (dirp) {
@@ -791,11 +863,170 @@ closedir(
  */
 static void
 rewinddir(
-    DIR* dirp) 
+    DIR* dirp)
 {
     /* Rewind wide-character string directory stream */
     _wrewinddir (dirp->wdirp);
 }
+
+/*
+ * Scan directory for entries.
+ */
+static int
+scandir(
+    const char *dirname,
+    struct dirent ***namelist,
+    int (*filter)(const struct dirent*),
+    int (*compare)(const struct dirent**, const struct dirent**))
+{
+    struct dirent **files = NULL;
+    size_t size = 0;
+    size_t allocated = 0;
+    const size_t init_size = 1;
+    DIR *dir = NULL;
+    struct dirent *entry;
+    struct dirent *tmp = NULL;
+    size_t i;
+    int result = 0;
+
+    /* Open directory stream */
+    dir = opendir (dirname);
+    if (dir) {
+
+        /* Read directory entries to memory */
+        while (1) {
+
+            /* Enlarge pointer table to make room for another pointer */
+            if (size >= allocated) {
+                void *p;
+                size_t num_entries;
+
+                /* Compute number of entries in the enlarged pointer table */
+                if (size < init_size) {
+                    /* Allocate initial pointer table */
+                    num_entries = init_size;
+                } else {
+                    /* Double the size */
+                    num_entries = size * 2;
+                }
+
+                /* Allocate first pointer table or enlarge existing table */
+                p = realloc (files, sizeof (void*) * num_entries);
+                if (p != NULL) {
+                    /* Got the memory */
+                    files = (dirent**) p;
+                    allocated = num_entries;
+                } else {
+                    /* Out of memory */
+                    result = -1;
+                    break;
+                }
+
+            }
+
+            /* Allocate room for temporary directory entry */
+            if (tmp == NULL) {
+                tmp = (struct dirent*) malloc (sizeof (struct dirent));
+                if (tmp == NULL) {
+                    /* Cannot allocate temporary directory entry */
+                    result = -1;
+                    break;
+                }
+            }
+
+            /* Read directory entry to temporary area */
+            if (readdir_r (dir, tmp, &entry) == /*OK*/0) {
+
+                /* Did we get an entry? */
+                if (entry != NULL) {
+                    int pass;
+
+                    /* Determine whether to include the entry in result */
+                    if (filter) {
+                        /* Let the filter function decide */
+                        pass = filter (tmp);
+                    } else {
+                        /* No filter function, include everything */
+                        pass = 1;
+                    }
+
+                    if (pass) {
+                        /* Store the temporary entry to pointer table */
+                        files[size++] = tmp;
+                        tmp = NULL;
+
+                        /* Keep up with the number of files */
+                        result++;
+                    }
+
+                } else {
+
+                    /*
+                     * End of directory stream reached => sort entries and
+                     * exit.
+                     */
+                    qsort (files, size, sizeof (void*),
+                        (int (*) (const void*, const void*)) compare);
+                    break;
+
+                }
+
+            } else {
+                /* Error reading directory entry */
+                result = /*Error*/ -1;
+                break;
+            }
+
+        }
+
+    } else {
+        /* Cannot open directory */
+        result = /*Error*/ -1;
+    }
+
+    /* Release temporary directory entry */
+    if (tmp) {
+        free (tmp);
+    }
+
+    /* Release allocated memory on error */
+    if (result < 0) {
+        for (i = 0; i < size; i++) {
+            free (files[i]);
+        }
+        free (files);
+        files = NULL;
+    }
+
+    /* Close directory stream */
+    if (dir) {
+        closedir (dir);
+    }
+
+    /* Pass pointer table to caller */
+    if (namelist) {
+        *namelist = files;
+    }
+    return result;
+}
+
+/* Alphabetical sorting */
+static int
+alphasort(
+    const struct dirent **a, const struct dirent **b)
+{
+    return strcoll ((*a)->d_name, (*b)->d_name);
+}
+
+/* Sort versions */
+static int
+versionsort(
+    const struct dirent **a, const struct dirent **b)
+{
+    /* FIXME: implement strverscmp and use that */
+    return alphasort (a, b);
+}
+
 
 /* Convert multi-byte string to wide character string */
 static int
@@ -830,7 +1061,7 @@ dirent_mbstowcs_s(
             wcstr[n] = 0;
         }
 
-        /* Length of resuting multi-byte string WITH zero terminator */
+        /* Length of resulting multi-byte string WITH zero terminator */
         if (pReturnValue) {
             *pReturnValue = n + 1;
         }

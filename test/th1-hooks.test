@@ -72,7 +72,7 @@ set testTh1Setup {
       break "TH_BREAK return code"
     } elseif {$::cmd_name eq "test4"} {
       emit_hook_log
-      return -code 2 "TH_RETURN return code"
+      return -code 5 "TH_RETURN return code"
     } elseif {$::cmd_name eq "timeline"} {
       set length [llength $::cmd_args]
       set length [expr {$length - 1}]
@@ -84,6 +84,9 @@ set testTh1Setup {
         emit_hook_log
         puts "+++ some stuff here +++"
         continue "custom2 timeline"
+      } elseif {[lindex $::cmd_args $length] eq "custom3"} {
+        emit_hook_log
+        return -code 5 "TH_RETURN return code"
       } elseif {[lindex $::cmd_args $length] eq "now"} {
         emit_hook_log
         return "now timeline"
@@ -125,7 +128,8 @@ set dataFileName [file join $::testdir th1-hooks-input.txt]
 
 ###############################################################################
 
-saveTh1SetupFile; writeTh1SetupFile $testTh1Setup
+set savedTh1Setup [fossil settings th1-setup]
+fossil settings th1-setup $testTh1Setup
 
 ###############################################################################
 
@@ -141,6 +145,14 @@ test th1-cmd-hooks-1b {[normalize_result] eq \
 {<h1><b>command_hook timeline</b></h1>
 +++ some stuff here +++
 <h1><b>command_hook timeline command_notify timeline</b></h1>}}
+
+###############################################################################
+
+fossil timeline custom3; # NOTE: Bad "WHEN" argument.
+
+test th1-cmd-hooks-1c {[normalize_result] eq \
+{<h1><b>command_hook timeline</b></h1>
+unknown check-in or invalid date: custom3}}
 
 ###############################################################################
 
@@ -187,8 +199,15 @@ test th1-custom-cmd-3a {[string trim $RESULT] eq \
 ###############################################################################
 
 fossil test4
-test th1-custom-cmd-4a {[string trim $RESULT] eq \
+
+test th1-custom-cmd-4a {[first_data_line] eq \
     {<h1><b>command_hook test4</b></h1>}}
+
+test th1-custom-cmd-4b {[regexp -- \
+    {: unknown command: test4$} [second_data_line]]}
+
+test th1-custom-cmd-4d {[regexp -- \
+    {: use "help" for more information$} [third_data_line]]}
 
 ###############################################################################
 
@@ -211,7 +230,7 @@ test th1-custom-web-1b {[last_data_line] eq \
 
 ###############################################################################
 
-restoreTh1SetupFile
+fossil settings th1-setup $savedTh1Setup
 
 ###############################################################################
 

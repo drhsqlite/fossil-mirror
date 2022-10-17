@@ -111,7 +111,7 @@ just a programming language.
 
 For certain types of problems, SQL has a huge advantage over other
 programming languages because it is so high level and because it allows
-programmers to focus more on the <i>what</i> and less of the <i>how</i>
+programmers to focus more on the <i>what</i> and less on the <i>how</i>
 of a computation.  In other words,
 programmers tend to think about problems at a much higher level when
 using SQL; this can result in better applications.

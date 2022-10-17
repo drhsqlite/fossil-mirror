@@ -165,6 +165,46 @@ static int for_command(
 /*
 ** TH Syntax:
 **
+**   foreach VARLIST LIST SCRIPT
+*/
+static int foreach_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  char **azVar = 0;
+  int *anVar;
+  int nVar;
+  char **azValue = 0;
+  int *anValue;
+  int nValue;
+  int ii, jj;
+
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "foreach varlist list script");
+  }
+  rc = Th_SplitList(interp, argv[1], argl[1], &azVar, &anVar, &nVar);
+  if( rc ) return rc;
+  rc = Th_SplitList(interp, argv[2], argl[2], &azValue, &anValue, &nValue);
+  for(ii=0; rc==TH_OK && ii<=nValue-nVar; ii+=nVar){
+    for(jj=0; jj<nVar; jj++){
+      Th_SetVar(interp, azVar[jj], anVar[jj], azValue[ii+jj], anValue[ii+jj]);
+    }
+    rc = eval_loopbody(interp, argv[3], argl[3]);
+  }
+  if( rc==TH_BREAK ) rc = TH_OK;
+  Th_Free(interp, azVar);
+  Th_Free(interp, azValue);
+  return rc;
+}
+
+
+/*
+** TH Syntax:
+**
 **   list ?arg1 ?arg2? ...?
 */
 static int list_command(
@@ -187,6 +227,45 @@ static int list_command(
 
   return TH_OK;
 }
+
+/*
+** TH Syntax:
+**
+**    lappend var ?arg1? ?arg2? ...?
+**
+** Interpret the content of variable var as a list.  Create var if it
+** does not already exist.  Append each argument as a new list element.
+*/
+static int lappend_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  char *zList = 0;
+  int nList = 0;
+  int i, rc;
+
+  if( argc<2 ){
+    return Th_WrongNumArgs(interp, "lappend var ...");
+  }
+  rc = Th_GetVar(interp, argv[1], argl[1]);
+  if( rc==TH_OK ){
+    zList = Th_TakeResult(interp, &nList);
+  }
+
+  for(i=2; i<argc; i++){
+    Th_ListAppend(interp, &zList, &nList, argv[i], argl[i]);
+  }
+
+  Th_SetVar(interp, argv[1], argl[1], zList, nList);
+  Th_SetResult(interp, zList, nList);
+  Th_Free(interp, zList);
+
+  return TH_OK;
+}
+
 
 /*
 ** TH Syntax:
@@ -434,6 +513,9 @@ static int proc_call1(
 
   if( rc==TH_RETURN ){
     rc = TH_OK;
+  }
+  if( rc==TH_RETURN2 ){
+    rc = TH_RETURN;
   }
   return rc;
 }
@@ -721,6 +803,35 @@ static int string_first_command(
 /*
 ** TH Syntax:
 **
+**   string index STRING INDEX
+*/
+static int string_index_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int iIndex;
+
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "string index string index");
+  }
+
+  if( argl[3]==3 && 0==memcmp("end", argv[3], 3) ){
+    iIndex = argl[2]-1;
+  }else if( Th_ToInt(interp, argv[3], argl[3], &iIndex) ){
+    Th_ErrorMessage(
+        interp, "Expected \"end\" or integer, got:", argv[3], argl[3]);
+    return TH_ERROR;
+  }
+
+  if( iIndex>=0 && iIndex<argl[2] ){
+    return Th_SetResult(interp, &argv[2][iIndex], 1);
+  }else{
+    return Th_SetResult(interp, 0, 0);
+  }
+}
+
+/*
+** TH Syntax:
+**
 **   string is CLASS STRING
 */
 static int string_is_command(
@@ -811,6 +922,30 @@ static int string_length_command(
     return Th_WrongNumArgs(interp, "string length string");
   }
   return Th_SetResultInt(interp, argl[2]);
+}
+
+/*
+** TH Syntax:
+**
+**   string match PATTERN STRING
+**
+*/
+static int string_match_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  extern char *fossil_strndup(const char*,int);
+  extern void fossil_free(void*);
+  char *zPat, *zStr;
+  int rc;
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "string match pattern string");
+  }
+  zPat = fossil_strndup(argv[2],argl[2]);
+  zStr = fossil_strndup(argv[3],argl[3]);
+  rc = sqlite3_strglob(zPat,zStr);
+  fossil_free(zPat);
+  fossil_free(zStr);
+  return Th_SetResultInt(interp, !rc);
 }
 
 /*
@@ -1059,13 +1194,17 @@ int Th_CallSubCommand(
 /*
 ** TH Syntax:
 **
-**   string compare STR1 STR2
-**   string first   NEEDLE HAYSTACK ?STARTINDEX?
-**   string is      CLASS STRING
-**   string last    NEEDLE HAYSTACK ?STARTINDEX?
-**   string length  STRING
-**   string range   STRING FIRST LAST
-**   string repeat  STRING COUNT
+**   string compare   STR1 STR2
+**   string first     NEEDLE HAYSTACK ?STARTINDEX?
+**   string index     STRING INDEX
+**   string is        CLASS STRING
+**   string last      NEEDLE HAYSTACK ?STARTINDEX?
+**   string length    STRING
+**   string range     STRING FIRST LAST
+**   string repeat    STRING COUNT
+**   string trim      STRING
+**   string trimleft  STRING
+**   string trimright STRING
 */
 static int string_command(
   Th_Interp *interp,
@@ -1075,13 +1214,15 @@ static int string_command(
   int *argl
 ){
   static const Th_SubCommand aSub[] = {
-    { "compare", string_compare_command },
-    { "first",   string_first_command },
-    { "is",      string_is_command },
-    { "last",    string_last_command },
-    { "length",  string_length_command },
-    { "range",   string_range_command },
-    { "repeat",  string_repeat_command },
+    { "compare",   string_compare_command },
+    { "first",     string_first_command },
+    { "index",     string_index_command },
+    { "is",        string_is_command },
+    { "last",      string_last_command },
+    { "length",    string_length_command },
+    { "match",     string_match_command },
+    { "range",     string_range_command },
+    { "repeat",    string_repeat_command },
     { "trim",      string_trim_command },
     { "trimleft",  string_trim_command },
     { "trimright", string_trim_command },
@@ -1251,8 +1392,10 @@ int th_register_language(Th_Interp *interp){
     {"catch",    catch_command,   0},
     {"expr",     expr_command,    0},
     {"for",      for_command,     0},
+    {"foreach",  foreach_command, 0},
     {"if",       if_command,      0},
     {"info",     info_command,    0},
+    {"lappend",  lappend_command, 0},
     {"lindex",   lindex_command,  0},
     {"list",     list_command,    0},
     {"llength",  llength_command, 0},

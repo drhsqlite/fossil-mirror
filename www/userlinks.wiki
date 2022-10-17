@@ -1,0 +1,52 @@
+<title>Links For Fossil Users:</title>
+
+  *  [./relatedwork.md | Related Work]: projects and links related to
+     Fossil and version control.
+  *  [./permutedindex.html | Documentation index] with [/search?c=d | full text search].
+  *  [./reviews.wiki | Testimonials] from satisfied Fossil users and
+     [./quotes.wiki | Quotes] about Fossil and other DVCSes.
+  *  [./faq.wiki | Frequently Asked Questions]
+  *  The [./concepts.wiki | concepts] behind Fossil.
+     [./glossary.md | Another viewpoint].
+  *  [./quickstart.wiki | Quick Start] guide to using Fossil.
+  *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
+  *  [./build.wiki | Compiling and Installing]
+  *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
+     that is versioned along with project source code.
+  *  Fossil uses an [./fileformat.wiki | enduring file format] that is
+     designed to be readable, searchable, and extensible by people
+     not yet born.
+  *  A tutorial on [./branching.wiki | branching], what it means and how
+     to do it using Fossil.
+  *  The [./selfcheck.wiki | automatic self-check] mechanism
+     helps insure project integrity.
+  *  Fossil contains a [./wikitheory.wiki | built-in wiki].
+  *  An [./event.wiki | Event] is a special kind of wiki page associated
+     with a point in time rather than a name.
+  *  [./settings.wiki | Settings] control the behaviour of Fossil.
+  *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
+  *  The [https://fossil-scm.org/forum|Fossil forum] is, as of mid-2018,
+     the project's central communication channel. The
+     [https://www.mail-archive.com/fossil-users@lists.fossil-scm.org
+     | read-only mailing list archives] house discussions spanning Fossil's
+     first decade.
+  *  [./stats.wiki | Performance statistics] taken from real-world projects
+     hosted on Fossil.
+  *  How to [./shunning.wiki | delete content] from a Fossil repository.
+  *  How Fossil does [./password.wiki | password management].
+  *  On-line [/help | help].
+  *  List of [./th1.md | TH1 commands provided by Fossil itself] that expose
+     its key functionality to TH1 scripts.
+  *  List of [./th1-hooks.md | TH1 hooks exposed by Fossil] that enable
+     customization of commands and web pages.
+  *  A free hosting server for Fossil repositories is available at
+     [http://chiselapp.com/].
+  *  How to [./server/ | set up a server] for your repository.
+  *  Customizing the [./custom_ticket.wiki | ticket system].
+  *  Methods to [./checkin_names.wiki | identify a specific check-in].
+  *  [./inout.wiki | Import and export] from and to Git.
+  *  [./fossil-v-git.wiki | Fossil versus Git].
+  *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
+     (contributed by Gilles Ganault on 2013-01-08).
+  *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
+  *  [./wsl_caveats.wiki | Using Fossil on WSL], caveats and guidance.

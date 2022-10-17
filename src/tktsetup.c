@@ -56,7 +56,7 @@ void tktsetup_page(void){
   setup_menu_entry("Key Template", "tktsetup_keytplt",
     "The default color key for reports.");
   @ </table>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -88,6 +88,7 @@ static const char zDefaultTicketTable[] =
 @   tkt_id INTEGER REFERENCES ticket,
 @   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
+@   tkt_user TEXT,
 @   -- Add as many fields as required below this line
 @   login TEXT,
 @   username TEXT,
@@ -98,9 +99,10 @@ static const char zDefaultTicketTable[] =
 ;
 
 /*
-** Return the ticket table definition
+** Return the ticket table definition in heap-allocated
+** memory owned by the caller.
 */
-const char *ticket_table_schema(void){
+char *ticket_table_schema(void){
   return db_get("ticket-table", zDefaultTicketTable);
 }
 
@@ -124,6 +126,7 @@ static void tktsetup_generic(
     login_needed(0);
     return;
   }
+  style_set_current_feature("tktsetup");
   if( PB("setup") ){
     cgi_redirect("tktsetup");
   }
@@ -132,10 +135,11 @@ static void tktsetup_generic(
   if( z==0 ){
     z = db_get(zDbField, zDfltValue);
   }
+  style_set_current_feature("tktsetup");
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
-    db_unset(zDbField, 0);
+    db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     cgi_redirect("tktsetup");
   }else if( isSubmit ){
@@ -144,12 +148,12 @@ static void tktsetup_generic(
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="tktsetupError">ERROR: %h(zErr)</p>
     }else{
-      db_set(zDbField, z, 0);
+      db_set(zDbField/*works-like:"x"*/, z, 0);
       if( xRebuild ) xRebuild();
       cgi_redirect("tktsetup");
     }
   }
-  @ <form action="%s(g.zTop)/%s(g.zPath)" method="post"><div>
+  @ <form action="%R/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
@@ -164,7 +168,7 @@ static void tktsetup_generic(
   @ <blockquote><pre>
   @ %h(zDfltValue)
   @ </pre></blockquote>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -300,13 +304,15 @@ void tktsetup_change_page(void){
 
 static const char zDefaultNew[] =
 @ <th1>
-@   if {![info exists mutype]} {set mutype {[links only]}}
+@   if {![info exists mutype]} {set mutype Markdown}
 @   if {[info exists submit]} {
 @      set status Open
 @      if {$mutype eq "HTML"} {
 @        set mimetype "text/html"
 @      } elseif {$mutype eq "Wiki"} {
 @        set mimetype "text/x-fossil-wiki"
+@      } elseif {$mutype eq "Markdown"} {
+@        set mimetype text/x-markdown
 @      } elseif {$mutype eq {[links only]}} {
 @        set mimetype "text/x-fossil-plain"
 @      } else {
@@ -363,7 +369,7 @@ static const char zDefaultNew[] =
 @ For code defects, be sure to provide details on exactly how
 @ the problem can be reproduced.  Provide as much detail as
 @ possible.  Format:
-@ <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
+@ <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
 @ <br />
 @ <th1>set nline [linecount $comment 50 10]</th1>
 @ <textarea name="icomment" cols="80" rows="$nline"
@@ -379,6 +385,8 @@ static const char zDefaultNew[] =
 @ } elseif {$mutype eq "Plain Text"} {
 @   set r [randhex]
 @   wiki "<verbatim-$r>[string trimright $icomment]\n</verbatim-$r>"
+@ } elseif {$mutype eq "Markdown"} {
+@   html [lindex [markdown "$icomment\n"] 1]
 @ } elseif {$mutype eq {[links only]}} {
 @   set r [randhex]
 @   wiki "<verbatim-$r links>[string trimright $icomment]\n</verbatim-$r>"
@@ -445,15 +453,15 @@ void tktsetup_newpage_page(void){
 
 static const char zDefaultView[] =
 @ <table cellpadding="5">
-@ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
+@ <tr><td class="tktDspLabel">Ticket&nbsp;Hash:</td>
 @ <th1>
 @ if {[info exists tkt_uuid]} {
+@   html "<td class='tktDspValue' colspan='3'>"
+@   copybtn hash-tk 0 $tkt_uuid 2
 @   if {[hascap s]} {
-@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
-@     html "($tkt_id)</td></tr>\n"
-@   } else {
-@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+@     html " ($tkt_id)"
 @   }
+@   html "</td></tr>\n"
 @ } else {
 @   if {[hascap s]} {
 @     html "<td class='tktDspValue' colspan='3'>Deleted "
@@ -532,17 +540,21 @@ static const char zDefaultView[] =
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
+@   html "<span class='tktDspCommenter'>"
 @   html "[htmlize $xlogin]"
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
 @     html " (claiming to be [htmlize $xusername])"
 @   }
-@   html " added on $xdate:\n"
+@   html " added on $xdate:"
+@   html "</span>\n"
 @   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
 @     set r [randhex]
 @     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}
 @     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
 @   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
 @     wiki "<p>\n[string trimright $xcomment]\n</p>\n"
+@   } elseif {$xmimetype eq "text/x-markdown"} {
+@     html [lindex [markdown $xcomment] 1]
 @   } elseif {$xmimetype eq "text/html"} {
 @     wiki "<p><nowiki>\n[string trimright $xcomment]\n</nowiki>\n"
 @   } else {
@@ -585,12 +597,14 @@ void tktsetup_viewpage_page(void){
 
 static const char zDefaultEdit[] =
 @ <th1>
-@   if {![info exists mutype]} {set mutype {[links only]}}
+@   if {![info exists mutype]} {set mutype Markdown}
 @   if {![info exists icomment]} {set icomment {}}
 @   if {![info exists username]} {set username $login}
 @   if {[info exists submit]} {
 @     if {$mutype eq "Wiki"} {
 @       set mimetype text/x-fossil-wiki
+@     } elseif {$mutype eq "Markdown"} {
+@       set mimetype text/x-markdown
 @     } elseif {$mutype eq "HTML"} {
 @       set mimetype text/html
 @     } elseif {$mutype eq {[links only]}} {
@@ -644,7 +658,7 @@ static const char zDefaultEdit[] =
 @
 @ <tr><td colspan="2">
 @   Append Remark with format
-@   <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
+@  <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
 @   from
 @   <input type="text" name="username" value="$<username>" size="30" />:<br />
 @   <textarea name="icomment" cols="80" rows="15"
@@ -660,6 +674,8 @@ static const char zDefaultEdit[] =
 @ } elseif {$mutype eq "Plain Text"} {
 @   set r [randhex]
 @   wiki "<verbatim-$r>\n[string trimright $icomment]\n</verbatim-$r>"
+@ } elseif {$mutype eq "Markdown"} {
+@   html [lindex [markdown "$icomment\n"] 1]
 @ } elseif {$mutype eq {[links only]}} {
 @   set r [randhex]
 @   wiki "<verbatim-$r links>\n[string trimright $icomment]</verbatim-$r>"
@@ -892,28 +908,32 @@ void tktsetup_timeline_page(void){
   if( P("setup") ){
     cgi_redirect("tktsetup");
   }
+  style_set_current_feature("tktsetup");
   style_header("Ticket Display On Timelines");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/tktsetup_timeline" method="post"><div>
+  @ <form action="%R/tktsetup_timeline" method="post"><div>
   login_insert_csrf_secret();
 
   @ <hr />
   entry_attribute("Ticket Title", 40, "ticket-title-expr", "t",
                   "title", 0);
   @ <p>An SQL expression in a query against the TICKET table that will
-  @ return the title of the ticket for display purposes.</p>
+  @ return the title of the ticket for display purposes.
+  @ (Property: ticket-title-expr)</p>
 
   @ <hr />
   entry_attribute("Ticket Status", 40, "ticket-status-column", "s",
                   "status", 0);
   @ <p>The name of the column in the TICKET table that contains the ticket
-  @ status in human-readable form.  Case sensitive.</p>
+  @ status in human-readable form.  Case sensitive.
+  @ (Property: ticket-status-column)</p>
 
   @ <hr />
   entry_attribute("Ticket Closed", 40, "ticket-closed-expr", "c",
                   "status='Closed'", 0);
   @ <p>An SQL expression that evaluates to true in a TICKET table query if
-  @ the ticket is closed.</p>
+  @ the ticket is closed.
+  @ (Property: ticket-closed-expr)</p>
 
   @ <hr />
   @ <p>
@@ -922,6 +942,6 @@ void tktsetup_timeline_page(void){
   @ </p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 
 }

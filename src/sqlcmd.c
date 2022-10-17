@@ -22,16 +22,16 @@
 */
 #include "config.h"
 #include "sqlcmd.h"
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
-
+#include <stdlib.h> /* atexit() */
+#include <zlib.h>
 #ifndef _WIN32
 #  include "linenoise.h"
 #endif
+
+/*
+** True if the "fossil sql" command has the --test flag.  False otherwise.
+*/
+static int local_bSqlCmdTest = 0;
 
 /*
 ** Implementation of the "content(X)" SQL function.  Return the complete
@@ -85,6 +85,9 @@ static void sqlcmd_compress(
   rc = compress(&pOut[4], &nOut, pIn, nIn);
   if( rc==Z_OK ){
     sqlite3_result_blob(context, pOut, nOut+4, sqlite3_free);
+  }else if( rc==Z_MEM_ERROR ){
+    sqlite3_free(pOut);
+    sqlite3_result_error_nomem(context);
   }else{
     sqlite3_free(pOut);
     sqlite3_result_error(context, "input cannot be zlib compressed", -1);
@@ -108,12 +111,17 @@ static void sqlcmd_decompress(
   int rc;
 
   pIn = sqlite3_value_blob(argv[0]);
+  if( pIn==0 ) return;
   nIn = sqlite3_value_bytes(argv[0]);
+  if( nIn<4 ) return;
   nOut = (pIn[0]<<24) + (pIn[1]<<16) + (pIn[2]<<8) + pIn[3];
   pOut = sqlite3_malloc( nOut+1 );
   rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
   if( rc==Z_OK ){
     sqlite3_result_blob(context, pOut, nOut, sqlite3_free);
+  }else if( rc==Z_MEM_ERROR ){
+    sqlite3_free(pOut);
+    sqlite3_result_error_nomem(context);
   }else{
     sqlite3_free(pOut);
     sqlite3_result_error(context, "input is not zlib compressed", -1);
@@ -121,8 +129,21 @@ static void sqlcmd_decompress(
 }
 
 /*
-** Add the content(), compress(), and decompress() SQL functions to
-** database connection db.
+** Implementation of the "gather_artifact_stats(X)" SQL function.
+** That function merely calls the gather_artifact_stats() function
+** in stat.c to populate the ARTSTAT temporary table.
+*/
+static void sqlcmd_gather_artifact_stats(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  gather_artifact_stats(1);
+}
+
+/*
+** Add the content(), compress(), decompress(), and
+** gather_artifact_stats() SQL functions to database connection db.
 */
 int add_content_sql_commands(sqlite3 *db){
   sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
@@ -131,7 +152,53 @@ int add_content_sql_commands(sqlite3 *db){
                           sqlcmd_compress, 0, 0);
   sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
                           sqlcmd_decompress, 0, 0);
+  sqlite3_create_function(db, "gather_artifact_stats", 0, SQLITE_UTF8, 0,
+                          sqlcmd_gather_artifact_stats, 0, 0);
   return SQLITE_OK;
+}
+
+/*
+** Undocumented test SQL functions:
+**
+**     db_protect(X)
+**     db_protect_pop(X)
+**
+** These invoke the corresponding C routines.
+**
+** WARNING:
+** Do not instantiate these functions for any Fossil webpage or command
+** method other than the "fossil sql" command.  If an attacker gains access
+** to these functions, he will be able to disable other defense mechanisms.
+**
+** This routines are for interactiving testing only.  They are experimental
+** and undocumented (apart from this comments) and might go away or change
+** in future releases.
+**
+** 2020-11-29:  These functions are now only available if the "fossil sql"
+** command is started with the --test option.
+*/
+static void sqlcmd_db_protect(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  unsigned mask = 0;
+  const char *z = (const char*)sqlite3_value_text(argv[0]);
+  if( z!=0 && local_bSqlCmdTest ){
+    if( sqlite3_stricmp(z,"user")==0 )      mask |= PROTECT_USER;
+    if( sqlite3_stricmp(z,"config")==0 )    mask |= PROTECT_CONFIG;
+    if( sqlite3_stricmp(z,"sensitive")==0 ) mask |= PROTECT_SENSITIVE;
+    if( sqlite3_stricmp(z,"readonly")==0 )  mask |= PROTECT_READONLY;
+    if( sqlite3_stricmp(z,"all")==0 )       mask |= PROTECT_ALL;
+    db_protect(mask);
+  }
+}
+static void sqlcmd_db_protect_pop(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( !local_bSqlCmdTest ) db_protect_pop();
 }
 
 /*
@@ -144,113 +211,221 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
+  int mTrace = SQLITE_TRACE_CLOSE;
   add_content_sql_commands(db);
   db_add_aux_functions(db);
   re_add_sql_func(db);
   search_sql_setup(db);
   foci_register(db);
+  deltafunc_init(db);
+  helptext_vtab_register(db);
+  builtin_vtab_register(db);
   g.repositoryOpen = 1;
   g.db = db;
+  sqlite3_busy_timeout(db, 10000);
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
+  db_maybe_set_encryption_key(db, g.zRepositoryName);
   if( g.zLocalDbName ){
-    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb'", g.zLocalDbName);
+    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb' KEY ''",
+                                 g.zLocalDbName);
     sqlite3_exec(db, zSql, 0, 0, 0);
     sqlite3_free(zSql);
   }
   if( g.zConfigDbName ){
-    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'configdb'", g.zConfigDbName);
+    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'configdb' KEY ''",
+                                 g.zConfigDbName);
     sqlite3_exec(db, zSql, 0, 0, 0);
     sqlite3_free(zSql);
+  }
+  /* Arrange to trace close operations so that static prepared statements
+  ** will get cleaned up when the shell closes the database connection */
+  if( g.fSqlTrace ) mTrace |= SQLITE_TRACE_PROFILE;
+  sqlite3_trace_v2(db, mTrace, db_sql_trace, 0);
+  db_protect_only(PROTECT_NONE);
+  sqlite3_set_authorizer(db, db_top_authorizer, db);
+  if( local_bSqlCmdTest ){
+    sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
+                            sqlcmd_db_protect, 0, 0);
+    sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
+                            sqlcmd_db_protect_pop, 0, 0);
   }
   return SQLITE_OK;
 }
 
 /*
-** COMMAND: sqlite3
-**
-** Usage: %fossil sql ?OPTIONS?
-**
-** Run the standalone sqlite3 command-line shell on DATABASE with SHELL_OPTS.
-** If DATABASE is omitted, then the repository that serves the working
-** directory is opened.  See https://www.sqlite.org/cli.html for additional
-** information.
-**
-** Options:
-**
-**    --no-repository           Skip opening the repository database.
-**
-**    -R REPOSITORY             Use REPOSITORY as the repository database
-**
-** WARNING:  Careless use of this command can corrupt a Fossil repository
-** in ways that are unrecoverable.  Be sure you know what you are doing before
-** running any SQL commands that modify the repository database.
-**
-** The following extensions to the usual SQLite commands are provided:
-**
-**    content(X)                Return the content of artifact X.  X can be an
-**                              artifact hash or prefix or a tag.
-**
-**    compress(X)               Compress text X.
-**
-**    decompress(X)             Decompress text X.  Undoes the work of
-**                              compress(X).
-**
-**    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
-**                              found in check-in X (another BLOB.RID value).
-**
-**    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
-**                              name X.
-**
-**    now()                     Return the number of seconds since 1970.
-**
-**    REGEXP                    The REGEXP operator works, unlike in
-**                              standard SQLite.
-**
-**    files_of_checkin(X)       A table-valued function that returns info on
-**                              all files contained in check-in X.  Example:
-**                                SELECT * FROM files_of_checkin('trunk');
+** atexit() handler that cleans up global state modified by this module.
 */
-void cmd_sqlite3(void){
-  int noRepository;
-  const char *zConfigDb;
-  extern int sqlite3_shell(int, char**);
-#ifdef FOSSIL_ENABLE_TH1_HOOKS
-  g.fNoThHook = 1;
-#endif
-  noRepository = find_option("no-repository", 0, 0)!=0;
-  if( !noRepository ){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-  }
-  db_open_config(1,0);
-  zConfigDb = g.zConfigDbName;
-  fossil_close(1, noRepository);
-  sqlite3_shutdown();
-#ifndef _WIN32
-  linenoiseSetMultiLine(1);
-#endif
-  g.zConfigDbName = zConfigDb;
-  sqlite3_shell(g.argc-1, g.argv+1);
-  sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
-  fossil_close(0, noRepository);
+static void sqlcmd_atexit(void) {
+  g.zConfigDbName = 0; /* prevent panic */
 }
 
 /*
-** This routine is called by the patched sqlite3 command-line shell in order
-** to load the name and database connection for the open Fossil database.
+** This routine is called by the sqlite3 command-line shell to
+** to load the name the Fossil repository database.
 */
-void fossil_open(const char **pzRepoName){
-  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
+void sqlcmd_get_dbname(const char **pzRepoName){
   *pzRepoName = g.zRepositoryName;
 }
+
+/*
+** This routine is called by the sqlite3 command-line shell to do
+** extra initialization prior to starting up the shell.
+*/
+void sqlcmd_init_proc(void){
+  sqlite3_initialize();
+  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
+}
+
+#if USE_SEE
+/*
+** This routine is called by the patched sqlite3 command-line shell in order
+** to load the encryption key for the open Fossil database.  The memory that
+** is pointed to by the value placed in pzKey must be obtained from malloc.
+*/
+void fossil_key(const char **pzKey, int *pnKey){
+  char *zSavedKey = db_get_saved_encryption_key();
+  char *zKey;
+  size_t savedKeySize = db_get_saved_encryption_key_size();
+
+  if( zSavedKey==0 || savedKeySize==0 ) return;
+  zKey = (char*)malloc( savedKeySize );
+  if( zKey ){
+    memcpy(zKey, zSavedKey, savedKeySize);
+    *pzKey = zKey;
+    if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
+      *pnKey = (int)strlen(zKey);
+    }else{
+      *pnKey = -1;
+    }
+  }else{
+    fossil_fatal("failed to allocate %u bytes for key", savedKeySize);
+  }
+}
+#endif
 
 /*
 ** This routine closes the Fossil databases and/or invalidates the global
 ** state variables that keep track of them.
 */
-void fossil_close(int bDb, int noRepository){
+static void fossil_close(int bDb, int noRepository){
   if( bDb ) db_close(1);
   if( noRepository ) g.zRepositoryName = 0;
   g.db = 0;
   g.repositoryOpen = 0;
   g.localOpen = 0;
+}
+
+/*
+** COMMAND: sql
+** COMMAND: sqlite3*
+**
+** Usage: %fossil sql ?OPTIONS?
+**
+** Run the sqlite3 command-line shell on the Fossil repository
+** identified by the -R option, or on the current repository.
+** See https://www.sqlite.org/cli.html for additional information about
+** the sqlite3 command-line shell.
+**
+** WARNING:  Careless use of this command can corrupt a Fossil repository
+** in ways that are unrecoverable.  Be sure you know what you are doing before
+** running any SQL commands that modify the repository database.  Use the
+** --readonly option to prevent accidental damage to the repository.
+**
+** Options:
+**
+**    --no-repository           Skip opening the repository database.
+**
+**    --readonly                Open the repository read-only.  No changes
+**                              are allowed.  This is a recommended safety
+**                              precaution to prevent repository damage.
+**
+**    -R REPOSITORY             Use REPOSITORY as the repository database
+**
+**    --test                    Enable some testing and analysis features
+**                              that are normally disabled.
+**
+** All of the standard sqlite3 command-line shell options should also
+** work.
+**
+** The following SQL extensions are provided with this Fossil-enhanced
+** version of the sqlite3 command-line shell:
+**
+**    builtin                   A virtual table that contains one row for
+**                              each datafile that is built into the Fossil
+**                              binary.
+**
+**    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
+**                              found in check-in X (another BLOB.RID value).
+**
+**    compress(X)               Compress text X with the same algorithm used
+**                              to compress artifacts in the BLOB table.
+**
+**    content(X)                Return the content of artifact X. X can be an
+**                              artifact hash or hash prefix or a tag. Artifacts
+**                              are stored compressed and deltaed. This function
+**                              does all necessary decompression and undeltaing.
+**
+**    decompress(X)             Decompress text X.  Undoes the work of
+**                              compress(X).
+**
+**    delta_apply(X,D)          Apply delta D to source blob X and return
+**                              the result.
+**
+**    delta_create(X,Y)         Create and return a delta that will convert
+**                              X into Y.
+**
+**    delta_output_size(D)      Return the number of bytes of output to expect
+**                              when applying delta D
+**
+**    delta_parse(D)            A table-valued function that deconstructs
+**                              delta D and returns rows for each element of
+**                              that delta.
+**
+**    files_of_checkin(X)       A table-valued function that returns info on
+**                              all files contained in check-in X.  Example:
+**
+**                                  SELECT * FROM files_of_checkin('trunk');
+**
+**    helptext                  A virtual table with one row for each command,
+**                              webpage, and setting together with the built-in
+**                              help text.  
+**
+**    now()                     Return the number of seconds since 1970.
+**
+**    obscure(T)                Obfuscate the text password T so that its
+**                              original value is not readily visible.  Fossil
+**                              uses this same algorithm when storing passwords
+**                              of remote URLs.
+**
+**    regexp                    The REGEXP operator works, unlike in
+**                              standard SQLite.
+**
+**    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
+**                              name X.
+*/
+void cmd_sqlite3(void){
+  int noRepository;
+  char *zConfigDb;
+  extern int sqlite3_shell(int, char**);
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  g.fNoThHook = 1;
+#endif
+  noRepository = find_option("no-repository", 0, 0)!=0;
+  local_bSqlCmdTest = find_option("test",0,0)!=0;
+  if( !noRepository ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  }
+  db_open_config(1,0);
+  zConfigDb = fossil_strdup(g.zConfigDbName);
+  fossil_close(1, noRepository);
+  sqlite3_shutdown();
+#ifndef _WIN32
+  linenoiseSetMultiLine(1);
+#endif
+  atexit(sqlcmd_atexit);
+  g.zConfigDbName = zConfigDb;
+  g.argv[1] = "-quote";
+  sqlite3_shell(g.argc, g.argv);
+  sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
+  fossil_close(0, noRepository);
 }

@@ -556,10 +556,24 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
 ###############################################################################
 
-foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
+set skip_anycap 1
+if {$::outside_fossil_repo} {
+  puts "Skipping th1-anycap-*-1 perm tests: not in Fossil repo checkout."
+} elseif ($::dirty_ckout) {
+  puts "Skipping th1-anycap-*-1 perm tests: uncommitted changes in Fossil checkout."
+} else {
+  set skip_anycap 0
+}
+
+# NOTE: The 'd' permission is no longer used.
+foreach perm [list \
+    a b c e f g h i j k l m n o p q r s t u v w x y z \
+    A D \
+    2 3 4 5 6 7 ] {
   if {$perm eq "u"} continue; # NOTE: Skip "reader" meta-permission.
   if {$perm eq "v"} continue; # NOTE: Skip "developer" meta-permission.
 
+  set ::env(TH1_TEST_USER_CAPS) sxy
   fossil test-th-eval "anycap $perm"
   test th1-anycap-no-$perm-1 {$RESULT eq {0}}
 
@@ -569,15 +583,18 @@ foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
   fossil test-th-eval "anoncap $perm"
   test th1-anoncap-no-$perm-1 {$RESULT eq {0}}
 
+  if {$skip_anycap} { continue }
+
   run_in_checkout {
+    set ::env(TH1_TEST_USER_CAPS) sxy
     fossil test-th-eval --set-user-caps "anycap $perm"
     test th1-anycap-yes-$perm-1 {$RESULT eq {1}}
 
     set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
     fossil test-th-eval --set-user-caps "anycap $perm"
     test th1-anycap-no-$perm-1 {$RESULT eq {0}}
-    unset ::env(TH1_TEST_USER_CAPS)
 
+    set ::env(TH1_TEST_USER_CAPS) sxy
     fossil test-th-eval --set-user-caps "hascap $perm"
     test th1-hascap-yes-$perm-1 {$RESULT eq {1}}
 
@@ -586,6 +603,7 @@ foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
     test th1-hascap-no-$perm-1 {$RESULT eq {0}}
     unset ::env(TH1_TEST_USER_CAPS)
 
+    set ::env(TH1_TEST_ANON_CAPS) sxy
     fossil test-th-eval --set-anon-caps "anoncap $perm"
     test th1-anoncap-yes-$perm-1 {$RESULT eq {1}}
 
@@ -623,7 +641,7 @@ test th1-anoncap-no-multiple-2 {$RESULT eq {0}}
 
 ###############################################################################
 
-run_in_checkout {
+test_block_in_checkout "test-anoncap-*" {
   fossil test-th-eval --set-user-caps "anycap oh"
   test th1-anycap-yes-multiple-1 {$RESULT eq {1}}
 
@@ -667,25 +685,21 @@ run_in_checkout {
 
 ###############################################################################
 
-run_in_checkout {
+test_in_checkout th1-checkout-1 {
   # NOTE: The "1" here forces the checkout to be opened.
   fossil test-th-eval "checkout 1"
-}
-
-test th1-checkout-1 {[string length $RESULT] > 0}
+} {[string length $RESULT] > 0}
 
 ###############################################################################
 
-run_in_checkout {
+test_in_checkout th1-checkout-2 {
   if {$th1Hooks} {
     fossil test-th-eval "checkout"
   } else {
     # NOTE: No TH1 hooks, force checkout to be populated.
     fossil test-th-eval --open-config "checkout"
   }
-}
-
-test th1-checkout-2 {[string length $RESULT] > 0}
+} {[string length $RESULT] > 0}
 
 ###############################################################################
 
@@ -719,14 +733,19 @@ test th1-trace-1 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {}"
+set normalized_result [normalize_result]
+
+regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
+    $normalized_result {} normalized_result
+
 if {$th1Hooks} {
-  test th1-trace-2 {[normalize_result] eq \
+  test th1-trace-2 {$normalized_result eq \
 {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-2 {[normalize_result] eq \
+  test th1-trace-2 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -742,14 +761,19 @@ test th1-trace-3 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {this is a trace message.}"
+set normalized_result [normalize_result]
+
+regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
+    $normalized_result {} normalized_result
+
 if {$th1Hooks} {
-  test th1-trace-4 {[normalize_result] eq \
+  test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-4 {[normalize_result] eq \
+  test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -759,16 +783,26 @@ this is a trace message.
 
 ###############################################################################
 
+fossil test-th-eval "defHeader {Page Title Here}"
+test th1-defHeader-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "defHeader"}}
+
+###############################################################################
+
+fossil test-th-eval "defHeader"
+test th1-defHeader-2 {[string match *<body> [normalize_result]] || \
+    [string match "*<body class=\"\$current_feature\">" [normalize_result]]}
+
+###############################################################################
+
 fossil test-th-eval "styleHeader {Page Title Here}"
 test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-run_in_checkout {
+test_in_checkout th1-header-2 {
   fossil test-th-eval --open-config "styleHeader {Page Title Here}"
-}
-
-test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
+} {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
 
 ###############################################################################
 
@@ -783,7 +817,7 @@ test th1-footer-2 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --open-config --cgi "styleHeader {}; styleFooter"
-test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
+test th1-footer-3 {[regexp -- {</body>\n</html>} $RESULT]}
 
 ###############################################################################
 
@@ -850,11 +884,9 @@ test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-run_in_checkout {
+test_in_checkout th1-artifact-3 {
   fossil test-th-eval --open-config "artifact tip"
-}
-
-test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
+} {[regexp -- {F test/th1\.test [0-9a-f]{40,64}} $RESULT]}
 
 ###############################################################################
 
@@ -873,11 +905,9 @@ test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-run_in_checkout {
+test_in_checkout th1-artifact-7 {
   fossil test-th-eval --open-config "artifact tip test/th1.test"
-}
-
-test th1-artifact-7 {[regexp -- {th1-artifact-7} $RESULT]}
+} {[regexp -- {th1-artifact-7} $RESULT]}
 
 ###############################################################################
 
@@ -891,20 +921,18 @@ test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
 
 ###############################################################################
 
-run_in_checkout {
+test_in_checkout th1-globalState-1 {
   if {$th1Hooks} {
     fossil test-th-eval "globalState checkout"
   } else {
     # NOTE: No TH1 hooks, force checkout to be populated.
     fossil test-th-eval --open-config "globalState checkout"
   }
-}
-
-test th1-globalState-1 {[string length $RESULT] > 0}
+} {[string length $RESULT] > 0}
 
 ###############################################################################
 
-run_in_checkout {
+test_block_in_checkout th1-globalState-2 {
   if {$th1Hooks} {
     fossil test-th-eval "globalState checkout"
     test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
@@ -944,20 +972,18 @@ test th1-globalState-7 {$RESULT eq "foserrors.log"}
 
 ###############################################################################
 
-run_in_checkout {
+test_in_checkout th1-globalState-8 {
   if {$th1Hooks} {
     fossil test-th-eval "globalState repository"
   } else {
     # NOTE: No TH1 hooks, force repository to be populated.
     fossil test-th-eval --open-config "globalState repository"
   }
-}
-
-test th1-globalState-8 {[string length $RESULT] > 0}
+} {[string length $RESULT] > 0}
 
 ###############################################################################
 
-run_in_checkout {
+test_block_in_checkout th1-globalState-9 {
   if {$th1Hooks} {
     fossil test-th-eval "globalState repository"
     test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
@@ -997,7 +1023,7 @@ test th1-globalState-14 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-if {$tcl_platform(platform) eq "windows"} {
+if {$is_windows} {
   set altVfs win32-longpath
 } else {
   set altVfs unix-dotfile
@@ -1033,21 +1059,22 @@ test th1-reinitialize-2 {$RESULT ne ""}
 fossil test-th-eval "info commands"
 set sorted_result [lsort $RESULT]
 protOut "Sorted: $sorted_result"
-set base_commands {anoncap anycap array artifact break breakpoint catch\
-      checkout combobox continue date decorate dir enable_output encode64\
-      error expr for getParameter glob_match globalState hascap hasfeature\
-      html htmlize http httpize if info insertCsrf lindex linecount list\
-      llength lsearch markdown proc puts query randhex redirect regexp\
-      reinitialize rename render repository return searchable set\
-      setParameter setting stime string styleFooter styleHeader tclReady\
-      trace unset unversioned uplevel upvar utime verifyCsrf wiki}
+set base_commands {anoncap anycap array artifact break breakpoint \
+      builtin_request_js capexpr captureTh1 catch cgiHeaderLine checkout \
+      combobox continue copybtn date decorate defHeader dir enable_htmlify \
+      enable_output encode64 error expr for foreach getParameter glob_match \
+      globalState hascap hasfeature html htmlize http httpize if info \
+      insertCsrf lappend lindex linecount list llength lsearch markdown \
+      nonce proc puts query randhex redirect regexp reinitialize rename \
+      render repository return searchable set setParameter setting stime \
+      string styleFooter styleHeader styleScript tclReady trace unset \
+      unversioned uplevel upvar utime verifyCsrf verifyLogin wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
 } else {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands"]}
 }
-
 
 ###############################################################################
 
@@ -1438,6 +1465,81 @@ test th1-string-is-31 {$RESULT eq "0"}
 
 ###############################################################################
 
+fossil test-th-eval {string index "" -1}
+test th1-string-index-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 0}
+test th1-string-index-2 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 1}
+test th1-string-index-3 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 2}
+test th1-string-index-4 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" end}
+test th1-string-index-5 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A -1}
+test th1-string-index-6 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A 0}
+test th1-string-index-7 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index A 1}
+test th1-string-index-8 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A 2}
+test th1-string-index-9 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A end}
+test th1-string-index-10 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC -1}
+test th1-string-index-11 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 0}
+test th1-string-index-12 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 1}
+test th1-string-index-13 {$RESULT eq "B"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 2}
+test th1-string-index-14 {$RESULT eq "C"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC end}
+test th1-string-index-15 {$RESULT eq "C"}
+
+###############################################################################
+
 fossil test-th-eval {markdown}
 test th1-markdown-1 {$RESULT eq \
 {TH_ERROR: wrong # args: should be "markdown STRING"}}
@@ -1506,6 +1608,19 @@ test th1-markdown-5 {[normalize_result] eq \
 
 ###############################################################################
 
+# Verify that quoted delimiters like * and _ don't terminate their
+# span. This was fixed by checkin [dd41f85acf].
+fossil test-th-eval {markdown "*This is\\*a test.*\n_second\\_test_"}
+test th1-markdown-6 {[normalize_result] eq {{} {<div class="markdown">
+
+<p><em>This is*a test.</em>
+<em>second_test</em></p>
+
+</div>
+}}}
+
+###############################################################################
+
 fossil test-th-eval {encode64 test}
 test th1-encode64-1 {$RESULT eq "dGVzdA=="}
 
@@ -1517,16 +1632,15 @@ test th1-encode64-2 {$RESULT eq "dGVzdAA="}
 ###############################################################################
 
 #
-# TODO: Modify the result of this test if the source file (i.e.
-#       "ajax/cgi-bin/fossil-json.cgi.example") changes.
+# This test will fail if the Fossil source file named below changes.  Update
+# the expected result string below if that happens.
 #
-run_in_checkout {
+test_in_checkout th1-encode64-3 {
   fossil test-th-eval --open-config \
       {encode64 [artifact trunk ajax/cgi-bin/fossil-json.cgi.example]}
+} {
+  $RESULT eq "IyEvcGF0aC90by9mb3NzaWwvYmluYXJ5CnJlcG9zaXRvcnk6IC9wYXRoL3RvL3JlcG8uZnNsCg=="
 }
-
-test th1-encode64-3 {$RESULT eq \
-"IyEvcGF0aC90by9mb3NzaWwvYmluYXJ5CnJlcG9zaXRvcnk6IC9wYXRoL3RvL3JlcG8uZnNsCg=="}
 
 ###############################################################################
 
@@ -1567,39 +1681,23 @@ file delete $th1FileName
 
 ###############################################################################
 
-#
-# TODO: Modify the result of this test if the list of unversioned files
-#       changes.
-#
-run_in_checkout {
-  fossil test-th-eval --open-config "unversioned list"
-}
+# Tests for the TH1 unversioned command require at least one
+# unversioned file in the repository. All tests run in a freshly
+# created checkout of a freshly created repo, so we can just
+# create a file or two for the purpose.
+write_file ten.txt "0123456789"
+fossil unversioned add ten.txt
+fossil unversioned list
 
-test th1-unversioned-1 {[normalize_result] eq \
-{build-icons/linux.gif build-icons/linux64.gif build-icons/mac.gif\
-build-icons/openbsd.gif build-icons/src.gif build-icons/win32.gif\
-download.html download/fossil-linux-x86-1.32.zip\
-download/fossil-linux-x86-1.33.zip download/fossil-linux-x86-1.34.zip\
-download/fossil-linux-x86-1.35.zip download/fossil-macosx-x86-1.32.zip\
-download/fossil-macosx-x86-1.33.zip download/fossil-macosx-x86-1.34.zip\
-download/fossil-macosx-x86-1.35.zip download/fossil-openbsd-x86-1.32.zip\
-download/fossil-openbsd-x86-1.33.zip download/fossil-openbsd-x86-1.34.tar.gz\
-download/fossil-openbsd-x86-1.35.tar.gz download/fossil-src-1.32.tar.gz\
-download/fossil-src-1.33.tar.gz download/fossil-src-1.34.tar.gz\
-download/fossil-src-1.35.tar.gz download/fossil-w32-1.32.zip\
-download/fossil-w32-1.33.zip download/fossil-w32-1.34.zip\
-download/fossil-w32-1.35.zip download/releasenotes-1.32.html\
-download/releasenotes-1.33.html download/releasenotes-1.34.html\
-download/releasenotes-1.35.html index.wiki}}
+# unversioned list
+fossil test-th-eval --open-config "unversioned list"
+test th1-unversioned-1 {[normalize_result] eq {ten.txt}}
 
-###############################################################################
+# unversioned content
+fossil test-th-eval --open-config \
+      {string length [unversioned content ten.txt]}
+test th1-unversioned-2 {$RESULT eq {10}}
 
-run_in_checkout {
-  fossil test-th-eval --open-config \
-      {string length [unversioned content build-icons/src.gif]}
-}
-
-test th1-unversioned-2 {$RESULT eq {4592}}
 
 ###############################################################################
 

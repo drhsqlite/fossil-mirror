@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -16,11 +16,6 @@
 *******************************************************************************
 **
 ** File utilities.
-**
-** Functions named file_* are generic functions that always follow symlinks.
-**
-** Functions named file_wd_* are to be used for files inside working
-** directories. They follow symlinks depending on 'allow-symlinks' setting.
 */
 #include "config.h"
 #include <sys/types.h>
@@ -29,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include "file.h"
 
 /*
@@ -44,6 +40,31 @@
 
 #if INTERFACE
 
+/* Many APIs take an eFType argument which must be one of ExtFILE, RepoFILE,
+** or SymFILE.
+**
+** The difference is in the handling of symbolic links.  RepoFILE should be
+** used for files that are under management by a Fossil repository.  ExtFILE
+** should be used for files that are not under management.  SymFILE is for
+** a few special cases such as the "fossil test-tarball" command when we never
+** want to follow symlinks.
+**
+**   ExtFILE      Symbolic links always refer to the object to which the
+**                link points.  Symlinks are never recognized as symlinks but
+**                instead always appear to the the target object.
+**
+**   SymFILE      Symbolic links always appear to be files whose name is
+**                the target pathname of the symbolic link.
+**
+**   RepoFILE     Like SymFILE if allow-symlinks is true, or like
+**                ExtFILE if allow-symlinks is false.  In other words,
+**                symbolic links are only recognized as something different
+**                from files or directories if allow-symlinks is true.
+*/
+#define ExtFILE    0  /* Always follow symlinks */
+#define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
+#define SymFILE    2  /* Never follow symlinks */
+
 #include <dirent.h>
 #if defined(_WIN32)
 # define DIR _WDIR
@@ -54,6 +75,9 @@
 #endif /* _WIN32 */
 
 #if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
+/*
+** File status information for windows systems.
+*/
 struct fossilStat {
     i64 st_size;
     i64 st_mtime;
@@ -70,6 +94,9 @@ struct fossilStat {
 #endif /* INTERFACE */
 
 #if !defined(_WIN32) || !(defined(__MSVCRT__) || defined(_MSC_VER))
+/*
+** File status information for unix systems
+*/
 # define fossilStat stat
 #endif
 
@@ -79,62 +106,75 @@ struct fossilStat {
 #if !defined(S_ISLNK)
 # define S_ISLNK(x) (0)
 #endif
-static int fileStatValid = 0;
-static struct fossilStat fileStat;
 
 /*
-** Fill stat buf with information received from stat() or lstat().
-** lstat() is called on Unix if isWd is TRUE and allow-symlinks setting is on.
+** Local state information for the file status routines
+*/
+static struct {
+  struct fossilStat fileStat;  /* File status from last fossil_stat() */
+  int fileStatValid;           /* True if fileStat is valid */
+} fx;
+
+/*
+** Fill *buf with information about zFilename.
 **
+** If zFilename refers to a symbolic link:
+**
+**  (A) If allow-symlinks is on and eFType is RepoFILE, then fill
+**      *buf with information about the symbolic link itself.
+**
+**  (B) If allow-symlinks is off or eFType is ExtFILE, then fill
+**      *buf with information about the object that the symbolic link
+**      points to.
 */
 static int fossil_stat(
   const char *zFilename,  /* name of file or directory to inspect. */
   struct fossilStat *buf, /* pointer to buffer where info should go. */
-  int isWd,               /* non-zero to consider look at symlink itself. */
-  int forceWd             /* non-zero to force look at symlink itself. */
+  int eFType              /* Look at symlink itself if RepoFILE and enabled. */
 ){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && (forceWd || db_allow_symlinks(0)) ){
+  if( (eFType==RepoFILE && db_allow_symlinks())
+   || eFType==SymFILE ){
+    /* Symlinks look like files whose content is the name of the target */
     rc = lstat(zMbcs, buf);
   }else{
+    /* Symlinks look like the object to which they point */
     rc = stat(zMbcs, buf);
   }
 #else
-  rc = win32_stat(zMbcs, buf, isWd);
+  rc = win32_stat(zMbcs, buf, eFType);
 #endif
   fossil_path_free(zMbcs);
   return rc;
 }
 
 /*
-** Clears the fileStat variable and its associated validity flag.
+** Clears the fx.fileStat variable and its associated validity flag.
 */
 static void resetStat(){
-  fileStatValid = 0;
-  memset(&fileStat, 0, sizeof(struct fossilStat));
+  fx.fileStatValid = 0;
+  memset(&fx.fileStat, 0, sizeof(struct fossilStat));
 }
 
 /*
-** Fill in the fileStat variable for the file named zFilename.
-** If zFilename==0, then use the previous value of fileStat if
+** Fill in the fx.fileStat variable for the file named zFilename.
+** If zFilename==0, then use the previous value of fx.fileStat if
 ** there is a previous value.
-**
-** If isWd is TRUE, do lstat() instead of stat() if allow-symlinks is on.
 **
 ** Return the number of errors.  No error messages are generated.
 */
-static int getStat(const char *zFilename, int isWd){
+static int getStat(const char *zFilename, int eFType){
   int rc = 0;
   if( zFilename==0 ){
-    if( fileStatValid==0 ) rc = 1;
+    if( fx.fileStatValid==0 ) rc = 1;
   }else{
-    if( fossil_stat(zFilename, &fileStat, isWd, 0)!=0 ){
-      fileStatValid = 0;
+    if( fossil_stat(zFilename, &fx.fileStat, eFType)!=0 ){
+      fx.fileStatValid = 0;
       rc = 1;
     }else{
-      fileStatValid = 1;
+      fx.fileStatValid = 1;
       rc = 0;
     }
   }
@@ -146,15 +186,8 @@ static int getStat(const char *zFilename, int isWd){
 ** exist.  If zFilename is NULL, return the size of the most recently
 ** stat-ed file.
 */
-i64 file_size(const char *zFilename){
-  return getStat(zFilename, 0) ? -1 : fileStat.st_size;
-}
-
-/*
-** Same as file_size(), but takes into account symlinks.
-*/
-i64 file_wd_size(const char *zFilename){
-  return getStat(zFilename, 1) ? -1 : fileStat.st_size;
+i64 file_size(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_size;
 }
 
 /*
@@ -162,15 +195,8 @@ i64 file_wd_size(const char *zFilename){
 ** does not exist.  If zFilename is NULL return the size of the most
 ** recently stat-ed file.
 */
-i64 file_mtime(const char *zFilename){
-  return getStat(zFilename, 0) ? -1 : fileStat.st_mtime;
-}
-
-/*
-** Same as file_mtime(), but takes into account symlinks.
-*/
-i64 file_wd_mtime(const char *zFilename){
-  return getStat(zFilename, 1) ? -1 : fileStat.st_mtime;
+i64 file_mtime(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_mtime;
 }
 
 /*
@@ -178,51 +204,42 @@ i64 file_wd_mtime(const char *zFilename){
 ** exist.  If zFilename is NULL return the size of the most recently
 ** stat-ed file.
 */
-int file_mode(const char *zFilename){
-  return getStat(zFilename, 0) ? -1 : fileStat.st_mode;
+int file_mode(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_mode;
 }
 
 /*
-** Same as file_mode(), but takes into account symlinks.
+** Return TRUE if either of the following are true:
+**
+**   (1) zFilename is an ordinary file
+**
+**   (2) allow_symlinks is on and zFilename is a symbolic link to
+**       a file, directory, or other object
 */
-int file_wd_mode(const char *zFilename){
-  return getStat(zFilename, 1) ? -1 : fileStat.st_mode;
-}
-
-/*
-** Return TRUE if the named file is an ordinary file or symlink
-** and symlinks are allowed.
-** Return false for directories, devices, fifos, etc.
-*/
-int file_wd_isfile_or_link(const char *zFilename){
-  return getStat(zFilename, 1) ? 0 : S_ISREG(fileStat.st_mode) ||
-                                     S_ISLNK(fileStat.st_mode);
+int file_isfile_or_link(const char *zFilename){
+  if( getStat(zFilename, RepoFILE) ){
+    return 0;  /* stat() failed.  Return false. */
+  }
+  return S_ISREG(fx.fileStat.st_mode) || S_ISLNK(fx.fileStat.st_mode);
 }
 
 /*
 ** Return TRUE if the named file is an ordinary file.  Return false
 ** for directories, devices, fifos, symlinks, etc.
 */
-int file_isfile(const char *zFilename){
-  return getStat(zFilename, 0) ? 0 : S_ISREG(fileStat.st_mode);
+int file_isfile(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? 0 : S_ISREG(fx.fileStat.st_mode);
 }
 
 /*
-** Same as file_isfile(), but takes into account symlinks.
-*/
-int file_wd_isfile(const char *zFilename){
-  return getStat(zFilename, 1) ? 0 : S_ISREG(fileStat.st_mode);
-}
-
-/*
-** Create symlink to file on Unix, or plain-text file with
-** symlink target if "allow-symlinks" is off or we're on Windows.
+** Create a symbolic link named zLinkFile that points to zTargetFile.
 **
-** Arguments: target file (symlink will point to it), link file
+** If allow-symlinks is off, create an ordinary file named zLinkFile
+** with the name of zTargetFile as its content.
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
-  if( db_allow_symlinks(0) ){
+  if( db_allow_symlinks() ){
     int i, nName;
     char *zName, zBuf[1000];
 
@@ -237,10 +254,10 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-          if( file_mkdir(zName, 1) ){
-            fossil_fatal_recursive("unable to create directory %s", zName);
-            return;
-          }
+        if( file_mkdir(zName, ExtFILE, 1) ){
+          fossil_fatal_recursive("unable to create directory %s", zName);
+          return;
+        }
         zName[i] = '/';
       }
     }
@@ -273,13 +290,18 @@ void symlink_copy(const char *zFrom, const char *zTo){
 **   - PERM_EXE on Unix if file is executable;
 **   - PERM_LNK on Unix if file is symlink and allow-symlinks option is on;
 **   - PERM_REG for all other cases (regular file, directory, fifo, etc).
+**
+** If eFType is ExtFile then symbolic links are followed and so this
+** routine can only return PERM_EXE and PERM_REG.
+**
+** On windows, this routine returns only PERM_REG.
 */
-int file_wd_perm(const char *zFilename){
+int file_perm(const char *zFilename, int eFType){
 #if !defined(_WIN32)
-  if( !getStat(zFilename, 1) ){
-     if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
+  if( !getStat(zFilename, eFType) ){
+     if( S_ISREG(fx.fileStat.st_mode) && ((S_IXUSR)&fx.fileStat.st_mode)!=0 )
       return PERM_EXE;
-    else if( db_allow_symlinks(0) && S_ISLNK(fileStat.st_mode) )
+    else if( db_allow_symlinks() && S_ISLNK(fx.fileStat.st_mode) )
       return PERM_LNK;
   }
 #endif
@@ -290,18 +312,93 @@ int file_wd_perm(const char *zFilename){
 ** Return TRUE if the named file is an executable.  Return false
 ** for directories, devices, fifos, symlinks, etc.
 */
-int file_wd_isexe(const char *zFilename){
-  return file_wd_perm(zFilename)==PERM_EXE;
+int file_isexe(const char *zFilename, int eFType){
+  return file_perm(zFilename, eFType)==PERM_EXE;
 }
 
 /*
 ** Return TRUE if the named file is a symlink and symlinks are allowed.
 ** Return false for all other cases.
 **
+** This routines assumes RepoFILE - that zFilename is always a file
+** under management.
+**
 ** On Windows, always return False.
 */
-int file_wd_islink(const char *zFilename){
-  return file_wd_perm(zFilename)==PERM_LNK;
+int file_islink(const char *zFilename){
+  return file_perm(zFilename, RepoFILE)==PERM_LNK;
+}
+
+/*
+** Check every sub-directory of zRoot along the path to zFile.
+** If any sub-directory is really an ordinary file or a symbolic link,
+** return an integer which is the length of the prefix of zFile which
+** is the name of that object.  Return 0 if all no non-directory
+** objects are found along the path.
+**
+** Example:  Given inputs
+**
+**     zRoot = /home/alice/project1
+**     zFile = /home/alice/project1/main/src/js/fileA.js
+**
+** Look for objects in the following order:
+**
+**      /home/alice/project/main
+**      /home/alice/project/main/src
+**      /home/alice/project/main/src/js
+**
+** If any of those objects exist and are something other than a directory
+** then return the length of the name of the first non-directory object
+** seen.
+*/
+int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
+  int i = (int)strlen(zRoot);
+  char *z = fossil_strdup(zFile);
+  assert( fossil_strnicmp(zRoot, z, i)==0 );
+  if( i && zRoot[i-1]=='/' ) i--;
+  while( z[i]=='/' ){
+    int j, rc;
+    for(j=i+1; z[j] && z[j]!='/'; j++){}
+    if( z[j]!='/' ) break;
+    z[j] = 0;
+    rc = file_isdir(z, SymFILE);
+    if( rc!=1 ){
+      if( rc==2 ){
+        fossil_free(z);
+        return j;
+      }
+      break;
+    }
+    z[j] = '/';
+    i = j;
+  }
+  fossil_free(z);
+  return 0;
+}
+
+/*
+** The file named zFile is suppose to be an in-tree file.  Check to
+** ensure that it will be safe to write to this file by verifying that
+** there are no symlinks or other non-directory objects in between the
+** root of the checkout and zFile.
+**
+** If a problem is found, print a warning message (using fossil_warning())
+** and return non-zero.  If everything is ok, return zero.
+*/
+int file_unsafe_in_tree_path(const char *zFile){
+  int n;
+  if( !file_is_absolute_path(zFile) ){
+    fossil_fatal("%s is not an absolute pathname",zFile);
+  }
+  if( fossil_strnicmp(g.zLocalRoot, zFile, (int)strlen(g.zLocalRoot)) ){
+    fossil_fatal("%s is not a prefix of %s", g.zLocalRoot, zFile);
+  }
+  n = file_nondir_objects_on_path(g.zLocalRoot, zFile);
+  if( n ){
+    fossil_warning("cannot write to %s because non-directory object %.*s"
+                   " is in the way", zFile, n, zFile);
+  }
+  return n;
 }
 
 /*
@@ -309,49 +406,62 @@ int file_wd_islink(const char *zFilename){
 ** does not exist.  Return 2 if zFilename exists but is something
 ** other than a directory.
 */
-int file_isdir(const char *zFilename){
-  int rc;
-
-  if( zFilename ){
-    char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1, 0);
-    rc = getStat(zFN, 0);
-    free(zFN);
-  }else{
-    rc = getStat(0, 0);
-  }
-  return rc ? 0 : (S_ISDIR(fileStat.st_mode) ? 1 : 2);
-}
-
-/*
-** Same as file_isdir(), but takes into account symlinks.  Return 1 if
-** zFilename is a directory -OR- a symlink that points to a directory.
-** Return 0 if zFilename does not exist.  Return 2 if zFilename exists
-** but is something other than a directory.
-*/
-int file_wd_isdir(const char *zFilename){
+int file_isdir(const char *zFilename, int eFType){
   int rc;
   char *zFN;
-  struct fossilStat dirFileStat;
 
   zFN = mprintf("%s", zFilename);
   file_simplify_name(zFN, -1, 0);
-  memset(&dirFileStat, 0, sizeof(struct fossilStat));
-  rc = fossil_stat(zFN, &dirFileStat, 1, 1);
+  rc = getStat(zFN, eFType);
   if( rc ){
     rc = 0; /* It does not exist at all. */
-  }else if( S_ISDIR(dirFileStat.st_mode) ){
+  }else if( S_ISDIR(fx.fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( !db_allow_symlinks(1) && S_ISLNK(dirFileStat.st_mode) ){
-    Blob content;
-    blob_read_link(&content, zFN); /* It exists and is a link. */
-    rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
-    blob_reset(&content);
   }else{
     rc = 2; /* It exists and is something else. */
   }
   free(zFN);
   return rc;
+}
+
+/*
+** Return true (1) if zFilename seems like it seems like a valid
+** repository database.
+*/
+int file_is_repository(const char *zFilename){
+  i64 sz;
+  sqlite3 *db = 0;
+  sqlite3_stmt *pStmt = 0;
+  int rc;
+  int i;
+  static const char *azReqTab[] = {
+     "blob", "delta", "rcvfrom", "user", "config"
+  };
+  if( !file_isfile(zFilename, ExtFILE) ) return 0;
+  sz = file_size(zFilename, ExtFILE);
+  if( sz<35328 ) return 0;
+  if( sz%512!=0 ) return 0;
+  rc = sqlite3_open_v2(zFilename, &db,
+          SQLITE_OPEN_READWRITE, 0);
+  if( rc!=0 ) goto not_a_repo;
+  for(i=0; i<count(azReqTab); i++){
+    if( sqlite3_table_column_metadata(db, "main", azReqTab[i],0,0,0,0,0,0) ){
+      goto not_a_repo;
+    }
+  }
+  rc = sqlite3_prepare_v2(db, "SELECT 1 FROM config WHERE name='project-code'",
+                          -1, &pStmt, 0);
+  if( rc ) goto not_a_repo;
+  rc = sqlite3_step(pStmt);
+  if( rc!=SQLITE_ROW ) goto not_a_repo;
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return 1;
+
+not_a_repo:
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return 0;
 }
 
 
@@ -385,6 +495,7 @@ int file_chdir(const char *zChDir, int bChroot){
   if( !rc && bChroot ){
     rc = chroot(zPath);
     if( !rc ) rc = chdir("/");
+    g.fJail = 1;
   }
 #endif
   fossil_path_free(zPath);
@@ -403,7 +514,7 @@ char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
   char *z = 0;
   int cnt = 0;
   z = mprintf("%s-%s", zBase, zSuffix);
-  while( file_size(z)>=0 ){
+  while( file_size(z, ExtFILE)>=0 ){
     fossil_free(z);
     z = mprintf("%s-%s-%d", zBase, zSuffix, cnt++);
   }
@@ -445,6 +556,25 @@ char *file_dirname(const char *z){
   }
 }
 
+/* SQL Function:  file_dirname(NAME)
+**
+** Return the directory for NAME
+*/
+void file_dirname_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  char *zDir;
+  if( zName==0 ) return;
+  zDir = file_dirname(zName);
+  if( zDir ){
+    sqlite3_result_text(context,zDir,-1,fossil_free);
+  }
+}
+
+
 /*
 ** Rename a file or directory.
 ** Returns zero upon success.
@@ -479,7 +609,7 @@ void file_copy(const char *zFrom, const char *zTo){
   char zBuf[8192];
   in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
-  file_mkfolder(zTo, 0, 0);
+  file_mkfolder(zTo, ExtFILE, 0, 0);
   out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
@@ -487,6 +617,7 @@ void file_copy(const char *zFrom, const char *zTo){
   }
   fclose(in);
   fclose(out);
+  if( file_isexe(zFrom, ExtFILE) ) file_setexe(zTo, 1);
 }
 
 /*
@@ -508,12 +639,21 @@ void test_file_copy(void){
 /*
 ** Set or clear the execute bit on a file.  Return true if a change
 ** occurred and false if this routine is a no-op.
+**
+** This routine assumes RepoFILE as the eFType.  In other words, if
+** zFilename is a symbolic link, it is the object that zFilename points
+** to that is modified.
 */
-int file_wd_setexe(const char *zFilename, int onoff){
+int file_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, 1, 0)!=0 || S_ISLNK(buf.st_mode) ) return 0;
+  if( fossil_stat(zFilename, &buf, RepoFILE)!=0
+   || S_ISLNK(buf.st_mode)
+   || S_ISDIR(buf.st_mode)
+  ){
+    return 0;
+  }
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
     if( (buf.st_mode & 0100)==0 ){
@@ -570,13 +710,16 @@ void test_set_mtime(void){
   iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
   zFile = g.argv[2];
   file_set_mtime(zFile, iMTime);
-  iMTime = file_wd_mtime(zFile);
+  iMTime = file_mtime(zFile, RepoFILE);
   zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMTime);
   fossil_print("Set mtime of \"%s\" to %s (%lld)\n", zFile, zDate, iMTime);
 }
 
 /*
 ** Delete a file.
+**
+** If zFilename is a symbolic link, then it is the link itself that is
+** removed, not the object that zFilename points to.
 **
 ** Returns zero upon success.
 */
@@ -593,15 +736,35 @@ int file_delete(const char *zFilename){
   return rc;
 }
 
+/* SQL Function:  file_delete(NAME)
+**
+** Remove file NAME.  Return zero on success and non-zero if anything goes
+** wrong.
+*/
+void file_delete_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  int rc;
+  if( zName==0 ){
+    rc = 1;
+  }else{
+    rc = file_delete(zName);
+  }
+  sqlite3_result_int(context, rc);
+}
+
 /*
-** Create the directory named in the argument, if it does not already
-** exist.  If forceFlag is 1, delete any prior non-directory object
+** Create a directory called zName, if it does not already exist.
+** If forceFlag is 1, delete any prior non-directory object
 ** with the same name.
 **
 ** Return the number of errors.
 */
-int file_mkdir(const char *zName, int forceFlag){
-  int rc = file_wd_isdir(zName);
+int file_mkdir(const char *zName, int eFType, int forceFlag){
+  int rc = file_isdir(zName, eFType);
   if( rc==2 ){
     if( !forceFlag ) return 1;
     file_delete(zName);
@@ -612,7 +775,7 @@ int file_mkdir(const char *zName, int forceFlag){
     rc = _wmkdir(zMbcs);
 #else
     char *zMbcs = fossil_utf8_to_path(zName, 1);
-    rc = mkdir(zName, 0755);
+    rc = mkdir(zMbcs, 0755);
 #endif
     fossil_path_free(zMbcs);
     return rc;
@@ -627,40 +790,81 @@ int file_mkdir(const char *zName, int forceFlag){
 ** On success, return zero.  On error, return errorReturn if positive, otherwise
 ** print an error message and abort.
 */
-int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
-  int i, nName, rc = 0;
+int file_mkfolder(
+  const char *zFilename,   /* Pathname showing directories to be created */
+  int eFType,              /* Follow symlinks if ExtFILE */
+  int forceFlag,           /* Delete non-directory objects in the way */
+  int errorReturn          /* What to do when an error is seen */
+){
+  int nName, rc = 0;
   char *zName;
 
   nName = strlen(zFilename);
   zName = mprintf("%s", zFilename);
   nName = file_simplify_name(zName, nName, 0);
-  for(i=1; i<nName; i++){
-    if( zName[i]=='/' ){
-      zName[i] = 0;
-#if defined(_WIN32) || defined(__CYGWIN__)
-      /*
-      ** On Windows, local path looks like: C:/develop/project/file.txt
-      ** The if stops us from trying to create a directory of a drive letter
-      ** C: in this example.
-      */
-      if( !(i==2 && zName[1]==':') ){
-#endif
-        if( file_mkdir(zName, forceFlag) && file_wd_isdir(zName)!=1 ){
-          if (errorReturn <= 0) {
+  while( nName>0 && zName[nName-1]!='/' ){ nName--; }
+  if( nName>1 ){
+    zName[nName-1] = 0;
+    if( file_isdir(zName, eFType)!=1 ){
+      rc = file_mkfolder(zName, eFType, forceFlag, errorReturn);
+      if( rc==0 ){
+        if( file_mkdir(zName, eFType, forceFlag)
+         && file_isdir(zName, eFType)!=1
+        ){
+          if( errorReturn <= 0 ){
             fossil_fatal_recursive("unable to create directory %s", zName);
           }
           rc = errorReturn;
-          break;
         }
-#if defined(_WIN32) || defined(__CYGWIN__)
       }
-#endif
-      zName[i] = '/';
     }
   }
   free(zName);
   return rc;
 }
+
+#if defined(_WIN32)
+/*
+** Returns non-zero if the specified name represents a real directory, i.e.
+** not a junction or symbolic link.  This is important for some operations,
+** e.g. removing directories via _wrmdir(), because its detection of empty
+** directories will (apparently) not work right for junctions and symbolic
+** links, etc.
+*/
+int file_is_normal_dir(wchar_t *zName){
+  /*
+  ** Mask off attributes, applicable to directories, that are harmless for
+  ** our purposes.  This may need to be updated if other attributes should
+  ** be ignored by this function.
+  */
+  DWORD dwAttributes = GetFileAttributesW(zName);
+  if( dwAttributes==INVALID_FILE_ATTRIBUTES ) return 0;
+  dwAttributes &= ~(
+    FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_COMPRESSED |
+    FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_NORMAL |
+    FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
+  );
+  return dwAttributes==FILE_ATTRIBUTE_DIRECTORY;
+}
+
+/*
+** COMMAND: test-is-normal-dir
+**
+** Usage: %fossil test-is-normal-dir NAME...
+**
+** Returns non-zero if the specified names represent real directories, i.e.
+** not junctions, symbolic links, etc.
+*/
+void test_is_normal_dir(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    wchar_t *zMbcs = fossil_utf8_to_path(g.argv[i], 1);
+    fossil_print("ATTRS \"%s\" -> %lx\n", g.argv[i], GetFileAttributesW(zMbcs));
+    fossil_print("ISDIR \"%s\" -> %d\n", g.argv[i], file_is_normal_dir(zMbcs));
+    fossil_path_free(zMbcs);
+  }
+}
+#endif
 
 /*
 ** Removes the directory named in the argument, if it exists.  The directory
@@ -669,12 +873,16 @@ int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
 ** Returns zero upon success.
 */
 int file_rmdir(const char *zName){
-  int rc = file_wd_isdir(zName);
+  int rc = file_isdir(zName, RepoFILE);
   if( rc==2 ) return 1; /* cannot remove normal file */
   if( rc==1 ){
 #if defined(_WIN32)
     wchar_t *zMbcs = fossil_utf8_to_path(zName, 1);
-    rc = _wrmdir(zMbcs);
+    if( file_is_normal_dir(zMbcs) ){
+      rc = _wrmdir(zMbcs);
+    }else{
+      rc = ENOTDIR; /* junction, symbolic link, etc. */
+    }
 #else
     char *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = rmdir(zName);
@@ -683,6 +891,68 @@ int file_rmdir(const char *zName){
     return rc;
   }
   return 0;
+}
+
+/* SQL Function: rmdir(NAME)
+**
+** Try to remove the directory NAME.  Return zero on success and non-zero
+** for failure.
+*/
+void file_rmdir_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  int rc;
+  if( zName==0 ){
+    rc = 1;
+  }else{
+    rc = file_rmdir(zName);
+  }
+  sqlite3_result_int(context, rc);
+}
+
+/*
+** Check the input argument to see if it looks like it has an prefix that
+** indicates a remote file.  If so, return the tail of the specification,
+** which is the name of the file on the remote system.
+**
+** If the input argument does not have a prefix that makes it look like
+** a remote file reference, then return NULL.
+**
+** Remote files look like:  "HOST:PATH" or "USER@HOST:PATH".  Host must
+** be a valid hostname, meaning it must follow these rules:
+**
+**   *  Only characters [-.a-zA-Z0-9].  No spaces or other punctuation
+**   *  Does not begin or end with -
+**   *  Name is two or more characters long (otherwise it might be
+**      confused with a drive-letter on Windows).
+**
+** The USER section, if it exists, must not contain the '@' character.
+*/
+const char *file_skip_userhost(const char *zIn){
+  const char *zTail;
+  int n, i;
+  if( zIn[0]==':' ) return 0;
+  zTail = strchr(zIn, ':');
+  if( zTail==0 ) return 0;
+  if( zTail - zIn > 10000 ) return 0;
+  n = (int)(zTail - zIn);
+  if( n<2 ) return 0;
+  if( zIn[n-1]=='-' || zIn[n-1]=='.' ) return 0;
+  for(i=n-1; i>0 && zIn[i-1]!='@'; i--){
+    if( !fossil_isalnum(zIn[i]) && zIn[i]!='-' && zIn[i]!='.' ) return 0;
+  }
+  if( zIn[i]=='-' || zIn[i]=='.' || i==1 ) return 0;
+  if( i>1 ){
+    i -= 2;
+    while( i>=0 ){
+      if( zIn[i]=='@' ) return 0;
+      i--;
+    }
+  }
+  return zTail+1;
 }
 
 /*
@@ -770,6 +1040,23 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
   if( z[i-1]=='/' ) return 0;
   return 1;
 }
+int file_is_simple_pathname_nonstrict(const char *z){
+  unsigned char c = (unsigned char) z[0];
+  if( c=='/' || c==0 ) return 0;
+  if( c=='.' ){
+    if( z[1]=='/' || z[1]==0 ) return 0;
+    if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
+  }
+  while( (z = strchr(z+1, '/'))!=0 ){
+    if( z[1]=='/' ) return 0;
+    if( z[1]==0 ) return 0;
+    if( z[1]=='.' ){
+      if( z[2]=='/' || z[2]==0 ) return 0;
+      if( z[2]=='.' && (z[3]=='/' || z[3]==0) ) return 0;
+    }
+  }
+  return 1;
+}
 
 /*
 ** If the last component of the pathname in z[0]..z[j-1] is something
@@ -801,7 +1088,9 @@ static int backup_dir(const char *z, int *pJ){
 */
 int file_simplify_name(char *z, int n, int slash){
   int i = 1, j;
+  assert( z!=0 );
   if( n<0 ) n = strlen(z);
+  if( n==0 ) return 0;
 
   /* On windows and cygwin convert all \ characters to /
    * and remove extended path prefix if present */
@@ -869,13 +1158,25 @@ int file_simplify_name(char *z, int n, int slash){
 **
 ** Usage: %fossil test-simplify-name FILENAME...
 **
-** Print the simplified versions of each FILENAME.
+** Print the simplified versions of each FILENAME.  This is used to test
+** the file_simplify_name() routine.
+**
+** If FILENAME is of the form "HOST:PATH" or "USER@HOST:PATH", then remove
+** and print the remote host prefix first.  This is used to test the
+** file_skip_userhost() interface.
 */
 void cmd_test_simplify_name(void){
   int i;
   char *z;
+  const char *zTail;
   for(i=2; i<g.argc; i++){
-    z = mprintf("%s", g.argv[i]);
+    zTail = file_skip_userhost(g.argv[i]);
+    if( zTail ){
+      fossil_print("... ON REMOTE: %.*s\n", (int)(zTail-g.argv[i]), g.argv[i]);
+      z = mprintf("%s", zTail);
+    }else{
+      z = mprintf("%s", g.argv[i]);
+    }
     fossil_print("[%s] -> ", z);
     file_simplify_name(z, -1, 0);
     fossil_print("[%s]\n", z);
@@ -889,8 +1190,15 @@ void cmd_test_simplify_name(void){
 ** On windows, the name is converted from unicode to UTF8 and all '\\'
 ** characters are converted to '/'.  No conversions are needed on
 ** unix.
+**
+** Store the value of the CWD in zBuf which is nBuf bytes in size.
+** or if zBuf==0, allocate space to hold the result using fossil_malloc().
 */
-void file_getcwd(char *zBuf, int nBuf){
+char *file_getcwd(char *zBuf, int nBuf){
+  if( zBuf==0 ){
+    char zTemp[2000];
+    return fossil_strdup(file_getcwd(zTemp, sizeof(zTemp)));
+  }
 #ifdef _WIN32
   win32_getcwd(zBuf, nBuf);
 #else
@@ -903,6 +1211,7 @@ void file_getcwd(char *zBuf, int nBuf){
     }
   }
 #endif
+  return zBuf;
 }
 
 /*
@@ -930,6 +1239,8 @@ int file_is_absolute_path(const char *zPath){
 ** Convert /A/../ to just /
 ** If the slash parameter is non-zero, the trailing slash, if any,
 ** is retained.
+**
+** See also: file_canonical_name_dup()
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
   blob_zero(pOut);
@@ -967,56 +1278,194 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
+** Compute the canonical name of a file.  Store that name in
+** memory obtained from fossil_malloc() and return a pointer to the
+** name.
+**
+** See also: file_canonical_name()
+*/
+char *file_canonical_name_dup(const char *zOrigName){
+  Blob x;
+  if( zOrigName==0 ) return 0;
+  blob_init(&x, 0, 0);
+  file_canonical_name(zOrigName, &x, 0);
+  return blob_str(&x);
+}
+
+/*
+** The input is the name of an executable, such as one might
+** type on a command-line.  This routine resolves that name into
+** a full pathname.  The result is obtained from fossil_malloc()
+** and should be freed by the caller.
+*/
+char *file_fullexename(const char *zCmd){
+#ifdef _WIN32
+  char *zPath;
+  char *z = 0;
+  const char *zExe = "";
+  if( sqlite3_strlike("%.exe",zCmd,0)!=0 ) zExe = ".exe";
+  if( file_is_absolute_path(zCmd) ){
+    return mprintf("%s%s", zCmd, zExe);
+  }
+  if( strchr(zCmd,'\\')!=0 && strchr(zCmd,'/')!=0 ){
+    int i;
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    blob_append(&out, zExe, -1);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    for(i=0; z[i]; i++){ if( z[i]=='/' ) z[i] = '\\'; }
+    return z;
+  }
+  z = mprintf(".\\%s%s", zCmd, zExe);
+  if( file_isfile(z, ExtFILE) ){
+    int i;
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    blob_append(&out, zExe, -1);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    for(i=0; z[i]; i++){ if( z[i]=='/' ) z[i] = '\\'; }
+    return z;
+  }
+  fossil_free(z);
+  zPath = fossil_getenv("PATH");
+  while( zPath && zPath[0] ){
+    int n;
+    char *zColon;
+    zColon = strchr(zPath, ';');
+    n = zColon ? (int)(zColon-zPath) : (int)strlen(zPath);
+    while( n>0 && zPath[n-1]=='\\' ){ n--; }
+    z = mprintf("%.*s\\%s%s", n, zPath, zCmd, zExe);
+    if( file_isfile(z, ExtFILE) ){
+      return z;
+    }
+    fossil_free(z);
+    if( zColon==0 ) break;
+    zPath = zColon+1;
+  }
+  return fossil_strdup(zCmd);
+#else
+  char *zPath;
+  char *z;
+  if( zCmd[0]=='/' ){
+    return fossil_strdup(zCmd);
+  }
+  if( strchr(zCmd,'/')!=0 ){
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    return z;
+  }
+  zPath = fossil_getenv("PATH");
+  while( zPath && zPath[0] ){
+    int n;
+    char *zColon;
+    zColon = strchr(zPath, ':');
+    n = zColon ? (int)(zColon-zPath) : (int)strlen(zPath);
+    z = mprintf("%.*s/%s", n, zPath, zCmd);
+    if( file_isexe(z, ExtFILE) ){
+      return z;
+    }
+    fossil_free(z);
+    if( zColon==0 ) break;
+    zPath = zColon+1;
+  }
+  return fossil_strdup(zCmd);
+#endif
+}
+
+/*
+** COMMAND: test-which
+**
+** Usage: %fossil test-which ARGS...
+**
+** For each argument, search the PATH for the executable with the name
+** and print its full pathname.
+*/
+void test_which_cmd(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    char *z = file_fullexename(g.argv[i]);
+    fossil_print("%z\n", z);
+  }
+}
+
+/*
 ** Emits the effective or raw stat() information for the specified
 ** file or directory, optionally preserving the trailing slash and
 ** resetting the cached stat() information.
 */
 static void emitFileStat(
   const char *zPath,
-  int raw,
   int slash,
   int reset
 ){
-  char zBuf[100];
+  char zBuf[200];
+  char *z;
   Blob x;
+  char *zFull;
+  int rc;
+  sqlite3_int64 iMtime;
+  struct fossilStat testFileStat;
   memset(zBuf, 0, sizeof(zBuf));
   blob_zero(&x);
   file_canonical_name(zPath, &x, slash);
-  fossil_print("%s[%s] -> [%s]\n", raw ? "RAW " : "", zPath, blob_buffer(&x));
+  zFull = blob_str(&x);
+  fossil_print("[%s] -> [%s]\n", zPath, zFull);
+  memset(&testFileStat, 0, sizeof(struct fossilStat));
+  rc = fossil_stat(zPath, &testFileStat, 0);
+  fossil_print("  stat_rc                = %d\n", rc);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+  fossil_print("  stat_size              = %s\n", zBuf);
+  if( g.db==0 ) sqlite3_open(":memory:", &g.db);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
+  fossil_free(z);
+  fossil_print("  stat_mtime             = %s\n", zBuf);
+  fossil_print("  stat_mode              = 0%o\n", testFileStat.st_mode);
+  memset(&testFileStat, 0, sizeof(struct fossilStat));
+  rc = fossil_stat(zPath, &testFileStat, 1);
+  fossil_print("  l_stat_rc              = %d\n", rc);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+  fossil_print("  l_stat_size            = %s\n", zBuf);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
+  fossil_free(z);
+  fossil_print("  l_stat_mtime           = %s\n", zBuf);
+  fossil_print("  l_stat_mode            = 0%o\n", testFileStat.st_mode);
+  if( reset ) resetStat();
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zPath,ExtFILE));
+  fossil_print("  file_size(ExtFILE)     = %s\n", zBuf);
+  iMtime = file_mtime(zPath, ExtFILE);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", iMtime, z);
+  fossil_free(z);
+  fossil_print("  file_mtime(ExtFILE)    = %s\n", zBuf);
+  fossil_print("  file_mode(ExtFILE)     = 0%o\n", file_mode(zPath,ExtFILE));
+  fossil_print("  file_isfile(ExtFILE)   = %d\n", file_isfile(zPath,ExtFILE));
+  fossil_print("  file_isdir(ExtFILE)    = %d\n", file_isdir(zPath,ExtFILE));
+  if( reset ) resetStat();
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zPath,RepoFILE));
+  fossil_print("  file_size(RepoFILE)    = %s\n", zBuf);
+  iMtime = file_mtime(zPath,RepoFILE);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", iMtime, z);
+  fossil_free(z);
+  fossil_print("  file_mtime(RepoFILE)   = %s\n", zBuf);
+  fossil_print("  file_mode(RepoFILE)    = 0%o\n", file_mode(zPath,RepoFILE));
+  fossil_print("  file_isfile(RepoFILE)  = %d\n", file_isfile(zPath,RepoFILE));
+  fossil_print("  file_isfile_or_link    = %d\n", file_isfile_or_link(zPath));
+  fossil_print("  file_islink            = %d\n", file_islink(zPath));
+  fossil_print("  file_isexe(RepoFILE)   = %d\n", file_isexe(zPath,RepoFILE));
+  fossil_print("  file_isdir(RepoFILE)   = %d\n", file_isdir(zPath,RepoFILE));
+  fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
+  fossil_print("  file_is_reserved_name  = %d\n",
+                                             file_is_reserved_name(zFull,-1));
+  fossil_print("  file_in_cwd            = %d\n", file_in_cwd(zPath));
   blob_reset(&x);
-  if( raw ){
-    int rc;
-    struct fossilStat testFileStat;
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 0, 0);
-    fossil_print("  stat_rc      = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  stat_size    = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
-    fossil_print("  stat_mtime   = %s\n", zBuf);
-    fossil_print("  stat_mode    = %d\n", testFileStat.st_mode);
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 1, 1);
-    fossil_print("  l_stat_rc    = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  l_stat_size  = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
-    fossil_print("  l_stat_mtime = %s\n", zBuf);
-    fossil_print("  l_stat_mode  = %d\n", testFileStat.st_mode);
-  }else{
-    if( reset ) resetStat();
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zPath));
-    fossil_print("  file_size           = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zPath));
-    fossil_print("  file_mtime          = %s\n", zBuf);
-    fossil_print("  file_mode           = %d\n", file_wd_mode(zPath));
-    fossil_print("  file_isfile         = %d\n", file_wd_isfile(zPath));
-    fossil_print("  file_isfile_or_link = %d\n", file_wd_isfile_or_link(zPath));
-    fossil_print("  file_islink         = %d\n", file_wd_islink(zPath));
-    fossil_print("  file_isexe          = %d\n", file_wd_isexe(zPath));
-    fossil_print("  file_isdir          = %d\n", file_wd_isdir(zPath));
-    if( reset ) resetStat();
-  }
+  if( reset ) resetStat();
 }
 
 /*
@@ -1029,29 +1478,43 @@ static void emitFileStat(
 **
 ** Options:
 **
-**     --open-config        Open the configuration database first.
-**     --slash              Trailing slashes, if any, are retained.
-**     --reset              Reset cached stat() info for each file.
+**     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
+**     --open-config                Open the configuration database first.
+**     --reset                      Reset cached stat() info for each file.
+**     --root ROOT                  Use ROOT as the root of the checkout
+**     --slash                      Trailing slashes, if any, are retained.
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
+  const char *zRoot = find_option("root",0,1);
+  const char *zAllow = find_option("allow-symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
-  fossil_print("Th_IsLocalOpen() = %d\n", Th_IsLocalOpen());
-  fossil_print("Th_IsRepositoryOpen() = %d\n", Th_IsRepositoryOpen());
-  fossil_print("Th_IsConfigOpen() = %d\n", Th_IsConfigOpen());
+  db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
-  fossil_print("db_allow_symlinks_by_default() = %d\n",
-               db_allow_symlinks_by_default());
-  fossil_print("db_allow_symlinks(0) = %d\n", db_allow_symlinks(0));
-  fossil_print("db_allow_symlinks(1) = %d\n", db_allow_symlinks(1));
+  if( zAllow ){
+    g.allowSymlinks = !is_false(zAllow);
+  }
+  if( zRoot==0 ) zRoot = g.zLocalRoot;
+  fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
+  fossil_print("local-root = [%s]\n", zRoot);
   for(i=2; i<g.argc; i++){
-    emitFileStat(g.argv[i], 1, slashFlag, resetFlag);
-    emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
+    char *z;
+    emitFileStat(g.argv[i], slashFlag, resetFlag);
+    z = file_canonical_name_dup(g.argv[i]);
+    fossil_print("  file_canonical_name    = %s\n", z);
+    fossil_print("  file_nondir_path       = ");
+    if( fossil_strnicmp(zRoot,z,(int)strlen(zRoot))!=0 ){
+      fossil_print("(--root is not a prefix of this file)\n");
+    }else{
+      int n = file_nondir_objects_on_path(zRoot, z);
+      fossil_print("%.*s\n", n, z);
+    }
+    fossil_free(z);
   }
 }
 
@@ -1062,22 +1525,27 @@ void cmd_test_file_environment(void){
 **
 ** Test the operation of the canonical name generator.
 ** Also test Fossil's ability to measure attributes of a file.
-**
-** Options:
-**
-**     --open-config        Open the configuration database first.
-**     --slash              Trailing slashes, if any, are retained.
-**     --reset              Reset cached stat() info for each file.
 */
 void cmd_test_canonical_name(void){
   int i;
+  Blob x;
   int slashFlag = find_option("slash",0,0)!=0;
-  int resetFlag = find_option("reset",0,0)!=0;
-  if( find_option("open-config", 0, 0)!=0 ){
-    Th_OpenConfig(1);
-  }
+  blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
+    char zBuf[100];
+    const char *zName = g.argv[i];
+    file_canonical_name(zName, &x, slashFlag);
+    fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
+    blob_reset(&x);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zName,RepoFILE));
+    fossil_print("  file_size           = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_mtime(zName,RepoFILE));
+    fossil_print("  file_mtime          = %s\n", zBuf);
+    fossil_print("  file_isfile         = %d\n", file_isfile(zName,RepoFILE));
+    fossil_print("  file_isfile_or_link = %d\n", file_isfile_or_link(zName));
+    fossil_print("  file_islink         = %d\n", file_islink(zName));
+    fossil_print("  file_isexe          = %d\n", file_isexe(zName,RepoFILE));
+    fossil_print("  file_isdir          = %d\n", file_isdir(zName,RepoFILE));
   }
 }
 
@@ -1192,10 +1660,6 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 ** COMMAND: test-relative-name
 **
 ** Test the operation of the relative name generator.
-**
-** Options:
-**
-**     --slash              Trailing slashes, if any, are retained.
 */
 void cmd_test_relative_name(void){
   int i;
@@ -1315,7 +1779,6 @@ int file_tree_name(
 **   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
-**   --no-dir-symlinks    Disables support for directory symlinks.
 */
 void cmd_test_tree_name(void){
   int i;
@@ -1329,6 +1792,39 @@ void cmd_test_tree_name(void){
       blob_reset(&x);
     }
   }
+}
+
+/*
+** zFile is the name of a file.  Return true if that file is in the
+** current working directory (the "pwd" or file_getcwd() directory).
+** Return false if the file is someplace else.
+*/
+int file_in_cwd(const char *zFile){
+  char *zFull = file_canonical_name_dup(zFile);
+  char *zCwd = file_getcwd(0,0);
+  size_t nCwd = strlen(zCwd);
+  size_t nFull = strlen(zFull);
+  int rc = 1;
+  int (*xCmp)(const char*,const char*,int);
+
+  if( filenames_are_case_sensitive() ){
+    xCmp = fossil_strncmp;
+  }else{
+    xCmp = fossil_strnicmp;
+  }
+
+  if( nFull>nCwd+1
+   && xCmp(zFull,zCwd,nCwd)==0
+   && zFull[nCwd]=='/'
+   && strchr(zFull+nCwd+1, '/')==0
+  ){
+    rc = 1;
+  }else{
+    rc = 0;
+  }
+  fossil_free(zFull);
+  fossil_free(zCwd);
+  return rc;
 }
 
 /*
@@ -1373,9 +1869,20 @@ void file_parse_uri(
 }
 
 /*
-** Construct a random temporary filename into pBuf starting with zPrefix.
+** Construct a random temporary filename into pBuf where the name of
+** the temporary file is derived from zBasis.  The suffix on the temp
+** file is the same as the suffix on zBasis, and the temp file has
+** the root of zBasis in its name.
+**
+** If zTag is not NULL, then try to create the temp-file using zTag
+** as a differentiator.  If that fails, or if zTag is NULL, then use
+** a bunch of random characters as the tag.
+**
+** Dangerous characters in zBasis are changed.
+**
+** See also fossil_temp_filename() and file_time_tempname();
 */
-void file_tempname(Blob *pBuf, const char *zPrefix){
+void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
 #if defined(_WIN32)
   const char *azDirs[] = {
      0, /* GetTempPath */
@@ -1384,7 +1891,8 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
      ".",
   };
 #else
-  static const char *const azDirs[] = {
+  static const char *azDirs[] = {
+     0, /* TMPDIR */
      "/var/tmp",
      "/usr/tmp",
      "/tmp",
@@ -1400,42 +1908,141 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
   const char *zDir = ".";
   int cnt = 0;
   char zRand[16];
+  int nBasis;
+  const char *zSuffix;
+  char *z;
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
 
   if( GetTempPathW(MAX_PATH, zTmpPath) ){
     azDirs[0] = fossil_path_to_utf8(zTmpPath);
+    /* Removing trailing \ from the temp path */
+    z = (char*)azDirs[0];
+    i = (int)strlen(z)-1;
+    if( i>0 && z[i]=='\\' ) z[i] = 0;
   }
 
   azDirs[1] = fossil_getenv("TEMP");
   azDirs[2] = fossil_getenv("TMP");
+#else
+  azDirs[0] = fossil_getenv("TMPDIR");
 #endif
-
 
   for(i=0; i<count(azDirs); i++){
     if( azDirs[i]==0 ) continue;
-    if( !file_isdir(azDirs[i]) ) continue;
+    if( !file_isdir(azDirs[i], ExtFILE) ) continue;
     zDir = azDirs[i];
     break;
   }
 
+  assert( zBasis!=0 );
+  zSuffix = 0;
+  for(i=0; zBasis[i]; i++){
+    if( zBasis[i]=='/' || zBasis[i]=='\\' ){
+      zBasis += i+1;
+      i = -1;
+    }else if( zBasis[i]=='.' ){
+      zSuffix = zBasis + i;
+    }
+  }
+  if( zSuffix==0 || zSuffix<=zBasis ){
+    zSuffix = "";
+    nBasis = i;
+  }else{
+    nBasis = (int)(zSuffix - zBasis);
+  }
+  if( nBasis==0 ){
+    nBasis = 6;
+    zBasis = "fossil";
+  }
   do{
     blob_zero(pBuf);
-    if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
-    sqlite3_randomness(15, zRand);
-    for(i=0; i<15; i++){
-      zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
+    if( cnt++>20 ) fossil_fatal("cannot generate a temporary filename");
+    if( zTag==0 ){
+      const int nRand = sizeof(zRand)-1;
+      sqlite3_randomness(nRand, zRand);
+      for(i=0; i<nRand; i++){
+        zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
+      }
+      zRand[nRand] = 0;
+      zTag = zRand;
     }
-    zRand[15] = 0;
-    blob_appendf(pBuf, "%s/%s.%s", zDir, zPrefix ? zPrefix : "", zRand);
-  }while( file_size(blob_str(pBuf))>=0 );
+    blob_appendf(pBuf, "%s/%.*s~%s%s", zDir, nBasis, zBasis, zTag, zSuffix);
+    zTag = 0;
+    for(z=blob_str(pBuf); z!=0 && (z=strpbrk(z,"'\"`;|$&"))!=0; z++){
+      z[0] = '_';
+    }
+  }while( file_size(blob_str(pBuf), ExtFILE)>=0 );
 
 #if defined(_WIN32)
   fossil_path_free((char *)azDirs[0]);
   fossil_path_free((char *)azDirs[1]);
   fossil_path_free((char *)azDirs[2]);
+  /* Change all \ characters in the windows path into / so that they can
+  ** be safely passed to a subcommand, such as by gdiff */
+  z = blob_buffer(pBuf);
+  for(i=0; z[i]; i++) if( z[i]=='\\' ) z[i] = '/';
+#else
+  fossil_path_free((char *)azDirs[0]);
 #endif
+}
+
+/*
+** Compute a temporary filename in zDir.  The filename is based on
+** the current time.
+**
+** See also fossil_temp_filename() and file_tempname();
+*/
+char *file_time_tempname(const char *zDir, const char *zSuffix){
+  struct tm *tm;
+  unsigned int r;
+  static unsigned int cnt = 0;
+  time_t t;
+  t = time(0);
+  tm = gmtime(&t);
+  sqlite3_randomness(sizeof(r), &r);
+  return mprintf("%s/%04d%02d%02d%02d%02d%02d%04d%06d%s",
+      zDir, tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
+            tm->tm_hour, tm->tm_min, tm->tm_sec, cnt++, r%1000000, zSuffix);
+}
+
+
+/*
+** COMMAND: test-tempname
+** Usage:  fossil test-name [--time SUFFIX] [--tag NAME] BASENAME ...
+**
+** Generate temporary filenames derived from BASENAME.  Use the --time
+** option to generate temp names based on the time of day.  If --tag NAME
+** is specified, try to use NAME as the differentiator in the temp file.
+**
+** If --time is used, file_time_tempname() generates the filename.
+** If BASENAME is present, file_tempname() generates the filename.
+** Without --time or BASENAME, fossil_temp_filename() generates the filename.
+*/
+void file_test_tempname(void){
+  int i;
+  const char *zSuffix = find_option("time",0,1);
+  Blob x = BLOB_INITIALIZER;
+  char *z;
+  const char *zTag = find_option("tag",0,1);
+  verify_all_options();
+  if( g.argc<=2 ){
+    z = fossil_temp_filename();
+    fossil_print("%s\n", z);
+    sqlite3_free(z);
+  }
+  for(i=2; i<g.argc; i++){
+    if( zSuffix ){
+      z = file_time_tempname(g.argv[i], zSuffix);
+      fossil_print("%s\n", z);
+      fossil_free(z);
+    }else{
+      file_tempname(&x, g.argv[i], zTag);
+      fossil_print("%s\n", blob_str(&x));
+      blob_reset(&x);
+    }
+  }
 }
 
 
@@ -1443,20 +2050,18 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 ** Return true if a file named zName exists and has identical content
 ** to the blob pContent.  If zName does not exist or if the content is
 ** different in any way, then return false.
+**
+** This routine assumes RepoFILE
 */
 int file_is_the_same(Blob *pContent, const char *zName){
   i64 iSize;
   int rc;
   Blob onDisk;
 
-  iSize = file_wd_size(zName);
+  iSize = file_size(zName, RepoFILE);
   if( iSize<0 ) return 0;
   if( iSize!=blob_size(pContent) ) return 0;
-  if( file_wd_islink(zName) ){
-    blob_read_link(&onDisk, zName);
-  }else{
-    blob_read_from_file(&onDisk, zName);
-  }
+  blob_read_from_file(&onDisk, zName, RepoFILE);
   rc = blob_compare(&onDisk, pContent);
   blob_reset(&onDisk);
   return rc==0;
@@ -1498,7 +2103,63 @@ int fossil_setenv(const char *zName, const char *zValue){
 }
 
 /*
+** Clear all environment variables
+*/
+int fossil_clearenv(void){
+#ifdef _WIN32
+  int rc = 0;
+  LPWCH zzEnv = GetEnvironmentStringsW();
+  if( zzEnv ){
+    LPCWSTR zEnv = zzEnv; /* read-only */
+    while( 1 ){
+      LPWSTR zNewEnv = _wcsdup(zEnv); /* writable */
+      if( zNewEnv ){
+        LPWSTR zEquals = wcsstr(zNewEnv, L"=");
+        if( zEquals ){
+          zEquals[1] = 0; /* no value */
+          if( zNewEnv==zEquals || _wputenv(zNewEnv)==0 ){ /* via CRT */
+            /* do nothing */
+          }else{
+            zEquals[0] = 0; /* name only */
+            if( !SetEnvironmentVariableW(zNewEnv, NULL) ){ /* via Win32 */
+              rc = 1;
+            }
+          }
+          if( rc==0 ){
+            zEnv += (lstrlenW(zEnv) + 1); /* double NUL term? */
+            if( zEnv[0]==0 ){
+              free(zNewEnv);
+              break; /* no more vars */
+            }
+          }
+        }else{
+          rc = 1;
+        }
+      }else{
+        rc = 1;
+      }
+      free(zNewEnv);
+      if( rc!=0 ) break;
+    }
+    if( !FreeEnvironmentStringsW(zzEnv) ){
+      rc = 2;
+    }
+  }else{
+    rc = 1;
+  }
+  return rc;
+#else
+  extern char **environ;
+  environ[0] = 0;
+  return 0;
+#endif
+}
+
+/*
 ** Like fopen() but always takes a UTF8 argument.
+**
+** This function assumes ExtFILE. In other words, symbolic links
+** are always followed.
 */
 FILE *fossil_fopen(const char *zName, const char *zMode){
 #ifdef _WIN32
@@ -1514,12 +2175,79 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 }
 
 /*
+** Wrapper for freopen() that understands UTF8 arguments.
+*/
+FILE *fossil_freopen(const char *zName, const char *zMode, FILE *stream){
+#ifdef _WIN32
+  wchar_t *uMode = fossil_utf8_to_unicode(zMode);
+  wchar_t *uName = fossil_utf8_to_path(zName, 0);
+  FILE *f = _wfreopen(uName, uMode, stream);
+  fossil_path_free(uName);
+  fossil_unicode_free(uMode);
+#else
+  FILE *f = freopen(zName, zMode, stream);
+#endif
+  return f;
+}
+
+/*
+** Works like fclose() except that:
+**
+** 1) is a no-op if f is 0 or if it is stdin.
+**
+** 2) If f is one of (stdout, stderr), it is flushed but not closed.
+*/
+void fossil_fclose(FILE *f){
+  if(f!=0){
+    if(stdout==f || stderr==f){
+      fflush(f);
+    }else if(stdin!=f){
+      fclose(f);
+    }
+  }
+}
+
+/*
+**   Works like fopen(zName,"wb") except that:
+**
+**   1) If zName is "-", the stdout handle is returned.
+**
+**   2) Else file_mkfolder() is used to create all directories
+**      which lead up to the file before opening it.
+**
+**   3) It fails fatally if the file cannot be opened.
+*/
+FILE *fossil_fopen_for_output(const char *zFilename){
+  if(zFilename[0]=='-' && zFilename[1]==0){
+    return stdout;
+  }else{
+    FILE * p;
+    file_mkfolder(zFilename, ExtFILE, 1, 0);
+    p = fossil_fopen(zFilename, "wb");
+    if( p==0 ){
+#if defined(_WIN32)
+      const char *zReserved = file_is_win_reserved(zFilename);
+      if( zReserved ){
+        fossil_fatal("cannot open \"%s\" because \"%s\" is "
+                     "a reserved name on Windows", zFilename,
+                     zReserved);
+      }
+#endif
+      fossil_fatal("unable to open file \"%s\" for writing",
+                   zFilename);
+    }
+    return p;
+  }
+}
+
+
+/*
 ** Return non-NULL if zFilename contains pathname elements that
 ** are reserved on Windows.  The returned string is the disallowed
 ** path element.
 */
 const char *file_is_win_reserved(const char *zPath){
-  static const char *azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
+  static const char *const azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
   static char zReturn[5];
   int i;
   while( zPath[0] ){
@@ -1565,4 +2293,482 @@ const char *file_cleanup_fullpath(const char *z){
   while( z[0]=='/' && z[1]=='/' ) z++;
 #endif
   return z;
+}
+
+/*
+** Count the number of objects (files and subdirectories) in a given
+** directory.  Return the count.  Return -1 if the object is not a
+** directory.
+*/
+int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
+  void *zNative;
+  DIR *d;
+  int n = -1;
+  zNative = fossil_utf8_to_path(zDir,1);
+  d = opendir(zNative);
+  if( d ){
+    struct dirent *pEntry;
+    n = 0;
+    while( (pEntry=readdir(d))!=0 ){
+      if( pEntry->d_name[0]==0 ) continue;
+      if( omitDotFiles && pEntry->d_name[0]=='.' ) continue;
+      if( zGlob ){
+        char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+        int rc = sqlite3_strglob(zGlob, zUtf8);
+        fossil_path_free(zUtf8);
+        if( rc ) continue;
+      }
+      n++;
+    }
+    closedir(d);
+  }
+  fossil_path_free(zNative);
+  return n;
+}
+
+/*
+** COMMAND: test-dir-size
+**
+** Usage: %fossil test-dir-size NAME [GLOB] [--nodots]
+**
+** Return the number of objects in the directory NAME.  If GLOB is
+** provided, then only count objects that match the GLOB pattern.
+** if --nodots is specified, omit files that begin with ".".
+*/
+void test_dir_size_cmd(void){
+  int omitDotFiles = find_option("nodots",0,0)!=0;
+  const char *zGlob;
+  const char *zDir;
+  verify_all_options();
+  if( g.argc!=3 && g.argc!=4 ){
+    usage("NAME [GLOB] [-nodots]");
+  }
+  zDir = g.argv[2];
+  zGlob = g.argc==4 ? g.argv[3] : 0;
+  fossil_print("%d\n", file_directory_size(zDir, zGlob, omitDotFiles));
+}
+
+/*
+** Internal helper for touch_cmd(). zAbsName must be resolvable as-is
+** to an existing file - this function does not expand/normalize
+** it. i.e. it "really should" be an absolute path. zTreeName is
+** strictly cosmetic: it is used when dryRunFlag, verboseFlag, or
+** quietFlag generate output, and is assumed to be a repo-relative or
+** or subdir-relative filename.
+**
+** newMTime is the file's new timestamp (Unix epoch).
+**
+** Returns 1 if it sets zAbsName's mtime, 0 if it does not (indicating
+** that the file already has that timestamp or a warning was emitted
+** or was not found). If dryRunFlag is true then it outputs the name
+** of the file it would have timestamped but does not stamp the
+** file. If verboseFlag is true, it outputs a message if the file's
+** timestamp is actually modified. If quietFlag is true then the
+** output of non-fatal warning messages is suppressed.
+**
+** As a special case, if newMTime is 0 then this function emits a
+** warning (unless quietFlag is true), does NOT set the timestamp, and
+** returns 0. The timestamp is known to be zero when
+** mtime_of_manifest_file() is asked to provide the timestamp for a
+** file which is currently undergoing an uncommitted merge (though
+** this may depend on exactly where that merge is happening the
+** history of the project).
+*/
+static int touch_cmd_stamp_one_file(char const *zAbsName,
+                                    char const *zTreeName,
+                                    i64 newMtime, int dryRunFlag,
+                                    int verboseFlag, int quietFlag){
+  i64 currentMtime;
+  if(newMtime==0){
+    if( quietFlag==0 ){
+      fossil_print("SKIPPING timestamp of 0: %s\n", zTreeName);
+    }
+    return 0;
+  }
+  currentMtime = file_mtime(zAbsName, 0);
+  if(currentMtime<0){
+    fossil_print("SKIPPING: cannot stat file: %s\n", zAbsName);
+    return 0;
+  }else if(currentMtime==newMtime){
+    return 0;
+  }else if( dryRunFlag!=0 ){
+    fossil_print( "dry-run: %s\n", zTreeName );
+  }else{
+    file_set_mtime(zAbsName, newMtime);
+    if( verboseFlag!=0 ){
+      fossil_print( "touched %s\n", zTreeName );
+    }
+  }
+  return 1;
+}
+
+/*
+** Internal helper for touch_cmd(). If the given file name is found in
+** the given checkout version, which MUST be the checkout version
+** currently populating the vfile table, the vfile.mrid value for the
+** file is returned, else 0 is returned. zName must be resolvable
+** as-is from the vfile table - this function neither expands nor
+** normalizes it, though it does compare using the repo's
+** filename_collation() preference.
+*/
+static int touch_cmd_vfile_mrid( int vid, char const *zName ){
+  int mrid = 0;
+  static Stmt q = empty_Stmt_m;
+  db_static_prepare(&q,
+             "SELECT vfile.mrid "
+             "FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid "
+             "WHERE vid=:vid AND pathname=:pathname %s",
+             filename_collation());
+  db_bind_int(&q, ":vid", vid);
+  db_bind_text(&q, ":pathname", zName);
+  if(SQLITE_ROW==db_step(&q)){
+    mrid = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return mrid;
+}
+
+/*
+** COMMAND: touch*
+**
+** Usage: %fossil touch ?OPTIONS? ?FILENAME...?
+**
+** For each file in the current checkout matching one of the provided
+** list of glob patterns and/or file names, the file's mtime is
+** updated to a value specified by one of the flags --checkout,
+** --checkin, or --now.
+**
+** If neither glob patterns nor filenames are provided, it operates on
+** all files managed by the currently checked-out version.
+**
+** This command gets its name from the conventional Unix "touch"
+** command.
+**
+** Options:
+**   --now          Stamp each affected file with the current time.
+**                  This is the default behavior.
+**   -c|--checkin   Stamp each affected file with the time of the
+**                  most recent check-in which modified that file.
+**   -C|--checkout  Stamp each affected file with the time of the
+**                  currently-checked-out version.
+**   -g GLOBLIST    Comma-separated list of glob patterns.
+**   -G GLOBFILE    Similar to -g but reads its globs from a
+**                  fossil-conventional glob list file.
+**   -v|--verbose   Outputs extra information about its globs
+**                  and each file it touches.
+**   -n|--dry-run   Outputs which files would require touching,
+**                  but does not touch them.
+**   -q|--quiet     Suppress warnings, e.g. when skipping unmanaged
+**                  or out-of-tree files.
+**
+** Only one of --now, --checkin, and --checkout may be used. The
+** default is --now.
+**
+** Only one of -g or -G may be used. If neither is provided and no
+** additional filenames are provided, the effect is as if a glob of
+** '*' were provided, i.e. all files belonging to the
+** currently-checked-out version. Note that all glob patterns provided
+** via these flags are always evaluated as if they are relative to the
+** top of the source tree, not the current working (sub)directory.
+** Filenames provided without these flags, on the other hand, are
+** treated as relative to the current directory.
+**
+** As a special case, files currently undergoing an uncommitted merge
+** might not get timestamped with --checkin because it may be
+** impossible for fossil to choose between multiple potential
+** timestamps. A non-fatal warning is emitted for such cases.
+**
+*/
+void touch_cmd(){
+  const char * zGlobList; /* -g List of glob patterns */
+  const char * zGlobFile; /* -G File of glob patterns */
+  Glob * pGlob = 0;       /* List of glob patterns */
+  int verboseFlag;
+  int dryRunFlag;
+  int vid;                /* Checkout version */
+  int changeCount = 0;    /* Number of files touched */
+  int quietFlag = 0;      /* -q|--quiet */
+  int timeFlag;           /* -1==--checkin, 1==--checkout, 0==--now */
+  i64 nowTime = 0;        /* Timestamp of --now or --checkout */
+  Stmt q;
+  Blob absBuffer = empty_blob; /* Absolute filename buffer */
+
+  verboseFlag = find_option("verbose","v",0)!=0;
+  quietFlag = find_option("quiet","q",0)!=0 || g.fQuiet;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  zGlobList = find_option("glob", "g",1);
+  zGlobFile = find_option("globfile", "G",1);
+
+  if(zGlobList && zGlobFile){
+    fossil_fatal("Options -g and -G may not be used together.");
+  }
+
+  {
+    int const ci =
+      (find_option("checkin","c",0) || find_option("check-in",0,0))
+      ? 1 : 0;
+    int const co = find_option("checkout","C",0) ? 1 : 0;
+    int const now = find_option("now",0,0) ? 1 : 0;
+    if(ci + co + now > 1){
+      fossil_fatal("Options --checkin, --checkout, and --now may "
+                   "not be used together.");
+    }else if(co){
+      timeFlag = 1;
+      if(verboseFlag){
+        fossil_print("Timestamp = current checkout version.\n");
+      }
+    }else if(ci){
+      timeFlag = -1;
+      if(verboseFlag){
+        fossil_print("Timestamp = checkin in which each file was "
+                     "most recently modified.\n");
+      }
+    }else{
+      timeFlag = 0;
+      if(verboseFlag){
+        fossil_print("Timestamp = current system time.\n");
+      }
+    }
+  }
+
+  verify_all_options();
+
+  db_must_be_within_tree();
+  vid = db_lget_int("checkout", 0);
+  if(vid==0){
+    fossil_fatal("Cannot determine checkout version.");
+  }
+
+  if(zGlobList){
+    pGlob = *zGlobList ? glob_create(zGlobList) : 0;
+  }else if(zGlobFile){
+    Blob globs = empty_blob;
+    blob_read_from_file(&globs, zGlobFile, ExtFILE);
+    pGlob = glob_create( globs.aData );
+    blob_reset(&globs);
+  }
+  if( pGlob && verboseFlag!=0 ){
+    int i;
+    for(i=0; i<pGlob->nPattern; ++i){
+      fossil_print("glob: %s\n", pGlob->azPattern[i]);
+    }
+  }
+
+  db_begin_transaction();
+  if(timeFlag==0){/*--now*/
+    nowTime = time(0);
+  }else if(timeFlag>0){/*--checkout: get the checkout
+                         manifest's timestamp*/
+    assert(vid>0);
+    nowTime = db_int64(-1,
+                       "SELECT CAST(strftime('%%s',"
+                         "(SELECT mtime FROM event WHERE objid=%d)"
+                       ") AS INTEGER)", vid);
+    if(nowTime<0){
+      fossil_fatal("Could not determine checkout version's time!");
+    }
+  }else{ /* --checkin */
+    assert(0 == nowTime);
+  }
+  if((pGlob && pGlob->nPattern>0) || g.argc<3){
+    /*
+    ** We have either (1) globs or (2) no trailing filenames. If there
+    ** are neither globs nor filenames then we operate on all managed
+    ** files.
+    */
+    db_prepare(&q,
+               "SELECT vfile.mrid, pathname "
+               "FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid "
+               "WHERE vid=%d", vid);
+    while(SQLITE_ROW==db_step(&q)){
+      int const fid = db_column_int(&q, 0);
+      const char * zName = db_column_text(&q, 1);
+      i64 newMtime = nowTime;
+      char const * zAbs = 0;         /* absolute path */
+      absBuffer.nUsed = 0;
+      assert(timeFlag<0 ? newMtime==0 : newMtime>0);
+      if(pGlob){
+        if(glob_match(pGlob, zName)==0) continue;
+      }
+      blob_appendf( &absBuffer, "%s%s", g.zLocalRoot, zName );
+      zAbs = blob_str(&absBuffer);
+      if( newMtime || mtime_of_manifest_file(vid, fid, &newMtime)==0 ){
+        changeCount +=
+          touch_cmd_stamp_one_file( zAbs, zName, newMtime, dryRunFlag,
+                                    verboseFlag, quietFlag );
+      }
+    }
+    db_finalize(&q);
+  }
+  glob_free(pGlob);
+  pGlob = 0;
+  if(g.argc>2){
+    /*
+    ** Trailing filenames on the command line. These require extra
+    ** care to avoid modifying unmanaged or out-of-tree files and
+    ** finding an associated --checkin timestamp.
+    */
+    int i;
+    Blob treeNameBuf = empty_blob;   /* Buffer for file_tree_name(). */
+    for( i = 2; i < g.argc; ++i,
+           blob_reset(&treeNameBuf) ){
+      char const * zArg = g.argv[i];
+      char const * zTreeFile;        /* repo-relative filename */
+      char const * zAbs;             /* absolute filename */
+      i64 newMtime = nowTime;
+      int nameCheck;
+      int fid;                       /* vfile.mrid of file */
+      nameCheck = file_tree_name( zArg, &treeNameBuf, 0, 0 );
+      if(nameCheck==0){
+        if(quietFlag==0){
+          fossil_print("SKIPPING out-of-tree file: %s\n", zArg);
+        }
+        continue;
+      }
+      zTreeFile = blob_str(&treeNameBuf);
+      fid = touch_cmd_vfile_mrid( vid, zTreeFile );
+      if(fid==0){
+        if(quietFlag==0){
+          fossil_print("SKIPPING unmanaged file: %s\n", zArg);
+        }
+        continue;
+      }
+      absBuffer.nUsed = 0;
+      blob_appendf(&absBuffer, "%s%s", g.zLocalRoot, zTreeFile);
+      zAbs = blob_str(&absBuffer);
+      if(timeFlag<0){/*--checkin*/
+        if(mtime_of_manifest_file( vid, fid, &newMtime )!=0){
+          fossil_fatal("Could not resolve --checkin mtime of %s", zTreeFile);
+        }
+      }else{
+        assert(newMtime>0);
+      }
+      changeCount +=
+        touch_cmd_stamp_one_file( zAbs, zArg, newMtime, dryRunFlag,
+                                  verboseFlag, quietFlag );
+    }
+  }
+  db_end_transaction(0);
+  blob_reset(&absBuffer);
+  if( dryRunFlag!=0 ){
+    fossil_print("dry-run: would have touched %d file(s)\n",
+                 changeCount);
+  }else{
+    fossil_print("Touched %d file(s)\n", changeCount);
+  }
+}
+
+/*
+** If zFileName is not NULL and contains a '.', this returns a pointer
+** to the position after the final '.', else it returns NULL. As a
+** special case, if it ends with a period then a pointer to the
+** terminating NUL byte is returned.
+*/
+const char * file_extension(const char *zFileName){
+  const char * zExt = zFileName ? strrchr(zFileName, '.') : 0;
+  return zExt ? &zExt[1] : 0;
+}
+
+/*
+** Returns non-zero if the specified file name ends with any reserved name,
+** e.g.: _FOSSIL_ or .fslckout.  Specifically, it returns 1 for exact match
+** or 2 for a tail match on a longer file name.
+**
+** For the sake of efficiency, zFilename must be a canonical name, e.g. an
+** absolute path using only forward slash ('/') as a directory separator.
+**
+** nFilename must be the length of zFilename.  When negative, strlen() will
+** be used to calculate it.
+*/
+int file_is_reserved_name(const char *zFilename, int nFilename){
+  const char *zEnd;  /* one-after-the-end of zFilename */
+  int gotSuffix = 0; /* length of suffix (-wal, -shm, -journal) */
+
+  assert( zFilename && "API misuse" );
+  if( nFilename<0 ) nFilename = (int)strlen(zFilename);
+  if( nFilename<8 ) return 0; /* strlen("_FOSSIL_") */
+  zEnd = zFilename + nFilename;
+  if( nFilename>=12 ){ /* strlen("_FOSSIL_-(shm|wal)") */
+    /* Check for (-wal, -shm, -journal) suffixes, with an eye towards
+    ** runtime speed. */
+    if( zEnd[-4]=='-' ){
+      if( fossil_strnicmp("wal", &zEnd[-3], 3)
+       && fossil_strnicmp("shm", &zEnd[-3], 3) ){
+        return 0;
+      }
+      gotSuffix = 4;
+    }else if( nFilename>=16 && zEnd[-8]=='-' ){ /*strlen(_FOSSIL_-journal) */
+      if( fossil_strnicmp("journal", &zEnd[-7], 7) ) return 0;
+      gotSuffix = 8;
+    }
+    if( gotSuffix ){
+      assert( 4==gotSuffix || 8==gotSuffix );
+      zEnd -= gotSuffix;
+      nFilename -= gotSuffix;
+      gotSuffix = 1;
+    }
+    assert( nFilename>=8 && "strlen(_FOSSIL_)" );
+    assert( gotSuffix==0 || gotSuffix==1 );
+  }
+  switch( zEnd[-1] ){
+    case '_':{
+      if( fossil_strnicmp("_FOSSIL_", &zEnd[-8], 8) ) return 0;
+      if( 8==nFilename ) return 1;
+      return zEnd[-9]=='/' ? 2 : gotSuffix;
+    }
+    case 'T':
+    case 't':{
+      if( nFilename<9 || zEnd[-9]!='.'
+       || fossil_strnicmp(".fslckout", &zEnd[-9], 9) ){
+        return 0;
+      }
+      if( 9==nFilename ) return 1;
+      return zEnd[-10]=='/' ? 2 : gotSuffix;
+    }
+    default:{
+      return 0;
+    }
+  }
+}
+
+/*
+** COMMAND: test-is-reserved-name
+**
+** Usage: %fossil test-is-reserved-name FILENAMES...
+**
+** Passes each given name to file_is_reserved_name() and outputs one
+** line per file: the result value of that function followed by the
+** name.
+*/
+void test_is_reserved_name_cmd(void){
+  int i;
+
+  if(g.argc<3){
+    usage("FILENAME_1 [...FILENAME_N]");
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const int check = file_is_reserved_name(g.argv[i], -1);
+    fossil_print("%d %s\n", check, g.argv[i]);
+  }
+}
+
+
+/*
+** Returns 1 if the given directory contains a file named .fslckout, 2
+** if it contains a file named _FOSSIL_, else returns 0.
+*/
+int dir_has_ckout_db(const char *zDir){
+  int rc = 0;
+  char * zCkoutDb = mprintf("%//.fslckout", zDir);
+  if(file_isfile(zCkoutDb, ExtFILE)){
+    rc = 1;
+  }else{
+    fossil_free(zCkoutDb);
+    zCkoutDb = mprintf("%//_FOSSIL_", zDir);
+    if(file_isfile(zCkoutDb, ExtFILE)){
+      rc = 2;
+    }
+  }
+  fossil_free(zCkoutDb);
+  return rc;
 }

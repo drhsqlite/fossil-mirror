@@ -52,7 +52,7 @@ proc writeFile { fileName data } {
 
 set fileName [lindex $argv 0]
 
-if {[file exists $fileName]} then {
+if {[file exists $fileName]} {
   set data [readFile $fileName]
 } else {
   set data ""
@@ -69,7 +69,7 @@ if {[info exists env(FAKE_EDITOR_SCRIPT)]} {
   set script $env(FAKE_EDITOR_SCRIPT)
   set code [catch $script error]
 
-  if {$code != 0} then {
+  if {$code != 0} {
     if {[info exists env(FAKE_EDITOR_VERBOSE)]} {
       if {[info exists errorInfo]} {
         puts stdout "ERROR ($code): $errorInfo"

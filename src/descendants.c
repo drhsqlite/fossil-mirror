@@ -161,15 +161,82 @@ void compute_leaves(int iBase, int closeMode){
 
 /*
 ** Load the record ID rid and up to |N|-1 closest ancestors into
-** the "ok" table.  If N is zero, no limit.
+** the "ok" table.  If N is zero, no limit.  If ridBackTo is not zero
+** then stop the search upon reaching the ancestor with rid==ridBackTo.
 */
-void compute_ancestors(int rid, int N, int directOnly){
+void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
   if( !N ){
      N = -1;
   }else if( N<0 ){
      N = -N;
   }
-  db_multi_exec(
+  if( directOnly ){
+    /* Direct mode means to show primary parents only */
+    db_multi_exec(
+      "WITH RECURSIVE "
+      "  ancestor(rid, mtime) AS ("
+      "    SELECT %d, mtime FROM event WHERE objid=%d "
+      "    UNION "
+      "    SELECT plink.pid, event.mtime"
+      "      FROM ancestor, plink, event"
+      "     WHERE plink.cid=ancestor.rid"
+      "       AND event.objid=plink.pid"
+      "       AND plink.isPrim"
+      "     ORDER BY mtime DESC LIMIT %d"
+      "  )"
+      "INSERT INTO ok"
+      "  SELECT rid FROM ancestor;",
+      rid, rid, N
+    );
+  }else{
+    /* If not in directMode, also include merge parents, including
+    ** cherrypick merges.  Except, terminate searches at the cherrypick
+    ** merge parent itself.  In other words, include:
+    **    (1)  Primary parents
+    **    (2)  Merge parents
+    **    (3)  Cherrypick merge parents.
+    **    (4)  All ancestores of 1 and 2 but not of 3.
+    */
+    double rLimitMtime = 0.0;
+    if( ridBackTo ){
+      rLimitMtime = db_double(0.0,
+         "SELECT mtime FROM event WHERE objid=%d",
+         ridBackTo);
+    }
+    db_multi_exec(
+      "WITH RECURSIVE "
+      "  parent(pid,cid,isCP) AS ("
+      "    SELECT plink.pid, plink.cid, 0 AS xisCP FROM plink"
+      "    UNION ALL"
+      "    SELECT parentid, childid, 1 FROM cherrypick WHERE NOT isExclude"
+      "  ),"
+      "  ancestor(rid, mtime, isCP) AS ("
+      "    SELECT %d, mtime, 0 FROM event WHERE objid=%d "
+      "    UNION "
+      "    SELECT parent.pid, event.mtime, parent.isCP"
+      "      FROM ancestor, parent, event"
+      "     WHERE parent.cid=ancestor.rid"
+      "       AND event.objid=parent.pid"
+      "       AND NOT ancestor.isCP"
+      "       AND (event.mtime>=%.17g OR parent.pid=%d)"
+      "     ORDER BY mtime DESC LIMIT %d"
+      "  )"
+      "INSERT OR IGNORE INTO ok"
+      "  SELECT rid FROM ancestor;",
+      rid, rid, rLimitMtime, ridBackTo, N
+    );
+    if( ridBackTo && db_changes()>1 ){
+      db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridBackTo);
+    }
+  }
+}
+
+/*
+** Compute the youngest ancestor of record ID rid that is a member of
+** branch zBranch.
+*/
+int compute_youngest_ancestor_in_branch(int rid, const char *zBranch){
+  return db_int(0,
     "WITH RECURSIVE "
     "  ancestor(rid, mtime) AS ("
     "    SELECT %d, mtime FROM event WHERE objid=%d "
@@ -177,12 +244,15 @@ void compute_ancestors(int rid, int N, int directOnly){
     "    SELECT plink.pid, event.mtime"
     "      FROM ancestor, plink, event"
     "     WHERE plink.cid=ancestor.rid"
-    "       AND event.objid=plink.pid %s"
-    "     ORDER BY mtime DESC LIMIT %d"
+    "       AND event.objid=plink.pid"
+    "     ORDER BY mtime DESC"
     "  )"
-    "INSERT INTO ok"
-    "  SELECT rid FROM ancestor;",
-    rid, rid, directOnly ? "AND plink.isPrim" : "", N
+    "  SELECT ancestor.rid FROM ancestor"
+    "   WHERE EXISTS(SELECT 1 FROM tagxref"
+                    " WHERE tagid=%d AND tagxref.rid=ancestor.rid"
+                    "   AND value=%Q AND tagtype>0)"
+    "  LIMIT 1",
+    rid, rid, TAG_BRANCH, zBranch
   );
 }
 
@@ -225,7 +295,7 @@ int mtime_of_manifest_file(
     prevVid = vid;
     db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
                   "DELETE FROM ok;");
-    compute_ancestors(vid, 100000000, 1);
+    compute_ancestors(vid, 100000000, 1, 0);
   }
   db_static_prepare(&q,
     "SELECT (max(event.mtime)-2440587.5)*86400 FROM mlink, event"
@@ -275,12 +345,12 @@ void compute_descendants(int rid, int N){
 ** is omitted, of the check-in currently checked out.
 **
 ** Options:
-**    -R|--repository FILE       Extract info from repository FILE
-**    -W|--width <num>           Width of lines (default is to auto-detect).
-**                               Must be >20 or 0 (= no limit, resulting in a
-**                               single line per entry).
+**    -R|--repository REPO       Extract info from repository REPO
+**    -W|--width N               Width of lines (default is to auto-detect).
+**                               Must be greater than 20 or else 0 for no
+**                               limit, resulting in a one line per entry.
 **
-** See also: finfo, info, leaves
+** See also: [[finfo]], [[info]], [[leaves]]
 */
 void descendants_cmd(void){
   Stmt q;
@@ -314,7 +384,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, 0, width, 0);
+  print_timeline(&q, 0, width, 0, 0);
   db_finalize(&q);
 }
 
@@ -331,16 +401,16 @@ void descendants_cmd(void){
 ** repository database to be recomputed.
 **
 ** Options:
-**   -a|--all         show ALL leaves
-**   --bybranch       order output by branch name
-**   -c|--closed      show only closed leaves
-**   -m|--multiple    show only cases with multiple leaves on a single branch
-**   --recompute      recompute the "leaf" table in the repository DB
-**   -W|--width <num> Width of lines (default is to auto-detect). Must be
-**                    >39 or 0 (= no limit, resulting in a single line per
-**                    entry).
+**   -a|--all         Show ALL leaves
+**   --bybranch       Order output by branch name
+**   -c|--closed      Show only closed leaves
+**   -m|--multiple    Show only cases with multiple leaves on a single branch
+**   --recompute      Recompute the "leaf" table in the repository DB
+**   -W|--width N     Width of lines (default is to auto-detect). Must be
+**                    more than 39 or else 0 no limit, resulting in a single
+**                    line per entry.
 **
-** See also: descendants, finfo, info, branch
+** See also: [[descendants]], [[finfo]], [[info]], [[branch]]
 */
 void leaves_cmd(void){
   Stmt q;
@@ -354,6 +424,7 @@ void leaves_cmd(void){
   char *zLastBr = 0;
   int n, width;
   char zLineNo[10];
+  char * const zMainBranch = db_get("main-branch","trunk");
 
   if( multipleFlag ) byBranch = 1;
   if( zWidth ){
@@ -423,7 +494,8 @@ void leaves_cmd(void){
     const char *zDate = db_column_text(&q, 2);
     const char *zCom = db_column_text(&q, 3);
     const char *zBr = db_column_text(&q, 7);
-    char *z;
+    char *z = 0;
+    char * zBranchPoint = 0;
 
     if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
       fossil_print("*** %s ***\n", zBr);
@@ -434,10 +506,23 @@ void leaves_cmd(void){
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
-    z = mprintf("%s [%S] %s", zDate, zId, zCom);
-    comment_print(z, zCom, 7, width, g.comFmtFlags);
+    if(0!=fossil_strcmp(zBr,zMainBranch)){
+      int ridOfRoot;
+      z = mprintf("root:%s", zId);
+      ridOfRoot = symbolic_name_to_rid(z, "ci");
+      if(ridOfRoot>0){
+        zBranchPoint = mprintf(" (branched from: [%.*z])", hash_digits(0),
+                               rid_to_uuid(ridOfRoot));
+      }
+      fossil_free(z);
+    }
+    z = mprintf("%s [%S] %s%s", zDate, zId, zCom,
+                zBranchPoint ? zBranchPoint : "");
+    comment_print(z, zCom, 7, width, get_comment_format());
     fossil_free(z);
+    fossil_free(zBranchPoint);
   }
+  fossil_free(zMainBranch);
   fossil_free(zLastBr);
   db_finalize(&q);
 }
@@ -456,27 +541,47 @@ void leaves_cmd(void){
 **
 **     all           Show all leaves
 **     closed        Show only closed leaves
+**     ng            No graph
+**     nohidden      Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void leaves_page(void){
   Blob sql;
   Stmt q;
   int showAll = P("all")!=0;
   int showClosed = P("closed")!=0;
+  int fNg = PB("ng")!=0;           /* Flag for the "ng" query parameter */
+  int fNoHidden = PB("nohidden")!=0;      /* "nohidden" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* "onlyhidden" query parameter */
+  int fBrBg = PB("brbg")!=0;       /* Flag for the "brbg" query parameter */
+  int fUBg = PB("ubg")!=0;         /* Flag for the "ubg" query parameter */
+  HQuery url;                      /* URL to /leaves plus query parameters */
+  int tmFlags;                     /* Timeline display flags */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-
+  url_initialize(&url, "leaves");
+  if( fNg ) url_add_parameter(&url, "ng", "");
+  if( fNoHidden ) url_add_parameter(&url, "nohidden", "");
+  if( fOnlyHidden ) url_add_parameter(&url, "onlyhidden", "");
+  if( fBrBg ) url_add_parameter(&url, "brbg", "");
+  if( fUBg ) url_add_parameter(&url, "ubg", "");
   if( !showAll ){
-    style_submenu_element("All", "leaves?all");
+    style_submenu_element("All", "%s", url_render(&url, "all", "", 0, 0));
   }
   if( !showClosed ){
-    style_submenu_element("Closed", "leaves?closed");
+    style_submenu_element("Closed", "%s", url_render(&url, "closed", "", 0, 0));
   }
   if( showClosed || showAll ){
-    style_submenu_element("Open", "leaves");
+    style_submenu_element("Open", "%s", url_render(&url, 0, 0, 0, 0));
   }
+  url_reset(&url);
+  style_set_current_feature("leaves");
   style_header("Leaves");
   login_anonymous_available();
+  timeline_ss_submenu();
 #if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
@@ -507,12 +612,25 @@ void leaves_page(void){
   }else if( !showAll ){
     blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
+    blob_append_sql(&sql,
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
+  }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
-  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0, 0);
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_LEAFONLY | TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+  if( fNg==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( fBrBg ) tmFlags |= TIMELINE_BRCOLOR;
+  if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  style_footer();
+  style_finish_page();
 }
 
 #if INTERFACE

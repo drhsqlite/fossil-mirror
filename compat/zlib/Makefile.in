@@ -32,7 +32,7 @@ CPP=$(CC) -E
 
 STATICLIB=libz.a
 SHAREDLIB=libz.so
-SHAREDLIBV=libz.so.1.2.11
+SHAREDLIBV=libz.so.1.2.12
 SHAREDLIBM=libz.so.1
 LIBS=$(STATICLIB) $(SHAREDLIBV)
 
@@ -91,8 +91,8 @@ teststatic: static
 	  echo '		*** zlib test OK ***'; \
 	else \
 	  echo '		*** zlib test FAILED ***'; false; \
-	fi; \
-	rm -f $$TMPST
+	fi
+	@rm -f tmpst_$$
 
 testshared: shared
 	@LD_LIBRARY_PATH=`pwd`:$(LD_LIBRARY_PATH) ; export LD_LIBRARY_PATH; \
@@ -104,8 +104,8 @@ testshared: shared
 	  echo '		*** zlib shared test OK ***'; \
 	else \
 	  echo '		*** zlib shared test FAILED ***'; false; \
-	fi; \
-	rm -f $$TMPSH
+	fi
+	@rm -f tmpsh_$$
 
 test64: all64
 	@TMP64=tmp64_$$; \
@@ -113,8 +113,8 @@ test64: all64
 	  echo '		*** zlib 64-bit test OK ***'; \
 	else \
 	  echo '		*** zlib 64-bit test FAILED ***'; false; \
-	fi; \
-	rm -f $$TMP64
+	fi
+	@rm -f tmp64_$$
 
 infcover.o: $(SRCDIR)test/infcover.c $(SRCDIR)zlib.h zconf.h
 	$(CC) $(CFLAGS) $(ZINCOUT) -c -o $@ $(SRCDIR)test/infcover.c
@@ -204,77 +204,77 @@ gzwrite.o: $(SRCDIR)gzwrite.c
 
 adler32.lo: $(SRCDIR)adler32.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/adler32.o $(SRCDIR)adler32.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/adler32.o $(SRCDIR)adler32.c
 	-@mv objs/adler32.o $@
 
 crc32.lo: $(SRCDIR)crc32.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/crc32.o $(SRCDIR)crc32.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/crc32.o $(SRCDIR)crc32.c
 	-@mv objs/crc32.o $@
 
 deflate.lo: $(SRCDIR)deflate.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/deflate.o $(SRCDIR)deflate.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/deflate.o $(SRCDIR)deflate.c
 	-@mv objs/deflate.o $@
 
 infback.lo: $(SRCDIR)infback.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/infback.o $(SRCDIR)infback.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/infback.o $(SRCDIR)infback.c
 	-@mv objs/infback.o $@
 
 inffast.lo: $(SRCDIR)inffast.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inffast.o $(SRCDIR)inffast.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inffast.o $(SRCDIR)inffast.c
 	-@mv objs/inffast.o $@
 
 inflate.lo: $(SRCDIR)inflate.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inflate.o $(SRCDIR)inflate.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inflate.o $(SRCDIR)inflate.c
 	-@mv objs/inflate.o $@
 
 inftrees.lo: $(SRCDIR)inftrees.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inftrees.o $(SRCDIR)inftrees.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inftrees.o $(SRCDIR)inftrees.c
 	-@mv objs/inftrees.o $@
 
 trees.lo: $(SRCDIR)trees.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/trees.o $(SRCDIR)trees.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/trees.o $(SRCDIR)trees.c
 	-@mv objs/trees.o $@
 
 zutil.lo: $(SRCDIR)zutil.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/zutil.o $(SRCDIR)zutil.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/zutil.o $(SRCDIR)zutil.c
 	-@mv objs/zutil.o $@
 
 compress.lo: $(SRCDIR)compress.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/compress.o $(SRCDIR)compress.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/compress.o $(SRCDIR)compress.c
 	-@mv objs/compress.o $@
 
 uncompr.lo: $(SRCDIR)uncompr.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/uncompr.o $(SRCDIR)uncompr.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/uncompr.o $(SRCDIR)uncompr.c
 	-@mv objs/uncompr.o $@
 
 gzclose.lo: $(SRCDIR)gzclose.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzclose.o $(SRCDIR)gzclose.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzclose.o $(SRCDIR)gzclose.c
 	-@mv objs/gzclose.o $@
 
 gzlib.lo: $(SRCDIR)gzlib.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzlib.o $(SRCDIR)gzlib.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzlib.o $(SRCDIR)gzlib.c
 	-@mv objs/gzlib.o $@
 
 gzread.lo: $(SRCDIR)gzread.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzread.o $(SRCDIR)gzread.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzread.o $(SRCDIR)gzread.c
 	-@mv objs/gzread.o $@
 
 gzwrite.lo: $(SRCDIR)gzwrite.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzwrite.o $(SRCDIR)gzwrite.c
+	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzwrite.o $(SRCDIR)gzwrite.c
 	-@mv objs/gzwrite.o $@
 
 
@@ -376,15 +376,13 @@ clean:
 	rm -f contrib/infback9/*.gcda contrib/infback9/*.gcno contrib/infback9/*.gcov
 
 maintainer-clean: distclean
-distclean: clean zconf zconf.h.cmakein docs
+distclean: clean zconf zconf.h.cmakein
 	rm -f Makefile zlib.pc configure.log
 	-@rm -f .DS_Store
 	@if [ -f Makefile.in ]; then \
 	printf 'all:\n\t-@echo "Please use ./configure first.  Thank you."\n' > Makefile ; \
 	printf '\ndistclean:\n\tmake -f Makefile.in distclean\n' >> Makefile ; \
 	touch -r $(SRCDIR)Makefile.in Makefile ; fi
-	@if [ ! -f zconf.h.in ]; then rm -f zconf.h zconf.h.cmakein ; fi
-	@if [ ! -f zlib.3 ]; then rm -f zlib.3.pdf ; fi
 
 tags:
 	etags $(SRCDIR)*.[ch]

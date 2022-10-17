@@ -52,8 +52,8 @@ cson_value * json_page_branch(){
 **
 ** CLI mode options:
 **
-**  --range X | -r X, where X is one of (open,closed,all)
-**    (only the first letter is significant, default=open).
+**  -r|--range X, where X is one of (open,closed,all)
+**    (only the first letter is significant, default=open)
 **  -a (same as --range a)
 **  -c (same as --range c)
 **
@@ -70,7 +70,7 @@ static cson_value * json_branch_list(){
   char const * range = NULL;
   int branchListFlags = BRL_OPEN_ONLY;
   char * sawConversionError = NULL;
-  Stmt q;
+  Stmt q = empty_Stmt;
   if( !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -81,7 +81,7 @@ static cson_value * json_branch_list(){
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   if(fossil_has_json()){
-      range = json_getenv_cstr("range");
+    range = json_getenv_cstr("range");
   }
 
   range = json_find_option_cstr("range",NULL,"r");
@@ -130,7 +130,7 @@ static cson_value * json_branch_list(){
   }
 
 
-  branch_prepare_list_query(&q, branchListFlags);
+  branch_prepare_list_query(&q, branchListFlags, 0, 0);
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
@@ -142,9 +142,10 @@ static cson_value * json_branch_list(){
     }
   }
   if( sawConversionError ){
-    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,sawConversionError);
+    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,"%s",sawConversionError);
     free(sawConversionError);
   }
+  db_finalize(&q);
   return payV;
 }
 
@@ -155,7 +156,7 @@ typedef struct BranchCreateOptions{
   char const * zName;
   char const * zBasis;
   char const * zColor;
-  char isPrivate;
+  int isPrivate;
   /**
      Might be set to an error string by
      json_branch_new().
@@ -198,7 +199,12 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   Blob branch;           /* manifest for the new branch */
   Manifest *pParent;     /* Parsed parent manifest */
   Blob mcksum;           /* Self-checksum on the manifest */
+  int bAutoColor = 0;    /* Value of "--bgcolor" is "auto" */
 
+  if( fossil_strncmp(zColor, "auto", 4)==0 ) {
+    bAutoColor = 1;
+    zColor = 0;
+  } 
   /* fossil branch new name */
   if( zBranch==0 || zBranch[0]==0 ){
     zOpt->rcErrMsg = "Branch name may not be null/empty.";
@@ -261,15 +267,12 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( content_is_private(rootid) ) zOpt->isPrivate = 1;
-  if( zOpt->isPrivate && zColor==0 ) zColor = "#fec084";
+  if( zOpt->isPrivate && zColor==0 && !bAutoColor) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
-  if( zOpt->isPrivate ){
-    blob_appendf(&branch, "T +private *\n");
-  }
 
   /* Cancel all other symbolic tags */
   db_prepare(&q,
@@ -288,16 +291,16 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
 
-  brid = content_put(&branch);
+  brid = content_put_ex(&branch, 0, 0, 0, zOpt->isPrivate);
   if( brid==0 ){
-    fossil_fatal("Problem committing manifest: %s", g.zErrMsg);
+    fossil_panic("Problem committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
-    fossil_fatal("%s", g.zErrMsg);
+    fossil_panic("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
-  content_deltify(rootid, brid, 0);
+  content_deltify(rootid, &brid, 1, 0);
   if( zNewRid ){
     *zNewRid = brid;
   }
@@ -305,10 +308,6 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   /* Commit */
   db_end_transaction(0);
 
-#if 0 /* Do an autosync push, if requested */
-  /* arugable for JSON mode? */
-  if( !g.isHTTP && !isPrivate ) autosync(SYNC_PUSH);
-#endif
   return 0;
 }
 
@@ -361,7 +360,7 @@ static cson_value * json_branch_create(){
 
   rc = json_branch_new( &opt, &rid );
   if(rc){
-    json_set_err(rc, opt.rcErrMsg);
+    json_set_err(rc, "%s", opt.rcErrMsg);
     goto error;
   }
   assert(0 != rid);

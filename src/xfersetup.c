@@ -46,7 +46,7 @@ void xfersetup_page(void){
     "Specific TH1 code to run after processing a ticket change.");
   @ </table>
 
-  url_parse(0, 0);
+  url_parse(0, URL_USE_CONFIG);
   if( g.url.protocol ){
     unsigned syncFlags;
     const char *zButton;
@@ -73,7 +73,7 @@ void xfersetup_page(void){
       free(zWarning);
     }
     @
-    @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+    @ <form method="post" action="%R/%s(g.zPath)"><div>
     login_insert_csrf_secret();
     @ <input type="submit" name="sync" value="%h(zButton)" />
     @ </div></form>
@@ -82,12 +82,12 @@ void xfersetup_page(void){
       user_select();
       url_enable_proxy(0);
       @ <pre class="xfersetup">
-      client_sync(syncFlags, 0, 0);
+      client_sync(syncFlags, 0, 0, 0);
       @ </pre>
     }
   }
 
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -118,10 +118,11 @@ static void xfersetup_generic(
   if( z==0 ){
     z = db_get(zDbField, zDfltValue);
   }
+  style_set_current_feature("xfersetup");
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
-    db_unset(zDbField, 0);
+    db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     z = zDfltValue;
   }else if( isSubmit ){
@@ -130,12 +131,12 @@ static void xfersetup_generic(
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="xfersetupError">ERROR: %h(zErr)</p>
     }else{
-      db_set(zDbField, z, 0);
+      db_set(zDbField/*works-like:"x"*/, z, 0);
       if( xRebuild ) xRebuild();
       cgi_redirect("xfersetup");
     }
   }
-  @ <form action="%s(g.zTop)/%s(g.zPath)" method="post"><div>
+  @ <form action="%R/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
@@ -152,7 +153,7 @@ static void xfersetup_generic(
     @ %h(zDfltValue)
     @ </pre></blockquote>
   }
-  style_footer();
+  style_finish_page();
 }
 
 static const char *zDefaultXferCommon = 0;

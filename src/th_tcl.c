@@ -100,7 +100,7 @@
 #      define TCL_DIRECTORY_SEP '\\'
 #    endif
 #    ifndef TCL_LIBRARY_NAME
-#      define TCL_LIBRARY_NAME "tcl86.dll\0"
+#      define TCL_LIBRARY_NAME "tcl87.dll\0"
 #    endif
 #    ifndef TCL_MINOR_OFFSET
 #      define TCL_MINOR_OFFSET (4)
@@ -121,21 +121,28 @@
 #    endif
 #    if defined(__CYGWIN__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.6.dll\0"
+#        define TCL_LIBRARY_NAME "libtcl8.7.dll\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
 #    elif defined(__APPLE__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.6.dylib\0"
+#        define TCL_LIBRARY_NAME "libtcl8.7.dylib\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
+#    elif defined(__FreeBSD__)
+#      ifndef TCL_LIBRARY_NAME
+#        define TCL_LIBRARY_NAME "libtcl87.so\0"
+#      endif
+#      ifndef TCL_MINOR_OFFSET
+#        define TCL_MINOR_OFFSET (7)
+#      endif
 #    else
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.6.so\0"
+#        define TCL_LIBRARY_NAME "libtcl8.7.so\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
@@ -848,7 +855,10 @@ static void Th1DeleteProc(
 ** functions.
 */
 char *fossil_getenv(const char *zName); /* file.h */
-int file_isdir(const char *zPath);      /* file.h */
+int file_isdir(const char *zPath, int); /* file.h */
+#define ExtFILE    0                    /* file.h */
+#define RepoFILE   1                    /* file.h */
+#define SymFILE    2                    /* file.h */
 char *file_dirname(const char *zPath);  /* file.h */
 void fossil_free(void *p);              /* util.h */
 
@@ -877,7 +887,7 @@ static int loadTcl(
     void *hLibrary;
     if( !zEnvPath ){
       zFileName = aFileName; /* NOTE: Assume present in PATH. */
-    }else if( file_isdir(zEnvPath)==1 ){
+    }else if( file_isdir(zEnvPath, ExtFILE)==1 ){
 #if TCL_USE_SET_DLL_DIRECTORY
       SetDllDirectory(zEnvPath); /* NOTE: Maybe needed for "zlib1.dll". */
 #endif /* TCL_USE_SET_DLL_DIRECTORY */
@@ -964,7 +974,7 @@ static int loadTcl(
   } while( --aFileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
   aFileName[TCL_MINOR_OFFSET] = 'x';
   Th_ErrorMessage(interp,
-      "could not load any supported Tcl 8.6, 8.5, or 8.4 shared library \"",
+      "could not load any supported Tcl 8.x shared library \"",
       aFileName, -1);
   return TH_ERROR;
 #else
@@ -1002,7 +1012,7 @@ static int setTclArguments(
   if( !resultObjPtr ){
     return TCL_ERROR;
   }
-  objPtr = Tcl_NewIntObj(argc - 1);
+  objPtr = Tcl_NewWideIntObj(argc - 1);
   Tcl_IncrRefCount(objPtr);
   resultObjPtr = Tcl_SetVar2Ex(pInterp, "argc", NULL, objPtr,
       TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
@@ -1156,14 +1166,14 @@ static int createTclInterp(
   tclContext->interp = tclInterp;
   if( Tcl_Init(tclInterp)!=TCL_OK ){
     Th_ErrorMessage(interp,
-        "Tcl initialization error:", Tcl_GetStringResult(tclInterp), -1);
+        "Tcl initialization error:", Tcl_GetString(Tcl_GetObjResult(tclInterp)), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
   }
   if( setTclArguments(tclInterp, argc, argv)!=TCL_OK ){
     Th_ErrorMessage(interp,
-        "Tcl error setting arguments:", Tcl_GetStringResult(tclInterp), -1);
+        "Tcl error setting arguments:", Tcl_GetString(Tcl_GetObjResult(tclInterp)), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
@@ -1184,9 +1194,9 @@ static int createTclInterp(
   Tcl_CreateObjCommand(tclInterp, "th1Expr", Th1ExprObjCmd, interp, NULL);
   /* If necessary, evaluate the custom Tcl setup script. */
   setup = tclContext->setup;
-  if( setup && Tcl_Eval(tclInterp, setup)!=TCL_OK ){
+  if( setup && Tcl_EvalEx(tclInterp, setup, -1, 0)!=TCL_OK ){
     Th_ErrorMessage(interp,
-        "Tcl setup script error:", Tcl_GetStringResult(tclInterp), -1);
+        "Tcl setup script error:", Tcl_GetString(Tcl_GetObjResult(tclInterp)), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;

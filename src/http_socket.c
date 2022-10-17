@@ -26,6 +26,9 @@
 ** are handled different on Unix and windows.
 */
 #if defined(_WIN32)
+# if defined(_WIN32_WINNT)
+#  undef _WIN32_WINNT
+# endif
 # define _WIN32_WINNT 0x501
 #endif
 #ifndef __EXTENSIONS__
@@ -81,8 +84,10 @@ void socket_set_errmsg(const char *zFormat, ...){
 /*
 ** Return the current socket error message
 */
-const char *socket_errmsg(void){
-  return socketErrMsg;
+char *socket_errmsg(void){
+  char *zResult = socketErrMsg;
+  socketErrMsg = 0;
+  return zResult;
 }
 
 /*
@@ -121,6 +126,7 @@ void socket_global_shutdown(void){
 void socket_close(void){
   if( iSocket>=0 ){
 #if defined(_WIN32)
+    if( shutdown(iSocket,1)==0 ) shutdown(iSocket,0);
     closesocket(iSocket);
 #else
     close(iSocket);
@@ -133,8 +139,8 @@ void socket_close(void){
 ** Open a socket connection.  The identify of the server is determined
 ** by pUrlData
 **
-**    pUrlDAta->name       Name of the server.  Ex: www.fossil-scm.org
-**    pUrlDAta->port       TCP/IP port to use.  Ex: 80
+**    pUrlData->name       Name of the server.  Ex: fossil-scm.org
+**    pUrlData->port       TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
 */
@@ -191,14 +197,14 @@ end_socket_open:
 /*
 ** Send content out over the open socket connection.
 */
-size_t socket_send(void *NotUsed, void *pContent, size_t N){
-  size_t sent;
+size_t socket_send(void *NotUsed, const void *pContent, size_t N){
+  ssize_t sent;
   size_t total = 0;
   while( N>0 ){
     sent = send(iSocket, pContent, N, 0);
     if( sent<=0 ) break;
-    total += sent;
-    N -= sent;
+    total += (size_t)sent;
+    N -= (size_t)sent;
     pContent = (void*)&((char*)pContent)[sent];
   }
   return total;
@@ -206,13 +212,21 @@ size_t socket_send(void *NotUsed, void *pContent, size_t N){
 
 /*
 ** Receive content back from the open socket connection.
+** Return the number of bytes read.
+**
+** When bDontBlock is false, this function blocks until all N bytes
+** have been read.
 */
-size_t socket_receive(void *NotUsed, void *pContent, size_t N){
+size_t socket_receive(void *NotUsed, void *pContent, size_t N, int bDontBlock){
   ssize_t got;
   size_t total = 0;
+  int flags = 0;
+#ifdef MSG_DONTWAIT
+  if( bDontBlock ) flags |= MSG_DONTWAIT;
+#endif
   while( N>0 ){
     /* WinXP fails for large values of N.  So limit it to 64KiB. */
-    got = recv(iSocket, pContent, N>65536 ? 65536 : N, 0);
+    got = recv(iSocket, pContent, N>65536 ? 65536 : N, flags);
     if( got<=0 ) break;
     total += (size_t)got;
     N -= (size_t)got;
@@ -231,9 +245,12 @@ void socket_ssh_resolve_addr(UrlData *pUrlData){
   struct addrinfo *ai = 0;
   struct addrinfo hints;
   char zRemote[NI_MAXHOST];
+  memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;
+  fossil_free(g.zIpAddr);
+  g.zIpAddr = 0;
   if( getaddrinfo(pUrlData->name, NULL, &hints, &ai)==0
    && ai!=0
    && getnameinfo(ai->ai_addr, ai->ai_addrlen, zRemote,

@@ -36,7 +36,7 @@
 ** be overridden using the hash-digits setting.  FOSSIL_HASH_DIGITS_URL
 ** is the minimum number of digits to be used in URLs.  The number used
 ** will always be at least 6 more than the number used for human output,
-** or 40 if the number of digits in human output is 34 or more.
+** or HNAME_MAX, whichever is least.
 */
 #ifndef FOSSIL_HASH_DIGITS
 # define FOSSIL_HASH_DIGITS 10       /* For %S (human display) */
@@ -50,18 +50,25 @@
 ** human output if the bForUrl is false and is destined for a URL if
 ** bForUrl is false.
 */
-static int hashDigits(int bForUrl){
+int hash_digits(int bForUrl){
   static int nDigitHuman = 0;
   static int nDigitUrl = 0;
   if( nDigitHuman==0 ){
     nDigitHuman = db_get_int("hash-digits", FOSSIL_HASH_DIGITS);
     if( nDigitHuman < 6 ) nDigitHuman = 6;
-    if( nDigitHuman > 40 ) nDigitHuman = 40;
+    if( nDigitHuman > HNAME_MAX ) nDigitHuman = HNAME_MAX;
     nDigitUrl = nDigitHuman + 6;
     if( nDigitUrl < FOSSIL_HASH_DIGITS_URL ) nDigitUrl = FOSSIL_HASH_DIGITS_URL;
-    if( nDigitUrl > 40 ) nDigitUrl = 40;
+    if( nDigitUrl > HNAME_MAX ) nDigitUrl = HNAME_MAX;
   }
   return bForUrl ? nDigitUrl : nDigitHuman;
+}
+
+/*
+** Return the number of characters in a %S output.
+*/
+int length_of_S_display(void){
+  return hash_digits(0);
 }
 
 /*
@@ -92,8 +99,14 @@ static int hashDigits(int bForUrl){
 #define etFOSSILIZE  20 /* The fossil header encoding format. */
 #define etPATH       21 /* Path type */
 #define etWIKISTR    22 /* Timeline comment text rendered from a char*: %W */
-#define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
+#define etSTRINGID   23 /* String with length limit for a hash prefix: %S */
 #define etROOT       24 /* String value of g.zTop: %R */
+#define etJSONSTR    25 /* String encoded as a JSON string literal: %j
+                           Use %!j to include double-quotes around it. */
+#define etSHELLESC   26 /* Escape a filename for use in a shell command: %$
+                           See blob_append_escaped_arg() for details
+                           "%$"  -> adds "./" prefix if necessary.
+                           "%!$" -> omits the "./" prefix. */
 
 
 /*
@@ -125,9 +138,13 @@ typedef struct et_info {   /* Information about each format field */
 /*
 ** The following table is searched linearly, so it is good to put the
 ** most frequently used conversion types first.
+**
+** NB: When modifying this table is it vital that you also update the fmtchr[]
+** variable to match!!!
 */
 static const char aDigits[] = "0123456789ABCDEF0123456789abcdef";
 static const char aPrefix[] = "-x0\000X0";
+static const char fmtchr[] = "dsgzqQbBWhRtTwFSjcouxXfeEGin%p/$";
 static const et_info fmtinfo[] = {
   {  'd', 10, 1, etRADIX,      0,  0 },
   {  's',  0, 4, etSTRING,     0,  0 },
@@ -145,6 +162,7 @@ static const et_info fmtinfo[] = {
   {  'w',  0, 4, etSQLESCAPE3, 0,  0 },
   {  'F',  0, 4, etFOSSILIZE,  0,  0 },
   {  'S',  0, 4, etSTRINGID,   0,  0 },
+  {  'j',  0, 0, etJSONSTR,    0,  0 },
   {  'c',  0, 0, etCHARX,      0,  0 },
   {  'o',  8, 0, etRADIX,      0,  2 },
   {  'u', 10, 0, etRADIX,      0,  0 },
@@ -159,8 +177,23 @@ static const et_info fmtinfo[] = {
   {  '%',  0, 0, etPERCENT,    0,  0 },
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
+  {  '$',  0, 0, etSHELLESC,   0,  0 },
+  {  etERROR, 0,0,0,0,0}  /* Must be last */
 };
 #define etNINFO count(fmtinfo)
+
+/*
+** Verify that the fmtchr[] and fmtinfo[] arrays are in agreement.
+**
+** This routine is a defense against programming errors.
+*/
+void fossil_printf_selfcheck(void){
+  int i;
+  for(i=0; fmtchr[i]; i++){
+    assert( fmtchr[i]==fmtinfo[i].fmttype );
+  }
+}
+
 
 /*
 ** "*val" is a double such that 0.1 <= *val < 10.0
@@ -197,11 +230,15 @@ static int et_getdigit(long double *val, int *cnt){
 ** N bytes then return N.  If N is negative, then this routine
 ** is an alias for strlen().
 */
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
+# define StrNLen32(Z,N) (int)strnlen(Z,N)
+#else
 static int StrNLen32(const char *z, int N){
   int n = 0;
   while( (N-- != 0) && *(z++)!=0 ){ n++; }
   return n;
 }
+#endif
 
 /*
 ** Return an appropriate set of flags for wiki_convert() for displaying
@@ -224,6 +261,9 @@ static int wiki_convert_flags(int altForm2){
     if( db_get_boolean("timeline-plaintext", 0) ){
       wikiFlags |= WIKI_LINKSONLY;
     }
+    if( db_get_boolean("timeline-hard-newlines", 0) ){
+      wikiFlags |= WIKI_NEWLINE;
+    }
   }
   return wikiFlags;
 }
@@ -243,7 +283,7 @@ static int wiki_convert_flags(int altForm2){
 **
 ** OUTPUTS:
 **          The return value is the total number of characters sent to
-**          the function "func".  Returns -1 on a error.
+**          the function "func".  Returns -1 on error.
 **
 ** Note that the order in which automatic variables are declared below
 ** seems to make a big difference in determining how fast this beast
@@ -270,6 +310,7 @@ int vxprintf(
   etByte flag_long;          /* True if "l" flag is present */
   etByte flag_longlong;      /* True if the "ll" flag is present */
   etByte done;               /* Loop termination flag */
+  etByte cThousand;          /* Thousands separator for %d and %u */
   u64 longvalue;             /* Value for integer types */
   long double realvalue;     /* Value for real types */
   const et_info *infop;      /* Pointer to the appropriate info structure */
@@ -287,18 +328,20 @@ int vxprintf(
   etByte flag_rtz;           /* True if trailing zeros should be removed */
   etByte flag_exp;           /* True to force display of the exponent */
   int nsd;                   /* Number of significant digits returned */
+  char *zFmtLookup;
 
   count = length = 0;
   bufpt = 0;
   for(; (c=(*fmt))!=0; ++fmt){
     if( c!='%' ){
-      int amt;
       bufpt = (char *)fmt;
-      amt = 1;
-      while( (c=(*++fmt))!='%' && c!=0 ) amt++;
-      blob_append(pBlob,bufpt,amt);
-      count += amt;
-      if( c==0 ) break;
+#if HAVE_STRCHRNUL
+      fmt = strchrnul(fmt, '%');
+#else
+      do{ fmt++; }while( *fmt && *fmt != '%' );
+#endif
+      blob_append(pBlob, bufpt, (int)(fmt - bufpt));
+      if( *fmt==0 ) break;
     }
     if( (c=(*++fmt))==0 ){
       errorflag = 1;
@@ -307,7 +350,7 @@ int vxprintf(
       break;
     }
     /* Find out what flags are present */
-    flag_leftjustify = flag_plussign = flag_blanksign =
+    flag_leftjustify = flag_plussign = flag_blanksign = cThousand =
      flag_alternateform = flag_altform2 = flag_zeropad = 0;
     done = 0;
     do{
@@ -318,6 +361,7 @@ int vxprintf(
         case '#':   flag_alternateform = 1;   break;
         case '!':   flag_altform2 = 1;        break;
         case '0':   flag_zeropad = 1;         break;
+        case ',':   cThousand = ',';          break;
         default:    done = 1;                 break;
       }
     }while( !done && (c=(*++fmt))!=0 );
@@ -370,14 +414,13 @@ int vxprintf(
       flag_long = flag_longlong = 0;
     }
     /* Fetch the info entry for the field */
-    infop = 0;
-    xtype = etERROR;
-    for(idx=0; idx<etNINFO; idx++){
-      if( c==fmtinfo[idx].fmttype ){
-        infop = &fmtinfo[idx];
-        xtype = infop->type;
-        break;
-      }
+    zFmtLookup = strchr(fmtchr,c);
+    if( zFmtLookup ){
+      infop = &fmtinfo[zFmtLookup-fmtchr];
+      xtype = infop->type;
+    }else{
+      infop = 0;
+      xtype = etERROR;
     }
     zExtra = 0;
 
@@ -449,8 +492,23 @@ int vxprintf(
           }while( longvalue>0 );
         }
         length = &buf[etBUFSIZE-1]-bufpt;
-        for(idx=precision-length; idx>0; idx--){
+        while( precision>length ){
           *(--bufpt) = '0';                             /* Zero pad */
+          length++;
+        }
+        if( cThousand ){
+          int nn = (length - 1)/3;  /* Number of "," to insert */
+          int ix = (length - 1)%3 + 1;
+          bufpt -= nn;
+          for(idx=0; nn>0; idx++){
+            bufpt[idx] = bufpt[idx+nn];
+            ix--;
+            if( ix==0 ){
+              bufpt[++idx] = cThousand;
+              nn--;
+              ix = 3;
+            }
+          }
         }
         if( prefix ) *(--bufpt) = prefix;               /* Add sign */
         if( flag_alternateform && infop->prefix ){      /* Add "0" or "0x" */
@@ -652,7 +710,7 @@ int vxprintf(
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }else if( xtype==etSTRINGID ){
-          precision = hashDigits(flag_altform2);
+          precision = hash_digits(flag_altform2);
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
@@ -758,6 +816,20 @@ int vxprintf(
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
+      case etJSONSTR: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
+        char *zMem = va_arg(ap,char*);
+        if( limit!=0 ){
+          /* Ignore the limit flag, if set, for JSON string
+          ** output. This block exists to squelch the associated
+          ** "unused variable" compiler warning. */
+        }
+        if( zMem==0 ) zMem = "";
+        zExtra = bufpt =
+          encode_json_string_literal(zMem, flag_altform2, &length);
+        if( precision>=0 && precision<length ) length = precision;
+        break;
+      }
       case etWIKISTR: {
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *zWiki = va_arg(ap, char*);
@@ -765,6 +837,12 @@ int vxprintf(
         blob_init(&wiki, zWiki, limit);
         wiki_convert(&wiki, pBlob, wiki_convert_flags(flag_altform2));
         blob_reset(&wiki);
+        length = width = 0;
+        break;
+      }
+      case etSHELLESC: {
+        char *zArg = va_arg(ap, char*);
+        blob_append_escaped_arg(pBlob, zArg, !flag_altform2);
         length = width = 0;
         break;
       }
@@ -882,9 +960,8 @@ static int stdoutAtBOL = 1;
 ** text when done.
 ** No translation ever occurs on unix.
 */
-void fossil_puts(const char *z, int toStdErr){
+void fossil_puts(const char *z, int toStdErr, int n){
   FILE* out = (toStdErr ? stderr : stdout);
-  int n = (int)strlen(z);
   if( n==0 ) return;
   assert( toStdErr==0 || toStdErr==1 );
   if( toStdErr==0 ) stdoutAtBOL = (z[n-1]=='\n');
@@ -908,7 +985,7 @@ void fossil_puts(const char *z, int toStdErr){
 */
 int fossil_force_newline(void){
   if( g.cgiOutput==0 && stdoutAtBOL==0 ){
-    fossil_puts("\n", 0);
+    fossil_puts("\n", 0, 1);
     return 1;
   }
   return 0;
@@ -933,12 +1010,16 @@ void fossil_print(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_vprintf(zFormat, ap);
   }else{
-    Blob b = empty_blob;
-    vxprintf(&b, zFormat, ap);
-    fossil_puts(blob_str(&b), 0);
-    blob_reset(&b);
+    vxprintf(0, zFormat, ap);
   }
   va_end(ap);
+}
+void fossil_vprint(const char *zFormat, va_list ap){
+  if( g.cgiOutput ){
+    cgi_vprintf(zFormat, ap);
+  }else{
+    vxprintf(0, zFormat, ap);
+  }
 }
 
 /*
@@ -950,7 +1031,7 @@ void fossil_trace(const char *zFormat, ...){
   va_start(ap, zFormat);
   b = empty_blob;
   vxprintf(&b, zFormat, ap);
-  fossil_puts(blob_str(&b), 1);
+  fossil_puts(blob_buffer(&b), 1, blob_size(&b));
   blob_reset(&b);
   va_end(ap);
 }
@@ -959,23 +1040,28 @@ void fossil_trace(const char *zFormat, ...){
 ** Write a message to the error log, if the error log filename is
 ** defined.
 */
-static void fossil_errorlog(const char *zFormat, ...){
+void fossil_errorlog(const char *zFormat, ...){
   struct tm *pNow;
   time_t now;
   FILE *out;
   const char *z;
   int i;
   va_list ap;
-  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_REFERER",
+      "HTTP_USER_AGENT",
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;
-  out = fossil_fopen(g.zErrlog, "a");
-  if( out==0 ) return;
+  if( g.zErrlog[0]=='-' && g.zErrlog[1]==0 ){
+    out = stderr;
+  }else{
+    out = fossil_fopen(g.zErrlog, "a");
+    if( out==0 ) return;
+  }
   now = time(0);
   pNow = gmtime(&now);
   fprintf(out, "------------- %04d-%02d-%02d %02d:%02d:%02d UTC ------------\n",
-          pNow->tm_year+1900, pNow->tm_mon+1, pNow->tm_mday+1,
+          pNow->tm_year+1900, pNow->tm_mon+1, pNow->tm_mday,
           pNow->tm_hour, pNow->tm_min, pNow->tm_sec);
   va_start(ap, zFormat);
   vfprintf(out, zFormat, ap);
@@ -983,10 +1069,10 @@ static void fossil_errorlog(const char *zFormat, ...){
   va_end(ap);
   for(i=0; i<count(azEnv); i++){
     char *p;
-    if( (p = fossil_getenv(azEnv[i]))!=0 ){
+    if( (p = fossil_getenv(azEnv[i]))!=0 && p[0]!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);
       fossil_path_free(p);
-    }else if( (z = P(azEnv[i]))!=0 ){
+    }else if( (z = P(azEnv[i]))!=0 && z[0]!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }
   }
@@ -1001,8 +1087,67 @@ static void fossil_errorlog(const char *zFormat, ...){
 static int mainInFatalError = 0;
 
 /*
+** Write error message output
+*/
+static int fossil_print_error(int rc, const char *z){
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode!=0 ){
+    /*
+    ** Avoid calling into the JSON support subsystem if it
+    ** has not yet been initialized, e.g. early SQLite log
+    ** messages, etc.
+    */
+    if( !json_is_bootstrapped_early() ) json_bootstrap_early();
+    json_err( 0, z, 1 );
+    if( g.isHTTP && !g.json.preserveRc ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+    if( g.cgiOutput==1 ){
+      g.cgiOutput = 2;
+      cgi_reply();
+    }
+  }
+  else
+#endif
+  if( g.cgiOutput==1 && g.db ){
+    g.cgiOutput = 2;
+    cgi_reset_content();
+    cgi_set_content_type("text/html");
+    style_set_current_feature("error");
+    style_header("Bad Request");
+    etag_cancel();
+    @ <p class="generalError">%h(z)</p>
+    cgi_set_status(400, "Bad Request");
+    style_finish_page();
+    cgi_reply();
+  }else if( !g.fQuiet ){
+    fossil_force_newline();
+    fossil_trace("%s\n", z);
+  }
+  return rc;
+}
+
+/*
 ** Print an error message, rollback all databases, and quit.  These
-** routines never return.
+** routines never return and produce a non-zero process exit status.
+**
+** The main difference between fossil_fatal() and fossil_panic() is that
+** fossil_panic() makes an entry in the error log whereas fossil_fatal()
+** does not. On POSIX platforms, if there is not an error log, then both
+** routines work similarly with respect to user-visible effects.  Hence,
+** the routines are interchangable for commands and only act differently
+** when processing web pages. On the Windows platform, fossil_panic()
+** also displays a pop-up stating that an error has occured and allowing
+** just-in-time debugging to commence. On all platforms, fossil_panic()
+** ends execution with a SIGABRT signal, bypassing atexit processing.
+** This signal can also produce a core dump on POSIX platforms.
+**
+** Use fossil_fatal() for malformed inputs that should be reported back
+** to the user, but which do not represent a configuration problem or bug.
+**
+** Use fossil_panic() for any kind of error that should be brought to the
+** attention of the system administrator or Fossil developers. It should
+** be avoided for ordinary usage, parameter, OOM and I/O errors.
 */
 NORETURN void fossil_panic(const char *zFormat, ...){
   va_list ap;
@@ -1013,63 +1158,31 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   if( once ) exit(1);
   once = 1;
   mainInFatalError = 1;
-  db_force_rollback();
+  /* db_force_rollback(); */
   va_start(ap, zFormat);
   sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** panic on %d *****/\n", getpid());
+  }
   fossil_errorlog("panic: %s", z);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( 0, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  }
-  else
-#endif
-  {
-    if( g.cgiOutput ){
-      cgi_printf("<p class=\"generalError\">%h</p>", z);
-      cgi_reply();
-    }else if( !g.fQuiet ){
-      fossil_force_newline();
-      fossil_puts("Fossil internal error: ", 1);
-      fossil_puts(z, 1);
-      fossil_puts("\n", 1);
-    }
-  }
+  rc = fossil_print_error(rc, z);
+  abort();
   exit(rc);
 }
-
 NORETURN void fossil_fatal(const char *zFormat, ...){
+  static int once = 0;
+  va_list ap;
   char *z;
   int rc = 1;
-  va_list ap;
+  if( once ) exit(1);
+  once = 1;
   mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  fossil_errorlog("fatal: %s", z);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( g.json.resultCode, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  }
-  else
-#endif
-  {
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
-      cgi_reply();
-    }else if( !g.fQuiet ){
-      fossil_force_newline();
-      fossil_trace("%s\n", z);
-    }
-  }
-  free(z);
+  rc = fossil_print_error(rc, z);
+  fossil_free(z);
   db_force_rollback();
   fossil_exit(rc);
 }
@@ -1092,31 +1205,20 @@ void fossil_fatal_recursive(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  fossil_errorlog("fatal: %s", z);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( g.json.resultCode, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  } else
-#endif
-  {
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
-      cgi_reply();
-    }else{
-      fossil_force_newline();
-      fossil_trace("%s\n", z);
-    }
-  }
+  rc = fossil_print_error(rc, z);
   db_force_rollback();
   fossil_exit(rc);
 }
 
 
-/* Print a warning message */
+/* Print a warning message.
+**
+** Unlike fossil_fatal() and fossil_panic(), this routine does return
+** and processing attempts to continue.  A message is written to the
+** error log, however, so this routine should only be used for situations
+** that require administrator or developer attention.  Minor problems
+** in user inputs should not use this routine.
+*/
 void fossil_warning(const char *zFormat, ...){
   char *z;
   va_list ap;
@@ -1125,12 +1227,19 @@ void fossil_warning(const char *zFormat, ...){
   va_end(ap);
   fossil_errorlog("warning: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
-  if(g.json.isJsonMode){
-    json_warn( FSL_JSON_W_UNKNOWN, z );
+  if( g.json.isJsonMode!=0 ){
+    /*
+    ** Avoid calling into the JSON support subsystem if it
+    ** has not yet been initialized, e.g. early SQLite log
+    ** messages, etc.
+    */
+    if( !json_is_bootstrapped_early() ) json_bootstrap_early();
+    json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif
   {
-    if( g.cgiOutput ){
+    if( g.cgiOutput==1 ){
+      etag_cancel();
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
       fossil_force_newline();

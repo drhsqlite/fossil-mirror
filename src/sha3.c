@@ -380,14 +380,14 @@ static void KeccakF1600Step(SHA3Context *p){
 /*
 ** Initialize a new hash.  iSize determines the size of the hash
 ** in bits and should be one of 224, 256, 384, or 512.  Or iSize
-** can be zero to use the default hash size of 224 bits.
+** can be zero to use the default hash size of 256 bits.
 */
 static void SHA3Init(SHA3Context *p, int iSize){
   memset(p, 0, sizeof(*p));
   if( iSize>=128 && iSize<=512 ){
     p->nRate = (1600 - ((iSize + 31)&~31)*2)/8;
   }else{
-    p->nRate = 144;
+    p->nRate = (1600 - 2*256)/8;
   }
 #if SHA3_BYTEORDER==1234
   /* Known to be little-endian at compile-time. No-op */
@@ -430,7 +430,7 @@ static void SHA3Update(
   }
 #endif
   for(; i<nData; i++){
-#if SHA1_BYTEORDER==1234
+#if SHA3_BYTEORDER==1234
     p->u.x[p->nLoaded] ^= aData[i];
 #elif SHA3_BYTEORDER==4321
     p->u.x[p->nLoaded^0x07] ^= aData[i];
@@ -486,7 +486,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf, int nByte){
 }
 
 /*
-** The state of a incremental SHA3 checksum computation.  Only one
+** The state of an incremental SHA3 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static SHA3Context incrCtx;
@@ -547,12 +547,12 @@ char *sha3sum_finish(Blob *pOut){
 **
 ** Return the number of errors.
 */
-int sha3sum_file(const char *zFilename, int iSize, Blob *pCksum){
+int sha3sum_file(const char *zFilename, int eFType, int iSize, Blob *pCksum){
   FILE *in;
   SHA3Context ctx;
   char zBuf[10240];
 
-  if( file_wd_islink(zFilename) ){
+  if( eFType==RepoFILE && file_islink(zFilename) ){
     /* Instead of file content, return sha3 of link destination path */
     Blob destinationPath;
     int rc;
@@ -602,6 +602,7 @@ int sha3sum_blob(const Blob *pIn, int iSize, Blob *pCksum){
   return 0;
 }
 
+#if 0 /* NOT USED */
 /*
 ** Compute the SHA3 checksum of a zero-terminated string.  The
 ** result is held in memory obtained from mprintf().
@@ -612,9 +613,10 @@ char *sha3sum(const char *zIn, int iSize){
 
   SHA3Init(&ctx, iSize);
   SHA3Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
-  DigestToBase16(SHA3Final(&ctx), zDigest, iSize/4);
+  DigestToBase16(SHA3Final(&ctx), zDigest, iSize/8);
   return mprintf("%s", zDigest);
 }
+#endif
 
 /*
 ** COMMAND: sha3sum*
@@ -624,21 +626,30 @@ char *sha3sum(const char *zIn, int iSize){
 ** Compute an SHA3 checksum of all files named on the command-line.
 ** If a file is named "-" then take its content from standard input.
 **
+** To be clear:  The official NIST FIPS-202 implementation of SHA3
+** with the added 01 padding is used, not the original Keccak submission.
+**
 ** Options:
 **
-**    --224        Compute a SHA3-224 hash
-**    --256        Compute a SHA3-256 hash (the default)
-**    --384        Compute a SHA3-384 hash
-**    --512        Compute a SHA3-512 hash
-**    --size N     An N-bit hash.  N must be a multiple of 32 between 128
-**                 and 512.
+**    --224               Compute a SHA3-224 hash
+**    --256               Compute a SHA3-256 hash (the default)
+**    --384               Compute a SHA3-384 hash
+**    --512               Compute a SHA3-512 hash
+**    --size N            An N-bit hash.  N must be a multiple of 32 between
+**                        128 and 512.
+**    -h|--dereference    If FILE is a symbolic link, compute the hash on
+**                        the object pointed to, not on the link itself.
+**
+** See also: [[md5sum]], [[sha1sum]]
 */
 void sha3sum_test(void){
   int i;
   Blob in;
-  Blob cksum;
+  Blob cksum = empty_blob;
   int iSize = 256;
+  int eFType = SymFILE;
 
+  if( find_option("dereference","h",0) ) eFType = ExtFILE;
   if( find_option("224",0,0)!=0 ) iSize = 224;
   else if( find_option("256",0,0)!=0 ) iSize = 256;
   else if( find_option("384",0,0)!=0 ) iSize = 384;
@@ -656,12 +667,11 @@ void sha3sum_test(void){
   verify_all_options();
 
   for(i=2; i<g.argc; i++){
-    blob_init(&cksum, "************** not found ***************", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){
       blob_read_from_channel(&in, stdin, -1);
       sha3sum_blob(&in, iSize, &cksum);
-    }else{
-      sha3sum_file(g.argv[i], iSize, &cksum);
+    }else if( sha3sum_file(g.argv[i], eFType, iSize, &cksum) > 0 ){
+      fossil_fatal("Cannot read file: %s", g.argv[i]);
     }
     fossil_print("%s  %s\n", blob_str(&cksum), g.argv[i]);
     blob_reset(&cksum);

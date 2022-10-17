@@ -232,7 +232,8 @@ static cson_value * json_artifact_ci( cson_object * zParent, int rid ){
 static ArtifactDispatchEntry ArtifactDispatchList[] = {
 {"checkin", json_artifact_ci},
 {"file", json_artifact_file},
-{"tag", NULL},
+/*{"tag", NULL}, //impl missing */
+/*{"technote", NULL}, //impl missing */
 {"ticket", json_artifact_ticket},
 {"wiki", json_artifact_wiki},
 /* Final entry MUST have a NULL name. */
@@ -478,6 +479,14 @@ cson_value * json_page_artifact(){
       entry = (*dispatcher->func)(pay, rid);
       break;
     }
+  }
+  if(entry==0){
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND
+      /* This is not quite right. We need a new result code
+         for this case. */;
+    g.zErrMsg = mprintf("Missing implementation for "
+                        "artifacts of this type.");
+    goto error;
   }
   if(!g.json.resultCode){
     assert( NULL != entry );

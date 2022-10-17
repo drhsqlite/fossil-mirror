@@ -189,6 +189,170 @@ revert-test 3-1 {} {
   DELETE f1new
 } -exists {f1} -notexists {f1n}
 
+
+# Test reverting of files under a sub-directory
+test_setup
+file mkdir d
+write_file d/f1 "d/f1"
+write_file d/f2 "d/f2"
+write_file d/f3 "d/f3"
+write_file d/f4 "d/f4"
+
+fossil add d
+fossil delete d/f1
+fossil commit -m "d/f2 d/f3 d/f4"
+
+## Changes to revert
+fossil add d/f1
+write_file d/f2 "4-1:d/f2"
+fossil changes d/f2
+fossil delete --soft d/f3
+
+revert-test 4-1 {d/f1} {
+  UNMANAGE   d/f1
+} -changes {
+  EDITED  d/f2
+  DELETED d/f3
+} -addremove {
+  ADDED   d/f1
+} -exists {d/f1 d/f2 d/f3}
+
+revert-test 4-2 {d/f2} {
+  REVERT  d/f2
+} -changes {
+  ADDED   d/f1
+  DELETED d/f3
+} -exists {d/f1 d/f2 d/f3}
+
+revert-test 4-3 {d/f3} {
+  REVERT   d/f3
+} -changes {
+  ADDED   d/f1
+  EDITED  d/f2
+} -exists {d/f1 d/f2 d/f3}
+
+fossil mv --soft d/f4 d/f4new
+test 4-4-mv-1 {[file exists d/f4]}
+test 4-4-mv-2 {![file exists d/f4new]}
+revert-test 4-4 {d/f4} {
+  DELETE   d/f4new
+  REVERT   d/f4
+} -changes {
+  ADDED   d/f1
+  EDITED  d/f2
+  DELETED d/f3
+} -exists {d/f4} -notexists {d/f4new}
+
+## Commit changes before testing reverting of directory rename,
+## otherwise there're could be sequencing issues
+fossil redo
+fossil commit -m "4-5:setup"
+
+fossil mv --soft d dnew
+revert-test 4-5 {d/f1 d/f2 d/f3 d/f4} {
+  REVERT   d/f1
+  REVERT   d/f2
+  UNMANAGE d/f3
+  REVERT   d/f4
+  DELETE   dnew/f1
+  DELETE   dnew/f2
+  DELETE   dnew/f4
+} -addremove {
+  ADDED    d/f3
+} -exists {d/f1 d/f2 d/f3 d/f4} -notexists {dnew}
+
+
+## Test reverting of changes in whole sub-directory tree
+test_setup
+file mkdir d
+write_file f0 "f0"
+write_file d/f1 "d/f1"
+write_file d/f2 "d/f2"
+write_file d/f3 "d/f3"
+write_file d/f4 "d/f4"
+
+fossil add f0 d
+fossil delete d/f1
+fossil commit -m "f0 d/f2 d/f3 d/f4"
+
+## Changes to revert
+fossil add d/f1
+write_file d/f2 "5-1:d/f2"
+fossil changes d/f2
+fossil delete --soft d/f3
+
+revert-test 5-1 {d} {
+  UNMANAGE d/f1
+  REVERT   d/f2
+  REVERT   d/f3
+} -addremove {
+  ADDED    d/f1
+} -exists {f0 d/f1 d/f2 d/f3}
+
+write_file f0 "5-2:f0"
+fossil changes f0
+revert-test 5-2 {f0 d} {
+  UNMANAGE d/f1
+  REVERT   d/f2
+  REVERT   d/f3
+  REVERT   f0
+} -addremove {
+  ADDED    d/f1
+} -exists {f0 d/f1 d/f2 d/f3}
+
+## Commit changes before testing the revert of directory rename,
+## otherwise there're could be sequencing issues
+fossil commit -m "5-3:setup"
+
+fossil changes
+
+fossil mv --soft d dnew
+revert-test 5-3 {d} {
+  REVERT   d/f1
+  REVERT   d/f2
+  REVERT   d/f4
+  DELETE   dnew/f1
+  DELETE   dnew/f2
+  DELETE   dnew/f4
+} -addremove {
+  ADDED    d/f3
+} -exists {f0 d/f1 d/f2 d/f3 d/f4} -notexists {dnew}
+
+## Reset/redo the undone results of revert to get to a clean checkout
+fossil redo
+
+file mkdir d/e
+file mkdir d/e/f
+write_file d/e/fe1 "d/e/fe1"
+write_file d/e/f/ff1 "d/e/f/ff1"
+
+file mkdir d1
+file mkdir d1/e
+write_file d1/e/fe1 "d1/e/fe1"
+write_file d1/e/fe2 "d1/e/fe2"
+
+fossil add d1/e/fe1
+fossil commit d1/e/fe1 -m "d1/e/fe1"
+
+write_file d1/e/fe1 "5-4:d1/e/fe1"
+fossil changes d1/e/fe1
+fossil add d d1
+
+revert-test 5-4 {d d1} {
+  UNMANAGE d/f3
+  UNMANAGE d/e/fe1
+  UNMANAGE d/e/f/ff1
+  REVERT   d1/e/fe1
+  UNMANAGE d1/e/fe2
+} -addremove {
+  ADDED    d/f3
+  ADDED    d/e/fe1
+  ADDED    d/e/f/ff1
+  ADDED    d1/e/fe2
+} -exists {d/f1 d/f2 d/f3 d/f4 d/e/fe1 d/e/fe1 d/e/f/ff1
+           d1/e/fe1 d1/e/fe2}
+
+
 ###############################################################################
 
 test_cleanup

@@ -460,10 +460,12 @@ const char *captcha_decode(unsigned int seed){
 
   zSecret = db_get("captcha-secret", 0);
   if( zSecret==0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('captcha-secret', lower(hex(randomblob(20))));"
     );
+    db_protect_pop();
     zSecret = db_get("captcha-secret", 0);
     assert( zSecret!=0 );
   }
@@ -499,13 +501,13 @@ int captcha_needed(void){
 ** The query parameters examined are "captchaseed" for the seed value and
 ** "captcha" for text that the user types in response to the captcha prompt.
 */
-int captcha_is_correct(void){
+int captcha_is_correct(int bAlwaysNeeded){
   const char *zSeed;
   const char *zEntered;
   const char *zDecode;
   char z[30];
   int i;
-  if( !captcha_needed() ){
+  if( !bAlwaysNeeded && !captcha_needed() ){
     return 1;  /* No captcha needed */
   }
   zSeed = P("captchaseed");
@@ -514,7 +516,6 @@ int captcha_is_correct(void){
   if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
   zDecode = captcha_decode((unsigned int)atoi(zSeed));
   assert( strlen(zDecode)==8 );
-  if( strlen(zEntered)!=8 ) return 0;
   for(i=0; i<8; i++){
     char c = zEntered[i];
     if( c>='A' && c<='F' ) c += 'a' - 'A';
@@ -541,7 +542,7 @@ void captcha_generate(int showButton){
   uSeed = captcha_seed();
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
-  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
   @ </pre>
   @ Enter security code shown above:
@@ -550,7 +551,27 @@ void captcha_generate(int showButton){
   if( showButton ){
     @ <input type="submit" value="Submit">
   }
+  @ <br/>\
+  captcha_speakit_button(uSeed, 0);
   @ </td></tr></table></div>
+}
+
+/*
+** Add a "Speak the captcha" button.
+*/
+void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
+  if( zMsg==0 ) zMsg = "Speak the text";
+  @ <input aria-label="%h(zMsg)" type="button" value="%h(zMsg)" \
+  @ id="speakthetext">
+  @ <script nonce="%h(style_nonce())">/* captcha_speakit_button() */
+  @ document.getElementById("speakthetext").onclick = function(){
+  @   var audio = window.fossilAudioCaptcha \
+  @ || new Audio("%R/captcha-audio/%u(uSeed)");
+  @   window.fossilAudioCaptcha = audio;
+  @   audio.currentTime = 0;
+  @   audio.play();
+  @ }
+  @ </script>
 }
 
 /*
@@ -566,11 +587,12 @@ void captcha_test(void){
     sqlite3_randomness(sizeof(x), &x);
     zPw = mprintf("%016llx", x);
   }
+  style_set_current_feature("test");
   style_header("Captcha Test");
   @ <pre>
   @ %s(captcha_render(zPw))
   @ </pre>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -595,18 +617,94 @@ int exclude_spiders(void){
   zCookieName = mprintf("fossil-cc-%.10s", db_get("project-code","x"));
   zCookieValue = P(zCookieName);
   if( zCookieValue && atoi(zCookieValue)==1 ) return 0;
-  if( captcha_is_correct() ){
+  if( captcha_is_correct(0) ){
     cgi_set_cookie(zCookieName, "1", login_cookie_path(), 8*3600);
     return 0;
   }
 
   /* This appears to be a spider.  Offer the captcha */
+  style_set_current_feature("captcha");
   style_header("Verification");
   @ <form method='POST' action='%s(g.zPath)'>
   cgi_query_parameters_to_hidden();
   @ <p>Please demonstrate that you are human, not a spider or robot</p>
   captcha_generate(1);
   @ </form>
-  style_footer();
+  style_finish_page();
   return 1;
+}
+
+/*
+** Generate a WAV file that reads aloud the hex digits given by
+** zHex.
+*/
+static void captcha_wav(const char *zHex, Blob *pOut){
+  int i;
+  const int szWavHdr = 44;
+  blob_init(pOut, 0, 0);
+  blob_resize(pOut, szWavHdr);  /* Space for the WAV header */
+  pOut->nUsed = szWavHdr;
+  memset(pOut->aData, 0, szWavHdr);
+  if( zHex==0 || zHex[0]==0 ) zHex = "0";
+  for(i=0; zHex[i]; i++){
+    int v = hex_digit_value(zHex[i]);
+    int sz;
+    int nData;
+    const unsigned char *pData;
+    char zSoundName[50];
+    sqlite3_snprintf(sizeof(zSoundName),zSoundName,"sounds/%c.wav",
+                     "0123456789abcdef"[v]);
+    /* Extra silence in between letters */
+    if( i>0 ){
+      int nQuiet = 3000;
+      blob_resize(pOut, pOut->nUsed+nQuiet);
+      memset(pOut->aData+pOut->nUsed-nQuiet, 0x80, nQuiet);
+    }
+    pData = builtin_file(zSoundName, &sz);
+    nData = sz - szWavHdr;
+    blob_resize(pOut, pOut->nUsed+nData);
+    memcpy(pOut->aData+pOut->nUsed-nData, pData+szWavHdr, nData);
+    if( zHex[i+1]==0 ){
+      int len = pOut->nUsed + 36;
+      memcpy(pOut->aData, pData, szWavHdr);
+      pOut->aData[4] = (char)(len&0xff);
+      pOut->aData[5] = (char)((len>>8)&0xff);
+      pOut->aData[6] = (char)((len>>16)&0xff);
+      pOut->aData[7] = (char)((len>>24)&0xff);
+      len = pOut->nUsed;
+      pOut->aData[40] = (char)(len&0xff);
+      pOut->aData[41] = (char)((len>>8)&0xff);
+      pOut->aData[42] = (char)((len>>16)&0xff);
+      pOut->aData[43] = (char)((len>>24)&0xff);
+    }
+  }
+}
+
+/*
+** WEBPAGE: /captcha-audio
+**
+** Return a WAV file that pronounces the digits of the captcha that
+** is determined by the seed given in the name= query parameter.
+*/
+void captcha_wav_page(void){
+  const char *zSeed = P("name");
+  const char *zDecode = captcha_decode((unsigned int)atoi(zSeed));
+  Blob audio;
+  captcha_wav(zDecode, &audio);
+  cgi_set_content_type("audio/wav");
+  cgi_set_content(&audio);
+}
+
+/*
+** WEBPAGE: /test-captcha-audio
+**
+** Return a WAV file that pronounces the hex digits of the name=
+** query parameter.
+*/
+void captcha_test_wav_page(void){
+  const char *zSeed = P("name");
+  Blob audio;
+  captcha_wav(zSeed, &audio);
+  cgi_set_content_type("audio/wav");
+  cgi_set_content(&audio);
 }

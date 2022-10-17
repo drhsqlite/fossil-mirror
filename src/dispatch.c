@@ -24,16 +24,16 @@
 #include <assert.h>
 #include "dispatch.h"
 
-
 #if INTERFACE
 /*
 ** An instance of this object defines everything we need to know about an
-** individual command or webpage.
+** individual command, webpage, or setting.
 */
 struct CmdOrPage {
   const char *zName;       /* Name.  Webpages start with "/". Commands do not */
-  void (*xFunc)(void);     /* Function that implements the command or webpage */
+  void (*xFunc)(void);     /* Implementation function, or NULL for settings */
   const char *zHelp;       /* Raw help text */
+  int iHelp;               /* Index of help variable */
   unsigned int eCmdFlags;  /* Flags */
 };
 
@@ -41,16 +41,25 @@ struct CmdOrPage {
 ** These macros must match similar macros in mkindex.c
 ** Allowed values for CmdOrPage.eCmdFlags.
 */
-#define CMDFLAG_1ST_TIER  0x0001      /* Most important commands */
-#define CMDFLAG_2ND_TIER  0x0002      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST      0x0004      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE   0x0008      /* Web pages */
-#define CMDFLAG_COMMAND   0x0010      /* A command */
+#define CMDFLAG_1ST_TIER     0x0001     /* Most important commands */
+#define CMDFLAG_2ND_TIER     0x0002     /* Obscure and seldom used commands */
+#define CMDFLAG_TEST         0x0004     /* Commands for testing only */
+#define CMDFLAG_WEBPAGE      0x0008     /* Web pages */
+#define CMDFLAG_COMMAND      0x0010     /* A command */
+#define CMDFLAG_SETTING      0x0020     /* A setting */
+#define CMDFLAG_VERSIONABLE  0x0040     /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT    0x0080     /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN      0x0100     /* A boolean setting */
+#define CMDFLAG_RAWCONTENT   0x0200     /* Do not interpret POST content */
+/* NOTE:                     0x0400 = CMDFLAG_SENSITIVE in mkindex.c! */
+#define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
+#define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
+#define CMDFLAG_ALIAS        0x2000     /* Command aliases */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
-#define CMDFLAG_ANY       0x0018      /* Match anything */
-#define CMDFLAG_PREFIX    0x0020      /* Prefix match is ok */
+#define CMDFLAG_ANY         0x0038      /* Match anything */
+#define CMDFLAG_PREFIX      0x0200      /* Prefix match is ok */
 
 #endif /* INTERFACE */
 
@@ -72,14 +81,15 @@ struct CmdOrPage {
 */
 #include "page_index.h"
 #define MX_COMMAND count(aCommand)
+#define MX_HELP_DUP 5    /* Upper bound estimate on help string duplication */
 
 /*
-** Given a command or webpage name in zName, find the corresponding CmdOrPage
-** object and return a pointer to that object in *ppCmd.
+** Given a command, webpage, or setting name in zName, find the corresponding
+** CmdOrPage object and return a pointer to that object in *ppCmd.
 **
-** The eType field is CMDFLAG_COMMAND to lookup commands or CMDFLAG_WEBPAGE
-** to look up webpages or CMDFLAG_ANY to look for either.  If the CMDFLAG_PREFIX
-** flag is set, then a prefix match is allowed.
+** The eType field is CMDFLAG_COMMAND to look up commands, CMDFLAG_WEBPAGE to
+** look up webpages, CMDFLAG_SETTING to look up settings, or CMDFLAG_ANY to look
+** for any.  If the CMDFLAG_PREFIX bit is set, then a prefix match is allowed.
 **
 ** Return values:
 **    0:     Success.  *ppCmd is set to the appropriate CmdOrPage
@@ -100,6 +110,7 @@ int dispatch_name_search(
     mid = (upr+lwr)/2;
     c = strcmp(zName, aCommand[mid].zName);
     if( c==0 ){
+      if( (aCommand[mid].eCmdFlags & eType)==0 ) return 1;
       *ppCmd = &aCommand[mid];
       return 0;  /* An exact match */
     }else if( c<0 ){
@@ -112,10 +123,22 @@ int dispatch_name_search(
    && lwr<MX_COMMAND
    && strncmp(zName, aCommand[lwr].zName, nName)==0
   ){
-    if( lwr<MX_COMMAND-1 && strncmp(zName, aCommand[lwr+1].zName, nName)==0 ){
-      return 2;  /* Ambiguous prefix */
-    }else{
-      *ppCmd = &aCommand[lwr];
+    /* An inexact prefix match was found.  Scan the name table to try to find
+     * exactly one entry with this prefix and the requested type. */
+    for( mid=-1; lwr<MX_COMMAND
+              && strncmp(zName, aCommand[lwr].zName, nName)==0; ++lwr ){
+      if( aCommand[lwr].eCmdFlags & eType ){
+        if( mid<0 ){
+          mid = lwr;  /* Potential ambiguous prefix */
+        }else{
+          if( aCommand[lwr].xFunc != aCommand[mid].xFunc ){
+            return 2;  /* Confirmed ambiguous prefix */
+          }
+        }
+      }
+    }
+    if( mid>=0 ){
+      *ppCmd = &aCommand[mid];
       return 0;  /* Prefix match */
     }
   }
@@ -123,15 +146,202 @@ int dispatch_name_search(
 }
 
 /*
-** Fill Blob with a space-separated list of all command names that
-** match the prefix zPrefix.
+** zName is the name of a webpage (eType==CMDFLAGS_WEBPAGE) that does not
+** exist in the dispatch table.  Check to see if this webpage name exists
+** as an alias in the CONFIG table of the repository.  If it is, then make
+** appropriate changes to the CGI environment and set *ppCmd to point to the
+** aliased command.
+**
+** Return 0 if the command is successfully aliased.  Return 1 if there
+** is not alias for zName.  Any kind of error in the alias value causes a
+** error to be thrown.
+**
+** Alias entries in the CONFIG table have a "name" value of "walias:NAME"
+** where NAME is the input page name.  The value is a string of the form
+** "NEWNAME?QUERYPARAMS".  The ?QUERYPARAMS is optional.  If present (and it
+** usually is), then all query parameters are added to the CGI environment.
+** Except, query parameters of the form "X!" cause any CGI X variable to be
+** removed.
 */
-void dispatch_matching_names(const char *zPrefix, Blob *pList){
+int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
+  char *z;
+  char *zQ;
+  int i;
+
+  z = db_text(0, "SELECT value FROM config WHERE name='walias:%q'",zName);
+  if( z==0 ) return 1;
+  for(i=0; z[i] && z[i]!='?'; i++){}
+  if( z[i]=='?' ){
+    z[i] = 0;
+    zQ = &z[i+1];
+  }else{
+    zQ = &z[i];
+  }
+  if( dispatch_name_search(z, CMDFLAG_WEBPAGE, ppCmd) ){
+    fossil_fatal("\"%s\" aliased to \"%s\" but \"%s\" does not exist",
+                 zName, z, z);
+  }
+  z = zQ;
+  while( *z ){
+    char *zName = z;
+    char *zValue = 0;
+    while( *z && *z!='=' && *z!='&' && *z!='!' ){ z++; }
+    if( *z=='=' ){
+      *z = 0;
+      z++;
+      zValue = z;
+      while( *z && *z!='&' ){ z++; }
+      if( *z ){
+        *z = 0;
+        z++;
+      }
+      dehttpize(zValue);
+    }else if( *z=='!' ){
+      *(z++) = 0;
+      cgi_delete_query_parameter(zName);
+      zName = "";
+    }else{
+      if( *z ){ *z++ = 0; }
+      zValue = "";
+    }
+    if( fossil_islower(zName[0]) ){
+      cgi_replace_query_parameter(zName, zValue);
+    }else if( fossil_isupper(zName[0]) ){
+      cgi_replace_query_parameter_tolower(zName, zValue);
+    }
+  }
+  return 0;
+}
+
+/*
+** Fill Blob with a space-separated list of all command names that
+** match the prefix zPrefix and the eType CMDFLAGS_ bits.
+*/
+void dispatch_matching_names(
+  const char *zPrefix,        /* name prefix */
+  unsigned eType,             /* CMDFLAG_ bits */
+  Blob *pList                 /* space-separated list of command names */
+){
   int i;
   int nPrefix = (int)strlen(zPrefix);
   for(i=FOSSIL_FIRST_CMD; i<MX_COMMAND; i++){
+    if( (aCommand[i].eCmdFlags & eType)==0 ) continue;
     if( strncmp(zPrefix, aCommand[i].zName, nPrefix)==0 ){
       blob_appendf(pList, " %s", aCommand[i].zName);
+    }
+  }
+}
+
+/*
+** Return the index of the first non-space character that follows
+** a span of two or more spaces.  Return 0 if there is not gap.
+*/
+static int hasGap(const char *z, int n){
+  int i;
+  for(i=3; i<n-1; i++){
+    if( z[i]==' ' && z[i+1]!=' ' && z[i-1]==' ' && z[i-2]!='.' ) return i+1;
+  }
+  return 0 ;
+}
+
+/*
+** Input string zIn starts with '['.  If the content is a hyperlink of the
+** form [[...]] then return the index of the closing ']'.  Otherwise return 0.
+*/
+static int help_is_link(const char *z, int n){
+  int i;
+  char c;
+  if( n<5 ) return 0;
+  if( z[1]!='[' ) return 0;
+  for(i=3; i<n && (c = z[i])!=0; i++){
+    if( c==']' && z[i-1]==']' ) return i;
+  }
+  return 0;
+}
+
+/*
+** Append text to pOut with changes:
+**
+**    *   Add hyperlink markup for [[...]]
+**    *   Escape HTML characters: < > & and "
+**    *   Change "%fossil" to just "fossil"
+*/
+static void appendLinked(Blob *pOut, const char *z, int n){
+  int i = 0;
+  int j;
+  while( i<n ){
+    char c = z[i];
+    if( c=='[' && (j = help_is_link(z+i, n-i))>0 ){
+      if( i ) blob_append(pOut, z, i);
+      z += i+2;
+      n -= i+2;
+      blob_appendf(pOut, "<a href='%R/help?cmd=%.*s'>%.*s</a>",
+         j-3, z, j-3, z);
+      z += j-1;
+      n -= j-1;
+      i = 0;
+    }else if( c=='%' && n-i>=7 && strncmp(z+i,"%fossil",7)==0 ){
+      if( i ) blob_append(pOut, z, i);
+      z += i+7;
+      n -= i+7;
+      blob_append(pOut, "fossil", 6);
+      i = 0;
+    }else if( c=='<' ){
+      if( i ) blob_append(pOut, z, i);
+      blob_append(pOut, "&lt;", 4);
+      z += i+1;
+      n -= i+1;
+      i = 0;
+    }else if( c=='>' ){
+      if( i ) blob_append(pOut, z, i);
+      blob_append(pOut, "&gt;", 4);
+      z += i+1;
+      n -= i+1;
+      i = 0;
+    }else if( c=='&' ){
+      if( i ) blob_append(pOut, z, i);
+      blob_append(pOut, "&amp;", 5);
+      z += i+1;
+      n -= i+1;
+      i = 0;
+    }else{
+      i++;
+    }
+  }
+  blob_append(pOut, z, i);
+}
+
+/*
+** Append text to pOut, adding formatting markup.  Terms that
+** have all lower-case letters are within <tt>..</tt>.  Terms
+** that have all upper-case letters are within <i>..</i>.
+*/
+static void appendMixedFont(Blob *pOut, const char *z, int n){
+  const char *zEnd = "";
+  int i = 0;
+  int j;
+  while( i<n ){
+    if( z[i]==' ' || z[i]=='=' ){
+      for(j=i+1; j<n && (z[j]==' ' || z[j]=='='); j++){}
+      appendLinked(pOut, z+i, j-i);
+      i = j;
+    }else{
+      for(j=i; j<n && z[j]!=' ' && z[j]!='=' && !fossil_isalpha(z[j]); j++){}
+      if( j>=n || z[j]==' ' || z[j]=='=' ){
+        zEnd = "";
+      }else{
+        if( fossil_isupper(z[j]) && z[i]!='-' ){
+          blob_append(pOut, "<i>",3);
+          zEnd = "</i>";
+        }else{
+          blob_append(pOut, "<tt>", 4);
+          zEnd = "</tt>";
+        }
+      }
+      while( j<n && z[j]!=' ' && z[j]!='=' ){ j++; }
+      appendLinked(pOut, z+i, j-i);
+      if( zEnd[0] ) blob_append(pOut, zEnd, -1);
+      i = j;
     }
   }
 }
@@ -141,25 +351,269 @@ void dispatch_matching_names(const char *zPrefix, Blob *pList){
 **
 ** The HTML output is appended to Blob pHtml, which should already be
 ** initialized.
+**
+** Formatting rules:
+**
+**   *  Bullet lists are indented from the surrounding text by
+**      at least one space.  Each bullet begins with " * ".
+**
+**   *  Display lists are indented from the surrounding text.
+**      Each tag begins with "-" or occur on a line that is
+**      followed by two spaces and a non-space.  <dd> elements can begin
+**      on the same line as long as they are separated by at least
+**      two spaces.
+**
+**   *  Indented text is show verbatim (<pre>...</pre>)
+**
+**   *  Lines that begin with "|" at the left margin are in <pre>...</pre>
 */
 static void help_to_html(const char *zHelp, Blob *pHtml){
-  char *s;
-  char *d;
-  char *z;
+  int i;
+  char c;
+  int nIndent = 0;
+  int wantP = 0;
+  int wantBR = 0;
+  int aIndent[10];
+  const char *azEnd[10];
+  int iLevel = 0;
+  int isLI = 0;
+  int isDT = 0;
+  int inPRE = 0;
+  static const char *zEndDL = "</dl></blockquote>";
+  static const char *zEndPRE = "</pre></blockquote>";
+  static const char *zEndUL = "</ul>";
+  static const char *zEndDD = "</dd>";
 
-  /* Transform "%fossil" into just "fossil" */
-  z = s = d = mprintf("%s", zHelp);
-  while( *s ){
-    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
-      s++;
+  aIndent[0] = 0;
+  azEnd[0] = "";
+  while( zHelp[0] ){
+    i = 0;
+    while( (c = zHelp[i])!=0 && c!='\n' ){
+      if( c=='%' && i>2 && zHelp[i-2]==':' && strncmp(zHelp+i,"%fossil",7)==0 ){
+        appendLinked(pHtml, zHelp, i);
+        zHelp += i+1;
+        i = 0;
+        wantBR = 1;
+        continue;
+      }
+      i++;
+    }
+    if( i>2 && (zHelp[0]=='>' || zHelp[0]=='|') && zHelp[1]==' ' ){
+      if( zHelp[0]=='>' ){
+        isDT = 1;
+        for(nIndent=1; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+      }else{
+        if( !inPRE ){
+          blob_append(pHtml, "<pre>\n", -1);
+          inPRE = 1;
+        }
+      }
     }else{
-      *d++ = *s++;
+      if( inPRE ){
+        blob_append(pHtml, "</pre>\n", -1);
+        inPRE = 0;
+      }
+      isDT = 0;
+      for(nIndent=0; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    }
+    if( inPRE ){
+      blob_append(pHtml, zHelp+1, i);
+      zHelp += i + 1;
+      continue;
+    }
+    if( nIndent==i ){
+      if( c==0 ) break;
+      if( iLevel && azEnd[iLevel]==zEndPRE ){
+        /* Skip the newline at the end of a <pre> */
+      }else{
+        blob_append_char(pHtml, '\n');
+      }
+      wantP = 1;
+      wantBR = 0;
+      zHelp += i+1;
+      continue;
+    }
+    if( nIndent+2<i && zHelp[nIndent]=='*' && zHelp[nIndent+1]==' ' ){
+      nIndent += 2;
+      while( nIndent<i && zHelp[nIndent]==' '){ nIndent++; }
+      isLI = 1;
+    }else{
+      isLI = 0;
+    }
+    while( iLevel>0 && aIndent[iLevel]>nIndent ){
+      blob_append(pHtml, azEnd[iLevel--], -1);
+    }
+    if( nIndent>aIndent[iLevel] ){
+      assert( iLevel<ArraySize(aIndent)-2 );
+      if( isLI ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndUL;
+        blob_append(pHtml, "<ul>\n", 5);
+      }else if( isDT 
+             || zHelp[nIndent]=='-'
+             || hasGap(zHelp+nIndent,i-nIndent) ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndDL;
+        blob_append(pHtml, "<blockquote><dl>\n", -1);
+      }else if( azEnd[iLevel]==zEndDL ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndDD;
+        blob_append(pHtml, "<dd>", 4);
+      }else if( wantP ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndPRE;
+        blob_append(pHtml, "<blockquote><pre>", -1);
+        wantP = 0;
+      }
+    }
+    if( isLI ){
+      blob_append(pHtml, "<li> ", 5);
+    }
+    if( wantP ){
+      blob_append(pHtml, "<p> ", 4);
+      wantP = 0;
+    }
+    if( azEnd[iLevel]==zEndDL ){
+      int iDD;
+      blob_append(pHtml, "<dt> ", 5);
+      iDD = hasGap(zHelp+nIndent, i-nIndent);
+      if( iDD ){
+        int x;
+        assert( iLevel<ArraySize(aIndent)-1 );
+        iLevel++;
+        aIndent[iLevel] = x = nIndent+iDD;
+        azEnd[iLevel] = zEndDD;
+        appendMixedFont(pHtml, zHelp+nIndent, iDD-2);
+        blob_append(pHtml, "</dt><dd>",9);
+        appendLinked(pHtml, zHelp+x, i-x);
+      }else{
+        appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
+      }
+      blob_append(pHtml, "</dt>\n", 6);
+    }else if( wantBR ){
+      appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
+      blob_append(pHtml, "<br>\n", 5);
+      wantBR = 0;
+    }else{
+      appendLinked(pHtml, zHelp+nIndent, i-nIndent);
+      blob_append_char(pHtml, '\n');
+    }
+    zHelp += i+1;
+    i = 0;
+    if( c==0 ) break;
+  }
+  while( iLevel>0 ){
+    blob_appendf(pHtml, "%s\n", azEnd[iLevel--]);
+  }
+}
+
+/*
+** Format help text for TTY display.
+*/
+static void help_to_text(const char *zHelp, Blob *pText){
+  int i, x;
+  char c;
+  for(i=0; (c = zHelp[i])!=0; i++){
+    if( c=='%' && strncmp(zHelp+i,"%fossil",7)==0 ){
+      if( i>0 ) blob_append(pText, zHelp, i);
+      blob_append(pText, "fossil", 6);
+      zHelp += i+7;
+      i = -1;
+      continue;
+    }
+    if( c=='\n' && (zHelp[i+1]=='>' || zHelp[i+1]=='|') && zHelp[i+2]==' ' ){
+      blob_append(pText, zHelp, i+1);
+      blob_append(pText, " ", 1);
+      zHelp += i+2;
+      i = -1;
+      continue;
+    }
+    if( c=='[' && (x = help_is_link(zHelp+i, 100000))!=0 ){
+      if( i>0 ) blob_append(pText, zHelp, i);
+      zHelp += i+2;
+      blob_append(pText, zHelp, x-3);
+      zHelp += x-1;
+      i = -1;
+      continue;
+    }     
+  }
+  if( i>0 ){
+    blob_append(pText, zHelp, i);
+  }      
+}
+
+/*
+** Display help for all commands based on provided flags.
+*/
+static void display_all_help(int mask, int useHtml, int rawOut){
+  int i;
+  unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help string occurrences */
+  int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {0};/* Help strings -> commands*/
+  if( useHtml ) fossil_print("<!--\n");
+  fossil_print("Help text for:\n");
+  if( mask & CMDFLAG_1ST_TIER ) fossil_print(" * Commands\n");
+  if( mask & CMDFLAG_2ND_TIER ) fossil_print(" * Auxiliary commands\n");
+  if( mask & CMDFLAG_ALIAS )    fossil_print(" * Aliases\n");
+  if( mask & CMDFLAG_TEST )     fossil_print(" * Test commands\n");
+  if( mask & CMDFLAG_WEBPAGE )  fossil_print(" * Web pages\n");
+  if( mask & CMDFLAG_SETTING )  fossil_print(" * Settings\n");
+  if( useHtml ){
+    fossil_print("-->\n");
+    fossil_print("<!-- start_all_help -->\n");
+  }else{
+    fossil_print("---\n");
+  }
+  /* Fill in help string buckets */
+  for(i=0; i<MX_COMMAND; i++){
+    if( (aCommand[i].eCmdFlags & mask)==0 ) continue;
+    else if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
+    bktHelp[aCommand[i].iHelp][occHelp[aCommand[i].iHelp]++] = i;
+  }
+  for(i=0; i<MX_COMMAND; i++){
+    if( (aCommand[i].eCmdFlags & mask)==0 ) continue;
+    else if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
+    if( occHelp[aCommand[i].iHelp] > 0 ){
+      int j;
+      if( useHtml ){
+        Blob html;
+        blob_init(&html, 0, 0);
+        help_to_html(aCommand[i].zHelp, &html);
+        for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
+          fossil_print("<h1>%h</h1>\n",
+                       aCommand[bktHelp[aCommand[i].iHelp][j]].zName);
+        }
+        fossil_print("%s\n<hr>\n", blob_str(&html));
+        blob_reset(&html);
+      }else if( rawOut ){
+        for(j=0; j<occHelp[aCommand[i].iHelp]; j++)
+          fossil_print("# %s\n", aCommand[bktHelp[aCommand[i].iHelp][j]].zName);
+        fossil_print("%s\n\n", aCommand[i].zHelp);
+      }else{
+          Blob txt;
+          blob_init(&txt, 0, 0);
+          help_to_text(aCommand[i].zHelp, &txt);
+          for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
+            fossil_print("# %s%s\n",
+              aCommand[bktHelp[aCommand[i].iHelp][j]].zName,
+              (aCommand[i].eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ?
+              " (versionable)" : "");
+          }
+          fossil_print("%s\n\n", blob_str(&txt));
+          blob_reset(&txt);
+      }
+      occHelp[aCommand[i].iHelp] = 0;
     }
   }
-  *d = 0;
-
-  blob_appendf(pHtml, "<pre>\n%h\n</pre>\n", z);
-  fossil_free(z);
+  if( useHtml ){
+    fossil_print("<!-- end_all_help -->\n");
+  }else{
+    fossil_print("---\n");
+  }
+  version_cmd();
 }
 
 /*
@@ -172,56 +626,172 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 ** web pages, or --everything to see both commands and pages.
 **
 ** Options:
-**    -e|--everything   Show all commands and pages.
-**    -t|--test         Include test- commands
-**    -w|--www          Show WWW pages.
+**    -a|--aliases      Show aliases.
+**    -e|--everything   Show all commands and pages.  Omit aliases to 
+**                      avoid duplicates.
 **    -h|--html         Transform output to HTML.
+**    -o|--options      Show global options.
+**    -r|--raw          No output formatting.
+**    -s|--settings     Show settings.
+**    -t|--test         Include test- commands.
+**    -w|--www          Show WWW pages.
 */
 void test_all_help_cmd(void){
-  int i;
   int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
   int useHtml = find_option("html","h",0)!=0;
+  int rawOut = find_option("raw","r",0)!=0;
 
   if( find_option("www","w",0) ){
     mask = CMDFLAG_WEBPAGE;
   }
   if( find_option("everything","e",0) ){
-    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE;
+    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE |
+              CMDFLAG_ALIAS | CMDFLAG_SETTING | CMDFLAG_TEST;
   }
+  if( find_option("settings","s",0) ){
+    mask = CMDFLAG_SETTING;
+  }
+  if( find_option("aliases","a",0) ){
+    mask = CMDFLAG_ALIAS;
+  }  
   if( find_option("test","t",0) ){
     mask |= CMDFLAG_TEST;
   }
-  if( useHtml ) fossil_print("<!--\n");
-  fossil_print("Help text for:\n");
-  if( mask & CMDFLAG_1ST_TIER ) fossil_print(" * Commands\n");
-  if( mask & CMDFLAG_2ND_TIER ) fossil_print(" * Auxiliary commands\n");
-  if( mask & CMDFLAG_TEST )     fossil_print(" * Test commands\n");
-  if( mask & CMDFLAG_WEBPAGE )  fossil_print(" * Web pages\n");
-  if( useHtml ){
-    fossil_print("-->\n");
-    fossil_print("<!-- start_all_help -->\n");
-  }else{
-    fossil_print("---\n");
-  }
+  display_all_help(mask, useHtml, rawOut);
+}
+
+/*
+** Count the number of entries in the aCommand[] table that match
+** the given flag.
+*/
+static int countCmds(unsigned int eFlg){
+  int n = 0;
+  int i;
   for(i=0; i<MX_COMMAND; i++){
-    if( (aCommand[i].eCmdFlags & mask)==0 ) continue;
-    fossil_print("# %s\n", aCommand[i].zName);
-    if( useHtml ){
-      Blob html;
-      blob_zero(&html);
-      help_to_html(aCommand[i].zHelp, &html);
-      fossil_print("%s\n\n", blob_str(&html));
-      blob_reset(&html);
-    }else{
-      fossil_print("%s\n\n", aCommand[i].zHelp);
+    if( (aCommand[i].eCmdFlags & eFlg)!=0 ) n++;
+  }
+  return n;
+}
+
+/*
+** COMMAND: test-command-stats
+**
+** Print statistics about the built-in command dispatch table.
+*/
+void test_command_stats_cmd(void){
+  fossil_print("commands:       %4d\n",
+     countCmds( CMDFLAG_COMMAND ));
+  fossil_print("  1st tier         %4d\n",
+     countCmds( CMDFLAG_1ST_TIER ));
+  fossil_print("  2nd tier         %4d\n",
+     countCmds( CMDFLAG_2ND_TIER ));
+  fossil_print("  alias            %4d\n",
+     countCmds( CMDFLAG_ALIAS ));
+  fossil_print("  test             %4d\n",
+     countCmds( CMDFLAG_TEST ));
+  fossil_print("web-pages:      %4d\n",
+     countCmds( CMDFLAG_WEBPAGE ));
+  fossil_print("settings:       %4d\n",
+     countCmds( CMDFLAG_SETTING ));
+  fossil_print("total entries:  %4d\n", MX_COMMAND);
+}
+
+/*
+** Compute an estimate of the edit-distance between to input strings.
+**
+** The first string is the input.  The second is the pattern.  Only the
+** first 100 characters of the pattern are considered.
+*/
+static int edit_distance(const char *zA, const char *zB){
+  int nA = (int)strlen(zA);
+  int nB = (int)strlen(zB);
+  int i, j, m;
+  int p0, p1, c0;
+  int a[100];
+  static const int incr = 4;
+
+  for(j=0; j<nB; j++) a[j] = 1;
+  for(i=0; i<nA; i++){
+    p0 = i==0 ? 0 : i*incr-1;
+    c0 = i*incr;
+    for(j=0; j<nB; j++){
+      int m = 999;
+      p1 = a[j];
+      if( zA[i]==zB[j] ){
+        m = p0;
+      }else{
+        m = c0+2;
+        if( m>p1+2 ) m = p1+2;
+        if( m>p0+3 ) m = p0+3;
+      }
+      c0 = a[j];
+      a[j] = m;
+      p0 = p1;
     }
   }
-  if( useHtml ){
-    fossil_print("<!-- end_all_help -->\n");
-  }else{
-    fossil_print("---\n");
+  m = a[nB-1];
+  for(j=0; j<nB-1; j++){
+    if( a[j]+1<m ) m = a[j]+1;
   }
-  version_cmd();
+  return m;
+}
+
+/*
+** Fill the pointer array with names of commands that approximately
+** match the input.  Return the number of approximate matches.
+**
+** Closest matches appear first.
+*/
+int dispatch_approx_match(const char *zIn, int nArray, const char **azArray){
+  int i;
+  int bestScore;
+  int m;
+  int n = 0;
+  int mnScore = 0;
+  int mxScore = 99999;
+  int iFirst, iLast;
+
+  if( zIn[0]=='/' ){
+    iFirst = 0;
+    iLast = FOSSIL_FIRST_CMD-1;
+  }else{
+    iFirst = FOSSIL_FIRST_CMD;
+    iLast = MX_COMMAND-1;
+  }
+
+  while( n<nArray ){
+    bestScore = mxScore;    
+    for(i=iFirst; i<=iLast; i++){
+      m = edit_distance(zIn, aCommand[i].zName);
+      if( m<mnScore ) continue;
+      if( m==mnScore ){
+        azArray[n++] = aCommand[i].zName;
+        if( n>=nArray ) return n;
+       }else if( m<bestScore ){
+        bestScore = m;
+      }
+    }
+    if( bestScore>=mxScore ) break;
+    mnScore = bestScore;
+  }
+  return n;
+}
+
+/*
+** COMMAND: test-approx-match
+**
+** Test the approximate match algorithm
+*/
+void test_approx_match_command(void){
+  int i, j, n;
+  const char *az[20];
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s:\n", g.argv[i]);
+    n = dispatch_approx_match(g.argv[i], 20, az);
+    for(j=0; j<n; j++){
+      fossil_print("   %s\n", az[j]);
+    }
+  }
 }
 
 /*
@@ -229,7 +799,17 @@ void test_all_help_cmd(void){
 ** URL: /help?name=CMD
 **
 ** Show the built-in help text for CMD.  CMD can be a command-line interface
-** command or a page name from the web interface.
+** command or a page name from the web interface or a setting.
+** Query parameters:
+**
+**    name=CMD        Show help for CMD where CMD is a command name or
+**                    webpage name or setting name.
+**
+**    plaintext       Show the help within <pre>...</pre>, as if it were
+**                    displayed using the "fossil help" command.
+**
+**    raw             Show the raw help text without any formatting.
+**                    (Used for debugging.)
 */
 void help_page(void){
   const char *zCmd = P("cmd");
@@ -239,125 +819,145 @@ void help_page(void){
     int rc;
     const CmdOrPage *pCmd = 0;
 
+  style_set_current_feature("tkt");
     style_header("Help: %s", zCmd);
 
-    style_submenu_element("Command-List", "%s/help", g.zTop);
+    style_submenu_element("Command-List", "%R/help");
+    rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
-      @ <h1>The "%s(zCmd)" page:</h1>
+      @ <h1>The "%h(zCmd)" page:</h1>
+    }else if( rc==0 && (pCmd->eCmdFlags & CMDFLAG_SETTING)!=0 ){
+      @ <h1>The "%h(pCmd->zName)" setting:</h1>
     }else{
-      @ <h1>The "%s(zCmd)" command:</h1>
+      @ <h1>The "%h(zCmd)" command:</h1>
     }
-    rc = dispatch_name_search(zCmd, CMDFLAG_ANY, &pCmd);
     if( rc==1 ){
-      @ unknown command: %s(zCmd)
+      @ unknown command: %h(zCmd)
     }else if( rc==2 ){
-      @ ambiguous command prefix: %s(zCmd)
+      @ ambiguous command prefix: %h(zCmd)
     }else{
       if( pCmd->zHelp[0]==0 ){
-        @ no help available for the %s(pCmd->zName) command
+        @ No help available for "%h(pCmd->zName)"
+      }else if( P("plaintext") ){
+        Blob txt;
+        blob_init(&txt, 0, 0);
+        help_to_text(pCmd->zHelp, &txt);
+        @ <pre class="helpPage">
+        @ %h(blob_str(&txt))
+        @ </pre>
+        blob_reset(&txt);
+      }else if( P("raw") ){
+        @ <pre class="helpPage">
+        @ %h(pCmd->zHelp)
+        @ </pre>
       }else{
-        @ <blockquote>
+        @ <div class="helpPage">
         help_to_html(pCmd->zHelp, cgi_output_blob());
-        @ </blockquote>
+        @ </div>
       }
     }
   }else{
-    int i, j, n;
-
+    int i;
+    unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help str occurrences */
+    int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {0};/* Help str -> commands */
     style_header("Help");
 
+    @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
-    @ <table border="0"><tr>
-    for(i=j=0; i<MX_COMMAND; i++){
-      const char *z = aCommand[i].zName;
-      if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
-      j++;
+    @ <div class="columns" style="column-width: 12ex;">
+    @ <ul>
+    /* Fill in help string buckets */
+    for(i=0; i<MX_COMMAND; i++){
+      if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
+      bktHelp[aCommand[i].iHelp][occHelp[aCommand[i].iHelp]++] = i;
     }
-    n = (j+5)/6;
-    for(i=j=0; i<MX_COMMAND; i++){
+    for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       const char *zBoldOn  = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"<b>" :"";
       const char *zBoldOff = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"</b>":"";
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
-      if( j==0 ){
-        @ <td valign="top"><ul>
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_ALIAS)!=0 ) continue;
+      @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a>
+      /* Output aliases */
+      if( occHelp[aCommand[i].iHelp] > 1 ){
+        int j;
+        int aliases[MX_HELP_DUP], nAliases=0;
+        for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
+          if( bktHelp[aCommand[i].iHelp][j] != i ){
+            if( aCommand[bktHelp[aCommand[i].iHelp][j]].eCmdFlags & CMDFLAG_ALIAS ){
+              aliases[nAliases++] = bktHelp[aCommand[i].iHelp][j];
+            }
+          }
+        }
+        if( nAliases>0 ){
+          int k;
+          @(\
+          for(k=0; k<nAliases; k++){
+            @<a href="%R/help?cmd=%s(aCommand[aliases[k]].zName)">\
+            @%s(aCommand[aliases[k]].zName)</a>%s((k<nAliases-1)?", ":"")\
+          }
+          @)\
+        }
       }
-      @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a></li>
-      j++;
-      if( j>=n ){
-        @ </ul></td>
-        j = 0;
-      }
+      @ </li>
     }
-    if( j>0 ){
-      @ </ul></td>
-    }
-    @ </tr></table>
 
+    @ </ul></div>
+
+    @ <a name='webpages'></a>
     @ <h1>Available web UI pages:</h1>
-    @ <table border="0"><tr>
-    for(i=j=0; i<MX_COMMAND; i++){
+    @ <div class="columns" style="column-width: 18ex;">
+    @ <ul>
+    for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( '/'!=*z ) continue;
-      j++;
-    }
-    n = (j+4)/5;
-    for(i=j=0; i<MX_COMMAND; i++){
-      const char *z = aCommand[i].zName;
-      if( '/'!=*z ) continue;
-      if( j==0 ){
-        @ <td valign="top"><ul>
-      }
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
       }
-      j++;
-      if( j>=n ){
-        @ </ul></td>
-        j = 0;
-      }
     }
-    if( j>0 ){
-      @ </ul></td>
-    }
-    @ </tr></table>
+    @ </ul></div>
 
+    @ <a name='unsupported'></a>
     @ <h1>Unsupported commands:</h1>
-    @ <table border="0"><tr>
-    for(i=j=0; i<MX_COMMAND; i++){
+    @ <div class="columns" style="column-width: 20ex;">
+    @ <ul>
+    for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( strncmp(z,"test",4)!=0 ) continue;
-      j++;
-    }
-    n = (j+3)/4;
-    for(i=j=0; i<MX_COMMAND; i++){
-      const char *z = aCommand[i].zName;
-      if( strncmp(z,"test",4)!=0 ) continue;
-      if( j==0 ){
-        @ <td valign="top"><ul>
-      }
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
-      j++;
-      if( j>=n ){
-        @ </ul></td>
-        j = 0;
+    }
+    @ </ul></div>
+
+    @ <a name='settings'></a>
+    @ <h1>Settings:</h1>
+    @ <div class="columns" style="column-width: 20ex;">
+    @ <ul>
+    for(i=0; i<MX_COMMAND; i++){
+      const char *z = aCommand[i].zName;
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
+      else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
+      if( aCommand[i].zHelp[0] ){
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
+      }else{
+        @ <li>%s(z)</li>
       }
     }
-    if( j>0 ){
-      @ </ul></td>
-    }
-    @ </tr></table>
+    @ </ul></div>
 
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -367,15 +967,82 @@ void help_page(void){
 */
 void test_all_help_page(void){
   int i;
+  unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help string occurrences */
+  int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {0};/* Help strings -> commands*/
+  Blob buf;
+  blob_init(&buf,0,0);
+  style_set_current_feature("test");
   style_header("All Help Text");
+  @ <dl>
+  /* Fill in help string buckets */
   for(i=0; i<MX_COMMAND; i++){
+    if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
+    bktHelp[aCommand[i].iHelp][occHelp[aCommand[i].iHelp]++] = i;
+  }  
+  for(i=0; i<MX_COMMAND; i++){
+    const char *zDesc;
+    unsigned int e = aCommand[i].eCmdFlags;
+    if( e & CMDFLAG_1ST_TIER ){
+      zDesc = "1st tier command";
+    }else if( e & CMDFLAG_2ND_TIER ){
+      zDesc = "2nd tier command";
+    }else if( e & CMDFLAG_ALIAS ){
+      zDesc = "alias";
+    }else if( e & CMDFLAG_TEST ){
+      zDesc = "test command";
+    }else if( e & CMDFLAG_WEBPAGE ){
+      if( e & CMDFLAG_RAWCONTENT ){
+        zDesc = "raw-content web page";
+      }else{
+        zDesc = "web page";
+      }
+    }else{
+      blob_reset(&buf);
+      if( e & CMDFLAG_VERSIONABLE ){
+        blob_appendf(&buf, "versionable ");
+      }
+      if( e & CMDFLAG_BLOCKTEXT ){
+        blob_appendf(&buf, "block-text ");
+      }
+      if( e & CMDFLAG_BOOLEAN ){
+        blob_appendf(&buf, "boolean ");
+      }
+      blob_appendf(&buf,"setting");
+      zDesc = blob_str(&buf);
+    }
     if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
-    @ <h2>%s(aCommand[i].zName):</h2>
-    @ <blockquote>
-    help_to_html(aCommand[i].zHelp, cgi_output_blob());
-    @ </blockquote>
+    if( occHelp[aCommand[i].iHelp] > 0 ){
+      int j;
+      for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
+        unsigned int e = aCommand[bktHelp[aCommand[i].iHelp][j]].eCmdFlags;
+        if( e & CMDFLAG_1ST_TIER ){
+          zDesc = "1st tier command";
+        }else if( e & CMDFLAG_2ND_TIER ){
+          zDesc = "2nd tier command";
+        }else if( e & CMDFLAG_ALIAS ){
+          zDesc = "alias";
+        }else if( e & CMDFLAG_TEST ){
+          zDesc = "test command";
+        }else if( e & CMDFLAG_WEBPAGE ){
+          if( e & CMDFLAG_RAWCONTENT ){
+            zDesc = "raw-content web page";
+          }else{
+            zDesc = "web page";
+          }
+        }
+        
+        @ <dt><big><b>%s(aCommand[bktHelp[aCommand[i].iHelp][j]].zName)</b>
+        @</big> (%s(zDesc))</dt>
+      }
+      @ <dd>
+      help_to_html(aCommand[i].zHelp, cgi_output_blob());
+      @ </dd>
+      occHelp[aCommand[i].iHelp] = 0;
+    }
   }
-  style_footer();
+  @ </dl>
+  blob_reset(&buf);
+  style_finish_page();
 }
 
 static void multi_column_list(const char **azWord, int nWord){
@@ -421,85 +1088,182 @@ void cmd_test_webpage_list(void){
 /*
 ** List of commands starting with zPrefix, or all commands if zPrefix is NULL.
 */
-static void command_list(const char *zPrefix, int cmdMask){
-  int i, nCmd;
-  int nPrefix = zPrefix ? strlen(zPrefix) : 0;
-  const char *aCmd[MX_COMMAND];
-  for(i=nCmd=0; i<MX_COMMAND; i++){
-    const char *z = aCommand[i].zName;
-    if( (aCommand[i].eCmdFlags & cmdMask)==0 ) continue;
-    if( zPrefix && memcmp(zPrefix, z, nPrefix)!=0 ) continue;
-    aCmd[nCmd++] = aCommand[i].zName;
+static void command_list(int cmdMask, int verboseFlag, int useHtml){
+  if( verboseFlag ){
+    display_all_help(cmdMask, useHtml, 0);
+  }else{
+    int i, nCmd;
+    const char *aCmd[MX_COMMAND];
+    for(i=nCmd=0; i<MX_COMMAND; i++){
+      if( (aCommand[i].eCmdFlags & cmdMask)==0 ) continue;
+      else if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
+      aCmd[nCmd++] = aCommand[i].zName;
+    }
+    multi_column_list(aCmd, nCmd);
   }
-  multi_column_list(aCmd, nCmd);
 }
+
+/*
+** Documentation on universal command-line options.
+*/
+/* @-comment: # */
+static const char zOptions[] =
+@ Command-line options common to all commands:
+@ 
+@   --args FILENAME         Read additional arguments and options from FILENAME
+@   --case-sensitive BOOL   Set case sensitivity for file names
+@   --cgitrace              Active CGI tracing
+@   --chdir PATH            Change to PATH before performing any operations 
+@   --comfmtflags VALUE     Set comment formatting flags to VALUE
+@   --comment-format VALUE  Alias for --comfmtflags
+@   --errorlog FILENAME     Log errors to FILENAME 
+@   --help                  Show help on the command rather than running it
+@   --httptrace             Trace outbound HTTP requests
+@   --localtime             Display times using the local timezone
+@   --nocgi                 Do not act as CGI
+@   --no-th-hook            Do not run TH1 hooks
+@   --quiet                 Reduce the amount of output
+@   --sqlstats              Show SQL usage statistics when done
+@   --sqltrace              Trace all SQL commands
+@   --sshtrace              Trace SSH activity
+@   --ssl-identity NAME     Set the SSL identity to NAME
+@   --systemtrace           Trace calls to system()
+@   -U|--user USER          Make the default user be USER
+@   --utc                   Display times using UTC
+@   --vfs NAME              Cause SQLite to use the NAME VFS
+;
 
 /*
 ** COMMAND: help
 **
-** Usage: %fossil help COMMAND
-**    or: %fossil COMMAND --help
+** Usage: %fossil help [OPTIONS] [TOPIC]
 **
-** Display information on how to use COMMAND.  To display a list of
-** available commands use one of:
+** Display information on how to use TOPIC, which may be a command, webpage, or
+** setting.  Webpage names begin with "/".  If TOPIC is omitted, a list of
+** topics is returned.
 **
-**    %fossil help              Show common commands
-**    %fossil help -a|--all     Show both common and auxiliary commands
-**    %fossil help -t|--test    Show test commands only
-**    %fossil help -x|--aux     Show auxiliary commands only
-**    %fossil help -w|--www     Show list of WWW pages
+** The following options can be used when TOPIC is omitted:
+**
+**    -a|--all          List both common and auxiliary commands
+**    -o|--options      List command-line options common to all commands
+**    -s|--setting      List setting names
+**    -t|--test         List unsupported "test" commands
+**    -v|--verbose      List both names and help text
+**    -x|--aux          List only auxiliary commands
+**    -w|--www          List all web pages
+**    -f|--full         List full set of commands (including auxiliary
+**                      and unsupported "test" commands), options,
+**                      settings, and web pages
+**    -e|--everything   List all help on all topics
+**
+** These options can be used when TOPIC is present:
+**
+**    -h|--html         Format output as HTML rather than plain text
+**    -c|--commands     Restrict TOPIC search to commands
 */
 void help_cmd(void){
   int rc;
+  int mask = CMDFLAG_ANY;
   int isPage = 0;
+  int verboseFlag = 0;
+  int commandsFlag = 0;
   const char *z;
   const char *zCmdOrPage;
-  const char *zCmdOrPagePlural;
   const CmdOrPage *pCmd = 0;
-  if( g.argc<3 ){
-    z = g.argv[0];
-    fossil_print(
-      "Usage: %s help COMMAND\n"
-      "Common COMMANDs:  (use \"%s help -a|--all\" for a complete list)\n",
-      z, z);
-    command_list(0, CMDFLAG_1ST_TIER);
-    version_cmd();
+  int useHtml = 0;
+  const char *zTopic;
+  Blob txt;
+  verboseFlag = find_option("verbose","v",0)!=0;
+  commandsFlag = find_option("commands","c",0)!=0;
+  useHtml = find_option("html","h",0)!=0;
+  if( find_option("options","o",0) ){
+    fossil_print("%s", zOptions);
     return;
   }
-  if( find_option("all","a",0) ){
-    command_list(0, CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER);
+  else if( find_option("all","a",0) ){
+    command_list(CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER, verboseFlag, useHtml);
     return;
   }
   else if( find_option("www","w",0) ){
-    command_list(0, CMDFLAG_WEBPAGE);
+    command_list(CMDFLAG_WEBPAGE, verboseFlag, useHtml);
     return;
   }
   else if( find_option("aux","x",0) ){
-    command_list(0, CMDFLAG_2ND_TIER);
+    command_list(CMDFLAG_2ND_TIER, verboseFlag, useHtml);
     return;
   }
   else if( find_option("test","t",0) ){
-    command_list(0, CMDFLAG_TEST);
+    command_list(CMDFLAG_TEST, verboseFlag, useHtml);
     return;
   }
-  isPage = ('/' == *g.argv[2]) ? 1 : 0;
+  else if( find_option("setting","s",0) ){
+    command_list(CMDFLAG_SETTING, verboseFlag, useHtml);
+    return;
+  }
+  else if( find_option("full","f",0) ){
+    fossil_print("fossil commands:\n\n");
+    command_list(CMDFLAG_1ST_TIER, verboseFlag, useHtml);
+    fossil_print("\nfossil auxiliary commands:\n\n");
+    command_list(CMDFLAG_2ND_TIER, verboseFlag, useHtml);
+    fossil_print("\n%s", zOptions);
+    fossil_print("\nfossil settings:\n\n");
+    command_list(CMDFLAG_SETTING, verboseFlag, useHtml);
+    fossil_print("\nfossil web pages:\n\n");
+    command_list(CMDFLAG_WEBPAGE, verboseFlag, useHtml);
+    fossil_print("\nfossil test commands (unsupported):\n\n");
+    command_list(CMDFLAG_TEST, verboseFlag, useHtml);
+    fossil_print("\n");
+    version_cmd();
+    return;
+  }
+  else if( find_option("everything","e",0) ){
+    display_all_help(CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE |
+                     CMDFLAG_SETTING | CMDFLAG_TEST, useHtml, 0);
+    return;
+  }
+  verify_all_options();
+  if( g.argc<3 ){
+    z = g.argv[0];
+    fossil_print(
+      "Usage: %s help TOPIC\n"
+      "Try \"%s help help\" or \"%s help -a\" for more options\n"
+      "Frequently used commands:\n",
+      z, z, z);
+    command_list(CMDFLAG_1ST_TIER,verboseFlag,useHtml);
+    if( !verboseFlag ) version_cmd();
+    return;
+  }
+  zTopic = g.argv[2];
+  isPage = ('/' == zTopic[0]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
-    zCmdOrPagePlural = "pages";
-  }else{
+  }else if( commandsFlag ){
+    mask = CMDFLAG_COMMAND;
     zCmdOrPage = "command";
-    zCmdOrPagePlural = "commands";
+  }else{
+    zCmdOrPage = "command or setting";
   }
-  rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
-  if( rc==1 ){
-    fossil_print("unknown %s: %s\nAvailable %s:\n",
-                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
-    command_list(0, isPage ? CMDFLAG_WEBPAGE : (0xff & ~CMDFLAG_WEBPAGE));
-    fossil_exit(1);
-  }else if( rc==2 ){
-    fossil_print("ambiguous %s prefix: %s\nMatching %s:\n",
-                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
-    command_list(g.argv[2], 0xff);
+  rc = dispatch_name_search(g.argv[2], mask|CMDFLAG_PREFIX, &pCmd);
+  if( rc ){
+    int i, n;
+    const char *az[5];
+    if( rc==1 ){
+      fossil_print("unknown %s: %s\n", zCmdOrPage, g.argv[2]);
+    }else{
+      fossil_print("ambiguous %s prefix: %s\n",
+                 zCmdOrPage, g.argv[2]);
+    }
+    fossil_print("Did you mean one of these TOPICs:\n");
+    n = dispatch_approx_match(g.argv[2], 5, az);
+    for(i=0; i<n; i++){
+      fossil_print("  *  %s\n", az[i]);
+    }
+    fossil_print("Also consider using:\n");
+    fossil_print("   fossil help TOPIC     ;# show help on TOPIC\n");
+    fossil_print("   fossil help -a        ;# show all commands\n");
+    fossil_print("   fossil help -w        ;# show all web-pages\n");
+    fossil_print("   fossil help -s        ;# show all settings\n");
+    fossil_print("   fossil help -o        ;# show global options\n");
     fossil_exit(1);
   }
   z = pCmd->zHelp;
@@ -507,14 +1271,273 @@ void help_cmd(void){
     fossil_fatal("no help available for the %s %s",
                  pCmd->zName, zCmdOrPage);
   }
-  while( *z ){
-    if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
-      fossil_print("%s", g.argv[0]);
-      z += 7;
-    }else{
-      putchar(*z);
-      z++;
+  if( pCmd->eCmdFlags & CMDFLAG_SETTING ){
+    fossil_print("Setting: \"%s\"%s\n\n",
+         pCmd->zName,
+         (pCmd->eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ? " (versionable)" : ""
+    );
+  }
+  blob_init(&txt, 0, 0);
+  if( useHtml ){
+    help_to_html(z, &txt);
+  }else{
+    help_to_text(z, &txt);
+  }
+  fossil_print("%s\n", blob_str(&txt));
+  blob_reset(&txt);
+}
+
+/*
+** Return a pointer to the setting information array.
+**
+** This routine provides access to the aSetting2[] array which is created
+** by the mkindex utility program and included with <page_index.h>.
+*/
+const Setting *setting_info(int *pnCount){
+  if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0])) - 1;
+  return aSetting;
+}
+
+/*****************************************************************************
+** A virtual table for accessing the information in aCommand[], and
+** especially the help-text
+*/
+
+/* helptextVtab_vtab is a subclass of sqlite3_vtab which is
+** underlying representation of the virtual table
+*/
+typedef struct helptextVtab_vtab helptextVtab_vtab;
+struct helptextVtab_vtab {
+  sqlite3_vtab base;  /* Base class - must be first */
+  /* Add new fields here, as necessary */
+};
+
+/* helptextVtab_cursor is a subclass of sqlite3_vtab_cursor which will
+** serve as the underlying representation of a cursor that scans
+** over rows of the result
+*/
+typedef struct helptextVtab_cursor helptextVtab_cursor;
+struct helptextVtab_cursor {
+  sqlite3_vtab_cursor base;  /* Base class - must be first */
+  /* Insert new fields here.  For this helptextVtab we only keep track
+  ** of the rowid */
+  sqlite3_int64 iRowid;      /* The rowid */
+};
+
+/*
+** The helptextVtabConnect() method is invoked to create a new
+** helptext virtual table.
+**
+** Think of this routine as the constructor for helptextVtab_vtab objects.
+**
+** All this routine needs to do is:
+**
+**    (1) Allocate the helptextVtab_vtab object and initialize all fields.
+**
+**    (2) Tell SQLite (via the sqlite3_declare_vtab() interface) what the
+**        result set of queries against the virtual table will look like.
+*/
+static int helptextVtabConnect(
+  sqlite3 *db,
+  void *pAux,
+  int argc, const char *const*argv,
+  sqlite3_vtab **ppVtab,
+  char **pzErr
+){
+  helptextVtab_vtab *pNew;
+  int rc;
+
+  rc = sqlite3_declare_vtab(db,
+           "CREATE TABLE x(name,type,flags,helptext,formatted,html)"
+       );
+  if( rc==SQLITE_OK ){
+    pNew = sqlite3_malloc( sizeof(*pNew) );
+    *ppVtab = (sqlite3_vtab*)pNew;
+    if( pNew==0 ) return SQLITE_NOMEM;
+    memset(pNew, 0, sizeof(*pNew));
+  }
+  return rc;
+}
+
+/*
+** This method is the destructor for helptextVtab_vtab objects.
+*/
+static int helptextVtabDisconnect(sqlite3_vtab *pVtab){
+  helptextVtab_vtab *p = (helptextVtab_vtab*)pVtab;
+  sqlite3_free(p);
+  return SQLITE_OK;
+}
+
+/*
+** Constructor for a new helptextVtab_cursor object.
+*/
+static int helptextVtabOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
+  helptextVtab_cursor *pCur;
+  pCur = sqlite3_malloc( sizeof(*pCur) );
+  if( pCur==0 ) return SQLITE_NOMEM;
+  memset(pCur, 0, sizeof(*pCur));
+  *ppCursor = &pCur->base;
+  return SQLITE_OK;
+}
+
+/*
+** Destructor for a helptextVtab_cursor.
+*/
+static int helptextVtabClose(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  sqlite3_free(pCur);
+  return SQLITE_OK;
+}
+
+
+/*
+** Advance a helptextVtab_cursor to its next row of output.
+*/
+static int helptextVtabNext(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  pCur->iRowid++;
+  return SQLITE_OK;
+}
+
+/*
+** Return values of columns for the row at which the helptextVtab_cursor
+** is currently pointing.
+*/
+static int helptextVtabColumn(
+  sqlite3_vtab_cursor *cur,   /* The cursor */
+  sqlite3_context *ctx,       /* First argument to sqlite3_result_...() */
+  int i                       /* Which column to return */
+){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  const CmdOrPage *pPage = aCommand + pCur->iRowid;
+  switch( i ){
+    case 0:  /* name */
+      sqlite3_result_text(ctx, pPage->zName, -1, SQLITE_STATIC);
+      break;
+    case 1: { /* type */
+      const char *zType = 0;
+      if( pPage->eCmdFlags & CMDFLAG_COMMAND ){
+        zType = "command";
+      }else if( pPage->eCmdFlags & CMDFLAG_WEBPAGE ){
+        zType = "webpage";
+      }else if( pPage->eCmdFlags & CMDFLAG_SETTING ){
+        zType = "setting";
+      }
+      sqlite3_result_text(ctx, zType, -1, SQLITE_STATIC);
+      break;
+    }
+    case 2:  /* flags */
+      sqlite3_result_int(ctx, pPage->eCmdFlags);
+      break;
+    case 3:  /* helptext */
+      sqlite3_result_text(ctx, pPage->zHelp, -1, SQLITE_STATIC);
+      break;
+    case 4: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_text(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
+    }
+    case 5: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_html(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
     }
   }
-  putchar('\n');
+  return SQLITE_OK;
 }
+
+/*
+** Return the rowid for the current row.  In this implementation, the
+** rowid is the same as the output value.
+*/
+static int helptextVtabRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  *pRowid = pCur->iRowid;
+  return SQLITE_OK;
+}
+
+/*
+** Return TRUE if the cursor has been moved off of the last
+** row of output.
+*/
+static int helptextVtabEof(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  return pCur->iRowid>=MX_COMMAND;
+}
+
+/*
+** This method is called to "rewind" the helptextVtab_cursor object back
+** to the first row of output.  This method is always called at least
+** once prior to any call to helptextVtabColumn() or helptextVtabRowid() or 
+** helptextVtabEof().
+*/
+static int helptextVtabFilter(
+  sqlite3_vtab_cursor *pVtabCursor, 
+  int idxNum, const char *idxStr,
+  int argc, sqlite3_value **argv
+){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor *)pVtabCursor;
+  pCur->iRowid = 1;
+  return SQLITE_OK;
+}
+
+/*
+** SQLite will invoke this method one or more times while planning a query
+** that uses the virtual table.  This routine needs to create
+** a query plan for each invocation and compute an estimated cost for that
+** plan.
+*/
+static int helptextVtabBestIndex(
+  sqlite3_vtab *tab,
+  sqlite3_index_info *pIdxInfo
+){
+  pIdxInfo->estimatedCost = (double)MX_COMMAND;
+  pIdxInfo->estimatedRows = MX_COMMAND;
+  return SQLITE_OK;
+}
+
+/*
+** This following structure defines all the methods for the 
+** virtual table.
+*/
+static sqlite3_module helptextVtabModule = {
+  /* iVersion    */ 0,
+  /* xCreate     */ 0,  /* Helptext is eponymous and read-only */
+  /* xConnect    */ helptextVtabConnect,
+  /* xBestIndex  */ helptextVtabBestIndex,
+  /* xDisconnect */ helptextVtabDisconnect,
+  /* xDestroy    */ 0,
+  /* xOpen       */ helptextVtabOpen,
+  /* xClose      */ helptextVtabClose,
+  /* xFilter     */ helptextVtabFilter,
+  /* xNext       */ helptextVtabNext,
+  /* xEof        */ helptextVtabEof,
+  /* xColumn     */ helptextVtabColumn,
+  /* xRowid      */ helptextVtabRowid,
+  /* xUpdate     */ 0,
+  /* xBegin      */ 0,
+  /* xSync       */ 0,
+  /* xCommit     */ 0,
+  /* xRollback   */ 0,
+  /* xFindMethod */ 0,
+  /* xRename     */ 0,
+  /* xSavepoint  */ 0,
+  /* xRelease    */ 0,
+  /* xRollbackTo */ 0,
+  /* xShadowName */ 0
+};
+
+
+/*
+** Register the helptext virtual table
+*/
+int helptext_vtab_register(sqlite3 *db){
+  int rc = sqlite3_create_module(db, "helptext", &helptextVtabModule, 0);
+  return rc;
+}
+/* End of the helptext virtual table
+******************************************************************************/

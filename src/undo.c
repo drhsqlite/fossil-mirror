@@ -54,17 +54,13 @@ static void undo_one(const char *zPathname, int redoFlag){
     int old_link;
     Blob current;
     Blob new;
-    zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
+    zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
     old_link = db_column_int(&q, 3);
-    new_exists = file_wd_size(zFullname)>=0;
-    new_link = file_wd_islink(0);
+    new_exists = file_size(zFullname, RepoFILE)>=0;
+    new_link = file_islink(0);
     if( new_exists ){
-      if( new_link ){
-        blob_read_link(&current, zFullname);
-      }else{
-        blob_read_from_file(&current, zFullname);
-      }
-      new_exe = file_wd_isexe(0);
+      blob_read_from_file(&current, zFullname, RepoFILE);
+      new_exe = file_isexe(0,0);
     }else{
       blob_zero(&current);
       new_exe = 0;
@@ -75,7 +71,9 @@ static void undo_one(const char *zPathname, int redoFlag){
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
-    if( old_exists ){
+    if( file_unsafe_in_tree_path(zFullname) ){
+      /* do nothign with this unsafe file */
+    }else if( old_exists ){
       if( new_exists ){
         fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
@@ -89,7 +87,7 @@ static void undo_one(const char *zPathname, int redoFlag){
       }else{
         blob_write_to_file(&new, zFullname);
       }
-      file_wd_setexe(zFullname, old_exe);
+      file_setexe(zFullname, old_exe);
     }else{
       fossil_print("DELETE %s\n", zPathname);
       file_delete(zFullname);
@@ -170,7 +168,7 @@ static void undo_all(int redoFlag){
   ncid = db_lget_int("undo_checkout", 0);
   ucid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", ucid);
-  db_lset_int("checkout", ncid);
+  db_set_checkout(ncid);
 }
 
 /*
@@ -184,7 +182,7 @@ void undo_reset(void){
     @ DROP TABLE IF EXISTS undo_stash;
     @ DROP TABLE IF EXISTS undo_stashfile;
     ;
-  db_multi_exec(zSql /*works-like:""*/);
+  db_exec_sql(zSql);
   db_lset_int("undo_available", 0);
   db_lset_int("undo_checkout", 0);
 }
@@ -241,7 +239,7 @@ void undo_begin(void){
   ;
   if( undoDisable ) return;
   undo_reset();
-  db_multi_exec(zSql/*works-like:""*/);
+  db_exec_sql(zSql);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
@@ -273,7 +271,7 @@ static int undoNeedRollback = 0;
 void undo_save(const char *zPathname){
   if( undoDisable ) return;
   if( undo_maybe_save(zPathname, -1)!=UNDO_SAVED_OK ){
-    fossil_panic("failed to save undo information for path: %s",
+    fossil_fatal("failed to save undo information for path: %s",
                  zPathname);
   }
 }
@@ -319,24 +317,20 @@ int undo_maybe_save(const char *zPathname, i64 limit){
   if( undoDisable ) return UNDO_DISABLED;
   if( !undoActive ) return UNDO_INACTIVE;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
-  size = file_wd_size(zFullname);
+  size = file_size(zFullname, RepoFILE);
   if( limit<0 || size<=limit ){
     int existsFlag = (size>=0);
-    int isLink = file_wd_islink(zFullname);
+    int isLink = file_islink(zFullname);
     Stmt q;
     Blob content;
     db_prepare(&q,
       "INSERT OR IGNORE INTO"
       "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
       " VALUES(%Q,0,%d,%d,%d,:c)",
-      zPathname, existsFlag, file_wd_isexe(zFullname), isLink
+      zPathname, existsFlag, file_isexe(zFullname,RepoFILE), isLink
     );
     if( existsFlag ){
-      if( isLink ){
-        blob_read_link(&content, zFullname);
-      }else{
-        blob_read_from_file(&content, zFullname);
-      }
+      blob_read_from_file(&content, zFullname, RepoFILE);
       db_bind_blob(&q, ":c", &content);
     }
     db_step(&q);
@@ -433,16 +427,20 @@ void undo_rollback(void){
 ** Usage: %fossil undo ?OPTIONS? ?FILENAME...?
 **    or: %fossil redo ?OPTIONS? ?FILENAME...?
 **
-** Undo the changes to the working checkout caused by the most recent
-** of the following operations:
+** The undo command reverts the changes caused by the previous command
+** if the previous command is one of the following:
+**  * fossil update
+**  * fossil merge
+**  * fossil revert
+**  * fossil stash pop
+**  * fossil stash apply
+**  * fossil stash drop
+**  * fossil stash goto
+**  * fossil clean (*see note below*)
 **
-**    (1) fossil update             (5) fossil stash apply
-**    (2) fossil merge              (6) fossil stash drop
-**    (3) fossil revert             (7) fossil stash goto
-**    (4) fossil stash pop
-**
-** The "fossil clean" operation can also be undone; however, this is
-** currently limited to files that are less than 10MiB in size.
+** Note: The "fossil clean" command only saves state for files less than
+** 10MiB in size and so if fossil clean deleted files larger than that,
+** then "fossil undo" will not recover the larger files.
 **
 ** If FILENAME is specified then restore the content of the named
 ** file(s) but otherwise leave the update or merge or revert in effect.
@@ -452,13 +450,23 @@ void undo_rollback(void){
 ** the undo or redo command explains what actions the undo or redo would
 ** have done had the -n|--dry-run been omitted.
 **
+** If the most recent command is not one of those listed as undoable,
+** then the undo command might try to restore the state to be what it was
+** prior to the last undoable command, or it might be a no-op.  If in
+** doubt about what the undo command will do, first run it with the -n
+** option.
+**
 ** A single level of undo/redo is supported.  The undo/redo stack
-** is cleared by the commit and checkout commands.
+** is cleared by the commit and checkout commands.  Other commands may
+** or may not clear the undo stack.
+**
+** Future versions of Fossil might add new commands to the set of commands
+** that are undoable.
 **
 ** Options:
-**   -n|--dry-run   do not make changes but show what would be done
+**   -n|--dry-run   Do not make changes but show what would be done
 **
-** See also: commit, status
+** See also: [[commit]], [[status]]
 */
 void undo_cmd(void){
   int isRedo = g.argv[1][0]=='r';

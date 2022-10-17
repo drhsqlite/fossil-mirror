@@ -1,0 +1,59 @@
+#!/bin/bash
+FOSSIL=fossil
+PGARGS="-P 1"
+OLDPID=`pgrep -P 1 fossil`
+SITE=https://example.com
+PORT=12345
+
+if [ "$1" = "-f" ] ; then PGARGS= ; shift ; fi
+
+if [ -n "$OLDPID" ]
+then
+    echo "Killing running Fossil server first..."
+    pkill $PGARGS fossil
+
+    for i in $(seq 30)
+    do
+        if [ -n "$(pgrep $PGARGS fossil)" ]
+        then
+            if [ $i -eq 1 ]
+            then
+                echo -n "Waiting for it to die..."
+            else
+                echo -n .
+            fi
+            sleep '0.1'
+        else
+            break
+        fi
+        echo
+    done
+
+    killall -9 fossil 2> /dev/null
+fi
+
+if [ -x ./fossil ]
+then
+    # We're running from a build tree, so use that version instead
+    FOSSIL=./fossil
+fi
+
+function start_one() {
+    bn=$1
+    ln="$2"
+
+    $FOSSIL server $extra \
+        --scgi \
+        --localhost \
+        --port $PORT \
+        --jsmode bundled \
+        --baseurl ${SITE}/$bn \
+        --errorlog ~/log/fossil/$bn-errors.log \
+        ~/museum/$bn.fossil > ~/log/fossil/$bn-stdout.log &
+    echo Started $ln Fossil server, port $PORT, PID $!.
+    PORT=$(($PORT + 1))
+}
+
+start_one first  "First Project"
+start_one second "Second Project"
+start_one third  "Third Project"

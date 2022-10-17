@@ -41,7 +41,7 @@ proc extract_setting_names { data } {
   set names [list]
 
   foreach {dummy name} [regexp \
-      -all -line -inline -- {^([a-z][a-z0-9\-]*) } $data] {
+      -all -line -inline -- {^([a-z][a-z0-9\-]*) ?.*$} $data] {
     lappend names $name
   }
 

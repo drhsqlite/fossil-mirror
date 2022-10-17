@@ -188,13 +188,6 @@ int json_user_update_from_json( cson_object * pUser ){
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
 
-#if 0
-  if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
-    return json_set_err( FSL_JSON_E_DENIED,
-                         "Password change requires 'a', 's', "
-                         "or 'p' permissions.");
-  }
-#endif
   if(uid<=0 && (!zName||!*zName)){
     return json_set_err(FSL_JSON_E_MISSING_ARGS,
                         "One of 'uid' or 'name' is required.");
@@ -221,9 +214,11 @@ int json_user_update_from_json( cson_object * pUser ){
       goto error;
     }else{
       Stmt ins = empty_Stmt;
+      db_unprotect(PROTECT_USER);
       db_prepare(&ins, "INSERT INTO user (login) VALUES(%Q)",zName);
       db_step( &ins );
       db_finalize(&ins);
+      db_protect_pop();
       uid = db_int(0,"SELECT uid FROM user WHERE login=%Q", zName);
       assert(uid>0);
       zNameNew = zName;
@@ -354,9 +349,11 @@ int json_user_update_from_json( cson_object * pUser ){
   puts(blob_str(&sql));
   cson_output_FILE( cson_object_value(pUser), stdout, NULL );
 #endif
+  db_unprotect(PROTECT_USER);
   db_prepare(&q, "%s", blob_sql_text(&sql));
   db_exec(&q);
   db_finalize(&q);
+  db_protect_pop();
 #if TRY_LOGIN_GROUP
   if( zPW || cson_value_get_bool(forceLogout) ){
     Blob groupSql = empty_blob;
@@ -367,7 +364,9 @@ int json_user_update_from_json( cson_object * pUser ){
       zName, zName
     );
     blob_append(&groupSql, blob_str(&sql), blob_size(&sql));
+    db_unprotect(PROTECT_USER);
     login_group_sql(blob_str(&groupSql), NULL, NULL, &zErr);
+    db_protect_pop();
     blob_reset(&groupSql);
     if( zErr ){
       json_set_err( FSL_JSON_E_UNKNOWN,
@@ -401,7 +400,7 @@ static cson_value * json_user_save(){
      a JSON form of it... */
   cson_object * u = cson_new_object();
   char const * str = NULL;
-  char b = -1;
+  int b = -1;
   int i = -1;
   int uid = -1;
   cson_value * payload = NULL;
@@ -415,7 +414,7 @@ static cson_value * json_user_save(){
 #undef PROP
   /* Boolean properties... */
 #define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);     \
-  if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
+  if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b ? 1 : 0)); } (void)0
   PROP("forceLogout",-1);
 #undef PROP
 

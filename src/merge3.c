@@ -118,17 +118,18 @@ static int output_one_side(
   Blob *pSrc,     /* The edited file that is to be copied to pOut */
   int *aC,        /* Array of integer triples describing the edit */
   int i,          /* Index in aC[] of current location in pSrc */
-  int sz          /* Number of lines in unedited source to output */
+  int sz,         /* Number of lines in unedited source to output */
+  int *pLn        /* Line number counter */
 ){
   while( sz>0 ){
     if( aC[i]==0 && aC[i+1]==0 && aC[i+2]==0 ) break;
     if( aC[i]>=sz ){
-      blob_copy_lines(pOut, pSrc, sz);
+      blob_copy_lines(pOut, pSrc, sz);  *pLn += sz;
       aC[i] -= sz;
       break;
     }
-    blob_copy_lines(pOut, pSrc, aC[i]);
-    blob_copy_lines(pOut, pSrc, aC[i+2]);
+    blob_copy_lines(pOut, pSrc, aC[i]);      *pLn += aC[i];
+    blob_copy_lines(pOut, pSrc, aC[i+2]);    *pLn += aC[i+2];
     sz -= aC[i] + aC[i+1];
     i += 3;
   }
@@ -140,12 +141,53 @@ static int output_one_side(
 */
 static const char *const mergeMarker[] = {
  /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
-  "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n",
-  "======= COMMON ANCESTOR content follows ============================\n",
-  "======= MERGED IN content follows ==================================\n",
-  ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
+  "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<",
+  "||||||| COMMON ANCESTOR content follows |||||||||||||||||||||||||",
+  "======= MERGED IN content follows ===============================",
+  ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 };
 
+/*
+** Return true if the input blob contains any CR/LF pairs on the first
+** ten lines. This should be enough to detect files that use mainly CR/LF
+** line endings without causing a performance impact for LF only files.
+*/
+int contains_crlf(Blob *p){
+  int i;
+  int j = 0;
+  const int maxL = 10;             /* Max lines to check */
+  const char *z = blob_buffer(p);
+  int n = blob_size(p)+1;
+  for(i=1; i<n; ){
+    if( z[i-1]=='\r' && z[i]=='\n' ) return 1;
+    while( i<n && z[i]!='\n' ){ i++; }
+    j++;
+    if( j>maxL ) return 0;
+  }
+  return 0;
+}
+
+/*
+** Ensure that the text in pBlob ends with a new line.
+** If useCrLf is true adds "\r\n" otherwise '\n'.
+*/
+void ensure_line_end(Blob *pBlob, int useCrLf){
+  if( pBlob->nUsed<=0 ) return;
+  if( pBlob->aData[pBlob->nUsed-1]!='\n' ){
+    if( useCrLf ) blob_append_char(pBlob, '\r');
+    blob_append_char(pBlob, '\n');
+  }
+}
+
+/*
+** Write out one of the four merge-marks.
+*/
+void append_merge_mark(Blob *pOut, int iMark, int ln, int useCrLf){
+  ensure_line_end(pOut, useCrLf);
+  blob_append(pOut, mergeMarker[iMark], -1);
+  if( ln>0 ) blob_appendf(pOut, " (line %d)", ln);
+  ensure_line_end(pOut, useCrLf);
+}
 
 /*
 ** Do a three-way merge.  Initialize pOut to contain the result.
@@ -166,8 +208,28 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int nCpy, nDel, nIns;  /* Number of lines to copy, delete, or insert */
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
+  int useCrLf = 0;
+  int ln1, ln2, lnPivot; /* Line numbers for all files */
+  DiffConfig DCfg;
 
   blob_zero(pOut);         /* Merge results stored in pOut */
+  
+  /* If both pV1 and pV2 start with a UTF-8 byte-order-mark (BOM),
+  ** keep it in the output. This should be secure enough not to cause
+  ** unintended changes to the merged file and consistent with what
+  ** users are using in their source files.
+  */
+  if( starts_with_utf8_bom(pV1, 0) && starts_with_utf8_bom(pV2, 0) ){
+    blob_append(pOut, (char*)get_utf8_bom(0), -1);
+  }
+
+  /* Check once to see if both pV1 and pV2 contains CR/LF endings.
+  ** If true, CR/LF pair will be used later to append the
+  ** boundary markers for merge conflicts.
+  */
+  if( contains_crlf(pV1) && contains_crlf(pV2) ){
+    useCrLf = 1;
+  }
 
   /* Compute the edits that occur from pPivot => pV1 (into aC1)
   ** and pPivot => pV2 (into aC2).  Each of the aC1 and aC2 arrays is
@@ -177,8 +239,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** pivot, and the third integer is the number of lines of text that are
   ** inserted.  The edit array ends with a triple of 0,0,0.
   */
-  aC1 = text_diff(pPivot, pV1, 0, 0, 0);
-  aC2 = text_diff(pPivot, pV2, 0, 0, 0);
+  diff_config_init(&DCfg, 0);
+  aC1 = text_diff(pPivot, pV1, 0, &DCfg);
+  aC2 = text_diff(pPivot, pV2, 0, &DCfg);
   if( aC1==0 || aC2==0 ){
     free(aC1);
     free(aC2);
@@ -210,6 +273,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** processed
   */
   i1 = i2 = 0;
+  ln1 = ln2 = lnPivot = 1;
   while( i1<limit1 && i2<limit2 ){
     DEBUG( printf("%d: %2d %2d %2d   %d: %2d %2d %2d\n",
            i1/3, aC1[i1], aC1[i1+1], aC1[i1+2],
@@ -219,9 +283,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       /* Output text that is unchanged in both V1 and V2 */
       nCpy = min(aC1[i1], aC2[i2]);
       DEBUG( printf("COPY %d\n", nCpy); )
-      blob_copy_lines(pOut, pPivot, nCpy);
-      blob_copy_lines(0, pV1, nCpy);
-      blob_copy_lines(0, pV2, nCpy);
+      blob_copy_lines(pOut, pPivot, nCpy); lnPivot += nCpy;
+      blob_copy_lines(0, pV1, nCpy);       ln1 += nCpy;
+      blob_copy_lines(0, pV2, nCpy);       ln2 += nCpy;
       aC1[i1] -= nCpy;
       aC2[i2] -= nCpy;
     }else
@@ -230,9 +294,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       nDel = aC2[i2+1];
       nIns = aC2[i2+2];
       DEBUG( printf("EDIT -%d+%d left\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);
-      blob_copy_lines(0, pV1, nDel);
-      blob_copy_lines(pOut, pV2, nIns);
+      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
+      blob_copy_lines(0, pV1, nDel);       ln1 += nDel;
+      blob_copy_lines(pOut, pV2, nIns);    ln2 += nIns;
       aC1[i1] -= nDel;
       i2 += 3;
     }else
@@ -241,9 +305,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
       DEBUG( printf("EDIT -%d+%d right\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);
-      blob_copy_lines(0, pV2, nDel);
-      blob_copy_lines(pOut, pV1, nIns);
+      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
+      blob_copy_lines(0, pV2, nDel);       ln2 += nDel;
+      blob_copy_lines(pOut, pV1, nIns);    ln1 += nIns;
       aC2[i2] -= nDel;
       i1 += 3;
     }else
@@ -253,9 +317,9 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
       DEBUG( printf("EDIT -%d+%d both\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);
-      blob_copy_lines(pOut, pV1, nIns);
-      blob_copy_lines(0, pV2, nIns);
+      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
+      blob_copy_lines(pOut, pV1, nIns);    ln1 += nIns;
+      blob_copy_lines(0, pV2, nIns);       ln2 += nIns;
       i1 += 3;
       i2 += 3;
     }else
@@ -270,13 +334,17 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
         sz++;
       }
       DEBUG( printf("CONFLICT %d\n", sz); )
-      blob_append(pOut, mergeMarker[0], -1);
-      i1 = output_one_side(pOut, pV1, aC1, i1, sz);
-      blob_append(pOut, mergeMarker[1], -1);
-      blob_copy_lines(pOut, pPivot, sz);
-      blob_append(pOut, mergeMarker[2], -1);
-      i2 = output_one_side(pOut, pV2, aC2, i2, sz);
-      blob_append(pOut, mergeMarker[3], -1);
+
+      append_merge_mark(pOut, 0, ln1, useCrLf);
+      i1 = output_one_side(pOut, pV1, aC1, i1, sz, &ln1);
+
+      append_merge_mark(pOut, 1, lnPivot, useCrLf);
+      blob_copy_lines(pOut, pPivot, sz);   lnPivot += sz;
+
+      append_merge_mark(pOut, 2, ln2, useCrLf);
+      i2 = output_one_side(pOut, pV2, aC2, i2, sz, &ln2);
+
+      append_merge_mark(pOut, 3, -1, useCrLf);
    }
 
     /* If we are finished with an edit triple, advance to the next
@@ -321,10 +389,12 @@ int contains_merge_marker(Blob *p){
   assert( count(mergeMarker)==4 );
   for(i=0; i<n; ){
     for(j=0; j<4; j++){
-      if( memcmp(&z[i], mergeMarker[j], len)==0 ) return 1;
+      if( (memcmp(&z[i], mergeMarker[j], len)==0) ){
+        return 1;
+      }
     }
     while( i<n && z[i]!='\n' ){ i++; }
-    while( i<n && z[i]=='\n' ){ i++; }
+    while( i<n && (z[i]=='\n' || z[i]=='\r') ){ i++; }
   }
   return 0;
 }
@@ -335,7 +405,7 @@ int contains_merge_marker(Blob *p){
 int file_contains_merge_marker(const char *zFullpath){
   Blob file;
   int rc;
-  blob_read_from_file(&file, zFullpath);
+  blob_read_from_file(&file, zFullpath, ExtFILE);
   rc = contains_merge_marker(&file);
   blob_reset(&file);
   return rc;
@@ -370,6 +440,7 @@ int file_contains_merge_marker(const char *zFullpath){
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
+  int nConflict;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -377,16 +448,16 @@ void delta_3waymerge_cmd(void){
   if( g.argc!=6 ){
     usage("PIVOT V1 V2 MERGED");
   }
-  if( blob_read_from_file(&pivot, g.argv[2])<0 ){
+  if( blob_read_from_file(&pivot, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
   }
-  if( blob_read_from_file(&v1, g.argv[3])<0 ){
+  if( blob_read_from_file(&v1, g.argv[3], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
-  if( blob_read_from_file(&v2, g.argv[4])<0 ){
+  if( blob_read_from_file(&v2, g.argv[4], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[4]);
   }
-  blob_merge(&pivot, &v1, &v2, &merged);
+  nConflict = blob_merge(&pivot, &v1, &v2, &merged);
   if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
     fossil_fatal("cannot write %s", g.argv[4]);
   }
@@ -394,6 +465,7 @@ void delta_3waymerge_cmd(void){
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&merged);
+  if( nConflict>0 ) fossil_warning("WARNING: %d merge conflicts", nConflict);
 }
 
 /*
@@ -436,6 +508,12 @@ char *string_subst(const char *zInput, int nSubst, const char **azSubst){
 ** Flags to the 3-way merger
 */
 #define MERGE_DRYRUN  0x0001
+/*
+** The MERGE_KEEP_FILES flag specifies that merge_3way() should retain
+** its temporary files on error. By default they are removed after the
+** merge, regardless of success or failure.
+*/
+#define MERGE_KEEP_FILES 0x0002
 #endif
 
 
@@ -465,10 +543,14 @@ int merge_3way(
 ){
   Blob v1;            /* Content of zV1 */
   int rc;             /* Return code of subroutines and this routine */
+  const char *zGMerge;   /* Name of the gmerge command */
 
-  blob_read_from_file(&v1, zV1);
+  blob_read_from_file(&v1, zV1, ExtFILE);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
-  if( rc!=0 && (mergeFlags & MERGE_DRYRUN)==0 ){
+  zGMerge = rc<=0 ? 0 : db_get("gmerge-command", 0);
+  if( (mergeFlags & MERGE_DRYRUN)==0
+      && ((zGMerge!=0 && zGMerge[0]!=0)
+          || (rc!=0 && (mergeFlags & MERGE_KEEP_FILES)!=0)) ){
     char *zPivot;       /* Name of the pivot file */
     char *zOrig;        /* Name of the original content file */
     char *zOther;       /* Name of the merge file */
@@ -480,14 +562,10 @@ int merge_3way(
     zOther = file_newname(zV1, "merge", 1);
     blob_write_to_file(pV2, zOther);
     if( rc>0 ){
-      const char *zGMerge;   /* Name of the gmerge command */
-
-      zGMerge = db_get("gmerge-command", 0);
       if( zGMerge && zGMerge[0] ){
         char *zOut;     /* Temporary output file */
         char *zCmd;     /* Command to invoke */
         const char *azSubst[8];  /* Strings to be substituted */
-
         zOut = file_newname(zV1, "output", 1);
         azSubst[0] = "%baseline";  azSubst[1] = zPivot;
         azSubst[2] = "%original";  azSubst[3] = zOrig;
@@ -496,16 +574,18 @@ int merge_3way(
         zCmd = string_subst(zGMerge, 8, azSubst);
         printf("%s\n", zCmd); fflush(stdout);
         fossil_system(zCmd);
-        if( file_wd_size(zOut)>=0 ){
-          blob_read_from_file(pOut, zOut);
-          file_delete(zPivot);
-          file_delete(zOrig);
-          file_delete(zOther);
+        if( file_size(zOut, RepoFILE)>=0 ){
+          blob_read_from_file(pOut, zOut, ExtFILE);
           file_delete(zOut);
         }
         fossil_free(zCmd);
         fossil_free(zOut);
       }
+    }
+    if( (mergeFlags & MERGE_KEEP_FILES)==0 ){
+      file_delete(zPivot);
+      file_delete(zOrig);
+      file_delete(zOther);
     }
     fossil_free(zPivot);
     fossil_free(zOrig);

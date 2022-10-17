@@ -19,12 +19,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "tar.h"
 
 /*
@@ -254,7 +249,7 @@ static void add_pax_header(
   blob_appendf(&tball.pax, "%d %s=%*.*s\n", blen, zField, nValue, nValue, zValue);
   /* this _must_ be right */
   if(blob_size(&tball.pax) != blen){
-    fossil_fatal("internal error: PAX tar header has bad length");
+    fossil_panic("internal error: PAX tar header has bad length");
   }
 }
 
@@ -426,20 +421,26 @@ static void tar_finish(Blob *pOut){
 **
 ** Generate a GZIP-compressed tarball in the file given by the first argument
 ** that contains files given in the second and subsequent arguments.
+**
+**   -h|--dereference   Follow symlinks and archive the files they point to
 */
 void test_tarball_cmd(void){
   int i;
   Blob zip;
+  int eFType = SymFILE;
   if( g.argc<3 ){
-    usage("ARCHIVE FILE....");
+    usage("ARCHIVE [options] FILE....");
+  }
+  if( find_option("dereference","h",0) ){
+    eFType = ExtFILE;
   }
   sqlite3_open(":memory:", &g.db);
   tar_begin(-1);
   for(i=3; i<g.argc; i++){
     Blob file;
     blob_zero(&file);
-    blob_read_from_file(&file, g.argv[i]);
-    tar_add_file(g.argv[i], &file, file_wd_perm(0), file_wd_mtime(0));
+    blob_read_from_file(&file, g.argv[i], eFType);
+    tar_add_file(g.argv[i], &file, file_perm(0,eFType), file_mtime(0,eFType));
     blob_reset(&file);
   }
   tar_finish(&zip);
@@ -462,7 +463,7 @@ void test_tarball_cmd(void){
 ** added to as part of the tarball. It may be 0 or an empty string, in
 ** which case it is ignored. The intention is to create a tarball which
 ** politely expands into a subdir instead of filling your current dir
-** with source files. For example, pass a UUID or "ProjectName".
+** with source files. For example, pass an artifact hash or "ProjectName".
 **
 */
 void tarball_of_checkin(
@@ -470,7 +471,8 @@ void tarball_of_checkin(
   Blob *pTar,          /* Write the tarball into this blob */
   const char *zDir,    /* Directory prefix for all file added to tarball */
   Glob *pInclude,      /* Only add files matching this pattern */
-  Glob *pExclude       /* Exclude files matching this pattern */
+  Glob *pExclude,      /* Exclude files matching this pattern */
+  int listFlag         /* Show filenames on stdout */
 ){
   Blob mfile, hash, file;
   Manifest *pManifest;
@@ -496,8 +498,8 @@ void tarball_of_checkin(
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
     int flg, eflg = 0;
-    mTime = (pManifest->rDate - 2440587.5)*86400.0;
-    tar_begin(mTime);
+    mTime = (unsigned)((pManifest->rDate - 2440587.5)*86400.0);
+    if( pTar ) tar_begin(mTime);
     flg = db_get_manifest_setting();
     if( flg ){
       /* eflg is the effective flags, taking include/exclude into account */
@@ -521,29 +523,35 @@ void tarball_of_checkin(
         if( eflg & MFESTFLG_RAW ){
           blob_append(&filename, "manifest", -1);
           zName = blob_str(&filename);
-        }
-        if( eflg & MFESTFLG_RAW ) {
-          sterilize_manifest(&mfile);
-          tar_add_file(zName, &mfile, 0, mTime);
+          if( listFlag ) fossil_print("%s\n", zName);
+          if( pTar ){
+            tar_add_file(zName, &mfile, 0, mTime);
+          }
         }
       }
       blob_reset(&mfile);
       if( eflg & MFESTFLG_UUID ){
-        blob_append(&hash, "\n", 1);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.uuid", -1);
         zName = blob_str(&filename);
-        tar_add_file(zName, &hash, 0, mTime);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pTar ){
+          blob_append(&hash, "\n", 1);
+          tar_add_file(zName, &hash, 0, mTime);
+        }
       }
       if( eflg & MFESTFLG_TAGS ){
-        Blob tagslist;
-        blob_zero(&tagslist);
-        get_checkin_taglist(rid, &tagslist);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.tags", -1);
         zName = blob_str(&filename);
-        tar_add_file(zName, &tagslist, 0, mTime);
-        blob_reset(&tagslist);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pTar ){
+          Blob tagslist;
+          blob_zero(&tagslist);
+          get_checkin_taglist(rid, &tagslist);
+          tar_add_file(zName, &tagslist, 0, mTime);
+          blob_reset(&tagslist);
+        }
       }
     }
     manifest_file_rewind(pManifest);
@@ -553,26 +561,32 @@ void tarball_of_checkin(
       if( glob_match(pExclude, pFile->zName) ) continue;
       fid = uuid_to_rid(pFile->zUuid, 0);
       if( fid ){
-        content_get(fid, &file);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, pFile->zName, -1);
         zName = blob_str(&filename);
-        tar_add_file(zName, &file, manifest_file_mperm(pFile), mTime);
-        blob_reset(&file);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pTar ){
+          content_get(fid, &file);
+          tar_add_file(zName, &file, manifest_file_mperm(pFile), mTime);
+          blob_reset(&file);
+        }
       }
     }
   }else{
     blob_append(&filename, blob_str(&hash), 16);
     zName = blob_str(&filename);
-    mTime = db_int64(0, "SELECT (julianday('now') -  2440587.5)*86400.0;");
-    tar_begin(mTime);
-    tar_add_file(zName, &mfile, 0, mTime);
+    if( listFlag ) fossil_print("%s\n", zName);
+    if( pTar ){
+      mTime = db_int64(0, "SELECT (julianday('now') -  2440587.5)*86400.0;");
+      tar_begin(mTime);
+      tar_add_file(zName, &mfile, 0, mTime);
+    }
   }
   manifest_destroy(pManifest);
   blob_reset(&mfile);
   blob_reset(&hash);
   blob_reset(&filename);
-  tar_finish(pTar);
+  if( pTar ) tar_finish(pTar);
 }
 
 /*
@@ -591,9 +605,16 @@ void tarball_of_checkin(
 ** in "..." or '...' so that it may contain commas.  If a file matches both
 ** --include and --exclude then it is excluded.
 **
+** If OUTPUTFILE is an empty string or "/dev/null" then no tarball is
+** actually generated.  This feature can be used in combination with
+** the --list option to get a list of the filenames that would be in the
+** tarball had it actually been generated.  Note that --list shows only
+** filenames.  "tar tzf" shows both filesnames and subdirectory names.
+**
 ** Options:
 **   -X|--exclude GLOBLIST   Comma-separated list of GLOBs of files to exclude
 **   --include GLOBLIST      Comma-separated list of GLOBs of files to include
+**   -l|--list               Show archive content on stdout
 **   --name DIRECTORYNAME    The name of the top-level directory in the archive
 **   -R REPOSITORY           Specify a Fossil repository
 */
@@ -605,12 +626,15 @@ void tarball_cmd(void){
   Glob *pExclude = 0;
   const char *zInclude;
   const char *zExclude;
+  int listFlag = 0;
+  const char *zOut;
   zName = find_option("name", 0, 1);
   zExclude = find_option("exclude", "X", 1);
   if( zExclude ) pExclude = glob_create(zExclude);
   zInclude = find_option("include", 0, 1);
   if( zInclude ) pInclude = glob_create(zInclude);
   db_find_and_open_repository(0, 0);
+  listFlag = find_option("list","l",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -618,10 +642,15 @@ void tarball_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
+  g.zOpenRevision = g.argv[2];
   rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 ){
     fossil_fatal("Check-in not found: %s", g.argv[2]);
     return;
+  }
+  zOut = g.argv[3];
+  if( fossil_strcmp("/dev/null",zOut)==0 || fossil_strcmp("",zOut)==0 ){
+    zOut = 0;
   }
 
   if( zName==0 ){
@@ -635,20 +664,61 @@ void tarball_cmd(void){
        db_get("project-name", "unnamed"), rid, rid
     );
   }
-  tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude);
+  tarball_of_checkin(rid, zOut ? &tarball : 0,
+                     zName, pInclude, pExclude, listFlag);
   glob_free(pInclude);
   glob_free(pExclude);
-  blob_write_to_file(&tarball, g.argv[3]);
-  blob_reset(&tarball);
+  if( listFlag ) fflush(stdout);
+  if( zOut ){
+    blob_write_to_file(&tarball, zOut);
+    blob_reset(&tarball);
+  }
+}
+
+/*
+** Check to see if the input string is of the form:
+**
+**        checkin-name/filename.ext
+**
+** In other words, check to see if the input contains a single '/'
+** character that separates a valid check-in name from a filename.
+**
+** If the condition is true, return the check-in name and set the
+** input string to be the filename.
+**
+** If the condition is false, return NULL
+*/
+char *tar_uuid_from_name(char **pzName){
+  char *zName = *pzName;
+  int i, n;
+  for(i=n=0; zName[i]; i++){
+    if( zName[i]=='/' ){
+      if( n==0 ) n = i;
+      else return 0;
+    }
+  }
+  if( n==0 ) return 0;
+  if( zName[n+1]==0 ) return 0;
+  zName[n] = 0;
+  *pzName = fossil_strdup(&zName[n+1]);
+  return zName;
 }
 
 /*
 ** WEBPAGE: tarball
 ** URL: /tarball
 **
-** Generate a compressed tarball for the check-in specified by the "uuid"
+** Generate a compressed tarball for the check-in specified by the "r"
 ** query parameter.  Return that compressed tarball as the HTTP reply
 ** content.
+**
+** The r= and name= query parameters can be specified as extensions to the
+** URI.  Example, the following URIs are all equivalent:
+**
+**      /tarball/release/xyz.tar.gz
+**      /tarball?r=release&name=xyz.tar.gz
+**      /tarball/xyz.tar.gz?r=release
+**      /tarball?name=release/xyz.tar.gz
 **
 ** Query parameters:
 **
@@ -657,8 +727,14 @@ void tarball_cmd(void){
 **                       settings.  A prefix of the name, omitting the
 **                       extension, is used as the top-most directory name.
 **
-**   uuid=TAG            The check-in that is turned into a compressed tarball.
-**                       Defaults to "trunk".
+**   r=TAG               The check-in that is turned into a compressed tarball.
+**                       Defaults to "trunk".  This query parameter used to
+**                       be called "uuid" and "uuid" is still accepted for
+**                       backwards compatibility.  If the name= query parameter
+**                       contains one "/" character then the part before the /
+**                       is the TAG and the part after the / is the true name.
+**                       If no TAG is specified by any of the above means, then
+**                       "trunk" is used as the default.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -678,18 +754,26 @@ void tarball_page(void){
   Glob *pInclude = 0;           /* The compiled in= glob pattern */
   Glob *pExclude = 0;           /* The compiled ex= glob pattern */
   Blob tarball;                 /* Tarball accumulated here */
+  const char *z;
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
-  load_control();
-  zName = mprintf("%s", PD("name",""));
-  nName = strlen(zName);
-  zRid = mprintf("%s", PD("uuid","trunk"));
+  fossil_nice_default();
+  zName = fossil_strdup(PD("name",""));
+  z = P("r");
+  if( z==0 ) z = P("uuid");
+  if( z==0 ) z = tar_uuid_from_name(&zName);
+  if( z==0 ) z = "trunk";
+  g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
   zInclude = P("in");
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
+  if( zInclude==0 && zExclude==0 ){
+    etag_check_for_invariant_name(z);
+  }
+  nName = strlen(zName);
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
     nName -= 7;
@@ -704,8 +788,9 @@ void tarball_page(void){
       }
     }
   }
-  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
+  rid = symbolic_name_to_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
+    cgi_set_status(404, "Not Found");
     @ Not found
     return;
   }
@@ -718,6 +803,7 @@ void tarball_page(void){
   if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
   if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
   zKey = blob_str(&cacheKey);
+  etag_check(ETAG_HASH, zKey);
 
   if( P("debug")!=0 ){
     style_header("Tarball Generator Debug Screen");
@@ -730,7 +816,7 @@ void tarball_page(void){
       @ zExclude = "%h(zExclude)"<br />
     }
     @ zKey = "%h(zKey)"
-    style_footer();
+    style_finish_page();
     return;
   }
   if( referred_from_login() ){
@@ -741,18 +827,19 @@ void tarball_page(void){
     @ of check-in <b>%h(zRid)</b>:
     @ <input type="submit" value="Download" />
     @ </form>
-    style_footer();
+    style_finish_page();
     return;
   }
   blob_zero(&tarball);
   if( cache_read(&tarball, zKey)==0 ){
-    tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude);
+    tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude, 0);
     cache_write(&tarball, zKey);
   }
   glob_free(pInclude);
   glob_free(pExclude);
   fossil_free(zName);
   fossil_free(zRid);
+  g.zOpenRevision = 0;
   blob_reset(&cacheKey);
   cgi_set_content(&tarball);
   cgi_set_content_type("application/x-compressed");

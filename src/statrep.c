@@ -52,7 +52,7 @@ static const char *statsReportTimelineYFlag = NULL;
 ** abstraction level to simplify the implementation code for the
 ** various /reports pages.
 **
-** Returns one of: 'c', 'w', 'g', 't', 'e', representing the type of
+** Returns one of: 'c', 'f', 'w', 'g', 't', 'e', representing the type of
 ** filter it applies, or '*' if no filter is applied (i.e. if "all" is
 ** used).
 */
@@ -60,6 +60,7 @@ static int stats_report_init_view(){
   const char *zType = PD("type","*");  /* analog to /timeline?y=... */
   const char *zRealType = NULL;        /* normalized form of zType */
   int rc = 0;                          /* result code */
+  char *zTimeSpan;                     /* Time span */
   assert( !statsReportType && "Must not be called more than once." );
   switch( (zType && *zType) ? *zType : 0 ){
     case 'c':
@@ -70,6 +71,11 @@ static int stats_report_init_view(){
     case 'e':
     case 'E':
       zRealType = "e";
+      rc = *zRealType;
+      break;
+    case 'f':
+    case 'F':
+      zRealType = "f";
       rc = *zRealType;
       break;
     case 'g':
@@ -92,15 +98,22 @@ static int stats_report_init_view(){
       break;
   }
   assert(0 != rc);
+  if( P("from")!=0 && P("to")!=0 ){
+    zTimeSpan = mprintf(
+          " (event.mtime BETWEEN julianday(%Q) AND julianday(%Q))",
+          P("from"), P("to"));
+  }else{
+    zTimeSpan = " 1";
+  }
   if(zRealType){
     statsReportTimelineYFlag = zRealType;
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
-                  "SELECT * FROM event WHERE type GLOB %Q",
-                  zRealType);
+                  "SELECT * FROM event WHERE (type GLOB %Q) AND %s",
+                  zRealType, zTimeSpan/*safe-for-%s*/);
   }else{
     statsReportTimelineYFlag = "a";
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
-                  "SELECT * FROM event");
+                  "SELECT * FROM event WHERE %s", zTimeSpan/*safe-for-%s*/);
   }
   return statsReportType = rc;
 }
@@ -118,6 +131,8 @@ static const char *stats_report_label_for_type(){
       return "check-ins";
     case 'e':
       return "technotes";
+    case 'f':
+      return "forum posts";
     case 'w':
       return "wiki changes";
     case 't':
@@ -204,8 +219,14 @@ static void stats_report_by_month_year(char includeMonth,
     @ for user %h(zUserName)
   }
   @ </h1>
-  @ <table class='statistics-report-table-events' border='0' cellpadding='2'
-  @  cellspacing='0' id='statsTable'>
+  @ <table border='0' cellpadding='2' cellspacing='0' \
+  if( !includeMonth ){
+    @ class='statistics-report-table-events sortable' \
+    @ data-column-types='tnx' data-init-sort='0'>
+    style_table_sorter();
+  }else{
+    @ class='statistics-report-table-events'>
+  }
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
   @ <th>Events</th>
@@ -317,9 +338,6 @@ static void stats_report_by_month_year(char includeMonth,
     @ <br />Average per active %s(zAvgLabel): %d(nAvg)
     @ </div>
   }
-  if( !includeMonth ){
-    output_table_sorting_javascript("statsTable","tnx",-1);
-  }
 }
 
 /*
@@ -328,7 +346,6 @@ static void stats_report_by_month_year(char includeMonth,
 static void stats_report_by_user(){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
-  int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   int nMaxEvents = 1;                /* max number of events for
@@ -346,8 +363,9 @@ static void stats_report_by_user(){
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
     @ </svg></centre><hr />
   }
-  @ <table class='statistics-report-table-events' border='0'
-  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='tkx' data-init-sort='2'>
   @ <thead><tr>
   @ <th>User</th>
   @ <th>Events</th>
@@ -375,7 +393,6 @@ static void stats_report_by_user(){
     if(!nCount) continue /* arguable! Possible? */;
     else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
-    nEventTotal += nCount;
     @ <tr class='row%d(rowClass)'>
     @ <td>
     @ <a href="?view=bymonth&user=%h(zUser)&type=%c(y)">%h(zUser)</a>
@@ -392,7 +409,6 @@ static void stats_report_by_user(){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","tkx",2);
 }
 
 /*
@@ -423,8 +439,9 @@ static void stats_report_by_file(const char *zUserName){
     @ for user %h(zUserName)
   }
   @ </h1>
-  @ <table class='statistics-report-table-events' border='0'
-  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='tNx' data-init-sort='2'>
   @ <thead><tr>
   @ <th>File</th>
   @ <th>Check-ins</th>
@@ -448,7 +465,7 @@ static void stats_report_by_file(const char *zUserName){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","tNx",2);
+
 }
 
 /*
@@ -458,7 +475,6 @@ static void stats_report_by_file(const char *zUserName){
 static void stats_report_day_of_week(const char *zUserName){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
-  int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   int nMaxEvents = 1;                /* max number of events for
@@ -507,8 +523,9 @@ static void stats_report_day_of_week(const char *zUserName){
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
     @ </svg></centre><hr />
   }
-  @ <table class='statistics-report-table-events' border='0'
-  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='ntnx' data-init-sort='1'>
   @ <thead><tr>
   @ <th>DoW</th>
   @ <th>Day</th>
@@ -531,7 +548,6 @@ static void stats_report_day_of_week(const char *zUserName){
     if(!nCount) continue /* arguable! Possible? */;
     else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
-    nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>%d(dayNum)</td>
     @ <td>%s(daysOfWeek[dayNum])</td>
@@ -544,7 +560,6 @@ static void stats_report_day_of_week(const char *zUserName){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","ntnx",1);
 }
 
 
@@ -588,9 +603,10 @@ static void stats_report_year_weeks(const char *zUserName){
     @  for user %h(zUserName)
   }
   @ </h1>
-  cgi_printf("<table class='statistics-report-table-events' "
+  style_table_sorter();
+  cgi_printf("<table class='statistics-report-table-events sortable' "
               "border='0' cellpadding='2' width='100%%' "
-             "cellspacing='0' id='statsTable'>");
+             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>");
   cgi_printf("<thead><tr>"
              "<th>Week</th>"
              "<th>Events</th>"
@@ -639,8 +655,52 @@ static void stats_report_year_weeks(const char *zUserName){
                "Average per active week: %d</div>",
                total, nAvg);
   }
-  output_table_sorting_javascript("statsTable","tnx",-1);
 }
+
+
+/*
+** Generate a report that shows the most recent change for each user.
+*/
+static void stats_report_last_change(void){
+  Stmt s;
+  double rNow;
+  char *zBaseUrl;
+
+  stats_report_init_view();
+  style_table_sorter();
+  @ <h1>Event Summary
+  @ (%s(stats_report_label_for_type())) by User</h1>
+  @ <table border=1  class='statistics-report-table-events sortable' \
+  @ cellpadding=2 cellspacing=0 data-column-types='tNK' data-init-sort='3'>
+  @ <thead><tr>
+  @ <th>User<th>Total Changes<th>Last Change</tr></thead>
+  @ <tbody>
+  zBaseUrl = mprintf("%R/timeline?y=%t&u=", PD("type","ci"));
+  db_prepare(&s,
+    "SELECT coalesce(euser,user),"
+    "       count(*),"
+    "       max(mtime)"
+    "  FROM v_reports"
+    " GROUP BY 1"
+    " ORDER BY 3 DESC"
+  );
+  rNow = db_double(0.0, "SELECT julianday('now');");
+  while( db_step(&s)==SQLITE_ROW ){
+    const char *zUser = db_column_text(&s, 0);
+    int cnt = db_column_int(&s, 1);
+    double rMTime = db_column_double(&s,2);
+    char *zAge = human_readable_age(rNow - rMTime);
+    @ <tr>
+    @ <td><a href='%s(zBaseUrl)%t(zUser)'>%h(zUser)</a>
+    @ <td>%d(cnt)
+    @ <td data-sortkey='%f(rMTime)' style='white-space:nowrap'>%s(zAge?zAge:"")
+    @ </tr>
+    fossil_free(zAge);
+  }
+  @ </tbody></table>
+  db_finalize(&s);
+}
+
 
 /* Report types
 */
@@ -650,6 +710,7 @@ static void stats_report_year_weeks(const char *zUserName){
 #define RPT_BYWEEK    4
 #define RPT_BYWEEKDAY 5
 #define RPT_BYYEAR    6
+#define RPT_LASTCHNG  7  /* Last change made for each user */
 #define RPT_NONE      0  /* None of the above */
 
 /*
@@ -662,7 +723,7 @@ static void stats_report_year_weeks(const char *zUserName){
 **   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
-**                     ci (check-in), w (wiki), t (ticket), g (tag)
+**                     ci (check-in), f (forum), w (wiki), t (ticket), g (tag)
 **                     Defaulting to all event types.
 **
 ** The view-specific query parameters include:
@@ -684,15 +745,17 @@ void stats_report_page(){
     int eType;          /* Corresponding RPT_* define */
   } aViewType[] = {
      {  "File Changes","byfile",    RPT_BYFILE    },
+     {  "Last Change", "lastchng",  RPT_LASTCHNG  },
      {  "By Month",    "bymonth",   RPT_BYMONTH   },
      {  "By User",     "byuser",    RPT_BYUSER    },
      {  "By Week",     "byweek",    RPT_BYWEEK    },
      {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
-     {  "By Year",     "byyear",    RPT_BYYEAR   },
+     {  "By Year",     "byyear",    RPT_BYYEAR    },
   };
   static const char *const azType[] = {
      "a",  "All Changes",
      "ci", "Check-ins",
+     "f",  "Forum Posts",
      "g",  "Tags",
      "e",  "Tech Notes",
      "t",  "Tickets",
@@ -724,7 +787,7 @@ void stats_report_page(){
       style_submenu_multichoice("type", count(azType)/2, azType, 0);
     }
     style_submenu_multichoice("view", nView/2, azView, 0);
-    if( eType!=RPT_BYUSER ){
+    if( eType!=RPT_BYUSER && eType!=RPT_LASTCHNG ){
       style_submenu_sql("user","User:",
          "SELECT '', 'All Users' UNION ALL "
          "SELECT x, x FROM ("
@@ -756,6 +819,9 @@ void stats_report_page(){
     case RPT_BYFILE:
       stats_report_by_file(zUserName);
       break;
+    case RPT_LASTCHNG:
+      stats_report_last_change();
+      break;
   }
-  style_footer();
+  style_finish_page();
 }

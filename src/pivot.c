@@ -40,11 +40,12 @@ void pivot_set_primary(int rid){
   /* Set up table used to do the search */
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS aqueue("
-    "  rid INTEGER PRIMARY KEY,"  /* The record id for this version */
+    "  rid INTEGER,"              /* The record id for this version */
     "  mtime REAL,"               /* Time when this version was created */
     "  pending BOOLEAN,"          /* True if we have not check this one yet */
-    "  src BOOLEAN"               /* 1 for primary.  0 for others */
-    ");"
+    "  src BOOLEAN,"               /* 1 for primary.  0 for others */
+    "  PRIMARY KEY(rid,src)"
+    ") WITHOUT ROWID;"
     "DELETE FROM aqueue;"
     "CREATE INDEX IF NOT EXISTS aqueue_idx1 ON aqueue(pending, mtime);"
   );
@@ -63,7 +64,7 @@ void pivot_set_primary(int rid){
 ** desired.
 */
 void pivot_set_secondary(int rid){
-  /* Insert the primary record */
+  /* Insert the secondary record */
   db_multi_exec(
     "INSERT OR IGNORE INTO aqueue(rid, mtime, pending, src)"
     "  SELECT %d, mtime, 1, 0 FROM event WHERE objid=%d AND type='ci'",
@@ -120,9 +121,9 @@ int pivot_find(int ignoreMerges){
   /* Add to the queue all ancestors of :rid.
   */
   db_prepare(&i1,
-    "INSERT OR IGNORE INTO aqueue "
+    "REPLACE INTO aqueue "
     "SELECT plink.pid,"
-    "       coalesce((SELECT mtime FROM plink X WHERE X.cid=plink.pid), 0.0),"
+    "       coalesce((SELECT mtime FROM event X WHERE X.objid=plink.pid), 0.0),"
     "       1,"
     "       aqueue.src "
     "  FROM plink, aqueue"
@@ -165,6 +166,7 @@ int pivot_find(int ignoreMerges){
 void test_find_pivot(void){
   int i, rid;
   int ignoreMerges = find_option("ignore-merges",0,0)!=0;
+  int showDetails = find_option("details",0,0)!=0;
   if( g.argc<4 ){
     usage("?options? PRIMARY SECONDARY ...");
   }
@@ -177,4 +179,22 @@ void test_find_pivot(void){
   printf("pivot=%s\n",
          db_text("?","SELECT uuid FROM blob WHERE rid=%d",rid)
   );
+  if( showDetails ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT substr(uuid,1,12), aqueue.rid, datetime(aqueue.mtime),"
+             " aqueue.pending, aqueue.src\n"
+      "  FROM aqueue JOIN blob ON aqueue.rid=blob.rid\n"
+      " ORDER BY aqueue.mtime DESC"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      printf("\"%s\",%d,\"%s\",%d,%d\n",
+        db_column_text(&q, 0),
+        db_column_int(&q, 1),
+        db_column_text(&q, 2),
+        db_column_int(&q, 3),
+        db_column_int(&q, 4));
+    }
+    db_finalize(&q);
+  }
 }

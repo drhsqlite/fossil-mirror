@@ -46,8 +46,8 @@ static struct {
   PathNode *pAll;       /* All nodes */
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
+  int nNotHidden;       /* Number of steps not counting hidden nodes */
   PathNode *pStart;     /* Earliest node */
-  PathNode *pPivot;     /* Common ancestor of pStart and pEnd */
   PathNode *pEnd;       /* Most recent */
 } path;
 
@@ -61,6 +61,11 @@ PathNode *path_last(void){ return path.pEnd; }
 ** Return the number of steps in the computed path.
 */
 int path_length(void){ return path.nStep; }
+
+/*
+** Return the number of non-hidden steps in the computed path.
+*/
+int path_length_not_hidden(void){ return path.nNotHidden; }
 
 /*
 ** Create a new node
@@ -124,7 +129,8 @@ PathNode *path_shortest(
   int iFrom,          /* Path starts here */
   int iTo,            /* Path ends here */
   int directOnly,     /* No merge links if true */
-  int oneWayOnly      /* Parent->child only if true */
+  int oneWayOnly,     /* Parent->child only if true */
+  Bag *pHidden        /* Hidden nodes */
 ){
   Stmt s;
   PathNode *pPrev;
@@ -168,10 +174,14 @@ PathNode *path_shortest(
         int isParent = db_column_int(&s, 1);
         if( bag_find(&path.seen, cid) ) continue;
         p = path_new_node(cid, pPrev, isParent);
+        if( pHidden && bag_find(pHidden,cid) ) p->isHidden = 1;
         if( cid==iTo ){
           db_finalize(&s);
           path.pEnd = p;
           path_reverse_path();
+          for(p=path.pStart->u.pTo; p; p=p->u.pTo ){
+            if( !p->isHidden ) path.nNotHidden++;
+          }
           return path.pStart;
         }
       }
@@ -191,9 +201,63 @@ PathNode *path_shortest(
 PathNode *path_midpoint(void){
   PathNode *p;
   int i;
-  if( path.nStep<2 ) return 0;
-  for(p=path.pEnd, i=0; p && i<path.nStep/2; p=p->pFrom, i++){}
+  if( path.nNotHidden<2 ) return 0;
+  for(p=path.pEnd, i=0; p && (p->isHidden || i<path.nNotHidden/2); p=p->pFrom){
+    if( !p->isHidden ) i++;
+  }
   return p;
+}
+
+/*
+** Find the next most recent node on a path.
+*/
+PathNode *path_next(void){
+  PathNode *p;
+  p = path.pStart;
+  if( p ) p = p->u.pTo;
+  return p;
+}
+
+/*
+** Return an estimate of the number of comparisons remaining in order
+** to bisect path.  This is based on the log2() of path.nStep.
+*/
+int path_search_depth(void){
+  int i, j;
+  for(i=0, j=1; j<path.nNotHidden; i++, j+=j){}
+  return i;
+}
+
+/*
+** Compute the shortest path between two check-ins and then transfer
+** that path into the "ancestor" table.  This is a utility used by
+** both /annotate and /finfo.  See also: compute_direct_ancestors().
+*/
+void path_shortest_stored_in_ancestor_table(
+  int origid,     /* RID for check-in at start of the path */
+  int cid         /* RID for check-in at the end of the path */
+){
+  PathNode *pPath;
+  int gen = 0;
+  Stmt ins;
+  pPath = path_shortest(cid, origid, 1, 0, 0);
+  db_multi_exec(
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor("
+    "  rid INT UNIQUE,"
+    "  generation INTEGER PRIMARY KEY"
+    ");"
+    "DELETE FROM ancestor;"
+  );
+  db_prepare(&ins, "INSERT INTO ancestor(rid, generation) VALUES(:rid,:gen)");
+  while( pPath ){
+    db_bind_int(&ins, ":rid", pPath->rid);
+    db_bind_int(&ins, ":gen", ++gen);
+    db_step(&ins);
+    db_reset(&ins);
+    pPath = pPath->u.pTo;
+  }
+  db_finalize(&ins);
+  path_reset();
 }
 
 /*
@@ -218,7 +282,7 @@ void shortest_path_test_cmd(void){
   if( g.argc!=4 ) usage("VERSION1 VERSION2");
   iFrom = name_to_rid(g.argv[2]);
   iTo = name_to_rid(g.argv[3]);
-  p = path_shortest(iFrom, iTo, directOnly, oneWay);
+  p = path_shortest(iFrom, iTo, directOnly, oneWay, 0);
   if( p==0 ){
     fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
   }
@@ -369,7 +433,7 @@ struct NameChange {
 void find_filename_changes(
   int iFrom,               /* Ancestor check-in */
   int iTo,                 /* Recent check-in */
-  int revOk,               /* Ok to move backwards (child->parent) if true */
+  int revOK,               /* OK to move backwards (child->parent) if true */
   int *pnChng,             /* Number of name changes along the path */
   int **aiChng,            /* Name changes */
   const char *zDebug       /* Generate trace output if no NULL */
@@ -391,7 +455,7 @@ void find_filename_changes(
   }
   if( iFrom==iTo ) return;
   path_reset();
-  p = path_shortest(iFrom, iTo, 1, revOk==0);
+  p = path_shortest(iFrom, iTo, 1, revOK==0, 0);
   if( p==0 ) return;
   path_reverse_path();
   db_prepare(&q1,
@@ -489,16 +553,16 @@ void test_name_change(void){
   int nChng;
   int i;
   const char *zDebug = 0;
-  int revOk = 0;
+  int revOK = 0;
 
   db_find_and_open_repository(0,0);
   zDebug = find_option("debug",0,0)!=0 ? "debug" : 0;
-  revOk = find_option("bidirectional",0,0)!=0;
+  revOK = find_option("bidirectional",0,0)!=0;
   if( g.argc<4 ) usage("VERSION1 VERSION2");
   while( g.argc>=4 ){
     iFrom = name_to_rid(g.argv[2]);
     iTo = name_to_rid(g.argv[3]);
-    find_filename_changes(iFrom, iTo, revOk, &nChng, &aChng, zDebug);
+    find_filename_changes(iFrom, iTo, revOK, &nChng, &aChng, zDebug);
     fossil_print("------ Changes for (%d) %s -> (%d) %s\n",
                  iFrom, g.argv[2], iTo, g.argv[3]);
     for(i=0; i<nChng; i++){
@@ -518,11 +582,29 @@ void test_name_change(void){
 
 /* Query to extract all rename operations */
 static const char zRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
 @ SELECT
-@     datetime(event.mtime),
+@     datetime(event.mtime) AS date,
 @     F.name AS old_name,
 @     T.name AS new_name,
-@     blob.uuid
+@     blob.uuid AS checkin
+@   FROM mlink, filename F, filename T, event, blob
+@  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
+@    AND F.fnid=mlink.pfnid
+@    AND T.fnid=mlink.fnid
+@    AND event.objid=mlink.mid
+@    AND event.type='ci'
+@    AND blob.rid=mlink.mid;
+;
+
+/* Query to extract distinct rename operations */
+static const char zDistinctRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
+@ SELECT
+@     min(datetime(event.mtime)) AS date,
+@     F.name AS old_name,
+@     T.name AS new_name,
+@     blob.uuid AS checkin
 @   FROM mlink, filename F, filename T, event, blob
 @  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
 @    AND F.fnid=mlink.pfnid
@@ -530,29 +612,44 @@ static const char zRenameQuery[] =
 @    AND event.objid=mlink.mid
 @    AND event.type='ci'
 @    AND blob.rid=mlink.mid
-@  ORDER BY 1 DESC, 2;
+@  GROUP BY 2, 3;
 ;
 
 /*
 ** WEBPAGE: test-rename-list
 **
 ** Print a list of all file rename operations throughout history.
-** This page is intended for for testing purposes only and may change
+** This page is intended for testing purposes only and may change
 ** or be discontinued without notice.
 */
 void test_rename_list_page(void){
   Stmt q;
+  int nRename;
+  int nCheckin;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  style_header("List Of File Name Changes");
-  @ <h3>NB: Experimental Page</h3>
-  @ <table border="1" width="100%%">
-  @ <tr><th>Date &amp; Time</th>
+  style_set_current_feature("test");
+  if( P("all")!=0 ){
+    style_header("List Of All Filename Changes");
+    db_multi_exec("%s", zRenameQuery/*safe-for-%s*/);
+    style_submenu_element("Distinct", "%R/test-rename-list");
+  }else{
+    style_header("List Of Distinct Filename Changes");
+    db_multi_exec("%s", zDistinctRenameQuery/*safe-for-%s*/);
+    style_submenu_element("All", "%R/test-rename-list?all");
+  }
+  nRename = db_int(0, "SELECT count(*) FROM renames;");
+  nCheckin = db_int(0, "SELECT count(DISTINCT checkin) FROM renames;");
+  db_prepare(&q, "SELECT date, old_name, new_name, checkin FROM renames"
+                 " ORDER BY date DESC, old_name ASC");
+  @ <h1>%d(nRename) filename changes in %d(nCheckin) check-ins</h1>
+  @ <table class='sortable' data-column-types='tttt' data-init-sort='1'\
+  @  border="1" cellpadding="2" cellspacing="0">
+  @ <thead><tr><th>Date &amp; Time</th>
   @ <th>Old Name</th>
   @ <th>New Name</th>
-  @ <th>Check-in</th></tr>
-  db_prepare(&q, "%s", zRenameQuery/*safe-for-%s*/);
+  @ <th>Check-in</th></tr></thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zOld = db_column_text(&q, 1);
@@ -564,7 +661,8 @@ void test_rename_list_page(void){
     @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
     @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
   }
-  @ </table>
+  @ </tbody></table>
   db_finalize(&q);
-  style_footer();
+  style_table_sorter();
+  style_finish_page();
 }

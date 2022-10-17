@@ -6,14 +6,14 @@ This technical note explains the process.
 </blockquote>
 <h2>Building An Encryption-Enabled Fossil</h2><blockquote>
 The SQLite Encryption Extension (SEE) is proprietary software and requires
-[http://www.hwaci.com/cgi-bin/see-step1|purchasing a license].
+[https://sqlite.org/purchase/see|purchasing a license].
 <p>
 Assuming you have an SEE license, the first step of compiling Fossil to
 use SEE is to create an SEE-enabled version of the SQLite database source code.
 This alternative SQLite database source file should be called "sqlite3-see.c"
-and should be placed in the src/ subfolder of the Fossil sources, right beside
+and should be placed in the extsrc/ subfolder of the Fossil sources, right beside
 the public-domain "sqlite3.c" source file.  Also make a copy of the SEE-enabled
-"shell.c" file, renamed as "shell-see.c", and place it in the src/ subfolder
+"shell.c" file, renamed as "shell-see.c", and place it in the extsrc/ subfolder
 beside the original "shell.c".
 <p>
 Add the --with-see command-line option to the configuration script to enable
@@ -52,7 +52,7 @@ prevents fossil from trying to remember the previous sync password.
 export FOSSIL_SECURITY_LEVEL=2
 </pre></blockquote>
 A setting of 2 or greater
-causes all password prompts to be preceeded by a random translation matrix similar
+causes all password prompts to be preceded by a random translation matrix similar
 to the following:
 <blockquote><pre>
 abcde fghij klmno pqrst uvwyz

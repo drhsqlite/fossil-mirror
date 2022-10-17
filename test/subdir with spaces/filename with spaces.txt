@@ -1,0 +1,2 @@
+This file has a name that contains spaces.  It is used to help verify
+that fossil can handle filenames that contain spaces.

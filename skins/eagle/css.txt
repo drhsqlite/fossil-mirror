@@ -5,9 +5,6 @@ body {
   background-color: #485D7B;
   font-family: sans-serif;
   color: white;
-  -moz-text-size-adjust: none;
-  -webkit-text-size-adjust: none;
-  -mx-text-size-adjust: none;
 }
 
 /* The project logo in the upper left-hand corner of each page */
@@ -17,8 +14,15 @@ div.logo {
   vertical-align: bottom;
   font-weight: bold;
   color: white;
-  padding: 5 0 5 0em;
+  min-width: 50px;
   white-space: nowrap;
+  position: relative;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.75));
+  top: 0.5em;
+  right: -0.5em;
+}
+div.logo img{
+  border-radius: 2mm;
 }
 
 /* The page title centered at the top of each page */
@@ -41,7 +45,6 @@ div.status {
   color: white;
   font-size: 0.8em;
   font-weight: bold;
-  min-width: 200px;
   white-space: nowrap;
 }
 
@@ -64,6 +67,18 @@ div.mainmenu {
   border-top-right-radius: 8px;
   color: white;
 }
+
+div#hbdrop {
+  background-color: #485D7B;
+  border-radius: 0 0 15px 15px;
+  border-left: 0.5em solid #76869d;
+  border-bottom: 1.2em solid #76869d;
+  display: none;
+  width: 98%;
+  position: absolute;
+  z-index: 20;
+}
+
 
 /* The submenu bar that *sometimes* appears below the main menu */
 div.submenu, div.sectionmenu {
@@ -166,11 +181,15 @@ table.timelineTable {
   border: 0;
   cellpadding: 0;
   font-family: "courier new";
-  border-collapse: collapse;
+  border-spacing: 0px 2px;
+  // border-collapse: collapse;
 }
 
-tr.timelineSelected {
+.timelineSelected {
   background-color: #7EA2D9;
+}
+.timelineSecondary {
+  background-color: #7EA27E;
 }
 
 /* commit node */
@@ -221,14 +240,37 @@ tr.timelineSelected {
   border-left: 3px solid #fff;
 }
 
+.tl-arrow.cherrypick {
+  height: 1px;
+  border-width: 2px 0;
+}
+.tl-arrow.cherrypick.l {
+  border-right: 3px solid #fff;
+}
+.tl-arrow.cherrypick.r {
+  border-left: 3px solid #fff;
+}
+.tl-line.cherrypick.h {
+  width: 0px;
+  border-top: 1px dashed #fff;
+  border-left: 0px dashed #fff;
+  background: rgba(255,255,255,0);
+}
+.tl-line.cherrypick.v {
+  width: 0px;
+  border-top: 0px dashed #fff;
+  border-left: 1px dashed #fff;
+  background: rgba(255,255,255,0);
+}
+
+
 /* Side-by-side diff */
-table.sbsdiff {
+table.splitdiff {
   background-color: #485D7B;
   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
   font-size: 8pt;
   border-collapse:collapse;
   white-space: pre;
-  width: 98%;
   border: 1px #000 dashed;
   margin-left: auto;
   margin-right: auto;
@@ -263,6 +305,14 @@ td.tktDspValue {
   background-color: #485D7B;
 }
 
+/* Ticket display on timelines */
+td.tktTlOpen {
+  color: #ffc0c0;
+}
+td.tktTlClose {
+  color: #c0c0c0;
+}
+
 /* format for example table cells on the report edit page */
 td.rpteditex {
   border-width: thin;
@@ -277,47 +327,79 @@ ul.filelist {
 }
 
 /* side-by-side diff display */
-div.sbsdiff {
+div.splitdiff {
   font-family: monospace;
   font-size: smaller;
   white-space: pre;
 }
 
 /* context diff display */
-div.udiff {
+table.udiff {
   font-family: monospace;
   white-space: pre;
 }
 
-/* changes in a diff */
-span.diffchng {
-  background-color: rgb(170, 170, 140);
-}
-
 /* added code in a diff */
-span.diffadd {
+td.difftxt ins > ins, td.diffln ins {
   background-color: rgb(100, 200, 100);
+}
+td.difftxt ins {
+  background-color: inherit;
 }
 
 /* deleted in a diff */
-span.diffrm {
+td.difftxt del > del, td.diffln del {
   background-color: rgb(230, 110, 110);
 }
-
-/* suppressed lines in a diff */
-span.diffhr {
-  display: inline-block;
-  margin: .5em 0 1em;
-  color: rgb(150, 150, 140);
+td.difftxt del {
+  background-color: inherit;
 }
-
-/* line numbers in a diff */
-span.diffln {
+tr.diffskip.jchunk {
+  background-color: #7EA2D9;
+}
+tr.diffskip > td.chunkctrl .jcbutton{
   color: white;
+  background-color: #485D7B;
 }
 
 .fileage tr:hover {
-  background-color: #7EA2D9;
+  background-color:  #7EA2D9;
+}
+
+span.modpending {
+  color: #c0c0c0;
+  font-style: italic;
+}
+span.forum_author {
+  color: white;
+  font-size: 75%;
+}
+span.forum_age {
+  color: white;
+  font-size: 85%;
+}
+span.forum_npost {
+  color: white;
+  font-size: 75%;
+}
+.debug {
+  background-color: #808080;
+  border: 2px solid white;
+}
+div.forumEdit {
+  border: 1px solid white;
+}
+div.forumTimeline {
+  border: 1px solid white;
+}
+div.forumTime {
+  border: 1px solid white;
+}
+div.forumSel {
+  background-color: #808080;
+}
+div.forumObs {
+  color: white;
 }
 
 .fileage td {
@@ -328,10 +410,29 @@ div.filetreeline:hover {
   background-color: #7EA2D9;
 }
 
-div.selectedText {
+table.numbered-lines td.line-numbers span.selected-line {
   background-color: #7EA2D9;
 }
 
 .statistics-report-graph-line {
+  background-color: #7EA2D9;
+}
+
+.timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
+  background-color: #455978;
+}
+
+.capsumOff {
+  background-color: #bbbbbb;
+}
+.capsumRead {
+  background-color: #006d00;
+}
+.capsumWrite {
+  background-color: #e5e500;
+}
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
   background-color: #7EA2D9;
 }

@@ -28,27 +28,34 @@
 ** We also encode " as &quot; and ' as &#39; so they can appear as an argument
 ** to markup.
 */
-char *htmlize(const char *zIn, int n){
-  int c;
+char *htmlize(const char *z, int n){
+  unsigned char c;
   int i = 0;
   int count = 0;
-  char *zOut;
+  unsigned char *zOut;
+  const unsigned char *zIn = (const unsigned char*)z;
 
-  if( n<0 ) n = strlen(zIn);
-  while( i<n && (c = zIn[i])!=0 ){
-    switch( c ){
-      case '<':   count += 4;       break;
-      case '>':   count += 4;       break;
-      case '&':   count += 5;       break;
-      case '"':   count += 6;       break;
-      case '\'':  count += 5;       break;
-      default:    count++;          break;
+  if( n<0 ) n = strlen(z);
+  while( i<n ){
+    switch( zIn[i] ){
+      case '<':   count += 3;       break;
+      case '>':   count += 3;       break;
+      case '&':   count += 4;       break;
+      case '"':   count += 5;       break;
+      case '\'':  count += 4;       break;
+      case 0:     n = i;            break;
     }
     i++;
   }
   i = 0;
-  zOut = fossil_malloc( count+1 );
-  while( n-->0 && (c = *zIn)!=0 ){
+  zOut = fossil_malloc( count+n+1 );
+  if( count==0 ){
+    memcpy(zOut, zIn, n);
+    zOut[n] = 0;
+    return (char*)zOut;
+  }
+  while( n-->0 ){
+    c = *(zIn++);
     switch( c ){
       case '<':
         zOut[i++] = '&';
@@ -88,10 +95,9 @@ char *htmlize(const char *zIn, int n){
         zOut[i++] = c;
         break;
     }
-    zIn++;
   }
   zOut[i] = 0;
-  return zOut;
+  return (char*)zOut;
 }
 
 /*
@@ -126,6 +132,11 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
       case '\'':
         if( j<i ) blob_append(p, zIn+j, i-j);
         blob_append(p, "&#39;", 5);
+        j = i+1;
+        break;
+      case '\r':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, " ", 1);
         j = i+1;
         break;
     }
@@ -200,6 +211,36 @@ char *httpize(const char *z, int n){
 */
 char *urlize(const char *z, int n){
   return EncodeHttp(z, n, 0);
+}
+
+/*
+** If input string does not contain quotes (niether ' nor ")
+** then return the argument itself. Otherwise return a newly allocated
+** copy of input with all quotes %-escaped.
+*/
+const char* escape_quotes(const char *zIn){
+  char *zRet, *zOut;
+  size_t i, n = 0;
+  for(i=0; zIn[i]; i++){
+    if( zIn[i]== '"' || zIn[i]== '\'' ) n++;
+  }
+  if( !n ) return zIn;
+  zRet = zOut = fossil_malloc( i + 2*n + 1 );
+  for(i=0; zIn[i]; i++){
+    if( zIn[i]=='"' ){
+      *(zOut++) = '%';
+      *(zOut++) = '2';
+      *(zOut++) = '2';
+    }else if( zIn[i]=='\'' ){
+      *(zOut++) = '%';
+      *(zOut++) = '2';
+      *(zOut++) = '7';
+    }else{
+      *(zOut++) = zIn[i];
+    }
+  }
+  *zOut = 0;
+  return zRet;
 }
 
 /*
@@ -316,8 +357,9 @@ char *fossilize(const char *zIn, int nIn){
 */
 void defossilize(char *z){
   int i, j, c;
-  for(i=0; (c=z[i])!=0 && c!='\\'; i++){}
-  if( c==0 ) return;
+  char *zSlash = strchr(z, '\\');
+  if( zSlash==0 ) return;
+  i = zSlash - z;
   for(j=i; (c=z[i])!=0; i++){
     if( c=='\\' && z[i+1] ){
       i++;
@@ -378,19 +420,28 @@ u32 fossil_utf8_read(
 }
 
 /*
-** Encode a UTF8 string for JSON.  All special characters are escaped.
+** Encode a UTF8 string as a JSON string literal (with or without the
+** surrounding "...", depending on whether the 2nd argument is true or
+** false) and return a pointer to the encoding.  Space to hold the
+** encoding is obtained from fossil_malloc() and must be freed by the
+** caller.
+**
+** If nOut is not NULL then it is assigned to the length, in bytes, of
+** the returned string (its strlen(), not counting the terminating
+** NUL).
 */
-void blob_append_json_string(Blob *pBlob, const char *zStr){
+char *encode_json_string_literal(const char *zStr, int fAddQuotes,
+                                 int * nOut){
   const unsigned char *z;
   char *zOut;
   u32 c;
   int n, i, j;
   z = (const unsigned char*)zStr;
   n = 0;
-  while( (c = fossil_utf8_read(&z))!=0 ){
+  while( (c = *(z++))!=0 ){
     if( c=='\\' || c=='"' ){
       n += 2;
-    }else if( c<' ' || c>=0x7f ){
+    }else if( c<' ' ){
       if( c=='\n' || c=='\r' ){
         n += 2;
       }else{
@@ -400,15 +451,21 @@ void blob_append_json_string(Blob *pBlob, const char *zStr){
       n++;
     }
   }
-  i = blob_size(pBlob);
-  blob_resize(pBlob, i+n);
-  zOut = blob_buffer(pBlob);
+  if(fAddQuotes){
+    n += 2;
+  }
+  zOut = fossil_malloc(n+1);
+  if( zOut==0 ) return 0;
   z = (const unsigned char*)zStr;
-  while( (c = fossil_utf8_read(&z))!=0 ){
-    if( c=='\\' ){
+  i = 0;
+  if(fAddQuotes){
+    zOut[i++] = '"';
+  }
+  while( (c = *(z++))!=0 ){
+    if( c=='\\' || c=='"' ){
       zOut[i++] = '\\';
       zOut[i++] = c;
-    }else if( c<' ' || c>=0x7f ){
+    }else if( c<' ' ){
       zOut[i++] = '\\';
       if( c=='\n' ){
         zOut[i++] = 'n';
@@ -426,7 +483,14 @@ void blob_append_json_string(Blob *pBlob, const char *zStr){
       zOut[i++] = c;
     }
   }
+  if(fAddQuotes){
+    zOut[i++] = '"';
+  }
   zOut[i] = 0;
+  if(nOut!=0){
+    *nOut = i;
+  }
+  return zOut;
 }
 
 /*
@@ -436,19 +500,12 @@ static unsigned char zBase[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
-** Encode a string using a base-64 encoding.
-** The encoding can be reversed using the <b>decode64</b> function.
-**
-** Space to hold the result comes from malloc().
+** Translate nData bytes of content from zData into
+** ((nData+2)/3)*4) bytes of base64 encoded content and
+** put the result in z64.  Add a zero-terminator at the end.
 */
-char *encode64(const char *zData, int nData){
-  char *z64;
+int translateBase64(const char *zData, int nData, char *z64){
   int i, n;
-
-  if( nData<=0 ){
-    nData = strlen(zData);
-  }
-  z64 = fossil_malloc( (nData*4)/3 + 8 );
   for(i=n=0; i+2<nData; i+=3){
     z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
     z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
@@ -467,6 +524,22 @@ char *encode64(const char *zData, int nData){
     z64[n++] = '=';
   }
   z64[n] = 0;
+  return n;
+}
+
+/*
+** Encode a string using a base-64 encoding.
+** The encoding can be reversed using the <b>decode64</b> function.
+**
+** Space to hold the result comes from malloc().
+*/
+char *encode64(const char *zData, int nData){
+  char *z64;
+  if( nData<=0 ){
+    nData = strlen(zData);
+  }
+  z64 = fossil_malloc( (nData*4)/3 + 8 );
+  translateBase64(zData, nData, z64);
   return z64;
 }
 
@@ -486,6 +559,46 @@ void test_encode64_cmd(void){
 }
 
 
+/* Decode base64 text.  Write the output into zData.  The caller
+** must ensure that zData is large enough.  It is ok for z64 and
+** zData to be the same buffer.  In other words, it is ok to decode
+** in-place.  A zero terminator is always placed at the end of zData.
+*/
+void decodeBase64(const char *z64, int *pnByte, char *zData){
+  const unsigned char *zIn = (const unsigned char*)z64;
+  int i, j, k;
+  int x[4];
+  static int isInit = 0;
+  static signed char trans[256];
+
+  if( !isInit ){
+    for(i=0; i<256; i++){ trans[i] = -1; }
+    for(i=0; zBase[i]; i++){ trans[zBase[i] & 0x7f] = i; }
+    isInit = 1;
+  }
+  for(j=k=0; zIn[0]; zIn++){
+    int v = trans[zIn[0]];
+    if( v>=0 ){
+      x[k++] = v;
+      if( k==4 ){
+        zData[j++] = ((x[0]<<2) & 0xfc) | ((x[1]>>4) & 0x03);
+        zData[j++] = ((x[1]<<4) & 0xf0) | ((x[2]>>2) & 0x0f);
+        zData[j++] = ((x[2]<<6) & 0xc0) | (x[3] & 0x3f);
+        k = 0;
+      }
+    }
+  }
+  if( k>=2 ){
+    zData[j++] = ((x[0]<<2) & 0xfc) | ((x[1]>>4) & 0x03);
+    if( k==3 ){
+      zData[j++] = ((x[1]<<4) & 0xf0) | ((x[2]>>2) & 0x0f);
+    }
+  }
+  zData[j] = 0;
+  *pnByte = j;
+}
+
+
 /*
 ** This function treats its input as a base-64 string and returns the
 ** decoded value of that string.  Characters of input that are not
@@ -497,42 +610,10 @@ void test_encode64_cmd(void){
 */
 char *decode64(const char *z64, int *pnByte){
   char *zData;
-  int n64;
-  int i, j;
-  int a, b, c, d;
-  static int isInit = 0;
-  static int trans[128];
-
-  if( !isInit ){
-    for(i=0; i<128; i++){ trans[i] = 0; }
-    for(i=0; zBase[i]; i++){ trans[zBase[i] & 0x7f] = i; }
-    isInit = 1;
-  }
-  n64 = strlen(z64);
+  int n64 = (int)strlen(z64);
   while( n64>0 && z64[n64-1]=='=' ) n64--;
   zData = fossil_malloc( (n64*3)/4 + 4 );
-  for(i=j=0; i+3<n64; i+=4){
-    a = trans[z64[i] & 0x7f];
-    b = trans[z64[i+1] & 0x7f];
-    c = trans[z64[i+2] & 0x7f];
-    d = trans[z64[i+3] & 0x7f];
-    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
-    zData[j++] = ((b<<4) & 0xf0) | ((c>>2) & 0x0f);
-    zData[j++] = ((c<<6) & 0xc0) | (d & 0x3f);
-  }
-  if( i+2<n64 ){
-    a = trans[z64[i] & 0x7f];
-    b = trans[z64[i+1] & 0x7f];
-    c = trans[z64[i+2] & 0x7f];
-    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
-    zData[j++] = ((b<<4) & 0xf0) | ((c>>2) & 0x0f);
-  }else if( i+1<n64 ){
-    a = trans[z64[i] & 0x7f];
-    b = trans[z64[i+1] & 0x7f];
-    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
-  }
-  zData[j] = 0;
-  *pnByte = j;
+  decodeBase64(z64, pnByte, zData);
   return zData;
 }
 
@@ -547,7 +628,7 @@ void test_decode64_cmd(void){
   for(i=2; i<g.argc; i++){
     z = decode64(g.argv[i], &n);
     fossil_print("%d: %s\n", n, z);
-    free(z);
+    fossil_free(z);
   }
 }
 
@@ -627,6 +708,10 @@ int decode16(const unsigned char *zIn, unsigned char *pOut, int N){
 */
 int validate16(const char *zIn, int nIn){
   int i;
+  if( nIn<0 ) nIn = (int)strlen(zIn);
+  if( zIn[nIn]==0 ){
+    return strspn(zIn,"0123456789abcdefABCDEF")==nIn;
+  }
   for(i=0; i<nIn; i++, zIn++){
     if( zDecode[zIn[0]&0xff]>63 ){
       return zIn[0]==0;
@@ -645,6 +730,31 @@ void canonical16(char *z, int n){
     *z = zEncode[zDecode[(*z)&0x7f]&0x1f];
     z++;
   }
+}
+
+/*
+** Decode a string encoded using "quoted-printable".
+**
+**   (1)  "=" followed by two hex digits becomes a single
+**        byte specified by the two digits
+**
+** The decoding is done in-place.
+*/
+void decodeQuotedPrintable(char *z, int *pnByte){
+  int i, j, c;
+  for(i=j=0; (c = z[i])!=0; i++){
+    if( c=='=' ){
+      if( z[i+1]!='\r' ){
+        decode16((unsigned char*)&z[i+1], (unsigned char*)&z[j], 2);
+        j++;
+      }
+      i += 2;
+    }else{
+      z[j++] = c;
+    }
+  }
+  if( pnByte ) *pnByte = j;
+  z[j] = 0;
 }
 
 /* Randomness used for XOR-ing by the obscure() and unobscure() routines */

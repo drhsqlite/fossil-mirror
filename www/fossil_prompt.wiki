@@ -5,7 +5,7 @@ Dan Kennedy has contributed a
 [./fossil_prompt.sh?mimetype=text/plain | bash script]
 that manipulates the bash prompt to show the status of
 the Fossil repository that the user is currently visiting.
-The prompt shows the branch, version, and timestamp for the
+The prompt shows the branch, version, and time stamp for the
 current checkout, and the prompt changes colors from blue to
 red when there are uncommitted changes.
 

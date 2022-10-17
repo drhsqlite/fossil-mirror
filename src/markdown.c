@@ -47,6 +47,7 @@ struct mkd_renderer {
   /* document level callbacks */
   void (*prolog)(struct Blob *ob, void *opaque);
   void (*epilog)(struct Blob *ob, void *opaque);
+  void (*footnotes)(struct Blob *ob, const struct Blob *items, void *opaque);
 
   /* block level callbacks - NULL skips the block */
   void (*blockcode)(struct Blob *ob, struct Blob *text, void *opaque);
@@ -65,11 +66,13 @@ struct mkd_renderer {
               void *opaque);
   void (*table_row)(struct Blob *ob, struct Blob *cells, int flags,
               void *opaque);
+  void (*footnote_item)(struct Blob *ob, const struct Blob *text, 
+              int index, int nUsed, void *opaque);
 
   /* span level callbacks - NULL or return 0 prints the span verbatim */
   int (*autolink)(struct Blob *ob, struct Blob *link,
           enum mkd_autolink type, void *opaque);
-  int (*codespan)(struct Blob *ob, struct Blob *text, void *opaque);
+  int (*codespan)(struct Blob *ob, struct Blob *text, int nSep, void *opaque);
   int (*double_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
   int (*emphasis)(struct Blob *ob, struct Blob *text, char c,void*opaque);
@@ -81,13 +84,14 @@ struct mkd_renderer {
   int (*raw_html_tag)(struct Blob *ob, struct Blob *tag, void *opaque);
   int (*triple_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
+  int (*footnote_ref)(struct Blob *ob, const struct Blob *span,
+              const struct Blob *upc, int index, int locus, void *opaque);
 
   /* low level callbacks - NULL copies input directly into the output */
   void (*entity)(struct Blob *ob, struct Blob *entity, void *opaque);
   void (*normal_text)(struct Blob *ob, struct Blob *text, void *opaque);
 
   /* renderer data */
-  int max_work_stack; /* prevent arbitrary deep recursion, cf README */
   const char *emph_chars; /* chars that trigger emphasis rendering */
   void *opaque; /* opaque data send to every rendering callback */
 };
@@ -116,27 +120,50 @@ struct mkd_renderer {
  * EXPORTED FUNCTIONS *
  **********************/
 
-/* markdown -- parses the input buffer and renders it into the output buffer */
+/*
+** markdown -- parses the input buffer and renders it into the output buffer.
+*/
 void markdown(
   struct Blob *ob,
-  struct Blob *ib,
+  const struct Blob *ib,
   const struct mkd_renderer *rndr);
 
 
 #endif /* INTERFACE */
 
+#define BLOB_COUNT(pBlob,el_type) (blob_size(pBlob)/sizeof(el_type))
+#define COUNT_FOOTNOTES(pBlob) BLOB_COUNT(pBlob,struct footnote)
+#define CAST_AS_FOOTNOTES(pBlob) ((struct footnote*)blob_buffer(pBlob))
 
 /***************
  * LOCAL TYPES *
  ***************/
 
-/* link_ref -- reference to a link */
+/*
+** link_ref -- reference to a link.
+*/
 struct link_ref {
-  struct Blob id;
+  struct Blob id;     /* must be the first field as in footnote struct */
   struct Blob link;
   struct Blob title;
 };
 
+/*
+** A footnote's data.
+** id, text, and upc fields must be in that particular order.
+*/
+struct footnote {
+  struct Blob id;      /* must be the first field as in link_ref struct  */
+  struct Blob text;    /* footnote's content that is rendered at the end */
+  struct Blob upc;     /* user-provided classes  .ASCII-alnum.or-hypen:  */
+  int bRndred;         /* indicates if `text` holds a rendered content   */
+
+  int defno;  /* serial number of definition, set during the first pass  */
+  int index;  /* set to the index within array after ordering by id      */
+  int iMark;  /* user-visible numeric marker, assigned upon the first use*/
+  int nUsed;  /* counts references to this note, increments upon each use*/
+};
+#define FOOTNOTE_INITIALIZER {empty_blob,empty_blob,empty_blob, 0,0,0,0,0}
 
 /* char_trigger -- function pointer to render active chars */
 /*   returns the number of chars taken care of */
@@ -156,10 +183,18 @@ struct render {
   struct mkd_renderer make;
   struct Blob refs;
   char_trigger active_char[256];
-  int work_active;
-  struct Blob *work;
-};
+  int iDepth;                    /* Depth of recursion */
+  int nBlobCache;                /* Number of entries in aBlobCache */
+  struct Blob *aBlobCache[20];   /* Cache of Blobs available for reuse */
 
+  struct {
+    Blob all;    /* Buffer that holds array of footnotes. Its underline
+                    memory may be reallocated when a new footnote is added. */
+    int nLbled;  /* number of labeled footnotes found during the first pass */
+    int nMarks;  /* counts distinct indices found during the second pass    */
+    struct footnote misref; /* nUsed counts misreferences, iMark must be -1 */
+  } notes;
+};
 
 /* html_tag -- structure for quick HTML tag search (inspired from discount) */
 struct html_tag {
@@ -173,42 +208,26 @@ struct html_tag {
  * GLOBAL VARIABLES *
  ********************/
 
-/* block_tags -- recognised block tags, sorted by cmp_html_tag */
+/* block_tags -- recognised block tags, sorted by cmp_html_tag.
+**
+** When these HTML tags are separated from other text by newlines
+** then they are rendered verbatim.  Their content is not interpreted
+** in any way.
+*/
 static const struct html_tag block_tags[] = {
-  { "p",            1 },
-  { "dl",           2 },
-  { "h1",           2 },
-  { "h2",           2 },
-  { "h3",           2 },
-  { "h4",           2 },
-  { "h5",           2 },
-  { "h6",           2 },
-  { "ol",           2 },
-  { "ul",           2 },
-  { "del",          3 },
-  { "div",          3 },
-  { "ins",          3 },
+  { "html",         4 },
   { "pre",          3 },
-  { "form",         4 },
-  { "math",         4 },
-  { "table",        5 },
-  { "iframe",       6 },
   { "script",       6 },
-  { "fieldset",     8 },
-  { "noscript",     8 },
-  { "blockquote",  10 }
 };
-
-#define INS_TAG (block_tags + 12)
-#define DEL_TAG (block_tags + 10)
-
-
 
 /***************************
  * STATIC HELPER FUNCTIONS *
  ***************************/
 
-/* build_ref_id -- collapse whitespace from input text to make it a ref id */
+/*
+** build_ref_id -- collapse whitespace from input text to make it a ref id.
+** Potential TODO: maybe also handle CR+LF line endings?
+*/
 static int build_ref_id(struct Blob *id, const char *data, size_t size){
   size_t beg, i;
   char *id_data;
@@ -240,7 +259,7 @@ static int build_ref_id(struct Blob *id, const char *data, size_t size){
     blob_append(id, data+beg, i-beg);
 
     /* add a single space and skip all consecutive whitespace */
-    if( i<size ) blob_append(id, " ", 1);
+    if( i<size ) blob_append_char(id, ' ');
     while( i<size && (data[i]==' ' || data[i]=='\t' || data[i]=='\n') ){ i++; }
   }
 
@@ -267,13 +286,65 @@ static int cmp_link_ref_sort(const void *a, const void *b){
   return blob_compare(&lra->id, &lrb->id);
 }
 
+/*
+** cmp_footnote_id -- comparison function for footnotes qsort.
+** Empty IDs sort last (in undetermined order).
+** Equal IDs are sorted in the order of definition in the source.
+*/
+static int cmp_footnote_id(const void *fna, const void *fnb){
+  const struct footnote *a = fna, *b = fnb;
+  const int szA = blob_size(&a->id), szB = blob_size(&b->id);
+  if( szA ){
+    if( szB ){
+      int cmp = blob_compare(&a->id, &b->id);
+      if( cmp ) return cmp;
+    }else return -1;
+  }else return szB ? 1 : 0;
+  /* IDs are equal and non-empty */
+  if( a->defno < b->defno ) return -1;
+  if( a->defno > b->defno ) return  1;
+  assert(!"reachable");
+  return 0; /* should never reach here */
+}
+
+/*
+** cmp_footnote_sort -- comparison function for footnotes qsort.
+** Unreferenced footnotes (when nUsed == 0) sort last and
+** are sorted in the order of definition in the source.
+*/
+static int cmp_footnote_sort(const void *fna, const void *fnb){
+  const struct footnote *a = fna, *b = fnb;
+  int i, j;
+  assert( a->nUsed >= 0 );
+  assert( b->nUsed >= 0 );
+  assert( a->defno >= 0 );
+  assert( b->defno >= 0 );
+  if( a->nUsed ){
+    assert( a->iMark >  0 );
+    if( !b->nUsed ) return -1;
+    assert( b->iMark >  0 );
+    i = a->iMark;
+    j = b->iMark;
+  }else{
+    if( b->nUsed )  return  1;
+    i = a->defno;
+    j = b->defno;
+  }
+  if( i < j ) return -1;
+  if( i > j ) return  1;
+  return 0;
+}
 
 /* cmp_html_tag -- comparison function for bsearch() (stolen from discount) */
 static int cmp_html_tag(const void *a, const void *b){
   const struct html_tag *hta = a;
   const struct html_tag *htb = b;
-  if( hta->size!=htb->size ) return hta->size-htb->size;
-  return fossil_strnicmp(hta->text, htb->text, hta->size);
+  int sz = hta->size;
+  int c;
+  if( htb->size<sz ) sz = htb->size;
+  c = fossil_strnicmp(hta->text, htb->text, sz);
+  if( c==0 ) c = hta->size - htb->size;
+  return c;
 }
 
 
@@ -302,25 +373,36 @@ static const struct html_tag *find_block_tag(const char *data, size_t size){
                  cmp_html_tag);
 }
 
+/* return true if recursion has gone too deep */
+static int too_deep(struct render *rndr){
+  return rndr->iDepth>200;
+}
 
-/* new_work_buffer -- get a new working buffer from the stack or create one */
+/* get a new working buffer from the cache or create one.  return NULL
+** if failIfDeep is true and the depth of recursion has gone too deep. */
 static struct Blob *new_work_buffer(struct render *rndr){
-  struct Blob *ret = 0;
-
-  if( rndr->work_active < rndr->make.max_work_stack ){
-    ret = rndr->work + rndr->work_active;
-    rndr->work_active += 1;
-    blob_reset(ret);
+  struct Blob *ret;
+  rndr->iDepth++;
+  if( rndr->nBlobCache ){
+    ret = rndr->aBlobCache[--rndr->nBlobCache];
+  }else{
+    ret = fossil_malloc(sizeof(*ret));
   }
+  *ret = empty_blob;
   return ret;
 }
 
 
-/* release_work_buffer -- release the given working buffer */
+/* release the given working buffer back to the cache */
 static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
-  assert(rndr->work_active>0 && buf==(rndr->work+rndr->work_active-1));
-  rndr->work_active -= 1;
+  rndr->iDepth--;
+  blob_reset(buf);
+  if( rndr->nBlobCache < sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0]) ){
+    rndr->aBlobCache[rndr->nBlobCache++] = buf;
+  }else{
+    fossil_free(buf);
+  }
 }
 
 
@@ -361,6 +443,10 @@ static size_t tag_length(char *data, size_t size, enum mkd_autolink *autolink){
   if( data[0]!='<' ) return 0;
   i = (data[1]=='/') ? 2 : 1;
   if( (data[i]<'a' || data[i]>'z') &&  (data[i]<'A' || data[i]>'Z') ){
+    if( data[1]=='!' && size>=7 && data[2]=='-' && data[3]=='-' ){
+      for(i=6; i<size && (data[i]!='>'||data[i-1]!='-'|| data[i-2]!='-');i++){}
+      if( i<size ) return i;
+    }
     return 0;
   }
 
@@ -423,6 +509,10 @@ static void parse_inline(
   char_trigger action = 0;
   struct Blob work = BLOB_INITIALIZER;
 
+  if( too_deep(rndr) ){
+    blob_append(ob, data, size);
+    return;
+  }
   while( i<size ){
     /* copying inactive chars into the output */
     while( end<size
@@ -453,15 +543,55 @@ static void parse_inline(
   }
 }
 
+/*
+** data[*pI] should be a "`" character that introduces a code-span.
+** The code-span boundry mark can be any number of one or more "`"
+** characters.  We do not know the size of the boundry marker, only
+** that there is at least one "`" at data[*pI].
+**
+** This routine increases *pI to move it past the code-span, including
+** the closing boundary mark.  Or, if the code-span is unterminated,
+** this routine moves *pI past the opening boundary mark only.
+*/
+static void skip_codespan(const char *data, size_t size, size_t *pI){
+  size_t i = *pI;
+  size_t span_nb;   /* Number of "`" characters in the boundary mark */
+  size_t bt;
+
+  assert( i<size );
+  assert( data[i]=='`' );
+  data += i;
+  size -= i;
+
+  /* counting the number of opening backticks */
+  i = 0;
+  span_nb = 0;
+  while( i<size && data[i]=='`' ){
+    i++;
+    span_nb++;
+  }
+  if( i>=size ){
+    *pI += span_nb;
+    return;
+  }
+
+  /* finding the matching closing sequence */
+  bt = 0;
+  while( i<size && bt<span_nb ){
+    if( data[i]=='`' ) bt += 1; else bt = 0;
+    i++;
+  }
+  *pI += (bt == span_nb) ? i : span_nb;
+}
+
 
 /* find_emph_char -- looks for the next emph char, skipping other constructs */
 static size_t find_emph_char(char *data, size_t size, char c){
-  size_t i = 1;
+  size_t i = data[0]!='`';
 
   while( i<size ){
     while( i<size && data[i]!=c && data[i]!='`' && data[i]!='[' ){ i++; }
     if( i>=size ) return 0;
-    if( data[i]==c ) return i;
 
     /* not counting escaped chars */
     if( i && data[i-1]=='\\' ){
@@ -469,30 +599,11 @@ static size_t find_emph_char(char *data, size_t size, char c){
       continue;
     }
 
-    /* skipping a code span */
-    if( data[i]=='`' ){
-      size_t span_nb = 0, bt;
-      size_t tmp_i = 0;
+    if( data[i]==c ) return i;
 
-      /* counting the number of opening backticks */
-      while( i<size && data[i]=='`' ){
-        i++;
-        span_nb++;
-      }
-      if( i>=size ) return 0;
-
-      /* finding the matching closing sequence */
-      bt = 0;
-      while( i<size && bt<span_nb ){
-        if( !tmp_i && data[i]==c ) tmp_i = i;
-        if( data[i]=='`' ) bt += 1; else bt = 0;
-        i++;
-      }
-      if( i>=size ) return tmp_i;
-      i++;
-
-    /* skipping a link */
-    }else if( data[i]=='[' ){
+    if( data[i]=='`' ){            /* skip a code span */
+      skip_codespan(data, size, &i);
+    }else if( data[i]=='[' ){      /* skip a link */
       size_t tmp_i = 0;
       char cc;
       i++;
@@ -521,9 +632,44 @@ static size_t find_emph_char(char *data, size_t size, char c){
   return 0;
 }
 
+/* CommonMark defines separate "right-flanking" and "left-flanking"
+** deliminators for emphasis.  Whether a deliminator is left- or
+** right-flanking, or both, or neither depends on the characters
+** immediately before and after.
+**
+**   before   after   example    left-flanking   right-flanking
+**   ------   -----   -------    -------------   --------------
+**    space   space      *            no              no
+**    space   punct      *)          yes              no
+**    space   alnum      *x          yes              no
+**    punct   space     (*            no             yes
+**    punct   punct     (*)          yes             yes
+**    punct   alnum     (*x          yes              no
+**    alnum   space     a*            no             yes
+**    alnum   punct     a*(           no             yes
+**    alnum   alnum     a*x          yes             yes
+**
+** The following routines determine whether a delimitor is left
+** or right flanking.
+*/
+static int left_flanking(char before, char after){
+  if( fossil_isspace(after) ) return 0;
+  if( fossil_isalnum(after) ) return 1;
+  if( fossil_isalnum(before) ) return 0;
+  return 1;
+}
+static int right_flanking(char before, char after){
+  if( fossil_isspace(before) ) return 0;
+  if( fossil_isalnum(before) ) return 1;
+  if( fossil_isalnum(after) ) return 0;
+  return 1;
+}
 
-/* parse_emph1 -- parsing single emphasis */
-/* closed by a symbol not preceded by whitespace and not followed by symbol */
+
+/*
+** parse_emph1 -- parsing single emphasis.
+** closed by a symbol not preceded by whitespace and not followed by symbol.
+*/
 static size_t parse_emph1(
   struct Blob *ob,
   struct render *rndr,
@@ -534,6 +680,7 @@ static size_t parse_emph1(
   size_t i = 0, len;
   struct Blob *work = 0;
   int r;
+  char after;
 
   if( !rndr->make.emphasis ) return 0;
 
@@ -550,13 +697,13 @@ static size_t parse_emph1(
       i++;
       continue;
     }
+    after = i+1<size ? data[i+1] : ' ';
     if( data[i]==c
-     && data[i-1]!=' '
-     && data[i-1]!='\t'
-     && data[i-1]!='\n'
+     && right_flanking(data[i-1],after)
+     && (c!='_' || !fossil_isalnum(after))
+     && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
-      if( !work ) return 0;
       parse_inline(work, rndr, data, i);
       r = rndr->make.emphasis(ob, work, c, rndr->make.opaque);
       release_work_buffer(rndr, work);
@@ -566,8 +713,9 @@ static size_t parse_emph1(
   return 0;
 }
 
-
-/* parse_emph2 -- parsing single emphasis */
+/*
+** parse_emph2 -- parsing single emphasis.
+*/
 static size_t parse_emph2(
   struct Blob *ob,
   struct render *rndr,
@@ -578,6 +726,7 @@ static size_t parse_emph2(
   size_t i = 0, len;
   struct Blob *work = 0;
   int r;
+  char after;
 
   if( !rndr->make.double_emphasis ) return 0;
 
@@ -585,16 +734,15 @@ static size_t parse_emph2(
     len = find_emph_char(data+i, size-i, c);
     if( !len ) return 0;
     i += len;
+    after = i+2<size ? data[i+2] : ' ';
     if( i+1<size
      && data[i]==c
      && data[i+1]==c
-     && i
-     && data[i-1]!=' '
-     && data[i-1]!='\t'
-     && data[i-1]!='\n'
+     && right_flanking(data[i-1],after)
+     && (c!='_' || !fossil_isalnum(after))
+     && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
-      if( !work ) return 0;
       parse_inline(work, rndr, data, i);
       r = rndr->make.double_emphasis(ob, work, c, rndr->make.opaque);
       release_work_buffer(rndr, work);
@@ -605,9 +753,10 @@ static size_t parse_emph2(
   return 0;
 }
 
-
-/* parse_emph3 -- parsing single emphasis */
-/* finds the first closing tag, and delegates to the other emph */
+/*
+** parse_emph3 -- parsing single emphasis.
+** finds the first closing tag, and delegates to the other emph.
+*/
 static size_t parse_emph3(
   struct Blob *ob,
   struct render *rndr,
@@ -632,10 +781,10 @@ static size_t parse_emph3(
      && data[i+1]==c
      && data[i+2] == c
      && rndr->make.triple_emphasis
+     && !too_deep(rndr)
     ){
       /* triple symbol found */
       struct Blob *work = new_work_buffer(rndr);
-      if( !work ) return 0;
       parse_inline(work, rndr, data, i);
       r = rndr->make.triple_emphasis(ob, work, c, rndr->make.opaque);
       release_work_buffer(rndr, work);
@@ -653,8 +802,9 @@ static size_t parse_emph3(
   return 0;
 }
 
-
-/* char_emphasis -- single and double emphasis parsing */
+/*
+** char_emphasis -- single and double emphasis parsing.
+*/
 static size_t char_emphasis(
   struct Blob *ob,
   struct render *rndr,
@@ -663,13 +813,12 @@ static size_t char_emphasis(
   size_t size
 ){
   char c = data[0];
+  char before = offset>0 ? data[-1] : ' ';
   size_t ret;
 
   if( size>2 && data[1]!=c ){
-    /* whitespace cannot follow an opening emphasis */
-    if( data[1]==' '
-     || data[1]=='\t'
-     || data[1]=='\n'
+    if( !left_flanking(before, data[1])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph1(ob, rndr, data+1, size-1, c))==0
     ){
       return 0;
@@ -678,9 +827,8 @@ static size_t char_emphasis(
   }
 
   if( size>3 && data[1]==c && data[2]!=c ){
-    if( data[2]==' '
-     || data[2]=='\t'
-     || data[2]=='\n'
+    if( !left_flanking(before, data[2])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph2(ob, rndr, data+2, size-2, c))==0
     ){
       return 0;
@@ -689,9 +837,8 @@ static size_t char_emphasis(
   }
 
   if( size>4 && data[1]==c && data[2]==c && data[3]!=c ){
-    if( data[3]==' '
-     || data[3]=='\t'
-     || data[3]=='\n'
+    if( !left_flanking(before, data[3])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph3(ob, rndr, data+3, size-3, c))==0
     ){
       return 0;
@@ -701,8 +848,9 @@ static size_t char_emphasis(
   return 0;
 }
 
-
-/* char_linebreak -- '\n' preceded by two spaces (assuming linebreak != 0) */
+/*
+** char_linebreak -- '\n' preceded by two spaces (assuming linebreak != 0).
+*/
 static size_t char_linebreak(
   struct Blob *ob,
   struct render *rndr,
@@ -716,8 +864,9 @@ static size_t char_linebreak(
   return rndr->make.linebreak(ob, rndr->make.opaque) ? 1 : 0;
 }
 
-
-/* char_codespan -- '`' parsing a code span (assuming codespan != 0) */
+/*
+** char_codespan -- '`' parsing a code span (assuming codespan != 0).
+*/
 static size_t char_codespan(
   struct Blob *ob,
   struct render *rndr,
@@ -726,14 +875,15 @@ static size_t char_codespan(
   size_t size
 ){
   size_t end, nb = 0, i, f_begin, f_end;
+  char delim = data[0];
 
   /* counting the number of backticks in the delimiter */
-  while( nb<size && data[nb]=='`' ){ nb++; }
+  while( nb<size && data[nb]==delim ){ nb++; }
 
   /* finding the next delimiter */
   i = 0;
   for(end=nb; end<size && i<nb; end++){
-    if( data[end]=='`' ) i++; else i = 0;
+    if( data[end]==delim ) i++; else i = 0;
   }
   if( i<nb && end>=size ) return 0; /* no matching delimiter */
 
@@ -749,15 +899,17 @@ static size_t char_codespan(
   if( f_begin<f_end ){
     struct Blob work = BLOB_INITIALIZER;
     blob_init(&work, data+f_begin, f_end-f_begin);
-    if( !rndr->make.codespan(ob, &work, rndr->make.opaque) ) end = 0;
+    if( !rndr->make.codespan(ob, &work, nb, rndr->make.opaque) ) end = 0;
   }else{
-    if( !rndr->make.codespan(ob, 0, rndr->make.opaque) ) end = 0;
+    if( !rndr->make.codespan(ob, 0, nb, rndr->make.opaque) ) end = 0;
   }
   return end;
 }
 
 
-/* char_escape -- '\\' backslash escape */
+/*
+** char_escape -- '\\' backslash escape.
+*/
 static size_t char_escape(
   struct Blob *ob,
   struct render *rndr,
@@ -777,9 +929,10 @@ static size_t char_escape(
   return 2;
 }
 
-
-/* char_entity -- '&' escaped when it doesn't belong to an entity */
-/* valid entities are assumed to be anything matching &#?[A-Za-z0-9]+; */
+/*
+** char_entity -- '&' escaped when it doesn't belong to an entity.
+** valid entities are assumed to be anything matching &#?[A-Za-z0-9]+;
+*/
 static size_t char_entity(
   struct Blob *ob,
   struct render *rndr,
@@ -813,8 +966,9 @@ static size_t char_entity(
   return end;
 }
 
-
-/* char_langle_tag -- '<' when tags or autolinks are allowed */
+/*
+** char_langle_tag -- '<' when tags or autolinks are allowed.
+*/
 static size_t char_langle_tag(
   struct Blob *ob,
   struct render *rndr,
@@ -843,8 +997,8 @@ static size_t char_langle_tag(
   }
 }
 
-
-/* get_link_inline -- extract inline-style link and title from
+/*
+** get_link_inline -- extract inline-style link and title from
 ** parenthesed data
 */
 static int get_link_inline(
@@ -898,7 +1052,7 @@ static int get_link_inline(
 
   /* remove optional angle brackets around the link */
   if( data[link_b]=='<' ) link_b += 1;
-  if( data[link_e-1]=='>' ) link_e -= 1;
+  if( link_e && data[link_e-1]=='>' ) link_e -= 1;
 
   /* escape backslashed character from link */
   blob_reset(link);
@@ -919,7 +1073,9 @@ static int get_link_inline(
 }
 
 
-/* get_link_ref -- extract referenced link and title from id */
+/*
+** get_link_ref -- extract referenced link and title from id.
+*/
 static int get_link_ref(
   struct render *rndr,
   struct Blob *link,
@@ -928,13 +1084,14 @@ static int get_link_ref(
   size_t size
 ){
   struct link_ref *lr;
+  const size_t sz = blob_size(&rndr->refs);
 
   /* find the link from its id (stored temporarily in link) */
   blob_reset(link);
-  if( build_ref_id(link, data, size)<0 ) return -1;
+  if( !sz || build_ref_id(link, data, size)<0 ) return -1;
   lr = bsearch(link,
                blob_buffer(&rndr->refs),
-               blob_size(&rndr->refs)/sizeof(struct link_ref),
+               sz/sizeof(struct link_ref),
                sizeof (struct link_ref),
                cmp_link_ref);
   if( !lr ) return -1;
@@ -942,119 +1099,327 @@ static int get_link_ref(
   /* fill the output buffers */
   blob_reset(link);
   blob_reset(title);
-  blob_append(link, blob_buffer(&lr->link), blob_size(&lr->link));
-  blob_append(title, blob_buffer(&lr->title), blob_size(&lr->title));
+  blob_appendb(link, &lr->link);
+  blob_appendb(title, &lr->title);
   return 0;
 }
 
+/*
+** get_footnote() -- find a footnote by label, invoked during the 2nd pass.
+** If found then return a shallow copy of the corresponding footnote;
+** otherwise return a shallow copy of rndr->notes.misref.
+** In both cases corresponding `nUsed` field is incremented before return.
+*/
+static struct footnote get_footnote(
+  struct render *rndr,
+  const char *data,
+  size_t size
+){
+  struct footnote *fn = 0;
+  struct Blob *id;
+  if( !rndr->notes.nLbled ) goto fallback;
+  id = new_work_buffer(rndr);
+  if( build_ref_id(id, data, size)<0 ) goto cleanup;
+  fn = bsearch(id, blob_buffer(&rndr->notes.all),
+               rndr->notes.nLbled,
+               sizeof (struct footnote),
+               cmp_link_ref);
+  if( !fn ) goto cleanup;
 
-/* char_link -- '[': parsing a link or an image */
-static size_t char_link(
+  if( fn->nUsed == 0 ){  /* the first reference to the footnote */
+    assert( fn->iMark == 0 );
+    fn->iMark = ++(rndr->notes.nMarks);
+  }
+  assert( fn->iMark > 0 );
+cleanup:
+  release_work_buffer( rndr, id );
+fallback:
+  if( !fn ) fn = &rndr->notes.misref;
+  fn->nUsed++;
+  assert( fn->nUsed > 0 );
+  return *fn;
+}
+
+/*
+** Counts characters in the blank prefix within at most nHalfLines.
+** A sequence of spaces and tabs counts as odd halfline,
+** a newline counts as even halfline.
+** If nHalfLines < 0 then proceed without constraints.
+*/
+static inline size_t sizeof_blank_prefix(
+  const char *data, size_t size, int nHalfLines
+){
+  const char *p = data;
+  const char * const end = data+size;
+  if( nHalfLines < 0 ){
+    while( p!=end && fossil_isspace(*p) ){
+      p++;
+    }
+  }else while( nHalfLines > 0 ){
+    while( p!=end && (*p==' ' || *p=='\t' ) ){ p++; }
+    if( p==end || --nHalfLines == 0 ) break;
+    if( *p=='\n' || *p=='\r' ){
+      p++;
+      if( p==end ) break;
+      if( *p=='\n' && p[-1]=='\r' ){
+        p++;
+      }
+    }
+    nHalfLines--;
+  }
+  return p-data;
+}
+
+/*
+** Check if the data starts with a classlist token of the special form.
+** If so then return the length of that token, otherwise return 0.
+**
+** The token must start with a dot and must end with a colon;
+** in between of these it must be a dot-separated list of words;
+** each word may contain only alphanumeric characters and hyphens.
+**
+** If `bBlank` is non-zero then a blank character must follow
+** the token's ending colon: otherwise function returns 0
+** despite the well-formed token.
+*/
+static size_t is_footnote_classlist(const char * const data, size_t size,
+                                    int bBlank){
+  const char *p;
+  const char * const end = data+size;
+  if( data==end || *data != '.' ) return 0;
+  for(p=data+1; p!=end; p++){
+    if( fossil_isalnum(*p) || *p=='-' ) continue;
+    if( p[-1]=='.' ) break;
+    if( *p==':' ){
+      p++;
+      if( bBlank ){
+        if( p==end || !fossil_isspace(*p) ) break;
+      }
+      return p-data;
+    }
+    if( *p!='.' ) break;
+  }
+  return 0;
+}
+
+/*
+** Adds unlabeled footnote to the rndr->notes.all.
+** On success puts a shallow copy of the constructed footnote into pFN
+** and returns 1, otherwise pFN is unchanged and 0 is returned.
+*/
+static inline int add_inline_footnote(
+  struct render *rndr,
+  const char *text,
+  size_t size,
+  struct footnote* pFN
+){
+  struct footnote fn = FOOTNOTE_INITIALIZER, *last;
+  const char *zUPC = 0;
+  size_t nUPC = 0, n = sizeof_blank_prefix(text, size, 3);
+  if( n >= size ) return 0;
+  text += n;
+  size -= n;
+  nUPC = is_footnote_classlist(text, size, 1);
+  if( nUPC ){
+    assert( nUPC<size );
+    zUPC = text;
+    text += nUPC;
+    size -= nUPC;
+  }
+  if( sizeof_blank_prefix(text,size,-1)==size ){
+    if( !nUPC ) return 0; /* empty inline footnote */
+    text = zUPC;
+    size = nUPC;          /* bare classlist is treated */
+    nUPC = 0;             /* as plain text */
+  }
+  fn.iMark = ++(rndr->notes.nMarks);
+  fn.nUsed  = 1;
+  fn.index  = COUNT_FOOTNOTES(&rndr->notes.all);
+  assert( fn.iMark > 0 );
+  blob_append(&fn.text, text, size);
+  if(nUPC) blob_append(&fn.upc, zUPC, nUPC);
+  blob_append(&rndr->notes.all, (char *)&fn, sizeof fn);
+  last = (struct footnote*)( blob_buffer(&rndr->notes.all)
+                            +( blob_size(&rndr->notes.all)-sizeof fn ));
+  assert( pFN );
+  memcpy( pFN, last, sizeof fn );
+  return 1;
+}
+
+/*
+** Return the byte offset of the matching closing bracket or 0 if not
+** found.  begin[0] must be either '[' or '('.
+**
+** TODO: It seems that things like "\\(" are not handled correctly.
+**       That is historical behavior for a corner-case,
+**       so it's left as it is until somebody complains.
+*/
+static inline size_t matching_bracket_offset(
+  const char* begin,
+  const char* end
+){
+  const char *i;
+  int level;
+  const char bra = *begin;
+  const char ket = bra=='[' ? ']' : ')';
+  assert( bra=='[' || bra=='(' );
+  for(i=begin+1,level=1; i!=end; i++){
+    if( *i=='\n' )        /* do nothing */;
+    else if( i[-1]=='\\' ) continue;
+    else if( *i==bra )     level++;
+    else if( *i==ket ){
+      if( --level<=0 ) return i-begin;
+    }
+  }
+  return 0;
+}
+
+/*
+** char_footnote -- '(': parsing a standalone inline footnote.
+*/
+static size_t char_footnote(
   struct Blob *ob,
   struct render *rndr,
   char *data,
   size_t offset,
   size_t size
 ){
-  int is_img = (offset && data[-1] == '!'), level;
-  size_t i = 1, txt_e;
-  struct Blob *content = 0;
-  struct Blob *link = 0;
-  struct Blob *title = 0;
+  size_t end;
+  struct footnote fn;
+
+  if( size<4 || data[1]!='^' ) return 0;
+  end = matching_bracket_offset(data, data+size);
+  if( !end ) return 0;
+  if( !add_inline_footnote(rndr, data+2, end-2, &fn) ) return 0;
+  if( rndr->make.footnote_ref ){
+    rndr->make.footnote_ref(ob,0,&fn.upc,fn.iMark,1,rndr->make.opaque);
+  }
+  return end+1;
+}
+
+/*
+** char_link -- '[': parsing a link or an image.
+*/
+static size_t char_link(
+  struct Blob *ob,
+  struct render *rndr,
+  char *data,
+  size_t offset,
+  size_t size     /* parse_inline() ensures that size > 0 */
+){
+  const int bFsfn = (size>3 && data[1]=='^'); /*free-standing footnote ref*/
+  const int bImg = !bFsfn && (offset && data[-1] == '!');
+  size_t i, txt_e;
+  struct Blob *content;
+  struct Blob *link;
+  struct Blob *title;
+  struct footnote fn;
   int ret;
 
   /* checking whether the correct renderer exists */
-  if( (is_img && !rndr->make.image) || (!is_img && !rndr->make.link) ){
-    return 0;
+  if( !bFsfn ){
+    if( (bImg && !rndr->make.image) || (!bImg && !rndr->make.link) ){
+      return 0;
+    }
   }
 
   /* looking for the matching closing bracket */
-  for(level=1; i<size; i++){
-    if( data[i]=='\n' )        /* do nothing */;
-    else if( data[i-1]=='\\' ) continue;
-    else if( data[i]=='[' )    level += 1;
-    else if( data[i]==']' ){
-      level--;
-      if( level<=0 ) break;
-    }
-  }
-  if( i>=size ) return 0;
-  txt_e = i;
-  i++;
-
-  /* skip any amount of whitespace or newline */
-  /* (this is much more laxist than original markdown syntax) */
-  while( i<size && (data[i]==' ' || data[i]=='\t' || data[i]=='\n') ){ i++; }
-
-  /* allocate temporary buffers to store content, link and title */
-  content = new_work_buffer(rndr);
-  link = new_work_buffer(rndr);
-  title = new_work_buffer(rndr);
-  if( !title ) return 0;
+  txt_e = matching_bracket_offset(data, data+size);
+  if( !txt_e ) return 0;
+  i = txt_e + 1;
   ret = 0; /* error if we don't get to the callback */
 
-  /* inline style link */
-  if( i<size && data[i]=='(' ){
-    size_t span_end = i;
-    while( span_end<size
-     && !(data[span_end]==')' && (span_end==i || data[span_end-1]!='\\'))
-    ){
-      span_end++;
-    }
-
-    if( span_end>=size
-     || get_link_inline(link, title, data+i+1, span_end-(i+1))<0
-    ){
-      goto char_link_cleanup;
-    }
-
-    i = span_end+1;
-
-  /* reference style link */
-  }else if( i<size && data[i]=='[' ){
-    char *id_data;
-    size_t id_size, id_end = i;
-
-    while( id_end<size && data[id_end]!=']' ){ id_end++; }
-
-    if( id_end>=size ) goto char_link_cleanup;
-
-    if( i+1==id_end ){
-      /* implicit id - use the contents */
-      id_data = data+1;
-      id_size = txt_e-1;
-    }else{
-      /* explicit id - between brackets */
-      id_data = data+i+1;
-      id_size = id_end-(i+1);
-    }
-
-    if( get_link_ref(rndr, link, title, id_data, id_size)<0 ){
-      goto char_link_cleanup;
-    }
-
-    i = id_end+1;
-
-  /* shortcut reference style link */
+  /* free-standing footnote reference */
+  if( bFsfn ){
+    fn = get_footnote(rndr, data+2, txt_e-2);
+    content = link = title = 0;
   }else{
-    if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
-      goto char_link_cleanup;
+    fn.nUsed = 0;
+
+    /* skip "inter-bracket-whitespace" - any amount of whitespace or newline */
+    /* (this is much more lax than original markdown syntax) */
+    while( i<size && (data[i]==' ' || data[i]=='\t' || data[i]=='\n') ){ i++; }
+
+    /* allocate temporary buffers to store content, link and title */
+    title = new_work_buffer(rndr);
+    content = new_work_buffer(rndr);
+    link = new_work_buffer(rndr);
+
+    if( i<size && data[i]=='(' ){
+
+      if( i+2<size && data[i+1]=='^' ){  /* span-bounded inline footnote */
+
+        const size_t k = matching_bracket_offset(data+i, data+size);
+        if( !k ) goto char_link_cleanup;
+        add_inline_footnote(rndr, data+(i+2), k-2, &fn);
+        i += k+1;
+      }else{                             /* inline style link  */
+        size_t span_end = i;
+        while( span_end<size
+               && !(data[span_end]==')'
+                    && (span_end==i || data[span_end-1]!='\\')) ){
+          span_end++;
+        }
+        if( span_end>=size
+            || get_link_inline(link, title, data+i+1, span_end-(i+1))<0 ){
+          goto char_link_cleanup;
+        }
+        i = span_end+1;
+      }
+    /* reference style link or span-bounded footnote reference */
+    }else if( i<size && data[i]=='[' ){
+      char *id_data;
+      size_t id_size, id_end = i;
+      int bFootnote;
+
+      while( id_end<size && data[id_end]!=']' ){ id_end++; }
+      if( id_end>=size ) goto char_link_cleanup;
+      bFootnote = data[i+1]=='^';
+      if( i+1==id_end || (bFootnote && i+2==id_end) ){
+        /* implicit id - use the contents */
+        id_data = data+1;
+        id_size = txt_e-1;
+      }else{
+        /* explicit id - between brackets */
+        id_data = data+i+1;
+        id_size = id_end-(i+1);
+        if( bFootnote ){
+          id_data++;
+          id_size--;
+        }
+      }
+      if( bFootnote ){
+        fn = get_footnote(rndr, id_data, id_size);
+      }else if( get_link_ref(rndr, link, title, id_data, id_size)<0 ){
+        goto char_link_cleanup;
+      }
+      i = id_end+1;
+    /* shortcut reference style link */
+    }else{
+      if( get_link_ref(rndr, link, title, data+1, txt_e-1)<0 ){
+        goto char_link_cleanup;
+      }
+      /* rewinding an "inter-bracket-whitespace" */
+      i = txt_e+1;
     }
-
-    /* rewinding the whitespace */
-    i = txt_e+1;
   }
-
   /* building content: img alt is escaped, link content is parsed */
-  if( txt_e>1 ){
-    if( is_img ) blob_append(content, data+1, txt_e-1);
+  if( txt_e>1 && content ){
+    if( bImg ) blob_append(content, data+1, txt_e-1);
     else parse_inline(content, rndr, data+1, txt_e-1);
   }
 
   /* calling the relevant rendering function */
-  if( is_img ){
-    if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='!' ) ob->nUsed--;
+  if( bImg ){
+    if( blob_size(ob)>0 && blob_buffer(ob)[blob_size(ob)-1]=='!' ){
+      ob->nUsed--;
+    }
     ret = rndr->make.image(ob, link, title, content, rndr->make.opaque);
+  }else if( fn.nUsed ){
+    if( rndr->make.footnote_ref ){
+      ret = rndr->make.footnote_ref(ob, content, &fn.upc, fn.iMark,
+                                    fn.nUsed, rndr->make.opaque);
+    }
   }else{
     ret = rndr->make.link(ob, link, title, content, rndr->make.opaque);
   }
@@ -1066,7 +1431,6 @@ char_link_cleanup:
   release_work_buffer(rndr, content);
   return ret ? i : 0;
 }
-
 
 
 /*********************************
@@ -1160,6 +1524,10 @@ static int is_tableline(char *data, size_t size){
   /* count the number of pipes in the line */
   for(n_sep=0; i<size && data[i]!='\n'; i++){
     if( is_table_sep(data, i) ) n_sep++;
+    if( data[i]=='`' ){
+      skip_codespan(data, size, &i);
+      i--;
+    }
   }
 
   /* march back to check for optional last '|' before blanks and EOL */
@@ -1198,6 +1566,18 @@ static size_t prefix_code(char *data, size_t size){
   return 0;
 }
 
+/* Return the number of characters in the delimiter of a fenced code
+** block. */
+static size_t prefix_fencedcode(char *data, size_t size){
+  char c = data[0];
+  int nb;
+  if( c!='`' && c!='~' ) return 0;
+  for(nb=1; nb<size-3 && data[nb]==c; nb++){}
+  if( nb<3 ) return 0;
+  if( nb>=size-nb ) return 0;
+  return nb;
+}
+
 /* prefix_oli -- returns ordered list item prefix */
 static size_t prefix_oli(char *data, size_t size){
   size_t i = 0;
@@ -1209,7 +1589,7 @@ static size_t prefix_oli(char *data, size_t size){
   while( i<size && data[i]>='0' && data[i]<='9' ){ i++; }
 
   if( i+1>=size
-   || data[i]!='.'
+   || (data[i]!='.' && data[i]!=')')
    || (data[i+1]!=' ' && data[i+1]!='\t')
   ){
    return 0;
@@ -1283,13 +1663,12 @@ static size_t parse_blockquote(
   }
 
   if( rndr->make.blockquote ){
-    struct Blob fallback = BLOB_INITIALIZER;
-    if( out ){
+    if( !too_deep(rndr) ){
       parse_block(out, rndr, work_data, work_size);
     }else{
-      blob_init(&fallback, work_data, work_size);
+      blob_append(out, work_data, work_size);
     }
-    rndr->make.blockquote(ob, out ? out : &fallback, rndr->make.opaque);
+    rndr->make.blockquote(ob, out, rndr->make.opaque);
   }
   release_work_buffer(rndr, out);
   return end;
@@ -1307,10 +1686,14 @@ static size_t parse_paragraph(
   int level = 0;
   char *work_data = data;
   size_t work_size = 0;
-  struct Blob fallback = BLOB_INITIALIZER;
 
   while( i<size ){
-    for(end=i+1; end<size && data[end-1]!='\n'; end++);
+    char *zEnd = memchr(data+i, '\n', size-i-1);
+    end = zEnd==0 ? size : (int)(zEnd - (data-1));
+    /* The above is the same as:
+    **    for(end=i+1; end<size && data[end-1]!='\n'; end++);
+    ** "end" is left with a value such that data[end] is one byte
+    ** past the first '\n' or one byte past the end of the string */
     if( is_empty(data+i, size-i)
      || (level = is_headerline(data+i, size-i))!= 0
     ){
@@ -1329,12 +1712,8 @@ static size_t parse_paragraph(
   if( !level ){
     if( rndr->make.paragraph ){
       struct Blob *tmp = new_work_buffer(rndr);
-      if( tmp ){
-        parse_inline(tmp, rndr, work_data, work_size);
-      }else{
-        blob_init(&fallback, work_data, work_size);
-      }
-      rndr->make.paragraph(ob, tmp ? tmp : &fallback, rndr->make.opaque);
+      parse_inline(tmp, rndr, work_data, work_size);
+      rndr->make.paragraph(ob, tmp, rndr->make.opaque);
       release_work_buffer(rndr, tmp);
     }
   }else{
@@ -1347,13 +1726,9 @@ static size_t parse_paragraph(
       while( work_size && data[work_size-1]=='\n'){ work_size--; }
       if( work_size ){
         struct Blob *tmp = new_work_buffer(rndr);
-        if( tmp ){
-          parse_inline(tmp, rndr, work_data, work_size);
-        }else{
-          blob_init (&fallback, work_data, work_size);
-        }
+        parse_inline(tmp, rndr, work_data, work_size);
         if( rndr->make.paragraph ){
-          rndr->make.paragraph(ob, tmp ? tmp : &fallback, rndr->make.opaque);
+          rndr->make.paragraph(ob, tmp, rndr->make.opaque);
         }
         release_work_buffer(rndr, tmp);
         work_data += beg;
@@ -1365,13 +1740,8 @@ static size_t parse_paragraph(
 
     if( rndr->make.header ){
       struct Blob *span = new_work_buffer(rndr);
-      if( span ){
-        parse_inline(span, rndr, work_data, work_size);
-        rndr->make.header(ob, span, level, rndr->make.opaque);
-      }else{
-        blob_init(&fallback, work_data, work_size);
-        rndr->make.header(ob, &fallback, level, rndr->make.opaque);
-      }
+      parse_inline(span, rndr, work_data, work_size);
+      rndr->make.header(ob, span, level, rndr->make.opaque);
       release_work_buffer(rndr, span);
     }
   }
@@ -1388,11 +1758,15 @@ static size_t parse_blockcode(
 ){
   size_t beg, end, pre;
   struct Blob *work = new_work_buffer(rndr);
-  if( !work ) work = ob;
 
   beg = 0;
   while( beg<size ){
-    for(end=beg+1; end<size && data[end-1]!='\n'; end++);
+    char *zEnd = memchr(data+beg, '\n', size-beg-1);
+    end = zEnd==0 ? size : (int)(zEnd - (data-1));
+    /* The above is the same as:
+    **   for(end=beg+1; end<size && data[end-1]!='\n'; end++);
+    ** "end" is left with a value such that data[end] is one byte
+    ** past the first \n or past then end of the string. */
     pre = prefix_code(data+beg, end-beg);
     if( pre ){
       beg += pre; /* skipping prefix */
@@ -1403,7 +1777,7 @@ static size_t parse_blockcode(
     if( beg<end ){
       /* verbatim copy to the working buffer, escaping entities */
       if( is_empty(data + beg, end - beg) ){
-        blob_append(work, "\n", 1);
+        blob_append_char(work, '\n');
       }else{
         blob_append(work, data+beg, end-beg);
       }
@@ -1414,7 +1788,7 @@ static size_t parse_blockcode(
   end = blob_size(work);
   while( end>0 && blob_buffer(work)[end-1]=='\n' ){ end--; }
   work->nUsed = end;
-  blob_append(work, "\n", 1);
+  blob_append_char(work, '\n');
 
   if( work!=ob ){
     if( rndr->make.blockcode ){
@@ -1435,7 +1809,6 @@ static size_t parse_listitem(
   size_t size,
   int *flags
 ){
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *work = 0, *inter = 0;
   size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
   int in_empty = 0, has_inside_empty = 0;
@@ -1460,7 +1833,6 @@ static size_t parse_listitem(
   /* getting working buffers */
   work = new_work_buffer(rndr);
   inter = new_work_buffer(rndr);
-  if( !work ) work = &fallback;
 
   /* putting the first line into the working buffer */
   blob_append(work, data+beg, end-beg);
@@ -1510,7 +1882,7 @@ static size_t parse_listitem(
         *flags |= MKD_LI_END;
         break;
     }else if( in_empty ){
-      blob_append(work, "\n", 1);
+      blob_append_char(work, '\n');
       has_inside_empty = 1;
     }
     in_empty = 0;
@@ -1525,8 +1897,7 @@ static size_t parse_listitem(
     if( rndr->make.listitem ){
       rndr->make.listitem(ob, work, *flags, rndr->make.opaque);
     }
-    if( work!=&fallback ) release_work_buffer(rndr, work);
-    blob_reset(&fallback);
+    release_work_buffer(rndr, work);
     return beg;
   }
 
@@ -1561,8 +1932,7 @@ static size_t parse_listitem(
     rndr->make.listitem(ob, inter, *flags, rndr->make.opaque);
   }
   release_work_buffer(rndr, inter);
-  if( work!=&fallback ) release_work_buffer(rndr, work);
-  blob_reset(&fallback);
+  release_work_buffer(rndr, work);
   return beg;
 }
 
@@ -1575,10 +1945,8 @@ static size_t parse_list(
   size_t size,
   int flags
 ){
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *work = new_work_buffer(rndr);
   size_t i = 0, j;
-  if( !work ) work = &fallback;
 
   while( i<size ){
     j = parse_listitem(work, rndr, data+i, size-i, &flags);
@@ -1587,8 +1955,7 @@ static size_t parse_list(
   }
 
   if( rndr->make.list ) rndr->make.list(ob, work, flags, rndr->make.opaque);
-  if( work!=&fallback ) release_work_buffer(rndr, work);
-  blob_reset(&fallback);
+  release_work_buffer(rndr, work);
   return i;
 }
 
@@ -1607,6 +1974,7 @@ static size_t parse_atxheader(
 
   while( level<size && level<6 && data[level]=='#' ){ level++; }
   for(i=level; i<size && (data[i]==' ' || data[i]=='\t'); i++);
+  if ( i == level ) return parse_paragraph(ob, rndr, data, size);
   span_beg = i;
 
   for(end=i; end<size && data[end]!='\n'; end++);
@@ -1618,15 +1986,9 @@ static size_t parse_atxheader(
 
   span_size = end-span_beg;
   if( rndr->make.header ){
-    struct Blob fallback = BLOB_INITIALIZER;
     struct Blob *span = new_work_buffer(rndr);
-
-    if( span ){
-      parse_inline(span, rndr, data+span_beg, span_size);
-    }else{
-      blob_init(&fallback, data+span_beg, span_size);
-    }
-    rndr->make.header(ob, span ? span : &fallback, level, rndr->make.opaque);
+    parse_inline(span, rndr, data+span_beg, span_size);
+    rndr->make.header(ob, span, level, rndr->make.opaque);
     release_work_buffer(rndr, span);
   }
   return skip;
@@ -1645,7 +2007,7 @@ static size_t htmlblock_end(
   /* assuming data[0]=='<' && data[1]=='/' already tested */
 
   /* checking tag is a match */
-  if( (tag->size+3)>=size
+  if( (tag->size+3)>size
     || fossil_strnicmp(data+2, tag->text, tag->size)
     || data[tag->size+2]!='>'
   ){
@@ -1731,17 +2093,14 @@ static size_t parse_htmlblock(
     return 0;
   }
 
-  /* looking for an unindented matching closing tag */
-  /*  followed by a blank line */
+  /* looking for an matching closing tag */
+  /* followed by a blank line */
   i = 1;
   found = 0;
-#if 0
   while( i<size ){
     i++;
-    while( i<size && !(data[i-2]=='\n' && data[i-1]=='<' && data[i]=='/') ){
-      i++;
-    }
-    if( (i+2+curtag->size)>=size ) break;
+    while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }
+    if( (i+2+curtag->size)>size ) break;
     j = htmlblock_end(curtag, data+i-1, size-i+1);
     if (j) {
       i += j-1;
@@ -1749,29 +2108,18 @@ static size_t parse_htmlblock(
       break;
     }
   }
-#endif
-
-  /* if not found, trying a second pass looking for indented match */
-  /* but not if tag is "ins" or "del" (following original Markdown.pl) */
-  if( !found && curtag!=INS_TAG && curtag!=DEL_TAG ){
-    i = 1;
-    while( i<size ){
-      i++;
-      while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }
-      if( (i+2+curtag->size)>=size ) break;
-      j = htmlblock_end(curtag, data+i-1, size-i+1);
-      if (j) {
-        i += j-1;
-        found = 1;
-        break;
-      }
-    }
-  }
-
   if( !found ) return 0;
 
   /* the end of the block has been found */
-  blob_init(&work, data, i);
+  if( strcmp(curtag->text,"html")==0 ){
+    /* Omit <html> tags */
+    enum mkd_autolink dummy;
+    int k = tag_length(data, size, &dummy);
+    int sz = i - (j+k);
+    if( sz>0 ) blob_init(&work, data+k, sz);
+  }else{
+    blob_init(&work, data, i);
+  }
   if( rndr->make.blockhtml ){
     rndr->make.blockhtml(ob, &work, rndr->make.opaque);
   }
@@ -1787,15 +2135,9 @@ static void parse_table_cell(
   size_t size,         /* input text size */
   int flags            /* table flags */
 ){
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *span = new_work_buffer(rndr);
-
-  if( span ){
-    parse_inline(span, rndr, data, size);
-  }else{
-    blob_init(&fallback, data, size);
-  }
-  rndr->make.table_cell(ob, span ? span : &fallback, flags, rndr->make.opaque);
+  parse_inline(span, rndr, data, size);
+  rndr->make.table_cell(ob, span, flags, rndr->make.opaque);
   release_work_buffer(rndr, span);
 }
 
@@ -1833,7 +2175,13 @@ static size_t parse_table_row(
     beg = i;
 
     /* forward to the next separator or EOL */
-    while( i<size && !is_table_sep(data, i) && data[i]!='\n' ){ i++; }
+    while( i<size && !is_table_sep(data, i) && data[i]!='\n' ){
+      if( data[i]=='`' ){
+        skip_codespan(data, size, &i);
+      }else{
+        i++;
+      }
+    }
     end = i;
     if( i<size ){
       i++;
@@ -1857,19 +2205,15 @@ static size_t parse_table_row(
     if( align==0 && aligns && col<align_size ) align = aligns[col];
 
     /* render cells */
-    if( cells ) parse_table_cell(cells, rndr, data+beg, end-beg, align|flags);
+    if( cells && end>=beg ){
+      parse_table_cell(cells, rndr, data+beg, end-beg, align|flags);
+    }
 
     col++;
   }
 
   /* render the whole row and clean up */
-  if( cells ){
-    rndr->make.table_row(ob, cells, flags, rndr->make.opaque);
-  }else{
-    struct Blob fallback = BLOB_INITIALIZER;
-    blob_init(&fallback, data, total ? total : size);
-    rndr->make.table_row(ob, &fallback, flags, rndr->make.opaque);
-  }
+  rndr->make.table_row(ob, cells, flags, rndr->make.opaque);
   release_work_buffer(rndr, cells);
   return total ? total : size;
 }
@@ -1885,10 +2229,8 @@ static size_t parse_table(
   size_t i = 0, head_end, col;
   size_t align_size = 0;
   int *aligns = 0;
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *head = 0;
   struct Blob *rows = new_work_buffer(rndr);
-  if( !rows ) rows = &fallback;
 
   /* skip the first (presumably header) line */
   while( i<size && data[i]!='\n' ){ i++; }
@@ -1898,7 +2240,7 @@ static size_t parse_table(
   if( i>=size ){
     parse_table_row(rows, rndr, data, size, 0, 0, 0);
     rndr->make.table(ob, 0, rows, rndr->make.opaque);
-    if( rows!=&fallback ) release_work_buffer(rndr, rows);
+    release_work_buffer(rndr, rows);
     return i;
   }
 
@@ -1922,12 +2264,10 @@ static size_t parse_table(
 
     /* render the header row */
     head = new_work_buffer(rndr);
-    if( head ){
-      parse_table_row(head, rndr, data, head_end, 0, 0, MKD_CELL_HEAD);
-    }
+    parse_table_row(head, rndr, data, head_end, 0, 0, MKD_CELL_HEAD);
 
     /* parse alignments if provided */
-    if( col && (aligns=malloc(align_size * sizeof *aligns))!=0 ){
+    if( col && (aligns=fossil_malloc(align_size * sizeof *aligns))!=0 ){
       for(i=0; i<align_size; i++) aligns[i] = 0;
       col = 0;
       i = head_end+1;
@@ -1967,9 +2307,9 @@ static size_t parse_table(
   rndr->make.table(ob, head, rows, rndr->make.opaque);
 
   /* cleanup */
-  if( head ) release_work_buffer(rndr, head);
-  if( rows!=&fallback ) release_work_buffer(rndr, rows);
-  free(aligns);
+  release_work_buffer(rndr, head);
+  release_work_buffer(rndr, rows);
+  fossil_free(aligns);
   return i;
 }
 
@@ -1983,9 +2323,12 @@ static void parse_block(
 ){
   size_t beg, end, i;
   char *txt_data;
-  int has_table = (rndr->make.table
+  int has_table;
+  if( !size ) return;
+  has_table = (rndr->make.table
     && rndr->make.table_row
-    && rndr->make.table_cell);
+    && rndr->make.table_cell
+    && memchr(data, '|', size)!=0);
 
   beg = 0;
   while( beg<size ){
@@ -2014,6 +2357,10 @@ static void parse_block(
       beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED);
     }else if( has_table && is_tableline(txt_data, end) ){
       beg += parse_table(ob, rndr, txt_data, end);
+    }else if( prefix_fencedcode(txt_data, end) 
+             && (i = char_codespan(ob, rndr, txt_data, 0, end))!=0
+    ){
+      beg += i;
     }else{
       beg += parse_paragraph(ob, rndr, txt_data, end);
     }
@@ -2028,7 +2375,7 @@ static void parse_block(
 
 /* is_ref -- returns whether a line is a reference or not */
 static int is_ref(
-  char *data,         /* input text */
+  const char *data,   /* input text */
   size_t beg,         /* offset of the beginning of the line */
   size_t end,         /* offset of the end of the text */
   size_t *last,       /* last character of the link */
@@ -2062,6 +2409,8 @@ static int is_ref(
   /* id part: anything but a newline between brackets */
   if( data[i]!='[' ) return 0;
   i++;
+  if( i>=end || data[i]=='^' ) return 0;  /* see is_footnote() */
+
   id_offset = i;
   while( i<end && data[i]!='\n' && data[i]!='\r' && data[i]!=']' ){ i++; }
   if( i>=end || data[i]!=']' ) return 0;
@@ -2090,6 +2439,7 @@ static int is_ref(
   ){
     i += 1;
   }
+  /* TODO: maybe require both data[i-1]=='>' && data[link_offset-1]=='<' ? */
   if( data[i-1]=='>' ) link_end = i-1; else link_end = i;
 
   /* optional spacer: (space | tab)* (newline | '\'' | '"' | '(' ) */
@@ -2149,7 +2499,131 @@ static int is_ref(
   return 1;
 }
 
+/*********************
+ * FOOTNOTE PARSING  *
+ *********************/
 
+/* is_footnote -- check if data holds a definition of a labeled footnote.
+ * If so then append the corresponding element to `footnotes` array */
+static int is_footnote(
+  const char *data,   /* input text */
+  size_t beg,         /* offset of the beginning of the line */
+  size_t end,         /* offset of the end of the text */
+  size_t *last,       /* last character of the link */
+  struct Blob * footnotes
+){
+  size_t i, id_offset, id_end, upc_offset, upc_size;
+  struct footnote fn = FOOTNOTE_INITIALIZER;
+
+  /* failfast if data is too short */
+  if( beg+5>=end ) return 0;
+  i = beg;
+
+  /* footnote definition must start at the begining of a line */
+  if( data[i]!='[' ) return 0;
+  i++;
+  if( data[i]!='^' ) return 0;
+  id_offset = ++i;
+
+  /* id part: anything but a newline between brackets */
+  while( i<end && data[i]!=']' && data[i]!='\n' && data[i]!='\r' ){ i++; }
+  if( i>=end || data[i]!=']' ) return 0;
+  id_end = i++;
+
+  /* spacer: colon (space | tab)* */
+  if( i>=end || data[i]!=':' ) return 0;
+  i++;
+  while( i<end && (data[i]==' ' || data[i]=='\t') ){ i++; }
+
+  /* passthrough truncated footnote definition */
+  if( i>=end ) return 0;
+
+  if( build_ref_id(&fn.id, data+id_offset, id_end-id_offset)<0 ) return 0;
+
+  /* footnote's text may start on the same line after [^id]: */
+  upc_offset = upc_size = 0;
+  if( data[i]!='\n' && data[i]!='\r' ){
+    size_t j;
+    upc_size = is_footnote_classlist(data+i, end-i, 1);
+    upc_offset = i; /* prevent further checks for a classlist */
+    i += upc_size;
+    j = i;
+    while( i<end && data[i]!='\n' && data[i]!='\r' ){ i++; };
+    if( i!=j )blob_append(&fn.text, data+j, i-j);
+    if( i<end ){
+      blob_append_char(&fn.text, data[i]);
+      i++;
+      if( i<end && data[i]=='\n' && data[i-1]=='\r' ){
+        blob_append_char(&fn.text, data[i]);
+        i++;
+      }
+    }
+  }else{
+    i++;
+    if( i<end && data[i]=='\n' && data[i-1]=='\r' ) i++;
+  }
+  if( i<end ){
+
+    /* compute the indentation from the 2nd line  */
+    size_t indent = i;
+    const char *spaces = data+i;
+    while( indent<end && data[indent]==' ' ){ indent++; }
+    if( indent>=end ) goto footnote_finish;
+    indent -= i;
+    if( indent<2 ) goto footnote_finish;
+
+    /* process the 2nd and subsequent lines */
+    while( i+indent<end && memcmp(data+i,spaces,indent)==0 ){
+      size_t j;
+      i += indent;
+      if( !upc_offset ){
+        /* a classlist must be provided no later than at the 2nd line */
+        upc_offset = i + sizeof_blank_prefix(data+i, end-i, 1);
+        upc_size = is_footnote_classlist(data+upc_offset,
+                                         end-upc_offset, 1);
+        if( upc_size ){
+          i = upc_offset + upc_size;
+        }
+      }
+      j = i;
+      while( i<end && data[i]!='\n' && data[i]!='\r' ){ i++; }
+      if( i!=j ) blob_append(&fn.text, data+j, i-j);
+      if( i>=end ) break;
+      blob_append_char(&fn.text, data[i]);
+      i++;
+      if( i<end && data[i]=='\n' && data[i-1]=='\r' ){
+        blob_append_char(&fn.text, data[i]);
+        i++;
+      }
+    }
+  }
+footnote_finish:
+  if( !blob_size(&fn.text) ){
+    blob_reset(&fn.id);
+    return 0;
+  }
+  if( !blob_trim(&fn.text) ){  /* if the content is all-blank */
+    if( upc_size ){            /* interpret UPC as plain text */
+      blob_append(&fn.text, data+upc_offset, upc_size);
+      upc_size = 0;
+    }else{
+      blob_reset(&fn.id);      /* or clean up and fail */
+      blob_reset(&fn.text);
+      return 0;
+    }
+  }
+  /* a valid note has been found */
+  if( last ) *last = i;
+  if( footnotes ){
+    fn.defno = COUNT_FOOTNOTES( footnotes );
+    if( upc_size ){
+      assert( upc_offset && upc_offset+upc_size<end );
+      blob_append(&fn.upc, data+upc_offset, upc_size);
+    }
+    blob_append(footnotes, (char *)&fn, sizeof fn);
+  }
+  return 1;
+}
 
 /**********************
  * EXPORTED FUNCTIONS *
@@ -2158,23 +2632,32 @@ static int is_ref(
 /* markdown -- parses the input buffer and renders it into the output buffer */
 void markdown(
   struct Blob *ob,                   /* output blob for rendered text */
-  struct Blob *ib,                   /* input blob in markdown */
+  const struct Blob *ib,             /* input blob in markdown */
   const struct mkd_renderer *rndrer  /* renderer descriptor (callbacks) */
 ){
   struct link_ref *lr;
-  struct Blob text = BLOB_INITIALIZER;
+  struct footnote *fn;
   size_t i, beg, end = 0;
   struct render rndr;
-  char *ib_data;
+  size_t size;
+  Blob text = BLOB_INITIALIZER;        /* input after the first pass  */
+  Blob * const allNotes = &rndr.notes.all;
 
   /* filling the render structure */
   if( !rndrer ) return;
   rndr.make = *rndrer;
-  if( rndr.make.max_work_stack<1 ) rndr.make.max_work_stack = 1;
-  rndr.work_active = 0;
-  rndr.work = fossil_malloc(rndr.make.max_work_stack * sizeof *rndr.work);
-  for(i=0; i<rndr.make.max_work_stack; i++) rndr.work[i] = text;
-  rndr.refs = text;
+  rndr.nBlobCache = 0;
+  rndr.iDepth = 0;
+  rndr.refs  = empty_blob;
+  rndr.notes.all = empty_blob;
+  rndr.notes.nMarks = 0;
+  rndr.notes.misref.id    = empty_blob;
+  rndr.notes.misref.text  = empty_blob;
+  rndr.notes.misref.upc   = empty_blob;
+  rndr.notes.misref.bRndred = 0;
+  rndr.notes.misref.nUsed =  0;
+  rndr.notes.misref.iMark = -1;
+
   for(i=0; i<256; i++) rndr.active_char[i] = 0;
   if( (rndr.make.emphasis
     || rndr.make.double_emphasis
@@ -2188,29 +2671,31 @@ void markdown(
   if( rndr.make.codespan ) rndr.active_char['`'] = char_codespan;
   if( rndr.make.linebreak ) rndr.active_char['\n'] = char_linebreak;
   if( rndr.make.image || rndr.make.link ) rndr.active_char['['] = char_link;
+  if( rndr.make.footnote_ref ) rndr.active_char['('] = char_footnote;
   rndr.active_char['<'] = char_langle_tag;
   rndr.active_char['\\'] = char_escape;
   rndr.active_char['&'] = char_entity;
 
-  /* first pass: looking for references, copying everything else */
+  /* first pass: iterate over lines looking for references,
+   * copying everything else into "text" */
   beg = 0;
-  ib_data = blob_buffer(ib);
-  while( beg<blob_size(ib) ){ /* iterating over lines */
-    if( is_ref(ib_data, beg, blob_size(ib), &end, &rndr.refs) ){
+  for(size = blob_size(ib); beg<size ;){
+    const char* const data = blob_buffer(ib);
+    if( is_ref(data, beg, size, &end, &rndr.refs) ){
+      beg = end;
+    }else if(is_footnote(data, beg, size, &end, &rndr.notes.all)){
       beg = end;
     }else{ /* skipping to the next line */
       end = beg;
-      while( end<blob_size(ib) && ib_data[end]!='\n' && ib_data[end]!='\r' ){
+      while( end<size && data[end]!='\n' && data[end]!='\r' ){
         end += 1;
       }
       /* adding the line body if present */
-      if( end>beg ) blob_append(&text, ib_data + beg, end - beg);
-      while( end<blob_size(ib) && (ib_data[end]=='\n' || ib_data[end]=='\r') ){
+      if( end>beg ) blob_append(&text, data + beg, end - beg);
+      while( end<size && (data[end]=='\n' || data[end]=='\r') ){
         /* add one \n per newline */
-        if( ib_data[end]=='\n'
-         || (end+1<blob_size(ib) && ib_data[end+1]!='\n')
-        ){
-          blob_append(&text, "\n", 1);
+        if( data[end]=='\n' || (end+1<size && data[end+1]!='\n') ){
+          blob_append_char(&text, '\n');
         }
         end += 1;
       }
@@ -2225,13 +2710,160 @@ void markdown(
           sizeof(struct link_ref),
           cmp_link_ref_sort);
   }
+  rndr.notes.nLbled = COUNT_FOOTNOTES( allNotes );
+
+  /* sort footnotes by ID and join duplicates */
+  if( rndr.notes.nLbled > 1 ){
+    int nDups = 0;
+    fn = CAST_AS_FOOTNOTES( allNotes );
+    qsort(fn, rndr.notes.nLbled, sizeof(struct footnote), cmp_footnote_id);
+
+    /* concatenate footnotes with equal labels */
+    for(i=0; i<rndr.notes.nLbled ;){
+      struct footnote *x = fn + i;
+      size_t j = i+1, k = blob_size(&x->text) + 64 + blob_size(&x->upc);
+      while(j<rndr.notes.nLbled && !blob_compare(&x->id, &fn[j].id)){
+        k += blob_size(&fn[j].text) + 10 + blob_size(&fn[j].upc);
+        j++;
+        nDups++;
+      }
+      if( i+1<j ){
+        Blob list = empty_blob;
+        blob_reserve(&list, k);
+        /* must match _joined_footnote_indicator in html_footnote_item() */
+        blob_append_literal(&list, "<ul class='fn-joined'>\n");
+        for(k=i; k<j; k++){
+          struct footnote *y = fn + k;
+          blob_append_literal(&list, "<li>");
+          if( blob_size(&y->upc) ){
+            blob_appendb(&list, &y->upc);
+            blob_reset(&y->upc);
+          }
+          blob_appendb(&list, &y->text);
+          blob_append_literal(&list, "</li>\n");
+
+          /* free memory buffer */
+          blob_reset(&y->text);
+          if( k!=i ) blob_reset(&y->id);
+        }
+        blob_append_literal(&list, "</ul>\n");
+        x->text = list;
+        g.ftntsIssues[2]++;
+      }
+      i = j;
+    }
+    if( nDups ){  /* clean rndr.notes.all from invalidated footnotes */
+      const int n = rndr.notes.nLbled - nDups;
+      struct Blob filtered = empty_blob;
+      blob_reserve(&filtered, n*sizeof(struct footnote));
+      for(i=0; i<rndr.notes.nLbled; i++){
+        if( blob_size(&fn[i].id) ){
+          blob_append(&filtered, (char*)(fn+i), sizeof(struct footnote));
+        }
+      }
+      blob_reset( allNotes );
+      rndr.notes.all = filtered;
+      rndr.notes.nLbled = n;
+      assert( COUNT_FOOTNOTES(allNotes) == rndr.notes.nLbled );
+    }
+  }
+  fn = CAST_AS_FOOTNOTES( allNotes );
+  for(i=0; i<rndr.notes.nLbled; i++){
+    fn[i].index = i;
+  }
+  assert( rndr.notes.nMarks==0 );
 
   /* second pass: actual rendering */
   if( rndr.make.prolog ) rndr.make.prolog(ob, rndr.make.opaque);
   parse_block(ob, &rndr, blob_buffer(&text), blob_size(&text));
+
+  if( blob_size(allNotes) || rndr.notes.misref.nUsed ){
+
+    /* Footnotes must be parsed for the correct discovery of (back)links */
+    Blob *notes = new_work_buffer( &rndr );
+    if( blob_size(allNotes) ){
+      Blob *tmp   = new_work_buffer( &rndr );
+      int nMarks = -1, maxDepth = 5;
+
+      /* inline notes may get appended to rndr.notes.all while rendering */
+      while(1){
+        struct footnote *aNotes;
+        const int N = COUNT_FOOTNOTES( allNotes );
+
+        /* make a shallow copy of `allNotes` */
+        blob_truncate(notes,0);
+        blob_appendb(notes, allNotes);
+        aNotes = CAST_AS_FOOTNOTES(notes);
+        qsort(aNotes, N, sizeof(struct footnote), cmp_footnote_sort);
+
+        if( --maxDepth < 0 || nMarks == rndr.notes.nMarks ) break;
+        nMarks = rndr.notes.nMarks;
+
+        for(i=0; i<N; i++){
+          const int j = aNotes[i].index;
+          struct footnote *x = CAST_AS_FOOTNOTES(allNotes) + j;
+          assert( 0<=j && j<N );
+          if( x->bRndred || !x->nUsed ) continue;
+          assert( x->iMark > 0 );
+          assert( blob_size(&x->text) );
+          blob_truncate(tmp,0);
+
+          /* `allNotes` may be altered and extended through this call */
+          parse_inline(tmp, &rndr, blob_buffer(&x->text), blob_size(&x->text));
+
+          x = CAST_AS_FOOTNOTES(allNotes) + j;
+          blob_truncate(&x->text,0);
+          blob_appendb(&x->text, tmp);
+          x->bRndred = 1;
+        }
+      }
+      release_work_buffer(&rndr,tmp);
+    }
+
+    /* footnotes rendering */
+    if( rndr.make.footnote_item && rndr.make.footnotes ){
+      Blob *all_items = new_work_buffer(&rndr);
+      int j = -1;
+
+      /* Assert that the in-memory layout of id, text and upc within
+      ** footnote struct matches the expectations of html_footnote_item()
+      ** If it doesn't then a compiler has done something very weird.
+      */
+      assert( &(rndr.notes.misref.id)  == &(rndr.notes.misref.text) - 1 );
+      assert( &(rndr.notes.misref.upc) == &(rndr.notes.misref.text) + 1 );
+
+      for(i=0; i<COUNT_FOOTNOTES(notes); i++){
+        const struct footnote* x = CAST_AS_FOOTNOTES(notes) + i;
+        const int xUsed = x->bRndred ? x->nUsed : 0;
+        if( !x->iMark ) break;
+        assert( x->nUsed );
+        rndr.make.footnote_item(all_items, &x->text, x->iMark,
+                                     xUsed, rndr.make.opaque);
+        if( !xUsed ) g.ftntsIssues[3]++;  /* an overnested footnote */
+        j = i;
+      }
+      if( rndr.notes.misref.nUsed ){
+        rndr.make.footnote_item(all_items, 0, -1,
+                    rndr.notes.misref.nUsed, rndr.make.opaque);
+        g.ftntsIssues[0] += rndr.notes.misref.nUsed;
+      }
+      while( ++j < COUNT_FOOTNOTES(notes) ){
+        const struct footnote* x = CAST_AS_FOOTNOTES(notes) + j;
+        assert( !x->iMark );
+        assert( !x->nUsed );
+        assert( !x->bRndred );
+        rndr.make.footnote_item(all_items,&x->text,0,0,rndr.make.opaque);
+        g.ftntsIssues[1]++;
+      }
+      rndr.make.footnotes(ob, all_items, rndr.make.opaque);
+      release_work_buffer(&rndr, all_items);
+    }
+    release_work_buffer(&rndr, notes);
+  }
   if( rndr.make.epilog ) rndr.make.epilog(ob, rndr.make.opaque);
 
   /* clean-up */
+  assert( rndr.iDepth==0 );
   blob_reset(&text);
   lr = (struct link_ref *)blob_buffer(&rndr.refs);
   end = blob_size(&rndr.refs)/sizeof(struct link_ref);
@@ -2241,6 +2873,15 @@ void markdown(
     blob_reset(&lr[i].title);
   }
   blob_reset(&rndr.refs);
-  blobarray_zero(rndr.work, rndr.make.max_work_stack);
-  fossil_free(rndr.work);
+  fn = CAST_AS_FOOTNOTES( allNotes );
+  end = COUNT_FOOTNOTES( allNotes );
+  for(i=0; i<end; i++){
+    if(blob_size(&fn[i].id)) blob_reset(&fn[i].id);
+    if(blob_size(&fn[i].upc)) blob_reset(&fn[i].upc);
+    blob_reset(&fn[i].text);
+  }
+  blob_reset(&rndr.notes.all);
+  for(i=0; i<rndr.nBlobCache; i++){
+    fossil_free(rndr.aBlobCache[i]);
+  }
 }

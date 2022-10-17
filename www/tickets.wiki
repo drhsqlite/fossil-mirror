@@ -12,14 +12,14 @@ Each ticket change artifact contains the following information:
 
 <ul>
 <li>The ID of the ticket that was changed
-<li>The timestamp for when the change occurred
+<li>The time stamp for when the change occurred
 <li>The user who made the change
 <li>A list of key/value pairs that show what changed in the ticket
 </ul>
 
 To determine the current state of a particular ticket, Fossil orders
 the change artifacts for that ticket from oldest to most recent,
-then applies each change in timestamp order.
+then applies each change in time stamp order.
 
 On each change artifact, there are one or more key/value pairs that
 implement the change.  The key corresponds to a field of the ticket
@@ -29,7 +29,7 @@ that key, or the value may be appended to the prior value.
 <h2>2.0 Ticket Tables</h2>
 
 The low-level artifact format for ticket content is tedious and
-cumbersome to access in realtime.  To facility reporting and display
+cumbersome to access in real time.  To facility reporting and display
 of tickets, the low-level artifact information is collected and
 summarized in a pair of SQL tables in each local repository.  Display
 and reporting of tickets is accomplished by querying these two tables.
@@ -134,8 +134,8 @@ Each row in the TICKETCHNG table corresponds to a single ticket change
 artifact.  The tkt_id field is the integer primary key of the TICKET
 table entry for the corresponding ticket.  The tkt_rid field is the
 integer primary key for the BLOB table entry that contains the low-level
-artifact text.  The tkt_mtime field is the timestamp on the ticket
-change artifact, expressed as a julian day number.  If the ticket
+artifact text.  The tkt_mtime field is the time stamp on the ticket
+change artifact, expressed as a Julian day number.  If the ticket
 change artifact contains a key/value pair where the key is "login",
 then the corresponding value is stored in the login field of the
 TICKETCHNG table.  The same it true for "username", "mimetype", and
@@ -156,7 +156,7 @@ times of the most recent and the oldest ticket change artifacts for
 this ticket, respectively.
 
 To reconstruct the TICKET table, the ticket change
-artifacts are visited in timestamp order.  As each ticket change artifact is
+artifacts are visited in time stamp order.  As each ticket change artifact is
 visited, its key/value pairs are examined.  For any key/value pair in
 which the key is the same as a field in the TICKET table, the value
 of that pair either replaces or is appended to the previous value
@@ -196,4 +196,4 @@ style, comment text is stored with the "icomment" (for "Incremental Comment")
 key and appears separately, and with its on mimetype, in multiple rows
 of the TICKETCHNG table.  It then falls to the TH1 script code on the
 View Ticket Page to query the TICKETCHNG table and extract and format
-the various comments in timestamp order.
+the various comments in time stamp order.

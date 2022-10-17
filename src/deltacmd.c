@@ -55,10 +55,10 @@ void delta_create_cmd(void){
   if( g.argc!=5 ){
     usage("ORIGIN TARGET DELTA");
   }
-  if( blob_read_from_file(&orig, g.argv[2])<0 ){
+  if( blob_read_from_file(&orig, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
   }
-  if( blob_read_from_file(&target, g.argv[3])<0 ){
+  if( blob_read_from_file(&target, g.argv[3], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_create(&orig, &target, &delta);
@@ -86,10 +86,10 @@ void delta_analyze_cmd(void){
   if( g.argc!=4 ){
     usage("ORIGIN TARGET");
   }
-  if( blob_read_from_file(&orig, g.argv[2])<0 ){
+  if( blob_read_from_file(&orig, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
   }
-  if( blob_read_from_file(&target, g.argv[3])<0 ){
+  if( blob_read_from_file(&target, g.argv[3], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_create(&orig, &target, &delta);
@@ -154,10 +154,10 @@ void delta_apply_cmd(void){
   if( g.argc!=5 ){
     usage("ORIGIN DELTA TARGET");
   }
-  if( blob_read_from_file(&orig, g.argv[2])<0 ){
+  if( blob_read_from_file(&orig, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
   }
-  if( blob_read_from_file(&delta, g.argv[3])<0 ){
+  if( blob_read_from_file(&delta, g.argv[3], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_apply(&orig, &delta, &target);
@@ -184,8 +184,8 @@ void cmd_test_delta(void){
   Blob d12, d21;   /* Deltas from f1->f2 and f2->f1 */
   Blob a1, a2;     /* Recovered file content */
   if( g.argc!=4 ) usage("FILE1 FILE2");
-  blob_read_from_file(&f1, g.argv[2]);
-  blob_read_from_file(&f2, g.argv[3]);
+  blob_read_from_file(&f1, g.argv[2], ExtFILE);
+  blob_read_from_file(&f2, g.argv[3], ExtFILE);
   blob_delta_create(&f1, &f2, &d12);
   blob_delta_create(&f2, &f1, &d21);
   blob_delta_apply(&f1, &d12, &a2);

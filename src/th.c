@@ -201,47 +201,73 @@ struct Buffer {
   int nBufAlloc;
 };
 typedef struct Buffer Buffer;
-static int  thBufferWrite(Th_Interp *interp, Buffer *, const char *, int);
 static void thBufferInit(Buffer *);
 static void thBufferFree(Th_Interp *interp, Buffer *);
+
+/*
+** This version of memcpy() allows the first and second argument to
+** be NULL as long as the number of bytes to copy is zero.
+*/
+static void th_memcpy(void *dest, const void *src, size_t n){
+  if( n>0 ) memcpy(dest,src,n);
+}
 
 /*
 ** Append nAdd bytes of content copied from zAdd to the end of buffer
 ** pBuffer. If there is not enough space currently allocated, resize
 ** the allocation to make space.
 */
-static int thBufferWrite(
+static void thBufferWriteResize(
   Th_Interp *interp,
   Buffer *pBuffer,
   const char *zAdd,
   int nAdd
 ){
-  int nReq;
-
-  if( nAdd<0 ){
-    nAdd = th_strlen(zAdd);
-  }
-  nReq = pBuffer->nBuf+nAdd+1;
-
-  if( nReq>pBuffer->nBufAlloc ){
-    char *zNew;
-    int nNew;
-
-    nNew = nReq*2;
-    zNew = (char *)Th_Malloc(interp, nNew);
-    memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
-    Th_Free(interp, pBuffer->zBuf);
-    pBuffer->nBufAlloc = nNew;
-    pBuffer->zBuf = zNew;
-  }
-
-  memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
+  int nNew = (pBuffer->nBuf+nAdd)*2+32;
+#if defined(TH_MEMDEBUG)
+  char *zNew = (char *)Th_Malloc(interp, nNew);
+  th_memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
+  Th_Free(interp, pBuffer->zBuf);
+  pBuffer->zBuf = zNew;
+#else
+  int nOld = pBuffer->nBufAlloc;
+  pBuffer->zBuf = Th_Realloc(interp, pBuffer->zBuf, nNew);
+  memset(pBuffer->zBuf+nOld, 0, nNew-nOld);
+#endif
+  pBuffer->nBufAlloc = nNew;
+  th_memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
   pBuffer->nBuf += nAdd;
-  pBuffer->zBuf[pBuffer->nBuf] = '\0';
-
-  return TH_OK;
 }
-#define thBufferWrite(a,b,c,d) thBufferWrite(a,b,(const char *)c,d)
+static void thBufferWriteFast(
+  Th_Interp *interp,
+  Buffer *pBuffer,
+  const char *zAdd,
+  int nAdd
+){
+  if( pBuffer->nBuf+nAdd > pBuffer->nBufAlloc ){
+    thBufferWriteResize(interp, pBuffer, zAdd, nAdd);
+  }else{
+    char *z = pBuffer->zBuf + pBuffer->nBuf;
+    pBuffer->nBuf += nAdd;
+    memcpy(z, zAdd, nAdd);
+  }
+}
+#define thBufferWrite(a,b,c,d) thBufferWriteFast(a,b,(const char *)c,d)
+
+/*
+** Add a single character to a buffer
+*/
+static void thBufferAddChar(
+  Th_Interp *interp,
+  Buffer *pBuffer,
+  char c
+){
+  if( pBuffer->nBuf+1 > pBuffer->nBufAlloc ){
+    thBufferWriteResize(interp, pBuffer, &c, 1);
+  }else{
+    pBuffer->zBuf[pBuffer->nBuf++] = c;
+  }
+}
 
 /*
 ** Initialize the Buffer structure pointed to by pBuffer.
@@ -621,7 +647,7 @@ static int thSubstVarname(
       thBufferInit(&varname);
       thBufferWrite(interp, &varname, &zWord[1], i);
       thBufferWrite(interp, &varname, zInner, nInner);
-      thBufferWrite(interp, &varname, ")", 1);
+      thBufferAddChar(interp, &varname, ')');
       rc = Th_GetVar(interp, varname.zBuf, varname.nBuf);
       thBufferFree(interp, &varname);
       return rc;
@@ -683,7 +709,7 @@ static int thSubstWord(
   thBufferInit(&output);
 
   if( nWord>1 && (zWord[0]=='{' && zWord[nWord-1]=='}') ){
-    rc = thBufferWrite(interp, &output, &zWord[1], nWord-2);
+    thBufferWrite(interp, &output, &zWord[1], nWord-2);
   }else{
 
     /* If the word is surrounded by double-quotes strip these away. */
@@ -713,7 +739,7 @@ static int thSubstWord(
             break;
           }
         default: {
-          thBufferWrite(interp, &output, &zWord[i], 1);
+          thBufferAddChar(interp, &output, zWord[i]);
           continue; /* Go to the next iteration of the for(...) loop */
         }
       }
@@ -726,7 +752,7 @@ static int thSubstWord(
         const char *zRes;
         int nRes;
         zRes = Th_GetResult(interp, &nRes);
-        rc = thBufferWrite(interp, &output, zRes, nRes);
+        thBufferWrite(interp, &output, zRes, nRes);
         i += (nGet-1);
       }
     }
@@ -824,7 +850,7 @@ static int thSplitList(
     if( nWord>0 ){
       zWord = Th_GetResult(interp, &nWord);
       thBufferWrite(interp, &strbuf, zWord, nWord);
-      thBufferWrite(interp, &strbuf, "\0", 1);
+      thBufferAddChar(interp, &strbuf, 0);
       thBufferWrite(interp, &lenbuf, &nWord, sizeof(int));
       nCount++;
     }
@@ -843,8 +869,8 @@ static int thSplitList(
     );
     anElem = (int *)&azElem[nCount];
     zElem = (char *)&anElem[nCount];
-    memcpy(anElem, lenbuf.zBuf, lenbuf.nBuf);
-    memcpy(zElem, strbuf.zBuf, strbuf.nBuf);
+    th_memcpy(anElem, lenbuf.zBuf, lenbuf.nBuf);
+    th_memcpy(zElem, strbuf.zBuf, strbuf.nBuf);
     for(i=0; i<nCount;i++){
       azElem[i] = zElem;
       zElem += (anElem[i] + 1);
@@ -1128,7 +1154,7 @@ typedef struct Find Find;
 **
 ** If the arrayok argument is false and the named variable is an array,
 ** an error is left in the interpreter result and NULL returned. If
-** arrayok is true an array name is Ok.
+** arrayok is true an array name is OK.
 */
 
 static Th_Variable *thFindValue(
@@ -1136,7 +1162,7 @@ static Th_Variable *thFindValue(
   const char *zVar,       /* Pointer to variable name */
   int nVar,               /* Number of bytes at nVar */
   int create,             /* If true, create the variable if not found */
-  int arrayok,            /* If true, an array is Ok. Otherwise array==error */
+  int arrayok,            /* If true, an array is OK. Otherwise array==error */
   int noerror,            /* If false, set interpreter result to error */
   Find *pFind             /* If non-zero, place output here */
 ){
@@ -1295,7 +1321,7 @@ int Th_SetVar(
   assert(zValue || nValue==0);
   pValue->zData = Th_Malloc(interp, nValue+1);
   pValue->zData[nValue] = '\0';
-  memcpy(pValue->zData, zValue, nValue);
+  th_memcpy(pValue->zData, zValue, nValue);
   pValue->nData = nValue;
 
   return TH_OK;
@@ -1414,7 +1440,7 @@ char *th_strdup(Th_Interp *interp, const char *z, int n){
     n = th_strlen(z);
   }
   zRes = Th_Malloc(interp, n+1);
-  memcpy(zRes, z, n);
+  th_memcpy(zRes, z, n);
   zRes[n] = '\0';
   return zRes;
 }
@@ -1474,7 +1500,7 @@ int Th_SetResult(Th_Interp *pInterp, const char *z, int n){
   if( z && n>0 ){
     char *zResult;
     zResult = Th_Malloc(pInterp, n+1);
-    memcpy(zResult, z, n);
+    th_memcpy(zResult, z, n);
     zResult[n] = '\0';
     pInterp->zResult = zResult;
     pInterp->nResult = n;
@@ -1520,22 +1546,32 @@ char *Th_TakeResult(Th_Interp *pInterp, int *pN){
   }
 }
 
-
+#if defined(TH_MEMDEBUG)
 /*
 ** Wrappers around the supplied malloc() and free()
 */
-void *Th_Malloc(Th_Interp *pInterp, int nByte){
-  void *p = pInterp->pVtab->xMalloc(nByte);
-  if( p ){
-    memset(p, 0, nByte);
+void *Th_DbgMalloc(Th_Interp *pInterp, int nByte){
+  void *p;
+  Th_Vtab *pVtab = pInterp->pVtab;
+  if( pVtab ){
+    p = pVtab->xMalloc(nByte);
+    if( p ) memset(p, 0, nByte);
+  }else{
+    p = Th_SysMalloc(pInterp, nByte);
   }
   return p;
 }
-void Th_Free(Th_Interp *pInterp, void *z){
+void Th_DbgFree(Th_Interp *pInterp, void *z){
   if( z ){
-    pInterp->pVtab->xFree(z);
+    Th_Vtab *pVtab = pInterp->pVtab;
+    if( pVtab ){
+      pVtab->xFree(z);
+    }else{
+      Th_SysFree(pInterp, z);
+    }
   }
 }
+#endif
 
 /*
 ** Install a new th1 command.
@@ -1728,7 +1764,7 @@ int Th_ListAppend(
     nElem = th_strlen(zElem);
   }
   if( output.nBuf>0 ){
-    thBufferWrite(interp, &output, " ", 1);
+    thBufferAddChar(interp, &output, ' ');
   }
 
   for(i=0; i<nElem; i++){
@@ -1740,14 +1776,14 @@ int Th_ListAppend(
   }
 
   if( nElem==0 || (!hasEscapeChar && hasSpecialChar && nBrace==0) ){
-    thBufferWrite(interp, &output, "{", 1);
+    thBufferAddChar(interp, &output, '{');
     thBufferWrite(interp, &output, zElem, nElem);
-    thBufferWrite(interp, &output, "}", 1);
+    thBufferAddChar(interp, &output, '}');
   }else{
     for(i=0; i<nElem; i++){
       char c = zElem[i];
-      if( th_isspecial(c) ) thBufferWrite(interp, &output, "\\", 1);
-      thBufferWrite(interp, &output, &c, 1);
+      if( th_isspecial(c) ) thBufferAddChar(interp, &output, '\\');
+      thBufferAddChar(interp, &output, c);
     }
   }
 
@@ -1777,8 +1813,8 @@ int Th_StringAppend(
 
   nNew = *pnStr + nElem;
   zNew = Th_Malloc(interp, nNew);
-  memcpy(zNew, *pzStr, *pnStr);
-  memcpy(&zNew[*pnStr], zElem, nElem);
+  th_memcpy(zNew, *pzStr, *pnStr);
+  th_memcpy(&zNew[*pnStr], zElem, nElem);
 
   Th_Free(interp, *pzStr);
   *pzStr = zNew;
@@ -1824,12 +1860,19 @@ void Th_DeleteInterp(Th_Interp *interp){
 ** Create a new interpreter.
 */
 Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
+  int nByte = sizeof(Th_Interp) + sizeof(Th_Frame);
   Th_Interp *p;
 
   /* Allocate and initialise the interpreter and the global frame */
-  p = pVtab->xMalloc(sizeof(Th_Interp) + sizeof(Th_Frame));
-  memset(p, 0, sizeof(Th_Interp));
-  p->pVtab = pVtab;
+#if defined(TH_MEMDEBUG)
+  if( pVtab ){
+    p = pVtab->xMalloc(nByte);
+    memset(p, 0, nByte);
+    p->pVtab = pVtab;
+  }else
+#endif
+  p = Th_SysMalloc(0, nByte);
+
   p->paCmd = Th_HashNew(p);
   thPushFrame(p, (Th_Frame *)&p[1]);
   thInitialize(p);
@@ -2337,14 +2380,14 @@ static int exprParse(
           /* A terminal. Copy the string value. */
           assert( !pNew->pOp );
           pNew->zValue = Th_Malloc(interp, pNew->nValue);
-          memcpy(pNew->zValue, z, pNew->nValue);
+          th_memcpy(pNew->zValue, z, pNew->nValue);
           i += pNew->nValue;
         }
         if( (nToken%16)==0 ){
           /* Grow the apToken array. */
           Expr **apTokenOld = apToken;
           apToken = Th_Malloc(interp, sizeof(Expr *)*(nToken+16));
-          memcpy(apToken, apTokenOld, sizeof(Expr *)*nToken);
+          th_memcpy(apToken, apTokenOld, sizeof(Expr *)*nToken);
         }
 
         /* Put the new token at the end of the apToken array */
@@ -2515,7 +2558,7 @@ Th_HashEntry *Th_HashFind(
     pRet = (Th_HashEntry *)Th_Malloc(interp, sizeof(Th_HashEntry) + nKey);
     pRet->zKey = (char *)&pRet[1];
     pRet->nKey = nKey;
-    memcpy(pRet->zKey, zKey, nKey);
+    th_memcpy(pRet->zKey, zKey, nKey);
     pRet->pNext = pHash->a[iKey];
     pHash->a[iKey] = pRet;
   }

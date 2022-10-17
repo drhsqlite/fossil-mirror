@@ -62,7 +62,7 @@ void shun_page(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
-    rebuild_db(0, 0, 0);
+    rebuild_db(0, 0);
     admin_log("Rebuilt database.");
     db_end_transaction(0);
   }
@@ -176,8 +176,8 @@ void shun_page(void){
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40- or 64-character artifact hashes,
-  @ not an abbreviation or a symbolic tag.</p>
+  @ <p>Note that you must enter full artifact hashes, not abbreviations
+  @ or symbolic tags.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as
@@ -187,9 +187,9 @@ void shun_page(void){
   @ sight - set the "hidden" tag on such artifacts instead.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+  @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
+  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
   if( zShun ){
     if( strlen(zShun) ){
       @ %h(zShun)
@@ -214,9 +214,9 @@ void shun_page(void){
   @ operations.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+  @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
+  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
   if( zAccept ){
     if( strlen(zAccept) ){
       @ %h(zAccept)
@@ -239,7 +239,7 @@ void shun_page(void){
   @ two, so be patient after pressing the button.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+  @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
   @ <input type="submit" name="rebuild" value="Rebuild" />
   @ </div></form>
@@ -265,7 +265,7 @@ void shun_page(void){
   }
   db_finalize(&q);
   @ </p></blockquote>
-  style_footer();
+  style_finish_page();
   fossil_free(zCanonical);
 }
 
@@ -310,6 +310,7 @@ void rcvfromlist_page(void){
   int showAll = P("all")!=0;
   int cnt;
   Stmt q;
+  const int perScreen = 500;   /* RCVIDs per page */
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -324,23 +325,37 @@ void rcvfromlist_page(void){
   }
   if( ofst>0 ){
     style_submenu_element("Newer", "rcvfromlist?ofst=%d",
-                           ofst>30 ? ofst-30 : 0);
+                           ofst>perScreen ? ofst-perScreen : 0);
   }
+  style_submenu_element("Artifacts", "bloblist");
+  style_submenu_element("Top-250", "bigbloblist");
   db_multi_exec(
     "CREATE TEMP TABLE rcvidUsed(x INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE rcvidSha1(x INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE rcvidSha3(x INTEGER PRIMARY KEY);"
     "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM blob;"
+    "INSERT OR IGNORE INTO rcvidSha1(x)"
+    "   SELECT rcvid FROM blob WHERE length(uuid)==40;"
+    "INSERT OR IGNORE INTO rcvidSha3(x)"
+    "   SELECT rcvid FROM blob WHERE length(uuid)==64;"
   );
   if( db_table_exists("repository","unversioned") ){
     db_multi_exec(
       "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM unversioned;"
+      "INSERT OR IGNORE INTO rcvidSha1(x)"
+      "   SELECT rcvid FROM unversioned WHERE length(hash)==40;"
+      "INSERT OR IGNORE INTO rcvidSha3(x)"
+      "   SELECT rcvid FROM unversioned WHERE length(hash)==64;"
     );
   }
   db_prepare(&q,
     "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr,"
-    "       EXISTS(SELECT 1 FROM rcvidUsed WHERE x=rcvfrom.rcvid)"
+    "       EXISTS(SELECT 1 FROM rcvidUsed WHERE x=rcvfrom.rcvid),"
+    "       EXISTS(SELECT 1 FROM rcvidSha1 WHERE x=rcvfrom.rcvid),"
+    "       EXISTS(SELECT 1 FROM rcvidSha3 WHERE x=rcvfrom.rcvid)"
     "  FROM rcvfrom LEFT JOIN user USING(uid)"
     " ORDER BY rcvid DESC LIMIT %d OFFSET %d",
-    showAll ? -1 : 31, ofst
+    showAll ? -1 : perScreen+1, ofst
   );
   @ <p>Whenever new artifacts are added to the repository, either by
   @ push or using the web interface, an entry is made in the RCVFROM table
@@ -358,6 +373,7 @@ void rcvfromlist_page(void){
   @ <tr><th style="padding-right: 15px;text-align: right;">rcvid</th>
   @     <th style="padding-right: 15px;text-align: left;">Date</th>
   @     <th style="padding-right: 15px;text-align: left;">User</th>
+  @     <th style="padding-right: 15px;text-align: left;">Hash</th>
   @     <th style="text-align: left;">IP&nbsp;Address</th></tr>
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
@@ -365,8 +381,12 @@ void rcvfromlist_page(void){
     const char *zUser = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zIpAddr = db_column_text(&q, 3);
-    if( cnt==30 && !showAll ){
-      style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+30);
+    int usesSha1 = db_column_int(&q, 5)!=0;
+    int usesSha3 = db_column_int(&q, 6)!=0;
+    static const char *const zHashType[] = { "", "sha1", "sha3", "both" };
+    const char *zHash = zHashType[usesSha1+usesSha3*2];
+    if( cnt==perScreen && !showAll ){
+      style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+perScreen);
     }else{
       cnt++;
       @ <tr>
@@ -378,13 +398,14 @@ void rcvfromlist_page(void){
       }
       @ <td style="padding-right: 15px;text-align: left;">%s(zDate)</td>
       @ <td style="padding-right: 15px;text-align: left;">%h(zUser)</td>
+      @ <td style="padding-right: 15px;text-align: left;">%s(zHash)</td>
       @ <td style="text-align: left;">%s(zIpAddr)</td>
       @ </tr>
     }
   }
   db_finalize(&q);
   @ </table>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -530,5 +551,5 @@ void rcvfrom_page(void){
   }
   @ </table>
   db_finalize(&q);
-  style_footer();
+  style_finish_page();
 }

@@ -25,15 +25,18 @@
 ** WEBPAGE: attachlist
 ** List attachments.
 **
-**    tkt=TICKETUUID
+**    tkt=HASH
 **    page=WIKIPAGE
+**    technote=HASH
 **
-** At most one of technote=, tkt= or page= are supplied.
-** If none is given, all attachments are listed.  If one is given,
-** only attachments for the designated technote, ticket or wiki page
-** are shown. TECHNOTEUUID and TICKETUUID may be just a prefix of the
-** relevant technical note or ticket, in which case all attachments
-** of all technical notes or tickets with the prefix will be listed.
+** At most one of technote=, tkt= or page= may be supplied.
+**
+** If none are given, all attachments are listed.  If one is given, only
+** attachments for the designated technote, ticket or wiki page are shown.
+**
+** HASH may be just a prefix of the relevant technical note or ticket
+** artifact hash, in which case all attachments of all technical notes or
+** tickets with the prefix will be listed.
 */
 void attachlist_page(void){
   const char *zPage = P("page");
@@ -44,6 +47,7 @@ void attachlist_page(void){
 
   if( zPage && zTkt ) zTkt = 0;
   login_check_credentials();
+  style_set_current_feature("attach");
   blob_zero(&sql);
   blob_append_sql(&sql,
      "SELECT datetime(mtime,toLocal()), src, target, filename,"
@@ -108,11 +112,9 @@ void attachlist_page(void){
     }
     @ <li><p>
     @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
-    if( moderation_pending(attachid) ){
-      @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-    }
+    moderation_pending_www(attachid);
     @ <br /><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
+    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br>
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
       @ %!W(zComment)<br />
@@ -146,7 +148,7 @@ void attachlist_page(void){
   }
   db_finalize(&q);
   @ </ol>
-  style_footer();
+  style_finish_page();
   return;
 }
 
@@ -156,11 +158,12 @@ void attachlist_page(void){
 ** WEBPAGE: attachview
 **
 ** Download or display an attachment.
+**
 ** Query parameters:
 **
-**    tkt=TICKETUUID
+**    tkt=HASH
 **    page=WIKIPAGE
-**    technote=TECHNOTEUUID
+**    technote=HASH
 **    file=FILENAME
 **    attachid=ID
 **
@@ -176,6 +179,7 @@ void attachview_page(void){
 
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
+  style_set_current_feature("attach");
   if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
@@ -205,12 +209,12 @@ void attachview_page(void){
   if( zUUID==0 || zUUID[0]==0 ){
     style_header("No Such Attachment");
     @ No such attachment....
-    style_footer();
+    style_finish_page();
     return;
   }else if( zUUID[0]=='x' ){
     style_header("Missing");
     @ Attachment has been deleted
-    style_footer();
+    style_finish_page();
     return;
   }else{
     g.perm.Read = 1;
@@ -254,7 +258,7 @@ static void attach_put(
 */
 void attach_commit(
   const char *zName,                   /* The filename of the attachment */
-  const char *zTarget,                 /* The artifact uuid to attach to */
+  const char *zTarget,                 /* The artifact hash to attach to */
   const char *aContent,                /* The content of the attachment */
   int         szContent,               /* The length of the attachment */
   int         needModerator,           /* Moderate the attachment? */
@@ -309,9 +313,9 @@ void attach_commit(
 ** WEBPAGE: attachadd
 ** Add a new attachment.
 **
-**    tkt=TICKETUUID
+**    tkt=HASH
 **    page=WIKIPAGE
-**    technote=TECHNOTEUUID
+**    technote=HASH
 **    from=URL
 **
 */
@@ -375,17 +379,18 @@ void attachadd_page(void){
     zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                           zTkt, zTkt);
   }
-  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
+  if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
-  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
+  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
     int needModerator = (zTkt!=0 && ticket_need_moderation(0)) ||
                         (zPage!=0 && wiki_need_moderation(0));
     const char *zComment = PD("comment", "");
     attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zFrom);
   }
+  style_set_current_feature("attach");
   style_header("Add Attachment");
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
@@ -410,7 +415,7 @@ void attachadd_page(void){
   @ </div>
   captcha_generate(0);
   @ </form>
-  style_footer();
+  style_finish_page();
   fossil_free(zTargetType);
 }
 
@@ -424,10 +429,10 @@ void ainfo_page(void){
   int rid;                       /* RID for the control artifact */
   int ridSrc;                    /* RID for the attached file */
   char *zDate;                   /* Date attached */
-  const char *zUuid;             /* UUID of the control artifact */
+  const char *zUuid;             /* Hash of the control artifact */
   Manifest *pAttach;             /* Parse of the control artifact */
   const char *zTarget;           /* Wiki, ticket or tech note attached to */
-  const char *zSrc;              /* UUID of the attached file */
+  const char *zSrc;              /* Hash of the attached file */
   const char *zName;             /* Name of the attached file */
   const char *zDesc;             /* Description of the attached file */
   const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
@@ -449,19 +454,6 @@ void ainfo_page(void){
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-#if 0
-  /* Shunning here needs to get both the attachment control artifact and
-  ** the object that is attached. */
-  if( g.perm.Admin ){
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%q'", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?uuid=%s&sub=1",
-            g.zTop, zUuid);
-    }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun",
-            g.zTop, zUuid);
-    }
-  }
-#endif
   pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
   zTarget = pAttach->zAttachTarget;
@@ -549,9 +541,10 @@ void ainfo_page(void){
       return;
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('a', rid);
     }
   }
+  style_set_current_feature("attach");
   style_header("Attachment Details");
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   if(fShowContent){
@@ -566,10 +559,7 @@ void ainfo_page(void){
   if( g.perm.Setup ){
     @ (%d(rid))
   }
-  modPending = moderation_pending(rid);
-  if( modPending ){
-    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-  }
+  modPending = moderation_pending_www(rid);
   if( zTktUuid ){
     @ <tr><th>Ticket:</th>
     @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
@@ -620,7 +610,7 @@ void ainfo_page(void){
     blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);
     if( zLn ){
-      output_text_with_line_numbers(z, zLn);
+      output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
     }else{
       @ <pre>
       @ %h(z)
@@ -638,7 +628,7 @@ void ainfo_page(void){
   @ </blockquote>
   manifest_destroy(pAttach);
   blob_reset(&attach);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -671,6 +661,7 @@ void attachment_list(
     cnt++;
     @ <li>
     @ %z(href("%R/artifact/%!S",zSrc))%h(zFile)</a>
+    @ [<a href="%R/attachdownload/%t(zFile)?page=%t(zTarget)&file=%t(zFile)">download</a>]
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     @ [%z(href("%R/ainfo/%!S",zUuid))details</a>]
@@ -688,18 +679,19 @@ void attachment_list(
 **
 ** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
-**       Add an attachment to an existing wiki page or tech note.
+** Add an attachment to an existing wiki page or tech note.
+** Options:
 **
-**       Options:
-**         -t|--technote DATETIME      Specifies the timestamp of
-**                                     the technote to which the attachment
-**                                     is to be made. The attachment will be
-**                                     to the most recently modified tech note
-**                                     with the specified timestamp.
-**         -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                     updated by its technote id.
+**    -t|--technote DATETIME      Specifies the timestamp of
+**                                the technote to which the attachment
+**                                is to be made. The attachment will be
+**                                to the most recently modified tech note
+**                                with the specified timestamp.
 **
-**       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+**    -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                updated by its technote id.
+**
+** One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -766,11 +758,11 @@ void attachment_cmd(void){
       );
       zFile = g.argv[3];
     }
-    blob_read_from_file(&content, zFile);
+    blob_read_from_file(&content, zFile, ExtFILE);
     user_select();
     attach_commit(
       zFile,                   /* The filename of the attachment */
-      zTarget,                 /* The artifact uuid to attach to */
+      zTarget,                 /* The artifact hash to attach to */
       blob_buffer(&content),   /* The content of the attachment */
       blob_size(&content),     /* The length of the attachment */
       0,                       /* No need to moderate the attachment */
@@ -788,4 +780,56 @@ void attachment_cmd(void){
 
 attachment_cmd_usage:
   usage("add ?PAGENAME? FILENAME [-t|--technote DATETIME ]");
+}
+
+
+/*
+** COMMAND: test-list-attachments
+**
+** Usage: %fossil test-list-attachments ?-latest? ?TargetName(s)...?
+**
+** List attachments for one or more attachment targets. The target
+** name arguments are glob prefixes for the attachment.target
+** field. If no names are provided then a prefix of [a-zA-Z] is used,
+** which will match most wiki page names and some ticket hashes.
+**
+** Options:
+**
+**    -latest    List only the latest version of a given attachment.
+**
+*/
+void test_list_attachments(void){
+  Stmt q;
+  int i;
+  const int fLatest = find_option("latest", 0, 0) != 0;
+
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  db_prepare(&q,
+     "SELECT datetime(mtime,toLocal()), src, target, filename,"
+     "       comment, user "
+     "  FROM attachment"
+     "  WHERE target GLOB :tgtname ||'*'"
+     "  AND (isLatest OR %d)"
+     "  ORDER BY target, isLatest DESC, mtime DESC",
+     !fLatest
+  );
+  if(g.argc<3){
+    static char * argv[3] = {0,0,"[a-zA-Z]"};
+    g.argc = 3;
+    g.argv = argv;
+  }
+  for(i = 2; i < g.argc; ++i){
+    const char *zPage = g.argv[i];
+    db_bind_text(&q, ":tgtname", zPage);
+    while(SQLITE_ROW == db_step(&q)){
+      const char * zTime = db_column_text(&q, 0);
+      const char * zSrc = db_column_text(&q, 1);
+      const char * zTarget = db_column_text(&q, 2);
+      const char * zName = db_column_text(&q, 3);
+      printf("%-20s %s %.12s %s\n", zTarget, zTime, zSrc, zName);
+    }
+    db_reset(&q);
+  }
+  db_finalize(&q);
 }

@@ -19,7 +19,6 @@
 */
 #include "config.h"
 #include <sys/types.h>
-#include <stdint.h>
 #include "sha1.h"
 
 
@@ -104,28 +103,9 @@ struct SHA1Context {
  *
  * blk0le() for little-endian and blk0be() for big-endian.
  */
-#if __GNUC__ && (defined(__i386__) || defined(__x86_64__))
-/*
- * GCC by itself only generates left rotates.  Use right rotates if
- * possible to be kinder to dinky implementations with iterative rotate
- * instructions.
- */
-#define SHA_ROT(op, x, k) \
-        ({ unsigned int y; asm(op " %1,%0" : "=r" (y) : "I" (k), "0" (x)); y; })
-#define rol(x,k) SHA_ROT("roll", x, k)
-#define ror(x,k) SHA_ROT("rorl", x, k)
-
-#else
-/* Generic C equivalent */
 #define SHA_ROT(x,l,r) ((x) << (l) | (x) >> (r))
 #define rol(x,k) SHA_ROT(x,k,32-(k))
 #define ror(x,k) SHA_ROT(x,32-(k),k)
-#endif
-
-
-
-
-
 #define blk0le(i) (block[i] = (ror(block[i],8)&0xFF00FF00) \
     |(rol(block[i],8)&0x00FF00FF))
 #define blk0be(i) block[i]
@@ -298,7 +278,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf){
 }
 
 /*
-** The state of a incremental SHA1 checksum computation.  Only one
+** The state of an incremental SHA1 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static SHA1Context incrCtx;
@@ -355,13 +335,13 @@ char *sha1sum_finish(Blob *pOut){
 **
 ** Return the number of errors.
 */
-int sha1sum_file(const char *zFilename, Blob *pCksum){
+int sha1sum_file(const char *zFilename, int eFType, Blob *pCksum){
   FILE *in;
   SHA1Context ctx;
   unsigned char zResult[20];
   char zBuf[10240];
 
-  if( file_wd_islink(zFilename) ){
+  if( eFType==RepoFILE && file_islink(zFilename) ){
     /* Instead of file content, return sha1 of link destination path */
     Blob destinationPath;
     int rc;
@@ -523,11 +503,23 @@ void sha1_shared_secret_sql_function(
 **
 ** Compute an SHA1 checksum of all files named on the command-line.
 ** If a file is named "-" then take its content from standard input.
+** Options:
+**
+**    -h|--dereference     If FILE is a symbolic link, compute the hash
+**                         on the object that the link points to.  Normally,
+**                         the hash is over the name of the object that
+**                         the link points to.
+**
+** See also: [[md5sum]], [[sha3sum]]
 */
 void sha1sum_test(void){
   int i;
   Blob in;
   Blob cksum;
+  int eFType = SymFILE;
+  if( find_option("dereference","h",0)!=0 ){
+    eFType = ExtFILE;
+  }
 
   for(i=2; i<g.argc; i++){
     blob_init(&cksum, "************** not found ***************", -1);
@@ -535,7 +527,7 @@ void sha1sum_test(void){
       blob_read_from_channel(&in, stdin, -1);
       sha1sum_blob(&in, &cksum);
     }else{
-      sha1sum_file(g.argv[i], &cksum);
+      sha1sum_file(g.argv[i], eFType, &cksum);
     }
     fossil_print("%s  %s\n", blob_str(&cksum), g.argv[i]);
     blob_reset(&cksum);

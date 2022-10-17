@@ -1,0 +1,9 @@
+<title>Fossil Wiki Readme</title>
+
+This is another test README file.  The point of this file is to show that
+lower-case "readme" is recognized, and the Fossil-Wiki formatting is
+displayed correctly.
+
+  *   First bullet
+
+  *   Second bullet

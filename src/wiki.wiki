@@ -1,0 +1,90 @@
+<h2>Wiki Formatting Rule Summary</h2>
+
+  #  Blank lines are paragraph breaks
+  #  Bullets are "*" surrounded by two spaces at the beginning of a line
+  #  Enumeration items are "#" or a digit and a "." surrounded by two
+     spaces at the beginning of a line
+  #  Indented paragraphs begin with a tab or two spaces
+  #  Hyperlinks are contained within square brackets:
+     <nowiki>"<b>[</b><i>target</i><b>]</b>"
+     or "<b>[</b><i>target</i><b>|</b><i>label</i><b>]</b>"</nowiki>
+  #  Most ordinary HTML works
+  #  &lt;verbatim&gt; and &lt;nowiki&gt;
+
+We call the first five rules above the "wiki" formatting rules.
+The last two rules are the HTML formatting rules.
+
+<h2>Formatting Rule Details</h2>
+
+  1.  <b>Paragraphs.</b>
+      Any sequence of one or more blank lines forms a paragraph break.
+      Centered or right-justified paragraphs are not supported by wiki markup,
+      but you can do these things if you need them using HTML.
+
+  2.  <b>Bullet Lists.</b>
+      A bullet list item is a line that begins with a single "*" character
+      surrounded on both sides by two or more spaces or by a tab.
+      Only a single level of bullet list is supported by wiki.
+      For nested lists, use HTML.
+
+  3.  <b>Enumeration Lists.</b>
+      An enumeration list item is a line that begins with a single "#"
+      character surrounded on both sides by two or more spaces or by a tab.
+      Or it can be a number and a "." (ex:  "5.") surrounded on both sides
+      by two spaces or a tab.
+      Only a single level of enumeration list is supported by wiki.
+      For nested lists or for enumerations that count using letters or
+      roman numerals, use HTML.
+
+  4.  <b>Indented Paragraphs.</b>
+      Any paragraph that begins with two or more spaces or a tab and which
+      is not a bullet or enumeration list item is rendered indented.
+      Only a single level of indentation is supported by wiki.
+      Use HTML for deeper indentation.
+
+  5.  <b>Hyperlinks.</b>
+      Text within square brackets <nowiki>("[...]")</nowiki> becomes a
+      hyperlink. The target can be a wiki page name, the artifact ID of
+      a check-in or ticket, the name of an image, a URL, or an
+      [#intermap|interwiki link] of the form 
+      "<i>Tag</i><b>:</b><i>PageName</i>".
+      By default, the target is displayed as the text of the hyperlink.
+      But you can specify alternative text after the target name
+      separated by a "|" character.
+      You can also link to internal anchor names using 
+      <nowiki>[#anchor-name],</nowiki> providing you have added the necessary 
+      "&lt;a name='anchor-name'&gt;&lt;/a&gt;" tag to your wiki page.
+
+  6.  <b>HTML.</b>
+      The following standard HTML elements may be used:
+      &lt;a&gt; &lt;address&gt; &lt;article&gt; &lt;aside&gt; &lt;b&gt;
+      &lt;big&gt; &lt;blockquote&gt; &lt;br&gt; &lt;center&gt; &lt;cite&gt;
+      &lt;code&gt; &lt;col&gt; &lt;colgroup&gt; &lt;dd&gt; 
+      &lt;del&gt; &lt;dfn&gt;
+      &lt;div&gt; &lt;dl&gt; &lt;dt&gt; &lt;em&gt; &lt;font&gt; &lt;footer&gt;
+      &lt;ins&gt;
+      &lt;h1&gt; &lt;h2&gt; &lt;h3&gt; &lt;h4&gt; &lt;h5&gt; &lt;h6&gt;
+      &lt;header&gt; &lt;hr&gt; &lt;i&gt; &lt;img&gt; &lt;kbd&gt; &lt;li&gt;
+      &lt;nav&gt; &lt;nobr&gt; &lt;nowiki&gt; &lt;ol&gt; &lt;p&gt; &lt;pre&gt;
+      &lt;s&gt; &lt;samp&gt; &lt;section&gt; &lt;small&gt; &lt;span&gt;
+      &lt;strike&gt; &lt;strong&gt; &lt;sub&gt; &lt;sup&gt; &lt;table&gt;
+      &lt;tbody&gt; &lt;td&gt; &lt;tfoot&gt; &lt;th&gt; &lt;thead&gt;
+      &lt;title&gt; &lt;tr&gt; &lt;tt&gt; &lt;u&gt; &lt;ul&gt; &lt;var&gt;
+      &lt;verbatim&gt;. There are two non-standard elements available:
+      &lt;verbatim&gt; and &lt;nowiki&gt;. No other elements are allowed.
+      All attributes are checked and only a few benign attributes are
+      allowed on each element. In particular, any attributes that specify
+      javascript or CSS are elided.
+
+  7.  <b>Special Markup.</b>
+      The &lt;nowiki&gt; tag disables all wiki formatting rules through
+      the matching &lt;/nowiki&gt; element. The &lt;verbatim&gt; tag works
+      like &lt;pre&gt; with the addition that it also disables all wiki
+      and HTML markup through the matching &lt;/verbatim&gt;.
+      Text within 
+      <tt>&lt;verbatim&nbsp;type="pikchr"&gt;...&lt;/verbatim&gt;</tt>
+      is formatted using <a href="https://pikchr.org/home">Pikchr</a>.
+
+
+<a name="intermap"></a>
+<h2>Interwiki Tag [/intermap|Map]</h2>

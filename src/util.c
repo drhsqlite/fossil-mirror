@@ -19,6 +19,11 @@
 */
 #include "config.h"
 #include "util.h"
+#if defined(USE_MMAN_H)
+# include <sys/mman.h>
+# include <unistd.h>
+#endif
+#include <math.h>
 
 /*
 ** For the fossil_timer_xxx() family of functions...
@@ -28,17 +33,24 @@
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
+# include <sys/types.h>
+# include <sys/stat.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <errno.h>
 #endif
-
 
 /*
 ** Exit.  Take care to close the database first.
 */
 NORETURN void fossil_exit(int rc){
   db_close(1);
+#ifndef _WIN32
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** Subprocess %d exit(%d) *****/\n", getpid(), rc);
+    fflush(stderr);
+  }
+#endif
   exit(rc);
 }
 
@@ -47,7 +59,13 @@ NORETURN void fossil_exit(int rc){
 */
 void *fossil_malloc(size_t n){
   void *p = malloc(n==0 ? 1 : n);
-  if( p==0 ) fossil_panic("out of memory");
+  if( p==0 ) fossil_fatal("out of memory");
+  return p;
+}
+void *fossil_malloc_zero(size_t n){
+  void *p = malloc(n==0 ? 1 : n);
+  if( p==0 ) fossil_fatal("out of memory");
+  memset(p, 0, n);
   return p;
 }
 void fossil_free(void *p){
@@ -55,7 +73,7 @@ void fossil_free(void *p){
 }
 void *fossil_realloc(void *p, size_t n){
   p = realloc(p, n);
-  if( p==0 ) fossil_panic("out of memory");
+  if( p==0 ) fossil_fatal("out of memory");
   return p;
 }
 void fossil_secure_zero(void *p, size_t n){
@@ -74,13 +92,15 @@ void fossil_get_page_size(size_t *piPageSize){
   memset(&sysInfo, 0, sizeof(SYSTEM_INFO));
   GetSystemInfo(&sysInfo);
   *piPageSize = (size_t)sysInfo.dwPageSize;
+#elif defined(USE_MMAN_H)
+  *piPageSize = (size_t)sysconf(_SC_PAGE_SIZE);
 #else
   *piPageSize = 4096; /* FIXME: What for POSIX? */
 #endif
 }
 void *fossil_secure_alloc_page(size_t *pN){
   void *p;
-  size_t pageSize;
+  size_t pageSize = 0;
 
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
@@ -92,6 +112,14 @@ void *fossil_secure_alloc_page(size_t *pN){
   }
   if( !VirtualLock(p, pageSize) ){
     fossil_fatal("VirtualLock failed: %lu\n", GetLastError());
+  }
+#elif defined(USE_MMAN_H)
+  p = mmap(0, pageSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  if( p==MAP_FAILED ){
+    fossil_fatal("mmap failed: %d\n", errno);
+  }
+  if( mlock(p, pageSize) ){
+    fossil_fatal("mlock failed: %d\n", errno);
   }
 #else
   p = fossil_malloc(pageSize);
@@ -106,14 +134,153 @@ void fossil_secure_free_page(void *p, size_t n){
   fossil_secure_zero(p, n);
 #if defined(_WIN32)
   if( !VirtualUnlock(p, n) ){
-    fossil_fatal("VirtualUnlock failed: %lu\n", GetLastError());
+    fossil_panic("VirtualUnlock failed: %lu\n", GetLastError());
   }
   if( !VirtualFree(p, 0, MEM_RELEASE) ){
-    fossil_fatal("VirtualFree failed: %lu\n", GetLastError());
+    fossil_panic("VirtualFree failed: %lu\n", GetLastError());
+  }
+#elif defined(USE_MMAN_H)
+  if( munlock(p, n) ){
+    fossil_panic("munlock failed: %d\n", errno);
+  }
+  if( munmap(p, n) ){
+    fossil_panic("munmap failed: %d\n", errno);
   }
 #else
   fossil_free(p);
 #endif
+}
+
+/*
+** Translate every upper-case character in the input string into
+** its equivalent lower-case.
+*/
+char *fossil_strtolwr(char *zIn){
+  char *zStart = zIn;
+  if( zIn ){
+    while( *zIn ){
+      *zIn = fossil_tolower(*zIn);
+      zIn++;
+    }
+  }
+  return zStart;
+}
+
+/*
+** This local variable determines the behavior of
+** fossil_assert_safe_command_string():
+**
+**    0 (default)       fossil_panic() on an unsafe command string
+**
+**    1                 Print an error but continue process.  Used for
+**                      testing of fossil_assert_safe_command_string().
+**
+**    2                 No-op.  Used to allow any arbitrary command string
+**                      through fossil_system(), such as when invoking
+**                      COMMAND in "fossil bisect run COMMAND".
+*/
+static int safeCmdStrTest = 0;
+
+/*
+** Check the input string to ensure that it is safe to pass into system().
+** A string is unsafe for system() on unix if it contains any of the following:
+**
+**   *  Any occurrance of '$' or '`' except single-quoted or after \
+**   *  Any of the following characters, unquoted:  ;|& or \n except
+**      these characters are allowed as the very last character in the
+**      string.
+**   *  Unbalanced single or double quotes
+**
+** This routine is intended as a second line of defense against attack.
+** It should never fail.  Dangerous shell strings should be detected and
+** fixed before calling fossil_system().  This routine serves only as a
+** safety net in case of bugs elsewhere in the system.
+**
+** If an unsafe string is seen, either abort (default) or print
+** a warning message (if safeCmdStrTest is true).
+*/
+static void fossil_assert_safe_command_string(const char *z){
+  int unsafe = 0;
+#ifndef _WIN32
+  /* Unix */
+  int inQuote = 0;
+  int i, c;
+  for(i=0; !unsafe && (c = z[i])!=0; i++){
+    switch( c ){
+      case '$':
+      case '`': {
+        if( inQuote!='\'' ) unsafe = i+1;
+        break;
+      }
+      case ';':
+      case '|':
+      case '&':
+      case '\n': {
+        if( inQuote!='\'' && z[i+1]!=0 ) unsafe = i+1;
+        break;
+      }
+      case '"':
+      case '\'': {
+        if( inQuote==0 ){
+          inQuote = c;
+        }else if( inQuote==c ){
+          inQuote = 0;
+        }
+        break;
+      }
+      case '\\': {
+        if( z[i+1]==0 ){
+          unsafe = i+1;
+        }else if( inQuote!='\'' ){
+          i++;
+        }
+        break;
+      }
+    }
+  }
+  if( inQuote ) unsafe = i;
+#else
+  /* Windows */
+  int i, c;
+  int inQuote = 0;
+  for(i=0; !unsafe && (c = z[i])!=0; i++){
+    switch( c ){
+      case '>':
+      case '<':
+      case '|':
+      case '&':
+      case '\n': {
+        if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
+        break;
+      }
+      case '"': {
+        if( inQuote==c ){
+          inQuote = 0;
+        }else{
+          inQuote = c;
+        }
+        break;
+      }
+      case '^': {
+        if( !inQuote && z[i+1]!=0 ){
+          i++;
+        }
+        break;
+      }
+    }
+  }
+  if( inQuote ) unsafe = i;
+#endif
+  if( unsafe && safeCmdStrTest<2 ){
+    char *zMsg = mprintf("Unsafe command string: %s\n%*shere ----^",
+                   z, unsafe+13, "");
+    if( safeCmdStrTest ){
+      fossil_print("%z\n", zMsg);
+      fossil_free(zMsg);
+    }else{
+      fossil_panic("%s", zMsg);
+    }
+  }
 }
 
 /*
@@ -130,6 +297,7 @@ int fossil_system(const char *zOrigCmd){
   if( g.fSystemTrace ) {
     fossil_trace("SYSTEM: %s\n", zNewCmd);
   }
+  fossil_assert_safe_command_string(zOrigCmd);
   rc = _wsystem(zUnicode);
   fossil_unicode_free(zUnicode);
   free(zNewCmd);
@@ -137,6 +305,7 @@ int fossil_system(const char *zOrigCmd){
   /* On unix, evaluate the command directly.
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
+  fossil_assert_safe_command_string(zOrigCmd);
 
   /* Unix systems should never shell-out while processing an HTTP request,
   ** either via CGI, SCGI, or direct HTTP.  The following assert verifies
@@ -146,9 +315,49 @@ int fossil_system(const char *zOrigCmd){
   assert( g.cgiOutput==0 );
 
   /* The regular system() call works to get a shell on unix */
+  fossil_limit_memory(0);
   rc = system(zOrigCmd);
+  fossil_limit_memory(1);
 #endif
   return rc;
+}
+
+/*
+** Like "fossil_system()" but does not check the command-string for
+** potential security problems.
+*/
+int fossil_unsafe_system(const char *zOrigCmd){
+  int rc;
+  safeCmdStrTest = 2;
+  rc = fossil_system(zOrigCmd);
+  safeCmdStrTest = 0;
+  return rc;
+}
+
+/*
+** COMMAND: test-fossil-system
+**
+** Read lines of input and send them to fossil_system() for evaluation.
+** Use this command to verify that fossil_system() will not run "unsafe"
+** commands.
+*/
+void test_fossil_system_cmd(void){
+  char zLine[10000];
+  safeCmdStrTest = 1;
+  while(1){
+    size_t n;
+    int rc;
+    printf("system-test> ");
+    fflush(stdout);
+    if( !fgets(zLine, sizeof(zLine), stdin) ) break;
+    n = strlen(zLine);
+    while( n>0 && fossil_isspace(zLine[n-1]) ) n--;
+    zLine[n] = 0;
+    printf("cmd: [%s]\n", zLine);
+    fflush(stdout);
+    rc = fossil_system(zLine);
+    printf("result: %d\n", rc);
+  }
 }
 
 /*
@@ -163,12 +372,7 @@ int fossil_strcmp(const char *zA, const char *zB){
   }else if( zB==0 ){
     return +1;
   }else{
-    int a, b;
-    do{
-      a = *zA++;
-      b = *zB++;
-    }while( a==b && a!=0 );
-    return ((unsigned char)a) - (unsigned char)b;
+    return strcmp(zA,zB);
   }
 }
 int fossil_strncmp(const char *zA, const char *zB, int nByte){
@@ -249,6 +453,20 @@ void fossil_cpu_times(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 }
 
 /*
+** Return the resident set size for this process
+*/
+sqlite3_uint64 fossil_rss(void){
+#ifdef _WIN32
+  return 0;
+#else
+  struct rusage s;
+  getrusage(RUSAGE_SELF, &s);
+  return s.ru_maxrss*1024;
+#endif
+}
+
+
+/*
 ** Internal helper type for fossil_timer_xxx().
  */
 enum FossilTimerEnum {
@@ -276,12 +494,6 @@ static struct FossilTimer {
 */
 int fossil_timer_start(){
   int i;
-  static char once = 0;
-  if(!once){
-    once = 1;
-    memset(&fossilTimerList, 0,
-           count(fossilTimerList));
-  }
   for( i = 0; i < FOSSIL_TIMER_COUNT; ++i ){
     struct FossilTimer * ft = &fossilTimerList[i];
     if(ft->id) continue;
@@ -301,7 +513,7 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
   if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
-      fossil_fatal("Invalid call to fetch a non-allocated "
+      fossil_panic("Invalid call to fetch a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
     }else{
@@ -321,7 +533,7 @@ sqlite3_uint64 fossil_timer_reset(int timerId){
   if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
-      fossil_fatal("Invalid call to reset a non-allocated "
+      fossil_panic("Invalid call to reset a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
     }else{
@@ -382,13 +594,12 @@ int is_valid_fd(int fd){
 }
 
 /*
-** Returns TRUE if zSym is exactly UUID_SIZE bytes long and contains
-** only lower-case ASCII hexadecimal values.
+** Returns TRUE if zSym is exactly HNAME_LEN_SHA1 or HNAME_LEN_K256
+** bytes long and contains only lower-case ASCII hexadecimal values.
 */
-int fossil_is_uuid(const char *zSym){
-  return zSym
-    && (UUID_SIZE==strlen(zSym))
-    && validate16(zSym, UUID_SIZE);
+int fossil_is_artifact_hash(const char *zSym){
+  int sz = zSym ? (int)strlen(zSym) : 0;
+  return (HNAME_LEN_SHA1==sz || HNAME_LEN_K256==sz) && validate16(zSym, sz);
 }
 
 /*
@@ -436,16 +647,275 @@ const char *fossil_text_editor(void){
 **
 ** The returned string is obtained from sqlite3_malloc() and must be
 ** freed by the caller.
+**
+** See also:  file_tempname() and file_time_timename();
 */
 char *fossil_temp_filename(void){
   char *zTFile = 0;
-  sqlite3 *db;
+  const char *zDir;
+  char cDirSep;
+  char zSep[2];
+  size_t nDir;
+  u64 r[2];
+#ifdef _WIN32
+  char *zTempDirA = NULL;
+  WCHAR zTempDirW[MAX_PATH+1];
+  const DWORD dwTempSizeW = sizeof(zTempDirW)/sizeof(zTempDirW[0]);
+  DWORD dwTempLenW;
+#else
+  int i;
+  static const char *azTmp[] = {"/var/tmp","/usr/tmp","/tmp"};
+#endif
   if( g.db ){
-    db = g.db;
-  }else{
-    sqlite3_open("",&db);
+    sqlite3_file_control(g.db, 0, SQLITE_FCNTL_TEMPFILENAME, (void*)&zTFile);
+    if( zTFile ) return zTFile;
   }
-  sqlite3_file_control(db, 0, SQLITE_FCNTL_TEMPFILENAME, (void*)&zTFile);
-  if( g.db==0 ) sqlite3_close(db);
+  sqlite3_randomness(sizeof(r), &r);
+#if _WIN32
+  cDirSep = '\\';
+  dwTempLenW = GetTempPathW(dwTempSizeW, zTempDirW);
+  if( dwTempLenW>0 && dwTempLenW<dwTempSizeW
+      && ( zTempDirA = fossil_path_to_utf8(zTempDirW) )){
+    zDir = zTempDirA;
+  }else{
+    zDir = fossil_getenv("LOCALAPPDATA");
+    if( zDir==0 ) zDir = ".";
+  }
+#else
+  for(i=0; i<sizeof(azTmp)/sizeof(azTmp[0]); i++){
+    struct stat buf;
+    zDir = azTmp[i];
+    if( stat(zDir,&buf)==0 && S_ISDIR(buf.st_mode) && access(zDir,03)==0 ){
+      break;
+    }
+  }
+  if( i>=sizeof(azTmp)/sizeof(azTmp[0]) ) zDir = ".";
+  cDirSep = '/';
+#endif
+  nDir = strlen(zDir);
+  zSep[1] = 0;
+  zSep[0] = (nDir && zDir[nDir-1]==cDirSep) ? 0 : cDirSep;
+  zTFile = sqlite3_mprintf("%s%sfossil%016llx%016llx", zDir,zSep,r[0],r[1]);
+#ifdef _WIN32
+  if( zTempDirA ) fossil_path_free(zTempDirA);
+#endif
   return zTFile;
+}
+
+/*
+** Turn memory limits for stack and heap on and off.  The argument
+** is true to turn memory limits on and false to turn them off.
+**
+** Memory limits should be enabled at startup, but then turned off
+** before starting subprocesses.
+*/
+void fossil_limit_memory(int onOff){
+#if defined(__unix__)
+  static sqlite3_int64 origHeap = 10000000000LL;  /* 10GB */
+  static sqlite3_int64 origStack =    8000000  ;  /*  8MB */
+  struct rlimit x;
+
+#if defined(RLIMIT_DATA)
+  getrlimit(RLIMIT_DATA, &x);
+  if( onOff ){
+    origHeap = x.rlim_cur;
+    if( sizeof(void*)<8 || sizeof(x.rlim_cur)<8 ){
+      x.rlim_cur =  1000000000  ;  /* 1GB on 32-bit systems */
+    }else{
+      x.rlim_cur = 10000000000LL;  /* 10GB on 64-bit systems */
+    }
+  }else{
+    x.rlim_cur = origHeap;
+  }
+  setrlimit(RLIMIT_DATA, &x);
+#endif /* defined(RLIMIT_DATA) */
+#if defined(RLIMIT_STACK)
+  getrlimit(RLIMIT_STACK, &x);
+  if( onOff ){
+    origStack = x.rlim_cur;
+    x.rlim_cur =  8000000;  /* 8MB */
+  }else{
+    x.rlim_cur = origStack;
+  }
+  setrlimit(RLIMIT_STACK, &x);
+#endif /* defined(RLIMIT_STACK) */
+#endif /* defined(__unix__) */
+}
+
+#if defined(HAVE_PLEDGE)
+/*
+** Interface to pledge() on OpenBSD 5.9 and later.
+**
+** On platforms that have pledge(), use this routine.
+** On all other platforms, this routine does not exist, but instead
+** a macro defined in config.h is used to provide a no-op.
+*/
+void fossil_pledge(const char *promises){
+  if( pledge(promises, 0) ){
+    fossil_panic("pledge(\"%s\",NULL) fails with errno=%d",
+      promises, (int)errno);
+  }
+}
+#endif /* defined(HAVE_PLEDGE) */
+
+/*
+** Construct a random password and return it as a string.  N is the
+** recommended number of characters for the password.
+**
+** Space to hold the returned string is obtained from fossil_malloc()
+** and should be freed by the caller.
+*/
+char *fossil_random_password(int N){
+  char zSrc[60];
+  int nSrc;
+  int i;
+  char z[60];
+
+  /* Source characters for the password.  Omit characters like "0", "O",
+  ** "1" and "I"  that might be easily confused */
+  static const char zAlphabet[] =
+           /*  0         1         2         3         4         5       */
+           /*   123456789 123456789 123456789 123456789 123456789 123456 */
+              "23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
+
+  if( N<8 ) N = 8;
+  nSrc = sizeof(zAlphabet) - 1;
+  if( N>nSrc ) N = nSrc;
+  memcpy(zSrc, zAlphabet, nSrc);
+
+  for(i=0; i<N; i++){
+    unsigned r;
+    sqlite3_randomness(sizeof(r), &r);
+    r %= nSrc;
+    z[i] = zSrc[r];
+    zSrc[r] = zSrc[--nSrc];
+  }
+  z[i] = 0;
+  return fossil_strdup(z);
+}
+
+/*
+** COMMAND: test-random-password
+**
+** Usage: %fossil test-random-password [N] [--entropy]
+**
+** Generate a random password string of approximately N characters in length.
+** If N is omitted, use 12.  Values of N less than 8 are changed to 8
+** and greater than 57 and changed to 57.
+**
+** If the --entropy flag is included, the number of bits of entropy in
+** the password is show as well.
+*/
+void test_random_password(void){
+  int N = 12;
+  int showEntropy = 0;
+  int i;
+  char *zPassword;
+  for(i=2; i<g.argc; i++){
+    const char *z = g.argv[i];
+    if( z[0]=='-' && z[1]=='-' ) z++;
+    if( strcmp(z,"-entropy")==0 ){
+      showEntropy = 1;
+    }else if( fossil_isdigit(z[0]) ){
+      N = atoi(z);
+      if( N<8 ) N = 8;
+      if( N>57 ) N = 57;
+    }else{
+      usage("[N] [--entropy]");
+    }
+  }
+  zPassword = fossil_random_password(N);
+  if( showEntropy ){
+    double et = 57.0;
+    for(i=1; i<N; i++) et *= 57-i;
+    fossil_print("%s (%d bits of entropy)\n", zPassword,
+                 (int)(log(et)/log(2.0)));
+  }else{
+    fossil_print("%s\n", zPassword);
+  }
+  fossil_free(zPassword);
+}
+
+/*
+** Return the number of decimal digits in a nonnegative integer.  This is useful
+** when formatting text.
+*/
+int fossil_num_digits(int n){
+  return n<      10 ? 1 : n<      100 ? 2 : n<      1000 ? 3
+       : n<   10000 ? 4 : n<   100000 ? 5 : n<   1000000 ? 6
+       : n<10000000 ? 7 : n<100000000 ? 8 : n<1000000000 ? 9 : 10;
+}
+
+#if !defined(_WIN32)
+#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
+/*
+** Search for an executable on the PATH environment variable.
+** Return true (1) if found and false (0) if not found.
+*/
+static int binaryOnPath(const char *zBinary){
+  const char *zPath = fossil_getenv("PATH");
+  char *zFull;
+  int i;
+  int bExists;
+  while( zPath && zPath[0] ){
+    while( zPath[0]==':' ) zPath++;
+    for(i=0; zPath[i] && zPath[i]!=':'; i++){}
+    zFull = mprintf("%.*s/%s", i, zPath, zBinary);
+    bExists = file_access(zFull, X_OK);
+    fossil_free(zFull);
+    if( bExists==0 ) return 1;
+    zPath += i;
+  }
+  return 0;
+}
+#endif
+#endif
+
+
+/*
+** Return the name of a command that will launch a web-browser.
+*/
+const char *fossil_web_browser(void){
+  const char *zBrowser = 0;
+#if defined(_WIN32)
+  zBrowser = db_get("web-browser", "start \"\"");
+#elif defined(__DARWIN__) || defined(__APPLE__) || defined(__HAIKU__)
+  zBrowser = db_get("web-browser", "open");
+#else
+  zBrowser = db_get("web-browser", 0);
+  if( zBrowser==0 ){
+    static const char *const azBrowserProg[] =
+        { "xdg-open", "gnome-open", "firefox", "google-chrome" };
+    int i;
+    zBrowser = "echo";
+    for(i=0; i<count(azBrowserProg); i++){
+      if( binaryOnPath(azBrowserProg[i]) ){
+        zBrowser = azBrowserProg[i];
+        break;
+      }
+    }
+  }
+#endif
+  return zBrowser;
+}
+
+/*
+** On non-Windows systems, calls nice(2) with the given level. Errors
+** are ignored. On Windows this is a no-op.
+*/
+void fossil_nice(int level){
+#ifndef _WIN32
+  /* dummy if() condition to avoid nuisance warning about unused result on
+     certain compiler */
+  if( nice(level) ){ /*ignored*/ }
+#else
+  (void)level;
+#endif
+}
+
+/*
+** Calls fossil_nice() with a default level.
+*/
+void fossil_nice_default(void){
+  fossil_nice(19);
 }

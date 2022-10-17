@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -58,6 +58,30 @@ int moderation_pending(int rid){
 }
 
 /*
+** If the rid object is being held for moderation, write out
+** an "awaiting moderation" message and return true.
+**
+** If the object is not being held for moderation, simply return
+** false without generating any output.
+*/
+int moderation_pending_www(int rid){
+  int pending = moderation_pending(rid);
+  if( pending ){
+    @ <span class="modpending">(Awaiting Moderator Approval)</span>
+  }
+  return pending;
+}
+
+
+/*
+** Return TRUE if there any pending moderation requests.
+*/
+int moderation_needed(void){
+  if( !moderation_table_exists() ) return 0;
+  return db_exists("SELECT 1 FROM modreq");
+}
+
+/*
 ** Check to see if the object identified by RID is used for anything.
 */
 static int object_used(int rid){
@@ -103,6 +127,9 @@ void moderation_disapprove(int objid){
       "DELETE FROM attachment WHERE attachid=%d;",
       rid, rid, rid, rid, rid, rid
     );
+    if( db_table_exists("repository","forumpost") ){
+      db_multi_exec("DELETE FROM forumpost WHERE fpid=%d", rid);
+    }
     zTktid = db_text(0, "SELECT tktid FROM modreq WHERE objid=%d", rid);
     if( zTktid && zTktid[0] ){
       ticket_rebuild_entry(zTktid);
@@ -122,7 +149,7 @@ void moderation_disapprove(int objid){
 /*
 ** Approve an object held for moderation.
 */
-void moderation_approve(int rid){
+void moderation_approve(char class, int rid){
   if( !moderation_pending(rid) ) return;
   db_begin_transaction();
   db_multi_exec(
@@ -132,7 +159,9 @@ void moderation_approve(int rid){
     rid, rid, rid
   );
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
-  admin_log("Approved moderation of rid %d.", rid);
+  admin_log("Approved moderation of rid %c-%d.", class, rid);
+  if( class!='a' ) search_doc_touch(class, rid, 0);
+  setup_incr_cfgcnt();
   db_end_transaction(0);
 }
 
@@ -146,8 +175,8 @@ void modreq_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.RdWiki && !g.perm.RdTkt ){
-    login_needed(g.anon.RdWiki && g.anon.RdTkt);
+  if( !g.perm.ModWiki && !g.perm.ModTkt && !g.perm.ModForum ){
+    login_needed(g.anon.ModWiki && g.anon.ModTkt && g.anon.ModForum);
     return;
   }
   style_header("Pending Moderation Requests");
@@ -159,8 +188,42 @@ void modreq_page(void){
         " ORDER BY event.mtime DESC"
     );
     db_prepare(&q, "%s", blob_sql_text(&sql));
-    www_print_timeline(&q, 0, 0, 0, 0, 0);
+    www_print_timeline(&q, 0, 0, 0, 0, 0, 0, 0);
     db_finalize(&q);
   }
-  style_footer();
+  style_finish_page();
+}
+
+/*
+** Disapproves any entries in the modreq table which belong to any
+** user whose name is no longer found in the user table. This is only
+** intended to be called after user deletion via /setup_uedit.
+**
+** To figure out whether a name exists it cross-references
+** coalesce(event.euser, event.user) with user.login, limiting the
+** selection to event entries where objid matches an entry in the
+** modreq table.
+**
+** This is a no-op if called without g.perm.Admin permissions or if
+** moderation_table_exists() returns false.
+*/
+void moderation_disapprove_for_missing_users(){
+  Stmt q;
+  if( !g.perm.Admin || !moderation_table_exists() ){
+    return;
+  }
+  db_begin_transaction();
+  db_prepare(&q,
+    "SELECT objid FROM event WHERE objid IN "
+    "(SELECT objid FROM modreq) "
+    "AND coalesce(euser,user) NOT IN "
+    "(SELECT login FROM user)"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int const objid = db_column_int(&q, 0);
+    moderation_disapprove(objid);
+  }
+  db_finalize(&q);
+  setup_incr_cfgcnt();
+  db_end_transaction(0);
 }

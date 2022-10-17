@@ -45,15 +45,14 @@ cson_value * json_page_login(){
     - GET: name, n, password, p
     - POST: name, password
 
-    but a bug in cgi_parameter() is breaking that, causing PD() to
-    return the last element of the PATH_INFO instead.
+    but fossil's age-old behaviour of treating the last element of
+    PATH_INFO as the value for the name parameter breaks that.
 
-    Summary: If we check for P("name") first, then P("n"),
-    then ONLY a GET param of "name" will match ("n"
-    is not recognized). If we reverse the order of the
-    checks then both forms work. Strangely enough, the
+    Summary: If we check for P("name") first, then P("n"), then ONLY a
+    GET param of "name" will match ("n" is not recognized). If we
+    reverse the order of the checks then both forms work. The
     "p"/"password" check is not affected by this.
-   */
+  */
   char const * name = cson_value_get_cstr(json_req_payload_get("name"));
   char const * pw = NULL;
   char const * anonSeed = NULL;
@@ -126,7 +125,7 @@ cson_value * json_page_login(){
   {
     /* only for debugging the PD()-incorrect-result problem */
     cson_object * o = NULL;
-    uid = login_search_uid( name, pw );
+    uid = login_search_uid( &name, pw );
     payload = cson_value_new_object();
     o = cson_value_get_object(payload);
     cson_object_set( o, "n", cson_value_new_string(name,strlen(name)));
@@ -136,7 +135,7 @@ cson_value * json_page_login(){
 #endif
   uid = anonSeed
     ? login_is_valid_anonymous(name, pw, anonSeed)
-    : login_search_uid(name, pw)
+    : login_search_uid(&name, pw)
     ;
   if( !uid ){
     g.json.resultCode = preciseErrors
@@ -148,9 +147,9 @@ cson_value * json_page_login(){
     cson_object * po;
     char * cap = NULL;
     if(anonSeed){
-      login_set_anon_cookie(NULL, &cookie);
+      login_set_anon_cookie(NULL, &cookie, 0);
     }else{
-      login_set_user_cookie(name, uid, &cookie);
+      login_set_user_cookie(name, uid, &cookie, 0);
     }
     payload = cson_value_new_object();
     po = cson_value_get_object(payload);
@@ -186,7 +185,7 @@ cson_value * json_page_login(){
 */
 cson_value * json_page_logout(){
   cson_value const *token = g.json.authToken;
-    /* Remember that json_mode_bootstrap() replaces the login cookie
+    /* Remember that json_bootstrap_late() replaces the login cookie
        with the JSON auth token if the request contains it. If the
        request is missing the auth token then this will fetch fossil's
        original cookie. Either way, it's what we want :).
@@ -233,7 +232,7 @@ cson_value * json_page_whoami(){
   cson_value * payload = NULL;
   cson_object * obj = NULL;
   Stmt q;
-  if(!g.json.authToken){
+  if(!g.json.authToken && g.userUid==0){
       /* assume we just logged out. */
       db_prepare(&q, "SELECT login, cap FROM user WHERE login='nobody'");
   }

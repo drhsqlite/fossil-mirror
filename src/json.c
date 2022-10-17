@@ -1,6 +1,6 @@
 #ifdef FOSSIL_ENABLE_JSON
 /*
-** Copyright (c) 2011 D. Richard Hipp
+** Copyright (c) 2011-2022 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -18,10 +18,9 @@
 **
 ** Code for the JSON API.
 **
-** For notes regarding the public JSON interface, please see:
+** The JSON API's public interface is documented at:
 **
-** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view
-**
+** https://fossil-scm.org/fossil/doc/trunk/www/json-api/index.md
 **
 ** Notes for hackers...
 **
@@ -54,10 +53,47 @@ const FossilJsonKeys_ FossilJsonKeys = {
   "timestamp" /*timestamp*/
 };
 
-
+/*
+** Given the current request path string, this function returns true
+** if it refers to a JSON API path. i.e. if (1) it starts with /json
+** or (2) g.zCmdName is "server" or "cgi" and the path starts with
+** /somereponame/json. Specifically, it returns 1 in the former case
+** and 2 for the latter.
+*/
+int json_request_is_json_api(const char * zPathInfo){
+  int rc = 0;
+  if(zPathInfo==0){
+    rc = 0;
+  }else if(0==strncmp("/json",zPathInfo,5)
+           && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+    rc = 1;
+  }else if(g.zCmdName!=0 && (0==strcmp("server",g.zCmdName)
+                             || 0==strcmp("ui",g.zCmdName)
+                             || 0==strcmp("cgi",g.zCmdName)
+                             || 0==strcmp("http",g.zCmdName)) ){
+    /* When running in server/cgi "directory" mode, zPathInfo is
+    ** prefixed with the repository's name, so in order to determine
+    ** whether or not we're really running in json mode we have to try
+    ** a bit harder. Problem reported here:
+    ** https://fossil-scm.org/forum/forumpost/e4953666d6
+    */
+    ReCompiled * pReg = 0;
+    const char * zErr = re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
+    assert(zErr==0 && "Regex compilation failed?");
+    if(zErr==0 &&
+         re_match(pReg, (const unsigned char *)zPathInfo, -1)){
+      rc = 2;
+    }
+    re_free(pReg);
+  }
+  return rc;
+}
 
 /*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
+** and either has JSON POSTed input awaiting consumption or fossil is
+** running in HTTP mode (in which case certain JSON data *might* be
+** available via GET parameters).
 */
 int fossil_has_json(){
   return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
@@ -139,17 +175,6 @@ int cson_data_dest_Blob(void * pState, void const * src, unsigned int n){
 }
 
 /*
-** Implements the cson_data_source_f() interface and reads input from
-** a fossil Blob object. pState must be-a (Blob*) populated with JSON
-** data.
-*/
-int cson_data_src_Blob(void * pState, void * dest, unsigned int * n){
-  Blob * b = (Blob*)pState;
-  *n = blob_read( b, dest, *n );
-  return 0;
-}
-
-/*
 ** Convenience wrapper around cson_output() which appends the output
 ** to pDest. pOpt may be NULL, in which case g.json.outOpt will be used.
 */
@@ -170,8 +195,7 @@ int cson_output_Blob( cson_value const * pVal, Blob * pDest, cson_output_opt con
 */
 cson_value * cson_parse_Blob( Blob * pSrc, cson_parse_info * pInfo ){
   cson_value * root = NULL;
-  blob_rewind( pSrc );
-  cson_parse( &root, cson_data_src_Blob, pSrc, NULL, pInfo );
+  cson_parse_string( &root, blob_str(pSrc), blob_size(pSrc), NULL, pInfo );
   return root;
 }
 
@@ -284,8 +308,8 @@ cson_value * json_new_int( i64 v ){
 ** Precedence: POST.payload, GET/COOKIE/non-JSON POST, JSON POST, ENV.
 **
 ** FIXME: the precedence SHOULD be: GET, POST.payload, POST, COOKIE,
-** ENV, but the amalgamation of the GET/POST vars makes it difficult
-** for me to do that. Since fossil only uses one cookie, cookie
+** ENV, but the amalgamation of the GET/POST vars makes it effectively
+** impossible to do that. Since fossil only uses one cookie, cookie
 ** precedence isn't a real/high-priority problem.
 */
 cson_value * json_getenv( char const * zKey ){
@@ -536,7 +560,7 @@ int json_setenv( char const * zKey, cson_value * v ){
 ** HTTP_ACCEPT header.
 **
 ** It will try to figure out if the client can support
-** application/json or application/javascript, and will fall back to
+** application/json, text/javascript, and will fall back to
 ** text/plain if it cannot figure out anything more specific.
 **
 ** Returned memory is static and immutable, but if the environment
@@ -551,8 +575,8 @@ char const * json_guess_content_type(){
     ? 1 : 0;
   if( g.json.jsonp ){
     return doUtf8
-      ? "application/javascript; charset=utf-8"
-      : "application/javascript";
+      ? "text/javascript; charset=utf-8"
+      : "text/javascript";
   }else{
     /*
       Content-type
@@ -580,6 +604,22 @@ char const * json_guess_content_type(){
 }
 
 /*
+ ** Given a request CONTENT_TYPE value, this function returns true
+ ** if it is of a type which the JSON API can ostensibly read.
+ **
+ ** It accepts any of application/json, text/plain,
+ ** application/javascript, or text/javascript. The former is
+ ** preferred, but was not widespread when this API was initially
+ ** built, so the latter forms are permitted as fallbacks.
+ */
+int json_can_consume_content_type(const char * zType){
+  return fossil_strcmp(zType, "application/json")==0
+    || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
+    || fossil_strcmp(zType,"text/javascript")==0
+    || fossil_strcmp(zType,"application/javascript")==0;
+}
+
+/*
 ** Sends pResponse to the output stream as the response object.  This
 ** function does no validation of pResponse except to assert() that it
 ** is not NULL. The caller is responsible for ensuring that it meets
@@ -590,7 +630,7 @@ char const * json_guess_content_type(){
 ** is not called to flush the output.
 **
 ** If g.json.jsonp is not NULL then the content type is set to
-** application/javascript and the output is wrapped in a jsonp
+** text/javascript and the output is wrapped in a jsonp
 ** wrapper.
 */
 void json_send_response( cson_value const * pResponse ){
@@ -598,6 +638,7 @@ void json_send_response( cson_value const * pResponse ){
   if( g.isHTTP ){
     cgi_reset_content();
     if( g.json.jsonp ){
+      cgi_set_content_type("text/javascript");
       cgi_printf("%s(",g.json.jsonp);
     }
     cson_output( pResponse, cson_data_dest_cgi, NULL, &g.json.outOpt );
@@ -632,10 +673,19 @@ void json_send_response( cson_value const * pResponse ){
 ** results).
 **
 ** The result of this call are cached for future calls.
+**
+** Special case: if g.useLocalauth is true (i.e. the --localauth flag
+** was used to start the fossil server instance) and the current
+** connection is "local", any authToken provided by the user is
+** ignored and no new token is created: localauth mode trumps the
+** authToken.
 */
 cson_value * json_auth_token(){
-    assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-    if( !g.json.authToken ){
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
+  if( g.json.authToken==0 && g.noPswd==0
+      /* g.noPswd!=0 means the user was logged in via a local
+         connection using --localauth. */
+      ){
     /* Try to get an authorization token from GET parameter, POSTed
        JSON, or fossil cookie (in that order). */
     g.json.authToken = json_getenv(FossilJsonKeys.authToken);
@@ -644,13 +694,13 @@ cson_value * json_auth_token(){
        && !PD(login_cookie_name(),NULL)){
       /* tell fossil to use this login info.
 
-      FIXME?: because the JSON bits don't carry around
-      login_cookie_name(), there is(?) a potential(?) login hijacking
-      window here. We may need to change the JSON auth token to be in
-      the form: login_cookie_name()=...
+         FIXME?: because the JSON bits don't carry around
+         login_cookie_name(), there is(?) a potential(?) login hijacking
+         window here. We may need to change the JSON auth token to be in
+         the form: login_cookie_name()=...
 
-      Then again, the hardened cookie value helps ensure that
-      only a proper key/value match is valid.
+         Then again, the hardened cookie value helps ensure that
+         only a proper key/value match is valid.
       */
       cgi_replace_parameter( login_cookie_name(), cson_value_get_cstr(g.json.authToken) );
     }else if( g.isHTTP ){
@@ -685,27 +735,44 @@ cson_value * json_req_payload_get(char const *pKey){
     : NULL;
 }
 
+
+/*
+** Returns non-zero if the json_bootstrap_early() function has already
+** been called.  In general, this function should be used sparingly,
+** e.g. from low-level support functions like fossil_warning() where
+** there is genuine uncertainty about whether (or not) the JSON setup
+** has already been called.
+*/
+int json_is_bootstrapped_early(void){
+  return ((g.json.gc.v != NULL) && (g.json.gc.a != NULL));
+}
+
 /*
 ** Initializes some JSON bits which need to be initialized relatively
-** early on. It should only be called from cgi_init() or
-** json_cmd_top() (early on in those functions).
+** early on. It should be called by any routine which might need to
+** call into JSON relatively early on in the init process.
+** Specifically, early on in cgi_init() and json_cmd_top(), but also
+** from any error reporting routines which might be triggered (early
+** on in those functions).
 **
 ** Initializes g.json.gc and g.json.param. This code does not (and
 ** must not) rely on any of the fossil environment having been set
 ** up. e.g. it must not use cgi_parameter() and friends because this
 ** must be called before those data are initialized.
+**
+** If called multiple times, calls after the first are a no-op.
 */
-void json_main_bootstrap(){
+void json_bootstrap_early(void){
   cson_value * v;
-  assert( (NULL == g.json.gc.v) &&
-          "json_main_bootstrap() was called twice!" );
 
+  if(g.json.gc.v!=NULL){
+    /* Avoid multiple bootstrappings. */
+    return;
+  }
   g.json.timerId = fossil_timer_start();
-
   /* g.json.gc is our "garbage collector" - where we put JSON values
      which need a long lifetime but don't have a logical parent to put
-     them in.
-  */
+     them in. */
   v = cson_value_new_array();
   g.json.gc.v = v;
   assert(0 != g.json.gc.v);
@@ -716,8 +783,7 @@ void json_main_bootstrap(){
        containers without transferring ownership to those containers.
        All other persistent g.json.XXX.v values get appended to
        g.json.gc.a, and therefore already have a live reference
-       for this purpose.
-    */
+       for this purpose. */
     ;
 
   /*
@@ -761,7 +827,7 @@ void json_warn( int code, char const * fmt, ... ){
   assert( (code>FSL_JSON_W_START)
           && (code<FSL_JSON_W_END)
           && "Invalid warning code.");
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
   if(!g.json.warnings){
     g.json.warnings = cson_new_array();
     assert((NULL != g.json.warnings) && "Alloc error.");
@@ -908,17 +974,18 @@ cson_value * json_string_split2( char const * zStr,
 **
 ** This must only be called once, or an assertion may be triggered.
 */
-static void json_mode_bootstrap(){
+void json_bootstrap_late(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-  assert( (0==once) && "json_mode_bootstrap() called too many times!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
+  assert( (0==once) && "json_bootstrap_late() called too many times!");
   if( once ){
     return;
   }else{
     once = 1;
   }
-  g.json.isJsonMode = 1;
+  assert(g.json.isJsonMode
+         && "g.json.isJsonMode should have been set up by now.");
   g.json.resultCode = 0;
   g.json.cmd.offset = -1;
   g.json.jsonp = PD("jsonp",NULL)
@@ -990,6 +1057,7 @@ static void json_mode_bootstrap(){
     */
     FILE * inFile = NULL;
     char const * jfile = find_option("json-input",NULL,1);
+    Blob json = BLOB_INITIALIZER;
     if(!jfile || !*jfile){
       break;
     }
@@ -1002,10 +1070,10 @@ static void json_mode_bootstrap(){
         /* Does not return. */
         ;
     }
-    cgi_parse_POST_JSON(inFile, 0);
-    if( stdin != inFile ){
-      fclose(inFile);
-    }
+    blob_read_from_channel(&json, inFile, -1);
+    fossil_fclose(inFile);
+    cgi_parse_POST_JSON(&json);
+    blob_reset(&json);
     break;
   }
 
@@ -1092,7 +1160,7 @@ static void json_mode_bootstrap(){
 */
 char const * json_command_arg(unsigned short ndx){
   cson_array * ar = g.json.cmd.a;
-  assert((NULL!=ar) && "Internal error. Was json_mode_bootstrap() called?");
+  assert((NULL!=ar) && "Internal error. Was json_bootstrap_late() called?");
   assert((g.argc>1) && "Internal error - we never should have gotten this far.");
   if( g.json.cmd.offset < 0 ){
     /* first-time setup. */
@@ -1103,9 +1171,9 @@ char const * json_command_arg(unsigned short ndx){
                    ))
     char const * tok = NEXT;
     while( tok ){
-      if( !g.isHTTP/*workaround for "abbreviated name" in CLI mode*/
-          ? (0==strcmp(g.argv[1],tok))
-          : (0==strncmp("json",tok,4))
+      if( g.isHTTP/*workaround for "abbreviated name" in CLI mode*/
+          ? (0==strncmp("json",tok,4))
+          : (0==strcmp(g.argv[1],tok))
           ){
         g.json.cmd.offset = i;
         break;
@@ -1265,7 +1333,6 @@ cson_value * json_g_to_json(){
   INT(g, repositoryOpen);
   INT(g, localOpen);
   INT(g, minPrefix);
-  INT(g, fNoDirSymlinks);
   INT(g, fSqlTrace);
   INT(g, fSqlStats);
   INT(g, fSqlPrint);
@@ -1377,13 +1444,13 @@ static cson_value * json_create_response( int resultCode,
   v = cson_object_value(o);
   if( ! o ) return NULL;
 #define SET(K) if(!tmp) goto cleanup; \
-  rc = cson_object_set( o, K, tmp ); \
-  if(rc) do{\
-    cson_value_free(tmp); \
-    tmp = NULL; \
-    goto cleanup; \
+  cson_value_add_reference(tmp);      \
+  rc = cson_object_set( o, K, tmp );  \
+  cson_value_free(tmp);               \
+  if(rc) do{                          \
+    tmp = NULL;                       \
+    goto cleanup;                     \
   }while(0)
-
 
   tmp = json_new_string(MANIFEST_UUID);
   SET("fossil");
@@ -1412,6 +1479,9 @@ static cson_value * json_create_response( int resultCode,
   }else{
     tmp = json_response_command_path();
   }
+  if(!tmp){
+    tmp = json_new_string("???");
+  }
   SET("command");
 
   tmp = json_getenv(FossilJsonKeys.requestId);
@@ -1428,8 +1498,9 @@ static cson_value * json_create_response( int resultCode,
     }
     if(0){/*Only for debugging, add some info to the response.*/
       tmp = cson_value_new_integer( g.json.cmd.offset );
-      cson_object_set( o, "cmd.offset", tmp );
-      cson_object_set( o, "isCGI", cson_value_new_bool( g.isHTTP ) );
+      SET("cmd.offset");
+      tmp = cson_value_new_bool( g.isHTTP );
+      SET("isCGI");
     }
   }
 
@@ -1448,7 +1519,6 @@ static cson_value * json_create_response( int resultCode,
     cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)span));
     assert(!fossil_timer_is_active(g.json.timerId));
     g.json.timerId = -1;
-
   }
   if(g.json.warnings){
     tmp = cson_array_value(g.json.warnings);
@@ -1466,8 +1536,9 @@ static cson_value * json_create_response( int resultCode,
     }
   }
 
-  if(json_find_option_bool("debugFossilG","json-debug-g",NULL,0)
-     &&(g.perm.Admin||g.perm.Setup)){
+  if((g.perm.Admin||g.perm.Setup)
+     && json_find_option_bool("debugFossilG","json-debug-g",NULL,0)
+     ){
     tmp = json_g_to_json();
     SET("g");
   }
@@ -1508,6 +1579,7 @@ void json_err( int code, char const * msg, int alsoOutput ){
                           ? g.json.resultCode
                           : FSL_JSON_E_UNKNOWN);
   cson_value * resp = NULL;
+  if(g.json.isJsonMode==0) return;
   rc = json_dumbdown_rc(rc);
   if( rc && !msg ){
     msg = g.zErrMsg;
@@ -1518,7 +1590,8 @@ void json_err( int code, char const * msg, int alsoOutput ){
   resp = json_create_response(rc, msg, NULL);
   if(!resp){
     /* about the only error case here is out-of-memory. DO NOT
-       call fossil_panic() here because that calls this function.
+       call fossil_panic() or fossil_fatal() here because those
+       allocate.
     */
     fprintf(stderr, "%s: Fatal error: could not allocate "
             "response object.\n", g.argv[0]);
@@ -1611,7 +1684,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   }
   cson_value_free(colNamesV);
   if(warnMsg){
-    json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
+    json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, "%s", warnMsg );
   }
   return cson_array_value(a);
 }
@@ -1871,7 +1944,6 @@ cson_value * json_page_cap(){
 #define ADD(X,K) cson_object_set(obj, K, cson_value_new_bool(g.perm.X))
   ADD(Setup,"setup");
   ADD(Admin,"admin");
-  ADD(Delete,"delete");
   ADD(Password,"password");
   ADD(Query,"query"); /* don't think this one is actually used */
   ADD(Write,"checkin");
@@ -1893,6 +1965,16 @@ cson_value * json_page_cap(){
   ADD(RdAddr,"readPrivate");
   ADD(Zip,"zip");
   ADD(Private,"xferPrivate");
+  ADD(WrUnver,"writeUnversioned");
+  ADD(RdForum,"readForum");
+  ADD(WrForum,"writeForum");
+  ADD(WrTForum,"writeTrustedForum");
+  ADD(ModForum,"moderateForum");
+  ADD(AdminForum,"adminForum");
+  ADD(EmailAlert,"emailAlert");
+  ADD(Announce,"announce");
+  ADD(Debug,"debug");
+  ADD(Chat,"chat");
 #undef ADD
   return payload;
 }
@@ -1931,8 +2013,9 @@ cson_value * json_page_stat(){
   cson_object_set(jo, "projectDescription", json_new_string(zTmp));
   free(zTmp);
   zTmp = NULL;
-  fsize = file_size(g.zRepositoryName);
-  cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
+  fsize = file_size(g.zRepositoryName, ExtFILE);
+  cson_object_set(jo, "repositorySize", 
+                  cson_value_new_integer((cson_int_t)fsize));
 
   if(full){
     n = db_int(0, "SELECT count(*) FROM blob");
@@ -2097,7 +2180,7 @@ static cson_value * json_page_rebuild(){
     db_close(1);
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
-    rebuild_db(0, 0, 0);
+    rebuild_db(0, 0);
     db_end_transaction(0);
     return NULL;
   }
@@ -2225,8 +2308,8 @@ static int json_dispatch_root_command( char const * zCommand ){
 */
 void json_page_top(void){
   char const * zCommand;
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-  json_mode_bootstrap();
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
+  assert(g.json.cmd.a && "json_bootstrap_late() was not called!");
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
     json_dispatch_missing_args_err( JsonPageDefs,
@@ -2251,6 +2334,11 @@ void json_page_top(void){
 ** In CLI mode, the -R REPO common option is supported. Due to limitations
 ** in the argument dispatching code, any -FLAGS must come after the final
 ** sub- (or subsub-) command.
+**
+** The -json-input FILE option can be used to read JSON data and process
+** it like the HTTP interface would. For example:
+**
+**   %fossil json -json-input my.json
 **
 ** The commands include:
 **
@@ -2292,8 +2380,8 @@ void json_cmd_top(void){
        handling.
     */
     ;
-  json_main_bootstrap();
-  json_mode_bootstrap();
+  json_bootstrap_early();
+  json_bootstrap_late();
   if( 2 > cson_array_length_get(g.json.cmd.a) ){
     goto usage;
   }

@@ -19,7 +19,7 @@ Delta Format</a>".
 <p>The algorithm is inspired
 by <a href="http://samba.anu.edu.au/rsync/">rsync</a>.</p>
 
-<a name="argresparam"></a><h2>1.0 Arguments, Results, and Parameters</h2>
+<h2 id="argresparam">1.0 Arguments, Results, and Parameters</h2>
 
 <p>The encoder takes two byte-sequences as input, the "original", and
 the "target", and returns a single byte-sequence containing the
@@ -35,7 +35,7 @@ explained in the next section. The value of this parameter has to be a
 power of two for the algorithm to work. For Fossil the value of this
 parameter is set to "16".</p>
 
-<a name="operation"></a><h2>2.0 Operation</h2>
+<h2 id="operation">2.0 Operation</h2>
 
 <p>The algorithm is split into three phases which generate
 the <a href="delta_format.wiki#header">header</a>,
@@ -52,7 +52,7 @@ a pre-processing step operating on the "original" byte-sequence,
 followed by the processing of the "target" byte-sequence using the
 information gathered by the first step.</p>
 
-<a name="preprocessing"></a><h3>2.1 Preprocessing the original</h3>
+<h3 id="preprocessing">2.1 Preprocessing the original</h3>
 
 <p>A major part of the processing of the "target" is to find a range
 in the "original" which contains the same content as found at the
@@ -85,7 +85,7 @@ the list of chunk locations having this hash.
 </li>
 </ol>
 
-<a name="processing"></a><h3>2.1 Processing the target</h3>
+<h3 id="processing">2.1 Processing the target</h3>
 
 <p>This, the main phase of the encoder, processes the target in a loop
 from beginning to end. The state of the encoder is captured by two
@@ -109,7 +109,34 @@ to <a href="delta_format.wiki#copyrange">copy a range</a>, or
 </ul>
 </p>
 
-<img src="encode10.gif" align="right" hspace="10">
+<div style="float:right">
+<verbatim type="pikchr" style="float:right">
+TARGET: [
+       down
+       "Target" bold
+       box fill palegreen width 150% height 200% "Processed"
+   GI: box same as first box fill yellow height 25% "Gap → Insert"
+   CC: box same fill orange height 200% "Common → Copy"
+    W: box same as GI fill lightgray width 125% height 200% "Window" bold
+       box same as CC height 125% ""
+       box same fill white ""
+]
+
+[ "Base"  bold ; right ; arrow 33% ] with .e at TARGET.GI.nw
+[ "Slide" bold ; right ; arrow 33% ] with .e at TARGET.W.nw
+
+ORIGIN: [
+       down
+       "Origin" bold
+   B1: box fill white
+   B2: box fill orange height 200%
+   B3: box fill white  height 200%
+] with .nw at 0.75 right of TARGET.ne
+
+arrow from TARGET.W.e to ORIGIN.B2.w "Signature" aligned above
+</verbatim>
+</div>
+
 <p>To make this decision the encoder first computes the hash value for
 the NHASH bytes in the window and then looks at all the locations in
 the "origin" which have the same signature. This part uses the hash
@@ -169,7 +196,7 @@ exactly at the end of the "target", as is possible for both end
 conditions, then one last insert instruction is emitted to put these
 bytes into the delta.<p>
 
-<a name="exceptions"></a><h2>3.0 Exceptions</h2>
+<h2 id="exceptions">3.0 Exceptions</h2>
 
 <p>If the "original" is at most NHASH bytes long no compression of
 changes is possible, and the segment-list of the delta consists of a
@@ -179,7 +206,7 @@ single literal which contains the entire "target".</p>
 processing loop described in the previous section, just checked before
 actually entering the loop.</p>
 
-<a name="rollhash"></a><h2>4.0 The rolling hash</h2>
+<h2 id="rollhash">4.0 The rolling hash</h2>
 
 <p>The rolling hash described below and used to compute content
 signatures was chosen not only for good hashing properties, but also
@@ -187,7 +214,7 @@ to enable the easy (incremental) recalculation of its value for a
 sliding window, i.e. where the oldest byte is removed from the window
 and a new byte is shifted in.<p>
 
-<a name="rhdef"></a><h3>4.1 Definition</h3>
+<h3 id="rhdef">4.1 Definition</h3>
 
 <p>Assuming an array Z of NHASH bytes (indexing starting at 0) the
 hash V is computed via</p>
@@ -201,7 +228,7 @@ hash V is computed via</p>
 where A and B are unsigned 16-bit integers (hence the <u>mod</u>), and
 V is a 32-bit unsigned integer with B as MSB, A as LSB.
 
-<a name="rhincr"></a><h3>4.2 Incremental recalculation</h3>
+<h3 id="rhincr">4.2 Incremental recalculation</h3>
 
 <p>Assuming an array Z of NHASH bytes (indexing starting at 0) with
 hash V (and components A and B), the dropped

@@ -47,7 +47,7 @@ static void verify_rid(int rid){
   }
   if( content_get(rid, &content) ){
     if( !hname_verify_hash(&content, blob_buffer(&uuid), blob_size(&uuid)) ){
-      fossil_fatal("hash of rid %d does not match its uuid (%b)",
+      fossil_panic("hash of rid %d does not match its uuid (%b)",
                     rid, &uuid);
     }
     blob_reset(&content);
@@ -70,7 +70,7 @@ static int inFinalVerify = 0;
 */
 static int verify_at_commit(void){
   int rid;
-  content_clear_cache();
+  content_clear_cache(0);
   inFinalVerify = 1;
   rid = bag_first(&toVerify);
   while( rid>0 ){

@@ -1,13 +1,3 @@
-<html>
-<head>
-<base href="$baseurl/$current_page" />
-<title>$<project_name>: $<title></title>
-<link rel="alternate" type="application/rss+xml" title="RSS Feed"
-      href="$home/timeline.rss" />
-<link rel="stylesheet" href="$stylesheet_url" type="text/css"
-      media="screen" />
-</head>
-<body>
 <div class="header">
   <div class="logo">
     <th1>
@@ -68,7 +58,13 @@
       }
       return $logourl
     }
-    set logourl [getLogoUrl $baseurl]
+    if {1} {
+      # Link logo to the top of the current domain
+      set logourl [getLogoUrl $baseurl]
+    } else {
+      # Link logo to the top of the current repo
+      set logourl $baseurl
+    }
     </th1>
     <a href="$logourl">
       <img src="$logo_image_url" border="0" alt="$project_name">
@@ -83,7 +79,7 @@
      }
   </th1></nobr><small><div id="clock"></div></small></div>
 </div>
-<script>
+<th1>html "<script nonce='$nonce'>"</th1>
 function updateClock(){
   var e = document.getElementById("clock");
   if(e){
@@ -96,48 +92,25 @@ function updateClock(){
       f(d.getUTCDate())      + ' ' +
       f(d.getUTCHours())     + ':' +
       f(d.getUTCMinutes());
-    setTimeout("updateClock();",(60-d.getUTCSeconds())*1000);
+    setTimeout(updateClock,(60-d.getUTCSeconds())*1000);
   }
 }
 updateClock();
 </script>
-<div class="mainmenu">
-<th1>
-proc menulink {url name} {
-  upvar current_page current
-  upvar home home
-  if {[string range $url 0 [string length $current]] eq "/$current"} {
-    html "<a href='$home$url' class='active'>$name</a>\n"
-  } else {
-    html "<a href='$home$url'>$name</a>\n"
+<div class="mainmenu"><th1>
+set sitemap 0
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {[string match /* $url]} {
+    if {[string match $url\[/?#\]* /$current_page/]} {
+      set class "active $class"
+    }
+    set url $home$url
   }
+  html "<a href='$url' class='$class'>$name</a>\n"
+  if {[string match */sitemap $url]} {set sitemap 1}
 }
-menulink $index_page Home
-if {[anycap jor]} {
-  menulink /timeline Timeline
-}
-if {[anoncap oh]} {
-  menulink /dir?ci=tip Files
-}
-if {[anoncap o]} {
-  menulink  /brlist Branches
-  menulink  /taglist Tags
-}
-if {[anoncap r]} {
-  menulink /ticket Tickets
-}
-if {[anoncap j]} {
-  menulink /wiki Wiki
-}
-  menulink /sitemap More...
-if {[hascap s]} {
-  menulink /setup Admin
-} elseif {[hascap a]} {
-  menulink /setup_ulist Users
-}
-if {[info exists login]} {
-  menulink /login Logout
-} else {
-  menulink /login Login
+if {!$sitemap} {
+  html "<a href='$home/sitemap'>...</a>\n"
 }
 </th1></div>

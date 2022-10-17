@@ -59,12 +59,18 @@ void shell_cmd(void){
   int fDebug;
   pid_t childPid;
   char *zLine = 0;
+  char *zPrompt = 0;
   fDebug = find_option("debug", 0, 0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
+  if(g.zRepositoryName!=0){
+    zPrompt = mprintf("fossil (%z)> ", db_get("project-name","unnamed"));
+  }else{
+    zPrompt = mprintf("fossil (no repo)> ");
+  }
   db_close(0);
   sqlite3_shutdown();
   linenoiseSetMultiLine(1);
-  while( (free(zLine), zLine = linenoise("fossil> ")) ){
+  while( (free(zLine), zLine = linenoise(zPrompt)) ){
     /* Remember shell history within the current session */
     linenoiseHistoryAdd(zLine);
 
@@ -85,7 +91,7 @@ void shell_cmd(void){
         for(i++; i<n && zLine[i]!=cQuote; i++){}
       }else{
         azArg[nArg++] = &zLine[i];
-        while( i<n && !isspace(zLine[i]) ){ i++; }
+        while( i<n && !fossil_isspace(zLine[i]) ){ i++; }
       }
       zLine[i] = 0;
     }
@@ -111,7 +117,7 @@ void shell_cmd(void){
     if( childPid==0 ){
       /* This is the child process */
       int main(int, char**);
-      main(nArg, azArg);
+      fossil_main(nArg, azArg);
       exit(0);
     }else{
       /* The parent process */
@@ -119,5 +125,6 @@ void shell_cmd(void){
       waitpid(childPid, &status, 0);
     }
   }
+  free(zPrompt);
 #endif
 }

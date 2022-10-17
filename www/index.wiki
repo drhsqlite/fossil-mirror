@@ -2,41 +2,40 @@
 
 <h3>What Is Fossil?</h3>
 
-<div style='width:200px;float:right;border:2px solid #446979;padding:10px;margin:0px 10px;'>
-<ul>
+<div style='float:right;border:2px solid #446979;padding:0 15px 10px 0;margin:0 0 10px 10px;'>
+<ul style='margin-left: -10px;'>
 <li> [/uv/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
-<li> [../COPYRIGHT-BSD2.txt | License]
-<li> [./faq.wiki | FAQ]
+<li> [https://fossil-scm.org/forum | Support/Forum ]
+<li> [./hints.wiki | Tips &amp; Hints]
 <li> [./changes.wiki | Change Log]
+<li> [../COPYRIGHT-BSD2.txt | License]
+<li> [./userlinks.wiki | User Links]
 <li> [./hacker-howto.wiki | Hacker How-To]
-<li> [./hints.wiki | Tip &amp; Hints]
-<li> [./permutedindex.html | Documentation Index]
-<li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
-<li> Mailing list
-     <ul>
-     <li> [http://mailinglists.sqlite.org/cgi-bin/mailman/listinfo/fossil-users | sign-up]
-     <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
-     </ul>
+<li> [./fossil-v-git.wiki | Fossil vs. Git]
+<li> [./permutedindex.html | Doc Index]
 </ul>
-<img src="fossil3.gif" align="center">
+<center><img src="fossil3.gif" align="center"></center>
 </div>
 
 <p>Fossil is a simple, high-reliability, distributed software configuration
 management system with these advanced features:
 
-  1.  <b>Integrated Bug Tracking, Wiki, and Technotes</b> -
+  1.  <b>Project Management</b> -
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
-      [./wikitheory.wiki | wiki], and [./event.wiki | technotes].
+      [./wikitheory.wiki | wiki], [./forum.wiki | forum],
+      [./alerts.md|email alerts], [./chat.md | chat], and
+      [./event.wiki | technotes].
 
   2.  <b>Built-in Web Interface</b> -
-      Fossil has a built-in and intuitive [./webui.wiki | web interface]
+      Fossil has a built-in, [/skins | themeable], [./serverext.wiki | extensible],
+      and intuitive [./webui.wiki | web interface]
       with a rich variety of information pages
       ([./webpage-ex.md|examples]) promoting situational awareness.
-
+      <p>
       This entire website is just a running instance of Fossil.
       The pages you see here are all [./wikitheory.wiki | wiki] or
       [./embeddeddoc.wiki | embedded documentation] or (in the case of
@@ -46,25 +45,28 @@ management system with these advanced features:
       [./selfhost.wiki | self-hosting repositories],
       you get more than just source code - you get this entire website.
 
-  3.  <b>Self-Contained</b> -
-      Fossil is a single self-contained stand-alone executable.
+  3.  <b>All-in-one</b> -
+      Fossil is a single self-contained, stand-alone executable.
       To install, simply download a
-      <a href="http://www.fossil-scm.org/fossil/uv/download.html">precompiled binary</a>
-      for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
+      [/uv/download.html | precompiled binary]
+      for Linux, Mac, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is also available.
 
-  4.  <b>Simple Networking</b> -
-      No custom protocols or TCP ports.
-      Fossil uses ordinary HTTP (or HTTPS or SSH)
+
+  4.  <b>Self-host Friendly</b> - Stand up a project website
+      in minutes using [./server/ | a variety of techniques].
+      Fossil is CPU and memory efficient. Most projects can be
+      hosted comfortably on a $5/month VPS or a Raspberry Pi.
+      You can also set up an automatic
+      [./mirrortogithub.md | GitHub mirror].
+
+  5.  <b>Simple Networking</b> -
+      Fossil uses ordinary HTTPS (or SSH if you prefer)
       for network communications, so it works fine from behind
-      restrictive firewalls, including [./quickstart.wiki#proxy|proxies].
+      firewalls and [./quickstart.wiki#proxy|proxies].
       The protocol is
       [./stats.wiki | bandwidth efficient] to the point that Fossil can be
-      used comfortably over dial-up.
-
-  5.  <b>CGI/SCGI Enabled</b> -  No server is required, but if you want to
-      set one up, Fossil supports four easy
-      [./server.wiki | server configurations].
+      used comfortably over dial-up, weak 3G, or airliner Wifi.
 
   6.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]
@@ -80,76 +82,26 @@ management system with these advanced features:
       Automatic [./selfcheck.wiki | self-checks] verify that all aspects of
       the repository are consistent prior to each commit.
 
-  8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
+  8.  <b>Free and Open-Source</b> - [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Links For Fossil Users:</h3>
+<h3>Latest Release: 2.19 ([/timeline?c=version-2.19|2022-07-21])</h3>
 
-  *  [./permutedindex.html | Documentation index] with [/search?c=d | full text search].
-  *  [./reviews.wiki | Testimonials] from satisfied Fossil users and
-     [./quotes.wiki | Quotes] about Fossil and other DVCSes.
-  *  [./faq.wiki | Frequently Asked Questions]
-  *  The [./concepts.wiki | concepts] behind Fossil.
-     [./whyusefossil.wiki#definitions | Another viewpoint].
-  *  [./quickstart.wiki | Quick Start] guide to using Fossil.
-  *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
-  *  [./build.wiki | Compiling and Installing]
-  *  "Fuel" is cross-platform GUI front-end for Fossil
-     written in Qt.  [http://fuelscm.org/].
-     Fuel is an independent project run by a different group of
-     developers.
-  *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
-     that is versioned along with project source code.
-  *  Fossil uses an [./fileformat.wiki | enduring file format] that is
-     designed to be readable, searchable, and extensible by people
-     not yet born.
-  *  A tutorial on [./branching.wiki | branching], what it means and how
-     to do it using Fossil.
-  *  The [./selfcheck.wiki | automatic self-check] mechanism
-     helps insure project integrity.
-  *  Fossil contains a [./wikitheory.wiki | built-in wiki].
-  *  An [./event.wiki | Event] is a special kind of wiki page associated
-     with a point in time rather than a name.
-  *  [./settings.wiki | Settings] control the behaviour of Fossil.
-  *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
-  *  There is a
-     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
-     (with publicly readable
-     [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives])
-     available for discussing Fossil issues.
-  *  [./stats.wiki | Performance statistics] taken from real-world projects
-     hosted on Fossil.
-  *  How to [./shunning.wiki | delete content] from a Fossil repository.
-  *  How Fossil does [./password.wiki | password management].
-  *  On-line [/help | help].
-  *  Documentation on the
-     [http://www.sqliteconcepts.org/THManual.pdf | TH1 scripting language],
-     used to customize [./custom_ticket.wiki | ticketing], and several other
-     subsystems, including [./customskin.md | theming].
-  *  List of [./th1.md | TH1 commands provided by Fossil itself] that expose
-     its key functionality to TH1 scripts.
-  *  A free hosting server for Fossil repositories is available at
-     [http://chiselapp.com/].
-  *  How to [./server.wiki | set up a server] for your repository.
-  *  Customizing the [./custom_ticket.wiki | ticket system].
-  *  Methods to [./checkin_names.wiki | identify a specific check-in].
-  *  [./inout.wiki | Import and export] from and to Git.
-  *  [./fossil-v-git.wiki | Fossil versus Git].
-  *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
-     (contributed by Gilles Ganault on 2013-01-08).
-  *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
+  *  [/uv/download.html|Download]
+  *  [./changes.wiki#v2_19|Change Summary]
+  *  [/timeline?p=version-2.19&bt=version-2.18&y=ci|Check-ins in version 2.19]
+  *  [/timeline?df=version-2.19&y=ci|Check-ins derived from the 2.19 release]
+  *  [/timeline?t=release|Timeline of all past releases]
 
-<h3>Links For Fossil Developers:</h3>
+<hr>
+<h3>Quick Start</h3>
 
-  *  [./contribute.wiki | Contributing] code or documentation to the
-     Fossil project.
-  *  [./theory1.wiki | Thoughts On The Design Of Fossil].
-  *  [./pop.wiki | Principles Of Operation]
-  *  [./tech_overview.wiki | A Technical Overview Of Fossil].
-  *  The [./fileformat.wiki | file format] used by every content
-     file stored in the repository.
-  *  The [./delta_format.wiki | format of deltas] used to
-     efficiently store changes between file revisions.
-  *  The [./delta_encoder_algorithm.wiki | encoder algorithm] used to
-     efficiently generate deltas.
-  *  The [./sync.wiki | synchronization protocol].
+  1.  [/uv/download.html|Download] or install using a package manager or
+      [./build.wiki|compile from sources].
+  2.  <tt>fossil init</tt> <i>REPOSITORY-DIR/new-repository</i>
+  3.  <tt>fossil open</tt> <i>REPOSITORY-DIR/new-repository</i>
+  4.  <tt>fossil add</tt> <i>files-or-directories</i>
+  5.  <tt>fossil commit -m</tt> "<i>commit message</i>"
+  6.  <tt>fossil ui</tt>
+  7.  Repeat steps 4, 5, and 6, in any order, as necessary.
+      See the [./quickstart.wiki|Quick Start Guide] for more detail.

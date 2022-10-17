@@ -7,5 +7,3 @@ Generated in <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s
 Fossil v$release_version $manifest_version
 </div>
 </div>
-</body>
-</html>

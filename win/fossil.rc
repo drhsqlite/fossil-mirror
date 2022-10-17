@@ -32,17 +32,7 @@
 #define _RC_COMPILE_
 #include "config.h"
 #include "sqlite3.h"
-
-#if defined(FOSSIL_ENABLE_MINIZ)
-#if defined(__MINGW32__)
-#include "minizver.h"
-#else
-#define MINIZ_HEADER_FILE_ONLY
-#include "miniz.c"
-#endif /* defined(__MINGW32__) */
-#else
 #include "zlib.h"
-#endif /* defined(FOSSIL_ENABLE_MINIZ) */
 
 #if defined(FOSSIL_ENABLE_SSL)
 #include "openssl/opensslv.h"
@@ -109,11 +99,7 @@ BEGIN
 #else
       VALUE "DynamicBuild", "No\0"
 #endif
-#if defined(FOSSIL_ENABLE_MINIZ)
-      VALUE "MinizVersion", "miniz " MZ_VERSION "\0"
-#else
       VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
-#endif /* defined(FOSSIL_ENABLE_MINIZ) */
 #if FOSSIL_HARDENED_SHA1
       VALUE "Sha1", "Hardened-SHA1 by Marc Stevens and Dan Shumow\0"
 #elif defined(FOSSIL_ENABLE_SSL)
@@ -129,11 +115,7 @@ BEGIN
 #if defined(FOSSIL_ENABLE_SSL)
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
 #endif /* defined(FOSSIL_ENABLE_SSL) */
-#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
       VALUE "LegacyMvRm", "Yes\0"
-#else
-      VALUE "LegacyMvRm", "No\0"
-#endif /* defined(FOSSIL_ENABLE_LEGACY_MV_RM) */
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
       VALUE "ExecRelPaths", "Yes\0"
 #else
@@ -170,6 +152,11 @@ BEGIN
 #if defined(FOSSIL_ENABLE_JSON)
       VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"
 #endif /* defined(FOSSIL_ENABLE_JSON) */
+#if defined(USE_MMAN_H)
+      VALUE "UseMmanEnabled", "Yes\0"
+#else
+      VALUE "UseMmanEnabled", "No\0"
+#endif /* defined(USE_MMAN_H) */
 #if defined(USE_SEE)
       VALUE "UseSeeEnabled", "Yes\0"
 #else

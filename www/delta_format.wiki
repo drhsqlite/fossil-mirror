@@ -1,31 +1,74 @@
 <title>Fossil Delta Format</title>
-<nowiki>
-<h2>Abstract</h2>
+<h1>1.0 Overview</h1>
 
 <p>Fossil achieves efficient storage and low-bandwidth synchronization
 through the use of delta-compression.  Instead of storing
-or transmitting the complete content of an artifact, fossil stores or
+or transmitting the complete content of an artifact, Fossil stores or
 transmits only the changes relative to a related artifact.
 </p>
 
-<p>This document describes the delta-encoding format used by fossil.
+<p>This document describes the delta-encoding format used by Fossil.
 The intended audience is developers working on either
-<a href="index.wiki">fossil</a> itself, or on tools compatible with
-fossil.</p>
+<a href="index.wiki">Fossil</a> itself, or on tools compatible with
+Fossil. Understanding of this document is <em>not</em> required for
+ordinary users of Fossil.  This document is an implementation detail.</p>
 
-<p>Note that the delta-encoding is not a fundamental element of the
-state of a fossil repository.  A state of a fossil repository is
-defined by the uncompressed and undeltaed content of all artifacts.
-The fact the artifacts
-are stored on disk using this delta-encoding format is merely an
-optimization.  One could, in theory, create an entirely new and
-compatible implementation of fossil that used a different delta-encoding
-or did no delta-encoding at all.  However, experience has shown that
-the delta-encoding described here is both efficient to compute and
-results in very small deltas, so its continued use is recommended.</p>
+<p>This document only describes the delta file format.  A 
+[./delta_encoder_algorithm.wiki|separate document] describes one possible
+algorithm for generating deltas in this format.</p>
 
-<a name="structure"></a><h2>1.0 Structure</h2>
-<img src="delta1.gif" align="left" hspace="10">
+<h2>1.1 Sample Software And Analysis Tools</h2>
+
+<p>The core routines used to generate and apply deltas in this format
+are contained in the [../src/delta.c|delta.c] source file.  Interface
+logic, including "test-*" commands to directly manipulate deltas are
+contained in the [../src/deltacmd.c|deltacmd.c] source file.  SQL functions
+to create, apply, and analyze deltas are implemented by code in the
+[../src/deltafunc.c|deltafunc.c] source file.
+
+<p>The following command-line tools are available to create and apply
+deltas and to test the delta logic:
+
+   *   [/help?cmd=test-delta|fossil test-delta] &rarr; Run self-tests of
+       the delta logic
+
+   *   [/help?cmd=test-delta-create|fossil test-delta-create X Y] &rarr; compute
+       a delta that converts file X into file Y.  Output that delta.
+
+   *   [/help?cmd=test-delta-apply|fossil test-delta-apply X D] &rarr; apply
+       delta D to input file X and output the result.
+
+   *   [/help?cmd=test-delta-analyze|fossil test-delta-analyze X Y] &rarr; compute
+       and delta that converts file X into file Y but instead of writing the
+       delta to output, write performance information about the delta.
+
+<p>When running the [/help?cmd=sqlite3|fossil sql] command to get an
+interactive SQL session connected to the repository, the following
+additional SQL functions are provided:
+
+   *   <b>delta_create(</b><i>X</i><b>,</b><i>Y</i><b>)</b> &rarr;
+       Compute a data that carries blob X into blob Y and return that delta
+       as a blob.
+
+   *   <b>delta_apply(</b><i>X</i><b>,</b><i>D</i><b>)</b> &rarr;
+       Apply delta D to input blob X return a new blob which is the result.
+
+
+   *   <b>delta_output_size(</b><i>D</i>)</b> &rarr;
+       Return the size of the output that would result from applying delta D.
+
+   *   <b>delta_parse(</b><i>D</i>)</b> &rarr; This is a table-valued function
+       that returns one row for the header, for the trailer, and for each segment
+       in delta D.
+
+
+<h1 id="structure">2.0 Structure</h1>
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box height 50% "Header"
+    box same "Segments"
+    box same "Trailer"
+</verbatim>
 
 <p>A delta consists of three parts, a "header", a "trailer", and a
 "segment-list" between them.</p>
@@ -34,8 +77,12 @@ results in very small deltas, so its continued use is recommended.</p>
 helping the decoder, and the segment-list describes how the target can
 be constructed from the original.</p>
 
-<a name="header"></a><h3>1.1 Header</h3>
-<img src="delta6.gif" align="left" hspace="10">
+<h2 id="header">2.1 Header</h2>
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box height 50% "Size"
+    box same "\"\\n\""
+</verbatim>
 
 <p>The header consists of a single number followed by a newline
 character (ASCII 0x0a). The number is the length of the target in
@@ -46,8 +93,12 @@ the target (and allocate any necessary memory based on that) by simply
 reading the first line of the delta and decoding the number found
 there. In other words, before it has to decode everything else.</p>
 
-<a name="trailer"></a><h3>1.2 Trailer</h3>
-<img src="delta5.gif" align="left" hspace="10">
+<h2 id="trailer">2.2 Trailer</h2>
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box height 50% "Checksum"
+    box same "\";\""
+</verbatim>
 
 <p>The trailer consists of a single number followed by a semicolon (ASCII
 0x3b). This number is a checksum of the target and can be used by a
@@ -63,8 +114,31 @@ target from the original.</p>
 it available immediately after the target has been reconstructed
 fully.</p>
 
-<a name="slist"></a><h3>1.3 Segment-List</h3>
-<img src="delta2.gif" align="left" hspace="10">
+<h2 id="slist">2.3 Segment-List</h2>
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    PART1: [
+        B1: box height 50% width 15% ""
+        B2: box same ""
+        B3: box same ""
+            "***"
+            box height 50% width 15% ""
+        I1: line down 50% from B2 .s
+            arrow right until even with B3.e
+            box "Insert Literal" height 50%
+            line down 75% from I1 .s
+            arrow right until even with B3.e
+            box "Copy Range" height 50%
+    ]
+    down
+    PART2: [
+        ""
+        box "Length" height 50%
+        right
+        box "\":\"" same
+        box "Bytes" same
+    ] with .nw at previous.sw
+</verbatim>
 
 <p>The segment-list of a delta describes how to create the target from
 the original by a combination of inserting literal byte-sequences and
@@ -76,27 +150,41 @@ original and target in small copy instructions.</p>
 generated by each instruction appended after the data of all previous
 instructions, with no gaps.</p>
 
-<a name="insertlit"></a><h4>1.3.1 Insert Literal</h4>
+<h3 id="insertlit">2.3.1 Insert Literal</h3>
 
 <p>A literal is specified by two elements, the size of the literal in
 bytes, and the bytes of the literal itself.</p>
 
-<img src="delta4.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box "Length" height 50%
+    box "\":\"" same
+    box "Bytes" same
+</verbatim>
+
 <p>The length is written first, followed by a colon character (ASCII
 0x3a), followed by the bytes of the literal.</p>
 
-<a name="copyrange"></a><h4>1.3.2 Copy Range</h4>
+<h3 id="copyrange">2.3.2 Copy Range</h3>
 
 <p>A range to copy is specified by two numbers, the offset of the
 first byte in the original to copy, and the size of the range, in
 bytes. The size zero is special, its usage indicates that the range
 extends to the end of the original.</p>
 
-<img src="delta3.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box "Length" height 50%
+    box "\"@\"" same
+    box "Offset" same
+    box "\",\"" same
+</verbatim>
+
+
 <p>The length is written first, followed by an "at" character (ASCII
 0x40), then the offset, followed by a comma (ASCII 0x2c).</p>
 
-<a name="intcoding"></a><h2>2.0 Encoding of integers</h2>
+<h1 id="intcoding">3.0 Encoding of integers</h1>
 
 <p>
 The format currently handles only 32 bit integer numbers. They are
@@ -105,13 +193,25 @@ written base-64 encoded, MSB first, and without leading
 </p>
 
 <p>
-The base-64 coding is described in
-<a href="http://www.ietf.org/rfc/rfc3548.txt">RFC 3548</a>.
+The base-64 encoding uses one character for each 6 bits of
+the integer to be encoded.  The encoding characters are:
 </p>
 
-<a name="examples"></a><h2>3.0 Examples</h2>
+<blockquote><pre>
+0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~
+</pre></blockquote>
 
-<a name="examplesint"></a><h3>3.1 Integer encoding</h3>
+<p>The least significant 6 bits of the integer are encoded by
+the first character, followed by
+the next 6 bits, and so on until all non-zero bits of the integer
+are encoded.  The minimum number of encoding characters is used.
+Note that for integers less than 10, the base-64 coding is a
+ASCII decimal rendering of the number itself.
+</p>
+
+<h1 id="examples">4.0 Examples</h1>
+
+<h2 id="examplesint">4.1 Integer encoding</h2>
 
 <table border=1>
 <tr>
@@ -132,7 +232,7 @@ The base-64 coding is described in
 </tr>
 </table>
 
-<a name="examplesdelta"></a><h3>3.2 Delta encoding</h3>
+<h2 id="examplesdelta">4.2 Delta encoding</h2>
 
 <p>An example of a delta using the specified encoding is:</p>
 
@@ -145,16 +245,16 @@ The base-64 coding is described in
 
 <table border=1>
 <tr><th>What  </th> <th>Encoding         </th><th>Meaning </th><th>Details</th></tr>
-<tr><td>Header</td> <td>1Xb              </td><td>Size    </td><td> 6246	     </td></tr>
-<tr><td>S-List</td> <td>4E@0,	         </td><td>Copy    </td><td> 270 @ 0	     </td></tr>
-<tr><td>&nbsp;</td> <td>2:th	         </td><td>Literal </td><td> 2 'th'	     </td></tr>
-<tr><td>&nbsp;</td> <td>FN@4C,	         </td><td>Copy    </td><td> 983 @ 268	     </td></tr>
-<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'	     </td></tr>
-<tr><td>&nbsp;</td> <td>1B@Jd,	         </td><td>Copy    </td><td> 75 @ 1256	     </td></tr>
-<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'	     </td></tr>
-<tr><td>&nbsp;</td> <td>5x@Kt,	         </td><td>Copy    </td><td> 380 @ 1336	     </td></tr>
-<tr><td>&nbsp;</td> <td>6:pieces	 </td><td>Literal </td><td> 6 'pieces'	     </td></tr>
-<tr><td>&nbsp;</td> <td>79@Qt,	         </td><td>Copy    </td><td> 457 @ 1720     </td></tr>
+<tr><td>Header</td> <td>1Xb              </td><td>Size    </td><td> 6246         </td></tr>
+<tr><td>S-List</td> <td>4E@0,            </td><td>Copy    </td><td> 270 @ 0      </td></tr>
+<tr><td>&nbsp;</td> <td>2:th             </td><td>Literal </td><td> 2 'th'       </td></tr>
+<tr><td>&nbsp;</td> <td>FN@4C,           </td><td>Copy    </td><td> 983 @ 268        </td></tr>
+<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'       </td></tr>
+<tr><td>&nbsp;</td> <td>1B@Jd,           </td><td>Copy    </td><td> 75 @ 1256        </td></tr>
+<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'       </td></tr>
+<tr><td>&nbsp;</td> <td>5x@Kt,           </td><td>Copy    </td><td> 380 @ 1336       </td></tr>
+<tr><td>&nbsp;</td> <td>6:pieces     </td><td>Literal </td><td> 6 'pieces'       </td></tr>
+<tr><td>&nbsp;</td> <td>79@Qt,           </td><td>Copy    </td><td> 457 @ 1720     </td></tr>
 <tr><td>&nbsp;</td> <td>F: Example: eskil</td><td>Literal </td><td> 15 ' Example: eskil'</td></tr>
 <tr><td>&nbsp;</td> <td>~E@Y0,           </td><td>Copy    </td><td>  4046 @ 2176        </td></tr>
 <tr><td>Trailer</td><td>2zMM3E           </td><td>Checksum</td><td> -1101438770         </td></tr>
@@ -208,7 +308,7 @@ bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA
 
 
 
-<a name="notes"></a><h2>Notes</h2>
+<h1 id="notes">Notes</h1>
 
 <ul>
 <li>Pure text files generate a pure text delta.

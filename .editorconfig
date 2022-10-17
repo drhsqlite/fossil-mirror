@@ -1,0 +1,14 @@
+# EditorConfig (https://editorconfig.com) Configuration for Fossil
+#
+# Following https://fossil-scm.org/fossil/doc/trunk/www/style.wiki
+#
+
+# Defaults for all files
+[*]
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+
+[{Makefile,Makefile.*,*.mk}]
+indent_style = tab

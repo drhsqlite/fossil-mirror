@@ -29,6 +29,8 @@ insensitive file systems on any single platform. This option or the
 global setting should be used to force the case sensitivity to the
 most sensible condition.
 
+`--cgitrace`: Active CGI tracing.
+
 `--chdir DIRECTORY`: Change to the named directory before processing
 any commands.
 
@@ -58,6 +60,9 @@ individual bits in `NUMBER`, which must be specified in base 10:
          preserving more of the pre-existing formatting.
 
 
+`--comment-format NUMBER`: Alias for `--comfmtflags NUMBER`.
+
+
 `--errorlog ERRLOG`: Name a file to which fossil will log panics,
 errors, and warnings.
 
@@ -74,9 +79,6 @@ local time.
 
 `--nocgi`: Prevent fossil from acting as a CGI by default even if the
 `GATEWAY_INTERFACE` environment variable is set.
-
-`--no-dir-symlinks`: Disables support for directory symlinks, thus
-preventing them from being traversed into.
 
 `--no-th-hook`: (Sets `g.fNoThHook`.) Override the `th1-hooks` setting
 and prevent any TH1 hooks from being executed.
@@ -114,16 +116,18 @@ UTC time.
 Environment Variables
 ---------------------
 
-
-`APPDATA`: (Windows) Location of the `~/.fossil` file. The first
-environment variable found in the environment from the list
-`FOSSIL_HOME`, `LOCALAPPDATA` (Windows), `APPDATA` (Windows),
-`HOMEDRIVE` and `HOMEPATH` (Windows, used together), and `HOME` is
-used as the location of the `~/.fossil` file.
+The location of the user's account-wide [configuration database][configdb]
+depends on the operating system and on the existence of various 
+environment variables and/or files.  See the discussion of the
+[configuration database location algorithm][configloc] for details.
 
 `EDITOR`: Name the editor to use for check-in and stash comments.
 Overridden by the local or global `editor` setting or the `VISUAL`
 environment variable.
+
+`FOSSIL_BREAK`: If set, an opportunity will be created to attach a
+debugger to the Fossil process prior to any significant work being
+performed.
 
 `FOSSIL_FORCE_TICKET_MODERATION`: If set, *ALL* changes for tickets
 will be required to go through moderation (even those performed by the
@@ -138,11 +142,14 @@ local (or remote) testing of the moderation subsystem and its impact
 on the contents and status of wiki pages.
 
 
-`FOSSIL_HOME`: Location of the `~/.fossil` file. The first environment
-variable found in the environment from the list `FOSSIL_HOME`,
-`LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME` is used as the
-location of the `~/.fossil` file.
+`FOSSIL_HOME`: Location of [configuration database][configdb].
+See the [configuration database location][configloc] description
+for additional information.
+
+`FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
+SEE as text to be hashed into the actual encryption key.  This has no
+effect if Fossil was not compiled with SEE support enabled.
+
 
 `FOSSIL_USER`: Name of the default user account if the checkout, local
 or global `default-user` setting is not present. The first environment
@@ -151,24 +158,26 @@ variable found in the environment from the list `FOSSIL_USER`, `USER`,
 then the default user name is "root". See the discussion of Fossil
 Username below for a lot more detail.
 
+
+`FOSSIL_SECURITY_LEVEL`: If set to any of the values listed below,
+additional measures for password security will be enabled (also see
+[How To Use Encrypted Repositories][encryptedrepos.wiki]):
+
+[encryptedrepos.wiki]: /doc/trunk/www/encryptedrepos.wiki
+
+  * _≥1_ &mdash; Do not remember passwords.
+
+  * _≥2_ &mdash; Use a scrambled matrix for password input.
+
+
 `FOSSIL_TCL_PATH`: When Tcl stubs support is configured, point to a
 specific file or folder containing the version of Tcl to load at run
 time.
-
-`FOSSIL_TEMP`: Fallback location of the temporary directories and files
-created and deleted when running the test suite. The first environment
-variable found in the environment from the list `FOSSIL_TEST_TEMP`,
-`FOSSIL_TEMP`, `TEMP`, and `TMP` is used.
 
 `FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT`: When set to the literal
 value `YES_DO_IT`, the test suite will relax the constraint that some
 tests may not run within an open checkout.  This is subject to removal
 in the future.
-
-`FOSSIL_TEST_TEMP`: Primary location of the temporary directories
-and files created and deleted when running the test suite. The
-first environment variable found in the environment from the list
-`FOSSIL_TEST_TEMP`, `FOSSIL_TEMP`, `TEMP`, and `TMP` is used.
 
 `FOSSIL_VFS`: Name a VFS to load into SQLite.
 
@@ -176,11 +185,8 @@ first environment variable found in the environment from the list
 fossil is invoked from a web server as a CGI command, and act
 accordingly.
 
-`HOME`: Location of the `~/.fossil` file. The first environment
-variable found in the environment from the list `FOSSIL_HOME`,
-`LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME` is used as the
-location of the `~/.fossil` file.
+`HOME`: Potential location of the [configuration database][configdb].
+See the [configuration database location][configloc] description for details.
 
 `HOMEDRIVE`, `HOMEPATH`: (Windows) Location of the `~/.fossil` file.
 The first environment variable found in the environment from the list
@@ -228,6 +234,9 @@ the remote host.
 
 `SSH_CONNECTION`: Informs CGI processing if the remote client is SSH.
 
+`SSL_CERT_FILE`, `SSL_CERT_DIR`: Override the [`ssl-ca-location`]
+(/help?cmd=ssl-ca-location) setting.
+
 `SQLITE_FORCE_PROXY_LOCKING`: From `sqlite3.c`, 1 means force always
 use proxy, 0 means never use proxy, and undefined means use proxy for
 non-local files only.
@@ -238,12 +247,6 @@ set, this will be used instead of `TMPDIR`.
 
 `SYSTEMROOT`: (Windows) Used to locate `notepad.exe` as a
 fall back comment editor.
-
-`TEMP`: On Windows, the location of temporary files. The first
-environment variable found in the environment that names an existing
-directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
-directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder.
 
 `TERM`: If the linenoise library is used (almost certainly not on
 Windows), it will check `TERM` to verify that the interactive terminal
@@ -276,12 +279,6 @@ when processing the `--set-anon-caps` option for the `test-th-eval`,
 processing the `--set-user-caps` option for the `test-th-eval`,
 `test-th-render`, and `test-th-source` test commands.
 
-`TMP`: On Windows, the location of temporary files. The first
-environment variable found in the environment that names an existing
-directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
-directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder.
-
 `TMPDIR`: Names the temporary file location for SQLite.
 
 
@@ -292,12 +289,6 @@ the discussion of Fossil Username below for a lot more detail.
 `USERNAME`: Name of the logged in user on Windows platforms.
 Used as the fossil user name if `FOSSIL_USER` is not specified. See
 the discussion of Fossil Username below for a lot more detail.
-
-`USERPROFILE`: On Windows, the location of temporary files. The first
-environment variable found in the environment that names an existing
-directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
-directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder.
 
 `VISUAL`: Name the editor to use for check-in and stash comments.
 Overrides the `EDITOR` environment variable. Overridden by the local
@@ -401,24 +392,26 @@ first found environment variable from the list `FOSSIL_USER`, `USER`,
 none of those are set, then the default user name is "root".
 
 
-### Home Directory
+### Configuration Database Location
 
-Fossil keeps some information interesting to each user in the user's
-home directory. This includes the global settings and the list of
-repositories and checkouts used by `fossil all`.
+Fossil keeps some information pertinent to each user in the user's
+[configuration database file][configdb]. 
+The configuration database file includes the global settings
+and the list of repositories and checkouts used by `fossil all`.
 
-The user's home directory is specified by the first environment
-variable found in the environment from the list `FOSSIL_HOME`,
-`LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME`.
+The location of the configuration database file depends on the
+operating system and on the existence of various environment
+variables and/or files.  In brief, the configuration database is
+usually:
 
-SQLite has its own notion of the user's home directory, which is only
-exposed if the interactive SQL shell is run with the "fossil
-sqlite3" command. Being a separate library, SQLite uses many of the
-same variables to find the home directory, but uses them in a
-different order, and does not use the `FOSSIL_HOME` variable at all.
+  *  Traditional unix &rarr; "`$HOME/.fossil`"
+  *  Windows &rarr; "`%LOCALAPPDATA%/_fossil`"
+  *  [XDG-unix][xdg] &rarr; "`$HOME/.config/fossil.db`"
 
+[xdg]: https://www.freedesktop.org/wiki/
 
+See the [configuration database location
+algorithm][configloc] discussion for full information.
 
 ### SQLite VFS to use
 
@@ -431,28 +424,32 @@ can be selected with either the `--vfs VFSNAME` option or the
 precedence.
 
 
-### Temporary File Location
+### <a id="temp"></a>Temporary File Location
 
-Fossil places some temporary files in the current directory, notably
+Fossil places some temporary files in the checkout directory. Most notably,
 supporting files related to merge conflicts are placed in the same
 folder as the merge result.
 
-Other temporary files need a home. On Unix-like systems, the first
-folder from the hard coded list `/var/tmp`, `/usr/tmp`, `/tmp`,
-`/temp`, and `.` that is found to exist in the file system is used by
-fossil. The SQLite library has its own code for finding a safe place for
-temporary files. It checks the environment variables `SQLITE_TMPDIR`
-and `TMPDIR` ahead of the hard coded list `/var/tmp`, `/usr/tmp`,
-`/tmp`, and `.` for the first directory that exists.
+Other temporary files need a different home. The rules for choosing one are
+complicated.
 
-On Windows, fossil calls [`GetTempPath`][gtp], and also queries the
-environment variables `TEMP`, and `TMP`. If none of those three places
-exist, then it uses `.`. Notice that `GetTempPath` itself used `TMP`,
-`TEMP`, `USERPROFILE`, and the Windows folder (named in the variable
-`SystemRoot`). Since the Windows folder always exists, but in modern
-versions of Windows is generally *not* writable by the logged in user,
-not having `TEMP`, `TMP`, or `USERPROFILE` set is almost guaranteed to
-cause trouble.
+Fossil-specific code uses `FOSSIL_TEMP`, `TEMP`, and `TMP`, in that
+order. Fossil’s own test suite prepends `FOSSIL_TEST_TEMP` to that list.
+
+The underlying SQLite code uses several different path sets for its temp
+files, depending on the platform type.
+
+On Unix-like platforms, excepting Cygwin, SQLite first checks the
+environment variables `SQLITE_TMPDIR` and `TMPDIR`, in that order. If
+neither is defined, it falls back to a hard-coded list of paths:
+`/var/tmp`, `/usr/tmp`, and `/tmp`. If all of that fails, it uses the
+current working directory.
+
+For Cygwin builds, SQLite instead uses the first defined variable in
+this list: `SQLITE_TMPDIR`, `TMPDIR`, `TMP`, `TEMP`, and `USERPROFILE`.
+
+For native Windows builds, SQLite simply calls the OS’s [`GetTempPath()`
+API][gtp].  See that reference page for details.
 
 [gtp]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364992%28v=vs.85%29.aspx
 
@@ -486,3 +483,6 @@ URL in the user's configured default browser.
 
 On Windows platforms, it assumes that `start` is the command to open
 an URL in the user's configured default browser.
+
+[configdb]: ./tech_overview.wiki#configdb
+[configloc]: ./tech_overview.wiki#configloc
