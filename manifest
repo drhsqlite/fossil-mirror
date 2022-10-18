@@ -1,5 +1,5 @@
-C Cherry-pick\s[767b175d90]:\sAvoid\sreferences\sto\sprivate\scheck-ins\sin\sQ-cards\sof\spublic\scheck-in\smanifests.\sThis\sensures\sconsistent\sbehavior\sregarding\sleakage\sof\sprivate\scheck-in\shashes,\spossibly\sgenerating\sphantoms\son\speer\srepositories,\sfor\sP-\sand\sQ-cards.
-D 2022-10-18T13:31:00.000
+C Document\smore\sconsequences\sof\sthe\smerge\sparent-merge\schild\srelationship\snot\srecorded\sfor\sprivate\sbranches.
+D 2022-10-18T13:32:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -918,7 +918,7 @@ F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d
 F www/permutedindex.html 57888c1a36ff5814a8e22fea758800b6f8e471ebc047506459a9c3bc6bfb8709
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
-F www/private.wiki 917e6eecdf2724f4951358c58fd1918545282ee8c5ff98c9053f344622c09ea4
+F www/private.wiki 0d9f2a36fbf1db95b7097936609b455c49a4ea064b167c1f52eabf213f3bb5b2
 F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2d
 F www/quickstart.wiki deccf518d123c83a6bb83b7c1fc162d8f2310ab0f0e3621fe99702d6fc35906d
 F www/quotes.wiki abe1bc64146357395834161a08f7df8807d6626b3df42ea675fcbe068e0cdb91
@@ -981,9 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 658547aa7c4f40bf010f03d0b7d13fddd238157d12c9c19914682b1c06c52cc5
-Q +767b175d906b9aef35a4aad16bcead732f6db23df0d5e96a99e910c5242f0b0c
-R c98b460e9b7a99579d2c5424f70f018b
+P 52a66829d655ff35dc5245b664b86225438d7f46a8d183ac98268ece982d8564
+R 7e6610fc2b74519446f952f099f63277
 U florian
-Z f1e3439d7f06731cc78352c47645725e
+Z a3e7f05224ed26925743e88a37ff908c
 # Remove this line to create a well-formed Fossil manifest.
