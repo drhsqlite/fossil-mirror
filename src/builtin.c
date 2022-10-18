@@ -486,7 +486,7 @@ static int builtinVtabColumn(
   int i                       /* Which column to return */
 ){
   builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
-  const struct BuiltinFileTable *pFile = aBuiltinFiles + pCur->iRowid;
+  const struct BuiltinFileTable *pFile = aBuiltinFiles + pCur->iRowid - 1;
   switch( i ){
     case 0:  /* name */
       sqlite3_result_text(ctx, pFile->zName, -1, SQLITE_STATIC);
@@ -517,7 +517,7 @@ static int builtinVtabRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
 */
 static int builtinVtabEof(sqlite3_vtab_cursor *cur){
   builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
-  return pCur->iRowid>=count(aBuiltinFiles);
+  return pCur->iRowid>count(aBuiltinFiles);
 }
 
 /*

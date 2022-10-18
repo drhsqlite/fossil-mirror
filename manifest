@@ -1,5 +1,5 @@
-C Document\smore\sconsequences\sof\sthe\smerge\sparent-merge\schild\srelationship\snot\srecorded\sfor\sprivate\sbranches.
-D 2022-10-18T13:32:00.000
+C For\sthe\sBUILTIN\svirtual\stable,\smap\sone-based\srowids\sto\szero-based\sarray\sindices,\sto\sfix\saccess\sto\sthe\sfirst\sentry.
+D 2022-10-18T13:35:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -417,7 +417,7 @@ F src/bisect.c 50da7d17a2b7513744d1283489fad3284e15a4f014c17b6477cdf0487decd251
 F src/blob.c 7d75b41aeb78d3e7185bfe65586a47cf004a91bd0c3de678069f33c1e6956a8f
 F src/branch.c 63efb20b5a55e1f0878ded0591a67fb9632ddc4a8df6cf61346498a039d3dfd1
 F src/browse.c e1c19b348f2552bad8724661dfa70f2016f54e89bd95bf32289da0abca64c3e0
-F src/builtin.c 8a0f3b41ccb25e30a161c6af3ec8c0bab1da080ca11b590a935e9f0a9e98a61c
+F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82dc455
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52a66829d655ff35dc5245b664b86225438d7f46a8d183ac98268ece982d8564
-R 7e6610fc2b74519446f952f099f63277
+P 3b719a96145243759fe3bba7dc1e907c02ef3b097c6db0f04402c2fbd5cf4941
+R 2de4a5258d249a519b36b13ff3bee601
 U florian
-Z a3e7f05224ed26925743e88a37ff908c
+Z bb96e12398c22ee9a0cd2d9f31410748
 # Remove this line to create a well-formed Fossil manifest.
