@@ -707,12 +707,15 @@ int vxprintf(
         bufpt = va_arg(ap,char*);
         if( bufpt==0 ){
           bufpt = "";
-        }else if( xtype==etDYNSTRING ){
-          zExtra = bufpt;
-        }else if( xtype==etSTRINGID && validate16(bufpt, -1) ){
-          precision = hash_digits(flag_altform2);
+          length = 0;
+        }else{
+          length = StrNLen32(bufpt, limit);
+          if( xtype==etDYNSTRING ){
+            zExtra = bufpt;
+          }else if( xtype==etSTRINGID && validate16(bufpt, length) ){
+            precision = hash_digits(flag_altform2);
+          }
         }
-        length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }

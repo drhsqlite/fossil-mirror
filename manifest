@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2022-10-17T01:03:49.818
+C Experimental\srefinements\sto\sthe\sfix\son\sthis\sbranch\sto\smake\sit\sslightly\smore\sefficient.
+D 2022-10-18T01:07:29.705
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -538,7 +538,7 @@ F src/pikchrshow.c 9794857564533fad5cc68e050019027459b5d25dc78c341d33e0793146986
 F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c b1b05019343eb9e33fe1dcaf1686270fe02394dc97aab9cab1b1271e8e5b9685
+F src/printf.c 39332cbf18829d9fea542abed1f463076bcdadedcd2f5d560ba10086bf42703f
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c fd479da3ba776efac143dec5aceaeca12f628a1785fbe2dfb58b768c7c7c3379
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7eba14d1e2696fa234840ee8cde24ba0de9176f888a49a92b156c68f43b5106c 658547aa7c4f40bf010f03d0b7d13fddd238157d12c9c19914682b1c06c52cc5
-R 47570635b5a6f66c437f8ae822d1aa5b
+P 7489c8b9320e5c3f72211d65370e4132c0f2fd5c11b4e173092588818d63246c
+R 7b7afafdf6ca9a0f67f93ac538403e39
 U mistachkin
-Z f16321754374633eeb748ff52d17f9ef
+Z 810577b13abb77fc00bba7ba63125ab5
 # Remove this line to create a well-formed Fossil manifest.
