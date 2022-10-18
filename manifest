@@ -1,5 +1,5 @@
-C For\sthe\sBUILTIN\svirtual\stable,\smap\sone-based\srowids\sto\szero-based\sarray\sindices,\sto\sfix\saccess\sto\sthe\sfirst\sentry.
-D 2022-10-18T13:35:00.000
+C Add\sa\sby-hour-of-day\sreport\sto\sthe\s/reports\spage,\sprompted\sby\sa\s/chat\sdiscussion.
+D 2022-10-18T16:17:23.294
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -581,7 +581,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 18704c72a26fdfcf54865653e91635af75239d51447acecd83fd726d6291d164
 F src/stash.c 92fcee0e9dce7572f1c3b0c449d7ed0ba0c82df1abdfbd5eace1ff9aa752e25e
 F src/stat.c 457b602ab000291bfcb889e1ec5f7fcfac229e9c1c3f04c3545a1eb6348387b9
-F src/statrep.c 60634663da58d1bd491a34ac541d864089d6e27607b9d4de47303423ac3add57
+F src/statrep.c e66715d2f23d6b404d5ee4f1e3a49233b985749169fa259e2f0af753750f54ba
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c cd0cec491f41c5ece5b6898fff0cbcc4059eca9498471c02e1ca1c981436092c
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
@@ -807,7 +807,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 31bc3f44c621c32a2b27e467e1a045d76c623945b929f1bcf16c877945976a30
+F www/changes.wiki 6a0afd6cb379e3e08f42de2fcd6dceb4c1e667c08c6c68f7ac734c1e4eeec5e3
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b719a96145243759fe3bba7dc1e907c02ef3b097c6db0f04402c2fbd5cf4941
-R 2de4a5258d249a519b36b13ff3bee601
-U florian
-Z bb96e12398c22ee9a0cd2d9f31410748
+P cf563c721773e652b5108e5e059b82cc15a2a6ed9409fcbae6751e608579de0b
+R 136e44edd16ee4d9905e8296263db776
+U drh
+Z d1d7b55374f0c9f899c5512500afeb21
 # Remove this line to create a well-formed Fossil manifest.

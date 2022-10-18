@@ -199,12 +199,7 @@ static void stats_report_by_month_year(char includeMonth,
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
-  Blob userFilter = empty_blob;      /* Optional user=johndoe query string */
   stats_report_init_view();
-  if( zUserName ){
-    blob_appendf(&userFilter, "user=%s", zUserName);
-  }
-  blob_reset(&userFilter);
   db_prepare(&query,
              "SELECT substr(date(mtime),1,%d) AS timeframe,"
              "       count(*) AS eventCount"
@@ -479,16 +474,12 @@ static void stats_report_day_of_week(const char *zUserName){
                                         row colors */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-  Blob userFilter = empty_blob;      /* Optional user=johndoe query string */
   static const char *const daysOfWeek[] = {
   "Sunday", "Monday", "Tuesday", "Wednesday",
   "Thursday", "Friday", "Saturday"
   };
 
   stats_report_init_view();
-  if( zUserName ){
-    blob_appendf(&userFilter, "user=%s", zUserName);
-  }
   db_prepare(&query,
                "SELECT cast(strftime('%%w', mtime) AS INTEGER) dow,"
                "       COUNT(*) AS eventCount"
@@ -551,6 +542,81 @@ static void stats_report_day_of_week(const char *zUserName){
     @<tr class='row%d(rowClass)'>
     @ <td>%d(dayNum)</td>
     @ <td>%s(daysOfWeek[dayNum])</td>
+    @ <td>%d(nCount)</td>
+    @ <td>
+    @ <div class='statistics-report-graph-line'
+    @  style='width:%d(nSize)%%;'>&nbsp;</div>
+    @ </td>
+    @</tr>
+  }
+  @ </tbody></table>
+  db_finalize(&query);
+}
+
+/*
+** Implements the "byhour" view for /reports. If zUserName is not NULL
+** then the report is restricted to events created by the named user
+** account.
+*/
+static void stats_report_hour_of_day(const char *zUserName){
+  Stmt query = empty_Stmt;
+  int nRowNumber = 0;                /* current TR number */
+  int rowClass = 0;                  /* counter for alternating
+                                        row colors */
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
+
+  stats_report_init_view();
+  db_prepare(&query,
+               "SELECT cast(strftime('%%H', mtime) AS INTEGER) hod,"
+               "       COUNT(*) AS eventCount"
+               "  FROM v_reports"
+               " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
+               " GROUP BY hod ORDER BY hod", zUserName);
+  @ <h1>Timeline Events (%h(stats_report_label_for_type())) by Hour of Day
+  if( zUserName ){
+    @ for user %h(zUserName)
+  }
+  @ </h1>
+  db_multi_exec(
+    "CREATE TEMP VIEW piechart(amt,label) AS"
+    " SELECT count(*), strftime('%%H', mtime) hod"
+    "  FROM v_reports"
+    "  WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
+    "  GROUP BY 2 ORDER BY hod;",
+    zUserName
+  );
+  if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
+    @ <center><svg width=700 height=400>
+    piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
+    @ </svg></centre><hr />
+  }
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='nnx' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Hour</th>
+  @ <th>Events</th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ </tr></thead><tbody>
+  while( SQLITE_ROW == db_step(&query) ){
+    const int nCount = db_column_int(&query, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+  }
+  db_reset(&query);
+  while( SQLITE_ROW == db_step(&query) ){
+    const int hourNum =db_column_int(&query, 0);
+    const int nCount = db_column_int(&query, 1);
+    int nSize = nCount
+      ? (int)(100 * nCount / nMaxEvents)
+      : 0;
+    if(!nCount) continue /* arguable! Possible? */;
+    else if(!nSize) nSize = 1;
+    rowClass = ++nRowNumber % 2;
+    @<tr class='row%d(rowClass)'>
+    @ <td>%d(hourNum)</td>
     @ <td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
@@ -711,6 +777,7 @@ static void stats_report_last_change(void){
 #define RPT_BYWEEKDAY 5
 #define RPT_BYYEAR    6
 #define RPT_LASTCHNG  7  /* Last change made for each user */
+#define RPT_BYHOUR    8  /* hour-of-day */
 #define RPT_NONE      0  /* None of the above */
 
 /*
@@ -751,6 +818,7 @@ void stats_report_page(){
      {  "By Week",     "byweek",    RPT_BYWEEK    },
      {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
      {  "By Year",     "byyear",    RPT_BYYEAR    },
+     {  "By Hour",     "byhour",    RPT_BYHOUR    },
   };
   static const char *const azType[] = {
      "a",  "All Changes",
@@ -818,6 +886,9 @@ void stats_report_page(){
       break;
     case RPT_BYFILE:
       stats_report_by_file(zUserName);
+      break;
+    case RPT_BYHOUR:
+      stats_report_hour_of_day(zUserName);
       break;
     case RPT_LASTCHNG:
       stats_report_last_change();
