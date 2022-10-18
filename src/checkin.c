@@ -1771,9 +1771,8 @@ static void create_manifest(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCherrypickUuid = db_column_text(&q, 0);
     int mid = db_column_int(&q, 1);
-    if( mid != vid ){
-      blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
-    }
+    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
   }
   db_finalize(&q);
 

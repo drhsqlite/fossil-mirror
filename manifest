@@ -1,5 +1,5 @@
-C Grammar\sfix
-D 2022-10-09T01:11:55.805
+C Cherry-pick\s[767b175d90]:\sAvoid\sreferences\sto\sprivate\scheck-ins\sin\sQ-cards\sof\spublic\scheck-in\smanifests.\sThis\sensures\sconsistent\sbehavior\sregarding\sleakage\sof\sprivate\scheck-in\shashes,\spossibly\sgenerating\sphantoms\son\speer\srepositories,\sfor\sP-\sand\sQ-cards.
+D 2022-10-18T13:31:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c f59d373ccd9a5b2de9c70d0ad1c9d56a0caf8855e7295ef1b366e4f738a6c430
 F src/chat.c 953ff79fdf1caaec47dcb770743dc4e88ba1b0949ccbd11bce05a9b107cbd309
-F src/checkin.c 266299607cb30e98ad5277c3707d8987b80ce7e87b2be430b5fba49b92058d26
+F src/checkin.c 9a53c7cce34de27c6286390b2c7581c2e2dc4732b9770a3f16ecb836d4191697
 F src/checkout.c 82666644cefcd168b95cbc2dd8601fd1f56777583646756c0698531d453d7b3c
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -981,8 +981,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27458ef7ba9e655637239a27e2ea8514007a465b0127bf130efc441a21169289
-R d79bd4d50bb3a399ba983cdd06bd4c68
-U wyoung
-Z 5c7b08468c5032ffcc902a9b56a0fd12
+P 658547aa7c4f40bf010f03d0b7d13fddd238157d12c9c19914682b1c06c52cc5
+Q +767b175d906b9aef35a4aad16bcead732f6db23df0d5e96a99e910c5242f0b0c
+R c98b460e9b7a99579d2c5424f70f018b
+U florian
+Z f1e3439d7f06731cc78352c47645725e
 # Remove this line to create a well-formed Fossil manifest.
