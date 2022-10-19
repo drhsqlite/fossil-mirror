@@ -361,7 +361,9 @@ void tag_add_artifact(
     manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
   }
   assert( blob_is_reset(&ctrl) );
-  manifest_to_disk(rid);
+  if( g.localOpen ){
+    manifest_to_disk(rid);
+  }
 }
 
 /*
@@ -618,6 +620,7 @@ void reparent_cmd(void){
   int dryRun = 0;
 
   if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+  db_find_and_open_repository(0, 0);
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){

@@ -1,5 +1,5 @@
-C Cherrypick\s[http://www.sqlite.org/src/info/810d29320b853b3a|810d29320b]:\sRemove\sthe\sCLANG_VERSION\smacro,\ssince\swe\shave\slearned\sthat\sversion\snumbers\sin\sclang\sare\s"marketing"\sand\sare\sinconsistent\sand\sunreliable.\sBuilds\susing\sclang\swill\sstill\suse\sthe\sGCC_VERSION\smacro\ssince\sclang\sworks\shard\sto\sbe\sgcc\scompatible.
-D 2017-02-17T13:23:21.729
+C Fix\sthe\shandling\sof\smanifest\sfiles\sfor\sthe\s"tag"\sand\s"amend"\scommands.
+D 2022-10-19T17:22:17.204
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
-F src/info.c 7b09909864e296c4d7404fc17ca644f960071b55
+F src/info.c a7d294b444e3500bee314c853ee03db5791d905e1e33390373a0d796294e0e68
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -507,7 +507,7 @@ F src/stat.c 2f81053ee64a9a9705fdbeac60e7397798145aaf
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
-F src/tag.c ac52cf03d437d8f569d2a73c8a30dcf6cf40d8fd
+F src/tag.c fbff37e4d8045bc68204ce6365ab48e15f407e0c34fda9a184a2ea602afe2ad0
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -783,8 +783,9 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17a33275f02c7f6e131f9c44d25bcf654e0c692d
-Q +ad2dd95dbf283ddef1a0c53e8d74dfa6ca5a72a2
-R 9907c4ecc0320f30ff7aaf3d9011800f
-U jan.nijtmans
-Z fa8314c682e8e8a00bac203af3036f17
+P c453a916069a84e8da1aad2a6480349befd47ac7
+Q +5e20a4f7a8ca21cf0135a2161c0d28ddee20fb8787749714a6b12598d8ad41c4
+R a808ffaab271fa8fd9af19dc591b8c25
+U drh
+Z f436370fe4bcdcf5ee1f7b1d68572993
+# Remove this line to create a well-formed Fossil manifest.

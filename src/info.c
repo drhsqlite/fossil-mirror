@@ -3018,4 +3018,7 @@ void ci_amend_cmd(void){
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
   apply_newtags(&ctrl, rid, zUuid);
   show_common_info(rid, "uuid:", 1, 0);
+  if( g.localOpen ){
+    manifest_to_disk(rid);
+  }
 }
