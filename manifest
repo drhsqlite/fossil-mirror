@@ -1,5 +1,5 @@
-C Minor\scomment\sreformatting.
-D 2022-10-18T17:01:53.635
+C Code\smaintenance\sfor\sthe\s`copybtn.js'\sscript:\sRemove\sglobal\sdata,\sreference\sDOM\selements\sby\sfunction-binding\sinstead\sof\sby\sid\s(that\sis\spossibly\sreused\sfor\sthe\sshort-lived\stooltip),\sand\snormalize\svariable\snames\sand\sstring\squoting\sstyle.
+D 2022-10-23T06:48:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -435,7 +435,7 @@ F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 16b8c30184575aa083010363dbd8c3e674b0b3c343cda294bd852248a5fe8638
 F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
-F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
+F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c f7c42502077050d615b15dfbf4068d541459c7722a2f17a3b3e24699864f9647
 F src/default.css 7e26439031701eb2eb50a5542e63e6d089c03ed760155a81b8cafb7e40d9ac5b
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e62c8510fd61716190926595bd985042dfa4bd39a014fa8e3c414b6ab482059
-R 6474a3792c4a25324b7841bd3b6b01e4
-U drh
-Z 977791bf37befd5ab074c5596296ad02
+P 0df4abc74b38b89264b5a3007876f12da6d512358394d2ab2f29fd3074556c4a
+R dcd7613dc58eadff3f65038d16f1bdad
+U florian
+Z 9a61c0b00f37a9c8cfb11ceafa4b8d79
 # Remove this line to create a well-formed Fossil manifest.
