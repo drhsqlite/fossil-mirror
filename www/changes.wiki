@@ -4,7 +4,7 @@
   *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If
      it is not an empty string, then any changes that would appear on the timeline
      are announced in [./chat.md|the chat room].
-  *  The /unsubscribe page now requests comformation. [./alerts.md|Email notifications]
+  *  The /unsubscribe page now requests confirmation. [./alerts.md|Email notifications]
      now contain only an "Unsubscribe" link, and not a link to subscription management.
   *  More elements of the /info page are now inside of an accordion.
   *  Replace the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
