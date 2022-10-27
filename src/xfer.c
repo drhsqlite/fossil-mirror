@@ -2070,7 +2070,7 @@ int client_sync(
        "  name TEXT PRIMARY KEY,"  /* Name of file to send client->server */
        "  mtimeOnly BOOLEAN"       /* True to only send mtime, not content */
        ") WITHOUT ROWID;"
-       "REPLACE INTO uv_toSend(name,mtimeOnly)"
+       "REPLACE INTO uv_tosend(name,mtimeOnly)"
        "  SELECT name, 0 FROM unversioned WHERE hash IS NOT NULL;"
     );
   }
