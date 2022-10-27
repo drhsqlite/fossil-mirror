@@ -1,5 +1,5 @@
-C Corrected\sa\sdifference\sin\sthe\scase\sof\sa\sSQLite\stable\sname.\s\sThe\sDBMS\ndoesn't\scare,\sbut\sit\srisks\smissing\srelevant\sreferences\sto\sthis\stable\nwhen\ssearching\swith\sa\scase-sensitive\stext\seditor.
-D 2022-10-27T15:13:26.407
+C Consolidated\stwo\srelated\stests\sin\sthe\ssync\sprotocol\sto\savoid\sre-testing\na\sflag\stwice\sand\sto\sbring\srelated\scode\scloser\stogether.
+D 2022-10-27T16:01:21.474
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -617,7 +617,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 1b715beb1c20edde1acc22cbdfc4424afbcd3d03f48d0e45d22b800876d569bf
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c bb46ebaebea73bcacd0639d49f20b9173172dd5f26e2edf3676b7cdbef3a23e6
-F src/xfer.c dd662037bc58296f4fc4d1e1ec3145ec5617f9ad1e5169538733382bf49d708c
+F src/xfer.c 03c03ee97981403bcf460641df81a51ae46ab11858573b325c4958f6e8ad659d
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c b8aa6cb75b93f07e210a9d3014760306f492e53efcf8f5af068ba4552e98a10d
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67c9d929db908cce96c8b666d873a6126b7a2bd7d69969c4fa5b4a25a94d78c8
-R f48f20dbfa5288cdfc04d60c0be0a7a9
+P 1b1887cb69da77e14d6b5c214208f480e303cabe67489654ec6f41d82470a2d1
+R 68e07473a394ac1b3cae829744b818e9
 U wyoung
-Z c291688c9ff64bae6dda8f574bee6651
+Z 80b7a6c737ec1a5687771e25855cb5a7
 # Remove this line to create a well-formed Fossil manifest.

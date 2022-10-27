@@ -2809,8 +2809,6 @@ int client_sync(
       go = 1;
       mxPhantomReq = nFileRecv*2;
       if( mxPhantomReq<200 ) mxPhantomReq = 200;
-    }else if( (syncFlags & SYNC_CLONE)!=0 && nFileRecv>0 ){
-      go = 1;
     }else if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
       /* Go another round if files are queued to send */
       go = 1;
@@ -2819,6 +2817,8 @@ int client_sync(
     }else if( (syncFlags & SYNC_CLONE)!=0 ){
       if( nCycle==1 ){
         go = 1;   /* go at least two rounds on a clone */
+      }else if( nFileRecv>0 ){
+        go = 1;
       }else if( cloneSeqno>0 && nArtifactRcvd>nPriorArtifact ){
         /* Continue the clone until we see the clone_seqno 0" card or
         ** until we stop receiving artifacts */
