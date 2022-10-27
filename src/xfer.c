@@ -2814,6 +2814,10 @@ int client_sync(
       go = 1;
     }else if( xfer.nPrivIGot>0 && nCycle==1 ){
       go = 1;
+    }else if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ){
+      /* Continue looping as long as new uvfile cards are being received
+      ** and uvgimme cards are being sent. */
+      go = 1;
     }else if( (syncFlags & SYNC_CLONE)!=0 ){
       if( nCycle==1 ){
         go = 1;   /* go at least two rounds on a clone */
@@ -2824,10 +2828,6 @@ int client_sync(
         ** until we stop receiving artifacts */
         go = 1;
       }
-    }else if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ){
-      /* Continue looping as long as new uvfile cards are being received
-      ** and uvgimme cards are being sent. */
-      go = 1;
     }
 
     nCardRcvd = 0;
