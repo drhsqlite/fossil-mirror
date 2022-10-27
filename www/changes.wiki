@@ -6,6 +6,8 @@
      are announced in [./chat.md|the chat room].
   *  The /unsubscribe page now requests confirmation. [./alerts.md|Email notifications]
      now contain only an "Unsubscribe" link, and not a link to subscription management.
+  *  Added the "[/help?cmd=branch|fossil branch lsh]" subcommand to list the
+     most recently modified branches.
   *  More elements of the /info page are now inside of an accordion.
   *  Replace the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
      commands which still used the former name, for consistency.
