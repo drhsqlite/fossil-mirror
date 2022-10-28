@@ -19,6 +19,9 @@
   *  Improved correctness, usability, and efficiency for the case
      [/timeline?r=deltify-tkt-blobs|when values in a TICKET's column
      tend to be long and volatile].
+  *  Fixed a bug [/info/ea5afad31f478396 | introduced in 2.17] that
+     prevented <tt>clone --unversioned</tt> from completing the
+     retrieval of UV files from the remote repo.
 
 <h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating

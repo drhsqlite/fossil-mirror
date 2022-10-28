@@ -1,5 +1,5 @@
-C Improve\scorrectness,\susability\sand\sefficiency\sfor\sthe\scase\nwhen\svalues\sin\sa\sTICKET's\scolumn\stend\sto\sbe\slong\sand\svolatile.\n\nOwner\sof\sa\srepository\smay\sspecify\sone\sor\sseveral\sTICKET's\scolumns\sso\sthat\ndelta-compression\sis\stried\sfor\sthe\scorresponding\sticket\schange\sartifacts\nand\sthe\scorresponding\schanges\son\sthe\s<tt>/tkthistory</tt>\spage\nare\srendered\svia\sunified\sdiffs.\n\nSee\sdetails\sin\sthe\s[/wiki?name=branch/deltify-tkt-blobs&p|associated\swiki].
-D 2022-10-28T17:08:48.405
+C Since\sit\sseems\smy\sclone\s-u\sfixes\sare\sgoing\sto\sstick,\sdocumented\sthem\sin\nthe\schangelog.
+D 2022-10-28T19:45:50.954
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -807,7 +807,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki e3f03c0b5844a4f602de42a30aaa740d649b7d1656b58611867c6342c71883cf
+F www/changes.wiki 5bce13d895f518135000f9d3f13171ba4348ddf8ce7f40d8a8eb26fc58232b48
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -981,9 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52648d03847bd0ed24d266e111146a7efdd302b7f397d7683fef79dcc34b669e 53b66cf63f868ac31215fa5c7aa06f8fa7b7f9c59dce3f5b42c55fe56b7f1cfb
-R af7370a2fd5debdf1038096f250f53d4
-T +closed 53b66cf63f868ac31215fa5c7aa06f8fa7b7f9c59dce3f5b42c55fe56b7f1cfb
-U george
-Z 792d23adbb0e769e3a6131557ea1f441
+P 872a3b232737c0e46891297ebf24cbc3924001457807ad7d4df640b6755850c7
+R 31b9cbaefbf8ddeac5723741afb814ed
+U wyoung
+Z 803becf6aaf7f93fe1c701f6c173c580
 # Remove this line to create a well-formed Fossil manifest.
