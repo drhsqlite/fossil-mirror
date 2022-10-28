@@ -1254,7 +1254,7 @@ void tkttimeline_page(void){
 ** is displayed.
 **
 ** Reassignments of a field of the TICKET table that has a corresponding
-** "baseline for ..." companion if rendered as unified delta.
+** "baseline for ..." companion are rendered as unified delta.
 */
 void tkthistory_page(void){
   Stmt q;

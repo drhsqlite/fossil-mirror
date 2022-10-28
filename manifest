@@ -1,5 +1,5 @@
-C Add\smore\scomments\sand\sa\schangelog\sitem.\sNo\scode\schanges.
-D 2022-10-28T00:11:53.390
+C Fix\sa\stypo\sin\sa\scomment.
+D 2022-10-28T00:18:33.143
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -596,7 +596,7 @@ F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c c3865971f754cf18a9c10d0efe54dac1be269ae2d69ff9e6a036d102609d7b5a
-F src/tkt.c 39437c2a3cc5445f77de271d275dca99bce8c1233acb37ddd6dc009cbb36dac9
+F src/tkt.c 3e3ed8cf0ddb6cb9504e36f892bd7466e6d2033cc37444c9e74bbab1d31c376c
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
@@ -978,8 +978,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7afd4db3d3ed7d83fdc76b6a627a1650bfb1aaa8eb47e6621cd806c25c13ef64
-R 14110ba231df83643ac47be37f03b900
+P e690df08f4d6c862aa4b888e23171a6a015c2d03b62a0de1777064769c1e8b42
+R eba16244e0421b723197725c52d45a88
 U george
-Z 51fae22f4658fcae85956e9c47410999
+Z 79a9833468fc4db835ae9ea194fb4a61
 # Remove this line to create a well-formed Fossil manifest.
