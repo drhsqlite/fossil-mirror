@@ -134,7 +134,7 @@ void backlink_table_page(void){
   style_table_sorter();
   @ <table border="1" cellpadding="2" cellspacing="0" \
   @  class='sortable' data-column-types='ttt' data-init-sort='0'>
-  @ <thead><tr><th> Source <th> Target <th> mtime </tr></thead>
+  @ <thead><tr><th> Target <th> Source <th> mtime </tr></thead>
   @ <tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTarget = db_column_text(&q, 0);

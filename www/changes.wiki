@@ -16,6 +16,9 @@
   *  Added [/doc/trunk/www/containers.md | a new document] describing how to
      customize, use, and run that container.
   *  Added "by hour of day" report to [/reports?view=byhour|the /reports page].
+  *  Improved correctness, usability, and efficiency for the case
+     [/timeline?r=deltify-tkt-blobs|when values in a TICKET's column
+     tend to be long and volatile].
 
 <h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating

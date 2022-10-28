@@ -56,6 +56,11 @@ struct Blob {
 #define blob_buffer(X)  ((X)->aData)
 
 /*
+** Number of elements that fits into the current blob's size
+*/
+#define blob_count(X,elType)  (blob_size(X)/sizeof(elType))
+
+/*
 ** Append blob contents to another
 */
 #define blob_appendb(dest, src) \
@@ -928,6 +933,25 @@ void blobarray_zero(Blob *aBlob, int n){
 void blobarray_reset(Blob *aBlob, int n){
   int i;
   for(i=0; i<n; i++) blob_reset(&aBlob[i]);
+}
+/*
+** Allocate array of n blobs and initialize each element with `empty_blob`
+*/
+Blob* blobarray_new(int n){
+  int i;
+  Blob *aBlob = fossil_malloc(sizeof(Blob)*n);
+  for(i=0; i<n; i++) aBlob[i] = empty_blob;
+  return aBlob;
+}
+/*
+** Free array of n blobs some of which may be empty (have NULL buffer)
+*/
+void blobarray_delete(Blob *aBlob, int n){
+  int i;
+  for(i=0; i<n; i++){
+    if( blob_buffer(aBlob+i) ) blob_reset(aBlob+i);
+  }
+  fossil_free(aBlob);
 }
 
 /*
