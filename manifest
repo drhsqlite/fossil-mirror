@@ -1,5 +1,5 @@
-C Typo\sfix\sin\schanges.wiki.
-D 2022-10-28T06:51:12.248
+C Add\scomments\sfor\sauxiliary\slocal\svariables\sinside\s<code>ticket_output_change_artifact()</code>.
+D 2022-10-28T16:28:14.844
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -598,7 +598,7 @@ F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 02fe059d8975e091aef97ab1d45c1afc96670b4b33580d42ac36b0edf1aff384
-F src/tkt.c 3e3ed8cf0ddb6cb9504e36f892bd7466e6d2033cc37444c9e74bbab1d31c376c
+F src/tkt.c 16ae6a19c43e6b6fff6c4060a556cac8b3f58944dc1274654a813030b1464ca4
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86916df5349cb79d4429390dc356c323e3f3b38010b9d8e070b7d635f510475a
-R 18aacccb1fc663397eee33d86d728757
-U stephan
-Z 36b87f84445c7d2dc08498c180bace22
+P 141793c4abf995613823db536dc28182f7a61321e512cc938a41c0bf650ca0fd
+R af7370a2fd5debdf1038096f250f53d4
+U george
+Z 27916b5f4dfa7d57bac9c48f3602c1ee
 # Remove this line to create a well-formed Fossil manifest.

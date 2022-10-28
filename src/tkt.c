@@ -1254,7 +1254,7 @@ void tkttimeline_page(void){
 ** is displayed.
 **
 ** Reassignments of a field of the TICKET table that has a corresponding
-** "baseline for ..." companion are rendered as unified delta.
+** "baseline for ..." companion are rendered as unified diffs.
 */
 void tkthistory_page(void){
   Stmt q;
@@ -1403,8 +1403,11 @@ void ticket_output_change_artifact(
     const char  *zValue = pTkt->aField[i].zValue;
     const size_t nValue = strlen(zValue);
     const int bLong = nValue>50 || memchr(zValue,'\n',nValue)!=NULL;
+                      /* zValue is long enough to justify a <blockquote> */
     const int bCanDiff = aLastVal && id>=0 && aField[id].zBsln;
-    int bAppend = 0, bRegular = 0;
+                      /* preliminary flag for rendering via unified diff */
+    int bAppend = 0;  /* zValue is being appended to a TICKET's field */
+    int bRegular = 0; /* prev value of a TICKET's field is being superseded*/
     @ <li>\
     if( id<0 ){
       @ Untracked field %h(zX):
