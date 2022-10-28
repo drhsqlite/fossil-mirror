@@ -3,6 +3,9 @@
 <h2 id='v2_20'>Changes for version 2.20 (pending)</h2>
   *  Replaced the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
      commands which still used the former name, for consistency.
+  *  Improved correctness, usability and efficiency for the case
+     [/timeline?r=deltify-tkt-blobs|when values in a TICKET's column
+     tend to be long and volitile].
 
 <h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating

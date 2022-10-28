@@ -251,6 +251,13 @@ struct jCardInfo {
 ** then it will be the ROWID of an existing TICKET entry.
 **
 ** Parameter rid is the recordID for the ticket artifact in the BLOB table.
+** Upon assignment of a field this rid is stored into a corresponding
+** zBsln integer column (provided that it is defined within TICKET table).
+**
+** If a field is USEDBY_TICKETCHNG table then back-references within it
+** are extracted and inserted into the BACKLINK table; otherwise
+** a corresponding blob in the `fields` array is updated so that the
+** caller could extract backlinks from the most recent field's values.
 **
 ** Return the new rowid of the TICKET table entry.
 */
@@ -818,6 +825,8 @@ static int appendRemarkCmd(
 
 /*
 ** Write a ticket into the repository.
+** Upon reassignment of fields try to delta-compress an artifact against
+** all artifacts that are referenced in the corresponding zBsln fields.
 */
 static int ticket_put(
   Blob *pTicket,           /* The text of the ticket change record */
@@ -1243,6 +1252,9 @@ void tkttimeline_page(void){
 ** not have knowledge of the encoding.  If the "raw" query parameter
 ** is present, then the undecoded and unformatted text of each artifact
 ** is displayed.
+**
+** Reassignments of a field of the TICKET table that has a corresponding
+** "baseline for ..." companion if rendered as unified delta.
 */
 void tkthistory_page(void){
   Stmt q;
@@ -1250,7 +1262,7 @@ void tkthistory_page(void){
   const char *zUuid;
   int tagid;
   int nChng = 0;
-  Blob *aLastVal = 0;
+  Blob *aLastVal = 0; /* holds the last rendered value for each field */
 
   login_check_credentials();
   if( !g.perm.Hyperlink || !g.perm.RdTkt ){
@@ -1370,12 +1382,15 @@ static int contains_newline(Blob *p){
 /*
 ** The pTkt object is a ticket change artifact.  Output a detailed
 ** description of this object.
+**
+** If `aLastVal` is not NULL then render selected fields as unified diffs
+** and update corresponding elements of that array with values from `pTkt`.
 */
 void ticket_output_change_artifact(
   Manifest *pTkt,           /* Parsed artifact for the ticket change */
   const char *zListType,    /* Which type of list */
   int n,                    /* Which ticket change is this */
-  Blob *aLastVal            /* Array of latest values for the diffs */
+  Blob *aLastVal            /* Array of the latest values for the diffs */
 ){
   int i;
   if( zListType==0 ) zListType = "1";
