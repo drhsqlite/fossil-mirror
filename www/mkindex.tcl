@@ -40,6 +40,7 @@ set doclist {
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contact.md {Developer Contact Information}
+  containers.md {OCI Containers}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
   css-tricks.md {Fossil CSS Tips and Tricks}
   customgraph.md {Theming: Customizing the Timeline Graph}

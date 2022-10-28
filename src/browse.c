@@ -195,7 +195,7 @@ void page_dir(void){
     if( zCI ){
       zHeader = mprintf("Files in %s/ of %s", zD, zCI);
     }else{
-      zHeader = mprintf("All File in %s/", zD);
+      zHeader = mprintf("All Files in %s/", zD);
     }
   }
   zRegexp = P("re");
@@ -749,7 +749,7 @@ void page_tree(void){
     if( zCI ){
       zHeader = mprintf("Files in %s/ of %s", zD, zCI);
     }else{
-      zHeader = mprintf("All File in %s/", zD);
+      zHeader = mprintf("All Files in %s/", zD);
     }
   }
   style_header("%s", zHeader);
@@ -847,13 +847,13 @@ void page_tree(void){
     @ <h2>%s(zObjType) in the %z(href("%R/info?name=%T",zCI))latest check-in\
     @ </a> for branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a>
     if( blob_size(&dirname) ){
-      @ and %s(blob_str(&dirname))</h2>
+      @ and %s(blob_str(&dirname))
     }
   }else if( zCI ){
     @ <h2>%s(zObjType) for check-in \
-    @ %z(href("%R/info?name=%T",zCI))%h(zCI)</a></h2>
+    @ %z(href("%R/info?name=%T",zCI))%h(zCI)</a>
     if( blob_size(&dirname) ){
-      @ and %s(blob_str(&dirname))</h2>
+      @ and %s(blob_str(&dirname))
     }
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
@@ -865,6 +865,10 @@ void page_tree(void){
     @ sorted by filename</h2>
   }
 
+  if( zNow ){
+    @ <p>File ages are expressed relative to the check-in time of
+    @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
+  }
 
   /* Generate tree of lists.
   **

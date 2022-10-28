@@ -163,7 +163,12 @@ void clone_cmd(void){
     urlFlags |= URL_REMEMBER_PW;
   }
   if( find_option("verbose","v",0)!=0) syncFlags |= SYNC_VERBOSE;
-  if( find_option("unversioned","u",0)!=0 ) syncFlags |= SYNC_UNVERSIONED;
+  if( find_option("unversioned","u",0)!=0 ){
+    syncFlags |= SYNC_UNVERSIONED;
+    if( syncFlags & SYNC_VERBOSE ){
+      syncFlags |= SYNC_UV_TRACE;
+    }
+  }
   zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
   zWorkDir = find_option("workdir", 0, 1);

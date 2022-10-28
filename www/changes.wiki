@@ -1,9 +1,22 @@
 <title>Change Log</title>
 
 <h2 id='v2_20'>Changes for version 2.20 (pending)</h2>
-  *  Replaced the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
+  *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If
+     it is not an empty string, then any changes that would appear on the timeline
+     are announced in [./chat.md|the chat room].
+  *  The /unsubscribe page now requests confirmation. [./alerts.md|Email notifications]
+     now contain only an "Unsubscribe" link, and not a link to subscription management.
+  *  Added the "[/help?cmd=branch|fossil branch lsh]" subcommand to list the
+     most recently modified branches.
+  *  More elements of the /info page are now inside of an accordion.
+  *  Replace the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
      commands which still used the former name, for consistency.
-  *  Improved correctness, usability and efficiency for the case
+  *  Rebuilt [/file/Dockerfile | the stock Dockerfile] to create a "from scratch"
+     Busybox based container image via an Alpine Linux intermediary
+  *  Added [/doc/trunk/www/containers.md | a new document] describing how to
+     customize, use, and run that container.
+  *  Added "by hour of day" report to [/reports?view=byhour|the /reports page].
+  *  Improved correctness, usability, and efficiency for the case
      [/timeline?r=deltify-tkt-blobs|when values in a TICKET's column
      tend to be long and volitile].
 

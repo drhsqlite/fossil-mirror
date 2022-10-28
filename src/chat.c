@@ -130,6 +130,18 @@ static void chat_emit_alert_list(void){
 ** The value must be the name of a builtin WAV file.
 */
 /*
+** SETTING: chat-timeline-user    width=10
+**
+** If this setting is defined and is not an empty string, then
+** timeline events are posted to the chat as they arrive. The synthesized
+** chat messages appear to come from the user identified by this setting,
+** not the user on the timeline event.
+**
+** All chat messages that come from the chat-timeline-user are interpreted
+** as text/x-fossil-wiki instead of as text/markdown.  For this reason,
+** the chat-timeline-user name should probably not be a real user.
+*/
+/*
 ** WEBPAGE: chat loadavg-exempt
 **
 ** Start up a browser-based chat session.
@@ -417,10 +429,18 @@ void chat_send_webpage(void){
 ** Space to hold the returned string is obtained from fossil_malloc()
 ** and must be freed by the caller.
 */
-static char *chat_format_to_html(const char *zMsg){
+static char *chat_format_to_html(const char *zMsg, int isWiki){
   Blob out;
   blob_init(&out, "", 0);
-  if(*zMsg){
+  if( zMsg==0 || zMsg[0]==0 ){
+    /* No-op */
+  }else if( isWiki ){
+    /* Used for chat-timeline-user.  The zMsg is text/x-fossil-wiki. */
+    Blob bIn;
+    blob_init(&bIn, zMsg, (int)strlen(zMsg));
+    wiki_convert(&bIn, &out, WIKI_INLINE);
+  }else{
+    /* The common case:  zMsg is text/markdown */
     Blob bIn;
     blob_init(&bIn, zMsg, (int)strlen(zMsg));
     markdown_to_html(&bIn, NULL, &out);
@@ -444,7 +464,7 @@ void chat_test_formatter_cmd(void){
   db_find_and_open_repository(0,0);
   g.perm.Hyperlink = 1;
   for(i=0; i<g.argc; i++){
-    zOut = chat_format_to_html(g.argv[i]);
+    zOut = chat_format_to_html(g.argv[i], 0);
     fossil_print("[%d]: %s\n", i, zOut);
     fossil_free(zOut);
   }
@@ -547,10 +567,13 @@ void chat_poll_webpage(void){
   sqlite3_int64 dataVersion;  /* Data version.  Used for polling. */
   const int iDelay = 1000;    /* Delay until next poll (milliseconds) */
   int nDelay;                 /* Maximum delay.*/
+  const char *zChatUser;      /* chat-timeline-user */
+  int isWiki = 0;             /* True if chat message is x-fossil-wiki */
   int msgid = atoi(PD("name","0"));
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
   const int bRaw = P("raw")!=0;
+
   Blob sql = empty_blob;
   Stmt q1;
   nDelay = db_get_int("chat-poll-timeout",420);  /* Default about 7 minutes */
@@ -559,6 +582,7 @@ void chat_poll_webpage(void){
     chat_emit_permissions_error(1);
     return;
   }
+  zChatUser = db_get("chat-timeline-user",0);
   chat_create_tables();
   cgi_set_content_type("application/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
@@ -621,17 +645,19 @@ void chat_poll_webpage(void){
       blob_append(&json, "\"xfrom\":", -1);
       if(zFrom){
         blob_appendf(&json, "%!j,", zFrom);
+        isWiki = fossil_strcmp(zFrom,zChatUser)==0;
       }else{
         /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
         blob_appendf(&json, "null,");
+        isWiki = 0;
       }
       blob_appendf(&json, "\"uclr\":%!j,",
-                   user_color(zFrom ? zFrom : "nobody"));
+                 isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
 
       if(bRaw){
         blob_appendf(&json, "\"xmsg\":%!j,", zRawMsg);
       }else{
-        zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
+        zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "", isWiki);
         blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
         fossil_free(zMsg);
       }
@@ -688,12 +714,15 @@ void chat_fetch_one(void){
   Blob json = empty_blob;   /* The json to be constructed and returned */
   const int fRaw = PD("raw",0)!=0;
   const int msgid = atoi(PD("name","0"));
+  const char *zChatUser;
+  int isWiki;
   Stmt q;
   login_check_credentials();
   if( !g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
   }
+  zChatUser = db_get("chat-timeline-user",0);
   chat_create_tables();
   cgi_set_content_type("application/json");
   db_prepare(&q, 
@@ -718,17 +747,19 @@ void chat_fetch_one(void){
     blob_append(&json, "\"xfrom\":", -1);
     if(zFrom){
       blob_appendf(&json, "%!j,", zFrom);
+      isWiki = fossil_strcmp(zFrom, zChatUser)==0;
     }else{
       /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
       blob_appendf(&json, "null,");
+      isWiki = 0;
     }
     blob_appendf(&json, "\"uclr\":%!j,",
-                 user_color(zFrom ? zFrom : "nobody"));
+                 isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
     blob_append(&json,"\"xmsg\":", 7);
     if(fRaw){
       blob_appendf(&json, "%!j,", zRawMsg);
     }else{
-      char * zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
+      char * zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "", isWiki);
       blob_appendf(&json, "%!j,", zMsg);
       fossil_free(zMsg);
     }
@@ -850,6 +881,84 @@ void chat_backup_webpage(void){
   cgi_set_content_type("application/x-sqlite3");
   cgi_set_content(&chatDb);
 }
+
+/*
+** SQL Function: chat_msg_from_event(TYPE,OBJID,USER,MSG)
+**
+** This function returns HTML text that describes an entry from the EVENT
+** table (that is, a timeline event) for display in chat.  Parameters:
+**
+**    TYPE         The event type.  'ci', 'w', 't', 'g', and so forth
+**    OBJID        EVENT.OBJID
+**    USER         coalesce(EVENT.EUSER,EVENT.USER)
+**    MSG          coalesce(EVENT.ECOMMENT, EVENT.COMMENT)
+**
+** This function is intended to be called by the temp.chat_trigger1 trigger
+** which is created by alert_create_trigger() routine.
+*/
+void chat_msg_from_event(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zType = (const char*)sqlite3_value_text(argv[0]);
+  int rid = sqlite3_value_int(argv[1]);
+  const char *zUser = (const char*)sqlite3_value_text(argv[2]);
+  const char *zMsg = (const char*)sqlite3_value_text(argv[3]);
+  char *zRes = 0;
+  
+  if( zType==0 || zUser==0 || zMsg==0 ) return;
+  if( zType[0]=='c' ){
+    /* Check-ins */
+    char *zBranch;
+    char *zUuid;
+
+    zBranch = db_text(0,
+       "SELECT value FROM tagxref"
+       " WHERE tagxref.rid=%d"
+       "   AND tagxref.tagid=%d"
+       "   AND tagxref.tagtype>0",
+       rid, TAG_BRANCH);
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    zRes = mprintf("%W (check-in: <a href='%R/info/%S'>%S</a>, "
+                   "user: <a href='%R/timeline?u=%t&c=%S'>%h</a>, "
+                   "branch: <a href='%R/timeline?r=%t&c=%S'>%h</a>)",
+             zMsg,
+             zUuid, zUuid,
+             zUser, zUuid, zUser,
+             zBranch, zUuid, zBranch
+    );
+    fossil_free(zBranch);
+    fossil_free(zUuid);
+  }else if( zType[0]=='w' ){
+    /* Wiki page changes */
+    char *zUuid;
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    wiki_hyperlink_override(zUuid);
+    if( zMsg[0]=='-' ){
+      zRes = mprintf("Delete wiki page <a href='%R/whistory?name=%t'>%h</a>",
+         zMsg+1, zMsg+1);
+    }else if( zMsg[0]=='+' ){
+      zRes = mprintf("Added wiki page <a href='%R/whistory?name=%t'>%h</a>",
+         zMsg+1, zMsg+1);
+    }else if( zMsg[0]==':' ){
+      zRes = mprintf("<a href='%R/wdiff?id=%!S'>Changes</a> to wiki page "
+                     "<a href='%R/whistory?name=%t'>%h</a>",
+         zUuid, zMsg+1, zMsg+1);
+    }else{
+      zRes = mprintf("%W", zMsg);
+    }
+    wiki_hyperlink_override(0);
+    fossil_free(zUuid);
+  }else{
+    /* Anything else */
+    zRes = mprintf("%W", zMsg);
+  }
+  if( zRes ){
+    sqlite3_result_text(context, zRes, -1, fossil_free);
+  }
+}
+
 
 /*
 ** COMMAND: chat

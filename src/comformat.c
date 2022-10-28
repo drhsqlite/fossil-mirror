@@ -515,10 +515,16 @@ int comment_print(
 */
 int get_comment_format(){
   int comFmtFlags;
+
+  /* We must cache this result, else running the timeline can end up
+  ** querying the comment-format setting from the global db once per
+  ** timeline entry, which brings it to a crawl if that db is
+  ** network-mounted. Discussed in:
+  ** https://fossil-scm.org/forum/forumpost/9aaefe4e536e01bf */
+
   /* The global command-line option is present, or the value has been cached. */
   if( g.comFmtFlags!=COMMENT_PRINT_UNSET ){
-    comFmtFlags = g.comFmtFlags;
-    return comFmtFlags;
+    return g.comFmtFlags;
   }
   /* Load the local (per-repository) or global (all-repositories) value, and use
   ** g.comFmtFlags as a cache. */
@@ -528,8 +534,8 @@ int get_comment_format(){
     return comFmtFlags;
   }
   /* Fallback to the default value. */
-  comFmtFlags = COMMENT_PRINT_DEFAULT;
-  return comFmtFlags;
+  g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+  return g.comFmtFlags;
 }
 
 /*

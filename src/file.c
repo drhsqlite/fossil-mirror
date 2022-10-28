@@ -495,6 +495,7 @@ int file_chdir(const char *zChDir, int bChroot){
   if( !rc && bChroot ){
     rc = chroot(zPath);
     if( !rc ) rc = chdir("/");
+    g.fJail = 1;
   }
 #endif
   fossil_path_free(zPath);

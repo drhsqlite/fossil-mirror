@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to implement the "diff" command
+** This file contains code used to implement the "patch" command
 */
 #include "config.h"
 #include "patch.h"

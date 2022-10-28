@@ -99,9 +99,12 @@ static void locate_unmanaged_files(
       }else if( file_access(zName, R_OK) ){
         fossil_fatal("cannot open %s", &zName[nRoot]);
       }else{
+        /* Only add unmanaged file paths specified on the command line. */
         db_multi_exec(
-           "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
-           &zName[nRoot]
+            "INSERT OR IGNORE INTO sfile(pathname)"
+            " SELECT %Q WHERE NOT EXISTS"
+            " (SELECT 1 FROM vfile WHERE pathname=%Q)",
+            &zName[nRoot], &zName[nRoot]
         );
       }
       blob_reset(&name);
@@ -1768,9 +1771,8 @@ static void create_manifest(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCherrypickUuid = db_column_text(&q, 0);
     int mid = db_column_int(&q, 1);
-    if( mid != vid ){
-      blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
-    }
+    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
   }
   db_finalize(&q);
 
@@ -2090,7 +2092,7 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
-** COMMAND: ci*
+** COMMAND: ci#
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?

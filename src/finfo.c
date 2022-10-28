@@ -33,8 +33,11 @@
 ** and "--offset P" options limits the output to the first N changes
 ** after skipping P changes.
 **
-** The -i mode will print the artifact ID of FILENAME given the REVISION
-** provided by the -r flag (which is required).
+** The -i mode will print various facts about FILENAME, including its
+** hash and the check-in and time when the current version of the file
+** was created.  Use -v for additional information.  Add the -r VERSION
+** option to see similar information about the same file for the check-in
+** specified by VERSION.
 **
 ** In the -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
@@ -46,18 +49,20 @@
 ** Options:
 **   -b|--brief           Display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
-**                        boolean: "yes", "no", "true", "false", etc.
-**   -i|--id              Print the artifact ID (requires -r)
+**                          boolean: "yes", "no", "true", "false", etc.
+**   -i|--id              Print the artifact ID
 **   -l|--log             Select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
-**                        N less than 0 means no limit.
+**                          N less than 0 means no limit.
 **   --offset P           Skip P changes
 **   -p|--print           Select print mode
 **   -r|--revision R      Print the given revision (or ckout, if none is given)
-**                        to stdout (only in print mode)
+**                          to stdout (only in print mode)
 **   -s|--status          Select status mode (print a status indicator for FILE)
+**   -v|--verbose         On the -i option, show all check-ins that use the
+**                          file, not just the earliest check-in
 **   -W|--width N         Width of lines (default is to auto-detect). Must be
-**                        more than 22 or else 0 to indicate no limit.
+**                          more than 22 or else 0 to indicate no limit.
 **
 ** See also: [[artifact]], [[cat]], [[descendants]], [[info]], [[leaves]]
 */
@@ -144,12 +149,14 @@ void finfo_cmd(void){
   }else if( find_option("id","i",0) ){
     Blob fname;
     int rid;
+    int whatisFlags = WHATIS_BRIEF;
     const char *zRevision = find_option("revision", "r", 1);
+    if( find_option("verbose","v",0)!=0 ) whatisFlags = 0;
 
     verify_all_options();
 
-    if( zRevision==0 ) usage("-i|--id also requires -r|--revision");
-    if( g.argc!=3 ) usage("-r|--revision REVISION FILENAME");
+    if( zRevision==0 ) zRevision = "current";
+    if( g.argc!=3 ) usage("FILENAME");
     file_tree_name(g.argv[2], &fname, 0, 1);
     rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
                     "  (SELECT uuid FROM files_of_checkin(%Q)"
@@ -159,7 +166,7 @@ void finfo_cmd(void){
       fossil_fatal("file not found for revision %s: %s",
                    zRevision, blob_str(&fname));
     }
-    whatis_rid(rid,0);
+    whatis_rid(rid,whatisFlags);
     blob_reset(&fname);
   }else{
     Blob line;

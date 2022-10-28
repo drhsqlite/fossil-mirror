@@ -1596,7 +1596,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       All qualifying check-ins are shown unless there is
 **                       also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                    name matches one of the comma-separate GLOBLIST
+**                       name matches one of the comma-separate GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green

@@ -1016,7 +1016,14 @@ void merge_cmd(void){
     zFullName = mprintf("%s%s", g.zLocalRoot, zName);
     if( file_isfile_or_link(zFullName)
         && !db_exists("SELECT 1 FROM fv WHERE fn=%Q", zName) ){
-      fossil_print("ADDED %s (overwrites an unmanaged file)\n", zName);
+      /* Name of backup file with Original content */
+      char *zOrig = file_newname(zFullName, "original", 1);
+      /* Backup previously unanaged file before to be overwritten */
+      file_copy(zFullName, zOrig);
+      fossil_free(zOrig);
+      fossil_print("ADDED %s (overwrites an unmanaged file)", zName);
+      if( !dryRunFlag ) fossil_print(", original copy backed up locally");
+      fossil_print("\n");
       nOverwrite++;
     }else{
       fossil_print("ADDED %s\n", zName);

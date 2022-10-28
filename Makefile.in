@@ -48,7 +48,7 @@ CFLAGS = @CFLAGS@
 CFLAGS_INCLUDE = @CFLAGS_INCLUDE@
 LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
 BCCFLAGS =	@CPPFLAGS@ $(CFLAGS)
-TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H -D_HAVE_SQLITE_CONFIG_H
+TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H
 #
 # Fuzzing may be enable by appending -fsanitize=fuzzer -DFOSSIL_FUZZ
 # to the TCCFLAGS variable.
@@ -120,12 +120,27 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 	touch @builddir@/Makefile
 
 # Container stuff
-container-image: @srcdir@/Dockerfile
-	docker build -t fossil:@FOSSIL_CI_PFX@ $(DBFLAGS) @srcdir@
+SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
+container-image:
+	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
+	docker build \
+		--tag fossil:@FOSSIL_CI_PFX@ \
+		--build-arg FSLURL=$(SRCTB) \
+		$(DBFLAGS) @srcdir@
+	rm -f $(SRCTB)
 
 container-run: container-image
-	docker run --name fossil-@FOSSIL_CI_PFX@ $(DRFLAGS) fossil:@FOSSIL_CI_PFX@
-
-@srcdir@/Dockerfile: @srcdir@/Dockerfile.in @srcdir@/manifest.uuid
-	@AUTOREMAKE@
-
+	docker run \
+		--name fossil-@FOSSIL_CI_PFX@ \
+		--cap-drop AUDIT_WRITE \
+		--cap-drop CHOWN \
+		--cap-drop FSETID \
+		--cap-drop KILL \
+		--cap-drop MKNOD \
+		--cap-drop NET_BIND_SERVICE \
+		--cap-drop NET_RAW \
+		--cap-drop SETFCAP \
+		--cap-drop SETPCAP \
+		--detach --publish 8080:8080 \
+		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
+	docker container logs fossil-@FOSSIL_CI_PFX@

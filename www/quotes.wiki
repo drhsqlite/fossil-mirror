@@ -21,9 +21,9 @@ successive commits onto the projected manifold of each cloned
 repository.</nowiki>
 
 <blockquote>
-<i>Previously at
-[https://www.tartley.com/a-guide-to-git-using-spatial-analogies], since
-removed;<br>Quoted here: [https://lwn.net/Articles/420152/].</i>
+<i>by Jonathan Hartley at
+[https://www.tartley.com/posts/a-guide-to-git-using-spatial-analogies];
+<br>Quoted here: [https://lwn.net/Articles/420152/].</i>
 </blockquote>
 
 <li>Git is not a Prius. Git is a Model T.

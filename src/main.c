@@ -1513,7 +1513,6 @@ static char *enter_chroot_jail(const char *zRepo, int noJail){
           if( *zRepo == '\0' ) zRepo = "/";
         }else {
           zRepo = "/";
-          g.fJail = 1;
         }
         if( file_chdir(zDir, 1) ){
           fossil_panic("unable to chroot into %s", zDir);
@@ -2453,14 +2452,18 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
-    if( blob_eq(&key, "skin:") && blob_token(&line, &value) ){
+    if( blob_eq(&key, "skin:") ){
       /* skin: LABEL
       **
       ** Use one of the built-in skins defined by LABEL.  LABEL is the
       ** name of the subdirectory under the skins/ directory that holds
       ** the elements of the built-in skin.  If LABEL does not match,
-      ** this directive is a silent no-op.
+      ** this directive is a silent no-op. It may alternately be
+      ** an absolute path to a directory which holds skin definition
+      ** files (header.txt, footer.txt, etc.). If LABEL is empty,
+      ** the skin stored in the CONFIG db table is used.
       */
+      blob_token(&line, &value);
       fossil_free(skin_use_alternative(blob_str(&value), 1));
       blob_reset(&value);
       continue;
@@ -2722,7 +2725,8 @@ static void decode_ssl_options(void){
 **   --pkey FILE         Read the private key used for TLS from FILE.
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi              Interpret input as SCGI rather than HTTP
-**   --skin LABEL        Use override skin LABEL
+**   --skin LABEL        Use override skin LABEL. Use an empty string ("")
+**                       to force use of the current local skin config.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process. This is
 **                       only necessary when using SEE on Windows.
@@ -3050,7 +3054,7 @@ void fossil_set_timeout(int N){
 **                       of the given file.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
-**   --nobrowser         Do not automatically launch a web-browser for the
+**   -B|--nobrowser      Do not automatically launch a web-browser for the
 **                       "fossil ui" command.
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
@@ -3058,7 +3062,7 @@ void fossil_set_timeout(int N){
 **                       setting "redirect-to-https" requests it.  This is set
 **                       by default for the "ui" command.
 **   --notfound URL      Redirect to URL if a page is not found.
-**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
+**   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --pkey FILE         Read the private key used for TLS from FILE.
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
@@ -3126,7 +3130,7 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
-    zInitPage = find_option("page", 0, 1);
+    zInitPage = find_option("page", "p", 1);
     if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
   }
@@ -3140,7 +3144,7 @@ void cmd_webserver(void){
     set_base_url(zAltBase);
   }
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
-  fNoBrowser = find_option("nobrowser", 0, 0)!=0;
+  fNoBrowser = find_option("nobrowser", "B", 0)!=0;
   decode_ssl_options();
   if( find_option("https",0,0)!=0 || g.httpUseSSL ){
     cgi_replace_parameter("HTTPS","on");
@@ -3232,6 +3236,7 @@ void cmd_webserver(void){
       }
     }
     iPort = mxPort = atoi(zPort);
+    if( iPort<=0 ) fossil_fatal("port number must be greater than zero");
   }else{
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;

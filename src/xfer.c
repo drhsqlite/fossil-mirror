@@ -2070,7 +2070,7 @@ int client_sync(
        "  name TEXT PRIMARY KEY,"  /* Name of file to send client->server */
        "  mtimeOnly BOOLEAN"       /* True to only send mtime, not content */
        ") WITHOUT ROWID;"
-       "REPLACE INTO uv_toSend(name,mtimeOnly)"
+       "REPLACE INTO uv_tosend(name,mtimeOnly)"
        "  SELECT name, 0 FROM unversioned WHERE hash IS NOT NULL;"
     );
   }
@@ -2809,25 +2809,25 @@ int client_sync(
       go = 1;
       mxPhantomReq = nFileRecv*2;
       if( mxPhantomReq<200 ) mxPhantomReq = 200;
-    }else if( (syncFlags & SYNC_CLONE)!=0 && nFileRecv>0 ){
-      go = 1;
     }else if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
       /* Go another round if files are queued to send */
       go = 1;
     }else if( xfer.nPrivIGot>0 && nCycle==1 ){
       go = 1;
+    }else if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ){
+      /* Continue looping as long as new uvfile cards are being received
+      ** and uvgimme cards are being sent. */
+      go = 1;
     }else if( (syncFlags & SYNC_CLONE)!=0 ){
       if( nCycle==1 ){
         go = 1;   /* go at least two rounds on a clone */
+      }else if( nFileRecv>0 ){
+        go = 1;
       }else if( cloneSeqno>0 && nArtifactRcvd>nPriorArtifact ){
         /* Continue the clone until we see the clone_seqno 0" card or
         ** until we stop receiving artifacts */
         go = 1;
       }
-    }else if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ){
-      /* Continue looping as long as new uvfile cards are being received
-      ** and uvgimme cards are being sent. */
-      go = 1;
     }
 
     nCardRcvd = 0;
