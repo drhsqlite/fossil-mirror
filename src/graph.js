@@ -931,7 +931,8 @@ function TimelineGraph(tx){
     function timelineGetRowInfo(id){
       var ti;
       for(var i=0; ti=timelineGetDataBlock(i); i++){
-        for( var k=0; k<ti.rowinfo.length; k++ ){
+        // NOTE: `ti.rowinfo' only available if data block contains check-ins.
+        for( var k=0; ti.rowinfo && k<ti.rowinfo.length; k++ ){
           if( id=='m' + ti.rowinfo[k].id ) return {
             'baseurl': ti.baseUrl,
             'filehash': ti.fileDiff,

@@ -1,5 +1,5 @@
-C Check\sthe\smeta\skey\smodifier\s(⊞|⌘|◆)\swhen\sprocessing\skeyboard\sevents.
-D 2022-10-03T11:18:00.000
+C Fix\sa\sbug\swhen\shandling\stimeline\sdata\sblocks\snot\scontaining\sany\scheck-ins.
+D 2022-10-30T12:53:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -485,7 +485,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js 8bfd04cd04f370227d518f8969fb971483d240274fa316b62f26f3384e660d48
+F src/graph.js 64c481de0f7160d0837cfac5792ad958c87a2368d4bfb87d6c1959c05ba72358
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ed74216fb54c2d5a1ff4d08fad2830ae7282f42765be9ff15f50cccd443eb4c
-R 7d90600c6a5e720b6ca8a074dd4734d2
+P 11bb41e09e47b3bee505c9724e918749b0235f449dcea63e1d84d805f541360d
+R 4fa178eeff02ccc3950c3009c13cfd98
 U florian
-Z 28da43fcea4e6a9259c25256d579a374
+Z 9000eda008f4d0f66510a564a176a208
 # Remove this line to create a well-formed Fossil manifest.
