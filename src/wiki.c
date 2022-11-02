@@ -1917,7 +1917,7 @@ void wcontent_page(void){
   double rNow;
   int showAll = P("all")!=0;
   int showRid = P("showid")!=0;
-  int showCkBr = P("showckbr")!=0;
+  int showCkBr;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1928,7 +1928,14 @@ void wcontent_page(void){
   }else{
     style_submenu_element("All", "%R/wcontent?all=1");
   }
-  style_submenu_checkbox("showckbr", "Show associated wikis", 0, 0);
+  showCkBr = db_exists(
+    "SELECT tag.tagname AS tn FROM tag JOIN tagxref USING(tagid) "
+    "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' ) "
+    "  AND TYPEOF(tagxref.value+0)='integer'" );
+  if( showCkBr ){
+    showCkBr = P("showckbr")!=0;
+    style_submenu_checkbox("showckbr", "Show associated wikis", 0, 0);
+  }
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   db_prepare(&q, listAllWikiPages/*works-like:""*/);
   @ <div class="brlist">
