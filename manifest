@@ -1,5 +1,5 @@
-C Also\sdocumented\sthe\snew\s"clone\s-u\s-v"\sfeature.
-D 2022-10-28T19:48:33.585
+C Add\sa\snote\sto\s/setup_uedit\sthat\sleaving\sthe\sostensibly\spopulated\spassword\sfield\sunchanged\swill\sretain\sthe\scurrent\spassword,\sper\sdiscussion\sin\s[forum:0463cc2e87a3c676|forum\spost\s0463cc2e87a3c676].\s(Branched\sfor\slater\saddition\sto\sv2.21.)
+D 2022-11-04T11:11:30.950
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -551,7 +551,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c213316a65d88240053756dda3471539ab4b6005b0823675cf2cac58e8992029
 F src/security_audit.c 62dda75ae7de213789b8fe99aae74d8ffe7195c594a06d8e26ff80f54b7b53be
 F src/setup.c 9968bf6d9e1cdaccd6c12ac0ff641ed0fa4e491dccc33b72001b50819965515b
-F src/setupuser.c 4608c17a70af5f36c13a2b17d4b04da4724465db47b797b567804157a70c66f3
+F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c facdc05434dd765d1469cbbb6aebceaf2fd05c0eb6ace251db03cb721cecaa82
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c f6420cb8fd2bdd95ccfb9e401d6e6070203f18039e83e8ce69bf573131ff83b3
@@ -981,8 +981,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02631e35003011001a15d1d8ad37d8edefad275bceb1051d37c71a5514b6a379
-R 4bd67eee4f74f31a4ae2707d052427f6
-U wyoung
-Z 7585fc9f863824b4d5d642ffe83ef7c6
+P 0d61fd23101299a1d848ef744feed386c9d2654dec0fc82bdd054dd367774fe1
+R 0d259756ea2888b94a046a10c240fba6
+T *branch * setupuser-retain-pw
+T *sym-setupuser-retain-pw *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z a8fe88bb0fb462c831f9fb2025a727c5
 # Remove this line to create a well-formed Fossil manifest.
