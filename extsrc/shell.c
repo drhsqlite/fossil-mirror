@@ -34,6 +34,8 @@
 /* This needs to come before any includes for MSVC compiler */
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+typedef unsigned int u32;
+typedef unsigned short int u16;
 
 /*
 ** Optionally #include a user-defined header, whereby compilation options
@@ -6893,8 +6895,8 @@ SQLITE_EXTENSION_INIT1
 #endif
 /* typedef sqlite3_int64 i64; */
 /* typedef unsigned char u8; */
-typedef UINT32_TYPE u32;           /* 4-byte unsigned integer */
-typedef UINT16_TYPE u16;           /* 2-byte unsigned integer */
+/* typedef UINT32_TYPE u32;           // 4-byte unsigned integer // */
+/* typedef UINT16_TYPE u16;           // 2-byte unsigned integer // */
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 
 #if defined(SQLITE_COVERAGE_TEST) || defined(SQLITE_MUTATION_TEST)
