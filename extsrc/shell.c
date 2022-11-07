@@ -11489,7 +11489,7 @@ void sqlite3_expert_destroy(sqlite3expert *p){
 /* #include "sqlite3ext.h" */
 
 /* typedef unsigned char u8; */
-typedef unsigned int u32;
+/* typedef unsigned int u32; */
 
 #endif
 SQLITE_EXTENSION_INIT1
@@ -12892,10 +12892,16 @@ static RecoverGlobal recover_g;
 */
 #define RECOVER_ROWID_DEFAULT 1
 
+/*
+** Mutex handling:
+**
+**    recoverEnterMutex()       -   Enter the recovery mutex
+**    recoverLeaveMutex()       -   Leave the recovery mutex
+**    recoverAssertMutexHeld()  -   Assert that the recovery mutex is held
+*/
 #if defined(SQLITE_THREADSAFE) && SQLITE_THREADSAFE==0
 # define recoverEnterMutex()
 # define recoverLeaveMutex()
-# define recoverAssertMutexHeld()
 #else
 static void recoverEnterMutex(void){
   sqlite3_mutex_enter(sqlite3_mutex_alloc(RECOVER_MUTEX_ID));
@@ -12903,9 +12909,13 @@ static void recoverEnterMutex(void){
 static void recoverLeaveMutex(void){
   sqlite3_mutex_leave(sqlite3_mutex_alloc(RECOVER_MUTEX_ID));
 }
+#endif
+#if SQLITE_THREADSAFE+0>=1 && defined(SQLITE_DEBUG)
 static void recoverAssertMutexHeld(void){
   assert( sqlite3_mutex_held(sqlite3_mutex_alloc(RECOVER_MUTEX_ID)) );
 }
+#else
+# define recoverAssertMutexHeld()
 #endif
 
 
@@ -12913,11 +12923,8 @@ static void recoverAssertMutexHeld(void){
 ** Like strlen(). But handles NULL pointer arguments.
 */
 static int recoverStrlen(const char *zStr){
-  int nRet = 0;
-  if( zStr ){
-    while( zStr[nRet] ) nRet++;
-  }
-  return nRet;
+  if( zStr==0 ) return 0;
+  return (int)(strlen(zStr)&0x7fffffff);
 }
 
 /*
@@ -15458,7 +15465,6 @@ int sqlite3_recover_finish(sqlite3_recover *p){
 }
 
 #endif /* ifndef SQLITE_OMIT_VIRTUALTABLE */
-
 
 /************************* End ../ext/recover/sqlite3recover.c ********************/
 #endif

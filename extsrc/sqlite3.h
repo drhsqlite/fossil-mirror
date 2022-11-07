@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.40.0"
 #define SQLITE_VERSION_NUMBER 3040000
-#define SQLITE_SOURCE_ID      "2022-11-04 16:39:39 0e5597ce5353dea2cdb092b166b57ba1d60f8115eb468349f2b2869803691a2c"
+#define SQLITE_SOURCE_ID      "2022-11-07 18:36:02 3645585f37631d60cefab1d55cdb1ee060aae87317b9b158a01329ca8a4d3e1e"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5874,9 +5874,10 @@ typedef void (*sqlite3_destructor_type)(void*);
 ** of [SQLITE_UTF8], [SQLITE_UTF16], [SQLITE_UTF16BE], or [SQLITE_UTF16LE].
 ** ^SQLite takes the text result from the application from
 ** the 2nd parameter of the sqlite3_result_text* interfaces.
-** ^If the 3rd parameter to the sqlite3_result_text* interfaces
-** is negative, then SQLite takes result text from the 2nd parameter
-** through the first zero character.
+** ^If the 3rd parameter to any of the sqlite3_result_text* interfaces
+** other than sqlite3_result_text64() is negative, then SQLite computes
+** the string length itself by searching the 2nd parameter for the first
+** zero character.
 ** ^If the 3rd parameter to the sqlite3_result_text* interfaces
 ** is non-negative, then as many bytes (not characters) of the text
 ** pointed to by the 2nd parameter are taken as the application-defined
