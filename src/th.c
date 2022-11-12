@@ -1752,8 +1752,8 @@ int Th_ListAppend(
   Buffer output;
   int i;
 
-  int hasSpecialChar = 0;
-  int hasEscapeChar = 0;
+  int hasSpecialChar = 0;  /* Whitespace or {}[]'" */
+  int hasEscapeChar = 0;   /* '}' without matching '{' to the left or a '\\' */
   int nBrace = 0;
 
   output.zBuf = *pzList;
@@ -1770,9 +1770,18 @@ int Th_ListAppend(
   for(i=0; i<nElem; i++){
     char c = zElem[i];
     if( th_isspecial(c) ) hasSpecialChar = 1;
-    if( c=='\\' ) hasEscapeChar = 1;
+    if( c=='\\' ){ hasEscapeChar = 1; break; }
     if( c=='{' ) nBrace++;
-    if( c=='}' ) nBrace--;
+    if( c=='}' ){
+      if( nBrace==0 ){
+        /* A closing brace that does not have a matching open brace to
+        ** its left needs to be excaped.  See ticket 4d73b4a2258a78e2 */
+        hasEscapeChar = 1;
+        break;
+      }else{
+        nBrace--;
+      }
+    }
   }
 
   if( nElem==0 || (!hasEscapeChar && hasSpecialChar && nBrace==0) ){
