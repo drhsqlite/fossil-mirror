@@ -2946,6 +2946,11 @@ int alert_send_alerts(u32 flags){
       "DELETE FROM wantalert WHERE needMod AND sentMod;"
     );
   }
+  if( g.fSqlTrace ){
+    fossil_trace("-- wantalert contains %d rows\n",
+        db_int(0, "SELECT count(*) FROM wantalert")
+    );
+  }
 
   /* Step 2: compute EmailEvent objects for every notification that
   ** needs sending.
