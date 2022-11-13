@@ -2199,12 +2199,25 @@ void manifest_ticket_event(
   }
   fossil_free(zTitle);
   manifest_create_event_triggers();
-  db_multi_exec(
-    "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
-    "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
-    tktTagId, pManifest->rDate, rid, pManifest->zUser,
-    blob_str(&comment), blob_str(&brief)
-  );
+  if( db_exists("SELECT 1 FROM event WHERE type='t' AND objid=%d", rid) ){
+    /* The ticket_rebuild_entry() function redoes all of the event entries
+    ** for a ticket whenever a new event appears.  Be careful to only UPDATE
+    ** existing events, so that they do not get turned into alerts by
+    ** the alert trigger. */
+    db_multi_exec(
+      "UPDATE event SET tagid=%d, mtime=%.17g, user=%Q, comment=%Q, brief=%Q"
+      " WHERE objid=%d",
+      tktTagId, pManifest->rDate, pManifest->zUser,
+      blob_str(&comment), blob_str(&brief), rid
+    );
+  }else{
+    db_multi_exec(
+      "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
+      "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
+      tktTagId, pManifest->rDate, rid, pManifest->zUser,
+      blob_str(&comment), blob_str(&brief)
+    );
+  }
   blob_reset(&comment);
   blob_reset(&brief);
 }

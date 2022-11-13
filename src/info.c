@@ -2749,7 +2749,7 @@ void tinfo_page(void){
   }
   pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ) fossil_redirect_home();
-  zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
+  zDate = db_text(0, "SELECT datetime(%.12f,toLocal())", pTktChng->rDate);
   sqlite3_snprintf(sizeof(zTktName), zTktName, "%s", pTktChng->zTicketUuid);
   if( g.perm.ModTkt && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){

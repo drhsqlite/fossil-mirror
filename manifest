@@ -1,5 +1,5 @@
-C Apply\sfixes\sto\sall\sweb\sviews\sto\spass\sWCAG\s2.1\stests\sperformed\sby\s"axe\sDevTools"\sbrowser\sextension.\sMost\sfixes\srelated\sto\sscreen\sreader\scompatibility,\slike\smaking\ssure\sthat\sform\selements\shave\slabels.\sSome\scolor\schanges\sto\simprove\scontrast\son\sDefault\sskin.\sMade\smore\sHTML5\scompliant.\sMinor\simprovement\sto\sselect\scombo\sboxes\sfor\sUX.\sImproved\sSearch\sform\sUX.\sTwo\sminor\sbug\sfixes\sfor\smalformed\sHTML.\sFixed\shelp\spages\sto\sresolve\sissues\swith\snon-compliant\sHTML\sbeing\sgenerated.\sMostly\sdocumented\sat\shttps://fossil-scm.org/forum/forumpost/aafb17a981df4166
-D 2022-11-13T16:26:00.959
+C Merge\strunk\sinto\swcag-2.1\sfor\scleaner\sdiff\scomparison.
+D 2022-11-13T17:18:08.474
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -301,9 +301,9 @@ F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc3
 F extsrc/pikchr.c 00e01756a1bbfadcf65a81c3207e199c80e968228fa1f5f649d3990a4187244f
 F extsrc/pikchr.js fba64adbfa491234c466d298dd41aa6d926b0026969fd956f2a3388c0428b450
 F extsrc/pikchr.wasm 33c461fb657896f9a057b72955b146cc945cf9f7cac5e438cd7dca25e1b30060
-F extsrc/shell.c 7d662f0c6b6f810816614aceb21c54c507b100869318e6550ad56ff7daabcfbb
-F extsrc/sqlite3.c 40b8ecb9a4cd53d125f0472a5d827042e8ad280f1a1eea686d1df47072df3c6c
-F extsrc/sqlite3.h 7cd770d5e941c42b2f664091e4bf306a661f9e5cc8664a651b03a50a756d9bdc
+F extsrc/shell.c 60f18475c384afe86429abd2e32d152e5099ead7f534a87cc540caa42f097f7e
+F extsrc/sqlite3.c 348713521d08869451d19aadea9f30356363e36f2602f68874cddec2b13bc30c
+F extsrc/sqlite3.h a2ea9ca1eb7816c2e09ba8e1b17ebc26ca14557212d440e5f6d12c2bc0080205
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -402,7 +402,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 6fa9fa1541411ee9d3d8e9cbebda4698ac68c00d7e1185e50bd079736d01d0a3
 F src/add.c b3cccd1539f4ebfd5a673379a02bf4906b76711ef1b89f44aea28152887374a0
 F src/ajax.c 4d31ef8e51bdd3c3ac74f346d3604e27893ab5a879846312b576d76d15d38d41
-F src/alerts.c a99d038653eda32edfd620394082c50fead0697404530c7aa066aa8fdbb126f7
+F src/alerts.c 1333eec70b52c0daf1100b788d50a884681ba42d5359bc941db06806c8281925
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -496,7 +496,7 @@ F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9
 F src/http_ssl.c 18affa5f6b9314317dfbe477b507ec3ee11ff57d1a8cb62985db848bb4948980
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
 F src/import.c 6b1376eb0164326f7c28f1dbe2fee35ea6ee4c22ca9f2ff8594d17229e482f50
-F src/info.c a9c4d9e9975064563b0c2c59eb283a1850fc50d9adaf6f4e88caf2b6439fa33d
+F src/info.c 30d0604fe62f54f815364adaa079433d27c367d7d36f5f565001c52fdd622ce7
 F src/interwiki.c 0724fafcbebec41b42cc1fe97cefdeca70ea3db82517872ac6d1b4c006d89988
 F src/json.c 264c757355a12c4c9efcef77f7f5d0f73dfc93a03f7ebdafbc4caa319e3bbc26
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -521,7 +521,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c ca58bd698b099424f000ee8e9429035c4083b18ebd40240d3d6d94ecdf09c7c2
 F src/main.mk 3cfb5b741f534f21044e391027e1fc52155092ec62c73faeb994b1d9d47b699a
-F src/manifest.c 3c20063f1a2092abd8f6033384beb889740ebb925aeff346b57c3b69627a9590
+F src/manifest.c d675c334860d05040f6534b9c4cbbef6ae065b123a0b82f770f2936a7665c0d1
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
 F src/markdown.md 067116403288c84cdbae04edd208d1db044b1f1fce144444c1d96ea6e2e57df3
 F src/markdown_html.c 38a90709de369e067f475925861a6dec1cae1225739cb0a128d969c86b9f9ed7
@@ -592,7 +592,7 @@ F src/sync.c ec0128ff27a4749fa8ac7f504c391dea9179a4dc096783410a9781131cb87066
 F src/tag.c d75e6e865086a566d3bd158264deb4887f4fd5552f98727fc7ea37871a3de2b5
 F src/tar.c f6ec4629cb831eb2401fc3b9ec6a1d8289f1fa3e63c21235b8588379fe2c8cb8
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
-F src/th.c 57a908f2f980541428d8a66518bdcb7c6b89b1564481127b362f486062bdcc3c
+F src/th.c 6afb71365d8143128911941657a08aa2703cd285a1f6d1e43f17a4043059521a
 F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c 5d91ae98ab2cf90ffb63ceae12b85432e75354e20dbf76b9f908aa9be489b137
@@ -981,11 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d61fd23101299a1d848ef744feed386c9d2654dec0fc82bdd054dd367774fe1
-R 3d1b8476d8ce2308f9c46f4a89b7ad1e
-T *branch * wcag-2.1
-T *sym-wcag-2.1 *
-T -sym-trunk *
-U ericwikman
-Z a572b0f59b7f05dadf606a802c751340
+P 1f231db380dd1d3965f3c3360450ee2614b35e90152d620fa8b40fae804f9d38 fb040bb01326181ee2375dfa9ed2d437973fbf8b0ba0266070337dde57f3a015
+R 53c04334ba7f9879f97197f4beb03563
+U stephan
+Z ae1f3249cae90eb16a260b2263b84447
 # Remove this line to create a well-formed Fossil manifest.
