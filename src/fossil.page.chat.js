@@ -66,6 +66,14 @@ window.fossil.onPageLoad(function(){
       D.append(document.body,dbg);
     }
   })();
+
+  /**
+     Selectors for elements which are direct children of the BODY
+     element but not part of the /chat UI.
+   */
+  const selectorsOutsideChat = [
+    'body > *:not(.content)'
+  ];  
   const ForceResizeKludge = (function(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
@@ -77,12 +85,9 @@ window.fossil.onPageLoad(function(){
        While we're here, we also use this to cap the max-height
        of the input field so that pasting huge text does not scroll
        the upper area of the input widget off-screen. */
-    const elemsToCount = [
-      document.querySelector('body > header.header'),
-      document.querySelector('body > nav.mainmenu'),
-      document.querySelector('body > #hbdrop'),
-      document.querySelector('body > footer.footer')
-    ];
+    const elemsToCount = document.querySelectorAll(
+      selectorsOutsideChat.join(',')
+    );
     const contentArea = E1('main.content');
     const bcl = document.body.classList;
     const resized = function f(){
@@ -324,14 +329,7 @@ window.fossil.onPageLoad(function(){
       */
       chatOnlyMode: function f(yes){
         if(undefined === f.elemsToToggle){
-          f.elemsToToggle = [];
-          document.querySelectorAll(
-            ["body > header.header",
-             "body > nav.mainmenu",
-             "body > footer.footer",
-             "#debugMsg"
-            ].join(',')
-          ).forEach((e)=>f.elemsToToggle.push(e));
+          f.elemsToToggle = document.querySelectorAll(selectorsOutsideChat.join(','));
         }
         if(!arguments.length) yes = true;
         if(yes === this.isChatOnlyMode()) return this;

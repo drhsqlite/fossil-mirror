@@ -483,17 +483,13 @@
       const elemsToCount = [
         /* Elements which we need to always count in the
            visible body size. */
-        E('body > header.header'),
-        E('body > nav.mainmenu'),
-        E('body > footer.footer')
+        ...EAll('body > *:not(.content)')
       ];
       const resized = function f(){
         if(f.$disabled) return;
         const wh = window.innerHeight;
-        var ht;
-        var extra = 0;
-        elemsToCount.forEach((e)=>e ? extra += F.dom.effectiveHeight(e) : false);
-        ht = wh - extra;
+        let ht = wh;
+        elemsToCount.forEach((e)=>ht -= F.dom.effectiveHeight(e));
         appViews.forEach(function(e){
           e.style.height =
             e.style.maxHeight = [
