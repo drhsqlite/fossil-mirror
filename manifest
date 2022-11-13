@@ -1,5 +1,5 @@
-C Update\s/chat\sand\s/pikchrshow\sUIs\sto\swork\swith\sskins\sconforming\sto\sthe\sWCAG\srework\sas\swell\sas\spre-WCAG\sskins\s(except\sfor\sthe\sbootstrap\sskin,\swhich\srestructures\sthe\sDOM\sin\san\sincompatible\sway).
-D 2022-11-13T18:49:21.607
+C Removed\sthe\stitle\sproperty\sfrom\sthe\snav\selement\sfor\sthe\ssubmenu\sin\sstyle.c.\sIt\scaused\sa\sredundant\stooltip,\sand\swas\snot\snecessary.
+D 2022-11-13T19:49:52.440
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -583,7 +583,7 @@ F src/stash.c 91dac5976d913946058ef9f1bab9e5894f6346dfd1f1c383f70e5ce125776278
 F src/stat.c c3f61192629ba92b63edcb023e9a0aa7a64b71112db6073a28c6ff09d4f678e9
 F src/statrep.c 512fde263240030573c40ea69762c887816fa1dad06ae5fe43a2e54ed9a7523c
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 498ffc4694fca8daf7159f0fc2ceb686c7f4f2c29d51e5c0dc43b3c58ae31594
+F src/style.c 18483bb4a09231ef4f3cb95fdf5b2849c9cb919dc83970ee40a060ffe1465450
 F src/style.chat.css 08642fba19adb12d42db1c58364333efacf650151cd4ae05b14b94b85d527d82
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 25f0a2db166301e46383c959b691513612f62129cb2fca59e3a445fe2815e18a
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1a9fdd768fe00052aeccc9fe1f526ed501faffcb27bb77198728eb9e4f7baad
-R 4ee47d0b1ac0af8e79847875d670a06e
-U stephan
-Z af606527a3673cacd5daabc939d86589
+P d208efdd5e19d082139d59e54f560060e3f1f1fd9b97cf6744f088ee3f876e01
+R 6cae5f33f3202831e92ed0499a0258dd
+U ericwikman
+Z 1b0572a9e1d449869a565de94a2f1b5d
 # Remove this line to create a well-formed Fossil manifest.

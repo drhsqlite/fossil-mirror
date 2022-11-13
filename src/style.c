@@ -994,7 +994,7 @@ void style_finish_page(){
       @ <input type='hidden' name='udc' value='1'>
       cgi_tag_query_parameter("udc");
     }
-    @ <nav id="submenu" class="submenu" title="Submenu">
+    @ <nav id="submenu" class="submenu">
     if( nSubmenu>0 ){
       qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
       for(i=0; i<nSubmenu; i++){
