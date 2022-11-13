@@ -505,53 +505,39 @@ static int stash_get_id(const char *zStashId){
 ** COMMAND: stash
 **
 ** Usage: %fossil stash SUBCOMMAND ARGS...
-**
 ** > fossil stash
 ** > fossil stash save ?-m|--comment COMMENT? ?FILES...?
 ** > fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**
 **      Save the current changes in the working tree as a new stash.
 **      Then revert the changes back to the last check-in.  If FILES
 **      are listed, then only stash and revert the named files.  The
 **      "save" verb can be omitted if and only if there are no other
 **      arguments.  The "snapshot" verb works the same as "save" but
 **      omits the revert, keeping the checkout unchanged.
-**
 ** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
-**
 **      List all changes sets currently stashed.  Show information about
 **      individual files in each changeset if -v or --verbose is used.
-**
 ** > fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 ** > fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
-**
 **      Show the contents of a stash as a diff against its baseline.
 **      With gshow and gcat, gdiff-command is used instead of internal
 **      diff logic.
-**
 ** > fossil stash pop
 ** > fossil stash apply ?STASHID?
-**
 **      Apply STASHID or the most recently created stash to the current
 **      working checkout.  The "pop" command deletes that changeset from
 **      the stash after applying it but the "apply" command retains the
 **      changeset.
-**
 ** > fossil stash goto ?STASHID?
-**
 **      Update to the baseline checkout for STASHID then apply the
 **      changes of STASHID.  Keep STASHID so that it can be reused
 **      This command is undoable.
-**
 ** > fossil stash drop|rm ?STASHID? ?-a|--all?
-**
 **      Forget everything about STASHID.  Forget the whole stash if the
 **      -a|--all flag is used.  Individual drops are undoable but -a|--all
 **      is not.
-**
 ** > fossil stash diff ?STASHID? ?DIFF-OPTIONS?
 ** > fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
-**
 **      Show diffs of the current working directory and what that
 **      directory would be if STASHID were applied. With gdiff,
 **      gdiff-command is used instead of internal diff logic.

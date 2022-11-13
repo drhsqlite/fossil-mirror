@@ -1,4 +1,4 @@
-<div class="footer">
+<footer class="footer">
   <th1>
   proc getTclVersion {} {
     if {[catch {tclEval info patchlevel} tclVersion] == 0} {
@@ -21,4 +21,4 @@
   version $release_version $tclVersion
   <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>
   <a href="$fossilUrl/index.html/timeline?c=$fossilDate&amp;y=ci">$manifest_date</a>
-</div>
+</footer>

@@ -317,10 +317,10 @@ void piechart_test_page(void){
     @ <hr />
   }
   @ <form method="POST" action='%R/test-piechart'>
-  @ <p>Comma-separated list of slice widths:<br />
-  @ <input type='text' name='data' size='80' value='%h(zData)'/><br />
-  @ Width: <input type='text' size='8' name='width' value='%d(width)'/>
-  @ Height: <input type='text' size='8' name='height' value='%d(height)'/><br />
+  @ <p><label>Comma-separated list of slice widths:<br />
+  @ <input type='text' name='data' size='80' value='%h(zData)'/></label><br />
+  @ <label>Width: <input type='text' size='8' name='width' value='%d(width)'/></label>
+  @ <label>Height: <input type='text' size='8' name='height' value='%d(height)'/></label><br />
   @ <input type='submit' value='Draw The Pie Chart'/>
   @ </form>
   @ <p>Interesting test cases:

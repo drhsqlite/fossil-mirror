@@ -536,7 +536,6 @@ int login_self_register_available(const char *zNeeded){
 ** WEBPAGE: my
 **
 ** The login/logout page.  Parameters:
-**
 **    g=URL             Jump back to this URL after login completes
 **    anon              The g=URL is not accessible by "nobody" but is
 **                      accessible by "anonymous"
@@ -738,13 +737,13 @@ void login_page(void){
       @ </span></td></tr>
     }
     @ <tr>
-    @   <td class="form_label" id="userlabel1">User ID:</td>
-    @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
+    @   <td class="form_label" id="userlabel1"><label for="u">User ID:</label></td>
+    @   <td><input type="text" id="u" id="u" name="u" \
     @ size="30" value="%s(anonFlag?"anonymous":"")"></td>
     @ </tr>
     @ <tr>
-    @  <td class="form_label" id="pswdlabel">Password:</td>
-    @  <td><input aria-labelledby="pswdlabel" type="password" id="p" \
+    @  <td class="form_label" id="pswdlabel"><label for="p">Password:</label></td>
+    @  <td><input type="password" id="p" \
     @ name="p" value="" size="30" />\
     if( zAnonPw && !noAnon ){
       captcha_speakit_button(uSeed, "Speak password for \"anonymous\"");
@@ -807,14 +806,15 @@ void login_page(void){
       @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
       form_begin(0, "%R/login");
       @ <table>
-      @ <tr><td class="form_label" id="oldpw">Old Password:</td>
-      @ <td><input aria-labelledby="oldpw" type="password" name="p" \
+      @ <tr><td class="form_label" id="oldpw"><label for="p">Old Password:</label></td>
+      @ <td><input type="password" id="p" name="p" \
       @ size="30"/></td></tr>
-      @ <tr><td class="form_label" id="newpw">New Password:</td>
-      @ <td><input aria-labelledby="newpw" type="password" name="n1" \
+      @ <tr><td class="form_label" id="newpw"><label for="n1">New Password:</label></td>
+      @ <td><input type="password" id="n1" name="n1" \
       @ size="30" /> Suggestion: %z(zRPW)</td></tr>
-      @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
-      @ <td><input aria-labledby="reppw" type="password" name="n2" \
+      @ <tr><td class="form_label" id="reppw">
+      @ <label for="n2">Repeat New Password:</label></td>
+      @ <td><input type="password" id="n2" name="n2" \
       @ size="30" /></td></tr>
       @ <tr><td></td>
       @ <td><input type="submit" value="Change Password" /></td></tr>
@@ -1783,16 +1783,17 @@ void register_page(void){
   @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)" />
   @ <table class="login_out">
   @ <tr>
-  @   <td class="form_label" align="right" id="uid">User ID:</td>
-  @   <td><input aria-labelledby="uid" type="text" name="u" \
+  @   <td class="form_label" align="right" id="uid"><label for="u">User ID:</label></td>
+  @   <td><input type="text" id="u" name="u" \
   @ value="%h(zUserID)" size="30"></td>
   @
   if( iErrLine==1 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right" id="dpyname">Display Name:</td>
-  @   <td><input aria-labelledby="dpyname" type="text" name="dn" \
+  @   <td class="form_label" align="right" id="dpyname">
+  @   <label for="dn">Display Name:</label></td>
+  @   <td><input type="text" id="dn" name="dn" \
   @ value="%h(zDName)" size="30"></td>
   @ </tr>
   if( iErrLine==2 ){
@@ -1800,8 +1801,9 @@ void register_page(void){
   }
   @ </tr>
   @ <tr>
-  @   <td class="form_label" align="right" id="emaddr">Email Address:</td>
-  @   <td><input aria-labelledby="emaddr" type="text" name="ea" \
+  @   <td class="form_label" align="right" id="emaddr">
+  @   <label for="ea">Email Address:</label></td>
+  @   <td><input type="text" id="ea" name="ea" \
   @ value="%h(zEAddr)" size="30"></td>
   @ </tr>
   if( iErrLine==3 ){
@@ -1810,15 +1812,16 @@ void register_page(void){
   if( canDoAlerts ){
     int a = atoi(PD("alerts","1"));
     @ <tr>
-    @   <td class="form_label" align="right" id="emalrt">Email&nbsp;Alerts?</td>
-    @   <td><select aria-labelledby="emalrt" size='1' name='alerts'>
+    @   <td class="form_label" align="right" id="emalrt">
+    @   <label for="alerts">Email&nbsp;Alerts?</label></td>
+    @   <td><select size='1' id='alerts' name='alerts'>
     @       <option value="1" %s(a?"selected":"")>Yes</option>
     @       <option value="0" %s(!a?"selected":"")>No</option>
     @   </select></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right" id="pswd">Password:</td>
-  @   <td><input aria-labelledby="pswd" type="password" name="p" \
+  @   <td class="form_label" align="right" id="pswd"><label for="p">Password:</label></td>
+  @   <td><input type="password" id="p" name="p" \
   @ value="%h(zPasswd)" size="30"> \
   if( zPasswd[0]==0 ){
     char *zRPW = fossil_random_password(12);
@@ -1831,16 +1834,16 @@ void register_page(void){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right" id="pwcfrm">Confirm:</td>
-  @   <td><input aria-labelledby="pwcfrm" type="password" name="cp" \
+  @   <td class="form_label" align="right" id="pwcfrm"><label for="cp">Confirm:</label></td>
+  @   <td><input type="password" id="cp" name="cp" \
   @ value="%h(zConfirm)" size="30"></td>
   @ </tr>
   if( iErrLine==5 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right" id="cptcha">Captcha:</td>
-  @   <td><input type="text" name="captcha" aria-labelledby="cptcha" \
+  @   <td class="form_label" align="right" id="cptcha"><label for="captcha">Captcha:</label></td>
+  @   <td><input type="text" id="captcha" name="captcha" \
   @ value="%h(captchaIsCorrect?zDecoded:"")" size="30">
   captcha_speakit_button(uSeed, "Speak the captcha text");
   @   </td>
@@ -2124,27 +2127,20 @@ void login_group_leave(char **pzErrMsg){
 **
 ** Run various subcommands to manage login-group related settings of the open
 ** repository or of the repository identified by the -R or --repository option.
-**
 ** >  fossil login-group ?-R REPO?
-**
 **     Show the login-group to which REPO, or if invoked from within a checkout
 **     the repository on which the current checkout is based, belongs.
-**
 ** >  fossil login-group join ?-R? REPO ?--name NAME?
-**
 **     This subcommand must be invoked from within a checkout to either: add
 **     the open repository to the login group that REPO is a member, in which
 **     case the optional "--name" argument is not required; or create a new
 **     login group between the open repository and REPO, in which case the new
 **     group NAME is determined by the mandatory "--name" option. REPO may be
 **     specified with or without the -R flag.
-**
 ** >  fossil login-group leave ?-R REPO?
-**
 **     Take the repository REPO, or if invoked from within a checkout the
 **     repository on which the current checkout is based, out of whatever
 **     login group it is a member.
-**
 ** About Login Groups:
 **
 ** A login-group is a set of repositories that share user credentials.

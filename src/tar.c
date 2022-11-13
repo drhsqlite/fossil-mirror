@@ -721,12 +721,10 @@ char *tar_uuid_from_name(char **pzName){
 **      /tarball?name=release/xyz.tar.gz
 **
 ** Query parameters:
-**
 **   name=NAME[.tar.gz]  The base name of the output file.  The default
 **                       value is a configuration parameter in the project
 **                       settings.  A prefix of the name, omitting the
 **                       extension, is used as the top-most directory name.
-**
 **   r=TAG               The check-in that is turned into a compressed tarball.
 **                       Defaults to "trunk".  This query parameter used to
 **                       be called "uuid" and "uuid" is still accepted for
@@ -735,10 +733,8 @@ char *tar_uuid_from_name(char **pzName){
 **                       is the TAG and the part after the / is the true name.
 **                       If no TAG is specified by any of the above means, then
 **                       "trunk" is used as the default.
-**
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
-**
 **   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.

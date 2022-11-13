@@ -2908,7 +2908,6 @@ int Th_Render(const char *z){
 ** on standard output.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -2958,7 +2957,6 @@ void test_th_render(void){
 ** a filename or a string of th1 script code.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -3019,7 +3017,6 @@ void test_th_eval(void){
 ** output.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -3088,21 +3085,17 @@ void test_th_source(void){
 **     cmdhook              Executes the TH1 procedure [command_hook], after
 **                          setting the TH1 variables "cmd_name", "cmd_args",
 **                          and "cmd_flags" to appropriate values.
-**
 **     cmdnotify            Executes the TH1 procedure [command_notify], after
 **                          setting the TH1 variables "cmd_name", "cmd_args",
 **                          and "cmd_flags" to appropriate values.
-**
 **     webhook              Executes the TH1 procedure [webpage_hook], after
 **                          setting the TH1 variables "web_name", "web_args",
 **                          and "web_flags" to appropriate values.
-**
 **     webnotify            Executes the TH1 procedure [webpage_notify], after
 **                          setting the TH1 variables "web_name", "web_args",
 **                          and "web_flags" to appropriate values.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --th-trace           Trace TH1 execution (for debugging purposes)

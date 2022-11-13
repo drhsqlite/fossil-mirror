@@ -199,45 +199,32 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 ** Usage: %fossil hook COMMAND ...
 **
 ** Commands include:
-**
 ** >  fossil hook add --command COMMAND --type TYPE --sequence NUMBER
-**
 **        Create a new hook.  The --command and --type arguments are
 **        required.  --sequence is optional.
-**
 ** >  fossil hook delete ID ...
-**
 **        Delete one or more hooks by their IDs.  ID can be "all"
 **        to delete all hooks.  Caution:  There is no "undo" for
 **        this operation.  Deleted hooks are permanently lost.
-**
 ** >  fossil hook edit --command COMMAND --type TYPE --sequence NUMBER ID ...
-**
 **        Make changes to one or more existing hooks.  The ID argument
 **        is either a hook-id, or a list of hook-ids, or the keyword
 **        "all".  For example, to disable hook number 2, use:
 **
 **            fossil hook edit --type disabled 2
-**
 ** >  fossil hook list
-**
 **        Show all current hooks
-**
 ** >  fossil hook status
-**
 **        Print the values of CONFIG table entries that are relevant to
 **        hook processing.  Used for debugging.
-**
 ** >  fossil hook test [OPTIONS] ID
-**
 **        Run the hook script given by ID for testing purposes.
-**        Options:
 **
+**        Options:
 **            --dry-run          Print the script on stdout rather than run it
 **            --base-rcvid  N    Pretend that the hook-last-rcvid value is N
 **            --new-rcvid M      Pretend that the last rcvid valud is M
 **            --aux-file NAME    NAME is substituted for %A in the script
-**
 **        The --base-rcvid and --new-rcvid options are silently ignored if
 **        the hook type is not "after-receive".  The default values for
 **        --base-rcvid and --new-rcvid cause the last receive to be processed.

@@ -364,7 +364,6 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** depends on the global setting, or the operating system default, if not set.
 **
 ** Options:
-**
 **    --case-sensitive BOOL   Override the case-sensitive setting
 **    --dotfiles              Include files beginning with a dot (".")
 **    -f|--force              Add files without prompting

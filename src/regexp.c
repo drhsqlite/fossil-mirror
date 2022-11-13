@@ -811,7 +811,6 @@ static int grep_buffer(
 ** standard input if no disk files are named on the command-line.
 **
 ** Options:
-**
 **   -i|--ignore-case    Ignore case
 */
 void re_test_grep(void){
@@ -855,7 +854,6 @@ void re_test_grep(void){
 ** https://fossil-scm.org/fossil/doc/trunk/www/grep.md
 **
 ** Options:
-**
 **     -c|--count                 Suppress normal output; instead print a count
 **                                of the number of matching files
 **     -i|--ignore-case           Ignore case

@@ -703,7 +703,6 @@ void chat_poll_webpage(void){
 ** Fetches a single message with the given ID, if available.
 **
 ** Options:
-**
 **   raw = the xmsg field will be returned unparsed.
 **
 ** Response is either a single object in the format returned by
@@ -973,41 +972,31 @@ void chat_msg_from_event(
 ** command fails with an error.
 **
 ** Subcommands:
-**
 ** > fossil chat
-**
 **      When there is no SUBCOMMAND (when this command is simply "fossil chat")
 **      the response is to bring up a web-browser window to the chatroom
 **      on the default system web-browser.  You can accomplish the same by
 **      typing the appropriate URL into the web-browser yourself.  This
 **      command is merely a convenience for command-line oriented people.
-**
 ** > fossil chat pull
-**
 **      Copy chat content from the server down into the local clone,
 **      as a backup or archive.  Setup privilege is required on the server.
-**
 **        --all                  Download all chat content. Normally only
 **                               previously undownloaded content is retrieved.
 **        --debug                Additional debugging output.
 **        --out DATABASE         Store CHAT table in separate database file
 **                               DATABASE rather that adding to local clone
 **        --unsafe               Allow the use of unencrypted http://
-**
 ** > fossil chat send [ARGUMENTS]
-**
 **      This command sends a new message to the chatroom.  The message
 **      to be sent is determined by arguments as follows:
-**
 **        -f|--file FILENAME     File to attach to the message
 **        --as FILENAME2         Causes --file FILENAME to be sent with
 **                               the attachment name FILENAME2
 **        -m|--message TEXT      Text of the chat message
 **        --remote URL           Send to this remote URL
 **        --unsafe               Allow the use of unencrypted http://
-**
 ** > fossil chat url
-**
 **      Show the default URL used to access the chat server.
 **
 ** Additional subcommands may be added in the future.

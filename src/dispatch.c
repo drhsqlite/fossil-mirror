@@ -800,14 +800,12 @@ void test_approx_match_command(void){
 **
 ** Show the built-in help text for CMD.  CMD can be a command-line interface
 ** command or a page name from the web interface or a setting.
-** Query parameters:
 **
+** Query parameters:
 **    name=CMD        Show help for CMD where CMD is a command name or
 **                    webpage name or setting name.
-**
 **    plaintext       Show the help within <pre>...</pre>, as if it were
 **                    displayed using the "fossil help" command.
-**
 **    raw             Show the raw help text without any formatting.
 **                    (Used for debugging.)
 */
@@ -1143,7 +1141,6 @@ static const char zOptions[] =
 ** topics is returned.
 **
 ** The following options can be used when TOPIC is omitted:
-**
 **    -a|--all          List both common and auxiliary commands
 **    -o|--options      List command-line options common to all commands
 **    -s|--setting      List setting names
@@ -1157,7 +1154,6 @@ static const char zOptions[] =
 **    -e|--everything   List all help on all topics
 **
 ** These options can be used when TOPIC is present:
-**
 **    -h|--html         Format output as HTML rather than plain text
 **    -c|--commands     Restrict TOPIC search to commands
 */

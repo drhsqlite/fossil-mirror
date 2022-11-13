@@ -225,7 +225,7 @@ static void stats_report_by_month_year(char includeMonth,
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
   @ <th>Events</th>
-  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ <th width='90%%'>Graph</th>
   @ </thead><tbody>
   /*
      Run the query twice. The first time we calculate the maximum
@@ -364,7 +364,7 @@ static void stats_report_by_user(){
   @ <thead><tr>
   @ <th>User</th>
   @ <th>Events</th>
-  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ <th width='90%%'>Graph</th>
   @ </tr></thead><tbody>
   db_prepare(&query,
                "SELECT ifnull(euser,user), "
@@ -440,7 +440,7 @@ static void stats_report_by_file(const char *zUserName){
   @ <thead><tr>
   @ <th>File</th>
   @ <th>Check-ins</th>
-  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ <th width='90%%'>Graph</th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
     const char *zFile = db_column_text(&query, 0);
@@ -521,7 +521,7 @@ static void stats_report_day_of_week(const char *zUserName){
   @ <th>DoW</th>
   @ <th>Day</th>
   @ <th>Events</th>
-  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ <th width='90%%'>Graph</th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
     const int nCount = db_column_int(&query, 1);
@@ -597,7 +597,7 @@ static void stats_report_hour_of_day(const char *zUserName){
   @ <thead><tr>
   @ <th>Hour</th>
   @ <th>Events</th>
-  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ <th width='90%%'>Graph</th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
     const int nCount = db_column_int(&query, 1);
@@ -645,7 +645,7 @@ static void stats_report_year_weeks(const char *zUserName){
   int total = 0;
 
   stats_report_init_view();
-  style_submenu_sql("y", "Year:",
+  style_submenu_sql("y", "Year",
      "WITH RECURSIVE a(b) AS ("
      "  SELECT substr(date('now'),1,4) UNION ALL"
      "  SELECT b-1 FROM a"
@@ -676,7 +676,7 @@ static void stats_report_year_weeks(const char *zUserName){
   cgi_printf("<thead><tr>"
              "<th>Week</th>"
              "<th>Events</th>"
-             "<th width='90%%'><!-- relative commits graph --></th>"
+             "<th width='90%%'>Graph</th>"
              "</tr></thead>"
              "<tbody>");
   while( SQLITE_ROW == db_step(&q) ){
@@ -786,7 +786,6 @@ static void stats_report_last_change(void){
 ** Shows activity reports for the repository.
 **
 ** Query Parameters:
-**
 **   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
@@ -796,7 +795,6 @@ static void stats_report_last_change(void){
 ** The view-specific query parameters include:
 **
 ** view=byweek:
-**
 **   y=YYYY            The year to report (default is the server's
 **                     current year).
 */
@@ -813,12 +811,12 @@ void stats_report_page(){
   } aViewType[] = {
      {  "File Changes","byfile",    RPT_BYFILE    },
      {  "Last Change", "lastchng",  RPT_LASTCHNG  },
-     {  "By Month",    "bymonth",   RPT_BYMONTH   },
-     {  "By User",     "byuser",    RPT_BYUSER    },
-     {  "By Week",     "byweek",    RPT_BYWEEK    },
-     {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
-     {  "By Year",     "byyear",    RPT_BYYEAR    },
-     {  "By Hour",     "byhour",    RPT_BYHOUR    },
+     {  "Month",       "bymonth",   RPT_BYMONTH   },
+     {  "User",        "byuser",    RPT_BYUSER    },
+     {  "Week",        "byweek",    RPT_BYWEEK    },
+     {  "Weekday",     "byweekday", RPT_BYWEEKDAY },
+     {  "Year",        "byyear",    RPT_BYYEAR    },
+     {  "Hour",        "byhour",    RPT_BYHOUR    },
   };
   static const char *const azType[] = {
      "a",  "All Changes",
@@ -852,11 +850,11 @@ void stats_report_page(){
       azView[nView++] = aViewType[i].zName;
     }
     if( eType!=RPT_BYFILE ){
-      style_submenu_multichoice("type", count(azType)/2, azType, 0);
+      style_submenu_multichoice("type", "Type", count(azType)/2, azType, 0);
     }
-    style_submenu_multichoice("view", nView/2, azView, 0);
+    style_submenu_multichoice("view", "Group By", nView/2, azView, 0);
     if( eType!=RPT_BYUSER && eType!=RPT_LASTCHNG ){
-      style_submenu_sql("user","User:",
+      style_submenu_sql("user","User",
          "SELECT '', 'All Users' UNION ALL "
          "SELECT x, x FROM ("
          "  SELECT DISTINCT trim(coalesce(euser,user)) AS x FROM event %s"

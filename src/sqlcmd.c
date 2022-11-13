@@ -332,15 +332,11 @@ static void fossil_close(int bDb, int noRepository){
 ** --readonly option to prevent accidental damage to the repository.
 **
 ** Options:
-**
 **    --no-repository           Skip opening the repository database.
-**
 **    --readonly                Open the repository read-only.  No changes
 **                              are allowed.  This is a recommended safety
 **                              precaution to prevent repository damage.
-**
 **    -R REPOSITORY             Use REPOSITORY as the repository database
-**
 **    --test                    Enable some testing and analysis features
 **                              that are normally disabled.
 **
@@ -349,57 +345,41 @@ static void fossil_close(int bDb, int noRepository){
 **
 ** The following SQL extensions are provided with this Fossil-enhanced
 ** version of the sqlite3 command-line shell:
-**
 **    builtin                   A virtual table that contains one row for
 **                              each datafile that is built into the Fossil
 **                              binary.
-**
 **    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
 **                              found in check-in X (another BLOB.RID value).
-**
 **    compress(X)               Compress text X with the same algorithm used
 **                              to compress artifacts in the BLOB table.
-**
 **    content(X)                Return the content of artifact X. X can be an
 **                              artifact hash or hash prefix or a tag. Artifacts
 **                              are stored compressed and deltaed. This function
 **                              does all necessary decompression and undeltaing.
-**
 **    decompress(X)             Decompress text X.  Undoes the work of
 **                              compress(X).
-**
 **    delta_apply(X,D)          Apply delta D to source blob X and return
 **                              the result.
-**
 **    delta_create(X,Y)         Create and return a delta that will convert
 **                              X into Y.
-**
 **    delta_output_size(D)      Return the number of bytes of output to expect
 **                              when applying delta D
-**
 **    delta_parse(D)            A table-valued function that deconstructs
 **                              delta D and returns rows for each element of
 **                              that delta.
-**
 **    files_of_checkin(X)       A table-valued function that returns info on
 **                              all files contained in check-in X.  Example:
-**
 **                                  SELECT * FROM files_of_checkin('trunk');
-**
 **    helptext                  A virtual table with one row for each command,
 **                              webpage, and setting together with the built-in
 **                              help text.  
-**
 **    now()                     Return the number of seconds since 1970.
-**
 **    obscure(T)                Obfuscate the text password T so that its
 **                              original value is not readily visible.  Fossil
 **                              uses this same algorithm when storing passwords
 **                              of remote URLs.
-**
 **    regexp                    The REGEXP operator works, unlike in
 **                              standard SQLite.
-**
 **    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
 **                              name X.
 */

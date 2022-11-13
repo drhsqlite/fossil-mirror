@@ -201,7 +201,7 @@ body.chat #chat-messages-wrapper.loading > * {
   /* An attempt at reducing flicker when loading lots of messages. */
   visibility: hidden;
 }
-body.chat div.content {
+body.chat main.content {
   margin: 0;
   padding: 0;
   display: flex;

@@ -525,7 +525,6 @@ static int wiki_special_permission(const char *zPageName){
 ** Display a wiki page.  Example:  /wiki?name=PAGENAME
 **
 ** Query parameters:
-**
 **    name=NAME        Name of the wiki page to display.  Required.
 **    nsm              Omit the submenu if present.  (Mnemonic: No SubMenu)
 **    p                Always show just the wiki page.  For special
@@ -652,7 +651,7 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
 */
 void mimetype_option_menu(const char *zMimetype){
   unsigned i;
-  @ <select name="mimetype" size="1">
+  @ <select id="mimetype" name="mimetype" size="1">
   for(i=0; i<count(azStyles); i+=3){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
@@ -1335,9 +1334,9 @@ void wikiedit_page(void){
     CX("<div class='"
        "wikiedit-options flex-container flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
-       "<label>Mime type</label>");
+       "<label>Mime type&nbsp;");
     mimetype_option_menu("text/x-markdown");
-    CX("</div>");
+    CX("</label></div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
                           NULL/*tooltip*/,
@@ -1372,7 +1371,7 @@ void wikiedit_page(void){
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
-       "class='wikiedit' rows='25'>");
+       "class='wikiedit' rows='25' aria-label='Content' title='Content'>");
     CX("</textarea>");
     CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);
@@ -1534,11 +1533,13 @@ void wikinew_page(void){
   @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
   form_begin(0, "%R/wikinew");
-  @ <p>Name of new wiki page:
-  @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
-  @ %z(href("%R/markup_help"))Markup style</a>:
+  @ <p><label>Name of new wiki page:
+  @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /></label><br />
+  @ <label>Markup style
+  @ %z(href("%R/markup_help"))
+  @ <span class="help-buttonlet processed" title="Help"></span></a>:
   mimetype_option_menu("text/x-markdown");
-  @ <br /><input type="submit" value="Create" />
+  @ </label><br /><input type="submit" value="Create" />
   @ </p></form>
   if( zName[0] ){
     @ <p><span class="wikiError">
@@ -1695,12 +1696,12 @@ void wikiappend_page(void){
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <input type="hidden" name="mimetype" value="%h(zMimetype)" />
-  @ Your Name:
-  @ <input type="text" name="u" size="20" value="%h(zUser)" /><br />
+  @ <label>Your Name:
+  @ <input type="text" name="u" size="20" value="%h(zUser)" /></label><br />
   zFormat = mimetype_common_name(zMimetype);
-  @ Comment to append (formatted as %s(zFormat)):<br />
+  @ <label>Comment to append (formatted as %s(zFormat)):<br />
   @ <textarea name="r" class="wikiedit" cols="80"
-  @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
+  @  rows="10" wrap="virtual">%h(PD("r",""))</textarea></label>
   @ <br />
   @ <input type="submit" name="preview" value="Preview Your Comment" />
   @ <input type="submit" name="submit" value="Append Your Changes" />
@@ -1716,7 +1717,6 @@ void wikiappend_page(void){
 ** URL: /whistory?name=PAGENAME
 **
 ** Additional parameters:
-**
 **     showid          Show RID values
 **
 ** Show the complete change history for a single wiki page.
@@ -1809,7 +1809,6 @@ void whistory_page(void){
 ** Show the changes to a wiki page.
 **
 ** Query parameters:
-**
 **      id=HASH           Hash prefix for the child version to be diffed.
 **      rid=INTEGER       RecordID for the child version
 **      pid=HASH          Hash prefix for the parent.
@@ -2128,10 +2127,8 @@ int wiki_technote_to_rid(const char *zETime) {
 ** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
 ** Run various subcommands to work with wiki entries or tech notes.
-**
 ** > fossil wiki export ?OPTIONS? PAGENAME ?FILE?
 ** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID|TAG ?FILE?
-**
 **       Sends the latest version of either a wiki page or of a tech
 **       note to the given file or standard output.  A filename of "-"
 **       writes the output to standard output.  The directory parts of
@@ -2152,9 +2149,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **         -p|--pre   If -h|-H is used and the page or technote has
 **                    the text/plain mimetype, its HTML-escaped output
 **                    will be wrapped in <pre>...</pre>.
-**
 ** > fossil wiki (create|commit) (PAGENAME | TECHNOTE-COMMENT) ?FILE? ?OPTIONS?
-**
 **       Create a new or commit changes to an existing wiki page or
 **       technote from FILE or from standard input. PAGENAME is the
 **       name of the wiki entry. TECHNOTE-COMMENT is the timeline comment of
@@ -2184,10 +2179,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **         --technote-tags TAGS        The set of tags for a technote.
 **         --technote-bgcolor COLOR    The color used for the technote
 **                                     on the timeline.
-**
 ** > fossil wiki list ?OPTIONS?
 ** > fossil wiki ls ?OPTIONS?
-**
 **       Lists all wiki entries, one per line, ordered
 **       case-insensitively by name.  Wiki pages associated with
 **       check-ins and branches are NOT shown, unless -a is given.
@@ -2206,7 +2199,6 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     id will be the first word on each line.
 **                                     This option only applies if the
 **                                     --technote option is also specified.
-**
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
 ** a space, and it may also name a timezone offset from UTC as "-HH:MM"

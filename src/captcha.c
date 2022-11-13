@@ -545,9 +545,9 @@ void captcha_generate(int showButton){
   @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
   @ </pre>
-  @ Enter security code shown above:
+  @ <label for="captcha">Enter security code shown above:</label>
   @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
-  @ <input type="text" name="captcha" size=8 />
+  @ <input type="text" id="captcha" name="captcha" size=8 />
   if( showButton ){
     @ <input type="submit" value="Submit">
   }
@@ -561,7 +561,7 @@ void captcha_generate(int showButton){
 */
 void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
   if( zMsg==0 ) zMsg = "Speak the text";
-  @ <input aria-label="%h(zMsg)" type="button" value="%h(zMsg)" \
+  @ <input aria-label="%h(zMsg)" title="%h(zMsg)" type="button" value="%h(zMsg)" \
   @ id="speakthetext">
   @ <script nonce="%h(style_nonce())">/* captcha_speakit_button() */
   @ document.getElementById("speakthetext").onclick = function(){
@@ -576,6 +576,7 @@ void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
 
 /*
 ** WEBPAGE: test-captcha
+**
 ** Test the captcha-generator by rendering the value of the name= query
 ** parameter using ascii-art.  If name= is omitted, show a random 16-digit
 ** hexadecimal number.

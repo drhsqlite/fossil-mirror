@@ -872,29 +872,24 @@ void sqlar_cmd(void){
 ** If the NAME contains one "/" then the part before the "/" is taken
 ** as the TAG and the part after the "/" becomes the true name.  Hence,
 ** the following URLs are all equivalent:
-**
 **     /sqlar/508c42a6398f8/download.sqlar
 **     /sqlar?r=508c42a6398f8&name=download.sqlar
 **     /sqlar/download.sqlar?r=508c42a6398f8
 **     /sqlar?name=508c42a6398f8/download.sqlar
 **
 ** Query parameters:
-**
 **   name=NAME           The base name of the output file.  The default
 **                       value is a configuration parameter in the project
 **                       settings.  A prefix of the name, omitting the
 **                       extension, is used as the top-most directory name.
-**
 **   r=TAG               The check-in that is turned into a ZIP archive.
 **                       Defaults to "trunk".  This query parameter used to
 **                       be called "uuid" and the older "uuid" name is still
 **                       accepted for backwards compatibility.  If this
 **                       query parameter is omitted, the latest "trunk"
 **                       check-in is used.
-**
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
-**
 **   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.

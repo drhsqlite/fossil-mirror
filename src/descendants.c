@@ -538,7 +538,6 @@ void leaves_cmd(void){
 ** is a leaf without a "closed" tag.
 **
 ** Query parameters:
-**
 **     all           Show all leaves
 **     closed        Show only closed leaves
 **     ng            No graph

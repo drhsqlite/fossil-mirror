@@ -1,4 +1,4 @@
-<div class="header">
+<header class="header">
   <div class="title">$<title></div>
   <div class="status">
     <div class="logo">$<project_name></div><br/>
@@ -9,8 +9,8 @@
        puts "Not logged in"
      }
   </th1></div>
-</div>
-<div class="mainmenu"><th1>
+</header>
+<nav class="mainmenu"><th1>
 html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
 builtin_request_js hbmenu.js
 foreach {name url expr class} $mainmenu {
@@ -18,5 +18,5 @@ foreach {name url expr class} $mainmenu {
   if {[string match /* $url]} {set url $home$url}
   html "<a href='$url' class='$class'>$name</a>\n"
 }
-</th1></div>
-<div id='hbdrop'></div>
+</th1></nav>
+<nav id='hbdrop' title="Sitemap"></nav>

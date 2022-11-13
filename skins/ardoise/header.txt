@@ -1,4 +1,4 @@
-<div class="header">
+<header class="header">
   <div class="container">
     <div class="login pull-right">
       <th1>
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Main Menu -->
-    <div class="mainmenu">
+    <nav class="mainmenu">
       <ul>
         <th1>
 html "<li><a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a></li>\n"
@@ -37,10 +37,10 @@ foreach {name url expr class} $mainmenu {
   html "<a href='$url'>$name</a></li>\n"
 }
 </th1></ul>
-        </div> <!-- end div mainmenu -->
-        <div id="hbdrop"></div>
+        </nav> <!-- end div mainmenu -->
+        <nav id='hbdrop' title="Sitemap"></nav>
       </div> <!-- end div container -->
-    </div> <!-- end div header -->
+    </header> <!-- end div header -->
     <div class="middle max-full-width">
       <div class="container">
         <th1>

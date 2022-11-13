@@ -868,7 +868,7 @@ td:last-child {
 }
 
 .mainmenu li a,
-div#hbdrop a {
+nav#hbdrop a {
   color: #3b5c6b;
   padding: 10px 15px;
 }
@@ -878,11 +878,11 @@ div#hbdrop a {
 }
 
 .mainmenu li:hover
-div#hbdrop a:hover {
+nav#hbdrop a:hover {
     background-color: #eee;
 }
 
-div#hbdrop {
+nav#hbdrop {
   background-color: white;
   border: 2px solid #ccc;
   display: none;

@@ -726,46 +726,32 @@ static void export_config(
 ** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **
 ** Where METHOD is one of: export import merge pull push reset.
-**
 ** >  fossil configuration export AREA FILENAME
-**
 **         Write to FILENAME exported configuration information for AREA.
-**         AREA can be one of:
 **
+**         AREA can be one of:
 **             all email interwiki project shun skin
 **             ticket user alias subscriber
-**
 ** >  fossil configuration import FILENAME
-**
 **         Read a configuration from FILENAME, overwriting the current
 **         configuration.
-**
 ** >  fossil configuration merge FILENAME
-**
 **         Read a configuration from FILENAME and merge its values into
 **         the current configuration.  Existing values take priority over
 **         values read from FILENAME.
-**
 ** >  fossil configuration pull AREA ?URL?
-**
 **         Pull and install the configuration from a different server
 **         identified by URL.  If no URL is specified, then the default
 **         server is used.  Use the --overwrite flag to completely
 **         replace local settings with content received from URL.
-**
 ** >  fossil configuration push AREA ?URL?
-**
 **         Push the local configuration into the remote server identified
 **         by URL.  Admin privilege is required on the remote server for
 **         this to work.  When the same record exists both locally and on
 **         the remote end, the one that was most recently changed wins.
-**
 ** >  fossil configuration reset AREA
-**
 **         Restore the configuration to the default.  AREA as above.
-**
 ** >  fossil configuration sync AREA ?URL?
-**
 **         Synchronize configuration changes in the local repository with
 **         the remote repository at URL.
 **

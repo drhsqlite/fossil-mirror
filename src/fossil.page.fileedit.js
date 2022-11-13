@@ -394,7 +394,7 @@
             btnLoad = this.e.btnLoadFile =
             D.addClass(D.button("Load file"), "flex-shrink"),
             filesLabel = this.e.fileListLabel =
-            D.addClass(D.div(),'flex-shrink','file-list-label'),
+            D.addClass(D.label('editable-file-list'),'flex-shrink','file-list-label'),
             ciLabelWrapper = D.addClass(
               D.div(), 'flex-container','flex-row', 'flex-shrink',
               'stretch', 'child-gap-small'
@@ -402,12 +402,14 @@
             btnReload = D.addClass(
               D.button('Reload'), 'flex-shrink'
             ),
-            ciLabel = this.e.ciListLabel =
-            D.addClass(D.span(),'flex-shrink','checkin-list-label')
+            ciLabel = this.e.ciListLabel = 
+            D.addClass(D.label('open-leaf-list'),'flex-shrink','checkin-list-label')
       ;
+      D.attr(selCi, 'id',"open-leaf-list");
       D.attr(selCi, 'title',"The list of opened leaves.");
       D.attr(selFiles, 'title',
              "The list of editable files for the selected checkin.");
+      D.attr(selFiles, 'id',"editable-file-list");
       D.attr(btnLoad, 'title',
              "Load the selected file into the editor.");
       D.disable(selCi, selFiles, btnLoad);
@@ -474,9 +476,10 @@
               'are retained. Saving or reloading a file removes it from this list. ',
               D.append(D.code(),F.storage.storageImplName()),
               ' = ',F.storage.storageHelpDescription()
-            );
-
-      D.append(wrapper, "Local edits (",
+              ),
+              label = D.label('local-edits', "Local edits");
+        D.attr(sel, 'id', 'local-edits');
+        D.append(wrapper, label, " (",
                D.append(D.code(),
                         F.storage.storageImplName()),
                "):",

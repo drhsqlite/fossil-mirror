@@ -907,15 +907,12 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 ** encryption technology used for secure HTTPS transport.
 **
 ** Sub-commands:
-**
 **   remove-exception DOMAINS    Remove TLS cert exceptions for the domains
 **                               listed.  Or remove them all if the --all
 **                               option is specified.
-**
 **   scrub ?--force?             Remove all SSL configuration data from the
 **                               repository. Use --force to omit the
 **                               confirmation.
-**
 **   show ?-v?                   Show the TLS configuration. Add -v to see
 **                               additional explaination
 */

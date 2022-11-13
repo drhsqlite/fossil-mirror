@@ -373,6 +373,8 @@
     // Set up selection list of predefined scripts...
     if(true){
       const selectScript = PS.e.selectScript = D.select();
+      D.attr(selectScript, 'aria-label', 'Example Scripts');
+      D.attr(selectScript, 'title', 'Example Scripts');
       D.append(PS.e.zoneInputButtons, selectScript);
       PS.predefinedPiks.forEach(function(script,ndx){
         const opt = D.option(script.code ? script.code.trim() :'', script.name);
@@ -481,9 +483,9 @@
       const elemsToCount = [
         /* Elements which we need to always count in the
            visible body size. */
-        E('body > div.header'),
-        E('body > div.mainmenu'),
-        E('body > div.footer')
+        E('body > header.header'),
+        E('body > nav.mainmenu'),
+        E('body > footer.footer')
       ];
       const resized = function f(){
         if(f.$disabled) return;

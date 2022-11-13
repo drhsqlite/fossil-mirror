@@ -1663,8 +1663,8 @@ static void svn_dump_import(FILE *pIn){
 ** data is read from standard input.
 **
 ** The following formats are currently understood by this command
-**
 **   --git        Import from the git-fast-export file format (default)
+**
 **                Options:
 **                  --import-marks  FILE Restore marks table from FILE
 **                  --export-marks  FILE Save marks table to FILE
@@ -1672,13 +1672,13 @@ static void svn_dump_import(FILE *pIn){
 **                  --use-author    Uses author as the committer
 **                  --attribute     "EMAIL USER" Attribute commits to USER
 **                                  instead of Git committer EMAIL address
-**
 **   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
 **                folders in the SVN root as special, following the
 **                common layout of SVN repositories.  These are (by
 **                default) trunk/, branches/ and tags/.  The SVN --deltas
 **                format is supported but not required.
+**
 **                Options:
 **                  --trunk FOLDER     Name of trunk folder
 **                  --branches FOLDER  Name of branches folder
@@ -1689,7 +1689,6 @@ static void svn_dump_import(FILE *pIn){
 **                  --no-rev-tags      Disables tagging effect of -i
 **                  --rename-rev PAT   Rev tag names, default "svn-rev-%"
 **                  --ignore-tree DIR  Ignores subtree rooted at DIR
-**
 ** Common Options:
 **   -i|--incremental     allow importing into an existing repository
 **   -f|--force           overwrite repository if already exists

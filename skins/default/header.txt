@@ -1,16 +1,16 @@
-<div class="header">
+<header class="header">
   <div class="title"><h1>$<project_name></h1>$<title></div>
     <div class="status"><th1>
  if {[info exists login]} {
-   html "<a href='$home/login'>$login</a>\n"
+   html "<a href='$home/login' title='Logout'>$login</a>\n"
  } else {
    html "<a href='$home/login'>Login</a>\n"
  }
     </th1></div>
-</div>
-<div class="mainmenu">
+</header>
+<nav class="mainmenu" title="Main Menu">
 <th1>
-html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
+html "<a id='hbbtn' href='$home/sitemap' title='Site Map'>&#9776;</a>"
 builtin_request_js hbmenu.js
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
@@ -22,5 +22,5 @@ foreach {name url expr class} $mainmenu {
   }
   html "<a href='$url' class='$class'>$name</a>\n"
 }
-</th1></div>
-<div id='hbdrop'></div>
+</th1></nav>
+<nav id='hbdrop' title="Sitemap"></nav>

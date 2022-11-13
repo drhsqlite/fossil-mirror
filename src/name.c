@@ -1028,7 +1028,6 @@ void whatis_rid(int rid, int flags){
 ** plays.
 **
 ** Options:
-**
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
 **                         'w', 'g', or 'e')
 **    -v|--verbose         Provide extra information (such as the RID)
@@ -1444,8 +1443,9 @@ void test_describe_artifacts_cmd(void){
 /*
 ** WEBPAGE: bloblist
 **
-** Return a page showing all artifacts in the repository.  Query parameters:
+** Return a page showing all artifacts in the repository.
 **
+** Query parameters:
 **   n=N         Show N artifacts
 **   s=S         Start with artifact number S
 **   priv        Show only unpublished or private artifacts
@@ -1662,7 +1662,6 @@ void phantom_list_page(void){
 **
 ** Return a page showing the largest artifacts in the repository in order
 ** of decreasing size.
-**
 **   n=N         Show the top N artifacts
 */
 void bigbloblist_page(void){

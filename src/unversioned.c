@@ -232,34 +232,28 @@ static int contains_whitespace(const char *zName){
 ** be undone, so use appropriate caution with this command.
 **
 ** Subcommands:
-**
 **    add FILE ...           Add or update one or more unversioned files in
 **                           the local repository so that they match FILEs
 **                           on disk. Changes are not pushed to other
 **                           repositories until the next sync.
-**
 **    add FILE --as UVFILE   Add or update a single file named FILE on disk
 **                           and UVFILE in the repository unversioned file
 **                           namespace. This variant of the 'add' command allows
 **                           the name to be different in the repository versus
 **                           what appears on disk, but it only allows adding
 **                           a single file at a time.
-**
 **    cat FILE ...           Concatenate the content of FILEs to stdout.
-**
 **    edit FILE              Bring up FILE in a text editor for modification.
-**
 **    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
-**
 **    list | ls              Show all unversioned files held in the local
-**                           repository. Options:
+**                           repository. 
 **
+**                           Options:
 **                              --glob PATTERN   Show only files that match
 **                              --like PATTERN   Show only files that match
 **                              -l               Show additional details for
 **                                               files that match. Implied
 **                                               when 'list' is used.
-**
 **    revert ?URL?           Restore the state of all unversioned files in the
 **                           local repository to match the remote repository
 **                           URL.
@@ -267,15 +261,14 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
-**
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
 **                           Changes are not pushed to other repositories until
-**                           the next sync.  Options:
+**                           the next sync.  
 **
+**                           Options:
 **                              --glob PATTERN   Remove files that match
 **                              --like PATTERN   Remove files that match
-**
 **    sync ?URL?             Synchronize the state of all unversioned files with
 **                           the remote repository URL.  The most recent version
 **                           of each file is propagated to all repositories and
@@ -284,11 +277,9 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
-**
 **    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
 ** Options:
-**
 **   --mtime TIMESTAMP       Use TIMESTAMP instead of "now" for the "add",
 **                           "edit", "remove", and "touch" subcommands.
 **   -R|--repository REPO    Use FILE as the repository
@@ -525,8 +516,8 @@ void unversioned_cmd(void){
 ** WEBPAGE: uvlist
 **
 ** Display a list of all unversioned files in the repository.
-** Query parameters:
 **
+** Query parameters:
 **    byage=1          Order the initial display be decreasing age
 **    showdel=0        Show deleted files
 */

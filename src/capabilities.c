@@ -395,7 +395,7 @@ void capability_summary(void){
     zSelfCap, hasPubPages, zSelfCap
   );
   @ <table id='capabilitySummary' cellpadding="0" cellspacing="0" border="1">
-  @ <tr><th>&nbsp;<th>Code<th>Forum<th>Tickets<th>Wiki<th>Chat\
+  @ <tr><th>Role<th>Code<th>Forum<th>Tickets<th>Wiki<th>Chat\
   @ <th>Unversioned Content</th></tr>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zId = db_column_text(&q, 0);

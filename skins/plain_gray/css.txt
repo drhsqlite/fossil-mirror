@@ -30,14 +30,14 @@ div.status {
 }
 
 /* The header across the top of the page */
-div.header {
+header.header {
   display: table;
   width: 100%;
 }
 
 /* The main menu bar that appears at the top of the page beneath
 ** the header */
-div.mainmenu {
+nav.mainmenu {
   padding: 5px 10px 5px 10px;
   font-size: 0.9em;
   font-weight: bold;
@@ -56,34 +56,34 @@ div.mainmenu {
   position: absolute;
   z-index: 20;  /* just below mainmenu, but above timeline bubbles */
 }
-div.hbdrop a { color: #604000; }
-div.hbdrop a:link { color: #604000;}
-div.hbdrop a:visited { color: #600000; }
+nav.hbdrop a { color: #604000; }
+nav.hbdrop a:link { color: #604000;}
+nav.hbdrop a:visited { color: #600000; }
 
 
 /* The submenu bar that *sometimes* appears below the main menu */
-div.submenu, div.sectionmenu {
+nav.submenu, div.sectionmenu {
   padding: 3px 10px 3px 0px;
   font-size: 0.9em;
   text-align: center;
   background-color: #606060;
   color: white;
 }
-div.mainmenu a,
-div.mainmenu a:visited,
-div.submenu a,
-div.submenu a:visited,
+nav.mainmenu a,
+nav.mainmenu a:visited,
+nav.submenu a,
+nav.submenu a:visited,
 div.sectionmenu>a.button:link,
 div.sectionmenu>a.button:visited,
-div.submenu label {
+nav.submenu label {
   padding: 3px 10px 3px 10px;
   color: white;
   text-decoration: none;
 }
-div.mainmenu a:hover,
-div.submenu a:hover,
+nav.mainmenu a:hover,
+nav.submenu a:hover,
 div.sectionmenu>a.button:hover,
-div.submenu label:hover {
+nav.submenu label:hover {
   color: #404040;
   background-color: white;
 }
@@ -93,13 +93,13 @@ a, a:visited {
 
 /* All page content from the bottom of the menu or submenu down to
 ** the footer */
-div.content {
+main.content {
   padding: 0ex 0ex 0ex 0ex;
 }
 /* Hyperlink colors */
-div.content a { color: #604000; }
-div.content a:link { color: #604000;}
-div.content a:visited { color: #600000; }
+main.content a { color: #604000; }
+main.content a:link { color: #604000;}
+main.content a:visited { color: #600000; }
 
 /* <verbatim> blocks */
 pre.verbatim {
@@ -133,7 +133,7 @@ div.divider {
 }
 
 /* The footer at the very bottom of the page */
-div.footer {
+footer.footer {
   font-size: 0.8em;
   margin-top: 12px;
   padding: 5px 10px 5px 10px;

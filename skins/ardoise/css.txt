@@ -730,7 +730,7 @@ ul {
 .mainmenu li:hover a {
   color: #000
 }
-div#hbdrop {
+nav#hbdrop {
   background-color: #161819;
   border-radius: 15px;
   display: none;

@@ -868,12 +868,9 @@ void document_render(
 ** CHECKIN can be either tag or hash prefix or timestamp identifying a
 ** particular check-in, or the name of a branch (meaning the most recent
 ** check-in on that branch) or one of various magic words:
-**
 **     "tip"      means the most recent check-in
-**
 **     "ckout"    means the current check-out, if the server is run from
 **                within a check-out, otherwise it is the same as "tip"
-**
 **     "latest"   means use the most recent check-in for the document
 **                regardless of what branch it occurs on.
 **
@@ -1230,7 +1227,6 @@ void favicon_page(void){
 ** is prompted to enter a search string.
 **
 ** Query parameters:
-**
 **     s=PATTERN             Search for PATTERN
 */
 void doc_search_page(void){

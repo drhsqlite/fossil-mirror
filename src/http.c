@@ -542,7 +542,6 @@ write_err:
 ** a GET request where there is no PAYLOAD.
 **
 ** Options:
-**
 **     --compress                 Use ZLIB compression on the payload
 **     --mimetype TYPE            Mimetype of the payload
 **     --out FILE                 Store the reply in FILE

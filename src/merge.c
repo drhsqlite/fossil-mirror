@@ -297,37 +297,27 @@ void test_show_vfile_cmd(void){
 ** names might have been changed in the branch being merged in.
 **
 ** Options:
-**
 **   --backout               Do a reverse cherrypick merge against VERSION.
 **                           In other words, back out the changes that were
 **                           added by VERSION.
-**
 **   --baseline BASELINE     Use BASELINE as the "pivot" of the merge instead
 **                           of the nearest common ancestor.  This allows
 **                           a sequence of changes in a branch to be merged
 **                           without having to merge the entire branch.
-**
 **   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
 **                           and do not try to merge parallel changes.  This
 **                           option overrides the "binary-glob" setting.
-**
 **   --cherrypick            Do a cherrypick merge VERSION into the current
 **                           checkout.  A cherrypick merge pulls in the changes
 **                           of the single check-in VERSION, rather than all
 **                           changes back to the nearest common ancestor.
-**
 **   -f|--force              Force the merge even if it would be a no-op.
-**
 **   --force-missing         Force the merge even if there is missing content.
-**
 **   --integrate             Merged branch will be closed when committing.
-**
 **   -K|--keep-merge-files   On merge conflict, retain the temporary files
 **                           used for merging, named *-baseline, *-original,
 **                           and *-merge.
-**
 **   -n|--dry-run            If given, display instead of run actions
-**
 **   -v|--verbose            Show additional details of the merge
 */
 void merge_cmd(void){

@@ -681,30 +681,23 @@ void backoffice_work(void){
 ** each repository.
 **
 ** Standard options:
-**
 **    --debug                 Show what this command is doing.
-**
 **    --logfile FILE          Append a log of backoffice actions onto FILE.
-**
 **    --min N                 When polling, invoke backoffice at least
 **                            once every N seconds even if the repository
 **                            never changes.  0 or negative means disable
 **                            this feature.  Default: 3600 (once per hour).
-**
 **    --poll N                Repeat backoffice calls for repositories that
 **                            change in appoximately N-second intervals.
 **                            N less than 1 turns polling off (the default).
 **                            Recommended polling interval: 60 seconds.
-**
 **    --trace                 Enable debugging output on stderr
 **
 ** Options intended for internal use only which may change or be
 ** discontinued in future releases:
-**
 **    --nodelay               Do not queue up or wait for a backoffice job
 **                            to complete. If no work is available or if
 **                            backoffice has run recently, return immediately.
-**
 **    --nolease               Always run backoffice, even if there is a lease
 **                            conflict.  This option implies --nodelay.  This
 **                            option is added to secondary backoffice commands

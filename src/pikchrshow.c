@@ -289,7 +289,7 @@ void pikchrshowcs_page(void){
   }
   style_header("PikchrShow Client/Server");
   CX("<style>"); {
-    CX("div.content { padding-top: 0.5em }\n");
+    CX("main.content { padding-top: 0.5em }\n");
     CX("#sbs-wrapper {"
        "display: flex; flex-direction: column;"
        "}\n");
@@ -343,8 +343,8 @@ void pikchrshowcs_page(void){
        "}\n");
     CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   } CX("</style>");
-  CX("<div>Input pikchr code and tap Preview (or Shift-Enter) to render "
-     "it. <a href='?wasm'>Switch to WASM mode</a>.</div>");
+  CX("<div><label for='content'>Input pikchr code</label> and tap Preview (or "
+     "Shift-Enter) to render it. <a href='?wasm'>Switch to WASM mode</a>.</div>");
   CX("<div id='sbs-wrapper'>"); {
     CX("<div id='pikchrshow-form'>"); {
       CX("<textarea id='content' name='content' rows='15'>"
@@ -527,42 +527,28 @@ void pikchrshow_page(void){
 ** streams.
 **
 ** Options:
-**
 **    -div       On success, add a DIV wrapper around the
 **               resulting SVG output which limits its max-width to
 **               its computed maximum ideal size.
-**
 **    -div-indent  Like -div but indent the div.
-**
 **    -div-center  Like -div but center the div.
-**
 **    -div-left    Like -div but float the div left.
-**
 **    -div-right   Like -div but float the div right.
-**
 **    -div-toggle  Set the 'toggle' CSS class on the div (used by the
 **                 JavaScript-side post-processor).
-**
 **    -div-source  Set the 'source' CSS class on the div, which tells
 **                 CSS to hide the SVG and reveal the source by default.
-**
 **    -src       Store the input pikchr's source code in the output as
 **               a separate element adjacent to the SVG one. Implied
 **               by -div-source.
-**                
-**
 **    -th        Process the input using TH1 before passing it to pikchr.
-**
 **    -th-novar  Disable $var and $<var> TH1 processing. Use this if the
 **               pikchr script uses '$' for its own purposes and that
 **               causes issues. This only affects parsing of '$' outside
 **               of TH1 script blocks. Code in such blocks is unaffected.
-**
 **    -th-nosvg  When using -th, output the post-TH1'd script
 **               instead of the pikchr-rendered output.
-**
 **    -th-trace  Trace TH1 execution (for debugging purposes).
-**
 **
 ** The -div-indent/center/left/right flags may not be combined.
 **

@@ -12,6 +12,8 @@ window.fossil.onPageLoad(function(){
     const sib = diffElem.previousElementSibling,
           btn = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
     if(!sib) return;
+    D.attr(btn,'aria-label','Toggle Diff')
+    D.attr(btn,'title','Toggle Diff')
     D.append(sib,btn);
     btn.addEventListener('click', function(){
       diffElem.classList.toggle('hidden');
@@ -640,7 +642,7 @@ window.fossil.onPageLoad(function(){
   var lastWidth;
   Diff.checkTableWidth = function f(force){
     if(undefined === f.contentNode){
-      f.contentNode = document.querySelector('div.content');
+      f.contentNode = document.querySelector('main.content');
     }
     force = true;
     const parentCS = window.getComputedStyle(f.contentNode);

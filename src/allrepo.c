@@ -63,17 +63,13 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** %LOCALAPPDATA%, %APPDATA% or %HOMEPATH%.
 **
 ** Available operations are:
-**
 **    backup      Backup all repositories.  The argument must be the name of
 **                a directory into which all backup repositories are written.
-**
 **    cache       Manages the cache used for potentially expensive web
 **                pages.  Any additional arguments are passed on verbatim
 **                to the cache command.
-**
 **    changes     Shows all local checkouts that have uncommitted changes.
 **                This operation has no additional options.
-**
 **    clean       Delete all "extra" files in all local checkouts.  Extreme
 **                caution should be exercised with this command because its
 **                effects cannot be undone.  Use of the --dry-run option to
@@ -82,65 +78,47 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                be deleted beforehand is highly recommended.  The command
 **                line options supported by the clean command itself, if any
 **                are present, are passed along verbatim.
-**
 **    config      Only the "config pull AREA" command works.
-**
 **    dbstat      Run the "dbstat" command on all repositories.
-**
 **    extras      Shows "extra" files from all local checkouts.  The command
 **                line options supported by the extra command itself, if any
 **                are present, are passed along verbatim.
-**
 **    fts-config  Run the "fts-config" command on all repositories.
-**
 **    git CMD     Do the "git export" or "git status" command (whichever
 **                is specified by CMD) on all repositories for which
 **                a Git mirror has been previously established.
-**
 **    info        Run the "info" command on all repositories.
-**
 **    pull        Run a "pull" operation on all repositories.  Only the
 **                --verbose and --share-links options are supported.
-**
 **    push        Run a "push" on all repositories.  Only the --verbose
 **                option is supported.
-**
 **    rebuild     Rebuild on all repositories.  The command line options
 **                supported by the rebuild command itself, if any are
 **                present, are passed along verbatim.  The --force and
 **                --randomize options are not supported.
-**
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned and --share-links options are supported.
-**
 **    set         Run the "setting" or "set" commands on all
 **                repositories.  These command are particularly useful in
 **                conjunction with the "max-loadavg" setting which cannot
 **                otherwise be set globally.
-**
 **    unset       Run the "unset" command on all repositories
-**
 **    server      Run the "server" commands on all repositories.
 **                The root URI gives a listing of all repos.
-**
 **    ui          Run the "ui" command on all repositories.  Like "server"
 **                but bind to the loopback TCP address only, enable
 **                the --localauth option and automatically launch a
 **                web-browser
 **
-**
 ** In addition, the following maintenance operations are supported:
-**
 **    add         Add all the repositories named to the set of repositories
 **                tracked by Fossil.  Normally Fossil is able to keep up with
 **                this list by itself, but sometimes it can benefit from this
 **                hint if you rename repositories.
-**
 **    ignore      Arguments are repositories that should be ignored by
 **                subsequent clean, extras, list, pull, push, rebuild, and
 **                sync operations.  The -c|--ckout option causes the listed
 **                local checkouts to be ignored instead.
-**
 **    list | ls   Display the location of all repositories.  The -c|--ckout
 **                option causes all local checkouts to be listed instead.
 **

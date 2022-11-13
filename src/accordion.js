@@ -42,6 +42,7 @@ for(var i=0; i<a.length; i++){
   img = document.createElement("img");
   img.src = acc_svgdata[0]+acc_svgdata[3]+acc_svgdata[1];
   img.className = "accordion_btn accordion_btn_minus";
+  img.alt = "Open/Close Section";
   a[i].insertBefore(img,a[i].firstChild);
   a[i].addEventListener("click",function(){
     var x = this.nextElementSibling;

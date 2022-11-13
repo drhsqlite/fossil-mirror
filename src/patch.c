@@ -839,48 +839,37 @@ static void patch_diff(
 ** A Fossil binary patch is a single (binary) file that captures all of the
 ** uncommitted changes of a check-out.  Use Fossil binary patches to transfer
 ** proposed or incomplete changes between machines for testing or analysis.
-**
 ** > fossil patch create [DIRECTORY] FILENAME
-**
 **       Create a new binary patch in FILENAME that captures all uncommitted
 **       changes in the check-out at DIRECTORY, or the current directory if
 **       DIRECTORY is omitted.  If FILENAME is "-" then the binary patch
 **       is written to standard output.
-**
 **           -f|--force     Overwrite an existing patch with the same name.
-**
 ** > fossil patch apply [DIRECTORY] FILENAME
-**
 **       Apply the changes in FILENAME to the check-out at DIRECTORY, or
-**       in the current directory if DIRECTORY is omitted. Options:
+**       in the current directory if DIRECTORY is omitted. 
 **
+**       Options:
 **           -f|--force     Apply the patch even though there are unsaved
 **                          changes in the current check-out.  Unsaved changes
 **                          are reverted and permanently lost.
 **           -n|--dry-run   Do nothing, but print what would have happened.
 **           -v|--verbose   Extra output explaining what happens.
-**
 ** > fossil patch diff [DIRECTORY] FILENAME
-**
 **       Show a human-readable diff for the patch.  All the usual
 **       diff flags described at "fossil help diff" apply.  In addition:
-**
 **           -f|--force     Continue trying to perform the diff even if
 **                          baseline information is missing from the current
 **                          repository
-**
 ** > fossil patch push REMOTE-CHECKOUT
-**
 **       Create a patch for the current check-out, transfer that patch to
 **       a remote machine (using ssh) and apply the patch there.  The
 **       REMOTE-CHECKOUT is in one of the following formats:
-**
 **           *   DIRECTORY
 **           *   HOST:DIRECTORY
 **           *   USER@HOST:DIRECTORY
 **
 **       Command-line options:
-**
 **           -f|--force         Apply the patch even though there are unsaved
 **                              changes in the current check-out.  Unsaved
 **                              changes will be reverted and then the patch is
@@ -888,18 +877,12 @@ static void patch_diff(
 **           --fossilcmd EXE    Name of the "fossil" executable on the remote  
 **           -n|--dry-run       Do nothing, but print what would have happened.
 **           -v|--verbose       Extra output explaining what happens.
-**
-**
 ** > fossil patch pull REMOTE-CHECKOUT
-**
 **       Like "fossil patch push" except that the transfer is from remote
 **       to local.  All the same command-line options apply.
-**
 ** > fossil patch view FILENAME
-**
 **       View a summary of the changes in the binary patch FILENAME.
 **       Use "fossil patch diff" for detailed patch content.
-**
 **           -v|--verbose       Show extra detail about the patch.
 **
 */

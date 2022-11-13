@@ -700,7 +700,6 @@ ci_error:
 ** vfile table.
 **
 ** Options:
-**
 **   -R|--repository REPO      The repository file to commit to.
 **   --as FILENAME             The repository-side name of the input
 **                             file, relative to the top of the
@@ -1540,7 +1539,6 @@ end_cleanup:
 ** set on any repositories where this page should be activated.
 **
 ** Optional query parameters:
-**
 **    filename=FILENAME   Repo-relative path to the file.
 **    checkin=VERSION     Checkin version, using any unambiguous
 **                        symbolic version name.
@@ -1730,7 +1728,7 @@ void fileedit_page(void){
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
-       "class='fileedit' rows='25'>");
+       "class='fileedit' rows='25' aria-label='Content' title='Content'>");
     CX("</textarea>");
     CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);
@@ -1908,7 +1906,7 @@ void fileedit_page(void){
 
   { /******* Commit comment, button, and result manifest *******/
     CX("<fieldset class='fileedit-options commit-message'>"
-       "<legend>Message (required)</legend><div>\n");
+       "<legend><label for='fileedit-comment'>Message (required)</label></legend><div>\n");
     /* We have two comment input fields, defaulting to single-line
     ** mode. JS code sets up the ability to toggle between single-
     ** and multi-line modes. */

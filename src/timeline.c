@@ -445,7 +445,7 @@ void www_print_timeline(
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
     @</td>
-    if( !isSelectedOrCurrent ){
+    if( !isSelectedOrCurrent && gidx>0 ){
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)" id='mc%d(gidx)'>
     }else{
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)">
@@ -572,7 +572,7 @@ void www_print_timeline(
       @ data-id='%d(rid)'>...</span>
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
-      if( !isSelectedOrCurrent ){
+      if( !isSelectedOrCurrent && gidx>0 ){
         @ <td class="timelineDetailCell%s(zExtraClass)" id='md%d(gidx)'>
       }else{
         @ <td class="timelineDetailCell%s(zExtraClass)">
@@ -1158,7 +1158,7 @@ static void timeline_y_submenu(int isDisabled){
   static const char *az[16];
   if( i==0 ){
     az[0] = "all";
-    az[1] = "Any Type";
+    az[1] = "Any";
     i = 2;
     if( g.perm.Read ){
       az[i++] = "ci";
@@ -1187,7 +1187,7 @@ static void timeline_y_submenu(int isDisabled){
     assert( i<=count(az) );
   }
   if( i>2 ){
-    style_submenu_multichoice("y", i/2, az, isDisabled);
+    style_submenu_multichoice("y", "Elements", i/2, az, isDisabled);
   }
 }
 
@@ -1224,11 +1224,11 @@ int timeline_ss_cookie(void){
 ** parameter names.
 */
 const char *const timeline_view_styles[] = {
-  "m", "Modern View",
-  "j", "Columnar View",
-  "c", "Compact View",
-  "v", "Verbose View",
-  "x", "Classic View",
+  "m", "Modern",
+  "j", "Columnar",
+  "c", "Compact",
+  "v", "Verbose",
+  "x", "Classic",
 };
 #if INTERFACE
 # define N_TIMELINE_VIEW_STYLE 5
@@ -1243,6 +1243,7 @@ const char *const timeline_view_styles[] = {
 int timeline_ss_submenu(void){
   cookie_link_parameter("ss","ss",timeline_default_ss());
   style_submenu_multichoice("ss",
+              "View",
               N_TIMELINE_VIEW_STYLE,
               timeline_view_styles, 0);
   return timeline_ss_cookie();
@@ -1543,7 +1544,6 @@ const char *timeline_expand_datetime(const char *zIn){
 ** WEBPAGE: timeline
 **
 ** Query parameters:
-**
 **    a=TIMEORTAG     Show events after TIMEORTAG
 **    b=TIMEORTAG     Show events before TIMEORTAG
 **    c=TIMEORTAG     Show events that happen "circa" TIMEORTAG
@@ -2141,7 +2141,7 @@ void page_timeline(void){
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
     }
-    style_submenu_entry("n","Max:",4,0);
+    style_submenu_entry("n","Max",4,0);
     timeline_y_submenu(1);
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
@@ -2671,11 +2671,11 @@ void page_timeline(void){
         }
         style_submenu_checkbox("v", "Files",(zType[0]!='a' && zType[0]!='c'),0);
       }
-      style_submenu_entry("n","Max:",4,0);
+      style_submenu_entry("n","Max",4,0);
       timeline_y_submenu(disableY);
       if( advancedMenu ){
-        style_submenu_entry("t", "Tag Filter:", -8, 0);
-        style_submenu_multichoice("ms", count(azMatchStyles)/2,azMatchStyles,0);
+        style_submenu_entry("t", "Tag Filter", -8, 0);
+        style_submenu_multichoice("ms", "Match Style", count(azMatchStyles)/2,azMatchStyles,0);
       }
     }
     blob_zero(&cond);
@@ -3385,7 +3385,6 @@ void timeline_cmd(void){
 ** day of the year for various years in the history of the project.
 **
 ** Query parameters:
-**
 **    today=DATE             Use DATE as today's date
 */
 void thisdayinhistory_page(void){

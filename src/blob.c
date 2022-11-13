@@ -1637,18 +1637,14 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
 ** correctly.
 **
 ** Other options:
-**
 **    --filename-args BOOL      Subsequent arguments are assumed to be
 **                              filenames if BOOL is true, or not if BOOL
 **                              is false.  Defaults on.
-**
 **    --hex HEX                 Skip the --hex flag and instead decode HEX
 **                              into ascii.  This provides a way to insert
 **                              unusual characters as an argument for testing.
-**
 **    --compare HEX ASCII       Verify that argument ASCII is identical to
 **                              to decoded HEX.
-**
 **    --fuzz N                  Run N fuzz cases.  Each cases is a call
 **                              to "fossil test-escaped-arg --compare HEX ARG"
 **                              where HEX and ARG are the same argument.

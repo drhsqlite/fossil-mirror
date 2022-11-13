@@ -171,7 +171,9 @@ void test_hash_color_page(void){
   for(i=0; i<10; i++){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
     zBr = P(zNm);
-    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br />
+    @ <label>Branch %s(zNm): 
+    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'>
+    @ </label><br />
   }
   @ <input type="submit" value="Submit">
   @ <input type="submit" name="rand" value="Random">

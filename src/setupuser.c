@@ -33,7 +33,6 @@
 ** screen for that user.  Requires Admin privileges.
 **
 ** Query parameters:
-**
 **   with=CAP         Only show users that have one or more capabilities in CAP.
 **   ubg              Color backgrounds by username hash
 */
@@ -606,22 +605,22 @@ void user_edit(void){
   @ <input type="hidden" name="referer" value="%h(cgi_referer("setup_ulist"))">
   @ <table width="100%%">
   @ <tr>
-  @   <td class="usetupEditLabel" id="suuid">User ID:</td>
+  @   <td class="usetupEditLabel" id="suuid"><label for="id">User ID:</label></td>
   if( uid ){
-    @   <td>%d(uid) <input aria-labelledby="suuid" type="hidden" \
+    @   <td>%d(uid) <input type="hidden" \
     @   name="id" value="%d(uid)"/>\
     @ </td>
   }else{
-    @   <td>(new user)<input aria-labelledby="suuid" type="hidden" name="id" \
+    @   <td>(new user)<input type="hidden" name="id" \
     @ value="0" /></td>
   }
   @ </tr>
   @ <tr>
-  @   <td class="usetupEditLabel" id="sulgn">Login:</td>
+  @   <td class="usetupEditLabel" id="sulgn"><label for="login">Login:</label></td>
   if( login_is_special(zLogin) ){
     @    <td><b>%h(zLogin)</b></td>
   }else{
-    @   <td><input aria-labelledby="sulgn" type="text" name="login" \
+    @   <td><input type="text" id="login" name="login" \
     @ value="%h(zLogin)" />
     if( alert_tables_exist() ){
       int sid;
@@ -634,8 +633,9 @@ void user_edit(void){
     }
     @ </td></tr>
     @ <tr>
-    @   <td class="usetupEditLabel" id="sucnfo">Contact&nbsp;Info:</td>
-    @   <td><textarea aria-labelledby="sucnfo" name="info" cols="40" \
+    @   <td class="usetupEditLabel" id="sucnfo">
+    @   <label for="info">Contact&nbsp;Info:</label></td>
+    @   <td><textarea id="info" name="info" cols="40" \
     @ rows="2">%h(zInfo)</textarea></td>
   }
   @ </tr>
@@ -731,15 +731,15 @@ void user_edit(void){
   @ </tr>
   if( !login_is_special(zLogin) ){
     @ <tr>
-    @   <td align="right" id="supw">Password:</td>
+    @   <td align="right" id="supw"><label for="pw">Password:</label></td>
     if( zPw[0] ){
       /* Obscure the password for all users */
-      @   <td><input aria-labelledby="supw" type="password" autocomplete="off" \
-      @   name="pw" value="**********" /></td>
+      @   <td><input type="password" autocomplete="off" \
+      @   id="pw" name="pw" value="**********" /></td>
     }else{
       /* Show an empty password as an empty input field */
       char *zRPW = fossil_random_password(12);
-      @   <td><input aria-labelledby="supw" type="password" name="pw" \
+      @   <td><input type="password" id="pw" name="pw" \
       @   autocomplete="off" value="" /> Password suggestion: %z(zRPW)</td>
     }
     @ </tr>

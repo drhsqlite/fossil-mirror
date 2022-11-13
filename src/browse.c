@@ -128,7 +128,6 @@ void hyperlinked_path(
 ** across all check-ins is shown.
 **
 ** Query parameters:
-**
 **    ci=LABEL         Show only files in this check-in.  Optional.
 **    name=PATH        Directory to display.  Optional.  Top-level if missing
 **    re=REGEXP        Show only files matching REGEXP
@@ -642,7 +641,6 @@ static void relinkTree(FileTree *pTree, FileTreeNode *pRoot){
 ** used.
 **
 ** Query parameters:
-**
 **    type=tree        Required to prevent use of /dir format
 **    name=PATH        Directory to display.  Optional
 **    ci=LABEL         Show only files in this check-in.  Optional.
@@ -766,7 +764,7 @@ void page_tree(void){
   }else if( zRE ){
     blob_appendf(&dirname, "matching \"%s\"", zRE);
   }
-  style_submenu_binary("mtime","Sort By Time","Sort By Filename", 0);
+  style_submenu_binary("mtime","Sort By","Time","Filename", 0);
   if( zCI ){
     style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){

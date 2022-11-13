@@ -293,7 +293,7 @@ void setup_notification(void){
   if( alert_enabled() ){
     stats_for_email();
   }else{
-    @ <th>Disabled</th>
+    @ <td>Disabled</td>
   }
   @ </table>
   @ <hr>
@@ -1114,43 +1114,36 @@ void alert_send(
 ** Usage: %fossil alerts SUBCOMMAND ARGS...
 **
 ** Subcommands:
-**
 **    pending                 Show all pending alerts.  Useful for debugging.
-**
 **    reset                   Hard reset of all email notification tables
 **                            in the repository.  This erases all subscription
 **                            information.  ** Use with extreme care **
-**
 **    send                    Compose and send pending email alerts.
 **                            Some installations may want to do this via
 **                            a cron-job to make sure alerts are sent
 **                            in a timely manner.
-**                            Options:
 **
+**                            Options:
 **                               --digest     Send digests
 **                               --renewal    Send subscription renewal
 **                                            notices
 **                               --test       Write to standard output
-**
 **    settings [NAME VALUE]   With no arguments, list all email settings.
 **                            Or change the value of a single email setting.
-**
 **    status                  Report on the status of the email alert
 **                            subsystem
-**
 **    subscribers [PATTERN]   List all subscribers matching PATTERN.  Either
 **                            LIKE or GLOB wildcards can be used in PATTERN.
-**
 **    test-message TO [OPTS]  Send a single email message using whatever
 **                            email sending mechanism is currently configured.
 **                            Use this for testing the email notification
-**                            configuration.  Options:
+**                            configuration.  
 **
+**                            Options:
 **                              --body FILENAME         Content from FILENAME
 **                              --smtp-trace            Trace SMTP processing
 **                              --stdout                Send msg to stdout
 **                              -S|--subject SUBJECT    Message "subject:"
-**
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
 void alert_cmd(void){
@@ -1605,8 +1598,8 @@ void subscribe_page(void){
   form_begin(0, "%R/subscribe");
   @ <table class="subscribe">
   @ <tr>
-  @  <td class="form_label">Email&nbsp;Address:</td>
-  @  <td><input type="text" name="e" value="%h(PD("e",""))" size="30"></td>
+  @  <td class="form_label"><label for="e">Email&nbsp;Address:</label></td>
+  @  <td><input type="text" id="e" name="e" value="%h(PD("e",""))" size="30"></td>
   @ <tr>
   if( eErr==1 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
@@ -1623,8 +1616,8 @@ void subscribe_page(void){
     zDecoded = captcha_decode(uSeed);
     zCaptcha = captcha_render(zDecoded);
     @ <tr>
-    @  <td class="form_label">Security Code:</td>
-    @  <td><input type="text" name="captcha" value="%h(zInit)" size="30">
+    @  <td class="form_label"><label for="captcha">Security Code:</label></td>
+    @  <td><input type="text" id="captcha" name="captcha" value="%h(zInit)" size="30">
     captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
@@ -1635,9 +1628,9 @@ void subscribe_page(void){
   }
   if( g.perm.Admin ){
     @ <tr>
-    @  <td class="form_label">User:</td>
-    @  <td><input type="text" name="suname" value="%h(PD("suname",g.zLogin))" \
-    @  size="30"></td>
+    @  <td class="form_label"><label for="suname">User:</label></td>
+    @  <td><input type="text" id="suname" name="suname" \
+    @  value="%h(PD("suname",g.zLogin))" size="30"></td>
     @ </tr>
     if( eErr==3 ){
       @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
@@ -1669,8 +1662,8 @@ void subscribe_page(void){
   di = PB("di");
   @ </td></tr>
   @ <tr>
-  @  <td class="form_label">Delivery:</td>
-  @  <td><select size="1" name="di">
+  @  <td class="form_label"><label for="di">Delivery:</label></td>
+  @  <td><select size="1" id="di" name="di">
   @     <option value="0" %s(di?"":"selected")>Individual Emails</option>
   @     <option value="1" %s(di?"selected":"")>Daily Digest</option>
   @     </select></td>
@@ -1974,9 +1967,9 @@ void alert_page(void){
   @ <input type="hidden" name="name" value="%h(zHalfCode)">
   @ <table class="subscribe">
   @ <tr>
-  @  <td class="form_label">Email&nbsp;Address:</td>
+  @  <td class="form_label"><label for="semail">Email&nbsp;Address:</label></td>
   if( isLogin ){
-    @  <td><input type="text" name="semail" value="%h(semail)" size="30">\
+    @  <td><input type="text" id="semail" name="semail" value="%h(semail)" size="30">\
     if( eErr==8 ){
       @ <span class='loginError'>&larr; not a valid email address!</span>
     }else if( g.perm.Admin ){
@@ -2011,9 +2004,9 @@ void alert_page(void){
     @  <td>%h(db_column_text(&q,10)) &larr; \
     @      %,d(db_column_int(&q,11)) days ago</td>
     @ </tr>
-    @  <td class="form_label">User:</td>
-    @  <td><input type="text" name="suname" value="%h(suname?suname:"")" \
-    @  size="30">\
+    @  <td class="form_label"><label for="suname">User:</label></td>
+    @  <td><input type="text" id="suname" name="suname" \
+    @  value="%h(suname?suname:"")" size="30">\
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", suname);
     if( uid ){
       @ &nbsp;&nbsp;<a href='%R/setup_uedit?id=%d(uid)'>\
@@ -2045,8 +2038,8 @@ void alert_page(void){
   }
   @ </td></tr>
   @ <tr>
-  @  <td class="form_label">Delivery:</td>
-  @  <td><select size="1" name="sdigest">
+  @  <td class="form_label"><label for="sdigest">Delivery:</label></td>
+  @  <td><select size="1" id="sdigest" name="sdigest">
   @     <option value="0" %s(sdigest?"":"selected")>Individual Emails</option>
   @     <option value="1" %s(sdigest?"selected":"")>Daily Digest</option>
   @     </select></td>
@@ -2278,8 +2271,8 @@ void unsubscribe_page(void){
   form_begin(0, "%R/unsubscribe");
   @ <table class="subscribe">
   @ <tr>
-  @  <td class="form_label">Email&nbsp;Address:</td>
-  @  <td><input type="text" name="e" value="%h(zEAddr)" size="30"></td>
+  @  <td class="form_label"><label for="e">Email&nbsp;Address:</label></td>
+  @  <td><input type="text" id="e" name="e" value="%h(zEAddr)" size="30"></td>
   if( eErr==1 ){
     @  <td><span class="loginError">&larr; %h(zErr)</span></td>
   }
@@ -2288,8 +2281,8 @@ void unsubscribe_page(void){
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
   @ <tr>
-  @  <td class="form_label">Security Code:</td>
-  @  <td><input type="text" name="captcha" value="" size="30">
+  @  <td class="form_label"><label for="captcha">Security Code:</label></td>
+  @  <td><input type="text" id="captcha" name="captcha" value="" size="30">
   captcha_speakit_button(uSeed, "Speak the code");
   @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
   if( eErr==2 ){
@@ -2700,7 +2693,6 @@ void email_header(Blob *pOut){
 ** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
-**
 **      --digest           Generate digest alert text
 **      --needmod          Assume all events are pending moderator approval
 */
@@ -2761,15 +2753,12 @@ void test_alert_cmd(void){
 ** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
-**
 **    --backoffice        Run alert_backoffice() after all alerts have
 **                        been added.  This will cause the alerts to be
 **                        sent out with the SENDALERT_TRACE option.
-**
 **    --debug             Like --backoffice, but add the SENDALERT_STDOUT
 **                        so that emails are printed to standard output
 **                        rather than being sent.
-**
 **    --digest            Process emails using SENDALERT_DIGEST
 */
 void test_add_alert_cmd(void){
@@ -3228,24 +3217,24 @@ void contact_admin_page(void){
   @ <table class="subscribe">
   if( zCaptcha ){
     @ <tr>
-    @  <td class="form_label">Security&nbsp;Code:</td>
-    @  <td><input type="text" name="captcha" value="" size="10">
+    @  <td class="form_label"><label for="captcha">Security&nbsp;Code:</label></td>
+    @  <td><input type="text" id="captcha" name="captcha" value="" size="10">
     captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
   }
   @ <tr>
-  @  <td class="form_label">Your&nbsp;Email&nbsp;Address:</td>
-  @  <td><input type="text" name="from" value="%h(PT("from"))" size="30"></td>
+  @  <td class="form_label"><label for="from">Your&nbsp;Email&nbsp;Address:</label></td>
+  @  <td><input type="text" id="from" name="from" value="%h(PT("from"))" size="30"></td>
   @ </tr>
   @ <tr>
-  @  <td class="form_label">Subject:</td>
-  @  <td><input type="text" name="subject" value="%h(PT("subject"))"\
+  @  <td class="form_label"><label for="subject">Subject:</label></td>
+  @  <td><input type="text" id="subject" name="subject" value="%h(PT("subject"))"\
   @  size="80"></td>
   @ </tr>
   @ <tr>
-  @  <td class="form_label">Message:</td>
-  @  <td><textarea name="msg" cols="80" rows="10" wrap="virtual">\
+  @  <td class="form_label"><label for="msg">Message:</label></td>
+  @  <td><textarea id="msg" name="msg" cols="80" rows="10" wrap="virtual">\
   @ %h(PT("msg"))</textarea>
   @ </tr>
   @ <tr>
@@ -3399,8 +3388,8 @@ void announce_page(void){
     const char *allck = all ? "checked" : "";
     const char *modck = aMod ? "checked" : "";
     @ <tr>
-    @  <td class="form_label">To:</td>
-    @  <td><input type="text" name="to" value="%h(PT("to"))" size="30"><br>
+    @  <td class="form_label"><label for="to">To:</label></td>
+    @  <td><input type="text" id="to" name="to" value="%h(PT("to"))" size="30"><br>
     @  <label><input type="checkbox" name="aa" %s(aack)> \
     @  All "announcement" subscribers</label> \
     @  <a href="%R/subscribers?only=a" target="_blank">(list)</a><br>
@@ -3413,13 +3402,13 @@ void announce_page(void){
     @ </tr>
   }
   @ <tr>
-  @  <td class="form_label">Subject:</td>
-  @  <td><input type="text" name="subject" value="%h(PT("subject"))"\
+  @  <td class="form_label"><label for="subject">Subject:</label></td>
+  @  <td><input type="text" id="subject" name="subject" value="%h(PT("subject"))"\
   @  size="80"></td>
   @ </tr>
   @ <tr>
-  @  <td class="form_label">Message:</td>
-  @  <td><textarea name="msg" cols="80" rows="10" wrap="virtual">\
+  @  <td class="form_label"><label for="msg">Message:</label></td>
+  @  <td><textarea id="msg" name="msg" cols="80" rows="10" wrap="virtual">\
   @ %h(PT("msg"))</textarea>
   @ </tr>
   @ <tr>

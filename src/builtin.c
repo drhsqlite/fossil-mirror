@@ -159,8 +159,9 @@ static void builtin_deliver_multiple_js_files(
 /*
 ** WEBPAGE: builtin loadavg-exempt
 **
-** Return one of many built-in content files.  Query parameters:
+** Return one of many built-in content files.  
 **
+** Query parameters:
 **    name=FILENAME       Return the single file whose name is FILENAME.
 **    mimetype=TYPE       Override the mimetype in the returned file to
 **                        be TYPE.  If this query parameter is omitted

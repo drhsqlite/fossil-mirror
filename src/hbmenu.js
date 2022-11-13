@@ -26,7 +26,7 @@
 ** This script request that the HTML contain two elements:
 **
 **      <a id="hbbtn">       <--- The hamburger menu button
-**      <div id="hbdrop">    <--- Container for the hamburger menu
+**      <nav id="hbdrop">    <--- Container for the hamburger menu
 **      
 ** Bindings are made on hbbtn so that when it is clicked, the following
 ** happens:

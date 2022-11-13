@@ -105,11 +105,11 @@ alone. (One exception is when the administrator needs to include links
 to additional CSS files.) The configurable part of the skin begins
 with the Content Header section which should follow this template:
 
-        <div class="header">
+        <header class="header">
           ... top banner and menu bar ...
         </div>
 
-Note that `<div class="header">` and `</div>` tags must be included in
+Note that `<header class="header">` and `</div>` tags must be included in
 the Content Header text of the skin.  In other words, you, the
 administrator, need to supply that text as part of your skin
 customization.
@@ -124,7 +124,7 @@ The Content section will looks like this:
 After the Content is the custom Content Footer section which should
 follow this template:
 
-        <div class="footer">
+        <footer class="footer">
           ... skin-specific stuff here ...
         </div>
 
@@ -142,7 +142,7 @@ to close out the generated HTML:
 As of Fossil 2.15, the actual text content of the skin’s main menu is no
 longer part of the skin proper if you’re using one of the stock skins.
 If you look at the Header section of the skin, you’ll find a
-`<div class="mainmenu">` element whose contents are set by a short
+`<nav class="mainmenu">` element whose contents are set by a short
 [TH1](./th1.md) script from the contents of the **Main Menu** section of
 the Setup → Configuration screen.
 
@@ -336,12 +336,12 @@ into the output stream, the text is run through a
 For example, first few lines of a typical Content Header will look
 like this:
 
-        <div class="header">
+        <header class="header">
           <div class="title"><h1>$<project_name></h1>$<title>/div>
 
 After variables are substituted by TH1, that will look more like this:
 
-        <div class="header">
+        <header class="header">
           <div class="title"><h1>Project Name</h1>Page Title</div>
 
 As you can see, two TH1 variable substitutions were done.
@@ -377,16 +377,16 @@ The hbmenu.js script requires
 the following `<div>` element somewhere in your header, in which to build
 the hamburger menu.
 
-        <div id='hbdrop'></div>
+        <nav id='hbdrop'></nav>
 
 Out of the box, the contents of the panel is populated with the [Site
 Map](/sitemap), but only if the panel does not already contain any HTML
 elements (that is, not just comments, plain text or non-presentational white
-space). So the hamburger menu can be customized by replacing the empty `<div
-id='hbdrop'></div>` element with a menu structure knitted according to the
+space). So the hamburger menu can be customized by replacing the empty `<nav
+id='hbdrop'></nav>` element with a menu structure knitted according to the
 following template:
 
-        <div id="hbdrop" data-anim-ms="400">
+        <nav id="hbdrop" data-anim-ms="400">
          <ul class="columns" style="column-width: 20em; column-count: auto">
           <!-- NEW GROUP WITH HEADING LINK -->
           <li>
@@ -406,7 +406,7 @@ following template:
           </li>
           <!-- NEXT GROUP GOES HERE -->
          </ul>
-        </div>
+        </nav>
 
 The custom `data-anim-ms` attribute can be added to the panel element to direct
 the Javascript logic to override the default menu animation duration of 400 ms.

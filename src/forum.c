@@ -503,7 +503,7 @@ static void forum_display_post(
       zPosterName = forum_post_display_name(p->pEditHead, 0);
       zEditorName = forum_post_display_name(p, pManifest);
       zHist = bHist ? "" : zQuery[0]==0 ? "?hist" : "&hist";
-      @ <h3 class='forumPostHdr'>(%d(p->sid)\
+      @ <h2 class='forumPostHdr'>(%d(p->sid)\
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
         @ By %s(zPosterName) on %h(zDate) edited from \
@@ -517,7 +517,7 @@ static void forum_display_post(
       }
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
-      @ <h3 class='forumPostHdr'>(%d(p->sid)) \
+      @ <h2 class='forumPostHdr'>(%d(p->sid)) \
       @ By %s(zPosterName) on %h(zDate)
     }
     fossil_free(zDate);
@@ -555,7 +555,7 @@ static void forum_display_post(
     if( !bUnf ){
       @ %z(href("%R/forumpost/%!S?raw",p->zUuid))[source]</a>
     }
-    @ </h3>
+    @ </h2>
   }
 
   /* Check if this post is approved, also if it's by the current user. */
@@ -795,7 +795,6 @@ static void forum_emit_js(void){
 ** selected posting into view after the page loads.
 **
 ** Query parameters:
-**
 **   name=X        REQUIRED.  The hash of the post to display.
 **   t=a           Automatic display mode, i.e. hierarchical for
 **                 desktop and chronological for mobile.  This is the
@@ -822,7 +821,6 @@ void forumpost_page(void){
 ** the postings in the thread are selected.
 **
 ** Query parameters:
-**
 **   name=X        REQUIRED.  The hash of any post of the thread.
 **   t=a           Automatic display mode, i.e. hierarchical for
 **                 desktop and chronological for mobile.  This is the
@@ -1057,13 +1055,15 @@ static void forum_post_widget(
   const char *zContent
 ){
   if( zTitle ){
-    @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"
-    @ maxlength="125"><br>
+    @ <label>Title: <input type="input" name="title" value="%h(zTitle)" size="50"
+    @ maxlength="125"></label><br>
   }
-  @ %z(href("%R/markup_help"))Markup style</a>:
+  @ <label>Markup style
+  @ %z(href("%R/markup_help"))
+  @ <span class="help-buttonlet processed" title="Help"></span></a>:
   mimetype_option_menu(zMimetype);
-  @ <br><textarea aria-label="Content:" name="content" class="wikiedit" \
-  @ cols="80" rows="25" wrap="virtual">%h(zContent)</textarea><br>
+  @ </label><br><textarea aria-label="Content" title="Content" name="content" \
+  @ class="wikiedit" cols="80" rows="25" wrap="virtual">%h(zContent)</textarea><br>
 }
 
 /*
@@ -1191,8 +1191,8 @@ void forumnew_page(void){
 ** WEBPAGE: forume2
 **
 ** Edit an existing forum message.
-** Query parameters:
 **
+** Query parameters:
 **   fpid=X        Hash of the post to be edited.  REQUIRED
 */
 void forumedit_page(void){
@@ -1381,7 +1381,6 @@ void forumedit_page(void){
 ** and a button for creating a new thread, if enabled.
 **
 ** Query parameters:
-**
 **    n=N             The number of threads to show on each page
 **    x=X             Skip the first X threads
 **    s=Y             Search for term Y.

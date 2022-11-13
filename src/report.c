@@ -382,8 +382,8 @@ void view_see_sql(void){
 ** WEBPAGE: rptedit
 **
 ** Create (/rptnew) or edit (/rptedit) a ticket report format.
-** Query parameters:
 **
+** Query parameters:
 **     rn=N           Ticket report number. (required)
 **     t=TITLE        Title of the report format
 **     w=USER         Owner of the report format
@@ -513,24 +513,26 @@ void view_edit(void){
   }
   @ <form action="rptedit" method="post"><div>
   @ <input type="hidden" name="rn" value="%d(rn)" />
-  @ <p>Report Title:<br />
-  @ <input type="text" name="t" value="%h(zTitle)" size="60" /></p>
-  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br />
-  @ <textarea name="s" rows="20" cols="80">%h(zSQL)</textarea>
+  @ <p><label for="t">Report Title:</label><br />
+  @ <input type="text" id="t" name="t" value="%h(zTitle)" size="60" /></p>
+  @ <p><label for="s">
+  @ Enter a complete SQL query statement against the "TICKET" table:</label><br />
+  @ <textarea id="s" name="s" rows="20" cols="80">%h(zSQL)</textarea>
   @ </p>
   login_insert_csrf_secret();
   if( g.perm.Admin ){
-    @ <p>Report owner:
-    @ <input type="text" name="w" size="20" value="%h(zOwner)" />
+    @ <p><label for="w">Report owner:</label>
+    @ <input type="text" id="w" name="w" size="20" value="%h(zOwner)" />
     @ </p>
   } else {
     @ <input type="hidden" name="w" value="%h(zOwner)" />
   }
-  @ <p>Enter an optional color key in the following box.  (If blank, no
+  @ <p><label for="k">
+  @ Enter an optional color key in the following box.</label>  (If blank, no
   @ color key is displayed.)  Each line contains the text for a single
   @ entry in the key.  The first token of each line is the background
   @ color for that line.<br />
-  @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
+  @ <textarea id="k" name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
   @ <p><label><input type="checkbox" name="dflt" %s(dflt?"checked":"")> \
   @ Make this the default report</label></p>
@@ -562,7 +564,7 @@ static void report_format_hints(void){
     zSchema = db_text(0,"SELECT sql FROM repository.sqlite_schema"
                         " WHERE name='ticket'");
   }
-  @ <hr /><h3>TICKET Schema</h3>
+  @ <hr /><h2>TICKET Schema</h2>
   @ <blockquote><pre>
   @ <code class="language-sql">%h(zSchema)</code>
   @ </pre></blockquote>
@@ -775,7 +777,7 @@ static int generate_html(
       if( i==pState->iBg ) continue;
       if( pState->iNewRow>=0 && i>=pState->iNewRow ){
         if( g.perm.Write && zTid ){
-          @ <th>&nbsp;</th>
+          @ <td>&nbsp;</td>
           zTid = 0;
         }
         if( zName[0]=='_' ) zName++;
@@ -788,7 +790,7 @@ static int generate_html(
       }
     }
     if( g.perm.Write && zTid ){
-      @ <th>&nbsp;</th>
+      @ <td>&nbsp;</td>
     }
     @ </tr></thead><tbody>
   }

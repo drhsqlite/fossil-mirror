@@ -148,6 +148,8 @@
             D.attr(D.checkbox(true),'id', 'cb-auto-preview'),
             cbWrap = D.addClass(D.div(),'input-with-label')
       ;
+      D.attr(selectScript, 'aria-label', 'Example Scripts');
+      D.attr(selectScript, 'title', 'Example Scripts');
       D.append(
         cbWrap,
         selectScript,

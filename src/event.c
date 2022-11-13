@@ -54,7 +54,6 @@ void hyperlink_to_event_tagid(int tagid){
 ** Display a technical note (formerly called an "event").
 **
 ** PARAMETERS:
-**
 **  name=ID           Identify the technical note to display. ID must be
 **                    complete.
 **  aid=ARTIFACTID    Which specific version of the tech-note.  Optional.
@@ -348,12 +347,10 @@ int event_commit_common(
 ** Revise or create a technical note (formerly called an "event").
 **
 ** Required query parameter:
-**
 **    name=ID           Hex hash ID of the technote. If omitted, a new
 **                      tech-note is created.
 **
 ** POST parameters from the "Cancel", "Preview", or "Submit" buttons:
-**
 **    w=TEXT            Complete text of the technote.
 **    t=TEXT            Time of the technote on the timeline (ISO 8601)
 **    c=TEXT            Timeline comment
@@ -528,38 +525,41 @@ void eventedit_page(void){
   @ <input type="hidden" name="name" value="%h(zId)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><th align="right" valign="top">Timestamp (UTC):</th>
+  @ <tr><th align="right" valign="top"><label for="t">Timestamp (UTC):</label></th>
   @ <td valign="top">
-  @   <input type="text" name="t" size="25" value="%h(zETime)" />
+  @   <input type="text" id="t" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Timeline Comment:</th>
+  @ <tr><th align="right" valign="top"><label for="c">Timeline Comment:</label></th>
   @ <td valign="top">
-  @ <textarea name="c" class="technoteedit" cols="80"
+  @ <textarea id="c" name="c" class="technoteedit" cols="80"
   @  rows="3" wrap="virtual">%h(zComment)</textarea>
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Timeline Background Color:</th>
+  @ <tr><th align="right" valign="top">
+  @ <label for='newclr'%s(zClrFlag)>Timeline Background Color:</label></th>
   @ <td valign="top">
-  @ <input type='checkbox' name='newclr'%s(zClrFlag) />
-  @ Use custom color: \
-  @ <input type='color' name='clr' value='%s(zClr[0]?zClr:"#c0f0ff")'>
+  @ <input type='checkbox' id='newclr'%s(zClrFlag) name='newclr'%s(zClrFlag) />
+  @ <label>Use custom color: \
+  @ <input type='color' name='clr' value='%s(zClr[0]?zClr:"#c0f0ff")'></label>
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Tags:</th>
+  @ <tr><th align="right" valign="top"><label for="g">Tags:</label></th>
   @ <td valign="top">
-  @   <input type="text" name="g" size="40" value="%h(zTags)" />
+  @   <input type="text" id="g" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">\
-  @ %z(href("%R/markup_help"))Markup Style</a>:</th>
+  @ <label for="mimetype">Markup style</label>
+  @ %z(href("%R/markup_help"))
+  @ <span class="help-buttonlet processed" title="Help"></span></a>:
   @ <td valign="top">
   mimetype_option_menu(zMimetype);
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>
+  @ <tr><th align="right" valign="top"><label for="w">Page&nbsp;Content:</label></th>
   @ <td valign="top">
-  @ <textarea name="w" class="technoteedit" cols="80"
+  @ <textarea id="w" name="w" class="technoteedit" cols="80"
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ </td></tr>
 

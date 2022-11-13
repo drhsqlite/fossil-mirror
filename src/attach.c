@@ -400,8 +400,8 @@ void attachadd_page(void){
   @ <div>
   @ File to Attach:
   @ <input type="file" name="f" size="60" /><br />
-  @ Description:<br />
-  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br />
+  @ <label>Description:<br />
+  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea></label><br />
   if( zTkt ){
     @ <input type="hidden" name="tkt" value="%h(zTkt)" />
   }else if( zTechNote ){
@@ -680,14 +680,13 @@ void attachment_list(
 ** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
 ** Add an attachment to an existing wiki page or tech note.
-** Options:
 **
+** Options:
 **    -t|--technote DATETIME      Specifies the timestamp of
 **                                the technote to which the attachment
 **                                is to be made. The attachment will be
 **                                to the most recently modified tech note
 **                                with the specified timestamp.
-**
 **    -t|--technote TECHNOTE-ID   Specifies the technote to be
 **                                updated by its technote id.
 **
@@ -794,7 +793,6 @@ attachment_cmd_usage:
 ** which will match most wiki page names and some ticket hashes.
 **
 ** Options:
-**
 **    -latest    List only the latest version of a given attachment.
 **
 */

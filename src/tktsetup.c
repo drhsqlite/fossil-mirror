@@ -155,8 +155,8 @@ static void tktsetup_generic(
   }
   @ <form action="%R/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
-  @ <p>%s(zDesc)</p>
-  @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
+  @ <p><label for="x">%s(zDesc)</label></p>
+  @ <textarea id="x" name="x" rows="%d(height)" cols="80">%h(z)</textarea>
   @ <blockquote><p>
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -326,37 +326,37 @@ static const char zDefaultNew[] =
 @ <table cellpadding="5">
 @ <tr>
 @ <td colspan="3">
-@ Enter a one-line summary of the ticket:<br />
-@ <input type="text" name="title" size="60" value="$<title>" />
+@ <label>Enter a one-line summary of the ticket:<br />
+@ <input type="text" name="title" size="60" value="$<title>" /></label>
 @ </td>
 @ </tr>
 @
 @ <tr>
-@ <td align="right">Type:</td>
+@ <td align="right"><label for="type">Type:</label></td>
 @ <td align="left"><th1>combobox type $type_choices 1</th1></td>
 @ <td align="left">What type of ticket is this?</td>
 @ </tr>
 @
 @ <tr>
-@ <td align="right">Version:</td>
+@ <td align="right"><label for="foundin">Version:</label></td>
 @ <td align="left">
-@ <input type="text" name="foundin" size="20" value="$<foundin>" />
+@ <input type="text" id="foundin" name="foundin" size="20" value="$<foundin>" />
 @ </td>
 @ <td align="left">In what version or build number do you observe
 @ the problem?</td>
 @ </tr>
 @
 @ <tr>
-@ <td align="right">Severity:</td>
+@ <td align="right"><label for="severity">Severity:</label></td>
 @ <td align="left"><th1>combobox severity $severity_choices 1</th1></td>
 @ <td align="left">How debilitating is the problem?  How badly does the problem
 @ affect the operation of the product?</td>
 @ </tr>
 @
 @ <tr>
-@ <td align="right">EMail:</td>
+@ <td align="right"><label for="private_contact">EMail:</label></td>
 @ <td align="left">
-@ <input type="text" name="private_contact" value="$<private_contact>"
+@ <input type="text" id="private_contact" name="private_contact" value="$<private_contact>"
 @  size="30" />
 @ </td>
 @ <td align="left"><u>Not publicly visible</u>
@@ -365,14 +365,14 @@ static const char zDefaultNew[] =
 @
 @ <tr>
 @ <td colspan="3">
-@ Enter a detailed description of the problem.
+@ <label for="icomment">Enter a detailed description of the problem.</label>
 @ For code defects, be sure to provide details on exactly how
 @ the problem can be reproduced.  Provide as much detail as
-@ possible.  Format:
+@ possible.  <label for="mutype">Format:</label>
 @ <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
 @ <br />
 @ <th1>set nline [linecount $comment 50 10]</th1>
-@ <textarea name="icomment" cols="80" rows="$nline"
+@ <textarea id="icomment" name="icomment" cols="80" rows="$nline"
 @  wrap="virtual" class="wikiedit">$<icomment></textarea><br />
 @ </tr>
 @
@@ -617,51 +617,52 @@ static const char zDefaultEdit[] =
 @   }
 @ </th1>
 @ <table cellpadding="5">
-@ <tr><td class="tktDspLabel">Title:</td><td>
-@ <input type="text" name="title" value="$<title>" size="60" />
+@ <tr><td class="tktDspLabel"><label for="title">Title:</label></td><td>
+@ <input type="text" id="title" name="title" value="$<title>" size="60" />
 @ </td></tr>
 @
-@ <tr><td class="tktDspLabel">Status:</td><td>
+@ <tr><td class="tktDspLabel"><label for="status">Status:</label></td><td>
 @ <th1>combobox status $status_choices 1</th1>
 @ </td></tr>
 @
-@ <tr><td class="tktDspLabel">Type:</td><td>
+@ <tr><td class="tktDspLabel"><label for="type">Type:</label></td><td>
 @ <th1>combobox type $type_choices 1</th1>
 @ </td></tr>
 @
-@ <tr><td class="tktDspLabel">Severity:</td><td>
+@ <tr><td class="tktDspLabel"><label for="severity">Severity:</label></td><td>
 @ <th1>combobox severity $severity_choices 1</th1>
 @ </td></tr>
 @
-@ <tr><td class="tktDspLabel">Priority:</td><td>
+@ <tr><td class="tktDspLabel"><label for="priority">Priority:</label></td><td>
 @ <th1>combobox priority $priority_choices 1</th1>
 @ </td></tr>
 @
-@ <tr><td class="tktDspLabel">Resolution:</td><td>
+@ <tr><td class="tktDspLabel"><label for="resolution">Resolution:</label></td><td>
 @ <th1>combobox resolution $resolution_choices 1</th1>
 @ </td></tr>
 @
-@ <tr><td class="tktDspLabel">Subsystem:</td><td>
+@ <tr><td class="tktDspLabel"><label for="subsystem">Subsystem:</label></td><td>
 @ <th1>combobox subsystem $subsystem_choices 1</th1>
 @ </td></tr>
 @
 @ <th1>enable_output [hascap e]</th1>
-@   <tr><td class="tktDspLabel">Contact:</td><td>
-@   <input type="text" name="private_contact" size="40"
+@   <tr><td class="tktDspLabel"><label for="private_contact">Contact:</label></td><td>
+@   <input type="text" id="private_contact" name="private_contact" size="40"
 @    value="$<private_contact>" />
 @   </td></tr>
 @ <th1>enable_output 1</th1>
 @
-@ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td><td>
-@ <input type="text" name="foundin" size="50" value="$<foundin>" />
+@ <tr><td class="tktDspLabel"><label for="foundin">
+@ Version&nbsp;Found&nbsp;In:</label></td><td>
+@ <input type="text" id="foundin" name="foundin" size="50" value="$<foundin>" />
 @ </td></tr>
 @
 @ <tr><td colspan="2">
-@   Append Remark with format
+@   <label for="icomment">Append Remark</label> with <label for="mutype">format</label>
 @  <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
-@   from
-@   <input type="text" name="username" value="$<username>" size="30" />:<br />
-@   <textarea name="icomment" cols="80" rows="15"
+@   <label for="username">from</label>
+@   <input type="text" id="username" name="username" value="$<username>" size="30" />:<br />
+@   <textarea id="icomment" name="icomment" cols="80" rows="15"
 @    wrap="virtual" class="wikiedit">$<icomment></textarea>
 @ </td></tr>
 @

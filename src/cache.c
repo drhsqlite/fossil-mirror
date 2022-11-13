@@ -262,17 +262,14 @@ void cache_initialize(void){
 ** Usage: %fossil cache SUBCOMMAND
 **
 ** Manage the cache used for potentially expensive web pages such as
-** /zip and /tarball.   SUBCOMMAND can be:
+** /zip and /tarball.
 **
+** SUBCOMMAND can be:
 **    clear        Remove all entries from the cache.
-**
 **    init         Create the cache file if it does not already exist.
-**
 **    list|ls      List the keys and content sizes and other stats for
 **                 all entries currently in the cache.
-**
 **    size ?N?     Query or set the maximum number of entries in the cache.
-**
 **    status       Show a summary of the cache status.
 **
 ** The cache is stored in a file that is distinct from the repository

@@ -393,9 +393,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 ** Usage: %fossil tag SUBCOMMAND ...
 **
 ** Run various subcommands to control tags and properties.
-**
 ** > fossil tag add ?OPTIONS? TAGNAME ARTIFACT-ID ?VALUE?
-**
 **         Add a new tag or property to an artifact referenced by
 **         ARTIFACT-ID. For checkins, the tag will be usable instead
 **         of a CHECK-IN in commands such as update and merge. If the
@@ -419,9 +417,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         Note that fossil uses some tag prefixes internally and this
 **         command will reject tags with these prefixes to avoid
 **         causing problems or confusion: "wiki-", "tkt-", "event-".
-**
 ** > fossil tag cancel ?--raw? TAGNAME ARTIFACT-ID
-**
 **         Remove the tag TAGNAME from the artifact referenced by
 **         ARTIFACT-ID, and also remove the propagation of the tag to
 **         any descendants.  Use the the -n|--dry-run option to see
@@ -435,9 +431,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **           --user-override USER        Name USER when deleting the tag.
 **           -n|--dry-run                Display the control artifact, but do
 **                                       not insert it into the database.
-**
 ** > fossil tag find ?OPTIONS? TAGNAME
-**
 **         List all objects that use TAGNAME.
 **
 **         Options:
@@ -450,9 +444,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           t (ticket). Default is all types. Ignored
 **                           if --raw is used.
 **           -n|--limit N    Limit to N results.
-**
 ** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
-**
 **         List all tags or, if ARTIFACT-ID is supplied, all tags and
 **         their values for that artifact. The tagtype option accepts
 **         one of: propagated, singleton, cancel.  For historical
@@ -749,7 +741,6 @@ tag_cmd_usage:
 **
 ** Reparenting is accomplished by adding a parent tag.  So to undo the
 ** reparenting operation, simply delete the tag.
-**
 **    --test           Make database entries but do not add the tag artifact.
 **                     So the reparent operation will be undone by the next
 **                     "fossil rebuild" command.
@@ -843,7 +834,6 @@ void taglist_page(void){
 ** symbolic tags.
 **
 ** Query parameters:
-**
 **     ng            No graph
 **     nohidden      Hide check-ins with "hidden" tag
 **     onlyhidden    Show only check-ins with "hidden" tag

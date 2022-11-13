@@ -162,21 +162,15 @@ static int interwiki_valid_name(const char *zName){
 **
 ** Manage the "intermap" that defines the mapping from interwiki tags
 ** to complete URLs for interwiki links.
-**
 ** >  fossil interwiki delete TAG ...
-**
 **        Delete one or more interwiki maps.
-**
 ** >  fossil interwiki edit TAG --base URL --hash PATH --wiki PATH
-**
 **        Create an interwiki referenced call TAG.  The base URL is
 **        the --base option, which is required.  The --hash and --wiki
 **        paths are optional.  The TAG must be lower-case alphanumeric
 **        and must be unique.  A new entry is created if it does not
 **        already exit.
-**
 ** >  fossil interwiki list
-**
 **        Show all interwiki mappings.
 */
 void interwiki_cmd(void){
@@ -399,18 +393,18 @@ void interwiki_page(void){
   @ <form method="POST" action="%R/intermap">
   login_insert_csrf_secret();
   @ <table border="0">
-  @ <tr><td class="form_label" id="imtag">Tag:</td>
-  @ <td><input type="text" id="tag" aria-labeledby="imtag" name="tag" \
+  @ <tr><td class="form_label"><label for="tag">Tag:</label></td>
+  @ <td><input type="text" id="tag" name="tag" \
   @ size="15" value="%h(zTag)"></td></tr>
-  @ <tr><td class="form_label" id="imbase">Base&nbsp;URL:</td>
-  @ <td><input type="text" id="base" aria-labeledby="imbase" name="base" \
+  @ <tr><td class="form_label"><label for="base">Base&nbsp;URL:</label></td>
+  @ <td><input type="text" id="base" name="base" \
   @ size="70" value="%h(zBase)"></td></tr>
-  @ <tr><td class="form_label" id="imhash">Hash-path:</td>
-  @ <td><input type="text" id="hash" aria-labeledby="imhash" name="hash" \
+  @ <tr><td class="form_label"><label for="hash">Hash-path:</label></td>
+  @ <td><input type="text" id="hash" name="hash" \
   @ size="20" value="%h(zHash)">
   @ (use "<tt>/info/</tt>" when the target is Fossil)</td></tr>
-  @ <tr><td class="form_label" id="imwiki">Wiki-path:</td>
-  @ <td><input type="text" id="wiki" aria-labeledby="imwiki" name="wiki" \
+  @ <tr><td class="form_label"><label for="wiki">Wiki-path:</label></td>
+  @ <td><input type="text" id="wiki" name="wiki" \
   @ size="20" value="%h(zWiki)">
   @ (use "<tt>/wiki?name=</tt>" when the target is Fossil)</td></tr>
   @ <tr><td></td>

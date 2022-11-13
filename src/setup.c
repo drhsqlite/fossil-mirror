@@ -211,15 +211,24 @@ void onoff_attribute(
       iVal = iQ;
     }
   }
-  @ <label><input type="checkbox" name="%s(zQParm)" \
-  @ aria-label="%h(zLabel[0]?zLabel:zQParm)" \
+  if( zLabel[0] ) {
+    @ <label>
+  }
+  @ <input type="checkbox" name="%s(zQParm)" \
+  if( !zLabel[0] ) {
+    @ aria-label="%h(zLabel[0]?zLabel:zQParm)" \
+  }
+  @ title="%h(zLabel[0]?zLabel:zQParm)" \
   if( iVal ){
     @ checked="checked" \
   }
   if( disabled ){
     @ disabled="disabled" \
   }
-  @ /> <b>%s(zLabel)</b></label>
+  @ />
+  if( zLabel[0] ) {
+    @&nbsp;<b>%s(zLabel)</b></label>
+  }
 }
 
 /*
@@ -246,12 +255,22 @@ void entry_attribute(
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
   }
-  @ <input aria-label="%h(zLabel[0]?zLabel:zQParm)" type="text" \
+  if( zLabel[0] ) {
+    @ <label>
+  }
+  @ <input 
+  if( !zLabel[0] ) {
+    @ aria-label="%h(zLabel[0]?zLabel:zQParm)"
+  }
+  @ title="%h(zLabel[0]?zLabel:zQParm)" type="text" \
   @ id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)" \
   if( disabled ){
     @ disabled="disabled" \
   }
-  @ /> <b>%s(zLabel)</b>
+  @ />
+  if( zLabel[0] ) {
+    @&nbsp;<b>%s(zLabel)</b></label>
+  }
 }
 
 /*
@@ -280,14 +299,20 @@ const char *textarea_attribute(
     z = zQ;
   }
   if( rows>0 && cols>0 ){
+    if( *zLabel ){
+      @ <label>
+    }
     @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)" \
-    @ aria-label="%h(zLabel[0]?zLabel:zQP)" \
+    if( !*zLabel ){
+      @ aria-label="%h(zLabel[0]?zLabel:zQP)" \
+    }
+    @ title="%h(zLabel[0]?zLabel:zQP)" \
     if( disabled ){
       @ disabled="disabled" \
     }
     @ cols="%d(cols)">%h(z)</textarea>
     if( *zLabel ){
-      @ <span class="textareaLabel">%s(zLabel)</span>
+      @&nbsp;<span class="textareaLabel">%s(zLabel)</span></label>
     }
   }
   return z;
@@ -318,12 +343,12 @@ void multiple_choice_attribute(
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
-  @ <select aria-label="%h(zLabel)" size="1" name="%s(zQP)" id="id%s(zQP)">
+  @ <label><select title="%h(zLabel)" size="1" name="%s(zQP)" id="id%s(zQP)">
   for(i=0; i<nChoice*2; i+=2){
     const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
     @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
   }
-  @ </select> <b>%h(zLabel)</b>
+  @ </select>&nbsp;<b>%h(zLabel)</b></label>
 }
 
 /*
@@ -696,26 +721,26 @@ void setup_login_group(void){
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
-    @ <tr><th align="right" id="rfigtj">Repository filename \
-    @ in group to join:</th>
+    @ <tr><th align="right" id="rfigtj"><label for="repo">Repository filename \
+    @ in group to join:</label></th>
     @ <td width="5"></td><td>
-    @ <input aria-labelledby="rfigtj" type="text" size="50" \
-    @ value="%h(zRepo)" name="repo"></td></tr>
+    @ <input type="text" size="50" \
+    @ value="%h(zRepo)" id="repo" name="repo"></td></tr>
     @
-    @ <tr><th align="right" id="lotar">Login on the above repo:</th>
+    @ <tr><th align="right" id="lotar"><label for="login">Login on the above repo:</label></th>
     @ <td width="5"></td><td>
-    @ <input aria-labelledby="lotar" type="text" size="20" \
-    @ value="%h(zLogin)" name="login"></td></tr>
+    @ <input type="text" size="20" \
+    @ value="%h(zLogin)" id="login" name="login"></td></tr>
     @
-    @ <tr><th align="right" id="lgpw">Password:</th>
+    @ <tr><th align="right" id="lgpw"><label for="pw">Password:</label></th>
     @ <td width="5"></td><td>
-    @ <input aria-labelledby="lgpw" type="password" size="20" name="pw">\
+    @ <input type="password" size="20" id="pw" name="pw">\
     @ </td></tr>
     @
-    @ <tr><th align="right" id="nolg">Name of login-group:</th>
+    @ <tr><th align="right" id="nolg"><label for="newname">Name of login-group:</label></th>
     @ <td width="5"></td><td>
-    @ <input aria-labelledby="nolg" type="text" size="30" \
-    @ value="%h(zNewName)" name="newname">
+    @ <input type="text" size="30" \
+    @ value="%h(zNewName)" id="newname" name="newname">
     @ (only used if creating a new login-group).</td></tr>
     @
     @ <tr><td colspan="3" align="center">
@@ -1655,8 +1680,8 @@ void setup_logo(void){
   @ <a href="setup_skinedit?w=2">header setup</a>.
   @ To change the logo image, use the following form:</p>
   login_insert_csrf_secret();
-  @ Logo Image file:
-  @ <input type="file" name="logoim" size="60" accept="image/*" />
+  @ <label>Logo Image file:
+  @ <input type="file" name="logoim" size="60" accept="image/*" /></label>
   @ <p align="center">
   @ <input type="submit" name="setlogo" value="Change Logo" />
   @ <input type="submit" name="clrlogo" value="Revert To Default" /></p>
@@ -1679,8 +1704,8 @@ void setup_logo(void){
   @ <a href="setup_skinedit?w=2">header setup</a>.
   @ To change the background image, use the following form:</p>
   login_insert_csrf_secret();
-  @ Background image file:
-  @ <input type="file" name="bgim" size="60" accept="image/*" />
+  @ <label>Background image file:
+  @ <input type="file" name="bgim" size="60" accept="image/*" /></label>
   @ <p align="center">
   @ <input type="submit" name="setbg" value="Change Background" />
   @ <input type="submit" name="clrbg" value="Revert To Default" /></p>
@@ -1703,8 +1728,8 @@ void setup_logo(void){
   @ supports for icon images.
   @ To change the icon image, use the following form:</p>
   login_insert_csrf_secret();
-  @ Icon image file:
-  @ <input type="file" name="iconim" size="60" accept="image/*" />
+  @ <label>Icon image file:
+  @ <input type="file" name="iconim" size="60" accept="image/*" /></label>
   @ <p align="center">
   @ <input type="submit" name="seticon" value="Change Icon" />
   @ <input type="submit" name="clricon" value="Revert To Default" /></p>
@@ -1795,8 +1820,8 @@ void sql_page(void){
   @
   @ <form method="post" action="%R/admin_sql">
   login_insert_csrf_secret();
-  @ SQL:<br />
-  @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br />
+  @ <label>SQL:<br />
+  @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea></label><br />
   @ <input type="submit" name="go" value="Run SQL">
   @ <input type="submit" name="schema" value="Show Schema">
   @ <input type="submit" name="tablelist" value="List Tables">
@@ -1904,8 +1929,8 @@ void th1_page(void){
   @
   @ <form method="post" action="%R/admin_th1">
   login_insert_csrf_secret();
-  @ TH1:<br />
-  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ <label>TH1:<br />
+  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea></label><br />
   @ <input type="submit" name="go" value="Run TH1">
   @ </form>
   if( go ){
@@ -2176,9 +2201,9 @@ void page_waliassetup(){
     const char *zName = db_column_text(&q, 0);
     const char *zValue = db_column_text(&q, 1);
     @ <tr><td>
-    @ <input type='text' size='20' value='%h(zName)' name='n%d(cnt)'>
+    @ <input type='text' size='20' value='%h(zName)' name='n%d(cnt)' title='Alias %d(cnt)'>
     @ </td><td>
-    @ <input type='text' size='80' value='%h(zValue)' name='v%d(cnt)'>
+    @ <input type='text' size='80' value='%h(zValue)' name='v%d(cnt)' title='URI %d(cnt)'>
     @ </td></tr>
     cnt++;
     if( blob_size(&namelist)>0 ) blob_append(&namelist, " ", 1);

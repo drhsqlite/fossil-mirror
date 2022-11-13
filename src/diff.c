@@ -3541,7 +3541,6 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** or removed by any subsequent check-in.
 **
 ** Query parameters:
-**
 **    checkin=ID          The check-in at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers=BOOLEAN    Show file versions rather than check-in versions

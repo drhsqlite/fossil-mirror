@@ -472,67 +472,46 @@ static void bisect_run(void){
 **
 ** Run various subcommands useful for searching back through the change
 ** history for a particular checkin that causes or fixes a problem.
-**
 ** > fossil bisect bad ?VERSION?
-**
 **       Identify version VERSION as non-working.  If VERSION is omitted,
 **       the current checkout is marked as non-working.
-**
 ** > fossil bisect good ?VERSION?
-**
 **       Identify version VERSION as working.  If VERSION is omitted,
 **       the current checkout is marked as working.
-**
 ** > fossil bisect log
 ** > fossil bisect chart
-**
 **       Show a log of "good", "bad", and "skip" versions.  "bisect log"
 **       shows the  events in the order that they were tested.
 **       "bisect chart" shows them in order of check-in.
-**
 ** > fossil bisect next
-**
 **       Update to the next version that is halfway between the working and
 **       non-working versions.
-**
 ** > fossil bisect options ?NAME? ?VALUE?
-**
 **       List all bisect options, or the value of a single option, or set the
 **       value of a bisect option.
-**
 ** > fossil bisect reset
-**
 **       Reinitialize a bisect session.  This cancels prior bisect history
 **       and allows a bisect session to start over from the beginning.
-**
 ** > fossil bisect run [OPTIONS] COMMAND
-**
 **       Invoke COMMAND repeatedly to run the bisect.  The exit code for
 **       COMMAND should be 0 for "good", 125 for "skip", and any other value
-**       for "bad".  Options:
+**       for "bad".  
 **
+**       Options:
 **          -i|--interactive    Prompt the user for the good/bad/skip decision
 **                              after each step, rather than using the exit
 **                              code from COMMAND
-**
 ** > fossil bisect skip ?VERSION?
-**
 **       Cause VERSION (or the current checkout if VERSION is omitted) to
 **       be ignored for the purpose of the current bisect.  This might
 **       be done, for example, because VERSION does not compile correctly
 **       or is otherwise unsuitable to participate in this bisect.
-**
 ** > fossil bisect vlist|ls|status ?-a|--all?
-**
 **       List the versions in between the inner-most "bad" and "good".
-**
 ** > fossil bisect ui
-**
 **       Like "fossil ui" except start on a timeline that shows only the
 **       check-ins that are part of the current bisect.
-**
 ** > fossil bisect undo
-**
 **       Undo the most recent "good", "bad", or "skip" command.
 */
 void bisect_cmd(void){

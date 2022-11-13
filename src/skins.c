@@ -443,8 +443,8 @@ static int skinRename(void){
     @ <form action="%R/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Current name:<td align="left"><b>%h(zOldName)</b>
-    @ <tr><td align="right">New name:<td align="left">
-    @ <input type="text" size="35" name="newname" value="%h(zNewName)">
+    @ <tr><td align="right"><label for="newname">New name:</label><td align="left">
+    @ <input type="text" size="35" id="newname" name="newname" value="%h(zNewName)">
     @ <tr><td><td>
     @ <input type="hidden" name="sn" value="%h(zOldName)">
     @ <input type="submit" name="rename" value="Rename">
@@ -485,8 +485,8 @@ static int skinSave(const char *zCurrent){
     }
     @ <form action="%R/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
-    @ <tr><td align="right">Name for this skin:<td align="left">
-    @ <input type="text" size="35" name="svname" value="%h(zNewName)">
+    @ <tr><td align="right"><label for="svname">Name for this skin:</label><td align="left">
+    @ <input type="text" size="35" id="svname" name="svname" value="%h(zNewName)">
     @ <tr><td><td>
     @ <input type="submit" name="save" value="Save">
     @ <input type="submit" name="cansave" value="Cancel">
@@ -776,7 +776,6 @@ extern const struct strctCssDefaults {
 **
 ** Edit aspects of a skin determined by the w= query parameter.
 ** Requires Admin or Setup privileges.
-**
 **    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details, 4=js
 **    sk=NUM    -- the draft skin number
 */
@@ -855,11 +854,11 @@ void setup_skinedit(void){
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
-  @ <h2>Edit %s(zTitle):</h2>
+  @ <h2><label for="%s(zFile)">Edit %s(zTitle):</label></h2>
   if( P("submit") && cgi_csrf_safe(0) && (zOrig==0 || strcmp(zOrig,zContent)!=0) ){
     db_set_mprintf(zContent, 0, "draft%d-%s",iSkin,zFile);
   }
-  @ <textarea name="%s(zFile)" rows="10" cols="80">\
+  @ <textarea id="%s(zFile)" name="%s(zFile)" rows="10" cols="80">\
   @ %h(zContent)</textarea>
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
@@ -869,8 +868,9 @@ void setup_skinedit(void){
     @ <input type="submit" name="revert" value='Revert To "%s(zBasis)"' />
   }
   @ <hr />
-  @ Baseline: \
+  @ <label>Baseline: \
   skin_emit_skin_selector("basis", zBasis, zDraft);
+  @ </label>
   @ <input type="submit" name="diff" value="Unified Diff" />
   @ <input type="submit" name="sbsdiff" value="Side-by-Side Diff" />
   if( P("diff")!=0 || P("sbsdiff")!=0 ){
@@ -1034,7 +1034,7 @@ void setup_skin(void){
   @ Nine separate drafts are available to facilitate A/B testing.</p>
   @
   @ <form method='POST' action='%R/setup_skin#step2' id='f01'>
-  @ <p class='skinInput'>Draft skin to edit:
+  @ <p class='skinInput'><label>Draft skin to edit:
   @ <select size='1' name='sk' id='skStep1'>
   for(i=1; i<=9; i++){
     if( i==iSkin ){
@@ -1043,7 +1043,7 @@ void setup_skin(void){
       @ <option value='%d(i)'>draft%d(i)</option>
     }
   }
-  @ </select>
+  @ </select></label>
   @ </p>
   @
   @ <a name='step2'></a>
@@ -1059,9 +1059,9 @@ void setup_skin(void){
     @ <form method='POST' action='%R/setup_skin#step2' id='f02'>
     @ <p class='skinInput'>
     @ <input type='hidden' name='sk' value='%d(iSkin)'>
-    @ Authorized editors for skin draft%d(iSkin):
+    @ <label>Authorized editors for skin draft%d(iSkin):
     @ <input type='text' name='editors' value='%h(zAllowedEditors)'\
-    @  width='40'>
+    @  width='40'></label>
     @ <input type='submit' name='submit2' value='Change'>
     @ </p>
     @ </form>
@@ -1087,9 +1087,9 @@ void setup_skin(void){
     @ <form method='POST' action='%R/setup_skin#step4' id='f03'>
     @ <p class='skinInput'>
     @ <input type='hidden' name='sk' value='%d(iSkin)'>
-    @ Initialize skin <b>draft%d(iSkin)</b> using
+    @ <label>Initialize skin <b>draft%d(iSkin)</b> using
     skin_emit_skin_selector("initskin", "current", 0);
-    @ <input type='submit' name='init3' value='Go'>
+    @ </label><input type='submit' name='init3' value='Go'>
     @ </p>
     @ </form>
   }
@@ -1157,10 +1157,10 @@ void setup_skin(void){
     @ <form method='POST' action='%R/setup_skin#step7'>
     @ <p class='skinInput'>
     @ <input type='hidden' name='sk' value='%d(iSkin)'>
-    @ <input type='checkbox' name='pub7ck1' value='yes'>\
-    @ Skin draft%d(iSkin) has been tested and found ready for production.<br>
-    @ <input type='checkbox' name='pub7ck2' value='yes'>\
-    @ The current skin should be overwritten with draft%d(iSkin).<br>
+    @ <label><input type='checkbox' name='pub7ck1' value='yes'>\
+    @ Skin draft%d(iSkin) has been tested and found ready for production.</label><br>
+    @ <label><input type='checkbox' name='pub7ck2' value='yes'>\
+    @ The current skin should be overwritten with draft%d(iSkin).</label><br>
     @ <input type='submit' name='pub7' value='Publish Draft%d(iSkin)'>
     @ </p></form>
     @

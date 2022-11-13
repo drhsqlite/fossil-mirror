@@ -1326,7 +1326,6 @@ void version_cmd(void){
 ** Show the version information for Fossil.
 **
 ** Query parameters:
-**
 **    verbose       Show details
 */
 void test_version_page(void){
@@ -2226,61 +2225,45 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** that begin with "#".
 **
 ** The following control lines are recognized:
-**
 **    repository: PATH         Name of the Fossil repository
-**
 **    directory:  PATH         Name of a directory containing many Fossil
 **                             repositories whose names all end with ".fossil".
 **                             There should only be one of "repository:"
 **                             or "directory:"
-**
 **    notfound: URL            When in "directory:" mode, redirect to
 **                             URL if no suitable repository is found.
-**
 **    repolist                 When in "directory:" mode, display a page
 **                             showing a list of available repositories if
 **                             the URL is "/".
-**
 **    localauth                Grant administrator privileges to connections
 **                             from 127.0.0.1 or ::1.
-**
 **    skin: LABEL              Use the built-in skin called LABEL rather than
 **                             the default.  If there are no skins called LABEL
 **                             then this line is a no-op.
-**
 **    files: GLOBLIST          GLOBLIST is a comma-separated list of GLOB
 **                             patterns that specify files that can be
 **                             returned verbatim.  This feature allows Fossil
 **                             to act as a web server returning static
 **                             content.
-**
 **    setenv: NAME VALUE       Set environment variable NAME to VALUE.  Or
 **                             if VALUE is omitted, unset NAME.
-**
 **    HOME: PATH               Shorthand for "setenv: HOME PATH"
-**
 **    cgi-debug: FILE          Causing debugging information to be written
 **                             into FILE.
-**
 **    errorlog: FILE           Warnings, errors, and panics written to FILE.
-**
 **    timeout: SECONDS         Do not run for longer than SECONDS.  The default
 **                             timeout is FOSSIL_DEFAULT_TIMEOUT (600) seconds.
-**
 **    extroot: DIR             Directory that is the root of the sub-CGI tree
 **                             on the /ext page.
-**
 **    redirect: REPO URL       Extract the "name" query parameter and search
 **                             REPO for a check-in or ticket that matches the
 **                             value of "name", then redirect to URL.  There
 **                             can be multiple "redirect:" lines that are
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
-**
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
 **                             flag of the http command.
-**
 **    mainmenu: FILE           Override the mainmenu config setting with the
 **                             contents of the given file.
 **
@@ -2611,7 +2594,6 @@ void parse_pid_key_value(
 ** Return the process identifier of the running Fossil server instance.
 **
 ** Query parameters:
-**
 **   usepidkey           When present and available, also return the
 **                       address and size, within this server process,
 **                       of the saved database encryption key.  This
@@ -3426,7 +3408,6 @@ void test_echo_cmd(void){
 **
 ** Test error and warning log operation.  This webpage is accessible to
 ** the administrator only.
-**
 **     case=1           Issue a fossil_warning() while generating the page.
 **     case=2           Extra db_begin_transaction()
 **     case=3           Extra db_end_transaction()

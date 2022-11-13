@@ -12,7 +12,7 @@
 */
 window.addEventListener( 'load', function() {
 
-var submenu = document.querySelector("div.submenu");
+var submenu = document.querySelector("nav.submenu");
 var anchor = document.createElement("A");
 var brlistDataObj = document.getElementById("brlist-data");
 var brlistDataTxt = brlistDataObj.textContent || brlistDataObj.innerText;

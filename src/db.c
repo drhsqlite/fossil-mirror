@@ -869,7 +869,6 @@ void db_test_db_exec_cmd(void){
 ** Usage: %fossil test-db-prepare ?OPTIONS? SQL-STATEMENT
 **
 ** Options:
-**
 **   --auth-report   Enable the ticket report query authorizer.
 **   --auth-ticket   Enable the ticket schema query authorizer.
 **
@@ -4625,7 +4624,6 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** Options:
 **   --global   set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only.
-**
 **   --exact    only consider exact name matches.
 **
 ** See also: [[configuration]]

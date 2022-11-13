@@ -321,7 +321,6 @@ static void process_sync_args(
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Pull from all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -376,7 +375,6 @@ void pull_cmd(void){
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Push to all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -425,7 +423,6 @@ void push_cmd(void){
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Sync with all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -487,45 +484,31 @@ void sync_unversioned(unsigned syncFlags){
 ** the URL used in the most recent "sync", "push", "pull", "clone", or
 ** similar command.  As such, the default remote can be updated by
 ** Fossil with each sync command.  Other named remotes are persistent.
-**
 ** > fossil remote
-**
 **     With no arguments, this command shows the current default remote
 **     URL.  If there is no default, it shows "off".
-**
 ** > fossil remote add NAME URL
-**
 **     Add a new named URL. Afterwards, NAME can be used as a short
 **     symbolic name for URL in contexts where a URL is required. The
 **     URL argument can be "default" or a prior symbolic name to make
 **     a copy of an existing URL under the new NAME. The "default"
 **     remote cannot be defined with this subcommand; instead,
 **     use 'fossil remote REF' as documented below.
-**
 ** > fossil remote config-data
-**
 **     DEBUG USE ONLY - Show the name and value of every CONFIG table
 **     entry in the repository that is associated with the remote URL store.
 **     Passwords are obscured in the output.
-**
 ** > fossil remote delete NAME
-**
 **     Delete a named URL previously created by the "add" subcommand.
-**
 ** > fossil remote hyperlink ?FILENAME? ?LINENUM? ?LINENUM?
-**
 **     Print a URL that will access the current checkout on the remote
 **     repository.  Or if the FILENAME argument is included, print the
 **     URL to access that particular file within the current checkout.
 **     If one or two linenumber arguments are provided after the filename,
 **     then the URL is for the line or range of lines specified.
-**
 ** > fossil remote list|ls
-**
 **     Show all remote repository URLs.
-**
 ** > fossil remote off
-**
 **     Forget the default URL. This disables autosync. 
 **
 **     This is a convenient way to enter "airplane mode".  To enter
@@ -538,24 +521,18 @@ void sync_unversioned(unsigned syncFlags){
 **     To exit airplane mode and turn autosync back on again:
 **
 **         fossil remote main
-**
 ** > fossil remote scrub
-**
 **     Forget any saved passwords for remote repositories, but continue
 **     to remember the URLs themselves.  You will be prompted for the
 **     password the next time it is needed.
-**
 ** > fossil remote ui ?FILENAME? ?LINENUM? ?LINENUM?
-**
 **     Bring up a web browser pointing at the remote repository, and
 **     specifically to the page that describes the current checkout
 **     on that remote repository.  Or if FILENAME and/or LINENUM arguments
 **     are provided, to the specific file and range of lines.  This
 **     command is similar to "fossil remote hyperlink" except that instead
 **     of printing the URL, it passes the URL off to the web browser.
-**
 ** > fossil remote REF
-**
 **     Make REF the new default URL, replacing the prior default.
 **     REF may be a URL or a NAME from a prior "add".
 */
@@ -822,7 +799,6 @@ remote_delete_default:
 ** database.
 **
 ** Options:
-**
 **    --overwrite              OK to overwrite an existing file
 **    -R NAME                  Filename of the repository to backup
 */

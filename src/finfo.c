@@ -304,6 +304,7 @@ void cat_cmd(void){
 
 /*
 ** WEBPAGE: finfo
+**
 ** Usage:
 **   *  /finfo?name=FILENAME
 **   *  /finfo?name=FILENAME&ci=HASH
@@ -318,7 +319,6 @@ void cat_cmd(void){
 ** to be called FILENAME and changes are not tracked across renames.
 **
 ** Additional query parameters:
-**
 **    a=DATETIME      Only show changes after DATETIME
 **    b=DATETIME      Only show changes before DATETIME
 **    ci=HASH         identify a particular version of a file and then

@@ -138,8 +138,8 @@ static void xfersetup_generic(
   }
   @ <form action="%R/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
-  @ <p>%s(zDesc)</p>
-  @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
+  @ <p><label for="x">%s(zDesc)</label></p>
+  @ <textarea id="x" name="x" rows="%d(height)" cols="80">%h(z)</textarea>
   @ <p>
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />

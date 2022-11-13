@@ -1477,7 +1477,6 @@ static void emitFileStat(
 ** display file system information about the files specified, if any.
 **
 ** Options:
-**
 **     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
 **     --open-config                Open the configuration database first.
 **     --reset                      Reset cached stat() info for each file.

@@ -77,7 +77,7 @@ td[style^=background-color] {
  * Main Area
  */
 
-div.header, div.mainmenu, div.submenu, div.content, div.footer {
+header.header, nav.mainmenu, nav.submenu, main.content, footer.footer {
   clear: both;
   margin: 0 auto;
   max-width: 90%;
@@ -89,7 +89,7 @@ div.header, div.mainmenu, div.submenu, div.content, div.footer {
  * Main Area: Header
  */
 
-div.header {
+header.header {
   margin: 0.5rem auto 0 auto;
   display: flex;
   flex-direction: row;
@@ -148,7 +148,7 @@ div.status {
  * Main Area: Global Menu
  */
 
-div.mainmenu, div.submenu {
+nav.mainmenu, nav.submenu {
   background-color: #080;
   border-radius: 1rem 1rem 0 0;
   box-shadow: 3px 4px 1px #000;
@@ -158,34 +158,34 @@ div.mainmenu, div.submenu {
   text-align: center;
 }
 
-div.mainmenu {
+nav.mainmenu {
   padding-top: 0.33rem;
   padding-bottom: 0.25rem;
 }
 
-div.submenu {
+nav.submenu {
   border-top: 1px solid #0a0;
   border-radius: 0;
   display: block;
 }
 
-div.mainmenu a, div.submenu a, div.submenu label {
+nav.mainmenu a, nav.submenu a, nav.submenu label {
   color: #000;
   padding: 0 0.75rem;
   text-decoration: none;
 }
 
-div.mainmenu a:hover, div.submenu a:hover, div.submenu label:hover {
+nav.mainmenu a:hover, nav.submenu a:hover, nav.submenu label:hover {
   color: #fff;
   text-shadow: 0px 0px 6px #0f0;
 }
 
-div.submenu * {
+nav.submenu * {
   margin: 0 0.5rem;
   vertical-align: middle;
 }
 
-div.submenu select, div.submenu input {
+nav.submenu select, nav.submenu input {
   background-color: #222;
   border: 1px inset #080;
   color: #eee;
@@ -193,7 +193,7 @@ div.submenu select, div.submenu input {
   font-size: 0.9rem;
 }
 
-div.submenu select {
+nav.submenu select {
   height: 1.75rem;
 }
 
@@ -201,7 +201,7 @@ div.submenu select {
  * Main Area: Content
  */
 
-div.content {
+main.content {
   background-color: #222;
   border-radius: 0 0 1rem 1rem;
   box-shadow: 3px 3px 1px #000;
@@ -210,7 +210,7 @@ div.content {
   padding-top: 0.5rem;
 }
 
-div.content table[bgcolor="white"] {
+main.content table[bgcolor="white"] {
   color: #000;
 }
 
@@ -225,7 +225,7 @@ div.content table[bgcolor="white"] {
  * Main Area: Footer
  */
 
-div.footer {
+footer.footer {
   color: #ee0;
   font-size: 0.75rem;
   padding: 0;
@@ -234,7 +234,7 @@ div.footer {
 }
 
 
-div.footer div {
+footer.footer div {
   background-color: #222;
   box-shadow: 3px 3px 1px #000;
   border-radius: 0 0 1rem 1rem;
@@ -242,19 +242,19 @@ div.footer div {
   padding: 0.25rem 0.75rem;
 }
 
-div.footer div.page-time {
+footer.footer div.page-time {
   float: left;
 }
 
-div.footer div.fossil-info {
+footer.footer div.fossil-info {
   float: right;
 }
 
-div.footer a, div.footer a:link, div.footer a:visited {
+footer.footer a, footer.footer a:link, footer.footer a:visited {
   color: #ee0;
 }
 
-div.footer a:hover {
+footer.footer a:hover {
   color: #fff;
   text-shadow: 0px 0px 6px #ee0;
 }
@@ -1154,14 +1154,14 @@ body.branch .brlist > table > tbody > tr.selected {
   background-color: #444;
 }
 
-body.chat div.header, body.chat div.footer,
-body.chat div.mainmenu, body.chat div.submenu,
-body.chat div.content {
+body.chat header.header, body.chat footer.footer,
+body.chat nav.mainmenu, body.chat nav.submenu,
+body.chat main.content {
   margin-left: 0.5em;
   margin-right: 0.5em;
   margin-top: auto/*eliminates unnecessary scrollbars*/;
 }
-body.chat.chat-only-mode div.content {
+body.chat.chat-only-mode main.content {
   max-width: revert;
 }
 body.chat #chat-user-list .chat-user{

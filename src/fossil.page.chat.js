@@ -78,12 +78,12 @@ window.fossil.onPageLoad(function(){
        of the input field so that pasting huge text does not scroll
        the upper area of the input widget off-screen. */
     const elemsToCount = [
-      document.querySelector('body > div.header'),
-      document.querySelector('body > div.mainmenu'),
+      document.querySelector('body > header.header'),
+      document.querySelector('body > nav.mainmenu'),
       document.querySelector('body > #hbdrop'),
-      document.querySelector('body > div.footer')
+      document.querySelector('body > footer.footer')
     ];
-    const contentArea = E1('div.content');
+    const contentArea = E1('main.content');
     const bcl = document.body.classList;
     const resized = function f(){
       if(f.$disabled) return;
@@ -139,7 +139,7 @@ window.fossil.onPageLoad(function(){
         input1: E1('#chat-input-field-single'),
         inputM: E1('#chat-input-field-multi'),
         inputFile: E1('#chat-input-file'),
-        contentDiv: E1('div.content'),
+        contentDiv: E1('main.content'),
         viewConfig: E1('#chat-config'),
         viewPreview: E1('#chat-preview'),
         previewContent: E1('#chat-preview-content'),
@@ -326,9 +326,9 @@ window.fossil.onPageLoad(function(){
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
           document.querySelectorAll(
-            ["body > div.header",
-             "body > div.mainmenu",
-             "body > div.footer",
+            ["body > header.header",
+             "body > nav.mainmenu",
+             "body > footer.footer",
              "#debugMsg"
             ].join(',')
           ).forEach((e)=>f.elemsToToggle.push(e));
@@ -1726,12 +1726,14 @@ window.fossil.onPageLoad(function(){
       const labelWrapper = D.addClass(D.div(), 'label-wrapper');
       var hint;
       if(op.hint){
-        hint = D.append(D.addClass(D.label(),'hint'),op.hint);
+        hint = D.append(D.addClass(D.span(),'hint'),op.hint);
       }
       if(op.hasOwnProperty('select')){
         const col0 = D.addClass(D.span(/*empty, but for spacing*/),
                                 'toggle-wrapper');
         D.append(menuEntry, labelWrapper, col0);
+        D.attr(op.select,'aria-label',op.hint);
+        D.attr(op.select,'title',op.hint);
         D.append(labelWrapper, op.select);
         if(hint) D.append(labelWrapper, hint);
         if(label) D.append(label);
@@ -1747,8 +1749,7 @@ window.fossil.onPageLoad(function(){
           op.persistentSetting = key;
         }
         const check = op.checkbox
-              = D.attr(D.checkbox(1, op.boolValue()),
-                       'aria-label', op.label);
+              = D.attr(D.checkbox(1, op.boolValue()));
         const id = 'cfgopt'+f.$id;
         const col0 = D.addClass(D.span(), 'toggle-wrapper');
         check.checked = op.boolValue();

@@ -167,7 +167,7 @@ void sitemap_page(void){
     @   <li>%z(href("%R/fileage?name=trunk"))File ages for Trunk</a></li>
     @   <li>%z(href("%R/uvlist"))Unversioned Files</a>
     if( g.perm.Write && zEditGlob[0]!=0 ){
-      @   <li>%z(href("%R/fileedit"))On-line File Editor</li>
+      @   <li>%z(href("%R/fileedit"))On-line File Editor</a></li>
     }
     @ </ul>
   }

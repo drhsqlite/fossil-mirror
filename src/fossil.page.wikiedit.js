@@ -552,10 +552,11 @@
       D.clearElement(parentElem);
       D.append(
         parentElem,
-        D.append(D.fieldset("Select a page to edit"),
+        D.append(D.fieldset("Select a page to edit", 'select-page'),
                  sel)
       );
       D.attr(sel, 'size', 12);
+      D.attr(sel, 'id', 'select-page');
       D.option(D.disable(D.clearElement(sel)), undefined, "Loading...");
 
       /** Set up filter checkboxes for the various types
@@ -629,9 +630,9 @@
         D.append(D.span(), getEditMarker(getEditMarker.DELETED,false)," = is empty (deleted)")
       );
 
-      const fsNewPage = D.fieldset("Create new page"),
+      const fsNewPage = D.fieldset("Create new page", 'new-page'),
             fsNewPageBody = D.div(),
-            newPageName = D.input('text'),
+            newPageName = D.input('text', 'new-page'),
             newPageBtn = D.button("Add page locally")
             ;
       D.append(parentElem, fsNewPage);
@@ -699,8 +700,10 @@
               'are retained. Saving or reloading a file removes it from this list. ',
               D.append(D.code(),F.storage.storageImplName()),
               ' = ',F.storage.storageHelpDescription()
-            );
-      D.append(wrapper, "Local edits (",
+            ),
+            label = D.label('local-edits', "Local edits");
+      D.attr(sel, 'id', 'local-edits');
+      D.append(wrapper, label, " (",
                D.append(D.code(),
                         F.storage.storageImplName()),
                "):",

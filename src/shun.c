@@ -170,9 +170,9 @@ void shun_page(void){
   @ bottom of this page.</p>
   @
   @ <a name="addshun"></a>
-  @ <p>To shun artifacts, enter their artifact hashes (the 40- or
+  @ <p><label for="shun-uuid">To shun artifacts, enter their artifact hashes (the 40- or
   @ 64-character lowercase hexadecimal hash of the artifact content) in the
-  @ following box and press the "Shun" button.  This will cause the artifacts
+  @ following box and press the "Shun" button.</label>  This will cause the artifacts
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
@@ -189,7 +189,7 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
+  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid" id="shun-uuid">
   if( zShun ){
     if( strlen(zShun) ){
       @ %h(zShun)
@@ -207,8 +207,8 @@ void shun_page(void){
   @ </blockquote>
   @
   @ <a name="delshun"></a>
-  @ <p>Enter the UUIDs of previously shunned artifacts to cause them to be
-  @ accepted again in the repository.  The artifacts content is not
+  @ <p><label for="accept-uuid">Enter the UUIDs of previously shunned artifacts to cause them to be
+  @ accepted again in the repository.</label>  The artifacts content is not
   @ restored because the content is unknown.  The only change is that
   @ the formerly shunned artifacts will be accepted on subsequent sync
   @ operations.</p>
@@ -216,7 +216,7 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
+  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid" id="accept-uuid">
   if( zAccept ){
     if( strlen(zAccept) ){
       @ %h(zAccept)

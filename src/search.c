@@ -336,7 +336,6 @@ static int search_match(
 ** the text of the files listed.  Output matches and snippets.
 **
 ** Options:
-**
 **    --begin TEXT        Text to insert before each match
 **    --end TEXT          Text to insert after each match
 **    --gap TEXT          Text to indicate elided content
@@ -585,7 +584,6 @@ void search_sql_setup(sqlite3 *db){
 ** when printing matches.
 **
 ** Options:
-**
 **     -a|--all          Output all matches, not just best matches.
 **     -n|--limit N      Limit output to N matches.
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
@@ -1143,7 +1141,8 @@ int search_screen(unsigned srchFlags, int mFlags){
   }else{
     @ <div class='searchForm'>
   }
-  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)>
+  @ <label>Search for: 
+  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)></label>
   if( (mFlags & 0x01)!=0 && (srchFlags & (srchFlags-1))!=0 ){
     static const struct { const char *z; const char *zNm; unsigned m; } aY[] = {
        { "all",  "All",        SRCH_ALL      },
@@ -1157,7 +1156,7 @@ int search_screen(unsigned srchFlags, int mFlags){
     const char *zY = PD("y","all");
     unsigned newFlags = srchFlags;
     int i;
-    @ <select size='1' name='y'>
+    @ <label> Elements: <select size='1' name='y'>
     for(i=0; i<count(aY); i++){
       if( (aY[i].m & srchFlags)==0 ) continue;
       cgi_printf("<option value='%s'", aY[i].z);
@@ -1167,7 +1166,7 @@ int search_screen(unsigned srchFlags, int mFlags){
       }
       cgi_printf(">%s</option>\n", aY[i].zNm);
     }
-    @ </select>
+    @ </select></label>
     srchFlags = newFlags;
   }
   if( fDebug ){
@@ -1199,7 +1198,6 @@ int search_screen(unsigned srchFlags, int mFlags){
 **
 ** Search for check-in comments, documents, tickets, or wiki that
 ** match a user-supplied pattern.
-**
 **    s=PATTERN       Specify the full-text pattern to search for
 **    y=TYPE          What to search.
 **                      c -> check-ins
@@ -1852,18 +1850,15 @@ void search_rebuild_index(void){
 ** Usage: fossil fts-config ?SUBCOMMAND? ?ARGUMENT?
 **
 ** The "fossil fts-config" command configures the full-text search capabilities
-** of the repository.  Subcommands:
+** of the repository.
 **
+** Subcommands:
 **     reindex            Rebuild the search index.  This is a no-op if
 **                        index search is disabled
-**
 **     index (on|off)     Turn the search index on or off
-**
 **     enable cdtwe       Enable various kinds of search. c=Check-ins,
 **                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes.
-**
 **     disable cdtwe      Disable various kinds of search
-**
 **     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
 **                        search.  (Unindexed search is never stemmed.)
 **

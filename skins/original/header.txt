@@ -1,4 +1,4 @@
-<div class="header">
+<header class="header">
   <div class="logo">
     <th1>
     ##
@@ -72,7 +72,7 @@
        puts "Not logged in"
      }
   </th1></nobr><small><div id="clock"></div></small></div>
-</div>
+</header>
 <th1>html "<script nonce='$nonce'>"</th1>
 function updateClock(){
   var e = document.getElementById("clock");
@@ -91,7 +91,7 @@ function updateClock(){
 }
 updateClock();
 </script>
-<div class="mainmenu"><th1>
+<nav class="mainmenu"><th1>
 set sitemap 0
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
@@ -102,4 +102,4 @@ foreach {name url expr class} $mainmenu {
 if {!$sitemap} {
   html "<a href='$home/sitemap'>...</a>"
 }
-</th1></div>
+</th1></nav>

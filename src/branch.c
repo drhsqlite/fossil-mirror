@@ -586,37 +586,31 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
-**
 ** >  fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
-**
 **       Adds or cancels the "closed" tag to one or more branches.
 **       It accepts arbitrary unambiguous symbolic names but
 **       will only resolve checkin names and skips any which resolve
-**       to non-leaf checkins. Options:
+**       to non-leaf checkins. 
+**
+**       Options:
 **         -n|--dry-run          do not commit changes and dump artifact
 **                               to stdout
 **         -v|--verbose          output more information
 **         --date-override DATE  DATE to use instead of 'now'
 **         --user-override USER  USER to use instead of the current default
-**
 ** >  fossil branch current
-**
 **        Print the name of the branch for the current check-out
-**
 ** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
-**
 **       Adds or cancels the "hidden" tag for the specified branches or
 **       or checkin IDs. Accepts the same options as the close
 **       subcommand.
-**
 ** >  fossil branch info BRANCH-NAME
-**
 **        Print information about a branch
-**
 ** >  fossil branch list|ls ?OPTIONS? ?GLOB?
 ** >  fossil branch lsh ?OPTIONS? ?LIMIT?
+**        List all branches. 
 **
-**        List all branches. Options:
+**        Options:
 **          -a|--all      List all branches.  Default show only open branches
 **          -c|--closed   List closed branches.
 **          -p            List only private branches.
@@ -632,9 +626,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        and accepts an optional LIMIT argument (defaults to 5) to cap output,
 **        but no GLOB argument.  All other options are supported, with -t being
 **        an implied no-op.
-**
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
-**
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
 **        Supported options for this subcommand include:
 **          --private             branch is private (i.e., remains local)
@@ -652,7 +644,6 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        Either no timezone suffix or "Z" means UTC.
 **
 ** Options valid for all subcommands:
-**
 **    -R|--repository REPO       Run commands on repository REPO
 */
 void branch_cmd(void){
@@ -811,8 +802,8 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input 
-    @  type="checkbox" disabled="disabled"/></td>
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input type="checkbox" 
+    @  title="%h(zBranch)" aria-label="%h(zBranch)" disabled="disabled"/></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
@@ -839,7 +830,6 @@ static void new_brlist_page(void){
 ** fixed bullet list is shown.
 **
 ** Query parameters:
-**
 **     all         Show all branches
 **     closed      Show only closed branches
 **     open        Show only open branches
@@ -970,7 +960,6 @@ static void brtimeline_extra(int rid){
 ** Show a timeline of all branches
 **
 ** Query parameters:
-**
 **     ng            No graph
 **     nohidden      Hide check-ins with "hidden" tag
 **     onlyhidden    Show only check-ins with "hidden" tag

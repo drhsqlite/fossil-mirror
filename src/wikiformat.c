@@ -1898,8 +1898,8 @@ void test_wiki_render(void){
 ** Usage: %fossil test-markdown-render FILE ...
 **
 ** Render markdown in FILE as HTML on stdout.
-** Options:
 **
+** Options:
 **    --safe            Restrict the output to use only "safe" HTML
 **    --lint-footnotes  Print stats for footnotes-related issues
 */
@@ -2771,7 +2771,6 @@ void safe_html_context(int eTrust){
 ** documents.  Unsafe HTML is disabled by default.  If this setting
 ** exists and is a string, then letters in that string can enable
 ** unsafe HTML in various contexts:
-**
 **    - b         Unsafe HTML allowed in embedded documentation
 **    - f         Unsafe HTML allowed in forum posts
 **    - t         Unsafe HTML allowed in tickets

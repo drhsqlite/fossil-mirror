@@ -319,33 +319,21 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **
 ** Run various subcommands on users of the open repository or of
 ** the repository identified by the -R or --repository option.
-**
 ** > fossil user capabilities USERNAME ?STRING?
-**
 **        Query or set the capabilities for user USERNAME
-**
 ** > fossil user contact USERNAME ?CONTACT-INFO?
-**
 **        Query or set contact information for user USERNAME
-**
 ** > fossil user default ?USERNAME?
-**
 **        Query or set the default user.  The default user is the
 **        user for command-line interaction.
-**
 ** > fossil user list
 ** > fossil user ls
-**
 **        List all users known to the repository
-**
 ** > fossil user new ?USERNAME? ?CONTACT-INFO? ?PASSWORD?
-**
 **        Create a new user in the repository.  Users can never be
 **        deleted.  They can be denied all access but they must continue
 **        to exist in the database.
-**
 ** > fossil user password USERNAME ?PASSWORD?
-**
 **        Change the web access password for a user.
 */
 void user_cmd(void){
@@ -620,14 +608,10 @@ void test_prompt_user_cmd(void){
 ** Prompts the user for a password and then prints it verbatim.
 **
 ** Behavior is controlled by the VERIFY parameter:
-**
 **     0     Just ask once.
-**
 **     1     If the first answer is a non-empty string, ask for
 **           verification.  Repeat if the two strings do not match.
-**
 **     2     Ask twice, repeat if the strings do not match.
-
 */
 void test_prompt_password_cmd(void){
   Blob answer;
@@ -645,7 +629,6 @@ void test_prompt_password_cmd(void){
 ** Requires Admin privileges.
 **
 ** Query parameters:
-**
 **    y=N      1: success only.  2: failure only.  3: both (default: 3)
 **    n=N      Number of entries to show (default: 200)
 **    o=N      Skip this many entries (default: 0)

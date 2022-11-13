@@ -457,56 +457,37 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 ** FURTHER WARNING: This command is a work-in-progress and may yet
 ** contain bugs.
-**
 ** > fossil purge artifacts HASH... ?OPTIONS?
-**
 **      Move arbitrary artifacts identified by the HASH list into the
 **      graveyard.
-**
 ** > fossil purge cat HASH...
-**
 **      Write the content of one or more artifacts in the graveyard onto
 **      standard output.
-**
 ** > fossil purge checkins TAGS... ?OPTIONS?
-**
 **      Move the check-ins or branches identified by TAGS and all of
 **      their descendants out of the repository and into the graveyard.
 **      If TAGS includes a branch name then it means all the check-ins
 **      on the most recent occurrence of that branch.
-**
 ** > fossil purge files NAME ... ?OPTIONS?
-**
 **      Move all instances of files called NAME into the graveyard.
 **      NAME should be the name of the file relative to the root of the
 **      repository.  If NAME is a directory, then all files within that
 **      directory are moved.
-**
 ** > fossil purge list|ls ?-l?
-**
 **      Show the graveyard of prior purges.  The -l option gives more
 **      detail in the output.
-**
 ** > fossil purge obliterate ID... ?--force?
-**
 **      Remove one or more purge events from the graveyard.  Once a purge
 **      event is obliterated, it can no longer be undone.  The --force
 **      option suppresses the confirmation prompt.
-**
 ** > fossil purge tickets NAME ... ?OPTIONS?
-**
 **      TBD...
-**
 ** > fossil purge undo ID
-**
 **      Restore the content previously removed by purge ID.
-**
 ** > fossil purge wiki NAME ... ?OPTIONS?
-**
 **      TBD...
 **
 ** COMMON OPTIONS:
-**
 **   --explain         Make no changes, but show what would happen
 **   --dry-run         An alias for --explain
 */

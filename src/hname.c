@@ -236,19 +236,14 @@ const char *hpolicy_name(void){
 **
 ** Query or set the hash policy for the current repository.  Available hash
 ** policies are as follows:
-**
 **   sha1              New artifact names are created using SHA1
-**
 **   auto              New artifact names are created using SHA1, but
 **                     automatically change the policy to "sha3" when
 **                     any SHA3 artifact enters the repository.
-**
 **   sha3              New artifact names are created using SHA3, but
 **                     older artifacts with SHA1 names may be reused.
-**
 **   sha3-only         Use only SHA3 artifact names.  Do not reuse legacy
 **                     SHA1 names.
-**
 **   shun-sha1         Shun any SHA1 artifacts received by sync operations
 **                     other than clones.  Older legacy SHA1 artifacts are
 **                     allowed during a clone.

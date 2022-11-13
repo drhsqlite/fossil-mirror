@@ -46,11 +46,12 @@ static struct Submenu {
 static int nSubmenu = 0;     /* Number of buttons */
 static struct SubmenuCtrl {
   const char *zName;           /* Form query parameter */
-  const char *zLabel;          /* Label.  Might be NULL for FF_MULTI */
+  const char *zLabel;          /* Label */
   unsigned char eType;         /* FF_ENTRY, FF_MULTI, FF_CHECKBOX */
   unsigned char eVisible;      /* STYLE_NORMAL or STYLE_DISABLED */
   short int iSize;             /* Width for FF_ENTRY.  Count for FF_MULTI */
   const char *const *azChoice; /* value/display pairs for FF_MULTI */
+  const char *zTrue;           /* FF_BINARY label when true */
   const char *zFalse;          /* FF_BINARY label when false */
   const char *zJS;             /* Javascript to run on toggle */
 } aSubmenuCtrl[20];
@@ -309,13 +310,15 @@ void style_submenu_checkbox(
 }
 void style_submenu_binary(
   const char *zName,       /* Query parameter name */
+  const char *zLabel,      /* Label of parameter */
   const char *zTrue,       /* Label to show when parameter is true */
   const char *zFalse,      /* Label to show when the parameter is false */
   int eVisible             /* Visible or disabled */
 ){
   assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
-  aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+  aSubmenuCtrl[nSubmenuCtrl].zTrue = zTrue;
   aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
   aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_BINARY;
@@ -323,12 +326,14 @@ void style_submenu_binary(
 }
 void style_submenu_multichoice(
   const char *zName,           /* Query parameter name */
+  const char *zLabel,          /* Label of parameter */
   int nChoice,                 /* Number of options */
   const char *const *azChoice, /* value/display pairs.  2*nChoice entries */
   int eVisible                 /* Visible or disabled */
 ){
   assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
   aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
   aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;
   aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
@@ -647,7 +652,7 @@ void style_disable_csp(void){
 ** prepended.
 */
 static const char zDfltHeader[] = 
-@ <html>
+@ <html lang="en">
 @ <head>
 @ <meta charset="UTF-8">
 @ <base href="$baseurl/$current_page" />
@@ -989,7 +994,7 @@ void style_finish_page(){
       @ <input type='hidden' name='udc' value='1'>
       cgi_tag_query_parameter("udc");
     }
-    @ <div class="submenu">
+    @ <nav id="submenu" class="submenu" title="Submenu">
     if( nSubmenu>0 ){
       qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
       for(i=0; i<nSubmenu; i++){
@@ -1020,7 +1025,7 @@ void style_finish_page(){
       switch( aSubmenuCtrl[i].eType ){
         case FF_ENTRY:
           @ <span class='submenuctrl%s(zXtraClass) %s(zClass)'>\
-          @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
+          @ &nbsp;<label>%h(aSubmenuCtrl[i].zLabel):&nbsp;\
           @ <input type='text' name='%s(zQPN)' value='%h(PD(zQPN, ""))' \
           if( aSubmenuCtrl[i].iSize<0 ){
             @ size='%d(-aSubmenuCtrl[i].iSize)' \
@@ -1028,7 +1033,7 @@ void style_finish_page(){
             @ size='%d(aSubmenuCtrl[i].iSize)' \
             @ maxlength='%d(aSubmenuCtrl[i].iSize)' \
           }
-          @ id='submenuctrl-%d(i)'%s(zDisabled)></span>
+          @ id='submenuctrl-%d(i)'%s(zDisabled)></label></span>
           break;
         case FF_MULTI: {
           int j;
@@ -1036,9 +1041,7 @@ void style_finish_page(){
           if( zXtraClass[0] ){
             @ <span class='%s(zXtraClass+1) %s(zClass)'>
           }
-          if( aSubmenuCtrl[i].zLabel ){
-            @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
-          }
+          @ &nbsp;<label>%h(aSubmenuCtrl[i].zLabel):&nbsp;\
           @ <select class='submenuctrl %s(zClass)' size='1' name='%s(zQPN)' \
           @ id='submenuctrl-%d(i)'%s(zDisabled)>
           for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
@@ -1050,6 +1053,7 @@ void style_finish_page(){
             @ >%h(aSubmenuCtrl[i].azChoice[j+1])</option>
           }
           @ </select>
+          @ </label>
           if( zXtraClass[0] ){
             @ </span>
           }
@@ -1057,19 +1061,21 @@ void style_finish_page(){
         }
         case FF_BINARY: {
           int isTrue = PB(zQPN);
+          @ <label for='submenuctrl-%d(i)'>%h(aSubmenuCtrl[i].zLabel):&nbsp;
           @ <select class='submenuctrl%s(zXtraClass)' size='1' \
           @ name='%s(zQPN)' id='submenuctrl-%d(i)'%s(zDisabled)>
           @ <option value='1'\
           if( isTrue ){
             @  selected\
           }
-          @ >%h(aSubmenuCtrl[i].zLabel)</option>
+          @ >%h(aSubmenuCtrl[i].zTrue)</option>
           @ <option value='0'\
           if( !isTrue ){
             @  selected\
           }
           @ >%h(aSubmenuCtrl[i].zFalse)</option>
           @ </select>
+          @ </label>
           break;
         }
         case FF_CHECKBOX: {
@@ -1088,7 +1094,7 @@ void style_finish_page(){
         }
       }
     }
-    @ </div>
+    @ </nav>
     if( nSubmenuCtrl ){
       cgi_query_parameters_to_hidden();
       cgi_tag_query_parameter(0);
@@ -1109,13 +1115,13 @@ void style_finish_page(){
     @ </div>
   }
 
-  @ <div class="content"><span id="debugMsg"></span>
+  @ <main class="content"><span id="debugMsg"></span>
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
     @ <div class="endContent"></div>
   }
-  @ </div>
+  @ </main>
 
   /* Put the footer at the bottom of the page. */
   zFooter = skin_get("footer");
@@ -1267,14 +1273,11 @@ static void page_style_css_append_page_style(Blob *pOut){
 **
 ** Return the style sheet.   The style sheet is assemblied from
 ** multiple sources, in order:
-**
 **    (1)   The built-in "default.css" style sheet containing basic defaults.
-**
 **    (2)   The page-specific style sheet taken from the built-in
 **          called "PAGENAME.css" where PAGENAME is the value of the name=
 **          or page= query parameters.  If neither name= nor page= exist,
 **          then this section is a no-op.
-**
 **    (3)   The skin-specific "css.txt" file, if there one.
 **
 ** All of (1), (2), and (3) above (or as many as exist) are concatenated.

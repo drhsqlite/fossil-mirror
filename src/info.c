@@ -189,7 +189,6 @@ static void showParentProject(void){
 ** file in a checkout.
 **
 ** Options:
-**
 **    -R|--repository REPO       Extract info from repository REPO
 **    -v|--verbose               Show extra information about repositories
 **
@@ -1156,7 +1155,6 @@ static void checkin_description(int rid){
 ** to= query parameters.
 **
 ** Query parameters:
-**
 **   from=TAG        Left side of the comparison
 **   to=TAG          Right side of the comparison
 **   branch=TAG      Show all changes on a particular branch
@@ -1658,7 +1656,6 @@ int object_description(
 ** The preferred-diff-type setting determines the preferred diff format
 ** for web pages if the format is not otherwise specified, for example
 ** by a query parameter or cookie.  Allowed values:
-**
 **    1    Unified diff
 **    2    Side-by-side diff
 **
@@ -1709,7 +1706,6 @@ int preferred_diff_type(void){
 ** used.
 **
 ** Additional parameters:
-**
 **      dc=N             Show N lines of context around each diff
 **      patch            Use the patch diff format
 **      regex=REGEX      Only show differences that match REGEX
@@ -1836,7 +1832,6 @@ void diff_page(void){
 ** URL: /raw?ci=BRANCH&filename=NAME
 **
 ** Additional query parameters:
-**
 **    m=MIMETYPE       The mimetype is MIMETYPE
 **    at=FILENAME      Content-disposition; attachment; filename=FILENAME;
 **
@@ -2095,7 +2090,6 @@ static void hexdump(Blob *pBlob){
 ** as preformatted text.
 **
 ** Other parameters:
-**
 **     verbose              Show more detail when describing the object
 */
 void hexdump_page(void){
@@ -2360,19 +2354,18 @@ void cmd_test_line_numbers(void){
 **    /file/NAME
 **
 ** Additional query parameters:
-**
-**   ln              - show line numbers
-**   ln=N            - highlight line number N
-**   ln=M-N          - highlight lines M through N inclusive
-**   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
-**   verbose         - show more detail in the description
-**   download        - redirect to the download (artifact page only)
-**   name=NAME       - filename or hash as a query parameter
-**   filename=NAME   - alternative spelling for "name="
-**   fn=NAME         - alternative spelling for "name="
-**   ci=VERSION      - The specific check-in to use with "name=" to
-**                     identify the file.
-**   txt             - Force display of unformatted source text
+**   ln              show line numbers
+**   ln=N            highlight line number N
+**   ln=M-N          highlight lines M through N inclusive
+**   ln=M-N+Y-Z      highlight lines M through N and Y through Z (inclusive)
+**   verbose         show more detail in the description
+**   download        redirect to the download (artifact page only)
+**   name=NAME       filename or hash as a query parameter
+**   filename=NAME   alternative spelling for "name="
+**   fn=NAME         alternative spelling for "name="
+**   ci=VERSION      The specific check-in to use with "name=" to
+**                   identify the file.
+**   txt             Force display of unformatted source text
 **
 ** The /artifact page show the complete content of a file
 ** identified by HASH.  The /whatis page shows only a description
@@ -3107,11 +3100,9 @@ int is_datetime(const char* zDate){
 ** of the check-in.)
 **
 ** Query parameters:
-**
 **     rid=INTEGER        Record ID of the check-in to edit (REQUIRED)
 **
 ** POST parameters after pressing "Preview", "Cancel", or "Apply":
-**
 **     c=TEXT             New check-in comment
 **     u=TEXT             New user name
 **     newclr             Apply a background color
@@ -3125,7 +3116,6 @@ int is_datetime(const char* zDate){
 **     close              Close this check-in
 **     hide               Hide this check-in
 **     cNNN               Cancel tag with tagid=NNN
-**
 **     cancel             Cancel the edit.  Return to the check-in view
 **     preview            Show a preview of the edited check-in comment
 **     apply              Apply changes
@@ -3282,25 +3272,26 @@ void ci_edit_page(void){
   @ <div><input type="hidden" name="r" value="%s(zUuid)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><th align="right" valign="top">User:</th>
+  @ <tr><th align="right" valign="top"><label for="u">User:</label></th>
   @ <td valign="top">
-  @   <input type="text" name="u" size="20" value="%h(zNewUser)" />
+  @   <input type="text" id="u" name="u" size="20" value="%h(zNewUser)" />
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Comment:</th>
+  @ <tr><th align="right" valign="top"><label for="c">Comment:</label></th>
   @ <td valign="top">
-  @ <textarea name="c" rows="10" cols="80">%h(zNewComment)</textarea>
+  @ <textarea id="c" name="c" rows="10" cols="80">%h(zNewComment)</textarea>
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Check-in Time:</th>
+  @ <tr><th align="right" valign="top"><label for="dt">Check-in Time:</label></th>
   @ <td valign="top">
-  @   <input type="text" name="dt" size="20" value="%h(zNewDate)" />
+  @   <input type="text" id="dt" name="dt" size="20" value="%h(zNewDate)" />
   @ </td></tr>
 
   if( zChngTime ){
-    @ <tr><th align="right" valign="top">Timestamp of this change:</th>
+    @ <tr><th align="right" valign="top">
+    @ <label for="chngtime">Timestamp of this change:</label></th>
     @ <td valign="top">
-    @   <input type="text" name="chngtime" size="20" value="%h(zChngTime)" />
+    @   <input type="text" id="chngtime" name="chngtime" size="20" value="%h(zChngTime)" />
     @ </td></tr>
   }
 
@@ -3327,9 +3318,9 @@ void ci_edit_page(void){
   @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
   @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
-  @ Add the following new tag name to this check-in:</label>
+  @ Add the following</label> <label>new tag name to this check-in:
   @ <input type="text" size='15' name="tagname" value="%h(zNewTag)" \
-  @ id='tagname' />
+  @ id='tagname' /></label>
   zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " AND tagxref.tagid=%d", rid, TAG_BRANCH);
@@ -3382,9 +3373,9 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr" \
   @ data-branch='%h(zBranchName)'%s(zNewBrFlag) />
-  @ Make this check-in the start of a new branch named:</label>
+  @ Make this check-in the start of a</label> <label>new branch named:
   @ <input id="brname" type="text" style="width:15;" name="brname" \
-  @ value="%h(zNewBranch)" /></td></tr>
+  @ value="%h(zNewBranch)" /></label></td></tr>
   if( !fHasHidden ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
@@ -3473,7 +3464,6 @@ static void prepare_amend_comment(
 ** Amend the tags on check-in HASH to change how it displays in the timeline.
 **
 ** Options:
-**
 **    --author USER           Make USER the author for check-in
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    -M|--message-file FILE  Read the amended comment from FILE
@@ -3815,7 +3805,6 @@ int describe_commit(
 ** ancestor is found, show only the short hash of VERSION.
 **
 ** Options:
-**
 **    --digits           Display so many hex digits of the hash 
 **                       (default: the larger of 6 and the 'hash-digit' setting)
 **    -d|--dirty         Show whether there are changes to be committed

@@ -717,8 +717,8 @@ static void showAllFields(void){
 ** URL:  tktview?name=HASH
 **
 ** View a ticket identified by the name= query parameter.
-** Other query parameters:
 **
+** Other query parameters:
 **      tl               Show a timeline of the ticket above the status
 */
 void tktview_page(void){
@@ -1196,7 +1196,6 @@ void tkt_draw_timeline(int tagid, const char *zType){
 ** Show the change history for a single ticket in timeline format.
 ** 
 ** Query parameters:
-**
 **     y=ci          Show only check-ins associated with the ticket
 */
 void tkttimeline_page(void){
@@ -1477,18 +1476,19 @@ void ticket_output_change_artifact(
 ** Usage: %fossil ticket SUBCOMMAND ...
 **
 ** Run various subcommands to control tickets
-**
 ** > fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?OPTIONS?
-**
-**     Options:
-**       -l|--limit LIMITCHAR
-**       -q|--quote
-**       -R|--repository REPO
-**
 **     Run the ticket report, identified by the report format title
 **     used in the GUI. The data is written as flat file on stdout,
-**     using TAB as separator. The separator can be changed using
-**     the -l or --limit option.
+**     using TAB as separator. 
+**
+**     Options:
+**       -l|--limit LIMITCHAR   Specify a different separator
+**       -q|--quote             If --quote is used, the tickets are encoded by quoting special
+**                              chars (space -> \\s, tab -> \\t, newline -> \\n, cr -> \\r,
+**                              formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
+**                              Otherwise, the simplified encoding as on the show report raw page
+**                              in the GUI is used. This has no effect in JSON mode.
+**       -R|--repository REPO
 **
 **     If TICKETFILTER is given on the commandline, the query is
 **     limited with a new WHERE-condition.
@@ -1497,29 +1497,17 @@ void ticket_output_change_artifact(
 **       example:  Report only lists rows with status not open
 **                 TICKETFILTER: status != 'open'
 **
-**     If --quote is used, the tickets are encoded by quoting special
-**     chars (space -> \\s, tab -> \\t, newline -> \\n, cr -> \\r,
-**     formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
-**     Otherwise, the simplified encoding as on the show report raw page
-**     in the GUI is used. This has no effect in JSON mode.
-**
 **     Instead of the report title it's possible to use the report
 **     number; the special report number 0 lists all columns defined in
 **     the ticket table.
-**
 ** > fossil ticket list fields
 ** > fossil ticket ls fields
-**
 **     List all fields defined for ticket in the fossil repository.
-**
 ** > fossil ticket list reports
 ** > fossil ticket ls reports
-**
 **     List all ticket reports defined in the fossil repository.
-**
 ** > fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 ** > fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
-**
 **     Change ticket identified by TICKETUUID to set the values of
 **     each field FIELD to VALUE.
 **
@@ -1533,13 +1521,9 @@ void ticket_output_change_artifact(
 **     --quote enables the special character decoding as in "ticket
 **     show", which allows setting multiline text or text with special
 **     characters.
-**
 ** > fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
-**
 **     Like set, but create a new ticket with the given values.
-**
 ** > fossil ticket history TICKETUUID
-**
 **     Show the complete change history for the ticket
 **
 ** Note that the values in set|add are not validated against the

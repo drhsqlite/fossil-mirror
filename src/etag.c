@@ -254,7 +254,6 @@ sqlite3_int64 etag_mtime(void){
 ** Generate an etag given a KEY-NUMBER and/or a HASH.
 **
 ** KEY-NUMBER is some combination of:
-**
 **    1   ETAG_CONFIG   The config table version number
 **    2   ETAG_DATA     The event table version number
 **    4   ETAG_COOKIE   The display cookie

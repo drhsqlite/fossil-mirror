@@ -88,7 +88,6 @@ span.timelineEllipsis {
   font-size: 80%;
   text-align: right;
   float: right;
-  opacity: 0.75;
   margin-top: 0.5em;
   margin-left: 1em;
 }
@@ -463,7 +462,7 @@ td.tktTlOpen {
   color: #800;
 }
 td.tktTlClosed {
-  color: #888;
+  color: #757575;
 }
 span.tktError {
   color: red;
@@ -565,7 +564,7 @@ table.diff pre {
 table.diff pre > ins,
 table.diff pre > del {
   /* Fill platform-dependent color gaps caused by
-     inflated line-height */;
+     inflated line-height */
   padding: 0.062em 0 0.062em 0;
 }
 table.diff pre > ins > *,
@@ -709,14 +708,14 @@ td.difftxt ins > ins.edit {
   text-decoration: none;
   font-weight: bold;
 }
-body.tkt div.content li > table.udiff {
+body.tkt main.content li > table.udiff {
   margin-left: 1.5em;
   margin-top: 0.5em;
 }
-body.tkt div.content ol.tkt-changes > li:target > p > span {
+body.tkt main.content ol.tkt-changes > li:target > p > span {
   border-bottom: 3px solid gold;
 }
-body.tkt div.content ol.tkt-changes > li:target > ol {
+body.tkt main.content ol.tkt-changes > li:target > ol {
   border-left: 1px solid gold;
 }
 

@@ -264,15 +264,24 @@
      (if truthy) to be a value suitable for passing to
      dom.append(aLegendElement,...).
   */
-  dom.fieldset = function(legendText){
+  dom.fieldset = function(legendText, labelFor){
     const fs = this.create('fieldset');
     if(legendText){
-      this.append(
-        fs,
-        (legendText instanceof HTMLElement)
-          ? legendText
-          : this.append(this.legend(legendText))
-      );
+      if(labelFor){
+        this.append(
+          fs,
+          (legendText instanceof HTMLElement)
+            ? legendText
+            : this.append(this.legend(legendText, labelFor))
+        );
+      } else {
+        this.append(
+          fs,
+          (legendText instanceof HTMLElement)
+            ? legendText
+            : this.append(this.legend(legendText))
+        );
+      }
     }
     return fs;
   };
@@ -281,9 +290,14 @@
      not falsy, is append()ed to the element (so it may be a string
      or DOM element.
   */
-  dom.legend = function(legendText){
+  dom.legend = function(legendText, labelFor){
     const rc = this.create('legend');
-    if(legendText) this.append(rc, legendText);
+    if(legendText) {
+      if(labelFor){
+        legendText = this.label(labelFor,legendText)
+      }
+      this.append(rc, legendText);
+    } 
     return rc;
   };
 
@@ -320,8 +334,12 @@
     return parent;
   };
 
-  dom.input = function(type){
-    return this.attr(this.create('input'), 'type', type);
+  dom.input = function(type, id){
+    if(id){
+      return this.attr(this.create('input'), 'type', type, 'id', id);
+    } else {
+      return this.attr(this.create('input'), 'type', type);
+    }
   };
   /**
      Returns a new CHECKBOX input element.
