@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.40.0"
 #define SQLITE_VERSION_NUMBER 3040000
-#define SQLITE_SOURCE_ID      "2022-11-07 19:40:20 55a19677d723147aeb2b4a86bbd01756ddeb2072cba72c3145ad32d335e203b0"
+#define SQLITE_SOURCE_ID      "2022-11-13 19:29:51 80ff592a9d0157bfa8bd1f9959c3aa26cab0ec16fdccf7b58a7523b8912c1a8c"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2339,6 +2339,7 @@ struct sqlite3_mem_methods {
 ** <ul>
 ** <li> The [PRAGMA writable_schema=ON] statement.
 ** <li> The [PRAGMA journal_mode=OFF] statement.
+** <li> The [PRAGMA schema_version=N] statement.
 ** <li> Writes to the [sqlite_dbpage] virtual table.
 ** <li> Direct writes to [shadow tables].
 ** </ul>
