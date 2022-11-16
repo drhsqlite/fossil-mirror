@@ -21,7 +21,7 @@ RUN set -x                                                             \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
          zlib-dev zlib-static                                          \
-     ; apk add --no-cache upx
+     ; ( apk add --no-cache upx || exit 0 )
 
 ### Bake the custom BusyBox into another layer.  The intent is that this
 ### changes only when we change BBXVER.  That will force an update of
@@ -33,7 +33,7 @@ ADD $BBXURL /tmp/bbx/src.tar.gz
 RUN set -x \
     && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz            \
     && ( cd bbx && yes "" | make oldconfig && make -j11 )             \
-    && if [ -x /usr/bin/upx ] ; then upx -9q bbx/busybox ; fi
+    && test ! -x /usr/bin/upx || upx -9q bbx/busybox
 
 ### The changeable Fossil layer is the only one in the first stage that
 ### changes often, so add it last, to make it independent of the others.

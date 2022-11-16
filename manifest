@@ -1,5 +1,5 @@
-C Fix\sharmless\stypos\sreported\sby\n[forum:/forumpost/15f7327318|forum\spost\s15f7327318].
-D 2022-11-16T20:05:47.787
+C Prefixing\seach\sshell\sscript\ssection\sin\sthe\sDockerfile\swith\s"set\s-x"\nbroke\sthe\schecks\sto\sprevent\srunning\sUPX\son\sARM\sbuilds.\s\sYou\scan\sstill\nget\srelease\scontainer\sbuilds\son\sARM\sby\scopying\sthis\sfixed\sDockerfile\sto\nyour\srelease\scheckout.
+D 2022-11-16T20:53:40.476
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 918a6f397e89bc379a63c8ec559937967b256ed061c242d0aaabc57b7de14e18
+F Dockerfile 7767917be141572cb17c18e0d2c5a05590ae7a5d6d4a073da02dad8b282ee2b6
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 5258ec075d2b487f8bc7fd0769bdf99af2f60990fdb8d1881eda4be1bfbe16b2 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 511ad59ae311135da91afb6e51345bb2c265ced076f2439a9c1bb6981cf68387
-R 3d9c09ee8186352ea494f6f7240ce830
-U drh
-Z d223ea0187303454fb1806ceb3f0e460
+P f3adbd88740a28ee255880069791ae949f9075f697e04010de1e214a6b986faa
+R 7da1740c002d33c2be6c3eab9f5e010f
+U wyoung
+Z e8101044bb8abb410abaaa5852b2e84b
 # Remove this line to create a well-formed Fossil manifest.
