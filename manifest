@@ -1,5 +1,5 @@
-C Update\swebsite\sfor\sthe\s2.20\srelease.
-D 2022-11-16T18:49:16.738
+C Remove\sthe\s"ada"\ssubdirectory\sfrom\sthe\scompat/zlib/contrib\sbecause\sit\sis\nnot\sused,\sbut\sit\sdoes\s(apparently)\scause\swarnings\sfor\slintian.\nPerhaps\sthis\swill\sbe\sa\spartial\sfix\sfor\sthe\swarnings\sreported\sby\n[forum:/forumpost/15f7327318|forum\spost\s15f7327318].
+D 2022-11-16T19:49:19.696
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -52,18 +52,6 @@ F compat/zlib/amiga/Makefile.sas 64787face2d527df6c78ba8754eb54c53dda6ac2
 F compat/zlib/compress.c bd40f3ba8567a21560dc307d99c810de6f2d0533
 F compat/zlib/configure 9058479234835969eb454d25c9201333965bd03c265ab9da2a4de6a7fb7a61d5 x
 F compat/zlib/contrib/README.contrib ed1b12afa5875152a6c687225a506a37c858e9547b8b8b9474c887c095a47a66
-F compat/zlib/contrib/ada/buffer_demo.adb 1d8fba99362b0973535a759097f7893d4551c4e7
-F compat/zlib/contrib/ada/mtest.adb f1c968146ba1a8f07c7070a2af72ab8a84c82e3d
-F compat/zlib/contrib/ada/read.adb a5a6682ef169a7429d9bf9f8acbda6ffb756fec4
-F compat/zlib/contrib/ada/readme.txt 1fd4ae8ee39ef80117dca454e1951ecaf0d1d290
-F compat/zlib/contrib/ada/test.adb 5eebe86bd398dade5340cc4af24685bf02df671f
-F compat/zlib/contrib/ada/zlib-streams.adb 70f5981b0c3c5de023ea3485ea7e81231a42ce7f
-F compat/zlib/contrib/ada/zlib-streams.ads fadb4623dc2469cc4fd571a9fac302798735c40b
-F compat/zlib/contrib/ada/zlib-thin.adb 43c7e58eb582ce078f6ff76aa4f4eb09892ff92b
-F compat/zlib/contrib/ada/zlib-thin.ads faf47e35174e1e76edb85ea602779084e535df69
-F compat/zlib/contrib/ada/zlib.adb 3961008f51def7ffcd692453df7b0f1d8b680645
-F compat/zlib/contrib/ada/zlib.ads 0245a91806d804bf9f0907a3a001a141e9adb61b
-F compat/zlib/contrib/ada/zlib.gpr c36c2cf069e930eb81ee0c89bfe70c20c8d0511a
 F compat/zlib/contrib/amd64/amd64-match.S 4ac2676fb0393520f0d051965529c39139e7de8c
 F compat/zlib/contrib/asm686/README.686 ac08681935257d53b3fd1793788a1406a781ee22
 F compat/zlib/contrib/asm686/match.S f1023ae9dab5691291f42b180551bae164086492
@@ -981,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 210e89a0597f225f49722b096cf5563bf193e920e02a9bd38503a906deacd416
-R 4a167e7dd14fa89610fb0889448c1f45
+P e14628bc3da3bef5accb86a51127188f3c69907ba16d2a18307a8a0d2ee1b95e
+R 3f22ec3bdc0327e4a43c08dd531652d5
 U drh
-Z 316a2d4e339981798c568215b00e8203
+Z ba63a2d4535352b251c6eef6ca263058
 # Remove this line to create a well-formed Fossil manifest.
