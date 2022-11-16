@@ -2840,8 +2840,10 @@ void db_initial_setup(
 **    -A|--admin-user USERNAME     Select given USERNAME as admin user
 **    --date-override DATETIME     Use DATETIME as time of the initial check-in
 **    --sha1                       Use an initial hash policy of "sha1"
-**    --project-name  STRING       The name of the project "project name in quotes"
-**    --project-desc  STRING       The descritption of the project "project description in quotes"
+**    --project-name  STRING       The name of the project "project name in
+**                                 quotes"
+**    --project-desc  STRING       The description of the project "project
+**                                 description in quotes"
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -2857,7 +2859,8 @@ void create_repository_cmd(void){
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
   const char *zProjectName;   /* Optional project name of the repo */
-  const char *zProjectDesc;   /* Optional project description "description of project in quotes" */
+  const char *zProjectDesc;   /* Optional project description "description
+                              ** of project in quotes" */
   int bUseSha1 = 0;           /* True to set the hash-policy to sha1 */
 
 

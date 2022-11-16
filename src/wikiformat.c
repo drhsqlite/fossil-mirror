@@ -1929,7 +1929,7 @@ void test_markdown_render(void){
     fossil_fatal("There were issues with footnotes:\n"
                   " %8d misreference%s\n"
                   " %8d unreferenced\n"
-                  " %8d splitted\n"
+                  " %8d split\n"
                   " %8d overnested",
                   g.ftntsIssues[0], g.ftntsIssues[0]==1?"":"s",
                   g.ftntsIssues[1], g.ftntsIssues[2], g.ftntsIssues[3]);

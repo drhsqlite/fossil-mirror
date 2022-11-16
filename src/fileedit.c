@@ -1997,7 +1997,7 @@ void fileedit_page(void){
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
   ** used for dynamically toggling certain UI components on and off.
-  ** Must come after window.fossil has been intialized and before
+  ** Must come after window.fossil has been initialized and before
   ** fossil.page.fileedit.js. Potential TODO: move this into the
   ** window.fossil bootstrapping so that we don't have to "fulfill"
   ** the JS multiple times.

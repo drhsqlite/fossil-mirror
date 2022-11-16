@@ -428,7 +428,7 @@ void pikchrshow_page(void){
       CX("<div class='center'><strong>Initializing app...</strong></div>");
       CX("<div class='center'>");
         CX("On a slow internet connection this may take a moment.  If this ");
-        CX("message displays for \"a long time\", intialization may have ");
+        CX("message displays for \"a long time\", initialization may have ");
         CX("failed and the JavaScript console may contain clues as to why. ");
       CX("</div>");
       CX("<div><a href='?legacy'>Switch to legacy mode</a></div>");

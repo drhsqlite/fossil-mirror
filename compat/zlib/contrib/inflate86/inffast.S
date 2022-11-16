@@ -43,7 +43,7 @@
  * the input stream since the MMX code grabs bits in chunks of 32, which
  * differs from the inffast.c algorithm.  I don't think there would have been
  * read overruns where a page boundary was crossed (a segfault), but there
- * could have been overruns when next_in ends on unaligned memory (unintialized
+ * could have been overruns when next_in ends on unaligned memory (uninitialized
  * memory read).
  *
  * Mar-13-2003 -- P4 MMX is slightly slower than P4 NO_MMX.  I created a C

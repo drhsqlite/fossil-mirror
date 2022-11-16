@@ -1569,7 +1569,7 @@ pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   text-align: left;
 }
 /* The .source-inline class tells the .source class that the
-   source view, when enbaled, should be "inline" (same position
+   source view, when enabled, should be "inline" (same position
    as the graphic), else the sources are shifted to the left as
    if they were "plain text". */
 div.pikchr-wrapper.center:not(.source),

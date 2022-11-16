@@ -917,7 +917,7 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 **                               confirmation.
 **
 **   show ?-v?                   Show the TLS configuration. Add -v to see
-**                               additional explaination
+**                               additional explanation
 */
 void test_tlsconfig_info(void){
   const char *zCmd;

@@ -384,7 +384,7 @@ window.fossil.onPageLoad(function(){
             if(ev.detail.key===setting) f(ev.detail);
           }, false);
         },
-        /* Default values of settings. These are used for intializing
+        /* Default values of settings. These are used for initializing
            the setting event listeners and config view UI. */
         defaults:{
           /* When on, inbound images are displayed inlined, else as a
