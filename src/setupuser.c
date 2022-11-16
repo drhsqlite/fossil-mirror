@@ -735,7 +735,8 @@ void user_edit(void){
     if( zPw[0] ){
       /* Obscure the password for all users */
       @   <td><input aria-labelledby="supw" type="password" autocomplete="off" \
-      @   name="pw" value="**********" /></td>
+      @   name="pw" value="**********" />
+      @   (Leave unchanged to retain password)</td>
     }else{
       /* Show an empty password as an empty input field */
       char *zRPW = fossil_random_password(12);

@@ -1,5 +1,5 @@
-C Prefixing\seach\sshell\sscript\ssection\sin\sthe\sDockerfile\swith\s"set\s-x"\nbroke\sthe\schecks\sto\sprevent\srunning\sUPX\son\sARM\sbuilds.\s\sYou\scan\sstill\nget\srelease\scontainer\sbuilds\son\sARM\sby\scopying\sthis\sfixed\sDockerfile\sto\nyour\srelease\scheckout.
-D 2022-11-16T20:53:40.476
+C Merge\sin\ssetupuser-retain-pw\sbranch\s(HTML\schange\sonly,\sno\scode).
+D 2022-11-16T20:59:30.694
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -539,7 +539,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c213316a65d88240053756dda3471539ab4b6005b0823675cf2cac58e8992029
 F src/security_audit.c 62dda75ae7de213789b8fe99aae74d8ffe7195c594a06d8e26ff80f54b7b53be
 F src/setup.c 9968bf6d9e1cdaccd6c12ac0ff641ed0fa4e491dccc33b72001b50819965515b
-F src/setupuser.c 4608c17a70af5f36c13a2b17d4b04da4724465db47b797b567804157a70c66f3
+F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c facdc05434dd765d1469cbbb6aebceaf2fd05c0eb6ace251db03cb721cecaa82
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c f6420cb8fd2bdd95ccfb9e401d6e6070203f18039e83e8ce69bf573131ff83b3
@@ -969,8 +969,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3adbd88740a28ee255880069791ae949f9075f697e04010de1e214a6b986faa
-R 7da1740c002d33c2be6c3eab9f5e010f
-U wyoung
-Z e8101044bb8abb410abaaa5852b2e84b
+P b4c3d9a13eecb91de9df0a095c1184ae73875ade9f4c46af801c9fbbc8452acd fe373994876b3ea94bab2986133475b74a75f8c44f90d069099f9e3a42a1c08a
+R dd718c3f0285c2555afc9b6e825b7e3c
+T +closed fe373994876b3ea94bab2986133475b74a75f8c44f90d069099f9e3a42a1c08a Closed\sby\sintegrate-merge.
+U stephan
+Z f85624c941b2e1146768f72f24bb21fd
 # Remove this line to create a well-formed Fossil manifest.
