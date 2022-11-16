@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.40.0\src1\sfor\stesting.
-D 2022-11-14T12:43:34.356
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.40.0\srelease.
+D 2022-11-16T16:02:47.716
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -302,8 +302,8 @@ F extsrc/pikchr.c 00e01756a1bbfadcf65a81c3207e199c80e968228fa1f5f649d3990a418724
 F extsrc/pikchr.js fba64adbfa491234c466d298dd41aa6d926b0026969fd956f2a3388c0428b450
 F extsrc/pikchr.wasm 33c461fb657896f9a057b72955b146cc945cf9f7cac5e438cd7dca25e1b30060
 F extsrc/shell.c 2bd2b4c6a047c6852cb3623f25479108e518f501143675c9334196497e58184f
-F extsrc/sqlite3.c 36596ff878cb75ce8ba96a15987410c1623dadf667635b7ad18153f5dfa3d69d
-F extsrc/sqlite3.h 3b03544b0b46333161267cb679e109fdc9f7f86375c5a0dab235b330807b07a8
+F extsrc/sqlite3.c ab8da6bc754642989e67d581f26683dc705b068cea671970f0a7d32cfacbad19
+F extsrc/sqlite3.h 1bb4ca739b7c181ecd7b5550e4f818ca55149a9e585450c746d30487e0995efc
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb040bb01326181ee2375dfa9ed2d437973fbf8b0ba0266070337dde57f3a015
-R 4ff54514235479756cd041217fd4a9da
+P 2ece5d0f06111d04ffd5e8059e85f4a40a5aa87f29075ed9f2bd03fad4706e6d
+R b9d2992ea03370559943eef1bdd5a56b
 U drh
-Z 55185c140f474e7362add89ed8407a24
+Z cfda488a87310ad175fbd2a3dce360b9
 # Remove this line to create a well-formed Fossil manifest.
