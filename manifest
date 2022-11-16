@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.40.0\srelease.
-D 2022-11-16T16:02:47.716
+C Version\s2.20
+D 2022-11-16T18:46:32.415
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -981,8 +981,10 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ece5d0f06111d04ffd5e8059e85f4a40a5aa87f29075ed9f2bd03fad4706e6d
+P d0ee810004db295eff8de56a4d2b4d251af88d48aeafad3c547e3ad09e0a0882
 R b9d2992ea03370559943eef1bdd5a56b
+T +sym-release *
+T +sym-version-2.20 *
 U drh
-Z cfda488a87310ad175fbd2a3dce360b9
+Z c28c88f816d73b2082ac1b11051fd34b
 # Remove this line to create a well-formed Fossil manifest.
