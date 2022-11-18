@@ -129,7 +129,7 @@ const char zRepositorySchema1[] =
 @   info TEXT,                      -- contact information
 @   mtime DATE,                     -- last change.  seconds since 1970
 @   photo BLOB,                     -- JPEG image of this user
-@   jx TEXT                         -- Extra fields in JSON
+@   jx TEXT DEFAULT '{}'            -- Extra fields in JSON
 @ );
 @
 @ -- The config table holds miscellanous information about the repository.
@@ -180,7 +180,7 @@ const char zRepositorySchema1[] =
 @    mtime DATE,              -- Last modified.  seconds since 1970
 @    cols TEXT,               -- A color-key specification
 @    sqlcode TEXT,            -- An SQL SELECT statement for this report
-@    jx TEXT                  -- Additional fields encoded as JSON
+@    jx TEXT DEFAULT '{}'     -- Additional fields encoded as JSON
 @ );
 @
 @ -- Some ticket content (such as the originators email address or contact

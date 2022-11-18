@@ -585,7 +585,8 @@ void test_usernames_cmd(void){
 */
 void user_update_user_table(void){
   if( db_table_has_column("repository","user","jx")==0 ){
-    db_multi_exec("ALTER TABLE repository.user ADD COLUMN jx TEXT;");
+    db_multi_exec("ALTER TABLE repository.user"
+                  " ADD COLUMN jx TEXT DEFAULT '{}';");
   }
 }
 

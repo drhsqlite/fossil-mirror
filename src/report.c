@@ -265,7 +265,8 @@ static int report_query_authorizer(
 */
 void report_update_reportfmt_table(void){
   if( db_table_has_column("repository","reportfmt","jx")==0 ){
-    db_multi_exec("ALTER TABLE repository.reportfmt ADD COLUMN jx TEXT;");
+    db_multi_exec("ALTER TABLE repository.reportfmt"
+                  " ADD COLUMN jx TEXT DEFAULT '{}';");
   }
 }
 
