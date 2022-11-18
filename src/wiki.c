@@ -648,11 +648,14 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
 
 /*
 ** Output a selection box from which the user can select the
-** wiki mimetype.
+** wiki mimetype.  Arguments:
+**
+**     zMimetype      -     The current value of the query parameter
+**     zParam         -     The name of the query parameter
 */
-void mimetype_option_menu(const char *zMimetype){
+void mimetype_option_menu(const char *zMimetype, const char *zParam){
   unsigned i;
-  @ <select name="mimetype" size="1">
+  @ <select name="%s(zParam)" size="1">
   for(i=0; i<count(azStyles); i+=3){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
@@ -1336,7 +1339,7 @@ void wikiedit_page(void){
        "wikiedit-options flex-container flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
        "<label>Mime type</label>");
-    mimetype_option_menu("text/x-markdown");
+    mimetype_option_menu("text/x-markdown", "mimetype");
     CX("</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
@@ -1537,7 +1540,7 @@ void wikinew_page(void){
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu("text/x-markdown");
+  mimetype_option_menu("text/x-markdown", "mimetype");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
   if( zName[0] ){

@@ -1061,7 +1061,7 @@ static void forum_post_widget(
     @ maxlength="125"><br>
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu(zMimetype);
+  mimetype_option_menu(zMimetype, "mimetype");
   @ <br><textarea aria-label="Content:" name="content" class="wikiedit" \
   @ cols="80" rows="25" wrap="virtual">%h(zContent)</textarea><br>
 }
