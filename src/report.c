@@ -1135,7 +1135,7 @@ void rptview_page_content(
   
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
-
+  report_update_reportfmt_table();
   rn = report_number();
   tabs = P("tablist")!=0;
   db_prepare(&q,
