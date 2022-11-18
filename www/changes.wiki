@@ -1,5 +1,8 @@
 <title>Change Log</title>
 
+<h2 id='v2_21'>Changes for version 2.21 (pending)</h2>
+  *  Add the ability to put text descriptions on ticket report formats.
+
 <h2 id='v2_20'>Changes for version 2.20 (2022-11-16)</h2>
   *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If
      it is not an empty string, then any changes that would appear on the timeline

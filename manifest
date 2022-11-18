@@ -1,5 +1,5 @@
-C Fix\sa\spotentially\suninitialized\svariable\sassociated\swith\sthe\sresent\sticket\nreport\schanges.
-D 2022-11-18T19:30:21.687
+C Update\sthe\schange\slog\sfor\sthe\sreport\sformat\senhancement.
+D 2022-11-18T19:48:56.033
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -795,7 +795,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 5a256f86d9d604ebccc3f0975d79cb67e81df2f867baaa3520da038672bacc3f
+F www/changes.wiki f200c30b5c95517b2ce69d7dbc4ab06a91e4143885a56ac2406f8804e01c5862
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcf17b28a902c01bccc41f044381073b0d4fbed2652e07adc897ff066252efcc
-R 96f1af1eb730fb555dfc079f17a318e3
+P d296ddb272c7f19fd558ff68b6bba1c1216513691d9c5c2b1d3c08ea875e9e7e
+R 278d2597ff153d62c4c75735be63c304
 U drh
-Z 6bd1bafde52773127855a2266b2768ef
+Z 0a16f2168ca23f28a097de79236afab5
 # Remove this line to create a well-formed Fossil manifest.
