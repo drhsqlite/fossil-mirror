@@ -128,7 +128,8 @@ const char zRepositorySchema1[] =
 @   cexpire DATETIME,               -- Time when cookie expires
 @   info TEXT,                      -- contact information
 @   mtime DATE,                     -- last change.  seconds since 1970
-@   photo BLOB                      -- JPEG image of this user
+@   photo BLOB,                     -- JPEG image of this user
+@   jx TEXT DEFAULT '{}'            -- Extra fields in JSON
 @ );
 @
 @ -- The config table holds miscellanous information about the repository.
@@ -178,7 +179,8 @@ const char zRepositorySchema1[] =
 @    title TEXT UNIQUE,       -- Title of this report
 @    mtime DATE,              -- Last modified.  seconds since 1970
 @    cols TEXT,               -- A color-key specification
-@    sqlcode TEXT             -- An SQL SELECT statement for this report
+@    sqlcode TEXT,            -- An SQL SELECT statement for this report
+@    jx TEXT DEFAULT '{}'     -- Additional fields encoded as JSON
 @ );
 @
 @ -- Some ticket content (such as the originators email address or contact
