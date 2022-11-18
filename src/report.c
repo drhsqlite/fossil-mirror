@@ -555,7 +555,7 @@ void view_edit(void){
     zClrKey = ticket_key_template();
   }else{
     Stmt q;
-    int hasJx;
+    int hasJx = 0;
     zDesc = 0;
     zMimetype = 0;
     zTag = 0;
