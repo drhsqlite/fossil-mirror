@@ -577,6 +577,19 @@ void test_usernames_cmd(void){
 
 
 /*
+** Make sure the USER table is up-to-date.  It should contain
+** the "JX" column (as of version 2.21).  If it does not, add it.
+**
+** The "JX" column is intended to hold a JSON object containing optional
+** key-value pairs.
+*/
+void user_update_user_table(void){
+  if( db_table_has_column("repository","user","jx")==0 ){
+    db_multi_exec("ALTER TABLE repository.user ADD COLUMN jx TEXT;");
+  }
+}
+
+/*
 ** COMMAND: test-hash-passwords
 **
 ** Usage: %fossil test-hash-passwords REPOSITORY

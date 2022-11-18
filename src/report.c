@@ -257,6 +257,19 @@ static int report_query_authorizer(
 }
 
 /*
+** Make sure the reportfmt table is up-to-date.  It should contain
+** the "jx" column (as of version 2.21).  If it does not, add it.
+**
+** The "jx" column is intended to hold a JSON object containing optional
+** key-value pairs.
+*/
+void report_update_reportfmt_table(void){
+  if( db_table_has_column("repository","reportfmt","jx")==0 ){
+    db_multi_exec("ALTER TABLE repository.reportfmt ADD COLUMN jx TEXT;");
+  }
+}
+
+/*
 ** Activate the ticket report query authorizer. Must be followed by an
 ** eventual call to report_unrestrict_sql().
 */

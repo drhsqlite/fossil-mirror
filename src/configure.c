@@ -449,15 +449,10 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     db_protect_only(PROTECT_SENSITIVE);
 
     /* Make sure tables have the "jx" column */
-    if( strcmp(&zName[1],"user")==0
-     && db_table_has_column("repository","user","jx")==0
-    ){
-      db_multi_exec("ALTER TABLE repository.user ADD COLUMN jx TEXT");
-    }else
-    if( strcmp(&zName[1],"reportfmt")==0
-     && db_table_has_column("repository","reportfmt","jx")==0
-    ){
-      db_multi_exec("ALTER TABLE repository.reportfmt ADD COLUMN jx TEXT");
+    if( strcmp(&zName[1],"user")==0 ){
+      user_update_user_table();
+    }else if( strcmp(&zName[1],"reportfmt")==0 ){
+      report_update_reportfmt_table();
     }
 
     db_multi_exec("%s)", blob_sql_text(&sql));
