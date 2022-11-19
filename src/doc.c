@@ -180,7 +180,7 @@ static const struct {
   { "midi",       4, "audio/midi"                        },
   { "mif",        3, "application/x-mif"                 },
   { "mime",       4, "www/mime"                          },
-  { "mjs",        3, "text/javascript" /*EM6 modules*/   },
+  { "mjs",        3, "text/javascript" /*ES6 module*/    },
   { "mkd",        3, "text/x-markdown"                   },
   { "mov",        3, "video/quicktime"                   },
   { "movie",      5, "video/x-sgi-movie"                 },
