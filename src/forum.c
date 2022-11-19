@@ -507,7 +507,7 @@ static void forum_display_post(
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
         @ By %s(zPosterName) on %h(zDate) edited from \
-        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }else{
         @ Originally by %s(zPosterName) \
@@ -708,6 +708,7 @@ static void forum_display_thread(
   }
   assert( i<sizeof(zQuery) );
   zQuery[i] = 0;
+  assert( zQuery[0]==0 || zQuery[0]=='?' );
 
   /* Identify which post to display first.  If history is shown, start with the
   ** original, unedited post.  Otherwise advance to the post's latest edit.  */

@@ -1,5 +1,5 @@
-C Rename\stest_find_pivot()\sto\smerge_base_cmd().\sNo\sfunctional\schanges.
-D 2022-11-19T14:59:11.886
+C Fix\smalformed\shyperlink\sfor\shistorical\srevisions\sof\sa\sforum\spost.\nPerhaps\sintroduced\sby\s[check-in\s168eb71643a4].\nReported\sby\s[forum\spost\s44505ae8ec51](forum:/forumpost/44505ae8ec515e75).
+D 2022-11-19T16:19:05.938
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -446,7 +446,7 @@ F src/file.c 1cc001917e96b4cec71bb801f36b2df9c8be701ab3c196641e59e605addb087b
 F src/fileedit.c ce1b99298306ca27cb3923f67002a0e4c58aa4b6c0ed53bd5e1241d8c2d8e440
 F src/finfo.c e2bae9f68bd717b058814c77b1d17bc022488f3dfc151c44d1c3fbe79aa4327a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 98b70f5097631756092df4977a1375bc9df20922e5b3873af402b754fe3ad401
+F src/forum.c f2966d6e87134f069a67a4ec7fe2397a1e3caa161826d946d76197bc38083b58
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b6649c74384ce871e2cab8cd56ced0560ef8e9c0a22a1db9bf643645a76eb31
-R 49035a944cdc8bb704c506e3b87a7a3c
-U stephan
-Z ed81b5d3becf6175e67f0dd308493f40
+P 8cc9211f9f384ebad405ce398450e36bac54e28896bd9e1965fc5acce502ac42
+R 89381628a1595c24a49b9b44840de596
+U george
+Z 804a2183ffe3f2882ae2e78b1a4e58d2
 # Remove this line to create a well-formed Fossil manifest.
