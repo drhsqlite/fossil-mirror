@@ -1,5 +1,5 @@
-C Comment\stypo\sfix.\sNo\scode\schanges.
-D 2022-11-19T04:38:26.167
+C Upgrade\sthe\stest-find-pivot\scommand\sto\sthe\smerge-base\scommand,\sper\sdiscussion\sat\s[forum:1f5db4364464e965|forum\spost\s1f5db4364464e965].
+D 2022-11-19T14:02:56.448
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -523,7 +523,7 @@ F src/patch.c ccf0aa0f7bff6b4c62462233f7502aa4f03427a9c61d952552762468fb234a22
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c b27065526bf24f59c61e6bcb3009c7ec995a47cdfcf82fe1a4a36c54947c8176
 F src/pikchrshow.c 8fa3f31403bb9dfb334abf40b2d8e7e230fa53a7f2dd3d88e0d6d30c0ad5e4cf
-F src/pivot.c 01e27e8d3c4c375bbc1bf59b6e77c647f3ab9730088e8ca52716a4ad2bcdc430
+F src/pivot.c 4313324964e2695a4a99fd7b3520c0aa147c948a0e52232fd0589e0251a94cbd
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c cc8fd1fbab3125d98f3297d31434ccfef08fda44126b6a4f451e0c35fcb03ffe
@@ -795,7 +795,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki f200c30b5c95517b2ce69d7dbc4ab06a91e4143885a56ac2406f8804e01c5862
+F www/changes.wiki 63a2a297a9759b0eb4b9448e7b6617c4bd55d38093d8199e4adf18365f972ddf
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2467e52ef124a8ae20cbb6b1c877416fbd041a1d82da968e7cf523d1e3aa7b4
-R 2b0a94c0aa2261d7fc437ced8c02a35f
+P 95e5814c9bac0076954ad3a1b445251ab78065f95cd73f8d9660c4ecd1275eec
+R 18cdb67e511f4ede27a1bbdee365ec91
 U stephan
-Z 2bed6dd5400e12c316d9a91235fb1f46
+Z ae167ffb5dc530db4e3b8f06f166bb0b
 # Remove this line to create a well-formed Fossil manifest.

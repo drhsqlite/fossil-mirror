@@ -154,11 +154,12 @@ int pivot_find(int ignoreMerges){
 }
 
 /*
-** COMMAND: test-find-pivot
+** COMMAND: merge-base
 **
-** Usage: %fossil test-find-pivot ?options? PRIMARY SECONDARY ...
+** Usage: %fossil merge-base ?options? PRIMARY SECONDARY ...
 **
-** Test the pivot_find() procedure.
+** Find a common ancestor given two or more checkin versions to
+** hypothetically merge.
 **
 ** Options:
 **    --ignore-merges       Ignore merges for discovering name pivots
@@ -166,7 +167,8 @@ int pivot_find(int ignoreMerges){
 void test_find_pivot(void){
   int i, rid;
   int ignoreMerges = find_option("ignore-merges",0,0)!=0;
-  int showDetails = find_option("details",0,0)!=0;
+  int showDetails = find_option("details",0,0)!=0
+    /* intentionally undocumented */;
   if( g.argc<4 ){
     usage("?options? PRIMARY SECONDARY ...");
   }
@@ -176,9 +178,12 @@ void test_find_pivot(void){
     pivot_set_secondary(name_to_rid(g.argv[i]));
   }
   rid = pivot_find(ignoreMerges);
-  printf("pivot=%s\n",
-         db_text("?","SELECT uuid FROM blob WHERE rid=%d",rid)
-  );
+  if( rid==0 ){
+    puts("No common ancestor found.");
+  }else{
+    printf("pivot=%s\n",
+           db_text("?","SELECT uuid FROM blob WHERE rid=%d",rid));
+  }
   if( showDetails ){
     Stmt q;
     db_prepare(&q,
