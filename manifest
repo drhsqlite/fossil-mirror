@@ -1,5 +1,5 @@
-C Carry\sforward\s[368d97869b]\sto\sthe\szlib\s1.2.13\supdate.
-D 2022-10-14T07:33:00.000
+C Carry\sforward\s[511ad59ae3]\sto\sthe\szlib\s1.2.13\supdate:\sexclude\sall\sfiles\sfrom\sthe\scontrib/ada\ssubdirectory.
+D 2022-11-20T07:37:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -53,18 +53,6 @@ F compat/zlib/amiga/Makefile.sas 64787face2d527df6c78ba8754eb54c53dda6ac2
 F compat/zlib/compress.c 7b3e8df3a5010fda7867c6b2d15bb3f375a7551c60e175479c06784c70fad689
 F compat/zlib/configure 5ffa37547cc5ecf1c993b99fe91289335fd8743e2cc017dae9f582f69dc4b881 x
 F compat/zlib/contrib/README.contrib 13802ed146e37ee2c1f52fd35cad8b8b56611fb9bb5d7ec037a0e21755e3352e
-F compat/zlib/contrib/ada/buffer_demo.adb 1d8fba99362b0973535a759097f7893d4551c4e7
-F compat/zlib/contrib/ada/mtest.adb f1c968146ba1a8f07c7070a2af72ab8a84c82e3d
-F compat/zlib/contrib/ada/read.adb a5a6682ef169a7429d9bf9f8acbda6ffb756fec4
-F compat/zlib/contrib/ada/readme.txt 1fd4ae8ee39ef80117dca454e1951ecaf0d1d290
-F compat/zlib/contrib/ada/test.adb 5eebe86bd398dade5340cc4af24685bf02df671f
-F compat/zlib/contrib/ada/zlib-streams.adb 70f5981b0c3c5de023ea3485ea7e81231a42ce7f
-F compat/zlib/contrib/ada/zlib-streams.ads fadb4623dc2469cc4fd571a9fac302798735c40b
-F compat/zlib/contrib/ada/zlib-thin.adb 43c7e58eb582ce078f6ff76aa4f4eb09892ff92b
-F compat/zlib/contrib/ada/zlib-thin.ads faf47e35174e1e76edb85ea602779084e535df69
-F compat/zlib/contrib/ada/zlib.adb 3961008f51def7ffcd692453df7b0f1d8b680645
-F compat/zlib/contrib/ada/zlib.ads 0245a91806d804bf9f0907a3a001a141e9adb61b
-F compat/zlib/contrib/ada/zlib.gpr c36c2cf069e930eb81ee0c89bfe70c20c8d0511a
 F compat/zlib/contrib/blast/Makefile c18cae8b163b2fc351bc59b8efad7a190d1ead78
 F compat/zlib/contrib/blast/README 69a33e70f88cc1f3520e2154ed38d3f690ee26e5
 F compat/zlib/contrib/blast/blast.c 809a3404b6e9e1bc120ff0313c31c4bd2b776823
@@ -968,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a1295a53802bee52dba91a4897b5ecaa5b080ffdbe13654fee56e0ad1315425
-R c56402a7ef782fe557c438addc7ff079
+P dc13e1e50e309d145c144dee48a5f3f9b350e1f2fc29aa22d06a3ba433402e4f
+R 2fef7f40d6cfa7e9c5731d69036b10fe
 U florian
-Z b46a6b5bb79b9c2415315a08e1585775
+Z 5876c2f1c175eb4c8472c28a4294a98d
 # Remove this line to create a well-formed Fossil manifest.
