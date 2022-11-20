@@ -1,11 +1,11 @@
-C Carry\sforward\s[511ad59ae3]\sto\sthe\szlib\s1.2.13\supdate:\sexclude\sall\sfiles\sfrom\sthe\scontrib/ada\ssubdirectory.
-D 2022-11-20T07:37:00.000
+C Add\scompat/zlib/contrib/ada/*\sand\scompat/zlib/doc/*\sto\sthe\signore-glob.\sNow\sthere's\sonly\stwo\s(manual)\scherry-picks\srequired\sfor\szlib\supdates:\s[0f8bae079e]\sand\s[368d97869b]\s(though\sthe\supstream\sticket\sfor\s[368d97869b]\sis\scommented\sas\s"Incorporated"\sand\sclosed:\s[https://github.com/madler/zlib/issues/684]).
+D 2022-11-20T07:50:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
 F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
-F .fossil-settings/ignore-glob 026da23219df1dd81be87fee8252eecd9188ef73
+F .fossil-settings/ignore-glob ec33bee0751eb55ec94623f8ef7cf569b06645c2d7ab08b2e511de7f99b34331
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc13e1e50e309d145c144dee48a5f3f9b350e1f2fc29aa22d06a3ba433402e4f
-R 2fef7f40d6cfa7e9c5731d69036b10fe
+P aafa682bb9eac95e0ee722c18b28ceb43b5b82a360d1de9f142c86a9dd6f0d9f
+R 0d792b4a8c82e165ff2314bb0a5aec62
 U florian
-Z 5876c2f1c175eb4c8472c28a4294a98d
+Z 740cd1e89ac285b9c9dff03a25a7d3c2
 # Remove this line to create a well-formed Fossil manifest.
