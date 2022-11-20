@@ -588,9 +588,9 @@ void view_edit(void){
     }
   }
   if( zOwner==0 ) zOwner = g.zLogin;
-  style_submenu_element("Cancel", "reportlist");
+  style_submenu_element("Cancel", "%R/reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "rptedit/%d?del1=1", rn);
+    style_submenu_element("Delete", "%R/rptedit/%d?del1=1", rn);
   }
   style_header("%s", rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -1194,30 +1194,39 @@ void rptview_page_content(
     if( pageWrap ) {
       /* style_finish_page() should provide escaping via %h formatting */
       if( zQS[0] ){
-        style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+        if( g.zExtra && g.zExtra[0] ){
+          style_submenu_element("Raw","%R/%s/%s?tablist=1&%s",
+                                  g.zPath, g.zExtra, zQS);
+        }else{
+          style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+        }
         style_submenu_element("Reports","%R/reportlist?%s",zQS);
       } else {
-        style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+        if( g.zExtra && g.zExtra[0] ){
+          style_submenu_element("Raw","%R/%s/%s?tablist=1",g.zPath,g.zExtra);
+        }else{
+          style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+        }
         style_submenu_element("Reports","%R/reportlist");
       }
       if( g.perm.Admin
         || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
-        style_submenu_element("Edit", "rptedit/%d", rn);
+        style_submenu_element("Edit", "%R/rptedit/%d", rn);
       }
       if( g.perm.TktFmt ){
-        style_submenu_element("SQL", "rptsql/%d",rn);
+        style_submenu_element("SQL", "%R/rptsql/%d",rn);
       }
       if( g.perm.NewTkt ){
         style_submenu_element("New Ticket", "%R/tktnew");
       }
       style_header("%s", zTitle);
     }
-    if( zDesc && zMimetype ){
+    if( zDesc && zDesc[0] && zMimetype ){
       Blob src;
       blob_init(&src, zDesc, -1);
       wiki_render_by_mimetype(&src, zMimetype);
       blob_reset(&src);
-      @ <p>
+      @ <br>
     }
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
