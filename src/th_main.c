@@ -1591,6 +1591,38 @@ static int styleScriptCmd(
 }
 
 /*
+** TH1 command: submenu link LABEL URL
+**
+** Add a hyperlink to the submenu.
+*/
+static int submenuCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=4 || memcmp(argv[1],"link",5)!=0 ){
+    return Th_WrongNumArgs(interp, "submenu link LABEL URL");
+  }
+  if( argl[2]==0 ){
+    Th_SetResult(interp, "link's LABEL is empty", -1);
+    return TH_ERROR;
+  }
+  if( argl[3]==0 ){
+    Th_SetResult(interp, "link's URL is empty", -1);
+    return TH_ERROR;
+  }
+  /*
+  ** Label and URL are unescaped because it is expected that
+  ** style_finish_page() provides propper escaping via %h format.
+  */
+  style_submenu_element( fossil_strdup(argv[2]), "%s", argv[3] );
+  Th_SetResult(interp, 0, 0);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: builtin_request_js NAME
 **
 ** Request that the built-in javascript file called NAME be added to the
@@ -2332,6 +2364,7 @@ void Th_FossilInit(u32 flags){
     {"styleFooter",   styleFooterCmd,       0},
     {"styleHeader",   styleHeaderCmd,       0},
     {"styleScript",   styleScriptCmd,       0},
+    {"submenu",       submenuCmd,           0},
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},

@@ -215,6 +215,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  [styleHeader](#styleHeader)
   *  [styleFooter](#styleFooter)
   *  [styleScript](#styleScript)
+  *  [submenu](#submenu)
   *  [tclEval](#tclEval)
   *  [tclExpr](#tclExpr)
   *  [tclInvoke](#tclInvoke)
@@ -735,6 +736,13 @@ Render the configured style footer for the selected skin.
   *  styleScript
 
 Render the configured JavaScript for the selected skin.
+
+<a id="submenu"></a>TH1 submenu Command
+-----------------------------------------
+
+  *  submenu link LABEL URL
+
+Add hyperlink to the submenu of the current page.
 
 <a id="tclEval"></a>TH1 tclEval Command
 -----------------------------------------

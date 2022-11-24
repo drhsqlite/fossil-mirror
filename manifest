@@ -1,5 +1,5 @@
-C In\sthe\snew\sforum\sreply\sheader,\sreduce\ssize\sfrom\sH1\sto\sH2\sand\sitalicize\sthe\sthread\stitle.
-D 2022-11-24T15:21:11.826
+C Add\sTH1\scommand\s"<code>submenu</code>".\sFor\sthe\stime\sbeing\sit\shas\sjust\sone\ssubcommand\s"<code>link</code>"\sthat\sadds\sa\shyperlink\sto\sthe\ssubmenu\sof\sa\spage.
+D 2022-11-24T22:13:55.468
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -558,7 +558,7 @@ F src/stash.c 92fcee0e9dce7572f1c3b0c449d7ed0ba0c82df1abdfbd5eace1ff9aa752e25e
 F src/stat.c 457b602ab000291bfcb889e1ec5f7fcfac229e9c1c3f04c3545a1eb6348387b9
 F src/statrep.c e66715d2f23d6b404d5ee4f1e3a49233b985749169fa259e2f0af753750f54ba
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c cd0cec491f41c5ece5b6898fff0cbcc4059eca9498471c02e1ca1c981436092c
+F src/style.c d1080bc4c570b6d7d435d6eadd132d8a6df95dd6138c17cc9068010ac9af9cb3
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -570,7 +570,7 @@ F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1
 F src/th.c 6afb71365d8143128911941657a08aa2703cd285a1f6d1e43f17a4043059521a
 F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
-F src/th_main.c 6a5966d005b6dd98354a6c501e025a0df27d71be9b42d3a14ed47696d1bb4ee7
+F src/th_main.c f0243d1a5deb8e8fa94789b26dabe749beb44b028c677c33475d19de21090423
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 02fe059d8975e091aef97ab1d45c1afc96670b4b33580d42ac36b0edf1aff384
 F src/tkt.c 16ae6a19c43e6b6fff6c4060a556cac8b3f58944dc1274654a813030b1464ca4
@@ -942,7 +942,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki 273bf21fea37c03fad972e7a61b3bc3d90f97d4bd5f761408b5ff450096c7ee4
 F www/tech_overview.wiki ad89f32bfc3beb0bd7a01262bafc2e0e6b3693cb464011132efdd2b4b88cf85a
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
-F www/th1.md 23e7b8566a7ad19e4f174811d75d582fdc4c319dd150dd804deae96909a9d756
+F www/th1.md 7a1e4072998d8f154d8cae5497859d4351ce18c0fafdd97068a61451b6d501ab
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0b6b3a001a357d6d4bc88e6da3c27be67b5f050dbdd6264d5c1acf1009fea6d5
-R e543d309afd9d3fddc53f96514162497
-U stephan
-Z 86a09488db6a9292082ec792b30407d7
+P 7b92fc614dc461230145c56c6db46fed8058eccd2f145fdf24999340a9eb57bc
+R 7c2784a8bde4f3bb68cfe226779a4fcc
+U george
+Z 42a6475255d77c9715a2a1f8932b5396
 # Remove this line to create a well-formed Fossil manifest.
