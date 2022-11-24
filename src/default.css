@@ -991,6 +991,10 @@ div.forumPostBody.shrunken {
      to this size instead of its original size. */
   max-height: 8em;
 }
+span.forumPostReplyTitle {
+  /* thread title part of the page header when replying to a post */
+  font-style: italic;
+}
 
 div.forumSel {
   background-color: #cef;
