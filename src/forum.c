@@ -1326,13 +1326,12 @@ void forumedit_page(void){
     zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     zContent = PDT("content","");
     style_header("Reply");
-    if( pRootPost->zThreadTitle ){
-      @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
-    }
-    @ <h2>Replying To:
+    @ <h1>Replying to
     @ <a href="%R/forumpost/%!S(zFpid)" target="_blank">%S(zFpid)</a>
-    @ <a href="%R/forumpost/%!S(zFpid)?raw" target="_blank">[source]</a>
-    @ </h2>
+    if( pRootPost->zThreadTitle ){
+      @ in thread %h(pRootPost->zThreadTitle)
+    }
+    @ </h1>
     zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
     @ <h3 class='forumPostHdr'>By %s(zDisplayName) on %h(zDate)</h3>
