@@ -2700,7 +2700,7 @@ void artifact_page(void){
         if( zLn ){
           output_text_with_line_numbers(z, blob_size(&content),
                                         zFileName, zLn, 1);
-        }else if( zExt && zExt[1] ){
+        }else if( zExt && zExt[0] ){
           @ <pre>
           @ <code class="language-%s(zExt)">%h(z)</code>
           @ </pre>
