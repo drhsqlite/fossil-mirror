@@ -1048,13 +1048,11 @@ window.fossil.onPageLoad(function(){
             )
             D.attr(a,'target','_blank');
             D.append(w, a);
-            console.warn("canEmbedFile(",m,") =",canEmbedFile(m));
             if(canEmbedFile(m)){
               /* Add an option to embed HTML attachments in an iframe. The primary
                  use case is attached diffs. */
               const shouldWikiRender = shouldWikiRenderEmbed(m);
               const downloadArgs = shouldWikiRender ? '?render' : '';
-              console.warn("downloadArgs",downloadArgs,m);
               D.addClass(contentTarget, 'wide');
               const embedTarget = this.e.content;
               const self = this;
