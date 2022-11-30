@@ -147,3 +147,8 @@ container-run:
 		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
 	@sleep 1   # decrease likelihood of logging race condition
 	docker container logs fossil-@FOSSIL_CI_PFX@
+
+container-clean:
+	-docker container kill fossil-@FOSSIL_CI_PFX@
+	-docker container rm   fossil-@FOSSIL_CI_PFX@
+	-docker image     rm   fossil:@FOSSIL_CI_PFX@

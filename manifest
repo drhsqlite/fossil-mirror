@@ -1,5 +1,5 @@
-C Tried\sto\sget\s"--with-tcl=1"\sworking\sin\sthe\scontainerized\sbuild,\sbut\nfailed,\sso\sI\sdocumented\sthe\sreason\swhy\sit\sisn't\sgoing\sto\swork\sgiven\nour\scurrent\sdesign\sgoals\sand\spointed\sat\san\salternative\swith\sdifferent\ntradeoffs.
-D 2022-11-30T12:59:36.482
+C Added\s"container-clean"\starget\sto\scleanup\safter\sthe\sother\scontainer-*\ntargets.
+D 2022-11-30T14:29:59.888
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,7 +13,7 @@ F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile c8a6b6eac5bad04684a2a90dc7898d854c94e0431bef6e37b665c06cf46da2ce
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 7b22e21a48404291335bf6e36c303f879f942c904b462bbf732844a098f21875 x
+F Makefile.in bd335042248c2f5718854e9eb3713cd966a01f5785559b96e25da1078fd6541b x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION ff6eecb02a4c620514129edadea0e1ba6ecebc72555b2334f2b4e1576e83a6f0
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2277aad160f11fbcc6b6938ac9884cff0eb27dfce17768589ca4c11b7f072f7
-R d43dfa511cd8fafb4ec504be5c8e3eb5
+P fb1bfce16dda5d882b30811de1283631491092cca9a64e5e4a4ae23275fc4ec9
+R 34dea3b9cd424c5f185bf02402b4d718
 U wyoung
-Z e65db37cfc60a92e08c74b7247dde99e
+Z a5cb8701182c387a7c9450a21b963517
 # Remove this line to create a well-formed Fossil manifest.
