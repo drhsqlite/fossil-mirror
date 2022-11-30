@@ -2,7 +2,7 @@ Index: Dockerfile
 ==================================================================
 --- Dockerfile
 +++ Dockerfile
-@@ -61,13 +61,13 @@
+@@ -73,13 +73,13 @@
  ## ---------------------------------------------------------------------
  ## STAGE 2: Pare that back to the bare essentials.
  ## ---------------------------------------------------------------------
@@ -11,43 +11,33 @@ Index: Dockerfile
 -WORKDIR /jail
 +WORKDIR /
  ARG UID=499
--ENV PATH "/bin:/jail/bin"
-+ENV PATH "/bin"
+-ENV PATH "/bin:/usr/bin:/jail/bin"
++ENV PATH "/bin:/usr/bin"
  
  ### Lay BusyBox down as the first base layer. Coupled with the host's
  ### kernel, this is the "OS."
  COPY --from=builder /tmp/bbx/busybox /bin/
- RUN [ "/bin/busybox", "--install", "/bin" ]
-@@ -78,20 +78,17 @@
- RUN set -x                                                             \
-     && echo 'root:x:0:0:SysAdmin:/:/bin/nologin' > /etc/passwd         \
-     && echo 'root:x:0:root'                      > /etc/group          \
-     && addgroup -S -g ${UID} fossil                                    \
-     && adduser -S -h `pwd` -g 'Fossil User' -G fossil -u ${UID} fossil \
--    && install -d -m 700 -o fossil -g fossil log museum                \
--    && install -d -m 755 -o fossil -g fossil dev                       \
--    && mknod -m 666 dev/null    c 1 3                                  \
--    && mknod -m 444 dev/urandom c 1 9
-+    && install -d -m 700 -o fossil -g fossil log museum
+ COPY --from=builder /etc/os-release /etc/
+@@ -101,13 +101,13 @@
+     && mknod -m 666 dev/null    c 1 3                                  \
+     && mknod -m 444 dev/urandom c 1 9
  
  ### Do Fossil-specific things atop those base layers; this will change
  ### as often as the Fossil build-from-source layer above.
- COPY --from=builder /tmp/fossil bin/
+-COPY --from=builder /tmp/fossil bin/
++COPY --from=builder /tmp/fossil /usr/bin/
  RUN set -x                                                             \
--    && ln -s /jail/bin/fossil /bin/f                                   \
-+    && ln -s /bin/fossil /bin/f                                   \
-     && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /bin/sha1sum         \
-     && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /bin/sha3sum         \
+-    && ln -s /jail/bin/fossil /usr/bin/f                               \
++    && ln -s /usr/bin/fossil /usr/bin/f                                \
+     && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /usr/bin/sha1sum     \
+     && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /usr/bin/sha3sum     \
      && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
-        /bin/sqlite3                                                    \
-     && chmod +x /bin/sha?sum /bin/sqlite3
-@@ -100,12 +97,12 @@
- ## ---------------------------------------------------------------------
- ## STAGE 3: Run!
+        /usr/bin/sqlite3                                                \
+     && chmod +x /usr/bin/sha?sum /usr/bin/sqlite3
+@@ -118,10 +118,9 @@
  ## ---------------------------------------------------------------------
  
  EXPOSE 8080/tcp
-+USER fossil
  CMD [ \
      "bin/fossil", "server", \
 -    "--chroot", "/jail",    \
