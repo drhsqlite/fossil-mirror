@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 # See www/containers.md for documentation on how to use this file.
 
 ## ---------------------------------------------------------------------
@@ -35,6 +36,18 @@ RUN set -x \
     && ( cd bbx && yes "" | make oldconfig && make -j11 )              \
     && test ! -x /usr/bin/upx || upx -9q bbx/busybox
 
+# Dummy up an OS release info file for those using systemd-nspawn.
+# Without this, it'll gripe that the rootfs dir doesn't look like
+# it contains an OS.
+ARG FSLVER="trunk"
+RUN cat <<-OSREL > /etc/os-release
+    NAME="Fossil BusyBox"
+    ID="fslbbx"
+    VERSION="${FSLVER}"
+    HOME_URL="https://fossil-scm.org/home/doc/trunk/www/containers.md"
+    BUG_REPORT_URL="https://fossil-scm.org/forum"
+OSREL
+
 ### The changeable Fossil layer is the only one in the first stage that
 ### changes often, so add it last, to make it independent of the others.
 ###
@@ -46,7 +59,6 @@ RUN set -x \
 ### project's home site by pulling the data from the local repo via the
 ### "tarball" command.  This is a DVCS, after all!
 ARG FSLCFG=""
-ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
 ENV FSLSTB=/tmp/fsl/src.tar.gz
 ADD $FSLURL $FSLSTB
@@ -65,11 +77,12 @@ RUN set -x \
 FROM scratch
 WORKDIR /jail
 ARG UID=499
-ENV PATH "/bin:/jail/bin"
+ENV PATH "/bin:/usr/bin:/jail/bin"
 
 ### Lay BusyBox down as the first base layer. Coupled with the host's
 ### kernel, this is the "OS."
 COPY --from=builder /tmp/bbx/busybox /bin/
+COPY --from=builder /etc/os-release /etc/
 RUN [ "/bin/busybox", "--install", "/bin" ]
 
 ### Set up that base OS for our specific use without tying it to
@@ -82,6 +95,7 @@ RUN set -x                                                             \
     && adduser -S -h `pwd` -g 'Fossil User' -G fossil -u ${UID} fossil \
     && install -d -m 700 -o fossil -g fossil log museum                \
     && install -d -m 755 -o fossil -g fossil dev                       \
+    && install -d -m 755 -o root -g root /usr/bin                      \
     && mknod -m 666 dev/null    c 1 3                                  \
     && mknod -m 444 dev/urandom c 1 9
 
@@ -89,12 +103,12 @@ RUN set -x                                                             \
 ### as often as the Fossil build-from-source layer above.
 COPY --from=builder /tmp/fossil bin/
 RUN set -x                                                             \
-    && ln -s /jail/bin/fossil /bin/f                                   \
-    && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /bin/sha1sum         \
-    && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /bin/sha3sum         \
+    && ln -s /jail/bin/fossil /usr/bin/f                               \
+    && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /usr/bin/sha1sum     \
+    && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /usr/bin/sha3sum     \
     && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
-       /bin/sqlite3                                                    \
-    && chmod +x /bin/sha?sum /bin/sqlite3
+       /usr/bin/sqlite3                                                \
+    && chmod +x /usr/bin/sha?sum /usr/bin/sqlite3
 
 
 ## ---------------------------------------------------------------------

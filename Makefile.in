@@ -123,7 +123,7 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
 container-image:
 	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
-	docker build \
+	docker buildx build \
 		--tag fossil:@FOSSIL_CI_PFX@ \
 		--build-arg FSLURL=$(SRCTB) \
 		$(DBFLAGS) @srcdir@
