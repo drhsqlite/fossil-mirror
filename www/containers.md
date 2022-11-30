@@ -394,20 +394,29 @@ came out. Someone needs to get around to vetting it against our stock
 configuration first.
 
 As for Fossil, it defaults to fetching the same version as the checkout
-you’re running the build command from, based on checkin ID. The most
-common reason to override this is to get a release version:
+you’re running the build command from, based on checkin ID. You could
+use this to get a release build, for instance:
 
 ```
   $ docker build -t fossil \
-    --build-arg FSLVER=version-2.19 .
+    --build-arg FSLVER=version-2.20 .
 ```
 
-It’s best to use a specific version number rather than the generic
-“`release`” tag because Docker caches downloaded files and tries to
+Or equivalently, using Fossil’s `Makefile` convenience target:
+
+```
+  $ make container-image \
+    DBFLAGS='--build-arg FSLVER=version-2.20'
+```
+
+While you could instead use the generic
+“`release`” tag here, it’s better to use a specific version number
+since Docker caches downloaded files and tries to
 reuse them across builds. If you ask for “`release`” before a new
 version is tagged and then immediately after, you might expect to get
-two different tarballs, but because the URL hasn’t changed, if you have
-an old release tarball in your Docker cache, you’ll get the old version
+two different tarballs, but because the underlying source tarball URL
+remains the same when you do that, you’ll end up reusing the
+old tarball from your Docker cache. This will occur
 even if you pass the “`docker build --no-cache`” option.
 
 This is why we default to pulling the Fossil tarball by checkin ID
@@ -428,7 +437,8 @@ close to zero as we can manage.
 To change it to something else, say:
 
 ```
-  $ docker build -t fossil --build-arg UID=501 .
+  $ make container-image \
+    DBFLAGS='--build-arg UID=501'
 ```
 
 This is particularly useful if you’re putting your repository on a
@@ -436,6 +446,19 @@ Docker volume since the IDs “leak” out into the host environment via
 file permissions. You may therefore wish them to mean something on both
 sides of the container barrier rather than have “499” appear on the host
 in “`ls -l`” output.
+
+
+### 5.3 <a id="config"></a>Fossil Configuration Options
+
+You can use this same mechanism to enable non-default Fossil
+configuration options in your build. For instance, to turn on
+the JSON API and the TH1 docs extension:
+
+```
+  $ make container-image \
+    DBFLAGS='--build-arg FSLCFG="--json --with-th1-docs"'
+```
+
 
 
 ## 6. <a id="light"></a>Lightweight Alternatives to Docker

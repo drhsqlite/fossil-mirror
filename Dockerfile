@@ -31,8 +31,8 @@ ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
 COPY containers/busybox-config /tmp/bbx/.config
 ADD $BBXURL /tmp/bbx/src.tar.gz
 RUN set -x \
-    && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz            \
-    && ( cd bbx && yes "" | make oldconfig && make -j11 )             \
+    && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz             \
+    && ( cd bbx && yes "" | make oldconfig && make -j11 )              \
     && test ! -x /usr/bin/upx || upx -9q bbx/busybox
 
 ### The changeable Fossil layer is the only one in the first stage that
@@ -45,15 +45,16 @@ RUN set -x \
 ### container-image target, we can avoid a costly hit on the Fossil
 ### project's home site by pulling the data from the local repo via the
 ### "tarball" command.  This is a DVCS, after all!
+ARG FSLCFG=""
 ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
 ENV FSLSTB=/tmp/fsl/src.tar.gz
 ADD $FSLURL $FSLSTB
 RUN set -x \
-    && if [ -d $FSLSTB ] ; then mv $FSLSTB/src fsl ;                  \
-       else tar -C fsl -xzf fsl/src.tar.gz ; fi                       \
-    && m=fsl/src/src/main.mk                                          \
-    && fsl/src/configure --static CFLAGS='-Os -s' && make -j11        \
+    && if [ -d $FSLSTB ] ; then mv $FSLSTB/src fsl ;                   \
+       else tar -C fsl -xzf fsl/src.tar.gz ; fi                        \
+    && m=fsl/src/src/main.mk                                           \
+    && fsl/src/configure --static CFLAGS='-Os -s' $FSLCFG && make -j11 \
     && if [ -x /usr/bin/upx ] ; then upx -9q fossil ; fi
 
 
