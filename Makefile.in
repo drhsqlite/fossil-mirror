@@ -129,7 +129,9 @@ container-image:
 		$(DBFLAGS) @srcdir@
 	rm -f $(SRCTB)
 
-container-run: container-image
+container-run:
+	docker image inspect fossil:@FOSSIL_CI_PFX@ > /dev/null 2>&1 || \
+		$(MAKE) container-image
 	docker run \
 		--name fossil-@FOSSIL_CI_PFX@ \
 		--cap-drop AUDIT_WRITE \
