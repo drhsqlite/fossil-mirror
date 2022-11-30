@@ -145,4 +145,5 @@ container-run:
 		--cap-drop SETPCAP \
 		--detach --publish 8080:8080 \
 		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
+	@sleep 1   # decrease likelihood of logging race condition
 	docker container logs fossil-@FOSSIL_CI_PFX@
