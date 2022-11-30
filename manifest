@@ -1,5 +1,5 @@
-C Added\sempty\s/tmp\sand\s/run\sdirectories\sto\sthe\s"OS\simage"\slayer\sof\sthe\nstock\scontainer\sin\scase\ssomeone\sis\smounting\sthe\sbase\slayer\sread-only\nwith\stmpfs\smounted\satop\sthese\spoints.\s\s(Seen\swith\s"systemd-nspawn\n--read-only"\sbut\smight\saffect\sother\sruntimes.)
-D 2022-11-30T21:27:11.078
+C Worked\sout\show\sto\sget\ssystemd-container\s(a.k.a.\snspawn\s+\smachinectl)\nworking\swith\sthe\sstock\sFossil\scontainer.\s\sFollowing\sthe\sabove\scommits,\nit's\spure\sdocumentation.\s\sRemoved\sthe\srunc\sand\scrun\sdocs\sat\sthe\ssame\ntime\ssince\sthis\sis\sas\ssmall\sas\scrun\swhile\sbeing\smore\sfunctional;\sthere's\nzero\sreaon\sto\spush\sthrough\sall\sthe\sadditional\scomplexity\sof\sthose\seven\nlower-level\stools\snow\sthat\sthis\smethod\sis\sdebugged\sand\sdocumented.
+D 2022-11-30T23:09:59.025
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -793,7 +793,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 491c8810e92b52a352833a794a0d094291a948de028423cf1711e1c9c231ab21
+F www/containers.md f4ee196e44f61980c0b755750ba27493f5977ffbfc83d42561537aed3e3c0ff0
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f74ddbce71cd05f985aa1768d5b2ffa2f51eff0b4e1b3c4589282f421bca7da5
-R 866ece663ceb347d2a5253ba678ff612
+P 0733be502bdab6a7d8ef80a77aae25ef094b2601023648228db17bad0ff3870d
+R 60b1fdcdcbef2a4c29e5d1bf22b10821
 U wyoung
-Z 5db49929984ba5fe69a99585eb9df96c
+Z 0a661e400870651c7cc969721fc48cb4
 # Remove this line to create a well-formed Fossil manifest.

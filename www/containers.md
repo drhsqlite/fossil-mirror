@@ -486,7 +486,7 @@ just to run a 4 MiB Fossil server container? Once again, I wouldn’t
 blame you if you noped right on out of here, but if you will be patient,
 you will find that there are ways to run Fossil inside a container even
 on entry-level cloud VPSes. These are well-suited to running Fossil; you
-don’t have to resort to [raw Fossil service](./server/) to succeed,
+don’t have to resort to [raw Fossil service][srv] to succeed,
 leaving the benefits of containerization to those with bigger budgets.
 
 For the sake of simple examples in this section, we’ll assume you’re
@@ -523,6 +523,7 @@ this idea to the rest of your site.)
 [DD]:  https://www.docker.com/products/docker-desktop/
 [DE]:  https://docs.docker.com/engine/
 [DNT]: ./server/debian/nginx.md
+[srv]: ./server/
 
 
 ### 6.1 <a id="nerdctl" name="containerd"></a>Stripping Docker Engine Down
@@ -558,8 +559,8 @@ Red Hat and thus popular on that family of OSes, it will run on
 any flavor of Linux. It can even be made to run [on macOS via Homebrew][pmmac]
 or [on Windows via WSL2][pmwin].
 
-On Ubuntu 22.04, it’s about a quarter the size of Docker Engine, or half
-that of the “full” distribution of `nerdctl` and all its dependencies.
+On Ubuntu 22.04, the installation size is about 38&nbsp;MiB, roughly a
+tenth the size of Docker Engine.
 
 Although Podman [bills itself][whatis] as a drop-in replacement for the
 `docker` command and everything that sits behind it, some of the tool’s
@@ -705,249 +706,320 @@ build time.
 
 
 
-### 6.3 <a id="barebones"></a>Bare-Bones OCI Bundle Runners
+### 6.3 <a id="nspawn"></a>`systemd-container`
 
-If even the Podman stack is too big for you, you still have options for
-running containers that are considerably slimmer, at a high cost to
-administration complexity and loss of features.
+If even the Podman stack is too big for you, the next-best option I’m
+aware of is the `systemd-container` infrastructure on modern Linuxes,
+available since version 239 or so.  Its runtime tooling requires only
+about 1.4 MiB of disk space:
 
-Part of the OCI standard is the notion of a “bundle,” being a consistent
-way to present a pre-built and configured container to the runtime.
-Essentially, it consists of a directory containing a `config.json` file
-and a `rootfs/` subdirectory containing the root filesystem image. Many
-tools can produce these for you. We’ll show only one method in the first
-section below, then reuse that in the following sections.
+```
+  $ sudo apt install systemd-container btrfs-tools
+```
 
+That command assumes the primary test environment for
+this guide, Ubuntu 22.04 LTS with `systemd` 249.  For best
+results, `/var/lib/machines` should be a btrfs volume, because
+[`$REASONS`][mcfad].  (For CentOS Stream 9 and other Red Hattish
+systems, you will have to make serveral adjustments, which we’ve
+collected [below](#nspawn-centos) to keep these examples clear.)
 
-#### 6.3.1 <a id="runc"></a>`runc`
+The first configuration step is to convert the Docker container into
+a “machine”, as systemd calls it.  The easiest method is:
 
-We mentioned `runc` [above](#nerdctl), but it’s possible to use it
-standalone, without `containerd` or its CLI frontend `nerdctl`. You also
-lose the build engine, intelligent image layer sharing, image registry
-connections, and much more.  The plus side is that `runc` alone is
-18 MiB.
+```
+  $ make container-run
+  $ docker container export fossil-e119d5983620 |
+    machinectl import-tar - myproject
+```
 
-Using it without all the support tooling isn’t complicated, but it *is*
-cryptic enough to want a shell script. Let’s say we want to build on our
-big desktop machine but ship the resulting container to a small remote
-host. This should serve:
+Copy the container name from the first step to the second.  Yours will
+almost certainly be named after a different Fossil commit ID.
+
+It’s important that the name of the machine you create &mdash;
+“`myproject`” in this example &mdash; matches the base name
+of the nspawn configuration file you create as the next step.
+Therefore, to extend the example, the following file needs to be
+called `/etc/systemd/nspawn/myproject.nspawn`, and it will contain
+something like:
 
 ----
 
-```shell
-#!/bin/bash -ex
-c=fossil
-b=/var/lib/machines/$c
-h=my-host.example.com
-m=/run/containerd/io.containerd.runtime.v2.task/moby
-t=$(mktemp -d /tmp/$c-bundle.XXXXXX)
+```
+[Exec]
+WorkingDirectory=/jail
+Parameters=bin/fossil server                \
+    --baseurl https://example.com/myproject \
+    --chroot /jail                          \
+    --create                                \
+    --jsmode bundled                        \
+    --localhost                             \
+    --port 9000                             \
+    --scgi                                  \
+    --user admin                            \
+    museum/repo.fossil
+DropCapability=          \
+    CAP_AUDIT_WRITE      \
+    CAP_CHOWN            \
+    CAP_FSETID           \
+    CAP_KILL             \
+    CAP_MKNOD            \
+    CAP_NET_BIND_SERVICE \
+    CAP_NET_RAW          \
+    CAP_SETFCAP          \
+    CAP_SETPCAP
+ProcessTwo=yes
+LinkJournal=no
+Timezone=no
 
-if [ -d "$t" ]
-then
-    docker container start  $c
-    docker container export $c > $t/rootfs.tar
-    id=$(docker inspect --format="{{.Id}}" $c)
-    sudo cat $m/$id/config.json \
-        | jq '.root.path = "'$b/rootfs'"'
-        | jq '.linux.cgroupsPath = ""'
-        | jq 'del(.linux.sysctl)'
-        | jq 'del(.linux.namespaces[] | select(.type == "network"))'
-        | jq 'del(.mounts[] | select(.destination == "/etc/hostname"))'
-        | jq 'del(.mounts[] | select(.destination == "/etc/resolv.conf"))'
-        | jq 'del(.mounts[] | select(.destination == "/etc/hosts"))'
-        | jq 'del(.hooks)' > $t/config.json
-    scp -r $t $h:tmp
-    ssh -t $h "{
-        mv ./$t/config.json $b &&
-        sudo tar -C $b/rootfs -xf ./$t/rootfs.tar &&
-        rm -r ./$t
-    }"
-    rm -r $t
-fi
+[Files]
+Bind=/home/fossil/museum/myproject:/jail/museum
+
+[Network]
+VirtualEthernet=no
 ```
 
 ----
 
-The first several lines list configurables:
+If you recognize most of that from the `Dockerfile` discussion above,
+congratulations, you’ve been paying attention. The rest should also
+be clear from context.
 
-*   **`c`**: the name of the Docker container you’re bundling up for use
-    with `runc`
-*   **`b`**: the path of the exported container, called the “bundle” in
-    OCI jargon; we’re using the [`nspawn`](#nspawn) convention, a
-    reasonable choice under the [Linux FHS rules][LFHS]
-*   **`h`**: the remote host name
-*   **`m`**: the local directory holding the running machines, configurable
-    because:
-    *   the path name is longer than we want to use inline
-    *   it’s been known to change from one version of Docker to the next
-    *   you might be building and testing with [Podman](#podman), so it
-        has to be “`/run/user/$UID/crun`” instead
-*   **`t`**: the temporary bundle directory we populate locally, then
-    `scp` to the remote machine, where it’s unpacked
+Some of this is expected to vary.  For one, the command given in the
+`Parameters` directive assumes [SCGI proxying via nginx][DNT]. For
+other use cases, see our collection of [Fossil server configuration
+guides][srv], then adjust the command to your local needs.
+For another, you will likely have to adjust the `Bind` value to
+point at the directory containing the `repo.fossil` file referenced
+in the command.
 
-[LFHS]:  https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+We also need a generic systemd unit file called
+`/etc/systemd/system/fossil@.service`, containing:
 
-
-##### Why All That `sudo` Stuff?
-
-This script uses `sudo` for two different purposes:
-
-1. To read the local `config.json` file out of the `containerd` managed
-   directory, which is owned by `root` on Docker systems. Additionally,
-   that input file is only available while the container is started, so
-   we must ensure that before extracting it.
-
-2. To unpack the bundle onto the remote machine. If you try to get
-   clever and unpack it locally, then `rsync` it to the remote host to
-   avoid re-copying files that haven’t changed since the last update,
-   you’ll find that it fails when it tries to copy device nodes, to
-   create files owned only by the remote root user, and so forth. If the
-   container bundle is small, it’s simpler to re-copy and unpack it
-   fresh each time.
-
-I point all this out because it might ask for your password twice: once for
-the local sudo command, and once for the remote.
-
-
-
-##### Why All That `jq` Stuff?
-
-We’re using [jq] for two separate purposes:
-
-1.  To automatically transmogrify Docker’s container configuration so it
-    will work with `runc`:
-
-    *   point it where we unpacked the container’s exported rootfs
-    *   accede to its wish to [manage cgroups by itself][ecg]
-    *   remove the `sysctl` calls that will break after…
-    *   …we remove the network namespace to allow Fossil’s TCP listening
-        port to be available on the host; `runc` doesn’t offer the
-        equivalent of `docker create --publish`, and we can’t be
-        bothered to set up a manual mapping from the host port into the
-        container
-    *   remove file bindings that point into the local runtime managed
-        directories; one of the things we give up by using a bare
-        container runner is automatic management of these files
-    *   remove the hooks for essentially the same reason
-
-2.  To make the Docker-managed machine-readable `config.json` more
-    human-readable, in case there are other things you want changed in
-    this version of the container.  Exposing the `config.json` file like
-    this means you don’t have to rebuild the container merely to change
-    a value like a mount point, the kernel capability set, and so forth.
-
-
-##### Running the Bundle
-
-With the container exported to a bundle like this, you can start it as:
+----
 
 ```
-  $ cd /path/to/bundle
-  $ c=fossil-runc            ← …or anything else you prefer
-  $ sudo runc create $c
-  $ sudo runc start  $c
-  $ sudo runc exec $c -t sh -l
-  ~ $ ls museum
-  repo.fossil
-  ~ $ ps -eaf
-  PID   USER     TIME  COMMAND
-      1 fossil    0:00 bin/fossil server --create …
-  ~ $ exit
-  $ sudo runc kill $c
-  $ sudo runc delete $c
+[Unit]
+Description=Fossil %i Repo Service
+Wants=modprobe@tun.service modprobe@loop.service
+After=network.target systemd-resolved.service modprobe@tun.service modprobe@loop.service
+
+[Service]
+ExecStart=systemd-nspawn --settings=override --read-only --machine=%i bin/fossil
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-If you’re doing this on the export host, the first command is “`cd $b`”
-if we’re using the variables from the shell script above. Alternately,
-the `runc` subcommands that need to read the bundle files take a
-`--bundle/-b` flag to let you avoid switching directories.
+----
 
-The rest should be straightforward: create and start the container as
-root so the `chroot(2)` call inside the container will succeed, then get
-into it with a login shell and poke around to prove to ourselves that
-everything is working properly. It is. Yay!
+You shouldn’t have to change any of this because we’ve given the
+`--setting=override` flag, meaning any setting in the nspawn file
+overrides the setting passed to `systemd-nspawn`.  This arrangement
+not only keeps the unit file simple, it allows multiple services to
+share the base configuration, varying on a per-repo level.
 
-The remaining commands show shutting the container down and destroying
-it, simply to show how these commands change relative to using the
-Docker Engine commands. It’s “kill,” not “stop,” and it’s “delete,” not
-“rm.”
-
-[ecg]:   https://github.com/opencontainers/runc/pull/3131
-[jq]:    https://stedolan.github.io/jq/
-
-
-##### Lack of Layer Sharing
-
-The bundle export process collapses Docker’s union filesystem down to a
-single layer. Atop that, it makes all files mutable.
-
-All of this is fine for tiny remote hosts with a single container, or at
-least one where none of the containers share base layers. Where it
-becomes a problem is when you have multiple Fossil containers on a
-single host, since they all derive from the same base image.
-
-The full-featured container runtimes above will intelligently share
-these immutable base layers among the containers, storing only the
-differences in each individual container. More, when pulling images from
-a registry host, they’ll transfer only the layers you don’t have copies
-of locally, so you don’t have to burn bandwidth sending copies of Alpine
-and BusyBox each time, even though they’re unlikely to change from one
-build to the next.
-
-
-#### 6.3.2 <a id="crun"></a>`crun`
-
-In the same way that [Docker Engine is based on `runc`](#runc), Podman’s
-engine is based on [`crun`][crun], a lighter-weight alternative to
-`runc`. It’s only 1.4 MiB on the system I tested it on, yet it will run
-the same container bundles as in my `runc` examples above.  We saved
-more than that by compressing the container’s Fossil executable with
-UPX, making the runtime virtually free in this case. The only question
-is whether you can put up with its limitations, which are the same as
-for `runc`.
-
-[crun]:   https://github.com/containers/crun
-
-
-#### 6.3.3 <a id="nspawn"></a>`systemd-nspawn`
-
-As of `systemd` version 242, its optional `nspawn` piece
-[reportedly](https://www.phoronix.com/news/Systemd-Nspawn-OCI-Runtime)
-got the ability to run OCI bundles directly. You might
-have it installed already, but if not, it’s only about 2 MiB.  It’s
-in the `systemd-containers` package as of Ubuntu 22.04 LTS:
+Start the service in the normal way:
 
 ```
-  $ sudo apt install systemd-containers
+  $ sudo systemctl enable fossil@myproject
+  $ sudo systemctl start  fossil@myproject
 ```
 
-It’s also in CentOS Stream 9, under the same name.
-
-You create the bundles the same way as with [the `runc` method
-above](#runc). The only thing that changes are the top-level management
-commands:
+You should find it running on localhost port 9000 per the nspawn
+configuration file above, suitable for proxying Fossil out to the
+public using nginx, via SCGI. If you aren’t using a front-end proxy
+and want Fossil exposed to the world, you might say this instead in
+the `nspawn` file:
 
 ```
-  $ sudo systemd-nspawn \
-    --oci-bundle=/var/lib/machines/fossil \
-    --machine=fossil \
-    --network-veth \
-    --port=127.0.0.1:127.0.0.1:9999:8080
-  $ sudo machinectl list
-  No machines.
+Parameters=bin/fossil server         \
+    --cert /path/to/my/fullchain.pem \
+    --chroot /jail                   \
+    --create                         \
+    --jsmode bundled                 \
+    --port 443                       \
+    --user admin                     \
+    museum/repo.fossil
 ```
 
-This is why I wrote “reportedly” above: I couldn’t get it to work on two different
-Linux distributions, and I can’t see why. I’m leaving this here to give
-someone else a leg up, with the hope that they will work out what’s
-needed to get the container running and registered with `machinectl`.
+You would also need to un-drop the `CAP_NET_BIND_SERVICE` capability
+to allow Fossil to bind to this low-numbered port.
 
-As of this writing, the tool expects an OCI container version of
-“1.0.0”. I had to edit this at the top of my `config.json` file to get
-the first command to read the bundle. The fact that it errored out when
-I had “`1.0.2-dev`” in there proves it’s reading the file, but it
-doesn’t seem able to make sense of what it finds there, and it doesn’t
-give any diagnostics to say why.
+We use systemd’s template file feature to allow multiple Fossil
+servers running on a single machine, each on a different TCP port,
+as when proxying them out as subdirectories of a larger site.
+To add another project, you must first clone the base “machine” layer:
 
+```
+  $ sudo machinectl clone myproject otherthing
+```
+
+That will not only create a clone of `/var/lib/machines/myproject`
+as `../otherthing`, it will create a matching `nspawn` file for you
+as a copy of the first one.  Adjust its contents to suit, then enable
+and start it as above.
+
+[mcfad]: https://www.freedesktop.org/software/systemd/man/machinectl.html#Files%20and%20Directories
+
+
+### 6.3.1 <a id="nspawn-rhel"></a>Getting It Working on a RHEL Clone
+
+The biggest difference between doing this on OSes like CentOS versus
+Ubuntu is that RHEL (thus also its clones) doesn’t ship btrfs in
+its kernel, thus has no option for installing `mkfs.btrfs`, which
+[`machinectl`][mctl] needs for various purposes.
+
+Fortunately, there are workarounds.
+
+First, the `apt install` command above becomes:
+
+```
+  $ sudo dnf install systemd-container
+```
+
+Second, you have to hack around the lack of `machinectl import-tar` so:
+
+```
+  $ rootfs=/var/lib/machines/fossil
+  $ sudo mkdir -p $rootfs
+  $ docker container export fossil | sudo tar -xf -C $rootfs -
+```
+
+The parent directory path in the `rootfs` variable is important,
+because although we aren’t using `machinectl`, the `systemd-nspawn`
+developers assume you’re using them together.  Thus, when you give
+`--machine`, it assumes the `machinectl` directory scheme.  You could
+instead use `--directory`, allowing you to store the rootfs whereever
+you like, but why make things difficult?  It’s a perfectly sensible
+default, consistent with the [LHS] rules.
+
+The final element &mdash; the machine name &mdash; can be anything
+you like so long as it matches the nspawn file’s base name.
+
+Finally, since you can’t use `machinectl clone`, you have to make
+a wasteful copy of `/var/lib/machines/myproject` when standing up
+multiple Fossil repo services on a single machine.  (This is one
+of the reasons `machinectl` depends on `btrfs`: cheap copy-on-write
+subvolumes.)  Because we give the `--read-only` flag, you can simply
+`cp -r` one machine to a new name rather than go through the
+export-and-import dance you used to create the first one.
+
+[LHS]:  https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html
+[mctl]: https://www.freedesktop.org/software/systemd/man/machinectl.html
+
+
+### 6.3.2 <a id="nspawn-weaknesses"></a>What Am I Missing Out On?
+
+For all the runtime size savings in this method, you may be wondering
+what you’re missing out on relative to Podman, which takes up
+roughly 27× more disk space.  Short answer: lots.  Long answer:
+
+1.  **Build system.**  You’ll have to build and test your containers
+    some other way.  This method is only suitable for running them
+    once they’re built.
+
+2.  **Orchestration.**  All of the higher-level things like
+    “compose” files, Docker Swarm mode, and Kubernetes are
+    unavailable to you at this level.  You can run multiple
+    instances of Fossil, but on a single machine only and with a
+    static configuration.
+
+3.  **Image layer sharing.**  When you update an image using one of the
+    above methods, Docker and Podman are smart enough to copy only
+    changed layers.  Furthermore, when you base multiple containers
+    on a single image, they don’t make copies of the base layers;
+    they can share them, because base layers are immutable, thus
+    cannot cross-contaminate.
+
+    Because we use `sysetmd-nspawn --read-only`, we get *some*
+    of this benefit, particularly when using `machinectl` with
+    `/var/lib/machines` as a btrfs volume.  Even so, the disk space
+    and network I/O optimizations go deeper in the Docker and Podman
+    worlds.
+
+4.  **Tooling.** Hand-creating and modifying those systemd
+    files sucks compared to “`podman container create ...`”  This
+    is but one of many affordances you will find in the runtimes
+    aimed at daily-use devops warriors.
+
+5.  **Network virtualization.** In the scheme above, we turn off the
+    `systemd` virtual netorking support because in its default mode,
+    it wants to hide the service entirely.
+
+    Another way to put this is that `systemd-nspawn --port` does
+    approximately *nothing* of what `docker create --publish` does
+    despite their superficial similarities.
+
+    For this container, it doesn’t much matter, since it exposes
+    only a single port, and we do want that one port exposed, one way
+    or another.  Beyond that, we get all the control we need using
+    Fossil options like `--localhost`.  I point this out because in
+    more complex situations, the automatic network setup features of
+    the more featureful runtimes can save a lot of time and hassle.
+    They aren’t doing anything you couldn’t do by hand, but why
+    would you want to, given the choice?
+
+I expect there’s a lot more I neglected to think of when creating
+this list, but I think it suffices to make my case as it is. If you
+can afford the space of Podman or Docker, I strongly recommend using
+either of them over the much lower-level `systemd-container`
+infrastructure.
+
+(Incidentally, these are essentially the same reasons why we no longer
+talk about the `crun` tool underpinning Podman in this document. It’s
+even more limited, making it even more difficult to administer while
+providing no runtime size advantage. The `runc` tool underpinning
+Docker is even worse on this score, being scarcely easier to use than
+`crun` while having a much larger footprint.)
+
+
+### 6.3.3 <a id="nspawn-assumptions"></a>Violated Assumptions
+
+The `systemd-container` infrastructure has a bunch of hard-coded
+assumptions baked into it.  We papered over these problems above,
+but if you’re using these tools for other purposes on the machine
+you’re serving Fossil from, you may need to know which assumptions
+our container violates and the resulting consequences:
+
+1.  `systemd-nspawn` works best with `machinectl`, but if you haven’t
+    got `btrfs` available, you run into [trouble](#nspawn-rhel).
+
+2.  Our stock container starts a single static executable inside
+    a stripped-to-the-bones container rather than “boot” an OS
+    image, causing a bunch of commands to fail:
+
+    *   **`machinectl poweroff`** will fail because the container
+        isn’t running dbus.
+    *   **`machinectl start`** will try to find an `/sbin/init`
+        program in the rootfs, which we haven’t got.  We could
+        rename `/jail/bin/fossil` to `/sbin/init` and then hack
+        the chroot scheme to match, but ick.  (This, incidentally,
+        is why we set `ProcessTwo=yes` above even though Fossil is
+        perfectly capable of running as PID 1, a fact we depend on
+        in the other methods above.)
+    *   **`machinectl shell`** will fail because there is no login
+        daemon running, which we purposefully avoided adding by
+        creating a “`FROM scratch`” container. (If you need a
+        shell, say: `sudo systemd-nspawn --machine=myproject /bin/sh`)
+    *   **`machinectl status`** won’t give you the container logs
+        because we disabled the shared journal, which was in turn
+        necessary because we don’t run `systemd` *inside* the
+        container, just outside.
+
+    If these are problems for you, you may wish to build a
+    fatter container using `debootstrap` or similar. ([External
+    tutorial][medtut].)
+
+3.  We disable the “private networking” feature since the whole
+    point of this container is to expose a network service to the
+    public, one way or another.  If you do things the way the defaults
+    (and thus the official docs) expect, you must push through
+    [a whole lot of complexity][ndcmp] to re-expose this single
+    network port.  That complexity is justified only if your service
+    is itself complex, having both private and public service ports.
+
+[medtut]: https://medium.com/@huljar/setting-up-containers-with-systemd-nspawn-b719cff0fb8d
+[ndcmp]:  https://wiki.archlinux.org/title/systemd-networkd#Usage_with_containers
 
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>
