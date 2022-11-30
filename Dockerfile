@@ -96,6 +96,8 @@ RUN set -x                                                             \
     && install -d -m 700 -o fossil -g fossil log museum                \
     && install -d -m 755 -o fossil -g fossil dev                       \
     && install -d -m 755 -o root -g root /usr/bin                      \
+    && install -d -m 400 -o root -g root /run                          \
+    && install -d -m 1777 -o root -g root /tmp                         \
     && mknod -m 666 dev/null    c 1 3                                  \
     && mknod -m 444 dev/urandom c 1 9
 
