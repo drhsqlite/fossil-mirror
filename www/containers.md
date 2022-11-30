@@ -459,6 +459,16 @@ the JSON API and the TH1 docs extension:
     DBFLAGS='--build-arg FSLCFG="--json --with-th1-docs"'
 ```
 
+If you also wanted [the Tcl evaluation extension](./th1.md#tclEval),
+that’s trickier because it requires the `tcl-dev` package to be
+installed atop Alpine Linux in the first image build stage. We don’t
+currently have a way to do that because it brings you to a new problem:
+Alpine provides only a dynamic Tcl library, which conflicts with our
+wish for [a static Fossil binary](#static). For those who want such a
+“batteries included” container, we recommend taking a look at [this
+alternative](https://hub.docker.com/r/duvel/fossil); needless to say,
+it’s inherently less secure than our stock container, but you may find
+the tradeoff worthwhile.
 
 
 ## 6. <a id="light"></a>Lightweight Alternatives to Docker
