@@ -17,7 +17,7 @@ RUN set -x                                                             \
     && apk update                                                      \
     && apk upgrade --no-cache                                          \
     && apk add --no-cache                                              \
-         gcc make moreutils                                            \
+         gcc make                                                      \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
          zlib-dev zlib-static                                          \
@@ -53,7 +53,6 @@ RUN set -x \
     && if [ -d $FSLSTB ] ; then mv $FSLSTB/src fsl ;                  \
        else tar -C fsl -xzf fsl/src.tar.gz ; fi                       \
     && m=fsl/src/src/main.mk                                          \
-    && grep -v '/skins/[a-ce-z]' $m | sponge $m                       \
     && fsl/src/configure --static CFLAGS='-Os -s' && make -j11        \
     && if [ -x /usr/bin/upx ] ; then upx -9q fossil ; fi
 

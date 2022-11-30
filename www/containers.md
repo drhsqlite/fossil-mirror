@@ -34,8 +34,7 @@ on the host instead.
 
 Our stock `Dockerfile` configures Fossil with the default feature set,
 so you may wish to modify the `Dockerfile` to add configuration options,
-add APK packages to support those options, and so forth. It also strips
-out all but the default and darkmode skins to save executable space.
+add APK packages to support those options, and so forth.
 
 The Fossil `Makefile` provides two convenience targets,
 “`make container-image`” and “`make container-run`”. The first creates a
