@@ -944,27 +944,42 @@ roughly 27× more disk space.  Short answer: lots.  Long answer:
     aimed at daily-use devops warriors.
 
 5.  **Network virtualization.** In the scheme above, we turn off the
-    `systemd` virtual netorking support because in its default mode,
-    it wants to hide the service entirely.
+    `systemd` private networking support because in its default mode, it
+    wants to hide containerized services entirely. While there are
+    [ways][ndcmp] to expose Fossil’s single network service port under
+    that scheme, it adds a lot of administration complexity. In the
+    big-boy container runtimes, `docker create --publish` fixes all this
+    up in a single option, whereas `systemd-nspawn --port` does
+    approximately *none* of that despite the command’s superficial
+    similarity.
 
-    Another way to put this is that `systemd-nspawn --port` does
-    approximately *nothing* of what `docker create --publish` does
-    despite their superficial similarities.
+    From a purely functional point of view, this isn’t a huge problem if
+    you consider the “inbound” service direction only, being external
+    connections to the Fossil service we’re providing. Since we do want
+    this Fossil service to be exposed — else why are we running it? — we
+    get all the control we need via `fossil server --localhost` and
+    similar options.
 
-    For this container, it doesn’t much matter, since it exposes
-    only a single port, and we do want that one port exposed, one way
-    or another.  Beyond that, we get all the control we need using
-    Fossil options like `--localhost`.  I point this out because in
-    more complex situations, the automatic network setup features of
-    the more featureful runtimes can save a lot of time and hassle.
-    They aren’t doing anything you couldn’t do by hand, but why
-    would you want to, given the choice?
+    The complexity of the `systemd` networking infrastructure’s
+    interactions with containers make more sense when you consider the
+    “outbound” path.  Consider what happens if you enable Fossil’s
+    optional TH1 docs feature plus its Tcl evaluation feature. That
+    would enable anyone with the rights to commit to your repository the
+    ability to make arbitrary network connections on the Fossil host.
+    Then, let us say you have a client-server DBMS server on that same
+    host, bound to localhost for private use by other services on the
+    machine. Now that DBMS is open to access by a rogue Fossil committer
+    because the host’s loopback interface is mapped directly into the
+    container’s network namespace.
 
-I expect there’s a lot more I neglected to think of when creating
-this list, but I think it suffices to make my case as it is. If you
-can afford the space of Podman or Docker, I strongly recommend using
+    Proper network virtualization would protect you in this instance.
+
+This author expects that the set of considerations is broader than
+presented here, but that it suffices to make our case as it is: if you
+can afford the space of Podman or Docker, we strongly recommend using
 either of them over the much lower-level `systemd-container`
-infrastructure.
+infrastructure. You’re getting a considerable amount of value for the
+higher runtime cost; it isn’t simply overhead for little return.
 
 (Incidentally, these are essentially the same reasons why we no longer
 talk about the `crun` tool underpinning Podman in this document. It’s
@@ -973,6 +988,8 @@ providing no runtime size advantage. The `runc` tool underpinning
 Docker is even worse on this score, being scarcely easier to use than
 `crun` while having a much larger footprint.)
 
+[ndcmp]:  https://wiki.archlinux.org/title/systemd-networkd#Usage_with_containers
+
 
 ### 6.3.3 <a id="nspawn-assumptions"></a>Violated Assumptions
 
@@ -980,46 +997,38 @@ The `systemd-container` infrastructure has a bunch of hard-coded
 assumptions baked into it.  We papered over these problems above,
 but if you’re using these tools for other purposes on the machine
 you’re serving Fossil from, you may need to know which assumptions
-our container violates and the resulting consequences:
+our container violates and the resulting consequences.
 
-1.  `systemd-nspawn` works best with `machinectl`, but if you haven’t
-    got `btrfs` available, you run into [trouble](#nspawn-rhel).
+Some of it we discussed above already, but there’s one big class of
+problems we haven’t covered yet. It stems from the fact that our stock
+container starts a single static executable inside a barebones container
+rather than “boot” an OS image. That causes a bunch of commands to fail:
 
-2.  Our stock container starts a single static executable inside
-    a stripped-to-the-bones container rather than “boot” an OS
-    image, causing a bunch of commands to fail:
+*   **`machinectl poweroff`** will fail because the container
+    isn’t running dbus.
 
-    *   **`machinectl poweroff`** will fail because the container
-        isn’t running dbus.
-    *   **`machinectl start`** will try to find an `/sbin/init`
-        program in the rootfs, which we haven’t got.  We could
-        rename `/jail/bin/fossil` to `/sbin/init` and then hack
-        the chroot scheme to match, but ick.  (This, incidentally,
-        is why we set `ProcessTwo=yes` above even though Fossil is
-        perfectly capable of running as PID 1, a fact we depend on
-        in the other methods above.)
-    *   **`machinectl shell`** will fail because there is no login
-        daemon running, which we purposefully avoided adding by
-        creating a “`FROM scratch`” container. (If you need a
-        shell, say: `sudo systemd-nspawn --machine=myproject /bin/sh`)
-    *   **`machinectl status`** won’t give you the container logs
-        because we disabled the shared journal, which was in turn
-        necessary because we don’t run `systemd` *inside* the
-        container, just outside.
+*   **`machinectl start`** will try to find an `/sbin/init`
+    program in the rootfs, which we haven’t got.  We could
+    rename `/jail/bin/fossil` to `/sbin/init` and then hack
+    the chroot scheme to match, but ick.  (This, incidentally,
+    is why we set `ProcessTwo=yes` above even though Fossil is
+    perfectly capable of running as PID 1, a fact we depend on
+    in the other methods above.)
 
-    If these are problems for you, you may wish to build a
-    fatter container using `debootstrap` or similar. ([External
-    tutorial][medtut].)
+*   **`machinectl shell`** will fail because there is no login
+    daemon running, which we purposefully avoided adding by
+    creating a “`FROM scratch`” container. (If you need a
+    shell, say: `sudo systemd-nspawn --machine=myproject /bin/sh`)
 
-3.  We disable the “private networking” feature since the whole
-    point of this container is to expose a network service to the
-    public, one way or another.  If you do things the way the defaults
-    (and thus the official docs) expect, you must push through
-    [a whole lot of complexity][ndcmp] to re-expose this single
-    network port.  That complexity is justified only if your service
-    is itself complex, having both private and public service ports.
+*   **`machinectl status`** won’t give you the container logs
+    because we disabled the shared journal, which was in turn
+    necessary because we don’t run `systemd` *inside* the
+    container, just outside.
+
+If these are problems for you, you may wish to build a
+fatter container using `debootstrap` or similar. ([External
+tutorial][medtut].)
 
 [medtut]: https://medium.com/@huljar/setting-up-containers-with-systemd-nspawn-b719cff0fb8d
-[ndcmp]:  https://wiki.archlinux.org/title/systemd-networkd#Usage_with_containers
 
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>
