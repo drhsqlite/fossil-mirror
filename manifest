@@ -1,5 +1,5 @@
-C Updates\sto\sthe\ssystemd\sservice\sdoc,\sprimarily\sto\srefer\sthe\sreader\sto\sthe\nnew\scontainerized\srunner\smethods,\sbut\salso\sto\sadd\sother\stips.
-D 2022-12-01T00:14:41.088
+C new\sbranch\sfor\senhancements\sto\sTk\sdiff\sfrontend:\slabeling\sof\sfile\sorigin\n(version,\srepo,\sworking\sfile\setc.)\sin\sthe\sleft\sand\sright\spane\sheader
+D 2022-12-02T15:27:28.571
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -420,7 +420,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
 F src/diff.c f1cabfb71ed1f0b251df39983e683a47166ec2dff2838f5155d98c19c4a81d5f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
+F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c 82ad4626b2a77ea52f3e5672f556e223fd4108fe6e82b879320e4190bc94f7a6
 F src/dispatch.c a7e09a0ead25e481979c0b7dce3b888043e639b78a165d78408d4f6cd0deef07
 F src/doc.c 61e5fdc4fa12d59f83bbc8ca4c58641178ff71542e105e6fdd041c880b17b3cc
@@ -956,8 +956,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45e0475ca70a273e1b558ab4649807a020edab280f5fc3ec2f0ae01688839a9b
-R c9f103f179930cefa4ec24573286b6d1
-U wyoung
-Z 5874829a8e7a91168e0bc8cba80810d6
+P ad09d3eee0f45b70f6df8cc94ff54dfd9f6c53c89b98d28746f402a2c12adc4a
+R dc5b15afe49978c86ea298972f5bf59d
+T *branch * diff-tk-frontend
+T *sym-diff-tk-frontend *
+T -sym-trunk *
+U Torsten
+Z ad02d78ca9d5005ac819a5dbd053e17c
 # Remove this line to create a well-formed Fossil manifest.
