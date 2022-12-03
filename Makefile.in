@@ -121,34 +121,47 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 
 # Container stuff
 SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
+IMGVER := fossil:@FOSSIL_CI_PFX@
+CNTVER := fossil-@FOSSIL_CI_PFX@
+container:
+	docker image inspect $(IMGVER) > /dev/null 2>&1 || \
+		$(MAKE) container-image
+	docker container inspect $(CNTVER) > /dev/null 2>&1 || \
+		docker create \
+			--name $(CNTVER) \
+			--cap-drop AUDIT_WRITE \
+			--cap-drop CHOWN \
+			--cap-drop FSETID \
+			--cap-drop KILL \
+			--cap-drop MKNOD \
+			--cap-drop NET_BIND_SERVICE \
+			--cap-drop NET_RAW \
+			--cap-drop SETFCAP \
+			--cap-drop SETPCAP \
+			--publish 8080:8080 \
+			$(DCFLAGS) $(IMGVER)
+
+container-clean:
+	-docker container kill $(CNTVER)
+	-docker container rm   $(CNTVER)
+	-docker image     rm   $(IMGVER)
+
 container-image:
 	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
 	docker buildx build \
-		--tag fossil:@FOSSIL_CI_PFX@ \
+		--load \
+		--tag $(IMGVER) \
 		--build-arg FSLURL=$(SRCTB) \
 		$(DBFLAGS) @srcdir@
 	rm -f $(SRCTB)
 
-container-run:
-	docker image inspect fossil:@FOSSIL_CI_PFX@ > /dev/null 2>&1 || \
-		$(MAKE) container-image
-	docker run \
-		--name fossil-@FOSSIL_CI_PFX@ \
-		--cap-drop AUDIT_WRITE \
-		--cap-drop CHOWN \
-		--cap-drop FSETID \
-		--cap-drop KILL \
-		--cap-drop MKNOD \
-		--cap-drop NET_BIND_SERVICE \
-		--cap-drop NET_RAW \
-		--cap-drop SETFCAP \
-		--cap-drop SETPCAP \
-		--detach --publish 8080:8080 \
-		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
+container-run container-start: container
+	docker start $(DSFLAGS) $(CNTVER)
 	@sleep 1   # decrease likelihood of logging race condition
-	docker container logs fossil-@FOSSIL_CI_PFX@
+	docker container logs $(CNTVER)
 
-container-clean:
-	-docker container kill fossil-@FOSSIL_CI_PFX@
-	-docker container rm   fossil-@FOSSIL_CI_PFX@
-	-docker image     rm   fossil:@FOSSIL_CI_PFX@
+container-stop:
+	docker stop $(CNTVER)
+
+container-version:
+	@echo $(CNTVER)

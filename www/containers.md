@@ -41,12 +41,13 @@ The Fossil `Makefile` provides two convenience targets,
 versioned container image, and the second does that and then launches a
 fresh container based on that image. You can pass extra arguments to the
 first command via the Makefile’s `DBFLAGS` variable and to the second
-with the `DRFLAGS` variable. (DB is short for “`docker build`”, and DR
-is short for “`docker run`”.) To get the custom port setting as in
+with the `DCFLAGS` variable. (DB is short for “`docker build`”, and DC
+is short for “`docker create`”, a sub-step of the “run” target.)
+To get the custom port setting as in
 second command above, say:
 
 ```
-  $ make container-run DRFLAGS='-p 9999:8080/tcp'
+  $ make container-run DCFLAGS='-p 9999:8080/tcp'
 ```
 
 Contrast the raw “`docker`” commands above, which create an
@@ -728,13 +729,10 @@ The first configuration step is to convert the Docker container into
 a “machine”, as systemd calls it.  The easiest method is:
 
 ```
-  $ make container-run
-  $ docker container export fossil-e119d5983620 |
+  $ make container
+  $ docker container export $(make container-version) |
     machinectl import-tar - myproject
 ```
-
-Copy the container name from the first step to the second.  Yours will
-almost certainly be named after a different Fossil commit ID.
 
 It’s important that the name of the machine you create &mdash;
 “`myproject`” in this example &mdash; matches the base name
