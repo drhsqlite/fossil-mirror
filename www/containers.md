@@ -721,12 +721,18 @@ about 1.4 MiB of disk space:
 That command assumes the primary test environment for
 this guide, Ubuntu 22.04 LTS with `systemd` 249.  For best
 results, `/var/lib/machines` should be a btrfs volume, because
-[`$REASONS`][mcfad].  (For CentOS Stream 9 and other Red Hattish
+[`$REASONS`][mcfad]. For CentOS Stream 9 and other Red Hattish
 systems, you will have to make serveral adjustments, which we’ve
-collected [below](#nspawn-centos) to keep these examples clear.)
+collected [below](#nspawn-centos) to keep these examples clear.
+
+We’ll assume your Fossil repository stores sometning called
+“`myproject`” within `~/museum/myproject/repo.fossil`, named according
+to the reasons given [above](#repo-inside). We’ll make consistent use of
+this naming scheme in the examples below so that you will be able to
+replace the “`myproject`” element of the various file and path names.
 
 The first configuration step is to convert the Docker container into
-a “machine”, as systemd calls it.  The easiest method is:
+a “machine,” as `systemd` calls it.  The easiest method is:
 
 ```
   $ make container
@@ -734,11 +740,7 @@ a “machine”, as systemd calls it.  The easiest method is:
     machinectl import-tar - myproject
 ```
 
-It’s important that the name of the machine you create &mdash;
-“`myproject`” in this example &mdash; matches the base name
-of the nspawn configuration file you create as the next step.
-Therefore, to extend the example, the following file needs to be
-called `/etc/systemd/nspawn/myproject.nspawn`, and it will contain
+Next, create `/etc/systemd/nspawn/myproject.nspawn`, containing
 something like:
 
 ----
@@ -783,15 +785,22 @@ If you recognize most of that from the `Dockerfile` discussion above,
 congratulations, you’ve been paying attention. The rest should also
 be clear from context.
 
-Some of this is expected to vary.  For one, the command given in the
-`Parameters` directive assumes [SCGI proxying via nginx][DNT]. For
-other use cases, see our collection of [Fossil server configuration
-guides][srv], then adjust the command to your local needs.
-For another, you will likely have to adjust the `Bind` value to
-point at the directory containing the `repo.fossil` file referenced
-in the command.
+Some of this is expected to vary:
 
-We also need a generic systemd unit file called
+*   The references to `example.com` and `myproject` are stand-ins for
+    your actual web site and repository name.
+
+*   The command given in the `Parameters` directive assumes you’re
+    setting up [SCGI proxying via nginx][DNT], but with adjustment,
+    it’ll work with the other repository service methods we’ve
+    [documented][srv].
+
+*   The path in the host-side part of the `Bind` value must point at the
+    directory containing the `repo.fossil` file referenced in said
+    command so that `/jail/museum/repo.fossil` refers to your repo out
+    on the host for the reasons given [above](#repo-outside).
+
+That being done, we also need a generic systemd unit file called
 `/etc/systemd/system/fossil@.service`, containing:
 
 ----
@@ -815,36 +824,37 @@ You shouldn’t have to change any of this because we’ve given the
 `--setting=override` flag, meaning any setting in the nspawn file
 overrides the setting passed to `systemd-nspawn`.  This arrangement
 not only keeps the unit file simple, it allows multiple services to
-share the base configuration, varying on a per-repo level.
+share the base configuration, varying on a per-repo level through
+adjustments to their individual `*.nspawn` files.
 
-Start the service in the normal way:
+You may then start the service in the normal way:
 
 ```
   $ sudo systemctl enable fossil@myproject
   $ sudo systemctl start  fossil@myproject
 ```
 
-You should find it running on localhost port 9000 per the nspawn
+You should then find it running on localhost port 9000 per the nspawn
 configuration file above, suitable for proxying Fossil out to the
-public using nginx, via SCGI. If you aren’t using a front-end proxy
-and want Fossil exposed to the world, you might say this instead in
-the `nspawn` file:
+public using nginx via SCGI. If you aren’t using a front-end proxy
+and want Fossil exposed to the world via HTTPS, you might say this instead in
+the `*.nspawn` file:
 
 ```
-Parameters=bin/fossil server         \
-    --cert /path/to/my/fullchain.pem \
-    --chroot /jail                   \
-    --create                         \
-    --jsmode bundled                 \
-    --port 443                       \
-    --user admin                     \
+Parameters=bin/fossil server \
+    --cert /path/to/cert.pem \
+    --chroot /jail           \
+    --create                 \
+    --jsmode bundled         \
+    --port 443               \
+    --user admin             \
     museum/repo.fossil
 ```
 
 You would also need to un-drop the `CAP_NET_BIND_SERVICE` capability
 to allow Fossil to bind to this low-numbered port.
 
-We use systemd’s template file feature to allow multiple Fossil
+We use of systemd’s template file feature to allow multiple Fossil
 servers running on a single machine, each on a different TCP port,
 as when proxying them out as subdirectories of a larger site.
 To add another project, you must first clone the base “machine” layer:
@@ -854,7 +864,7 @@ To add another project, you must first clone the base “machine” layer:
 ```
 
 That will not only create a clone of `/var/lib/machines/myproject`
-as `../otherthing`, it will create a matching `nspawn` file for you
+as `../otherthing`, it will create a matching `otherthing.nspawn` file for you
 as a copy of the first one.  Adjust its contents to suit, then enable
 and start it as above.
 
@@ -865,8 +875,8 @@ and start it as above.
 
 The biggest difference between doing this on OSes like CentOS versus
 Ubuntu is that RHEL (thus also its clones) doesn’t ship btrfs in
-its kernel, thus has no option for installing `mkfs.btrfs`, which
-[`machinectl`][mctl] needs for various purposes.
+its kernel, thus ships with no package repositories containing `mkfs.btrfs`, which
+[`machinectl`][mctl] depends on for achieving its various purposes.
 
 Fortunately, there are workarounds.
 
@@ -876,7 +886,7 @@ First, the `apt install` command above becomes:
   $ sudo dnf install systemd-container
 ```
 
-Second, you have to hack around the lack of `machinectl import-tar` so:
+Second, you have to hack around the lack of `machinectl import-tar`:
 
 ```
   $ rootfs=/var/lib/machines/fossil
@@ -885,10 +895,10 @@ Second, you have to hack around the lack of `machinectl import-tar` so:
 ```
 
 The parent directory path in the `rootfs` variable is important,
-because although we aren’t using `machinectl`, the `systemd-nspawn`
-developers assume you’re using them together.  Thus, when you give
+because although we aren’t able to use `machinectl` on such systems, the
+`systemd-nspawn` developers assume you’re using them together; when you give
 `--machine`, it assumes the `machinectl` directory scheme.  You could
-instead use `--directory`, allowing you to store the rootfs whereever
+instead use `--directory`, allowing you to store the rootfs wherever
 you like, but why make things difficult?  It’s a perfectly sensible
 default, consistent with the [LHS] rules.
 
