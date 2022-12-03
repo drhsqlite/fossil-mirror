@@ -722,10 +722,10 @@ That command assumes the primary test environment for
 this guide, Ubuntu 22.04 LTS with `systemd` 249.  For best
 results, `/var/lib/machines` should be a btrfs volume, because
 [`$REASONS`][mcfad]. For CentOS Stream 9 and other Red Hattish
-systems, you will have to make serveral adjustments, which we’ve
+systems, you will have to make several adjustments, which we’ve
 collected [below](#nspawn-centos) to keep these examples clear.
 
-We’ll assume your Fossil repository stores sometning called
+We’ll assume your Fossil repository stores something called
 “`myproject`” within `~/museum/myproject/repo.fossil`, named according
 to the reasons given [above](#repo-inside). We’ll make consistent use of
 this naming scheme in the examples below so that you will be able to
@@ -798,7 +798,7 @@ Some of this is expected to vary:
 *   The path in the host-side part of the `Bind` value must point at the
     directory containing the `repo.fossil` file referenced in said
     command so that `/jail/museum/repo.fossil` refers to your repo out
-    on the host for the reasons given [above](#repo-outside).
+    on the host for the reasons given [above](#bind-mount).
 
 That being done, we also need a generic systemd unit file called
 `/etc/systemd/system/fossil@.service`, containing:
