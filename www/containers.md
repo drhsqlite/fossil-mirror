@@ -854,7 +854,7 @@ Parameters=bin/fossil server \
 You would also need to un-drop the `CAP_NET_BIND_SERVICE` capability
 to allow Fossil to bind to this low-numbered port.
 
-We use of systemd’s template file feature to allow multiple Fossil
+We use systemd’s template file feature to allow multiple Fossil
 servers running on a single machine, each on a different TCP port,
 as when proxying them out as subdirectories of a larger site.
 To add another project, you must first clone the base “machine” layer:
@@ -940,13 +940,13 @@ roughly 27× more disk space.  Short answer: lots.  Long answer:
     they can share them, because base layers are immutable, thus
     cannot cross-contaminate.
 
-    Because we use `sysetmd-nspawn --read-only`, we get *some*
+    Because we use `systemd-nspawn --read-only`, we get *some*
     of this benefit, particularly when using `machinectl` with
     `/var/lib/machines` as a btrfs volume.  Even so, the disk space
     and network I/O optimizations go deeper in the Docker and Podman
     worlds.
 
-4.  **Tooling.** Hand-creating and modifying those systemd
+4.  **Tooling.** Hand-creating and modifying those `systemd`
     files sucks compared to “`podman container create ...`”  This
     is but one of many affordances you will find in the runtimes
     aimed at daily-use devops warriors.
@@ -962,7 +962,7 @@ roughly 27× more disk space.  Short answer: lots.  Long answer:
     similarity.
 
     From a purely functional point of view, this isn’t a huge problem if
-    you consider the “inbound” service direction only, being external
+    you consider the inbound service direction only, being external
     connections to the Fossil service we’re providing. Since we do want
     this Fossil service to be exposed — else why are we running it? — we
     get all the control we need via `fossil server --localhost` and
@@ -970,7 +970,7 @@ roughly 27× more disk space.  Short answer: lots.  Long answer:
 
     The complexity of the `systemd` networking infrastructure’s
     interactions with containers make more sense when you consider the
-    “outbound” path.  Consider what happens if you enable Fossil’s
+    outbound path.  Consider what happens if you enable Fossil’s
     optional TH1 docs feature plus its Tcl evaluation feature. That
     would enable anyone with the rights to commit to your repository the
     ability to make arbitrary network connections on the Fossil host.
@@ -987,11 +987,11 @@ presented here, but that it suffices to make our case as it is: if you
 can afford the space of Podman or Docker, we strongly recommend using
 either of them over the much lower-level `systemd-container`
 infrastructure. You’re getting a considerable amount of value for the
-higher runtime cost; it isn’t simply overhead for little return.
+higher runtime cost; it isn’t pointless overhead.
 
 (Incidentally, these are essentially the same reasons why we no longer
 talk about the `crun` tool underpinning Podman in this document. It’s
-even more limited, making it even more difficult to administer while
+even more limited than `nspawn`, making it even more difficult to administer while
 providing no runtime size advantage. The `runc` tool underpinning
 Docker is even worse on this score, being scarcely easier to use than
 `crun` while having a much larger footprint.)
