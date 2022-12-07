@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\spikchr.c\ssources.\s\s(pikchr.wasm\sis\snot\supdated.)
-D 2022-12-07T11:17:20.508
+C Rebuid\spikchr.wasm/js\sfor\slatest\spikchr.c.
+D 2022-12-07T12:33:07.198
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -274,8 +274,8 @@ F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f1999
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
 F extsrc/pikchr.c 02f23c6c39e1af5d95734124b8c3c59fa3bf62bea1dab93a191ba54ab4386a45
-F extsrc/pikchr.js fba64adbfa491234c466d298dd41aa6d926b0026969fd956f2a3388c0428b450
-F extsrc/pikchr.wasm 33c461fb657896f9a057b72955b146cc945cf9f7cac5e438cd7dca25e1b30060
+F extsrc/pikchr.js ad1ec71dbf414878068978109fdc208cc4fef629618562f9d7731d1c43e4799f
+F extsrc/pikchr.wasm 82d23a9cf932c4a3d60b24f129e208d9103747927d14eee96ae1b4ca10ba70f8
 F extsrc/shell.c b1bd57ad635b7921ee81dd3e6e3d2f0568e7a7fcac2f2d37b1bbfb7b968f6fee
 F extsrc/sqlite3.c ad968e605febce5ccd88c794467836ffefe5173534b204b5012691b80970b74e
 F extsrc/sqlite3.h 616e7e2977742635c84952b67d1e13e30a596217f46a73173b8fb8d50f296c6a
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5405aa57389ef9670b0bbafc57149f0072060de8f90316925144b6c0d83cb982
-R 33a64e5a5899b05d86d4d94d6d14555c
-U drh
-Z b4bcafe82a6bf27070bf1106ef9d25f9
+P 544eefd722964e6644dce1f26553dfc8bd829d44ab149708f45230d992764bcc
+R 2ee7b49a71ac8e24520a205d77fedb9f
+U stephan
+Z 952ca8f07e47f199a75cfd48f21a5ee1
 # Remove this line to create a well-formed Fossil manifest.

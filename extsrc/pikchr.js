@@ -296,10 +296,8 @@ function removeRunDependency(id) {
 }
 
 function abort(what) {
- {
-  if (Module["onAbort"]) {
-   Module["onAbort"](what);
-  }
+ if (Module["onAbort"]) {
+  Module["onAbort"](what);
  }
  what = "Aborted(" + what + ")";
  err(what);
@@ -408,7 +406,7 @@ function createWasm() {
    return exports;
   } catch (e) {
    err("Module.instantiateWasm callback failed with error: " + e);
-   return false;
+   readyPromiseReject(e);
   }
  }
  instantiateAsync().catch(readyPromiseReject);
@@ -505,10 +503,6 @@ function setValue(ptr, value, type = "i8") {
  }
 }
 
-function writeArrayToMemory(array, buffer) {
- HEAP8.set(array, buffer);
-}
-
 function ___assert_fail(condition, filename, line, func) {
  abort("Assertion failed: " + UTF8ToString(condition) + ", at: " + [ filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function" ]);
 }
@@ -555,6 +549,10 @@ var _exit = exitJS;
 function getCFunc(ident) {
  var func = Module["_" + ident];
  return func;
+}
+
+function writeArrayToMemory(array, buffer) {
+ HEAP8.set(array, buffer);
 }
 
 function ccall(ident, returnType, argTypes, args, opts) {
