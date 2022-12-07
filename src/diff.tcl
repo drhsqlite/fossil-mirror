@@ -75,6 +75,20 @@ proc readDiffs {fossilcmd} {
   set n1 0
   set n2 0  
   array set widths {txt 3 ln 3 mkr 1}
+  
+  
+  set fromIndex [lsearch -glob $fossilcmd *-from]
+  set toIndex [lsearch -glob $fossilcmd *-to]
+  set branchIndex [lsearch -glob $fossilcmd *-branch]
+  set checkinIndex [lsearch -glob $fossilcmd *-checkin]
+  set fA {base check-in}
+  set fB {current check-out}
+  if {$fromIndex > -1} {set fA [lindex $fossilcmd $fromIndex+1]}
+  if {$toIndex > -1} {set fB [lindex $fossilcmd $toIndex+1]}
+  if {$branchIndex > -1} {set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"}
+  if {$checkinIndex > -1} {set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]}
+  
+  
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
       FILE {
@@ -83,10 +97,10 @@ proc readDiffs {fossilcmd} {
           if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
         .lnA insert end \n fn \n -
-        .txtA insert end [lindex $line 1]\n fn \n -
+        .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
         .mkr insert end \n fn \n -
         .lnB insert end \n fn \n -
-        .txtB insert end [lindex $line 2]\n fn \n -
+        .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
         .wfiles.lb insert end [lindex $line 2]
         set n1 0
         set n2 0
