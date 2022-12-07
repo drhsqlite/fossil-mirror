@@ -1,5 +1,5 @@
-C Grammar\sand\sspelling\sfix\spass\son\sthe\snew\snspawn\smaterial\sin\sthe\ncontainers\sdoc.
-D 2022-12-06T06:13:51.013
+C Update\sto\sthe\slatest\spikchr.c\ssources.\s\s(pikchr.wasm\sis\snot\supdated.)
+D 2022-12-07T11:17:20.508
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -273,7 +273,7 @@ F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef
 F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
-F extsrc/pikchr.c 00e01756a1bbfadcf65a81c3207e199c80e968228fa1f5f649d3990a4187244f
+F extsrc/pikchr.c 02f23c6c39e1af5d95734124b8c3c59fa3bf62bea1dab93a191ba54ab4386a45
 F extsrc/pikchr.js fba64adbfa491234c466d298dd41aa6d926b0026969fd956f2a3388c0428b450
 F extsrc/pikchr.wasm 33c461fb657896f9a057b72955b146cc945cf9f7cac5e438cd7dca25e1b30060
 F extsrc/shell.c b1bd57ad635b7921ee81dd3e6e3d2f0568e7a7fcac2f2d37b1bbfb7b968f6fee
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ddd8847097118d11a2eb29c76191b528faa0533aea0ca7d5a6db2f62f804962
-R d0ccea2b3b0a86bdeb475d6d6d8c0102
-U wyoung
-Z 73dadfd3e58eeea3edbe5d9e128d7ac3
+P 5405aa57389ef9670b0bbafc57149f0072060de8f90316925144b6c0d83cb982
+R 33a64e5a5899b05d86d4d94d6d14555c
+U drh
+Z b4bcafe82a6bf27070bf1106ef9d25f9
 # Remove this line to create a well-formed Fossil manifest.

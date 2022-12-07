@@ -4683,14 +4683,14 @@ static int pik_color_to_dark_mode(int x, int isBg){
 static void pik_append_x(Pik *p, const char *z1, PNum v, const char *z2){
   char buf[200];
   v -= p->bbox.sw.x;
-  snprintf(buf, sizeof(buf)-1, "%s%d%s", z1, pik_round(p->rScale*v), z2);
+  snprintf(buf, sizeof(buf)-1, "%s%g%s", z1, p->rScale*v, z2);
   buf[sizeof(buf)-1] = 0;
   pik_append(p, buf, -1);
 }
 static void pik_append_y(Pik *p, const char *z1, PNum v, const char *z2){
   char buf[200];
   v = p->bbox.ne.y - v;
-  snprintf(buf, sizeof(buf)-1, "%s%d%s", z1, pik_round(p->rScale*v), z2);
+  snprintf(buf, sizeof(buf)-1, "%s%g%s", z1, p->rScale*v, z2);
   buf[sizeof(buf)-1] = 0;
   pik_append(p, buf, -1);
 }
@@ -4698,8 +4698,7 @@ static void pik_append_xy(Pik *p, const char *z1, PNum x, PNum y){
   char buf[200];
   x = x - p->bbox.sw.x;
   y = p->bbox.ne.y - y;
-  snprintf(buf, sizeof(buf)-1, "%s%d,%d", z1,
-       pik_round(p->rScale*x), pik_round(p->rScale*y));
+  snprintf(buf, sizeof(buf)-1, "%s%g,%g", z1, p->rScale*x, p->rScale*y);
   buf[sizeof(buf)-1] = 0;
   pik_append(p, buf, -1);
 }
@@ -4744,9 +4743,9 @@ static void pik_append_arc(Pik *p, PNum r1, PNum r2, PNum x, PNum y){
   char buf[200];
   x = x - p->bbox.sw.x;
   y = p->bbox.ne.y - y;
-  snprintf(buf, sizeof(buf)-1, "A%d %d 0 0 0 %d %d", 
-     pik_round(p->rScale*r1), pik_round(p->rScale*r2),
-     pik_round(p->rScale*x), pik_round(p->rScale*y));
+  snprintf(buf, sizeof(buf)-1, "A%g %g 0 0 0 %g %g", 
+     p->rScale*r1, p->rScale*r2,
+     p->rScale*x, p->rScale*y);
   buf[sizeof(buf)-1] = 0;
   pik_append(p, buf, -1);
 }
@@ -8125,4 +8124,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8153 "pikchr.c"
+#line 8152 "pikchr.c"
