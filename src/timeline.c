@@ -1981,6 +1981,14 @@ void page_timeline(void){
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
       TAG_HIDDEN
     );
+    if( *zType=='a' || *zType=='t' || *zType=='n' ){
+      const char *zExpr = db_get("ticket-hidden-expr",0);
+      if( zExpr && zExpr[0] ){
+        blob_append_sql(&sql,
+          " AND NOT EXISTS(SELECT 1 FROM ticketchng JOIN ticket USING(tkt_id)"
+          " WHERE tkt_rid=blob.rid AND\n\t\t( %z ))\n", zExpr/*safe-for-%s*/);
+      }
+    }
   }
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
     /* If from= and to= are present, display all nodes on a path connecting
@@ -2666,7 +2674,11 @@ void page_timeline(void){
         free(zDate);
       }
       if( advancedMenu ){
-        if( zType[0]=='a' || zType[0]=='c' ){
+        const char *zExpr = 0;
+        if( zType[0]=='t' || zType[0]=='n' ){
+          zExpr = db_get("ticket-hidden-expr",0);
+        }
+        if( (zExpr && zExpr[0]) || zType[0]=='a' || zType[0]=='c' ){
           style_submenu_checkbox("unhide", "Unhide", 0, 0);
         }
         style_submenu_checkbox("v", "Files",(zType[0]!='a' && zType[0]!='c'),0);

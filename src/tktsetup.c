@@ -936,6 +936,12 @@ void tktsetup_timeline_page(void){
   @ (Property: ticket-closed-expr)</p>
 
   @ <hr />
+  entry_attribute("Ticket Hidden", 40, "ticket-hidden-expr", "h","",0);
+  @ <p>A boolean SQL expression with the columns of TICKET and TICKETCHNG
+  @ tables which filters ticket events out of the default timeline view.
+  @ (Property: ticket-hidden-expr)</p>
+
+  @ <hr />
   @ <p>
   @ <input type="submit"  name="submit" value="Apply Changes" />
   @ <input type="submit" name="setup" value="Cancel" />

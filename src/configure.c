@@ -164,6 +164,7 @@ static struct {
   { "ticket-key-template",    CONFIGSET_TKT  },
   { "ticket-title-expr",      CONFIGSET_TKT  },
   { "ticket-closed-expr",     CONFIGSET_TKT  },
+  { "ticket-hidden-expr",     CONFIGSET_TKT  },
   { "@reportfmt",             CONFIGSET_TKT  },
 
   { "@user",                  CONFIGSET_USER },
