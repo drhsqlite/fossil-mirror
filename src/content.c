@@ -322,7 +322,7 @@ int content_get(int rid, Blob *pBlob){
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
 ** Extract an artifact by its artifact hash and write the results on
-** standard output, or if the optional 4th argument is given, in
+** standard output, or if the optional second argument is given, in
 ** the named output file.
 **
 ** Options:
