@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-C Add\ssupport\sfor\sdisabling\ssockets\sin\sauto.def.\sThis\sis\snot\swired\sup\sto\nanything\selse\syet.
-D 2022-12-15T15:50:09.019
+C Re-add\szlib\slink\sflags\sinadvertently\sremoved\svia\sthe\snew\s--disable-sockets\sflag.
+D 2022-12-15T16:19:50.503
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -20,7 +17,7 @@ F Makefile.in 863eb2682b738b399f0826d6661034b6ede854eb8340aac3cbd2b3fa88ab0be4 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION ff6eecb02a4c620514129edadea0e1ba6ecebc72555b2334f2b4e1576e83a6f0
-F auto.def e7d8ee9b51889ca907911486bf2b0350c151655d1dfb1d794bf28b874b0e1956
+F auto.def c379b49bbc49d02f8038a41623dbca8a96b91999ccd647a6fb998bf542aee31a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -959,18 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7010ce23917586d614efa11524944497bb2a800d842fa2013bd28f048c7fca11
-R 2557e1e9a2ee93df4fbdfaae6535a7fc
-T *branch * optional-sockets
-T *sym-optional-sockets *
-T -sym-trunk *
-U js
-Z d4b3aee53a0002005e6be321bd7f7cc7
+P d8609e1e06789b8900986af482b458f6540ddeb754a8e0e525caeb82f90f4e07
+R 2b10c8e8c26ef2b6b1e2d1455ed48a9d
+U stephan
+Z 0bd5c3d27c8600fe7badc339af035fa0
 # Remove this line to create a well-formed Fossil manifest.
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQQMxqxUHHrcczxkFhBjZwNXc5UxLwUCY5tCMQAKCRBjZwNXc5Ux
-Lw9wAQCOabOTYKOPuI2opE9ZZ6rMxHzQPNRxNK0cfNolFM79GwD/cMLoBMxjFlgJ
-gMuv/84YR9p4t0jE2e7Tn9puzdhCdAk=
-=TG9u
------END PGP SIGNATURE-----

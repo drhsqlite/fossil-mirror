@@ -449,8 +449,11 @@ if {[opt-bool sockets]} {
             define-append LIBS $::zlib_lib
         }
     }
+} else {
+    if {[info exists ::zlib_lib]} {
+        define-append LIBS $::zlib_lib
+    }
 }
-
 
 
 ########################################################################
