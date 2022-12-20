@@ -282,7 +282,7 @@ void secaudit0_page(void){
   @ <li><p>
   if( db_get_boolean("tcl",0) ){
     #ifdef FOSSIL_ENABLE_TH1_DOCS
-      if( !Th_AreDocsEnabled() ){
+      if( Th_AreDocsEnabled() ){
         @ <b>DANGER:</b>
       }else{
         @ <b>WARNING:</b>
@@ -294,7 +294,7 @@ void secaudit0_page(void){
     @ is enabled for this repository.  Anyone who can execute malicious
     @ TH1 script on that server can also execute arbitrary Tcl script
     @ under the identity of the operating system process of that server.
-    @ This is a serious security concern.
+    @ This is a serious security concern.</p>
     @
     @ <p>Disable Tcl integration by recompiling Fossil without the
     @ -DFOSSIL_ENABLE_TCL flag, and/or clear the 'tcl' setting.</p>

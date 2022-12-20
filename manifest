@@ -1,5 +1,5 @@
-C Correct\sa\ssmall\sbit\sof\sinternal-doc\smisinformation\sreported\sin\s[forum:9ed20acf6a|forum\spost\s9ed20acf6a].
-D 2022-12-20T09:53:10.109
+C A\scouple\sof\scorrections\sto\sthe\s[2213a0eb2d413f|previous\s/secaudit0\saddition].
+D 2022-12-20T14:21:32.808
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/rss.c 21a3beb190ee03bf5a8ae18b36ff8307e4708bf0e0e0b37cffb2395f51449836
 F src/schema.c 80ed995f7457cc969e5ee5b0013e01a75a4ca895b401c784a5382569ad3b0959
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c213316a65d88240053756dda3471539ab4b6005b0823675cf2cac58e8992029
-F src/security_audit.c 5a9a2623c48103497952c7ecb0c3e399d20915332ce819b79c35eec77e694592
+F src/security_audit.c b07039f5656f7c7338983b59409d2dbb41d063c0170bd469135e3c591989039d
 F src/setup.c 9968bf6d9e1cdaccd6c12ac0ff641ed0fa4e491dccc33b72001b50819965515b
 F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c facdc05434dd765d1469cbbb6aebceaf2fd05c0eb6ace251db03cb721cecaa82
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a24a790f3d6c0f7b7de0dfb292eacc7e8ad4ffc3a1027ea872634ac5e16e7daa
-R 95a7418d955a73c2069c0586f0ff4301
-U stephan
-Z 45b19bc8cbc22a02e0f4fcf3ca5b55b7
+P dd67906cbd9ebad731b2038959e378d7b5226ebbda9aa837b762c384444db40d
+R ecc58e24c3626ac3a45b426f7ae46812
+U george
+Z eb2832be9149c11a86cbcc0dad69c89c
 # Remove this line to create a well-formed Fossil manifest.
