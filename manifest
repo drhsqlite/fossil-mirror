@@ -1,5 +1,5 @@
-C Unbreak\sMinGW\sbuild\sto\saccount\sfor\sdeletions\sin\szlib\s1.2.13.
-D 2022-12-20T05:00:58.390
+C Correct\sa\ssmall\sbit\sof\sinternal-doc\smisinformation\sreported\sin\s[forum:9ed20acf6a|forum\spost\s9ed20acf6a].
+D 2022-12-20T09:53:10.109
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -586,7 +586,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c da69b3c5ef84c5702321160d50e80dc097e4fcd587ef735034c71f1c155a7d3d
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
+F src/vfile.c 74d65b76258e5f31e0ac2948990e9536b00352cdd9bf54ec7cd1f705b40798c7
 F src/wiki.c 28a3bded69db6a27ddd07e09e0ffd80fbb5f6a74a19a18cf272ecca23ec139ed
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 28dc3298b175a4940c4563591782a0396d2132f86e1027ec41432ee5337e901c
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2213a0eb2d413fc102d34b1b4bc6c56bc860cd63268ef75ca2336f7dd28ae998
-R e91e98fc2bdef509623a1276591ef138
-U mistachkin
-Z ca57fd6552c00d254cb18b25717cbe83
+P a24a790f3d6c0f7b7de0dfb292eacc7e8ad4ffc3a1027ea872634ac5e16e7daa
+R 95a7418d955a73c2069c0586f0ff4301
+U stephan
+Z 45b19bc8cbc22a02e0f4fcf3ca5b55b7
 # Remove this line to create a well-formed Fossil manifest.

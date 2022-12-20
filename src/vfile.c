@@ -161,10 +161,10 @@ int load_vfile_from_rid(int vid){
 ** changed without having to look at the mtime or on-disk content.
 **
 ** The mtime of the file is only a factor if the mtime-changes setting
-** is false and the CKSIG_HASH flag is false.  If the mtime-changes
-** setting is true (or undefined - it defaults to true) or if CKSIG_HASH
-** is true, then we do not trust the mtime and will examine the on-disk
-** content to determine if a file really is the same.
+** is true (or undefined - it defaults to true) and the CKSIG_HASH
+** flag is false.  If the mtime-changes setting is false or if
+** CKSIG_HASH is true, then we do not trust the mtime and will examine
+** the on-disk content to determine if a file really is the same.
 **
 ** If the mtime is used, it is used only to determine if files are the same.
 ** If the mtime of a file has changed, we still examine the on-disk content
