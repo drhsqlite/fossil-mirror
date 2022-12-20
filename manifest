@@ -1,5 +1,5 @@
-C Make\s[/secaudit0]\spage\saware\sof\sthe\sTcl\sintegration\sopportunities.
-D 2022-12-20T02:01:22.133
+C Unbreak\sMinGW\sbuild\sto\saccount\sfor\sdeletions\sin\szlib\s1.2.13.
+D 2022-12-20T05:00:58.390
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -737,7 +737,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc96ce529
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 494d2232acde65de22d8426400c334305c5605937801468c4e11de24ab493a97 x
+F tools/makemake.tcl 3cc47ca301f69d96c86cb7b144bbbf8ad483ceda05039df4bffb953fcb777b8b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 2f26c2f69977e5ca1821628460b1d9b5885301b011aad7273207349659d78c8e
@@ -746,8 +746,8 @@ F tools/skintxt2config.c 042c3c712731ee32550caa0c5298cec50f125c6c5e8de65c25c975b
 F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882ba5095c15
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.dmc 01a0d435b6f77213339280e30fd6913e146c1f4e889bacd58854a2c95f27bb61
-F win/Makefile.mingw fbbac374f331c9404d5ba24e7909d414fb509b3c9186fe72cd8f6c6b81100d61
-F win/Makefile.mingw.mistachkin 653bdfb29c713e68f8ae18bcf4a0a82dd70c3a73608b4d80487a7a9c7586f5fe
+F win/Makefile.mingw c87f42e927f6a179a0e13778efab37868539b779d1686478944f52040ab85bbe
+F win/Makefile.mingw.mistachkin cd4f520ceeac742e1e835c414d0e23eaa8431cc84814fe245f10a74d20ae9f9a
 F win/Makefile.msc c837b389a601d4166cbab690f160ccf08cf5797813371edd3c609adfe5dcdc82
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a55042a01507c08421b57b3b3710b3a06ddac9316d44ea227e6847f356317d76
-R 1a866c196a232026b8579b03060e47fb
-U george
-Z 8f9be7950f7cb3fb42e3c6d81cc547cb
+P 2213a0eb2d413fc102d34b1b4bc6c56bc860cd63268ef75ca2336f7dd28ae998
+R e91e98fc2bdef509623a1276591ef138
+U mistachkin
+Z ca57fd6552c00d254cb18b25717cbe83
 # Remove this line to create a well-formed Fossil manifest.
