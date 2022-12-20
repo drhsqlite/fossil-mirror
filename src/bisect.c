@@ -204,7 +204,7 @@ static void bisect_append_skip(int rid){
 ** Create a TEMP table named "bilog" that contains the complete history
 ** of the current bisect.
 **
-** If iCurrent>0 then it is the RID of the current checkout and is included
+** If iCurrent>0 then it is the RID of the current check-out and is included
 ** in the history table.
 **
 ** If zDesc is not NULL, then it is the bid= query parameter to /timeline
@@ -471,17 +471,17 @@ static void bisect_run(void){
 ** Usage: %fossil bisect SUBCOMMAND ...
 **
 ** Run various subcommands useful for searching back through the change
-** history for a particular checkin that causes or fixes a problem.
+** history for a particular check-in that causes or fixes a problem.
 **
 ** > fossil bisect bad ?VERSION?
 **
 **       Identify version VERSION as non-working.  If VERSION is omitted,
-**       the current checkout is marked as non-working.
+**       the current check-out is marked as non-working.
 **
 ** > fossil bisect good ?VERSION?
 **
 **       Identify version VERSION as working.  If VERSION is omitted,
-**       the current checkout is marked as working.
+**       the current check-out is marked as working.
 **
 ** > fossil bisect log
 ** > fossil bisect chart
@@ -517,7 +517,7 @@ static void bisect_run(void){
 **
 ** > fossil bisect skip ?VERSION?
 **
-**       Cause VERSION (or the current checkout if VERSION is omitted) to
+**       Cause VERSION (or the current check-out if VERSION is omitted) to
 **       be ignored for the purpose of the current bisect.  This might
 **       be done, for example, because VERSION does not compile correctly
 **       or is otherwise unsuitable to participate in this bisect.

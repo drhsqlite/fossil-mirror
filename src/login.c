@@ -2127,12 +2127,12 @@ void login_group_leave(char **pzErrMsg){
 **
 ** >  fossil login-group ?-R REPO?
 **
-**     Show the login-group to which REPO, or if invoked from within a checkout
-**     the repository on which the current checkout is based, belongs.
+**     Show the login-group to which REPO, or if invoked from within a check-out
+**     the repository on which the current check-out is based, belongs.
 **
 ** >  fossil login-group join ?-R? REPO ?--name NAME?
 **
-**     This subcommand must be invoked from within a checkout to either: add
+**     This subcommand must be invoked from within a check-out to either: add
 **     the open repository to the login group that REPO is a member, in which
 **     case the optional "--name" argument is not required; or create a new
 **     login group between the open repository and REPO, in which case the new
@@ -2141,8 +2141,8 @@ void login_group_leave(char **pzErrMsg){
 **
 ** >  fossil login-group leave ?-R REPO?
 **
-**     Take the repository REPO, or if invoked from within a checkout the
-**     repository on which the current checkout is based, out of whatever
+**     Take the repository REPO, or if invoked from within a check-out the
+**     repository on which the current check-out is based, out of whatever
 **     login group it is a member.
 **
 ** About Login Groups:

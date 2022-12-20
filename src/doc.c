@@ -1014,7 +1014,7 @@ void doc_page(void){
     }else if( fossil_strcmp(zCheckin,"ckout")==0
            || fossil_strcmp(zCheckin,g.zCkoutAlias)==0
     ){
-      /* Read from the local checkout */
+      /* Read from the local check-out */
       char *zFullpath;
       db_must_be_within_tree();
       zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);

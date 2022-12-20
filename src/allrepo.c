@@ -71,13 +71,13 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                pages.  Any additional arguments are passed on verbatim
 **                to the cache command.
 **
-**    changes     Shows all local checkouts that have uncommitted changes.
+**    changes     Shows all local check-outs that have uncommitted changes.
 **                This operation has no additional options.
 **
-**    clean       Delete all "extra" files in all local checkouts.  Extreme
+**    clean       Delete all "extra" files in all local check-outs.  Extreme
 **                caution should be exercised with this command because its
 **                effects cannot be undone.  Use of the --dry-run option to
-**                carefully review the local checkouts to be operated upon
+**                carefully review the local check-outs to be operated upon
 **                and the --whatif option to carefully review the files to
 **                be deleted beforehand is highly recommended.  The command
 **                line options supported by the clean command itself, if any
@@ -87,7 +87,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    dbstat      Run the "dbstat" command on all repositories.
 **
-**    extras      Shows "extra" files from all local checkouts.  The command
+**    extras      Shows "extra" files from all local check-outs.  The command
 **                line options supported by the extra command itself, if any
 **                are present, are passed along verbatim.
 **
@@ -139,10 +139,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    ignore      Arguments are repositories that should be ignored by
 **                subsequent clean, extras, list, pull, push, rebuild, and
 **                sync operations.  The -c|--ckout option causes the listed
-**                local checkouts to be ignored instead.
+**                local check-outs to be ignored instead.
 **
 **    list | ls   Display the location of all repositories.  The -c|--ckout
-**                option causes all local checkouts to be listed instead.
+**                option causes all local check-outs to be listed instead.
 **
 ** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository:
@@ -151,7 +151,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Options:
 **   --dry-run         If given, display instead of run actions.
-**   --showfile        Show the repository or checkout being operated upon.
+**   --showfile        Show the repository or check-out being operated upon.
 **   --stop-on-error   Halt immediately if any subprocess fails.
 */
 void all_cmd(void){
@@ -427,7 +427,7 @@ void all_cmd(void){
       fossil_print("%s\n", zFilename);
       continue;
     }else if( showFile ){
-      fossil_print("%s: %s\n", useCheckouts ? "checkout" : "repository",
+      fossil_print("%s: %s\n", useCheckouts ? "check-out" : "repository",
                    zFilename);
     }
     zSyscmd = mprintf("%$ %s %$%s",

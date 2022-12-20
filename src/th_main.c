@@ -158,7 +158,7 @@ void Th_PrintTraceLog(){
 ** - adopted commands/error handling for usage within th1
 ** - interface adopted to allow result creation as TH1 List
 **
-** Takes a checkin identifier in zRev and an optiona glob pattern in zGLOB
+** Takes a check-in identifier in zRev and an optiona glob pattern in zGLOB
 ** as parameter returns a TH list in pzList,pnList with filenames matching
 ** glob pattern with the checking
 */
@@ -1269,9 +1269,9 @@ static int repositoryCmd(
 /*
 ** TH1 command: checkout ?BOOLEAN?
 **
-** Return the fully qualified directory name of the current checkout or an
+** Return the fully qualified directory name of the current check-out or an
 ** empty string if it is not available.  Optionally, it will attempt to find
-** the current checkout, opening the configuration ("user") database and the
+** the current check-out, opening the configuration ("user") database and the
 ** repository as necessary, if the boolean argument is non-zero.
 */
 static int checkoutCmd(
@@ -1324,7 +1324,7 @@ static int traceCmd(
 ** variable -OR- the specified default value.  Currently, the supported
 ** items are:
 **
-** "checkout"        = The active local checkout directory, if any.
+** "checkout"        = The active local check-out directory, if any.
 ** "configuration"   = The active configuration database file name,
 **                     if any.
 ** "executable"      = The fully qualified executable file name.

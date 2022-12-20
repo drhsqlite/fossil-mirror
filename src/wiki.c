@@ -469,9 +469,9 @@ static int wiki_page_header(
       if( zExtra[0]==0 && !P("p") ){
         cgi_redirectf("%R/info/%s",zPageName);
       }else{
-        style_header("Notes About Checkin %S", zPageName);
-        style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
-        style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+        style_header("Notes About Check-in %S", zPageName);
+        style_submenu_element("Check-in Timeline","%R/timeline?f=%s", zPageName);
+        style_submenu_element("Check-in Info","%R/info/%s", zPageName);
       }
       break;
     }
@@ -1135,7 +1135,7 @@ static void wiki_ajax_route_preview(void){
 ** { name: string, version: string or null of sandbox box,
 **   parent: uuid or null for first version or sandbox,
 **   mimetype: string,
-**   type: string (normal, branch, tag, checkin, or sandbox)
+**   type: string (normal, branch, tag, check-in, or sandbox)
 ** }
 **
 ** If includeContent is true, the object contains a "content" member
@@ -2506,7 +2506,7 @@ static void wiki_section_label(
   if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
     @ <div class="section accordion">About</div>
   }else if( zPrefix[0]=='c' ){  /* checkin/... */
-    @ <div class="section accordion">About checkin %.20h(zName)</div>
+    @ <div class="section accordion">About check-in %.20h(zName)</div>
   }else{
     @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
   }

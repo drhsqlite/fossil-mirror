@@ -25,7 +25,7 @@
 **
 **    (2)  The "repository" database
 **
-**    (3)  A local checkout database named "_FOSSIL_" or ".fslckout"
+**    (3)  A local check-out database named "_FOSSIL_" or ".fslckout"
 **         and located at the root of the local copy of the source tree.
 **
 */
@@ -2054,17 +2054,17 @@ static int isValidLocalDb(const char *zDbName){
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
 
-  /* Check to see if the checkout database has the lastest schema changes.
+  /* Check to see if the check-out database has the lastest schema changes.
   ** The most recent schema change (2019-01-19) is the addition of the
   ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
   ** column, assume everything else is up-to-date.
   */
   if( db_table_has_column("localdb","vmerge","mhash") ){
-    return 1;   /* This is a checkout database with the latest schema */
+    return 1;   /* This is a check-out database with the latest schema */
   }
 
   /* If there is no vfile table, then assume we have picked up something
-  ** that is not even close to being a valid checkout database */
+  ** that is not even close to being a valid check-out database */
   if( !db_table_exists("localdb","vfile") ){
     return 0;  /* Not a  DB */
   }
@@ -2094,7 +2094,7 @@ static int isValidLocalDb(const char *zDbName){
     }
   }
 
-  /* The design of the checkout database changed on 2019-01-19, adding the mhash
+  /* The design of the check-out database changed on 2019-01-19, adding the mhash
   ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
   ** a PRIMARY KEY that includes the new mhash column.  However, we must have
   ** the repository database at hand in order to do the migration, so that
@@ -2116,7 +2116,7 @@ static int isValidLocalDb(const char *zDbName){
 ** no database is found, then this routine return 0.
 **
 ** In db_open_local_v2(), if the bRootOnly flag is true, then only
-** look in the CWD for the checkout database.  Do not scan upwards in
+** look in the CWD for the check-out database.  Do not scan upwards in
 ** the file hierarchy.
 **
 ** This routine always opens the user database regardless of whether or
@@ -2138,7 +2138,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
         if( db_open_config(0, 1)==0 ){
           return 0; /* Configuration could not be opened */
         }
-        /* Found a valid checkout database file */
+        /* Found a valid check-out database file */
         g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
@@ -2158,7 +2158,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
     zPwd[n] = 0;
   }
 
-  /* A checkout database file could not be found */
+  /* A check-out database file could not be found */
   return 0;
 }
 int db_open_local(const char *zDbName){
@@ -2296,13 +2296,13 @@ void db_open_repository(const char *zDbName){
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
 
-  /* Additional checks that occur when opening the checkout database */
+  /* Additional checks that occur when opening the check-out database */
   if( g.localOpen ){
 
     /* If the repository database that was just opened has been
     ** eplaced by a clone of the same project, with different RID
     ** values, then renumber the RID values stored in various tables
-    ** of the checkout database, so that the repository and checkout
+    ** of the check-out database, so that the repository and check-out
     ** databases align.
     */
     if( !db_fingerprint_ok() ){
@@ -2335,7 +2335,7 @@ void db_open_repository(const char *zDbName){
       }
     }
 
-    /* Make sure the checkout database schema migration of 2019-01-20
+    /* Make sure the check-out database schema migration of 2019-01-20
     ** has occurred.
     **
     ** The 2019-01-19 migration is the addition of the vmerge.mhash and
@@ -2390,7 +2390,7 @@ int db_repository_has_changed(void){
 /*
 ** Try to find the repository and open it.  Use the -R or --repository
 ** option to locate the repository.  If no such option is available, then
-** use the repository of the open checkout if there is one.
+** use the repository of the open check-out if there is one.
 **
 ** Error out if the repository cannot be opened.
 */
@@ -2473,7 +2473,7 @@ void db_verify_schema(void){
 ** Usage: %fossil test-move-repository PATHNAME
 **
 ** Change the location of the repository database on a local check-out.
-** Use this command to avoid having to close and reopen a checkout
+** Use this command to avoid having to close and reopen a check-out
 ** when relocating the repository database.
 */
 void move_repo_cmd(void){
@@ -2488,7 +2488,7 @@ void move_repo_cmd(void){
     fossil_fatal("no such file: %s", zRepo);
   }
   if( db_open_local(zRepo)==0 ){
-    fossil_fatal("not in a local checkout");
+    fossil_fatal("not in a local check-out");
     return;
   }
   db_open_or_attach(zRepo, "test_repo");
@@ -2507,7 +2507,7 @@ void db_must_be_within_tree(void){
                  g.argv[1]);
   }
   if( db_open_local(0)==0 ){
-    fossil_fatal("current directory is not within an open checkout");
+    fossil_fatal("current directory is not within an open check-out");
   }
   db_open_repository(0);
   db_verify_schema();
@@ -3194,7 +3194,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     }
     cacheEntry = cacheEntry->next;
   }
-  /* Attempt to read value from file in checkout if there wasn't a cache hit. */
+  /* Attempt to read value from file in check-out if there wasn't a cache hit.*/
   if( cacheEntry==0 ){
     Blob versionedPathname;
     Blob setting;
@@ -3301,7 +3301,7 @@ char *db_get(const char *zName, const char *zDefault){
   }
   if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
-    ** checked out file */
+    ** checked-out file */
     char * zZ = z;
     z = db_get_versioned(zName, z);
     if(zZ != z){
@@ -3593,12 +3593,12 @@ int db_get_manifest_setting(void){
 **
 ** The value field is set to 1.
 **
-** If running from a local checkout, also record the root of the checkout
+** If running from a local check-out, also record the root of the check-out
 ** as follows:
 **
 **       ckout:%s
 **
-** Where %s is the checkout root.  The value is the repository file.
+** Where %s is the check-out root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
   char *zRepoSetting;
@@ -3663,7 +3663,7 @@ void db_record_repository_filename(const char *zName){
 **
 ** Usage: %fossil open REPOSITORY ?VERSION? ?OPTIONS?
 **
-** Open a new connection to the repository name REPOSITORY.  A checkout
+** Open a new connection to the repository name REPOSITORY.  A check-out
 ** for the repository is created with its root at the current working
 ** directory, or in DIR if the "--workdir DIR" is used.  If VERSION is
 ** specified then that version is checked out.  Otherwise the most recent
@@ -3685,20 +3685,20 @@ void db_record_repository_filename(const char *zName){
 ** "new-name.fossil".
 **
 ** Options:
-**   --empty           Initialize checkout as being empty, but still connected
-**                     with the local repository. If you commit this checkout,
+**   --empty           Initialize check-out as being empty, but still connected
+**                     with the local repository. If you commit this check-out,
 **                     it will become a new "initial" commit in the repository.
 **   -f|--force        Continue with the open even if the working directory is
 **                     not empty.
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest file(s)
-**   --nested          Allow opening a repository inside an opened checkout
+**   --nested          Allow opening a repository inside an opened check-out
 **   --nosync          Do not auto-sync the repository prior to opening even
 **                     if the autosync setting is on.
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
-**                     times (the timestamp of the last checkin which modified
+**                     times (the timestamp of the last check-in which modified
 **                     them).
 **   --sync            Auto-sync prior to opening even if the autosync setting
 **                     is off.
@@ -4335,7 +4335,7 @@ struct Setting {
 /*
 ** SETTING: manifest         width=5 versionable
 ** If enabled, automatically create files "manifest" and "manifest.uuid"
-** in every checkout.
+** in every check-out.
 **
 ** Optionally use combinations of characters 'r' for "manifest",
 ** 'u' for "manifest.uuid" and 't' for "manifest.tags".  The SQLite
@@ -4371,9 +4371,9 @@ struct Setting {
 /*
 ** SETTING: mv-rm-files      boolean default=off
 ** If enabled, the "mv" and "rename" commands will also move
-** the associated files within the checkout -AND- the "rm"
+** the associated files within the check-out -AND- the "rm"
 ** and "delete" commands will also remove the associated
-** files from within the checkout.
+** files from within the check-out.
 */
 /*
 ** SETTING: pgp-command      width=40 sensitive
@@ -4408,7 +4408,7 @@ struct Setting {
 */
 /*
 ** SETTING: repo-cksum       boolean default=on
-** Compute checksums over all files in each checkout as a double-check
+** Compute checksums over all files in each check-out as a double-check
 ** of correctness.  Disable this on large repositories for a performance
 ** improvement.
 */
@@ -4883,7 +4883,7 @@ void admin_log(const char *zFormat, ...){
 **
 ** Print the names of the various database files:
 ** (1) The main repository database
-** (2) The local checkout database
+** (2) The local check-out database
 ** (3) The global configuration database
 */
 void test_database_name_cmd(void){
@@ -4899,9 +4899,9 @@ void test_database_name_cmd(void){
 ** of the same repository.  More precisely, a fingerprint are used to
 ** verify that the mapping between SHA3 hashes and RID values is unchanged.
 **
-** The checkout database ("localdb") stores RID values.  When associating
-** a checkout database against a repository database, it is useful to verify
-** the fingerprint so that we know tha the RID values in the checkout
+** The check-out database ("localdb") stores RID values.  When associating
+** a check-out database against a repository database, it is useful to verify
+** the fingerprint so that we know tha the RID values in the check-out
 ** database still correspond to the correct entries in the BLOB table of
 ** the repository.
 **
@@ -5008,17 +5008,17 @@ void db_set_checkout(int rid){
 ** return false if the fingerprint does not match.
 */
 int db_fingerprint_ok(void){
-  char *zCkout;   /* The fingerprint recorded in the checkout database */
+  char *zCkout;   /* The fingerprint recorded in the check-out database */
   char *zRepo;    /* The fingerprint of the repository */
   int rc;         /* Result */
 
   if( !db_lget_int("checkout", 0) ){
-    /* We have an empty checkout, fingerprint is still NULL. */
+    /* We have an empty check-out, fingerprint is still NULL. */
     return 2;
   }
   zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
   if( zCkout==0 ){
-    /* This is an older checkout that does not record a fingerprint.
+    /* This is an older check-out that does not record a fingerprint.
     ** We have to assume everything is ok */
     return 2;
   }

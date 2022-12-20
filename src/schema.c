@@ -524,13 +524,13 @@ const char zRepositorySchema2[] =
 /*
 ** The schema for the local FOSSIL database file found at the root
 ** of every check-out.  This database contains the complete state of
-** the checkout.  See also the addendum in zLocalSchemaVmerge[].
+** the check-out.  See also the addendum in zLocalSchemaVmerge[].
 */
 const char zLocalSchema[] =
 @ -- The VVAR table holds miscellanous information about the local database
 @ -- in the form of name-value pairs.  This is similar to the VAR table
 @ -- table in the repository except that this table holds information that
-@ -- is specific to the local checkout.
+@ -- is specific to the local check-out.
 @ --
 @ -- Important Variables:
 @ --
@@ -544,7 +544,7 @@ const char zLocalSchema[] =
 @ );
 @
 @ -- Each entry in the vfile table represents a single file in the
-@ -- current checkout.
+@ -- current check-out.
 @ --
 @ -- The file.rid field is 0 for files or folders that have been
 @ -- added but not yet committed.
@@ -557,8 +557,8 @@ const char zLocalSchema[] =
 @ --    4,5     Same as 2,3 except merge using --integrate
 @ --
 @ CREATE TABLE vfile(
-@   id INTEGER PRIMARY KEY,           -- ID of the checked out file
-@   vid INTEGER REFERENCES blob,      -- The checkin this file is part of.
+@   id INTEGER PRIMARY KEY,           -- ID of the checked-out file
+@   vid INTEGER REFERENCES blob,      -- The check-in this file is part of.
 @   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
@@ -607,7 +607,7 @@ const char zLocalSchemaVmerge[] =
 @ CREATE TRIGGER vmerge_ck1 AFTER INSERT ON vmerge
 @ WHEN new.mhash IS NULL BEGIN
 @   SELECT raise(FAIL,
-@   'trying to update a newer checkout with an older version of Fossil');
+@   'trying to update a newer check-out with an older version of Fossil');
 @ END;
 @
 ;

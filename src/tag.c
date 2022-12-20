@@ -397,7 +397,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 ** > fossil tag add ?OPTIONS? TAGNAME ARTIFACT-ID ?VALUE?
 **
 **         Add a new tag or property to an artifact referenced by
-**         ARTIFACT-ID. For checkins, the tag will be usable instead
+**         ARTIFACT-ID. For check-ins, the tag will be usable instead
 **         of a CHECK-IN in commands such as update and merge. If the
 **         --propagate flag is present and ARTIFACT-ID refers to a
 **         wiki page, forum post, technote, or check-in, the tag

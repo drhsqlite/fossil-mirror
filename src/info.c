@@ -54,7 +54,7 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 */
 void show_common_info(
   int rid,                   /* The rid for the check-in to display info for */
-  const char *zRecDesc,      /* Brief record description; e.g. "checkout:" */
+  const char *zRecDesc,      /* Brief record description; e.g. "check-out:" */
   int showComment,           /* True to show the check-in comment */
   int showFamily             /* True to show parents and children */
 ){
@@ -186,7 +186,7 @@ static void showParentProject(void){
 ** the argument is the name of an object within the repository.
 **
 ** Use the "finfo" command to get information about a specific
-** file in a checkout.
+** file in a check-out.
 **
 ** Options:
 **
@@ -367,7 +367,7 @@ static void append_diff(
 ** to a file between two check-ins.
 */
 static void append_file_change_line(
-  const char *zCkin,    /* The checkin on which the change occurs */
+  const char *zCkin,    /* The check-in on which the change occurs */
   const char *zName,    /* Name of the file that has changed */
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
@@ -821,7 +821,7 @@ void ci_page(void){
       const char *zLinks = blob_str(&wiki_read_links);
       @ <tr><th>Edit&nbsp;Wiki:</th><td>\
       if( okWiki ){
-        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this check-in</a>\
       }else if( zLinks[0] ){
         zLinks += 3;
       }
@@ -839,7 +839,7 @@ void ci_page(void){
       const char *zLinks = blob_str(&wiki_add_links);
       @ <tr><th>Add&nbsp;Wiki:</th><td>\
       if( !okWiki ){
-        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this check-in</a>\
       }else if( zLinks[0] ){
         zLinks += 3;
       }
@@ -3808,7 +3808,7 @@ int describe_commit(
 ** since that, and the short hash of VERSION.  Only tags applied to a single
 ** check-in are considered.
 **
-** If no VERSION is provided, describe the current checked-out version.
+** If no VERSION is provided, describe the currently checked-out version.
 **
 ** If VERSION and the found ancestor refer to the same commit, the last two
 ** components are omitted, unless --long is provided.  When no fitting tagged
@@ -3850,7 +3850,7 @@ void describe_cmd(void){
   }
 
   if( bDirtyFlag ){
-    if ( g.argc>=3 ) fossil_fatal("cannot use --dirty with specific checkin");
+    if ( g.argc>=3 ) fossil_fatal("cannot use --dirty with specific check-in");
   }
 
   switch( describe_commit(zName, zMatchGlob, &descr) ){

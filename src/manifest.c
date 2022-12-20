@@ -1936,7 +1936,7 @@ static int manifest_add_checkin_linkages(
 }
 
 /*
-** There exists a "parent" tag against checkin rid that has value zValue.
+** There exists a "parent" tag against check-in rid that has value zValue.
 ** If value is well-formed (meaning that it is a list of hashes), then use
 ** zValue to reparent check-in rid.
 */

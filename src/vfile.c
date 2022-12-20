@@ -365,7 +365,7 @@ void vfile_to_disk(
 }
 
 /*
-** Check to see if the directory named in zPath is the top of a checkout.
+** Check to see if the directory named in zPath is the top of a check-out.
 ** In other words, check to see if directory pPath contains a file named
 ** "_FOSSIL_" or ".fslckout".  Return true or false.
 */
@@ -383,7 +383,7 @@ int vfile_top_of_checkout(const char *zPath){
   }
 
   /* Check for ".fos" for legacy support.  But the use of ".fos" as the
-  ** per-checkout database name is deprecated.  At some point, all support
+  ** per-check-out database name is deprecated.  At some point, all support
   ** for ".fos" will end and this code should be removed.  This comment
   ** added on 2012-02-04.
   */

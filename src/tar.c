@@ -467,7 +467,7 @@ void test_tarball_cmd(void){
 **
 */
 void tarball_of_checkin(
-  int rid,             /* The RID of the checkin from which to form a tarball */
+  int rid,             /* The RID of the check-in from which to form a tarball*/
   Blob *pTar,          /* Write the tarball into this blob */
   const char *zDir,    /* Directory prefix for all file added to tarball */
   Glob *pInclude,      /* Only add files matching this pattern */
@@ -678,7 +678,7 @@ void tarball_cmd(void){
 /*
 ** Check to see if the input string is of the form:
 **
-**        checkin-name/filename.ext
+**        check-in-name/filename.ext
 **
 ** In other words, check to see if the input contains a single '/'
 ** character that separates a valid check-in name from a filename.

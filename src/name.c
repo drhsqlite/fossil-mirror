@@ -267,7 +267,7 @@ static int is_trailing_punct(char c){
 **   *  "merge-in:BR" = The most recent merge-in for the branch named BR.
 **
 ** In those forms, BR may be any symbolic form but is assumed to be a
-** checkin. Thus root:2021-02-01 would resolve to a checkin, possibly
+** check-in. Thus root:2021-02-01 would resolve to a check-in, possibly
 ** in a branch and possibly in the trunk, but never a wiki edit or
 ** forum post.
 **
@@ -1152,7 +1152,7 @@ static const char zDescTab[] =
 @   uuid TEXT,                     -- hash of the object
 @   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
-@   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   type TEXT,                     -- file, check-in, wiki, ticket, etc.
 @   rcvid INT,                     -- When the artifact was received
 @   summary TEXT,                  -- Summary comment for the object
 @   ref TEXT                       -- hash of an object to link against

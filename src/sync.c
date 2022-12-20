@@ -107,7 +107,7 @@ static int client_sync_all_urls(
 **
 **   SYNC_PULL           Pull content from the server to the local repo
 **   SYNC_PUSH           Push content from local up to the server
-**   SYNC_CKIN_LOCK      Take a check-in lock on the current checkout.
+**   SYNC_CKIN_LOCK      Take a check-in lock on the current check-out.
 **   SYNC_VERBOSE        Extra output
 **
 ** Return the number of errors.
@@ -514,9 +514,9 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** > fossil remote hyperlink ?FILENAME? ?LINENUM? ?LINENUM?
 **
-**     Print a URL that will access the current checkout on the remote
+**     Print a URL that will access the current check-out on the remote
 **     repository.  Or if the FILENAME argument is included, print the
-**     URL to access that particular file within the current checkout.
+**     URL to access that particular file within the current check-out.
 **     If one or two linenumber arguments are provided after the filename,
 **     then the URL is for the line or range of lines specified.
 **
@@ -548,7 +548,7 @@ void sync_unversioned(unsigned syncFlags){
 ** > fossil remote ui ?FILENAME? ?LINENUM? ?LINENUM?
 **
 **     Bring up a web browser pointing at the remote repository, and
-**     specifically to the page that describes the current checkout
+**     specifically to the page that describes the current check-out
 **     on that remote repository.  Or if FILENAME and/or LINENUM arguments
 **     are provided, to the specific file and range of lines.  This
 **     command is similar to "fossil remote hyperlink" except that instead
@@ -818,7 +818,7 @@ remote_delete_default:
 ** is safe to run "fossil backup" on a repository that is in active use.
 **
 ** Only the main repository database is backed up by this command.  The
-** open checkout file (if any) is not saved.  Nor is the global configuration
+** open check-out file (if any) is not saved.  Nor is the global configuration
 ** database.
 **
 ** Options:

@@ -460,7 +460,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 ** interchange format supported, though other formats may be added in
 ** the future.
 **
-** Run this command within a checkout.  Or use the -R or --repository
+** Run this command within a check-out.  Or use the -R or --repository
 ** option to specify a Fossil repository to be exported.
 **
 ** Only check-ins are exported using --git.  Git does not support tickets
@@ -1826,7 +1826,7 @@ void gitmirror_status_command(void){
 **       already exist.  If the Git repository does already exist, then
 **       new content added to fossil since the previous export is appended.
 **
-**       Repeat this command whenever new checkins are added to the Fossil
+**       Repeat this command whenever new check-ins are added to the Fossil
 **       repository in order to reflect those changes into the mirror.  If
 **       the MIRROR option is omitted, the repository from the previous
 **       invocation is used.
