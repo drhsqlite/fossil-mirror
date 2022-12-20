@@ -1,5 +1,5 @@
-C Updated\sthe\smacOS\ssidebar\sin\sthe\sbackups.md\sdoc\sto\scover\sVentura.
-D 2022-12-16T21:47:07.721
+C Make\s[/secaudit0]\spage\saware\sof\sthe\sTcl\sintegration\sopportunities.
+D 2022-12-20T02:01:22.133
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/rss.c 21a3beb190ee03bf5a8ae18b36ff8307e4708bf0e0e0b37cffb2395f51449836
 F src/schema.c 80ed995f7457cc969e5ee5b0013e01a75a4ca895b401c784a5382569ad3b0959
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c213316a65d88240053756dda3471539ab4b6005b0823675cf2cac58e8992029
-F src/security_audit.c 62dda75ae7de213789b8fe99aae74d8ffe7195c594a06d8e26ff80f54b7b53be
+F src/security_audit.c 5a9a2623c48103497952c7ecb0c3e399d20915332ce819b79c35eec77e694592
 F src/setup.c 9968bf6d9e1cdaccd6c12ac0ff641ed0fa4e491dccc33b72001b50819965515b
 F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c facdc05434dd765d1469cbbb6aebceaf2fd05c0eb6ace251db03cb721cecaa82
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7010ce23917586d614efa11524944497bb2a800d842fa2013bd28f048c7fca11
-R 2cb3998b29c500958ce650919160d708
-U wyoung
-Z 1debec1a1329fadc1edac028e897d1ea
+P a55042a01507c08421b57b3b3710b3a06ddac9316d44ea227e6847f356317d76
+R 1a866c196a232026b8579b03060e47fb
+U george
+Z 8f9be7950f7cb3fb42e3c6d81cc547cb
 # Remove this line to create a well-formed Fossil manifest.
