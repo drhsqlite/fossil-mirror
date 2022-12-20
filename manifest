@@ -1,5 +1,5 @@
-C Unbreak\sMinGW\sbuild\sto\saccount\sfor\sdeletions\sin\szlib\s1.2.13.
-D 2022-12-20T05:00:58.390
+C Move\sTH1/Tcl\ssettings\sinto\stheir\sown\sconfigsets.
+D 2022-12-20T05:14:04.754
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -407,7 +407,7 @@ F src/clone.c ff298870fd3e490d53e244821bf87647430c509a29dde4a75bcb965b01c4cb07
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c d746b2c3786335c1d7d3c34ef04d7ea9021c81bfa4444c68c9bf6afae3a9160b
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
-F src/configure.c 9b5e2c5384ab60920f7de9e1841f1494b343fb10596abdc059927cffd73d9cc0
+F src/configure.c 34700a501dbd0280f80905720b33aafca15e596cc8418bcd0300afb6cece5260
 F src/content.c 9392a9d5bb3aa29f0e9d9bcbd6b370be03055fce4a8988f8db868320e8ccc188
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
@@ -956,8 +956,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2213a0eb2d413fc102d34b1b4bc6c56bc860cd63268ef75ca2336f7dd28ae998
-R e91e98fc2bdef509623a1276591ef138
+P a24a790f3d6c0f7b7de0dfb292eacc7e8ad4ffc3a1027ea872634ac5e16e7daa
+R 0d83866ec69106695f82f0316938ec23
+T *branch * cfgSetTh1
+T *sym-cfgSetTh1 *
+T -sym-trunk *
 U mistachkin
-Z ca57fd6552c00d254cb18b25717cbe83
+Z 7b59c93682955293e6906aeb07c20536
 # Remove this line to create a well-formed Fossil manifest.

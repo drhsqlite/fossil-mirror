@@ -29,27 +29,24 @@
 ** Configuration transfers occur in groups.  These are the allowed
 ** groupings:
 */
-#define CONFIGSET_CSS       0x000001     /* Style sheet only */
-#define CONFIGSET_SKIN      0x000002     /* WWW interface appearance */
-#define CONFIGSET_TKT       0x000004     /* Ticket configuration */
-#define CONFIGSET_PROJ      0x000008     /* Project name */
-#define CONFIGSET_SHUN      0x000010     /* Shun settings */
-#define CONFIGSET_USER      0x000020     /* The USER table */
-#define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
-#define CONFIGSET_XFER      0x000080     /* Transfer configuration */
-#define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
-#define CONFIGSET_SCRIBER   0x000200     /* Email subscribers */
-#define CONFIGSET_IWIKI     0x000400     /* Interwiki codes */
-#define CONFIGSET_ALL       0x0007ff     /* Everything */
+#define CONFIGSET_CSS       0x000001  /* Style sheet only */
+#define CONFIGSET_SKIN      0x000002  /* WWW interface appearance */
+#define CONFIGSET_TKT       0x000004  /* Ticket configuration */
+#define CONFIGSET_PROJ      0x000008  /* Project name */
+#define CONFIGSET_SHUN      0x000010  /* Shun settings */
+#define CONFIGSET_USER      0x000020  /* The USER table */
+#define CONFIGSET_ADDR      0x000040  /* The CONCEALED table */
+#define CONFIGSET_XFER      0x000080  /* Transfer configuration */
+#define CONFIGSET_ALIAS     0x000100  /* URL Aliases */
+#define CONFIGSET_SCRIBER   0x000200  /* Email subscribers */
+#define CONFIGSET_IWIKI     0x000400  /* Interwiki codes */
+#define CONFIGSET_ALL       0x0007ff  /* All of the above */
 
-#define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
+#define CONFIGSET_TH1       0x000800  /* TH1 configuration */
+#define CONFIGSET_TCL       0x001000  /* Tcl configuration */
 
-/*
-** This mask is used for the common TH1 configuration settings (i.e. those
-** that are not specific to one particular subsystem, such as the transfer
-** subsystem).
-*/
-#define CONFIGSET_TH1       (CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER)
+#define CONFIGSET_OVERWRITE 0x100000  /* Causes overwrite instead of merge */
+#define CONFIGSET_SENSITIVE 0x200000  /* Used to indicate sensitive settings */
 
 #endif /* INTERFACE */
 
@@ -119,7 +116,7 @@ static struct {
   { "safe-html",              CONFIGSET_SKIN },
 
 #ifdef FOSSIL_ENABLE_TH1_DOCS
-  { "th1-docs",               CONFIGSET_TH1 },
+  { "th1-docs",               CONFIGSET_TH1 | CONFIGSET_SENSITIVE },
 #endif
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",              CONFIGSET_TH1 },
@@ -128,8 +125,8 @@ static struct {
   { "th1-uri-regexp",         CONFIGSET_TH1 },
 
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_TH1 },
-  { "tcl-setup",              CONFIGSET_TH1 },
+  { "tcl",                    CONFIGSET_TCL | CONFIGSET_SENSITIVE },
+  { "tcl-setup",              CONFIGSET_TCL | CONFIGSET_SENSITIVE },
 #endif
 
   { "project-name",           CONFIGSET_PROJ },
