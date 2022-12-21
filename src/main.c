@@ -2977,15 +2977,15 @@ void fossil_set_timeout(int N){
 ** TCP port 8080, or on any other TCP port defined by the -P or
 ** --port option.  The optional REPOSITORY argument is the name of the
 ** Fossil repository to be served.  The REPOSITORY argument may be omitted
-** if the working directory is within an open checkout, in which case the
-** repository associated with that checkout is used.
+** if the working directory is within an open check-out, in which case the
+** repository associated with that check-out is used.
 **
 ** The "ui" command automatically starts a web browser after initializing
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
 ** only process HTTP traffic from the local machine.
 **
 ** If REPOSITORY is a directory name which is the root of a
-** checkout, then use the repository associated with that checkout.
+** check-out, then use the repository associated with that check-out.
 ** This only works for the "fossil ui" command, not the "fossil server"
 ** command.
 **
@@ -3180,8 +3180,8 @@ void cmd_webserver(void){
     fossil_fatal("SCGI does not (yet) support TLS-encrypted connections");
   }
   if( isUiCmd && 3==g.argc && file_isdir(g.argv[2], ExtFILE)>0 ){
-    /* If REPOSITORY arg is the root of a checkout,
-    ** chdir to that checkout so that the current version
+    /* If REPOSITORY arg is the root of a check-out,
+    ** chdir to that check-out so that the current version
     ** gets highlighted in the timeline by default. */
     const char * zDir = g.argv[2];
     if(dir_has_ckout_db(zDir)){

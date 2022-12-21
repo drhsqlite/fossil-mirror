@@ -1029,7 +1029,7 @@ const char *diff_get_binary_glob(void){
 ** Usage: %fossil diff|gdiff ?OPTIONS? ?FILE1? ?FILE2 ...?
 **
 ** Show the difference between the current version of each of the FILEs
-** specified (as they exist on disk) and that same file as it was checked
+** specified (as they exist on disk) and that same file as it was checked-
 ** out.  Or if the FILE arguments are omitted, show all unsaved changes
 ** currently in the working check-out.
 **

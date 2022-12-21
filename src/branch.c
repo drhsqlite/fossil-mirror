@@ -226,11 +226,11 @@ void branch_new(void){
 ** Create a TEMP table named "tmp_brlist" with 7 columns:
 **
 **      name           Name of the branch
-**      mtime          Time of last checkin on this branch
+**      mtime          Time of last check-in on this branch
 **      isclosed       True if the branch is closed
 **      mergeto        Another branch this branch was merged into
 **      nckin          Number of checkins on this branch
-**      ckin           Hash of the last checkin on this branch
+**      ckin           Hash of the last check-in on this branch
 **      isprivate      True if the branch is private
 **      bgclr          Background color for this branch
 */
@@ -476,7 +476,7 @@ static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
 
 /*
 ** Internal helper for branch_cmd_close() and friends. zName is a
-** symbolic checkin name. Returns the blob.rid of the checkin or fails
+** symbolic check-in name. Returns the blob.rid of the check-in or fails
 ** fatally if the name does not resolve unambiguously.  If zUuid is
 ** not NULL, *zUuid is set to the resolved blob.uuid and must be freed
 ** by the caller via fossil_free().
@@ -493,7 +493,7 @@ static int branch_resolve_name(char const *zName, char **zUuid){
 
 /*
 ** Implementation of (branch hide/unhide) subcommands. nStartAtArg is
-** the g.argv index to start reading branch/checkin names. fHide is
+** the g.argv index to start reading branch/check-in names. fHide is
 ** true for hiding, false for unhiding. Fails fatally on error.
 */
 static void branch_cmd_hide(int nStartAtArg, int fHide){
@@ -514,15 +514,15 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
     ** entry if it already has (if fHide) or does not have (if !fHide)
     ** that tag. FWIW, /ci_edit does not do so. */
     if(fHide && isHidden){
-      fossil_warning("Skipping hidden checkin %s: %s.", zName, zUuid);
+      fossil_warning("Skipping hidden check-in %s: %s.", zName, zUuid);
       continue;
     }else if(!fHide && !isHidden){
-      fossil_warning("Skipping non-hidden checkin %s: %s.", zName, zUuid);
+      fossil_warning("Skipping non-hidden check-in %s: %s.", zName, zUuid);
       continue;
     }
     branch_cmd_tag_add(rid, fHide ? "*hidden" : "-hidden");
     if(fVerbose!=0){
-      fossil_print("%s checkin [%s] %s\n",
+      fossil_print("%s check-in [%s] %s\n",
                    fHide ? "Hiding" : "Unhiding",
                    zName, zUuid);
     }
@@ -532,7 +532,7 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
 
 /*
 ** Implementation of (branch close|reopen) subcommands. nStartAtArg is
-** the g.argv index to start reading branch/checkin names. The given
+** the g.argv index to start reading branch/check-in names. The given
 ** checkins are closed if fClose is true, else their "closed" tag (if
 ** any) is cancelled. Fails fatally on error.
 */
@@ -587,8 +587,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **
 **       Adds or cancels the "closed" tag to one or more branches.
 **       It accepts arbitrary unambiguous symbolic names but
-**       will only resolve checkin names and skips any which resolve
-**       to non-leaf checkins. Options:
+**       will only resolve check-in names and skips any which resolve
+**       to non-leaf check-ins. Options:
 **         -n|--dry-run          do not commit changes and dump artifact
 **                               to stdout
 **         -v|--verbose          output more information
@@ -602,7 +602,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
 **       Adds or cancels the "hidden" tag for the specified branches or
-**       or checkin IDs. Accepts the same options as the close
+**       or check-in IDs. Accepts the same options as the close
 **       subcommand.
 **
 ** >  fossil branch info BRANCH-NAME
@@ -659,7 +659,7 @@ void branch_cmd(void){
   n = strlen(zCmd);
   if( strncmp(zCmd,"current",n)==0 ){
     if( !g.localOpen ){
-      fossil_fatal("not within an open checkout");
+      fossil_fatal("not within an open check-out");
     }else{
       int vid = db_lget_int("checkout", 0);
       char *zCurrent = db_text(0, "SELECT value FROM tagxref"

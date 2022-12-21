@@ -237,7 +237,7 @@ int ajax_route_bootstrap(int requireWrite, int requirePost){
 }
 
 /*
-** Helper for collecting filename/checkin request parameters.
+** Helper for collecting filename/check-in request parameters.
 **
 ** If zFn is not NULL, it is assigned the value of the first one of
 ** the "filename" or "fn" CGI parameters which is set.
@@ -325,7 +325,7 @@ void ajax_route_preview_text(void){
   /*
   ** Now tell the caller if we did indeed use AJAX_RENDER_WIKI, so that
   ** they can re-set the <base href> to an appropriate value (which
-  ** requires knowing the content's current checkin version, which we
+  ** requires knowing the content's current check-in version, which we
   ** don't have here).
   */
   switch(renderMode){

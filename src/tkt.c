@@ -1551,7 +1551,7 @@ void ticket_cmd(void){
   const char *zDate;
   const char *zTktUuid;
 
-  /* do some ints, we want to be inside a checkout */
+  /* do some ints, we want to be inside a check-out */
   db_find_and_open_repository(0, 0);
   user_select();
 

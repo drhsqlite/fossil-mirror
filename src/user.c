@@ -561,8 +561,8 @@ void test_usernames_cmd(void){
 
   fossil_print("Initial g.zLogin: %s\n", g.zLogin);
   fossil_print("Initial g.userUid: %d\n", g.userUid);
-  fossil_print("checkout default-user: %s\n", g.localOpen ?
-               db_lget("default-user","") : "<<no open checkout>>");
+  fossil_print("check-out default-user: %s\n", g.localOpen ?
+               db_lget("default-user","") : "<<no open check-out>>");
   fossil_print("default-user: %s\n", db_get("default-user",""));
   fossil_print("FOSSIL_USER: %s\n", fossil_getenv("FOSSIL_USER"));
   fossil_print("USER: %s\n", fossil_getenv("USER"));

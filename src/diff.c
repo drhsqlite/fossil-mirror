@@ -3550,7 +3550,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **                           Xs     As much as can be computed in X seconds
 **                           N      N versions
 **    log=BOOLEAN         Show a log of versions analyzed
-**    origin=ID           The origin checkin.  If unspecified, the root
+**    origin=ID           The origin check-in.  If unspecified, the root
 **                        check-in over the entire repository is used.
 **                        Specify "origin=trunk" or similar for a reverse
 **                        annotation

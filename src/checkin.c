@@ -63,7 +63,7 @@ enum {
 ** the command-line to that table.  If directories are named, then add
 ** all unmanaged files contained underneath those directories.  If there
 ** are no files or directories named on the command-line, then add all
-** unmanaged files anywhere in the checkout.
+** unmanaged files anywhere in the check-out.
 **
 ** This routine never follows symlinks.  It always treats symlinks as
 ** object unto themselves.
@@ -200,7 +200,7 @@ static void status_report(
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
 
-  /* Bind the checkout version ID to the query if needed. */
+  /* Bind the check-out version ID to the query if needed. */
   if( (flags & C_ALL) && (flags & C_MTIME) ){
     db_bind_int(&q, ":vid", db_lget_int("checkout", 0));
   }
@@ -369,7 +369,7 @@ static int determine_cwd_relative_option()
 **
 ** Usage: %fossil changes|status ?OPTIONS? ?PATHS ...?
 **
-** Report the change status of files in the current checkout.  If one or
+** Report the change status of files in the current check-out.  If one or
 ** more PATHS are specified, only changes among the named files and
 ** directories are reported.  Directories are searched recursively.
 **
@@ -387,7 +387,7 @@ static int determine_cwd_relative_option()
 ** can be overridden by using one or more filter options (listed below),
 ** in which case only files with the specified change type(s) are shown.
 ** As a special case, the --no-merge option does not inhibit this default.
-** This default shows exactly the set of changes that would be checked
+** This default shows exactly the set of changes that would be checked-
 ** in by the commit command.
 **
 ** If no filter options are used, or if the --merge option is used, the
@@ -411,7 +411,7 @@ static int determine_cwd_relative_option()
 ** used to display the union of --edited and --updated.
 **
 ** --differ is so named because it lists all the differences between the
-** checked-out version and the checkout directory.  In addition to the
+** checked-out version and the check-out directory.  In addition to the
 ** default changes (excluding --merge), it lists extra files which (if
 ** ignore-glob is set correctly) may be worth adding.  Prior to doing a
 ** commit, it is good practice to check --differ to see not only which
@@ -519,10 +519,10 @@ void status_cmd(void){
     }
   }
 
-  /* Confirm current working directory is within checkout. */
+  /* Confirm current working directory is within check-out. */
   db_must_be_within_tree();
 
-  /* Get checkout version. l*/
+  /* Get check-out version. l*/
   vid = db_lget_int("checkout", 0);
 
   /* Relative path flag determination is done by a shared function. */
@@ -664,7 +664,7 @@ static void ls_cmd_rev(
 **
 ** Usage: %fossil ls ?OPTIONS? ?PATHS ...?
 **
-** List all files in the current checkout.  If PATHS is included, only the
+** List all files in the current check-out.  If PATHS is included, only the
 ** named files (or their children if directories) are shown.
 **
 ** The ls command is essentially two related commands in one, depending on
@@ -829,7 +829,7 @@ void ls_cmd(void){
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of the
-** current checkout. See also the "clean" command. If paths are specified,
+** current check-out. See also the "clean" command. If paths are specified,
 ** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
@@ -898,7 +898,7 @@ void extras_cmd(void){
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are files
-** that are not officially part of the checkout.  If one or more PATH
+** that are not officially part of the check-out.  If one or more PATH
 ** arguments appear, then only the files named, or files contained with
 ** directories named, will be removed.
 **
@@ -927,7 +927,7 @@ void extras_cmd(void){
 ** care should be exercised when using the --verily option.
 **
 ** Options:
-**    --allckouts            Check for empty directories within any checkouts
+**    --allckouts            Check for empty directories within any check-outs
 **                           that may be nested within the current one.  This
 **                           option should be used with great care because the
 **                           empty-dirs setting (and other applicable settings)
@@ -1517,9 +1517,9 @@ int select_commit_files(void){
 }
 
 /*
-** Returns true if the checkin identified by the first parameter is
+** Returns true if the check-in identified by the first parameter is
 ** older than the given (valid) date/time string, else returns false.
-** Also returns true if rid does not refer to a checkin, but it is not
+** Also returns true if rid does not refer to a check-in, but it is not
 ** intended to be used for that case.
 */
 int checkin_is_younger(
@@ -1643,7 +1643,7 @@ static void create_manifest(
       vid, vid);
     if( !zParentUuid ){
       fossil_fatal("Could not find a valid check-in for RID %d. "
-                   "Possible checkout/repo mismatch.", vid);
+                   "Possible check-out/repo mismatch.", vid);
     }
   }
   if( pBaseline ){
@@ -2024,7 +2024,7 @@ static int commit_warning(
 **
 ** Usage: %fossil test-commit-warning ?OPTIONS?
 **
-** Check each file in the checkout, including unmodified ones, using all
+** Check each file in the check-out, including unmodified ones, using all
 ** the pre-commit checks.
 **
 ** Options:
@@ -2099,7 +2099,7 @@ static int tagCmp(const void *a, const void *b){
 **    or: %fossil ci ?OPTIONS? ?FILE...?
 **
 ** Create a new version containing all of the changes in the current
-** checkout.  You will be prompted to enter a check-in comment unless
+** check-out.  You will be prompted to enter a check-in comment unless
 ** the comment has been specified on the command-line using "-m" or a
 ** file containing the comment using -M.  The editor defined in the
 ** "editor" fossil option (see %fossil help set) will be used, or from
@@ -2406,7 +2406,7 @@ void commit_cmd(void){
 
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
-  ** in the checked out directory are committed. If one or more arguments
+  ** in the checked-out directory are committed. If one or more arguments
   ** follows "commit", then only those files are committed.
   **
   ** After the following function call has returned, the Global.aCommitFile[]
@@ -2827,7 +2827,7 @@ void commit_cmd(void){
     vfile_aggregate_checksum_repository(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
       vfile_compare_repository_to_disk(nvid);
-      fossil_fatal("working checkout does not match what would have ended "
+      fossil_fatal("working check-out does not match what would have ended "
                    "up in the repository:  %b versus %b",
                    &cksum1, &cksum2);
     }
@@ -2840,14 +2840,14 @@ void commit_cmd(void){
     }
     if( blob_compare(&cksum1, &cksum2) ){
       fossil_fatal(
-         "working checkout does not match manifest after commit: "
+         "working check-out does not match manifest after commit: "
          "%b versus %b", &cksum1, &cksum2);
     }
 
     /* Verify that the commit did not modify any disk images. */
     vfile_aggregate_checksum_disk(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
-      fossil_fatal("working checkout before and after commit does not match");
+      fossil_fatal("working check-out before and after commit does not match");
     }
   }
 

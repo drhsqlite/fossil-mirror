@@ -544,7 +544,7 @@ static void dequote_git_filename(char *zName){
 
 static struct{
   const char *zMasterName;    /* Name of master branch */
-  int authorFlag;             /* Use author as checkin committer */
+  int authorFlag;             /* Use author as check-in committer */
   int nGitAttr;               /* Number of Git --attribute entries */
   struct {                    /* Git --attribute details */
     char *zUser;
@@ -852,7 +852,7 @@ static struct{
   const char *zTags;          /* Name of tags folder in repo root */
   int lenTags;                /* String length of zTags */
   Bag newBranches;            /* Branches that were created in this revision */
-  int revFlag;                /* Add svn-rev-nn tags on every checkin */
+  int revFlag;                /* Add svn-rev-nn tags on every check-in */
   const char *zRevPre;        /* Prepended to revision tag names */
   const char *zRevSuf;        /* Appended to revision tag names */
   const char **azIgnTree;     /* NULL-terminated list of dirs to ignore */

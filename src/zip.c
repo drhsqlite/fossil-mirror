@@ -616,7 +616,7 @@ void filezip_cmd(void){
 */
 static void zip_of_checkin(
   int eType,          /* Type of archive (ZIP or SQLAR) */
-  int rid,            /* The RID of the checkin to build the archive from */
+  int rid,            /* The RID of the check-in to build the archive from */
   Blob *pZip,         /* Write the archive content into this blob */
   const char *zDir,   /* Top-level directory of the archive */
   Glob *pInclude,     /* Only include files that match this pattern */

@@ -184,7 +184,7 @@ void www_print_timeline(
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
-  int vid = 0;                /* Current checkout version */
+  int vid = 0;                /* Current check-out version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
   int bCommentGitStyle = 0;   /* Only show comments through first blank line */
   const char *zStyle;         /* Sub-name for classes for the style */
@@ -3140,7 +3140,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a sub directory.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
-**                        the current checkout's repository.
+**                        the current check-out's repository.
 **   --sql                Show the SQL used to generate the timeline
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
@@ -3190,7 +3190,7 @@ void timeline_cmd(void){
   zBr = find_option("branch","b",1);
   if( find_option("current-branch","c",0)!=0 ){
     if( !g.localOpen ){
-      fossil_fatal("not within an open checkout");
+      fossil_fatal("not within an open check-out");
     }else{
       int vid = db_lget_int("checkout", 0);
       zBr = db_text(0, "SELECT value FROM tagxref WHERE rid=%d AND tagid=%d",
@@ -3266,7 +3266,7 @@ void timeline_cmd(void){
     zDate = mprintf("(SELECT datetime('now'))");
   }else if( strncmp(zOrigin, "current", k)==0 ){
     if( !g.localOpen ){
-      fossil_fatal("must be within a local checkout to use 'current'");
+      fossil_fatal("must be within a local check-out to use 'current'");
     }
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
@@ -3353,7 +3353,7 @@ void timeline_cmd(void){
       "          WHERE tagname='sym-%q')\n"
       "      UNION\n"                                    /* Branch wikis */
       "      SELECT objid FROM event WHERE comment LIKE '_branch/%q'\n"
-      "      UNION\n"                                    /* Checkin wikis */
+      "      UNION\n"                                    /* Check-in wikis */
       "      SELECT e.objid FROM event e\n"
       "        INNER JOIN blob b ON b.uuid=substr(e.comment, 10)\n"
       "                          AND e.comment LIKE '_checkin/%%'\n"

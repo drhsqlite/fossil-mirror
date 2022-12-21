@@ -24,7 +24,7 @@
 
 /*
 ** State for the "mini-checkin" infrastructure, which enables the
-** ability to commit changes to a single file without a checkout
+** ability to commit changes to a single file without a check-out
 ** db, e.g. for use via an HTTP request.
 **
 ** Use CheckinMiniInfo_init() to cleanly initialize one to a known
@@ -37,7 +37,7 @@
 ** blobs.
 */
 struct CheckinMiniInfo {
-  Manifest * pParent;  /* parent checkin. Memory is owned by this
+  Manifest * pParent;  /* parent check-in. Memory is owned by this
                           object. */
   char *zParentUuid;   /* Full UUID of pParent */
   char *zFilename;     /* Name of single file to commit. Must be
@@ -103,7 +103,7 @@ CIMINI_ALLOW_MERGE_MARKER = 1<<3,
 CIMINI_ALLOW_OLDER = 1<<4,
 
 /*
-** Indicates that the content of the newly-checked-in file is
+** Indicates that the content of the newly checked-in file is
 ** converted, if needed, to use the same EOL style as the previous
 ** version of that file. Only the in-memory/in-repo copies are
 ** affected, not the original file (if any).
@@ -388,10 +388,10 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 }
 
 /*
-** A so-called "single-file/mini/web checkin" is a slimmed-down form
-** of the checkin command which accepts only a single file and is
+** A so-called "single-file/mini/web check-in" is a slimmed-down form
+** of the check-in command which accepts only a single file and is
 ** intended to accept edits to a file via the web interface or from
-** the CLI from outside of a checkout.
+** the CLI from outside of a check-out.
 **
 ** Being fully non-interactive is a requirement for this function,
 ** thus it cannot perform autosync or similar activities (which
@@ -442,7 +442,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 ** Returns true on success. If pRid is not NULL, the RID of the
 ** resulting manifest is written to *pRid.
 **
-** The checkin process is largely influenced by pCI->flags, and that
+** The check-in process is largely influenced by pCI->flags, and that
 ** must be populated before calling this. See the fossil_cimini_flags
 ** enum for the docs for each flag.
 */
@@ -496,7 +496,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   }
   if(!(CIMINI_ALLOW_OLDER & pCI->flags)
      && !checkin_is_younger(pCI->pParent->rid, pCI->zDate)){
-    ci_err((pErr,"Checkin time (%s) may not be older "
+    ci_err((pErr,"Check-in time (%s) may not be older "
             "than its parent (%z).",
             pCI->zDate,
             db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%lf)",
@@ -529,8 +529,8 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   }
   /* Potential TODOs include:
   **
-  ** - Commit allows an empty checkin only with a flag, but we
-  **   currently disallow an empty checkin entirely. Conform with
+  ** - Commit allows an empty check-in only with a flag, but we
+  **   currently disallow an empty check-in entirely. Conform with
   **   commit?
   **
   ** Non-TODOs:
@@ -706,15 +706,15 @@ ci_error:
 **                             file, relative to the top of the
 **                             repository. Default is the same as the
 **                             input file name.
-**   -m|--comment COMMENT      Required checkin comment.
-**   -M|--comment-file FILE    Reads checkin comment from the given file.
+**   -m|--comment COMMENT      Required check-in comment.
+**   -M|--comment-file FILE    Reads check-in comment from the given file.
 **   -r|--revision VERSION     Commit from this version. Default is
-**                             the checkout version (if available) or
-**                             trunk (if used without a checkout).
+**                             the check-out version (if available) or
+**                             trunk (if used without a check-out).
 **   --allow-fork              Allows the commit to be made against a
 **                             non-leaf parent. Note that no autosync
 **                             is performed beforehand.
-**   --allow-merge-conflict    Allows checkin of a file even if it
+**   --allow-merge-conflict    Allows check-in of a file even if it
 **                             appears to contain a fossil merge conflict
 **                             marker.
 **   --user-override USER      USER to use instead of the current
@@ -722,7 +722,7 @@ ci_error:
 **   --date-override DATETIME  DATE to use instead of 'now'.
 **   --allow-older             Allow a commit to be older than its
 **                             ancestor.
-**   --convert-eol-inherit     Convert EOL style of the checkin to match
+**   --convert-eol-inherit     Convert EOL style of the check-in to match
 **                             the previous version's content.
 **   --convert-eol-unix        Convert the EOL style to Unix.
 **   --convert-eol-windows     Convert the EOL style to Windows.
@@ -749,7 +749,7 @@ ci_error:
 **
 */
 void test_ci_mini_cmd(void){
-  CheckinMiniInfo cimi;       /* checkin state */
+  CheckinMiniInfo cimi;       /* check-in state */
   int newRid = 0;                /* RID of new version */
   const char * zFilename;        /* argv[2] */
   const char * zComment;         /* -m comment */
@@ -821,7 +821,7 @@ void test_ci_mini_cmd(void){
       blob_append(&cimi.comment, zComment, -1);
     }
     if(!blob_size(&cimi.comment)){
-      fossil_fatal("Non-empty checkin comment is required.");
+      fossil_fatal("Non-empty check-in comment is required.");
     }
   }
   db_begin_transaction();
@@ -833,7 +833,7 @@ void test_ci_mini_cmd(void){
     cimi.zDate = mprintf("%s", zDate);
   }
   if(zRevision==0 || zRevision[0]==0){
-    if(g.localOpen/*checkout*/){
+    if(g.localOpen/*check-out*/){
       zRevision = db_lget("checkout-hash", 0)/*leak*/;
     }else{
       zRevision = "trunk";
@@ -875,7 +875,7 @@ void test_ci_mini_cmd(void){
                       ** the transaction-written db state in this
                       ** routine.*/);
   if(!(cimi.flags & CIMINI_DRY_RUN) && newRid!=0 && g.localOpen!=0){
-    fossil_warning("The checkout state is now out of sync "
+    fossil_warning("The check-out state is now out of sync "
                    "with regards to this commit. It needs to be "
                    "'update'd or 'close'd and re-'open'ed.");
   }
@@ -971,7 +971,7 @@ static int fileedit_ajax_check_filename(const char * zFilename){
 **   NULL then no confirmation is done on the filename argument - only
 **   zRev is checked.
 **
-** Returns 0 if the given file is not in the given checkin or if
+** Returns 0 if the given file is not in the given check-in or if
 ** fileedit_ajax_check_filename() fails, else returns true.  If it
 ** returns false, it queues up an error response and the caller must
 ** return immediately.
@@ -990,11 +990,11 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
   }
   vid = symbolic_name_to_rid(zRev, "ci");
   if(0==vid){
-    ajax_route_error(404,"Cannot resolve name as a checkin: %s",
+    ajax_route_error(404,"Cannot resolve name as a check-in: %s",
                      zRev);
     return 0;
   }else if(vid<0){
-    ajax_route_error(400,"Checkin name is ambiguous: %s",
+    ajax_route_error(400,"Check-in name is ambiguous: %s",
                      zRev);
     return 0;
   }else if(pVid!=0){
@@ -1003,7 +1003,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
   if(checkFile){
     zFileUuid = fileedit_file_uuid(zFilename, vid, 0);
     if(zFileUuid==0){
-      ajax_route_error(404, "Checkin does not contain file.");
+      ajax_route_error(404, "Check-in does not contain file.");
       return 0;
     }
   }
@@ -1038,7 +1038,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 ** x-fileedit-file-perm: empty or "x" or "l", representing PERM_REG,
 ** PERM_EXE, or PERM_LINK, respectively.
 **
-** x-fileedit-checkin-branch: branch name for the passed-in checkin.
+** x-fileedit-checkin-branch: branch name for the passed-in check-in.
 */
 static void fileedit_ajax_content(void){
   const char * zFilename = 0;
@@ -1089,7 +1089,7 @@ static void fileedit_ajax_content(void){
 **
 ** filename=FILENAME
 ** content=text
-** checkin=checkin version
+** checkin=check-in version
 **
 ** Optional parameters:
 **
@@ -1157,7 +1157,7 @@ static void fileedit_ajax_diff(void){
 }
 
 /*
-** Sets up and validates most, but not all, of p's checkin-related
+** Sets up and validates most, but not all, of p's check-in-related
 ** state from the CGI environment. Returns 0 on success or a suggested
 ** HTTP result code on error, in which case a message will have been
 ** written to pErr.
@@ -1179,7 +1179,7 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
                                       int * bIsMissingArg){
   char * zFileUuid = 0;          /* UUID of file content */
   const char * zFlag;            /* generic flag */
-  int rc = 0, vid = 0, frid = 0; /* result code, checkin/file rids */ 
+  int rc = 0, vid = 0, frid = 0; /* result code, check-in/file rids */ 
 
 #define fail(EXPR) blob_appendf EXPR; goto end_fail
   zFlag = PD("filename",P("fn"));
@@ -1211,17 +1211,17 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
   vid = symbolic_name_to_rid(zFlag, "ci");
   if(0==vid){
     rc = 404;
-    fail((pErr,"Could not resolve checkin version."));
+    fail((pErr,"Could not resolve check-in version."));
   }else if(vid<0){
     rc = 400;
-    fail((pErr,"Checkin name is ambiguous."));
+    fail((pErr,"Check-in name is ambiguous."));
   }
   p->zParentUuid = rid_to_uuid(vid)/*fully expand it*/;
 
   zFileUuid = fileedit_file_uuid(p->zFilename, vid, &p->filePerm);
   if(!zFileUuid){
     rc = 404;
-    fail((pErr,"Checkin [%S] does not contain file: "
+    fail((pErr,"Check-in [%S] does not contain file: "
           "[%h]", p->zParentUuid, p->zFilename));
   }else if(PERM_LNK==p->filePerm){
     rc = 400;
@@ -1344,7 +1344,7 @@ static void fileedit_render_leaves_list(char ** zFirstUuid){
 
 /*
 ** For the given fully resolved UUID, renders a JSON object containing
-** the fileeedit-editable files in that checkin:
+** the fileeedit-editable files in that check-in:
 **
 ** {
 **   checkin: UUID,
@@ -1394,7 +1394,7 @@ static void fileedit_render_checkin_files(const char * zFullUuid){
 ** The entries are ordered newest first.
 **
 ** 'checkin=CHECKIN_NAME': fetch the current list of is-editable files
-** for the current user and given checkin name:
+** for the current user and given check-in name:
 **
 ** {
 **   checkin: UUID,
@@ -1432,7 +1432,7 @@ static void fileedit_ajax_filelist(){
 ** Required query parameters:
 ** 
 ** filename=FILENAME
-** checkin=Parent checkin UUID
+** checkin=Parent check-in UUID
 ** content=text
 ** comment=non-empty text
 **
@@ -1456,7 +1456,7 @@ static void fileedit_ajax_filelist(){
 **  checkin: newUUID,
 **  filename: theFilename,
 **  mimetype: string,
-**  branch: name of the checkin's branch,
+**  branch: name of the check-in's branch,
 **  isExe: bool,
 **  dryRun: bool,
 **  manifest: text of manifest,
@@ -1468,7 +1468,7 @@ static void fileedit_ajax_filelist(){
 static void fileedit_ajax_commit(void){
   Blob err = empty_blob;      /* Error messages */
   Blob manifest = empty_blob; /* raw new manifest */
-  CheckinMiniInfo cimi;       /* checkin state */
+  CheckinMiniInfo cimi;       /* check-in state */
   int rc;                     /* generic result code */
   int newVid = 0;             /* new version's RID */
   char * zNewUuid = 0;        /* newVid's UUID */
@@ -1486,7 +1486,7 @@ static void fileedit_ajax_commit(void){
     goto end_cleanup;
   }
   if(blob_size(&cimi.comment)==0){
-    ajax_route_error(400,"Empty checkin comment is not permitted.");
+    ajax_route_error(400,"Empty check-in comment is not permitted.");
     goto end_cleanup;
   }
   if(0!=atoi(PD("include_manifest","0"))){
@@ -1542,15 +1542,15 @@ end_cleanup:
 ** Optional query parameters:
 **
 **    filename=FILENAME   Repo-relative path to the file.
-**    checkin=VERSION     Checkin version, using any unambiguous
+**    checkin=VERSION     Check-in version, using any unambiguous
 **                        symbolic version name.
 **
-** If passed a filename but no checkin then it will attempt to
-** load that file from the most recent leaf checkin.
+** If passed a filename but no check-in then it will attempt to
+** load that file from the most recent leaf check-in.
 **
 ** Once the page is loaded, files may be selected from any open leaf
 ** version. The only way to edit files from non-leaf checkins is to
-** pass both the filename and checkin as URL parameters to the page.
+** pass both the filename and check-in as URL parameters to the page.
 ** Users with the proper permissions will be presented with "Edit"
 ** links in various file-specific contexts for files which match the
 ** fileedit-glob, regardless of whether they refer to leaf versions or
@@ -1558,7 +1558,7 @@ end_cleanup:
 */
 void fileedit_page(void){
   const char * zFileMime = 0;           /* File mime type guess */
-  CheckinMiniInfo cimi;                 /* Checkin state */
+  CheckinMiniInfo cimi;                 /* Check-in state */
   int previewRenderMode = AJAX_RENDER_GUESS; /* preview mode */
   Blob err = empty_blob;                /* Error report */
   const char *zAjax = P("name");        /* Name of AJAX route for
@@ -2023,7 +2023,7 @@ void fileedit_page(void){
         CX("fossil.error(%!j);\n", blob_str(&err));
       }
       /* Populate the page with the current leaves and, if available,
-         the selected checkin's file list, to save 1 or 2 XHR requests
+         the selected check-in's file list, to save 1 or 2 XHR requests
          at startup. That makes this page uncacheable, but compressed
          delivery of this page is currently less than 6k. */
       CX("fossil.page.initialLeaves = ");

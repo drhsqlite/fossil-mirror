@@ -23,11 +23,11 @@
 #include <assert.h>
 
 /*
-** Check to see if there is an existing checkout that has been
+** Check to see if there is an existing check-out that has been
 ** modified.  Return values:
 **
-**     0:   There is an existing checkout but it is unmodified
-**     1:   There is a modified checkout - there are unsaved changes
+**     0:   There is an existing check-out but it is unmodified
+**     1:   There is a modified check-out - there are unsaved changes
 */
 int unsaved_changes(unsigned int cksigFlags){
   int vid;
@@ -110,7 +110,7 @@ int load_vfile(const char *zName, int forceMissingFlag){
     fossil_fatal("object [%S] is not a check-in", blob_str(&uuid));
   }
   if( load_vfile_from_rid(vid) && !forceMissingFlag ){
-    fossil_fatal("missing content, unable to checkout");
+    fossil_fatal("missing content, unable to check out");
   };
   return vid;
 }
@@ -271,29 +271,29 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **
 ** This command changes the current check-out to the version specified
 ** as an argument.  The command aborts if there are edited files in the
-** current checkout unless the --force option is used.  The --keep option
+** current check-out unless the --force option is used.  The --keep option
 ** leaves files on disk unchanged, except the manifest and manifest.uuid
 ** files.
 **
-** The --latest flag can be used in place of VERSION to checkout the
+** The --latest flag can be used in place of VERSION to check-out the
 ** latest version in the repository.
 **
 ** Options:
-**    --force           Ignore edited files in the current checkout
+**    --force           Ignore edited files in the current check-out
 **    --keep            Only update the manifest file(s)
-**    --force-missing   Force checkout even if content is missing
+**    --force-missing   Force check-out even if content is missing
 **    --setmtime        Set timestamps of all files to match their SCM-side
-**                      times (the timestamp of the last checkin which modified
+**                      times (the timestamp of the last check-in which modified
 **                      them)
 **
 ** See also: [[update]]
 */
 void checkout_cmd(void){
-  int forceFlag;                 /* Force checkout even if edits exist */
-  int forceMissingFlag;          /* Force checkout even if missing content */
+  int forceFlag;                 /* Force check-out even if edits exist */
+  int forceMissingFlag;          /* Force check-out even if missing content */
   int keepFlag;                  /* Do not change any files on disk */
-  int latestFlag;                /* Checkout the latest version */
-  char *zVers;                   /* Version to checkout */
+  int latestFlag;                /* Check out the latest version */
+  char *zVers;                   /* Version to check out */
   int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
@@ -315,7 +315,7 @@ void checkout_cmd(void){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
   if( !forceFlag && unsaved_changes(0) ){
-    fossil_fatal("there are unsaved changes in the current checkout");
+    fossil_fatal("there are unsaved changes in the current check-out");
   }
   if( forceFlag ){
     db_multi_exec("DELETE FROM vfile");
@@ -399,7 +399,7 @@ static void unlink_local_database(int manifestOnly){
 ** current check-out or if there is non-empty stash.
 **
 ** Options:
-**   -f|--force  necessary to close a check out with uncommitted changes
+**   -f|--force  necessary to close a check-out with uncommitted changes
 **
 ** See also: [[open]]
 */
@@ -411,13 +411,13 @@ void close_cmd(void){
   verify_all_options();
 
   if( !forceFlag && unsaved_changes(0) ){
-    fossil_fatal("there are unsaved changes in the current checkout");
+    fossil_fatal("there are unsaved changes in the current check-out");
   }
   if( !forceFlag
    && db_table_exists("localdb","stash")
    && db_exists("SELECT 1 FROM localdb.stash")
   ){
-    fossil_fatal("closing the checkout will delete your stash");
+    fossil_fatal("closing the check-out will delete your stash");
   }
   if( db_is_writeable("repository") ){
     db_unset_mprintf(1, "ckout:%q", g.zLocalRoot);

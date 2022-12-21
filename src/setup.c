@@ -1242,11 +1242,11 @@ void setup_wiki(void){
   @ <p>
   @ Associate wiki pages with branches, tags, or checkins, based on
   @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, checkin
+  @ or "tag/" and which continue with the name of an existing branch, check-in
   @ or tag are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
-  @ <li> <b>checkin/</b><i>full-checkin-hash</i>
+  @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
   @ </ul>
   @ (Property: "wiki-about")</p>

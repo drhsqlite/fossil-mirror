@@ -32,7 +32,7 @@
 **
 ** In the merge algorithm, the file being merged in is the primary.
 ** The current check-out or other files that have been merged into
-** the current checkout are the secondaries.
+** the current check-out are the secondaries.
 **
 ** The act of setting the primary resets the pivot-finding algorithm.
 */
@@ -158,7 +158,7 @@ int pivot_find(int ignoreMerges){
 **
 ** Usage: %fossil merge-base ?options? PRIMARY SECONDARY ...
 **
-** Find a common ancestor given two or more checkin versions to
+** Find a common ancestor given two or more check-in versions to
 ** hypothetically merge.
 **
 ** Options:

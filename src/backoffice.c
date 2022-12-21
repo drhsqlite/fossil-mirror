@@ -668,7 +668,7 @@ void backoffice_work(void){
 ** Usage: %fossil backoffice [OPTIONS...] [REPOSITORIES...]
 **
 ** Run backoffice processing on the repositories listed.  If no
-** repository is specified, run it on the repository of the local checkout.
+** repository is specified, run it on the repository of the local check-out.
 **
 ** This might be done by a cron job or similar to make sure backoffice
 ** processing happens periodically.  Or, the --poll option can be used

@@ -50,7 +50,7 @@ char *fossil_hostname(void){
 
 /*
 ** Implementation of the "readfile(X)" SQL function.  The entire content
-** of the checkout file named X is read and returned as a BLOB.
+** of the check-out file named X is read and returned as a BLOB.
 */
 static void readfileFunc(
   sqlite3_context *context,
@@ -377,7 +377,7 @@ void patch_apply(unsigned mFlags){
   blob_init(&cmd, 0, 0);
   if( unsaved_changes(0) ){
     if( (mFlags & PATCH_FORCE)==0 ){
-      fossil_fatal("there are unsaved changes in the current checkout");
+      fossil_fatal("there are unsaved changes in the current check-out");
     }else{
       blob_appendf(&cmd, "%$ revert", g.nameOfExe);
       if( mFlags & PATCH_DRYRUN ){

@@ -569,7 +569,7 @@ void pikchrshow_page(void){
 ** TH1-related Notes and Caveats:
 **
 ** If the -th flag is used, this command must open a fossil database
-** for certain functionality to work (via a checkout or the -R REPO
+** for certain functionality to work (via a check-out or the -R REPO
 ** flag). If opening a db fails, execution will continue but any TH1
 ** commands which require a db will trigger a fatal error.
 **

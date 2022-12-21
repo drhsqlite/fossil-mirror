@@ -562,7 +562,7 @@ void purge_cmd(void){
     }
     vid = db_lget_int("checkout",0);
     if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
-      fossil_fatal("cannot purge the current checkout");
+      fossil_fatal("cannot purge the current check-out");
     }
     find_checkin_associates("ok", 1);
     purge_artifact_list("ok", "", purgeFlags);
