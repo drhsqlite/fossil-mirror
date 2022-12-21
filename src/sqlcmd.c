@@ -333,7 +333,7 @@ static void fossil_close(int bDb, int noRepository){
 **
 ** Options:
 **
-**    --no-repository           Skip opening the repository database.
+**    --no-repository           Skip opening the repository database
 **
 **    --readonly                Open the repository read-only.  No changes
 **                              are allowed.  This is a recommended safety

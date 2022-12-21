@@ -464,7 +464,7 @@ void undo_rollback(void){
 ** that are undoable.
 **
 ** Options:
-**   -n|--dry-run   Do not make changes but show what would be done
+**   -n|--dry-run   Do not make changes, but show what would be done
 **
 ** See also: [[commit]], [[status]]
 */

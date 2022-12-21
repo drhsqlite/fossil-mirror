@@ -586,8 +586,8 @@ void search_sql_setup(sqlite3 *db){
 **
 ** Options:
 **
-**     -a|--all          Output all matches, not just best matches.
-**     -n|--limit N      Limit output to N matches.
+**     -a|--all          Output all matches, not just best matches
+**     -n|--limit N      Limit output to N matches
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
 **                       unlimited. Defaults the terminal's width.
 */

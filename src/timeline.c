@@ -3136,7 +3136,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -n|--limit N         If N is positive, output the first N entries.  If
 **                        N is negative, output the first -N lines.  If N is
 **                        zero, no limit.  Default is -20 meaning 20 lines.
-**   --offset P           skip P changes
+**   --offset P           Skip P changes
 **   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a sub directory.
 **   -R REPO_FILE         Specifies the repository db to use. Default is

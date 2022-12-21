@@ -2448,18 +2448,18 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **   --now          Stamp each affected file with the current time.
 **                  This is the default behavior.
 **   -c|--checkin   Stamp each affected file with the time of the
-**                  most recent check-in which modified that file.
+**                  most recent check-in which modified that file
 **   -C|--checkout  Stamp each affected file with the time of the
-**                  currently checked-out version.
-**   -g GLOBLIST    Comma-separated list of glob patterns.
+**                  currently checked-out version
+**   -g GLOBLIST    Comma-separated list of glob patterns
 **   -G GLOBFILE    Similar to -g but reads its globs from a
-**                  fossil-conventional glob list file.
+**                  fossil-conventional glob list file
 **   -v|--verbose   Outputs extra information about its globs
-**                  and each file it touches.
+**                  and each file it touches
 **   -n|--dry-run   Outputs which files would require touching,
-**                  but does not touch them.
+**                  but does not touch them
 **   -q|--quiet     Suppress warnings, e.g. when skipping unmanaged
-**                  or out-of-tree files.
+**                  or out-of-tree files
 **
 ** Only one of --now, --checkin, and --checkout may be used. The
 ** default is --now.

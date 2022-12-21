@@ -847,7 +847,7 @@ static void patch_diff(
 **       DIRECTORY is omitted.  If FILENAME is "-" then the binary patch
 **       is written to standard output.
 **
-**           -f|--force     Overwrite an existing patch with the same name.
+**           -f|--force     Overwrite an existing patch with the same name
 **
 ** > fossil patch apply [DIRECTORY] FILENAME
 **
@@ -857,8 +857,8 @@ static void patch_diff(
 **           -f|--force     Apply the patch even though there are unsaved
 **                          changes in the current check-out.  Unsaved changes
 **                          are reverted and permanently lost.
-**           -n|--dry-run   Do nothing, but print what would have happened.
-**           -v|--verbose   Extra output explaining what happens.
+**           -n|--dry-run   Do nothing, but print what would have happened
+**           -v|--verbose   Extra output explaining what happens
 **
 ** > fossil patch diff [DIRECTORY] FILENAME
 **
@@ -886,8 +886,8 @@ static void patch_diff(
 **                              changes will be reverted and then the patch is
 **                              applied.
 **           --fossilcmd EXE    Name of the "fossil" executable on the remote  
-**           -n|--dry-run       Do nothing, but print what would have happened.
-**           -v|--verbose       Extra output explaining what happens.
+**           -n|--dry-run       Do nothing, but print what would have happened
+**           -v|--verbose       Extra output explaining what happens
 **
 **
 ** > fossil patch pull REMOTE-CHECKOUT
@@ -900,7 +900,7 @@ static void patch_diff(
 **       View a summary of the changes in the binary patch FILENAME.
 **       Use "fossil patch diff" for detailed patch content.
 **
-**           -v|--verbose       Show extra detail about the patch.
+**           -v|--verbose       Show extra detail about the patch
 **
 */
 void patch_cmd(void){

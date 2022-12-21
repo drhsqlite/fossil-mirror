@@ -1040,7 +1040,7 @@ void chat_msg_from_event(
 **
 **        --all                  Download all chat content. Normally only
 **                               previously undownloaded content is retrieved.
-**        --debug                Additional debugging output.
+**        --debug                Additional debugging output
 **        --out DATABASE         Store CHAT table in separate database file
 **                               DATABASE rather that adding to local clone
 **        --unsafe               Allow the use of unencrypted http://

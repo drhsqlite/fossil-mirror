@@ -585,8 +585,8 @@ static void process_files_to_remove(
 ** Options:
 **   --soft                  Skip removing files from the check-out.
 **                           This supersedes the --hard option.
-**   --hard                  Remove files from the check-out.
-**   --case-sensitive BOOL   Override the case-sensitive setting.
+**   --hard                  Remove files from the check-out
+**   --case-sensitive BOOL   Override the case-sensitive setting
 **   -n|--dry-run            If given, display instead of run actions.
 **   --reset                 Reset the DELETED state of a check-out, such
 **                           that all newly-rm'd (but not yet committed)
@@ -772,13 +772,13 @@ const char *filename_collation(void){
 ** This command can be used to track third party software.
 **
 ** Options:
-**   --case-sensitive BOOL   Override the case-sensitive setting.
+**   --case-sensitive BOOL   Override the case-sensitive setting
 **   --dotfiles              Include files beginning with a dot (".")
 **   --ignore CSG            Ignore unmanaged files matching patterns from
 **                           the Comma Separated Glob (CSG) list
 **   --clean CSG             Also ignore files matching patterns from
 **                           the Comma Separated Glob (CSG) list
-**   -n|--dry-run            If given, display instead of run actions.
+**   -n|--dry-run            If given, display instead of run actions
 **   --reset                 Reset the ADDED/DELETED state of a check-out,
 **                           such that all newly-added (but not yet committed)
 **                           files are no longer added and all newly-removed
