@@ -1558,7 +1558,7 @@ end_cleanup:
 */
 void fileedit_page(void){
   const char * zFileMime = 0;           /* File mime type guess */
-  CheckinMiniInfo cimi;                 /* Checkin state */
+  CheckinMiniInfo cimi;                 /* Check-in state */
   int previewRenderMode = AJAX_RENDER_GUESS; /* preview mode */
   Blob err = empty_blob;                /* Error report */
   const char *zAjax = P("name");        /* Name of AJAX route for

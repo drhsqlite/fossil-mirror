@@ -150,9 +150,9 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** are added back to the list of repositories by these commands.
 **
 ** Options:
-**   --dry-run         If given, display instead of run actions.
-**   --showfile        Show the repository or check-out being operated upon.
-**   --stop-on-error   Halt immediately if any subprocess fails.
+**   --dry-run         If given, display instead of run actions
+**   --showfile        Show the repository or check-out being operated upon
+**   --stop-on-error   Halt immediately if any subprocess fails
 */
 void all_cmd(void){
   Stmt q;

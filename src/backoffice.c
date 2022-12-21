@@ -682,9 +682,9 @@ void backoffice_work(void){
 **
 ** Standard options:
 **
-**    --debug                 Show what this command is doing.
+**    --debug                 Show what this command is doing
 **
-**    --logfile FILE          Append a log of backoffice actions onto FILE.
+**    --logfile FILE          Append a log of backoffice actions onto FILE
 **
 **    --min N                 When polling, invoke backoffice at least
 **                            once every N seconds even if the repository
