@@ -1843,9 +1843,9 @@ void gitmirror_status_command(void){
 **                             to the same repository.  Or if URL is "off" the
 **                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
-**                             piping it into "git fast-import".
+**                             piping it into "git fast-import"
 **         -f|--force          Do the export even if nothing has changed
-**         --if-mirrored       No-op if the mirror does not already exist.
+**         --if-mirrored       No-op if the mirror does not already exist
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
 **         --mainbranch NAME   Use NAME as the name of the main branch in Git.
@@ -1853,7 +1853,7 @@ void gitmirror_status_command(void){
 **                             mapped into this name.  "master" is used if
 **                             this option is omitted.
 **         -q|--quiet          Reduce output. Repeat for even less output.
-**         -v|--verbose        More output.
+**         -v|--verbose        More output
 **
 ** > fossil git import MIRROR
 **

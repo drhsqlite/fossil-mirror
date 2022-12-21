@@ -423,37 +423,37 @@ static int determine_cwd_relative_option()
 ** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
 ** General options:
-**    --abs-paths       Display absolute pathnames.
+**    --abs-paths       Display absolute pathnames
 **    --rel-paths       Display pathnames relative to the current working
-**                      directory.
+**                      directory
 **    --hash            Verify file status using hashing rather than
-**                      relying on file mtimes.
-**    --case-sensitive BOOL  Override case-sensitive setting.
-**    --dotfiles        Include unmanaged files beginning with a dot.
-**    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
+**                      relying on file mtimes
+**    --case-sensitive BOOL  Override case-sensitive setting
+**    --dotfiles        Include unmanaged files beginning with a dot
+**    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns
 **
 ** Options specific to the changes command:
-**    --header          Identify the repository if report is non-empty.
-**    -v|--verbose      Say "(none)" if the change report is empty.
-**    --classify        Start each line with the file's change type.
-**    --no-classify     Do not print file change types.
+**    --header          Identify the repository if report is non-empty
+**    -v|--verbose      Say "(none)" if the change report is empty
+**    --classify        Start each line with the file's change type
+**    --no-classify     Do not print file change types
 **
 ** Filter options:
-**    --edited          Display edited, merged, and conflicted files.
-**    --updated         Display files updated by merge/integrate.
-**    --changed         Combination of the above two options.
-**    --missing         Display missing files.
-**    --added           Display added files.
-**    --deleted         Display deleted files.
-**    --renamed         Display renamed files.
-**    --conflict        Display files having merge conflicts.
-**    --meta            Display files with metadata changes.
-**    --unchanged       Display unchanged files.
-**    --all             Display all managed files, i.e. all of the above.
-**    --extra           Display unmanaged files.
-**    --differ          Display modified and extra files.
-**    --merge           Display merge contributors.
-**    --no-merge        Do not display merge contributors.
+**    --edited          Display edited, merged, and conflicted files
+**    --updated         Display files updated by merge/integrate
+**    --changed         Combination of the above two options
+**    --missing         Display missing files
+**    --added           Display added files
+**    --deleted         Display deleted files
+**    --renamed         Display renamed files
+**    --conflict        Display files having merge conflicts
+**    --meta            Display files with metadata changes
+**    --unchanged       Display unchanged files
+**    --all             Display all managed files, i.e. all of the above
+**    --extra           Display unmanaged files
+**    --differ          Display modified and extra files
+**    --merge           Display merge contributors
+**    --no-merge        Do not display merge contributors
 **
 ** See also: [[extras]], [[ls]]
 */
@@ -685,13 +685,13 @@ static void ls_cmd_rev(
 ** are used, -t sorts by modification time, otherwise by commit time.
 **
 ** Options:
-**   --age                 Show when each file was committed.
-**   -v|--verbose          Provide extra information about each file.
-**   -t                    Sort output in time order.
-**   -r VERSION            The specific check-in to list.
-**   -R|--repository REPO  Extract info from repository REPO.
+**   --age                 Show when each file was committed
+**   -v|--verbose          Provide extra information about each file
+**   -t                    Sort output in time order
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
 **   --hash                With -v, verify file status using hashing
-**                         rather than relying on file sizes and mtimes.
+**                         rather than relying on file sizes and mtimes
 **
 ** See also: [[changes]], [[extras]], [[status]]
 */
@@ -2150,42 +2150,42 @@ static int tagCmp(const void *a, const void *b){
 ** artifact hash rather than just checking for changes to its size or mtime.
 **
 ** Options:
-**    --allow-conflict           allow unresolved merge conflicts
-**    --allow-empty              allow a commit with no changes
-**    --allow-fork               allow the commit to fork
-**    --allow-older              allow a commit older than its ancestor
-**    --baseline                 use a baseline manifest in the commit process
-**    --bgcolor COLOR            apply COLOR to this one check-in only
-**    --branch NEW-BRANCH-NAME   check in to this new branch
-**    --branchcolor COLOR        apply given COLOR to the branch
+**    --allow-conflict           Allow unresolved merge conflicts
+**    --allow-empty              Allow a commit with no changes
+**    --allow-fork               Allow the commit to fork
+**    --allow-older              Allow a commit older than its ancestor
+**    --baseline                 Use a baseline manifest in the commit process
+**    --bgcolor COLOR            Apply COLOR to this one check-in only
+**    --branch NEW-BRANCH-NAME   Check in to this new branch
+**    --branchcolor COLOR        Apply given COLOR to the branch
 **                                 ("auto" lets Fossil choose it automatically,
 **                                  even for private branches)
-**    --close                    close the branch being committed
+**    --close                    Close the branch being committed
 **    --date-override DATETIME   DATE to use instead of 'now'
-**    --delta                    use a delta manifest in the commit process
-**    --hash                     verify file status using hashing rather
+**    --delta                    Use a delta manifest in the commit process
+**    --hash                     Verify file status using hashing rather
 **                               than relying on file mtimes
 **    --ignore-clock-skew        If a clock skew is detected, ignore it and
 **                               behave as if the user had entered 'yes' to
 **                               the question of whether to proceed despite
 **                               the skew.
 **    --ignore-oversize          Do not warning the user about oversized files
-**    --integrate                close all merged-in branches
-**    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
-**    -M|--message-file FILE     read the commit comment from given file
-**    --mimetype MIMETYPE        mimetype of check-in comment
+**    --integrate                Close all merged-in branches
+**    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as commit comment
+**    -M|--message-file FILE     Read the commit comment from given file
+**    --mimetype MIMETYPE        Mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
 **    -v|--verbose               Show a diff in the commit message prompt
 **    --no-prompt                This option disables prompting the user for
 **                               input and assumes an answer of 'No' for every
 **                               question.
-**    --no-warnings              omit all warnings about file contents
-**    --no-verify                do not run before-commit hooks
-**    --nosign                   do not attempt to sign this commit with gpg
-**    --override-lock            allow a check-in even though parent is locked
-**    --private                  do not sync changes and their descendants
-**    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --trace                    debug tracing.
+**    --no-warnings              Omit all warnings about file contents
+**    --no-verify                Do not run before-commit hooks
+**    --nosign                   Do not attempt to sign this commit with gpg
+**    --override-lock            Allow a check-in even though parent is locked
+**    --private                  Do not sync changes and their descendants
+**    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
+**    --trace                    Debug tracing
 **    --user-override USER       USER to use instead of the current default
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in

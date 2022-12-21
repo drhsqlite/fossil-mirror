@@ -316,11 +316,11 @@ void test_show_vfile_cmd(void){
 **                           of the single check-in VERSION, rather than all
 **                           changes back to the nearest common ancestor.
 **
-**   -f|--force              Force the merge even if it would be a no-op.
+**   -f|--force              Force the merge even if it would be a no-op
 **
-**   --force-missing         Force the merge even if there is missing content.
+**   --force-missing         Force the merge even if there is missing content
 **
-**   --integrate             Merged branch will be closed when committing.
+**   --integrate             Merged branch will be closed when committing
 **
 **   -K|--keep-merge-files   On merge conflict, retain the temporary files
 **                           used for merging, named *-baseline, *-original,

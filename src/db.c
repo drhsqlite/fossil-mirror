@@ -3689,7 +3689,7 @@ void db_record_repository_filename(const char *zName){
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
 **   -f|--force        Continue with the open even if the working directory is
-**                     not empty.
+**                     not empty
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest file(s)
 **   --nested          Allow opening a repository inside an opened checkout
@@ -3701,9 +3701,9 @@ void db_record_repository_filename(const char *zName){
 **                     times (the timestamp of the last checkin which modified
 **                     them).
 **   --sync            Auto-sync prior to opening even if the autosync setting
-**                     is off.
+**                     is off
 **   --verbose         If passed a URI then this flag is passed on to the clone
-**                     operation, otherwise it has no effect.
+**                     operation, otherwise it has no effect
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
 **
@@ -4626,10 +4626,10 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** on the local settings.  Use the --global option to change global settings.
 **
 ** Options:
-**   --global   set or unset the given property globally instead of
-**              setting or unsetting it for the open repository only.
+**   --global   Set or unset the given property globally instead of
+**              setting or unsetting it for the open repository only
 **
-**   --exact    only consider exact name matches.
+**   --exact    Only consider exact name matches
 **
 ** See also: [[configuration]]
 */

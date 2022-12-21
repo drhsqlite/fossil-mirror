@@ -2682,7 +2682,7 @@ static void decode_ssl_options(void){
 **
 ** Options:
 **   --acme              Deliver files from the ".well-known" subdirectory
-**   --baseurl URL       base URL (useful with reverse proxies)
+**   --baseurl URL       Base URL (useful with reverse proxies)
 **   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
 **                       fullchain.pem) taken from FILE.
 **   --chroot DIR        Use directory for chroot instead of repository path.
@@ -2710,19 +2710,19 @@ static void decode_ssl_options(void){
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
 **   --localauth         Connections from localhost are given "setup"
-**                       privileges without having to log in.
+**                       privileges without having to log in
 **   --mainmenu FILE     Override the mainmenu config setting with the contents
-**                       of the given file.
+**                       of the given file
 **   --nocompress        Do not compress HTTP replies
 **   --nodelay           Omit backoffice processing if it would delay
 **                       process exit
 **   --nojail            Drop root privilege but do not enter the chroot jail
 **   --nossl             Do not do http: to https: redirects, regardless of
 **                       the redirect-to-https setting.
-**   --notfound URL      Use URL as the "HTTP 404, object not found" page.
+**   --notfound URL      Use URL as the "HTTP 404, object not found" page
 **   --out FILE          Write the HTTP reply to FILE instead of to 
 **                       standard output
-**   --pkey FILE         Read the private key used for TLS from FILE.
+**   --pkey FILE         Read the private key used for TLS from FILE
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi              Interpret input as SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL. Use an empty string ("")
@@ -3022,11 +3022,11 @@ void fossil_set_timeout(int N){
 ** by default.
 **
 ** Options:
-**   --acme              Deliver files from the ".well-known" subdirectory.
+**   --acme              Deliver files from the ".well-known" subdirectory
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
 **                       fullchain.pem) taken from FILE.
-**   --chroot DIR        Use directory for chroot instead of repository path.
+**   --chroot DIR        Use directory for chroot instead of repository path
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
 **                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
@@ -3034,8 +3034,8 @@ void fossil_set_timeout(int N){
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    Full pathname of the "fossil" executable on the remote
 **                       system when REPOSITORY is remote.  Default: "fossil"
-**   --localauth         enable automatic login for requests from localhost
-**   --localhost         listen on 127.0.0.1 only (always true for "ui")
+**   --localauth         Enable automatic login for requests from localhost
+**   --localhost         Listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
 **                       proxy that has already translated HTTPS into HTTP.
 **   --jsmode MODE       Determine how JavaScript is delivered with pages.
@@ -3051,24 +3051,24 @@ void fossil_set_timeout(int N){
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
 **   --mainmenu FILE     Override the mainmenu config setting with the contents
-**                       of the given file.
+**                       of the given file
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   -B|--nobrowser      Do not automatically launch a web-browser for the
-**                       "fossil ui" command.
+**                       "fossil ui" command
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             do not force redirects to SSL even if the repository
+**   --nossl             Do not force redirects to SSL even if the repository
 **                       setting "redirect-to-https" requests it.  This is set
 **                       by default for the "ui" command.
 **   --notfound URL      Redirect to URL if a page is not found.
 **   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
-**   --pkey FILE         Read the private key used for TLS from FILE.
-**   -P|--port TCPPORT   listen to request on port TCPPORT
-**   --repolist          If REPOSITORY is dir, URL "/" lists repos.
+**   --pkey FILE         Read the private key used for TLS from FILE
+**   -P|--port TCPPORT   Listen to request on port TCPPORT
+**   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --th-trace          trace TH1 execution (for debugging purposes)
+**   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
