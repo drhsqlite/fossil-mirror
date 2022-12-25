@@ -1214,7 +1214,7 @@ void tkttimeline_page(void){
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
-    style_submenu_element("Check-ins", "%R/tkttimeline/%T&y=ci", zUuid);
+    style_submenu_element("Check-ins", "%R/tkttimeline/%T?y=ci", zUuid);
   }else{
     style_submenu_element("Timeline", "%R/tkttimeline/%T", zUuid);
   }
