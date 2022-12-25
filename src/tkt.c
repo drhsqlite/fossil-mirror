@@ -714,7 +714,7 @@ static void showAllFields(void){
 
 /*
 ** WEBPAGE: tktview
-** URL:  tktview?name=HASH
+** URL:  tktview/HASH
 **
 ** View a ticket identified by the name= query parameter.
 ** Other query parameters:
@@ -730,7 +730,7 @@ void tktview_page(void){
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   if( g.anon.WrTkt || g.anon.ApndTkt ){
-    style_submenu_element("Edit", "%R/tktedit?name=%T", PD("name",""));
+    style_submenu_element("Edit", "%R/tktedit/%T", PD("name",""));
   }
   if( g.perm.Hyperlink ){
     style_submenu_element("History", "%R/tkthistory/%T", zUuid);
@@ -1057,7 +1057,7 @@ void tktedit_page(void){
   }
   zName = P("name");
   if( P("cancel") ){
-    cgi_redirectf("tktview?name=%T", zName);
+    cgi_redirectf("tktview/%T", zName);
   }
   style_set_current_feature("tkt");
   style_header("Edit Ticket");
@@ -1214,9 +1214,9 @@ void tkttimeline_page(void){
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
-    style_submenu_element("Check-ins", "%R/tkttimeline?name=%T&y=ci", zUuid);
+    style_submenu_element("Check-ins", "%R/tkttimeline/%T&y=ci", zUuid);
   }else{
-    style_submenu_element("Timeline", "%R/tkttimeline?name=%T", zUuid);
+    style_submenu_element("Timeline", "%R/tkttimeline/%T", zUuid);
   }
   style_submenu_element("History", "%R/tkthistory/%s", zUuid);
   style_submenu_element("Status", "%R/info/%s", zUuid);
@@ -1242,7 +1242,7 @@ void tkttimeline_page(void){
 
 /*
 ** WEBPAGE: tkthistory
-** URL: /tkthistory?name=TICKETUUID
+** URL: /tkthistory/TICKETUUID
 **
 ** Show the complete change history for a single ticket.  Or (to put it
 ** another way) show a list of artifacts associated with a single ticket.
@@ -1272,8 +1272,8 @@ void tkthistory_page(void){
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "%R/info/%s", zUuid);
-  style_submenu_element("Check-ins", "%R/tkttimeline?name=%s&y=ci", zUuid);
-  style_submenu_element("Timeline", "%R/tkttimeline?name=%s", zUuid);
+  style_submenu_element("Check-ins", "%R/tkttimeline/%s?y=ci", zUuid);
+  style_submenu_element("Timeline", "%R/tkttimeline/%s", zUuid);
   if( P("raw")!=0 ){
     style_submenu_element("Decoded", "%R/tkthistory/%s", zUuid);
   }else if( g.perm.Admin ){
