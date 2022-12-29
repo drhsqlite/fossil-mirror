@@ -542,7 +542,12 @@ int db_top_authorizer(
           "SECURITY: authorizer blocks DML on protected GLOBAL_CONFIG table\n");
         rc = SQLITE_DENY;
       }else if( (db.protectMask & PROTECT_READONLY)!=0
-                && sqlite3_stricmp(z2,"temp")!=0 ){
+                && (sqlite3_stricmp(z2, "repository")==0
+                    || sqlite3_stricmp(z2,"configdb")==0
+                    || sqlite3_stricmp(z2,"localdb")==0) ){
+        /* The READONLY constraint only applies to persistent database files.
+        ** "temp" and "mem1" and other transient databases are not
+        ** constrained by READONLY. */
         fossil_errorlog(
           "SECURITY: authorizer blocks DML on table \"%s\" due to the "
           "request coming from a different origin\n", z0);
