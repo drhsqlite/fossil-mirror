@@ -103,10 +103,12 @@ int alert_tables_exist(void){
 */
 void alert_user_contact(const char *zUser){
   if( db_table_has_column("repository","subscriber","lastContact") ){
+    db_unprotect(PROTECT_READONLY);
     db_multi_exec(
       "UPDATE subscriber SET lastContact=now()/86400 WHERE suname=%Q",
       zUser
     );
+    db_protect_pop();
   }
 }
 
@@ -1876,10 +1878,12 @@ void alert_page(void){
     }
     blob_reset(&update);
   }else if( keepAlive ){
+    db_unprotect(PROTECT_READONLY);
     db_multi_exec(
       "UPDATE subscriber SET lastContact=now()/86400"
       " WHERE subscriberId=%d", sid
     );
+    db_protect_pop();
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){

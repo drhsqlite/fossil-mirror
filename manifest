@@ -1,5 +1,5 @@
-C Improved\scomments\son\sthe\sSQL\sprotection\ssubsystem.
-D 2022-12-29T20:09:44.850
+C All\swrites\sto\sthe\ssubscriber\stable\sto\supdate\sthe\slast\scontact\stime\seven\nif\sthe\srequest\sis\snot\sfrom\sthe\ssame\sorigin.
+D 2022-12-29T21:09:24.801
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -377,7 +377,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c 10809393c589348d6cd4b86850d80474b01805842a10a7cc948e1ccbfbc5bf55
 F src/ajax.c 4712d4dc6810a8027a4669ce73e32b2d95cc787eac17531242d6697d4cc3014b
-F src/alerts.c 1b6bfaf871fcd42187758662e7d55e55584d712829d5ca8840ed26fff44f0d6f
+F src/alerts.c d2f707e0d381f7920a9d1c5ecaad1986cbfecb1f623f957b90ea9b2df1166640
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4e00621e3fb6b315f24f17b9400c2ba0480c9d428fcc84fafa5feb937c509d7
-R 1a4020b6b576b24b183f8a64bf11ce09
+P 0aa3483fa89b6226fab3aca264cbd85e2f3db67b4d92d4d718f4412fb2c31dc9
+R d7fbf074a9e498942c8eacb3f68e73b3
 U drh
-Z 801190feca87ef052be87640d8bf4bd7
+Z 15d9595e0b2b7a115a9edfffc3cbc665
 # Remove this line to create a well-formed Fossil manifest.
