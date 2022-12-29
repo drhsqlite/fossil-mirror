@@ -1,5 +1,5 @@
-C Add\smessages\sto\sthe\serror\slog\sif\sthe\sauthorizer\sblocks\san\sSQL\sstatement\nfor\ssecurity\sreasons.\s\sThis\schange\srequires\sa\sbug\sfix\sin\sSQLite\sand\sso\nit\salso\sincludes\sthe\slatest\strunk\sversion\sof\sSQLite.
-D 2022-12-29T18:56:47.635
+C Fix\sthe\snew\sread-only-repo\ssecurity\smechanism\sso\sthat\sit\senables\swrite\saccess\nwhen\snecessary.
+D 2022-12-29T19:39:41.245
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/content.c 9392a9d5bb3aa29f0e9d9bcbd6b370be03055fce4a8988f8db868320e8ccc188
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7fd7eedf7a2502db668b0d909ae698414d88fdc2df15aac1d7ced2894b2f6d86
+F src/db.c 66ae80bd9e2e374ec7b723cbea4eaf1fb7da6718afff21bf69b7f3fc9c123f7f
 F src/default.css f7b32540fa032107f00610447ef841d6b77e8846731747761afcc00038565f31
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -423,7 +423,7 @@ F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c 32fa64a4ef5085468fcb92afa92186b177b209f25d9c7ecfdfcc2725dd8b832c
 F src/dispatch.c a7e09a0ead25e481979c0b7dce3b888043e639b78a165d78408d4f6cd0deef07
-F src/doc.c 5d770fc2751217f26f6760c82208c9b58787ad0b278b01bc3a94cae988ce215a
+F src/doc.c acc53cf353072d70bc0cc6eae76e1139f7649bb5bd9a1dfdddbcee75bcf2703b
 F src/encode.c 9518c2e72ed1e5c85b160b35369a0ad32a5b6523926b0ea296e6589d515084bc
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 03578120eb27546ffd5759a2d9c7d082c4f5280e74ef722780cd3703e25589fe
@@ -494,7 +494,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 2b38b21c7410aec1270ef95e791eef189abdf71f5e5652b297e634ac19f481fe
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 4a64349185eba12a71aabd4835c4fab37f52ff2554eecd05c851fbb30d48d2a0
+F src/main.c d0d4a6eb6d2558049a87d4c162347cd6d4d9793282c3672ce9cbd8a81bf6e2b8
 F src/main.mk d4cbb0510d31bcb596950ee3f9380d050b9f181e7c07a08749e957a017f6c5f1
 F src/manifest.c 1cab57249c888b0756acbdd458b6eee2ae2e13ae4e886d1809782c5c9f3ef4ce
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c71f00ac8b239d4ae9cc40a74bdcf43d34c81fe971f44d282a446654140c6c0
-R dcea32b761ee564c6cfa9dac354336e8
+P 3d8bb63aab8aa7770f443ca03476ed841c1811c3051ef54c8dff7aed5d6e8ca3
+R 01cdac6cca565f1d2fa2800ecbe38717
 U drh
-Z dfc0b6567f5d25e8705dda106b7b4bae
+Z 3697a923380f0441bb5e84bfa52d6c9c
 # Remove this line to create a well-formed Fossil manifest.

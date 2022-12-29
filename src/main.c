@@ -1672,6 +1672,7 @@ static void process_one_web_page(
   int i;
   const CmdOrPage *pCmd = 0;
   const char *zBase = g.zRepositoryName;
+  int isReadonly = 0;
 
   g.zPhase = "process_one_web_page";
 #if !defined(_WIN32)
@@ -2062,6 +2063,7 @@ static void process_one_web_page(
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
       if( !cgi_same_origin() ){
+        isReadonly = 1;
         db_protect(PROTECT_READONLY);
       }
     }
@@ -2107,6 +2109,9 @@ static void process_one_web_page(
       }
     }
 #endif
+    if( isReadonly ){
+      db_protect_pop();
+    }
   }
 
   /* Return the result.

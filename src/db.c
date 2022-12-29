@@ -426,6 +426,8 @@ void db_protect_only(unsigned flags){
     ** is enabled.  Deleting a sensitive setting is harmless, so there
     ** is not trigger to block deletes.  After being created once, the
     ** triggers persist for the life of the database connection. */
+    unsigned savedProtectMask = db.protectMask;
+    db.protectMask = 0;
     db_multi_exec(
       "CREATE TEMP TRIGGER protect_1 BEFORE INSERT ON config"
       " WHEN protected_setting(new.name) BEGIN"
@@ -437,6 +439,7 @@ void db_protect_only(unsigned flags){
       "END;\n"
     );
     db.bProtectTriggers = 1;
+    db.protectMask = savedProtectMask;
   }
   db.protectMask = flags;
 }
@@ -455,6 +458,9 @@ void db_protect_pop(void){
     fossil_panic("too many db_protect_pop() calls");
   }
   db.protectMask = db.aProtect[--db.nProtect];
+}
+int db_is_protected(unsigned flags){
+  return (db.protectMask & flags)!=0;
 }
 
 /*
@@ -538,7 +544,7 @@ int db_top_authorizer(
       }else if( (db.protectMask & PROTECT_READONLY)!=0
                 && sqlite3_stricmp(z2,"temp")!=0 ){
         fossil_errorlog(
-          "SECURITY: authorizer blocks DML on table \"%s\" due to the\n"
+          "SECURITY: authorizer blocks DML on table \"%s\" due to the "
           "request coming from a different origin\n", z0);
         rc = SQLITE_DENY;
       }
@@ -2320,10 +2326,12 @@ void db_open_repository(const char *zDbName){
     db_set_int("hash-policy", g.eHashPolicy, 0);
   }
 
+#if 0  /* No longer automatic.  Need to run "fossil rebuild" to migrate */
   /* Make a change to the CHECK constraint on the BLOB table for
   ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
+#endif
 
   /* Additional checks that occur when opening the check-out database */
   if( g.localOpen ){

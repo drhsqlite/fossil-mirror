@@ -652,8 +652,15 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 ** if the file is not found or could not be loaded.
 */
 int doc_load_content(int vid, const char *zName, Blob *pContent){
-  int writable = db_is_writeable("repository");
+  int writable;
   int rid;   /* The RID of the file being loaded */
+  if( db_is_protected(PROTECT_READONLY)
+   || !db_is_writeable("repository")
+  ){
+    writable = 0;
+  }else{
+    writable = 1;
+  }
   if( writable ){
     db_end_transaction(0);
     db_begin_write();
