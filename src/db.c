@@ -371,11 +371,11 @@ void db_commit_hook(int (*x)(void), int sequence){
 ** The purpose of database write protection is to provide an additional
 ** layer of defense in case SQL injection bugs somehow slip into other
 ** parts of the system.  In other words, database write protection is
-** not primary defense but rather defense in depth.
+** not the primary defense but rather defense in depth.
 **
 ** This mechanism mostly focuses on the USER table, to prevent an
 ** attacker from giving themselves Admin privilegs, and on the
-** CONFIG table and specially "sensitive" settings such as
+** CONFIG table and especially "sensitive" settings such as
 ** "diff-command" or "editor" that if compromised by an attacker
 ** could lead to an RCE.
 **
@@ -401,6 +401,16 @@ void db_commit_hook(int (*x)(void), int sequence){
 ** "sensitive" settings in the config table.  PROTECT_SENSITIVE
 ** relies on triggers and the protected_setting() SQL function to
 ** prevent changes to sensitive settings.
+**
+** PROTECT_READONLY is set for any HTTP request for which the HTTP_REFERER
+** is not the same origin.  This is an additional defense against cross-site-
+** scripting attacks.  As with all of these defenses, this is only an extra
+** backup layer.  Fossil should be proof against XSS attacks even without this.
+**
+** Any violation of these security restrictions results in a SECURITY message
+** in the server log (if enabled).  A violation of any of these restrictions
+** probably indicates a bug in Fossil and should be reported to the
+** developers.
 **
 ** Additional Notes
 ** ----------------
