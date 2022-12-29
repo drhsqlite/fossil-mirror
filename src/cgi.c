@@ -682,6 +682,22 @@ const char *cgi_referer(const char *zDefault){
   return zRef;
 }
 
+
+/*
+** Return true if the current request is coming from the same origin.
+*/
+int cgi_same_origin(void){
+  const char *zRef;
+  int nBase;
+  if( g.zBaseURL==0 ) return 0;
+  zRef = P("HTTP_REFERER");
+  if( zRef==0 ) return 0;
+  nBase = (int)strlen(g.zBaseURL);
+  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
+  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
+  return 1;
+}
+
 /*
 ** Return true if the current request appears to be safe from a
 ** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
@@ -691,18 +707,12 @@ const char *cgi_referer(const char *zDefault){
 **    *   The REQUEST_METHOD must be POST - or requirePost==0
 */
 int cgi_csrf_safe(int requirePost){
-  const char *zRef = P("HTTP_REFERER");
-  int nBase;
-  if( zRef==0 ) return 0;
   if( requirePost ){
     const char *zMethod = P("REQUEST_METHOD");
     if( zMethod==0 ) return 0;
     if( strcmp(zMethod,"POST")!=0 ) return 0;
   }
-  nBase = (int)strlen(g.zBaseURL);
-  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
-  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
-  return 1;
+  return cgi_same_origin();
 }
 
 /*

@@ -2061,6 +2061,9 @@ static void process_one_web_page(
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
+      if( !cgi_same_origin() ){
+        db_protect(PROTECT_READONLY);
+      }
     }
     if( g.fCgiTrace ){
       fossil_trace("######## Calling %s #########\n", pCmd->zName);

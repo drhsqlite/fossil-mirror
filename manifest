@@ -1,5 +1,5 @@
-C A\sminor\sfix\sto\sthe\sprevious\scheck-in.
-D 2022-12-25T16:17:14.386
+C Make\sthe\srepository\sdatabase\sread-only\sif\san\sHTTP\srequest\sis\snot\sfrom\sthe\nsame\sorigin.\s\sThis\sis\snot\srequired\sfor\ssecurity.\s\sIt\sis\sjust\san\sextra\slayer\nof\sdefense.
+D 2022-12-29T17:00:23.937
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82dc455
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c f59d373ccd9a5b2de9c70d0ad1c9d56a0caf8855e7295ef1b366e4f738a6c430
+F src/cgi.c 1c0e6a8ec1fdf29c12dad7cc6ce623b576f7a4290d54753ce9bf09665c4cbf0e
 F src/chat.c a93d70fac8a7eba538f70d27529124ad4a4c893d76d232c700ce86d170217c90
 F src/checkin.c 6534b9e8ff6b1b5f8b560d9d46b26b9bae8d8b0eb81dc1d935dc6fd5320429fd
 F src/checkout.c fc7ac6ae5f8308d6add50b614b7748585ec131a44120b60bc598c3e6a00d1207
@@ -494,7 +494,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 2b38b21c7410aec1270ef95e791eef189abdf71f5e5652b297e634ac19f481fe
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 1213fff80abbeace574ce7e4e858c8b104722fdd76c09aa7d8ee36c98c6545af
+F src/main.c 4a64349185eba12a71aabd4835c4fab37f52ff2554eecd05c851fbb30d48d2a0
 F src/main.mk d4cbb0510d31bcb596950ee3f9380d050b9f181e7c07a08749e957a017f6c5f1
 F src/manifest.c 1cab57249c888b0756acbdd458b6eee2ae2e13ae4e886d1809782c5c9f3ef4ce
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5f22b960b3e34964d4be97666a9ba3abeba581215e9cb6ac1c7b8773206bb6f2
-R 42d81859582e79ef2c4c340ca1fce7c4
-U george
-Z 6b4f2bbb369436dd294d33499328568c
+P abfec4dd5c62b86089e893b823941bad84496793a1aac8ac128c3a2d37cb1b30
+R 80dfbaafd14a5e844795d7b8060d8489
+U drh
+Z e2b873dc750b16e3b79a2a8374749349
 # Remove this line to create a well-formed Fossil manifest.
