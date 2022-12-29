@@ -487,6 +487,24 @@ void db_assert_protection_off_or_not_sensitive(const char *zName){
 ** overarching authenticator callback, and leaves it registered for the
 ** duration of the connection.  This authenticator will call any
 ** sub-authenticators that are registered using db_set_authorizer().
+**
+** == Testing Notes ==
+**
+** Run Fossil as using a command like this:
+**
+**     ./fossil sql --test --errorlog -
+**
+** Then enter SQL commands like one of these:
+**
+**     SELECT db_protect('user');
+**     SELECT db_protect('config');
+**     SELECT db_protect('sensitive');
+**     SELECT db_protect('readonly');
+**     SELECT db_protect('all');
+**
+** Then try to do SQL statements that would violate the constraints and
+** verify that SECURITY warnings appear in the error log output.  See
+** also the sqlcmd_db_protect() function in sqlcmd.c.
 */
 int db_top_authorizer(
   void *pNotUsed,
@@ -503,16 +521,25 @@ int db_top_authorizer(
     case SQLITE_DELETE: {
       if( (db.protectMask & PROTECT_USER)!=0
           && sqlite3_stricmp(z0,"user")==0 ){
+        fossil_errorlog(
+          "SECURITY: authorizer blocks DML on protected USER table\n");
         rc = SQLITE_DENY;
       }else if( (db.protectMask & PROTECT_CONFIG)!=0 &&
                (sqlite3_stricmp(z0,"config")==0 ||
                 sqlite3_stricmp(z0,"global_config")==0) ){
+        fossil_errorlog(
+          "SECURITY: authorizer blocks DML on protected table \"%s\"\n", z0);
         rc = SQLITE_DENY;
       }else if( (db.protectMask & PROTECT_SENSITIVE)!=0 &&
                 sqlite3_stricmp(z0,"global_config")==0 ){
+        fossil_errorlog(
+          "SECURITY: authorizer blocks DML on protected GLOBAL_CONFIG table\n");
         rc = SQLITE_DENY;
       }else if( (db.protectMask & PROTECT_READONLY)!=0
                 && sqlite3_stricmp(z2,"temp")!=0 ){
+        fossil_errorlog(
+          "SECURITY: authorizer blocks DML on table \"%s\" due to the\n"
+          "request coming from a different origin\n", z0);
         rc = SQLITE_DENY;
       }
       break;
@@ -520,6 +547,8 @@ int db_top_authorizer(
     case SQLITE_DROP_TEMP_TRIGGER: {
       /* Do not allow the triggers that enforce PROTECT_SENSITIVE
       ** to be dropped */
+      fossil_errorlog(
+        "SECURITY: authorizer blocks attempt to drop a temporary trigger\n");
       rc = SQLITE_DENY;
       break;
     }

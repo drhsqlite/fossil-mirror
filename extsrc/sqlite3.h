@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.41.0"
 #define SQLITE_VERSION_NUMBER 3041000
-#define SQLITE_SOURCE_ID      "2022-12-15 15:37:52 751e344f4cd2045caf97920cc9f4571caf0de1ba83b94ded902a03b36c10a389"
+#define SQLITE_SOURCE_ID      "2022-12-29 18:54:15 eed1e030722deb24674e7c2d165a2a359576c6bb5769d3bdd5fa645bc0f2ecc7"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3298,8 +3298,8 @@ SQLITE_API SQLITE_DEPRECATED void *sqlite3_profile(sqlite3*,
 ** <dd>^An SQLITE_TRACE_PROFILE callback provides approximately the same
 ** information as is provided by the [sqlite3_profile()] callback.
 ** ^The P argument is a pointer to the [prepared statement] and the
-** X argument points to a 64-bit integer which is the estimated of
-** the number of nanosecond that the prepared statement took to run.
+** X argument points to a 64-bit integer which is approximately
+** the number of nanoseconds that the prepared statement took to run.
 ** ^The SQLITE_TRACE_PROFILE callback is invoked when the statement finishes.
 **
 ** [[SQLITE_TRACE_ROW]] <dt>SQLITE_TRACE_ROW</dt>
