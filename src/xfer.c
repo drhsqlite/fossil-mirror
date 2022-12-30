@@ -816,7 +816,7 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 **
 ** Return non-zero for a login failure and zero for success.
 */
-int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
+static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   Stmt q;
   int rc = -1;
   char *zLogin = blob_terminate(pLogin);

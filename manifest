@@ -1,5 +1,5 @@
-C Fix\sminor\stypos\sin\sthe\sdiff\ssource\scode.
-D 2022-12-30T12:26:32.641
+C Show\sthe\sparent-project-*\sCONFIG\sentries\s(if\sthey\sexist)\swith\sthe\n"fossil\sremote\sconfig-data"\scommand.\s\sWhen\sparsing\sa\sURL,\sif\sthe\sURL\scomes\nfrom\sthe\sCONFIG\stable,\sremember\sthe\sCONFIG\stable\sentry\sthat\ssupplied\sthe\npassword.
+D 2022-12-30T16:32:24.666
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -563,7 +563,7 @@ F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057ba
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c 99ea1c9e21920e4a818bd878911160ad0a673f2a38d7673927da3c88f48dc999
+F src/sync.c dbd10d21e04cc5e629de6a2eaafeb0caf013fc7d82ec35e39c2a10e44e185365
 F src/tag.c 24ebdc99fd3586b46a528cc9e1336d7fb68c3f735f353494d2b32323902cb014
 F src/tar.c 5ea3bf0bb60a6386f792e5ef064cde8643395e65ce398c283ebacac6023e5eb5
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -580,7 +580,7 @@ F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c a236482c9845d740bcf58616101612ddf47ecc8636887411033a1247eada8e89
 F src/update.c d9c85d35025c4ee3f6c94df29ee6b508cb93c2e49b59949973e5a3bfd0c43332
-F src/url.c adefd372e38650e39a0c83570ca8128df03e0fa0b12311afa5f68d3d68c9090e
+F src/url.c e7e1be5b2205f94549b538f2a7e1683c70b83426bba216e52410763e26162098
 F src/user.c 7841a7c053dddcc9fd21373ec5a826e0899d33ef4ded7081e95c9fcc0fff9665
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
@@ -592,7 +592,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 28dc3298b175a4940c4563591782a0396d2132f86e1027ec41432ee5337e901c
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 7d61ac1dd4a44e337b6f0766b06c2433d7c9ce0c2738c90a58f1090d3b3e9ba2
-F src/xfer.c cb3b0460ba05270200dbdd1a0d5fe00f176dbf47bdcc4abebb0b5d98ce328662
+F src/xfer.c 475fd13ed1eea2c6fc9603c5c2ad82bb77e0f5557e4351367c0dd524c9546e78
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c a626c2b1c27caaf399b4afa80a5052fd3f8018bd3f02a6b97bf919cab259f43b
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e85d6ca2281b8dd2472ceab37449ef831b97c9eac67fc4337f26cbceb252288
-R dbe84ceab593c6f5754ceb111c704509
+P 4e169542aee6aa66f449851d3fc1dfa3ddeaddae72f344ed8adde51fd8a9c181
+R aad76b833ad7fa6a59acbdeacf4b9e3f
 U drh
-Z 3b1f52b7b6c8842521b8d63dec832c49
+Z fbb091d9c0ce11f9855f3a2bf300eedc
 # Remove this line to create a well-formed Fossil manifest.

@@ -771,15 +771,19 @@ remote_delete_default:
     n = db_int(13,
        "SELECT max(length(name))"
        "  FROM config"
-       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
+       " WHERE name GLOB 'sync-*:*'"
+          " OR name GLOB 'last-sync-*'"
+          " OR name GLOB 'parent-project-*'"
     );
     db_prepare(&q,
        "SELECT name,"
-       "       CASE WHEN name LIKE '%%sync-pw%%'"
+       "       CASE WHEN name LIKE '%%sync-pw%%' OR name='parent-project-pw'"
                   " THEN printf('%%.*c',length(value),'*') ELSE value END"
        "  FROM config"
-       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
-       " ORDER BY name LIKE '%%sync-pw%%', name"
+       " WHERE name GLOB 'sync-*:*'"
+          " OR name GLOB 'last-sync-*'"
+          " OR name GLOB 'parent-project-*'"
+       " ORDER BY name LIKE '%%sync-pw%%' OR name='parent-project-pw', name"
     );
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%-*s  %s\n",
