@@ -562,7 +562,9 @@ void sync_unversioned(unsigned syncFlags){
 void remote_url_cmd(void){
   char *zUrl, *zArg;
   int nArg;
+  int showPw;
   db_find_and_open_repository(0, 0);
+  showPw = find_option("show-passwords",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -762,12 +764,14 @@ remote_delete_default:
     return;
   }
   if( strncmp(zArg, "config-data", nArg)==0 ){
-    /* Undocumented command:  "fossil remote config-data"
+    /* Undocumented command:  "fossil remote config-data [-show-passwords]"
     **
     ** Show the CONFIG table entries that relate to remembering remote URLs
     */
     Stmt q;
     int n;
+    sqlite3_create_function(g.db, "unobscure", 1, SQLITE_UTF8, &g.db,
+                            db_obscure, 0, 0);
     n = db_int(13,
        "SELECT max(length(name))"
        "  FROM config"
@@ -776,14 +780,17 @@ remote_delete_default:
           " OR name GLOB 'parent-project-*'"
     );
     db_prepare(&q,
-       "SELECT name,"
-       "       CASE WHEN name LIKE '%%sync-pw%%' OR name='parent-project-pw'"
-                  " THEN printf('%%.*c',length(value),'*') ELSE value END"
-       "  FROM config"
-       " WHERE name GLOB 'sync-*:*'"
-          " OR name GLOB 'last-sync-*'"
-          " OR name GLOB 'parent-project-*'"
-       " ORDER BY name LIKE '%%sync-pw%%' OR name='parent-project-pw', name"
+      "SELECT name,"
+      "  CASE WHEN name NOT LIKE '%%sync-pw%%' AND name<>'parent-project-pw'"
+      "       THEN value"
+      "       WHEN %d THEN unobscure(value)"
+      "       ELSE printf('%%.*c',length(value)/2-1,'*') END"
+      "  FROM config"
+      " WHERE name GLOB 'sync-*:*'"
+         " OR name GLOB 'last-sync-*'"
+         " OR name GLOB 'parent-project-*'"
+      " ORDER BY name LIKE '%%sync-pw%%' OR name='parent-project-pw', name",
+      showPw
     );
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%-*s  %s\n",

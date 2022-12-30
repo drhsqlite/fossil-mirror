@@ -1397,7 +1397,12 @@ void db_obscure(
     sqlite3_result_error_nomem(context);
     return;
   }
-  strcpy(zOut, zTemp = obscure((char*)zIn));
+  if( sqlite3_user_data(context)==0 ){
+    zTemp = obscure((char*)zIn);
+  }else{
+    zTemp = unobscure((char*)zIn);
+  }
+  strcpy(zOut, zTemp);
   fossil_free(zTemp);
   sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
 }

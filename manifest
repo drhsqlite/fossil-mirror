@@ -1,5 +1,5 @@
-C Show\sthe\sparent-project-*\sCONFIG\sentries\s(if\sthey\sexist)\swith\sthe\n"fossil\sremote\sconfig-data"\scommand.\s\sWhen\sparsing\sa\sURL,\sif\sthe\sURL\scomes\nfrom\sthe\sCONFIG\stable,\sremember\sthe\sCONFIG\stable\sentry\sthat\ssupplied\sthe\npassword.
-D 2022-12-30T16:32:24.666
+C Security\senhancement:\s\sDo\snot\sstore\sthe\spasswords\sfor\sremote\sURLs\sdirectly,\nbut\sinstead\sstore\sthe\ssha1_shared_secret()\sencoding\sof\sthose\spasswords.\s\sIt\nis\sthe\sSHA1\sencoding\sthat\sgets\stransmitted\sto\sthe\sserver\sanyhow,\sso\swe\smight\nas\swell\sjust\sstore\sthat.\s\sThe\sSHA1\sencoding\scannot\sbe\sused\sto\slog\sin.\s\sThe\npassword\sis\sstill\sprotected\susing\sobscure()\seven\sthough\sit\sis\snow\sa\sSHA1\shash.
+D 2022-12-30T20:54:10.613
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/content.c 9392a9d5bb3aa29f0e9d9bcbd6b370be03055fce4a8988f8db868320e8ccc188
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c fb8d00c06e65994f6da0c34ba37fe63f1b0eee7295900bf24f1007def6911c0b
+F src/db.c cf2093b0eed10c8f7006d31bbd83674393abac1728cd0ea9344614beb56ad0f1
 F src/default.css f7b32540fa032107f00610447ef841d6b77e8846731747761afcc00038565f31
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -466,7 +466,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c a178d9d59b8cd83cd83e1621893ec37a1576c468e405b50ccc24e260cb3493b2
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 1c4ead0bd1a51688c554e17d8ec1ec9b2e0fb20f65c25b5a236dc9665e2edde0
+F src/http.c f33e409bc6289cf6d05007cb059b52578bbef9baa01c3c80a507f852917ac694
 F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
 F src/http_ssl.c 09a2d5be644c3e22a2b0a725b9227e091877d5fef6cd4e75c137e29b8b7b9fa5
 F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
@@ -553,7 +553,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c 9f4a78f03e259c55756c47a543cf55b7be8b33ea57c58dcc3ba17ed974a79b20
+F src/sqlcmd.c 226096d677b316d50f7f50a645aaf9d5c77d2664875a0d45138b73364c4e2929
 F src/stash.c f4b160ea4d639c09eb0217c1a04a8618958f278a565b08c225b7a5a4edb74f31
 F src/stat.c 04e73eecfd0813f9c85bae2255b6be26ec2d8f076fc44f5d4d705610960e9531
 F src/statrep.c e66715d2f23d6b404d5ee4f1e3a49233b985749169fa259e2f0af753750f54ba
@@ -563,7 +563,7 @@ F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057ba
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c dbd10d21e04cc5e629de6a2eaafeb0caf013fc7d82ec35e39c2a10e44e185365
+F src/sync.c 9eb3976479b2da388cd66a5cb8fd8f034350efaf0ab00d327acb44f6bb3dab1b
 F src/tag.c 24ebdc99fd3586b46a528cc9e1336d7fb68c3f735f353494d2b32323902cb014
 F src/tar.c 5ea3bf0bb60a6386f792e5ef064cde8643395e65ce398c283ebacac6023e5eb5
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -592,7 +592,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 28dc3298b175a4940c4563591782a0396d2132f86e1027ec41432ee5337e901c
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 7d61ac1dd4a44e337b6f0766b06c2433d7c9ce0c2738c90a58f1090d3b3e9ba2
-F src/xfer.c 475fd13ed1eea2c6fc9603c5c2ad82bb77e0f5557e4351367c0dd524c9546e78
+F src/xfer.c 953ff634cc27f6ad44cb3e262c9fd61ec7a536598b2f070e182ea2f96280b08f
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c a626c2b1c27caaf399b4afa80a5052fd3f8018bd3f02a6b97bf919cab259f43b
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e169542aee6aa66f449851d3fc1dfa3ddeaddae72f344ed8adde51fd8a9c181
-R aad76b833ad7fa6a59acbdeacf4b9e3f
+P 6d0083adce5597e106f50369522311d9576d8cff91ea8a380b8aac634fcbfaf7
+R 7315922f52f32f657dab9a049a937c87
 U drh
-Z fbb091d9c0ce11f9855f3a2bf300eedc
+Z 352cff5831c77d61580769d417ea8f1e
 # Remove this line to create a well-formed Fossil manifest.

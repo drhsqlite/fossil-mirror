@@ -800,7 +800,9 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 **
 ** The NONCE is the SHA1 hash of the remainder of the input.
 ** SIGNATURE is the SHA1 checksum of the NONCE concatenated
-** with the users password.
+** with the sha1_shared_secret() encoding of the users password.
+**
+**   SIGNATURE = sha1_sum( NONCE + sha1_shared_secret(PASSWORD) );
 **
 ** The parameters to this routine are ephemeral blobs holding the
 ** LOGIN, NONCE and SIGNATURE.

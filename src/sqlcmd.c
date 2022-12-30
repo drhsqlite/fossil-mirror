@@ -248,6 +248,8 @@ static int sqlcmd_autoinit(
                             sqlcmd_db_protect, 0, 0);
     sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
                             sqlcmd_db_protect_pop, 0, 0);
+    sqlite3_create_function(db, "shared_secret", 2, SQLITE_UTF8, 0,
+                            sha1_shared_secret_sql_function, 0, 0);
   }
   return SQLITE_OK;
 }
