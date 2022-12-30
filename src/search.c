@@ -1816,6 +1816,7 @@ void search_update_index(unsigned int srchFlags){
   if( !search_index_exists() ) return;
   if( !db_exists("SELECT 1 FROM ftsdocs WHERE NOT idxed") ) return;
   search_sql_setup(g.db);
+  db_unprotect(PROTECT_READONLY);
   if( srchFlags & (SRCH_CKIN|SRCH_DOC) ){
     search_update_doc_index();
     search_update_checkin_index();
@@ -1832,6 +1833,7 @@ void search_update_index(unsigned int srchFlags){
   if( srchFlags & SRCH_FORUM ){
     search_update_forum_index();
   }
+  db_protect_pop();
 }
 
 /*

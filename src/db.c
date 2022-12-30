@@ -461,7 +461,7 @@ void db_unprotect(unsigned flags){
     fossil_panic("too many db_unprotect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  db.protectMask &= ~flags;
+  db.protectMask &= ~(flags|PROTECT_READONLY);
 }
 void db_protect_pop(void){
   if( db.nProtect<1 ){
