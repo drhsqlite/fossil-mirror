@@ -1383,6 +1383,12 @@ void db_hextoblob(
 **    fossil user pass monkey123
 **
 ** to change the local user entry's password in the same way.
+**
+** 2022-12-30:  If the user-data pointer is not NULL, then operate
+** as unobscure() rather than obscure().  The obscure() variant of
+** this routine is commonly available.  But unobscure is (currently)
+** only registered by the "fossil remote config-data --show-passwords"
+** command.
 */
 void db_obscure(
   sqlite3_context *context,

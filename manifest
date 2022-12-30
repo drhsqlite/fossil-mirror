@@ -1,5 +1,5 @@
-C Security\senhancement:\s\sDo\snot\sstore\sthe\spasswords\sfor\sremote\sURLs\sdirectly,\nbut\sinstead\sstore\sthe\ssha1_shared_secret()\sencoding\sof\sthose\spasswords.\s\sIt\nis\sthe\sSHA1\sencoding\sthat\sgets\stransmitted\sto\sthe\sserver\sanyhow,\sso\swe\smight\nas\swell\sjust\sstore\sthat.\s\sThe\sSHA1\sencoding\scannot\sbe\sused\sto\slog\sin.\s\sThe\npassword\sis\sstill\sprotected\susing\sobscure()\seven\sthough\sit\sis\snow\sa\sSHA1\shash.
-D 2022-12-30T20:54:10.613
+C Improved\scomment\son\sthe\sdb_obscure()\sroutine.\s\sNo\sfunctional\scode\schanges.
+D 2022-12-30T21:12:38.313
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/content.c 9392a9d5bb3aa29f0e9d9bcbd6b370be03055fce4a8988f8db868320e8ccc188
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c cf2093b0eed10c8f7006d31bbd83674393abac1728cd0ea9344614beb56ad0f1
+F src/db.c a56088a9376621ab5e998e5d1704cefe6465b585121184d58b42e9d59576a27d
 F src/default.css f7b32540fa032107f00610447ef841d6b77e8846731747761afcc00038565f31
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d0083adce5597e106f50369522311d9576d8cff91ea8a380b8aac634fcbfaf7
-R 7315922f52f32f657dab9a049a937c87
+P 41ba6ea7db6ce2ce159709ce9b95dee44f9f5f03a13f2f741f5a6ebc96c5f034
+R 0c459cc4f52d9e0e12cf91cfd29a0a80
 U drh
-Z 352cff5831c77d61580769d417ea8f1e
+Z 2658d873e88e6526e5a110ee0fbf4d60
 # Remove this line to create a well-formed Fossil manifest.
