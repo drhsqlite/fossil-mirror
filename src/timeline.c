@@ -2473,7 +2473,7 @@ void page_timeline(void){
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
       }else if( zType[0]=='n' ){
-        zEType = "new tickets";
+        zEType = "new ticket";
       }else if( zType[0]=='e' ){
         zEType = "technical note";
       }else if( zType[0]=='g' ){

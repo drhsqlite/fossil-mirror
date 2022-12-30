@@ -1,5 +1,5 @@
-C Improved\scomment\son\sthe\sdb_obscure()\sroutine.\s\sNo\sfunctional\scode\schanges.
-D 2022-12-30T21:12:38.313
+C Correct\smis-pluralization\sof\s'new\sticketss'\sin\sthe\stimeline,\sper\sreport\sin\s[forum:e711cb860a|forum\spost\se711cb860a].
+D 2022-12-30T22:18:59.944
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -572,7 +572,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 281fc2eaf6a09cad63b21a8bef668a9119a5cc5471e7d8e705c9bee402e218c4
 F src/th_main.c f510eb11bfa7f0275adffb15585f8bdc9ba9667b0f0f220cef18d2fb3a3d2f49
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 8ad9823d3347bb9c17831f74f8b8b6ebcdb3b01ac4aee6171f677be1b6d49ccd
+F src/timeline.c 2b08dad7df1328f149c33b72ce0765b23cefcee92d5b73427a3e9b12144ee78e
 F src/tkt.c 427f4dc408e01b69c5c47e0270f460cd1aab3d04d7277c1f1631401b23781a61
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41ba6ea7db6ce2ce159709ce9b95dee44f9f5f03a13f2f741f5a6ebc96c5f034
-R 0c459cc4f52d9e0e12cf91cfd29a0a80
-U drh
-Z 2658d873e88e6526e5a110ee0fbf4d60
+P aa1a0b31e200a7feb18b5ead30fbfc7a0628f5507e95571abf8a9833217e21cb
+R 075a5ab22d6c4e67f9d73597ff55788a
+U stephan
+Z 8a4c1c0bb4c01db46899393f78df8c8a
 # Remove this line to create a well-formed Fossil manifest.
