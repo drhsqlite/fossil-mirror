@@ -1,5 +1,5 @@
-C Fix\smore\scases\swhere\supdates\sto\sthe\sSUBSCRIBER\stable\sshould\sbe\sallowed\sto\noccur\seven\sif\snot\sa\srequest\sfrom\sthe\ssame\sorigin.
-D 2022-12-31T12:16:08.308
+C Fix\sstray\scharacter\sin\sthe\schange\slog.
+D 2022-12-31T12:21:58.321
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -782,7 +782,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki a000aeda7e3c7a5694dfe85dd76e5cba7e60d797d62259c1142872db8513eb2a
+F www/changes.wiki 776c7bc4fdba18818d7ed1abc28401f9f7f3c21d175ba6317f6edfd1cd6b69d7
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c2c4457961f47375261cf068821d4b48723d9c7d6efdd5e45111352a2e81699
-R 87d6f50271a06cd911de882df9415f69
+P f33976f7cc12ba4fc006d205a6d179d9d58146547c504809ef875a1522b95299
+R e356926ce33505898e5286aad04e189e
 U drh
-Z d8fa96576e53aeba7e4fbc743d93da9b
+Z 402ad5f2704437f49b7a5829417e8761
 # Remove this line to create a well-formed Fossil manifest.

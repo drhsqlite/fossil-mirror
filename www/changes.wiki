@@ -302,7 +302,7 @@
     and 2.14.2 on (2021-06-15)</h2>
   *  <b>Patch 2.14.2:</b> Fix the client-side TLS so that it verifies that the
      server hostname matches its certificate. <b>Upgrading to
-     the patch is recommended.</b><
+     the patch is recommended.</b>
   *  <b>Patch 2.14.1:</b> Fix a data exfiltration bug in the server.
      <b>Upgrading to the patch is recommended.</b>
   *  <b>Schema Update Notice #1:</b>
