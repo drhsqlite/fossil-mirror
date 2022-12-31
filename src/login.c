@@ -154,14 +154,18 @@ int login_is_valid_anonymous(
 ** Make sure the accesslog table exists.  Create it if it does not
 */
 void create_accesslog_table(void){
-  db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS repository.accesslog("
-    "  uname TEXT,"
-    "  ipaddr TEXT,"
-    "  success BOOLEAN,"
-    "  mtime TIMESTAMP"
-    ");"
-  );
+  if( !db_table_exists("repository","accesslog") ){
+    db_unprotect(PROTECT_READONLY);
+    db_multi_exec(
+      "CREATE TABLE IF NOT EXISTS repository.accesslog("
+      "  uname TEXT,"
+      "  ipaddr TEXT,"
+      "  success BOOLEAN,"
+      "  mtime TIMESTAMP"
+      ");"
+    );
+    db_protect_pop();
+  }
 }
 
 /*

@@ -139,7 +139,7 @@ static struct DbLocalData {
   const char *zAuthName;    /* Name of the authorizer */
   int bProtectTriggers;     /* True if protection triggers already exist */
   int nProtect;             /* Slots of aProtect used */
-  unsigned aProtect[10];    /* Saved values of protectMask */
+  unsigned aProtect[12];    /* Saved values of protectMask */
 } db = {
   PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
   0, 0, 0, 0, 0, 0, };
