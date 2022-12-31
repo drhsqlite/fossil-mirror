@@ -131,11 +131,13 @@ void alert_schema(int bOnlyIfEnabled){
   if( db_table_has_column("repository","subscriber","lastContact") ){
     return;
   }
+  db_unprotect(PROTECT_READONLY);
   db_multi_exec(
     "DROP TABLE IF EXISTS repository.alert_bounce;\n"
     "ALTER TABLE repository.subscriber ADD COLUMN lastContact INT;\n"
     "UPDATE subscriber SET lastContact=mtime/86400;"
   );
+  db_protect_pop();
   if( db_table_has_column("repository","pending_alert","sentMod") ){
     return;
   }
@@ -1940,10 +1942,12 @@ void alert_page(void){
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
     if( nName==64 ){
+      db_unprotect(PROTECT_READONLY);
       db_multi_exec(
         "UPDATE subscriber SET sverified=1"
         " WHERE subscriberCode=hextoblob(%Q)",
         zName);
+      db_protect_pop();
       if( db_get_boolean("selfreg-verify",0) ){
         char *zNewCap = db_get("default-perms","u");
         db_unprotect(PROTECT_USER);
@@ -2118,6 +2122,7 @@ void renewal_page(void){
     return;
   }
 
+  db_unprotect(PROTECT_READONLY);
   db_prepare(&s,
     "UPDATE subscriber"
     "   SET lastContact=now()/86400"
@@ -2133,6 +2138,7 @@ void renewal_page(void){
     @ <p>No such subscriber-id: %h(zName)</p>
   }
   db_finalize(&s);
+  db_protect_pop();
   style_finish_page();
 }
 

@@ -1,5 +1,5 @@
-C Correct\smis-pluralization\sof\s'new\sticketss'\sin\sthe\stimeline,\sper\sreport\sin\s[forum:e711cb860a|forum\spost\se711cb860a].
-D 2022-12-30T22:18:59.944
+C Fix\smore\scases\swhere\supdates\sto\sthe\sSUBSCRIBER\stable\sshould\sbe\sallowed\sto\noccur\seven\sif\snot\sa\srequest\sfrom\sthe\ssame\sorigin.
+D 2022-12-31T12:16:08.308
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -377,7 +377,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c 10809393c589348d6cd4b86850d80474b01805842a10a7cc948e1ccbfbc5bf55
 F src/ajax.c 4712d4dc6810a8027a4669ce73e32b2d95cc787eac17531242d6697d4cc3014b
-F src/alerts.c d2f707e0d381f7920a9d1c5ecaad1986cbfecb1f623f957b90ea9b2df1166640
+F src/alerts.c 3b15dbaa2e24dbcb313adde0387fc6fbef2b2c4d6ca5188763126c7463c00a2e
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa1a0b31e200a7feb18b5ead30fbfc7a0628f5507e95571abf8a9833217e21cb
-R 075a5ab22d6c4e67f9d73597ff55788a
-U stephan
-Z 8a4c1c0bb4c01db46899393f78df8c8a
+P 7c2c4457961f47375261cf068821d4b48723d9c7d6efdd5e45111352a2e81699
+R 87d6f50271a06cd911de882df9415f69
+U drh
+Z d8fa96576e53aeba7e4fbc743d93da9b
 # Remove this line to create a well-formed Fossil manifest.
