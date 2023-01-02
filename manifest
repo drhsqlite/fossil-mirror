@@ -1,5 +1,5 @@
-C Fix\sanother\scase\swhere\sPROTECT_READONLY\sneeds\sto\sbe\srelaxed\seven\sthough\sthe\nrequest\snot\sfrom\sthe\ssame\sorigin.
-D 2022-12-31T18:51:15.526
+C Show\sthe\svalue\sof\sg.zLocalRoot\son\sthe\s/test_env\spage.
+D 2023-01-02T13:00:08.585
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -558,7 +558,7 @@ F src/stash.c f4b160ea4d639c09eb0217c1a04a8618958f278a565b08c225b7a5a4edb74f31
 F src/stat.c 04e73eecfd0813f9c85bae2255b6be26ec2d8f076fc44f5d4d705610960e9531
 F src/statrep.c e66715d2f23d6b404d5ee4f1e3a49233b985749169fa259e2f0af753750f54ba
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c d1080bc4c570b6d7d435d6eadd132d8a6df95dd6138c17cc9068010ac9af9cb3
+F src/style.c bcd39729e9ca8c9ca617fd7ce6b9093a4e80c7f1634ba9e48cc0d11774353aab
 F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fbcd9a77b75fa8d2e0508c58e508a39c227fc9a2ef683a94f8c4d9cb83dd08ba
-R 9eba56bab46162158454e1ea0898dec0
+P 03e21b9cd51d859b1812a35030084a618fa883809dc41388a347c21f03711bbf
+R 0e146d35d5c05b6eb489eda6577dd136
 U drh
-Z 2b079362e1bdc8c309fc0a543eed1693
+Z dc985261dbd1f1af06474199ef53bc6f
 # Remove this line to create a well-formed Fossil manifest.

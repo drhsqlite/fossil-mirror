@@ -1443,6 +1443,11 @@ void webpage_error(const char *zFormat, ...){
     @ g.zLogin = %h(g.zLogin)<br />
     @ g.isHuman = %d(g.isHuman)<br />
     @ g.jsHref = %d(g.jsHref)<br />
+    if( g.zLocalRoot ){
+      @ g.zLocalRoot = %h(g.zLocalRoot)<br />
+    }else{
+      @ g.zLocalRoot = <i>none</i><br />
+    }
     if( g.nRequest ){
       @ g.nRequest = %d(g.nRequest)<br />
     }
