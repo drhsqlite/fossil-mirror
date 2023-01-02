@@ -498,8 +498,8 @@ void patch_apply(unsigned mFlags){
     }else{
       int rc = fossil_unsafe_system(blob_str(&cmd));
       if( rc ){
-        fossil_fatal("unable to rename files:\n%s",
-                     blob_str(&cmd));
+        fossil_print("%-10s unable to rename files:\n%s", "WARNING!",
+                       blob_str(&cmd));
       }
     }
     blob_reset(&cmd);
