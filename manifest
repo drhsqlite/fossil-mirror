@@ -1,5 +1,5 @@
-C When\sapplying\sa\spatch,\sif\sthe\sfile\srename\sfails,\smake\sthat\sjust\sa\swarning\nnot\sa\sfatal\serror,\sas\sthe\swarning\smight\sbe\sdue\sto\sfile\srenames\son\sa\sprior\nmerge.\s\sFix\sfor\sticket\s[21037bfc1296dabc].
-D 2023-01-02T16:12:53.199
+C Added\snamed\sanchors\sto\sthe\s"Image\sFormat\svs\sFossil\sRepo\sSize"\sdoc\sso\sI\ncan\srefer\sto\sone\sin\sparticular.
+D 2023-01-03T20:13:24.675
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -852,7 +852,7 @@ F www/hints.wiki 845373f99b72c460d2db527313a8af02344e4cb74e0b30c53349c54125a6a91
 F www/history.md ec29ba623dceb4d162772bb6faa81a8fbdbff81f0d5c742e158d998d9a00aedb
 F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
-F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
+F www/image-format-vs-repo-size.md 9007da93867e23f37abd81053b1c1d7797bd88c74ce5057b3475ded03b777227
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 27f1861c83724797fa7d035ea02a85e19de459c8b5521043a3d5dc57f8e0e723
 F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd9b316179c8aec19ee2a9fc689ba76c53b9c91b8e7fead40439676c5a28bf8e
-R aa95a3301177bf15ff1d38b87b8ca26a
-U drh
-Z 86a7a268401abecf40f4edfe68498cb6
+P f013384605144a4a16db4e22ce304ef7bd5ff4ae2d59a03be16ebc2e2d2fbecc
+R 602f97355061ca4dd0eb4c3ea1313efc
+U wyoung
+Z 1942bbd5cc04fabc4404ca55574c4fd0
 # Remove this line to create a well-formed Fossil manifest.
