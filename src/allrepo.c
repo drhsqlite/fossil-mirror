@@ -23,8 +23,9 @@
 
 /*
 ** Build a string that contains all of the command-line options
-** specified as arguments.  If the option name begins with "+" then
-** it takes an argument.  Without the "+" it does not.
+** specified as arguments.  collect_argument() is used for stand-alone
+** options and collect_argument_value() is used for options that are
+** followed by an argument value.
 */
 static void collect_argument(Blob *pExtra,const char *zArg,const char *zShort){
   const char *z = find_option(zArg, zShort, 0);
@@ -283,6 +284,25 @@ void all_cmd(void){
     collect_argument(&extra, "index",0);
     collect_argument(&extra, "noindex",0);
     collect_argument(&extra, "ifneeded", 0);
+  }else if( fossil_strcmp(zCmd, "remote")==0 ){
+    showLabel = 1;
+    quiet = 1;
+    collect_argument(&extra, "show-passwords", 0);
+    if( g.argc==3 ){
+      zCmd = "remote -R";
+    }else if( g.argc!=4 ){
+      usage("remote ?config-data|list|ls?");
+    }else if( fossil_strcmp(g.argv[3],"ls")==0
+           || fossil_strcmp(g.argv[3],"list")==0 ){
+      zCmd = "remote ls -R";
+    }else if( fossil_strcmp(g.argv[3],"ls")==0
+           || fossil_strcmp(g.argv[3],"list")==0 ){
+      zCmd = "remote ls -R";
+    }else if( fossil_strcmp(g.argv[3],"config-data")==0 ){
+      zCmd = "remote config-data -R";
+    }else{
+      usage("remote ?config-data|list|ls?");
+    }
   }else if( fossil_strcmp(zCmd, "setting")==0 ){
     zCmd = "setting -R";
     collect_argv(&extra, 3);
@@ -297,6 +317,7 @@ void all_cmd(void){
     collect_argument(&extra, "share-links",0);
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
+    collect_argument(&extra, "all",0);
   }else if( fossil_strcmp(zCmd, "test-integrity")==0 ){
     collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);
@@ -385,8 +406,9 @@ void all_cmd(void){
     collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "add cache changes clean dbstat extras fts-config git ignore "
-                 "info list ls pull push rebuild server setting sync ui unset");
+      "add cache changes clean dbstat extras fts-config git ignore "
+      "info list ls pull push rebuild remote "
+      "server setting sync ui unset");
   }
   verify_all_options();
   db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");

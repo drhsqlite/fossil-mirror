@@ -1,5 +1,5 @@
-C Add\sthe\s"-f|--file"\sflag\sto\sthe\s"whatis"\scommand\swhich\sconsist\sto\ssearch\sfor\nany\sother\sfiles\sin\sthe\srepo\swith\sthe\sexact\ssame\scontent\sas\sthe\sgiven\sfile.
-D 2023-01-05T17:21:25.936
+C Add\ssupport\sfor\s"fossil\sremote"\sand\s"fossil\ssync\s--all"\sto\sthe\s"fossil\sall"\ncommand.
+D 2023-01-05T19:49:55.755
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -383,7 +383,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c ede11c395ba939533c8b1e542896be620f459583f4fb03e946c60efb898b3b52
+F src/allrepo.c b2a82caab2d716e08f1e3da6e4fe27e2faefb51791e42cbaceedf7dbcf2effcc
 F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
 F src/backlink.c 19eafdf61d871e3d77ad7fe6543e4873dc11cdbfb12da0b47e23ee713a11979e
 F src/backoffice.c d900592140dd007d5fcaa312f12a48496d8b809feb753c425255fefd8a304ee2
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7de2410f742af79d1122264fc58e0490b30f4a5626969cfc534f19feeb9303e0
-R ea3dfe5f09a200a78f79e3a47553c729
-U mgagnon
-Z e996b5bf9e00147e6af64eebdcc6ffe0
+P a821cbf522bee8d267a21b0a354cb1ff89b0713864b8975e990f5de5520935d1
+R cef43765219fa207ea8fd633a173323a
+U drh
+Z 1adbe850f0001a0cc0570df942068569
 # Remove this line to create a well-formed Fossil manifest.
