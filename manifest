@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\s"fossil\sremote"\sand\s"fossil\ssync\s--all"\sto\sthe\s"fossil\sall"\ncommand.
-D 2023-01-05T19:49:55.755
+C update\srelated\swork\spage\n\nAdd\sInskinerator\sas\sper\s[forum:634b880146abf68f|forum\spost]\sfrom\swyoung@,\nthe\sMakeheaders\stool,\sand\sthe\snew\sSapling\sversion\scontrol\ssystem.
+D 2023-01-06T08:34:56.885
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -898,7 +898,7 @@ F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2
 F www/quickstart.wiki deccf518d123c83a6bb83b7c1fc162d8f2310ab0f0e3621fe99702d6fc35906d
 F www/quotes.wiki abe1bc64146357395834161a08f7df8807d6626b3df42ea675fcbe068e0cdb91
 F www/rebaseharm.md 3e1640e822b2ff579c995f12c3a5951d1ee86a2332d98f7bc6484c14aec56656
-F www/relatedwork.md 00b99bbdd92756a3ca361b2ee16637ade67f92dc1f0a478a8b5dbc91914b246c
+F www/relatedwork.md ef8e9770b41988cf51aca4ce244b75529086f982b92ed4b4b5cedf0d2dd03450
 F www/reviews.wiki 8861df71b6af8a3fe625944e4af1d5f994b7abca5a212d87e2685d786ab8049f
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a821cbf522bee8d267a21b0a354cb1ff89b0713864b8975e990f5de5520935d1
-R cef43765219fa207ea8fd633a173323a
-U drh
-Z 1adbe850f0001a0cc0570df942068569
+P 693b950b1ef45ecb53eebfc40ba243284ff9466bbab277024f1c0e6783eeddf6
+R e1df97d363dd781bb355e13e4c26d85b
+U mark
+Z 095b5d653df9391f8070ab65dc1387c6
 # Remove this line to create a well-formed Fossil manifest.

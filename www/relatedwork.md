@@ -10,12 +10,14 @@
   that has run the https://sqlite.org/ website since 2004
 * [Lemon Parser Generator][lemon]: an LALR(1), re-entrant, and thread-safe
   parser with a less error-prone grammar syntax than YACC or BISON
+* [Makeheaders]: automatically generate header files for C/C++ projects
 
 ## Fossil Inspired Projects
 
 * [libfossil]: 3rd party Fossil SCM Library API
 * [fnc]: an interactive text-based user interface for Fossil
 * [ChiselApp][chisel]: Free Fossil SCM hosting!
+* [Inskinerator]: The Fossil Skin Generator
 * [Fuel][fuel]: a cross-platform GUI front-end for the excellent Fossil SCM
 
 ## Editor Plugins
@@ -37,6 +39,7 @@
   simplicity over flexibility
 * [Darcs]: free and open source, cross-platform version control system
 * [Pijul]: patch-based distributed version control system
+* [Sapling]: A Scalable, User-Friendly Source Control System
 
 ## Podcasts
 
@@ -68,15 +71,18 @@
 [Git]:           https://git-scm.com
 [GoLand]:        https://www.jetbrains.com/go/
 [got]:           https://gameoftrees.org
+[Inskinerator]:  https://tangentsoft.com/inskinerator
 [IntelliJ]:      https://www.jetbrains.com/idea/
 [jetbrains]:     https://plugins.jetbrains.com/plugin/7479-fossil-integration
 [lemon]:         https://www.hwaci.com/sw/lemon/
 [libfossil]:     https://fossil.wanderinghorse.net/r/libfossil/wiki/home
+[Makeheaders]:   https://fossil-scm.org/home/doc/trunk/tools/makeheaders.html
 [Mercurial]:     https://www.mercurial-scm.org/
 [netbeans]:      https://chiselapp.com/user/backendzeit/repository/netbeans-fossil-plugin/index
 [Pijul]:         https://pijul.org
 [pikchr]:        https://pikchr.org
 [qtfsl]:         https://code.qt.io/cgit/qt-creator/plugin-fossil-scm.git/
+[Sapling]:       https://sapling-scm.com
 [SQLite]:        https://sqlite.org/index.html
 [Subversion]:    https://subversion.apache.org/
 [swed]:          https://softwareengineeringdaily.com/2015/11/13/sqlite-with-d-richard-hipp/
