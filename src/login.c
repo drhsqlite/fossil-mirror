@@ -176,6 +176,7 @@ static void record_login_attempt(
   const char *zIpAddr,       /* IP address from which they logged in */
   int bSuccess               /* True if the attempt was a success */
 ){
+  db_unprotect(PROTECT_READONLY);
   if( db_get_boolean("access-log", 0) ){
     create_accesslog_table();
     db_multi_exec(
@@ -187,6 +188,7 @@ static void record_login_attempt(
   if( bSuccess ){
     alert_user_contact(zUsername);
   }
+  db_protect_pop();
 }
 
 /*
