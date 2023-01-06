@@ -1,5 +1,5 @@
-C Oops,\ssomehow\sone\sdash\sin\s`--file`\sgot\slost\sin\s92d3fdba73a44c4c.
-D 2023-01-06T14:27:58.222
+C Do\snot\stry\sto\sresolve\sthe\sIP\sfrom\sthe\shostname\swhen\ssyncing\susing\sssh://\nprotocol.\sSsh\smay\suse\sthe\sprovided\sname\sas\san\salias\sdefined\sin\s~/.ssh/config\nwhich\smay\snot\sbe\sresolvable\sor\seven\sresolve\sto\san\sunrelated\sip.\sThis\schange\ncan\spotentially\savoid\slong\stimeout\sduring\sname\sresolution\sfailure.
+D 2023-01-06T21:33:11.004
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -467,9 +467,9 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c a178d9d59b8cd83cd83e1621893ec37a1576c468e405b50ccc24e260cb3493b2
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c f33e409bc6289cf6d05007cb059b52578bbef9baa01c3c80a507f852917ac694
-F src/http_socket.c 620913579cd43d906d9b6abc8855d96b8fc3c5a3ee9ffa81f2ad84061bb9da77
+F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 09a2d5be644c3e22a2b0a725b9227e091877d5fef6cd4e75c137e29b8b7b9fa5
-F src/http_transport.c 8259d5e63a3bf7ffdccbd0068b3d31286133bb5ccfc6560e4f1790a90b2056b6
+F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775be724e6
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
 F src/info.c 80b341c9f3f6348156fd05ede718a030f48b71d293876f977c1798d8f86cbf89
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
@@ -592,7 +592,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 28dc3298b175a4940c4563591782a0396d2132f86e1027ec41432ee5337e901c
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 7d61ac1dd4a44e337b6f0766b06c2433d7c9ce0c2738c90a58f1090d3b3e9ba2
-F src/xfer.c 953ff634cc27f6ad44cb3e262c9fd61ec7a536598b2f070e182ea2f96280b08f
+F src/xfer.c 67b7ef75407273057e03f4cf982dc34103d0c5fa0a92064ed361e97899deaeb9
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c a626c2b1c27caaf399b4afa80a5052fd3f8018bd3f02a6b97bf919cab259f43b
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -956,8 +956,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92d3fdba73a44c4cd6179d00ffa4d9d29110ef38215ccd9fbac7040bd4fbe584
-R 07462e06e089272ca26b79919dcb2895
-U km
-Z d6948fca2a4f7443c856a9ea989be794
+P 0bf2eaaf6528f5d3d90d45c9c0d09c079e86103b5a3d73e2568d8510c44695a5
+R f73a164826534f6c5462ad7947835378
+T *branch * no_ssh_sync_ip_resolve
+T *sym-no_ssh_sync_ip_resolve *
+T -sym-trunk *
+U mgagnon
+Z 17f5eb755fc33488fc0843046e459509
 # Remove this line to create a well-formed Fossil manifest.
