@@ -2255,6 +2255,9 @@ void commit_cmd(void){
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
   db_must_be_within_tree();
+  if( db_get_boolean("dont-commit",0) ){
+    fossil_fatal("committing is prohibited: the 'dont-commit' option is set");
+  }
   if( forceDelta ){
     if( forceBaseline ){
       fossil_fatal("cannot use --delta and --baseline together");

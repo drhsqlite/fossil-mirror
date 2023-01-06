@@ -4245,6 +4245,11 @@ struct Setting {
 ** If undefined, the internal text diff will be used.
 */
 /*
+** SETTING: dont-commit     boolean default=off
+** If enabled, prevent committing to this repository, as an extra precaution
+** against accidentally checking in to a repository intended to be read-only.
+*/
+/*
 ** SETTING: dont-push       boolean default=off
 ** If enabled, prevent this repository from pushing from client to
 ** server.  This can be used as an extra precaution to prevent
@@ -4296,6 +4301,15 @@ struct Setting {
 ** An empty list prohibits editing via that page. Note that
 ** it cannot edit binary files, so the list should not
 ** contain any globs for, e.g., images or PDFs.
+*/
+/*
+** SETTING: forbid-delta-manifests    boolean default=off
+** If enabled on a client, new delta manifests are prohibited on
+** commits.  If enabled on a server, whenever a client attempts
+** to obtain a check-in lock during auto-sync, the server will 
+** send the "pragma avoid-delta-manifests" statement in its reply,
+** which will cause the client to avoid generating a delta
+** manifest.
 */
 /*
 ** SETTING: gdiff-command    width=40 default=gdiff sensitive
@@ -4442,15 +4456,6 @@ struct Setting {
 ** SETTING: pgp-command      width=40 sensitive
 ** Command used to clear-sign manifests at check-in.
 ** Default value is "gpg --clearsign -o"
-*/
-/*
-** SETTING: forbid-delta-manifests    boolean default=off
-** If enabled on a client, new delta manifests are prohibited on
-** commits.  If enabled on a server, whenever a client attempts
-** to obtain a check-in lock during auto-sync, the server will 
-** send the "pragma avoid-delta-manifests" statement in its reply,
-** which will cause the client to avoid generating a delta
-** manifest.
 */
 /*
 ** SETTING: proxy            width=32 default=off
