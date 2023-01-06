@@ -2254,6 +2254,7 @@ void commit_cmd(void){
   privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
+  db_must_be_within_tree();
   if( forceDelta ){
     if( forceBaseline ){
       fossil_fatal("cannot use --delta and --baseline together");
@@ -2298,7 +2299,6 @@ void commit_cmd(void){
   zComFile = find_option("message-file", "M", 1);
   sCiInfo.zDateOvrd = find_option("date-override",0,1);
   sCiInfo.zUserOvrd = find_option("user-override",0,1);
-  db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);

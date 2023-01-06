@@ -1,5 +1,5 @@
-C Fix\sthe\s/chat-send\spage\sso\sthat\sit\sworks\seven\swith\sthe\srecent\ssame-origin\nsecurity\senhancements.
-D 2023-01-06T12:59:11.504
+C Fix\sa\sbug\sin\sthe\s'commit'\scommand\sthat\smade\sit\signore\sthe\s'forbid-delta-manifests'\ssetting.
+D 2023-01-06T13:04:01.831
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -399,7 +399,7 @@ F src/capabilities.c cc5e22191f5c42bd0b3897c4a00eee2f1f322387fc5300d90629ddd7e82
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 1c0e6a8ec1fdf29c12dad7cc6ce623b576f7a4290d54753ce9bf09665c4cbf0e
 F src/chat.c eb1bc66e6a6cfbd9e474b3a0764a53098df7af41b7bead4ae92aeca47d57a4b5
-F src/checkin.c 6534b9e8ff6b1b5f8b560d9d46b26b9bae8d8b0eb81dc1d935dc6fd5320429fd
+F src/checkin.c b46cb4f9e67c417d8701f1877d069801e797f8b739014dabf7b294a2f23272d0
 F src/checkout.c fc7ac6ae5f8308d6add50b614b7748585ec131a44120b60bc598c3e6a00d1207
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be6d71dd6471f98dc30cac15d73bc498df75f43c37c9fac1f0902d822516ee81
-R cb933ec91ab6386eb8066cf18096b336
-U drh
-Z 3e6f627cbb597af1e0662b8b2d545ce8
+P 4ba37b1c1437376741a45c47594ce7510a42555bc9c5bcbbc8677a97065fe5af
+R 0a71cfb10a344b235b06b4868fa650cc
+U danield
+Z 65c4e9f76a8af73610935399f9a039ce
 # Remove this line to create a well-formed Fossil manifest.
