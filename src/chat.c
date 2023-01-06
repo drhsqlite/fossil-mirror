@@ -395,6 +395,7 @@ void chat_send_webpage(void){
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
+  db_unprotect(PROTECT_READONLY);
   chat_purge();
   if( nByte==0 ){
     if( zMsg[0] ){
@@ -418,6 +419,7 @@ void chat_send_webpage(void){
     db_finalize(&q);
     blob_reset(&b);
   }
+  db_protect_pop();
   db_commit_transaction();
 }
 
