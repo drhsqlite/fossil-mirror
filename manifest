@@ -1,5 +1,5 @@
-C Add\sthe\s/resetpw\sweb\spage.\s\sThe\sname\sargument\smust\scontain\sa\shash\sthat\sproves\nknowledge\sof\sthe\sold\spassword\sand\sthat\slimits\sthe\svalid\slifetime\sof\sthe\nargument.
-D 2023-01-07T00:03:41.834
+C Add\sa\snon-functioning\splace-holder\sbutton\sto\srequest\sa\spassword\sreset\nto\sthe\s/register\spage.
+D 2023-01-07T11:58:15.222
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -491,7 +491,7 @@ F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdec
 F src/json_wiki.c 32a902096d496725781b9aeff5cbf5245d8e662b8785969020a66dbfde04f2f1
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c1
-F src/login.c 609a5d8e6836d934cba4198ed429114cd46fe2f3a65efaf649bb394361648b71
+F src/login.c 19f76ad0bc7fb15902648c23a6679e092d72b32754ec80720ce7789a194d7920
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c d0d4a6eb6d2558049a87d4c162347cd6d4d9793282c3672ce9cbd8a81bf6e2b8
@@ -956,11 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0bf2eaaf6528f5d3d90d45c9c0d09c079e86103b5a3d73e2568d8510c44695a5
-R a3572c9e94c45802320f4dbd1a04a6dc
-T *branch * self-service-password-reset
-T *sym-self-service-password-reset *
-T -sym-trunk *
+P ac86dfa085cd5eed9b3c8d94a50d5a6ccf083877c96d9cdf66e83329343dd666
+R 2ffc200f7d6cf0d5b680338480ae56e4
 U drh
-Z 78eede9a52bfa55f7cc176da46f323b7
+Z eba1e9952dbf18ddcbc886875fec3981
 # Remove this line to create a well-formed Fossil manifest.

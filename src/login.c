@@ -929,6 +929,8 @@ not_valid_suffix:
 void test_resetpw_url(void){
   char *zSuffix;
   int uid;
+  int xuid;
+  char *zLogin;
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc!=3 ){
@@ -936,9 +938,16 @@ void test_resetpw_url(void){
   }
   uid = atoi(g.argv[2]);
   zSuffix = login_resetpw_suffix(uid, 0);
-  fossil_print("/resetpw/%s   %d\n", zSuffix,
-               login_resetpw_suffix_is_valid(zSuffix));
+  xuid = login_resetpw_suffix_is_valid(zSuffix);
+  if( xuid>0 ){
+    zLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", xuid);
+  }else{
+    zLogin = 0;
+  }
+  fossil_print("/resetpw/%s   %d (%s)\n",
+               zSuffix, xuid, zLogin ? zLogin : "???");
   fossil_free(zSuffix);
+  fossil_free(zLogin);
 }
 
 /*
@@ -1788,6 +1797,71 @@ static int login_self_choosen_userid_already_exists(const char *zUserID){
 }
 
 /*
+** zEMail is an email address.  (Example:  "xyz@gmail.com".)  This routine
+** searches for a user or subscriber that has that email address.  If the
+** email address is used no-where in the system, return 0.  If the email
+** address is assigned to a particular user return the UID for that user.
+** If the email address is used, but not by a particular user, return -1.
+*/
+static int email_address_in_use(const char *zEMail){
+  int uid;
+  uid = db_int(0, 
+    "SELECT uid FROM user"
+    " WHERE info LIKE '%%<%q>%%'", zEMail);
+  if( uid>0 ){
+    if( db_exists("SELECT 1 FROM user WHERE uid=%d AND ("
+                  "   cap GLOB '*[as]*' OR"
+                  "   find_emailaddr(info)<>%Q COLLATE nocase)",
+                  uid, zEMail) ){
+      uid = -1;
+    }
+  }
+  if( uid==0 && alert_tables_exist() ){
+    uid = db_int(0,
+      "SELECT user.uid FROM subscriber JOIN user ON login=suname"
+      " WHERE semail=%Q AND sverified", zEMail);
+    if( uid ){
+      if( db_exists("SELECT 1 FROM user WHERE uid=%d AND "
+                    "   cap GLOB '*[as]*'",
+                    uid) ){
+        uid = -1;
+      }
+    }
+  }
+  return uid;
+}
+
+/*
+** COMMAND: test-email-used
+** Usage:  fossil test-email-used EMAIL ...
+** 
+** Given a list of email addresses, show the UID and LOGIN associated
+** with each one.
+*/
+void test_email_used(void){
+  int i;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc<3 ){
+    usage("EMAIL ...");
+  }
+  for(i=2; i<g.argc; i++){
+    const char *zEMail = g.argv[i];
+    int uid = email_address_in_use(zEMail);
+    if( uid==0 ){
+      fossil_print("%s:  not used\n", zEMail);
+    }else if( uid<0 ){
+      fossil_print("%s:  used but no password reset is available\n", zEMail);
+    }else{
+      char *zLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
+      fossil_print("%s:  UID %d (%s)\n", zEMail, uid, zLogin);
+      fossil_free(zLogin);
+    }
+  }
+}
+    
+
+/*
 ** Check an email address and confirm that it is valid for self-registration.
 ** The email address is known already to be well-formed.  Return true
 ** if the email address is on the allowed list.
@@ -1828,6 +1902,7 @@ void register_page(void){
   const char *zDecoded;
   int iErrLine = -1;
   const char *zErr = 0;
+  int uid = 0;              /* User id with the same email */
   int captchaIsCorrect = 0; /* True on a correct captcha */
   char *zCaptcha = "";      /* Value of the captcha text */
   char *zPerms;             /* Permissions for the default user */
@@ -1886,22 +1961,12 @@ void register_page(void){
   }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
     iErrLine = 5;
     zErr = "Passwords do not match";
+  }else if( (uid = email_address_in_use(zEAddr))!=0 ){
+    iErrLine = 3;
+    zErr = "This email address is already associated with a user";
   }else if( login_self_choosen_userid_already_exists(zUserID) ){
     iErrLine = 1;
     zErr = "This User ID is already taken. Choose something different.";
-  }else if(
-      /* If the email is found anywhere in USER.INFO... */
-      db_exists("SELECT 1 FROM user WHERE info LIKE '%%%q%%'", zEAddr)
-    ||
-      /* Or if the email is a verify subscriber email with an associated
-      ** user... */
-      (alert_tables_exist() &&
-       db_exists(
-         "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
-         " AND sverified",zEAddr))
-   ){
-    iErrLine = 3;
-    zErr = "This email address is already claimed by another user";
   }else{
     /* If all of the tests above have passed, that means that the submitted
     ** form contains valid data and we can proceed to create the new login */
@@ -2039,7 +2104,11 @@ void register_page(void){
   @ value="%h(zEAddr)" size="30"></td>
   @ </tr>
   if( iErrLine==3 ){
-    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span>
+    if( uid>0 ){
+      @ <br /><button>ToDo: Request Password Reset For UID %d(uid)</button>
+    }
+    @ </td></tr>
   }
   if( canDoAlerts ){
     int a = atoi(PD("alerts","1"));
