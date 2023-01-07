@@ -1954,6 +1954,9 @@ void page_admin_log(){
   }
   style_set_current_feature("setup");
   style_header("Admin Log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Error-Log", "errorlog");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));
