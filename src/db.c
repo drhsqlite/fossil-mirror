@@ -4502,6 +4502,13 @@ struct Setting {
 ** the list in use cases 1 through 4, but not for 5 and 6.
 */
 /*
+** SETTING: self-pw-reset    boolean default=off sensitive
+** Allow users to request that an email containing a hyperlink
+** to the /resetpw page be sent to their email address of record,
+** thus allowing forgetful users to reset their forgotten passwords
+** without administrator involvement.
+*/
+/*
 ** SETTING: self-register    boolean default=off sensitive
 ** Allow users to register themselves through the HTTP UI.
 ** This is useful if you want to see other names than
