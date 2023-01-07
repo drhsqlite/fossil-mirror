@@ -1,5 +1,5 @@
-C Submenu\sbuttons\slinking\sall\sof\sthe\slogging\spages.
-D 2023-01-07T20:37:48.555
+C Updates\sto\sthe\schange\slog\sto\sdiscuss\srecent\senhancements.
+D 2023-01-07T20:58:18.183
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -782,7 +782,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 776c7bc4fdba18818d7ed1abc28401f9f7f3c21d175ba6317f6edfd1cd6b69d7
+F www/changes.wiki 23b9eac33e670fee381e39a03a4711b33b6e77ad9e1defe5f37a3b612bad11e7
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki abda6c7ff4e59e56fe8350566af60d6ebe5722a449acecbb29098ab94431976e
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9c7e8c1d8b91378feb4774c4fef058d8cc2484f9d3c8cc5a9c6d820094bacc6
-R 58bdf9c9fa248234de6f5099d6c4796c
+P aae2b775f9a87ff62a72969630aab4ff5de7f0cac600c6b95047a2bf915ce871
+R ca8b01fb9d0fa987134f2baf31f16162
 U drh
-Z 0519e448d7a7f1b45ebef0fe7ee3765f
+Z fc3d660db7a3d14ccfacad1cb9e05c40
 # Remove this line to create a well-formed Fossil manifest.
