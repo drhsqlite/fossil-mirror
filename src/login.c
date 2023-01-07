@@ -1068,7 +1068,11 @@ void login_resetpw(void){
         @ </span></p>
         fossil_free(zErr);
       }else{
-        redirect_to_g();
+        @ <p>Password changed successfully.  Go to the
+        @ <a href="%R/login?u=%t(g.zLogin)">Login</a> page and log in
+        @ using the new password to continue.
+        @ </p>
+        style_finish_page();
         return;
       }
     }
