@@ -615,6 +615,10 @@ void login_page(void){
         char *zErr;
         int rc;
 
+        /* vvvvvvv---  tag-20230106-1 ----vvvvvv
+        **
+        ** Replicate changes made below to tag-20230106-2
+        */
         db_unprotect(PROTECT_USER);
         db_multi_exec(
            "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
@@ -629,6 +633,12 @@ void login_page(void){
         fossil_free(zNewPw);
         rc = login_group_sql(zChngPw, "<p>", "</p>\n", &zErr);
         db_protect_pop();
+        /*
+        ** ^^^^^^^^---  tag-20230106-1 ----^^^^^^^^^
+        **
+        ** Replicate changes above to tag-20230106-2
+        */
+
         if( rc ){
           zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
           fossil_free(zErr);
@@ -832,6 +842,214 @@ void login_page(void){
 }
 
 /*
+** Construct an appropriate URL suffix for the /resetpw page.  The
+** suffix will be of the form:
+**
+**     UID-TIMESTAMP-HASH
+**
+** Where UID and TIMESTAMP are the parameters to this function, and HASH
+** is constructed from information that is unique to the user in question
+** and which is not publicly available.  In particular, the HASH includes
+** the existing user password.  Thus, in order to construct a URL that can
+** change a password, the attacker must know the current password, in which
+** case that do not need to construct the URL in order to take over the
+** account.
+**
+**  Return a pointer to the resulting string in memory obtained
+** from fossil_malloc().
+*/
+char *login_resetpw_suffix(int uid, i64 timestamp){
+  char *zHash;
+  char *zInnerSql;
+  char *zResult;
+  extern int sqlite3_shathree_init(sqlite3*,char**,const sqlite3_api_routines*);
+  if( timestamp<=0 ){ timestamp = time(0); }
+  sqlite3_shathree_init(g.db, 0, 0);
+  if( db_table_exists("repository","subscriber") ){
+    zInnerSql = mprintf(
+      "SELECT %lld, login, pw, cookie, user.mtime, user.info, subscriberCode"
+      "  FROM user LEFT JOIN subscriber ON suname=login"
+      " WHERE uid=%d", timestamp, uid);
+  }else{
+    zInnerSql = mprintf(
+      "SELECT %lld, login, pw, cookie, user.mtime, user.info"
+      "  FROM user WHERE uid=%d", timestamp, uid);
+  }
+  zHash = db_text(0, "SELECT lower(hex(sha3_query(%Q)))", zInnerSql);
+  fossil_free(zInnerSql);
+  zResult = mprintf("%x-%llx-%s", uid, timestamp, zHash);
+  fossil_free(zHash);
+  return zResult;
+}
+
+/*
+** Check to see if the "name" query parameter is a valid resetpw suffix
+** for a user whose password we are allowed to reset.  If it is, then return
+** the positive integer UID for that user.  If the query parameter is not
+** valid, return 0.
+*/
+static int login_resetpw_suffix_is_valid(const char *zName){
+  int i, j;
+  int uid;
+  i64 timestamp;
+  i64 now;
+  char *zHash;
+  for(i=0; fossil_isxdigit(zName[i]); i++){}
+  if( i<1 || zName[i]!='-' ) goto not_valid_suffix;
+  for(j=i+1; fossil_isxdigit(zName[j]); j++){}
+  if( j<=i+1 || zName[j]!='-' ) goto not_valid_suffix;
+  uid = strtol(zName, 0, 16);
+  if( uid<=0 ) goto not_valid_suffix;
+  if( !db_exists("SELECT 1 FROM user WHERE uid=%d", uid) ){
+    goto not_valid_suffix;
+  }
+  timestamp = strtoll(&zName[i+1], 0, 16);
+  now = time(0);
+  if( timestamp+3600 <= now ) goto not_valid_suffix;
+  zHash = login_resetpw_suffix(uid,timestamp);
+  if( fossil_strcmp(zHash, zName)!=0 ){
+    fossil_free(zHash);
+    goto not_valid_suffix;
+  }
+  fossil_free(zHash);
+  return uid;
+
+not_valid_suffix:
+  sleep(2);  /* Introduce a small delay on an invalid suffix as an 
+             ** extra defense against search attacks */
+  return 0;
+}
+
+/*
+** COMMAND: test-resetpw-url
+** Usage: fossil test-resetpw-url UID
+**
+** Generate and verify a /resetpw URL for user UID.
+*/
+void test_resetpw_url(void){
+  char *zSuffix;
+  int uid;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc!=3 ){
+    usage("UID");
+  }
+  uid = atoi(g.argv[2]);
+  zSuffix = login_resetpw_suffix(uid, 0);
+  fossil_print("/resetpw/%s   %d\n", zSuffix,
+               login_resetpw_suffix_is_valid(zSuffix));
+  fossil_free(zSuffix);
+}
+
+/*
+** WEBPAGE: resetpw
+**
+** The URL format must be like this:
+**
+**      /resetpw/UID-TIMESTAMP-HASH
+**
+** Where UID is the uid of the user whose password is to be reset,
+** TIMESTAMP is the unix timestamp when the request was made, and
+** HASH is a hash based on UID, TIMESTAMP, and other information that
+** is unavailable to an attacher.
+**
+** With no other arguments, a form is present which allows the user to
+** enter a new password.  When the SUBMIT button is pressed, a POST request
+** back to the same URL that will change the password.
+*/
+void login_resetpw(void){
+  const char *zName;
+  int uid;
+  char *zRPW;
+  const char *zNew1, *zNew2;
+
+  style_set_current_feature("resetpw");
+  style_header("Reset Password");
+  style_adunit_config(ADUNIT_OFF);
+  zName = PD("name","");
+  uid = login_resetpw_suffix_is_valid(zName);
+  if( uid==0 ){
+    @ <p><span class="loginError">
+    @ This password-reset URL is invalid, probably because it has expired.
+    @ Password-reset URLs have a short lifespan.
+    @ </span></p>
+    style_finish_page();
+    return;
+  }
+  login_set_uid(uid, 0);
+  if( g.perm.Setup || g.perm.Admin || !g.perm.Password || g.zLogin==0 ){
+    @ <p><span class="loginError">
+    @ Cannot change the password for user <b>%h(g.zLogin)</b>.
+    @ </span></p>
+    style_finish_page();
+    return;
+  }
+  if( (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+    if( fossil_strcmp(zNew1,zNew2)!=0 ){
+      @ <p><span class="loginError">
+      @ The two copies of your new passwords do not match.
+      @ Try again.
+      @ </span></p>
+    }else{
+      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
+      char *zChngPw;
+      char *zErr;
+      int rc;
+
+      /* vvvvvvv---  tag-20230106-2 ----vvvvvv
+      **
+      ** Replicate changes made below to tag-20230106-1
+      */
+      db_unprotect(PROTECT_USER);
+      db_multi_exec(
+         "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
+      );
+      zChngPw = mprintf(
+         "UPDATE user"
+         "   SET pw=shared_secret(%Q,%Q,"
+         "        (SELECT value FROM config WHERE name='project-code'))"
+         " WHERE login=%Q",
+         zNew1, g.zLogin, g.zLogin
+      );
+      fossil_free(zNewPw);
+      rc = login_group_sql(zChngPw, "<p>", "</p>\n", &zErr);
+      db_protect_pop();
+      /*
+      ** ^^^^^^^^---  tag-20230106-2 ----^^^^^^^^^
+      **
+      ** Replicate changes above to tag-20230106-1
+      */
+
+      if( rc ){
+        @ <p><span class='loginError'>
+        @ %s(zErr);
+        @ </span></p>
+        fossil_free(zErr);
+      }else{
+        redirect_to_g();
+        return;
+      }
+    }
+  }
+  zRPW = fossil_random_password(12);
+  @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
+  form_begin(0, "%R/resetpw");
+  @ <input type='hidden' name='name' value='%h(zName)'>
+  @ <table>
+  @ <tr><td class="form_label" id="newpw">New Password:</td>
+  @ <td><input aria-labelledby="newpw" type="password" name="n1" \
+  @ size="30" /> Suggestion: %z(zRPW)</td></tr>
+  @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
+  @ <td><input aria-labledby="reppw" type="password" name="n2" \
+  @ size="30" /></td></tr>
+  @ <tr><td></td>
+  @ <td><input type="submit" value="Change Password" /></td></tr>
+  @ </table>
+  @ </form>
+  style_finish_page();
+}
+
+/*
 ** Attempt to find login credentials for user zLogin on a peer repository
 ** with project code zCode.  Transfer those credentials to the local
 ** repository.
@@ -1001,7 +1219,6 @@ void login_check_credentials(void){
   const char *zCookie;          /* Text of the login cookie */
   const char *zIpAddr;          /* Raw IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
-  const char *zPublicPages = 0; /* GLOB patterns of public pages */
   const char *zLogin = 0;       /* Login user for credentials */
 
   /* Only run this check once.  */
@@ -1140,6 +1357,17 @@ void login_check_credentials(void){
     }
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "none");
   }
+
+  login_set_uid(uid, zCap);
+}
+
+/*
+** Set the current logged in user to be uid.  zCap is precomputed
+** (override) capabilities.  If zCap==0, then look up the capabilities
+** in the USER table.
+*/
+void login_set_uid(int uid, const char *zCap){
+  const char *zPublicPages = 0; /* GLOB patterns of public pages */
 
   /* At this point, we know that uid!=0.  Find the privileges associated
   ** with user uid.
