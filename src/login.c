@@ -1018,6 +1018,7 @@ void login_resetpw(void){
                ** extra defense against search attacks */
     return;
   }
+  fossil_redirect_to_https_if_needed(1);
   login_set_uid(uid, 0);
   if( g.perm.Setup || g.perm.Admin || !g.perm.Password || g.zLogin==0 ){
     @ <p><span class="loginError">
