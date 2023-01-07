@@ -634,6 +634,7 @@ void login_page(void){
         **
         ** Replicate changes made below to tag-20230106-2
         */
+        admin_log("password change for user %s", g.zLogin);
         db_unprotect(PROTECT_USER);
         db_multi_exec(
            "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
@@ -1043,6 +1044,7 @@ void login_resetpw(void){
       **
       ** Replicate changes made below to tag-20230106-1
       */
+      admin_log("password change for user %s", g.zLogin);
       db_unprotect(PROTECT_USER);
       db_multi_exec(
          "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid

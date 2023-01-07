@@ -1,5 +1,5 @@
-C Enhance\sthe\snew\s/resetpw\spage\sso\sthat\sit\shonors\sthe\sredirect-to-https\ssetting.
-D 2023-01-07T17:06:08.501
+C Make\sadmin_log\sentries\sfor\spassword\schanges.
+D 2023-01-07T20:18:10.036
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -491,7 +491,7 @@ F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdec
 F src/json_wiki.c 32a902096d496725781b9aeff5cbf5245d8e662b8785969020a66dbfde04f2f1
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c1
-F src/login.c 324eff0f2febb4245afb2b4bebef44128982e4531d30f64de7ab34e7093ffbfc
+F src/login.c 7a52ede2375600687caf08eb43fd831109a0524d1b9ffbf1c2f81ea11e2a8a69
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c d0d4a6eb6d2558049a87d4c162347cd6d4d9793282c3672ce9cbd8a81bf6e2b8
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07bfe3fee3a94d4ccc4a1a628d26c34d814edb940988a706091d71a25b77bf2c
-R 9a2ebe2594ec57f222db291be72927a0
+P 3b1e8a0e5c8cac9bd58a864596e01fe9b110994b3657e7c6c445507f33cf4988
+R 5151b623b076c07999cecdf91cb7d61f
 U drh
-Z 001542825251f460bf7c0e84bf7fc3bb
+Z e114e7cd00b8843ec31663e14098b8ba
 # Remove this line to create a well-formed Fossil manifest.
