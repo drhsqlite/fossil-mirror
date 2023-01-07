@@ -571,7 +571,9 @@ void login_page(void){
                                   session cookie. Toggled per
                                   checkbox. */
 
-  if( P("pwreset")!=0 ){
+  if( P("pwreset")!=0 && login_self_password_reset_available() ){
+    /* If the "Reset Password" button in the form was pressed, render
+    ** the Request Password Reset page in place of this one. */
     login_reqpwreset_page();
     return;
   }
@@ -870,11 +872,11 @@ void login_page(void){
 ** is constructed from information that is unique to the user in question
 ** and which is not publicly available.  In particular, the HASH includes
 ** the existing user password.  Thus, in order to construct a URL that can
-** change a password, the attacker must know the current password, in which
-** case that do not need to construct the URL in order to take over the
-** account.
+** change a password, an attacker must know the current password, in which
+** case the attacker does not need to construct the URL in order to take
+** over the account.
 **
-**  Return a pointer to the resulting string in memory obtained
+** Return a pointer to the resulting string in memory obtained
 ** from fossil_malloc().
 */
 char *login_resetpw_suffix(int uid, i64 timestamp){
@@ -897,6 +899,11 @@ char *login_resetpw_suffix(int uid, i64 timestamp){
   zHash = db_text(0, "SELECT lower(hex(sha3_query(%Q)))", zInnerSql);
   fossil_free(zInnerSql);
   zResult = mprintf("%x-%llx-%s", uid, timestamp, zHash);
+  if( strlen(zHash)<64 || strlen(zResult)<70 ){
+    /* This should never happen, but if it does, we don't want it to lead
+    ** to a security breach. */
+    fossil_panic("insecure password reset hash generated\n");
+  }
   fossil_free(zHash);
   return zResult;
 }
@@ -913,6 +920,7 @@ static int login_resetpw_suffix_is_valid(const char *zName){
   i64 timestamp;
   i64 now;
   char *zHash;
+  if( zName==0 || strlen(zName)<70 ) goto not_valid_suffix;
   for(i=0; fossil_isxdigit(zName[i]); i++){}
   if( i<1 || zName[i]!='-' ) goto not_valid_suffix;
   for(j=i+1; fossil_isxdigit(zName[j]); j++){}
@@ -934,8 +942,6 @@ static int login_resetpw_suffix_is_valid(const char *zName){
   return uid;
 
 not_valid_suffix:
-  sleep(2);  /* Introduce a small delay on an invalid suffix as an 
-             ** extra defense against search attacks */
   return 0;
 }
 
@@ -944,29 +950,35 @@ not_valid_suffix:
 ** Usage: fossil test-resetpw-url UID
 **
 ** Generate and verify a /resetpw URL for user UID.
+**
+** This command is intended for unit testing the login_resetpw_suffix()
+** and login_resetpw_suffix_is_valid() functions.
 */
 void test_resetpw_url(void){
   char *zSuffix;
   int uid;
   int xuid;
   char *zLogin;
+  int i;
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  if( g.argc!=3 ){
-    usage("UID");
+  if( g.argc<3 ){
+    usage("UID ...");
   }
-  uid = atoi(g.argv[2]);
-  zSuffix = login_resetpw_suffix(uid, 0);
-  xuid = login_resetpw_suffix_is_valid(zSuffix);
-  if( xuid>0 ){
-    zLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", xuid);
-  }else{
-    zLogin = 0;
+  for(i=2; i<g.argc; i++){
+    uid = atoi(g.argv[i]);
+    zSuffix = login_resetpw_suffix(uid, 0);
+    xuid = login_resetpw_suffix_is_valid(zSuffix);
+    if( xuid>0 ){
+      zLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", xuid);
+    }else{
+      zLogin = 0;
+    }
+    fossil_print("/resetpw/%s   %d (%s)\n",
+                 zSuffix, xuid, zLogin ? zLogin : "???");
+    fossil_free(zSuffix);
+    fossil_free(zLogin);
   }
-  fossil_print("/resetpw/%s   %d (%s)\n",
-               zSuffix, xuid, zLogin ? zLogin : "???");
-  fossil_free(zSuffix);
-  fossil_free(zLogin);
 }
 
 /*
@@ -1002,6 +1014,8 @@ void login_resetpw(void){
     @ Password-reset URLs have a short lifespan.
     @ </span></p>
     style_finish_page();
+    sleep(1);  /* Introduce a small delay on an invalid suffix as an 
+               ** extra defense against search attacks */
     return;
   }
   login_set_uid(uid, 0);
@@ -1936,7 +1950,9 @@ void register_page(void){
     style_finish_page();
     return;
   }
-  if( P("pwreset")!=0 ){
+  if( P("pwreset")!=0 && login_self_password_reset_available() ){
+    /* The "Request Password Reset" button was pressed, so render the
+    ** "Request Password Reset" page instead of this one. */
     login_reqpwreset_page();
     return;
   }
@@ -2130,7 +2146,7 @@ void register_page(void){
   @ </tr>
   if( iErrLine==3 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span>
-    if( uid>0 ){
+    if( uid>0 && login_self_password_reset_available() ){
       @ <br />
       @ <input type="submit" name="pwreset" \
       @ value="Request Password Reset For %h(zEAddr)">
@@ -2207,7 +2223,7 @@ void login_reqpwreset_page(void){
   int captchaIsCorrect = 0; /* True on a correct captcha */
   char *zCaptcha = "";      /* Value of the captcha text */
 
-  if( !db_get_boolean("self-pw-reset", 0) || !alert_tables_exist() ){
+  if( !login_self_password_reset_available() ){
     style_header("Password reset not possible");
     @ <p>This project does not allow users to reset their own passwords.
     @ If you need a password reset, you will have to negotiate that directly

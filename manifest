@@ -1,5 +1,5 @@
-C Initial\scomplete\simplementation\sof\sself-password-reset.\s\sJust\sneed\nrefinement\sand\sa\ssecurity\saudit\sbefore\smerging\sto\strunk.
-D 2023-01-07T14:25:04.474
+C Improved\scomments.\s\sExtra\sdefensive\scode.
+D 2023-01-07T15:18:25.583
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -491,7 +491,7 @@ F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdec
 F src/json_wiki.c 32a902096d496725781b9aeff5cbf5245d8e662b8785969020a66dbfde04f2f1
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c1
-F src/login.c 20d2874a87a1ba49832ba66309050f34e1994e7da0cebe2638c4c1c2baf0cbcd
+F src/login.c d134149d56a7220e87263a4d75aa01af2e10ad8e7b071e7f84daf739466141d4
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c d0d4a6eb6d2558049a87d4c162347cd6d4d9793282c3672ce9cbd8a81bf6e2b8
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c62a2c3a78e94cd847bc95b03f8899bc025622ab74b95569660e33ca543828f
-R 5e492341543141a5e74e10b19906f04b
+P 41bb73e9ba49c121bd95d2054fe1c1b974aa6849bb99f4229433218571f6018b
+R d91b2482987fa8bc4be82dd6240a019c
 U drh
-Z c4e006d81a9e9a7cd15f47659b9b2ce3
+Z 3632078d4835efc8fef6df2847b44b43
 # Remove this line to create a well-formed Fossil manifest.
