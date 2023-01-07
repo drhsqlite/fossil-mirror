@@ -514,6 +514,15 @@ int referred_from_login(void){
 }
 
 /*
+** Return true if users are allowed to reset their own passwords.
+*/
+int login_self_password_reset_available(void){
+  if( !db_get_boolean("self-pw-reset",0) ) return 0;
+  if( !alert_tables_exist() ) return 0;
+  return 1;
+}
+
+/*
 ** Return TRUE if self-registration is available.  If the zNeeded
 ** argument is not NULL, then only return true if self-registration is
 ** available and any of the capabilities named in zNeeded are available
@@ -562,6 +571,12 @@ void login_page(void){
                                   session cookie. Toggled per
                                   checkbox. */
 
+  if( P("pwreset")!=0 && login_self_password_reset_available() ){
+    /* If the "Reset Password" button in the form was pressed, render
+    ** the Request Password Reset page in place of this one. */
+    login_reqpwreset_page();
+    return;
+  }
   login_check_credentials();
   fossil_redirect_to_https_if_needed(1);
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
@@ -615,6 +630,10 @@ void login_page(void){
         char *zErr;
         int rc;
 
+        /* vvvvvvv---  tag-20230106-1 ----vvvvvv
+        **
+        ** Replicate changes made below to tag-20230106-2
+        */
         db_unprotect(PROTECT_USER);
         db_multi_exec(
            "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
@@ -629,6 +648,12 @@ void login_page(void){
         fossil_free(zNewPw);
         rc = login_group_sql(zChngPw, "<p>", "</p>\n", &zErr);
         db_protect_pop();
+        /*
+        ** ^^^^^^^^---  tag-20230106-1 ----^^^^^^^^^
+        **
+        ** Replicate changes above to tag-20230106-2
+        */
+
         if( rc ){
           zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
           fossil_free(zErr);
@@ -773,6 +798,12 @@ void login_page(void){
       @   <td><input type="submit" name="self" value="Create A New Account">
       @ </tr>
     }
+    if( login_self_password_reset_available() ){
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="pwreset" value="Reset My Password">
+      @ </tr>
+    }
     @ </table>
     if( zAnonPw && !noAnon ){
       const char *zDecoded = captcha_decode(uSeed);
@@ -828,6 +859,239 @@ void login_page(void){
       @ </form>
     }
   }
+  style_finish_page();
+}
+
+/*
+** Construct an appropriate URL suffix for the /resetpw page.  The
+** suffix will be of the form:
+**
+**     UID-TIMESTAMP-HASH
+**
+** Where UID and TIMESTAMP are the parameters to this function, and HASH
+** is constructed from information that is unique to the user in question
+** and which is not publicly available.  In particular, the HASH includes
+** the existing user password.  Thus, in order to construct a URL that can
+** change a password, an attacker must know the current password, in which
+** case the attacker does not need to construct the URL in order to take
+** over the account.
+**
+** Return a pointer to the resulting string in memory obtained
+** from fossil_malloc().
+*/
+char *login_resetpw_suffix(int uid, i64 timestamp){
+  char *zHash;
+  char *zInnerSql;
+  char *zResult;
+  extern int sqlite3_shathree_init(sqlite3*,char**,const sqlite3_api_routines*);
+  if( timestamp<=0 ){ timestamp = time(0); }
+  sqlite3_shathree_init(g.db, 0, 0);
+  if( db_table_exists("repository","subscriber") ){
+    zInnerSql = mprintf(
+      "SELECT %lld, login, pw, cookie, user.mtime, user.info, subscriberCode"
+      "  FROM user LEFT JOIN subscriber ON suname=login"
+      " WHERE uid=%d", timestamp, uid);
+  }else{
+    zInnerSql = mprintf(
+      "SELECT %lld, login, pw, cookie, user.mtime, user.info"
+      "  FROM user WHERE uid=%d", timestamp, uid);
+  }
+  zHash = db_text(0, "SELECT lower(hex(sha3_query(%Q)))", zInnerSql);
+  fossil_free(zInnerSql);
+  zResult = mprintf("%x-%llx-%s", uid, timestamp, zHash);
+  if( strlen(zHash)<64 || strlen(zResult)<70 ){
+    /* This should never happen, but if it does, we don't want it to lead
+    ** to a security breach. */
+    fossil_panic("insecure password reset hash generated\n");
+  }
+  fossil_free(zHash);
+  return zResult;
+}
+
+/*
+** Check to see if the "name" query parameter is a valid resetpw suffix
+** for a user whose password we are allowed to reset.  If it is, then return
+** the positive integer UID for that user.  If the query parameter is not
+** valid, return 0.
+*/
+static int login_resetpw_suffix_is_valid(const char *zName){
+  int i, j;
+  int uid;
+  i64 timestamp;
+  i64 now;
+  char *zHash;
+  if( zName==0 || strlen(zName)<70 ) goto not_valid_suffix;
+  for(i=0; fossil_isxdigit(zName[i]); i++){}
+  if( i<1 || zName[i]!='-' ) goto not_valid_suffix;
+  for(j=i+1; fossil_isxdigit(zName[j]); j++){}
+  if( j<=i+1 || zName[j]!='-' ) goto not_valid_suffix;
+  uid = strtol(zName, 0, 16);
+  if( uid<=0 ) goto not_valid_suffix;
+  if( !db_exists("SELECT 1 FROM user WHERE uid=%d", uid) ){
+    goto not_valid_suffix;
+  }
+  timestamp = strtoll(&zName[i+1], 0, 16);
+  now = time(0);
+  if( timestamp+3600 <= now ) goto not_valid_suffix;
+  zHash = login_resetpw_suffix(uid,timestamp);
+  if( fossil_strcmp(zHash, zName)!=0 ){
+    fossil_free(zHash);
+    goto not_valid_suffix;
+  }
+  fossil_free(zHash);
+  return uid;
+
+not_valid_suffix:
+  return 0;
+}
+
+/*
+** COMMAND: test-resetpw-url
+** Usage: fossil test-resetpw-url UID
+**
+** Generate and verify a /resetpw URL for user UID.
+**
+** This command is intended for unit testing the login_resetpw_suffix()
+** and login_resetpw_suffix_is_valid() functions.
+*/
+void test_resetpw_url(void){
+  char *zSuffix;
+  int uid;
+  int xuid;
+  char *zLogin;
+  int i;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc<3 ){
+    usage("UID ...");
+  }
+  for(i=2; i<g.argc; i++){
+    uid = atoi(g.argv[i]);
+    zSuffix = login_resetpw_suffix(uid, 0);
+    xuid = login_resetpw_suffix_is_valid(zSuffix);
+    if( xuid>0 ){
+      zLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", xuid);
+    }else{
+      zLogin = 0;
+    }
+    fossil_print("/resetpw/%s   %d (%s)\n",
+                 zSuffix, xuid, zLogin ? zLogin : "???");
+    fossil_free(zSuffix);
+    fossil_free(zLogin);
+  }
+}
+
+/*
+** WEBPAGE: resetpw
+**
+** The URL format must be like this:
+**
+**      /resetpw/UID-TIMESTAMP-HASH
+**
+** Where UID is the uid of the user whose password is to be reset,
+** TIMESTAMP is the unix timestamp when the request was made, and
+** HASH is a hash based on UID, TIMESTAMP, and other information that
+** is unavailable to an attacher.
+**
+** With no other arguments, a form is present which allows the user to
+** enter a new password.  When the SUBMIT button is pressed, a POST request
+** back to the same URL that will change the password.
+*/
+void login_resetpw(void){
+  const char *zName;
+  int uid;
+  char *zRPW;
+  const char *zNew1, *zNew2;
+
+  style_set_current_feature("resetpw");
+  style_header("Reset Password");
+  style_adunit_config(ADUNIT_OFF);
+  zName = PD("name","");
+  uid = login_resetpw_suffix_is_valid(zName);
+  if( uid==0 ){
+    @ <p><span class="loginError">
+    @ This password-reset URL is invalid, probably because it has expired.
+    @ Password-reset URLs have a short lifespan.
+    @ </span></p>
+    style_finish_page();
+    sleep(1);  /* Introduce a small delay on an invalid suffix as an 
+               ** extra defense against search attacks */
+    return;
+  }
+  login_set_uid(uid, 0);
+  if( g.perm.Setup || g.perm.Admin || !g.perm.Password || g.zLogin==0 ){
+    @ <p><span class="loginError">
+    @ Cannot change the password for user <b>%h(g.zLogin)</b>.
+    @ </span></p>
+    style_finish_page();
+    return;
+  }
+  if( (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+    if( fossil_strcmp(zNew1,zNew2)!=0 ){
+      @ <p><span class="loginError">
+      @ The two copies of your new passwords do not match.
+      @ Try again.
+      @ </span></p>
+    }else{
+      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
+      char *zChngPw;
+      char *zErr;
+      int rc;
+
+      /* vvvvvvv---  tag-20230106-2 ----vvvvvv
+      **
+      ** Replicate changes made below to tag-20230106-1
+      */
+      db_unprotect(PROTECT_USER);
+      db_multi_exec(
+         "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
+      );
+      zChngPw = mprintf(
+         "UPDATE user"
+         "   SET pw=shared_secret(%Q,%Q,"
+         "        (SELECT value FROM config WHERE name='project-code'))"
+         " WHERE login=%Q",
+         zNew1, g.zLogin, g.zLogin
+      );
+      fossil_free(zNewPw);
+      rc = login_group_sql(zChngPw, "<p>", "</p>\n", &zErr);
+      db_protect_pop();
+      /*
+      ** ^^^^^^^^---  tag-20230106-2 ----^^^^^^^^^
+      **
+      ** Replicate changes above to tag-20230106-1
+      */
+
+      if( rc ){
+        @ <p><span class='loginError'>
+        @ %s(zErr);
+        @ </span></p>
+        fossil_free(zErr);
+      }else{
+        @ <p>Password changed successfully.  Go to the
+        @ <a href="%R/login?u=%t(g.zLogin)">Login</a> page and log in
+        @ using the new password to continue.
+        @ </p>
+        style_finish_page();
+        return;
+      }
+    }
+  }
+  zRPW = fossil_random_password(12);
+  @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
+  form_begin(0, "%R/resetpw");
+  @ <input type='hidden' name='name' value='%h(zName)'>
+  @ <table>
+  @ <tr><td class="form_label" id="newpw">New Password:</td>
+  @ <td><input aria-labelledby="newpw" type="password" name="n1" \
+  @ size="30" /> Suggestion: %z(zRPW)</td></tr>
+  @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
+  @ <td><input aria-labledby="reppw" type="password" name="n2" \
+  @ size="30" /></td></tr>
+  @ <tr><td></td>
+  @ <td><input type="submit" value="Change Password" /></td></tr>
+  @ </table>
+  @ </form>
   style_finish_page();
 }
 
@@ -1001,7 +1265,6 @@ void login_check_credentials(void){
   const char *zCookie;          /* Text of the login cookie */
   const char *zIpAddr;          /* Raw IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
-  const char *zPublicPages = 0; /* GLOB patterns of public pages */
   const char *zLogin = 0;       /* Login user for credentials */
 
   /* Only run this check once.  */
@@ -1141,6 +1404,17 @@ void login_check_credentials(void){
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "none");
   }
 
+  login_set_uid(uid, zCap);
+}
+
+/*
+** Set the current logged in user to be uid.  zCap is precomputed
+** (override) capabilities.  If zCap==0, then look up the capabilities
+** in the USER table.
+*/
+int login_set_uid(int uid, const char *zCap){
+  const char *zPublicPages = 0; /* GLOB patterns of public pages */
+
   /* At this point, we know that uid!=0.  Find the privileges associated
   ** with user uid.
   */
@@ -1221,6 +1495,7 @@ void login_check_credentials(void){
     }
     glob_free(pGlob);
   }
+  return g.zLogin!=0;
 }
 
 /*
@@ -1560,6 +1835,71 @@ static int login_self_choosen_userid_already_exists(const char *zUserID){
 }
 
 /*
+** zEMail is an email address.  (Example:  "xyz@gmail.com".)  This routine
+** searches for a user or subscriber that has that email address.  If the
+** email address is used no-where in the system, return 0.  If the email
+** address is assigned to a particular user return the UID for that user.
+** If the email address is used, but not by a particular user, return -1.
+*/
+static int email_address_in_use(const char *zEMail){
+  int uid;
+  uid = db_int(0, 
+    "SELECT uid FROM user"
+    " WHERE info LIKE '%%<%q>%%'", zEMail);
+  if( uid>0 ){
+    if( db_exists("SELECT 1 FROM user WHERE uid=%d AND ("
+                  "   cap GLOB '*[as]*' OR"
+                  "   find_emailaddr(info)<>%Q COLLATE nocase)",
+                  uid, zEMail) ){
+      uid = -1;
+    }
+  }
+  if( uid==0 && alert_tables_exist() ){
+    uid = db_int(0,
+      "SELECT user.uid FROM subscriber JOIN user ON login=suname"
+      " WHERE semail=%Q AND sverified", zEMail);
+    if( uid ){
+      if( db_exists("SELECT 1 FROM user WHERE uid=%d AND "
+                    "   cap GLOB '*[as]*'",
+                    uid) ){
+        uid = -1;
+      }
+    }
+  }
+  return uid;
+}
+
+/*
+** COMMAND: test-email-used
+** Usage:  fossil test-email-used EMAIL ...
+** 
+** Given a list of email addresses, show the UID and LOGIN associated
+** with each one.
+*/
+void test_email_used(void){
+  int i;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc<3 ){
+    usage("EMAIL ...");
+  }
+  for(i=2; i<g.argc; i++){
+    const char *zEMail = g.argv[i];
+    int uid = email_address_in_use(zEMail);
+    if( uid==0 ){
+      fossil_print("%s:  not used\n", zEMail);
+    }else if( uid<0 ){
+      fossil_print("%s:  used but no password reset is available\n", zEMail);
+    }else{
+      char *zLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
+      fossil_print("%s:  UID %d (%s)\n", zEMail, uid, zLogin);
+      fossil_free(zLogin);
+    }
+  }
+}
+    
+
+/*
 ** Check an email address and confirm that it is valid for self-registration.
 ** The email address is known already to be well-formed.  Return true
 ** if the email address is on the allowed list.
@@ -1600,16 +1940,24 @@ void register_page(void){
   const char *zDecoded;
   int iErrLine = -1;
   const char *zErr = 0;
+  int uid = 0;              /* User id with the same email */
   int captchaIsCorrect = 0; /* True on a correct captcha */
   char *zCaptcha = "";      /* Value of the captcha text */
   char *zPerms;             /* Permissions for the default user */
   int canDoAlerts = 0;      /* True if receiving email alerts is possible */
   int doAlerts = 0;         /* True if subscription is wanted too */
+
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
     @ project administrator to obtain an account.</p>
     style_finish_page();
+    return;
+  }
+  if( P("pwreset")!=0 && login_self_password_reset_available() ){
+    /* The "Request Password Reset" button was pressed, so render the
+    ** "Request Password Reset" page instead of this one. */
+    login_reqpwreset_page();
     return;
   }
   zPerms = db_get("default-perms", "u");
@@ -1658,22 +2006,12 @@ void register_page(void){
   }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
     iErrLine = 5;
     zErr = "Passwords do not match";
+  }else if( (uid = email_address_in_use(zEAddr))!=0 ){
+    iErrLine = 3;
+    zErr = "This email address is already associated with a user";
   }else if( login_self_choosen_userid_already_exists(zUserID) ){
     iErrLine = 1;
     zErr = "This User ID is already taken. Choose something different.";
-  }else if(
-      /* If the email is found anywhere in USER.INFO... */
-      db_exists("SELECT 1 FROM user WHERE info LIKE '%%%q%%'", zEAddr)
-    ||
-      /* Or if the email is a verify subscriber email with an associated
-      ** user... */
-      (alert_tables_exist() &&
-       db_exists(
-         "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
-         " AND sverified",zEAddr))
-   ){
-    iErrLine = 3;
-    zErr = "This email address is already claimed by another user";
   }else{
     /* If all of the tests above have passed, that means that the submitted
     ** form contains valid data and we can proceed to create the new login */
@@ -1811,7 +2149,13 @@ void register_page(void){
   @ value="%h(zEAddr)" size="30"></td>
   @ </tr>
   if( iErrLine==3 ){
-    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span>
+    if( uid>0 && login_self_password_reset_available() ){
+      @ <br />
+      @ <input type="submit" name="pwreset" \
+      @ value="Request Password Reset For %h(zEAddr)">
+    }
+    @ </td></tr>
   }
   if( canDoAlerts ){
     int a = atoi(PD("alerts","1"));
@@ -1865,6 +2209,147 @@ void register_page(void){
   @ </form>
   style_finish_page();
 
+  free(zCaptcha);
+}
+
+/*
+** WEBPAGE:  reqpwreset
+**
+** A web page to request a password reset.
+*/
+void login_reqpwreset_page(void){
+  const char *zEAddr;
+  const char *zDecoded;
+  unsigned int uSeed;
+  int iErrLine = -1;
+  const char *zErr = 0;
+  int uid = 0;              /* User id with the email zEAddr */
+  int captchaIsCorrect = 0; /* True on a correct captcha */
+  char *zCaptcha = "";      /* Value of the captcha text */
+
+  if( !login_self_password_reset_available() ){
+    style_header("Password reset not possible");
+    @ <p>This project does not allow users to reset their own passwords.
+    @ If you need a password reset, you will have to negotiate that directly
+    @ with the project administrator.
+    style_finish_page();
+    return;
+  }
+  zEAddr = PDT("ea","");
+
+  /* Verify user imputs */
+  if( !cgi_csrf_safe(1) || P("reqpwreset")==0 ){
+    /* This is the initial display of the form.  No processing or error
+    ** checking is to be done. Fall through into the form display
+    */
+  }else if( (captchaIsCorrect = captcha_is_correct(1))==0 ){
+    iErrLine = 2;
+    zErr = "Incorrect CAPTCHA";
+  }else if( zEAddr[0]==0 ){
+    iErrLine = 1;
+    zErr = "Required";
+  }else if( email_address_is_valid(zEAddr,0)==0 ){
+    iErrLine = 1;
+    zErr = "Not a valid email address";
+  }else if( authorized_subscription_email(zEAddr)==0 ){
+    iErrLine = 1;
+    zErr = "Not an authorized email address";
+  }else if( (uid = email_address_in_use(zEAddr))<=0 ){
+    iErrLine = 1;
+    zErr = "This email address is not associated with a user who has "
+           "password reset privileges.";
+  }else if( login_set_uid(uid,0)==0 || g.perm.Admin || g.perm.Setup
+            || !g.perm.Password ){
+    iErrLine = 1;
+    zErr = "This email address is not associated with a user who has "
+           "password reset privileges.";
+  }else{
+
+    /* If all of the tests above have passed, that means that the submitted
+    ** form contains valid data and we can proceed to issue the password
+    ** reset email. */
+    Blob hdr, body;
+    AlertSender *pSender;
+    char *zUrl = login_resetpw_suffix(uid, 0);
+    pSender = alert_sender_new(0,0);
+    blob_init(&hdr,0,0);
+    blob_init(&body,0,0);
+    blob_appendf(&hdr, "To: <%s>\n", zEAddr);
+    blob_appendf(&hdr, "Subject: Password reset for %s\n", g.zBaseURL);
+    blob_appendf(&body,
+      "Someone has requested to reset the password for user \"%s\"\n",
+      g.zLogin);
+    blob_appendf(&body, "at %s.\n\n", g.zBaseURL);
+    blob_appendf(&body,
+       "If you did not request this password reset, ignore\n"
+       "this email\n\n");
+    blob_appendf(&body,
+       "To reset the password, visit the following link:\n\n"
+       "    %s/resetpw/%s\n\n", g.zBaseURL, zUrl);
+    fossil_free(zUrl);
+    alert_send(pSender, &hdr, &body, 0);
+    style_header("Email Verification");
+    if( pSender->zErr ){
+      @ <h1>Internal Error</h1>
+      @ <p>The following internal error was encountered while trying
+      @ to send the confirmation email:
+      @ <blockquote><pre>
+      @ %h(pSender->zErr)
+      @ </pre></blockquote>
+    }else{
+      @ <p>An email containing a hyperlink that can be used to reset
+      @ your password has been sent to "%h(zEAddr)".</p>
+    }
+    alert_sender_free(pSender);
+    style_finish_page();
+    return;
+  }
+
+  /* Prepare the captcha. */
+  if( captchaIsCorrect ){
+    uSeed = strtoul(P("captchaseed"),0,10);
+  }else{
+    uSeed = captcha_seed();
+  }
+  zDecoded = captcha_decode(uSeed);
+  zCaptcha = captcha_render(zDecoded);
+
+  style_header("Request Password Reset");
+  /* Print out the registration form. */
+  g.perm.Hyperlink = 1;  /* Artificially enable hyperlinks */
+  form_begin(0, "%R/reqpwreset");
+  @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)" />
+  @ <p><input type="hidden" name="reqpwreset" value="1" />
+  @ <table class="login_out">
+  @ <tr>
+  @   <td class="form_label" align="right" id="emaddr">Email Address:</td>
+  @   <td><input aria-labelledby="emaddr" type="text" name="ea" \
+  @ value="%h(zEAddr)" size="30"></td>
+  @ </tr>
+  if( iErrLine==1 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
+  @ <tr>
+  @   <td class="form_label" align="right" id="cptcha">Captcha:</td>
+  @   <td><input type="text" name="captcha" aria-labelledby="cptcha" \
+  @ value="%h(captchaIsCorrect?zDecoded:"")" size="30">
+  captcha_speakit_button(uSeed, "Speak the captcha text");
+  @   </td>
+  @ </tr>
+  if( iErrLine==2 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
+  @ <tr><td></td>
+  @ <td><input type="submit" name="new" value="Request Password Reset"/>\
+  @ </td></tr>
+  @ </table>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
+  @ %h(zCaptcha)
+  @ </pre>
+  @ Enter this 8-letter code in the "Captcha" box above.
+  @ </td></tr></table></div>
+  @ </form>
+  style_finish_page();
   free(zCaptcha);
 }
 
