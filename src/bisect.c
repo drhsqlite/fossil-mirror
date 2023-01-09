@@ -388,8 +388,8 @@ void bisect_reset(void){
 ** fossil bisect run [OPTIONS] COMMAND
 **
 ** Invoke COMMAND (with arguments) repeatedly to perform the bisect.
-** Options:
 **
+** Options:
 **    -i|--interactive          Prompt user for decisions rather than
 **                              using the return code from COMMAND
 */
@@ -509,8 +509,9 @@ static void bisect_run(void){
 **
 **       Invoke COMMAND repeatedly to run the bisect.  The exit code for
 **       COMMAND should be 0 for "good", 125 for "skip", and any other value
-**       for "bad".  Options:
+**       for "bad".
 **
+**       Options:
 **          -i|--interactive    Prompt the user for the good/bad/skip decision
 **                              after each step, rather than using the exit
 **                              code from COMMAND

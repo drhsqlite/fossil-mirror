@@ -360,7 +360,7 @@ void backlink_extract(
 ** Options:
 **    --mtime DATETIME        Use an alternative date/time.  Defaults to the
 **                            current date/time.
-**    --mimetype TYPE         Use an alternative mimetype.
+**    --mimetype TYPE         Use an alternative mimetype
 */
 void test_backlinks_cmd(void){
   const char *zMTime = find_option("mtime",0,1);

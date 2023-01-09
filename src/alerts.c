@@ -1129,8 +1129,8 @@ void alert_send(
 **                            Some installations may want to do this via
 **                            a cron-job to make sure alerts are sent
 **                            in a timely manner.
-**                            Options:
 **
+**                            Options:
 **                               --digest     Send digests
 **                               --renewal    Send subscription renewal
 **                                            notices
@@ -1148,8 +1148,9 @@ void alert_send(
 **    test-message TO [OPTS]  Send a single email message using whatever
 **                            email sending mechanism is currently configured.
 **                            Use this for testing the email notification
-**                            configuration.  Options:
+**                            configuration.
 **
+**                            Options:
 **                              --body FILENAME         Content from FILENAME
 **                              --smtp-trace            Trace SMTP processing
 **                              --stdout                Send msg to stdout
@@ -2710,7 +2711,6 @@ void email_header(Blob *pOut){
 ** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
-**
 **      --digest           Generate digest alert text
 **      --needmod          Assume all events are pending moderator approval
 */
@@ -2771,15 +2771,12 @@ void test_alert_cmd(void){
 ** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
-**
 **    --backoffice        Run alert_backoffice() after all alerts have
 **                        been added.  This will cause the alerts to be
 **                        sent out with the SENDALERT_TRACE option.
-**
 **    --debug             Like --backoffice, but add the SENDALERT_STDOUT
 **                        so that emails are printed to standard output
 **                        rather than being sent.
-**
 **    --digest            Process emails using SENDALERT_DIGEST
 */
 void test_add_alert_cmd(void){

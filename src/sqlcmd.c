@@ -334,15 +334,11 @@ static void fossil_close(int bDb, int noRepository){
 ** --readonly option to prevent accidental damage to the repository.
 **
 ** Options:
-**
 **    --no-repository           Skip opening the repository database
-**
 **    --readonly                Open the repository read-only.  No changes
 **                              are allowed.  This is a recommended safety
 **                              precaution to prevent repository damage.
-**
 **    -R REPOSITORY             Use REPOSITORY as the repository database
-**
 **    --test                    Enable some testing and analysis features
 **                              that are normally disabled.
 **

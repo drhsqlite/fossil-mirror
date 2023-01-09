@@ -1065,7 +1065,6 @@ void whatis_artifact(
 ** plays.
 **
 ** Options:
-**
 **    -f|--file            Find artifacts with the same hash as file NAME.
 **                         If NAME is "-", read content from standard input.
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',

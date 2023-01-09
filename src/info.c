@@ -189,7 +189,6 @@ static void showParentProject(void){
 ** file in a check-out.
 **
 ** Options:
-**
 **    -R|--repository REPO       Extract info from repository REPO
 **    -v|--verbose               Show extra information about repositories
 **
@@ -3473,7 +3472,6 @@ static void prepare_amend_comment(
 ** Amend the tags on check-in HASH to change how it displays in the timeline.
 **
 ** Options:
-**
 **    --author USER           Make USER the author for check-in
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    -M|--message-file FILE  Read the amended comment from FILE
@@ -3815,7 +3813,6 @@ int describe_commit(
 ** ancestor is found, show only the short hash of VERSION.
 **
 ** Options:
-**
 **    --digits           Display so many hex digits of the hash 
 **                       (default: the larger of 6 and the 'hash-digit' setting)
 **    -d|--dirty         Show whether there are changes to be committed

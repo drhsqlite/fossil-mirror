@@ -1477,12 +1477,11 @@ static void emitFileStat(
 ** display file system information about the files specified, if any.
 **
 ** Options:
-**
 **     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
-**     --open-config                Open the configuration database first.
-**     --reset                      Reset cached stat() info for each file.
+**     --open-config                Open the configuration database first
+**     --reset                      Reset cached stat() info for each file
 **     --root ROOT                  Use ROOT as the root of the check-out
-**     --slash                      Trailing slashes, if any, are retained.
+**     --slash                      Trailing slashes, if any, are retained
 */
 void cmd_test_file_environment(void){
   int i;
@@ -1776,7 +1775,7 @@ int file_tree_name(
 ** Test the operation of the tree name generator.
 **
 ** Options:
-**   --absolute           Return an absolute path instead of a relative one.
+**   --absolute           Return an absolute path instead of a relative one
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */

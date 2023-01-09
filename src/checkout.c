@@ -399,7 +399,7 @@ static void unlink_local_database(int manifestOnly){
 ** current check-out or if there is non-empty stash.
 **
 ** Options:
-**   -f|--force  necessary to close a check-out with uncommitted changes
+**   -f|--force  Necessary to close a check-out with uncommitted changes
 **
 ** See also: [[open]]
 */

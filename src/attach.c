@@ -680,16 +680,15 @@ void attachment_list(
 ** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
 ** Add an attachment to an existing wiki page or tech note.
-** Options:
 **
+** Options:
 **    -t|--technote DATETIME      Specifies the timestamp of
 **                                the technote to which the attachment
 **                                is to be made. The attachment will be
 **                                to the most recently modified tech note
 **                                with the specified timestamp.
-**
 **    -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                updated by its technote id.
+**                                updated by its technote id
 **
 ** One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 **
@@ -794,8 +793,7 @@ attachment_cmd_usage:
 ** which will match most wiki page names and some ticket hashes.
 **
 ** Options:
-**
-**    -latest    List only the latest version of a given attachment.
+**    -latest    List only the latest version of a given attachment
 **
 */
 void test_list_attachments(void){
