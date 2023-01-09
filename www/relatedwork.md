@@ -2,23 +2,25 @@
 
 ## Support Projects
 
-* [SQLite]: a C-language library that implements a small, fast,
+* [SQLite]: C-language library that implements a small, fast,
   self-contained, high-reliability, full-featured, SQL database engine
-* [pikchr]: a PIC-like markup language for diagrams in technical
+* [pikchr]: PIC-like markup language for diagrams in technical
   documentation
-* [althttpd]: a simple, secure, and low resource usage webserver
+* [althttpd]: simple, secure, and low resource usage webserver
   that has run the https://sqlite.org/ website since 2004
-* [Lemon Parser Generator][lemon]: an LALR(1), re-entrant, and thread-safe
-  parser with a less error-prone grammar syntax than YACC or BISON
+* [Lemon Parser Generator][lemon]: re-entrant and thread-safe
+  LALR(1) parser with a less error-prone grammar syntax than YACC or BISON
 * [Makeheaders]: automatically generate header files for C/C++ projects
 
 ## Fossil Inspired Projects
 
 * [libfossil]: 3rd party Fossil SCM Library API
-* [fnc]: an interactive text-based user interface for Fossil
-* [ChiselApp][chisel]: Free Fossil SCM hosting!
+* [fnc]: interactive text-based user interface for Fossil
+* [ChiselApp]: Free Fossil SCM hosting!
 * [Inskinerator]: The Fossil Skin Generator
-* [Fuel][fuel]: a cross-platform GUI front-end for the excellent Fossil SCM
+* [Fuel]: cross-platform GUI front-end for the excellent Fossil SCM
+* [fsl]: Tcl/Expect wrapper script extending Fossil functionality
+
 
 ## Editor Plugins
 
@@ -59,7 +61,7 @@
 [bsdtalk]:       https://bsdtalk.blogspot.com/2010/07/bsdtalk194-fossil-scm-with-d-richard.html
 [changelog201]:  https://changelog.com/podcast/201
 [changelog454]:  https://changelog.com/podcast/454
-[chisel]:        https://chiselapp.com/
+[ChiselApp]:     https://chiselapp.com/
 [CLion]:         https://www.jetbrains.com/clion/
 [corec66]:       https://corecursive.com/066-sqlite-with-richard-hipp/
 [Darcs]:         http://darcs.net/
@@ -67,6 +69,7 @@
 [emacsfsl]:      https://chiselapp.com/user/venks/repository/emacs-fossil/doc/tip/README.md
 [floss26]:       https://twit.tv/shows/floss-weekly/episodes/26
 [fnc]:           https://fnc.bsdbox.org
+[fsl]:           http://fossil.0branch.com/fsl
 [Fuel]:          https://fuel-scm.org/fossil/index
 [Git]:           https://git-scm.com
 [GoLand]:        https://www.jetbrains.com/go/
