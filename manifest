@@ -1,5 +1,5 @@
-C Further\sconsistency\simprovements\sin\sdocs\sfor\svarious\scommands.
-D 2023-01-09T13:06:49.599
+C Help\stext\simprovements\sfor\sdiffcmd.c.
+D 2023-01-09T13:25:43.424
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c 76a259aef3686702517f73515a202fe89fb469df435269a437625c6fd22ec618
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
-F src/diffcmd.c 32fa64a4ef5085468fcb92afa92186b177b209f25d9c7ecfdfcc2725dd8b832c
+F src/diffcmd.c b0f163e99df4ed04409a85ad92ff1c215e62b169e5cccd3d34c3e6c6d62a184e
 F src/dispatch.c 85cbcbe0b5a2131eafeec0fe38009f59c3b5aeefb01465d2a35a26c7d9b89a92
 F src/doc.c acc53cf353072d70bc0cc6eae76e1139f7649bb5bd9a1dfdddbcee75bcf2703b
 F src/encode.c 9518c2e72ed1e5c85b160b35369a0ad32a5b6523926b0ea296e6589d515084bc
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4b8dc32f2ddc2014a77182a240f75ba2d6812ded93393e635e6417e86514707
-R 8080f95705d6e08007f13efb3b2a0541
-U km
-Z 1fcf99e44d9308655a65bd3fee241b6f
+P 2512d2d4728836a7fcb62b804e8c213766fc2ee44dfd6578b67072ed2e3ee7f7
+R afdcc28ecf1ccdbfb750f41ef982425e
+U danield
+Z 4b448279c040a62c33619c632af3706f
 # Remove this line to create a well-formed Fossil manifest.
