@@ -4457,9 +4457,10 @@ struct Setting {
 ** Default value is "gpg --clearsign -o"
 */
 /*
-** SETTING: proxy            width=32 default=off
-** URL of the HTTP proxy. If "system", the "http_proxy" environment variable is
-** consulted. If undefined or "off", a direct HTTP connection is used.
+** SETTING: proxy            width=32 default=system
+** URL of the HTTP proxy. If undefined or "system", the "http_proxy"
+** environment variable is consulted. If "off", a direct HTTP connection is
+** used.
 */
 /*
 ** SETTING: redirect-to-https   default=0 width=-1

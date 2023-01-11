@@ -1,5 +1,5 @@
-C Help\stext\simprovements\sfor\sdiffcmd.c.
-D 2023-01-09T13:25:43.424
+C Make\sproxy\ssetting\s"system"\sby\sdefault\sto\suse\shttp_proxy\senvironment\svariable.\nCloser\sto\sold\sbehavior\sand\sconform\swith\smost\sprograms\son\sUnix-like\ssystem.
+D 2023-01-11T02:51:50.869
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/content.c 5a2f8d427a902c319959802cb453094a34691338eafd3f5c5ed5cf6342397d61
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c a481ff43f60c674b635d5cde7c81b04e478d2c734c508b89080976cc45dc006b
+F src/db.c 1531fb3084562bcf4b43e99a7d51a1435d649402ff19e289527c9830167799fb
 F src/default.css f7b32540fa032107f00610447ef841d6b77e8846731747761afcc00038565f31
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c 42b7776931dbb11421386e58dd32ec745a3d639725b2ad4b8168870bfc28953f
@@ -580,7 +580,7 @@ F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c e45a064fd6ef7fc9289c1682fe08ff49ef4598ccb003ac2667bf561af9165744
 F src/update.c d9c85d35025c4ee3f6c94df29ee6b508cb93c2e49b59949973e5a3bfd0c43332
-F src/url.c e7e1be5b2205f94549b538f2a7e1683c70b83426bba216e52410763e26162098
+F src/url.c 416b3d0912569de0864b4a23e9f19f8b06c6a7857e95bb4075a10a3752a83c9a
 F src/user.c acf4ce4e86837500909e85fcd8220e5684b6860776f858e7b62c466f1d756de5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
@@ -956,8 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2512d2d4728836a7fcb62b804e8c213766fc2ee44dfd6578b67072ed2e3ee7f7
-R afdcc28ecf1ccdbfb750f41ef982425e
-U danield
-Z 4b448279c040a62c33619c632af3706f
+P e1b51150afaf13a48b9a6378ddeef9bb316b7f6adbc5848313ec570501ecd532
+R 68944f184f63d2d0d2ab7a886e1f1023
+U mgagnon
+Z f20d80363043fc640481782e726bd44b
 # Remove this line to create a well-formed Fossil manifest.
