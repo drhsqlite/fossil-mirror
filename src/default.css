@@ -577,10 +577,6 @@ table.diff pre > del > *{
 table.diff td.diffln > pre {
   padding: 0 0.35em 0 0.5em;
 }
-table.diff td.difftxt > pre {
-  min-width: 100%;
-  max-width: 100%;
-}
 table.diff td > pre {
   box-sizing: border-box;
   /* Workaround for "slight wiggle" when using mouse-wheel in some FF
