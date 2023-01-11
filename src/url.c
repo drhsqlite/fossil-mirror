@@ -562,7 +562,7 @@ void url_enable_proxy(const char *zMsg){
   const char *zProxy;
   zProxy = zProxyOpt;
   if( zProxy==0 ){
-    zProxy = db_get("proxy", 0);
+    zProxy = db_get("proxy", "system");
     if( fossil_strcmp(zProxy, "system")==0 ){
       zProxy = fossil_getenv("http_proxy");
     }

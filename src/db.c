@@ -919,9 +919,8 @@ void db_test_db_exec_cmd(void){
 ** Usage: %fossil test-db-prepare ?OPTIONS? SQL-STATEMENT
 **
 ** Options:
-**
-**   --auth-report   Enable the ticket report query authorizer.
-**   --auth-ticket   Enable the ticket schema query authorizer.
+**   --auth-report   Enable the ticket report query authorizer
+**   --auth-ticket   Enable the ticket schema query authorizer
 **
 ** Invoke db_prepare() on the SQL input.  Report any errors encountered.
 ** This command is used to verify error detection logic in the db_prepare()
@@ -4458,9 +4457,10 @@ struct Setting {
 ** Default value is "gpg --clearsign -o"
 */
 /*
-** SETTING: proxy            width=32 default=off
-** URL of the HTTP proxy. If "system", the "http_proxy" environment variable is
-** consulted. If undefined or "off", a direct HTTP connection is used.
+** SETTING: proxy            width=32 default=system
+** URL of the HTTP proxy. If undefined or "system", the "http_proxy"
+** environment variable is consulted. If "off", a direct HTTP connection is
+** used.
 */
 /*
 ** SETTING: redirect-to-https   default=0 width=-1
@@ -4500,6 +4500,13 @@ struct Setting {
 **
 ** If repolist-skin has a value of 2, then the repository is omitted from
 ** the list in use cases 1 through 4, but not for 5 and 6.
+*/
+/*
+** SETTING: self-pw-reset    boolean default=off sensitive
+** Allow users to request that an email containing a hyperlink
+** to the /resetpw page be sent to their email address of record,
+** thus allowing forgetful users to reset their forgotten passwords
+** without administrator involvement.
 */
 /*
 ** SETTING: self-register    boolean default=off sensitive
@@ -4696,7 +4703,6 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** Options:
 **   --global   Set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only
-**
 **   --exact    Only consider exact name matches
 **
 ** See also: [[configuration]]
@@ -4850,7 +4856,7 @@ void test_timespan_cmd(void){
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
 **
 ** Options:
-**    --dry-run | -n        No changes.  Just print what would happen.
+**    -n|--dry-run  	No changes.  Just print what would happen.
 */
 void test_without_rowid(void){
   int i, j;

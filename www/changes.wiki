@@ -1,12 +1,20 @@
 <title>Change Log</title>
 
 <h2 id='v2_21'>Changes for version 2.21 (pending)</h2>
+  *  Add the [/help?cmd=self-pw-reset|self-pw-reset property] and the
+     [/help?cmd=/resetpw|/resetpw page] and the [/help?cmd=/reqpwreset|/reqpwreset page]
+     while all work together to give users the ability to request a password
+     reset without administrator involvement.
   *  Add the ability to put text descriptions on ticket report formats.
   *  Upgrade the test-find-pivot command to the [/help/merge-base|merge-base command].
   *  The [/help?cmd=/chat|/chat page] can now embed fossil-rendered
      views of wiki/markdown/pikchr file attachments with the caveat that such
      embedding happens in an iframe and thus does not inherit styles and such
      from the containing browser window.
+  *  Passwords for remembered remote repositories are now stored as irreversible
+     hashes rather than obscured clear-text, for improved security.
+  *  As additional defense-in-depth against attack, writes to the database
+     are disabled by default if the HTTP request does not come from the same origin.
 
 <h2 id='v2_20'>Changes for version 2.20 (2022-11-16)</h2>
   *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If

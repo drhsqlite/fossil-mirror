@@ -132,7 +132,7 @@ void delete_private_content(void){
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
 **    --save-http-password       Remember the HTTP password without asking
-**    --ssh-command|-c SSH       Use SSH as the "ssh" command
+**    -c|--ssh-command SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
 **    --transport-command CMD    Use CMD to move messages to the server and back
 **    -u|--unversioned           Also sync unversioned content

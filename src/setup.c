@@ -597,6 +597,15 @@ void setup_access(void){
   @ (Property: "self-register")</p>
 
   @ <hr />
+  onoff_attribute("Allow users to reset their own passwords",
+                  "self-pw-reset", "selfpw", 0, 0);
+  @ <p>Allow users to request that an email contains a hyperlink to a
+  @ password reset page be sent to their email address of record.  This
+  @ enables forgetful users to recover their forgotten passwords without
+  @ administrator intervention.
+  @ (Property: "self-pw-reset")</p>
+
+  @ <hr />
   onoff_attribute("Email verification required for self-registration",
                   "selfreg-verify", "sfverify", 0, 0);
   @ <p>If enabled, self-registration creates a new entry in the USER table
@@ -1945,6 +1954,9 @@ void page_admin_log(){
   }
   style_set_current_feature("setup");
   style_header("Admin Log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Error-Log", "errorlog");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));

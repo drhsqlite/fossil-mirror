@@ -700,14 +700,13 @@ ci_error:
 ** vfile table.
 **
 ** Options:
-**
-**   -R|--repository REPO      The repository file to commit to.
+**   -R|--repository REPO      The repository file to commit to
 **   --as FILENAME             The repository-side name of the input
 **                             file, relative to the top of the
 **                             repository. Default is the same as the
 **                             input file name.
-**   -m|--comment COMMENT      Required check-in comment.
-**   -M|--comment-file FILE    Reads check-in comment from the given file.
+**   -m|--comment COMMENT      Required check-in comment
+**   -M|--comment-file FILE    Reads check-in comment from the given file
 **   -r|--revision VERSION     Commit from this version. Default is
 **                             the check-out version (if available) or
 **                             trunk (if used without a check-out).
@@ -716,17 +715,17 @@ ci_error:
 **                             is performed beforehand.
 **   --allow-merge-conflict    Allows check-in of a file even if it
 **                             appears to contain a fossil merge conflict
-**                             marker.
+**                             marker
 **   --user-override USER      USER to use instead of the current
-**                             default.
-**   --date-override DATETIME  DATE to use instead of 'now'.
+**                             default
+**   --date-override DATETIME  DATE to use instead of 'now'
 **   --allow-older             Allow a commit to be older than its
-**                             ancestor.
+**                             ancestor
 **   --convert-eol-inherit     Convert EOL style of the check-in to match
-**                             the previous version's content.
-**   --convert-eol-unix        Convert the EOL style to Unix.
+**                             the previous version's content
+**   --convert-eol-unix        Convert the EOL style to Unix
 **   --convert-eol-windows     Convert the EOL style to Windows.
-**   (only one of the --convert-eol-X options may be used and they only
+**   (Only one of the --convert-eol-X options may be used and they only
 **    modified the saved blob, not the input file.)
 **   --delta                   Prefer to generate a delta manifest, if
 **                             able. The forbid-delta-manifests repo
@@ -738,10 +737,10 @@ ci_error:
 **                             adding a new file where an update is
 **                             intended.
 **   -d|--dump-manifest        Dumps the generated manifest to stdout
-**                             immediately after it's generated.
+**                             immediately after it's generated
 **   --save-manifest FILE      Saves the generated manifest to a file
-**                             after successfully processing it.
-**   --wet-run                 Disables the default dry-run mode.
+**                             after successfully processing it
+**   --wet-run                 Disables the default dry-run mode
 **
 ** Example:
 **

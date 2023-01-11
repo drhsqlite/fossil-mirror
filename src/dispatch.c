@@ -626,15 +626,15 @@ static void display_all_help(int mask, int useHtml, int rawOut){
 ** web pages, or --everything to see both commands and pages.
 **
 ** Options:
-**    -a|--aliases      Show aliases.
+**    -a|--aliases      Show aliases
 **    -e|--everything   Show all commands and pages.  Omit aliases to 
 **                      avoid duplicates.
-**    -h|--html         Transform output to HTML.
-**    -o|--options      Show global options.
-**    -r|--raw          No output formatting.
-**    -s|--settings     Show settings.
-**    -t|--test         Include test- commands.
-**    -w|--www          Show WWW pages.
+**    -h|--html         Transform output to HTML
+**    -o|--options      Show global options
+**    -r|--raw          No output formatting
+**    -s|--settings     Show settings
+**    -t|--test         Include test- commands
+**    -w|--www          Show WWW pages
 */
 void test_all_help_cmd(void){
   int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;

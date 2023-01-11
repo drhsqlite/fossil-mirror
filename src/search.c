@@ -336,7 +336,6 @@ static int search_match(
 ** the text of the files listed.  Output matches and snippets.
 **
 ** Options:
-**
 **    --begin TEXT        Text to insert before each match
 **    --end TEXT          Text to insert after each match
 **    --gap TEXT          Text to indicate elided content
@@ -585,7 +584,6 @@ void search_sql_setup(sqlite3 *db){
 ** when printing matches.
 **
 ** Options:
-**
 **     -a|--all          Output all matches, not just best matches
 **     -n|--limit N      Limit output to N matches
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for

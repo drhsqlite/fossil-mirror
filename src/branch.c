@@ -588,10 +588,12 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **       Adds or cancels the "closed" tag to one or more branches.
 **       It accepts arbitrary unambiguous symbolic names but
 **       will only resolve check-in names and skips any which resolve
-**       to non-leaf check-ins. Options:
-**         -n|--dry-run          do not commit changes and dump artifact
+**       to non-leaf check-ins.
+**
+**       Options:
+**         -n|--dry-run          Do not commit changes, but dump artifact
 **                               to stdout
-**         -v|--verbose          output more information
+**         -v|--verbose          Output more information
 **         --date-override DATE  DATE to use instead of 'now'
 **         --user-override USER  USER to use instead of the current default
 **
@@ -612,10 +614,12 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** >  fossil branch list|ls ?OPTIONS? ?GLOB?
 ** >  fossil branch lsh ?OPTIONS? ?LIMIT?
 **
-**        List all branches. Options:
+**        List all branches.
+**
+**        Options:
 **          -a|--all      List all branches.  Default show only open branches
-**          -c|--closed   List closed branches.
-**          -p            List only private branches.
+**          -c|--closed   List closed branches
+**          -p            List only private branches
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
 **
@@ -632,12 +636,13 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        Supported options for this subcommand include:
-**          --private             branch is private (i.e., remains local)
-**          --bgcolor COLOR       use COLOR instead of automatic background
+**
+**        Options:
+**          --private             Branch is private (i.e., remains local)
+**          --bgcolor COLOR       Use COLOR instead of automatic background
 **                                ("auto" lets Fossil choose it automatically,
 **                                even for private branches)
-**          --nosign              do not sign contents on this branch
+**          --nosign              Do not sign contents on this branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default
 **
@@ -647,8 +652,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
 **
-** Options valid for all subcommands:
-**
+** Options:
 **    -R|--repository REPO       Run commands on repository REPO
 */
 void branch_cmd(void){

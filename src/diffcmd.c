@@ -1044,7 +1044,7 @@ const char *diff_get_binary_glob(void){
 **    --webpage         Format output as HTML
 **    --webpage -y      HTML output in the side-by-side format
 **
-** The "--from VERSION" option is used it specifies the source check-in
+** The "--from VERSION" option is used to specify the source check-in
 ** for the diff operation.  If not specified, the source check-in is the
 ** base check-in for the current check-out. Similarly, the "--to VERSION"
 ** option specifies the check-in from which the second version of the file
@@ -1053,7 +1053,7 @@ const char *diff_get_binary_glob(void){
 ** shows the changes made by check-in VERSION relative to its primary parent.
 ** The "--branch BRANCHNAME" shows all the changes on the branch BRANCHNAME.
 **
-** The "-i" command-line option forces the use of Fossils own the internal
+** The "-i" command-line option forces the use of Fossil's own internal
 ** diff logic rather than any external diff program that might be configured
 ** using the "setting" command.  If no external diff program is configured,
 ** then the "-i" option is a no-op.  The "-i" option converts "gdiff" into
@@ -1063,8 +1063,8 @@ const char *diff_get_binary_glob(void){
 ** when using an external diff program.
 **
 ** The "--binary" option causes files matching the glob PATTERN to be treated
-** as binary when considering if they should be used with external diff program.
-** This option overrides the "binary-glob" setting.
+** as binary when considering if they should be used with the external diff
+** program.  This option overrides the "binary-glob" setting.
 **
 ** These command show differences between managed files. Use the "fossil xdiff"
 ** command to see differences in unmanaged files.
@@ -1087,7 +1087,7 @@ const char *diff_get_binary_glob(void){
 **   -i|--internal               Use internal diff logic
 **   --json                      Output formatted as JSON
 **   -N|--new-file               Alias for --verbose
-**   --numstat                   Show only the number of lines delete and added
+**   --numstat                   Show only the number of added and deleted lines
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
 **   --tcl                       TCL-formated output used internally by --tk

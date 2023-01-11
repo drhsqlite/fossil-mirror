@@ -1876,7 +1876,6 @@ void page_xfer(void){
 **     fossil test-xfer xferfile.txt
 **
 ** Options:
-**
 **    --host  HOSTNAME             Supply a server hostname used to populate
 **                                 g.zBaseURL and similar.
 */

@@ -703,6 +703,10 @@ void access_log_page(void){
     return;
   }
   style_header("Access Log");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Error-Log", "errorlog");
+
   blob_zero(&sql);
   blob_append_sql(&sql,
     "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"

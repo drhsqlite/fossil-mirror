@@ -959,13 +959,10 @@ static int looks_like_control_artifact(Blob *p){
 ** successfully reconstructed using "fossil rebuild".
 **
 ** Options:
-**
 **    -d|--db-only       Run "PRAGMA integrity_check" on the database only.
 **                       No other validation is performed.
-**
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
-**
 **    -q|--quick         Run "PRAGMA quick_check" on the database only.
 **                       No other validation is performed.
 */
@@ -1199,7 +1196,6 @@ static int check_exists(
 ** that are missing or shunned.
 **
 ** Options:
-**
 **    --notshunned          Do not report shunned artifacts
 **    --quiet               Only show output if there are errors
 */

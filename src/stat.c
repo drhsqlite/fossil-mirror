@@ -335,7 +335,6 @@ void stat_page(void){
 ** verify the integrity of a repository.
 **
 ** Options:
-**
 **   -b|--brief           Only show essential elements
 **   --db-check           Run "PRAGMA quick_check" on the repository database
 **   --db-verify          Run a full verification of the repository integrity.

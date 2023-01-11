@@ -527,7 +527,6 @@ void pikchrshow_page(void){
 ** streams.
 **
 ** Options:
-**
 **    -div       On success, add a DIV wrapper around the
 **               resulting SVG output which limits its max-width to
 **               its computed maximum ideal size

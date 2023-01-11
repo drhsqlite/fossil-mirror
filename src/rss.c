@@ -232,8 +232,9 @@ void page_timeline_rss(void){
 ** Usage: %fossil rss ?OPTIONS?
 **
 ** The CLI variant of the /timeline.rss page, this produces an RSS
-** feed of the timeline to stdout. Options:
+** feed of the timeline to stdout.
 **
+** Options:
 **   -type|y FLAG    May be: all (default), ci (show check-ins only),
 **                   t (show tickets only),  w (show wiki only)
 **

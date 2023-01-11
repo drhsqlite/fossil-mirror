@@ -548,15 +548,15 @@ int get_comment_format(){
 **
 ** Options:
 **   --file           The comment text is really just a file name to
-**                    read it from.
+**                    read it from
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
-**   --legacy         Use the legacy comment printing algorithm.
-**   --trimcrlf       Enable trimming of leading/trailing CR/LF.
-**   --trimspace      Enable trimming of leading/trailing spaces.
-**   --wordbreak      Attempt to break lines on word boundaries.
+**   --legacy         Use the legacy comment printing algorithm
+**   --trimcrlf       Enable trimming of leading/trailing CR/LF
+**   --trimspace      Enable trimming of leading/trailing spaces
+**   --wordbreak      Attempt to break lines on word boundaries
 **   --origbreak      Attempt to break when the original comment text
-**                    is detected.
+**                    is detected
 **   --indent         Number of spaces to indent (default (-1) is to
 **                    auto-detect).  Zero means no indent.
 **   -W|--width NUM   Width of lines (default (-1) is to auto-detect).

@@ -2904,7 +2904,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Options:
 **   --test              Do not do special "sync" processing when operating
-**                       over an SSH link.
+**                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usercap   CAP     User capability string (Default: "sxy")
 **

@@ -847,13 +847,15 @@ static void patch_diff(
 **       DIRECTORY is omitted.  If FILENAME is "-" then the binary patch
 **       is written to standard output.
 **
+**       Options:
 **           -f|--force     Overwrite an existing patch with the same name
 **
 ** > fossil patch apply [DIRECTORY] FILENAME
 **
 **       Apply the changes in FILENAME to the check-out at DIRECTORY, or
-**       in the current directory if DIRECTORY is omitted. Options:
+**       in the current directory if DIRECTORY is omitted.
 **
+**       Options:
 **           -f|--force     Apply the patch even though there are unsaved
 **                          changes in the current check-out.  Unsaved changes
 **                          are reverted and permanently lost.

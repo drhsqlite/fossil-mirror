@@ -321,7 +321,6 @@ static void process_sync_args(
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Pull from all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -376,7 +375,6 @@ void pull_cmd(void){
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Push to all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -425,7 +423,6 @@ void push_cmd(void){
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Sync with all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -833,7 +830,6 @@ remote_delete_default:
 ** database.
 **
 ** Options:
-**
 **    --overwrite              OK to overwrite an existing file
 **    -R NAME                  Filename of the repository to backup
 */
