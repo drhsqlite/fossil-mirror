@@ -125,14 +125,14 @@ to the end.  For example, if the URL specified on the client command
 line is</p>
 
 <blockquote>
-http://fossil-scm.hwaci.com/fossil
+https://fossil-scm.org/fossil
 </blockquote>
 
 <p>Then the URL that is really used to do the synchronization will
 be:</p>
 
 <blockquote>
-http://fossil-scm.hwaci.com/fossil/xfer
+https://fossil-scm.org/fossil/xfer
 </blockquote>
 
 <h3>2.2 HTTP Request Format</h3>

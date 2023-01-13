@@ -57,7 +57,7 @@ the Fossil source code?</h2>
 
 Yes!  Any check-in on the
 [/timeline?t=trunk | trunk branch] of the Fossil
-[http://fossil-scm.org/home/timeline | Fossil self-hosting repository]
+[https://fossil-scm.org/ | Fossil self-hosting repository]
 will work fine.  (Dodgy code is always on a branch.)  In the unlikely
 event that you pick a version with a serious bug, it still won't
 clobber your files.  Fossil uses several
@@ -65,7 +65,7 @@ clobber your files.  Fossil uses several
 repository change that prevent loss-of-work due to bugs.
 
 The Fossil [./selfhost.wiki | self-hosting repositories], especially
-the one at [http://fossil-scm.org/home], usually run a version
+the one at [https://fossil-scm.org/home], usually run a version
 of trunk that is less than a week or two old.  Look at the bottom
 left-hand corner of this screen (to the right of "This page was
 generated in...") to see exactly which version of Fossil is
@@ -269,7 +269,7 @@ modern Linux platforms, which otherwise make this difficult.
 
 The following instructions for building Fossil for Android via Linux,
 without requiring a rooted OS, are adapted from
-[https://fossil-scm.org/forum/forumpost/e0e9de4a7e | forumpost/e0e9de4a7e].
+[forum:/forumpost/e0e9de4a7e | a forum post].
 
 On the development machine, from the fossil source tree:
 

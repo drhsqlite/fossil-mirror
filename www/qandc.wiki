@@ -51,10 +51,10 @@ Why create your own DVCS when you could have reused mercurial?</b>
 <b>Love the concept here. Anyone using this for real work yet?</b>
 
 <blockquote>
-Fossil is <a href="http://fossil-scm.org/">self-hosting</a>.
+Fossil is <a href="https://fossil-scm.org/">self-hosting</a>.
 In fact, this page was probably delivered
 to your web-browser via a working fossil instance.  The same virtual
-machine that hosts http://fossil-scm.org/
+machine that hosts https://fossil-scm.org/
 (a <a href="http://www.linode.com/">Linode 720</a>)
 also hosts 24 other fossil repositories for various small projects.
 The documentation files for

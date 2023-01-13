@@ -174,7 +174,7 @@ puts $out {
   how deliverables are built</li></ul>
 </li>
 <li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
-<li> <a href='http://fossil-scm.org/fossil-book/home'>Fossil book</a>
+<li> <a href='https://fossil-scm.org/fossil-book/'>Fossil book</a>
 </ul>
 <h2 id="pindex">Other Documents:</h2>
 <ul>}

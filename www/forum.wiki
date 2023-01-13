@@ -351,8 +351,7 @@ repository's administrators and moderators:
     your users who should have this ability. You don't need to do this
     for any user with <b>[./caps/ref.html#s | Setup]</b> or
     <b>[./caps/ref.html#a | Admin]</b> capability; it's
-    [http://fossil-scm.org/index.html/artifact/b16221ffb736caa2?ln=1246-1257
-    | already included].</li>
+    [/artifact/b16221ffb736caa2?ln=1246-1257 | already included].</li>
 
     <li>When someone updates the forum, an entry will appear in the
     timeline if the type filter is set to "Forum" or "Any Type". If that
