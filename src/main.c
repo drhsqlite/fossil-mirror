@@ -1396,15 +1396,23 @@ void set_base_url(const char *zAltBase){
     if( g.zTop[1]==0 ) g.zTop++;
   }else{
     char *z;
+    zMode = PD("HTTPS","off");
     zHost = PD("HTTP_HOST","");
     z = fossil_strdup(zHost);
     for(i=0; z[i]; i++){
       if( z[i]<='Z' && z[i]>='A' ) z[i] += 'a' - 'A';
     }
-    if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
+    if( fossil_strcmp(zMode,"on")==0 ){
+      /* Remove trailing ":443" from the HOST, if any */
+      if( i>4 && z[i-1]=='3' && z[i-2]=='4' && z[i-3]=='4' && z[i-4]==':' ){
+        i -= 4;
+      }
+    }else{
+      /* Remove trailing ":80" from the HOST */
+      if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
+    }    
     if( i && z[i-1]=='.' ) i--;
     z[i] = 0;
-    zMode = PD("HTTPS","off");
     zCur = PD("SCRIPT_NAME","/");
     i = strlen(zCur);
     while( i>0 && zCur[i-1]=='/' ) i--;

@@ -1,5 +1,5 @@
-C Use\sthe\shostname\sas\sthe\sreport\sIP\swhen\sdoing\sSSH\ssynchronization.
-D 2023-01-13T14:34:41.035
+C Remove\s":443"\sfrom\sthe\send\sof\sthe\shostname\sfor\sHTTPS\srequests.
+D 2023-01-13T14:55:02.770
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -494,7 +494,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c bdd6f95a323b85e5d521476060414ae065f4013736c3ca29a56d6252a6ac9638
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 4c1f3ab2296efd9819228d9e0cc3126bcf03bffe8ff743fd1348d9b5c289f3e6
+F src/main.c 8f82766e75936499b1a5d507beb6a3800cabdbaa0145ad72aaf66f0d87904a98
 F src/main.mk d4cbb0510d31bcb596950ee3f9380d050b9f181e7c07a08749e957a017f6c5f1
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c c2daecf6e2e98b775094c1ee4e120489fe3d5080cf38751c32e90538db899b1a
@@ -956,9 +956,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a90d3aa1ab2fe819d4a731bf1f234e64c91f173f01d5048ee56baf2703811744 5d5911e6fd0407d91861a8a02ab98db37734518650c53d35c72cf3e43368bb73
-R 1447fac40ae023fb19d3e3b696b15210
-T +closed 5d5911e6fd0407d91861a8a02ab98db37734518650c53d35c72cf3e43368bb73
+P 0b7af9d8653d35fd833ce483770cbd4df0123fda317d2dd9a9235e4361c37776
+R e197260835faa3beee745b4644f09f69
 U drh
-Z e7b4b50606c548a117882d194a81af62
+Z 53a7dabb65d8023fd865127111763721
 # Remove this line to create a well-formed Fossil manifest.
