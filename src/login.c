@@ -2633,14 +2633,17 @@ void login_group_leave(char **pzErrMsg){
 **     Show the login-group to which REPO, or if invoked from within a check-out
 **     the repository on which the current check-out is based, belongs.
 **
-** >  fossil login-group join ?-R? REPO ?--name NAME?
+** >  fossil login-group join ?-R REPO? ?--name NAME? REPO2
 **
-**     This subcommand must be invoked from within a check-out to either: add
-**     the open repository to the login group that REPO is a member, in which
-**     case the optional "--name" argument is not required; or create a new
-**     login group between the open repository and REPO, in which case the new
-**     group NAME is determined by the mandatory "--name" option. REPO may be
-**     specified with or without the -R flag.
+**     This command will either: (1) add the repository on which the current
+**     check-out is based, or the repository REPO specified with -R, to the
+**     login group where REPO2 is a member, in which case the optional --name
+**     argument is not required; or (2) create a new login group between the
+**     repository on which the current check-out is based, or the repository
+**     REPO specified with -R, and REPO2, in which case the new group NAME is
+**     determined by the mandatory --name option. In both cases, the specified
+**     repositories will first leave any group in which they are currently a
+**     member before joining the new login group.
 **
 ** >  fossil login-group leave ?-R REPO?
 **
@@ -2668,13 +2671,13 @@ void login_group_command(void){
     nCmd = (int)strlen(zCmd);
     if( strncmp(zCmd,"join",nCmd)==0 && nCmd>=1 ){
       const char *zNewName = find_option("name",0,1);
-      const char *zOther = g.zRepositoryOption
-        ? g.zRepositoryOption : (g.argc>3 ? g.argv[3] : 0);
+      const char *zOther = 0;
       char *zErr = 0;
       verify_all_options();
-      if( g.zRepositoryOption ? g.argc!=3 : g.argc!=4 ){
+      if( g.argc!=4 ){
         fossil_fatal("unexpected argument count for \"login-group join\"");
       }
+      zOther = g.argv[3];
       login_group_leave(&zErr);
       sqlite3_free(zErr);
       zErr = 0;
