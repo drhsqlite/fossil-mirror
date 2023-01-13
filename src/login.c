@@ -2216,9 +2216,18 @@ void register_page(void){
 }
 
 /*
-** WEBPAGE:  reqpwreset
+** WEBPAGE: reqpwreset
 **
 ** A web page to request a password reset.
+**
+** A form is presented where the user can enter their email address
+** and a captcha.  If the email address entered corresponds to a known
+** users, an email is sent to that address that contains a link to the
+** /resetpw page that allows the users to enter a new password.
+**
+** This page is only available if the self-pw-reset property is enabled
+** and email notifications are configured and operating.  Password resets
+** are not available to users with Admin or Setup privilege.
 */
 void login_reqpwreset_page(void){
   const char *zEAddr;
