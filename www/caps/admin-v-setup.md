@@ -454,7 +454,7 @@ accidental push.
 [fui]:   /help?cmd=ui
 [lg]:    ./login-groups.md
 [rs]:    https://fossil-scm.org/home/doc/trunk/www/settings.wiki
-[sia]:   https://fossil-scm.org/home/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
+[sia]:   https://fossil-scm.org/home/artifact?ln=1259-1260&name=0fda31b6683c206a
 [snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
 [th1]:   ../th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
