@@ -119,7 +119,8 @@ int transport_ssh_open(UrlData *pUrlData){
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
 
-  socket_ssh_resolve_addr(pUrlData);
+  fossil_free(g.zIpAddr);
+  g.zIpAddr = mprintf("%s", pUrlData->name);
   transport_ssh_command(&zCmd);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
