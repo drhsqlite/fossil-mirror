@@ -883,7 +883,7 @@ void ci_page(void){
   @ <div class="accordion_panel">
   @ <div class="sectionmenu">
   pCfg = construct_diff_flags(diffType, &DCfg);
-  DCfg.pRe = pRe;  
+  DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=0 ){
     @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
@@ -937,7 +937,7 @@ void ci_page(void){
     const char *zOld = db_column_text(&q3,2);
     const char *zNew = db_column_text(&q3,3);
     const char *zOldName = db_column_text(&q3, 4);
-    append_file_change_line(zUuid, zName, zOld, zNew, zOldName, 
+    append_file_change_line(zUuid, zName, zOld, zNew, zOldName,
                             pCfg,mperm);
   }
   db_finalize(&q3);

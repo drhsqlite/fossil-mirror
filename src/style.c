@@ -1140,9 +1140,7 @@ void style_finish_page(){
     @ </body>
     @ </html>
   }
-  /* Update the user display prefs cookie if it was modified during
-  ** this request.
-  */
+  /* Update the user display prefs cookie if it was modified */
   cookie_render();
 }
 

@@ -1466,7 +1466,7 @@ void set_base_url(const char *zAltBase){
 */
 NORETURN void fossil_redirect_home(void){
   /* In order for ?skin=... to work when visiting the site from
-  ** a typical external link, we have to process is here, as
+  ** a typical external link, we have to process it here, as
   ** that parameter gets lost during the redirect. We "could"
   ** pass the whole query string along instead, but that seems
   ** unnecessary. */

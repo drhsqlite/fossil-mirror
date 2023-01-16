@@ -1211,11 +1211,15 @@ int cgi_setup_query_string(void){
     z = fossil_strdup(z);
     add_param_list(z, '&');
     z = (char*)P("skin");
-    if(z){
+    if( z ){
       char *zErr = skin_use_alternative(z, 2);
       ++rc;
-      if(!zErr && !P("once")){
+      if( !zErr && P("once")==0 ){
         cookie_write_parameter("skin","skin",z);
+        /* Per /chat discussion, passing ?skin=... without "once"
+        ** implies the "udc" argument, so we force that into the
+        ** environment here. */
+        cgi_set_parameter_nocopy("udc", "1", 1);
       }
       fossil_free(zErr);
     }
