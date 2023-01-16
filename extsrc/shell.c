@@ -184,6 +184,14 @@ typedef unsigned char u8;
 # define SHELL_USE_LOCAL_GETLINE 1
 #endif
 
+#ifndef deliberate_fall_through
+/* Quiet some compilers about some of our intentional code. */
+# if GCC_VERSION>=7000000
+#  define deliberate_fall_through __attribute__((fallthrough));
+# else
+#  define deliberate_fall_through
+# endif
+#endif
 
 #if defined(_WIN32) || defined(WIN32)
 # if SQLITE_OS_WINRT
@@ -491,6 +499,18 @@ static char mainPrompt[PROMPT_LEN_MAX];
 /* Continuation prompt. default: "   ...> " */
 static char continuePrompt[PROMPT_LEN_MAX];
 
+/* This is variant of the standard-library strncpy() routine with the
+** one change that the destination string is always zero-terminated, even
+** if there is no zero-terminator in the first n-1 characters of the source
+** string.
+*/
+static char *shell_strncpy(char *dest, const char *src, size_t n){
+  size_t i;
+  for(i=0; i<n-1 && src[i]!=0; i++) dest[i] = src[i];
+  dest[i] = 0;
+  return dest;
+}
+
 /*
 ** Optionally disable dynamic continuation prompt.
 ** Unless disabled, the continuation prompt shows open SQL lexemes if any,
@@ -558,18 +578,18 @@ static char *dynamicContinuePrompt(void){
       if( ndp > ncp-3 ) return continuePrompt;
       strcpy(dynPrompt.dynamicPrompt, dynPrompt.zScannerAwaits);
       while( ndp<3 ) dynPrompt.dynamicPrompt[ndp++] = ' ';
-      strncpy(dynPrompt.dynamicPrompt+3, continuePrompt+3,
+      shell_strncpy(dynPrompt.dynamicPrompt+3, continuePrompt+3,
               PROMPT_LEN_MAX-4);
     }else{
       if( dynPrompt.inParenLevel>9 ){
-        strncpy(dynPrompt.dynamicPrompt, "(..", 4);
+        shell_strncpy(dynPrompt.dynamicPrompt, "(..", 4);
       }else if( dynPrompt.inParenLevel<0 ){
-        strncpy(dynPrompt.dynamicPrompt, ")x!", 4);
+        shell_strncpy(dynPrompt.dynamicPrompt, ")x!", 4);
       }else{
-        strncpy(dynPrompt.dynamicPrompt, "(x.", 4);
+        shell_strncpy(dynPrompt.dynamicPrompt, "(x.", 4);
         dynPrompt.dynamicPrompt[2] = (char)('0'+dynPrompt.inParenLevel);
       }
-      strncpy(dynPrompt.dynamicPrompt+3, continuePrompt+3, PROMPT_LEN_MAX-4);
+      shell_strncpy(dynPrompt.dynamicPrompt+3, continuePrompt+3, PROMPT_LEN_MAX-4);
     }
   }
   return dynPrompt.dynamicPrompt;
@@ -3132,6 +3152,15 @@ int sqlite3_decimal_init(
 
 /* #include "sqlite3ext.h" */
 
+#ifndef deliberate_fall_through
+/* Quiet some compilers about some of our intentional code. */
+# if GCC_VERSION>=7000000
+#  define deliberate_fall_through __attribute__((fallthrough));
+# else
+#  define deliberate_fall_through
+# endif
+#endif
+
 SQLITE_EXTENSION_INIT1;
 
 #define PC 0x80 /* pad character */
@@ -3242,15 +3271,15 @@ static u8* fromBase64( char *pIn, int ncIn, u8 *pOut ){
       case ND:
         /*  Treat dark non-digits as pad, but they terminate decode too. */
         ncIn = 0;
-        /* fall thru */
+        deliberate_fall_through;
       case WS:
         /* Treat whitespace as pad and terminate this group.*/
         nti = nac;
-        /* fall thru */
+        deliberate_fall_through;
       case PC:
         bdp = 0;
         --nbo;
-         /* fall thru */
+        deliberate_fall_through;
       default: /* bdp is the digit value. */
         qv = qv<<6 | bdp;
         break;
@@ -8931,7 +8960,7 @@ static int zipfileFilter(
   }
 
   if( 0==pTab->pWriteFd && 0==bInMemory ){
-    pCsr->pFile = fopen(zFile, "rb");
+    pCsr->pFile = zFile ? fopen(zFile, "rb") : 0;
     if( pCsr->pFile==0 ){
       zipfileCursorErr(pCsr, "cannot open file: %s", zFile);
       rc = SQLITE_ERROR;
@@ -9961,7 +9990,9 @@ static void sqlarUncompressFunc(
   }else{
     const Bytef *pData= sqlite3_value_blob(argv[0]);
     Bytef *pOut = sqlite3_malloc(sz);
-    if( Z_OK!=uncompress(pOut, &sz, pData, nData) ){
+    if( pOut==0 ){
+      sqlite3_result_error_nomem(context);
+    }else if( Z_OK!=uncompress(pOut, &sz, pData, nData) ){
       sqlite3_result_error(context, "error in uncompress()", -1);
     }else{
       sqlite3_result_blob(context, pOut, sz, SQLITE_TRANSIENT);
@@ -9969,7 +10000,6 @@ static void sqlarUncompressFunc(
     sqlite3_free(pOut);
   }
 }
-
 
 #ifdef _WIN32
 
@@ -19817,7 +19847,7 @@ static const char *(azHelp[]) = {
 #endif
   ".prompt MAIN CONTINUE    Replace the standard prompts",
 #ifndef SQLITE_SHELL_FIDDLE
-  ".quit                    Exit this program",
+  ".quit                    Stop interpreting input stream, exit if primary.",
   ".read FILE               Read input from FILE or command output",
   "    If FILE begins with \"|\", it is a command that generates the input.",
 #endif
@@ -21975,7 +22005,7 @@ static int arProcessSwitch(ArCommand *pAr, int eSwitch, const char *zArg){
       break;
     case AR_SWITCH_APPEND:
       pAr->bAppend = 1;
-      /* Fall thru into --file */
+      deliberate_fall_through;
     case AR_SWITCH_FILE:
       pAr->zFile = zArg;
       break;
@@ -24759,10 +24789,10 @@ static int do_meta_command(char *zLine, ShellState *p){
 
   if( c=='p' && cli_strncmp(azArg[0], "prompt", n)==0 ){
     if( nArg >= 2) {
-      strncpy(mainPrompt,azArg[1],(int)ArraySize(mainPrompt)-1);
+      shell_strncpy(mainPrompt,azArg[1],(int)ArraySize(mainPrompt)-1);
     }
     if( nArg >= 3) {
-      strncpy(continuePrompt,azArg[2],(int)ArraySize(continuePrompt)-1);
+      shell_strncpy(continuePrompt,azArg[2],(int)ArraySize(continuePrompt)-1);
     }
   }else
 
@@ -26303,7 +26333,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss,
         break;
       case '[':
         cin = ']';
-        /* fall thru */
+        deliberate_fall_through;
       case '`': case '\'': case '"':
         cWait = cin;
         qss = QSS_HasDark | cWait;
@@ -26339,7 +26369,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss,
             ++zLine;
             continue;
           }
-          /* fall thru */
+          deliberate_fall_through;
         case ']':
           cWait = 0;
           CONTINUE_PROMPT_AWAITC(pst, 0);

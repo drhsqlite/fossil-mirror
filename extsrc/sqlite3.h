@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.41.0"
 #define SQLITE_VERSION_NUMBER 3041000
-#define SQLITE_SOURCE_ID      "2022-12-29 18:54:15 eed1e030722deb24674e7c2d165a2a359576c6bb5769d3bdd5fa645bc0f2ecc7"
+#define SQLITE_SOURCE_ID      "2023-01-16 18:13:00 83f21285fe86430a66ce6841606e3ad7c27da52ac75a034c6a00c7a9fdb9791d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2679,8 +2679,12 @@ SQLITE_API sqlite3_int64 sqlite3_total_changes64(sqlite3*);
 ** ^A call to sqlite3_interrupt(D) that occurs when there are no running
 ** SQL statements is a no-op and has no effect on SQL statements
 ** that are started after the sqlite3_interrupt() call returns.
+**
+** ^The [sqlite3_is_interrupted(D)] interface can be used to determine whether
+** or not an interrupt is currently in effect for [database connection] D.
 */
 SQLITE_API void sqlite3_interrupt(sqlite3*);
+SQLITE_API int sqlite3_is_interrupted(sqlite3*);
 
 /*
 ** CAPI3REF: Determine If An SQL Statement Is Complete
@@ -3362,7 +3366,7 @@ SQLITE_API int sqlite3_trace_v2(
 **
 ** ^The sqlite3_progress_handler(D,N,X,P) interface causes the callback
 ** function X to be invoked periodically during long running calls to
-** [sqlite3_exec()], [sqlite3_step()] and [sqlite3_get_table()] for
+** [sqlite3_step()] and [sqlite3_prepare()] and similar for
 ** database connection D.  An example use for this
 ** interface is to keep a GUI updated during a large query.
 **
@@ -3387,6 +3391,13 @@ SQLITE_API int sqlite3_trace_v2(
 ** Note that [sqlite3_prepare_v2()] and [sqlite3_step()] both modify their
 ** database connections for the meaning of "modify" in this paragraph.
 **
+** The progress handler callback would originally only be invoked from the
+** bytecode engine.  It still might be invoked during [sqlite3_prepare()]
+** and similar because those routines might force a reparse of the schema
+** which involves running the bytecode engine.  However, beginning with
+** SQLite version 3.41.0, the progress handler callback might also be
+** invoked directly from [sqlite3_prepare()] while analyzing and generating
+** code for complex queries.
 */
 SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 
@@ -3423,13 +3434,18 @@ SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 **
 ** <dl>
 ** ^(<dt>[SQLITE_OPEN_READONLY]</dt>
-** <dd>The database is opened in read-only mode.  If the database does not
-** already exist, an error is returned.</dd>)^
+** <dd>The database is opened in read-only mode.  If the database does
+** not already exist, an error is returned.</dd>)^
 **
 ** ^(<dt>[SQLITE_OPEN_READWRITE]</dt>
-** <dd>The database is opened for reading and writing if possible, or reading
-** only if the file is write protected by the operating system.  In either
-** case the database must already exist, otherwise an error is returned.</dd>)^
+** <dd>The database is opened for reading and writing if possible, or
+** reading only if the file is write protected by the operating
+** system.  In either case the database must already exist, otherwise
+** an error is returned.  For historical reasons, if opening in
+** read-write mode fails due to OS-level permissions, an attempt is
+** made to open it in read-only mode. [sqlite3_db_readonly()] can be
+** used to determine whether the database is actually
+** read-write.</dd>)^
 **
 ** ^(<dt>[SQLITE_OPEN_READWRITE] | [SQLITE_OPEN_CREATE]</dt>
 ** <dd>The database is opened for reading and writing, and is created if
@@ -5410,10 +5426,21 @@ SQLITE_API int sqlite3_create_window_function(
 ** from top-level SQL, and cannot be used in VIEWs or TRIGGERs nor in
 ** schema structures such as [CHECK constraints], [DEFAULT clauses],
 ** [expression indexes], [partial indexes], or [generated columns].
-** The SQLITE_DIRECTONLY flags is a security feature which is recommended
-** for all [application-defined SQL functions], and especially for functions
-** that have side-effects or that could potentially leak sensitive
-** information.
+** <p>
+** The SQLITE_DIRECTONLY flag is recommended for any
+** [application-defined SQL function]
+** that has side-effects or that could potentially leak sensitive information.
+** This will prevent attacks in which an application is tricked
+** into using a database file that has had its schema surreptiously
+** modified to invoke the application-defined function in ways that are
+** harmful.
+** <p>
+** Some people say it is good practice to set SQLITE_DIRECTONLY on all
+** [application-defined SQL functions], regardless of whether or not they
+** are security sensitive, as doing so prevents those functions from being used
+** inside of the database schema, and thus ensures that the database
+** can be inspected and modified using generic tools (such as the [CLI])
+** that do not have access to the application-defined functions.
 ** </dd>
 **
 ** [[SQLITE_INNOCUOUS]] <dt>SQLITE_INNOCUOUS</dt><dd>
@@ -7137,10 +7164,10 @@ struct sqlite3_module {
 ** when the omit flag is true there is no guarantee that the constraint will
 ** not be checked again using byte code.)^
 **
-** ^The idxNum and idxPtr values are recorded and passed into the
+** ^The idxNum and idxStr values are recorded and passed into the
 ** [xFilter] method.
-** ^[sqlite3_free()] is used to free idxPtr if and only if
-** needToFreeIdxPtr is true.
+** ^[sqlite3_free()] is used to free idxStr if and only if
+** needToFreeIdxStr is true.
 **
 ** ^The orderByConsumed means that output from [xFilter]/[xNext] will occur in
 ** the correct order to satisfy the ORDER BY clause so that no separate
@@ -10096,6 +10123,10 @@ SQLITE_API int sqlite3_db_cacheflush(sqlite3*);
 ** or updated. The value of the seventh parameter passed to the callback
 ** function is not defined for operations on WITHOUT ROWID tables, or for
 ** DELETE operations on rowid tables.
+**
+** ^The sqlite3_update_hook(D,C,P) function returns the P argument from
+** the previous call on the same [database connection] D, or NULL for
+** the first call on D.
 **
 ** The [sqlite3_preupdate_old()], [sqlite3_preupdate_new()],
 ** [sqlite3_preupdate_count()], and [sqlite3_preupdate_depth()] interfaces
