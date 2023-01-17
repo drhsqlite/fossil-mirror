@@ -11,9 +11,7 @@ WORKDIR /tmp
 ### Bake the basic Alpine Linux into a base layer so we never have to
 ### repeat that step unless we change the package set.  Although we're
 ### going to throw this layer away below, we still pass --no-cache
-### because that cache is of no use in an immutable layer.  Note that
-### we allow the UPX step to fail: it isn't in the ARM distros.  We'll
-### check whether this optional piece exists before using it below.
+### because that cache is of no use in an immutable layer.
 RUN set -x                                                             \
     && apk update                                                      \
     && apk upgrade --no-cache                                          \
@@ -21,8 +19,7 @@ RUN set -x                                                             \
          gcc make                                                      \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
-         zlib-dev zlib-static                                          \
-     ; ( apk add --no-cache upx || exit 0 )
+         zlib-dev zlib-static
 
 ### Bake the custom BusyBox into another layer.  The intent is that this
 ### changes only when we change BBXVER.  That will force an update of
@@ -33,8 +30,7 @@ COPY containers/busybox-config /tmp/bbx/.config
 ADD $BBXURL /tmp/bbx/src.tar.gz
 RUN set -x \
     && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz             \
-    && ( cd bbx && yes "" | make oldconfig && make -j11 )              \
-    && test ! -x /usr/bin/upx || upx -9q bbx/busybox
+    && ( cd bbx && yes "" | make oldconfig && make -j11 )
 
 # Copy in dummied-up OS release info file for those using nspawn.
 # Without this, it'll gripe that the rootfs dir doesn't look like
@@ -60,8 +56,7 @@ RUN set -x \
     && if [ -d $FSLSTB ] ; then mv $FSLSTB/src fsl ;                   \
        else tar -C fsl -xzf fsl/src.tar.gz ; fi                        \
     && m=fsl/src/src/main.mk                                           \
-    && fsl/src/configure --static CFLAGS='-Os -s' $FSLCFG && make -j11 \
-    && if [ -x /usr/bin/upx ] ; then upx -9q fossil ; fi
+    && fsl/src/configure --static CFLAGS='-Os -s' $FSLCFG && make -j11
 
 
 ## ---------------------------------------------------------------------

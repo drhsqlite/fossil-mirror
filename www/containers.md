@@ -365,9 +365,7 @@ this:
 ```
 
 The resulting binary is the single largest file inside that container,
-at about 4 MiB. (It’s built stripped and packed with [UPX].)
-
-[UPX]: https://upx.github.io/
+at about 6 MiB. (It’s built stripped.)
 
 
 ## 5. <a id="args"></a>Container Build Arguments
