@@ -108,7 +108,7 @@ RUN set -x                                                             \
 
 EXPOSE 8080/tcp
 CMD [ \
-    "bin/fossil", "server", \
+    "fossil", "server",     \
     "--chroot", "/jail",    \
     "--create",             \
     "--jsmode", "bundled",  \
