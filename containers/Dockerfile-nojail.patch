@@ -2,7 +2,7 @@ Index: Dockerfile
 ==================================================================
 --- Dockerfile
 +++ Dockerfile
-@@ -73,13 +73,13 @@
+@@ -62,13 +62,13 @@
  ## ---------------------------------------------------------------------
  ## STAGE 2: Pare that back to the bare essentials.
  ## ---------------------------------------------------------------------
@@ -18,9 +18,16 @@ Index: Dockerfile
  ### kernel, this is the "OS."
  COPY --from=builder /tmp/bbx/busybox /bin/
  COPY --from=builder /etc/os-release /etc/
-@@ -101,13 +101,13 @@
-     && mknod -m 666 dev/null    c 1 3                                  \
-     && mknod -m 444 dev/urandom c 1 9
+@@ -84,19 +84,17 @@
+     && adduser -S -h `pwd` -g 'Fossil User' -G fossil -u ${UID} fossil \
+     && install -d -m 700 -o fossil -g fossil log museum                \
+     && install -d -m 755 -o fossil -g fossil dev                       \
+     && install -d -m 755 -o root -g root /usr/bin                      \
+     && install -d -m 400 -o root -g root /run                          \
+-    && install -d -m 1777 -o root -g root /tmp                         \
+-    && mknod -m 666 dev/null    c 1 3                                  \
+-    && mknod -m 444 dev/urandom c 1 9
++    && install -d -m 1777 -o root -g root /tmp
  
  ### Do Fossil-specific things atop those base layers; this will change
  ### as often as the Fossil build-from-source layer above.
@@ -34,7 +41,7 @@ Index: Dockerfile
      && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
         /usr/bin/sqlite3                                                \
      && chmod +x /usr/bin/sha?sum /usr/bin/sqlite3
-@@ -118,10 +118,9 @@
+@@ -107,10 +105,9 @@
  ## ---------------------------------------------------------------------
  
  EXPOSE 8080/tcp
