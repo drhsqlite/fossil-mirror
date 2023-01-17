@@ -36,17 +36,10 @@ RUN set -x \
     && ( cd bbx && yes "" | make oldconfig && make -j11 )              \
     && test ! -x /usr/bin/upx || upx -9q bbx/busybox
 
-# Dummy up an OS release info file for those using systemd-nspawn.
+# Copy in dummied-up OS release info file for those using nspawn.
 # Without this, it'll gripe that the rootfs dir doesn't look like
 # it contains an OS.
-ARG FSLVER="trunk"
-RUN cat <<-OSREL > /etc/os-release
-    NAME="Fossil BusyBox"
-    ID="fslbbx"
-    VERSION="${FSLVER}"
-    HOME_URL="https://fossil-scm.org/home/doc/trunk/www/containers.md"
-    BUG_REPORT_URL="https://fossil-scm.org/forum"
-OSREL
+COPY containers/os-release /etc/os-release
 
 ### The changeable Fossil layer is the only one in the first stage that
 ### changes often, so add it last, to make it independent of the others.
@@ -59,6 +52,7 @@ OSREL
 ### project's home site by pulling the data from the local repo via the
 ### "tarball" command.  This is a DVCS, after all!
 ARG FSLCFG=""
+ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
 ENV FSLSTB=/tmp/fsl/src.tar.gz
 ADD $FSLURL $FSLSTB
