@@ -595,8 +595,8 @@ and rebuild:
 
 ```
   $ patch -p0 < containers/Dockerfile-nojail.patch
-  $ docker build -t fossil:nojail .
-  $ docker create \
+  $ podman build -t fossil:nojail .
+  $ podman create \
     --name fossil-nojail \
     --publish 127.0.0.1:9999:8080 \
     --volume ~/museum:/museum \
