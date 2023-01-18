@@ -2249,6 +2249,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"rebuild",json_page_rebuild,0},
 {"report", json_page_report, 0},
 {"resultCodes", json_page_resultCodes,0},
+{"settings",json_page_settings,0},
 {"stat",json_page_stat,0},
 {"status", json_page_status, 0},
 {"tag", json_page_tag,0},

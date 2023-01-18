@@ -1,5 +1,5 @@
-C Fix\sa\smemory\sleak\sof\sthe\spath\sto\sa\sversioned-setting\sfile\sin\sprint_setting().
-D 2023-01-18T00:47:10.202
+C Initial\sprototype\sof\sthe\s/json/settings/get\scommand/page,\sper\sdiscussion\sin\s[forum:04b7159d63d4abe4|forum\spost\s04b7159d63d4abe4].
+D 2023-01-18T00:54:52.483
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -474,10 +474,10 @@ F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
 F src/info.c 69db3166f1a00919663e84e486347fb8c8a65d93318c72ba5cfcf0394e08380f
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
-F src/json.c 7874ffb61f783912176eb70453c0caafd8a06f4cb321a2536a51f7a1e00a4e3f
+F src/json.c 8efc5bd046bfaae03d21581abaa8e8724f74e34f60204ff90679b68cd93b7f16
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c f76d13715906f043d945e99710004bd4c850a20a05c9f77e7b758efb8e0daf28
-F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
+F src/json_config.c 7ed1a45471c89d80bb256c5eedcfbabf8530b7c95da1235577e253e11b4c4c0f
 F src/json_detail.h 327749d70dbbe785dbcc03d63c6c7372db920d28382d8992a06b42aaa31399a9
 F src/json_diff.c a3af88f5a95dd3084b09c12c9cac280a7fb89583af4cdeb9034c75245c8f2de3
 F src/json_dir.c 749c78497a1ca3d29659e760a8ecb482bf1a090e9ce6dd01f4e55d6abf062295
@@ -957,8 +957,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a6cf9dd2420ff30d630e719e495f75509d3573fdd6b6bceaeb559b3d1cde648
-R b85ed643c08c95eca228ed6c5e0c9676
+P c76b00197f5e0fce77d979e0fd1e4dce83663c8b2ac65e2975d45c912b780fc8
+R 2a005744502a3d59191370970b5ed8f4
+T *branch * json-settings-command
+T *sym-json-settings-command *
+T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z 8cc978cdda5f57cab6e58cdfd0d387e4
+Z 124a95d2f7ddb1208e03fc887c7f0124
 # Remove this line to create a well-formed Fossil manifest.

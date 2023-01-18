@@ -23,8 +23,8 @@
 #include "json_detail.h"
 #endif
 
-static cson_value * json_config_get();
-static cson_value * json_config_save();
+static cson_value * json_config_get(void);
+static cson_value * json_config_save(void);
 
 /*
 ** Mapping of /json/config/XXX commands/paths to callbacks.
@@ -36,13 +36,31 @@ static const JsonPageDef JsonPageDefs_Config[] = {
 {NULL,NULL,0}
 };
 
+static cson_value * json_settings_get(void);
+/*
+** Mapping of /json/settings/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Settings[] = {
+{"get", json_settings_get, 0},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
 
 /*
 ** Implements the /json/config family of pages/commands.
 **
 */
-cson_value * json_page_config(){
+cson_value * json_page_config(void){
   return json_page_dispatch_helper(&JsonPageDefs_Config[0]);
+}
+
+/*
+** Implements the /json/settings family of pages/commands.
+**
+*/
+cson_value * json_page_settings(void){
+  return json_page_dispatch_helper(&JsonPageDefs_Settings[0]);
 }
 
 
@@ -107,7 +125,7 @@ static const struct JsonConfigProperty {
 ** Impl of /json/config/get. Requires setup rights.
 **
 */
-static cson_value * json_config_get(){
+static cson_value * json_config_get(void){
   cson_object * pay = NULL;
   Stmt q = empty_Stmt;
   Blob sql = empty_blob;
@@ -183,8 +201,92 @@ static cson_value * json_config_get(){
 **
 ** TODOs:
 */
-static cson_value * json_config_save(){
+static cson_value * json_config_save(void){
   json_set_err(FSL_JSON_E_NYI, NULL);
   return NULL;
 }
+
+/*
+** Impl of /json/settings/get.
+*/
+static cson_value * json_settings_get(void){
+  cson_array * pay = cson_new_array();
+  int nSetting, i;
+  const Setting *aSetting = setting_info(&nSetting);
+  Stmt q = empty_Stmt;
+
+  if( !g.perm.Read ){
+    json_set_err( FSL_JSON_E_DENIED, "Fetching settings requires 'o' access." );
+    return NULL;
+  }
+  if( g.localOpen ){
+    db_prepare(&q,
+       "SELECT 'checkout', value FROM vvar WHERE name=:name"
+       " UNION ALL "
+       "SELECT 'repo', value FROM config WHERE name=:name"
+    );
+  }else{
+    db_prepare(&q,
+      "SELECT 'repo', value FROM config WHERE name=:name"
+    );
+  }
+  for(i=0; i<nSetting; ++i){
+    const Setting *pSet = &aSetting[i];
+    cson_object * jSet;
+    cson_value * pVal = 0, * pSrc = 0;
+    if( pSet->sensitive && !g.perm.Setup ){
+      continue;
+    }
+    jSet = cson_new_object();
+    cson_array_append(pay, cson_object_value(jSet));
+    cson_object_set(jSet, "name", json_new_string(pSet->name));
+    cson_object_set(jSet, "versionable", cson_value_new_bool(pSet->versionable));
+    cson_object_set(jSet, "sensitive", cson_value_new_bool(pSet->sensitive));
+    cson_object_set(jSet, "defaultValue", (pSet->def && pSet->def[0])
+                    ? json_new_string(pSet->def)
+                    : cson_value_null());
+    if( pSet->versionable ){
+      /* Check to see if this is overridden by a versionable settings file */
+      if( g.localOpen ){
+        /* Pull value from a local .fossil-settings/X file, if one exists. */
+        Blob versionedPathname;
+        blob_zero(&versionedPathname);
+        blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                     g.zLocalRoot, pSet->name);
+        if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
+          Blob content;
+          blob_zero(&content);
+          blob_read_from_file(&content, blob_str(&versionedPathname), ExtFILE);
+          pSrc = json_new_string("versioned");
+          pVal = json_new_string(blob_str(&content));
+          blob_reset(&content);
+        }
+        blob_reset(&versionedPathname);
+      }
+      if( 0==pSrc ){
+        /*
+        ** TODO? No checkout-local versioned setting found. We could
+        ** fish the file out of the repository but we'd need to make
+        ** an assumption about which branch to pull it from or require
+        ** the user to pass in a version.
+        */
+      }
+    }
+    if( 0==pSrc ){
+      /* We had no checkout-local value, so use the value from
+      ** repo.config. */
+      db_bind_text(&q, ":name", pSet->name);
+      if( SQLITE_ROW==db_step(&q) ){
+        pSrc = json_new_string(db_column_text(&q, 0));
+        pVal = json_new_string(db_column_text(&q, 1));
+      }
+      db_reset(&q);
+    }
+    cson_object_set(jSet, "valueSource", pSrc ? pSrc : cson_value_null());
+    cson_object_set(jSet, "value", pVal ? pVal : cson_value_null());
+  }
+  db_finalize(&q);
+  return cson_array_value(pay);
+}
+
 #endif /* FOSSIL_ENABLE_JSON */
