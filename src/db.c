@@ -3981,6 +3981,7 @@ void print_setting(const Setting *pSetting){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
                    pSetting->name);
     }
+    blob_reset(&versionedPathname);
   }
   db_finalize(&q);
 }

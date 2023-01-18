@@ -1,5 +1,5 @@
-C Small\sfix\sto\sthe\snojail\spatch;\saccidentally\slost\sthe\s[80faedbc]\schange\nin\sthe\sshuffle.
-D 2023-01-17T20:40:23.054
+C Fix\sa\smemory\sleak\sof\sthe\spath\sto\sa\sversioned-setting\sfile\sin\sprint_setting().
+D 2023-01-18T00:47:10.202
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -413,7 +413,7 @@ F src/content.c 5a2f8d427a902c319959802cb453094a34691338eafd3f5c5ed5cf6342397d61
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 1531fb3084562bcf4b43e99a7d51a1435d649402ff19e289527c9830167799fb
+F src/db.c c8372e8769f5df42e460ecae80f76230ce755d48ce8f5aa9ce42c50ac9a81049
 F src/default.css 8991f7cd73a75b3e850bbbeeb66c4855371699e65335c0dd2c931a6189b2548f
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c 42b7776931dbb11421386e58dd32ec745a3d639725b2ad4b8168870bfc28953f
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d97a8fb17e52c2c118557754a90b35bfa1821436889cf03c10247dd3b9d52379
-R 3e8dd7f6e1920603d3f09c15436e98e8
-U wyoung
-Z 4f03feabc3bcf02fd8816242aca09dbf
+P 7a6cf9dd2420ff30d630e719e495f75509d3573fdd6b6bceaeb559b3d1cde648
+R b85ed643c08c95eca228ed6c5e0c9676
+U stephan
+Z 8cc978cdda5f57cab6e58cdfd0d387e4
 # Remove this line to create a well-formed Fossil manifest.
