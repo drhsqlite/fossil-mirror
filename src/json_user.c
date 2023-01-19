@@ -23,9 +23,9 @@
 #include "json_detail.h"
 #endif
 
-static cson_value * json_user_get();
-static cson_value * json_user_list();
-static cson_value * json_user_save();
+static cson_value * json_user_get(void);
+static cson_value * json_user_list(void);
+static cson_value * json_user_save(void);
 
 /*
 ** Mapping of /json/user/XXX commands/paths to callbacks.
@@ -43,7 +43,7 @@ static const JsonPageDef JsonPageDefs_User[] = {
 ** Implements the /json/user family of pages/commands.
 **
 */
-cson_value * json_page_user(){
+cson_value * json_page_user(void){
   return json_page_dispatch_helper(&JsonPageDefs_User[0]);
 }
 
@@ -51,7 +51,7 @@ cson_value * json_page_user(){
 /*
 ** Impl of /json/user/list. Requires admin/setup rights.
 */
-static cson_value * json_user_list(){
+static cson_value * json_user_list(void){
   cson_value * payV = NULL;
   Stmt q;
   if(!g.perm.Admin && !g.perm.Setup){
@@ -124,7 +124,7 @@ static cson_value * json_load_user_by_id(int uid){
 /*
 ** Impl of /json/user/get. Requires admin or setup rights.
 */
-static cson_value * json_user_get(){
+static cson_value * json_user_get(void){
   cson_value * payV = NULL;
   char const * pUser = NULL;
   if(!g.perm.Admin && !g.perm.Setup){
@@ -395,7 +395,7 @@ int json_user_update_from_json( cson_object * pUser ){
 /*
 ** Impl of /json/user/save.
 */
-static cson_value * json_user_save(){
+static cson_value * json_user_save(void){
   /* try to get user info from GET/CLI args and construct
      a JSON form of it... */
   cson_object * u = cson_new_object();

@@ -27,7 +27,7 @@
 ** Implements the /json/finfo page/command.
 **
 */
-cson_value * json_page_finfo(){
+cson_value * json_page_finfo(void){
   cson_object * pay = NULL;
   cson_array * checkins = NULL;
   char const * zFilename = NULL;
