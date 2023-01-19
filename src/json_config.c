@@ -210,7 +210,7 @@ static cson_value * json_config_save(void){
 ** Impl of /json/settings/get.
 */
 static cson_value * json_settings_get(void){
-  cson_array * pay = cson_new_array();   /* output payload */
+  cson_object * pay = cson_new_object();   /* output payload */
   int nSetting, i;                       /* setting count and loop var */
   const Setting *aSetting = setting_info(&nSetting);
   const char * zRevision = 0;            /* revision to look for
@@ -256,8 +256,7 @@ static cson_value * json_settings_get(void){
     cson_object * jSet;
     cson_value * pVal = 0, * pSrc = 0;
     jSet = cson_new_object();
-    cson_array_append(pay, cson_object_value(jSet));
-    cson_object_set(jSet, "name", json_new_string(pSet->name));
+    cson_object_set(pay, pSet->name, cson_object_value(jSet));
     cson_object_set(jSet, "versionable", cson_value_new_bool(pSet->versionable));
     cson_object_set(jSet, "sensitive", cson_value_new_bool(pSet->sensitive));
     cson_object_set(jSet, "defaultValue", (pSet->def && pSet->def[0])
@@ -316,7 +315,7 @@ static cson_value * json_settings_get(void){
   db_finalize(&q);
   db_finalize(&qFoci);
   fossil_free(zUuid);
-  return cson_array_value(pay);
+  return cson_object_value(pay);
 }
 
 #endif /* FOSSIL_ENABLE_JSON */
