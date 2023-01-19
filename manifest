@@ -1,5 +1,5 @@
-C Restructure\s/json/settings/get\soutput\sfrom\san\sarray\sof\sobjects\sto\sa\smap\sof\sobjects,\skeyed\son\ssetting\sname,\sper\sforum\sdiscussion.
-D 2023-01-19T23:32:02.054
+C Correct\s(non-)fetching\sof\ssensitive\sproperties\sfor\s(non-)Setup\susers.
+D 2023-01-19T23:38:23.807
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -477,7 +477,7 @@ F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd
 F src/json.c 8efc5bd046bfaae03d21581abaa8e8724f74e34f60204ff90679b68cd93b7f16
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
 F src/json_branch.c f3805a11c0ff0953b736d7dc01ba9de765396921e0e7f20af5203ff7f25bc7dc
-F src/json_config.c b0a997f91795aa42468803e1d811c8e054adc4068353558320cb6307f54b361c
+F src/json_config.c 90eaf37bd0b1112c4e2acb56eeb332f7cab8ecc71020899cfc17c9136c08d823
 F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184bad1
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
 F src/json_dir.c 89cc2a9475618fa93baae9eca3b56d28e156d78e9959fc47a955bf62aed521ad
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 451cda04522e59d89d4fd57bbccd37fb4aa48bea46b0137e4b51b4f38522f594
-R 71b7a70b7b49e46317a9776ef1ec65bc
+P d0bf9682a91eaedd2f29ff84e3b4113b13bf8cabb935f1322e942e75e4b92a5c
+R 17994f7871cb50ffe9a9c2960bcc130e
 U stephan
-Z 5654f27c0368d1b11e297abb34e3978e
+Z 1f0aa59662e3d12068798f42e9d70f48
 # Remove this line to create a well-formed Fossil manifest.

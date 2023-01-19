@@ -264,9 +264,8 @@ static cson_value * json_settings_get(void){
                     : cson_value_null());
     if( 0==pSet->sensitive || 0!=g.perm.Setup ){
       if( pSet->versionable ){
-        /* Check to see if this is overridden by a versionable settings file */
-        Blob versionedPathname;
-        blob_zero(&versionedPathname);
+        /* Check to see if this is overridden by a versionable
+        ** settings file */
         if( 0!=zUuid ){
           /* Attempt to find a versioned setting stored in the given
           ** check-in version. */
@@ -284,7 +283,10 @@ static cson_value * json_settings_get(void){
           db_reset(&qFoci);
         }
         if( 0==pSrc && g.localOpen ){
-          /* Pull value from a local .fossil-settings/X file, if one exists. */
+          /* Pull value from a local .fossil-settings/X file, if one
+          ** exists. */
+          Blob versionedPathname;
+          blob_zero(&versionedPathname);
           blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                        g.zLocalRoot, pSet->name);
           if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
@@ -297,16 +299,16 @@ static cson_value * json_settings_get(void){
           }
           blob_reset(&versionedPathname);
         }
-      }
-      if( 0==pSrc ){
-        /* We had no versioned value, so use the value from
-        ** localdb.vvar or repository.config (in that order). */
-        db_bind_text(&q, ":name", pSet->name);
-        if( SQLITE_ROW==db_step(&q) ){
-          pSrc = json_new_string(db_column_text(&q, 0));
-          pVal = json_new_string(db_column_text(&q, 1));
+        if( 0==pSrc ){
+          /* We had no versioned value, so use the value from
+          ** localdb.vvar or repository.config (in that order). */
+          db_bind_text(&q, ":name", pSet->name);
+          if( SQLITE_ROW==db_step(&q) ){
+            pSrc = json_new_string(db_column_text(&q, 0));
+            pVal = json_new_string(db_column_text(&q, 1));
+          }
+          db_reset(&q);
         }
-        db_reset(&q);
       }
     }
     cson_object_set(jSet, "valueSource", pSrc ? pSrc : cson_value_null());
