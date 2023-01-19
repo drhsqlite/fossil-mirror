@@ -210,15 +210,36 @@ static cson_value * json_config_save(void){
 ** Impl of /json/settings/get.
 */
 static cson_value * json_settings_get(void){
-  cson_array * pay = cson_new_array();
-  int nSetting, i;
+  cson_array * pay = cson_new_array();   /* output payload */
+  int nSetting, i;                       /* setting count and loop var */
   const Setting *aSetting = setting_info(&nSetting);
-  Stmt q = empty_Stmt;
+  const char * zRevision = 0;            /* revision to look for
+                                            versioned settings in */
+  char * zUuid = 0;                      /* Resolved UUID of zRevision */
+  Stmt q = empty_Stmt;                   /* Config-search query */
+  Stmt qFoci = empty_Stmt;               /* foci query */
 
   if( !g.perm.Read ){
     json_set_err( FSL_JSON_E_DENIED, "Fetching settings requires 'o' access." );
     return NULL;
   }
+  zRevision = json_find_option_cstr("version",NULL,NULL);
+  if( 0!=zRevision ){
+    int rid = name_to_uuid2(zRevision, "ci", &zUuid);
+    if(rid<=0){
+      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                   "Cannot find the given version.");
+      return NULL;
+    }
+    db_multi_exec("CREATE VIRTUAL TABLE IF NOT EXISTS "
+                  "temp.foci USING files_of_checkin;");
+    db_prepare(&qFoci,
+               "SELECT uuid FROM temp.foci WHERE "
+               "checkinID=%d AND filename='.fossil-settings/' || :name",
+               rid);
+  }
+  zRevision = 0;
+
   if( g.localOpen ){
     db_prepare(&q,
        "SELECT 'checkout', value FROM vvar WHERE name=:name"
@@ -234,9 +255,6 @@ static cson_value * json_settings_get(void){
     const Setting *pSet = &aSetting[i];
     cson_object * jSet;
     cson_value * pVal = 0, * pSrc = 0;
-    if( pSet->sensitive && !g.perm.Setup ){
-      continue;
-    }
     jSet = cson_new_object();
     cson_array_append(pay, cson_object_value(jSet));
     cson_object_set(jSet, "name", json_new_string(pSet->name));
@@ -245,12 +263,32 @@ static cson_value * json_settings_get(void){
     cson_object_set(jSet, "defaultValue", (pSet->def && pSet->def[0])
                     ? json_new_string(pSet->def)
                     : cson_value_null());
+    if( pSet->sensitive && !g.perm.Setup ){
+      /* Should we also allow non-Setup admins to see these? */
+      continue;
+    }
     if( pSet->versionable ){
       /* Check to see if this is overridden by a versionable settings file */
-      if( g.localOpen ){
+      Blob versionedPathname;
+      blob_zero(&versionedPathname);
+      if( 0!=zUuid ){
+        /* Attempt to find a versioned setting stored in the given
+        ** check-in version. */
+        db_bind_text(&qFoci, ":name", pSet->name);
+        if( SQLITE_ROW==db_step(&qFoci) ){
+          int frid = fast_uuid_to_rid(db_column_text(&qFoci, 0));
+          Blob content;
+          blob_zero(&content);
+          if( 0!=content_get(frid, &content) ){
+            pSrc = json_new_string("versioned");
+            pVal = json_new_string(blob_str(&content));
+          }
+          blob_reset(&content);
+        }
+        db_reset(&qFoci);
+      }
+      if( 0==pSrc && g.localOpen ){
         /* Pull value from a local .fossil-settings/X file, if one exists. */
-        Blob versionedPathname;
-        blob_zero(&versionedPathname);
         blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                      g.zLocalRoot, pSet->name);
         if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
@@ -263,18 +301,10 @@ static cson_value * json_settings_get(void){
         }
         blob_reset(&versionedPathname);
       }
-      if( 0==pSrc ){
-        /*
-        ** TODO? No checkout-local versioned setting found. We could
-        ** fish the file out of the repository but we'd need to make
-        ** an assumption about which branch to pull it from or require
-        ** the user to pass in a version.
-        */
-      }
     }
     if( 0==pSrc ){
-      /* We had no checkout-local value, so use the value from
-      ** repo.config. */
+      /* We had no versioned value, so use the value from
+      ** localdb.vvar or repository.config (in that order). */
       db_bind_text(&q, ":name", pSet->name);
       if( SQLITE_ROW==db_step(&q) ){
         pSrc = json_new_string(db_column_text(&q, 0));
@@ -284,8 +314,10 @@ static cson_value * json_settings_get(void){
     }
     cson_object_set(jSet, "valueSource", pSrc ? pSrc : cson_value_null());
     cson_object_set(jSet, "value", pVal ? pVal : cson_value_null());
-  }
+  }/*aSetting loop*/
   db_finalize(&q);
+  db_finalize(&qFoci);
+  fossil_free(zUuid);
   return cson_array_value(pay);
 }
 
