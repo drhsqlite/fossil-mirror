@@ -263,54 +263,52 @@ static cson_value * json_settings_get(void){
     cson_object_set(jSet, "defaultValue", (pSet->def && pSet->def[0])
                     ? json_new_string(pSet->def)
                     : cson_value_null());
-    if( pSet->sensitive && !g.perm.Setup ){
-      /* Should we also allow non-Setup admins to see these? */
-      continue;
-    }
-    if( pSet->versionable ){
-      /* Check to see if this is overridden by a versionable settings file */
-      Blob versionedPathname;
-      blob_zero(&versionedPathname);
-      if( 0!=zUuid ){
-        /* Attempt to find a versioned setting stored in the given
-        ** check-in version. */
-        db_bind_text(&qFoci, ":name", pSet->name);
-        if( SQLITE_ROW==db_step(&qFoci) ){
-          int frid = fast_uuid_to_rid(db_column_text(&qFoci, 0));
-          Blob content;
-          blob_zero(&content);
-          if( 0!=content_get(frid, &content) ){
+    if( 0==pSet->sensitive || 0!=g.perm.Setup ){
+      if( pSet->versionable ){
+        /* Check to see if this is overridden by a versionable settings file */
+        Blob versionedPathname;
+        blob_zero(&versionedPathname);
+        if( 0!=zUuid ){
+          /* Attempt to find a versioned setting stored in the given
+          ** check-in version. */
+          db_bind_text(&qFoci, ":name", pSet->name);
+          if( SQLITE_ROW==db_step(&qFoci) ){
+            int frid = fast_uuid_to_rid(db_column_text(&qFoci, 0));
+            Blob content;
+            blob_zero(&content);
+            if( 0!=content_get(frid, &content) ){
+              pSrc = json_new_string("versioned");
+              pVal = json_new_string(blob_str(&content));
+            }
+            blob_reset(&content);
+          }
+          db_reset(&qFoci);
+        }
+        if( 0==pSrc && g.localOpen ){
+          /* Pull value from a local .fossil-settings/X file, if one exists. */
+          blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                       g.zLocalRoot, pSet->name);
+          if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
+            Blob content;
+            blob_zero(&content);
+            blob_read_from_file(&content, blob_str(&versionedPathname), ExtFILE);
             pSrc = json_new_string("versioned");
             pVal = json_new_string(blob_str(&content));
+            blob_reset(&content);
           }
-          blob_reset(&content);
+          blob_reset(&versionedPathname);
         }
-        db_reset(&qFoci);
       }
-      if( 0==pSrc && g.localOpen ){
-        /* Pull value from a local .fossil-settings/X file, if one exists. */
-        blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
-                     g.zLocalRoot, pSet->name);
-        if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-          Blob content;
-          blob_zero(&content);
-          blob_read_from_file(&content, blob_str(&versionedPathname), ExtFILE);
-          pSrc = json_new_string("versioned");
-          pVal = json_new_string(blob_str(&content));
-          blob_reset(&content);
+      if( 0==pSrc ){
+        /* We had no versioned value, so use the value from
+        ** localdb.vvar or repository.config (in that order). */
+        db_bind_text(&q, ":name", pSet->name);
+        if( SQLITE_ROW==db_step(&q) ){
+          pSrc = json_new_string(db_column_text(&q, 0));
+          pVal = json_new_string(db_column_text(&q, 1));
         }
-        blob_reset(&versionedPathname);
+        db_reset(&q);
       }
-    }
-    if( 0==pSrc ){
-      /* We had no versioned value, so use the value from
-      ** localdb.vvar or repository.config (in that order). */
-      db_bind_text(&q, ":name", pSet->name);
-      if( SQLITE_ROW==db_step(&q) ){
-        pSrc = json_new_string(db_column_text(&q, 0));
-        pVal = json_new_string(db_column_text(&q, 1));
-      }
-      db_reset(&q);
     }
     cson_object_set(jSet, "valueSource", pSrc ? pSrc : cson_value_null());
     cson_object_set(jSet, "value", pVal ? pVal : cson_value_null());
