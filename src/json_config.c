@@ -283,8 +283,8 @@ static cson_value * json_settings_get(void){
           db_reset(&qFoci);
         }
         if( 0==pSrc && g.localOpen ){
-          /* Pull value from a local .fossil-settings/X file, if one
-          ** exists. */
+          /* Pull value from a checkout-local .fossil-settings/X file,
+          ** if one exists. */
           Blob versionedPathname;
           blob_zero(&versionedPathname);
           blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
@@ -299,16 +299,17 @@ static cson_value * json_settings_get(void){
           }
           blob_reset(&versionedPathname);
         }
-        if( 0==pSrc ){
-          /* We had no versioned value, so use the value from
-          ** localdb.vvar or repository.config (in that order). */
-          db_bind_text(&q, ":name", pSet->name);
-          if( SQLITE_ROW==db_step(&q) ){
-            pSrc = json_new_string(db_column_text(&q, 0));
-            pVal = json_new_string(db_column_text(&q, 1));
-          }
-          db_reset(&q);
+      }
+      if( 0==pSrc ){
+        /* Setting is not versionable or we had no versioned value, so
+        ** use the value from localdb.vvar or repository.config (in
+        ** that order). */
+        db_bind_text(&q, ":name", pSet->name);
+        if( SQLITE_ROW==db_step(&q) ){
+          pSrc = json_new_string(db_column_text(&q, 0));
+          pVal = json_new_string(db_column_text(&q, 1));
         }
+        db_reset(&q);
       }
     }
     cson_object_set(jSet, "valueSource", pSrc ? pSrc : cson_value_null());
