@@ -672,7 +672,7 @@ window.fossil.onPageLoad(function(){
       f.colsU = document.querySelectorAll('td.difftxtu pre');
     }
     f.colsU.forEach(function(e){
-      w = lastWidth;
+      w = lastWidth - 1; // Outer border
       var k = e.parentElement/*TD*/;
       for(var i=0;i<3;i++){
         k = k.previousElementSibling/*TD*/;
