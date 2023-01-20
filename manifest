@@ -1,5 +1,5 @@
-C Add\sdocs\sfor\s/json/settings.
-D 2023-01-20T00:11:22.282
+C Add\s/json/settings/set.\sReplace\sseveral\sfree()\scalls\swith\sfossil_free().\sWork\saround\sjson_send_response()\sbeing\scalled\stwice\sin\ssome\sCLI-based\scases.
+D 2023-01-20T04:25:43.281
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -474,10 +474,10 @@ F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
 F src/info.c 69db3166f1a00919663e84e486347fb8c8a65d93318c72ba5cfcf0394e08380f
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
-F src/json.c 8efc5bd046bfaae03d21581abaa8e8724f74e34f60204ff90679b68cd93b7f16
+F src/json.c 14719c83545eaca9b173707a2983633a9cdabb7ea2a072c31221464448ced616
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
 F src/json_branch.c f3805a11c0ff0953b736d7dc01ba9de765396921e0e7f20af5203ff7f25bc7dc
-F src/json_config.c e4efd2366ab22cacc3a081583f1958c1d04a7b26f048f4c48007b10651594056
+F src/json_config.c d601605b13f98888f7e5362f52fae89aab674c63616145085f007400b66bd10f
 F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184bad1
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
 F src/json_dir.c 89cc2a9475618fa93baae9eca3b56d28e156d78e9959fc47a955bf62aed521ad
@@ -870,7 +870,7 @@ F www/json-api/api-dir.md 1be992e79bafa35c5b11417f6852db4363be7795078473f99c5028
 F www/json-api/api-finfo.md 0c1bac834634ad2b7ce82705ff04b5ff6974e0672647c373889e8d0b5eed625e
 F www/json-api/api-misc.md ba5ba5605b4fc72862e3e5ac12826524533bf555042d76d20fcd078fb914ebdc
 F www/json-api/api-query.md a3ca465ff5d5ff408d30ebe8cc4ec7f2e8388bb1ac3132fd971796eead64a4ea
-F www/json-api/api-settings.md 1beb3e9f0e35b947a9c4be7b374fc08f70019708de0358ed9bcacf8f6d8e51ff
+F www/json-api/api-settings.md 38637c14cc4b73aa415579b1c849825b0bbde06050a2761ec64e4ff1d884f192
 F www/json-api/api-stat.md 11db5c221fb7ae46c28c3620b57102a43cd8a591cbdaf642cc3ad56f14c84a49
 F www/json-api/api-tag.md 3f4de2b48c11c28899dd324ec9ded700c45ac157a369fa8433825da73504a044
 F www/json-api/api-ticket.md cca42b8a84488f474f7fa806996bee5a47b117129059a90a6b063d0b22b1a7cb
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7221a2e8c8cc175ccf5f32540af3f6f74ab53aff17ed524004983b7c393fdfc
-R d51a08213ef83a3f725a030d0d5b412e
+P f302b9bc413b0c5c79f2f713a32a5c1f2d159b0bf208205291cd7dc531a01cd4
+R 8a6d38895438667ae2014a48044a8c08
 U stephan
-Z 1061756d70427f3baae7feef18e3ad54
+Z 37ce77cd056041846148678ee31efa87
 # Remove this line to create a well-formed Fossil manifest.

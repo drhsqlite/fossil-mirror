@@ -37,11 +37,13 @@ static const JsonPageDef JsonPageDefs_Config[] = {
 };
 
 static cson_value * json_settings_get(void);
+static cson_value * json_settings_set(void);
 /*
 ** Mapping of /json/settings/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Settings[] = {
 {"get", json_settings_get, 0},
+{"set", json_settings_set, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
@@ -319,6 +321,84 @@ static cson_value * json_settings_get(void){
   db_finalize(&qFoci);
   fossil_free(zUuid);
   return cson_object_value(pay);
+}
+
+/*
+** Impl of /json/settings/set.
+**
+** Input payload is an object mapping setting names to values. All
+** values are set in the repository.config table. It has no response
+** payload.
+*/
+static cson_value * json_settings_set(void){
+  Stmt q = empty_Stmt;                   /* Config-set query */
+  cson_object_iterator objIter = cson_object_iterator_empty;
+  cson_kvp * pKvp;
+  int nErr = 0, nProp = 0;
+
+  if( 0==g.perm.Setup ){
+    json_set_err( FSL_JSON_E_DENIED, "Setting settings requires 's' access." );
+    return NULL;
+  }
+  else if( 0==g.json.reqPayload.o ){
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "Missing payload of setting-to-value mappings.");
+    return NULL;
+  }
+
+  db_unprotect(PROTECT_CONFIG);
+  db_prepare(&q,
+      "INSERT OR REPLACE INTO config (name, value, mtime) "
+      "VALUES(:name, :value, CAST(strftime('%%s') AS INT))"
+  );
+  db_begin_transaction();
+  cson_object_iter_init( g.json.reqPayload.o, &objIter );
+  while( (pKvp = cson_object_iter_next(&objIter)) ){
+    char const * zKey = cson_string_cstr( cson_kvp_key(pKvp) );
+    cson_value * pVal;
+    const Setting *pSetting = db_find_setting( zKey, 0 );
+    if( 0==pSetting ){
+      nErr = json_set_err(FSL_JSON_E_INVALID_ARGS,
+                          "Unknown setting: %s", zKey);
+      break;
+    }
+    pVal = cson_kvp_value(pKvp);
+    switch( cson_value_type_id(pVal) ){
+      case CSON_TYPE_NULL:
+        db_multi_exec("DELETE FROM config WHERE name=%Q", pSetting->name);
+        continue;
+      case CSON_TYPE_BOOL:
+        db_bind_int(&q, ":value", cson_value_get_bool(pVal) ? 1 : 0);
+        break;
+      case CSON_TYPE_INTEGER:
+        db_bind_int64(&q, ":value", cson_value_get_integer(pVal));
+        break;
+      case CSON_TYPE_DOUBLE:
+        db_bind_double(&q, ":value", cson_value_get_double(pVal));
+        break;
+      case CSON_TYPE_STRING:
+        db_bind_text(&q, ":value", cson_value_get_cstr(pVal));
+        break;
+      default:
+        nErr = json_set_err(FSL_JSON_E_USAGE,
+                            "Invalid value type for setting '%s'.",
+                            pSetting->name);
+        break;
+    }
+    if( 0!=nErr ) break;
+    db_bind_text(&q, ":name", zKey);
+    db_step(&q);
+    db_reset(&q);
+    ++nProp;
+  }
+  db_finalize(&q);
+  if( 0==nErr && 0==nProp ){
+    nErr = json_set_err(FSL_JSON_E_INVALID_ARGS,
+                        "Payload contains no settings to set.");
+  }
+  db_end_transaction(nErr);
+  db_protect_pop();
+  return NULL;
 }
 
 #endif /* FOSSIL_ENABLE_JSON */

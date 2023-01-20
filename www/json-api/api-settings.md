@@ -4,7 +4,7 @@
 Jump to:
 
 * [Fetch Settings](#get)
-* Set Settings is TODO
+* [Set Settings](#set)
 
 ---
 
@@ -82,3 +82,46 @@ Note that settings are internally stored as strings, even if they're
 semantically treated as numbers. The way settings are stored and
 handled does not give us enough information to recognize their exact
 data type here so they are passed on as-is.
+
+
+<a id="set"></a>
+# Set Settings
+
+**Status:** Implemented 20230120
+
+**Required permissions:** "s"
+
+**Request:** `/json/settings/set`
+
+This call requires that the input payload be an object containing a
+mapping of fossil-known configuration keys (case-sensitive) to
+values. For example:
+
+```json
+{
+  "editor": "emacs",
+  "admin-log": true,
+  "auto-captcha": false
+}
+```
+
+It iterates through each property, which must have a data type of
+`null`, boolean, number, or string. A value of `null` _unsets_
+(deletes) the setting.  Boolean values are stored as integer 0
+or 1. All other types are stored as-is. It only updates the
+`repository.config` database and never updates a checkout or global
+config database, nor is it capable of updating versioned settings
+(^Updating versioned settings requires creating a full check-in.).
+
+It has no result payload but this may be changed in the future it
+practice shows that it should return something specific.
+
+Error responses include:
+
+- `FOSSIL-2002`: called without "setup" permissions.
+- `FOSSIL-3002`: called without a payload object.
+- `FOSSIL-3001`: passed an unknown config option.
+- `FOSSIL-3000`: a value has an unsupported data type.
+
+If an error is triggered, any settings made by this call up until that
+point are discarded.
