@@ -674,10 +674,7 @@ window.fossil.onPageLoad(function(){
     f.colsU.forEach(function(e){
       w = lastWidth - 3; // Outer border
       var k = e.parentElement/*TD*/;
-      for(var i=0;i<3;i++){
-        k = k.previousElementSibling/*TD*/;
-        w -= k.scrollWidth;
-      }
+      while(k = k.previousElementSibling/*TD*/) w -= k.scrollWidth;
       e.style.width = w + "px";
       e.style.maxWidth = w + "px";
     });
