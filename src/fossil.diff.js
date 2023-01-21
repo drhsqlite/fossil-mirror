@@ -671,8 +671,10 @@ window.fossil.onPageLoad(function(){
     if(force || !f.colsU){
       f.colsU = document.querySelectorAll('td.difftxtu pre');
     }
-    w = lastWidth - 100;
     f.colsU.forEach(function(e){
+      w = lastWidth - 3; // Outer border
+      var k = e.parentElement/*TD*/;
+      while(k = k.previousElementSibling/*TD*/) w -= k.scrollWidth;
       e.style.width = w + "px";
       e.style.maxWidth = w + "px";
     });
