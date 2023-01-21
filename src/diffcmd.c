@@ -1137,10 +1137,14 @@ void diff_cmd(void){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
   g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
-  if( zTo==0 || againstUndo ){
-    db_must_be_within_tree();
-  }else if( zFrom==0 ){
-    fossil_fatal("must use --from if --to is present");
+  if( 0==zCheckin ){
+    if( zTo==0 || againstUndo ){
+      db_must_be_within_tree();
+    }else if( zFrom==0 ){
+      fossil_fatal("must use --from if --to is present");
+    }else{
+      db_find_and_open_repository(0, 0);
+    }
   }else{
     db_find_and_open_repository(0, 0);
   }
