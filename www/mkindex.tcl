@@ -40,6 +40,7 @@ set doclist {
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contact.md {Developer Contact Information}
+  containers.md {OCI Containers}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
   css-tricks.md {Fossil CSS Tips and Tricks}
   customgraph.md {Theming: Customizing the Timeline Graph}
@@ -173,7 +174,7 @@ puts $out {
   how deliverables are built</li></ul>
 </li>
 <li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
-<li> <a href='http://fossil-scm.org/fossil-book/home'>Fossil book</a>
+<li> <a href='https://fossil-scm.org/fossil-book/'>Fossil book</a>
 </ul>
 <h2 id="pindex">Other Documents:</h2>
 <ul>}

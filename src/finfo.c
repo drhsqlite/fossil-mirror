@@ -43,7 +43,7 @@
 ** a quick status and does not check for up-to-date-ness of the file.
 **
 ** In the -p mode, there's an optional flag "-r|--revision REVISION".
-** The specified version (or the latest checked out version) is printed
+** The specified version (or the latest checked-out version) is printed
 ** to stdout.  The -p mode is another form of the "cat" command.
 **
 ** Options:
@@ -80,7 +80,7 @@ void finfo_cmd(void){
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
-      fossil_fatal("no checkout to finfo files in");
+      fossil_fatal("no check-out to finfo files in");
     }
     vfile_check_signature(vid, CKSIG_ENOTFILE);
     file_tree_name(g.argv[2], &fname, 0, 1);
@@ -560,7 +560,7 @@ void finfo_page(void){
     blob_appendf(&title, "History of the file that is called ");
     hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
-    blob_appendf(&title, " at checkin %z%h</a>",
+    blob_appendf(&title, " at check-in %z%h</a>",
         href("%R/info?name=%t",zCI), zCI);
   }else{
     blob_appendf(&title, "History for ");

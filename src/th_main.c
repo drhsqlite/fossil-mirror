@@ -158,7 +158,7 @@ void Th_PrintTraceLog(){
 ** - adopted commands/error handling for usage within th1
 ** - interface adopted to allow result creation as TH1 List
 **
-** Takes a checkin identifier in zRev and an optiona glob pattern in zGLOB
+** Takes a check-in identifier in zRev and an optiona glob pattern in zGLOB
 ** as parameter returns a TH list in pzList,pnList with filenames matching
 ** glob pattern with the checking
 */
@@ -1269,9 +1269,9 @@ static int repositoryCmd(
 /*
 ** TH1 command: checkout ?BOOLEAN?
 **
-** Return the fully qualified directory name of the current checkout or an
+** Return the fully qualified directory name of the current check-out or an
 ** empty string if it is not available.  Optionally, it will attempt to find
-** the current checkout, opening the configuration ("user") database and the
+** the current check-out, opening the configuration ("user") database and the
 ** repository as necessary, if the boolean argument is non-zero.
 */
 static int checkoutCmd(
@@ -1324,7 +1324,7 @@ static int traceCmd(
 ** variable -OR- the specified default value.  Currently, the supported
 ** items are:
 **
-** "checkout"        = The active local checkout directory, if any.
+** "checkout"        = The active local check-out directory, if any.
 ** "configuration"   = The active configuration database file name,
 **                     if any.
 ** "executable"      = The fully qualified executable file name.
@@ -1588,6 +1588,38 @@ static int styleScriptCmd(
     Th_SetResult(interp, "repository unavailable", -1);
     return TH_ERROR;
   }
+}
+
+/*
+** TH1 command: submenu link LABEL URL
+**
+** Add a hyperlink to the submenu.
+*/
+static int submenuCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=4 || memcmp(argv[1],"link",5)!=0 ){
+    return Th_WrongNumArgs(interp, "submenu link LABEL URL");
+  }
+  if( argl[2]==0 ){
+    Th_SetResult(interp, "link's LABEL is empty", -1);
+    return TH_ERROR;
+  }
+  if( argl[3]==0 ){
+    Th_SetResult(interp, "link's URL is empty", -1);
+    return TH_ERROR;
+  }
+  /*
+  ** Label and URL are unescaped because it is expected that
+  ** style_finish_page() provides propper escaping via %h format.
+  */
+  style_submenu_element( fossil_strdup(argv[2]), "%s", argv[3] );
+  Th_SetResult(interp, 0, 0);
+  return TH_OK;
 }
 
 /*
@@ -2332,6 +2364,7 @@ void Th_FossilInit(u32 flags){
     {"styleFooter",   styleFooterCmd,       0},
     {"styleHeader",   styleHeaderCmd,       0},
     {"styleScript",   styleScriptCmd,       0},
+    {"submenu",       submenuCmd,           0},
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
@@ -2908,7 +2941,6 @@ int Th_Render(const char *z){
 ** on standard output.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -2958,7 +2990,6 @@ void test_th_render(void){
 ** a filename or a string of th1 script code.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -3019,7 +3050,6 @@ void test_th_eval(void){
 ** output.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -3102,7 +3132,6 @@ void test_th_source(void){
 **                          and "web_flags" to appropriate values.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --th-trace           Trace TH1 execution (for debugging purposes)

@@ -267,7 +267,7 @@ static int is_trailing_punct(char c){
 **   *  "merge-in:BR" = The most recent merge-in for the branch named BR.
 **
 ** In those forms, BR may be any symbolic form but is assumed to be a
-** checkin. Thus root:2021-02-01 would resolve to a checkin, possibly
+** check-in. Thus root:2021-02-01 would resolve to a check-in, possibly
 ** in a branch and possibly in the trunk, but never a wiki edit or
 ** forum post.
 **
@@ -1019,6 +1019,43 @@ void whatis_rid(int rid, int flags){
 }
 
 /*
+** Generate a description of artifact from it symbolic name.
+*/
+void whatis_artifact(
+    const char *zName,    /* Symbolic name or full hash */
+    const char *zFileName,/* Optional: original filename (in file mode) */
+    const char *zType,    /* Artifact type filter */
+    int verboseFlag       /* Verbosity flag */
+){
+  const char* zNameTitle = "name:";
+  int rid = symbolic_name_to_rid(zName, zType);
+  if( zFileName ){
+    fossil_print("%-12s%s\n", zNameTitle, zFileName);
+    zNameTitle = "hash:";
+  }
+  if( rid<0 ){
+    Stmt q;
+    int cnt = 0;
+    fossil_print("%-12s%s (ambiguous)\n", zNameTitle, zName);
+    db_prepare(&q,
+        "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
+        zName, zName
+        );
+    while( db_step(&q)==SQLITE_ROW ){
+      if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+      whatis_rid(db_column_int(&q, 0), verboseFlag);
+    }
+    db_finalize(&q);
+  }else if( rid==0 ){
+    /* 0123456789 12 */
+    fossil_print("unknown:    %s\n", zName);
+  }else{
+    fossil_print("%-12s%s\n", zNameTitle, zName);
+    whatis_rid(rid, verboseFlag);
+  }
+}
+
+/*
 ** COMMAND: whatis*
 **
 ** Usage: %fossil whatis NAME
@@ -1028,19 +1065,20 @@ void whatis_rid(int rid, int flags){
 ** plays.
 **
 ** Options:
-**
+**    -f|--file            Find artifacts with the same hash as file NAME.
+**                         If NAME is "-", read content from standard input.
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
 **                         'w', 'g', or 'e')
 **    -v|--verbose         Provide extra information (such as the RID)
 */
 void whatis_cmd(void){
-  int rid;
-  const char *zName;
   int verboseFlag;
+  int fileFlag;
   int i;
   const char *zType = 0;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
+  fileFlag = find_option("file","f",0)!=0;
   zType = find_option("type",0,1);
 
   /* We should be done with options.. */
@@ -1048,28 +1086,30 @@ void whatis_cmd(void){
 
   if( g.argc<3 ) usage("NAME ...");
   for(i=2; i<g.argc; i++){
-    zName = g.argv[i];
+    const char *zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
-    rid = symbolic_name_to_rid(zName, zType);
-    if( rid<0 ){
-      Stmt q;
-      int cnt = 0;
-      fossil_print("name:       %s (ambiguous)\n", zName);
-      db_prepare(&q,
-         "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
-         zName, zName
-      );
-      while( db_step(&q)==SQLITE_ROW ){
-        if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
-        whatis_rid(db_column_int(&q, 0), verboseFlag);
+    if( fileFlag ){
+      Blob in;
+      Blob hash = empty_blob;
+      const char *zHash;
+      /* Always follow symlinks (when applicable) */
+      blob_read_from_file(&in, zName, ExtFILE);
+
+      /* First check the auxiliary hash to see if there is already an artifact
+      ** that uses the auxiliary hash name */
+      hname_hash(&in, 1, &hash);
+      zHash = (const char*)blob_str(&hash);
+      if( fast_uuid_to_rid(zHash)==0 ){
+        /* No existing artifact with the auxiliary hash name.  Therefore, use
+        ** the primary hash name. */
+        blob_reset(&hash);
+        hname_hash(&in, 0, &hash);
+        zHash = (const char*)blob_str(&hash);
       }
-      db_finalize(&q);
-    }else if( rid==0 ){
-                 /* 0123456789 12 */
-      fossil_print("unknown:    %s\n", zName);
+      whatis_artifact(zHash, zName, zType, verboseFlag);
+      blob_reset(&hash);
     }else{
-      fossil_print("name:       %s\n", zName);
-      whatis_rid(rid, verboseFlag);
+      whatis_artifact(zName, 0, zType, verboseFlag);
     }
   }
 }
@@ -1152,7 +1192,7 @@ static const char zDescTab[] =
 @   uuid TEXT,                     -- hash of the object
 @   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
-@   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   type TEXT,                     -- file, check-in, wiki, ticket, etc.
 @   rcvid INT,                     -- When the artifact was received
 @   summary TEXT,                  -- Summary comment for the object
 @   ref TEXT                       -- hash of an object to link against

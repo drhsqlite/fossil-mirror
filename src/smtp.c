@@ -425,7 +425,6 @@ int smtp_client_startup(SmtpSession *p){
 ** on the console.  Use ME as the domain name of the sender.
 **
 ** Options:
-**
 **    --direct              Use DOMAIN directly without going through MX
 **    --port N              Talk on TCP port N
 */
@@ -598,7 +597,6 @@ static const char *domainOfAddr(const char *z){
 ** to the list of users TO.  FROM is the sender of the email.
 **
 ** Options:
-**
 **      --direct              Go directly to the TO domain.  Bypass MX lookup
 **      --relayhost R         Use R as relay host directly for delivery.
 **      --port N              Use TCP port N instead of 25

@@ -156,7 +156,7 @@ static char const * json_err_cstr( int errCode ){
     C(DB_NEEDS_REBUILD,"Fossil repository needs to be rebuilt");
     C(DB_NOT_FOUND,"Fossil repository db file could not be found.");
     C(DB_NOT_VALID, "Fossil repository db file is not valid.");
-    C(DB_NEEDS_CHECKOUT, "Command requires a local checkout.");
+    C(DB_NEEDS_CHECKOUT, "Command requires a local check-out.");
 #undef C
     default:
       return "Unknown Error";

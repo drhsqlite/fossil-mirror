@@ -61,9 +61,8 @@ framework:
 *   [inetd](../any/inetd.md)
 
 We go into more detail on nginx service setup with Fossil in our
-[Debian/Ubuntu specific guide](../debian/nginx.md). Then in [a later
-article](../../tls-nginx.md) that builds upon that, we show how to add
-TLS encryption to this basic SCGI + nginx setup on Debian type OSes.
+[Debian/Ubuntu specific guide](../debian/nginx.md), which also
+gets you TLS service.
 
 Similarly, our [OpenBSD specific guide](../openbsd/fastcgi.md) details how
 to setup a Fossil server using httpd and FastCGI on OpenBSD.

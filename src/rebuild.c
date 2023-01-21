@@ -1338,15 +1338,15 @@ void reconstruct_cmd(void) {
 ** can be set to 0,1,..,9 characters.
 **
 ** Options:
-**   -R|--repository REPO        Deconstruct given REPOSITORY.
+**   -R|--repository REPO        Deconstruct given REPOSITORY
 **   -K|--keep-rid1              Save the filename of the artifact with RID=1 to
-**                               the file .rid1 in the DESTINATION directory.
+**                               the file .rid1 in the DESTINATION directory
 **   -L|--prefixlength N         Set the length of the names of the DESTINATION
-**                               subdirectories to N.
-**   --private                   Include private artifacts.
+**                               subdirectories to N
+**   --private                   Include private artifacts
 **   -P|--keep-private           Save the list of private artifacts to the file
 **                               .private in the DESTINATION directory (implies
-**                               the --private option).
+**                               the --private option)
 */
 void deconstruct_cmd(void){
   const char *zPrefixOpt;

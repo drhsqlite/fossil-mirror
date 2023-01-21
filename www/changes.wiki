@@ -1,14 +1,47 @@
 <title>Change Log</title>
 
-<h2 id='v2_20'>Changes for version 2.20 (pending)</h2>
+<h2 id='v2_21'>Changes for version 2.21 (pending)</h2>
+  *  Users can request a password reset.  This feature is disabledby default.  Use
+     the new [/help?cmd=self-pw-reset|self-pw-reset property] to enable it.  
+     New web pages [/help?cmd=/resetpw|/resetpw] and
+     [/help?cmd=/reqpwreset|/reqpwreset] added.
+  *  Add the ability to put text descriptions on ticket report formats.
+  *  Upgrade the test-find-pivot command to the [/help/merge-base|merge-base command].
+  *  The [/help?cmd=/chat|/chat page] can now embed fossil-rendered
+     views of wiki/markdown/pikchr file attachments with the caveat that such
+     embedding happens in an iframe and thus does not inherit styles and such
+     from the containing browser window.
+  *  The [/help?cmd=all|fossil all remote] subcommand added to "fossil all".
+  *  Passwords for remembered remote repositories are now stored as irreversible
+     hashes rather than obscured clear-text, for improved security.
+  *  Writes to the database are disabled by default if the HTTP request
+     does not come from the same origin.  This enhancement is for defense in depth.
+     There where no known attacks prior to this enhancement.
+
+<h2 id='v2_20'>Changes for version 2.20 (2022-11-16)</h2>
   *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If
      it is not an empty string, then any changes that would appear on the timeline
      are announced in [./chat.md|the chat room].
-  *  The /unsubscribe page now requests comformation. [./alerts.md|Email notifications]
+  *  The /unsubscribe page now requests confirmation. [./alerts.md|Email notifications]
      now contain only an "Unsubscribe" link, and not a link to subscription management.
+  *  Added the "[/help?cmd=branch|fossil branch lsh]" subcommand to list the
+     most recently modified branches.
   *  More elements of the /info page are now inside of an accordion.
   *  Replace the <tt>--dryrun</tt> flag with <tt>--dry-run</tt> in all
      commands which still used the former name, for consistency.
+  *  Rebuilt [/file/Dockerfile | the stock Dockerfile] to create a "from scratch"
+     Busybox based container image via an Alpine Linux intermediary
+  *  Added [/doc/trunk/www/containers.md | a new document] describing how to
+     customize, use, and run that container.
+  *  Added "by hour of day" report to [/reports?view=byhour|the /reports page].
+  *  Improved correctness, usability, and efficiency for the case
+     [/timeline?r=deltify-tkt-blobs|when values in a TICKET's column
+     tend to be long and volatile].
+  *  Fixed a bug [/info/ea5afad31f478396 | introduced in 2.17] that
+     prevented <tt>clone --unversioned</tt> from completing the
+     retrieval of UV files from the remote repo. While fixing that, enabled
+     UV tracing output with <tt>clone --unversioned --verbose</tt>, making it
+     consonant with <tt>uv sync --verbose</tt>.
 
 <h2 id='v2_19'>Changes for version 2.19 (2022-07-21)</h2>
   *  On file listing pages, sort filenames using the "uintnocase" collating
@@ -279,7 +312,7 @@
     and 2.14.2 on (2021-06-15)</h2>
   *  <b>Patch 2.14.2:</b> Fix the client-side TLS so that it verifies that the
      server hostname matches its certificate. <b>Upgrading to
-     the patch is recommended.</b><
+     the patch is recommended.</b>
   *  <b>Patch 2.14.1:</b> Fix a data exfiltration bug in the server.
      <b>Upgrading to the patch is recommended.</b>
   *  <b>Schema Update Notice #1:</b>

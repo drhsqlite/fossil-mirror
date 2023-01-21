@@ -182,12 +182,11 @@ This policy is particularly useful when running Fossil inside a
 restrictive container, anything from [./chroot.md | classic chroot
 jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
 | OS-level virtualization mechanisms] such as
-[https://en.wikipedia.org/wiki/Docker_(software) | Docker]. By using
-executable compression, our
-[/file?name=Dockerfile.in&ci=trunk | stock <tt>Dockerfile</tt>]
-creates a container that's under 4 MiB on 64-bit Linux, including
+[https://en.wikipedia.org/wiki/Docker_(software) | Docker].
+Our [/file?name=Dockerfile.in&ci=trunk | stock <tt>Dockerfile</tt>]
+creates a ~4 MiB [https://opencontainers.org | OCI] image on 64-bit Linux, including
 a capable [https://www.busybox.net/ | Busybox] environment for live
-debugging of the container's innards.
+diagnostics of the running container.
 
 Modern Linux systems tend to make full static linking
 [https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
@@ -209,7 +208,7 @@ Fossil is easy to build from sources. Just run
 Contrast a basic installation of Git, which takes up about
 15&nbsp;MiB on Debian 10 across 230 files, not counting the contents of
 <tt>/usr/share/doc</tt> or <tt>/usr/share/locale</tt>. If you need to
-deploy to any platform where you cannot count facilities like the POSIX
+deploy to any platform where you cannot count on facilities like the POSIX
 shell, Perl interpreter, and Tcl/Tk platform needed to fully use Git
 as part of the base platform, the full footprint of a Git installation
 extends to more like 45&nbsp;MiB and thousands of files. This complicates
@@ -285,7 +284,7 @@ easy to also see "what came after".
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
-[http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
+[http://gitfaq.org/1/01/what-is-a-detached-head/|detached head
 state] problem has caused grief for
 [https://www.google.com/search?q=git+detached+head+state | many
 Git users]. With
@@ -511,7 +510,7 @@ that everyone — especially the project leader — can maintain a better
 mental picture of what is happening, leading to better situational
 awareness.
 
-By contrast, "…[https://guides.github.com/activities/forking|forking is
+By contrast, "…[https://docs.github.com/en/get-started/quickstart/contributing-to-projects|forking is
 at the core of social coding at GitHub]".  As of January 2022,
 [https://github.com/search?q=is:public|Github hosts 47 million distinct
 software projects], most of which were created by forking a

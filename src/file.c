@@ -380,7 +380,7 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 ** The file named zFile is suppose to be an in-tree file.  Check to
 ** ensure that it will be safe to write to this file by verifying that
 ** there are no symlinks or other non-directory objects in between the
-** root of the checkout and zFile.
+** root of the check-out and zFile.
 **
 ** If a problem is found, print a warning message (using fossil_warning())
 ** and return non-zero.  If everything is ok, return zero.
@@ -495,6 +495,7 @@ int file_chdir(const char *zChDir, int bChroot){
   if( !rc && bChroot ){
     rc = chroot(zPath);
     if( !rc ) rc = chdir("/");
+    g.fJail = 1;
   }
 #endif
   fossil_path_free(zPath);
@@ -1476,12 +1477,11 @@ static void emitFileStat(
 ** display file system information about the files specified, if any.
 **
 ** Options:
-**
 **     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
-**     --open-config                Open the configuration database first.
-**     --reset                      Reset cached stat() info for each file.
-**     --root ROOT                  Use ROOT as the root of the checkout
-**     --slash                      Trailing slashes, if any, are retained.
+**     --open-config                Open the configuration database first
+**     --reset                      Reset cached stat() info for each file
+**     --root ROOT                  Use ROOT as the root of the check-out
+**     --slash                      Trailing slashes, if any, are retained
 */
 void cmd_test_file_environment(void){
   int i;
@@ -1700,18 +1700,18 @@ int file_tree_name(
   if( !g.localOpen ){
     if( absolute && !file_is_absolute_path(zOrigName) ){
       if( errFatal ){
-        fossil_fatal("relative to absolute needs open checkout tree: %s",
+        fossil_fatal("relative to absolute needs open check-out tree: %s",
                      zOrigName);
       }
       return 0;
     }else{
       /*
       ** The original path may be relative or absolute; however, without
-      ** an open checkout tree, the only things we can do at this point
+      ** an open check-out tree, the only things we can do at this point
       ** is return it verbatim or generate a fatal error.  The caller is
       ** probably expecting a tree-relative path name will be returned;
       ** however, most places where this function is called already check
-      ** if the local checkout tree is open, either directly or indirectly,
+      ** if the local check-out tree is open, either directly or indirectly,
       ** which would make this situation impossible.  Alternatively, they
       ** could check the returned path using the file_is_absolute_path()
       ** function.
@@ -1750,7 +1750,7 @@ int file_tree_name(
     blob_reset(&localRoot);
     blob_reset(&full);
     if( errFatal ){
-      fossil_fatal("file outside of checkout tree: %s", zOrigName);
+      fossil_fatal("file outside of check-out tree: %s", zOrigName);
     }
     return 0;
   }
@@ -1775,7 +1775,7 @@ int file_tree_name(
 ** Test the operation of the tree name generator.
 **
 ** Options:
-**   --absolute           Return an absolute path instead of a relative one.
+**   --absolute           Return an absolute path instead of a relative one
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */
@@ -2403,7 +2403,7 @@ static int touch_cmd_stamp_one_file(char const *zAbsName,
 
 /*
 ** Internal helper for touch_cmd(). If the given file name is found in
-** the given checkout version, which MUST be the checkout version
+** the given check-out version, which MUST be the check-out version
 ** currently populating the vfile table, the vfile.mrid value for the
 ** file is returned, else 0 is returned. zName must be resolvable
 ** as-is from the vfile table - this function neither expands nor
@@ -2432,7 +2432,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **
 ** Usage: %fossil touch ?OPTIONS? ?FILENAME...?
 **
-** For each file in the current checkout matching one of the provided
+** For each file in the current check-out matching one of the provided
 ** list of glob patterns and/or file names, the file's mtime is
 ** updated to a value specified by one of the flags --checkout,
 ** --checkin, or --now.
@@ -2447,18 +2447,18 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **   --now          Stamp each affected file with the current time.
 **                  This is the default behavior.
 **   -c|--checkin   Stamp each affected file with the time of the
-**                  most recent check-in which modified that file.
+**                  most recent check-in which modified that file
 **   -C|--checkout  Stamp each affected file with the time of the
-**                  currently-checked-out version.
-**   -g GLOBLIST    Comma-separated list of glob patterns.
+**                  currently checked-out version
+**   -g GLOBLIST    Comma-separated list of glob patterns
 **   -G GLOBFILE    Similar to -g but reads its globs from a
-**                  fossil-conventional glob list file.
+**                  fossil-conventional glob list file
 **   -v|--verbose   Outputs extra information about its globs
-**                  and each file it touches.
+**                  and each file it touches
 **   -n|--dry-run   Outputs which files would require touching,
-**                  but does not touch them.
+**                  but does not touch them
 **   -q|--quiet     Suppress warnings, e.g. when skipping unmanaged
-**                  or out-of-tree files.
+**                  or out-of-tree files
 **
 ** Only one of --now, --checkin, and --checkout may be used. The
 ** default is --now.
@@ -2466,7 +2466,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 ** Only one of -g or -G may be used. If neither is provided and no
 ** additional filenames are provided, the effect is as if a glob of
 ** '*' were provided, i.e. all files belonging to the
-** currently-checked-out version. Note that all glob patterns provided
+** currently checked-out version. Note that all glob patterns provided
 ** via these flags are always evaluated as if they are relative to the
 ** top of the source tree, not the current working (sub)directory.
 ** Filenames provided without these flags, on the other hand, are
@@ -2484,7 +2484,7 @@ void touch_cmd(){
   Glob * pGlob = 0;       /* List of glob patterns */
   int verboseFlag;
   int dryRunFlag;
-  int vid;                /* Checkout version */
+  int vid;                /* Check-out version */
   int changeCount = 0;    /* Number of files touched */
   int quietFlag = 0;      /* -q|--quiet */
   int timeFlag;           /* -1==--checkin, 1==--checkout, 0==--now */
@@ -2514,12 +2514,12 @@ void touch_cmd(){
     }else if(co){
       timeFlag = 1;
       if(verboseFlag){
-        fossil_print("Timestamp = current checkout version.\n");
+        fossil_print("Timestamp = current check-out version.\n");
       }
     }else if(ci){
       timeFlag = -1;
       if(verboseFlag){
-        fossil_print("Timestamp = checkin in which each file was "
+        fossil_print("Timestamp = check-in in which each file was "
                      "most recently modified.\n");
       }
     }else{
@@ -2535,7 +2535,7 @@ void touch_cmd(){
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if(vid==0){
-    fossil_fatal("Cannot determine checkout version.");
+    fossil_fatal("Cannot determine check-out version.");
   }
 
   if(zGlobList){
@@ -2556,7 +2556,7 @@ void touch_cmd(){
   db_begin_transaction();
   if(timeFlag==0){/*--now*/
     nowTime = time(0);
-  }else if(timeFlag>0){/*--checkout: get the checkout
+  }else if(timeFlag>0){/*--checkout: get the check-out
                          manifest's timestamp*/
     assert(vid>0);
     nowTime = db_int64(-1,
@@ -2564,7 +2564,7 @@ void touch_cmd(){
                          "(SELECT mtime FROM event WHERE objid=%d)"
                        ") AS INTEGER)", vid);
     if(nowTime<0){
-      fossil_fatal("Could not determine checkout version's time!");
+      fossil_fatal("Could not determine check-out version's time!");
     }
   }else{ /* --checkin */
     assert(0 == nowTime);

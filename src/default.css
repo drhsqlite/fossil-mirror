@@ -577,10 +577,6 @@ table.diff pre > del > *{
 table.diff td.diffln > pre {
   padding: 0 0.35em 0 0.5em;
 }
-table.diff td.difftxt > pre {
-  min-width: 100%;
-  max-width: 100%;
-}
 table.diff td > pre {
   box-sizing: border-box;
   /* Workaround for "slight wiggle" when using mouse-wheel in some FF
@@ -709,7 +705,16 @@ td.difftxt ins > ins.edit {
   text-decoration: none;
   font-weight: bold;
 }
-
+body.tkt div.content li > table.udiff {
+  margin-left: 1.5em;
+  margin-top: 0.5em;
+}
+body.tkt div.content ol.tkt-changes > li:target > p > span {
+  border-bottom: 3px solid gold;
+}
+body.tkt div.content ol.tkt-changes > li:target > ol {
+  border-left: 1px solid gold;
+}
 
 span.modpending {
   color: #b03800;
@@ -981,6 +986,10 @@ div.forumPostBody.shrunken {
   /* When an expandable post is un-expanded, it is shrunkend down
      to this size instead of its original size. */
   max-height: 8em;
+}
+span.forumPostReplyTitle {
+  /* thread title part of the page header when replying to a post */
+  font-style: italic;
 }
 
 div.forumSel {
@@ -1560,7 +1569,7 @@ pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   text-align: left;
 }
 /* The .source-inline class tells the .source class that the
-   source view, when enbaled, should be "inline" (same position
+   source view, when enabled, should be "inline" (same position
    as the graphic), else the sources are shifted to the left as
    if they were "plain text". */
 div.pikchr-wrapper.center:not(.source),

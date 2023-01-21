@@ -248,6 +248,7 @@ set SQLITE_OPTIONS {
   -DSQLITE_HAVE_ZLIB
   -DSQLITE_ENABLE_DBPAGE_VTAB
   -DSQLITE_TRUSTED_SCHEMA=0
+  -DHAVE_USLEEP
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -737,8 +738,8 @@ endif
 #
 ifndef X64
 SSLCONFIG = mingw
-ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
-ZLIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
+ZLIBCONFIG =
+ZLIBTARGETS =
 else
 SSLCONFIG = mingw64
 ZLIBCONFIG =
@@ -1165,12 +1166,6 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 }]
 
 writeln {
-$(ZLIBDIR)/inffas86.o:
-	$(TCC) -c -o $@ -DASMINF -I$(ZLIBDIR) -O3 $(ZLIBDIR)/contrib/inflate86/inffas86.c
-
-$(ZLIBDIR)/match.o:
-	$(TCC) -c -o $@ -DASMV $(ZLIBDIR)/contrib/asm686/match.S
-
 zlib:	$(ZLIBTARGETS)
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
 

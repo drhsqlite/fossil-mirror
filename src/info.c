@@ -54,7 +54,7 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 */
 void show_common_info(
   int rid,                   /* The rid for the check-in to display info for */
-  const char *zRecDesc,      /* Brief record description; e.g. "checkout:" */
+  const char *zRecDesc,      /* Brief record description; e.g. "check-out:" */
   int showComment,           /* True to show the check-in comment */
   int showFamily             /* True to show parents and children */
 ){
@@ -186,10 +186,9 @@ static void showParentProject(void){
 ** the argument is the name of an object within the repository.
 **
 ** Use the "finfo" command to get information about a specific
-** file in a checkout.
+** file in a check-out.
 **
 ** Options:
-**
 **    -R|--repository REPO       Extract info from repository REPO
 **    -v|--verbose               Show extra information about repositories
 **
@@ -367,7 +366,7 @@ static void append_diff(
 ** to a file between two check-ins.
 */
 static void append_file_change_line(
-  const char *zCkin,    /* The checkin on which the change occurs */
+  const char *zCkin,    /* The check-in on which the change occurs */
   const char *zName,    /* Name of the file that has changed */
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
@@ -821,7 +820,7 @@ void ci_page(void){
       const char *zLinks = blob_str(&wiki_read_links);
       @ <tr><th>Edit&nbsp;Wiki:</th><td>\
       if( okWiki ){
-        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this check-in</a>\
       }else if( zLinks[0] ){
         zLinks += 3;
       }
@@ -839,7 +838,7 @@ void ci_page(void){
       const char *zLinks = blob_str(&wiki_add_links);
       @ <tr><th>Add&nbsp;Wiki:</th><td>\
       if( !okWiki ){
-        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this check-in</a>\
       }else if( zLinks[0] ){
         zLinks += 3;
       }
@@ -884,7 +883,7 @@ void ci_page(void){
   @ <div class="accordion_panel">
   @ <div class="sectionmenu">
   pCfg = construct_diff_flags(diffType, &DCfg);
-  DCfg.pRe = pRe;  
+  DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=0 ){
     @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
@@ -938,7 +937,7 @@ void ci_page(void){
     const char *zOld = db_column_text(&q3,2);
     const char *zNew = db_column_text(&q3,3);
     const char *zOldName = db_column_text(&q3, 4);
-    append_file_change_line(zUuid, zName, zOld, zNew, zOldName, 
+    append_file_change_line(zUuid, zName, zOld, zNew, zOldName,
                             pCfg,mperm);
   }
   db_finalize(&q3);
@@ -2700,7 +2699,7 @@ void artifact_page(void){
         if( zLn ){
           output_text_with_line_numbers(z, blob_size(&content),
                                         zFileName, zLn, 1);
-        }else if( zExt && zExt[1] ){
+        }else if( zExt && zExt[0] ){
           @ <pre>
           @ <code class="language-%s(zExt)">%h(z)</code>
           @ </pre>
@@ -2756,7 +2755,7 @@ void tinfo_page(void){
   }
   pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ) fossil_redirect_home();
-  zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
+  zDate = db_text(0, "SELECT datetime(%.12f,toLocal())", pTktChng->rDate);
   sqlite3_snprintf(sizeof(zTktName), zTktName, "%s", pTktChng->zTicketUuid);
   if( g.perm.ModTkt && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
@@ -2785,7 +2784,7 @@ void tinfo_page(void){
   style_set_current_feature("tinfo");
   style_header("Ticket Change Details");
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
-  style_submenu_element("History", "%R/tkthistory/%s", zTktName);
+  style_submenu_element("History", "%R/tkthistory/%s#%S", zTktName,zUuid);
   style_submenu_element("Page", "%R/tktview/%t", zTktName);
   style_submenu_element("Timeline", "%R/tkttimeline/%t", zTktName);
   if( P("plaintext") ){
@@ -2830,7 +2829,7 @@ void tinfo_page(void){
 
   @ <div class="section">Changes</div>
   @ <p>
-  ticket_output_change_artifact(pTktChng, 0, 1);
+  ticket_output_change_artifact(pTktChng, 0, 1, 0);
   manifest_destroy(pTktChng);
   style_finish_page();
 }
@@ -3473,7 +3472,6 @@ static void prepare_amend_comment(
 ** Amend the tags on check-in HASH to change how it displays in the timeline.
 **
 ** Options:
-**
 **    --author USER           Make USER the author for check-in
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    -M|--message-file FILE  Read the amended comment from FILE
@@ -3808,14 +3806,13 @@ int describe_commit(
 ** since that, and the short hash of VERSION.  Only tags applied to a single
 ** check-in are considered.
 **
-** If no VERSION is provided, describe the current checked-out version.
+** If no VERSION is provided, describe the currently checked-out version.
 **
 ** If VERSION and the found ancestor refer to the same commit, the last two
 ** components are omitted, unless --long is provided.  When no fitting tagged
 ** ancestor is found, show only the short hash of VERSION.
 **
 ** Options:
-**
 **    --digits           Display so many hex digits of the hash 
 **                       (default: the larger of 6 and the 'hash-digit' setting)
 **    -d|--dirty         Show whether there are changes to be committed
@@ -3850,7 +3847,7 @@ void describe_cmd(void){
   }
 
   if( bDirtyFlag ){
-    if ( g.argc>=3 ) fossil_fatal("cannot use --dirty with specific checkin");
+    if ( g.argc>=3 ) fossil_fatal("cannot use --dirty with specific check-in");
   }
 
   switch( describe_commit(zName, zMatchGlob, &descr) ){

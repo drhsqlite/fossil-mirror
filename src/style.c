@@ -997,7 +997,8 @@ void style_finish_page(){
         style_derive_classname(p->zLabel, zClass, sizeof zClass);
         /* switching away from the %h formatting below might be dangerous
         ** because some places use %s to compose zLabel and zLink;
-        ** e.g. /rptview page.  "sml" stands for submenu link.
+        ** e.g. /rptview page and the submenuCmd() function.
+        ** "sml" stands for submenu link.
         */
         if( p->zLink==0 ){
           @ <span class="label sml-%s(zClass)">%h(p->zLabel)</span>
@@ -1139,9 +1140,7 @@ void style_finish_page(){
     @ </body>
     @ </html>
   }
-  /* Update the user display prefs cookie if it was modified during
-  ** this request.
-  */
+  /* Update the user display prefs cookie if it was modified */
   cookie_render();
 }
 
@@ -1442,6 +1441,11 @@ void webpage_error(const char *zFormat, ...){
     @ g.zLogin = %h(g.zLogin)<br />
     @ g.isHuman = %d(g.isHuman)<br />
     @ g.jsHref = %d(g.jsHref)<br />
+    if( g.zLocalRoot ){
+      @ g.zLocalRoot = %h(g.zLocalRoot)<br />
+    }else{
+      @ g.zLocalRoot = <i>none</i><br />
+    }
     if( g.nRequest ){
       @ g.nRequest = %d(g.nRequest)<br />
     }

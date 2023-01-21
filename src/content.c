@@ -322,7 +322,7 @@ int content_get(int rid, Blob *pBlob){
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
 ** Extract an artifact by its artifact hash and write the results on
-** standard output, or if the optional 4th argument is given, in
+** standard output, or if the optional second argument is given, in
 ** the named output file.
 **
 ** Options:
@@ -959,13 +959,10 @@ static int looks_like_control_artifact(Blob *p){
 ** successfully reconstructed using "fossil rebuild".
 **
 ** Options:
-**
 **    -d|--db-only       Run "PRAGMA integrity_check" on the database only.
 **                       No other validation is performed.
-**
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
-**
 **    -q|--quick         Run "PRAGMA quick_check" on the database only.
 **                       No other validation is performed.
 */
@@ -1199,7 +1196,6 @@ static int check_exists(
 ** that are missing or shunned.
 **
 ** Options:
-**
 **    --notshunned          Do not report shunned artifacts
 **    --quiet               Only show output if there are errors
 */

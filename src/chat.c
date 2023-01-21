@@ -137,9 +137,10 @@ static void chat_emit_alert_list(void){
 ** chat messages appear to come from the user identified by this setting,
 ** not the user on the timeline event.
 **
-** All chat messages that come from the chat-timeline-user are interpreted
-** as text/x-fossil-wiki instead of as text/markdown.  For this reason,
-** the chat-timeline-user name should probably not be a real user.
+** All chat messages that come from the chat-timeline-user are
+** interpreted as text/x-fossil-wiki instead of as text/x-markdown.
+** For this reason, the chat-timeline-user name should probably not be
+** a real user.
 */
 /*
 ** WEBPAGE: chat loadavg-exempt
@@ -395,6 +396,7 @@ void chat_send_webpage(void){
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
+  db_unprotect(PROTECT_READONLY);
   chat_purge();
   if( nByte==0 ){
     if( zMsg[0] ){
@@ -418,14 +420,15 @@ void chat_send_webpage(void){
     db_finalize(&q);
     blob_reset(&b);
   }
+  db_protect_pop();
   db_commit_transaction();
 }
 
 /*
-** This routine receives raw (user-entered) message text and transforms
-** it into HTML that is safe to insert using innerHTML. As of 2021-09-19,
-** it does so by using markdown_to_html() to convert markdown-formatted
-** zMsg to HTML.
+** This routine receives raw (user-entered) message text and
+** transforms it into HTML that is safe to insert using innerHTML. As
+** of 2021-09-19, it does so by using wiki_convert() or
+** markdown_to_html() to convert wiki/markdown-formatted zMsg to HTML.
 **
 ** Space to hold the returned string is obtained from fossil_malloc()
 ** and must be freed by the caller.
@@ -441,7 +444,7 @@ static char *chat_format_to_html(const char *zMsg, int isWiki){
     blob_init(&bIn, zMsg, (int)strlen(zMsg));
     wiki_convert(&bIn, &out, WIKI_INLINE);
   }else{
-    /* The common case:  zMsg is text/markdown */
+    /* The common case:  zMsg is text/x-markdown */
     Blob bIn;
     blob_init(&bIn, zMsg, (int)strlen(zMsg));
     markdown_to_html(&bIn, NULL, &out);
@@ -653,7 +656,7 @@ void chat_poll_webpage(void){
         isWiki = 0;
       }
       blob_appendf(&json, "\"uclr\":%!j,",
-                   user_color(zFrom ? zFrom : "nobody"));
+                 isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
 
       if(bRaw){
         blob_appendf(&json, "\"xmsg\":%!j,", zRawMsg);
@@ -748,14 +751,14 @@ void chat_fetch_one(void){
     blob_append(&json, "\"xfrom\":", -1);
     if(zFrom){
       blob_appendf(&json, "%!j,", zFrom);
-      isWiki = fossil_strcmp(zFrom, zChatUser);
+      isWiki = fossil_strcmp(zFrom, zChatUser)==0;
     }else{
       /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
       blob_appendf(&json, "null,");
       isWiki = 0;
     }
     blob_appendf(&json, "\"uclr\":%!j,",
-                 user_color(zFrom ? zFrom : "nobody"));
+                 isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
     blob_append(&json,"\"xmsg\":", 7);
     if(fRaw){
       blob_appendf(&json, "%!j,", zRawMsg);
@@ -784,13 +787,30 @@ void chat_fetch_one(void){
 ** Download the CHAT.FILE attachment associated with a single chat
 ** entry.  The "name" query parameter begins with an integer that
 ** identifies the particular chat message. The integer may be followed
-** by a / and a filename, which will indicate to the browser to use
-** the indicated name when saving the file.
+** by a / and a filename, which will (A) indicate to the browser to
+** use the indicated name when saving the file and (B) be used to
+** guess the mimetype in some particular cases involving the "render"
+** flag.
+**
+** If the "render" URL parameter is provided, the blob has a size
+** greater than zero, and blob meets one of the following conditions
+** then the fossil-rendered form of that content is returned, rather
+** than the original:
+**
+** - Mimetype is text/x-markdown or text/markdown: emit HTML.
+**
+** - Mimetype is text/x-fossil-wiki or P("name") ends with ".wiki":
+**   emit HTML.
+**
+** - Mimetype is text/x-pikchr or P("name") ends with ".pikchr": emit
+**   image/svg+xml if rendering succeeds or text/html if rendering
+**   fails.
 */
 void chat_download_webpage(void){
   int msgid;
   Blob r;
   const char *zMime;
+  const char *zName = PD("name","0");
   login_check_credentials();
   if( !g.perm.Chat ){
     style_header("Chat Not Authorized");
@@ -801,11 +821,44 @@ void chat_download_webpage(void){
     return;
   }
   chat_create_tables();
-  msgid = atoi(PD("name","0"));
+  msgid = atoi(zName);
   blob_zero(&r);
   zMime = db_text(0, "SELECT fmime FROM chat wHERE msgid=%d", msgid);
   if( zMime==0 ) return;
   db_blob(&r, "SELECT file FROM chat WHERE msgid=%d", msgid);
+  if( r.nUsed>0 && P("render")!=0 ){
+    /* Maybe return fossil-rendered form of the content. */
+    Blob r2 = BLOB_INITIALIZER;    /* output target for rendering */
+    const char * zMime2 = 0;       /* adjusted response mimetype */
+    if(fossil_strcmp(zMime, "text/x-markdown")==0
+       /* Firefox uploads md files with the mimetype text/markdown */
+       || fossil_strcmp(zMime, "text/markdown")==0){
+      markdown_to_html(&r, 0, &r2);
+      safe_html(&r2);
+      zMime2 = "text/html";
+    }else if(fossil_strcmp(zMime, "text/x-fossil-wiki")==0
+             || sqlite3_strglob("*.wiki", zName)==0){
+      /* .wiki files get uploaded as application/octet-stream */
+      wiki_convert(&r, &r2, 0);
+      zMime2 = "text/html";
+    }else if(fossil_strcmp(zMime, "text/x-pikchr")==0
+             || sqlite3_strglob("*.pikchr",zName)==0){
+      /* .pikchr files get uploaded as application/octet-stream */
+      const char *zPikchr = blob_str(&r);
+      int w = 0, h = 0;
+      char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
+      if(zOut){
+        blob_append(&r2, zOut, -1);
+      }
+      zMime2 = w>0 ? "image/svg+xml" : "text/html";
+      free(zOut);
+    }
+    if(r2.aData!=0){
+      blob_swap(&r, &r2);
+      blob_reset(&r2);
+      zMime = zMime2;
+    }
+  }
   cgi_set_content_type(zMime);
   cgi_set_content(&r);
 }
@@ -990,7 +1043,7 @@ void chat_msg_from_event(
 **
 **        --all                  Download all chat content. Normally only
 **                               previously undownloaded content is retrieved.
-**        --debug                Additional debugging output.
+**        --debug                Additional debugging output
 **        --out DATABASE         Store CHAT table in separate database file
 **                               DATABASE rather that adding to local clone
 **        --unsafe               Allow the use of unencrypted http://

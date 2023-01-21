@@ -401,7 +401,7 @@ window.fossil.onPageLoad(function(){
             if(ev.detail.key===setting) f(ev.detail);
           }, false);
         },
-        /* Default values of settings. These are used for intializing
+        /* Default values of settings. These are used for initializing
            the setting event listeners and config view UI. */
         defaults:{
           /* When on, inbound images are displayed inlined, else as a
@@ -1093,19 +1093,54 @@ window.fossil.onPageLoad(function(){
       ].join('');
     };
 
+    /**
+       Returns true if this page believes it can embed a view of the
+       file wrapped by the given message object, else returns false.
+    */
     const canEmbedFile = function f(msg){
       if(!f.$rx){
-        f.$rx = /\.((html?)|(txt))$/i;
+        f.$rx = /\.((html?)|(txt)|(md)|(wiki)|(pikchr))$/i;
         f.$specificTypes = [
           'text/plain',
-          'text/html'
+          'text/html',
+          'text/x-markdown',
+          /* Firefox sends text/markdown when uploading .md files */
+          'text/markdown',
+          'text/x-pikchr',
+          'text/x-fossil-wiki'
           // add more as we discover which ones Firefox won't
           // force the user to try to download.
         ];
       }
       if(msg.fmime){
-        return (msg.fmime.startsWith("image/")
-                || f.$specificTypes.indexOf(msg.fmime)>=0);
+        if(msg.fmime.startsWith("image/")
+           || f.$specificTypes.indexOf(msg.fmime)>=0){
+          return true;
+        }
+      }
+      return (msg.fname && f.$rx.test(msg.fname));
+    };
+
+    /**
+      Returns true if the given message object "should"
+      be embedded in fossil-rendered form instead of
+      raw content form. This is only intended to be passed
+      message objects for which canEmbedFile() returns true.
+    */
+    const shouldWikiRenderEmbed = function f(msg){
+      if(!f.$rx){
+        f.$rx = /\.((md)|(wiki)|(pikchr))$/i;
+        f.$specificTypes = [
+          'text/x-markdown',
+          'text/markdown' /* Firefox-uploaded md files */,
+          'text/x-pikchr',
+          'text/x-fossil-wiki'
+          // add more as we discover which ones Firefox won't
+          // force the user to try to download.
+        ];
+      }
+      if(msg.fmime){
+        if(f.$specificTypes.indexOf(msg.fmime)>=0) return true;
       }
       return msg.fname && f.$rx.test(msg.fname);
     };
@@ -1193,12 +1228,15 @@ window.fossil.onPageLoad(function(){
             if(canEmbedFile(m)){
               /* Add an option to embed HTML attachments in an iframe. The primary
                  use case is attached diffs. */
+              const shouldWikiRender = shouldWikiRenderEmbed(m);
+              const downloadArgs = shouldWikiRender ? '?render' : '';
               D.addClass(contentTarget, 'wide');
               const embedTarget = this.e.content;
               const self = this;
               const btnEmbed = D.attr(D.checkbox("1", false), 'id',
                                       'embed-'+ds.msgid);
-              const btnLabel = D.label(btnEmbed, "Embed");
+              const btnLabel = D.label(btnEmbed, shouldWikiRender
+                                       ? "Embed (fossil-rendered)" : "Embed");
               /* Maintenance reminder: do not disable the toggle
                  button while the content is loading because that will
                  cause it to get stuck in disabled mode if the browser
@@ -1220,7 +1258,7 @@ window.fossil.onPageLoad(function(){
                   self.e.$iframeLoaded = true;
                   adjustIFrameSize(self);
                 });
-                iframe.setAttribute('src', downloadUri);
+                iframe.setAttribute('src', downloadUri + downloadArgs);
               });
               D.append(w, btnEmbed, btnLabel);
             }

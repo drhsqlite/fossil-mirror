@@ -161,10 +161,10 @@ int load_vfile_from_rid(int vid){
 ** changed without having to look at the mtime or on-disk content.
 **
 ** The mtime of the file is only a factor if the mtime-changes setting
-** is false and the CKSIG_HASH flag is false.  If the mtime-changes
-** setting is true (or undefined - it defaults to true) or if CKSIG_HASH
-** is true, then we do not trust the mtime and will examine the on-disk
-** content to determine if a file really is the same.
+** is true (or undefined - it defaults to true) and the CKSIG_HASH
+** flag is false.  If the mtime-changes setting is false or if
+** CKSIG_HASH is true, then we do not trust the mtime and will examine
+** the on-disk content to determine if a file really is the same.
 **
 ** If the mtime is used, it is used only to determine if files are the same.
 ** If the mtime of a file has changed, we still examine the on-disk content
@@ -365,7 +365,7 @@ void vfile_to_disk(
 }
 
 /*
-** Check to see if the directory named in zPath is the top of a checkout.
+** Check to see if the directory named in zPath is the top of a check-out.
 ** In other words, check to see if directory pPath contains a file named
 ** "_FOSSIL_" or ".fslckout".  Return true or false.
 */
@@ -383,7 +383,7 @@ int vfile_top_of_checkout(const char *zPath){
   }
 
   /* Check for ".fos" for legacy support.  But the use of ".fos" as the
-  ** per-checkout database name is deprecated.  At some point, all support
+  ** per-check-out database name is deprecated.  At some point, all support
   ** for ".fos" will end and this code should be removed.  This comment
   ** added on 2012-02-04.
   */

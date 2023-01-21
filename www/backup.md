@@ -235,14 +235,13 @@ a different cipher algorithm; both changes are likely to weaken the
 encryption significantly, so you should install a newer version rather
 than work around the lack of these features.
 
-At the time of this writing — 2022.03.28 — macOS 12 (Monterey) still ships an
-outdated fork of OpenSSL 1.0 called [LibreSSL][lssl] that lacks this
-capability. Until Apple redresses this lack, we recommend use of the
-[Homebrew][hb] OpenSSL package rather than give up on the security
-afforded by use of configurable-iteration PBKDF2 in OpenSSL 1.1 and up,
-later backported to LibreSSL 2.9.1 and up. To avoid a conflict with the
-platform version, Homebrew’s installation is [unlinked][hbul] by
-default, so you have to give an explicit path to it, one of:
+Beware that macOS ships a fork of OpenSSL called [LibreSSL][lssl] that
+lacked this capability until Ventura (13.0). If you’re on Monterey (12)
+or older, we recommend use of the [Homebrew][hb] OpenSSL package rather
+than give up on the security afforded by use of configurable-iteration
+PBKDF2. To avoid a conflict with the platform’s `openssl` binary,
+Homebrew’s installation is [unlinked][hbul] by default, so you have to
+give an explicit path to it, one of:
 
        /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
        /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)

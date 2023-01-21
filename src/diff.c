@@ -1131,7 +1131,7 @@ static DiffBuilder *dftclNew(Blob *pOut){
 **   -----------   --------    --------------------------
 **   0             END         This is the end of the diff
 **   1  INTEGER    SKIP        Skip N lines from both files
-**   2  STRING     COMMON      The line show by STRING is in both files
+**   2  STRING     COMMON      The line shown by STRING is in both files
 **   3  STRING     INSERT      The line STRING is in only the right file
 **   4  STRING     DELETE      The STRING line is in only the left file
 **   5  SUBARRAY   EDIT        One line is different on left and right.
@@ -2961,7 +2961,7 @@ void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
 **   2.  The number of lines to delete
 **   3.  The number of lines to insert
 **
-** The return vector is terminated bin a triple of all zeros.  The caller
+** The return vector is terminated by a triple of all zeros.  The caller
 ** should free the returned vector using fossil_free().
 **
 ** This diff utility does not work on binary files.  If a binary
@@ -3200,7 +3200,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
 ** a diff between two disk files that are not necessarily under management.
 ** In other words, this command provides a mechanism to use Fossil's file
 ** difference engine on arbitrary disk files.  See the "diff" command for
-** computing differences between files that are* under management.
+** computing differences between files that are under management.
 **
 ** This command prints the differences between the two files FILE1 and FILE2.
 ** all of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
@@ -3550,7 +3550,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **                           Xs     As much as can be computed in X seconds
 **                           N      N versions
 **    log=BOOLEAN         Show a log of versions analyzed
-**    origin=ID           The origin checkin.  If unspecified, the root
+**    origin=ID           The origin check-in.  If unspecified, the root
 **                        check-in over the entire repository is used.
 **                        Specify "origin=trunk" or similar for a reverse
 **                        annotation

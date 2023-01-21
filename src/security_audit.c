@@ -278,6 +278,35 @@ void secaudit0_page(void){
   }
 #endif
 
+#if FOSSIL_ENABLE_TCL
+  @ <li><p>
+  if( db_get_boolean("tcl",0) ){
+    #ifdef FOSSIL_ENABLE_TH1_DOCS
+      if( Th_AreDocsEnabled() ){
+        @ <b>DANGER:</b>
+      }else{
+        @ <b>WARNING:</b>
+      }
+    #else
+      @ <b>WARNING:</b>
+    #endif
+    @ This server is compiled with -DFOSSIL_ENABLE_TCL and Tcl integration
+    @ is enabled for this repository.  Anyone who can execute malicious
+    @ TH1 script on that server can also execute arbitrary Tcl script
+    @ under the identity of the operating system process of that server.
+    @ This is a serious security concern.</p>
+    @
+    @ <p>Disable Tcl integration by recompiling Fossil without the
+    @ -DFOSSIL_ENABLE_TCL flag, and/or clear the 'tcl' setting.</p>
+  }else{
+    @ This server is compiled with -DFOSSIL_ENABLE_TCL. Tcl integration
+    @ is disabled for this particular repository, so you are safe for
+    @ now.  However, to prevent potential problems caused by accidentally
+    @ enabling Tcl integration in the future, it is recommended that you
+    @ recompile Fossil without the -DFOSSIL_ENABLE_TCL flag.</p>
+  }
+#endif
+
   /* Anonymous users should not be able to harvest email addresses
   ** from tickets.
   */
@@ -734,6 +763,10 @@ void errorlog_page(void){
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <p>To create a server error log:
     @ <ol>

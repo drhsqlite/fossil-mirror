@@ -544,7 +544,7 @@ static void dequote_git_filename(char *zName){
 
 static struct{
   const char *zMasterName;    /* Name of master branch */
-  int authorFlag;             /* Use author as checkin committer */
+  int authorFlag;             /* Use author as check-in committer */
   int nGitAttr;               /* Number of Git --attribute entries */
   struct {                    /* Git --attribute details */
     char *zUser;
@@ -852,7 +852,7 @@ static struct{
   const char *zTags;          /* Name of tags folder in repo root */
   int lenTags;                /* String length of zTags */
   Bag newBranches;            /* Branches that were created in this revision */
-  int revFlag;                /* Add svn-rev-nn tags on every checkin */
+  int revFlag;                /* Add svn-rev-nn tags on every check-in */
   const char *zRevPre;        /* Prepended to revision tag names */
   const char *zRevSuf;        /* Appended to revision tag names */
   const char **azIgnTree;     /* NULL-terminated list of dirs to ignore */
@@ -1691,15 +1691,15 @@ static void svn_dump_import(FILE *pIn){
 **                  --ignore-tree DIR  Ignores subtree rooted at DIR
 **
 ** Common Options:
-**   -i|--incremental     allow importing into an existing repository
-**   -f|--force           overwrite repository if already exists
-**   -q|--quiet           omit progress output
-**   --no-rebuild         skip the "rebuilding metadata" step
-**   --no-vacuum          skip the final VACUUM of the database file
-**   --rename-trunk NAME  use NAME as name of imported trunk branch
-**   --rename-branch PAT  rename all branch names using PAT pattern
-**   --rename-tag PAT     rename all tag names using PAT pattern
-**   -A|--admin-user NAME use NAME for the admin user 
+**   -i|--incremental     Allow importing into an existing repository
+**   -f|--force           Overwrite repository if already exists
+**   -q|--quiet           Omit progress output
+**   --no-rebuild         Skip the "rebuilding metadata" step
+**   --no-vacuum          Skip the final VACUUM of the database file
+**   --rename-trunk NAME  Use NAME as name of imported trunk branch
+**   --rename-branch PAT  Rename all branch names using PAT pattern
+**   --rename-tag PAT     Rename all tag names using PAT pattern
+**   -A|--admin-user NAME Use NAME for the admin user 
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name

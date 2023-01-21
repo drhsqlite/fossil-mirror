@@ -40,7 +40,7 @@ problem, quantify it, and give a solution to it.
 [zl]:  http://www.zlib.net/
 
 
-## Affected File Formats
+## <a id="formats"></a>Affected File Formats
 
 In this article’s core experiment, we use 2D image file formats, but
 this article’s advice also applies to many other file types. For just a
@@ -75,7 +75,7 @@ few examples out of what must be thousands:
 
 
 
-## Demonstration
+## <a id="demo"></a>Demonstration
 
 The companion `image-format-vs-repo-size.ipynb` file ([download][nbd],
 [preview][nbp]) is a [JupyterLab][jl] notebook implementing the following
@@ -115,7 +115,7 @@ in your own repository?  Easily done with a small amount of code.
 [wp]:  http://wand-py.org/
 
 
-## Results
+## <a id="results"></a>Results
 
 Running the notebook gives a bar chart something like⁴ this:
 
@@ -153,7 +153,7 @@ chart:
 [mce]: https://en.wikipedia.org/wiki/Monte_Carlo_method
 
 
-## Automated Recompression
+## <a id="makefile"></a>Automated Recompression
 
 Since programs that produce and consume binary-compressed data files
 often make it either difficult or impossible to work with the
@@ -244,7 +244,7 @@ reason:
 ----
 
 
-## Footnotes and Digressions
+## <a id="notes"></a>Footnotes and Digressions
 
 1.  This problem is not Fossil-specific.  Several other programs also do
     delta compression, so they’ll also be affected by this problem:

@@ -195,7 +195,7 @@ void page_dir(void){
     if( zCI ){
       zHeader = mprintf("Files in %s/ of %s", zD, zCI);
     }else{
-      zHeader = mprintf("All File in %s/", zD);
+      zHeader = mprintf("All Files in %s/", zD);
     }
   }
   zRegexp = P("re");
@@ -749,7 +749,7 @@ void page_tree(void){
     if( zCI ){
       zHeader = mprintf("Files in %s/ of %s", zD, zCI);
     }else{
-      zHeader = mprintf("All File in %s/", zD);
+      zHeader = mprintf("All Files in %s/", zD);
     }
   }
   style_header("%s", zHeader);

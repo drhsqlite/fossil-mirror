@@ -258,7 +258,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
 static int stash_create(void){
   const char *zComment;              /* Comment to add to the stash */
   int stashid;                       /* ID of the new stash */
-  int vid;                           /* Current checkout */
+  int vid;                           /* Current check-out */
 
   zComment = find_option("comment", "m", 1);
   verify_all_options();
@@ -303,7 +303,7 @@ static int stash_create(void){
 }
 
 /*
-** Apply a stash to the current checkout.
+** Apply a stash to the current check-out.
 */
 static void stash_apply(int stashid, int nConflict){
   int vid;
@@ -515,7 +515,7 @@ static int stash_get_id(const char *zStashId){
 **      are listed, then only stash and revert the named files.  The
 **      "save" verb can be omitted if and only if there are no other
 **      arguments.  The "snapshot" verb works the same as "save" but
-**      omits the revert, keeping the checkout unchanged.
+**      omits the revert, keeping the check-out unchanged.
 **
 ** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **
@@ -533,13 +533,13 @@ static int stash_get_id(const char *zStashId){
 ** > fossil stash apply ?STASHID?
 **
 **      Apply STASHID or the most recently created stash to the current
-**      working checkout.  The "pop" command deletes that changeset from
+**      working check-out.  The "pop" command deletes that changeset from
 **      the stash after applying it but the "apply" command retains the
 **      changeset.
 **
 ** > fossil stash goto ?STASHID?
 **
-**      Update to the baseline checkout for STASHID then apply the
+**      Update to the baseline check-out for STASHID then apply the
 **      changes of STASHID.  Keep STASHID so that it can be reused
 **      This command is undoable.
 **
@@ -695,21 +695,34 @@ void stash_cmd(void){
       undo_finish();
     }
   }else
-  if( memcmp(zCmd, "pop", nCmd)==0 ){
-    if( g.argc>3 ) usage("pop");
-    stashid = stash_get_id(0);
+  if( memcmp(zCmd, "pop", nCmd)==0 ||  memcmp(zCmd, "apply", nCmd)==0 ){
+    char *zCom = 0, *zDate = 0, *zHash = 0;
+    int popped = *zCmd=='p';
+    if( popped ){
+      if( g.argc>3 ) usage("pop");
+      stashid = stash_get_id(0);
+    }else{
+      if( g.argc>4 ) usage("apply STASHID");
+      stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    }
+    zCom = db_text(0, "SELECT comment FROM stash WHERE stashid=%d", stashid);
+    zDate = db_text(0, "SELECT datetime(ctime) FROM stash WHERE stashid=%d",
+        stashid);
+    zHash = db_text(0, "SELECT hash FROM stash WHERE stashid=%d", stashid);
     undo_begin();
     stash_apply(stashid, 0);
-    undo_save_stash(stashid);
+    if( popped ) undo_save_stash(stashid);
+    fossil_print("%s stash:\n%5d: [%.14s] from %s\n",
+        popped ? "Popped" : "Applied", stashid, zHash, zDate);
+    if( zCom && *zCom ){
+      fossil_print("       ");
+      comment_print(zCom, 0, 7, -1, get_comment_format());
+    }
+    fossil_free(zCom);
+    fossil_free(zDate);
+    fossil_free(zHash);
     undo_finish();
-    stash_drop(stashid);
-  }else
-  if( memcmp(zCmd, "apply", nCmd)==0 ){
-    if( g.argc>4 ) usage("apply STASHID");
-    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    undo_begin();
-    stash_apply(stashid, 0);
-    undo_finish();
+    if( popped ) stash_drop(stashid);
   }else
   if( memcmp(zCmd, "goto", nCmd)==0 ){
     int nConflict;
