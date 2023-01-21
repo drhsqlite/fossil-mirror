@@ -567,10 +567,6 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz/footer.txt \
   $(SRCDIR)/../skins/blitz/header.txt \
   $(SRCDIR)/../skins/blitz/ticket.txt \
-  $(SRCDIR)/../skins/bootstrap/css.txt \
-  $(SRCDIR)/../skins/bootstrap/details.txt \
-  $(SRCDIR)/../skins/bootstrap/footer.txt \
-  $(SRCDIR)/../skins/bootstrap/header.txt \
   $(SRCDIR)/../skins/darkmode/css.txt \
   $(SRCDIR)/../skins/darkmode/details.txt \
   $(SRCDIR)/../skins/darkmode/footer.txt \

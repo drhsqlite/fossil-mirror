@@ -181,10 +181,6 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz/footer.txt \
   $(SRCDIR)/../skins/blitz/header.txt \
   $(SRCDIR)/../skins/blitz/ticket.txt \
-  $(SRCDIR)/../skins/bootstrap/css.txt \
-  $(SRCDIR)/../skins/bootstrap/details.txt \
-  $(SRCDIR)/../skins/bootstrap/footer.txt \
-  $(SRCDIR)/../skins/bootstrap/header.txt \
   $(SRCDIR)/../skins/darkmode/css.txt \
   $(SRCDIR)/../skins/darkmode/details.txt \
   $(SRCDIR)/../skins/darkmode/footer.txt \
@@ -2120,7 +2116,13 @@ $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
 $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
-	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry  -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore  -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c  -sENVIRONMENT=web  -sMODULARIZE  -sEXPORT_NAME=initPikchrModule  --minify 0
+	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry \
+        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore \
+        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c \
+        -sENVIRONMENT=web \
+        -sMODULARIZE \
+        -sEXPORT_NAME=initPikchrModule \
+        --minify 0
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
 

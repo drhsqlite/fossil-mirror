@@ -525,10 +525,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\..\skins\blitz\footer.txt" \
         "$(SRCDIR)\..\skins\blitz\header.txt" \
         "$(SRCDIR)\..\skins\blitz\ticket.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\css.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\details.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\footer.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\header.txt" \
         "$(SRCDIR)\..\skins\darkmode\css.txt" \
         "$(SRCDIR)\..\skins\darkmode\details.txt" \
         "$(SRCDIR)\..\skins\darkmode\footer.txt" \
@@ -1154,10 +1150,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/blitz/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/ticket.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/darkmode/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/darkmode/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/darkmode/footer.txt" >> $@
