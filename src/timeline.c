@@ -1782,7 +1782,12 @@ void page_timeline(void){
     zType = g.perm.Read ? "ci" : "all";
     cgi_set_parameter("y", zType);
   }
-  if( zType[0]=='a' || zType[0]=='c' ){
+  if( zType[0]=='a' ||
+      ( g.perm.Read && zType[0]=='c' ) ||
+      ( g.perm.RdTkt && (zType[0]=='t' || zType[0]=='n') ) ||
+      ( g.perm.RdWiki && (zType[0]=='w' || zType[0]=='e') ) ||
+      ( g.perm.RdForum && zType[0]=='f' )
+    ){
     cookie_write_parameter("y","y",zType);
   }
 
