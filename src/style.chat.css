@@ -179,6 +179,7 @@ body.chat #load-msg-toolbar > div > button {
    the chat app. */
 body.chat.chat-only-mode{
   padding: 0;
+  margin: 0 auto;
 }
 body.chat #chat-button-settings {}
 /** Popup widget for the /chat settings. */

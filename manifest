@@ -1,5 +1,5 @@
-C Make\sdiff\s--checkin\sVERSION\scapable\sfor\sworking\sfrom\soutside\sof\sa\scheckout.
-D 2023-01-21T11:40:48.310
+C Fix\sappearance\sof\sa\schat-only\sview:\seliminate\sredundant\sgap\sbetween\sthe\svertical\sscrollbar\sand\sthe\sright\sedge\sof\sa\swindow.
+D 2023-01-22T18:35:35.643
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -556,7 +556,7 @@ F src/stat.c 046a53c73baccf10ad88c5c2cd32d07cbb359aeaaaa25a3b637b715c926308a9
 F src/statrep.c e66715d2f23d6b404d5ee4f1e3a49233b985749169fa259e2f0af753750f54ba
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d435ffb61bd61bae96597959c8eeca869cf8e94b5144a23ec5c40e7d3d8f11b9
-F src/style.chat.css 0a093d8122645f01783f235e202010ca14d44ad2101c840833d2c2057baac8c2
+F src/style.chat.css ce0c1dd149c7cf27ee218e737600cdbab117346311502ae02af0b0ce428a868b
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
@@ -953,8 +953,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a76111fe0b758c4604255ca5d71abc07d1a63ade60256756628a51b0c145253
-R 7cc152d2bb23c1c57ceb65e6ecf942b3
-U stephan
-Z 4e23391bbf258a888ad8c44a4700c8a2
+P 8e8e0269a96a2e210794ad66c11199c2e3334064f7031ad24804904845d74983
+R 8e3cf28a47288e6b4c390264a06a671d
+U george
+Z a91a961d514bc7d019256dab10dc242b
 # Remove this line to create a well-formed Fossil manifest.
