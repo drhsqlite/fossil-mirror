@@ -24,8 +24,8 @@
 #endif
 
 
-static cson_value * json_branch_list();
-static cson_value * json_branch_create();
+static cson_value * json_branch_list(void);
+static cson_value * json_branch_create(void);
 /*
 ** Mapping of /json/branch/XXX commands/paths to callbacks.
 */
@@ -42,7 +42,7 @@ static const JsonPageDef JsonPageDefs_Branch[] = {
 ** complete.
 **
 */
-cson_value * json_page_branch(){
+cson_value * json_page_branch(void){
   return json_page_dispatch_helper(&JsonPageDefs_Branch[0]);
 }
 
@@ -62,7 +62,7 @@ cson_value * json_page_branch(){
 ** "range" GET/POST.payload parameter. FIXME: currently we also use
 ** POST, but really want to restrict this to POST.payload.
 */
-static cson_value * json_branch_list(){
+static cson_value * json_branch_list(void){
   cson_value * payV;
   cson_object * pay;
   cson_value * listV;
@@ -315,7 +315,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 /*
 ** Impl of /json/branch/create.
 */
-static cson_value * json_branch_create(){
+static cson_value * json_branch_create(void){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   int rc = 0;

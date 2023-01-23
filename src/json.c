@@ -290,7 +290,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   zStr = vmprintf(fmt,vargs);
   va_end(vargs);
   v = cson_value_new_string(zStr, strlen(zStr));
-  free(zStr);
+  fossil_free(zStr);
   return v;
 }
 
@@ -632,9 +632,16 @@ int json_can_consume_content_type(const char * zType){
 ** If g.json.jsonp is not NULL then the content type is set to
 ** text/javascript and the output is wrapped in a jsonp
 ** wrapper.
+**
+** This function works only the first time it is called. It "should
+** not" ever be called more than once but certain calling
+** constellations might trigger that, in which case the second and
+** subsequent calls are no-ops.
 */
 void json_send_response( cson_value const * pResponse ){
+  static int once = 0;
   assert( NULL != pResponse );
+  if( once++ ) return;
   if( g.isHTTP ){
     cgi_reset_content();
     if( g.json.jsonp ){
@@ -846,7 +853,7 @@ void json_warn( int code, char const * fmt, ... ){
     msg = vmprintf(fmt,vargs);
     va_end(vargs);
     cson_object_set(obj,"text", cson_value_new_string(msg,strlen(msg)));
-    free(msg);
+    fossil_free(msg);
   }
 }
 
@@ -1625,7 +1632,7 @@ void json_err( int code, char const * msg, int alsoOutput ){
 */
 int json_set_err( int code, char const * fmt, ... ){
   assert( (code>=1000) && (code<=9999) );
-  free(g.zErrMsg);
+  fossil_free(g.zErrMsg);
   g.json.resultCode = code;
   if(!fmt || !*fmt){
     g.zErrMsg = mprintf("%s", json_err_cstr(code));
@@ -1773,7 +1780,7 @@ cson_value * json_tags_for_checkin_rid(int rid, int propagatingOnly){
     if(*tags){
       v = json_string_split2(tags,',',0);
     }
-    free(tags);
+    fossil_free(tags);
   }
   return v;
 }
@@ -2008,10 +2015,10 @@ cson_value * json_page_stat(){
 
   zTmp = db_get("project-name",NULL);
   cson_object_set(jo, "projectName", json_new_string(zTmp));
-  free(zTmp);
+  fossil_free(zTmp);
   zTmp = db_get("project-description",NULL);
   cson_object_set(jo, "projectDescription", json_new_string(zTmp));
-  free(zTmp);
+  fossil_free(zTmp);
   zTmp = NULL;
   fsize = file_size(g.zRepositoryName, ExtFILE);
   cson_object_set(jo, "repositorySize", 
@@ -2249,6 +2256,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"rebuild",json_page_rebuild,0},
 {"report", json_page_report, 0},
 {"resultCodes", json_page_resultCodes,0},
+{"settings",json_page_settings,0},
 {"stat",json_page_stat,0},
 {"status", json_page_status, 0},
 {"tag", json_page_tag,0},
