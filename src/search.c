@@ -2200,8 +2200,8 @@ static int fts5MatchinfoXCb(
   u32 *aOut = (u32*)pUserData;
   int iPrev = -1;
 
-  for(pApi->xPhraseFirst(pFts, 0, &iter, &iCol, &iOff); 
-      iCol>=0; 
+  for(pApi->xPhraseFirst(pFts, 0, &iter, &iCol, &iOff);
+      iCol>=0;
       pApi->xPhraseNext(pFts, &iter, &iCol, &iOff)
   ){
     aOut[iCol*3+1]++;
@@ -2222,11 +2222,11 @@ static int fts5MatchinfoGlobalCb(
   int rc = SQLITE_OK;
   switch( f ){
     case 'p':
-      aOut[0] = p->nPhrase; 
+      aOut[0] = p->nPhrase;
       break;
 
     case 'c':
-      aOut[0] = p->nCol; 
+      aOut[0] = p->nCol;
       break;
 
     case 'x': {
@@ -2287,7 +2287,7 @@ static int fts5MatchinfoLocalCb(
         Fts5PhraseIter iter;
         int iCol;
         for(pApi->xPhraseFirstColumn(pFts, iPhrase, &iter, &iCol);
-            iCol>=0; 
+            iCol>=0;
             pApi->xPhraseNextColumn(pFts, &iter, &iCol)
         ){
           aOut[iPhrase * ((p->nCol+31)/32) + iCol/32] |= ((u32)1 << iCol%32);
@@ -2307,8 +2307,8 @@ static int fts5MatchinfoLocalCb(
       for(iPhrase=0; iPhrase<p->nPhrase; iPhrase++){
         Fts5PhraseIter iter;
         int iOff, iCol;
-        for(pApi->xPhraseFirst(pFts, iPhrase, &iter, &iCol, &iOff); 
-            iOff>=0; 
+        for(pApi->xPhraseFirst(pFts, iPhrase, &iter, &iCol, &iOff);
+            iOff>=0;
             pApi->xPhraseNext(pFts, &iter, &iCol, &iOff)
         ){
           aOut[nMul * (iCol + iPhrase * p->nCol)]++;
@@ -2362,7 +2362,7 @@ static int fts5MatchinfoLocalCb(
   }
   return rc;
 }
- 
+
 static Fts5MatchinfoCtx *fts5MatchinfoNew(
   const Fts5ExtensionApi *pApi,   /* API offered by current FTS version */
   Fts5Context *pFts,              /* First arg to pass to pApi functions */
