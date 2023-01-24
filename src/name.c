@@ -21,6 +21,19 @@
 #include "name.h"
 #include <assert.h>
 
+#if INTERFACE
+/*
+** An upper boundary on RIDs, provided in order to be able to
+** distinguish real RID values from RID_CKOUT and any future
+** RID_... values.
+*/
+#define RID_MAX        0x7ffffff0
+/*
+** A "magic" RID representing the current checkout in some contexts.
+*/
+#define RID_CKOUT      (RID_MAX+1)
+#endif
+
 /*
 ** Return TRUE if the string begins with something that looks roughly
 ** like an ISO date/time string.  The SQLite date/time functions will
@@ -167,7 +180,7 @@ int start_of_branch(int rid, int eType){
     "    FROM plink WHERE cid=%d AND isprim"
     "    UNION ALL "
     "    SELECT plink.pid, EXISTS(SELECT 1 FROM tagxref "
-    "                              WHERE tagid=%d AND tagtype>0" 
+    "                              WHERE tagid=%d AND tagtype>0"
     "                                AND value=%Q AND rid=plink.pid),"
     "           1+par.cnt"
     "      FROM plink, par"
@@ -179,7 +192,7 @@ int start_of_branch(int rid, int eType){
   );
   fossil_free(zBr);
   rc = db_step(&q);
-  if( rc==SQLITE_ROW ){ 
+  if( rc==SQLITE_ROW ){
     ans = db_column_int(&q, 0);
   }
   db_finalize(&q);
@@ -197,7 +210,7 @@ int start_of_branch(int rid, int eType){
 **
 ** Return 0 if there are no matches.
 **
-** This is a tricky query to do efficiently.  
+** This is a tricky query to do efficiently.
 ** If the tag is very common (ex: "trunk") then
 ** we want to use the query identified below as Q1 - which searching
 ** the most recent EVENT table entries for the most recent with the tag.
@@ -280,7 +293,12 @@ static int is_trailing_punct(char c){
 ** rather than the last.
 **
 ** zType is "ci" in most use cases since we are usually searching for
-** a check-in.
+** a check-in. A value of "ci+" works like "ci" but adds these
+** semantics: if zTag is "ckout" and a checkout is open, "ci+" causes
+** RID_CKOUT to be returned, in which case g.localOpen will hold the
+** RID of the checkout. Conversely, passing in the hash, or another
+** symbolic name of the local checkout version, will always result in
+** its RID being returned.
 **
 ** Note that the input zTag for types "t" and "e" is the artifact hash of
 ** the ticket-change or technote-change artifact, not the randomly generated
@@ -288,7 +306,6 @@ static int is_trailing_punct(char c){
 ** live in a separate namespace.
 */
 int symbolic_name_to_rid(const char *zTag, const char *zType){
-  int vid;
   int rid = 0;
   int nTag;
   int i;
@@ -296,6 +313,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   const char *zXTag;     /* zTag with optional [...] removed */
   int nXTag;             /* Size of zXTag */
   const char *zDate;     /* Expanded date-time string */
+  int isCheckin = 0;     /* zType==ci = 1, zType==ci+ = 2 */
 
   if( zType==0 || zType[0]==0 ){
     zType = "*";
@@ -304,9 +322,17 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     startOfBranch = 1;
   }
   if( zTag==0 || zTag[0]==0 ) return 0;
+  else if( 'c'==zType[0] ){
+    if( fossil_strcmp(zType,"ci")==0 ){
+      isCheckin = 1;
+    }else if( fossil_strcmp(zType,"ci+")==0 ){
+      isCheckin = 2;
+      zType = "ci";
+    }
+  }
 
   /* special keyword: "tip" */
-  if( fossil_strcmp(zTag, "tip")==0 && (zType[0]=='*' || zType[0]=='c') ){
+  if( fossil_strcmp(zTag, "tip")==0 && (zType[0]=='*' || isCheckin!=0) ){
     rid = db_int(0,
       "SELECT objid"
       "  FROM event"
@@ -316,8 +342,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     if( rid ) return rid;
   }
 
-  /* special keywords: "prev", "previous", "current", and "next" */
-  if( g.localOpen && (vid=db_lget_int("checkout",0))!=0 ){
+  /* special keywords: "prev", "previous", "current", "ckout", and
+  ** "next" */
+  if( g.localOpen>0 && (zType[0]=='*' || isCheckin!=0) ){
+    const int vid = g.localOpen;
     if( fossil_strcmp(zTag, "current")==0 ){
       rid = vid;
     }else if( fossil_strcmp(zTag, "prev")==0
@@ -326,6 +354,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     }else if( fossil_strcmp(zTag, "next")==0 ){
       rid = db_int(0, "SELECT cid FROM plink WHERE pid=%d"
                       "  ORDER BY isprim DESC, mtime DESC", vid);
+    }else if( isCheckin>1 && fossil_strcmp(zTag, "ckout")==0 ){
+      rid = RID_CKOUT;
     }
     if( rid ) return rid;
   }
@@ -525,7 +555,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     char *zNew = fossil_strndup(zTag, nTag-1);
     rid = symbolic_name_to_rid(zNew,zType);
     fossil_free(zNew);
-  }else 
+  }else
   if( nTag>5
    && is_trailing_punct(zTag[nTag-1])
    && is_trailing_punct(zTag[nTag-2])
@@ -590,7 +620,9 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
   int rid = symbolic_name_to_rid(zName, zType);
   if((rid>0) && pUuid){
-    *pUuid = db_text(NULL, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    *pUuid = (rid<RID_MAX)
+      ? db_text(NULL, "SELECT uuid FROM blob WHERE rid=%d", rid)
+      : NULL;
   }
   return rid;
 }
@@ -625,7 +657,7 @@ int name_collisions(const char *zName){
 /*
 ** COMMAND: test-name-to-id
 **
-** Usage:  %fossil test-name-to-id [--count N] NAME
+** Usage:  %fossil test-name-to-id [--count N] [--type ARTIFACT_TYPE] NAME
 **
 ** Convert a NAME to a full artifact ID.  Repeat the conversion N
 ** times (for timing purposes) if the --count option is given.
@@ -634,7 +666,12 @@ void test_name_to_id(void){
   int i;
   int n = 0;
   Blob name;
+  const char *zType;
+
   db_must_be_within_tree();
+  if( (zType = find_option("type","t",1))==0 ){
+    zType = "*";
+  }
   for(i=2; i<g.argc; i++){
     if( strcmp(g.argv[i],"--count")==0 && i+1<g.argc ){
       i++;
@@ -644,7 +681,7 @@ void test_name_to_id(void){
     do{
       blob_init(&name, g.argv[i], -1);
       fossil_print("%s -> ", g.argv[i]);
-      if( name_to_uuid(&name, 1, "*") ){
+      if( name_to_uuid(&name, 1, zType) ){
         fossil_print("ERROR: %s\n", g.zErrMsg);
         fossil_error_reset();
       }else{
