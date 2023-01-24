@@ -864,13 +864,6 @@ static void append_extras_report(
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
-  zIgnoreFlag = db_get("ignore-glob", 0); /* Patterns to ignore */
-  zCleanFlag = db_get("clean-glob", 0);   /* ...that "clean" clobbers */
-  zKeepFlag = db_get("keep-glob", 0);     /* ...that "clean" won't touch */
-  pIgnore = glob_create(zIgnoreFlag);     /* Object versions of above */
-  pKeep = glob_create(zKeepFlag);
-  pClean = glob_create(zCleanFlag);
-  nRoot = (int)strlen(g.zLocalRoot);      /* Length of root component */
   Stmt q;
   Blob repo;
   int maxExtrasToShow = 5;                /* Before showing "+ xx others" */
@@ -883,6 +876,13 @@ static void append_extras_report(
   int nClean;
   int nKeep;
 
+  zIgnoreFlag = db_get("ignore-glob", 0); /* Patterns to ignore */
+  zCleanFlag = db_get("clean-glob", 0);   /* ...that "clean" clobbers */
+  zKeepFlag = db_get("keep-glob", 0);     /* ...that "clean" won't touch */
+  pIgnore = glob_create(zIgnoreFlag);     /* Object versions of above */
+  pKeep = glob_create(zKeepFlag);
+  pClean = glob_create(zCleanFlag);
+  nRoot = (int)strlen(g.zLocalRoot);      /* Length of root component */
   locate_unmanaged_files(0, NULL, 0, NULL);   /* Get all unmanaged files */
   /*TODO:LD
   ** The first two of these exclusions come from clean_cmd() in checkin.c.
@@ -1456,6 +1456,8 @@ void ci_page(void){
     @ are shown.</b></p>
   }
   if( bLocalMode ){
+    int pass;
+    int anyDifferences = 0;
     if( showExtras ){
       append_extras_report(zExtra, diffType, zW);
     }
@@ -1475,8 +1477,6 @@ void ci_page(void){
     ** second pass will only show those with diff-blocks.
     ** TODO:LD   Add this to the original (non-local) loop?
     */
-    int pass;
-    int anyDifferences = 0;
     for(pass=1; pass<=2; pass++) {
       while( db_step(&q3)==SQLITE_ROW ){
         const char *zPathname = db_column_text(&q3,0);

@@ -1,5 +1,5 @@
-C Wrapping\sa\sfew\scalls\sto\svfile_check_signature()\sfrom\sthe\snew\slocal\sdiff\ncode\sin\sunprotect/pop\scall\spairs\sto\ssquish\sa\sDB\sprotection\serror.
-D 2023-01-24T03:59:20.322
+C Make\sall\svariable\sdeclarations\sC89\scompliant.
+D 2023-01-24T16:34:42.708
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -468,7 +468,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c 09a2d5be644c3e22a2b0a725b9227e091877d5fef6cd4e75c137e29b8b7b9fa5
 F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775be724e6
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
-F src/info.c 522f7cd3862c19bad2d6b6403d708f3e59f83c779bfbff53ef1aadba7ada5118
+F src/info.c 31ad7a42781c01ebeb2fb9d320e7c002addade9f41ecc195a712025b7ea1ccb0
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
 F src/json.c 14719c83545eaca9b173707a2983633a9cdabb7ea2a072c31221464448ced616
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76fa165763da851e314904eeae2d71b351441632a85a89d16a0b6b598e00639f
-R 2860d22c37066e2726c7a5ddee38db9e
-U wyoung
-Z 3b087f0fc0c83257646550c9e6ac115f
+P 1b3ef05ef99ffaaef06a2fe9a96a69af2e4cb0eb9cede12eb59ccfc856a1dbb3
+R 25bf2c57a563613c77adb4c7afa28c39
+U drh
+Z 80770cbfa79387691fddeee2a17756cf
 # Remove this line to create a well-formed Fossil manifest.
