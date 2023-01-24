@@ -1131,7 +1131,9 @@ void ci_page(void){
       style_finish_page();
       return;
     }
+    db_unprotect(PROTECT_NONE);
     vfile_check_signature(vid, CKSIG_ENOTFILE);
+    db_protect_pop();
     zName = "tip";
     cgi_replace_parameter("name","tip"); /* Needed to get rid below */
   }
@@ -1549,7 +1551,9 @@ void localpatch_page(void){
     style_finish_page();
     return;
   }
+  db_unprotect(PROTECT_NONE);
   vfile_check_signature(vid, CKSIG_ENOTFILE);
+  db_protect_pop();
   diff_config_init(&DCfg, 0);
 
   cgi_set_content_type("text/plain");
