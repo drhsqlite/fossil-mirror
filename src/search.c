@@ -923,6 +923,7 @@ static void search_indexed(
   Blob sql;
   char *zPat = mprintf("%s",zPattern);
   int i;
+  static const char *zSnippetCall;
   if( srchFlags==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
@@ -930,6 +931,14 @@ static void search_indexed(
     if( zPat[i]=='-' || zPat[i]=='"' ) zPat[i] = ' ';
   }
   blob_init(&sql, 0, 0);
+  if( search_index_type(0)==4 ){
+    /* If this repo is still using the legacy FTS4 search index, then
+    ** the snippet() function is slightly different */
+    zSnippetCall = "snippet(ftsidx,'<mark>','</mark>',' ... ',-1,35)";
+  }else{
+    /* This is the common case - Using newer FTS5 search index */
+    zSnippetCall = "snippet(ftsidx,-1,'<mark>','</mark>',' ... ',35)";
+  }
   blob_appendf(&sql,
     "INSERT INTO x(label,url,score,id,date,snip) "
     " SELECT ftsdocs.label,"
@@ -937,11 +946,11 @@ static void search_indexed(
     "        rank(matchinfo(ftsidx,'pcsx')),"
     "        ftsdocs.type || ftsdocs.rid,"
     "        datetime(ftsdocs.mtime),"
-    "        snippet(ftsidx,-1,'<mark>','</mark>',' ... ',35)"
+    "        %s"
     "   FROM ftsidx CROSS JOIN ftsdocs"
     "  WHERE ftsidx MATCH %Q"
     "    AND ftsdocs.rowid=ftsidx.rowid",
-    zPat
+    zSnippetCall /*safe-for-%s*/, zPat
   );
   fossil_free(zPat);
   if( srchFlags!=SRCH_ALL ){
@@ -1553,13 +1562,36 @@ void search_drop_index(void){
 }
 
 /*
-** Return true if the full-text search index exists
+** Return true if the full-text search index exists.  See also the
+** search_index_type() function.
 */
 int search_index_exists(void){
   if( searchIdxExists<0 ){
     searchIdxExists = db_table_exists("repository","ftsdocs");
   }
   return searchIdxExists;
+}
+
+/*
+** Determine which full-text search index is currently being used to
+** add searching.  Return values:
+**
+**     0          No search index is available
+**     4          FTS3/4
+**     5          FTS5
+**
+** Results are cached.  Make the argument 1 to reset the cache.  See
+** also the search_index_exists() routine.
+*/
+int search_index_type(int bReset){
+  static int idxType = -1;
+  if( idxType<0 || bReset ){
+    idxType = db_int(0,
+        "SELECT CASE WHEN sql GLOB '*fts4*' THEN 4 ELSE 5 END"
+        " FROM repository.sqlite_schema WHERE name='ftsidx'"
+    );
+  }
+  return idxType;
 }
 
 /*
@@ -1959,7 +1991,7 @@ void fts_config_cmd(void){
   fossil_print("%-17s %s\n", "Porter stemmer:",
        db_get_boolean("search-stemmer",0) ? "on" : "off");
   if( search_index_exists() ){
-    fossil_print("%-17s enabled\n", "full-text index:");
+    fossil_print("%-17s FTS%d\n", "full-text index:", search_index_type(1));
     fossil_print("%-17s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
   }else{
