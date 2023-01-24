@@ -103,29 +103,52 @@ static int needHrefJs = 0;      /* href.js */
 static Blob blobOnLoad = BLOB_INITIALIZER;
 
 /*
-** Generate and return a anchor tag like this:
+** Generate and return an anchor tag like this:
 **
 **        <a href="URL">
 **  or    <a id="ID">
 **
-** The form of the anchor tag is determined by the g.javascriptHyperlink
-** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
-** If g.javascriptHyperlink is true then the
-** id="ID" form is used and javascript is generated in the footer to cause
-** href values to be inserted after the page has loaded.  If
-** g.perm.History is false, then the <a id="ID"> form is still
-** generated but the javascript is not generated so the links never
-** activate.
+** The form of the anchor tag is determined by the g.jsHref
+** and g.perm.Hyperlink variables.
+**
+**   g.perm.Hyperlink  g.jsHref        Returned anchor format
+**   ----------------  --------        ------------------------
+**          0             0              (empty string)
+**          0             1              (empty string)
+**          1             0              <a href="URL">
+**          1             1              <a data-href="URL">
+**
+** No anchor tag is generated if g.perm.Hyperlink is false.
+** The href="URL" form is used if g.jsHref is false.
+** If g.jsHref is true then the data-href="URL" and
+** href="/honeypot" is generated and javascript is added to the footer
+** to cause data-href values to be inserted into href
+** after the page has loaded. The use of the data-href="URL" form
+** instead of href="URL" is a defense against bots.
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
 ** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
-** g.javascriptHyperlink is set to 1.  The g.javascriptHyperlink defaults
-** to 0 and only changes to one if the user lacks the Hyperlink (h) property
-** and the "auto-hyperlink" setting is enabled.
+** g.jsHref is set to 1 by login_check_credentials().  Thus
+** the g.perm.Hyperlink property will be true even if the user does not
+** have the "h" privilege if the "auto-hyperlink" setting is true.
 **
-** Filling in the href="URL" using javascript is a defense against bots.
+**  User has "h"  auto-hyperlink      g.perm.Hyperlink  g.jsHref
+**  ------------  --------------      ----------------  ---------------------
+**        0             0                    0                    0
+**        1             0                    1                    0
+**        0             1                    1                    1
+**        1             1                    1                    0
 **
-** The name of this routine is deliberately kept short so that can be
+** So, in other words, tracing input configuration to final actions we have:
+**
+**  User has "h"  auto-hyperlink      Returned anchor format
+**  ------------  --------------      ----------------------
+**        0             0             (empty string)
+**        1             0             <a href="URL">
+**        0             1             <a data-href="URL">
+**        1             1             <a href="URL">
+**
+** The name of these routines are deliberately kept short so that can be
 ** easily used within @-lines.  Example:
 **
 **      @ %z(href("%R/artifact/%s",zUuid))%h(zFN)</a>
@@ -152,7 +175,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl;
     if( zExtra ){
       zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
@@ -177,7 +200,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl = mprintf("<a class=\"%s\" href=\"%h\">", zExtra, zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -193,7 +216,7 @@ char *href(const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( !g.jsHref ){
     char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -204,8 +227,25 @@ char *href(const char *zFormat, ...){
 }
 
 /*
-** Generate <form method="post" action=ARG>.  The ARG value is inserted
-** by javascript.
+** Generate <form method="post" action=ARG>.  The ARG value is determined
+** by the arguments.
+**
+** As a defense against robots, the action=ARG might instead by data-action=ARG
+** and javascript (href.js) added to the page so that the data-action= is
+** changed into action= after the page loads.  Whether or not this happens
+** depends on if the user has the "h" privilege and whether or not the
+** auto-hyperlink setting is on.  These setings determine the values of
+** variables g.perm.Hyperlink and g.jsHref.
+**
+**    User has "h"  auto-hyperlink      g.perm.Hyperlink  g.jsHref
+**    ------------  --------------      ----------------  --------
+**  1:      0             0                    0             0
+**  2:      1             0                    1             0
+**  3:      0             1                    1             1
+**  4:      1             1                    1             0
+**
+** The data-action=ARG form is used for cases 1 and 3.  In case 1, the href.js
+** javascript is omitted and so the form is effectively disabled.
 */
 void form_begin(const char *zOtherArgs, const char *zAction, ...){
   char *zLink;
@@ -214,7 +254,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
   va_start(ap, zAction);
   zLink = vmprintf(zAction, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( g.perm.Hyperlink ){
     @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
   }else{
     needHrefJs = 1;
@@ -368,47 +408,75 @@ void style_set_current_page(const char *zFormat, ...){
 }
 
 /*
-** Create a TH1 variable containing the URL for the specified config
-** resource. The resulting variable name will be of the form
-** $[zVarPrefix]_url.
+** Create a TH1 variable containing the URL for the stylesheet.
+**
+** The name of the new variable will be "stylesheet_url".
+**
+** The value will be a URL for accessing the appropriate stylesheet.
+** This URL will include query parameters such as "id=" and "once&skin="
+** to cause the correct stylesheet to be loaded after a skin change
+** or after a change to the stylesheet.
 */
-static void url_var(
-  const char *zVarPrefix,
-  const char *zConfigName,
-  const char *zPageName
-){
-  char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = 0;              /* stylesheet URL */
-  int hasBuiltin = 0;          /* true for built-in page-specific CSS */
+static void stylesheet_url_var(void){
+  char *zBuiltin;              /* Auxiliary page-specific CSS page */
+  Blob url;                    /* The URL */
 
-  if(0==strcmp("css",zConfigName)){
-    /* Account for page-specific CSS, appending a /{{g.zPath}} to the
-    ** url only if we have a corresponding built-in page-specific CSS
-    ** file. Do not append it to all pages because we would
-    ** effectively cache-bust all pages which do not have
-    ** page-specific CSS. */
-    char * zBuiltin = mprintf("style.%s.css", g.zPath);
-    hasBuiltin = builtin_file(zBuiltin,0)!=0;
-    fossil_free(zBuiltin);
+  /* Initialize the URL to its baseline */
+  url = empty_blob;
+  blob_appendf(&url, "%R/style.css");
+
+  /* If page-specific CSS exists for the current page, then append
+  ** the pathname for the page-specific CSS.  The default CSS is
+  **
+  **     /style.css
+  **
+  ** But for the "/wikiedit" page (to name but one example), we
+  ** append a path as follows:
+  **
+  **     /style.css/wikiedit
+  **
+  ** The /style.css page (implemented below) will detect this extra "wikiedit"
+  ** path information and include the page-specific CSS along with the
+  ** default CSS when it delivers the page.
+  */
+  zBuiltin = mprintf("style.%s.css", g.zPath);
+  if( builtin_file(zBuiltin,0)!=0 ){
+    blob_appendf(&url, "/%s", g.zPath);
   }
-  zUrl = mprintf("%R/%s%s%s?id=%x", zPageName,
-                 hasBuiltin ? "/" : "", hasBuiltin ? g.zPath : "",
-                 skin_id(zConfigName));
-  Th_Store(zVarName, zUrl);
-  fossil_free(zUrl);
-  fossil_free(zVarName);
+  fossil_free(zBuiltin);
+
+  /* Add query parameters that will change whenever the skin changes
+  ** or after any updates to the CSS files
+  */
+  blob_appendf(&url, "?id=%x", skin_id("css"));
+  if( P("once")!=0 && P("skin")!=0 ){
+    blob_appendf(&url, "&skin=%s&once", skin_in_use());
+  }
+
+  /* Generate the CSS URL variable */  
+  Th_Store("stylesheet_url", blob_str(&url));
+  blob_reset(&url);
 }
 
 /*
-** Create a TH1 variable containing the URL for the specified config image.
+** Create a TH1 variable containing the URL for the specified image.
 ** The resulting variable name will be of the form $[zImageName]_image_url.
+** The value will be a URL that includes an id= query parameter that
+** changes if the underlying resource changes or if a different skin
+** is selected.
 */
 static void image_url_var(const char *zImageName){
-  char *zVarPrefix = mprintf("%s_image", zImageName);
-  char *zConfigName = mprintf("%s-image", zImageName);
-  url_var(zVarPrefix, zConfigName, zImageName);
-  free(zVarPrefix);
-  free(zConfigName);
+  char *zVarName;   /* Name of the new TH1 variable */
+  char *zResource;  /* Name of CONFIG entry holding content */
+  char *zUrl;       /* The URL */
+
+  zResource = mprintf("%s-image", zImageName);
+  zUrl = mprintf("%R/%s?id=%x", zImageName, skin_id(zResource));
+  free(zResource);
+  zVarName = mprintf("%s_image_url", zImageName);  
+  Th_Store(zVarName, zUrl);
+  free(zVarName);
+  free(zUrl);
 }
 
 /*
@@ -521,6 +589,7 @@ char *style_nonce(void){
 **     default-src 'self' data:;
 **     script-src 'self' 'nonce-$nonce';
 **     style-src 'self' 'unsafe-inline';
+**     img-src * data:;
 **
 ** The text '$nonce' is replaced by style_nonce() if and whereever it
 ** occurs in the input string.
@@ -532,7 +601,8 @@ char *style_csp(int toHeader){
   static const char zBackupCSP[] = 
    "default-src 'self' data:; "
    "script-src 'self' 'nonce-$nonce'; "
-   "style-src 'self' 'unsafe-inline'";
+   "style-src 'self' 'unsafe-inline'; "
+   "img-src * data:";
   const char *zFormat;
   Blob csp;
   char *zNonce;
@@ -579,8 +649,8 @@ void style_disable_csp(void){
 static const char zDfltHeader[] = 
 @ <html>
 @ <head>
-@ <base href="$baseurl/$current_page" />
 @ <meta charset="UTF-8">
+@ <base href="$baseurl/$current_page" />
 @ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
@@ -588,7 +658,7 @@ static const char zDfltHeader[] =
 @  href="$home/timeline.rss" />
 @ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
 @ </head>
-@ <body class="$current_feature">
+@ <body class="$current_feature rpage-$requested_page cpage-$canonical_page">
 ;
 
 /*
@@ -611,7 +681,7 @@ static const char zDfltMainMenu[] =
 @ Chat      /chat        C              wideonly
 @ Tickets   /ticket      r              wideonly
 @ Wiki      /wiki        j              wideonly
-@ Setup     /setup       s              desktoponly
+@ Admin     /setup       {a s}          desktoponly
 @ Logout    /logout      L              wideonly
 @ Login     /login       !L             wideonly
 ;
@@ -701,19 +771,35 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
   Th_Store("current_page", local_zCurrentPage);
+  if( g.zPath ){                /* store the first segment of a path; */
+    char *pSlash = strchr(g.zPath,'/');
+    if( pSlash ) *pSlash = 0;   /* make a temporary cut if necessary  */
+    Th_Store("requested_page", escape_quotes(g.zPath));
+    if( pSlash ) *pSlash = '/';
+  }else{
+    Th_Store("requested_page", "");
+  }
+  Th_Store("canonical_page", escape_quotes(g.zPhase+1));
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
   Th_Store("mainmenu", style_get_mainmenu());
-  url_var("stylesheet", "css", "style.css");
+  stylesheet_url_var();
   image_url_var("logo");
   image_url_var("background");
   if( !login_is_nobody() ){
     Th_Store("login", g.zLogin);
   }
   Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
+  if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
+      g.ftntsIssues[2] || g.ftntsIssues[3] ){
+    char buf[80];
+    sprintf(&buf[0],"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
+                                  g.ftntsIssues[2],g.ftntsIssues[3]);
+    Th_Store("footnotes_issues_counters", buf);
+  }
 }
 
 /*
@@ -815,8 +901,9 @@ void style_table_sorter(void){
 static void style_load_all_js_files(void){
   if( needHrefJs && g.perm.Hyperlink ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
-    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
-    @ <script id='href-data' type='application/json'>\
+    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0)
+                   && sqlite3_strglob("*Android*",PD("HTTP_USER_AGENT",""));
+    @ <script id='href-data' type='text/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
   @ <script nonce="%h(style_nonce())">/* style.c:%d(__LINE__) */
@@ -835,6 +922,37 @@ static void style_load_all_js_files(void){
   }
   @ </script>
   builtin_fulfill_js_requests();
+}
+
+/*
+** Transorm input string into a token that is safe for inclusion into
+** class attribute. Digits and low-case letter are passed unchanged,
+** upper-case letters are transformed to low-case, everything else is
+** tranformed into hyphens; consequtive and pending hyphens are squeezed.
+** If result does not fit into szOut chars then it is truncated.
+** Result is always terminated with null.
+*/
+void style_derive_classname(const char *zIn, char *zOut, int szOut){
+  assert(  zOut );
+  assert( szOut>0 );
+  if( zIn ){
+    int n = 0;  /* number of chars written to zOut */
+    char c;
+    for(--szOut; (c=*zIn) && n<szOut; zIn++) {
+      if( ('a'<=c && c<='z') || ('0'<=c && c<='9') ){
+        *zOut = c;
+      }else if( 'A'<=c && c<='Z' ){
+        *zOut = c - 'A' + 'a';
+      }else{
+        if( n==0 || zOut[-1]=='-' ) continue;
+        *zOut = '-';
+      }
+      zOut++;
+      n++;
+    }
+    if( n && zOut[-1]=='-' ) zOut--;
+  }
+  *zOut = 0;
 }
 
 /*
@@ -865,6 +983,7 @@ void style_finish_page(){
   cgi_destination(CGI_HEADER);
   if( submenuEnable && nSubmenu+nSubmenuCtrl>0 ){
     int i;
+    char zClass[32]; /* reduced form of the main attribute */
     if( nSubmenuCtrl ){
       @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>
       @ <input type='hidden' name='udc' value='1'>
@@ -875,13 +994,20 @@ void style_finish_page(){
       qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
       for(i=0; i<nSubmenu; i++){
         struct Submenu *p = &aSubmenu[i];
+        style_derive_classname(p->zLabel, zClass, sizeof zClass);
+        /* switching away from the %h formatting below might be dangerous
+        ** because some places use %s to compose zLabel and zLink;
+        ** e.g. /rptview page and the submenuCmd() function.
+        ** "sml" stands for submenu link.
+        */
         if( p->zLink==0 ){
-          @ <span class="label">%h(p->zLabel)</span>
+          @ <span class="label sml-%s(zClass)">%h(p->zLabel)</span>
         }else{
-          @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
+          @ <a class="label sml-%s(zClass)" href="%h(p->zLink)">%h(p->zLabel)</a>
         }
       }
     }
+    strcpy(zClass,"smc-");   /* common prefix for submenu controls */
     for(i=0; i<nSubmenuCtrl; i++){
       const char *zQPN = aSubmenuCtrl[i].zName;
       const char *zDisabled = "";
@@ -891,9 +1017,10 @@ void style_finish_page(){
       }else if( zQPN ){
         cgi_tag_query_parameter(zQPN);
       }
+      style_derive_classname(zQPN, zClass+4, sizeof(zClass)-4);
       switch( aSubmenuCtrl[i].eType ){
         case FF_ENTRY:
-          @ <span class='submenuctrl%s(zXtraClass)'>\
+          @ <span class='submenuctrl%s(zXtraClass) %s(zClass)'>\
           @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           @ <input type='text' name='%s(zQPN)' value='%h(PD(zQPN, ""))' \
           if( aSubmenuCtrl[i].iSize<0 ){
@@ -908,12 +1035,12 @@ void style_finish_page(){
           int j;
           const char *zVal = P(zQPN);
           if( zXtraClass[0] ){
-            @ <span class='%s(zXtraClass+1)'>
+            @ <span class='%s(zXtraClass+1) %s(zClass)'>
           }
           if( aSubmenuCtrl[i].zLabel ){
             @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           }
-          @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
+          @ <select class='submenuctrl %s(zClass)' size='1' name='%s(zQPN)' \
           @ id='submenuctrl-%d(i)'%s(zDisabled)>
           for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
             const char *zQPV = aSubmenuCtrl[i].azChoice[j];
@@ -947,7 +1074,7 @@ void style_finish_page(){
           break;
         }
         case FF_CHECKBOX: {
-          @ <label class='submenuctrl submenuckbox%s(zXtraClass)'>\
+          @ <label class='submenuctrl submenuckbox%s(zXtraClass) %s(zClass)'>\
           @ <input type='checkbox' name='%s(zQPN)' id='submenuctrl-%d(i)' \
           if( PB(zQPN) ){
             @ checked \
@@ -1013,6 +1140,8 @@ void style_finish_page(){
     @ </body>
     @ </html>
   }
+  /* Update the user display prefs cookie if it was modified */
+  cookie_render();
 }
 
 /*
@@ -1092,7 +1221,7 @@ void page_script_js(void){
     cgi_set_content_type("text/plain");
   }else{
     /* Default behavior is to return javascript */
-    cgi_set_content_type("application/javascript");
+    cgi_set_content_type("text/javascript");
   }
   style_init_th1_vars(0);
   Th_Render(zScript?zScript:"");
@@ -1133,7 +1262,7 @@ static void page_style_css_append_page_style(Blob *pOut){
 }
 
 /*
-** WEBPAGE: style.css
+** WEBPAGE: style.css loadavg-exempt
 **
 ** Return the style sheet.   The style sheet is assemblied from
 ** multiple sources, in order:
@@ -1243,8 +1372,19 @@ void page_test_env(void){
 ** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
-  cgi_set_status(403, "Forbidden");
-  @ <p>Please enable javascript or log in to see this content</p>
+  style_header("I think you are a robot");
+  @ <p>You seem like a robot.</p>
+  @
+  @ <p>Is this wrong?  Are you really a human?  If so, please prove it
+  @ by <a href="%R/login">logging in</a>.
+  if( g.anon.Hyperlink ){
+    @ You can <a href="%R/login?anon=1">log in anonymously</a> if you
+    @ prefer.
+  }
+  @ <p>Sorry for the inconvenience. The point of this is to prevent
+  @ robots from following the countless of hyperlinks in this site and
+  @ soaking up all the available CPU time and network bandwidth.
+  style_finish_page();
 }
 
 /*
@@ -1300,6 +1440,12 @@ void webpage_error(const char *zFormat, ...){
     @ g.userUid = %d(g.userUid)<br />
     @ g.zLogin = %h(g.zLogin)<br />
     @ g.isHuman = %d(g.isHuman)<br />
+    @ g.jsHref = %d(g.jsHref)<br />
+    if( g.zLocalRoot ){
+      @ g.zLocalRoot = %h(g.zLocalRoot)<br />
+    }else{
+      @ g.zLocalRoot = <i>none</i><br />
+    }
     if( g.nRequest ){
       @ g.nRequest = %d(g.nRequest)<br />
     }
@@ -1319,6 +1465,7 @@ void webpage_error(const char *zFormat, ...){
     @ fossil_exe_id() = %h(fossil_exe_id())<br />
     @ <hr />
     P("HTTP_USER_AGENT");
+    P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0);
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr />

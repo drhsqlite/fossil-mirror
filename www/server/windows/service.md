@@ -48,8 +48,8 @@ requires a slightly different set of options vs. `fossil server`:
 fossil winsrv create --repository D:/Path/to/Repos --repolist
 ```
 
-<a name='PowerShell'></a>
-### Advanced service installation using PowerShell
+
+### <a id='PowerShell'></a>Advanced service installation using PowerShell
 
 As great as `fossil winsrv` is, it does not have one to one reflection of all of
 the `fossil server` [options](/help?cmd=server).  When you need to use some of
@@ -87,5 +87,22 @@ in the PowerShell console.
 
 Congratulations, you now have a base http accessible Fossil server running on
 Windows.
+
+### Removing the Windows Service
+
+If you want to remove the Fossil service, execute the following from an
+Administrative PowerShell or Command Prompt console:
+
+```
+sc.exe delete fossil
+```
+
+If you have Powershell version 6.0 or later, you can use:
+
+```PowerShell
+Remove-Service -Name fossil
+```
+
+with the same effect.
 
 *[Return to the top-level Fossil server article.](../)*

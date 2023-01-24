@@ -16,7 +16,7 @@
 *******************************************************************************
 **
 ** This file contains code used to merge the changes in the current
-** checkout into a different version and switch to that version.
+** check-out into a different version and switch to that version.
 */
 #include "config.h"
 #include "update.h"
@@ -64,8 +64,8 @@ int update_to(int vid){
 **
 ** Usage: %fossil update ?OPTIONS? ?VERSION? ?FILES...?
 **
-** Change the version of the current checkout to VERSION.  Any
-** uncommitted changes are retained and applied to the new checkout.
+** Change the version of the current check-out to VERSION.  Any
+** uncommitted changes are retained and applied to the new check-out.
 **
 ** The VERSION argument can be a specific version or tag or branch
 ** name.  If the VERSION argument is omitted, then the leaf of the
@@ -80,35 +80,36 @@ int update_to(int vid){
 ** name for one of the FILES arguments is the same as using every
 ** subdirectory and file beneath that directory.
 **
-** If FILES is omitted, all files in the current checkout are subject
-** to being updated and the version of the current checkout is changed
+** If FILES is omitted, all files in the current check-out are subject
+** to being updated and the version of the current check-out is changed
 ** to VERSION. Any uncommitted changes are retained and applied to the
-** new checkout.
+** new check-out.
 **
 ** The -n or --dry-run option causes this command to do a "dry run".
 ** It prints out what would have happened but does not actually make
-** any changes to the current checkout or the repository.
+** any changes to the current check-out or the repository.
 **
 ** The -v or --verbose option prints status information about
 ** unchanged files in addition to those file that actually do change.
 **
 ** Options:
-**   --case-sensitive BOOL  Override case-sensitive setting
-**   --debug                Print debug information on stdout
-**   --latest               Acceptable in place of VERSION, update to
-**                          latest version
-**   --force-missing        Force update if missing content after sync
-**   -n|--dry-run           If given, display instead of run actions
-**   -v|--verbose           Print status information about all files
-**   -W|--width WIDTH       Width of lines (default is to auto-detect).
-**                          Must be more than 20 or 0 (= no limit,
-**                          resulting in a single line per entry).
-**   --setmtime             Set timestamps of all files to match their
-**                          SCM-side times (the timestamp of the last
-**                          checkin which modified them).
-**  -K|--keep-merge-files   On merge conflict, retain the temporary files
-**                          used for merging, named *-baseline, *-original,
-**                          and *-merge.
+**   --case-sensitive BOOL   Override case-sensitive setting
+**   --debug                 Print debug information on stdout
+**   -n|--dry-run            If given, display instead of run actions
+**   --force-missing         Force update if missing content after sync
+**   -K|--keep-merge-files   On merge conflict, retain the temporary files
+**                           used for merging, named *-baseline, *-original,
+**                           and *-merge.
+**   --latest                Acceptable in place of VERSION, update to
+**                           latest version
+**   --nosync                Do not auto-sync prior to update
+**   --setmtime              Set timestamps of all files to match their
+**                           SCM-side times (the timestamp of the last
+**                           check-in which modified them).
+**   -v|--verbose            Print status information about all files
+**   -W|--width WIDTH        Width of lines (default is to auto-detect).
+**                           Must be more than 20 or 0 (= no limit,
+**                           resulting in a single line per entry).
 **
 ** See also: [[revert]]
 */
@@ -129,6 +130,7 @@ void update_cmd(void){
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   int nUpdate = 0;      /* Number of changes of any kind */
+  int bNosync = 0;      /* --nosync.  Omit the auto-sync */
   int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
   const char *zWidth;   /* Width option string value */
@@ -156,6 +158,7 @@ void update_cmd(void){
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
+  bNosync = find_option("nosync",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -163,9 +166,8 @@ void update_cmd(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   user_select();
-  if( !dryRunFlag && !internalUpdate ){
-    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
-                      db_get_int("autosync-tries", 1), 1) ){
+  if( !dryRunFlag && !internalUpdate && !bNosync ){
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag, 1, "update") ){
       fossil_fatal("update abandoned due to sync failure");
     }
   }
@@ -252,7 +254,7 @@ void update_cmd(void){
   /*
   ** The record.fn field is used to match files against each other.  The
   ** FV table contains one row for each each unique filename in
-  ** in the current checkout, the pivot, and the version being merged.
+  ** in the current check-out, the pivot, and the version being merged.
   */
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
@@ -389,7 +391,7 @@ void update_cmd(void){
   }
 
   /*
-  ** Alter the content of the checkout so that it conforms with the
+  ** Alter the content of the check-out so that it conforms with the
   ** target
   */
   db_prepare(&q,
@@ -427,15 +429,22 @@ void update_cmd(void){
       db_multi_exec("UPDATE vfile SET deleted=1 WHERE id=%d", idt);
     }
     if( idv>0 && ridv==0 && idt>0 && ridt>0 ){
-      /* Conflict.  This file has been added to the current checkout
-      ** but also exists in the target checkout.  Use the current version.
+      /* Conflict.  This file has been added to the current check-out
+      ** but also exists in the target check-out.  Use the current version.
       */
       fossil_print("CONFLICT %s\n", zName);
       nConflict++;
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       if( file_isfile_or_link(zFullPath) ){
-        fossil_print("ADD %s - overwrites an unmanaged file\n", zName);
+        /* Name of backup file with Original content */
+        char *zOrig = file_newname(zFullPath, "original", 1);
+        /* Backup previously unanaged file before to be overwritten */
+        file_copy(zFullPath, zOrig);
+        fossil_free(zOrig);
+        fossil_print("ADD %s - overwrites an unmanaged file", zName);
+        if( !dryRunFlag ) fossil_print(", original copy backed up locally");
+        fossil_print("\n");
         nOverwrite++;
       }else{
         fossil_print("ADD %s\n", zName);
@@ -459,7 +468,7 @@ void update_cmd(void){
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
-        /* Added in current checkout.  Continue to hold the file as
+        /* Added in current check-out.  Continue to hold the file as
         ** as an addition */
         db_multi_exec("UPDATE vfile SET vid=%d WHERE id=%d", tid, idv);
       }else if( chnged ){
@@ -515,10 +524,22 @@ void update_cmd(void){
           }
         }else{
           if( !dryRunFlag ){
+            if( !keepMergeFlag ){
+              /* Name of backup file with Original content */
+              char *zOrig = file_newname(zFullPath, "original", 1);
+              /* Backup non-mergeable binary file when --keep-merge-files is
+                 not specified */
+              file_copy(zFullPath, zOrig);
+              fossil_free(zOrig);
+            }
             blob_write_to_file(&t, zFullNewPath);
             file_setexe(zFullNewPath, isexe);
           }
-          fossil_print("***** Cannot merge binary file %s\n", zNewName);
+          fossil_print("***** Cannot merge binary file %s", zNewName);
+          if( !dryRunFlag ){
+            fossil_print(", original copy backed up locally");
+          }
+          fossil_print("\n");
           nConflict++;
         }
       }
@@ -548,6 +569,9 @@ void update_cmd(void){
     show_common_info(tid, "checkout:", 1, 0);
     fossil_print("%-13s None. Already up-to-date\n", "changes:");
   }else{
+    fossil_print("%-13s %.40s %s\n", "updated-from:", rid_to_uuid(vid), 
+                 db_text("", "SELECT datetime(mtime) || ' UTC' FROM event "
+                         "  WHERE objid=%d", vid));
     show_common_info(tid, "updated-to:", 1, 0);
     fossil_print("%-13s %d file%s modified.\n", "changes:",
                  nUpdate, nUpdate>1 ? "s" : "");
@@ -607,14 +631,14 @@ void update_cmd(void){
     );
     fossil_free(zPwd);
     if( g.argc<=3 ){
-      /* All files updated.  Shift the current checkout to the target. */
+      /* All files updated.  Shift the current check-out to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
       checkout_set_all_exe(tid);
       manifest_to_disk(tid);
       db_set_checkout(tid);
     }else{
       /* A subset of files have been checked out.  Keep the current
-      ** checkout unchanged. */
+      ** check-out unchanged. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
     }
     if( !internalUpdate ) undo_finish();
@@ -674,7 +698,7 @@ void ensure_empty_dirs_created(int clearDirTable){
 }
 
 /*
-** Get the manifest record for a given revision, or the current checkout if
+** Get the manifest record for a given revision, or the current check-out if
 ** zRevision is NULL.
 */
 Manifest *historical_manifest(
@@ -694,9 +718,9 @@ Manifest *historical_manifest(
       if( vid==0 ) return 0;
       zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
       if( zRevision ){
-        fossil_fatal("checkout artifact is not a check-in: %s", zRevision);
+        fossil_fatal("check-out artifact is not a check-in: %s", zRevision);
       }else{
-        fossil_fatal("invalid checkout artifact ID: %d", vid);
+        fossil_fatal("invalid check-out artifact ID: %d", vid);
       }
     }
   }
@@ -706,7 +730,7 @@ Manifest *historical_manifest(
     if( zRevision ){
       fossil_fatal("could not parse manifest for check-in: %s", zRevision);
     }else{
-      fossil_fatal("could not parse manifest for current checkout");
+      fossil_fatal("could not parse manifest for current check-out");
     }
   }
 
@@ -717,7 +741,7 @@ Manifest *historical_manifest(
 
 /*
 ** Get the contents of a file within the check-in "zRevision".  If
-** zRevision==NULL then get the file content for the current checkout.
+** zRevision==NULL then get the file content for the current check-out.
 */
 int historical_blob(
   const char *zRevision,   /* The check-in containing the file */
@@ -791,11 +815,11 @@ int historical_blob(
 ** See also: [[redo]], [[undo]], [[checkout]], [[update]]
 */
 void revert_cmd(void){
-  Manifest *pCoManifest;          /* Manifest of current checkout */
+  Manifest *pCoManifest;          /* Manifest of current check-out */
   Manifest *pRvManifest;          /* Manifest of selected revert version */
-  ManifestFile *pCoFile;          /* File within current checkout manifest */
+  ManifestFile *pCoFile;          /* File within current check-out manifest */
   ManifestFile *pRvFile;          /* File within revert version manifest */
-  const char *zFile;              /* Filename relative to checkout root */
+  const char *zFile;              /* Filename relative to check-out root */
   const char *zRevision;          /* Selected revert version, NULL if current */
   Blob record = BLOB_INITIALIZER; /* Contents of each reverted file */
   int i;
@@ -816,7 +840,7 @@ void revert_cmd(void){
   }
   db_must_be_within_tree();
 
-  /* Get manifests of revert version and (if different) current checkout. */
+  /* Get manifests of revert version and (if different) current check-out. */
   pRvManifest = historical_manifest(zRevision);
   pCoManifest = zRevision ? historical_manifest(0) : 0;
 
@@ -936,7 +960,7 @@ void revert_cmd(void){
       int rvChnged = 0;
       int rvPerm = manifest_file_mperm(pRvFile);
 
-      /* Determine if reverted-to file is different than checked out file. */
+      /* Determine if reverted-to file is different than checked-out file. */
       if( pCoManifest && (pCoFile = manifest_file_find(pCoManifest, zFile)) ){
         rvChnged = manifest_file_mperm(pRvFile)!=rvPerm
                 || fossil_strcmp(pRvFile->zUuid, pCoFile->zUuid)!=0;

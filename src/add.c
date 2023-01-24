@@ -25,7 +25,7 @@
 #include "cygsup.h"
 
 /*
-** This routine returns the names of files in a working checkout that
+** This routine returns the names of files in a working check-out that
 ** are created by Fossil itself, and hence should not be added, deleted,
 ** or merge, and should be omitted from "clean" and "extras" lists.
 **
@@ -33,7 +33,7 @@
 ** been used, return 0.
 */
 const char *fossil_reserved_name(int N, int omitRepo){
-  /* Possible names of the local per-checkout database file and
+  /* Possible names of the local per-check-out database file and
   ** its associated journals
   */
   static const char *const azName[] = {
@@ -46,7 +46,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
      ".fslckout-wal",
      ".fslckout-shm",
 
-     /* The use of ".fos" as the name of the checkout database is
+     /* The use of ".fos" as the name of the check-out database is
      ** deprecated.  Use ".fslckout" instead.  At some point, the following
      ** entries should be removed.  2012-02-04 */
      ".fos",
@@ -69,7 +69,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
   static const char *azManifests[3];
 
   /*
-  ** Names of repository files, if they exist in the checkout.
+  ** Names of repository files, if they exist in the check-out.
   */
   static const char *azRepo[4] = { 0, 0, 0, 0 };
 
@@ -247,7 +247,7 @@ static int add_files_in_sfile(int vid){
 }
 
 /*
-** Resets the ADDED/DELETED state of a checkout, such that all
+** Resets the ADDED/DELETED state of a check-out, such that all
 ** newly-added (but not yet committed) files are no longer added and
 ** newly-removed (but not yet committed) files are no longer
 ** removed. If bIsAdd is true, it operates on the "add" state, else it
@@ -263,8 +263,8 @@ static int add_files_in_sfile(int vid){
 ** add/rm/addremove commands, after a call to verify_all_options().
 **
 ** Un-added files are not modified but any un-rm'd files which are
-** missing from the checkout are restored from the repo. un-rm'd files
-** which exist in the checkout are left as-is, rather than restoring
+** missing from the check-out are restored from the repo. un-rm'd files
+** which exist in the check-out are left as-is, rather than restoring
 ** them using vfile_to_disk(), to avoid overwriting any local changes
 ** made to those files.
 */
@@ -343,7 +343,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** Usage: %fossil add ?OPTIONS? FILE1 ?FILE2 ...?
 **
 ** Make arrangements to add one or more files or directories to the
-** current checkout at the next [[commit]].
+** current check-out at the next [[commit]].
 **
 ** When adding files or directories recursively, filenames that begin
 ** with "." are excluded by default.  To include such files, add
@@ -364,35 +364,38 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** depends on the global setting, or the operating system default, if not set.
 **
 ** Options:
-**
-**    --case-sensitive BOOL   Override the case-sensitive setting.
-**    --dotfiles              include files beginning with a dot (".")
+**    --case-sensitive BOOL   Override the case-sensitive setting
+**    --dotfiles              Include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
 **    --ignore CSG            Ignore unmanaged files matching patterns from
 **                            the Comma Separated Glob (CSG) pattern list
 **    --clean CSG             Also ignore files matching patterns from
 **                            the Comma Separated Glob (CSG) list
-**    --reset                 Reset the ADDED state of a checkout, such
+**    --reset                 Reset the ADDED state of a check-out, such
 **                            that all newly-added (but not yet committed)
 **                            files are no longer added. No flags other
 **                            than --verbose and --dry-run may be used
 **                            with --reset.
+**    --allow-reserved        Permit filenames which are reserved on
+**                            Windows platforms. Such files cannot be
+**                            checked out on Windows, so use with care.
 **
 ** The following options are only valid with --reset:
-**    -v|--verbose            Outputs information about each --reset file.
-**    -n|--dry-run            Display instead of run actions.
+**    -v|--verbose            Output information about each --reset file
+**    -n|--dry-run            Display instead of run actions
 **
 ** See also: [[addremove]], [[rm]]
 */
 void add_cmd(void){
   int i;                     /* Loop counter */
-  int vid;                   /* Currently checked out version */
+  int vid;                   /* Currently checked-out version */
   int nRoot;                 /* Full path characters in g.zLocalRoot */
   const char *zCleanFlag;    /* The --clean option or clean-glob setting */
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
   Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
   int forceFlag;
+  int allowReservedFlag = 0; /* --allow-reserved flag */
 
   if(0!=find_option("reset",0,0)){
     int const verboseFlag = find_option("verbose","v",0)!=0;
@@ -407,6 +410,7 @@ void add_cmd(void){
   zIgnoreFlag = find_option("ignore",0,1);
   forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
+  allowReservedFlag = find_option("allow-reserved",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -431,13 +435,12 @@ void add_cmd(void){
   for(i=2; i<g.argc; i++){
     char *zName;
     int isDir;
-    Blob fullName;
+    Blob fullName = empty_blob;
 
     /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
-    ** checkout. */
+    ** check-out. */
     file_tree_name(g.argv[i], &fullName, 0, 1);
     blob_reset(&fullName);
-
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
     isDir = file_isdir(zName, RepoFILE);
@@ -473,6 +476,34 @@ void add_cmd(void){
   glob_free(pIgnore);
   glob_free(pClean);
 
+  /** Check for Windows-reserved names and warn or exit, as
+   ** appopriate. Note that the 'add' internal machinery already
+   ** _silently_ skips over any names for which
+   ** file_is_reserved_name() returns true or which is in the
+   ** fossil_reserved_name() list. We do not need to warn for those,
+   ** as they're outright verboten. */
+  if(db_exists("SELECT 1 FROM sfile WHERE win_reserved(pathname)")){
+    int reservedCount = 0;
+    Stmt q = empty_Stmt;
+    db_prepare(&q,"SELECT pathname FROM sfile "
+                  "WHERE win_reserved(pathname)");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char * zName = db_column_text(&q, 0);
+      ++reservedCount;
+      if(allowReservedFlag){
+        fossil_warning("WARNING: Windows-reserved "
+                       "filename: %s", zName);
+      }else{
+        fossil_warning("ERROR: Windows-reserved filename: %s", zName);
+      }
+    }
+    db_finalize(&q);
+    if(allowReservedFlag==0){
+      fossil_fatal("ERROR: %d Windows-reserved filename(s) added. "
+                   "Use --allow-reserved to permit such names.",
+                   reservedCount);
+    }
+  }
   add_files_in_sfile(vid);
   db_end_transaction(0);
 }
@@ -500,7 +531,7 @@ static void add_file_to_remove(
 }
 
 /*
-** This function deletes files from the checkout, using the file names
+** This function deletes files from the check-out, using the file names
 ** contained in the temporary table "fremove".  The temporary table is
 ** created on demand by the add_file_to_remove() function.
 **
@@ -551,12 +582,12 @@ static void process_files_to_remove(
 **          This does NOT apply to the 'forget' command.
 **
 ** Options:
-**   --soft                  Skip removing files from the checkout.
+**   --soft                  Skip removing files from the check-out.
 **                           This supersedes the --hard option.
-**   --hard                  Remove files from the checkout.
-**   --case-sensitive BOOL   Override the case-sensitive setting.
+**   --hard                  Remove files from the check-out
+**   --case-sensitive BOOL   Override the case-sensitive setting
 **   -n|--dry-run            If given, display instead of run actions.
-**   --reset                 Reset the DELETED state of a checkout, such
+**   --reset                 Reset the DELETED state of a check-out, such
 **                           that all newly-rm'd (but not yet committed)
 **                           files are no longer removed. No flags other
 **                           than --verbose or --dry-run may be used with
@@ -713,13 +744,13 @@ const char *filename_collation(void){
 ** Usage: %fossil addremove ?OPTIONS?
 **
 ** Do all necessary "[[add]]" and "[[rm]]" commands to synchronize the
-** repository with the content of the working checkout:
+** repository with the content of the working check-out:
 **
-**  *  All files in the checkout but not in the repository (that is,
+**  *  All files in the check-out but not in the repository (that is,
 **     all files displayed using the "extras" command) are added as
 **     if by the "[[add]]" command.
 **
-**  *  All files in the repository but missing from the checkout (that is,
+**  *  All files in the repository but missing from the check-out (that is,
 **     all files that show as MISSING with the "status" command) are
 **     removed as if by the "[[rm]]" command.
 **
@@ -740,14 +771,14 @@ const char *filename_collation(void){
 ** This command can be used to track third party software.
 **
 ** Options:
-**   --case-sensitive BOOL   Override the case-sensitive setting.
+**   --case-sensitive BOOL   Override the case-sensitive setting
 **   --dotfiles              Include files beginning with a dot (".")
 **   --ignore CSG            Ignore unmanaged files matching patterns from
 **                           the Comma Separated Glob (CSG) list
 **   --clean CSG             Also ignore files matching patterns from
 **                           the Comma Separated Glob (CSG) list
-**   -n|--dry-run            If given, display instead of run actions.
-**   --reset                 Reset the ADDED/DELETED state of a checkout,
+**   -n|--dry-run            If given, display instead of run actions
+**   --reset                 Reset the ADDED/DELETED state of a check-out,
 **                           such that all newly-added (but not yet committed)
 **                           files are no longer added and all newly-removed
 **                           (but not yet committed) files are no longer
@@ -796,7 +827,7 @@ void addremove_cmd(void){
   */
   if( g.argc>2 ){
     fossil_fatal(
-        "%s: Can only work on the entire checkout, no arguments supported.",
+        "%s: Can only work on the entire check-out, no arguments supported.",
         g.argv[1]);
   }
   db_must_be_within_tree();
@@ -852,7 +883,9 @@ void addremove_cmd(void){
   db_finalize(&q);
   /* show command summary */
   fossil_print("added %d files, deleted %d files\n", nAdd, nDelete);
-
+  if(dryRunFlag!=0){
+    fossil_print("Dry-run mode: no changes were made.\n");
+  }
   db_end_transaction(dryRunFlag);
 }
 
@@ -923,7 +956,7 @@ static void add_file_to_move(
 }
 
 /*
-** This function moves files within the checkout, using the file names
+** This function moves files within the check-out, using the file names
 ** contained in the temporary table "fmove".  The temporary table is
 ** created on demand by the add_file_to_move() function.
 **
@@ -989,11 +1022,11 @@ static void process_files_to_move(
 **          as well.  This does NOT apply to the 'rename' command.
 **
 ** Options:
-**   --soft                    Skip moving files within the checkout.
+**   --soft                    Skip moving files within the check-out.
 **                             This supersedes the --hard option.
-**   --hard                    Move files within the checkout.
-**   --case-sensitive BOOL     Override the case-sensitive setting.
-**   -n|--dry-run              If given, display instead of run actions.
+**   --hard                    Move files within the check-out
+**   --case-sensitive BOOL     Override the case-sensitive setting
+**   -n|--dry-run              If given, display instead of run actions
 **
 ** See also: [[changes]], [[status]]
 */
@@ -1020,7 +1053,7 @@ void mv_cmd(void){
 
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    fossil_fatal("no checkout in which to rename files");
+    fossil_fatal("no check-out in which to rename files");
   }
   if( g.argc<4 ){
     usage("OLDNAME NEWNAME");

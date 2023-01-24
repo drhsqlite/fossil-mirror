@@ -18,7 +18,9 @@
 **
 */
 
+#if !defined(_RC_COMPILE_)
 #include "cson_amalgamation.h"
+#endif /* !defined(_RC_COMPILE_) */
 
 /**
    FOSSIL_JSON_API_VERSION holds the date (YYYYMMDD) of the latest
@@ -55,6 +57,7 @@
 ** json.c)!
 **
 */
+#if !defined(_RC_COMPILE_)
 enum FossilJsonCodes {
 FSL_JSON_W_START = 0,
 FSL_JSON_W_UNKNOWN /*+1*/,
@@ -148,7 +151,7 @@ FSL_JSON_E_DB_NEEDS_CHECKOUT = FSL_JSON_E_DB + 104
 ** for debugging in some cases, but no such code should be left
 ** enabled for non-debugging builds.
 */
-typedef cson_value * (*fossil_json_f)();
+typedef cson_value * (*fossil_json_f)(void);
 
 /*
 ** Holds name-to-function mappings for JSON page/command dispatching.
@@ -259,11 +262,12 @@ cson_value * json_new_string_f( char const * fmt, ... );
 ** difference in argument/parameter handling in many JSON routines,
 ** and thus this distinction.
 */
-int fossil_has_json();
+int fossil_has_json(void);
 
 enum json_get_changed_files_flags {
     json_get_changed_files_ELIDE_PARENT = 1 << 0
 };
 
+#endif /* !defined(_RC_COMPILE_) */
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
 #endif /* FOSSIL_ENABLE_JSON */

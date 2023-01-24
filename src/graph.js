@@ -55,10 +55,9 @@
 **        are no risers, this array does not exist.
 **   mi:  "merge-in".  An array of integer rail positions from which
 **        merge arrows should be drawn into this node.  If the value is
-**        negative, then the rail position is the absolute value of mi[]
-**        and a thin merge-arrow descender is drawn to the bottom of
-**        the screen. This array is omitted if there are no inbound
-**        merges.
+**        negative, then the rail position is -1-mi[] and a thin merge-arrow
+**        descender is drawn to the bottom of the screen. This array is
+**        omitted if there are no inbound merges.
 **   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
 **        omitted if there are no cherrypick merges.
 **    h:  The artifact hash of the object being graphed
@@ -357,7 +356,7 @@ function TimelineGraph(tx){
     drawLine(cpLine,null,x0,y0,x1,y1);
   }
   /* Draw an arrow representing an in-bound merge from the "rail"-th rail
-  ** over to the node of "p".  Make is a checkpoint merge is "isCP" is true */
+  ** over to the node of "p".  Make it a checkpoint merge is "isCP" is true */
   function drawMergeArrow(p,rail,isCP){
     var x0 = rail*railPitch + node.w/2;
     if( rail in mergeLines ){
@@ -424,10 +423,14 @@ function TimelineGraph(tx){
       var x0 = p.x + node.w/2;
       var x1 = p.mo*railPitch + node.w/2;
       var u = tx.rowinfo[p.mu-tx.iTopRow];
+      var mtop = u;
+      if( p.hasOwnProperty('cu') ){
+        mtop = tx.rowinfo[p.cu-tx.iTopRow];
+      }
       var y1 = miLineY(u);
       if( p.u<=0 || p.mo!=p.r ){
         if( p.u==0 && p.mo==p.r ){
-          mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
+          mergeLines[p.mo] = mtop.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         }else{
           mergeLines[p.mo] = -mLine.w/2;
         }
@@ -460,7 +463,7 @@ function TimelineGraph(tx){
           drawCherrypickLine(x1,y1,null,y2);
         }
       }else if( mergeOffset ){
-        mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
+        mergeLines[p.mo] = mtop.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         x1 += mergeLines[p.mo];
         if( p.mu<p.id ){
           drawMergeLine(x1,p.y+node.h/2,null,y1);
@@ -510,7 +513,7 @@ function TimelineGraph(tx){
       for( var i=0; i<p.mi.length; i++ ){
         var rail = p.mi[i];
         if( rail<0 ){
-          rail = -rail;
+          rail = -1-rail;
           mergeLines[rail] = -mLine.w/2;
           var x = rail*railPitch + (node.w-mLine.w)/2;
           var y = miLineY(p);
@@ -570,9 +573,24 @@ function TimelineGraph(tx){
       canvasDiv.className = canvasDiv.className.replace(" sel", "");
     }else{
       if( tx.fileDiff ){
-        location.href=tx.baseUrl + "/fdiff?v1="+selRow.h+"&v2="+p.h
+        location.href=tx.baseUrl + "/fdiff?v1="+selRow.h+"&v2="+p.h;
       }else{
-        location.href=tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h
+        var href = tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h;
+        let params = (new URL(document.location)).searchParams;
+        if(params && typeof params === "object"){
+          /* When called from /timeline page, If chng=str was specified in the
+          ** QueryString, specify glob=str on the /vdiff page */
+          let glob = params.get("chng");
+          if( !glob ){
+            /* When called from /vdiff page, keep the glob= QueryString if
+            ** present. */
+            glob = params.get("glob");
+          }
+          if( glob ){
+            href += "&glob=" + glob;
+          }
+        }
+        location.href = href;
       }
     }
     e.stopPropagation()

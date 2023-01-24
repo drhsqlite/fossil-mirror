@@ -40,13 +40,6 @@ struct mark_t {
 };
 #endif
 
-#if defined(_WIN32) || defined(WIN32)
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
-#endif
-
 /*
 ** Output a "committer" record for the given user.
 ** NOTE: the given user name may be an email itself.
@@ -467,7 +460,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 ** interchange format supported, though other formats may be added in
 ** the future.
 **
-** Run this command within a checkout.  Or use the -R or --repository
+** Run this command within a check-out.  Or use the -R or --repository
 ** option to specify a Fossil repository to be exported.
 **
 ** Only check-ins are exported using --git.  Git does not support tickets
@@ -480,10 +473,10 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 ** blobs written on exit for use with "--import-marks" on the next run.
 **
 ** Options:
-**   --export-marks FILE          export rids of exported data to FILE
-**   --import-marks FILE          read rids of data to ignore from FILE
-**   --rename-trunk NAME          use NAME as name of exported trunk branch
-**   -R|--repository REPOSITORY   export the given REPOSITORY
+**   --export-marks FILE          Export rids of exported data to FILE
+**   --import-marks FILE          Read rids of data to ignore from FILE
+**   --rename-trunk NAME          Use NAME as name of exported trunk branch
+**   -R|--repository REPO         Export the given REPOSITORY
 **
 ** See also: import
 */
@@ -1281,6 +1274,7 @@ static int gitmirror_send_checkin(
   if( fManifest & MFESTFLG_RAW ){
     Blob manifest;
     content_get(rid, &manifest);
+    sterilize_manifest(&manifest, CFTYPE_MANIFEST);
     fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
       blob_strlen(&manifest), blob_str(&manifest));
     blob_reset(&manifest);
@@ -1326,7 +1320,7 @@ static char *gitmirror_init(
   gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
   rc = fossil_system(zCmd);
   if( rc ){
-    fossil_fatal("cannot initialize git repository using: %s\n", zCmd);
+    fossil_fatal("cannot initialize git repository using: %s", zCmd);
   }
   fossil_free(zCmd);
 
@@ -1720,7 +1714,15 @@ void gitmirror_export_command(void){
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
     zPushCmd = mprintf("git push --mirror %$", zPushUrl);
-    fossil_system(zPushCmd);
+    rc = fossil_system(zPushCmd);
+    if( rc ){
+      fossil_fatal("cannot push content using: %s", zPushCmd);
+    }else if( db_is_writeable("repository") ){
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec("REPLACE INTO config(name,value,mtime)"
+                    "VALUES('gitpush:%q','{}',now())", zPushUrl);
+      db_protect_pop();
+    }
     fossil_free(zPushCmd);
   }
 }
@@ -1734,15 +1736,43 @@ void gitmirror_status_command(void){
   char *zMirror;
   char *z;
   int n, k;
+  int rc;
+  char *zSql;
+  int bQuiet = 0;
+  int bByAll = 0;   /* Undocumented option meaning this command was invoked
+                    ** from "fossil all" and should modify output accordingly */
+
   db_find_and_open_repository(0, 0);
+  bQuiet = find_option("quiet","q",0)!=0;
+  bByAll = find_option("by-all",0,0)!=0; 
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);
   if( zMirror==0 ){
+    if( bQuiet ) return;
+    if( bByAll ) return;
     fossil_print("Git mirror:  none\n");
     return;
   }
+  zSql = sqlite3_mprintf("ATTACH '%q/.mirror_state/db' AS mirror", zMirror);
+  if( zSql==0 ) fossil_fatal("out of memory");
+  g.dbIgnoreErrors++;
+  rc = sqlite3_exec(g.db, zSql, 0, 0, 0);
+  g.dbIgnoreErrors--;
+  sqlite3_free(zSql);
+  if( rc ){
+    if( bQuiet ) return;
+    if( bByAll ) return;
+    fossil_print("Git mirror:  %s  (Inactive)\n", zMirror);
+    return;
+  }
+  if( bByAll ){
+    size_t len = strlen(g.zRepositoryName);
+    int n;
+    if( len>60 ) len = 60;
+    n = (int)(65 - len);
+    fossil_print("%.12c %s %.*c\n", '*', g.zRepositoryName, n, '*');
+  }
   fossil_print("Git mirror:  %s\n", zMirror);
-  db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
   z = db_text(0, "SELECT datetime(value) FROM mconfig WHERE key='start'");
   if( z ){
     double rAge = db_double(0.0, "SELECT julianday('now') - value"
@@ -1777,7 +1807,7 @@ void gitmirror_status_command(void){
                  n, n==1 ? "" : "s");
   }
   n = db_int(0, "SELECT count(*) FROM mmark WHERE isfile");
-  k = db_int(0, "SELECT count(*) FROm mmark WHERE NOT isfile");
+  k = db_int(0, "SELECT count(*) FROM mmark WHERE NOT isfile");
   fossil_print("Exported:    %d check-ins and %d file blobs\n", k, n);
 }
 
@@ -1796,7 +1826,7 @@ void gitmirror_status_command(void){
 **       already exist.  If the Git repository does already exist, then
 **       new content added to fossil since the previous export is appended.
 **
-**       Repeat this command whenever new checkins are added to the Fossil
+**       Repeat this command whenever new check-ins are added to the Fossil
 **       repository in order to reflect those changes into the mirror.  If
 **       the MIRROR option is omitted, the repository from the previous
 **       invocation is used.
@@ -1813,9 +1843,9 @@ void gitmirror_status_command(void){
 **                             to the same repository.  Or if URL is "off" the
 **                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
-**                             piping it into "git fast-import".
+**                             piping it into "git fast-import"
 **         -f|--force          Do the export even if nothing has changed
-**         --if-mirrored       No-op if the mirror does not already exist.
+**         --if-mirrored       No-op if the mirror does not already exist
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
 **         --mainbranch NAME   Use NAME as the name of the main branch in Git.
@@ -1823,7 +1853,7 @@ void gitmirror_status_command(void){
 **                             mapped into this name.  "master" is used if
 **                             this option is omitted.
 **         -q|--quiet          Reduce output. Repeat for even less output.
-**         -v|--verbose        More output.
+**         -v|--verbose        More output
 **
 ** > fossil git import MIRROR
 **
@@ -1832,6 +1862,8 @@ void gitmirror_status_command(void){
 ** > fossil git status
 **
 **       Show the status of the current Git mirror, if there is one.
+**
+**         -q|--quiet         No output if there is nothing to report
 */
 void gitmirror_command(void){
   char *zCmd;

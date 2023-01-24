@@ -110,7 +110,7 @@ void delete_private_content(void){
 ** of "/", and "%3a" in place of ":".
 **
 ** Note that in Fossil (in contrast to some other DVCSes) a repository
-** is distinct from a checkout.  Cloning a repository is not the same thing
+** is distinct from a check-out.  Cloning a repository is not the same thing
 ** as opening a repository.  This command always clones the repository.  This
 ** command might also open the repository, but only if the --no-open option
 ** is omitted and either the --workdir option is included or the FILENAME
@@ -126,17 +126,18 @@ void delete_private_content(void){
 **    -A|--admin-user USERNAME   Make USERNAME the administrator
 **    -B|--httpauth USER:PASS    Add HTTP Basic Authorization to requests
 **    --nested                   Allow opening a repository inside an opened
-**                               checkout
+**                               check-out
 **    --nocompress               Omit extra delta compression
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
 **    --save-http-password       Remember the HTTP password without asking
-**    --ssh-command|-c SSH       Use SSH as the "ssh" command
+**    -c|--ssh-command SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
+**    --transport-command CMD    Use CMD to move messages to the server and back
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
-**    --workdir DIR              Also open a checkout in DIR
+**    --workdir DIR              Also open a check-out in DIR
 **
 ** See also: [[init]], [[open]]
 */
@@ -162,12 +163,18 @@ void clone_cmd(void){
     urlFlags |= URL_REMEMBER_PW;
   }
   if( find_option("verbose","v",0)!=0) syncFlags |= SYNC_VERBOSE;
-  if( find_option("unversioned","u",0)!=0 ) syncFlags |= SYNC_UNVERSIONED;
+  if( find_option("unversioned","u",0)!=0 ){
+    syncFlags |= SYNC_UNVERSIONED;
+    if( syncFlags & SYNC_VERBOSE ){
+      syncFlags |= SYNC_UV_TRACE;
+    }
+  }
   zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
   zWorkDir = find_option("workdir", 0, 1);
   clone_ssh_find_options();
   url_proxy_options();
+  g.zHttpCmd = find_option("transport-command",0,1);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -195,7 +202,7 @@ void clone_cmd(void){
   if( -1 != file_size(zRepo, ExtFILE) ){
     fossil_fatal("file already exists: %s", zRepo);
   }
-  /* Fail before clone if open will fail because inside an open checkout */
+  /* Fail before clone if open will fail because inside an open check-out */
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
     if( db_open_local_v2(0, allowNested) ){
       fossil_fatal("there is already an open tree at %s", g.zLocalRoot);
@@ -267,8 +274,12 @@ void clone_cmd(void){
     db_open_repository(zRepo);
   }
   db_begin_transaction();
+  if( db_exists("SELECT 1 FROM delta WHERE srcId IN phantom") ){
+    fossil_fatal("there are unresolved deltas -"
+                 " the clone is probably incomplete and unusable.");
+  }
   fossil_print("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1, 0);
+  rebuild_db(1, 0);
   if( !noCompress ){
     fossil_print("Extra delta compression... "); fflush(stdout);
     extra_deltification();
@@ -288,25 +299,20 @@ void clone_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
-    char *azNew[7];
-    int nargs = 5;
+    Blob cmd;
     fossil_print("opening the new %s repository in directory %s...\n",
        zRepo, zWorkDir);
-    azNew[0] = g.argv[0];
-    azNew[1] = "open";
-    azNew[2] = (char*)zRepo;
-    azNew[3] = "--workdir";
-    azNew[4] = (char*)zWorkDir;
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
+    blob_append(&cmd, " open ", -1);
+    blob_append_escaped_arg(&cmd, zRepo, 1);
+    blob_append(&cmd, " --nosync --workdir ", -1);
+    blob_append_escaped_arg(&cmd, zWorkDir, 1);
     if( allowNested ){
-      azNew[5] = "--nested";
-      nargs++;
-    }else{
-      azNew[5] = 0;
+      blob_append(&cmd, " --nested", -1);
     }
-    azNew[6] = 0;
-    g.argv = azNew;
-    g.argc = nargs;
-    cmd_open();
+    fossil_system(blob_str(&cmd));
+    blob_reset(&cmd);
   }
 }
 
@@ -321,7 +327,6 @@ void remember_or_get_http_auth(
   int fRemember,          /* True to remember credentials for later reuse */
   const char *zUrl        /* URL for which these credentials apply */
 ){
-  char *zKey = mprintf("http-auth:%s", g.url.canonical);
   if( zHttpAuth && zHttpAuth[0] ){
     g.zHttpAuth = mprintf("%s", zHttpAuth);
   }
@@ -329,14 +334,13 @@ void remember_or_get_http_auth(
     if( g.zHttpAuth && g.zHttpAuth[0] ){
       set_httpauth(g.zHttpAuth);
     }else if( zUrl && zUrl[0] ){
-      db_unset(zKey, 0);
+      db_unset_mprintf(0, "http-auth:%s", g.url.canonical);
     }else{
       g.zHttpAuth = get_httpauth();
     }
   }else if( g.zHttpAuth==0 && zUrl==0 ){
     g.zHttpAuth = get_httpauth();
   }
-  free(zKey);
 }
 
 /*
@@ -353,9 +357,7 @@ char *get_httpauth(void){
 ** Set the HTTP Authorization preference in db.
 */
 void set_httpauth(const char *zHttpAuth){
-  char *zKey = mprintf("http-auth:%s", g.url.canonical);
-  db_set(zKey, obscure(zHttpAuth), 0);
-  free(zKey);
+  db_set_mprintf(obscure(zHttpAuth), 0, "http-auth:%s", g.url.canonical);
 }
 
 /*
@@ -376,7 +378,9 @@ void clone_ssh_find_options(void){
 */
 void clone_ssh_db_set_options(void){
   if( g.zSshCmd && g.zSshCmd[0] ){
+    db_unprotect(PROTECT_ALL);
     db_set("ssh-command", g.zSshCmd, 0);
+    db_protect_pop();
   }
 }
 

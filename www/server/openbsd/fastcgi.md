@@ -14,7 +14,7 @@ new repositories remotely.
 
 [httpd]: https://www.openbsd.org/papers/httpd-asiabsdcon2015.pdf
 
-## <a name="fslinstall"></a>Install Fossil
+## <a id="fslinstall"></a>Install Fossil
 
 Use the OpenBSD package manager `pkg_add` to install Fossil, making sure
 to select the statically linked binary.
@@ -60,10 +60,11 @@ the script executable.
     $ doas mkdir /var/www/htdocs/fsl.domain.tld
     $ doas touch /var/www/logs/fossil.log
     $ doas chown www /var/www/logs/fossil.log
+    $ doas chmod 660 /var/www/logs/fossil.log
     $ doas chmod 755 /var/www/cgi-bin/scm
 ```
 
-## <a name="chroot"></a>Setup chroot
+## <a id="chroot"></a>Setup chroot
 
 Fossil needs both `/dev/random` and `/dev/null`, which aren't accessible
 from within the chroot, so need to be constructed; `/var`, however, is
@@ -106,10 +107,10 @@ user who will push to, pull from, and create repositories.
 
 ```console
    $ doas chown -R user:www /var/www/htdocs/fsl.domain.tld
-   $ doas chmod 775 /var/www/htdocs/fsl.domain.tld
+   $ doas chmod 770 /var/www/htdocs/fsl.domain.tld
 ```
 
-## <a name="httpdconfig"></a>Configure httpd
+## <a id="httpdconfig"></a>Configure httpd
 
 On OpenBSD, [httpd.conf(5)][httpd] is the configuration file for
 `httpd`. To setup the server to serve all Fossil repositores within the
@@ -179,7 +180,7 @@ out the `https` server block and proceed to securing a free
 [Start `httpd`](#starthttpd).
 
 
-## <a name="letsencrypt"></a>Let's Encrypt Certificate
+## <a id="letsencrypt"></a>Let's Encrypt Certificate
 
 In order for `httpd` to serve HTTPS, secure a free certificate from
 Let's Encrypt using `acme-client`. Before issuing the request, however,
@@ -240,7 +241,7 @@ trust, and private key into the `/etc/ssl` directory as specified in
 Make sure to reopen `/etc/httpd.conf` to uncomment the second server
 block responsible for serving HTTPS requests before proceeding.
 
-## <a name="starthttpd"></a>Start `httpd`
+## <a id="starthttpd"></a>Start `httpd`
 
 With `httpd` configured to serve Fossil repositories out of
 `/var/www/htdocs/fsl.domain.tld`, and the certificates and key in place,
@@ -259,7 +260,7 @@ server (if still running from requesting a Let's Encrypt certificate).
     httpd(ok)
 ```
 
-## <a name="clientconfig"></a>Configure Client
+## <a id="clientconfig"></a>Configure Client
 
 To facilitate creating new repositories and pushing them to the server,
 add the following function to your `~/.cshrc` or `~/.zprofile` or the

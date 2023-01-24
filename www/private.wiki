@@ -33,7 +33,8 @@ fossil merge private
 fossil commit
 </pre></blockquote>
 
-The private branch remains private, but all of the changes associated with
+The private branch remains private and is not recorded as a parent
+in the merge manifest's P-card, but all of the changes associated with
 the private branch are now folded into the public branch and are hence
 visible to other users of the project.
 
@@ -50,6 +51,19 @@ and generate a missing artifact reference on repository clones without that
 private branch.  It's still possible to close the leaf of the private branch
 (after committing the merge child) with the <code>fossil amend --close</code>
 command.
+
+<blockquote><small>
+Side note: For the same reason, i.e. so as not to generate a missing artifact
+reference on peer repositories without the private branch, the merge parent
+is not recorded when merging the private branch into a public branch.  As a
+consequence, the web UI timeline does not draw a merge line from the private
+merge parent to the public merge child.  Moreover, repeat private-to-public
+merge operations (without the [/help?cmd=merge | --force option]) with files
+added on the private branch may only work once, but later abort with
+"WARNING: no common ancestor for FILE", as the parent-child relationship is
+not recorded (see the [/doc/trunk/www/branching.wiki | Branching, Forking,
+Merging, and Tagging] document for more information).
+</small></blockquote>
 
 <h2>Syncing Private Branches</h2>
 

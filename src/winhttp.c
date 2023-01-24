@@ -290,7 +290,7 @@ static NORETURN void winhttp_fatal(
   const char *zService,
   const char *zErr
 ){
-  fossil_panic("unable to %s service '%s': %s", zOp, zService, zErr);
+  fossil_fatal("unable to %s service '%s': %s", zOp, zService, zErr);
 }
 
 /*
@@ -342,11 +342,13 @@ static void win32_http_request(void *pAppData){
   int wanted = 0;
   char *z;
   char *zIp;
+  void *sslConn = 0;
   char zCmdFName[MAX_PATH];
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */
-  char zHdr[4000];          /* The HTTP request header */
+  char zBuf[65536];         /* The HTTP request header */
+  const int szHdr = 4000;   /* Reduced header size */
 
   sqlite3_snprintf(MAX_PATH, zCmdFName,
                    "%s_%06d_cmd.txt", zTempPrefix, p->id);
@@ -355,30 +357,53 @@ static void win32_http_request(void *pAppData){
   sqlite3_snprintf(MAX_PATH, zReplyFName,
                    "%s_%06d_out.txt", zTempPrefix, p->id);
   amt = 0;
-  while( amt<sizeof(zHdr) ){
-    got = recv(p->s, &zHdr[amt], sizeof(zHdr)-1-amt, 0);
-    if( got==SOCKET_ERROR ) goto end_request;
+  if( g.httpUseSSL ){
+#ifdef FOSSIL_ENABLE_SSL
+    sslConn = ssl_new_server(p->s);
+#endif
+  }
+  while( amt<szHdr ){
+    if( sslConn ){
+#ifdef FOSSIL_ENABLE_SSL
+      got = ssl_read_server(sslConn, &zBuf[amt], szHdr-1-amt, 0);
+#endif
+    }else{
+      got = recv(p->s, &zBuf[amt], szHdr-1-amt, 0);
+      if( got==SOCKET_ERROR ) goto end_request;
+    }
     if( got==0 ){
       wanted = 0;
       break;
     }
     amt += got;
-    zHdr[amt] = 0;
-    z = strstr(zHdr, "\r\n\r\n");
+    zBuf[amt] = 0;
+    z = strstr(zBuf, "\r\n\r\n");
     if( z ){
-      wanted = find_content_length(zHdr) + (&z[4]-zHdr) - amt;
+      wanted = find_content_length(zBuf) + (&z[4]-zBuf) - amt;
       break;
+    }else{
+      z = strstr(zBuf, "\n\n");
+      if( z ){
+        wanted = find_content_length(zBuf) + (&z[2]-zBuf) - amt;
+        break;
+      }
     }
   }
-  if( amt>=sizeof(zHdr) ) goto end_request;
+  if( amt>=szHdr ) goto end_request;
   out = fossil_fopen(zRequestFName, "wb");
   if( out==0 ) goto end_request;
-  fwrite(zHdr, 1, amt, out);
+  fwrite(zBuf, 1, amt, out);
   while( wanted>0 ){
-    got = recv(p->s, zHdr, sizeof(zHdr), 0);
-    if( got==SOCKET_ERROR ) goto end_request;
-    if( got ){
-      fwrite(zHdr, 1, got, out);
+    if( sslConn ){
+#ifdef FOSSIL_ENABLE_SSL
+      got = ssl_read_server(sslConn, zBuf, min(wanted, sizeof(zBuf)), 1);
+#endif
+    }else{
+      got = recv(p->s, zBuf, sizeof(zBuf), 0);
+      if( got==SOCKET_ERROR ) goto end_request;
+    }
+    if( got>0 ){
+      fwrite(zBuf, 1, got, out);
     }else{
       break;
     }
@@ -386,8 +411,8 @@ static void win32_http_request(void *pAppData){
   }
 
   /*
-  ** The repository name is only needed if there was no open checkout.  This
-  ** is designed to allow the open checkout for the interactive user to work
+  ** The repository name is only needed if there was no open check-out.  This
+  ** is designed to allow the open check-out for the interactive user to work
   ** with the local Fossil server started via the "ui" command.
   */
   zIp = SocketAddr_toString(&p->addr);
@@ -407,16 +432,26 @@ static void win32_http_request(void *pAppData){
   fwrite(zCmd, 1, strlen(zCmd), aux);
 
   sqlite3_snprintf(sizeof(zCmd), zCmd,
-    "\"%s\" http -args \"%s\" --nossl%s",
-    g.nameOfExe, zCmdFName, p->zOptions
+    "\"%s\" http -args \"%s\"%s%s",
+    g.nameOfExe, zCmdFName,
+    g.httpUseSSL ? "" : " --nossl", p->zOptions
   );
   in = fossil_fopen(zReplyFName, "w+b");
   fflush(out);
   fflush(aux);
+  if( g.fHttpTrace ){
+    fossil_print("%s\n", zCmd);
+  }
   fossil_system(zCmd);
   if( in ){
-    while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
-      send(p->s, zHdr, got, 0);
+    while( (got = fread(zBuf, 1, sizeof(zBuf), in))>0 ){
+      if( sslConn ){
+#ifdef FOSSIL_ENABLE_SSL
+        ssl_write_server(sslConn, zBuf, got);
+#endif
+      }else{
+        send(p->s, zBuf, got, 0);
+      }
     }
   }
 
@@ -425,14 +460,21 @@ end_request:
   if( aux ) fclose(aux);
   if( in ) fclose(in);
   /* Initiate shutdown prior to closing the socket */
+  if( sslConn!=0 ){
+#ifdef FOSSIL_ENABLE_SSL
+    ssl_close_server(sslConn);
+#endif
+  }
   if( shutdown(p->s,1)==0 ) shutdown(p->s,0);
   closesocket(p->s);
   /* Make multiple attempts to delete the temporary files.  Sometimes AV
   ** software keeps the files open for a few seconds, preventing the file
   ** from being deleted on the first try. */
-  for(i=1; i<=10 && file_delete(zRequestFName); i++){ Sleep(1000*i); }
-  for(i=1; i<=10 && file_delete(zCmdFName); i++){ Sleep(1000*i); }
-  for(i=1; i<=10 && file_delete(zReplyFName); i++){ Sleep(1000*i); }
+  if( !g.fHttpTrace ){
+    for(i=1; i<=10 && file_delete(zRequestFName); i++){ Sleep(1000*i); }
+    for(i=1; i<=10 && file_delete(zCmdFName); i++){ Sleep(1000*i); }
+    for(i=1; i<=10 && file_delete(zReplyFName); i++){ Sleep(1000*i); }
+  }
   fossil_free(p);
 }
 
@@ -542,15 +584,15 @@ void win32_http_server(
   }
   if( zBaseUrl ){
     blob_appendf(&options, " --baseurl ");
-    blob_append_escaped_arg(&options, zBaseUrl);
+    blob_append_escaped_arg(&options, zBaseUrl, 0);
   }
   if( zNotFound ){
     blob_appendf(&options, " --notfound ");
-    blob_append_escaped_arg(&options, zNotFound);
+    blob_append_escaped_arg(&options, zNotFound, 1);
   }
   if( g.zCkoutAlias ){
     blob_appendf(&options, " --ckout-alias ");
-    blob_append_escaped_arg(&options, g.zCkoutAlias);
+    blob_append_escaped_arg(&options, g.zCkoutAlias, 0);
   }
   if( zFileGlob ){
     blob_appendf(&options, " --files-urlenc %T", zFileGlob);
@@ -566,7 +608,7 @@ void win32_http_server(
   }
   if( g.zExtRoot && g.zExtRoot[0] ){
     blob_appendf(&options, " --extroot");
-    blob_append_escaped_arg(&options, g.zExtRoot);
+    blob_append_escaped_arg(&options, g.zExtRoot, 1);
   }
   zSkin = skin_in_use();
   if( zSkin ){
@@ -574,7 +616,11 @@ void win32_http_server(
   }
   if( g.zMainMenuFile ){
     blob_appendf(&options, " --mainmenu ");
-    blob_append_escaped_arg(&options, g.zMainMenuFile);
+    blob_append_escaped_arg(&options, g.zMainMenuFile, 1);
+  }
+  if( builtin_get_js_delivery_mode()!=0 /* JS_INLINE==0 may change? */ ){
+    blob_appendf(&options, " --jsmode ");
+    blob_append_escaped_arg(&options, builtin_get_js_delivery_mode_name(), 0);
   }
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();
@@ -606,21 +652,27 @@ void win32_http_server(
     break;
   }
   if( iPort>mxPort ){
+    /* These exits are merely fatal because firewall settings can cause them. */
     if( mnPort==mxPort ){
-      fossil_panic("unable to open listening socket on port %d", mnPort);
+      fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
-      fossil_panic("unable to open listening socket on any"
+      fossil_fatal("unable to open listening socket on any"
                    " port in the range %d..%d", mnPort, mxPort);
     }
   }
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_panic("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d",
-                        fossil_unicode_to_utf8(zTmpPath), iPort);
+  if( g.fHttpTrace ){
+    zTempPrefix = mprintf("httptrace");
+  }else{
+    zTempPrefix = mprintf("%sfossil_server_P%d",
+                          fossil_unicode_to_utf8(zTmpPath), iPort);
+  }
   fossil_print("Temporary files: %s*\n", zTempPrefix);
   fossil_print("Listening for %s requests on TCP port %d\n",
-               (flags&HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP", iPort);
+               (flags&HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+               g.httpUseSSL ? "TLS-encrypted HTTPS" : "HTTP", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
     fossil_print("Launch webbrowser: %s\n", zBrowser);
@@ -881,7 +933,7 @@ static void win32_http_service_running(DualSocket *pS){
 
 /*
 ** Try to start the http server as a windows service. If we are running in
-** a interactive console session, this routine fails and returns a non zero
+** an interactive console session, this routine fails and returns a non zero
 ** integer value. When running as service, this routine does not return until
 ** the service is stopped. In this case, the return value is zero.
 */
@@ -910,7 +962,7 @@ int win32_http_service(
     if( GetLastError()==ERROR_FAILED_SERVICE_CONTROLLER_CONNECT ){
       return 1;
     }else{
-      fossil_panic("error from StartServiceCtrlDispatcher()");
+      fossil_fatal("error from StartServiceCtrlDispatcher()");
     }
   }
   return 0;
@@ -950,7 +1002,7 @@ int win32_http_service(
 **              from the operating system. If TYPE is set to "auto", the service
 **              will be started automatically by the system during startup.
 **
-**         -U|--username USERNAME
+**         --username USERNAME
 **
 **              Specifies the user account which will be used to run the
 **              service. The account needs the "Logon as a service" right
@@ -974,11 +1026,11 @@ int win32_http_service(
 **              Specifies the TCP port (default port is 8080) on which the
 **              server should listen.
 **
-**         -R|--repository REPOSITORY
+**         -R|--repository REPO
 **
 **              Specifies the name of the repository to be served.
 **              The repository option may be omitted if the working directory
-**              is within an open checkout.
+**              is within an open check-out.
 **              The REPOSITORY can be a directory (aka folder) that contains
 **              one or more repositories with names ending in ".fossil".
 **              In that case, the first element of the URL is used to select
@@ -1054,7 +1106,7 @@ void cmd_win32_service(void){
     const char *zAltBase    = find_option("baseurl", 0, 1);
     const char *zDisplay    = find_option("display", "D", 1);
     const char *zStart      = find_option("start", "S", 1);
-    const char *zUsername   = find_option("username", "U", 1);
+    const char *zUsername   = find_option("username", 0, 1);
     const char *zPassword   = find_option("password", "W", 1);
     const char *zPort       = find_option("port", "P", 1);
     const char *zNotFound   = find_option("notfound", 0, 1);

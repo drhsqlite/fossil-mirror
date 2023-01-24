@@ -29,6 +29,8 @@ insensitive file systems on any single platform. This option or the
 global setting should be used to force the case sensitivity to the
 most sensible condition.
 
+`--cgitrace`: Active CGI tracing.
+
 `--chdir DIRECTORY`: Change to the named directory before processing
 any commands.
 
@@ -232,6 +234,9 @@ the remote host.
 
 `SSH_CONNECTION`: Informs CGI processing if the remote client is SSH.
 
+`SSL_CERT_FILE`, `SSL_CERT_DIR`: Override the [`ssl-ca-location`]
+(/help?cmd=ssl-ca-location) setting.
+
 `SQLITE_FORCE_PROXY_LOCKING`: From `sqlite3.c`, 1 means force always
 use proxy, 0 means never use proxy, and undefined means use proxy for
 non-local files only.
@@ -419,7 +424,7 @@ can be selected with either the `--vfs VFSNAME` option or the
 precedence.
 
 
-### <a name="temp"></a>Temporary File Location
+### <a id="temp"></a>Temporary File Location
 
 Fossil places some temporary files in the checkout directory. Most notably,
 supporting files related to merge conflicts are placed in the same

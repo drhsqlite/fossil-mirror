@@ -94,11 +94,20 @@ static int is_safe_fossil_command(const char *zFossil){
 /*
 ** Default SSH command
 */
-#ifdef _WIN32
-static const char zDefaultSshCmd[] = "plink -ssh -T";
+#if 0 /* was: defined(_WIN32).  Windows generally has ssh now. */
+static const char zDefaultSshCmd[] = "plink -ssh";
 #else
-static const char zDefaultSshCmd[] = "ssh -e none -T";
+static const char zDefaultSshCmd[] = "ssh -e none";
 #endif
+
+/*
+** Initialize a Blob to the name of the configured SSH command.
+*/
+void transport_ssh_command(Blob *p){
+  char *zSsh;        /* The base SSH command */
+  zSsh = db_get("ssh-command", zDefaultSshCmd);
+  blob_init(p, zSsh, -1);
+}
 
 /*
 ** SSH initialization of the transport layer
@@ -107,40 +116,36 @@ int transport_ssh_open(UrlData *pUrlData){
   /* For SSH we need to create and run SSH fossil http
   ** to talk to the remote machine.
   */
-  char *zSsh;        /* The base SSH command */
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
 
-  socket_ssh_resolve_addr(pUrlData);
-  zSsh = db_get("ssh-command", zDefaultSshCmd);
-  blob_init(&zCmd, zSsh, -1);
+  fossil_free(g.zIpAddr);
+  g.zIpAddr = mprintf("%s", pUrlData->name);
+  transport_ssh_command(&zCmd);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
-#ifdef _WIN32
-    blob_appendf(&zCmd, " -P %d", pUrlData->port);
-#else
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
-#endif
   }
+  blob_appendf(&zCmd, " -T --");  /* End of switches */
   if( pUrlData->user && pUrlData->user[0] ){
     zHost = mprintf("%s@%s", pUrlData->user, pUrlData->name);
-    blob_append_escaped_arg(&zCmd, zHost);
+    blob_append_escaped_arg(&zCmd, zHost, 0);
     fossil_free(zHost);
   }else{
-    blob_append_escaped_arg(&zCmd, pUrlData->name);
+    blob_append_escaped_arg(&zCmd, pUrlData->name, 0);
   }
   if( !is_safe_fossil_command(pUrlData->fossil) ){
-    fossil_panic("the ssh:// URL is asking to run an unsafe command [%s] on "
+    fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
                  "the server.", pUrlData->fossil);
   }
-  blob_append_escaped_arg(&zCmd, pUrlData->fossil);
+  blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
-    blob_append_escaped_arg(&zCmd, pUrlData->path);
+    blob_append_escaped_arg(&zCmd, pUrlData->path, 1);
   }else{
-    fossil_panic("ssh:// URI does not specify a path to the repository");
+    fossil_fatal("ssh:// URI does not specify a path to the repository");
   }
-  if( g.fSshTrace ){
-    fossil_print("%s\n", blob_str(&zCmd));  /* Show the whole SSH command */
+  if( g.fSshTrace || g.fHttpTrace ){
+    fossil_print("RUN %s\n", blob_str(&zCmd));  /* Show the whole SSH command */
   }
   popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid, 0);
   if( sshPid==0 ){
@@ -168,22 +173,21 @@ int transport_open(UrlData *pUrlData){
       if( rc==0 ) transport.isOpen = 1;
     }else if( pUrlData->isHttps ){
 #ifdef FOSSIL_ENABLE_SSL
-      rc = ssl_open(pUrlData);
+      rc = ssl_open_client(pUrlData);
       if( rc==0 ) transport.isOpen = 1;
 #else
       socket_set_errmsg("HTTPS: Fossil has been compiled without SSL support");
       rc = 1;
 #endif
     }else if( pUrlData->isFile ){
-      sqlite3_uint64 iRandId;
-      sqlite3_randomness(sizeof(iRandId), &iRandId);
-      transport.zOutFile = mprintf("%s-%llu-out.http",
-                                       g.zRepositoryName, iRandId);
-      transport.zInFile = mprintf("%s-%llu-in.http",
-                                       g.zRepositoryName, iRandId);
+      if( !db_looks_like_a_repository(pUrlData->name) ){
+        fossil_fatal("not a fossil repository: \"%s\"", pUrlData->name);
+      }
+      transport.zOutFile = fossil_temp_filename();
+      transport.zInFile = fossil_temp_filename();
       transport.pFile = fossil_fopen(transport.zOutFile, "wb");
       if( transport.pFile==0 ){
-        fossil_panic("cannot output temporary file: %s", transport.zOutFile);
+        fossil_fatal("cannot output temporary file: %s", transport.zOutFile);
       }
       transport.isOpen = 1;
     }else{
@@ -212,7 +216,7 @@ void transport_close(UrlData *pUrlData){
       transport_ssh_close();
     }else if( pUrlData->isHttps ){
       #ifdef FOSSIL_ENABLE_SSL
-      ssl_close();
+      ssl_close_client();
       #endif
     }else if( pUrlData->isFile ){
       if( transport.pFile ){
@@ -221,8 +225,8 @@ void transport_close(UrlData *pUrlData){
       }
       file_delete(transport.zInFile);
       file_delete(transport.zOutFile);
-      free(transport.zInFile);
-      free(transport.zOutFile);
+      sqlite3_free(transport.zInFile);
+      sqlite3_free(transport.zOutFile);
     }else{
       socket_close();
     }
@@ -275,6 +279,7 @@ void transport_flip(UrlData *pUrlData){
                    " %$ --localauth",
        g.nameOfExe, transport.zOutFile, transport.zInFile, pUrlData->name
     );
+    if( g.fHttpTrace ) fossil_print("RUN %s\n", zCmd);
     fossil_system(zCmd);
     free(zCmd);
     transport.pFile = fossil_fopen(transport.zInFile, "rb");

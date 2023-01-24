@@ -22,7 +22,7 @@ This is a complex topic, so some sub-topics have their own documents:
 [rbac]: https://en.wikipedia.org/wiki/Role-based_access_control
 
 
-## <a name="ucat"></a>User Categories
+## <a id="ucat"></a>User Categories
 
 Before we explain individual user capabilities and their proper
 administration, we want to talk about an oft-overlooked and
@@ -84,7 +84,7 @@ There is currently no way to define custom user categories.
 [svr]: ../server/
 
 
-## <a name="ucap"></a>Individual User Capabilities
+## <a id="ucap"></a>Individual User Capabilities
 
 When one or more users need to be different from the basic capabilities
 defined in user categories, you can assign caps to individual users. You
@@ -120,7 +120,7 @@ Subscribers](../alerts.md#uvs).)
 [avsp]: ./admin-v-setup.md#philosophy
 
 
-## <a name="new"></a>New Repository Defaults
+## <a id="new"></a>New Repository Defaults
 
 Fossil creates one user account in new repos, which is named after your
 OS user name [by default](#defuser).
@@ -159,7 +159,7 @@ sensitive user material and check in changes.
 [bot]: ../antibot.wiki
 
 
-## <a name="pvt"></a>Consequences of Taking a Repository Private
+## <a id="pvt"></a>Consequences of Taking a Repository Private
 
 When you click Admin → Security-Audit → “Take it private,” one of the
 things it does is set the user capabilities for the “nobody” and
@@ -180,7 +180,7 @@ out some subset of the capability set the “nobody” and “anonymous”
 categories had to other categories or to individual users first.
 
 
-## <a name="read-v-clone"></a>Reading vs. Cloning
+## <a id="read-v-clone"></a>Reading vs. Cloning
 
 Fossil has two capabilities that are often confused:
 [**Read**](./ref.html#o) and [**Clone**](./ref.html#g).
@@ -195,12 +195,12 @@ affected only by OS file permissions and such. If you need to prevent
 that, you want to deny **Clone** capability instead.
 
 Withholding the **Read** capability has a different effect: it
-prevents a web client from viewing [embedded
-documentation][edoc], using [the file
-browser](/help?name=/dir), and pulling file content via the
-[`/artifact`](/help?name=/artifact), [`/file`](/help?name=/file), and
-[`/raw`](/help?name=/raw) URLs.
-It is is common to withhold **Read** capability from low-status visitors
+prevents a web client from viewing [embedded documentation][edoc],
+using [the file browser](/help?name=/dir),
+exploring the [history](/help?name=/timeline) of check-ins,
+and pulling file content via the [`/artifact`](/help?name=/artifact),
+[`/file`](/help?name=/file), and [`/raw`](/help?name=/raw) URLs.
+It is common to withhold **Read** capability from low-status visitors
 on private or semi-private repos to prevent them from pulling individual
 elements of the repo over the web one at a time, as someone may do when
 denied the bulk **Clone** capability.
@@ -208,7 +208,7 @@ denied the bulk **Clone** capability.
 [edoc]: ../embeddeddoc.wiki
 
 
-## <a name="defuser"></a>Default User Name
+## <a id="defuser"></a>Default User Name
 
 By default, Fossil assumes your OS user account name is the same as the
 one you use in any Fossil repository. It is the [default for a new
@@ -236,7 +236,7 @@ so.
 
 
 
-## <a name="utclone"></a>Cloning the User Table
+## <a id="utclone"></a>Cloning the User Table
 
 When cloning over HTTP, the initial user table in the local clone is set
 to its “[new state:](#new)” only one user with Setup capability, named
@@ -256,7 +256,7 @@ get a complete clone, including the parent repo’s complete user table.
 All of the above applies to [login groups][lg] as well.
 
 
-## <a name="webonly"></a>Caps Affect Web Interfaces Only
+## <a id="webonly"></a>Caps Affect Web Interfaces Only
 
 Fossil’s user capability system only affects accesses over `http[s]://`
 URLs. This includes clone, sync/push/pull, the [UI pages][wp], and [the
@@ -265,13 +265,20 @@ all.
 
 The only checks made when working directly with a local repository are
 the operating system’s file system permissions.  This should strike you
-as sensible, since if you have local file access to the repository, you
-can do anything you want to that repo DB including adding a
-[**Setup**][s] user for yourself, after which Fossil’s user capability
-system is effectively bypassed. This is why the `fossil ui` command
+as sensible, since if you have read access to the repository file, you
+can do anything you want to that repo DB including giving your user’s
+record the [**Setup**][s] capability, after which Fossil’s user
+capability system is effectively bypassed. (Or, create another Setup
+user, with the same end effect.) If you’re objecting that you need
+*write* access to the DB file to achieve this, realize that you can copy
+a read-only file to another location, giving yourself write access to
+it.
+
+This is why the `fossil ui` command
 gives you Setup permissions within Fossil UI: it can’t usefully prevent
 you from doing anything through the UI since only the local file system
-permissions actually matter.
+permissions actually matter, and you can’t start `fossil ui` without
+having at least read access to that file.
 
 What may be more surprising to you is that this is also true when
 working on a *clone* done over a local file path, except that there are
@@ -283,9 +290,11 @@ of the sync. Be aware that those file checks do still matter, however:
 Fossil requires write access to a repo DB while cloning from it, so you
 can’t clone from a read-only repo DB file over a local file path.
 
-Even more surprising may be the fact that user caps do not affect
-cloning and syncing over SSH! When you make a change to such a
-repository, the change first goes to the local clone where file system
+Even more surprising to you may be the fact that user caps do not affect
+cloning and syncing over SSH! (Not unless you go [out of your way][sshfc]
+patch around it, at any rate.) When you make a change to such a
+repository, the stock Fossil behavior is that the change first goes to the
+local repo clone where file system
 permissions are all that matter, but then upon sync, the situation is
 effectively the same as when the parent repo is on the local file
 system. The reason behind this is that if you can log into the remote
@@ -293,7 +302,8 @@ system over SSH and that user has the necessary file system permissions
 on that remote repo DB file to allow clone and sync operations, then
 we’re back in the same situation as with local files: there’s no point
 trying to enforce the Fossil user capabilities when you can just modify
-the remote DB directly, so the operation proceeds unimpeded.
+the remote DB directly, so the operation proceeds unimpeded by any user
+capability settings on the remote repo.
 
 Where this gets confusing is that *all* Fossil syncs are done over the
 HTTP protocol, including those done over `file://` and `ssh://` URLs,
@@ -302,14 +312,7 @@ not just those done over `http[s]://` URLs:
 *   For `ssh://` URLs, Fossil pipes the HTTP conversation through a
     local SSH client to a remote instance of Fossil running the
     [`test-http`](/help?name=test-http) command to receive the tunneled
-    HTTP connection. The reason Fossil’s user capability system is
-    bypassed in this case is that [`test-http` gives full capabilities
-    to its users][sxcap].
-
-    The SSH client command defaults to “`ssh -e none -T`” on most
-    platforms except Windows where it defaults to “`plink -ssh -T`”.
-    You can override this with [the `ssh-command`
-    setting](/help?name=ssh-command).
+    HTTP connection. [This interface is intentionally permissionless][sxycap].
 
 *   For `file://` URLs — as opposed to plain local file paths —
     the “sending” Fossil instance writes its side of
@@ -319,14 +322,16 @@ not just those done over `http[s]://` URLs:
     those changes to that repository. Presumably Fossil does this
     instead of using a pipe to ease portability to Windows.
 
-Checks for capabilities like [**Read**][o] and [**Write**][i] within the
+Despite use of HTTP for these URL types, the fact remains that 
+checks for capabilities like [**Read**][o] and [**Write**][i] within the
 HTTP conversation between two Fossil instances only have a useful effect
 when done over an `http[s]://` URL.
 
-[sxcap]: https://fossil-scm.org/home/file?ci=8813ae91a699ac73&name=src%2Fmain.c&ln=2632-2637
+[sshfc]:  ../server/any/http-over-ssh.md
+[sxycap]: /file?ci=ec5efceb8aac6cb4&name=src/main.c&ln=2748-2752
 
 
-## <a name="pubpg"></a>Public Pages
+## <a id="pubpg"></a>Public Pages
 
 In Admin → Access, there is an option for giving a list of [globs][glob]
 to name URLs which get treated as if the visitor had [the default cap
@@ -338,7 +343,7 @@ documentation by setting the glob to match your [embedded
 documentation][edoc]’s URL root.
 
 
-## <a name="defcap"></a>Default User Capability Set
+## <a id="defcap"></a>Default User Capability Set
 
 In Admin → Access, you can define a default user capability set, which
 is used as:

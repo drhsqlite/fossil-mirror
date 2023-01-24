@@ -5,6 +5,11 @@ official release.
 
 <ol>
 <li><p>
+From within a checkout of the Fossil tree, display this file with 
+the command "<b>fossil ui --page doc/ckout/test/release-checklist.wiki</b>".
+That is the only way the links below will work.
+
+<li><p>
 From a private directory (not the source tree) run
 "<b>tclsh $SRC/test/tester.tcl $FOSSIL</b>" where $FOSSIL is the
 name of the executable under test and $SRC is the source tree.
@@ -72,11 +77,15 @@ platform:
 <li><p>
 Run the following commands on Linux and verify no major memory leaks
 and no run-time errors or warnings (except for the well-known jump on an
-uninitialized value that occurs within zlib).
+uninitialized value that occurs within zlib).</p>
 <ol type="a">
 <li> <b>valgrind fossil rebuild</b>
 <li> <b>valgrind fossil sync</b>
 </ol>
+
+<p>Achtung: make sure to point valgrind to the proper fossil binary
+so that it does not pick up another from the PATH.</p>
+
 
 <li><p>
 
@@ -93,6 +102,13 @@ attention to the following details:
 Use the release candidate version of fossil in production on the
 [http://fossil-scm.org/] website for at least 48 hours (without
 incident) prior to making the release official.
+
+<li><p>
+Verify that the minimum SQLite version requirement is up-to-date:
+<ol type="a">
+<li> Check the version number in the line starting "define MINIMUM_SQLITE_VERSION" near the top of [/file?name=auto.def&ci=tip | auto.def]
+<li> Check the output of <b>./configure --print-minimum-sqlite-version</b>
+</ol>
 
 <li><p>
 Verify that the [../www/changes.wiki | Change Log] is correct and

@@ -224,7 +224,16 @@ static void thBufferWriteResize(
   int nAdd
 ){
   int nNew = (pBuffer->nBuf+nAdd)*2+32;
+#if defined(TH_MEMDEBUG)
+  char *zNew = (char *)Th_Malloc(interp, nNew);
+  th_memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
+  Th_Free(interp, pBuffer->zBuf);
+  pBuffer->zBuf = zNew;
+#else
+  int nOld = pBuffer->nBufAlloc;
   pBuffer->zBuf = Th_Realloc(interp, pBuffer->zBuf, nNew);
+  memset(pBuffer->zBuf+nOld, 0, nNew-nOld);
+#endif
   pBuffer->nBufAlloc = nNew;
   th_memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
   pBuffer->nBuf += nAdd;
@@ -1537,6 +1546,33 @@ char *Th_TakeResult(Th_Interp *pInterp, int *pN){
   }
 }
 
+#if defined(TH_MEMDEBUG)
+/*
+** Wrappers around the supplied malloc() and free()
+*/
+void *Th_DbgMalloc(Th_Interp *pInterp, int nByte){
+  void *p;
+  Th_Vtab *pVtab = pInterp->pVtab;
+  if( pVtab ){
+    p = pVtab->xMalloc(nByte);
+    if( p ) memset(p, 0, nByte);
+  }else{
+    p = Th_SysMalloc(pInterp, nByte);
+  }
+  return p;
+}
+void Th_DbgFree(Th_Interp *pInterp, void *z){
+  if( z ){
+    Th_Vtab *pVtab = pInterp->pVtab;
+    if( pVtab ){
+      pVtab->xFree(z);
+    }else{
+      Th_SysFree(pInterp, z);
+    }
+  }
+}
+#endif
+
 /*
 ** Install a new th1 command.
 **
@@ -1716,8 +1752,8 @@ int Th_ListAppend(
   Buffer output;
   int i;
 
-  int hasSpecialChar = 0;
-  int hasEscapeChar = 0;
+  int hasSpecialChar = 0;  /* Whitespace or {}[]'" */
+  int hasEscapeChar = 0;   /* '}' without matching '{' to the left or a '\\' */
   int nBrace = 0;
 
   output.zBuf = *pzList;
@@ -1734,9 +1770,18 @@ int Th_ListAppend(
   for(i=0; i<nElem; i++){
     char c = zElem[i];
     if( th_isspecial(c) ) hasSpecialChar = 1;
-    if( c=='\\' ) hasEscapeChar = 1;
+    if( c=='\\' ){ hasEscapeChar = 1; break; }
     if( c=='{' ) nBrace++;
-    if( c=='}' ) nBrace--;
+    if( c=='}' ){
+      if( nBrace==0 ){
+        /* A closing brace that does not have a matching open brace to
+        ** its left needs to be excaped.  See ticket 4d73b4a2258a78e2 */
+        hasEscapeChar = 1;
+        break;
+      }else{
+        nBrace--;
+      }
+    }
   }
 
   if( nElem==0 || (!hasEscapeChar && hasSpecialChar && nBrace==0) ){
@@ -1823,12 +1868,20 @@ void Th_DeleteInterp(Th_Interp *interp){
 /*
 ** Create a new interpreter.
 */
-Th_Interp * Th_CreateInterp(void){
+Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
+  int nByte = sizeof(Th_Interp) + sizeof(Th_Frame);
   Th_Interp *p;
 
   /* Allocate and initialise the interpreter and the global frame */
-  p = Th_Malloc(0, sizeof(Th_Interp) + sizeof(Th_Frame));
-  memset(p, 0, sizeof(Th_Interp));
+#if defined(TH_MEMDEBUG)
+  if( pVtab ){
+    p = pVtab->xMalloc(nByte);
+    memset(p, 0, nByte);
+    p->pVtab = pVtab;
+  }else
+#endif
+  p = Th_SysMalloc(0, nByte);
+
   p->paCmd = Th_HashNew(p);
   thPushFrame(p, (Th_Frame *)&p[1]);
   thInitialize(p);

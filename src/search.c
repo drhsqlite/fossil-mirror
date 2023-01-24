@@ -20,8 +20,8 @@
 ** and/or forum posts.
 **
 ** The search can be either a per-query "grep"-like search that scans
-** the entire corpus.  Or it can use the FTS4 or FTS5 search engine of
-** SQLite.  The choice is a administrator configuration option.
+** the entire corpus.  Or it can use the FTS4 search engine of SQLite.
+** The choice is an administrator configuration option.
 **
 ** The first option is referred to as "full-scan search".  The second
 ** option is called "indexed search".
@@ -336,7 +336,6 @@ static int search_match(
 ** the text of the files listed.  Output matches and snippets.
 **
 ** Options:
-**
 **    --begin TEXT        Text to insert before each match
 **    --end TEXT          Text to insert after each match
 **    --gap TEXT          Text to indicate elided content
@@ -585,9 +584,8 @@ void search_sql_setup(sqlite3 *db){
 ** when printing matches.
 **
 ** Options:
-**
-**     -a|--all          Output all matches, not just best matches.
-**     -n|--limit N      Limit output to N matches.
+**     -a|--all          Output all matches, not just best matches
+**     -n|--limit N      Limit output to N matches
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
 **                       unlimited. Defaults the terminal's width.
 */
@@ -1211,8 +1209,9 @@ int search_screen(unsigned srchFlags, int mFlags){
 **                    all -> everything
 */
 void search_page(void){
+  const int isSearch = P("s")!=0;
   login_check_credentials();
-  style_header("Search");
+  style_header("Search%s", isSearch ? " Results" : "");
   search_screen(SRCH_ALL, 1);
   style_finish_page();
 }
@@ -1815,6 +1814,7 @@ void search_update_index(unsigned int srchFlags){
   if( !search_index_exists() ) return;
   if( !db_exists("SELECT 1 FROM ftsdocs WHERE NOT idxed") ) return;
   search_sql_setup(g.db);
+  db_unprotect(PROTECT_READONLY);
   if( srchFlags & (SRCH_CKIN|SRCH_DOC) ){
     search_update_doc_index();
     search_update_checkin_index();
@@ -1831,6 +1831,7 @@ void search_update_index(unsigned int srchFlags){
   if( srchFlags & SRCH_FORUM ){
     search_update_forum_index();
   }
+  db_protect_pop();
 }
 
 /*
@@ -1932,7 +1933,7 @@ void fts_config_cmd(void){
     zCtrl = g.argv[3];
     for(j=0; j<count(aSetng); j++){
       if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
-        db_set_int(aSetng[j].zSetting, iCmd-3, 0);
+        db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
       }
     }
   }

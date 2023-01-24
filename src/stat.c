@@ -61,6 +61,8 @@ void stats_for_email(void){
   const char *zDest = db_get("email-send-method",0);
   int nSub, nASub, nPend, nDPend;
   const char *zDir, *zDb, *zCmd, *zRelay;
+  int iCutoff;
+  double rDigest;
   @ <tr><th>Outgoing&nbsp;Email:</th><td>
   if( fossil_strcmp(zDest,"pipe")==0
    && (zCmd = db_get("email-send-command",0))!=0
@@ -112,10 +114,22 @@ void stats_for_email(void){
     @ <tr><th>Subscribers:</th><td>
   }
   nSub = db_int(0, "SELECT count(*) FROM subscriber");
+  iCutoff = db_get_int("email-renew-cutoff",0);
   nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
-                   " AND NOT sdonotcall AND length(ssub)>1");
+                   " AND NOT sdonotcall AND length(ssub)>1"
+                   " AND lastContact>=%d;", iCutoff);
   @ %,d(nASub) active, %,d(nSub) total
   @ </td></tr>
+  rDigest = db_double(-1.0, "SELECT (julianday('now') - value)*24.0"
+                            " FROM config WHERE name='email-last-digest'");
+  if( rDigest>0.0 ){
+    @ <tr><th>Last Digest:</th><td>Approximately \
+    if( rDigest>48.0 ){
+      @ %.1f(rDigest/24.0) days ago</td>
+    }else{
+      @ %.1f(rDigest) hours ago</td>
+    }
+  }
 }
 
 /*
@@ -157,7 +171,7 @@ void stat_page(void){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob WHERE content IS NOT NULL");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %.d(n) (%,d(n-m) fulltext and %,d(m) deltas)
+    @ %,d(n) (%,d(n-m) fulltext and %,d(m) deltas)
     if( g.perm.Write ){
       @ <a href='%R/artifact_stats'>Details</a>
     }
@@ -219,7 +233,7 @@ void stat_page(void){
                   " WHERE +tagname GLOB 'wiki-*'");
     @ %,d(n)
     @ </td></tr>
-    if( db_table_exists("repository","chat") ){
+    if( g.perm.Chat && db_table_exists("repository","chat") ){
       sqlite3_int64 sz = 0;
       char zSz[100];
       n = db_int(0, "SELECT max(msgid) FROM chat");
@@ -268,6 +282,14 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
   @ <a href='version?verbose'>(details)</a></td></tr>
+  if( g.perm.Admin ){
+    const char *zCgi = P("SERVER_SOFTWARE");
+    @ <tr><th>OpenSSL&nbsp;Version:</th>
+    @     <td>%z(fossil_openssl_version())</td></tr>
+    if( zCgi ){
+      @ <tr><th>Web&nbsp;Server:</th><td>%s(zCgi)</td></tr>
+    }
+  }
   if( g.eHashPolicy!=HPOLICY_AUTO ){
     @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema),
     @ %s(hpolicy_name())</td></tr>
@@ -313,13 +335,12 @@ void stat_page(void){
 ** verify the integrity of a repository.
 **
 ** Options:
-**
-**   -b|--brief           Only show essential elements.
-**   --db-check           Run "PRAGMA quick_check" on the repository database.
+**   -b|--brief           Only show essential elements
+**   --db-check           Run "PRAGMA quick_check" on the repository database
 **   --db-verify          Run a full verification of the repository integrity.
 **                        This involves decoding and reparsing all artifacts
 **                        and can take significant time.
-**   --omit-version-info  Omit the SQLite and Fossil version information.
+**   --omit-version-info  Omit the SQLite and Fossil version information
 */
 void dbstat_cmd(void){
   i64 t, fsize;
@@ -380,8 +401,12 @@ void dbstat_cmd(void){
     fossil_print("%*s%,d\n", colWidth, "check-ins:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
     fossil_print("%*s%,d across all branches\n", colWidth, "files:", n);
-    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
-                  " WHERE tagname GLOB 'wiki-*'");
+    n = db_int(0, "SELECT count(*) FROM ("
+               "SELECT DISTINCT substr(tagname,6) "
+               "FROM tag JOIN tagxref USING('tagid')"
+               " WHERE tagname GLOB 'wiki-*'"
+               " AND TYPEOF(tagxref.value+0)='integer'"
+               ")");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
     fossil_print("%*s%,d (%,d changes)\n", colWidth, "wiki-pages:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
@@ -389,6 +414,7 @@ void dbstat_cmd(void){
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
     fossil_print("%*s%,d (%,d changes)\n", colWidth, "tickets:", n, m);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
+    fossil_print("%*s%,d\n", colWidth, "events:", n);
     if( db_table_exists("repository","forumpost") ){
       n = db_int(0, "SELECT count(*) FROM forumpost/*scan*/");
       if( n>0 ){
@@ -398,7 +424,6 @@ void dbstat_cmd(void){
                      n, nThread);
       }
     }
-    fossil_print("%*s%,d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
     fossil_print("%*s%,d\n", colWidth, "tag-changes:", n);
     z = db_text(0, "SELECT datetime(mtime) || ' - about ' ||"
@@ -458,6 +483,27 @@ void dbstat_cmd(void){
 }
 
 /*
+** Return a string which is the public URL used to access this repository.
+** Or return a NULL pointer if this repository does not have a public
+** access URL.
+**
+** Algorithm:
+**
+** The public URL is given by the email-url property.  But it is only
+** returned if there have been one more more accesses (as recorded by
+** "baseurl:URL" entries in the CONFIG table).
+*/
+const char *public_url(void){
+  const char *zUrl = db_get("email-url", 0);
+  if( zUrl==0 ) return 0;
+  if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", zUrl) ){
+    return 0;
+  }
+  return zUrl;
+}
+
+
+/*
 ** WEBPAGE: urllist
 **
 ** Show ways in which this repository has been accessed
@@ -465,10 +511,12 @@ void dbstat_cmd(void){
 void urllist_page(void){
   Stmt q;
   int cnt;
+  int total = 0;
   int showAll = P("all")!=0;
   int nOmitted;
   sqlite3_int64 iNow;
-  char *zRemote;
+  char *zPriorRepo = 0;
+
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
@@ -478,13 +526,17 @@ void urllist_page(void){
   style_submenu_element("Stat", "stat");
   style_submenu_element("Schema", "repo_schema");
   iNow = db_int64(0, "SELECT strftime('%%s','now')");
-  @ <div class="section">URLs</div>
-  @ <table border="0" width='100%%'>
+
+
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch'), mtime"
                  "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 3 DESC");
   cnt = 0;
   nOmitted = 0;
   while( db_step(&q)==SQLITE_ROW ){
+    if( cnt==0 ){
+      @ <div class="section">URLs used to access this repository</div>
+      @ <table border="0" width='100%%'>
+    }
     if( !showAll && db_column_int64(&q,2)<(iNow - 3600*24*30) && cnt>8 ){
       nOmitted++;
     }else{
@@ -494,41 +546,148 @@ void urllist_page(void){
     cnt++;
   }
   db_finalize(&q);
-  if( cnt==0 ){
-    @ <tr><td>(none)</td>
-  }else if( nOmitted ){
+  
+  if( nOmitted ){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
-  @ </table>
-  @ <div class="section">Checkouts</div>
-  @ <table border="0" width='100%%'>
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+  if( P("urlonly") ){
+    style_finish_page();
+    return;
+  }
+
+
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
                  "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPath = db_column_text(&q,0);
     if( vfile_top_of_checkout(zPath) ){
+      if( cnt==0 ){
+        @ <div class="section">Checkouts</div>
+        @ <table border="0" width='100%%'>
+      }
       @ <tr><td width='100%%'>%h(zPath)</td>
       @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+      cnt++;
     }
-    cnt++;
   }
   db_finalize(&q);
-  if( cnt==0 ){
-    @ <tr><td>(none)</td>
+  if( cnt ){
+    @ </table>
+    total += cnt;
   }
-  @ </table>
-  zRemote = db_text(0, "SELECT value FROM config WHERE name='last-sync-url'");
-  if( zRemote ){
-    @ <div class="section">Last Sync URL</div>
-    if( sqlite3_strlike("http%", zRemote, 0)==0 ){
-      UrlData x;
-      url_parse_local(zRemote, URL_OMIT_USER, &x);
-      @ <p><a href='%h(x.canonical)'>%h(zRemote)</a>
-    }else{
-      @ <p>%h(zRemote)</p>
+
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT substr(name,10), datetime(mtime,'unixepoch')"
+    "  FROM config WHERE name GLOB 'syncwith:*'"
+    "UNION ALL "
+    "SELECT substr(name,10), datetime(mtime,'unixepoch')"
+    "  FROM config WHERE name GLOB 'syncfrom:*'"
+    "UNION ALL "
+    "SELECT substr(name,9), datetime(mtime,'unixepoch')"
+    "  FROM config WHERE name GLOB 'gitpush:*'"
+    "GROUP BY 1 ORDER BY 2 DESC"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zURL = db_column_text(&q,0);
+    UrlData x;
+    if( cnt==0 ){
+      @ <div class="section">Recently synced with these URLs</div>
+      @ <table border='0' width='100%%'>
     }
-    @ </div>
+    memset(&x, 0, sizeof(x));
+    url_parse_local(zURL, URL_OMIT_USER, &x);
+    @ <tr><td width='100%%'><a href='%h(x.canonical)'>%h(x.canonical)</a>
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+    cnt++;
+    url_unparse(&x);
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT"
+    " substr(name,6),"
+    " datetime(mtime,'unixepoch'),"
+    " value->>'type',"
+    " value->>'src'\n"
+    "FROM config\n"
+    "WHERE name GLOB 'link:*'\n"
+    "AND json_valid(value)\n"
+    "ORDER BY 4, 2 DESC"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    const char *zType = db_column_text(&q, 2);
+    const char *zSrc = db_column_text(&q, 3);
+    if( zUrl==0 || zSrc==0 ) continue;
+    if( cnt++==0 ){
+      @ <div class="section">Links from other repositories</div>
+      @ <table border='0' width='100%%'>
+    }
+    if( zPriorRepo==0 || strcmp(zPriorRepo,zSrc)!=0 ){
+      fossil_free(zPriorRepo);
+      zPriorRepo = fossil_strdup(zSrc);
+      @ <tr><td colspan="4">\
+      @ From <a href='%T(zSrc)'>%h(zSrc)</a>...</td></tr>
+    }
+    @ <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    @ <td width='90%%'><a href='%h(zUrl)'>%h(zUrl)</a></td>
+    if( zType ){
+      @ <td>&nbsp;(%h(zType))&nbsp;</td>
+    }else{
+      @ <td>&nbsp;</td>
+    }
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+  }
+  db_finalize(&q);
+  fossil_free(zPriorRepo);
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT"
+    " value,"
+    " url_nouser(value),"
+    " substr(name,10),"
+    " datetime(mtime,'unixepoch')"
+    "FROM config\n"
+    "WHERE name GLOB 'sync-url:*'\n"
+    "ORDER BY 2"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    const char *zLink = db_column_text(&q, 1);
+    const char *zName = db_column_text(&q, 2);
+    if( cnt++==0 ){
+      @ <div class="section">Defined sync targets</div>
+      @ <table border='0' width='100%%'>
+    }
+    @ <tr><td>%h(zName)</td><td>&nbsp;&nbsp;</td>
+    @ <td width='95%%'><a href='%h(zLink)'>%h(zUrl)</a></td>
+    @ <td><nobr>%h(db_column_text(&q,3))</nobr></td></tr>
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </table>
+    total += cnt;
+  }
+
+
+  if( total==0 ){
+    @ <p>No record of any URLs or checkouts</p>
   }
   style_finish_page();
 }
@@ -813,7 +972,7 @@ void artifact_stats_page(void){
     login_needed(g.anon.Write);
     return;
   }
-  load_control();
+  fossil_nice_default();
 
   style_set_current_feature("stat");
   style_header("Artifact Statistics");
@@ -849,10 +1008,13 @@ void artifact_stats_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     r += db_column_int(&q, 0);
     if( n50pct==0 && r>=sumCmpr/2 ) n50pct = n;
-    if( n==(nTotal+99)/100 ) sz1pct = r;
-    if( n==(nTotal+9)/10 ) sz10pct = r;
-    if( n==(nTotal+4)/5 ) sz25pct = r;
-    if( n==(nTotal+1)/2 ){ sz50pct = r; medCmpr = db_column_int(&q,0); }
+    if( n==(nTotal+99)/100 ) sz1pct = (sqlite3_int64)r;
+    if( n==(nTotal+9)/10 ) sz10pct = (sqlite3_int64)r;
+    if( n==(nTotal+4)/5 ) sz25pct = (sqlite3_int64)r;
+    if( n==(nTotal+1)/2 ){
+      sz50pct = (sqlite3_int64)r;
+      medCmpr = db_column_int(&q,0);
+    }
     n++;
   }
   db_finalize(&q);

@@ -5,8 +5,8 @@ external wikis or websites.  For example, the following two
 hyperlinks mean the same thing (assuming an appropriate [intermap](#intermap)
 configuration):
 
-  * [](wikipedia:Interwiki_links)
-  * [](https://en.wikipedia.org/wiki/Interwiki_links)
+  * [](wikipedia:MediaWiki#Interwiki_links)
+  * [](https://en.wikipedia.org/wiki/MediaWiki#Interwiki_links)
 
 Another example:  The Fossil Forum is hosted in a separate repository
 from the Fossil source code.  This page is part of the
@@ -59,7 +59,7 @@ directly to the URL contained in the Intermap.  The Intermap can define
 additional text to put in between the base URL and the PageName for
 Hash and Wiki links, respectively.
 
-<a name="intermap"></a>
+<a id="intermap"></a>
 ## Intermap
 
 The intermap defines a mapping from interwiki Tags to full URLs.  The
@@ -113,6 +113,5 @@ and extensions for Hash and Wiki links.
 
 ## See Also
 
-  1. [](https://en.wikipedia.org/wiki/Interwiki_links)
-  2. [](https://www.mediawiki.org/wiki/Manual:Interwiki)
-  3. [](https://duckduckgo.com/?q=interwiki+links&ia=web)
+  1. [](https://www.mediawiki.org/wiki/Manual:Interwiki)
+  2. [](https://duckduckgo.com/?q=interwiki+links&ia=web)

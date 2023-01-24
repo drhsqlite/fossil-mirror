@@ -366,16 +366,28 @@ void test_process_id_command(void){
 /*
 ** COMMAND: test-backoffice-lease
 **
-** Usage: %fossil test-backoffice-lease
+** Usage: %fossil test-backoffice-lease ?--reset?
 **
 ** Print out information about the backoffice "lease" entry in the
 ** config table that controls whether or not backoffice should run.
+**
+** If the --reset option is given, the backoffice lease is reset.
+** The use of the --reset option can be disruptive.  It can cause two
+** or more backoffice processes to be run simultaneously.  Use it with
+** caution.
 */
 void test_backoffice_lease(void){
   sqlite3_int64 tmNow = time(0);
   Lease x;
   const char *zLease;
   db_find_and_open_repository(0,0);
+  if( find_option("reset",0,0)!=0 ){
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+      "DELETE FROM repository.config WHERE name='backoffice'"
+    );
+    db_protect_pop();
+  }
   verify_all_options();
   zLease = db_get("backoffice","");
   fossil_print("now:        %lld\n", tmNow);
@@ -462,7 +474,7 @@ static void backoffice_error_check_one(int *pOnce){
 ** If no backoffice processes are running at all, this routine becomes
 ** the main backoffice.
 **
-** If a primary backoffice is running, but a on-deck backoffice is
+** If a primary backoffice is running, but an on-deck backoffice is
 ** needed, this routine becomes that on-deck backoffice.
 */
 static void backoffice_thread(void){
@@ -474,6 +486,7 @@ static void backoffice_thread(void){
   static int once = 0;
 
   if( sqlite3_db_readonly(g.db, 0) ) return;
+  g.zPhase = "backoffice";
   backoffice_error_check_one(&once);
   idSelf = backofficeProcessId();
   while(1){
@@ -632,8 +645,6 @@ void backoffice_work(void){
   /* Here is where the actual work of the backoffice happens */
   nThis = alert_backoffice(0);
   if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
-  nThis = smtp_cleanup();
-  if( nThis ){ backoffice_log("%d SMTPs", nThis); nTotal += nThis; }
   nThis = hook_backoffice();
   if( nThis ){ backoffice_log("%d hooks", nThis); nTotal += nThis; }
 
@@ -657,7 +668,7 @@ void backoffice_work(void){
 ** Usage: %fossil backoffice [OPTIONS...] [REPOSITORIES...]
 **
 ** Run backoffice processing on the repositories listed.  If no
-** repository is specified, run it on the repository of the local checkout.
+** repository is specified, run it on the repository of the local check-out.
 **
 ** This might be done by a cron job or similar to make sure backoffice
 ** processing happens periodically.  Or, the --poll option can be used
@@ -671,9 +682,9 @@ void backoffice_work(void){
 **
 ** Standard options:
 **
-**    --debug                 Show what this command is doing.
+**    --debug                 Show what this command is doing
 **
-**    --logfile FILE          Append a log of backoffice actions onto FILE.
+**    --logfile FILE          Append a log of backoffice actions onto FILE
 **
 **    --min N                 When polling, invoke backoffice at least
 **                            once every N seconds even if the repository
@@ -697,7 +708,7 @@ void backoffice_work(void){
 **    --nolease               Always run backoffice, even if there is a lease
 **                            conflict.  This option implies --nodelay.  This
 **                            option is added to secondary backoffice commands
-**                            that are invoked by the --poll option.  
+**                            that are invoked by the --poll option.
 */
 void backoffice_command(void){
   int nPoll;
@@ -746,7 +757,7 @@ void backoffice_command(void){
           continue;  /* Not yet time to run this one */
         }
         blob_init(&cmd, 0, 0);
-        blob_append_escaped_arg(&cmd, g.nameOfExe);
+        blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
         blob_append(&cmd, " backoffice --nodelay", -1);
         if( g.fAnyTrace ){
           blob_append(&cmd, " --trace", -1);
@@ -759,9 +770,9 @@ void backoffice_command(void){
         }
         if( backofficeLogfile ){
           blob_append(&cmd, " --logfile", -1);
-          blob_append_escaped_arg(&cmd, backofficeLogfile);
+          blob_append_escaped_arg(&cmd, backofficeLogfile, 1);
         }
-        blob_append_escaped_arg(&cmd, g.argv[i]);
+        blob_append_escaped_arg(&cmd, g.argv[i], 1);
         nCmd++;
         if( bDebug ){
           fossil_print("COMMAND[%u]: %s\n", nCmd, blob_str(&cmd));

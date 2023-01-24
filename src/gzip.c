@@ -23,12 +23,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "gzip.h"
 
 /*
@@ -36,7 +31,7 @@
 */
 struct gzip_state {
   int eState;           /* 0: idle   1: header  2: compressing */
-  int iCRC;             /* The checksum */
+  unsigned long iCRC;   /* The checksum */
   z_stream stream;      /* The working compressor */
   Blob out;             /* Results stored here */
 } gzip;

@@ -48,9 +48,9 @@
 ** Flags set by functions in this file to keep track of integration state
 ** information.  These flags should not be used outside of this file.
 */
-#define TH_STATE_CONFIG     ((u32)0x00000020) /* We opened the config. */
-#define TH_STATE_REPOSITORY ((u32)0x00000040) /* We opened the repository. */
-#define TH_STATE_MASK       ((u32)0x00000060) /* All possible state flags. */
+#define TH_STATE_CONFIG     ((u32)0x00000200) /* We opened the config. */
+#define TH_STATE_REPOSITORY ((u32)0x00000400) /* We opened the repository. */
+#define TH_STATE_MASK       ((u32)0x00000600) /* All possible state flags. */
 
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
@@ -70,6 +70,42 @@
 #define Th_IsRepositoryOpen()     (g.repositoryOpen)
 #define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
+/*
+** When memory debugging is enabled, use our custom memory allocator.
+*/
+#if defined(TH_MEMDEBUG)
+/*
+** Global variable counting the number of outstanding calls to malloc()
+** made by the th1 implementation. This is used to catch memory leaks
+** in the interpreter. Obviously, it also means th1 is not threadsafe.
+*/
+static int nOutstandingMalloc = 0;
+
+/*
+** Implementations of malloc() and free() to pass to the interpreter.
+*/
+static void *xMalloc(unsigned int n){
+  void *p = fossil_malloc(n);
+  if( p ){
+    nOutstandingMalloc++;
+  }
+  return p;
+}
+static void xFree(void *p){
+  if( p ){
+    nOutstandingMalloc--;
+  }
+  free(p);
+}
+static Th_Vtab vtab = { xMalloc, xFree };
+
+/*
+** Returns the number of outstanding TH1 memory allocations.
+*/
+int Th_GetOutstandingMalloc(){
+  return nOutstandingMalloc;
+}
+#endif
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -122,7 +158,7 @@ void Th_PrintTraceLog(){
 ** - adopted commands/error handling for usage within th1
 ** - interface adopted to allow result creation as TH1 List
 **
-** Takes a checkin identifier in zRev and an optiona glob pattern in zGLOB
+** Takes a check-in identifier in zRev and an optiona glob pattern in zGLOB
 ** as parameter returns a TH list in pzList,pnList with filenames matching
 ** glob pattern with the checking
 */
@@ -327,7 +363,7 @@ static Blob * pThOut = 0;
 ** Sets the th1-internal output-redirection blob and returns the
 ** previous value. That blob is used by certain output-generation
 ** routines to emit its output. It returns the previous value so that
-** a routing can temporarily replace the buffer with its own and
+** a routine can temporarily replace the buffer with its own and
 ** restore it when it's done.
 */
 Blob * Th_SetOutputBlob(Blob * pOut){
@@ -352,7 +388,7 @@ static void sendText(Blob * pOut, const char *z, int n, int encode){
   }
   if(TH_INIT_NO_ENCODE & g.th1Flags){
     encode = 0;
-  }     
+  }
   if( enableOutput && n ){
     if( n<0 ) n = strlen(z);
     if( encode ){
@@ -629,6 +665,7 @@ static int markdownCmd(
   Th_ListAppend(interp, &zValue, &nValue, blob_str(&title), blob_size(&title));
   Th_ListAppend(interp, &zValue, &nValue, blob_str(&body), blob_size(&body));
   Th_SetResult(interp, zValue, nValue);
+  Th_Free(interp, zValue);
   return TH_OK;
 }
 
@@ -812,11 +849,11 @@ int capexprCmd(
     }else{
       rc = login_has_capability(azCap[i], anCap[i], 0);
     }
-    break;   
+    if( rc ) break;
   }
   Th_Free(interp, azCap);
   Th_SetResultInt(interp, rc);
-  return TH_OK; 
+  return TH_OK;
 }
 
 
@@ -1232,9 +1269,9 @@ static int repositoryCmd(
 /*
 ** TH1 command: checkout ?BOOLEAN?
 **
-** Return the fully qualified directory name of the current checkout or an
+** Return the fully qualified directory name of the current check-out or an
 ** empty string if it is not available.  Optionally, it will attempt to find
-** the current checkout, opening the configuration ("user") database and the
+** the current check-out, opening the configuration ("user") database and the
 ** repository as necessary, if the boolean argument is non-zero.
 */
 static int checkoutCmd(
@@ -1287,7 +1324,7 @@ static int traceCmd(
 ** variable -OR- the specified default value.  Currently, the supported
 ** items are:
 **
-** "checkout"        = The active local checkout directory, if any.
+** "checkout"        = The active local check-out directory, if any.
 ** "configuration"   = The active configuration database file name,
 **                     if any.
 ** "executable"      = The fully qualified executable file name.
@@ -1554,6 +1591,38 @@ static int styleScriptCmd(
 }
 
 /*
+** TH1 command: submenu link LABEL URL
+**
+** Add a hyperlink to the submenu.
+*/
+static int submenuCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=4 || memcmp(argv[1],"link",5)!=0 ){
+    return Th_WrongNumArgs(interp, "submenu link LABEL URL");
+  }
+  if( argl[2]==0 ){
+    Th_SetResult(interp, "link's LABEL is empty", -1);
+    return TH_ERROR;
+  }
+  if( argl[3]==0 ){
+    Th_SetResult(interp, "link's URL is empty", -1);
+    return TH_ERROR;
+  }
+  /*
+  ** Label and URL are unescaped because it is expected that
+  ** style_finish_page() provides propper escaping via %h format.
+  */
+  style_submenu_element( fossil_strdup(argv[2]), "%s", argv[3] );
+  Th_SetResult(interp, 0, 0);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: builtin_request_js NAME
 **
 ** Request that the built-in javascript file called NAME be added to the
@@ -1714,43 +1783,6 @@ static int unversionedCmd(
   return Th_CallSubCommand(interp, p, argc, argv, argl, aSub);
 }
 
-#ifdef _WIN32
-# include <windows.h>
-#else
-# include <sys/time.h>
-# include <sys/resource.h>
-#endif
-
-/*
-** Get user and kernel times in microseconds.
-*/
-static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
-#ifdef _WIN32
-  FILETIME not_used;
-  FILETIME kernel_time;
-  FILETIME user_time;
-  GetProcessTimes(GetCurrentProcess(), &not_used, &not_used,
-                  &kernel_time, &user_time);
-  if( piUser ){
-     *piUser = ((((sqlite3_uint64)user_time.dwHighDateTime)<<32) +
-                         (sqlite3_uint64)user_time.dwLowDateTime + 5)/10;
-  }
-  if( piKernel ){
-     *piKernel = ((((sqlite3_uint64)kernel_time.dwHighDateTime)<<32) +
-                         (sqlite3_uint64)kernel_time.dwLowDateTime + 5)/10;
-  }
-#else
-  struct rusage s;
-  getrusage(RUSAGE_SELF, &s);
-  if( piUser ){
-    *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
-  }
-  if( piKernel ){
-    *piKernel =
-              ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
-  }
-#endif
-}
 
 /*
 ** TH1 command: utime
@@ -1767,7 +1799,7 @@ static int utimeCmd(
 ){
   sqlite3_uint64 x;
   char zUTime[50];
-  getCpuTimes(&x, 0);
+  fossil_cpu_times(&x, 0);
   sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
   Th_SetResult(interp, zUTime, -1);
   return TH_OK;
@@ -1788,7 +1820,7 @@ static int stimeCmd(
 ){
   sqlite3_uint64 x;
   char zUTime[50];
-  getCpuTimes(0, &x);
+  fossil_cpu_times(0, &x);
   sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
   Th_SetResult(interp, zUTime, -1);
   return TH_OK;
@@ -2332,6 +2364,7 @@ void Th_FossilInit(u32 flags){
     {"styleFooter",   styleFooterCmd,       0},
     {"styleHeader",   styleHeaderCmd,       0},
     {"styleScript",   styleScriptCmd,       0},
+    {"submenu",       submenuCmd,           0},
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
@@ -2358,7 +2391,16 @@ void Th_FossilInit(u32 flags){
     int created = 0;
     int i;
     if( g.interp==0 ){
-      g.interp = Th_CreateInterp();
+      Th_Vtab *pVtab = 0;
+#if defined(TH_MEMDEBUG)
+      if( fossil_getenv("TH1_DELETE_INTERP")!=0 ){
+        pVtab = &vtab;
+        if( g.thTrace ){
+          Th_Trace("th1-init MEMDEBUG ENABLED<br />\n");
+        }
+      }
+#endif
+      g.interp = Th_CreateInterp(pVtab);
       created = 1;
     }
     if( forceReset || created ){
@@ -2790,13 +2832,14 @@ int Th_AreDocsEnabled(void){
 #endif
 
 /*
-** If pOut is NULL, this works identically to Th_Render(), else it
-** works just like that function but appends any TH1-generated output
-** to the given blob. A bitmask of TH_R2B_xxx and/or TH_INIT_xxx flags
-** may be passed as the 3rd argument, or 0 for default options.  Note
-** that this function necessarily calls Th_FossilInit(), which may
-** unset flags used on previous calls unless mFlags is explicitly
-** passed in.
+** If pOut is NULL, this works identically to Th_Render() and sends
+** any TH1-generated output to stdin (in CLI mode) or the CGI buffer
+** (in CGI mode), else it works just like that function but appends
+** any TH1-generated output to the given blob. A bitmask of TH_R2B_xxx
+** and/or TH_INIT_xxx flags may be passed as the 3rd argument, or 0
+** for default options.  Note that this function necessarily calls
+** Th_FossilInit(), which may unset flags used on previous calls
+** unless mFlags is explicitly passed in.
 */
 int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   int i = 0;
@@ -2873,7 +2916,19 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
 ** call to Th_SetOutputBlob().
 */
 int Th_Render(const char *z){
-  return Th_RenderToBlob(z, 0, 0);
+  return Th_RenderToBlob(z, pThOut, g.th1Flags)
+    /* Maintenance reminder: on most calls to Th_Render(), e.g. for
+    ** outputing the site skin, pThOut will be 0, which means that
+    ** Th_RenderToBlob() will output directly to the CGI buffer (in
+    ** CGI mode) or stdout (in CLI mode). Recursive calls, however,
+    ** e.g. via the "render" script function binding, need to use the
+    ** pThOut blob in order to avoid out-of-order output if
+    ** Th_SetOutputBlob() has been called. If it has not been called,
+    ** pThOut will be 0, which will redirect the output to CGI/stdout,
+    ** as appropriate. We need to pass on g.th1Flags for the case of
+    ** recursive calls, so that, e.g., TH_INIT_NO_ENCODE does not get
+    ** inadvertently toggled off by a recursive call.
+    */;
 }
 
 /*
@@ -2886,7 +2941,6 @@ int Th_Render(const char *z){
 ** on standard output.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -2932,10 +2986,10 @@ void test_th_render(void){
 ** Usage: %fossil test-th-eval SCRIPT
 **
 ** Evaluate SCRIPT as if it were a header or footer or ticket rendering
-** script and show the results on standard output.
+** script and show the results on standard output. SCRIPT may be either
+** a filename or a string of th1 script code.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -2946,7 +3000,9 @@ void test_th_render(void){
 void test_th_eval(void){
   int rc;
   const char *zRc;
+  const char *zCode = 0;
   int forceCgi, fullHttpReply;
+  Blob code = empty_blob;
   Th_InitTraceLog();
   forceCgi = find_option("cgi", 0, 0)!=0;
   fullHttpReply = find_option("http", 0, 0)!=0;
@@ -2969,11 +3025,18 @@ void test_th_eval(void){
   if( g.argc!=3 ){
     usage("script");
   }
+  if(file_isfile(g.argv[2], ExtFILE)){
+    blob_read_from_file(&code, g.argv[2], ExtFILE);
+    zCode = blob_str(&code);
+  }else{
+    zCode = g.argv[2];
+  }
   Th_FossilInit(TH_INIT_DEFAULT);
-  rc = Th_Eval(g.interp, 0, g.argv[2], -1);
+  rc = Th_Eval(g.interp, 0, zCode, -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
   Th_PrintTraceLog();
+  blob_reset(&code);
   if( forceCgi ) cgi_reply();
 }
 
@@ -2987,7 +3050,6 @@ void test_th_eval(void){
 ** output.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
@@ -3070,7 +3132,6 @@ void test_th_source(void){
 **                          and "web_flags" to appropriate values.
 **
 ** Options:
-**
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --th-trace           Trace TH1 execution (for debugging purposes)

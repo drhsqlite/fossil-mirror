@@ -726,7 +726,7 @@
     // Trigger preview on Ctrl-Enter. This only works on the built-in
     // editor widget, not a client-provided one.
     P.e.taEditor.addEventListener('keydown',function(ev){
-      if(ev.ctrlKey && 13 === ev.keyCode){
+      if(ev.shiftKey && 13 === ev.keyCode){
         ev.preventDefault();
         ev.stopPropagation();
         P.e.taEditor.blur(/*force change event, if needed*/);
@@ -734,18 +734,20 @@
         if(!P.e.cbAutoPreview.checked){/* If NOT in auto-preview mode, trigger an update. */
           P.preview();
         }
+        return false;
       }
     }, false);
     // If we're in the preview tab, have ctrl-enter switch back to the editor.
     document.body.addEventListener('keydown',function(ev){
-      if(ev.ctrlKey && 13 === ev.keyCode){
+      if(ev.shiftKey && 13 === ev.keyCode){
         if(currentTab === P.e.tabs.preview){
-          //ev.preventDefault();
-          //ev.stopPropagation();
+          ev.preventDefault();
+          ev.stopPropagation();
           P.tabs.switchToTab(P.e.tabs.content);
           P.e.taEditor.focus(/*doesn't work for client-supplied editor widget!
                               And it's slow as molasses for long docs, as focus()
                               forces a document reflow.*/);
+          return false;
         }
       }
     }, true);
@@ -1204,25 +1206,6 @@
   };
 
   /**
-     Undo some of the SBS diff-rendering bits which hurt us more than
-     they help...
-  */
-  P.tweakSbsDiffs2 = function(){
-    if(1){
-      const dt = this.e.diffTarget;
-      dt.querySelectorAll('.sbsdiffcols .difftxtcol').forEach(
-        (dtc)=>{
-          const pre = dtc.querySelector('pre');
-          pre.style.width = 'initial';
-          //pre.removeAttribute('style');
-          //console.debug("pre width =",pre.style.width);
-        }
-      );
-    }
-    this.tweakSbsDiffs();
-  };
-
-  /**
      Fetches the content diff based on the contents and settings of
      this page's input fields, and updates the UI with the diff view.
 
@@ -1250,7 +1233,8 @@
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
         ].join(''));
-        if(sbs) P.tweakSbsDiffs2();
+        F.diff.setupDiffContextLoad();
+        if(sbs) P.tweakSbsDiffs();
         F.message('Updated diff.');
         self.tabs.switchToTab(self.e.tabs.diff);
       }

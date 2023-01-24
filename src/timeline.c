@@ -104,7 +104,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FRENAMES 0x0000100 /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0000200 /* Unhide check-ins with "hidden" tag */
 #define TIMELINE_SHOWRID  0x0000400 /* Show RID values in addition to hashes */
-#define TIMELINE_BISECT   0x0000800 /* Show supplimental bisect information */
+#define TIMELINE_BISECT   0x0000800 /* Show supplemental bisect information */
 #define TIMELINE_COMPACT  0x0001000 /* Use the "compact" view style */
 #define TIMELINE_VERBOSE  0x0002000 /* Use the "detailed" view style */
 #define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
@@ -120,6 +120,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FORUMTXT 0x4000000 /* Render all forum messages */
 #define TIMELINE_REFS     0x8000000 /* Output intended for References tab */
 #define TIMELINE_DELTA   0x10000000 /* Background color shows delta manifests */
+#define TIMELINE_NOCOLOR 0x20000000 /* No colors except for highlights */
 #endif
 
 /*
@@ -183,7 +184,7 @@ void www_print_timeline(
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
-  int vid = 0;                /* Current checkout version */
+  int vid = 0;                /* Current check-out version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
   int bCommentGitStyle = 0;   /* Only show comments through first blank line */
   const char *zStyle;         /* Sub-name for classes for the style */
@@ -365,9 +366,11 @@ void www_print_timeline(
     }
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
-    if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA) ){
+    if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
       if( tmFlags & TIMELINE_UCOLOR ){
         zBgClr = zUser ? user_color(zUser) : 0;
+      }else if( tmFlags & TIMELINE_NOCOLOR ){
+        zBgClr = 0;
       }else if( zType[0]=='c' ){
         static Stmt qdelta;
         db_static_prepare(&qdelta, "SELECT baseid IS NULL FROM plink"
@@ -394,7 +397,7 @@ void www_print_timeline(
         zBr = "trunk";
       }
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
-        if( tmFlags & TIMELINE_DELTA ){
+        if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
         }else{
@@ -520,12 +523,13 @@ void www_print_timeline(
         }else if( zCom[0]=='+' ){
           @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else if( zCom[0]==':' ){
-          @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
-          @ %h(zCom+1)</a>"
+          @ %z(href("%R/wdiff?id=%!S",zUuid))Changes</a> to wiki page
+          @ "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else{
-          /* Legacy EVENT table entry that needs to be rebuilt */
-          @ Changes to a wiki page &rarr; Obsolete EVENT table information.
-          @ Run "fossil rebuild" on the repository.
+          /* Assume this is an attachment message. It _might_ also
+          ** be a legacy-format wiki log entry, in which case it
+          ** will simply be rendered in the older format. */
+          wiki_convert(&comment, 0, WIKI_INLINE);
         }
         wiki_hyperlink_override(0);
       }else{
@@ -910,7 +914,7 @@ void timeline_output_graph_javascript(
     **        merge line, if this value exists.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
-    **        the top of the page or just up a little wasy, -1 if there is
+    **        the top of the page or just up a little ways, -1 if there is
     **        no thick-line riser (if the node is a leaf).
     **   sb:  Draw a dotted child-line out of the top of this node up to the
     **        node with the id equal to the value.  This is like "u" except
@@ -924,10 +928,9 @@ void timeline_output_graph_javascript(
     **        are no risers, this array does not exist.
     **   mi:  "merge-in".  An array of integer rail positions from which
     **        merge arrows should be drawn into this node.  If the value is
-    **        negative, then the rail position is the absolute value of mi[]
-    **        and a thin merge-arrow descender is drawn to the bottom of
-    **        the screen. This array is omitted if there are no inbound
-    **        merges.
+    **        negative, then the rail position is -1-mi[] and a thin merge-arrow
+    **        descender is drawn to the bottom of the screen. This array is
+    **        omitted if there are no inbound merges.
     **   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
     **        omitted if there are no cherrypick merges.
     **    h:  The artifact hash of the object being graphed
@@ -980,7 +983,7 @@ void timeline_output_graph_javascript(
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i]==1 ){
           int mi = aiMap[i];
-          if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
+          if( (pRow->mergeDown >> i) & 1 ) mi = -1-mi;
           if( k==0 ){
             cgi_printf("\"mi\":");
             cSep = '[';
@@ -1277,7 +1280,9 @@ typedef enum {
   MS_EXACT,   /* Matches a single tag by exact string comparison. */
   MS_GLOB,    /* Matches tags against a list of GLOB patterns. */
   MS_LIKE,    /* Matches tags against a list of LIKE patterns. */
-  MS_REGEXP   /* Matches tags against a list of regular expressions. */
+  MS_REGEXP,  /* Matches tags against a list of regular expressions. */
+  MS_BRLIST,  /* Same as REGEXP, except the regular expression is a list
+              ** of branch names */
 } MatchStyle;
 
 /*
@@ -1312,7 +1317,9 @@ static const char *tagQuote(
 ** Construct the tag match SQL expression.
 **
 ** This function is adapted from glob_expr() to support the MS_EXACT, MS_GLOB,
-** MS_LIKE, and MS_REGEXP match styles.  For MS_EXACT, the returned expression
+** MS_LIKE, MS_REGEXP, and MS_BRLIST match styles.
+**
+** For MS_EXACT, the returned expression
 ** checks for integer match against the tag ID which is looked up directly by
 ** this function.  For the other modes, the returned SQL expression performs
 ** string comparisons against the tag names, so it is necessary to join against
@@ -1374,13 +1381,20 @@ static const char *tagMatchExpression(
     zPrefix = "tagname LIKE 'sym-";
     zSuffix = "'";
     zIntro = "SQL LIKE pattern ";
-  }else/* if( matchStyle==MS_REGEXP )*/{
+  }else if( matchStyle==MS_REGEXP ){
     zStart = "(tagname REGEXP '^sym-(";
     zDelimiter = "|";
     zEnd = ")$')";
     zPrefix = "";
     zSuffix = "";
     zIntro = "regular expression ";
+  }else/* if( matchStyle==MS_BRLIST )*/{
+    zStart = "tagname IN ('sym-";
+    zDelimiter = "','sym-";
+    zEnd = "')";
+    zPrefix = "";
+    zSuffix = "";
+    zIntro = "any of ";
   }
 
   /* Convert the list of matches into an SQL expression and text description. */
@@ -1535,7 +1549,14 @@ const char *timeline_expand_datetime(const char *zIn){
 **    c=TIMEORTAG     Show events that happen "circa" TIMEORTAG
 **    cf=FILEHASH     Show events around the time of the first use of
 **                    the file with FILEHASH
-**    m=TIMEORTAG     Highlight the event at TIMEORTAG
+**    m=TIMEORTAG     Highlight the event at TIMEORTAG, or the closest available
+**                    event if TIMEORTAG is not part of the timeline.  If
+**                    the t= or r= is used, the m event is added to the timeline
+**                    if it isn't there already.
+**    sel1=TIMEORTAG  Highlight the check-in at TIMEORTAG if it is part of
+**                    the timeline.  Similar to m= except TIMEORTAG must
+**                    match a check-in that is already in the timeline.
+**    sel2=TIMEORTAG  Like sel1= but use the secondary highlight.
 **    n=COUNT         Maximum number of events. "all" for no limit
 **    n1=COUNT        Same as "n" but doesn't set the display-preference cookie
 **                       Use "n1=COUNT" for a one-time display change
@@ -1563,6 +1584,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    ncp             Omit cherrypick merges
 **    nd              Do not highlight the focus check-in
 **    nsm             Omit the submenu
+**    nc              Omit all graph colors other than highlights
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
@@ -1574,7 +1596,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       All qualifying check-ins are shown unless there is
 **                       also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                    name matches one of the comma-separate GLOBLIST
+**                       name matches one of the comma-separate GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green
@@ -1587,6 +1609,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **    yw=YYYY-MM-DD   Show events for the week that includes the given day
 **    ymd=YYYY-MM-DD  Show only events on the given day. The use "ymd=now"
 **                    to see all changes for the current week.
+**    year=YYYY       Show only events on the given year. The use "year=0"
+**                    to see all changes for the current year.
 **    days=N          Show events over the previous N days
 **    datefmt=N       Override the date format:  0=HH:MM, 1=HH:MM:SS,
 **                    2=YYYY-MM-DD HH:MM:SS, 3=YYMMDD HH:MM, and 4 means "off".
@@ -1598,6 +1622,10 @@ const char *timeline_expand_datetime(const char *zIn){
 ** appear, then u=, y=, a=, and b= are ignored.
 **
 ** If both a= and b= appear then both upper and lower bounds are honored.
+**
+** When multiple time-related filters are used, e.g. ym, yw, and ymd,
+** which one(s) is/are applied is unspecified and may change between
+** fossil versions.
 **
 ** CHECKIN or TIMEORTAG can be a check-in hash prefix, or a tag, or the
 ** name of a branch.
@@ -1630,6 +1658,7 @@ void page_timeline(void){
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   char *zYearWeekStart = 0;          /* YYYY-MM-DD for start of YYYY-WW */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zYear = P("year");     /* Events for the year YYYY */
   const char *zNDays = P("days");    /* Show events over the previous N days */
   int nDays = 0;                     /* Numeric value for zNDays */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
@@ -1753,10 +1782,14 @@ void page_timeline(void){
     zType = g.perm.Read ? "ci" : "all";
     cgi_set_parameter("y", zType);
   }
-  if( zType[0]=='a' || zType[0]=='c' ){
+  if( zType[0]=='a' ||
+      ( g.perm.Read && zType[0]=='c' ) ||
+      ( g.perm.RdTkt && (zType[0]=='t' || zType[0]=='n') ) ||
+      ( g.perm.RdWiki && (zType[0]=='w' || zType[0]=='e') ) ||
+      ( g.perm.RdForum && zType[0]=='f' )
+    ){
     cookie_write_parameter("y","y",zType);
   }
-  cookie_render();
 
   /* Convert the cf=FILEHASH query parameter into a c=CHECKINHASH value */
   if( P("cf")!=0 ){
@@ -1795,6 +1828,8 @@ void page_timeline(void){
       matchStyle = MS_LIKE;
     }else if( fossil_stricmp(zMatchStyle, "regexp")==0 ){
       matchStyle = MS_REGEXP;
+    }else if( fossil_stricmp(zMatchStyle, "brlist")==0 ){
+      matchStyle = MS_BRLIST;
     }else{
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;
@@ -1851,6 +1886,10 @@ void page_timeline(void){
   if( PB("deltabg") ){
     tmFlags |= TIMELINE_DELTA;
   }
+  if( PB("nc") ){
+    tmFlags &= ~(TIMELINE_DELTA|TIMELINE_BRCOLOR|TIMELINE_UCOLOR);
+    tmFlags |= TIMELINE_NOCOLOR;
+  }
   if( zUses!=0 ){
     int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
     if( ufid ){
@@ -1906,10 +1945,7 @@ void page_timeline(void){
     zType = "ci";
     disableY = 1;
   }
-  if( bisectLocal
-   && fossil_strcmp(g.zIpAddr,"127.0.0.1")==0
-   && db_open_local(0)
-  ){
+  if( bisectLocal && cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
     bisect_create_bilog_table(iCurrent, 0, 1);
@@ -2070,7 +2106,7 @@ void page_timeline(void){
       if( nd>0 || p_rid==0 ){
         blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       }
-      if( useDividers ) selectedRid = d_rid;
+      if( useDividers && !selectedRid ) selectedRid = d_rid;
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
@@ -2084,7 +2120,7 @@ void page_timeline(void){
         blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
         db_multi_exec("%s", blob_sql_text(&sql));
       }
-      if( useDividers ) selectedRid = p_rid;
+      if( useDividers && !selectedRid ) selectedRid = p_rid;
     }
 
     blob_appendf(&desc, " of %z%h</a>",
@@ -2133,7 +2169,7 @@ void page_timeline(void){
     }
     blob_append_sql(&sql, " AND event.objid IN ok");
     db_multi_exec("%s", blob_sql_text(&sql));
-    if( useDividers ) selectedRid = f_rid;
+    if( useDividers && !selectedRid ) selectedRid = f_rid;
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
@@ -2294,6 +2330,44 @@ void page_timeline(void){
                       nDays);
       nEntry = -1;
     }
+    else if( zYear &&
+             ((4==strlen(zYear) && atoi(zYear)>1900)
+              || (1==strlen(zYear) && 0==atoi(zYear)))){
+      int year = atoi(zYear);
+      char *zNext = 0;
+      if(0==year){/*use current year*/
+        Stmt qy;
+        db_prepare(&qy, "SELECT strftime('%%Y','now')");
+        db_step(&qy);
+        year = db_column_int(&qy, 0);
+        zYear = fossil_strdup(db_column_text(&qy, 0));
+        db_finalize(&qy);
+      }else{
+        zNext = mprintf("%d", year+1);
+        if( db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid AND strftime('%%Y',mtime)=%Q %s)",
+          zNext, blob_sql_text(&cond))
+        ){
+          zNewerButton = fossil_strdup(url_render(&url, "year", zNext, 0, 0));
+          zNewerButtonLabel = "Following year";
+        }
+        fossil_free(zNext);
+      }
+      zNext = mprintf("%d", year-1);
+      if( db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid AND strftime('%%Y',mtime)=%Q %s)",
+          zNext, blob_sql_text(&cond))
+      ){
+        zOlderButton = fossil_strdup(url_render(&url, "year", zNext, 0, 0));
+        zOlderButtonLabel = "Previous year";
+      }
+      fossil_free(zNext);
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y',event.mtime) ",
+                      zYear);
+      nEntry = -1;
+    }
     if( zTagSql ){
       db_multi_exec(
         "CREATE TEMP TABLE selected_nodes(rid INTEGER PRIMARY KEY);"
@@ -2404,7 +2478,7 @@ void page_timeline(void){
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
       }else if( zType[0]=='n' ){
-        zEType = "new tickets";
+        zEType = "new ticket";
       }else if( zType[0]=='e' ){
         zEType = "technical note";
       }else if( zType[0]=='g' ){
@@ -2560,7 +2634,8 @@ void page_timeline(void){
     }
     if( g.perm.Hyperlink ){
       static const char *const azMatchStyles[] = {
-        "exact", "Exact", "glob", "Glob", "like", "Like", "regexp", "Regexp"
+        "exact", "Exact", "glob", "Glob", "like", "Like", "regexp", "Regexp",
+        "brlist", "List"
       };
       double rDate;
       zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
@@ -2626,7 +2701,7 @@ void page_timeline(void){
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
     double r = symbolic_name_to_mtime(zMark, 0);
-    if( r>0.0 ) selectedRid = timeline_add_divider(r);
+    if( r>0.0 && !selectedRid ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
@@ -2709,6 +2784,10 @@ static char *timeline_entry_subst(
   int i, j;
   blob_init(&r, 0, 0);
   blob_init(&co, 0, 0);
+
+  if( 0==zCom ){
+    zCom = "(NULL)";
+  }
 
   /* Replace LF and tab with space, delete CR */
   while( zCom[0] ){
@@ -3040,26 +3119,8 @@ static int fossil_is_julianday(const char *zDate){
 **
 **
 ** Options:
-**   -n|--limit N         If N is positive, output the first N entries.  If
-**                        N is negative, output the first -N lines.  If N is
-**                        zero, no limit.  Default is -20 meaning 20 lines.
-**   -p|--path PATH       Output items affecting PATH only.
-**                        PATH can be a file or a sub directory.
-**   --offset P           skip P changes
-**   --sql                Show the SQL used to generate the timeline
-**   -t|--type TYPE       Output items from the given types only, such as:
-**                            ci = file commits only
-**                            e  = technical notes only
-**                            f  = forum posts only
-**                            t  = tickets only
-**                            w  = wiki commits only
-**   -v|--verbose         Output the list of files changed by each commit
-**                        and the type of each change (edited, deleted,
-**                        etc.) after the check-in comment.
-**   -W|--width N         Width of lines (default is to auto-detect). N must be
-**                        either greater than 20 or it ust be zero 0 to
-**                        indicate no limit, resulting in a single line per
-**                        entry.
+**   -b|--branch BRANCH   Show only items on the branch named BRANCH
+**   -c|--current-branch  Show only items on the current branch
 **   -F|--format          Entry format. Values "oneline", "medium", and "full"
 **                        get mapped to the full options below. Otherwise a 
 **                        string which can contain these placeholders:
@@ -3077,8 +3138,28 @@ static int fossil_is_julianday(const char *zDate){
 **   --oneline            Show only short hash and comment for each entry
 **   --medium             Medium-verbose entry formatting
 **   --full               Extra verbose entry formatting
+**   -n|--limit N         If N is positive, output the first N entries.  If
+**                        N is negative, output the first -N lines.  If N is
+**                        zero, no limit.  Default is -20 meaning 20 lines.
+**   --offset P           Skip P changes
+**   -p|--path PATH       Output items affecting PATH only.
+**                        PATH can be a file or a sub directory.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
-**                        the current checkout's repository.
+**                        the current check-out's repository.
+**   --sql                Show the SQL used to generate the timeline
+**   -t|--type TYPE       Output items from the given types only, such as:
+**                            ci = file commits only
+**                            e  = technical notes only
+**                            f  = forum posts only
+**                            t  = tickets only
+**                            w  = wiki commits only
+**   -v|--verbose         Output the list of files changed by each commit
+**                        and the type of each change (edited, deleted,
+**                        etc.) after the check-in comment.
+**   -W|--width N         Width of lines (default is to auto-detect). N must be
+**                        either greater than 20 or it must be zero 0 to
+**                        indicate no limit, resulting in a single line per
+**                        entry.
 */
 void timeline_cmd(void){
   Stmt q;
@@ -3097,6 +3178,7 @@ void timeline_cmd(void){
   int iOffset;
   const char *zFilePattern = 0;
   const char *zFormat = 0;
+  const char *zBr = 0;
   Blob treeName;
   int showSql = 0;
 
@@ -3110,6 +3192,16 @@ void timeline_cmd(void){
   zType = find_option("type","t",1);
   zFilePattern = find_option("path","p",1);
   zFormat = find_option("format","F",1);
+  zBr = find_option("branch","b",1);
+  if( find_option("current-branch","c",0)!=0 ){
+    if( !g.localOpen ){
+      fossil_fatal("not within an open check-out");
+    }else{
+      int vid = db_lget_int("checkout", 0);
+      zBr = db_text(0, "SELECT value FROM tagxref WHERE rid=%d AND tagid=%d",
+                    vid, TAG_BRANCH);
+    }
+  }
   if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 )
     zFormat = "%h %c";
   if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
@@ -3157,7 +3249,7 @@ void timeline_cmd(void){
       mode = TIMELINE_MODE_PARENTS;
     }else if(!zType && !zLimit){
       usage("?WHEN? ?CHECKIN|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
-            "?-W|--width WIDTH? ?-p|--path PATH");
+            "?-W|--width WIDTH? ?-p|--path PATH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -3179,7 +3271,7 @@ void timeline_cmd(void){
     zDate = mprintf("(SELECT datetime('now'))");
   }else if( strncmp(zOrigin, "current", k)==0 ){
     if( !g.localOpen ){
-      fossil_fatal("must be within a local checkout to use 'current'");
+      fossil_fatal("must be within a local check-out to use 'current'");
     }
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
@@ -3254,6 +3346,27 @@ void timeline_cmd(void){
         blob_str(&treeName), blob_str(&treeName));
     }
     blob_append(&sql, ")", -1);
+  }
+  if( zBr ){
+    blob_append_sql(&sql,
+      "\n  AND blob.rid IN (\n"                          /* Commits */
+      "      SELECT rid FROM tagxref NATURAL JOIN tag\n"
+      "        WHERE tagtype>0 AND tagname='sym-%q'\n"
+      "      UNION\n"                                    /* Tags */
+      "      SELECT srcid FROM tagxref WHERE origid IN (\n"
+      "        SELECT rid FROM tagxref NATURAL JOIN tag\n"
+      "          WHERE tagname='sym-%q')\n"
+      "      UNION\n"                                    /* Branch wikis */
+      "      SELECT objid FROM event WHERE comment LIKE '_branch/%q'\n"
+      "      UNION\n"                                    /* Check-in wikis */
+      "      SELECT e.objid FROM event e\n"
+      "        INNER JOIN blob b ON b.uuid=substr(e.comment, 10)\n"
+      "                          AND e.comment LIKE '_checkin/%%'\n"
+      "        LEFT JOIN tagxref tx ON tx.rid=b.rid AND tx.tagid=%d\n"
+      "          WHERE tx.value='%q'\n"
+      ")\n"                                              /* No merge closures */
+      "  AND (tagxref.value IS NULL OR tagxref.value='%q')",
+      zBr, zBr, zBr, TAG_BRANCH, zBr, zBr);
   }
   blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
   if( iOffset>0 ){

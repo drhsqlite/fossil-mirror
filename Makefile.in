@@ -9,6 +9,12 @@
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = @srcdir@/src
+#### Upstream source files included directly in this repository.
+#
+SRCDIR_extsrc = @srcdir@/extsrc
+#### In-tree tools such as code generators and translators:
+#
+SRCDIR_tools = @srcdir@/tools
 
 #### The directory into which object code files should be written.
 #    Having a "./" prefix in the value of this variable breaks our use of the
@@ -39,16 +45,46 @@ TCC = @CC@
 TCLSH = @TCLSH@
 
 CFLAGS = @CFLAGS@
+CFLAGS_INCLUDE = @CFLAGS_INCLUDE@
 LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
 BCCFLAGS =	@CPPFLAGS@ $(CFLAGS)
-TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H -D_HAVE_SQLITE_CONFIG_H
+TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H
+#
+# Fuzzing may be enable by appending -fsanitize=fuzzer -DFOSSIL_FUZZ
+# to the TCCFLAGS variable.
+# For more thorouth (but also slower) investigation
+#      -fsanitize=fuzzer,undefined,address
+# might be more useful.
+
 INSTALLDIR = $(DESTDIR)@prefix@/bin
 USE_SYSTEM_SQLITE = @USE_SYSTEM_SQLITE@
+SQLITE3_SRC.2 = @SQLITE3_SRC.2@
+SQLITE3_OBJ.2 = @SQLITE3_OBJ.2@
+SQLITE3_SHELL_SRC.2 = @SQLITE3_SHELL_SRC.2@
+SQLITE3_ORIGIN = @SQLITE3_ORIGIN@
+# SQLITE3_ORIGIN changes...
+#  SQLITE3_SRC:
+#   0=src/sqlite3.c, 1=src/sqlite3-see.c, 2=$(SQLITE3_SRC.2)
+#  SQLITE3_SHELL_SRC:
+#   0=src/shell.c, 1=src/shell-see.c, 2=$(SQLITE3_SHELL_SRC.2)
 USE_LINENOISE = @USE_LINENOISE@
 USE_MMAN_H = @USE_MMAN_H@
 USE_SEE = @USE_SEE@
-FOSSIL_ENABLE_MINIZ = @FOSSIL_ENABLE_MINIZ@
 APPNAME = fossil
+#
+# APPNAME = fossil-fuzz
+# may be more appropriate for fuzzing.
+
+#### Emscripten stuff for optionally doing in-tree builds
+# of any WASM components. We store precompiled WASM in the the SCM, so
+# this is only useful for people who actively work on WASM
+# components. EMSDK_ENV refers to the "environment" script which comes
+# with the Emscripten SDK package:
+# https://emscripten.org/docs/getting_started/downloads.html
+EMSDK_HOME = @EMSDK_HOME@
+EMSDK_ENV = @EMSDK_ENV@
+EMCC_OPT = @EMCC_OPT@
+EMCC_WRAPPER = $(SRCDIR_tools)/emcc.sh
 
 .PHONY: all tags
 
@@ -82,3 +118,50 @@ tags:
 Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 	@AUTOREMAKE@
 	touch @builddir@/Makefile
+
+# Container stuff
+SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
+IMGVER := fossil:@FOSSIL_CI_PFX@
+CNTVER := fossil-@FOSSIL_CI_PFX@
+container:
+	docker image inspect $(IMGVER) > /dev/null 2>&1 || \
+		$(MAKE) container-image
+	docker container inspect $(CNTVER) > /dev/null 2>&1 || \
+		docker create \
+			--name $(CNTVER) \
+			--cap-drop AUDIT_WRITE \
+			--cap-drop CHOWN \
+			--cap-drop FSETID \
+			--cap-drop KILL \
+			--cap-drop MKNOD \
+			--cap-drop NET_BIND_SERVICE \
+			--cap-drop NET_RAW \
+			--cap-drop SETFCAP \
+			--cap-drop SETPCAP \
+			--publish 8080:8080 \
+			$(DCFLAGS) $(IMGVER)
+
+container-clean:
+	-docker container kill $(CNTVER)
+	-docker container rm   $(CNTVER)
+	-docker image     rm   $(IMGVER)
+
+container-image:
+	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
+	docker buildx build \
+		--load \
+		--tag $(IMGVER) \
+		--build-arg FSLURL=$(SRCTB) \
+		$(DBFLAGS) @srcdir@
+	rm -f $(SRCTB)
+
+container-run container-start: container
+	docker start $(DSFLAGS) $(CNTVER)
+	@sleep 1   # decrease likelihood of logging race condition
+	docker container logs $(CNTVER)
+
+container-stop:
+	docker stop $(CNTVER)
+
+container-version:
+	@echo $(CNTVER)

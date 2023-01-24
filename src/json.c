@@ -1,6 +1,6 @@
 #ifdef FOSSIL_ENABLE_JSON
 /*
-** Copyright (c) 2011 D. Richard Hipp
+** Copyright (c) 2011-2022 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -156,7 +156,7 @@ static char const * json_err_cstr( int errCode ){
     C(DB_NEEDS_REBUILD,"Fossil repository needs to be rebuilt");
     C(DB_NOT_FOUND,"Fossil repository db file could not be found.");
     C(DB_NOT_VALID, "Fossil repository db file is not valid.");
-    C(DB_NEEDS_CHECKOUT, "Command requires a local checkout.");
+    C(DB_NEEDS_CHECKOUT, "Command requires a local check-out.");
 #undef C
     default:
       return "Unknown Error";
@@ -171,17 +171,6 @@ static char const * json_err_cstr( int errCode ){
 int cson_data_dest_Blob(void * pState, void const * src, unsigned int n){
   Blob * b = (Blob*)pState;
   blob_append( b, (char const *)src, (int)n ) /* will die on OOM */;
-  return 0;
-}
-
-/*
-** Implements the cson_data_source_f() interface and reads input from
-** a fossil Blob object. pState must be-a (Blob*) populated with JSON
-** data.
-*/
-int cson_data_src_Blob(void * pState, void * dest, unsigned int * n){
-  Blob * b = (Blob*)pState;
-  *n = blob_read( b, dest, *n );
   return 0;
 }
 
@@ -206,8 +195,7 @@ int cson_output_Blob( cson_value const * pVal, Blob * pDest, cson_output_opt con
 */
 cson_value * cson_parse_Blob( Blob * pSrc, cson_parse_info * pInfo ){
   cson_value * root = NULL;
-  blob_rewind( pSrc );
-  cson_parse( &root, cson_data_src_Blob, pSrc, NULL, pInfo );
+  cson_parse_string( &root, blob_str(pSrc), blob_size(pSrc), NULL, pInfo );
   return root;
 }
 
@@ -302,7 +290,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   zStr = vmprintf(fmt,vargs);
   va_end(vargs);
   v = cson_value_new_string(zStr, strlen(zStr));
-  free(zStr);
+  fossil_free(zStr);
   return v;
 }
 
@@ -572,7 +560,7 @@ int json_setenv( char const * zKey, cson_value * v ){
 ** HTTP_ACCEPT header.
 **
 ** It will try to figure out if the client can support
-** application/json or application/javascript, and will fall back to
+** application/json, text/javascript, and will fall back to
 ** text/plain if it cannot figure out anything more specific.
 **
 ** Returned memory is static and immutable, but if the environment
@@ -587,8 +575,8 @@ char const * json_guess_content_type(){
     ? 1 : 0;
   if( g.json.jsonp ){
     return doUtf8
-      ? "application/javascript; charset=utf-8"
-      : "application/javascript";
+      ? "text/javascript; charset=utf-8"
+      : "text/javascript";
   }else{
     /*
       Content-type
@@ -619,14 +607,15 @@ char const * json_guess_content_type(){
  ** Given a request CONTENT_TYPE value, this function returns true
  ** if it is of a type which the JSON API can ostensibly read.
  **
- ** It accepts any of application/json, text/plain, or
- ** application/javascript. The former is preferred, but was not
- ** widespread when this API was initially built, so the latter forms
- ** are permitted as fallbacks.
+ ** It accepts any of application/json, text/plain,
+ ** application/javascript, or text/javascript. The former is
+ ** preferred, but was not widespread when this API was initially
+ ** built, so the latter forms are permitted as fallbacks.
  */
 int json_can_consume_content_type(const char * zType){
   return fossil_strcmp(zType, "application/json")==0
     || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
+    || fossil_strcmp(zType,"text/javascript")==0
     || fossil_strcmp(zType,"application/javascript")==0;
 }
 
@@ -641,14 +630,22 @@ int json_can_consume_content_type(const char * zType){
 ** is not called to flush the output.
 **
 ** If g.json.jsonp is not NULL then the content type is set to
-** application/javascript and the output is wrapped in a jsonp
+** text/javascript and the output is wrapped in a jsonp
 ** wrapper.
+**
+** This function works only the first time it is called. It "should
+** not" ever be called more than once but certain calling
+** constellations might trigger that, in which case the second and
+** subsequent calls are no-ops.
 */
 void json_send_response( cson_value const * pResponse ){
+  static int once = 0;
   assert( NULL != pResponse );
+  if( once++ ) return;
   if( g.isHTTP ){
     cgi_reset_content();
     if( g.json.jsonp ){
+      cgi_set_content_type("text/javascript");
       cgi_printf("%s(",g.json.jsonp);
     }
     cson_output( pResponse, cson_data_dest_cgi, NULL, &g.json.outOpt );
@@ -753,7 +750,7 @@ cson_value * json_req_payload_get(char const *pKey){
 ** there is genuine uncertainty about whether (or not) the JSON setup
 ** has already been called.
 */
-int json_is_bootstrapped_early(){
+int json_is_bootstrapped_early(void){
   return ((g.json.gc.v != NULL) && (g.json.gc.a != NULL));
 }
 
@@ -772,7 +769,7 @@ int json_is_bootstrapped_early(){
 **
 ** If called multiple times, calls after the first are a no-op.
 */
-void json_bootstrap_early(){
+void json_bootstrap_early(void){
   cson_value * v;
 
   if(g.json.gc.v!=NULL){
@@ -856,7 +853,7 @@ void json_warn( int code, char const * fmt, ... ){
     msg = vmprintf(fmt,vargs);
     va_end(vargs);
     cson_object_set(obj,"text", cson_value_new_string(msg,strlen(msg)));
-    free(msg);
+    fossil_free(msg);
   }
 }
 
@@ -1067,6 +1064,7 @@ void json_bootstrap_late(){
     */
     FILE * inFile = NULL;
     char const * jfile = find_option("json-input",NULL,1);
+    Blob json = BLOB_INITIALIZER;
     if(!jfile || !*jfile){
       break;
     }
@@ -1079,8 +1077,10 @@ void json_bootstrap_late(){
         /* Does not return. */
         ;
     }
-    cgi_parse_POST_JSON(inFile, 0);
+    blob_read_from_channel(&json, inFile, -1);
     fossil_fclose(inFile);
+    cgi_parse_POST_JSON(&json);
+    blob_reset(&json);
     break;
   }
 
@@ -1632,7 +1632,7 @@ void json_err( int code, char const * msg, int alsoOutput ){
 */
 int json_set_err( int code, char const * fmt, ... ){
   assert( (code>=1000) && (code<=9999) );
-  free(g.zErrMsg);
+  fossil_free(g.zErrMsg);
   g.json.resultCode = code;
   if(!fmt || !*fmt){
     g.zErrMsg = mprintf("%s", json_err_cstr(code));
@@ -1780,7 +1780,7 @@ cson_value * json_tags_for_checkin_rid(int rid, int propagatingOnly){
     if(*tags){
       v = json_string_split2(tags,',',0);
     }
-    free(tags);
+    fossil_free(tags);
   }
   return v;
 }
@@ -2015,10 +2015,10 @@ cson_value * json_page_stat(){
 
   zTmp = db_get("project-name",NULL);
   cson_object_set(jo, "projectName", json_new_string(zTmp));
-  free(zTmp);
+  fossil_free(zTmp);
   zTmp = db_get("project-description",NULL);
   cson_object_set(jo, "projectDescription", json_new_string(zTmp));
-  free(zTmp);
+  fossil_free(zTmp);
   zTmp = NULL;
   fsize = file_size(g.zRepositoryName, ExtFILE);
   cson_object_set(jo, "repositorySize", 
@@ -2187,7 +2187,7 @@ static cson_value * json_page_rebuild(){
     db_close(1);
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
-    rebuild_db(0, 0, 0);
+    rebuild_db(0, 0);
     db_end_transaction(0);
     return NULL;
   }
@@ -2256,6 +2256,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"rebuild",json_page_rebuild,0},
 {"report", json_page_report, 0},
 {"resultCodes", json_page_resultCodes,0},
+{"settings",json_page_settings,0},
 {"stat",json_page_stat,0},
 {"status", json_page_status, 0},
 {"tag", json_page_tag,0},

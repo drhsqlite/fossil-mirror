@@ -23,8 +23,9 @@
 
 /*
 ** Build a string that contains all of the command-line options
-** specified as arguments.  If the option name begins with "+" then
-** it takes an argument.  Without the "+" it does not.
+** specified as arguments.  collect_argument() is used for stand-alone
+** options and collect_argument_value() is used for options that are
+** followed by an argument value.
 */
 static void collect_argument(Blob *pExtra,const char *zArg,const char *zShort){
   const char *z = find_option(zArg, zShort, 0);
@@ -71,13 +72,13 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                pages.  Any additional arguments are passed on verbatim
 **                to the cache command.
 **
-**    changes     Shows all local checkouts that have uncommitted changes.
+**    changes     Shows all local check-outs that have uncommitted changes.
 **                This operation has no additional options.
 **
-**    clean       Delete all "extra" files in all local checkouts.  Extreme
+**    clean       Delete all "extra" files in all local check-outs.  Extreme
 **                caution should be exercised with this command because its
 **                effects cannot be undone.  Use of the --dry-run option to
-**                carefully review the local checkouts to be operated upon
+**                carefully review the local check-outs to be operated upon
 **                and the --whatif option to carefully review the files to
 **                be deleted beforehand is highly recommended.  The command
 **                line options supported by the clean command itself, if any
@@ -87,19 +88,20 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    dbstat      Run the "dbstat" command on all repositories.
 **
-**    extras      Shows "extra" files from all local checkouts.  The command
+**    extras      Shows "extra" files from all local check-outs.  The command
 **                line options supported by the extra command itself, if any
 **                are present, are passed along verbatim.
 **
 **    fts-config  Run the "fts-config" command on all repositories.
 **
-**    git export  Do the "git export" command on all repositories for which
+**    git CMD     Do the "git export" or "git status" command (whichever
+**                is specified by CMD) on all repositories for which
 **                a Git mirror has been previously established.
 **
 **    info        Run the "info" command on all repositories.
 **
 **    pull        Run a "pull" operation on all repositories.  Only the
-**                --verbose option is supported.
+**                --verbose and --share-links options are supported.
 **
 **    push        Run a "push" on all repositories.  Only the --verbose
 **                option is supported.
@@ -110,15 +112,22 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                --randomize options are not supported.
 **
 **    sync        Run a "sync" on all repositories.  Only the --verbose
-**                and --unversioned options are supported.
+**                and --unversioned and --share-links options are supported.
 **
-**    set|unset   Run the "setting", "set", or "unset" commands on all
+**    set         Run the "setting" or "set" commands on all
 **                repositories.  These command are particularly useful in
 **                conjunction with the "max-loadavg" setting which cannot
 **                otherwise be set globally.
 **
-**    server      Run the "ui" or "server" commands on all repositories.
-**    ui          The root URI gives a listing of all repos.
+**    unset       Run the "unset" command on all repositories
+**
+**    server      Run the "server" commands on all repositories.
+**                The root URI gives a listing of all repos.
+**
+**    ui          Run the "ui" command on all repositories.  Like "server"
+**                but bind to the loopback TCP address only, enable
+**                the --localauth option and automatically launch a
+**                web-browser
 **
 **
 ** In addition, the following maintenance operations are supported:
@@ -131,10 +140,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    ignore      Arguments are repositories that should be ignored by
 **                subsequent clean, extras, list, pull, push, rebuild, and
 **                sync operations.  The -c|--ckout option causes the listed
-**                local checkouts to be ignored instead.
+**                local check-outs to be ignored instead.
 **
 **    list | ls   Display the location of all repositories.  The -c|--ckout
-**                option causes all local checkouts to be listed instead.
+**                option causes all local check-outs to be listed instead.
 **
 ** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository:
@@ -142,12 +151,11 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** are added back to the list of repositories by these commands.
 **
 ** Options:
-**   --dry-run         If given, display instead of run actions.
-**   --showfile        Show the repository or checkout being operated upon.
-**   --stop-on-error   Halt immediately if any subprocess fails.
+**   --dry-run         If given, display instead of run actions
+**   --showfile        Show the repository or check-out being operated upon
+**   --stop-on-error   Halt immediately if any subprocess fails
 */
 void all_cmd(void){
-  int n;
   Stmt q;
   const char *zCmd;
   char *zSyscmd;
@@ -170,21 +178,21 @@ void all_cmd(void){
   if( g.argc<3 ){
     usage("SUBCOMMAND ...");
   }
-  n = strlen(g.argv[2]);
   db_open_config(1, 0);
   blob_zero(&extra);
   zCmd = g.argv[2];
   if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
-  if( strncmp(zCmd, "ui", n)==0 || strncmp(zCmd, "server", n)==0 ){
+  if( fossil_strcmp(zCmd, "ui")==0
+      || fossil_strcmp(zCmd, "server")==0 ){
     g.argv[1] = g.argv[2];
     g.argv[2] = "/";
     cmd_webserver();
     return;
   }
-  if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
+  if( fossil_strcmp(zCmd, "list")==0 || fossil_strcmp(zCmd,"ls")==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
-  }else if( strncmp(zCmd, "backup", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "backup")==0 ){
     char *zDest;
     zCmd = "backup -R";
     collect_argument(&extra, "overwrite",0);
@@ -194,7 +202,7 @@ void all_cmd(void){
       fossil_fatal("argument to \"fossil all backup\" must be a directory");
     }
     blob_appendf(&extra, " %$", zDest);
-  }else if( strncmp(zCmd, "clean", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "clean")==0 ){
     zCmd = "clean --chdir";
     collect_argument(&extra, "allckouts",0);
     collect_argument_value(&extra, "case-sensitive");
@@ -211,7 +219,7 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
-  }else if( strncmp(zCmd, "config", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "config")==0 ){
     zCmd = "config -R";
     collect_argv(&extra, 3);
     (void)find_option("legacy",0,0);
@@ -220,14 +228,14 @@ void all_cmd(void){
     if( g.argc!=5 || fossil_strcmp(g.argv[3],"pull")!=0 ){
       usage("configure pull AREA ?OPTIONS?");
     }
-  }else if( strncmp(zCmd, "dbstat", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "dbstat")==0 ){
     zCmd = "dbstat --omit-version-info -R";
     showLabel = 1;
     quiet = 1;
     collect_argument(&extra, "brief", "b");
     collect_argument(&extra, "db-check", 0);
     collect_argument(&extra, "db-verify", 0);
-  }else if( strncmp(zCmd, "extras", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "extras")==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
     }else{
@@ -241,26 +249,27 @@ void all_cmd(void){
     useCheckouts = 1;
     stopOnError = 0;
     quiet = 1;
-  }else if( strncmp(zCmd, "git", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "git")==0 ){
     if( g.argc<4 ){
       usage("git (export|status)");
     }else{
-      int n3 = (int)strlen(g.argv[3]);
-      if( strncmp(g.argv[3], "export", n3)==0 ){
+      if( fossil_strcmp(g.argv[3], "export")==0 ){
         zCmd = "git export --if-mirrored -R";
-      }else if( strncmp(g.argv[3], "status", n3)==0 ){
-        zCmd = "git status -R";
+      }else if( fossil_strcmp(g.argv[3], "status")==0 ){
+        zCmd = "git status --by-all -q -R";
+        quiet = 1;
       }else{
         usage("git (export|status)");
       }
     }
-  }else if( strncmp(zCmd, "push", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "push")==0 ){
     zCmd = "push -autourl -R";
     collect_argument(&extra, "verbose","v");
-  }else if( strncmp(zCmd, "pull", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "pull")==0 ){
     zCmd = "pull -autourl -R";
     collect_argument(&extra, "verbose","v");
-  }else if( strncmp(zCmd, "rebuild", n)==0 ){
+    collect_argument(&extra, "share-links",0);
+  }else if( fossil_strcmp(zCmd, "rebuild")==0 ){
     zCmd = "rebuild";
     collect_argument(&extra, "cluster",0);
     collect_argument(&extra, "compress",0);
@@ -275,35 +284,56 @@ void all_cmd(void){
     collect_argument(&extra, "index",0);
     collect_argument(&extra, "noindex",0);
     collect_argument(&extra, "ifneeded", 0);
-  }else if( strncmp(zCmd, "setting", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "remote")==0 ){
+    showLabel = 1;
+    quiet = 1;
+    collect_argument(&extra, "show-passwords", 0);
+    if( g.argc==3 ){
+      zCmd = "remote -R";
+    }else if( g.argc!=4 ){
+      usage("remote ?config-data|list|ls?");
+    }else if( fossil_strcmp(g.argv[3],"ls")==0
+           || fossil_strcmp(g.argv[3],"list")==0 ){
+      zCmd = "remote ls -R";
+    }else if( fossil_strcmp(g.argv[3],"ls")==0
+           || fossil_strcmp(g.argv[3],"list")==0 ){
+      zCmd = "remote ls -R";
+    }else if( fossil_strcmp(g.argv[3],"config-data")==0 ){
+      zCmd = "remote config-data -R";
+    }else{
+      usage("remote ?config-data|list|ls?");
+    }
+  }else if( fossil_strcmp(zCmd, "setting")==0 ){
     zCmd = "setting -R";
     collect_argv(&extra, 3);
-  }else if( strncmp(zCmd, "unset", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "unset")==0 ){
     zCmd = "unset -R";
     collect_argv(&extra, 3);
-  }else if( strncmp(zCmd, "fts-config", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "fts-config")==0 ){
     zCmd = "fts-config -R";
     collect_argv(&extra, 3);
-  }else if( strncmp(zCmd, "sync", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "sync")==0 ){
     zCmd = "sync -autourl -R";
+    collect_argument(&extra, "share-links",0);
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
-  }else if( strncmp(zCmd, "test-integrity", n)==0 ){
+    collect_argument(&extra, "all",0);
+  }else if( fossil_strcmp(zCmd, "test-integrity")==0 ){
     collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);
     collect_argument(&extra, "quick", "q");
     zCmd = "test-integrity";
-  }else if( strncmp(zCmd, "test-orphans", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "test-orphans")==0 ){
     zCmd = "test-orphans -R";
-  }else if( strncmp(zCmd, "test-missing", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "test-missing")==0 ){
     zCmd = "test-missing -q -R";
     collect_argument(&extra, "notshunned",0);
-  }else if( strncmp(zCmd, "changes", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "changes")==0 ){
     zCmd = "changes --quiet --header --chdir";
     useCheckouts = 1;
     stopOnError = 0;
     quiet = 1;
-  }else if( strncmp(zCmd, "ignore", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "ignore")==0 ){
     int j;
     Blob fn = BLOB_INITIALIZER;
     Blob sql = BLOB_INITIALIZER;
@@ -329,7 +359,7 @@ void all_cmd(void){
     blob_reset(&fn);
     blob_reset(&extra);
     return;
-  }else if( strncmp(zCmd, "add", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "add")==0 ){
     int j;
     Blob fn = BLOB_INITIALIZER;
     Blob sql = BLOB_INITIALIZER;
@@ -366,18 +396,19 @@ void all_cmd(void){
     blob_reset(&fn);
     blob_reset(&extra);
     return;
-  }else if( strncmp(zCmd, "info", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "info")==0 ){
     zCmd = "info";
     showLabel = 1;
     quiet = 1;
-  }else if( strncmp(zCmd, "cache", n)==0 ){
+  }else if( fossil_strcmp(zCmd, "cache")==0 ){
     zCmd = "cache -R";
     showLabel = 1;
     collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "add cache changes clean dbstat extras fts-config git ignore "
-                 "info list ls pull push rebuild server setting sync ui unset");
+      "add cache changes clean dbstat extras fts-config git ignore "
+      "info list ls pull push rebuild remote "
+      "server setting sync ui unset");
   }
   verify_all_options();
   db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
@@ -418,7 +449,7 @@ void all_cmd(void){
       fossil_print("%s\n", zFilename);
       continue;
     }else if( showFile ){
-      fossil_print("%s: %s\n", useCheckouts ? "checkout" : "repository",
+      fossil_print("%s: %s\n", useCheckouts ? "check-out" : "repository",
                    zFilename);
     }
     zSyscmd = mprintf("%$ %s %$%s",

@@ -15,8 +15,14 @@ div.logo {
   font-weight: bold;
   color: white;
   min-width: 50px;
-  padding: 5 0 5 0em;
   white-space: nowrap;
+  position: relative;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.75));
+  top: 0.5em;
+  right: -0.5em;
+}
+div.logo img{
+  border-radius: 2mm;
 }
 
 /* The page title centered at the top of each page */
@@ -259,13 +265,12 @@ table.timelineTable {
 
 
 /* Side-by-side diff */
-table.sbsdiff {
+table.splitdiff {
   background-color: #485D7B;
   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
   font-size: 8pt;
   border-collapse:collapse;
   white-space: pre;
-  width: 98%;
   border: 1px #000 dashed;
   margin-left: auto;
   margin-right: auto;
@@ -322,47 +327,43 @@ ul.filelist {
 }
 
 /* side-by-side diff display */
-div.sbsdiff {
+div.splitdiff {
   font-family: monospace;
   font-size: smaller;
   white-space: pre;
 }
 
 /* context diff display */
-div.udiff {
+table.udiff {
   font-family: monospace;
   white-space: pre;
 }
 
-/* changes in a diff */
-span.diffchng {
-  background-color: rgb(170, 170, 140);
-}
-
 /* added code in a diff */
-span.diffadd {
+td.difftxt ins > ins, td.diffln ins {
   background-color: rgb(100, 200, 100);
+}
+td.difftxt ins {
+  background-color: inherit;
 }
 
 /* deleted in a diff */
-span.diffrm {
+td.difftxt del > del, td.diffln del {
   background-color: rgb(230, 110, 110);
 }
-
-/* suppressed lines in a diff */
-span.diffhr {
-  display: inline-block;
-  margin: .5em 0 1em;
-  color: rgb(150, 150, 140);
+td.difftxt del {
+  background-color: inherit;
 }
-
-/* line numbers in a diff */
-span.diffln {
+tr.diffskip.jchunk {
+  background-color: #7EA2D9;
+}
+tr.diffskip > td.chunkctrl .jcbutton{
   color: white;
+  background-color: #485D7B;
 }
 
 .fileage tr:hover {
-  background-color: #7EA2D9;
+  background-color:  #7EA2D9;
 }
 
 span.modpending {
@@ -421,11 +422,6 @@ table.numbered-lines td.line-numbers span.selected-line {
   background-color: #455978;
 }
 
-div.difflncol {
-  padding-right: 1em;
-  text-align: right;
-  color: white;
-}
 .capsumOff {
   background-color: #bbbbbb;
 }
@@ -434,4 +430,9 @@ div.difflncol {
 }
 .capsumWrite {
   background-color: #e5e500;
+}
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #7EA2D9;
 }

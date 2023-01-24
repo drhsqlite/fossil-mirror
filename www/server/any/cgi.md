@@ -37,7 +37,10 @@ again, may be different for a particular configuration:
     writable by the same account which executes the Fossil binary.
     (This might differ from the user the web server normally runs
     under.) The directory holding the repository file(s) needs to be
-    writable so that SQLite can write its journal files.
+    writable so that SQLite can write its journal files. When using
+    another access control system, such as AppArmor or SELinux, it may
+    be necessary to explicitly permit that account to read and write
+    the necessary files.
 
 *   Fossil must be able to create temporary files in a
     [directory that varies by host OS](../../env-opts.md#temp). When the
@@ -66,5 +69,24 @@ exists.
 
 Additional options available to the CGI script are [documented
 separately](../../cgi.wiki).
+
+#### CGI with Apache behind an Nginx proxy
+
+For the case where the Fossil repositories live on a computer, itself behind
+an Internet-facing machine that employs Nginx to reverse proxy HTTP(S) requests
+and take care of the TLS part of the connections in a transparent manner for
+the downstream web servers, the CGI parameter `HTTPS=on` might not be set.
+However, Fossil in CGI mode needs it in order to generate the correct links.
+
+Apache can be instructed to pass this parameter further to the CGI scripts for
+TLS connections with a stanza like
+
+        SetEnvIf X-Forwarded-Proto "https" HTTPS=on
+        
+in its config file section for CGI, provided that
+
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        
+has been be added in the relevant proxying section of the Nginx config file.
 
 *[Return to the top-level Fossil server article.](../)*

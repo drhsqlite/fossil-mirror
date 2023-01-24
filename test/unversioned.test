@@ -330,7 +330,7 @@ write_file unversioned-client1.txt "This is unversioned client file #1."
 ###############################################################################
 
 fossil_maybe_answer y clone $remote uvrepo.fossil
-fossil open uvrepo.fossil
+fossil open -f uvrepo.fossil
 
 ###############################################################################
 

@@ -59,8 +59,7 @@ div#hbdrop {
   border-radius: 0 0 0.5em 0.5em;
   display: none;
   left: 2em;
-  width: 90%;
-  padding-right: 1em;
+  width: calc(100% - 4em);
   position: absolute;
   z-index: 20;  /* just below mainmenu, but above timeline bubbles */
 }
@@ -88,7 +87,9 @@ div.sectionmenu>a.button, div.submenu label,
 div.footer a {
   padding: 0.15em 0.5em;
 }
-/* div.mainmenu a.active, FIXME: setting of .active is broken for some URIs */
+div.mainmenu a.active {
+  border-bottom: 1px solid #FF4500f0;
+}
 a:hover,
 a:visited:hover {
   background-color: #FF4500f0;
@@ -132,13 +133,8 @@ button:focus,
 input[type=button]:focus,
 input[type=reset]:focus,
 input[type=submit]:focus {
-  color: #333;
+  outline: 2px outset #333;
   border-color: #888;
-  outline: 0
-}
-
-div.mainmenu a.active {
-  opacity: 0.8;
 }
 
 /* All page content from the bottom of the menu or submenu down to
@@ -456,26 +452,39 @@ span.timelineSecondary {
 /************************************************************************
 diffs...
 ************************************************************************/
-span.diffchng {
-  background-color: #8080e8;
-  color: #000
-}
-span.diffadd {
+td.diffln ins {
   background-color: #559855;
-  color: #000
+  color: #000;
+  text-decoration: none;
 }
-span.diffrm {
+td.diffln del {
   background-color: #c55;
-  color: #000
+  color: #000;
+  text-decoration: none;
 }
-div.diffmkrcol {
-  background: #111
+td.difftxt del {
+  background-color: inherit;
+  text-decoration: none;
 }
-span.diffhr {
-  color: #555
+td.difftxt del > del {
+  background-color: #c55;
+  color: #000;
+  text-decoration: none;
 }
-span.diffln {
-  color: #666
+td.difftxt ins {
+  background-color: inherit;
+  text-decoration: none;
+}
+td.difftxt ins > ins {
+  background-color: #559855;
+  color: #000;
+  text-decoration: none;
+}
+tr.diffskip.jchunk {
+  background-color: black;
+}
+tr.diffskip > td.chunkctrl .jcbutton {
+  background-color: #303536;
 }
 
 /************************************************************************
@@ -512,14 +521,21 @@ input,
 optgroup,
 select,
 textarea {
-  background-color: inherit;
+  background: inherit;
   color: inherit;
   font: inherit;
   margin: 0
 }
+button {
+  background-color: rgba(45,45,45,0.75);
+}
 input, textarea, select {
   border: 1px solid rgba(127, 201, 255, 0.9);
   padding: 1px;
+}
+select {
+  color: #1f1f1f;
+  background: #ffffffe0;
 }
 .capsumOff {
   background-color: #222;
@@ -552,6 +568,12 @@ body.forum .forumPostBody > div blockquote {
     padding: 0 0.5em;
 }
 
-pre.udiff {
-  overflow-x: auto;
+body.report table.report tr td { color: black }
+body.report table.report a { color: blue }
+body.tkt td.tktDspValue { color: black }
+body.tkt td.tktDspValue a { color: blue }
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #442800;
 }

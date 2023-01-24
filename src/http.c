@@ -92,11 +92,32 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     zPw = g.url.passwd;
   }
 
-  /* The login card wants the SHA1 hash of the password, so convert the
-  ** password to its SHA1 hash if it isn't already a SHA1 hash.
+  /* The login card wants the SHA1 hash of the password (as computed by
+  ** sha1_shared_secret()), not the original password.  So convert the
+  ** password to its SHA1 encoding if it isn't already a SHA1 hash.
+  **
+  ** We assume that a hexadecimal string of exactly 40 characters is a
+  ** SHA1 hash, not an original password.  If a user has a password which
+  ** just happens to be a 40-character hex string, then this routine won't
+  ** be able to distinguish it from a hash, the translation will not be
+  ** performed, and the sync won't work.  
   */
-  /* fossil_print("\nzPw=[%s]\n", zPw); // TESTING ONLY */
-  if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
+  if( zPw && zPw[0] && (strlen(zPw)!=40 || !validate16(zPw,40)) ){
+    const char *zProjectCode = 0;
+    if( g.url.flags & URL_USE_PARENT ){
+      zProjectCode = db_get("parent-project-code", 0);
+    }else{
+      zProjectCode = db_get("project-code", 0);
+    }
+    zPw = sha1_shared_secret(zPw, zLogin, zProjectCode);
+    if( g.url.pwConfig!=0 ){
+      char *x = obscure(zPw);
+      db_set(g.url.pwConfig/*works-like:"x"*/, x, 0);
+      fossil_free(x);
+    }
+    fossil_free(g.url.passwd);
+    g.url.passwd = fossil_strdup(zPw);
+  }
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
@@ -209,6 +230,49 @@ char *prompt_for_httpauth_creds(void){
 }
 
 /*
+** Send content pSend to the the server identified by g.url using the
+** external program given by g.zHttpCmd.  Capture the reply from that
+** program and load it into pReply.
+**
+** This routine implements the --transport-command option for "fossil sync".
+*/
+static int http_exchange_external(
+  Blob *pSend,                /* Message to be sent */
+  Blob *pReply,               /* Write the reply here */
+  int mHttpFlags,             /* Flags.  See above */
+  const char *zAltMimetype    /* Alternative mimetype if not NULL */
+){
+  char *zUplink;
+  char *zDownlink;
+  char *zCmd;
+  char *zFullUrl;
+  int rc;
+
+  zUplink = fossil_temp_filename();
+  zDownlink = fossil_temp_filename();
+  zFullUrl = url_full(&g.url);
+  zCmd = mprintf("%s %$ %$ %$", g.zHttpCmd, zFullUrl,zUplink,zDownlink);
+  fossil_free(zFullUrl);
+  blob_write_to_file(pSend, zUplink);
+  if( g.fHttpTrace ){
+    fossil_print("RUN %s\n", zCmd);
+  }
+  rc = fossil_system(zCmd);
+  if( rc ){
+    fossil_warning("Transport command failed: %s\n", zCmd);
+  }    
+  fossil_free(zCmd);
+  file_delete(zUplink);
+  if( file_size(zDownlink, ExtFILE)<0 ){
+    blob_zero(pReply);
+  }else{
+    blob_read_from_file(pReply, zDownlink, ExtFILE);
+    file_delete(zDownlink);
+  }
+  return rc; 
+}
+
+/*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
 ** in pRecv.  pRecv is assumed to be uninitialized when
@@ -237,6 +301,11 @@ int http_exchange(
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
   int isCompressed = 1; /* True if the reply is compressed */
+
+  if( g.zHttpCmd!=0 ){
+    /* Handle the --transport-command option for "fossil sync" and similar */
+    return http_exchange_external(pSend,pReply,mHttpFlags,zAltMimetype);
+  }
 
   if( transport_open(&g.url) ){
     fossil_warning("%s", transport_errmsg(&g.url));
@@ -408,9 +477,9 @@ int http_exchange(
                           "application/x-fossil-uncompressed", -1)==0 ){
         isCompressed = 0;
       }else{
-        if( (mHttpFlags & HTTP_GENERIC)==0
-         && fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0
-        ){
+        if( mHttpFlags & HTTP_GENERIC ){
+          if( mHttpFlags & HTTP_NOCOMPRESS ) isCompressed = 0;
+        }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
           isError = 1;
         }
       }
@@ -481,19 +550,24 @@ write_err:
 /*
 ** COMMAND: test-httpmsg
 **
-** Usage: %fossil test-httpmsg URL ?PAYLOAD? ?OPTIONS?
+** Usage: %fossil test-httpmsg ?OPTIONS? URL ?PAYLOAD? ?OUTPUT?
 **
 ** Send an HTTP message to URL and get the reply. PAYLOAD is a file containing
 ** the payload, or "-" to read payload from standard input.  a POST message
 ** is sent if PAYLOAD is specified and is non-empty.  If PAYLOAD is omitted
 ** or is an empty file, then a GET message is sent.
 **
-** Options:
+** If a second filename (OUTPUT) is given after PAYLOAD, then the reply
+** is written into that second file instead of being written on standard
+** output.  Use the "--out OUTPUT" option to specify an output file for
+** a GET request where there is no PAYLOAD.
 **
+** Options:
 **     --compress                 Use ZLIB compression on the payload
 **     --mimetype TYPE            Mimetype of the payload
 **     --out FILE                 Store the reply in FILE
 **     -v                         Verbose output
+**     --xfer                     PAYLOAD in a Fossil xfer protocol message
 */
 void test_httpmsg_command(void){
   const char *zMimetype;
@@ -506,18 +580,29 @@ void test_httpmsg_command(void){
   zOutFile = find_option("out","o",1);
   if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
   if( find_option("compress",0,0)!=0 ) mHttpFlags &= ~HTTP_NOCOMPRESS;
-  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_ANY_SCHEMA, 0);
-  if( g.argc!=3 && g.argc!=4 ){
-    usage("URL ?PAYLOAD?");
+  if( find_option("xfer",0,0)!=0 ){
+    mHttpFlags |= HTTP_USE_LOGIN;
+    mHttpFlags &= ~HTTP_GENERIC;
   }
-  zInFile = g.argc==4 ? g.argv[3] : 0;
+  verify_all_options();
+  if( g.argc<3 || g.argc>5 ){
+    usage("URL ?PAYLOAD? ?OUTPUT?");
+  }
+  zInFile = g.argc>=4 ? g.argv[3] : 0;
+  if( g.argc==5 ){
+    if( zOutFile ){
+      fossil_fatal("output file specified twice: \"--out %s\" and \"%s\"",
+        zOutFile, g.argv[4]);
+    }
+    zOutFile = g.argv[4];
+  }
   url_parse(g.argv[2], 0);
   if( g.url.protocol[0]!='h' ){
     fossil_fatal("the %s command supports only http: and https:", g.argv[1]);
   }
   if( zInFile ){
     blob_read_from_file(&in, zInFile, ExtFILE);
-    if( zMimetype==0 ){
+    if( zMimetype==0 && (mHttpFlags & HTTP_GENERIC)!=0 ){
       if( fossil_strcmp(zInFile,"-")==0 ){
         zMimetype = "application/x-unknown";
       }else{

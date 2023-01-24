@@ -88,6 +88,7 @@ static const char zDefaultTicketTable[] =
 @   tkt_id INTEGER REFERENCES ticket,
 @   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
+@   tkt_user TEXT,
 @   -- Add as many fields as required below this line
 @   login TEXT,
 @   username TEXT,
@@ -138,7 +139,7 @@ static void tktsetup_generic(
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
-    db_unset(zDbField, 0);
+    db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     cgi_redirect("tktsetup");
   }else if( isSubmit ){
@@ -147,7 +148,7 @@ static void tktsetup_generic(
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="tktsetupError">ERROR: %h(zErr)</p>
     }else{
-      db_set(zDbField, z, 0);
+      db_set(zDbField/*works-like:"x"*/, z, 0);
       if( xRebuild ) xRebuild();
       cgi_redirect("tktsetup");
     }
@@ -539,11 +540,13 @@ static const char zDefaultView[] =
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
+@   html "<span class='tktDspCommenter'>"
 @   html "[htmlize $xlogin]"
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
 @     html " (claiming to be [htmlize $xusername])"
 @   }
-@   html " added on $xdate:\n"
+@   html " added on $xdate:"
+@   html "</span>\n"
 @   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
 @     set r [randhex]
 @     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}

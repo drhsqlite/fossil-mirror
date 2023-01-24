@@ -515,10 +515,16 @@ int comment_print(
 */
 int get_comment_format(){
   int comFmtFlags;
+
+  /* We must cache this result, else running the timeline can end up
+  ** querying the comment-format setting from the global db once per
+  ** timeline entry, which brings it to a crawl if that db is
+  ** network-mounted. Discussed in:
+  ** https://fossil-scm.org/forum/forumpost/9aaefe4e536e01bf */
+
   /* The global command-line option is present, or the value has been cached. */
   if( g.comFmtFlags!=COMMENT_PRINT_UNSET ){
-    comFmtFlags = g.comFmtFlags;
-    return comFmtFlags;
+    return g.comFmtFlags;
   }
   /* Load the local (per-repository) or global (all-repositories) value, and use
   ** g.comFmtFlags as a cache. */
@@ -528,8 +534,8 @@ int get_comment_format(){
     return comFmtFlags;
   }
   /* Fallback to the default value. */
-  comFmtFlags = COMMENT_PRINT_DEFAULT;
-  return comFmtFlags;
+  g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+  return g.comFmtFlags;
 }
 
 /*
@@ -542,15 +548,15 @@ int get_comment_format(){
 **
 ** Options:
 **   --file           The comment text is really just a file name to
-**                    read it from.
+**                    read it from
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
-**   --legacy         Use the legacy comment printing algorithm.
-**   --trimcrlf       Enable trimming of leading/trailing CR/LF.
-**   --trimspace      Enable trimming of leading/trailing spaces.
-**   --wordbreak      Attempt to break lines on word boundaries.
+**   --legacy         Use the legacy comment printing algorithm
+**   --trimcrlf       Enable trimming of leading/trailing CR/LF
+**   --trimspace      Enable trimming of leading/trailing spaces
+**   --wordbreak      Attempt to break lines on word boundaries
 **   --origbreak      Attempt to break when the original comment text
-**                    is detected.
+**                    is detected
 **   --indent         Number of spaces to indent (default (-1) is to
 **                    auto-detect).  Zero means no indent.
 **   -W|--width NUM   Width of lines (default (-1) is to auto-detect).

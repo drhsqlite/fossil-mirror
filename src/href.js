@@ -14,10 +14,13 @@
 **
 ** The <script> must have an id='href-data'.  DELAY is the number 
 ** milliseconds delay prior to populating href= and action=.  If the
-** mouseover boolean is true, then the timer does not start until a
-** mouse motion event occurs over top of the document.
+** mouseover boolean is true, then the href= rewrite is further delayed
+** until the first mousedown event that occurs after the timer expires.
 */
-function setAllHrefs(){
+var antiRobot = 0;
+function antiRobotGo(){
+  if( antiRobot!=3 ) return;
+  antiRobot = 7;
   var anchors = document.getElementsByTagName("a");
   for(var i=0; i<anchors.length; i++){
     var j = anchors[i];
@@ -33,14 +36,28 @@ function antiRobotDefense(){
   var x = document.getElementById("href-data");
   var jx = x.textContent || x.innerText;
   var g = JSON.parse(jx);
-  var isOperaMini =
-       Object.prototype.toString.call(window.operamini)==="[object OperaMini]";
-  if(g.mouseover && !isOperaMini){
-    document.getElementsByTagName("body")[0].onmousemove=function(){
-      setTimeout(setAllHrefs, g.delay);
+  if( g.mouseover ){
+    document.body.onmousedown=function(){
+      antiRobot |= 2;
+      antiRobotGo();
+      document.body.onmousedown=null;
+    }
+    document.body.onmousemove=function(){
+      antiRobot |= 2;
+      antiRobotGo();
+      document.body.onmousemove=null;
     }
   }else{
-    setTimeout(setAllHrefs, g.delay);
+    antiRobot |= 2;
   }
+  if( g.delay>0 ){
+    setTimeout(function(){
+      antiRobot |= 1;
+      antiRobotGo();
+    }, g.delay)
+  }else{
+    antiRobot |= 1;
+  }
+  antiRobotGo();
 }
 antiRobotDefense();

@@ -26,7 +26,8 @@ management system with these advanced features:
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
-      [./wikitheory.wiki | wiki], [./forum.wiki | forum], [./chat.md | chat], and
+      [./wikitheory.wiki | wiki], [./forum.wiki | forum],
+      [./alerts.md|email alerts], [./chat.md | chat], and
       [./event.wiki | technotes].
 
   2.  <b>Built-in Web Interface</b> -
@@ -84,12 +85,12 @@ management system with these advanced features:
   8.  <b>Free and Open-Source</b> - [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Latest Release: 2.14 ([/timeline?c=version-2.14|2021-01-20])</h3>
+<h3>Latest Release: 2.20 ([/timeline?c=version-2.20|2022-11-16])</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_14|Change Summary]
-  *  [/timeline?p=version-2.14&bt=version-2.13&y=ci|Check-ins in version 2.14]
-  *  [/timeline?df=version-2.14&y=ci|Check-ins derived from the 2.14 release]
+  *  [./changes.wiki#v2_20|Change Summary]
+  *  [/timeline?p=version-2.20&bt=version-2.19&y=ci|Check-ins in version 2.20]
+  *  [/timeline?df=version-2.20&y=ci|Check-ins derived from the 2.20 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
 <hr>
@@ -97,8 +98,8 @@ management system with these advanced features:
 
   1.  [/uv/download.html|Download] or install using a package manager or
       [./build.wiki|compile from sources].
-  2.  <tt>fossil init</tt> <i>new-repository</i>
-  3.  <tt>fossil open</tt> <i>new-repository</i>
+  2.  <tt>fossil init</tt> <i>REPOSITORY-DIR/new-repository</i>
+  3.  <tt>fossil open</tt> <i>REPOSITORY-DIR/new-repository</i>
   4.  <tt>fossil add</tt> <i>files-or-directories</i>
   5.  <tt>fossil commit -m</tt> "<i>commit message</i>"
   6.  <tt>fossil ui</tt>

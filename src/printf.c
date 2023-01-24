@@ -104,7 +104,9 @@ int length_of_S_display(void){
 #define etJSONSTR    25 /* String encoded as a JSON string literal: %j
                            Use %!j to include double-quotes around it. */
 #define etSHELLESC   26 /* Escape a filename for use in a shell command: %$
-                           See blob_append_escaped_arg() for details */
+                           See blob_append_escaped_arg() for details
+                           "%$"  -> adds "./" prefix if necessary.
+                           "%!$" -> omits the "./" prefix. */
 
 
 /*
@@ -281,7 +283,7 @@ static int wiki_convert_flags(int altForm2){
 **
 ** OUTPUTS:
 **          The return value is the total number of characters sent to
-**          the function "func".  Returns -1 on a error.
+**          the function "func".  Returns -1 on error.
 **
 ** Note that the order in which automatic variables are declared below
 ** seems to make a big difference in determining how fast this beast
@@ -840,7 +842,7 @@ int vxprintf(
       }
       case etSHELLESC: {
         char *zArg = va_arg(ap, char*);
-        blob_append_escaped_arg(pBlob, zArg);
+        blob_append_escaped_arg(pBlob, zArg, !flag_altform2);
         length = width = 0;
         break;
       }
@@ -958,9 +960,8 @@ static int stdoutAtBOL = 1;
 ** text when done.
 ** No translation ever occurs on unix.
 */
-void fossil_puts(const char *z, int toStdErr){
+void fossil_puts(const char *z, int toStdErr, int n){
   FILE* out = (toStdErr ? stderr : stdout);
-  int n = (int)strlen(z);
   if( n==0 ) return;
   assert( toStdErr==0 || toStdErr==1 );
   if( toStdErr==0 ) stdoutAtBOL = (z[n-1]=='\n');
@@ -984,7 +985,7 @@ void fossil_puts(const char *z, int toStdErr){
 */
 int fossil_force_newline(void){
   if( g.cgiOutput==0 && stdoutAtBOL==0 ){
-    fossil_puts("\n", 0);
+    fossil_puts("\n", 0, 1);
     return 1;
   }
   return 0;
@@ -1009,10 +1010,7 @@ void fossil_print(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_vprintf(zFormat, ap);
   }else{
-    Blob b = empty_blob;
-    vxprintf(&b, zFormat, ap);
-    fossil_puts(blob_str(&b), 0);
-    blob_reset(&b);
+    vxprintf(0, zFormat, ap);
   }
   va_end(ap);
 }
@@ -1020,10 +1018,7 @@ void fossil_vprint(const char *zFormat, va_list ap){
   if( g.cgiOutput ){
     cgi_vprintf(zFormat, ap);
   }else{
-    Blob b = empty_blob;
-    vxprintf(&b, zFormat, ap);
-    fossil_puts(blob_str(&b), 0);
-    blob_reset(&b);
+    vxprintf(0, zFormat, ap);
   }
 }
 
@@ -1036,7 +1031,7 @@ void fossil_trace(const char *zFormat, ...){
   va_start(ap, zFormat);
   b = empty_blob;
   vxprintf(&b, zFormat, ap);
-  fossil_puts(blob_str(&b), 1);
+  fossil_puts(blob_buffer(&b), 1, blob_size(&b));
   blob_reset(&b);
   va_end(ap);
 }
@@ -1102,7 +1097,7 @@ static int fossil_print_error(int rc, const char *z){
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    assert(json_is_bootstrapped_early());
+    if( !json_is_bootstrapped_early() ) json_bootstrap_early();
     json_err( 0, z, 1 );
     if( g.isHTTP && !g.json.preserveRc ){
       rc = 0 /* avoid HTTP 500 */;
@@ -1134,19 +1129,25 @@ static int fossil_print_error(int rc, const char *z){
 
 /*
 ** Print an error message, rollback all databases, and quit.  These
-** routines never return.
+** routines never return and produce a non-zero process exit status.
 **
-** The only different between fossil_fatal() and fossil_panic() is that
+** The main difference between fossil_fatal() and fossil_panic() is that
 ** fossil_panic() makes an entry in the error log whereas fossil_fatal()
-** does not.  If there is not error log, then both routines work the
-** same.  Hence, the routines are interchangable for commands and only
-** make a difference with processing web pages.
+** does not. On POSIX platforms, if there is not an error log, then both
+** routines work similarly with respect to user-visible effects.  Hence,
+** the routines are interchangable for commands and only act differently
+** when processing web pages. On the Windows platform, fossil_panic()
+** also displays a pop-up stating that an error has occured and allowing
+** just-in-time debugging to commence. On all platforms, fossil_panic()
+** ends execution with a SIGABRT signal, bypassing atexit processing.
+** This signal can also produce a core dump on POSIX platforms.
 **
 ** Use fossil_fatal() for malformed inputs that should be reported back
 ** to the user, but which do not represent a configuration problem or bug.
 **
 ** Use fossil_panic() for any kind of error that should be brought to the
-** attention of the system administrator.
+** attention of the system administrator or Fossil developers. It should
+** be avoided for ordinary usage, parameter, OOM and I/O errors.
 */
 NORETURN void fossil_panic(const char *zFormat, ...){
   va_list ap;
@@ -1232,7 +1233,7 @@ void fossil_warning(const char *zFormat, ...){
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    assert(json_is_bootstrapped_early());
+    if( !json_is_bootstrapped_early() ) json_bootstrap_early();
     json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif

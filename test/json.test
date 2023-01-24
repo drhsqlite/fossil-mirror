@@ -36,7 +36,10 @@ if {[normalize_result] ne "1"} {
 # teacup install json
 # teacup install json::write
 if {[catch {package require json}] != 0} then {
-  puts "The \"json\" package is not available."
+  puts {
+The "json" package for Tcl is not available.
+Please see: https://core.tcl-lang.org/tcllib
+}
   test_cleanup_then_return
 }
 
@@ -57,7 +60,7 @@ if {$JR eq ""} {
   test_cleanup_then_return
 }
 test json-1 {[dict exists $JR resultCode]
-             && [dict get $JR resultCode] eq "FOSSIL-4102"}
+             && [dict get $JR resultCode] in "FOSSIL-3002 FOSSIL-4102"}
 
 # Use the CLI interface to execute a JSON command. Sets the global
 # RESULT to the response text, and JR to a Tcl dict conversion of the

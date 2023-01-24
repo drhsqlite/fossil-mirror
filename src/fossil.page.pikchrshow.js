@@ -1,10 +1,18 @@
 (function(F/*the fossil object*/){
   "use strict";
   /**
-     Client-side implementation of the /pikchrshow app. Requires that
+     Client-side implementation of the /pikchrshowcs app. Requires that
      the fossil JS bootstrapping is complete and that these fossil JS
      APIs have been installed: fossil.fetch, fossil.dom,
      fossil.copybutton, fossil.popupwidget, fossil.storage
+
+     Maintenance funkiness note: this file is for the legacy
+     /pikchrshowcs app, which was formerly named /pikchrshow.  This
+     file and its replacement were not renamed because the replacement
+     impl would end up getting this file's name and cause confusion in
+     the file history. Whether that confusion would be less than this
+     file's name matching the _other_ /pikchrshow impl will cause more
+     or less confusion than that remains to be seen.
   */
   const E = (s)=>document.querySelector(s),
         D = F.dom,
@@ -100,9 +108,14 @@
               P.e.markupAlignWrapper );
 
     ////////////////////////////////////////////////////////////
-    // Trigger preview on Ctrl-Enter.
+    // Trigger preview on Shift-Enter.
     P.e.taContent.addEventListener('keydown',function(ev){
-      if(ev.ctrlKey && 13 === ev.keyCode) P.preview();
+      if(ev.shiftKey && 13 === ev.keyCode){
+        ev.preventDefault();
+        ev.stopPropagation();
+        P.preview();
+        return false;
+      }
     }, false);
 
     ////////////////////////////////////////////////////////////
@@ -387,6 +400,7 @@
       break;
     }
     this.e.previewModeLabel.innerText = label;
+    this.e.taContent.focus(/*not sure why this gets lost on preview!*/);
   };
 
   /**
@@ -499,7 +513,7 @@ ellipse "ellipse" at 1in right of previous
 
 # second row of objects
 OVAL1: oval "oval" at 1in below first box
-oval "(tall &amp;" "thin)" "oval" width OVAL1.height height OVAL1.width \
+oval "(tall &" "thin)" "oval" width OVAL1.height height OVAL1.width \
     at 1in right of previous
 cylinder "cylinder" at 1in right of previous
 file "file" at 1in right of previous
@@ -586,7 +600,7 @@ C1: circle same as A1 at B1-(0,$laneh) "1"
     arrow right 0.8in "goes" "offline"
 C5: circle same as A3 "5"
     arrow right until even with first ellipse.w \
-      "back online" above "pushes 5" below "pulls 3 &amp; 4" below
+      "back online" above "pushes 5" below "pulls 3 & 4" below
     ellipse same "future"
 
     # content for the Darlene lane

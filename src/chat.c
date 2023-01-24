@@ -49,33 +49,29 @@
 ** alert-sounds/\*.{mp3,ogg,wav} are included.
 */
 static void chat_emit_alert_list(void){
-  /*Stmt q = empty_Stmt;*/
   unsigned int i;
   const char * azBuiltins[] = {
   "builtin/alerts/plunk.wav",
-  "builtin/alerts/b-flat.wav"
+  "builtin/alerts/bflat2.wav",
+  "builtin/alerts/bflat3.wav",
+  "builtin/alerts/bloop.wav"
   };
   CX("window.fossil.config.chat.alerts = [\n");
   for(i=0; i < sizeof(azBuiltins)/sizeof(azBuiltins[0]); ++i){
     CX("%s%!j", i ? ", " : "", azBuiltins[i]);
   }
-#if 0
-  /*
-  ** 2021-01-05 temporarily disabled until we decide whether we're
-  ** going to keep configurable audio files or not. If we do, this
-  ** code needs to check whether the [unversioned] table exists before
-  ** querying it.
-  */
-  db_prepare(&q, "SELECT 'uv/'||name FROM unversioned "
-             "WHERE content IS NOT NULL "
-             "AND (name LIKE 'alert-sounds/%%.wav' "
-             "OR name LIKE 'alert-sounds/%%.mp3' "
-             "OR name LIKE 'alert-sounds/%%.ogg')");
-  while(SQLITE_ROW==db_step(&q)){
-    CX(", %!j", db_column_text(&q, 0));
+  if( db_table_exists("repository","unversioned") ){
+    Stmt q = empty_Stmt;
+    db_prepare(&q, "SELECT 'uv/'||name FROM unversioned "
+               "WHERE content IS NOT NULL "
+               "AND (name LIKE 'alert-sounds/%%.wav' "
+               "OR name LIKE 'alert-sounds/%%.mp3' "
+               "OR name LIKE 'alert-sounds/%%.ogg')");
+    while(SQLITE_ROW==db_step(&q)){
+      CX(", %!j", db_column_text(&q, 0));
+    }
+    db_finalize(&q);
   }
-  db_finalize(&q);
-#endif
   CX("\n];\n");
 }
 
@@ -131,10 +127,23 @@ static void chat_emit_alert_list(void){
 ** SETTING: chat-alert-sound     width=10
 **
 ** This is the name of the builtin sound file to use for the alert tone.
-** The value must be the name of one of a builtin WAV file.
+** The value must be the name of a builtin WAV file.
 */
 /*
-** WEBPAGE: chat
+** SETTING: chat-timeline-user    width=10
+**
+** If this setting is defined and is not an empty string, then
+** timeline events are posted to the chat as they arrive. The synthesized
+** chat messages appear to come from the user identified by this setting,
+** not the user on the timeline event.
+**
+** All chat messages that come from the chat-timeline-user are
+** interpreted as text/x-fossil-wiki instead of as text/x-markdown.
+** For this reason, the chat-timeline-user name should probably not be
+** a real user.
+*/
+/*
+** WEBPAGE: chat loadavg-exempt
 **
 ** Start up a browser-based chat session.
 **
@@ -147,6 +156,26 @@ static void chat_emit_alert_list(void){
 */
 void chat_webpage(void){
   char *zAlert;
+  char *zProjectName;
+  char * zInputPlaceholder0;  /* Common text input placeholder value */
+  const char *zPaperclip =
+    "<svg height=\"8.0\" width=\"16.0\"><path "
+    "stroke=\"rgb(100,100,100)\" "
+    "d=\"M 15.93452,3.2530441 "
+    "A 4.1499493,4.1265346 0 0 0 11.804809,6.5256284e-4 H 2.8582923 A "
+    "2.8239899,2.8080565 0 0 0 0.68965668,0.96142476 2.874599,2.8583801 "
+    "0 0 0 0.03119302,3.2388108 2.7632589,2.7476682 0 0 0 "
+    "0.81132923,4.7689293 3.168132,3.1502569 0 0 0 3.0300653,5.66565 l "
+    "7.7297897,-4e-7 a 1.6802234,1.6707433 0 0 0 0.0072,-3.3377933 H "
+    "5.6138192 v 1.0105899 l 5.1460358,-0.00712 a 0.66804062,0.66427143 "
+    "0 0 1 0,1.3237305 l -7.7226325,0.00712 A 2.0243655,2.0129437 0 0 1 "
+    "1.0332029,3.0964741 1.8522944,1.8418435 0 0 1 2.8511351,1.0041257 h "
+    "8.9465169 a 3.1478884,3.1301275 0 0 1 3.134859,2.4339559 3.0365483,"
+    "3.0194156 0 0 1 -0.629835,2.4908908 3.0365483,3.0194156 0 0 1 "
+    "-2.31178,1.0746415 l -7.5437026,-0.014233 -0.00716,1.0034736 "
+    "7.5365456,0.00715 a 4.048731,4.0258875 0 0 0 3.957938,-4.7469259 z\""
+    "/></svg>";
+
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
@@ -154,47 +183,81 @@ void chat_webpage(void){
   }
   zAlert = mprintf("%s/builtin/%s", g.zBaseURL,
                 db_get("chat-alert-sound","alerts/plunk.wav"));
+  zProjectName = db_get("project-name","Unnamed project");
+  zInputPlaceholder0 =
+    mprintf("Type markdown-formatted message for %h.", zProjectName);
   style_set_current_feature("chat");
   style_header("Chat");
-  @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
-  @   <div id='chat-input-line'>
-  @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="Type message here." autocomplete="off">
-  @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="Type message here. Ctrl-Enter sends it." \
-  @      class="hidden"></textarea>
-  @     <input type="submit" value="Send" id="chat-message-submit">
-  @     <button id="chat-scroll-top" class="hidden">&uarr;</button>
-  @     <button id="chat-scroll-bottom" class="hidden">&darr;</button>
-  @     <span id="chat-settings-button" class="settings-icon" \
-  @       aria-label="Settings..." aria-haspopup="true" ></span>
+  @   <div id='chat-input-line-wrapper' class='compact'>
+  @     <input type="text" id="chat-input-field-single" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class="chat-input-field"></input>
+  @     <textarea id="chat-input-field-multi" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class="chat-input-field hidden"></textarea>
+  @     <div contenteditable id="chat-input-field-x" \
+  @      data-placeholder0="%h(zInputPlaceholder0)" \
+  @      data-placeholder="%h(zInputPlaceholder0)" \
+  @      class="chat-input-field hidden"></div>
+  @     <div id='chat-buttons-wrapper'>
+  @       <span class='cbutton' id="chat-button-preview" \
+  @         title="Preview message (Shift-Enter)">&#128065;</span>
+  @       <span class='cbutton' id="chat-button-attach" \
+  @         title="Attach file to message">%s(zPaperclip)</span>
+  @       <span class='cbutton' id="chat-button-settings" \
+  @         title="Configure chat">&#9881;</span>
+  @       <span class='cbutton' id="chat-button-submit" \
+  @         title="Send message (Ctrl-Enter)">&#128228;</span>
+  @     </div>
   @   </div>
   @   <div id='chat-input-file-area'>
-  @     <div class='file-selection-wrapper'>
-  @       <div class='help-buttonlet'>
-  @        Select a file to upload, drag/drop a file into this spot,
-  @        or paste an image from the clipboard if supported by
-  @        your environment.
-  @       </div>
+  @     <div class='file-selection-wrapper hidden'>
   @       <input type="file" name="file" id="chat-input-file">
   @     </div>
   @     <div id="chat-drop-details"></div>
   @   </div>
   @ </div>
-  @ </form>
-  @ <div id='chat-messages-wrapper'>
+  @ <div id='chat-user-list-wrapper' class='hidden'>
+  @   <div class='legend'>
+  @     <span class='help-buttonlet'>
+  @      Users who have messages in the currently-loaded list.<br><br>
+  @      <strong>Tap a user name</strong> to filter messages
+  @      on that user and tap again to clear the filter.<br><br>
+  @      <strong>Tap the title</strong> of this widget to toggle
+  @      the list on and off.
+  @     </span>
+  @     <span>Active users (sorted by last message time)</span>
+  @   </div>
+  @   <div id='chat-user-list'></div>
+  @ </div>
+  @ <div id='chat-preview' class='hidden chat-view'>
+  @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
+  @  <div id='chat-preview-content' class='message-widget-content'></div>
+  @  <div id='chat-preview-buttons'><button id='chat-preview-close'>Close Preview</button></div>
+  @ </div>
+  @ <div id='chat-config' class='hidden chat-view'>
+  @ <div id='chat-config-options'></div>
+    /* ^^^populated client-side */
+  @ <button>Close Settings</button>
+  @ </div>
+  @ <div id='chat-messages-wrapper' class='chat-view'>
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
-
-  builtin_fossil_js_bundle_or("popupwidget", "storage", NULL);
+  fossil_free(zProjectName);
+  fossil_free(zInputPlaceholder0);
+  builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch",
+                              "pikchr", "confirmer", "copybutton",
+                              NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
   /* We need an onload handler to ensure that window.fossil is
      initialized before the chat init code runs. */
   @ window.addEventListener('load', function(){
-  @ document.body.classList.add('chat')
+  @ document.body.classList.add('chat');
   @ /*^^^for skins which add their own BODY tag */;
   @ window.fossil.config.chat = {
   @   fromcli: %h(PB("cli")?"true":"false"),
@@ -202,11 +265,11 @@ void chat_webpage(void){
   @   initSize: %d(db_get_int("chat-initial-history",50)),
   @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
   @ };
+  ajax_emit_js_preview_modes(0);
   chat_emit_alert_list();
-  cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);
   @ </script>
-
+  builtin_request_js("fossil.page.chat.js");
   style_finish_page();
 }
 
@@ -215,14 +278,14 @@ void chat_webpage(void){
 static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(
 @   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
-@   mtime JULIANDAY,       -- Time for this entry - Julianday Zulu
-@   lmtime TEXT,           -- Localtime when message originally sent
-@   xfrom TEXT,            -- Login of the sender
-@   xmsg  TEXT,            -- Raw, unformatted text of the message
-@   fname TEXT,            -- Filename of the uploaded file, or NULL
-@   fmime TEXT,            -- MIMEType of the upload file, or NULL
-@   mdel INT,              -- msgid of another message to delete
-@   file  BLOB             -- Text of the uploaded file, or NULL
+@   mtime JULIANDAY,  -- Time for this entry - Julianday Zulu
+@   lmtime TEXT,      -- Client YYYY-MM-DDZHH:MM:SS when message originally sent
+@   xfrom TEXT,       -- Login of the sender
+@   xmsg  TEXT,       -- Raw, unformatted text of the message
+@   fname TEXT,       -- Filename of the uploaded file, or NULL
+@   fmime TEXT,       -- MIMEType of the upload file, or NULL
+@   mdel INT,         -- msgid of another message to delete
+@   file  BLOB        -- Text of the uploaded file, or NULL
 @ );
 ;
 
@@ -285,7 +348,7 @@ static void chat_emit_permissions_error(int fAsMessageList){
   CX("\"isError\": true, \"xfrom\": null,");
   CX("\"mtime\": %!j, \"lmtime\": %!j,", zTime, zTime);
   CX("\"xmsg\": \"Missing permissions or not logged in. "
-     "Try <a href='%R/login?g=%R/chat'>logging in</a>.\"");
+     "Try <a href='%R/login?g=chat'>logging in</a>.\"");
   if(fAsMessageList){
     CX("}]}");
   }else{
@@ -295,7 +358,7 @@ static void chat_emit_permissions_error(int fAsMessageList){
 }
 
 /*
-** WEBPAGE: chat-send
+** WEBPAGE: chat-send hidden loadavg-exempt
 **
 ** This page receives (via XHR) a new chat-message and/or a new file
 ** to be entered into the chat history.
@@ -305,26 +368,41 @@ static void chat_emit_permissions_error(int fAsMessageList){
 ** it emits a JSON response in the same form as described for
 ** /chat-poll errors, but as a standalone object instead of a
 ** list of objects.
+**
+** Requests to this page should be POST, not GET.  POST parameters
+** include:
+**
+**    msg        The (Markdown) text of the message to be sent
+**
+**    file       The content of the file attachment
+**
+**    lmtime     ISO-8601 formatted date-time string showing the local time
+**               of the sender.
+**
+** At least one of the "msg" or "file" POST parameters must be provided.
 */
 void chat_send_webpage(void){
   int nByte;
   const char *zMsg;
+  const char *zUserName;
   login_check_credentials();
-  if( !g.perm.Chat ) {
+  if( 0==g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
   }
   chat_create_tables();
+  zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
+  db_unprotect(PROTECT_READONLY);
   chat_purge();
   if( nByte==0 ){
     if( zMsg[0] ){
       db_multi_exec(
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
         "VALUES(julianday('now'),%Q,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg
+        P("lmtime"), zUserName, zMsg
       );
     }
   }else{
@@ -333,7 +411,7 @@ void chat_send_webpage(void){
     db_prepare(&q,
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg,file,fname,fmime)"
         "VALUES(julianday('now'),%Q,%Q,%Q,:file,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg, PD("file:filename",""),
+        P("lmtime"), zUserName, zMsg, PD("file:filename",""),
         PD("file:mimetype","application/octet-stream"));
     blob_init(&b, P("file"), nByte);
     db_bind_blob(&q, ":file", &b);
@@ -341,80 +419,35 @@ void chat_send_webpage(void){
     db_finalize(&q);
     blob_reset(&b);
   }
+  db_protect_pop();
   db_commit_transaction();
 }
 
 /*
-** This routine receives raw (user-entered) message text and transforms
-** it into HTML that is safe to insert using innerHTML.
-**
-**    *   HTML in the original text is escaped.
-**
-**    *   Hyperlinks are identified and tagged.  Hyperlinks are:
-**
-**          -  Undelimited text of the form https:... or http:...
-**          -  Any text enclosed within [...]
+** This routine receives raw (user-entered) message text and
+** transforms it into HTML that is safe to insert using innerHTML. As
+** of 2021-09-19, it does so by using wiki_convert() or
+** markdown_to_html() to convert wiki/markdown-formatted zMsg to HTML.
 **
 ** Space to hold the returned string is obtained from fossil_malloc()
 ** and must be freed by the caller.
 */
-static char *chat_format_to_html(const char *zMsg){
-  char *zSafe = mprintf("%h", zMsg);
-  int i, j, k;
+static char *chat_format_to_html(const char *zMsg, int isWiki){
   Blob out;
-  char zClose[20];
-  blob_init(&out, 0, 0);
-  for(i=j=0; zSafe[i]; i++){
-    if( zSafe[i]=='[' ){
-      for(k=i+1; zSafe[k] && zSafe[k]!=']'; k++){}
-      if( zSafe[k]==']' ){
-        zSafe[k] = 0;
-        if( j<i ){
-          blob_append(&out, zSafe + j, i-j);
-          j = i;
-        }
-        blob_append_char(&out, '[');
-        wiki_resolve_hyperlink(&out,
-                               WIKI_NOBADLINKS|WIKI_TARGET_BLANK|WIKI_NOBRACKET,
-                               zSafe+i+1, zClose, sizeof(zClose), zSafe, 0);
-        zSafe[k] = ']';
-        j++;
-        blob_append(&out, zSafe + j, k - j);
-        blob_append(&out, zClose, -1);
-        blob_append_char(&out, ']');
-        i = k;
-        j = k+1;
-        continue;
-      }
-    }else if( zSafe[i]=='h' 
-           && (strncmp(zSafe+i,"http:",5)==0
-               || strncmp(zSafe+i,"https:",6)==0) ){
-      for(k=i+1; zSafe[k] && !fossil_isspace(zSafe[k]); k++){}
-      if( k>i+7 ){
-        char c = zSafe[k];
-        if( !fossil_isalnum(zSafe[k-1]) && zSafe[k-1]!='/' ){
-          k--;
-          c = zSafe[k];
-        }
-        if( j<i ){
-          blob_append(&out, zSafe + j, i-j);
-          j = i;
-        }
-        zSafe[k] = 0;        
-        wiki_resolve_hyperlink(&out, WIKI_NOBADLINKS|WIKI_TARGET_BLANK,
-                               zSafe+i, zClose, sizeof(zClose), zSafe, 0);
-        zSafe[k] = c;
-        blob_append(&out, zSafe + j, k - j);
-        blob_append(&out, zClose, -1);
-        i = j = k;
-        continue;
-      }
-    }
+  blob_init(&out, "", 0);
+  if( zMsg==0 || zMsg[0]==0 ){
+    /* No-op */
+  }else if( isWiki ){
+    /* Used for chat-timeline-user.  The zMsg is text/x-fossil-wiki. */
+    Blob bIn;
+    blob_init(&bIn, zMsg, (int)strlen(zMsg));
+    wiki_convert(&bIn, &out, WIKI_INLINE);
+  }else{
+    /* The common case:  zMsg is text/x-markdown */
+    Blob bIn;
+    blob_init(&bIn, zMsg, (int)strlen(zMsg));
+    markdown_to_html(&bIn, NULL, &out);
   }
-  if( j<i ){
-    blob_append(&out, zSafe+j, j-i);
-  }
-  fossil_free(zSafe);
   return blob_str(&out);
 }
 
@@ -434,14 +467,14 @@ void chat_test_formatter_cmd(void){
   db_find_and_open_repository(0,0);
   g.perm.Hyperlink = 1;
   for(i=0; i<g.argc; i++){
-    zOut = chat_format_to_html(g.argv[i]);
+    zOut = chat_format_to_html(g.argv[i], 0);
     fossil_print("[%d]: %s\n", i, zOut);
     fossil_free(zOut);
   }
 }
 
 /*
-** WEBPAGE: chat-poll
+** WEBPAGE: chat-poll hidden loadavg-exempt
 **
 ** The chat page generated by /chat using an XHR to this page to
 ** request new chat content.  A typical invocation is:
@@ -476,6 +509,11 @@ void chat_test_formatter_cmd(void){
 **
 ** If "before" is provided, "name" is ignored.
 **
+** If "raw" is provided, the "xmsg" text is sent back as-is, in
+** markdown format, rather than being HTML-ized. This is not used or
+** supported by fossil's own chat client but is intended for 3rd-party
+** clients. (Specifically, for Brad Harder's curses-based client.)
+**
 ** The reply from this webpage is JSON that describes the new content.
 ** Format of the json:
 **
@@ -483,8 +521,8 @@ void chat_test_formatter_cmd(void){
 ** |      "msgs":[
 ** |        {
 ** |           "msgid": integer // message id
-** |           "mtime": text    // When sent:  YYYY-MM-DD HH:MM:SS UTC
-** |           "lmtime: text    // Localtime where the message was sent from
+** |           "mtime": text    // When sent: YYYY-MM-DDTHH:MM:SSZ
+** |           "lmtime: text    // Sender's client-side YYYY-MM-DDTHH:MM:SS
 ** |           "xfrom": text    // Login name of sender
 ** |           "uclr":  text    // Color string associated with the user
 ** |           "xmsg":  text    // HTML text of the message
@@ -503,7 +541,7 @@ void chat_test_formatter_cmd(void){
 **
 ** The "mdel" will only exist if "xmsg" is an empty string and "fsize" is zero.
 **
-** The "lmtime" value might be known, in which case it is omitted.
+** The "lmtime" value might be unknown, in which case it is omitted.
 **
 ** The messages are ordered oldest first unless "before" is provided, in which
 ** case they are sorted newest first (to facilitate the client-side UI update).
@@ -532,9 +570,13 @@ void chat_poll_webpage(void){
   sqlite3_int64 dataVersion;  /* Data version.  Used for polling. */
   const int iDelay = 1000;    /* Delay until next poll (milliseconds) */
   int nDelay;                 /* Maximum delay.*/
+  const char *zChatUser;      /* chat-timeline-user */
+  int isWiki = 0;             /* True if chat message is x-fossil-wiki */
   int msgid = atoi(PD("name","0"));
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
+  const int bRaw = P("raw")!=0;
+
   Blob sql = empty_blob;
   Stmt q1;
   nDelay = db_get_int("chat-poll-timeout",420);  /* Default about 7 minutes */
@@ -543,6 +585,7 @@ void chat_poll_webpage(void){
     chat_emit_permissions_error(1);
     return;
   }
+  zChatUser = db_get("chat-timeline-user",0);
   chat_create_tables();
   cgi_set_content_type("application/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
@@ -602,12 +645,25 @@ void chat_poll_webpage(void){
       if( zLMtime && zLMtime[0] ){
         blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
       }
-      blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
-      blob_appendf(&json, "\"uclr\":%!j,", user_color(zFrom));
+      blob_append(&json, "\"xfrom\":", -1);
+      if(zFrom){
+        blob_appendf(&json, "%!j,", zFrom);
+        isWiki = fossil_strcmp(zFrom,zChatUser)==0;
+      }else{
+        /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+        blob_appendf(&json, "null,");
+        isWiki = 0;
+      }
+      blob_appendf(&json, "\"uclr\":%!j,",
+                 isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
 
-      zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
-      blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
-      fossil_free(zMsg);
+      if(bRaw){
+        blob_appendf(&json, "\"xmsg\":%!j,", zRawMsg);
+      }else{
+        zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "", isWiki);
+        blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
+        fossil_free(zMsg);
+      }
 
       if( nByte==0 ){
         blob_appendf(&json, "\"fsize\":0");
@@ -643,18 +699,117 @@ void chat_poll_webpage(void){
 }
 
 /*
-** WEBPAGE: chat-download
+** WEBPAGE: chat-fetch-one hidden loadavg-exempt
+**
+** /chat-fetch-one/N
+**
+** Fetches a single message with the given ID, if available.
+**
+** Options:
+**
+**   raw = the xmsg field will be returned unparsed.
+**
+** Response is either a single object in the format returned by
+** /chat-poll (without the wrapper array) or a JSON-format error
+** response, as documented for ajax_route_error().
+*/
+void chat_fetch_one(void){
+  Blob json = empty_blob;   /* The json to be constructed and returned */
+  const int fRaw = PD("raw",0)!=0;
+  const int msgid = atoi(PD("name","0"));
+  const char *zChatUser;
+  int isWiki;
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Chat ) {
+    chat_emit_permissions_error(0);
+    return;
+  }
+  zChatUser = db_get("chat-timeline-user",0);
+  chat_create_tables();
+  cgi_set_content_type("application/json");
+  db_prepare(&q, 
+    "SELECT datetime(mtime), xfrom, xmsg, length(file),"
+    "       fname, fmime, lmtime"
+    "  FROM chat WHERE msgid=%d AND mdel IS NULL",
+    msgid);
+  if(SQLITE_ROW==db_step(&q)){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zFrom = db_column_text(&q, 1);
+    const char *zRawMsg = db_column_text(&q, 2);
+    const int nByte = db_column_int(&q, 3);
+    const char *zFName = db_column_text(&q, 4);
+    const char *zFMime = db_column_text(&q, 5);
+    const char *zLMtime = db_column_text(&q, 7);
+    blob_appendf(&json,"{\"msgid\": %d,", msgid);
+
+    blob_appendf(&json, "\"mtime\":\"%.10sT%sZ\",", zDate, zDate+11);
+    if( zLMtime && zLMtime[0] ){
+      blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
+    }
+    blob_append(&json, "\"xfrom\":", -1);
+    if(zFrom){
+      blob_appendf(&json, "%!j,", zFrom);
+      isWiki = fossil_strcmp(zFrom, zChatUser)==0;
+    }else{
+      /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+      blob_appendf(&json, "null,");
+      isWiki = 0;
+    }
+    blob_appendf(&json, "\"uclr\":%!j,",
+                 isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
+    blob_append(&json,"\"xmsg\":", 7);
+    if(fRaw){
+      blob_appendf(&json, "%!j,", zRawMsg);
+    }else{
+      char * zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "", isWiki);
+      blob_appendf(&json, "%!j,", zMsg);
+      fossil_free(zMsg);
+    }
+    if( nByte==0 ){
+      blob_appendf(&json, "\"fsize\":0");
+    }else{
+      blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
+                   nByte, zFName, zFMime);
+    }    
+    blob_append(&json,"}",1);
+    cgi_set_content(&json);
+  }else{
+    ajax_route_error(404,"Chat message #%d not found.", msgid);
+  }
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE: chat-download hidden loadavg-exempt
 **
 ** Download the CHAT.FILE attachment associated with a single chat
 ** entry.  The "name" query parameter begins with an integer that
 ** identifies the particular chat message. The integer may be followed
-** by a / and a filename, which will indicate to the browser to use
-** the indicated name when saving the file.
+** by a / and a filename, which will (A) indicate to the browser to
+** use the indicated name when saving the file and (B) be used to
+** guess the mimetype in some particular cases involving the "render"
+** flag.
+**
+** If the "render" URL parameter is provided, the blob has a size
+** greater than zero, and blob meets one of the following conditions
+** then the fossil-rendered form of that content is returned, rather
+** than the original:
+**
+** - Mimetype is text/x-markdown or text/markdown: emit HTML.
+**
+** - Mimetype is text/x-fossil-wiki or P("name") ends with ".wiki":
+**   emit HTML.
+**
+** - Mimetype is text/x-pikchr or P("name") ends with ".pikchr": emit
+**   image/svg+xml if rendering succeeds or text/html if rendering
+**   fails.
 */
 void chat_download_webpage(void){
   int msgid;
   Blob r;
   const char *zMime;
+  const char *zName = PD("name","0");
   login_check_credentials();
   if( !g.perm.Chat ){
     style_header("Chat Not Authorized");
@@ -665,18 +820,51 @@ void chat_download_webpage(void){
     return;
   }
   chat_create_tables();
-  msgid = atoi(PD("name","0"));
+  msgid = atoi(zName);
   blob_zero(&r);
   zMime = db_text(0, "SELECT fmime FROM chat wHERE msgid=%d", msgid);
   if( zMime==0 ) return;
   db_blob(&r, "SELECT file FROM chat WHERE msgid=%d", msgid);
+  if( r.nUsed>0 && P("render")!=0 ){
+    /* Maybe return fossil-rendered form of the content. */
+    Blob r2 = BLOB_INITIALIZER;    /* output target for rendering */
+    const char * zMime2 = 0;       /* adjusted response mimetype */
+    if(fossil_strcmp(zMime, "text/x-markdown")==0
+       /* Firefox uploads md files with the mimetype text/markdown */
+       || fossil_strcmp(zMime, "text/markdown")==0){
+      markdown_to_html(&r, 0, &r2);
+      safe_html(&r2);
+      zMime2 = "text/html";
+    }else if(fossil_strcmp(zMime, "text/x-fossil-wiki")==0
+             || sqlite3_strglob("*.wiki", zName)==0){
+      /* .wiki files get uploaded as application/octet-stream */
+      wiki_convert(&r, &r2, 0);
+      zMime2 = "text/html";
+    }else if(fossil_strcmp(zMime, "text/x-pikchr")==0
+             || sqlite3_strglob("*.pikchr",zName)==0){
+      /* .pikchr files get uploaded as application/octet-stream */
+      const char *zPikchr = blob_str(&r);
+      int w = 0, h = 0;
+      char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
+      if(zOut){
+        blob_append(&r2, zOut, -1);
+      }
+      zMime2 = w>0 ? "image/svg+xml" : "text/html";
+      free(zOut);
+    }
+    if(r2.aData!=0){
+      blob_swap(&r, &r2);
+      blob_reset(&r2);
+      zMime = zMime2;
+    }
+  }
   cgi_set_content_type(zMime);
   cgi_set_content(&r);
 }
 
 
 /*
-** WEBPAGE: chat-delete
+** WEBPAGE: chat-delete hidden loadavg-exempt
 **
 ** Delete the chat entry identified by the name query parameter.
 ** Invoking fetch("chat-delete/"+msgid) from javascript in the client
@@ -686,7 +874,9 @@ void chat_download_webpage(void){
 ** a new entry with the current timestamp and with:
 **
 **   *  xmsg = NULL
+**
 **   *  file = NULL
+**
 **   *  mdel = The msgid of the row that was deleted
 **
 ** This new entry will then be propagated to all listeners so that they
@@ -714,6 +904,116 @@ void chat_delete_webpage(void){
 }
 
 /*
+** WEBPAGE: chat-backup hidden
+**
+** Download an SQLite database containing all chat content with a
+** message-id larger than the "msgid" query parameter.  Setup
+** privilege is required to use this URL.
+**
+** This is used to implement the "fossil chat pull" command.
+*/
+void chat_backup_webpage(void){
+  int msgid;
+  unsigned char *pDb = 0;
+  sqlite3_int64 szDb = 0;
+  Blob chatDb;
+  login_check_credentials();
+  if( !g.perm.Setup ) return;
+  msgid = atoi(PD("msgid","0"));
+  db_multi_exec(
+    "ATTACH ':memory:' AS mem1;\n"
+    "PRAGMA mem1.page_size=512;\n"
+    "CREATE TABLE mem1.chat AS SELECT * FROM repository.chat WHERE msgid>%d;\n",
+    msgid
+  );
+  pDb = sqlite3_serialize(g.db, "mem1", &szDb, 0);
+  if( pDb==0 ){
+    fossil_fatal("Out of memory");
+  }
+  blob_init(&chatDb, (const char*)pDb, (int)szDb);
+  cgi_set_content_type("application/x-sqlite3");
+  cgi_set_content(&chatDb);
+}
+
+/*
+** SQL Function: chat_msg_from_event(TYPE,OBJID,USER,MSG)
+**
+** This function returns HTML text that describes an entry from the EVENT
+** table (that is, a timeline event) for display in chat.  Parameters:
+**
+**    TYPE         The event type.  'ci', 'w', 't', 'g', and so forth
+**    OBJID        EVENT.OBJID
+**    USER         coalesce(EVENT.EUSER,EVENT.USER)
+**    MSG          coalesce(EVENT.ECOMMENT, EVENT.COMMENT)
+**
+** This function is intended to be called by the temp.chat_trigger1 trigger
+** which is created by alert_create_trigger() routine.
+*/
+void chat_msg_from_event(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zType = (const char*)sqlite3_value_text(argv[0]);
+  int rid = sqlite3_value_int(argv[1]);
+  const char *zUser = (const char*)sqlite3_value_text(argv[2]);
+  const char *zMsg = (const char*)sqlite3_value_text(argv[3]);
+  char *zRes = 0;
+  
+  if( zType==0 || zUser==0 || zMsg==0 ) return;
+  if( zType[0]=='c' ){
+    /* Check-ins */
+    char *zBranch;
+    char *zUuid;
+
+    zBranch = db_text(0,
+       "SELECT value FROM tagxref"
+       " WHERE tagxref.rid=%d"
+       "   AND tagxref.tagid=%d"
+       "   AND tagxref.tagtype>0",
+       rid, TAG_BRANCH);
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    zRes = mprintf("%W (check-in: <a href='%R/info/%S'>%S</a>, "
+                   "user: <a href='%R/timeline?u=%t&c=%S'>%h</a>, "
+                   "branch: <a href='%R/timeline?r=%t&c=%S'>%h</a>)",
+             zMsg,
+             zUuid, zUuid,
+             zUser, zUuid, zUser,
+             zBranch, zUuid, zBranch
+    );
+    fossil_free(zBranch);
+    fossil_free(zUuid);
+  }else if( zType[0]=='w' ){
+    /* Wiki page changes */
+    char *zUuid;
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    wiki_hyperlink_override(zUuid);
+    if( zMsg[0]=='-' ){
+      zRes = mprintf("Delete wiki page <a href='%R/whistory?name=%t'>%h</a>",
+         zMsg+1, zMsg+1);
+    }else if( zMsg[0]=='+' ){
+      zRes = mprintf("Added wiki page <a href='%R/whistory?name=%t'>%h</a>",
+         zMsg+1, zMsg+1);
+    }else if( zMsg[0]==':' ){
+      zRes = mprintf("<a href='%R/wdiff?id=%!S'>Changes</a> to wiki page "
+                     "<a href='%R/whistory?name=%t'>%h</a>",
+         zUuid, zMsg+1, zMsg+1);
+    }else{
+      zRes = mprintf("%W", zMsg);
+    }
+    wiki_hyperlink_override(0);
+    fossil_free(zUuid);
+  }else{
+    /* Anything else */
+    zRes = mprintf("%W", zMsg);
+  }
+  if( zRes ){
+    sqlite3_result_text(context, zRes, -1, fossil_free);
+  }
+}
+
+
+/*
 ** COMMAND: chat
 **
 ** Usage: %fossil chat [SUBCOMMAND] [--remote URL] [ARGS...]
@@ -725,13 +1025,27 @@ void chat_delete_webpage(void){
 ** Fossil repository and the --remote option is omitted, then this
 ** command fails with an error.
 **
-** When there is no SUBCOMMAND (when this command is simply "fossil chat")
-** the response is to bring up a web-browser window to the chatroom
-** on the default system web-browser.  You can accomplish the same by
-** typing the appropriate URL into the web-browser yourself.  This
-** command is merely a convenience for command-line oriented people.
+** Subcommands:
 **
-** The following subcommands are supported:
+** > fossil chat
+**
+**      When there is no SUBCOMMAND (when this command is simply "fossil chat")
+**      the response is to bring up a web-browser window to the chatroom
+**      on the default system web-browser.  You can accomplish the same by
+**      typing the appropriate URL into the web-browser yourself.  This
+**      command is merely a convenience for command-line oriented people.
+**
+** > fossil chat pull
+**
+**      Copy chat content from the server down into the local clone,
+**      as a backup or archive.  Setup privilege is required on the server.
+**
+**        --all                  Download all chat content. Normally only
+**                               previously undownloaded content is retrieved.
+**        --debug                Additional debugging output
+**        --out DATABASE         Store CHAT table in separate database file
+**                               DATABASE rather that adding to local clone
+**        --unsafe               Allow the use of unencrypted http://
 **
 ** > fossil chat send [ARGUMENTS]
 **
@@ -739,8 +1053,15 @@ void chat_delete_webpage(void){
 **      to be sent is determined by arguments as follows:
 **
 **        -f|--file FILENAME     File to attach to the message
+**        --as FILENAME2         Causes --file FILENAME to be sent with
+**                               the attachment name FILENAME2
 **        -m|--message TEXT      Text of the chat message
+**        --remote URL           Send to this remote URL
 **        --unsafe               Allow the use of unencrypted http://
+**
+** > fossil chat url
+**
+**      Show the default URL used to access the chat server.
 **
 ** Additional subcommands may be added in the future.
 */
@@ -791,6 +1112,7 @@ void chat_command(void){
     fossil_system(zCmd);
   }else if( strcmp(g.argv[2],"send")==0 ){
     const char *zFilename = find_option("file","r",1);
+    const char *zAs = find_option("as",0,1);
     const char *zMsg = find_option("message","m",1);
     int allowUnsafe = find_option("unsafe",0,0)!=0;
     const int mFlags = HTTP_GENERIC | HTTP_QUIET | HTTP_NOCOMPRESS;
@@ -840,9 +1162,9 @@ void chat_command(void){
                        "\r\n%s\r\n%s", zMsg, zBoundary);
     }
     if( zFilename && blob_read_from_file(&fcontent, zFilename, ExtFILE)>0 ){
-      char *zFN = mprintf("%s", file_tail(zFilename));
+      char *zFN = mprintf("%s", file_tail(zAs ? zAs : zFilename));
       int i;
-      const char *zMime = mimetype_from_name(zFilename);
+      const char *zMime = mimetype_from_name(zFN);
       for(i=0; zFN[i]; i++){
         char c = zFN[i];
         if( fossil_isalnum(c) ) continue;
@@ -868,8 +1190,76 @@ void chat_command(void){
       fossil_fatal("unable to send the chat message");
     }
     blob_reset(&down);
+  }else if( strcmp(g.argv[2],"pull")==0 ){
+    /* Pull the CHAT table from the default server down into the repository
+    ** here on the local side */
+    int allowUnsafe = find_option("unsafe",0,0)!=0;
+    int bDebug = find_option("debug",0,0)!=0;
+    const char *zOut = find_option("out",0,1);
+    int bAll = find_option("all",0,0)!=0;
+    int mFlags = HTTP_GENERIC | HTTP_QUIET | HTTP_NOCOMPRESS;
+    int msgid;
+    Blob reqUri;    /* The REQUEST_URI:  .../chat-backup?msgid=... */
+    char *zObs;
+    const char *zPw;
+    Blob up, down;
+    int nChat;
+    int rc;
+    verify_all_options();
+    chat_create_tables();
+    msgid = bAll ? 0 : db_int(0,"SELECT max(msgid) FROM chat");
+    if( !g.url.isHttps && !allowUnsafe ){
+      fossil_fatal("URL \"%s\" is unencrypted. Use https:// instead", zUrl);
+    }
+    blob_init(&reqUri, g.url.path, -1);
+    blob_appendf(&reqUri, "/chat-backup?msgid=%d", msgid);
+    if( g.url.user && g.url.user[0] ){
+      zObs = obscure(g.url.user);
+      blob_appendf(&reqUri, "&resid=%t", zObs);
+      fossil_free(zObs);
+    }
+    zPw = g.url.passwd;
+    if( zPw==0 && isDefaultUrl ) zPw = unobscure(db_get("last-sync-pw", 0));
+    if( zPw && zPw[0] ){
+      zObs = obscure(zPw);
+      blob_appendf(&reqUri, "&token=%t", zObs);
+      fossil_free(zObs);
+    }
+    g.url.path = blob_str(&reqUri);
+    if( bDebug ){
+      fossil_print("REQUEST_URI: %s\n", g.url.path);
+      mFlags &= ~HTTP_QUIET;
+      mFlags |= HTTP_VERBOSE;
+    }
+    blob_init(&up, 0, 0);
+    blob_init(&down, 0, 0);
+    http_exchange(&up, &down, mFlags, 4, 0);
+    if( zOut ){
+      blob_write_to_file(&down, zOut);
+      fossil_print("Chat database at %s is %d bytes\n", zOut, blob_size(&down));
+    }else{
+      db_multi_exec("ATTACH ':memory:' AS chatbu;");
+      if( g.fSqlTrace ){
+        fossil_trace("-- deserialize(\"chatbu\", pData, %d);\n",
+                     blob_size(&down));
+      }
+      rc = sqlite3_deserialize(g.db, "chatbu",
+                            (unsigned char*)blob_buffer(&down),
+                             blob_size(&down), blob_size(&down), 0);
+      if( rc ){
+        fossil_fatal("cannot open patch database: %s", sqlite3_errmsg(g.db));
+      }
+      nChat = db_int(0, "SELECT count(*) FROM chatbu.chat");
+      fossil_print("Got %d new records, %d bytes\n", nChat, blob_size(&down));
+      db_multi_exec(
+        "REPLACE INTO repository.chat(msgid,mtime,lmtime,xfrom,xmsg,"
+                                     "fname,fmime,mdel,file)"
+        " SELECT msgid,mtime,lmtime,xfrom,xmsg,fname,fmime,mdel,file"
+          " FROM chatbu.chat;"
+      );
+    }
   }else if( strcmp(g.argv[2],"url")==0 ){
-    /* Undocumented command.  Show the URL to access chat. */
+    /* Show the URL to access chat. */
     fossil_print("%s/chat\n", zUrl);
   }else{
     fossil_fatal("no such subcommand \"%s\".  Use --help for help", g.argv[2]);

@@ -5,9 +5,9 @@ look and feel works fine in many situations.  However, you may want to change
 the look and feel (the "skin") of Fossil to better suite your own individual tastes.
 This document provides background information to aid you in that task.
 
-## <a name="builtin"></a>Built-in Skins
+## <a id="builtin"></a>Built-in Skins
 
-Fossil comes with multiple built-in skins.  If the default skin does not
+Fossil comes with [multiple built-in skins](/skins).  If the default skin does not
 suite your tastes, perhaps one of the other built-in skins will work better.
 If nothing else, the built-in skins can serve as examples or templates that
 you can use to develop your own custom skin.
@@ -27,7 +27,7 @@ subfolders holding at least these five files:
 Try out the built-in skins by using the --skin option on the
 [fossil ui](/help?cmd=ui) or [fossil server](/help?cmd=server) commands.
 
-## <a name="sharing"></a>Sharing Skins
+## <a id="sharing"></a>Sharing Skins
 
 The skin of a repository is not part of the versioned state and does not
 "push" or "pull" like checked-in files.  The skin is local to the
@@ -137,7 +137,24 @@ to close out the generated HTML:
         </body>
         </html>
 
-## <a name="override"></a>Overriding the HTML Header and Footer
+## <a id="mainmenu"></a>Changing the Main Menu Contents
+
+As of Fossil 2.15, the actual text content of the skin’s main menu is no
+longer part of the skin proper if you’re using one of the stock skins.
+If you look at the Header section of the skin, you’ll find a
+`<div class="mainmenu">` element whose contents are set by a short
+[TH1](./th1.md) script from the contents of the **Main Menu** section of
+the Setup → Configuration screen.
+
+This feature allows the main menu contents to stay the same across
+different skins, so you no longer have to reapply menu customizations
+when trying different skins.
+
+See the [`capexpr`](./th1.md#capexpr) section of the TH1 docs for help
+on interpreting the default contents of this block.
+
+
+## <a id="override"></a>Overriding the HTML Header and Footer
 
 Notice that the `<html>`, `<head>`, and opening `<body>` 
 elements at the beginning of the document,
@@ -223,7 +240,7 @@ part of the overall web page.</dd>
 <dt><b>js.txt</b></dt><dd>
 
 <p>The js.txt file is optional.  It is intended to be javascript.
-The complete text of this javascript is might be inserted into
+The complete text of this javascript might be inserted into
 the Content Footer, after being processed using TH1, using
 code like the following in the "footer.txt" file:
 
@@ -301,7 +318,7 @@ did not change.  After you have finished work your skin, the
 caches should synchronize with your new design and you can reactivate
 your web browser's cache and take it out of developer mode.
 
-## <a name="headfoot"></a>Header and Footer Processing
+## <a id="headfoot"></a>Header and Footer Processing
 
 The `header.txt` and `footer.txt` control files of a skin are the HTML text
 of the Content Header and Content Footer, except that before being inserted
@@ -333,13 +350,13 @@ The same TH1 interpreter is used for both the header and the footer
 and for all scripts contained within them both.  Hence, any global
 TH1 variables that are set by the header are available to the footer.
 
-## <a name="menu"></a>Customizing the ≡ Hamburger Menu
+## <a id="menu"></a>Customizing the ≡ Hamburger Menu
 
 The menu bar of the default skin has an entry to open a drop-down menu with
 additional navigation links, represented by the ≡ button (hence the name
 "hamburger menu"). The Javascript logic to open and close the hamburger menu
 when the button is clicked is usually handled by a script named
-"hbmenu.js" that is one of the [built-in resource files](/test-builtin-list)
+"hbmenu.js" that is one of the [built-in resource files](/test-builtin-files)
 that are part of Fossil.
 
 The ≡ button for the hamburger menu is added to the menu bar by the following
@@ -397,7 +414,7 @@ A faster animation duration of 80-200 ms may be preferred for smaller menus. The
 animation is disabled by setting the attribute to `"0"`.
 
 
-## <a name="vars"></a>TH1 Variables
+## <a id="vars"></a>TH1 Variables
 
 Before expanding the TH1 within the header and footer, Fossil first
 initializes a number of TH1 variables to values that depend on
@@ -474,7 +491,7 @@ as constants.  New predefined values are likely to be added in future
 releases of Fossil.
 
 
-## <a name="procedure"></a>Suggested Skin Customization Procedure
+## <a id="procedure"></a>Suggested Skin Customization Procedure
 
 Developers are free, of course, to develop new skins using any method they
 want, but the following is a technique that has worked well in the past and

@@ -1,13 +1,16 @@
 # System autoconfiguration. Try: ./configure --help
 
+# This must be above "options" below because it implicitly brings in the
+# default Autosetup options, things like --prefix.
 use cc cc-lib
 
 options {
     with-openssl:path|auto|tree|none
                          => {Look for OpenSSL in the given path, automatically, in the source tree, or none}
-    with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path|auto|tree
                          => {Look for zlib in the given path, automatically, or in the source tree}
+    with-sqlite:path|auto|tree
+                         => {Look for sqlite in the given path, automatically, or in the source tree.}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-sanitizer:      => {Build with C compiler's -fsanitize=LIST; e.g. address,enum,null,undefined}
@@ -19,12 +22,27 @@ options {
                          => {Enable Tcl integration via private stubs mechanism}
     with-mman=0          => {Enable use of POSIX memory APIs from "sys/mman.h"}
     with-see=0           => {Enable the SQLite Encryption Extension (SEE)}
+    print-minimum-sqlite-version=0
+                         => {print the minimum SQLite version number required, and exit}
     internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
     fusefs=1             => {Disable the Fuse Filesystem}
     fossil-debug=0       => {Build with fossil debugging enabled}
     no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
+    with-emsdk:path      => {Directory containing the Emscripten SDK}
+}
+
+# Update the minimum required SQLite version number here, and also
+# in src/main.c near the sqlite3_libversion_number() call.  Take care
+# that both places agree!
+define MINIMUM_SQLITE_VERSION "3.38.0"
+
+# This is useful for people wanting Fossil to use an external SQLite library
+# to compare the one they have against the minimum required
+if {[opt-bool print-minimum-sqlite-version]} {
+    puts [get-define MINIMUM_SQLITE_VERSION]
+    exit 0
 }
 
 # sqlite wants these types if possible
@@ -37,7 +55,7 @@ define USE_PREAD [cc-check-functions pread]
 
 # If we have cscope here, we'll use it in the "tags" target
 if {[cc-check-progs cscope]} {
-    define COLLECT_CSCOPE_DATA "cscope -bR -s$::autosetup(srcdir)/src"
+    define COLLECT_CSCOPE_DATA "cscope -bR $::autosetup(srcdir)/src/*.\[ch\]"
 } else {
     define COLLECT_CSCOPE_DATA ""
 }
@@ -84,9 +102,17 @@ define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
-define FOSSIL_ENABLE_MINIZ 0
 define USE_MMAN_H 0
 define USE_SEE 0
+define SQLITE3_ORIGIN 0
+# SQLITE3_ORIGIN 0 = src/sqlite3, 1=src/sqlite3-see.c, 2=client-provided
+
+# Maintain the C89/C90-style order of variable declarations before statements.
+# Check if the compiler supports the respective warning flag.
+if {[cctest -cflags -Wdeclaration-after-statement]} {
+    define-append EXTRA_CFLAGS -Wdeclaration-after-statement
+}
+
 
 # This procedure is a customized version of "cc-check-function-in-lib",
 # that does not modify the LIBS variable.  Its use prevents prematurely
@@ -156,13 +182,16 @@ if {![opt-bool internal-sqlite]} {
   proc test_system_sqlite {} {
     # Check compatibility of the system SQLite library by running the sqlcompttest.c
     # program in the source tree
+    # passes MINIMUM_SQLITE_VERSION set at the top of this file to sqlcompttest.c
     #
     set cmdline {}
     lappend cmdline {*}[get-define CCACHE]
     lappend cmdline {*}[get-define CC] {*}[get-define CFLAGS]
-    lappend cmdline $::autosetup(dir)/../src/sqlcompattest.c -o conftest__
+    lappend cmdline $::autosetup(dir)/../tools/sqlcompattest.c -o conftest__
     lappend cmdline {*}[get-define LDFLAGS]
     lappend cmdline {*}[get-define LIBS]
+    set sqlite-version [string cat "-D MINIMUM_SQLITE_VERSION=" [get-define MINIMUM_SQLITE_VERSION]]
+    lappend cmdline {*}[set sqlite-version]
     set ok 1
     set err [catch {exec-with-stderr {*}$cmdline} result errinfo]
     if {$err} {
@@ -206,7 +235,7 @@ if {[is_mingw]} {
 }
 
 if {[string match *-solaris* [get-define host]]} {
-    define-append EXTRA_CFLAGS {-D_XOPEN_SOURCE=500 -D__EXTENSIONS__}
+    define-append EXTRA_CFLAGS {-D__EXTENSIONS__}
 }
 
 if {[opt-bool fossil-debug]} {
@@ -218,6 +247,9 @@ if {[opt-bool fossil-debug]} {
 if {[opt-bool no-opt]} {
     define CFLAGS {-g -O0 -Wall}
     msg-result "Builting without compiler optimization"
+    if {[opt-bool fossil-debug]} {
+        define-append CFLAGS -DFOSSIL_DEBUG
+    }
 }
 
 if {[opt-bool with-mman]} {
@@ -229,6 +261,7 @@ if {[opt-bool with-mman]} {
 if {[opt-bool with-see]} {
     define-append EXTRA_CFLAGS -DUSE_SEE
     define USE_SEE 1
+    define SQLITE3_ORIGIN 1
     msg-result "Enabling encryption support"
 }
 
@@ -312,41 +345,35 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
     }
 }
 
-if {[opt-bool with-miniz]} {
-    define FOSSIL_ENABLE_MINIZ 1
-    msg-result "Using miniz for compression"
+# Check for zlib, using the given location if specified
+set zlibpath [opt-val with-zlib]
+if {$zlibpath eq "tree"} {
+  set zlibdir [file dirname $autosetup(dir)]/compat/zlib
+  if {![file isdirectory $zlibdir]} {
+    user-error "The zlib in source tree directory does not exist"
+  } elseif { ([llength [glob -nocomplain -directory $zlibdir libz*]] == 0) } {
+    user-error "With --with-zlib=tree, $zlibdir must be configured and built first."
+  }
+  cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
+  define-append EXTRA_CFLAGS -I$zlibdir
+  define-append LIBS $zlibdir/libz.a
+  set ::zlib_lib $zlibdir/libz.a
+  msg-result "Using zlib in source tree"
 } else {
-    # Check for zlib, using the given location if specified
-    set zlibpath [opt-val with-zlib]
-    if {$zlibpath eq "tree"} {
-        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-        if {![file isdirectory $zlibdir]} {
-            user-error "The zlib in source tree directory does not exist"
-        }
-        cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
-        define-append EXTRA_CFLAGS -I$zlibdir
-        define-append LIBS $zlibdir/libz.a
-        set ::zlib_lib $zlibdir/libz.a
-        msg-result "Using zlib in source tree"
-    } else {
-        if {$zlibpath ni {auto ""}} {
-            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-            define-append EXTRA_CFLAGS -I$zlibpath
-            define-append EXTRA_LDFLAGS -L$zlibpath
-            msg-result "Using zlib from $zlibpath"
-        }
-        if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
-            user-error "zlib not found please install it or specify the location with --with-zlib"
-        }
-        set ::zlib_lib -lz
-    }
+  if {$zlibpath ni {auto ""}} {
+    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+    define-append EXTRA_CFLAGS -I$zlibpath
+    define-append EXTRA_LDFLAGS -L$zlibpath
+    msg-result "Using zlib from $zlibpath"
+  }
+  if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
+    user-error "zlib not found please install it or specify the location with --with-zlib"
+  }
+  set ::zlib_lib -lz
 }
 
 set ssldirs [opt-val with-openssl]
 if {$ssldirs ne "none"} {
-    if {[opt-bool with-miniz]} {
-        user-error "The --with-miniz option is incompatible with OpenSSL"
-    }
     set found 0
     if {$ssldirs eq "tree"} {
         set ssldir [file dirname $autosetup(dir)]/compat/openssl
@@ -420,6 +447,76 @@ if {$ssldirs ne "none"} {
         define-append LIBS $::zlib_lib
     }
 }
+
+
+
+########################################################################
+# --with-sqlite=PATH checks for the first it finds of the following...
+# - PATH/sqlite3.c and PATH/sqlite3.h
+# - PATH/sqlite3.o (and assumes sqlite3.h is with it)
+# - PATH/lib/libsqlite3* and PATH/include/sqlite3.h
+define CFLAGS_INCLUDE {}
+# ^^^ CFLAGS_INCLUDE is ONLY for -I... flags and their order is
+# significant so that --with-sqlite=PATH's header can shadow our
+# own. One caveat with this is that we cannot point --with-sqlite=PATH
+# to the root of sqlite3's own build tree because that dir has a
+# config.h which ends up shadowing src/config.h, breaking our build.
+set sq3path [opt-val with-sqlite]
+define SQLITE3_SRC.2 {}
+define SQLITE3_OBJ.2 {}
+define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
+if {$sq3path in {tree ""}} {
+  msg-result "Using sqlite3.c from this source tree."
+} else {
+  # SQLITE3_ORIGIN:
+  #   0 = local source tree
+  #   1 = use external lib or sqlite3.o
+  #   2 = use external sqlite3.c and (if found) shell.c
+  define USE_SYSTEM_SQLITE 1
+  define SQLITE3_ORIGIN 2
+  if {$sq3path != "auto"} {
+    if {([file exists $sq3path/sqlite3.c]) && \
+        ([file exists $sq3path/sqlite3.h]) } {
+      # Prefer sqlite3.[ch] if found.
+      define SQLITE3_SRC.2 $sq3path/sqlite3.c
+      define SQLITE3_OBJ.2 {$(SQLITE3_OBJ.0)}
+      define USE_SYSTEM_SQLITE 2
+      define SQLITE3_ORIGIN 2
+      if {[file exists $sq3path/shell.c]} {
+        define SQLITE3_SHELL_SRC.2 $sq3path/shell.c
+      }
+      define-append CFLAGS_INCLUDE -I$sq3path
+      define-append EXTRA_LDFLAGS -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using sqlite3.c and sqlite3.h from $sq3path"
+    } elseif {[file exists $sq3path/sqlite3.o]} {
+      # Use sqlite3.o if found.
+      define SQLITE3_OBJ.2 $sq3path/sqlite3.o
+      define-append CFLAGS_INCLUDE -I$sq3path
+      define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using sqlite3.o from $sq3path"
+    } elseif { ([llength [glob -nocomplain -directory $sq3path/lib libsqlite3*]] != 0) \
+                 && ([file exists $sq3path/include/sqlite3.h]) } {
+      # e.g. --with-sqlite=/usr/local. Try $sq3path/lib/libsqlite3*
+      # and $sq3path/include/sqlite3.h
+      define-append CFLAGS_INCLUDE -I$sq3path/include
+      define-append EXTRA_LDFLAGS -L$sq3path/lib -lsqlite3 -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using -lsqlite3 from $sq3path"
+    } else {
+      # Assume $sq3path holds both the lib and header
+      cc-with [list -cflags "-I$sq3path -L$sq3path"]
+      define-append CFLAGS_INCLUDE -I$sq3path
+      define-append EXTRA_LDFLAGS -L$sq3path -lsqlite3 -lpthread
+      # ^^^ additional -lXXX flags are conservative estimates
+      msg-result "Using -lsqlite3 from $sq3path"
+    }
+  } elseif {![cc-check-includes sqlite3.h] || ![check-function-in-lib sqlite3_open_v2 sqlite3]} {
+    user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
+  }
+}
+define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}
 
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {
@@ -541,6 +638,33 @@ if {$tclpath ne ""} {
     define FOSSIL_ENABLE_TCL
 }
 
+# Emscripten is a purely optional component used only for doing
+# in-tree builds of WASM stuff, as opposed to WASM binaries we import
+# from other places. This is only set up for Unix-style OSes and is
+# untested anywhere but Linux.
+set emsdkHome [opt-val with-emsdk]
+define EMSDK_HOME ""
+define EMSDK_ENV ""
+define EMCC_OPT "-Oz"
+if {$emsdkHome eq "" && [info exists ::env(EMSDK)]} {
+  # Fall back to checking the environment. $EMSDK gets set
+  # by sourcing emsdk_env.sh.
+  set emsdkHome $::env(EMSDK)
+}
+if {$emsdkHome ne ""} {
+  define EMSDK_HOME $emsdkHome
+  set emsdkEnv "$emsdkHome/emsdk_env.sh"
+  if {[file exists $emsdkEnv]} {
+    puts "Using Emscripten SDK environment from $emsdkEnv."
+    define EMSDK_ENV $emsdkEnv
+    if {[info exists ::env(EMCC_OPT)]} {
+      define EMCC_OPT $::env(EMCC_OPT)
+    }
+  } else {
+    puts "emsdk_env.sh not found. Assuming emcc is in the PATH."
+  }
+}
+
 # Network functions require libraries on some systems
 cc-check-function-in-lib gethostbyname nsl
 if {![cc-check-function-in-lib socket {socket network}]} {
@@ -634,6 +758,24 @@ if {[opt-bool static]} {
     define-append LIBS -lpthread
 }
 
+if {[get-define EMSDK_HOME] ne ""} {
+  define EMCC_WRAPPER $::autosetup(dir)/../tools/emcc.sh
+  make-template tools/emcc.sh.in
+  catch {exec chmod u+x tools/emcc.sh}
+} else {
+  define EMCC_WRAPPER ""
+  catch {exec rm -f tools/emcc.sh}
+}
+
+# Tag container builds with a prefix of the checkin ID of the version
+# of Fossil each one contains.  This not only allows multiple images
+# to coexist and multiple containers to be created unamgiguosly from
+# them, it also changes the URL we fetch the source tarball from, so
+# repeated builds of a given version generate and fetch the source
+# tarball once only, keeping it in the local Docker/Podman cache.
+set ci [readfile "$::autosetup(srcdir)/manifest.uuid"]
+define FOSSIL_CI_PFX [string range $ci 0 11]
+make-template containers/os-release.in
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

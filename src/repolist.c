@@ -33,6 +33,7 @@ struct RepoInfo {
                         ** for the repository list.  2 means do use this
                         ** repository but do not display it in the list. */
   char *zProjName;      /* Project Name.  Memory from fossil_malloc() */
+  char *zLoginGroup;    /* Name of login group, or NULL.  Malloced() */
   double rMTime;        /* Last update.  Julian day number */
 };
 #endif
@@ -50,6 +51,7 @@ static void remote_repo_info(RepoInfo *pRepo){
   pRepo->isRepolistSkin = 0;
   pRepo->isValid = 0;
   pRepo->zProjName = 0;
+  pRepo->zLoginGroup = 0;
   pRepo->rMTime = 0.0;
 
   g.dbIgnoreErrors++;
@@ -70,6 +72,13 @@ static void remote_repo_info(RepoInfo *pRepo){
   if( rc ) goto finish_repo_list;
   if( sqlite3_step(pStmt)==SQLITE_ROW ){
     pRepo->zProjName = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
+  }
+  sqlite3_finalize(pStmt);
+  rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
+                              " WHERE name='login-group-name'",
+                          -1, &pStmt, 0);
+  if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+    pRepo->zLoginGroup = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
   }
   sqlite3_finalize(pStmt);
   rc = sqlite3_prepare_v2(db, "SELECT max(mtime) FROM event", -1, &pStmt, 0);
@@ -151,10 +160,11 @@ int repo_list_page(void){
     double rNow;
     blob_append_sql(&html,
       "<table border='0' class='sortable' data-init-sort='1'"
-      " data-column-types='txtxk'><thead>\n"
+      " data-column-types='txtxkxt'><thead>\n"
       "<tr><th>Filename<th width='20'>"
       "<th>Project Name<th width='20'>"
-      "<th>Last Modified</tr>\n"
+      "<th>Last Modified<th width='20'>"
+      "<th>Login Group</tr>\n"
       "</thead><tbody>\n");
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
@@ -166,7 +176,7 @@ int repo_list_page(void){
       char *zAge;
       char *zFull;
       RepoInfo x;
-      int iAge;
+      sqlite3_int64 iAge;
       if( nName<7 ) continue;
       zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
       if( zName[0]=='/'
@@ -197,9 +207,18 @@ int repo_list_page(void){
         ** scan lists, but included in "fossil all ui" lists */
         continue;
       }
-      iAge = (rNow - x.rMTime)*86400;
-      if( iAge<0 ) x.rMTime = rNow;
+      if( rNow <= x.rMTime ){
+        x.rMTime = rNow;
+      }else if( x.rMTime<0.0 ){
+        x.rMTime = rNow;
+      }
+      iAge = (sqlite3_int64)((rNow - x.rMTime)*86400);
       zAge = human_readable_age(rNow - x.rMTime);
+      if( x.rMTime==0.0 ){
+        /* This repository has no entry in the "event" table.
+        ** Its age will still be maximum, so data-sortkey will work. */
+        zAge = mprintf("unknown");
+      }
       blob_append_sql(&html, "<tr><td valign='top'>");
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
@@ -213,6 +232,26 @@ int repo_list_page(void){
         blob_append_sql(&html,
           "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
           zUrl, zName);
+      }else if( sqlite3_strglob("*/*.fossil", zName)==0 ){
+        /* As described in
+        ** https://fossil-scm.org/forum/info/f50f647c97c72fc1: if
+        ** foo.fossil and foo/bar.fossil both exist and we create a
+        ** link to foo/bar/... then the URI dispatcher will instead
+        ** see that as a link to foo.fossil. In such cases, do not
+        ** emit a link to foo/bar.fossil. */
+        char * zDirPart = file_dirname(zName);
+        if( db_exists("SELECT 1 FROM sfile "
+                      "WHERE pathname=(%Q || '.fossil') COLLATE nocase",
+                      zDirPart) ){
+          blob_append_sql(&html,
+            "<s>%h</s> (directory/repo name collision)\n",
+            zName);
+        }else{
+          blob_append_sql(&html,
+            "<a href='%R/%T/home' target='_blank'>%h</a>\n",
+            zUrl, zName);
+        }
+        fossil_free(zDirPart);
       }else{
         blob_append_sql(&html,
           "<a href='%R/%T/home' target='_blank'>%h</a>\n",
@@ -225,9 +264,15 @@ int repo_list_page(void){
         blob_append_sql(&html, "<td></td><td></td>\n");
       }
       blob_append_sql(&html,
-        "<td></td><td data-sortkey='%08x'>%h</tr>\n",
+        "<td></td><td data-sortkey='%08x'>%h</td>\n",
         iAge, zAge);
       fossil_free(zAge);
+      if( x.zLoginGroup ){
+        blob_append_sql(&html, "<td></td><td>%h</td></tr>\n", x.zLoginGroup);
+        fossil_free(x.zLoginGroup);
+      }else{
+        blob_append_sql(&html, "<td></td><td></td></tr>\n");
+      }
       sqlite3_free(zUrl);
     }
     db_finalize(&q);
@@ -242,7 +287,7 @@ int repo_list_page(void){
     fossil_free(zSkinUrl);
   }
   if( g.repositoryOpen ){
-    /* This case runs if remote_repository_info() found a repository
+    /* This case runs if remote_repo_info() found a repository
     ** that has the "repolist_skin" property set to non-zero and left
     ** that repository open in g.db.  Use the skin of that repository
     ** for display. */

@@ -19,14 +19,14 @@
   if(!tbl) return /* no matching elements */;
   const F = window.fossil, D = F.dom;
   const tdLn = tbl.querySelector('td.line-numbers');
-  const lineState = {
-    urlArgs: (window.location.search||'?')
+  const urlArgsRaw = (window.location.search||'?')
       .replace(/&?\budc=[^&]*/,'') /* "update display prefs cookie" */
       .replace(/&?\bln=[^&]*/,'') /* inbound line number/range */
-      .replace('?&','?'),
-    start: 0, end: 0
-  };
-
+      .replace('?&','?');
+  var urlArgsDecoded = urlArgsRaw;
+  try{urlArgsDecoded = decodeURIComponent(urlArgsRaw);}
+  catch{}
+  const lineState = { urlArgs: urlArgsDecoded, start: 0, end: 0 };
   const lineTip = new F.PopupWidget({
     style: {
       cursor: 'pointer'

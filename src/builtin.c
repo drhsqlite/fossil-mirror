@@ -132,16 +132,15 @@ void test_builtin_get(void){
 
 /*
 ** Input zList is a list of numeric identifiers for files in
-** aBuiltinFiles[].  Return the concatenation of all of those
-** files using mimetype zType, or as application/javascript if
-** zType is 0.
+** aBuiltinFiles[].  Return the concatenation of all of those files
+** using mimetype zType, or as text/javascript if zType is 0.
 */
 static void builtin_deliver_multiple_js_files(
   const char *zList,   /* List of numeric identifiers */
   const char *zType    /* Override mimetype */
 ){
   Blob *pOut;
-  if( zType==0 ) zType = "application/javascript";
+  if( zType==0 ) zType = "text/javascript";
   cgi_set_content_type(zType);
   pOut = cgi_output_blob();
   while( zList[0] ){
@@ -151,14 +150,14 @@ static void builtin_deliver_multiple_js_files(
       blob_append(pOut, (const char*)aBuiltinFiles[i-1].pData,
                   aBuiltinFiles[i-1].nByte);
     }
-    while( fossil_isdigit(zList[0]) ) zList++;
-    if( zList[0]==',' ) zList++;
+    while( zList[0] && fossil_isdigit(zList[0]) ) zList++;
+    while( zList[0] && !fossil_isdigit(zList[0]) ) zList++;
   }
   return;
 }
 
 /*
-** WEBPAGE: builtin
+** WEBPAGE: builtin loadavg-exempt
 **
 ** Return one of many built-in content files.  Query parameters:
 **
@@ -205,7 +204,7 @@ void builtin_webpage(void){
   }
   if( zType==0 ){
     if( sqlite3_strglob("*.js", zName)==0 ){
-      zType = "application/javascript";
+      zType = "text/javascript";
     }else{
       zType = mimetype_from_name(zName);
     }
@@ -233,6 +232,8 @@ static struct {
 
 #if INTERFACE
 /* Various delivery mechanisms.  The 0 option is the default.
+** MAINTENANCE NOTE: Review/update the builtin_set_js_delivery_mode() and
+** builtin_get_js_delivery_mode_name() functions if values are changed/added.
 */
 #define JS_INLINE   0    /* inline, batched together at end of file */
 #define JS_SEPARATE 1    /* Separate HTTP request for each JS file */
@@ -269,6 +270,26 @@ void builtin_set_js_delivery_mode(const char *zMode, int bSilent){
 */
 int builtin_get_js_delivery_mode(void){
   return builtin.eDelivery;
+}
+
+/*
+** Returns the name of the current JS delivery mode for reuse with the --jsmode
+** option, i.e. the other way around than builtin_set_js_delivery_mode().
+*/
+const char *builtin_get_js_delivery_mode_name(void){
+  switch( builtin.eDelivery ){
+    case JS_SEPARATE: {
+      return "separate";
+    }
+    case JS_BUNDLED: {
+      return "bundled";
+    }
+    case JS_INLINE:
+      /*FALLTHROUGH*/
+    default: {
+      return "inline";
+    }
+  }
 }
 
 /*
@@ -465,7 +486,7 @@ static int builtinVtabColumn(
   int i                       /* Which column to return */
 ){
   builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
-  const struct BuiltinFileTable *pFile = aBuiltinFiles + pCur->iRowid;
+  const struct BuiltinFileTable *pFile = aBuiltinFiles + pCur->iRowid - 1;
   switch( i ){
     case 0:  /* name */
       sqlite3_result_text(ctx, pFile->zName, -1, SQLITE_STATIC);
@@ -496,7 +517,7 @@ static int builtinVtabRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
 */
 static int builtinVtabEof(sqlite3_vtab_cursor *cur){
   builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
-  return pCur->iRowid>=count(aBuiltinFiles);
+  return pCur->iRowid>count(aBuiltinFiles);
 }
 
 /*
@@ -625,6 +646,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("/* Length of UUID hashes for display purposes. */");
     CX("hashDigits: %d, hashDigitsUrl: %d,\n",
        hash_digits(0), hash_digits(1));
+    CX("diffContextLines: %d,\n",
+       diff_context_lines(0));
     CX("editStateMarkers: {"
        "/*Symbolic markers to denote certain edit states.*/"
        "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
@@ -704,6 +727,7 @@ static int builtin_emit_fossil_js_once(const char * zName){
   /* This list ordering isn't strictly important. */
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
+  {"diff",           0, "dom\0fetch\0"},
   {"dom",            0, 0},
   {"fetch",          0, 0},
   {"numbered-lines", 0, "popupwidget\0copybutton\0"},

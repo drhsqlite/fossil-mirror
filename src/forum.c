@@ -385,6 +385,9 @@ void forum_render(
 **
 ** Space to hold the returned name is obtained from fossil_strdup() or
 ** mprintf() and should be freed by the caller.
+**
+** HTML markup within the reply has been property escaped.  Hyperlinks
+** may have been added.  The result is safe for use with %s.
 */
 static char *display_name_from_login(const char *zLogin){
   static Stmt q;
@@ -396,12 +399,15 @@ static char *display_name_from_login(const char *zLogin){
   if( db_step(&q)==SQLITE_ROW && db_column_type(&q,0)==SQLITE_TEXT ){
     const char *zDisplay = db_column_text(&q,0);
     if( fossil_strcmp(zDisplay,zLogin)==0 ){
-      zResult = fossil_strdup(zLogin);
+      zResult = mprintf("%z%h</a>",
+                  href("%R/timeline?ss=v&y=f&vfx&u=%t",zLogin),zLogin);
     }else{
-      zResult = mprintf("%s (%s)", zDisplay, zLogin);
+      zResult = mprintf("%s (%z%h</a>)", zDisplay,
+                  href("%R/timeline?ss=v&y=f&vfx&u=%t",zLogin),zLogin);
     }
   }else{
-    zResult = fossil_strdup(zLogin);
+    zResult = mprintf("%z%h</a>",
+                href("%R/timeline?ss=v&y=f&vfx&u=%t",zLogin),zLogin);
   }
   db_reset(&q);
   return zResult;
@@ -416,6 +422,9 @@ static char *display_name_from_login(const char *zLogin){
 ** Memory to hold the display name is attached to p->zDisplayName
 ** and will be freed together with the ForumPost object p when it
 ** is freed.
+**
+** The returned text has had all HTML markup escaped and is safe for
+** use within %s.
 */
 static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
   Manifest *pToFree = 0;
@@ -483,32 +492,33 @@ static void forum_display_post(
     **    *  The post was last edited by a different person
     */
     if( p->pEditHead ){
-      zDate = db_text(0, "SELECT datetime(%.17g)", p->pEditHead->rDate);
+      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", 
+                      p->pEditHead->rDate);
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
       zEditorName = zPosterName;
     }
-    zDate = db_text(0, "SELECT datetime(%.17g)", p->rDate);
+    zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", p->rDate);
     if( p->pEditPrev ){
       zPosterName = forum_post_display_name(p->pEditHead, 0);
       zEditorName = forum_post_display_name(p, pManifest);
-      zHist = bHist ? "" : "&hist";
+      zHist = bHist ? "" : zQuery[0]==0 ? "?hist" : "&hist";
       @ <h3 class='forumPostHdr'>(%d(p->sid)\
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
-        @ By %h(zPosterName) on %h(zDate) edited from \
-        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ By %s(zPosterName) on %h(zDate) edited from \
+        @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }else{
-        @ Originally by %h(zPosterName) \
-        @ with edits by %h(zEditorName) on %h(zDate) from \
-        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ Originally by %s(zPosterName) \
+        @ with edits by %s(zEditorName) on %h(zDate) from \
+        @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
       @ <h3 class='forumPostHdr'>(%d(p->sid)) \
-      @ By %h(zPosterName) on %h(zDate)
+      @ By %s(zPosterName) on %h(zDate)
     }
     fossil_free(zDate);
 
@@ -521,7 +531,7 @@ static void forum_display_post(
 
     /* If this is a reply, refer back to the parent post. */
     if( p->pIrt ){
-      @ in reply to %z(href("%R/forumpost/%S?%s",p->pIrt->zUuid,zQuery))\
+      @ in reply to %z(href("%R/forumpost/%S%s",p->pIrt->zUuid,zQuery))\
       @ %d(p->pIrt->sid)\
       if( p->pIrt->nEdit ){
         @ .%0*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
@@ -531,19 +541,19 @@ static void forum_display_post(
 
     /* If this post was later edited, refer forward to the next edit. */
     if( p->pEditNext ){
-      @ updated by %z(href("%R/forumpost/%S?%s",p->pEditNext->zUuid,zQuery))\
+      @ updated by %z(href("%R/forumpost/%S%s",p->pEditNext->zUuid,zQuery))\
       @ %d(p->pEditNext->sid)\
       @ .%0*d(fossil_num_digits(p->nEdit))(p->pEditNext->rev)</a>
     }
 
     /* Provide a link to select the individual post. */
     if( !bSelect ){
-      @ %z(href("%R/forumpost/%S?%s",p->zUuid,zQuery))[link]</a>
+      @ %z(href("%R/forumpost/%!S%s",p->zUuid,zQuery))[link]</a>
     }
 
     /* Provide a link to the raw source code. */
     if( !bUnf ){
-      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
+      @ %z(href("%R/forumpost/%!S?raw",p->zUuid))[source]</a>
     }
     @ </h3>
   }
@@ -624,15 +634,17 @@ static void forum_display_thread(
   int froot,            /* Forum thread root post ID */
   int fpid,             /* Selected forum post ID, or 0 if none selected */
   int mode,             /* Forum display mode, one of the FD_* enumerations */
+  int autoMode,         /* mode was selected automatically */
   int bUnf,             /* True if rendering unformatted */
   int bHist             /* True if showing edit history, ignored for FD_RAW */
 ){
   ForumThread *pThread; /* Thread structure */
   ForumPost *pSelect;   /* Currently selected post, or NULL if none */
   ForumPost *p;         /* Post iterator pointer */
-  char *zQuery;         /* Common query string */
+  char zQuery[30];      /* Common query string */
   int iIndentScale = 4; /* Indent scale factor, measured in "ex" units */
   int sid;              /* Comparison serial ID */
+  int i;
 
   /* In raw mode, force unformatted display and disable history. */
   if( mode == FD_RAW ){
@@ -667,9 +679,36 @@ static void forum_display_thread(
   }
 
   /* Create the common query string to append to nearly all post links. */
-  zQuery = mode==FD_RAW ? 0 : mprintf("t=%c%s%s",
-      mode==FD_SINGLE ? 's' : mode==FD_CHRONO ? 'c' : 'h',
-      bUnf ? "&unf" : "", bHist ? "&hist" : "");
+  i = 0;
+  if( !autoMode ){
+    char m = 'a';
+    switch( mode ){
+      case FD_RAW:     m = 'r';  break;
+      case FD_CHRONO:  m = 'c';  break;
+      case FD_HIER:    m = 'h';  break;
+      case FD_SINGLE:  m = 's';  break;
+    }
+    zQuery[i++] = '?';
+    zQuery[i++] = 't';
+    zQuery[i++] = '=';
+    zQuery[i++] = m;
+  }
+  if( bUnf ){
+    zQuery[i] =  i==0 ? '?' : '&'; i++;
+    zQuery[i++] = 'u';
+    zQuery[i++] = 'n';
+    zQuery[i++] = 'f';
+  }
+  if( bHist ){
+    zQuery[i] = i==0 ? '?' : '&'; i++;
+    zQuery[i++] = 'h';
+    zQuery[i++] = 'i';
+    zQuery[i++] = 's';
+    zQuery[i++] = 't';
+  }
+  assert( i<sizeof(zQuery) );
+  zQuery[i] = 0;
+  assert( zQuery[0]==0 || zQuery[0]=='?' );
 
   /* Identify which post to display first.  If history is shown, start with the
   ** original, unedited post.  Otherwise advance to the post's latest edit.  */
@@ -736,7 +775,6 @@ static void forum_display_thread(
 
   /* Clean up. */
   forumthread_delete(pThread);
-  fossil_free(zQuery);
 }
 
 /*
@@ -805,6 +843,7 @@ void forumthread_page(void){
   int bUnf = PB("unf");
   int bHist = PB("hist");
   int mode = 0;
+  int autoMode = 0;
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
@@ -826,7 +865,6 @@ void forumthread_page(void){
   if( froot==0 ){
     webpage_notfound_error("Not a forum post: \"%s\"", zName);
   }
-  if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
 
   /* Decode the mode parameters. */
   if( bRaw ){
@@ -838,7 +876,8 @@ void forumthread_page(void){
     cgi_delete_query_parameter("raw");
   }else{
     switch( *zMode ){
-      case 'a': mode = cgi_from_mobile() ? FD_CHRONO : FD_HIER; break;
+      case 'a': mode = cgi_from_mobile() ? FD_CHRONO : FD_HIER;
+                autoMode=1; break;
       case 'c': mode = FD_CHRONO; break;
       case 'h': mode = FD_HIER; break;
       case 's': mode = FD_SINGLE; break;
@@ -879,7 +918,8 @@ void forumthread_page(void){
   style_submenu_checkbox("hist", "History", 0, 0);
 
   /* Display the thread. */
-  forum_display_thread(froot, fpid, mode, bUnf, bHist);
+  if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
+  forum_display_thread(froot, fpid, mode, autoMode, bUnf, bHist);
 
   /* Emit Forum Javascript. */
   builtin_request_js("forum.js");
@@ -1022,7 +1062,7 @@ static void forum_post_widget(
     @ maxlength="125"><br>
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu(zMimetype);
+  mimetype_option_menu(zMimetype, "mimetype");
   @ <br><textarea aria-label="Content:" name="content" class="wikiedit" \
   @ cols="80" rows="25" wrap="virtual">%h(zContent)</textarea><br>
 }
@@ -1043,10 +1083,10 @@ void forum_page_init(void){
     return;
   }
   if( sqlite3_strglob("*edit*", g.zPath)==0 ){
-    zGoto = mprintf("%R/forume2?fpid=%S",PD("fpid",""));
+    zGoto = mprintf("forume2?fpid=%S",PD("fpid",""));
     isEdit = 1;
   }else{
-    zGoto = mprintf("%R/forume1");
+    zGoto = mprintf("forume1");
     isEdit = 0;
   }
   if( login_is_individual() ){
@@ -1165,6 +1205,7 @@ void forumedit_page(void){
   const char *zContent = 0;
   const char *zTitle = 0;
   char *zDate = 0;
+  const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
 
@@ -1173,7 +1214,7 @@ void forumedit_page(void){
     login_needed(g.anon.WrForum);
     return;
   }
-  fpid = symbolic_name_to_rid(PD("fpid",""), "f");
+  fpid = symbolic_name_to_rid(zFpid, "f");
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
   }
@@ -1285,13 +1326,16 @@ void forumedit_page(void){
     zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     zContent = PDT("content","");
     style_header("Reply");
+    @ <h2>Replying to
+    @ <a href="%R/forumpost/%!S(zFpid)" target="_blank">%S(zFpid)</a>
     if( pRootPost->zThreadTitle ){
-      @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
+      @ in thread
+      @ <span class="forumPostReplyTitle">%h(pRootPost->zThreadTitle)</span>
     }
-    @ <h2>Replying To:</h2>
-    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
+    @ </h2>
+    zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
-    @ <h3 class='forumPostHdr'>By %h(zDisplayName) on %h(zDate)</h3>
+    @ <h3 class='forumPostHdr'>By %s(zDisplayName) on %h(zDate)</h3>
     fossil_free(zDisplayName);
     fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit", 1);
@@ -1341,11 +1385,13 @@ void forumedit_page(void){
 **
 **    n=N             The number of threads to show on each page
 **    x=X             Skip the first X threads
+**    s=Y             Search for term Y.
 */
 void forum_main_page(void){
   Stmt q;
   int iLimit, iOfst, iCnt;
   int srchFlags;
+  const int isSearch = P("s")!=0;
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
   if( !g.perm.RdForum ){
@@ -1353,7 +1399,8 @@ void forum_main_page(void){
     return;
   }
   style_set_current_feature("forum");
-  style_header("Forum");
+  style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
+  style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
   }else{

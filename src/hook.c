@@ -42,7 +42,7 @@
 #include "hook.h"
 
 /*
-** SETTING: hooks sensitive
+** SETTING: hooks sensitive width=40 block-text
 ** The "hooks" setting contains JSON that describes all defined
 ** hooks.  The value is an array of objects.  Each object describes
 ** a single hook.  Example:
@@ -106,6 +106,7 @@ static char *hook_subst(
   Blob r;
   int i;
   blob_init(&r, 0, 0);
+  if( zCmd==0 ) return 0;
   while( zCmd[0] ){
     for(i=0; zCmd[i] && zCmd[i]!='%'; i++){}
     blob_append(&r, zCmd, i);
@@ -330,7 +331,9 @@ void hook_cmd(void){
     for(i=3; i<g.argc; i++){
       const char *zId = g.argv[i];
       if( strcmp(zId,"all")==0 ){
+        db_unprotect(PROTECT_ALL);
         db_set("hooks","[]", 0);
+        db_protect_pop();
         break;
       }
       if( sqlite3_strglob("*[^0-9]*", g.argv[i])==0 ){
@@ -354,9 +357,9 @@ void hook_cmd(void){
     verify_all_options();
     db_prepare(&q,
       "SELECT jx.key,"
-      "       json_extract(jx.value,'$.seq'),"
-      "       json_extract(jx.value,'$.cmd'),"
-      "       json_extract(jx.value,'$.type')"
+      "       jx.value->>'seq',"
+      "       jx.value->>'cmd',"
+      "       jx.value->>'type'"
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
     );
@@ -394,8 +397,7 @@ void hook_cmd(void){
       zOrigRcvid = db_text(0, "SELECT max(rcvid)-1 FROM rcvfrom");
     }
     db_prepare(&q,
-      "SELECT json_extract(value,'$[%d].cmd'), "
-      "       json_extract(value,'$[%d].type')=='after-receive'"
+      "SELECT value->>'$[%d].cmd', value->>'$[%d].type'=='after-receive'"
       "  FROM config"
       " WHERE name='hooks' AND json_valid(value)",
       id, id
@@ -405,6 +407,7 @@ void hook_cmd(void){
       char *zCmd2 = hook_subst(zCmd, zAuxFilename);
       int needOut = db_column_int(&q,1);
       Blob out;
+      if( zCmd2==0 ) continue;
       blob_init(&out,0,0);
       if( needOut ) hook_changes(&out, zOrigRcvid, zNewRcvid);
       if( bDryRun ){
@@ -460,11 +463,11 @@ int hook_backoffice(void){
   }
   blob_init(&chng, 0, 0);
   db_prepare(&q,
-      "SELECT json_extract(jx.value,'$.cmd') "
+      "SELECT jx.value->>'cmd'"
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
-      "   AND json_extract(jx.value,'$.type')='after-receive'"
-      " ORDER BY json_extract(jx.value,'$.seq');"
+      "   AND jx.value->>'type'='after-receive'"
+      " ORDER BY jx.value->>'seq';"
   );
   while( db_step(&q)==SQLITE_ROW ){
     char *zCmd;
@@ -475,7 +478,7 @@ int hook_backoffice(void){
       hook_changes(&chng, zLastRcvid, 0);
     }
     zCmd = hook_subst(db_column_text(&q,0), 0);
-    if( popen2(zCmd, &fdFromChild, &toChild, &childPid, 0) ){
+    if( popen2(zCmd, &fdFromChild, &toChild, &childPid, 0)==0 ){
       if( toChild ){
         fwrite(blob_buffer(&chng),1,blob_size(&chng),toChild);
       }
@@ -500,8 +503,7 @@ int hook_exists(const char *zType){
       "SELECT 1"
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
-      "   AND json_extract(jx.value,'$.type')=%Q"
-      " ORDER BY json_extract(jx.value,'$.seq');",
+      "   AND jx.value->>'type'=%Q;",
       zType
   );
 }
@@ -520,11 +522,11 @@ int hook_run(const char *zType, const char *zAuxFile, int traceFlag){
     return 0;
   }
   db_prepare(&q,
-      "SELECT json_extract(jx.value,'$.cmd') "
+      "SELECT jx.value->>'cmd' "
       "  FROM config, json_each(config.value) AS jx"
       " WHERE config.name='hooks' AND json_valid(config.value)"
-      "   AND json_extract(jx.value,'$.type')=%Q"
-      " ORDER BY json_extract(jx.value,'$.seq');",
+      "   AND jx.value->>'type'==%Q"
+      " ORDER BY jx.value->'seq';",
       zType
   );
   while( db_step(&q)==SQLITE_ROW ){

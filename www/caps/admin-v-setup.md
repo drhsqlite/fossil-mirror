@@ -9,7 +9,7 @@ This document explains the distinction between [Setup users][caps] and
 * [Defense Against Spiders](../antibot.wiki)
 
 
-## <a name="philosophy"></a>Philosophical Core
+## <a id="philosophy"></a>Philosophical Core
 
 The Setup user "owns" the Fossil repository and may delegate a subset of
 that power to one or more Admin users.
@@ -59,7 +59,7 @@ We’ll explore these distinctions in the rest of this document.
 [uv]:   ../unvers.wiki
 
 
-## <a name="binary"></a>No Granularity
+## <a id="binary"></a>No Granularity
 
 Fossil doesn’t make any distinction between these two user types beyond
 this binary choice: Setup or Admin.
@@ -93,13 +93,13 @@ CSS, JavaScript, and Details.) It quickly becomes unmanageable.
 
 
 
-## <a name="capgroups"></a>Capability Groups
+## <a id="capgroups"></a>Capability Groups
 
 We can break up the set of powers the Admin user capability grants into
 several groups, then defend each group as a coherent whole.
 
 
-### <a name="security"></a>Security
+### <a id="security"></a>Security
 
 While establishing the Fossil repository's security policy is a task for
 the Setup user, *maintaining* that policy is something that Fossil
@@ -136,7 +136,7 @@ if the CIO hires a [tiger team][tt] to test the company's internal IT
 defenses, the line grunts fix the reported problems, not the CIO.
 
 
-### <a name="administrivia"></a>Administrivia
+### <a id="administrivia"></a>Administrivia
 
 It is perfectly fine for a Fossil repository to only have Setup users,
 no Admin users. The smaller the repository, the more likely the
@@ -206,7 +206,7 @@ Setup user:
 [shun]: ../shunning.wiki
 
 
-### <a name="cosmetics"></a>Cosmetics
+### <a id="cosmetics"></a>Cosmetics
 
 While the Setup user is responsible for setting up the initial "look" of
 a Fossil repository, the Setup user entrusts Admin users with
@@ -229,7 +229,7 @@ this document with a philosophical discussion: if you cannot entrust a
 user with these powers, you should not grant that user Admin capability.
 
 
-## <a name="clones"></a>Clones and Backups
+## <a id="clones"></a>Clones and Backups
 
 Fossil is a *distributed* version control system, which has direct
 effects on the “Setup user” concept in the face of clones. When you
@@ -250,7 +250,7 @@ We strongly encourage you to read that document if you expect to use a
 clone as a complete replacement for the remote repository.
 
 
-## <a name="apsu"></a>The All-Powerful Setup User
+## <a id="apsu"></a>The All-Powerful Setup User
 
 Setup users get [every user capability](./ref.html) of Fossil except for
 [two exceptionally dangerous capabilities](#dcap), which they can later
@@ -259,9 +259,9 @@ grant to themselves or to others.
 In addition, Setup users can use every feature of the Fossil UI. If Fossil can do a
 thing, a Setup user on that repo can make Fossil do it.
 
-Setup users can do many things that Admin users cannot:
+Setup users can do many things that Admin users cannot. They may not
+only use all of the Admin UI features, they may also:
 
-*   Use all of the Admin UI features
 *   See record IDs (RIDs) on screens that show them
 *   See the MIME type of attachments on [`/ainfo` pages](/help?cmd=/ainfo)
 *   See a remote repo’s HTTP [cache status](/help?cmd=/cachestat)
@@ -386,7 +386,7 @@ where you do not have Setup caps. This is why `ui` always binds to
 who can connect to that repo’s web UI has full power over that repo.
 
 
-## <a name="dcap"></a>Dangerous Capabilities Initially Denied to Everyone
+## <a id="dcap"></a>Dangerous Capabilities Initially Denied to Everyone
 
 There are two capabilities that Fossil doesn’t grant by default to Setup
 or Admin users automatically. They are exceptionally dangerous, so
@@ -394,7 +394,7 @@ Fossil makes these users grant themselves (or others) these capabilities
 deliberately, hopefully after careful consideration.
 
 
-### <a name="y"></a>Write Unversioned
+### <a id="y"></a>Write Unversioned
 
 Fossil currently doesn’t distinguish the sub-operations of
 [`fossil uv`](/help?cmd=uv); they’re all covered by [**WrUnver**][capy]
@@ -414,7 +414,7 @@ content with its parent or you say `fossil uv revert` to make your local
 unversioned content table match that of its parent repo.
 
 
-### <a name="x"></a>Private Branch Push
+### <a id="x"></a>Private Branch Push
 
 For private branches to remain private, they must never be accidentally
 pushed to a public repository. It can be [difficult to impossible][shun]
@@ -454,7 +454,7 @@ accidental push.
 [fui]:   /help?cmd=ui
 [lg]:    ./login-groups.md
 [rs]:    https://fossil-scm.org/home/doc/trunk/www/settings.wiki
-[sia]:   https://fossil-scm.org/home/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
+[sia]:   https://fossil-scm.org/home/artifact?ln=1259-1260&name=0fda31b6683c206a
 [snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
 [th1]:   ../th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security

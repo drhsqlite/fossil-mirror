@@ -33,27 +33,36 @@
 ** and "--offset P" options limits the output to the first N changes
 ** after skipping P changes.
 **
+** The -i mode will print various facts about FILENAME, including its
+** hash and the check-in and time when the current version of the file
+** was created.  Use -v for additional information.  Add the -r VERSION
+** option to see similar information about the same file for the check-in
+** specified by VERSION.
+**
 ** In the -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
 ** In the -p mode, there's an optional flag "-r|--revision REVISION".
-** The specified version (or the latest checked out version) is printed
+** The specified version (or the latest checked-out version) is printed
 ** to stdout.  The -p mode is another form of the "cat" command.
 **
 ** Options:
-**   -b|--brief           display a brief (one line / revision) summary
+**   -b|--brief           Display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
-**                        boolean: "yes", "no", "true", "false", etc.
-**   -l|--log             select log mode (the default)
+**                          boolean: "yes", "no", "true", "false", etc.
+**   -i|--id              Print the artifact ID
+**   -l|--log             Select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
-**                        N less than 0 means no limit.
-**   --offset P           skip P changes
-**   -p|--print           select print mode
-**   -r|--revision R      print the given revision (or ckout, if none is given)
-**                        to stdout (only in print mode)
-**   -s|--status          select status mode (print a status indicator for FILE)
+**                          N less than 0 means no limit.
+**   --offset P           Skip P changes
+**   -p|--print           Select print mode
+**   -r|--revision R      Print the given revision (or ckout, if none is given)
+**                          to stdout (only in print mode)
+**   -s|--status          Select status mode (print a status indicator for FILE)
+**   -v|--verbose         On the -i option, show all check-ins that use the
+**                          file, not just the earliest check-in
 **   -W|--width N         Width of lines (default is to auto-detect). Must be
-**                        more than 22 or else 0 to indicate no limit.
+**                          more than 22 or else 0 to indicate no limit.
 **
 ** See also: [[artifact]], [[cat]], [[descendants]], [[info]], [[leaves]]
 */
@@ -71,7 +80,7 @@ void finfo_cmd(void){
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
-      fossil_fatal("no checkout to finfo files in");
+      fossil_fatal("no check-out to finfo files in");
     }
     vfile_check_signature(vid, CKSIG_ENOTFILE);
     file_tree_name(g.argv[2], &fname, 0, 1);
@@ -136,6 +145,28 @@ void finfo_cmd(void){
     }
     blob_write_to_file(&record, "-");
     blob_reset(&record);
+    blob_reset(&fname);
+  }else if( find_option("id","i",0) ){
+    Blob fname;
+    int rid;
+    int whatisFlags = WHATIS_BRIEF;
+    const char *zRevision = find_option("revision", "r", 1);
+    if( find_option("verbose","v",0)!=0 ) whatisFlags = 0;
+
+    verify_all_options();
+
+    if( zRevision==0 ) zRevision = "current";
+    if( g.argc!=3 ) usage("FILENAME");
+    file_tree_name(g.argv[2], &fname, 0, 1);
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
+                    "  (SELECT uuid FROM files_of_checkin(%Q)"
+                    "   WHERE filename=%B %s)",
+                 zRevision, &fname, filename_collation());
+    if( rid==0 ) {
+      fossil_fatal("file not found for revision %s: %s",
+                   zRevision, blob_str(&fname));
+    }
+    whatis_rid(rid,whatisFlags);
     blob_reset(&fname);
   }else{
     Blob line;
@@ -243,7 +274,7 @@ void finfo_cmd(void){
 ** Other versions may be specified using the -r option.
 **
 ** Options:
-**    -R|--repository FILE       Extract artifacts from repository FILE
+**    -R|--repository REPO       Extract artifacts from repository REPO
 **    -r VERSION                 The specific check-in containing the file
 **
 ** See also: [[finfo]]
@@ -297,7 +328,7 @@ void cat_cmd(void){
 **    name=FILENAME   (Required) name of file whose history to show
 **    brbg            Background color by branch name
 **    ubg             Background color by user name
-**    from=HASH       Ancestors only (not descendents) of the version of
+**    from=HASH       Ancestors only (not descendants) of the version of
 **                    the file in this particular check-in.
 **    to=HASH         If both from= and to= are supplied, only show those
 **                    changes on the direct path between the two given
@@ -366,7 +397,6 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   ridFrom = name_to_rid_www("from");
   zPrevDate[0] = 0;
-  cookie_render();
   if( fnid==0 ){
     @ No such file: %h(zFilename)
     style_finish_page();
@@ -530,7 +560,7 @@ void finfo_page(void){
     blob_appendf(&title, "History of the file that is called ");
     hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
-    blob_appendf(&title, " at checkin %z%h</a>",
+    blob_appendf(&title, " at check-in %z%h</a>",
         href("%R/info?name=%t",zCI), zCI);
   }else{
     blob_appendf(&title, "History for ");
@@ -661,7 +691,6 @@ void finfo_page(void){
     if( (tmFlags & TIMELINE_COMPACT)!=0 ){
       @ <span class='timelineEllipsis' data-id='%d(frid)' \
       @ id='ellipsis-%d(frid)'>...</span>
-      @ <span class='clutter timelineCompactDetail'
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] ){
@@ -881,7 +910,7 @@ void mlink_page(void){
        mid
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
-    render_checkin_context(mid, 0, 1);
+    render_checkin_context(mid, 0, 1, 0);
     style_table_sorter();
     @ <hr />
     @ <div class='brlist'>

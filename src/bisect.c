@@ -83,6 +83,8 @@ static const struct {
                              "merges\n" },
   { "display",    "chart",   "Command to run after \"next\".  \"chart\", "
                              "\"log\", \"status\", or \"none\"" },
+  { "linear",     "off",     "Do a linear scan rather than a true bisect, "
+                             "stopping at the first \"bad\" result"},
 };
 
 /*
@@ -202,7 +204,7 @@ static void bisect_append_skip(int rid){
 ** Create a TEMP table named "bilog" that contains the complete history
 ** of the current bisect.
 **
-** If iCurrent>0 then it is the RID of the current checkout and is included
+** If iCurrent>0 then it is the RID of the current check-out and is included
 ** in the history table.
 **
 ** If zDesc is not NULL, then it is the bid= query parameter to /timeline
@@ -240,6 +242,7 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
       if( rid==0 ) break;
       blob_appendf(&log, "%d", rid);
       zDesc += i;
+      while( zDesc[0]=='-' ) zDesc++;
     }
   }else{
     zLog = db_lget("bisect-log","");
@@ -329,6 +332,7 @@ char *bisect_permalink(void){
       }
     }
     zUuid = db_text(0,"SELECT lower(uuid) FROM blob WHERE rid=%d", rid);
+    if( blob_size(&link)>0 ) blob_append(&link, "-", 1);
     blob_appendf(&link, "%c%.10s", cPrefix, zUuid);
   }
   zResult = mprintf("%s", blob_str(&link));
@@ -375,8 +379,90 @@ static void bisect_chart(int sortByCkinTime){
 void bisect_reset(void){
   db_multi_exec(
     "DELETE FROM vvar WHERE name IN "
-    " ('bisect-good', 'bisect-bad', 'bisect-log')"
+    " ('bisect-good', 'bisect-bad', 'bisect-log', 'bisect-complete',"
+    "  'bisect-linear')"
   );
+}
+
+/*
+** fossil bisect run [OPTIONS] COMMAND
+**
+** Invoke COMMAND (with arguments) repeatedly to perform the bisect.
+**
+** Options:
+**    -i|--interactive          Prompt user for decisions rather than
+**                              using the return code from COMMAND
+*/
+static void bisect_run(void){
+  const char *zCmd;
+  int isInteractive = 0;
+  int i;
+  if( g.argc<4 ){
+    fossil_fatal("Usage: fossil bisect run [OPTIONS] COMMAND\n");
+  }
+  for(i=3; i<g.argc-1; i++){
+    const char *zArg = g.argv[i];
+    if( zArg[0]=='-' && zArg[1]=='-' && zArg[2]!=0 ) zArg++;
+    if( strcmp(zArg, "-i")==0 || strcmp(zArg, "-interactive")==0 ){
+      isInteractive = 1;
+      continue;
+    }
+    fossil_fatal("unknown command-line option: \"%s\"\n", g.argv[i]);
+  }
+  zCmd = g.argv[i];
+  if( db_int(0, "SELECT count(*) FROM vvar"
+                " WHERE name IN ('bisect-good','bisect-bad')")!=2 ){
+    fossil_fatal("need good/bad boundaries to use \"fossil bisect run\"");
+  }
+  while( db_lget_int("bisect-complete",0)==0 ){
+    int rc;
+    Blob cmd;
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
+    rc = fossil_unsafe_system(zCmd);
+    if( isInteractive ){
+      Blob in;
+      fossil_print("test-command result: %d\n", rc);
+      while(1){
+        int n;
+        char *z;
+        prompt_user("Enter (g)ood, (b)ad, (s)kip, (a)uto, (h)alt: ", &in);
+        n = blob_size(&in);
+        z = blob_str(&in);
+        if( n<1 ) continue;
+        if( sqlite3_strnicmp("good", z, n)==0 ){
+          rc = 0;
+          break;
+        }
+        if( sqlite3_strnicmp("bad", z, n)==0 ){
+          rc = 1;
+          break;
+        }
+        if( sqlite3_strnicmp("skip", z, n)==0 ){
+          rc = 125;
+          break;
+        }
+        if( sqlite3_strnicmp("auto", z, n)==0 ){
+          isInteractive = 0;
+          break;
+        }
+        if( sqlite3_strnicmp("halt", z, n)==0 ){
+          return;
+        }
+        blob_reset(&in);
+      }
+    }
+    if( rc==0 ){
+      blob_append(&cmd, " bisect good", -1);
+    }else if( rc==125 ){
+      blob_append(&cmd, " bisect skip", -1);
+    }else{
+      blob_append(&cmd, " bisect bad", -1);
+    }
+    fossil_print("%s\n", blob_str(&cmd));
+    fossil_system(blob_str(&cmd));
+    blob_reset(&cmd);
+  }
 }
 
 /*
@@ -385,17 +471,17 @@ void bisect_reset(void){
 ** Usage: %fossil bisect SUBCOMMAND ...
 **
 ** Run various subcommands useful for searching back through the change
-** history for a particular checkin that causes or fixes a problem.
+** history for a particular check-in that causes or fixes a problem.
 **
 ** > fossil bisect bad ?VERSION?
 **
 **       Identify version VERSION as non-working.  If VERSION is omitted,
-**       the current checkout is marked as non-working.
+**       the current check-out is marked as non-working.
 **
 ** > fossil bisect good ?VERSION?
 **
 **       Identify version VERSION as working.  If VERSION is omitted,
-**       the current checkout is marked as working.
+**       the current check-out is marked as working.
 **
 ** > fossil bisect log
 ** > fossil bisect chart
@@ -419,9 +505,20 @@ void bisect_reset(void){
 **       Reinitialize a bisect session.  This cancels prior bisect history
 **       and allows a bisect session to start over from the beginning.
 **
+** > fossil bisect run [OPTIONS] COMMAND
+**
+**       Invoke COMMAND repeatedly to run the bisect.  The exit code for
+**       COMMAND should be 0 for "good", 125 for "skip", and any other value
+**       for "bad".
+**
+**       Options:
+**          -i|--interactive    Prompt the user for the good/bad/skip decision
+**                              after each step, rather than using the exit
+**                              code from COMMAND
+**
 ** > fossil bisect skip ?VERSION?
 **
-**       Cause VERSION (or the current checkout if VERSION is omitted) to
+**       Cause VERSION (or the current check-out if VERSION is omitted) to
 **       be ignored for the purpose of the current bisect.  This might
 **       be done, for example, because VERSION does not compile correctly
 **       or is otherwise unsuitable to participate in this bisect.
@@ -539,9 +636,15 @@ void bisect_cmd(void){
     char *zDisplay = db_lget("bisect-display","chart");
     int m = (int)strlen(zDisplay);
     bisect_path();
-    pMid = path_midpoint();
+    if( db_lget_boolean("bisect-linear",0) ){
+      pMid = path_next();
+      if( pMid && pMid->rid==db_lget_int("checkout",0) ) pMid = 0;
+    }else{
+      pMid = path_midpoint();
+    }
     if( pMid==0 ){
       fossil_print("bisect complete\n");
+      db_lset_int("bisect-complete",1);
     }else{
       int nSpan = path_length_not_hidden();
       int nStep = path_search_depth();
@@ -564,6 +667,8 @@ void bisect_cmd(void){
     bisect_chart(0);
   }else if( strncmp(zCmd, "chart", n)==0 ){
     bisect_chart(1);
+  }else if( strncmp(zCmd, "run", n)==0 ){
+    bisect_run();
   }else if( strncmp(zCmd, "options", n)==0 ){
     if( g.argc==3 ){
       unsigned int i;
@@ -581,7 +686,7 @@ void bisect_cmd(void){
         if( strncmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
           char *z = mprintf("bisect-%s", aBisectOption[i].zName);
           if( g.argc==5 ){
-            db_lset(z, g.argv[4]);
+            db_lset(z/*works-like:"bisect-%s"*/, g.argv[4]);
           }
           fossil_print("%s\n", db_lget(z, (char*)aBisectOption[i].zDefault));
           fossil_free(z);
@@ -614,6 +719,6 @@ void bisect_cmd(void){
     bisect_list(!fAll);
   }else if( !foundCmd ){
 usage:
-    usage("bad|good|log|chart|next|options|reset|skip|status|ui|undo");
+    usage("bad|good|log|chart|next|options|reset|run|skip|status|ui|undo");
   }
 }

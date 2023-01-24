@@ -40,7 +40,7 @@
 
 #if INTERFACE
 
-/* Many APIs take a eFType argument which must be one of ExtFILE, RepoFILE,
+/* Many APIs take an eFType argument which must be one of ExtFILE, RepoFILE,
 ** or SymFILE.
 **
 ** The difference is in the handling of symbolic links.  RepoFILE should be
@@ -380,7 +380,7 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 ** The file named zFile is suppose to be an in-tree file.  Check to
 ** ensure that it will be safe to write to this file by verifying that
 ** there are no symlinks or other non-directory objects in between the
-** root of the checkout and zFile.
+** root of the check-out and zFile.
 **
 ** If a problem is found, print a warning message (using fossil_warning())
 ** and return non-zero.  If everything is ok, return zero.
@@ -388,10 +388,10 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 int file_unsafe_in_tree_path(const char *zFile){
   int n;
   if( !file_is_absolute_path(zFile) ){
-    fossil_panic("%s is not an absolute pathname",zFile);
+    fossil_fatal("%s is not an absolute pathname",zFile);
   }
   if( fossil_strnicmp(g.zLocalRoot, zFile, (int)strlen(g.zLocalRoot)) ){
-    fossil_panic("%s is not a prefix of %s", g.zLocalRoot, zFile);
+    fossil_fatal("%s is not a prefix of %s", g.zLocalRoot, zFile);
   }
   n = file_nondir_objects_on_path(g.zLocalRoot, zFile);
   if( n ){
@@ -495,6 +495,7 @@ int file_chdir(const char *zChDir, int bChroot){
   if( !rc && bChroot ){
     rc = chroot(zPath);
     if( !rc ) rc = chdir("/");
+    g.fJail = 1;
   }
 #endif
   fossil_path_free(zPath);
@@ -913,6 +914,48 @@ void file_rmdir_sql_function(
 }
 
 /*
+** Check the input argument to see if it looks like it has an prefix that
+** indicates a remote file.  If so, return the tail of the specification,
+** which is the name of the file on the remote system.
+**
+** If the input argument does not have a prefix that makes it look like
+** a remote file reference, then return NULL.
+**
+** Remote files look like:  "HOST:PATH" or "USER@HOST:PATH".  Host must
+** be a valid hostname, meaning it must follow these rules:
+**
+**   *  Only characters [-.a-zA-Z0-9].  No spaces or other punctuation
+**   *  Does not begin or end with -
+**   *  Name is two or more characters long (otherwise it might be
+**      confused with a drive-letter on Windows).
+**
+** The USER section, if it exists, must not contain the '@' character.
+*/
+const char *file_skip_userhost(const char *zIn){
+  const char *zTail;
+  int n, i;
+  if( zIn[0]==':' ) return 0;
+  zTail = strchr(zIn, ':');
+  if( zTail==0 ) return 0;
+  if( zTail - zIn > 10000 ) return 0;
+  n = (int)(zTail - zIn);
+  if( n<2 ) return 0;
+  if( zIn[n-1]=='-' || zIn[n-1]=='.' ) return 0;
+  for(i=n-1; i>0 && zIn[i-1]!='@'; i--){
+    if( !fossil_isalnum(zIn[i]) && zIn[i]!='-' && zIn[i]!='.' ) return 0;
+  }
+  if( zIn[i]=='-' || zIn[i]=='.' || i==1 ) return 0;
+  if( i>1 ){
+    i -= 2;
+    while( i>=0 ){
+      if( zIn[i]=='@' ) return 0;
+      i--;
+    }
+  }
+  return zTail+1;
+}
+
+/*
 ** Return true if the filename given is a valid filename for
 ** a file in a repository.  Valid filenames follow all of the
 ** following rules:
@@ -1115,13 +1158,25 @@ int file_simplify_name(char *z, int n, int slash){
 **
 ** Usage: %fossil test-simplify-name FILENAME...
 **
-** Print the simplified versions of each FILENAME.
+** Print the simplified versions of each FILENAME.  This is used to test
+** the file_simplify_name() routine.
+**
+** If FILENAME is of the form "HOST:PATH" or "USER@HOST:PATH", then remove
+** and print the remote host prefix first.  This is used to test the
+** file_skip_userhost() interface.
 */
 void cmd_test_simplify_name(void){
   int i;
   char *z;
+  const char *zTail;
   for(i=2; i<g.argc; i++){
-    z = mprintf("%s", g.argv[i]);
+    zTail = file_skip_userhost(g.argv[i]);
+    if( zTail ){
+      fossil_print("... ON REMOTE: %.*s\n", (int)(zTail-g.argv[i]), g.argv[i]);
+      z = mprintf("%s", zTail);
+    }else{
+      z = mprintf("%s", g.argv[i]);
+    }
     fossil_print("[%s] -> ", z);
     file_simplify_name(z, -1, 0);
     fossil_print("[%s]\n", z);
@@ -1140,24 +1195,23 @@ void cmd_test_simplify_name(void){
 ** or if zBuf==0, allocate space to hold the result using fossil_malloc().
 */
 char *file_getcwd(char *zBuf, int nBuf){
-  char zTemp[2000];
   if( zBuf==0 ){
-    zBuf = zTemp;
-    nBuf = sizeof(zTemp);
+    char zTemp[2000];
+    return fossil_strdup(file_getcwd(zTemp, sizeof(zTemp)));
   }
 #ifdef _WIN32
   win32_getcwd(zBuf, nBuf);
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
-      fossil_panic("pwd too big: max %d", nBuf-1);
+      fossil_fatal("pwd too big: max %d", nBuf-1);
     }else{
-      fossil_panic("cannot find current working directory; %s",
+      fossil_fatal("cannot find current working directory; %s",
                    strerror(errno));
     }
   }
 #endif
-  return zBuf==zTemp ? fossil_strdup(zBuf) : zBuf;
+  return zBuf;
 }
 
 /*
@@ -1243,12 +1297,53 @@ char *file_canonical_name_dup(const char *zOrigName){
 ** type on a command-line.  This routine resolves that name into
 ** a full pathname.  The result is obtained from fossil_malloc()
 ** and should be freed by the caller.
-**
-** This routine only works on unix.  On Windows, simply return
-** a copy of the input.
 */
 char *file_fullexename(const char *zCmd){
 #ifdef _WIN32
+  char *zPath;
+  char *z = 0;
+  const char *zExe = "";
+  if( sqlite3_strlike("%.exe",zCmd,0)!=0 ) zExe = ".exe";
+  if( file_is_absolute_path(zCmd) ){
+    return mprintf("%s%s", zCmd, zExe);
+  }
+  if( strchr(zCmd,'\\')!=0 && strchr(zCmd,'/')!=0 ){
+    int i;
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    blob_append(&out, zExe, -1);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    for(i=0; z[i]; i++){ if( z[i]=='/' ) z[i] = '\\'; }
+    return z;
+  }
+  z = mprintf(".\\%s%s", zCmd, zExe);
+  if( file_isfile(z, ExtFILE) ){
+    int i;
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    blob_append(&out, zExe, -1);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    for(i=0; z[i]; i++){ if( z[i]=='/' ) z[i] = '\\'; }
+    return z;
+  }
+  fossil_free(z);
+  zPath = fossil_getenv("PATH");
+  while( zPath && zPath[0] ){
+    int n;
+    char *zColon;
+    zColon = strchr(zPath, ';');
+    n = zColon ? (int)(zColon-zPath) : (int)strlen(zPath);
+    while( n>0 && zPath[n-1]=='\\' ){ n--; }
+    z = mprintf("%.*s\\%s%s", n, zPath, zCmd, zExe);
+    if( file_isfile(z, ExtFILE) ){
+      return z;
+    }
+    fossil_free(z);
+    if( zColon==0 ) break;
+    zPath = zColon+1;
+  }
   return fossil_strdup(zCmd);
 #else
   char *zPath;
@@ -1368,6 +1463,7 @@ static void emitFileStat(
   fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
   fossil_print("  file_is_reserved_name  = %d\n",
                                              file_is_reserved_name(zFull,-1));
+  fossil_print("  file_in_cwd            = %d\n", file_in_cwd(zPath));
   blob_reset(&x);
   if( reset ) resetStat();
 }
@@ -1381,12 +1477,11 @@ static void emitFileStat(
 ** display file system information about the files specified, if any.
 **
 ** Options:
-**
 **     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
-**     --open-config                Open the configuration database first.
-**     --reset                      Reset cached stat() info for each file.
-**     --root ROOT                  Use ROOT as the root of the checkout
-**     --slash                      Trailing slashes, if any, are retained.
+**     --open-config                Open the configuration database first
+**     --reset                      Reset cached stat() info for each file
+**     --root ROOT                  Use ROOT as the root of the check-out
+**     --slash                      Trailing slashes, if any, are retained
 */
 void cmd_test_file_environment(void){
   int i;
@@ -1605,18 +1700,18 @@ int file_tree_name(
   if( !g.localOpen ){
     if( absolute && !file_is_absolute_path(zOrigName) ){
       if( errFatal ){
-        fossil_fatal("relative to absolute needs open checkout tree: %s",
+        fossil_fatal("relative to absolute needs open check-out tree: %s",
                      zOrigName);
       }
       return 0;
     }else{
       /*
       ** The original path may be relative or absolute; however, without
-      ** an open checkout tree, the only things we can do at this point
+      ** an open check-out tree, the only things we can do at this point
       ** is return it verbatim or generate a fatal error.  The caller is
       ** probably expecting a tree-relative path name will be returned;
       ** however, most places where this function is called already check
-      ** if the local checkout tree is open, either directly or indirectly,
+      ** if the local check-out tree is open, either directly or indirectly,
       ** which would make this situation impossible.  Alternatively, they
       ** could check the returned path using the file_is_absolute_path()
       ** function.
@@ -1655,7 +1750,7 @@ int file_tree_name(
     blob_reset(&localRoot);
     blob_reset(&full);
     if( errFatal ){
-      fossil_fatal("file outside of checkout tree: %s", zOrigName);
+      fossil_fatal("file outside of check-out tree: %s", zOrigName);
     }
     return 0;
   }
@@ -1680,7 +1775,7 @@ int file_tree_name(
 ** Test the operation of the tree name generator.
 **
 ** Options:
-**   --absolute           Return an absolute path instead of a relative one.
+**   --absolute           Return an absolute path instead of a relative one
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */
@@ -1696,6 +1791,39 @@ void cmd_test_tree_name(void){
       blob_reset(&x);
     }
   }
+}
+
+/*
+** zFile is the name of a file.  Return true if that file is in the
+** current working directory (the "pwd" or file_getcwd() directory).
+** Return false if the file is someplace else.
+*/
+int file_in_cwd(const char *zFile){
+  char *zFull = file_canonical_name_dup(zFile);
+  char *zCwd = file_getcwd(0,0);
+  size_t nCwd = strlen(zCwd);
+  size_t nFull = strlen(zFull);
+  int rc = 1;
+  int (*xCmp)(const char*,const char*,int);
+
+  if( filenames_are_case_sensitive() ){
+    xCmp = fossil_strncmp;
+  }else{
+    xCmp = fossil_strnicmp;
+  }
+
+  if( nFull>nCwd+1
+   && xCmp(zFull,zCwd,nCwd)==0
+   && zFull[nCwd]=='/'
+   && strchr(zFull+nCwd+1, '/')==0
+  ){
+    rc = 1;
+  }else{
+    rc = 0;
+  }
+  fossil_free(zFull);
+  fossil_free(zCwd);
+  return rc;
 }
 
 /*
@@ -1748,6 +1876,10 @@ void file_parse_uri(
 ** If zTag is not NULL, then try to create the temp-file using zTag
 ** as a differentiator.  If that fails, or if zTag is NULL, then use
 ** a bunch of random characters as the tag.
+**
+** Dangerous characters in zBasis are changed.
+**
+** See also fossil_temp_filename() and file_time_tempname();
 */
 void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
 #if defined(_WIN32)
@@ -1757,7 +1889,6 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
      0, /* TMP */
      ".",
   };
-  char *z;
 #else
   static const char *azDirs[] = {
      0, /* TMPDIR */
@@ -1778,6 +1909,7 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
   char zRand[16];
   int nBasis;
   const char *zSuffix;
+  char *z;
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
@@ -1825,17 +1957,21 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
   }
   do{
     blob_zero(pBuf);
-    if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
+    if( cnt++>20 ) fossil_fatal("cannot generate a temporary filename");
     if( zTag==0 ){
-      sqlite3_randomness(15, zRand);
-      for(i=0; i<15; i++){
+      const int nRand = sizeof(zRand)-1;
+      sqlite3_randomness(nRand, zRand);
+      for(i=0; i<nRand; i++){
         zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
       }
-      zRand[15] = 0;
+      zRand[nRand] = 0;
       zTag = zRand;
     }
     blob_appendf(pBuf, "%s/%.*s~%s%s", zDir, nBasis, zBasis, zTag, zSuffix);
     zTag = 0;
+    for(z=blob_str(pBuf); z!=0 && (z=strpbrk(z,"'\"`;|$&"))!=0; z++){
+      z[0] = '_';
+    }
   }while( file_size(blob_str(pBuf), ExtFILE)>=0 );
 
 #if defined(_WIN32)
@@ -1854,6 +1990,8 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
 /*
 ** Compute a temporary filename in zDir.  The filename is based on
 ** the current time.
+**
+** See also fossil_temp_filename() and file_tempname();
 */
 char *file_time_tempname(const char *zDir, const char *zSuffix){
   struct tm *tm;
@@ -1876,6 +2014,10 @@ char *file_time_tempname(const char *zDir, const char *zSuffix){
 ** Generate temporary filenames derived from BASENAME.  Use the --time
 ** option to generate temp names based on the time of day.  If --tag NAME
 ** is specified, try to use NAME as the differentiator in the temp file.
+**
+** If --time is used, file_time_tempname() generates the filename.
+** If BASENAME is present, file_tempname() generates the filename.
+** Without --time or BASENAME, fossil_temp_filename() generates the filename.
 */
 void file_test_tempname(void){
   int i;
@@ -1884,6 +2026,11 @@ void file_test_tempname(void){
   char *z;
   const char *zTag = find_option("tag",0,1);
   verify_all_options();
+  if( g.argc<=2 ){
+    z = fossil_temp_filename();
+    fossil_print("%s\n", z);
+    sqlite3_free(z);
+  }
   for(i=2; i<g.argc; i++){
     if( zSuffix ){
       z = file_time_tempname(g.argv[i], zSuffix);
@@ -2027,6 +2174,22 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 }
 
 /*
+** Wrapper for freopen() that understands UTF8 arguments.
+*/
+FILE *fossil_freopen(const char *zName, const char *zMode, FILE *stream){
+#ifdef _WIN32
+  wchar_t *uMode = fossil_utf8_to_unicode(zMode);
+  wchar_t *uName = fossil_utf8_to_path(zName, 0);
+  FILE *f = _wfreopen(uName, uMode, stream);
+  fossil_path_free(uName);
+  fossil_unicode_free(uMode);
+#else
+  FILE *f = freopen(zName, zMode, stream);
+#endif
+  return f;
+}
+
+/*
 ** Works like fclose() except that:
 **
 ** 1) is a no-op if f is 0 or if it is stdin.
@@ -2061,7 +2224,7 @@ FILE *fossil_fopen_for_output(const char *zFilename){
     file_mkfolder(zFilename, ExtFILE, 1, 0);
     p = fossil_fopen(zFilename, "wb");
     if( p==0 ){
-#if _WIN32
+#if defined(_WIN32)
       const char *zReserved = file_is_win_reserved(zFilename);
       if( zReserved ){
         fossil_fatal("cannot open \"%s\" because \"%s\" is "
@@ -2132,8 +2295,8 @@ const char *file_cleanup_fullpath(const char *z){
 }
 
 /*
-** Count the number of objects (files and subdirectores) in a given
-** directory.  Return the count.  Return -1 of the object is not a
+** Count the number of objects (files and subdirectories) in a given
+** directory.  Return the count.  Return -1 if the object is not a
 ** directory.
 */
 int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
@@ -2240,7 +2403,7 @@ static int touch_cmd_stamp_one_file(char const *zAbsName,
 
 /*
 ** Internal helper for touch_cmd(). If the given file name is found in
-** the given checkout version, which MUST be the checkout version
+** the given check-out version, which MUST be the check-out version
 ** currently populating the vfile table, the vfile.mrid value for the
 ** file is returned, else 0 is returned. zName must be resolvable
 ** as-is from the vfile table - this function neither expands nor
@@ -2269,7 +2432,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **
 ** Usage: %fossil touch ?OPTIONS? ?FILENAME...?
 **
-** For each file in the current checkout matching one of the provided
+** For each file in the current check-out matching one of the provided
 ** list of glob patterns and/or file names, the file's mtime is
 ** updated to a value specified by one of the flags --checkout,
 ** --checkin, or --now.
@@ -2284,18 +2447,18 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **   --now          Stamp each affected file with the current time.
 **                  This is the default behavior.
 **   -c|--checkin   Stamp each affected file with the time of the
-**                  most recent check-in which modified that file.
+**                  most recent check-in which modified that file
 **   -C|--checkout  Stamp each affected file with the time of the
-**                  currently-checked-out version.
-**   -g GLOBLIST    Comma-separated list of glob patterns.
+**                  currently checked-out version
+**   -g GLOBLIST    Comma-separated list of glob patterns
 **   -G GLOBFILE    Similar to -g but reads its globs from a
-**                  fossil-conventional glob list file.
+**                  fossil-conventional glob list file
 **   -v|--verbose   Outputs extra information about its globs
-**                  and each file it touches.
+**                  and each file it touches
 **   -n|--dry-run   Outputs which files would require touching,
-**                  but does not touch them.
+**                  but does not touch them
 **   -q|--quiet     Suppress warnings, e.g. when skipping unmanaged
-**                  or out-of-tree files.
+**                  or out-of-tree files
 **
 ** Only one of --now, --checkin, and --checkout may be used. The
 ** default is --now.
@@ -2303,7 +2466,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 ** Only one of -g or -G may be used. If neither is provided and no
 ** additional filenames are provided, the effect is as if a glob of
 ** '*' were provided, i.e. all files belonging to the
-** currently-checked-out version. Note that all glob patterns provided
+** currently checked-out version. Note that all glob patterns provided
 ** via these flags are always evaluated as if they are relative to the
 ** top of the source tree, not the current working (sub)directory.
 ** Filenames provided without these flags, on the other hand, are
@@ -2321,7 +2484,7 @@ void touch_cmd(){
   Glob * pGlob = 0;       /* List of glob patterns */
   int verboseFlag;
   int dryRunFlag;
-  int vid;                /* Checkout version */
+  int vid;                /* Check-out version */
   int changeCount = 0;    /* Number of files touched */
   int quietFlag = 0;      /* -q|--quiet */
   int timeFlag;           /* -1==--checkin, 1==--checkout, 0==--now */
@@ -2331,8 +2494,7 @@ void touch_cmd(){
 
   verboseFlag = find_option("verbose","v",0)!=0;
   quietFlag = find_option("quiet","q",0)!=0 || g.fQuiet;
-  dryRunFlag = find_option("dry-run","n",0)!=0
-    || find_option("dryrun",0,0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
   zGlobList = find_option("glob", "g",1);
   zGlobFile = find_option("globfile", "G",1);
 
@@ -2352,12 +2514,12 @@ void touch_cmd(){
     }else if(co){
       timeFlag = 1;
       if(verboseFlag){
-        fossil_print("Timestamp = current checkout version.\n");
+        fossil_print("Timestamp = current check-out version.\n");
       }
     }else if(ci){
       timeFlag = -1;
       if(verboseFlag){
-        fossil_print("Timestamp = checkin in which each file was "
+        fossil_print("Timestamp = check-in in which each file was "
                      "most recently modified.\n");
       }
     }else{
@@ -2373,7 +2535,7 @@ void touch_cmd(){
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if(vid==0){
-    fossil_fatal("Cannot determine checkout version.");
+    fossil_fatal("Cannot determine check-out version.");
   }
 
   if(zGlobList){
@@ -2394,7 +2556,7 @@ void touch_cmd(){
   db_begin_transaction();
   if(timeFlag==0){/*--now*/
     nowTime = time(0);
-  }else if(timeFlag>0){/*--checkout: get the checkout
+  }else if(timeFlag>0){/*--checkout: get the check-out
                          manifest's timestamp*/
     assert(vid>0);
     nowTime = db_int64(-1,
@@ -2402,7 +2564,7 @@ void touch_cmd(){
                          "(SELECT mtime FROM event WHERE objid=%d)"
                        ") AS INTEGER)", vid);
     if(nowTime<0){
-      fossil_fatal("Could not determine checkout version's time!");
+      fossil_fatal("Could not determine check-out version's time!");
     }
   }else{ /* --checkin */
     assert(0 == nowTime);
@@ -2566,4 +2728,46 @@ int file_is_reserved_name(const char *zFilename, int nFilename){
       return 0;
     }
   }
+}
+
+/*
+** COMMAND: test-is-reserved-name
+**
+** Usage: %fossil test-is-reserved-name FILENAMES...
+**
+** Passes each given name to file_is_reserved_name() and outputs one
+** line per file: the result value of that function followed by the
+** name.
+*/
+void test_is_reserved_name_cmd(void){
+  int i;
+
+  if(g.argc<3){
+    usage("FILENAME_1 [...FILENAME_N]");
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const int check = file_is_reserved_name(g.argv[i], -1);
+    fossil_print("%d %s\n", check, g.argv[i]);
+  }
+}
+
+
+/*
+** Returns 1 if the given directory contains a file named .fslckout, 2
+** if it contains a file named _FOSSIL_, else returns 0.
+*/
+int dir_has_ckout_db(const char *zDir){
+  int rc = 0;
+  char * zCkoutDb = mprintf("%//.fslckout", zDir);
+  if(file_isfile(zCkoutDb, ExtFILE)){
+    rc = 1;
+  }else{
+    fossil_free(zCkoutDb);
+    zCkoutDb = mprintf("%//_FOSSIL_", zDir);
+    if(file_isfile(zCkoutDb, ExtFILE)){
+      rc = 2;
+    }
+  }
+  fossil_free(zCkoutDb);
+  return rc;
 }

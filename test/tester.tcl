@@ -253,7 +253,6 @@ proc get_versionable_settings {} {
   #       this list (and procedure) most likely needs to be modified as well.
   #
   set result [list \
-      allow-symlinks \
       binary-glob \
       clean-glob \
       crlf-glob \
@@ -289,6 +288,12 @@ proc get_all_settings {} {
       backoffice-nodelay \
       binary-glob \
       case-sensitive \
+      chat-alert-sound \
+      chat-initial-history \
+      chat-inline-images \
+      chat-keep-count \
+      chat-keep-days \
+      chat-poll-timeout \
       clean-glob \
       clearsign \
       comment-format \
@@ -302,6 +307,7 @@ proc get_all_settings {} {
       dotfiles \
       editor \
       email-admin \
+      email-renew-interval \
       email-self \
       email-send-command \
       email-send-db \
@@ -318,6 +324,7 @@ proc get_all_settings {} {
       gdiff-command \
       gmerge-command \
       hash-digits \
+      hooks \
       http-port \
       https-login \
       ignore-glob \
@@ -325,12 +332,15 @@ proc get_all_settings {} {
       localauth \
       lock-timeout \
       main-branch \
+      mainmenu \
       manifest \
+      max-cache-entry \
       max-loadavg \
       max-upload \
       mimetypes \
       mtime-changes \
       pgp-command \
+      preferred-diff-type \
       proxy \
       redirect-to-https \
       relative-paths \
@@ -338,12 +348,15 @@ proc get_all_settings {} {
       repolist-skin \
       safe-html \
       self-register \
+      sitemap-extra \
       ssh-command \
       ssl-ca-location \
       ssl-identity \
       tclsh \
       th1-setup \
       th1-uri-regexp \
+      ticket-default-report \
+      user-color-map \
       uv-sync \
       web-browser]
 
@@ -604,7 +617,7 @@ proc test_block_in_checkout { name rscript {tscript ""} } {
     set $::CODE 0
     set $::RESULT ""
   } else {
-    run_in_checkout $rscript
+    uplevel 1 [list run_in_checkout $rscript]
     if {[string length $tscript] == 0} {
       return ""
     } else {

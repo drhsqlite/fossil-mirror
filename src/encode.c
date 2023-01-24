@@ -134,6 +134,11 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
         blob_append(p, "&#39;", 5);
         j = i+1;
         break;
+      case '\r':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, " ", 1);
+        j = i+1;
+        break;
     }
   }
   if( j<i ) blob_append(p, zIn+j, i-j);
@@ -206,6 +211,36 @@ char *httpize(const char *z, int n){
 */
 char *urlize(const char *z, int n){
   return EncodeHttp(z, n, 0);
+}
+
+/*
+** If input string does not contain quotes (niether ' nor ")
+** then return the argument itself. Otherwise return a newly allocated
+** copy of input with all quotes %-escaped.
+*/
+const char* escape_quotes(const char *zIn){
+  char *zRet, *zOut;
+  size_t i, n = 0;
+  for(i=0; zIn[i]; i++){
+    if( zIn[i]== '"' || zIn[i]== '\'' ) n++;
+  }
+  if( !n ) return zIn;
+  zRet = zOut = fossil_malloc( i + 2*n + 1 );
+  for(i=0; zIn[i]; i++){
+    if( zIn[i]=='"' ){
+      *(zOut++) = '%';
+      *(zOut++) = '2';
+      *(zOut++) = '2';
+    }else if( zIn[i]=='\'' ){
+      *(zOut++) = '%';
+      *(zOut++) = '2';
+      *(zOut++) = '7';
+    }else{
+      *(zOut++) = zIn[i];
+    }
+  }
+  *zOut = 0;
+  return zRet;
 }
 
 /*

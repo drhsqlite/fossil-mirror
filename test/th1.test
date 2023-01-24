@@ -733,14 +733,19 @@ test th1-trace-1 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {}"
+set normalized_result [normalize_result]
+
+regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
+    $normalized_result {} normalized_result
+
 if {$th1Hooks} {
-  test th1-trace-2 {[normalize_result] eq \
+  test th1-trace-2 {$normalized_result eq \
 {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-2 {[normalize_result] eq \
+  test th1-trace-2 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -756,14 +761,19 @@ test th1-trace-3 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {this is a trace message.}"
+set normalized_result [normalize_result]
+
+regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
+    $normalized_result {} normalized_result
+
 if {$th1Hooks} {
-  test th1-trace-4 {[normalize_result] eq \
+  test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-4 {[normalize_result] eq \
+  test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -780,7 +790,8 @@ test th1-defHeader-1 {$RESULT eq \
 ###############################################################################
 
 fossil test-th-eval "defHeader"
-test th1-defHeader-2 {[string match *<body> [normalize_result]]}
+test th1-defHeader-2 {[string match *<body> [normalize_result]] || \
+    [string match "*<body class=\"\$current_feature\">" [normalize_result]]}
 
 ###############################################################################
 
@@ -1012,7 +1023,7 @@ test th1-globalState-14 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-if {$tcl_platform(platform) eq "windows"} {
+if {$is_windows} {
   set altVfs win32-longpath
 } else {
   set altVfs unix-dotfile
@@ -1048,15 +1059,16 @@ test th1-reinitialize-2 {$RESULT ne ""}
 fossil test-th-eval "info commands"
 set sorted_result [lsort $RESULT]
 protOut "Sorted: $sorted_result"
-set base_commands {anoncap anycap array artifact break breakpoint catch\
-      cgiHeaderLine checkout combobox continue copybtn date decorate \
-      defHeader dir enable_output encode64 error expr for getParameter \
-      glob_match globalState hascap hasfeature html htmlize http httpize if \
-      info insertCsrf lindex linecount list llength lsearch markdown nonce \
-      proc puts query randhex redirect regexp reinitialize rename render \
-      repository return searchable set setParameter setting stime string \
-      styleFooter styleHeader styleScript tclReady trace unset unversioned \
-      uplevel upvar utime verifyCsrf verifyLogin wiki}
+set base_commands {anoncap anycap array artifact break breakpoint \
+      builtin_request_js capexpr captureTh1 catch cgiHeaderLine checkout \
+      combobox continue copybtn date decorate defHeader dir enable_htmlify \
+      enable_output encode64 error expr for foreach getParameter glob_match \
+      globalState hascap hasfeature html htmlize http httpize if info \
+      insertCsrf lappend lindex linecount list llength lsearch markdown \
+      nonce proc puts query randhex redirect regexp reinitialize rename \
+      render repository return searchable set setParameter setting stime \
+      string styleFooter styleHeader styleScript tclReady trace unset \
+      unversioned uplevel upvar utime verifyCsrf verifyLogin wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}

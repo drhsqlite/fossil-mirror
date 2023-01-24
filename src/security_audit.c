@@ -101,6 +101,7 @@ void secaudit0_page(void){
   const char *zPubPages;     /* GLOB pattern for public pages */
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
+  const char *zPublicUrl;    /* Canonical access URL */
   char *z;
   int n;
   CapabilityString *pCap;
@@ -145,13 +146,13 @@ void secaudit0_page(void){
   }else if( hasAnyCap(zAnonCap,"y") ){
     @ <li><p>This repository is <big><b>INSECURE</b></big> because
     @ it allows anonymous users to push unversioned files.
-    @ <p>Fix this by <a href="takeitprivate">taking the repository private</a>
+    @ Fix this by <a href="takeitprivate">taking the repository private</a>
     @ or by removing the "y" permission from users "anonymous" and
     @ "nobody" on the <a href="setup_ulist">User Configuration</a> page.
   }else if( hasAnyCap(zSelfCap,"y") ){
     @ <li><p>This repository is <big><b>INSECURE</b></big> because
     @ it allows self-registered users to push unversioned files.
-    @ <p>Fix this by <a href="takeitprivate">taking the repository private</a>
+    @ Fix this by <a href="takeitprivate">taking the repository private</a>
     @ or by removing the "y" permission from the default permissions or
     @ by disabling self-registration.
   }else if( hasAnyCap(zAnonCap,"goz") ){
@@ -204,6 +205,37 @@ void secaudit0_page(void){
     }
   }
 
+  zPublicUrl = public_url();
+  if( zPublicUrl!=0 ){
+    int nOther = db_int(0, "SELECT count(*) FROM config"
+                           " WHERE name GLOB 'baseurl:*'"
+                           " AND name<>'baseurl:%q'", zPublicUrl);
+    @ <li><p>The <a href="setup_config#eurl">canonical URL</a> for this
+    @ repository is <a href="%s(zPublicUrl)">%h(zPublicUrl)</a>.
+    if( nOther==1 ){
+      @ This is also <a href="urllist?urlonly">1 other URL</a> that has
+      @ been used to access this repository.
+    }else if( nOther>=2 ){
+      @ There are also
+      @ <a href="urllist?all&urlonly">%d(nOther) other URLs</a> that have
+      @ been used to access this repository.
+    }
+  }else{
+    int nUrl = db_int(0, "SELECT count(*) FROM config"
+                         " WHERE name GLOB 'baseurl:*'");
+    @ <li><p>This repository does not have a
+    @ <a href="setup_config#eurl">canonical access URL</a>.
+    if( nUrl==1 ){
+      @ There is
+      @ <a href="urllist?urlonly">1 non-canonical URL</a>
+      @ that has been used to access this repository.
+    }else if( nUrl>=2 ){
+      @ There are
+      @ <a href="urllist?all&urlonly">%d(nUrl) non-canonical URLs</a>
+      @ that have been used to access this repository.
+    }
+  }
+
   /* Make sure the HTTPS is required for login, at least, so that the
   ** password does not go across the Internet in the clear.
   */
@@ -211,7 +243,7 @@ void secaudit0_page(void){
     @ <li><p><b>WARNING:</b>
     @ Sensitive material such as login passwords can be sent over an
     @ unencrypted connection.
-    @ <p>Fix this by changing the "Redirect to HTTPS" setting on the
+    @ Fix this by changing the "Redirect to HTTPS" setting on the
     @ <a href="setup_access">Access Control</a> page. If you were using
     @ the old "Redirect to HTTPS on Login Page" setting, switch to the
     @ new setting: it has a more secure implementation.
@@ -246,6 +278,35 @@ void secaudit0_page(void){
   }
 #endif
 
+#if FOSSIL_ENABLE_TCL
+  @ <li><p>
+  if( db_get_boolean("tcl",0) ){
+    #ifdef FOSSIL_ENABLE_TH1_DOCS
+      if( Th_AreDocsEnabled() ){
+        @ <b>DANGER:</b>
+      }else{
+        @ <b>WARNING:</b>
+      }
+    #else
+      @ <b>WARNING:</b>
+    #endif
+    @ This server is compiled with -DFOSSIL_ENABLE_TCL and Tcl integration
+    @ is enabled for this repository.  Anyone who can execute malicious
+    @ TH1 script on that server can also execute arbitrary Tcl script
+    @ under the identity of the operating system process of that server.
+    @ This is a serious security concern.</p>
+    @
+    @ <p>Disable Tcl integration by recompiling Fossil without the
+    @ -DFOSSIL_ENABLE_TCL flag, and/or clear the 'tcl' setting.</p>
+  }else{
+    @ This server is compiled with -DFOSSIL_ENABLE_TCL. Tcl integration
+    @ is disabled for this particular repository, so you are safe for
+    @ now.  However, to prevent potential problems caused by accidentally
+    @ enabling Tcl integration in the future, it is recommended that you
+    @ recompile Fossil without the -DFOSSIL_ENABLE_TCL flag.</p>
+  }
+#endif
+
   /* Anonymous users should not be able to harvest email addresses
   ** from tickets.
   */
@@ -253,7 +314,7 @@ void secaudit0_page(void){
     @ <li><p><b>WARNING:</b>
     @ Anonymous users can view email addresses and other personally
     @ identifiable information on tickets.
-    @ <p>Fix this by removing the "Email" privilege
+    @ Fix this by removing the "Email" privilege
     @ (<a href="setup_ucap_list">capability "e"</a>) from users
     @ "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
@@ -265,7 +326,7 @@ void secaudit0_page(void){
   if( hasAnyCap(zAnonCap, "i") ){
     @ <li><p><b>WARNING:</b>
     @ Anonymous users can push new check-ins into the repository.
-    @ <p>Fix this by removing the "Check-in" privilege
+    @ Fix this by removing the "Check-in" privilege
     @ (<a href="setup_ucap_list">capability</a> "i") from users
     @ "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
@@ -278,11 +339,22 @@ void secaudit0_page(void){
     @ <li><p><b>WARNING:</b>
     @ Anonymous users can act as moderators for wiki, tickets, or 
     @ forum posts. This defeats the whole purpose of moderation.
-    @ <p>Fix this by removing the "Mod-Wiki", "Mod-Tkt", and "Mod-Forum"
+    @ Fix this by removing the "Mod-Wiki", "Mod-Tkt", and "Mod-Forum"
     @ privileges (<a href="%R/setup_ucap_list">capabilities</a> "fq5")
     @ from users "anonymous" and "nobody"
     @ on the <a href="setup_ulist">User Configuration</a> page.
   }
+
+  /* Check to see if any TH1 scripts are configured to run on a sync
+  */
+  if( db_exists("SELECT 1 FROM config WHERE name GLOB 'xfer-*-script'"
+                " AND length(value)>0") ){
+    @ <li><p><b>WARNING:</b>
+    @ TH1 scripts might be configured to run on any sync, push, pull, or
+    @ clone operation.  See the the <a href="%R/xfersetup">/xfersetup</a>
+    @ page for more information.  These TH1 scripts are a potential
+    @ security concern and so should be carefully audited by a human.
+  } 
 
   /* The strict-manifest-syntax setting should be on. */
   if( db_get_boolean("strict-manifest-syntax",1)==0 ){
@@ -431,23 +503,52 @@ void secaudit0_page(void){
     }
   }
 
+  /* Providing hyperlink capability to user "nobody" can lead to robots
+  ** making excessive requests resulting in DoS
+  */
+  if( db_exists("SELECT 1 FROM user WHERE login='nobody' AND cap GLOB '*h*'") ){
+    int nobodyId = db_int(0,"SELECT uid FROM user WHERE login='nobody'");
+    int anonId = db_int(0,
+      "SELECT uid FROM user WHERE login='anonymous' AND cap NOT GLOB '*h*'");
+    @ <li><p>
+    @ User "nobody" has "Hyperlink" privilege ('h') which can lead to
+    @ robots walking a nearly endless progression of pages on public-facing
+    @ repositories, causing excessive server load and possible DoS.
+    @ Suggested remediation:
+    @ <ol type="a">
+    @ <li>Remove the 'h' privilege from the
+    @     <a href="%R/setup_uedit?id=%d(nobodyId)">'nobody' user</a> so that
+    @     robots cannot see hyperlinks.
+    @ <li>Activate <a href="%R/setup_robot">autohyperlink</a> so that
+    @     human readers can still see hyperlinks even if they are not logged in.
+    @     Set the delay to at least 50 milliseconds and require a mouse
+    @     event for maximum robot defense.
+    if( anonId>0 ){
+      @ <li>Perhaps set the 'h' privilege on the
+      @     <a href="%R/setup_uedit?id=%d(anonId)">'anonymous' user</a> so
+      @     that humans that have javascript disabled in their browsers can
+      @     still see hyperlinks if they will log in as "anonymous".
+    }
+    @ </ol>
+  }
+
   /* Notify if REMOTE_USER or HTTP_AUTHENTICATION is used for login.
   */
   if( db_get_boolean("remote_user_ok", 0) ){
-    @ <li><p>
+    @ <li><p><b>Caution:</b>
     @ This repository trusts that the REMOTE_USER environment variable set
     @ up by the webserver contains the name of an authenticated user.
     @ Fossil's built-in authentication mechanism is bypassed.
-    @ <p>Fix this by deactivating the "Allow REMOTE_USER authentication"
+    @ Fix this by deactivating the "Allow REMOTE_USER authentication"
     @ checkbox on the <a href="setup_access">Access Control</a> page.
   }
   if( db_get_boolean("http_authentication_ok", 0) ){
-    @ <li><p>
+    @ <li><p><b>Caution:</b>
     @ This repository trusts that the HTTP_AUTHENITICATION environment
     @ variable set up by the webserver contains the name of an
     @ authenticated user.
     @ Fossil's built-in authentication mechanism is bypassed.
-    @ <p>Fix this by deactivating the "Allow HTTP_AUTHENTICATION authentication"
+    @ Fix this by deactivating the "Allow HTTP_AUTHENTICATION authentication"
     @ checkbox on the <a href="setup_access">Access Control</a> page.
   }
 
@@ -456,7 +557,7 @@ void secaudit0_page(void){
   if( db_get_boolean("access-log",0)==0 ){
     @ <li><p>
     @ The <a href="access_log">User Log</a> is disabled.  The user log
-    @ keeps a record of successful and unsucessful login attempts and is
+    @ keeps a record of successful and unsuccessful login attempts and is
     @ useful for security monitoring.
   }
   if( db_get_boolean("admin-log",0)==0 ){
@@ -472,7 +573,7 @@ void secaudit0_page(void){
     @ <li><p>
     @ Unable to get the system load average.  This can prevent Fossil
     @ from throttling expensive operations during peak demand.
-    @ <p>If running in a chroot jail on Linux, verify that the /proc
+    @ If running in a chroot jail on Linux, verify that the /proc
     @ filesystem is mounted within the jail, so that the load average
     @ can be obtained from the /proc/loadavg file.
   }else {
@@ -482,14 +583,15 @@ void secaudit0_page(void){
       @ Load average limiting is turned off.  This can cause the server
       @ to bog down if many requests for expensive services (such as
       @ large diffs or tarballs) arrive at about the same time.
-      @ <p>To fix this, set the "Server Load Average Limit" on the
-      @ <a href="setup_access">Access Control</a> page to approximately
+      @ To fix this, set the 
+      @ <a href='%R/setup_access#slal'>"Server Load Average Limit"</a> on the
+      @ <a href='%R/setup_access'>Access Control</a> page to the approximate
       @ the number of available cores on your server, or maybe just a little
       @ less.
     }else if( r>=8.0 ){
       @ <li><p>
-      @ The "Server Load Average Limit" on the
-      @ <a href="setup_access">Access Control</a> page is set to %g(r),
+      @ The <a href='%R/setup_access#slal'>"Server Load Average Limit"</a> on
+      @ the <a href="setup_access">Access Control</a> page is set to %g(r),
       @ which seems high.  Is this server really a %d((int)r)-core machine?
     }
   }
@@ -661,6 +763,10 @@ void errorlog_page(void){
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <p>To create a server error log:
     @ <ol>

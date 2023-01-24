@@ -1,0 +1,178 @@
+/* CSS for the WASM /pikchrshow app. */
+/* emcscript-related styling, used during the module load/initialization processes... */
+.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+div.emscripten { text-align: center; }
+div.emscripten_border { border: 1px solid black; }
+#module-spinner { overflow: visible; }
+#module-spinner > * {
+    margin-top: 1em;
+}
+.spinner {
+    height: 50px;
+    width: 50px;
+    margin: 0px auto;
+    animation: rotation 0.8s linear infinite;
+    border-left: 10px solid rgb(0,150,240);
+    border-right: 10px solid rgb(0,150,240);
+    border-bottom: 10px solid rgb(0,150,240);
+    border-top: 10px solid rgb(100,0,200);
+    border-radius: 100%;
+    background-color: rgb(200,100,250);
+}
+@keyframes rotation {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(360deg);}
+}
+
+/* The following styles are for app-level use. */
+/* TODO: consolidate the WASM- and legacy-mode CSS into this file.
+   Since both versions of /pikchrshow share a URI, they both load this
+   file. */
+textarea {
+  font-family: monospace;
+  flex: 1 1 auto;
+}
+#main-wrapper {
+  display: flex;
+  flex-direction: column-reverse;
+  flex: 1 1 auto;
+  margin: 0.5em 0;
+  overflow: hidden;
+}
+#main-wrapper.side-by-side {
+  flex-direction: row;
+}
+#main-wrapper.side-by-side > fieldset {
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+}
+#main-wrapper:not(.side-by-side) > fieldset {
+  margin-bottom: 0.25em;
+}
+#main-wrapper.swapio {
+  flex-direction: column;
+}
+#main-wrapper.side-by-side.swapio {
+  flex-direction: row-reverse;
+}
+.zone-wrapper{
+  display: flex;
+  margin: 0;
+  flex: 1 1 0%;
+  border-radius: 0.5em;
+  min-width: inherit/*important: resolves inability to scroll fieldset child element!*/;
+  padding: 0.35em 0 0 0;
+}
+.zone-wrapper > div {
+  display:flex;
+  flex: 1 1 0%;
+}
+.zone-wrapper.output {
+}
+#main-wrapper.side-by-side .zone-wrapper {
+  /* Keep the layout from "flopping around" when
+     render-while-typing mode is on. */
+  /*max-width: 50%;*/
+}
+#pikchr-output {
+  padding: 0;
+  margin: 0 auto/*auto resolves a weird left-shift truncation of the SVG*/;
+}
+#pikchr-output-wrapper {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+#pikchr-output-wrapper.text {
+  display: flex;
+  align-items: stretch;
+}
+#pikchr-output-wrapper.text > #pikchr-output {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 auto;
+}
+#pikchr-output-wrapper.text > #pikchr-output > textarea {
+  flex: 1 1 auto;
+}
+fieldset > legend {
+    font-size: 85%;
+}
+.zone-wrapper textarea {
+  border-radius: 0.5em;
+  flex: 1 1 auto;
+  /*min/max width resolve an inexplicable margin on the RHS.  The -1em
+   is for the padding, else we overlap the parent boundaries.*/
+  min-width: calc(100% - 1em);
+  max-width: calc(100% - 1em);
+  padding: 0 0.5em;
+}
+.zone-wrapper.input {
+  min-height: 10em;
+  /*width: 50%;*/
+  min-width: 20em;
+}
+.zone-wrapper textarea {
+  border: 0;
+  outline: 0;
+}
+.zone-wrapper.output {
+  overflow: auto;
+  justify-content: space-between;
+}
+.button-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: space-between;
+  justify-content: flex-start;
+}
+.button-bar > * {
+  margin: 0.05em 0.5em 0.05em 0;
+  flex: 0 1 auto;
+  align-self: auto;
+}
+fieldset.options {
+  border-radius: 0.5em;
+  border: 1px inset;
+  display: flex;
+  flex-direction: column;
+  padding: 0.25em;
+}
+fieldset.options > div {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 85%;
+}
+fieldset.collapsible.options > legend > .fieldset-toggle::after {
+  content: " [hide]";
+  position: relative;
+}
+fieldset.collapsible.collapsed > legend > .fieldset-toggle::after {
+  content: " [show]";
+  position: relative;
+}
+span.labeled-input {
+  padding: 0.25em;
+  margin: 0.25em 0.5em;
+  border-radius: 0.25em;
+  white-space: nowrap;
+  background: #0002;
+  display: flex;
+  align-items: center;
+}
+span.labeled-input > *:nth-child(2) {
+  margin-left: 0.3em;
+}
+.center { text-align: center; }
+.app-view {
+  flex: 20 1 auto;
+}
+#titlebar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5em;
+}
+#view-split {
+  display: flex;
+  flex-direction: column-reverse;
+}

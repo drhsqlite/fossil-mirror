@@ -58,7 +58,13 @@
       }
       return $logourl
     }
-    set logourl [getLogoUrl $baseurl]
+    if {1} {
+      # Link logo to the top of the current domain
+      set logourl [getLogoUrl $baseurl]
+    } else {
+      # Link logo to the top of the current repo
+      set logourl $baseurl
+    }
     </th1>
     <a href="$logourl">
       <img src="$logo_image_url" border="0" alt="$project_name">
@@ -96,8 +102,8 @@ set sitemap 0
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
   if {[string match /* $url]} {
-    if {[string match /$current_page* $url]} {
-      lappend class active
+    if {[string match $url\[/?#\]* /$current_page/]} {
+      set class "active $class"
     }
     set url $home$url
   }

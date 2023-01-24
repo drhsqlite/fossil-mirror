@@ -113,6 +113,8 @@ void setup_page(void){
   setup_menu_entry("Security-Audit", "secaudit0",
     "Analyze the current configuration for security problems");
   if( setup_user ){
+    setup_menu_entry("Robot-Defense", "setup_robot",
+      "Settings for configure defense against robots");
     setup_menu_entry("Settings", "setup_settings",
       "Web interface to the \"fossil settings\" command");
   }
@@ -136,8 +138,6 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
-    setup_menu_entry("Email-Server", "setup_smtp",
-      "Activate and configure the built-in email server");
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
   }
@@ -188,9 +188,9 @@ void setup_page(void){
 */
 void onoff_attribute(
   const char *zLabel,   /* The text label on the checkbox */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQParm,   /* The query parameter */
-  int dfltVal,          /* Default value if VAR table entry does not exist */
+  int dfltVal,          /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zQ = P(zQParm);
@@ -203,7 +203,7 @@ void onoff_attribute(
     if( iQ!=iVal ){
       login_verify_csrf_secret();
       db_protect_only(PROTECT_NONE);
-      db_set(zVar, iQ ? "1" : "0", 0);
+      db_set(zVar/*works-like:"x"*/, iQ ? "1" : "0", 0);
       db_protect_pop();
       setup_incr_cfgcnt();
       admin_log("Set option [%q] to [%q].",
@@ -212,7 +212,7 @@ void onoff_attribute(
     }
   }
   @ <label><input type="checkbox" name="%s(zQParm)" \
-  @ aria-label="%s(zLabel[0]?zLabel:zQParm)" \
+  @ aria-label="%h(zLabel[0]?zLabel:zQParm)" \
   if( iVal ){
     @ checked="checked" \
   }
@@ -228,9 +228,9 @@ void onoff_attribute(
 void entry_attribute(
   const char *zLabel,   /* The text label on the entry box */
   int width,            /* Width of the entry box */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQParm,   /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zVal = db_get(zVar, zDflt);
@@ -240,7 +240,7 @@ void entry_attribute(
     login_verify_csrf_secret();
     setup_incr_cfgcnt();
     db_protect_only(PROTECT_NONE);
-    db_set(zVar, zQ, 0);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
     db_protect_pop();
     admin_log("Set entry_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
@@ -261,9 +261,9 @@ const char *textarea_attribute(
   const char *zLabel,   /* The text label on the textarea */
   int rows,             /* Rows in the textarea */
   int cols,             /* Columns in the textarea */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQP,      /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if the textarea should  not be editable */
 ){
   const char *z = db_get(zVar, zDflt);
@@ -272,7 +272,7 @@ const char *textarea_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_protect_only(PROTECT_NONE);
-    db_set(zVar, zQ, 0);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
     db_protect_pop();
     setup_incr_cfgcnt();
     admin_log("Set textarea_attribute %Q to: %.*s%s",
@@ -298,9 +298,9 @@ const char *textarea_attribute(
 */
 void multiple_choice_attribute(
   const char *zLabel,   /* The text label on the menu */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQP,      /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int nChoice,          /* Number of choices */
   const char *const *azChoice /* Choices in pairs (VAR value, Display) */
 ){
@@ -311,7 +311,7 @@ void multiple_choice_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_unprotect(PROTECT_ALL);
-    db_set(zVar, zQ, 0);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
     setup_incr_cfgcnt();
     db_protect_pop();
     admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
@@ -326,6 +326,101 @@ void multiple_choice_attribute(
   @ </select> <b>%h(zLabel)</b>
 }
 
+/*
+** Insert code into the current page that allows the user to configure
+** auto-hyperlink related robot defense settings.
+*/
+static void addAutoHyperlinkSettings(void){
+  static const char *const azDefenseOpts[] = {
+    "0", "Off",
+    "2", "UserAgent only",
+    "1", "UserAgent and Javascript",
+  };
+  multiple_choice_attribute(
+     "Enable hyperlinks base on User-Agent and/or Javascript",
+     "auto-hyperlink", "autohyperlink", "1",
+     count(azDefenseOpts)/2, azDefenseOpts);
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody", as long as the User-Agent string in the
+  @ HTTP header indicates that the request is coming from an actual human
+  @ being.  If this setting is "UserAgent only" (2) then the
+  @ UserAgent string is the only factor considered.  If the value of this
+  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
+  @ runs after the page loads and fills in the href= values of &lt;a&gt;
+  @ elements.  In either case, &lt;a&gt; tags are only generated if the
+  @ UserAgent string indicates that the request is coming from a human and
+  @ not a robot.
+  @
+  @ <p>This setting is designed to give easy access to humans while
+  @ keeping out robots.
+  @ You do not normally want a robot to walk your entire repository because
+  @ if it does, your server will end up computing diffs and annotations for
+  @ every historical version of every file and creating ZIPs and tarballs of
+  @ every historical check-in, which can use a lot of CPU and bandwidth
+  @ even for relatively small projects.</p>
+  @
+  @ <p>The "UserAgent and Javascript" value for this setting provides
+  @ superior protection from robots.  However, that setting also prevents
+  @ the visited/unvisited colors on hyperlinks from displaying correctly
+  @ on Safari-derived browsers.  (Chrome and Firefox work fine.)  Since
+  @ Safari is the underlying rendering engine on all iPhones and iPads,
+  @ this means that hyperlink visited/unvisited colors will not operate
+  @ on those platforms when "UserAgent and Javascript" is selected.</p>
+  @
+  @ <p>Additional parameters that control the behavior of Javascript:</p>
+  @ <blockquote>
+  entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
+                  "auto-hyperlink-delay", "ah-delay", "50", 0);
+  @ <br />
+  onoff_attribute("Also require a mouse event before enabling hyperlinks",
+                  "auto-hyperlink-mouseover", "ahmo", 0, 0);
+  @ </blockquote>
+  @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
+  @ and "require a mouse event" should be turned on.  These values only come
+  @ into play when the main auto-hyperlink settings is 2 ("UserAgent and
+  @ Javascript").</p>
+  @
+  @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
+  @ visit the <a href="%R/test_env">/test_env</a> page (from a separate
+  @ web browser that is not logged in, even as "anonymous") and verify
+  @ that the "g.jsHref" value is "1".</p>
+  @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
+  @ "auto-hyperlink-mouseover"")</p>
+}
+
+/*
+** WEBPAGE: setup_robot
+**
+** Settings associated with defense against robots.  Requires setup privilege.
+*/
+void setup_robots(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  style_set_current_feature("setup");
+  style_header("Robot Defense Settings");
+  db_begin_transaction();
+  @ <p>A Fossil website can have billions of pages in its tree, even for a
+  @ modest project.  Many of those pages (examples: diffs and tarballs)
+  @ might be expensive to compute. A robot that tries to walk the entire
+  @ website can present a crippling CPU and bandwidth load.
+  @
+  @ <p>The settings on this page are intended to help site administrators
+  @ defend the site against robots.
+  @
+  @ <form action="%R/setup_robot" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  addAutoHyperlinkSettings();
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
 
 /*
 ** WEBPAGE: setup_access
@@ -451,6 +546,7 @@ void setup_access(void){
   @ to the download packet limit. 30s is a reasonable default.
   @ (Property: "max-download-time")</p>
 
+  @ <a id="slal"></a>
   @ <hr />
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
                   "0.0", 0);
@@ -463,40 +559,11 @@ void setup_access(void){
   @ might not work inside a chroot() jail.
   @ (Property: "max-loadavg")</p>
 
+  /* Add the auto-hyperlink settings controls.  These same controls
+  ** are also accessible from the /setup_robot page.
+  */
   @ <hr />
-  onoff_attribute(
-      "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
-      "auto-hyperlink", "autohyperlink", 1, 0);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
-  @ including user "nobody", as long as
-  @ <ol><li>the User-Agent string in the
-  @ HTTP header indicates that the request is coming from an actual human
-  @ being, and
-  @ <li>the user agent is able to
-  @ run Javascript in order to set the href= attribute of hyperlinks, and
-  @ <li>mouse movement is detected (optional - see the checkbox below), and
-  @ <li>a number of milliseconds have passed since the page loaded.</ol>
-  @
-  @ <p>This setting is designed to give easy access to humans while
-  @ keeping out robots and spiders.
-  @ You do not normally want a robot to walk your entire repository because
-  @ if it does, your server will end up computing diffs and annotations for
-  @ every historical version of every file and creating ZIPs and tarballs of
-  @ every historical check-in, which can use a lot of CPU and bandwidth
-  @ even for relatively small projects.</p>
-  @
-  @ <p>Additional parameters that control this behavior:</p>
-  @ <blockquote>
-  onoff_attribute("Require mouse movement before enabling hyperlinks",
-                  "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ <br />
-  entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
-                  "auto-hyperlink-delay", "ah-delay", "50", 0);
-  @ </blockquote>
-  @ <p>For maximum robot defense, the "require mouse movement" should
-  @ be turned on and the "Delay" should be at least 50 milliseconds.</p>
-  @ (Properties: "auto-hyperlink",
-  @ "auto-hyperlink-mouseover", and "auto-hyperlink-delay")</p>
+  addAutoHyperlinkSettings();
 
   @ <hr />
   onoff_attribute("Require a CAPTCHA if not logged in",
@@ -528,6 +595,15 @@ void setup_access(void){
   @ perhaps also in the SUBSCRIBER table if email notification is
   @ enabled.
   @ (Property: "self-register")</p>
+
+  @ <hr />
+  onoff_attribute("Allow users to reset their own passwords",
+                  "self-pw-reset", "selfpw", 0, 0);
+  @ <p>Allow users to request that an email contains a hyperlink to a
+  @ password reset page be sent to their email address of record.  This
+  @ enables forgetful users to recover their forgotten passwords without
+  @ administrator intervention.
+  @ (Property: "self-pw-reset")</p>
 
   @ <hr />
   onoff_attribute("Email verification required for self-registration",
@@ -686,9 +762,6 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
-    @ <br />For best results, use the same number of <a href="setup_access#ipt">
-    @ IP octets</a> in the login cookie across all repositories in the
-    @ same Login Group.
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
@@ -850,7 +923,7 @@ void setup_timeline(void){
   @ see an entry in context, and because that link is not otherwise
   @ accessible on the timeline.  The /info link is also accessible by
   @ double-clicking the timeline node or by clicking on the hash that
-  @ follows "check-in:" in the supplimental information section on the
+  @ follows "check-in:" in the supplemental information section on the
   @ right of the entry.
   @ <p>(Properties: "timeline-tslink-info")
 
@@ -901,7 +974,7 @@ void setup_settings(void){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
       onoff_attribute("", pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
@@ -927,7 +1000,7 @@ void setup_settings(void){
       }
       @</td><td>
       entry_attribute("", /*pSet->width*/ 25, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       (char*)pSet->def, hasVersionableValue);
       @</td></tr>
     }
@@ -944,7 +1017,7 @@ void setup_settings(void){
         @ <br />
       }
       textarea_attribute("", /*rows*/ 2, /*cols*/ 35, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       (char*)pSet->def, hasVersionableValue);
       @<br />
     }
@@ -954,6 +1027,58 @@ void setup_settings(void){
   db_end_transaction(0);
   style_finish_page();
 }
+
+/*
+** SETTING:  mainmenu          width=70 block-text
+**
+** The mainmenu setting specifies the entries on the main menu
+** for many skins.  The mainmenu should be a TCL list.  Each set
+** of four consecutive values defines a single main menu item:
+**
+**   *   The first term is text that appears on the menu.
+**
+**   *   The second term is a hyperlink to take when a user clicks on the
+**       entry.  Hyperlinks that start with "/" are relative to the
+**       repository root.
+**
+**   *   The third term is an argument to the TH1 "capexpr" command.
+**       If capexpr evaluates to true, then the entry is shown.  If not,
+**       the entry is omitted.  "*" is always true.  "{}" is never true.
+**
+**   *   The fourth term is a list of extra class names to apply to the
+**       new menu entry.  Some skins use classes "desktoponly" and
+**       "wideonly" to only show the entries when the web browser
+**       screen is wide or very wide, respectively.
+**
+** Some custom skins might not use this property.  Whether the property
+** is used or not a choice made by the skin designer.  Some skins may add
+** extra choices (such as the hamburger button) to the menu.
+*/
+/*
+** SETTING: sitemap-extra      width=70 block-text
+**
+** The sitemap-extra setting defines extra links to appear on the
+** /sitemap web page as sub-items of the "Home Page" entry before the
+** "Documentation Search" entry (if any).  For skins that use the /sitemap
+** page to construct a hamburger menu dropdown, new entries added here
+** will appear on the hamburger menu.
+**
+** This setting should be a TCL list divided into triples.  Each
+** triple defines a new entry:
+**
+**   *   The first term is the display name of the /sitemap entry
+**
+**   *   The second term is a hyperlink to take when a user clicks on the
+**       entry.  Hyperlinks that start with "/" are relative to the
+**       repository root.
+**
+**   *   The third term is an argument to the TH1 "capexpr" command.
+**       If capexpr evaluates to true, then the entry is shown.  If not,
+**       the entry is omitted.  "*" is always true.
+**
+** The default value is blank, meaning no added entries.
+*/
+
 
 /*
 ** WEBPAGE: setup_config
@@ -986,6 +1111,17 @@ void setup_config(void){
   @ engines as well as a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr />
+  entry_attribute("Canonical Server URL", 40, "email-url",
+                   "eurl", "", 0);
+  @ <p>This is the URL used to access this repository as a server.
+  @ Other repositories use this URL to clone or sync against this repository.
+  @ This is also the basename for hyperlinks included in email alert text.
+  @ Omit the trailing "/".
+  @ If this repo will not be set up as a persistent server and will not
+  @ be sending email alerts, then leave this entry blank.
+  @ Suggested value: "%h(g.zBaseURL)"
+  @ (Property: "email-url")</p>
+  @ <hr>
   entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
                   "spn", "", 0);
   @ <p>This is used as a prefix on the names of generated tarballs and
@@ -1028,7 +1164,7 @@ void setup_config(void){
   @ <hr>
   @ <p>The main menu for the web interface
   @ <p>
-   @
+  @
   @ <p>This setting should be a TCL list.  Each set of four consecutive
   @ values defines a single main menu item:
   @ <ol>
@@ -1037,16 +1173,16 @@ void setup_config(void){
   @      entry.  Hyperlinks that start with "/" are relative to the
   @      repository root.
   @ <li> The third term is an argument to the TH1 "capexpr" command.
-  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      If capexpr evaluates to true, then the entry is shown.  If not,
   @      the entry is omitted.  "*" is always true.  "{}" is never true.
   @ <li> The fourth term is a list of extra class names to apply to the new
-  @      menu entry.  Some skins will classes "desktoponly" and "wideonly"
+  @      menu entry.  Some skins use classes "desktoponly" and "wideonly"
   @      to only show the entries when the web browser screen is wide or
   @      very wide, respectively.
   @ </ol>
   @
-  @ <p>Some custom skins might not use this property.  Whether the property
-  @ is used or a choice made by the skin designer.  Some skins add an extra
+  @ <p>Some custom skins might not use this property. Whether the property
+  @ is used or not a choice made by the skin designer. Some skins may add extra
   @ choices (such as the hamburger button) to the menu that are not shown
   @ on this list. (Property: mainmenu)
   @ <p>
@@ -1075,7 +1211,7 @@ void setup_config(void){
   @      entry.  Hyperlinks that start with "/" are relative to the
   @      repository root.
   @ <li> The third term is an argument to the TH1 "capexpr" command.
-  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      If capexpr evaluates to true, then the entry is shown.  If not,
   @      the entry is omitted.  "*" is always true.
   @ </ol>
   @
@@ -1115,11 +1251,11 @@ void setup_wiki(void){
   @ <p>
   @ Associate wiki pages with branches, tags, or checkins, based on
   @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, checkin
+  @ or "tag/" and which continue with the name of an existing branch, check-in
   @ or tag are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
-  @ <li> <b>checkin/</b><i>full-checkin-hash</i>
+  @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
@@ -1226,6 +1362,14 @@ void setup_chat(void){
   @ or web-servers with short timeouts.  For best efficiency, this value
   @ should be larger rather than smaller.
   @ (Property: "chat-poll-timeout")</p>
+  @ <hr />
+  entry_attribute("Chat Timeline Robot Username", 15,
+                  "chat-timeline-user", "chatrobot", "", 0);
+  @ <p>If this setting is not an empty string, then any changes that appear
+  @ on the timeline are announced in the chatroom under the username
+  @ supplied.  The username does not need to actually exist in the USER table.
+  @ Suggested username:  "chat-robot".
+  @ (Property: "chat-timeline-user")</p>
   @ <hr />
 
   multiple_choice_attribute("Alert sound",
@@ -1673,9 +1817,7 @@ void sql_page(void){
             " WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
-    zQ = sqlite3_mprintf(
-            "SELECT name FROM repository.sqlite_schema WHERE type='table'"
-            " ORDER BY name");
+    zQ = sqlite3_mprintf("SELECT*FROM pragma_table_list ORDER BY schema, name");
     go = 1;
   }
   if( go ){
@@ -1688,6 +1830,7 @@ void sql_page(void){
     @ <hr />
     login_verify_csrf_secret();
     sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
+    search_sql_setup(g.db);
     rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
     if( rc!=SQLITE_OK ){
       @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
@@ -1701,7 +1844,7 @@ void sql_page(void){
         @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
       }
     }else{
-      @ <table border=1>
+      @ <table border="1" cellpadding="4" cellspacing="0">
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         if( nRow==0 ){
           @ <tr>
@@ -1811,6 +1954,9 @@ void page_admin_log(){
   }
   style_set_current_feature("setup");
   style_header("Admin Log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Error-Log", "errorlog");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));

@@ -19,12 +19,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "unversioned.h"
 #include <time.h>
 
@@ -64,7 +59,10 @@ void unversioned_schema(void){
 */
 const char *unversioned_content_hash(int debugFlag){
   const char *zHash = debugFlag ? 0 : db_get("uv-hash", 0);
-  if( zHash==0 ){
+  if( zHash ) return zHash;
+  if( !db_table_exists("repository","unversioned") ){
+    return "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+  }else{
     Stmt q;
     db_prepare(&q,
       "SELECT printf('%%s %%s %%s\n',name,datetime(mtime,'unixepoch'),hash)"
@@ -165,7 +163,7 @@ static void unversioned_write(
 **
 **    0:     zName does not exist in the unversioned table.
 **    1:     zName exists and should be replaced by the mtime/zHash remote.
-**    2:     zName exists and is the same as zHash but has a older mtime
+**    2:     zName exists and is the same as zHash but has an older mtime
 **    3:     zName exists and is identical to mtime/zHash in all respects.
 **    4:     zName exists and is the same as zHash but has a newer mtime.
 **    5:     zName exists and should override the mtime/zHash remote.
@@ -204,7 +202,7 @@ static int unversioned_sync_flags(unsigned syncFlags){
   if( find_option("verbose","v",0)!=0 ){
     syncFlags |= SYNC_UV_TRACE | SYNC_VERBOSE;
   }
-  if( find_option("dryrun","n",0)!=0 ){
+  if( find_option("dry-run","n",0)!=0 ){
     syncFlags |= SYNC_UV_DRYRUN | SYNC_UV_TRACE | SYNC_VERBOSE;
   }
   return syncFlags;
@@ -222,7 +220,7 @@ static int contains_whitespace(const char *zName){
 }
 
 /*
-** COMMAND: uv*
+** COMMAND: uv#
 ** COMMAND: unversioned
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
@@ -254,8 +252,9 @@ static int contains_whitespace(const char *zName){
 **    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
 **    list | ls              Show all unversioned files held in the local
-**                           repository. Options:
+**                           repository.
 **
+**                           Options:
 **                              --glob PATTERN   Show only files that match
 **                              --like PATTERN   Show only files that match
 **                              -l               Show additional details for
@@ -268,13 +267,14 @@ static int contains_whitespace(const char *zName){
 **
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
-**                              -n|--dryrun      Show what would have happened
+**                              -n|--dry-run     Show what would have happened
 **
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
 **                           Changes are not pushed to other repositories until
-**                           the next sync.  Options:
+**                           the next sync.
 **
+**                           Options:
 **                              --glob PATTERN   Remove files that match
 **                              --like PATTERN   Remove files that match
 **
@@ -285,15 +285,14 @@ static int contains_whitespace(const char *zName){
 **
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
-**                              -n|--dryrun      Show what would have happened
+**                              -n|--dry-run     Show what would have happened
 **
 **    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
 ** Options:
-**
 **   --mtime TIMESTAMP       Use TIMESTAMP instead of "now" for the "add",
 **                           "edit", "remove", and "touch" subcommands.
-**   -R|--repository FILE    Use FILE as the repository
+**   -R|--repository REPO    Use FILE as the repository
 */
 void unversioned_cmd(void){
   const char *zCmd;
@@ -656,7 +655,7 @@ void uvlist_json_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  cgi_set_content_type("text/json");
+  cgi_set_content_type("application/json");
   etag_check(ETAG_DATA,0);
   if( !db_table_exists("repository","unversioned") ){
     blob_init(&json, "[]", -1);

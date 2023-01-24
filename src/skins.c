@@ -45,7 +45,6 @@ static struct BuiltinSkin {
   { "Ardoise",                           "ardoise",           0 },
   { "Black & White",                     "black_and_white",   0 },
   { "Blitz",                             "blitz",             0 },
-  { "Bootstrap",                         "bootstrap",         0 },
   { "Dark Mode",                         "darkmode",          0 },
   { "Eagle",                             "eagle",             0 },
   { "Khaki",                             "khaki",             0 },
@@ -73,6 +72,12 @@ static const char *const azSkinFile[] = {
 static struct BuiltinSkin *pAltSkin = 0;
 static char *zAltSkinDir = 0;
 static int iDraftSkin = 0;
+/*
+** Used by skin_use_alternative() to store the current skin rank skin
+** so that the /skins page can, if warranted, warn the user that skin
+** changes won't have any effect.
+*/
+static int nSkinRank = 5;
 
 /*
 ** Skin details are a set of key/value pairs that define display
@@ -106,16 +111,56 @@ static struct SkinDetail {
 ** it is assumed to be a directory on disk that holds override css.txt,
 ** footer.txt, and header.txt.  This mode can be used for interactive
 ** development of new skins.
+**
+** The 2nd parameter is a ranking of how important this alternative
+** skin declaration is, and lower values trump higher ones. If a call
+** to this function passes a higher-valued rank than a previous call,
+** the subsequent call becomes a no-op. Only calls with the same or
+** lower rank (i.e. higher priority) will overwrite a previous
+** setting. This approach is used because the CGI/server-time
+** initialization happens in an order which is incompatible with our
+** preferred ranking, making it otherwise more invasive to tell the
+** internals "the --skin flag ranks higher than a URL parameter" (the
+** former gets initialized before both URL parameters and the /draft
+** path determination).
+**
+** The rankings were initially defined in
+** https://fossil-scm.org/forum/forumpost/caf8c9a8bb
+** and are:
+**
+** 0) A skin name matching the glob draft[1-9] trumps everything else.
+**
+** 1) The --skin flag or skin: CGI config setting.
+**
+** 2) The "skin" display setting cookie or URL argument, in that
+** order. If the "skin" URL argument is provided and refers to a legal
+** skin then that will update the display cookie. If the skin name is
+** illegal it is silently ignored.
+**
+** 3) Skin properties from the CONFIG db table
+**
+** 4) Default skin.
+**
+** As a special case, a NULL or empty name resets zAltSkinDir and
+** pAltSkin to 0 to indicate that the current config-side skin should
+** be used (rank 3, above), then returns 0.
 */
-char *skin_use_alternative(const char *zName){
+char *skin_use_alternative(const char *zName, int rank){
   int i;
   Blob err = BLOB_INITIALIZER;
-  if( strchr(zName, '/')!=0 ){
+  if(rank > nSkinRank) return 0;
+  nSkinRank = rank;
+  if( zName && 1==rank && strchr(zName, '/')!=0 ){
     zAltSkinDir = fossil_strdup(zName);
     return 0;
   }
-  if( sqlite3_strglob("draft[1-9]", zName)==0 ){
+  if( zName && sqlite3_strglob("draft[1-9]", zName)==0 ){
     skin_use_draft(zName[5] - '0');
+    return 0;
+  }
+  if(!zName || !*zName){
+    pAltSkin = 0;
+    zAltSkinDir = 0;
     return 0;
   }
   for(i=0; i<count(aBuiltinSkin); i++){
@@ -139,7 +184,7 @@ char *skin_use_alternative(const char *zName){
 void skin_override(void){
   const char *zSkin = find_option("skin",0,1);
   if( zSkin ){
-    char *zErr = skin_use_alternative(zSkin);
+    char *zErr = skin_use_alternative(zSkin, 1);
     if( zErr ) fossil_fatal("%s", zErr);
   }
 }
@@ -751,7 +796,6 @@ void setup_skinedit(void){
   const char *zContent;       /* Content after editing */
   const char *zDflt;          /* Default content */
   char *zDraft;               /* Which draft:  "draft%d" */
-  char *zKey;                 /* CONFIG table key name: "draft%d-%s" */
   char *zTitle;               /* Title of this page */
   const char *zFile;          /* One of "css", "footer", "header", "details" */
   int iSkin;                  /* draft number.  1..9 */
@@ -789,11 +833,10 @@ void setup_skinedit(void){
   if( ii<0 || ii>count(aSkinAttr) ) ii = 0;
   zFile = aSkinAttr[ii].zFile;
   zDraft = mprintf("draft%d", iSkin);
-  zKey = mprintf("draft%d-%s", iSkin, zFile);
   zTitle = mprintf("%s for Draft%d", aSkinAttr[ii].zTitle, iSkin);
   zBasis = PD("basis","current");
   zDflt = skin_file_content(zBasis, zFile);
-  zOrig = db_get(zKey, zDflt);
+  zOrig = db_get_mprintf(zDflt, "draft%d-%s",iSkin,zFile);
   zContent = PD(zFile,zOrig);
   if( P("revert")!=0 && cgi_csrf_safe(0) ){
     zContent = zDflt;
@@ -812,8 +855,8 @@ void setup_skinedit(void){
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(zTitle):</h2>
-  if( P("submit") && cgi_csrf_safe(0) && strcmp(zOrig,zContent)!=0 ){
-    db_set(zKey, zContent, 0);
+  if( P("submit") && cgi_csrf_safe(0) && (zOrig==0 || strcmp(zOrig,zContent)!=0) ){
+    db_set_mprintf(zContent, 0, "draft%d-%s",iSkin,zFile);
   }
   @ <textarea name="%s(zFile)" rows="10" cols="80">\
   @ %h(zContent)</textarea>
@@ -830,18 +873,21 @@ void setup_skinedit(void){
   @ <input type="submit" name="diff" value="Unified Diff" />
   @ <input type="submit" name="sbsdiff" value="Side-by-Side Diff" />
   if( P("diff")!=0 || P("sbsdiff")!=0 ){
-    u64 diffFlags = construct_diff_flags(1) | DIFF_STRIP_EOLCR;
     Blob from, to, out;
-    if( P("sbsdiff")!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+    DiffConfig DCfg;
+    construct_diff_flags(1, &DCfg);
+    DCfg.diffFlags |= DIFF_STRIP_EOLCR;
+    if( P("sbsdiff")!=0 ) DCfg.diffFlags |= DIFF_SIDEBYSIDE;
     blob_init(&to, zContent, -1);
     blob_init(&from, skin_file_content(zBasis, zFile), -1);
     blob_zero(&out);
-    if( diffFlags & DIFF_SIDEBYSIDE ){
-      text_diff(&from, &to, &out, 0, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
+    DCfg.diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG; 
+    if( DCfg.diffFlags & DIFF_SIDEBYSIDE ){
+      text_diff(&from, &to, &out, &DCfg);
       @ %s(blob_str(&out))
     }else{
-      text_diff(&from, &to, &out, 0,
-             diffFlags | DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG);
+      DCfg.diffFlags |= DIFF_LINENO;
+      text_diff(&from, &to, &out, &DCfg);
       @ <pre class="udiff">
       @ %s(blob_str(&out))
       @ </pre>
@@ -904,7 +950,7 @@ static void skin_publish(int iSkin){
   /* Publish draft iSkin */
   for(i=0; i<count(azSkinFile); i++){
     char *zNew = db_get_mprintf("", "draft%d-%s", iSkin, azSkinFile[i]);
-    db_set(azSkinFile[i], zNew, 0);
+    db_set(azSkinFile[i]/*works-like:"x"*/, zNew, 0);
   }
 }
 
@@ -974,7 +1020,9 @@ void setup_skin(void){
   @ <p>Customize the look of this Fossil repository by making changes
   @ to the CSS, Header, Footer, and Detail Settings in one of nine "draft"
   @ configurations.  Then, after verifying that all is working correctly,
-  @ publish the draft to become the new main Skin.<p>
+  @ publish the draft to become the new main Skin. Users can select a skin
+  @ of their choice from the built-in ones or the locally-edited one via
+  @ <a href='%R/skins'>the /skins page</a>.</p>
   @
   @ <a name='step1'></a>
   @ <h1>Step 1: Identify Which Draft To Use</h1>
@@ -1156,18 +1204,32 @@ void skins_page(void){
   } 
   login_check_credentials();
   style_header("Skins");
+  if( iDraftSkin || nSkinRank<=1 ){
+    @ <p class="warning">Warning:
+    if( iDraftSkin>0 ){
+      @ you are using a draft skin,
+    }else{
+      @ this fossil instance was started with a hard-coded skin
+      @ value,
+    }
+    @ which trumps any option selected below. A skin selected
+    @ below will be recorded in your preference cookie
+    @ but will not be used so long as the site has a
+    @ higher-priority skin in place.
+    @ </p>
+  }
   @ <p>The following skins are available for this repository:</p>
   @ <ul>
   if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
     @ <li> Standard skin for this repository &larr; <i>Currently in use</i>
   }else{
-    @ <li> %z(href("%s/skins",zBase))Standard skin for this repository</a>
+    @ <li> %z(href("%R/skins?skin="))Standard skin for this repository</a>
   }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
       @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
     }else{
-      char *zUrl = href("%s/skn_%s/skins", zBase, aBuiltinSkin[i].zLabel);
+      char *zUrl = href("%R/skins?skin=%T", aBuiltinSkin[i].zLabel);
       @ <li> %z(zUrl)%h(aBuiltinSkin[i].zDesc)</a>
     }
   }

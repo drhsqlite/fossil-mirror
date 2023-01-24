@@ -69,6 +69,13 @@ This bit of code will get rid of the "email" field entry for logged-in users.
 Since we know the user's information, we don't have to ask for it. NOTE: it
 might be good to automatically scoop up the user's email and put it here.
 </p>
+<p>
+You might also want to enable people to actually assign the ticket to a specific
+person during creation. For this to work, you need to add the code
+for "assigned_to" as shown below under the heading "Modify the 'edit ticket' page".
+This will give you an additional combobox where you can choose a person during
+ticket creation.
+</p>
 </blockquote>
 
 <h2>Modify the 'view ticket' page</h2><blockquote>
@@ -97,7 +104,14 @@ Before the "Severity:" line, add this:
 &lt;th1>combobox assigned_to $assigned_choices 1&lt;/th1>
 &lt;/td>&lt;/tr>
 </pre>
-That will give you a drop-down list of assignees.  Now, similar to the previous
+That will give you a drop-down list of assignees. The first argument to the TH1
+command 'combobox' is the database field which the combobox is associated to.
+The next argument is the list of choices you want to show in the combobox (and
+that you specified in the second step above. The last argument should be 1 for a
+true combobox (see the <a href="th1.md#combobox">TH1 documentation</a> for
+details).</p>
+
+<p>Now, similar to the previous
 section, look for "Contact:" and add this:
 <pre>
   &lt;tr>&lt;td align="right">Reported by:&lt;/td>&lt;td>

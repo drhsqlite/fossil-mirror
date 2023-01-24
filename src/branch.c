@@ -83,9 +83,14 @@ void branch_new(void){
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   int isPrivate = 0;     /* True if the branch should be private */
+  int bAutoColor = 0;    /* Value of "--bgcolor" is "auto" */
 
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
+  if( fossil_strncmp(zColor, "auto", 4)==0 ) {
+    bAutoColor = 1;
+    zColor = 0;
+  }
   isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
@@ -102,12 +107,8 @@ void branch_new(void){
   if( zBranch==0 || zBranch[0]==0 ){
     fossil_fatal("branch name cannot be empty");
   }
-  if( db_exists(
-        "SELECT 1 FROM tagxref"
-        " WHERE tagtype>0"
-        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%q')",
-        zBranch)!=0 ){
-    fossil_fatal("branch \"%s\" already exists", zBranch);
+  if( branch_is_open(zBranch) ){
+    fossil_fatal("an open branch named \"%s\" already exists", zBranch);
   }
 
   user_select();
@@ -153,7 +154,7 @@ void branch_new(void){
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( content_is_private(rootid) ) isPrivate = 1;
-  if( isPrivate && zColor==0 ) zColor = "#fec084";
+  if( isPrivate && zColor==0 && !bAutoColor) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
@@ -218,18 +219,19 @@ void branch_new(void){
   db_end_transaction(0);
 
   /* Do an autosync push, if requested */
-  if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries",1),0);
+  if( !isPrivate ) autosync_loop(SYNC_PUSH, 0, "branch");
 }
 
 /*
 ** Create a TEMP table named "tmp_brlist" with 7 columns:
 **
 **      name           Name of the branch
-**      mtime          Time of last checkin on this branch
+**      mtime          Time of last check-in on this branch
 **      isclosed       True if the branch is closed
 **      mergeto        Another branch this branch was merged into
 **      nckin          Number of checkins on this branch
-**      ckin           Hash of the last checkin on this branch
+**      ckin           Hash of the last check-in on this branch
+**      isprivate      True if the branch is private
 **      bgclr          Background color for this branch
 */
 static const char createBrlistQuery[] =
@@ -249,7 +251,8 @@ static const char createBrlistQuery[] =
 @      AND tagtype>0) AS mergeto,
 @   count(*) AS nckin,
 @   (SELECT uuid FROM blob WHERE rid=tagxref.rid) AS ckin,
-@   event.bgcolor AS bgclr
+@   event.bgcolor AS bgclr,
+@   EXISTS(SELECT 1 FROM private WHERE rid=tagxref.rid) AS isprivate
 @  FROM tagxref, tag, event
 @ WHERE tagxref.tagid=tag.tagid
 @   AND tagxref.tagtype>0
@@ -274,6 +277,7 @@ static void brlist_create_temp_table(void){
 #define BRL_OPEN_CLOSED_MASK 0x003
 #define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
 #define BRL_REVERSE          0x008 /* Reverse the sort order */
+#define BRL_PRIVATE          0x010 /* Show only private branches */
 
 #endif /* INTERFACE */
 
@@ -283,39 +287,67 @@ static void brlist_create_temp_table(void){
 ** If (which<0) then the query pulls only closed branches. If
 ** (which>0) then the query pulls all (closed and opened)
 ** branches. Else the query pulls currently-opened branches.
+**
+** If the BRL_ORDERBY_MTIME flag is set and nLimitMRU ("Limit Most Recently Used
+** style") is a non-zero number, the result is limited to nLimitMRU entries, and
+** the BRL_REVERSE flag is applied in an outer query after processing the limit,
+** so that it's possible to generate short lists with the most recently modified
+** branches sorted chronologically in either direction, as does the "branch lsh"
+** command.
+** For other cases, the outer query is also generated, but works as a no-op. The
+** code to build the outer query is marked with *//* OUTER QUERY *//* comments.
 */
-void branch_prepare_list_query(Stmt *pQuery, int brFlags, const char *zBrNameGlob){
+void branch_prepare_list_query(
+  Stmt *pQuery,
+  int brFlags,
+  const char *zBrNameGlob,
+  int nLimitMRU
+){
   Blob sql;
   blob_init(&sql, 0, 0);
   brlist_create_temp_table();
+  /* Ignore nLimitMRU if no chronological sort requested. */
+  if( (brFlags & BRL_ORDERBY_MTIME)==0 ) nLimitMRU = 0;
+  /* Undocumented: invert negative values for nLimitMRU, so that command-line
+  ** arguments similar to `head -5' with "option numbers" are possible. */
+  if( nLimitMRU<0 ) nLimitMRU = -nLimitMRU;
+  blob_append_sql(&sql,"SELECT name, isprivate FROM ("); /* OUTER QUERY */
   switch( brFlags & BRL_OPEN_CLOSED_MASK ){
     case BRL_CLOSED_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name FROM tmp_brlist WHERE isclosed"
+        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE isclosed"
       );
       break;
     }
     case BRL_BOTH: {
       blob_append_sql(&sql,
-        "SELECT name FROM tmp_brlist WHERE 1"
+        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE 1"
       );
       break;
     }
     case BRL_OPEN_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name FROM tmp_brlist WHERE NOT isclosed"
+        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE NOT isclosed"
       );
       break;
     }
   }
+  if( brFlags & BRL_PRIVATE ) blob_append_sql(&sql, " AND isprivate");
   if(zBrNameGlob) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
   if( brFlags & BRL_ORDERBY_MTIME ){
     blob_append_sql(&sql, " ORDER BY -mtime");
   }else{
     blob_append_sql(&sql, " ORDER BY name COLLATE nocase");
   }
-  if( brFlags & BRL_REVERSE ){
+  if( brFlags & BRL_REVERSE && !nLimitMRU ){
     blob_append_sql(&sql," DESC");
+  }
+  if( nLimitMRU ){
+    blob_append_sql(&sql," LIMIT %d",nLimitMRU);
+  }
+  blob_append_sql(&sql,")"); /* OUTER QUERY */
+  if( brFlags & BRL_REVERSE && nLimitMRU ){
+    blob_append_sql(&sql," ORDER BY mtime"); /* OUTER QUERY */
   }
   db_prepare_blob(pQuery, &sql);
   blob_reset(&sql);
@@ -341,6 +373,207 @@ int branch_is_open(const char *zBrName){
   );
 }
 
+/*
+** Internal helper for branch_cmd_close() and friends. Adds a row to
+** the to the brcmdtag TEMP table, initializing that table if needed,
+** holding a pending tag for the given blob.rid (which is assumed to
+** be valid). zTag must be a fully-formed tag name, including the
+** (+,-,*) prefix character.
+**
+*/
+static void branch_cmd_tag_add(int rid, const char *zTag){
+  static int once = 0;
+  assert(zTag && ('+'==zTag[0] || '-'==zTag[0] || '*'==zTag[0]));
+  if(0==once++){
+    db_multi_exec("CREATE TEMP TABLE brcmdtag("
+                  "rid INTEGER UNIQUE ON CONFLICT IGNORE,"
+                  "tag TEXT NOT NULL"
+                  ")");
+  }
+  db_multi_exec("INSERT INTO brcmdtag(rid,tag) VALUES(%d,%Q)",
+                rid, zTag);
+}
+
+/*
+** Internal helper for branch_cmd_close() and friends. Creates and
+** saves a control artifact of tag changes stored via
+** branch_cmd_tag_add(). Fails fatally on error, returns 0 if it saves
+** an artifact, and a negative value if it does not save anything
+** because no tags were queued up. A positive return value is reserved
+** for potential future semantics.
+**
+** This function asserts that a transaction is underway and it ends
+** the transaction, committing or rolling back, as appropriate.
+*/
+static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
+                                   int fVerbose /* output extra info */,
+                                   const char *zDateOvrd /* --date-override */,
+                                   const char *zUserOvrd /* --user-override */){
+  int nTags = 0;
+  Stmt q = empty_Stmt;
+  Blob manifest = empty_blob;
+  int doRollback = fDryRun!=0;
+
+  assert(db_transaction_nesting_depth() > 0);
+  if(!db_table_exists("temp","brcmdtag")){
+    fossil_warning("No tags added - nothing to do.");
+    db_end_transaction(1);
+    return -1;
+  }
+  db_prepare(&q, "SELECT b.uuid, t.tag "
+             "FROM blob b, brcmdtag t "
+             "WHERE b.rid=t.rid "
+             "ORDER BY t.tag, b.uuid");
+  blob_appendf(&manifest, "D %z\n",
+               date_in_standard_format( zDateOvrd ? zDateOvrd : "now"));
+  while(SQLITE_ROW==db_step(&q)){
+    const char * zHash = db_column_text(&q, 0);
+    const char * zTag = db_column_text(&q, 1);
+    blob_appendf(&manifest, "T %s %s\n", zTag, zHash);
+    ++nTags;
+  }
+  if(!nTags){
+    fossil_warning("No tags added - nothing to do.");
+    db_end_transaction(1);
+    blob_reset(&manifest);
+    return -1;
+  }
+  user_select();
+  blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
+  { /* Z-card and save artifact */
+    int newRid;
+    Blob cksum = empty_blob;
+    md5sum_blob(&manifest, &cksum);
+    blob_appendf(&manifest, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+    if(fDryRun && fVerbose){
+      fossil_print("Dry-run mode: will roll back new artifact:\n%b",
+                   &manifest);
+      /* Run through the saving steps, though, noting that doing so
+      ** will clear out &manifest, which is why we output it here
+      ** instead of after saving. */
+    }
+    newRid = content_put(&manifest);
+    if(0==newRid){
+      fossil_fatal("Problem saving new artifact: %s\n%b",
+                   g.zErrMsg, &manifest);
+    }else if(manifest_crosslink(newRid, &manifest, 0)==0){
+      fossil_fatal("Crosslinking error: %s", g.zErrMsg);
+    }
+    fossil_print("Saved new control artifact %z (RID %d).\n",
+                 rid_to_uuid(newRid), newRid);
+    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", newRid);
+    if(fDryRun){
+      fossil_print("Dry-run mode: rolling back new artifact.\n");
+      assert(0!=doRollback);
+    }
+  }
+  db_multi_exec("DROP TABLE brcmdtag");
+  blob_reset(&manifest);
+  db_end_transaction(doRollback);
+  return 0;
+}
+
+/*
+** Internal helper for branch_cmd_close() and friends. zName is a
+** symbolic check-in name. Returns the blob.rid of the check-in or fails
+** fatally if the name does not resolve unambiguously.  If zUuid is
+** not NULL, *zUuid is set to the resolved blob.uuid and must be freed
+** by the caller via fossil_free().
+*/
+static int branch_resolve_name(char const *zName, char **zUuid){
+  const int rid = name_to_uuid2(zName, "ci", zUuid);
+  if(0==rid){
+    fossil_fatal("Cannot resolve name: %s", zName);
+  }else if(rid<0){
+    fossil_fatal("Ambiguous name: %s", zName);
+  }
+  return rid;
+}
+
+/*
+** Implementation of (branch hide/unhide) subcommands. nStartAtArg is
+** the g.argv index to start reading branch/check-in names. fHide is
+** true for hiding, false for unhiding. Fails fatally on error.
+*/
+static void branch_cmd_hide(int nStartAtArg, int fHide){
+  int argPos = nStartAtArg;    /* g.argv pos with first branch/ci name */
+  char * zUuid = 0;            /* Resolved branch UUID. */
+  const int fVerbose = find_option("verbose","v",0)!=0;
+  const int fDryRun = find_option("dry-run","n",0)!=0;
+  const char *zDateOvrd = find_option("date-override",0,1);
+  const char *zUserOvrd = find_option("user-override",0,1);
+
+  verify_all_options();
+  db_begin_transaction();
+  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
+    const char * zName = g.argv[argPos];
+    const int rid = branch_resolve_name(zName, &zUuid);
+    const int isHidden = rid_has_tag(rid, TAG_HIDDEN);
+    /* Potential TODO: check for existing 'hidden' flag and skip this
+    ** entry if it already has (if fHide) or does not have (if !fHide)
+    ** that tag. FWIW, /ci_edit does not do so. */
+    if(fHide && isHidden){
+      fossil_warning("Skipping hidden check-in %s: %s.", zName, zUuid);
+      continue;
+    }else if(!fHide && !isHidden){
+      fossil_warning("Skipping non-hidden check-in %s: %s.", zName, zUuid);
+      continue;
+    }
+    branch_cmd_tag_add(rid, fHide ? "*hidden" : "-hidden");
+    if(fVerbose!=0){
+      fossil_print("%s check-in [%s] %s\n",
+                   fHide ? "Hiding" : "Unhiding",
+                   zName, zUuid);
+    }
+  }
+  branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
+}
+
+/*
+** Implementation of (branch close|reopen) subcommands. nStartAtArg is
+** the g.argv index to start reading branch/check-in names. The given
+** checkins are closed if fClose is true, else their "closed" tag (if
+** any) is cancelled. Fails fatally on error.
+*/
+static void branch_cmd_close(int nStartAtArg, int fClose){
+  int argPos = nStartAtArg;    /* g.argv pos with first branch name */
+  char * zUuid = 0;            /* Resolved branch UUID. */
+  const int fVerbose = find_option("verbose","v",0)!=0;
+  const int fDryRun = find_option("dry-run","n",0)!=0;
+  const char *zDateOvrd = find_option("date-override",0,1);
+  const char *zUserOvrd = find_option("user-override",0,1);
+
+  verify_all_options();
+  db_begin_transaction();
+  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
+    const char * zName = g.argv[argPos];
+    const int rid = branch_resolve_name(zName, &zUuid);
+    const int isClosed = leaf_is_closed(rid);
+    if(!is_a_leaf(rid)){
+      /* This behaviour is different from /ci_edit closing, where
+      ** is_a_leaf() adds a "+" tag and !is_a_leaf() adds a "*"
+      ** tag. We might want to change this to match for consistency's
+      ** sake, but it currently seems unnecessary to close/re-open a
+      ** non-leaf. */
+      fossil_warning("Skipping non-leaf [%s] %s", zName, zUuid);
+      continue;
+    }else if(fClose && isClosed){
+      fossil_warning("Skipping closed leaf [%s] %s", zName, zUuid);
+      continue;
+    }else if(!fClose && !isClosed){
+      fossil_warning("Skipping non-closed leaf [%s] %s", zName, zUuid);
+      continue;
+    }
+    branch_cmd_tag_add(rid, fClose ? "+closed" : "-closed");
+    if(fVerbose!=0){
+      fossil_print("%s branch [%s] %s\n",
+                   fClose ? "Closing" : "Re-opening",
+                   zName, zUuid);
+    }
+  }
+  branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
+}
 
 /*
 ** COMMAND: branch
@@ -350,33 +583,68 @@ int branch_is_open(const char *zBrName){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
+** >  fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+**
+**       Adds or cancels the "closed" tag to one or more branches.
+**       It accepts arbitrary unambiguous symbolic names but
+**       will only resolve check-in names and skips any which resolve
+**       to non-leaf check-ins.
+**
+**       Options:
+**         -n|--dry-run          Do not commit changes, but dump artifact
+**                               to stdout
+**         -v|--verbose          Output more information
+**         --date-override DATE  DATE to use instead of 'now'
+**         --user-override USER  USER to use instead of the current default
+**
 ** >  fossil branch current
 **
 **        Print the name of the branch for the current check-out
+**
+** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+**
+**       Adds or cancels the "hidden" tag for the specified branches or
+**       or check-in IDs. Accepts the same options as the close
+**       subcommand.
 **
 ** >  fossil branch info BRANCH-NAME
 **
 **        Print information about a branch
 **
 ** >  fossil branch list|ls ?OPTIONS? ?GLOB?
+** >  fossil branch lsh ?OPTIONS? ?LIMIT?
 **
-**        List all branches. Options:
+**        List all branches.
+**
+**        Options:
 **          -a|--all      List all branches.  Default show only open branches
-**          -c|--closed   List closed branches.
+**          -c|--closed   List closed branches
+**          -p            List only private branches
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
 **
+**        The current branch is marked with an asterisk.  Private branches are
+**        marked with a hash sign.
+**
 **        If GLOB is given, show only branches matching the pattern.
+**
+**        The "lsh" variant of this subcommand shows recently changed branches,
+**        and accepts an optional LIMIT argument (defaults to 5) to cap output,
+**        but no GLOB argument.  All other options are supported, with -t being
+**        an implied no-op.
 **
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        Supported options for this subcommand include:
-**        --private             branch is private (i.e., remains local)
-**        --bgcolor COLOR       use COLOR instead of automatic background
-**        --nosign              do not sign contents on this branch
-**        --date-override DATE  DATE to use instead of 'now'
-**        --user-override USER  USER to use instead of the current default
+**
+**        Options:
+**          --private             Branch is private (i.e., remains local)
+**          --bgcolor COLOR       Use COLOR instead of automatic background
+**                                ("auto" lets Fossil choose it automatically,
+**                                even for private branches)
+**          --nosign              Do not sign contents on this branch
+**          --date-override DATE  DATE to use instead of 'now'
+**          --user-override USER  USER to use instead of the current default
 **
 **        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 **        year-month-day form, it may be truncated, the "T" may be
@@ -384,9 +652,8 @@ int branch_is_open(const char *zBrName){
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
 **
-** Options valid for all subcommands:
-**
-**    -R|--repository FILE       Run commands on repository FILE
+** Options:
+**    -R|--repository REPO       Run commands on repository REPO
 */
 void branch_cmd(void){
   int n;
@@ -396,7 +663,7 @@ void branch_cmd(void){
   n = strlen(zCmd);
   if( strncmp(zCmd,"current",n)==0 ){
     if( !g.localOpen ){
-      fossil_fatal("not within an open checkout");
+      fossil_fatal("not within an open check-out");
     }else{
       int vid = db_lget_int("checkout", 0);
       char *zCurrent = db_text(0, "SELECT value FROM tagxref"
@@ -419,35 +686,71 @@ void branch_cmd(void){
         fossil_print("%s: open as of %s on %.16s\n", zBrName, zDate, zUuid);
       }
     }
-  }else if( (strncmp(zCmd,"list",n)==0)||(strncmp(zCmd, "ls", n)==0) ){
+  }else if( strncmp(zCmd,"list",n)==0 ||
+            strncmp(zCmd, "ls", n)==0 ||
+            strcmp(zCmd, "lsh")==0 ){
     Stmt q;
     int vid;
     char *zCurrent = 0;
     const char *zBrNameGlob = 0;
+    int nLimit = 0;
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
     if( find_option("closed","c",0)!=0 ) brFlags = BRL_CLOSED_ONLY;
     if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
     if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
-    if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
+    if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
+
+    if( strcmp(zCmd, "lsh")==0 ){
+      nLimit = 5;
+      if( g.argc>4 || (g.argc==4 && (nLimit = atoi(g.argv[3]))==0) ){
+        fossil_fatal("the lsh subcommand allows one optional numeric argument");
+      }
+      brFlags |= BRL_ORDERBY_MTIME;
+    }else{
+      if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
+    }
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_list_query(&q, brFlags, zBrNameGlob);
+    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
+      int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
-      fossil_print("%s%s\n", (isCur ? "* " : "  "), zBr);
+      fossil_print("%s%s%s\n", 
+        ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ), 
+        (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);
   }else if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
+  }else if( strncmp(zCmd,"close",5)==0 ){
+    if(g.argc<4){
+      usage("branch close branch-name(s)...");
+    }
+    branch_cmd_close(3, 1);
+  }else if( strncmp(zCmd,"reopen",6)==0 ){
+    if(g.argc<4){
+      usage("branch reopen branch-name(s)...");
+    }
+    branch_cmd_close(3, 0);
+  }else if( strncmp(zCmd,"hide",4)==0 ){
+    if(g.argc<4){
+      usage("branch hide branch-name(s)...");
+    }
+    branch_cmd_hide(3,1);
+  }else if( strncmp(zCmd,"unhide",6)==0 ){
+    if(g.argc<4){
+      usage("branch unhide branch-name(s)...");
+    }
+    branch_cmd_hide(3,0);
   }else{
     fossil_fatal("branch subcommand should be one of: "
-                 "current info list ls new");
+                 "close current hide info list ls lsh new reopen unhide");
   }
 }
 
@@ -474,6 +777,8 @@ static void new_brlist_page(void){
   brlist_create_temp_table();
   db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
   rNow = db_double(0.0, "SELECT julianday('now')");
+  @ <script id="brlist-data" type="application/json">\
+  @ {"timelineUrl":"%R/timeline"}</script>
   @ <div class="brlist">
   @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
   @ <thead><tr>
@@ -506,7 +811,8 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a></td>
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input 
+    @  type="checkbox" disabled="disabled"/></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
@@ -521,6 +827,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
+  builtin_request_js("fossil.page.brlist.js");
   style_table_sorter();
   style_finish_page();
 }
@@ -602,7 +909,7 @@ void brlist_page(void){
   style_sidebox_end();
 #endif
 
-  branch_prepare_list_query(&q, brFlags, 0);
+  branch_prepare_list_query(&q, brFlags, 0, 0);
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
@@ -685,7 +992,6 @@ void brtimeline_page(void){
   style_submenu_element("List", "brlist");
   login_anonymous_available();
   timeline_ss_submenu();
-  cookie_render();
   @ <h2>The initial check-in for each branch:</h2>
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql,

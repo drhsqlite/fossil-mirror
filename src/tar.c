@@ -19,12 +19,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "tar.h"
 
 /*
@@ -427,7 +422,7 @@ static void tar_finish(Blob *pOut){
 ** Generate a GZIP-compressed tarball in the file given by the first argument
 ** that contains files given in the second and subsequent arguments.
 **
-**   -h, --dereference   Follow symlinks; archive the files they point to.
+**   -h|--dereference   Follow symlinks and archive the files they point to
 */
 void test_tarball_cmd(void){
   int i;
@@ -472,7 +467,7 @@ void test_tarball_cmd(void){
 **
 */
 void tarball_of_checkin(
-  int rid,             /* The RID of the checkin from which to form a tarball */
+  int rid,             /* The RID of the check-in from which to form a tarball*/
   Blob *pTar,          /* Write the tarball into this blob */
   const char *zDir,    /* Directory prefix for all file added to tarball */
   Glob *pInclude,      /* Only add files matching this pattern */
@@ -503,7 +498,7 @@ void tarball_of_checkin(
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
     int flg, eflg = 0;
-    mTime = (pManifest->rDate - 2440587.5)*86400.0;
+    mTime = (unsigned)((pManifest->rDate - 2440587.5)*86400.0);
     if( pTar ) tar_begin(mTime);
     flg = db_get_manifest_setting();
     if( flg ){
@@ -530,7 +525,6 @@ void tarball_of_checkin(
           zName = blob_str(&filename);
           if( listFlag ) fossil_print("%s\n", zName);
           if( pTar ){
-            sterilize_manifest(&mfile, CFTYPE_MANIFEST);
             tar_add_file(zName, &mfile, 0, mTime);
           }
         }
@@ -613,7 +607,7 @@ void tarball_of_checkin(
 **
 ** If OUTPUTFILE is an empty string or "/dev/null" then no tarball is
 ** actually generated.  This feature can be used in combination with
-** the --list option to get a list of the filename that would be in the
+** the --list option to get a list of the filenames that would be in the
 ** tarball had it actually been generated.  Note that --list shows only
 ** filenames.  "tar tzf" shows both filesnames and subdirectory names.
 **
@@ -684,7 +678,7 @@ void tarball_cmd(void){
 /*
 ** Check to see if the input string is of the form:
 **
-**        checkin-name/filename.ext
+**        check-in-name/filename.ext
 **
 ** In other words, check to see if the input contains a single '/'
 ** character that separates a valid check-in name from a filename.
@@ -764,7 +758,7 @@ void tarball_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
-  load_control();
+  fossil_nice_default();
   zName = fossil_strdup(PD("name",""));
   z = P("r");
   if( z==0 ) z = P("uuid");
@@ -776,6 +770,9 @@ void tarball_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
+  if( zInclude==0 && zExclude==0 ){
+    etag_check_for_invariant_name(z);
+  }
   nName = strlen(zName);
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */

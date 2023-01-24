@@ -1,0 +1,651 @@
+/* Chat-related */
+body.chat span.at-name { /* for @USERNAME references */
+  text-decoration: underline;
+  font-weight: bold;
+}
+/* A wrapper for a single single chat message (one row of the UI) */
+body.chat .message-widget {
+  margin-bottom: 0.75em;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  align-items: flex-start;
+}
+body.chat button,
+body.chat input[type=button] {
+  line-height: inherit/*undo skin-specific funkiness*/;
+}
+body.chat .message-widget:last-of-type {
+  /* Latest message: reduce bottom gap */
+  margin-bottom: 0.1em;
+}
+body.chat.my-messages-right .message-widget.mine {
+  /* Right-aligns a user's own chat messages, similar to how
+     most/some mobile messaging apps do it. */
+  align-items: flex-end;
+}
+body.chat.my-messages-right .message-widget.notification {
+  /* Center-aligns a system-level notification message. */
+  align-items: center;
+}
+/* The content area of a message. */
+body.chat .message-widget-content {
+  border-radius: 0.25em;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
+  padding: 0.25em 0.5em;
+  margin-top: 0;
+  min-width: 9em /*avoid unsightly "underlap" with the neighboring
+                   .message-widget-tab element*/;
+  white-space: normal;
+}
+body.chat .message-widget-content.wide {
+  /* Special case for when embedding content which we really want to
+     expand, namely iframes. */
+  width: 98%;
+}
+body.chat .message-widget-content label[for] {
+  margin-left: 0.25em;
+  cursor: pointer;
+}
+body.chat .message-widget-content > .attachment-link {
+  display: flex;
+  flex-direction: row;
+}
+body.chat .message-widget-content > .attachment-link > a {
+  margin-right: 1em;
+}
+body.chat .message-widget-content > iframe {
+  width: 100%;
+  max-width: 100%;
+  resize: both;
+}
+body.chat .message-widget-content> a {
+  /* Cosmetic: keep skin-induced on-hover underlining from shifting
+     content placed below this. */
+  border-bottom: 1px transparent;
+}
+body.chat.monospace-messages .message-widget-content,
+body.chat.monospace-messages .chat-input-field{
+  font-family: monospace;  
+}
+body.chat .message-widget-content > * {
+  margin: 0;
+  padding: 0;
+}
+body.chat .message-widget-content > pre {
+  white-space: pre-wrap;
+}
+body.chat .message-widget-content > .markdown > *:first-child {
+  margin-top: 0;
+}
+body.chat .message-widget-content > .markdown > *:last-child {
+  margin-bottom: 0;
+}
+body.chat .message-widget-content.error .buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+body.chat .message-widget-content.error .buttons > button {
+  margin: 0.25em;
+}
+
+body.chat .message-widget-content.error a {
+  color: inherit;
+}
+body.chat .message-widget-content.error .failed-message {
+  display: flex;
+  flex-direction: column;
+}
+body.chat .message-widget-content.error .failed-message textarea {
+  min-height: 5rem;
+}
+
+/* User name and timestamp (a LEGEND-like element) */
+body.chat .message-widget .message-widget-tab {
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0 0.25em 0em 0.15em;
+  padding: 0 0.5em 0.15em 0.5em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+body.chat .fossil-tooltip.help-buttonlet-content {
+  font-size: 80%;
+}
+body.chat .message-widget .message-widget-tab .xfrom {
+  /* Element which holds the "this message is from user X" part
+     of the message banner. */
+  font-style: italic;
+  font-weight: bold;
+}
+/* The popup element for displaying message timestamps
+   and deletion controls. */
+body.chat .chat-message-popup {
+  font-family: monospace;
+  font-size: 0.9em;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25em;
+  margin-top: 0.25em;
+  border: 1px outset;
+  border-radius: 0.5em;
+}
+/* Full message timestamps. */
+body.chat .chat-message-popup > span { white-space: nowrap; }
+/* Container for the message deletion buttons. */
+body.chat .chat-message-popup > .toolbar {
+  padding: 0;
+  margin: 0;
+  border: 2px inset rgba(0,0,0,0.3);
+  border-radius: 0.25em;
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body.chat .chat-message-popup > .toolbar > * {
+  margin: 0.35em;
+}
+body.chat .chat-message-popup > .toolbar > button {
+  flex: 1 1 auto;
+}
+/* The widget for loading more/older chat messages. */
+body.chat #load-msg-toolbar  {
+  border-radius: 0.25em;
+  padding: 0.1em 0.2em;
+  margin-bottom: 1em;
+}
+/* .all-done is set when chat has loaded all of the available
+   historical messages */
+body.chat #load-msg-toolbar.all-done {
+  opacity: 0.5;
+}
+body.chat #load-msg-toolbar > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: wrap;
+}
+body.chat #load-msg-toolbar > div > button {
+  flex: 1 1 auto;
+}
+/* "Chat-only mode" hides the site header/footer, showing only
+   the chat app. */
+body.chat.chat-only-mode{
+  padding: 0;
+  margin: 0 auto;
+}
+body.chat #chat-button-settings {}
+/** Popup widget for the /chat settings. */
+body.chat .chat-settings-popup {
+  font-size: 0.8em;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25em;
+  z-index: 200;
+}
+
+/** Container for the list of /chat messages. */
+body.chat #chat-messages-wrapper {
+  overflow: auto;
+  padding: 0 0.25em;
+}
+body.chat #chat-messages-wrapper.loading > * {
+  /* An attempt at reducing flicker when loading lots of messages. */
+  visibility: hidden;
+}
+body.chat div.content {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  /* ^^^^ In order to get good automatic scrolling of new messages on
+     the BOTTOM in bottom-up chat mode, such that they scroll up
+     instead of down, we have to use column-reverse layout, which
+     changes #chat-messages-wrapper's "gravity" for purposes of
+     scrolling! If we instead use flex-direction:column then each new
+     message pushes #chat-input-area down further off the screen!
+ */
+  align-items: stretch;
+}
+/* Wrapper for /chat user input controls */
+body.chat #chat-input-area {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  flex: 0 1 auto;
+}
+body.chat:not(.chat-only-mode) #chat-input-area{
+  /* Safari user reports that 2em is necessary to keep the file selection
+     widget from overlapping the page footer, whereas a margin of 0 is fine
+     for FF/Chrome (and 2em is a *huge* waste of space for those). */
+  margin-bottom: 0;
+}
+.chat-input-field {
+  flex: 10 1 auto;
+  margin: 0;
+}
+#chat-input-field-x,
+#chat-input-field-multi {
+  overflow: auto;
+  resize: vertical;
+}
+#chat-input-field-x {
+  display: inline-block/*supposed workaround for Chrome weirdness*/;
+  padding: 0.2em;
+  background-color: rgba(156,156,156,0.3);
+  white-space: pre-wrap;
+  /* ^^^ Firefox, when pasting plain text into a contenteditable field,
+     loses all newlines unless we explicitly set this. Chrome does not. */
+  cursor: text;
+  /* ^^^ In some browsers the cursor may not change for a contenteditable
+     element until it has focus, causing potential confusion. */
+}
+#chat-input-field-x:empty::before {
+  content: attr(data-placeholder);
+  opacity: 0.6;
+}
+.chat-input-field:not(:focus){
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.25em;
+}
+.chat-input-field:focus{
+  /* This transparent border helps avoid the text shifting around
+     when the contenteditable attribute causes a border (which we
+     apparently cannot style) to be added. */
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 0.25em;
+}
+/* Widget holding the chat message input field, send button, and
+   settings button. */
+body.chat #chat-input-line-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex-wrap: nowrap;
+}
+body.chat.chat-only-mode #chat-input-line-wrapper {
+  padding: 0 0.25em;
+}
+
+/*body.chat #chat-input-line-wrapper:not(.compact) {
+  flex-wrap: nowrap;
+}*/
+body.chat #chat-input-line-wrapper.compact {
+  /* "The problem" with wrapping, together with a contenteditable input
+     field, is that the latter grows as the user types, so causes
+     wrapping to happen while they type, then to unwrap as soon as the
+     input field is cleared (when the message is sent). When we stay
+     wrapped in compact mode, the wrapped buttons simply take up too
+     much space. */
+  /*flex-wrap: wrap;
+  justify-content: flex-end;*/
+  flex-direction: column;
+  /**
+     We "really do" need column orientation here because it's the
+     only way to eliminate the possibility that (A) the buttons
+     get truncated in very narrow windows and (B) that they keep
+     stable positions.
+ */
+}
+body.chat #chat-input-line-wrapper.compact #chat-input-field-x {
+}
+
+body.chat #chat-buttons-wrapper {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 4em;
+  min-height: 1.5em;
+  align-self: flex-end
+  /*keep buttons stable at bottom/right even when input field
+    resizes */;
+}
+body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper {
+  flex-direction: row;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-content: flex-end;
+  /*flex-wrap: wrap;*/
+  /* Wrapping would be ideal except that the edit widget
+     grows in width as the user types, moving the buttons
+     around */
+}
+body.chat #chat-buttons-wrapper > .cbutton {
+  padding: 0;
+  display: inline-block;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.25em;
+  min-width: 4ex;
+  max-width: 4ex;
+  min-height: 3ex;
+  max-height: 3ex;
+  margin: 0.125em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 130%;
+}
+body.chat #chat-buttons-wrapper > .cbutton:hover {
+  background-color: rgba(200,200,200,0.3);
+}
+body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper > .cbutton {
+  margin: 2px 0.125em 0 0.125em;
+  min-width: 6ex;
+  max-width: 6ex;
+  min-height: 2.3ex;
+  max-height: 2.3ex;
+  font-size: 120%;
+}
+body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper #chat-button-submit {
+  min-width: 12ex;
+}
+.chat-input-field {
+  font-family: inherit
+}
+body.chat #chat-input-line-wrapper:not(.compact) #chat-input-field-multi,
+body.chat #chat-input-line-wrapper:not(.compact) #chat-input-field-x {
+  min-height: 4rem;
+/*
+  Problems related to max-height:
+
+  - If we do NOT set a max-height then pasting/typing a large amount
+  of text can cause this element to grow without bounds, larger than
+  the window, and there's no way to navigate it sensibly.  In this
+  case, manually resizing the element (desktop only - mobile doesn't
+  offer that) will force it to stay at the selected size even if more
+  content is added to it later.
+
+  - If we DO set a max-height then its growth is bounded but it also
+  cannot manually expanded by the user.
+
+  The lesser of the two evils seems to be to rely on the browser
+  feature that a manual resize of the element will pin its size.
+*/
+}
+
+body.chat #chat-input-line-wrapper > #chat-button-settings{
+  margin: 0 0 0 0.25em;
+  max-width: 2em;
+}
+body.chat #chat-input-line-wrapper > input[type=text],
+body.chat #chat-input-line-wrapper > textarea {
+  flex: 20 1 auto;
+  max-width: revert;
+  min-width: 20em;
+}
+body.chat #chat-input-line-wrapper.compact > input[type=text] {
+  margin: 0 0 0.25em 0/* gap for if/when buttons wrap*/;
+}
+/* Widget holding the file selection control and preview */
+body.chat #chat-input-file-area  {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+}
+body.chat #chat-input-file-area > .file-selection-wrapper {
+  align-self: flex-start;
+  margin-right: 0.5em;
+  flex: 0 1 auto;
+  padding: 0.25em 0.5em;
+  white-space: nowrap;
+}
+body.chat #chat-input-file {
+  border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
+  border-radius: 0.25em;
+  padding: 0.25em;
+}
+body.chat #chat-input-file > input {
+  flex: 1 0 auto;
+}
+/* Indicator when a drag/drop is in progress */
+body.chat #chat-input-file.dragover {
+  border: 1px dashed green;
+}
+/* Widget holding the details of a selected/dropped file/image. */
+body.chat #chat-drop-details {
+  padding: 0 1em;
+  white-space: pre;
+  font-family: monospace;
+  margin: auto;
+  flex: 0;
+}
+body.chat #chat-drop-details:empty {
+  padding: 0;
+  margin: 0;
+}
+body.chat #chat-drop-details img {
+  max-width: 45%;
+  max-height: 45%;
+}
+body.chat .chat-view {
+  flex: 20 1 auto
+  /*ensure that these grow more than the non-.chat-view elements.
+    Note that setting flex shrink to 0 breaks/disables scrolling!*/;
+  margin-bottom: 0.2em;
+}
+body.chat #chat-config,
+body.chat #chat-preview {
+  /* /chat configuration widget */
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 0;
+  margin: 0;
+  align-items: stretch;
+  min-height: 6em;
+}
+body.chat #chat-config #chat-config-options {
+  /* /chat config options go here */
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  align-items: stretch;
+}
+body.chat #chat-config #chat-config-options .menu-entry {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  padding: 1em;
+  flex: 1 1 auto;
+  align-self: stretch;
+}
+body.chat #chat-config #chat-config-options .menu-entry.parent{
+  border-radius: 1em 1em 0 1em;
+  margin-top: 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry.child {
+  /*padding-left: 2.5em;*/
+  margin-left: 2em;
+}
+body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(even){
+  background-color: rgba(175,175,175,0.15);
+}
+body.chat #chat-config #chat-config-options .menu-entry:nth-of-type(odd){
+  background-color: rgba(175,175,175,0.35);
+}
+body.chat #chat-config #chat-config-options .menu-entry:first-child {
+  /* Config list header */
+  border-radius: 0 0 1em 1em;
+}
+body.chat #chat-config #chat-config-options .menu-entry:first-child .label-wrapper {
+  align-items: start;
+}
+body.chat #chat-config #chat-config-options .menu-entry > .toggle-wrapper {
+  /* Holder for a checkbox, if any */
+  min-width: 1.5rem;
+  margin-right: 1rem;
+}
+body.chat #chat-config #chat-config-options .menu-entry .label-wrapper {
+  /* Wrapper for a LABEL and a .hint element. */
+  display: flex;
+  flex-direction: column;
+  align-self: baseline;
+  flex: 1 1 auto;
+}
+body.chat #chat-config #chat-config-options .menu-entry label {
+  /* Config option label. */
+  font-weight: bold;
+  white-space: initial;
+}
+body.chat #chat-config #chat-config-options .menu-entry label[for] {
+  cursor: pointer;
+}
+body.chat #chat-config #chat-config-options .menu-entry .hint {
+  /* Config menu hint text */
+  font-size: 85%;
+  font-weight: normal;
+  white-space: pre-wrap;
+  display: inline-block;
+  opacity: 0.85;
+}
+body.chat #chat-config #chat-config-options .menu-entry select {
+}
+body.chat #chat-preview #chat-preview-content {
+  overflow: auto;
+  flex: 1 1 auto;
+  padding: 0.5em;
+  border: 1px dotted;
+}
+body.chat #chat-preview #chat-preview-content > * {
+  margin: 0;
+  padding: 0;
+}
+body.chat #chat-preview #chat-preview-buttons {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+body.chat #chat-config > button,
+body.chat #chat-preview #chat-preview-buttons > button {
+  padding: 0.5em;
+  flex: 0 1 auto;
+  margin: 0.25em 0;
+}
+
+body.chat #chat-user-list-wrapper {
+  /* Safari can't do fieldsets right, so we emulate one. */
+  border-radius: 0.5em;
+  margin: 1em 0 0.2em 0;
+  padding: 0 0.5em;
+  border-style: inset;
+  border-width: 0 1px 1px 1px/*else collides with the LEGEND*/;
+}
+body.chat #chat-user-list-wrapper.collapsed {
+  padding: 0;
+}
+body.chat #chat-user-list-wrapper > .legend {
+  font-weight: initial;
+  padding: 0 0.5em 0 0.5em;
+  position: relative;
+  top: -1.75ex/* place it like a fieldset legend */;
+  cursor: pointer;
+}
+body.chat #chat-user-list-wrapper > .legend > * {
+  vertical-align: middle;
+}
+body.chat #chat-user-list-wrapper > .legend > *:nth-child(2){
+  /* Title label */
+  opacity: 0.6;
+  font-size: 0.8em;
+}
+body.chat #chat-user-list-wrapper.collapsed > .legend > *:nth-child(2)::after {
+  content: " (tap to toggle)";
+}
+body.chat #chat-user-list-wrapper .help-buttonlet {
+  margin: 0;
+}
+body.chat #chat-user-list-wrapper.collapsed #chat-user-list {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+body.chat #chat-user-list {
+  margin-top: -1.25ex;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body.chat #chat-user-list .chat-user {
+  margin: 0.2em;
+  padding: 0.1em 0.5em 0.2em 0.5em;
+  border-radius: 0.5em;
+  cursor: pointer;
+  text-align: center;
+  white-space: pre;
+}
+body.chat #chat-user-list .timestamp {
+  font-size: 85%;
+  font-family: monospace;
+}
+body.chat #chat-user-list:not(.timestamps) .timestamp {
+  display: none;
+}
+body.chat #chat-user-list .chat-user.selected {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+body.chat.fossil-dark-style #chat-button-attach > svg {
+  /* The black paperclip is barely visible in dark-mode
+     skins when they have dark buttons */
+  filter: invert(0.8);
+}
+
+body.chat .anim-rotate-360 {
+  animation: rotate-360 750ms linear;
+}
+@keyframes rotate-360 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+body.chat .anim-flip-h {
+  animation: flip-h 750ms linear;
+}
+@keyframes flip-h{
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+body.chat .anim-flip-v {
+  animation: flip-v 750ms linear;
+}
+@keyframes flip-v{
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(360deg); }
+}
+body.chat .anim-fade-in {
+  animation: fade-in 750ms linear;
+}
+body.chat .anim-fade-in-fast {
+  animation: fade-in 350ms linear;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+body.chat .anim-fade-out-fast {
+  animation: fade-out 250ms linear;
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

@@ -24,8 +24,8 @@
 #endif
 
 
-static cson_value * json_branch_list();
-static cson_value * json_branch_create();
+static cson_value * json_branch_list(void);
+static cson_value * json_branch_create(void);
 /*
 ** Mapping of /json/branch/XXX commands/paths to callbacks.
 */
@@ -42,7 +42,7 @@ static const JsonPageDef JsonPageDefs_Branch[] = {
 ** complete.
 **
 */
-cson_value * json_page_branch(){
+cson_value * json_page_branch(void){
   return json_page_dispatch_helper(&JsonPageDefs_Branch[0]);
 }
 
@@ -52,8 +52,8 @@ cson_value * json_page_branch(){
 **
 ** CLI mode options:
 **
-**  --range X | -r X, where X is one of (open,closed,all)
-**    (only the first letter is significant, default=open).
+**  -r|--range X, where X is one of (open,closed,all)
+**    (only the first letter is significant, default=open)
 **  -a (same as --range a)
 **  -c (same as --range c)
 **
@@ -62,7 +62,7 @@ cson_value * json_page_branch(){
 ** "range" GET/POST.payload parameter. FIXME: currently we also use
 ** POST, but really want to restrict this to POST.payload.
 */
-static cson_value * json_branch_list(){
+static cson_value * json_branch_list(void){
   cson_value * payV;
   cson_object * pay;
   cson_value * listV;
@@ -130,7 +130,7 @@ static cson_value * json_branch_list(){
   }
 
 
-  branch_prepare_list_query(&q, branchListFlags, 0);
+  branch_prepare_list_query(&q, branchListFlags, 0, 0);
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
@@ -156,7 +156,7 @@ typedef struct BranchCreateOptions{
   char const * zName;
   char const * zBasis;
   char const * zColor;
-  char isPrivate;
+  int isPrivate;
   /**
      Might be set to an error string by
      json_branch_new().
@@ -199,7 +199,12 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   Blob branch;           /* manifest for the new branch */
   Manifest *pParent;     /* Parsed parent manifest */
   Blob mcksum;           /* Self-checksum on the manifest */
+  int bAutoColor = 0;    /* Value of "--bgcolor" is "auto" */
 
+  if( fossil_strncmp(zColor, "auto", 4)==0 ) {
+    bAutoColor = 1;
+    zColor = 0;
+  } 
   /* fossil branch new name */
   if( zBranch==0 || zBranch[0]==0 ){
     zOpt->rcErrMsg = "Branch name may not be null/empty.";
@@ -262,7 +267,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( content_is_private(rootid) ) zOpt->isPrivate = 1;
-  if( zOpt->isPrivate && zColor==0 ) zColor = "#fec084";
+  if( zOpt->isPrivate && zColor==0 && !bAutoColor) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
@@ -303,10 +308,6 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   /* Commit */
   db_end_transaction(0);
 
-#if 0 /* Do an autosync push, if requested */
-  /* arugable for JSON mode? */
-  if( !g.isHTTP && !isPrivate ) autosync(SYNC_PUSH);
-#endif
   return 0;
 }
 
@@ -314,7 +315,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 /*
 ** Impl of /json/branch/create.
 */
-static cson_value * json_branch_create(){
+static cson_value * json_branch_create(void){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   int rc = 0;

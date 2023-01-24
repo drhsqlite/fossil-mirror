@@ -486,7 +486,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf, int nByte){
 }
 
 /*
-** The state of a incremental SHA3 checksum computation.  Only one
+** The state of an incremental SHA3 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static SHA3Context incrCtx;
@@ -630,14 +630,13 @@ char *sha3sum(const char *zIn, int iSize){
 ** with the added 01 padding is used, not the original Keccak submission.
 **
 ** Options:
-**
 **    --224               Compute a SHA3-224 hash
 **    --256               Compute a SHA3-256 hash (the default)
 **    --384               Compute a SHA3-384 hash
 **    --512               Compute a SHA3-512 hash
 **    --size N            An N-bit hash.  N must be a multiple of 32 between
 **                        128 and 512.
-**    -h, --dereference   If FILE is a symbolic link, compute the hash on
+**    -h|--dereference    If FILE is a symbolic link, compute the hash on
 **                        the object pointed to, not on the link itself.
 **
 ** See also: [[md5sum]], [[sha1sum]]
@@ -645,7 +644,7 @@ char *sha3sum(const char *zIn, int iSize){
 void sha3sum_test(void){
   int i;
   Blob in;
-  Blob cksum;
+  Blob cksum = empty_blob;
   int iSize = 256;
   int eFType = SymFILE;
 
@@ -667,12 +666,11 @@ void sha3sum_test(void){
   verify_all_options();
 
   for(i=2; i<g.argc; i++){
-    blob_init(&cksum, "************** not found ***************", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){
       blob_read_from_channel(&in, stdin, -1);
       sha3sum_blob(&in, iSize, &cksum);
-    }else{
-      sha3sum_file(g.argv[i], eFType, iSize, &cksum);
+    }else if( sha3sum_file(g.argv[i], eFType, iSize, &cksum) > 0 ){
+      fossil_fatal("Cannot read file: %s", g.argv[i]);
     }
     fossil_print("%s  %s\n", blob_str(&cksum), g.argv[i]);
     blob_reset(&cksum);

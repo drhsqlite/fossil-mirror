@@ -50,7 +50,7 @@ the check-in, or it might be the name of a branch or tag, or it might
 be a timestamp.  See the prior link
 for more possibilities and examples.
 
-<a id="ckout"></a>The <i>&lt;version&gt;</i> can
+The <i id="ckout">&lt;version&gt;</i> can
 also be the special identifier "<b>ckout</b>".
 The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
@@ -100,9 +100,9 @@ are rendered with the standard fossil header and footer added.
 Most other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
-<h2>1.1 HTML Rendering With Fossil Headers And Footers</h2>
+<h2 id="html">1.1 HTML Rendering With Fossil Headers And Footers</h2>
 
-<a name="html"></a>Files with the mimetype "text/html" (the .html or .htm suffix) are
+Files with the mimetype "text/html" (the .html or .htm suffix) are
 usually rendered directly to the browser without interpretation.
 However, if the file begins with a &lt;div&gt; element like this:
 
@@ -187,7 +187,7 @@ configured it with the <tt>--with-th1-docs</tt> option, which is
 disabled by default.
 
 Since TH1 is a full scripting language, this feature essential grants
-the ability to execute code on the server to any with check-in 
+the ability to execute code on the server to anyone with check-in 
 privilege for the project.
 This is a security risk that needs to be carefully managed.
 The feature is off by default.
@@ -203,15 +203,15 @@ source tree is "<b>www/embeddeddoc.wiki</b>".
 You are perhaps looking at this
 file using the URL:
 
-   [http://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki].
+   [https://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki].
 
-The first part of this path, the "[http://fossil-scm.org/home]",
+The first part of this path, the "[https://fossil-scm.org/home]",
 is the base URL.  You might have originally typed:
-[http://fossil-scm.org/].  The web server at the fossil-scm.org
-site automatically redirects such links by appending "fossil".  The
-"fossil" file on fossil-scm.org is really a CGI script
+[https://fossil-scm.org/].  The web server at the fossil-scm.org
+site automatically redirects such links by appending "home".  The
+"home" file on fossil-scm.org is really a [./server/any/cgi.md|CGI script]
 which runs the fossil web service in CGI mode.
-The "fossil" CGI script looks like this:
+The "home" CGI script looks like this:
 
 <blockquote><pre>
 #!/usr/bin/fossil
@@ -245,8 +245,8 @@ and time specified.  So, for example, to see what the fossil website
 looked like at the beginning of 2010, enter:
 
 <blockquote>
-<a href="http://fossil-scm.org/home/doc/2010-01-01/www/index.wiki">
-http://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
+<a href="/doc/2010-01-01/www/index.wiki">
+https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
 </a>
 </blockquote>
 

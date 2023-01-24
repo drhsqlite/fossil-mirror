@@ -554,7 +554,7 @@ void eventedit_page(void){
   @ <tr><th align="right" valign="top">\
   @ %z(href("%R/markup_help"))Markup Style</a>:</th>
   @ <td valign="top">
-  mimetype_option_menu(zMimetype);
+  mimetype_option_menu(zMimetype, "mimetype");
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>

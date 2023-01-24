@@ -9,19 +9,19 @@ Fossil includes several options for changing the graph's style without having
 to delve into CSS. These can be found in the details.txt file of your skin or
 under Admin/Skins/Details in the web UI.
 
-*   ###`timeline-arrowheads`
+*   ### `timeline-arrowheads`
 
     Set this to `0` to hide arrowheads on primary child lines.
 
-*   ###`timeline-circle-nodes`
+*   ### `timeline-circle-nodes`
 
     Set this to `1` to make check-in nodes circular instead of square.
 
-*   ###`timeline-color-graph-lines`
+*   ### `timeline-color-graph-lines`
 
     Set this to `1` to colorize primary child lines.
 
-*   ###`white-foreground`
+*   ### `white-foreground`
 
     Set this to `1` if your skin uses white (or any light color) text.
     This tells Fossil to generate darker background colors for branches.
@@ -44,7 +44,7 @@ latter, less obvious type.
 These elements aren't intended to be seen. They're only used to help position
 the graph and its visible elements.
 
-*   ###<a id="tl-canvas"></a>`.tl-canvas`
+*   ### <a id="tl-canvas"></a>`.tl-canvas`
 
     Set the left and right margins on this class to give the desired amount
     of space between the graph and its adjacent columns in the timeline.
@@ -53,7 +53,7 @@ the graph and its visible elements.
 
     * `.sel`: See [`.tl-node`](#tl-node) for more information.
 
-*   ###<a id="tl-rail"></a>`.tl-rail`
+*   ### <a id="tl-rail"></a>`.tl-rail`
 
     Think of rails as invisible vertical lines on which check-in nodes are
     placed. The more simultaneous branches in a graph, the more rails required
@@ -62,7 +62,7 @@ the graph and its visible elements.
     the number of rails increases. If you change the `width` of `.tl-node`
     elements, you'll probably need to change this value, too.
 
-*   ###<a id="tl-mergeoffset"></a>`.tl-mergeoffset`
+*   ### <a id="tl-mergeoffset"></a>`.tl-mergeoffset`
 
     A merge line often runs vertically right beside a primary child line. This
     class's `width` property specifies the maximum spacing between the two.
@@ -70,7 +70,7 @@ the graph and its visible elements.
     Instead, the merge arrow will extend directly off the primary child line.
     As with rail spacing, this is also adjusted automatically as needed.
 
-*   ###<a id="tl-nodemark"></a>`.tl-nodemark`
+*   ### <a id="tl-nodemark"></a>`.tl-nodemark`
 
     In the timeline table, the second cell in each check-in row contains an
     invisible div with this class. These divs are used to determine the
@@ -83,7 +83,7 @@ These are the elements you can actually see on the timeline graph: the nodes,
 arrows, and lines. Each of these elements may also have additional classes
 attached to them, depending on their context.
 
-*   ###<a id="tl-node"></a>`.tl-node`
+*   ### <a id="tl-node"></a>`.tl-node`
 
     A node exists for each check-in in the timeline.
 
@@ -99,7 +99,7 @@ attached to them, depending on their context.
         [`.tl-canvas`](#tl-canvas) element. The class is removed from both
         elements when the node is clicked again.
 
-*   ###<a id="tl-arrow"></a>`.tl-arrow`
+*   ### <a id="tl-arrow"></a>`.tl-arrow`
 
     Arrows point from parent nodes to their children. Technically, this
     class is just for the arrowhead. The rest of the arrow is composed
@@ -120,7 +120,7 @@ attached to them, depending on their context.
         misconfigured clock makes a check-in appear to have occurred before its
         parent ([example](https://www.sqlite.org/src/timeline?c=2010-09-29&nd)).
 
-*   ###<a id="tl-line"></a>`.tl-line`
+*   ### <a id="tl-line"></a>`.tl-line`
 
     Along with arrows, lines connect parent and child nodes. Line thickness is
     determined by the `width` property, regardless of whether the line is

@@ -1,6 +1,6 @@
 # Implementation Details of User Capabilities
 
-## <a name="choices"></a>Capability Letter Choices
+## <a id="choices"></a>Capability Letter Choices
 
 We [assigned][ref] user capability characters using only lowercase ASCII
 letters at first, so those are the most important within Fossil: they
@@ -21,7 +21,7 @@ mnemonic assignments among the uppercase letters, which are mostly still
 unused.
 
 
-## <a name="bitfield"></a>Why Not Bitfields?
+## <a id="bitfield"></a>Why Not Bitfields?
 
 Some may question the use of ASCII character strings for [capability
 sets][ucap] instead of bitfields, which are more efficient, both in
@@ -45,7 +45,7 @@ In exchange for this immeasurable cost per hit, we get human-readable
 capability sets.
 
 
-## <a name="filter"></a>Why Doesn’t Fossil Filter “Bad” Artifacts on Sync?
+## <a id="filter"></a>Why Doesn’t Fossil Filter “Bad” Artifacts on Sync?
 
 Fossil is more trusting about the content it receives from a remote
 clone during sync than you might expect. Common manifestations of this
@@ -104,8 +104,8 @@ Be careful who you give that pair to!
 [ifvc]: https://en.wikipedia.org/wiki/Inter_frame
 [mn]:   https://en.wikipedia.org/wiki/Mnemonic
 [ref]:  ./ref.html
-[sexp]: http://fossil-scm.org/fossil/artifact?udc=1&ln=1223-1298&name=889d6724
-[sff]:  http://fossil-scm.org/fossil/artifact?udc=1&ln=80-117&name=52d2860f
+[sexp]: /artifact?ln=1223-1298&name=889d6724
+[sff]:  /artifact?ln=80-117&name=52d2860f
 [sc]:   https://en.cppreference.com/w/c/string/byte/strchr
 [shun]: ../shunning.wiki
 [ucap]: ./index.md#ucap

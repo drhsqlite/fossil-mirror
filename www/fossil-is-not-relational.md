@@ -5,10 +5,10 @@
 Upon hearing that Fossil is based on sqlite, it's natural for people
 unfamiliar with its internals to assume that Fossil stores its
 SCM-relevant data in a database-friendly way and that the SCM history
-could be modified via SQL. The truth, however, is *far stranger than
+can be modified via SQL. The truth, however, is *far stranger than
 that.*
 
-This presentation introduces, at a relatively high level:
+This document introduces, at a relatively high level:
 
 1) The underlying enduring and immutable data format, which is
   independent of any specific storage engine.
@@ -20,27 +20,6 @@ This presentation introduces, at a relatively high level:
   *transient* database-friendly form.
 
 4) Some of the consequences of this model.
-
-<!--
-```pikchr center
-AllObjects: [
-A: file "Artifacts";
-down; move to A.s; move 50%;
-F: file "Client" "files";
-right; move 1; up; move 50%;
-B: cylinder "blob table"
-right;
-arrow from A.e to B.w;
-arrow from F.e to B.w;
-arrow from B.e;
-C: box rad 0.1 "Crosslink" "process";
-arrow
-AUX: cylinder "Auxiliary" "tables"
-arc -> cw dotted from AUX.s to B.s;
-] # end of AllObjects
-// text "Architecture Overview" big bold  at .1cm above north of AllObjects
-```
--->
 
 
 # Part 1: Artifacts
@@ -100,7 +79,7 @@ This format has the following major properties:
 
 - It <u>**holds all SCM-relevant data except for client-level file
   content**</u>, the latter instead being referenced by their unique
-  hash values. Storage of the client-side content as an implementation
+  hash values. Storage of the client-side content is an implementation
   detail delegated to higher-level applications.
  
 - <u>**Auditability**</u>. By following the hash references in
@@ -161,7 +140,7 @@ Non-SCM-relevant state includes:
 
 - Fossil's list of users and their metadata (permissions, email
   address, etc.). Artifacts themselves reference users only by their
-  user names. Artifacts neither care whether, nor guaranty that, user
+  user names. Artifacts neither care whether, nor guarantee that, user
   "drh" in one artifact is in fact the same "drh" referenced in
   another artifact.
 
@@ -203,7 +182,7 @@ U drh
 Z c9dcc06ecead312b1c310711cb360bc3
 ```
 
-Each line is a single data record called a "card". The first letter of
+Each line is a single data record called a "card." The first letter of
 each line tells us the type of data stored on that line and the
 following space-separated tokens contain the data for that
 line. Tokens which themselves contain spaces (notably the checkin
@@ -420,8 +399,8 @@ combined with the higher-level access via SQL include:
   implement the same underlying data model. So far there are none, but
   it's conceivably possible.
 
-- **Provides a solid basis for reporting.** Fossil's metrics and
-  reporting options are arguably the most powerful and flexible yet
-  seen in an SCM.
+- **Provides a solid basis for reporting.** Fossil's real-time metrics
+  and reporting options are arguably the most powerful and flexible
+  yet seen in an SCM.
 
 - Very probably several more things.

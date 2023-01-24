@@ -29,9 +29,14 @@ const fossil = namespace;
 
    - onerror: callback(Error object) (default = output error message
    to console.error() and fossil.error()). Triggered if the request
-   generates any response other than HTTP 200 or suffers a connection
-   error or timeout while awaiting a response. In the context of the
-   callback, the options object is "this".
+   generates any response other than HTTP 200, suffers a connection
+   error or timeout while awaiting a response, or if the onload()
+   handler throws an exception. In the context of the callback, the
+   options object is "this". Note that this function is intended to be
+   used solely for error reporting, not error recovery. Because
+   onerror() may be called if onload() throws, it is up to the caller
+   to ensure that their onerror() callback references only state which
+   is valid in such a case.
 
    - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 
@@ -88,7 +93,7 @@ const fossil = namespace;
 
    When an options object does not provide
    onload/onerror/beforesend/aftersend handlers of its own, this
-   function falls to defaults which are member properties of this
+   function falls back to defaults which are member properties of this
    function with the same name, e.g. fossil.fetch.onload(). The
    default onload/onerror implementations route the data through the
    dev console and (for onerror()) through fossil.error(). The default
@@ -168,6 +173,18 @@ fossil.fetch = function f(uri,opt){
   x.onreadystatechange = function(){
     if(XMLHttpRequest.DONE !== x.readyState) return;
     try{opt.aftersend()}catch(e){/*ignore*/}
+    if(false && 0===x.status){
+      /* For reasons unknown, we _sometimes_ trigger x.status==0 in FF
+         when the /chat page starts up, but not in Chrome nor in other
+         apps. Insofar as has been determined, this happens before a
+         request is actually sent and it appears to have no
+         side-effects on the app other than to generate an error
+         (i.e. no requests/responses are missing). This is a silly
+         workaround which may or may not bite us later. If so, it can
+         be removed at the cost of an unsightly console error message
+         in FF. */
+      return;
+    }
     if(200!==x.status){
       let err;
       try{

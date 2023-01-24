@@ -145,8 +145,8 @@ https://github.com/username/project.git
 [ui]: /help?cmd=ui
 [usercmd]: /help?cmd=user
 
-<a name='ex1'></a>
-## Example GitHub Mirrors
+
+## <a id='ex1'></a>Example GitHub Mirrors
 
 As of this writing (2019-03-16) Fossil’s own repository is mirrored
 on GitHub at:

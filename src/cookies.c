@@ -175,8 +175,19 @@ void cookie_link_parameter(
   cookie_readwrite(zQP, zPName, zDflt, COOKIE_READ|COOKIE_WRITE);
 }
 
-/* Update the user preferences cookie, if necessary, and shut down this
-** module
+/* Update the user preferences cookie, if necessary, and shut down
+** this module. The cookie is only emitted if its value has actually
+** changed since the request started and the "udc" (Update Display
+** Cookie) URL argument was provided.
+**
+** Historical note: from 2021-03-02 [71a2d68a7a113e7c] until
+** 2023-01-16, the udc was not observed (it had been prior to that),
+** and that led to the unfortunate side effect that a timeline link
+** from the /reports page would end up persistently setting a user's
+** timeline length preference to the number of items in that
+** report. In a /chat discussion it was agreed that updating the
+** cookie requires explicit opt-in via the udc argument or ?skin=...,
+** which implies udc.
 */
 void cookie_render(void){
   if( cookies.bChanged && P("udc")!=0 ){

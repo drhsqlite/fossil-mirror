@@ -355,7 +355,9 @@ static int verify_z_card(const char *z, int n, Blob *pErr){
   if( memcmp(&z[n-33], zHash, 32)==0 ){
     return 1;
   }else{
-    blob_appendf(pErr, "incorrect Z-card cksum: expected %.32s", zHash);
+    if(pErr!=0){
+      blob_appendf(pErr, "incorrect Z-card cksum: expected %.32s", zHash);
+    }
     return 2;
   }
 }
@@ -490,7 +492,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   n = blob_size(pContent);
   if( n<=0 || z[n-1]!='\n' ){
     blob_reset(pContent);
-    blob_appendf(pErr, "%s", n ? "not terminated with \\n" : "zero-length");
+    if(pErr!=0){
+      blob_appendf(pErr, "%s", n ? "not terminated with \\n" : "zero-length");
+    }
     return 0;
   }
 
@@ -503,7 +507,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   */
   if( n<10 || z[0]<'A' || z[0]>'Z' || z[1]!=' ' ){
     blob_reset(pContent);
-    blob_appendf(pErr, "line 1 not recognized");
+    if(pErr!=0){
+      blob_appendf(pErr, "line 1 not recognized");
+    }
     return 0;
   }
   /* Then verify the Z-card.
@@ -1124,14 +1130,18 @@ manifest_syntax_error:
   {
     char *zUuid = rid_to_uuid(rid);
     if( zUuid ){
-      blob_appendf(pErr, "artifact [%s] ", zUuid);
+      if(pErr!=0){
+        blob_appendf(pErr, "artifact [%s] ", zUuid);
+      }
       fossil_free(zUuid);
     }
   }
-  if( zErr ){
-    blob_appendf(pErr, "line %d: %s", lineNo, zErr);
-  }else{
-    blob_appendf(pErr, "unknown error on line %d", lineNo);
+  if(pErr!=0){
+    if( zErr ){
+      blob_appendf(pErr, "line %d: %s", lineNo, zErr);
+    }else{
+      blob_appendf(pErr, "unknown error on line %d", lineNo);
+    }
   }
   md5sum_init();
   manifest_destroy(p);
@@ -1282,8 +1292,7 @@ void manifest_test_parse_cmd(void){
 ** implementation to confirm that the changes did not break anything.
 **
 ** Options:
-**
-**   --limit N            Parse no more than N artifacts before stopping.
+**   --limit N            Parse no more than N artifacts before stopping
 **   --wellformed         Use all BLOB table entries as input, not just
 **                        those entries that are believed to be valid
 **                        artifacts, and verify that the result the
@@ -1926,7 +1935,7 @@ static int manifest_add_checkin_linkages(
 }
 
 /*
-** There exists a "parent" tag against checkin rid that has value zValue.
+** There exists a "parent" tag against check-in rid that has value zValue.
 ** If value is well-formed (meaning that it is a list of hashes), then use
 ** zValue to reparent check-in rid.
 */
@@ -2190,12 +2199,25 @@ void manifest_ticket_event(
   }
   fossil_free(zTitle);
   manifest_create_event_triggers();
-  db_multi_exec(
-    "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
-    "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
-    tktTagId, pManifest->rDate, rid, pManifest->zUser,
-    blob_str(&comment), blob_str(&brief)
-  );
+  if( db_exists("SELECT 1 FROM event WHERE type='t' AND objid=%d", rid) ){
+    /* The ticket_rebuild_entry() function redoes all of the event entries
+    ** for a ticket whenever a new event appears.  Be careful to only UPDATE
+    ** existing events, so that they do not get turned into alerts by
+    ** the alert trigger. */
+    db_multi_exec(
+      "UPDATE event SET tagid=%d, mtime=%.17g, user=%Q, comment=%Q, brief=%Q"
+      " WHERE objid=%d",
+      tktTagId, pManifest->rDate, pManifest->zUser,
+      blob_str(&comment), blob_str(&brief), rid
+    );
+  }else{
+    db_multi_exec(
+      "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
+      "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
+      tktTagId, pManifest->rDate, rid, pManifest->zUser,
+      blob_str(&comment), blob_str(&brief)
+    );
+  }
   blob_reset(&comment);
   blob_reset(&brief);
 }
@@ -2251,6 +2273,34 @@ static int tag_compare(const void *a, const void *b){
     c = fossil_strcmp(pA->zName, pB->zName);
   }
   return c;
+}
+
+/*
+** Inserts plink entries for FORUM, WIKI, and TECHNOTE manifests. May
+** assert for other manifest types. If a parent entry exists, it also
+** propagates any tags for that parent. This is a no-op if
+** p->nParent==0.
+*/
+static void manifest_add_fwt_plink(int rid, Manifest *p){
+  int i;
+  int parentId = 0;
+  assert(p->type==CFTYPE_WIKI ||
+         p->type==CFTYPE_FORUM ||
+         p->type==CFTYPE_EVENT);
+  for(i=0; i<p->nParent; ++i){
+    int const pid = uuid_to_rid(p->azParent[i], 1);
+    if(0==i){
+      parentId = pid;
+    }
+    db_multi_exec(
+                  "INSERT OR IGNORE INTO plink"
+                  "(pid, cid, isprim, mtime, baseid)"
+                  "VALUES(%d, %d, %d, %.17g, NULL)",
+                  pid, rid, i==0, p->rDate);
+  }
+  if(parentId){
+    tag_propagate_all(parentId);
+  }
 }
 
 /*
@@ -2359,7 +2409,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
       );
-      backlink_extract(zCom, 0, rid, BKLNK_COMMENT, p->rDate, 1);
+      backlink_extract(zCom, MT_NONE, rid, BKLNK_COMMENT, p->rDate, 1);
       fossil_free(zCom);
 
       /* If this is a delta-manifest, record the fact that this repository
@@ -2419,10 +2469,13 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       tag_propagate_all(parentid);
     }
   }
+  if(p->type==CFTYPE_WIKI || p->type==CFTYPE_FORUM
+     || p->type==CFTYPE_EVENT){
+    manifest_add_fwt_plink(rid, p);
+  }
   if( p->type==CFTYPE_WIKI ){
     char *zTag = mprintf("wiki-%s", p->zWikiTitle);
-    int tagid = tag_findid(zTag, 1);
-    int prior;
+    int prior = 0;
     char cPrefix;
     int nWiki;
     char zLength[40];
@@ -2432,12 +2485,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     fossil_free(zTag);
-    prior = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime<%.17g"
-      " ORDER BY mtime DESC",
-      tagid, p->rDate
-    );
+    if(p->nParent){
+      prior = fast_uuid_to_rid(p->azParent[0]);
+    }
     if( prior ){
       content_deltify(prior, &rid, 1, 0);
     }
@@ -2464,7 +2514,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_EVENT ){
     char *zTag = mprintf("event-%s", p->zEventId);
     int tagid = tag_findid(zTag, 1);
-    int prior, subsequent;
+    int prior = 0, subsequent;
     int nWiki;
     char zLength[40];
     Stmt qatt;
@@ -2473,13 +2523,12 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     fossil_free(zTag);
-    prior = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime<%.17g AND rid!=%d"
-      " ORDER BY mtime DESC",
-      tagid, p->rDate, rid
-    );
+    if(p->nParent){
+      prior = fast_uuid_to_rid(p->azParent[0]);
+    }
     subsequent = db_int(0,
+      /* BUG: this check is only correct if subsequent
+         version has already been crosslinked. */
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime>=%.17g AND rid!=%d"
       " ORDER BY mtime",
@@ -2818,9 +2867,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       fossil_free(zTitle);
     }
     if( p->zWiki[0] ){
-      backlink_extract(p->zWiki, p->zMimetype, rid, BKLNK_FORUM, p->rDate, 1);
+      int mimetype = parse_mimetype(p->zMimetype);
+      backlink_extract(p->zWiki, mimetype, rid, BKLNK_FORUM, p->rDate, 1);
     }
   }
+
   db_end_transaction(0);
   if( permitHooks ){
     rc = xfer_run_common_script();

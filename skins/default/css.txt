@@ -161,17 +161,6 @@ hr {
   color: #ccc;
 }
 
-
-/* Exceptions for /info diff views */
-
-.udiff, .sbsdiff {
-  font-size: .85em !important;
-  overflow: auto;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-
 /* Forum */
 
 .forum a:visited {
@@ -269,7 +258,7 @@ div.timelineDate {
   }
   .status {padding-top: 0px;}
   .mainmenu a {
-    padding: 10px 10px;
+    padding: 8px 10px;
   }
   .mainmenu {
     padding: 10px;
@@ -287,7 +276,7 @@ div.timelineDate {
   }
   .status {padding-top: 30px;}
   .mainmenu a {
-    padding: 10px 20px;
+    padding: 8px 20px;
   }
   .mainmenu {
     padding: 10px;

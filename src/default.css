@@ -238,6 +238,9 @@ div.columns > ul li:first-child {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+body.help .columns li {
+  white-space: nowrap /* keep command name aliases from wrapping */;
+}
 .filetree {
   margin: 1em 0;
   line-height: 1.5;
@@ -531,52 +534,188 @@ ul.filelist {
 ul.filelist li {
   padding-top: 1px;
 }
-table.sbsdiffcols {
-  width: 90%;
+
+/* Rules governing diff layout and colors */
+table.diff {
+  width: 100%;
   border-spacing: 0;
-  font-size: xx-small;
+  border-radius: 5px;
+  border: 1px solid black;
+  font-size: 80%;
 }
-table.sbsdiffcols td {
+table.diff td.diffln{
   padding: 0;
-  vertical-align: top;
 }
-table.sbsdiffcols pre {
+table.diff td.diffln > pre{
+  padding: 0 0.25em 0 0.5em;
   margin: 0;
+}
+table.diff td {
+  vertical-align: top;
   padding: 0;
-  border: 0;
-  font-size: inherit;
-  background: inherit;
-  color: inherit;
+  overflow: hidden /*work around inner PRE slight overflow/overlap*/;
 }
-div.difflncol {
-  padding-right: 1em;
+table.diff pre {
+  margin: 0 0 0 0;
+  padding: 0 0.5em;
+  line-height: 1.275/*for mobile: forum post e6f4ee7de98b55c0*/;
+  text-size-adjust: none
+  /* ^^^ attempt to keep mobile from inflating some text */;
+}
+table.diff pre > ins,
+table.diff pre > del {
+  /* Fill platform-dependent color gaps caused by
+     inflated line-height */;
+  padding: 0.062em 0 0.062em 0;
+}
+table.diff pre > ins > *,
+table.diff pre > del > *{
+  /* Avoid odd-looking color swatches in conjunction with
+     (table.diff pre > ins/del) padding */
+  padding: inherit;
+}
+table.diff td.diffln > pre {
+  padding: 0 0.35em 0 0.5em;
+}
+table.diff td > pre {
+  box-sizing: border-box;
+  /* Workaround for "slight wiggle" when using mouse-wheel in some FF
+     versions, apparently caused by the increased line-height forcing
+     these elements to be a *tick* larger than they should be but not
+     large enough to force a scroll bar to show up. */
+  overflow-y: hidden;
+}
+tr.diffskip.jchunk {
+  /* jchunk gets added from JS to diffskip rows when they are
+     plugged into the /jchunk route. */
+  background-color: aliceblue;
+  padding: 0;
+}
+tr.diffskip.jchunk > td {
+  padding: 0.25em 0.5em;
+  margin: 0;
+}
+tr.diffskip.jchunk:hover {
+  /*background-color: rgba(127,127,127,0.5);
+  cursor: pointer;*/
+}
+tr.diffskip > td.chunkctrl {
+  text-align: left;
+  font-family: monospace;
+}
+tr.diffskip > td.chunkctrl > div {
+  display: flex;
+  align-items: center;
+}
+tr.diffskip > td.chunkctrl > div > span.error {
+  padding: 0.25em 0.5em;
+  border-radius: 0.5em;
+}
+tr.diffskip > td.chunkctrl .jcbutton
+/* class name .button breaks w/ some skins! */ {
+  min-width: 3.5ex;
+  max-width: 3.5ex;
+  text-align: center;
+  display: inline-block;
+  padding: 0.1em 1em;
+  margin: 0 1em 0 0;
+  background-color: rgba(127,127,127,0.2);
+  border-style: outset;
+  border-width: 0;
+  border-radius: 0.5em;
+  opacity: 0.7;
+}
+tr.diffskip > td.chunkctrl .jcbutton.up:not(.down){
+  /* Simulate an arrow pointing up */
+  border-radius: 3em 3em 0.25em 0.25em;
+}
+tr.diffskip > td.chunkctrl .jcbutton.down:not(.up){
+  /* Simulate an arrow pointing down */
+  border-radius: 0.25em 0.25em 3em 3em;
+}
+tr.diffskip > td.chunkctrl .jcbutton > span {
+  /* In order to increase the glyph size w/o increasing the em-based
+     button size or border-radius, we need an extra layer of DOM
+     element for the glyph. */
+  font-size: 150%;
+}
+tr.diffskip > td.chunkctrl .jcbutton.up > span::before {
+  content: '⇡';
+}
+tr.diffskip > td.chunkctrl .jcbutton.down > span::before {
+  content: '⇣';
+}
+tr.diffskip > td.chunkctrl .jcbutton.up.down > span::before {
+  content: '⇡⇣';
+}
+
+tr.diffskip > td.chunkctrl .jcbutton:hover {
+  cursor: pointer;
+  opacity: 1;
+  filter: contrast(1);
+}
+td.diffln {
+  width: 1px;
   text-align: right;
-  color: #a0a0a0;
+  padding: 0 1em 0 0;
 }
-div.difftxtcol {
-  width: 45em;
+td.difflne {
+  padding-bottom: 0.4em;
+}
+td.diffsep {
+  width: 1px;
+  padding: 0 0.3em 0 0.5em;
+}
+td.difftxt pre {
   overflow-x: auto;
 }
-div.diffmkrcol {
-  padding: 0 1em;
+td.diffln ins {
+  background-color: #a0e4b2;
+  text-decoration: none;
 }
-span.diffchng {
+td.diffln del {
+  background-color: #ffc0c0;
+  text-decoration: none;
+}
+td.difftxt del {
+  background-color: #ffe8e8;
+  text-decoration: none;
+}
+td.difftxt del > del {
+  background-color: #ffc0c0;
+  text-decoration: none;
+  font-weight: bold;
+}
+td.difftxt del > del.edit {
   background-color: #c0c0ff;
+  text-decoration: none;
+  font-weight: bold;
 }
-span.diffadd {
-  background-color: #c0ffc0;
+td.difftxt ins {
+  background-color: #dafbe1;
+  text-decoration: none;
 }
-span.diffrm {
-  background-color: #ffc8c8;
+td.difftxt ins > ins {
+  background-color: #a0e4b2;
+  text-decoration: none;
+  font-weight: bold;
 }
-span.diffhr {
-  display: inline-block;
-  margin: .5em 0 1em;
-  color: #0000ff;
+td.difftxt ins > ins.edit {
+  background-color: #c0c0ff;
+  text-decoration: none;
+  font-weight: bold;
 }
-span.diffln {
-  color: #a0a0a0;
+body.tkt div.content li > table.udiff {
+  margin-left: 1.5em;
+  margin-top: 0.5em;
 }
+body.tkt div.content ol.tkt-changes > li:target > p > span {
+  border-bottom: 3px solid gold;
+}
+body.tkt div.content ol.tkt-changes > li:target > ol {
+  border-left: 1px solid gold;
+}
+
 span.modpending {
   color: #b03800;
   font-style: italic;
@@ -848,6 +987,10 @@ div.forumPostBody.shrunken {
      to this size instead of its original size. */
   max-height: 8em;
 }
+span.forumPostReplyTitle {
+  /* thread title part of the page header when replying to a post */
+  font-style: italic;
+}
 
 div.forumSel {
   background-color: #cef;
@@ -878,6 +1021,9 @@ div.forumObs {
 }
 label {
   white-space: nowrap;
+}
+label[for] {
+  cursor: pointer;
 }
 .copy-button {
   display: inline-block;
@@ -947,12 +1093,17 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   color: black;
   background: yellow;
 }
-.hidden {
-  /* The framework-wide way of hiding elements is to assign them this
-     CSS class. To make them visible again, remove it. The !important
-     qualifiers are unfortunate but sometimes necessary when hidden
-     element has other classes which specify visibility-related
-     options. */
+.hidden, .initially-hidden {
+  /* The framework-wide way of hiding elements is to assign them th
+     .hidden class. To make them visible again, remove it. The
+     !important qualifiers are unfortunate but sometimes necessary
+     when hidden element has other classes which specify
+     visibility-related options. The .initially-hidden class is for
+     pages which need to show, e.g., a progress widget while a large
+     WASM blob loads. Elements aside from that load-time widget can be
+     made .initially-hidden and then have that class removed once the
+     long-running startup process is done. See /pikchrshow for an
+     example. */
   position: absolute !important;
   opacity: 0 !important;
   pointer-events: none !important;
@@ -1084,6 +1235,9 @@ hr {
   margin: 0.25em 0;
   flex: 0 0 auto;
 }
+.font-size-80 {
+  font-size: 80%;
+}
 .font-size-100 {
   font-size: 100%;
 }
@@ -1178,12 +1332,13 @@ table.numbered-lines > tbody > tr > td {
 table.numbered-lines td.line-numbers {
   width: 4.5em;
 }
-table.numbered-lines td.line-numbers > span:first-of-type {
-  margin-top: 0.25em/*must match top PADDING of
-                      td.file-content > pre > code*/;
+table.numbered-lines td.line-numbers > pre {
+  margin: 0.25em/*must match top PADDING of td.file-content
+                  > pre > code*/ 0 0 0;
+  padding: 0;
 }
-table.numbered-lines td.line-numbers > span {
-  display: block;
+table.numbered-lines td.line-numbers span {
+  display: inline-block;
   margin: 0;
   padding: 0;
   line-height: inherit;
@@ -1194,7 +1349,7 @@ table.numbered-lines td.line-numbers > span {
   margin-right: 2px/*keep selection from nudging the right column */;
   text-align: right;
 }
-table.numbered-lines td.line-numbers > span:hover {
+table.numbered-lines td.line-numbers span:hover {
   background-color: rgba(112, 112, 112, 0.25);
 }
 table.numbered-lines td.file-content {
@@ -1255,7 +1410,7 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   text-align: center;
   padding: 0.2em 1em;
   border: 1px solid black;
-  border-radius: 0.25em;
+  border-radius: 0.5em;
   position: absolute;
   display: inline-block;
   z-index: 19/*below default skin's hamburger popup*/;
@@ -1289,6 +1444,10 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
      skin, leaving it unreadable. Since we set the bg
      color we must also set the fg color. */;
   color: rgba(235, 235, 235, 0.9);
+}
+.fossil-PopupWidget a,
+.fossil-PopupWidget a:visited {
+  color: initial;
 }
 .fossil-toast-message.error,
 .fossil-toast-message.warning {
@@ -1410,7 +1569,7 @@ pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   text-align: left;
 }
 /* The .source-inline class tells the .source class that the
-   source view, when enbaled, should be "inline" (same position
+   source view, when enabled, should be "inline" (same position
    as the graphic), else the sources are shifted to the left as
    if they were "plain text". */
 div.pikchr-wrapper.center:not(.source),
@@ -1433,6 +1592,12 @@ div.pikchr-wrapper.center.source.source-inline > pre.pikchr-src,
 div.pikchr-wrapper.center.source.source-inline > div.pikchr-svg
 /* ^^^ Centered inline-source-view elements */{
   display:inline-block/*allows parent text-align to do the alignment*/;
+  /* ^^^^ Browser incompatibility: inline-block causes the centered
+     pikchr to shrink to the point of illegiblity in Chrome. The
+     closest match on Chrome seems to be using 'unset', which centers
+     by virtue of stretching it to the width of the window. Similarly,
+     using {display: grid; place-items: center} centers and sizes well
+     on FF but Chrome shrinks it in the same way. */
 }
 div.pikchr-wrapper.indent:not(.source),
 div.pikchr-wrapper.indent.source.source-inline{
@@ -1469,105 +1634,6 @@ div.pikchr-wrapper.source > div.pikchr-svg {
   display: none !important;
 }
 
-/* Chat-related */
-body.chat span.at-name { /* for @USERNAME references */
-  text-decoration: underline;
-  font-weight: bold;
-}
-/* A wrapper for a single single chat message (one row of the UI) */
-body.chat .message-widget {
-  margin-bottom: 0.75em;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  border: none;
-  align-items: flex-start;
-}
-body.chat.my-messages-right .message-widget.mine {
-  /* Right-aligns a user's own chat messages, similar to how
-     most mobile messaging apps do it. */
-  align-items: flex-end;
-}
-body.chat.my-messages-right .message-widget.notification {
-  /* Center-aligns a system-level notification message. */
-  align-items: center;
-}
-/* The content area of a message. */
-body.chat .message-widget-content {
-  display: inline-block;
-  border-radius: 0.25em;
-  border: 1px solid rgba(0,0,0,0.2);
-  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
-  padding: 0.25em 0.5em;
-  margin-top: 0;
-  min-width: 9em /*avoid unsightly "underlap" with the neighboring
-                   .message-widget-tab element*/;
-  white-space: pre-wrap/*needed for multi-line edits*/;
-}
-body.chat.monospace-messages .message-widget-content,
-body.chat.monospace-messages textarea,
-body.chat.monospace-messages input[type=text]{
-  font-family: monospace;  
-}
-/* User name and timestamp (a LEGEND-like element) */
-body.chat .message-widget .message-widget-tab {
-  border-radius: 0.25em 0.25em 0 0;
-  margin: 0 0.25em 0em 0.15em;
-  padding: 0 0.5em 0.15em 0.5em;
-  cursor: pointer;
-  white-space: nowrap;
-}
-body.chat .fossil-tooltip.help-buttonlet-content {
-  font-size: 80%;
-}
-/* The popup element for displaying message timestamps
-   and deletion controls. */
-body.chat .chat-message-popup {
-  font-family: monospace;
-  font-size: 0.8em;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 0.25em;
-  z-index: 200;
-}
-/* Full message timestamps. */
-body.chat .chat-message-popup > span { white-space: nowrap; }
-/* Container for the message deletion buttons. */
-body.chat .chat-message-popup > .toolbar {
-  padding: 0.2em;
-  margin: 0;
-  border: 2px inset rgba(0,0,0,0.3);
-  border-radius: 0.25em;
-  display: flex;
-  flex-direction: row;
-  justify-content: stretch;
-  flex-wrap: wrap;
-}
-body.chat .chat-message-popup > .toolbar > button {
-  flex: 1 1 auto;
-}
-/* The widget for loading more/older chat messages. */
-body.chat #load-msg-toolbar  {
-  border-radius: 0.25em;
-  padding: 0.1em 0.2em;
-  margin-bottom: 1em;
-}
-/* .all-done is set when chat has loaded all of the available
-   historical messages */
-body.chat #load-msg-toolbar.all-done {
-  opacity: 0.5;
-}
-body.chat #load-msg-toolbar > div {
-  display: flex;
-  flex-direction: row;
-  justify-content: stretch;
-  flex-wrap: wrap;
-}
-body.chat #load-msg-toolbar > div > button {
-  flex: 1 1 auto;
-}
 
 /* An icon element intended for use as a button/menu for
    accessing app-specific settings. */
@@ -1601,168 +1667,108 @@ d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.55
 body.fossil-dark-style .settings-icon {
   filter: invert(100%);
 }
-/* "Chat-only mode" hides the site header/footer, showing only
-   the chat app. */
-body.chat.chat-only-mode{}
-body.chat #chat-settings-button {}
-/** Popup widget for the /chat settings. */
-body.chat .chat-settings-popup {
-  font-size: 0.8em;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 0.25em;
-  z-index: 200;
+
+input[type="checkbox"].diff-toggle {
+  float: right;
 }
-body.chat .chat-settings-popup > span {
-  vertical-align: middle;
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #ffc;
 }
-body.chat .chat-settings-popup > span.menu-entry{
-  white-space: nowrap;
+body.branch .brlist > table > tbody td:first-child > input {
   cursor: pointer;
-  border: 1px solid;
-  border-radius: 0.25em;
-  padding: 0.25em 0.5em;
+}
+body.branch .brlist > table > tbody > tr > td:nth-child(1) {
   display: flex;
   flex-direction: row;
-  align-items: center;
   justify-content: space-between;
 }
-body.chat .chat-settings-popup > span.menu-entry:hover {
+body.branch .submenu > a.timeline-link {
+  display: none;
 }
-body.chat .chat-settings-popup > span.menu-entry > .help-buttonlet {
-  vertical-align: middle;
-}
-body.chat .chat-settings-popup > span.menu-entry > span.button {
-  margin: 0.25em 0.2em;
-  padding: 0.25em;
-  flex: 1 1 auto/*eliminates dead no-click zones on the right*/;
-}
-body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
-  cursor: inherit;
-}
-body.chat .chat-settings-popup > select.menu-entry {
-  flex: 1 1 auto;
-  padding: 0;
-  cursor: pointer;
-  min-height: 2.5em;
-  border-radius: 0.25em;
-}
-body.chat .chat-settings-popup > select.menu-entry > option {
-  /*Recall that many browsers don't allow styling of OPTION
-    elements, or allow only very limited styling.*/
+body.branch .submenu > a.timeline-link.selected {
+  display: inline;
 }
 
-/** Container for the list of /chat messages. */
-body.chat #chat-messages-wrapper {
-  overflow: auto;
-  /*max-height: 800em*//*will be re-calc'd in JS*/;
-  flex: 2 1 auto;
-}
-body.chat #chat-messages-wrapper.loading > * {
-  /* An attempt at reducing flicker when loading lots of messages. */
-  visibility: hidden;
-}
-body.chat div.content {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column-reverse;
-  /* ^^^^ In order to get good automatic scrolling of new messages on
-     the BOTTOM in bottom-up chat mode, such that they scroll up
-     instead of down, we have to use column-reverse layout, which
-     changes #chat-messages-wrapper's "gravity" for purposes of
-     scrolling! If we instead use flex-direction:column then each new
-     message pushes #chat-input-area down further off the screen!
- */
-  align-items: stretch;
-}
-/* Wrapper for /chat user input controls */
-body.chat #chat-input-area {
-  display: flex;
-  flex-direction: column;
-  padding: 0.5em 1em;
-  border-bottom: none;
-  border-top: 1px solid black;
-  margin: 0.5em 1em 0 1em;
-  position: initial /*sticky currently disabled due to scrolling-related issues*/;
-  bottom: 0;
-}
-body.chat:not(.chat-only-mode) #chat-input-area{
-  /* Safari user reports that 2em is necessary to keep the file selection
-     widget from overlapping the page footer, whereas a margin of 0 is fine
-     for FF/Chrome (and 2em is a *huge* waste of space for those). */
-  margin-bottom: 0;
-}
-
-/* Widget holding the chat message input field, send button, and
-   settings button. */
-body.chat #chat-input-line {
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 0.25em;
-  align-items: self-start;
-}
-body.chat #chat-input-line > input[type=submit],
-body.chat #chat-input-line > #chat-settings-button,
-body.chat #chat-input-line > button {
-  flex: 1 5 auto;
-  max-width: 6em;
-  margin: 0 0.25em;
-}
-body.chat #chat-input-line > button {
-  max-width: 4em;
-}
-body.chat #chat-input-line > #chat-settings-button{
-  margin: 0 0 0 0.25em;
-  max-width: 2em;
-}
-body.chat #chat-input-line > input[type=text],
-body.chat #chat-input-line > textarea {
-  flex: 5 1 auto;
-}
-/* Widget holding the file selection control and preview */
-body.chat #chat-input-file-area  {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-}
-body.chat #chat-input-file-area > .file-selection-wrapper {
-  align-self: flex-start;
-  margin-right: 0.5em;
-  flex: 0 1 auto;
-  padding: 0.25em 0.25em 0.25em 0;
-}
-body.chat #chat-input-file-area .file-selection-wrapper > * {
-  vertical-align: middle;
-  margin: 0;
-}
-body.chat #chat-input-file {
-  border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
-  border-radius: 0.25em;
-  padding: 0.25em;
-}
-body.chat #chat-input-file > input {
-  flex: 1 0 auto;
-}
-/* Indicator when a drag/drop is in progress */
-body.chat #chat-input-file.dragover {
-  border: 1px dashed green;
-}
-/* Widget holding the details of a selected/dropped file/image. */
-body.chat #chat-drop-details {
-  flex: 0 1 auto;
-  padding: 0.5em 1em;
-  margin-left: 0.5em;
-  white-space: pre;
+.monospace {
   font-family: monospace;
 }
 
-body.chat #chat-drop-details img {
-  max-width: 45%;
-  max-height: 45%;
+div.markdown > ol.footnotes {
+  font-size: 90%;
+}
+div.markdown > ol.footnotes > li {
+  margin-bottom: 0.5em;
+}
+div.markdown ol.footnotes > li.fn-joined > sup.fn-joined {
+  color: gray;
+  font-family: monospace;
+}
+div.markdown ol.footnotes > li.fn-joined > sup.fn-joined::after {
+  content: "(joined from multiple locations) ";
+}
+div.markdown ol.footnotes > li.fn-misreference {
+  margin-top:    0.75em;
+  margin-bottom: 0.75em;
+}
+div.markdown ol.footnotes > li.fn-toodeep > i,
+div.markdown ol.footnotes > li.fn-misreference,
+div.markdown ol.footnotes > li.fn-unreferenced {
+  color: gray;
+}
+div.markdown ol.footnotes > li.fn-misreference > span {
+  color: red;
+}
+div.markdown ol.footnotes > li.fn-misreference > span::after {
+  content: " (use of undefined label).";
+}
+div.markdown ol.footnotes > li.fn-unreferenced {
+  padding-left: 0.5em;
+}
+div.markdown ol.footnotes > li.fn-unreferenced > code {
+  color: red;
+}
+div.markdown ol.footnotes > li.fn-unreferenced > i::after {
+  content: " was defined but is not referenced";
+}
+div.markdown ol.footnotes > li.fn-toodeep > i::after {
+  content: " depth of nesting of inline footnotes exceeded the limit";
+}
+div.markdown ol.footnotes > li.fn-toodeep > pre,
+div.markdown ol.footnotes > li.fn-unreferenced > pre {
+  color: gray;
+  font-size: 85%;
+  padding-left: 0.5em;
+  margin-top:  0.25em;
+  border-left: 2px solid red;
+}
+div.markdown ol.footnotes > li.fn-toodeep > pre {
+  margin-left: 0.5em;
+}
+div.markdown > ol.footnotes > li > .fn-backrefs {
+  margin-right: 0.5em;
+  font-weight: bold;
+}
+div.markdown > ol.footnotes > li > .fn-backrefs > a,
+div.markdown sup.noteref > a {
+  padding-left:  2px;
+  padding-right: 2px;
+}
+div.markdown sup.noteref.misref,
+div.markdown sup.noteref.misref > a {
+  color: red;
+  font-size: 90%;
+}
+div.markdown sup.noteref > a:target,
+div.markdown span.notescope:target > sup.noteref > a,
+div.markdown span.notescope:hover  > sup.noteref > a,
+div.markdown > ol.footnotes > li > .fn-backrefs > a:target {
+  background: gold;
+}
+div.markdown span.notescope:hover,
+div.markdown span.notescope:target {
+  border-bottom: 2px solid gold;
 }
 
 /* Objects in the "desktoponly" class are invisible on mobile */

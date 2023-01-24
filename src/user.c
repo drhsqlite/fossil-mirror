@@ -40,7 +40,7 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
-#if defined(_WIN32) || defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS)
+#if defined(_WIN32) || (defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS))
 #ifdef _WIN32
 #include <conio.h>
 #endif
@@ -112,15 +112,6 @@ void freepass(){
   assert( nPwdBuffer>0 );
   fossil_secure_free_page(zPwdBuffer, nPwdBuffer);
 }
-#endif
-
-#if defined(_WIN32) || defined(WIN32)
-# include <io.h>
-# include <fcntl.h>
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
 #endif
 
 /*
@@ -281,10 +272,6 @@ void prompt_for_password(
 int save_password_prompt(const char *passwd){
   Blob x;
   char c;
-  const char *old = db_get("last-sync-pw", 0);
-  if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
-     return 0;
-  }
   if( fossil_security_level()>=1 ) return 0;
   prompt_user("remember password (Y/n)? ", &x);
   c = blob_str(&x)[0];
@@ -328,7 +315,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 /*
 ** COMMAND: user*
 **
-** Usage: %fossil user SUBCOMMAND ...  ?-R|--repository FILE?
+** Usage: %fossil user SUBCOMMAND ...  ?-R|--repository REPO?
 **
 ** Run various subcommands on users of the open repository or of
 ** the repository identified by the -R or --repository option.
@@ -551,7 +538,7 @@ void user_select(void){
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
   memset(&url, 0, sizeof(url));
-  url_parse_local(0, 0, &url);
+  url_parse_local(0, URL_USE_CONFIG, &url);
   if( url.user && attempt_user(url.user) ) return;
 
   fossil_print(
@@ -574,20 +561,34 @@ void test_usernames_cmd(void){
 
   fossil_print("Initial g.zLogin: %s\n", g.zLogin);
   fossil_print("Initial g.userUid: %d\n", g.userUid);
-  fossil_print("checkout default-user: %s\n", g.localOpen ?
-               db_lget("default-user","") : "<<no open checkout>>");
+  fossil_print("check-out default-user: %s\n", g.localOpen ?
+               db_lget("default-user","") : "<<no open check-out>>");
   fossil_print("default-user: %s\n", db_get("default-user",""));
   fossil_print("FOSSIL_USER: %s\n", fossil_getenv("FOSSIL_USER"));
   fossil_print("USER: %s\n", fossil_getenv("USER"));
   fossil_print("LOGNAME: %s\n", fossil_getenv("LOGNAME"));
   fossil_print("USERNAME: %s\n", fossil_getenv("USERNAME"));
-  url_parse(0, 0);
+  url_parse(0, URL_USE_CONFIG);
   fossil_print("URL user: %s\n", g.url.user);
   user_select();
   fossil_print("Final g.zLogin: %s\n", g.zLogin);
   fossil_print("Final g.userUid: %d\n", g.userUid);
 }
 
+
+/*
+** Make sure the USER table is up-to-date.  It should contain
+** the "JX" column (as of version 2.21).  If it does not, add it.
+**
+** The "JX" column is intended to hold a JSON object containing optional
+** key-value pairs.
+*/
+void user_update_user_table(void){
+  if( db_table_has_column("repository","user","jx")==0 ){
+    db_multi_exec("ALTER TABLE repository.user"
+                  " ADD COLUMN jx TEXT DEFAULT '{}';");
+  }
+}
 
 /*
 ** COMMAND: test-hash-passwords
@@ -702,6 +703,10 @@ void access_log_page(void){
     return;
   }
   style_header("Access Log");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Error-Log", "errorlog");
+
   blob_zero(&sql);
   blob_append_sql(&sql,
     "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"

@@ -46,54 +46,50 @@ function initCopyButton(elButton,idTarget,cchLength){
   return elButton;
 }
 setTimeout(function(){
-  var aButtons = document.getElementsByClassName("copy-button");
-  for ( var i=0; i<aButtons.length; i++ ){
-    initCopyButton(aButtons[i],0,0);
+  var elButtons = document.getElementsByClassName("copy-button");
+  for ( var i=0; i<elButtons.length; i++ ){
+    initCopyButton(elButtons[i],0,0);
   }
 },1);
 /* The onclick handler for the "Copy Button". */
-var lockCopyText = false;
 function clickCopyButton(e){
   e.preventDefault();   /* Mandatory for <a> and <button>. */
   e.stopPropagation();
-  if( lockCopyText ) return;
-  lockCopyText = true;
+  if( this.getAttribute("data-copylocked") ) return;
+  this.setAttribute("data-copylocked","1");
   this.style.transition = "opacity 400ms ease-in-out";
   this.style.opacity = 0;
   var idTarget = this.getAttribute("data-copytarget");
   var elTarget = document.getElementById(idTarget);
   if( elTarget ){
-    var text = elTarget.innerText.replace(/^\s+|\s+$/g,'');
+    var text = elTarget.innerText.replace(/^\s+|\s+$/g,"");
     var cchLength = parseInt(this.getAttribute("data-copylength"));
     if( !isNaN(cchLength) && cchLength>0 ){
-      text = text.slice(0,cchLength);   // Assume single-byte chars.
+      text = text.slice(0,cchLength);   /* Assume single-byte chars. */
     }
     copyTextToClipboard(text);
   }
-  setTimeout(function(id){
-    var elButton = document.getElementById(id);
-    if( elButton ){
-      elButton.style.transition = "";
-      elButton.style.opacity = 1;
-    }
-    lockCopyText = false;
-  }.bind(null,this.id),400);
+  setTimeout(function(){
+    this.style.transition = "";
+    this.style.opacity = 1;
+    this.removeAttribute("data-copylocked");
+  }.bind(this),400);
 }
 /* Create a temporary <textarea> element and copy the contents to clipboard. */
 function copyTextToClipboard(text){
   if( window.clipboardData && window.clipboardData.setData ){
-    window.clipboardData.setData('Text',text);
+    window.clipboardData.setData("Text",text);
   }else{
-    var x = document.createElement("textarea");
-    x.style.position = 'fixed';
-    x.value = text;
-    document.body.appendChild(x);
-    x.select();
+    var elTextarea = document.createElement("textarea");
+    elTextarea.style.position = "fixed";
+    elTextarea.value = text;
+    document.body.appendChild(elTextarea);
+    elTextarea.select();
     try{
-      document.execCommand('copy');
+      document.execCommand("copy");
     }catch(err){
     }finally{
-      document.body.removeChild(x);
+      document.body.removeChild(elTextarea);
     }
   }
 }

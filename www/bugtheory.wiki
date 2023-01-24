@@ -114,10 +114,8 @@ and is not shared with other repositories during a sync, push, or pull.
 Each repository also defines scripts used to generate web pages for
 creating new tickets, viewing existing tickets, and modifying an
 existing ticket.  These scripts consist of HTML with an embedded
-scripts written a Tcl-like language called "TH1".  Every new fossil
-repository is created with default scripts.  Paul Ruizendaal has written
-documentation on the TH1 language that is available at
-[http://www.sqliteconcepts.org/THManual.pdf].  Administrators wishing to
+scripts written a Tcl-like language called "[./th1.md|TH1]".  Every new fossil
+repository is created with default scripts. Administrators wishing to
 customize their ticket entry, viewing, and editing screens should
 modify the default scripts to suit their needs.  These screen generator
 scripts are part of the local state of a repository and are not shared

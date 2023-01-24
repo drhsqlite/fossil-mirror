@@ -19,12 +19,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #include "zip.h"
 
 /*
@@ -243,7 +238,7 @@ void zip_set_timedate(double rDate){
   char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
   zip_set_timedate_from_str(zDate);
   fossil_free(zDate);
-  unixTime = (rDate - 2440587.5)*86400.0;
+  unixTime = (int)((rDate - 2440587.5)*86400.0);
 }
 
 /*
@@ -262,7 +257,7 @@ static void zip_add_file_to_zip(
   int nameLen;
   int toOut = 0;
   int iStart;
-  int iCRC = 0;
+  unsigned long iCRC = 0;
   int nByte = 0;
   int nByteCompr = 0;
   int nBlob;                 /* Size of the blob */
@@ -621,7 +616,7 @@ void filezip_cmd(void){
 */
 static void zip_of_checkin(
   int eType,          /* Type of archive (ZIP or SQLAR) */
-  int rid,            /* The RID of the checkin to build the archive from */
+  int rid,            /* The RID of the check-in to build the archive from */
   Blob *pZip,         /* Write the archive content into this blob */
   const char *zDir,   /* Top-level directory of the archive */
   Glob *pInclude,     /* Only include files that match this pattern */
@@ -684,7 +679,6 @@ static void zip_of_checkin(
         if( listFlag ) fossil_print("%s\n", zName);
         if( pZip ){
           zip_add_folders(&sArchive, zName);
-          sterilize_manifest(&mfile, CFTYPE_MANIFEST);
           zip_add_file(&sArchive, zName, &mfile, 0);
         }
       }
@@ -822,7 +816,7 @@ static void archive_cmd(int eType){
 **
 ** If OUTPUTFILE is an empty string or "/dev/null" then no ZIP archive is
 ** actually generated.  This feature can be used in combination with
-** the --list option to get a list of the filename that would be in the
+** the --list option to get a list of the filenames that would be in the
 ** ZIP archive had it actually been generated.
 **
 ** Options:
@@ -854,7 +848,7 @@ void zip_cmd(void){
 **
 ** If OUTPUTFILE is an empty string or "/dev/null" then no SQLAR archive is
 ** actually generated.  This feature can be used in combination with
-** the --list option to get a list of the filename that would be in the
+** the --list option to get a list of the filenames that would be in the
 ** SQLAR archive had it actually been generated.
 **
 ** Options:
@@ -929,7 +923,7 @@ void baseline_zip_page(void){
     eType = ARCHIVE_ZIP;
     zType = "ZIP";
   }
-  load_control();
+  fossil_nice_default();
   zName = fossil_strdup(PD("name",""));
   z = P("r");
   if( z==0 ) z = P("uuid");
@@ -942,6 +936,9 @@ void baseline_zip_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
+  if( zInclude==0 && zExclude==0 ){
+    etag_check_for_invariant_name(z);
+  }
   if( eType==ARCHIVE_ZIP 
    && nName>4
    && fossil_strcmp(&zName[nName-4], ".zip")==0

@@ -75,7 +75,7 @@ const char *mimetype_from_content(Blob *pBlob){
 
 /* A table of mimetypes based on file suffixes.
 ** Suffixes must be in sorted order so that we can do a binary
-** search to find the mime-type
+** search to find the mimetype.
 */
 static const struct {
   const char *zSuffix;       /* The file suffix */
@@ -158,7 +158,12 @@ static const struct {
   { "jpe",        3, "image/jpeg"                        },
   { "jpeg",       4, "image/jpeg"                        },
   { "jpg",        3, "image/jpeg"                        },
-  { "js",         2, "application/javascript"            },
+  { "js",         2, "text/javascript"                   },
+  /* application/javascript is commonly used for JS, but the
+  ** spec says text/javascript is correct:
+  ** https://html.spec.whatwg.org/multipage/scripting.html
+  ** #scriptingLanguages:javascript-mime-type */
+  { "json",       4, "application/json"                  },
   { "kar",        3, "audio/midi"                        },
   { "latex",      5, "application/x-latex"               },
   { "lha",        3, "application/octet-stream"          },
@@ -175,6 +180,7 @@ static const struct {
   { "midi",       4, "audio/midi"                        },
   { "mif",        3, "application/x-mif"                 },
   { "mime",       4, "www/mime"                          },
+  { "mjs",        3, "text/javascript" /*ES6 module*/    },
   { "mkd",        3, "text/x-markdown"                   },
   { "mov",        3, "video/quicktime"                   },
   { "movie",      5, "video/x-sgi-movie"                 },
@@ -279,6 +285,7 @@ static const struct {
   { "viv",        3, "video/vnd.vivo"                    },
   { "vivo",       4, "video/vnd.vivo"                    },
   { "vrml",       4, "model/vrml"                        },
+  { "wasm",       4, "application/wasm"                  },
   { "wav",        3, "audio/x-wav"                       },
   { "wax",        3, "audio/x-ms-wax"                    },
   { "webp",       4, "image/webp"                        },
@@ -429,7 +436,7 @@ void document_emit_js(void){
 }
 
 /*
-** Guess the mime-type of a document based on its name.
+** Guess the mimetype of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
   const char *z;
@@ -645,8 +652,15 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 ** if the file is not found or could not be loaded.
 */
 int doc_load_content(int vid, const char *zName, Blob *pContent){
-  int writable = db_is_writeable("repository");
+  int writable;
   int rid;   /* The RID of the file being loaded */
+  if( db_is_protected(PROTECT_READONLY)
+   || !db_is_writeable("repository")
+  ){
+    writable = 0;
+  }else{
+    writable = 1;
+  }
   if( writable ){
     db_end_transaction(0);
     db_begin_write();
@@ -1007,7 +1021,7 @@ void doc_page(void){
     }else if( fossil_strcmp(zCheckin,"ckout")==0
            || fossil_strcmp(zCheckin,g.zCkoutAlias)==0
     ){
-      /* Read from the local checkout */
+      /* Read from the local check-out */
       char *zFullpath;
       db_must_be_within_tree();
       zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);
@@ -1227,8 +1241,9 @@ void favicon_page(void){
 **     s=PATTERN             Search for PATTERN
 */
 void doc_search_page(void){
+  const int isSearch = P("s")!=0;
   login_check_credentials();
-  style_header("Document Search");
+  style_header("Document Search%s", isSearch ? " Results" : "");
   search_screen(SRCH_DOC, 0);
   style_finish_page();
 }

@@ -63,7 +63,7 @@ enum {
 ** the command-line to that table.  If directories are named, then add
 ** all unmanaged files contained underneath those directories.  If there
 ** are no files or directories named on the command-line, then add all
-** unmanaged files anywhere in the checkout.
+** unmanaged files anywhere in the check-out.
 **
 ** This routine never follows symlinks.  It always treats symlinks as
 ** object unto themselves.
@@ -99,9 +99,12 @@ void locate_unmanaged_files(
       }else if( file_access(zName, R_OK) ){
         fossil_fatal("cannot open %s", &zName[nRoot]);
       }else{
+        /* Only add unmanaged file paths specified on the command line. */
         db_multi_exec(
-           "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
-           &zName[nRoot]
+            "INSERT OR IGNORE INTO sfile(pathname)"
+            " SELECT %Q WHERE NOT EXISTS"
+            " (SELECT 1 FROM vfile WHERE pathname=%Q)",
+            &zName[nRoot], &zName[nRoot]
         );
       }
       blob_reset(&name);
@@ -155,7 +158,8 @@ static void status_report(
     /* Start with a list of all managed files. */
     blob_append_sql(&sql,
       "SELECT pathname, %s as mtime, %s as size, deleted, chnged, rid,"
-      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed"
+      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed,"
+      "       origname"
       "  FROM vfile LEFT JOIN blob USING (rid)"
       " WHERE is_selected(id)%s",
       flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
@@ -176,7 +180,7 @@ static void status_report(
       blob_append_sql(&sql, " UNION ALL");
     }
     blob_append_sql(&sql,
-      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0"
+      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0, NULL"
       " FROM sfile WHERE pathname NOT IN (%s)%s",
       flags & C_MTIME ? "datetime(mtime, 'unixepoch', toLocal())" : "''",
       flags & C_SIZE ? "size" : "0",
@@ -196,7 +200,7 @@ static void status_report(
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
 
-  /* Bind the checkout version ID to the query if needed. */
+  /* Bind the check-out version ID to the query if needed. */
   if( (flags & C_ALL) && (flags & C_MTIME) ){
     db_bind_int(&q, ":vid", db_lget_int("checkout", 0));
   }
@@ -213,6 +217,7 @@ static void status_report(
     int isChnged = db_column_int(&q, 4);
     int isNew = isManaged && !db_column_int(&q, 5);
     int isRenamed = db_column_int(&q, 6);
+    const char *zOrigName = 0;
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     int isMissing = !file_isfile_or_link(zFullName);
 
@@ -267,6 +272,7 @@ static void status_report(
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
+      zOrigName = db_column_text(&q,8);
     }else if( (flags & C_UNCHANGED) && isManaged && !isNew
                                     && !isChnged && !isRenamed ){
       zClass = "UNCHANGED";
@@ -297,7 +303,11 @@ static void status_report(
         if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
           zDisplayName += 2;  /* no unnecessary ./ prefix */
         }
-        blob_append(report, zDisplayName, -1);
+        if( (flags & (C_FILTER ^ C_RENAMED)) && zOrigName ){
+          blob_appendf(report, "%s  ->  %s", zOrigName, zDisplayName);
+        }else{
+          blob_append(report, zDisplayName, -1);
+        }
       }else{
         /* If not C_RELPATH, display paths relative to project root. */
         blob_append(report, zPathname, -1);
@@ -359,7 +369,7 @@ static int determine_cwd_relative_option()
 **
 ** Usage: %fossil changes|status ?OPTIONS? ?PATHS ...?
 **
-** Report the change status of files in the current checkout.  If one or
+** Report the change status of files in the current check-out.  If one or
 ** more PATHS are specified, only changes among the named files and
 ** directories are reported.  Directories are searched recursively.
 **
@@ -377,7 +387,7 @@ static int determine_cwd_relative_option()
 ** can be overridden by using one or more filter options (listed below),
 ** in which case only files with the specified change type(s) are shown.
 ** As a special case, the --no-merge option does not inhibit this default.
-** This default shows exactly the set of changes that would be checked
+** This default shows exactly the set of changes that would be checked-
 ** in by the commit command.
 **
 ** If no filter options are used, or if the --merge option is used, the
@@ -401,7 +411,7 @@ static int determine_cwd_relative_option()
 ** used to display the union of --edited and --updated.
 **
 ** --differ is so named because it lists all the differences between the
-** checked-out version and the checkout directory.  In addition to the
+** checked-out version and the check-out directory.  In addition to the
 ** default changes (excluding --merge), it lists extra files which (if
 ** ignore-glob is set correctly) may be worth adding.  Prior to doing a
 ** commit, it is good practice to check --differ to see not only which
@@ -413,37 +423,37 @@ static int determine_cwd_relative_option()
 ** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
 ** General options:
-**    --abs-paths       Display absolute pathnames.
+**    --abs-paths       Display absolute pathnames
 **    --rel-paths       Display pathnames relative to the current working
-**                      directory.
+**                      directory
 **    --hash            Verify file status using hashing rather than
-**                      relying on file mtimes.
-**    --case-sensitive BOOL  Override case-sensitive setting.
-**    --dotfiles        Include unmanaged files beginning with a dot.
-**    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
+**                      relying on file mtimes
+**    --case-sensitive BOOL  Override case-sensitive setting
+**    --dotfiles        Include unmanaged files beginning with a dot
+**    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns
 **
 ** Options specific to the changes command:
-**    --header          Identify the repository if report is non-empty.
-**    -v|--verbose      Say "(none)" if the change report is empty.
-**    --classify        Start each line with the file's change type.
-**    --no-classify     Do not print file change types.
+**    --header          Identify the repository if report is non-empty
+**    -v|--verbose      Say "(none)" if the change report is empty
+**    --classify        Start each line with the file's change type
+**    --no-classify     Do not print file change types
 **
 ** Filter options:
-**    --edited          Display edited, merged, and conflicted files.
-**    --updated         Display files updated by merge/integrate.
-**    --changed         Combination of the above two options.
-**    --missing         Display missing files.
-**    --added           Display added files.
-**    --deleted         Display deleted files.
-**    --renamed         Display renamed files.
-**    --conflict        Display files having merge conflicts.
-**    --meta            Display files with metadata changes.
-**    --unchanged       Display unchanged files.
-**    --all             Display all managed files, i.e. all of the above.
-**    --extra           Display unmanaged files.
-**    --differ          Display modified and extra files.
-**    --merge           Display merge contributors.
-**    --no-merge        Do not display merge contributors.
+**    --edited          Display edited, merged, and conflicted files
+**    --updated         Display files updated by merge/integrate
+**    --changed         Combination of the above two options
+**    --missing         Display missing files
+**    --added           Display added files
+**    --deleted         Display deleted files
+**    --renamed         Display renamed files
+**    --conflict        Display files having merge conflicts
+**    --meta            Display files with metadata changes
+**    --unchanged       Display unchanged files
+**    --all             Display all managed files, i.e. all of the above
+**    --extra           Display unmanaged files
+**    --differ          Display modified and extra files
+**    --merge           Display merge contributors
+**    --no-merge        Do not display merge contributors
 **
 ** See also: [[extras]], [[ls]]
 */
@@ -509,10 +519,10 @@ void status_cmd(void){
     }
   }
 
-  /* Confirm current working directory is within checkout. */
+  /* Confirm current working directory is within check-out. */
   db_must_be_within_tree();
 
-  /* Get checkout version. l*/
+  /* Get check-out version. l*/
   vid = db_lget_int("checkout", 0);
 
   /* Relative path flag determination is done by a shared function. */
@@ -654,7 +664,7 @@ static void ls_cmd_rev(
 **
 ** Usage: %fossil ls ?OPTIONS? ?PATHS ...?
 **
-** List all files in the current checkout.  If PATHS is included, only the
+** List all files in the current check-out.  If PATHS is included, only the
 ** named files (or their children if directories) are shown.
 **
 ** The ls command is essentially two related commands in one, depending on
@@ -675,13 +685,13 @@ static void ls_cmd_rev(
 ** are used, -t sorts by modification time, otherwise by commit time.
 **
 ** Options:
-**   --age                 Show when each file was committed.
-**   -v|--verbose          Provide extra information about each file.
-**   -t                    Sort output in time order.
-**   -r VERSION            The specific check-in to list.
-**   -R|--repository FILE  Extract info from repository FILE.
+**   --age                 Show when each file was committed
+**   -v|--verbose          Provide extra information about each file
+**   -t                    Sort output in time order
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
 **   --hash                With -v, verify file status using hashing
-**                         rather than relying on file sizes and mtimes.
+**                         rather than relying on file sizes and mtimes
 **
 ** See also: [[changes]], [[extras]], [[status]]
 */
@@ -819,7 +829,7 @@ void ls_cmd(void){
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of the
-** current checkout. See also the "clean" command. If paths are specified,
+** current check-out. See also the "clean" command. If paths are specified,
 ** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
@@ -833,13 +843,13 @@ void ls_cmd(void){
 ** unless overridden by the --abs-paths or --rel-paths options.
 **
 ** Options:
-**    --abs-paths             Display absolute pathnames.
+**    --abs-paths             Display absolute pathnames
 **    --case-sensitive BOOL   Override case-sensitive setting
 **    --dotfiles              Include files beginning with a dot (".")
 **    --header                Identify the repository if there are extras
 **    --ignore CSG            Ignore files matching patterns from the argument
 **    --rel-paths             Display pathnames relative to the current working
-**                            directory.
+**                            directory
 **
 ** See also: [[changes]], [[clean]], [[status]]
 */
@@ -888,7 +898,7 @@ void extras_cmd(void){
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are files
-** that are not officially part of the checkout.  If one or more PATH
+** that are not officially part of the check-out.  If one or more PATH
 ** arguments appear, then only the files named, or files contained with
 ** directories named, will be removed.
 **
@@ -917,7 +927,7 @@ void extras_cmd(void){
 ** care should be exercised when using the --verily option.
 **
 ** Options:
-**    --allckouts            Check for empty directories within any checkouts
+**    --allckouts            Check for empty directories within any check-outs
 **                           that may be nested within the current one.  This
 **                           option should be used with great care because the
 **                           empty-dirs setting (and other applicable settings)
@@ -930,7 +940,7 @@ void extras_cmd(void){
 **    --disable-undo         WARNING: This option disables use of the undo
 **                           mechanism for this clean operation and should be
 **                           used with extreme caution.
-**    --dotfiles             Include files beginning with a dot (".").
+**    --dotfiles             Include files beginning with a dot (".")
 **    --emptydirs            Remove any empty directories that are not
 **                           explicitly exempted via the empty-dirs setting
 **                           or another applicable setting or command line
@@ -938,7 +948,7 @@ void extras_cmd(void){
 **                           prior to checking for any empty directories;
 **                           therefore, directories that contain only files
 **                           that were removed will be removed as well.
-**    -f|--force             Remove files without prompting.
+**    -f|--force             Remove files without prompting
 **    -i|--prompt            Prompt before removing each file.  This option
 **                           implies the --disable-undo option.
 **    -x|--verily            WARNING: Removes everything that is not a managed
@@ -953,15 +963,15 @@ void extras_cmd(void){
 **                           deletions of any files matching this pattern list
 **                           cannot be undone.
 **    --ignore CSG           Ignore files matching patterns from the
-**                           comma separated list of glob patterns.
+**                           comma separated list of glob patterns
 **    --keep <CSG>           Keep files matching this comma separated
-**                           list of glob patterns.
+**                           list of glob patterns
 **    -n|--dry-run           Delete nothing, but display what would have been
-**                           deleted.
-**    --no-prompt            This option disables prompting the user for input
-**                           and assumes an answer of 'No' for every question.
-**    --temp                 Remove only Fossil-generated temporary files.
-**    -v|--verbose           Show all files as they are removed.
+**                           deleted
+**    --no-prompt            Do not prompt the user for input and assume an
+**                           answer of 'No' for every question
+**    --temp                 Remove only Fossil-generated temporary files
+**    -v|--verbose           Show all files as they are removed
 **
 ** See also: [[addremove]], [[extras]], [[status]]
 */
@@ -1340,16 +1350,20 @@ static void prepare_commit_comment(
     );
   }
   if( p->verboseFlag ){
+    DiffConfig DCfg;
     blob_appendf(&prompt,
         "#\n%.78c\n"
         "# The following diff is excluded from the commit message:\n#\n",
         '#'
     );
+    diff_options(&DCfg, 0, 1);
+    DCfg.diffFlags |= DIFF_VERBOSE;
     if( g.aCommitFile ){
       FileDirList *diffFiles;
       int i;
-      diffFiles = fossil_malloc_zero((g.argc-1) * sizeof(*diffFiles));
-      for( i=0; g.aCommitFile[i]!=0; ++i ){
+      for(i=0; g.aCommitFile[i]!=0; ++i){}
+      diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
+      for(i=0; g.aCommitFile[i]!=0; ++i){
         diffFiles[i].zName  = db_text(0,
          "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
         if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
@@ -1360,17 +1374,13 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-      diff_against_disk(0, 0, diff_get_binary_glob(),
-                        db_get_boolean("diff-binary", 1),
-                        DIFF_VERBOSE, diffFiles, &prompt);
+      diff_against_disk(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
       fossil_free(diffFiles);
     }else{
-      diff_against_disk(0, 0, diff_get_binary_glob(),
-                        db_get_boolean("diff-binary", 1),
-                        DIFF_VERBOSE, 0, &prompt);
+      diff_against_disk(0, &DCfg, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);
@@ -1507,9 +1517,9 @@ int select_commit_files(void){
 }
 
 /*
-** Returns true if the checkin identified by the first parameter is
+** Returns true if the check-in identified by the first parameter is
 ** older than the given (valid) date/time string, else returns false.
-** Also returns true if rid does not refer to a checkin, but it is not
+** Also returns true if rid does not refer to a check-in, but it is not
 ** intended to be used for that case.
 */
 int checkin_is_younger(
@@ -1633,7 +1643,7 @@ static void create_manifest(
       vid, vid);
     if( !zParentUuid ){
       fossil_fatal("Could not find a valid check-in for RID %d. "
-                   "Possible checkout/repo mismatch.", vid);
+                   "Possible check-out/repo mismatch.", vid);
     }
   }
   if( pBaseline ){
@@ -1741,7 +1751,7 @@ static void create_manifest(
       if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ){
         continue;
       }
-      zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+      zMergeUuid = rid_to_uuid(mid);
       if( zMergeUuid ){
         blob_appendf(pOut, " %s", zMergeUuid);
         if( p->verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
@@ -1761,9 +1771,8 @@ static void create_manifest(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCherrypickUuid = db_column_text(&q, 0);
     int mid = db_column_int(&q, 1);
-    if( mid != vid ){
-      blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
-    }
+    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
   }
   db_finalize(&q);
 
@@ -1849,6 +1858,7 @@ static int commit_warning(
   int crlfOk,            /* Non-zero if CR/LF warnings should be disabled. */
   int binOk,             /* Non-zero if binary warnings should be disabled. */
   int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
+  int sizeOk,            /* Non-zero if oversize warnings are disabled */
   int noPrompt,          /* 0 to always prompt, 1 for 'N', 2 for 'Y'. */
   const char *zFilename, /* The full name of the file being committed. */
   Blob *pReason          /* Reason for warning, if any (non-fatal only). */
@@ -1866,23 +1876,29 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = could_be_utf16(pContent, &bReverse);
-  if( fUnicode ){
-    lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
-  }else{
-    lookFlags = looks_like_utf8(pContent, LOOK_NUL);
-    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
-      fHasInvalidUtf8 = 1;
+  if( sizeOk ){
+    fUnicode = could_be_utf16(pContent, &bReverse);
+    if( fUnicode ){
+      lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
+    }else{
+      lookFlags = looks_like_utf8(pContent, LOOK_NUL);
+      if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
+        fHasInvalidUtf8 = 1;
+      }
     }
+    fHasAnyCr = (lookFlags & LOOK_CR);
+    fBinary = (lookFlags & LOOK_BINARY);
+    fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
+    fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
+  }else{
+    fUnicode = fHasAnyCr = fBinary = fHasInvalidUtf8 = 0;
+    fHasLoneCrOnly = fHasCrLfOnly = 0;
   }
-  fHasAnyCr = (lookFlags & LOOK_CR);
-  fBinary = (lookFlags & LOOK_BINARY);
-  fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
-  fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
-  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
-    const char *zWarning;
-    const char *zDisable;
+  if( !sizeOk || fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
+    const char *zWarning = 0;
+    const char *zDisable = 0;
     const char *zConvert = "c=convert/";
+    const char *zIn = "in";
     Blob ans;
     char cReply;
 
@@ -1930,6 +1946,9 @@ static int commit_warning(
         zWarning = "mixed line endings";
       }
       zDisable = "\"crlf-glob\" setting";
+    }else if( !sizeOk ){
+      zWarning = "oversize";
+      zIn = "file";
     }else{
       if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
@@ -1938,11 +1957,18 @@ static int commit_warning(
       zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
-    zMsg = mprintf(
-         "%s contains %s. Use --no-warnings or the %s to"
-                 " disable this warning.\n"
-         "Commit anyhow (a=all/%sy/N)? ",
-         blob_str(&fname), zWarning, zDisable, zConvert);
+    if( !sizeOk ){
+      zMsg = mprintf(
+           "%s is more than %,lld bytes in size.\n"
+           "Commit anyhow (a=all/y/N)? ",
+           blob_str(&fname), db_large_file_size());
+    }else{
+      zMsg = mprintf(
+           "%s contains %s. Use --no-warnings or the %s to"
+                   " disable this warning.\n"
+           "Commit anyhow (a=all/%sy/N)? ",
+           blob_str(&fname), zWarning, zDisable, zConvert);
+    }
     if( noPrompt==0 ){
       prompt_user(zMsg, &ans);
       cReply = blob_str(&ans)[0];
@@ -1980,8 +2006,8 @@ static int commit_warning(
       }
       return 1;
     }else if( cReply!='y' && cReply!='Y' ){
-      fossil_fatal("Abandoning commit due to %s in %s",
-                   zWarning, blob_str(&fname));
+      fossil_fatal("Abandoning commit due to %s %s %s",
+                   zWarning, zIn, blob_str(&fname));
     }else if( noPrompt==2 ){
       if( pReason ){
         blob_append(pReason, zWarning, -1);
@@ -1998,7 +2024,7 @@ static int commit_warning(
 **
 ** Usage: %fossil test-commit-warning ?OPTIONS?
 **
-** Check each file in the checkout, including unmodified ones, using all
+** Check each file in the check-out, including unmodified ones, using all
 ** the pre-commit checks.
 **
 ** Options:
@@ -2011,11 +2037,13 @@ void test_commit_warning(void){
   int rc = 0;
   int noSettings;
   int verboseFlag;
+  i64 mxSize;
   Stmt q;
   noSettings = find_option("no-settings",0,0)!=0;
   verboseFlag = find_option("verbose","v",0)!=0;
   verify_all_options();
   db_must_be_within_tree();
+  mxSize = db_large_file_size();
   db_prepare(&q,
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
       " WHERE NOT deleted",
@@ -2030,7 +2058,7 @@ void test_commit_warning(void){
     const char *zName;
     Blob content;
     Blob reason;
-    int crlfOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk, sizeOk;
     int fileRc;
 
     zFullname = db_column_text(&q, 0);
@@ -2038,10 +2066,11 @@ void test_commit_warning(void){
     crlfOk = db_column_int(&q, 2);
     binOk = db_column_int(&q, 3);
     encodingOk = db_column_int(&q, 4);
+    sizeOk = mxSize<=0 || file_size(zFullname, ExtFILE)<=mxSize;
     blob_zero(&content);
     blob_read_from_file(&content, zFullname, RepoFILE);
     blob_zero(&reason);
-    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, 2,
+    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, sizeOk, 2,
                             zFullname, &reason);
     if( fileRc || verboseFlag ){
       fossil_print("%d\t%s\t%s\n", fileRc, zName, blob_str(&reason));
@@ -2063,14 +2092,14 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
-** COMMAND: ci*
+** COMMAND: ci#
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?
 **    or: %fossil ci ?OPTIONS? ?FILE...?
 **
 ** Create a new version containing all of the changes in the current
-** checkout.  You will be prompted to enter a check-in comment unless
+** check-out.  You will be prompted to enter a check-in comment unless
 ** the comment has been specified on the command-line using "-m" or a
 ** file containing the comment using -M.  The editor defined in the
 ** "editor" fossil option (see %fossil help set) will be used, or from
@@ -2121,35 +2150,42 @@ static int tagCmp(const void *a, const void *b){
 ** artifact hash rather than just checking for changes to its size or mtime.
 **
 ** Options:
-**    --allow-conflict           allow unresolved merge conflicts
-**    --allow-empty              allow a commit with no changes
-**    --allow-fork               allow the commit to fork
-**    --allow-older              allow a commit older than its ancestor
-**    --baseline                 use a baseline manifest in the commit process
-**    --bgcolor COLOR            apply COLOR to this one check-in only
-**    --branch NEW-BRANCH-NAME   check in to this new branch
-**    --branchcolor COLOR        apply given COLOR to the branch
-**    --close                    close the branch being committed
+**    --allow-conflict           Allow unresolved merge conflicts
+**    --allow-empty              Allow a commit with no changes
+**    --allow-fork               Allow the commit to fork
+**    --allow-older              Allow a commit older than its ancestor
+**    --baseline                 Use a baseline manifest in the commit process
+**    --bgcolor COLOR            Apply COLOR to this one check-in only
+**    --branch NEW-BRANCH-NAME   Check in to this new branch
+**    --branchcolor COLOR        Apply given COLOR to the branch
+**                                 ("auto" lets Fossil choose it automatically,
+**                                  even for private branches)
+**    --close                    Close the branch being committed
 **    --date-override DATETIME   DATE to use instead of 'now'
-**    --delta                    use a delta manifest in the commit process
-**    --hash                     verify file status using hashing rather
+**    --delta                    Use a delta manifest in the commit process
+**    --hash                     Verify file status using hashing rather
 **                               than relying on file mtimes
-**    --integrate                close all merged-in branches
-**    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
-**    -M|--message-file FILE     read the commit comment from given file
-**    --mimetype MIMETYPE        mimetype of check-in comment
+**    --ignore-clock-skew        If a clock skew is detected, ignore it and
+**                               behave as if the user had entered 'yes' to
+**                               the question of whether to proceed despite
+**                               the skew.
+**    --ignore-oversize          Do not warning the user about oversized files
+**    --integrate                Close all merged-in branches
+**    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as commit comment
+**    -M|--message-file FILE     Read the commit comment from given file
+**    --mimetype MIMETYPE        Mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
 **    -v|--verbose               Show a diff in the commit message prompt
 **    --no-prompt                This option disables prompting the user for
 **                               input and assumes an answer of 'No' for every
 **                               question.
-**    --no-warnings              omit all warnings about file contents
-**    --no-verify                do not run before-commit hooks
-**    --nosign                   do not attempt to sign this commit with gpg
-**    --override-lock            allow a check-in even though parent is locked
-**    --private                  do not sync changes and their descendants
-**    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --trace                    debug tracing.
+**    --no-warnings              Omit all warnings about file contents
+**    --no-verify                Do not run before-commit hooks
+**    --nosign                   Do not attempt to sign this commit with gpg
+**    --override-lock            Allow a check-in even though parent is locked
+**    --private                  Do not sync changes and their descendants
+**    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
+**    --trace                    Debug tracing
 **    --user-override USER       USER to use instead of the current default
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
@@ -2206,6 +2242,9 @@ void commit_cmd(void){
   Blob ans;              /* Answer to continuation prompts */
   char cReply;           /* First character of ans */
   int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
+  int bAutoBrClr = 0;    /* Value of "--branchcolor" is "auto" */
+  int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
+  int mxSize;
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2215,6 +2254,10 @@ void commit_cmd(void){
   privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
+  db_must_be_within_tree();
+  if( db_get_boolean("dont-commit",0) ){
+    fossil_fatal("committing is prohibited: the 'dont-commit' option is set");
+  }
   if( forceDelta ){
     if( forceBaseline ){
       fossil_fatal("cannot use --delta and --baseline together");
@@ -2241,6 +2284,10 @@ void commit_cmd(void){
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
+  if ( fossil_strncmp(sCiInfo.zBrClr, "auto", 4)==0 ) {
+    bAutoBrClr = 1;
+    sCiInfo.zBrClr = 0;
+  }
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
@@ -2255,11 +2302,13 @@ void commit_cmd(void){
   zComFile = find_option("message-file", "M", 1);
   sCiInfo.zDateOvrd = find_option("date-override",0,1);
   sCiInfo.zUserOvrd = find_option("user-override",0,1);
-  db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
+  bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
   outputManifest = db_get_manifest_setting();
+  mxSize = db_large_file_size();
+  if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
   verify_all_options();
 
   /* Get the ID of the parent manifest artifact */
@@ -2280,7 +2329,9 @@ void commit_cmd(void){
     ** specified otherwise on the command-line, and if the parent is not
     ** already private. */
     if( sCiInfo.zBranch==0 ) sCiInfo.zBranch = "private";
-    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 ) sCiInfo.zBrClr = "#fec084";
+    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 && !bAutoBrClr) {
+      sCiInfo.zBrClr = "#fec084";
+    }
   }
 
   /* Do not allow the creation of a new branch using an existing open
@@ -2309,7 +2360,7 @@ void commit_cmd(void){
     if( vid!=0 && !allowFork && !forceFlag ){
       syncFlags |= SYNC_CKIN_LOCK;
     }
-    if( autosync_loop(syncFlags, db_get_int("autosync-tries", 1), 1) ){
+    if( autosync_loop(syncFlags, 1, "commit") ){
       fossil_exit(1);
     }
   }
@@ -2340,7 +2391,10 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    if( !noPrompt ){
+    if( bIgnoreSkew!=0 ){
+      cReply = 'y';
+      fossil_warning("Clock skew ignored due to --ignore-clock-skew.");
+    }else if( !noPrompt ){
       prompt_user("continue in spite of time skew (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       blob_reset(&ans);
@@ -2355,7 +2409,7 @@ void commit_cmd(void){
 
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
-  ** in the checked out directory are committed. If one or more arguments
+  ** in the checked-out directory are committed. If one or more arguments
   ** follows "commit", then only those files are committed.
   **
   ** After the following function call has returned, the Global.aCommitFile[]
@@ -2512,7 +2566,7 @@ void commit_cmd(void){
         ** bRecheck so that we loop back above to verify that the check-in
         ** is still not against a closed branch and still won't fork. */
         int syncFlags = SYNC_PULL|SYNC_CKIN_LOCK;
-        if( autosync_loop(syncFlags, db_get_int("autosync-tries", 1), 1) ){
+        if( autosync_loop(syncFlags, 1, "commit") ){
           fossil_fatal("Auto-pull failed. Commit aborted.");
         }
         bRecheck = 1;
@@ -2566,7 +2620,7 @@ void commit_cmd(void){
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
-    "WHERE chnged IN (1, 7, 9) AND NOT deleted AND is_selected(id)",
+    "WHERE chnged<>0 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
     glob_expr("pathname", db_get("crlf-glob",db_get("crnl-glob",""))),
     glob_expr("pathname", db_get("binary-glob","")),
@@ -2576,7 +2630,7 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crlfOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk, sizeOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
@@ -2584,13 +2638,14 @@ void commit_cmd(void){
     crlfOk = db_column_int(&q, 3);
     binOk = db_column_int(&q, 4);
     encodingOk = db_column_int(&q, 5);
+    sizeOk = mxSize<=0 || file_size(zFullname, ExtFILE)<=mxSize;
 
     blob_zero(&content);
     blob_read_from_file(&content, zFullname, RepoFILE);
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crlfOk, binOk,
-                                    encodingOk, noPrompt,
+                                    encodingOk, sizeOk, noPrompt,
                                     zFullname, 0);
     }
     if( contains_merge_marker(&content) ){
@@ -2604,12 +2659,14 @@ void commit_cmd(void){
     }
     nrid = content_put(&content);
     blob_reset(&content);
-    if( rid>0 ){
-      content_deltify(rid, &nrid, 1, 0);
+    if( nrid!=rid ){
+      if( rid>0 ){
+        content_deltify(rid, &nrid, 1, 0);
+      }
+      db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
+                    nrid,nrid,id);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
     }
-    db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
-                  nrid,nrid,id);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   }
   db_finalize(&q);
   if( nConflict && !allowConflict ){
@@ -2773,7 +2830,7 @@ void commit_cmd(void){
     vfile_aggregate_checksum_repository(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
       vfile_compare_repository_to_disk(nvid);
-      fossil_fatal("working checkout does not match what would have ended "
+      fossil_fatal("working check-out does not match what would have ended "
                    "up in the repository:  %b versus %b",
                    &cksum1, &cksum2);
     }
@@ -2786,14 +2843,14 @@ void commit_cmd(void){
     }
     if( blob_compare(&cksum1, &cksum2) ){
       fossil_fatal(
-         "working checkout does not match manifest after commit: "
+         "working check-out does not match manifest after commit: "
          "%b versus %b", &cksum1, &cksum2);
     }
 
     /* Verify that the commit did not modify any disk images. */
     vfile_aggregate_checksum_disk(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
-      fossil_fatal("working checkout before and after commit does not match");
+      fossil_fatal("working check-out before and after commit does not match");
     }
   }
 
@@ -2822,8 +2879,7 @@ void commit_cmd(void){
 
   if( !g.markPrivate ){
     int syncFlags = SYNC_PUSH | SYNC_PULL | SYNC_IFABLE;
-    int nTries = db_get_int("autosync-tries",1);
-    autosync_loop(syncFlags, nTries, 0);
+    autosync_loop(syncFlags, 0, "commit");
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

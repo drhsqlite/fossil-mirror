@@ -32,13 +32,6 @@
 #include "extcgi.h"
 #include <assert.h>
 
-#if defined(_WIN32) || defined(WIN32)
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
-#endif
-
 /*
 ** These are the environment variables that should be set for CGI
 ** extension programs:
@@ -77,6 +70,7 @@ static const char *azCgiEnv[] = {
    "SERVER_NAME",
    "SERVER_PORT",
    "SERVER_PROTOCOL",
+   "SERVER_SOFTWARE",
 };
 
 /*
@@ -180,6 +174,7 @@ void ext_page(void){
   const char *zPathInfo;          /* Original PATH_INFO value */
   Blob reply;                     /* The reply */
   char zLine[1000];               /* One line of the CGI reply */
+  const char *zSrvSw;             /* SERVER_SOFTWARE */
 
   zPathInfo = P("PATH_INFO");
   login_check_credentials();
@@ -268,6 +263,16 @@ void ext_page(void){
   cgi_set_parameter_nocopy("FOSSIL_CAPABILITIES",
      db_text("","SELECT fullcap(cap) FROM user WHERE login=%Q",
              g.zLogin ? g.zLogin : "nobody"), 0);
+  zSrvSw = P("SERVER_SOFTWARE");
+  if( zSrvSw==0 ){
+    zSrvSw = get_version();
+  }else{
+    char *z = mprintf("fossil version %s", get_version());
+    if( strncmp(zSrvSw,z,strlen(z)-4)!=0 ){
+      zSrvSw = mprintf("%z, %s", z, zSrvSw);
+    }
+  }
+  cgi_replace_parameter("SERVER_SOFTWARE", zSrvSw);
   cgi_replace_parameter("GATEWAY_INTERFACE","CGI/1.0");
   for(i=0; i<sizeof(azCgiEnv)/sizeof(azCgiEnv[0]); i++){
     (void)P(azCgiEnv[i]);

@@ -35,7 +35,7 @@ REM
 REM Visual C++ ????
 REM
 IF DEFINED VCINSTALLDIR IF EXIST "%VCINSTALLDIR%" (
-  %_AECHO% Build environment appears to be setup.
+  %_AECHO% Build environment appears to be set up.
   GOTO skip_setupVisualStudio
 )
 
@@ -46,6 +46,18 @@ IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
   %_AECHO% Build environment batch file manually overridden to "%VSVARS32%"...
   GOTO skip_detectVisualStudio
 )
+
+REM
+REM Visual Studio 2017 / 2019 / 2022
+REM
+CALL :fn_TryUseVsWhereExe
+IF NOT DEFINED VSWHEREINSTALLDIR GOTO skip_detectVisualStudio2017
+SET VSVARS32=%VSWHEREINSTALLDIR%\Common7\Tools\VsDevCmd.bat
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2017 / 2019 / 2022...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2017
 
 REM
 REM Visual Studio 2015
@@ -342,6 +354,34 @@ GOTO no_errors
 
 :fn_SetErrorLevel
   VERIFY MAYBE 2> NUL
+  GOTO :EOF
+
+:fn_TryUseVsWhereExe
+  IF DEFINED VSWHERE_EXE GOTO skip_setVsWhereExe
+  SET VSWHERE_EXE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
+  IF NOT EXIST "%VSWHERE_EXE%" SET VSWHERE_EXE=%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe
+  :skip_setVsWhereExe
+  IF NOT EXIST "%VSWHERE_EXE%" (
+    %_AECHO% The "VsWhere" tool does not appear to be installed.
+    GOTO :EOF
+  )
+  SET VS_WHEREIS_CMD="%VSWHERE_EXE%" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath -latest
+  IF DEFINED __ECHO (
+    %__ECHO% %VS_WHEREIS_CMD%
+    REM
+    REM NOTE: This will not be executed, any reasonable fake path will work.
+    REM
+    SET VSWHEREINSTALLDIR=C:\Program Files\Microsoft Visual Studio\2017\Community
+    GOTO skip_setVsWhereInstallDir
+  )
+  FOR /F "delims=" %%D IN ('%VS_WHEREIS_CMD%') DO (SET VSWHEREINSTALLDIR=%%D)
+  :skip_setVsWhereInstallDir
+  %_VECHO% VsWhereInstallDir = '%VSWHEREINSTALLDIR%'
+  IF NOT DEFINED VSWHEREINSTALLDIR (
+    %_AECHO% Visual Studio 2017 / 2019 / 2022 is not installed.
+    GOTO :EOF
+  )
+  %_AECHO% Visual Studio 2017 / 2019 / 2022 is installed.
   GOTO :EOF
 
 :usage

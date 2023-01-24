@@ -62,7 +62,7 @@ void shun_page(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
-    rebuild_db(0, 0, 0);
+    rebuild_db(0, 0);
     admin_log("Rebuilt database.");
     db_end_transaction(0);
   }
@@ -318,6 +318,9 @@ void rcvfromlist_page(void){
     return;
   }
   style_header("Artifact Receipts");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Error-Log", "errorlog");
   if( showAll ){
     ofst = 0;
   }else{

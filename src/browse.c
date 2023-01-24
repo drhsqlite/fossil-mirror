@@ -129,8 +129,9 @@ void hyperlinked_path(
 **
 ** Query parameters:
 **
-**    name=PATH        Directory to display.  Optional.  Top-level if missing
 **    ci=LABEL         Show only files in this check-in.  Optional.
+**    name=PATH        Directory to display.  Optional.  Top-level if missing
+**    re=REGEXP        Show only files matching REGEXP
 **    type=TYPE        TYPE=flat: use this display
 **                     TYPE=tree: use the /tree display instead
 **    noreadme         Do not attempt to display the README file.
@@ -152,6 +153,8 @@ void page_dir(void){
   int isSymbolicCI = 0;   /* ci= is symbolic name, not a hash prefix */
   int isBranchCI = 0;     /* True if ci= refers to a branch name */
   char *zHeader = 0;
+  const char *zRegexp;    /* The re= query parameter */
+  char *zMatch;           /* Extra title text describing the match */
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
@@ -192,8 +195,15 @@ void page_dir(void){
     if( zCI ){
       zHeader = mprintf("Files in %s/ of %s", zD, zCI);
     }else{
-      zHeader = mprintf("All File in %s/", zD);
+      zHeader = mprintf("All Files in %s/", zD);
     }
+  }
+  zRegexp = P("re");
+  if( zRegexp ){
+    zHeader = mprintf("%z matching \"%s\"", zHeader, zRegexp);
+    zMatch = mprintf(" matching \"%h\"", zRegexp);
+  }else{
+    zMatch = "";
   }
   style_header("%s", zHeader);
   fossil_free(zHeader);
@@ -219,12 +229,15 @@ void page_dir(void){
   }
   if( zCI ){
     if( fossil_strcmp(zCI,"tip")==0 ){
-      @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a></h2>
+      @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a>\
+      @ %s(zMatch)</h2>
     }else if( isBranchCI ){
       @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a> \
-      @ of branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a></h2>
+      @ of branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a>\
+      @ %s(zMatch)</h2>
     }else {
-      @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a></h2>
+      @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a>\
+      @ %s(zMatch)</h2>
     }
     zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
     if( nD==0 ){
@@ -305,13 +318,22 @@ void page_dir(void){
     );
   }
 
+  /* If the re=REGEXP query parameter is present, filter out names that
+  ** do not match the pattern */
+  if( zRegexp ){
+    db_multi_exec(
+      "DELETE FROM localfiles WHERE x NOT REGEXP %Q", zRegexp
+    );
+  }
+
   /* Generate a multi-column table listing the contents of zD[]
   ** directory.
   */
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
-  db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
+  db_prepare(&q, 
+     "SELECT x, u FROM localfiles ORDER BY x COLLATE uintnocase /*scan*/");
   @ <div class="columns files" style="columns: %d(mxLen)ex auto">
   @ <ul class="browser">
   while( db_step(&q)==SQLITE_ROW ){
@@ -349,7 +371,7 @@ void page_dir(void){
     "SELECT x, u FROM localfiles"
     " WHERE x COLLATE nocase IN"
     " ('readme','readme.txt','readme.md','readme.wiki','readme.markdown',"
-    " 'readme.html') ORDER BY x LIMIT 1;"
+    " 'readme.html') ORDER BY x COLLATE uintnocase LIMIT 1;"
   );
   if( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q,0);
@@ -727,7 +749,7 @@ void page_tree(void){
     if( zCI ){
       zHeader = mprintf("Files in %s/ of %s", zD, zCI);
     }else{
-      zHeader = mprintf("All File in %s/", zD);
+      zHeader = mprintf("All Files in %s/", zD);
     }
   }
   style_header("%s", zHeader);
@@ -771,7 +793,7 @@ void page_tree(void){
        "  FROM fileage, filename, blob\n"
        " WHERE filename.fnid=fileage.fnid\n"
        "   AND blob.rid=fileage.fid\n"
-       " ORDER BY filename.name COLLATE nocase;"
+       " ORDER BY filename.name COLLATE uintnocase;"
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFile = db_column_text(&q,0);
@@ -794,7 +816,7 @@ void page_tree(void){
       "    max(event.mtime)\n"
       "  FROM mlink JOIN event ON event.objid=mlink.mid\n"
       " GROUP BY mlink.fnid\n"
-      " ORDER BY 1 COLLATE nocase;");
+      " ORDER BY 1 COLLATE uintnocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUuid = db_column_text(&q,1);
@@ -825,13 +847,13 @@ void page_tree(void){
     @ <h2>%s(zObjType) in the %z(href("%R/info?name=%T",zCI))latest check-in\
     @ </a> for branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a>
     if( blob_size(&dirname) ){
-      @ and %s(blob_str(&dirname))</h2>
+      @ and %s(blob_str(&dirname))
     }
   }else if( zCI ){
     @ <h2>%s(zObjType) for check-in \
-    @ %z(href("%R/info?name=%T",zCI))%h(zCI)</a></h2>
+    @ %z(href("%R/info?name=%T",zCI))%h(zCI)</a>
     if( blob_size(&dirname) ){
-      @ and %s(blob_str(&dirname))</h2>
+      @ and %s(blob_str(&dirname))
     }
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
@@ -843,6 +865,10 @@ void page_tree(void){
     @ sorted by filename</h2>
   }
 
+  if( zNow ){
+    @ <p>File ages are expressed relative to the check-in time of
+    @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
+  }
 
   /* Generate tree of lists.
   **

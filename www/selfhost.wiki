@@ -12,7 +12,8 @@ stay in synchronization with (1) via a
 <a href="http://en.wikipedia.org/wiki/Cron">cron job</a> that invokes
 "fossil sync" at regular intervals.
 Repository (2) also publishes a
-[./mirrortogithub.md|GitHub mirror of Fossil] as a demonstration.
+[https://github.com/drhsqlite/fossil-mirror|GitHub mirror of Fossil]
+as a demonstration of [./mirrortogithub.md|how that can be done].
 
 Note that the two secondary repositories are more than just read-only mirrors.
 All three servers support full read/write capabilities.
@@ -62,10 +63,10 @@ from [https://www.digitalocean.com|Digital Ocean]
 located in San Francisco.
 
 Server (3) is synchronized with the canonical server (1) by running
-the following command via cron:
+a command similar to the following via cron:
 
 <blockquote><pre>
-/home/hwaci/bin/fossil sync -R /home/hwaci/fossil/fossil.fossil
+/usr/local/bin/fossil all sync -u
 </pre></blockquote>
 
 Server (2) is a

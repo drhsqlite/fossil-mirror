@@ -41,39 +41,41 @@
 #define URL_REMEMBER_PW      0x008  /* Should remember pw */
 #define URL_PROMPTED         0x010  /* Prompted for PW already */
 #define URL_OMIT_USER        0x020  /* Omit the user name from URL */
+#define URL_USE_CONFIG       0x040  /* Use remembered URLs from CONFIG table */
+#define URL_USE_PARENT       0x080  /* Use the URL of the parent project */
 
 /*
 ** The URL related data used with this subsystem.
 */
 struct UrlData {
-  int isFile;      /* True if a "file:" url */
-  int isHttps;     /* True if a "https:" url */
-  int isSsh;       /* True if an "ssh:" url */
-  int isAlias;     /* Input URL was an alias */
-  char *name;      /* Hostname for http: or filename for file: */
-  char *hostname;  /* The HOST: parameter on http headers */
+  int isFile;           /* True if a "file:" url */
+  int isHttps;          /* True if a "https:" url */
+  int isSsh;            /* True if an "ssh:" url */
+  int isAlias;          /* Input URL was an alias */
+  char *name;           /* Hostname for http: or filename for file: */
+  char *hostname;       /* The HOST: parameter on http headers */
   const char *protocol; /* "http" or "https" or "ssh" or "file" */
-  int port;        /* TCP port number for http: or https: */
-  int dfltPort;    /* The default port for the given protocol */
-  char *path;      /* Pathname for http: */
-  char *user;      /* User id for http: */
-  char *passwd;    /* Password for http: */
-  char *canonical; /* Canonical representation of the URL */
-  char *proxyAuth; /* Proxy-Authorizer: string */
-  char *fossil;    /* The fossil query parameter on ssh: */
-  unsigned flags;  /* Boolean flags controlling URL processing */
-  int useProxy;    /* Used to remember that a proxy is in use */
-  char *proxyUrlPath;
-  int proxyOrigPort; /* Tunneled port number for https through proxy */
+  int port;             /* TCP port number for http: or https: */
+  int dfltPort;         /* The default port for the given protocol */
+  char *path;           /* Pathname for http: */
+  char *user;           /* User id for http: */
+  char *passwd;         /* Password for http: */
+  char *canonical;      /* Canonical representation of the URL */
+  char *proxyAuth;      /* Proxy-Authorizer: string */
+  char *fossil;         /* The fossil query parameter on ssh: */
+  char *pwConfig;       /* CONFIG table entry that gave us the password */
+  unsigned flags;       /* Boolean flags controlling URL processing */
+  int useProxy;         /* Used to remember that a proxy is in use */
+  int proxyOrigPort;       /* Tunneled port number for https through proxy */
+  char *proxyUrlPath;      /* Remember path when proxy is use */
+  char *proxyUrlCanonical; /* Remember canonical path when proxy is use */
 };
 #endif /* INTERFACE */
 
 
 /*
-** Parse the given URL.  Or if zUrl is NULL, parse the URL in the
-** last-sync-url setting using last-sync-pw as the password.  Store
-** the parser results in the pUrlData object.  Populate members of pUrlData
-** as follows:
+** Parse the URL in the zUrl argument. Store results in the pUrlData object.
+** Populate members of pUrlData as follows:
 **
 **      isFile      True if FILE:
 **      isHttps     True if HTTPS:
@@ -88,6 +90,16 @@ struct UrlData {
 **      hostname    HOST:PORT or just HOST if port is the default.
 **      canonical   The URL in canonical form, omitting the password
 **
+** If URL_USECONFIG is set and zUrl is NULL or "default", then parse the
+** URL stored in last-sync-url and last-sync-pw of the CONFIG table.  Or if 
+** URL_USE_PARENT is also set, then use parent-project-url and
+** parent-project-pw from the CONFIG table instead of last-sync-url
+** and last-sync-pw.
+**
+** If URL_USE_CONFIG is set and zUrl is a symbolic name, then look up
+** the URL in sync-url:%Q and sync-pw:%Q elements of the CONFIG table where
+** %Q is the symbolic name.
+**
 ** This routine differs from url_parse() in that this routine stores the
 ** results in pUrlData and does not change the values of global variables.
 ** The url_parse() routine puts its result in g.url.
@@ -100,27 +112,44 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
-  if( zUrl==0 || strcmp(zUrl,"default")==0 ){
-    zUrl = db_get("last-sync-url", 0);
-    if( zUrl==0 ) return;
-    if( pUrlData->passwd==0 ){
-      pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
-    }
-    pUrlData->isAlias = 1;
-  }else{
-    char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
-    char *zAlt = db_get(zKey, 0);
-    sqlite3_free(zKey);
-    if( zAlt ){
-      pUrlData->passwd = unobscure(
-        db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
-      );
-      zUrl = zAlt;
-      urlFlags |= URL_REMEMBER_PW;
+  pUrlData->pwConfig = 0;
+  if( urlFlags & URL_USE_CONFIG ){
+    if( zUrl==0 || strcmp(zUrl,"default")==0 ){
+      const char *zPwConfig = "last-sync-pw";
+      if( urlFlags & URL_USE_PARENT ){
+        zUrl = db_get("parent-project-url", 0);
+        if( zUrl==0 ){
+          zUrl = db_get("last-sync-url",0);
+        }else{
+          zPwConfig = "parent-project-pw";
+        }
+      }else{
+        zUrl = db_get("last-sync-url", 0);
+      }
+      if( zUrl==0 ) return;
+      if( pUrlData->passwd==0 ){
+        pUrlData->passwd = unobscure(db_get(zPwConfig, 0));
+        pUrlData->pwConfig = fossil_strdup(zPwConfig);
+      }
       pUrlData->isAlias = 1;
     }else{
-      pUrlData->isAlias = 0;
+      char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
+      char *zAlt = db_get(zKey, 0);
+      if( zAlt ){
+        pUrlData->pwConfig = mprintf("sync-pw:%q", zUrl);
+        pUrlData->passwd = unobscure(
+          db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
+        );
+        zUrl = zAlt;
+        urlFlags |= URL_REMEMBER_PW;
+        pUrlData->isAlias = 1;
+      }else{
+        pUrlData->isAlias = 0;
+      }
+      sqlite3_free(zKey);
     }
+  }else{
+    if( zUrl==0 ) return;
   }
 
   if( strncmp(zUrl, "http://", 7)==0
@@ -143,7 +172,7 @@ void url_parse_local(
       pUrlData->isSsh = 1;
       pUrlData->protocol = "ssh";
       pUrlData->dfltPort = 22;
-      pUrlData->fossil = "fossil";
+      pUrlData->fossil = fossil_strdup("fossil");
       iStart = 6;
     }else{
       pUrlData->isHttps = 0;
@@ -198,6 +227,7 @@ void url_parse_local(
         pUrlData->port = pUrlData->port*10 + c - '0';
         i++;
       }
+      if( c!=0 && c!='/' ) fossil_fatal("url missing '/' after port number");
       pUrlData->hostname = mprintf("%s:%d", pUrlData->name, pUrlData->port);
     }else{
       pUrlData->port = pUrlData->dfltPort;
@@ -227,8 +257,9 @@ void url_parse_local(
         i++;
       }
       if( fossil_strcmp(zName,"fossil")==0 ){
-        pUrlData->fossil = zValue;
+        pUrlData->fossil = fossil_strdup(zValue);
         dehttpize(pUrlData->fossil);
+        fossil_free(zExe);
         zExe = mprintf("%cfossil=%T", cQuerySep, pUrlData->fossil);
         cQuerySep = '&';
       }
@@ -237,17 +268,21 @@ void url_parse_local(
     dehttpize(pUrlData->path);
     if( pUrlData->dfltPort==pUrlData->port ){
       pUrlData->canonical = mprintf(
-        "%s://%s%T%T%s",
+        "%s://%s%T%T%z",
         pUrlData->protocol, zLogin, pUrlData->name, pUrlData->path, zExe
       );
     }else{
       pUrlData->canonical = mprintf(
-        "%s://%s%T:%d%T%s",
+        "%s://%s%T:%d%T%z",
         pUrlData->protocol, zLogin, pUrlData->name, pUrlData->port,
         pUrlData->path, zExe
       );
     }
-    if( pUrlData->isSsh && pUrlData->path[1] ) pUrlData->path++;
+    if( pUrlData->isSsh && pUrlData->path[1] ){
+      char *zOld = pUrlData->path;
+      pUrlData->path = mprintf("%s", zOld+1);
+      fossil_free(zOld);
+    }
     free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     pUrlData->isFile = 1;
@@ -280,7 +315,7 @@ void url_parse_local(
     free(zFile);
     zFile = 0;
     pUrlData->protocol = "file";
-    pUrlData->path = "";
+    pUrlData->path = mprintf("");
     pUrlData->name = mprintf("%b", &cfile);
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
@@ -296,6 +331,87 @@ void url_parse_local(
       }
     }
   }
+}
+
+/*
+** Construct the complete URL for a UrlData object, including the
+** login name and password, into memory obtained from fossil_malloc()
+** and return a pointer to that URL text.
+*/
+char *url_full(const UrlData *p){
+  Blob x = BLOB_INITIALIZER;
+  if( p->isFile || p->user==0 || p->user[0]==0 ){
+    return fossil_strdup(p->canonical);
+  }
+  blob_appendf(&x, "%s://", p->protocol);
+  if( p->user && p->user[0] ){
+    blob_appendf(&x, "%t", p->user);
+    if( p->passwd && p->passwd[0] ){
+      blob_appendf(&x, ":%t", p->passwd);
+    }
+    blob_appendf(&x, "@");
+  }
+  blob_appendf(&x, "%T", p->name);
+  if( p->dfltPort!=p->port ){
+    blob_appendf(&x, ":%d", p->port);
+  }
+  blob_appendf(&x, "%T", p->path);
+  (void)blob_str(&x);
+  return x.aData;
+}
+
+/*
+** Construct a URL for a UrlData object that omits the
+** login name and password, into memory obtained from fossil_malloc()
+** and return a pointer to that URL text.
+*/
+char *url_nouser(const UrlData *p){
+  Blob x = BLOB_INITIALIZER;
+  if( p->isFile || p->user==0 || p->user[0]==0 ){
+    return fossil_strdup(p->canonical);
+  }
+  blob_appendf(&x, "%s://", p->protocol);
+  blob_appendf(&x, "%T", p->name);
+  if( p->dfltPort!=p->port ){
+    blob_appendf(&x, ":%d", p->port);
+  }
+  blob_appendf(&x, "%T", p->path);
+  (void)blob_str(&x);
+  return x.aData;
+}
+
+/*
+** SQL function to remove the username/password from a URL
+*/
+void url_nouser_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zOrig = (const char*)sqlite3_value_text(argv[0]);
+  UrlData x;
+  if( zOrig==0 ) return;
+  memset(&x, 0, sizeof(x));
+  url_parse_local(zOrig, URL_OMIT_USER, &x);
+  sqlite3_result_text(context, x.canonical, -1, SQLITE_TRANSIENT);
+  url_unparse(&x);
+}
+
+/*
+** Reclaim malloced memory from a UrlData object
+*/
+void url_unparse(UrlData *p){
+  if( p==0 ){
+    p = &g.url;
+  }
+  fossil_free(p->canonical);
+  fossil_free(p->name);
+  fossil_free(p->path);
+  fossil_free(p->user);
+  fossil_free(p->passwd);
+  fossil_free(p->fossil);
+  fossil_free(p->pwConfig);
+  memset(p, 0, sizeof(*p));
 }
 
 /*
@@ -316,6 +432,7 @@ void url_parse_local(
 **      g.url.passwd      Password.
 **      g.url.hostname    HOST:PORT or just HOST if port is the default.
 **      g.url.canonical   The URL in canonical form, omitting the password
+**      g.url.pwConfig    Name of CONFIG table entry containing the password
 **
 ** HTTP url format as follows (HTTPS is the same with a different scheme):
 **
@@ -325,6 +442,15 @@ void url_parse_local(
 **
 **     ssh://userid@host:port/path?fossil=path/to/fossil.exe
 **
+** If URL_USE_CONFIG is set then the URL and password might be pulled from
+** the CONFIG table rather than from the zUrl parameter.  If zUrl is NULL
+** or "default" then the URL is given by the "last-sync-url" setting and
+** the password comes form the "last-sync-pw" setting.  If zUrl is a symbolic
+** name, then the URL comes from "sync-url:NAME" and the password from
+** "sync-pw:NAME" where NAME is the input zUrl string.  Whenever the
+** password is taken from the CONFIG table, the g.url.pwConfig field is
+** set to the CONFIG.NAME value from which that password is taken.  Otherwise,
+** g.url.pwConfig is NULL.
 */
 void url_parse(const char *zUrl, unsigned int urlFlags){
   url_parse_local(zUrl, urlFlags, &g.url);
@@ -335,18 +461,24 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
 **
 ** Usage: %fossil test-urlparser URL ?options?
 **
-**    --remember      Store results in last-sync-url
 **    --prompt-pw     Prompt for password if missing
+**    --remember      Store results in last-sync-url
+**    --show-pw       Show the CONFIG-derived password in the output
+**    --use-config    Pull URL and password from the CONFIG table
+**    --use-parent    Use the parent project URL
 */
 void cmd_test_urlparser(void){
   int i;
   unsigned fg = 0;
+  int showPw = 0;
+  db_must_be_within_tree();
   url_proxy_options();
-  if( find_option("remember",0,0) ){
-    db_must_be_within_tree();
-    fg |= URL_REMEMBER;
-  }
-  if( find_option("prompt-pw",0,0) ) fg |= URL_PROMPT_PW;
+  if( find_option("remember",0,0) )    fg |= URL_REMEMBER;
+  if( find_option("prompt-pw",0,0) )   fg |= URL_PROMPT_PW;
+  if( find_option("use-parent",0,0) )  fg |= URL_USE_PARENT|URL_USE_CONFIG;
+  if( find_option("use-config",0,0) )  fg |= URL_USE_CONFIG;
+  if( find_option("show-pw",0,0) )     showPw = 1;
+  if( (fg & URL_USE_CONFIG)==0 )       showPw = 1;
   if( g.argc!=3 && g.argc!=4 ){
     usage("URL");
   }
@@ -362,15 +494,22 @@ void cmd_test_urlparser(void){
     fossil_print("g.url.hostname  = %s\n", g.url.hostname);
     fossil_print("g.url.path      = %s\n", g.url.path);
     fossil_print("g.url.user      = %s\n", g.url.user);
-    fossil_print("g.url.passwd    = %s\n", g.url.passwd);
+    if( showPw || g.url.pwConfig==0 ){
+      fossil_print("g.url.passwd    = %s\n", g.url.passwd);
+    }else{
+      fossil_print("g.url.passwd    = ************\n");
+    }
+    fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
     fossil_print("g.url.canonical = %s\n", g.url.canonical);
     fossil_print("g.url.fossil    = %s\n", g.url.fossil);
     fossil_print("g.url.flags     = 0x%02x\n", g.url.flags);
+    fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
     if( g.url.isFile || g.url.isSsh ) break;
     if( i==0 ){
       fossil_print("********\n");
       url_enable_proxy("Using proxy: ");
     }
+    url_unparse(0);
   }
 }
 
@@ -423,8 +562,8 @@ void url_enable_proxy(const char *zMsg){
   const char *zProxy;
   zProxy = zProxyOpt;
   if( zProxy==0 ){
-    zProxy = db_get("proxy", 0);
-    if( zProxy==0 || zProxy[0]==0 || is_false(zProxy) ){
+    zProxy = db_get("proxy", "system");
+    if( fossil_strcmp(zProxy, "system")==0 ){
       zProxy = fossil_getenv("http_proxy");
     }
   }
@@ -454,6 +593,7 @@ void url_enable_proxy(const char *zMsg){
     g.url.passwd = zOriginalPasswd;
     g.url.isHttps = fOriginalIsHttps;
     g.url.useProxy = 1;
+    g.url.proxyUrlCanonical = zOriginalUrl;;
     g.url.proxyUrlPath = zOriginalUrlPath;
     g.url.proxyOrigPort = iOriginalPort;
     g.url.flags = uOriginalFlags;
@@ -583,7 +723,7 @@ void url_prompt_for_password_local(UrlData *pUrlData){
    && (pUrlData->flags & URL_PROMPTED)==0
   ){
     pUrlData->flags |= URL_PROMPTED;
-    pUrlData->passwd = prompt_for_user_password(pUrlData->user);
+    pUrlData->passwd = prompt_for_user_password(pUrlData->canonical);
     if( pUrlData->passwd[0]
      && (pUrlData->flags & (URL_REMEMBER|URL_ASK_REMEMBER_PW))!=0
     ){
@@ -612,9 +752,23 @@ void url_prompt_for_password(void){
 */
 void url_remember(void){
   if( g.url.flags & URL_REMEMBER ){
-    db_set("last-sync-url", g.url.canonical, 0);
+    const char *url;
+    if( g.url.useProxy ){
+      url = g.url.proxyUrlCanonical;
+    }else{
+      url = g.url.canonical;
+    }
+    if( g.url.flags & URL_USE_PARENT ){
+      db_set("parent-project-url", url, 0);
+    }else{
+      db_set("last-sync-url", url, 0);
+    }
     if( g.url.user!=0 && g.url.passwd!=0 && ( g.url.flags & URL_REMEMBER_PW ) ){
-      db_set("last-sync-pw", obscure(g.url.passwd), 0);
+      if( g.url.flags & URL_USE_PARENT ){
+        db_set("parent-project-pw", obscure(g.url.passwd), 0);
+      }else{
+        db_set("last-sync-pw", obscure(g.url.passwd), 0);
+      }
     }
   }
 }
@@ -640,7 +794,7 @@ void url_get_password_if_needed(void){
 **
 **    *  If the URL is just a domain name, without a path, then use the
 **       first element of the domain name, except skip over "www." if 
-**       present.
+**       present and if there is a ".com" or ".org" or similar suffix.
 **
 ** The string returned is obtained from fossil_malloc().  NULL might be
 ** returned if there is an error.
@@ -654,9 +808,15 @@ char *url_to_repo_basename(const char *zUrl){
     if( (zUrl[i]=='/' || zUrl[i]=='@') && zUrl[i+1]!=0 ) zTail = &zUrl[i+1];
   }
   if( zTail==0 ) return 0;
-  if( sqlite3_strnicmp(zTail, "www.", 4)==0 ) zTail += 4;
+  if( sqlite3_strnicmp(zTail, "www.", 4)==0 && strchr(zTail+4,'.')!=0 ){
+    /* Remove the "www." prefix if there are more "." characters later.
+    ** But don't remove the "www." prefix if what follows is the suffix.
+    ** forum:/forumpost/74e111a2ee */
+    zTail += 4;
+  }
   if( zTail[0]==0 ) return 0;
-  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
+  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?' &&
+           zTail[i]!=':' && zTail[i]!='/'; i++){}
   if( i==0 ) return 0;
   return mprintf("%.*s", i, zTail);
 }

@@ -1,0 +1,55 @@
+Index: Dockerfile
+==================================================================
+--- Dockerfile
++++ Dockerfile
+@@ -62,13 +62,13 @@
+ ## ---------------------------------------------------------------------
+ ## STAGE 2: Pare that back to the bare essentials.
+ ## ---------------------------------------------------------------------
+ 
+ FROM scratch
+-WORKDIR /jail
++WORKDIR /
+ ARG UID=499
+-ENV PATH "/bin:/usr/bin:/jail/bin"
++ENV PATH "/bin:/usr/bin"
+ 
+ ### Lay BusyBox down as the first base layer. Coupled with the host's
+ ### kernel, this is the "OS."
+ COPY --from=builder /tmp/bbx/busybox /bin/
+ COPY --from=builder /etc/os-release /etc/
+@@ -84,19 +84,17 @@
+     && adduser -S -h `pwd` -g 'Fossil User' -G fossil -u ${UID} fossil \
+     && install -d -m 700 -o fossil -g fossil log museum                \
+     && install -d -m 755 -o fossil -g fossil dev                       \
+     && install -d -m 755 -o root -g root /usr/bin                      \
+     && install -d -m 400 -o root -g root /run                          \
+-    && install -d -m 1777 -o root -g root /tmp                         \
+-    && mknod -m 666 dev/null    c 1 3                                  \
+-    && mknod -m 444 dev/urandom c 1 9
++    && install -d -m 1777 -o root -g root /tmp
+ 
+ ### Do Fossil-specific things atop those base layers; this will change
+ ### as often as the Fossil build-from-source layer above.
+-COPY --from=builder /tmp/fossil bin/
++COPY --from=builder /tmp/fossil /usr/bin/
+ RUN set -x                                                             \
+-    && ln -s /jail/bin/fossil /usr/bin/f                               \
++    && ln -s /usr/bin/fossil /usr/bin/f                                \
+     && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /usr/bin/sha1sum     \
+     && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /usr/bin/sha3sum     \
+     && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
+        /usr/bin/sqlite3                                                \
+     && chmod +x /usr/bin/sha?sum /usr/bin/sqlite3
+@@ -107,10 +105,9 @@
+ ## ---------------------------------------------------------------------
+ 
+ EXPOSE 8080/tcp
+ CMD [ \
+     "fossil", "server",     \
+-    "--chroot", "/jail",    \
+     "--create",             \
+     "--jsmode", "bundled",  \
+     "--user", "admin",      \
+     "museum/repo.fossil"]
+

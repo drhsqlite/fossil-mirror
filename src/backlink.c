@@ -27,7 +27,7 @@
 
 
 /*
-** Show a graph all wiki, tickets, and check-ins that refer to object zUuid.
+** Show a graph of all wiki, tickets, and check-ins that refer to object zUuid.
 **
 ** If zLabel is not NULL and the graph is not empty, then output zLabel as
 ** a prefix to the graph.
@@ -36,6 +36,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   Blob sql;
   Stmt q;
   char *zGlob;
+  int needEndPanel = 0;
   zGlob = mprintf("%.5s*", zUuid);
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);\n"
@@ -51,7 +52,13 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
      zGlob, zUuid
   );
   if( !db_exists("SELECT 1 FROM ok") ) return;
-  if( zLabel ) cgi_printf("%s", zLabel);
+  if( zLabel ){
+    cgi_printf("%s", zLabel);
+    if( strstr(zLabel, "accordion")!=0 ){
+      cgi_printf("<div class=\"accordion_panel\">\n");
+      needEndPanel = 1;
+    }
+  }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
@@ -60,6 +67,9 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
       TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS,
                      0, 0, 0, 0, 0, 0);
   db_finalize(&q);
+  if( needEndPanel ){
+    cgi_printf("</div>\n");
+  }
 }
 
 /*
@@ -124,7 +134,7 @@ void backlink_table_page(void){
   style_table_sorter();
   @ <table border="1" cellpadding="2" cellspacing="0" \
   @  class='sortable' data-column-types='ttt' data-init-sort='0'>
-  @ <thead><tr><th> Source <th> Target <th> mtime </tr></thead>
+  @ <thead><tr><th> Target <th> Source <th> mtime </tr></thead>
   @ <tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTarget = db_column_text(&q, 0);
@@ -144,6 +154,14 @@ void backlink_table_page(void){
       case BKLNK_WIKI: {
         const char *zName = db_column_text(&q, 4);
         @ <td><a href="%R/wiki?name=%h(zName)&p">wiki-%d(srcid)</a>
+        break;
+      }
+      case BKLNK_EVENT: {
+        @ <td><a href="%R/info?name=rid:%d(srcid)">tecknote-%d(srcid)</a>
+        break;
+      }
+      case BKLNK_FORUM: {
+        @ <td><a href="%R/info?name=rid:%d(srcid)">forum-%d(srcid)</a>
         break;
       }
       default: {
@@ -173,7 +191,8 @@ void backlink_wiki_refresh(const char *zWikiTitle){
   if( rid==0 ) return;
   pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
   if( pWiki ){
-    backlink_extract(pWiki->zWiki, pWiki->zMimetype, tagid, BKLNK_WIKI,
+    int mimetype = parse_mimetype( pWiki->zMimetype );
+    backlink_extract(pWiki->zWiki, mimetype, tagid, BKLNK_WIKI,
                      pWiki->rDate, 1);
     manifest_destroy(pWiki);
   }
@@ -249,6 +268,8 @@ void markdown_extract_links(
   struct mkd_renderer html_renderer = {
     /* prolog     */ (void(*)(Blob*,void*))mkdn_noop0,
     /* epilog     */ (void(*)(Blob*,void*))mkdn_noop0,
+    /* footnotes  */ (void(*)(Blob*,const Blob*, void*))mkdn_noop0,
+
     /* blockcode  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
     /* blockquote */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
     /* blockhtml  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
@@ -260,6 +281,8 @@ void markdown_extract_links(
     /* table      */ (void(*)(Blob*,Blob*,Blob*,void*))mkdn_noop0,
     /* table_cell */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
     /* table_row  */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
+    /* footnoteitm*/ (void(*)(Blob*,const Blob*,int,int,void*))mkdn_noop0,
+
     /* autolink   */ (int(*)(Blob*,Blob*,enum mkd_autolink,void*))mkdn_noop1,
     /* codespan   */ (int(*)(Blob*,Blob*,int,void*))mkdn_noop1,
     /* dbl_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
@@ -269,6 +292,8 @@ void markdown_extract_links(
     /* link       */ backlink_md_link,
     /* r_html_tag */ (int(*)(Blob*,Blob*,void*))mkdn_noop1,
     /* tri_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
+    /* footnoteref*/ (int(*)(Blob*,const Blob*,const Blob*,int,int,void*))mkdn_noop1,
+
     0,  /* entity */
     0,  /* normal_text */
     "*_", /* emphasis characters */
@@ -284,12 +309,23 @@ void markdown_extract_links(
 }
 
 /*
+** Transform mimetype string into an integer code.
+** NOTE: In the sake of compatability empty string is parsed as MT_UNKNOWN;
+**       it is yet unclear whether it can safely be changed to MT_NONE.
+*/
+int parse_mimetype(const char* zMimetype){
+  if( zMimetype==0 ) return MT_NONE;
+  if( strstr(zMimetype,"wiki")!=0 )     return MT_WIKI;
+  if( strstr(zMimetype,"markdown")!=0 ) return MT_MARKDOWN;
+  return MT_UNKNOWN;
+}
+/*
 ** Parse text looking for hyperlinks.  Insert references into the
 ** BACKLINK table.
 */
 void backlink_extract(
   char *zSrc,            /* Input text from which links are extracted */
-  const char *zMimetype, /* Mimetype of input.  NULL means fossil-wiki */
+  int mimetype,          /* Mimetype of input. MT_NONE works as MT_WIKI */
   int srcid,             /* srcid for the source document */
   int srctype,           /* One of BKLNK_*.  0=comment 1=ticket 2=wiki */
   double mtime,          /* mtime field for new BACKLINK table entries */
@@ -302,11 +338,12 @@ void backlink_extract(
   }
   bklnk.srcid = srcid;
   assert( ValidBklnk(srctype) );
+  assert( ValidMTC(mimetype) );
   bklnk.srctype = srctype;
   bklnk.mtime = mtime;
-  if( zMimetype==0 || strstr(zMimetype,"wiki")!=0 ){
+  if( mimetype==MT_NONE || mimetype==MT_WIKI ){
     wiki_extract_links(zSrc, &bklnk, srctype==BKLNK_COMMENT ? WIKI_INLINE : 0);
-  }else if( strstr(zMimetype,"markdown")!=0 ){
+  }else if( mimetype==MT_MARKDOWN ){
     markdown_extract_links(zSrc, &bklnk);
   }
 }
@@ -323,11 +360,12 @@ void backlink_extract(
 ** Options:
 **    --mtime DATETIME        Use an alternative date/time.  Defaults to the
 **                            current date/time.
-**    --mimetype TYPE         Use an alternative mimetype.
+**    --mimetype TYPE         Use an alternative mimetype
 */
 void test_backlinks_cmd(void){
   const char *zMTime = find_option("mtime",0,1);
   const char *zMimetype = find_option("mimetype",0,1);
+  const int mimetype = parse_mimetype(zMimetype);
   Blob in;
   int srcid;
   int srctype;
@@ -339,7 +377,7 @@ void test_backlinks_cmd(void){
   }
   srctype = atoi(g.argv[2]);
   if( srctype<0 || srctype>2 ){
-    fossil_fatal("SRCTYPE should be a integer 0, 1, or 2");
+    fossil_fatal("SRCTYPE should be an integer 0, 1, or 2");
   }
   srcid = atoi(g.argv[3]);
   blob_read_from_file(&in, g.argv[4], ExtFILE);
@@ -359,7 +397,7 @@ void test_backlinks_cmd(void){
     "  SELECT raise(ignore);\n"
     "END;"
   );
-  backlink_extract(blob_str(&in),zMimetype,srcid,srctype,mtime,0);
+  backlink_extract(blob_str(&in),mimetype,srcid,srctype,mtime,0);
   blob_reset(&in);
 }
 

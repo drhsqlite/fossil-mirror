@@ -127,7 +127,7 @@ void home_page(void){
     cgi_redirectf("%R/%s", zIndexPage);
   }
   if( !g.perm.RdWiki ){
-    cgi_redirectf("%R/login?g=%R/home");
+    cgi_redirectf("%R/login?g=home");
   }
   if( zPageName ){
     login_check_credentials();
@@ -213,8 +213,8 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
       @ %s(zOut)
       @ </div>
     }else{
-      @ <pre class='error'>\n">
-      @ %s(zOut);
+      @ <pre class='error'>
+      @ %h(zOut)
       @ </pre>
     }
     free(zOut);
@@ -369,6 +369,8 @@ void wiki_helppage(void){
   }
   @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
   @      available on this server.</li>
+  @ <li> %z(href("%R/timeline?y=e"))List of All Tech-notes</a>
+  @      available on this server.</li>
   if( g.perm.ModWiki ){
     @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
   }
@@ -467,9 +469,9 @@ static int wiki_page_header(
       if( zExtra[0]==0 && !P("p") ){
         cgi_redirectf("%R/info/%s",zPageName);
       }else{
-        style_header("Notes About Checkin %S", zPageName);
-        style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
-        style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+        style_header("Notes About Check-in %S", zPageName);
+        style_submenu_element("Check-in Timeline","%R/timeline?f=%s", zPageName);
+        style_submenu_element("Check-in Info","%R/info/%s", zPageName);
       }
       break;
     }
@@ -545,7 +547,7 @@ void wiki_page(void){
   const char *zMimetype = 0;
   int isPopup = P("popup")!=0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
-  int noSubmenu = P("nsm")!=0;
+  int noSubmenu = P("nsm")!=0 || g.isHome;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -583,7 +585,7 @@ void wiki_page(void){
     }
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
-  if( !g.isHome && !noSubmenu ){
+  if( !noSubmenu ){
     if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
      && wiki_special_permission(zPageName)
     ){
@@ -612,7 +614,11 @@ void wiki_page(void){
   }
   manifest_destroy(pWiki);
   if( !isPopup ){
-    attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
+    char * zLabel = mprintf("<hr /><h2><a href='%R/attachlist?name=%T'>"
+                            "Attachments</a>:</h2><ul>",
+                            zPageName);
+    attachment_list(zPageName, zLabel);
+    fossil_free(zLabel);
     document_emit_js(/*for optional pikchr support*/);
     style_finish_page();
   }
@@ -634,16 +640,22 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
   manifest_crosslink(nrid, pWiki, MC_NONE);
+  if( login_is_individual() ){
+    alert_user_contact(login_name());
+  }
   return nrid;
 }
 
 /*
 ** Output a selection box from which the user can select the
-** wiki mimetype.
+** wiki mimetype.  Arguments:
+**
+**     zMimetype      -     The current value of the query parameter
+**     zParam         -     The name of the query parameter
 */
-void mimetype_option_menu(const char *zMimetype){
+void mimetype_option_menu(const char *zMimetype, const char *zParam){
   unsigned i;
-  @ <select name="mimetype" size="1">
+  @ <select name="%s(zParam)" size="1">
   for(i=0; i<count(azStyles); i+=3){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
@@ -659,7 +671,7 @@ void mimetype_option_menu(const char *zMimetype){
 */
 static const char *mimetype_common_name(const char *zMimetype){
   int i;
-  for(i=4; i>=2; i-=2){
+  for(i=6; i>=0; i-=3){
     if( zMimetype && fossil_strcmp(zMimetype, azStyles[i])==0 ){
       return azStyles[i+1];
     }
@@ -757,6 +769,95 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
   return 0;  
 }
 
+
+/*
+** Emits an array of attachment info records for the given wiki page
+** artifact.
+**
+** Output format:
+**
+** [{
+**   "uuid": attachment artifact hash,
+**   "src": hash of the attachment blob,
+**   "target": wiki page name or ticket/event ID,
+**   "filename": filename of attachment,
+**   "mtime": ISO-8601 timestamp UTC,
+**   "isLatest": true this is the latest version of this file
+**               else false,
+** }, ...once per attachment]
+**
+** If there are no matching attachments then it will emit a JSON
+** null (if nullIfEmpty) or an empty JSON array.
+**
+** If latestOnly is true then only the most recent entry for a given
+** attachment is emitted, else all versions are emitted in descending
+** mtime order.
+*/
+static void wiki_ajax_emit_page_attachments(Manifest * pWiki,
+                                            int latestOnly,
+                                            int nullIfEmpty){
+  int i = 0;
+  Stmt q = empty_Stmt;
+  db_prepare(&q,
+     "SELECT datetime(mtime), src, target, filename, isLatest,"
+     "  (SELECT uuid FROM blob WHERE rid=attachid) uuid"
+     "  FROM attachment"
+     "  WHERE target=%Q"
+     "  AND (isLatest OR %d)"
+     "  ORDER BY target, isLatest DESC, mtime DESC",
+     pWiki->zWikiTitle, !latestOnly
+  );
+  while(SQLITE_ROW == db_step(&q)){
+    const char * zTime = db_column_text(&q, 0);
+    const char * zSrc = db_column_text(&q, 1);
+    const char * zTarget = db_column_text(&q, 2);
+    const char * zName = db_column_text(&q, 3);
+    const int isLatest = db_column_int(&q, 4);
+    const char * zUuid = db_column_text(&q, 5);
+    if(!i++){
+      CX("[");
+    }else{
+      CX(",");
+    }
+    CX("{");
+    CX("\"uuid\": %!j, \"src\": %!j, \"target\": %!j, "
+       "\"filename\": %!j, \"mtime\": %!j, \"isLatest\": %s}",
+       zUuid, zSrc, zTarget,
+       zName, zTime, isLatest ? "true" : "false");
+  }
+  db_finalize(&q);
+  if(!i){
+    if(nullIfEmpty){
+      CX("null");
+    }else{
+      CX("[]");
+    }
+  }else{
+    CX("]");
+  }
+}
+
+/*
+** Proxy for wiki_ajax_emit_page_attachments() which attempts to load
+** the given wiki page artifact. Returns true if it can load the given
+** page, else false. If it returns false then it queues up a 404 ajax
+** error response.
+*/
+static int wiki_ajax_emit_page_attachments2(const char *zPageName,
+                                            int latestOnly,
+                                            int nullIfEmpty){
+  Manifest * pWiki = 0;
+  if( !wiki_fetch_by_name(zPageName, 0, 0, &pWiki) ){
+    ajax_route_error(404, "Wiki page could not be loaded: %s",
+                     zPageName);
+    return 0;
+  }
+  wiki_ajax_emit_page_attachments(pWiki, latestOnly, nullIfEmpty);
+  manifest_destroy(pWiki);
+  return 1;
+}
+
+
 /*
 ** Loads the given wiki page, sets the response type to
 ** application/json, and emits it as a JSON object.  If zPageName is a
@@ -770,11 +871,12 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 **
 ** { name: "page name",
 **   type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
-**   mimetype: "mime type",
+**   mimetype: "mimetype",
 **   version: UUID string or null for a sandbox page,
 **   parent: "parent uuid" or null if no parent,
 **   isDeleted: true if the page has no content (is "deleted")
 **              else not set (making it "falsy" in JS),
+**   attachments: see wiki_ajax_emit_page_attachments(),
 **   content: "page content" (only if includeContent is true)
 ** }
 **
@@ -825,6 +927,8 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
     if(includeContent){
       CX(", \"content\": %!j", pWiki->zWiki);
     }
+    CX(", \"attachments\": ");
+    wiki_ajax_emit_page_attachments(pWiki, 0, 1);
     CX("}");
     fossil_free(zUuid);
     manifest_destroy(pWiki);
@@ -838,7 +942,7 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
 ** URL params:
 **
 **  page = the wiki page name.
-**  mimetype = content mime type.
+**  mimetype = content mimetype.
 **  content = page content. Fossil considers an empty page to
 **            be "deleted".
 **  isnew = 1 if the page is to be newly-created, else 0 or
@@ -918,6 +1022,35 @@ static void wiki_ajax_route_fetch(void){
 }
 
 /*
+** Ajax route handler for /wikiajax/attachments.
+**
+** URL params:
+**
+**  page = the wiki page name
+**  latestOnly = if set, only latest version of each attachment
+**               is emitted.
+**
+** Responds with JSON: see wiki_ajax_emit_page_attachments()
+**
+** If there are no attachments it emits an empty array instead of null
+** so that the output can be used as a top-level JSON response.
+**
+** On error, an object in the form documented by
+** ajax_route_error(). On success, an object in the form documented
+** for wiki_ajax_emit_page_attachments().
+*/
+static void wiki_ajax_route_attachments(void){
+  const char * zPageName = P("page");
+  const int fLatestOnly = P("latestOnly")!=0;
+  if( zPageName==0 || zPageName[0]==0 ){
+    ajax_route_error(400,"Missing page name.");
+    return;
+  }
+  cgi_set_content_type("application/json");
+  wiki_ajax_emit_page_attachments2(zPageName, fLatestOnly, 0);
+}
+
+/*
 ** Ajax route handler for /wikiajax/diff.
 **
 ** URL params:
@@ -934,6 +1067,7 @@ static void wiki_ajax_route_diff(void){
   Manifest * pParent = 0;
   const char * zContent = P("content");
   u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR;
+  char * zParentUuid = 0;
 
   if( zPageName==0 || zPageName[0]==0 ){
     ajax_route_error(400,"Missing page name.");
@@ -951,6 +1085,9 @@ static void wiki_ajax_route_diff(void){
     default: break;
   }
   wiki_fetch_by_name( zPageName, 0, 0, &pParent );
+  if( pParent ){
+    zParentUuid = rid_to_uuid(pParent->rid);
+  }
   if( pParent && pParent->zWiki && *pParent->zWiki ){
     blob_init(&contentOrig, pParent->zWiki, -1);
   }else{
@@ -958,9 +1095,10 @@ static void wiki_ajax_route_diff(void){
   }
   blob_init(&contentNew, zContent ? zContent : "", -1);
   cgi_set_content_type("text/html");
-  ajax_render_diff(&contentOrig, &contentNew, diffFlags);
+  ajax_render_diff(&contentOrig, zParentUuid, &contentNew, diffFlags);
   blob_reset(&contentNew);
   blob_reset(&contentOrig);
+  fossil_free(zParentUuid);
   manifest_destroy(pParent);
 }
 
@@ -997,7 +1135,7 @@ static void wiki_ajax_route_preview(void){
 ** { name: string, version: string or null of sandbox box,
 **   parent: uuid or null for first version or sandbox,
 **   mimetype: string,
-**   type: string (normal, branch, tag, checkin, or sandbox)
+**   type: string (normal, branch, tag, check-in, or sandbox)
 ** }
 **
 ** If includeContent is true, the object contains a "content" member
@@ -1013,6 +1151,8 @@ static void wiki_render_page_list_json(int verbose, int includeContent){
              " substr(tagname,6) AS name"
              " FROM tag JOIN tagxref USING('tagid')"
              " WHERE tagname GLOB 'wiki-*'"
+             " AND TYPEOF(tagxref.value+0)='integer'"
+             /* ^^^ elide wiki- tags which are not wiki pages */
              " UNION SELECT 'Sandbox' AS name"
              " ORDER BY name COLLATE NOCASE");
   CX("[");
@@ -1059,7 +1199,7 @@ static void wiki_ajax_route_list(void){
 }
 
 /*
-** WEBPAGE: wikiajax
+** WEBPAGE: wikiajax hidden
 **
 ** An internal dispatcher for wiki AJAX operations. Not for direct
 ** client use. All routes defined by this interface are app-internal,
@@ -1071,6 +1211,7 @@ void wiki_ajax_page(void){
   const AjaxRoute * pRoute = 0;
   const AjaxRoute routes[] = {
   /* Keep these sorted by zName (for bsearch()) */
+  {"attachments", wiki_ajax_route_attachments, 0, 0},
   {"diff", wiki_ajax_route_diff, 1, 1},
   {"fetch", wiki_ajax_route_fetch, 0, 0},
   {"list", wiki_ajax_route_list, 0, 0},
@@ -1198,7 +1339,7 @@ void wikiedit_page(void){
        "wikiedit-options flex-container flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
        "<label>Mime type</label>");
-    mimetype_option_menu(0);
+    mimetype_option_menu("text/x-markdown", "mimetype");
     CX("</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
@@ -1297,9 +1438,13 @@ void wikiedit_page(void){
   {
     CX("<div id='wikiedit-tab-misc' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Help' "
+       "data-tab-label='Misc.' "
        "class='hidden'"
        ">");
+    CX("<fieldset id='attachment-wrapper'>");
+    CX("<legend>Attachments</legend>");
+    CX("<div>No attachments for the current page.</div>");
+    CX("</fieldset>");
     CX("<h2>Wiki formatting rules</h2>");
     CX("<ul>");
     CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
@@ -1319,7 +1464,7 @@ void wikiedit_page(void){
   builtin_fossil_js_bundle_or("fetch", "dom", "tabs", "confirmer",
                               "storage", "popupwidget", "copybutton",
                               "pikchr", NULL);
-  builtin_request_js("sbsdiff.js");
+  builtin_fossil_js_bundle_or("diff", NULL);
   builtin_request_js("fossil.page.wikiedit.js");
   builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
@@ -1395,7 +1540,7 @@ void wikinew_page(void){
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu("text/x-fossil-wiki");
+  mimetype_option_menu("text/x-markdown", "mimetype");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
   if( zName[0] ){
@@ -1452,19 +1597,24 @@ static void appendRemark(Blob *p, const char *zMimetype){
 void wikiappend_page(void){
   char *zTag;
   int rid = 0;
-  int isSandbox;
   const char *zPageName;
   const char *zUser;
   const char *zMimetype;
   int goodCaptcha = 1;
   const char *zFormat;
+  Manifest *pWiki = 0;
+  int isSandbox;
 
   login_check_credentials();
+  if( !g.perm.ApndWiki ){
+    login_needed(g.anon.ApndWiki);
+    return;
+  }
   zPageName = PD("name","");
   zMimetype = wiki_filter_mimetypes(P("mimetype"));
   if( check_name(zPageName) ) return;
   isSandbox = is_sandbox(zPageName);
-  if( !isSandbox ){
+  if(!isSandbox){
     zTag = mprintf("wiki-%s", zPageName);
     rid = db_int(0,
       "SELECT rid FROM tagxref"
@@ -1472,63 +1622,54 @@ void wikiappend_page(void){
       " ORDER BY mtime DESC", zTag
     );
     free(zTag);
-    if( !rid ){
+    pWiki = rid ? manifest_get(rid, CFTYPE_WIKI, 0) : 0;
+    if( !pWiki ){
       fossil_redirect_home();
       return;
     }
+    zMimetype = wiki_filter_mimetypes(pWiki->zMimetype)
+      /* see https://fossil-scm.org/forum/forumpost/0acfdaac80 */;
   }
-  if( !g.perm.ApndWiki ){
-    login_needed(g.anon.ApndWiki);
-    return;
-  }
-  if( P("submit")!=0 && P("r")!=0 && P("u")!=0
+  if( !isSandbox && P("submit")!=0 && P("r")!=0 && P("u")!=0
    && (goodCaptcha = captcha_is_correct(0))
   ){
     char *zDate;
     Blob cksum;
     Blob body;
     Blob wiki;
-    Manifest *pWiki = 0;
 
     blob_zero(&body);
-    if( isSandbox ){
-      blob_append(&body, db_get("sandbox",""), -1);
-      appendRemark(&body, zMimetype);
-      db_set("sandbox", blob_str(&body), 0);
-    }else{
-      login_verify_csrf_secret();
-      pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
-      if( pWiki ){
-        blob_append(&body, pWiki->zWiki, -1);
-        manifest_destroy(pWiki);
-      }
-      blob_zero(&wiki);
-      db_begin_transaction();
-      zDate = date_in_standard_format("now");
-      blob_appendf(&wiki, "D %s\n", zDate);
-      blob_appendf(&wiki, "L %F\n", zPageName);
-      if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")!=0 ){
-        blob_appendf(&wiki, "N %s\n", zMimetype);
-      }
-      if( rid ){
-        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-        blob_appendf(&wiki, "P %s\n", zUuid);
-        free(zUuid);
-      }
-      if( !login_is_nobody() ){
-        blob_appendf(&wiki, "U %F\n", login_name());
-      }
-      appendRemark(&body, zMimetype);
-      blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
-      md5sum_blob(&wiki, &cksum);
-      blob_appendf(&wiki, "Z %b\n", &cksum);
-      blob_reset(&cksum);
-      wiki_put(&wiki, rid, wiki_need_moderation(0));
-      db_end_transaction(0);
+    login_verify_csrf_secret();
+    blob_append(&body, pWiki->zWiki, -1);
+    blob_zero(&wiki);
+    db_begin_transaction();
+    zDate = date_in_standard_format("now");
+    blob_appendf(&wiki, "D %s\n", zDate);
+    blob_appendf(&wiki, "L %F\n", zPageName);
+    if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")!=0 ){
+      blob_appendf(&wiki, "N %s\n", zMimetype);
     }
+    if( rid ){
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      blob_appendf(&wiki, "P %s\n", zUuid);
+      free(zUuid);
+    }
+    if( !login_is_nobody() ){
+      blob_appendf(&wiki, "U %F\n", login_name());
+    }
+    appendRemark(&body, zMimetype);
+    blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
+    md5sum_blob(&wiki, &cksum);
+    blob_appendf(&wiki, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+    wiki_put(&wiki, rid, wiki_need_moderation(0));
+    db_end_transaction(0);
+    manifest_destroy(pWiki);
     cgi_redirectf("wiki?name=%T", zPageName);
+    return;
   }
-  if( P("cancel")!=0 ){
+  if( !isSandbox && P("cancel")!=0 ){
+    manifest_destroy(pWiki);
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
@@ -1538,7 +1679,11 @@ void wikiappend_page(void){
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
   }
-  if( P("preview")!=0 ){
+  if( isSandbox ){
+    @ <p class="generalError">Error: the Sandbox page may not
+    @ be appended to.</p>
+  }
+  if( !isSandbox && P("preview")!=0 ){
     Blob preview;
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
@@ -1565,6 +1710,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="cancel" value="Cancel" />
   captcha_generate(0);
   @ </form>
+  manifest_destroy(pWiki);
   style_finish_page();
 }
 
@@ -1579,31 +1725,84 @@ void wikiappend_page(void){
 ** Show the complete change history for a single wiki page.
 */
 void whistory_page(void){
-  const char *zPageName;
-  Blob sql;
   Stmt q;
+  const char *zPageName;
+  double rNow;
+  int showRid;
+  char zAuthor[64];
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = PD("name","");
   style_set_current_feature("wiki");
   style_header("History Of %s", zPageName);
-  blob_init(&sql, 0, 0);
-  blob_append(&sql, timeline_query_for_www(), -1);
-  blob_append_sql(&sql,
-     "AND event.objid IN ("
-     " SELECT tagxref.srcid"
-     " FROM tagxref, tag"
-     " WHERE tagxref.tagid=tag.tagid"
-     " AND tag.tagname='wiki-%q')"
-     " ORDER BY mtime DESC",
-     zPageName
+  showRid = P("showid")!=0;
+  db_prepare(&q,
+    "SELECT"
+    "  event.mtime,"
+    "  blob.uuid,"
+    "  coalesce(event.euser,event.user),"
+    "  event.objid,"
+    "  datetime(event.mtime)"
+    " FROM event, blob, tag, tagxref"
+    " WHERE event.type='w' AND blob.rid=event.objid"
+    "   AND tag.tagname='wiki-%q'"
+    "   AND tagxref.tagid=tag.tagid AND tagxref.srcid=event.objid"
+    " ORDER BY event.mtime DESC",
+    zPageName
   );
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q,
-    TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_REFS,
-    0, 0, 0, 0, 0, 0);
+  @ <h2>History of <a href="%R/wiki?name=%T(zPageName)">%h(zPageName)</a></h2>
+  form_begin( "id='wh-form'", "%R/wdiff" );
+  @   <input id="wh-pid" name="pid" type="radio" hidden />
+  @   <input id="wh-id"  name="id"  type="hidden" />
+  @ </form>
+  @ <style> .wh-clickable { cursor: pointer; } </style>
+  @ <div class="brlist">
+  @ <table>
+  @ <thead><tr>
+  @ <th>Age</th>
+  @ <th>Hash</th>
+  @ <th><span title="Baseline from which diffs are computed (click to unset)"
+  @      id="wh-cleaner" class="wh-clickable">&#9875;</span></th>
+  @ <th>User<span hidden class="wh-clickable"
+  @                   id="wh-collapser">&emsp;&#9842;</span></th>
+  if( showRid ){
+    @ <th>RID</th>
+  }
+  @ <th>&nbsp;</th>
+  @ </tr></thead><tbody>
+  rNow = db_double(0.0, "SELECT julianday('now')");
+  memset( zAuthor, 0, sizeof(zAuthor) );
+  while( db_step(&q)==SQLITE_ROW ){
+    double rMtime = db_column_double(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    int wrid = db_column_int(&q, 3);
+    const char *zWhen = db_column_text(&q, 4);
+    /* sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0); */
+    char *zAge = human_readable_age(rNow - rMtime);
+    if( strncmp( zAuthor, zUser, sizeof(zAuthor) - 1 ) == 0 ) {
+      @ <tr class="wh-intermediate" title="%s(zWhen)">
+    }
+    else {
+      strncpy( zAuthor, zUser, sizeof(zAuthor) - 1 );
+      @ <tr class="wh-major" title="%s(zWhen)">
+    }
+    /* @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td> */
+    @ <td>%s(zAge)</td>
+    fossil_free(zAge);
+    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td>
+    @ <td><input disabled type="radio" name="baseline" value="%S(zUuid)"/></td>
+    @ <td>%h(zUser)<span class="wh-iterations" hidden /></td>
+    if( showRid ){
+      @ <td>%z(href("%R/artifact/%S",zUuid))%d(wrid)</a></td>
+    }
+    @ <td>%z(chref("wh-difflink","%R/wdiff?id=%S",zUuid))diff</a></td>
+    @ </tr>
+  }
+  @ </tbody></table></div>
   db_finalize(&q);
-  blob_reset(&sql);
+  builtin_request_js("fossil.page.whistory.js");
+  /* style_table_sorter(); */
   style_finish_page();
 }
 
@@ -1627,7 +1826,7 @@ void wdiff_page(void){
   Manifest *pW1, *pW2 = 0;
   int rid1, rid2, nextRid;
   Blob w1, w2, d;
-  u64 diffFlags;
+  DiffConfig DCfg;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1642,19 +1841,19 @@ void wdiff_page(void){
   if( pW1==0 ) fossil_redirect_home();
   blob_init(&w1, pW1->zWiki, -1);
   zPid = P("pid");
-  if( zPid==0 && pW1->nParent ){
+  if( ( zPid==0 || zPid[0] == 0 ) && pW1->nParent ){
     zPid = pW1->azParent[0];
   }
-  if( zPid ){
+  if( zPid && zPid[0] != 0 ){
     char *zDate;
     rid2 = name_to_typed_rid(zPid, "w");
     pW2 = manifest_get(rid2, CFTYPE_WIKI, 0);
     blob_init(&w2, pW2->zWiki, -1);
     @ <h2>Changes to \
     @ "%z(href("%R/whistory?name=%s",pW1->zWikiTitle))%h(pW1->zWikiTitle)</a>" \
-    zDate = db_text(0, "SELECT datetime(%.16g)",pW2->rDate);
+    zDate = db_text(0, "SELECT datetime(%.16g,toLocal())",pW2->rDate);
     @ between %z(href("%R/info/%s",zPid))%z(zDate)</a> \
-    zDate = db_text(0, "SELECT datetime(%.16g)",pW1->rDate);
+    zDate = db_text(0, "SELECT datetime(%.16g,toLocal())",pW1->rDate);
     @ and %z(href("%R/info/%s",zId))%z(zDate)</a></h2>
     style_submenu_element("Previous", "%R/wdiff?id=%S", zPid);
   }else{
@@ -1670,11 +1869,10 @@ void wdiff_page(void){
   style_set_current_feature("wiki");
   style_header("Changes To %s", pW1->zWikiTitle);
   blob_zero(&d);
-  diffFlags = construct_diff_flags(1);
-  text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
-  @ <pre class="udiff">
+  construct_diff_flags(1, &DCfg);
+  DCfg.diffFlags |= DIFF_HTML | DIFF_LINENO;
+  text_diff(&w2, &w1, &d, &DCfg);
   @ %s(blob_str(&d))
-  @ <pre>
   manifest_destroy(pW1);
   manifest_destroy(pW2);
   style_finish_page();
@@ -1704,6 +1902,7 @@ static const char listAllWikiPages[] =
 @ WHERE
 @   tag.tagname GLOB 'wiki-*'
 @   AND tagxref.tagid=tag.tagid
+@   AND TYPEOF(wrid)='integer' -- only wiki- tags which are wiki pages
 @ GROUP BY 1
 @ ORDER BY 2;
 ;
@@ -1721,6 +1920,7 @@ void wcontent_page(void){
   double rNow;
   int showAll = P("all")!=0;
   int showRid = P("showid")!=0;
+  int showCkBr;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1730,6 +1930,14 @@ void wcontent_page(void){
     style_submenu_element("Active", "%R/wcontent");
   }else{
     style_submenu_element("All", "%R/wcontent?all=1");
+  }
+  showCkBr = db_exists(
+    "SELECT tag.tagname AS tn FROM tag JOIN tagxref USING(tagid) "
+    "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' ) "
+    "  AND TYPEOF(tagxref.value+0)='integer'" );
+  if( showCkBr ){
+    showCkBr = P("showckbr")!=0;
+    style_submenu_checkbox("showckbr", "Show associated wikis", 0, 0);
   }
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   db_prepare(&q, listAllWikiPages/*works-like:""*/);
@@ -1754,6 +1962,11 @@ void wcontent_page(void){
     int wcnt = db_column_int(&q, 4);
     char *zWDisplayName;
 
+    if( !showCkBr &&
+        (sqlite3_strglob("checkin/*", zWName)==0 ||
+         sqlite3_strglob("branch/*", zWName)==0) ){
+      continue;
+    }
     if( sqlite3_strglob("checkin/*", zWName)==0 ){
       zWDisplayName = mprintf("%.25s...", zWName);
     }else{
@@ -1859,8 +2072,8 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
 }
 
 /*
-** Determine the rid for a tech note given either its id or its
-** timestamp. Returns 0 if there is no such item and -1 if the details
+** Determine the rid for a tech note given either its id, its timestamp,
+** or its tag. Returns 0 if there is no such item and -1 if the details
 ** are ambiguous and could refer to multiple items.
 */
 int wiki_technote_to_rid(const char *zETime) {
@@ -1895,6 +2108,27 @@ int wiki_technote_to_rid(const char *zETime) {
                    zETime);
     }
   }
+  if( !rid ) {
+      /*
+      ** At present, technote tags are prefixed with 'sym-', which shouldn't
+      ** be the case, so we check for both with and without the prefix until
+      ** such time as tags have the errant prefix dropped.
+      */
+      rid = db_int(0, "SELECT e.objid"
+		      "  FROM event e, tag t, tagxref tx"
+		      " WHERE e.type='e'"
+		      "   AND e.tagid IS NOT NULL"
+		      "   AND e.objid IN"
+                      "       (SELECT rid FROM tagxref"
+                      "         WHERE tagid=(SELECT tagid FROM tag"
+                      "                       WHERE tagname GLOB '%q'))"
+		      "    OR e.objid IN"
+                      "       (SELECT rid FROM tagxref"
+                      "         WHERE tagid=(SELECT tagid FROM tag"
+                      "                       WHERE tagname GLOB 'sym-%q'))"
+		      "   ORDER BY e.mtime DESC LIMIT 1",
+		   zETime, zETime);
+  }
   return rid;
 }
 
@@ -1906,7 +2140,7 @@ int wiki_technote_to_rid(const char *zETime) {
 ** Run various subcommands to work with wiki entries or tech notes.
 **
 ** > fossil wiki export ?OPTIONS? PAGENAME ?FILE?
-** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
+** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID|TAG ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech
 **       note to the given file or standard output.  A filename of "-"
@@ -1915,11 +2149,12 @@ int wiki_technote_to_rid(const char *zETime) {
 **       If PAGENAME is provided, the named wiki page will be output.
 **
 **       Options:
-**         -t|--technote DATETIME|TECHNOTE-ID
+**         -t|--technote DATETIME|TECHNOTE-ID|TAG
 **                    Specifies that a technote, rather than a wiki page,
 **                    will be exported. If DATETIME is used, the most
 **                    recently modified tech note with that DATETIME will
-**                    output.
+**                    output. If TAG is used, the most recently modified
+**                    tech note with that TAG will be output.
 **         -h|--html  The body (only) is rendered in HTML form, without
 **                    any page header/foot or HTML/BODY tag wrappers.
 **         -H|--HTML  Works like -h|-html but wraps the output in
@@ -1928,12 +2163,12 @@ int wiki_technote_to_rid(const char *zETime) {
 **                    the text/plain mimetype, its HTML-escaped output
 **                    will be wrapped in <pre>...</pre>.
 **
-** > fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
+** > fossil wiki (create|commit) (PAGENAME | TECHNOTE-COMMENT) ?FILE? ?OPTIONS?
 **
 **       Create a new or commit changes to an existing wiki page or
 **       technote from FILE or from standard input. PAGENAME is the
-**       name of the wiki entry or the timeline comment of the
-**       technote.
+**       name of the wiki entry. TECHNOTE-COMMENT is the timeline comment of
+**       the technote.
 **
 **       Options:
 **         -M|--mimetype TEXT-FORMAT   The mime type of the update.
@@ -1946,12 +2181,16 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     synonyms of these values.
 **         -t|--technote DATETIME      Specifies the timestamp of
 **                                     the technote to be created or
-**                                     updated. When updating a tech note
-**                                     the most recently modified tech note
-**                                     with the specified timestamp will be
-**                                     updated.
+**                                     updated. The timestamp specifies when
+**                                     this technote appears in the timeline
+**                                     and is its permanent handle although
+**                                     it may not be unique. When updating
+**                                     a technote the most recently modified
+**                                     tech note with the specified timestamp
+**                                     will be updated.
 **         -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                     updated by its technote id.
+**                                     updated by its technote id, which is
+**                                     its UUID.
 **         --technote-tags TAGS        The set of tags for a technote.
 **         --technote-bgcolor COLOR    The color used for the technote
 **                                     on the timeline.
@@ -1960,13 +2199,18 @@ int wiki_technote_to_rid(const char *zETime) {
 ** > fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
-**       case-insensitively by name.
+**       case-insensitively by name.  Wiki pages associated with
+**       check-ins and branches are NOT shown, unless -a is given.
 **
 **       Options:
+**         --all                       Include "deleted" pages in output.
+**                                     By default deleted pages are elided.
 **         -t|--technote               Technotes will be listed instead of
 **                                     pages. The technotes will be in order
 **                                     of timestamp with the most recent
 **                                     first.
+**         -a|--show-associated        Show wiki pages associated with
+**                                     check-ins and branches.
 **         -s|--show-technote-ids      The id of the tech note will be listed
 **                                     along side the timestamp. The tech note
 **                                     id will be the first word on each line.
@@ -1986,6 +2230,7 @@ int wiki_technote_to_rid(const char *zETime) {
 void wiki_cmd(void){
   int n;
   int isSandbox = 0;     /* true if dealing with sandbox pseudo-page */
+  const int showAll = find_option("all", 0, 0)!=0;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -2130,7 +2375,7 @@ void wiki_cmd(void){
       }
     }
     if( !zMimeType || !*zMimeType ){
-      /* Try to deduce the mime type based on the prior version. */
+      /* Try to deduce the mimetype based on the prior version. */
       if(isSandbox){
         zMimeType =
           wiki_filter_mimetypes(db_get("sandbox-mimetype",
@@ -2199,15 +2444,13 @@ void wiki_cmd(void){
     Stmt q;
     const int fTechnote = find_option("technote","t",0)!=0;
     const int showIds = find_option("show-technote-ids","s",0)!=0;
+    const int showCkBr = find_option("show-associated","a",0)!=0;
     verify_all_options();
     if (fTechnote==0){
-      db_prepare(&q,
-        "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
-        " ORDER BY lower(tagname) /*sort*/"
-      );
+      db_prepare(&q, listAllWikiPages/*works-like:""*/);
     }else{
       db_prepare(&q,
-        "SELECT datetime(e.mtime), substr(t.tagname,7)"
+        "SELECT datetime(e.mtime), substr(t.tagname,7), e.objid"
          " FROM event e, tag t"
         " WHERE e.type='e'"
           " AND e.tagid IS NOT NULL"
@@ -2217,6 +2460,15 @@ void wiki_cmd(void){
     }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      const int wrid = db_column_int(&q, 2);
+      if(!showAll && !wrid){
+        continue;
+      }
+      if( !showCkBr && 
+          (sqlite3_strglob("checkin/*", zName)==0 ||
+           sqlite3_strglob("branch/*", zName)==0) ){
+        continue;
+      }
       if( showIds ){
         const char *zUuid = db_column_text(&q, 1);
         fossil_print("%s ",zUuid);
@@ -2254,7 +2506,7 @@ static void wiki_section_label(
   if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
     @ <div class="section accordion">About</div>
   }else if( zPrefix[0]=='c' ){  /* checkin/... */
-    @ <div class="section accordion">About checkin %.20h(zName)</div>
+    @ <div class="section accordion">About check-in %.20h(zName)</div>
   }else{
     @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
   }

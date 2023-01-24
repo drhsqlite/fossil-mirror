@@ -1,6 +1,6 @@
 #
 ##############################################################################
-# WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
+# WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "tools/makemake.tcl")
 ##############################################################################
 #
 #
@@ -10,12 +10,15 @@
 #
 B       = ..
 SRCDIR  = $(B)\src
+SRCDIR_extsrc = $(B)\extsrc
+SRCDIR_tools = $(B)\tools
 T       = .
 OBJDIR  = $(T)
 OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
+DBGOPTS = /Od
 
 INSTALLDIR = .
 !ifdef DESTDIR
@@ -38,6 +41,11 @@ INSTALLDIR = $(DESTDIR)\$(INSTALLDIR)
 # to the directory containing the main Perl executable specified here (i.e.
 # "perl.exe").
 PERL    = perl.exe
+
+# Enable use of available compiler optimizations?
+!ifndef OPTIMIZATIONS
+OPTIMIZATIONS = 2
+!endif
 
 # Enable debugging symbols?
 !ifndef DEBUG
@@ -70,11 +78,6 @@ FOSSIL_ENABLE_EXEC_REL_PATHS = 0
 # Enable the JSON API?
 !ifndef FOSSIL_ENABLE_JSON
 FOSSIL_ENABLE_JSON = 0
-!endif
-
-# Enable use of miniz instead of zlib?
-!ifndef FOSSIL_ENABLE_MINIZ
-FOSSIL_ENABLE_MINIZ = 0
 !endif
 
 # Enable OpenSSL support?
@@ -115,7 +118,6 @@ SSLLIBDIR = $(SSLDIR)
 !else
 SSLLIBDIR = $(SSLDIR)
 !endif
-SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
@@ -160,11 +162,9 @@ ZLIB      = zdll.lib
 ZLIB      = zlib.lib
 !endif
 
-INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(B)\win\include"
+INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(SRCDIR_extsrc)" /I"$(B)\win\include"
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I"$(ZINCDIR)"
-!endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
 INCL      = $(INCL) /I"$(SSLINCDIR)"
@@ -174,7 +174,7 @@ INCL      = $(INCL) /I"$(SSLINCDIR)"
 INCL      = $(INCL) /I"$(TCLINCDIR)"
 !endif
 
-CFLAGS    = /nologo
+CFLAGS    = /nologo /W2 /WX /utf-8
 LDFLAGS   =
 
 CFLAGS    = $(CFLAGS) /D_CRT_SECURE_NO_DEPRECATE /D_CRT_SECURE_NO_WARNINGS
@@ -189,12 +189,23 @@ LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
 !if $(FOSSIL_ENABLE_WINXP)!=0
 XPCFLAGS  = $(XPCFLAGS) /D_WIN32_WINNT=0x0501 /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
+#
+# NOTE: For regular builds, /OSVERSION defaults to the /SUBSYSTEM version and
+# explicit initialization is redundant, but is required for post-built edits.
+#
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
-XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02
+XPLDFLAGS = $(XPLDFLAGS) /OSVERSION:5.02 /SUBSYSTEM:CONSOLE,5.02
 !else
-XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
+XPLDFLAGS = $(XPLDFLAGS) /OSVERSION:5.01 /SUBSYSTEM:CONSOLE,5.01
 !endif
 LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
+#
+# NOTE: Only XPCFLAGS is forwarded to the OpenSSL configuration, and XPLDFLAGS
+# is applied in a separate post-build step, see below for more information.
+#
+!if $(FOSSIL_ENABLE_SSL)!=0
+SSLCONFIG = $(SSLCONFIG) $(XPCFLAGS)
+!endif
 !endif
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
@@ -211,11 +222,23 @@ CRTFLAGS = /MT
 !endif
 !endif
 
+!if $(OPTIMIZATIONS)>3
+RELOPTS = /Os
+!elseif $(OPTIMIZATIONS)>2
+RELOPTS = /Ox
+!elseif $(OPTIMIZATIONS)>1
+RELOPTS = /O2
+!elseif $(OPTIMIZATIONS)>0
+RELOPTS = /O1
+!else
+RELOPTS =
+!endif
+
 !if $(DEBUG)!=0
-CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) $(DBGOPTS) /DFOSSIL_DEBUG /DTH_MEMDEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) /Os
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(RELOPTS)
 !endif
 
 BCC       = $(CC) $(CFLAGS)
@@ -230,15 +253,8 @@ TCC       = $(TCC) /DFOSSIL_DYNAMIC_BUILD=1
 RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
 !endif
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 LIBS      = $(LIBS) $(ZLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:"$(ZLIBDIR)"
-!endif
-
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
-RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
-!endif
 
 !if $(FOSSIL_ENABLE_JSON)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
@@ -295,19 +311,17 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_OMIT_SHARED_CACHE \
                  /DSQLITE_OMIT_LOAD_EXTENSION \
                  /DSQLITE_MAX_EXPR_DEPTH=0 \
-                 /DSQLITE_USE_ALLOCA \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
                  /DSQLITE_ENABLE_DBSTAT_VTAB \
-                 /DSQLITE_ENABLE_JSON1 \
                  /DSQLITE_ENABLE_FTS5 \
                  /DSQLITE_ENABLE_STMTVTAB \
                  /DSQLITE_HAVE_ZLIB \
-                 /DSQLITE_INTROSPECTION_PRAGMAS \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
                  /DSQLITE_TRUSTED_SCHEMA=0 \
+                 /DHAVE_USLEEP \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /DNDEBUG=1 \
@@ -322,19 +336,17 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_OMIT_SHARED_CACHE \
                 /DSQLITE_OMIT_LOAD_EXTENSION \
                 /DSQLITE_MAX_EXPR_DEPTH=0 \
-                /DSQLITE_USE_ALLOCA \
                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 /DSQLITE_ENABLE_FTS4 \
                 /DSQLITE_ENABLE_DBSTAT_VTAB \
-                /DSQLITE_ENABLE_JSON1 \
                 /DSQLITE_ENABLE_FTS5 \
                 /DSQLITE_ENABLE_STMTVTAB \
                 /DSQLITE_HAVE_ZLIB \
-                /DSQLITE_INTROSPECTION_PRAGMAS \
                 /DSQLITE_ENABLE_DBPAGE_VTAB \
                 /DSQLITE_TRUSTED_SCHEMA=0 \
+                /DHAVE_USLEEP \
                 /Dmain=sqlite3_shell \
                 /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -346,9 +358,7 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
 
-MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
-                /DMINIZ_NO_TIME \
-                /DMINIZ_NO_ARCHIVE_APIS
+PIKCHR_OPTIONS = /DPIKCHR_TOKEN_LIMIT=10000
 
 SRC   = "$(OX)\add_.c" \
         "$(OX)\ajax_.c" \
@@ -440,9 +450,9 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\merge3_.c" \
         "$(OX)\moderate_.c" \
         "$(OX)\name_.c" \
+        "$(OX)\patch_.c" \
         "$(OX)\path_.c" \
         "$(OX)\piechart_.c" \
-        "$(OX)\pikchr_.c" \
         "$(OX)\pikchrshow_.c" \
         "$(OX)\pivot_.c" \
         "$(OX)\popen_.c" \
@@ -490,16 +500,19 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\util_.c" \
         "$(OX)\verify_.c" \
         "$(OX)\vfile_.c" \
-        "$(OX)\webmail_.c" \
         "$(OX)\wiki_.c" \
         "$(OX)\wikiformat_.c" \
         "$(OX)\winfile_.c" \
         "$(OX)\winhttp_.c" \
         "$(OX)\xfer_.c" \
         "$(OX)\xfersetup_.c" \
-        "$(OX)\zip_.c"
+        "$(OX)\zip_.c" \
+        "$(SRCDIR_extsrc)\pikchr.c"
 
-EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
+EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
+        "$(SRCDIR)\..\extsrc\pikchr.js" \
+        "$(SRCDIR)\..\extsrc\pikchr.wasm" \
+        "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\..\skins\ardoise\details.txt" \
         "$(SRCDIR)\..\skins\ardoise\footer.txt" \
         "$(SRCDIR)\..\skins\ardoise\header.txt" \
@@ -512,10 +525,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\..\skins\blitz\footer.txt" \
         "$(SRCDIR)\..\skins\blitz\header.txt" \
         "$(SRCDIR)\..\skins\blitz\ticket.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\css.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\details.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\footer.txt" \
-        "$(SRCDIR)\..\skins\bootstrap\header.txt" \
         "$(SRCDIR)\..\skins\darkmode\css.txt" \
         "$(SRCDIR)\..\skins\darkmode\details.txt" \
         "$(SRCDIR)\..\skins\darkmode\footer.txt" \
@@ -549,21 +558,26 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\alerts\bflat3.wav" \
         "$(SRCDIR)\alerts\bloop.wav" \
         "$(SRCDIR)\alerts\plunk.wav" \
-        "$(SRCDIR)\chat.js" \
         "$(SRCDIR)\ci_edit.js" \
         "$(SRCDIR)\copybtn.js" \
         "$(SRCDIR)\default.css" \
+        "$(SRCDIR)\diff.js" \
         "$(SRCDIR)\diff.tcl" \
         "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
         "$(SRCDIR)\fossil.confirmer.js" \
         "$(SRCDIR)\fossil.copybutton.js" \
+        "$(SRCDIR)\fossil.diff.js" \
         "$(SRCDIR)\fossil.dom.js" \
         "$(SRCDIR)\fossil.fetch.js" \
         "$(SRCDIR)\fossil.numbered-lines.js" \
+        "$(SRCDIR)\fossil.page.brlist.js" \
+        "$(SRCDIR)\fossil.page.chat.js" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
         "$(SRCDIR)\fossil.page.pikchrshow.js" \
+        "$(SRCDIR)\fossil.page.pikchrshowasm.js" \
+        "$(SRCDIR)\fossil.page.whistory.js" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.pikchr.js" \
         "$(SRCDIR)\fossil.popupwidget.js" \
@@ -576,7 +590,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\login.js" \
         "$(SRCDIR)\markdown.md" \
         "$(SRCDIR)\menu.js" \
-        "$(SRCDIR)\sbsdiff.js" \
         "$(SRCDIR)\scroll.js" \
         "$(SRCDIR)\skin.js" \
         "$(SRCDIR)\sorttable.js" \
@@ -597,7 +610,9 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\sounds\e.wav" \
         "$(SRCDIR)\sounds\f.wav" \
         "$(SRCDIR)\style.admin_log.css" \
+        "$(SRCDIR)\style.chat.css" \
         "$(SRCDIR)\style.fileedit.css" \
+        "$(SRCDIR)\style.pikchrshow.css" \
         "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
         "$(SRCDIR)\useredit.js" \
@@ -694,6 +709,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\merge3$O" \
         "$(OX)\moderate$O" \
         "$(OX)\name$O" \
+        "$(OX)\patch$O" \
         "$(OX)\path$O" \
         "$(OX)\piechart$O" \
         "$(OX)\pikchr$O" \
@@ -749,7 +765,6 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\util$O" \
         "$(OX)\verify$O" \
         "$(OX)\vfile$O" \
-        "$(OX)\webmail$O" \
         "$(OX)\wiki$O" \
         "$(OX)\wikiformat$O" \
         "$(OX)\winfile$O" \
@@ -757,9 +772,6 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\xfer$O" \
         "$(OX)\xfersetup$O" \
         "$(OX)\zip$O" \
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-        "$(OX)\miniz$O" \
-!endif
         "$(OX)\fossil.res"
 
 
@@ -800,25 +812,46 @@ clean-zlib:
 !if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
+!if $(FOSSIL_ENABLE_WINXP)!=0
+	@echo Passing XPCFLAGS = [ $(XPCFLAGS) ] to the OpenSSL configuration...
+!endif
 !ifdef PERLDIR
 	@pushd "$(SSLDIR)" && "$(PERLDIR)\$(PERL)" Configure $(SSLCONFIG) && popd
 !else
 	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
 !endif
-!if $(FOSSIL_ENABLE_WINXP)!=0
-	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
-!else
 	@pushd "$(SSLDIR)" && $(MAKE) && popd
+!if $(FOSSIL_ENABLE_WINXP)!=0 && $(FOSSIL_DYNAMIC_BUILD)!=0
+#
+# NOTE: Appending custom linker flags to the OpenSSL default linker flags is
+# somewhat difficult, as summarized in this Fossil Forum post:
+#
+#   https://fossil-scm.org/forum/forumpost/a9a2d6af28b
+#
+# Therefore the custom linker flags required for Windows XP dynamic builds are
+# applied in a separate post-build step.
+#
+# If the build stops here, or if the custom linker flags are outside the scope
+# of `editbin` or `link /EDIT` (i.e. additional libraries), consider tweaking
+# the OpenSSL makefile by hand.
+#
+# Also note that this step changes the subsystem for the OpenSSL DLLs from
+# WINDOWS to CONSOLE, but which has no effect on DLLs.
+#
+	@echo Applying XPLDFLAGS = [ $(XPLDFLAGS) ] to the OpenSSL DLLs...
+	@for /F "usebackq delims=" %F in (`dir /A:-D/B "$(SSLDIR)\*.dll" 2^>nul`) \
+		do @( \
+			echo %F & \
+			link /EDIT /NOLOGO $(XPLDFLAGS) "$(SSLDIR)\%F" || exit 1 \
+		)
 !endif
 
 clean-openssl:
 	@pushd "$(SSLDIR)" && $(MAKE) clean && popd
 !endif
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 !if $(FOSSIL_BUILD_ZLIB)!=0
 APPTARGETS = $(APPTARGETS) zlib
-!endif
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
@@ -925,6 +958,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\merge3.obj" >> $@
 	echo "$(OX)\moderate.obj" >> $@
 	echo "$(OX)\name.obj" >> $@
+	echo "$(OX)\patch.obj" >> $@
 	echo "$(OX)\path.obj" >> $@
 	echo "$(OX)\piechart.obj" >> $@
 	echo "$(OX)\pikchr.obj" >> $@
@@ -980,7 +1014,6 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\util.obj" >> $@
 	echo "$(OX)\verify.obj" >> $@
 	echo "$(OX)\vfile.obj" >> $@
-	echo "$(OX)\webmail.obj" >> $@
 	echo "$(OX)\wiki.obj" >> $@
 	echo "$(OX)\wikiformat.obj" >> $@
 	echo "$(OX)\winfile.obj" >> $@
@@ -988,37 +1021,34 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\xfer.obj" >> $@
 	echo "$(OX)\xfersetup.obj" >> $@
 	echo "$(OX)\zip.obj" >> $@
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-	echo "$(OX)\miniz.obj" >> $@
-!endif
 	echo $(LIBS) >> $@
 
-"$(OBJDIR)\translate$E": "$(SRCDIR)\translate.c"
+"$(OBJDIR)\translate$E": "$(SRCDIR_tools)\translate.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\makeheaders$E": "$(SRCDIR)\makeheaders.c"
+"$(OBJDIR)\makeheaders$E": "$(SRCDIR_tools)\makeheaders.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\mkindex$E": "$(SRCDIR)\mkindex.c"
+"$(OBJDIR)\mkindex$E": "$(SRCDIR_tools)\mkindex.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\mkbuiltin$E": "$(SRCDIR)\mkbuiltin.c"
+"$(OBJDIR)\mkbuiltin$E": "$(SRCDIR_tools)\mkbuiltin.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\mkversion$E": "$(SRCDIR)\mkversion.c"
+"$(OBJDIR)\mkversion$E": "$(SRCDIR_tools)\mkversion.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\codecheck1$E": "$(SRCDIR)\codecheck1.c"
+"$(OBJDIR)\codecheck1$E": "$(SRCDIR_tools)\codecheck1.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
 !if $(USE_SEE)!=0
 SEE_FLAGS = /DSQLITE_HAS_CODEC=1 /DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
-SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
+SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3-see.c
 !else
 SEE_FLAGS =
-SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
-SQLITE3_SRC = $(SRCDIR)\sqlite3.c
+SQLITE3_SHELL_SRC = $(SRCDIR_extsrc)\shell.c
+SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 !endif
 
 "$(OX)\shell$O" : "$(SQLITE3_SHELL_SRC)" "$(B)\win\Makefile.msc"
@@ -1036,8 +1066,8 @@ SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 "$(OX)\th_tcl$O" : "$(SRCDIR)\th_tcl.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-"$(OX)\miniz$O" : "$(SRCDIR)\miniz.c"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
+"$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
+	$(TCC) $(PIKCHR_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
@@ -1045,7 +1075,7 @@ SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 "$(B)\phony.h" :
 	rem Force rebuild of VERSION.h whenever nmake is run
 
-"$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
+"$(OX)\cson_amalgamation$O" : "$(SRCDIR_extsrc)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\page_index.h": "$(OBJDIR)\mkindex$E" $(SRC)
@@ -1104,7 +1134,10 @@ realclean: clean
 "$(OBJDIR)\json_wiki$O" : "$(SRCDIR)\json_detail.h"
 
 "$(OX)\builtin_data.reslist": $(EXTRA_FILES) "$(B)\win\Makefile.msc"
-	echo "$(SRCDIR)\../skins/ardoise/css.txt" > $@
+	echo "$(SRCDIR)\../extsrc/pikchr-worker.js" > $@
+	echo "$(SRCDIR)\../extsrc/pikchr.js" >> $@
+	echo "$(SRCDIR)\../extsrc/pikchr.wasm" >> $@
+	echo "$(SRCDIR)\../skins/ardoise/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/header.txt" >> $@
@@ -1117,10 +1150,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/blitz/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/ticket.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/bootstrap/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/darkmode/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/darkmode/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/darkmode/footer.txt" >> $@
@@ -1154,21 +1183,26 @@ realclean: clean
 	echo "$(SRCDIR)\alerts/bflat3.wav" >> $@
 	echo "$(SRCDIR)\alerts/bloop.wav" >> $@
 	echo "$(SRCDIR)\alerts/plunk.wav" >> $@
-	echo "$(SRCDIR)\chat.js" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
 	echo "$(SRCDIR)\copybtn.js" >> $@
 	echo "$(SRCDIR)\default.css" >> $@
+	echo "$(SRCDIR)\diff.js" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
 	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
 	echo "$(SRCDIR)\fossil.confirmer.js" >> $@
 	echo "$(SRCDIR)\fossil.copybutton.js" >> $@
+	echo "$(SRCDIR)\fossil.diff.js" >> $@
 	echo "$(SRCDIR)\fossil.dom.js" >> $@
 	echo "$(SRCDIR)\fossil.fetch.js" >> $@
 	echo "$(SRCDIR)\fossil.numbered-lines.js" >> $@
+	echo "$(SRCDIR)\fossil.page.brlist.js" >> $@
+	echo "$(SRCDIR)\fossil.page.chat.js" >> $@
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshow.js" >> $@
+	echo "$(SRCDIR)\fossil.page.pikchrshowasm.js" >> $@
+	echo "$(SRCDIR)\fossil.page.whistory.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.pikchr.js" >> $@
 	echo "$(SRCDIR)\fossil.popupwidget.js" >> $@
@@ -1181,7 +1215,6 @@ realclean: clean
 	echo "$(SRCDIR)\login.js" >> $@
 	echo "$(SRCDIR)\markdown.md" >> $@
 	echo "$(SRCDIR)\menu.js" >> $@
-	echo "$(SRCDIR)\sbsdiff.js" >> $@
 	echo "$(SRCDIR)\scroll.js" >> $@
 	echo "$(SRCDIR)\skin.js" >> $@
 	echo "$(SRCDIR)\sorttable.js" >> $@
@@ -1202,7 +1235,9 @@ realclean: clean
 	echo "$(SRCDIR)\sounds/e.wav" >> $@
 	echo "$(SRCDIR)\sounds/f.wav" >> $@
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
+	echo "$(SRCDIR)\style.chat.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
+	echo "$(SRCDIR)\style.pikchrshow.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@
 	echo "$(SRCDIR)\useredit.js" >> $@
@@ -1748,6 +1783,12 @@ realclean: clean
 "$(OX)\name_.c" : "$(SRCDIR)\name.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\patch$O" : "$(OX)\patch_.c" "$(OX)\patch.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\patch_.c"
+
+"$(OX)\patch_.c" : "$(SRCDIR)\patch.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\path$O" : "$(OX)\path_.c" "$(OX)\path.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\path_.c"
 
@@ -1758,12 +1799,6 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\piechart_.c"
 
 "$(OX)\piechart_.c" : "$(SRCDIR)\piechart.c"
-	"$(OBJDIR)\translate$E" $** > $@
-
-"$(OX)\pikchr$O" : "$(OX)\pikchr_.c" "$(OX)\pikchr.h"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\pikchr_.c"
-
-"$(OX)\pikchr_.c" : "$(SRCDIR)\pikchr.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\pikchrshow$O" : "$(OX)\pikchrshow_.c" "$(OX)\pikchrshow.h"
@@ -2048,12 +2083,6 @@ realclean: clean
 "$(OX)\vfile_.c" : "$(SRCDIR)\vfile.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
-"$(OX)\webmail$O" : "$(OX)\webmail_.c" "$(OX)\webmail.h"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\webmail_.c"
-
-"$(OX)\webmail_.c" : "$(SRCDIR)\webmail.c"
-	"$(OBJDIR)\translate$E" $** > $@
-
 "$(OX)\wiki$O" : "$(OX)\wiki_.c" "$(OX)\wiki.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\wiki_.c"
 
@@ -2190,9 +2219,9 @@ realclean: clean
 			"$(OX)\merge3_.c":"$(OX)\merge3.h" \
 			"$(OX)\moderate_.c":"$(OX)\moderate.h" \
 			"$(OX)\name_.c":"$(OX)\name.h" \
+			"$(OX)\patch_.c":"$(OX)\patch.h" \
 			"$(OX)\path_.c":"$(OX)\path.h" \
 			"$(OX)\piechart_.c":"$(OX)\piechart.h" \
-			"$(OX)\pikchr_.c":"$(OX)\pikchr.h" \
 			"$(OX)\pikchrshow_.c":"$(OX)\pikchrshow.h" \
 			"$(OX)\pivot_.c":"$(OX)\pivot.h" \
 			"$(OX)\popen_.c":"$(OX)\popen.h" \
@@ -2240,7 +2269,6 @@ realclean: clean
 			"$(OX)\util_.c":"$(OX)\util.h" \
 			"$(OX)\verify_.c":"$(OX)\verify.h" \
 			"$(OX)\vfile_.c":"$(OX)\vfile.h" \
-			"$(OX)\webmail_.c":"$(OX)\webmail.h" \
 			"$(OX)\wiki_.c":"$(OX)\wiki.h" \
 			"$(OX)\wikiformat_.c":"$(OX)\wikiformat.h" \
 			"$(OX)\winfile_.c":"$(OX)\winfile.h" \
@@ -2248,8 +2276,9 @@ realclean: clean
 			"$(OX)\xfer_.c":"$(OX)\xfer.h" \
 			"$(OX)\xfersetup_.c":"$(OX)\xfersetup.h" \
 			"$(OX)\zip_.c":"$(OX)\zip.h" \
-			"$(SRCDIR)\sqlite3.h" \
+			"$(SRCDIR_extsrc)\pikchr.c":"$(OX)\pikchr.h" \
+			"$(SRCDIR_extsrc)\sqlite3.h" \
 			"$(SRCDIR)\th.h" \
 			"$(OX)\VERSION.h" \
-			"$(SRCDIR)\cson_amalgamation.h"
+			"$(SRCDIR_extsrc)\cson_amalgamation.h"
 	@copy /Y nul: $@

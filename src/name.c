@@ -159,22 +159,29 @@ int start_of_branch(int rid, int eType){
   int ans = rid;
   char *zBr = branch_of_rid(rid);
   db_prepare(&q,
-    "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
-                       " WHERE tagid=%d AND tagtype>0"
-                       "   AND value=%Q AND rid=plink.pid)"
-    "  FROM plink"
-    " WHERE cid=:cid AND isprim",
-    TAG_BRANCH, zBr
+    "WITH RECURSIVE"
+    "  par(pid, ex, cnt) as ("
+    "    SELECT pid, EXISTS(SELECT 1 FROM tagxref"
+    "                        WHERE tagid=%d AND tagtype>0"
+    "                          AND value=%Q AND rid=plink.pid), 1"
+    "    FROM plink WHERE cid=%d AND isprim"
+    "    UNION ALL "
+    "    SELECT plink.pid, EXISTS(SELECT 1 FROM tagxref "
+    "                              WHERE tagid=%d AND tagtype>0" 
+    "                                AND value=%Q AND rid=plink.pid),"
+    "           1+par.cnt"
+    "      FROM plink, par"
+    "     WHERE cid=par.pid AND isprim AND par.ex "
+    "     LIMIT 100000 "
+    "  )"
+    " SELECT pid FROM par WHERE ex>=%d ORDER BY cnt DESC LIMIT 1",
+    TAG_BRANCH, zBr, ans, TAG_BRANCH, zBr, eType%2
   );
   fossil_free(zBr);
-  do{
-    db_reset(&q);
-    db_bind_int(&q, ":cid", ans);
-    rc = db_step(&q);
-    if( rc!=SQLITE_ROW ) break;
-    if( eType==1 && db_column_int(&q,1)==0 ) break;
+  rc = db_step(&q);
+  if( rc==SQLITE_ROW ){ 
     ans = db_column_int(&q, 0);
-  }while( db_column_int(&q, 1)==1 && ans>0 );
+  }
   db_finalize(&q);
   if( eType==2 && ans>0 ){
     zBr = branch_of_rid(ans);
@@ -226,12 +233,20 @@ static int most_recent_event_with_tag(const char *zTag, const char *zType){
   );
 }
 
+/*
+** Return true if character "c" is a character that might have been
+** accidentally appended to the end of a URL.
+*/
+static int is_trailing_punct(char c){
+  return c=='.' || c=='_' || c==')' || c=='>' || c=='!' || c=='?' || c==',';
+}
+
 
 /*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
 **   *  artifact hash (optionally enclosed in [...])
-**   *  4-character or larger prefix of a artifact
+**   *  4-character or larger prefix of an artifact
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
 **   *  Date or date-time
@@ -244,6 +259,17 @@ static int most_recent_event_with_tag(const char *zTag, const char *zType){
 **   *  "current"
 **   *  "prev" or "previous"
 **   *  "next"
+**
+** The following modifier prefixes may be applied to the above forms:
+**
+**   *  "root:BR" = The origin of the branch named BR.
+**   *  "start:BR" = The first check-in of the branch named BR.
+**   *  "merge-in:BR" = The most recent merge-in for the branch named BR.
+**
+** In those forms, BR may be any symbolic form but is assumed to be a
+** check-in. Thus root:2021-02-01 would resolve to a check-in, possibly
+** in a branch and possibly in the trunk, but never a wiki edit or
+** forum post.
 **
 ** Return the RID of the matching artifact.  Or return 0 if the name does not
 ** match any known object.  Or return -1 if the name is ambiguous.
@@ -355,7 +381,14 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     rid = symbolic_name_to_rid(zTag+5, zType);
     return start_of_branch(rid, 0);
   }
-  /* rootx:BR -> Most recent merge-in for the branch name BR */
+
+  /* start:BR -> The first check-in on branch named BR */
+  if( strncmp(zTag, "start:", 6)==0 ){
+    rid = symbolic_name_to_rid(zTag+6, zType);
+    return start_of_branch(rid, 1);
+  }  
+  
+  /* merge-in:BR -> Most recent merge-in for the branch named BR */
   if( strncmp(zTag, "merge-in:", 9)==0 ){
     rid = symbolic_name_to_rid(zTag+9, zType);
     return start_of_branch(rid, 2);
@@ -477,6 +510,30 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
           "   AND event.type GLOB '%q'", zTag /*safe-for-%s*/, zType);
       }
     }
+    return rid;
+  }
+
+  /* If nothing matches and the name ends with punctuation,
+  ** then the name might have originated from a URL in plain text
+  ** that was incorrectly extracted from the text.  Try to remove
+  ** the extra punctuation and rerun the match.
+  */
+  if( nTag>4
+   && is_trailing_punct(zTag[nTag-1])
+   && !is_trailing_punct(zTag[nTag-2])
+  ){
+    char *zNew = fossil_strndup(zTag, nTag-1);
+    rid = symbolic_name_to_rid(zNew,zType);
+    fossil_free(zNew);
+  }else 
+  if( nTag>5
+   && is_trailing_punct(zTag[nTag-1])
+   && is_trailing_punct(zTag[nTag-2])
+   && !is_trailing_punct(zTag[nTag-3])
+  ){
+    char *zNew = fossil_strndup(zTag, nTag-2);
+    rid = symbolic_name_to_rid(zNew,zType);
+    fossil_free(zNew);
   }
   return rid;
 }
@@ -511,7 +568,7 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
     fossil_error(iErrPriority, "ambiguous name: %s", zName);
     return 2;
   }else if( rid==0 ){
-    fossil_error(iErrPriority, "not found: %s", zName);
+    fossil_error(iErrPriority, "cannot resolve name: %s", zName);
     return 1;
   }else{
     blob_reset(pName);
@@ -621,7 +678,7 @@ int name_to_typed_rid(const char *zName, const char *zType){
   if( rid<0 ){
     fossil_fatal("ambiguous name: %s", zName);
   }else if( rid==0 ){
-    fossil_fatal("not found: %s", zName);
+    fossil_fatal("cannot resolve name: %s", zName);
   }
   return rid;
 }
@@ -731,9 +788,76 @@ int name_to_rid_www(const char *zParamName){
 }
 
 /*
+** Given an RID of a structural artifact, which is assumed to be
+** valid, this function returns one of the CFTYPE_xxx values
+** describing the record type, or 0 if the RID does not refer to an
+** artifact record (as determined by reading the event table).
+**
+** Note that this function never returns CFTYPE_ATTACHMENT or
+** CFTYPE_CLUSTER because those are not used in the event table. Thus
+** it cannot be used to distinguish those artifact types from
+** non-artifact file content.
+**
+** Potential TODO: if the rid is not found in the timeline, try to
+** match it to a client file and return a hypothetical new
+** CFTYPE_OPAQUE or CFTYPE_NONARTIFACT if a match is found.
+*/
+int whatis_rid_type(int rid){
+  Stmt q = empty_Stmt;
+  int type = 0;
+    /* Check for entries on the timeline that reference this object */
+  db_prepare(&q,
+     "SELECT type FROM event WHERE objid=%d", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    switch( db_column_text(&q,0)[0] ){
+      case 'c':  type = CFTYPE_MANIFEST; break;
+      case 'w':  type = CFTYPE_WIKI;     break;
+      case 'e':  type = CFTYPE_EVENT;    break;
+      case 'f':  type = CFTYPE_FORUM;    break;
+      case 't':  type = CFTYPE_TICKET;   break;
+      case 'g':  type = CFTYPE_CONTROL;  break;
+      default:   break;
+    }
+  }
+  db_finalize(&q);
+  return type;
+}
+
+/*
+** A proxy for whatis_rid_type() which returns a brief string (in
+** static memory) describing the record type. Returns NULL if rid does
+** not refer to an artifact record (as determined by reading the event
+** table). The returned string is intended to be used in headers which
+** can refer to different artifact types. It is not "definitive," in
+** that it does not distinguish between closely-related types like
+** wiki creation, edit, and removal.
+*/
+char const * whatis_rid_type_label(int rid){
+  char const * zType = 0;
+  switch( whatis_rid_type(rid) ){
+    case CFTYPE_MANIFEST: zType = "Check-in";      break;
+    case CFTYPE_WIKI:     zType = "Wiki-edit";     break;
+    case CFTYPE_EVENT:    zType = "Technote";      break;
+    case CFTYPE_FORUM:    zType = "Forum-post";    break;
+    case CFTYPE_TICKET:   zType = "Ticket-change"; break;
+    case CFTYPE_CONTROL:  zType = "Tag-change";    break;
+    default:   break;
+  }
+  return zType;
+}
+
+/*
+** Flag values for whatis_rid().
+*/
+#if INTERFACE
+#define WHATIS_VERBOSE 0x01    /* Extra output */
+#define WHATIS_BRIEF   0x02    /* Omit unnecessary output */
+#endif
+
+/*
 ** Generate a description of artifact "rid"
 */
-void whatis_rid(int rid, int verboseFlag){
+void whatis_rid(int rid, int flags){
   Stmt q;
   int cnt;
 
@@ -745,7 +869,7 @@ void whatis_rid(int rid, int verboseFlag){
      "   AND rcvfrom.rcvid=blob.rcvid",
      rid);
   if( db_step(&q)==SQLITE_ROW ){
-    if( verboseFlag ){
+    if( flags & WHATIS_VERBOSE ){
       fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
       fossil_print("size:       %d bytes\n", db_column_int(&q,1));
       fossil_print("received:   %s from %s\n",
@@ -763,6 +887,7 @@ void whatis_rid(int rid, int verboseFlag){
     "SELECT substr(tagname,5)"
     "  FROM tag JOIN tagxref ON tag.tagid=tagxref.tagid"
     " WHERE tagxref.rid=%d"
+    "   AND tagxref.tagtype<>0"
     "   AND tagname GLOB 'sym-*'"
     " ORDER BY 1",
     rid
@@ -825,9 +950,13 @@ void whatis_rid(int rid, int verboseFlag){
     "   AND filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
-    " ORDER BY event.mtime DESC /*sort*/",
-    rid);
+    " ORDER BY event.mtime %s /*sort*/",
+    rid, 
+    (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
+    if( flags & WHATIS_BRIEF ){
+      fossil_print("mtime:      %s\n", db_column_text(&q,2));
+    }
     fossil_print("file:       %s\n", db_column_text(&q,0));
     fossil_print("            part of [%S] by %s on %s\n",
       db_column_text(&q, 1),
@@ -860,7 +989,7 @@ void whatis_rid(int rid, int verboseFlag){
     fossil_print("attachment: %s\n", db_column_text(&q,0));
     fossil_print("            attached to %s %s\n",
                  db_column_text(&q,5), db_column_text(&q,4));
-    if( verboseFlag ){
+    if( flags & WHATIS_VERBOSE ){
       fossil_print("            via %s (%d)\n",
                    db_column_text(&q,7), db_column_int(&q,6));
     }else{
@@ -890,6 +1019,43 @@ void whatis_rid(int rid, int verboseFlag){
 }
 
 /*
+** Generate a description of artifact from it symbolic name.
+*/
+void whatis_artifact(
+    const char *zName,    /* Symbolic name or full hash */
+    const char *zFileName,/* Optional: original filename (in file mode) */
+    const char *zType,    /* Artifact type filter */
+    int verboseFlag       /* Verbosity flag */
+){
+  const char* zNameTitle = "name:";
+  int rid = symbolic_name_to_rid(zName, zType);
+  if( zFileName ){
+    fossil_print("%-12s%s\n", zNameTitle, zFileName);
+    zNameTitle = "hash:";
+  }
+  if( rid<0 ){
+    Stmt q;
+    int cnt = 0;
+    fossil_print("%-12s%s (ambiguous)\n", zNameTitle, zName);
+    db_prepare(&q,
+        "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
+        zName, zName
+        );
+    while( db_step(&q)==SQLITE_ROW ){
+      if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+      whatis_rid(db_column_int(&q, 0), verboseFlag);
+    }
+    db_finalize(&q);
+  }else if( rid==0 ){
+    /* 0123456789 12 */
+    fossil_print("unknown:    %s\n", zName);
+  }else{
+    fossil_print("%-12s%s\n", zNameTitle, zName);
+    whatis_rid(rid, verboseFlag);
+  }
+}
+
+/*
 ** COMMAND: whatis*
 **
 ** Usage: %fossil whatis NAME
@@ -899,19 +1065,20 @@ void whatis_rid(int rid, int verboseFlag){
 ** plays.
 **
 ** Options:
-**
+**    -f|--file            Find artifacts with the same hash as file NAME.
+**                         If NAME is "-", read content from standard input.
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
-**                         'w', 'g', or 'e').
+**                         'w', 'g', or 'e')
 **    -v|--verbose         Provide extra information (such as the RID)
 */
 void whatis_cmd(void){
-  int rid;
-  const char *zName;
   int verboseFlag;
+  int fileFlag;
   int i;
   const char *zType = 0;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
+  fileFlag = find_option("file","f",0)!=0;
   zType = find_option("type",0,1);
 
   /* We should be done with options.. */
@@ -919,28 +1086,30 @@ void whatis_cmd(void){
 
   if( g.argc<3 ) usage("NAME ...");
   for(i=2; i<g.argc; i++){
-    zName = g.argv[i];
+    const char *zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
-    rid = symbolic_name_to_rid(zName, zType);
-    if( rid<0 ){
-      Stmt q;
-      int cnt = 0;
-      fossil_print("name:       %s (ambiguous)\n", zName);
-      db_prepare(&q,
-         "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
-         zName, zName
-      );
-      while( db_step(&q)==SQLITE_ROW ){
-        if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
-        whatis_rid(db_column_int(&q, 0), verboseFlag);
+    if( fileFlag ){
+      Blob in;
+      Blob hash = empty_blob;
+      const char *zHash;
+      /* Always follow symlinks (when applicable) */
+      blob_read_from_file(&in, zName, ExtFILE);
+
+      /* First check the auxiliary hash to see if there is already an artifact
+      ** that uses the auxiliary hash name */
+      hname_hash(&in, 1, &hash);
+      zHash = (const char*)blob_str(&hash);
+      if( fast_uuid_to_rid(zHash)==0 ){
+        /* No existing artifact with the auxiliary hash name.  Therefore, use
+        ** the primary hash name. */
+        blob_reset(&hash);
+        hname_hash(&in, 0, &hash);
+        zHash = (const char*)blob_str(&hash);
       }
-      db_finalize(&q);
-    }else if( rid==0 ){
-                 /* 0123456789 12 */
-      fossil_print("unknown:    %s\n", zName);
+      whatis_artifact(zHash, zName, zType, verboseFlag);
+      blob_reset(&hash);
     }else{
-      fossil_print("name:       %s\n", zName);
-      whatis_rid(rid, verboseFlag);
+      whatis_artifact(zName, 0, zType, verboseFlag);
     }
   }
 }
@@ -1023,7 +1192,7 @@ static const char zDescTab[] =
 @   uuid TEXT,                     -- hash of the object
 @   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
-@   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   type TEXT,                     -- file, check-in, wiki, ticket, etc.
 @   rcvid INT,                     -- When the artifact was received
 @   summary TEXT,                  -- Summary comment for the object
 @   ref TEXT                       -- hash of an object to link against
@@ -1636,7 +1805,7 @@ void test_phatoms_cmd(void){
 ** generated by the SQL given in the argument.
 */
 static void collision_report(const char *zSql){
-  int i, j, kk;
+  int i, j;
   int nHash = 0;
   Stmt q;
   char zPrev[HNAME_MAX+1];
@@ -1673,11 +1842,9 @@ static void collision_report(const char *zSql){
   }
   @ </tbody></table>
   @ <p>Total number of hashes: %d(nHash)</p>
-  kk = 0;
   for(i=HNAME_MAX; i>=4; i--){
     if( aCollide[i].cnt==0 ) continue;
     if( aCollide[i].cnt>200 ) break;
-    kk += aCollide[i].cnt;
     if( aCollide[i].cnt<25 ){
       @ <p>Collisions of length %d(i):
     }else{

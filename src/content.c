@@ -322,11 +322,11 @@ int content_get(int rid, Blob *pBlob){
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
 ** Extract an artifact by its artifact hash and write the results on
-** standard output, or if the optional 4th argument is given, in
+** standard output, or if the optional second argument is given, in
 ** the named output file.
 **
 ** Options:
-**    -R|--repository FILE       Extract artifacts from repository FILE
+**    -R|--repository REPO       Extract artifacts from repository REPO
 **
 ** See also: [[finfo]]
 */
@@ -557,10 +557,9 @@ int content_put_ex(
   db_prepare(&s1, "SELECT rid, size FROM blob WHERE uuid=%B", &hash);
   if( db_step(&s1)==SQLITE_ROW ){
     rid = db_column_int(&s1, 0);
-    if( db_column_int(&s1, 1)>=0 || pBlob==0 ){
-      /* Either the entry is not a phantom or it is a phantom but we
-      ** have no data with which to dephantomize it.  In either case,
-      ** there is nothing for us to do other than return the RID. */
+    if( db_column_int(&s1, 1)>=0 ){
+      /* The entry is not a phantom. There is nothing for us to do
+      ** other than return the RID. */
       db_finalize(&s1);
       db_end_transaction(0);
       return rid;
@@ -801,6 +800,8 @@ void content_make_private(int rid){
 ** conversion occurs and this is a no-op unless force==1.  If force==1,
 ** then nSrc must also be 1.
 **
+** If rid refers to a phantom, no delta is created.
+**
 ** Never generate a delta that carries a private artifact into a public
 ** artifact.  Otherwise, when we go to send the public artifact on a
 ** sync operation, the other end of the sync will never be able to receive
@@ -827,10 +828,22 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
   int rc = 0;          /* Value to return */
   int i;               /* Loop variable for aSrc[] */
 
+  /*
+  ** Historically this routine gracefully ignored the rid 0, but the
+  ** addition of a call to content_is_available() in [188ffef2] caused
+  ** rid 0 to trigger an assert via bag_find(). Rather than track down
+  ** all such calls (e.g. the one via /technoteedit), we'll continue
+  ** to gracefully ignore rid 0 here.
+  */
+  if( 0==rid ) return 0;
+
   /* If rid is already a child (a delta) of some other artifact, return
   ** immediately if the force flags is false
   */
   if( !force && delta_source_rid(rid)>0 ) return 0;
+
+  /* If rid refers to a phantom, skip deltification. */
+  if( 0==content_is_available(rid) ) return 0;
 
   /* Get the complete content of the object to be delta-ed.  If the size
   ** is less than 50 bytes, then there really is no point in trying to do
@@ -946,13 +959,10 @@ static int looks_like_control_artifact(Blob *p){
 ** successfully reconstructed using "fossil rebuild".
 **
 ** Options:
-**
 **    -d|--db-only       Run "PRAGMA integrity_check" on the database only.
 **                       No other validation is performed.
-**
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
-**
 **    -q|--quick         Run "PRAGMA quick_check" on the database only.
 **                       No other validation is performed.
 */
@@ -1186,7 +1196,6 @@ static int check_exists(
 ** that are missing or shunned.
 **
 ** Options:
-**
 **    --notshunned          Do not report shunned artifacts
 **    --quiet               Only show output if there are errors
 */

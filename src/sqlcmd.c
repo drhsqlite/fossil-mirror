@@ -23,13 +23,7 @@
 #include "config.h"
 #include "sqlcmd.h"
 #include <stdlib.h> /* atexit() */
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
-
+#include <zlib.h>
 #ifndef _WIN32
 #  include "linenoise.h"
 #endif
@@ -148,8 +142,8 @@ static void sqlcmd_gather_artifact_stats(
 }
 
 /*
-** Add the content(), compress(), and decompress() SQL functions to
-** database connection db.
+** Add the content(), compress(), decompress(), and
+** gather_artifact_stats() SQL functions to database connection db.
 */
 int add_content_sql_commands(sqlite3 *db){
   sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
@@ -173,14 +167,14 @@ int add_content_sql_commands(sqlite3 *db){
 **
 ** WARNING:
 ** Do not instantiate these functions for any Fossil webpage or command
-** method of than the "fossil sql" command.  If an attacker gains access
+** method other than the "fossil sql" command.  If an attacker gains access
 ** to these functions, he will be able to disable other defense mechanisms.
 **
 ** This routines are for interactiving testing only.  They are experimental
 ** and undocumented (apart from this comments) and might go away or change
 ** in future releases.
 **
-** 2020-11-29:  This functions are now only available if the "fossil sql"
+** 2020-11-29:  These functions are now only available if the "fossil sql"
 ** command is started with the --test option.
 */
 static void sqlcmd_db_protect(
@@ -207,9 +201,6 @@ static void sqlcmd_db_protect_pop(
   if( !local_bSqlCmdTest ) db_protect_pop();
 }
 
-
-
-
 /*
 ** This is the "automatic extension" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
@@ -231,6 +222,7 @@ static int sqlcmd_autoinit(
   builtin_vtab_register(db);
   g.repositoryOpen = 1;
   g.db = db;
+  sqlite3_busy_timeout(db, 10000);
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
   db_maybe_set_encryption_key(db, g.zRepositoryName);
   if( g.zLocalDbName ){
@@ -256,6 +248,8 @@ static int sqlcmd_autoinit(
                             sqlcmd_db_protect, 0, 0);
     sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
                             sqlcmd_db_protect_pop, 0, 0);
+    sqlite3_create_function(db, "shared_secret", 2, SQLITE_UTF8, 0,
+                            sha1_shared_secret_sql_function, 0, 0);
   }
   return SQLITE_OK;
 }
@@ -288,19 +282,17 @@ void sqlcmd_init_proc(void){
 /*
 ** This routine is called by the patched sqlite3 command-line shell in order
 ** to load the encryption key for the open Fossil database.  The memory that
-** is pointed to by the value placed in pzKey must be obtained from SQLite.
+** is pointed to by the value placed in pzKey must be obtained from malloc.
 */
 void fossil_key(const char **pzKey, int *pnKey){
   char *zSavedKey = db_get_saved_encryption_key();
   char *zKey;
   size_t savedKeySize = db_get_saved_encryption_key_size();
-  size_t nByte;
 
   if( zSavedKey==0 || savedKeySize==0 ) return;
-  nByte = savedKeySize * sizeof(char);
-  zKey = sqlite3_malloc( (int)nByte );
+  zKey = (char*)malloc( savedKeySize );
   if( zKey ){
-    memcpy(zKey, zSavedKey, nByte);
+    memcpy(zKey, zSavedKey, savedKeySize);
     *pzKey = zKey;
     if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
       *pnKey = (int)strlen(zKey);
@@ -308,7 +300,7 @@ void fossil_key(const char **pzKey, int *pnKey){
       *pnKey = -1;
     }
   }else{
-    fossil_panic("failed to allocate %u bytes for key", nByte);
+    fossil_fatal("failed to allocate %u bytes for key", savedKeySize);
   }
 }
 #endif
@@ -342,15 +334,11 @@ static void fossil_close(int bDb, int noRepository){
 ** --readonly option to prevent accidental damage to the repository.
 **
 ** Options:
-**
-**    --no-repository           Skip opening the repository database.
-**
+**    --no-repository           Skip opening the repository database
 **    --readonly                Open the repository read-only.  No changes
 **                              are allowed.  This is a recommended safety
 **                              precaution to prevent repository damage.
-**
 **    -R REPOSITORY             Use REPOSITORY as the repository database
-**
 **    --test                    Enable some testing and analysis features
 **                              that are normally disabled.
 **

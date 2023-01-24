@@ -325,7 +325,7 @@ This wide range of options allows Fossil to talk to pretty much any
 SMTP setup.
 
 The first four options let Fossil delegate email handling to an existing
-[MTA][mta] so that Fossil does not need to implement the [roughly two
+[MTA] so that Fossil does not need to implement the [roughly two
 dozen][mprotos] separate [RFCs][rfcs] required in order to properly
 support SMTP email in this complex world we've built.  As well, this
 design choice means you do not need to do duplicate configuration, such
@@ -345,7 +345,7 @@ details we ignored which we'll cover now.
 Fossil pipes the email message in [RFC 822 format][rfc822] to the
 standard input of the command you gave as the "Email Send Method",
 defaulting to `sendmail -ti`. This constitutes a protocol between Fossil
-and the SMTP [message transfer agent (MTA)][mta]. Any other MTA which
+and the SMTP [message transfer agent (MTA)][MTA]. Any other MTA which
 speaks the same protocol can be used in place of the most common
 options: Sendmail, Exim, and Postfix.
 
@@ -380,7 +380,7 @@ or a how-to on [the Fossil forum][ff] would be appreciated.
 
 [ff]:     https://fossil-scm.org/forum/
 [msmtp]:  https://marlam.de/msmtp/
-[mta]:    https://en.wikipedia.org/wiki/Message_transfer_agent
+[MTA]:    https://en.wikipedia.org/wiki/Message_transfer_agent
 [pmdoc]:  http://pm-doc.sourceforge.net/doc/
 [rfc822]: https://www.w3.org/Protocols/rfc822/
 
@@ -445,7 +445,7 @@ from reading a message file as it's being written.
 
 It might be useful in testing and debugging to temporarily switch to
 this method, since you can easily read the generated email messages
-without needing to involve [an MTA][mta].
+without needing to involve an [MTA].
 
 
 <a id="relay"></a>
@@ -553,6 +553,7 @@ Web pages available to users and subscribers:
    *  The [`/subscribe`](/help?cmd=/subscribe) page
    *  The [`/alerts`](/help?cmd=/alerts) page
    *  The [`/unsubscribe`](/help?cmd=/unsubscribe) page
+   *  The [`/renew`](/help?cmd=/renew) page
    *  The [`/contact_admin`](/help?cmd=/contact_admin) page
 
 Administrator-only web pages:
@@ -576,7 +577,7 @@ runs to the end of this document.
 <a id="datades"></a>
 ### Data Design
 
-There are three new tables in the repository database, starting with
+There are two new tables in the repository database, starting with
 Fossil 2.7.  These tables are not created in new repositories by
 default.  The tables only come into existence as needed when email
 alerts are configured and used.
@@ -601,11 +602,10 @@ alerts are configured and used.
      PENDING\_ALERT table refers to EVENT table entries for which
      we might need to send alert emails.
 
-  *  <b>EMAIL\_BOUNCE</b> →
-     This table is intended to record email bounce history so that
-     subscribers with excessive bounces can be turned off.  That
-     logic has not yet been implemented so the EMAIL\_BOUNCE table
-     is currently unused.
+There was a third table "EMAIL_BOUNCE" in Fossil versions 2.7 through 2.14.
+That table was intended to record email bounce history so that
+subscribers with excessive bounces can be turned off.  But that feature
+was never implemented and the table was removed in Fossil 2.15.
 
 As pointed out above, ["subscribers" are distinct from "users"](#uvs).
 The SUBSCRIBER.SUNAME field is the optional linkage between users and
@@ -678,7 +678,7 @@ is not as secure as a separate password, but it has several virtues:
 
 *   No PII other than the subscriber's email address is available to an
     attacker with the `subscriberCode`.  Nor can knowledge of the
-    `subscriberCode` lead to a email flood or other annoyance attack, as
+    `subscriberCode` lead to an email flood or other annoyance attack, as
     far as I can see.
 
 If the `subscriberCodes` for a Fossil repository are ever compromised,

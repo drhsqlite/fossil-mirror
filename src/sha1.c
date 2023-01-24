@@ -278,7 +278,7 @@ static void DigestToBase16(unsigned char *digest, char *zBuf){
 }
 
 /*
-** The state of a incremental SHA1 checksum computation.  Only one
+** The state of an incremental SHA1 checksum computation.  Only one
 ** such computation can be underway at a time, of course.
 */
 static SHA1Context incrCtx;
@@ -503,12 +503,12 @@ void sha1_shared_secret_sql_function(
 **
 ** Compute an SHA1 checksum of all files named on the command-line.
 ** If a file is named "-" then take its content from standard input.
-** Options:
 **
-**    -h, --dereference     If FILE is a symbolic link, compute the hash
-**                          on the object that the link points to.  Normally,
-**                          the hash is over the name of the object that
-**                          the link points to.
+** Options:
+**    -h|--dereference     If FILE is a symbolic link, compute the hash
+**                         on the object that the link points to.  Normally,
+**                         the hash is over the name of the object that
+**                         the link points to.
 **
 ** See also: [[md5sum]], [[sha3sum]]
 */
