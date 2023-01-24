@@ -1804,6 +1804,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_set_authorizer(db, db_top_authorizer, db);
+  db_register_fts5(db) /* in search.c */;
   return db;
 }
 

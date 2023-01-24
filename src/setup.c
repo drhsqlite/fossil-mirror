@@ -2069,14 +2069,15 @@ void page_srchsetup(){
     search_update_index(search_restrict(SRCH_ALL));
   }
   if( search_index_exists() ){
-    @ <p>Currently using an SQLite FTS4 search index. This makes search
-    @ run faster, especially on large repositories, but takes up space.</p>
+    @ <p>Currently using an SQLite FTS%d(search_index_type(0)) search index.
+    @ The index helps search run faster, especially on large repositories,
+    @ but takes up space.</p>
     onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
     style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
-    @ <p>The SQLite FTS4 search index is disabled.  All searching will be
+    @ <p>The SQLite search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for
     @ larger repositories.</p>
     onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
