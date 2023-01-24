@@ -1724,13 +1724,13 @@ void diff_page(void){
   char *zV2;
   const char *zRe;
   ReCompiled *pRe = 0;
-  u64 diffFlags;
   u32 objdescFlags = 0;
   int verbose = PB("verbose");
   DiffConfig DCfg;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  diff_config_init(&DCfg, 0);
   diffType = preferred_diff_type();
   if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");
@@ -1777,10 +1777,9 @@ void diff_page(void){
     DiffConfig DCfg;
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
-    diffFlags = DIFF_VERBOSE;
+    DCfg.diffFlags = DIFF_VERBOSE;
     content_get(v1, &c1);
     content_get(v2, &c2);
-    diff_config_init(&DCfg, diffFlags);
     DCfg.pRe = pRe;
     text_diff(&c1, &c2, pOut, &DCfg);
     blob_reset(&c1);

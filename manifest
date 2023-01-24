@@ -1,5 +1,5 @@
-C Add\s/json/settings/get\sand\sset\sAPIs,\sper\sdiscussion\sin\s[forum:04b7159d63d4abe4|forum\spost\s04b7159d63d4abe4].
-D 2023-01-23T00:12:18.844
+C Replaced\sa\sstandalone\s"diffFlags"\svariable\sin\sthe\s/fdiff\shandler\swith\nuse\sof\sthe\snew\sDiffConfig.diffFlags\smember.\s\sNo\sfunctional\schange,\njust\sa\scode\scleanup\sfound\swhile\sworking\son\sanother\sbranch.\s\sMaking\sit\non\strunk\sto\skeep\sthat\sbranch's\sdiffs\sminimal.
+D 2023-01-24T03:18:19.401
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -468,7 +468,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c 09a2d5be644c3e22a2b0a725b9227e091877d5fef6cd4e75c137e29b8b7b9fa5
 F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775be724e6
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
-F src/info.c 69db3166f1a00919663e84e486347fb8c8a65d93318c72ba5cfcf0394e08380f
+F src/info.c b7510e42f980c3d9dfccb8c231a4b2ddc453c9648e9a7702f8c5c4b6760af8d6
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
 F src/json.c 14719c83545eaca9b173707a2983633a9cdabb7ea2a072c31221464448ced616
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
@@ -954,9 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61bd0c9b113c0f0c54435b8af0c9c0a19fa96e46bd8b5fb29b3b4de3b84331a0 4d2aeb29eb0d9a2a3f1d39990f6f7b9925f7715505b9b1a9f8919c51eef1fb7c
-R 3148642b3c6d656b0971fb9eb6444ff6
-T +closed 4d2aeb29eb0d9a2a3f1d39990f6f7b9925f7715505b9b1a9f8919c51eef1fb7c Closed\sby\sintegrate-merge.
-U stephan
-Z 55df56df5d2160ca227f1f74d3633c12
+P a80f27485a0aab56c4ddb71c976f39fca94d9642c885783bdb31e37f119095a0
+R 31d0a9b0457ff96f7d2e508fbcce85a8
+U wyoung
+Z e50fdc73b535e00cf869a9f0fa43535a
 # Remove this line to create a well-formed Fossil manifest.
