@@ -17,6 +17,7 @@
   *  Writes to the database are disabled by default if the HTTP request
      does not come from the same origin.  This enhancement is for defense in depth.
      There where no known attacks prior to this enhancement.
+  *  Update search infrastructure from FTS4 to FTS5.
 
 <h2 id='v2_20'>Changes for version 2.20 (2022-11-16)</h2>
   *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If

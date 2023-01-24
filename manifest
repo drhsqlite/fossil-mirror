@@ -1,5 +1,5 @@
-C Add\s/json/settings/get\sand\sset\sAPIs,\sper\sdiscussion\sin\s[forum:04b7159d63d4abe4|forum\spost\s04b7159d63d4abe4].
-D 2023-01-23T00:12:18.844
+C Replace\sFTS4\swith\sFTS5,\sper\s[forum:d05b1855aa|forum\spost\sd05b1855aa].\sThis\shas\sbeen\sonly\slightly\stested\sand\smight\srequire\sa\srepo\srebuild\s(or\sthat\swe\srename\sthe\sassociated\stables/views\srather\sthan\srecycle\sthem).
+D 2023-01-24T02:57:36.531
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -409,7 +409,7 @@ F src/content.c 5a2f8d427a902c319959802cb453094a34691338eafd3f5c5ed5cf6342397d61
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c8372e8769f5df42e460ecae80f76230ce755d48ce8f5aa9ce42c50ac9a81049
+F src/db.c 3ff166cd759bb701fcd878407f21d91489c9c395d3b52e427fcbc34956ffe2b1
 F src/default.css 8991f7cd73a75b3e850bbbeeb66c4855371699e65335c0dd2c931a6189b2548f
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c 42b7776931dbb11421386e58dd32ec745a3d639725b2ad4b8168870bfc28953f
@@ -520,9 +520,9 @@ F src/report.c b60d159e6f5bedbe7c596435d7b48ca6f0b6cb716d22d56fe059c8972097ad0d
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0ce4f3993316eb6d3b2cf4d33c66141410007233f9997caffe6f877eff8c90aa
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c f141924931b3e01a8bd6067b3daa46c3469e1832c0a2572e1c02cf6de0e5f8f5
+F src/search.c 0508e9160e1c9d824513c317bc8f21286d473eaa31026d5d5511e3e06a5669f4
 F src/security_audit.c bdb2d5d204dcdb9144069089de35c26517e41def5914f304b93b9e823fe6f194
-F src/setup.c 8be904d5836ae04f3af6a11dae569588a75d633d69f718bf54d77b9e1fdda86b
+F src/setup.c 3c306f8bfe296d1c85d135f620cd9454afb74e56df2dfaa3450a015ed903ea47
 F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c 98e4279ebda3c543ab4ac4511f0c3c4380a7faf78be1a7fd7521d7b6e8f62855
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -779,7 +779,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 1e8cd18990383cc47c547837bdff8fe5db6637d8a73316c2b50b10809f3d0501
+F www/changes.wiki 043d926ae80d0ccaf8fe06682b63f6c286b1c5a047a92575e02e6ed598150184
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -954,9 +954,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61bd0c9b113c0f0c54435b8af0c9c0a19fa96e46bd8b5fb29b3b4de3b84331a0 4d2aeb29eb0d9a2a3f1d39990f6f7b9925f7715505b9b1a9f8919c51eef1fb7c
-R 3148642b3c6d656b0971fb9eb6444ff6
-T +closed 4d2aeb29eb0d9a2a3f1d39990f6f7b9925f7715505b9b1a9f8919c51eef1fb7c Closed\sby\sintegrate-merge.
+P a80f27485a0aab56c4ddb71c976f39fca94d9642c885783bdb31e37f119095a0
+R 4de6e60c82d6d1a3c9f08acee2675ebe
+T *branch * search-fts5
+T *sym-search-fts5 *
+T -sym-trunk *
 U stephan
-Z 55df56df5d2160ca227f1f74d3633c12
+Z f91dcfcee46c0b880f82a536247480c4
 # Remove this line to create a well-formed Fossil manifest.
