@@ -1,5 +1,5 @@
-C Upgrade\sFTS\ssearch\sfrom\sv4\sto\sv5.
-D 2023-01-24T21:25:20.193
+C More\supdates\sof\sfunc\sdecls\sf()\sto\sf(void).
+D 2023-01-25T00:25:42.030
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
 F src/info.c b7510e42f980c3d9dfccb8c231a4b2ddc453c9648e9a7702f8c5c4b6760af8d6
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
-F src/json.c 14719c83545eaca9b173707a2983633a9cdabb7ea2a072c31221464448ced616
+F src/json.c 76a5cc8cae9a517a87575f819a983959cebfaaa3457ec125737566b482f7d778
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
 F src/json_branch.c f3805a11c0ff0953b736d7dc01ba9de765396921e0e7f20af5203ff7f25bc7dc
 F src/json_config.c d601605b13f98888f7e5362f52fae89aab674c63616145085f007400b66bd10f
@@ -954,9 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d8c30265b3dc76d9fe559cb1c91aea018f0e520f07037fce09a101583611b6f a07e6b87cb306d7b0b359aa18c8d9618a9172d867cd81447bf49ee528d3bd3c3
-R 8b8578f3e932bbf3ae1109ce21172130
-T +closed a07e6b87cb306d7b0b359aa18c8d9618a9172d867cd81447bf49ee528d3bd3c3 Closed\sby\sintegrate-merge.
+P c3c4ef167ef78b14d359c4931e7a76996f5dd7b9a9fea435bc0ce537b1927637
+R af5b03f0f0e1d3f74777985d2f07b3e6
 U stephan
-Z dcc56383bfe8066c9f61dd8552a5dd67
+Z fc4ec6ae48e93e6fdd2f7e2e5091af85
 # Remove this line to create a well-formed Fossil manifest.

@@ -2206,33 +2206,33 @@ static cson_value * json_page_g(){
 }
 
 /* Impl in json_login.c. */
-cson_value * json_page_anon_password();
+cson_value * json_page_anon_password(void);
 /* Impl in json_artifact.c. */
-cson_value * json_page_artifact();
+cson_value * json_page_artifact(void);
 /* Impl in json_branch.c. */
-cson_value * json_page_branch();
+cson_value * json_page_branch(void);
 /* Impl in json_diff.c. */
-cson_value * json_page_diff();
+cson_value * json_page_diff(void);
 /* Impl in json_dir.c. */
-cson_value * json_page_dir();
+cson_value * json_page_dir(void);
 /* Impl in json_login.c. */
-cson_value * json_page_login();
+cson_value * json_page_login(void);
 /* Impl in json_login.c. */
-cson_value * json_page_logout();
+cson_value * json_page_logout(void);
 /* Impl in json_query.c. */
-cson_value * json_page_query();
+cson_value * json_page_query(void);
 /* Impl in json_report.c. */
-cson_value * json_page_report();
+cson_value * json_page_report(void);
 /* Impl in json_tag.c. */
-cson_value * json_page_tag();
+cson_value * json_page_tag(void);
 /* Impl in json_user.c. */
-cson_value * json_page_user();
+cson_value * json_page_user(void);
 /* Impl in json_config.c. */
-cson_value * json_page_config();
+cson_value * json_page_config(void);
 /* Impl in json_finfo.c. */
-cson_value * json_page_finfo();
+cson_value * json_page_finfo(void);
 /* Impl in json_status.c. */
-cson_value * json_page_status();
+cson_value * json_page_status(void);
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
