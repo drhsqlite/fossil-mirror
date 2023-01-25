@@ -1,5 +1,5 @@
 C More\supdates\sof\sfunc\sdecls\sf()\sto\sf(void).
-D 2023-01-25T00:25:42.030
+D 2023-01-25T00:30:00.369
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -482,7 +482,7 @@ F src/json_login.c 4472cd8eadf81b02661f6a5e11e8ac90f2c8a73ba63135bba3caab88f3c5a
 F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaae4b
 F src/json_report.c 10f8c32bb045ab3fee49d9c0df386deb60a59beee2c2142aeb69a8106989c6f9
 F src/json_status.c 91593f5f65d4c146ebbcde800979b8e9a2623ae2e331ecb6d5aee4c3ff8f4f45
-F src/json_tag.c e5831408c4967d13d949c6296d0f6c3bde69ecb2d1d67285128d04112ab94d70
+F src/json_tag.c e768ad0a5be4a3095b1430b1716b47dfb3bd68ff40d6e9dcd6241eecb65acbad
 F src/json_timeline.c f13c3947014f15976b2fe077db8d9e469e5a24b442885e34810c70ef25599e77
 F src/json_user.c 92b2ee7ad3478329c15b51c19c8b9464055060e8047268803728d3e43447f1e1
 F src/json_wiki.c b91dc896ee9e71e4faca84b55c8bf648e64a9540cbcb80f7f51ad6dfb67878aa
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3c4ef167ef78b14d359c4931e7a76996f5dd7b9a9fea435bc0ce537b1927637
-R af5b03f0f0e1d3f74777985d2f07b3e6
+P 9c5952bec35f6e28642ab1d3c11b66bc06308ed11f5d68814e6e67089be94a32
+R 4ba6753388c4cc770420e6d26539b5d2
 U stephan
-Z fc4ec6ae48e93e6fdd2f7e2e5091af85
+Z 181d8a868d01ea35e2ffebd7f101397d
 # Remove this line to create a well-formed Fossil manifest.
