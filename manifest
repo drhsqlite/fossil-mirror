@@ -1,5 +1,5 @@
-C More\supdates\sof\sfunc\sdecls\sf()\sto\sf(void).
-D 2023-01-25T00:30:00.369
+C More\supdates\sf()\sto\sf(void).
+D 2023-01-25T13:59:17.380
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
 F src/info.c b7510e42f980c3d9dfccb8c231a4b2ddc453c9648e9a7702f8c5c4b6760af8d6
 F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
-F src/json.c 76a5cc8cae9a517a87575f819a983959cebfaaa3457ec125737566b482f7d778
+F src/json.c 552525d0b536e623950e35d7c568690e0dc48753c9ecb54b3bacd8ab5c3863db
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
 F src/json_branch.c f3805a11c0ff0953b736d7dc01ba9de765396921e0e7f20af5203ff7f25bc7dc
 F src/json_config.c d601605b13f98888f7e5362f52fae89aab674c63616145085f007400b66bd10f
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c5952bec35f6e28642ab1d3c11b66bc06308ed11f5d68814e6e67089be94a32
-R 4ba6753388c4cc770420e6d26539b5d2
-U stephan
-Z 181d8a868d01ea35e2ffebd7f101397d
+P 5dd632eb4472f57352dadc0a30a5097bed35fe8986aaef85ed0fefab4d12f4f7
+R f9ac626f6d836796084ce3b3f4ca4f3f
+U danield
+Z 1c1a79868e4af42409d11ba16610df2e
 # Remove this line to create a well-formed Fossil manifest.

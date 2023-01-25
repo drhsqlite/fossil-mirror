@@ -1802,7 +1802,7 @@ cson_value * json_value_to_bool(cson_value const * zVal){
 ** Impl of /json/resultCodes
 **
 */
-cson_value * json_page_resultCodes(){
+cson_value * json_page_resultCodes(void){
     cson_array * list = cson_new_array();
     cson_object * obj = NULL;
     cson_string * kRC;
@@ -1869,7 +1869,7 @@ cson_value * json_page_resultCodes(){
 **
 ** Returns the payload object (owned by the caller).
 */
-cson_value * json_page_version(){
+cson_value * json_page_version(void){
   cson_value * jval = NULL;
   cson_object * jobj = NULL;
   jval = cson_value_new_object();
@@ -1923,7 +1923,7 @@ cson_value * json_cap_value(){
 ** This is primarily intended for debuggering, but may have
 ** a use in client code. (?)
 */
-cson_value * json_page_cap(){
+cson_value * json_page_cap(void){
   cson_value * payload = cson_value_new_object();
   cson_value * sub = cson_value_new_object();
   Stmt q;
@@ -1990,7 +1990,7 @@ cson_value * json_page_cap(){
 ** Implementation of the /json/stat page/command.
 **
 */
-cson_value * json_page_stat(){
+cson_value * json_page_stat(void){
   i64 t, fsize;
   int n, m;
   int full;
@@ -2170,7 +2170,7 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
 /*
 ** Impl of /json/rebuild. Requires admin privileges.
 */
-static cson_value * json_page_rebuild(){
+static cson_value * json_page_rebuild(void){
   if( !g.perm.Admin ){
     json_set_err(FSL_JSON_E_DENIED,"Requires 'a' privileges.");
     return NULL;
@@ -2196,7 +2196,7 @@ static cson_value * json_page_rebuild(){
 /*
 ** Impl of /json/g. Requires admin/setup rights.
 */
-static cson_value * json_page_g(){
+static cson_value * json_page_g(void){
   if(!g.perm.Admin || !g.perm.Setup){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'a' or 's' privileges.");
