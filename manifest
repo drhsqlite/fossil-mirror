@@ -1,5 +1,5 @@
-C More\supdates\sf()\sto\sf(void).
-D 2023-01-25T13:59:17.380
+C Refactor\show\sthe\sIF\sNOT\sEXISTS\scheck\sis\sperformed\son\sthe\srepository.admin_log\stable,\sper\srequest\sfrom\sdrh.
+D 2023-01-26T01:46:56.706
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -409,7 +409,7 @@ F src/content.c 5a2f8d427a902c319959802cb453094a34691338eafd3f5c5ed5cf6342397d61
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 84fc973bb4c8e3f2a547619ea1c9159723b645dc98c77c3865a08a811138e8f0
+F src/db.c 610a040857e59e3e3343c5d44a617369ef6aaae3e2ce79ea12957b23c97dc4ee
 F src/default.css 8991f7cd73a75b3e850bbbeeb66c4855371699e65335c0dd2c931a6189b2548f
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c 42b7776931dbb11421386e58dd32ec745a3d639725b2ad4b8168870bfc28953f
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5dd632eb4472f57352dadc0a30a5097bed35fe8986aaef85ed0fefab4d12f4f7
-R f9ac626f6d836796084ce3b3f4ca4f3f
-U danield
-Z 1c1a79868e4af42409d11ba16610df2e
+P 46ddf0e80b94f214d3e1da2b01d45f47a9b2f88bb2c3abbdb88383f6cd0797bd
+R 8fdd4ea8711fcdcfa93e9fddbc1b3a63
+U stephan
+Z aa794e642f9833d46b7c9c7ba56be15b
 # Remove this line to create a well-formed Fossil manifest.

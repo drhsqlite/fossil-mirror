@@ -4919,16 +4919,18 @@ void test_without_rowid(void){
 void create_admin_log_table(void){
   static int once = 0;
   if( once ) return;
-  once = 1;
-  db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS repository.admin_log(\n"
-    " id INTEGER PRIMARY KEY,\n"
-    " time INTEGER, -- Seconds since 1970\n"
-    " page TEXT,    -- path of page\n"
-    " who TEXT,     -- User who made the change\n"
-    " what TEXT     -- What changed\n"
-    ")"
-  );
+  if( !db_table_exists("repository","admin_log") ){
+    once = 1;
+    db_multi_exec(
+      "CREATE TABLE repository.admin_log(\n"
+      " id INTEGER PRIMARY KEY,\n"
+      " time INTEGER, -- Seconds since 1970\n"
+      " page TEXT,    -- path of page\n"
+      " who TEXT,     -- User who made the change\n"
+      " what TEXT     -- What changed\n"
+      ")"
+    );
+  }
 }
 
 /*
