@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.41.0"
 #define SQLITE_VERSION_NUMBER 3041000
-#define SQLITE_SOURCE_ID      "2023-01-16 18:13:00 83f21285fe86430a66ce6841606e3ad7c27da52ac75a034c6a00c7a9fdb9791d"
+#define SQLITE_SOURCE_ID      "2023-01-27 07:53:49 eabb551b8b3d33fc3a327ecf7225436a3a3f616901e22c868fd76a5e3adc7b3f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9806,14 +9806,13 @@ SQLITE_API int sqlite3_vtab_in(sqlite3_index_info*, int iCons, int bHandle);
 ** is undefined and probably harmful.
 **
 ** The X parameter in a call to sqlite3_vtab_in_first(X,P) or
-** sqlite3_vtab_in_next(X,P) must be one of the parameters to the
+** sqlite3_vtab_in_next(X,P) should be one of the parameters to the
 ** xFilter method which invokes these routines, and specifically
 ** a parameter that was previously selected for all-at-once IN constraint
 ** processing use the [sqlite3_vtab_in()] interface in the
 ** [xBestIndex|xBestIndex method].  ^(If the X parameter is not
 ** an xFilter argument that was selected for all-at-once IN constraint
-** processing, then these routines return [SQLITE_MISUSE])^ or perhaps
-** exhibit some other undefined or harmful behavior.
+** processing, then these routines return [SQLITE_ERROR].)^
 **
 ** ^(Use these routines to access all values on the right-hand side
 ** of the IN constraint using code like the following:

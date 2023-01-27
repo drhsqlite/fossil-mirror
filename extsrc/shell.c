@@ -19935,6 +19935,7 @@ static const char *(azHelp[]) = {
   ".unmodule NAME ...       Unregister virtual table modules",
   "    --allexcept             Unregister everything except those named",
 #endif
+  ".version                 Show source, library and compiler versions",
   ".vfsinfo ?AUX?           Information about the top-level VFS",
   ".vfslist                 List all available VFSes",
   ".vfsname ?AUX?           Print the name of the VFS stack",
@@ -21132,7 +21133,7 @@ static void tryToCloneSchema(
   char *zErrMsg = 0;
 
   zQuery = sqlite3_mprintf("SELECT name, sql FROM sqlite_schema"
-                           " WHERE %s", zWhere);
+                           " WHERE %s ORDER BY rowid ASC", zWhere);
   shell_check_oom(zQuery);
   rc = sqlite3_prepare_v2(p->db, zQuery, -1, &pQuery, 0);
   if( rc ){
@@ -21145,12 +21146,14 @@ static void tryToCloneSchema(
     zName = sqlite3_column_text(pQuery, 0);
     zSql = sqlite3_column_text(pQuery, 1);
     if( zName==0 || zSql==0 ) continue;
-    printf("%s... ", zName); fflush(stdout);
-    sqlite3_exec(newDb, (const char*)zSql, 0, 0, &zErrMsg);
-    if( zErrMsg ){
-      utf8_printf(stderr, "Error: %s\nSQL: [%s]\n", zErrMsg, zSql);
-      sqlite3_free(zErrMsg);
-      zErrMsg = 0;
+    if( sqlite3_stricmp((char*)zName, "sqlite_sequence")!=0 ){
+      printf("%s... ", zName); fflush(stdout);
+      sqlite3_exec(newDb, (const char*)zSql, 0, 0, &zErrMsg);
+      if( zErrMsg ){
+        utf8_printf(stderr, "Error: %s\nSQL: [%s]\n", zErrMsg, zSql);
+        sqlite3_free(zErrMsg);
+        zErrMsg = 0;
+      }
     }
     if( xForEach ){
       xForEach(p, newDb, (const char*)zName);
@@ -21174,6 +21177,7 @@ static void tryToCloneSchema(
       zName = sqlite3_column_text(pQuery, 0);
       zSql = sqlite3_column_text(pQuery, 1);
       if( zName==0 || zSql==0 ) continue;
+      if( sqlite3_stricmp((char*)zName, "sqlite_sequence")!=0 ) continue;
       printf("%s... ", zName); fflush(stdout);
       sqlite3_exec(newDb, (const char*)zSql, 0, 0, &zErrMsg);
       if( zErrMsg ){
