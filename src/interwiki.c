@@ -296,7 +296,7 @@ void interwiki_append_map_table(Blob *out){
 }
 
 /*
-** WEBPAGE: /intermap
+** WEBPAGE: intermap
 **
 ** View and modify the interwiki tag map or "intermap".
 ** This page is visible to administrators only.

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.41.0\salpha,\sfor\stesting\sof\sSQLite.
-D 2023-01-27T15:40:55.281
+C Add\sa\slink\sto\sthe\s/intermap\spage\sfor\sInterwiki\sMap\skeywords\son\sthe\ssetup\smenu.
+D 2023-01-27T20:42:55.585
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_ssl.c 09a2d5be644c3e22a2b0a725b9227e091877d5fef6cd4e75c137e29b8b7b9fa
 F src/http_transport.c b5e231f9a91fd6f7e9e7ef5c2cc87e39cc651967199941b7f64cac775be724e6
 F src/import.c 0300732efb48b6d5aa313f9ddf9706872ab7085bdedbd896b024a27264f89c4b
 F src/info.c b7510e42f980c3d9dfccb8c231a4b2ddc453c9648e9a7702f8c5c4b6760af8d6
-F src/interwiki.c db762f39b54fdc40430123d2e9f2fdb0efcf3469833996f5219418b2dff4bd26
+F src/interwiki.c e7b7f6c85f4d068f3912e2546446fc45b544d5c7c8beabddf98347410b087a44
 F src/json.c 552525d0b536e623950e35d7c568690e0dc48753c9ecb54b3bacd8ab5c3863db
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
 F src/json_branch.c f3805a11c0ff0953b736d7dc01ba9de765396921e0e7f20af5203ff7f25bc7dc
@@ -522,7 +522,7 @@ F src/schema.c 0ce4f3993316eb6d3b2cf4d33c66141410007233f9997caffe6f877eff8c90aa
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c a430c05c3508d6d550968e4bc1f7d4f73c2ff7cd79554be21203c1744bb2259b
 F src/security_audit.c bdb2d5d204dcdb9144069089de35c26517e41def5914f304b93b9e823fe6f194
-F src/setup.c 777e7a803466341a8ede76c2b4288b3d48cbdc636f97c3801f05a76544008919
+F src/setup.c 5e374c8436d9bef244aaad65e0477d011fda563caa0d8d23c2f22a3b34907c33
 F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c 98e4279ebda3c543ab4ac4511f0c3c4380a7faf78be1a7fd7521d7b6e8f62855
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2da6010b7cdd12aeccaf5fea268a36d3a788b7505739642ae544536903b3c950
-R e84e4d05e73106ef60636971a5bbf97b
+P 0f30113b3b2004953fc6db7976ac78fc060e24be8aacb690a3f9b16210334e46
+R d65a51a99019ae87f3c6805a2c11e830
 U drh
-Z 3dbd7fe0d34b15c3c7f2f8022ec602f0
+Z 3aecd8ccb7703d0d1c7bc76f72fa1ef3
 # Remove this line to create a well-formed Fossil manifest.
