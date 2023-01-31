@@ -1,5 +1,5 @@
-C Do\snot\sexport\sprivate\sartifacts\sto\sgit.
-D 2023-01-31T10:11:08.215
+C Use\sa\sfaster\squery\swhen\schecking\sfor\sprivate\sartifacts.
+D 2023-01-31T10:41:33.556
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/doc.c acc53cf353072d70bc0cc6eae76e1139f7649bb5bd9a1dfdddbcee75bcf2703b
 F src/encode.c 9518c2e72ed1e5c85b160b35369a0ad32a5b6523926b0ea296e6589d515084bc
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 03578120eb27546ffd5759a2d9c7d082c4f5280e74ef722780cd3703e25589fe
-F src/export.c 32161cb3b1a8937a58b301ac4abf46b516a4ec43a4f4df2ec5c9475e1bf6af43
+F src/export.c 487204e1f6f0a007988038661524a306d8b001970e555db23e38d7d50ed3165f
 F src/extcgi.c 401b08e918d699a68562ea1312c6601bd7b29c9c13f185f577c50048edaa570e
 F src/file.c e5eb1d4eded7f4aef599ff35cb887647097495a257bfb6635f20c90ef3f03b0c
 F src/fileedit.c cd96c3b4339f7df0953c25a860bcdb385e2c6b5dbf18c3659944ecfde37492ab
@@ -954,11 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1aa3188e8decc4c2b2b8fa7eb8ad1816a0dfce72acdb91ccde5ec5804d90f6dc
-R 3505ce93b21cbb7482251e33a460fecc
-T *branch * git-export-omit-private
-T *sym-git-export-omit-private *
-T -sym-trunk *
+P 40abd83957dc73a11b2cfa6c56a8eadb31c8e6b496cff47d642a3bf0051c6870
+R af7a4050f9f3149a999c096b1fe20208
 U danield
-Z 676513699db7dbcff3fe3619a7fd7d0c
+Z 95f946cff81f57e60c29e7cc14f8371c
 # Remove this line to create a well-formed Fossil manifest.
