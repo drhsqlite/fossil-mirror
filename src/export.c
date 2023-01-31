@@ -1869,7 +1869,7 @@ void gitmirror_command(void){
   char *zCmd;
   int nCmd;
   if( g.argc<3 ){
-    usage("export ARGS...");
+    usage("SUBCOMMAND ...");
   }
   zCmd =  g.argv[2];
   nCmd = (int)strlen(zCmd);
