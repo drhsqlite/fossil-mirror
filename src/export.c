@@ -1562,7 +1562,8 @@ void gitmirror_export_command(void){
     " WHERE type='ci'"
     "   AND mtime>coalesce((SELECT value FROM mconfig WHERE key='start'),0.0)"
     "   AND blob.rid=event.objid"
-    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark WHERE NOT isfile);"
+    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark WHERE NOT isfile)"
+    "   AND blob.rid NOT IN (SELECT rid FROM private);"
   );
   nTotal = db_int(0, "SELECT count(*) FROM tomirror");
   if( nLimit<nTotal ){
