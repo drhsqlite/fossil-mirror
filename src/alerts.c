@@ -716,8 +716,8 @@ int email_address_is_valid(const char *z, char cTerm){
 ** Make a copy of the input string up to but not including the
 ** first cTerm character.
 **
-** Verify that the string really that is to be copied really is a
-** valid email address.  If it is not, then return NULL.
+** Verify that the string to be copied really is a valid
+** email address.  If it is not, then return NULL.
 **
 ** This routine is more restrictive than necessary.  It does not
 ** allow comments, IP address, quoted strings, or certain uncommon
@@ -730,20 +730,21 @@ char *email_copy_addr(const char *z, char cTerm ){
 }
 
 /*
-** Scan the input string for a valid email address enclosed in <...>
+** Scan the input string for a valid email address that may be
+** enclosed in <...>, or delimited by ',' or ':' or '=' or ' '.
 ** If the string contains one or more email addresses, extract the first
 ** one into memory obtained from mprintf() and return a pointer to it.
 ** If no valid email address can be found, return NULL.
 */
 char *alert_find_emailaddr(const char *zIn){
   char *zOut = 0;
-  while( zIn!=0 ){
-     zIn = (const char*)strchr(zIn, '<');
-     if( zIn==0 ) break;
-     zIn++;
-     zOut = email_copy_addr(zIn, '>');
-     if( zOut!=0 ) break;
-  }
+  do{
+    zOut = email_copy_addr(zIn, zIn[strcspn(zIn, ">,:= ")]);
+    if( zOut!=0 ) break;
+    zIn = (const char *)strpbrk(zIn, "<,:= ");
+    if( zIn==0 ) break;
+    zIn++;
+  }while( zIn!=0 );
   return zOut;
 }
 

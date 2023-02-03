@@ -997,7 +997,8 @@ static int submitTicketCmd(
 */
 void tktnew_page(void){
   const char *zScript;
-  char *zNewUuid = 0;
+  char *zEmail = 0, *zNewUuid = 0;
+  int uid;
 
   login_check_credentials();
   if( !g.perm.NewTkt ){ login_needed(g.anon.NewTkt); return; }
@@ -1019,6 +1020,16 @@ void tktnew_page(void){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   zScript = ticket_newpage_code();
+  if( g.zLogin && g.zLogin[0] ){
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
+    if( uid ){
+      zEmail = db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
+          uid);
+      if( zEmail ){
+        Th_Store("private_contact", zEmail);
+      }
+    }
+  }
   Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
