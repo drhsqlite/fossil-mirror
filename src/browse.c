@@ -662,7 +662,6 @@ void page_tree(void){
   double rNow = 0;
   char *zNow = 0;
   int useMtime = atoi(PD("mtime","0"));
-  int nFile = 0;           /* Number of files (or folders with "nofiles") */
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
@@ -804,7 +803,6 @@ void page_tree(void){
       }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
       tree_add_node(&sTree, zFile, zUuid, mtime);
-      nFile++;
     }
     db_finalize(&q);
   }else{
@@ -826,16 +824,12 @@ void page_tree(void){
       }
       if( pRE && re_match(pRE, (const u8*)zName, -1)==0 ) continue;
       tree_add_node(&sTree, zName, zUuid, mtime);
-      nFile++;
     }
     db_finalize(&q);
   }
   style_submenu_checkbox("nofiles", "Folders Only", 0, 0);
 
   if( showDirOnly ){
-    for(nFile=0, p=sTree.pFirst; p; p=p->pNext){
-      if( p->pChild!=0 && p->nFullName>nD ) nFile++;
-    }
     zObjType = "Folders";
   }else{
     zObjType = "Files";

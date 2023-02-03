@@ -47,7 +47,6 @@ void view_list(void){
   Blob ril;   /* Report Item List */
   Stmt q;
   int rn = 0;
-  int cnt = 0;
   char *defaultReport = db_get("ticket-default-report", 0);
 
   login_check_credentials();
@@ -72,7 +71,6 @@ void view_list(void){
       continue;
     }
     rn = db_column_int(&q, 0);
-    cnt++;
     blob_appendf(&ril, "<li>");
     if( zTitle[0] == '_' ){
       blob_appendf(&ril, "%s", zTitle);

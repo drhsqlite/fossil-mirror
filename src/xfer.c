@@ -1065,7 +1065,6 @@ static void send_all(Xfer *pXfer){
 ** on this server.
 */
 static void send_unversioned_catalog(Xfer *pXfer){
-  int nUvIgot = 0;
   Stmt uvq;
   unversioned_schema();
   db_prepare(&uvq,
@@ -1076,7 +1075,6 @@ static void send_unversioned_catalog(Xfer *pXfer){
     sqlite3_int64 mtime = db_column_int64(&uvq,1);
     const char *zHash = db_column_text(&uvq,2);
     int sz = db_column_int(&uvq,3);
-    nUvIgot++;
     if( zHash==0 ){ sz = 0; zHash = "-"; }
     blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n",
                  zName, mtime, zHash, sz);
@@ -1842,7 +1840,7 @@ void page_xfer(void){
   ** to use up a significant fraction of our time window.
   */
   zNow = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')");
-  @ # timestamp %s(zNow)
+  @ # timestamp %s(zNow) errors %d(nErr)
   free(zNow);
 
   db_commit_transaction();

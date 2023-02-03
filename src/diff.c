@@ -411,7 +411,6 @@ static void contextDiff(
   int i, j;     /* Loop counters */
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
   int showDivider = 0;  /* True to show the divider between diff blocks */
@@ -2072,7 +2071,7 @@ static unsigned char *diffBlockAlignment(
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
-  int nMatch, iMatch;          /* Number of matching lines and match score */
+  int iMatch;                  /* Matching match score */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   if( nLeft==0 ){
@@ -2154,14 +2153,13 @@ static unsigned char *diffBlockAlignment(
   i = nRight;
   j = nLeft;
   k = (nRight+1)*(nLeft+1)-1;
-  nMatch = iMatch = 0;
+  iMatch = 0;
   while( i+j>0 ){
     unsigned char c = aM[k];
     if( c>=3 ){
       assert( i>0 && j>0 );
       i--;
       j--;
-      nMatch++;
       iMatch += (c>>2);
       aM[k] = 3;
     }else if( c==2 ){
