@@ -595,6 +595,7 @@ static int ticket_schema_auth(
       }
       break;
     }
+    case SQLITE_SELECT:
     case SQLITE_FUNCTION:
     case SQLITE_REINDEX:
     case SQLITE_TRANSACTION:
