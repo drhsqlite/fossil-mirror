@@ -1,5 +1,5 @@
-C Attempt\sto\sfix\svarious\sharmless\scompiler\swarnings\sreported\sby\sClang-15.
-D 2023-02-03T15:15:37.120
+C Fix\sanother\sharmless\scompiler\swarning\sreported\sby\sClang-15.
+D 2023-02-03T15:59:27.194
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c 42b7776931dbb11421386e58dd32ec745a3d639725b2ad4b8168870bfc28953f
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c e6e475b88ce9bb9341a4cbeceb4546d5f4ff7bfb3e041578620502d1e1cd8933
+F src/diff.c 88734e5e63e14715e1ffecfc88b9a7fef3365ee00e9668b58542d1ea6299b9ff
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c 45781568b541225f403b214a185eb5d9c0b1d90d946659b67f5a1f3cb25b5869
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea57625d3137f512ff125b389fd68da0c5dbaa83284a794c51fe9798192b53cd
-R 85c5773214b9b8f965b3a005e7379156
-U drh
-Z 804ac67d038e5775a5a6ac4ac21f4bc4
+P e486a0acbcf055644b1c3d8ac987c6b963baab82d57826256e8b71f6cc1fcaa2
+R cd18692e68d93203da4bcd861e55422f
+U danield
+Z 4372e4a265b30adb94179667a51793b2
 # Remove this line to create a well-formed Fossil manifest.

@@ -2071,7 +2071,6 @@ static unsigned char *diffBlockAlignment(
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
-  int iMatch;                  /* Matching match score */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   if( nLeft==0 ){
@@ -2153,14 +2152,12 @@ static unsigned char *diffBlockAlignment(
   i = nRight;
   j = nLeft;
   k = (nRight+1)*(nLeft+1)-1;
-  iMatch = 0;
   while( i+j>0 ){
     unsigned char c = aM[k];
     if( c>=3 ){
       assert( i>0 && j>0 );
       i--;
       j--;
-      iMatch += (c>>2);
       aM[k] = 3;
     }else if( c==2 ){
       assert( i>0 );
