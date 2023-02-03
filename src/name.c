@@ -1740,7 +1740,7 @@ void phantom_list_page(void){
 ** Return a page showing the largest artifacts in the repository in order
 ** of decreasing size.
 **
-**   n=N         Show the top N artifacts
+**   n=N         Show the top N artifacts (default: 250)
 */
 void bigbloblist_page(void){
   Stmt q;
@@ -1775,7 +1775,7 @@ void bigbloblist_page(void){
   @ <table cellpadding="2" cellspacing="0" border="1" \
   @  class='sortable' data-column-types='NnnttT' data-init-sort='0'>
   @ <thead><tr><th align="right">Size<th align="right">RID
-  @ <th align="right">Delta From<th>Hash<th>Description<th>Date</tr></thead>
+  @ <th align="right">From<th>Hash<th>Description<th>Date</tr></thead>
   @ <tbody>
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
@@ -1795,6 +1795,101 @@ void bigbloblist_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: deltachain
+**
+** Usage:  /deltachain/RID
+**
+** The RID query parameter is required.  Generate a page with a table
+** showing storage characteristics of RID and other artifacts that are
+** derived from RID via delta.
+*/
+void deltachain_page(void){
+  Stmt q;
+  int id = atoi(PD("name","0"));
+  int top;
+  i64 nStored = 0;
+  i64 nExpanded = 0;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  top = db_int(id,
+    "WITH RECURSIVE chain(aa,bb) AS (\n"
+    "  SELECT rid, srcid FROM delta WHERE rid=%d\n"
+    "  UNION ALL\n"
+    "  SELECT bb, delta.srcid"
+    "    FROM chain LEFT JOIN delta ON delta.rid=bb"
+    "   WHERE bb IS NOT NULL\n"
+    ")\n"
+    "SELECT aa FROM chain WHERE bb IS NULL",
+    id
+  );
+  style_header("Delta Chain Containing Artifact %d", id);
+  db_multi_exec(
+    "CREATE TEMP TABLE toshow(rid INT, gen INT);\n"
+    "WITH RECURSIVE tx(id,px) AS (\n"
+    "  VALUES(%d,0)\n"
+    "  UNION ALL\n"
+    "  SELECT delta.rid, px+1 FROM tx, delta where delta.srcid=tx.id\n"
+    "  ORDER BY 2\n"
+    ") "
+    "INSERT INTO toshow(rid,gen) SELECT id,px FROM tx;",
+    top
+  );
+  db_multi_exec("CREATE INDEX toshow_rid ON toshow(rid);");
+  describe_artifacts("IN (SELECT rid FROM toshow)");
+  db_prepare(&q,
+    "SELECT description.rid, description.uuid, description.summary,"
+    "       length(blob.content), coalesce(delta.srcid,''),"
+    "       datetime(description.ctime), toshow.gen, blob.size"
+    "  FROM description, toshow, blob LEFT JOIN delta ON delta.rid=blob.rid"
+    " WHERE description.rid=blob.rid"
+    "   AND toshow.rid=description.rid"
+    " ORDER BY toshow.gen, description.ctime"
+  );
+  @ <table cellpadding="2" cellspacing="0" border="1" \
+  @  class='sortable' data-column-types='nNnnttT' data-init-sort='0'>
+  @ <thead><tr><th align="right">Level</th>
+  @ <th align="right">Size<th align="right">RID
+  @ <th align="right">From<th>Hash<th>Description<th>Date</tr></thead>
+  @ <tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int sz = db_column_int(&q,3);
+    const char *zSrcId = db_column_text(&q,4);
+    const char *zDate = db_column_text(&q,5);
+    int gen = db_column_int(&q,6);
+    nExpanded += db_column_int(&q,7);
+    nStored += sz;
+    @ <tr><td align="right">%d(gen)</td>
+    @ <td align="right">%d(sz)</td>
+    if( rid==id ){
+      @ <td align="right"><b>%d(rid)</b></td>
+    }else{
+      @ <td align="right">%d(rid)</td>
+    }
+    @ <td align="right">%s(zSrcId)</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
+    @ <td align="left">%h(zDesc)</td>
+    @ <td align="left">%z(href("%R/timeline?c=%T",zDate))%s(zDate)</a></td>
+    @ </tr>
+  }
+  @ </tbody></table>
+  db_finalize(&q);
+  style_table_sorter();
+  @ <p>
+  @ <table border="0" cellspacing="0" cellpadding="0">
+  @ <tr><td>Bytes of content</td><td>&nbsp;&nbsp;&nbsp;</td>
+  @     <td align="right">%,lld(nExpanded)</td></tr>
+  @ <tr><td>Bytes stored in repository</td><td></td>
+  @      <td align="right">%,lld(nStored)</td>
+  @ </table>
+  @ </p>
   style_finish_page();
 }
 

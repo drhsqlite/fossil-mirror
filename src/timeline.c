@@ -496,9 +496,9 @@ void www_print_timeline(
       if( tmFlags & TIMELINE_SHOWRID ){
         int srcId = delta_source_rid(rid);
         if( srcId ){
-          @ (%d(rid)&larr;%d(srcId))
+          @ (%z(href("%R/deltachain/%d",rid))%d(rid)&larr;%d(srcId)</a>)
         }else{
-          @ (%d(rid))
+          @ (%z(href("%R/deltachain/%d",rid))%d(rid)</a>)
         }
       }
     }
@@ -652,9 +652,11 @@ void www_print_timeline(
     if( tmFlags & TIMELINE_SHOWRID ){
       int srcId = delta_source_rid(rid);
       if( srcId ){
-        cgi_printf(" id:&nbsp;%d&larr;%d", rid, srcId);
+        cgi_printf(" id:&nbsp;%z%d&larr;%d</a>", 
+                   href("%R/deltachain/%d",rid), rid, srcId);
       }else{
-        cgi_printf(" id:&nbsp;%d", rid);
+        cgi_printf(" id:&nbsp;%z%d</a>",
+                   href("%R/deltachain/%d",rid), rid);
       }
     }
     tag_private_status(rid);
@@ -705,7 +707,7 @@ void www_print_timeline(
         const char *zNew = db_column_text(&fchngQuery, 3);
         const char *zUnpub = "";
         char *zA;
-        char zId[40];
+        char *zId;
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
@@ -713,12 +715,14 @@ void www_print_timeline(
         if( tmFlags & TIMELINE_SHOWRID ){
           int srcId = delta_source_rid(fid);
           if( srcId ){
-            sqlite3_snprintf(sizeof(zId), zId, " (%d&larr;%d) ", fid, srcId);
+            zId = mprintf(" (%z%d&larr;%d</a>) ",
+                          href("%R/deltachain/%d", fid), fid, srcId);
           }else{
-            sqlite3_snprintf(sizeof(zId), zId, " (%d) ", fid);
+            zId = mprintf(" (%z%d</a>) ",
+                          href("%R/deltachain/%d", fid), fid);
           }
         }else{
-          zId[0] = 0;
+          zId = fossil_strdup("");
         }
         if( (tmFlags & TIMELINE_FRENAMES)!=0 ){
           if( !isNew && !isDel && zOldName!=0 ){
@@ -752,6 +756,7 @@ void www_print_timeline(
           @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a></li>
         }
         fossil_free(zA);
+        fossil_free(zId);
       }
       db_reset(&fchngQuery);
       if( inUl ){

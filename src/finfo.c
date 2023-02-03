@@ -683,6 +683,14 @@ void finfo_page(void){
       }
       if( (tmFlags & TIMELINE_VERBOSE)!=0 && zUuid ){
         hyperlink_to_version(zUuid);
+        if( fShowId ){
+          int srcId = delta_source_rid(frid);
+          if( srcId ){
+            @ (%z(href("%R/deltachain/%d",frid))%d(frid)&larr;%d(srcId)</a>)
+          }else{
+            @ (%z(href("%R/deltachain/%d",frid))%d(frid)</a>)
+          }
+        }
         @ part of check-in \
         hyperlink_to_version(zCkin);
       }
@@ -710,9 +718,10 @@ void finfo_page(void){
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
-          @ id:&nbsp;%d(frid)&larr;%d(srcId)
+          @ id:&nbsp;%z(href("%R/deltachain/%d",frid))\
+          @ %d(frid)&larr;%d(srcId)</a>
         }else{
-          @ id:&nbsp;%d(frid)
+          @ id:&nbsp;%z(href("%R/deltachain/%d",frid))%d(frid)</a>
         }
       }
     }
