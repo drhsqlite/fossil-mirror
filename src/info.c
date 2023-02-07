@@ -650,7 +650,7 @@ void ci_page(void){
      rid, rid
   );
   zBrName = branch_of_rid(rid);
-  
+
   diffType = preferred_diff_type();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
@@ -1688,7 +1688,7 @@ int preferred_diff_type(void){
   zDflt[0] = dflt + '0';
   zDflt[1] = 0;
   cookie_link_parameter("diff","diff", zDflt);
-  return atoi(PD("diff",zDflt));
+  return atoi(PD_NoSQL("diff",zDflt));
 }
 
 

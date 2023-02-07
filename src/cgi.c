@@ -1542,8 +1542,8 @@ void cgi_value_spider_check(const char *zTxt){
 
 /*
 ** A variant of cgi_parameter() with the same semantics except that if
-** the fetched value fails the might_be_sql() test then it calls
-** cgi_begone_spider() and does not return.
+** cgi_parameter(zName,zDefault) returns a value other than zDefault
+** then it passes that value to cgi_value_spider_check().
 */
 const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
   const char *zTxt = cgi_parameter(zName, zDefault);
