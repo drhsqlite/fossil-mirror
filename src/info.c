@@ -455,8 +455,8 @@ DiffConfig *construct_diff_flags(int diffType, DiffConfig *pCfg){
   if( diffType>0 ){
     int x;
     if( diffType==2 ) diffFlags = DIFF_SIDEBYSIDE;
-    if( P("w") )      diffFlags |= DIFF_IGNORE_ALLWS;
-    if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
+    if( P_NoSQL("w") )  diffFlags |= DIFF_IGNORE_ALLWS;
+    if( PD_NoSQL("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
     diffFlags |= DIFF_STRIP_EOLCR;
     diff_config_init(pCfg, diffFlags);
 
@@ -650,7 +650,7 @@ void ci_page(void){
      rid, rid
   );
   zBrName = branch_of_rid(rid);
-  
+
   diffType = preferred_diff_type();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
@@ -871,11 +871,11 @@ void ci_page(void){
   }
   db_finalize(&q1);
   @ </div>
-  builtin_request_js("accordion.js");  
+  builtin_request_js("accordion.js");
   if( !PB("nowiki") ){
     wiki_render_associated("checkin", zUuid, 0);
   }
-  render_backlink_graph(zUuid, 
+  render_backlink_graph(zUuid,
        "<div class=\"section accordion\">References</div>\n");
   @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
@@ -1213,8 +1213,8 @@ void vdiff_page(void){
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   zGlob = P("glob");
-  zFrom = P("from");
-  zTo = P("to");
+  zFrom = P_NoSQL("from");
+  zTo = P_NoSQL("to");
   if( bInvert ){
     Manifest *pTemp = pTo;
     const char *zTemp = zTo;
@@ -1688,7 +1688,7 @@ int preferred_diff_type(void){
   zDflt[0] = dflt + '0';
   zDflt[1] = 0;
   cookie_link_parameter("diff","diff", zDflt);
-  return atoi(PD("diff",zDflt));
+  return atoi(PD_NoSQL("diff",zDflt));
 }
 
 
@@ -2496,7 +2496,7 @@ void artifact_page(void){
         url_add_parameter(&url, "ci", zCI);
       }
       db_finalize(&q);
-      if( rid==0 ){     
+      if( rid==0 ){
         style_header("No such file");
         @ File '%h(zName)' does not exist in this repository.
       }
@@ -3687,7 +3687,7 @@ void test_symlink_list_cmd(void){
 }
 
 #if INTERFACE
-/* 
+/*
 ** Description of a check-in relative to an earlier, tagged check-in.
 */
 typedef struct CommitDescr {

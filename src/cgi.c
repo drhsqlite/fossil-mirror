@@ -96,13 +96,15 @@
 ** or cookie "x", or NULL if there is no such parameter or cookie.  PD("x","y")
 ** does the same except "y" is returned in place of NULL if there is not match.
 */
-#define P(x)        cgi_parameter((x),0)
-#define PD(x,y)     cgi_parameter((x),(y))
-#define PT(x)       cgi_parameter_trimmed((x),0)
-#define PDT(x,y)    cgi_parameter_trimmed((x),(y))
-#define PB(x)       cgi_parameter_boolean(x)
-#define PCK(x)      cgi_parameter_checked(x,1)
-#define PIF(x,y)    cgi_parameter_checked(x,y)
+#define P(x)          cgi_parameter((x),0)
+#define PD(x,y)       cgi_parameter((x),(y))
+#define PT(x)         cgi_parameter_trimmed((x),0)
+#define PDT(x,y)      cgi_parameter_trimmed((x),(y))
+#define PB(x)         cgi_parameter_boolean(x)
+#define PCK(x)        cgi_parameter_checked(x,1)
+#define PIF(x,y)      cgi_parameter_checked(x,y)
+#define P_NoSQL(x)    cgi_parameter_nosql((x),0)
+#define PD_NoSQL(x,y) cgi_parameter_nosql((x),(y))
 
 /*
 ** Shortcut for the cgi_printf() routine.  Instead of using the
@@ -1505,6 +1507,51 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   }
   CGIDEBUG(("no-match [%s]\n", zName));
   return zDefault;
+}
+
+/*
+** Renders the "begone, spider" page and exits.
+*/
+static void cgi_begone_spider(void){
+  Blob content = empty_blob;
+
+  cgi_set_content(&content);
+  style_set_current_feature("test");
+  style_header("Spider Detected");
+  @ <h2>Begone, Spider!</h2>
+  @ <p>This page was generated because Fossil believes it has
+  @ detected a spider-based attack. If you believe you are seeing
+  @ this in error, please contact us on the forum: https://fossil-scm.org/forum
+  style_finish_page();
+  cgi_set_status(404,"Spider Detected");
+  cgi_reply();
+  exit(0);
+}
+
+/*
+** If might_be_sql() returns true for the given string, calls
+** cgi_begin_spider() and does not return, else this function has no
+** side effects. The range of checks performed by this function may
+** be extended in the future.
+*/
+void cgi_value_spider_check(const char *zTxt){
+  if( might_be_sql(zTxt) ){
+    cgi_begone_spider();
+  }
+}
+
+/*
+** A variant of cgi_parameter() with the same semantics except that if
+** cgi_parameter(zName,zDefault) returns a value other than zDefault
+** then it passes that value to cgi_value_spider_check().
+*/
+const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
+  const char *zTxt = cgi_parameter(zName, zDefault);
+
+  if( zTxt!=zDefault ){
+    cgi_value_spider_check(zTxt);
+  }
+  return zTxt;
 }
 
 /*
