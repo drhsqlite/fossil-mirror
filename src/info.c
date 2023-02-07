@@ -455,8 +455,8 @@ DiffConfig *construct_diff_flags(int diffType, DiffConfig *pCfg){
   if( diffType>0 ){
     int x;
     if( diffType==2 ) diffFlags = DIFF_SIDEBYSIDE;
-    if( P_NoSQL("w") )  diffFlags |= DIFF_IGNORE_ALLWS;
-    if( PD_NoSQL("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
+    if( P_AntiSpider("w") )  diffFlags |= DIFF_IGNORE_ALLWS;
+    if( PD_AntiSpider("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
     diffFlags |= DIFF_STRIP_EOLCR;
     diff_config_init(pCfg, diffFlags);
 
@@ -1213,8 +1213,8 @@ void vdiff_page(void){
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   zGlob = P("glob");
-  zFrom = P_NoSQL("from");
-  zTo = P_NoSQL("to");
+  zFrom = P_AntiSpider("from");
+  zTo = P_AntiSpider("to");
   if( bInvert ){
     Manifest *pTemp = pTo;
     const char *zTemp = zTo;
@@ -1688,7 +1688,7 @@ int preferred_diff_type(void){
   zDflt[0] = dflt + '0';
   zDflt[1] = 0;
   cookie_link_parameter("diff","diff", zDflt);
-  return atoi(PD_NoSQL("diff",zDflt));
+  return atoi(PD_AntiSpider("diff",zDflt));
 }
 
 

@@ -103,8 +103,8 @@
 #define PB(x)         cgi_parameter_boolean(x)
 #define PCK(x)        cgi_parameter_checked(x,1)
 #define PIF(x,y)      cgi_parameter_checked(x,y)
-#define P_NoSQL(x)    cgi_parameter_nosql((x),0)
-#define PD_NoSQL(x,y) cgi_parameter_nosql((x),(y))
+#define P_AntiSpider(x)    cgi_parameter_nosql((x),0)
+#define PD_AntiSpider(x,y) cgi_parameter_nosql((x),(y))
 
 /*
 ** Shortcut for the cgi_printf() routine.  Instead of using the
