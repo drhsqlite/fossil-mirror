@@ -462,3 +462,21 @@ void looks_like_utf_test_cmd(void){
   fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
   blob_reset(&blob);
 }
+
+/*
+** Returns true if the given text contains certain keywords or
+** punctuation which indicate that it might be SQL. This is only a
+** high-level check, not intended to be used for any application-level
+** logic other than in defense against spiders in limited contexts.
+*/
+int might_be_sql(const char *zTxt){
+  if( zTxt==0 || zTxt[0]==0 ) return 0;
+#define L(GLOB) 0==sqlite3_strlike("%" GLOB "%",zTxt, '%')
+  return L(";") || L("'")
+    || L("select") || L("order") || L("drop")
+    || L(" and ") || L(" or ")
+    /* ^^^^^ noting that \n and \t should also be checked */
+    || L("null") || L("delete") || L("update")
+    || L("waitfor");
+#undef L
+}
