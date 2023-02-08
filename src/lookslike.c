@@ -469,15 +469,18 @@ void looks_like_utf_test_cmd(void){
 static int isWholeWord(const char *z, unsigned int i, const char *zWord, int n){
   if( i>0 && fossil_isalnum(z[i-1]) ) return 0;
   if( sqlite3_strnicmp(z+i, zWord, n)!=0 ) return 0;
-  if( z[i+n]!=0&& fossil_isalnum(z[i+n]) ) return 0;
+  if( fossil_isalnum(z[i+n]) ) return 0;
   return 1;
 }
 
 /*
 ** Returns true if the given text contains certain keywords or
-** punctuation which indicate that it might be SQL. This is only a
-** high-level check, not intended to be used for any application-level
-** logic other than in defense against spiders in limited contexts.
+** punctuation which indicate that it might be an SQL injection attempt
+** or some other kind of mischief.
+**
+** This is not a defense against vulnerabilities in the Fossil code.
+** Rather, this is part of an effort to do early detection of malicious
+** spiders to avoid them using up too many CPU cycles.
 */
 int looks_like_sql_injection(const char *zTxt){
   unsigned int i;
@@ -487,6 +490,10 @@ int looks_like_sql_injection(const char *zTxt){
       case ';':
       case '\'':
         return 1;
+      case '/':             /* 0123456789 123456789 */
+        if( strncmp(zTxt+i+1, "/wp-content/plugins/", 20)==0 ) return 1;
+        if( strncmp(zTxt+i+1, "/wp-admin/admin-ajax", 20)==0 ) return 1;
+        break;
       case 'a':
       case 'A':
         if( isWholeWord(zTxt, i, "and", 3) ) return 1;

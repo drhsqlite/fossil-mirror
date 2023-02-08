@@ -1518,7 +1518,7 @@ static void cgi_begone_spider(void){
   cgi_set_content(&content);
   style_set_current_feature("test");
   style_header("Malicious Query Detected");
-  @ <h2>Begone, Hacker!</h2>
+  @ <h2>Begone, Fiend!</h2>
   @ <p>This page was generated because Fossil believes it has
   @ detected an SQL injection attack. If you believe you are seeing
   @ this in error, contact the developers on the Fossil-SCM Forum.  Type
@@ -1531,7 +1531,7 @@ static void cgi_begone_spider(void){
 
 /*
 ** If looks_like_sql_injection() returns true for the given string, calls
-** cgi_begin_spider() and does not return, else this function has no
+** cgi_begone_spider() and does not return, else this function has no
 ** side effects. The range of checks performed by this function may
 ** be extended in the future.
 **
