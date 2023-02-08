@@ -1517,25 +1517,26 @@ static void cgi_begone_spider(void){
 
   cgi_set_content(&content);
   style_set_current_feature("test");
-  style_header("Spider Detected");
-  @ <h2>Begone, Spider!</h2>
+  style_header("Malicious Query Detected");
+  @ <h2>Begone, Hacker!</h2>
   @ <p>This page was generated because Fossil believes it has
-  @ detected a spider-based attack. If you believe you are seeing
-  @ this in error, please contact us on the forum: https://fossil-scm.org/forum
+  @ detected an SQL injection attack. If you believe you are seeing
+  @ this in error, contact the developers on the Fossil-SCM Forum.  Type
+  @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
   style_finish_page();
-  cgi_set_status(404,"Spider Detected");
+  cgi_set_status(404,"Robot Attack Detected");
   cgi_reply();
   exit(0);
 }
 
 /*
-** If might_be_sql() returns true for the given string, calls
+** If looks_like_sql_injection() returns true for the given string, calls
 ** cgi_begin_spider() and does not return, else this function has no
 ** side effects. The range of checks performed by this function may
 ** be extended in the future.
 */
 void cgi_value_spider_check(const char *zTxt){
-  if( might_be_sql(zTxt) ){
+  if( looks_like_sql_injection(zTxt) ){
     cgi_begone_spider();
   }
 }
