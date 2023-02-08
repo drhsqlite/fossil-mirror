@@ -30,7 +30,7 @@ char *fossil_hostname(void){
   char zBuf[200];
   in = popen("hostname","r");
   if( in ){
-    size_t n = fread(zBuf, 1, sizeof(zBuf)-1, in);
+    int n = fread(zBuf, 1, sizeof(zBuf)-1, in);
     while( n>0 && fossil_isspace(zBuf[n-1]) ){ n--; }
     if( n<0 ) n = 0;
     zBuf[n] = 0;

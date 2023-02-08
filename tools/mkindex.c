@@ -516,7 +516,7 @@ void build_table(void){
       printf("#endif\n");
     }
   }
-  printf("{0,0,0,0,0,0}};\n");
+  printf("{0,0,0,0,0,0,0}};\n");
 
 }
 
