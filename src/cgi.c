@@ -1534,9 +1534,19 @@ static void cgi_begone_spider(void){
 ** cgi_begin_spider() and does not return, else this function has no
 ** side effects. The range of checks performed by this function may
 ** be extended in the future.
+**
+** Checks are omitted for any logged-in user.
+**
+** This is NOT a defense against SQL injection.  Fossil should easily be
+** proof against SQL injection without this routine.  Rather, this is an
+** attempt to avoid denial-of-service caused by persistent spiders that hammer
+** the server with dozens or hundreds of SQL injection attempts per second
+** against pages (such as /vdiff) that are expensive to compute.  In other
+** words, this is an effort to reduce the CPU load imposed by malicious
+** spiders.  It is not an effect defense against SQL injection vulnerabilities.
 */
 void cgi_value_spider_check(const char *zTxt){
-  if( looks_like_sql_injection(zTxt) ){
+  if( g.zLogin==0 && looks_like_sql_injection(zTxt) ){
     cgi_begone_spider();
   }
 }
