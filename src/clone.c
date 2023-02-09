@@ -281,9 +281,15 @@ void clone_cmd(void){
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(1, 0);
   if( !noCompress ){
+    int nDelta = 0;
+    i64 nByte;
     fossil_print("Extra delta compression... "); fflush(stdout);
-    extra_deltification();
-    fossil_print("\n");
+    nByte = extra_deltification(&nDelta);
+    if( nDelta ){
+      fossil_print("%d deltas save %,lld bytes\n", nDelta, nByte);
+    }else{
+      fossil_print("no extra compression found\n");
+    }
   }
   db_end_transaction(0);
   fossil_print("Vacuuming the database... "); fflush(stdout);

@@ -816,7 +816,8 @@ void content_make_private(int rid){
 ** resulting delta does not achieve a compression of at least 25%
 ** the rid is left untouched.
 **
-** Return 1 if a delta is made and 0 if no delta occurs.
+** Return the number of bytes by which the storage associated with rid
+** is reduced.  A return of 0 means no new deltification occurs.
 */
 int content_deltify(int rid, int *aSrc, int nSrc, int force){
   int s;
@@ -905,13 +906,14 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, bestSrc);
     db_bind_blob(&s1, ":data", &bestDelta);
     db_begin_transaction();
+    rc = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", rid);
     db_exec(&s1);
     db_exec(&s2);
     db_end_transaction(0);
     db_finalize(&s1);
     db_finalize(&s2);
     verify_before_commit(rid);
-    rc = 1;
+    rc -= blob_size(&bestDelta);
   }
   blob_reset(&data);
   blob_reset(&bestDelta);

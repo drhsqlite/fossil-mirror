@@ -490,14 +490,18 @@ int rebuild_db(int doOut, int doClustering){
 
 /*
 ** Attempt to convert more full-text blobs into delta-blobs for
-** storage efficiency.
+** storage efficiency.  Return the number of bytes of storage space
+** saved.
 */
-void extra_deltification(void){
+i64 extra_deltification(int *pnDelta){
   Stmt q;
   int aPrev[N_NEIGHBOR];
   int nPrev;
   int rid;
   int prevfnid, fnid;
+  int nDelta = 0;
+  i64 nByte = 0;
+  int nSaved;
   db_begin_transaction();
 
   /* Look for manifests that have not been deltaed and try to make them
@@ -514,7 +518,11 @@ void extra_deltification(void){
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
     if( nPrev>0 ){
-      content_deltify(rid, aPrev, nPrev, 0);
+      nSaved = content_deltify(rid, aPrev, nPrev, 0);
+      if( nSaved>0 ){
+        nDelta++;
+        nByte += nSaved;
+      }
     }
     if( nPrev<N_NEIGHBOR ){
       aPrev[nPrev++] = rid;
@@ -545,7 +553,11 @@ void extra_deltification(void){
     if( fnid!=prevfnid ) nPrev = 0;
     prevfnid = fnid;
     if( nPrev>0 ){
-      content_deltify(rid, aPrev, nPrev, 0);
+      nSaved = content_deltify(rid, aPrev, nPrev, 0);
+      if( nSaved>0 ){
+        nDelta++;
+        nByte += nSaved;
+      }
     }
     if( nPrev<N_NEIGHBOR ){
       aPrev[nPrev++] = rid;
@@ -558,6 +570,8 @@ void extra_deltification(void){
   db_finalize(&q);
 
   db_end_transaction(0);
+  if( pnDelta!=0 ) *pnDelta = nDelta;
+  return nByte;
 }
 
 
@@ -638,7 +652,7 @@ void rebuild_database(void){
   optNoIndex = find_option("noindex",0,0)!=0;
   optIfNeeded = find_option("ifneeded",0,0)!=0;
   compressOnlyFlag = find_option("compress-only",0,0)!=0;
-  if( compressOnlyFlag ) runCompress = runVacuum = 1;
+  if( compressOnlyFlag ) runCompress = 1;
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
     if( newPagesize<512 || newPagesize>65536
@@ -690,13 +704,21 @@ void rebuild_database(void){
     db_end_transaction(1);
   }else{
     if( runCompress ){
+      i64 nByte = 0;
+      int nDelta = 0;
       fossil_print("Extra delta compression... "); fflush(stdout);
-      extra_deltification();
-      runVacuum = 1;
+      nByte = extra_deltification(&nDelta);
+      if( nDelta>0 ){
+        fossil_print("%d new deltas save %,lld bytes", nDelta, nByte);
+        runVacuum = 1;
+      }else{
+        fossil_print("no additional compression found");
+      }
+      fflush(stdout);
     }
     if( omitVerify ) verify_cancel();
     db_end_transaction(0);
-    if( runCompress ) fossil_print("done\n");
+    if( runCompress ) fossil_print("\n");
     db_close(0);
     db_open_repository(g.zRepositoryName);
     if( newPagesize ){
