@@ -5,6 +5,9 @@
      the new [/help?cmd=self-pw-reset|self-pw-reset property] to enable it.  
      New web pages [/help?cmd=/resetpw|/resetpw] and
      [/help?cmd=/reqpwreset|/reqpwreset] added.
+  *  Add the [/help?cmd=repack|fossil repack] command (together with
+     [/help?cmd=all|fossil all repack]) as a convenient way to optimize the
+     size of one or all of the repositories on a system.
   *  Add the ability to put text descriptions on ticket report formats.
   *  Upgrade the test-find-pivot command to the [/help/merge-base|merge-base command].
   *  The [/help?cmd=/chat|/chat page] can now embed fossil-rendered
