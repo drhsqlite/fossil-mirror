@@ -14,10 +14,14 @@
   *  The [/help?cmd=all|fossil all remote] subcommand added to "fossil all".
   *  Passwords for remembered remote repositories are now stored as irreversible
      hashes rather than obscured clear-text, for improved security.
+  *  Add the "nossl" and "nocompress" options to CGI.
+  *  Update search infrastructure from FTS4 to FTS5.
+  *  Add the [/help?cmd=/deltachain|/deltachain] page for debugging purposes.
   *  Writes to the database are disabled by default if the HTTP request
      does not come from the same origin.  This enhancement is for defense in depth.
-     There where no known attacks prior to this enhancement.
-  *  Update search infrastructure from FTS4 to FTS5.
+     There where no known vulnerabilities prior to this enhancement.
+  *  Improvements to automatic detection and mitigation of attacks from
+     malicious robots.
 
 <h2 id='v2_20'>Changes for version 2.20 (2022-11-16)</h2>
   *  Added the [/help?cmd=chat-timeline-user|chat-timeline-user setting].  If
