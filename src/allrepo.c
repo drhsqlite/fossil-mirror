@@ -111,6 +111,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                present, are passed along verbatim.  The --force and
 **                --randomize options are not supported.
 **
+**    repack      Look for extra compression in all repositories.
+**
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned and --share-links options are supported.
 **
@@ -303,6 +305,8 @@ void all_cmd(void){
     }else{
       usage("remote ?config-data|list|ls?");
     }
+  }else if( fossil_strcmp(zCmd, "repack")==0 ){
+    zCmd = "repack";
   }else if( fossil_strcmp(zCmd, "setting")==0 ){
     zCmd = "setting -R";
     collect_argv(&extra, 3);

@@ -1,5 +1,5 @@
-C The\sextra-delta-compression\sstep\snow\sreports\sthe\snumber\sof\snew\sdeltas\nadded\sand\sthe\sbytes\sof\sstorage\sspace\ssaved\susing\sthose\sdeltas.
-D 2023-02-09T19:45:25.893
+C Add\sthe\s"repack"\scommand\sas\san\salias\sfor\s"rebuild\s--compress-only".
+D 2023-02-09T20:09:41.334
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -380,7 +380,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c b2a82caab2d716e08f1e3da6e4fe27e2faefb51791e42cbaceedf7dbcf2effcc
+F src/allrepo.c 01dd6ac837860370035e980029b8b06e950bfcde763da71efb61c3d7be71cb7b
 F src/attach.c 6f86aa88b67e297e0111ed3f23854a19eaf861526ad07f81876171a2aacabf76
 F src/backlink.c f7da26dc296e6db2fb0bd742c4b3a8bf7793e6d955a7e837e04da750fa053939
 F src/backoffice.c d900592140dd007d5fcaa312f12a48496d8b809feb753c425255fefd8a304ee2
@@ -400,7 +400,7 @@ F src/checkin.c d2b2a110c5494e920d0d9745a50b3fe240ddc014cc25a1826b64d408c035df58
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 535852ef4aeef53ecf9526c37f58da5532a326e42529ac7d69030a135056ca2e
+F src/clone.c 41bad4d40ef047a2916df422fdf0eb7e257ff7a4329627192a2832a2c9653d6b
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c 97d5b986e470665153e142b5ae1b3965518562b121babec52493a6912b288fb9
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
@@ -513,7 +513,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c cc8fd1fbab3125d98f3297d31434ccfef08fda44126b6a4f451e0c35fcb03ffe
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
-F src/rebuild.c cbf76eb0e66b7c1fcacd9917cc00ef6f7f5f58ec07289025272e3c91b6fdd151
+F src/rebuild.c 624d9486fc2038ab2c146bcbfb21802acc3bc02bf54fdd4db213bf5389339ed7
 F src/regexp.c 0ac48c9004c871cca69f123bd0e806be271592a7121ee7bdea80ddbe0fd5a609
 F src/repolist.c 9e01f4520d813d1ef4e41f00e68e551a49b4e7d4bf2b69c2ebb4a2713e507ba4
 F src/report.c 59bec35e0a36cd790d84962cba8bd5432e0482c900dd527f445854302ac3b2f1
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7449a10f2a533bbbfb2b7affb993d5596eb9a88f45d3540fdec5e8882e5a8322
-R 86b6be6a3724a06547329d33eefb38b9
+P 59e21eb3e53ca2cc4299728b205f7f4703b8bcdf4e58eb7a133226c9c76ee00c
+R 10e47e3e548d5888a003b94745a6c5fb
 U drh
-Z 5c90284cfe9e1383faa342f617f66d62
+Z 4fd75b7f5f50e0fe7dbadfe6d7525dde
 # Remove this line to create a well-formed Fossil manifest.

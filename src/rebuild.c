@@ -593,6 +593,38 @@ static void reconstruct_private_table(void){
   fix_private_blob_dependencies(0);
 }
 
+/*
+** COMMAND: repack
+**
+** Usage: %fossil repack ?REPOSITORY?
+**
+** Perform extra delta-compression to try to minimize the size of the
+** repository.  This command is simply a short-hand for:
+**
+**     fossil rebuild --compress-only
+**
+** The name for this command is stolen from the "git repack" command that
+** does approximately the same thing in Git.
+*/
+void repack_command(void){
+  char *azNewArgv[5];
+  char **azOldArgv = g.argv;
+  verify_all_options();
+  if( g.argc!=2 && g.argc!=3 ){
+    usage("?REPOSITORY-FILENAME?");
+  }
+  azNewArgv[0] = g.argv[0];
+  azNewArgv[1] = "rebuild";
+  azNewArgv[2] = "--compress-only";
+  azNewArgv[3] = g.argv[2];
+  azNewArgv[4] = 0;
+  g.argc++;
+  g.argv = azNewArgv;
+  rebuild_database();
+  g.argc--;
+  g.argv = azOldArgv;
+}
+
 
 /*
 ** COMMAND: rebuild
@@ -709,10 +741,14 @@ void rebuild_database(void){
       fossil_print("Extra delta compression... "); fflush(stdout);
       nByte = extra_deltification(&nDelta);
       if( nDelta>0 ){
-        fossil_print("%d new deltas save %,lld bytes", nDelta, nByte);
+        if( nDelta==1 ){
+          fossil_print("1 new delta saves %,lld bytes", nByte);
+        }else{
+          fossil_print("%d new deltas save %,lld bytes", nDelta, nByte);
+        }
         runVacuum = 1;
       }else{
-        fossil_print("no additional compression found");
+        fossil_print("none found");
       }
       fflush(stdout);
     }

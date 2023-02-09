@@ -285,10 +285,12 @@ void clone_cmd(void){
     i64 nByte;
     fossil_print("Extra delta compression... "); fflush(stdout);
     nByte = extra_deltification(&nDelta);
-    if( nDelta ){
+    if( nDelta==1 ){
+      fossil_print("1 delta saves %,lld bytes\n", nByte);
+    }else if( nDelta>1 ){
       fossil_print("%d deltas save %,lld bytes\n", nDelta, nByte);
     }else{
-      fossil_print("no extra compression found\n");
+      fossil_print("none found\n");
     }
   }
   db_end_transaction(0);
