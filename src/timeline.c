@@ -1700,6 +1700,9 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
+  (void)P_NoBot("ss")
+    /* "ss" is processed via the udc but at least one spider likes to
+    ** try to SQL inject via this argument, so let's catch that. */;
 
   /* Set number of rows to display */
   z = P("n");
