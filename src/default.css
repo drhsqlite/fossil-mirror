@@ -1584,6 +1584,7 @@ div.pikchr-wrapper.center.source.source-inline{
      still-seemingly-legitimate browsers don't support grid mode. */
 }
 div.pikchr-wrapper.center > div.pikchr-svg {
+  width: 100%/*necessary for Chrome!*/;
 }
 div.pikchr-wrapper.center:not(.source) > pre.pikchr-src,
 div.pikchr-wrapper.center:not(.source) > div.pikchr-svg,
