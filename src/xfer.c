@@ -452,7 +452,7 @@ static int send_delta_parent(
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcId);
     blob_delta_create(&src, pContent, &delta);
     size = blob_size(&delta);
-    if( size>=blob_size(pContent)-50 ){
+    if( size>=(int)blob_size(pContent)-50 ){
       size = 0;
     }else if( uuid_is_shunned(zUuid) ){
       size = 0;
@@ -579,7 +579,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     return;
   }
   if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) ||
-       pXfer->mxSend<=blob_size(pXfer->pOut) ){
+       pXfer->mxSend<=(int)blob_size(pXfer->pOut) ){
     const char *zFormat = isPriv ? "igot %b 1\n" : "igot %b\n";
     blob_appendf(pXfer->pOut, zFormat /*works-like:"%b"*/, pUuid);
     pXfer->nIGotSent++;
@@ -703,7 +703,7 @@ static void send_unversioned_file(
 ){
   Stmt q1;
 
-  if( blob_size(pXfer->pOut)>=pXfer->mxSend ) noContent = 1;
+  if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ) noContent = 1;
   if( noContent ){
     db_prepare(&q1,
       "SELECT mtime, hash, encoding, sz FROM unversioned WHERE name=%Q",
@@ -724,7 +724,7 @@ static void send_unversioned_file(
       db_reset(&q1);
       return;
     }
-    if( blob_size(pXfer->pOut)>=pXfer->mxSend ){
+    if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ){
       /* If we have already reached the send size limit, send a (short)
       ** uvigot card rather than a uvfile card.  This only happens on the
       ** server side.  The uvigot card will provoke the client to resend
@@ -1031,7 +1031,7 @@ static int send_unclustered(Xfer *pXfer){
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
     cnt++;
-    if( pXfer->resync && pXfer->mxSend<blob_size(pXfer->pOut) ){
+    if( pXfer->resync && pXfer->mxSend<(int)blob_size(pXfer->pOut) ){
       pXfer->resync = db_column_int(&q, 1)-1;
     }
   }
@@ -1459,7 +1459,7 @@ void page_xfer(void){
         }
         blob_is_int(&xfer.aToken[2], &seqno);
         max = db_int(0, "SELECT max(rid) FROM blob");
-        while( xfer.mxSend>blob_size(xfer.pOut) && seqno<=max){
+        while( xfer.mxSend>(int)blob_size(xfer.pOut) && seqno<=max){
           if( time(NULL) >= xfer.maxTime ) break;
           if( iVers>=3 ){
             send_compressed_file(&xfer, seqno);
@@ -2230,7 +2230,7 @@ int client_sync(
           if( syncFlags & SYNC_VERBOSE ){
             fossil_print("\rUnversioned-file sent: %s\n", zName);
           }
-          if( blob_size(xfer.pOut)>xfer.mxSend ) break;
+          if( (int)blob_size(xfer.pOut)>xfer.mxSend ) break;
         }
         db_finalize(&uvq);
         if( rc==SQLITE_DONE ) uvDoPush = 0;

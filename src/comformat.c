@@ -215,7 +215,7 @@ static void comment_print_line(
   assert( indent<sizeof(zBuf)-5 );       /* See following comments to explain */
   assert( origIndent<sizeof(zBuf)-5 );   /* these limits. */
 #endif
-  if( indent>sizeof(zBuf)-6 ){
+  if( indent>(int)sizeof(zBuf)-6 ){
     /* Limit initial indent to fit output buffer. */
     indent = sizeof(zBuf)-6;
   }
@@ -225,7 +225,7 @@ static void comment_print_line(
       zBuf[iBuf++] = ' ';
     }
   }
-  if( origIndent>sizeof(zBuf)-6 ){
+  if( origIndent>(int)sizeof(zBuf)-6 ){
     /* Limit line indent to fit output buffer. */
     origIndent = sizeof(zBuf)-6;
   }
@@ -236,7 +236,7 @@ static void comment_print_line(
     /* Flush the output buffer if there's no space left for at least one more
     ** (potentially 4-byte) UTF-8 sequence, one level of indentation spaces,
     ** a new line, and a terminating NULL. */
-    if( iBuf>sizeof(zBuf)-origIndent-6 ){
+    if( iBuf>(int)sizeof(zBuf)-origIndent-6 ){
       zBuf[iBuf]=0;
       iBuf=0;
       fossil_print("%s", zBuf);
@@ -350,7 +350,7 @@ static int comment_print_legacy(
     maxChars = strlen(zText);
   }
   /* Ensure the buffer can hold the longest-possible UTF-8 sequences. */
-  if( maxChars >= (sizeof(zBuffer)/4-1) ){
+  if( maxChars >= ((int)sizeof(zBuffer)/4-1) ){
     zBuf = fossil_malloc(maxChars*4+1);
   }else{
     zBuf = zBuffer;

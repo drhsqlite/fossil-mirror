@@ -928,7 +928,7 @@ static int submitTicketCmd(
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
        || memcmp(zValue, aField[i].zValue, nValue)!=0
-       || strlen(aField[i].zValue)!=nValue
+       ||(int)strlen(aField[i].zValue)!=nValue
       ){
         if( memcmp(aField[i].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, nValue);

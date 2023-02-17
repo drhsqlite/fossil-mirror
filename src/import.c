@@ -599,7 +599,7 @@ static void git_fast_import(FILE *pIn){
       ** None of the above is explained in the git-fast-export
       ** documentation.  We had to figure it out via trial and error.
       */
-      for(i=5; i<strlen(zRefName) && zRefName[i]!='/'; i++){}
+      for(i=5; i<(int)strlen(zRefName) && zRefName[i]!='/'; i++){}
       gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0; /* pattern B */
       if( zRefName[i+1]!=0 ) zRefName += i+1;
       if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
@@ -769,7 +769,7 @@ static void git_fast_import(FILE *pIn){
         if( pFile->isFrom==0 ) continue;
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
-        if( strlen(pFile->zName)>nFrom ){
+        if( (int)strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
@@ -792,7 +792,7 @@ static void git_fast_import(FILE *pIn){
         if( pFile->isFrom==0 ) continue;
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
-        if( strlen(pFile->zName)>nFrom ){
+        if( (int)strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
@@ -1015,7 +1015,7 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
     rec->contentFlag = 1;
     nLen = atoi(zLen);
     blob_read_from_channel(&rec->content, pIn, nLen);
-    if( blob_size(&rec->content)!=nLen ){
+    if( (int)blob_size(&rec->content)!=nLen ){
       fossil_fatal("short read: got %d of %d bytes",
         blob_size(&rec->content), nLen
       );
@@ -1280,7 +1280,7 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
     unsigned nPath = strlen(zPath);
     for( pzIgnTree = gsvn.azIgnTree; *pzIgnTree; ++pzIgnTree ){
       const char *zIgn = *pzIgnTree;
-      int nIgn = strlen(zIgn);
+      unsigned nIgn = strlen(zIgn);
       if( strncmp(zPath, zIgn, nIgn) == 0
        && ( nPath == nIgn || (nPath > nIgn && zPath[nIgn] == '/')) ){
         return 0;

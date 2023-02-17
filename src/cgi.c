@@ -2402,7 +2402,7 @@ int cgi_http_server(
     inaddr.sin_family = AF_INET;
     if( zIpAddr ){
       inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-      if( inaddr.sin_addr.s_addr == (-1) ){
+      if( inaddr.sin_addr.s_addr == INADDR_NONE ){
         fossil_fatal("not a valid IP address: %s", zIpAddr);
       }
     }else if( flags & HTTP_SERVER_LOCALHOST ){

@@ -706,7 +706,7 @@ static void forum_display_thread(
     zQuery[i++] = 's';
     zQuery[i++] = 't';
   }
-  assert( i<sizeof(zQuery) );
+  assert( i<(int)sizeof(zQuery) );
   zQuery[i] = 0;
   assert( zQuery[0]==0 || zQuery[0]=='?' );
 

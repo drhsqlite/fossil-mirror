@@ -1031,7 +1031,7 @@ void test_integrity(void){
       continue;  /* Ignore phantoms */
     }
     content_get(rid, &content);
-    if( blob_size(&content)!=size ){
+    if( (int)blob_size(&content)!=size ){
       fossil_print("size mismatch on artifact %d: wanted %d but got %d\n",
                      rid, size, blob_size(&content));
       nErr++;
@@ -1050,7 +1050,7 @@ void test_integrity(void){
 
       z = blob_buffer(&content);
       n = blob_size(&content);
-      for(i=0; i<n && z[i] && z[i]!='\n' && i<sizeof(zFirstLine)-1; i++){}
+      for(i=0; i<n && z[i] && z[i]!='\n' && i<(int)sizeof(zFirstLine)-1; i++){}
       memcpy(zFirstLine, z, i);
       zFirstLine[i] = 0;
       p = manifest_parse(&content, 0, &err);

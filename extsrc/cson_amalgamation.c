@@ -5391,7 +5391,7 @@ cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
     int rc = 0;
     cson_value * currentValue = NULL;
     int const colCount = sqlite3_column_count(st);
-    if( !colCount || (colCount>cson_array_length_get(colNames)) ) {
+    if( !colCount || (colCount>(int)cson_array_length_get(colNames)) ) {
         return NULL;
     }
     rootV = cson_value_new_object();

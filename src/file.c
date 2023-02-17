@@ -205,7 +205,7 @@ i64 file_mtime(const char *zFilename, int eFType){
 ** stat-ed file.
 */
 int file_mode(const char *zFilename, int eFType){
-  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_mode;
+  return getStat(zFilename, eFType) ? -1 : (int)(fx.fileStat.st_mode);
 }
 
 /*
@@ -244,7 +244,7 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     char *zName, zBuf[1000];
 
     nName = strlen(zLinkFile);
-    if( nName>=sizeof(zBuf) ){
+    if( nName>=(int)sizeof(zBuf) ){
       zName = mprintf("%s", zLinkFile);
     }else{
       zName = zBuf;

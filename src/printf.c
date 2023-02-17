@@ -866,7 +866,7 @@ int vxprintf(
       nspace = width-length;
       if( nspace>0 ){
         count += nspace;
-        while( nspace>=etSPACESIZE ){
+        while( nspace>=(int)etSPACESIZE ){
           blob_append(pBlob,spaces,etSPACESIZE);
           nspace -= etSPACESIZE;
         }
@@ -882,7 +882,7 @@ int vxprintf(
       nspace = width-length;
       if( nspace>0 ){
         count += nspace;
-        while( nspace>=etSPACESIZE ){
+        while( nspace>=(int)etSPACESIZE ){
           blob_append(pBlob,spaces,etSPACESIZE);
           nspace -= etSPACESIZE;
         }

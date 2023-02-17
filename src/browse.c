@@ -896,7 +896,7 @@ void page_tree(void){
   for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
     const char *zLastClass = p->pSibling==0 ? " last" : "";
     if( p->pChild ){
-      const char *zSubdirClass = p->nFullName==nD-1 ? " subdir" : "";
+      const char *zSubdirClass = (int)(p->nFullName)==nD-1 ? " subdir" : "";
       @ <li class="dir%s(zSubdirClass)%s(zLastClass)"><div class="filetreeline">
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
       if( p->mtime>0.0 ){
@@ -904,7 +904,7 @@ void page_tree(void){
         @ <div class="filetreeage">%s(zAge)</div>
       }
       @ </div>
-      if( startExpanded || p->nFullName<=nD ){
+      if( startExpanded || (int)(p->nFullName)<=nD ){
         @ <ul id="dir%d(nDir)">
       }else{
         @ <ul id="dir%d(nDir)" class="collapsed">

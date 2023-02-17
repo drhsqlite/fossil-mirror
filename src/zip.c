@@ -68,7 +68,7 @@ struct Archive {
 ** Ensure that blob pBlob is at least nMin bytes in size.
 */
 static void zip_blob_minsize(Blob *pBlob, int nMin){
-  if( blob_size(pBlob)<nMin ){
+  if( (int)blob_size(pBlob)<nMin ){
     blob_resize(pBlob, nMin);
   }
 }
@@ -443,7 +443,7 @@ static void zip_add_file_to_sqlar(
           blob_buffer(pFile), blob_size(pFile), SQLITE_STATIC
       );
     }else{
-      int nIn = blob_size(pFile);
+      unsigned int nIn = blob_size(pFile);
       unsigned long int nOut = nIn;
       sqlite3_bind_int(p->pInsert, 2, mPerm==PERM_EXE ? 0100755 : 0100644);
       sqlite3_bind_int(p->pInsert, 4, nIn);
@@ -451,7 +451,7 @@ static void zip_add_file_to_sqlar(
       compress( (unsigned char*)
           blob_buffer(&p->tmp), &nOut, (unsigned char*)blob_buffer(pFile), nIn
       );
-      if( nOut>=nIn ){
+      if( nOut>=(unsigned long)nIn ){
         sqlite3_bind_blob(p->pInsert, 5, 
             blob_buffer(pFile), blob_size(pFile), SQLITE_STATIC
         );
