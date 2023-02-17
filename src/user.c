@@ -159,7 +159,7 @@ static void userGenerateScrambleCode(void){
   memcpy(zOrig, "abcdefghijklmnopqrstuvwyz", nA+1);
   memcpy(zA, zOrig, nA+1);
   assert( nA==(int)strlen((char*)zA) );
-  for(i=0; i<sizeof(aSubst); i++) aSubst[i] = i;
+  for(i=0; i<(int)sizeof(aSubst); i++) aSubst[i] = i;
   printFive(zA);
   while( nA>0 ){
     int x = randint(nA);

@@ -855,7 +855,7 @@ static int thSplitList(
       nCount++;
     }
   }
-  assert((lenbuf.nBuf/sizeof(int))==nCount);
+  assert((int)(lenbuf.nBuf/sizeof(int))==nCount);
 
   assert((pazElem && panElem) || (!pazElem && !panElem));
   if( pazElem && rc==TH_OK ){

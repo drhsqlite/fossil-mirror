@@ -458,7 +458,7 @@ void delta_3waymerge_cmd(void){
     fossil_fatal("cannot read %s", g.argv[4]);
   }
   nConflict = blob_merge(&pivot, &v1, &v2, &merged);
-  if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
+  if( blob_write_to_file(&merged, g.argv[5])<(int)blob_size(&merged) ){
     fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&pivot);

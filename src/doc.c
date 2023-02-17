@@ -461,7 +461,7 @@ const char *mimetype_from_name(const char *zName){
     if( zName[i]=='.' ) z = &zName[i+1];
   }
   len = strlen(z);
-  if( len<sizeof(zSuffix)-1 ){
+  if( len<(int)sizeof(zSuffix)-1 ){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     z = mimetype_from_name_custom(zSuffix);

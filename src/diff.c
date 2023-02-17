@@ -2223,7 +2223,7 @@ static void formatDiff(
 
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
@@ -2253,7 +2253,7 @@ static void formatDiff(
     /* Figure out how many lines of A and B are to be displayed
     ** for this change block.
     */
-    if( R[r]>nContext ){
+    if( R[r]>(int)nContext ){
       skip = R[r] - nContext;
     }else{
       skip = 0;
@@ -2264,10 +2264,10 @@ static void formatDiff(
     m = R[r] - skip;
     if( r ) skip -= nContext;
     if( skip>0 ){
-      if( skip<nContext ){
+      if( skip<(int)nContext ){
         /* If the amount to skip is less that the context band, then
         ** go ahead and show the skip band as it is not worth eliding */
-        for(j=0; j<skip; j++){
+        for(j=0; (int)j<skip; j++){
           pBuilder->xCommon(pBuilder, &A[a+j-skip]);
         }
       }else{
@@ -2301,7 +2301,7 @@ static void formatDiff(
       alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, pCfg, &nAlign);
 
       for(j=0; ma+mb>0; j++){
-        assert( j<nAlign );
+        assert( (int)j<nAlign );
         switch( alignment[j] ){
           case 1: {
             /* Delete one line from the left */
@@ -2343,7 +2343,7 @@ static void formatDiff(
           }
         }
       }
-      assert( nAlign==j );
+      assert( nAlign==(int)j );
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
@@ -2363,7 +2363,7 @@ static void formatDiff(
       pBuilder->xCommon(pBuilder, &A[a+j]);
     }
   }
-  if( R[r]>nContext ){
+  if( R[r]>(int)nContext ){
     pBuilder->xSkip(pBuilder, R[r] - nContext, 1);
   }
   pBuilder->xEnd(pBuilder);

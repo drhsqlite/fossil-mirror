@@ -325,7 +325,7 @@ void capabilities_count(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCap = db_column_text(&q, 0);
     if( zCap==0 || zCap[0]==0 ) continue;
-    for(i=0; i<sizeof(aCap)/sizeof(aCap[0]); i++){
+    for(i=0; i<(int)(sizeof(aCap)/sizeof(aCap[0])); i++){
       if( strchr(zCap, aCap[i].cCap) ) aCap[i].nUser++;
     }
   }
@@ -343,7 +343,7 @@ void capabilities_table(unsigned mClass){
   if( g.perm.Admin ) capabilities_count();
   @ <table>
   @ <tbody>
-  for(i=0; i<sizeof(aCap)/sizeof(aCap[0]); i++){
+  for(i=0; i<(int)(sizeof(aCap)/sizeof(aCap[0])); i++){
     int n;
     if( (aCap[i].eClass & mClass)==0 ) continue;
     @ <tr><th valign="top">%c(aCap[i].cCap)</th>

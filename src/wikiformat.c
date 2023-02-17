@@ -792,7 +792,7 @@ static int parseMarkup(ParsedMarkup *p, char *z){
   }
   j = 0;
   while( fossil_isalnum(z[i]) ){
-    if( j<sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
+    if( j<(int)sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
     i++;
   }
   zTag[j] = 0;
@@ -815,7 +815,7 @@ static int parseMarkup(ParsedMarkup *p, char *z){
     int attrOk;    /* True to preserve attribute.  False to ignore it */
     j = 0;
     while( fossil_isalnum(z[i]) ){
-      if( j<sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
+      if( j<(int)sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
       i++;
     }
     zTag[j] = 0;
@@ -1107,7 +1107,7 @@ static int in_this_repo(const char *zUuid){
   );
   db_bind_text(&q, ":u", zUuid);
   n = (int)strlen(zUuid);
-  if( n>=sizeof(zU2) ) n = sizeof(zU2)-1;
+  if( n>=(int)sizeof(zU2) ) n = sizeof(zU2)-1;
   memcpy(zU2, zUuid, n);
   zU2[n-1]++;
   zU2[n] = 0;
@@ -1360,7 +1360,7 @@ void wiki_resolve_hyperlink(
     zTerm = "</span>";
   }
   if( zExtra ) fossil_free(zExtra);
-  assert( strlen(zTerm)<nClose );
+  assert( (int)strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
 }
 

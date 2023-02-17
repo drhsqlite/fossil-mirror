@@ -549,7 +549,7 @@ void www_print_timeline(
         }
         z[ii] = 0;
         cgi_printf("%W",z);
-      }else if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
+      }else if( mxWikiLen>0 && (int)blob_size(&comment)>mxWikiLen ){
         Blob truncated;
         blob_zero(&truncated);
         blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
@@ -3434,7 +3434,7 @@ void thisdayinhistory_page(void){
   );
   timeline_temp_table();
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
-  for(i=0; i<sizeof(aYearsAgo)/sizeof(aYearsAgo[0]); i++){
+  for(i=0; i<(int)(sizeof(aYearsAgo)/sizeof(aYearsAgo[0])); i++){
     int iAgo = aYearsAgo[i];
     char *zThis = db_text(0, "SELECT date(%Q,'-%d years')", zToday, iAgo);
     Blob sql;

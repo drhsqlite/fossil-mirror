@@ -62,7 +62,7 @@ void delta_create_cmd(void){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_create(&orig, &target, &delta);
-  if( blob_write_to_file(&delta, g.argv[4])<blob_size(&delta) ){
+  if( blob_write_to_file(&delta, g.argv[4])<(int)blob_size(&delta) ){
     fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&orig);
@@ -162,7 +162,7 @@ void delta_apply_cmd(void){
   }
   blob_init(&target, 0, 0);
   blob_delta_apply(&orig, &delta, &target);
-  if( blob_write_to_file(&target, g.argv[4])<blob_size(&target) ){
+  if( blob_write_to_file(&target, g.argv[4])<(int)blob_size(&target) ){
     fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&orig);

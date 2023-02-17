@@ -4748,7 +4748,7 @@ void setting_cmd(void){
     }
     if( unsetFlag || g.argc==4 ){
       int isManifest = fossil_strcmp(pSetting->name, "manifest")==0;
-      if( n!=strlen(pSetting[0].name) && pSetting[1].name &&
+      if( n!=(int)strlen(pSetting[0].name) && pSetting[1].name &&
           fossil_strncmp(pSetting[1].name, zName, n)==0 ){
         Blob x;
         int i;

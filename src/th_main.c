@@ -1851,7 +1851,7 @@ static int randhexCmd(
       return TH_ERROR;
     }
     if( n<1 ) n = 1;
-    if( n>sizeof(aRand) ) n = sizeof(aRand);
+    if( n>(int)sizeof(aRand) ) n = sizeof(aRand);
   }else{
     n = 10;
   }

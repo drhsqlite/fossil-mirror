@@ -429,12 +429,12 @@ void expand_args_option(int argc, void *argv){
   g.argv = argv;
   sqlite3_initialize();
 #if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+  for(i=0; (int)i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
 #else
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
+  for(i=0; (int)i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
 #endif
   g.nameOfExe = file_fullexename(g.argv[0]);
-  for(i=1; i<g.argc-1; i++){
+  for(i=1; (int)i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
@@ -446,7 +446,7 @@ void expand_args_option(int argc, void *argv){
     ** differently when we stop at "--" here. */
     if( fossil_strcmp(z, "args")==0 ) break;
   }
-  if( i>=g.argc-1 ) return;
+  if( (int)i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
   if( strcmp(zFileName,"-")==0 ){
@@ -508,7 +508,7 @@ void expand_args_option(int argc, void *argv){
     }
   }
   i += 2;
-  while( i<g.argc ) newArgv[j++] = g.argv[i++];
+  while( (int)i<g.argc ) newArgv[j++] = g.argv[i++];
   newArgv[j] = 0;
   g.argc = j;
   g.argv = newArgv;
@@ -1763,7 +1763,7 @@ static void process_one_web_page(
         if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
           continue;
         }
-        if( c=='.' && g.fAllowACME && j==nBase+1
+        if( c=='.' && g.fAllowACME && j==(int)nBase+1
          && strncmp(&zRepo[j-1],"/.well-known/",12)==0
         ){
           /* We allow .well-known as the top-level directory for ACME */

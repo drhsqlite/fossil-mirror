@@ -258,7 +258,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
   while( rid>0 ){
 
     /* Fix up the "blob.size" field if needed. */
-    if( size!=blob_size(pBase) ){
+    if( size!=(int)blob_size(pBase) ){
       db_multi_exec(
          "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
       );
