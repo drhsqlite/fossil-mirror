@@ -2147,8 +2147,10 @@ void search_data_page(void){
 
 typedef struct Fts5MatchinfoCtx Fts5MatchinfoCtx;
 
+#if INTERFACE
 #ifndef SQLITE_AMALGAMATION
 typedef unsigned int u32;
+#endif
 #endif
 
 struct Fts5MatchinfoCtx {
