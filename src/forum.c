@@ -92,7 +92,7 @@ int forum_rid_has_been_edited(int rid){
 ** If bCheckParents is true then p's thread parents are checked
 ** (recursively) for closure, else only p is checked.
 */
-int forum_post_is_closed(ForumPost *p, int bCheckParents){
+static int forum_post_is_closed(ForumPost *p, int bCheckParents){
   if( !p ) return 0;
   if( p->pEditTail ) p = p->pEditTail;
   if( p->iClosed || !bCheckParents ) return p->iClosed;
@@ -143,6 +143,96 @@ static int forum_rid_is_closed(int rid, int bCheckParents){
     rc = forum_rid_is_closed(rid, 1);
   }
   return rc>0 ? -rc : rc;
+}
+
+/*
+** UNTESTED!
+**
+** Closes or re-opens the given forum RID via addition of a new
+** control artifact into the repository.
+**
+** If doClose is true then a propagating "closed" tag is added, except
+** as noted below, with the given optional zReason string as the tag's
+** value. If doClose is false then any active "closed" tag on frid is
+** cancelled, except as noted below. zReason is ignored if doClose is
+** false or if zReason is NULL or starts with a NUL byte.
+**
+** This function only adds a "closed" tag to frid if
+** forum_rid_is_closed() indicates that frid is not closed. If a
+** parent post is already closed, no tag is added. Similarly, it will
+** only remove a "closed" tag from a post which has its own "closed"
+** tag, and will not remove an inherited one from a parent post.
+**
+** If doClose is true and frid is closed (directly or inherited), this
+** is a no-op. Likewise, if doClose is false and frid itself is not
+** closed (not accounting for an inherited closed tag), this is a
+** no-op.
+**
+** Returns true if it actually creates a new tag, else false. Fails
+** fatally on error. If it returns true then any ForumPost::iClosed
+** values from previously loaded posts are invalidated if they refer
+** to the amended post or a response to it.
+**
+** Sidebars:
+**
+** - Unless the caller has a transaction open, via
+**   db_begin_transaction(), there is a very tiny race condition
+**   window during which the caller's idea of whether or not the forum
+**   post is closed may differ from the current repository state.
+**
+** - This routine assumes that frid really does refer to a forum post.
+**
+** - This routine assumes that frid is not private or pending
+**   moderation.
+**
+** - Closure of a forum post requires a propagating "closed" tag to
+**   account for how edits of posts are handled. This differs from
+**   closure of a branch, where a non-propagating tag is used.
+*/
+/*static*/ int forumpost_close(int frid, int doClose, const char *zReason){
+  Blob artifact = BLOB_INITIALIZER;  /* Output artifact */
+  Blob cksum = BLOB_INITIALIZER;     /* Z-card */
+  int iClosed;                       /* true if frid is closed */
+  int trid;                          /* RID of new control artifact */
+
+  db_begin_transaction();
+  iClosed = forum_rid_is_closed(frid, 1);
+  if( (iClosed && doClose
+      /* Already closed, noting that in the case of (iClosed<0), it's
+      ** actually a parent which is closed. */)
+      || (iClosed<=0 && !doClose
+          /* This entry is not closed, but a parent post may be. */) ){
+    db_end_transaction(0);
+    return 0;
+  }
+  if( doClose==0 || (zReason && !zReason[0]) ){
+    zReason = 0;
+  }
+  blob_appendf(&artifact, "D %z\n", date_in_standard_format( "now" ));
+  blob_appendf(&artifact,
+               "T %cclosed %z%s%F\n",
+               doClose ? '*' : '-', rid_to_uuid(frid),
+               zReason ? " " : "", zReason ? zReason : "");
+  blob_appendf(&artifact, "U %F\n", login_name());
+  md5sum_blob(&artifact, &cksum);
+  blob_appendf(&artifact, "Z %b\n", &cksum);
+  blob_reset(&cksum);
+  trid = content_put_ex(&artifact, 0, 0, 0, 0);
+  if( trid==0 ){
+    fossil_fatal("Error saving tag artifact: %s", g.zErrMsg);
+  }
+  if( manifest_crosslink(trid, &artifact,
+                         MC_NONE /*MC_PERMIT_HOOKS?*/)==0 ){
+    fossil_fatal("%s", g.zErrMsg);
+  }
+  assert( blob_is_reset(&artifact) );
+  db_add_unsent(trid);
+  /* Potential TODO: if (iClosed>0) then we could find the initial tag
+  ** artifact and content_deltify(thatRid,&trid,1,0). Given the tiny
+  ** size of these artifacts, however, that would save little space,
+  ** if any. */
+  db_end_transaction(0);
+  return 1;
 }
 
 /*
@@ -409,10 +499,14 @@ void forumthread_cmd(void){
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     fossil_print("%*s", (p->nIndent-1)*3, "");
     if( p->pEditTail ){
-      fossil_print("%d->%d\n", p->fpid, p->pEditTail->fpid);
+      fossil_print("%d->%d", p->fpid, p->pEditTail->fpid);
     }else{
-      fossil_print("%d\n", p->fpid);
+      fossil_print("%d", p->fpid);
     }
+    if( p->iClosed ){
+      fossil_print(" [closed%s]", p->iClosed<0 ? " via parent" : "");
+    }
+    fossil_print("\n");
   }
   forumthread_delete(pThread);
 }
