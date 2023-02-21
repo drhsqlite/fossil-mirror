@@ -246,7 +246,7 @@ static void attach_put(
     );
   }else{
     rid = content_put(pAttach);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_add_unsent(rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink(rid, pAttach, MC_NONE);

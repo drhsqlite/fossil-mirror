@@ -864,7 +864,7 @@ static int ticket_put(
       rid, zTktId
     );
   }else{
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_add_unsent(rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);

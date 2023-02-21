@@ -2665,7 +2665,7 @@ void commit_cmd(void){
       }
       db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
                     nrid,nrid,id);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+      db_add_unsent(nrid);
     }
   }
   db_finalize(&q);
@@ -2763,7 +2763,7 @@ void commit_cmd(void){
   if( nvid==0 ){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
+  db_add_unsent(nvid);
   if( manifest_crosslink(nvid, &manifest,
                          dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
     fossil_fatal("%s", g.zErrMsg);

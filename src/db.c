@@ -5113,3 +5113,10 @@ int db_fingerprint_ok(void){
   fossil_free(zCkout);
   return rc;
 }
+
+/*
+** Adds the given rid to the UNSENT table.
+*/
+void db_add_unsent(int rid){
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", rid);
+}
