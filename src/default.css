@@ -902,7 +902,6 @@ div.forumTime {
   flex-direction: column;
 }
 div.forumClosed {
-  border-style: dotted;
   opacity: 0.7;
 }
 div.forumClosed > *:first-child::before {

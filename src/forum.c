@@ -49,7 +49,7 @@ struct ForumPost {
   ForumPost *pDisplay;   /* Next in display order */
   int nEdit;             /* Number of edits to this post */
   int nIndent;           /* Number of levels of indentation for this post */
-  int fClosed;           /* See forum_rid_is_closed() */
+  int iClosed;           /* See forum_rid_is_closed() */
 };
 
 /*
@@ -95,7 +95,7 @@ int forum_rid_has_been_edited(int rid){
 int forum_post_is_closed(ForumPost *p, int bCheckParents){
   if( !p ) return 0;
   if( p->pEditTail ) p = p->pEditTail;
-  if( p->fClosed || !bCheckParents ) return p->fClosed;
+  if( p->iClosed || !bCheckParents ) return p->iClosed;
   else if( p->pIrt ){
     return forum_post_is_closed(p->pIrt->pEditTail
                                 ? p->pIrt->pEditTail : p->pIrt,
@@ -146,15 +146,15 @@ static int forum_rid_is_closed(int rid, int bCheckParents){
 }
 
 /*
-** If fClosed is true and the current user has admin privileges, this
-** renders either a checkbox to unlock forum post fpid (if fClosed>0)
+** If iClosed is true and the current user has admin privileges, this
+** renders either a checkbox to unlock forum post fpid (if iClosed>0)
 ** or a SPAN.warning element that the given post inherits the CLOSED
-** status from a parent post (if fClosed<0). If neither of the initial
+** status from a parent post (if iClosed<0). If neither of the initial
 ** conditions is true, this is a no-op.
 */
-static void forumpost_emit_unlock_checkbox(int fClosed, int fpid){
-  if( fClosed && g.perm.Admin ){
-    if( fClosed>0 ){
+static void forumpost_emit_unlock_checkbox(int iClosed, int fpid){
+  if( iClosed && g.perm.Admin ){
+    if( iClosed>0 ){
       /* Only show the "unlock" checkbox on a post which is actually
       ** closed, not on a post which inherits that state. */
       @ <label class='warning'><input type="checkbox" name="reopen" value="1">
@@ -310,7 +310,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
         p->pEditTail = pPost;
       }
     }
-    pPost->fClosed = forum_rid_is_closed(pPost->fpid, 1);
+    pPost->iClosed = forum_rid_is_closed(pPost->fpid, 1);
   }
   db_finalize(&q);
 
@@ -400,7 +400,7 @@ void forumthread_cmd(void){
   for(p=pThread->pFirst; p; p=p->pNext){
     fossil_print("%4d %4d %7d %9d %9d %9d %9d %8.8s\n",
        p->sid, p->rev,
-       p->fClosed,
+       p->iClosed,
        p->fpid, p->pIrt ? p->pIrt->fpid : 0,
        p->pEditPrev ? p->pEditPrev->fpid : 0,
        p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
@@ -556,13 +556,13 @@ static void forum_display_post(
   int bPrivate;         /* True for posts awaiting moderation */
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
-  int fClosed;          /* True if (sub)thread is closed */
+  int iClosed;          /* True if (sub)thread is closed */
   const char *zMimetype;/* Formatting MIME type */
 
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
   pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
   if( !pManifest ) return;
-  fClosed = forum_post_is_closed(p, 1);
+  iClosed = forum_post_is_closed(p, 1);
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
     /* Open the <div> enclosing the post.  Set the class string to mark the post
@@ -570,7 +570,7 @@ static void forum_display_post(
     iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
     @ <div id='forum%d(p->fpid)' class='forumTime\
     @ %s(bSelect ? " forumSel" : "")\
-    @ %s(fClosed ? " forumClosed" : "")\
+    @ %s(iClosed ? " forumClosed" : "")\
     @ %s(p->pEditTail ? " forumObs" : "")' \
     if( iIndent && iIndentScale ){
       @ style='margin-left:%d(iIndent*iIndentScale)ex;'>
@@ -685,9 +685,9 @@ static void forum_display_post(
         ** approved.  Closed threads can only be edited or replied to
         ** by an admin but a user may delete their own posts even if
         ** they are closed. */
-        if( g.perm.Admin || !fClosed ){
+        if( g.perm.Admin || !iClosed ){
           @ <input type="submit" name="reply" value="Reply">
-          if( g.perm.Admin || (bSameUser && !fClosed) ){
+          if( g.perm.Admin || (bSameUser && !iClosed) ){
             @ <input type="submit" name="edit" value="Edit">
           }
           if( g.perm.Admin || bSameUser ){
@@ -1319,7 +1319,7 @@ void forumedit_page(void){
   const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
-  int fClosed = 0;
+  int iClosed = 0;
   int bSameUser;        /* True if author is also the reader */
   int bPreview;         /* True in preview mode. */
   int bPrivate;         /* True if post is private (not yet moderated) */
@@ -1342,7 +1342,7 @@ void forumedit_page(void){
     return;
   }
   bPreview = P("preview")!=0;
-  fClosed = forum_rid_is_closed(fpid, froot!=fpid);
+  iClosed = forum_rid_is_closed(fpid, froot!=fpid);
   isCsrfSafe = cgi_csrf_safe(1);
   bPrivate = content_is_private(fpid);
   bSameUser = login_is_individual()
@@ -1438,7 +1438,7 @@ void forumedit_page(void){
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
-    if( fClosed ) forumpost_error_closed();
+    if( iClosed ) forumpost_error_closed();
     forum_from_line();
     forum_post_widget(zTitle, zMimetype, zContent);
   }else{
@@ -1468,7 +1468,7 @@ void forumedit_page(void){
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
-    if( fClosed ) forumpost_error_closed();
+    if( iClosed ) forumpost_error_closed();
     forum_from_line();
     forum_post_widget(0, zMimetype, zContent);
   }
@@ -1477,11 +1477,11 @@ void forumedit_page(void){
   }
   @ <input type="submit" name="cancel" value="Cancel">
   if( (bPreview && !whitespace_only(zContent)) || isDelete ){
-    if( !fClosed || g.perm.Admin ) {
+    if( !iClosed || g.perm.Admin ) {
       @ <input type="submit" name="submit" value="Submit">
     }
-    forumpost_emit_unlock_checkbox(fClosed, fpid);
-  }else if( !bPreview && fClosed ){
+    forumpost_emit_unlock_checkbox(iClosed, fpid);
+  }else if( !bPreview && iClosed ){
     @ <span class='warning'>This post is CLOSED</span>
   }
   if( g.perm.Debug ){
