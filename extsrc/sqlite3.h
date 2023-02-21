@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.41.0"
 #define SQLITE_VERSION_NUMBER 3041000
-#define SQLITE_SOURCE_ID      "2023-02-13 19:32:40 ecdeef43b27412b0b0b09e09a62ad3a03836a3fc80f2070268090e7ca8f02712"
+#define SQLITE_SOURCE_ID      "2023-02-21 18:09:37 05941c2a04037fc3ed2ffae11f5d2260706f89431f463518740f72ada350866d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1176,7 +1176,6 @@ struct sqlite3_io_methods {
 ** in wal mode after the client has finished copying pages from the wal
 ** file to the database file, but before the *-shm file is updated to
 ** record the fact that the pages have been checkpointed.
-** </ul>
 **
 ** <li>[[SQLITE_FCNTL_EXTERNAL_READER]]
 ** The EXPERIMENTAL [SQLITE_FCNTL_EXTERNAL_READER] opcode is used to detect
@@ -1189,16 +1188,16 @@ struct sqlite3_io_methods {
 ** the database is not a wal-mode db, or if there is no such connection in any
 ** other process. This opcode cannot be used to detect transactions opened
 ** by clients within the current process, only within other processes.
-** </ul>
 **
 ** <li>[[SQLITE_FCNTL_CKSM_FILE]]
-** Used by the cksmvfs VFS module only.
+** The [SQLITE_FCNTL_CKSM_FILE] opcode is for use interally by the
+** [checksum VFS shim] only.
 **
 ** <li>[[SQLITE_FCNTL_RESET_CACHE]]
 ** If there is currently no transaction open on the database, and the
-** database is not a temp db, then this file-control purges the contents
-** of the in-memory page cache. If there is an open transaction, or if
-** the db is a temp-db, it is a no-op, not an error.
+** database is not a temp db, then the [SQLITE_FCNTL_RESET_CACHE] file-control
+** purges the contents of the in-memory page cache. If there is an open
+** transaction, or if the db is a temp-db, this opcode is a no-op, not an error.
 ** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
@@ -9953,7 +9952,6 @@ SQLITE_API int sqlite3_vtab_rhs_value(sqlite3_index_info*, int, sqlite3_value **
 ** id for the X-th query plan element. The id value is unique within the
 ** statement. The select-id is the same value as is output in the first
 ** column of an [EXPLAIN QUERY PLAN] query.
-** </dl>
 **
 ** [[SQLITE_SCANSTAT_PARENTID]] <dt>SQLITE_SCANSTAT_PARENTID</dt>
 ** <dd>The "int" variable pointed to by the V parameter will be set to the
@@ -9967,6 +9965,7 @@ SQLITE_API int sqlite3_vtab_rhs_value(sqlite3_index_info*, int, sqlite3_value **
 ** query element was being processed. This value is not available for
 ** all query elements - if it is unavailable the output variable is
 ** set to -1.
+** </dl>
 */
 #define SQLITE_SCANSTAT_NLOOP    0
 #define SQLITE_SCANSTAT_NVISIT   1
@@ -10123,7 +10122,7 @@ SQLITE_API int sqlite3_db_cacheflush(sqlite3*);
 ** function is not defined for operations on WITHOUT ROWID tables, or for
 ** DELETE operations on rowid tables.
 **
-** ^The sqlite3_update_hook(D,C,P) function returns the P argument from
+** ^The sqlite3_preupdate_hook(D,C,P) function returns the P argument from
 ** the previous call on the same [database connection] D, or NULL for
 ** the first call on D.
 **
