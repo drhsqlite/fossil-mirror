@@ -906,7 +906,7 @@ div.forumClosed {
   opacity: 0.7;
 }
 div.forumClosed > *:first-child::before {
-  content: "[LOCKED] ";
+  content: "[CLOSED] ";
   color: red;
   opacity: 0.7;
 }

@@ -99,6 +99,32 @@ int forum_post_is_closed(ForumPost *p){
 }
 
 /*
+** Given a forum post RID, this function returns true if that post or
+** the latest version of any parent post in its hierarchy have an
+** active "closed" tag.
+*/
+int forum_rid_is_closed(int rid){
+  static Stmt qIrt = empty_Stmt_m;
+  int rc;
+
+  /* TODO: this can probably be turned into a CTE, rather than a
+  ** recursive call into this function, by someone with superior
+  ** SQL-fu. */
+  rc = rid_has_active_tag_name(rid, "closed");
+  if( rc ) return rc;
+  else if( !qIrt.pStmt ) {
+    db_static_prepare(&qIrt,
+      "SELECT firt FROM forumpost "
+      "WHERE fpid=$fpid ORDER BY fmtime DESC"
+    );
+  }
+  db_bind_int(&qIrt, "$fpid", rid);
+  rc = SQLITE_ROW==db_step(&qIrt) ? db_column_int(&qIrt, 0) : 0;
+  db_reset(&qIrt);
+  return rc>0 ? forum_rid_is_closed(rc) : 0;
+}
+
+/*
 ** Delete a complete ForumThread and all its entries.
 */
 static void forumthread_delete(ForumThread *pThread){
@@ -1107,6 +1133,7 @@ static void forum_post_widget(
 void forum_page_init(void){
   int isEdit;
   char *zGoto;
+
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
@@ -1238,6 +1265,7 @@ void forumedit_page(void){
   const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
+  int fClosed = 0;
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -1256,6 +1284,7 @@ void forumedit_page(void){
     cgi_redirectf("%R/forumpost/%S",P("fpid"));
     return;
   }
+  fClosed = forum_rid_is_closed(fpid);
   isCsrfSafe = cgi_csrf_safe(1);
   if( g.perm.ModForum && isCsrfSafe ){
     if( P("approve") ){
