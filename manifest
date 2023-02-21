@@ -1,5 +1,5 @@
-C Change\sthe\stypedef\sof\su32\sin\ssearch.c\sso\sthat\sit\sworks\sin\solder\sPPC\smacs.
-D 2023-02-20T14:58:40.736
+C Correct\sinability\sof\sforum\susers\sto\sdelete\stheir\sown\spending-moderation\sposts.
+D 2023-02-21T03:58:28.806
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -430,7 +430,7 @@ F src/file.c 0e929de076144d3c48c3a0e514cb1dd43410f728e18e6540db3ab0d6f8fcfd01
 F src/fileedit.c db34273e01714297061e41706a82482384f5e86cbd3b6845159ffd2d2569ba3b
 F src/finfo.c bacadcb8d96ef4ed2638297f8d9b0b5b29c8070434af2bd8ed1308278ecc1844
 F src/foci.c cab69c5bede4230f3992294ec6f7e71e8f16590368b14f388e88db836ffa078b
-F src/forum.c 90b8eb2b8d0310c4817fe46920c6a552e9dc27aab72789c78eb3ae7ef3921629
+F src/forum.c 4622fa79d85af44b955a35747548e56fbde58d0e536ded0e851712cc6d45f859
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53db40e6fcd69e5b82af628a90b2ed46140dbc8999f1a86a2e3bcf35bf89a8ab
-R 7e5231924fd0b0a2cf351c468aba61ed
-U drh
-Z 4819890c5db713d5c65026df549984e3
+P f82caec579e3313e35122a866069a72e34d5ebf1392512f366491bf35a2ba5fc
+R 312b0053a72c96e3ea1225666de10d5b
+U stephan
+Z 32b1e132da494e97ff104d9c5390fe25
 # Remove this line to create a well-formed Fossil manifest.

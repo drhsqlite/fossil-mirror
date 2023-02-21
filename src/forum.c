@@ -1208,6 +1208,8 @@ void forumedit_page(void){
   const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
+  int bSameUser;        /* True if author is also the reader */
+  int bPrivate;         /* True if post is private (not yet moderated) */
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -1227,8 +1229,11 @@ void forumedit_page(void){
     return;
   }
   isCsrfSafe = cgi_csrf_safe(1);
-  if( g.perm.ModForum && isCsrfSafe ){
-    if( P("approve") ){
+  bPrivate = content_is_private(fpid);
+  bSameUser = login_is_individual()
+    && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+  if( isCsrfSafe && (g.perm.ModForum || (bPrivate && bSameUser)) ){
+    if( g.perm.ModForum && P("approve") ){
       const char *zUserToTrust;
       moderation_approve('f', fpid);
       if( g.perm.AdminForum
