@@ -915,22 +915,20 @@ int rid_has_tag(int rid, int tagId){
 */
 int rid_has_active_tag_name(int rid, const char *zTagName){
   static Stmt q = empty_Stmt_m;
-  int rc = 0;
+  int rc;
 
   assert( 0 != zTagName );
   if( !q.pStmt ){
     db_static_prepare(&q,
-       "SELECT tagxref.rowid FROM tagxref, tag"
-       " WHERE tagxref.rid=$rid AND tagtype>0 "
-       " AND tag.tagname=$tagname"
-       " AND tagxref.tagid=tag.tagid"
+       "SELECT x.rowid FROM tagxref x, tag t"
+       " WHERE x.rid=$rid AND x.tagtype>0 "
+       " AND x.tagid=t.tagid"
+       " AND t.tagname=$tagname"
     );
   }
   db_bind_int(&q, "$rid", rid);
   db_bind_text(&q, "$tagname", zTagName);
-  if( SQLITE_ROW==db_step(&q) ){
-    rc = db_column_int(&q, 0);
-  }
+  rc = (SQLITE_ROW==db_step(&q)) ? db_column_int(&q, 0) : 0;
   db_reset(&q);
   return rc;
 }
