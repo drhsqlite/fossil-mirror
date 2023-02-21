@@ -49,6 +49,7 @@ struct ForumPost {
   ForumPost *pDisplay;   /* Next in display order */
   int nEdit;             /* Number of edits to this post */
   int nIndent;           /* Number of levels of indentation for this post */
+  int fClosed;           /* tagxref.tagtype if this (sub)thread has a closed tag. */
 };
 
 /*
@@ -78,6 +79,23 @@ int forum_rid_has_been_edited(int rid){
   res = db_step(&q)==SQLITE_ROW;
   db_reset(&q);
   return res;
+}
+
+/*
+** Returns true if p, or any parent of p, has an active "closed" tag.
+** Returns 0 if !p. For an edited chain of post, the tag is checked on
+** the final edit in the chain, as that permits that a post can be
+** locked and later unlocked.
+*/
+int forum_post_is_closed(ForumPost *p){
+  if( !p ) return 0;
+  if( p->pEditTail ) p = p->pEditTail;
+  if( p->fClosed ) return p->fClosed;
+  else if( p->pIrt ){
+    return forum_post_is_closed(p->pIrt->pEditTail
+                                ? p->pIrt->pEditTail : p->pIrt);
+  }
+  return 0;
 }
 
 /*
@@ -217,6 +235,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
         p->pEditTail = pPost;
       }
     }
+    pPost->fClosed = rid_has_active_tag_name(pPost->fpid, "closed");
   }
   db_finalize(&q);
 
@@ -302,9 +321,11 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid  rev      fpid      pIrt pEditPrev pEditTail hash\n");
+  " sid  rev  closed      fpid      pIrt pEditPrev pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%4d %4d %9d %9d %9d %9d %8.8s\n", p->sid, p->rev,
+    fossil_print("%4d %4d %7d %9d %9d %9d %9d %8.8s\n",
+       p->sid, p->rev,
+       p->fClosed,
        p->fpid, p->pIrt ? p->pIrt->fpid : 0,
        p->pEditPrev ? p->pEditPrev->fpid : 0,
        p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
@@ -460,12 +481,13 @@ static void forum_display_post(
   int bPrivate;         /* True for posts awaiting moderation */
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
+  int fClosed;          /* True if (sub)thread is closed */
   const char *zMimetype;/* Formatting MIME type */
 
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
   pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
   if( !pManifest ) return;
-
+  fClosed = forum_post_is_closed(p);
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
     /* Open the <div> enclosing the post.  Set the class string to mark the post
@@ -473,6 +495,7 @@ static void forum_display_post(
     iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
     @ <div id='forum%d(p->fpid)' class='forumTime\
     @ %s(bSelect ? " forumSel" : "")\
+    @ %s(fClosed ? " forumClosed" : "")\
     @ %s(p->pEditTail ? " forumObs" : "")' \
     if( iIndent && iIndentScale ){
       @ style='margin-left:%d(iIndent*iIndentScale)ex;'>
@@ -492,7 +515,7 @@ static void forum_display_post(
     **    *  The post was last edited by a different person
     */
     if( p->pEditHead ){
-      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", 
+      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())",
                       p->pEditHead->rDate);
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
@@ -504,7 +527,7 @@ static void forum_display_post(
       zEditorName = forum_post_display_name(p, pManifest);
       zHist = bHist ? "" : zQuery[0]==0 ? "?hist" : "&hist";
       @ <h3 class='forumPostHdr'>(%d(p->sid)\
-      @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
+      @ .%0*d(fossil_num_digits(p->nEdit))(p->rev))
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
         @ By %s(zPosterName) on %h(zDate) edited from \
         @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
@@ -517,7 +540,7 @@ static void forum_display_post(
       }
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
-      @ <h3 class='forumPostHdr'>(%d(p->sid)) \
+      @ <h3 class='forumPostHdr'>(%d(p->sid))
       @ By %s(zPosterName) on %h(zDate)
     }
     fossil_free(zDate);
@@ -583,11 +606,18 @@ static void forum_display_post(
       @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !bPrivate ){
-        /* Reply and Edit are only available if the post has been approved. */
-        @ <input type="submit" name="reply" value="Reply">
-        if( g.perm.Admin || bSameUser ){
-          @ <input type="submit" name="edit" value="Edit">
-          @ <input type="submit" name="nullout" value="Delete">
+        /* Reply and Edit are only available if the post has been
+        ** approved.  Closed threads can only be edited or replied to
+        ** by an admin but a user may delete their own posts even if
+        ** they are closed. */
+        if( g.perm.Admin || !fClosed ){
+          @ <input type="submit" name="reply" value="Reply">
+          if( g.perm.Admin || (bSameUser && !fClosed) ){
+            @ <input type="submit" name="edit" value="Edit">
+          }
+          if( g.perm.Admin || bSameUser ){
+            @ <input type="submit" name="nullout" value="Delete">
+          }
         }
       }else if( g.perm.ModForum ){
         /* Allow moderators to approve or reject pending posts.  Also allow

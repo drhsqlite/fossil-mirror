@@ -905,3 +905,30 @@ int rid_has_tag(int rid, int tagId){
      rid, tagId
   );
 }
+
+
+/*
+** Returns tagxref.tagtype if the given blob.rid has a tagxref.rid
+** entry an active tag matching the given rid and tag name string,
+** else returns 0. Note that this function does not distinguish
+** between a non-existent tag and a cancelled tag.
+*/
+int rid_has_active_tag_name(int rid, const char *zTagName){
+  static Stmt q = empty_Stmt_m;
+  int rc = 0;
+
+  assert( 0 != zTagName );
+  db_static_prepare(&q,
+     "SELECT tagxref.tagtype FROM tagxref, tag"
+     " WHERE tagxref.rid=:rid AND tagtype>0 "
+     " AND tag.tagname=:tagname"
+     " AND tagxref.tagid=tag.tagid"
+  );
+  db_bind_int(&q, ":rid", rid);
+  db_bind_text(&q, ":tagname", zTagName);
+  if( SQLITE_ROW==db_step(&q) ){
+    rc = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return rc;
+}
