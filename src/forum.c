@@ -82,74 +82,96 @@ int forum_rid_has_been_edited(int rid){
 }
 
 /*
-** Returns true if p, or any parent of p, has an active "closed" tag.
-** Returns 0 if !p. For an edited chain of post, the tag is checked on
-** the final edit in the chain, as that permits that a post can be
-** locked and later unlocked. The return value is the tagxref.rowid
-** value of the tagxref entry which applies the "closed" tag, or 0 if
-** no active tag is found.
-**
-** If bCheckParents is true then p's thread parents are checked
-** (recursively) for closure, else only p is checked.
+** Given a valid forumpost.fpid value, this function returns the first
+** fpid in the chain of edits for that forum post, or rid if no prior
+** versions are found.
 */
-static int forum_post_is_closed(ForumPost *p, int bCheckParents){
-  if( !p ) return 0;
-  if( p->pEditTail ) p = p->pEditTail;
-  if( p->iClosed || !bCheckParents ) return p->iClosed;
-  else if( p->pIrt ){
-    return forum_post_is_closed(p->pIrt->pEditTail
-                                ? p->pIrt->pEditTail : p->pIrt,
-                                bCheckParents);
+static int forumpost_head_rid(int rid){
+  Stmt q;
+  int rcRid = rid;
+
+  db_prepare(&q, "SELECT fprev FROM forumpost"
+             " WHERE fpid=:rid AND fprev IS NOT NULL");
+  db_bind_int(&q, ":rid", rid);
+  while( SQLITE_ROW==db_step(&q) ){
+    rcRid = db_column_int(&q, 0);
+    db_reset(&q);
+    db_bind_int(&q, ":rid", rcRid);
+  }
+  db_finalize(&q);
+  return rcRid;
+}
+
+/*
+** Returns true if p, or any parent of p, has a non-zero iClosed
+** value.  Returns 0 if !p. For an edited chain of post, the tag is
+** checked on the pEditHead entry, to simplify subsequent unlocking of
+** the post.
+**
+** If bCheckIrt is true then p's thread in-response-to parents are
+** checked (recursively) for closure, else only p is checked.
+*/
+static int forumpost_is_closed(ForumPost *p, int bCheckIrt){
+  while(p){
+    if( p->pEditHead ) p = p->pEditHead;
+    if( p->iClosed || !bCheckIrt ) return p->iClosed;
+    p = p->pIrt;
   }
   return 0;
 }
 
 /*
 ** Given a forum post RID, this function returns true if that post has
-** an active "closed" tag. If bCheckParents is true, the latest
-** version of each parent post is also checked (recursively), else
-** they are not. When checking parents, the first parent which is
-** closed ends the search.
+** (or inherits) an active "closed" tag. If bCheckIrt is true then
+** the post to which the given post responds is also checked
+** (recursively), else they are not. When checking in-response-to
+** posts, the first one which is closed ends the search.
+**
+** Note that this function checks _exactly_ the given rid, whereas
+** forum post closure/re-opening is always applied to the head of an
+** edit chain so that we get consistent implied locking beheavior for
+** later versions and responses to arbitrary versions in the
+** chain. Even so, the "closed" tag is applied as a propagating tag
+** so will apply to all edits in a given chain.
 **
 ** The return value is one of:
 **
 ** - 0 if no "closed" tag is found.
 **
 ** - The tagxref.rowid of the tagxref entry for the closure if rid is
-**   the artifact to which the closure applies.
+**   the forum post to which the closure applies.
 **
 ** - (-tagxref.rowid) if the given rid inherits a "closed" tag from an
-**   ancestor forum post.
+**   IRT forum post.
 */
-static int forum_rid_is_closed(int rid, int bCheckParents){
+static int forum_rid_is_closed(int rid, int bCheckIrt){
   static Stmt qIrt = empty_Stmt_m;
-  int rc = 0;
-
-  /* TODO: this can probably be turned into a CTE, rather than a
-  ** recursive call into this function, by someone with superior
-  ** SQL-fu. */
-  rc = rid_has_active_tag_name(rid, "closed");
-  if( rc || !bCheckParents ) return rc;
-  else if( !qIrt.pStmt ) {
-    db_static_prepare(&qIrt,
-      "SELECT firt FROM forumpost "
-      "WHERE fpid=$fpid ORDER BY fmtime DESC"
-    );
+  int rc = 0, i = 0;
+  /* TODO: this can probably be turned into a CTE by someone with
+  ** superior SQL-fu. */
+  for( ; rid; i++ ){
+    rc = rid_has_active_tag_name(rid, "closed");
+    if( rc || !bCheckIrt ) break;
+    else if( !qIrt.pStmt ) {
+      db_static_prepare(&qIrt,
+        "SELECT firt FROM forumpost "
+        "WHERE fpid=$fpid ORDER BY fmtime DESC"
+      );
+    }
+    db_bind_int(&qIrt, "$fpid", rid);
+    rid = SQLITE_ROW==db_step(&qIrt) ? db_column_int(&qIrt, 0) : 0;
+    db_reset(&qIrt);
   }
-  db_bind_int(&qIrt, "$fpid", rid);
-  rid = SQLITE_ROW==db_step(&qIrt) ? db_column_int(&qIrt, 0) : 0;
-  db_reset(&qIrt);
-  if( rid ){
-    rc = forum_rid_is_closed(rid, 1);
-  }
-  return rc>0 ? -rc : rc;
+  return i ? -rc : rc;
 }
 
 /*
-** UNTESTED!
-**
 ** Closes or re-opens the given forum RID via addition of a new
-** control artifact into the repository.
+** control artifact into the repository. In order to provide
+** consistent behavior for implied closing of responses and later
+** versions, it always acts on the first version of the given forum
+** post, walking the forumpost.fprev values to find the head of the
+** chain.
 **
 ** If doClose is true then a propagating "closed" tag is added, except
 ** as noted below, with the given optional zReason string as the tag's
@@ -157,11 +179,11 @@ static int forum_rid_is_closed(int rid, int bCheckParents){
 ** cancelled, except as noted below. zReason is ignored if doClose is
 ** false or if zReason is NULL or starts with a NUL byte.
 **
-** This function only adds a "closed" tag to frid if
-** forum_rid_is_closed() indicates that frid is not closed. If a
-** parent post is already closed, no tag is added. Similarly, it will
-** only remove a "closed" tag from a post which has its own "closed"
-** tag, and will not remove an inherited one from a parent post.
+** This function only adds a "closed" tag if forum_rid_is_closed()
+** indicates that frid's head is not closed. If a parent post is
+** already closed, no tag is added. Similarly, it will only remove a
+** "closed" tag from a post which has its own "closed" tag, and will
+** not remove an inherited one from a parent post.
 **
 ** If doClose is true and frid is closed (directly or inherited), this
 ** is a no-op. Likewise, if doClose is false and frid itself is not
@@ -189,13 +211,15 @@ static int forum_rid_is_closed(int rid, int bCheckParents){
 **   account for how edits of posts are handled. This differs from
 **   closure of a branch, where a non-propagating tag is used.
 */
-/*static*/ int forumpost_close(int frid, int doClose, const char *zReason){
+static int forumpost_close(int frid, int doClose, const char *zReason){
   Blob artifact = BLOB_INITIALIZER;  /* Output artifact */
   Blob cksum = BLOB_INITIALIZER;     /* Z-card */
   int iClosed;                       /* true if frid is closed */
   int trid;                          /* RID of new control artifact */
+  char *zUuid;                       /* UUID of head version of post */
 
   db_begin_transaction();
+  frid = forumpost_head_rid(frid);
   iClosed = forum_rid_is_closed(frid, 1);
   if( (iClosed && doClose
       /* Already closed, noting that in the case of (iClosed<0), it's
@@ -208,10 +232,11 @@ static int forum_rid_is_closed(int rid, int bCheckParents){
   if( doClose==0 || (zReason && !zReason[0]) ){
     zReason = 0;
   }
+  zUuid = rid_to_uuid(frid);
   blob_appendf(&artifact, "D %z\n", date_in_standard_format( "now" ));
   blob_appendf(&artifact,
-               "T %cclosed %z%s%F\n",
-               doClose ? '*' : '-', rid_to_uuid(frid),
+               "T %cclosed %s%s%F\n",
+               doClose ? '*' : '-', zUuid,
                zReason ? " " : "", zReason ? zReason : "");
   blob_appendf(&artifact, "U %F\n", login_name());
   md5sum_blob(&artifact, &cksum);
@@ -227,6 +252,8 @@ static int forum_rid_is_closed(int rid, int bCheckParents){
   }
   assert( blob_is_reset(&artifact) );
   db_add_unsent(trid);
+  admin_log("%s forum post %S", doClose ? "Close" : "Re-open", zUuid);
+  fossil_free(zUuid);
   /* Potential TODO: if (iClosed>0) then we could find the initial tag
   ** artifact and content_deltify(thatRid,&trid,1,0). Given the tiny
   ** size of these artifacts, however, that would save little space,
@@ -242,17 +269,41 @@ static int forum_rid_is_closed(int rid, int bCheckParents){
 ** status from a parent post (if iClosed<0). If neither of the initial
 ** conditions is true, this is a no-op.
 */
-static void forumpost_emit_unlock_checkbox(int iClosed, int fpid){
-  if( iClosed && g.perm.Admin ){
-    if( iClosed>0 ){
-      /* Only show the "unlock" checkbox on a post which is actually
-      ** closed, not on a post which inherits that state. */
-      @ <label class='warning'><input type="checkbox" name="reopen" value="1">
-      @ Re-open this CLOSED post? (NOT YET IMPLEMENTED)</label>
-    }else{
-      @ <span class='warning'>This post is CLOSED via a parent post</span>
-    }
+static void forumpost_emit_closed_state(int fpid, int iClosed){
+  const char *zCommon =
+    "Only admins may edit or respond to closed posts.";
+  int iHead = forumpost_head_rid(fpid);
+  /*@ forumpost_emit_closed_state(%d(fpid), %d(iClosed))<br/>*/
+  if( iHead != fpid ){
+    iClosed = forum_rid_is_closed(iHead, 1);
+    /*@ forumpost_emit_closed_state() %d(iHead), %d(iClosed)*/
   }
+  if( iClosed<0 ){
+    @ <div class="warning forumpost-closed-warning">\
+    @ This post is CLOSED via a parent post. %s(zCommon)\
+    @ </div>
+    return;
+  }
+  else if( iClosed==0 ){
+    if( g.perm.Admin==0 ) return;
+    @ <div class="warning forumpost-closed-warning">
+    @ <form method="post" action="%R/forumpost_close">
+    @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
+    @ <input type="submit" value="CLOSE this post and its responses" />
+    @ %s(zCommon)
+    @ </form></div>
+    return;
+  }
+  assert( iClosed>0 );
+  /* Only show the "unlock" checkbox on a post which is actually
+  ** closed, not on a post which inherits that state. */
+  @ <div class="warning forumpost-closed-warning">\
+  @ This post is CLOSED. %s(zCommon)
+  @ <form method="post" action="%R/forumpost_reopen">
+  @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
+  @ <input type="submit" value="Re-open this post and its responses" />
+  @ </form>
+  @ </div>
 }
 
 /*
@@ -400,7 +451,9 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
         p->pEditTail = pPost;
       }
     }
-    pPost->iClosed = forum_rid_is_closed(pPost->fpid, 1);
+    pPost->iClosed = forum_rid_is_closed(pPost->pEditHead
+                                         ? pPost->pEditHead->fpid
+                                         : pPost->fpid, 1);
   }
   db_finalize(&q);
 
@@ -656,7 +709,7 @@ static void forum_display_post(
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
   pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
   if( !pManifest ) return;
-  iClosed = forum_post_is_closed(p, 1);
+  iClosed = forumpost_is_closed(p, 1);
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
     /* Open the <div> enclosing the post.  Set the class string to mark the post
@@ -1272,6 +1325,42 @@ static void forum_post_widget(
 }
 
 /*
+** WEBPAGE: forumpost_close hidden
+** WEBPAGE: forumpost_reopen hidden
+**
+**   fpid=X        Hash of the post to be edited.  REQUIRED
+**   reason=X      Optional reason for closure.
+**
+** Closes or re-opens the given forum post, within the bounds of the
+** API for forumpost_close(). After (perhaps) modifying the "closed"
+** status of the given thread, it redirects to that post's thread
+** view. Requires admin privileges.
+*/
+void forum_page_close(void){
+  const char *zFpid = PD("fpid","");
+  const char *zReason = 0;
+  int fClose;
+  int fpid;
+
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(g.anon.Admin);
+    return;
+  }
+  fpid = symbolic_name_to_rid(zFpid, "f");
+  if( fpid<=0 ){
+    webpage_error("Missing or invalid fpid query parameter");
+  }
+  fClose = sqlite3_strglob("*_close*", g.zPath)==0;
+  if( fClose ) zReason = PD("reason",0);
+  if( forumpost_close(fpid, fClose, zReason)!=0 ){
+    admin_log("%s forum post %S", fClose ? "Close" : "Re-open", zFpid);
+  }
+  cgi_redirectf("%R/forumpost/%S",zFpid);
+  return;
+}
+
+/*
 ** WEBPAGE: forumnew
 ** WEBPAGE: forumedit
 **
@@ -1432,11 +1521,11 @@ void forumedit_page(void){
     webpage_error("fpid does not appear to be a forum post: \"%d\"", fpid);
   }
   if( P("cancel") ){
-    cgi_redirectf("%R/forumpost/%S",P("fpid"));
+    cgi_redirectf("%R/forumpost/%S",zFpid);
     return;
   }
   bPreview = P("preview")!=0;
-  iClosed = forum_rid_is_closed(fpid, froot!=fpid);
+  iClosed = forum_rid_is_closed(fpid, 1);
   isCsrfSafe = cgi_csrf_safe(1);
   bPrivate = content_is_private(fpid);
   bSameUser = login_is_individual()
@@ -1500,6 +1589,7 @@ void forumedit_page(void){
     @ <h1>Original Post:</h1>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit", 1);
+    forumpost_emit_closed_state(fpid, iClosed);
     @ <h1>Change Into:</h1>
     forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     @ <form action="%R/forume2" method="POST">
@@ -1524,6 +1614,7 @@ void forumedit_page(void){
     @ <h2>Original Post:</h2>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit", 1);
+    forumpost_emit_closed_state(fpid, iClosed);
     if( bPreview ){
       @ <h2>Preview of Edited Post:</h2>
       forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
@@ -1532,7 +1623,6 @@ void forumedit_page(void){
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
-    if( iClosed ) forumpost_error_closed();
     forum_from_line();
     forum_post_widget(zTitle, zMimetype, zContent);
   }else{
@@ -1562,7 +1652,6 @@ void forumedit_page(void){
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
-    if( iClosed ) forumpost_error_closed();
     forum_from_line();
     forum_post_widget(0, zMimetype, zContent);
   }
@@ -1574,9 +1663,6 @@ void forumedit_page(void){
     if( !iClosed || g.perm.Admin ) {
       @ <input type="submit" name="submit" value="Submit">
     }
-    forumpost_emit_unlock_checkbox(iClosed, fpid);
-  }else if( !bPreview && iClosed ){
-    @ <span class='warning'>This post is CLOSED</span>
   }
   if( g.perm.Debug ){
     /* For the test-forumnew page add these extra debugging controls */
