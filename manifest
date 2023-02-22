@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.41.0\srelease.
-D 2023-02-21T23:34:22.890
+C Clarified\sone\sof\sthe\s2.21\schangelog\sentries.\s(Started\sas\sfixing\sa\stypo.)
+D 2023-02-22T00:09:14.492
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -779,7 +779,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 7419ad2f3c949b90f0f01fb2acfe2fd4c04bbc64541e1ed1bf86030d7dc13e45
+F www/changes.wiki ab96ef4632f066ed7a7ce9bfd875197e952e3ebcc9adf546d07b16582c387a59
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19333c8a499a0bb42ea497244d468c14867e82ebf3e7a4d4b2b783adcd1463aa
-R eef1770f29192c450e7e392ec9dcf7aa
-U drh
-Z 4ee9d9bad921380d28080dd3ec0b18c3
+P 6d88833ffa120ac7c2f551d4d50e318abf6c2aff946704e2b82768423355d60a
+R 2a050585af7d209263b64006afadf3cf
+U wyoung
+Z ac4e0d1deaa6f451c468ee591abac1b9
 # Remove this line to create a well-formed Fossil manifest.
