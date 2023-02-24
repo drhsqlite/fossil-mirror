@@ -1,5 +1,5 @@
-C Minor\sCSS\stweaks\sto\sclosed\sforum\sposts.
-D 2023-02-22T06:09:02.936
+C In\s/admin_log,\sadd\srowid\sDESC\sto\sthe\sORDER\sBY\sso\sthat\sentries\swith\sthe\ssame\stimestamp\spredictably\ssort\snewest-first.
+D 2023-02-24T23:38:12.184
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -522,7 +522,7 @@ F src/schema.c 0ce4f3993316eb6d3b2cf4d33c66141410007233f9997caffe6f877eff8c90aa
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4b0bddb4f84957a67a95a124402ba778f81ee7d1c8e846fb442f5e8093220761
 F src/security_audit.c bdb2d5d204dcdb9144069089de35c26517e41def5914f304b93b9e823fe6f194
-F src/setup.c 5e374c8436d9bef244aaad65e0477d011fda563caa0d8d23c2f22a3b34907c33
+F src/setup.c f5042fe0320489443ae7b36be22c0acad980a13eba6cf7c4a27cfb57565889cc
 F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c 98e4279ebda3c543ab4ac4511f0c3c4380a7faf78be1a7fd7521d7b6e8f62855
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc6ca4e110a7cfcc66ad9034389162ef0790bb7c6c8f5a1c36fb7ba5d77bccf6
-R f5eb6ff8e9848ce28a97d8a385ac79b2
+P 3078ff46eebfde97059eb5e41ffc08ceab359e4314d1030a21ee466854249df3
+R a7ce04d51f729149a7a2fe4b05f3fa57
 U stephan
-Z 16a1a255efdade7b1f40724e65e3dc19
+Z fd111108d7036a1af0cdc9622c31976d
 # Remove this line to create a well-formed Fossil manifest.

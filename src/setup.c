@@ -1974,7 +1974,7 @@ void page_admin_log(){
   db_prepare(&stLog,
     "SELECT datetime(time,'unixepoch'), who, page, what "
     "FROM admin_log "
-    "ORDER BY time DESC");
+    "ORDER BY time DESC, rowid DESC");
   style_table_sorter();
   @ <table class="sortable adminLogTable" width="100%%" \
   @  data-column-types='Tttx' data-init-sort='1'>
