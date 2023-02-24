@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\soverflow\swarning.
-D 2023-02-23T18:47:58.316
+C Fix\sa\sharmless\scompiler\swarning\sin\sgzip.c.
+D 2023-02-24T17:14:20.112
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -458,7 +458,7 @@ F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
 F src/graph.js 8dc2134ff4338d38c1746bf82e1ba9fc65182e66b2762d556cdb39e63b588b27
-F src/gzip.c 8b957fdf43084f3c2b069d97406eea5b67f45d143766b764d44e4c807c6cf69d
+F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c a178d9d59b8cd83cd83e1621893ec37a1576c468e405b50ccc24e260cb3493b2
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86c4e6bf2683b9cf69a32ee2778a36065918467baf74908d6126a6b505ed873c
-R f6abdc3c42681185656d2444ebf92e2f
-U danield
-Z 9e21cb95c98ad3aac0b4bc6e8cfa9521
+P 2fd158fce779f11e9c82c0a5fdcc5a2ac0261689501d5975ffbfa671a41ba1e3
+R 2a050585af7d209263b64006afadf3cf
+U drh
+Z b0c343858294713a99581403975fdd62
 # Remove this line to create a well-formed Fossil manifest.

@@ -50,7 +50,7 @@ static void put32(char *z, int v){
 ** Begin constructing a gzip file.
 */
 void gzip_begin(sqlite3_int64 now){
-  unsigned char aHdr[10];
+  char aHdr[10];
   assert( gzip.eState==0 );
   blob_zero(&gzip.out);
   aHdr[0] = 0x1f;
