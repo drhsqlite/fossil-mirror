@@ -279,14 +279,14 @@ static void forumpost_emit_closed_state(int fpid, int iClosed){
     /*@ forumpost_emit_closed_state() %d(iHead), %d(iClosed)*/
   }
   if( iClosed<0 ){
-    @ <div class="warning forumpost-closed-warning">\
+    @ <div class="warning forumpost-closure-warning">\
     @ This post is CLOSED via a parent post. %s(zCommon)\
     @ </div>
     return;
   }
   else if( iClosed==0 ){
     if( g.perm.Admin==0 ) return;
-    @ <div class="warning forumpost-closed-warning">
+    @ <div class="warning forumpost-closure-warning">
     @ <form method="post" action="%R/forumpost_close">
     @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
     @ <input type="submit" value="CLOSE this post and its responses" />
@@ -297,12 +297,14 @@ static void forumpost_emit_closed_state(int fpid, int iClosed){
   assert( iClosed>0 );
   /* Only show the "unlock" checkbox on a post which is actually
   ** closed, not on a post which inherits that state. */
-  @ <div class="warning forumpost-closed-warning">\
+  @ <div class="warning forumpost-closure-warning">\
   @ This post is CLOSED. %s(zCommon)
-  @ <form method="post" action="%R/forumpost_reopen">
-  @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
-  @ <input type="submit" value="Re-open this post and its responses" />
-  @ </form>
+  if( g.perm.Admin ){
+    @ <form method="post" action="%R/forumpost_reopen">
+    @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
+    @ <input type="submit" value="Re-open this post and its responses" />
+    @ </form>
+  }
   @ </div>
 }
 
@@ -825,7 +827,8 @@ static void forum_display_post(
     /* If the user is able to write to the forum and if this post has not been
     ** edited, create a form with various interaction buttons. */
     if( g.perm.WrForum && !p->pEditTail ){
-      @ <div><form action="%R/forumedit" method="POST">
+      @ <div class="forumpost-single-controls">\
+      @ <form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !bPrivate ){
         /* Reply and Edit are only available if the post has been
@@ -858,7 +861,16 @@ static void forum_display_post(
         /* Allow users to delete (reject) their own pending posts. */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></div>
+      @ </form>
+      if( bSelect && g.perm.Admin && iClosed>=0 ){
+        int iHead = forumpost_head_rid(p->fpid);
+        @ <form method="post" \
+        @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
+        @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
+        @ <input type="submit" value='%s(iClosed ? "Re-open" : "Close")' />
+        @ </form>
+      }
+      @ </div>
     }
     @ </div>
   }
@@ -1353,9 +1365,7 @@ void forum_page_close(void){
   }
   fClose = sqlite3_strglob("*_close*", g.zPath)==0;
   if( fClose ) zReason = PD("reason",0);
-  if( forumpost_close(fpid, fClose, zReason)!=0 ){
-    admin_log("%s forum post %S", fClose ? "Close" : "Re-open", zFpid);
-  }
+  forumpost_close(fpid, fClose, zReason);
   cgi_redirectf("%R/forumpost/%S",zFpid);
   return;
 }
@@ -1614,7 +1624,6 @@ void forumedit_page(void){
     @ <h2>Original Post:</h2>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit", 1);
-    forumpost_emit_closed_state(fpid, iClosed);
     if( bPreview ){
       @ <h2>Preview of Edited Post:</h2>
       forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
@@ -1677,6 +1686,7 @@ void forumedit_page(void){
   }
   @ </form>
   forum_emit_js();
+  forumpost_emit_closed_state(fpid, iClosed);
   style_finish_page();
 }
 
