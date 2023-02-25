@@ -1,5 +1,5 @@
-C Version\s2.21
-D 2023-02-25T19:23:39.341
+C Documentation\sfor\s"fossil\sall\sremote".
+D 2023-02-25T20:44:00.877
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -380,7 +380,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 01dd6ac837860370035e980029b8b06e950bfcde763da71efb61c3d7be71cb7b
+F src/allrepo.c 654a720586e5f8ad61d7b5d77e8c3bdc2e8665dcaba4934f42172c8660e87ea7
 F src/attach.c 6f86aa88b67e297e0111ed3f23854a19eaf861526ad07f81876171a2aacabf76
 F src/backlink.c f7da26dc296e6db2fb0bd742c4b3a8bf7793e6d955a7e837e04da750fa053939
 F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cdb5e
@@ -954,10 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b05cad18dba2d9ad7ae2ee8d3d08b111abd3a89e9a313c507f3caa2a5939a80
-R 8adb1b576eef8e5dc87360b9bb51719d
-T +sym-release *
-T +sym-version-2.21 *
+P f9aa474081f0618c76f4c2f4d6f0277a3fd480aa185d7da0b8b61b00fad1aa78
+R 5b93c4e16994d389b6e92c3cde5687f8
 U drh
-Z 2e57acc9bf7551d66183d26070620d78
+Z a2c8e34b8c5765f51fc36bb6af0015aa
 # Remove this line to create a well-formed Fossil manifest.
