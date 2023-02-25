@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sin\sgzip.c.
-D 2023-02-24T17:14:20.112
+C Version\s2.21
+D 2023-02-25T19:23:39.341
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -779,7 +779,7 @@ F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e0
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki ab96ef4632f066ed7a7ce9bfd875197e952e3ebcc9adf546d07b16582c387a59
+F www/changes.wiki d20a10ba543828c84c130e4a748887eb9655feed2d0092fad15c85e9cc7abf1f
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -851,7 +851,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 9007da93867e23f37abd81053b1c1d7797bd88c74ce5057b3475ded03b777227
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 27f1861c83724797fa7d035ea02a85e19de459c8b5521043a3d5dc57f8e0e723
+F www/index.wiki d59c0ffeed4123011fb6a39755ba75a72e6d9f5c1ff780657f3a0c9889230d5f
 F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
@@ -954,8 +954,10 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fd158fce779f11e9c82c0a5fdcc5a2ac0261689501d5975ffbfa671a41ba1e3
-R 2a050585af7d209263b64006afadf3cf
+P 9b05cad18dba2d9ad7ae2ee8d3d08b111abd3a89e9a313c507f3caa2a5939a80
+R 8adb1b576eef8e5dc87360b9bb51719d
+T +sym-release *
+T +sym-version-2.21 *
 U drh
-Z b0c343858294713a99581403975fdd62
+Z 2e57acc9bf7551d66183d26070620d78
 # Remove this line to create a well-formed Fossil manifest.
