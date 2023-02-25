@@ -88,7 +88,7 @@ management system with these advanced features:
 <h3>Latest Release: 2.21 ([/timeline?c=version-2.21|2023-02-25])</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_20|Change Summary]
+  *  [./changes.wiki#v2_21|Change Summary]
   *  [/timeline?p=version-2.21&bt=version-2.20&y=ci|Check-ins in version 2.21]
   *  [/timeline?df=version-2.21&y=ci|Check-ins derived from the 2.21 release]
   *  [/timeline?t=release|Timeline of all past releases]
