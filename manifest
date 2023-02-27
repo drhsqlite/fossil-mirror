@@ -1,5 +1,5 @@
-C Correct\s2.21\schange\slog\slink\sto\spoint\sto\s2.21\sinstead\sof\s2.20.
-D 2023-02-25T22:14:25.220
+C Attempt\sto\sclarify\sthe\sdocumentation\sof\sthe\s/tarball\sURI.
+D 2023-02-27T12:25:09.276
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -562,7 +562,7 @@ F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c b01f89e55b02250f5bce2fa6619b0346fdac9a6c2177a0b18f6e8a9478009937
 F src/tag.c 24ebdc99fd3586b46a528cc9e1336d7fb68c3f735f353494d2b32323902cb014
-F src/tar.c 0817ff5fd569368e2ff28ffeeef2d893a0096a4225a9b23b003749fe83148826
+F src/tar.c a525c36004821e6076707bdf0c8b9c66ee042670a78eae359d4e23ef3ab4ad3a
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c afbfe5182104103903a11eb71b3dabfd6601f21b197b3f77d804bea9a08f520c
 F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e13f7ca4a775fda402d08dfe8823df628604c94cfabce2bd44f6ba8ba97de8e3
-R 3b7257a11c96219788bc2e343097ab77
-U stephan
-Z 6319e8f90e91c2aeccfd75f826f28976
+P 1eb545a1408e6c2b10bbbfc7e823340ee0f295beed2c6342c541064dde827c5d
+R 3166a1e874986022d777a676da182d96
+U drh
+Z 51d6636f55344e0bcb7c07bd1a480bd1
 # Remove this line to create a well-formed Fossil manifest.
