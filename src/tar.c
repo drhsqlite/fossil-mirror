@@ -706,13 +706,13 @@ char *tar_uuid_from_name(char **pzName){
 
 /*
 ** WEBPAGE: tarball
-** URL: /tarball/VERSION/NAME.tar.gz
+** URL: /tarball/[VERSION/]NAME.tar.gz
 **
 ** Generate a compressed tarball for the check-in specified by VERSION.
 ** The tarball is called NAME.tar.gz and has a top-level directory called
 ** NAME.
 **
-** Alternatively, the VERSION can be specified using the r= query parameter.
+** The optional VERSION element defaults to "trunk" per the r= rules below.
 ** All of the following URLs are equivalent:
 **
 **      /tarball/release/xyz.tar.gz

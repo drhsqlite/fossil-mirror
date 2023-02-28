@@ -1,5 +1,5 @@
-C Make\ssimilar\simprovements\sto\sthe\sdocumentation\sfor\s/zip\sand\s/sqlar.
-D 2023-02-27T12:31:56.527
+C The\s/zip\sand\s/tarball\sbuilt-in\shelp\snow\smakes\sclear\sthat\sthe\sVERSION/\npart\sof\sthe\sURL\sis\soptional\sto\shelp\savoid\sconfusions\slike\swe're\sseeing\nin\s[forum:/forumpost/24c0eb271dbadcf0\s|\sthe\sforum\spost]\sthat\ssparked\nthis\ssequence\sof\simprovements.
+D 2023-02-28T05:41:53.294
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -562,7 +562,7 @@ F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c b01f89e55b02250f5bce2fa6619b0346fdac9a6c2177a0b18f6e8a9478009937
 F src/tag.c 24ebdc99fd3586b46a528cc9e1336d7fb68c3f735f353494d2b32323902cb014
-F src/tar.c a525c36004821e6076707bdf0c8b9c66ee042670a78eae359d4e23ef3ab4ad3a
+F src/tar.c db2bb028d2b31dd4415cd4520038e8d0608cb5cf049736aa7b1a38403d1d1891
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c afbfe5182104103903a11eb71b3dabfd6601f21b197b3f77d804bea9a08f520c
 F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
@@ -591,7 +591,7 @@ F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 7d61ac1dd4a44e337b6f0766b06c2433d7c9ce0c2738c90a58f1090d3b3e9ba2
 F src/xfer.c 3497244aba2a374ccfe1f3e5c95a4d2b39138ad4e21414ed14ed0c4386aa9db0
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
-F src/zip.c 0e31a3303add81ea8c6cc0e13d7c96a430a85754e5a188fcc880cd42a7ae118e
+F src/zip.c 82fe616cf75a7680efddbaa7d57cd41001d25783ee2ad7bffc8c7e39cc9d9491
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7cd1ebd093a47d2d2ffdb0ce5b9ac4159b86f9b1aff19f731c412dfcaccce49c
-R 4003bc82d453b029bbbc72403659b699
-U drh
-Z 220c6d872dce457fb87d33ffef169c11
+P 9eadac2026626b7153b7816981245d3d4335397fea497bd8595fa731a561b7f8
+R 77b0ef9df03085c2bd2f460c3af032ba
+U wyoung
+Z 56de28bcba4b9c36abc523f3a6c1c7ea
 # Remove this line to create a well-formed Fossil manifest.

@@ -868,14 +868,14 @@ void sqlar_cmd(void){
 **
 ** URLs:
 **
-**     /zip/VERSION/NAME.zip
-**     /sqlar/VERSION/NAME.sqlar
+**     /zip/[VERSION/]NAME.zip
+**     /sqlar/[VERSION/]NAME.sqlar
 **
 ** Generate a ZIP Archive or an SQL Archive for the check-in specified by
 ** VERSION.  The archive is called NAME.zip or NAME.sqlar and has a top-level
 ** directory called NAME.
 **
-** Alternatively, the VERSION can be specified using the r= query parameter.
+** The optional VERSION element defaults to "trunk" per the r= rules below.
 ** All of the following URLs are equivalent:
 **
 **      /zip/release/xyz.zip
