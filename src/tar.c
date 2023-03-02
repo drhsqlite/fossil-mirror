@@ -706,14 +706,14 @@ char *tar_uuid_from_name(char **pzName){
 
 /*
 ** WEBPAGE: tarball
-** URL: /tarball
+** URL: /tarball/[VERSION/]NAME.tar.gz
 **
-** Generate a compressed tarball for the check-in specified by the "r"
-** query parameter.  Return that compressed tarball as the HTTP reply
-** content.
+** Generate a compressed tarball for the check-in specified by VERSION.
+** The tarball is called NAME.tar.gz and has a top-level directory called
+** NAME.
 **
-** The r= and name= query parameters can be specified as extensions to the
-** URI.  Example, the following URIs are all equivalent:
+** The optional VERSION element defaults to "trunk" per the r= rules below.
+** All of the following URLs are equivalent:
 **
 **      /tarball/release/xyz.tar.gz
 **      /tarball?r=release&name=xyz.tar.gz
@@ -722,19 +722,22 @@ char *tar_uuid_from_name(char **pzName){
 **
 ** Query parameters:
 **
-**   name=NAME[.tar.gz]  The base name of the output file.  The default
-**                       value is a configuration parameter in the project
-**                       settings.  A prefix of the name, omitting the
-**                       extension, is used as the top-most directory name.
+**   name=[CKIN/]NAME    The optional CKIN component of the name= parameter
+**                       identifies the check-in from which the tarball is
+**                       constructed.  If CKIN is omitted and there is no
+**                       r= query parameter, then use "trunk".  NAME is the
+**                       name of the download file.  The top-level directory
+**                       in the generated tarball is called by NAME with the
+**                       file extension removed.
 **
-**   r=TAG               The check-in that is turned into a compressed tarball.
-**                       Defaults to "trunk".  This query parameter used to
-**                       be called "uuid" and "uuid" is still accepted for
-**                       backwards compatibility.  If the name= query parameter
-**                       contains one "/" character then the part before the /
-**                       is the TAG and the part after the / is the true name.
-**                       If no TAG is specified by any of the above means, then
-**                       "trunk" is used as the default.
+**   r=TAG               TAG identifies the check-in that is turned into a
+**                       compressed tarball.  The default value is "trunk".
+**                       If r= is omitted and if the name= query parameter
+**                       contains one "/" character then the of part the
+**                       name= value before the / becomes the TAG and the
+**                       part of the name= value  after the / is the download
+**                       filename.  If no check-in is specified by either
+**                       name= or r=, then "trunk" is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=

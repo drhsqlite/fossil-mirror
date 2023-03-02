@@ -866,31 +866,41 @@ void sqlar_cmd(void){
 ** WEBPAGE: sqlar
 ** WEBPAGE: zip
 **
-** Generate a ZIP or SQL archive for the check-in specified by the "r"
-** query parameter.  Return the archive as the HTTP reply content.
+** URLs:
 **
-** If the NAME contains one "/" then the part before the "/" is taken
-** as the TAG and the part after the "/" becomes the true name.  Hence,
-** the following URLs are all equivalent:
+**     /zip/[VERSION/]NAME.zip
+**     /sqlar/[VERSION/]NAME.sqlar
 **
-**     /sqlar/508c42a6398f8/download.sqlar
-**     /sqlar?r=508c42a6398f8&name=download.sqlar
-**     /sqlar/download.sqlar?r=508c42a6398f8
-**     /sqlar?name=508c42a6398f8/download.sqlar
+** Generate a ZIP Archive or an SQL Archive for the check-in specified by
+** VERSION.  The archive is called NAME.zip or NAME.sqlar and has a top-level
+** directory called NAME.
+**
+** The optional VERSION element defaults to "trunk" per the r= rules below.
+** All of the following URLs are equivalent:
+**
+**      /zip/release/xyz.zip
+**      /zip?r=release&name=xyz.zip
+**      /zip/xyz.zip?r=release
+**      /zip?name=release/xyz.zip
 **
 ** Query parameters:
 **
-**   name=NAME           The base name of the output file.  The default
-**                       value is a configuration parameter in the project
-**                       settings.  A prefix of the name, omitting the
-**                       extension, is used as the top-most directory name.
+**   name=[CKIN/]NAME    The optional CKIN component of the name= parameter
+**                       identifies the check-in from which the archive is
+**                       constructed.  If CKIN is omitted and there is no
+**                       r= query parameter, then use "trunk".  NAME is the
+**                       name of the download file.  The top-level directory
+**                       in the generated archive is called by NAME with the
+**                       file extension removed.
 **
-**   r=TAG               The check-in that is turned into a ZIP archive.
-**                       Defaults to "trunk".  This query parameter used to
-**                       be called "uuid" and the older "uuid" name is still
-**                       accepted for backwards compatibility.  If this
-**                       query parameter is omitted, the latest "trunk"
-**                       check-in is used.
+**   r=TAG               TAG identifies the check-in that is turned into an
+**                       SQL or ZIP archive.  The default value is "trunk".
+**                       If r= is omitted and if the name= query parameter
+**                       contains one "/" character then the of part the
+**                       name= value before the / becomes the TAG and the
+**                       part of the name= value  after the / is the download
+**                       filename.  If no check-in is specified by either
+**                       name= or r=, then "trunk" is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
