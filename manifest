@@ -1,5 +1,5 @@
-C The\s/zip\sand\s/tarball\sbuilt-in\shelp\snow\smakes\sclear\sthat\sthe\sVERSION/\npart\sof\sthe\sURL\sis\soptional\sto\shelp\savoid\sconfusions\slike\swe're\sseeing\nin\s[forum:/forumpost/24c0eb271dbadcf0\s|\sthe\sforum\spost]\sthat\ssparked\nthis\ssequence\sof\simprovements.
-D 2023-02-28T05:41:53.294
+C The\srecommendation\sto\sconfigure\sFossil\swith\sthe\s--static\sflag\sis\nsemi-obsolete,\sand\sthe\sfollowing\sadvice\sto\slook\sfurther\sdown\sin\sthe\ssame\ndocument\sfor\sthe\sDocker\sworkaround\swas\swholly\sobsolete\ssince\smoving\sall\nof\sthis\sinto\sthe\sdedicated\scontainers.md\sdoc.\s\sFixed\sall\sthis\sup,\sand\nlinked\sto\sthe\s"why"\sanswers\son\sStack\sOverflow\sabout\sall\sof\sthis\sin\sa\sfew\nmore\splaces.
+D 2023-03-02T17:24:05.838
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -771,7 +771,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki f863ff43c6b42f9d4fbefdaaa7b55d486fad431f9f4cd004100f7748fd1e2372
+F www/build.wiki 1a98465cad1ffefde481adebc3bcc3c4f33e2c35cdaf6d752929a40bb6df14c2
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -790,7 +790,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 7f5ce75970ce435589ca2fafd27b5da46d4c3bfc84285511ef43a78723c95ab0
+F www/containers.md 403eab9dfb7ee0f65efdb39e7d54dde35f87a15c50a19824aa10793da5e15dc1
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9eadac2026626b7153b7816981245d3d4335397fea497bd8595fa731a561b7f8
-R 77b0ef9df03085c2bd2f460c3af032ba
+P 4717db33f0033b48f7fd74194b203c02df0f8195b23de639a7c38fda15ac41e9
+R 09ec127bd37e9a230529f268d3656331
 U wyoung
-Z 56de28bcba4b9c36abc523f3a6c1c7ea
+Z 5977bada2ed5e6cadb201329e8a5fc7e
 # Remove this line to create a well-formed Fossil manifest.

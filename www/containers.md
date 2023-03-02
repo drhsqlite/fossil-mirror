@@ -352,7 +352,7 @@ BusyBox — we throw all the rest of it away.
 
 A secondary benefit falls out of this process for free: it’s arguably
 the easiest way to build a purely static Fossil binary for Linux. Most
-modern Linux distros make this surprisingly difficult, but Alpine’s
+modern Linux distros make this [surprisingly difficult][lsl], but Alpine’s
 back-to-basics nature makes static builds work the way they used to,
 back in the day. If that’s all you’re after, you can do so as easily as
 this:
@@ -366,6 +366,8 @@ this:
 
 The resulting binary is the single largest file inside that container,
 at about 6 MiB. (It’s built stripped.)
+
+[lsl]: https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
 
 
 ## 5. <a id="args"></a>Container Build Arguments
