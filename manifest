@@ -1,5 +1,5 @@
-C The\s/zip\sand\s/tarball\sbuilt-in\shelp\snow\smakes\sclear\sthat\sthe\sVERSION/\npart\sof\sthe\sURL\sis\soptional\sto\shelp\savoid\sconfusions\slike\swe're\sseeing\nin\s[forum:/forumpost/24c0eb271dbadcf0\s|\sthe\sforum\spost]\sthat\ssparked\nthis\ssequence\sof\simprovements.
-D 2023-02-28T05:41:53.294
+C Prototype\sfor\sone\sapproach\sto\slinking\sforum\sposts\sto\sother\sartifacts\s(initially\scheck-ins).\sAdds\sthe\s--forumpost\sHASH\sflag\sto\sthe\sci\scommand,\swhich\sadds\sa\sforumpost/FULL-HASH\stag\sto\sthe\scheckin\sfor\slater\suse\sin\s/info\sand\sforum\spost\sviews.\sFor\sease\sof\suse,\sthis\sprobably\sneeds\sto\sbe\sadapted\sto\smap\sonly\sto\sthe\sfirst\sversion\sof\sa\sforum\spost,\sas\sis\sdone\sin\sthe\sforumpost-locking\sbranch,\sonce\sthat\sbranch\sis\smerged\swith\strunk.
+D 2023-03-02T14:10:41.024
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/capabilities.c 34faa335a7a2e6ce5e87c8c83458d045c0cdb3c5ecc88b62293d16ed0cc
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c d7efb61ec4bac957d9d56d5d9ea798fa391807d3bea72da7c5f67b14aed9440d
 F src/chat.c eb1bc66e6a6cfbd9e474b3a0764a53098df7af41b7bead4ae92aeca47d57a4b5
-F src/checkin.c d2b2a110c5494e920d0d9745a50b3fe240ddc014cc25a1826b64d408c035df58
+F src/checkin.c 4e71224fda1139cce2426f3b66b8da81febd74403719784c6c2d7f478e63bf2c
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -954,8 +954,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9eadac2026626b7153b7816981245d3d4335397fea497bd8595fa731a561b7f8
-R 77b0ef9df03085c2bd2f460c3af032ba
-U wyoung
-Z 56de28bcba4b9c36abc523f3a6c1c7ea
+P 4717db33f0033b48f7fd74194b203c02df0f8195b23de639a7c38fda15ac41e9
+R adbc9c96f3d1fa1b61d83ffbb14a7cc6
+T *branch * ci-link-formpost
+T *sym-ci-link-formpost *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z 431b7f498c2c7263049708a25744e0d5
 # Remove this line to create a well-formed Fossil manifest.

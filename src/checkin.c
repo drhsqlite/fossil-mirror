@@ -1819,8 +1819,8 @@ static void create_manifest(
     for(i=0; p->azTag[i]; i++){
       /* Add a symbolic tag to this check-in.  The tag names have already
       ** been sorted and converted using the %F format */
-      assert( i==0 || strcmp(p->azTag[i-1], p->azTag[i])<=0 );
-      blob_appendf(pOut, "T +sym-%s *\n", p->azTag[i]);
+      assert( i==0 || fossil_strcmp(p->azTag[i-1], p->azTag[i])<=0 );
+      blob_appendf(pOut, "T +%s *\n", p->azTag[i]);
     }
   }
   if( p->zBranch && p->zBranch[0] ){
@@ -2092,6 +2092,18 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
+** Append zTag at pCi->azTag[*pNTag] (reallocating as needed),
+** increment *pNTag, then set pCi->azTag[*pNTag] to 0.
+*/
+static void ci_append_tag(CheckinInfo *pCi, int *pNTag,
+                          const char *zTag){
+  pCi->azTag = fossil_realloc((void*)pCi->azTag,
+                              sizeof(char*)*(*pNTag+2));
+  pCi->azTag[(*pNTag)++] = zTag;
+  pCi->azTag[*pNTag] = 0;
+}
+
+/*
 ** COMMAND: ci#
 ** COMMAND: commit
 **
@@ -2163,6 +2175,8 @@ static int tagCmp(const void *a, const void *b){
 **    --close                    Close the branch being committed
 **    --date-override DATETIME   DATE to use instead of 'now'
 **    --delta                    Use a delta manifest in the commit process
+**    --forumpost HASH           Adds a tag linking the given forum post to
+**                               this check-in. May be given multiple times.
 **    --hash                     Verify file status using hashing rather
 **                               than relying on file mtimes
 **    --ignore-clock-skew        If a clock skew is detected, ignore it and
@@ -2184,7 +2198,8 @@ static int tagCmp(const void *a, const void *b){
 **    --nosign                   Do not attempt to sign this commit with gpg
 **    --override-lock            Allow a check-in even though parent is locked
 **    --private                  Do not sync changes and their descendants
-**    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
+**    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in. May
+**                               be given multiple times.
 **    --trace                    Debug tracing
 **    --user-override USER       USER to use instead of the current default
 **
@@ -2294,10 +2309,19 @@ void commit_cmd(void){
   sCiInfo.verboseFlag = find_option("verbose", "v", 0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
-    sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag,
-                                    sizeof(char*)*(nTag+2));
-    sCiInfo.azTag[nTag++] = zTag;
-    sCiInfo.azTag[nTag] = 0;
+    ci_append_tag(&sCiInfo, &nTag, mprintf("sym-%F",zTag));
+  }
+  while( (zTag = find_option("forumpost",0,1))!=0 ){
+    int forumRid;
+    if( zTag[0]==0 ) continue;
+    forumRid = symbolic_name_to_rid(zTag, "f");
+    if( forumRid==0 ){
+      fossil_fatal("Not a forum post: %s", zTag);
+    }else if( forumRid<0 ){
+      fossil_fatal("Ambiguous symbolic name: %s", zTag);
+    }
+    ci_append_tag(&sCiInfo, &nTag,
+                         mprintf("forumpost/%z", rid_to_uuid(forumRid)));
   }
   zComFile = find_option("message-file", "M", 1);
   sCiInfo.zDateOvrd = find_option("date-override",0,1);
@@ -2347,8 +2371,6 @@ void commit_cmd(void){
 
   /* Escape special characters in tags and put all tags in sorted order */
   if( nTag ){
-    int i;
-    for(i=0; i<nTag; i++) sCiInfo.azTag[i] = mprintf("%F", sCiInfo.azTag[i]);
     qsort((void*)sCiInfo.azTag, nTag, sizeof(sCiInfo.azTag[0]), tagCmp);
   }
 
@@ -2513,7 +2535,7 @@ void commit_cmd(void){
                      "--allow-fork.");
       }
     }
-  
+
     /*
     ** Do not allow a commit against a closed leaf unless the commit
     ** ends up on a different branch.
@@ -2534,7 +2556,6 @@ void commit_cmd(void){
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
 
-  
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.
