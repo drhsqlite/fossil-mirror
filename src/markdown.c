@@ -115,20 +115,6 @@ struct mkd_renderer {
 #define MKD_CELL_HEAD           4
 
 
-
-/**********************
- * EXPORTED FUNCTIONS *
- **********************/
-
-/*
-** markdown -- parses the input buffer and renders it into the output buffer.
-*/
-void markdown(
-  struct Blob *ob,
-  const struct Blob *ib,
-  const struct mkd_renderer *rndr);
-
-
 #endif /* INTERFACE */
 
 #define BLOB_COUNT(pBlob,el_type) (blob_size(pBlob)/sizeof(el_type))

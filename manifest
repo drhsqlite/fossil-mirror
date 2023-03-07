@@ -1,5 +1,5 @@
-C Change\sdefault\sanonymous\suser\sperms\sfor\snew\srepos\sfrom\s'hmnc'\sto\s'hz',\sper\sdiscussion\sat\s[forum:c6326072f3e6b270|forum\spost\sc6326072f3e6b270]\sand\s/chat.
-D 2023-03-07T14:23:03.074
+C Remove\ssuperfluous\smakeheaders-targeted\sdeclaration\sof\smarkdown()\sfrom\smarkdown.c,\ssince\sthis\smade\sit\sappear\stwice\sin\sthe\sgenerated\sheader\sfiles.
+D 2023-03-07T15:40:05.258
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -494,7 +494,7 @@ F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20
 F src/main.c f382c8994d37b6ea2dc3d2160248412b982af04a74be91336d5df73940b09fa1
 F src/main.mk 5c96b146494b38a727933dde22560b79626fcf467e22192ce01617f90ec6861a
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
-F src/markdown.c 37d5897bd3b88bddc1ac985921811acb30cf8d521e34af2e4d0d13c48053e98a
+F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
 F src/markdown_html.c 38a90709de369e067f475925861a6dec1cae1225739cb0a128d969c86b9f9ed7
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3434fd8cc85d826f081bbb128464f03ddc9501a56919c4193f9f3036004079f
-R 0024e5cb1d36cd979bbed0a1958846bc
-U stephan
-Z 0441c39298e32e63385f0d8d4161a46a
+P ddabf09faa98e2c05d36f2c831a48a62928ae5f2e3e07afbaa74410aed8f0755
+R 13335f434c6186387a5b27ce091ebe4b
+U danield
+Z 3fd10e1a9734eb519975029d838a4dc4
 # Remove this line to create a well-formed Fossil manifest.
