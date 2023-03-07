@@ -1,5 +1,5 @@
-C CSS\stweak\sto\smake\slong\shashes\swrap\sin\snarrow\s/chat\sviews.
-D 2023-03-07T12:40:58.537
+C Make\sthe\sno-op\srendering\scallbacks\sin\sbacklink.c\stype-compatible\swith\sthe\sdeclarations\sin\smkd_renderer,\sdoing\saway\swith\sa\stheoretically\spossible\sundefined\sbehavior\sand\sthe\srelated\scompiler\scast\swarnings.
+D 2023-03-07T13:00:03.305
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -382,7 +382,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 654a720586e5f8ad61d7b5d77e8c3bdc2e8665dcaba4934f42172c8660e87ea7
 F src/attach.c 6f86aa88b67e297e0111ed3f23854a19eaf861526ad07f81876171a2aacabf76
-F src/backlink.c f7da26dc296e6db2fb0bd742c4b3a8bf7793e6d955a7e837e04da750fa053939
+F src/backlink.c 93d58763e00a9abe822dac4dca9d5b84213010ba286584d5de363524ec2786dd
 F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cdb5e
 F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e7a5b98583dfceb561cae813c7d4f265a98cb2ebf014f7045ba5b9fbac4532c9
-R cbee104b4c2878c38152ee4e826ed3ab
-U stephan
-Z 3ffb4b048e352475b08b5f03bdce7206
+P 8a401c209f4b07183b5ec5a88cea0442935b22f1dd5fce7ad911e84caa2b4b7c
+R 1c74fa19bc921402d85ebac418e9f9bc
+U danield
+Z 38d77d3ed0d3bb980f2b00fde80ec095
 # Remove this line to create a well-formed Fossil manifest.
