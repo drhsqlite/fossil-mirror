@@ -1,5 +1,5 @@
-C Show\sthe\scommand-line\son\sthe\ssecurity-audit\spage.
-D 2023-03-10T18:13:09.619
+C Improvements\sto\sthe\snew\ssecurity-audit\sfeature\sthat\sshows\sthe\scommand-line\nthat\slaunched\sthe\sprocess\sthat\sgenerated\sthe\sweb\spage.
+D 2023-03-10T19:17:51.207
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -491,7 +491,7 @@ F src/loadctrl.c 668a4ff0fbfdaced939d39194d91a0109f7eddb73c60f77d5a992211cb4b38c
 F src/login.c 62ed948ccc2500f9b2d52a312c0b5ebc490b0d6179d75dd3e0e70feb911b8972
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20d0
-F src/main.c f382c8994d37b6ea2dc3d2160248412b982af04a74be91336d5df73940b09fa1
+F src/main.c 71dca7a6d7d7ab0f36cd2061071fdb37c0b4b2cb70e2af364e193f1a69388001
 F src/main.mk 5c96b146494b38a727933dde22560b79626fcf467e22192ce01617f90ec6861a
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
@@ -521,7 +521,7 @@ F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4b0bddb4f84957a67a95a124402ba778f81ee7d1c8e846fb442f5e8093220761
-F src/security_audit.c 64721179c696bb7d4a1d9f0a8d1b48266df6984aa6c4b82e77ff157984dbf536
+F src/security_audit.c f19adc73d9970e37100bfde1992a3bd46f7248dfc4943971bf51084f540f0dc8
 F src/setup.c 5e374c8436d9bef244aaad65e0477d011fda563caa0d8d23c2f22a3b34907c33
 F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c 98e4279ebda3c543ab4ac4511f0c3c4380a7faf78be1a7fd7521d7b6e8f62855
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 364337be102a9fdcc03c506ab0887985fbf7daf520376552f4dde8075b4a9ff8
-R 8b8f2620a5106464bd35099ccd83274f
+P 5ab5469adf29bfa212283f7bf1acfbf140d9d391ae3757305f8d686b030c88bd
+R 2b61ebfb96293d8f78bff21c1b89f96a
 U drh
-Z 5451424d752e66abc40c7941480f8906
+Z f977971d9de2e7285fc44722b7a13bc7
 # Remove this line to create a well-formed Fossil manifest.

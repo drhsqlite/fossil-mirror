@@ -138,6 +138,7 @@ struct TclContext {
 
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
+  char **argvOrig;        /* Original g.argv prior to removing options */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
   const char *zPhase;     /* Phase of operation, for use by the error log
@@ -446,7 +447,11 @@ void expand_args_option(int argc, void *argv){
     ** differently when we stop at "--" here. */
     if( fossil_strcmp(z, "args")==0 ) break;
   }
-  if( (int)i>=g.argc-1 ) return;
+  if( (int)i>=g.argc-1 ){
+    g.argvOrig = fossil_malloc( sizeof(char*)*(g.argc+1) );
+    memcpy(g.argvOrig, g.argv, sizeof(g.argv[0])*(g.argc+1));
+    return;
+  }
 
   zFileName = g.argv[i+1];
   if( strcmp(zFileName,"-")==0 ){
@@ -469,7 +474,7 @@ void expand_args_option(int argc, void *argv){
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   if( nLine>100000000 ) fossil_fatal("too many command-line arguments");
   nArg = g.argc + nLine*2;
-  newArgv = fossil_malloc( sizeof(char*)*nArg );
+  newArgv = fossil_malloc( sizeof(char*)*nArg*2 + 2);
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
 
   blob_rewind(&file);
@@ -512,6 +517,8 @@ void expand_args_option(int argc, void *argv){
   newArgv[j] = 0;
   g.argc = j;
   g.argv = newArgv;
+  g.argvOrig = &g.argv[j+1];
+  memcpy(g.argvOrig, g.argv, sizeof(g.argv[0])*(j+1));
 }
 
 #ifdef FOSSIL_ENABLE_TCL

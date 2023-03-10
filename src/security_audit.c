@@ -102,6 +102,7 @@ void secaudit0_page(void){
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
+  Blob cmd;
   char *z;
   int n, i;
   CapabilityString *pCap;
@@ -694,14 +695,16 @@ void secaudit0_page(void){
     @ </li>
   }
 
-  @ <li><p>
-  @ The command that generated this page was:
-  @ <blockquote>
-  for(i=0; i<g.argc; i++){
-    @ %h(g.argv[i]) \
+  blob_init(&cmd, 0, 0);
+  for(i=0; g.argvOrig[i]!=0; i++){
+    blob_append_escaped_arg(&cmd, g.argvOrig[i], 0);
   }
-  @ 
+  @ <li><p>
+  @ The command that generated this page:
+  @ <blockquote>
+  @ <tt>%h(blob_str(&cmd))</tt>
   @ </blockquote></li>
+  blob_zero(&cmd);
 
   @ </ol>
   style_finish_page();
