@@ -103,7 +103,7 @@ void secaudit0_page(void){
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
   char *z;
-  int n;
+  int n, i;
   CapabilityString *pCap;
   char **azCSP;              /* Parsed content security policy */
 
@@ -693,6 +693,15 @@ void secaudit0_page(void){
     table_of_public_phantoms();
     @ </li>
   }
+
+  @ <li><p>
+  @ The command that generated this page was:
+  @ <blockquote>
+  for(i=0; i<g.argc; i++){
+    @ %h(g.argv[i]) \
+  }
+  @ 
+  @ </blockquote></li>
 
   @ </ol>
   style_finish_page();
