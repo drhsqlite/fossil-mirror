@@ -48,6 +48,15 @@ requires a slightly different set of options vs. `fossil server`:
 fossil winsrv create --repository D:/Path/to/Repos --repolist
 ```
 
+### Choice of Directory Considerations
+
+When the Fossil server will be used at times that files may be locked
+during virus scanning, it is prudent to arrange that its directory used
+for temporary files is exempted from such scanning. Ordinarily, this
+will be a subdirectory named "fossil" in the temporary directory given
+by the Windows GetTempDir(...) API. Excluding this subdirectory will
+avoid certain rare failures where the fossil.exe process is unable to
+use the directory normally during a scan.
 
 ### <a id='PowerShell'></a>Advanced service installation using PowerShell
 

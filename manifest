@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\snew\ssecurity-audit\sfeature\sthat\sshows\sthe\scommand-line\nthat\slaunched\sthe\sprocess\sthat\sgenerated\sthe\sweb\spage.
-D 2023-03-10T19:17:51.207
+C Revise\s"Fossil\sas\sa\sWindows\sService"\spage\sto\sprovide\stip\son\savoiding\spoor\sinteraction\swith\svirsus\sscanning.
+D 2023-03-10T19:48:38.704
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -928,7 +928,7 @@ F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed
 F www/server/windows/iis.md 400b23e660738a3bcd9c70c040229f944d981c7d5110716050a26f407a487a63
 F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3090199a5050f5e
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
-F www/server/windows/service.md d6bf7b6ec94ff1abdb7c987d1df6aab516616b5a0af05c77eb27d417c0d6ac43
+F www/server/windows/service.md 2d1c3e1c318cafeac2051be64b2fa084dffca032804d920f4e59b422b4abb42a
 F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524b356f3d5ab8b8ac8
 F www/serverext.wiki 1f7594105c7e30ed1b20c9e1d87fba422cdee9b64bcd2f4c7476402f82ebdeac
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5ab5469adf29bfa212283f7bf1acfbf140d9d391ae3757305f8d686b030c88bd
-R 2b61ebfb96293d8f78bff21c1b89f96a
-U drh
-Z f977971d9de2e7285fc44722b7a13bc7
+P 5caa3c5cebd37afb0c43bb82b25a4fa48f476562c5cf11d930c87552ad4bf494
+R 65d6a2c0a32585adb823a7609d59de2c
+U larrybr
+Z 145a11b00dd9c29f5b54df9e5374e905
 # Remove this line to create a well-formed Fossil manifest.
