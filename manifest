@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.41.1\sbeta,\sfor\stesting.
-D 2023-03-09T16:23:40.000
+C On\sWindows,\swrite\sthe\stemporary\sserver\sfiles\sto\sa\ssubfolder,\sallowing\sfor\seasier\sexclusion\sfrom\santivirus\sscanning.
+D 2023-03-10T15:40:18.716
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -588,7 +588,7 @@ F src/wiki.c ae0236697c349f2e403eb3859ded71d4ab8b0ee0f8b9c419b522484825e7b137
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 10f661968c8540429478fc9cbeb884bdeea9e931de3e7395082391f687b897d2
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 7d61ac1dd4a44e337b6f0766b06c2433d7c9ce0c2738c90a58f1090d3b3e9ba2
+F src/winhttp.c 03a800274a1f9b12b43e48eafddc87b302cc47eba326e1159eb31a2ac70ddfe9
 F src/xfer.c 3497244aba2a374ccfe1f3e5c95a4d2b39138ad4e21414ed14ed0c4386aa9db0
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c 82fe616cf75a7680efddbaa7d57cd41001d25783ee2ad7bffc8c7e39cc9d9491
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb583b0cc427ff988f58818b5e81e456eaf946c25aba21884680022f4027b45b
-R 9336ac7f3efe7b508dba56b228999da8
-U drh
-Z de96cbd0c685b5b95ecbc51d34eab194
+P 782a7f9898f4e8e65677fa9284a76a5c5b08bc57a98f3a35ff748036801724b6
+R ad71738da5244a841a437a7715f296c3
+U danield
+Z b424403450d27dbcfb272015bf328229
 # Remove this line to create a well-formed Fossil manifest.

@@ -572,6 +572,8 @@ void win32_http_server(
   int iPort = mnPort;
   Blob options;
   wchar_t zTmpPath[MAX_PATH];
+  char *zTempSubDirPath;
+  const char *zTempSubDir = "fossil";
   const char *zSkin;
 #if USE_SEE
   const char *zSavedKey = 0;
@@ -663,6 +665,12 @@ void win32_http_server(
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_panic("unable to get path to the temporary directory.");
   }
+  /* Use a subdirectory for temp files (can then be excluded from virus scan) */
+  zTempSubDirPath = mprintf("%s%s\\",fossil_path_to_utf8(zTmpPath),zTempSubDir);
+  if ( !file_mkdir(zTempSubDirPath, ExtFILE, 0) ||
+        file_isdir(zTempSubDirPath, ExtFILE)==1 ){
+    wcscpy(zTmpPath, fossil_utf8_to_path(zTempSubDirPath, 1));
+  }  
   if( g.fHttpTrace ){
     zTempPrefix = mprintf("httptrace");
   }else{
