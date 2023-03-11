@@ -1394,9 +1394,11 @@ void forumedit_page(void){
 */
 void forum_main_page(void){
   Stmt q;
-  int iLimit, iOfst, iCnt;
+  int iLimit = 0, iOfst, iCnt;
   int srchFlags;
   const int isSearch = P("s")!=0;
+  char const *zLimit = 0;
+
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
   if( !g.perm.RdForum ){
@@ -1404,6 +1406,7 @@ void forum_main_page(void){
     return;
   }
   style_set_current_feature("forum");
+  cookie_read_parameter("n","forum-n");
   style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
   style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
@@ -1425,7 +1428,19 @@ void forum_main_page(void){
       return;
     }
   }
-  iLimit = atoi(PD("n","25"));
+  zLimit = P("n");
+  if( zLimit!=0 ){
+    iLimit = atoi(zLimit);
+    if( iLimit>=0 && P("udc")!=0 ){
+      cookie_write_parameter("n","forum-n",0);
+    }
+  }
+  if( iLimit<=0 ){
+    cgi_replace_query_parameter("n", fossil_strdup("25"))
+      /*for the sake of Max, below*/;
+    iLimit = 25;
+  }
+  style_submenu_entry("n","Max:",4,0);
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
   if( db_table_exists("repository","forumpost") ){
