@@ -1406,7 +1406,6 @@ void forum_main_page(void){
     return;
   }
   style_set_current_feature("forum");
-  cookie_read_parameter("n","forum-n");
   style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
   style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
@@ -1428,6 +1427,7 @@ void forum_main_page(void){
       return;
     }
   }
+  cookie_read_parameter("n","forum-n");
   zLimit = P("n");
   if( zLimit!=0 ){
     iLimit = atoi(zLimit);
