@@ -1,5 +1,5 @@
-C Minor\scode\sre-org\sof\sprevious\scheckin.
-D 2023-03-11T11:23:47.121
+C Show\sthe\sargv\sarray\son\sthe\s/test_env\spage\sif\sthe\srequestor\sis\sAdmin.
+D 2023-03-11T13:10:08.956
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -555,7 +555,7 @@ F src/stash.c f4b160ea4d639c09eb0217c1a04a8618958f278a565b08c225b7a5a4edb74f31
 F src/stat.c 046a53c73baccf10ad88c5c2cd32d07cbb359aeaaaa25a3b637b715c926308a9
 F src/statrep.c e66715d2f23d6b404d5ee4f1e3a49233b985749169fa259e2f0af753750f54ba
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c d435ffb61bd61bae96597959c8eeca869cf8e94b5144a23ec5c40e7d3d8f11b9
+F src/style.c 9c004f97e0d7d6e74c97d77b241fcaad38c084b7184f1a5a645d17501d68ea81
 F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20b93ff
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ee93fc0c577a5451a38382082569132217213adee948ed9c55152898070a5f5
-R c13a15eeca7e76cc3362f3aa2f4468f7
-U stephan
-Z 6fe44d172afc6ed890884d843eae1e62
+P 2a4b604d98f63b6d465e388ca0f6a5261cb96033fd2ed9a34583261c9ee13745
+R c3942c3bab7c66fae5d58e1d39238583
+U drh
+Z 176025b7c89ac68bba73d6bc331ebf88
 # Remove this line to create a well-formed Fossil manifest.

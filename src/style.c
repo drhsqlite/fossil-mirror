@@ -1463,6 +1463,16 @@ void webpage_error(const char *zFormat, ...){
 #endif
     @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
     @ fossil_exe_id() = %h(fossil_exe_id())<br />
+    if( g.perm.Admin ){
+      int k;
+      for(k=0; g.argvOrig[k]; k++){
+        Blob t;
+        blob_init(&t, 0, 0);
+        blob_append_escaped_arg(&t, g.argvOrig[k], 0);
+        @ argv[%d(k)] = %h(blob_str(&t))<br />
+        blob_zero(&t);
+      }
+    }
     @ <hr />
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
