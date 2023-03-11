@@ -54,8 +54,10 @@ When the Fossil server will be used at times that files may be locked
 during virus scanning, it is prudent to arrange that its directory used
 for temporary files is exempted from such scanning. Ordinarily, this
 will be a subdirectory named "fossil" in the temporary directory given
-by the Windows GetTempPath(...) API - you can find its value, for example,
-by executing `[System.IO.Path]::GetTempPath()` in a Powershell console.
+by the Windows GetTempPath(...) API, [namely](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppathw#remarks)
+the value of the first existing environment variable from `%TMP%`, `%TEMP%`,
+`%USERPROFILE%`, and `%SystemRoot%`; you can look for their actual values in
+your system by accessing the `/test_env` webpage. 
 Excluding this subdirectory will avoid certain rare failures where the
 fossil.exe process is unable to use the directory normally during a scan.
 

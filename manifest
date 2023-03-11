@@ -1,5 +1,5 @@
-C Show\sthe\sargv\sarray\son\sthe\s/test_env\spage\sif\sthe\srequestor\sis\sAdmin.
-D 2023-03-11T13:10:08.956
+C Give\sthe\scorrect\sway\sto\sfigure\sout\sthe\stemporary\sdirectory\sused\sunder\sWindows.
+D 2023-03-11T23:49:52.504
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -928,7 +928,7 @@ F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed
 F www/server/windows/iis.md 400b23e660738a3bcd9c70c040229f944d981c7d5110716050a26f407a487a63
 F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3090199a5050f5e
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
-F www/server/windows/service.md 12e3caa3c606bfcff7a633755e992d2575239397483968450fb8c476bed72393
+F www/server/windows/service.md 50da9506fe48dc41cc418ca63e2d01fe188c9887542f7a6832185dca1ab98f27
 F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524b356f3d5ab8b8ac8
 F www/serverext.wiki 1f7594105c7e30ed1b20c9e1d87fba422cdee9b64bcd2f4c7476402f82ebdeac
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a4b604d98f63b6d465e388ca0f6a5261cb96033fd2ed9a34583261c9ee13745
-R c3942c3bab7c66fae5d58e1d39238583
-U drh
-Z 176025b7c89ac68bba73d6bc331ebf88
+P 4350f3265e8ca248531aea8481d88c1faf30e7bc881535f82048fb850287fe27
+R 04e2b7233c18b04a1177e4e3f5a5e4d4
+U danield
+Z d6f8279acf8289e3db7ebde13d0de729
 # Remove this line to create a well-formed Fossil manifest.
