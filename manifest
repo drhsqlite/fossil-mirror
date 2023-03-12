@@ -1,5 +1,5 @@
-C Give\sthe\scorrect\sway\sto\sfigure\sout\sthe\stemporary\sdirectory\sused\sunder\sWindows.
-D 2023-03-11T23:49:52.504
+C Add\sa\snote\sto\s'fossil\suv'\shelp\sthat\ssync\srequires\s'y'\spermissions\son\sthe\sremote.
+D 2023-03-12T21:10:33.015
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -575,7 +575,7 @@ F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efe
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
-F src/unversioned.c e45a064fd6ef7fc9289c1682fe08ff49ef4598ccb003ac2667bf561af9165744
+F src/unversioned.c d303b5daf9b968dea07b4abfb5e00f7e5f889cbfb41d897f5ee31ffee1b6ee67
 F src/update.c d9c85d35025c4ee3f6c94df29ee6b508cb93c2e49b59949973e5a3bfd0c43332
 F src/url.c 416b3d0912569de0864b4a23e9f19f8b06c6a7857e95bb4075a10a3752a83c9a
 F src/user.c d4ff06190a09d3328ec5326ff108674aafdb25de9bbb0c700b7587bfca405c25
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4350f3265e8ca248531aea8481d88c1faf30e7bc881535f82048fb850287fe27
-R 04e2b7233c18b04a1177e4e3f5a5e4d4
-U danield
-Z d6f8279acf8289e3db7ebde13d0de729
+P 4e688dc0f9fe8161c4c0c2905aa775a2399d67d5ee81a882fa9306e8c1aa8b41
+R f80d3a120998de4b748dc722bed5749d
+U stephan
+Z 3bec3ac1f7188274021e41a4e165e579
 # Remove this line to create a well-formed Fossil manifest.
