@@ -210,16 +210,81 @@ box invis "clones of Fossil itself, SQLite, etc." ljust
 [sync]:   /help?cmd=sync
 
 
+## Version / Revision / Hash / UUID / Snapshot <a id="version" name="hash"></a>
+
+These terms all mean the same thing: a long hexadecimal
+[SHA hash value](./hashes.md) that uniquely identifies a particular
+[check-in](#ci).
+
+We’ve listed the alternatives in decreasing preference order:
+
+*   **Version** and **revision** are near-synonyms in common usage.
+    Fossil’s code and documentation use both interchangeably because
+    Fossil was created to manage the development of the SQLite project,
+    which formerly used [CVS], the Concurrent Versions System. CVS in
+    turn started out as a front-end to [RCS], the Revision Control
+    System, but even though CVS uses “version” in its name, it numbers
+    check-ins using a system derived from RCS’s scheme, which it calls
+    “Revisions” in user-facing output. Fossil inherits this confusion
+    honestly.
+
+*   **Hash** refers to the [SHA1 or SHA3-256 hash](./hashes.md) of the
+    content of the checked-in data, uniquely identifying that version of
+    the managed files. It is a strictly correct synonym, used more often
+    in low-level contexts than the term “version.”
+
+*   **UUID** is a deprecated term still found in many parts of the
+    Fossil internals and (decreasingly) its documentation. The problem
+    with using this as a synonym for a Fossil-managed version of the
+    managed files is that there are [standards][UUID] defining the
+    format of a “UUID,” none of which Fossil follows, not even the
+    [version 4][ruuid] (random) format, the type of UUID closest in
+    meaning and usage to a Fossil hash.(^A pre-Fossil 2.0 style SHA1
+    hash is 160 bits, not the 128 bits many people expect for a proper
+    UUID, and even if you truncate it to 128 bits to create a “good
+    enough” version prefix, the 6 bits reserved in the UUID format for
+    the variant code cannot make a correct declaration except by a
+    random 1:64 chance. The SHA3-256 option allowed in Fossil 2.0 and
+    higher doesn’t help with this confusion, making a Fossil version
+    hash twice as large as a proper UUID. Alas, the term will never be
+    fully obliterated from use since there are columns in the Fossil
+    repository format that use the obsolete term; we cannot change this
+    without breaking backwards compatibility.)
+
+*   **Snapshot** isn’t confusing, but it isn’t used often within the
+    Fossil community. We add it to the list here mainly because there’s
+    a conceptual overlap here with systems that *do* use the terms. The
+    primary distinction between a Fossil “snapshot” and the sort taken
+    by a virtual machine system or a [snapshotting file system][snfs] is
+    that Fossil will capture only changes to files you’ve
+    [added](/help?cmd=add) to the [repository](#repo), not to everything
+    in [the check-out directory](#co) at the time of the snapshot. (Thus
+    [the `extras` command](/help?cmd=extras).)
+
+[CVS]:     https://en.wikipedia.org/wiki/Concurrent_Versions_System
+[hash]:    #version
+[RCS]:     https://en.wikipedia.org/wiki/Revision_Control_System
+[ruuid]:   https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)
+[snfs]:    https://en.wikipedia.org/wiki/Snapshot_(computer_storage)#File_systems
+[UUID]:    https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)
+[version]: #version
+
+
 ## Check-in <a id="check-in" name="ci"></a>
 
-A version of the project’s files that have been committed to the
-repository. It is a snapshot of the project at an instant in time, as
-seen from a single [check-out’s](#co) perspective. Synonyms: version,
-snapshot, revision, commit. Sometimes styled “`CHECKIN`”, especially in
-command documentation where any [valid checkin name][ciname] can be
-used.
+A [version] of the project’s files that have been committed to the
+repository; as such, it is sometimes called a “commit” instead.  A
+checkin is a snapshot of the project at an instant in time, as seen from
+a single [check-out’s](#co) perspective. It is sometimes styled
+“`CHECKIN`”, especially in command documentation where any
+[valid checkin name][ciname] can be used.
 
-*   The long list of synonyms is confusing to new Fossil users,
+*   There is a conflation of terms here: any of the various synonyms for
+    [version] may be used where “check-in” is more accurate, and vice
+    versa. This is because a check-in *has* a version, but a version
+    suffices to uniquely look up a particular commit.
+
+*   The resulting long list of synonyms is confusing to new Fossil users,
     particularly the noun sense of the word “commit,” but it’s easy
     enough to internalize the concepts. [Committing][commit] creates a
     *commit.*  It may also be said to create a checked-in *version* of a
@@ -237,8 +302,8 @@ used.
 *   Check-ins exist only inside the repository. Contrast a
     [check-out](#co).
 
-*   Check-ins may have [one or more names][ciname], but only the SHA
-    hash is globally unique, across all time; we call it the check-in’s
+*   Check-ins may have [one or more names][ciname], but only the
+    [hash] is globally unique, across all time; we call it the check-in’s
     canonical name. The other names are either imprecise, contextual, or
     change their meaning over time and across [repositories](#repo).
 
@@ -265,7 +330,7 @@ particular [check-in](#ci) of the [project](#project).
     common to have a single repo clone on a machine but to have it
     [open] in [multiple working directories][mwd]. Check-out directories
     are associated with the repos they were created from by settings
-    stored in the check-out drectory. This is in the `.fslckout` file on
+    stored in the check-out directory. This is in the `.fslckout` file on
     POSIX type systems, but for historical compatibility reasons, it’s
     called `_FOSSIL_` by native Windows builds of Fossil.
 
