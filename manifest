@@ -1,5 +1,5 @@
-C Add\sa\snote\sto\s'fossil\suv'\shelp\sthat\ssync\srequires\s'y'\spermissions\son\sthe\sremote.
-D 2023-03-12T21:10:33.015
+C Added\sa\snew\sglossary\sitem\s"Capabilities"\sto\sintroduce\sthe\sterm\sand\ndistinguish\sit\sfrom\s"Permissions",\sand\smade\sseveral\schanges\sto\sthe\nreferenced\sdocument\sto\sreinforce\sthis\sdistinction\sand\sexplain\swhy\swe\nbother\sto\smake\sit.
+D 2023-03-13T19:00:33.741
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -775,7 +775,7 @@ F www/build.wiki 1a98465cad1ffefde481adebc3bcc3c4f33e2c35cdaf6d752929a40bb6df14c
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
-F www/caps/index.md 9ec14b616f43fbebf298fb085b6a3fb5f5c690137367ca3950ddecea27e01273
+F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f7bc8
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
@@ -839,7 +839,7 @@ F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/gitusers.md 22ac08b3da6af22f8db79ce2ca2f1491d1bbc9b414a1f3ee70de2a56c274154b
 F www/globs.md 78e1eeb685aed7a5ce91b3896a3a87f3f9d2388523d80fa7a5dec2e22bd23432
-F www/glossary.md 86cb7eb2bfb00e0a1fb2662d47484b988481cb5641e5d8c18fd0603cda3d71bb
+F www/glossary.md 7b5ec231c3f0c67bff98d6f5db665609759684b7e67388a1ecf2758f31d00309
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -884,11 +884,11 @@ F www/makefile.wiki 19bd2d5843ee6277253dea41e7a540bc63bf55747a60909d22b24ad58528
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 8684d71308e9c397651ee475a8ff575f0ef4d9b86d8896d47e1d2d136bff17cd
-F www/mkindex.tcl f54c37257bea588fd976b46391588b3b9fa01beb497b350c17279bf437302510 x
+F www/mkindex.tcl 0e97b5c56fa2cfafffd4e7764e4c04b85d45830736dffcee0f0e23a2d1abd04d x
 F www/newrepo.wiki bbc20d277cfb9787824a4fc83cfec571b379e116a7765808d481370793c22611
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
-F www/permutedindex.html ff392a1b001116e01483292638a6a7a103c21154a380fce463082f576e1beb6c
+F www/permutedindex.html 8c5b15c6529e302226fa005b24fecee113224ee8e4abd4ae910404e4af6f442a
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 0d9f2a36fbf1db95b7097936609b455c49a4ea064b167c1f52eabf213f3bb5b2
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e688dc0f9fe8161c4c0c2905aa775a2399d67d5ee81a882fa9306e8c1aa8b41
-R f80d3a120998de4b748dc722bed5749d
-U stephan
-Z 3bec3ac1f7188274021e41a4e165e579
+P 2eef3acda352c7fd3fd63c265fb1ce23a85950dba9d73d5dbbabefc71c8611dd
+R 943c9a31dcfdc662d138bb5be9a24bad
+U wyoung
+Z bca6a8013863308d98e91b94a4a51c32
 # Remove this line to create a well-formed Fossil manifest.

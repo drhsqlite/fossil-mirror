@@ -1,9 +1,13 @@
-# Administering User Capabilities
+# Administering User Capabilities (a.k.a. Permissions)
 
 Fossil includes a powerful [role-based access control system][rbac]
-which affects which users have which capabilities within a given
-[served][svr] Fossil repository. We call this the capability system, or
-“caps” for short.
+which affects which users have which capabilities(^Some parts of the
+Fossil code call these “permissions” instead, but since there is [a
+clear and present risk of confusion](#webonly) with operating system
+level file permissions in this context, we avoid using that term for
+Fossil’s RBAC capability flags in these pages.) within a given
+[served][svr] Fossil repository. We call this the “caps” system for
+short.
 
 Fossil stores a user’s caps as an unordered string of ASCII characters,
 one capability per, [currently](./impl.md#choices) limited to

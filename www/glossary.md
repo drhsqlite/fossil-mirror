@@ -374,4 +374,19 @@ files, but under Fossil’s powerful version control features.
 [wiki]: ./wikitheory.wiki
 
 
+## <a id="caps"></a>Capabilities
+
+Fossil includes a powerful [role-based access control system][rbac]
+which affects which users have which capabilities within a given
+[repository](#repo). You can read more about this complex topic
+[here](./caps/).
+
+Some people — and indeed certain parts of Fossil’s own code — use the
+term “permissions” instead, but since [operating system file permissions
+also play into this](./caps/#webonly), we prefer the term “capabilities”
+(or “caps” for short) when talking about Fossil’s RBAC system to avoid a
+confusion here.
+
+[rbac]: https://en.wikipedia.org/wiki/Role-based_access_control
+
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>
