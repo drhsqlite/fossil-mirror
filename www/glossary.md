@@ -451,10 +451,10 @@ files, but under Fossil’s powerful version control features.
 [wiki]: ./wikitheory.wiki
 
 
-## <a id="caps"></a>Capabilities
+## <a id="cap"></a>Capability
 
 Fossil includes a powerful [role-based access control system][rbac]
-which affects which users have which capabilities within a given
+which affects which users have permission to do certain things within a given
 [repository]. You can read more about this complex topic
 [here](./caps/).
 
