@@ -1,5 +1,5 @@
-C Expanded\sthe\s"version/revision/UUID/snapshot"\sdiscussion\sin\sthe\sglossary\ninto\sa\sseparate\sterm\ssince\sthese\saren't\sstrict\ssynonyms\sfor\s"check-in",\nthe\sdefinition\swhich\spreviously\shosted\sthis\stopic.
-D 2023-03-13T19:54:35.620
+C Moved\sthe\s"snapshot"\sterm\sin\sthe\sglossary\sdown\sinto\sa\sfootnote\sbecause\nit's\sgot\sassorted\sproblems,\smaking\sit\sa\smuch\sworse\soverall\ssynonym\sfor\n"version"\seven\sthan\s"UUID".
+D 2023-03-13T20:44:43.072
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -839,7 +839,7 @@ F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/gitusers.md 22ac08b3da6af22f8db79ce2ca2f1491d1bbc9b414a1f3ee70de2a56c274154b
 F www/globs.md 78e1eeb685aed7a5ce91b3896a3a87f3f9d2388523d80fa7a5dec2e22bd23432
-F www/glossary.md 40bf9b54b51d4ea75a7da04dd35dc3fb2fded4e03135004b75dc5f3fe89ad4bb
+F www/glossary.md 3e7330e2c9eddf710d388f70c50c87866709fb970f1be8f7b58762003620273f
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 23b91f3794581299f03deb39aaf9b81765d494a7d62147d4be8a44a80e18b06f
-R 6c879606fc084ab142dc7b0c05aad031
+P 58030a789bbf9f0fc5108028c4c5796bbf60150423bd04d828e593462c9e4c96
+R e3ceb554c500029339de172c12bcdca0
 U wyoung
-Z 15db08308fbae49168f188e6e37cdb4a
+Z 85ee54a97a36505d8b25109a1d0422e1
 # Remove this line to create a well-formed Fossil manifest.
