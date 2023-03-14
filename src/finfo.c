@@ -274,8 +274,9 @@ void finfo_cmd(void){
 ** Other versions may be specified using the -r option.
 **
 ** Options:
-**    -R|--repository REPO       Extract artifacts from repository REPO
-**    -r VERSION                 The specific check-in containing the file
+**    -o|--out OUTFILE         For exactly one given FILENAME, write to OUTFILE
+**    -R|--repository REPO     Extract artifacts from repository REPO
+**    -r VERSION               The specific check-in containing the file
 **
 ** See also: [[finfo]]
 */
@@ -283,17 +284,27 @@ void cat_cmd(void){
   int i;
   Blob content, fname;
   const char *zRev;
+  const char *zFileName;
   db_find_and_open_repository(0, 0);
   zRev = find_option("r","r",1);
+  zFileName = find_option("out","o",1);
 
   /* We should be done with options.. */
   verify_all_options();
+
+  if ( zFileName && g.argc>3 ){
+    fossil_fatal("output file can only be given when retrieving a single file");
+  }
 
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 0, 1);
     blob_zero(&content);
     historical_blob(zRev, blob_str(&fname), &content, 1);
-    blob_write_to_file(&content, "-");
+    if ( g.argc==3 && zFileName ){
+      blob_write_to_file(&content, zFileName);
+    }else{
+      blob_write_to_file(&content, "-");
+    }
     blob_reset(&fname);
     blob_reset(&content);
   }
