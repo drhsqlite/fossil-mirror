@@ -568,6 +568,10 @@ body.forum .forumPostBody > div blockquote {
     padding: 0 0.5em;
 }
 
+body.forum .forumPosts.fileage a:visited {
+  color: rgba(98, 150, 205, 0.9);
+}
+
 body.report table.report tr td { color: black }
 body.report table.report a { color: blue }
 body.tkt td.tktDspValue { color: black }

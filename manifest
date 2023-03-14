@@ -1,5 +1,5 @@
-C Correct\sa\sdirectory\sname\sin\sskins/README.md\swhich\swas\smade\sinvalid\svia\scode\srestructuring.
-D 2023-03-14T14:07:17.796
+C Slight\sCSS\stweak\sto\sthe\sdarkmode\sskin's\sforum\slisting,\sbased\son\s[forum:9a6f4c039d82|forum\spost\s9a6f4c039d82],\sintended\sto\smake\sthe\shave-been-visited\slinks\sstand\sout\sa\sbit\sbetter.
+D 2023-03-14T14:16:16.321
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -339,7 +339,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 6708e8bc5a5fdca2e60deb894d6b485c85c93185daaa758c95f36e23c880eaee
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt e4c057b334166eb4e9a2f07bec4a1094932f1a3fe0ff064427158b45c95d8ffd
+F skins/darkmode/css.txt d064c61df70731a4ffdb0c5ae4df3c06b8036f358d90e73bbf8eb21882a0306a
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3f4581437099af0ed4fde09257d5651b068fc309e0c56275904e93ae3d8d8b8
-R cab196c3ee9dcad40f9db3840714b593
+P e6ef19776f1fb38e8b1b1f333c4043cae0469297a0b9aacf27ba92bb301b2a0c
+R e4560c15a17f5ffb54fa3a8017772445
 U stephan
-Z e88842742bccfe5f46055b32de8d5de8
+Z 6e9185f368e423fdcdcdec2c04d3a90c
 # Remove this line to create a well-formed Fossil manifest.
