@@ -1,5 +1,5 @@
-C Renamed\sthe\snew\s"Capabilities"\sglossary\sentry\sto\s"Capability"\ssince\swe\nshouldn't\sbe\susing\sa\splural\stop-word\sentry\seven\sthough\sthey're\ndefined,\stransported,\sstored,\sand\sotherwise\streated\sas\sa\sgroup.\nAlso\sreplaced\sa\suse\sof\sthis\sword\sin\sits\sown\sdefinition.
-D 2023-03-13T20:58:33.102
+C Correct\sa\sdirectory\sname\sin\sskins/README.md\swhich\swas\smade\sinvalid\svia\scode\srestructuring.
+D 2023-03-14T14:07:17.796
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -283,7 +283,7 @@ F extsrc/sqlite3.h 21a30727b7a61bc054ed21072d508245ed927b5b1c76b985702fa8de7c96d
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
-F skins/README.md 6b83527a4bc17ad7f855dbdfb7d5d1e456fb77e9b0c8f9b63bdf2c4faa74003c
+F skins/README.md 35c559e340d6db2b8c7426f091d5e6c44e84b8b31413c04d65c774523b4a84fe
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
 F skins/ardoise/css.txt d01376b825fb58bea8399662b232fe08dc39bbac9a12bd27005cfe7581814c63
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 733ef88ab88e7a3d0293e9228db540d6d6e6318a6f2ed6c8f168505365694982
-R 9e986328920ebaf6b0495c3dc0590210
-U wyoung
-Z bdb948ae465f58cca993ff0240a3ba54
+P d3f4581437099af0ed4fde09257d5651b068fc309e0c56275904e93ae3d8d8b8
+R cab196c3ee9dcad40f9db3840714b593
+U stephan
+Z e88842742bccfe5f46055b32de8d5de8
 # Remove this line to create a well-formed Fossil manifest.
