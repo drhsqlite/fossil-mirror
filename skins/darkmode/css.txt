@@ -558,9 +558,17 @@ body.forum .debug {
     color: rgba(24,24,24,0.8);
 }
 
-body.forum .fileage tr:hover {
+body.forum .forumPosts.fileage tr:hover {
     background-color: #333;
     color: rgba(24,24,24,0.8);
+}
+body.forum .forumPosts.fileage tr:hover {
+    background-color: #333;
+    color: rgba(24,24,24,0.8);
+}
+body.forum .forumPosts.fileage tr:hover > td:nth-child(1),
+body.forum .forumPosts.fileage tr:hover > td:nth-child(3) {
+  color: #ffffffe0;
 }
 
 body.forum .forumPostBody > div blockquote {

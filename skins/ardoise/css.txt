@@ -1409,6 +1409,9 @@ table.captcha {
 div.forumSel {
   background-color: #3a3a3a;
 }
+body.forum .forumPosts.fileage a:visited {
+  color: rgb(72, 144, 224);
+}
 .debug {
   background-color: #330;
   border: 2px solid #aa0;
