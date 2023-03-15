@@ -1116,7 +1116,7 @@ span.timelineComment {
 }
 
 
-/* Login/Loguot
+/* Login/Logout
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
 table.login_out {
 }
@@ -1267,4 +1267,8 @@ td.usetupEditLabel {
   content: "";
   display: table;
   clear: both;
+}
+
+body.forum .forumPosts.fileage a:visited {
+  color: #648999;
 }

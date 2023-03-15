@@ -1,5 +1,5 @@
-C (x)diff\s--context\sN,\swhere\sN\sis\sa\snegative\svalue,\sis\snow\streated\sas\sinfinite,\sper\soff-list\sfeature\srequest.
-D 2023-03-15T10:40:11.282
+C A\sblitz\sskin\sforum\sCSS\stweak\sfrom\s[forum:224044aa2d8d2]\sto\sgive\svisited\slinks\sin\sthe\sthread\slist\sa\sslightly\sdifferent\scolor.
+D 2023-03-15T12:42:54.770
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -328,7 +328,7 @@ F skins/black_and_white/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760c
 F skins/black_and_white/header.txt a99bf860b5d14bbf384fef0acfe66ac71e0ed17572cdbef671723ca7aa4df104
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 539eb8f34746ad1836eb29d27b303f271f66c2cb6661b746c06f736097d99e58
+F skins/blitz/css.txt 04e12033d78005178dcfa681a0b13ff6f61b359231146d38ccf3bb7bc0394b62
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0aae0ef506501ef4d7c4602dce0b0a3bb6d1f7584cc220311063d15c8b5a8d27
-R 159205a36e67683bd53b2fa6218eb951
+P 16d3d8b05eb100a76b9a953544fda1b4c677f2fceed2f57cc554081f5e5129f7
+R 4191d89648078fb8b95a55f931746a63
 U stephan
-Z b07c76eeee895c02f812daab9bc7f980
+Z f520c9d3a9dcbe25f58ca33abc94f17a
 # Remove this line to create a well-formed Fossil manifest.
