@@ -1,5 +1,5 @@
-C A\sblitz\sskin\sforum\sCSS\stweak\sfrom\s[forum:224044aa2d8d2]\sto\sgive\svisited\slinks\sin\sthe\sthread\slist\sa\sslightly\sdifferent\scolor.
-D 2023-03-15T12:42:54.770
+C Produce\smerge\sconflict\smark\sduring\smerge\swhen\sfile\sexist\sin\scurrent\sversion\nand\sin\sversion\sto\sbe\smerged,\sbut\snot\sin\scommon\sancestor.\n\nRelated\sforum\sdiscussion\sincluding\stest\sscript:\s[forum:f035bbc8461da6d2].
+D 2023-03-16T02:08:33.599
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -499,7 +499,7 @@ F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb25
 F src/markdown_html.c 38a90709de369e067f475925861a6dec1cae1225739cb0a128d969c86b9f9ed7
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 1f76996e0858d67bbb7329c521aad1410db838196669faa684905d2630335847
+F src/merge.c e6f38664029bd1c302c30b750065ed85fe86078d63a071b6b8530514fcc677fa
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 4193b97f7b2c9d6c08df1295312f614ca3a736f562964b6fd5ca55afa3fb5e36
@@ -954,8 +954,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 16d3d8b05eb100a76b9a953544fda1b4c677f2fceed2f57cc554081f5e5129f7
-R 4191d89648078fb8b95a55f931746a63
-U stephan
-Z f520c9d3a9dcbe25f58ca33abc94f17a
+P 68e9acb8360510a44f6696b3ceb9b7bafd01ea79300bf73f96194ae9ec0496d8
+R daf51e07c0f7b36d8bfc6fc642c4d25a
+T *branch * merge-conflict-when-no-file-on-pivot
+T *sym-merge-conflict-when-no-file-on-pivot *
+T -sym-trunk *
+U mgagnon
+Z b3c2702cced4d1365409798de6572458
 # Remove this line to create a well-formed Fossil manifest.
