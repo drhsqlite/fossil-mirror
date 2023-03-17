@@ -565,6 +565,11 @@ input[type="submit"]:focus {
   border-color: #648898;
 }
 
+input[type="submit"]:disabled {
+  color: rgb(128,128,128);
+  background-color: rgb(153,153,153);
+}
+
 
 /* Forms
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
