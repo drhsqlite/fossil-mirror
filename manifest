@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.41.2\sbeta,\sfor\stesting.
-D 2023-03-17T12:28:16.557
+C CSS\stweak\sfor\sdisabled\ssubmit\sbuttons\sin\sdarkmode\sskin,\sbased\son\sforum\sfeedback.
+D 2023-03-19T14:25:00.542
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -339,7 +339,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 6708e8bc5a5fdca2e60deb894d6b485c85c93185daaa758c95f36e23c880eaee
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt 5dc1954afac63ef821c8a3ab746156a6ec4735d2daca00227bb92eac24f4a009
+F skins/darkmode/css.txt cfa7eed6ebb15e4bfe3032c5f522db0f147b23e77afb3752cbe9519eecdb7beb
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0f623864b704a61243faa0eeba91a0a5121ab87c823c1c3b949ee490ed1e81a
-R e2e4387c7d30c4b9d815ccc59a1f199b
-U drh
-Z 6f9bb4df277cfd5a29dd53e05e77912b
+P 36b17e515a5dc74ecba20348ce42eb7ea0f4ad5dfc689247d55b467ecbc26c6a
+R 9287ca137f254865d85c30ae6855f1a3
+U stephan
+Z 970a8cc48b7a9d0a7e38ac4d1f0321ee
 # Remove this line to create a well-formed Fossil manifest.
