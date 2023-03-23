@@ -32,11 +32,6 @@ RUN set -x                                                             \
     && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz             \
     && ( cd bbx && yes "" | make oldconfig && make -j11 )
 
-# Copy in dummied-up OS release info file for those using nspawn.
-# Without this, it'll gripe that the rootfs dir doesn't look like
-# it contains an OS.
-COPY containers/os-release /etc/os-release
-
 ### The changeable Fossil layer is the only one in the first stage that
 ### changes often, so add it last, to make it independent of the others.
 ###

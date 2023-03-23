@@ -731,8 +731,15 @@ to the reasons given [above](#repo-inside). We’ll make consistent use of
 this naming scheme in the examples below so that you will be able to
 replace the “`myproject`” element of the various file and path names.
 
-The first configuration step is to convert the Docker container into
-a “machine,” as `systemd` calls it.  The easiest method is:
+If you use [the stock `Dockerfile`](/file/dockerfile) to generate your
+base image, `nspawn` won’t recognize it as containing an OS unless you
+put a line like this into the first stage:
+
+```
+COPY containers/os-release /etc/os-release
+```
+
+That will let you produce a `systemd` “machine” via the OCI image:
 
 ```
   $ make container
@@ -740,8 +747,7 @@ a “machine,” as `systemd` calls it.  The easiest method is:
     machinectl import-tar - myproject
 ```
 
-Next, create `/etc/systemd/nspawn/myproject.nspawn`, containing
-something like:
+Next, create `/etc/systemd/nspawn/myproject.nspawn`:
 
 ----
 

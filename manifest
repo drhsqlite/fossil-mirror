@@ -1,5 +1,5 @@
-C Dropped\sdeclaration\sof\sDockerfile\ssyntax\sversion\sfrom\s1.4\sto\s1.0.\nPut\sit\sat\s1.4\swhen\swe\swere\susing\sheredocs,\sa\sfeature\sthat\swent\nfrom\sexperimental\sto\sstable\sat\sthat\sversion,\sthen\sfailed\sto\sdrop\nit\sback\swhen\swe\sreplaced\sthe\suse\sof\sheredocs\swith\sexternally\ngenerated\sfiles\sto\sregain\sPodman\scompatibility.
-D 2023-03-23T15:51:04.513
+C The\s/etc/os-release\sworkaround\sfor\snspawn's\spickiness\shas\scaused\sthe\nfeature\sto\sgo\sinto\snegative\sROI\sterritory.\s\sRipped\sit\sout\sof\sthe\nmainstream\sprocess\sand\smade\sit\sa\smanual\sstep\sfor\sthose\swho\sneed\sit,\sin\nthe\shopes\sthat\sthis\swill\scause\sfewer\songoing\sproblems\sthan\sleaving\sit\sas\nit\sis.
+D 2023-03-23T16:40:19.292
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,13 +11,13 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile af2cd7faa1355436e9124110e8fad91667d476f600704cc17c75f7095d3f7f8d
+F Dockerfile 28c84c758241ba2879ebf9d052c74cee60d0d6339f74f4b60ec45e5d32107041
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 863eb2682b738b399f0826d6661034b6ede854eb8340aac3cbd2b3fa88ab0be4 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 02b6aa378e08cf4a81374bf44bfc24b6b151322a4711ef5bd149beb791d0da84
-F auto.def 52e160541c8c644846869d54ab0c4b599e2c40946c0ed5fbd3dae56fa0c74fda
+F auto.def 3b9044a2a444b948f87cbb5d3eb87b7ad268f240743b6f96cf6812cd74de88cf
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -267,7 +267,7 @@ F compat/zlib/zutil.h a8f1bae8015e110eaf27177b58f3efac8c89731329568458012e420de4
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
 F containers/Dockerfile-nojail.patch dcd5f63d4fcf21b2b0966d0b31f29d0bf6e0ab47fc97585c5f51dbb4899e3098
 F containers/busybox-config 989bbe1d8d6e5ed3c53db27413f301d73089d49ff39ad2715043c38b2aaabef4
-F containers/os-release.in 3ce83cba40f97ade68b469bd930212c2d1a73026153082c27781b931dbecb7ae
+F containers/os-release df2bcfbcaeb502f9cc0720c97992986b57a4b01338b8a624c2de5c2561f9cf41 w containers/os-release.in
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c 5fcb1947aca6b836007f165622c1b96e2167487f889265ab64711757f01b913b
 F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
@@ -790,7 +790,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md ffc80437d265737225be46c2d18a447bc43b58ef2cb1d2e538510f584d350d80
+F www/containers.md e1565c276153da2b56d4dee9b65db86b6e53db02ac57a2019335e761cdb89c48
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2210c15d1302904c11c15acd592dbca3481eab7403d08c0609c8d0c2f78744c3
-R 485697728ad43867ea3a595149dc267e
+P 5b62bfe101390bf3eb2a87cc86ca3621eeedf9df52e6f2df06c6a27de247ebe6
+R c05c29b44333a873212784273c65b3e5
 U wyoung
-Z e09c3974eadc3eb2a4cedd08491067cc
+Z 8e4a5d36b0fb642c8b1acf3ef7226ef2
 # Remove this line to create a well-formed Fossil manifest.
