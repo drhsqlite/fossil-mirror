@@ -13,7 +13,7 @@ show some of these options later on.
 ## 1. Quick Start
 
 Fossil ships a `Dockerfile` at the top of its source tree,
-[here](/file/Dockerfile), which you can build like so:
+[here][DF], which you can build like so:
 
 ```
   $ docker build -t fossil .
@@ -57,6 +57,8 @@ interactive use, while the versioned ones are good for CI/CD type
 applications since they avoid a conflict with past versions; it lets you
 keep old containers around for quick roll-backs while replacing them
 with fresh ones.
+
+[DF]: /file/Dockerfile
 
 
 ## 2. <a id="storage"></a>Repository Storage Options
@@ -731,12 +733,12 @@ to the reasons given [above](#repo-inside). We’ll make consistent use of
 this naming scheme in the examples below so that you will be able to
 replace the “`myproject`” element of the various file and path names.
 
-If you use [the stock `Dockerfile`](/file/dockerfile) to generate your
+If you use [the stock `Dockerfile`][DF] to generate your
 base image, `nspawn` won’t recognize it as containing an OS unless you
 put a line like this into the first stage:
 
 ```
-COPY containers/os-release /etc/os-release
+  COPY containers/os-release /etc/os-release
 ```
 
 That will let you produce a `systemd` “machine” via the OCI image:
