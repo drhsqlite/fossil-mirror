@@ -360,7 +360,7 @@ About half of Git's code is POSIX C, and about a third is POSIX shell
 code. This is largely why the so-called "Git for Windows" distributions
 (both [https://git-scm.com/download/win|first-party] and
 [https://gitforwindows.org/|third-party]) are actually an
-[http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
+[https://osdn.net/projects/mingw/|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
 natively to Windows. Git is a foreign citizen on Windows, speaking to it
 only through a translator.⁶
@@ -370,7 +370,8 @@ line endings are treated as first-class citizens over CR+LF, for example
 — the Windows build of Fossil is truly native.
 
 The third-party extensions to Git tend to follow this same pattern.
-[http://mingw.org/wiki/msys|GitLab isn't portable to Windows at all],
+[https://docs.gitlab.com/ee/install/install_methods.html#microsoft-windows | 
+GitLab isn't portable to Windows at all],
 for example. For that matter, GitLab isn't even officially supported on
 macOS, the BSDs, or uncommon Linuxes! We have many users who regularly
 build and run Fossil on all of these systems.
