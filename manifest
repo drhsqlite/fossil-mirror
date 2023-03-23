@@ -1,5 +1,5 @@
-C Use\sa\smore\sappropriate\slink\sin\sthe\sabove\sdocument.
-D 2023-03-23T14:52:54.058
+C Linked\sto\sthe\sDockerfile\sfrom\sthe\stop\sof\sthe\scontainers\sdoc.
+D 2023-03-23T15:42:43.535
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -790,7 +790,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 403eab9dfb7ee0f65efdb39e7d54dde35f87a15c50a19824aa10793da5e15dc1
+F www/containers.md ffc80437d265737225be46c2d18a447bc43b58ef2cb1d2e538510f584d350d80
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8baa04bd2ffe092f56a3139aadb3d73f17271c76904431ada1cd7c9403d2a12
-R c4480fa8111374276b0f4c3fa80f4c41
-U danield
-Z 9f6d004e219753d97a311df8632d904c
+P aacd3714ce5d32d3135b896dff1a5a29c5e8d3c74bd828adc8783c36f4804e9b
+R 5e43982b67b9057cc037ddf5d93e7fdc
+U wyoung
+Z 0f7b5bf82a817513032ee7fff6d093b0
 # Remove this line to create a well-formed Fossil manifest.

@@ -12,8 +12,8 @@ show some of these options later on.
 
 ## 1. Quick Start
 
-Fossil ships a `Dockerfile` at the top of its source tree which you can
-build like so:
+Fossil ships a `Dockerfile` at the top of its source tree,
+[here](/file/Dockerfile), which you can build like so:
 
 ```
   $ docker build -t fossil .
