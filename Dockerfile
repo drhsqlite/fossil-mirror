@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.4
+# syntax=docker/dockerfile:1.0
 # See www/containers.md for documentation on how to use this file.
 
 ## ---------------------------------------------------------------------
@@ -28,7 +28,7 @@ ARG BBXVER="1_35_0"
 ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
 COPY containers/busybox-config /tmp/bbx/.config
 ADD $BBXURL /tmp/bbx/src.tar.gz
-RUN set -x \
+RUN set -x                                                             \
     && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz             \
     && ( cd bbx && yes "" | make oldconfig && make -j11 )
 
@@ -52,7 +52,7 @@ ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
 ENV FSLSTB=/tmp/fsl/src.tar.gz
 ADD $FSLURL $FSLSTB
-RUN set -x \
+RUN set -x                                                             \
     && if [ -d $FSLSTB ] ; then mv $FSLSTB/src fsl ;                   \
        else tar -C fsl -xzf fsl/src.tar.gz ; fi                        \
     && m=fsl/src/src/main.mk                                           \

@@ -1,5 +1,5 @@
-C Linked\sto\sthe\sDockerfile\sfrom\sthe\stop\sof\sthe\scontainers\sdoc.
-D 2023-03-23T15:42:43.535
+C Dropped\sdeclaration\sof\sDockerfile\ssyntax\sversion\sfrom\s1.4\sto\s1.0.\nPut\sit\sat\s1.4\swhen\swe\swere\susing\sheredocs,\sa\sfeature\sthat\swent\nfrom\sexperimental\sto\sstable\sat\sthat\sversion,\sthen\sfailed\sto\sdrop\nit\sback\swhen\swe\sreplaced\sthe\suse\sof\sheredocs\swith\sexternally\ngenerated\sfiles\sto\sregain\sPodman\scompatibility.
+D 2023-03-23T15:51:04.513
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile dfef1701479209504ca4171dde5959537b900d72625abe952e5b00abea018601
+F Dockerfile af2cd7faa1355436e9124110e8fad91667d476f600704cc17c75f7095d3f7f8d
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 863eb2682b738b399f0826d6661034b6ede854eb8340aac3cbd2b3fa88ab0be4 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aacd3714ce5d32d3135b896dff1a5a29c5e8d3c74bd828adc8783c36f4804e9b
-R 5e43982b67b9057cc037ddf5d93e7fdc
+P 2210c15d1302904c11c15acd592dbca3481eab7403d08c0609c8d0c2f78744c3
+R 485697728ad43867ea3a595149dc267e
 U wyoung
-Z 0f7b5bf82a817513032ee7fff6d093b0
+Z e09c3974eadc3eb2a4cedd08491067cc
 # Remove this line to create a well-formed Fossil manifest.
