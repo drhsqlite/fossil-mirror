@@ -32,6 +32,13 @@ the “`fossil server --port`” feature inside the container. We can let
 Fossil default to 8080 internally, then remap it to wherever we want it
 on the host instead.
 
+For debugging the live container while it runs, you can get an interactive
+shell like so:
+
+```
+  $ docker exec -it -u fossil fossil sh
+```
+
 Our stock `Dockerfile` configures Fossil with the default feature set,
 so you may wish to modify the `Dockerfile` to add configuration options,
 add APK packages to support those options, and so forth.
