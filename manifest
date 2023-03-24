@@ -1,5 +1,5 @@
-C Tiny\sclarity\stweaks\sto\sthe\sDockerfile.\s\sNo\sfunctional\schange.
-D 2023-03-24T07:03:59.527
+C Updated\sthe\snojail\spatch\sso\sit\sapplies\scleanly\satop\sall\sthese\srecent\nDockerfile\schanges.\s\sNo\sfunctional\schange;\smerely\stracks\schanges\sin\nthe\scontext\sparts\sof\sthe\sdiff.
+D 2023-03-24T07:43:00.380
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -265,7 +265,7 @@ F compat/zlib/zlib2ansi 8b1985f183ae89601428986f869379a774a288e76289c2c3492b3ede
 F compat/zlib/zutil.c 3ce011b3a333719f4356ab84e3149f8e1538e9ec2a511315124774fe61b078f6
 F compat/zlib/zutil.h a8f1bae8015e110eaf27177b58f3efac8c89731329568458012e420de48766be
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
-F containers/Dockerfile-nojail.patch dcd5f63d4fcf21b2b0966d0b31f29d0bf6e0ab47fc97585c5f51dbb4899e3098
+F containers/Dockerfile-nojail.patch e74d0025d8e95f262f00935c4acfd7606b43e7a42b8247bc0070faf9461e938d
 F containers/busybox-config 989bbe1d8d6e5ed3c53db27413f301d73089d49ff39ad2715043c38b2aaabef4
 F containers/os-release df2bcfbcaeb502f9cc0720c97992986b57a4b01338b8a624c2de5c2561f9cf41
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
@@ -954,8 +954,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4b41a7f8bdbe4550abfc6344792a48111ec8d0fe8ac88ed083bd69bb46b542c2
-R 02677518e5f7a6e71bac5e168c562c3a
+P 591e3eb90edd73f086948fc87e593338eae59be931630d7f507440dd75638025
+R 9138008450c2083077777a5367cd1b82
 U wyoung
-Z 7b5a1427d236c12a3f7a5d70934ddcbc
+Z c0f3511352cf440c3019aaae21489a6c
 # Remove this line to create a well-formed Fossil manifest.

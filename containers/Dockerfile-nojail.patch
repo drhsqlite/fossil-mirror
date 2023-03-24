@@ -2,12 +2,12 @@ Index: Dockerfile
 ==================================================================
 --- Dockerfile
 +++ Dockerfile
-@@ -62,13 +62,13 @@
+@@ -57,13 +57,13 @@
  ## ---------------------------------------------------------------------
  ## STAGE 2: Pare that back to the bare essentials.
  ## ---------------------------------------------------------------------
  
- FROM scratch
+ FROM scratch AS os
 -WORKDIR /jail
 +WORKDIR /
  ARG UID=499
@@ -15,11 +15,11 @@ Index: Dockerfile
 +ENV PATH "/bin:/usr/bin"
  
  ### Lay BusyBox down as the first base layer. Coupled with the host's
- ### kernel, this is the "OS."
+ ### kernel, this is the "OS" used to RUN the subsequent setup script.
  COPY --from=builder /tmp/bbx/busybox /bin/
- COPY --from=builder /etc/os-release /etc/
-@@ -84,19 +84,17 @@
-     && adduser -S -h `pwd` -g 'Fossil User' -G fossil -u ${UID} fossil \
+ RUN [ "/bin/busybox", "--install", "/bin" ]
+@@ -78,19 +78,17 @@
+     && echo "fossil:x:${UID}:fossil"                   >> /etc/group   \
      && install -d -m 700 -o fossil -g fossil log museum                \
      && install -d -m 755 -o fossil -g fossil dev                       \
      && install -d -m 755 -o root -g root /usr/bin                      \
@@ -41,7 +41,7 @@ Index: Dockerfile
      && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
         /usr/bin/sqlite3                                                \
      && chmod +x /usr/bin/sha?sum /usr/bin/sqlite3
-@@ -107,10 +105,9 @@
+@@ -101,10 +99,9 @@
  ## ---------------------------------------------------------------------
  
  EXPOSE 8080/tcp
