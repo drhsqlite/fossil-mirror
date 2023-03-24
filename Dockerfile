@@ -61,7 +61,7 @@ RUN set -x                                                             \
 FROM scratch AS os
 WORKDIR /jail
 ARG UID=499
-ENV PATH "/bin:/usr/bin:/jail/bin"
+ENV PATH "/bin:/jail/bin"
 
 ### Lay BusyBox down as the first base layer. Coupled with the host's
 ### kernel, this is the "OS" used to RUN the subsequent setup script.
@@ -78,8 +78,6 @@ RUN set -x                                                             \
     && echo "fossil:x:${UID}:fossil"                   >> /etc/group   \
     && install -d -m 700 -o fossil -g fossil log museum                \
     && install -d -m 755 -o fossil -g fossil dev                       \
-    && install -d -m 755 -o root -g root /usr/bin                      \
-    && install -d -m 400 -o root -g root /run                          \
     && install -d -m 1777 -o root -g root /tmp                         \
     && mknod -m 666 dev/null    c 1 3                                  \
     && mknod -m 444 dev/urandom c 1 9
@@ -88,12 +86,12 @@ RUN set -x                                                             \
 ### as often as the Fossil build-from-source layer above.
 COPY --from=builder /tmp/fossil bin/
 RUN set -x                                                             \
-    && ln -s /jail/bin/fossil /usr/bin/f                               \
-    && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /usr/bin/sha1sum     \
-    && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /usr/bin/sha3sum     \
+    && ln -s /jail/bin/fossil /bin/f                                   \
+    && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /bin/sha1sum         \
+    && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /bin/sha3sum         \
     && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
-       /usr/bin/sqlite3                                                \
-    && chmod +x /usr/bin/sha?sum /usr/bin/sqlite3
+       /bin/sqlite3                                                    \
+    && chmod +x /bin/sha?sum /bin/sqlite3
 
 
 ## ---------------------------------------------------------------------

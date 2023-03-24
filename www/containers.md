@@ -742,13 +742,16 @@ replace the “`myproject`” element of the various file and path names.
 
 If you use [the stock `Dockerfile`][DF] to generate your
 base image, `nspawn` won’t recognize it as containing an OS unless you
-put a line like this into the first stage:
+change the “`FROM scratch AS os`” line at the top of the second stage
+to something like this:
 
 ```
-  COPY containers/os-release /etc/os-release
+  FROM gcr.io/distroless/static-debian11 AS os
 ```
 
-That will let you produce a `systemd` “machine” via the OCI image:
+Using that as a base image provides all the files `nspawn` checks for to
+determine whether the container is sufficiently close to a Linux VM for
+the following step to proceed:
 
 ```
   $ make container
