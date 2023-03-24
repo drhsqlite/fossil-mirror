@@ -1,5 +1,5 @@
-C Dropped\sour\scanned\s/etc/os-release\sfile\sentirely,\srecommending\sinstead\nthat\sthose\swho\sneed\sa\sVM-like\scontainer\simage\sswitch\sthe\ssecond\sstage\nfrom\s"scratch"\sto\sone\sof\sGoogle's\s"distroless"\simages,\swhich\sprovide\nthat\sand\smore.\s\sThat\sin\sturn\sgets\srid\sof\sthe\sneed\sfor\sthe\sdummied\sup\n/usr/bin\sand\s/run,\swhich\ssimplifies\sthe\smainstream\scase.
-D 2023-03-24T08:07:53.639
+C Another\sfixup\sto\sthe\snojail\spatch\sto\strack\sthe\sprevious.\s\s(Can't\nreliably\screate\sthese\spatches\swithout\shaving\sa\scommitted\sversion\sto\ndiff\sagainst,\salas.)
+D 2023-03-24T08:13:21.115
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -265,7 +265,7 @@ F compat/zlib/zlib2ansi 8b1985f183ae89601428986f869379a774a288e76289c2c3492b3ede
 F compat/zlib/zutil.c 3ce011b3a333719f4356ab84e3149f8e1538e9ec2a511315124774fe61b078f6
 F compat/zlib/zutil.h a8f1bae8015e110eaf27177b58f3efac8c89731329568458012e420de48766be
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
-F containers/Dockerfile-nojail.patch 2eea9a7b8df50f2a8b9e482adb1f0bfb0e74fd7d34c8e2ce387575cbd7e198c6
+F containers/Dockerfile-nojail.patch 7fb7a938cbc57b2433574bcf9372663308f273b2a80e4ff64ef30420e07a6279
 F containers/busybox-config 989bbe1d8d6e5ed3c53db27413f301d73089d49ff39ad2715043c38b2aaabef4
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c 5fcb1947aca6b836007f165622c1b96e2167487f889265ab64711757f01b913b
@@ -953,8 +953,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bdd5819e2f74137f56a34421d8f8caf274df27caaf6fc1124b3becb561240bf
-R ae86974806432c3b575ec5d956dd57dc
+P d778a023922249e6dbc235ab767bc0dc2f75d565f32f48c64dbd4e9ba3d4726b
+R 78fa9b9ef51eeb6eb52f5829ca373fb8
 U wyoung
-Z f9ecc2b442111aa412bfeb9f46691e59
+Z 3d2dab9051380592ebc613b53f1b8f05
 # Remove this line to create a well-formed Fossil manifest.

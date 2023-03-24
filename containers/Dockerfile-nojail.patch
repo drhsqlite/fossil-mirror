@@ -18,14 +18,20 @@ Index: Dockerfile
  ### kernel, this is the "OS" used to RUN the subsequent setup script.
  COPY --from=builder /tmp/bbx/busybox /bin/
  RUN [ "/bin/busybox", "--install", "/bin" ]
-@@ -78,19 +78,17 @@
+@@ -72,23 +72,23 @@
+ ### anything likely to change often.  So long as the user leaves
+ ### UID alone, this layer will be durable.
+ RUN set -x                                                             \
+     && echo "root:x:0:0:Admin:/:/false"                 > /etc/passwd  \
+     && echo "root:x:0:root"                             > /etc/group   \
+-    && echo "fossil:x:${UID}:${UID}:User:/jail:/false" >> /etc/passwd  \
++    && echo "fossil:x:${UID}:${UID}:User:/:/false"     >> /etc/passwd  \
      && echo "fossil:x:${UID}:fossil"                   >> /etc/group   \
      && install -d -m 700 -o fossil -g fossil log museum                \
      && install -d -m 755 -o fossil -g fossil dev                       \
--    && install -d -m 1777 -o root -g root /tmp                         \
--    && mknod -m 666 dev/null    c 1 3                                  \
--    && mknod -m 444 dev/urandom c 1 9
-+    && install -d -m 1777 -o root -g root /tmp
+     && install -d -m 1777 -o root -g root /tmp                         \
+     && mknod -m 666 dev/null    c 1 3                                  \
+     && mknod -m 444 dev/urandom c 1 9
  
  ### Do Fossil-specific things atop those base layers; this will change
  ### as often as the Fossil build-from-source layer above.
@@ -39,7 +45,7 @@ Index: Dockerfile
      && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
         /bin/sqlite3                                                    \
      && chmod +x /bin/sha?sum /bin/sqlite3
-@@ -101,10 +99,9 @@
+@@ -99,10 +99,9 @@
  ## ---------------------------------------------------------------------
  
  EXPOSE 8080/tcp
