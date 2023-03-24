@@ -55,5 +55,5 @@ Index: Dockerfile
      "--create",             \
      "--jsmode", "bundled",  \
      "--user", "admin",      \
-     "museum/repo.fossil"]
+     "museum/repo.fossil" ]
 

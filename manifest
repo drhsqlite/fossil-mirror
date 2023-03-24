@@ -1,5 +1,5 @@
-C Switched\sfrom\sa\sDockerfile\s"ADD"\scommand\sto\swget\sfor\sthe\sBusyBox\ssource\ntarball\sbecause,\ssurprisingly,\s[https://github.com/moby/moby/issues/12361\s|\s\nBuildKit\spulls\sthe\sURL\sunconditionally]\sunder\sthe\slogic\sthat\sit\scan't\nknow\swhether\sto\scache\sthe\spulled\sdata\suntil\sit\shas\sa\scopy\sto\scompare\nagainst!\s\sThis\snot\sonly\smeans\syou\spull\sthe\sBusyBox\ssource\starball\sfor\neach\scontainer\sbuild\seven\sthough\sit's\stagged\sand\sthus\scannot\spossibly\nchange,\sit\sputs\sa\sload\son\sGitHub\swhich\sthen\scauses\sit\sto\sbegin\nthrottling\seach\spull,\smaking\syour\slocal\sbuilds\sslower\sand\sslower\swhen\niterating\son\sa\schange\sset,\sas\sin\sthe\sprior\sset\sof\scommits.\s\sBy\spushing\nthe\sURL\sdown\sinto\sa\swget\scommand,\swe\scause\sBuildKit\sto\ssee\san\sunchanging\nshell\sscript\sline\s(assuming\s$BBXURL\skeeps\sits\sdefault)\sso\sit\s*does*\ncache\sthe\spulled\slayer.
-D 2023-03-24T08:27:35.429
+C Comment\sand\swhitespace\stweaks
+D 2023-03-24T10:21:41.204
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile c6cb9d6c784bf5d0ca2b33654fbdb46ae9f5944b39dc4fbd26461ddad7afc7c8
+F Dockerfile 9e10f936e1a4eb6b8686f21863ddf562d74b64c0af2b6b714bff85e5e3fd8c67
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 863eb2682b738b399f0826d6661034b6ede854eb8340aac3cbd2b3fa88ab0be4 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -265,7 +265,7 @@ F compat/zlib/zlib2ansi 8b1985f183ae89601428986f869379a774a288e76289c2c3492b3ede
 F compat/zlib/zutil.c 3ce011b3a333719f4356ab84e3149f8e1538e9ec2a511315124774fe61b078f6
 F compat/zlib/zutil.h a8f1bae8015e110eaf27177b58f3efac8c89731329568458012e420de48766be
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
-F containers/Dockerfile-nojail.patch 7fb7a938cbc57b2433574bcf9372663308f273b2a80e4ff64ef30420e07a6279
+F containers/Dockerfile-nojail.patch 9a17828fa4801f8014a91cb18113f27fae5e58b55f0af79f039adc261d4b237c
 F containers/busybox-config 989bbe1d8d6e5ed3c53db27413f301d73089d49ff39ad2715043c38b2aaabef4
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c 5fcb1947aca6b836007f165622c1b96e2167487f889265ab64711757f01b913b
@@ -953,8 +953,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9e4b3d254531d4c7a6e609c6c2d2359f7c45f9c7d0277eac4a9e022adc99d97
-R 9a8fdb3fdc028600fbc221e732ba5523
+P ac95559482cbc4962aba73386a842175cc7bfb9b5169a6ff5d34d8074eee4513
+R 450adaedfa92deccc4257bb6111689db
 U wyoung
-Z d2a682834ac655d27fafe2560095d818
+Z 564a809b2fdb1080115ad39fff6b6915
 # Remove this line to create a well-formed Fossil manifest.

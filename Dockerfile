@@ -35,9 +35,9 @@ RUN set -x                                                             \
 ### The changeable Fossil layer is the only one in the first stage that
 ### changes often, so add it last, to make it independent of the others.
 ###
-### $FSLSTB can be either a file or a directory due to a ADD's bizarre
-### behavior: it unpacks tarballs when added from a local file but not
-### from a URL!   It matters because we default to a URL in case you're
+### $FSLSTB can be either a file or a directory due to a bizarre ADD
+### misfeature: it unpacks tarballs when added from a local file but not
+### from a URL!  It matters because we default to a URL in case you're
 ### building outside a Fossil checkout, but when building via the
 ### container-image target, we can avoid a costly hit on the Fossil
 ### project's home site by pulling the data from the local repo via the
@@ -95,7 +95,7 @@ RUN set -x                                                             \
 
 
 ## ---------------------------------------------------------------------
-## STAGE 3: Run!
+## RUN!
 ## ---------------------------------------------------------------------
 
 EXPOSE 8080/tcp
@@ -105,4 +105,4 @@ CMD [ \
     "--create",             \
     "--jsmode", "bundled",  \
     "--user", "admin",      \
-    "museum/repo.fossil"]
+    "museum/repo.fossil" ]
