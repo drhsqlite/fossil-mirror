@@ -58,13 +58,13 @@ RUN set -x                                                             \
 ## STAGE 2: Pare that back to the bare essentials.
 ## ---------------------------------------------------------------------
 
-FROM scratch
+FROM scratch AS os
 WORKDIR /jail
 ARG UID=499
 ENV PATH "/bin:/usr/bin:/jail/bin"
 
 ### Lay BusyBox down as the first base layer. Coupled with the host's
-### kernel, this is the "OS."
+### kernel, this is the "OS" used to RUN the subsequent setup script.
 COPY --from=builder /tmp/bbx/busybox /bin/
 RUN [ "/bin/busybox", "--install", "/bin" ]
 
