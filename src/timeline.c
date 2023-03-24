@@ -2118,8 +2118,17 @@ void page_timeline(void){
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
+      ridBackTo = 0;
       zBackTo = P("bt");
-      ridBackTo = zBackTo ? name_to_typed_rid(zBackTo,"ci") : 0;
+      if( zBackTo ){
+        double rDateLimit = db_double(0.0,
+           "SELECT mtime FROM event WHERE objid=%d", p_rid);
+        ridBackTo =
+          most_recent_checkin_with_tag_before_date(zBackTo, rDateLimit);
+        if( ridBackTo==0 ){
+          ridBackTo = name_to_typed_rid(zBackTo,"ci");
+        }
+      }
       if( ridBackTo && !haveParameterN ) nEntry = 0;
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
