@@ -66,7 +66,6 @@ ENV PATH "/bin:/usr/bin:/jail/bin"
 ### Lay BusyBox down as the first base layer. Coupled with the host's
 ### kernel, this is the "OS."
 COPY --from=builder /tmp/bbx/busybox /bin/
-COPY --from=builder /etc/os-release /etc/
 RUN [ "/bin/busybox", "--install", "/bin" ]
 
 ### Set up that base OS for our specific use without tying it to
