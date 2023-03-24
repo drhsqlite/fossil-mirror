@@ -1,5 +1,5 @@
-C Another\sfixup\sto\sthe\snojail\spatch\sto\strack\sthe\sprevious.\s\s(Can't\nreliably\screate\sthese\spatches\swithout\shaving\sa\scommitted\sversion\sto\ndiff\sagainst,\salas.)
-D 2023-03-24T08:13:21.115
+C Switched\sfrom\sa\sDockerfile\s"ADD"\scommand\sto\swget\sfor\sthe\sBusyBox\ssource\ntarball\sbecause,\ssurprisingly,\s[https://github.com/moby/moby/issues/12361\s|\s\nBuildKit\spulls\sthe\sURL\sunconditionally]\sunder\sthe\slogic\sthat\sit\scan't\nknow\swhether\sto\scache\sthe\spulled\sdata\suntil\sit\shas\sa\scopy\sto\scompare\nagainst!\s\sThis\snot\sonly\smeans\syou\spull\sthe\sBusyBox\ssource\starball\sfor\neach\scontainer\sbuild\seven\sthough\sit's\stagged\sand\sthus\scannot\spossibly\nchange,\sit\sputs\sa\sload\son\sGitHub\swhich\sthen\scauses\sit\sto\sbegin\nthrottling\seach\spull,\smaking\syour\slocal\sbuilds\sslower\sand\sslower\swhen\niterating\son\sa\schange\sset,\sas\sin\sthe\sprior\sset\sof\scommits.\s\sBy\spushing\nthe\sURL\sdown\sinto\sa\swget\scommand,\swe\scause\sBuildKit\sto\ssee\san\sunchanging\nshell\sscript\sline\s(assuming\s$BBXURL\skeeps\sits\sdefault)\sso\sit\s*does*\ncache\sthe\spulled\slayer.
+D 2023-03-24T08:27:35.429
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 31fc42c4e8874ff53ab2d14ec747f879d02627ad63d935ffeff8931b76f67b20
+F Dockerfile c6cb9d6c784bf5d0ca2b33654fbdb46ae9f5944b39dc4fbd26461ddad7afc7c8
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 863eb2682b738b399f0826d6661034b6ede854eb8340aac3cbd2b3fa88ab0be4 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -953,8 +953,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d778a023922249e6dbc235ab767bc0dc2f75d565f32f48c64dbd4e9ba3d4726b
-R 78fa9b9ef51eeb6eb52f5829ca373fb8
+P c9e4b3d254531d4c7a6e609c6c2d2359f7c45f9c7d0277eac4a9e022adc99d97
+R 9a8fdb3fdc028600fbc221e732ba5523
 U wyoung
-Z 3d2dab9051380592ebc613b53f1b8f05
+Z d2a682834ac655d27fafe2560095d818
 # Remove this line to create a well-formed Fossil manifest.

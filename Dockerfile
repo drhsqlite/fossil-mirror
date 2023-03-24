@@ -27,8 +27,8 @@ RUN set -x                                                             \
 ARG BBXVER="1_35_0"
 ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
 COPY containers/busybox-config /tmp/bbx/.config
-ADD $BBXURL /tmp/bbx/src.tar.gz
 RUN set -x                                                             \
+    && wget -O /tmp/bbx/src.tar.gz ${BBXURL}                           \
     && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz             \
     && ( cd bbx && yes "" | make oldconfig && make -j11 )
 
