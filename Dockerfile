@@ -73,10 +73,10 @@ RUN [ "/bin/busybox", "--install", "/bin" ]
 ### anything likely to change often.  So long as the user leaves
 ### UID alone, this layer will be durable.
 RUN set -x                                                             \
-    && echo 'root:x:0:0:SysAdmin:/:/bin/nologin' > /etc/passwd         \
-    && echo 'root:x:0:root'                      > /etc/group          \
-    && addgroup -S -g ${UID} fossil                                    \
-    && adduser -S -h `pwd` -g 'Fossil User' -G fossil -u ${UID} fossil \
+    && echo "root:x:0:0:Admin:/:/false"                 > /etc/passwd  \
+    && echo "root:x:0:root"                             > /etc/group   \
+    && echo "fossil:x:${UID}:${UID}:User:/jail:/false" >> /etc/passwd  \
+    && echo "fossil:x:${UID}:fossil"                   >> /etc/group   \
     && install -d -m 700 -o fossil -g fossil log museum                \
     && install -d -m 755 -o fossil -g fossil dev                       \
     && install -d -m 755 -o root -g root /usr/bin                      \
