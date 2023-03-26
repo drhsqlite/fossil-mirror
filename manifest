@@ -1,5 +1,5 @@
-C For\sthe\sbt=Y\squery\sparameter\sin\s/timeline\sthat\sis\sused\sin\sconjunction\swith\np=X,\sif\sY\sis\sa\stag\sthen\ssearch\sbackwards\sin\stime\sfor\sY\sbeginning\swith\sX.\nFix\sfor\sticket\s[ed62a4d35332595a].
-D 2023-03-24T15:22:33.416
+C Do\snot\srender\s"Check-ins"\sbutton\swithin\sa\ssubmenu\sof\s/tktview,\s/tkthistory,\s/tkttimeline\sand\s/info\spages,\sunless\sa\suser\sactually\shas\sa\s[/doc/trunk/www/caps/ref.html#o|capability\sto\sread\scheck-ins].\sThis\sshould\sprevent\sconfusion\sand\ssave\ssome\sscreen\sspace.
+D 2023-03-26T23:54:41.597
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 703e6f2004b4e6648987639a07b640a9061b3ef7dedafdb0a1cc8f4d1826b746
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c ecd86354ca0572f800a25f0d30cd09665b6016d24bbafc4a0a753e8f44656ebb
-F src/tkt.c 3edf3582e492b3d69b64aad8bc32227d3e0f41b3b8d4629ba55eaad6568c88f6
+F src/tkt.c 338a84c10bfd0a9705f6de2219e9e84ee4faecc7f4af115722168870f87ddc47
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
@@ -953,8 +953,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81c30ab97d39138e41d80fe3d4270669c29252dbdedd4e806a36f3bd447b62a4
-R 1bdde70f681542ccf77a9ac7d82d4070
-U drh
-Z 35e64439e40b7b7b75d04d0dcfd83a0b
+P 507ebd8b3f37e5dfcb675bf59ef2ae5376c6b799a44a32720c34a52ba9e08e82
+R 78cbd8dd6d36a53abc3a080dec3a2457
+U george
+Z 5d91395ad1837e1b15d5620c22a4fb7d
 # Remove this line to create a well-formed Fossil manifest.
