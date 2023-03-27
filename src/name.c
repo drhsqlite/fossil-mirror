@@ -253,7 +253,7 @@ static int most_recent_event_with_tag(const char *zTag, const char *zType){
 ** See also the performance note on most_recent_event_with_tag() which
 ** applies to this routine too.
 */
-int most_recent_checkin_with_tag_before_date(const char *zTag, double rLimit){
+int last_checkin_with_tag_before_date(const char *zTag, double rLimit){
   Stmt s;
   int rid = 0;
   if( strncmp(zTag, "tag:", 4)==0 ) zTag += 4;
@@ -286,6 +286,53 @@ int most_recent_checkin_with_tag_before_date(const char *zTag, double rLimit){
     zTag, zTag
   );
   db_bind_double(&s, ":datelimit", rLimit);
+  if( db_step(&s)==SQLITE_ROW ){
+    rid = db_column_int(&s,0);
+  }
+  db_finalize(&s);
+  return rid;
+}
+
+/*
+** Find the RID of the first check-in (chronologically) after rStart that
+** has tag zTag.
+**
+** See also the performance note on most_recent_event_with_tag() which
+** applies to this routine too.
+*/
+int first_checkin_with_tag_after_date(const char *zTag, double rStart){
+  Stmt s;
+  int rid = 0;
+  if( strncmp(zTag, "tag:", 4)==0 ) zTag += 4;
+  db_prepare(&s,
+    "SELECT objid FROM ("
+      /* Q1:  Begin by looking for the tag in the 30 most recent events */
+      "SELECT objid"
+       " FROM (SELECT * FROM event WHERE mtime>=:startdate"
+             " ORDER BY mtime LIMIT 30) AS ex"
+      " WHERE type='ci'"
+        " AND EXISTS(SELECT 1 FROM tagxref, tag"
+                     " WHERE tag.tagname='sym-%q'"
+                       " AND tagxref.tagid=tag.tagid"
+                       " AND tagxref.tagtype>0"
+                       " AND tagxref.rid=ex.objid)"
+      " ORDER BY mtime LIMIT 1"
+    ") UNION ALL SELECT * FROM ("
+      /* Q2: If the tag is not found in the 30 most recent events, then using
+      ** the tagxref table to index for the tag */
+      "SELECT event.objid"
+       " FROM tag, tagxref, event"
+      " WHERE tag.tagname='sym-%q'"
+        " AND tagxref.tagid=tag.tagid"
+        " AND tagxref.tagtype>0"
+        " AND event.objid=tagxref.rid"
+        " AND event.type='ci'"
+        " AND event.mtime>=:startdate"
+      " ORDER BY event.mtime LIMIT 1"
+    ") LIMIT 1;",
+    zTag, zTag
+  );
+  db_bind_double(&s, ":startdate", rStart);
   if( db_step(&s)==SQLITE_ROW ){
     rid = db_column_int(&s,0);
   }

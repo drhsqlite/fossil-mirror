@@ -1568,6 +1568,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    p=CHECKIN       Parents and ancestors of CHECKIN
 **                       bt=PRIOR   ... going back to PRIOR
 **    d=CHECKIN       Children and descendants of CHECKIN
+**                       ft=DESCENDANT   ... going forward to DESCENDANT
 **    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
 **    bt=CHECKIN      In conjunction with p=CX, this means show all
@@ -2091,7 +2092,9 @@ void page_timeline(void){
     const char *zCiName;
     int np = 0, nd;
     const char *zBackTo = 0;
+    const char *zFwdTo = 0;
     int ridBackTo = 0;
+    int ridFwdTo = 0;
 
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     if( p_rid && d_rid ){
@@ -2108,7 +2111,39 @@ void page_timeline(void){
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
-      compute_descendants(d_rid, nEntry==0 ? 0 : nEntry+1);
+      Stmt s;
+      double rStopTime = 9e99;
+      zFwdTo = P("ft");
+      if( zFwdTo ){
+        double rStartDate = db_double(0.0,
+           "SELECT mtime FROM event WHERE objid=%d", d_rid);
+        ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
+        if( ridFwdTo==0 ){
+          ridFwdTo = name_to_typed_rid(zBackTo,"ci");
+        }
+        if( ridFwdTo ){
+          if( !haveParameterN ) nEntry = 0;
+          rStopTime = db_double(9e99,
+            "SELECT mtime FROM event WHERE objid=%d", ridFwdTo);
+        }
+      }
+      db_prepare(&s,
+        "WITH RECURSIVE"
+        "  dx(rid,mtime) AS ("
+        "     SELECT %d, 0"
+        "     UNION"
+        "     SELECT plink.cid, plink.mtime FROM dx, plink"
+        "      WHERE plink.pid=dx.rid"
+        "        AND (:stop>=8e99 OR plink.mtime<=:stop)"
+        "      ORDER BY 2"
+        "  )"
+        "INSERT OR IGNORE INTO ok SELECT rid FROM dx LIMIT %d",
+        d_rid, nEntry<=0 ? -1 : nEntry+1
+      );
+      db_bind_double(&s, ":stop", rStopTime);
+      db_step(&s);
+      db_finalize(&s);
+      /* compute_descendants(d_rid, nEntry==0 ? 0 : nEntry+1); */
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
       if( nd>0 || p_rid==0 ){
@@ -2118,18 +2153,16 @@ void page_timeline(void){
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
-      ridBackTo = 0;
       zBackTo = P("bt");
       if( zBackTo ){
         double rDateLimit = db_double(0.0,
            "SELECT mtime FROM event WHERE objid=%d", p_rid);
-        ridBackTo =
-          most_recent_checkin_with_tag_before_date(zBackTo, rDateLimit);
+        ridBackTo = last_checkin_with_tag_before_date(zBackTo, rDateLimit);
         if( ridBackTo==0 ){
           ridBackTo = name_to_typed_rid(zBackTo,"ci");
         }
+        if( ridBackTo && !haveParameterN ) nEntry = 0;
       }
-      if( ridBackTo && !haveParameterN ) nEntry = 0;
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 || nd==0 ){
@@ -2152,6 +2185,21 @@ void page_timeline(void){
       }else{
         blob_appendf(&desc, " back to %z%h</a>",
                      href("%R/info?name=%h",zBackTo), zBackTo);
+        if( ridFwdTo && zFwdTo ){
+          blob_appendf(&desc, " and up to %z%h</a>",
+                     href("%R/info?name=%h",zFwdTo), zFwdTo);
+        }
+      }
+    }else if( ridFwdTo ){
+      if( nd==0 ){
+        blob_reset(&desc);
+        blob_appendf(&desc, 
+                    "Check-in %z%h</a> only (%z%h</a> is not an descendant)",
+                     href("%R/info?name=%h",zCiName), zCiName,
+                     href("%R/info?name=%h",zFwdTo), zFwdTo);
+      }else{
+        blob_appendf(&desc, " up to %z%h</a>",
+                     href("%R/info?name=%h",zFwdTo), zFwdTo);
       }
     }
     if( d_rid ){
