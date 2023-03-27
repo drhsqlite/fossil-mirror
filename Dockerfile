@@ -88,9 +88,8 @@ COPY --from=builder /tmp/fossil /bin/
 ENV PATH "/bin"
 EXPOSE 8080/tcp
 USER fossil
+ENTRYPOINT [ "fossil", "server", "museum/repo.fossil" ]
 CMD [ \
-    "fossil", "server",     \
     "--create",             \
     "--jsmode", "bundled",  \
-    "--user", "admin",      \
-    "museum/repo.fossil" ]
+    "--user", "admin" ]

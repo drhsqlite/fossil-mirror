@@ -1,5 +1,5 @@
-C The\scontainer\snow\suses\sBusyBox\sonly\sin\sthe\sbuild\sand\ssetup\sstages,\nleaving\sjust\sthe\sstatic\sFossil\sbinary\sin\sthe\sfinal\sstage,\splus\sabsolute\nnecessities\slike\sa\s/tmp\sdirectory.\n\nThis\sremoves\sthe\sjustification\sfor\sthe\scustom\sBusyBox\sconfiguration,\nwhich\sthen\smeans\swe\scan\suse\sAlpine's\sbusybox-static\spackage\sin\sthe\nsecond\sstage,\ssaving\sa\sbunch\sof\snetwork\sI/O\sand\sbuild\stime.\n\nThat\sin\sturn\smeans\swe\sno\slonger\shave\sany\sjustification\sfor\sjailing\sthe\nFossil\sbinary,\ssince\sthere's\snothing\sextra\sleft\sinside\sthe\scontainer\sfor\nit\sto\splay\swith.\s\sDoing\sthis\srequired\sbumping\sthe\sDockerfile\ssyntax\sback\nup\sfrom\s1.0\sto\s1.3\sto\sget\sthe\s"COPY\s--chmod"\sfeature;\stested\sit\sin\nPodman,\swhich\shas\shad\sit\n[https://github.com/containers/buildah/issues/2961\s|\sfor\stwo\syears\snow].\n\nDoing\sall\sof\sthis\ssimplifies\sthe\sDockerfile\sand\sits\sdocumentation\nconsiderably.\s\sAs\sa\sbonus,\sit\sbuilds\squicker,\sand\sit's\snearly\sa\smeg\nlighter\sin\scompressed\simage\sform.\s\sEspecially\sfor\sthe\scase\sof\susing\sthe\ncontainer\sas\sa\sstatic\s"fossil"\sbinary\sbuilder,\sthis\sis\snothing\sbut\swin.
-D 2023-03-27T04:59:27.449
+C Switched\sto\sa\ssplit\sENTRYPOINT/CMD\sscheme\sfor\slaunching\sthe\sFossil\nserver\sin\sthe\scontainer.\s\sThe\simmediate\sneed\sis\sso\swe\slower-level\nENTRYPOINTs\sprovided\sby\smix-in\slayers,\sbut\sit's\smore\scorrect\sgenerally.\nENTRYPOINT\ssays\sthis\sis\sthe\shard-coded\spurpose\sof\sthe\scontainer,\sand\sCMD\ngives\sthe\sarguments\sto\sthat\scommand.\s\sThe\ssplit\sis\stherefore\sbetween\sthe\nmandatory\sparts\sand\sthe\sparts\sthe\suser\smight\swant\sto\soverride\swithout\nneeding\sto\swrite\stheir\sown\sDockerfile.
+D 2023-03-27T06:33:15.610
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 9dbc61accee35098cc36865bef8f4eb158d3ec46911979c0c592aa0172b7f10f
+F Dockerfile 0f175046fbe4f26efeb8e758fc925f56df53a25eef387005f1aeab1bd987bdcd
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 091aae1f9239dbd8cd7595c9cb575516c5778390e9444a1f30fa9b154d4434a2 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c04c814e10860bc3c0bc54f4a70c24dda551a802395b7c0b7a95a2dc732f8bc1
-R 27815173e40d7a2b4e4ed2217302bb07
+P 79ac06a5407ecfe0bb5446241cd61135375f5a5b158562438fc2d8cd4554182c
+R 75d7b8fb7652d5c098fba26376eb0608
 U wyoung
-Z 5d520e551a2a17a29b3785376fc5a23f
+Z 4742ef78436f80ed2e708bdd7793f863
 # Remove this line to create a well-formed Fossil manifest.
