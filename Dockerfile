@@ -1,47 +1,39 @@
-# syntax=docker/dockerfile:1.0
+# syntax=docker/dockerfile:1.3
 # See www/containers.md for documentation on how to use this file.
 
 ## ---------------------------------------------------------------------
-## STAGE 1: Build static Fossil & BusyBox binaries atop Alpine Linux
+## STAGE 1: Build static Fossil binary
 ## ---------------------------------------------------------------------
 
+### We aren't pinning to a more stable version of Alpine because we want
+### to build with the latest tools and libraries available in case they
+### fixed something that matters to us since the last build.  Everything
+### below depends on this layer, and so, alas, we toss this container's
+### cache on Alpine's release schedule, roughly once a month.
 FROM alpine:latest AS builder
 WORKDIR /tmp
 
-### Bake the basic Alpine Linux into a base layer so we never have to
-### repeat that step unless we change the package set.  Although we're
-### going to throw this layer away below, we still pass --no-cache
-### because that cache is of no use in an immutable layer.
+### Bake the basic Alpine Linux into a base layer so it only changes
+### when the upstream image is updated or we change the package set.
 RUN set -x                                                             \
     && apk update                                                      \
     && apk upgrade --no-cache                                          \
     && apk add --no-cache                                              \
-         gcc make                                                      \
+         busybox-static gcc make                                       \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
          zlib-dev zlib-static
 
-### Bake the custom BusyBox into another layer.  The intent is that this
-### changes only when we change BBXVER.  That will force an update of
-### the layers below, but this is a rare occurrence.
-ARG BBXVER="1_35_0"
-ENV BBXURL "https://github.com/mirror/busybox/tarball/${BBXVER}"
-COPY containers/busybox-config /tmp/bbx/.config
-RUN set -x                                                             \
-    && wget -O /tmp/bbx/src.tar.gz ${BBXURL}                           \
-    && tar --strip-components=1 -C bbx -xzf bbx/src.tar.gz             \
-    && ( cd bbx && yes "" | make oldconfig && make -j11 )
-
-### The changeable Fossil layer is the only one in the first stage that
-### changes often, so add it last, to make it independent of the others.
+### Build Fossil as a separate layer so we don't have to rebuild the
+### Alpine environment for each iteration of Fossil's dev cycle.
 ###
-### $FSLSTB can be either a file or a directory due to a bizarre ADD
-### misfeature: it unpacks tarballs when added from a local file but not
-### from a URL!  It matters because we default to a URL in case you're
-### building outside a Fossil checkout, but when building via the
-### container-image target, we can avoid a costly hit on the Fossil
-### project's home site by pulling the data from the local repo via the
-### "tarball" command.  This is a DVCS, after all!
+### We must cope with a bizarre ADD misfeature here: it unpacks tarballs
+### automatically when you give it a local file name but not if you give
+### it a /tarball URL!  It matters because we default to a URL in case
+### you're building outside a Fossil checkout, but when building via the
+### container-image target, we avoid a costly hit on fossil-scm.org
+### by leveraging its DVCS nature via the "tarball" command and passing
+### the resulting file's name in.
 ARG FSLCFG=""
 ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
@@ -59,49 +51,45 @@ RUN set -x                                                             \
 ## ---------------------------------------------------------------------
 
 FROM scratch AS os
-WORKDIR /jail
 ARG UID=499
-ENV PATH "/bin:/jail/bin"
 
 ### Lay BusyBox down as the first base layer. Coupled with the host's
 ### kernel, this is the "OS" used to RUN the subsequent setup script.
-COPY --from=builder /tmp/bbx/busybox /bin/
+COPY --from=builder /bin/busybox.static /bin/busybox
 RUN [ "/bin/busybox", "--install", "/bin" ]
 
 ### Set up that base OS for our specific use without tying it to
 ### anything likely to change often.  So long as the user leaves
 ### UID alone, this layer will be durable.
-RUN set -x                                                             \
-    && echo "root:x:0:0:Admin:/:/false"                 > /etc/passwd  \
-    && echo "root:x:0:root"                             > /etc/group   \
-    && echo "fossil:x:${UID}:${UID}:User:/jail:/false" >> /etc/passwd  \
-    && echo "fossil:x:${UID}:fossil"                   >> /etc/group   \
-    && install -d -m 700 -o fossil -g fossil log museum                \
-    && install -d -m 755 -o fossil -g fossil dev                       \
-    && install -d -m 1777 -o root -g root /tmp                         \
-    && mknod -m 666 dev/null    c 1 3                                  \
-    && mknod -m 444 dev/urandom c 1 9
+RUN set -x                                                              \
+    && mkdir log museum tmp                                             \
+    && echo "root:x:0:0:Admin:/:/false"                   > /tmp/passwd \
+    && echo "root:x:0:root"                               > /tmp/group  \
+    && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /tmp/passwd \
+    && echo "fossil:x:${UID}:fossil"                     >> /tmp/group
 
-### Do Fossil-specific things atop those base layers; this will change
-### as often as the Fossil build-from-source layer above.
-COPY --from=builder /tmp/fossil bin/
-RUN set -x                                                             \
-    && ln -s /jail/bin/fossil /bin/f                                   \
-    && echo -e '#!/bin/sh\nfossil sha1sum "$@"' > /bin/sha1sum         \
-    && echo -e '#!/bin/sh\nfossil sha3sum "$@"' > /bin/sha3sum         \
-    && echo -e '#!/bin/sh\nfossil sqlite3 --no-repository "$@"' >      \
-       /bin/sqlite3                                                    \
-    && chmod +x /bin/sha?sum /bin/sqlite3
+
+## ---------------------------------------------------------------------
+## STAGE 3: Drop BusyBox, too, now that we're done with its /bin/sh &c
+## ---------------------------------------------------------------------
+
+FROM scratch AS run
+COPY --from=os /tmp/group /tmp/passwd /etc/
+COPY --from=os --chown=fossil:fossil /log    /log/
+COPY --from=os --chown=fossil:fossil /museum /museum/
+COPY --from=os --chmod=1777          /tmp    /tmp/
+COPY --from=builder /tmp/fossil /bin/
 
 
 ## ---------------------------------------------------------------------
 ## RUN!
 ## ---------------------------------------------------------------------
 
+ENV PATH "/bin"
 EXPOSE 8080/tcp
+USER fossil
 CMD [ \
     "fossil", "server",     \
-    "--chroot", "/jail",    \
     "--create",             \
     "--jsmode", "bundled",  \
     "--user", "admin",      \

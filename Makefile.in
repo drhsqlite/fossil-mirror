@@ -139,7 +139,7 @@ container:
 			--cap-drop SETFCAP \
 			--cap-drop SETPCAP \
 			--publish 8080:8080 \
-			$(DCFLAGS) $(IMGVER)
+			$(DCFLAGS) $(IMGVER) $(DCCMD)
 
 container-clean:
 	-docker container kill $(CNTVER)

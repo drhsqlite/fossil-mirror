@@ -1,5 +1,5 @@
-C Do\snot\srender\s"Check-ins"\sbutton\swithin\sa\ssubmenu\sof\s/tktview,\s/tkthistory,\s/tkttimeline\sand\s/info\spages,\sunless\sa\suser\sactually\shas\sa\s[/doc/trunk/www/caps/ref.html#o|capability\sto\sread\scheck-ins].\sThis\sshould\sprevent\sconfusion\sand\ssave\ssome\sscreen\sspace.
-D 2023-03-26T23:54:41.597
+C The\scontainer\snow\suses\sBusyBox\sonly\sin\sthe\sbuild\sand\ssetup\sstages,\nleaving\sjust\sthe\sstatic\sFossil\sbinary\sin\sthe\sfinal\sstage,\splus\sabsolute\nnecessities\slike\sa\s/tmp\sdirectory.\n\nThis\sremoves\sthe\sjustification\sfor\sthe\scustom\sBusyBox\sconfiguration,\nwhich\sthen\smeans\swe\scan\suse\sAlpine's\sbusybox-static\spackage\sin\sthe\nsecond\sstage,\ssaving\sa\sbunch\sof\snetwork\sI/O\sand\sbuild\stime.\n\nThat\sin\sturn\smeans\swe\sno\slonger\shave\sany\sjustification\sfor\sjailing\sthe\nFossil\sbinary,\ssince\sthere's\snothing\sextra\sleft\sinside\sthe\scontainer\sfor\nit\sto\splay\swith.\s\sDoing\sthis\srequired\sbumping\sthe\sDockerfile\ssyntax\sback\nup\sfrom\s1.0\sto\s1.3\sto\sget\sthe\s"COPY\s--chmod"\sfeature;\stested\sit\sin\nPodman,\swhich\shas\shad\sit\n[https://github.com/containers/buildah/issues/2961\s|\sfor\stwo\syears\snow].\n\nDoing\sall\sof\sthis\ssimplifies\sthe\sDockerfile\sand\sits\sdocumentation\nconsiderably.\s\sAs\sa\sbonus,\sit\sbuilds\squicker,\sand\sit's\snearly\sa\smeg\nlighter\sin\scompressed\simage\sform.\s\sEspecially\sfor\sthe\scase\sof\susing\sthe\ncontainer\sas\sa\sstatic\s"fossil"\sbinary\sbuilder,\sthis\sis\snothing\sbut\swin.
+D 2023-03-27T04:59:27.449
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,9 +11,9 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 9e10f936e1a4eb6b8686f21863ddf562d74b64c0af2b6b714bff85e5e3fd8c67
+F Dockerfile 9dbc61accee35098cc36865bef8f4eb158d3ec46911979c0c592aa0172b7f10f
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 863eb2682b738b399f0826d6661034b6ede854eb8340aac3cbd2b3fa88ab0be4 x
+F Makefile.in 091aae1f9239dbd8cd7595c9cb575516c5778390e9444a1f30fa9b154d4434a2 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 02b6aa378e08cf4a81374bf44bfc24b6b151322a4711ef5bd149beb791d0da84
@@ -265,8 +265,6 @@ F compat/zlib/zlib2ansi 8b1985f183ae89601428986f869379a774a288e76289c2c3492b3ede
 F compat/zlib/zutil.c 3ce011b3a333719f4356ab84e3149f8e1538e9ec2a511315124774fe61b078f6
 F compat/zlib/zutil.h a8f1bae8015e110eaf27177b58f3efac8c89731329568458012e420de48766be
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
-F containers/Dockerfile-nojail.patch 9a17828fa4801f8014a91cb18113f27fae5e58b55f0af79f039adc261d4b237c
-F containers/busybox-config 989bbe1d8d6e5ed3c53db27413f301d73089d49ff39ad2715043c38b2aaabef4
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c 5fcb1947aca6b836007f165622c1b96e2167487f889265ab64711757f01b913b
 F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
@@ -778,7 +776,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 2e88a08271f1738c2007f73a3bfa3937b2f09077d6453422f138d53bf2f44629
+F www/changes.wiki cfded91f05d56649b9c3a2c196da305814ec3501bec875cfbf543641ffa1770c
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -789,7 +787,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 901a4a2dfbf490fe2d39366c116db55f0e45210a1a5909a3de7c3d5fc831d02e
+F www/containers.md 130f7243b08acdea9d2b476cc03609a568d2f262006c08fc92cc75e7aa264886
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -953,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 507ebd8b3f37e5dfcb675bf59ef2ae5376c6b799a44a32720c34a52ba9e08e82
-R 78cbd8dd6d36a53abc3a080dec3a2457
-U george
-Z 5d91395ad1837e1b15d5620c22a4fb7d
+P c04c814e10860bc3c0bc54f4a70c24dda551a802395b7c0b7a95a2dc732f8bc1
+R 27815173e40d7a2b4e4ed2217302bb07
+U wyoung
+Z 5d520e551a2a17a29b3785376fc5a23f
 # Remove this line to create a well-formed Fossil manifest.
