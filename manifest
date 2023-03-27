@@ -1,5 +1,5 @@
-C Switched\sto\sa\ssplit\sENTRYPOINT/CMD\sscheme\sfor\slaunching\sthe\sFossil\nserver\sin\sthe\scontainer.\s\sThe\simmediate\sneed\sis\sso\swe\slower-level\nENTRYPOINTs\sprovided\sby\smix-in\slayers,\sbut\sit's\smore\scorrect\sgenerally.\nENTRYPOINT\ssays\sthis\sis\sthe\shard-coded\spurpose\sof\sthe\scontainer,\sand\sCMD\ngives\sthe\sarguments\sto\sthat\scommand.\s\sThe\ssplit\sis\stherefore\sbetween\sthe\nmandatory\sparts\sand\sthe\sparts\sthe\suser\smight\swant\sto\soverride\swithout\nneeding\sto\swrite\stheir\sown\sDockerfile.
-D 2023-03-27T06:33:15.610
+C Refined\sthe\sTcl\sand\sPython\sexamples\sin\sthe\snew\s§3.2\sof\sthe\scontainer\sdoc.
+D 2023-03-27T07:24:39.643
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -787,7 +787,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 130f7243b08acdea9d2b476cc03609a568d2f262006c08fc92cc75e7aa264886
+F www/containers.md 3e52625c827a7e2d80e7c5ea3091edccdc67ed7f6db9f904896f70d85e137c58
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 79ac06a5407ecfe0bb5446241cd61135375f5a5b158562438fc2d8cd4554182c
-R 75d7b8fb7652d5c098fba26376eb0608
+P deb99e22e143fb91496ce16b26f91d36092b36b00e3a5045ab33633f82b55c1b
+R 6f06c0b10fe02cbad1b1a2a7c71b358c
 U wyoung
-Z 4742ef78436f80ed2e708bdd7793f863
+Z a1907ce49e5b49e2af2eeb210e28f701
 # Remove this line to create a well-formed Fossil manifest.

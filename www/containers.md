@@ -225,43 +225,95 @@ shell environment that you can get into via:
 are therefore using its versioning scheme.)
 
 Another case where you might need to replace this bare-bones “`run`”
-layer with something more functional is that you’ve installed a [server
+layer with something more functional is that you’re setting up [email
+alerts](./alerts.md) and need some way to integrate with the host’s
+[MTA]. There are a number of alternatives in that linked document, so
+for the sake of discussion, we’ll say you’ve chosen [Method
+2](./alerts.md#db), which requires a Tcl interpreter and its SQLite
+extension to push messages into the outbound email queue DB, presumably
+bind-mounted into the container.
+
+One way to do that is to replace STAGE 2 and 3 in the stock `Dockerfile`
+with this:
+
+```
+    ## ---------------------------------------------------------------------
+    ## STAGE 2: Pare that back to the bare essentials, plus Tcl.
+    ## ---------------------------------------------------------------------
+    FROM alpine AS run
+    ARG UID=499
+    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
+    COPY --from=builder /tmp/fossil /bin/
+    RUN set -x                                                              \
+        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
+        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
+        && install -d -m 700 -o fossil -g fossil log museum                 \
+        && apk add --no-cache tcl sqlite-tcl
+```
+
+Build it and test that it works like so:
+
+```
+    $ make container-run &&
+      echo 'puts [info patchlevel]' |
+      docker exec -i $(make container-version) tclsh 
+    8.6.12
+```
+
+You can remove the installation of `busybox-static` in STAGE 1 since
+Alpine is already based on BusyBox.(^We can’t do “`FROM busybox`” since
+we need `apk` in this new second stage. Although this means we end up
+with back-to-back Alpine stages, it isn’t redundant; the second one
+starts fresh, allowing us to copy in only what we absolutely need from
+the first.) You should also remove the `PATH` override in the “RUN”
+stage, since it’s written for the case where everything is in `/bin`.
+
+Another useful case to consider is that you’ve installed a [server
 extension](./serverext.wiki) and you need an interpreter for that
-script. The advice above won’t work except in the unlikely case that
+script. The first option above won’t work except in the unlikely case that
 it’s written in one of the bare-bones script interpreters that BusyBox
 ships.(^BusyBox’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
 shell, implementing little more than what POSIX specified in 1989, plus
 equally stripped-down versions of AWK and `sed`.)
 
-Let’s say the extension is written in Python. You could inject that into
-the stock container via one of “[distroless]” images. Because this will
-conflict with the bare-bones “`os`” layer we create, the method is more
-complicated. Essentially, you replace everything in STAGE 2 and 3 inside
-the `Dockerfile` with:
+Let’s say the extension is written in Python. While you could handle it
+the same way we do with Tcl, because Python is more popular, we have
+more options. Let’s inject that into the stock container via a suitable
+“[distroless]” image instead. Because this will conflict with the
+bare-bones “`os`” layer we create, the method is more complicated:
 
-      FROM grc.io/distroless/python3-debian11 AS run
-      ARG UID=499
-      RUN set -x                                                              \
-          && install -d -m 700 -o fossil -g fossil log museum                 \
-          && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
-          && echo "fossil:x:${UID}:fossil"                     >> /etc/group
-      COPY --from=builder /tmp/fossil /bin/
+```
+    ## ---------------------------------------------------------------------
+    ## STAGE 2: Pare that back to the bare essentials, plus Python.
+    ## ---------------------------------------------------------------------
+    FROM cgr.dev/chainguard/python:latest
+    USER root
+    ARG UID=499
+    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
+    COPY --from=builder /tmp/fossil /bin/
+    COPY --from=builder /bin/busybox.static /bin/busybox
+    RUN [ "/bin/busybox", "--install", "/bin" ]
+    RUN set -x                                                              \
+        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
+        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
+        && install -d -m 700 -o fossil -g fossil log museum
+```
 
-Another case is that you’re setting up [email alerts](./alerts.md) and
-need some way to integrate with the host’s [MTA]. There are a number of
-alternatives in that linked document, so for the sake of discussion,
-we’ll say you’ve chosen Method 2, which requires a Tcl interpreter to
-push messages into the outbound email queue DB, presumably bind-mounted
-into the container. As of this writing, Google offers no “distroless”
-container images for Tcl, but you *could* replace the `FROM` line above
-with:
+Build it and test that it works like so:
 
-      FROM alpine AS run
-      RUN apk add --no-cache tcl
+```
+    $ make container-run &&
+      docker exec -i $(make container-version) python --version 
+    3.11.2
+```
 
-Everything else remains the same as in the distroless Python example
-because even Alpine will conflict with the way we set up core Linux
-directories like `/etc` and `/tmp` in the absence of any OS image.
+Relative to the Tcl example, the change from “`alpine`” to Chainguard’s
+Python image means we have no BusyBox environment to execute the `RUN`
+command with, so we have to copy the `busybox.static` binary in from
+STAGE 1 and install it in this new STAGE 2 for the same reason the stock
+container does.(^This is the main reason we change `USER` temporarily to
+`root` here.) The compensating bonus is huge: we don’t leave a package
+manager sitting around inside the image, waiting to be abused.
 
 Beware that there’s a limit to how much the über-jail nature of
 containers can save you when you go and provide a more capable OS layer
@@ -274,7 +326,8 @@ on the host that you haven’t explicitly mounted into the container’s
 namespace, but it *can* still make network connections, modify the repo
 DB inside the container, and who knows what else.
 
-[distroless]: https://github.com/GoogleContainerTools/distroless
+[cgimgs]:     https://github.com/chainguard-images/images/tree/main/images
+[distroless]: https://www.chainguard.dev/unchained/minimal-container-images-towards-a-more-secure-future
 [MTA]:        https://en.wikipedia.org/wiki/Message_transfer_agent
 [th1docrisk]: https://fossil-scm.org/forum/forumpost/42e0c16544
 
