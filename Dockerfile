@@ -19,7 +19,7 @@ RUN set -x                                                             \
     && apk update                                                      \
     && apk upgrade --no-cache                                          \
     && apk add --no-cache                                              \
-         busybox-static gcc make                                       \
+         gcc make                                                      \
          linux-headers musl-dev                                        \
          openssl-dev openssl-libs-static                               \
          zlib-dev zlib-static
@@ -50,19 +50,14 @@ RUN set -x                                                             \
 ## STAGE 2: Pare that back to the bare essentials.
 ## ---------------------------------------------------------------------
 
-FROM scratch AS os
+FROM busybox AS os
 ARG UID=499
-
-### Lay BusyBox down as the first base layer. Coupled with the host's
-### kernel, this is the "OS" used to RUN the subsequent setup script.
-COPY --from=builder /bin/busybox.static /bin/busybox
-RUN [ "/bin/busybox", "--install", "/bin" ]
 
 ### Set up that base OS for our specific use without tying it to
 ### anything likely to change often.  So long as the user leaves
 ### UID alone, this layer will be durable.
 RUN set -x                                                              \
-    && mkdir log museum tmp                                             \
+    && mkdir log museum                                                 \
     && echo "root:x:0:0:Admin:/:/false"                   > /tmp/passwd \
     && echo "root:x:0:root"                               > /tmp/group  \
     && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /tmp/passwd \
