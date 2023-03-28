@@ -271,16 +271,15 @@ stage, since it’s written for the case where everything is in `/bin`.
 Another useful case to consider is that you’ve installed a [server
 extension](./serverext.wiki) and you need an interpreter for that
 script. The first option above won’t work except in the unlikely case that
-it’s written in one of the bare-bones script interpreters that BusyBox
+it’s written for one of the bare-bones script interpreters that BusyBox
 ships.(^BusyBox’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
 shell, implementing little more than what POSIX specified in 1989, plus
 equally stripped-down versions of AWK and `sed`.)
 
 Let’s say the extension is written in Python. While you could handle it
-the same way we do with Tcl, because Python is more popular, we have
-more options. Let’s inject that into the stock container via a suitable
-“[distroless]” image instead. Because this will conflict with the
-bare-bones “`os`” layer we create, the method is more complicated:
+the same way we do with the Tcl example above, because Python is more
+popular, we have more options. Let’s inject a Python environment into
+the stock Fossil container via a suitable “[distroless]” image instead:
 
 ```
     ## ---------------------------------------------------------------------
@@ -307,29 +306,27 @@ Build it and test that it works like so:
     3.11.2
 ```
 
-Relative to the Tcl example, the change from “`alpine`” to Chainguard’s
-Python image means we have no BusyBox environment to execute the `RUN`
-command with, so we have to copy the `busybox.static` binary in from
-STAGE 1 and install it in this new STAGE 2 for the same reason the stock
-container does.(^This is the main reason we change `USER` temporarily to
-`root` here.) The compensating bonus is huge: we don’t leave a package
-manager sitting around inside the image, waiting to be abused.
+Relative to the Tcl example, the change from “`alpine`” to [Chainguard’s
+Python image][cgimgs] means we have no BusyBox environment to execute
+the `RUN` command with, so we have to copy the `busybox.static` binary
+in from STAGE 1 and install it in this new STAGE 2 for the same reason
+the stock container does.(^This is the main reason we change `USER`
+temporarily to `root` here.) There are a few other steps required to
+avoid causing a conflict between our previously bare-bones “OS” layer
+and what the Chainguard image provides. The compensation for this hassle
+is huge: we no longer leave a package manager sitting around inside the
+container, waiting for some malefactor to figure out how to abuse it.
 
-Beware that there’s a limit to how much the über-jail nature of
-containers can save you when you go and provide a more capable OS layer
-like this. For instance, you might have enabled Fossil’s [risky TH1 docs
-feature][th1docrisk] along with the Tcl integration feature, which
-effectively gives anyone with check-in rights on your repo the ability
-to run arbitrary Tcl code on the host when that document is rendered.
-The container layer should stop that script from accessing any files out
-on the host that you haven’t explicitly mounted into the container’s
-namespace, but it *can* still make network connections, modify the repo
-DB inside the container, and who knows what else.
+Beware that there’s a limit to this über-jail’s ability to save you when
+you go and provide a more capable OS layer like this. The container
+layer should stop an attacker from accessing any files out on the host
+that you haven’t explicitly mounted into the container’s namespace, but
+it can’t stop them from making outbound network connections or modifying
+the repo DB inside the container.
 
 [cgimgs]:     https://github.com/chainguard-images/images/tree/main/images
 [distroless]: https://www.chainguard.dev/unchained/minimal-container-images-towards-a-more-secure-future
 [MTA]:        https://en.wikipedia.org/wiki/Message_transfer_agent
-[th1docrisk]: https://fossil-scm.org/forum/forumpost/42e0c16544
 
 
 ### 3.3 <a id="caps"></a>Dropping Unnecessary Capabilities
