@@ -233,7 +233,7 @@ for the sake of discussion, we’ll say you’ve chosen [Method
 extension to push messages into the outbound email queue DB, presumably
 bind-mounted into the container.
 
-One way to do that is to replace STAGE 2 and 3 in the stock `Dockerfile`
+You can do that by replacing STAGEs 2 and 3 in the stock `Dockerfile`
 with this:
 
 ```
@@ -244,6 +244,7 @@ with this:
     ARG UID=499
     ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
     COPY --from=builder /tmp/fossil /bin/
+    COPY tools/email-sender.tcl /bin/
     RUN set -x                                                              \
         && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
         && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
@@ -260,13 +261,10 @@ Build it and test that it works like so:
     8.6.12
 ```
 
-You can remove the installation of `busybox-static` in STAGE 1 since
-Alpine is already based on BusyBox.(^We can’t do “`FROM busybox`” since
-we need `apk` in this new second stage. Although this means we end up
-with back-to-back Alpine stages, it isn’t redundant; the second one
-starts fresh, allowing us to copy in only what we absolutely need from
-the first.) You should also remove the `PATH` override in the “RUN”
+You should remove the `PATH` override in the “RUN”
 stage, since it’s written for the case where everything is in `/bin`.
+With these additions, we need the longer `PATH` shown above to have
+ready access to them all.
 
 Another useful case to consider is that you’ve installed a [server
 extension](./serverext.wiki) and you need an interpreter for that
@@ -274,11 +272,11 @@ script. The first option above won’t work except in the unlikely case that
 it’s written for one of the bare-bones script interpreters that BusyBox
 ships.(^BusyBox’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
 shell, implementing little more than what POSIX specified in 1989, plus
-equally stripped-down versions of AWK and `sed`.)
+equally stripped-down versions of `awk` and `sed`.)
 
 Let’s say the extension is written in Python. While you could handle it
-the same way we do with the Tcl example above, because Python is more
-popular, we have more options. Let’s inject a Python environment into
+the same way we do with the Tcl example above, Python is more
+popular, giving us more options. Let’s inject a Python environment into
 the stock Fossil container via a suitable “[distroless]” image instead:
 
 ```
@@ -298,6 +296,11 @@ the stock Fossil container via a suitable “[distroless]” image instead:
         && install -d -m 700 -o fossil -g fossil log museum
 ```
 
+You will also have to add `busybox-static` to the APK package list in
+STAGE 1 for the `RUN` script at the end of that stage to work, since the
+[Chainguard Python image][cgimgs] lacks a shell, on purpose. The need to
+install root-level binaries is why we change `USER` temporarily here.
+
 Build it and test that it works like so:
 
 ```
@@ -306,14 +309,8 @@ Build it and test that it works like so:
     3.11.2
 ```
 
-Relative to the Tcl example, the change from “`alpine`” to [Chainguard’s
-Python image][cgimgs] means we have no BusyBox environment to execute
-the `RUN` command with, so we have to copy the `busybox.static` binary
-in from STAGE 1 and install it in this new STAGE 2 for the same reason
-the stock container does.(^This is the main reason we change `USER`
-temporarily to `root` here.) There are a few other steps required to
-avoid causing a conflict between our previously bare-bones “OS” layer
-and what the Chainguard image provides. The compensation for this hassle
+The compensation for the hassle of using Chainguard over something more
+general purpose like Alpine + “`apk add python`”
 is huge: we no longer leave a package manager sitting around inside the
 container, waiting for some malefactor to figure out how to abuse it.
 
