@@ -1,5 +1,5 @@
-C Using\s"FROM\sbusybox"\sin\sthe\ssecond\sstage\sof\sthe\sDockerfile\sinstead\sof\n"FROM\sscratch"\splus\sa\scopy\sof\sthe\sbusybox.static\sbinary\sinstalled\svia\nAPK\sin\sthe\sfirst\sstage.\s\sWe're\sthrowing\sthis\slayer\saway\sin\sthe\sthird\nstage,\sso\sthe\sdifference\sis\simmaterial.\s\sThis\ssimplifies\sthings\swithout\nlosing\sanything\swe\scare\sabout.
-D 2023-03-28T13:29:50.838
+C Update\sthe\slist\sof\sversionable\ssettings\sin\sthe\sdocumentation.
+D 2023-03-30T08:15:37.947
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -928,7 +928,7 @@ F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493
 F www/server/windows/service.md 50da9506fe48dc41cc418ca63e2d01fe188c9887542f7a6832185dca1ab98f27
 F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524b356f3d5ab8b8ac8
 F www/serverext.wiki 1f7594105c7e30ed1b20c9e1d87fba422cdee9b64bcd2f4c7476402f82ebdeac
-F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
+F www/settings.wiki baf08fe196e4ba8935ae8b34c0e0849583e781536ed5a689d7744fef85e41ce6
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
 F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d960eda
 F www/ssl.wiki 408d992f47b1dd9c9638a7f12d5a0bab28ac35c66cb4dc2e77d8d22803509bab
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d21fb2678a02b56074fe46fadc90bfe9fca858159ecb0f7bbc3699b1a0eb92a3
-R b61e8adb6322f04a48397b4448bcd37c
-U wyoung
-Z 3110b5c35510b5daa9979e911a89f6b5
+P cda5d6a72bafd8523c0b1d42665097709bd5a5d710f8e39e8603d942e8fe9795
+R 2c005660db6c732e0e2b6151a79c23f6
+U danield
+Z 30a60ed9f47c17410906b40f000ade68
 # Remove this line to create a well-formed Fossil manifest.

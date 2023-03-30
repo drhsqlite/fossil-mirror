@@ -34,10 +34,10 @@ use Fossil, how you communicate with the server, or options for hosting
 a repository on the web.
 
 However, for historical reasons, some settings affect how you work with
-versioned files. These are <tt>allow-symlinks</tt>,
-<tt>binary-glob</tt>, <tt>crlf-glob</tt>, <tt>crnl-glob</tt>,
-<tt>empty-dirs</tt>, <tt>encoding-glob</tt>, <tt>ignore-glob</tt>,
-<tt>keep-glob</tt> and <tt>manifest</tt>. The most important is
+versioned files. These are <tt>clean-glob</tt>, <tt>binary-glob</tt>,
+<tt>crlf-glob</tt> (and its alias <tt>crnl-glob</tt>), <tt>empty-dirs</tt>,
+<tt>encoding-glob</tt>, <tt>ignore-glob</tt>, <tt>keep-glob</tt>,
+<tt>manifest</tt>, and <tt>mimetypes</tt>. The most important is
 <tt>ignore-glob</tt> which specifies which files should be ignored when
 looking for unmanaged files with the <tt>extras</tt> command.
 
