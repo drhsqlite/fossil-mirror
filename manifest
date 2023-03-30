@@ -1,5 +1,5 @@
-C Commit\s[cda5d6a7]\sinvalidated\sthe\sBusyBox\ssteps\sin\sthe\sTcl\sand\sPython\nexamples\sin\s§3.2\sof\sthe\scontainers\sdoc.
-D 2023-03-30T14:51:08.412
+C Updated\sthe\scontainer\ssize\sinfo\sin\sthe\sFossil\sv\sGit\sdoc\sto\strack\srecent\ndevelopments.
+D 2023-03-30T18:14:57.431
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -823,7 +823,7 @@ F www/forum.wiki d33aecef3584ce8ea068e035e0c1e82c6dfc9c5209f686115cc3a6670648ebe
 F www/foss-cklist.wiki 725b2e57d2d337473ffec6a6811877f1f2292b7ae1a38e40325a3f53488902e1
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 42373b5cb455cb12c130488eaf28a1c0daccdcc2c3506bbbde229ac5f03e1dec
-F www/fossil-v-git.wiki 0f6757c4101db3d1782dba046665571f604c9f09885140a73f8343c741fcc60d
+F www/fossil-v-git.wiki 13acd03c8f27bb99bf9e0876e0541373dc595b33745b42c4b918038f680daf93
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f9224e98a1d8c753b58dd1d854bdccfb926ceae6e635328105d67bec95d4daa
-R e54835e5f1316555fc4efcb1da52af34
+P ddcdc6f30bbc1e84c05b5e0e2f48e6363774b20fd9d5b8faa3009c15483fa7ef
+R 44c8d3c2bc50b9307321c89f9564b442
 U wyoung
-Z 45e3e80e0bb738a5e5db22e6a426a165
+Z 21f2bc7e706fb352c91a57b713bd1468
 # Remove this line to create a well-formed Fossil manifest.

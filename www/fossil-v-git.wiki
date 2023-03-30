@@ -183,18 +183,13 @@ restrictive container, anything from [./chroot.md | classic chroot
 jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
 | OS-level virtualization mechanisms] such as
 [https://en.wikipedia.org/wiki/Docker_(software) | Docker].
-Our [/file?name=Dockerfile.in&ci=trunk | stock <tt>Dockerfile</tt>]
-creates a ~4 MiB [https://opencontainers.org | OCI] image on 64-bit Linux, including
-a capable [https://www.busybox.net/ | Busybox] environment for live
-diagnostics of the running container.
+Our [./containers.md | stock container image] is under 8&nbsp;MB when
+uncompressed and running. It contains nothing but a single
+statically-linked binary.
 
-Modern Linux systems tend to make full static linking
-[https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
-| difficult], but our official executables do statically link to OpenSSL
-to remove a version dependency, resulting in an executable that's around
-6 MiB, depending on the platform. ([Release Build How-To | Details].)
-The result is dependent only upon widespread platform libraries with
-stable ABIs such as glibc, zlib, etc.
+If you build a dynamically linked binary instead, Fossil's on-disk size
+drops to around 6&nbsp;MB, and it's dependent only on widespread
+platform libraries with stable ABIs such as glibc, zlib, and openssl.
 
 Full static linking is easier on Windows, so our precompiled Windows
 binaries are just a ZIP archive
