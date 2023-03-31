@@ -650,7 +650,7 @@ container images.
 
 ### 6.2 <a id="podman"></a>Podman
 
-A lighter-weight alternative that doesn’t
+A lighter-weight [rootless] [drop-in replacement][whatis] that doesn’t
 give up the image builder is [Podman]. Initially created by
 Red Hat and thus popular on that family of OSes, it will run on
 any flavor of Linux. It can even be made to run [on macOS via Homebrew][pmmac]
@@ -659,50 +659,22 @@ or [on Windows via WSL2][pmwin].
 On Ubuntu 22.04, the installation size is about 38&nbsp;MiB, roughly a
 tenth the size of Docker Engine.
 
-Although Podman [bills itself][whatis] as a drop-in replacement for the
-`docker` command and everything that sits behind it, some of the tool’s
-design decisions affect how our Fossil containers run, as compared to
-using Docker.
-
-The most important of these is that, by default, Podman wants to build
-and run your container “[rootless].” This is generally better for
-security, but there’s something you need to be aware of: each user has
-their own local container registry. Let’s say you’re following good
-security practice by building the container on the server as a regular
-user, but you then want to start it as root because your server OS of
-choice won’t start user-level `systemd` units until and unless that user
-logs in first. The problem is, the root user can’t see the unprivileged
-user’s container registry, so even though it did build the image, you
-can’t create the actual container from that image since that needs to be
-done as root.
-
-The simple way to deal with this is to bounce the container through a
-registry that both users can see, such as [Docker
-Hub](https://hub.docker.com):
+For our purposes here, the only thing that changes relative to the
+examples at the top of this document are the initial command:
 
 ```
-  $ podman login
   $ podman build -t fossil .
-  $ podman tag fossil:latest mydockername/fossil:latest
-  $ podman image push mydockername/fossil:latest
+  $ podman run --name fossil -p 9999:8080/tcp fossil
 ```
 
-That will push the image up to your account, so that you can then say:
+Your Linux package repo may have a `podman-docker` package which
+provides a “`docker`” script that calls “`podman`” for you, eliminating
+even the command name difference. With that installed, the `make`
+commands above will work with Podman as-is.
 
-```
-  $ sudo podman create \
-    --any-options-you-like \
-    docker.io/mydockername/fossil
-```
-
-This round-trip through the public image registry has another side
-benefit: it lets you build on a local system that might be a lot faster
-than your remote one, as when the remote is a small VPS. Even with the
-overhead of schlepping container images across the Internet, it can be a
-net win in terms of build time.
-
-Another oddity compared to Docker is that Podman doesn’t have the same
-[default Linux kernel capability set](#caps).  The changes distill to:
+The only difference that matters here is that Podman doesn’t have the
+same [default Linux kernel capability set](#caps) as Docker, which
+affects the `--cap-drop` flags recommended above to:
 
 ```
   $ podman create \

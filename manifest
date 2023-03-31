@@ -1,5 +1,5 @@
-C Updated\sthe\scontainer\ssize\sinfo\sin\sthe\sFossil\sv\sGit\sdoc\sto\strack\srecent\ndevelopments.
-D 2023-03-30T18:14:57.431
+C Updated\sthe\sPodman\sdocs\sto\sno\slonger\stalk\sabout\sall\sthe\s"sudo"\sstuff\swe\nused\sto\shave\sto\sdo\sto\sget\sit\sto\sbuild\sand\srun.\s\sThere\sare\sno\smore\smknod\ncalls\sto\sfail\sin\sthat\srootless\senvironment.
+D 2023-03-31T18:49:58.152
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -776,7 +776,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki cfded91f05d56649b9c3a2c196da305814ec3501bec875cfbf543641ffa1770c
+F www/changes.wiki a9705368aa9350ff4517c3401ff8b8b908ebcbe72e6d18528c49ab5d6ecda100
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -787,7 +787,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md e1885e1d7dc73c189151184cef9afd3fae68bf2ad65293f68cdf6bce9018ce4b
+F www/containers.md 9c0201b852a0fce346bad88286abe3396f4181f8db030eeb1372914460b067db
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ddcdc6f30bbc1e84c05b5e0e2f48e6363774b20fd9d5b8faa3009c15483fa7ef
-R 44c8d3c2bc50b9307321c89f9564b442
+P 283b1a4201ed5d436816979c620b0117b2f76baeae6a881a92afd821ca87ad85
+R c48289bdf1fd673efddaf8c647c89f04
 U wyoung
-Z 21f2bc7e706fb352c91a57b713bd1468
+Z bae26732b32ac249655632ffb6f3068b
 # Remove this line to create a well-formed Fossil manifest.
