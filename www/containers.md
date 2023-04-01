@@ -470,7 +470,7 @@ at about 6 MiB. (It’s built stripped.)
 
 ## 5. <a id="args"></a>Container Build Arguments
 
-### <a id="pkg-vers"></a> 5.1 Package Versions
+### <a id="pkg-vers"></a> 5.1 Fossil Version
 
 The default version of Fossil fetched in the build is the version in the
 checkout directory at the time you run it.  You could override it to get
@@ -546,6 +546,18 @@ wish for [a static Fossil binary](#static). For those who want such a
 alternative](https://hub.docker.com/r/duvel/fossil); needless to say,
 it’s inherently less secure than our stock container, but you may find
 the tradeoff worthwhile.
+
+### 5.4 <a id="cengine"></a>Container Engine
+
+Although the Fossil container build system defaults to Docker, we allow
+for use of any OCI container system that implements the same interfaces.
+We go into more details about this in [the next section](#light), but
+for now, it suffices to point out that you can switch to Podman while
+using our `Makefile` convenience targets unchanged by saying:
+
+```
+    $ make CENGINE=podman container-run
+```
 
 
 ## 6. <a id="light"></a>Lightweight Alternatives to Docker

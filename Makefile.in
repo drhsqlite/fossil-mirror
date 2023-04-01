@@ -123,11 +123,12 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
 IMGVER := fossil:@FOSSIL_CI_PFX@
 CNTVER := fossil-@FOSSIL_CI_PFX@
+CENGINE := docker
 container:
-	docker image inspect $(IMGVER) > /dev/null 2>&1 || \
+	$(CENGINE) image inspect $(IMGVER) > /dev/null 2>&1 || \
 		$(MAKE) container-image
-	docker container inspect $(CNTVER) > /dev/null 2>&1 || \
-		docker create \
+	$(CENGINE) container inspect $(CNTVER) > /dev/null 2>&1 || \
+		$(CENGINE) create \
 			--name $(CNTVER) \
 			--cap-drop AUDIT_WRITE \
 			--cap-drop CHOWN \
@@ -142,13 +143,13 @@ container:
 			$(DCFLAGS) $(IMGVER) $(DCCMD)
 
 container-clean:
-	-docker container kill $(CNTVER)
-	-docker container rm   $(CNTVER)
-	-docker image     rm   $(IMGVER)
+	-$(CENGINE) container kill $(CNTVER)
+	-$(CENGINE) container rm   $(CNTVER)
+	-$(CENGINE) image     rm   $(IMGVER)
 
 container-image:
 	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
-	docker buildx build \
+	$(CENGINE) buildx build \
 		--load \
 		--tag $(IMGVER) \
 		--build-arg FSLURL=$(SRCTB) \
@@ -156,12 +157,12 @@ container-image:
 	rm -f $(SRCTB)
 
 container-run container-start: container
-	docker start $(DSFLAGS) $(CNTVER)
+	$(CENGINE) start $(DSFLAGS) $(CNTVER)
 	@sleep 1   # decrease likelihood of logging race condition
-	docker container logs $(CNTVER)
+	$(CENGINE) container logs $(CNTVER)
 
 container-stop:
-	docker stop $(CNTVER)
+	$(CENGINE) stop $(CNTVER)
 
 container-version:
 	@echo $(CNTVER)
