@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\s(pre-3.42.0)\sfor\ntesting.
-D 2023-04-01T15:52:34.347
+C Removed\sall\sthe\s"BBXVER"\sstuff\sin\sthe\scontainers\sdoc\snow\sthat\swe\saren't\nfetching\sthe\sBusyBox\ssources\sand\sbuilding\sa\scustom\sversion\sto\sinstall\noutside\sthe\sjail.
+D 2023-04-01T16:41:50.772
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -787,7 +787,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 9c0201b852a0fce346bad88286abe3396f4181f8db030eeb1372914460b067db
+F www/containers.md 055ad022f0bb37a036451bc893bd2f7d77633ae9721ce2c15c8543095ca800c3
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 779cb8fd9dcb11251c7b3946bf2f22d32fd3d7ffc9b25df19246e7f8c6a6bd30
-R 41fed39d8ed001df2177f130f4fe29cc
-U drh
-Z d76a4db888774699696bef63fc338480
+P 2516fca74d93ddfe16bad170df14b1855c3cb17ac5136d6889aacc2af854a9c0
+R 787fede5926a54763f4866e476f74325
+U wyoung
+Z e83b3bdc0df9bb13339acdc8a4282fac
 # Remove this line to create a well-formed Fossil manifest.

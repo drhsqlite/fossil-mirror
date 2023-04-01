@@ -399,11 +399,13 @@ Specifically:
     configure the reverse proxy to translate external HTTPS calls into
     HTTP directed at this internal port 12345.)
 
-*    **`NET_RAW`**: Fossil itself doesn’t use raw sockets, and our build
-    process leaves out all the BusyBox utilities that require them.
-    Although that set includes common tools like `ping`, we foresee no
-    compelling reason to use that or any of these other elided utilities
-    — `ether-wake`, `netstat`, `traceroute`, and `udhcp` — inside the
+*   **`NET_RAW`**: Fossil itself doesn’t use raw sockets, and while
+    you could [swap out the run layer](#run) for something more
+    functional that *does* make use of raw sockets, there’s little call
+    for it. The best reason I can come up with is to be able to run
+    utilities like `ping` and `traceroute`, but since we aren’t doing
+    anything clever with the networking configuration, there’s no
+    particularly compelling reason to run these from inside the
     container. If you need to ping something, do it on the host.
 
     If we did not take this hard-line stance, an attacker that broke
@@ -470,40 +472,18 @@ at about 6 MiB. (It’s built stripped.)
 
 ### <a id="pkg-vers"></a> 5.1 Package Versions
 
-You can override the default versions of Fossil and BusyBox that get
-fetched in the build step. To get the latest-and-greatest of everything,
-you could say:
+The default version of Fossil fetched in the build is the version in the
+checkout directory at the time you run it.  You could override it to get
+a release build like so:
 
 ```
-  $ docker build -t fossil \
-    --build-arg FSLVER=trunk \
-    --build-arg BBXVER=master .
-```
-
-(But don’t, for reasons we will get to.)
-
-Because the BusyBox configuration file we ship was created with and
-tested against a specific stable release, that’s the version we pull by
-default. It does try to merge the defaults for any new configuration
-settings into the stock set, but since it’s possible this will fail, we
-don’t blindly update the BusyBox version merely because a new release
-came out. Someone needs to get around to vetting it against our stock
-configuration first.
-
-As for Fossil, it defaults to fetching the same version as the checkout
-you’re running the build command from, based on checkin ID. You could
-use this to get a release build, for instance:
-
-```
-  $ docker build -t fossil \
-    --build-arg FSLVER=version-2.20 .
+  $ docker build -t fossil --build-arg FSLVER=version-2.20 .
 ```
 
 Or equivalently, using Fossil’s `Makefile` convenience target:
 
 ```
-  $ make container-image \
-    DBFLAGS='--build-arg FSLVER=version-2.20'
+  $ make container-image DBFLAGS='--build-arg FSLVER=version-2.20'
 ```
 
 While you could instead use the generic
