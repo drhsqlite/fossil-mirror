@@ -1,5 +1,5 @@
-C Added\sthe\sCENGINE\sabstraction\sbetween\s`docker`\sand\s`podman`\sin\sthe\nMakefile's\scontainer\sconvenience\stargets.
-D 2023-04-01T16:49:07.731
+C Allow\scomment\slines\s(starting\swith\s'#')\sin\sversioned\ssettings.
+D 2023-04-03T18:58:08.986
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -383,7 +383,7 @@ F src/backlink.c 93d58763e00a9abe822dac4dca9d5b84213010ba286584d5de363524ec2786d
 F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cdb5e
 F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
-F src/blob.c ce02db6a43139991effd70c74bd993d9f7ad3d20877ef59b011984c713688bae
+F src/blob.c 55d63a4e8b740499afe655e935c196955bac4f07f98debdfdf0bc21627401a3b
 F src/branch.c 98d2149b146788a3f8afe82fb638b094adb451beb19d73999cda36ffe993d3a9
 F src/browse.c be929df6669c73d9c8082db0e69e0bf6efb30c9be1f28a61b933c2f01c2e7c86
 F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
@@ -406,7 +406,7 @@ F src/content.c 8aa7c10aedf440d3205d9614fa73aff492d725a6c44a1ea60d64fbbd499c2e15
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 89e1467147685ae4c766be4e63717590134aa17a2725d5d97d40df1bbe18c86e
+F src/db.c b23d4c4532f5f6cf9cb466ec09c1aa292333a21ef03b9b2672854bdbea55f005
 F src/default.css 686748203d09a80b55c72a94a8dd66e05648b1f24ddb8fe5850c2fc673cee171
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 11edf9d3d870b246ee7315f5f2fe62a1e7ca4f5093a6b07b6ed1adeb3f36574e
@@ -951,8 +951,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b14165549cf1abf5221dec8349f7f41c97f1a15cd201a6fe96cf3efd4ef1773e
-R 9376ef92071037e9d3f5f042fc9c6406
-U wyoung
-Z 3e5fbf0fc7bae5c955e51b8212192709
+P 72d8240457db851cbfbff6d675ebc0b85b367a2fa374d86eca133d2f66045fc9
+R 037df0642e57c8f118e30174e9d34c85
+T *branch * allow-versioned-settings-comments
+T *sym-allow-versioned-settings-comments *
+T -sym-trunk *
+U danield
+Z 25bc920f776c92f9f7c22f05b1979634
 # Remove this line to create a well-formed Fossil manifest.
