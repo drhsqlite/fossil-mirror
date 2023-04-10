@@ -3174,6 +3174,7 @@ SQLITE_EXTENSION_INIT1;
 #define U8_TYPEDEF
 #endif
 
+/* Decoding table, ASCII (7-bit) value to base 64 digit value or other */
 static const u8 b64DigitValues[128] = {
   /*                             HT LF VT  FF CR       */
     ND,ND,ND,ND, ND,ND,ND,ND, ND,WS,WS,WS, WS,WS,ND,ND,
@@ -8774,7 +8775,10 @@ static int zipfileColumn(
           ** it to be a directory either if the mode suggests so, or if
           ** the final character in the name is '/'.  */
           u32 mode = pCDS->iExternalAttr >> 16;
-          if( !(mode & S_IFDIR) && pCDS->zFile[pCDS->nFile-1]!='/' ){
+          if( !(mode & S_IFDIR)
+           && pCDS->nFile>=1
+           && pCDS->zFile[pCDS->nFile-1]!='/'
+          ){
             sqlite3_result_blob(ctx, "", 0, SQLITE_STATIC);
           }
         }
@@ -12508,7 +12512,6 @@ int sqlite3_recover_finish(sqlite3_recover*);
 #endif /* ifndef _SQLITE_RECOVER_H */
 
 /************************* End ../ext/recover/sqlite3recover.h ********************/
-# ifndef SQLITE_HAVE_SQLITE3R
 /************************* Begin ../ext/recover/dbdata.c ******************/
 /*
 ** 2019-04-17
@@ -12679,6 +12682,7 @@ static int dbdataConnect(
   (void)argc;
   (void)argv;
   (void)pzErr;
+  sqlite3_vtab_config(db, SQLITE_VTAB_USES_ALL_SCHEMAS);
   if( rc==SQLITE_OK ){
     pTab = (DbdataTable*)sqlite3_malloc64(sizeof(DbdataTable));
     if( pTab==0 ){
@@ -16338,7 +16342,6 @@ int sqlite3_recover_finish(sqlite3_recover *p){
 #endif /* ifndef SQLITE_OMIT_VIRTUALTABLE */
 
 /************************* End ../ext/recover/sqlite3recover.c ********************/
-# endif
 #endif
 #ifdef SQLITE_SHELL_EXTSRC
 # include SHELL_STRINGIFY(SQLITE_SHELL_EXTSRC)
@@ -17928,7 +17931,7 @@ static char *shell_error_context(const char *zSql, sqlite3 *db){
   if( db==0
    || zSql==0
    || (iOffset = sqlite3_error_offset(db))<0
-   || iOffset>=strlen(zSql)
+   || iOffset>=(int)strlen(zSql)
   ){
     return sqlite3_mprintf("");
   }
@@ -17940,7 +17943,7 @@ static char *shell_error_context(const char *zSql, sqlite3 *db){
   len = strlen(zSql);
   if( len>78 ){
     len = 78;
-    while( (zSql[len]&0xc0)==0x80 ) len--;
+    while( len>0 && (zSql[len]&0xc0)==0x80 ) len--;
   }
   zCode = sqlite3_mprintf("%.*s", len, zSql);
   shell_check_oom(zCode);
@@ -20355,6 +20358,9 @@ static void open_db(ShellState *p, int openFlags){
     sqlite3_regexp_init(p->db, 0, 0);
     sqlite3_ieee_init(p->db, 0, 0);
     sqlite3_series_init(p->db, 0, 0);
+#if SQLITE_SHELL_HAVE_RECOVER
+    sqlite3_dbdata_init(p->db, 0, 0);
+#endif
 #ifndef SQLITE_SHELL_FIDDLE
     sqlite3_fileio_init(p->db, 0, 0);
     sqlite3_completion_init(p->db, 0, 0);
@@ -21170,7 +21176,7 @@ static int db_int(sqlite3 *db, const char *zSql){
   return res;
 }
 
-#if defined(SQLITE_SHELL_HAVE_RECOVER)
+#if SQLITE_SHELL_HAVE_RECOVER
 /*
 ** Convert a 2-byte or 4-byte big-endian integer into a native integer
 */
@@ -24800,6 +24806,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       }else{
         p->scanstatsOn = (u8)booleanValue(azArg[1]);
       }
+      open_db(p, 0);
       sqlite3_db_config(
           p->db, SQLITE_DBCONFIG_STMT_SCANSTATUS, p->scanstatsOn, (int*)0
       );

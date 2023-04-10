@@ -1,5 +1,5 @@
-C Do\snot\ssave\sthe\spassword\sfor\ssyncing\soperations\sif\sthe\suser\sdenied\sthe\ssave\spassword\sprompt\sor\sif\sthe\sFOSSIL_SECURITY_LEVEL\senvironment\svariable\sis\s≥1.
-D 2023-04-10T08:46:00.000
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.
+D 2023-04-10T20:23:22.142
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -274,9 +274,9 @@ F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc3
 F extsrc/pikchr.c 02f23c6c39e1af5d95734124b8c3c59fa3bf62bea1dab93a191ba54ab4386a45
 F extsrc/pikchr.js ad1ec71dbf414878068978109fdc208cc4fef629618562f9d7731d1c43e4799f
 F extsrc/pikchr.wasm 82d23a9cf932c4a3d60b24f129e208d9103747927d14eee96ae1b4ca10ba70f8
-F extsrc/shell.c f454b62921e589b203f707c067aac5d781697b36d3274746a32e5da800e8ce67
-F extsrc/sqlite3.c 8e5cf7a3c3b9f40caa70422eb168cd8e5b0ff0620b5a2b564e54d769b4b708ee
-F extsrc/sqlite3.h 6f3d97999bb33ae8b327c41390ccbe983d31497845736a2ed63fb28aab1f459f
+F extsrc/shell.c 133a7d8489349ef398269d85dd32396e7c838285c005d6f4f6f7006c40efa6a3
+F extsrc/sqlite3.c 1d672f4f0d2ddeb714666bdb49db9541aae257a5c03d3bf414e86c522af7682d
+F extsrc/sqlite3.h b28ff454ee718bcc2f73e6193aa825c9016ad91e5507f2f392d764b3e6318996
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72d8240457db851cbfbff6d675ebc0b85b367a2fa374d86eca133d2f66045fc9
-R 9d8d7580de8380621c58473f5c39e550
-U florian
-Z a3f52a0d548ea5dfec217291b74e300a
+P 2916ec970b2dfbefaa893650b4bb7e09c9cc29973aa38129abfec1ff39693ce5
+R 8861faa21d4a402d8494f6f7ee503ad3
+U drh
+Z e03211933bc0a7c82da57f2aacbd1327
 # Remove this line to create a well-formed Fossil manifest.

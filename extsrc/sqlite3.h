@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.42.0"
 #define SQLITE_VERSION_NUMBER 3042000
-#define SQLITE_SOURCE_ID      "2023-04-01 15:51:21 a4fb2864fe01cce9694242a0750623ca47fcecd68f74c4239d3eb5fbf978770a"
+#define SQLITE_SOURCE_ID      "2023-04-10 18:44:00 4c5a3c5fb351cc1c2ce16c33314ce19c53531f09263f87456283d9d756002f9d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2496,7 +2496,7 @@ struct sqlite3_mem_methods {
 #define SQLITE_DBCONFIG_ENABLE_VIEW           1015 /* int int* */
 #define SQLITE_DBCONFIG_LEGACY_FILE_FORMAT    1016 /* int int* */
 #define SQLITE_DBCONFIG_TRUSTED_SCHEMA        1017 /* int int* */
-#define SQLITE_DBCONFIG_STMT_SCANSTATUS       1080 /* int int*  */
+#define SQLITE_DBCONFIG_STMT_SCANSTATUS       1018 /* int int*  */
 #define SQLITE_DBCONFIG_REVERSE_SCANORDER     1019 /* int int* */
 #define SQLITE_DBCONFIG_MAX                   1019 /* Largest DBCONFIG */
 
@@ -9606,18 +9606,28 @@ SQLITE_API int sqlite3_vtab_config(sqlite3*, int op, ...);
 ** [[SQLITE_VTAB_INNOCUOUS]]<dt>SQLITE_VTAB_INNOCUOUS</dt>
 ** <dd>Calls of the form
 ** [sqlite3_vtab_config](db,SQLITE_VTAB_INNOCUOUS) from within the
-** the [xConnect] or [xCreate] methods of a [virtual table] implmentation
+** the [xConnect] or [xCreate] methods of a [virtual table] implementation
 ** identify that virtual table as being safe to use from within triggers
 ** and views.  Conceptually, the SQLITE_VTAB_INNOCUOUS tag means that the
 ** virtual table can do no serious harm even if it is controlled by a
 ** malicious hacker.  Developers should avoid setting the SQLITE_VTAB_INNOCUOUS
 ** flag unless absolutely necessary.
 ** </dd>
+**
+** [[SQLITE_VTAB_USES_ALL_SCHEMAS]]<dt>SQLITE_VTAB_USES_ALL_SCHEMAS</dt>
+** <dd>Calls of the form
+** [sqlite3_vtab_config](db,SQLITE_VTAB_USES_ALL_SCHEMA) from within the
+** the [xConnect] or [xCreate] methods of a [virtual table] implementation
+** instruct the query planner to begin at least a read transaction on
+** all schemas ("main", "temp", and any ATTACH-ed databases) whenever the
+** virtual table is used.
+** </dd>
 ** </dl>
 */
 #define SQLITE_VTAB_CONSTRAINT_SUPPORT 1
 #define SQLITE_VTAB_INNOCUOUS          2
 #define SQLITE_VTAB_DIRECTONLY         3
+#define SQLITE_VTAB_USES_ALL_SCHEMAS   4
 
 /*
 ** CAPI3REF: Determine The Virtual Table Conflict Policy
