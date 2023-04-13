@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.
-D 2023-04-10T20:23:22.142
+C Typo\sfix\sin\scapabilities.c,\sreported\sin\sforum.
+D 2023-04-13T07:01:14.673
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,7 +389,7 @@ F src/browse.c be929df6669c73d9c8082db0e69e0bf6efb30c9be1f28a61b933c2f01c2e7c86
 F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
-F src/capabilities.c 34faa335a7a2e6ce5e87c8c83458d045c0cdb3c5ecc88b62293d16ed0ccf1dc4
+F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095ae44e
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c d7efb61ec4bac957d9d56d5d9ea798fa391807d3bea72da7c5f67b14aed9440d
 F src/chat.c eb1bc66e6a6cfbd9e474b3a0764a53098df7af41b7bead4ae92aeca47d57a4b5
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2916ec970b2dfbefaa893650b4bb7e09c9cc29973aa38129abfec1ff39693ce5
-R 8861faa21d4a402d8494f6f7ee503ad3
-U drh
-Z e03211933bc0a7c82da57f2aacbd1327
+P 2eb2077c1bbd609c79ceabadc7c5bd618ae4cc3f18e92641181e6d7f9ae12797
+R 50097a828a714599b86f907d5da375a1
+U danield
+Z 50d797ebac4019dcc95c4dac29c42956
 # Remove this line to create a well-formed Fossil manifest.

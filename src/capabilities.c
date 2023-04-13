@@ -389,7 +389,7 @@ void capability_summary(void){
     " SELECT 'Regular User', fullcap(capunion(cap)), 200, count(*) FROM user"
     " WHERE cap NOT GLOB '*[as]*' AND login NOT IN (SELECT id FROM t)"
     " UNION ALL"
-    " SELECT 'Adminstrator', fullcap(capunion(cap)), 300, count(*) FROM user"
+    " SELECT 'Administrator', fullcap(capunion(cap)), 300, count(*) FROM user"
     " WHERE cap GLOB '*[as]*'"
     " ORDER BY 3 ASC",
     zSelfCap, hasPubPages, zSelfCap
