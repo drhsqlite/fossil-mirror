@@ -1,5 +1,5 @@
-C Typo\sfix\sin\scapabilities.c,\sreported\sin\sforum.
-D 2023-04-13T07:01:14.673
+C Squelch\san\sunitialized\svar\swarning\sfrom\sgcc\s12.2.1\son\sAlpine\sLinux.
+D 2023-04-14T15:31:17.060
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/diff.c 116c548c48207898d275cb389835f72362e2826e2305000b255d1010e296e05b
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c a163407d4ca35f49f3ae66ee18bc70326285da564b0e970d1019a9fc3fe49895
-F src/dispatch.c 85cbcbe0b5a2131eafeec0fe38009f59c3b5aeefb01465d2a35a26c7d9b89a92
+F src/dispatch.c 4f08108181715925cd45d84fcdc370ca4d5b44fba6f205da5b42bf3785af7174
 F src/doc.c e35673780fbf63eb8fedd9e692dc1ee6ded6a0f555950ffb3c7b9a50e33fed27
 F src/encode.c e1fb0359db29597da230ca637c157666a310426e8e2cf5c5e71c90717537ea51
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2eb2077c1bbd609c79ceabadc7c5bd618ae4cc3f18e92641181e6d7f9ae12797
-R 50097a828a714599b86f907d5da375a1
-U danield
-Z 50d797ebac4019dcc95c4dac29c42956
+P 0df0586a1183d07363dd3b8a8daf69ec38f0aea29f45e64e24aaa3ed6fcdee0b
+R 86defdf801a33ed78e938ff8a216f771
+U stephan
+Z edd17e4f90d54c4e6b22a6eae906c4e3
 # Remove this line to create a well-formed Fossil manifest.

@@ -707,7 +707,7 @@ static int edit_distance(const char *zA, const char *zB){
   int nB = (int)strlen(zB);
   int i, j, m;
   int p0, p1, c0;
-  int a[100];
+  int a[100] = {0};
   static const int incr = 4;
 
   for(j=0; j<nB; j++) a[j] = 1;
