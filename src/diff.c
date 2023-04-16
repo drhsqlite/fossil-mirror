@@ -2888,8 +2888,8 @@ int diff_context_lines(DiffConfig *pCfg){
   const int dflt = 5;
   if(pCfg!=0){
     int n = pCfg->nContext;
-    if( n<=0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
-    return n;
+    if( n==0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
+    return n<0 ? 0x7ffffff : n;
   }else{
     return dflt;
   }
@@ -3149,7 +3149,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   }
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))!=0 ){
     pCfg->nContext = f;
     diffFlags |= DIFF_CONTEXT_EX;
   }

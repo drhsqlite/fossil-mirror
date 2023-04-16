@@ -21,7 +21,7 @@
 ** email protocol?  That is not here.  See the "smtp.c" file instead.
 ** Yes, the choice of source code filenames is not the greatest, but
 ** it is not so bad that changing them seems justified.
-*/ 
+*/
 #include "config.h"
 #include "alerts.h"
 #include <assert.h>
@@ -61,7 +61,7 @@ static const char zAlertInit[] =
 @   semail TEXT UNIQUE COLLATE nocase,-- email address
 @   suname TEXT,                      -- corresponding USER entry
 @   sverified BOOLEAN DEFAULT true,   -- email address verified
-@   sdonotcall BOOLEAN,               -- true for Do Not Call 
+@   sdonotcall BOOLEAN,               -- true for Do Not Call
 @   sdigest BOOLEAN,                  -- true for daily digests only
 @   ssub TEXT,                        -- baseline subscriptions
 @   sctime INTDATE,                   -- When this entry was created. unixtime
@@ -71,7 +71,7 @@ static const char zAlertInit[] =
 @ );
 @ CREATE INDEX repository.subscriberUname
 @   ON subscriber(suname) WHERE suname IS NOT NULL;
-@ 
+@
 @ DROP TABLE IF EXISTS repository.pending_alert;
 @ -- Email notifications that need to be sent.
 @ --
@@ -617,7 +617,8 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
       if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
-      p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
+      p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
+                                  smtpFlags);
       smtp_client_startup(p->pSmtp);
     }
   }

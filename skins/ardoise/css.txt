@@ -309,6 +309,11 @@ input[type=submit] {
   white-space: nowrap;
   cursor: pointer
 }
+input[type=submit]:disabled {
+  color: rgb(70,70,70);
+  background-color: rgb(153,153,153);
+}
+
 @media (min-width:550px) {
   .container {
     width: 95%
@@ -1408,6 +1413,9 @@ table.captcha {
 }
 div.forumSel {
   background-color: #3a3a3a;
+}
+body.forum .forumPosts.fileage a:visited {
+  color: rgb(72, 144, 224);
 }
 .debug {
   background-color: #330;

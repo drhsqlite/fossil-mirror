@@ -102,8 +102,9 @@ void secaudit0_page(void){
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
+  Blob cmd;
   char *z;
-  int n;
+  int n, i;
   CapabilityString *pCap;
   char **azCSP;              /* Parsed content security policy */
 
@@ -693,6 +694,17 @@ void secaudit0_page(void){
     table_of_public_phantoms();
     @ </li>
   }
+
+  blob_init(&cmd, 0, 0);
+  for(i=0; g.argvOrig[i]!=0; i++){
+    blob_append_escaped_arg(&cmd, g.argvOrig[i], 0);
+  }
+  @ <li><p>
+  @ The command that generated this page:
+  @ <blockquote>
+  @ <tt>%h(blob_str(&cmd))</tt>
+  @ </blockquote></li>
+  blob_zero(&cmd);
 
   @ </ol>
   style_finish_page();

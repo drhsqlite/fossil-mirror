@@ -61,6 +61,7 @@
 **                symbolic links are only recognized as something different
 **                from files or directories if allow-symlinks is true.
 */
+#include <stdlib.h>
 #define ExtFILE    0  /* Always follow symlinks */
 #define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
 #define SymFILE    2  /* Never follow symlinks */

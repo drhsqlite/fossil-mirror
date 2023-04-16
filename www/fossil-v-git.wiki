@@ -183,18 +183,13 @@ restrictive container, anything from [./chroot.md | classic chroot
 jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
 | OS-level virtualization mechanisms] such as
 [https://en.wikipedia.org/wiki/Docker_(software) | Docker].
-Our [/file?name=Dockerfile.in&ci=trunk | stock <tt>Dockerfile</tt>]
-creates a ~4 MiB [https://opencontainers.org | OCI] image on 64-bit Linux, including
-a capable [https://www.busybox.net/ | Busybox] environment for live
-diagnostics of the running container.
+Our [./containers.md | stock container image] is under 8&nbsp;MB when
+uncompressed and running. It contains nothing but a single
+statically-linked binary.
 
-Modern Linux systems tend to make full static linking
-[https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
-| difficult], but our official executables do statically link to OpenSSL
-to remove a version dependency, resulting in an executable that's around
-6 MiB, depending on the platform. ([Release Build How-To | Details].)
-The result is dependent only upon widespread platform libraries with
-stable ABIs such as glibc, zlib, etc.
+If you build a dynamically linked binary instead, Fossil's on-disk size
+drops to around 6&nbsp;MB, and it's dependent only on widespread
+platform libraries with stable ABIs such as glibc, zlib, and openssl.
 
 Full static linking is easier on Windows, so our precompiled Windows
 binaries are just a ZIP archive
@@ -360,7 +355,7 @@ About half of Git's code is POSIX C, and about a third is POSIX shell
 code. This is largely why the so-called "Git for Windows" distributions
 (both [https://git-scm.com/download/win|first-party] and
 [https://gitforwindows.org/|third-party]) are actually an
-[http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
+[https://www.msys2.org/wiki/Home/|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
 natively to Windows. Git is a foreign citizen on Windows, speaking to it
 only through a translator.⁶
@@ -370,7 +365,8 @@ line endings are treated as first-class citizens over CR+LF, for example
 — the Windows build of Fossil is truly native.
 
 The third-party extensions to Git tend to follow this same pattern.
-[http://mingw.org/wiki/msys|GitLab isn't portable to Windows at all],
+[https://docs.gitlab.com/ee/install/install_methods.html#microsoft-windows | 
+GitLab isn't portable to Windows at all],
 for example. For that matter, GitLab isn't even officially supported on
 macOS, the BSDs, or uncommon Linuxes! We have many users who regularly
 build and run Fossil on all of these systems.

@@ -113,9 +113,12 @@ do.</p>
 discussion in the "TLS and Fossil" document].</p>
 
 <li><p>
-To build a statically linked binary (suitable for use inside a chroot
-jail) add the <b>--static</b> option. (See the [#docker | Docker section
-below].)
+To build a statically linked binary, you can <i>try</i> adding
+the <b>--static</b> option, but
+[https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
+| it may well not work]. If your platform of choice is affected by this,
+the simplest workaround we're aware of is to build a Fossil container,
+then [./containers.md#static | extract the static executable from it].
 
 <li><p>
 To enable the native [./th1.md#tclEval | Tcl integration feature] feature,

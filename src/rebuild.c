@@ -607,22 +607,39 @@ static void reconstruct_private_table(void){
 ** does approximately the same thing in Git.
 */
 void repack_command(void){
-  char *azNewArgv[5];
-  char **azOldArgv = g.argv;
+  i64 nByte = 0;
+  int nDelta = 0;
+  int runVacuum = 0;
   verify_all_options();
-  if( g.argc!=2 && g.argc!=3 ){
+  if( g.argc==3 ){
+    db_open_repository(g.argv[2]);
+  }else if( g.argc==2 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close(1);
+    db_open_repository(g.zRepositoryName);
+  }else{
     usage("?REPOSITORY-FILENAME?");
   }
-  azNewArgv[0] = g.argv[0];
-  azNewArgv[1] = "rebuild";
-  azNewArgv[2] = "--compress-only";
-  azNewArgv[3] = g.argv[2];
-  azNewArgv[4] = 0;
-  g.argc++;
-  g.argv = azNewArgv;
-  rebuild_database();
-  g.argc--;
-  g.argv = azOldArgv;
+  db_unprotect(PROTECT_ALL);
+  nByte = extra_deltification(&nDelta);
+  if( nDelta>0 ){
+    if( nDelta==1 ){
+      fossil_print("1 new delta saves %,lld bytes\n", nByte);
+    }else{
+      fossil_print("%d new deltas save %,lld bytes\n", nDelta, nByte);
+    }
+    runVacuum = 1;
+  }else{
+    fossil_print("no new compression opportunities found\n");
+  }
+  if( runVacuum ){
+    fossil_print("Vacuuming the database... "); fflush(stdout);
+    db_multi_exec("VACUUM");
+    fossil_print("done\n");
+  }
 }
 
 

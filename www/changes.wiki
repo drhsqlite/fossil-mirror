@@ -1,7 +1,11 @@
 <title>Change Log</title>
 
 <h2 id='v2_22'>Changes for version 2.22 (pending)</h2>
-
+  *  The stock OCI container no longer includes BusyBox, thus no longer
+     needs to start as root to chroot that power away. That in turn
+     frees us from needing to build and install the container as root,
+     since it no longer has to create a private <tt>/dev</tt> tree
+     inside the jail for Fossil's use.
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use

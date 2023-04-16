@@ -393,10 +393,13 @@ const char zRepositorySchema2[] =
 @ -- keep calling them tags because in many cases the value is ignored.
 @ --
 @ CREATE TABLE tagxref(
-@   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
+@   tagid INTEGER REFERENCES tag,   -- The tag being added, removed,
+@                                   -- or propagated
 @   tagtype INTEGER,                -- 0:-,cancel  1:+,single  2:*,propagate
-@   srcid INTEGER REFERENCES blob,  -- Artifact of tag. 0 for propagated tags
-@   origid INTEGER REFERENCES blob, -- check-in holding propagated tag
+@   srcid INTEGER REFERENCES blob,  -- Artifact tag originates from, or
+@                                   -- 0 for propagated tags
+@   origid INTEGER REFERENCES blob, -- Artifact holding propagated tag
+@                                   -- (any artifact type with a P-card)
 @   value TEXT,                     -- Value of the tag.  Might be NULL.
 @   mtime TIMESTAMP,                -- Time of addition or removal. Julian day
 @   rid INTEGER REFERENCE blob,     -- Artifact tag is applied to
