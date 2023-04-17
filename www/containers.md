@@ -12,8 +12,8 @@ show some of these options later on.
 
 ## 1. Quick Start
 
-Fossil ships a `Dockerfile` at the top of its source tree which you can
-build like so:
+Fossil ships a `Dockerfile` at the top of its source tree,
+[here][DF], which you can build like so:
 
 ```
   $ docker build -t fossil .
@@ -58,6 +58,8 @@ applications since they avoid a conflict with past versions; it lets you
 keep old containers around for quick roll-backs while replacing them
 with fresh ones.
 
+[DF]: /file/Dockerfile
+
 
 ## 2. <a id="storage"></a>Repository Storage Options
 
@@ -82,9 +84,9 @@ The simplest method is to stop the container if it was running, then
 say:
 
 ```
-  $ docker cp /path/to/my-project.fossil fossil:/jail/museum/repo.fossil
+  $ docker cp /path/to/my-project.fossil fossil:/museum/repo.fossil
   $ docker start fossil
-  $ docker exec fossil chown -R 499 /jail/museum
+  $ docker exec fossil chown -R 499 /museum
 ```
 
 That copies the local Fossil repo into the container where the server
@@ -124,7 +126,7 @@ the following:
   $ docker run \
     --publish 9999:8080 \
     --name fossil-bind-mount \
-    --volume ~/museum:/jail/museum \
+    --volume ~/museum:/museum \
     fossil
 ```
 
@@ -152,7 +154,7 @@ are specially-formatted SQLite databases, you might be wondering why we
 don’t say things like:
 
 ```
-  --volume ~/museum/my-project.fossil:/jail/museum/repo.fossil
+  --volume ~/museum/my-project.fossil:/museum/repo.fossil
 ```
 
 That lets us have a convenient file name for the project outside the
@@ -181,56 +183,150 @@ container boundary is safe when used in this manner.
 
 ## 3. <a id="security"></a>Security
 
-### 3.1 <a id="chroot"></a>Why Chroot?
+### 3.1 <a id="chroot"></a>Why Not Chroot?
 
-A potentially surprising feature of this container is that it runs
-Fossil as root. Since that causes [the chroot jail feature](./chroot.md)
-to kick in, and a Docker container is a type of über-jail already, you
-may be wondering why we bother. Instead, why not either:
+Prior to 2023.03.26, the stock Fossil container made use of [the chroot
+jail feature](./chroot.md) in order to wall away the shell and other
+tools provided by [BusyBox](https://www.busybox.net/BusyBox.html).  This
+author made a living for years in the early 1990s using Unix systems
+that offered less power, so there was a legitimate worry that if someone
+ever figured out how to get a shell on one of these Fossil containers,
+it would constitute a powerful island from which to attack the rest of
+the network.
 
-*   run `fossil server --nojail` to skip the internal chroot; or
-*   set “`USER fossil`” in the `Dockerfile` so it starts Fossil as
-    that user instead
+The thing is, Fossil is self-contained, needing none of that power in
+the main-line use cases.  The only reason we included BusyBox in the
+container at all was on the off chance that someone needed it for
+debugging.
 
-The reason is, although this container is quite stripped-down by today’s
-standards, it’s based on the [surprisingly powerful Busybox
-project](https://www.busybox.net/BusyBox.html). (This author made a
-living for years in the early 1990s using Unix systems that were less
-powerful than this container.) If someone ever figured out how to make a
-Fossil binary execute arbitrary commands on the host or to open up a
-remote shell, the power available to them at that point would make it
-likely that they’d be able to island-hop from there into the rest of
-your network. That power is there for you as the system administrator
-alone, to let you inspect the container’s runtime behavior, change
-things on the fly, and so forth. Fossil proper doesn’t need that power;
-if we take it away via this cute double-jail dance, we keep any
-potential attacker from making use of it should they ever get in.
-
-Having said this, know that we deem this risk low since a) it’s never
-happened, that we know of; and b) we haven’t enabled any of the risky
-features of Fossil such as [TH1 docs][th1docrisk]. Nevertheless, we
-believe defense-in-depth strategies are wise.
-
-If you say something like “`docker exec fossil ps`” while the system is
-idle, it’s likely to report a single `fossil` process running as `root`
-even though the chroot feature is documented as causing Fossil to drop
-its privileges in favor of the owner of the repository database or its
-containing folder. If the repo file is owned by the in-container user
-“`fossil`”, why is the server still running as root?
-
-It’s because you’re seeing only the parent process, which assumes it’s
-running on bare metal or a VM and thus may need to do rootly things like
-listening on port 80 or 443 before forking off any children to handle
-HTTP hits. Fossil’s chroot feature only takes effect in these child
-processes. This is why you can fix broken permissions with `chown`
-after the container is already running, without restarting it: each hit
-reevaluates the repository file permissions when deciding what user to
-become when dropping root privileges.
-
-[th1docrisk]: https://fossil-scm.org/forum/forumpost/42e0c16544
+That justification collapsed when we realized you could restore this
+basic shell environment on an as-needed basis with a one-line change to
+the `Dockerfile`, as we show in the next section.
 
 
-### 3.2 <a id="caps"></a>Dropping Unnecessary Capabilities
+### 3.2 <a id="run"></a>Swapping Out the Run Layer
+
+If you want a basic shell environment for temporary debugging of the
+running container, that’s easily added. Simply change this line in the
+`Dockerfile`…
+
+      FROM scratch AS run
+
+…to this:
+
+      FROM busybox AS run
+
+Rebuild, redeploy, and your Fossil container now has a BusyBox based
+shell environment that you can get into via:
+
+      $ docker exec -it -u fossil $(make container-version) sh
+
+(That command assumes you built the container via “`make container`” and
+are therefore using its versioning scheme.)
+
+Another case where you might need to replace this bare-bones “`run`”
+layer with something more functional is that you’re setting up [email
+alerts](./alerts.md) and need some way to integrate with the host’s
+[MTA]. There are a number of alternatives in that linked document, so
+for the sake of discussion, we’ll say you’ve chosen [Method
+2](./alerts.md#db), which requires a Tcl interpreter and its SQLite
+extension to push messages into the outbound email queue DB, presumably
+bind-mounted into the container.
+
+You can do that by replacing STAGEs 2 and 3 in the stock `Dockerfile`
+with this:
+
+```
+    ## ---------------------------------------------------------------------
+    ## STAGE 2: Pare that back to the bare essentials, plus Tcl.
+    ## ---------------------------------------------------------------------
+    FROM alpine AS run
+    ARG UID=499
+    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
+    COPY --from=builder /tmp/fossil /bin/
+    COPY tools/email-sender.tcl /bin/
+    RUN set -x                                                              \
+        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
+        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
+        && install -d -m 700 -o fossil -g fossil log museum                 \
+        && apk add --no-cache tcl sqlite-tcl
+```
+
+Build it and test that it works like so:
+
+```
+    $ make container-run &&
+      echo 'puts [info patchlevel]' |
+      docker exec -i $(make container-version) tclsh 
+    8.6.12
+```
+
+You should remove the `PATH` override in the “RUN”
+stage, since it’s written for the case where everything is in `/bin`.
+With these additions, we need the longer `PATH` shown above to have
+ready access to them all.
+
+Another useful case to consider is that you’ve installed a [server
+extension](./serverext.wiki) and you need an interpreter for that
+script. The first option above won’t work except in the unlikely case that
+it’s written for one of the bare-bones script interpreters that BusyBox
+ships.(^BusyBox’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
+shell, implementing little more than what POSIX specified in 1989, plus
+equally stripped-down versions of `awk` and `sed`.)
+
+Let’s say the extension is written in Python. While you could handle it
+the same way we do with the Tcl example above, Python is more
+popular, giving us more options. Let’s inject a Python environment into
+the stock Fossil container via a suitable “[distroless]” image instead:
+
+```
+    ## ---------------------------------------------------------------------
+    ## STAGE 2: Pare that back to the bare essentials, plus Python.
+    ## ---------------------------------------------------------------------
+    FROM cgr.dev/chainguard/python:latest
+    USER root
+    ARG UID=499
+    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
+    COPY --from=builder /tmp/fossil /bin/
+    COPY --from=builder /bin/busybox.static /bin/busybox
+    RUN [ "/bin/busybox", "--install", "/bin" ]
+    RUN set -x                                                              \
+        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
+        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
+        && install -d -m 700 -o fossil -g fossil log museum
+```
+
+You will also have to add `busybox-static` to the APK package list in
+STAGE 1 for the `RUN` script at the end of that stage to work, since the
+[Chainguard Python image][cgimgs] lacks a shell, on purpose. The need to
+install root-level binaries is why we change `USER` temporarily here.
+
+Build it and test that it works like so:
+
+```
+    $ make container-run &&
+      docker exec -i $(make container-version) python --version 
+    3.11.2
+```
+
+The compensation for the hassle of using Chainguard over something more
+general purpose like Alpine + “`apk add python`”
+is huge: we no longer leave a package manager sitting around inside the
+container, waiting for some malefactor to figure out how to abuse it.
+
+Beware that there’s a limit to this über-jail’s ability to save you when
+you go and provide a more capable OS layer like this. The container
+layer should stop an attacker from accessing any files out on the host
+that you haven’t explicitly mounted into the container’s namespace, but
+it can’t stop them from making outbound network connections or modifying
+the repo DB inside the container.
+
+[cgimgs]:     https://github.com/chainguard-images/images/tree/main/images
+[distroless]: https://www.chainguard.dev/unchained/minimal-container-images-towards-a-more-secure-future
+[MTA]:        https://en.wikipedia.org/wiki/Message_transfer_agent
+
+
+### 3.3 <a id="caps"></a>Dropping Unnecessary Capabilities
 
 The example commands above create the container with [a default set of
 Linux kernel capabilities][defcap]. Although Docker strips away almost
@@ -253,7 +349,7 @@ Specifically:
     automation.
 
     Curiously, stripping this capability doesn’t affect your ability to
-    run commands like “`chown -R fossil:fossil /jail/museum`” when
+    run commands like “`chown -R fossil:fossil /museum`” when
     you’re using bind mounts or external volumes — as we recommend
     [above](#bind-mount) — because it’s the host OS’s kernel
     capabilities that affect the underlying `chown(2)` call in that
@@ -281,12 +377,12 @@ Specifically:
     option to run commands within your container as the legitimate owner
     of the process, removing the need for this capability.
 
-*    **`MKNOD`**: All device nodes are created at build time and are
-    never changed at run time. Realize that the virtualized device nodes
-    inside the container get mapped onto real devices on the host, so if
-    an attacker ever got a root shell on the container, they might be
-    able to do actual damage to the host if we didn’t preemptively strip
-    this capability away.
+*   **`MKNOD`**: As of 2023.03.26, the stock container uses the
+    runtime’s default `/dev` node tree. Prior to this, we had to create
+    `/dev/null` and `/dev/urandom` inside [the chroot jail](#chroot),
+    but even then, these device nodes were created at build time and
+    were never changed at run time, so we didn’t need this run-time
+    capability even then.
 
 *    **`NET_BIND_SERVICE`**: With containerized deployment, Fossil never
     needs the ability to bind the server to low-numbered TCP ports, not
@@ -303,11 +399,13 @@ Specifically:
     configure the reverse proxy to translate external HTTPS calls into
     HTTP directed at this internal port 12345.)
 
-*    **`NET_RAW`**: Fossil itself doesn’t use raw sockets, and our build
-    process leaves out all the Busybox utilities that require them.
-    Although that set includes common tools like `ping`, we foresee no
-    compelling reason to use that or any of these other elided utilities
-    — `ether-wake`, `netstat`, `traceroute`, and `udhcp` — inside the
+*   **`NET_RAW`**: Fossil itself doesn’t use raw sockets, and while
+    you could [swap out the run layer](#run) for something more
+    functional that *does* make use of raw sockets, there’s little call
+    for it. The best reason I can come up with is to be able to run
+    utilities like `ping` and `traceroute`, but since we aren’t doing
+    anything clever with the networking configuration, there’s no
+    particularly compelling reason to run these from inside the
     container. If you need to ping something, do it on the host.
 
     If we did not take this hard-line stance, an attacker that broke
@@ -360,7 +458,7 @@ this:
 ```
   $ docker build -t fossil .
   $ docker create --name fossil-static-tmp fossil
-  $ docker cp fossil-static-tmp:/jail/bin/fossil .
+  $ docker cp fossil-static-tmp:/bin/fossil .
   $ docker container rm fossil-static-tmp
 ```
 
@@ -372,42 +470,20 @@ at about 6 MiB. (It’s built stripped.)
 
 ## 5. <a id="args"></a>Container Build Arguments
 
-### <a id="pkg-vers"></a> 5.1 Package Versions
+### <a id="pkg-vers"></a> 5.1 Fossil Version
 
-You can override the default versions of Fossil and BusyBox that get
-fetched in the build step. To get the latest-and-greatest of everything,
-you could say:
-
-```
-  $ docker build -t fossil \
-    --build-arg FSLVER=trunk \
-    --build-arg BBXVER=master .
-```
-
-(But don’t, for reasons we will get to.)
-
-Because the BusyBox configuration file we ship was created with and
-tested against a specific stable release, that’s the version we pull by
-default. It does try to merge the defaults for any new configuration
-settings into the stock set, but since it’s possible this will fail, we
-don’t blindly update the BusyBox version merely because a new release
-came out. Someone needs to get around to vetting it against our stock
-configuration first.
-
-As for Fossil, it defaults to fetching the same version as the checkout
-you’re running the build command from, based on checkin ID. You could
-use this to get a release build, for instance:
+The default version of Fossil fetched in the build is the version in the
+checkout directory at the time you run it.  You could override it to get
+a release build like so:
 
 ```
-  $ docker build -t fossil \
-    --build-arg FSLVER=version-2.20 .
+  $ docker build -t fossil --build-arg FSLVER=version-2.20 .
 ```
 
 Or equivalently, using Fossil’s `Makefile` convenience target:
 
 ```
-  $ make container-image \
-    DBFLAGS='--build-arg FSLVER=version-2.20'
+  $ make container-image DBFLAGS='--build-arg FSLVER=version-2.20'
 ```
 
 While you could instead use the generic
@@ -470,6 +546,18 @@ wish for [a static Fossil binary](#static). For those who want such a
 alternative](https://hub.docker.com/r/duvel/fossil); needless to say,
 it’s inherently less secure than our stock container, but you may find
 the tradeoff worthwhile.
+
+### 5.4 <a id="cengine"></a>Container Engine
+
+Although the Fossil container build system defaults to Docker, we allow
+for use of any OCI container system that implements the same interfaces.
+We go into more details about this in [the next section](#light), but
+for now, it suffices to point out that you can switch to Podman while
+using our `Makefile` convenience targets unchanged by saying:
+
+```
+    $ make CENGINE=podman container-run
+```
 
 
 ## 6. <a id="light"></a>Lightweight Alternatives to Docker
@@ -554,7 +642,7 @@ container images.
 
 ### 6.2 <a id="podman"></a>Podman
 
-A lighter-weight alternative to either of the prior options that doesn’t
+A lighter-weight [rootless] [drop-in replacement][whatis] that doesn’t
 give up the image builder is [Podman]. Initially created by
 Red Hat and thus popular on that family of OSes, it will run on
 any flavor of Linux. It can even be made to run [on macOS via Homebrew][pmmac]
@@ -563,67 +651,25 @@ or [on Windows via WSL2][pmwin].
 On Ubuntu 22.04, the installation size is about 38&nbsp;MiB, roughly a
 tenth the size of Docker Engine.
 
-Although Podman [bills itself][whatis] as a drop-in replacement for the
-`docker` command and everything that sits behind it, some of the tool’s
-design decisions affect how our Fossil containers run, as compared to
-using Docker. The most important of these is that, by default, Podman
-wants to run your container “rootless,” meaning that it runs as a
-regular user.  This is generally better for security, but [we dealt with
-that risk differently above](#chroot) already. Since neither choice is
-unassailably correct in all conditions, we’ll document both options
-here.
-
-[pmmac]:  https://podman.io/getting-started/installation.html#macos
-[pmwin]:  https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
-[Podman]: https://podman.io/
-[whatis]: https://podman.io/whatis.html
-
-
-#### 6.2.1 <a id="podman-rootless"></a>Fossil in a Rootless Podman Container
-
-If you build the stock Fossil container under `podman`, it will fail at
-two key steps:
-
-1.  The `mknod` calls in the second stage, which create the `/jail/dev`
-    nodes. For a rootless container, we want it to use the “real” `/dev`
-    tree mounted into the container’s root filesystem instead.
-
-2. Anything that depends on the `/jail` directory and the fact that it
-   becomes the file system’s root once the Fossil server is up and running.
-
-[The changes to fix this](/file/containers/Dockerfile-nojail.patch)
-aren’t complicated. Simply apply that patch to our stock `Dockerfile`
-and rebuild:
+For our purposes here, the only thing that changes relative to the
+examples at the top of this document are the initial command:
 
 ```
-  $ patch -p0 < containers/Dockerfile-nojail.patch
-  $ podman build -t fossil:nojail .
+  $ podman build -t fossil .
+  $ podman run --name fossil -p 9999:8080/tcp fossil
+```
+
+Your Linux package repo may have a `podman-docker` package which
+provides a “`docker`” script that calls “`podman`” for you, eliminating
+even the command name difference. With that installed, the `make`
+commands above will work with Podman as-is.
+
+The only difference that matters here is that Podman doesn’t have the
+same [default Linux kernel capability set](#caps) as Docker, which
+affects the `--cap-drop` flags recommended above to:
+
+```
   $ podman create \
-    --name fossil-nojail \
-    --publish 127.0.0.1:9999:8080 \
-    --volume ~/museum:/museum \
-    fossil:nojail
-```
-
-Do realize that by doing this, if an attacker ever managed to get shell
-access on your container, they’d have a BusyBox installation to play
-around in. That shouldn’t be enough to let them break out of the
-container entirely, but they’ll have powerful tools like `wget`, and
-they’ll be connected to the network the container runs on. Once the bad
-guy is inside the house, he doesn’t necessarily have to go after the
-residents directly to cause problems for them.
-
-
-#### 6.2.2 <a id="podman-rootful"></a>Fossil in a Rootful Podman Container
-
-##### Simple Method
-
-Fortunately, it’s easy enough to have it both ways. Simply run your
-`podman` commands as root:
-
-```
-  $ sudo podman build -t fossil --cap-add MKNOD .
-  $ sudo podman create \
     --name fossil \
     --cap-drop CHOWN \
     --cap-drop FSETID \
@@ -633,78 +679,14 @@ Fortunately, it’s easy enough to have it both ways. Simply run your
     --cap-drop SETPCAP \
     --publish 127.0.0.1:9999:8080 \
     localhost/fossil
-  $ sudo podman start fossil
+  $ podman start fossil
 ```
 
-It’s obvious why we have to start the container as root, but why create
-and build it as root, too? Isn’t that a regression from the modern
-practice of doing as much as possible with a normal user?
-
-We have to do the build under `sudo` in part because we’re doing rootly
-things with the file system image layers we’re building up. Just because
-it’s done inside a container runtime’s build environment doesn’t mean we
-can get away without root privileges to do things like create the
-`/jail/dev/null` node.
-
-The other reason we need “`sudo podman build`” is because it puts the result
-into root’s Podman image registry, where the next steps look for it.
-
-That in turn explains why we need “`sudo podman create`:” because it’s
-creating a container based on an image that was created by root. If you
-ran that step without `sudo`, it wouldn’t be able to find the image.
-
-If Docker is looking better and better to you as a result of all this,
-realize that it’s doing the same thing. It just hides it better by
-creating the `docker` group, so that when your user gets added to that
-group, you get silent root privilege escalation on your build machine.
-This is why Podman defaults to rootless containers.  If you can get away
-with it, it’s a better way to work.  We would not be recommending
-running `podman` under `sudo` if it didn’t buy us [something we wanted
-badly](#chroot).
-
-Notice that we had to add the ability to run `mknod(8)` during the
-build. [Podman sensibly denies this by default][nomknod], which lets us
-leave off the corresponding `--cap-drop` option. Podman also denies
-`CAP_NET_RAW` and `CAP_AUDIT_WRITE` by default, which we don’t need, so
-we’ve simply removed them from the `--cap-drop` list relative to the
-commands for Docker above.
-
-[nomknod]: https://github.com/containers/podman/issues/15626
-
-
-##### <a id="pm-root-workaround"></a>Building Under Docker, Running Under Podman
-
-If you have a remote host where the Fossil instance needs to run, it’s
-possible to get around this need to build the image as root on the
-remote system. You still have to build as root on the local system, but
-as I said above, Docker already does this. What we’re doing is shifting
-the risk of running as root from the public host to the local one.
-
-Once you have the image built on the local machine, create a “`fossil`”
-repository on your container repository of choice such as [Docker
-Hub](https://hub.docker.com), then say:
-
-```
-  $ docker login
-  $ docker tag fossil:latest mydockername/fossil:latest
-  $ docker image push mydockername/fossil:latest
-```
-
-That will push the image up to your account, so that you can then switch
-to the remote machine and say:
-
-```
-  $ sudo podman create \
-    --any-options-you-like \
-    docker.io/mydockername/fossil
-```
-
-This round-trip through the public image registry has another side
-benefit: your local system might be a lot faster than your remote one,
-as when the remote is a small VPS. Even with the overhead of schlepping
-container images across the Internet, it can be a net win in terms of
-build time.
-
+[pmmac]:    https://podman.io/getting-started/installation.html#macos
+[pmwin]:    https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
+[Podman]:   https://podman.io/
+[rootless]: https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
+[whatis]:   https://podman.io/whatis.html
 
 
 ### 6.3 <a id="nspawn"></a>`systemd-container`
@@ -731,8 +713,18 @@ to the reasons given [above](#repo-inside). We’ll make consistent use of
 this naming scheme in the examples below so that you will be able to
 replace the “`myproject`” element of the various file and path names.
 
-The first configuration step is to convert the Docker container into
-a “machine,” as `systemd` calls it.  The easiest method is:
+If you use [the stock `Dockerfile`][DF] to generate your
+base image, `nspawn` won’t recognize it as containing an OS unless you
+change the “`FROM scratch AS os`” line at the top of the second stage
+to something like this:
+
+```
+  FROM gcr.io/distroless/static-debian11 AS os
+```
+
+Using that as a base image provides all the files `nspawn` checks for to
+determine whether the container is sufficiently close to a Linux VM for
+the following step to proceed:
 
 ```
   $ make container
@@ -740,17 +732,15 @@ a “machine,” as `systemd` calls it.  The easiest method is:
     machinectl import-tar - myproject
 ```
 
-Next, create `/etc/systemd/nspawn/myproject.nspawn`, containing
-something like:
+Next, create `/etc/systemd/nspawn/myproject.nspawn`:
 
 ----
 
 ```
 [Exec]
-WorkingDirectory=/jail
+WorkingDirectory=/
 Parameters=bin/fossil server                \
     --baseurl https://example.com/myproject \
-    --chroot /jail                          \
     --create                                \
     --jsmode bundled                        \
     --localhost                             \
@@ -773,7 +763,7 @@ LinkJournal=no
 Timezone=no
 
 [Files]
-Bind=/home/fossil/museum/myproject:/jail/museum
+Bind=/home/fossil/museum/myproject:/museum
 
 [Network]
 VirtualEthernet=no
@@ -797,7 +787,7 @@ Some of this is expected to vary:
 
 *   The path in the host-side part of the `Bind` value must point at the
     directory containing the `repo.fossil` file referenced in said
-    command so that `/jail/museum/repo.fossil` refers to your repo out
+    command so that `/museum/repo.fossil` refers to your repo out
     on the host for the reasons given [above](#bind-mount).
 
 That being done, we also need a generic systemd unit file called
@@ -843,7 +833,6 @@ the `*.nspawn` file:
 ```
 Parameters=bin/fossil server \
     --cert /path/to/cert.pem \
-    --chroot /jail           \
     --create                 \
     --jsmode bundled         \
     --port 443               \
@@ -1017,7 +1006,7 @@ rather than “boot” an OS image. That causes a bunch of commands to fail:
 
 *   **`machinectl start`** will try to find an `/sbin/init`
     program in the rootfs, which we haven’t got.  We could
-    rename `/jail/bin/fossil` to `/sbin/init` and then hack
+    rename `/bin/fossil` to `/sbin/init` and then hack
     the chroot scheme to match, but ick.  (This, incidentally,
     is why we set `ProcessTwo=yes` above even though Fossil is
     perfectly capable of running as PID 1, a fact we depend on

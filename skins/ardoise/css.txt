@@ -309,6 +309,11 @@ input[type=submit] {
   white-space: nowrap;
   cursor: pointer
 }
+input[type=submit]:disabled {
+  color: rgb(70,70,70);
+  background-color: rgb(153,153,153);
+}
+
 @media (min-width:550px) {
   .container {
     width: 95%

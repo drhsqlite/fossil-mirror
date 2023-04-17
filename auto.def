@@ -775,7 +775,6 @@ if {[get-define EMSDK_HOME] ne ""} {
 # tarball once only, keeping it in the local Docker/Podman cache.
 set ci [readfile "$::autosetup(srcdir)/manifest.uuid"]
 define FOSSIL_CI_PFX [string range $ci 0 11]
-make-template containers/os-release.in
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}
