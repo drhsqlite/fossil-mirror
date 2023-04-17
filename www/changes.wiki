@@ -6,6 +6,8 @@
      frees us from needing to build and install the container as root,
      since it no longer has to create a private <tt>/dev</tt> tree
      inside the jail for Fossil's use.
+  *  Add support for the trigram tokenizer for FTS5 search to enable
+     searching in Chinese.
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use

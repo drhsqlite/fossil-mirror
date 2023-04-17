@@ -2041,16 +2041,16 @@ void fts_config_cmd(void){
       }
     }
   }else if( iCmd==5 ){
-    int iOldStemmer, iNewStemmer;
-    if( g.argc<4 ) usage("stemmer porter|on|off|trigram");
-    iOldStemmer = search_tokenizer_type(0);
+    int iOldTokenizer, iNewTokenizer;
+    if( g.argc<4 ) usage("tokenizer porter|on|off|trigram");
+    iOldTokenizer = search_tokenizer_type(0);
     db_set("search-tokenizer",
            search_tokenizer_for_string(g.argv[3]), 0);
-    iNewStemmer = search_tokenizer_type(1);
-    if( iOldStemmer!=iNewStemmer ){
+    iNewTokenizer = search_tokenizer_type(1);
+    if( iOldTokenizer!=iNewTokenizer ){
       /* Drop or rebuild index if stemmer changes. */
-      iAction = 1 + ((iOldStemmer && iNewStemmer)
-                     ? 1 : (iNewStemmer ? 1 : 0));
+      iAction = 1 + ((iOldTokenizer && iNewTokenizer)
+                     ? 1 : (iNewTokenizer ? 1 : 0));
     }
   }
 
