@@ -2048,7 +2048,7 @@ void fts_config_cmd(void){
            search_tokenizer_for_string(g.argv[3]), 0);
     iNewTokenizer = search_tokenizer_type(1);
     if( iOldTokenizer!=iNewTokenizer ){
-      /* Drop or rebuild index if stemmer changes. */
+      /* Drop or rebuild index if tokenizer changes. */
       iAction = 1 + ((iOldTokenizer && iNewTokenizer)
                      ? 1 : (iNewTokenizer ? 1 : 0));
     }
