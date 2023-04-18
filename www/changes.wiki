@@ -6,6 +6,8 @@
      frees us from needing to build and install the container as root,
      since it no longer has to create a private <tt>/dev</tt> tree
      inside the jail for Fossil's use.
+  *  Add support for the trigram tokenizer for FTS5 search to enable
+     searching in Chinese.
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use
@@ -66,13 +68,13 @@
      [/dir?ci=92fd091703a28c07&name=skins/blitz|/skins/blitz] directory listing.)
   *  Enhancements to the graph layout algorithm design to improve readability
      and promote better situational awareness.
-  *  Performance enhancement for the 
+  *  Performance enhancement for the
      [./checkin_names.wiki#root|"root:BRANCHNAME" style of tag],
      accomplished using a Common Table Expression in the underlying SQL.
   *  Sort tag listings (command line and webpage) by taking numbers into
      consideration so as to cater for tags that follow semantic versioning.
   *  On the wiki listings, omit by default wiki pages that are associated with
-     check-ins and branches.     
+     check-ins and branches.
   *  Add the new "[/help?cmd=describe|fossil describe]" command.
   *  Markdown subsystem extended with [../src/markdown.md#ftnts|footnotes support].
      See corresponding [../test/markdown-test3.md|test cases],
@@ -125,7 +127,7 @@
   *  For "[/help?cmd=pull|fossil pull]" with the --from-parent-project option,
      if no URL is specified then use the last URL from the most recent prior
      "fossil pull --from-parent-project".
-  *  Add options --project-name and --project-desc to the 
+  *  Add options --project-name and --project-desc to the
      "[/help?cmd=init|fossil init]" command.
   *  The [/help?cmd=/ext|/ext page] generates the SERVER_SOFTWARE environment
      variable for clients.
@@ -147,7 +149,7 @@
   *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
      [/help?cmd=amend|fossil amend] can now take the value "auto" to
      force Fossil to use its built-in automatic color choosing algorithm.
-  *  Fossil now [./concepts.wiki#workflow|autosyncs] prior to running 
+  *  Fossil now [./concepts.wiki#workflow|autosyncs] prior to running
      [/help?cmd=open|fossil open].
   *  Add the [/help?cmd=ticket-default-report|ticket-default-report setting],
      which if set to the title of a ticket report causes that ticket report
@@ -156,7 +158,7 @@
      causes all graph coloring to be omitted.
   *  Improvements and bug fixes to the new "[/help?cmd=ui|fossil ui REMOTE]"
      feature so that it works better on a wider variety of platforms.
-  *  In [/help?cmd=/wikiedit|/wikiedit], show the list of attachments for 
+  *  In [/help?cmd=/wikiedit|/wikiedit], show the list of attachments for
      the current page and list URLs suitable for pasting them into the page.
   *  Add the --no-http-compression option to [/help?cmd=sync|fossil sync]
      and similar.
@@ -251,7 +253,7 @@
      locked down by default.
   *  The built-in skins all use the "[/help?cmd=mainmenu|mainmenu]"
      setting to determine the content of the main menu.
-     The ability to edit the 
+     The ability to edit the
      "mainmenu" setting is added on the /Admin/Configuration page.
   *  The hamburger menu is now available on most of the built-in skins.
   *  Any built-in skin named "X" can be used instead of the standard
@@ -266,11 +268,11 @@
      "[/help?cmd=sitemap-extra|sitemap-extra setting]",
      rather than a cluster of various
      "sitemap-*" settings.  The older settings are no longer used.
-     <b>This change might require minor server configuration 
+     <b>This change might require minor server configuration
      adjustments on servers that use /sitemap extensions.</b>
      The /Admin/Configuration page provides the ability to edit
      the new "sitemap-extra" setting.
-  *  Added the "--ckout-alias NAME" option to 
+  *  Added the "--ckout-alias NAME" option to
      [/help?cmd=ui|fossil ui], [/help?cmd=server|fossil server], and
      [/help?cmd=http|fossil http].  This option causes Fossil to
      understand URIs of the form "/doc/NAME/..." as if they were
@@ -278,7 +280,7 @@
      [./embeddeddoc.wiki|embedded documentation] changes prior to
      check-in.
   *  For diff web pages, if the diff type (unified versus side-by-side)
-     is not specified by a query parameter, and if the 
+     is not specified by a query parameter, and if the
      "[/help?cmd=preferred-diff-type|preferred-diff-type]"
      setting is omitted or less than 1, then select the diff type based
      on a guess of whether or not the request is coming from a mobile
@@ -287,10 +289,10 @@
      individual diffs.
   *  Add the "[/help?cmd=preferred-diff-type|preferred-diff-type]"
      setting to allow an admin to force a default diff type.
-  *  The "pikchr-background" settings is now available in 
+  *  The "pikchr-background" settings is now available in
      "detail.txt" skin files, for better control of Pikchr
      colors in inverted color schemes.
-  *  Add the <tt>--list</tt> option to the 
+  *  Add the <tt>--list</tt> option to the
      [/help?cmd=tarball|tarball],
      [/help?cmd=zip|zip], and [/help?cmd=sqlar|sqlar]
      commands.
@@ -298,7 +300,7 @@
      default built-in skin has been made generic so that it is usable
      by a variety of skins, and promoted to an ordinary built-in
      javascript file.
-  *  New TH1 commands:  
+  *  New TH1 commands:
      "[/doc/trunk/www/th1.md#bireqjs|builtin_request_js]",
      "[/doc/trunk/www/th1.md#capexpr|capexpr]",
      "foreach", "lappend", and "string match"
@@ -335,7 +337,7 @@
      it with a TEMP trigger that is created as needed).  This
      change happens automatically the first time you
      add content to a repository using Fossil 2.14 or later.  No
-     action is needed on your part. However, if you upgrade to 
+     action is needed on your part. However, if you upgrade to
      version 2.14 and then later downgrade or otherwise use an earlier
      version of Fossil, the email notification mechanism may fail
      to send out notifications for some events, due to the missing
@@ -360,7 +362,7 @@
      people transitioning from Git.
   *  Added the --mainbranch option to the [/help?cmd=git|fossil git export]
      command.
-  *  Added the --format option to the 
+  *  Added the --format option to the
      "[/help?cmd=timeline|fossil timeline]" command.
   *  Enhance the --numstat option on the
      "[/help?cmd=diff|fossil diff]" command so that it shows a total
@@ -482,7 +484,7 @@
   *  Update the built-in SQLite so that the
      "[/help?cmd=sql|fossil sql]" command supports new output
      modes ".mode box" and ".mode json".
-  *  Add the "<tt>obscure()</tt>" SQL function to the 
+  *  Add the "<tt>obscure()</tt>" SQL function to the
      "[/help?cmd=sql|fossil sql]" command.
   *  Added virtual tables "<tt>helptext</tt>" and "<tt>builtin</tt>" to
      the "[/help?cmd=sql|fossil sql]" command, providing access to the
@@ -519,7 +521,7 @@
      [./tech_overview.wiki#configloc|location of the configuration database]
      is enhanced to be XDG-compliant.
   *  Add a hide/show feature to
-     [./wikitheory.wiki#assocwiki|associated wiki] display on 
+     [./wikitheory.wiki#assocwiki|associated wiki] display on
      check-in and branch information pages.
   *  Enhance the "[/help?cmd=info|fossil info]" command so that it
      works with no arguments even if not within an open check-out.

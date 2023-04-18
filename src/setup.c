@@ -2007,6 +2007,21 @@ void page_admin_log(){
   style_finish_page();
 }
 
+
+/*
+** Renders a selection list of values for the search-tokenizer
+** setting, using the form field name "ftstok".
+*/
+static void select_fts_tokenizer(void){
+  const char *const aTokenizer[] = {
+  "off",     "None",
+  "porter",  "Porter Stemmer",
+  "trigram", "Trigram"
+  };
+  multiple_choice_attribute("FTS Tokenizer", "search-tokenizer",
+                            "ftstok", "off", 3, aTokenizer);
+}
+
 /*
 ** WEBPAGE: srchsetup
 **
@@ -2065,6 +2080,8 @@ void page_srchsetup(){
   if( P("fts0") ){
     search_drop_index();
   }else if( P("fts1") ){
+    const char *zTokenizer = PD("ftstok","off");
+    search_set_tokenizer(zTokenizer);
     search_drop_index();
     search_create_index();
     search_fill_index();
@@ -2074,7 +2091,7 @@ void page_srchsetup(){
     @ <p>Currently using an SQLite FTS%d(search_index_type(0)) search index.
     @ The index helps search run faster, especially on large repositories,
     @ but takes up space.</p>
-    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
+    select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
     style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
@@ -2082,7 +2099,7 @@ void page_srchsetup(){
     @ <p>The SQLite search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for
     @ larger repositories.</p>
-    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
+    select_fts_tokenizer();
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
