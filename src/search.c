@@ -1558,29 +1558,34 @@ static const char zFtsDrop[] =
 #endif
 
 /*
+** Cached FTS5TOK_xyz value for search_tokenizer_type() and
+** friends.
+*/
+static int iFtsTokenizer = -1;
+
+/*
 ** Returns one of the FTS5TOK_xyz values, depending on the value of
 ** the search-tokenizer config entry, defaulting to FTS5TOK_NONE. The
 ** result of the first call is cached for subsequent calls unless
 ** bRecheck is true.
 */
 int search_tokenizer_type(int bRecheck){
-  static int iStemmer = -1;
   char *z;
-  if( iStemmer>=0 && bRecheck==0 ){
-    return iStemmer;
+  if( iFtsTokenizer>=0 && bRecheck==0 ){
+    return iFtsTokenizer;
   }
   z = db_get("search-tokenizer",0);
   if( 0==z ){
-    iStemmer = FTS5TOK_NONE;
+    iFtsTokenizer = FTS5TOK_NONE;
   }else if(0==fossil_strcmp(z,"porter")){
-    iStemmer = FTS5TOK_PORTER;
+    iFtsTokenizer = FTS5TOK_PORTER;
   }else if(0==fossil_strcmp(z,"trigram")){
-    iStemmer = FTS5TOK_TRIGRAM;
+    iFtsTokenizer = FTS5TOK_TRIGRAM;
   }else{
-    iStemmer = is_truth(z) ? FTS5TOK_PORTER : FTS5TOK_NONE;
+    iFtsTokenizer = is_truth(z) ? FTS5TOK_PORTER : FTS5TOK_NONE;
   }
   fossil_free(z);
-  return iStemmer;
+  return iFtsTokenizer;
 }
 
 /*
@@ -1588,9 +1593,10 @@ int search_tokenizer_type(int bRecheck){
 ** setting's value, depending on the value of z. If z is 0 then the
 ** current search-tokenizer value is used as the basis for formulating
 ** the result (which may differ from the current value but will have
-** the same meaning).
+** the same meaning). Any unknown/unsupported value is interpreted as
+** "off".
 */
-static const char *search_tokenizer_for_string(const char *z){
+const char *search_tokenizer_for_string(const char *z){
   char * zTmp = 0;
   const char *zRc = 0;
 
@@ -1608,6 +1614,15 @@ static const char *search_tokenizer_for_string(const char *z){
   }
   fossil_free(zTmp);
   return zRc;
+}
+
+/*
+** Sets the search-tokenizer config setting to the value of
+** search_tokenizer_for_string(zName).
+*/
+void search_set_tokenizer(const char *zName){
+  db_set("search-tokenizer", search_tokenizer_for_string( zName ), 0);
+  iFtsTokenizer = -1;
 }
 
 /*

@@ -1,5 +1,5 @@
-C Replace\sanother\sleftover\suse\sof\sthe\sword\s'stemmer'\sand\sclean\sup\send-of-line\swhitespace\sin\sthe\schange\slog.
-D 2023-04-17T20:13:09.586
+C Add\sFTS\stokenizer\sselection\sto\sthe\s/srchsetup\spage.
+D 2023-04-18T17:45:55.250
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -517,9 +517,9 @@ F src/report.c 59bec35e0a36cd790d84962cba8bd5432e0482c900dd527f445854302ac3b2f1
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c ebc1f77d71d4e02ae5b88832001e602a5c1306fadd4b13a5a24ada7f500cfd2c
+F src/search.c 9c736d34a9cd1f1fb7cf99f6e269d303a60b6a157386d595293eb852b45bb559
 F src/security_audit.c f19adc73d9970e37100bfde1992a3bd46f7248dfc4943971bf51084f540f0dc8
-F src/setup.c 5e374c8436d9bef244aaad65e0477d011fda563caa0d8d23c2f22a3b34907c33
+F src/setup.c 608213e85ec51815093da368b1f1e0355adf99b0889e202334d2c808ebdedaba
 F src/setupuser.c 822f467a990c9dbaf0e08416d3c5fc205ced6d2dc6bb8d8d1131bf09e8fa7456
 F src/sha1.c 98e4279ebda3c543ab4ac4511f0c3c4380a7faf78be1a7fd7521d7b6e8f62855
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a0858074d3407fe521edbbe217a3fb6d2e3e98356aff41e0622ca0af36a1c69
-R 82dddc92175889de96db8e43816fbfe7
+P bcff4d81bb617ac73356fbcc6ad64dd4c8f805385e7522379bf69d9644d8916c
+R 23e61891ffcbefb169d160669a198415
 U stephan
-Z d2b5d3c7a98b6baf56188e13b4506856
+Z a3b72a60343853a1dfaefb87a60a2a9a
 # Remove this line to create a well-formed Fossil manifest.
