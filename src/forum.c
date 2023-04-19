@@ -957,7 +957,7 @@ static int whitespace_only(const char *z){
 */
 static int forum_post_flags(void){
   int iPostFlags = 0;
-  if( P("fpsilent")!=0 ){
+  if( g.perm.Debug && P("fpsilent")!=0 ){
     iPostFlags |= FPOST_NO_ALERT;
   }
   return iPostFlags;
