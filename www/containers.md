@@ -335,8 +335,8 @@ this:
   $ docker container rm fossil-static-tmp
 ```
 
-The resulting binary is the single largest file inside that container,
-at about 6 MiB. (It’s built stripped.)
+The result is six or seven megs, depending on the CPU architecture you
+build for. It’s built stripped.
 
 [lsl]: https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
 
@@ -387,8 +387,7 @@ close to zero as we can manage.
 To change it to something else, say:
 
 ```
-  $ make container-image \
-    DBFLAGS='--build-arg UID=501'
+  $ make container-image DBFLAGS='--build-arg UID=501'
 ```
 
 This is particularly useful if you’re putting your repository on a
@@ -398,29 +397,7 @@ sides of the container barrier rather than have “499” appear on the host
 in “`ls -l`” output.
 
 
-### 5.3 <a id="config"></a>Fossil Configuration Options
-
-You can use this same mechanism to enable non-default Fossil
-configuration options in your build. For instance, to turn on
-the JSON API and the TH1 docs extension:
-
-```
-  $ make container-image \
-    DBFLAGS='--build-arg FSLCFG="--json --with-th1-docs"'
-```
-
-If you also wanted [the Tcl evaluation extension](./th1.md#tclEval),
-that’s trickier because it requires the `tcl-dev` package to be
-installed atop Alpine Linux in the first image build stage. We don’t
-currently have a way to do that because it brings you to a new problem:
-Alpine provides only a dynamic Tcl library, which conflicts with our
-wish for [a static Fossil binary](#static). For those who want such a
-“batteries included” container, we recommend taking a look at [this
-alternative](https://hub.docker.com/r/duvel/fossil); needless to say,
-it’s inherently less secure than our stock container, but you may find
-the tradeoff worthwhile.
-
-### 5.4 <a id="cengine"></a>Container Engine
+### 5.3 <a id="cengine"></a>Container Engine
 
 Although the Fossil container build system defaults to Docker, we allow
 for use of any OCI container system that implements the same interfaces.
@@ -433,7 +410,22 @@ using our `Makefile` convenience targets unchanged by saying:
 ```
 
 
-### 5.3 <a id="run"></a>Elaborating the Run Layer
+### 5.4 <a id="config"></a>Fossil Configuration Options
+
+You can use this same mechanism to enable non-default Fossil
+configuration options in your build. For instance, to turn on
+the JSON API and the TH1 docs extension:
+
+```
+  $ make container-image \
+    DBFLAGS='--build-arg FSLCFG="--json --with-th1-docs"'
+```
+
+If you also wanted [the Tcl evaluation extension](./th1.md#tclEval),
+that brings us to [the next section](#run).
+
+
+### 5.5 <a id="run"></a>Elaborating the Run Layer
 
 If you want a basic shell environment for temporary debugging of the
 running container, that’s easily added. Simply change this line in the
