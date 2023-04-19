@@ -401,7 +401,7 @@ in “`ls -l`” output.
 
 Although the Fossil container build system defaults to Docker, we allow
 for use of any OCI container system that implements the same interfaces.
-We go into more details about this in [the next section](#light), but
+We go into more details about this [below](#light), but
 for now, it suffices to point out that you can switch to Podman while
 using our `Makefile` convenience targets unchanged by saying:
 
@@ -422,7 +422,7 @@ the JSON API and the TH1 docs extension:
 ```
 
 If you also wanted [the Tcl evaluation extension](./th1.md#tclEval),
-that brings us to [the next section](#run).
+that brings us to [the next point](#run).
 
 
 ### 5.5 <a id="run"></a>Elaborating the Run Layer
@@ -437,7 +437,7 @@ running container, that’s easily added. Simply change this line in the
 
       FROM busybox AS run
 
-Rebuild, redeploy, and your Fossil container will have a [BusyBox]-based
+Rebuild and redeploy to give your Fossil container a [BusyBox]-based
 shell environment that you can get into via:
 
       $ docker exec -it -u fossil $(make container-version) sh
@@ -630,8 +630,8 @@ container images.
 
 ### 6.2 <a id="podman"></a>Podman
 
-A lighter-weight [rootless] [drop-in replacement][whatis] that doesn’t
-give up the image builder is [Podman]. Initially created by
+A lighter-weight [rootless][rl] [drop-in replacement][whatis] that
+doesn’t give up the image builder is [Podman]. Initially created by
 Red Hat and thus popular on that family of OSes, it will run on
 any flavor of Linux. It can even be made to run [on macOS via Homebrew][pmmac]
 or [on Windows via WSL2][pmwin].
@@ -670,11 +670,11 @@ affects the `--cap-drop` flags recommended above to:
   $ podman start fossil
 ```
 
-[pmmac]:    https://podman.io/getting-started/installation.html#macos
-[pmwin]:    https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
-[Podman]:   https://podman.io/
-[rootless]: https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
-[whatis]:   https://podman.io/whatis.html
+[pmmac]:  https://podman.io/getting-started/installation.html#macos
+[pmwin]:  https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
+[Podman]: https://podman.io/
+[rl]:     https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
+[whatis]: https://podman.io/whatis.html
 
 
 ### 6.3 <a id="nspawn"></a>`systemd-container`
