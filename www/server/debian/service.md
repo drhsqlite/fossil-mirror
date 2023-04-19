@@ -14,12 +14,14 @@ Two of the methods for running [containerized Fossil][cntdoc] integrate
 with `systemd`, potentially obviating the more direct methods below:
 
 *   If you take [the Podman method][podman] of running containerized
-    Fossil, it opens the `podman create` option for you, exemplified in [the
-    `fslsrv` script][fslsrv] used on this author’s public Fossil-based
-    web site.  That script pulls [custom containers][tscnt] from [my Docker
-    Hub repo][dhrepo].  With these elements combined, this scheme allows you to build
-    from source on one machine, then deploy to a server, running Fossil
-    containerized without needing build tools on the server.
+    Fossil, it opens the `podman generate systemd` option for you, as
+    exemplified in [the `fslsrv` script][fslsrv] used on this author’s
+    public Fossil-based web site. That script pulls its container images
+    from [my Docker Hub repo][dhrepo] to avoid the need for my public
+    Fossil server to have build tools and a copy of the Fossil source
+    tree. You’re welcome to use my images as-is, or you may use these
+    tools to bounce custom builds up through a separate container image
+    repo you manage.
 
 *   If you’re willing to give up [a lot of features][nsweak] relative to
     Podman, and you’re willing to tolerate a lot more manual
@@ -36,7 +38,6 @@ Fossil directly under `systemd`, among [other benefits][cntdoc].
 [nspawn]: ../../containers.md#nspawn
 [nsweak]: ../../containers.md#nspawn-weaknesses
 [podman]: ../../containers.md#podman
-[tscnt]:  https://tangentsoft.com/fossil/dir/container
 
 
 ## User Service
