@@ -3296,6 +3296,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     }
     blob_reset(&versionedPathname);
     if( found ){
+      blob_strip_comment_lines(&setting, &setting);
       blob_trim(&setting); /* Avoid non-obvious problems with line endings
                            ** on boolean properties */
       zVersionedSetting = fossil_strdup(blob_str(&setting));

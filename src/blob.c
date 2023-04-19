@@ -855,6 +855,85 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 }
 
 /*
+** Remove comment lines (starting with '#') from a blob pIn.
+** Store the result in pOut.  It is ok for pIn and pOut to be the same blob.
+**
+** pOut must either be the same as pIn or else uninitialized.
+*/
+void blob_strip_comment_lines(Blob *pIn, Blob *pOut){
+  char *z = pIn->aData;
+  unsigned int i = 0;
+  unsigned int n = pIn->nUsed;
+  unsigned int lineStart = 0;
+  int doCopy = 1;
+  Blob temp;
+  blob_zero(&temp);
+
+  while( i<n ){
+    if( i==lineStart && z[i]=='#' ){
+      doCopy = 0;
+    }
+    if( z[i]=='\n' ){
+      if( doCopy ) blob_append(&temp,&pIn->aData[lineStart], i - lineStart + 1);
+      lineStart = i + 1;
+      doCopy = 1;
+    }
+    i++;
+  }
+  /* Last line */
+  if( doCopy ) blob_append(&temp, &pIn->aData[lineStart], i - lineStart);
+
+  if( pOut==pIn ) blob_reset(pOut);
+  *pOut = temp;
+}
+
+/*
+** COMMAND: test-strip-comment-lines
+**
+** Usage: %fossil test-strip-comment-lines ?OPTIONS? INPUTFILE
+**
+** Read INPUTFILE and print it without comment lines (starting with '#').
+**
+** This is used to test and debug the blob_strip_comment_lines() routine.
+**
+** Options:
+**   -y|--side-by-side    Show diff of INPUTFILE and output side-by-side
+**   -W|--width N         Width of lines in side-by-side diff
+*/
+void test_strip_comment_lines_cmd(void){
+  Blob f, h;   /* unitialized */
+  Blob out;
+  DiffConfig dCfg;
+  int sbs = 0;
+  const char *z;
+  int w = 0;
+
+  memset(&dCfg, 0, sizeof(dCfg));
+
+  sbs = find_option("side-by-side","y",0)!=0;
+  if( (z = find_option("width","W",1))!=0 && (w = atoi(z))>0 ){
+    dCfg.wColumn = w;
+  }  
+  verify_all_options();
+  if( g.argc!=3 ) usage("INPUTFILE");
+
+  blob_read_from_file(&f, g.argv[2], ExtFILE);
+  blob_strip_comment_lines(&f, &h);
+
+  if ( !sbs ){
+    blob_write_to_file(&h, "-");
+  }else{
+    blob_zero(&out);
+    dCfg.nContext = -1;   /* whole content */
+    dCfg.diffFlags = DIFF_SIDEBYSIDE | DIFF_CONTEXT_EX | DIFF_STRIP_EOLCR;
+    diff_begin(&dCfg);
+    text_diff(&f, &h, &out, &dCfg);
+    blob_write_to_file(&out, "-");
+    diff_end(&dCfg, 0);
+  }
+}
+
+/*
 ** Ensure that the text in pBlob ends with '\n'
 */
 void blob_add_final_newline(Blob *pBlob){
