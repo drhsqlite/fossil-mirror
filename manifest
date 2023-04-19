@@ -1,5 +1,5 @@
-C Add\ssupporting\scomment\slines\sin\sversioned\ssettings\sto\sthe\schangelog.
-D 2023-04-19T10:45:41.647
+C Moved\sthe\ssectio\sabout\selaborating\sthe\scontainer\sruntime\slayer\sdown\sinto\nthe\ssection\sof\sthe\sdoc\swhere\swe\stalk\sabout\sother\scustomizations.\s\sIts\nprior\slocation\swas\sbecause\sit\swas\sa\stangent\soff\sa\sprior\spoint,\sbut\sit's\njust\sas\seasy\sto\sjump\sdown\svia\shyperlink.\s\sAssorted\sother\ssmall\nimprovements\swhile\sin\sthere.
+D 2023-04-19T11:29:28.909
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -787,7 +787,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 2f45cc4fc799abded7e3ec60d8e48b0518eeeab0868182f1c1b0a58e4b61291a
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 8a4d2dec0a5c497000f1b5c92797e826e0bc169fc3d1056120553af59aedfe5f
+F www/containers.md 032b8dae68592f2325231c64fd299e176e39a7cdd052fea82e8b86d7d3b7ee74
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef633d4bb5b29f9642a989e53b2c6eb7f01e871e1273f4e218d684b2ae3d9c41
-R f2c98dd929f80316c4bb23787ba9330d
-U danield
-Z 652a9ee7ef68448c5ea1744fda97caa1
+P 4ed98a9944814a4ec6364624f79b969cacf1654f63af5c8701ab979acdf66aef
+R b247d63d012b19682a2df7974109ed75
+U wyoung
+Z 12f33aa15558638c7c64e8536fba4087
 # Remove this line to create a well-formed Fossil manifest.

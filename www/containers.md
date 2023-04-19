@@ -71,7 +71,7 @@ the repo into the image at build time, it will become one of the image’s
 base layers. The end result is that each time you build a container from
 that image, the repo will be reset to its build-time state. Worse,
 restarting the container will do the same thing, since the base image
-layers are immutable in Docker. This is almost certainly not what you
+layers are immutable. This is almost certainly not what you
 want.
 
 The correct ways put the repo into the _container_ created from the
@@ -116,7 +116,7 @@ this with `chmod`: simply reload the browser, and Fossil will try again.
 
 ### 2.2 <a id="bind-mount"></a>Storing the Repo Outside the Container
 
-The simple storage method above has a problem: Docker containers are
+The simple storage method above has a problem: containers are
 designed to be killed off at the slightest cause, rebuilt, and
 redeployed. If you do that with the repo inside the container, it gets
 destroyed, too. The solution is to replace the “run” command above with
@@ -135,8 +135,8 @@ container, you don’t need to `docker cp` the repo into the container at
 all. It still expects to find the repository as `repo.fossil` under that
 directory, but now both the host and the container can see that repo DB.
 
-Instead of a bind mount, you could instead set up a separate [Docker
-volume](https://docs.docker.com/storage/volumes/), at which point you
+Instead of a bind mount, you could instead set up a separate
+[volume](https://docs.docker.com/storage/volumes/), at which point you
 _would_ need to `docker cp` the repo file into the container.
 
 Either way, files in these mounted directories have a lifetime
@@ -185,148 +185,21 @@ container boundary is safe when used in this manner.
 
 ### 3.1 <a id="chroot"></a>Why Not Chroot?
 
-Prior to 2023.03.26, the stock Fossil container made use of [the chroot
-jail feature](./chroot.md) in order to wall away the shell and other
-tools provided by [BusyBox](https://www.busybox.net/BusyBox.html).  This
-author made a living for years in the early 1990s using Unix systems
-that offered less power, so there was a legitimate worry that if someone
-ever figured out how to get a shell on one of these Fossil containers,
-it would constitute a powerful island from which to attack the rest of
-the network.
+Prior to 2023.03.26, the stock Fossil container relied on [the chroot
+jail feature](./chroot.md) to wall away the shell and other tools
+provided by [BusyBox]. It included that as a bare-bones operating system
+inside the container on the off chance that someone might need it for
+debugging, but the thing is, Fossil is self-contained, needing none of
+that power in the main-line use cases.
 
-The thing is, Fossil is self-contained, needing none of that power in
-the main-line use cases.  The only reason we included BusyBox in the
-container at all was on the off chance that someone needed it for
-debugging.
+Our weak “you might need it” justification collapsed when we realized
+you could restore this basic shell environment with a one-line change to
+the `Dockerfile`, as shown [below](#run).
 
-That justification collapsed when we realized you could restore this
-basic shell environment on an as-needed basis with a one-line change to
-the `Dockerfile`, as we show in the next section.
+[BusyBox]: https://www.busybox.net/BusyBox.html
 
 
-### 3.2 <a id="run"></a>Swapping Out the Run Layer
-
-If you want a basic shell environment for temporary debugging of the
-running container, that’s easily added. Simply change this line in the
-`Dockerfile`…
-
-      FROM scratch AS run
-
-…to this:
-
-      FROM busybox AS run
-
-Rebuild, redeploy, and your Fossil container now has a BusyBox based
-shell environment that you can get into via:
-
-      $ docker exec -it -u fossil $(make container-version) sh
-
-(That command assumes you built the container via “`make container`” and
-are therefore using its versioning scheme.)
-
-Another case where you might need to replace this bare-bones “`run`”
-layer with something more functional is that you’re setting up [email
-alerts](./alerts.md) and need some way to integrate with the host’s
-[MTA]. There are a number of alternatives in that linked document, so
-for the sake of discussion, we’ll say you’ve chosen [Method
-2](./alerts.md#db), which requires a Tcl interpreter and its SQLite
-extension to push messages into the outbound email queue DB, presumably
-bind-mounted into the container.
-
-You can do that by replacing STAGEs 2 and 3 in the stock `Dockerfile`
-with this:
-
-```
-    ## ---------------------------------------------------------------------
-    ## STAGE 2: Pare that back to the bare essentials, plus Tcl.
-    ## ---------------------------------------------------------------------
-    FROM alpine AS run
-    ARG UID=499
-    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
-    COPY --from=builder /tmp/fossil /bin/
-    COPY tools/email-sender.tcl /bin/
-    RUN set -x                                                              \
-        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
-        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
-        && install -d -m 700 -o fossil -g fossil log museum                 \
-        && apk add --no-cache tcl sqlite-tcl
-```
-
-Build it and test that it works like so:
-
-```
-    $ make container-run &&
-      echo 'puts [info patchlevel]' |
-      docker exec -i $(make container-version) tclsh 
-    8.6.12
-```
-
-You should remove the `PATH` override in the “RUN”
-stage, since it’s written for the case where everything is in `/bin`.
-With these additions, we need the longer `PATH` shown above to have
-ready access to them all.
-
-Another useful case to consider is that you’ve installed a [server
-extension](./serverext.wiki) and you need an interpreter for that
-script. The first option above won’t work except in the unlikely case that
-it’s written for one of the bare-bones script interpreters that BusyBox
-ships.(^BusyBox’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
-shell, implementing little more than what POSIX specified in 1989, plus
-equally stripped-down versions of `awk` and `sed`.)
-
-Let’s say the extension is written in Python. While you could handle it
-the same way we do with the Tcl example above, Python is more
-popular, giving us more options. Let’s inject a Python environment into
-the stock Fossil container via a suitable “[distroless]” image instead:
-
-```
-    ## ---------------------------------------------------------------------
-    ## STAGE 2: Pare that back to the bare essentials, plus Python.
-    ## ---------------------------------------------------------------------
-    FROM cgr.dev/chainguard/python:latest
-    USER root
-    ARG UID=499
-    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
-    COPY --from=builder /tmp/fossil /bin/
-    COPY --from=builder /bin/busybox.static /bin/busybox
-    RUN [ "/bin/busybox", "--install", "/bin" ]
-    RUN set -x                                                              \
-        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
-        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
-        && install -d -m 700 -o fossil -g fossil log museum
-```
-
-You will also have to add `busybox-static` to the APK package list in
-STAGE 1 for the `RUN` script at the end of that stage to work, since the
-[Chainguard Python image][cgimgs] lacks a shell, on purpose. The need to
-install root-level binaries is why we change `USER` temporarily here.
-
-Build it and test that it works like so:
-
-```
-    $ make container-run &&
-      docker exec -i $(make container-version) python --version 
-    3.11.2
-```
-
-The compensation for the hassle of using Chainguard over something more
-general purpose like Alpine + “`apk add python`”
-is huge: we no longer leave a package manager sitting around inside the
-container, waiting for some malefactor to figure out how to abuse it.
-
-Beware that there’s a limit to this über-jail’s ability to save you when
-you go and provide a more capable OS layer like this. The container
-layer should stop an attacker from accessing any files out on the host
-that you haven’t explicitly mounted into the container’s namespace, but
-it can’t stop them from making outbound network connections or modifying
-the repo DB inside the container.
-
-[cgimgs]:     https://github.com/chainguard-images/images/tree/main/images
-[distroless]: https://www.chainguard.dev/unchained/minimal-container-images-towards-a-more-secure-future
-[MTA]:        https://en.wikipedia.org/wiki/Message_transfer_agent
-
-
-### 3.3 <a id="caps"></a>Dropping Unnecessary Capabilities
+### 3.2 <a id="caps"></a>Dropping Unnecessary Capabilities
 
 The example commands above create the container with [a default set of
 Linux kernel capabilities][defcap]. Although Docker strips away almost
@@ -445,8 +318,8 @@ without ever running it, making these options pointless.
 ## 4. <a id="static"></a>Extracting a Static Binary
 
 Our 2-stage build process uses Alpine Linux only as a build host. Once
-we’ve got everything reduced to the two key static binaries — Fossil and
-BusyBox — we throw all the rest of it away.
+we’ve got everything reduced to a single static Fossil binary,
+we throw all the rest of it away.
 
 A secondary benefit falls out of this process for free: it’s arguably
 the easiest way to build a purely static Fossil binary for Linux. Most
@@ -468,7 +341,7 @@ at about 6 MiB. (It’s built stripped.)
 [lsl]: https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
 
 
-## 5. <a id="args"></a>Container Build Arguments
+## 5. <a id="custom" name="args"></a>Customization Points
 
 ### <a id="pkg-vers"></a> 5.1 Fossil Version
 
@@ -488,17 +361,17 @@ Or equivalently, using Fossil’s `Makefile` convenience target:
 
 While you could instead use the generic
 “`release`” tag here, it’s better to use a specific version number
-since Docker caches downloaded files and tries to
+since container builders cache downloaded files, hoping to
 reuse them across builds. If you ask for “`release`” before a new
 version is tagged and then immediately after, you might expect to get
 two different tarballs, but because the underlying source tarball URL
 remains the same when you do that, you’ll end up reusing the
-old tarball from your Docker cache. This will occur
+old tarball from cache. This will occur
 even if you pass the “`docker build --no-cache`” option.
 
 This is why we default to pulling the Fossil tarball by checkin ID
 rather than let it default to the generic “`trunk`” tag: so the URL will
-change each time you update your Fossil source tree, forcing Docker to
+change each time you update your Fossil source tree, forcing the builder to
 pull a fresh tarball.
 
 
@@ -519,7 +392,7 @@ To change it to something else, say:
 ```
 
 This is particularly useful if you’re putting your repository on a
-Docker volume since the IDs “leak” out into the host environment via
+separate volume since the IDs “leak” out into the host environment via
 file permissions. You may therefore wish them to mean something on both
 sides of the container barrier rather than have “499” appear on the host
 in “`ls -l`” output.
@@ -560,6 +433,128 @@ using our `Makefile` convenience targets unchanged by saying:
 ```
 
 
+### 5.3 <a id="run"></a>Elaborating the Run Layer
+
+If you want a basic shell environment for temporary debugging of the
+running container, that’s easily added. Simply change this line in the
+`Dockerfile`…
+
+      FROM scratch AS run
+
+…to this:
+
+      FROM busybox AS run
+
+Rebuild, redeploy, and your Fossil container will have a [BusyBox]-based
+shell environment that you can get into via:
+
+      $ docker exec -it -u fossil $(make container-version) sh
+
+(That command assumes you built it via “`make container`” and are
+therefore using its versioning scheme.)
+
+Another case where you might need to replace this bare-bones “`run`”
+layer with something more functional is that you’re setting up [email
+alerts](./alerts.md) and need some way to integrate with the host’s
+[MTA]. There are a number of alternatives in that linked document, so
+for the sake of discussion, we’ll say you’ve chosen [Method
+2](./alerts.md#db), which requires a Tcl interpreter and its SQLite
+extension to push messages into the outbound email queue DB, presumably
+bind-mounted into the container.
+
+You can do that by replacing STAGEs 2 and 3 in the stock `Dockerfile`
+with this:
+
+```
+    ## ---------------------------------------------------------------------
+    ## STAGE 2: Pare that back to the bare essentials, plus Tcl.
+    ## ---------------------------------------------------------------------
+    FROM alpine AS run
+    ARG UID=499
+    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
+    COPY --from=builder /tmp/fossil /bin/
+    COPY tools/email-sender.tcl /bin/
+    RUN set -x                                                              \
+        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
+        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
+        && install -d -m 700 -o fossil -g fossil log museum                 \
+        && apk add --no-cache tcl sqlite-tcl
+```
+
+Build it and test that it works like so:
+
+```
+    $ make container-run &&
+      echo 'puts [info patchlevel]' |
+      docker exec -i $(make container-version) tclsh 
+    8.6.12
+```
+
+You should remove the `PATH` override in the “RUN”
+stage, since it’s written for the case where everything is in `/bin`.
+With these additions, we need the longer `PATH` shown above to have
+ready access to them all.
+
+Another useful case to consider is that you’ve installed a [server
+extension](./serverext.wiki) and you need an interpreter for that
+script. The first option above won’t work except in the unlikely case that
+it’s written for one of the bare-bones script interpreters that BusyBox
+ships.(^[BusyBox]’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
+shell, implementing little more than what POSIX specified in 1989, plus
+equally stripped-down versions of `awk` and `sed`.)
+
+Let’s say the extension is written in Python. While you could handle it
+the same way we do with the Tcl example above, Python is more
+popular, giving us more options. Let’s inject a Python environment into
+the stock Fossil container via a suitable “[distroless]” image instead:
+
+```
+    ## ---------------------------------------------------------------------
+    ## STAGE 2: Pare that back to the bare essentials, plus Python.
+    ## ---------------------------------------------------------------------
+    FROM cgr.dev/chainguard/python:latest
+    USER root
+    ARG UID=499
+    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
+    COPY --from=builder /tmp/fossil /bin/
+    COPY --from=builder /bin/busybox.static /bin/busybox
+    RUN [ "/bin/busybox", "--install", "/bin" ]
+    RUN set -x                                                              \
+        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
+        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
+        && install -d -m 700 -o fossil -g fossil log museum
+```
+
+You will also have to add `busybox-static` to the APK package list in
+STAGE 1 for the `RUN` script at the end of that stage to work, since the
+[Chainguard Python image][cgimgs] lacks a shell, on purpose. The need to
+install root-level binaries is why we change `USER` temporarily here.
+
+Build it and test that it works like so:
+
+```
+    $ make container-run &&
+      docker exec -i $(make container-version) python --version 
+    3.11.2
+```
+
+The compensation for the hassle of using Chainguard over something more
+general purpose like Alpine + “`apk add python`”
+is huge: we no longer leave a package manager sitting around inside the
+container, waiting for some malefactor to figure out how to abuse it.
+
+Beware that there’s a limit to this über-jail’s ability to save you when
+you go and provide a more capable OS layer like this. The container
+layer should stop an attacker from accessing any files out on the host
+that you haven’t explicitly mounted into the container’s namespace, but
+it can’t stop them from making outbound network connections or modifying
+the repo DB inside the container.
+
+[cgimgs]:     https://github.com/chainguard-images/images/tree/main/images
+[distroless]: https://www.chainguard.dev/unchained/minimal-container-images-towards-a-more-secure-future
+[MTA]:        https://en.wikipedia.org/wiki/Message_transfer_agent
+
+
 ## 6. <a id="light"></a>Lightweight Alternatives to Docker
 
 Those afflicted with sticker shock at seeing the size of a [Docker
@@ -569,9 +564,9 @@ realize is that when it comes to actually serving simple containers like
 the ones shown above is that [Docker Engine][DE] suffices, at about a
 quarter of the size.
 
-Yet on a small server — say, a $4/month 10 GiB Digital Ocean droplet —
-that’s still a big chunk of your storage budget. It takes 100:1 overhead
-just to run a 4 MiB Fossil server container? Once again, I wouldn’t
+Yet on a small server — say, a $4/month ten gig Digital Ocean droplet —
+that’s still a big chunk of your storage budget. It takes ~60:1 overhead
+merely to run a Fossil server container? Once again, I wouldn’t
 blame you if you noped right on out of here, but if you will be patient,
 you will find that there are ways to run Fossil inside a container even
 on entry-level cloud VPSes. These are well-suited to running Fossil; you
@@ -589,7 +584,7 @@ the container with this option:
 
 The assumption is that there’s a reverse proxy running somewhere that
 redirects public web hits to localhost port 9999, which in turn goes to
-port 8080 inside the container.  This use of Docker/Podman port
+port 8080 inside the container.  This use of port
 publishing effectively replaces the use of the
 “`fossil server --localhost`” option.
 
@@ -618,13 +613,14 @@ this idea to the rest of your site.)
 ### 6.1 <a id="nerdctl" name="containerd"></a>Stripping Docker Engine Down
 
 The core of Docker Engine is its [`containerd`][ctrd] daemon and the
-[`runc`][runc] container runner. Add to this the out-of-core CLI program
+[`runc`][runc] container runtime. Add to this the out-of-core CLI program
 [`nerdctl`][nerdctl] and you have enough of the engine to run Fossil
 containers. The big things you’re missing are:
 
 *   **BuildKit**: The container build engine, which doesn’t matter if
-    you’re building elsewhere and using a container registry as an
-    intermediary between that build host and the deployment host.
+    you’re building elsewhere and shipping the images to the target.
+    A good example is using a container registry as an
+    intermediary between the build and deployment hosts.
 
 *   **SwarmKit**: A powerful yet simple orchestrator for Docker that you
     probably aren’t using with Fossil anyway.
@@ -790,7 +786,7 @@ Some of this is expected to vary:
     command so that `/museum/repo.fossil` refers to your repo out
     on the host for the reasons given [above](#bind-mount).
 
-That being done, we also need a generic systemd unit file called
+That being done, we also need a generic `systemd` unit file called
 `/etc/systemd/system/fossil@.service`, containing:
 
 ----
@@ -843,7 +839,7 @@ Parameters=bin/fossil server \
 You would also need to un-drop the `CAP_NET_BIND_SERVICE` capability
 to allow Fossil to bind to this low-numbered port.
 
-We use systemd’s template file feature to allow multiple Fossil
+We use the `systemd` template file feature to allow multiple Fossil
 servers running on a single machine, each on a different TCP port,
 as when proxying them out as subdirectories of a larger site.
 To add another project, you must first clone the base “machine” layer:
@@ -998,7 +994,7 @@ our container violates and the resulting consequences.
 
 Some of it we discussed above already, but there’s one big class of
 problems we haven’t covered yet. It stems from the fact that our stock
-container starts a single static executable inside a barebones container
+container starts a single static executable inside a bare-bones container
 rather than “boot” an OS image. That causes a bunch of commands to fail:
 
 *   **`machinectl poweroff`** will fail because the container
