@@ -8,6 +8,8 @@
      inside the jail for Fossil's use.
   *  Add support for the trigram tokenizer for FTS5 search to enable
      searching in Chinese.
+  *  Comment lines (starting with a '#') are now supported inside 
+     [./settings.wiki#versionable|versioned settings].
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use
