@@ -948,6 +948,21 @@ static int whitespace_only(const char *z){
   return z[0]==0;
 }
 
+/* Flags for use with forum_post() */
+#define FPOST_NO_ALERT 1 /* do not send any alerts */
+
+/*
+** Return a flags value for use with the final argument to
+** forum_post(), extracted from the CGI environment.
+*/
+static int forum_post_flags(void){
+  int iPostFlags = 0;
+  if( P("fpsilent")!=0 ){
+    iPostFlags |= FPOST_NO_ALERT;
+  }
+  return iPostFlags;
+}
+
 /*
 ** Add a new Forum Post artifact to the repository.
 **
@@ -959,7 +974,8 @@ static int forum_post(
   int iEdit,                   /* Post being edited, or zero for a new post */
   const char *zUser,           /* Username.  NULL means use login name */
   const char *zMimetype,       /* Mimetype of content. */
-  const char *zContent         /* Content */
+  const char *zContent,        /* Content */
+  int iFlags                   /* FPOST_xyz flag values */
 ){
   char *zDate;
   char *zI;
@@ -1041,9 +1057,14 @@ static int forum_post(
     blob_reset(&x);
     return 0;
   }else{
-    int nrid = wiki_put(&x, iEdit>0 ? iEdit : 0,
-                        forum_need_moderation());
+    int nrid;
+    db_begin_transaction();
+    nrid = wiki_put(&x, iEdit>0 ? iEdit : 0, forum_need_moderation());
     blob_reset(&x);
+    if( (iFlags & FPOST_NO_ALERT)!=0 ){
+      alert_unqueue('f', nrid);
+    }
+    db_commit_transaction();
     cgi_redirectf("%R/forumpost/%S", rid_to_uuid(nrid));
     return 1;
   }
@@ -1138,6 +1159,23 @@ static void forum_from_line(void){
   }
 }
 
+static void forum_render_debug_options(void){
+  if( g.perm.Debug ){
+    /* Give extra control over the post to users with the special
+     * Debug capability, which includes Admin and Setup users */
+    @ <div class="debug">
+    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
+    @ Dry run</label>
+    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
+    @ Require moderator approval</label>
+    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
+    @ Show query parameters</label>
+    @ <br><label><input type="checkbox" name="fpsilent" %s(PCK("fpsilent"))> \
+    @ Do not sent notification emails</label>
+    @ </div>
+  }
+}
+
 /*
 ** WEBPAGE: forume1
 **
@@ -1147,13 +1185,15 @@ void forumnew_page(void){
   const char *zTitle = PDT("title","");
   const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
   const char *zContent = PDT("content","");
+
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
     return;
   }
   if( P("submit") && cgi_csrf_safe(1) ){
-    if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent) ) return;
+    if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent,
+                   forum_post_flags()) ) return;
   }
   if( P("preview") && !whitespace_only(zContent) ){
     @ <h1>Preview:</h1>
@@ -1171,18 +1211,7 @@ void forumnew_page(void){
   }else{
     @ <input type="submit" name="submit" value="Submit" disabled>
   }
-  if( g.perm.Debug ){
-    /* Give extra control over the post to users with the special
-     * Debug capability, which includes Admin and Setup users */
-    @ <div class="debug">
-    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
-    @ Dry run</label>
-    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
-    @ Require moderator approval</label>
-    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
-    @ Show query parameters</label>
-    @ </div>
-  }
+  forum_render_debug_options();
   @ </form>
   forum_emit_js();
   style_finish_page();
@@ -1275,9 +1304,11 @@ void forumedit_page(void){
     int done = 1;
     const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     if( P("reply") ){
-      done = forum_post(0, fpid, 0, 0, zMimetype, zContent);
+      done = forum_post(0, fpid, 0, 0, zMimetype, zContent,
+                        forum_post_flags());
     }else if( P("edit") || isDelete ){
-      done = forum_post(P("title"), 0, fpid, 0, zMimetype, zContent);
+      done = forum_post(P("title"), 0, fpid, 0, zMimetype, zContent,
+                        forum_post_flags());
     }else{
       webpage_error("Missing 'reply' query parameter");
     }
@@ -1362,17 +1393,7 @@ void forumedit_page(void){
   if( (P("preview") && !whitespace_only(zContent)) || isDelete ){
     @ <input type="submit" name="submit" value="Submit">
   }
-  if( g.perm.Debug ){
-    /* For the test-forumnew page add these extra debugging controls */
-    @ <div class="debug">
-    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
-    @ Dry run</label>
-    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
-    @ Require moderator approval</label>
-    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
-    @ Show query parameters</label>
-    @ </div>
-  }
+  forum_render_debug_options();
   @ </form>
   forum_emit_js();
   style_finish_page();

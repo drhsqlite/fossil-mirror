@@ -188,7 +188,7 @@ void alert_create_trigger(void){
     );
   }
   if( db_table_exists("repository","chat")
-   && db_get("chat-timeline-user", "")[0]!=0 
+   && db_get("chat-timeline-user", "")[0]!=0
   ){
     /* Record events that will be relayed to chat, but do not relay
     ** them immediately, as the chat_msg_from_event() function requires
@@ -234,6 +234,22 @@ int alert_enabled(void){
   if( !alert_tables_exist() ) return 0;
   if( fossil_strcmp(db_get("email-send-method",0),"off")==0 ) return 0;
   return 1;
+}
+
+/*
+** If alerts are enabled, removes the pending_alert entry which
+** matches (eventType || rid). Note that pending_alert entries are
+** added via the manifest crosslinking process, so this has no effect
+** if called before crosslinking is performed. Because alerts are sent
+** asynchronously, unqueuing needs to be performed as part of the
+** transaction in which crosslinking is performed in order to avoid a
+** race condition.
+*/
+void alert_unqueue(char eventType, int rid){
+  if( alert_enabled() ){
+    db_multi_exec("DELETE FROM pending_alert WHERE eventid='%c%d'",
+                  eventType, rid);
+  }
 }
 
 /*
