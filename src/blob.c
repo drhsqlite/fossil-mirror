@@ -900,7 +900,7 @@ void blob_strip_comment_lines(Blob *pIn, Blob *pOut){
 ** Usage: %fossil test-strip-comment-lines ?OPTIONS? INPUTFILE
 **
 ** Read INPUTFILE and print it without comment lines (starting with '#').
-** Keep lines starting with "\#" but remove the initial backslash.
+** Keep lines starting with "\\#" but remove the initial backslash.
 **
 ** This is used to test and debug the blob_strip_comment_lines() routine.
 **
