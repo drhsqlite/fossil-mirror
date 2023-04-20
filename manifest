@@ -1,5 +1,5 @@
-C Improved\sthe\ssystemd\sguide's\spoints\sabout\s`podman\sgenerate\ssystemd`.
-D 2023-04-19T11:56:18.005
+C In\sversioned\ssettings,\smake\sagain\spossible\sfor\sglobs\sto\sbegin\swith\sa\shash\sby\sescaping\sit\s(i.e.\ssuch\slines\sshould\sstart\swith\s'\\#').
+D 2023-04-20T12:02:24.647
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -383,7 +383,7 @@ F src/backlink.c 93d58763e00a9abe822dac4dca9d5b84213010ba286584d5de363524ec2786d
 F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cdb5e
 F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
-F src/blob.c 55d63a4e8b740499afe655e935c196955bac4f07f98debdfdf0bc21627401a3b
+F src/blob.c 63cca4c12a0a304c93bdc9ae94f65174af7f2b373602d8c93e79efa3855d8df7
 F src/branch.c 98d2149b146788a3f8afe82fb638b094adb451beb19d73999cda36ffe993d3a9
 F src/browse.c be929df6669c73d9c8082db0e69e0bf6efb30c9be1f28a61b933c2f01c2e7c86
 F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 117cf4ffe8ec6bf43853d2416df5052d8b365f82ca594f4561d6f903e71b601d
-R 968f121cc3f8636b68fcb0504855480a
-U wyoung
-Z 1858c4478a5fbe050df6214f5f3d3c87
+P ac30c2d9966f725845a11084778690cea8756e62ed815a2f69a8a843601f4b2d
+R 0571fb215d2a7265fba14588ca759cc3
+U danield
+Z c56ccf9b51e5c634f33ede804d585971
 # Remove this line to create a well-formed Fossil manifest.

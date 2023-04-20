@@ -856,6 +856,8 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 
 /*
 ** Remove comment lines (starting with '#') from a blob pIn.
+** Keep lines starting with "\#" but remove the initial backslash.
+**
 ** Store the result in pOut.  It is ok for pIn and pOut to be the same blob.
 **
 ** pOut must either be the same as pIn or else uninitialized.
@@ -865,23 +867,28 @@ void blob_strip_comment_lines(Blob *pIn, Blob *pOut){
   unsigned int i = 0;
   unsigned int n = pIn->nUsed;
   unsigned int lineStart = 0;
+  unsigned int copyStart = 0;
   int doCopy = 1;
   Blob temp;
   blob_zero(&temp);
 
   while( i<n ){
     if( i==lineStart && z[i]=='#' ){
+      copyStart = i;
       doCopy = 0;
+    }else if( i==lineStart && z[i]=='\\' && z[i+1]=='#' ){
+      /* keep lines starting with an escaped '#' (and unescape it) */
+      copyStart = i + 1;
     }
     if( z[i]=='\n' ){
-      if( doCopy ) blob_append(&temp,&pIn->aData[lineStart], i - lineStart + 1);
-      lineStart = i + 1;
+      if( doCopy ) blob_append(&temp,&pIn->aData[copyStart], i - copyStart + 1);
+      lineStart = copyStart = i + 1;
       doCopy = 1;
     }
     i++;
   }
   /* Last line */
-  if( doCopy ) blob_append(&temp, &pIn->aData[lineStart], i - lineStart);
+  if( doCopy ) blob_append(&temp, &pIn->aData[copyStart], i - copyStart);
 
   if( pOut==pIn ) blob_reset(pOut);
   *pOut = temp;
@@ -893,6 +900,7 @@ void blob_strip_comment_lines(Blob *pIn, Blob *pOut){
 ** Usage: %fossil test-strip-comment-lines ?OPTIONS? INPUTFILE
 **
 ** Read INPUTFILE and print it without comment lines (starting with '#').
+** Keep lines starting with "\#" but remove the initial backslash.
 **
 ** This is used to test and debug the blob_strip_comment_lines() routine.
 **
