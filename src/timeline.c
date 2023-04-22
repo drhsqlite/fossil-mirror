@@ -2556,7 +2556,6 @@ void page_timeline(void){
       int n = db_int(0,"SELECT count(*) FROM event"
                        " WHERE user=%Q OR euser=%Q", zUser, zUser);
       if( n<=nEntry ){
-        zCirca = zBefore = zAfter = 0;
         nEntry = -1;
       }
       blob_append_sql(&cond, " AND (event.user=%Q OR event.euser=%Q)",
