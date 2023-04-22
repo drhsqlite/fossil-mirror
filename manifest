@@ -1,5 +1,5 @@
-C Fix\sbuild\sby\sescaping\sthe\sbackslash\sin\sthe\shelp\stext\sof\stest-strip-comment-lines.
-D 2023-04-20T16:21:13.179
+C Update\sthe\smakemake.tcl\sscript\sto\smatch\sthe\schecked-in\sversions\sof\sthe\sgenerated\smakefiles.
+D 2023-04-22T10:38:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -731,7 +731,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc96ce529
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 3cc47ca301f69d96c86cb7b144bbbf8ad483ceda05039df4bffb953fcb777b8b x
+F tools/makemake.tcl 8ac523b7e9340f32b05dec7482eb477785439717099e342ee81601e4edec6095 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c fd7c2af6d932a5c4370895bcbf76c71ddfff99c3d30f91e9c4134862e1c99375
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9558bf829429aa1f56174c1ea94bed1874bafb4d7e5a20f697067c192ca6994d
-R 4a94b22f4d46c289ee9d4d81529cb39b
-U danield
-Z 4289feeb74599d7141e0c30d2dcfd5fd
+P cbfaec5875c3c274fc947e84cd7b7c55b2458a34d4da3648a8ce84ea0f7abbca
+R 92c0539cd08cb74e3965275999122ee3
+U florian
+Z 8072a0da56a67029775e34cffe4d8af2
 # Remove this line to create a well-formed Fossil manifest.

@@ -558,7 +558,7 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$@\n"
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
-writeln {
+writeln [string map [list <<<NEXT_LINE>>> \\] {
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
@@ -566,12 +566,12 @@ $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
 $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
-	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry \
-        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore \
-        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c \
-        -sENVIRONMENT=web \
-        -sMODULARIZE \
-        -sEXPORT_NAME=initPikchrModule \
+	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry <<<NEXT_LINE>>>
+        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore <<<NEXT_LINE>>>
+        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c <<<NEXT_LINE>>>
+        -sENVIRONMENT=web <<<NEXT_LINE>>>
+        -sMODULARIZE <<<NEXT_LINE>>>
+        -sEXPORT_NAME=initPikchrModule <<<NEXT_LINE>>>
         --minify 0
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
@@ -582,7 +582,7 @@ wasm: $(SRCDIR_extsrc)/pikchr.js
 #
 
 .PHONY: all install test clean
-}
+}]
 
 close $output_file
 #
