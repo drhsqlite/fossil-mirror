@@ -1,5 +1,5 @@
-C Update\sdependencies\sin\sthe\sMSVC\smakefile\sso\sthat\schanges\sto\scommand\shelp\stexts\sand\sbuilt-in\sfiles\sare\spicked\sup.
-D 2023-04-22T10:47:00.000
+C Tweak\sthe\sprevious\scommit\sand\sput\sextra\sheaders\sat\sthe\send.
+D 2023-04-22T14:46:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -731,7 +731,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc96ce529
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl f224b4ba787e7e55f521b9427b568c89a63722e99b88ef947c6e405e083456bd x
+F tools/makemake.tcl abcc434fe1784f66515f92ff0a91e1d88e1622cbd9a5a9bd16cff776849cae03 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c fd7c2af6d932a5c4370895bcbf76c71ddfff99c3d30f91e9c4134862e1c99375
@@ -742,7 +742,7 @@ F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e
 F win/Makefile.dmc 01a0d435b6f77213339280e30fd6913e146c1f4e889bacd58854a2c95f27bb61
 F win/Makefile.mingw 94020419f2b67575f076676453f9070f51481bb97e3b54c1b5af14495f02fbac
 F win/Makefile.mingw.mistachkin cd4f520ceeac742e1e835c414d0e23eaa8431cc84814fe245f10a74d20ae9f9a
-F win/Makefile.msc 3c6506d4ebb38bb46f51bf0f113d81a5a641efba0a53e4f9ad3cf93fb3f15862
+F win/Makefile.msc e333d3c83af75623bd56abcab64ea4a7f83a7b8a2433f557740dc20c22b6bba2
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e83c6a924b0f235fc88e650769641bfbc75a0148f049b2098cfaa948e1e3a47
-R c9bf2cd4549cb09063b3c75a46473262
+P c2f56d2bc82be047f11a6a892137c315ca94567acc098271754dd6f269ec6348
+R 03a010e8428be08eef76fc85f7902808
 U florian
-Z 283f6c848882ae04fe8343b8258025b1
+Z 67e8675d64922a9375cb5a157861a517
 # Remove this line to create a well-formed Fossil manifest.

@@ -2051,13 +2051,15 @@ foreach s [lsort $extra_files] {
   set redir {>>}
 }
 
-set extra_h(builtin) " \"\$(OX)\\builtin_data.h\" "
-set extra_h(dispatch) " \"\$(OX)\\page_index.h\" "
-set extra_h(main) { }
+foreach s [lsort $src] {
+  set extra_h($s) {}
+}
+set extra_h(builtin) " \"\$(OX)\\builtin_data.h\""
+set extra_h(dispatch) " \"\$(OX)\\page_index.h\""
 
 writeln ""
 foreach s [lsort $src] {
-  writeln "\"\$(OX)\\$s\$O\" : \"\$(OX)\\${s}_.c\"$extra_h($s)\"\$(OX)\\${s}.h\""
+  writeln "\"\$(OX)\\$s\$O\" : \"\$(OX)\\${s}_.c\" \"\$(OX)\\${s}.h\"$extra_h($s)"
   writeln "\t\$(TCC) /Fo\$@ /Fd\$(@D)\\ -c \"\$(OX)\\${s}_.c\"\n"
   writeln "\"\$(OX)\\${s}_.c\" : \"\$(SRCDIR)\\$s.c\""
   writeln "\t\"\$(OBJDIR)\\translate\$E\" \$** > \$@\n"
