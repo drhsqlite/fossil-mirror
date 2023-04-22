@@ -148,6 +148,24 @@ static int has_closed_tag(int rid){
 }
 
 /*
+** Return the text of the unformatted 
+** forum post given by the RID in the argument.
+*/
+static void forum_post_content_function(
+ sqlite3_context *context,
+ int argc,
+ sqlite3_value **argv
+){
+  int rid = sqlite3_value_int(argv[0]);
+  Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+  if( pPost ){
+    sqlite3_result_text(context, pPost->zWiki, -1, SQLITE_TRANSIENT);
+    manifest_destroy(pPost);
+  }
+}
+
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -2564,9 +2582,20 @@ void page_timeline(void){
       zThisUser = zUser;
     }
     if( zSearch ){
-      blob_append_sql(&cond,
-        " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
-        zSearch, zSearch);
+      if( tmFlags & TIMELINE_FORUMTXT ){
+        sqlite3_create_function(g.db, "forum_post_content", 1, SQLITE_UTF8,
+                 0, forum_post_content_function, 0, 0);
+        blob_append_sql(&cond,
+          " AND (event.comment LIKE '%%%q%%'"
+               " OR event.brief LIKE '%%%q%%'"
+               " OR (event.type=='f' AND"
+                     " forum_post_content(event.objid) LIKE '%%%q%%'))",
+          zSearch, zSearch, zSearch);
+      }else{
+        blob_append_sql(&cond,
+          " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
+          zSearch, zSearch);
+      }
     }
     rBefore = symbolic_name_to_mtime(zBefore, &zBefore);
     rAfter = symbolic_name_to_mtime(zAfter, &zAfter);
