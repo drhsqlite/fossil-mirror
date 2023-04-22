@@ -1,5 +1,5 @@
-C Fix\sa\spointless\slimitation\sin\s/timeline\sthat\sprevented\sa=\sand\sb=\sfrom\nworking\sif\sthe\su=\squery\sparameter\swas\sused.\s\sThe\slimitation\sappears\sto\sbe\na\scopy/paste\serror\sdating\sfrom\s2014.
-D 2023-04-22T15:18:40.965
+C Add\sthe\soldestfirst\sboolean\squery\sparameter\sto\sthe\s/timeline\spage.
+D 2023-04-22T16:01:22.832
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -566,7 +566,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 703e6f2004b4e6648987639a07b640a9061b3ef7dedafdb0a1cc8f4d1826b746
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 503ffbcfaa5336e86f76643ab5473331b1a311c4f16a5a4774000654c7a53b04
+F src/timeline.c 1cfd534c0b52bd110e7f825ab38a5f9c956bb94901e6fb114cc5d0a97e1dcc89
 F src/tkt.c 338a84c10bfd0a9705f6de2219e9e84ee4faecc7f4af115722168870f87ddc47
 F src/tktsetup.c 55408ff31592a2fa18d0dc0bcb4e5e01c8683d69d371d27a2f11ad173db3efec
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 391927155a44ebdf8e0def32a4c355ff9ca6d19d4150a22342d41a926087d42c
-R 37c1af1df2e473819f1354a13b223d25
+P 2925484c9550b723499a3e497b3e9fdd31cfdce2bc7bef066dbcec03936cd1eb
+R 7f9d3b3d49d3ea57493703855a421522
 U drh
-Z 6698ee4bf6bf31ddb9e35986d9e3d92e
+Z 81c2dc2e1dcfa166d23421b969a35de2
 # Remove this line to create a well-formed Fossil manifest.

@@ -1621,6 +1621,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    datefmt=N       Override the date format:  0=HH:MM, 1=HH:MM:SS,
 **                    2=YYYY-MM-DD HH:MM:SS, 3=YYMMDD HH:MM, and 4 means "off".
 **    bisect          Show the check-ins that are in the current bisect
+**    oldestfirst     Show events oldest first.
 **    showid          Show RIDs
 **    showsql         Show the SQL text
 **
@@ -2768,7 +2769,11 @@ void page_timeline(void){
     if( r>0.0 && !selectedRid ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);
-  db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  if( PB("oldestfirst") ){
+    db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby ASC /*scan*/");
+  }else{
+    db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  }
   if( fossil_islower(desc.aData[0]) ){
     desc.aData[0] = fossil_toupper(desc.aData[0]);
   }
