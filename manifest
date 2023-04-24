@@ -1,5 +1,5 @@
-C Enhance\sthe\ss=\squery\sparameter\s(search)\son\s/timeline\sso\sthat\sit\salso\ssearches\nthe\sforum\spost\scontent\sif\sthe\svfx\squery\sparameter\sis\spresent.
-D 2023-04-22T18:53:03.334
+C Clarify\sthat\sbackslashes\sin\sthe\shelp\stext\sof\scommands/webpages\smust\sbe\sescaped\sfor\scorrect\sprocessing\sby\smkindex.c.
+D 2023-04-24T14:33:33.807
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -734,7 +734,7 @@ F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa760664
 F tools/makemake.tcl abcc434fe1784f66515f92ff0a91e1d88e1622cbd9a5a9bd16cff776849cae03 x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
-F tools/mkindex.c fd7c2af6d932a5c4370895bcbf76c71ddfff99c3d30f91e9c4134862e1c99375
+F tools/mkindex.c 90ec733e23363b5f4ac85d2ce4cf363019c2d19ed828308c5e64cf52ffcd501e
 F tools/mkversion.c 9844d975a6750a5307dc32105efa972d6be86c320987886fe15e9ed43648606d
 F tools/skintxt2config.c 042c3c712731ee32550caa0c5298cec50f125c6c5e8de65c25c975b72009861a
 F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882ba5095c15
@@ -751,7 +751,7 @@ F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/aboutcgi.wiki ab814c742d1c69356d3cf1616b61c7d1eded1b4c220a680daed403f429ea1726
 F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
-F www/adding_code.wiki 8c0f5442792cc531f8b923622f50d58dd8f837dd63afc6b851f2b14be526ff1d
+F www/adding_code.wiki ec528db5d54d1bebdcaa7d0763b2d5ef9e8cbe8df6024d120af9395c0ef83a9b
 F www/alerts.md a74da3b276868694c7d344300131ba58eb2093804cba270f6a7d42836382dcde
 F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee8d34f5aa9d948d1ac74113e8ceffc16e0d02908b862b9322b0bee57d3140bd
-R 033a9aabb9bce76bfceede07dbb29936
-U drh
-Z 79efb163ca7b147f240f3417ca0f4a0c
+P ea688fa67fd020713363d1c9b1470628082654ffd5f2901a6be5615d84b89f5c
+R 72d68838912187ff37c8b6de558450f5
+U danield
+Z f4a6c0161cacba3231ea6f0b76cbea95
 # Remove this line to create a well-formed Fossil manifest.

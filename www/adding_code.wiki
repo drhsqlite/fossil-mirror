@@ -120,7 +120,7 @@ described above) according to the following template:
 /*
 ** COMMAND: xyzzy
 **
-** Help text goes here.
+** Help text goes here.  Backslashes must be escaped.
 */
 void xyzzy_cmd(void){
   /* Implement the command here */
