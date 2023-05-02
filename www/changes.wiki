@@ -1,6 +1,23 @@
 <title>Change Log</title>
 
 <h2 id='v2_22'>Changes for version 2.22 (pending)</h2>
+  *  Enhancements to the [/help?cmd=/timeline|/timeline webpage]: <ol type="a">
+     <li> Add the ft=TAG query parameter which in combination with d=Y
+          shows all descendants of Y up to TAG
+     <li> Enhance the s=PATTERN (search) query parameter so that forum post
+          text is also searched when the "vfx" query parameter is used
+     <li> Fix the u= (user) query parameter so that it works with a= and b=
+     <li> Add the oldestfirst query parameter to show the events in reverse order.
+          Useful in combination with y=f and vfs and perhaps also u= to show all
+          forum events in chronological order
+     <li> For the p=X and bt=Y query parameter combination, if Y is a tag that
+          identifies multiple check-ins, search backwards in time for Y beginning
+          at X
+     </ol>
+  *  Administrators can select to skip sending notifications about new forum
+     posts.
+  *  If the value N is negative in "--context N" or "-c N" to the various diff
+     commands, then treat it as infinite and show the complete file content.
   *  The stock OCI container no longer includes BusyBox, thus no longer
      needs to start as root to chroot that power away. That in turn
      frees us from needing to build and install the container as root,
@@ -10,6 +27,8 @@
      searching in Chinese.
   *  Comment lines (starting with a '#') are now supported inside 
      [./settings.wiki#versionable|versioned settings].
+  *  Default permissions for anonymous users in new repositories is
+     changed to "hz".
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use
