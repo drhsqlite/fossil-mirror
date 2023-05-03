@@ -191,9 +191,9 @@ try on your own site, such as static asset proxying.
 
 You also need a `local/code` file containing:
 
-    include scgi_params;
-    scgi_pass 127.0.0.1:12345;
-    scgi_param SCRIPT_NAME "/code";
+      include scgi_params;
+      scgi_pass 127.0.0.1:12345;
+      scgi_param SCRIPT_NAME "/code";
 
 We separate that out because nginx refuses to inherit certain settings
 between nested location blocks, so rather than repeat them, we extract
@@ -206,7 +206,10 @@ Fossil-based site considerably faster.(^Beware: If you use logical
 versions in URLs like `/file/trunk/path/name/…` the rule above will
 apply to them, too, requiring your users to toss the cache before
 they’ll see updates to the referenced content. Trading off caching
-versus the possibility of stale data is a delicate dance.)
+versus the possibility of stale data is a delicate dance. You can make
+this arbitrarily complex. You might give a cache time of a day or a week
+for URLs more likely to change and reserve the really-long times for
+those impossible to change without changing the URL.)
 
 Similarly, the `local/generic` file referenced above helps us reduce unnecessary
 repetition among the multiple sites this configuration hosts:
