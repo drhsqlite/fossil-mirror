@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\swith\sall\sthe\smost\srecent\senhancements.
-D 2023-05-02T16:17:34.014
+C Edit\spass\son\sthe\sunvers.wiki\sdoc,\sprimarily\sto\sreplace\spassive\svoice\nphrasing\swith\sactive\svoice.\sMade\sa\sfew\sclarifications\sand\sgrammar\stweaks\natop\sthat.
+D 2023-05-03T06:15:44.329
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -942,7 +942,7 @@ F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d1297636
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
-F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d925966c
+F www/unvers.wiki 5a0ea9d27e3cbdc138cbd1ba970df2f9d3cb6d65768ef28637119ae6caa483fc
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6cc3da40c115de677ce7d74589c4d0fc24e94d80ecfb1c5df8216d4249ef756
-R 3dabae8aee8a16966a38534e1b208bd1
-U drh
-Z 708ae6b96cebc06339f6c97bba17df17
+P 13c5e4172c3421f9c3a14d13ed3bd53699957423dae2bcc81ecb7854f4d03dee
+R 3f95ae74aea9d58393f70a140da90e50
+U wyoung
+Z 1fc883f400e4ac183641db542c1ae19c
 # Remove this line to create a well-formed Fossil manifest.
