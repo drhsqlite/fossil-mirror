@@ -20,7 +20,7 @@ content, for example.
 
 Unversioned files are <u>not</u> a part of a check-out.
 Unversioned files are intended to be accessible as web pages using
-URLs of the form:  "http://domain/cgi-script/<b>uv</b>/<i>FILENAME</i>".
+URLs of the form: "<tt>https://example.com/cgi-script/<b>uv</b>/<i>FILENAME</i></tt>".
 In other words, the URI method "<b>uv</b>" (short for "unversioned")
 followed by the name of the unversioned file will retrieve the content
 of the file.  The MIME type is inferred from the filename suffix.
