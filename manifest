@@ -1,5 +1,5 @@
-C Modernized\sthe\sURL\sformat\sin\sthe\sunvers\sdoc:\susing\san\sactual\s(reserved)\ndomain\sname\sinstead\sof\sthe\svague\s"domain",\sshowing\sit\sas\s"https"\ssince\n"http"\sis\swidely\sdeprecated,\sand\susing\s"tt"\stags\saround\sit\sto\smake\sit\nstand\sout\sfrom\sthe\ssurrounding\ssans-serif\stext\sand\sto\sprevent\sit\sfrom\nbreaking\sacross\sword-wrap\sboundaries.
-D 2023-05-03T06:17:33.931
+C Added\sa\sparagraph\sto\sthe\sunvers\sdoc\son\sthe\s"y"\scapability.
+D 2023-05-03T06:23:58.213
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -942,7 +942,7 @@ F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d1297636
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
-F www/unvers.wiki 20f28598c0b21483b8485ec8d9d8f7517273c5f16d314ab333a1e45666eadaa4
+F www/unvers.wiki 92aa356717fa8b4fb431c3277099a0a59c5ee34208b0d1949a5c8c22f4cfb6b1
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fef0ade93fd628a9e01fd1abb6bb33c0ef62833bae6fcf3066c71b915edab82a
-R 1662f54348a3a1283f37c97213852c9e
+P d1a3dda6a7c9d2c0880a4a6430becd902b8c81dca0db1b688ea5c35e2dacb7d8
+R bb77f5a2b2b0b63598c6f70f3ef907e5
 U wyoung
-Z ce9b6cc4efb440dfd5c16f56f8194f06
+Z da9669b083621f345a0a70a35130bec0
 # Remove this line to create a well-formed Fossil manifest.

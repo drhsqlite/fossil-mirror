@@ -57,6 +57,15 @@ A rough equivalent of an unversioned pull would be the
 command causes the unversioned content on the local repository to overwritten
 by the unversioned content found on the remote repository.
 
+Beware that because unversioned file sync is an uncommonly dangerous
+capability — there being no history to revert to in the case of human
+error — even the all-powerful Fossil "setup" user does not get
+unversioned file sync capability by default.  See
+[./caps/admin-v-setup.md#dcap | this] for the full details, but the
+short-and-sweet takeaway is that a user needs the "y" capability on the
+remote before they can sync unversioned content. Until then, you're
+allowed to add such files to your local repo, but they will not sync.
+
 <h2>Implementation Details</h2>
 
 <i>(This section outlines the current implementation of unversioned
