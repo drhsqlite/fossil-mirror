@@ -174,11 +174,19 @@ The configuration for our `example.com` web site, stored in
         location /code {
             include local/code;
 
-            # Extended caching for URLs known to include unique IDs
-            location ~ /(artifact|doc|file|raw)/ {
-                include local/code;
+            # Extended caching for URLs that include unique IDs
+            location ~ "/(artifact|doc|file|raw)/[0-9a-f]{40,64}" {
                 add_header Cache-Control "public, max-age=31536000, immutable";
+                include local/code;
                 access_log off;
+            }
+
+            # Lesser caching for URLs likely to be quasi-static
+            location ~* \.(css|gif|ico|js|jpg|png)$ {
+                add_header Vary Accept-Encoding;
+                include local/code;
+                access_log off;
+                expires 7d;
             }
         }
     }
@@ -202,14 +210,7 @@ needed. You see this above where we set far-future expiration dates on
 files served by Fossil via URLs that contain hashes that change when the
 content changes. It tells your browser that the content of these URLs
 can never change without the URL itself changing, which makes your
-Fossil-based site considerably faster.(^Beware: If you use logical
-versions in URLs like `/file/trunk/path/name/…` the rule above will
-apply to them, too, requiring your users to toss the cache before
-they’ll see updates to the referenced content. Trading off caching
-versus the possibility of stale data is a delicate dance. You can make
-this arbitrarily complex. You might give a cache time of a day or a week
-for URLs more likely to change and reserve the really-long times for
-those impossible to change without changing the URL.)
+Fossil-based site considerably faster.
 
 Similarly, the `local/generic` file referenced above helps us reduce unnecessary
 repetition among the multiple sites this configuration hosts:
