@@ -205,13 +205,11 @@ Next, create the service definition file in that same directory as
     WantedBy=multi-user.target
 ```
 
-We’ll explain the “`@`” in the file name below.
-
 Notice that we haven’t told `systemd` which user and group to run Fossil
 under. Since this is a system-level service definition, that means it
 will run as root, which then causes Fossil to [automatically drop into a
 `chroot(2)` jail](../../chroot.md) rooted at the `WorkingDirectory`
-we’ve configured above, shortly each `fossil http` call starts.
+we’ve configured above, shortly after each `fossil http` call starts.
 
 The `Restart*` directives we had in the user service configuration above
 are unnecessary for this method, since Fossil isn’t supposed to remain
