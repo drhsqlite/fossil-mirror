@@ -69,7 +69,7 @@ RUN set -x                                                             \
 ## ---------------------------------------------------------------------
 
 FROM scratch AS run
-COPY --from=bld --chmod=700           /fsl/fossil /bin/
+COPY --from=bld --chmod=755           /fsl/fossil /bin/
 COPY --from=os  --chmod=600           /e/*        /etc/
 COPY --from=os  --chmod=1777          /tmp        /tmp/
 COPY --from=os  --chown=fossil:fossil /log        /log/
