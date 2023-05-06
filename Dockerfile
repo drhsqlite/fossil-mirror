@@ -10,8 +10,8 @@
 ### fixed something that matters to us since the last build.  Everything
 ### below depends on this layer, and so, alas, we toss this container's
 ### cache on Alpine's release schedule, roughly once a month.
-FROM alpine:latest AS builder
-WORKDIR /tmp
+FROM alpine:latest AS bld
+WORKDIR /fsl
 
 ### Bake the basic Alpine Linux into a base layer so it only changes
 ### when the upstream image is updated or we change the package set.
@@ -37,13 +37,13 @@ RUN set -x                                                             \
 ARG FSLCFG=""
 ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
-ENV FSLSTB=/tmp/fsl/src.tar.gz
+ENV FSLSTB=/fsl/src.tar.gz
 ADD $FSLURL $FSLSTB
 RUN set -x                                                             \
-    && if [ -d $FSLSTB ] ; then mv $FSLSTB/src fsl ;                   \
-       else tar -C fsl -xzf fsl/src.tar.gz ; fi                        \
-    && m=fsl/src/src/main.mk                                           \
-    && fsl/src/configure --static CFLAGS='-Os -s' $FSLCFG && make -j11
+    && if [ -d $FSLSTB ] ;                                             \
+       then mv $FSLSTB/src . ;                                         \
+       else tar -xf src.tar.gz ; fi                                    \
+    && src/configure --static CFLAGS='-Os -s' $FSLCFG && make -j16
 
 
 ## ---------------------------------------------------------------------
@@ -56,12 +56,12 @@ ARG UID=499
 ### Set up that base OS for our specific use without tying it to
 ### anything likely to change often.  So long as the user leaves
 ### UID alone, this layer will be durable.
-RUN set -x                                                              \
-    && mkdir log museum                                                 \
-    && echo "root:x:0:0:Admin:/:/false"                   > /tmp/passwd \
-    && echo "root:x:0:root"                               > /tmp/group  \
-    && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /tmp/passwd \
-    && echo "fossil:x:${UID}:fossil"                     >> /tmp/group
+RUN set -x                                                             \
+    && mkdir e log museum                                              \
+    && echo "root:x:0:0:Admin:/:/false"                   > /e/passwd  \
+    && echo "root:x:0:root"                               > /e/group   \
+    && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /e/passwd  \
+    && echo "fossil:x:${UID}:fossil"                     >> /e/group
 
 
 ## ---------------------------------------------------------------------
@@ -69,11 +69,11 @@ RUN set -x                                                              \
 ## ---------------------------------------------------------------------
 
 FROM scratch AS run
-COPY --from=os /tmp/group /tmp/passwd /etc/
-COPY --from=os --chown=fossil:fossil /log    /log/
-COPY --from=os --chown=fossil:fossil /museum /museum/
-COPY --from=os --chmod=1777          /tmp    /tmp/
-COPY --from=builder /tmp/fossil /bin/
+COPY --from=bld --chmod=700           /fsl/fossil /bin/
+COPY --from=os  --chmod=600           /e/*        /etc/
+COPY --from=os  --chmod=1777          /tmp        /tmp/
+COPY --from=os  --chown=fossil:fossil /log        /log/
+COPY --from=os  --chown=fossil:fossil /museum     /museum/
 
 
 ## ---------------------------------------------------------------------
@@ -84,7 +84,7 @@ ENV PATH "/bin"
 EXPOSE 8080/tcp
 USER fossil
 ENTRYPOINT [ "fossil", "server", "museum/repo.fossil" ]
-CMD [ \
+CMD [                       \
     "--create",             \
     "--jsmode", "bundled",  \
-    "--user", "admin" ]
+    "--user",   "admin" ]
