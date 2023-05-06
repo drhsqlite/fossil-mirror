@@ -3358,6 +3358,7 @@ void cmd_webserver(void){
     ** to be registered while we're waiting for that to occur.
     **/
     signal(SIGTERM, fossil_exit);
+    signal(SIGINT,  fossil_exit);
   }
 #endif /* !WIN32 */
 
