@@ -1,5 +1,5 @@
-C Added\sexplicit\sSIGINT\shandler\sfor\sthe\srootful\scontainer\s(PID\s1)\scase,\sso\nyou\scan\sCtrl-C\sit\swhen\s"run\s-it".
-D 2023-05-06T20:21:58.572
+C Display\sFQDN\son\ssync\sonly\swhen\sthe\sverbose\sflag\sis\son.
+D 2023-05-08T14:12:46.102
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -586,7 +586,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 0232d269e8e338acd5fda4154f62a0e27c02a74c423941f6e62a7f41add5454c
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 03a800274a1f9b12b43e48eafddc87b302cc47eba326e1159eb31a2ac70ddfe9
-F src/xfer.c a0d6a7425e5746e93eecb28a66b2c235a7c6821b7a8260577ce72e4958c43748
+F src/xfer.c c411640928b72587316b41f34152f18a068b3e1a13a393f4cd0f95b65288412b
 F src/xfersetup.c 718bea030737bbee82f6f5b3009f4de4ed7eda22518c1101a65f692f9020070d
 F src/zip.c 82fe616cf75a7680efddbaa7d57cd41001d25783ee2ad7bffc8c7e39cc9d9491
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 260efac1daca0deacfbe730744ff68e0dc6968aa96b7fd98fee6bffacf7b320e
-R a14656635ab362314f021da42d02f348
-U wyoung
-Z 8382aa495d987b85d90c8d301b6a152e
+P a0b0d8f99874374101783cf510b29984fe856e5947010ecc96ee437f20a4cf85
+R b6b9471945e744ab560615240fc96383
+U danield
+Z e8e55b93765a3e03358ff57e02498be1
 # Remove this line to create a well-formed Fossil manifest.
