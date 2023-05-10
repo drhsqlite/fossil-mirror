@@ -1,5 +1,5 @@
-C Fix\ssub-command\sparsing\sin\sorder\sto\shave\sthe\s"gdiff"\ssubcommand\sof\sthe\s"patch"\ncommand\sworking.
-D 2023-05-09T21:44:53.975
+C Replaced\suse\sof\sHTML\s"p"\stags\sin\sthe\sfiveminutes.wiki\sdoc\swith\shard\sline\nbreaks,\sletting\sthe\swiki\slanguage\sadd\sthe\ssame\s"p"\stags\son\soutput.\nReplaced\ssome\sof\sthem\swith\s"tt"\stags\sinstead\sto\smake\scommand\stext\sstand\nout\sfrom\sthe\sprose.\s\sAdded\s"tt"\stags\selsewhere\sfor\sconsistency.
+D 2023-05-10T14:20:11.917
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -818,7 +818,7 @@ F www/faq.tcl cf4ca3ddd0de1ae75df4e44329971462fd9312adc1f9523ac870449827e5cb3c x
 F www/faq.wiki c6633a6dad3c7645300d10959e8f1fe67cf217ad491d3448012c9c89d8f2460f
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
 F www/fileformat.wiki a896d84e5c8baae6f481500e75b9b109bb96cf10056128226da8c813ebeef333
-F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c29cb4b3
+F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki d33aecef3584ce8ea068e035e0c1e82c6dfc9c5209f686115cc3a6670648ebe1
 F www/foss-cklist.wiki 725b2e57d2d337473ffec6a6811877f1f2292b7ae1a38e40325a3f53488902e1
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc34f3cf49a70e563bf479c87d1cd00be79c06e66e47ad59ee9dc59ab0e0c4f8
-R bc9e40297759ff6ba37fe797a43437f1
-U mgagnon
-Z 7f890c1739eb1cb50918ee595e2e2fad
+P ec7822601487734a37f35541cbd0b73658a945843a086c4671474e41930262d9
+R 14ac1847881f36f8848876715a98ddd7
+U wyoung
+Z 4232be8d2bd32d6ec87910c7ca55933f
 # Remove this line to create a well-formed Fossil manifest.
