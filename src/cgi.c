@@ -1749,7 +1749,7 @@ void cgi_print_all(int showAll, unsigned int eDest){
     }
     switch( eDest ){
       case 0: {
-        cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+        cgi_printf("%h = %h  <br>\n", zName, aParamQP[i].zValue);
         break;
       }
       case 1: {  

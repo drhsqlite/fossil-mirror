@@ -63,7 +63,7 @@ void xfersetup_page(void){
                          g.url.canonical);
     }
     @ <p>Press the <strong>%h(zButton)</strong> button below to
-    @ synchronize with the <em>%h(g.url.canonical)</em> repository now.<br />
+    @ synchronize with the <em>%h(g.url.canonical)</em> repository now.<br>
     @ This may be useful when testing the various transfer scripts.</p>
     @ <p>You can use the <code>http -async</code> command in your scripts, but
     @ make sure the <code>th1-uri-regexp</code> setting is set first.</p>
@@ -75,7 +75,7 @@ void xfersetup_page(void){
     @
     @ <form method="post" action="%R/%s(g.zPath)"><div>
     login_insert_csrf_secret();
-    @ <input type="submit" name="sync" value="%h(zButton)" />
+    @ <input type="submit" name="sync" value="%h(zButton)">
     @ </div></form>
     @
     if( P("sync") ){
@@ -141,13 +141,13 @@ static void xfersetup_generic(
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
   @ <p>
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ <input type="submit" name="setup" value="Cancel" />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ <input type="submit" name="setup" value="Cancel">
   @ </p>
   @ </div></form>
   if ( zDfltValue ){
-    @ <hr />
+    @ <hr>
     @ <h2>Default %s(zTitle)</h2>
     @ <blockquote><pre>
     @ %h(zDfltValue)

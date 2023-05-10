@@ -757,7 +757,7 @@ void access_log_page(void){
   }
   @ </tbody></table>
   db_finalize(&q);
-  @ <hr />
+  @ <hr>
   @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>

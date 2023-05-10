@@ -302,7 +302,7 @@ int repo_list_page(void){
     ** property set, then use a default skin */
     @ <html>
     @ <head>
-    @ <base href="%s(g.zBaseURL)/" />
+    @ <base href="%s(g.zBaseURL)/">
     @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @ <title>Repository List</title>
     @ </head>

@@ -766,23 +766,23 @@ void tktview_page(void){
   if( !showTimeline && g.perm.Hyperlink ){
     style_submenu_element("Timeline", "%R/info/%T", zUuid);
   }
-  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
   getAllTicketFields();
   initializeVariablesFromDb();
   zScript = ticket_viewpage_code();
   if( P("showfields")!=0 ) showAllFields();
-  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br>\n", -1);
   safe_html_context(DOCSRC_TICKET);
   Th_Render(zScript);
-  if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
 
   zFullName = db_text(0,
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( zFullName ){
-    attachment_list(zFullName, "<hr /><h2>Attachments:</h2><ul>");
+    attachment_list(zFullName, "<hr><h2>Attachments:</h2><ul>");
   }
 
   style_finish_page();
@@ -809,7 +809,7 @@ static int appendRemarkCmd(
     return Th_WrongNumArgs(interp, "append_field FIELD STRING");
   }
   if( g.thTrace ){
-    Th_Trace("append_field %#h {%#h}<br />\n",
+    Th_Trace("append_field %#h {%#h}<br>\n",
               argl[1], argv[1], argl[2], argv[2]);
   }
   for(idx=0; idx<nField; idx++){
@@ -969,11 +969,11 @@ static int submitTicketCmd(
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
     @ </div>
-    @ <hr />
+    @ <hr>
   }else{
     if( g.thTrace ){
       Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
-               "}<br />\n",
+               "}<br>\n",
          blob_str(&tktchng));
     }
     ticket_put(&tktchng, zUuid, aUsed, needMod);
@@ -1010,7 +1010,7 @@ void tktnew_page(void){
   style_set_current_feature("tkt");
   style_header("New Ticket");
   ticket_standard_submenu(T_ALL_BUT(T_NEW));
-  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br>\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
   getAllTicketFields();
@@ -1036,14 +1036,14 @@ void tktnew_page(void){
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
-  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
     cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
     return;
   }
   captcha_generate(0);
   @ </form>
-  if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
   style_finish_page();
 }
 
@@ -1094,28 +1094,28 @@ void tktedit_page(void){
     style_finish_page();
     return;
   }
-  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br>\n", -1);
   ticket_init();
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
   if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
-  @ <input type="hidden" name="name" value="%s(zName)" />
+  @ <input type="hidden" name="name" value="%s(zName)">
   login_insert_csrf_secret();
   zScript = ticket_editpage_code();
   Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
-  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
     cgi_redirect(mprintf("%R/tktview/%s", zName));
     return;
   }
   captcha_generate(0);
   @ </form>
-  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br>\n", -1);
   style_finish_page();
 }
 

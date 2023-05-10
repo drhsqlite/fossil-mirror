@@ -546,8 +546,8 @@ void captcha_generate(int showButton){
   @ %h(zCaptcha)
   @ </pre>
   @ Enter security code shown above:
-  @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
-  @ <input type="text" name="captcha" size=8 />
+  @ <input type="hidden" name="captchaseed" value="%u(uSeed)">
+  @ <input type="text" name="captcha" size=8>
   if( showButton ){
     @ <input type="submit" value="Submit">
   }

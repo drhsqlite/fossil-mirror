@@ -319,7 +319,7 @@ void setup_notification(void){
   @ <hr>
   @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
-  @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
+  @ <input type="submit"  name="submit" value="Apply Changes"><hr>
   login_insert_csrf_secret();
 
   entry_attribute("Canonical Server URL", 40, "email-url",
@@ -418,7 +418,7 @@ void setup_notification(void){
   @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();

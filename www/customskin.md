@@ -80,11 +80,11 @@ generated HTML Header will look something like this:
 
          <html>
          <head>
-         <base href="..." />
-         <meta http-equiv="Content-Security-Policy" content="...." />
+         <base href="...">
+         <meta http-equiv="Content-Security-Policy" content="....">
          <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <title>....</title>
-         <link rel="stylesheet" href="..." type="text/css" />
+         <link rel="stylesheet" href="..." type="text/css">
          </head>
          <body class="FEATURE">
 

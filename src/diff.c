@@ -3638,7 +3638,7 @@ void annotation_page(void){
     @ </span>
   }
   @ </ol>
-  @ <hr />
+  @ <hr>
   @ </div>
 
   if( !ann.bMoreToDo ){

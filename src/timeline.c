@@ -298,7 +298,7 @@ void www_print_timeline(
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
-        @ <tr><td colspan="3"><hr class="timelineMarker" /></td></tr>
+        @ <tr><td colspan="3"><hr class="timelineMarker"></td></tr>
       }
       prevWasDivider = 1;
       continue;
@@ -2713,15 +2713,15 @@ void page_timeline(void){
     addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
-        blob_appendf(&desc, " occurring between %h and %h.<br />",
+        blob_appendf(&desc, " occurring between %h and %h.<br>",
                      zAfter, zBefore);
       }else{
-        blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);
+        blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
       }
     }else if( rBefore>0.0 ){
-      blob_appendf(&desc, " occurring on or before %h.<br />", zBefore);
+      blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
     }else if( rCirca>0.0 ){
-      blob_appendf(&desc, " occurring around %h.<br />", zCirca);
+      blob_appendf(&desc, " occurring around %h.<br>", zCirca);
     }
     if( zSearch ){
       blob_appendf(&desc, " matching \"%h\"", zSearch);

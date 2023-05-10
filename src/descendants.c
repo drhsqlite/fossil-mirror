@@ -629,7 +629,7 @@ void leaves_page(void){
   if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
-  @ <br />
+  @ <br>
   style_finish_page();
 }
 

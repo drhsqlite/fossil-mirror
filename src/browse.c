@@ -1166,9 +1166,9 @@ void fileage_page(void){
       @ %z(href("%R/file?name=%T&ci=%!S",zFile,zUuid))%h(zFile)</a> \
       if( showId ){
         int fid = db_column_int(&q2,1);
-        @ (%d(fid))<br />
+        @ (%d(fid))<br>
       }else{
-        @ </a><br />
+        @ </a><br>
       }
     }
     db_reset(&q2);
