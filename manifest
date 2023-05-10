@@ -1,5 +1,5 @@
-C Replaced\suse\sof\sthe\sobsolete\s(because\spresentational)\s"center"\stag\sin\nthe\sdocs\swith\sCSS\sequivalents.
-D 2023-05-10T17:50:10.322
+C Small\sfix\sto\sprevious
+D 2023-05-10T17:51:12.164
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -848,7 +848,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 92fa20536270b02c9318d25662315a36b22cb8ad72b124f33d44df4dd9dda0ca
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 545c178af99d4cacb493a0c437562797297095650861bd09acc497b9c859740e
+F www/index.wiki e4a7c833f3516abbea40bcd5ef3d5b4b1337d3af26ec338c9d80b43476ff50b6
 F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccf117feabc6be034787f93ffdf90e1c46218ab11aa85cd0dc9ecf7d2d360f10
-R 51748f6c2383dc0ab0e94a3009c3c39b
+P 4d21ec88ea1fab5be542de2d3289432235e0d9e361d5af004940f98fda9a87bf
+R c50cc45f66524185b0e498be2a6c939e
 U wyoung
-Z be3c4d5c151712d3a0b923c41824cfae
+Z d3415b0713b35c34ef743ed6fa3723ee
 # Remove this line to create a well-formed Fossil manifest.

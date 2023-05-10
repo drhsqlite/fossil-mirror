@@ -16,7 +16,7 @@
 <li> [./fossil-v-git.wiki | Fossil vs. Git]
 <li> [./permutedindex.html | Doc Index]
 </ul>
-<p style="align:center"><img src="fossil3.gif" alt="Fossil logo"></p>
+<p style="text-align:center"><img src="fossil3.gif" alt="Fossil logo"></p>
 </div>
 
 Fossil is a simple, high-reliability, distributed software configuration
