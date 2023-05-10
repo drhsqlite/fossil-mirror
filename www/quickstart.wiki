@@ -245,9 +245,11 @@ To see exactly what change was made you can use the command
  </tt></b>
 </blockquote>
 
-"fossil diff" is the difference between your tree on disk now and as the tree was
-when you did "fossil open". An open is the first checkout from a repository 
-into a new directory.
+"fossil diff" shows the difference between your tree on disk now and as
+the tree was when you last committed changes. If you haven't committed
+yet, then it shows the difference relative to the tip-of-trunk commit in
+the repository, being what you get when you "fossil open" a repository
+without specifying a version, populating the working directory.
 
 To see the most recent changes made to the repository by other users, use "fossil timeline" to
 find out the most recent commit, and then "fossil diff" between that commit and the
@@ -294,11 +296,12 @@ You will be prompted for check-in comments using whatever editor
 is specified by your VISUAL or EDITOR environment variable. If none is
 specified Fossil uses line-editing in the terminal.
 
-To commit your changes to a repository that was cloned from remote you 
-perform the same actions but the results are different. Fossil
-defaults to 'autosync' mode, a single-stage commit that sends all changes 
-committed to the local repository immediately on to the remote parent repository. This
-only works if you have write permission to the remote respository.
+To commit your changes to a repository that was cloned from a remote
+repository, you give the same command, but the results are different.
+Fossil defaults to [./concepts.wiki#workflow|autosync] mode, a
+single-stage commit that sends all changes committed to the local
+repository immediately on to the remote parent repository. This only
+works if you have write permission to the remote respository.
 
 <h2 id="naming">Naming of Files, Checkins, and Branches</h2>
 
@@ -355,34 +358,6 @@ should, change this after you create a few users.
 
 When you are finished configuring, just press Control-C or use
 the <b>kill</b> command to shut down the mini-server.
-
-<h2 id="changes">Making Changes</h2>
-
-To add new files to your project, or remove old files, use these
-commands:
-
-<blockquote>
-<b>[/help/add | fossil add]</b> <i>file...</i><br>
-<b>[/help/rm | fossil rm]</b> <i>file...</i><br>
-<b>[/help/addremove | fossil addremove]</b> <i>file...</i><br>
-</blockquote>
-
-You can also edit files freely.  Once you are ready to commit
-your changes, type:
-
-<blockquote>
-<b>[/help/commit | fossil commit]</b>
-</blockquote>
-
-You will be prompted for check-in comments using whatever editor
-is specified by your VISUAL or EDITOR environment variable.
-
-In the default configuration, the [/help/commit|commit]
-command will also automatically [/help/push|push] your changes, but that
-feature can be disabled.  (More information about
-[./concepts.wiki#workflow|autosync] and how to disable it.)
-Remember that your coworkers can not see your changes until you
-commit and push them.
 
 <h2 id="sharing">Sharing Changes</h2>
 

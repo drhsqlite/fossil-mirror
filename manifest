@@ -1,5 +1,5 @@
-C In\san\seffort\sto\smake\swww/*\ssource\sdocuments\sread\sas\scleanly\sas\stheir\nrendered\scounterparts,\sreplaced\snearly\sall\suse\sof\sHTML\s"p"\stags,\srelying\ninstead\son\sthe\sWiki\sand\sMarkdown\smarkup\sfeatures\sto\sachieve\sthe\ssame\nappearance.\s\sThe\sonly\suses\sremaining\sare:\n\n\s\s*\s\sin\sMarkdown\snested\slists,\swhere\sblank\slines\sshould\srender\sthe\slist\n\s\s\s\s\sitems\sas\sseparate\sparagraphs\sjust\sas\sat\sthe\slist's\stop\slevel;\ssince\n\s\s\s\s\sit\sdoes\snot,\sif\syou\swant\sa\sline\sbreak,\syou\seither\shave\sto\swrap\sthe\sitem\n\s\s\s\s\sin\s"p"\stags\sor\sdo\sthe\sdouble-br\shack.\n\s\s*\s\sin\sWiki\swhere\sblank\slines\swithin\sa\slist\sgive\syou\sa\sseparate\slist\sin\n\s\s\s\s\sthe\sHTML\soutput;\sthis\sis\sfine\sfor\sbullet\slists,\sbut\swith\snumbered\n\s\s\s\s\slists\sit\scauses\sthe\snumbering\sto\srestart\sunless\syou\sdo\sthe\ssame\n\s\s\s\s\ssort\sof\smanual\sHTML\sworkaround\sas\swith\sthe\sprior\sitem\n\s\s*\s\sin\splain\sHTML\sdocs\sand\swiki\sdocs\sbetween\s"nowiki"\stags\n\nIn\smany\splaces,\sthis\scleanup\sgets\srid\sof\spointless\sstray\s"p"\stags,\nplacating\sHTML\sverifiers.
-D 2023-05-10T17:02:02.910
+C A\sprior\sedit\sto\sthe\squickstart\sdoc\sleft\sa\svestigial\sversion\sof\sthe\n"Making\sand\sCommitting\sChanges"\ssection\sbehind,\sresulting\sin\sduplicate\ninformation\sand\sa\ssecond\sh2\ssection\swith\sthe\ssame\sfragment\sID.\s\sSome\ndifferences\sexisted\sbetween\sthe\stwo\spresentations,\sso\smerged\sthem\srather\nthan\snuke\sthe\ssmaller\s(presumably\solder)\sone\soutright.
+D 2023-05-10T17:20:55.148
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -890,7 +890,7 @@ F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 30a64c40a71b9fe5b72a112de050d59ec89230aa7932951dd134e06ccbc94cb9
 F www/private.wiki 0d9f2a36fbf1db95b7097936609b455c49a4ea064b167c1f52eabf213f3bb5b2
 F www/qandc.wiki 2e692648eac0b39df4522bcae68b27b81632179ff1f4d0e3828a81b451e2f5dd
-F www/quickstart.wiki c12e5349032684dc9d585e23ade27988667f464843f549a419ac5ad565ab65c8
+F www/quickstart.wiki f2313633f419fd1edf7ddfff67505fdb583bff6ab87c981c5f4872a508e5a005
 F www/quotes.wiki c76107fccacca55ba3b2f42bb8ef2fe0963f06d28894bde3b1d6501a20f0cbd2
 F www/rebaseharm.md 3e1640e822b2ff579c995f12c3a5951d1ee86a2332d98f7bc6484c14aec56656
 F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0cb4f1fc5e25087af98ff267e5db29c4d670c61a5b7911d10347fd3cbcd8dbe0
-R 7a9d86985735e1fa8de627d39ca37a19
+P 1fd407f61ae8824f554b4fe483946e2f846ef18b1b2791fd8a350644e8329f52
+R 593e6fdf1b66aa775874b3dfc5ccb14f
 U wyoung
-Z 29d78f82542d25ca06299dd841affbe8
+Z 48dfbe956b9a4615834b8a60802271c7
 # Remove this line to create a well-formed Fossil manifest.
