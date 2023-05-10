@@ -200,11 +200,12 @@ But that argument is comparing apples to oranges, since the two diffs
 do not have the same baseline.  The correct way to see only the feature
 branch changes in the merge case is not diff(C2,C7) but rather diff(C6,C7).
 
-<center><table border="1" cellpadding="5" cellspacing="0">
+<table border="1" cellpadding="5" cellspacing="0"
+    style="margin-left:auto; margin-right:auto">
 <tr><th>Rebase<th>Merge<th>What You See
 <tr><td>diff(C2,C5\')<td>diff(C2,C7)<td>Commingled branch and mainline changes
 <tr><td>diff(C6,C5\')<td>diff(C6,C7)<td>Branch changes only
-</table></center>
+</table>
 
 Remember: C7 and C5\' are bit-for-bit identical, so the output of the
 diff is not determined by whether you select C7 or C5\' as the target

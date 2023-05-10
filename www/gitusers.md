@@ -953,7 +953,7 @@ because of its lack of an always-up-to-date [index into its log](#log) and in
 part because of its “small tools loosely joined” design philosophy. This
 sort of command is therefore composed piece by piece:
 
-<center>◆  ◆  ◆</center>
+<p style="text-align:center">◆  ◆  ◆</p>
 
 “Oh, I know, I’ll search the rev-list, which outputs commit IDs by
 parsing the log backwards from `HEAD`! Easy!”
@@ -987,7 +987,7 @@ not merge-commits. Let’s try the first one:”
 
 “Success, I guess?”
 
-<center>◆  ◆  ◆</center>
+<p style="text-align:center">◆  ◆  ◆</p>
 
 This vignette is meant to explain some of Git’s popularity: it rewards
 the sort of people who enjoy puzzles, many of whom are software

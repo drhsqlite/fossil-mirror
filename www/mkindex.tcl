@@ -155,12 +155,10 @@ fconfigure $out -encoding utf-8 -translation lf
 puts $out \
 "<div class='fossil-doc' data-title='Index Of Fossil Documentation'>"
 puts $out {
-<center>
-<form action='$ROOT/docsrch' method='GET'>
+<form action='$ROOT/docsrch' method='GET' style="text-align:center">
 <input type="text" name="s" size="40" autofocus>
 <input type="submit" value="Search Docs">
 </form>
-</center>
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
