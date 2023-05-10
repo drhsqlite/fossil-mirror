@@ -19,7 +19,7 @@
 <center><img src="fossil3.gif" align="center"></center>
 </div>
 
-<p>Fossil is a simple, high-reliability, distributed software configuration
+Fossil is a simple, high-reliability, distributed software configuration
 management system with these advanced features:
 
   1.  <b>Project Management</b> -
@@ -35,7 +35,7 @@ management system with these advanced features:
       and intuitive [./webui.wiki | web interface]
       with a rich variety of information pages
       ([./webpage-ex.md|examples]) promoting situational awareness.
-      <p>
+      <br><br>
       This entire website is just a running instance of Fossil.
       The pages you see here are all [./wikitheory.wiki | wiki] or
       [./embeddeddoc.wiki | embedded documentation] or (in the case of
