@@ -1,5 +1,5 @@
-C A\sprior\sedit\sto\sthe\squickstart\sdoc\sleft\sa\svestigial\sversion\sof\sthe\n"Making\sand\sCommitting\sChanges"\ssection\sbehind,\sresulting\sin\sduplicate\ninformation\sand\sa\ssecond\sh2\ssection\swith\sthe\ssame\sfragment\sID.\s\sSome\ndifferences\sexisted\sbetween\sthe\stwo\spresentations,\sso\smerged\sthem\srather\nthan\snuke\sthe\ssmaller\s(presumably\solder)\sone\soutright.
-D 2023-05-10T17:20:55.148
+C Fixed\sa\smanual\ssection\snumbering\sduplication\sin\sthe\sdelta\sencoding\nalgorithm\sdoc.
+D 2023-05-10T17:23:53.202
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -799,7 +799,7 @@ F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c
 F www/customskin.md bb78746faea39289523cb76767399b63839e8d6a698e18dc36b26756e408d9a0
 F www/defcsp.md 67b48b4e320129055663647ed1bb821bf5a1ef17aaec744f20c17e783b7d735d
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
-F www/delta_encoder_algorithm.wiki 11757146dce0c3dcbd2f392a8c0f2233299b6a47eb9ea5934693667d780b5148
+F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
 F www/delta_format.wiki 32d45d63744fefae7e81ed3db9462e0ad5598d48bf58cb5dd230e6210e543728
 F www/embeddeddoc.wiki ee385b78d988604aba34c97b61efb1573115da9f2e33e1217562b1b0fb5ebc3b
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1fd407f61ae8824f554b4fe483946e2f846ef18b1b2791fd8a350644e8329f52
-R 593e6fdf1b66aa775874b3dfc5ccb14f
+P 39beee4c9d5e0a063b71eacb26f6a69e9e5131ccd94261bbeeb29497ff39391e
+R eb656550ad72069084777d15f29655cd
 U wyoung
-Z 48dfbe956b9a4615834b8a60802271c7
+Z ac07b5fd4773578f6291855518785044
 # Remove this line to create a well-formed Fossil manifest.
