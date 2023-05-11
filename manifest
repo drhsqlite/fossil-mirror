@@ -1,5 +1,5 @@
-C Removed\sall\sof\sthe\sXML-style\s"\s/>"\stag\sclosing\smarkers\son\sempty\stags\nsuch\sas\s"hr",\s"br",\sand\s"input"\sto\splacate\smodern\sHTML5\svalidators.\nThat's\sthe\sdoctype\swe\sdeclare,\snot\sXHTML,\sso\swe\sshould\sconform.\n(Besides\swhich,\sthe\sXHTML\sdream\sis\sdead.)
-D 2023-05-10T18:40:08.468
+C Made\sthe\smsmtp\smention\sin\sthe\salerts\sdoc\smore\sconcrete\snow\sthat\swe\shave\n[forum:/forumpost/75f63cc0a1\s|\sa\sverified\stester].
+D 2023-05-11T12:28:14.454
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -752,7 +752,7 @@ F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d
 F www/aboutcgi.wiki 2312bdc7ef999d5f40f8bc51d37aaa2166616587c7b22375bfc590114ed45e5c
 F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
 F www/adding_code.wiki ec528db5d54d1bebdcaa7d0763b2d5ef9e8cbe8df6024d120af9395c0ef83a9b
-F www/alerts.md a74da3b276868694c7d344300131ba58eb2093804cba270f6a7d42836382dcde
+F www/alerts.md 5d0870938d3cb0194815a4e30d0579e0e542299b0019b7ba856e6b0f64fd171a
 F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5537d9c2fa4d2ed58297829f02b1454db41f202c9048e236a4235ee8e2860c6f
-R 184a582291b2b943957e9e99977473d9
+P f5482a0a790a659dbb8b304180106010bd456f33b88ee90b1453e4b4f6589aa7
+R a22511f172bc07bb404e12fb4266c79e
 U wyoung
-Z 0d309141b4384f1cd95296cceb7cfabc
+Z 4f3a307ebb4a2004d5992be29e919fc6
 # Remove this line to create a well-formed Fossil manifest.
