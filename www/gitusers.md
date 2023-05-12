@@ -6,11 +6,15 @@ Fossil shares many similarities with Git.  In many cases, the
 sub-commands are identical: [`fossil bisect`][fbis] does essentially the
 same thing as [`git bisect`][gbis], for example.
 
-This document covers the cases where there is no simple 1:1 mapping,
+Yet, Fossil is not merely Git with a bunch of commands misspelled. If
+that were the case, we could give you a two-column translation table
+which would tell you how to say things like “`git reset --hard HEAD`” in
+this funny ol’ Fossil dialect of Git and be done. The purpose of this
+document is to cover all the cases where there is no simple 1:1 mapping,
 usually because of intentional design differences in Fossil that prevent
 it from working exactly like Git. We choose to explain these differences
-rather than provide a simple “translation dictionary,” since to
-understand the conversion, you need to know why the difference exists.
+since to understand the conversion, you need to know why each difference
+exists.
 
 We focus on practical command examples here, leaving discussions of the
 philosophical underpinnings that drive these command differences to [another
@@ -591,7 +595,8 @@ and that this common sequence then occurs:
     up to the central machine C in typical Git fashion.
 2.  Bob does the same.
 3.  Alice says “`fossil pull`” to bring changes from C down, sees what
-    Bob did to their shared working branch, and becomes wrothful.
+    Bob did to their shared working branch, and becomes most wrathful.
+    (Tsk, tsk.)
 
 We’ll get to what you do about this situation below, but for now let us
 focus on the fact that you’ve made it easier for [forks] to occur in the
@@ -675,6 +680,99 @@ branches, not just one named local branch.
 
 [capt]: ./cap-theorem.md
 [rem]:  /help?cmd=remote
+
+
+<a id="reset"></a>
+## Resetting the Repository
+
+Extending from [the prior item](#syncall), you may correctly infer that
+“[delete the project, and download a fresh copy][x1597]” has no part in
+the Fossil Way. Ideally, you should never find yourself forced into
+desperate measures like this:(^Parsing the output of `fossil status` is
+usually a mistake since it relies on a potentially unstable interface.
+We make no guarantee that there will always be a line beginning with
+“`repo`” and that it will be separated from the repository’s file name
+by a colon. The simplified example above is also liable to become
+confused by whitespace in file names.)
+
+
+```
+  $ repo=$(fossil status | grep ^repo | cut -f2 -d:)
+  $ url=$(fossil remote)
+  $ fossil close             # Stop here and think if it warns you!
+  $ mv $repo ${repo}.old
+  $ fossil clone $url $repo
+  $ fossil open --force $repo
+```
+
+What, then, should you as a Git transplant do instead when you find
+yourself reaching for “`git reset`”?
+
+Since the correct answer to that depends on why you think it’s a good
+solution to your immediate problem, we’ll take our motivating scenario
+from the problem setup above, where we discussed Fossil’s [autosync]
+feature.  Let us further say Alice’s pique results from a belief that
+Bob’s commit is objectively wrong-headed and should be expunged
+henceforth. Since Fossil goes out of its way to ensure that [commits are
+durable][wdm], it should be no further surprise that there is no easier
+method to reset Bob’s clone in favor of Alice’s than the above sequence
+in Fossil’s command set. Except in extreme situations, we believe that
+sort of thing is unnecessary.
+
+Instead, Bob can say something like this:
+
+```
+  fossil amend --branch MISTAKE --hide --close -m "mea culpa" tip
+  fossil up trunk
+  fossil push
+```
+
+Unlike in Git, the “`amend`” command doesn’t modify prior committed
+artifacts. Bob’s first command doesn’t delete anything, merely tells
+Fossil to hide his mistake from timeline views by inserting a few new
+records into the local repository to change how the client interprets
+the data it finds there henceforth.(^One to change the tag marking this
+commit’s branch name to “`MISTAKE`,” one to mark that branch as hidden,
+and one to close it to further commits.).
+
+Bob’s second command switches his working directory back to the prior
+commit on that branch. We’re presuming it was “`trunk`” for the sake of
+the example, but it works for any parent branch name. The command works
+because the name “`trunk`” now means something different to Fossil by
+virtue of the first command.
+
+Bob’s third command pushes the changes up to the central machine to
+inform everyone else of his amendment.(^Amendments don’t autosync in
+Fossil because they don’t change any previous commits, allowing the
+other clones to continue working safely with their existing commit
+hashes.)
+
+In this scheme, Alice then needs to say “`fossil update trunk`” in order
+to return her check-out’s parent commit to the previous version lest her
+next attempted commit land atop this mistake branch. The fact that Bob
+marked the branch as closed will prevent that from going thru, cluing
+Alice into what she needs to do to remedy the situation, but that merely
+shows why it’s a better workflow if Alice makes the amendment herself:
+
+```
+  fossil amend --branch MISTAKE --hide --close \
+    -m "shunt Bob’s erroneous commit off" tip
+  fossil up trunk
+  fossil push
+```
+
+Then she can fire off an email listing Bob’s assorted failings and go
+about her work. This asynchronous workflow solves the problem without
+requiring explicit coordination with Bob. When he gets his email, he can
+then say “`fossil up trunk`” himself, which by default will trigger an
+autosync, pulling down Alice’s amendments and getting him back onto her
+development track.
+
+Remember that [branch names need not be unique](#btnames) in Fossil. You
+are free to reuse this “`MISTAKE`” branch name as often as you need to.
+
+[autosync]: #autosync
+[x1597]:    https://xkcd.com/1597/
 
 
 <a id="trunk"></a>
@@ -1220,7 +1318,7 @@ from home:
 
 It’s one short command for Fossil instead of three for Git — or two if
 you abbreviate it as “`git commit -a && git push`” — because of Fossil’s
-[autosync feature](#autosync) feature and deliberate omission of a
+[autosync] feature and deliberate omission of a
 [staging feature](#staging).
 
 The “Friday afternoon sync-up” case is simpler, too:

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.42.0\sbeta\sfor\stesting.
-D 2023-05-12T12:26:21.896
+C Added\sa\snew\ssection\s"Resetting\sthe\sRepository"\sto\sthe\sgitusers\sdoc,\nfollowing\sand\srelying\son\sthe\stwo\srecently-updated\ssections.
+D 2023-05-12T13:21:20.744
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -834,7 +834,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md 1ff020baee6d711c0808de7d6437b3c1d827f22e856eac9638ef8a7049198346
+F www/gitusers.md 2128624ac033022452e00abe4ee221d3e2fb066373abd242041893fea6b90924
 F www/globs.md e589fbd2b8f345b0134c4c4ac2d2a8cb4d1825bb710fcd5de760633ca6bab988
 F www/glossary.md 89147d421a00f104b220eefbce5033268b963c89eaeedfdf237e1b1cf7c3821d
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8975e8daf19df0c5d2cdb914458a3a4af4e4878592e115e2fe00fbf22b0d5237
-R afd27e2a02a9672cd168ed9bc3a38374
-U drh
-Z 17d2b58bbe545b9adb90639c50f20916
+P b2a29bf41f70478d57c576e44504f7cb3df3e93bcb82b6a079642208e07b2b12
+R f21c648d8bcc930d027f5499699fae0f
+U wyoung
+Z e54b76aab3a39c2b36f575e7e603c540
 # Remove this line to create a well-formed Fossil manifest.
