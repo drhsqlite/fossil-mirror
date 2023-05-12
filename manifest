@@ -1,5 +1,5 @@
-C Added\sa\slink\sfrom\sthe\snew\s"git\sreset"\sexample\sin\sthe\sintro\sof\sthe\ngitusers\sdoc\sto\sthe\snew\ssection\swhere\swe\saddress\sthe\smatter.
-D 2023-05-12T14:05:05.478
+C Account\sfor\semscripten\schange\swhich\sbroke\spikchr-worker.js:\sstackAlloc()\snow\srequires\sexplicit\sexport.
+D 2023-05-12T16:50:47.265
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -272,8 +272,8 @@ F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f1999
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
 F extsrc/pikchr.c 02f23c6c39e1af5d95734124b8c3c59fa3bf62bea1dab93a191ba54ab4386a45
-F extsrc/pikchr.js ad1ec71dbf414878068978109fdc208cc4fef629618562f9d7731d1c43e4799f
-F extsrc/pikchr.wasm 82d23a9cf932c4a3d60b24f129e208d9103747927d14eee96ae1b4ca10ba70f8
+F extsrc/pikchr.js ed67193ed95a59caccdeeeece125777b2e51faf74fdf1db8dcf4a274ce1ed448
+F extsrc/pikchr.wasm 7f1b6aecd0514b50ff7c033b068662e626617fb9816ea3bcc12a6e3e0435e117
 F extsrc/shell.c d6de6269b962c912c75514cbb5047beaec7f1001a53ed60e387cf71de1151853
 F extsrc/sqlite3.c cd031df59da537a87af372d0b7d963362156cc5063bf0e0e569556654f784d89
 F extsrc/sqlite3.h 5329a65ff2b2be8de7744c9ee6cab5c71c6bce997328d835ba71d86f19fa3c64
@@ -489,7 +489,7 @@ F src/login.c 1c43ca56c92e44365b5ea3c428aae57ff2fd6a8d36e7b959618d63dc534c5102
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20d0
 F src/main.c ed88f6570fb02ac7b1554d059797990a548c0212c6bd4249027685457e5edc1b
-F src/main.mk 5c96b146494b38a727933dde22560b79626fcf467e22192ce01617f90ec6861a
+F src/main.mk 583fe0f4f43de49fd824571904c656a43c972b277d60091f4dc24817ac04f49c
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80963ffeda3650dfe95f8c18adf3f5871cd9b20eaae26d9ed13481bdacb06304
-R 872545b0429a68f3eb38afa998e28a2d
-U wyoung
-Z 31955fb6b82ada88ed06e135e819b207
+P 84955715f56622e66489c7e1e42372b479500768c7e3fc70ef70565c3afaaef0
+R 9274868a5ed2737486b71122a66d5f08
+U stephan
+Z 0f97335a6e4c673c8abdada58050337c
 # Remove this line to create a well-formed Fossil manifest.
