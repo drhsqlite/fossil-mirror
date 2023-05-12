@@ -604,34 +604,31 @@ development history by disabling autosync. If all three machines were
 online and syncing at the time the sequence above began, Bob would
 have been warned in step 2 that committing to the central repo would
 create a fork and would be invited to fix it before committing.
-Likewise, Alice would be warned about the new tip-of-branch commit the
-next time she triggered an implicit autosync at step 3.
+Likewise, Alice will be warned about the new tip-of-branch commit the
+next time she triggers an implicit autosync at step 3, bringing Bob’s
+changes down in a non-conflicting manner, allowing work to proceed
+without fuss.
+
+Another way the above scenario could go down is that by the next time
+Alice does something to trigger an autosync, she’s done something in the
+meantime to create *another* fork.  Alice is then invited to fix the
+second fork in the same manner as Bob was, getting both parties back
+onto a single track as expeditiously as possible, requiring no direct
+communication.  This moves the synchronization point out of the
+expensive human-time workflow and into the software system, where it’s
+cheapest to resolve.
 
 Solving this class of problem in as automated a manner as is possible is
-why autosync is enabled by default.  It provides Fossil with most of the
-advantages of a centralized version control system while retaining the
-advantages of distributed version control.
-
-With autosync enabled, Fossil will warn Bob in step 2 above that his
-commit to the shared working branch will create a fork; he could force
-it, but he is instead invited to fix the fork before committing. When
-Alice then does something to trigger an autosync, if she hasn’t done
-anything in the meantime to create *another* fork, Bob’s changes come
-down in a non-conflicting manner and work proceeds without fuss.
-Otherwise, Alice is invited to fix the second fork in the same manner,
-getting both parties back onto a single track as expeditiously as
-possible, requiring no direct communication.  This moves the
-synchronization point out of the expensive human-time workflow and into
-the software system, where it’s cheapest to resolve.
-
-The advantages of autosync are:
+why Fossil enables autosync by default.  It provides Fossil with most of
+the advantages of a centralized version control system while retaining
+the advantages of distributed version control. With autosync enabled:
 
 1.  Your work stays synced up with your coworkers’ efforts as long as your
     machine can connect to the remote repository. At need, you can go
     off-network and continue work atop the last version you synced with
     the remote.
 
-2.  It provides immediate off-machine backup of your commits. Unlike
+2.  You get implicit off-machine backup of your commits. Unlike
     centralized version control, though, you can still work while
     disconnected; your changes will sync up with the remote once you get
     back online.
