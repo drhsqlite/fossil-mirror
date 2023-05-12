@@ -1,5 +1,5 @@
-C Clarified\sthe\s"Sync\sIs\sAll-or-Nothing"\ssection\sof\sthe\sgitusers\sdoc,\nadding\sa\sreference\sto\sthe\scap-theorem\sdoc\sand\sdropping\sthe\n"eventually-consistent"\sbuzzword\sto\sexplain\s*why*\sit's\sall-or-nothing.
-D 2023-05-12T11:38:45.971
+C Added\sa\smotivating\sexample\sto\sthe\s"Autosync"\ssection\sof\sthe\sgitusers\ndoc,\sshowing\swhy\sit's\sbetter\sto\slet\sthe\ssoftware\ssystem\sresolve\nconflicts\sasynchronously\sthan\sto\sforce\sAlice\sand\sBob\sto\sfight\sit\sout,\nmoving\sthe\ssynchronization\spoint\sout\sinto\sthe\shuman-time\sworkflow.
+D 2023-05-12T12:19:09.956
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -834,7 +834,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md 63cec6a26960cb63fcdd92636e8d9214c5f936bcf5b153cded3a20a8d9d8f4cb
+F www/gitusers.md 1ff020baee6d711c0808de7d6437b3c1d827f22e856eac9638ef8a7049198346
 F www/globs.md e589fbd2b8f345b0134c4c4ac2d2a8cb4d1825bb710fcd5de760633ca6bab988
 F www/glossary.md 89147d421a00f104b220eefbce5033268b963c89eaeedfdf237e1b1cf7c3821d
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea74c83adc0c16309ed7bfe9e2e96eb01c5b626bec59982d48446ed9263d930c
-R a5f99782cfd59c83b84a0ca5eedd3828
+P 35b2307f9c2794034ff6bdf09c5509efacae3b6b9df4b50a6a68485606cf5637
+R 309aaf49bea741a359b0434673b142b4
 U wyoung
-Z d3414283deca78b9afeca02f986046d6
+Z 209a7d9f701dd0234972d0f41152ae4a
 # Remove this line to create a well-formed Fossil manifest.

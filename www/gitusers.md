@@ -583,15 +583,43 @@ it off:
 
         fossil set autosync 0
 
-However, it’s better to understand what the feature does and why it is enabled by
-default.
+Let’s say that you have a typical server-and-workstations model with two
+working clones on different machines, that you have disabled autosync,
+and that this common sequence then occurs:
 
-When autosync is enabled, Fossil automatically pushes your changes
-to the remote server whenever you "`fossil commit`", and it
-pulls all remote changes down to your local clone of the repository as
-part of a "`fossil update`".
-This provides most of the advantages of a centralized version control
-system while retaining the advantages of distributed version control:
+1.  Alice commits to her local clone and *separately* pushes the change
+    up to the central machine C in typical Git fashion.
+2.  Bob does the same.
+3.  Alice says “`fossil pull`” to bring changes from C down, sees what
+    Bob did to their shared working branch, and becomes wrothful.
+
+We’ll get to what you do about this situation below, but for now let us
+focus on the fact that you’ve made it easier for [forks] to occur in the
+development history by disabling autosync. If all three machines were
+online and syncing at the time the sequence above began, Bob would
+have been warned in step 2 that committing to the central repo would
+create a fork and would be invited to fix it before committing.
+Likewise, Alice would be warned about the new tip-of-branch commit the
+next time she triggered an implicit autosync at step 3.
+
+Solving this class of problem in as automated a manner as is possible is
+why autosync is enabled by default.  It provides Fossil with most of the
+advantages of a centralized version control system while retaining the
+advantages of distributed version control.
+
+With autosync enabled, Fossil will warn Bob in step 2 above that his
+commit to the shared working branch will create a fork; he could force
+it, but he is instead invited to fix the fork before committing. When
+Alice then does something to trigger an autosync, if she hasn’t done
+anything in the meantime to create *another* fork, Bob’s changes come
+down in a non-conflicting manner and work proceeds without fuss.
+Otherwise, Alice is invited to fix the second fork in the same manner,
+getting both parties back onto a single track as expeditiously as
+possible, requiring no direct communication.  This moves the
+synchronization point out of the expensive human-time workflow and into
+the software system, where it’s cheapest to resolve.
+
+The advantages of autosync are:
 
 1.  Your work stays synced up with your coworkers’ efforts as long as your
     machine can connect to the remote repository. At need, you can go
@@ -614,6 +642,7 @@ system while retaining the advantages of distributed version control:
     truth once again.
 
 [bu]:    ./backup.md
+[forks]: ./branching.wiki
 [setup]: ./caps/admin-v-setup.md#apsu
 [wflow]: ./concepts.wiki#workflow
 
