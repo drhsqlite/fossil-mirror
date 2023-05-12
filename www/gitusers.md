@@ -8,7 +8,7 @@ same thing as [`git bisect`][gbis], for example.
 
 Yet, Fossil is not merely Git with a bunch of commands misspelled. If
 that were the case, we could give you a two-column translation table
-which would tell you how to say things like “`git reset --hard HEAD`” in
+which would tell you [how to say things like “`git reset --hard HEAD`”](#reset) in
 this funny ol’ Fossil dialect of Git and be done. The purpose of this
 document is to cover all the cases where there is no simple 1:1 mapping,
 usually because of intentional design differences in Fossil that prevent
