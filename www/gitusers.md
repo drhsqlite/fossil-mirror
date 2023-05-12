@@ -626,8 +626,11 @@ individual branches.  When you sync/push/pull in Fossil, it
 processes all artifacts in its hash tree:
 branches, tags, wiki articles, tickets, forum posts, technotes…
 This is [not quite “everything,” full stop][bu], but it’s close.
+[Fossil is an AP-mode system][capt], which in this case means it works
+*very hard* to ensure that all repos are as close to identical as it can
+make them under this eventually-consistent design philosophy.
 
-Furthermore, branch *names* sync automatically in Fossil, not just the
+Branch *names* sync automatically in Fossil, not just the
 content of those branches. That means this common Git command:
 
         git push origin master
@@ -638,10 +641,11 @@ content of those branches. That means this common Git command:
 
 Fossil doesn’t need to be told what to push or where to push it: it just
 keeps using the same remote server URL you gave it last
-until you [tell it to do something different][rem], and it pushes all
+until you [tell it to do something different][rem]. It pushes all
 branches, not just one named local branch.
 
-[rem]: /help?cmd=remote
+[capt]: ./cap-theorem.md
+[rem]:  /help?cmd=remote
 
 
 <a id="trunk"></a>
