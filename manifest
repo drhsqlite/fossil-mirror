@@ -1,5 +1,5 @@
-C Clarity\spass\son\sthe\snew\smaterial\sin\sthe\sAutosync\ssection\sof\sthe\sgitusers\sdoc.
-D 2023-05-13T18:30:03.011
+C Moved\sthe\s"sync\sis\sall-or-nothing"\ssection\sof\sthe\sgitusers\sdoc\sabove\sthe\nautosync\ssection.\s\sThe\sorder\sof\sthose\stwo\sisn't\simportant,\sand\sit's\nbetter\sthat\sautosync\sflow\simmediately\sinto\sthe\snew\s"reset"\ssection\nwithout\sthis\sas\sa\sdigression.
+D 2023-05-13T18:31:48.757
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -834,7 +834,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md be0aa0c9e77ca76c68e827e9641fb6656c526e6dbe06d1430186fa7a2b5b7ad7
+F www/gitusers.md 22d5d129db25f3bd92a46f799805722bb6a0df6210fd6d368ae4d4b7b34df750
 F www/globs.md e589fbd2b8f345b0134c4c4ac2d2a8cb4d1825bb710fcd5de760633ca6bab988
 F www/glossary.md 89147d421a00f104b220eefbce5033268b963c89eaeedfdf237e1b1cf7c3821d
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7e77e29d16465632f6c53b2409eeb90967b8b411bfccd551cc2a0ed118f29383
-R 46740ba271e0c65514e035c0f84b3dd2
+P cc55044b3902aba809dbceea3eb1b9c2e19ef6302aadf356c2e15078acb42469
+R 52ee5c3ecc310c6b7ca990633dc6bc8c
 U wyoung
-Z 97acb311b4e5de62d5a4623af9f11df7
+Z f217713d6b120d2b64e4550eb98b14b8
 # Remove this line to create a well-formed Fossil manifest.

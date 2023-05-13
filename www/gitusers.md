@@ -578,6 +578,36 @@ indeed to any other Fossil command documented to accept a `VERSION` or
 [scin]: ./checkin_names.wiki
 
 
+<a id="syncall"></a>
+## Sync Is All-or-Nothing
+
+Fossil does not support the concept of syncing, pushing, or pulling
+individual branches.  When you sync/push/pull in Fossil, it
+processes all artifacts in its hash tree:
+branches, tags, wiki articles, tickets, forum posts, technotes…
+This is [not quite “everything,” full stop][bu], but it’s close.
+[Fossil is an AP-mode system][capt], which in this case means it works
+*very hard* to ensure that all repos are as close to identical as it can
+make them under this eventually-consistent design philosophy.
+
+Branch *names* sync automatically in Fossil, not just the
+content of those branches. That means this common Git command:
+
+        git push origin master
+
+…is simply this in Fossil:
+
+        fossil push
+
+Fossil doesn’t need to be told what to push or where to push it: it just
+keeps using the same remote server URL you gave it last
+until you [tell it to do something different][rem]. It pushes all
+branches, not just one named local branch.
+
+[capt]: ./cap-theorem.md
+[rem]:  /help?cmd=remote
+
+
 <a id="autosync"></a>
 ## Autosync
 
@@ -649,41 +679,11 @@ version control:
 [wflow]: ./concepts.wiki#workflow
 
 
-<a id="syncall"></a>
-## Sync Is All-or-Nothing
-
-Fossil does not support the concept of syncing, pushing, or pulling
-individual branches.  When you sync/push/pull in Fossil, it
-processes all artifacts in its hash tree:
-branches, tags, wiki articles, tickets, forum posts, technotes…
-This is [not quite “everything,” full stop][bu], but it’s close.
-[Fossil is an AP-mode system][capt], which in this case means it works
-*very hard* to ensure that all repos are as close to identical as it can
-make them under this eventually-consistent design philosophy.
-
-Branch *names* sync automatically in Fossil, not just the
-content of those branches. That means this common Git command:
-
-        git push origin master
-
-…is simply this in Fossil:
-
-        fossil push
-
-Fossil doesn’t need to be told what to push or where to push it: it just
-keeps using the same remote server URL you gave it last
-until you [tell it to do something different][rem]. It pushes all
-branches, not just one named local branch.
-
-[capt]: ./cap-theorem.md
-[rem]:  /help?cmd=remote
-
-
 <a id="reset"></a>
 ## Resetting the Repository
 
 Extending from [the prior item](#syncall), you may correctly infer that
-“[delete the project, and download a fresh copy][x1597]” has no part in
+“[delete the project and download a fresh copy][x1597]” has no part in
 the Fossil Way. Ideally, you should never find yourself forced into
 desperate measures like this:(^Parsing the output of `fossil status` is
 usually a mistake since it relies on a potentially unstable interface.
