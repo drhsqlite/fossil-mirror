@@ -1,5 +1,5 @@
-C Account\sfor\semscripten\schange\swhich\sbroke\spikchr-worker.js:\sstackAlloc()\snow\srequires\sexplicit\sexport.
-D 2023-05-12T16:50:47.265
+C Correct\smishandling\sof\s-tk,\s-by,\setc.\sflags\sto\sthe\s(patch\sdiff)\ssubcommand.
+D 2023-05-13T14:07:51.156
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/merge.c e6f38664029bd1c302c30b750065ed85fe86078d63a071b6b8530514fcc677fa
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 60c3dd5cbf4e3e28bc687fdeb0bd5513402007b8d2ced5e814bd7bb140fc932d
-F src/patch.c 8e31eb9b991afaa134e009db86d5ea1f1d23fccb07a16a2ac5f4096c30339aea
+F src/patch.c d2702b10c55d99c5a938c57dfc6dc8515a04922f26ede6c94a973fe34b76bc5a
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c 2be1694c1e8a62f8ac314aa59c99ecc8d8ac2d2037e708cc15649262cd7c9805
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84955715f56622e66489c7e1e42372b479500768c7e3fc70ef70565c3afaaef0
-R 9274868a5ed2737486b71122a66d5f08
+P fc8d306a5f0edc96d8cb9591c4340be7fe171fd9b563770df8b932c5d35d4d2f
+R fc19e45a8eab6d586c6e68c6f2146292
 U stephan
-Z 0f97335a6e4c673c8abdada58050337c
+Z 4f13f3ffd597c46ae02e3c98ba981dca
 # Remove this line to create a well-formed Fossil manifest.
