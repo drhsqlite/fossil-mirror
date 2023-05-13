@@ -1,5 +1,5 @@
-C Correct\smishandling\sof\s-tk,\s-by,\setc.\sflags\sto\sthe\s(patch\sdiff)\ssubcommand.
-D 2023-05-13T14:07:51.156
+C Add\sHTTP_ACCEPT_LANGUAGE\sto\sthe\senvironment\svars\spassed\son\sto\s/ext\sCGIs,\sper\srequest\sin\s[forum:6674089de55e25cc|forum\spost\s6674089de55e25cc].
+D 2023-05-13T14:21:39.690
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -422,7 +422,7 @@ F src/encode.c e1fb0359db29597da230ca637c157666a310426e8e2cf5c5e71c90717537ea51
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 03b5c3aa1d0db270b61acffedfc39779fbbe322f2f245895f7cfe822630ce1d1
 F src/export.c 487204e1f6f0a007988038661524a306d8b001970e555db23e38d7d50ed3165f
-F src/extcgi.c 0a98b49ac3ea9002e2cc7dadd9d28d3bab4bc364f9c6e206fb987751cf6baf9b
+F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 5b9bcd4fa6a9b3901b852ebec1b68fd4552a12c3c34539c0f45b260390f3243b
 F src/fileedit.c db34273e01714297061e41706a82482384f5e86cbd3b6845159ffd2d2569ba3b
 F src/finfo.c 3f921c6dc46dbd2ffcb7ced8bf5ddb934f23ac4e283742ee7cc9f5380aa8cf33
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki 09c04354dbcc1c8c9d273354074d1653dd768fa5b7fe7b147c45cf36cc275fc4
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8d306a5f0edc96d8cb9591c4340be7fe171fd9b563770df8b932c5d35d4d2f
-R fc19e45a8eab6d586c6e68c6f2146292
+P c55f0d91bbbbb39ec30a723d408408bbb1b8f8bb23ad0d14efd4d05b9cd98788
+R 5dddc47864604b32c4d2174bf867e2ec
 U stephan
-Z 4f13f3ffd597c46ae02e3c98ba981dca
+Z 314be5dce52819733925f3ab1eba5c12
 # Remove this line to create a well-formed Fossil manifest.

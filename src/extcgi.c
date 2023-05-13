@@ -51,6 +51,7 @@ static const char *azCgiEnv[] = {
    "HTTPS",
    "HTTP_ACCEPT",
    /* "HTTP_ACCEPT_ENCODING", // omitted from sub-cgi */
+   "HTTP_ACCEPT_LANGUAGE",
    "HTTP_COOKIE",
    "HTTP_HOST",
    "HTTP_IF_MODIFIED_SINCE",
