@@ -999,7 +999,7 @@ static int submitTicketCmd(
 */
 void tktnew_page(void){
   const char *zScript;
-  char *zEmail = 0, *zNewUuid = 0;
+  char *zNewUuid = 0;
   int uid;
 
   login_check_credentials();
@@ -1023,12 +1023,17 @@ void tktnew_page(void){
   }
   zScript = ticket_newpage_code();
   if( g.zLogin && g.zLogin[0] ){
-    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
+    int nEmail = 0;
+    (void)Th_MaybeGetVar(g.interp, "private_contact", &nEmail);
+    uid = nEmail>0
+      ? 0 : db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
     if( uid ){
-      zEmail = db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
-          uid);
+      char * zEmail =
+        db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
+                uid);
       if( zEmail ){
         Th_Store("private_contact", zEmail);
+        fossil_free(zEmail);
       }
     }
   }

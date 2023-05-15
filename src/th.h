@@ -58,6 +58,19 @@ int Th_SetVar(Th_Interp *, const char *, int, const char *, int);
 int Th_LinkVar(Th_Interp *, const char *, int, int, const char *, int);
 int Th_UnsetVar(Th_Interp *, const char *, int);
 
+/*
+** If interp has a variable with the given name, its value is returned
+** and its length is returned via *nOut if nOut is not NULL.  If
+** interp has no such var then NULL is returned without setting any
+** error state and *nOut, if not NULL, is set to 0. The returned value
+** is owned by the interpreter and may be invalidated the next time
+** the interpreter is modified.
+**
+** zVarName must be NUL-terminated.
+*/
+const char * Th_MaybeGetVar(Th_Interp *interp, const char *zVarName,
+                            int *nOut);
+
 typedef int (*Th_CommandProc)(Th_Interp *, void *, int, const char **, int *);
 
 /*
