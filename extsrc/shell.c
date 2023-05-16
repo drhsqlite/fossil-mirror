@@ -623,6 +623,10 @@ static struct ConsoleState {
   DWORD consoleMode; /* Console mode upon shell start */
 } conState = { 0, 0, 0, 0, INVALID_HANDLE_VALUE, 0 };
 
+#ifndef _O_U16TEXT /* For build environments lacking this constant: */
+# define _O_U16TEXT 0x20000
+#endif
+
 /*
 ** Prepare console, (if known to be a WIN32 console), for UTF-8
 ** input (from either typing or suitable paste operations) and for
@@ -4417,7 +4421,17 @@ static sqlite3_int64 genSeqMember(sqlite3_int64 smBase,
   if( ix>=(sqlite3_uint64)LLONG_MAX ){
     /* Get ix into signed i64 range. */
     ix -= (sqlite3_uint64)LLONG_MAX;
-    smBase += LLONG_MAX * smStep;
+    /* With 2's complement ALU, this next can be 1 step, but is split into
+     * 2 for UBSAN's satisfaction (and hypothetical 1's complement ALUs.) */
+    smBase += (LLONG_MAX/2) * smStep;
+    smBase += (LLONG_MAX - LLONG_MAX/2) * smStep;
+  }
+  /* Under UBSAN (or on 1's complement machines), must do this last term
+   * in steps to avoid the dreaded (and harmless) signed multiply overlow. */
+  if( ix>=2 ){
+    sqlite3_int64 ix2 = (sqlite3_int64)ix/2;
+    smBase += ix2*smStep;
+    ix -= ix2;
   }
   return smBase + ((sqlite3_int64)ix)*smStep;
 }
@@ -4440,11 +4454,22 @@ typedef struct SequenceSpec {
 ** given initialized iBase, iTerm and iStep values. Sequence is
 ** initialized per given isReversing. Other members are computed.
 */
-void setupSequence( SequenceSpec *pss ){
+static void setupSequence( SequenceSpec *pss ){
+  int bSameSigns;
   pss->uSeqIndexMax = 0;
   pss->isNotEOF = 0;
+  bSameSigns = (pss->iBase < 0)==(pss->iTerm < 0);
   if( pss->iTerm < pss->iBase ){
-    sqlite3_uint64 nuspan = (sqlite3_uint64)(pss->iBase-pss->iTerm);
+    sqlite3_uint64 nuspan = 0;
+    if( bSameSigns ){
+      nuspan = (sqlite3_uint64)(pss->iBase - pss->iTerm);
+    }else{
+      /* Under UBSAN (or on 1's complement machines), must do this in steps.
+       * In this clause, iBase>=0 and iTerm<0 . */
+      nuspan = 1;
+      nuspan += pss->iBase;
+      nuspan += -(pss->iTerm+1);
+    }
     if( pss->iStep<0 ){
       pss->isNotEOF = 1;
       if( nuspan==ULONG_MAX ){
@@ -4454,7 +4479,16 @@ void setupSequence( SequenceSpec *pss ){
       }
     }
   }else if( pss->iTerm > pss->iBase ){
-    sqlite3_uint64 puspan = (sqlite3_uint64)(pss->iTerm-pss->iBase);
+    sqlite3_uint64 puspan = 0;
+    if( bSameSigns ){
+      puspan = (sqlite3_uint64)(pss->iTerm - pss->iBase);
+    }else{
+      /* Under UBSAN (or on 1's complement machines), must do this in steps.
+       * In this clause, iTerm>=0 and iBase<0 . */
+      puspan = 1;
+      puspan += pss->iTerm;
+      puspan += -(pss->iBase+1);
+    }
     if( pss->iStep>0 ){
       pss->isNotEOF = 1;
       pss->uSeqIndexMax = puspan/pss->iStep;
@@ -4474,7 +4508,7 @@ void setupSequence( SequenceSpec *pss ){
 ** Leave its state to either yield next value or be at EOF.
 ** Return whether there is a next value, or 0 at EOF.
 */
-int progressSequence( SequenceSpec *pss ){
+static int progressSequence( SequenceSpec *pss ){
   if( !pss->isNotEOF ) return 0;
   if( pss->isReversing ){
     if( pss->uSeqIndexNow > 0 ){
@@ -4609,13 +4643,13 @@ static int seriesColumn(
 }
 
 /*
-** Return the rowid for the current row. In this implementation, the
-** first row returned is assigned rowid value 1, and each subsequent
-** row a value 1 more than that of the previous.
+** Return the rowid for the current row, logically equivalent to n+1 where
+** "n" is the ascending integer in the aforesaid production definition.
 */
 static int seriesRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
   series_cursor *pCur = (series_cursor*)cur;
-  *pRowid = ((sqlite3_int64)pCur->ss.uSeqIndexNow + 1);
+  sqlite3_uint64 n = pCur->ss.uSeqIndexNow;
+  *pRowid = (sqlite3_int64)((n<0xffffffffffffffff)? n+1 : 0);
   return SQLITE_OK;
 }
 
@@ -5456,7 +5490,7 @@ static const char *re_subcompile_string(ReCompiled *p){
         break;
       }
       case '[': {
-        int iFirst = p->nState;
+        unsigned int iFirst = p->nState;
         if( rePeek(p)=='^' ){
           re_append(p, RE_OP_CC_EXC, 0);
           p->sIn.i++;
@@ -5480,7 +5514,7 @@ static const char *re_subcompile_string(ReCompiled *p){
           if( rePeek(p)==']' ){ p->sIn.i++; break; }
         }
         if( c==0 ) return "unclosed '['";
-        p->aArg[iFirst] = p->nState - iFirst;
+        if( p->nState>iFirst ) p->aArg[iFirst] = p->nState - iFirst;
         break;
       }
       case '\\': {
@@ -12804,6 +12838,7 @@ int sqlite3_recover_finish(sqlite3_recover*);
 #endif /* ifndef _SQLITE_RECOVER_H */
 
 /************************* End ../ext/recover/sqlite3recover.h ********************/
+# ifndef SQLITE_HAVE_SQLITE3R
 /************************* Begin ../ext/recover/dbdata.c ******************/
 /*
 ** 2019-04-17
@@ -16634,6 +16669,7 @@ int sqlite3_recover_finish(sqlite3_recover *p){
 #endif /* ifndef SQLITE_OMIT_VIRTUALTABLE */
 
 /************************* End ../ext/recover/sqlite3recover.c ********************/
+# endif /* SQLITE_HAVE_SQLITE3R */
 #endif
 #ifdef SQLITE_SHELL_EXTSRC
 # include SHELL_STRINGIFY(SQLITE_SHELL_EXTSRC)
@@ -17059,6 +17095,7 @@ static void editFunc(
     }else{
       /* If the file did not originally contain \r\n then convert any new
       ** \r\n back into \n */
+      p[sz] = 0;
       for(i=j=0; i<sz; i++){
         if( p[i]=='\r' && p[i+1]=='\n' ) i++;
         p[j++] = p[i];
@@ -20703,9 +20740,6 @@ static void open_db(ShellState *p, int openFlags){
     sqlite3_regexp_init(p->db, 0, 0);
     sqlite3_ieee_init(p->db, 0, 0);
     sqlite3_series_init(p->db, 0, 0);
-#if SQLITE_SHELL_HAVE_RECOVER
-    sqlite3_dbdata_init(p->db, 0, 0);
-#endif
 #ifndef SQLITE_SHELL_FIDDLE
     sqlite3_fileio_init(p->db, 0, 0);
     sqlite3_completion_init(p->db, 0, 0);
