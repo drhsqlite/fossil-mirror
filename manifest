@@ -1,5 +1,5 @@
-C Add\sa\snote\sthat\scheck-in\scomments\scurrently\sassume\sfossil-wiki\stext\sformat.\sPrompted\sby\s[forum:485ae77a61d04a26\s|\sforum\spost\s485ae77a61d04a26].
-D 2023-05-17T01:55:00.515
+C Update\sanother\spotentially\smisleading\sreference\sto\swiki\sformat\sin\scheck-in\scomments.
+D 2023-05-17T02:01:12.253
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -948,11 +948,11 @@ F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
-F www/wikitheory.wiki bbb8b3a220c90fd0f64b22b600845ccac305cfcf5170616df797e992d140880c
+F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2d5aa8a76fd7cf28089acbea883d4a9af4e277213ed2acf5948c7fe5625e5f5
-R 60685e48a9e259a38017f2d1a4a04735
+P d6de7f2e4273291904c827ffa12bb0f25c417177fa67512b624788df367090f9
+R 2a8ed6f7cf083a85a1fc4dc76fd09800
 U stephan
-Z 705c4bfb0a0de8a3c7ff20c529ecc9f6
+Z 72af2e631bb6d6291dc1894eac514b4b
 # Remove this line to create a well-formed Fossil manifest.
