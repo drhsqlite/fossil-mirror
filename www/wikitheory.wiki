@@ -6,7 +6,8 @@ Fossil uses [/wiki_rules | Fossil wiki markup] and/or
 
    *  Stand-alone wiki pages.
    *  Description and comments in [./bugtheory.wiki | bug reports].
-   *  Check-in comments.
+   *  Check-in comments.  (For historical reasons, these must
+      currently be in fossil-wiki text format.)
    *  [./embeddeddoc.wiki | Embedded documentation] files whose
       name ends in ".wiki" or ".md" or ".markdown".
    *  [./event.wiki | Technical notes].
