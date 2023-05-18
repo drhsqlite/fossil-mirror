@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings.
-D 2023-05-18T03:04:00.797
+C Fix\sanother\scompiler\swarning.
+D 2023-05-18T03:31:43.219
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -393,7 +393,7 @@ F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095
 F src/captcha.c 84d1273bf3610d536520062a669b4e14cf890c53d390b109ee960884a2f7bbbe
 F src/cgi.c 500f7b4dfbe1dd5eb2d91a6c6e7a22632369475b8edfcecbe76728f9ed8ef572
 F src/chat.c eb1bc66e6a6cfbd9e474b3a0764a53098df7af41b7bead4ae92aeca47d57a4b5
-F src/checkin.c d2b2a110c5494e920d0d9745a50b3fe240ddc014cc25a1826b64d408c035df58
+F src/checkin.c 402b1bafd2dac551377fe21a8bd75767c3d269753704098b4fa44d5e6baad64d
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcc5a552fbf4bd6de6ed352c2f8d6634096b10e7e2a2a473997f825ac965c716
-R 3f16843bab987d47560145002f482341
+P 586967ccebf0469ff0467cf91bf27a86b46725957b791ae19ebb7f4b304abe4c
+R 670c6e59afed4e00e802d4dffba80d9d
 U mistachkin
-Z a434e5e21a51a18fd91f316fe9908307
+Z a8591f4eeefc196fd2286f0b01223c9d
 # Remove this line to create a well-formed Fossil manifest.
