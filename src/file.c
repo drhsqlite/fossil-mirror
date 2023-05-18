@@ -2281,6 +2281,49 @@ void file_test_valid_for_windows(void){
 }
 
 /*
+** Returns non-zero if the specified file extension belongs to a Fossil
+** repository file.
+*/
+int file_is_repository_extension(const char *zPath){
+  if( fossil_strcmp(zPath, ".fossil")==0 ) return 1;
+#if USE_SEE
+  if( fossil_strcmp(zPath, ".efossil")==0 ) return 1;
+#endif
+  return 0;
+}
+
+/*
+** Returns non-zero if the specified path appears to match a file extension
+** that should belong to a Fossil repository file.
+*/
+int file_contains_repository_extension(const char *zPath){
+  if( sqlite3_strglob("*.fossil*",zPath)==0 ) return 1;
+#if USE_SEE
+  if( sqlite3_strglob("*.efossil*",zPath)==0 ) return 1;
+#endif
+  return 0;
+}
+
+/*
+** Returns non-zero if the specified path ends with a file extension that
+** should belong to a Fossil repository file.
+*/
+int file_ends_with_repository_extension(const char *zPath, int bQual){
+  if( bQual ){
+    if( sqlite3_strglob("*/*.fossil", zPath)==0 ) return 1;
+#if USE_SEE
+    if( sqlite3_strglob("*/*.efossil", zPath)==0 ) return 1;
+#endif
+  }else{
+    if( sqlite3_strglob("*.fossil", zPath)==0 ) return 1;
+#if USE_SEE
+    if( sqlite3_strglob("*.efossil", zPath)==0 ) return 1;
+#endif
+  }
+  return 0;
+}
+
+/*
 ** Remove surplus "/" characters from the beginning of a full pathname.
 ** Extra leading "/" characters are benign on unix.  But on Windows
 ** machines, they must be removed.  Example:  Convert "/C:/fossil/xyx.fossil"
