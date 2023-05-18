@@ -1,5 +1,5 @@
-C Update\sanother\spotentially\smisleading\sreference\sto\swiki\sformat\sin\scheck-in\scomments.
-D 2023-05-17T02:01:12.253
+C Update\scustom\sMinGW\smakefile.
+D 2023-05-18T01:38:33.710
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -741,7 +741,7 @@ F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882b
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.dmc 01a0d435b6f77213339280e30fd6913e146c1f4e889bacd58854a2c95f27bb61
 F win/Makefile.mingw 94020419f2b67575f076676453f9070f51481bb97e3b54c1b5af14495f02fbac
-F win/Makefile.mingw.mistachkin cd4f520ceeac742e1e835c414d0e23eaa8431cc84814fe245f10a74d20ae9f9a
+F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
 F win/Makefile.msc e333d3c83af75623bd56abcab64ea4a7f83a7b8a2433f557740dc20c22b6bba2
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6de7f2e4273291904c827ffa12bb0f25c417177fa67512b624788df367090f9
-R 2a8ed6f7cf083a85a1fc4dc76fd09800
-U stephan
-Z 72af2e631bb6d6291dc1894eac514b4b
+P 0f6526cbfe16fbcdfca2fec9716bc67aede9764a81fab2203d7fae6da4f72e1a
+R b7047a6c04c8e5b31499c23690bfea6a
+U mistachkin
+Z f55235b74f01c69d2d8236382fadf14f
 # Remove this line to create a well-formed Fossil manifest.
