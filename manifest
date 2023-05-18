@@ -1,5 +1,5 @@
-C Update\scustom\sMinGW\smakefile.
-D 2023-05-18T01:38:33.710
+C Fix\sharmless\scompiler\swarnings.
+D 2023-05-18T03:04:00.797
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/diff.c d263be0b9816c090e5149cafed48cb2b09e76f4ab57defb1d9c1a7b2da1580b7
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c a163407d4ca35f49f3ae66ee18bc70326285da564b0e970d1019a9fc3fe49895
-F src/dispatch.c 4f08108181715925cd45d84fcdc370ca4d5b44fba6f205da5b42bf3785af7174
+F src/dispatch.c 1b0d9e7c1c0412dd9564d99326736b499e5fb2a8a6b48a27bfe537d381eed13c
 F src/doc.c e35673780fbf63eb8fedd9e692dc1ee6ded6a0f555950ffb3c7b9a50e33fed27
 F src/encode.c e1fb0359db29597da230ca637c157666a310426e8e2cf5c5e71c90717537ea51
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f6526cbfe16fbcdfca2fec9716bc67aede9764a81fab2203d7fae6da4f72e1a
-R b7047a6c04c8e5b31499c23690bfea6a
+P fcc5a552fbf4bd6de6ed352c2f8d6634096b10e7e2a2a473997f825ac965c716
+R 3f16843bab987d47560145002f482341
 U mistachkin
-Z f55235b74f01c69d2d8236382fadf14f
+Z a434e5e21a51a18fd91f316fe9908307
 # Remove this line to create a well-formed Fossil manifest.
