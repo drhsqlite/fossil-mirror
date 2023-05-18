@@ -5049,7 +5049,6 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
     }
     if( t->eCode & TP_MONO ){
       pik_append(p, " font-family=\"monospace\"", -1);
-      xtraFontScale *= 1.28;
     }
     if( pObj->color>=0.0 ){
       pik_append_clr(p, " fill=\"", pObj->color, "\"",0);
@@ -8143,4 +8142,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8171 "pikchr.c"
+#line 8170 "pikchr.c"
