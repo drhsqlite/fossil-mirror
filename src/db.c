@@ -1584,8 +1584,8 @@ int db_have_saved_encryption_key(){
 }
 
 /*
-** This function returns non-zero if the specified saved database encryption
-** key is valid.
+** This function returns non-zero if the specified database encryption key
+** is valid.
 */
 int db_is_valid_saved_encryption_key(const char *p, size_t n){
   if( p==0 ) return 0;
@@ -1705,7 +1705,8 @@ static void db_set_saved_encryption_key(
 ** Sets the sets the saved database encryption key to one that gets passed
 ** via the "key" query string parameter.  If the saved database encryption
 ** key has already been set, does nothing.  This web page does not produce
-** any output on success or failure.
+** any output on success or failure.  No permissions are required and none
+** are checked (partially due to lack of encrypted database access).
 **
 ** Query parameters:
 **
@@ -1739,9 +1740,9 @@ void db_set_see_key_page(void){
 /*
 ** WEBPAGE: unsetseekey
 **
-** Unsets the saved database encryption key to zeros.  If the saved database
-** encryption key has already been set, does nothing.  This web page does not
-** produce any output on success or failure.
+** Sets the saved database encryption key to zeros in the current and parent
+** Fossil processes.  This web page does not produce any output on success
+** or failure.  Setup permission is required.
 */
 void db_unset_see_key_page(void){
   PID_T processId;
@@ -1890,7 +1891,7 @@ static void db_write_saved_encryption_key_to_process(
 }
 
 /*
-** This function zero the saved database encryption key in the specified
+** This function zeros the saved database encryption key in the specified
 ** Fossil parent process.  This is only necessary (or functional) on
 ** Windows or Linux.
 */
