@@ -1861,7 +1861,7 @@ static void db_write_saved_encryption_key_to_process(
         CloseHandle(hProcess);
         if( nWrite!=nSize ){
           fossil_panic("bad size write, %u out of %u bytes at %p from pid %lu",
-                       nRead, nSize, pAddress, processId);
+                       nWrite, nSize, pAddress, processId);
         }
       }else{
         CloseHandle(hProcess);
@@ -1924,7 +1924,7 @@ static void db_zero_saved_encryption_key_in_process(
         fossil_secure_free_page(p, n);
         if( nWrite!=nSize ){
           fossil_panic("bad size zero, %u out of %u bytes at %p from pid %lu",
-                       nRead, nSize, pAddress, processId);
+                       nWrite, nSize, pAddress, processId);
         }
       }else{
         CloseHandle(hProcess);

@@ -1712,6 +1712,7 @@ static void process_one_web_page(
   ** repository based on the first element of PATH_INFO and open it.
   */
   if( !g.repositoryOpen ){
+    char zBuf[24];
     const char *zRepoExt = ".fossil";
     char *zRepo;               /* Candidate repository name */
     char *zToFree = 0;         /* Malloced memory that needs to be freed */
@@ -1792,7 +1793,6 @@ static void process_one_web_page(
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         szFile = file_size(zCleanRepo, ExtFILE);
         if( g.fHttpTrace ){
-          char zBuf[24];
           sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
           @ <!-- file_size(%h(zCleanRepo)) is %s(zBuf) -->
           fprintf(stderr, "# file_size(%s) = %s\n", zCleanRepo, zBuf);
@@ -1898,12 +1898,19 @@ static void process_one_web_page(
     zPathInfo += i;
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
 #if USE_SEE
-    if( strcmp(zPathInfo,"/setseekey")==0
-     && strcmp(zRepoExt,".efossil")==0
-     && !db_have_saved_encryption_key() ){
-      db_set_see_key_page();
-      cgi_reply();
-      fossil_exit(0);
+    if( zPathInfo ){
+      if( g.fHttpTrace ){
+        sqlite3_snprintf(sizeof(zBuf), zBuf, "%d", i);
+        @ <!-- see_path_info(%s(zBuf)) is %h(zPathInfo) -->
+        fprintf(stderr, "# see_path_info(%d) = %s\n", i, zPathInfo);
+      }
+      if( strcmp(zPathInfo,"/setseekey")==0
+       && strcmp(zRepoExt,".efossil")==0
+       && !db_have_saved_encryption_key() ){
+        db_set_see_key_page();
+        cgi_reply();
+        fossil_exit(0);
+      }
     }
 #endif
     db_open_repository(file_cleanup_fullpath(zRepo));
