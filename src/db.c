@@ -1717,7 +1717,7 @@ void db_set_see_key_page(void){
   Blob key;
   const char *zKey;
   if( db_have_saved_encryption_key() ){
-    fossil_errorlog("SEE: encryption key was already set\n");
+    fossil_trace("SEE: encryption key was already set\n");
     return;
   }
   zKey = P("key");
@@ -1729,10 +1729,10 @@ void db_set_see_key_page(void){
     processId = db_maybe_handle_saved_encryption_key_for_process(
       SEE_KEY_WRITE
     );
-    fossil_errorlog("SEE: set encryption key for process %lu, length %u\n",
-                    (unsigned long)processId, blob_size(&key));
+    fossil_trace("SEE: set encryption key for process %lu, length %u\n",
+                 (unsigned long)processId, blob_size(&key));
   }else{
-    fossil_errorlog("SEE: no encryption key specified\n");
+    fossil_trace("SEE: no encryption key specified\n");
   }
   blob_reset(&key);
 }
@@ -1751,8 +1751,8 @@ void db_unset_see_key_page(void){
   processId = db_maybe_handle_saved_encryption_key_for_process(
     SEE_KEY_ZERO
   );
-  fossil_errorlog("SEE: unset encryption key for process %lu\n",
-                  (unsigned long)processId);
+  fossil_trace("SEE: unset encryption key for process %lu\n",
+               (unsigned long)processId);
 }
 
 /*

@@ -1,5 +1,5 @@
-C Some\schanges\sfor\sWindows.
-D 2023-05-20T00:25:37.206
+C Fixes\sto\stracing.
+D 2023-05-20T01:53:14.677
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/content.c 8aa7c10aedf440d3205d9614fa73aff492d725a6c44a1ea60d64fbbd499c2e15
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 8fb644d120f53b8a0e6c03adf06b1e11b11e92b4498efc6a9e454c80fcc6b16e
+F src/db.c d90934db0af9fb28e7a1a86c96040090bb5efe595feff54acfdc18aeb6be1cbe
 F src/default.css 686748203d09a80b55c72a94a8dd66e05648b1f24ddb8fe5850c2fc673cee171
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 11edf9d3d870b246ee7315f5f2fe62a1e7ca4f5093a6b07b6ed1adeb3f36574e
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ff19a468d762ebf5c8123b7bf29081ee4137fd83b87aa756feb9434532c8bad
-R bce889df9ae05eefaa713accecbac9be
+P 119f97133522f661dcac7d5a846e7bd29b211c56677f032a218ebbcf142db3b1
+R 85596e2c3dd61374fd97da873cd54327
 U mistachkin
-Z aff10ae43d3af1b678f08b96f17faedd
+Z c99f584179d434f39fa0c6e5c2f525ff
 # Remove this line to create a well-formed Fossil manifest.
