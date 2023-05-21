@@ -63,7 +63,7 @@ enum {
 ** the command-line to that table.  If directories are named, then add
 ** all unmanaged files contained underneath those directories.  If there
 ** are no files or directories named on the command-line, then add all
-** unmanaged files anywhere in the checkout.
+** unmanaged files anywhere in the check-out.
 **
 ** This routine never follows symlinks.  It always treats symlinks as
 ** object unto themselves.
@@ -200,7 +200,7 @@ static void status_report(
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
 
-  /* Bind the checkout version ID to the query if needed. */
+  /* Bind the check-out version ID to the query if needed. */
   if( (flags & C_ALL) && (flags & C_MTIME) ){
     db_bind_int(&q, ":vid", db_lget_int("checkout", 0));
   }
@@ -369,7 +369,7 @@ static int determine_cwd_relative_option()
 **
 ** Usage: %fossil changes|status ?OPTIONS? ?PATHS ...?
 **
-** Report the change status of files in the current checkout.  If one or
+** Report the change status of files in the current check-out.  If one or
 ** more PATHS are specified, only changes among the named files and
 ** directories are reported.  Directories are searched recursively.
 **
@@ -387,7 +387,7 @@ static int determine_cwd_relative_option()
 ** can be overridden by using one or more filter options (listed below),
 ** in which case only files with the specified change type(s) are shown.
 ** As a special case, the --no-merge option does not inhibit this default.
-** This default shows exactly the set of changes that would be checked
+** This default shows exactly the set of changes that would be checked-
 ** in by the commit command.
 **
 ** If no filter options are used, or if the --merge option is used, the
@@ -411,7 +411,7 @@ static int determine_cwd_relative_option()
 ** used to display the union of --edited and --updated.
 **
 ** --differ is so named because it lists all the differences between the
-** checked-out version and the checkout directory.  In addition to the
+** checked-out version and the check-out directory.  In addition to the
 ** default changes (excluding --merge), it lists extra files which (if
 ** ignore-glob is set correctly) may be worth adding.  Prior to doing a
 ** commit, it is good practice to check --differ to see not only which
@@ -423,37 +423,37 @@ static int determine_cwd_relative_option()
 ** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
 ** General options:
-**    --abs-paths       Display absolute pathnames.
+**    --abs-paths       Display absolute pathnames
 **    --rel-paths       Display pathnames relative to the current working
-**                      directory.
+**                      directory
 **    --hash            Verify file status using hashing rather than
-**                      relying on file mtimes.
-**    --case-sensitive BOOL  Override case-sensitive setting.
-**    --dotfiles        Include unmanaged files beginning with a dot.
-**    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
+**                      relying on file mtimes
+**    --case-sensitive BOOL  Override case-sensitive setting
+**    --dotfiles        Include unmanaged files beginning with a dot
+**    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns
 **
 ** Options specific to the changes command:
-**    --header          Identify the repository if report is non-empty.
-**    -v|--verbose      Say "(none)" if the change report is empty.
-**    --classify        Start each line with the file's change type.
-**    --no-classify     Do not print file change types.
+**    --header          Identify the repository if report is non-empty
+**    -v|--verbose      Say "(none)" if the change report is empty
+**    --classify        Start each line with the file's change type
+**    --no-classify     Do not print file change types
 **
 ** Filter options:
-**    --edited          Display edited, merged, and conflicted files.
-**    --updated         Display files updated by merge/integrate.
-**    --changed         Combination of the above two options.
-**    --missing         Display missing files.
-**    --added           Display added files.
-**    --deleted         Display deleted files.
-**    --renamed         Display renamed files.
-**    --conflict        Display files having merge conflicts.
-**    --meta            Display files with metadata changes.
-**    --unchanged       Display unchanged files.
-**    --all             Display all managed files, i.e. all of the above.
-**    --extra           Display unmanaged files.
-**    --differ          Display modified and extra files.
-**    --merge           Display merge contributors.
-**    --no-merge        Do not display merge contributors.
+**    --edited          Display edited, merged, and conflicted files
+**    --updated         Display files updated by merge/integrate
+**    --changed         Combination of the above two options
+**    --missing         Display missing files
+**    --added           Display added files
+**    --deleted         Display deleted files
+**    --renamed         Display renamed files
+**    --conflict        Display files having merge conflicts
+**    --meta            Display files with metadata changes
+**    --unchanged       Display unchanged files
+**    --all             Display all managed files, i.e. all of the above
+**    --extra           Display unmanaged files
+**    --differ          Display modified and extra files
+**    --merge           Display merge contributors
+**    --no-merge        Do not display merge contributors
 **
 ** See also: [[extras]], [[ls]]
 */
@@ -519,10 +519,10 @@ void status_cmd(void){
     }
   }
 
-  /* Confirm current working directory is within checkout. */
+  /* Confirm current working directory is within check-out. */
   db_must_be_within_tree();
 
-  /* Get checkout version. l*/
+  /* Get check-out version. l*/
   vid = db_lget_int("checkout", 0);
 
   /* Relative path flag determination is done by a shared function. */
@@ -664,7 +664,7 @@ static void ls_cmd_rev(
 **
 ** Usage: %fossil ls ?OPTIONS? ?PATHS ...?
 **
-** List all files in the current checkout.  If PATHS is included, only the
+** List all files in the current check-out.  If PATHS is included, only the
 ** named files (or their children if directories) are shown.
 **
 ** The ls command is essentially two related commands in one, depending on
@@ -685,13 +685,13 @@ static void ls_cmd_rev(
 ** are used, -t sorts by modification time, otherwise by commit time.
 **
 ** Options:
-**   --age                 Show when each file was committed.
-**   -v|--verbose          Provide extra information about each file.
-**   -t                    Sort output in time order.
-**   -r VERSION            The specific check-in to list.
-**   -R|--repository REPO  Extract info from repository REPO.
+**   --age                 Show when each file was committed
+**   -v|--verbose          Provide extra information about each file
+**   -t                    Sort output in time order
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
 **   --hash                With -v, verify file status using hashing
-**                         rather than relying on file sizes and mtimes.
+**                         rather than relying on file sizes and mtimes
 **
 ** See also: [[changes]], [[extras]], [[status]]
 */
@@ -829,7 +829,7 @@ void ls_cmd(void){
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of the
-** current checkout. See also the "clean" command. If paths are specified,
+** current check-out. See also the "clean" command. If paths are specified,
 ** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
@@ -898,7 +898,7 @@ void extras_cmd(void){
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are files
-** that are not officially part of the checkout.  If one or more PATH
+** that are not officially part of the check-out.  If one or more PATH
 ** arguments appear, then only the files named, or files contained with
 ** directories named, will be removed.
 **
@@ -927,7 +927,7 @@ void extras_cmd(void){
 ** care should be exercised when using the --verily option.
 **
 ** Options:
-**    --allckouts            Check for empty directories within any checkouts
+**    --allckouts            Check for empty directories within any check-outs
 **                           that may be nested within the current one.  This
 **                           option should be used with great care because the
 **                           empty-dirs setting (and other applicable settings)
@@ -1517,9 +1517,9 @@ int select_commit_files(void){
 }
 
 /*
-** Returns true if the checkin identified by the first parameter is
+** Returns true if the check-in identified by the first parameter is
 ** older than the given (valid) date/time string, else returns false.
-** Also returns true if rid does not refer to a checkin, but it is not
+** Also returns true if rid does not refer to a check-in, but it is not
 ** intended to be used for that case.
 */
 int checkin_is_younger(
@@ -1643,7 +1643,7 @@ static void create_manifest(
       vid, vid);
     if( !zParentUuid ){
       fossil_fatal("Could not find a valid check-in for RID %d. "
-                   "Possible checkout/repo mismatch.", vid);
+                   "Possible check-out/repo mismatch.", vid);
     }
   }
   if( pBaseline ){
@@ -1771,9 +1771,8 @@ static void create_manifest(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCherrypickUuid = db_column_text(&q, 0);
     int mid = db_column_int(&q, 1);
-    if( mid != vid ){
-      blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
-    }
+    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
   }
   db_finalize(&q);
 
@@ -1872,6 +1871,8 @@ static int commit_warning(
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
   int fHasInvalidUtf8 = 0;/* contains invalid UTF-8 */
+  int fHasNul;            /* contains NUL chars? */
+  int fHasLong;           /* overly long line? */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1891,9 +1892,11 @@ static int commit_warning(
     fBinary = (lookFlags & LOOK_BINARY);
     fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
     fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
+    fHasNul = (lookFlags & LOOK_NUL);
+    fHasLong = (lookFlags & LOOK_LONG);
   }else{
     fUnicode = fHasAnyCr = fBinary = fHasInvalidUtf8 = 0;
-    fHasLoneCrOnly = fHasCrLfOnly = 0;
+    fHasLoneCrOnly = fHasCrLfOnly = fHasNul = fHasLong = 0;
   }
   if( !sizeOk || fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
     const char *zWarning = 0;
@@ -1904,8 +1907,6 @@ static int commit_warning(
     char cReply;
 
     if( fBinary ){
-      int fHasNul = (lookFlags & LOOK_NUL); /* contains NUL chars? */
-      int fHasLong = (lookFlags & LOOK_LONG); /* overly long line? */
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
@@ -2025,7 +2026,7 @@ static int commit_warning(
 **
 ** Usage: %fossil test-commit-warning ?OPTIONS?
 **
-** Check each file in the checkout, including unmodified ones, using all
+** Check each file in the check-out, including unmodified ones, using all
 ** the pre-commit checks.
 **
 ** Options:
@@ -2100,7 +2101,7 @@ static int tagCmp(const void *a, const void *b){
 **    or: %fossil ci ?OPTIONS? ?FILE...?
 **
 ** Create a new version containing all of the changes in the current
-** checkout.  You will be prompted to enter a check-in comment unless
+** check-out.  You will be prompted to enter a check-in comment unless
 ** the comment has been specified on the command-line using "-m" or a
 ** file containing the comment using -M.  The editor defined in the
 ** "editor" fossil option (see %fossil help set) will be used, or from
@@ -2151,42 +2152,42 @@ static int tagCmp(const void *a, const void *b){
 ** artifact hash rather than just checking for changes to its size or mtime.
 **
 ** Options:
-**    --allow-conflict           allow unresolved merge conflicts
-**    --allow-empty              allow a commit with no changes
-**    --allow-fork               allow the commit to fork
-**    --allow-older              allow a commit older than its ancestor
-**    --baseline                 use a baseline manifest in the commit process
-**    --bgcolor COLOR            apply COLOR to this one check-in only
-**    --branch NEW-BRANCH-NAME   check in to this new branch
-**    --branchcolor COLOR        apply given COLOR to the branch
+**    --allow-conflict           Allow unresolved merge conflicts
+**    --allow-empty              Allow a commit with no changes
+**    --allow-fork               Allow the commit to fork
+**    --allow-older              Allow a commit older than its ancestor
+**    --baseline                 Use a baseline manifest in the commit process
+**    --bgcolor COLOR            Apply COLOR to this one check-in only
+**    --branch NEW-BRANCH-NAME   Check in to this new branch
+**    --branchcolor COLOR        Apply given COLOR to the branch
 **                                 ("auto" lets Fossil choose it automatically,
 **                                  even for private branches)
-**    --close                    close the branch being committed
+**    --close                    Close the branch being committed
 **    --date-override DATETIME   DATE to use instead of 'now'
-**    --delta                    use a delta manifest in the commit process
-**    --hash                     verify file status using hashing rather
+**    --delta                    Use a delta manifest in the commit process
+**    --hash                     Verify file status using hashing rather
 **                               than relying on file mtimes
 **    --ignore-clock-skew        If a clock skew is detected, ignore it and
 **                               behave as if the user had entered 'yes' to
 **                               the question of whether to proceed despite
 **                               the skew.
 **    --ignore-oversize          Do not warning the user about oversized files
-**    --integrate                close all merged-in branches
-**    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
-**    -M|--message-file FILE     read the commit comment from given file
-**    --mimetype MIMETYPE        mimetype of check-in comment
+**    --integrate                Close all merged-in branches
+**    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as commit comment
+**    -M|--message-file FILE     Read the commit comment from given file
+**    --mimetype MIMETYPE        Mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
 **    -v|--verbose               Show a diff in the commit message prompt
 **    --no-prompt                This option disables prompting the user for
 **                               input and assumes an answer of 'No' for every
 **                               question.
-**    --no-warnings              omit all warnings about file contents
-**    --no-verify                do not run before-commit hooks
-**    --nosign                   do not attempt to sign this commit with gpg
-**    --override-lock            allow a check-in even though parent is locked
-**    --private                  do not sync changes and their descendants
-**    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --trace                    debug tracing.
+**    --no-warnings              Omit all warnings about file contents
+**    --no-verify                Do not run before-commit hooks
+**    --nosign                   Do not attempt to sign this commit with gpg
+**    --override-lock            Allow a check-in even though parent is locked
+**    --private                  Do not sync changes and their descendants
+**    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
+**    --trace                    Debug tracing
 **    --user-override USER       USER to use instead of the current default
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
@@ -2255,6 +2256,10 @@ void commit_cmd(void){
   privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
+  db_must_be_within_tree();
+  if( db_get_boolean("dont-commit",0) ){
+    fossil_fatal("committing is prohibited: the 'dont-commit' option is set");
+  }
   if( forceDelta ){
     if( forceBaseline ){
       fossil_fatal("cannot use --delta and --baseline together");
@@ -2299,7 +2304,6 @@ void commit_cmd(void){
   zComFile = find_option("message-file", "M", 1);
   sCiInfo.zDateOvrd = find_option("date-override",0,1);
   sCiInfo.zUserOvrd = find_option("user-override",0,1);
-  db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
@@ -2407,7 +2411,7 @@ void commit_cmd(void){
 
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
-  ** in the checked out directory are committed. If one or more arguments
+  ** in the checked-out directory are committed. If one or more arguments
   ** follows "commit", then only those files are committed.
   **
   ** After the following function call has returned, the Global.aCommitFile[]
@@ -2828,7 +2832,7 @@ void commit_cmd(void){
     vfile_aggregate_checksum_repository(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
       vfile_compare_repository_to_disk(nvid);
-      fossil_fatal("working checkout does not match what would have ended "
+      fossil_fatal("working check-out does not match what would have ended "
                    "up in the repository:  %b versus %b",
                    &cksum1, &cksum2);
     }
@@ -2841,14 +2845,14 @@ void commit_cmd(void){
     }
     if( blob_compare(&cksum1, &cksum2) ){
       fossil_fatal(
-         "working checkout does not match manifest after commit: "
+         "working check-out does not match manifest after commit: "
          "%b versus %b", &cksum1, &cksum2);
     }
 
     /* Verify that the commit did not modify any disk images. */
     vfile_aggregate_checksum_disk(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
-      fossil_fatal("working checkout before and after commit does not match");
+      fossil_fatal("working check-out before and after commit does not match");
     }
   }
 

@@ -96,13 +96,15 @@
 ** or cookie "x", or NULL if there is no such parameter or cookie.  PD("x","y")
 ** does the same except "y" is returned in place of NULL if there is not match.
 */
-#define P(x)        cgi_parameter((x),0)
-#define PD(x,y)     cgi_parameter((x),(y))
-#define PT(x)       cgi_parameter_trimmed((x),0)
-#define PDT(x,y)    cgi_parameter_trimmed((x),(y))
-#define PB(x)       cgi_parameter_boolean(x)
-#define PCK(x)      cgi_parameter_checked(x,1)
-#define PIF(x,y)    cgi_parameter_checked(x,y)
+#define P(x)          cgi_parameter((x),0)
+#define PD(x,y)       cgi_parameter((x),(y))
+#define PT(x)         cgi_parameter_trimmed((x),0)
+#define PDT(x,y)      cgi_parameter_trimmed((x),(y))
+#define PB(x)         cgi_parameter_boolean(x)
+#define PCK(x)        cgi_parameter_checked(x,1)
+#define PIF(x,y)      cgi_parameter_checked(x,y)
+#define P_NoBot(x)    cgi_parameter_nosql((x),0)
+#define PD_NoBot(x,y) cgi_parameter_nosql((x),(y))
 
 /*
 ** Shortcut for the cgi_printf() routine.  Instead of using the
@@ -682,6 +684,22 @@ const char *cgi_referer(const char *zDefault){
   return zRef;
 }
 
+
+/*
+** Return true if the current request is coming from the same origin.
+*/
+int cgi_same_origin(void){
+  const char *zRef;
+  int nBase;
+  if( g.zBaseURL==0 ) return 0;
+  zRef = P("HTTP_REFERER");
+  if( zRef==0 ) return 0;
+  nBase = (int)strlen(g.zBaseURL);
+  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
+  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
+  return 1;
+}
+
 /*
 ** Return true if the current request appears to be safe from a
 ** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
@@ -691,18 +709,12 @@ const char *cgi_referer(const char *zDefault){
 **    *   The REQUEST_METHOD must be POST - or requirePost==0
 */
 int cgi_csrf_safe(int requirePost){
-  const char *zRef = P("HTTP_REFERER");
-  int nBase;
-  if( zRef==0 ) return 0;
   if( requirePost ){
     const char *zMethod = P("REQUEST_METHOD");
     if( zMethod==0 ) return 0;
     if( strcmp(zMethod,"POST")!=0 ) return 0;
   }
-  nBase = (int)strlen(g.zBaseURL);
-  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
-  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
-  return 1;
+  return cgi_same_origin();
 }
 
 /*
@@ -1201,11 +1213,15 @@ int cgi_setup_query_string(void){
     z = fossil_strdup(z);
     add_param_list(z, '&');
     z = (char*)P("skin");
-    if(z){
+    if( z ){
       char *zErr = skin_use_alternative(z, 2);
       ++rc;
-      if(!zErr && !P("once")){
+      if( !zErr && P("once")==0 ){
         cookie_write_parameter("skin","skin",z);
+        /* Per /chat discussion, passing ?skin=... without "once"
+        ** implies the "udc" argument, so we force that into the
+        ** environment here. */
+        cgi_set_parameter_nocopy("udc", "1", 1);
       }
       fossil_free(zErr);
     }
@@ -1494,6 +1510,62 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 }
 
 /*
+** Renders the "begone, spider" page and exits.
+*/
+static void cgi_begone_spider(void){
+  Blob content = empty_blob;
+
+  cgi_set_content(&content);
+  style_set_current_feature("test");
+  style_header("Malicious Query Detected");
+  @ <h2>Begone, Fiend!</h2>
+  @ <p>This page was generated because Fossil believes it has
+  @ detected an SQL injection attack. If you believe you are seeing
+  @ this in error, contact the developers on the Fossil-SCM Forum.  Type
+  @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
+  style_finish_page();
+  cgi_set_status(404,"Robot Attack Detected");
+  cgi_reply();
+  exit(0);
+}
+
+/*
+** If looks_like_sql_injection() returns true for the given string, calls
+** cgi_begone_spider() and does not return, else this function has no
+** side effects. The range of checks performed by this function may
+** be extended in the future.
+**
+** Checks are omitted for any logged-in user.
+**
+** This is NOT a defense against SQL injection.  Fossil should easily be
+** proof against SQL injection without this routine.  Rather, this is an
+** attempt to avoid denial-of-service caused by persistent spiders that hammer
+** the server with dozens or hundreds of SQL injection attempts per second
+** against pages (such as /vdiff) that are expensive to compute.  In other
+** words, this is an effort to reduce the CPU load imposed by malicious
+** spiders.  It is not an effect defense against SQL injection vulnerabilities.
+*/
+void cgi_value_spider_check(const char *zTxt){
+  if( g.zLogin==0 && looks_like_sql_injection(zTxt) ){
+    cgi_begone_spider();
+  }
+}
+
+/*
+** A variant of cgi_parameter() with the same semantics except that if
+** cgi_parameter(zName,zDefault) returns a value other than zDefault
+** then it passes that value to cgi_value_spider_check().
+*/
+const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
+  const char *zTxt = cgi_parameter(zName, zDefault);
+
+  if( zTxt!=zDefault ){
+    cgi_value_spider_check(zTxt);
+  }
+  return zTxt;
+}
+
+/*
 ** Return the value of the first defined query parameter or cookie whose
 ** name appears in the list of arguments.  Or if no parameter is found,
 ** return NULL.
@@ -1677,7 +1749,7 @@ void cgi_print_all(int showAll, unsigned int eDest){
     }
     switch( eDest ){
       case 0: {
-        cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+        cgi_printf("%h = %h  <br>\n", zName, aParamQP[i].zValue);
         break;
       }
       case 1: {  
@@ -1982,6 +2054,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }else if( fossil_strcmp(zFieldName,"authorization:")==0 ){
       cgi_setenv("HTTP_AUTHORIZATION", zVal);
+    }else if( fossil_strcmp(zFieldName,"accept-language:")==0 ){
+      cgi_setenv("HTTP_ACCEPT_LANGUAGE", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){
@@ -2330,7 +2404,7 @@ int cgi_http_server(
     inaddr.sin_family = AF_INET;
     if( zIpAddr ){
       inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-      if( inaddr.sin_addr.s_addr == (-1) ){
+      if( inaddr.sin_addr.s_addr == INADDR_NONE ){
         fossil_fatal("not a valid IP address: %s", zIpAddr);
       }
     }else if( flags & HTTP_SERVER_LOCALHOST ){

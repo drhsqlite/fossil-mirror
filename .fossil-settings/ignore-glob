@@ -1,5 +1,7 @@
 compat/openssl*
 compat/tcl*
+compat/zlib/contrib/ada/*
+compat/zlib/doc/*
 fossil
 fossil.exe
 win/fossil.exe

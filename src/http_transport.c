@@ -84,7 +84,7 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 static int is_safe_fossil_command(const char *zFossil){
   static const char *const azSafe[] = { "*/fossil", "*/fossil.exe", "*/echo" };
   int i;
-  for(i=0; i<sizeof(azSafe)/sizeof(azSafe[0]); i++){
+  for(i=0; i<(int)(sizeof(azSafe)/sizeof(azSafe[0])); i++){
     if( sqlite3_strglob(azSafe[i], zFossil)==0 ) return 1;
     if( strcmp(azSafe[i]+2, zFossil)==0 ) return 1;
   }
@@ -119,7 +119,8 @@ int transport_ssh_open(UrlData *pUrlData){
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
 
-  socket_ssh_resolve_addr(pUrlData);
+  fossil_free(g.zIpAddr);
+  g.zIpAddr = mprintf("%s", pUrlData->name);
   transport_ssh_command(&zCmd);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
     blob_appendf(&zCmd, " -p %d", pUrlData->port);

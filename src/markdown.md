@@ -157,7 +157,7 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 <a id="ftnts"></a>
 ## Footnotes ##
 
-> Footnotes (or "endnotes") is a Fossil's extention of classical Markdown.
+> Footnotes (or "endnotes") is a Fossil extension of classical Markdown.
 > Fossil's syntax for footnotes is similar to links and
 > is distinguished by the use of character **^**
 > that *immediately* follows an opening bracket.

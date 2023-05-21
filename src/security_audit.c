@@ -102,8 +102,9 @@ void secaudit0_page(void){
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
+  Blob cmd;
   char *z;
-  int n;
+  int n, i;
   CapabilityString *pCap;
   char **azCSP;              /* Parsed content security policy */
 
@@ -275,6 +276,35 @@ void secaudit0_page(void){
     @ -DFOSSIL_ENABLE_TH1_DOCS flag, and/or clear the th1-docs setting
     @ and ensure that the TH1_ENABLE_DOCS environment variable does not
     @ exist in the environment.</p>
+  }
+#endif
+
+#if FOSSIL_ENABLE_TCL
+  @ <li><p>
+  if( db_get_boolean("tcl",0) ){
+    #ifdef FOSSIL_ENABLE_TH1_DOCS
+      if( Th_AreDocsEnabled() ){
+        @ <b>DANGER:</b>
+      }else{
+        @ <b>WARNING:</b>
+      }
+    #else
+      @ <b>WARNING:</b>
+    #endif
+    @ This server is compiled with -DFOSSIL_ENABLE_TCL and Tcl integration
+    @ is enabled for this repository.  Anyone who can execute malicious
+    @ TH1 script on that server can also execute arbitrary Tcl script
+    @ under the identity of the operating system process of that server.
+    @ This is a serious security concern.</p>
+    @
+    @ <p>Disable Tcl integration by recompiling Fossil without the
+    @ -DFOSSIL_ENABLE_TCL flag, and/or clear the 'tcl' setting.</p>
+  }else{
+    @ This server is compiled with -DFOSSIL_ENABLE_TCL. Tcl integration
+    @ is disabled for this particular repository, so you are safe for
+    @ now.  However, to prevent potential problems caused by accidentally
+    @ enabling Tcl integration in the future, it is recommended that you
+    @ recompile Fossil without the -DFOSSIL_ENABLE_TCL flag.</p>
   }
 #endif
 
@@ -665,6 +695,17 @@ void secaudit0_page(void){
     @ </li>
   }
 
+  blob_init(&cmd, 0, 0);
+  for(i=0; g.argvOrig[i]!=0; i++){
+    blob_append_escaped_arg(&cmd, g.argvOrig[i], 0);
+  }
+  @ <li><p>
+  @ The command that generated this page:
+  @ <blockquote>
+  @ <tt>%h(blob_str(&cmd))</tt>
+  @ </blockquote></li>
+  blob_zero(&cmd);
+
   @ </ol>
   style_finish_page();
 }
@@ -734,6 +775,10 @@ void errorlog_page(void){
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <p>To create a server error log:
     @ <ol>

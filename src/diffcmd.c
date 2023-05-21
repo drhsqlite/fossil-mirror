@@ -370,7 +370,7 @@ void diff_begin(DiffConfig *pCfg){
     tempDiffFilename = sqlite3_mprintf("%z.html", tempDiffFilename);
     diffOut = fossil_freopen(tempDiffFilename,"wb",stdout);
     if( diffOut==0 ){
-      fossil_fatal("unable to create temporary file \"%s\"", 
+      fossil_fatal("unable to create temporary file \"%s\"",
                    tempDiffFilename);
     }
 #ifndef _WIN32
@@ -1029,7 +1029,7 @@ const char *diff_get_binary_glob(void){
 ** Usage: %fossil diff|gdiff ?OPTIONS? ?FILE1? ?FILE2 ...?
 **
 ** Show the difference between the current version of each of the FILEs
-** specified (as they exist on disk) and that same file as it was checked
+** specified (as they exist on disk) and that same file as it was checked-
 ** out.  Or if the FILE arguments are omitted, show all unsaved changes
 ** currently in the working check-out.
 **
@@ -1044,7 +1044,7 @@ const char *diff_get_binary_glob(void){
 **    --webpage         Format output as HTML
 **    --webpage -y      HTML output in the side-by-side format
 **
-** The "--from VERSION" option is used it specifies the source check-in
+** The "--from VERSION" option is used to specify the source check-in
 ** for the diff operation.  If not specified, the source check-in is the
 ** base check-in for the current check-out. Similarly, the "--to VERSION"
 ** option specifies the check-in from which the second version of the file
@@ -1053,7 +1053,7 @@ const char *diff_get_binary_glob(void){
 ** shows the changes made by check-in VERSION relative to its primary parent.
 ** The "--branch BRANCHNAME" shows all the changes on the branch BRANCHNAME.
 **
-** The "-i" command-line option forces the use of Fossils own the internal
+** The "-i" command-line option forces the use of Fossil's own internal
 ** diff logic rather than any external diff program that might be configured
 ** using the "setting" command.  If no external diff program is configured,
 ** then the "-i" option is a no-op.  The "-i" option converts "gdiff" into
@@ -1063,8 +1063,8 @@ const char *diff_get_binary_glob(void){
 ** when using an external diff program.
 **
 ** The "--binary" option causes files matching the glob PATTERN to be treated
-** as binary when considering if they should be used with external diff program.
-** This option overrides the "binary-glob" setting.
+** as binary when considering if they should be used with the external diff
+** program.  This option overrides the "binary-glob" setting.
 **
 ** These command show differences between managed files. Use the "fossil xdiff"
 ** command to see differences in unmanaged files.
@@ -1078,7 +1078,8 @@ const char *diff_get_binary_glob(void){
 **   --by                        Shorthand for "--browser -y"
 **   -ci|--checkin VERSION       Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
-**   -c|--context N              Show N lines of context around each change
+**   -c|--context N              Show N lines of context around each change, with
+**                               negative N meaning show all content
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
@@ -1087,7 +1088,7 @@ const char *diff_get_binary_glob(void){
 **   -i|--internal               Use internal diff logic
 **   --json                      Output formatted as JSON
 **   -N|--new-file               Alias for --verbose
-**   --numstat                   Show only the number of lines delete and added
+**   --numstat                   Show only the number of added and deleted lines
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
 **   --tcl                       TCL-formated output used internally by --tk
@@ -1137,10 +1138,14 @@ void diff_cmd(void){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
   g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
-  if( zTo==0 || againstUndo ){
-    db_must_be_within_tree();
-  }else if( zFrom==0 ){
-    fossil_fatal("must use --from if --to is present");
+  if( 0==zCheckin ){
+    if( zTo==0 || againstUndo ){
+      db_must_be_within_tree();
+    }else if( zFrom==0 ){
+      fossil_fatal("must use --from if --to is present");
+    }else{
+      db_find_and_open_repository(0, 0);
+    }
   }else{
     db_find_and_open_repository(0, 0);
   }

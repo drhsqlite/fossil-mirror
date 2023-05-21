@@ -248,6 +248,8 @@ static int sqlcmd_autoinit(
                             sqlcmd_db_protect, 0, 0);
     sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
                             sqlcmd_db_protect_pop, 0, 0);
+    sqlite3_create_function(db, "shared_secret", 2, SQLITE_UTF8, 0,
+                            sha1_shared_secret_sql_function, 0, 0);
   }
   return SQLITE_OK;
 }
@@ -332,15 +334,11 @@ static void fossil_close(int bDb, int noRepository){
 ** --readonly option to prevent accidental damage to the repository.
 **
 ** Options:
-**
-**    --no-repository           Skip opening the repository database.
-**
+**    --no-repository           Skip opening the repository database
 **    --readonly                Open the repository read-only.  No changes
 **                              are allowed.  This is a recommended safety
 **                              precaution to prevent repository damage.
-**
 **    -R REPOSITORY             Use REPOSITORY as the repository database
-**
 **    --test                    Enable some testing and analysis features
 **                              that are normally disabled.
 **

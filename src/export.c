@@ -460,7 +460,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 ** interchange format supported, though other formats may be added in
 ** the future.
 **
-** Run this command within a checkout.  Or use the -R or --repository
+** Run this command within a check-out.  Or use the -R or --repository
 ** option to specify a Fossil repository to be exported.
 **
 ** Only check-ins are exported using --git.  Git does not support tickets
@@ -1562,7 +1562,8 @@ void gitmirror_export_command(void){
     " WHERE type='ci'"
     "   AND mtime>coalesce((SELECT value FROM mconfig WHERE key='start'),0.0)"
     "   AND blob.rid=event.objid"
-    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark WHERE NOT isfile);"
+    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark WHERE NOT isfile)"
+    "   AND NOT EXISTS (SELECT 1 FROM private WHERE rid=blob.rid);"
   );
   nTotal = db_int(0, "SELECT count(*) FROM tomirror");
   if( nLimit<nTotal ){
@@ -1826,7 +1827,7 @@ void gitmirror_status_command(void){
 **       already exist.  If the Git repository does already exist, then
 **       new content added to fossil since the previous export is appended.
 **
-**       Repeat this command whenever new checkins are added to the Fossil
+**       Repeat this command whenever new check-ins are added to the Fossil
 **       repository in order to reflect those changes into the mirror.  If
 **       the MIRROR option is omitted, the repository from the previous
 **       invocation is used.
@@ -1843,9 +1844,9 @@ void gitmirror_status_command(void){
 **                             to the same repository.  Or if URL is "off" the
 **                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
-**                             piping it into "git fast-import".
+**                             piping it into "git fast-import"
 **         -f|--force          Do the export even if nothing has changed
-**         --if-mirrored       No-op if the mirror does not already exist.
+**         --if-mirrored       No-op if the mirror does not already exist
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
 **         --mainbranch NAME   Use NAME as the name of the main branch in Git.
@@ -1853,7 +1854,7 @@ void gitmirror_status_command(void){
 **                             mapped into this name.  "master" is used if
 **                             this option is omitted.
 **         -q|--quiet          Reduce output. Repeat for even less output.
-**         -v|--verbose        More output.
+**         -v|--verbose        More output
 **
 ** > fossil git import MIRROR
 **
@@ -1869,7 +1870,7 @@ void gitmirror_command(void){
   char *zCmd;
   int nCmd;
   if( g.argc<3 ){
-    usage("export ARGS...");
+    usage("SUBCOMMAND ...");
   }
   zCmd =  g.argv[2];
   nCmd = (int)strlen(zCmd);

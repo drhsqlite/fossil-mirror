@@ -45,7 +45,6 @@ static struct BuiltinSkin {
   { "Ardoise",                           "ardoise",           0 },
   { "Black & White",                     "black_and_white",   0 },
   { "Blitz",                             "blitz",             0 },
-  { "Bootstrap",                         "bootstrap",         0 },
   { "Dark Mode",                         "darkmode",          0 },
   { "Eagle",                             "eagle",             0 },
   { "Khaki",                             "khaki",             0 },
@@ -541,9 +540,9 @@ void setup_skin_admin(void){
       @ <form action="%R/setup_skin_admin" method="post"><div>
       @ <p>Deletion of a custom skin is a permanent action that cannot
       @ be undone.  Please confirm that this is what you want to do:</p>
-      @ <input type="hidden" name="sn" value="%h(P("sn"))" />
-      @ <input type="submit" name="del2" value="Confirm - Delete The Skin" />
-      @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
+      @ <input type="hidden" name="sn" value="%h(P("sn"))">
+      @ <input type="submit" name="del2" value="Confirm - Delete The Skin">
+      @ <input type="submit" name="cancel" value="Cancel - Do Not Delete">
       login_insert_csrf_secret();
       @ </div></form>
       style_finish_page();
@@ -629,8 +628,8 @@ void setup_skin_admin(void){
       seenCurrent = 1;
     }else{
       @ <form action="%R/setup_skin_admin" method="post">
-      @ <input type="hidden" name="sn" value="%h(z)" />
-      @ <input type="submit" name="load" value="Install" />
+      @ <input type="hidden" name="sn" value="%h(z)">
+      @ <input type="submit" name="load" value="Install">
       if( pAltSkin==&aBuiltinSkin[i] ){
         @ (Current override)
       }
@@ -861,18 +860,18 @@ void setup_skinedit(void){
   }
   @ <textarea name="%s(zFile)" rows="10" cols="80">\
   @ %h(zContent)</textarea>
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <br>
+  @ <input type="submit" name="submit" value="Apply Changes">
   if( isRevert ){
     @ &larr; Press to complete reversion to "%s(zBasis)"
   }else if( fossil_strcmp(zContent,zDflt)!=0 ){
-    @ <input type="submit" name="revert" value='Revert To "%s(zBasis)"' />
+    @ <input type="submit" name="revert" value='Revert To "%s(zBasis)"'>
   }
-  @ <hr />
+  @ <hr>
   @ Baseline: \
   skin_emit_skin_selector("basis", zBasis, zDraft);
-  @ <input type="submit" name="diff" value="Unified Diff" />
-  @ <input type="submit" name="sbsdiff" value="Side-by-Side Diff" />
+  @ <input type="submit" name="diff" value="Unified Diff">
+  @ <input type="submit" name="sbsdiff" value="Side-by-Side Diff">
   if( P("diff")!=0 || P("sbsdiff")!=0 ){
     Blob from, to, out;
     DiffConfig DCfg;

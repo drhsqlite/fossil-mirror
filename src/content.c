@@ -322,7 +322,7 @@ int content_get(int rid, Blob *pBlob){
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
 ** Extract an artifact by its artifact hash and write the results on
-** standard output, or if the optional 4th argument is given, in
+** standard output, or if the optional second argument is given, in
 ** the named output file.
 **
 ** Options:
@@ -816,7 +816,8 @@ void content_make_private(int rid){
 ** resulting delta does not achieve a compression of at least 25%
 ** the rid is left untouched.
 **
-** Return 1 if a delta is made and 0 if no delta occurs.
+** Return the number of bytes by which the storage associated with rid
+** is reduced.  A return of 0 means no new deltification occurs.
 */
 int content_deltify(int rid, int *aSrc, int nSrc, int force){
   int s;
@@ -905,13 +906,14 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, bestSrc);
     db_bind_blob(&s1, ":data", &bestDelta);
     db_begin_transaction();
+    rc = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", rid);
     db_exec(&s1);
     db_exec(&s2);
     db_end_transaction(0);
     db_finalize(&s1);
     db_finalize(&s2);
     verify_before_commit(rid);
-    rc = 1;
+    rc -= blob_size(&bestDelta);
   }
   blob_reset(&data);
   blob_reset(&bestDelta);
@@ -959,13 +961,10 @@ static int looks_like_control_artifact(Blob *p){
 ** successfully reconstructed using "fossil rebuild".
 **
 ** Options:
-**
 **    -d|--db-only       Run "PRAGMA integrity_check" on the database only.
 **                       No other validation is performed.
-**
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
-**
 **    -q|--quick         Run "PRAGMA quick_check" on the database only.
 **                       No other validation is performed.
 */
@@ -1032,7 +1031,7 @@ void test_integrity(void){
       continue;  /* Ignore phantoms */
     }
     content_get(rid, &content);
-    if( blob_size(&content)!=size ){
+    if( (int)blob_size(&content)!=size ){
       fossil_print("size mismatch on artifact %d: wanted %d but got %d\n",
                      rid, size, blob_size(&content));
       nErr++;
@@ -1051,7 +1050,7 @@ void test_integrity(void){
 
       z = blob_buffer(&content);
       n = blob_size(&content);
-      for(i=0; i<n && z[i] && z[i]!='\n' && i<sizeof(zFirstLine)-1; i++){}
+      for(i=0; i<n && z[i] && z[i]!='\n' && i<(int)sizeof(zFirstLine)-1; i++){}
       memcpy(zFirstLine, z, i);
       zFirstLine[i] = 0;
       p = manifest_parse(&content, 0, &err);
@@ -1199,7 +1198,6 @@ static int check_exists(
 ** that are missing or shunned.
 **
 ** Options:
-**
 **    --notshunned          Do not report shunned artifacts
 **    --quiet               Only show output if there are errors
 */

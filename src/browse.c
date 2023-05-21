@@ -662,7 +662,6 @@ void page_tree(void){
   double rNow = 0;
   char *zNow = 0;
   int useMtime = atoi(PD("mtime","0"));
-  int nFile = 0;           /* Number of files (or folders with "nofiles") */
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
@@ -804,7 +803,6 @@ void page_tree(void){
       }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
       tree_add_node(&sTree, zFile, zUuid, mtime);
-      nFile++;
     }
     db_finalize(&q);
   }else{
@@ -826,16 +824,12 @@ void page_tree(void){
       }
       if( pRE && re_match(pRE, (const u8*)zName, -1)==0 ) continue;
       tree_add_node(&sTree, zName, zUuid, mtime);
-      nFile++;
     }
     db_finalize(&q);
   }
   style_submenu_checkbox("nofiles", "Folders Only", 0, 0);
 
   if( showDirOnly ){
-    for(nFile=0, p=sTree.pFirst; p; p=p->pNext){
-      if( p->pChild!=0 && p->nFullName>nD ) nFile++;
-    }
     zObjType = "Folders";
   }else{
     zObjType = "Files";
@@ -902,7 +896,7 @@ void page_tree(void){
   for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
     const char *zLastClass = p->pSibling==0 ? " last" : "";
     if( p->pChild ){
-      const char *zSubdirClass = p->nFullName==nD-1 ? " subdir" : "";
+      const char *zSubdirClass = (int)(p->nFullName)==nD-1 ? " subdir" : "";
       @ <li class="dir%s(zSubdirClass)%s(zLastClass)"><div class="filetreeline">
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
       if( p->mtime>0.0 ){
@@ -910,7 +904,7 @@ void page_tree(void){
         @ <div class="filetreeage">%s(zAge)</div>
       }
       @ </div>
-      if( startExpanded || p->nFullName<=nD ){
+      if( startExpanded || (int)(p->nFullName)<=nD ){
         @ <ul id="dir%d(nDir)">
       }else{
         @ <ul id="dir%d(nDir)" class="collapsed">
@@ -1172,9 +1166,9 @@ void fileage_page(void){
       @ %z(href("%R/file?name=%T&ci=%!S",zFile,zUuid))%h(zFile)</a> \
       if( showId ){
         int fid = db_column_int(&q2,1);
-        @ (%d(fid))<br />
+        @ (%d(fid))<br>
       }else{
-        @ </a><br />
+        @ </a><br>
       }
     }
     db_reset(&q2);

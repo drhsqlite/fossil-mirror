@@ -469,9 +469,9 @@ static int wiki_page_header(
       if( zExtra[0]==0 && !P("p") ){
         cgi_redirectf("%R/info/%s",zPageName);
       }else{
-        style_header("Notes About Checkin %S", zPageName);
-        style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
-        style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+        style_header("Notes About Check-in %S", zPageName);
+        style_submenu_element("Check-in Timeline","%R/timeline?f=%s", zPageName);
+        style_submenu_element("Check-in Info","%R/info/%s", zPageName);
       }
       break;
     }
@@ -614,7 +614,7 @@ void wiki_page(void){
   }
   manifest_destroy(pWiki);
   if( !isPopup ){
-    char * zLabel = mprintf("<hr /><h2><a href='%R/attachlist?name=%T'>"
+    char * zLabel = mprintf("<hr><h2><a href='%R/attachlist?name=%T'>"
                             "Attachments</a>:</h2><ul>",
                             zPageName);
     attachment_list(zPageName, zLabel);
@@ -648,11 +648,14 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
 
 /*
 ** Output a selection box from which the user can select the
-** wiki mimetype.
+** wiki mimetype.  Arguments:
+**
+**     zMimetype      -     The current value of the query parameter
+**     zParam         -     The name of the query parameter
 */
-void mimetype_option_menu(const char *zMimetype){
+void mimetype_option_menu(const char *zMimetype, const char *zParam){
   unsigned i;
-  @ <select name="mimetype" size="1">
+  @ <select name="%s(zParam)" size="1">
   for(i=0; i<count(azStyles); i+=3){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
@@ -1132,7 +1135,7 @@ static void wiki_ajax_route_preview(void){
 ** { name: string, version: string or null of sandbox box,
 **   parent: uuid or null for first version or sandbox,
 **   mimetype: string,
-**   type: string (normal, branch, tag, checkin, or sandbox)
+**   type: string (normal, branch, tag, check-in, or sandbox)
 ** }
 **
 ** If includeContent is true, the object contains a "content" member
@@ -1336,7 +1339,7 @@ void wikiedit_page(void){
        "wikiedit-options flex-container flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
        "<label>Mime type</label>");
-    mimetype_option_menu("text/x-markdown");
+    mimetype_option_menu("text/x-markdown", "mimetype");
     CX("</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
@@ -1535,10 +1538,10 @@ void wikinew_page(void){
   well_formed_wiki_name_rules();
   form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
-  @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
+  @ <input style="width: 35;" type="text" name="name" value="%h(zName)"><br>
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu("text/x-markdown");
-  @ <br /><input type="submit" value="Create" />
+  mimetype_option_menu("text/x-markdown", "mimetype");
+  @ <br><input type="submit" value="Create">
   @ </p></form>
   if( zName[0] ){
     @ <p><span class="wikiError">
@@ -1562,12 +1565,12 @@ static void appendRemark(Blob *p, const char *zMimetype){
   zUser = PD("u",g.zLogin);
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-    blob_appendf(p, "\n\n<hr /><div id=\"%s\"><i>On %s UTC %h",
+    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
       zId, zDate, login_name());
     if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
     }
-    blob_appendf(p, " added:</i><br />\n%s</div id=\"%s\">", zRemark, zId);
+    blob_appendf(p, " added:</i><br>\n%s</div id=\"%s\">", zRemark, zId);
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
     blob_appendf(p, "\n\n------\n*On %s UTC %h", zDate, login_name());
     if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
@@ -1684,27 +1687,27 @@ void wikiappend_page(void){
     Blob preview;
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
-    @ Preview:<hr />
+    @ Preview:<hr>
     safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&preview, zMimetype);
-    @ <hr />
+    @ <hr>
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
   form_begin(0, "%R/wikiappend");
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <input type="hidden" name="mimetype" value="%h(zMimetype)" />
+  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
   @ Your Name:
-  @ <input type="text" name="u" size="20" value="%h(zUser)" /><br />
+  @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
   zFormat = mimetype_common_name(zMimetype);
-  @ Comment to append (formatted as %s(zFormat)):<br />
+  @ Comment to append (formatted as %s(zFormat)):<br>
   @ <textarea name="r" class="wikiedit" cols="80"
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
-  @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Comment" />
-  @ <input type="submit" name="submit" value="Append Your Changes" />
-  @ <input type="submit" name="cancel" value="Cancel" />
+  @ <br>
+  @ <input type="submit" name="preview" value="Preview Your Comment">
+  @ <input type="submit" name="submit" value="Append Your Changes">
+  @ <input type="submit" name="cancel" value="Cancel">
   captcha_generate(0);
   @ </form>
   manifest_destroy(pWiki);
@@ -1749,8 +1752,8 @@ void whistory_page(void){
   );
   @ <h2>History of <a href="%R/wiki?name=%T(zPageName)">%h(zPageName)</a></h2>
   form_begin( "id='wh-form'", "%R/wdiff" );
-  @   <input id="wh-pid" name="pid" type="radio" hidden />
-  @   <input id="wh-id"  name="id"  type="hidden" />
+  @   <input id="wh-pid" name="pid" type="radio" hidden>
+  @   <input id="wh-id"  name="id"  type="hidden">
   @ </form>
   @ <style> .wh-clickable { cursor: pointer; } </style>
   @ <div class="brlist">
@@ -1789,7 +1792,7 @@ void whistory_page(void){
     fossil_free(zAge);
     @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td>
     @ <td><input disabled type="radio" name="baseline" value="%S(zUuid)"/></td>
-    @ <td>%h(zUser)<span class="wh-iterations" hidden /></td>
+    @ <td>%h(zUser)<span class="wh-iterations" hidden></td>
     if( showRid ){
       @ <td>%z(href("%R/artifact/%S",zUuid))%d(wrid)</a></td>
     }
@@ -1869,9 +1872,7 @@ void wdiff_page(void){
   construct_diff_flags(1, &DCfg);
   DCfg.diffFlags |= DIFF_HTML | DIFF_LINENO;
   text_diff(&w2, &w1, &d, &DCfg);
-  @ <pre class="udiff">
   @ %s(blob_str(&d))
-  @ <pre>
   manifest_destroy(pW1);
   manifest_destroy(pW2);
   style_finish_page();
@@ -1919,7 +1920,7 @@ void wcontent_page(void){
   double rNow;
   int showAll = P("all")!=0;
   int showRid = P("showid")!=0;
-  int showCkBr = P("showckbr")!=0;
+  int showCkBr;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1930,7 +1931,14 @@ void wcontent_page(void){
   }else{
     style_submenu_element("All", "%R/wcontent?all=1");
   }
-  style_submenu_checkbox("showckbr", "Show associated wikis", 0, 0);
+  showCkBr = db_exists(
+    "SELECT tag.tagname AS tn FROM tag JOIN tagxref USING(tagid) "
+    "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' ) "
+    "  AND TYPEOF(tagxref.value+0)='integer'" );
+  if( showCkBr ){
+    showCkBr = P("showckbr")!=0;
+    style_submenu_checkbox("showckbr", "Show associated wikis", 0, 0);
+  }
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   db_prepare(&q, listAllWikiPages/*works-like:""*/);
   @ <div class="brlist">
@@ -1954,15 +1962,15 @@ void wcontent_page(void){
     int wcnt = db_column_int(&q, 4);
     char *zWDisplayName;
 
+    if( !showCkBr &&
+        (sqlite3_strglob("checkin/*", zWName)==0 ||
+         sqlite3_strglob("branch/*", zWName)==0) ){
+      continue;
+    }
     if( sqlite3_strglob("checkin/*", zWName)==0 ){
       zWDisplayName = mprintf("%.25s...", zWName);
     }else{
       zWDisplayName = mprintf("%s", zWName);
-    }
-    if( !showCkBr && 
-        (sqlite3_strglob("checkin/*", zWName)==0 ||
-         sqlite3_strglob("branch/*", zWName)==0) ){
-      continue;
     }
     if( wrid==0 ){
       if( !showAll ) continue;
@@ -2498,7 +2506,7 @@ static void wiki_section_label(
   if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
     @ <div class="section accordion">About</div>
   }else if( zPrefix[0]=='c' ){  /* checkin/... */
-    @ <div class="section accordion">About checkin %.20h(zName)</div>
+    @ <div class="section accordion">About check-in %.20h(zName)</div>
   }else{
     @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
   }

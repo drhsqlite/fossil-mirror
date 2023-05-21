@@ -428,7 +428,7 @@ void pikchrshow_page(void){
       CX("<div class='center'><strong>Initializing app...</strong></div>");
       CX("<div class='center'>");
         CX("On a slow internet connection this may take a moment.  If this ");
-        CX("message displays for \"a long time\", intialization may have ");
+        CX("message displays for \"a long time\", initialization may have ");
         CX("failed and the JavaScript console may contain clues as to why. ");
       CX("</div>");
       CX("<div><a href='?legacy'>Switch to legacy mode</a></div>");
@@ -527,21 +527,20 @@ void pikchrshow_page(void){
 ** streams.
 **
 ** Options:
-**
 **    -div       On success, add a DIV wrapper around the
 **               resulting SVG output which limits its max-width to
-**               its computed maximum ideal size.
+**               its computed maximum ideal size
 **
-**    -div-indent  Like -div but indent the div.
+**    -div-indent  Like -div but indent the div
 **
-**    -div-center  Like -div but center the div.
+**    -div-center  Like -div but center the div
 **
-**    -div-left    Like -div but float the div left.
+**    -div-left    Like -div but float the div left
 **
-**    -div-right   Like -div but float the div right.
+**    -div-right   Like -div but float the div right
 **
 **    -div-toggle  Set the 'toggle' CSS class on the div (used by the
-**                 JavaScript-side post-processor).
+**                 JavaScript-side post-processor)
 **
 **    -div-source  Set the 'source' CSS class on the div, which tells
 **                 CSS to hide the SVG and reveal the source by default.
@@ -551,7 +550,7 @@ void pikchrshow_page(void){
 **               by -div-source.
 **                
 **
-**    -th        Process the input using TH1 before passing it to pikchr.
+**    -th        Process the input using TH1 before passing it to pikchr
 **
 **    -th-novar  Disable $var and $<var> TH1 processing. Use this if the
 **               pikchr script uses '$' for its own purposes and that
@@ -559,9 +558,9 @@ void pikchrshow_page(void){
 **               of TH1 script blocks. Code in such blocks is unaffected.
 **
 **    -th-nosvg  When using -th, output the post-TH1'd script
-**               instead of the pikchr-rendered output.
+**               instead of the pikchr-rendered output
 **
-**    -th-trace  Trace TH1 execution (for debugging purposes).
+**    -th-trace  Trace TH1 execution (for debugging purposes)
 **
 **
 ** The -div-indent/center/left/right flags may not be combined.
@@ -569,7 +568,7 @@ void pikchrshow_page(void){
 ** TH1-related Notes and Caveats:
 **
 ** If the -th flag is used, this command must open a fossil database
-** for certain functionality to work (via a checkout or the -R REPO
+** for certain functionality to work (via a check-out or the -R REPO
 ** flag). If opening a db fails, execution will continue but any TH1
 ** commands which require a db will trigger a fatal error.
 **

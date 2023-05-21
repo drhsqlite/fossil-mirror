@@ -14,7 +14,8 @@ to ensure that (in the limit) all participating peers see the same content.
 Fossil does not require a server, but a server can be very useful.
 Here are a few reasons to set up a Fossil server for your project:
 
-  1.  <b>A server works as a complete project website.</b><p>
+  1.  <b>A server works as a complete project website.</b>
+
       Fossil does more than just version control.  It also supports
       [../tickets.wiki|trouble-tickets], 
       [../wikitheory.wiki|wiki], 
@@ -25,7 +26,8 @@ Here are a few reasons to set up a Fossil server for your project:
       to host builds and downloads on the project website.
 
   2.  <b>A server gives developers a common point of rendezvous for
-      syncing their work.</b><p>
+      syncing their work.</b>
+
       It is possible for developers to synchronize peer-to-peer but
       that requires the developers coordinate the sync, which in turn
       requires that the developers both want to sync at the same moment.
@@ -36,13 +38,15 @@ Here are a few reasons to set up a Fossil server for your project:
       in sync with each other without having to interrupt each other
       constantly to set up a peer-to-peer sync.
 
-  3.  <b>A server provides project leaders with up-to-date status.</b><p>
+  3.  <b>A server provides project leaders with up-to-date status.</b>
+
       Project coordinators and BDFLs can click on a link or two at the
       central Fossil server for a project and quickly tell what is
       going on.  They can do this from anywhere — even from their phones
       — without needing to actually sync to the device they are using.
 
-  4.  <b>A server provides automatic off-site backups.</b><p>
+  4.  <b>A server provides automatic off-site backups.</b>
+
       A Fossil server is an automatic remote backup for all the work
       going into a project. ([../backup.md | Within limits].)
       You can even set up multiple servers at
@@ -51,34 +55,40 @@ Here are a few reasons to set up a Fossil server for your project:
       to a single machine failure.
 
   5.  <b>A server consolidates [https://www.sqlite.org/howtocorrupt.html
-      | SQLite corruption risk mitigation] to a single point.</b><p>
+      | SQLite corruption risk mitigation] to a single point.</b>
+
       The concerns in section 1 of that document assume you have direct
       access to the central DB files, which isn't the case when the
-      server is remote and secure against tampering.<p>
+      server is remote and secure against tampering.
+
       Section 2 is about file locking, which concerns disappear when Fossil's
       on the other side of an HTTP boundary and your server is set up
-      properly.<p>
+      properly.
+
       Sections 3.1, 4 thru 6, and 8 apply to all Fossil configurations,
       but setting up a server lets you address the risks
       in a single place. Once a given commit is
       sync'd to the server, you can be reasonably sure any client-side
       corruption can be fixed with a fresh clone. Ultimately, this
       is an argument for off-machine backups, which returns us to reason
-      #4 above.<p>
+      #4 above.
+
       Sections 3.2 and the entirety of section 7 are no concern with
       Fossil at all, since it's primarily written by the creator and
       primary maintainer of SQLite, so you can be certain Fossil doesn't
-      actively pursue coding strategies known to risk database corruption.<p>
-      <p>For another take on this topic, see the article
+      actively pursue coding strategies known to risk database corruption.
+
+      For another take on this topic, see the article
       "[https://sqlite.org/useovernet.html | SQLite Over a Network,
       Caveats and Considerations]". Fossil runs in rollback mode by
       default per recommendation #3 at the end of that article, and a
       Fossil server operates as a network proxy for the underlying
       SQLite repository DB per recommendation #2. This <i>may</i> permit
       you to safely switch it into WAL mode (<b>fossil rebuild --wal</b>)
-      depending on the underlying storage used by the server itself.</p>
+      depending on the underlying storage used by the server itself.
 
-  6.  <b>A server allows [../caps/ | Fossil's RBAC system] to work.</b><p>
+  6.  <b>A server allows [../caps/ | Fossil's RBAC system] to work.</b>
+
       The role-based access control (RBAC) system in Fossil only works
       when the remote system is on the other side of an HTTP barrier.
       ([../caps/#webonly | Details].) If you want its benefits, you need

@@ -252,8 +252,9 @@ static int contains_whitespace(const char *zName){
 **    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
 **    list | ls              Show all unversioned files held in the local
-**                           repository. Options:
+**                           repository.
 **
+**                           Options:
 **                              --glob PATTERN   Show only files that match
 **                              --like PATTERN   Show only files that match
 **                              -l               Show additional details for
@@ -271,8 +272,9 @@ static int contains_whitespace(const char *zName){
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
 **                           Changes are not pushed to other repositories until
-**                           the next sync.  Options:
+**                           the next sync.
 **
+**                           Options:
 **                              --glob PATTERN   Remove files that match
 **                              --like PATTERN   Remove files that match
 **
@@ -280,6 +282,7 @@ static int contains_whitespace(const char *zName){
 **                           the remote repository URL.  The most recent version
 **                           of each file is propagated to all repositories and
 **                           all prior versions are permanently forgotten.
+**                           The remote account requires the 'y' capability.
 **
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
@@ -288,7 +291,6 @@ static int contains_whitespace(const char *zName){
 **    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
 ** Options:
-**
 **   --mtime TIMESTAMP       Use TIMESTAMP instead of "now" for the "add",
 **                           "edit", "remove", and "touch" subcommands.
 **   -R|--repository REPO    Use FILE as the repository
@@ -465,7 +467,7 @@ void unversioned_cmd(void){
     db_finalize(&q);
     sqlite3_free(zPattern);
   }else if( memcmp(zCmd, "revert", nCmd)==0 ){
-    unsigned syncFlags = 
+    unsigned syncFlags =
         unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";

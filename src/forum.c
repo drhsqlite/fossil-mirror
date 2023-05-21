@@ -507,7 +507,7 @@ static void forum_display_post(
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
         @ By %s(zPosterName) on %h(zDate) edited from \
-        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }else{
         @ Originally by %s(zPosterName) \
@@ -706,8 +706,9 @@ static void forum_display_thread(
     zQuery[i++] = 's';
     zQuery[i++] = 't';
   }
-  assert( i<sizeof(zQuery) );
+  assert( i<(int)sizeof(zQuery) );
   zQuery[i] = 0;
+  assert( zQuery[0]==0 || zQuery[0]=='?' );
 
   /* Identify which post to display first.  If history is shown, start with the
   ** original, unedited post.  Otherwise advance to the post's latest edit.  */
@@ -947,6 +948,21 @@ static int whitespace_only(const char *z){
   return z[0]==0;
 }
 
+/* Flags for use with forum_post() */
+#define FPOST_NO_ALERT 1 /* do not send any alerts */
+
+/*
+** Return a flags value for use with the final argument to
+** forum_post(), extracted from the CGI environment.
+*/
+static int forum_post_flags(void){
+  int iPostFlags = 0;
+  if( g.perm.Debug && P("fpsilent")!=0 ){
+    iPostFlags |= FPOST_NO_ALERT;
+  }
+  return iPostFlags;
+}
+
 /*
 ** Add a new Forum Post artifact to the repository.
 **
@@ -958,7 +974,8 @@ static int forum_post(
   int iEdit,                   /* Post being edited, or zero for a new post */
   const char *zUser,           /* Username.  NULL means use login name */
   const char *zMimetype,       /* Mimetype of content. */
-  const char *zContent         /* Content */
+  const char *zContent,        /* Content */
+  int iFlags                   /* FPOST_xyz flag values */
 ){
   char *zDate;
   char *zI;
@@ -1040,9 +1057,14 @@ static int forum_post(
     blob_reset(&x);
     return 0;
   }else{
-    int nrid = wiki_put(&x, iEdit>0 ? iEdit : 0,
-                        forum_need_moderation());
+    int nrid;
+    db_begin_transaction();
+    nrid = wiki_put(&x, iEdit>0 ? iEdit : 0, forum_need_moderation());
     blob_reset(&x);
+    if( (iFlags & FPOST_NO_ALERT)!=0 ){
+      alert_unqueue('f', nrid);
+    }
+    db_commit_transaction();
     cgi_redirectf("%R/forumpost/%S", rid_to_uuid(nrid));
     return 1;
   }
@@ -1061,7 +1083,7 @@ static void forum_post_widget(
     @ maxlength="125"><br>
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu(zMimetype);
+  mimetype_option_menu(zMimetype, "mimetype");
   @ <br><textarea aria-label="Content:" name="content" class="wikiedit" \
   @ cols="80" rows="25" wrap="virtual">%h(zContent)</textarea><br>
 }
@@ -1137,6 +1159,23 @@ static void forum_from_line(void){
   }
 }
 
+static void forum_render_debug_options(void){
+  if( g.perm.Debug ){
+    /* Give extra control over the post to users with the special
+     * Debug capability, which includes Admin and Setup users */
+    @ <div class="debug">
+    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
+    @ Dry run</label>
+    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
+    @ Require moderator approval</label>
+    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
+    @ Show query parameters</label>
+    @ <br><label><input type="checkbox" name="fpsilent" %s(PCK("fpsilent"))> \
+    @ Do not sent notification emails</label>
+    @ </div>
+  }
+}
+
 /*
 ** WEBPAGE: forume1
 **
@@ -1146,13 +1185,15 @@ void forumnew_page(void){
   const char *zTitle = PDT("title","");
   const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
   const char *zContent = PDT("content","");
+
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
     return;
   }
   if( P("submit") && cgi_csrf_safe(1) ){
-    if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent) ) return;
+    if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent,
+                   forum_post_flags()) ) return;
   }
   if( P("preview") && !whitespace_only(zContent) ){
     @ <h1>Preview:</h1>
@@ -1170,18 +1211,7 @@ void forumnew_page(void){
   }else{
     @ <input type="submit" name="submit" value="Submit" disabled>
   }
-  if( g.perm.Debug ){
-    /* Give extra control over the post to users with the special
-     * Debug capability, which includes Admin and Setup users */
-    @ <div class="debug">
-    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
-    @ Dry run</label>
-    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
-    @ Require moderator approval</label>
-    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
-    @ Show query parameters</label>
-    @ </div>
-  }
+  forum_render_debug_options();
   @ </form>
   forum_emit_js();
   style_finish_page();
@@ -1207,6 +1237,8 @@ void forumedit_page(void){
   const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
+  int bSameUser;        /* True if author is also the reader */
+  int bPrivate;         /* True if post is private (not yet moderated) */
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -1226,8 +1258,11 @@ void forumedit_page(void){
     return;
   }
   isCsrfSafe = cgi_csrf_safe(1);
-  if( g.perm.ModForum && isCsrfSafe ){
-    if( P("approve") ){
+  bPrivate = content_is_private(fpid);
+  bSameUser = login_is_individual()
+    && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+  if( isCsrfSafe && (g.perm.ModForum || (bPrivate && bSameUser)) ){
+    if( g.perm.ModForum && P("approve") ){
       const char *zUserToTrust;
       moderation_approve('f', fpid);
       if( g.perm.AdminForum
@@ -1269,9 +1304,11 @@ void forumedit_page(void){
     int done = 1;
     const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     if( P("reply") ){
-      done = forum_post(0, fpid, 0, 0, zMimetype, zContent);
+      done = forum_post(0, fpid, 0, 0, zMimetype, zContent,
+                        forum_post_flags());
     }else if( P("edit") || isDelete ){
-      done = forum_post(P("title"), 0, fpid, 0, zMimetype, zContent);
+      done = forum_post(P("title"), 0, fpid, 0, zMimetype, zContent,
+                        forum_post_flags());
     }else{
       webpage_error("Missing 'reply' query parameter");
     }
@@ -1325,12 +1362,12 @@ void forumedit_page(void){
     zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     zContent = PDT("content","");
     style_header("Reply");
-    if( pRootPost->zThreadTitle ){
-      @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
-    }
-    @ <h2>Replying To:
+    @ <h2>Replying to
     @ <a href="%R/forumpost/%!S(zFpid)" target="_blank">%S(zFpid)</a>
-    @ <a href="%R/forumpost/%!S(zFpid)?raw" target="_blank">[source]</a>
+    if( pRootPost->zThreadTitle ){
+      @ in thread
+      @ <span class="forumPostReplyTitle">%h(pRootPost->zThreadTitle)</span>
+    }
     @ </h2>
     zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
@@ -1356,17 +1393,7 @@ void forumedit_page(void){
   if( (P("preview") && !whitespace_only(zContent)) || isDelete ){
     @ <input type="submit" name="submit" value="Submit">
   }
-  if( g.perm.Debug ){
-    /* For the test-forumnew page add these extra debugging controls */
-    @ <div class="debug">
-    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
-    @ Dry run</label>
-    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
-    @ Require moderator approval</label>
-    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
-    @ Show query parameters</label>
-    @ </div>
-  }
+  forum_render_debug_options();
   @ </form>
   forum_emit_js();
   style_finish_page();
@@ -1388,9 +1415,11 @@ void forumedit_page(void){
 */
 void forum_main_page(void){
   Stmt q;
-  int iLimit, iOfst, iCnt;
+  int iLimit = 0, iOfst, iCnt;
   int srchFlags;
   const int isSearch = P("s")!=0;
+  char const *zLimit = 0;
+
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
   if( !g.perm.RdForum ){
@@ -1419,7 +1448,20 @@ void forum_main_page(void){
       return;
     }
   }
-  iLimit = atoi(PD("n","25"));
+  cookie_read_parameter("n","forum-n");
+  zLimit = P("n");
+  if( zLimit!=0 ){
+    iLimit = atoi(zLimit);
+    if( iLimit>=0 && P("udc")!=0 ){
+      cookie_write_parameter("n","forum-n",0);
+    }
+  }
+  if( iLimit<=0 ){
+    cgi_replace_query_parameter("n", fossil_strdup("25"))
+      /*for the sake of Max, below*/;
+    iLimit = 25;
+  }
+  style_submenu_entry("n","Max:",4,0);
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
   if( db_table_exists("repository","forumpost") ){

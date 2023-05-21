@@ -113,15 +113,15 @@ void shun_page(void){
       p += strlen(p)+1;
     }
     if( allExist ){
-      @ <p class="noMoreShun">Artifact(s)<br />
+      @ <p class="noMoreShun">Artifact(s)<br>
       for( p = zUuid ; *p ; p += strlen(p)+1 ){
-        @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
+        @ <a href="%R/artifact/%s(p)">%s(p)</a><br>
       }
       @ are no longer being shunned.</p>
     }else{
-      @ <p class="noMoreShun">Artifact(s)<br />
+      @ <p class="noMoreShun">Artifact(s)<br>
       for( p = zUuid ; *p ; p += strlen(p)+1 ){
-        @ %s(p)<br />
+        @ %s(p)<br>
       }
       @ will no longer be shunned.  But they may not exist in the repository.
       @ It may be necessary to rebuild the repository using the
@@ -151,9 +151,9 @@ void shun_page(void){
       admin_log("Shunned %Q", p);
       p += strlen(p)+1;
     }
-    @ <p class="shunned">Artifact(s)<br />
+    @ <p class="shunned">Artifact(s)<br>
     for( p = zUuid ; *p ; p += strlen(p)+1 ){
-      @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
+      @ <a href="%R/artifact/%s(p)">%s(p)</a><br>
     }
     @ have been shunned.  They will no longer be pushed.
     @ They will be removed from the repository the next time the repository
@@ -202,7 +202,7 @@ void shun_page(void){
     }
   }
   @ </textarea>
-  @ <input type="submit" name="add" value="Shun" />
+  @ <input type="submit" name="add" value="Shun">
   @ </div></form>
   @ </blockquote>
   @
@@ -229,7 +229,7 @@ void shun_page(void){
     }
   }
   @ </textarea>
-  @ <input type="submit" name="sub" value="Accept" />
+  @ <input type="submit" name="sub" value="Accept">
   @ </div></form>
   @ </blockquote>
   @
@@ -241,11 +241,11 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="submit" name="rebuild" value="Rebuild" />
+  @ <input type="submit" name="rebuild" value="Rebuild">
   @ </div></form>
   @ </blockquote>
   @
-  @ <hr /><p>Shunned Artifacts:</p>
+  @ <hr><p>Shunned Artifacts:</p>
   @ <blockquote><p>
   db_prepare(&q,
      "SELECT uuid, EXISTS(SELECT 1 FROM blob WHERE blob.uuid=shun.uuid)"
@@ -255,9 +255,9 @@ void shun_page(void){
     int stillExists = db_column_int(&q, 1);
     cnt++;
     if( stillExists ){
-      @ <b><a href="%R/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
+      @ <b><a href="%R/artifact/%s(zUuid)">%s(zUuid)</a></b><br>
     }else{
-      @ <b>%s(zUuid)</b><br />
+      @ <b>%s(zUuid)</b><br>
     }
   }
   if( cnt==0 ){
@@ -318,6 +318,9 @@ void rcvfromlist_page(void){
     return;
   }
   style_header("Artifact Receipts");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Error-Log", "errorlog");
   if( showAll ){
     ofst = 0;
   }else{
@@ -480,7 +483,7 @@ void rcvfrom_page(void){
     }
     cnt++;
     @ <a href="%R/info/%s(zUuid)">%s(zUuid)</a>
-    @ %h(zDesc) (size: %d(size))<br />
+    @ %h(zDesc) (size: %d(size))<br>
   }
   if( cnt>0 ){
     @ <p>
@@ -530,9 +533,9 @@ void rcvfrom_page(void){
       }
       cnt++;
       if( isDeleted ){
-        @ %h(zName) (deleted)<br />
+        @ %h(zName) (deleted)<br>
       }else{
-        @ <a href="%R/uv/%h(zName)">%h(zName)</a> (size: %d(size))<br />
+        @ <a href="%R/uv/%h(zName)">%h(zName)</a> (size: %d(size))<br>
       }
     }
     if( cnt>0 ){

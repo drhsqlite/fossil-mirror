@@ -855,7 +855,7 @@ static int thSplitList(
       nCount++;
     }
   }
-  assert((lenbuf.nBuf/sizeof(int))==nCount);
+  assert((int)(lenbuf.nBuf/sizeof(int))==nCount);
 
   assert((pazElem && panElem) || (!pazElem && !panElem));
   if( pazElem && rc==TH_OK ){
@@ -1270,6 +1270,27 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
   }
 
   return Th_SetResult(interp, pValue->zData, pValue->nData);
+}
+
+/*
+** If interp has a variable with the given name, its value is returned
+** and its length is returned via *nOut if nOut is not NULL.  If
+** interp has no such var then NULL is returned without setting any
+** error state and *nOut, if not NULL, is set to -1. The returned value
+** is owned by the interpreter and may be invalidated the next time
+** the interpreter is modified.
+*/
+const char * Th_MaybeGetVar(Th_Interp *interp, const char *zVarName,
+                            int *nOut){
+  Th_Variable *pValue;
+
+  pValue = thFindValue(interp, zVarName, -1, 0, 0, 1, 0);
+  if( !pValue || !pValue->zData ){
+    if( nOut!=0 ) *nOut = -1;
+    return NULL;
+  }
+  if( nOut!=0 ) *nOut = pValue->nData;
+  return pValue->zData;
 }
 
 /*
@@ -1752,8 +1773,8 @@ int Th_ListAppend(
   Buffer output;
   int i;
 
-  int hasSpecialChar = 0;
-  int hasEscapeChar = 0;
+  int hasSpecialChar = 0;  /* Whitespace or {}[]'" */
+  int hasEscapeChar = 0;   /* '}' without matching '{' to the left or a '\\' */
   int nBrace = 0;
 
   output.zBuf = *pzList;
@@ -1770,9 +1791,18 @@ int Th_ListAppend(
   for(i=0; i<nElem; i++){
     char c = zElem[i];
     if( th_isspecial(c) ) hasSpecialChar = 1;
-    if( c=='\\' ) hasEscapeChar = 1;
+    if( c=='\\' ){ hasEscapeChar = 1; break; }
     if( c=='{' ) nBrace++;
-    if( c=='}' ) nBrace--;
+    if( c=='}' ){
+      if( nBrace==0 ){
+        /* A closing brace that does not have a matching open brace to
+        ** its left needs to be excaped.  See ticket 4d73b4a2258a78e2 */
+        hasEscapeChar = 1;
+        break;
+      }else{
+        nBrace--;
+      }
+    }
   }
 
   if( nElem==0 || (!hasEscapeChar && hasSpecialChar && nBrace==0) ){

@@ -107,7 +107,7 @@ static int client_sync_all_urls(
 **
 **   SYNC_PULL           Pull content from the server to the local repo
 **   SYNC_PUSH           Push content from local up to the server
-**   SYNC_CKIN_LOCK      Take a check-in lock on the current checkout.
+**   SYNC_CKIN_LOCK      Take a check-in lock on the current check-out.
 **   SYNC_VERBOSE        Extra output
 **
 ** Return the number of errors.
@@ -321,7 +321,6 @@ static void process_sync_args(
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Pull from all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -376,7 +375,6 @@ void pull_cmd(void){
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Push to all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -425,7 +423,6 @@ void push_cmd(void){
 ** details on the URL formats.
 **
 ** Options:
-**
 **   --all                      Sync with all remotes, not just the default
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
@@ -514,9 +511,9 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** > fossil remote hyperlink ?FILENAME? ?LINENUM? ?LINENUM?
 **
-**     Print a URL that will access the current checkout on the remote
+**     Print a URL that will access the current check-out on the remote
 **     repository.  Or if the FILENAME argument is included, print the
-**     URL to access that particular file within the current checkout.
+**     URL to access that particular file within the current check-out.
 **     If one or two linenumber arguments are provided after the filename,
 **     then the URL is for the line or range of lines specified.
 **
@@ -548,7 +545,7 @@ void sync_unversioned(unsigned syncFlags){
 ** > fossil remote ui ?FILENAME? ?LINENUM? ?LINENUM?
 **
 **     Bring up a web browser pointing at the remote repository, and
-**     specifically to the page that describes the current checkout
+**     specifically to the page that describes the current check-out
 **     on that remote repository.  Or if FILENAME and/or LINENUM arguments
 **     are provided, to the specific file and range of lines.  This
 **     command is similar to "fossil remote hyperlink" except that instead
@@ -562,7 +559,9 @@ void sync_unversioned(unsigned syncFlags){
 void remote_url_cmd(void){
   char *zUrl, *zArg;
   int nArg;
+  int showPw;
   db_find_and_open_repository(0, 0);
+  showPw = find_option("show-passwords",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -762,24 +761,33 @@ remote_delete_default:
     return;
   }
   if( strncmp(zArg, "config-data", nArg)==0 ){
-    /* Undocumented command:  "fossil remote config-data"
+    /* Undocumented command:  "fossil remote config-data [-show-passwords]"
     **
     ** Show the CONFIG table entries that relate to remembering remote URLs
     */
     Stmt q;
     int n;
+    sqlite3_create_function(g.db, "unobscure", 1, SQLITE_UTF8, &g.db,
+                            db_obscure, 0, 0);
     n = db_int(13,
        "SELECT max(length(name))"
        "  FROM config"
-       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
+       " WHERE name GLOB 'sync-*:*'"
+          " OR name GLOB 'last-sync-*'"
+          " OR name GLOB 'parent-project-*'"
     );
     db_prepare(&q,
-       "SELECT name,"
-       "       CASE WHEN name LIKE '%%sync-pw%%'"
-                  " THEN printf('%%.*c',length(value),'*') ELSE value END"
-       "  FROM config"
-       " WHERE name GLOB 'sync-*:*' OR name GLOB 'last-sync-*'"
-       " ORDER BY name LIKE '%%sync-pw%%', name"
+      "SELECT name,"
+      "  CASE WHEN name NOT LIKE '%%sync-pw%%' AND name<>'parent-project-pw'"
+      "       THEN value"
+      "       WHEN %d THEN unobscure(value)"
+      "       ELSE printf('%%.*c',length(value)/2-1,'*') END"
+      "  FROM config"
+      " WHERE name GLOB 'sync-*:*'"
+         " OR name GLOB 'last-sync-*'"
+         " OR name GLOB 'parent-project-*'"
+      " ORDER BY name LIKE '%%sync-pw%%' OR name='parent-project-pw', name",
+      showPw
     );
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%-*s  %s\n",
@@ -818,11 +826,10 @@ remote_delete_default:
 ** is safe to run "fossil backup" on a repository that is in active use.
 **
 ** Only the main repository database is backed up by this command.  The
-** open checkout file (if any) is not saved.  Nor is the global configuration
+** open check-out file (if any) is not saved.  Nor is the global configuration
 ** database.
 **
 ** Options:
-**
 **    --overwrite              OK to overwrite an existing file
 **    -R NAME                  Filename of the repository to backup
 */

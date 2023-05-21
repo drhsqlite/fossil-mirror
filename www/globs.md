@@ -534,7 +534,9 @@ some of features of `.gitignore` and comments on how they relate to
 Fossil:
 
  *  "A blank line matches no files...": same in Fossil.
- *  "A line starting with # serves as a comment....": not in Fossil.
+ *  "A line starting with # serves as a comment...": same in Fossil, including
+    the possibility of escaping an initial `#` with a backslash to allow globs
+    beginning with a hash.
  *  "Trailing spaces are ignored unless they are quoted..." is similar
     in Fossil. All whitespace before and after a glob is trimmed in
     Fossil unless quoted with single or double quotes. Git uses

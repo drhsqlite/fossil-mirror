@@ -215,7 +215,7 @@ static void comment_print_line(
   assert( indent<sizeof(zBuf)-5 );       /* See following comments to explain */
   assert( origIndent<sizeof(zBuf)-5 );   /* these limits. */
 #endif
-  if( indent>sizeof(zBuf)-6 ){
+  if( indent>(int)sizeof(zBuf)-6 ){
     /* Limit initial indent to fit output buffer. */
     indent = sizeof(zBuf)-6;
   }
@@ -225,7 +225,7 @@ static void comment_print_line(
       zBuf[iBuf++] = ' ';
     }
   }
-  if( origIndent>sizeof(zBuf)-6 ){
+  if( origIndent>(int)sizeof(zBuf)-6 ){
     /* Limit line indent to fit output buffer. */
     origIndent = sizeof(zBuf)-6;
   }
@@ -236,7 +236,7 @@ static void comment_print_line(
     /* Flush the output buffer if there's no space left for at least one more
     ** (potentially 4-byte) UTF-8 sequence, one level of indentation spaces,
     ** a new line, and a terminating NULL. */
-    if( iBuf>sizeof(zBuf)-origIndent-6 ){
+    if( iBuf>(int)sizeof(zBuf)-origIndent-6 ){
       zBuf[iBuf]=0;
       iBuf=0;
       fossil_print("%s", zBuf);
@@ -350,7 +350,7 @@ static int comment_print_legacy(
     maxChars = strlen(zText);
   }
   /* Ensure the buffer can hold the longest-possible UTF-8 sequences. */
-  if( maxChars >= (sizeof(zBuffer)/4-1) ){
+  if( maxChars >= ((int)sizeof(zBuffer)/4-1) ){
     zBuf = fossil_malloc(maxChars*4+1);
   }else{
     zBuf = zBuffer;
@@ -515,10 +515,16 @@ int comment_print(
 */
 int get_comment_format(){
   int comFmtFlags;
+
+  /* We must cache this result, else running the timeline can end up
+  ** querying the comment-format setting from the global db once per
+  ** timeline entry, which brings it to a crawl if that db is
+  ** network-mounted. Discussed in:
+  ** https://fossil-scm.org/forum/forumpost/9aaefe4e536e01bf */
+
   /* The global command-line option is present, or the value has been cached. */
   if( g.comFmtFlags!=COMMENT_PRINT_UNSET ){
-    comFmtFlags = g.comFmtFlags;
-    return comFmtFlags;
+    return g.comFmtFlags;
   }
   /* Load the local (per-repository) or global (all-repositories) value, and use
   ** g.comFmtFlags as a cache. */
@@ -528,8 +534,8 @@ int get_comment_format(){
     return comFmtFlags;
   }
   /* Fallback to the default value. */
-  comFmtFlags = COMMENT_PRINT_DEFAULT;
-  return comFmtFlags;
+  g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+  return g.comFmtFlags;
 }
 
 /*
@@ -542,15 +548,15 @@ int get_comment_format(){
 **
 ** Options:
 **   --file           The comment text is really just a file name to
-**                    read it from.
+**                    read it from
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
-**   --legacy         Use the legacy comment printing algorithm.
-**   --trimcrlf       Enable trimming of leading/trailing CR/LF.
-**   --trimspace      Enable trimming of leading/trailing spaces.
-**   --wordbreak      Attempt to break lines on word boundaries.
+**   --legacy         Use the legacy comment printing algorithm
+**   --trimcrlf       Enable trimming of leading/trailing CR/LF
+**   --trimspace      Enable trimming of leading/trailing spaces
+**   --wordbreak      Attempt to break lines on word boundaries
 **   --origbreak      Attempt to break when the original comment text
-**                    is detected.
+**                    is detected
 **   --indent         Number of spaces to indent (default (-1) is to
 **                    auto-detect).  Zero means no indent.
 **   -W|--width NUM   Width of lines (default (-1) is to auto-detect).

@@ -265,11 +265,12 @@ int foci_register(sqlite3 *db){
     0,                            /* xSync */
     0,                            /* xCommit */
     0,                            /* xRollback */
-    0,                            /* xFindMethod */
+    0,                            /* xFindFunction */
     0,                            /* xRename */
     0,                            /* xSavepoint */
     0,                            /* xRelease */
-    0                             /* xRollbackTo */
+    0,                            /* xRollbackTo */
+    0                             /* xShadowName */
   };
   sqlite3_create_module(db, "files_of_checkin", &foci_module, 0);
   return SQLITE_OK;

@@ -128,6 +128,8 @@ void setup_page(void){
       "Configure the trouble-ticketing system for this repository");
     setup_menu_entry("Wiki", "setup_wiki",
       "Configure the wiki for this repository");
+    setup_menu_entry("Interwiki Map", "intermap",
+      "Mapping keywords for interwiki links");
     setup_menu_entry("Chat", "setup_chat",
       "Configure the chatroom");
   }
@@ -219,7 +221,7 @@ void onoff_attribute(
   if( disabled ){
     @ disabled="disabled" \
   }
-  @ /> <b>%s(zLabel)</b></label>
+  @ > <b>%s(zLabel)</b></label>
 }
 
 /*
@@ -251,7 +253,7 @@ void entry_attribute(
   if( disabled ){
     @ disabled="disabled" \
   }
-  @ /> <b>%s(zLabel)</b>
+  @ > <b>%s(zLabel)</b>
 }
 
 /*
@@ -371,7 +373,7 @@ static void addAutoHyperlinkSettings(void){
   @ <blockquote>
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
                   "auto-hyperlink-delay", "ah-delay", "50", 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Also require a mouse event before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
   @ </blockquote>
@@ -412,11 +414,11 @@ void setup_robots(void){
   @
   @ <form action="%R/setup_robot" method="post"><div>
   login_insert_csrf_secret();
-  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr />
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   addAutoHyperlinkSettings();
-  @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -444,8 +446,8 @@ void setup_access(void){
   db_begin_transaction();
   @ <form action="%R/setup_access" method="post"><div>
   login_insert_csrf_secret();
-  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr />
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   multiple_choice_attribute("Redirect to HTTPS",
      "redirect-to-https", "redirhttps", "0",
      count(azRedirectOpts)/2, azRedirectOpts);
@@ -457,7 +459,7 @@ void setup_access(void){
   @ $secureurl is just an alias for $baseurl.
   @ (Property: "redirect-to-https".  "0" for off, "1" for Login page only,
   @ "2" otherwise.)
-  @ <hr />
+  @ <hr>
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);
   @ <p>When enabled, the password sign-in is always required for
@@ -483,7 +485,7 @@ void setup_access(void){
   @ </ol>
   @ (Property: "localauth")
   @
-  @ <hr />
+  @ <hr>
   onoff_attribute("Enable /test_env",
      "test_env_enable", "test_env_enable", 0, 0);
   @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
@@ -492,7 +494,7 @@ void setup_access(void){
   @ (Property: "test_env_enable")
   @ </p>
   @
-  @ <hr />
+  @ <hr>
   onoff_attribute("Enable /artifact_stats",
      "artifact_stats_enable", "artifact_stats_enable", 0, 0);
   @ <p>When enabled, the %h(g.zBaseURL)/artifact_stats URL is available to all
@@ -501,7 +503,7 @@ void setup_access(void){
   @ (Property: "artifact_stats_enable")
   @ </p>
   @
-  @ <hr />
+  @ <hr>
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0, 0);
   @ <p>When enabled, if the REMOTE_USER environment variable is set to the
@@ -510,7 +512,7 @@ void setup_access(void){
   @ (Property: "remote_user_ok")
   @ </p>
   @
-  @ <hr />
+  @ <hr>
   onoff_attribute("Allow HTTP_AUTHENTICATION authentication",
      "http_authentication_ok", "http_authentication_ok", 0, 0);
   @ <p>When enabled, allow the use of the HTTP_AUTHENTICATION environment
@@ -519,7 +521,7 @@ void setup_access(void){
   @ (Property: "http_authentication_ok")
   @ </p>
   @
-  @ <hr />
+  @ <hr>
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex",
                   "8766", 0);
   @ <p>The number of hours for which a login is valid.  This must be a
@@ -527,7 +529,7 @@ void setup_access(void){
   @ to a year.
   @ (Property: "cookie-expire")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Download packet limit", 10, "max-download", "mxdwn",
                   "5000000", 0);
   @ <p>Fossil tries to limit out-bound sync, clone, and pull packets
@@ -536,7 +538,7 @@ void setup_access(void){
   @ Values below 1 million are not recommended.  5 million is a
   @ reasonable number.  (Property: "max-download")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Download time limit", 11, "max-download-time", "mxdwnt",
                   "30", 0);
 
@@ -547,7 +549,7 @@ void setup_access(void){
   @ (Property: "max-download-time")</p>
 
   @ <a id="slal"></a>
-  @ <hr />
+  @ <hr>
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
                   "0.0", 0);
   @ <p>Some expensive operations (such as computing tarballs, zip archives,
@@ -562,17 +564,17 @@ void setup_access(void){
   /* Add the auto-hyperlink settings controls.  These same controls
   ** are also accessible from the /setup_robot page.
   */
-  @ <hr />
+  @ <hr>
   addAutoHyperlinkSettings();
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Require a CAPTCHA if not logged in",
                   "require-captcha", "reqcapt", 1, 0);
   @ <p>Require a CAPTCHA for edit operations (appending, creating, or
   @ editing wiki or tickets or adding attachments to wiki or tickets)
   @ for users who are not logged in. (Property: "require-captcha")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Public pages", 30, "public-pages",
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
@@ -587,7 +589,7 @@ void setup_access(void){
   @ (Property: "public-pages")
   @ </p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Allow users to register themselves",
                   "self-register", "selfreg", 0, 0);
   @ <p>Allow users to register themselves on the /register webpage.
@@ -596,7 +598,16 @@ void setup_access(void){
   @ enabled.
   @ (Property: "self-register")</p>
 
-  @ <hr />
+  @ <hr>
+  onoff_attribute("Allow users to reset their own passwords",
+                  "self-pw-reset", "selfpw", 0, 0);
+  @ <p>Allow users to request that an email contains a hyperlink to a
+  @ password reset page be sent to their email address of record.  This
+  @ enables forgetful users to recover their forgotten passwords without
+  @ administrator intervention.
+  @ (Property: "self-pw-reset")</p>
+
+  @ <hr>
   onoff_attribute("Email verification required for self-registration",
                   "selfreg-verify", "sfverify", 0, 0);
   @ <p>If enabled, self-registration creates a new entry in the USER table
@@ -606,7 +617,7 @@ void setup_access(void){
   @ email notifications are enabled.
   @ (Property: "selfreg-verify")</p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Allow anonymous subscriptions",
                   "anon-subscribe", "anonsub", 1, 0);
   @ <p>If disabled, email notification subscriptions are only allowed
@@ -614,7 +625,7 @@ void setup_access(void){
   @ page, they are redirected to /register or /login.
   @ (Property: "anon-subscribe")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Authorized subscription email addresses", 35,
                   "auth-sub-email", "asemail", "", 0);
   @ <p>This is a comma-separated list of GLOB patterns that specify
@@ -624,7 +635,7 @@ void setup_access(void){
   @ organization or group based on their email address.
   @ (Property: "auth-sub-email")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Default privileges", 10, "default-perms",
                   "defaultperms", "u", 0);
   @ <p>Permissions given to users that... <ul><li>register themselves using
@@ -636,7 +647,7 @@ void setup_access(void){
   @ (Property: "default-perms")
   @ </p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Show javascript button to fill in CAPTCHA",
                   "auto-captcha", "autocaptcha", 0, 0);
   @ <p>When enabled, a button appears on the login screen for user
@@ -645,8 +656,8 @@ void setup_access(void){
   @ probably secure enough and it is certainly more convenient for
   @ anonymous users.  (Property: "auto-captcha")</p>
 
-  @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -753,7 +764,7 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
-    @ <hr /><h2>Implementation Details</h2>
+    @ <hr><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
     @ <table border='1' class='sortable' data-column-types='ttt' \
@@ -805,16 +816,16 @@ void setup_timeline(void){
   db_begin_transaction();
   @ <form action="%R/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Allow block-markup in timeline",
                   "timeline-block-markup", "tbm", 0, 0);
   @ <p>In timeline displays, check-in comments can be displayed with or
   @ without block markup such as paragraphs, tables, etc.
   @ (Property: "timeline-block-markup")</p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
@@ -822,21 +833,21 @@ void setup_timeline(void){
   @ display formatting features such as fonts and line-wrapping behavior.
   @ (Property: "timeline-plaintext")</p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Truncate comment at first blank line (Git-style)",
                   "timeline-truncate-at-blank", "ttb", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed only through
   @ the first blank line.  This is the traditional way to display comments
   @ in Git repositories (Property: "timeline-truncate-at-blank")</p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Break comments at newline characters",
                   "timeline-hard-newlines", "thnl", 0, 0);
   @ <p>In timeline displays, newline characters in check-in comments force
   @ a line break on the display.
   @ (Property: "timeline-hard-newlines")</p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
@@ -857,20 +868,20 @@ void setup_timeline(void){
   }
   @ <p>(Property: "timeline-utc")
 
-  @ <hr />
+  @ <hr>
   multiple_choice_attribute("Style", "timeline-default-style",
             "tdss", "0", N_TIMELINE_VIEW_STYLE, timeline_view_styles);
   @ <p>The default timeline viewing style, for when the user has not
   @ specified an alternative.  (Property: "timeline-default-style")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Default Number Of Rows", 6, "timeline-default-length",
                   "tldl", "50", 0);
   @ <p>The maximum number of rows to show on a timeline in the absence
   @ of a user display preference cookie setting or an explicit n= query
   @ parameter.  (Property: "timeline-default-length")</p>
 
-  @ <hr />
+  @ <hr>
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
@@ -879,14 +890,14 @@ void setup_timeline(void){
   @ the complete date and time is shown on every timeline entry using the
   @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Max timeline comment length", 6,
                   "timeline-max-comment", "tmc", "0", 0);
   @ <p>The maximum length of a comment to be displayed in a timeline.
   @ "0" there is no length limit.
   @ (Property: "timeline-max-comment")</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Tooltip dwell time (milliseconds)", 6,
                   "timeline-dwelltime", "tdt", "100", 0);
   @ <br>
@@ -902,7 +913,7 @@ void setup_timeline(void){
   @ the mouse is clicked elsewhere.<p>
   @ <p>(Properties: "timeline-dwelltime", "timeline-closetime")</p>
 
-  @ <hr />
+  @ <hr>
   onoff_attribute("Timestamp hyperlinks to /info",
                   "timeline-tslink-info", "ttlti", 0, 0);
   @ <p>The hyperlink on the timestamp associated with each timeline entry,
@@ -918,8 +929,8 @@ void setup_timeline(void){
   @ right of the entry.
   @ <p>(Properties: "timeline-tslink-info")
 
-  @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -955,7 +966,7 @@ void setup_settings(void){
   @ by the contents of managed files named
   @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
   @ If the file for a versionable setting exists, the value cannot be
-  @ changed on this screen.</p><hr /><p>
+  @ changed on this screen.</p><hr><p>
   @
   @ <form action="%R/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
@@ -969,13 +980,13 @@ void setup_settings(void){
                       is_truth(pSet->def), hasVersionableValue);
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
-        @  (v)<br />
+        @  (v)<br>
       } else {
-        @ <br />
+        @ <br>
       }
     }
   }
-  @ <br /><input type="submit"  name="submit" value="Apply Changes" />
+  @ <br><input type="submit"  name="submit" value="Apply Changes">
   @ </td><td style="width:50px;"></td><td valign="top">
   @ <table>
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
@@ -1003,14 +1014,14 @@ void setup_settings(void){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
-        @  (v)<br />
+        @  (v)<br>
       } else {
-        @ <br />
+        @ <br>
       }
       textarea_attribute("", /*rows*/ 2, /*cols*/ 35, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       (char*)pSet->def, hasVersionableValue);
-      @<br />
+      @<br>
     }
   }
   @ </td></tr></table>
@@ -1088,20 +1099,20 @@ void setup_config(void){
   db_begin_transaction();
   @ <form action="%R/setup_config" method="post"><div>
   login_insert_csrf_secret();
-  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr />
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   entry_attribute("Project Name", 60, "project-name", "pn", "", 0);
   @ <p>A brief project name so visitors know what this site is about.
   @ The project name will also be used as the RSS feed title.
   @ (Property: "project-name")
   @ </p>
-  @ <hr />
+  @ <hr>
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.
   @ (Property: "project-description")</p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Canonical Server URL", 40, "email-url",
                    "eurl", "", 0);
   @ <p>This is the URL used to access this repository as a server.
@@ -1121,7 +1132,7 @@ void setup_config(void){
   @ If no tarball prefix is specified, then the full Project Name above is used.
   @ (Property: "short-project-name")
   @ </p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
   @ <p>The <a href='%R/download'>/download</a> page is designed to provide
   @ a convenient place for newbies
@@ -1130,7 +1141,7 @@ void setup_config(void){
   @ else (ex: release) to alter the behavior of the /download page.
   @ (Property: "download-tag")
   @ </p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
@@ -1211,8 +1222,8 @@ void setup_config(void){
   @ <p>
   textarea_attribute("Custom Sitemap Entries", 8, 80, 
       "sitemap-extra", "smextra", "", 0);
-  @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -1235,22 +1246,22 @@ void setup_wiki(void){
   db_begin_transaction();
   @ <form action="%R/setup_wiki" method="post"><div>
   login_insert_csrf_secret();
-  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr />
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
                   "wiki-about", "wiki-about", 1, 0);
   @ <p>
   @ Associate wiki pages with branches, tags, or checkins, based on
   @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, checkin
+  @ or "tag/" and which continue with the name of an existing branch, check-in
   @ or tag are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
-  @ <li> <b>checkin/</b><i>full-checkin-hash</i>
+  @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Allow Unsafe HTML In Markdown", 6,
                   "safe-html", "safe-html", "", 0);
   @ <p>Allow "unsafe" HTML (ex: &lt;script&gt;, &lt;form&gt;, etc) to be
@@ -1270,12 +1281,12 @@ void setup_wiki(void){
   @ empty string which means that Fossil never allows Markdown documents
   @ to generate unsafe HTML.
   @ (Property: "safe-html")</p>
-  @ <hr />
+  @ <hr>
   @ The current interwiki tag map is as follows:
   interwiki_append_map_table(cgi_output_blob());
   @ <p>Visit <a href="./intermap">%R/intermap</a> for details or to
   @ modify the interwiki tag map.
-  @ <hr />
+  @ <hr>
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
   @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
@@ -1288,8 +1299,8 @@ void setup_wiki(void){
   @ to trusted users. It should <strong>not</strong> be used on a publicly
   @ editable wiki.</p>
   @ (Property: "wiki-use-html")
-  @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -1319,20 +1330,20 @@ void setup_chat(void){
   db_begin_transaction();
   @ <form action="%R/setup_chat" method="post"><div>
   login_insert_csrf_secret();
-  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr />
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   entry_attribute("Initial Chat History Size", 10,
                   "chat-initial-history", "chatih", "50", 0);
   @ <p>When /chat first starts up, it preloads up to this many historical
   @ messages.
   @ (Property: "chat-initial-history")</p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Minimum Number Of Historical Messages To Retain", 10,
                   "chat-keep-count", "chatkc", "50", 0);
   @ <p>The chat subsystem purges older messages.  But it will always retain
   @ the N most recent messages where N is the value of this setting.
   @ (Property: "chat-keep-count")</p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Maximum Message Age In Days", 10,
                   "chat-keep-days", "chatkd", "7", 0);
   @ <p>Chat message are removed after N days, where N is the value of
@@ -1340,7 +1351,7 @@ void setup_chat(void){
   @ an historical record of chat messages for 12 hours, set this value
   @ to 0.5.
   @ (Property: "chat-keep-days")</p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Chat Polling Timeout", 10,
                   "chat-poll-timeout", "chatpt", "420", 0);
   @ <p>New chat content is downloaded using the "long poll" technique.
@@ -1353,7 +1364,7 @@ void setup_chat(void){
   @ or web-servers with short timeouts.  For best efficiency, this value
   @ should be larger rather than smaller.
   @ (Property: "chat-poll-timeout")</p>
-  @ <hr />
+  @ <hr>
   entry_attribute("Chat Timeline Robot Username", 15,
                   "chat-timeline-user", "chatrobot", "", 0);
   @ <p>If this setting is not an empty string, then any changes that appear
@@ -1361,7 +1372,7 @@ void setup_chat(void){
   @ supplied.  The username does not need to actually exist in the USER table.
   @ Suggested username:  "chat-robot".
   @ (Property: "chat-timeline-user")</p>
-  @ <hr />
+  @ <hr>
 
   multiple_choice_attribute("Alert sound",
      "chat-alert-sound", "snd", azAlerts[0],
@@ -1370,7 +1381,7 @@ void setup_chat(void){
   @ chat message has arrived.
   @ (Property: "chat-alert-sound")</p>
   @ <hr/>
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   @ <script nonce="%h(style_nonce())">
@@ -1403,7 +1414,7 @@ void setup_modreq(void){
   db_begin_transaction();
   @ <form action="%R/setup_modreq" method="post"><div>
   login_insert_csrf_secret();
-  @ <hr />
+  @ <hr>
   onoff_attribute("Moderate ticket changes",
      "modreq-tkt", "modreq-tkt", 0, 0);
   @ <p>When enabled, any change to tickets is subject to the approval
@@ -1414,7 +1425,7 @@ void setup_modreq(void){
   @ a user who has the Mod-Tkt privilege are never subject to
   @ moderation. (Property: "modreq-tkt")
   @
-  @ <hr />
+  @ <hr>
   onoff_attribute("Moderate wiki changes",
      "modreq-wiki", "modreq-wiki", 0, 0);
   @ <p>When enabled, any change to wiki is subject to the approval
@@ -1426,8 +1437,8 @@ void setup_modreq(void){
   @ moderation. (Property: "modreq-wiki")
   @ </p>
 
-  @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -1460,25 +1471,25 @@ void setup_adunit(void){
   style_header("Edit Ad Unit");
   @ <form action="%R/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
-  @ <b>Banner Ad-Unit:</b><br />
+  @ <b>Banner Ad-Unit:</b><br>
  textarea_attribute("", 6, 80, "adunit", "adunit", "", 0);
-  @ <br />
-  @ <b>Right-Column Ad-Unit:</b><br />
+  @ <br>
+  @ <b>Right-Column Ad-Unit:</b><br>
   textarea_attribute("", 6, 80, "adunit-right", "adright", "", 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Omit ads to administrator",
      "adunit-omit-if-admin", "oia", 0, 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Omit ads to logged-in users",
      "adunit-omit-if-user", "oiu", 0, 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Temporarily disable all ads",
      "adunit-disable", "oall", 0, 0);
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Delete Ad-Unit" />
+  @ <br>
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Delete Ad-Unit">
   @ </div></form>
-  @ <hr />
+  @ <hr>
   @ <b>Ad-Unit Notes:</b><ul>
   @ <li>Leave both Ad-Units blank to disable all advertising.
   @ <li>The "Banner Ad-Unit" is used for wide pages.
@@ -1642,8 +1653,8 @@ void setup_logo(void){
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%R/logo/%z(zLogoMtime)" \
-  @ alt="logo" border="1" />
+  @ <blockquote><p>
+  @ <img src="%R/logo/%z(zLogoMtime)" alt="logo" border="1">
   @ </p></blockquote>
   @
   @ <form action="%R/setup_logo" method="post"
@@ -1656,18 +1667,18 @@ void setup_logo(void){
   @ To change the logo image, use the following form:</p>
   login_insert_csrf_secret();
   @ Logo Image file:
-  @ <input type="file" name="logoim" size="60" accept="image/*" />
+  @ <input type="file" name="logoim" size="60" accept="image/*">
   @ <p align="center">
-  @ <input type="submit" name="setlogo" value="Change Logo" />
-  @ <input type="submit" name="clrlogo" value="Revert To Default" /></p>
+  @ <input type="submit" name="setlogo" value="Change Logo">
+  @ <input type="submit" name="clrlogo" value="Revert To Default"></p>
   @ <p>(Properties: "logo-image" and "logo-mimetype")
   @ </div></form>
-  @ <hr />
+  @ <hr>
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
   @ <blockquote><p><img src="%R/background/%z(zBgMtime)" \
-  @ alt="background" border=1 />
+  @ alt="background" border=1>
   @ </p></blockquote>
   @
   @ <form action="%R/setup_logo" method="post"
@@ -1680,18 +1691,18 @@ void setup_logo(void){
   @ To change the background image, use the following form:</p>
   login_insert_csrf_secret();
   @ Background image file:
-  @ <input type="file" name="bgim" size="60" accept="image/*" />
+  @ <input type="file" name="bgim" size="60" accept="image/*">
   @ <p align="center">
-  @ <input type="submit" name="setbg" value="Change Background" />
-  @ <input type="submit" name="clrbg" value="Revert To Default" /></p>
+  @ <input type="submit" name="setbg" value="Change Background">
+  @ <input type="submit" name="clrbg" value="Revert To Default"></p>
   @ </div></form>
   @ <p>(Properties: "background-image" and "background-mimetype")
-  @ <hr />
+  @ <hr>
   @
   @ <p>The current icon image has a MIME-Type of <b>%h(zIconMime)</b>
   @ and looks like this:</p>
   @ <blockquote><p><img src="%R/favicon.ico/%z(zIconMtime)" \
-  @ alt="icon" border=1 />
+  @ alt="icon" border=1>
   @ </p></blockquote>
   @
   @ <form action="%R/setup_logo" method="post"
@@ -1704,13 +1715,13 @@ void setup_logo(void){
   @ To change the icon image, use the following form:</p>
   login_insert_csrf_secret();
   @ Icon image file:
-  @ <input type="file" name="iconim" size="60" accept="image/*" />
+  @ <input type="file" name="iconim" size="60" accept="image/*">
   @ <p align="center">
-  @ <input type="submit" name="seticon" value="Change Icon" />
-  @ <input type="submit" name="clricon" value="Revert To Default" /></p>
+  @ <input type="submit" name="seticon" value="Change Icon">
+  @ <input type="submit" name="clricon" value="Revert To Default"></p>
   @ </div></form>
   @ <p>(Properties: "icon-image" and "icon-mimetype")
-  @ <hr />
+  @ <hr>
   @
   @ <p><span class="note">Note:</span>  Your browser has probably cached these
   @ images, so you may need to press the Reload button before changes will
@@ -1795,8 +1806,8 @@ void sql_page(void){
   @
   @ <form method="post" action="%R/admin_sql">
   login_insert_csrf_secret();
-  @ SQL:<br />
-  @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br />
+  @ SQL:<br>
+  @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br>
   @ <input type="submit" name="go" value="Run SQL">
   @ <input type="submit" name="schema" value="Show Schema">
   @ <input type="submit" name="tablelist" value="List Tables">
@@ -1818,7 +1829,7 @@ void sql_page(void){
     int nCol;
     int nRow = 0;
     int i;
-    @ <hr />
+    @ <hr>
     login_verify_csrf_secret();
     sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
     search_sql_setup(g.db);
@@ -1904,15 +1915,15 @@ void th1_page(void){
   @
   @ <form method="post" action="%R/admin_th1">
   login_insert_csrf_secret();
-  @ TH1:<br />
-  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ TH1:<br>
+  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br>
   @ <input type="submit" name="go" value="Run TH1">
   @ </form>
   if( go ){
     const char *zR;
     int rc;
     int n;
-    @ <hr />
+    @ <hr>
     login_verify_csrf_secret();
     rc = Th_Eval(g.interp, 0, zQ, -1);
     zR = Th_GetResult(g.interp, &n);
@@ -1945,6 +1956,9 @@ void page_admin_log(){
   }
   style_set_current_feature("setup");
   style_header("Admin Log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Error-Log", "errorlog");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));
@@ -1993,6 +2007,21 @@ void page_admin_log(){
   style_finish_page();
 }
 
+
+/*
+** Renders a selection list of values for the search-tokenizer
+** setting, using the form field name "ftstok".
+*/
+static void select_fts_tokenizer(void){
+  const char *const aTokenizer[] = {
+  "off",     "None",
+  "porter",  "Porter Stemmer",
+  "trigram", "Trigram"
+  };
+  multiple_choice_attribute("FTS Tokenizer", "search-tokenizer",
+                            "ftstok", "off", 3, aTokenizer);
+}
+
 /*
 ** WEBPAGE: srchsetup
 **
@@ -2012,7 +2041,7 @@ void page_srchsetup(){
   @ Server-specific settings that affect the
   @ <a href="%R/search">/search</a> webpage.
   @ </div>
-  @ <hr />
+  @ <hr>
   textarea_attribute("Document Glob List", 3, 35, "doc-glob", "dg", "", 0);
   @ <p>The "Document Glob List" is a comma- or newline-separated list
   @ of GLOB expressions that identify all documents within the source
@@ -2028,46 +2057,49 @@ void page_srchsetup(){
   @ <tr><td><i>(blank)</i><td>
   @ <td>Search nothing. (Disables document search).</tr>
   @ </table>
-  @ <hr />
+  @ <hr>
   entry_attribute("Document Branch", 20, "doc-branch", "db", "trunk", 0);
   @ <p>When searching documents, use the versions of the files found at the
   @ type of the "Document Branch" branch.  Recommended value: "trunk".
   @ Document search is disabled if blank.
-  @ <hr />
+  @ <hr>
   onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Search Documents", "search-doc", "sd", 0, 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Search Wiki", "search-wiki", "sw", 0, 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
-  @ <br />
+  @ <br>
   onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
-  @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr />
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   if( P("fts0") ){
     search_drop_index();
   }else if( P("fts1") ){
+    const char *zTokenizer = PD("ftstok","off");
+    search_set_tokenizer(zTokenizer);
     search_drop_index();
     search_create_index();
     search_fill_index();
     search_update_index(search_restrict(SRCH_ALL));
   }
   if( search_index_exists() ){
-    @ <p>Currently using an SQLite FTS4 search index. This makes search
-    @ run faster, especially on large repositories, but takes up space.</p>
-    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
+    @ <p>Currently using an SQLite FTS%d(search_index_type(0)) search index.
+    @ The index helps search run faster, especially on large repositories,
+    @ but takes up space.</p>
+    select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
     style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
-    @ <p>The SQLite FTS4 search index is disabled.  All searching will be
+    @ <p>The SQLite search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for
     @ larger repositories.</p>
-    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
+    select_fts_tokenizer();
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>

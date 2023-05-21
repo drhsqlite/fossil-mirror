@@ -3,8 +3,8 @@ var initPikchrModule = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   
   return (
-function(initPikchrModule) {
-  initPikchrModule = initPikchrModule || {};
+function(config) {
+  var initPikchrModule = config || {};
 
 var Module = typeof initPikchrModule != "undefined" ? initPikchrModule : {};
 
@@ -118,72 +118,6 @@ var ABORT = false;
 
 var EXITSTATUS;
 
-function getCFunc(ident) {
- var func = Module["_" + ident];
- return func;
-}
-
-function ccall(ident, returnType, argTypes, args, opts) {
- var toC = {
-  "string": function(str) {
-   var ret = 0;
-   if (str !== null && str !== undefined && str !== 0) {
-    var len = (str.length << 2) + 1;
-    ret = stackAlloc(len);
-    stringToUTF8(str, ret, len);
-   }
-   return ret;
-  },
-  "array": function(arr) {
-   var ret = stackAlloc(arr.length);
-   writeArrayToMemory(arr, ret);
-   return ret;
-  }
- };
- function convertReturnValue(ret) {
-  if (returnType === "string") {
-   return UTF8ToString(ret);
-  }
-  if (returnType === "boolean") return Boolean(ret);
-  return ret;
- }
- var func = getCFunc(ident);
- var cArgs = [];
- var stack = 0;
- if (args) {
-  for (var i = 0; i < args.length; i++) {
-   var converter = toC[argTypes[i]];
-   if (converter) {
-    if (stack === 0) stack = stackSave();
-    cArgs[i] = converter(args[i]);
-   } else {
-    cArgs[i] = args[i];
-   }
-  }
- }
- var ret = func.apply(null, cArgs);
- function onDone(ret) {
-  if (stack !== 0) stackRestore(stack);
-  return convertReturnValue(ret);
- }
- ret = onDone(ret);
- return ret;
-}
-
-function cwrap(ident, returnType, argTypes, opts) {
- argTypes = argTypes || [];
- var numericArgs = argTypes.every(function(type) {
-  return type === "number";
- });
- var numericRet = returnType !== "string";
- if (numericRet && numericArgs && !opts) {
-  return getCFunc(ident);
- }
- return function() {
-  return ccall(ident, returnType, argTypes, arguments, opts);
- };
-}
-
 var UTF8Decoder = typeof TextDecoder != "undefined" ? new TextDecoder("utf8") : undefined;
 
 function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
@@ -192,31 +126,30 @@ function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
  while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
  if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
   return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
- } else {
-  var str = "";
-  while (idx < endPtr) {
-   var u0 = heapOrArray[idx++];
-   if (!(u0 & 128)) {
-    str += String.fromCharCode(u0);
-    continue;
-   }
-   var u1 = heapOrArray[idx++] & 63;
-   if ((u0 & 224) == 192) {
-    str += String.fromCharCode((u0 & 31) << 6 | u1);
-    continue;
-   }
-   var u2 = heapOrArray[idx++] & 63;
-   if ((u0 & 240) == 224) {
-    u0 = (u0 & 15) << 12 | u1 << 6 | u2;
-   } else {
-    u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heapOrArray[idx++] & 63;
-   }
-   if (u0 < 65536) {
-    str += String.fromCharCode(u0);
-   } else {
-    var ch = u0 - 65536;
-    str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023);
-   }
+ }
+ var str = "";
+ while (idx < endPtr) {
+  var u0 = heapOrArray[idx++];
+  if (!(u0 & 128)) {
+   str += String.fromCharCode(u0);
+   continue;
+  }
+  var u1 = heapOrArray[idx++] & 63;
+  if ((u0 & 224) == 192) {
+   str += String.fromCharCode((u0 & 31) << 6 | u1);
+   continue;
+  }
+  var u2 = heapOrArray[idx++] & 63;
+  if ((u0 & 240) == 224) {
+   u0 = (u0 & 15) << 12 | u1 << 6 | u2;
+  } else {
+   u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heapOrArray[idx++] & 63;
+  }
+  if (u0 < 65536) {
+   str += String.fromCharCode(u0);
+  } else {
+   var ch = u0 - 65536;
+   str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023);
   }
  }
  return str;
@@ -264,22 +197,18 @@ function stringToUTF8(str, outPtr, maxBytesToWrite) {
  return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
 }
 
-function writeArrayToMemory(array, buffer) {
- HEAP8.set(array, buffer);
-}
+var HEAP8, HEAPU8, HEAP16, HEAPU16, HEAP32, HEAPU32, HEAPF32, HEAPF64;
 
-var buffer, HEAP8, HEAPU8, HEAP16, HEAPU16, HEAP32, HEAPU32, HEAPF32, HEAPF64;
-
-function updateGlobalBufferAndViews(buf) {
- buffer = buf;
- Module["HEAP8"] = HEAP8 = new Int8Array(buf);
- Module["HEAP16"] = HEAP16 = new Int16Array(buf);
- Module["HEAP32"] = HEAP32 = new Int32Array(buf);
- Module["HEAPU8"] = HEAPU8 = new Uint8Array(buf);
- Module["HEAPU16"] = HEAPU16 = new Uint16Array(buf);
- Module["HEAPU32"] = HEAPU32 = new Uint32Array(buf);
- Module["HEAPF32"] = HEAPF32 = new Float32Array(buf);
- Module["HEAPF64"] = HEAPF64 = new Float64Array(buf);
+function updateMemoryViews() {
+ var b = wasmMemory.buffer;
+ Module["HEAP8"] = HEAP8 = new Int8Array(b);
+ Module["HEAP16"] = HEAP16 = new Int16Array(b);
+ Module["HEAP32"] = HEAP32 = new Int32Array(b);
+ Module["HEAPU8"] = HEAPU8 = new Uint8Array(b);
+ Module["HEAPU16"] = HEAPU16 = new Uint16Array(b);
+ Module["HEAPU32"] = HEAPU32 = new Uint32Array(b);
+ Module["HEAPF32"] = HEAPF32 = new Float32Array(b);
+ Module["HEAPF64"] = HEAPF64 = new Float64Array(b);
 }
 
 var INITIAL_MEMORY = Module["INITIAL_MEMORY"] || 16777216;
@@ -367,10 +296,8 @@ function removeRunDependency(id) {
 }
 
 function abort(what) {
- {
-  if (Module["onAbort"]) {
-   Module["onAbort"](what);
-  }
+ if (Module["onAbort"]) {
+  Module["onAbort"](what);
  }
  what = "Aborted(" + what + ")";
  err(what);
@@ -403,9 +330,8 @@ function getBinary(file) {
   }
   if (readBinary) {
    return readBinary(file);
-  } else {
-   throw "both async and sync fetching of the wasm failed";
   }
+  throw "both async and sync fetching of the wasm failed";
  } catch (err) {
   abort(err);
  }
@@ -439,7 +365,7 @@ function createWasm() {
   var exports = instance.exports;
   Module["asm"] = exports;
   wasmMemory = Module["asm"]["d"];
-  updateGlobalBufferAndViews(wasmMemory.buffer);
+  updateMemoryViews();
   wasmTable = Module["asm"]["g"];
   addOnInit(Module["asm"]["e"]);
   removeRunDependency("wasm-instantiate");
@@ -480,7 +406,7 @@ function createWasm() {
    return exports;
   } catch (e) {
    err("Module.instantiateWasm callback failed with error: " + e);
-   return false;
+   readyPromiseReject(e);
   }
  }
  instantiateAsync().catch(readyPromiseReject);
@@ -491,28 +417,20 @@ var tempDouble;
 
 var tempI64;
 
+function ExitStatus(status) {
+ this.name = "ExitStatus";
+ this.message = "Program terminated with exit(" + status + ")";
+ this.status = status;
+}
+
 function callRuntimeCallbacks(callbacks) {
  while (callbacks.length > 0) {
-  var callback = callbacks.shift();
-  if (typeof callback == "function") {
-   callback(Module);
-   continue;
-  }
-  var func = callback.func;
-  if (typeof func == "number") {
-   if (callback.arg === undefined) {
-    getWasmTableEntry(func)();
-   } else {
-    getWasmTableEntry(func)(callback.arg);
-   }
-  } else {
-   func(callback.arg === undefined ? null : callback.arg);
-  }
+  callbacks.shift()(Module);
  }
 }
 
 function getValue(ptr, type = "i8") {
- if (type.endsWith("*")) type = "i32";
+ if (type.endsWith("*")) type = "*";
  switch (type) {
  case "i1":
   return HEAP8[ptr >> 0];
@@ -533,7 +451,10 @@ function getValue(ptr, type = "i8") {
   return HEAPF32[ptr >> 2];
 
  case "double":
-  return Number(HEAPF64[ptr >> 3]);
+  return HEAPF64[ptr >> 3];
+
+ case "*":
+  return HEAPU32[ptr >> 2];
 
  default:
   abort("invalid type for getValue: " + type);
@@ -541,12 +462,8 @@ function getValue(ptr, type = "i8") {
  return null;
 }
 
-function getWasmTableEntry(funcPtr) {
- return wasmTable.get(funcPtr);
-}
-
 function setValue(ptr, value, type = "i8") {
- if (type.endsWith("*")) type = "i32";
+ if (type.endsWith("*")) type = "*";
  switch (type) {
  case "i1":
   HEAP8[ptr >> 0] = value;
@@ -577,6 +494,10 @@ function setValue(ptr, value, type = "i8") {
   HEAPF64[ptr >> 3] = value;
   break;
 
+ case "*":
+  HEAPU32[ptr >> 2] = value;
+  break;
+
  default:
   abort("invalid type for setValue: " + type);
  }
@@ -596,8 +517,101 @@ function _emscripten_resize_heap(requestedSize) {
  abortOnCannotGrowMemory(requestedSize);
 }
 
-function _exit(status) {
- exit(status);
+var SYSCALLS = {
+ varargs: undefined,
+ get: function() {
+  SYSCALLS.varargs += 4;
+  var ret = HEAP32[SYSCALLS.varargs - 4 >> 2];
+  return ret;
+ },
+ getStr: function(ptr) {
+  var ret = UTF8ToString(ptr);
+  return ret;
+ }
+};
+
+function _proc_exit(code) {
+ EXITSTATUS = code;
+ if (!keepRuntimeAlive()) {
+  if (Module["onExit"]) Module["onExit"](code);
+  ABORT = true;
+ }
+ quit_(code, new ExitStatus(code));
+}
+
+function exitJS(status, implicit) {
+ EXITSTATUS = status;
+ _proc_exit(status);
+}
+
+var _exit = exitJS;
+
+function getCFunc(ident) {
+ var func = Module["_" + ident];
+ return func;
+}
+
+function writeArrayToMemory(array, buffer) {
+ HEAP8.set(array, buffer);
+}
+
+function ccall(ident, returnType, argTypes, args, opts) {
+ var toC = {
+  "string": str => {
+   var ret = 0;
+   if (str !== null && str !== undefined && str !== 0) {
+    var len = (str.length << 2) + 1;
+    ret = stackAlloc(len);
+    stringToUTF8(str, ret, len);
+   }
+   return ret;
+  },
+  "array": arr => {
+   var ret = stackAlloc(arr.length);
+   writeArrayToMemory(arr, ret);
+   return ret;
+  }
+ };
+ function convertReturnValue(ret) {
+  if (returnType === "string") {
+   return UTF8ToString(ret);
+  }
+  if (returnType === "boolean") return Boolean(ret);
+  return ret;
+ }
+ var func = getCFunc(ident);
+ var cArgs = [];
+ var stack = 0;
+ if (args) {
+  for (var i = 0; i < args.length; i++) {
+   var converter = toC[argTypes[i]];
+   if (converter) {
+    if (stack === 0) stack = stackSave();
+    cArgs[i] = converter(args[i]);
+   } else {
+    cArgs[i] = args[i];
+   }
+  }
+ }
+ var ret = func.apply(null, cArgs);
+ function onDone(ret) {
+  if (stack !== 0) stackRestore(stack);
+  return convertReturnValue(ret);
+ }
+ ret = onDone(ret);
+ return ret;
+}
+
+function cwrap(ident, returnType, argTypes, opts) {
+ argTypes = argTypes || [];
+ var numericArgs = argTypes.every(type => type === "number" || type === "boolean");
+ var numericRet = returnType !== "string";
+ if (numericRet && numericArgs && !opts) {
+  return getCFunc(ident);
+ }
+ return function() {
+  return ccall(ident, returnType, argTypes, arguments, opts);
+ };
 }
 
 var asmLibraryArg = {
@@ -628,23 +642,19 @@ var stackAlloc = Module["stackAlloc"] = function() {
  return (stackAlloc = Module["stackAlloc"] = Module["asm"]["j"]).apply(null, arguments);
 };
 
-Module["cwrap"] = cwrap;
+Module["stackAlloc"] = stackAlloc;
 
 Module["stackSave"] = stackSave;
 
 Module["stackRestore"] = stackRestore;
+
+Module["cwrap"] = cwrap;
 
 Module["setValue"] = setValue;
 
 Module["getValue"] = getValue;
 
 var calledRun;
-
-function ExitStatus(status) {
- this.name = "ExitStatus";
- this.message = "Program terminated with exit(" + status + ")";
- this.status = status;
-}
 
 dependenciesFulfilled = function runCaller() {
  if (!calledRun) run();
@@ -681,22 +691,6 @@ function run(args) {
  } else {
   doRun();
  }
-}
-
-Module["run"] = run;
-
-function exit(status, implicit) {
- EXITSTATUS = status;
- procExit(status);
-}
-
-function procExit(code) {
- EXITSTATUS = code;
- if (!keepRuntimeAlive()) {
-  if (Module["onExit"]) Module["onExit"](code);
-  ABORT = true;
- }
- quit_(code, new ExitStatus(code));
 }
 
 if (Module["preInit"]) {

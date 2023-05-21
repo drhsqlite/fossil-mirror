@@ -21,7 +21,7 @@
 ** email protocol?  That is not here.  See the "smtp.c" file instead.
 ** Yes, the choice of source code filenames is not the greatest, but
 ** it is not so bad that changing them seems justified.
-*/ 
+*/
 #include "config.h"
 #include "alerts.h"
 #include <assert.h>
@@ -61,7 +61,7 @@ static const char zAlertInit[] =
 @   semail TEXT UNIQUE COLLATE nocase,-- email address
 @   suname TEXT,                      -- corresponding USER entry
 @   sverified BOOLEAN DEFAULT true,   -- email address verified
-@   sdonotcall BOOLEAN,               -- true for Do Not Call 
+@   sdonotcall BOOLEAN,               -- true for Do Not Call
 @   sdigest BOOLEAN,                  -- true for daily digests only
 @   ssub TEXT,                        -- baseline subscriptions
 @   sctime INTDATE,                   -- When this entry was created. unixtime
@@ -71,7 +71,7 @@ static const char zAlertInit[] =
 @ );
 @ CREATE INDEX repository.subscriberUname
 @   ON subscriber(suname) WHERE suname IS NOT NULL;
-@ 
+@
 @ DROP TABLE IF EXISTS repository.pending_alert;
 @ -- Email notifications that need to be sent.
 @ --
@@ -103,10 +103,12 @@ int alert_tables_exist(void){
 */
 void alert_user_contact(const char *zUser){
   if( db_table_has_column("repository","subscriber","lastContact") ){
+    db_unprotect(PROTECT_READONLY);
     db_multi_exec(
       "UPDATE subscriber SET lastContact=now()/86400 WHERE suname=%Q",
       zUser
     );
+    db_protect_pop();
   }
 }
 
@@ -129,11 +131,13 @@ void alert_schema(int bOnlyIfEnabled){
   if( db_table_has_column("repository","subscriber","lastContact") ){
     return;
   }
+  db_unprotect(PROTECT_READONLY);
   db_multi_exec(
     "DROP TABLE IF EXISTS repository.alert_bounce;\n"
     "ALTER TABLE repository.subscriber ADD COLUMN lastContact INT;\n"
     "UPDATE subscriber SET lastContact=mtime/86400;"
   );
+  db_protect_pop();
   if( db_table_has_column("repository","pending_alert","sentMod") ){
     return;
   }
@@ -184,7 +188,7 @@ void alert_create_trigger(void){
     );
   }
   if( db_table_exists("repository","chat")
-   && db_get("chat-timeline-user", "")[0]!=0 
+   && db_get("chat-timeline-user", "")[0]!=0
   ){
     /* Record events that will be relayed to chat, but do not relay
     ** them immediately, as the chat_msg_from_event() function requires
@@ -230,6 +234,22 @@ int alert_enabled(void){
   if( !alert_tables_exist() ) return 0;
   if( fossil_strcmp(db_get("email-send-method",0),"off")==0 ) return 0;
   return 1;
+}
+
+/*
+** If alerts are enabled, removes the pending_alert entry which
+** matches (eventType || rid). Note that pending_alert entries are
+** added via the manifest crosslinking process, so this has no effect
+** if called before crosslinking is performed. Because alerts are sent
+** asynchronously, unqueuing needs to be performed as part of the
+** transaction in which crosslinking is performed in order to avoid a
+** race condition.
+*/
+void alert_unqueue(char eventType, int rid){
+  if( alert_enabled() ){
+    db_multi_exec("DELETE FROM pending_alert WHERE eventid='%c%d'",
+                  eventType, rid);
+  }
 }
 
 /*
@@ -299,7 +319,7 @@ void setup_notification(void){
   @ <hr>
   @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
-  @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
+  @ <input type="submit"  name="submit" value="Apply Changes"><hr>
   login_insert_csrf_secret();
 
   entry_attribute("Canonical Server URL", 40, "email-url",
@@ -398,7 +418,7 @@ void setup_notification(void){
   @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -613,7 +633,8 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
       if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
-      p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
+      p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
+                                  smtpFlags);
       smtp_client_startup(p->pSmtp);
     }
   }
@@ -712,8 +733,8 @@ int email_address_is_valid(const char *z, char cTerm){
 ** Make a copy of the input string up to but not including the
 ** first cTerm character.
 **
-** Verify that the string really that is to be copied really is a
-** valid email address.  If it is not, then return NULL.
+** Verify that the string to be copied really is a valid
+** email address.  If it is not, then return NULL.
 **
 ** This routine is more restrictive than necessary.  It does not
 ** allow comments, IP address, quoted strings, or certain uncommon
@@ -726,20 +747,21 @@ char *email_copy_addr(const char *z, char cTerm ){
 }
 
 /*
-** Scan the input string for a valid email address enclosed in <...>
+** Scan the input string for a valid email address that may be
+** enclosed in <...>, or delimited by ',' or ':' or '=' or ' '.
 ** If the string contains one or more email addresses, extract the first
 ** one into memory obtained from mprintf() and return a pointer to it.
 ** If no valid email address can be found, return NULL.
 */
 char *alert_find_emailaddr(const char *zIn){
   char *zOut = 0;
-  while( zIn!=0 ){
-     zIn = (const char*)strchr(zIn, '<');
-     if( zIn==0 ) break;
-     zIn++;
-     zOut = email_copy_addr(zIn, '>');
-     if( zOut!=0 ) break;
-  }
+  do{
+    zOut = email_copy_addr(zIn, zIn[strcspn(zIn, ">,:= ")]);
+    if( zOut!=0 ) break;
+    zIn = (const char *)strpbrk(zIn, "<,:= ");
+    if( zIn==0 ) break;
+    zIn++;
+  }while( zIn!=0 );
   return zOut;
 }
 
@@ -1125,8 +1147,8 @@ void alert_send(
 **                            Some installations may want to do this via
 **                            a cron-job to make sure alerts are sent
 **                            in a timely manner.
-**                            Options:
 **
+**                            Options:
 **                               --digest     Send digests
 **                               --renewal    Send subscription renewal
 **                                            notices
@@ -1144,8 +1166,9 @@ void alert_send(
 **    test-message TO [OPTS]  Send a single email message using whatever
 **                            email sending mechanism is currently configured.
 **                            Use this for testing the email notification
-**                            configuration.  Options:
+**                            configuration.
 **
+**                            Options:
 **                              --body FILENAME         Content from FILENAME
 **                              --smtp-trace            Trace SMTP processing
 **                              --stdout                Send msg to stdout
@@ -1876,10 +1899,12 @@ void alert_page(void){
     }
     blob_reset(&update);
   }else if( keepAlive ){
+    db_unprotect(PROTECT_READONLY);
     db_multi_exec(
       "UPDATE subscriber SET lastContact=now()/86400"
       " WHERE subscriberId=%d", sid
     );
+    db_protect_pop();
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){
@@ -1936,10 +1961,12 @@ void alert_page(void){
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
     if( nName==64 ){
+      db_unprotect(PROTECT_READONLY);
       db_multi_exec(
         "UPDATE subscriber SET sverified=1"
         " WHERE subscriberCode=hextoblob(%Q)",
         zName);
+      db_protect_pop();
       if( db_get_boolean("selfreg-verify",0) ){
         char *zNewCap = db_get("default-perms","u");
         db_unprotect(PROTECT_USER);
@@ -2114,6 +2141,7 @@ void renewal_page(void){
     return;
   }
 
+  db_unprotect(PROTECT_READONLY);
   db_prepare(&s,
     "UPDATE subscriber"
     "   SET lastContact=now()/86400"
@@ -2129,6 +2157,7 @@ void renewal_page(void){
     @ <p>No such subscriber-id: %h(zName)</p>
   }
   db_finalize(&s);
+  db_protect_pop();
   style_finish_page();
 }
 
@@ -2700,7 +2729,6 @@ void email_header(Blob *pOut){
 ** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
-**
 **      --digest           Generate digest alert text
 **      --needmod          Assume all events are pending moderator approval
 */
@@ -2761,15 +2789,12 @@ void test_alert_cmd(void){
 ** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
-**
 **    --backoffice        Run alert_backoffice() after all alerts have
 **                        been added.  This will cause the alerts to be
 **                        sent out with the SENDALERT_TRACE option.
-**
 **    --debug             Like --backoffice, but add the SENDALERT_STDOUT
 **                        so that emails are printed to standard output
 **                        rather than being sent.
-**
 **    --digest            Process emails using SENDALERT_DIGEST
 */
 void test_add_alert_cmd(void){
@@ -2944,6 +2969,11 @@ int alert_send_alerts(u32 flags){
       "   FROM pending_alert"
       "  WHERE sentSep IS FALSE;"
       "DELETE FROM wantalert WHERE needMod AND sentMod;"
+    );
+  }
+  if( g.fSqlTrace ){
+    fossil_trace("-- wantalert contains %d rows\n",
+        db_int(0, "SELECT count(*) FROM wantalert")
     );
   }
 

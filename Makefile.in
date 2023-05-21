@@ -48,7 +48,7 @@ CFLAGS = @CFLAGS@
 CFLAGS_INCLUDE = @CFLAGS_INCLUDE@
 LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
 BCCFLAGS =	@CPPFLAGS@ $(CFLAGS)
-TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H -D_HAVE_SQLITE_CONFIG_H
+TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H
 #
 # Fuzzing may be enable by appending -fsanitize=fuzzer -DFOSSIL_FUZZ
 # to the TCCFLAGS variable.
@@ -121,26 +121,48 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 
 # Container stuff
 SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
+IMGVER := fossil:@FOSSIL_CI_PFX@
+CNTVER := fossil-@FOSSIL_CI_PFX@
+CENGINE := docker
+container:
+	$(CENGINE) image inspect $(IMGVER) > /dev/null 2>&1 || \
+		$(MAKE) container-image
+	$(CENGINE) container inspect $(CNTVER) > /dev/null 2>&1 || \
+		$(CENGINE) create \
+			--name $(CNTVER) \
+			--cap-drop AUDIT_WRITE \
+			--cap-drop CHOWN \
+			--cap-drop FSETID \
+			--cap-drop KILL \
+			--cap-drop MKNOD \
+			--cap-drop NET_BIND_SERVICE \
+			--cap-drop NET_RAW \
+			--cap-drop SETFCAP \
+			--cap-drop SETPCAP \
+			--publish 8080:8080 \
+			$(DCFLAGS) $(IMGVER) $(DCCMD)
+
+container-clean:
+	-$(CENGINE) container kill $(CNTVER)
+	-$(CENGINE) container rm   $(CNTVER)
+	-$(CENGINE) image     rm   $(IMGVER)
+
 container-image:
 	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
-	docker build \
-		--tag fossil:@FOSSIL_CI_PFX@ \
+	$(CENGINE) buildx build \
+		--load \
+		--tag $(IMGVER) \
 		--build-arg FSLURL=$(SRCTB) \
 		$(DBFLAGS) @srcdir@
 	rm -f $(SRCTB)
 
-container-run: container-image
-	docker run \
-		--name fossil-@FOSSIL_CI_PFX@ \
-		--cap-drop AUDIT_WRITE \
-		--cap-drop CHOWN \
-		--cap-drop FSETID \
-		--cap-drop KILL \
-		--cap-drop MKNOD \
-		--cap-drop NET_BIND_SERVICE \
-		--cap-drop NET_RAW \
-		--cap-drop SETFCAP \
-		--cap-drop SETPCAP \
-		--detach --publish 8080:8080 \
-		$(DRFLAGS) fossil:@FOSSIL_CI_PFX@
-	docker container logs fossil-@FOSSIL_CI_PFX@
+container-run container-start: container
+	$(CENGINE) start $(DSFLAGS) $(CNTVER)
+	@sleep 1   # decrease likelihood of logging race condition
+	$(CENGINE) container logs $(CNTVER)
+
+container-stop:
+	$(CENGINE) stop $(CNTVER)
+
+container-version:
+	@echo $(CNTVER)

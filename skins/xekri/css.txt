@@ -1145,6 +1145,13 @@ div.forumPostBody blockquote {
   border-radius: 0.25em;
 }
 
+body.forum .forumPosts.fileage a {
+  color: #60c0ff;
+}
+body.forum .forumPosts.fileage a:visited {
+  color: #40a0ff;
+}
+
 .debug {
   color: black;
 }

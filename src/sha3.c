@@ -630,7 +630,6 @@ char *sha3sum(const char *zIn, int iSize){
 ** with the added 01 padding is used, not the original Keccak submission.
 **
 ** Options:
-**
 **    --224               Compute a SHA3-224 hash
 **    --256               Compute a SHA3-256 hash (the default)
 **    --384               Compute a SHA3-384 hash

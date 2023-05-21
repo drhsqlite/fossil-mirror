@@ -335,13 +335,12 @@ void stat_page(void){
 ** verify the integrity of a repository.
 **
 ** Options:
-**
-**   -b|--brief           Only show essential elements.
-**   --db-check           Run "PRAGMA quick_check" on the repository database.
+**   -b|--brief           Only show essential elements
+**   --db-check           Run "PRAGMA quick_check" on the repository database
 **   --db-verify          Run a full verification of the repository integrity.
 **                        This involves decoding and reparsing all artifacts
 **                        and can take significant time.
-**   --omit-version-info  Omit the SQLite and Fossil version information.
+**   --omit-version-info  Omit the SQLite and Fossil version information
 */
 void dbstat_cmd(void){
   i64 t, fsize;

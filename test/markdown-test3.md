@@ -192,7 +192,7 @@ A depth of nesting must be limited.
 
 [branch]: /timeline?r=markdown-footnotes&nowiki
 
-[^ 1]:  Footnotes is a Fossil' extention of
+[^ 1]:  Footnotes is a Fossil extension of
         Markdown. Your other tools may have limited support for these.
 
 [^here]: [History of test/markdown-test3.md](/finfo/test/markdown-test3.md)
@@ -254,4 +254,3 @@ A depth of nesting must be limited.
 
 [^ <textarea>"Last words here...' ]:
   <textarea>Content is also escaped</textarea>
-

@@ -56,6 +56,11 @@ struct Blob {
 #define blob_buffer(X)  ((X)->aData)
 
 /*
+** Number of elements that fits into the current blob's size
+*/
+#define blob_count(X,elType)  (blob_size(X)/sizeof(elType))
+
+/*
 ** Append blob contents to another
 */
 #define blob_appendb(dest, src) \
@@ -121,6 +126,7 @@ int fossil_isspace(char c){
 int fossil_islower(char c){ return c>='a' && c<='z'; }
 int fossil_isupper(char c){ return c>='A' && c<='Z'; }
 int fossil_isdigit(char c){ return c>='0' && c<='9'; }
+int fossil_isxdigit(char c){ return (c>='0' && c<='9') || (c>='a' && c<='f'); }
 int fossil_tolower(char c){
   return fossil_isupper(c) ? c - 'A' + 'a' : c;
 }
@@ -674,7 +680,7 @@ void blob_rewind(Blob *p){
 ** Truncate a blob back to zero length
 */
 void blob_truncate(Blob *p, int sz){
-  if( sz>=0 && sz<p->nUsed ) p->nUsed = sz;
+  if( sz>=0 && sz<(int)(p->nUsed) ) p->nUsed = sz;
 }
 
 /*
@@ -849,6 +855,93 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 }
 
 /*
+** Remove comment lines (starting with '#') from a blob pIn.
+** Keep lines starting with "\#" but remove the initial backslash.
+**
+** Store the result in pOut.  It is ok for pIn and pOut to be the same blob.
+**
+** pOut must either be the same as pIn or else uninitialized.
+*/
+void blob_strip_comment_lines(Blob *pIn, Blob *pOut){
+  char *z = pIn->aData;
+  unsigned int i = 0;
+  unsigned int n = pIn->nUsed;
+  unsigned int lineStart = 0;
+  unsigned int copyStart = 0;
+  int doCopy = 1;
+  Blob temp;
+  blob_zero(&temp);
+
+  while( i<n ){
+    if( i==lineStart && z[i]=='#' ){
+      copyStart = i;
+      doCopy = 0;
+    }else if( i==lineStart && z[i]=='\\' && z[i+1]=='#' ){
+      /* keep lines starting with an escaped '#' (and unescape it) */
+      copyStart = i + 1;
+    }
+    if( z[i]=='\n' ){
+      if( doCopy ) blob_append(&temp,&pIn->aData[copyStart], i - copyStart + 1);
+      lineStart = copyStart = i + 1;
+      doCopy = 1;
+    }
+    i++;
+  }
+  /* Last line */
+  if( doCopy ) blob_append(&temp, &pIn->aData[copyStart], i - copyStart);
+
+  if( pOut==pIn ) blob_reset(pOut);
+  *pOut = temp;
+}
+
+/*
+** COMMAND: test-strip-comment-lines
+**
+** Usage: %fossil test-strip-comment-lines ?OPTIONS? INPUTFILE
+**
+** Read INPUTFILE and print it without comment lines (starting with '#').
+** Keep lines starting with "\\#" but remove the initial backslash.
+**
+** This is used to test and debug the blob_strip_comment_lines() routine.
+**
+** Options:
+**   -y|--side-by-side    Show diff of INPUTFILE and output side-by-side
+**   -W|--width N         Width of lines in side-by-side diff
+*/
+void test_strip_comment_lines_cmd(void){
+  Blob f, h;   /* unitialized */
+  Blob out;
+  DiffConfig dCfg;
+  int sbs = 0;
+  const char *z;
+  int w = 0;
+
+  memset(&dCfg, 0, sizeof(dCfg));
+
+  sbs = find_option("side-by-side","y",0)!=0;
+  if( (z = find_option("width","W",1))!=0 && (w = atoi(z))>0 ){
+    dCfg.wColumn = w;
+  }  
+  verify_all_options();
+  if( g.argc!=3 ) usage("INPUTFILE");
+
+  blob_read_from_file(&f, g.argv[2], ExtFILE);
+  blob_strip_comment_lines(&f, &h);
+
+  if ( !sbs ){
+    blob_write_to_file(&h, "-");
+  }else{
+    blob_zero(&out);
+    dCfg.nContext = -1;   /* whole content */
+    dCfg.diffFlags = DIFF_SIDEBYSIDE | DIFF_CONTEXT_EX | DIFF_STRIP_EOLCR;
+    diff_begin(&dCfg);
+    text_diff(&f, &h, &out, &dCfg);
+    blob_write_to_file(&out, "-");
+    diff_end(&dCfg, 0);
+  }
+}
+
+/*
 ** Ensure that the text in pBlob ends with '\n'
 */
 void blob_add_final_newline(Blob *pBlob){
@@ -928,6 +1021,25 @@ void blobarray_zero(Blob *aBlob, int n){
 void blobarray_reset(Blob *aBlob, int n){
   int i;
   for(i=0; i<n; i++) blob_reset(&aBlob[i]);
+}
+/*
+** Allocate array of n blobs and initialize each element with `empty_blob`
+*/
+Blob* blobarray_new(int n){
+  int i;
+  Blob *aBlob = fossil_malloc(sizeof(Blob)*n);
+  for(i=0; i<n; i++) aBlob[i] = empty_blob;
+  return aBlob;
+}
+/*
+** Free array of n blobs some of which may be empty (have NULL buffer)
+*/
+void blobarray_delete(Blob *aBlob, int n){
+  int i;
+  for(i=0; i<n; i++){
+    if( blob_buffer(aBlob+i) ) blob_reset(aBlob+i);
+  }
+  fossil_free(aBlob);
 }
 
 /*
@@ -1140,7 +1252,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     blob_is_init(pBlob);
     nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
     fclose(out);
-    if( nWrote!=blob_size(pBlob) ){
+    if( nWrote!=(int)blob_size(pBlob) ){
       fossil_fatal_recursive("short write: %d of %d bytes to %s", nWrote,
          blob_size(pBlob), zFilename);
     }
@@ -1338,7 +1450,7 @@ void blob_add_cr(Blob *p){
     if( z[i]=='\n' ) n++;
   }
   j += n;
-  if( j>=p->nAlloc ){
+  if( j>=(int)(p->nAlloc) ){
     blob_resize(p, j);
     z = p->aData;
   }
@@ -1393,7 +1505,7 @@ void blob_cp1252_to_utf8(Blob *p){
     }
   }
   j += n;
-  if( j>=p->nAlloc ){
+  if( j>=(int)(p->nAlloc) ){
     blob_resize(p, j);
     z = (unsigned char *)p->aData;
   }

@@ -144,42 +144,75 @@ contains the configuration for `*.foo.net`.
 The configuration for our `example.com` web site, stored in
 `/etc/nginx/sites-enabled/local/example.com` is:
 
-      server {
-          server_name .example.com .example.net "";
-          include local/generic;
+----
 
-          access_log /var/log/nginx/example.com-https-access.log;
-           error_log /var/log/nginx/example.com-https-error.log;
+    server {
+        server_name .example.com .example.net "";
+        include local/generic;
+        include local/code;
 
-          # Bypass Fossil for the static documentation generated from
-          # our source code by Doxygen, so it merges into the embedded
-          # doc URL hierarchy at Fossil’s $ROOT/doc without requiring that
-          # these generated files actually be stored in the repo.  This
-          # also lets us set aggressive caching on these docs, since
-          # they rarely change.
-          location /code/doc/html {
-              root /var/www/example.com/code/doc/html;
+        access_log /var/log/nginx/example.com-https-access.log;
+        error_log /var/log/nginx/example.com-https-error.log;
 
-              location ~* \.(html|ico|css|js|gif|jpg|png)$ {
-                  expires 7d;
-                  add_header Vary Accept-Encoding;
-                  access_log off;
-              }
-          }
+        # Bypass Fossil for the static documentation generated from
+        # our source code by Doxygen, so it merges into the embedded
+        # doc URL hierarchy at Fossil’s $ROOT/doc without requiring that
+        # these generated files actually be stored in the repo.  This
+        # also lets us set aggressive caching on these docs, since
+        # they rarely change.
+        location /code/doc/html {
+            root /var/www/example.com/code/doc/html;
 
-          # Redirect everything else to the Fossil instance
-          location /code {
-              include scgi_params;
-              scgi_param SCRIPT_NAME "/code";
-              scgi_pass 127.0.0.1:12345;
-          }
-      }
+            location ~* \.(html|ico|css|js|gif|jpg|png)$ {
+                add_header Vary Accept-Encoding;
+                access_log off;
+                expires 7d;
+            }
+        }
+
+        # Redirect everything under /code to the Fossil instance
+        location /code {
+            include local/code;
+
+            # Extended caching for URLs that include unique IDs
+            location ~ "/(artifact|doc|file|raw)/[0-9a-f]{40,64}" {
+                add_header Cache-Control "public, max-age=31536000, immutable";
+                include local/code;
+                access_log off;
+            }
+
+            # Lesser caching for URLs likely to be quasi-static
+            location ~* \.(css|gif|ico|js|jpg|png)$ {
+                add_header Vary Accept-Encoding;
+                include local/code;
+                access_log off;
+                expires 7d;
+            }
+        }
+    }
+
+----
 
 As you can see, this is a pure extension of [the basic nginx service
 configuration for SCGI][scgii], showing off a few ideas you might want to
 try on your own site, such as static asset proxying.
 
-The `local/generic` file referenced above helps us reduce unnecessary
+You also need a `local/code` file containing:
+
+      include scgi_params;
+      scgi_pass 127.0.0.1:12345;
+      scgi_param SCRIPT_NAME "/code";
+
+We separate that out because nginx refuses to inherit certain settings
+between nested location blocks, so rather than repeat them, we extract
+them to this separate file and include it from both locations where it’s
+needed. You see this above where we set far-future expiration dates on
+files served by Fossil via URLs that contain hashes that change when the
+content changes. It tells your browser that the content of these URLs
+can never change without the URL itself changing, which makes your
+Fossil-based site considerably faster.
+
+Similarly, the `local/generic` file referenced above helps us reduce unnecessary
 repetition among the multiple sites this configuration hosts:
 
       root /var/www/$host;
@@ -191,8 +224,8 @@ repetition among the multiple sites this configuration hosts:
 
 There are some configuration directives that nginx refuses to substitute
 variables into, citing performance considerations, so there is a limit
-to how much repetition you can squeeze out this way. One such example is
-the `access_log` and `error_log` directives, which follow an obvious
+to how much repetition you can squeeze out this way. One such example
+are the `access_log` and `error_log` directives, which follow an obvious
 pattern from one host to the next. Sadly, you must tolerate some
 repetition across `server { }` blocks when setting up multiple domains
 on a single server.

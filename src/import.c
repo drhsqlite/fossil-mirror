@@ -544,7 +544,7 @@ static void dequote_git_filename(char *zName){
 
 static struct{
   const char *zMasterName;    /* Name of master branch */
-  int authorFlag;             /* Use author as checkin committer */
+  int authorFlag;             /* Use author as check-in committer */
   int nGitAttr;               /* Number of Git --attribute entries */
   struct {                    /* Git --attribute details */
     char *zUser;
@@ -599,7 +599,7 @@ static void git_fast_import(FILE *pIn){
       ** None of the above is explained in the git-fast-export
       ** documentation.  We had to figure it out via trial and error.
       */
-      for(i=5; i<strlen(zRefName) && zRefName[i]!='/'; i++){}
+      for(i=5; i<(int)strlen(zRefName) && zRefName[i]!='/'; i++){}
       gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0; /* pattern B */
       if( zRefName[i+1]!=0 ) zRefName += i+1;
       if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
@@ -769,7 +769,7 @@ static void git_fast_import(FILE *pIn){
         if( pFile->isFrom==0 ) continue;
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
-        if( strlen(pFile->zName)>nFrom ){
+        if( (int)strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
@@ -792,7 +792,7 @@ static void git_fast_import(FILE *pIn){
         if( pFile->isFrom==0 ) continue;
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
-        if( strlen(pFile->zName)>nFrom ){
+        if( (int)strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
@@ -852,7 +852,7 @@ static struct{
   const char *zTags;          /* Name of tags folder in repo root */
   int lenTags;                /* String length of zTags */
   Bag newBranches;            /* Branches that were created in this revision */
-  int revFlag;                /* Add svn-rev-nn tags on every checkin */
+  int revFlag;                /* Add svn-rev-nn tags on every check-in */
   const char *zRevPre;        /* Prepended to revision tag names */
   const char *zRevSuf;        /* Appended to revision tag names */
   const char **azIgnTree;     /* NULL-terminated list of dirs to ignore */
@@ -1015,7 +1015,7 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
     rec->contentFlag = 1;
     nLen = atoi(zLen);
     blob_read_from_channel(&rec->content, pIn, nLen);
-    if( blob_size(&rec->content)!=nLen ){
+    if( (int)blob_size(&rec->content)!=nLen ){
       fossil_fatal("short read: got %d of %d bytes",
         blob_size(&rec->content), nLen
       );
@@ -1280,7 +1280,7 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
     unsigned nPath = strlen(zPath);
     for( pzIgnTree = gsvn.azIgnTree; *pzIgnTree; ++pzIgnTree ){
       const char *zIgn = *pzIgnTree;
-      int nIgn = strlen(zIgn);
+      unsigned nIgn = strlen(zIgn);
       if( strncmp(zPath, zIgn, nIgn) == 0
        && ( nPath == nIgn || (nPath > nIgn && zPath[nIgn] == '/')) ){
         return 0;
@@ -1691,15 +1691,15 @@ static void svn_dump_import(FILE *pIn){
 **                  --ignore-tree DIR  Ignores subtree rooted at DIR
 **
 ** Common Options:
-**   -i|--incremental     allow importing into an existing repository
-**   -f|--force           overwrite repository if already exists
-**   -q|--quiet           omit progress output
-**   --no-rebuild         skip the "rebuilding metadata" step
-**   --no-vacuum          skip the final VACUUM of the database file
-**   --rename-trunk NAME  use NAME as name of imported trunk branch
-**   --rename-branch PAT  rename all branch names using PAT pattern
-**   --rename-tag PAT     rename all tag names using PAT pattern
-**   -A|--admin-user NAME use NAME for the admin user 
+**   -i|--incremental     Allow importing into an existing repository
+**   -f|--force           Overwrite repository if already exists
+**   -q|--quiet           Omit progress output
+**   --no-rebuild         Skip the "rebuilding metadata" step
+**   --no-vacuum          Skip the final VACUUM of the database file
+**   --rename-trunk NAME  Use NAME as name of imported trunk branch
+**   --rename-branch PAT  Rename all branch names using PAT pattern
+**   --rename-tag PAT     Rename all tag names using PAT pattern
+**   -A|--admin-user NAME Use NAME for the admin user 
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name

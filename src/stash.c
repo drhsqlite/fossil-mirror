@@ -258,7 +258,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
 static int stash_create(void){
   const char *zComment;              /* Comment to add to the stash */
   int stashid;                       /* ID of the new stash */
-  int vid;                           /* Current checkout */
+  int vid;                           /* Current check-out */
 
   zComment = find_option("comment", "m", 1);
   verify_all_options();
@@ -303,7 +303,7 @@ static int stash_create(void){
 }
 
 /*
-** Apply a stash to the current checkout.
+** Apply a stash to the current check-out.
 */
 static void stash_apply(int stashid, int nConflict){
   int vid;
@@ -515,7 +515,7 @@ static int stash_get_id(const char *zStashId){
 **      are listed, then only stash and revert the named files.  The
 **      "save" verb can be omitted if and only if there are no other
 **      arguments.  The "snapshot" verb works the same as "save" but
-**      omits the revert, keeping the checkout unchanged.
+**      omits the revert, keeping the check-out unchanged.
 **
 ** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **
@@ -533,13 +533,13 @@ static int stash_get_id(const char *zStashId){
 ** > fossil stash apply ?STASHID?
 **
 **      Apply STASHID or the most recently created stash to the current
-**      working checkout.  The "pop" command deletes that changeset from
+**      working check-out.  The "pop" command deletes that changeset from
 **      the stash after applying it but the "apply" command retains the
 **      changeset.
 **
 ** > fossil stash goto ?STASHID?
 **
-**      Update to the baseline checkout for STASHID then apply the
+**      Update to the baseline check-out for STASHID then apply the
 **      changes of STASHID.  Keep STASHID so that it can be reused
 **      This command is undoable.
 **

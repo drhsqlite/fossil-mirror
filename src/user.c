@@ -159,7 +159,7 @@ static void userGenerateScrambleCode(void){
   memcpy(zOrig, "abcdefghijklmnopqrstuvwyz", nA+1);
   memcpy(zA, zOrig, nA+1);
   assert( nA==(int)strlen((char*)zA) );
-  for(i=0; i<sizeof(aSubst); i++) aSubst[i] = i;
+  for(i=0; i<(int)sizeof(aSubst); i++) aSubst[i] = i;
   printFive(zA);
   while( nA>0 ){
     int x = randint(nA);
@@ -561,8 +561,8 @@ void test_usernames_cmd(void){
 
   fossil_print("Initial g.zLogin: %s\n", g.zLogin);
   fossil_print("Initial g.userUid: %d\n", g.userUid);
-  fossil_print("checkout default-user: %s\n", g.localOpen ?
-               db_lget("default-user","") : "<<no open checkout>>");
+  fossil_print("check-out default-user: %s\n", g.localOpen ?
+               db_lget("default-user","") : "<<no open check-out>>");
   fossil_print("default-user: %s\n", db_get("default-user",""));
   fossil_print("FOSSIL_USER: %s\n", fossil_getenv("FOSSIL_USER"));
   fossil_print("USER: %s\n", fossil_getenv("USER"));
@@ -575,6 +575,20 @@ void test_usernames_cmd(void){
   fossil_print("Final g.userUid: %d\n", g.userUid);
 }
 
+
+/*
+** Make sure the USER table is up-to-date.  It should contain
+** the "JX" column (as of version 2.21).  If it does not, add it.
+**
+** The "JX" column is intended to hold a JSON object containing optional
+** key-value pairs.
+*/
+void user_update_user_table(void){
+  if( db_table_has_column("repository","user","jx")==0 ){
+    db_multi_exec("ALTER TABLE repository.user"
+                  " ADD COLUMN jx TEXT DEFAULT '{}';");
+  }
+}
 
 /*
 ** COMMAND: test-hash-passwords
@@ -689,6 +703,10 @@ void access_log_page(void){
     return;
   }
   style_header("Access Log");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Error-Log", "errorlog");
+
   blob_zero(&sql);
   blob_append_sql(&sql,
     "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"
@@ -739,7 +757,7 @@ void access_log_page(void){
   }
   @ </tbody></table>
   db_finalize(&q);
-  @ <hr />
+  @ <hr>
   @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>

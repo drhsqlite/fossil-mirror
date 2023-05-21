@@ -138,6 +138,7 @@ struct TclContext {
 
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
+  char **argvOrig;        /* Original g.argv prior to removing options */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
   const char *zPhase;     /* Phase of operation, for use by the error log
@@ -429,12 +430,12 @@ void expand_args_option(int argc, void *argv){
   g.argv = argv;
   sqlite3_initialize();
 #if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+  for(i=0; (int)i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
 #else
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
+  for(i=0; (int)i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
 #endif
   g.nameOfExe = file_fullexename(g.argv[0]);
-  for(i=1; i<g.argc-1; i++){
+  for(i=1; (int)i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
@@ -446,7 +447,11 @@ void expand_args_option(int argc, void *argv){
     ** differently when we stop at "--" here. */
     if( fossil_strcmp(z, "args")==0 ) break;
   }
-  if( i>=g.argc-1 ) return;
+  if( (int)i>=g.argc-1 ){
+    g.argvOrig = fossil_malloc( sizeof(char*)*(g.argc+1) );
+    memcpy(g.argvOrig, g.argv, sizeof(g.argv[0])*(g.argc+1));
+    return;
+  }
 
   zFileName = g.argv[i+1];
   if( strcmp(zFileName,"-")==0 ){
@@ -469,7 +474,7 @@ void expand_args_option(int argc, void *argv){
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   if( nLine>100000000 ) fossil_fatal("too many command-line arguments");
   nArg = g.argc + nLine*2;
-  newArgv = fossil_malloc( sizeof(char*)*nArg );
+  newArgv = fossil_malloc( sizeof(char*)*nArg*2 + 2);
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
 
   blob_rewind(&file);
@@ -508,10 +513,12 @@ void expand_args_option(int argc, void *argv){
     }
   }
   i += 2;
-  while( i<g.argc ) newArgv[j++] = g.argv[i++];
+  while( (int)i<g.argc ) newArgv[j++] = g.argv[i++];
   newArgv[j] = 0;
   g.argc = j;
   g.argv = newArgv;
+  g.argvOrig = &g.argv[j+1];
+  memcpy(g.argvOrig, g.argv, sizeof(g.argv[0])*(j+1));
 }
 
 #ifdef FOSSIL_ENABLE_TCL
@@ -1396,15 +1403,23 @@ void set_base_url(const char *zAltBase){
     if( g.zTop[1]==0 ) g.zTop++;
   }else{
     char *z;
+    zMode = PD("HTTPS","off");
     zHost = PD("HTTP_HOST","");
     z = fossil_strdup(zHost);
     for(i=0; z[i]; i++){
       if( z[i]<='Z' && z[i]>='A' ) z[i] += 'a' - 'A';
     }
-    if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
+    if( fossil_strcmp(zMode,"on")==0 ){
+      /* Remove trailing ":443" from the HOST, if any */
+      if( i>4 && z[i-1]=='3' && z[i-2]=='4' && z[i-3]=='4' && z[i-4]==':' ){
+        i -= 4;
+      }
+    }else{
+      /* Remove trailing ":80" from the HOST */
+      if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
+    }    
     if( i && z[i-1]=='.' ) i--;
     z[i] = 0;
-    zMode = PD("HTTPS","off");
     zCur = PD("SCRIPT_NAME","/");
     i = strlen(zCur);
     while( i>0 && zCur[i-1]=='/' ) i--;
@@ -1458,7 +1473,7 @@ void set_base_url(const char *zAltBase){
 */
 NORETURN void fossil_redirect_home(void){
   /* In order for ?skin=... to work when visiting the site from
-  ** a typical external link, we have to process is here, as
+  ** a typical external link, we have to process it here, as
   ** that parameter gets lost during the redirect. We "could"
   ** pass the whole query string along instead, but that seems
   ** unnecessary. */
@@ -1672,6 +1687,7 @@ static void process_one_web_page(
   int i;
   const CmdOrPage *pCmd = 0;
   const char *zBase = g.zRepositoryName;
+  int isReadonly = 0;
 
   g.zPhase = "process_one_web_page";
 #if !defined(_WIN32)
@@ -1754,7 +1770,7 @@ static void process_one_web_page(
         if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
           continue;
         }
-        if( c=='.' && g.fAllowACME && j==nBase+1
+        if( c=='.' && g.fAllowACME && j==(int)nBase+1
          && strncmp(&zRepo[j-1],"/.well-known/",12)==0
         ){
           /* We allow .well-known as the top-level directory for ACME */
@@ -2061,6 +2077,10 @@ static void process_one_web_page(
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
+      if( !cgi_same_origin() ){
+        isReadonly = 1;
+        db_protect(PROTECT_READONLY);
+      }
     }
     if( g.fCgiTrace ){
       fossil_trace("######## Calling %s #########\n", pCmd->zName);
@@ -2104,6 +2124,9 @@ static void process_one_web_page(
       }
     }
 #endif
+    if( isReadonly ){
+      db_protect_pop();
+    }
   }
 
   /* Return the result.
@@ -2244,6 +2267,10 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    localauth                Grant administrator privileges to connections
 **                             from 127.0.0.1 or ::1.
 **
+**    nossl                    Signal that no SSL connections are available.
+**
+**    nocompress               Do not compress HTTP replies.
+**
 **    skin: LABEL              Use the built-in skin called LABEL rather than
 **                             the default.  If there are no skins called LABEL
 **                             then this line is a no-op.
@@ -2363,6 +2390,22 @@ void cmd_cgi(void){
       ** from IP address 127.0.0.1.  Do not bother checking credentials.
       */
       g.useLocalauth = 1;
+      continue;
+    }
+    if( blob_eq(&key, "nossl") ){
+      /* nossl
+      **
+      ** Signal that no SSL connections are available.
+      */
+      g.sslNotAvailable = 1;
+      continue;
+    }
+    if( blob_eq(&key, "nocompress") ){
+      /* nocompress
+      **
+      ** Do not compress HTTP replies.
+      */
+      g.fNoHttpCompress = 1;
       continue;
     }
     if( blob_eq(&key, "repolist") ){
@@ -2682,7 +2725,7 @@ static void decode_ssl_options(void){
 **
 ** Options:
 **   --acme              Deliver files from the ".well-known" subdirectory
-**   --baseurl URL       base URL (useful with reverse proxies)
+**   --baseurl URL       Base URL (useful with reverse proxies)
 **   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
 **                       fullchain.pem) taken from FILE.
 **   --chroot DIR        Use directory for chroot instead of repository path.
@@ -2710,19 +2753,19 @@ static void decode_ssl_options(void){
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
 **   --localauth         Connections from localhost are given "setup"
-**                       privileges without having to log in.
+**                       privileges without having to log in
 **   --mainmenu FILE     Override the mainmenu config setting with the contents
-**                       of the given file.
+**                       of the given file
 **   --nocompress        Do not compress HTTP replies
 **   --nodelay           Omit backoffice processing if it would delay
 **                       process exit
 **   --nojail            Drop root privilege but do not enter the chroot jail
 **   --nossl             Do not do http: to https: redirects, regardless of
 **                       the redirect-to-https setting.
-**   --notfound URL      Use URL as the "HTTP 404, object not found" page.
+**   --notfound URL      Use URL as the "HTTP 404, object not found" page
 **   --out FILE          Write the HTTP reply to FILE instead of to 
 **                       standard output
-**   --pkey FILE         Read the private key used for TLS from FILE.
+**   --pkey FILE         Read the private key used for TLS from FILE
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi              Interpret input as SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL. Use an empty string ("")
@@ -2896,7 +2939,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Options:
 **   --test              Do not do special "sync" processing when operating
-**                       over an SSH link.
+**                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usercap   CAP     User capability string (Default: "sxy")
 **
@@ -2977,15 +3020,15 @@ void fossil_set_timeout(int N){
 ** TCP port 8080, or on any other TCP port defined by the -P or
 ** --port option.  The optional REPOSITORY argument is the name of the
 ** Fossil repository to be served.  The REPOSITORY argument may be omitted
-** if the working directory is within an open checkout, in which case the
-** repository associated with that checkout is used.
+** if the working directory is within an open check-out, in which case the
+** repository associated with that check-out is used.
 **
 ** The "ui" command automatically starts a web browser after initializing
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
 ** only process HTTP traffic from the local machine.
 **
 ** If REPOSITORY is a directory name which is the root of a
-** checkout, then use the repository associated with that checkout.
+** check-out, then use the repository associated with that check-out.
 ** This only works for the "fossil ui" command, not the "fossil server"
 ** command.
 **
@@ -3022,11 +3065,11 @@ void fossil_set_timeout(int N){
 ** by default.
 **
 ** Options:
-**   --acme              Deliver files from the ".well-known" subdirectory.
+**   --acme              Deliver files from the ".well-known" subdirectory
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --cert FILE         Use TLS (HTTPS) encryption with the certificate (the
 **                       fullchain.pem) taken from FILE.
-**   --chroot DIR        Use directory for chroot instead of repository path.
+**   --chroot DIR        Use directory for chroot instead of repository path
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
 **                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
@@ -3034,8 +3077,8 @@ void fossil_set_timeout(int N){
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    Full pathname of the "fossil" executable on the remote
 **                       system when REPOSITORY is remote.  Default: "fossil"
-**   --localauth         enable automatic login for requests from localhost
-**   --localhost         listen on 127.0.0.1 only (always true for "ui")
+**   --localauth         Enable automatic login for requests from localhost
+**   --localhost         Listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
 **                       proxy that has already translated HTTPS into HTTP.
 **   --jsmode MODE       Determine how JavaScript is delivered with pages.
@@ -3051,24 +3094,24 @@ void fossil_set_timeout(int N){
 **                       amalgamated script or several, but both approaches
 **                       result in fewer HTTP requests than the separate mode.
 **   --mainmenu FILE     Override the mainmenu config setting with the contents
-**                       of the given file.
+**                       of the given file
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   -B|--nobrowser      Do not automatically launch a web-browser for the
-**                       "fossil ui" command.
+**                       "fossil ui" command
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             do not force redirects to SSL even if the repository
+**   --nossl             Do not force redirects to SSL even if the repository
 **                       setting "redirect-to-https" requests it.  This is set
 **                       by default for the "ui" command.
 **   --notfound URL      Redirect to URL if a page is not found.
 **   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
-**   --pkey FILE         Read the private key used for TLS from FILE.
-**   -P|--port TCPPORT   listen to request on port TCPPORT
-**   --repolist          If REPOSITORY is dir, URL "/" lists repos.
+**   --pkey FILE         Read the private key used for TLS from FILE
+**   -P|--port TCPPORT   Listen to request on port TCPPORT
+**   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-**   --th-trace          trace TH1 execution (for debugging purposes)
+**   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
@@ -3180,8 +3223,8 @@ void cmd_webserver(void){
     fossil_fatal("SCGI does not (yet) support TLS-encrypted connections");
   }
   if( isUiCmd && 3==g.argc && file_isdir(g.argv[2], ExtFILE)>0 ){
-    /* If REPOSITORY arg is the root of a checkout,
-    ** chdir to that checkout so that the current version
+    /* If REPOSITORY arg is the root of a check-out,
+    ** chdir to that check-out so that the current version
     ** gets highlighted in the timeline by default. */
     const char * zDir = g.argv[2];
     if(dir_has_ckout_db(zDir)){
@@ -3315,6 +3358,7 @@ void cmd_webserver(void){
     ** to be registered while we're waiting for that to occur.
     **/
     signal(SIGTERM, fossil_exit);
+    signal(SIGINT,  fossil_exit);
   }
 #endif /* !WIN32 */
 

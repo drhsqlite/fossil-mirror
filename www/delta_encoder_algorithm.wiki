@@ -85,7 +85,7 @@ the list of chunk locations having this hash.
 </li>
 </ol>
 
-<h3 id="processing">2.1 Processing the target</h3>
+<h3 id="processing">2.2 Processing the target</h3>
 
 <p>This, the main phase of the encoder, processes the target in a loop
 from beginning to end. The state of the encoder is captured by two

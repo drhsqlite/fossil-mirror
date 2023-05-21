@@ -552,7 +552,7 @@ static void help_to_text(const char *zHelp, Blob *pText){
 static void display_all_help(int mask, int useHtml, int rawOut){
   int i;
   unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help string occurrences */
-  int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {0};/* Help strings -> commands*/
+  int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {{0}};/* Help strings->commands*/
   if( useHtml ) fossil_print("<!--\n");
   fossil_print("Help text for:\n");
   if( mask & CMDFLAG_1ST_TIER ) fossil_print(" * Commands\n");
@@ -626,15 +626,15 @@ static void display_all_help(int mask, int useHtml, int rawOut){
 ** web pages, or --everything to see both commands and pages.
 **
 ** Options:
-**    -a|--aliases      Show aliases.
+**    -a|--aliases      Show aliases
 **    -e|--everything   Show all commands and pages.  Omit aliases to 
 **                      avoid duplicates.
-**    -h|--html         Transform output to HTML.
-**    -o|--options      Show global options.
-**    -r|--raw          No output formatting.
-**    -s|--settings     Show settings.
-**    -t|--test         Include test- commands.
-**    -w|--www          Show WWW pages.
+**    -h|--html         Transform output to HTML
+**    -o|--options      Show global options
+**    -r|--raw          No output formatting
+**    -s|--settings     Show settings
+**    -t|--test         Include test- commands
+**    -w|--www          Show WWW pages
 */
 void test_all_help_cmd(void){
   int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
@@ -707,7 +707,7 @@ static int edit_distance(const char *zA, const char *zB){
   int nB = (int)strlen(zB);
   int i, j, m;
   int p0, p1, c0;
-  int a[100];
+  int a[100] = {0};
   static const int incr = 4;
 
   for(j=0; j<nB; j++) a[j] = 1;
@@ -861,7 +861,7 @@ void help_page(void){
   }else{
     int i;
     unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help str occurrences */
-    int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {0};/* Help str -> commands */
+    int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {{0}};/* Help str->commands */
     style_header("Help");
 
     @ <a name='commands'></a>
@@ -968,7 +968,7 @@ void help_page(void){
 void test_all_help_page(void){
   int i;
   unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help string occurrences */
-  int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {0};/* Help strings -> commands*/
+  int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {{0}};/* Help strings->commands*/
   Blob buf;
   blob_init(&buf,0,0);
   style_set_current_feature("test");
