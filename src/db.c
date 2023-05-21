@@ -1824,7 +1824,7 @@ static void db_read_saved_encryption_key_from_process(
     }
 #else
     fossil_secure_free_page(p, n);
-    fossil_panic("db_read_saved_encryption_key_from_process unsupported");
+    fossil_trace("db_read_saved_encryption_key_from_process unsupported");
 #endif
   }
 }
@@ -1885,7 +1885,7 @@ static void db_write_saved_encryption_key_to_process(
                    nWrite, nSize, pAddress, (unsigned long)processId);
     }
 #else
-    fossil_panic("db_write_saved_encryption_key_to_process unsupported");
+    fossil_trace("db_write_saved_encryption_key_to_process unsupported");
 #endif
   }
 }
@@ -1952,7 +1952,7 @@ static void db_zero_saved_encryption_key_in_process(
     }
 #else
     fossil_secure_free_page(p, n);
-    fossil_panic("db_zero_saved_encryption_key_in_process unsupported");
+    fossil_trace("db_zero_saved_encryption_key_in_process unsupported");
 #endif
   }
 }
