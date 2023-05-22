@@ -91,13 +91,14 @@ struct Glob {
 #endif /* INTERFACE */
 
 /*
-** zPatternList is a comma-separated list of glob patterns.  Parse up
-** that list and use it to create a new Glob object.
+** zPatternList is a comma- or whitespace-separated list of glob patterns.
+** Parse that list and use it to create a new Glob object.
 **
-** Elements of the glob list may be optionally enclosed in single our
-** double-quotes.  This allows a comma to be part of a glob pattern.
+** Elements of the glob list may be optionally enclosed in single- or
+** double-quotes.  This allows commas and whitespace to be part of a
+** glob pattern.
 **
-** Leading and trailing spaces on unquoted glob patterns are ignored.
+** Leading and trailing spaces on glob patterns are ignored unless quoted.
 **
 ** An empty or null pattern list results in a null glob, which will
 ** match nothing.
