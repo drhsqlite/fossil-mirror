@@ -4226,6 +4226,7 @@ struct Setting {
 ** suppressing Fossil's normal warning about this. Set it to "*" to
 ** disable CR+LF checking entirely.  Example: *.md,*.txt
 ** The crnl-glob setting is a compatibility alias.
+*/
 /*
 ** SETTING: crnl-glob       width=40 versionable block-text
 ** This is an alias for the crlf-glob setting.
