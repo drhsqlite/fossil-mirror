@@ -1,19 +1,18 @@
 # File Name Glob Patterns
 
-
 A [glob pattern][glob] is a text expression that matches one or more
-file names using wild cards familiar to most users of a command line.
-For example, `*` is a glob that matches any name at all and
+file names using wildcards familiar to most users of a command line.
+For example, `*` is a glob that matches any name at all, and
 `Readme.txt` is a glob that matches exactly one file. For purposes of
-Fossil's globs, a file name with a directory prefix is "just a string"
+Fossil's globs, a complete path name is just a string,
 and the globs do not apply any special meaning to the directory part
-of the name. Thus the glob `*` matches any name, including any
+of the name. Thus, the glob `*` matches any name, including any
 directory prefix, and `*/*` matches a name with _one or more_
 directory components.
 
-A glob should not be confused with a [regular expression][regexp] (RE),
+A glob should not be confused with a [regular expression][regexp] (RE)
 even though they use some of the same special characters for similar
-purposes, because [they are not fully compatible][greinc] pattern
+purposes. [They are not fully compatible][greinc] pattern
 matching languages. Fossil uses globs when matching file names with the
 settings described in this document, not REs.
 
@@ -21,10 +20,12 @@ settings described in this document, not REs.
 [greinc]: https://unix.stackexchange.com/a/57958/138
 [regexp]: https://en.wikipedia.org/wiki/Regular_expression
 
-These settings hold one or more file glob patterns to cause Fossil to
+Fossil’s `*-glob` settings hold one or more patterns to cause Fossil to
 give matching named files special treatment.  Glob patterns are also
 accepted in options to certain commands and as query parameters to
-certain Fossil UI web pages.
+certain Fossil UI web pages. For consistency, settings such as
+`empty-dirs` are parsed as a glob even though they aren’t then *applied*
+as a glob since it allows [the same syntax rules](#syntax) to apply.
 
 Where Fossil also accepts globs in commands, this handling may interact
 with your OS’s command shell or its C runtime system, because they may
@@ -32,17 +33,16 @@ have their own glob pattern handling. We will detail such interactions
 below.
 
 
-## Syntax
+## <a id="syntax"></a>Syntax
 
 Where Fossil accepts glob patterns, it will usually accept a *list* of
-such patterns, each individual pattern separated from the others
-by white space or commas. If a glob must contain white spaces or
-commas, it can be quoted with either single or double quotation marks.
-A list is said to match if any one glob in the list
-matches.
+individual patterns separated from the others
+by whitespace or commas. Whitespace and
+commas may be quoted with either single or double quotation marks.
+A list matches a file when any pattern in that list matches.
 
-A glob pattern matches a given file name if it successfully consumes and
-matches the *entire* name. Partial matches are failed matches.
+A pattern must consume and
+match the *entire* file name to succeed. Partial matches are failed matches.
 
 Most characters in a glob pattern consume a single character of the file
 name and must match it exactly. For instance, “a” in a glob simply
@@ -63,7 +63,7 @@ Note that unlike [POSIX globs][pg], these special characters and
 sequences are allowed to match `/` directory separators as well as the
 initial `.` in the name of a hidden file or directory. This is because
 Fossil file names are stored as complete path names. The distinction
-between file name and directory name is “below” Fossil in this sense.
+between file name and directory name is “underneath” Fossil in this sense.
 
 [pg]: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_13
 
@@ -359,12 +359,12 @@ It bears repeating that the two glob patterns here are not interpreted
 the same way when running this command from a *subdirectory* of the top
 checkout directory as when running it at the top of the checkout tree.
 If these files were in a subdirectory of the checkout tree called `doc`
-and that was your current working directory, the command would have to
-be:
+and that was your current working directory, the command would instead
+have to be:
 
     $ fossil add --ignore "'doc/REALLY SECRET STUFF.txt'" READ*
 
-instead. The Fossil glob pattern still needs the `doc/` prefix because
+The Fossil glob pattern still needs the `doc/` prefix because
 Fossil always interprets glob patterns from the base of the checkout
 directory, not from the current working directory as POSIX shells do.
 
