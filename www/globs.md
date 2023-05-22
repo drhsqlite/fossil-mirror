@@ -36,9 +36,19 @@ below.
 ## <a id="syntax"></a>Syntax
 
 Where Fossil accepts glob patterns, it will usually accept a *list* of
-individual patterns separated from the others
-by whitespace or commas. Whitespace and
-commas may be quoted with either single or double quotation marks.
+individual patterns separated from the others by whitespace or commas.
+
+The parser allows whitespace and commas in a pattern by quoting _the
+entire pattern_ with either single or double quotation marks. Internal
+quotation marks are treated literally. Moreover, a pattern that begins
+with a quote mark ends when the first instance of the same mark occurs,
+_not_ at a whitespace or comma. Thus, this:
+
+      "foo bar"qux
+
+…constitutes _two_ patterns rather than one with an embedded space, in
+contravention of normal shell quoting rules.
+
 A list matches a file when any pattern in that list matches.
 
 A pattern must consume and
@@ -278,7 +288,7 @@ exclude rather than taking the entire checkin.
 
 Fossil glob patterns are based on the glob pattern feature of POSIX
 shells. Fossil glob patterns also have a quoting mechanism, discussed
-above. Because other parts of your operating system may interpret glob
+[above](#syntax). Because other parts of your operating system may interpret glob
 patterns and quotes separately from Fossil, it is often difficult to
 give glob patterns correctly to Fossil on the command line. Quotes and
 special characters in glob patterns are likely to be interpreted when
