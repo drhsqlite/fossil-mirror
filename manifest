@@ -1,5 +1,5 @@
-C Fixed\sa\ssymmetry\sproblem\sin\sthe\svfile.chnged\simplementation:\sit\shad\san\nexplicit\scheck\sfor\swhen\sa\sfile\sused\sto\sbe\sa\sregular\sfile\sand\swas\nreplaced\sby\sa\ssymlink\spointing\sto\sthe\ssame\scontent,\sbut\sit\sdidn't\sthen\ncheck\sfor\sthe\sinverse\scase.\sSince\sthe\ssize\sand\shash\schecks\sbecome\nnonsense\swhen\sboth\sfiles\saren't\sof\sthe\ssame\stype\s(whether\ssymlinks\sor\nregular\sfiles)\swe\shave\sto\scheck\sfor\sthis\scase,\stoo,\selse\sthe\sonly\sway\sto\nget\sthe\s"UNLINK"\soutput\sfrom\s"fossil\sstatus"\srequired\strickery.\n\nSee\s[forum:/forum/forumpost/204ff988263d7795\s|\sthis\sforum\spost]\sfor\sa\ntest\scase\sand\sthe\strick\spreviously\sneeded\sto\sget\sFossil\sto\sreport\n"UNLINK"\sas\sa\sfile's\schange\sstatus.
-D 2023-05-22T21:00:09.423
+C Reworked\sthe\sprior\scommit's\schangelog\sentry\sto\sbe\smore\saccurate\sand\sto\nmatch\spreexisting\sstyle.
+D 2023-05-22T21:07:46.355
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -776,7 +776,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki cd102a48c2ce2f97e8b9a4a1b2325a4c7ac90a8085596a3c4a4a5b945e99e85c
+F www/changes.wiki 00c058d2f8020df4d2853e0c09dfb5fbf12a2ec20e3ba003588004e896fbde88
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b1c0409a56baebf474abce8cc738e13740ab11a75f75f6013e872fb66cadf185
-R c41c6f2c0a82ac86467826ddd2ece807
+P 4cca90338a0f9d2522f8a73db12770a14f5beb1705066a5c87f8f2c9fd89fa93
+R e30f9054a24a8f10e3a43216f82b8af3
 U wyoung
-Z 09cf603464d36b625be6939af439cba0
+Z aea37455e66aae009e3a10df6f3622c5
 # Remove this line to create a well-formed Fossil manifest.
