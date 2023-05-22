@@ -20,7 +20,7 @@ settings described in this document, not REs.
 [greinc]: https://unix.stackexchange.com/a/57958/138
 [regexp]: https://en.wikipedia.org/wiki/Regular_expression
 
-Fossil’s `*-glob` settings hold one or more patterns to cause Fossil to
+[Fossil’s `*-glob` settings](#settings) hold one or more patterns to cause Fossil to
 give matching named files special treatment.  Glob patterns are also
 accepted in options to certain commands and as query parameters to
 certain Fossil UI web pages. For consistency, settings such as
@@ -166,9 +166,10 @@ Some example cases:
 `src/README` | Matches `src\README` on Windows because all directory separators are rewritten as `/` in the canonical name before the glob is matched. This makes it much easier to write globs that work on both Unix and Windows.
 `*.[ch]`     | Matches every C source or header file in the tree at the root or at any depth. Again, this is (deliberately) different from Unix file globs and Windows wild cards.
 
+
 ## Where Globs are Used
 
-### Settings that are Globs
+### <a id="settings"></a>Settings that are Globs
 
 These settings are all lists of glob patterns:
 
@@ -199,8 +200,12 @@ a project because each IDE has its own ideas of how and where to cache
 information that speeds up its browsing and building tasks but which
 need not be preserved in your project's history.
 
+Although the `empty-dirs` setting is not a list of glob patterns as
+such, it is *parsed* that way for consistency among the settings,
+allowing [the list parsing rules above](#syntax) to apply.
 
-### Commands that Refer to Globs
+
+### <a id="commands"></a>Commands that Refer to Globs
 
 Many of the commands that respect the settings containing globs have
 options to override some or all of the settings. These options are
@@ -229,25 +234,25 @@ implement or support with web servers provide a mechanism to name some
 files to serve with static content where a list of glob patterns
 specifies what content may be served.
 
-[`add`]: /help?cmd=add
+[`add`]:       /help?cmd=add
 [`addremove`]: /help?cmd=addremove
-[`changes`]: /help?cmd=changes
-[`clean`]: /help?cmd=clean
-[`commit`]: /help?cmd=commit
-[`extras`]: /help?cmd=extras
-[`merge`]: /help?cmd=merge
-[`settings`]: /help?cmd=settings
-[`status`]: /help?cmd=status
-[`touch`]: /help?cmd=touch
-[`unset`]: /help?cmd=unset
+[`changes`]:   /help?cmd=changes
+[`clean`]:     /help?cmd=clean
+[`commit`]:    /help?cmd=commit
+[`extras`]:    /help?cmd=extras
+[`merge`]:     /help?cmd=merge
+[`settings`]:  /help?cmd=settings
+[`status`]:    /help?cmd=status
+[`touch`]:     /help?cmd=touch
+[`unset`]:     /help?cmd=unset
 
-[`tarball`]: /help?cmd=tarball
-[`zip`]: /help?cmd=zip
+[`tarball`]:   /help?cmd=tarball
+[`zip`]:       /help?cmd=zip
 
-[`http`]: /help?cmd=http
-[`cgi`]: /help?cmd=cgi
-[`server`]: /help?cmd=server
-[`ui`]: /help?cmd=ui
+[`http`]:      /help?cmd=http
+[`cgi`]:       /help?cmd=cgi
+[`server`]:    /help?cmd=server
+[`ui`]:        /help?cmd=ui
 
 
 ### Web Pages that Refer to Globs
@@ -265,8 +270,8 @@ parameters that specify glob patterns that name files to include or
 exclude rather than taking the entire checkin.
 
 [`/timeline`]: /help?cmd=/timeline
-[`/tarball`]: /help?cmd=/tarball
-[`/zip`]: /help?cmd=/zip
+[`/tarball`]:  /help?cmd=/tarball
+[`/zip`]:      /help?cmd=/zip
 
 
 ## Platform Quirks
