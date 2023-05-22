@@ -1,5 +1,5 @@
-C Reworked\sthe\sprior\scommit's\schangelog\sentry\sto\sbe\smore\saccurate\sand\sto\nmatch\spreexisting\sstyle.
-D 2023-05-22T21:07:46.355
+C Replaced\sa\scomplicated\sbit\sof\slogic\swith\ssomething\sslighlty\sless\ncomplicated,\shaving\sthe\ssame\seffect.\s\sThe\sglob\sparser\sused\sa\smix\sof\nsecond-clause\sfor-loop\stesting\sand\sinternal\sbreak\sand\scontinue\schecks\nwithout\sany\sother\sinternal\sprocessing\sinside\sthe\sloop.\s\sCombining\sall\sof\nthis\sinto\sa\ssingle\sexpression\srequires\sthe\sline\sto\swrap\s(bad\sfor\nclarity)\sbut\sit\sdoes\smake\sclear\sall\sof\sthe\sconditions\srequired\sfor\sthis\nloop\sto\scontinue\siterating.\s\sI\sthink\sit's\sa\snet\simprovement\sin\sclarity,\nthough\sthe\smargin\sis\sadmittedly\ssmall.\s\sTesting\sshows\sno\sregression\sin\nfunctionality,\slimiting\sthis\snon-functional\schange\sto\sa\sstyle\nimprovement.
+D 2023-05-22T21:27:42.698
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -452,7 +452,7 @@ F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f028993
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
-F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
+F src/glob.c ecc7e3a5ceef242c3dd9f97ec256d9e04cb0bbb29e7fa1e74789288b05dd96db
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
 F src/graph.js 8dc2134ff4338d38c1746bf82e1ba9fc65182e66b2762d556cdb39e63b588b27
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4cca90338a0f9d2522f8a73db12770a14f5beb1705066a5c87f8f2c9fd89fa93
-R e30f9054a24a8f10e3a43216f82b8af3
+P 8ce70b4c0c19d7b8b44662118ed5ce814a8922b574bd546bb56880bffcc5e412
+R 5ae962fc2ce5b351f5ecb53d81eacb7c
 U wyoung
-Z aea37455e66aae009e3a10df6f3622c5
+Z 212f0e1133784507227dfbdc6ff11d8e
 # Remove this line to create a well-formed Fossil manifest.

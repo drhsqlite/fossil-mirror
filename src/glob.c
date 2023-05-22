@@ -128,10 +128,10 @@ Glob *glob_create(const char *zPatternList){
     }
     p->azPattern = fossil_realloc(p->azPattern, (p->nPattern+1)*sizeof(char*) );
     p->azPattern[p->nPattern++] = z;
-    /* Find the next delimter (or the end of the string). */
-    for(i=0; z[i] && z[i]!=delimiter; i++){
-      if( delimiter!=',' ) continue; /* If quoted, keep going. */
-      if( fossil_isspace(z[i]) ) break; /* If space, stop. */
+    /* Find the next delimiter (or the end of the string). */
+    for(i=0; z[i] && z[i]!=delimiter &&
+        !(delimiter==',' && fossil_isspace(z[i])); i++){
+      /* keep looking for the end of the glob pattern */
     }
     if( z[i]==0 ) break;
     z[i] = 0;
