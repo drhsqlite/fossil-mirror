@@ -4268,10 +4268,10 @@ struct Setting {
 */
 /*
 ** SETTING: empty-dirs      width=40 versionable block-text
-** The value is a comma or newline-separated list of pathnames. On
-** update and checkout commands, if no file or directory
-** exists with that name, an empty directory will be
-** created.
+** The value is a list of pathnames parsed according to the same rules as
+** the *-glob settings.  On update and checkout commands, if no directory
+** exists with that name, an empty directory will be be created, even if
+** it must create one or more parent directories.
 */
 /*
 ** SETTING: encoding-glob   width=40 versionable block-text

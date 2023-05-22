@@ -32,6 +32,9 @@
   *  The [/help?cmd=status|fossil status] command now detects when a
      file used to be a symlink and has been replaced by a regular file.
      (It previously checked for the inverse case only.)
+  *  The [/help?cmd=empty-dirs|empty-dirs setting] now reuses the same
+     parser as the *-glob settings instead of its prior idiosyncratic
+     parser, allowing quoted whitespace in patterns.
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use

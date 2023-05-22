@@ -1,5 +1,5 @@
-C Updated\sthe\sfunction\scomment\son\sglob_create()\sto\smatch\swhat\sit\sactually\sdoes.
-D 2023-05-22T21:32:13.510
+C Switched\sthe\sempty-dirs\ssetting\shandler\sfrom\sa\sone-off\sparser\sto\nglob_create()\sboth\sso\swe\sget\sconsistent\sbehavior\sacross\sthe\ssettings\sand\nbecause\sglob_create()\sallows\squoted\swhitespace,\sneeded\swhen\sasking\sit\sto\ncreate\sdirectories\swith\sspaces\sin\sthem.\s\sAddresses\n[forum:/forumpost/bdbb295ee308c9d6\s|\sthis\sforum\sreport].
+D 2023-05-22T22:11:07.079
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/content.c 8aa7c10aedf440d3205d9614fa73aff492d725a6c44a1ea60d64fbbd499c2e15
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c b23d4c4532f5f6cf9cb466ec09c1aa292333a21ef03b9b2672854bdbea55f005
+F src/db.c 8ed0087e7125f9f5a621ef93c1bcbe9fa536385e55725b117cc429971669eb0a
 F src/default.css 686748203d09a80b55c72a94a8dd66e05648b1f24ddb8fe5850c2fc673cee171
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 11edf9d3d870b246ee7315f5f2fe62a1e7ca4f5093a6b07b6ed1adeb3f36574e
@@ -573,7 +573,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c d303b5daf9b968dea07b4abfb5e00f7e5f889cbfb41d897f5ee31ffee1b6ee67
-F src/update.c d9c85d35025c4ee3f6c94df29ee6b508cb93c2e49b59949973e5a3bfd0c43332
+F src/update.c a738bfcb2da0259fc2b40f2718243d7cc590818be06830952257e451a7397307
 F src/url.c 416b3d0912569de0864b4a23e9f19f8b06c6a7857e95bb4075a10a3752a83c9a
 F src/user.c ab9b76d862654d1ac9a8b9a7a9c2fb4cca8f6b056b14ae951b86d6622108eb94
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -776,7 +776,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 00c058d2f8020df4d2853e0c09dfb5fbf12a2ec20e3ba003588004e896fbde88
+F www/changes.wiki 6038d6d026aea31eb5bd8c6b52b82e2845f9bd85231d037eb487b273c3b08f9f
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b878923997bbcf1eded6861a357b5ab454bb442369effe1c9eea20f2d9498393
-R eabf179feb30db33175f10f12cd73cab
+P c43205d738bc36620d3bc2cad12a4de97f32eca72daa9c0cdf632cd5b6191fcc
+R 5ea9a20128804a893f04757abee35f03
 U wyoung
-Z 1b452eea39267ea699425d34fb1c08d2
+Z b56d81ea54de2ddaccfab93fa070862f
 # Remove this line to create a well-formed Fossil manifest.
