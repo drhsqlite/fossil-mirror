@@ -29,6 +29,9 @@
      [./settings.wiki#versionable|versioned settings].
   *  Default permissions for anonymous users in new repositories is
      changed to "hz".
+  *  "fossil status" now detects when a file used to be a symlink and
+     has been replaced by a regular file with the same content.  (It
+	 previously checked for the inverse case only.)
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use

@@ -257,6 +257,9 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     if( origPerm!=PERM_LNK && currentPerm==PERM_LNK ){
        /* Changing to a symlink takes priority over all other change types. */
        chnged = 7;
+    }else if( origPerm==PERM_LNK && currentPerm!=PERM_LNK ){
+      /* Ditto, other direction */
+      chnged = 9;
     }else if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
        /* Confirm metadata change types. */
       if( origPerm==currentPerm ){

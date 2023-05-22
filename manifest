@@ -1,5 +1,5 @@
-C Update\sPikchr\sto\somit\sthe\sartifical\senlargement\sof\s"mono"\stext.
-D 2023-05-18T17:02:18.683
+C Fixed\sa\ssymmetry\sproblem\sin\sthe\svfile.chnged\simplementation:\sit\shad\san\nexplicit\scheck\sfor\swhen\sa\sfile\sused\sto\sbe\sa\sregular\sfile\sand\swas\nreplaced\sby\sa\ssymlink\spointing\sto\sthe\ssame\scontent,\sbut\sit\sdidn't\sthen\ncheck\sfor\sthe\sinverse\scase.\sSince\sthe\ssize\sand\shash\schecks\sbecome\nnonsense\swhen\sboth\sfiles\saren't\sof\sthe\ssame\stype\s(whether\ssymlinks\sor\nregular\sfiles)\swe\shave\sto\scheck\sfor\sthis\scase,\stoo,\selse\sthe\sonly\sway\sto\nget\sthe\s"UNLINK"\soutput\sfrom\s"fossil\sstatus"\srequired\strickery.\n\nSee\s[forum:/forum/forumpost/204ff988263d7795\s|\sthis\sforum\spost]\sfor\sa\ntest\scase\sand\sthe\strick\spreviously\sneeded\sto\sget\sFossil\sto\sreport\n"UNLINK"\sas\sa\sfile's\schange\sstatus.
+D 2023-05-22T21:00:09.423
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -580,7 +580,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c 13fb0200f0b7495ec4db105b6b32f313349c677c9da80e98c1c38171ad5807d1
+F src/vfile.c 9b4270efae5bf3f8fa71a62823003967c6d68ef40ea67cbbb1540159d03b3620
 F src/wiki.c f1a556eb1c3442167d5a2631dd55ffb17b09d5b7487630912453b619e83ec3fd
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 0232d269e8e338acd5fda4154f62a0e27c02a74c423941f6e62a7f41add5454c
@@ -776,7 +776,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 41d3cf066a8bd6b0c6963fbf461516274b2145a829c55e25f69eb10f793bddfe
+F www/changes.wiki cd102a48c2ce2f97e8b9a4a1b2325a4c7ac90a8085596a3c4a4a5b945e99e85c
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 055c9000ec99b86795722866f2b42b947aab19635d562f5bdf88fbd4cdba21a2
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43eefe66ed97acaf844bfe8227851a9886994e7185e4a4619a920cb98dc92072
-R fda6595a2cf0516cd60b2a3f67937806
-U drh
-Z f6d3557cef8dd75e493d5209401a71e7
+P b1c0409a56baebf474abce8cc738e13740ab11a75f75f6013e872fb66cadf185
+R c41c6f2c0a82ac86467826ddd2ece807
+U wyoung
+Z 09cf603464d36b625be6939af439cba0
 # Remove this line to create a well-formed Fossil manifest.
