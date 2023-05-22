@@ -4161,9 +4161,10 @@ struct Setting {
 */
 /*
 ** SETTING: binary-glob     width=40 versionable block-text
-** The VALUE of this setting is a comma or newline-separated list of
-** GLOB patterns that should be treated as binary files
-** for committing and merging purposes.  Example: *.jpg
+** The VALUE of this setting is a list of GLOB patterns matching files
+** that should be treated as "binary" for committing and merging
+** purposes.  Example: *.jpg,*.png  The parsing rules are complex;
+** see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 #if defined(_WIN32)||defined(__CYGWIN__)||defined(__DARWIN__)
 /*
@@ -4185,10 +4186,10 @@ struct Setting {
 #endif
 /*
 ** SETTING: clean-glob      width=40 versionable block-text
-** The VALUE of this setting is a comma or newline-separated list of GLOB
-** patterns specifying files that the "clean" command will
-** delete without prompting or allowing undo.
-** Example: *.a,*.lib,*.o
+** The VALUE of this setting is a list of GLOB patterns matching files
+** that the "clean" command will delete without prompting or allowing
+** undo.  Example: *.a,*.o,*.so  The parsing rules are complex;
+** see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 /*
 ** SETTING: clearsign       boolean default=off
@@ -4220,11 +4221,11 @@ struct Setting {
 */
 /*
 ** SETTING: crlf-glob       width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB patterns for
-** text files in which it is ok to have CR, CR+LF or mixed
-** line endings. Set to "*" to disable CR+LF checking.
+** The VALUE of this setting is a list of GLOB patterns matching files
+** in which it is allowed to have CR, CR+LF or mixed line endings,
+** suppressing Fossil's normal warning about this. Set it to "*" to
+** disable CR+LF checking entirely.  Example: *.md,*.txt
 ** The crnl-glob setting is a compatibility alias.
-*/
 /*
 ** SETTING: crnl-glob       width=40 versionable block-text
 ** This is an alias for the crlf-glob setting.
@@ -4275,11 +4276,11 @@ struct Setting {
 */
 /*
 ** SETTING: encoding-glob   width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB
-** patterns specifying files that the "commit" command will
-** ignore when issuing warnings about text files that may
-** use another encoding than ASCII or UTF-8. Set to "*"
-** to disable encoding checking.
+** The VALUE of this setting is a list of GLOB patterns matching files that
+** the "commit" command will ignore when issuing warnings about text files
+** that may use another encoding than ASCII or UTF-8. Set to "*" to disable
+** encoding checking.  Example: *.md,*.txt  The parsing rules are complex;
+** see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
 /*
@@ -4298,10 +4299,11 @@ struct Setting {
 
 /*
 ** SETTING: fileedit-glob       width=40 block-text
-** A comma- or newline-separated list of globs of filenames
-** which are allowed to be edited using the /fileedit page.
-** An empty list prohibits editing via that page. Note that
-** it cannot edit binary files, so the list should not
+** The VALUE of this setting is a list of GLOB patterns matching files
+** which are allowed to be edited using the /fileedit page.  An empty list
+** suppresses the feature.  Example: *.md,*.txt  The parsing rules are
+** complex; see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
+** Note that /fileedit cannot edit binary files, so the list should not
 ** contain any globs for, e.g., images or PDFs.
 */
 /*
@@ -4343,17 +4345,17 @@ struct Setting {
 */
 /*
 ** SETTING: ignore-glob      width=40 versionable block-text
-** The value is a list of GLOB patterns, separated by spaces,
-** commas, or newlines, specifying files that the "add",
-** "addremove", "clean", and "extras" commands will ignore.
-**
-** Example:  *.log, customCode.c, notes.txt
+** The VALUE of this setting is a list of GLOB patterns matching files that
+** the "add", "addremove", "clean", and "extras" commands will ignore.
+** Example: *.log,notes.txt  The parsing rules are complex; see
+** https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 /*
 ** SETTING: keep-glob        width=40 versionable block-text
-** The value is list of GLOB patterns, separated by spaces,
-** commas, or newlines, specifying files that the "clean"
-** command will keep.
+** The VALUE of this setting is a list of GLOB patterns matching files that
+** the "clean" command must not delete.  Example: build/precious.exe
+** The parsing rules are complex; see
+** https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 /*
 ** SETTING: localauth        boolean default=off
