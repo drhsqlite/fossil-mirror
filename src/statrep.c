@@ -146,43 +146,15 @@ static const char *stats_report_label_for_type(){
 
 
 /*
-** Helper for stats_report_by_month_year(), which generates a list of
-** week numbers. zTimeframe should be either a timeframe in the form YYYY
-** or YYYY-MM.
-*/
-static void stats_report_output_week_links(const char *zTimeframe){
-  Stmt stWeek = empty_Stmt;
-  char yearPart[5] = {0,0,0,0,0};
-  memcpy(yearPart, zTimeframe, 4);
-  db_prepare(&stWeek,
-             "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
-             "count(*) AS n, "
-             "substr(date(mtime),1,%d) AS ym "
-             "FROM v_reports "
-             "WHERE ym=%Q AND mtime < current_timestamp "
-             "GROUP BY wk ORDER BY wk",
-             strlen(zTimeframe),
-             zTimeframe);
-  while( SQLITE_ROW == db_step(&stWeek) ){
-    const char *zWeek = db_column_text(&stWeek,0);
-    const int nCount = db_column_int(&stWeek,1);
-    cgi_printf("<a href='%R/timeline?"
-               "yw=%t-%t&n=%d&y=%s'>%s</a>",
-               yearPart, zWeek,
-               nCount, statsReportTimelineYFlag, zWeek);
-  }
-  db_finalize(&stWeek);
-}
-
-/*
 ** Implements the "byyear" and "bymonth" reports for /reports.
 ** If includeMonth is true then it generates the "bymonth" report,
 ** else the "byyear" report. If zUserName is not NULL then the report is
 ** restricted to events created by the named user account.
 */
-static void stats_report_by_month_year(char includeMonth,
-                                       char includeWeeks,
-                                       const char *zUserName){
+static void stats_report_by_month_year(
+  char includeMonth,        /* 0 for stats-by-year.  1 for stats-by-month */
+  const char *zUserName     /* Only report events by this user */
+){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
@@ -243,7 +215,7 @@ static void stats_report_by_month_year(char includeMonth,
   while( SQLITE_ROW == db_step(&query) ){
     const char *zTimeframe = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    int nSize = nCount
+    int nSize = (nCount>0 && nMaxEvents>0)
       ? (int)(100 * nCount / nMaxEvents)
       : 1;
     showYearTotal = 0;
@@ -299,17 +271,7 @@ static void stats_report_by_month_year(char includeMonth,
     @ <div class='statistics-report-graph-line'
     @  style='width:%d(nSize)%%;'>&nbsp;</div>
     @ </td>
-    @</tr>
-    if(includeWeeks){
-      /* This part works fine for months but it terribly slow (4.5s on my PC),
-         so it's only shown for by-year for now. Suggestions/patches for
-         a better/faster layout are welcomed. */
-      @ <tr class='row%d(rowClass)'>
-      @ <td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
-      @ <td class='statistics-report-week-of-year-list'>
-      stats_report_output_week_links(zTimeframe);
-      @ </td></tr>
-    }
+    @ </tr>
 
     /*
       Potential improvement: calculate the min/max event counts and
@@ -631,8 +593,8 @@ static void stats_report_hour_of_day(const char *zUserName){
 
 /*
 ** Helper for stats_report_by_month_year(), which generates a list of
-** week numbers. zTimeframe should be either a timeframe in the form YYYY
-** or YYYY-MM. If zUserName is not NULL then the report is restricted to events
+** week numbers.  The "y" query parameter is the year in format YYYY.
+** If zUserName is not NULL then the report is restricted to events
 ** created by the named user account.
 */
 static void stats_report_year_weeks(const char *zUserName){
@@ -654,7 +616,7 @@ static void stats_report_year_weeks(const char *zUserName){
   if( zYear==0 || strlen(zYear)!=4 ){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
-  cgi_printf("<br>");
+  cgi_printf("<br>\n");
   db_prepare(&q,
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
              "       count(*) AS n "
@@ -672,13 +634,13 @@ static void stats_report_year_weeks(const char *zUserName){
   style_table_sorter();
   cgi_printf("<table class='statistics-report-table-events sortable' "
               "border='0' cellpadding='2' width='100%%' "
-             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>");
+             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
   cgi_printf("<thead><tr>"
              "<th>Week</th>"
              "<th>Events</th>"
              "<th width='90%%'><!-- relative commits graph --></th>"
-             "</tr></thead>"
-             "<tbody>");
+             "</tr></thead>\n"
+             "<tbody>\n");
   while( SQLITE_ROW == db_step(&q) ){
     const int nCount = db_column_int(&q, 1);
     if(nCount>nMaxEvents){
@@ -711,7 +673,7 @@ static void stats_report_year_weeks(const char *zUserName){
                  "style='width:%d%%;'>&nbsp;</div>",
                  nSize);
     }
-    cgi_printf("</td></tr>");
+    cgi_printf("</td></tr>\n");
   }
   db_finalize(&q);
   cgi_printf("</tbody></table>");
@@ -869,10 +831,10 @@ void stats_report_page(){
   style_header("Activity Reports");
   switch( eType ){
     case RPT_BYYEAR:
-      stats_report_by_month_year(0, 0, zUserName);
+      stats_report_by_month_year(0, zUserName);
       break;
     case RPT_BYMONTH:
-      stats_report_by_month_year(1, 0, zUserName);
+      stats_report_by_month_year(1, zUserName);
       break;
     case RPT_BYWEEK:
       stats_report_year_weeks(zUserName);
