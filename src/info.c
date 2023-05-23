@@ -3379,7 +3379,7 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr" \
   @ data-branch='%h(zBranchName)'%s(zNewBrFlag)>
-  @ Make this check-in the start of a new branch named:</label>
+  @ Starting from this check-in, rename the branch to:</label>
   @ <input id="brname" type="text" style="width:15;" name="brname" \
   @ value="%h(zNewBranch)"></td></tr>
   if( !fHasHidden ){
@@ -3479,7 +3479,7 @@ static void prepare_amend_comment(
 **    --branchcolor COLOR     Apply and propagate COLOR to the branch
 **    --tag TAG               Add new TAG to this check-in
 **    --cancel TAG            Cancel TAG from this check-in
-**    --branch NAME           Make this check-in the start of branch NAME
+**    --branch NAME           Rename branch of check-in to NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
 **    -n|--dry-run            Print control artifact, but make no changes
