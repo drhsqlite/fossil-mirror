@@ -33,21 +33,53 @@
 #if defined(_WIN32)
 #  if USE_SEE
 #    include <windows.h>
+#    define GETPID (int)GetCurrentProcessId
 #  endif
 #else
 #  include <pwd.h>
+#  if USE_SEE
+#    define GETPID getpid
+#  endif
 #endif
 #if USE_SEE && !defined(SQLITE_HAS_CODEC)
 #  define SQLITE_HAS_CODEC
+#endif
+#if USE_SEE && defined(__linux__)
+#  include <sys/uio.h>
 #endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
+
+/* BUGBUG: This (PID_T) does not work inside of INTERFACE block. */
+#if USE_SEE
+#if defined(_WIN32)
+typedef DWORD PID_T;
+#else
+typedef pid_t PID_T;
+#endif
+#endif
+
 #include "db.h"
 
 #if INTERFACE
+/*
+** Type definitions used for handling the saved encryption key for SEE.
+*/
+#if !defined(_WIN32)
+typedef void *LPVOID;
+typedef size_t SIZE_T;
+#endif
+
+/*
+** Operations for db_maybe_handle_saved_encryption_key_for_process, et al.
+*/
+#define SEE_KEY_READ  ((int)0)
+#define SEE_KEY_WRITE ((int)1)
+#define SEE_KEY_ZERO  ((int)2)
+
 /*
 ** An single SQL statement is represented as an instance of the following
 ** structure.
@@ -1541,7 +1573,26 @@ static char *zSavedKey = 0;
 /*
 ** This is the size of the saved database encryption key, in bytes.
 */
-size_t savedKeySize = 0;
+static size_t savedKeySize = 0;
+
+/*
+** This function returns non-zero if there is a saved database encryption
+** key available.
+*/
+int db_have_saved_encryption_key(){
+  return db_is_valid_saved_encryption_key(zSavedKey, savedKeySize);
+}
+
+/*
+** This function returns non-zero if the specified database encryption key
+** is valid.
+*/
+int db_is_valid_saved_encryption_key(const char *p, size_t n){
+  if( p==0 ) return 0;
+  if( n==0 ) return 0;
+  if( p[0]==0 ) return 0;
+  return 1;
+}
 
 /*
 ** This function returns the saved database encryption key -OR- zero if
@@ -1560,6 +1611,32 @@ size_t db_get_saved_encryption_key_size(){
 }
 
 /*
+** This function arranges for the saved database encryption key buffer
+** to be allocated and then sets up the environment variable to allow
+** a child process to initialize it with the actual database encryption
+** key.
+*/
+void db_setup_for_saved_encryption_key(){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+  Blob pidKey;
+
+  assert( !db_have_saved_encryption_key() );
+  db_unsave_encryption_key();
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  blob_zero(&pidKey);
+  blob_appendf(&pidKey, "%lu:%p:%u", (unsigned long)GETPID(), p, n);
+  fossil_setenv("FOSSIL_SEE_PID_KEY", blob_str(&pidKey));
+  zSavedKey = p;
+  savedKeySize = n;
+}
+
+/*
 ** This function arranges for the database encryption key to be securely
 ** saved in non-pagable memory (on platforms where this is possible).
 */
@@ -1571,6 +1648,7 @@ static void db_save_encryption_key(
   size_t pageSize = 0;
   size_t blobSize = 0;
 
+  assert( !db_have_saved_encryption_key() );
   blobSize = blob_size(pKey);
   if( blobSize==0 ) return;
   fossil_get_page_size(&pageSize);
@@ -1601,7 +1679,7 @@ void db_unsave_encryption_key(){
 ** This function sets the saved database encryption key to the specified
 ** string value, allocating or freeing the underlying memory if needed.
 */
-void db_set_saved_encryption_key(
+static void db_set_saved_encryption_key(
   Blob *pKey
 ){
   if( zSavedKey!=NULL ){
@@ -1621,21 +1699,75 @@ void db_set_saved_encryption_key(
   }
 }
 
-#if defined(_WIN32)
 /*
-** This function sets the saved database encryption key to one that gets
-** read from the specified Fossil parent process.  This is only necessary
-** (or functional) on Windows.
+** WEBPAGE: setseekey
+**
+** Sets the sets the saved database encryption key to one that gets passed
+** via the "key" query string parameter.  If the saved database encryption
+** key has already been set, does nothing.  This web page does not produce
+** any output on success or failure.  No permissions are required and none
+** are checked (partially due to lack of encrypted database access).
+**
+** Query parameters:
+**
+**   key                 The string to set as the saved database encryption
+**                       key.
 */
-void db_read_saved_encryption_key_from_process(
-  DWORD processId, /* Identifier for Fossil parent process. */
+void db_set_see_key_page(void){
+  Blob key;
+  const char *zKey;
+  if( db_have_saved_encryption_key() ){
+    fossil_trace("SEE: encryption key was already set\n");
+    return;
+  }
+  zKey = P("key");
+  blob_init(&key, 0, 0);
+  if( zKey!=0 ){
+    PID_T processId;
+    blob_set(&key, zKey);
+    db_set_saved_encryption_key(&key);
+    processId = db_maybe_handle_saved_encryption_key_for_process(
+      SEE_KEY_WRITE
+    );
+    fossil_trace("SEE: set encryption key for process %lu, length %u\n",
+                 (unsigned long)processId, blob_size(&key));
+  }else{
+    fossil_trace("SEE: no encryption key specified\n");
+  }
+  blob_reset(&key);
+}
+
+/*
+** WEBPAGE: unsetseekey
+**
+** Sets the saved database encryption key to zeros in the current and parent
+** Fossil processes.  This web page does not produce any output on success
+** or failure.  Setup permission is required.
+*/
+void db_unset_see_key_page(void){
+  PID_T processId;
+  login_check_credentials();
+  if( !g.perm.Setup ){ login_needed(0); return; }
+  processId = db_maybe_handle_saved_encryption_key_for_process(
+    SEE_KEY_ZERO
+  );
+  fossil_trace("SEE: unset encryption key for process %lu\n",
+               (unsigned long)processId);
+}
+
+/*
+** This function reads the saved database encryption key from the
+** specified Fossil parent process.  This is only necessary (or
+** functional) on Windows or Linux.
+*/
+static void db_read_saved_encryption_key_from_process(
+  PID_T processId, /* Identifier for Fossil parent process. */
   LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
   SIZE_T nSize     /* Size of saved key buffer in the parent process. */
 ){
   void *p = NULL;
   size_t n = 0;
   size_t pageSize = 0;
-  HANDLE hProcess = NULL;
 
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
@@ -1646,26 +1778,182 @@ void db_read_saved_encryption_key_from_process(
   assert( p!=NULL );
   assert( n==pageSize );
   assert( n>=nSize );
-  hProcess = OpenProcess(PROCESS_VM_READ, FALSE, processId);
-  if( hProcess!=NULL ){
-    SIZE_T nRead = 0;
-    if( ReadProcessMemory(hProcess, pAddress, p, nSize, &nRead) ){
-      CloseHandle(hProcess);
-      if( nRead==nSize ){
-        db_unsave_encryption_key();
-        zSavedKey = p;
-        savedKeySize = n;
+  {
+#if defined(_WIN32)
+    HANDLE hProcess = OpenProcess(PROCESS_VM_READ, FALSE, processId);
+    if( hProcess!=NULL ){
+      SIZE_T nRead = 0;
+      if( ReadProcessMemory(hProcess, pAddress, p, nSize, &nRead) ){
+        CloseHandle(hProcess);
+        if( nRead==nSize ){
+          db_unsave_encryption_key();
+          zSavedKey = p;
+          savedKeySize = n;
+        }else{
+          fossil_secure_free_page(p, n);
+          fossil_panic("bad size read, %u out of %u bytes at %p from pid %lu",
+                       nRead, nSize, pAddress, processId);
+        }
       }else{
-        fossil_panic("bad size read, %u out of %u bytes at %p from pid %lu",
-                     nRead, nSize, pAddress, processId);
+        CloseHandle(hProcess);
+        fossil_secure_free_page(p, n);
+        fossil_panic("failed read, %u bytes at %p from pid %lu: %lu", nSize,
+                     pAddress, processId, GetLastError());
       }
     }else{
-      CloseHandle(hProcess);
-      fossil_panic("failed read, %u bytes at %p from pid %lu: %lu", nSize,
-                   pAddress, processId, GetLastError());
+      fossil_secure_free_page(p, n);
+      fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
     }
-  }else{
-    fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
+#elif defined(__linux__)
+    ssize_t nRead;
+    struct iovec liov = {0};
+    struct iovec riov = {0};
+    liov.iov_base = p;
+    liov.iov_len = n;
+    riov.iov_base = pAddress;
+    riov.iov_len = nSize;
+    nRead = process_vm_readv(processId, &liov, 1, &riov, 1, 0);
+    if( nRead==nSize ){
+      db_unsave_encryption_key();
+      zSavedKey = p;
+      savedKeySize = n;
+    }else{
+      fossil_secure_free_page(p, n);
+      fossil_panic("bad size read, %zd out of %zu bytes at %p from pid %lu",
+                   nRead, nSize, pAddress, (unsigned long)processId);
+    }
+#else
+    fossil_secure_free_page(p, n);
+    fossil_trace("db_read_saved_encryption_key_from_process unsupported");
+#endif
+  }
+}
+
+/*
+** This function writes the saved database encryption key into the
+** specified Fossil parent process.  This is only necessary (or
+** functional) on Windows or Linux.
+*/
+static void db_write_saved_encryption_key_to_process(
+  PID_T processId, /* Identifier for Fossil parent process. */
+  LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
+  SIZE_T nSize     /* Size of saved key buffer in the parent process. */
+){
+  void *p = db_get_saved_encryption_key();
+  size_t n = db_get_saved_encryption_key_size();
+  size_t pageSize = 0;
+
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( nSize>pageSize ){
+    fossil_panic("key too large: %u versus %u", nSize, pageSize);
+  }
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=nSize );
+  {
+#if defined(_WIN32)
+    HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION|PROCESS_VM_WRITE,
+                                  FALSE, processId);
+    if( hProcess!=NULL ){
+      SIZE_T nWrite = 0;
+      if( WriteProcessMemory(hProcess, pAddress, p, nSize, &nWrite) ){
+        CloseHandle(hProcess);
+        if( nWrite!=nSize ){
+          fossil_panic("bad size write, %u out of %u bytes at %p from pid %lu",
+                       nWrite, nSize, pAddress, processId);
+        }
+      }else{
+        CloseHandle(hProcess);
+        fossil_panic("failed write, %u bytes at %p from pid %lu: %lu", nSize,
+                     pAddress, processId, GetLastError());
+      }
+    }else{
+      fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
+    }
+#elif defined(__linux__)
+    ssize_t nWrite;
+    struct iovec liov = {0};
+    struct iovec riov = {0};
+    liov.iov_base = p;
+    liov.iov_len = n;
+    riov.iov_base = pAddress;
+    riov.iov_len = nSize;
+    nWrite = process_vm_writev(processId, &liov, 1, &riov, 1, 0);
+    if( nWrite!=nSize ){
+      fossil_panic("bad size write, %zd out of %zu bytes at %p from pid %lu",
+                   nWrite, nSize, pAddress, (unsigned long)processId);
+    }
+#else
+    fossil_trace("db_write_saved_encryption_key_to_process unsupported");
+#endif
+  }
+}
+
+/*
+** This function zeros the saved database encryption key in the specified
+** Fossil parent process.  This is only necessary (or functional) on
+** Windows or Linux.
+*/
+static void db_zero_saved_encryption_key_in_process(
+  PID_T processId, /* Identifier for Fossil parent process. */
+  LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
+  SIZE_T nSize     /* Size of saved key buffer in the parent process. */
+){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( nSize>pageSize ){
+    fossil_panic("key too large: %u versus %u", nSize, pageSize);
+  }
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=nSize );
+  {
+#if defined(_WIN32)
+    HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION|PROCESS_VM_WRITE,
+                                  FALSE, processId);
+    if( hProcess!=NULL ){
+      SIZE_T nWrite = 0;
+      if( WriteProcessMemory(hProcess, pAddress, p, nSize, &nWrite) ){
+        CloseHandle(hProcess);
+        fossil_secure_free_page(p, n);
+        if( nWrite!=nSize ){
+          fossil_panic("bad size zero, %u out of %u bytes at %p from pid %lu",
+                       nWrite, nSize, pAddress, processId);
+        }
+      }else{
+        CloseHandle(hProcess);
+        fossil_secure_free_page(p, n);
+        fossil_panic("failed zero, %u bytes at %p from pid %lu: %lu", nSize,
+                     pAddress, processId, GetLastError());
+      }
+    }else{
+      fossil_secure_free_page(p, n);
+      fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
+    }
+#elif defined(__linux__)
+    ssize_t nWrite;
+    struct iovec liov = {0};
+    struct iovec riov = {0};
+    liov.iov_base = p;
+    liov.iov_len = n;
+    riov.iov_base = pAddress;
+    riov.iov_len = nSize;
+    nWrite = process_vm_writev(processId, &liov, 1, &riov, 1, 0);
+    if( nWrite!=nSize ){
+      fossil_secure_free_page(p, n);
+      fossil_panic("bad size zero, %zd out of %zu bytes at %p from pid %lu",
+                   nWrite, nSize, pAddress, (unsigned long)processId);
+    }
+#else
+    fossil_secure_free_page(p, n);
+    fossil_trace("db_zero_saved_encryption_key_in_process unsupported");
+#endif
   }
 }
 
@@ -1673,11 +1961,14 @@ void db_read_saved_encryption_key_from_process(
 ** This function evaluates the specified TH1 script and attempts to parse
 ** its result as a colon-delimited triplet containing a process identifier,
 ** address, and size (in bytes) of the database encryption key.  This is
-** only necessary (or functional) on Windows.
+** only necessary (or functional) on Windows or Linux.
 */
-void db_read_saved_encryption_key_from_process_via_th1(
-  const char *zConfig /* The TH1 script to evaluate. */
+static PID_T db_handle_saved_encryption_key_for_process_via_th1(
+  const char *zConfig, /* The TH1 script to evaluate. */
+  int eType            /* Non-zero to write key to parent process -OR-
+                        * zero to read it from the parent process. */
 ){
+  PID_T processId = 0;
   int rc;
   char *zResult;
   char *zPwd = file_getcwd(0, 0);
@@ -1688,16 +1979,61 @@ void db_read_saved_encryption_key_from_process_via_th1(
     fossil_fatal("script for pid key failed: %s", zResult);
   }
   if( zResult ){
-    DWORD processId = 0;
     LPVOID pAddress = NULL;
     SIZE_T nSize = 0;
     parse_pid_key_value(zResult, &processId, &pAddress, &nSize);
-    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+    if( eType==SEE_KEY_READ ){
+      db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_WRITE ){
+      db_write_saved_encryption_key_to_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_ZERO ){
+      db_zero_saved_encryption_key_in_process(processId, pAddress, nSize);
+    }else{
+      fossil_panic("unsupported SEE key operation %d", eType);
+    }
   }
   file_chdir(zPwd, 0);
   fossil_free(zPwd);
+  return processId;
 }
-#endif /* defined(_WIN32) */
+
+/*
+** This function sets the saved database encryption key to one that gets
+** read from the specified Fossil parent process, if applicable.  This is
+** only necessary (or functional) on Windows or Linux.
+*/
+PID_T db_maybe_handle_saved_encryption_key_for_process(int eType){
+  PID_T processId = 0;
+  g.zPidKey = find_option("usepidkey",0,1);
+  if( !g.zPidKey ){
+    g.zPidKey = fossil_getenv("FOSSIL_SEE_PID_KEY");
+  }
+  if( g.zPidKey ){
+    LPVOID pAddress = NULL;
+    SIZE_T nSize = 0;
+    parse_pid_key_value(g.zPidKey, &processId, &pAddress, &nSize);
+    if( eType==SEE_KEY_READ ){
+      db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_WRITE ){
+      db_write_saved_encryption_key_to_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_ZERO ){
+      db_zero_saved_encryption_key_in_process(processId, pAddress, nSize);
+    }else{
+      fossil_panic("unsupported SEE key operation %d", eType);
+    }
+  }else{
+    const char *zSeeDbConfig = find_option("seedbcfg",0,1);
+    if( !zSeeDbConfig ){
+      zSeeDbConfig = fossil_getenv("FOSSIL_SEE_DB_CONFIG");
+    }
+    if( zSeeDbConfig ){
+      processId = db_handle_saved_encryption_key_for_process_via_th1(
+        zSeeDbConfig, eType
+      );
+    }
+  }
+  return processId;
+}
 #endif /* USE_SEE */
 
 /*
