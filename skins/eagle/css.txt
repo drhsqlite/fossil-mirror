@@ -418,7 +418,12 @@ table.numbered-lines td.line-numbers span.selected-line {
 }
 
 .statistics-report-graph-line {
+  border: 2px solid #7EA2D9;
   background-color: #7EA2D9;
+}
+.statistics-report-graph-extra {
+  border: 2px solid #7EA2D9;
+  border-left-style: none;
 }
 
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {

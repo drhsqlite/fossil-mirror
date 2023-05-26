@@ -1389,7 +1389,12 @@ span.ueditInheritAnonymous {
   background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDUuODIxIDUuODIxIj48cmVjdCByeT0iLjI2NSIgcng9Ii4yNjUiIHk9Ii0uMDAxIiBoZWlnaHQ9IjUuODIxIiB3aWR0aD0iNS44MjEiIGZpbGw9IiM1NTUiLz48cGF0aCBkPSJNMS43NTIgMy45NjhoLjc5M20tLjc5My0yLjExN2guNzkzbS0uNzkzIDIuMTE3Yy0uMzQzIDAtLjY1OS0uMTE5LS44My0uNDE1LS4xNzEtLjI5Ny0uMTcxLS45OSAwLTEuMjg3LjE3MS0uMjk2LjQ4Ny0uNDE1LjgzLS40MTVtMi4yMTcgMi4xMTdoLS43OTRtLjc5NC0yLjExN2gtLjc5NG0uNzk0IDIuMTE3Yy4zNDIgMCAuNjU4LS4xMTkuODMtLjQxNS4xNy0uMjk3LjE3LS45OSAwLTEuMjg3LS4xNzItLjI5Ni0uNDg4LS40MTUtLjgzLS40MTVNMi4xMTcgMi45MWgxLjU4NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9Ii41MjkiLz48L3N2Zz4=)
 }
 .statistics-report-graph-line {
-  background-color: #ff8000
+  border: 2px solid #ff8000;
+  background-color: #ff8000;
+}
+.statistics-report-graph-extra {
+  border: 2px dashed #446979;
+  border-left-style: none;
 }
 mark,
 p.noMoreShun,

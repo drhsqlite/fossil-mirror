@@ -171,6 +171,13 @@ static void stats_report_by_month_year(
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
+
+  char *zCurrentTF;                  /* The timeframe in which 'now' lives */
+  double rNowFraction;               /* Fraction of 'now' timeframe that has
+                                        passed */
+  int nTFChar;                       /* Prefix of date() for timeframe */
+
+  nTFChar = includeMonth ? 7 : 4;
   stats_report_init_view();
   db_prepare(&query,
              "SELECT substr(date(mtime),1,%d) AS timeframe,"
@@ -179,7 +186,7 @@ static void stats_report_by_month_year(
              " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
              " GROUP BY timeframe"
              " ORDER BY timeframe DESC",
-             includeMonth ? 7 : 4, zUserName);
+             nTFChar, zUserName);
   @ <h1>Timeline Events (%s(stats_report_label_for_type()))
   @ by year%s(includeMonth ? "/month" : "")
   if( zUserName ){
@@ -187,12 +194,21 @@ static void stats_report_by_month_year(
   }
   @ </h1>
   @ <table border='0' cellpadding='2' cellspacing='0' \
+  zCurrentTF = db_text(0, "SELECT substr(date(),1,%d)", nTFChar);
   if( !includeMonth ){
     @ class='statistics-report-table-events sortable' \
     @ data-column-types='tnx' data-init-sort='0'>
     style_table_sorter();
+    rNowFraction = db_double(0.5,
+       "SELECT (unixepoch() - unixepoch('now','start of year'))*1.0/"
+       "        (unixepoch('now','start of year','+1 year') - "
+       "         unixepoch('now','start of year'));");
   }else{
     @ class='statistics-report-table-events'>
+    rNowFraction = db_double(0.5,
+       "SELECT (unixepoch() - unixepoch('now','start of month'))*1.0/"
+       "       (unixepoch('now','start of month','+1 month') - "
+       "        unixepoch('now','start of month'));");
   }
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
@@ -205,7 +221,12 @@ static void stats_report_by_month_year(
      Fu can re-implement this with a single query.
   */
   while( SQLITE_ROW == db_step(&query) ){
-    const int nCount = db_column_int(&query, 1);
+    int nCount = db_column_int(&query, 1);
+    if( strcmp(db_column_text(&query,0),zCurrentTF)==0
+     && rNowFraction>0.05
+    ){
+      nCount = (int)(((double)nCount)/rNowFraction);
+    }
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
@@ -268,11 +289,26 @@ static void stats_report_by_month_year(
     }
     @ </td><td>%d(nCount)</td>
     @ <td>
-    @ <div class='statistics-report-graph-line'
-    @  style='width:%d(nSize)%%;'>&nbsp;</div>
+    if( strcmp(zTimeframe, zCurrentTF)==0
+     && rNowFraction>0.05
+     && nCount>0
+     && nMaxEvents>0
+    ){
+      /* If the timespan covered by this row contains "now", then project
+      ** the number of changes until the completion of the timespan and
+      ** show a dashed box of that projection. */
+      int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
+      int nXSize = (100 * nExtra)/nMaxEvents;
+      @ <span class='statistics-report-graph-line' \
+      @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
+      @ <span class='statistics-report-graph-extra' \
+      @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
+    }else{
+      @ <div class='statistics-report-graph-line' \
+      @  style='width:%d(nSize)%%;'>&nbsp;</div> \
+    }
     @ </td>
     @ </tr>
-
     /*
       Potential improvement: calculate the min/max event counts and
       use percent-based graph bars.
