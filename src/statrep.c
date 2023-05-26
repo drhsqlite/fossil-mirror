@@ -816,7 +816,15 @@ static void stats_report_last_change(void){
 **
 ** Query Parameters:
 **
-**   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
+**   view=REPORT_NAME  Valid REPORT_NAME values:
+**                        * byyear
+**                        * bymonth
+**                        * byweek
+**                        * byweekday
+**                        * byhour
+**                        * byuser
+**                        * byfile
+**                        * lastchng
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
 **                     ci (check-in), f (forum), w (wiki), t (ticket), g (tag)
