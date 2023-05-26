@@ -641,6 +641,9 @@ static void stats_report_year_weeks(const char *zUserName){
   int iterations = 0;                /* # of active time periods. */
   int rowCount = 0;
   int total = 0;
+  char *zCurrentWeek;                /* Current week number */
+  double rNowFraction = 0.0;         /* Fraction of current week that has
+                                     ** passed */
 
   stats_report_init_view();
   style_submenu_sql("y", "Year:",
@@ -667,7 +670,14 @@ static void stats_report_year_weeks(const char *zUserName){
     @  for user %h(zUserName)
   }
   @ </h1>
-  style_table_sorter();
+  zCurrentWeek = db_text(0,
+      "SELECT strftime('%%W','now') WHERE date() LIKE '%q%%'",
+      zYear);
+  if( zCurrentWeek ){
+    rNowFraction = db_double(0.5,
+      "SELECT (unixepoch()-unixepoch('now','weekday 0','-7 days'))/604800.0;");
+  }
+    style_table_sorter();
   cgi_printf("<table class='statistics-report-table-events sortable' "
               "border='0' cellpadding='2' width='100%%' "
              "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
@@ -678,7 +688,13 @@ static void stats_report_year_weeks(const char *zUserName){
              "</tr></thead>\n"
              "<tbody>\n");
   while( SQLITE_ROW == db_step(&q) ){
-    const int nCount = db_column_int(&q, 1);
+    int nCount = db_column_int(&q, 1);
+    if( zCurrentWeek!=0
+     && strcmp(db_column_text(&q,0),zCurrentWeek)==0
+     && rNowFraction>0.05
+    ){
+      nCount = (int)(((double)nCount)/rNowFraction);
+    }
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
@@ -688,7 +704,7 @@ static void stats_report_year_weeks(const char *zUserName){
   while( SQLITE_ROW == db_step(&q) ){
     const char *zWeek = db_column_text(&q,0);
     const int nCount = db_column_int(&q,1);
-    int nSize = nCount
+    int nSize = (nCount>0 && nMaxEvents>0)
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
     if(!nSize) nSize = 1;
@@ -704,10 +720,25 @@ static void stats_report_year_weeks(const char *zUserName){
 
     cgi_printf("<td>%d</td>",nCount);
     cgi_printf("<td>");
-    if(nCount){
-      cgi_printf("<div class='statistics-report-graph-line'"
-                 "style='width:%d%%;'>&nbsp;</div>",
-                 nSize);
+    if( nCount ){
+      if( zCurrentWeek!=0
+      && strcmp(zWeek, zCurrentWeek)==0
+      && rNowFraction>0.05
+      && nMaxEvents>0
+      ){
+        /* If the covered covered by this row contains "now", then project
+        ** the number of changes until the completion of the week and
+        ** show a dashed box of that projection. */
+        int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
+        int nXSize = (100 * nExtra)/nMaxEvents;
+        @ <span class='statistics-report-graph-line' \
+        @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
+        @ <span class='statistics-report-graph-extra' \
+        @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
+      }else{
+        @ <div class='statistics-report-graph-line' \
+        @  style='width:%d(nSize)%%;'>&nbsp;</div> \
+      }
     }
     cgi_printf("</td></tr>\n");
   }
