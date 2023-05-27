@@ -928,7 +928,7 @@ static void search_indexed(
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
   for(i=0; zPat[i]; i++){
-    if( zPat[i]=='-' || zPat[i]=='"' ) zPat[i] = ' ';
+    if( zPat[i]=='-' || zPat[i]=='"' zPat[i]=='.' ) zPat[i] = ' ';
   }
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
