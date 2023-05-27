@@ -1,5 +1,5 @@
-C Improved\sdocumentation\sof\sthe\s/reports\swebpage.\s\sAdd\srecent\senhancements\sof\n/reports\sto\sthe\schange\slog.
-D 2023-05-26T10:27:31.853
+C Fix\sthe\scaptcha-audio\spage\sso\sthat\sit\sworks\seven\swithout\sa\sseed\svalue.
+D 2023-05-27T15:02:43.496
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -390,7 +390,7 @@ F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
 F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095ae44e
-F src/captcha.c 84d1273bf3610d536520062a669b4e14cf890c53d390b109ee960884a2f7bbbe
+F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c 500f7b4dfbe1dd5eb2d91a6c6e7a22632369475b8edfcecbe76728f9ed8ef572
 F src/chat.c eb1bc66e6a6cfbd9e474b3a0764a53098df7af41b7bead4ae92aeca47d57a4b5
 F src/checkin.c 402b1bafd2dac551377fe21a8bd75767c3d269753704098b4fa44d5e6baad64d
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09ca77f76a48353a31bca56475c8b21daa3d400ad61fda92cb1e6d9ccff61998
-R d1d4bda6e16393018c2ea2f86e632060
+P 5dc3d2f156915f154392d65b8b5eb809ad6658466002e6eab2ab1bbb8ca68f23
+R 032eed58b47159ae5a85f874961b7307
 U drh
-Z 06d601153834bf7c1474599ccc745235
+Z d5aec22bcd5a980b700d31bb94cda024
 # Remove this line to create a well-formed Fossil manifest.
