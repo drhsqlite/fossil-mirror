@@ -1,5 +1,5 @@
-C Fix\sthe\scaptcha-audio\spage\sso\sthat\sit\sworks\seven\swithout\sa\sseed\svalue.
-D 2023-05-27T15:02:43.496
+C Do\snot\sallow\snon-alpha\snumeric\sascii\scharacters\sinto\sthe\ssearch\spattern.\nConvert\sall\ssuch\scharacters\sinto\sa\ssingle\sspace.
+D 2023-05-27T15:54:02.462
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -517,7 +517,7 @@ F src/report.c 765896d63cab511e56de2fda492fb6ca33e5450869d697ce0c5bfbaa474f1b92
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c fb1a5b2b189396c7b86cdacf2ae069a7f49c68d56f483d67def34cea7bfc5aee
+F src/search.c 7cde6cb98391a867f5786448edfac6fea6753c2a8aad4d4f76c7c5f6398d30a8
 F src/security_audit.c f19adc73d9970e37100bfde1992a3bd46f7248dfc4943971bf51084f540f0dc8
 F src/setup.c 14e8374455a3a1f153c9e65828b9458e8acf303d8e6816d0fd5d9a29033a868f
 F src/setupuser.c 1d33f3201b35f81eced582a7f5d61aa3ce7044613cf0389c01eab1508cdbff64
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5dc3d2f156915f154392d65b8b5eb809ad6658466002e6eab2ab1bbb8ca68f23
-R 032eed58b47159ae5a85f874961b7307
+P a1178d57340baa9620731e92de175b234e8e6fd7773485b264697a417443f85f
+R ab89b261c2927ccc30a92a385b5ccc0e
 U drh
-Z d5aec22bcd5a980b700d31bb94cda024
+Z 0414a944cd3aed676dee3a5cb1433afa
 # Remove this line to create a well-formed Fossil manifest.
