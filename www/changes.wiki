@@ -35,9 +35,12 @@
   *  The [/help?cmd=empty-dirs|empty-dirs setting] now reuses the same
      parser as the *-glob settings instead of its prior idiosyncratic
      parser, allowing quoted whitespace in patterns.
-  *  The by-week, by-month, and by-year options of the
-     [/help?cmd=/reports|/reports webpage] now show an estimated ultimate
-     size of the current week, month, or year as a dashed box.
+  *  Enhancements to the [/help?cmd=/reports|/reports webpage]:
+     <ol type="a">
+     <li> The by-week, by-month, and by-year options now show an estimated
+          size of the current week, month, or year as a dashed box.
+     <li> New sub-categories "Merge Check-ins" and "Non-Merge Check-ins".
+     </ol>
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
   *  Users can request a password reset.  This feature is disabledby default.  Use

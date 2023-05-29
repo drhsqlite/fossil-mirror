@@ -83,6 +83,16 @@ static int stats_report_init_view(){
       zRealType = "g";
       rc = *zRealType;
       break;
+    case 'm':
+    case 'M':
+      zRealType = "m";
+      rc = *zRealType;
+      break;
+    case 'n':
+    case 'N':
+      zRealType = "n";
+      rc = *zRealType;
+      break;
     case 't':
     case 'T':
       zRealType = "t";
@@ -105,15 +115,24 @@ static int stats_report_init_view(){
   }else{
     zTimeSpan = " 1";
   }
-  if(zRealType){
+  if( zRealType==0 ){
+    statsReportTimelineYFlag = "a";
+    db_multi_exec("CREATE TEMP VIEW v_reports AS "
+                  "SELECT * FROM event WHERE %s", zTimeSpan/*safe-for-%s*/);
+  }else if( rc!='n' && rc!='m' ){
     statsReportTimelineYFlag = zRealType;
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
                   "SELECT * FROM event WHERE (type GLOB %Q) AND %s",
                   zRealType, zTimeSpan/*safe-for-%s*/);
   }else{
-    statsReportTimelineYFlag = "a";
-    db_multi_exec("CREATE TEMP VIEW v_reports AS "
-                  "SELECT * FROM event WHERE %s", zTimeSpan/*safe-for-%s*/);
+    const char *zNot = rc=='n' ? "NOT" : "";
+    statsReportTimelineYFlag = "ci";
+    db_multi_exec(
+      "CREATE TEMP VIEW v_reports AS "
+      "SELECT * FROM event WHERE type='ci' AND %s"
+      " AND objid %s IN (SELECT cid FROM plink WHERE NOT isprim)",
+      zTimeSpan/*safe-for-%s*/, zNot/*safe-for-%s*/
+    );        
   }
   return statsReportType = rc;
 }
@@ -129,6 +148,10 @@ static const char *stats_report_label_for_type(){
   switch( statsReportType ){
     case 'c':
       return "check-ins";
+    case 'm':
+      return "merge check-ins";
+    case 'n':
+      return "non-merge check-ins";
     case 'e':
       return "technotes";
     case 'f':
@@ -827,7 +850,14 @@ static void stats_report_last_change(void){
 **                        * lastchng
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
-**                     ci (check-in), f (forum), w (wiki), t (ticket), g (tag)
+**                        * all (everything),
+**                        * ci  (check-in)
+**                        * m   (merge check-in),
+**                        * n   (non-merge check-in)
+**                        * f   (forum post)
+**                        * w   (wiki page change)
+**                        * t   (ticket change)
+**                        * g   (tag added or removed)
 **                     Defaulting to all event types.
 **
 ** The view-specific query parameters include:
@@ -861,6 +891,8 @@ void stats_report_page(){
      "a",  "All Changes",
      "ci", "Check-ins",
      "f",  "Forum Posts",
+     "m",  "Merge check-ins",
+     "n",  "Non-merge check-ins",
      "g",  "Tags",
      "e",  "Tech Notes",
      "t",  "Tickets",
