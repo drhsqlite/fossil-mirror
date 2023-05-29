@@ -850,7 +850,14 @@ static void stats_report_last_change(void){
 **                        * lastchng
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
-**                     ci (check-in), f (forum), w (wiki), t (ticket), g (tag)
+**                        * all (everything),
+**                        * ci  (check-in)
+**                        * m   (merge check-in),
+**                        * n   (non-merge check-in)
+**                        * f   (forum post)
+**                        * w   (wiki page change)
+**                        * t   (ticket change)
+**                        * g   (tag added or removed)
 **                     Defaulting to all event types.
 **
 ** The view-specific query parameters include:
