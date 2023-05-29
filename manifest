@@ -1,5 +1,5 @@
-C Enhance\sthe\s/reports\spage\sto\sshow\stwo\snew\ssub-types\sof\sactivities:\n"Merge\sCheck-ins"\sand\s"Non-merge\sCheck-ins".
-D 2023-05-29T11:40:42.696
+C Fix\san\sissue\swith\sthe\sreport\slabels\sfor\smerge\sand\snon-merge\scheck-ins.
+D 2023-05-29T12:01:58.631
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -550,7 +550,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 4aecc676c43a00c00ca82c8f4841dc8e77690d2a2253d4cb7da22990cc2f8150
 F src/stash.c f4b160ea4d639c09eb0217c1a04a8618958f278a565b08c225b7a5a4edb74f31
 F src/stat.c 046a53c73baccf10ad88c5c2cd32d07cbb359aeaaaa25a3b637b715c926308a9
-F src/statrep.c d8976f505ab53b25d06d0045101697a445609935931facc390bb85510bb3a100
+F src/statrep.c 575a391db0d1d6b76df9d3a22abecf1578eeecd619383d7235ebfaf667080283
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d5e49fa02311b7a327fb935c668b607286971a4a409db0998a9d8e242e101165
 F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20b93ff
@@ -951,11 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 196dfedf7fc467cd98354fc9f163bae0f2a05c74850f0d4914ae7d4c6aa347e2
-R 97985b0b2e28425456afbfff60bd9b1f
-T *branch * non-merge-activity-report
-T *sym-non-merge-activity-report *
-T -sym-trunk *
+P 37a80fbfc71d741b9f4b6110062f04576507630f38d376eb3dc958350e368354
+R 61d2948b68136d997624a24832e9e5b8
 U drh
-Z cf79e6e7bc072adfb79758ff52b918a3
+Z 91009a6c69c5ac1ecaa07d1c0adf13f2
 # Remove this line to create a well-formed Fossil manifest.

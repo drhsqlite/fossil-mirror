@@ -148,6 +148,10 @@ static const char *stats_report_label_for_type(){
   switch( statsReportType ){
     case 'c':
       return "check-ins";
+    case 'm':
+      return "merge check-ins";
+    case 'n':
+      return "non-merge check-ins";
     case 'e':
       return "technotes";
     case 'f':
