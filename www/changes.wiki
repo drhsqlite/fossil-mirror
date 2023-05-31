@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2 id='v2_22'>Changes for version 2.22 (pending)</h2>
+<h2 id='v2_22'>Changes for version 2.22 (2023-05-31)</h2>
   *  Enhancements to the [/help?cmd=/timeline|/timeline webpage]: <ol type="a">
      <li> Add the ft=TAG query parameter which in combination with d=Y
           shows all descendants of Y up to TAG
