@@ -322,6 +322,59 @@ void forumthread_cmd(void){
 }
 
 /*
+** WEBPAGE:  forumthreadhashlist
+**
+** Usage:  /forumthreadhashlist/HASH-OF-ROOT
+**
+** This page (accessibly only to admins) shows a list of all artifacts
+** associated with a single forum thread.  An admin might copy/paste this
+** list into the /shun page in order to shun an entire thread.
+*/
+void forumthreadhashlist(void){
+  int fpid;
+  int froot;
+  const char *zName = P("name");
+  ForumThread *pThread;
+  ForumPost *p;
+  char *fuuid;
+
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    return;
+  }
+  if( zName==0 ){
+    webpage_error("Missing \"name=\" query parameter");
+  }
+  fpid = symbolic_name_to_rid(zName, "f");
+  if( fpid<=0 ){
+    if( fpid==0 ){
+      webpage_notfound_error("Unknown forum id: \"%s\"", zName);
+    }else{
+      ambiguous_page();
+    }
+    return;
+  }
+  froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
+  if( froot==0 ){
+    webpage_notfound_error("Not a forum post: \"%s\"", zName);
+  }
+  fuuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", froot);
+  style_set_current_feature("forum");
+  style_header("Artifacts Of Forum Thread");
+  @ <h2>
+  @ Artifacts associated with the forum thread
+  @ <a href="%R/forumthread/%S(fuuid)">%S(fuuid)</a>:</h2>
+  @ <pre>
+  pThread = forumthread_create(froot, 1);
+  for(p=pThread->pFirst; p; p=p->pNext){
+    @ %h(p->zUuid)
+  }
+  forumthread_delete(pThread);
+  @ </pre>
+  style_finish_page();
+}
+
+/*
 ** Render a forum post for display
 */
 void forum_render(
@@ -916,6 +969,9 @@ void forumthread_page(void){
   }
   style_submenu_checkbox("unf", "Unformatted", 0, 0);
   style_submenu_checkbox("hist", "History", 0, 0);
+  if( g.perm.Admin ){
+    style_submenu_element("Artifacts", "%R/forumthreadhashlist/%t", zName);
+  }
 
   /* Display the thread. */
   if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
