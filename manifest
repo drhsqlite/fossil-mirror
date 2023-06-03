@@ -1,5 +1,5 @@
-C Admin\susers\shave\sa\slink\sin\s/forumthread\sto\sshow\sthe\shash\sof\sall\sartifacts\nassociated\swith\sthat\sthread.
-D 2023-06-01T18:02:19.986
+C Fixed\sa\stypo\sin\san\serror\smessage
+D 2023-06-03T10:27:11.983
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -517,7 +517,7 @@ F src/report.c 765896d63cab511e56de2fda492fb6ca33e5450869d697ce0c5bfbaa474f1b92
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 7cde6cb98391a867f5786448edfac6fea6753c2a8aad4d4f76c7c5f6398d30a8
+F src/search.c aab29e487cf9415f9eb5757820d234c7f268e683f9addc8d428ebd2313421157
 F src/security_audit.c f19adc73d9970e37100bfde1992a3bd46f7248dfc4943971bf51084f540f0dc8
 F src/setup.c 14e8374455a3a1f153c9e65828b9458e8acf303d8e6816d0fd5d9a29033a868f
 F src/setupuser.c 1d33f3201b35f81eced582a7f5d61aa3ce7044613cf0389c01eab1508cdbff64
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f857c2d03a12180f2e85d2f718ffc1ffa9ecf9f2b004cd317fb9040caf611e3
-R bc8e1620c1d6c6e081a3c229f1a6843e
-U drh
-Z 79b21517d821039a7085e1bd52b6573f
+P 83928d8a02d86bca9dc433cea9e874896545916f741a895fbef87a936584f3b1
+R 2d8dc7ba0201c4f41f4c334fbeefea8d
+U wyoung
+Z ea9eac1c6dafd871a6e9ae113ead763a
 # Remove this line to create a well-formed Fossil manifest.

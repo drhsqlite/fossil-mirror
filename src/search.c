@@ -2027,7 +2027,7 @@ void fts_config_cmd(void){
       Blob all;
       blob_init(&all,0,0);
       for(i=0; i<count(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
-      fossil_fatal("unknown \"%s\" - should be on of:%s",
+      fossil_fatal("unknown \"%s\" - should be one of:%s",
                    zSubCmd, blob_str(&all));
       return;
     }
