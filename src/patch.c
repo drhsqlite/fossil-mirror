@@ -30,7 +30,7 @@ char *fossil_hostname(void){
   char zBuf[200];
   in = popen("hostname","r");
   if( in ){
-    size_t n = fread(zBuf, 1, sizeof(zBuf)-1, in);
+    int n = fread(zBuf, 1, sizeof(zBuf)-1, in);
     while( n>0 && fossil_isspace(zBuf[n-1]) ){ n--; }
     if( n<0 ) n = 0;
     zBuf[n] = 0;
@@ -863,9 +863,11 @@ static void patch_diff(
 **           -v|--verbose   Extra output explaining what happens
 **
 ** > fossil patch diff [DIRECTORY] FILENAME
+** > fossil patch gdiff [DIRECTORY] FILENAME
 **
 **       Show a human-readable diff for the patch.  All the usual
-**       diff flags described at "fossil help diff" apply.  In addition:
+**       diff flags described at "fossil help diff" apply. With gdiff,
+**       gdiff-command is used instead of internal diff logic.  In addition:
 **
 **           -f|--force     Continue trying to perform the diff even if
 **                          baseline information is missing from the current
@@ -910,7 +912,7 @@ void patch_cmd(void){
   size_t n;
   if( g.argc<3 ){
     patch_usage:
-    usage("apply|create|diff|pull|push|view");
+    usage("apply|create|diff|gdiff|pull|push|view");
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
@@ -936,7 +938,7 @@ void patch_cmd(void){
     patch_create(flags, zOut, stdout);
     fossil_free(zOut);
   }else
-  if( strncmp(zCmd, "diff", n)==0 ){
+  if( (strncmp(zCmd, "diff", n)==0) || (strncmp(zCmd, "gdiff", n)==0) ){
     char *zIn;
     unsigned flags = 0;
     DiffConfig DCfg;
@@ -946,9 +948,9 @@ void patch_cmd(void){
       diff_tk("patch diff", 3);
       return;
     }
-    diff_options(&DCfg, zCmd[0]=='g', 0);
     db_find_and_open_repository(0, 0);
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
+    diff_options(&DCfg, zCmd[0]=='g', 0);
     verify_all_options();
     zIn = patch_find_patch_filename("apply");
     patch_attach(zIn, stdin);

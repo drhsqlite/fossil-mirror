@@ -543,7 +543,7 @@ static void backoffice_thread(void){
         break;
       }
     }else{
-      if( lastWarning+warningDelay < tmNow ){
+      if( (sqlite3_uint64)(lastWarning+warningDelay) < tmNow ){
         fossil_warning(
            "backoffice process %lld still running after %d seconds",
            x.idCurrent, (int)(BKOFCE_LEASE_TIME + tmNow - x.tmCurrent));

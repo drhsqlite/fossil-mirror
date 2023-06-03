@@ -1,7 +1,7 @@
 <title>Fossil FAQ</title>
 <h1 align="center">Frequently Asked Questions</h1>
 
-<p>Note: See also <a href="qandc.wiki">Questions and Criticisms</a>.
+Note: See also <a href="qandc.wiki">Questions and Criticisms</a>.
 
 <ol>
 <li><a href="#q1">What GUIs are available for fossil?</a></li>

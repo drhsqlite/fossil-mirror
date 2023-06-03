@@ -370,7 +370,7 @@ void diff_begin(DiffConfig *pCfg){
     tempDiffFilename = sqlite3_mprintf("%z.html", tempDiffFilename);
     diffOut = fossil_freopen(tempDiffFilename,"wb",stdout);
     if( diffOut==0 ){
-      fossil_fatal("unable to create temporary file \"%s\"", 
+      fossil_fatal("unable to create temporary file \"%s\"",
                    tempDiffFilename);
     }
 #ifndef _WIN32
@@ -1078,7 +1078,8 @@ const char *diff_get_binary_glob(void){
 **   --by                        Shorthand for "--browser -y"
 **   -ci|--checkin VERSION       Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
-**   -c|--context N              Show N lines of context around each change
+**   -c|--context N              Show N lines of context around each change, with
+**                               negative N meaning show all content
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands

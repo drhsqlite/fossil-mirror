@@ -455,8 +455,8 @@ DiffConfig *construct_diff_flags(int diffType, DiffConfig *pCfg){
   if( diffType>0 ){
     int x;
     if( diffType==2 ) diffFlags = DIFF_SIDEBYSIDE;
-    if( P("w") )      diffFlags |= DIFF_IGNORE_ALLWS;
-    if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
+    if( P_NoBot("w") )  diffFlags |= DIFF_IGNORE_ALLWS;
+    if( PD_NoBot("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
     diffFlags |= DIFF_STRIP_EOLCR;
     diff_config_init(pCfg, diffFlags);
 
@@ -650,7 +650,7 @@ void ci_page(void){
      rid, rid
   );
   zBrName = branch_of_rid(rid);
-  
+
   diffType = preferred_diff_type();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
@@ -871,11 +871,11 @@ void ci_page(void){
   }
   db_finalize(&q1);
   @ </div>
-  builtin_request_js("accordion.js");  
+  builtin_request_js("accordion.js");
   if( !PB("nowiki") ){
     wiki_render_associated("checkin", zUuid, 0);
   }
-  render_backlink_graph(zUuid, 
+  render_backlink_graph(zUuid,
        "<div class=\"section accordion\">References</div>\n");
   @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
@@ -1042,9 +1042,9 @@ void winfo_page(void){
     @ <blockquote>
     @ <form method="POST" action="%R/winfo/%s(zUuid)">
     @ <label><input type="radio" name="modaction" value="delete">
-    @ Delete this change</label><br />
+    @ Delete this change</label><br>
     @ <label><input type="radio" name="modaction" value="approve">
-    @ Approve this change</label><br />
+    @ Approve this change</label><br>
     @ <input type="submit" value="Submit">
     @ </form>
     @ </blockquote>
@@ -1213,8 +1213,8 @@ void vdiff_page(void){
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   zGlob = P("glob");
-  zFrom = P("from");
-  zTo = P("to");
+  zFrom = P_NoBot("from");
+  zTo = P_NoBot("to");
   if( bInvert ){
     Manifest *pTemp = pTo;
     const char *zTemp = zTo;
@@ -1298,7 +1298,7 @@ void vdiff_page(void){
     if( zGlob ){
       @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
     }
-    @<hr /><p>
+    @<hr><p>
   }
   blob_reset(&qp);
 
@@ -1688,7 +1688,7 @@ int preferred_diff_type(void){
   zDflt[0] = dflt + '0';
   zDflt[1] = 0;
   cookie_link_parameter("diff","diff", zDflt);
-  return atoi(PD("diff",zDflt));
+  return atoi(PD_NoBot("diff",zDflt));
 }
 
 
@@ -1724,13 +1724,13 @@ void diff_page(void){
   char *zV2;
   const char *zRe;
   ReCompiled *pRe = 0;
-  u64 diffFlags;
   u32 objdescFlags = 0;
   int verbose = PB("verbose");
   DiffConfig DCfg;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  diff_config_init(&DCfg, 0);
   diffType = preferred_diff_type();
   if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");
@@ -1777,10 +1777,9 @@ void diff_page(void){
     DiffConfig DCfg;
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
-    diffFlags = DIFF_VERBOSE;
+    DCfg.diffFlags = DIFF_VERBOSE;
     content_get(v1, &c1);
     content_get(v2, &c2);
-    diff_config_init(&DCfg, diffFlags);
     DCfg.pRe = pRe;
     text_diff(&c1, &c2, pOut, &DCfg);
     blob_reset(&c1);
@@ -1823,7 +1822,7 @@ void diff_page(void){
     @ are shown.</b>
     DCfg.pRe = pRe;
   }
-  @ <hr />
+  @ <hr>
   append_diff(zV1, zV2, &DCfg);
   append_diff_javascript(diffType);
   style_finish_page();
@@ -2131,7 +2130,7 @@ void hexdump_page(void){
   object_description(rid, objdescFlags, 0, &downloadName);
   style_submenu_element("Download", "%R/raw/%s?at=%T",
                         zUuid, file_tail(blob_str(&downloadName)));
-  @ <hr />
+  @ <hr>
   content_get(rid, &content);
   if( !g.isHuman ){
     /* Prevent robots from running hexdump on megabyte-sized source files
@@ -2497,7 +2496,7 @@ void artifact_page(void){
         url_add_parameter(&url, "ci", zCI);
       }
       db_finalize(&q);
-      if( rid==0 ){     
+      if( rid==0 ){
         style_header("No such file");
         @ File '%h(zName)' does not exist in this repository.
       }
@@ -2657,7 +2656,7 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    @ <hr />
+    @ <hr>
     content_get(rid, &content);
     if( renderAsWiki ){
       safe_html_context(DOCSRC_FILE);
@@ -2804,7 +2803,7 @@ void tinfo_page(void){
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
   if( zTktTitle ){
-        @<br />%h(zTktTitle)
+        @<br>%h(zTktTitle)
   }
   @</td></tr>
   @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
@@ -2819,9 +2818,9 @@ void tinfo_page(void){
     @ <blockquote>
     @ <form method="POST" action="%R/tinfo/%s(zUuid)">
     @ <label><input type="radio" name="modaction" value="delete">
-    @ Delete this change</label><br />
+    @ Delete this change</label><br>
     @ <label><input type="radio" name="modaction" value="approve">
-    @ Approve this change</label><br />
+    @ Approve this change</label><br>
     @ <input type="submit" value="Submit">
     @ </form>
     @ </blockquote>
@@ -3271,19 +3270,19 @@ void ci_edit_page(void){
       @ will be overridden as: %s(date_in_standard_format(zChngTime))</p>
     }
     @ </blockquote>
-    @ <hr />
+    @ <hr>
     blob_reset(&suffix);
   }
   @ <p>Make changes to attributes of check-in
   @ [%z(href("%R/ci/%!S",zUuid))%s(zUuid)</a>]:</p>
   form_begin(0, "%R/ci_edit");
   login_insert_csrf_secret();
-  @ <div><input type="hidden" name="r" value="%s(zUuid)" />
+  @ <div><input type="hidden" name="r" value="%s(zUuid)">
   @ <table border="0" cellspacing="10">
 
   @ <tr><th align="right" valign="top">User:</th>
   @ <td valign="top">
-  @   <input type="text" name="u" size="20" value="%h(zNewUser)" />
+  @   <input type="text" name="u" size="20" value="%h(zNewUser)">
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Comment:</th>
@@ -3293,27 +3292,27 @@ void ci_edit_page(void){
 
   @ <tr><th align="right" valign="top">Check-in Time:</th>
   @ <td valign="top">
-  @   <input type="text" name="dt" size="20" value="%h(zNewDate)" />
+  @   <input type="text" name="dt" size="20" value="%h(zNewDate)">
   @ </td></tr>
 
   if( zChngTime ){
     @ <tr><th align="right" valign="top">Timestamp of this change:</th>
     @ <td valign="top">
-    @   <input type="text" name="chngtime" size="20" value="%h(zChngTime)" />
+    @   <input type="text" name="chngtime" size="20" value="%h(zChngTime)">
     @ </td></tr>
   }
 
   @ <tr><th align="right" valign="top">Background&nbsp;Color:</th>
   @ <td valign="top">
-  @ <div><label><input type='checkbox' name='newclr'%s(zNewColorFlag) />
+  @ <div><label><input type='checkbox' name='newclr'%s(zNewColorFlag)>
   @ Change background color: \
   @ <input type='color' name='clr'\
   @ value='%s(zNewColor[0]?zNewColor:"#808080")'></label></div>
   @ <div><label>
   if( fNewPropagateColor ){
-    @ <input type="checkbox" name="pclr" checked="checked" />
+    @ <input type="checkbox" name="pclr" checked="checked">
   }else{
-    @ <input type="checkbox" name="pclr" />
+    @ <input type="checkbox" name="pclr">
   }
   @ Propagate color to descendants</label></div>
   @ <div class='font-size-80'>Be aware that fixed background
@@ -3325,10 +3324,9 @@ void ci_edit_page(void){
 
   @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
-  @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
+  @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag)>
   @ Add the following new tag name to this check-in:</label>
-  @ <input type="text" size='15' name="tagname" value="%h(zNewTag)" \
-  @ id='tagname' />
+  @ <input size="15" name="tagname" id="tagname" value="%h(zNewTag)">
   zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " AND tagxref.tagid=%d", rid, TAG_BRANCH);
@@ -3356,11 +3354,11 @@ void ci_edit_page(void){
       continue;
     }
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
-    @ <br /><label>
+    @ <br><label>
     if( P(zLabel) ){
-      @ <input type="checkbox" name="c%d(tagid)" checked="checked" />
+      @ <input type="checkbox" name="c%d(tagid)" checked="checked">
     }else{
-      @ <input type="checkbox" name="c%d(tagid)" />
+      @ <input type="checkbox" name="c%d(tagid)">
     }
     if( isSpecialTag ){
       @ Cancel special tag <b>%h(zTagName)</b></label>
@@ -3380,14 +3378,14 @@ void ci_edit_page(void){
   @ <tr><th align="right" valign="top">Branching:</th>
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr" \
-  @ data-branch='%h(zBranchName)'%s(zNewBrFlag) />
-  @ Make this check-in the start of a new branch named:</label>
+  @ data-branch='%h(zBranchName)'%s(zNewBrFlag)>
+  @ Starting from this check-in, rename the branch to:</label>
   @ <input id="brname" type="text" style="width:15;" name="brname" \
-  @ value="%h(zNewBranch)" /></td></tr>
+  @ value="%h(zNewBranch)"></td></tr>
   if( !fHasHidden ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
-    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
+    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag)>
     @ Hide branch
     @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
     @ from the timeline starting from this check-in</label>
@@ -3397,14 +3395,14 @@ void ci_edit_page(void){
     if( is_a_leaf(rid) ){
       @ <tr><th align="right" valign="top">Leaf Closure:</th>
       @ <td valign="top">
-      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag)>
       @ Mark this leaf as "closed" so that it no longer appears on the
       @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
       @ </td></tr>
     }else if( zBranchName ){
       @ <tr><th align="right" valign="top">Branch Closure:</th>
       @ <td valign="top">
-      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag)>
       @ Mark branch
       @ <span style="font-weight:bold" id="cbranch">%h(zBranchName)</span>
       @ as "closed".</label>
@@ -3415,10 +3413,10 @@ void ci_edit_page(void){
 
 
   @ <tr><td colspan="2">
-  @ <input type="submit" name="cancel" value="Cancel" />
-  @ <input type="submit" name="preview" value="Preview" />
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ <input type="submit" name="preview" value="Preview">
   if( P("preview") ){
-    @ <input type="submit" name="apply" value="Apply Changes" />
+    @ <input type="submit" name="apply" value="Apply Changes">
   }
   @ </td></tr>
   @ </table>
@@ -3481,7 +3479,7 @@ static void prepare_amend_comment(
 **    --branchcolor COLOR     Apply and propagate COLOR to the branch
 **    --tag TAG               Add new TAG to this check-in
 **    --cancel TAG            Cancel TAG from this check-in
-**    --branch NAME           Make this check-in the start of branch NAME
+**    --branch NAME           Rename branch of check-in to NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
 **    -n|--dry-run            Print control artifact, but make no changes
@@ -3688,7 +3686,7 @@ void test_symlink_list_cmd(void){
 }
 
 #if INTERFACE
-/* 
+/*
 ** Description of a check-in relative to an earlier, tagged check-in.
 */
 typedef struct CommitDescr {

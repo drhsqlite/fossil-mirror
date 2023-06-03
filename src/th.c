@@ -855,7 +855,7 @@ static int thSplitList(
       nCount++;
     }
   }
-  assert((lenbuf.nBuf/sizeof(int))==nCount);
+  assert((int)(lenbuf.nBuf/sizeof(int))==nCount);
 
   assert((pazElem && panElem) || (!pazElem && !panElem));
   if( pazElem && rc==TH_OK ){
@@ -1270,6 +1270,27 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
   }
 
   return Th_SetResult(interp, pValue->zData, pValue->nData);
+}
+
+/*
+** If interp has a variable with the given name, its value is returned
+** and its length is returned via *nOut if nOut is not NULL.  If
+** interp has no such var then NULL is returned without setting any
+** error state and *nOut, if not NULL, is set to -1. The returned value
+** is owned by the interpreter and may be invalidated the next time
+** the interpreter is modified.
+*/
+const char * Th_MaybeGetVar(Th_Interp *interp, const char *zVarName,
+                            int *nOut){
+  Th_Variable *pValue;
+
+  pValue = thFindValue(interp, zVarName, -1, 0, 0, 1, 0);
+  if( !pValue || !pValue->zData ){
+    if( nOut!=0 ) *nOut = -1;
+    return NULL;
+  }
+  if( nOut!=0 ) *nOut = pValue->nData;
+  return pValue->zData;
 }
 
 /*

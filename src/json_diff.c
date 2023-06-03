@@ -85,7 +85,7 @@ cson_value * json_generate_diff(const char *zFrom, const char *zTo,
 ** parameters following the command name (in HTTP and CLI modes).
 **
 */
-cson_value * json_page_diff(){
+cson_value * json_page_diff(void){
   cson_object * pay = NULL;
   cson_value * v = NULL;
   char const * zFrom;

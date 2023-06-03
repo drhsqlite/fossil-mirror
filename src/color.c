@@ -163,7 +163,7 @@ void test_hash_color_page(void){
     }
   }
   if( cnt ){
-    @ <hr />
+    @ <hr>
   }
   @ <form method="POST">
   @ <p>Enter candidate branch names below and see them displayed in their
@@ -171,7 +171,7 @@ void test_hash_color_page(void){
   for(i=0; i<10; i++){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
     zBr = P(zNm);
-    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br />
+    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br>
   }
   @ <input type="submit" value="Submit">
   @ <input type="submit" name="rand" value="Random">

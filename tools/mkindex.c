@@ -61,6 +61,7 @@
 **
 ** Additional lines of comment after the COMMAND: or WEBPAGE: or SETTING:
 ** become the built-in help text for that command or webpage or setting.
+** Backslashes must be escaped ("\\" in comment yields "\" in the help text.)
 **
 ** Multiple COMMAND: entries can be attached to the same command, thus
 ** creating multiple aliases for that command.  Similarly, multiple
@@ -516,7 +517,7 @@ void build_table(void){
       printf("#endif\n");
     }
   }
-  printf("{0,0,0,0,0,0}};\n");
+  printf("{0,0,0,0,0,0,0}};\n");
 
 }
 

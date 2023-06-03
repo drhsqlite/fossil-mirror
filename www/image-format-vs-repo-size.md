@@ -3,7 +3,7 @@
 ## The Problem
 
 Fossil has a [delta compression][dc] feature which removes redundant
-information from a file relative to its parent on check-in.¹
+information from a file relative to its parent on check-in.[^delta-prgs]
 That delta is then [zlib][zl]-compressed before being stored
 in the Fossil repository database file.
 
@@ -11,7 +11,7 @@ Storing pre-compressed data files in a Fossil repository defeats both of
 these space-saving measures:
 
 1.  Binary data compression algorithms turn the file data into
-    [pseudorandom noise][prn].² 
+    pseudorandom noise.[^prn]
     
     Typical data compression algorithms are not [hash functions][hf],
     where the goal is that a change to each bit in the input has a
@@ -36,7 +36,6 @@ problem, quantify it, and give a solution to it.
 
 [dc]:  ./delta_format.wiki
 [hf]:  https://en.wikipedia.org/wiki/Hash_function
-[prn]: https://en.wikipedia.org/wiki/Pseudorandomness
 [zl]:  http://www.zlib.net/
 
 
@@ -95,7 +94,7 @@ experiment:
 5.  Iterate on step 4 some number of times — currently 10 — and remember
     the Fossil repo size at each step.
 
-6.  Repeat the above steps for BMP, TIFF,³ and PNG.
+6.  Repeat the above steps for BMP, PNG, and TIFF.[^tiff-cmp]
 
 7.  Create a bar chart showing how the Fossil repository size changes
     with each checkin.
@@ -117,7 +116,7 @@ in your own repository?  Easily done with a small amount of code.
 
 ## <a id="results"></a>Results
 
-Running the notebook gives a bar chart something like⁴ this:
+Running the notebook gives a bar chart something like[^variance] this:
 
 ![results bar chart](./image-format-vs-repo-size.svg)
 
@@ -126,7 +125,7 @@ chart:
 
 *   BMP and uncompressed TIFF are nearly identical in size for all
     checkins, and the repository growth rate is negligible past the
-    first commit.⁵ We owe this economy to Fossil’s delta compression
+    first commit.[^size-jump] We owe this economy to Fossil’s delta compression
     feature: it is encoding each of those single-pixel changes in a very
     small amount of repository space.
 
@@ -160,7 +159,7 @@ often make it either difficult or impossible to work with the
 uncompressed form, we want an automated method for producing the
 uncompressed form to make Fossil happy while still having the compressed
 form to keep our content creation applications happy.  This `Makefile`
-should⁶ do that for BMP, PNG, SVG, and XLSX files:
+should[^makefile] do that for BMP, PNG, SVG, and XLSX files:
 
         .SUFFIXES: .bmp .png .svg .svgz
 
@@ -196,7 +195,7 @@ This `Makefile` allows you to treat the compressed version as the
 process input, but to actually check in only the changes against the
 uncompressed version by typing “`make`” before “`fossil ci`”. This is
 not actually an extra step in practice, since if you’ve got a
-`Makefile`-based project, you should be building (and testing!) it
+`Makefile`-based project, you should be building — and testing — it
 before checking each change in anyway!
 
 Because this technique is based on dependency rules, only the necessary
@@ -241,22 +240,19 @@ reason:
     name” mapping, so we just created the `-big` to `-small` name scheme
     here.
 
-----
 
-
-## <a id="notes"></a>Footnotes and Digressions
-
-1.  This problem is not Fossil-specific.  Several other programs also do
+[^delta-prgs]:
+    This problem is not Fossil-specific.  Several other programs also do
     delta compression, so they’ll also be affected by this problem:
     [rsync][rs], [Unison][us], [Git][git], etc. You should take this
     article’s advice when using all such programs, not just Fossil.
-
     When using file copying and synchronization programs *without* delta
     compression, on the other hand, it’s best to use the most
     highly-compressed file format you can tolerate, since they copy the
     whole file any time any bit of it changes.
 
-2.  In fact, a good way to gauge the effectiveness of a given
+[^prn]:
+    In fact, a good way to gauge the effectiveness of a given
     compression scheme is to run its output through the same sort of
     tests we use to gauge how “random” a given [PRNG][prng] is.  Another
     way to look at it is that if there is a discernible pattern in the
@@ -264,27 +260,28 @@ reason:
     [the technical sense of that word][ith]) that could be further
     compressed.
 
-3.  We're using *uncompressed* TIFF here, not [LZW][lzw]- or
+[^tiff-cmp]:
+    We're using *uncompressed* TIFF here, not [LZW][lzw]- or
     Zip-compressed TIFF, either of which would give similar results to
     PNG, which is always zlib-compressed.
 
-4.  The raw data changes somewhat from one run to the next due to the
+[^variance]:
+    The raw data changes somewhat from one run to the next due to the
     use of random noise in the image to make the zlib/PNG compression
     more difficult, and the random pixel changes.  Those test design
     choices make this a [Monte Carlo experiment][mce].  We’ve found that
     the overall character of the results doesn’t change from one run to
     the next.
 
-5.  It’s not clear to me why there is a one-time jump in size for BMP
+[^size-jump]:
+    It’s not clear to me why there is a one-time jump in size for BMP
     and TIFF past the first commit. I suspect it is due to the SQLite
     indices being initialized for the first time.
-
     Page size inflation might have something to do with it as well,
     though we tried to control that by rebuilding the initial DB with a
     minimal page size. If you re-run the program often enough, you will
     sometimes see the BMP or TIFF bar jump higher than the other, again
     likely due to one of the repos crossing a page boundary.
-
     Another curious artifact in the data is that the BMP is slightly
     larger than for the TIFF. This goes against expectation because a
     low-tech format like BMP should have a small edge in this test
@@ -292,7 +289,8 @@ reason:
     UUIDs, etc., which bloat the checkin size by creating many small
     deltas.
 
-6.  The `Makefile` above is not battle-tested.  Please report bugs and
+[^makefile]:
+    The `Makefile` above is not battle-tested.  Please report bugs and
     needed extensions [on the forum][for].
 
 [for]:  https://fossil-scm.org/forum/forumpost/15e677f2c8

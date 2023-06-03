@@ -61,6 +61,7 @@
 **                symbolic links are only recognized as something different
 **                from files or directories if allow-symlinks is true.
 */
+#include <stdlib.h>
 #define ExtFILE    0  /* Always follow symlinks */
 #define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
 #define SymFILE    2  /* Never follow symlinks */
@@ -205,7 +206,7 @@ i64 file_mtime(const char *zFilename, int eFType){
 ** stat-ed file.
 */
 int file_mode(const char *zFilename, int eFType){
-  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_mode;
+  return getStat(zFilename, eFType) ? -1 : (int)(fx.fileStat.st_mode);
 }
 
 /*
@@ -244,7 +245,7 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     char *zName, zBuf[1000];
 
     nName = strlen(zLinkFile);
-    if( nName>=sizeof(zBuf) ){
+    if( nName>=(int)sizeof(zBuf) ){
       zName = mprintf("%s", zLinkFile);
     }else{
       zName = zBuf;
@@ -2277,6 +2278,49 @@ void file_test_valid_for_windows(void){
   for(i=2; i<g.argc; i++){
     fossil_print("%s %s\n", file_is_win_reserved(g.argv[i]), g.argv[i]);
   }
+}
+
+/*
+** Returns non-zero if the specified file extension belongs to a Fossil
+** repository file.
+*/
+int file_is_repository_extension(const char *zPath){
+  if( fossil_strcmp(zPath, ".fossil")==0 ) return 1;
+#if USE_SEE
+  if( fossil_strcmp(zPath, ".efossil")==0 ) return 1;
+#endif
+  return 0;
+}
+
+/*
+** Returns non-zero if the specified path appears to match a file extension
+** that should belong to a Fossil repository file.
+*/
+int file_contains_repository_extension(const char *zPath){
+  if( sqlite3_strglob("*.fossil*",zPath)==0 ) return 1;
+#if USE_SEE
+  if( sqlite3_strglob("*.efossil*",zPath)==0 ) return 1;
+#endif
+  return 0;
+}
+
+/*
+** Returns non-zero if the specified path ends with a file extension that
+** should belong to a Fossil repository file.
+*/
+int file_ends_with_repository_extension(const char *zPath, int bQual){
+  if( bQual ){
+    if( sqlite3_strglob("*/*.fossil", zPath)==0 ) return 1;
+#if USE_SEE
+    if( sqlite3_strglob("*/*.efossil", zPath)==0 ) return 1;
+#endif
+  }else{
+    if( sqlite3_strglob("*.fossil", zPath)==0 ) return 1;
+#if USE_SEE
+    if( sqlite3_strglob("*.efossil", zPath)==0 ) return 1;
+#endif
+  }
+  return 0;
 }
 
 /*

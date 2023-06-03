@@ -124,20 +124,6 @@ struct mkd_renderer {
 #define MKD_CELL_HEAD           4
 
 
-
-/**********************
- * EXPORTED FUNCTIONS *
- **********************/
-
-/*
-** markdown -- parses the input buffer and renders it into the output buffer.
-*/
-void markdown(
-  struct Blob *ob,
-  const struct Blob *ib,
-  const struct mkd_renderer *rndr);
-
-
 #endif /* INTERFACE */
 
 #define BLOB_COUNT(pBlob,el_type) (blob_size(pBlob)/sizeof(el_type))
@@ -407,7 +393,7 @@ static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
   rndr->iDepth--;
   blob_reset(buf);
-  if( rndr->nBlobCache < sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0]) ){
+  if( rndr->nBlobCache < (int)(sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0])) ){
     rndr->aBlobCache[rndr->nBlobCache++] = buf;
   }else{
     fossil_free(buf);
@@ -1772,9 +1758,9 @@ static size_t prefix_fencedcode(char *data, size_t size){
   char c = data[0];
   int nb;
   if( c!='`' && c!='~' ) return 0;
-  for(nb=1; nb<size-3 && data[nb]==c; nb++){}
+  for(nb=1; nb<(int)size-3 && data[nb]==c; nb++){}
   if( nb<3 ) return 0;
-  if( nb>=size-nb ) return 0;
+  if( nb>=(int)size-nb ) return 0;
   return nb;
 }
 
@@ -1889,7 +1875,7 @@ static size_t parse_paragraph(
 
   while( i<size ){
     char *zEnd = memchr(data+i, '\n', size-i-1);
-    end = zEnd==0 ? size : (int)(zEnd - (data-1));
+    end = zEnd==0 ? size : (size_t)(zEnd - (data-1));
     /* The above is the same as:
     **    for(end=i+1; end<size && data[end-1]!='\n'; end++);
     ** "end" is left with a value such that data[end] is one byte
@@ -1962,7 +1948,7 @@ static size_t parse_blockcode(
   beg = 0;
   while( beg<size ){
     char *zEnd = memchr(data+beg, '\n', size-beg-1);
-    end = zEnd==0 ? size : (int)(zEnd - (data-1));
+    end = zEnd==0 ? size : (size_t)(zEnd - (data-1));
     /* The above is the same as:
     **   for(end=beg+1; end<size && data[end-1]!='\n'; end++);
     ** "end" is left with a value such that data[end] is one byte
@@ -2172,9 +2158,9 @@ static size_t parse_atxheader(
 
   if( !size || data[0]!='#' ) return 0;
 
-  while( level<size && level<6 && data[level]=='#' ){ level++; }
+  while( level<(int)size && level<6 && data[level]=='#' ){ level++; }
   for(i=level; i<size && (data[i]==' ' || data[i]=='\t'); i++);
-  if ( i == level ) return parse_paragraph(ob, rndr, data, size);
+  if ( (int)i == level ) return parse_paragraph(ob, rndr, data, size);
   span_beg = i;
 
   for(end=i; end<size && data[end]!='\n'; end++);
@@ -2207,7 +2193,7 @@ static size_t htmlblock_end(
   /* assuming data[0]=='<' && data[1]=='/' already tested */
 
   /* checking tag is a match */
-  if( (tag->size+3)>size
+  if( (tag->size+3)>(int)size
     || fossil_strnicmp(data+2, tag->text, tag->size)
     || data[tag->size+2]!='>'
   ){
@@ -2837,7 +2823,8 @@ void markdown(
 ){
   struct link_ref *lr;
   struct footnote *fn;
-  size_t i, beg, end = 0;
+  int i;
+  size_t beg, end = 0;
   struct render rndr;
   size_t size;
   Blob text = BLOB_INITIALIZER;        /* input after the first pass  */
@@ -2923,7 +2910,8 @@ void markdown(
     /* concatenate footnotes with equal labels */
     for(i=0; i<rndr.notes.nLbled ;){
       struct footnote *x = fn + i;
-      size_t j = i+1, k = blob_size(&x->text) + 64 + blob_size(&x->upc);
+      int j = i+1;
+      size_t k = blob_size(&x->text) + 64 + blob_size(&x->upc);
       while(j<rndr.notes.nLbled && !blob_compare(&x->id, &fn[j].id)){
         k += blob_size(&fn[j].text) + 10 + blob_size(&fn[j].upc);
         j++;
@@ -2934,7 +2922,7 @@ void markdown(
         blob_reserve(&list, k);
         /* must match _joined_footnote_indicator in html_footnote_item() */
         blob_append_literal(&list, "<ul class='fn-joined'>\n");
-        for(k=i; k<j; k++){
+        for(k=i; (int)k<j; k++){
           struct footnote *y = fn + k;
           blob_append_literal(&list, "<li>");
           if( blob_size(&y->upc) ){
@@ -2946,7 +2934,7 @@ void markdown(
 
           /* free memory buffer */
           blob_reset(&y->text);
-          if( k!=i ) blob_reset(&y->id);
+          if( (int)k!=i ) blob_reset(&y->id);
         }
         blob_append_literal(&list, "</ul>\n");
         x->text = list;
@@ -2966,7 +2954,7 @@ void markdown(
       blob_reset( allNotes );
       rndr.notes.all = filtered;
       rndr.notes.nLbled = n;
-      assert( COUNT_FOOTNOTES(allNotes) == rndr.notes.nLbled );
+      assert( (int)(COUNT_FOOTNOTES(allNotes)) == rndr.notes.nLbled );
     }
   }
   fn = CAST_AS_FOOTNOTES( allNotes );
@@ -3034,7 +3022,7 @@ void markdown(
       assert( &(rndr.notes.misref.id)  == &(rndr.notes.misref.text) - 1 );
       assert( &(rndr.notes.misref.upc) == &(rndr.notes.misref.text) + 1 );
 
-      for(i=0; i<COUNT_FOOTNOTES(notes); i++){
+      for(i=0; i<(int)(COUNT_FOOTNOTES(notes)); i++){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + i;
         const int xUsed = x->bRndred ? x->nUsed : 0;
         if( !x->iMark ) break;
@@ -3049,7 +3037,7 @@ void markdown(
                     rndr.notes.misref.nUsed, rndr.make.opaque);
         g.ftntsIssues[0] += rndr.notes.misref.nUsed;
       }
-      while( ++j < COUNT_FOOTNOTES(notes) ){
+      while( ++j < (int)(COUNT_FOOTNOTES(notes)) ){
         const struct footnote* x = CAST_AS_FOOTNOTES(notes) + j;
         assert( !x->iMark );
         assert( !x->nUsed );
@@ -3069,7 +3057,7 @@ void markdown(
   blob_reset(&text);
   lr = (struct link_ref *)blob_buffer(&rndr.refs);
   end = blob_size(&rndr.refs)/sizeof(struct link_ref);
-  for(i=0; i<end; i++){
+  for(i=0; i<(int)end; i++){
     blob_reset(&lr[i].id);
     blob_reset(&lr[i].link);
     blob_reset(&lr[i].title);
@@ -3077,7 +3065,7 @@ void markdown(
   blob_reset(&rndr.refs);
   fn = CAST_AS_FOOTNOTES( allNotes );
   end = COUNT_FOOTNOTES( allNotes );
-  for(i=0; i<end; i++){
+  for(i=0; i<(int)end; i++){
     if(blob_size(&fn[i].id)) blob_reset(&fn[i].id);
     if(blob_size(&fn[i].upc)) blob_reset(&fn[i].upc);
     blob_reset(&fn[i].text);

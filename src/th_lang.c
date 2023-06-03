@@ -1372,8 +1372,8 @@ static int breakpoint_command(
   const char **argv,
   int *argl
 ){
-  int cnt = 0;
-  cnt++;
+  static unsigned int cnt = 0;
+  if( (cnt++)==0xffffffff ) printf("too many TH3 breakpoints\n");
   return TH_OK;
 }
 

@@ -619,7 +619,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
             blob_add_cr(&pCI->fileContent);
           }
         }
-        if(blob_size(&pCI->fileContent)!=oldSize){
+        if((int)blob_size(&pCI->fileContent)!=oldSize){
           rehash = 1;
         }
       }

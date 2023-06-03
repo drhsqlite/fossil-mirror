@@ -80,11 +80,11 @@ generated HTML Header will look something like this:
 
          <html>
          <head>
-         <base href="..." />
-         <meta http-equiv="Content-Security-Policy" content="...." />
+         <base href="...">
+         <meta http-equiv="Content-Security-Policy" content="....">
          <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <title>....</title>
-         <link rel="stylesheet" href="..." type="text/css" />
+         <link rel="stylesheet" href="..." type="text/css">
          </head>
          <body class="FEATURE">
 
@@ -182,17 +182,17 @@ desired result.
 The skin is controlled by five files:
 
 <blockquote><dl>
-<dt><b>css.txt</b></dt><dd>
+<dt><b>css.txt</b></dt>
 
-<p>The css.txt file is the text of the CSS for Fossil.
+<dd>The css.txt file is the text of the CSS for Fossil.
 Fossil might add additional CSS elements after
 the css.txt file, if it sees that the css.txt omits some
 CSS components that Fossil needs.  But for the most part,
 the content of the css.txt is the CSS for the page.</dd>
 
-<dt><b>details.txt</b><dt><dd>
+<dt><b>details.txt</b><dt>
 
-<p>The details.txt file is short list of settings that control
+<dd>The details.txt file is short list of settings that control
 the look and feel, mostly of the timeline.  The default
 details.txt file looks like this:
 
@@ -213,7 +213,7 @@ right is a boolean - "1" to activate the feature and "0" to
 disable it.  The "white-foreground:" setting should be set to
 "1" if the page color has light-color text on a darker background,
 and "0" if the page has dark text on a light-colored background.
-<p>
+
 If the "pikchr-foreground" setting (added in Fossil 2.14)
 is defined and is not an empty string then it specifies a
 foreground color to use for [pikchr diagrams](./pikchr.md).  The
@@ -226,20 +226,20 @@ to 1.0) that specify relative scaling of the fonts in pikchr
 diagrams and other elements of the diagrams, respectively.
 </dd>
 
-<dt><b>footer.txt</b> and <b>header.txt</b></dt><dd>
+<dt><b>footer.txt</b> and <b>header.txt</b></dt>
 
-<p>The footer.txt and header.txt files contain the Content Footer
+<dd>The footer.txt and header.txt files contain the Content Footer
 and Content Header respectively.  Of these, the Content Header is
 the most important, as it contains the markup used to generate
 the banner and menu bar for each page.
 
-<p>Both the footer.txt and header.txt file are 
+Both the footer.txt and header.txt file are 
 [processed using TH1](#headfoot) prior to being output as 
 part of the overall web page.</dd>
 
-<dt><b>js.txt</b></dt><dd>
+<dt><b>js.txt</b></dt>
 
-<p>The js.txt file is optional.  It is intended to be javascript.
+<dd>The js.txt file is optional.  It is intended to be javascript.
 The complete text of this javascript might be inserted into
 the Content Footer, after being processed using TH1, using
 code like the following in the "footer.txt" file:
@@ -250,7 +250,7 @@ code like the following in the "footer.txt" file:
 &lt;/script&gt;
 </pre></blockquote>
 
-<p>The js.txt file was originally used to insert javascript
+The js.txt file was originally used to insert javascript
 that controls the hamburger menu in the default skin.  More
 recently, the javascript for the hamburger menu was moved into
 a separate built-in file.  Skins that use the hamburger menu

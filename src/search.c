@@ -923,13 +923,22 @@ static void search_indexed(
   Blob sql;
   char *zPat = mprintf("%s",zPattern);
   int i;
+  static const char *zSnippetCall;
   if( srchFlags==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
   for(i=0; zPat[i]; i++){
-    if( zPat[i]=='-' || zPat[i]=='"' ) zPat[i] = ' ';
+    if( (zPat[i]&0x80)!=0 || !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
   }
   blob_init(&sql, 0, 0);
+  if( search_index_type(0)==4 ){
+    /* If this repo is still using the legacy FTS4 search index, then
+    ** the snippet() function is slightly different */
+    zSnippetCall = "snippet(ftsidx,'<mark>','</mark>',' ... ',-1,35)";
+  }else{
+    /* This is the common case - Using newer FTS5 search index */
+    zSnippetCall = "snippet(ftsidx,-1,'<mark>','</mark>',' ... ',35)";
+  }
   blob_appendf(&sql,
     "INSERT INTO x(label,url,score,id,date,snip) "
     " SELECT ftsdocs.label,"
@@ -937,11 +946,11 @@ static void search_indexed(
     "        rank(matchinfo(ftsidx,'pcsx')),"
     "        ftsdocs.type || ftsdocs.rid,"
     "        datetime(ftsdocs.mtime),"
-    "        snippet(ftsidx,'<mark>','</mark>',' ... ',-1,35)"
+    "        %s"
     "   FROM ftsidx CROSS JOIN ftsdocs"
     "  WHERE ftsidx MATCH %Q"
-    "    AND ftsdocs.rowid=ftsidx.docid",
-    zPat
+    "    AND ftsdocs.rowid=ftsidx.rowid",
+    zSnippetCall /*safe-for-%s*/, zPat
   );
   fossil_free(zPat);
   if( srchFlags!=SRCH_ALL ){
@@ -1071,7 +1080,7 @@ int search_run_and_output(
     if( fDebug ){
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
-    @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet)) \
+    @ <br><span class='snippet'>%z(cleanSnippet(zSnippet)) \
     if( zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
       @ <small>(%h(zDate))</small>
     }
@@ -1505,12 +1514,15 @@ void test_convert_stext(void){
   blob_reset(&out);
 }
 
-/* The schema for the full-text index
+/*
+** The schema for the full-text index. The %s part must be an empty
+** string or a comma followed by additional flags for the FTS virtual
+** table.
 */
 static const char zFtsSchema[] =
 @ -- One entry for each possible search result
 @ CREATE TABLE IF NOT EXISTS repository.ftsdocs(
-@   rowid INTEGER PRIMARY KEY, -- Maps to the ftsidx.docid
+@   rowid INTEGER PRIMARY KEY, -- Maps to the ftsidx.rowid
 @   type CHAR(1),              -- Type of document
 @   rid INTEGER,               -- BLOB.RID or TAG.TAGID for the document
 @   name TEXT,                 -- Additional document description
@@ -1528,7 +1540,7 @@ static const char zFtsSchema[] =
 @          title(type,rid,name) AS 'title', body(type,rid,name) AS 'body'
 @     FROM ftsdocs;
 @ CREATE VIRTUAL TABLE IF NOT EXISTS repository.ftsidx
-@   USING fts4(content="ftscontent", title, body%s);
+@   USING fts5(content="ftscontent", title, body%s);
 ;
 static const char zFtsDrop[] =
 @ DROP TABLE IF EXISTS repository.ftsidx;
@@ -1536,13 +1548,95 @@ static const char zFtsDrop[] =
 @ DROP TABLE IF EXISTS repository.ftsdocs;
 ;
 
+#if INTERFACE
+/*
+** Values for the search-tokenizer config option.
+*/
+#define FTS5TOK_NONE     0 /* no FTS stemmer */
+#define FTS5TOK_PORTER   1 /* porter stemmer */
+#define FTS5TOK_TRIGRAM  3 /* trigram stemmer */
+#endif
+
+/*
+** Cached FTS5TOK_xyz value for search_tokenizer_type() and
+** friends.
+*/
+static int iFtsTokenizer = -1;
+
+/*
+** Returns one of the FTS5TOK_xyz values, depending on the value of
+** the search-tokenizer config entry, defaulting to FTS5TOK_NONE. The
+** result of the first call is cached for subsequent calls unless
+** bRecheck is true.
+*/
+int search_tokenizer_type(int bRecheck){
+  char *z;
+  if( iFtsTokenizer>=0 && bRecheck==0 ){
+    return iFtsTokenizer;
+  }
+  z = db_get("search-tokenizer",0);
+  if( 0==z ){
+    iFtsTokenizer = FTS5TOK_NONE;
+  }else if(0==fossil_strcmp(z,"porter")){
+    iFtsTokenizer = FTS5TOK_PORTER;
+  }else if(0==fossil_strcmp(z,"trigram")){
+    iFtsTokenizer = FTS5TOK_TRIGRAM;
+  }else{
+    iFtsTokenizer = is_truth(z) ? FTS5TOK_PORTER : FTS5TOK_NONE;
+  }
+  fossil_free(z);
+  return iFtsTokenizer;
+}
+
+/*
+** Returns a string value suitable for use as the search-tokenizer
+** setting's value, depending on the value of z. If z is 0 then the
+** current search-tokenizer value is used as the basis for formulating
+** the result (which may differ from the current value but will have
+** the same meaning). Any unknown/unsupported value is interpreted as
+** "off".
+*/
+const char *search_tokenizer_for_string(const char *z){
+  char * zTmp = 0;
+  const char *zRc = 0;
+
+  if( 0==z ){
+    z = zTmp = db_get("search-tokenizer",0);
+  }
+  if( 0==z ){
+    zRc = "off";
+  }else if( 0==fossil_strcmp(z,"porter") ){
+    zRc = "porter";
+  }else if( 0==fossil_strcmp(z,"trigram") ){
+    zRc = "trigram";
+  }else{
+    zRc = is_truth(z) ? "porter" : "off";
+  }
+  fossil_free(zTmp);
+  return zRc;
+}
+
+/*
+** Sets the search-tokenizer config setting to the value of
+** search_tokenizer_for_string(zName).
+*/
+void search_set_tokenizer(const char *zName){
+  db_set("search-tokenizer", search_tokenizer_for_string( zName ), 0);
+  iFtsTokenizer = -1;
+}
+
 /*
 ** Create or drop the tables associated with a full-text index.
 */
 static int searchIdxExists = -1;
 void search_create_index(void){
-  int useStemmer = db_get_boolean("search-stemmer",0);
-  const char *zExtra = useStemmer ? ",tokenize=porter" : "";
+  const int useTokenizer = search_tokenizer_type(0);
+  const char *zExtra;
+  switch(useTokenizer){
+    case FTS5TOK_PORTER: zExtra = ",tokenize=porter"; break;
+    case FTS5TOK_TRIGRAM: zExtra = ",tokenize=trigram"; break;
+    default: zExtra = ""; break;
+  }
   search_sql_setup(g.db);
   db_multi_exec(zFtsSchema/*works-like:"%s"*/, zExtra/*safe-for-%s*/);
   searchIdxExists = 1;
@@ -1553,13 +1647,36 @@ void search_drop_index(void){
 }
 
 /*
-** Return true if the full-text search index exists
+** Return true if the full-text search index exists.  See also the
+** search_index_type() function.
 */
 int search_index_exists(void){
   if( searchIdxExists<0 ){
     searchIdxExists = db_table_exists("repository","ftsdocs");
   }
   return searchIdxExists;
+}
+
+/*
+** Determine which full-text search index is currently being used to
+** add searching.  Return values:
+**
+**     0          No search index is available
+**     4          FTS3/4
+**     5          FTS5
+**
+** Results are cached.  Make the argument 1 to reset the cache.  See
+** also the search_index_exists() routine.
+*/
+int search_index_type(int bReset){
+  static int idxType = -1;
+  if( idxType<0 || bReset ){
+    idxType = db_int(0,
+        "SELECT CASE WHEN sql GLOB '*fts4*' THEN 4 ELSE 5 END"
+        " FROM repository.sqlite_schema WHERE name='ftsidx'"
+    );
+  }
+  return idxType;
 }
 
 /*
@@ -1608,7 +1725,7 @@ void search_doc_touch(char cType, int rid, const char *zName){
     zType[1] = 0;
     search_sql_setup(g.db);
     db_multi_exec(
-       "DELETE FROM ftsidx WHERE docid IN"
+       "DELETE FROM ftsidx WHERE rowid IN"
        "    (SELECT rowid FROM ftsdocs WHERE type=%Q AND rid=%d AND idxed)",
        zType, rid
     );
@@ -1619,7 +1736,7 @@ void search_doc_touch(char cType, int rid, const char *zName){
     );
     if( cType=='w' || cType=='e' ){
       db_multi_exec(
-        "DELETE FROM ftsidx WHERE docid IN"
+        "DELETE FROM ftsidx WHERE rowid IN"
         "    (SELECT rowid FROM ftsdocs WHERE type='%c' AND name=%Q AND idxed)",
         cType, zName
       );
@@ -1659,7 +1776,7 @@ static void search_update_doc_index(void){
     ckid, glob_expr("foci.filename", db_get("doc-glob",""))
   );
   db_multi_exec(
-    "DELETE FROM ftsidx WHERE docid IN"
+    "DELETE FROM ftsidx WHERE rowid IN"
     "  (SELECT rowid FROM ftsdocs WHERE type='d'"
     "      AND rid NOT IN (SELECT rid FROM current_docs))"
   );
@@ -1678,7 +1795,7 @@ static void search_update_doc_index(void){
     zDocBr, rTime
   );
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,title,body)"
+    "INSERT INTO ftsidx(rowid,title,body)"
     "  SELECT rowid, label, bx FROM ftsdocs WHERE type='d' AND NOT idxed"
   );
   db_multi_exec(
@@ -1695,7 +1812,7 @@ static void search_update_doc_index(void){
 */
 static void search_update_checkin_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,title,body)"
+    "INSERT INTO ftsidx(rowid,title,body)"
     " SELECT rowid, '', body('c',rid,NULL) FROM ftsdocs"
     "  WHERE type='c' AND NOT idxed;"
   );
@@ -1718,7 +1835,7 @@ static void search_update_checkin_index(void){
 */
 static void search_update_ticket_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,title,body)"
+    "INSERT INTO ftsidx(rowid,title,body)"
     " SELECT rowid, title('t',rid,NULL), body('t',rid,NULL) FROM ftsdocs"
     "  WHERE type='t' AND NOT idxed;"
   );
@@ -1741,7 +1858,7 @@ static void search_update_ticket_index(void){
 */
 static void search_update_wiki_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,title,body)"
+    "INSERT INTO ftsidx(rowid,title,body)"
     " SELECT rowid, title('w',rid,NULL),body('w',rid,NULL) FROM ftsdocs"
     "  WHERE type='w' AND NOT idxed;"
   );
@@ -1763,7 +1880,7 @@ static void search_update_wiki_index(void){
 */
 static void search_update_forum_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,title,body)"
+    "INSERT INTO ftsidx(rowid,title,body)"
     " SELECT rowid, title('f',rid,NULL),body('f',rid,NULL) FROM ftsdocs"
     "  WHERE type='f' AND NOT idxed;"
   );
@@ -1786,7 +1903,7 @@ static void search_update_forum_index(void){
 */
 static void search_update_technote_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,title,body)"
+    "INSERT INTO ftsidx(rowid,title,body)"
     " SELECT rowid, title('e',rid,NULL),body('e',rid,NULL) FROM ftsdocs"
     "  WHERE type='e' AND NOT idxed;"
   );
@@ -1864,14 +1981,16 @@ void search_rebuild_index(void){
 **
 **     disable cdtwe      Disable various kinds of search
 **
-**     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
-**                        search.  (Unindexed search is never stemmed.)
+**     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
+**                        may be one of (porter, on, off, trigram), and
+**                        "on" is equivalent to "porter". Unindexed
+**                        search never uses tokenization or stemming.
 **
 ** The current search settings are displayed after any changes are applied.
 ** Run this command with no arguments to simply see the settings.
 */
 void fts_config_cmd(void){
-  static const struct { 
+  static const struct {
     int iCmd;
     const char *z;
   } aCmd[] = {
@@ -1879,7 +1998,7 @@ void fts_config_cmd(void){
      { 2,  "index"    },
      { 3,  "disable"  },
      { 4,  "enable"   },
-     { 5,  "stemmer"  },
+     { 5,  "tokenizer"},
   };
   static const struct {
     const char *zSetting;
@@ -1936,12 +2055,19 @@ void fts_config_cmd(void){
         db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
       }
     }
+  }else if( iCmd==5 ){
+    int iOldTokenizer, iNewTokenizer;
+    if( g.argc<4 ) usage("tokenizer porter|on|off|trigram");
+    iOldTokenizer = search_tokenizer_type(0);
+    db_set("search-tokenizer",
+           search_tokenizer_for_string(g.argv[3]), 0);
+    iNewTokenizer = search_tokenizer_type(1);
+    if( iOldTokenizer!=iNewTokenizer ){
+      /* Drop or rebuild index if tokenizer changes. */
+      iAction = 1 + ((iOldTokenizer && iNewTokenizer)
+                     ? 1 : (iNewTokenizer ? 1 : 0));
+    }
   }
-  if( iCmd==5 ){
-    if( g.argc<4 ) usage("porter ON/OFF");
-    db_set_int("search-stemmer", is_truth(g.argv[3]), 0);
-  }
-
 
   /* destroy or rebuild the index, if requested */
   if( iAction>=1 ){
@@ -1956,10 +2082,10 @@ void fts_config_cmd(void){
     fossil_print("%-17s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
-  fossil_print("%-17s %s\n", "Porter stemmer:",
-       db_get_boolean("search-stemmer",0) ? "on" : "off");
+  fossil_print("%-17s %s\n", "tokenizer:",
+       search_tokenizer_for_string(0));
   if( search_index_exists() ){
-    fossil_print("%-17s enabled\n", "full-text index:");
+    fossil_print("%-17s FTS%d\n", "full-text index:", search_index_type(1));
     fossil_print("%-17s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
   }else{
@@ -2004,7 +2130,7 @@ void search_data_page(void){
       char *zName;
       char *z;
       @ <table border=0>
-      @ <tr><td align='right'>docid:<td>&nbsp;&nbsp;<td>%d(id)
+      @ <tr><td align='right'>rowid:<td>&nbsp;&nbsp;<td>%d(id)
       @ <tr><td align='right'>id:<td><td>%s(zDocId)
       @ <tr><td align='right'>name:<td><td>%h(db_column_text(&q,1))
       @ <tr><td align='right'>idxed:<td><td>%d(db_column_int(&q,2))
@@ -2012,12 +2138,12 @@ void search_data_page(void){
       @ <tr><td align='right'>url:<td><td>
       @ <a href='%R%s(zUrl)'>%h(zUrl)</a>
       @ <tr><td align='right'>mtime:<td><td>%s(db_column_text(&q,5))
-      z = db_text(0, "SELECT title FROM ftsidx WHERE docid=%d",id);
+      z = db_text(0, "SELECT title FROM ftsidx WHERE rowid=%d",id);
       if( z && z[0] ){
         @ <tr><td align="right">title:<td><td>%h(z)
         fossil_free(z);
       }
-      z = db_text(0, "SELECT body FROM ftsidx WHERE docid=%d",id);
+      z = db_text(0, "SELECT body FROM ftsidx WHERE rowid=%d",id);
       if( z && z[0] ){
         @ <tr><td align="right" valign="top">body:<td><td>%h(z)
         fossil_free(z);
@@ -2104,4 +2230,383 @@ void search_data_page(void){
   @ </tfooter>
   @ </table>
   style_finish_page();
+}
+
+
+/*
+** The Fts5MatchinfoCtx bits were all taken verbatim from:
+**
+** https://sqlite.org/src/finfo?name=ext/fts5/fts5_test_mi.c
+*/
+
+typedef struct Fts5MatchinfoCtx Fts5MatchinfoCtx;
+
+#if INTERFACE
+#ifndef SQLITE_AMALGAMATION
+typedef unsigned int u32;
+#endif
+#endif
+
+struct Fts5MatchinfoCtx {
+  int nCol;                       /* Number of cols in FTS5 table */
+  int nPhrase;                    /* Number of phrases in FTS5 query */
+  char *zArg;                     /* nul-term'd copy of 2nd arg */
+  int nRet;                       /* Number of elements in aRet[] */
+  u32 *aRet;                      /* Array of 32-bit unsigned ints to return */
+};
+
+
+/*
+** Return a pointer to the fts5_api pointer for database connection db.
+** If an error occurs, return NULL and leave an error in the database
+** handle (accessible using sqlite3_errcode()/errmsg()).
+*/
+static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi){
+  sqlite3_stmt *pStmt = 0;
+  int rc;
+
+  *ppApi = 0;
+  rc = sqlite3_prepare(db, "SELECT fts5(?1)", -1, &pStmt, 0);
+  if( rc==SQLITE_OK ){
+    sqlite3_bind_pointer(pStmt, 1, (void*)ppApi, "fts5_api_ptr", 0);
+    (void)sqlite3_step(pStmt);
+    rc = sqlite3_finalize(pStmt);
+  }
+
+  return rc;
+}
+
+
+/*
+** Argument f should be a flag accepted by matchinfo() (a valid character
+** in the string passed as the second argument). If it is not, -1 is 
+** returned. Otherwise, if f is a valid matchinfo flag, the value returned
+** is the number of 32-bit integers added to the output array if the
+** table has nCol columns and the query nPhrase phrases.
+*/
+static int fts5MatchinfoFlagsize(int nCol, int nPhrase, char f){
+  int ret = -1;
+  switch( f ){
+    case 'p': ret = 1; break;
+    case 'c': ret = 1; break;
+    case 'x': ret = 3 * nCol * nPhrase; break;
+    case 'y': ret = nCol * nPhrase; break;
+    case 'b': ret = ((nCol + 31) / 32) * nPhrase; break;
+    case 'n': ret = 1; break;
+    case 'a': ret = nCol; break;
+    case 'l': ret = nCol; break;
+    case 's': ret = nCol; break;
+  }
+  return ret;
+}
+
+static int fts5MatchinfoIter(
+  const Fts5ExtensionApi *pApi,   /* API offered by current FTS version */
+  Fts5Context *pFts,              /* First arg to pass to pApi functions */
+  Fts5MatchinfoCtx *p,
+  int(*x)(const Fts5ExtensionApi*,Fts5Context*,Fts5MatchinfoCtx*,char,u32*)
+){
+  int i;
+  int n = 0;
+  int rc = SQLITE_OK;
+  char f;
+  for(i=0; (f = p->zArg[i]); i++){
+    rc = x(pApi, pFts, p, f, &p->aRet[n]);
+    if( rc!=SQLITE_OK ) break;
+    n += fts5MatchinfoFlagsize(p->nCol, p->nPhrase, f);
+  }
+  return rc;
+}
+
+static int fts5MatchinfoXCb(
+  const Fts5ExtensionApi *pApi,
+  Fts5Context *pFts,
+  void *pUserData
+){
+  Fts5PhraseIter iter;
+  int iCol, iOff;
+  u32 *aOut = (u32*)pUserData;
+  int iPrev = -1;
+
+  for(pApi->xPhraseFirst(pFts, 0, &iter, &iCol, &iOff);
+      iCol>=0;
+      pApi->xPhraseNext(pFts, &iter, &iCol, &iOff)
+  ){
+    aOut[iCol*3+1]++;
+    if( iCol!=iPrev ) aOut[iCol*3 + 2]++;
+    iPrev = iCol;
+  }
+
+  return SQLITE_OK;
+}
+
+static int fts5MatchinfoGlobalCb(
+  const Fts5ExtensionApi *pApi,
+  Fts5Context *pFts,
+  Fts5MatchinfoCtx *p,
+  char f,
+  u32 *aOut
+){
+  int rc = SQLITE_OK;
+  switch( f ){
+    case 'p':
+      aOut[0] = p->nPhrase;
+      break;
+
+    case 'c':
+      aOut[0] = p->nCol;
+      break;
+
+    case 'x': {
+      int i;
+      for(i=0; i<p->nPhrase && rc==SQLITE_OK; i++){
+        void *pPtr = (void*)&aOut[i * p->nCol * 3];
+        rc = pApi->xQueryPhrase(pFts, i, pPtr, fts5MatchinfoXCb);
+      }
+      break;
+    }
+
+    case 'n': {
+      sqlite3_int64 nRow;
+      rc = pApi->xRowCount(pFts, &nRow);
+      aOut[0] = (u32)nRow;
+      break;
+    }
+
+    case 'a': {
+      sqlite3_int64 nRow = 0;
+      rc = pApi->xRowCount(pFts, &nRow);
+      if( nRow==0 ){
+        memset(aOut, 0, sizeof(u32) * p->nCol);
+      }else{
+        int i;
+        for(i=0; rc==SQLITE_OK && i<p->nCol; i++){
+          sqlite3_int64 nToken;
+          rc = pApi->xColumnTotalSize(pFts, i, &nToken);
+          if( rc==SQLITE_OK){
+            aOut[i] = (u32)((2*nToken + nRow) / (2*nRow));
+          }
+        }
+      }
+      break;
+    }
+
+  }
+  return rc;
+}
+
+static int fts5MatchinfoLocalCb(
+  const Fts5ExtensionApi *pApi,
+  Fts5Context *pFts,
+  Fts5MatchinfoCtx *p,
+  char f,
+  u32 *aOut
+){
+  int i;
+  int rc = SQLITE_OK;
+
+  switch( f ){
+    case 'b': {
+      int iPhrase;
+      int nInt = ((p->nCol + 31) / 32) * p->nPhrase;
+      for(i=0; i<nInt; i++) aOut[i] = 0;
+
+      for(iPhrase=0; iPhrase<p->nPhrase; iPhrase++){
+        Fts5PhraseIter iter;
+        int iCol;
+        for(pApi->xPhraseFirstColumn(pFts, iPhrase, &iter, &iCol);
+            iCol>=0;
+            pApi->xPhraseNextColumn(pFts, &iter, &iCol)
+        ){
+          aOut[iPhrase * ((p->nCol+31)/32) + iCol/32] |= ((u32)1 << iCol%32);
+        }
+      }
+
+      break;
+    }
+
+    case 'x':
+    case 'y': {
+      int nMul = (f=='x' ? 3 : 1);
+      int iPhrase;
+
+      for(i=0; i<(p->nCol*p->nPhrase); i++) aOut[i*nMul] = 0;
+
+      for(iPhrase=0; iPhrase<p->nPhrase; iPhrase++){
+        Fts5PhraseIter iter;
+        int iOff, iCol;
+        for(pApi->xPhraseFirst(pFts, iPhrase, &iter, &iCol, &iOff);
+            iOff>=0;
+            pApi->xPhraseNext(pFts, &iter, &iCol, &iOff)
+        ){
+          aOut[nMul * (iCol + iPhrase * p->nCol)]++;
+        }
+      }
+
+      break;
+    }
+
+    case 'l': {
+      for(i=0; rc==SQLITE_OK && i<p->nCol; i++){
+        int nToken;
+        rc = pApi->xColumnSize(pFts, i, &nToken);
+        aOut[i] = (u32)nToken;
+      }
+      break;
+    }
+
+    case 's': {
+      int nInst;
+
+      memset(aOut, 0, sizeof(u32) * p->nCol);
+
+      rc = pApi->xInstCount(pFts, &nInst);
+      for(i=0; rc==SQLITE_OK && i<nInst; i++){
+        int iPhrase, iOff, iCol = 0;
+        int iNextPhrase;
+        int iNextOff;
+        u32 nSeq = 1;
+        int j;
+
+        rc = pApi->xInst(pFts, i, &iPhrase, &iCol, &iOff);
+        iNextPhrase = iPhrase+1;
+        iNextOff = iOff+pApi->xPhraseSize(pFts, 0);
+        for(j=i+1; rc==SQLITE_OK && j<nInst; j++){
+          int ip, ic, io;
+          rc = pApi->xInst(pFts, j, &ip, &ic, &io);
+          if( ic!=iCol || io>iNextOff ) break;
+          if( ip==iNextPhrase && io==iNextOff ){
+            nSeq++;
+            iNextPhrase = ip+1;
+            iNextOff = io + pApi->xPhraseSize(pFts, ip);
+          }
+        }
+
+        if( nSeq>aOut[iCol] ) aOut[iCol] = nSeq;
+      }
+
+      break;
+    }
+  }
+  return rc;
+}
+
+static Fts5MatchinfoCtx *fts5MatchinfoNew(
+  const Fts5ExtensionApi *pApi,   /* API offered by current FTS version */
+  Fts5Context *pFts,              /* First arg to pass to pApi functions */
+  sqlite3_context *pCtx,          /* Context for returning error message */
+  const char *zArg                /* Matchinfo flag string */
+){
+  Fts5MatchinfoCtx *p;
+  int nCol;
+  int nPhrase;
+  int i;
+  int nInt;
+  sqlite3_int64 nByte;
+  int rc;
+
+  nCol = pApi->xColumnCount(pFts);
+  nPhrase = pApi->xPhraseCount(pFts);
+
+  nInt = 0;
+  for(i=0; zArg[i]; i++){
+    int n = fts5MatchinfoFlagsize(nCol, nPhrase, zArg[i]);
+    if( n<0 ){
+      char *zErr = sqlite3_mprintf("unrecognized matchinfo flag: %c", zArg[i]);
+      sqlite3_result_error(pCtx, zErr, -1);
+      sqlite3_free(zErr);
+      return 0;
+    }
+    nInt += n;
+  }
+
+  nByte = sizeof(Fts5MatchinfoCtx)          /* The struct itself */
+         + sizeof(u32) * nInt               /* The p->aRet[] array */
+         + (i+1);                           /* The p->zArg string */
+  p = (Fts5MatchinfoCtx*)sqlite3_malloc64(nByte);
+  if( p==0 ){
+    sqlite3_result_error_nomem(pCtx);
+    return 0;
+  }
+  memset(p, 0, nByte);
+
+  p->nCol = nCol;
+  p->nPhrase = nPhrase;
+  p->aRet = (u32*)&p[1];
+  p->nRet = nInt;
+  p->zArg = (char*)&p->aRet[nInt];
+  memcpy(p->zArg, zArg, i);
+
+  rc = fts5MatchinfoIter(pApi, pFts, p, fts5MatchinfoGlobalCb);
+  if( rc!=SQLITE_OK ){
+    sqlite3_result_error_code(pCtx, rc);
+    sqlite3_free(p);
+    p = 0;
+  }
+
+  return p;
+}
+
+static void fts5MatchinfoFunc(
+  const Fts5ExtensionApi *pApi,   /* API offered by current FTS version */
+  Fts5Context *pFts,              /* First arg to pass to pApi functions */
+  sqlite3_context *pCtx,          /* Context for returning result/error */
+  int nVal,                       /* Number of values in apVal[] array */
+  sqlite3_value **apVal           /* Array of trailing arguments */
+){
+  const char *zArg;
+  Fts5MatchinfoCtx *p;
+  int rc = SQLITE_OK;
+
+  if( nVal>0 ){
+    zArg = (const char*)sqlite3_value_text(apVal[0]);
+  }else{
+    zArg = "pcx";
+  }
+
+  p = (Fts5MatchinfoCtx*)pApi->xGetAuxdata(pFts, 0);
+  if( p==0 || sqlite3_stricmp(zArg, p->zArg) ){
+    p = fts5MatchinfoNew(pApi, pFts, pCtx, zArg);
+    if( p==0 ){
+      rc = SQLITE_NOMEM;
+    }else{
+      rc = pApi->xSetAuxdata(pFts, p, sqlite3_free);
+    }
+  }
+
+  if( rc==SQLITE_OK ){
+    rc = fts5MatchinfoIter(pApi, pFts, p, fts5MatchinfoLocalCb);
+  }
+  if( rc!=SQLITE_OK ){
+    sqlite3_result_error_code(pCtx, rc);
+  }else{
+    /* No errors has occured, so return a copy of the array of integers. */
+    int nByte = p->nRet * sizeof(u32);
+    sqlite3_result_blob(pCtx, (void*)p->aRet, nByte, SQLITE_TRANSIENT);
+  }
+}
+
+int db_register_fts5(sqlite3 *db){
+  int rc;                         /* Return code */
+  fts5_api *pApi;                 /* FTS5 API functions */
+
+  /* Extract the FTS5 API pointer from the database handle. The
+  ** fts5_api_from_db() function above is copied verbatim from the
+  ** FTS5 documentation. Refer there for details. */
+  rc = fts5_api_from_db(db, &pApi);
+  if( rc!=SQLITE_OK ) return rc;
+
+  /* If fts5_api_from_db() returns NULL, then either FTS5 is not registered
+  ** with this database handle, or an error (OOM perhaps?) has occurred.
+  **
+  ** Also check that the fts5_api object is version 2 or newer.
+  */
+  if( pApi==0 || pApi->iVersion<2 ){
+    return SQLITE_ERROR;
+  }
+
+  /* Register the implementation of matchinfo() */
+  rc = pApi->xCreateFunction(pApi, "matchinfo", 0, fts5MatchinfoFunc, 0);
+
+  return rc;
 }

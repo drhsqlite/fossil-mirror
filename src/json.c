@@ -290,7 +290,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   zStr = vmprintf(fmt,vargs);
   va_end(vargs);
   v = cson_value_new_string(zStr, strlen(zStr));
-  free(zStr);
+  fossil_free(zStr);
   return v;
 }
 
@@ -632,9 +632,16 @@ int json_can_consume_content_type(const char * zType){
 ** If g.json.jsonp is not NULL then the content type is set to
 ** text/javascript and the output is wrapped in a jsonp
 ** wrapper.
+**
+** This function works only the first time it is called. It "should
+** not" ever be called more than once but certain calling
+** constellations might trigger that, in which case the second and
+** subsequent calls are no-ops.
 */
 void json_send_response( cson_value const * pResponse ){
+  static int once = 0;
   assert( NULL != pResponse );
+  if( once++ ) return;
   if( g.isHTTP ){
     cgi_reset_content();
     if( g.json.jsonp ){
@@ -846,7 +853,7 @@ void json_warn( int code, char const * fmt, ... ){
     msg = vmprintf(fmt,vargs);
     va_end(vargs);
     cson_object_set(obj,"text", cson_value_new_string(msg,strlen(msg)));
-    free(msg);
+    fossil_free(msg);
   }
 }
 
@@ -1625,7 +1632,7 @@ void json_err( int code, char const * msg, int alsoOutput ){
 */
 int json_set_err( int code, char const * fmt, ... ){
   assert( (code>=1000) && (code<=9999) );
-  free(g.zErrMsg);
+  fossil_free(g.zErrMsg);
   g.json.resultCode = code;
   if(!fmt || !*fmt){
     g.zErrMsg = mprintf("%s", json_err_cstr(code));
@@ -1773,7 +1780,7 @@ cson_value * json_tags_for_checkin_rid(int rid, int propagatingOnly){
     if(*tags){
       v = json_string_split2(tags,',',0);
     }
-    free(tags);
+    fossil_free(tags);
   }
   return v;
 }
@@ -1795,7 +1802,7 @@ cson_value * json_value_to_bool(cson_value const * zVal){
 ** Impl of /json/resultCodes
 **
 */
-cson_value * json_page_resultCodes(){
+cson_value * json_page_resultCodes(void){
     cson_array * list = cson_new_array();
     cson_object * obj = NULL;
     cson_string * kRC;
@@ -1862,7 +1869,7 @@ cson_value * json_page_resultCodes(){
 **
 ** Returns the payload object (owned by the caller).
 */
-cson_value * json_page_version(){
+cson_value * json_page_version(void){
   cson_value * jval = NULL;
   cson_object * jobj = NULL;
   jval = cson_value_new_object();
@@ -1916,7 +1923,7 @@ cson_value * json_cap_value(){
 ** This is primarily intended for debuggering, but may have
 ** a use in client code. (?)
 */
-cson_value * json_page_cap(){
+cson_value * json_page_cap(void){
   cson_value * payload = cson_value_new_object();
   cson_value * sub = cson_value_new_object();
   Stmt q;
@@ -1983,7 +1990,7 @@ cson_value * json_page_cap(){
 ** Implementation of the /json/stat page/command.
 **
 */
-cson_value * json_page_stat(){
+cson_value * json_page_stat(void){
   i64 t, fsize;
   int n, m;
   int full;
@@ -2008,10 +2015,10 @@ cson_value * json_page_stat(){
 
   zTmp = db_get("project-name",NULL);
   cson_object_set(jo, "projectName", json_new_string(zTmp));
-  free(zTmp);
+  fossil_free(zTmp);
   zTmp = db_get("project-description",NULL);
   cson_object_set(jo, "projectDescription", json_new_string(zTmp));
-  free(zTmp);
+  fossil_free(zTmp);
   zTmp = NULL;
   fsize = file_size(g.zRepositoryName, ExtFILE);
   cson_object_set(jo, "repositorySize", 
@@ -2163,7 +2170,7 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
 /*
 ** Impl of /json/rebuild. Requires admin privileges.
 */
-static cson_value * json_page_rebuild(){
+static cson_value * json_page_rebuild(void){
   if( !g.perm.Admin ){
     json_set_err(FSL_JSON_E_DENIED,"Requires 'a' privileges.");
     return NULL;
@@ -2189,7 +2196,7 @@ static cson_value * json_page_rebuild(){
 /*
 ** Impl of /json/g. Requires admin/setup rights.
 */
-static cson_value * json_page_g(){
+static cson_value * json_page_g(void){
   if(!g.perm.Admin || !g.perm.Setup){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'a' or 's' privileges.");
@@ -2199,33 +2206,33 @@ static cson_value * json_page_g(){
 }
 
 /* Impl in json_login.c. */
-cson_value * json_page_anon_password();
+cson_value * json_page_anon_password(void);
 /* Impl in json_artifact.c. */
-cson_value * json_page_artifact();
+cson_value * json_page_artifact(void);
 /* Impl in json_branch.c. */
-cson_value * json_page_branch();
+cson_value * json_page_branch(void);
 /* Impl in json_diff.c. */
-cson_value * json_page_diff();
+cson_value * json_page_diff(void);
 /* Impl in json_dir.c. */
-cson_value * json_page_dir();
+cson_value * json_page_dir(void);
 /* Impl in json_login.c. */
-cson_value * json_page_login();
+cson_value * json_page_login(void);
 /* Impl in json_login.c. */
-cson_value * json_page_logout();
+cson_value * json_page_logout(void);
 /* Impl in json_query.c. */
-cson_value * json_page_query();
+cson_value * json_page_query(void);
 /* Impl in json_report.c. */
-cson_value * json_page_report();
+cson_value * json_page_report(void);
 /* Impl in json_tag.c. */
-cson_value * json_page_tag();
+cson_value * json_page_tag(void);
 /* Impl in json_user.c. */
-cson_value * json_page_user();
+cson_value * json_page_user(void);
 /* Impl in json_config.c. */
-cson_value * json_page_config();
+cson_value * json_page_config(void);
 /* Impl in json_finfo.c. */
-cson_value * json_page_finfo();
+cson_value * json_page_finfo(void);
 /* Impl in json_status.c. */
-cson_value * json_page_status();
+cson_value * json_page_status(void);
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -2249,6 +2256,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"rebuild",json_page_rebuild,0},
 {"report", json_page_report, 0},
 {"resultCodes", json_page_resultCodes,0},
+{"settings",json_page_settings,0},
 {"stat",json_page_stat,0},
 {"status", json_page_status, 0},
 {"tag", json_page_tag,0},

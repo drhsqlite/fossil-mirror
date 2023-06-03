@@ -654,16 +654,10 @@ void ensure_empty_dirs_created(int clearDirTable){
   char *zEmptyDirs = db_get("empty-dirs", 0);
   if( zEmptyDirs!=0 ){
     int i;
-    Blob dirName;
-    Blob dirsList;
+    Glob *pGlob = glob_create(zEmptyDirs);
 
-    zEmptyDirs = fossil_strdup(zEmptyDirs);
-    for(i=0; zEmptyDirs[i]; i++){
-      if( zEmptyDirs[i]==',' ) zEmptyDirs[i] = ' ';
-    }
-    blob_init(&dirsList, zEmptyDirs, -1);
-    while( blob_token(&dirsList, &dirName) ){
-      char *zDir = blob_str(&dirName);
+    for(i=0; i<pGlob->nPattern; i++){
+      const char *zDir = pGlob->azPattern[i];
       char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
       switch( file_isdir(zPath, RepoFILE) ){
         case 0: { /* doesn't exist */
@@ -690,10 +684,8 @@ void ensure_empty_dirs_created(int clearDirTable){
         }
       }
       fossil_free(zPath);
-      blob_reset(&dirName);
     }
-    blob_reset(&dirsList);
-    fossil_free(zEmptyDirs);
+    glob_free(pGlob);
   }
 }
 

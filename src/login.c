@@ -739,10 +739,10 @@ void login_page(void){
     form_begin(0, "%R/login");
   }
   if( zGoto ){
-    @ <input type="hidden" name="g" value="%h(zGoto)" />
+    @ <input type="hidden" name="g" value="%h(zGoto)">
   }
   if( anonFlag ){
-    @ <input type="hidden" name="anon" value="1" />
+    @ <input type="hidden" name="anon" value="1">
   }
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
@@ -777,7 +777,7 @@ void login_page(void){
     @ <tr>
     @  <td class="form_label" id="pswdlabel">Password:</td>
     @  <td><input aria-labelledby="pswdlabel" type="password" id="p" \
-    @ name="p" value="" size="30" />\
+    @ name="p" value="" size="30">\
     if( zAnonPw && !noAnon ){
       captcha_speakit_button(uSeed, "Speak password for \"anonymous\"");
     }
@@ -811,7 +811,7 @@ void login_page(void){
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
       char *zCaptcha = captcha_render(zDecoded);
   
-      @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
+      @ <p><input type="hidden" name="cs" value="%u(uSeed)">
       @ Visitors may enter <b>anonymous</b> as the user-ID with
       @ the 8-character hexadecimal password shown below:</p>
       @ <div class="captcha"><table class="captcha"><tr><td>\
@@ -820,7 +820,7 @@ void login_page(void){
       @ </pre></td></tr></table>
       if( bAutoCaptcha ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
-         @ data-af='%s(zDecoded)' />
+         @ data-af='%s(zDecoded)'>
          builtin_request_js("login.js");
       }
       @ </div>
@@ -850,12 +850,12 @@ void login_page(void){
       @ size="30"/></td></tr>
       @ <tr><td class="form_label" id="newpw">New Password:</td>
       @ <td><input aria-labelledby="newpw" type="password" name="n1" \
-      @ size="30" /> Suggestion: %z(zRPW)</td></tr>
+      @ size="30"> Suggestion: %z(zRPW)</td></tr>
       @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
       @ <td><input aria-labledby="reppw" type="password" name="n2" \
-      @ size="30" /></td></tr>
+      @ size="30"></td></tr>
       @ <tr><td></td>
-      @ <td><input type="submit" value="Change Password" /></td></tr>
+      @ <td><input type="submit" value="Change Password"></td></tr>
       @ </table>
       @ </form>
     }
@@ -1087,12 +1087,12 @@ void login_resetpw(void){
   @ <table>
   @ <tr><td class="form_label" id="newpw">New Password:</td>
   @ <td><input aria-labelledby="newpw" type="password" name="n1" \
-  @ size="30" /> Suggestion: %z(zRPW)</td></tr>
+  @ size="30"> Suggestion: %z(zRPW)</td></tr>
   @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
   @ <td><input aria-labledby="reppw" type="password" name="n2" \
-  @ size="30" /></td></tr>
+  @ size="30"></td></tr>
   @ <tr><td></td>
-  @ <td><input type="submit" value="Change Password" /></td></tr>
+  @ <td><input type="submit" value="Change Password"></td></tr>
   @ </table>
   @ </form>
   style_finish_page();
@@ -1792,7 +1792,7 @@ void login_needed(int anonOk){
 void login_anonymous_available(void){
   if( !g.perm.Hyperlink && g.anon.Hyperlink ){
     const char *zUrl = PD("PATH_INFO", "");
-    @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
+    @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br>
     @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
@@ -1803,7 +1803,7 @@ void login_anonymous_available(void){
 ** as a hidden element of the form.
 */
 void login_insert_csrf_secret(void){
-  @ <input type="hidden" name="csrf" value="%s(g.zCsrfToken)" />
+  @ <input type="hidden" name="csrf" value="%s(g.zCsrfToken)">
 }
 
 /*
@@ -2125,9 +2125,9 @@ void register_page(void){
   g.perm.Hyperlink = 1;  /* Artificially enable hyperlinks */
   form_begin(0, "%R/register");
   if( P("g") ){
-    @ <input type="hidden" name="g" value="%h(P("g"))" />
+    @ <input type="hidden" name="g" value="%h(P("g"))">
   }
-  @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)" />
+  @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)">
   @ <table class="login_out">
   @ <tr>
   @   <td class="form_label" align="right" id="uid">User ID:</td>
@@ -2154,7 +2154,7 @@ void register_page(void){
   if( iErrLine==3 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span>
     if( uid>0 && login_self_password_reset_available() ){
-      @ <br />
+      @ <br>
       @ <input type="submit" name="pwreset" \
       @ value="Request Password Reset For %h(zEAddr)">
     }
@@ -2202,7 +2202,7 @@ void register_page(void){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ <tr><td></td>
-  @ <td><input type="submit" name="new" value="Register" /></td></tr>
+  @ <td><input type="submit" name="new" value="Register"></td></tr>
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
@@ -2330,8 +2330,8 @@ void login_reqpwreset_page(void){
   /* Print out the registration form. */
   g.perm.Hyperlink = 1;  /* Artificially enable hyperlinks */
   form_begin(0, "%R/reqpwreset");
-  @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)" />
-  @ <p><input type="hidden" name="reqpwreset" value="1" />
+  @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)">
+  @ <p><input type="hidden" name="reqpwreset" value="1">
   @ <table class="login_out">
   @ <tr>
   @   <td class="form_label" align="right" id="emaddr">Email Address:</td>

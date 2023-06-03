@@ -411,7 +411,6 @@ static void contextDiff(
   int i, j;     /* Loop counters */
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
   int showDivider = 0;  /* True to show the divider between diff blocks */
@@ -2072,7 +2071,6 @@ static unsigned char *diffBlockAlignment(
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
-  int nMatch, iMatch;          /* Number of matching lines and match score */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   if( nLeft==0 ){
@@ -2154,15 +2152,12 @@ static unsigned char *diffBlockAlignment(
   i = nRight;
   j = nLeft;
   k = (nRight+1)*(nLeft+1)-1;
-  nMatch = iMatch = 0;
   while( i+j>0 ){
     unsigned char c = aM[k];
     if( c>=3 ){
       assert( i>0 && j>0 );
       i--;
       j--;
-      nMatch++;
-      iMatch += (c>>2);
       aM[k] = 3;
     }else if( c==2 ){
       assert( i>0 );
@@ -2228,7 +2223,7 @@ static void formatDiff(
 
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
@@ -2258,7 +2253,7 @@ static void formatDiff(
     /* Figure out how many lines of A and B are to be displayed
     ** for this change block.
     */
-    if( R[r]>nContext ){
+    if( R[r]>(int)nContext ){
       skip = R[r] - nContext;
     }else{
       skip = 0;
@@ -2269,10 +2264,10 @@ static void formatDiff(
     m = R[r] - skip;
     if( r ) skip -= nContext;
     if( skip>0 ){
-      if( skip<nContext ){
+      if( skip<(int)nContext ){
         /* If the amount to skip is less that the context band, then
         ** go ahead and show the skip band as it is not worth eliding */
-        for(j=0; j<skip; j++){
+        for(j=0; (int)j<skip; j++){
           pBuilder->xCommon(pBuilder, &A[a+j-skip]);
         }
       }else{
@@ -2306,7 +2301,7 @@ static void formatDiff(
       alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, pCfg, &nAlign);
 
       for(j=0; ma+mb>0; j++){
-        assert( j<nAlign );
+        assert( (int)j<nAlign );
         switch( alignment[j] ){
           case 1: {
             /* Delete one line from the left */
@@ -2348,7 +2343,7 @@ static void formatDiff(
           }
         }
       }
-      assert( nAlign==j );
+      assert( nAlign==(int)j );
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
@@ -2368,7 +2363,7 @@ static void formatDiff(
       pBuilder->xCommon(pBuilder, &A[a+j]);
     }
   }
-  if( R[r]>nContext ){
+  if( R[r]>(int)nContext ){
     pBuilder->xSkip(pBuilder, R[r] - nContext, 1);
   }
   pBuilder->xEnd(pBuilder);
@@ -2893,8 +2888,8 @@ int diff_context_lines(DiffConfig *pCfg){
   const int dflt = 5;
   if(pCfg!=0){
     int n = pCfg->nContext;
-    if( n<=0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
-    return n;
+    if( n==0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
+    return n<0 ? 0x7ffffff : n;
   }else{
     return dflt;
   }
@@ -3154,7 +3149,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   }
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))!=0 ){
     pCfg->nContext = f;
     diffFlags |= DIFF_CONTEXT_EX;
   }
@@ -3643,7 +3638,7 @@ void annotation_page(void){
     @ </span>
   }
   @ </ol>
-  @ <hr />
+  @ <hr>
   @ </div>
 
   if( !ann.bMoreToDo ){

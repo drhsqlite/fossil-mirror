@@ -110,7 +110,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
       zProjectCode = db_get("project-code", 0);
     }
     zPw = sha1_shared_secret(zPw, zLogin, zProjectCode);
-    if( g.url.pwConfig!=0 ){
+    if( g.url.pwConfig!=0 && (g.url.flags & URL_REMEMBER_PW)!=0 ){
       char *x = obscure(zPw);
       db_set(g.url.pwConfig/*works-like:"x"*/, x, 0);
       fossil_free(x);

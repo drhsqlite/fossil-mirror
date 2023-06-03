@@ -682,14 +682,14 @@ char *fossil_temp_filename(void){
     if( zDir==0 ) zDir = ".";
   }
 #else
-  for(i=0; i<sizeof(azTmp)/sizeof(azTmp[0]); i++){
+  for(i=0; i<(int)(sizeof(azTmp)/sizeof(azTmp[0])); i++){
     struct stat buf;
     zDir = azTmp[i];
     if( stat(zDir,&buf)==0 && S_ISDIR(buf.st_mode) && access(zDir,03)==0 ){
       break;
     }
   }
-  if( i>=sizeof(azTmp)/sizeof(azTmp[0]) ) zDir = ".";
+  if( i>=(int)(sizeof(azTmp)/sizeof(azTmp[0])) ) zDir = ".";
   cDirSep = '/';
 #endif
   nDir = strlen(zDir);

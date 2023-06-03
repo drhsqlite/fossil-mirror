@@ -206,7 +206,8 @@ static unsigned int getInt(const char **pz, int *pLen){
 ** Return the number digits in the base-64 representation of a positive integer
 */
 static int digit_count(int v){
-  unsigned int i, x;
+  unsigned int i;
+  int x;
   for(i=1, x=64; v>=x; i++, x <<= 6){}
   return i;
 }
@@ -381,7 +382,7 @@ int delta_create(
   collide = fossil_malloc( nHash*2*sizeof(int) );
   memset(collide, -1, nHash*2*sizeof(int));
   landmark = &collide[nHash];
-  for(i=0; i<lenSrc-NHASH; i+=NHASH){
+  for(i=0; i<(int)lenSrc-NHASH; i+=NHASH){
     int hv = hash_once(&zSrc[i]) % nHash;
     collide[i/NHASH] = landmark[hv];
     landmark[hv] = i/NHASH;
@@ -391,7 +392,7 @@ int delta_create(
   ** literal sections of the delta.
   */
   base = 0;    /* We have already generated everything before zOut[base] */
-  while( base+NHASH<lenOut ){
+  while( base+NHASH<(int)lenOut ){
     int iSrc, iBlock;
     unsigned int bestCnt, bestOfst=0, bestLitsz=0;
     hash_init(&h, &zOut[base]);
@@ -451,7 +452,7 @@ int delta_create(
         /* sz will hold the number of bytes needed to encode the "insert"
         ** command and the copy command, not counting the "insert" text */
         sz = digit_count(i-k)+digit_count(cnt)+digit_count(ofst)+3;
-        if( cnt>=sz && cnt>bestCnt ){
+        if( cnt>=sz && cnt>(int)bestCnt ){
           /* Remember this match only if it is the best so far and it
           ** does not increase the file size */
           bestCnt = cnt;
@@ -483,7 +484,7 @@ int delta_create(
         putInt(bestOfst, &zDelta);
         DEBUG2( printf("copy %d bytes from %d\n", bestCnt, bestOfst); )
         *(zDelta++) = ',';
-        if( bestOfst + bestCnt -1 > lastRead ){
+        if( (int)(bestOfst + bestCnt -1) > lastRead ){
           lastRead = bestOfst + bestCnt - 1;
           DEBUG2( printf("lastRead becomes %d\n", lastRead); )
         }
@@ -492,7 +493,7 @@ int delta_create(
       }
 
       /* If we reach this point, it means no match is found so far */
-      if( base+i+NHASH>=lenOut ){
+      if( base+i+NHASH>=(int)lenOut ){
         /* We have reached the end of the file and have not found any
         ** matches.  Do an "insert" for everything that does not match */
         putInt(lenOut-base, &zDelta);
@@ -511,7 +512,7 @@ int delta_create(
   /* Output a final "insert" record to get all the text at the end of
   ** the file that does not match anything in the source file.
   */
-  if( base<lenOut ){
+  if( base<(int)lenOut ){
     putInt(lenOut-base, &zDelta);
     *(zDelta++) = ':';
     memcpy(zDelta, &zOut[base], lenOut-base);
@@ -601,7 +602,7 @@ int delta_apply(
           /* ERROR: copy exceeds output file size */
           return -1;
         }
-        if( ofst+cnt > lenSrc ){
+        if( (int)(ofst+cnt) > lenSrc ){
           /* ERROR: copy extends past end of input */
           return -1;
         }
@@ -617,7 +618,7 @@ int delta_apply(
           return -1;
         }
         DEBUG1( printf("INSERT %d\n", cnt); )
-        if( cnt>lenDelta ){
+        if( (int)cnt>lenDelta ){
           /* ERROR: insert count exceeds size of delta */
           return -1;
         }
@@ -690,7 +691,7 @@ int delta_analyze(
       case ':': {
         zDelta++; lenDelta--;
         nInsert += cnt;
-        if( cnt>lenDelta ){
+        if( (int)cnt>lenDelta ){
           /* ERROR: insert count exceeds size of delta */
           return -1;
         }

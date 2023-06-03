@@ -159,7 +159,7 @@ static void userGenerateScrambleCode(void){
   memcpy(zOrig, "abcdefghijklmnopqrstuvwyz", nA+1);
   memcpy(zA, zOrig, nA+1);
   assert( nA==(int)strlen((char*)zA) );
-  for(i=0; i<sizeof(aSubst); i++) aSubst[i] = i;
+  for(i=0; i<(int)sizeof(aSubst); i++) aSubst[i] = i;
   printFive(zA);
   while( nA>0 ){
     int x = randint(nA);
@@ -757,7 +757,7 @@ void access_log_page(void){
   }
   @ </tbody></table>
   db_finalize(&q);
-  @ <hr />
+  @ <hr>
   @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>

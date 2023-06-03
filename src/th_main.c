@@ -292,7 +292,7 @@ static int enableOutputCmd(
   }
   rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &enableOutput);
   if( g.thTrace ){
-    Th_Trace("enable_output {%.*s} -> %d<br />\n", argl[1],argv[1],enableOutput);
+    Th_Trace("enable_output {%.*s} -> %d<br>\n", argl[1],argv[1],enableOutput);
   }
   return rc;
 }
@@ -322,7 +322,7 @@ static int enableHtmlifyCmd(
   Th_SetResultInt(g.interp, buul);
   if(argc>1){
     if( g.thTrace ){
-      Th_Trace("enable_htmlify {%.*s} -> %d<br />\n",
+      Th_Trace("enable_htmlify {%.*s} -> %d<br>\n",
                argl[1],argv[1],buul);
     }
     rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
@@ -414,7 +414,7 @@ static void sendError(Blob * pOut, const char *z, int n, int forceCgi){
   int savedEnable = enableOutput;
   enableOutput = 1;
   if( forceCgi || g.cgiOutput ){
-    sendText(pOut, "<hr /><p class=\"thmainError\">", -1, 0);
+    sendText(pOut, "<hr><p class=\"thmainError\">", -1, 0);
   }
   sendText(pOut,"ERROR: ", -1, 0);
   sendText(pOut,(char*)z, n, 1);
@@ -793,7 +793,7 @@ static int hascapCmd(
     rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
   }
   if( g.thTrace ){
-    Th_Trace("[%s %#h] => %d<br />\n", argv[0], nCapList, zCapList, rc);
+    Th_Trace("[%s %#h] => %d<br>\n", argv[0], nCapList, zCapList, rc);
     Th_Free(interp, zCapList);
   }
   Th_SetResultInt(interp, rc);
@@ -910,7 +910,7 @@ static int searchableCmd(
     if( !match ) rc = 0;
   }
   if( g.thTrace ){
-    Th_Trace("[searchable %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[searchable %#h] => %d<br>\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1029,7 +1029,7 @@ static int hasfeatureCmd(
     rc = 1;
   }
   if( g.thTrace ){
-    Th_Trace("[hasfeature %#h] => %d<br />\n", argl[1], zArg, rc);
+    Th_Trace("[hasfeature %#h] => %d<br>\n", argl[1], zArg, rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1060,7 +1060,7 @@ static int tclReadyCmd(
   }
 #endif
   if( g.thTrace ){
-    Th_Trace("[tclReady] => %d<br />\n", rc);
+    Th_Trace("[tclReady] => %d<br>\n", rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1089,7 +1089,7 @@ static int anycapCmd(
     rc = login_has_capability((char*)&argv[1][i],1,0);
   }
   if( g.thTrace ){
-    Th_Trace("[anycap %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[anycap %#h] => %d<br>\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1851,7 +1851,7 @@ static int randhexCmd(
       return TH_ERROR;
     }
     if( n<1 ) n = 1;
-    if( n>sizeof(aRand) ) n = sizeof(aRand);
+    if( n>(int)sizeof(aRand) ) n = sizeof(aRand);
   }else{
     n = 10;
   }
@@ -1955,13 +1955,13 @@ static int queryCmd(
         Th_SetVar(interp, zCol, szCol, zVal, szVal);
       }
       if( g.thTrace ){
-        Th_Trace("query_eval {<pre>%#h</pre>}<br />\n", argl[2], argv[2]);
+        Th_Trace("query_eval {<pre>%#h</pre>}<br>\n", argl[2], argv[2]);
       }
       res = Th_Eval(interp, 0, argv[2], argl[2]);
       if( g.thTrace ){
         int nTrRes;
         char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
-        Th_Trace("[query_eval] => %h {%#h}<br />\n",
+        Th_Trace("[query_eval] => %h {%#h}<br>\n",
                  Th_ReturnCodeName(res, 0), nTrRes, zTrRes);
       }
       if( res==TH_BREAK || res==TH_CONTINUE ) res = TH_OK;
@@ -2015,7 +2015,7 @@ static int settingCmd(
     rc = TH_OK;
   }
   if( g.thTrace ){
-    Th_Trace("[setting %s%#h] => %d<br />\n", strict ? "strict " : "",
+    Th_Trace("[setting %s%#h] => %d<br>\n", strict ? "strict " : "",
              argl[nArg], argv[nArg], rc);
   }
   return rc;
@@ -2376,7 +2376,7 @@ void Th_FossilInit(u32 flags){
     {0, 0, 0}
   };
   if( g.thTrace ){
-    Th_Trace("th1-init 0x%x => 0x%x<br />\n", g.th1Flags, flags);
+    Th_Trace("th1-init 0x%x => 0x%x<br>\n", g.th1Flags, flags);
   }
   if( needConfig ){
     /*
@@ -2396,7 +2396,7 @@ void Th_FossilInit(u32 flags){
       if( fossil_getenv("TH1_DELETE_INTERP")!=0 ){
         pVtab = &vtab;
         if( g.thTrace ){
-          Th_Trace("th1-init MEMDEBUG ENABLED<br />\n");
+          Th_Trace("th1-init MEMDEBUG ENABLED<br>\n");
         }
       }
 #endif
@@ -2437,7 +2437,7 @@ void Th_FossilInit(u32 flags){
       }
     }
     if( g.thTrace ){
-      Th_Trace("th1-setup {%h} => %h<br />\n", g.th1Setup,
+      Th_Trace("th1-setup {%h} => %h<br>\n", g.th1Setup,
                Th_ReturnCodeName(rc, 0));
     }
   }
@@ -2453,7 +2453,7 @@ void Th_MaybeStore(const char *zName, const char *zValue){
   Th_FossilInit(TH_INIT_DEFAULT);
   if( zValue && !Th_ExistsVar(g.interp, zName, -1) ){
     if( g.thTrace ){
-      Th_Trace("maybe_set %h {%h}<br />\n", zName, zValue);
+      Th_Trace("maybe_set %h {%h}<br>\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
   }
@@ -2466,7 +2466,7 @@ void Th_Store(const char *zName, const char *zValue){
   Th_FossilInit(TH_INIT_DEFAULT);
   if( zValue ){
     if( g.thTrace ){
-      Th_Trace("set %h {%h}<br />\n", zName, zValue);
+      Th_Trace("set %h {%h}<br>\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
   }
@@ -2509,7 +2509,7 @@ void Th_StoreList(
       Th_ListAppend(g.interp, &zValue, &nValue, pzList[i], -1);
     }
     if( g.thTrace ){
-      Th_Trace("set %h {%h}<br />\n", zName, zValue);
+      Th_Trace("set %h {%h}<br>\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, nValue);
     Th_Free(g.interp, zValue);
@@ -2527,7 +2527,7 @@ void Th_StoreInt(const char *zName, int iValue){
   blob_appendf(&value, "%d", iValue);
   zValue = blob_str(&value);
   if( g.thTrace ){
-    Th_Trace("set %h {%h}<br />\n", zName, zValue);
+    Th_Trace("set %h {%h}<br>\n", zName, zValue);
   }
   Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
   blob_reset(&value);
@@ -2675,7 +2675,7 @@ int Th_CommandHook(
   ** TH_BREAK or TH_CONTINUE.
   */
   if( g.thTrace ){
-    Th_Trace("[command_hook {%h}] => %h<br />\n", zName,
+    Th_Trace("[command_hook {%h}] => %h<br>\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
   /*
@@ -2707,7 +2707,7 @@ int Th_CommandNotify(
   Th_StoreInt("cmd_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "command_notify", -1);
   if( g.thTrace ){
-    Th_Trace("[command_notify {%h}] => %h<br />\n", zName,
+    Th_Trace("[command_notify {%h}] => %h<br>\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
   /*
@@ -2762,7 +2762,7 @@ int Th_WebpageHook(
   ** returning TH_BREAK or TH_CONTINUE.
   */
   if( g.thTrace ){
-    Th_Trace("[webpage_hook {%h}] => %h<br />\n", zName,
+    Th_Trace("[webpage_hook {%h}] => %h<br>\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
   /*
@@ -2794,7 +2794,7 @@ int Th_WebpageNotify(
   Th_StoreInt("web_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "webpage_notify", -1);
   if( g.thTrace ){
-    Th_Trace("[webpage_notify {%h}] => %h<br />\n", zName,
+    Th_Trace("[webpage_notify {%h}] => %h<br>\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
   /*
@@ -2877,13 +2877,13 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       if( g.thTrace ){
-        Th_Trace("render_eval {<pre>%#h</pre>}<br />\n", i, z);
+        Th_Trace("render_eval {<pre>%#h</pre>}<br>\n", i, z);
       }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
       if( g.thTrace ){
         int nTrRes;
         char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
-        Th_Trace("[render_eval] => %h {%#h}<br />\n",
+        Th_Trace("[render_eval] => %h {%#h}<br>\n",
                  Th_ReturnCodeName(rc, 0), nTrRes, zTrRes);
       }
       if( rc!=TH_OK ) break;

@@ -764,24 +764,7 @@ void merge_cmd(void){
   ** All of the information needed to do the merge is now contained in the
   ** FV table.  Starting here, we begin to actually carry out the merge.
   **
-  ** First, find files in M and V but not in P and report conflicts.
-  ** The file in M will be ignored.  It will be treated as if it
-  ** does not exist.
-  */
-  db_prepare(&q,
-    "SELECT idm FROM fv WHERE idp=0 AND idv>0 AND idm>0"
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int idm = db_column_int(&q, 0);
-    char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
-    fossil_warning("WARNING: no common ancestor for %s", zName);
-    free(zName);
-    db_multi_exec("UPDATE fv SET idm=0 WHERE idm=%d", idm);
-  }
-  db_finalize(&q);
-
-  /*
-  ** Find files that have changed from P->M but not P->V.
+  ** First, find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
@@ -811,10 +794,14 @@ void merge_cmd(void){
 
   /*
   ** Do a three-way merge on files that have changes on both P->M and P->V.
+  **
+  ** Proceed even if the file doesn't exist on P, just like the common ancestor
+  ** of M and V is an empty file. In this case, merge conflict marks will be
+  ** added to the file and user will be forced to take a decision.
   */
   db_prepare(&q,
     "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm FROM fv"
-    " WHERE idp>0 AND idv>0 AND idm>0"
+    " WHERE idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
   );

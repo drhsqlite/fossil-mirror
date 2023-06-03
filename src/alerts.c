@@ -21,7 +21,7 @@
 ** email protocol?  That is not here.  See the "smtp.c" file instead.
 ** Yes, the choice of source code filenames is not the greatest, but
 ** it is not so bad that changing them seems justified.
-*/ 
+*/
 #include "config.h"
 #include "alerts.h"
 #include <assert.h>
@@ -61,7 +61,7 @@ static const char zAlertInit[] =
 @   semail TEXT UNIQUE COLLATE nocase,-- email address
 @   suname TEXT,                      -- corresponding USER entry
 @   sverified BOOLEAN DEFAULT true,   -- email address verified
-@   sdonotcall BOOLEAN,               -- true for Do Not Call 
+@   sdonotcall BOOLEAN,               -- true for Do Not Call
 @   sdigest BOOLEAN,                  -- true for daily digests only
 @   ssub TEXT,                        -- baseline subscriptions
 @   sctime INTDATE,                   -- When this entry was created. unixtime
@@ -71,7 +71,7 @@ static const char zAlertInit[] =
 @ );
 @ CREATE INDEX repository.subscriberUname
 @   ON subscriber(suname) WHERE suname IS NOT NULL;
-@ 
+@
 @ DROP TABLE IF EXISTS repository.pending_alert;
 @ -- Email notifications that need to be sent.
 @ --
@@ -188,7 +188,7 @@ void alert_create_trigger(void){
     );
   }
   if( db_table_exists("repository","chat")
-   && db_get("chat-timeline-user", "")[0]!=0 
+   && db_get("chat-timeline-user", "")[0]!=0
   ){
     /* Record events that will be relayed to chat, but do not relay
     ** them immediately, as the chat_msg_from_event() function requires
@@ -234,6 +234,22 @@ int alert_enabled(void){
   if( !alert_tables_exist() ) return 0;
   if( fossil_strcmp(db_get("email-send-method",0),"off")==0 ) return 0;
   return 1;
+}
+
+/*
+** If alerts are enabled, removes the pending_alert entry which
+** matches (eventType || rid). Note that pending_alert entries are
+** added via the manifest crosslinking process, so this has no effect
+** if called before crosslinking is performed. Because alerts are sent
+** asynchronously, unqueuing needs to be performed as part of the
+** transaction in which crosslinking is performed in order to avoid a
+** race condition.
+*/
+void alert_unqueue(char eventType, int rid){
+  if( alert_enabled() ){
+    db_multi_exec("DELETE FROM pending_alert WHERE eventid='%c%d'",
+                  eventType, rid);
+  }
 }
 
 /*
@@ -303,7 +319,7 @@ void setup_notification(void){
   @ <hr>
   @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
-  @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
+  @ <input type="submit"  name="submit" value="Apply Changes"><hr>
   login_insert_csrf_secret();
 
   entry_attribute("Canonical Server URL", 40, "email-url",
@@ -402,7 +418,7 @@ void setup_notification(void){
   @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -617,7 +633,8 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
       if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
-      p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
+      p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
+                                  smtpFlags);
       smtp_client_startup(p->pSmtp);
     }
   }
@@ -716,8 +733,8 @@ int email_address_is_valid(const char *z, char cTerm){
 ** Make a copy of the input string up to but not including the
 ** first cTerm character.
 **
-** Verify that the string really that is to be copied really is a
-** valid email address.  If it is not, then return NULL.
+** Verify that the string to be copied really is a valid
+** email address.  If it is not, then return NULL.
 **
 ** This routine is more restrictive than necessary.  It does not
 ** allow comments, IP address, quoted strings, or certain uncommon
@@ -730,20 +747,21 @@ char *email_copy_addr(const char *z, char cTerm ){
 }
 
 /*
-** Scan the input string for a valid email address enclosed in <...>
+** Scan the input string for a valid email address that may be
+** enclosed in <...>, or delimited by ',' or ':' or '=' or ' '.
 ** If the string contains one or more email addresses, extract the first
 ** one into memory obtained from mprintf() and return a pointer to it.
 ** If no valid email address can be found, return NULL.
 */
 char *alert_find_emailaddr(const char *zIn){
   char *zOut = 0;
-  while( zIn!=0 ){
-     zIn = (const char*)strchr(zIn, '<');
-     if( zIn==0 ) break;
-     zIn++;
-     zOut = email_copy_addr(zIn, '>');
-     if( zOut!=0 ) break;
-  }
+  do{
+    zOut = email_copy_addr(zIn, zIn[strcspn(zIn, ">,:= ")]);
+    if( zOut!=0 ) break;
+    zIn = (const char *)strpbrk(zIn, "<,:= ");
+    if( zIn==0 ) break;
+    zIn++;
+  }while( zIn!=0 );
   return zOut;
 }
 

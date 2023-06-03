@@ -28,7 +28,7 @@
 ** Implementation of the /json/login page.
 **
 */
-cson_value * json_page_login(){
+cson_value * json_page_login(void){
   char preciseErrors = /* if true, "complete" JSON error codes are used,
                           else they are "dumbed down" to a generic login
                           error code.
@@ -183,7 +183,7 @@ cson_value * json_page_login(){
 ** Impl of /json/logout.
 **
 */
-cson_value * json_page_logout(){
+cson_value * json_page_logout(void){
   cson_value const *token = g.json.authToken;
     /* Remember that json_bootstrap_late() replaces the login cookie
        with the JSON auth token if the request contains it. If the
@@ -209,7 +209,7 @@ cson_value * json_page_logout(){
 /*
 ** Implementation of the /json/anonymousPassword page.
 */
-cson_value * json_page_anon_password(){
+cson_value * json_page_anon_password(void){
   cson_value * v = cson_value_new_object();
   cson_object * o = cson_value_get_object(v);
   unsigned const int seed = captcha_seed();
@@ -228,7 +228,7 @@ cson_value * json_page_anon_password(){
 /*
 ** Implements the /json/whoami page/command.
 */
-cson_value * json_page_whoami(){
+cson_value * json_page_whoami(void){
   cson_value * payload = NULL;
   cson_object * obj = NULL;
   Stmt q;

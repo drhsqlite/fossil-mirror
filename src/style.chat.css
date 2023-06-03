@@ -39,7 +39,9 @@ body.chat .message-widget-content {
   min-width: 9em /*avoid unsightly "underlap" with the neighboring
                    .message-widget-tab element*/;
   white-space: normal;
+  word-break: break-word /* so that full hashes wrap on narrow screens */;
 }
+
 body.chat .message-widget-content.wide {
   /* Special case for when embedding content which we really want to
      expand, namely iframes. */
@@ -179,6 +181,7 @@ body.chat #load-msg-toolbar > div > button {
    the chat app. */
 body.chat.chat-only-mode{
   padding: 0;
+  margin: 0 auto;
 }
 body.chat #chat-button-settings {}
 /** Popup widget for the /chat settings. */
