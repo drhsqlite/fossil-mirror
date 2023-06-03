@@ -614,7 +614,7 @@ void wiki_page(void){
   }
   manifest_destroy(pWiki);
   if( !isPopup ){
-    char * zLabel = mprintf("<hr /><h2><a href='%R/attachlist?name=%T'>"
+    char * zLabel = mprintf("<hr><h2><a href='%R/attachlist?name=%T'>"
                             "Attachments</a>:</h2><ul>",
                             zPageName);
     attachment_list(zPageName, zLabel);
@@ -1538,10 +1538,10 @@ void wikinew_page(void){
   well_formed_wiki_name_rules();
   form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
-  @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
+  @ <input style="width: 35;" type="text" name="name" value="%h(zName)"><br>
   @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu("text/x-markdown", "mimetype");
-  @ <br /><input type="submit" value="Create" />
+  @ <br><input type="submit" value="Create">
   @ </p></form>
   if( zName[0] ){
     @ <p><span class="wikiError">
@@ -1565,12 +1565,12 @@ static void appendRemark(Blob *p, const char *zMimetype){
   zUser = PD("u",g.zLogin);
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-    blob_appendf(p, "\n\n<hr /><div id=\"%s\"><i>On %s UTC %h",
+    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
       zId, zDate, login_name());
     if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
     }
-    blob_appendf(p, " added:</i><br />\n%s</div id=\"%s\">", zRemark, zId);
+    blob_appendf(p, " added:</i><br>\n%s</div id=\"%s\">", zRemark, zId);
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
     blob_appendf(p, "\n\n------\n*On %s UTC %h", zDate, login_name());
     if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
@@ -1687,27 +1687,27 @@ void wikiappend_page(void){
     Blob preview;
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
-    @ Preview:<hr />
+    @ Preview:<hr>
     safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&preview, zMimetype);
-    @ <hr />
+    @ <hr>
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
   form_begin(0, "%R/wikiappend");
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <input type="hidden" name="mimetype" value="%h(zMimetype)" />
+  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
   @ Your Name:
-  @ <input type="text" name="u" size="20" value="%h(zUser)" /><br />
+  @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
   zFormat = mimetype_common_name(zMimetype);
-  @ Comment to append (formatted as %s(zFormat)):<br />
+  @ Comment to append (formatted as %s(zFormat)):<br>
   @ <textarea name="r" class="wikiedit" cols="80"
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
-  @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Comment" />
-  @ <input type="submit" name="submit" value="Append Your Changes" />
-  @ <input type="submit" name="cancel" value="Cancel" />
+  @ <br>
+  @ <input type="submit" name="preview" value="Preview Your Comment">
+  @ <input type="submit" name="submit" value="Append Your Changes">
+  @ <input type="submit" name="cancel" value="Cancel">
   captcha_generate(0);
   @ </form>
   manifest_destroy(pWiki);
@@ -1752,8 +1752,8 @@ void whistory_page(void){
   );
   @ <h2>History of <a href="%R/wiki?name=%T(zPageName)">%h(zPageName)</a></h2>
   form_begin( "id='wh-form'", "%R/wdiff" );
-  @   <input id="wh-pid" name="pid" type="radio" hidden />
-  @   <input id="wh-id"  name="id"  type="hidden" />
+  @   <input id="wh-pid" name="pid" type="radio" hidden>
+  @   <input id="wh-id"  name="id"  type="hidden">
   @ </form>
   @ <style> .wh-clickable { cursor: pointer; } </style>
   @ <div class="brlist">
@@ -1792,7 +1792,7 @@ void whistory_page(void){
     fossil_free(zAge);
     @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td>
     @ <td><input disabled type="radio" name="baseline" value="%S(zUuid)"/></td>
-    @ <td>%h(zUser)<span class="wh-iterations" hidden /></td>
+    @ <td>%h(zUser)<span class="wh-iterations" hidden></td>
     if( showRid ){
       @ <td>%z(href("%R/artifact/%S",zUuid))%d(wrid)</a></td>
     }

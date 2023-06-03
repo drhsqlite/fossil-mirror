@@ -810,13 +810,13 @@ void tarball_page(void){
 
   if( P("debug")!=0 ){
     style_header("Tarball Generator Debug Screen");
-    @ zName = "%h(zName)"<br />
-    @ rid = %d(rid)<br />
+    @ zName = "%h(zName)"<br>
+    @ rid = %d(rid)<br>
     if( zInclude ){
-      @ zInclude = "%h(zInclude)"<br />
+      @ zInclude = "%h(zInclude)"<br>
     }
     if( zExclude ){
-      @ zExclude = "%h(zExclude)"<br />
+      @ zExclude = "%h(zExclude)"<br>
     }
     @ zKey = "%h(zKey)"
     style_finish_page();
@@ -828,7 +828,7 @@ void tarball_page(void){
     cgi_query_parameters_to_hidden();
     @ <p>Tarball named <b>%h(zName).tar.gz</b> holding the content
     @ of check-in <b>%h(zRid)</b>:
-    @ <input type="submit" value="Download" />
+    @ <input type="submit" value="Download">
     @ </form>
     style_finish_page();
     return;

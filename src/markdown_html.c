@@ -232,7 +232,7 @@ static void html_header(
 
 static void html_hrule(struct Blob *ob, void *opaque){
   INTER_BLOCK(ob);
-  blob_append_literal(ob, "<hr />\n");
+  blob_append_literal(ob, "<hr>\n");
 }
 
 
@@ -760,12 +760,12 @@ static int html_image(
     blob_append_literal(ob, "\" title=\"");
     html_quote(ob, blob_buffer(title), blob_size(title));
   }
-  blob_append_literal(ob, "\" />");
+  blob_append_literal(ob, "\">");
   return 1;
 }
 
 static int html_linebreak(struct Blob *ob, void *opaque){
-  blob_append_literal(ob, "<br />\n");
+  blob_append_literal(ob, "<br>\n");
   return 1;
 }
 

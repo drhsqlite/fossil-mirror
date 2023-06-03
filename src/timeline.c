@@ -148,6 +148,24 @@ static int has_closed_tag(int rid){
 }
 
 /*
+** Return the text of the unformatted 
+** forum post given by the RID in the argument.
+*/
+static void forum_post_content_function(
+ sqlite3_context *context,
+ int argc,
+ sqlite3_value **argv
+){
+  int rid = sqlite3_value_int(argv[0]);
+  Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+  if( pPost ){
+    sqlite3_result_text(context, pPost->zWiki, -1, SQLITE_TRANSIENT);
+    manifest_destroy(pPost);
+  }
+}
+
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -280,7 +298,7 @@ void www_print_timeline(
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
-        @ <tr><td colspan="3"><hr class="timelineMarker" /></td></tr>
+        @ <tr><td colspan="3"><hr class="timelineMarker"></td></tr>
       }
       prevWasDivider = 1;
       continue;
@@ -1621,6 +1639,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    datefmt=N       Override the date format:  0=HH:MM, 1=HH:MM:SS,
 **                    2=YYYY-MM-DD HH:MM:SS, 3=YYMMDD HH:MM, and 4 means "off".
 **    bisect          Show the check-ins that are in the current bisect
+**    oldestfirst     Show events oldest first.
 **    showid          Show RIDs
 **    showsql         Show the SQL text
 **
@@ -2556,7 +2575,6 @@ void page_timeline(void){
       int n = db_int(0,"SELECT count(*) FROM event"
                        " WHERE user=%Q OR euser=%Q", zUser, zUser);
       if( n<=nEntry ){
-        zCirca = zBefore = zAfter = 0;
         nEntry = -1;
       }
       blob_append_sql(&cond, " AND (event.user=%Q OR event.euser=%Q)",
@@ -2564,9 +2582,20 @@ void page_timeline(void){
       zThisUser = zUser;
     }
     if( zSearch ){
-      blob_append_sql(&cond,
-        " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
-        zSearch, zSearch);
+      if( tmFlags & TIMELINE_FORUMTXT ){
+        sqlite3_create_function(g.db, "forum_post_content", 1, SQLITE_UTF8,
+                 0, forum_post_content_function, 0, 0);
+        blob_append_sql(&cond,
+          " AND (event.comment LIKE '%%%q%%'"
+               " OR event.brief LIKE '%%%q%%'"
+               " OR (event.type=='f' AND"
+                     " forum_post_content(event.objid) LIKE '%%%q%%'))",
+          zSearch, zSearch, zSearch);
+      }else{
+        blob_append_sql(&cond,
+          " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
+          zSearch, zSearch);
+      }
     }
     rBefore = symbolic_name_to_mtime(zBefore, &zBefore);
     rAfter = symbolic_name_to_mtime(zAfter, &zAfter);
@@ -2684,15 +2713,15 @@ void page_timeline(void){
     addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
-        blob_appendf(&desc, " occurring between %h and %h.<br />",
+        blob_appendf(&desc, " occurring between %h and %h.<br>",
                      zAfter, zBefore);
       }else{
-        blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);
+        blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
       }
     }else if( rBefore>0.0 ){
-      blob_appendf(&desc, " occurring on or before %h.<br />", zBefore);
+      blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
     }else if( rCirca>0.0 ){
-      blob_appendf(&desc, " occurring around %h.<br />", zCirca);
+      blob_appendf(&desc, " occurring around %h.<br>", zCirca);
     }
     if( zSearch ){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
@@ -2769,7 +2798,11 @@ void page_timeline(void){
     if( r>0.0 && !selectedRid ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);
-  db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  if( PB("oldestfirst") ){
+    db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby ASC /*scan*/");
+  }else{
+    db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  }
   if( fossil_islower(desc.aData[0]) ){
     desc.aData[0] = fossil_toupper(desc.aData[0]);
   }

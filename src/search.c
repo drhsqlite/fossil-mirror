@@ -928,7 +928,7 @@ static void search_indexed(
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
   for(i=0; zPat[i]; i++){
-    if( zPat[i]=='-' || zPat[i]=='"' ) zPat[i] = ' ';
+    if( (zPat[i]&0x80)!=0 || !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
   }
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
@@ -1080,7 +1080,7 @@ int search_run_and_output(
     if( fDebug ){
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
-    @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet)) \
+    @ <br><span class='snippet'>%z(cleanSnippet(zSnippet)) \
     if( zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
       @ <small>(%h(zDate))</small>
     }
@@ -1514,7 +1514,10 @@ void test_convert_stext(void){
   blob_reset(&out);
 }
 
-/* The schema for the full-text index
+/*
+** The schema for the full-text index. The %s part must be an empty
+** string or a comma followed by additional flags for the FTS virtual
+** table.
 */
 static const char zFtsSchema[] =
 @ -- One entry for each possible search result
@@ -1545,13 +1548,95 @@ static const char zFtsDrop[] =
 @ DROP TABLE IF EXISTS repository.ftsdocs;
 ;
 
+#if INTERFACE
+/*
+** Values for the search-tokenizer config option.
+*/
+#define FTS5TOK_NONE     0 /* no FTS stemmer */
+#define FTS5TOK_PORTER   1 /* porter stemmer */
+#define FTS5TOK_TRIGRAM  3 /* trigram stemmer */
+#endif
+
+/*
+** Cached FTS5TOK_xyz value for search_tokenizer_type() and
+** friends.
+*/
+static int iFtsTokenizer = -1;
+
+/*
+** Returns one of the FTS5TOK_xyz values, depending on the value of
+** the search-tokenizer config entry, defaulting to FTS5TOK_NONE. The
+** result of the first call is cached for subsequent calls unless
+** bRecheck is true.
+*/
+int search_tokenizer_type(int bRecheck){
+  char *z;
+  if( iFtsTokenizer>=0 && bRecheck==0 ){
+    return iFtsTokenizer;
+  }
+  z = db_get("search-tokenizer",0);
+  if( 0==z ){
+    iFtsTokenizer = FTS5TOK_NONE;
+  }else if(0==fossil_strcmp(z,"porter")){
+    iFtsTokenizer = FTS5TOK_PORTER;
+  }else if(0==fossil_strcmp(z,"trigram")){
+    iFtsTokenizer = FTS5TOK_TRIGRAM;
+  }else{
+    iFtsTokenizer = is_truth(z) ? FTS5TOK_PORTER : FTS5TOK_NONE;
+  }
+  fossil_free(z);
+  return iFtsTokenizer;
+}
+
+/*
+** Returns a string value suitable for use as the search-tokenizer
+** setting's value, depending on the value of z. If z is 0 then the
+** current search-tokenizer value is used as the basis for formulating
+** the result (which may differ from the current value but will have
+** the same meaning). Any unknown/unsupported value is interpreted as
+** "off".
+*/
+const char *search_tokenizer_for_string(const char *z){
+  char * zTmp = 0;
+  const char *zRc = 0;
+
+  if( 0==z ){
+    z = zTmp = db_get("search-tokenizer",0);
+  }
+  if( 0==z ){
+    zRc = "off";
+  }else if( 0==fossil_strcmp(z,"porter") ){
+    zRc = "porter";
+  }else if( 0==fossil_strcmp(z,"trigram") ){
+    zRc = "trigram";
+  }else{
+    zRc = is_truth(z) ? "porter" : "off";
+  }
+  fossil_free(zTmp);
+  return zRc;
+}
+
+/*
+** Sets the search-tokenizer config setting to the value of
+** search_tokenizer_for_string(zName).
+*/
+void search_set_tokenizer(const char *zName){
+  db_set("search-tokenizer", search_tokenizer_for_string( zName ), 0);
+  iFtsTokenizer = -1;
+}
+
 /*
 ** Create or drop the tables associated with a full-text index.
 */
 static int searchIdxExists = -1;
 void search_create_index(void){
-  int useStemmer = db_get_boolean("search-stemmer",0);
-  const char *zExtra = useStemmer ? ",tokenize=porter" : "";
+  const int useTokenizer = search_tokenizer_type(0);
+  const char *zExtra;
+  switch(useTokenizer){
+    case FTS5TOK_PORTER: zExtra = ",tokenize=porter"; break;
+    case FTS5TOK_TRIGRAM: zExtra = ",tokenize=trigram"; break;
+    default: zExtra = ""; break;
+  }
   search_sql_setup(g.db);
   db_multi_exec(zFtsSchema/*works-like:"%s"*/, zExtra/*safe-for-%s*/);
   searchIdxExists = 1;
@@ -1896,8 +1981,10 @@ void search_rebuild_index(void){
 **
 **     disable cdtwe      Disable various kinds of search
 **
-**     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
-**                        search.  (Unindexed search is never stemmed.)
+**     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
+**                        may be one of (porter, on, off, trigram), and
+**                        "on" is equivalent to "porter". Unindexed
+**                        search never uses tokenization or stemming.
 **
 ** The current search settings are displayed after any changes are applied.
 ** Run this command with no arguments to simply see the settings.
@@ -1911,7 +1998,7 @@ void fts_config_cmd(void){
      { 2,  "index"    },
      { 3,  "disable"  },
      { 4,  "enable"   },
-     { 5,  "stemmer"  },
+     { 5,  "tokenizer"},
   };
   static const struct {
     const char *zSetting;
@@ -1968,12 +2055,19 @@ void fts_config_cmd(void){
         db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
       }
     }
+  }else if( iCmd==5 ){
+    int iOldTokenizer, iNewTokenizer;
+    if( g.argc<4 ) usage("tokenizer porter|on|off|trigram");
+    iOldTokenizer = search_tokenizer_type(0);
+    db_set("search-tokenizer",
+           search_tokenizer_for_string(g.argv[3]), 0);
+    iNewTokenizer = search_tokenizer_type(1);
+    if( iOldTokenizer!=iNewTokenizer ){
+      /* Drop or rebuild index if tokenizer changes. */
+      iAction = 1 + ((iOldTokenizer && iNewTokenizer)
+                     ? 1 : (iNewTokenizer ? 1 : 0));
+    }
   }
-  if( iCmd==5 ){
-    if( g.argc<4 ) usage("porter ON/OFF");
-    db_set_int("search-stemmer", is_truth(g.argv[3]), 0);
-  }
-
 
   /* destroy or rebuild the index, if requested */
   if( iAction>=1 ){
@@ -1988,8 +2082,8 @@ void fts_config_cmd(void){
     fossil_print("%-17s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
-  fossil_print("%-17s %s\n", "Porter stemmer:",
-       db_get_boolean("search-stemmer",0) ? "on" : "off");
+  fossil_print("%-17s %s\n", "tokenizer:",
+       search_tokenizer_for_string(0));
   if( search_index_exists() ){
     fossil_print("%-17s FTS%d\n", "full-text index:", search_index_type(1));
     fossil_print("%-17s %d\n", "documents:",

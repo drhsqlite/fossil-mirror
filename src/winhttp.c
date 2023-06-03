@@ -627,7 +627,7 @@ void win32_http_server(
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();
   savedKeySize = db_get_saved_encryption_key_size();
-  if( zSavedKey!=0 && savedKeySize>0 ){
+  if( db_is_valid_saved_encryption_key(zSavedKey, savedKeySize) ){
     blob_appendf(&options, " --usepidkey %lu:%p:%u", GetCurrentProcessId(),
                  zSavedKey, savedKeySize);
   }

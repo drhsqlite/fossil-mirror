@@ -26,6 +26,16 @@
 #  define isatty(h) _isatty(h)
 #  define GETPID (int)GetCurrentProcessId
 #endif
+
+/* BUGBUG: This (PID_T) does not work inside of INTERFACE block. */
+#if USE_SEE
+#if defined(_WIN32)
+typedef DWORD PID_T;
+#else
+typedef pid_t PID_T;
+#endif
+#endif
+
 #include "main.h"
 #include <string.h>
 #include <time.h>
@@ -218,9 +228,9 @@ struct Global {
   const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
-#if defined(_WIN32) && USE_SEE
+#if USE_SEE
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
-                           * applicable when using SEE on Windows. */
+                           * applicable when using SEE on Windows or Linux. */
 #endif
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
@@ -802,25 +812,8 @@ int fossil_main(int argc, char **argv){
     if( zChdir && file_chdir(zChdir, 0) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }
-#if defined(_WIN32) && USE_SEE
-    {
-      g.zPidKey = find_option("usepidkey",0,1);
-      if( g.zPidKey ){
-        DWORD processId = 0;
-        LPVOID pAddress = NULL;
-        SIZE_T nSize = 0;
-        parse_pid_key_value(g.zPidKey, &processId, &pAddress, &nSize);
-        db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
-      }else{
-        const char *zSeeDbConfig = find_option("seedbcfg",0,1);
-        if( !zSeeDbConfig ){
-          zSeeDbConfig = fossil_getenv("FOSSIL_SEE_DB_CONFIG");
-        }
-        if( zSeeDbConfig ){
-          db_read_saved_encryption_key_from_process_via_th1(zSeeDbConfig);
-        }
-      }
-    }
+#if USE_SEE
+    db_maybe_handle_saved_encryption_key_for_process(SEE_KEY_READ);
 #endif
     if( find_option("help",0,0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
@@ -1272,7 +1265,8 @@ void fossil_version_blob(
   blob_append(pOut, "USE_MMAN_H\n", -1);
 #endif
 #if defined(USE_SEE)
-  blob_append(pOut, "USE_SEE\n", -1);
+  blob_appendf(pOut, "USE_SEE (%s)\n",
+               db_have_saved_encryption_key() ? "SET" : "UNSET");
 #endif
 #if defined(FOSSIL_ALLOW_OUT_OF_ORDER_DATES)
   blob_append(pOut, "FOSSIL_ALLOW_OUT_OF_ORDER_DATES\n");
@@ -1718,6 +1712,8 @@ static void process_one_web_page(
   ** repository based on the first element of PATH_INFO and open it.
   */
   if( !g.repositoryOpen ){
+    char zBuf[24];
+    const char *zRepoExt = ".fossil";
     char *zRepo;               /* Candidate repository name */
     char *zToFree = 0;         /* Malloced memory that needs to be freed */
     const char *zCleanRepo;    /* zRepo with surplus leading "/" removed */
@@ -1739,7 +1735,7 @@ static void process_one_web_page(
 
       /* The candidate repository name is some prefix of the PATH_INFO
       ** with ".fossil" appended */
-      zRepo = zToFree = mprintf("%s%.*s.fossil",zBase,i,zPathInfo);
+      zRepo = zToFree = mprintf("%s%.*s%s",zBase,i,zPathInfo,zRepoExt);
       if( g.fHttpTrace ){
         @ <!-- Looking for repository named "%h(zRepo)" -->
         fprintf(stderr, "# looking for repository named \"%s\"\n", zRepo);
@@ -1797,7 +1793,6 @@ static void process_one_web_page(
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         szFile = file_size(zCleanRepo, ExtFILE);
         if( g.fHttpTrace ){
-          char zBuf[24];
           sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
           @ <!-- file_size(%h(zCleanRepo)) is %s(zBuf) -->
           fprintf(stderr, "# file_size(%s) = %s\n", zCleanRepo, zBuf);
@@ -1810,7 +1805,7 @@ static void process_one_web_page(
       */
       if( szFile<0 && i>0 ){
         const char *zMimetype;
-        assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
+        assert( file_is_repository_extension(&zRepo[j]) );
         zRepo[j] = 0;  /* Remove the ".fossil" suffix */
 
         /* The PATH_INFO prefix seen so far is a valid directory.
@@ -1835,7 +1830,7 @@ static void process_one_web_page(
         if( pFileGlob!=0
          && file_isfile(zCleanRepo, ExtFILE)
          && glob_match(pFileGlob, file_cleanup_fullpath(zRepo+nBase))
-         && sqlite3_strglob("*.fossil*",zRepo)!=0
+         && !file_contains_repository_extension(zRepo)
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){
@@ -1870,6 +1865,13 @@ static void process_one_web_page(
       ** some kind of error response is required.
       */
       if( szFile<1024 ){
+#if USE_SEE
+        if( strcmp(zRepoExt,".fossil")==0 ){
+          fossil_free(zToFree);
+          zRepoExt = ".efossil";
+          continue;
+        }
+#endif
         set_base_url(0);
         if( (zPathInfo[0]==0 || strcmp(zPathInfo,"/")==0)
                   && allowRepoList
@@ -1895,6 +1897,22 @@ static void process_one_web_page(
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+#if USE_SEE
+    if( zPathInfo ){
+      if( g.fHttpTrace ){
+        sqlite3_snprintf(sizeof(zBuf), zBuf, "%d", i);
+        @ <!-- see_path_info(%s(zBuf)) is %h(zPathInfo) -->
+        fprintf(stderr, "# see_path_info(%d) = %s\n", i, zPathInfo);
+      }
+      if( strcmp(zPathInfo,"/setseekey")==0
+       && strcmp(zRepoExt,".efossil")==0
+       && !db_have_saved_encryption_key() ){
+        db_set_see_key_page();
+        cgi_reply();
+        fossil_exit(0);
+      }
+    }
+#endif
     db_open_repository(file_cleanup_fullpath(zRepo));
     if( g.fHttpTrace ){
       @ <!-- repository: "%h(zRepo)" -->
@@ -2617,7 +2635,7 @@ static void find_server_repository(int arg, int fCreate){
   }
 }
 
-#if defined(_WIN32) && USE_SEE
+#if USE_SEE
 /*
 ** This function attempts to parse a string value in the following
 ** format:
@@ -2634,13 +2652,15 @@ static void find_server_repository(int arg, int fCreate){
 ** error will be raised and the process will be terminated.
 */
 void parse_pid_key_value(
-  const char *zPidKey, /* The value to be parsed. */
-  DWORD *pProcessId,   /* The extracted process identifier. */
-  LPVOID *ppAddress,   /* The extracted pointer value. */
-  SIZE_T *pnSize       /* The extracted size value. */
+  const char *zPidKey,   /* The value to be parsed. */
+  PID_T *pProcessId,     /* The extracted process identifier. */
+  LPVOID *ppAddress,     /* The extracted pointer value. */
+  SIZE_T *pnSize         /* The extracted size value. */
 ){
+  unsigned long processId = 0;
   unsigned int nSize = 0;
-  if( sscanf(zPidKey, "%lu:%p:%u", pProcessId, ppAddress, &nSize)==3 ){
+  if( sscanf(zPidKey, "%lu:%p:%u", &processId, ppAddress, &nSize)==3 ){
+    *pProcessId = (PID_T)processId;
     *pnSize = (SIZE_T)nSize;
   }else{
     fossil_fatal("failed to parse pid key");
@@ -2658,12 +2678,13 @@ void parse_pid_key_value(
 **   usepidkey           When present and available, also return the
 **                       address and size, within this server process,
 **                       of the saved database encryption key.  This
-**                       is only supported when using SEE on Windows.
+**                       is only supported when using SEE on Windows
+**                       or Linux.
 */
 void test_pid_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){ login_needed(0); return; }
-#if defined(_WIN32) && USE_SEE
+#if USE_SEE
   if( P("usepidkey")!=0 ){
     if( g.zPidKey ){
       @ %s(g.zPidKey)
@@ -2672,7 +2693,7 @@ void test_pid_page(void){
       const char *zSavedKey = db_get_saved_encryption_key();
       size_t savedKeySize = db_get_saved_encryption_key_size();
       if( zSavedKey!=0 && savedKeySize>0 ){
-        @ %lu(GetCurrentProcessId()):%p(zSavedKey):%u(savedKeySize)
+        @ %lu(GETPID()):%p(zSavedKey):%u(savedKeySize)
         return;
       }
     }
@@ -2772,7 +2793,7 @@ static void decode_ssl_options(void){
 **                       to force use of the current local skin config.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process. This is
-**                       only necessary when using SEE on Windows.
+**                       only necessary when using SEE on Windows or Linux.
 **
 ** See also: [[cgi]], [[server]], [[winsrv]]
 */
@@ -3113,7 +3134,7 @@ void fossil_set_timeout(int N){
 **   --skin LABEL        Use override skin LABEL
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
-**                       only necessary when using SEE on Windows.
+**                       only necessary when using SEE on Windows or Linux.
 **
 ** See also: [[cgi]], [[http]], [[winsrv]]
 */
@@ -3142,6 +3163,10 @@ void cmd_webserver(void){
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
   
+
+#if USE_SEE
+  db_setup_for_saved_encryption_key();
+#endif
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -3358,6 +3383,7 @@ void cmd_webserver(void){
     ** to be registered while we're waiting for that to occur.
     **/
     signal(SIGTERM, fossil_exit);
+    signal(SIGINT,  fossil_exit);
   }
 #endif /* !WIN32 */
 

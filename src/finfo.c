@@ -769,7 +769,7 @@ void finfo_page(void){
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
       char *zAncLink;
-      @ <br />fid=%d(frid) \
+      @ <br>fid=%d(frid) \
       @ graph-id=%lld(frid>0?(GraphRowId)frid*(mxfnid+1)+fnid:fpid+1000000000) \
       @ pid=%d(fpid) mid=%d(fmid) fnid=%d(fnid) \
       @ pfnid=%d(pfnid) mxfnid=%d(mxfnid)
@@ -932,7 +932,7 @@ void mlink_page(void){
     @ <h1>MLINK table for check-in %h(zCI)</h1>
     render_checkin_context(mid, 0, 1, 0);
     style_table_sorter();
-    @ <hr />
+    @ <hr>
     @ <div class='brlist'>
     @ <table class='sortable' data-column-types='ttxtttt' data-init-sort='1'>
     @ <thead><tr>

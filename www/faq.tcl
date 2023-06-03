@@ -159,7 +159,7 @@ faq {
 #
 puts "<title>Fossil FAQ</title>"
 puts "<h1 align=\"center\">Frequently Asked Questions</h1>\n"
-puts "<p>Note: See also <a href=\"qandc.wiki\">Questions and Criticisms</a>.\n"
+puts "Note: See also <a href=\"qandc.wiki\">Questions and Criticisms</a>.\n"
 
 puts {<ol>}
 for {set i 1} {$i<$cnt} {incr i} {

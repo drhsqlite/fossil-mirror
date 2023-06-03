@@ -1749,7 +1749,7 @@ void cgi_print_all(int showAll, unsigned int eDest){
     }
     switch( eDest ){
       case 0: {
-        cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+        cgi_printf("%h = %h  <br>\n", zName, aParamQP[i].zValue);
         break;
       }
       case 1: {  
@@ -2054,6 +2054,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }else if( fossil_strcmp(zFieldName,"authorization:")==0 ){
       cgi_setenv("HTTP_AUTHORIZATION", zVal);
+    }else if( fossil_strcmp(zFieldName,"accept-language:")==0 ){
+      cgi_setenv("HTTP_ACCEPT_LANGUAGE", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){

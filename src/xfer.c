@@ -2859,9 +2859,19 @@ int client_sync(
 
   fossil_force_newline();
   if( g.zHttpCmd==0 ){
-    fossil_print(
-       "%s done, wire bytes sent: %lld  received: %lld  remote: %s\n",
-       zOpType, nSent, nRcvd, g.zIpAddr);
+    if( syncFlags & SYNC_VERBOSE ){
+      fossil_print(
+        "%s done, wire bytes sent: %lld  received: %lld  remote: %s%s\n",
+        zOpType, nSent, nRcvd,
+        (g.url.name && g.url.name[0]!='\0') ? g.url.name : "",
+        (g.zIpAddr && g.zIpAddr[0]!='\0'
+          && fossil_strcmp(g.zIpAddr, g.url.name))
+          ? mprintf(" (%s)", g.zIpAddr) : "");
+    }else{
+      fossil_print(
+        "%s done, wire bytes sent: %lld  received: %lld  remote: %s\n",
+          zOpType, nSent, nRcvd, g.zIpAddr);
+    }
   }
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(

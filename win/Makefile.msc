@@ -1315,7 +1315,7 @@ realclean: clean
 "$(OX)\browse_.c" : "$(SRCDIR)\browse.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
-"$(OX)\builtin$O" : "$(OX)\builtin_.c" "$(OX)\builtin.h"
+"$(OX)\builtin$O" : "$(OX)\builtin_.c" "$(OX)\builtin.h" "$(OX)\builtin_data.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\builtin_.c"
 
 "$(OX)\builtin_.c" : "$(SRCDIR)\builtin.c"
@@ -1453,7 +1453,7 @@ realclean: clean
 "$(OX)\diffcmd_.c" : "$(SRCDIR)\diffcmd.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
-"$(OX)\dispatch$O" : "$(OX)\dispatch_.c" "$(OX)\dispatch.h"
+"$(OX)\dispatch$O" : "$(OX)\dispatch_.c" "$(OX)\dispatch.h" "$(OX)\page_index.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\dispatch_.c"
 
 "$(OX)\dispatch_.c" : "$(SRCDIR)\dispatch.c"

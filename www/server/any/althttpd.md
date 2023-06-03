@@ -8,10 +8,10 @@ security, ease of configuration, and low resource usage.
 To set up a Fossil server as CGI on a host running the althttpd web
 server, follow these steps.
 <ol>
-<li<p>Get the althttpd webserver running on the host.  This is easily
+<li>Get the althttpd webserver running on the host.  This is easily
 done by following the [althttpd documentation][althttpd].
 
-<li><p>Create a CGI script for your Fossil repository.  The script will
+<li>Create a CGI script for your Fossil repository.  The script will
 be typically be two lines of code that look something like this:
 
 ~~~
@@ -25,9 +25,9 @@ repository:" line.  You can add in other options as you desire,
 but the single "repository:" line is normally all that is needed
 to get started.
 
-<li><p>Make the CGI script executable.
+<li>Make the CGI script executable.
 
-<li><p>Verify that the fossil repository file and the directory that contains
+<li>Verify that the fossil repository file and the directory that contains
 the repository are both writable by whatever user the web server is
 running and.
 </ol>

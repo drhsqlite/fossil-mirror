@@ -734,7 +734,12 @@ pre.textPlain {
   word-wrap: break-word;
 }
 .statistics-report-graph-line {
+  border: 2px solid #446979;
   background-color: #446979;
+}
+.statistics-report-graph-extra {
+  border: 2px dashed #446979;
+  border-left-style: none;
 }
 .statistics-report-table-events th {
   padding: 0 1em 0 1em;

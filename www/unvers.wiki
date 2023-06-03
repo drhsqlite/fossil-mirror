@@ -2,24 +2,25 @@
 <h1 align="center">Unversioned Content</h1>
 
 "Unversioned content" or "unversioned files" are
-files stored in a Fossil repository without history.
-Only the newest version of each unversioned file is retained.
+files stored in a Fossil repository without history, meaning
+it retains the newest version of each such file, and that alone.
 
-Though history is omitted, unversioned content is synced between
-repositories.  In the event of a conflict during a sync, the most recent
-version of each unversioned file is retained and older versions are discarded.
+Though it omits history, Fossil does sync unversioned content between
+repositories.  In the event of a conflict during a sync, it retains
+the most recent version of each unversioned file, discrding
+older versions.
 
 Unversioned files are useful for storing ephemeral content such as builds
-or frequently changing web pages.
-The [https://fossil-scm.org/home/uv/download.html|download] page of
-the self-hosting Fossil repository is stored as unversioned
+or frequently changing web pages. We store
+the [https://fossil-scm.org/home/uv/download.html|download] page of
+the self-hosting Fossil repository as unversioned
 content, for example.
 
 <h2>Accessing Unversioned Files</h2>
 
 Unversioned files are <u>not</u> a part of a check-out.
 Unversioned files are intended to be accessible as web pages using
-URLs of the form:  "http://domain/cgi-script/<b>uv</b>/<i>FILENAME</i>".
+URLs of the form: "<tt>https://example.com/cgi-script/<b>uv</b>/<i>FILENAME</i></tt>".
 In other words, the URI method "<b>uv</b>" (short for "unversioned")
 followed by the name of the unversioned file will retrieve the content
 of the file.  The MIME type is inferred from the filename suffix.
@@ -32,9 +33,8 @@ the [/help?cmd=/uvlist|/uvlist] URL.  ([/uvlist|example]).
 
 <h2>Syncing Unversioned Files</h2>
 
-Unversioned content is synced between repositories, though not by default.
-Special commands or command-line options are required.
-Unversioned content can be synced using the following commands:
+Unversioned content does not sync between repositories by default.
+One must request it via commands such as:
 
 <blockquote><pre>
 fossil sync <b>-u</b>
@@ -43,20 +43,28 @@ fossil unversioned sync
 </pre></blockquote>
 
 The [/help?cmd=sync|fossil sync] and [/help?cmd=clone|fossil clone]
-commands will synchronize unversioned content if and only if the
-"-u" (or "--unversioned") command-line option is supplied.  The
-[/help?cmd=unversioned|fossil unversioned sync] command will synchronize the
+commands will synchronize unversioned content if and only if they're
+given the "-u" (or "--unversioned") command-line option.  The
+[/help?cmd=unversioned|fossil unversioned sync] command synchronizes the
 unversioned content without synchronizing anything else.
 
 Notice that the "-u" option does not work on
 [/help?cmd=push|fossil push] or [/help?cmd=pull|fossil pull].
 The "-u" option is only available on "sync" and "clone".
-
 A rough equivalent of an unversioned pull would be the
 [/help?cmd=unversioned|fossil unversioned revert] command.  The
 "unversioned revert"
 command causes the unversioned content on the local repository to overwritten
 by the unversioned content found on the remote repository.
+
+Beware that because unversioned file sync is an uncommonly dangerous
+capability — there being no history to revert to in the case of human
+error — even the all-powerful Fossil "setup" user does not get
+unversioned file sync capability by default.  See
+[./caps/admin-v-setup.md#dcap | this] for the full details, but the
+short-and-sweet takeaway is that a user needs the "y" capability on the
+remote before they can sync unversioned content. Until then, you're
+allowed to add such files to your local repo, but they will not sync.
 
 <h2>Implementation Details</h2>
 
@@ -79,21 +87,28 @@ CREATE TABLE unversioned(
 );
 </pre></blockquote>
 
-If there are no unversioned files in the repository, then the
-"unversioned" table does not necessarily exist.
-A simple way to purge all unversioned content from a repository
+Fossil does not create the table ahead of need.
+If there are no unversioned files in the repository, the
+"unversioned" table will not exist. Consequently,
+one simple way to purge all unversioned content from a repository
 is to run:
 
 <blockquote><pre>
 fossil sql "DROP TABLE unversioned; VACUUM;"
 </pre></blockquote>
 
-No delta compression is performed on unversioned files, since there is no
-history to delta against.
+Lacking history for unversioned files, Fossil does not attempt delta
+compression on them.
 
-Unversioned content is exchanged between servers as whole, uncompressed
-files (though the content does get compressed when the overall HTTP message
-payload is compressed).  SHA1 hash exchanges are used to avoid sending
-content over the wire unnecessarily.  See the
-[./sync.wiki|synchronization protocol documentation] for further
+Fossil servers exchange unversioned content whole; it does not attempt
+to "diff" your local version against the remote and send only the
+changes. We point tihs out because one use-case for unversioned content
+is to send large, frequently-changing files. Appreciate the consequences
+before making each change.
+
+There are two bandwidth-saving measures in "<tt>fossil uv sync</tt>".
+The first is the regular HTTP payload compression step, done on all
+syncs. The second is that Fossil sends SHA1 hash exchanges to determine
+when it can avoid sending duplicate content over the wire unnecessarily.
+See the [./sync.wiki|synchronization protocol documentation] for further
 information.

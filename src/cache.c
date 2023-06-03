@@ -425,7 +425,7 @@ void cache_page(void){
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         const unsigned char *zName = sqlite3_column_text(pStmt,0);
         char *zHash = cache_hash_of_key((const char*)zName);
-        @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br />
+        @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br>
         @ size: %,lld(sqlite3_column_int64(pStmt,1))
         @ hit-count: %d(sqlite3_column_int(pStmt,2))
         @ last-access: %s(sqlite3_column_text(pStmt,3)) \

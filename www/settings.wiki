@@ -10,7 +10,7 @@ For a list of all settings, view the Settings page, or type
 <tt>fossil help settings</tt> from the command line.
 
 
-<h3>Repository settings</h3>
+<h3 id="repo">Repository settings</h3>
 
 Settings are set on a per-repository basis. When you clone a repository,
 a subset of settings are copied to your local repository.
@@ -26,7 +26,7 @@ overridden explicitly in a particular repository. Global settings can be
 set by using the <tt>-global</tt> option on the <tt>fossil settings</tt>
 command.
 
-<h3>"Versionable" settings</h3>
+<h3 id="versionable">"Versionable" settings</h3>
 
 Most of the settings control the behaviour of fossil on your local
 machine, largely acting to reflect your preference on how you want to

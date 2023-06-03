@@ -993,13 +993,13 @@ void baseline_zip_page(void){
   style_set_current_feature("zip");
   if( P("debug")!=0 ){
     style_header("%s Archive Generator Debug Screen", zType);
-    @ zName = "%h(zName)"<br />
-    @ rid = %d(rid)<br />
+    @ zName = "%h(zName)"<br>
+    @ rid = %d(rid)<br>
     if( zInclude ){
-      @ zInclude = "%h(zInclude)"<br />
+      @ zInclude = "%h(zInclude)"<br>
     }
     if( zExclude ){
-      @ zExclude = "%h(zExclude)"<br />
+      @ zExclude = "%h(zExclude)"<br>
     }
     @ zKey = "%h(zKey)"
     style_finish_page();
@@ -1011,7 +1011,7 @@ void baseline_zip_page(void){
     cgi_query_parameters_to_hidden();
     @ <p>%s(zType) Archive named <b>%h(zName).%s(g.zPath)</b>
     @ holding the content of check-in <b>%h(zRid)</b>:
-    @ <input type="submit" value="Download" />
+    @ <input type="submit" value="Download">
     @ </form>
     style_finish_page();
     return;

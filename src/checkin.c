@@ -1871,6 +1871,8 @@ static int commit_warning(
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
   int fHasInvalidUtf8 = 0;/* contains invalid UTF-8 */
+  int fHasNul;            /* contains NUL chars? */
+  int fHasLong;           /* overly long line? */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1890,9 +1892,11 @@ static int commit_warning(
     fBinary = (lookFlags & LOOK_BINARY);
     fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
     fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
+    fHasNul = (lookFlags & LOOK_NUL);
+    fHasLong = (lookFlags & LOOK_LONG);
   }else{
     fUnicode = fHasAnyCr = fBinary = fHasInvalidUtf8 = 0;
-    fHasLoneCrOnly = fHasCrLfOnly = 0;
+    fHasLoneCrOnly = fHasCrLfOnly = fHasNul = fHasLong = 0;
   }
   if( !sizeOk || fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
     const char *zWarning = 0;
@@ -1903,8 +1907,6 @@ static int commit_warning(
     char cReply;
 
     if( fBinary ){
-      int fHasNul = (lookFlags & LOOK_NUL); /* contains NUL chars? */
-      int fHasLong = (lookFlags & LOOK_LONG); /* overly long line? */
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
