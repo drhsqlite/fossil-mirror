@@ -133,6 +133,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                the --localauth option and automatically launch a
 **                web-browser
 **
+**    whatis XX   Search for artifacts that have hash prefix XX     
+**
 **
 ** In addition, the following maintenance operations are supported:
 **
@@ -410,11 +412,15 @@ void all_cmd(void){
     zCmd = "cache -R";
     showLabel = 1;
     collect_argv(&extra, 3);
+  }else if( fossil_strcmp(zCmd, "whatis")==0 ){
+    zCmd = "whatis -q -R";
+    quiet = 1;
+    collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
       "add cache changes clean dbstat extras fts-config git ignore "
       "info list ls pull push rebuild remote "
-      "server setting sync ui unset");
+      "server setting sync ui unset whatis");
   }
   verify_all_options();
   db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
