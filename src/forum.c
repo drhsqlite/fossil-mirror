@@ -263,16 +263,52 @@ static int forumpost_close(int frid, int doClose, const char *zReason){
 }
 
 /*
-** If iClosed is true and the current user has admin privileges, this
-** renders either a checkbox to unlock forum post fpid (if iClosed>0)
-** or a SPAN.warning element that the given post inherits the CLOSED
-** status from a parent post (if iClosed<0). If neither of the initial
-** conditions is true, this is a no-op.
+** Returns true if the forum-close-policy setting is true, else false,
+** caching the result for subsequent calls.
+*/
+static int forumpost_close_policy(void){
+  static int closePolicy = -99;
+
+  if( closePolicy==-99 ){
+    closePolicy = db_get_boolean("forum-close-policy",0)>0;
+  }
+  return closePolicy;
+}
+
+/*
+** Returns 1 if the current user is an admin, -1 if the current user
+** is a forum moderator and the forum-close-policy setting is true,
+** else returns 0. The value is cached for subsequent calls.
+*/
+static int forumpost_may_close(void){
+  static int permClose = -99;
+  if( permClose!=-99 ){
+    return permClose;
+  }else if( g.perm.Admin ){
+    return permClose = 1;
+  }else if( g.perm.ModForum ){
+    return permClose = forumpost_close_policy()>0 ? -1 : 0;
+  }else{
+    return permClose = 0;
+  }  
+}
+
+/*
+** If iClosed is true and the current user forumpost-close privileges,
+** this renders either a checkbox to unlock forum post fpid (if
+** iClosed>0) or a SPAN.warning element that the given post inherits
+** the CLOSED status from a parent post (if iClosed<0). If neither of
+** the initial conditions is true, this is a no-op.
 */
 static void forumpost_emit_closed_state(int fpid, int iClosed){
-  const char *zCommon =
-    "Only admins may edit or respond to closed posts.";
+  const char *zCommon;
   int iHead = forumpost_head_rid(fpid);
+  const int permClose = forumpost_may_close();
+
+  zCommon = forumpost_close_policy()==0
+    ? "Admins may close or re-open posts, or respond to closed posts."
+    : "Admins or moderators "
+      "may close or re-open posts, or respond to closed posts.";
   /*@ forumpost_emit_closed_state(%d(fpid), %d(iClosed))<br/>*/
   if( iHead != fpid ){
     iClosed = forum_rid_is_closed(iHead, 1);
@@ -285,24 +321,28 @@ static void forumpost_emit_closed_state(int fpid, int iClosed){
     return;
   }
   else if( iClosed==0 ){
-    if( g.perm.Admin==0 ) return;
+    if( permClose==0 ) return;
     @ <div class="warning forumpost-closure-warning">
     @ <form method="post" action="%R/forumpost_close">
     @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
     @ <input type="submit" value="CLOSE this post and its responses" />
-    @ %s(zCommon)
+    @ <span>%s(zCommon)</span>
+    @ <span>This does NOT save any pending changes in
+    @ the editor!</span>
     @ </form></div>
     return;
   }
   assert( iClosed>0 );
-  /* Only show the "unlock" checkbox on a post which is actually
+  /* Only show the "unlock" option on a post which is actually
   ** closed, not on a post which inherits that state. */
   @ <div class="warning forumpost-closure-warning">\
   @ This post is CLOSED. %s(zCommon)
-  if( g.perm.Admin ){
+  if( permClose ){
     @ <form method="post" action="%R/forumpost_reopen">
     @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
     @ <input type="submit" value="Re-open this post and its responses" />
+    @ <span>This does NOT save any pending changes in
+    @ the editor!</span>
     @ </form>
   }
   @ </div>
@@ -886,9 +926,9 @@ static void forum_display_post(
       if( !bPrivate ){
         /* Reply and Edit are only available if the post has been
         ** approved.  Closed threads can only be edited or replied to
-        ** by an admin but a user may delete their own posts even if
-        ** they are closed. */
-        if( g.perm.Admin || !iClosed ){
+        ** if forumpost_may_close() is true but a user may delete
+        ** their own posts even if they are closed. */
+        if( forumpost_may_close() || !iClosed ){
           @ <input type="submit" name="reply" value="Reply">
           if( g.perm.Admin || (bSameUser && !iClosed) ){
             @ <input type="submit" name="edit" value="Edit">
@@ -915,7 +955,7 @@ static void forum_display_post(
         @ <input type="submit" name="reject" value="Delete">
       }
       @ </form>
-      if( bSelect && g.perm.Admin && iClosed>=0 ){
+      if( bSelect && forumpost_may_close() && iClosed>=0 ){
         int iHead = forumpost_head_rid(p->fpid);
         @ <form method="post" \
         @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
@@ -1432,7 +1472,7 @@ void forum_page_close(void){
   int fpid;
 
   login_check_credentials();
-  if( !g.perm.Admin ){
+  if( forumpost_may_close()==0 ){
     login_needed(g.anon.Admin);
     return;
   }

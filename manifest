@@ -1,5 +1,5 @@
-C Merge\strunk\sinto\sforumpost-locking\sbranch.
-D 2023-06-03T08:49:54.795
+C Add\sthe\sforum-close-policy\sboolean\sconfig\ssetting.\sIf\strue,\sforum\smoderators\smay\sclose/re-open\sforum\sposts,\sas\swell\sas\sreply\sto\sclosed\sposts.
+D 2023-06-06T19:38:32.092
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/content.c 8aa7c10aedf440d3205d9614fa73aff492d725a6c44a1ea60d64fbbd499c2e15
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c f45d29d9240de3c480b52e62ffcea8a5719c0a1d405d4914f135449d9608b4fb
+F src/db.c 3c84fc66338b8f6d910bc590eb9343c8406b86cfd7f74eea9760bcb2a6b4ae1f
 F src/default.css 4bc8131afa1ae14f7525730de6de7eff91dfdd2585418e89ca55070840ed53e6
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 11edf9d3d870b246ee7315f5f2fe62a1e7ca4f5093a6b07b6ed1adeb3f36574e
@@ -427,7 +427,7 @@ F src/file.c f3f9977d87ca03c4a953e73ea9d591fab2abfefa4a1b1b231a3d213e8273cf92
 F src/fileedit.c db34273e01714297061e41706a82482384f5e86cbd3b6845159ffd2d2569ba3b
 F src/finfo.c 3f921c6dc46dbd2ffcb7ced8bf5ddb934f23ac4e283742ee7cc9f5380aa8cf33
 F src/foci.c cab69c5bede4230f3992294ec6f7e71e8f16590368b14f388e88db836ffa078b
-F src/forum.c f6d04f02b3351ceea8a0cf851c3b20c0ad458ad6c5427ce8bdd8b1133da88861
+F src/forum.c 98f9e74345726e8c87f40b86deb2179467cca3981505a53f592fac5f61c17cd6
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0af371047c7c426b99ee0135727f6d09a05cd7f4d33301b421bacbc46aa1281f 83928d8a02d86bca9dc433cea9e874896545916f741a895fbef87a936584f3b1
-R f61ad2b9cb5717a5d59a697a640b826b
+P 8e7de26aa2680f225080590781f5e2d6d82f99cd27cfdb8fd51aa5539a97ac9e
+R 251e1cf76673b95ec4d819a2b5f0fc3f
 U stephan
-Z 0ab080de9bc2d7eb36cc2856405ff7b8
+Z cfa773c5f9db41e69885d83ab940dfe3
 # Remove this line to create a well-formed Fossil manifest.
