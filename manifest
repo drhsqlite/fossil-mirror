@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sall\swhatis"\scommand.
-D 2023-06-05T19:01:34.010
+C Improved\sdocumentation\sof\s"fossil\sall\swhatis"
+D 2023-06-06T00:46:55.859
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -377,7 +377,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 98b1311cfaeec6ea2bcae1129a4150517cccda613faeb53cd6375210b49417a7
+F src/allrepo.c b97eac685a1806144c1969941ddaa95f6b6f86adb27b17f17084bca1f0d2b193
 F src/attach.c 51abeb3fc3b5662f53a2485cfd6cb8ffd276d420edb752dee046aaafe5d6e520
 F src/backlink.c 93d58763e00a9abe822dac4dca9d5b84213010ba286584d5de363524ec2786dd
 F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cdb5e
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f25da6ec97ff4deba7b50933eae747c99804120002dc51d959c42977f69d5390
-R 49a582cf0371b33880b514406a3206aa
+P 5484968158a915dc36941394dee809082ad6708d128cab54fadb8b859594fa57
+R fac8fbfd1d15228c14b586f418b29f32
 U drh
-Z 21e4fa5c57bdc8b61a4ef3b2f68b3ce1
+Z 3ddf61ccd7fba3e49bd3e976957f3dc8
 # Remove this line to create a well-formed Fossil manifest.

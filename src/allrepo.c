@@ -133,7 +133,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                the --localauth option and automatically launch a
 **                web-browser
 **
-**    whatis XX   Search for artifacts that have hash prefix XX     
+**    whatis      Run the "whatis" command on all repositories.  Only
+**                show output for repositories that have a match.           
 **
 **
 ** In addition, the following maintenance operations are supported:
