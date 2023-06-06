@@ -282,19 +282,18 @@ void test_show_vfile_cmd(void){
 **
 ** The argument VERSION is a version that should be merged into the
 ** current check-out.  All changes from VERSION back to the nearest
-** common ancestor are merged.  Except, if either of the --cherrypick or
-** --backout options are used only the changes associated with the
+** common ancestor are merged.  Except, if either of the --cherrypick
+** or --backout options are used only the changes associated with the
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
-** check-out rather than added. When invoked with the name cherry-pick,
-** this command works exactly like merge --cherrypick.
+** check-out rather than added. When invoked with the name
+** cherry-pick, this command works exactly like merge --cherrypick.
+**
+** Files which are renamed in the merged-in branch will be renamed in
+** the current check-out.
 **
 ** If the VERSION argument is omitted, then Fossil attempts to find
 ** a recent fork on the current branch to merge.
-**
-** Only file content is merged.  The result continues to use the
-** file and directory names from the current check-out even if those
-** names might have been changed in the branch being merged in.
 **
 ** Options:
 **   --backout               Do a reverse cherrypick merge against VERSION.

@@ -1,5 +1,5 @@
-C Improved\sdocumentation\sof\s"fossil\sall\swhatis"
-D 2023-06-06T00:46:55.859
+C merge\scommand\shelp\stext\scleanups,\sbased\son\sforum\sfeedback.
+D 2023-06-06T10:52:50.380
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -496,7 +496,7 @@ F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb25
 F src/markdown_html.c 04a63c7e366347d7b1d9bb191d1e5df5184e099382508840171d2f7edc15d7cd
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c e6f38664029bd1c302c30b750065ed85fe86078d63a071b6b8530514fcc677fa
+F src/merge.c 53a5346bc58cad6913c39422f4e7db1e049c5d116f849e1825a5b77ab48dc2ae
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c a572d567c496d363dc473383df02399d6d55ef01d3f935701bf0b01440b5de12
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5484968158a915dc36941394dee809082ad6708d128cab54fadb8b859594fa57
-R fac8fbfd1d15228c14b586f418b29f32
-U drh
-Z 3ddf61ccd7fba3e49bd3e976957f3dc8
+P 401711d484b67e009addeba17942bdd12939fcb765d1eb0f57c5c24fd9197c1b
+R 2fc13e032f71ce7d86930231e7d92752
+U stephan
+Z bee6447773453cdc4821a01f2cc6ec56
 # Remove this line to create a well-formed Fossil manifest.
