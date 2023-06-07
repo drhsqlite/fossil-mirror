@@ -1031,6 +1031,26 @@ div.forumObs {
   color: #bbb;
 }
 
+div.setup_forum-column {
+  display: flex;
+  flex-direction: column;
+}
+
+body.cpage-setup_forum > .content table {
+  margin-bottom: 1em;
+}
+body.cpage-setup_forum > .content table.bordered {
+  border: 1px solid;
+  border-radius: 0.25em;
+}
+body.cpage-setup_forum > .content table td,
+body.cpage-setup_forum > .content table th {
+  text-align: left;
+}
+body.cpage-setup_forum table.forum-settings-list > tbody > tr > td {
+  min-width: 2em;
+}
+
 #capabilitySummary {
   text-align: center;
 }

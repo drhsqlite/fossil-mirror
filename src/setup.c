@@ -132,6 +132,8 @@ void setup_page(void){
       "Mapping keywords for interwiki links");
     setup_menu_entry("Chat", "setup_chat",
       "Configure the chatroom");
+    setup_menu_entry("Forum", "setup_forum",
+      "Forum config and metrics");
   }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");

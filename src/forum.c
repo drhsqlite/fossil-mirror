@@ -1808,6 +1808,127 @@ void forumedit_page(void){
 }
 
 /*
+** WEBPAGE: setup_forum
+**
+** Forum configuration and metrics.
+*/
+void forum_setup(void){
+  /* boolean config settings specific to the forum. */
+  const char * zSettingsBool[] = {
+  "forum-close-policy",
+  NULL /* sentinel entry */
+  };
+
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(g.anon.Setup);
+    return;
+  }
+  style_set_current_feature("forum");
+  style_header("Forum Setup");
+       
+  @ <h2>Metrics</h2>
+  {
+    int nPosts = db_int(0, "SELECT COUNT(*) FROM event WHERE type='f'");
+    @ <p><a href='%R/forum'>Forum posts</a>:
+    @ <a href='%R/timeline?y=f'>%d(nPosts)</a></p>
+  }       
+
+  @ <h2>Supervisors</h2>
+  @ <p>Users with capabilities 's', 'a', or '6'.</p>
+  {
+    Stmt q = empty_Stmt;
+    int nRows = 0;
+    db_prepare(&q, "SELECT uid, login, cap FROM user "
+                   "WHERE cap GLOB '*[as6]*' ORDER BY login");
+    @ <table class='bordered'>
+    @ <thead><tr><th>User</th><th>Capabilities</th></tr></thead>
+    @ <tbody>
+    while( SQLITE_ROW==db_step(&q) ){
+      const int iUid = db_column_int(&q, 0);
+      const char *zUser = db_column_text(&q, 1);
+      const char *zCap = db_column_text(&q, 2);
+      ++nRows;
+      @ <tr>
+      @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
+      @ <td>(%h(zCap))</td>
+      @ </tr>
+    }
+    db_finalize(&q);
+    @</tbody></table>
+    if( 0==nRows ){
+      @ No supervisors
+    }else{
+      @ %d(nRows) supervisor(s)
+    }
+  }
+
+  @ <h2>Moderators</h2>
+  @ <p>Users with capability '5'.</p>
+  {
+    Stmt q = empty_Stmt;
+    int nRows = 0;
+    db_prepare(&q, "SELECT uid, login, cap FROM user "
+               "WHERE cap GLOB '*5*' ORDER BY login");
+    @ <table class='bordered'>
+    @ <thead><tr><th>User</th><th>Capabilities</th></tr></thead>
+    @ <tbody>
+    while( SQLITE_ROW==db_step(&q) ){
+      const int iUid = db_column_int(&q, 0);
+      const char *zUser = db_column_text(&q, 1);
+      const char *zCap = db_column_text(&q, 2);
+      ++nRows;
+      @ <tr>
+      @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
+      @ <td>(%h(zCap))</td>
+      @ </tr>
+    }
+    db_finalize(&q);
+    @ </tbody></table>
+    if( 0==nRows ){
+      @ No non-supervisor moderators
+    }else{
+      @ %d(nRows) moderator(s)
+    }
+  }
+
+  @ <h2>Settings</h2>
+  @ <p>Configuration settings specific to the forum.</p>
+  if( P("submit") && cgi_csrf_safe(1) ){
+    int i = 0;
+    const char *zSetting;
+    login_verify_csrf_secret();
+    db_begin_transaction();
+    while( (zSetting = zSettingsBool[i++]) ){
+      const char *z = P(zSetting);
+      if( !z || !z[0] ) z = "off";
+      db_set(zSetting/*works-like:"x"*/, z, 0);
+    }
+    db_end_transaction(0);
+    @ <p><em>Settings saved.</em></p>
+  }
+  {
+    int i = 0;
+    const char *zSetting;
+    @ <form action="%R/setup_forum" method="post">
+    login_insert_csrf_secret();
+    @ <table class='forum-settings-list'><tbody>
+    while( (zSetting = zSettingsBool[i++]) ){
+      @ <tr><td>
+      onoff_attribute("", zSetting, zSetting/*works-like:"x"*/, 0, 0);
+      @ </td><td>
+      @ <a href='%R/help?cmd=%h(zSetting)'>%h(zSetting)</a>
+      @ </td></tr>
+    }
+    @ </tbody></table>
+    @ <input type='submit' name='submit' value='Apply changes'>
+    @ </form>
+  }
+
+  style_finish_page();
+}
+
+/*
 ** WEBPAGE: forummain
 ** WEBPAGE: forum
 **
