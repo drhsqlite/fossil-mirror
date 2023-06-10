@@ -906,8 +906,35 @@ div.forumTime {
   display: flex;
   flex-direction: column;
 }
+div.forumClosed {
+}
+div.forumClosed > .forumPostBody {
+  opacity: 0.7;
+}
+div.forumClosed > .forumPostHdr::before {
+  content: "[CLOSED] ";
+}
+/*div.forumClosed > div.forumPostBody {
+  filter: blur(5px);
+}*/
+div.forumpost-closure-warning {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  border-style: solid;
+  padding: 0.25em 0.5em;
+  background: #f4f400bb;
+  /*font-weight: bold;*/
+}
+div.forumpost-closure-warning input[type=submit] {
+  padding: 0.25em;
+}
+div.forumpost-single-controls {
+  /* UI controls along the bottom of a single post
+  ** in the thread view. */
+}
 .forum div > form {
   margin: 0.5em 0;
+  display: inline-block;
 }
 .forum-post-collapser {
   /* Common style for the bottom-of-post and right-of-post
@@ -1002,6 +1029,26 @@ div.forumSel {
 }
 div.forumObs {
   color: #bbb;
+}
+
+div.setup_forum-column {
+  display: flex;
+  flex-direction: column;
+}
+
+body.cpage-setup_forum > .content table {
+  margin-bottom: 1em;
+}
+body.cpage-setup_forum > .content table.bordered {
+  border: 1px solid;
+  border-radius: 0.25em;
+}
+body.cpage-setup_forum > .content table td,
+body.cpage-setup_forum > .content table th {
+  text-align: left;
+}
+body.cpage-setup_forum table.forum-settings-list > tbody > tr > td {
+  min-width: 2em;
 }
 
 #capabilitySummary {

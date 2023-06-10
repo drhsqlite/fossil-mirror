@@ -132,6 +132,8 @@ void setup_page(void){
       "Mapping keywords for interwiki links");
     setup_menu_entry("Chat", "setup_chat",
       "Configure the chatroom");
+    setup_menu_entry("Forum", "setup_forum",
+      "Forum config and metrics");
   }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
@@ -1974,7 +1976,7 @@ void page_admin_log(){
   db_prepare(&stLog,
     "SELECT datetime(time,'unixepoch'), who, page, what "
     "FROM admin_log "
-    "ORDER BY time DESC");
+    "ORDER BY time DESC, rowid DESC");
   style_table_sorter();
   @ <table class="sortable adminLogTable" width="100%%" \
   @  data-column-types='Tttx' data-init-sort='1'>

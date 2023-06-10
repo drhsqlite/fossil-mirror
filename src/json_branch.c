@@ -295,7 +295,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   if( brid==0 ){
     fossil_panic("Problem committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
+  db_add_unsent(brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
     fossil_panic("%s", g.zErrMsg);
   }

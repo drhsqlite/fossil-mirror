@@ -637,7 +637,7 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
     moderation_table_create();
     db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)", nrid);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_add_unsent(nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
   manifest_crosslink(nrid, pWiki, MC_NONE);
   if( login_is_individual() ){

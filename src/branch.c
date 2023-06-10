@@ -195,13 +195,13 @@ void branch_new(void){
   if( brid==0 ){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
+  db_add_unsent(brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, &brid, 1, 0);
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
+  zUuid = rid_to_uuid(brid);
   fossil_print("New branch: %s\n", zUuid);
   if( g.argc==3 ){
     fossil_print(
@@ -462,7 +462,7 @@ static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
     }
     fossil_print("Saved new control artifact %z (RID %d).\n",
                  rid_to_uuid(newRid), newRid);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", newRid);
+    db_add_unsent(newRid);
     if(fDryRun){
       fossil_print("Dry-run mode: rolling back new artifact.\n");
       assert(0!=doRollback);
@@ -721,8 +721,8 @@ void branch_cmd(void){
       const char *zBr = db_column_text(&q, 0);
       int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
-      fossil_print("%s%s%s\n", 
-        ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ), 
+      fossil_print("%s%s%s\n",
+        ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ),
         (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);

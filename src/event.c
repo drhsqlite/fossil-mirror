@@ -330,7 +330,7 @@ int event_commit_common(
   blob_appendf(&event, "Z %b\n", &cksum);
   blob_reset(&cksum);
   nrid = content_put(&event);
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_add_unsent(nrid);
   if( manifest_crosslink(nrid, &event, MC_NONE)==0 ){
     db_end_transaction(1);
     return 0;

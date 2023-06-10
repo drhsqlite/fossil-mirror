@@ -4653,6 +4653,13 @@ struct Setting {
 ** manifest.
 */
 /*
+** SETTING: forum-close-policy    boolean default=off
+** If true, forum moderators may close/re-open forum posts, and reply
+** to closed posts. If false, only administrators may do so. Note that
+** this only affects the forum web UI, not post-closing tags which
+** arrive via the command-line or from synchronization with a remote.
+*/
+/*
 ** SETTING: gdiff-command    width=40 default=gdiff sensitive
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.
@@ -5452,4 +5459,11 @@ int db_fingerprint_ok(void){
   }
   fossil_free(zCkout);
   return rc;
+}
+
+/*
+** Adds the given rid to the UNSENT table.
+*/
+void db_add_unsent(int rid){
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", rid);
 }

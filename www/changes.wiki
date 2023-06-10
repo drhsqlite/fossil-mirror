@@ -1,5 +1,13 @@
 <title>Change Log</title>
 
+<h2 id='v2_23'>Changes for version 2.23 (pending)</h2>
+
+  *  Add ability to "close" forum threads, such that unprivileged users
+     may no longer respond to them. Only administrators can close
+     threads or respond to them by default, and the
+     [/help?cmd=forum-close-policy|forum-close-policy setting] can be
+     used to add that capability to moderators.
+
 <h2 id='v2_22'>Changes for version 2.22 (2023-05-31)</h2>
   *  Enhancements to the [/help?cmd=/timeline|/timeline webpage]: <ol type="a">
      <li> Add the ft=TAG query parameter which in combination with d=Y
