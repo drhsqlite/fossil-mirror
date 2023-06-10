@@ -1,5 +1,5 @@
-C Remove\sthe\ssuperfluous\sClose\sPost\soption\sfrom\sthe\sforum\sedit\spage.
-D 2023-06-10T19:03:28.960
+C Adjust\sforum-closure\sdocs\sto\smatch\sthe\sprevious\scheck-in.
+D 2023-06-10T19:12:42.582
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -819,7 +819,7 @@ F www/faq.wiki 4b0237f3c1f0aa14923772ea628eb6b6cfb1e3332f0e2924049b24266bc38ca6
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
 F www/fileformat.wiki a896d84e5c8baae6f481500e75b9b109bb96cf10056128226da8c813ebeef333
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki 75bead387b8ed733520ab2644e360e22f260c3fcee74d4fec311022a08e94f0f
+F www/forum.wiki ee1fcb6eb51f8193edc83c62b857565831557ec0b8b48b35c183dec017410f01
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 42373b5cb455cb12c130488eaf28a1c0daccdcc2c3506bbbde229ac5f03e1dec
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2b38f0aad8c253b20026b4e40591f5ce2e16036472383e4e3e5217e2c606e8b
-R 2d79971099b5a76b18f5f4b610870adf
+P b2f007178a3027ce290556fcc3cd8d74d5e4df644e2286562094503e960a80cb
+R 50ce34eaaecbafc7a1b1f250ff902890
 U stephan
-Z fd26daba69f13ce3c7a94290141bbe8a
+Z c265674f07028644ad788c9775b5ed35
 # Remove this line to create a well-formed Fossil manifest.

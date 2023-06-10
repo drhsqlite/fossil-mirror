@@ -395,17 +395,17 @@ repository may bypass closure of a post by setting the appropriate
 artifact tags on a local copy and pushing those changes to a remote
 copy of the forum.
 
-Closing may be achieved in two ways:
-
-  *  When a given post is selected in the web interface, a "Close" or
-     "Re-open" button will appear under the post if the user has
-     permissions to perform that operation.
-  *  A Close option is added at the bottom of the Edit page, permissions
-     permitting.
+The option to close a post, permissions permitting, appears as a
+"Close" button on the currently-selected post. If the selected post is
+alread closed, a "Re-open" button will be shown instead. In order to
+re-open a post, <em>the closed post itself</em> must be
+selected. Selecting a response to that post, which is implicitly
+closed by the closure of its parent, will <em>not</em> offer a re-open
+option.
 
 Though forum users are permitted to delete their own posts, they are
 not permitted, without appropriate permissions, to close their own
 posts. This is intentional, as closing one's own post can be used to
-antagonize other forum-goers. For example, by posting something
+antagonize other forum users. For example, by posting something
 trollish or highly contraversial in nature and closing the post to
 further responses.
