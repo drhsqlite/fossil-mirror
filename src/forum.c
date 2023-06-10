@@ -290,62 +290,7 @@ static int forumpost_may_close(void){
     return permClose = forumpost_close_policy()>0 ? -1 : 0;
   }else{
     return permClose = 0;
-  }  
-}
-
-/*
-** If iClosed is true and the current user forumpost-close privileges,
-** this renders either a checkbox to unlock forum post fpid (if
-** iClosed>0) or a SPAN.warning element that the given post inherits
-** the CLOSED status from a parent post (if iClosed<0). If neither of
-** the initial conditions is true, this is a no-op.
-*/
-static void forumpost_emit_closed_state(int fpid, int iClosed){
-  const char *zCommon;
-  int iHead = forumpost_head_rid(fpid);
-  const int permClose = forumpost_may_close();
-
-  zCommon = forumpost_close_policy()==0
-    ? "Admins may close or re-open posts, or respond to closed posts."
-    : "Admins or moderators "
-      "may close or re-open posts, or respond to closed posts.";
-  /*@ forumpost_emit_closed_state(%d(fpid), %d(iClosed))<br/>*/
-  if( iHead != fpid ){
-    iClosed = forum_rid_is_closed(iHead, 1);
-    /*@ forumpost_emit_closed_state() %d(iHead), %d(iClosed)*/
   }
-  if( iClosed<0 ){
-    @ <div class="warning forumpost-closure-warning">\
-    @ This post is CLOSED via a parent post. %s(zCommon)\
-    @ </div>
-    return;
-  }
-  else if( iClosed==0 ){
-    if( permClose==0 ) return;
-    @ <div class="warning forumpost-closure-warning">
-    @ <form method="post" action="%R/forumpost_close">
-    @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
-    @ <input type="submit" value="CLOSE this post and its responses" />
-    @ <span>%s(zCommon)</span>
-    @ <span>This does NOT save any pending changes in
-    @ the editor!</span>
-    @ </form></div>
-    return;
-  }
-  assert( iClosed>0 );
-  /* Only show the "unlock" option on a post which is actually
-  ** closed, not on a post which inherits that state. */
-  @ <div class="warning forumpost-closure-warning">\
-  @ This post is CLOSED. %s(zCommon)
-  if( permClose ){
-    @ <form method="post" action="%R/forumpost_reopen">
-    @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
-    @ <input type="submit" value="Re-open this post and its responses" />
-    @ <span>This does NOT save any pending changes in
-    @ the editor!</span>
-    @ </form>
-  }
-  @ </div>
 }
 
 /*
@@ -1728,7 +1673,6 @@ void forumedit_page(void){
     @ <h1>Original Post:</h1>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit", 1);
-    forumpost_emit_closed_state(fpid, iClosed);
     @ <h1>Change Into:</h1>
     forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     @ <form action="%R/forume2" method="POST">
@@ -1805,10 +1749,6 @@ void forumedit_page(void){
   forum_render_debug_options();
   @ </form>
   forum_emit_js();
-  if( bReply==0 ){
-    /* Do not show CLOSE option for new posts/responses. */
-    forumpost_emit_closed_state(fpid, iClosed);
-  }
   style_finish_page();
 }
 

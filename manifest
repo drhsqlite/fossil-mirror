@@ -1,5 +1,5 @@
-C Add\ssome\sdocs\sabout\sclosing\sforum\sposts\sto\swww/forum.wiki.\sWhen\sreplying\sto\sa\spost,\sto\snot\sshow\sthe\sClose\soption\sat\sthe\sbottom\sof\sthe\spage\s(as\sit\swould\sapply\sto\sthe\sresponse,\swhich\scannot\sbe\sclosed\sbecause\sit\shas\sno\shash).
-D 2023-06-10T12:29:38.636
+C Remove\sthe\ssuperfluous\sClose\sPost\soption\sfrom\sthe\sforum\sedit\spage.
+D 2023-06-10T19:03:28.960
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/file.c f3f9977d87ca03c4a953e73ea9d591fab2abfefa4a1b1b231a3d213e8273cf92
 F src/fileedit.c db34273e01714297061e41706a82482384f5e86cbd3b6845159ffd2d2569ba3b
 F src/finfo.c 3f921c6dc46dbd2ffcb7ced8bf5ddb934f23ac4e283742ee7cc9f5380aa8cf33
 F src/foci.c cab69c5bede4230f3992294ec6f7e71e8f16590368b14f388e88db836ffa078b
-F src/forum.c 7e6035854ff4cff6446bd12b451b8d69a5bdc85458faf052448e0523bfdc0260
+F src/forum.c 87c339685ffc15a2d6aad225776c19b1aab74168905f2c07a00e7d56489def97
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 673dc38ffb4b444f5a874d4d2112f54026c6fd1ad9fa51fa27c82f8f5f2221d4
-R 754fbab3095e708b3c50938da4fc4d09
+P c2b38f0aad8c253b20026b4e40591f5ce2e16036472383e4e3e5217e2c606e8b
+R 2d79971099b5a76b18f5f4b610870adf
 U stephan
-Z 001514bac07703b7197e0603fabfb501
+Z fd26daba69f13ce3c7a94290141bbe8a
 # Remove this line to create a well-formed Fossil manifest.
