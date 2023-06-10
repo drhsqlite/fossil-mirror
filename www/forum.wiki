@@ -14,7 +14,7 @@ the forum include:
      no new software to install and configure, and the same logins
      and passwords work.
 
-  *  <b>Consistent Display:</b>  Forum posts can be in [/md_rules|Markdown], 
+  *  <b>Consistent Display:</b>  Forum posts can be in [/md_rules|Markdown],
      [/wiki_rules|Fossil Wiki], or plain text.  Whichever format is used, the result is
      displayed consistently across all platforms and operating systems and
      between mobile devices and desktops.
@@ -368,3 +368,44 @@ repository's administrators and moderators:
     "Delete" button that the post's creator sees. Beware that both
     actions are durable and have no undo. Be careful!</li>
 </ol>
+
+<h2 id="close-post">Closing Forum Posts</h2>
+
+As of version 2.23, the forum interface supports the notion of
+"closing" posts. By default, only users with the [./caps/index.md|'s'
+and 'a' capabilities] may close or re-open posts, or reply to closed
+posts. If the [/help?cmd=forum-close-policy|forum-close-policy
+configuration option] is enabled then users with
+[./caps/index.md|forum-moderator permissions] may also perform those
+actions.
+
+Closing a post has the following implications:
+
+  *  Only authorized users may edit or respond to such posts, recursively
+     through all responses of that post.
+  *  Only authorized users may re-open a closed post.
+
+A forum thread may be closed at any given point in the conversation,
+not just the starting point of the thread, and affects that specific
+post and all existing responses to it.
+
+Note that closing a post is effectively an "advisory lock" and may be
+bypassed. Any user, admin or otherwise, who can push changes to a
+repository may bypass closure of a post by setting the appropriate
+artifact tags on a local copy and pushing those changes to a remote
+copy of the forum.
+
+Closing may be achieved in two ways:
+
+  *  When a given post is selected in the web interface, a "Close" or
+     "Re-open" button will appear under the post if the user has
+     permissions to perform that operation.
+  *  A Close option is added at the bottom of the Edit page, permissions
+     permitting.
+
+Though forum users are permitted to delete their own posts, they are
+not permitted, without appropriate permissions, to close their own
+posts. This is intentional, as closing one's own post can be used to
+antagonize other forum-goers. For example, by posting something
+trollish or highly contraversial in nature and closing the post to
+further responses.

@@ -1641,6 +1641,7 @@ void forumedit_page(void){
   int bSameUser;        /* True if author is also the reader */
   int bPreview;         /* True in preview mode. */
   int bPrivate;         /* True if post is private (not yet moderated) */
+  int bReply;           /* True if replying to a post */
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -1660,6 +1661,7 @@ void forumedit_page(void){
     return;
   }
   bPreview = P("preview")!=0;
+  bReply = P("reply")!=0;
   iClosed = forum_rid_is_closed(fpid, 1);
   isCsrfSafe = cgi_csrf_safe(1);
   bPrivate = content_is_private(fpid);
@@ -1707,7 +1709,7 @@ void forumedit_page(void){
   ){
     int done = 1;
     const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
-    if( P("reply") ){
+    if( bReply ){
       done = forum_post(0, fpid, 0, 0, zMimetype, zContent,
                         forum_post_flags());
     }else if( P("edit") || isDelete ){
@@ -1803,7 +1805,10 @@ void forumedit_page(void){
   forum_render_debug_options();
   @ </form>
   forum_emit_js();
-  forumpost_emit_closed_state(fpid, iClosed);
+  if( bReply==0 ){
+    /* Do not show CLOSE option for new posts/responses. */
+    forumpost_emit_closed_state(fpid, iClosed);
+  }
   style_finish_page();
 }
 
