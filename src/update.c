@@ -656,7 +656,7 @@ void ensure_empty_dirs_created(int clearDirTable){
     int i;
     Glob *pGlob = glob_create(zEmptyDirs);
 
-    for(i=0; i<pGlob->nPattern; i++){
+    for(i=0; pGlob!=0 && i<pGlob->nPattern; i++){
       const char *zDir = pGlob->azPattern[i];
       char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
       switch( file_isdir(zPath, RepoFILE) ){
