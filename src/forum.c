@@ -1422,7 +1422,7 @@ void forum_page_close(void){
     login_needed(g.anon.Admin);
     return;
   }
-  cgi_csrf_safe(1);
+  cgi_csrf_verify(1);
   fpid = symbolic_name_to_rid(zFpid, "f");
   if( fpid<=0 ){
     webpage_error("Missing or invalid fpid query parameter");

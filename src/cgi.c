@@ -718,6 +718,23 @@ int cgi_csrf_safe(int requirePost){
 }
 
 /*
+** If bLoginVerifyCsrf is true, this calls login_verify_csrf() to
+** verify that the secret injected by login_insert_csrf_secret() is in
+** the CGI environment and valid. If that fails, it does so
+** fatally. If that passes and cgi_csrf_safe(1) returns false, this
+** fails fatally with a message about a cross-site scripting attempt,
+** else it returns without side effects.
+*/
+void cgi_csrf_verify(int bLoginVerifyCsrf){
+  if( bLoginVerifyCsrf!=0 ){
+    login_verify_csrf_secret();
+  }
+  if( 0==cgi_csrf_safe(1) ){
+    fossil_fatal("Cross-site request forgery attempt");
+  }
+}
+
+/*
 ** Information about all query parameters, post parameter, cookies and
 ** CGI environment variables are stored in a hash table as follows:
 */
