@@ -904,6 +904,7 @@ static void forum_display_post(
         int iHead = forumpost_head_rid(p->fpid);
         @ <form method="post" \
         @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
+        login_insert_csrf_secret();
         @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
         @ <input type="submit" value='%s(iClosed ? "Re-open" : "Close")' />
         @ </form>
@@ -1421,6 +1422,7 @@ void forum_page_close(void){
     login_needed(g.anon.Admin);
     return;
   }
+  cgi_csrf_safe(1);
   fpid = symbolic_name_to_rid(zFpid, "f");
   if( fpid<=0 ){
     webpage_error("Missing or invalid fpid query parameter");
@@ -1771,13 +1773,13 @@ void forum_setup(void){
   }
   style_set_current_feature("forum");
   style_header("Forum Setup");
-       
+
   @ <h2>Metrics</h2>
   {
     int nPosts = db_int(0, "SELECT COUNT(*) FROM event WHERE type='f'");
     @ <p><a href='%R/forum'>Forum posts</a>:
     @ <a href='%R/timeline?y=f'>%d(nPosts)</a></p>
-  }       
+  }
 
   @ <h2>Supervisors</h2>
   @ <p>Users with capabilities 's', 'a', or '6'.</p>
