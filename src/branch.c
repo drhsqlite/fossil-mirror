@@ -284,10 +284,6 @@ static void brlist_create_temp_table(void){
 /*
 ** Prepare a query that will list branches.
 **
-** If (which<0) then the query pulls only closed branches. If
-** (which>0) then the query pulls all (closed and opened)
-** branches. Else the query pulls currently-opened branches.
-**
 ** If the BRL_ORDERBY_MTIME flag is set and nLimitMRU ("Limit Most Recently Used
 ** style") is a non-zero number, the result is limited to nLimitMRU entries, and
 ** the BRL_REVERSE flag is applied in an outer query after processing the limit,

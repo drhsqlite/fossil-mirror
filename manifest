@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sthat\sfixes\sa\sharmless\ncompiler\swarning.
-D 2023-06-12T18:24:28.864
+C Remove\sa\slongtime\sobsolete\scomment\sin\sthe\sbranch\slisting\sroutine.
+D 2023-06-14T14:29:09.065
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -384,7 +384,7 @@ F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cd
 F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c c38f645e3f1c20f4d5b4c6d001d48bf71d4816f55f7339839fff5d3ad3698aef
-F src/branch.c c54746dcc83ff602373454a020560019864c810c3523391a8a66c4f30ab13e4f
+F src/branch.c 62652b26947eef3141174f26d8e3e464b0481f85f7bbf90cf89c0149f2aeae6d
 F src/browse.c c68fccc9a768acd4bae74bcc2e77a6323540d9aeba7649db791a2ffa15a19390
 F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37dfb4c8d67aa86465d559b355493ac0ffebfab34038f31f7f39027e9a0c6d1c
-R 098127b2b7ba4ed4bad0a68f49ab993a
-U drh
-Z 0e84e96b48d8073f793404380e0cac7d
+P f8a29b2e208dddd5feab9d536ce01227eb5a58c2d805a2b089e4b9e10e2215b9
+R b36e9220405459cbe529551b819a2468
+U danield
+Z e03126810785c70c89c179f66c114ed9
 # Remove this line to create a well-formed Fossil manifest.
