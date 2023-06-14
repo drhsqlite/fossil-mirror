@@ -278,6 +278,8 @@ static void brlist_create_temp_table(void){
 #define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
 #define BRL_REVERSE          0x008 /* Reverse the sort order */
 #define BRL_PRIVATE          0x010 /* Show only private branches */
+#define BRL_MERGED           0x020 /* Show only merged branches */
+#define BRL_UNMERGED         0x040 /* Show only unmerged branches */
 
 #endif /* INTERFACE */
 
@@ -307,28 +309,29 @@ void branch_prepare_list_query(
   /* Undocumented: invert negative values for nLimitMRU, so that command-line
   ** arguments similar to `head -5' with "option numbers" are possible. */
   if( nLimitMRU<0 ) nLimitMRU = -nLimitMRU;
-  blob_append_sql(&sql,"SELECT name, isprivate FROM ("); /* OUTER QUERY */
+  blob_append_sql(&sql,"SELECT name, isprivate, mergeto FROM ("); /* OUTER QUERY */
   switch( brFlags & BRL_OPEN_CLOSED_MASK ){
     case BRL_CLOSED_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE isclosed"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE isclosed"
       );
       break;
     }
     case BRL_BOTH: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE 1"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE 1"
       );
       break;
     }
     case BRL_OPEN_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE NOT isclosed"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE NOT isclosed"
       );
       break;
     }
   }
   if( brFlags & BRL_PRIVATE ) blob_append_sql(&sql, " AND isprivate");
+  if( brFlags & BRL_MERGED ) blob_append_sql(&sql, " AND mergeto IS NOT NULL");
   if(zBrNameGlob) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
   if( brFlags & BRL_ORDERBY_MTIME ){
     blob_append_sql(&sql, " ORDER BY -mtime");
@@ -615,6 +618,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        Options:
 **          -a|--all      List all branches.  Default show only open branches
 **          -c|--closed   List closed branches
+**          -m|--merged   List branches merged into the current branch
+**          -M|--unmerged List branches not merged into the current branch
 **          -p            List only private branches
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
@@ -696,7 +701,12 @@ void branch_cmd(void){
     if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
     if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
     if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
+    if( find_option("merged","m",0)!=0 ) brFlags |= BRL_MERGED;
+    if( find_option("unmerged","M",0)!=0 ) brFlags |= BRL_UNMERGED;
 
+    if ( (brFlags & BRL_MERGED) && (brFlags & BRL_UNMERGED) ){
+      fossil_fatal("flags --merged and --unmerged are mutually exclusive");
+    }
     if( strcmp(zCmd, "lsh")==0 ){
       nLimit = 5;
       if( g.argc>4 || (g.argc==4 && (nLimit = atoi(g.argv[3]))==0) ){
@@ -716,7 +726,15 @@ void branch_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
+      const char *zMergeTo = db_column_text(&q, 2);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
+      if( (brFlags & BRL_MERGED) && fossil_strcmp(zCurrent,zMergeTo)!=0 ){
+        continue;
+      }
+      if( (brFlags & BRL_UNMERGED) && (fossil_strcmp(zCurrent,zMergeTo)==0 
+          || isCur) ){
+        continue;
+      }
       fossil_print("%s%s%s\n",
         ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ),
         (isCur ? "* " : "  "), zBr);
