@@ -1,5 +1,5 @@
-C Use\sthe\snew\stimediff()\sfunction\sof\sSQLite\s3.43.0\sto\srefactor\sthe\n"Duration\sof\sProject"\sline\son\sthe\s/stat\spage\sto\sbe\s"Project\sAge".
-D 2023-06-15T11:58:11.439
+C To\savoid\sunnecessary\sclutter\sin\sthe\serror\slog,\ndo\snot\swrite\stimeout\smessage\sto\sthe\serror\slog\sfor\stimeouts\sthat\soccur\sduring\nweb-page\sreply\sand\sthat\suse\sless\sthan\sone\ssecond\sof\sCPU\stime.
+D 2023-06-15T12:21:29.707
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -488,7 +488,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 1c43ca56c92e44365b5ea3c428aae57ff2fd6a8d36e7b959618d63dc534c5102
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20d0
-F src/main.c f2ef9306b4e6730e261fa94d185129ec150224f4c2efc03d19a8b19ac1c2cf23
+F src/main.c c9304cc6b7a096cf6a7e07bbd3cce09907630c97c9557014b85d79d0a0db825a
 F src/main.mk 583fe0f4f43de49fd824571904c656a43c972b277d60091f4dc24817ac04f49c
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e64c2c10bd031a61ae5079037d6298a0b076afc431709bfe6a80092f2f8ce90
-R 660b40209029b54f3fc2435062b9a443
+P 2abb23dba8bdc5dba8bbc3cd99a12af622db7286c3cf6c6a1b85056b50e08aaf
+R 333b1ff89003c034dac8b69307454eec
 U drh
-Z 20708b346a67179c99c593e240e77435
+Z 9bcaea33e2780f9cbab10ea48a4bf1f7
 # Remove this line to create a well-formed Fossil manifest.

@@ -3008,6 +3008,13 @@ static int nAlarmSeconds = 0;
 static void sigalrm_handler(int x){
   sqlite3_uint64 tmUser = 0, tmKernel = 0;
   fossil_cpu_times(&tmUser, &tmKernel);
+  if( fossil_strcmp(g.zPhase, "web-page reply")==0
+   && tmUser+tmKernel<1000000
+  ){
+    /* Do not log time-outs during web-page reply unless more than
+    ** 1 second of CPU time has been consumed */
+    return;
+  }
   fossil_panic("Timeout after %d seconds during %s"
                " - user %,llu µs, sys %,llu µs",
                nAlarmSeconds, g.zPhase, tmUser, tmKernel);
