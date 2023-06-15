@@ -171,9 +171,10 @@ window.fossil.onPageLoad(function(){
     /**
        this.pos.next refers to the line numbers in the next TR's chunk.
        this.pos.prev refers to the line numbers in the previous TR's chunk.
+       this.pos corresponds to the line numbers of the gap.
     */
     if(this.pos.prev && this.pos.next
-       && ((this.pos.next.startLhs - this.pos.prev.endLhs)
+       && ((this.pos.endLhs - this.pos.startLhs)
            <= Diff.config.chunkLoadLines)){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
