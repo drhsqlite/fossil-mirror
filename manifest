@@ -1,5 +1,5 @@
-C Remove\sa\slongtime\sobsolete\scomment\sin\sthe\sbranch\slisting\sroutine.
-D 2023-06-14T14:29:09.065
+C Document\sthe\s--errorlog\scommand-line\soption\sto\s"fossil\sui".
+D 2023-06-15T11:26:03.782
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -488,7 +488,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 1c43ca56c92e44365b5ea3c428aae57ff2fd6a8d36e7b959618d63dc534c5102
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20d0
-F src/main.c b1b7fc41c525e1f479580ba633579b478b1c148a24396ad43bf0f583785b80a5
+F src/main.c af7389490213214c1af2d59b18bee9829a473498f808e937e16431f33840fb99
 F src/main.mk 583fe0f4f43de49fd824571904c656a43c972b277d60091f4dc24817ac04f49c
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8a29b2e208dddd5feab9d536ce01227eb5a58c2d805a2b089e4b9e10e2215b9
-R b36e9220405459cbe529551b819a2468
-U danield
-Z e03126810785c70c89c179f66c114ed9
+P ebe81aa11c167cd6352abb22f742bbac501fc9148efa476eb1181ea8fe282710
+R 5570e7133c277b02cfd8e10d78f62a84
+U drh
+Z eaead9c7629c8115678ac97873f4a1ba
 # Remove this line to create a well-formed Fossil manifest.

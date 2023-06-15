@@ -3094,6 +3094,7 @@ void fossil_set_timeout(int N){
 **   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
 **                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
+**   --errorlog FILE     Append HTTP error messages to FILE
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    Full pathname of the "fossil" executable on the remote
