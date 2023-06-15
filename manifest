@@ -1,5 +1,5 @@
-C Document\sthe\s--errorlog\scommand-line\soption\sto\s"fossil\sui".
-D 2023-06-15T11:26:03.782
+C Use\sthe\snew\stimediff()\sfunction\sof\sSQLite\s3.43.0\sto\srefactor\sthe\n"Duration\sof\sProject"\sline\son\sthe\s/stat\spage\sto\sbe\s"Project\sAge".
+D 2023-06-15T11:58:11.439
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -488,7 +488,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 1c43ca56c92e44365b5ea3c428aae57ff2fd6a8d36e7b959618d63dc534c5102
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20d0
-F src/main.c af7389490213214c1af2d59b18bee9829a473498f808e937e16431f33840fb99
+F src/main.c f2ef9306b4e6730e261fa94d185129ec150224f4c2efc03d19a8b19ac1c2cf23
 F src/main.mk 583fe0f4f43de49fd824571904c656a43c972b277d60091f4dc24817ac04f49c
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
@@ -549,7 +549,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 4aecc676c43a00c00ca82c8f4841dc8e77690d2a2253d4cb7da22990cc2f8150
 F src/stash.c f4b160ea4d639c09eb0217c1a04a8618958f278a565b08c225b7a5a4edb74f31
-F src/stat.c 046a53c73baccf10ad88c5c2cd32d07cbb359aeaaaa25a3b637b715c926308a9
+F src/stat.c d80c0e9b2d6b549cf7e09f89d07c70215a79ba2de8f63dde07a11a10dbc6630b
 F src/statrep.c 39376096510cd4f43677b404a960e9936e0cce304034f2c298cffcf09700212e
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d5e49fa02311b7a327fb935c668b607286971a4a409db0998a9d8e242e101165
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebe81aa11c167cd6352abb22f742bbac501fc9148efa476eb1181ea8fe282710
-R 5570e7133c277b02cfd8e10d78f62a84
+P 1e64c2c10bd031a61ae5079037d6298a0b076afc431709bfe6a80092f2f8ce90
+R 660b40209029b54f3fc2435062b9a443
 U drh
-Z eaead9c7629c8115678ac97873f4a1ba
+Z 20708b346a67179c99c593e240e77435
 # Remove this line to create a well-formed Fossil manifest.

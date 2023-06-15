@@ -143,6 +143,8 @@ void stat_page(void){
   int szMax, szAvg;
   int brief;
   const char *p;
+  char *z;
+  int Y, M, D;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -259,10 +261,16 @@ void stat_page(void){
       }
     }
   }
-  @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
-  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
-                " + 0.99");
-  @ %,d(n) days or approximately %.2f(n/365.2425) years.
+  @ <tr><th>Project&nbsp;Age:</th><td>
+  z = db_text(0, "SELECT timediff('now',(SELECT min(mtime) FROM event));");
+  sscanf(z, "+%d-%d-%d", &Y, &M, &D);
+  if( Y>0 ){
+    @ %d(Y) years, \
+  }
+  if( M>0 ){
+    @ %d(M) months, \
+  }
+  @ %d(D) days
   @ </td></tr>
   p = db_get("project-code", 0);
   if( p ){
