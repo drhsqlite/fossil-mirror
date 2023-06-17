@@ -399,10 +399,20 @@ static void append_file_change_line(
   }else{
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
-        @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
-        @ %h(zName)</a>
-        @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
-        @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
+          @ Renamed and modified
+          @ %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
+          @ %h(zOldName)</a>
+          @ %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+          @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ %h(zName)</a>
+          @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        }else{
+          @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ %h(zName)</a>
+          @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+          @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        }
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
         @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
