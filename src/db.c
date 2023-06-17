@@ -4452,6 +4452,8 @@ struct Setting {
 **
 **    pullonly               Only to pull autosyncs
 **
+**    all                    Sync with all remotes
+**
 **    on,open=off            Autosync for most commands, but not for "open"
 **
 **    off,commit=pullonly    Do not autosync, except do a pull before each
