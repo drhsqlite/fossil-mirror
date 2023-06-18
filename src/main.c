@@ -3342,11 +3342,16 @@ void cmd_webserver(void){
     blob_init(&ssh, 0, 0);
     transport_ssh_command(&ssh);
     db_close_config();
-    if( zFossilCmd==0 ) zFossilCmd = "fossil";
     blob_appendf(&ssh, 
-       " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$"
-       " %$ %$ ui --nobrowser --localauth --port %d",
-       iPort, iPort, zRemote, "PATH=$HOME/bin:$PATH", zFossilCmd, iPort);
+       " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
+       iPort, iPort, zRemote
+    );
+    if( zFossilCmd==0 ){
+      blob_appendf(&ssh, " %$ fossil", "PATH=$HOME/bin:$PATH");
+    }else{
+      blob_appendf(&ssh, " %$", zFossilCmd);
+    }
+    blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
     if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
     if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
     if( g.zCkoutAlias ) blob_appendf(&ssh, " --ckout-alias %!$",g.zCkoutAlias);
