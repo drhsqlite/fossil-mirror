@@ -86,6 +86,10 @@ EMSDK_ENV = @EMSDK_ENV@
 EMCC_OPT = @EMCC_OPT@
 EMCC_WRAPPER = $(SRCDIR_tools)/emcc.sh
 
+# MAKE_COMPILATION_DB (yes/no) determines whether or not the
+# compile_commands.json file will be generated.
+MAKE_COMPILATION_DB = @MAKE_COMPILATION_DB@
+
 .PHONY: all tags
 
 include $(SRCDIR)/main.mk

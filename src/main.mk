@@ -2117,7 +2117,7 @@ $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 
 $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
 	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry \
-        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore,stackAlloc \
+        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore \
         -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c \
         -sENVIRONMENT=web \
         -sMODULARIZE \
@@ -2126,10 +2126,34 @@ $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
 
+compile-commands-no:
+compile-commands-yes: compile_commands.json
+all: compile-commands-$(MAKE_COMPILATION_DB)
+compile-commands-args-no =
+compile-commands-args-yes = -MJ $(compile-commands-file)
+compile-commands-args = compile-commands-args-$(MAKE_COMPILATION_DB)
+compile-commands-dir = compile_commands
+compile-commands-mkdir = $(SRCDIR)/$(compile-commands-dir)
+CFLAGS += $(compile-commands-args)
+$(compile-commands-mkdir): $(compile-commands-dir)
+	mkdir -p $@
+compile_commands.json: $(compile-commands-mkdir)
+	@-rm -f $@
+	sed -e '1s/^/[\'$$'\n''/' -e '$$s/,$$/\'$$'\n'']/' $(compile-commands-dir)/*.o.json > $@+
+	@if test -s $@+; then mv $@+ $@; else rm -f $@+; fi
+
+# We don't (yet?) have a way to replicate this part of the
+# compile_commands.json build in posix make unless we generate
+# separate build rules for the compile-commands case:
+#
+# compdb_file = $(TOP_SRCDIR_REL)/$(compdb_dir)/$(subst /,-,$@.json)
+# compdb_args = -MJ $(compdb_file)
+# CFLAGS += $(compdb_args)
+
 #
 # The list of all the targets that do not correspond to real files. This stops
 # 'make' from getting confused when someone makes an error in a rule.
 #
 
-.PHONY: all install test clean
+.PHONY: all install test clean compile-commands-no compile-commands-yes
 
