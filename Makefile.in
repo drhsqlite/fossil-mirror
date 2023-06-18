@@ -9,6 +9,7 @@
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = @srcdir@/src
+TOPDIR = @srcdir@
 #### Upstream source files included directly in this repository.
 #
 SRCDIR_extsrc = @srcdir@/extsrc

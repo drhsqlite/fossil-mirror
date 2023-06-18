@@ -1,5 +1,5 @@
-C Initial\s*incomplete*\sattempt\sat\sintegrating\scompile_commands.json\ssupport,\sfor\scode\seditors\swhich\ssupport\sit.\sThis\sis\sa\scopy/paste\sport\sfrom\sthe\slibfossil\stree,\sbut\slacks\sone\sfinal\spiece\swhich\sis\sdifficult\sto\semulate\sin\sPOSIX\smake\s(as\sopposed\sto\sGNU\smake).\sBuild\sfile\schanges\sonly,\sno\scode\schanges.
-D 2023-06-18T11:16:45.958
+C More\swork\son\scompile_commands.json\ssupport.\sThis\sdoes\snot\swork\sbecause\sthe\sapproach\sof\sextending\sCFLAGS\swith\sthe\s-MJ\sflag\sis\sincompatible\swith\sthe\sbuild\sprocess's\suse\sof\sdifferent\scompilers\sfor\sthe\sin-tree\stools\svs\sthe\sfiles\scompiled\sas\spart\sof\sthe\sfossil\sbinary.\sOn\ssystems\swith\sboth\sgcc\sand\sclang,\sthe\sformer\sgroup\smay\sget\sbuilt\swith\scc\s(==gcc)\syet\sinherit\s-MJ\svia\sCFLAGS,\sbreaking\sthe\sbuild.\sThis\sapproach\sappears\sto\sbe\sa\sdead\send,\sbut\schecking\sit\sin\sfor\slater\sanalysis.
+D 2023-06-18T13:58:03.823
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,7 +13,7 @@ F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 7608cc9484fc49ad2cba2995e309e6d33109a43baa278650c5df319362d2f814
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 422c9fc25614e8ecab18ffb213c7ffe6754e9d27e799f8d1df1bd3048356f52b x
+F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION de53be951867a3e763e7c9f5e94e2bf012de26cfea4752b62f865f14547426c9
@@ -489,7 +489,7 @@ F src/login.c 1c43ca56c92e44365b5ea3c428aae57ff2fd6a8d36e7b959618d63dc534c5102
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20d0
 F src/main.c 2415ba6a18b47fde7657dd08e919729b2b9467571a047916534a85a75ffb4d8c
-F src/main.mk d389d0e98759bab2c9d7e7a20517d617665d2201ddb9a113b39bbc3883b0864b
+F src/main.mk 26a15700bb53bf29a2b3b08e2b941ff369118278b5feb7422c5e6a1863595888
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
@@ -731,7 +731,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc96ce529
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl d6ca73f75000deab65fc3673f77e0ebd5da2e4a22aee90b486ec004b72f9ff22 x
+F tools/makemake.tcl 8cdf0da8e8a5649644bab363253e3e0ca707b4e03835a70a0ed165706213905a x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 90ec733e23363b5f4ac85d2ce4cf363019c2d19ed828308c5e64cf52ffcd501e
@@ -951,11 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ab1e118503110495ff73f02163d3ffe1ab091bc40ad0292f0ffa53de62851d3
-R 35d593a07c4dc53fce07043c0da9b427
-T *branch * compile_commands.json
-T *sym-compile_commands.json *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 492787465dd7ebd6f3da7097e17ba5a8515daa18dcc195e6166aa1dfea9e2c8a
+R 64beab6a6448131995fd174d01ba1dbf
 U stephan
-Z c5e34dd800aead1a4a2a3206d36c6780
+Z 3baa20052f96d0c5c38669ad9a7cb891
 # Remove this line to create a well-formed Fossil manifest.

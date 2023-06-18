@@ -571,6 +571,16 @@ OBJ = \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
+compile-commands-dir = compile_commands
+compile-commands-mkdir.yes = $(TOPDIR)/$(compile-commands-dir)
+compile-commands-mkdir.no =
+all: $(compile-commands-mkdir.$(MAKE_COMPILATION_DB))
+$(compile-commands-mkdir.no):
+$(compile-commands-mkdir.yes): $(compile-commands-dir)
+	mkdir -p $@
+#$(OBJ): $(compile-commands-mkdir)
+
+
 all:	$(OBJDIR) $(APPNAME)
 
 install:	all
@@ -2126,29 +2136,24 @@ $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
 
-compile-commands-no:
-compile-commands-yes: compile_commands.json
-all: compile-commands-$(MAKE_COMPILATION_DB)
-compile-commands-args-no =
-compile-commands-args-yes = -MJ $(compile-commands-file)
-compile-commands-args = compile-commands-args-$(MAKE_COMPILATION_DB)
-compile-commands-dir = compile_commands
-compile-commands-mkdir = $(SRCDIR)/$(compile-commands-dir)
-CFLAGS += $(compile-commands-args)
-$(compile-commands-mkdir): $(compile-commands-dir)
-	mkdir -p $@
-compile_commands.json: $(compile-commands-mkdir)
+#
+# compile_commands.json support...
+#
+compile-commands-file = $(TOPDIR)/$(compile-commands-dir)/$(@F:.o=.o.json)
+compile-command-args.yes = -MJ $(compile-commands-file)
+compile-command-args.no =
+CFLAGS += $(compile-command-args.$(MAKE_COMPILATION_DB))
+compile_commands.json:
 	@-rm -f $@
 	sed -e '1s/^/[\'$$'\n''/' -e '$$s/,$$/\'$$'\n'']/' $(compile-commands-dir)/*.o.json > $@+
 	@if test -s $@+; then mv $@+ $@; else rm -f $@+; fi
+compile-commands.no:
+compile-commands.yes: compile_commands.json
+all: $(compile-commands.$(MAKE_COMPILATION_DB))
 
-# We don't (yet?) have a way to replicate this part of the
-# compile_commands.json build in posix make unless we generate
-# separate build rules for the compile-commands case:
 #
-# compdb_file = $(TOP_SRCDIR_REL)/$(compdb_dir)/$(subst /,-,$@.json)
-# compdb_args = -MJ $(compdb_file)
-# CFLAGS += $(compdb_args)
+# End compile_commands.json support
+#
 
 #
 # The list of all the targets that do not correspond to real files. This stops
