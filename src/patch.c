@@ -702,10 +702,8 @@ static FILE *patch_remote_command(
     blob_append_escaped_arg(&cmd, blob_str(&remote), 0);
     blob_reset(&remote);
   }
-  if( mFlags & PATCH_VERBOSE ){
-    fossil_print("# %s\n", blob_str(&cmd));
-    fflush(stdout);
-  }
+  fossil_print("%s\n", blob_str(&cmd));
+  fflush(stdout);
   f = popen(blob_str(&cmd), zRW);
   if( f==0 ){
     fossil_fatal("cannot run command: %s", blob_str(&cmd));
