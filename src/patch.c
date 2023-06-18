@@ -694,6 +694,7 @@ static FILE *patch_remote_command(
     transport_ssh_command(&cmd);
     blob_appendf(&cmd, " -T");
     blob_append_escaped_arg(&cmd, zRemote, 0);
+    blob_append_escaped_arg(&cmd, "PATH=$HOME/bin:$PATH", 0);
     blob_init(&remote, 0, 0);
     if( zFossilCmd==0 ) zFossilCmd = "fossil";
     blob_appendf(&remote, "%$ patch %s%s --dir64 %z -", 

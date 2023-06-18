@@ -1,5 +1,5 @@
-C Mention\sthe\s"all"\soption\sin\sthe\sdocumentation\sfor\s"autosync"
-D 2023-06-17T20:51:51.092
+C For\sthe\s"fossil\sui\sremote:/"\sand\sthe\s"fossil\spatch\spush/pull"\scommands,\swhen\ngoing\sover\sSSH,\sadd\sthe\sargument\s"PATH=$HOME/bin:$PATH"\sto\sthe\scommand\sline\nso\sthat\sthe\s"fossil"\sexecutable\scan\sbe\sfound\sin\sthe\susers\shome\sdirectory.\nThis\sis\simportant\son\ssystem\slike\sMac\swhere\sthe\sdefault\sPATH\sfor\sSSH\sconsists\nof\sonly\sunwritable\sdirectories.
+D 2023-06-18T00:22:38.827
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -488,7 +488,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 1c43ca56c92e44365b5ea3c428aae57ff2fd6a8d36e7b959618d63dc534c5102
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 9fb57f9d6364836fb19cb72950c1b2532e93b2b4c25a942c46e3df4cdc0f20d0
-F src/main.c c9304cc6b7a096cf6a7e07bbd3cce09907630c97c9557014b85d79d0a0db825a
+F src/main.c 2415ba6a18b47fde7657dd08e919729b2b9467571a047916534a85a75ffb4d8c
 F src/main.mk 583fe0f4f43de49fd824571904c656a43c972b277d60091f4dc24817ac04f49c
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
@@ -500,7 +500,7 @@ F src/merge.c 53a5346bc58cad6913c39422f4e7db1e049c5d116f849e1825a5b77ab48dc2ae
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c a572d567c496d363dc473383df02399d6d55ef01d3f935701bf0b01440b5de12
-F src/patch.c d2702b10c55d99c5a938c57dfc6dc8515a04922f26ede6c94a973fe34b76bc5a
+F src/patch.c e641e4b465e18b07ab1ee5dd085cff94e31b2c87c84195b4bb24ccd9a412c51c
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c 2be1694c1e8a62f8ac314aa59c99ecc8d8ac2d2037e708cc15649262cd7c9805
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 495a4d71b8a2c546e923552ed948e8be319c318e13acd082b464eb33e5e66bfa
-R 326ccce17bf119de7c4a159461322d82
+P 4e7b08c38007c90f9237f611b6c1f5b45f576fa340e604a4d570c5ea6985821d
+R 61f8386a1f5f46b8927e05c9e0e28c95
 U drh
-Z 174e0beb47ee00de59d430da814222f2
+Z bec77d293727c542a99e8eebba449fda
 # Remove this line to create a well-formed Fossil manifest.
