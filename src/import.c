@@ -298,12 +298,16 @@ static void finish_commit(void){
     if( zUuid==0 ) continue;
     blob_appendf(&record, "F %F %s", gg.aFile[i].zName, zUuid);
     if( gg.aFile[i].isExe ){
-      blob_append(&record, " x\n", 3);
+      blob_append(&record, " x", 2);
     }else if( gg.aFile[i].isLink ){
-      blob_append(&record, " l\n", 3);
+      blob_append(&record, " l", 2);
     }else{
-      blob_append(&record, "\n", 1);
+      blob_append(&record, " w", 2);
     }
+    if( gg.aFile[i].zPrior!=0 ){
+      blob_appendf(&record, " %F", gg.aFile[i].zPrior);
+    }
+    blob_append(&record, "\n", 1);
   }
   if( gg.zFrom ){
     blob_appendf(&record, "P %s", gg.zFrom);

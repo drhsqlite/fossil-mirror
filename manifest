@@ -1,5 +1,5 @@
-C Always\sprint\sthe\sSSH\scommand\sused\sto\simplement\s"fossil\spatch\spush/pull".\s\sNo\nlonger\srequire\sthe\s-v\soption\sto\ssee\sthe\sssh\scommand.\s\sThis\sis\sin\sthe\sinterest\nof\sfull\sdisclosure\s-\sletting\sthe\soperator\sknow\swhat\sFossi\sis\sdoing\sbehind\sthe\nscenes.
-D 2023-06-18T00:46:07.948
+C fix\simport\shandling\sof\sgit\srepositories\swith\srenamed\sfiles\n\nReported\sby\sJames\sCook\sin\s[forum:2b857ded1b]:\srenamed\sfiles\swere\sshown\sas\na\sdeletion\sand\san\saddition.\sThis\swas\sbecause\sthe\soptional\s3rd\sand\s4th\sfield\nin\sthe\smanifest's\sF\scard\sto\sindicate\srenames\swere\somitted,\sdespite\shaving\nparsed\sthese\sdata\sfrom\sthe\sgit\sfast-export\smarks.
+D 2023-06-18T03:12:18.554
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -464,7 +464,7 @@ F src/http.c bf1ea5de5a50bbc4386d1ed1e5665d409e631269c40a4986fb53efdd6cb06b8e
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 6327207da26138b00291a69e4d76bf6ec17e77d93754e0d00586a8a7aea7c669
 F src/http_transport.c 1773b329617c5e50da759e5863c96db1586d4ac9c07a18a4be0833bce3dcc52c
-F src/import.c ac87067f1476aebfb9d2f81f8a1849fc7489e2ef4d12db747428f6430ce7de79
+F src/import.c 26bf6db4a5a11bbec1ddde3be392cade9aecdf3a8fe7d2ef39cc54f755debe7b
 F src/info.c d5d301040b6bdbf8b2766d182235ae8ce9de2d84141d43fb3d88796aac1bd81a
 F src/interwiki.c e7b7f6c85f4d068f3912e2546446fc45b544d5c7c8beabddf98347410b087a44
 F src/json.c 552525d0b536e623950e35d7c568690e0dc48753c9ecb54b3bacd8ab5c3863db
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8cb116407933bb3b88f7ebf9ffea31f390ab5b872b01b03db656303435463bbd
-R 1cbe7efdf9751f133be0c24d32caef75
-U drh
-Z 726c6622f6c19353da39b016f8311feb
+P 97ec767f4b3de68c840603332962c7b3cf777f7b6fa1e9873e4de576cc017b0b
+R 2519f3382ddd19638d9f9f3250104b4c
+U mark
+Z 81542dca262752f94aa37664ca630731
 # Remove this line to create a well-formed Fossil manifest.
