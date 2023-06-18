@@ -3063,7 +3063,11 @@ void fossil_set_timeout(int N){
 ** If REPOSITORY begins with a "HOST:" or "USER@HOST:" prefix, then
 ** the command is run on the remote host specified and the results are
 ** tunneled back to the local machine via SSH.  This feature only works for
-** the "fossil ui" command, not the "fossil server" command.
+** the "fossil ui" command, not the "fossil server" command.  The name of the
+** fossil executable on the remote host is specified by the --fossilcmd option,
+** or if there is no --fossilcmd, it first tries "$HOME/bin/fossil" and if
+** not found there it searches for any executable named "fossil" on the
+** default $PATH set by SSH on the remote.
 **
 ** REPOSITORY may also be a directory (aka folder) that contains one or
 ** more repositories with names ending in ".fossil".  In this case, a
@@ -3104,8 +3108,8 @@ void fossil_set_timeout(int N){
 **   --errorlog FILE     Append HTTP error messages to FILE
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
-**   --fossilcmd PATH    Full pathname of the "fossil" executable on the remote
-**                       system when REPOSITORY is remote.  Default: "fossil"
+**   --fossilcmd PATH    The pathname of the "fossil" executable on the remote
+**                       system when REPOSITORY is remote.
 **   --localauth         Enable automatic login for requests from localhost
 **   --localhost         Listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse

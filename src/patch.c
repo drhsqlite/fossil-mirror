@@ -884,6 +884,12 @@ static void patch_diff(
 **           *   HOST:DIRECTORY
 **           *   USER@HOST:DIRECTORY
 **
+**       The name of the fossil executable on the remote host is specified
+**       by the --fossilcmd option, or if there is no --fossilcmd, it first
+**       tries "$HOME/bin/fossil" and if not found there it searches for any
+**       executable named "fossil" on the default $PATH set by SSH on the
+**       remote.
+**
 **       Command-line options:
 **
 **           -f|--force         Apply the patch even though there are unsaved
