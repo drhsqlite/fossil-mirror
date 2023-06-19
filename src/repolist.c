@@ -285,7 +285,7 @@ int repo_list_page(void){
       }
       blob_append_sql(&html,
         "<td></td><td data-sortkey='%08x'>%h</td>\n",
-        iAge, zAge);
+        (int)iAge, zAge);
       fossil_free(zAge);
       if( x.zLoginGroup ){
         blob_append_sql(&html, "<td></td><td>%h</td></tr>\n", x.zLoginGroup);
