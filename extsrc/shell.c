@@ -246,6 +246,7 @@ typedef unsigned char u8;
 #if SQLITE_OS_WINRT
 #include <intrin.h>
 #endif
+#undef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -1473,7 +1474,7 @@ struct DIR {
 #endif
 
 /*
-** Provide the function prototype for the POSIX compatiable getenv()
+** Provide the function prototype for the POSIX compatible getenv()
 ** function.  This function is not thread-safe.
 */
 
@@ -4642,6 +4643,10 @@ static int seriesColumn(
   return SQLITE_OK;
 }
 
+#ifndef LARGEST_UINT64
+#define LARGEST_UINT64 (0xffffffff|(((sqlite3_uint64)0xffffffff)<<32))
+#endif
+
 /*
 ** Return the rowid for the current row, logically equivalent to n+1 where
 ** "n" is the ascending integer in the aforesaid production definition.
@@ -4649,7 +4654,7 @@ static int seriesColumn(
 static int seriesRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
   series_cursor *pCur = (series_cursor*)cur;
   sqlite3_uint64 n = pCur->ss.uSeqIndexNow;
-  *pRowid = (sqlite3_int64)((n<0xffffffffffffffff)? n+1 : 0);
+  *pRowid = (sqlite3_int64)((n<LARGEST_UINT64)? n+1 : 0);
   return SQLITE_OK;
 }
 
@@ -12915,13 +12920,12 @@ int sqlite3_recover_finish(sqlite3_recover*);
 */
 
 #if !defined(SQLITEINT_H) 
-/* #include "sqlite3ext.h" */
+/* #include "sqlite3.h" */
 
 /* typedef unsigned char u8; */
 /* typedef unsigned int u32; */
 
 #endif
-SQLITE_EXTENSION_INIT1
 #include <string.h>
 #include <assert.h>
 
@@ -13506,8 +13510,14 @@ static int dbdataNext(sqlite3_vtab_cursor *pCursor){
           if( pCsr->pHdrPtr>&pCsr->pRec[pCsr->nRec] ){
             bNextPage = 1;
           }else{
+            int szField = 0;
             pCsr->pHdrPtr += dbdataGetVarintU32(pCsr->pHdrPtr, &iType);
-            pCsr->pPtr += dbdataValueBytes(iType);
+            szField = dbdataValueBytes(iType);
+            if( (pCsr->nRec - (pCsr->pPtr - pCsr->pRec))<szField ){
+              pCsr->pPtr = &pCsr->pRec[pCsr->nRec];
+            }else{
+              pCsr->pPtr += szField;
+            }
           }
         }
       }
@@ -13780,15 +13790,11 @@ static int sqlite3DbdataRegister(sqlite3 *db){
   return rc;
 }
 
-#ifdef _WIN32
-
-#endif
 int sqlite3_dbdata_init(
   sqlite3 *db, 
   char **pzErrMsg, 
   const sqlite3_api_routines *pApi
 ){
-  SQLITE_EXTENSION_INIT2(pApi);
   (void)pzErrMsg;
   return sqlite3DbdataRegister(db);
 }
@@ -15902,7 +15908,7 @@ static int recoverIsValidPage(u8 *aTmp, const u8 *a, int n){
     if( iFree>(n-4) ) return 0;
     iNext = recoverGetU16(&a[iFree]);
     nByte = recoverGetU16(&a[iFree+2]);
-    if( iFree+nByte>n ) return 0;
+    if( iFree+nByte>n || nByte<4 ) return 0;
     if( iNext && iNext<iFree+nByte ) return 0;
     memset(&aUsed[iFree], 0xFF, nByte);
     iFree = iNext;
@@ -16728,7 +16734,7 @@ typedef struct ShellState ShellState;
 struct ShellState {
   sqlite3 *db;           /* The database */
   u8 autoExplain;        /* Automatically turn on .explain mode */
-  u8 autoEQP;            /* Run EXPLAIN QUERY PLAN prior to seach SQL stmt */
+  u8 autoEQP;            /* Run EXPLAIN QUERY PLAN prior to each SQL stmt */
   u8 autoEQPtest;        /* autoEQP is in test mode */
   u8 autoEQPtrace;       /* autoEQP is in trace mode */
   u8 scanstatsOn;        /* True to display scan stats before each finalize */
@@ -16740,7 +16746,7 @@ struct ShellState {
   u8 bSafeModePersist;   /* The long-term value of bSafeMode */
   ColModeOpts cmOpts;    /* Option values affecting columnar mode output */
   unsigned statsOn;      /* True to display memory stats before each finalize */
-  unsigned mEqpLines;    /* Mask of veritical lines in the EQP output graph */
+  unsigned mEqpLines;    /* Mask of vertical lines in the EQP output graph */
   int inputNesting;      /* Track nesting level of .read and other redirects */
   int outCount;          /* Revert to stdout when reaching zero */
   int cnt;               /* Number of records displayed so far */
@@ -16791,7 +16797,7 @@ struct ShellState {
   int *aiIndent;         /* Array of indents used in MODE_Explain */
   int nIndent;           /* Size of array aiIndent[] */
   int iIndent;           /* Index of current op in aiIndent[] */
-  char *zNonce;          /* Nonce for temporary safe-mode excapes */
+  char *zNonce;          /* Nonce for temporary safe-mode escapes */
   EQPGraph sGraph;       /* Information for the graphical EXPLAIN QUERY PLAN */
   ExpertInfo expert;     /* Valid if previous command was ".expert OPT..." */
 #ifdef SQLITE_SHELL_FIDDLE
@@ -16833,7 +16839,7 @@ static ShellState shellState;
 
 /* Bits in the ShellState.flgProgress variable */
 #define SHELL_PROGRESS_QUIET 0x01  /* Omit announcing every progress callback */
-#define SHELL_PROGRESS_RESET 0x02  /* Reset the count when the progres
+#define SHELL_PROGRESS_RESET 0x02  /* Reset the count when the progress
                                    ** callback limit is reached, and for each
                                    ** top-level SQL statement */
 #define SHELL_PROGRESS_ONCE  0x04  /* Cancel the --limit after firing once */
@@ -18347,7 +18353,7 @@ static int run_table_dump_query(
 */
 static char *save_err_msg(
   sqlite3 *db,           /* Database to query */
-  const char *zPhase,    /* When the error occcurs */
+  const char *zPhase,    /* When the error occurs */
   int rc,                /* Error code returned from API */
   const char *zSql       /* SQL string, or NULL */
 ){
@@ -18770,7 +18776,7 @@ static void explain_data_prepare(ShellState *p, sqlite3_stmt *pSql){
     /* Grow the p->aiIndent array as required */
     if( iOp>=nAlloc ){
       if( iOp==0 ){
-        /* Do further verfication that this is explain output.  Abort if
+        /* Do further verification that this is explain output.  Abort if
         ** it is not */
         static const char *explainCols[] = {
            "addr", "opcode", "p1", "p2", "p3", "p4", "p5", "comment" };
@@ -19113,7 +19119,7 @@ static char *quoted_column(sqlite3_stmt *pStmt, int i){
 */
 static void exec_prepared_stmt_columnar(
   ShellState *p,                        /* Pointer to ShellState */
-  sqlite3_stmt *pStmt                   /* Statment to run */
+  sqlite3_stmt *pStmt                   /* Statement to run */
 ){
   sqlite3_int64 nRow = 0;
   int nColumn = 0;
@@ -19339,7 +19345,7 @@ columnar_end:
 */
 static void exec_prepared_stmt(
   ShellState *pArg,                                /* Pointer to ShellState */
-  sqlite3_stmt *pStmt                              /* Statment to run */
+  sqlite3_stmt *pStmt                              /* Statement to run */
 ){
   int rc;
   sqlite3_uint64 nRow = 0;
@@ -19598,7 +19604,7 @@ static int shell_exec(
       if( zStmtSql==0 ) zStmtSql = "";
       while( IsSpace(zStmtSql[0]) ) zStmtSql++;
 
-      /* save off the prepared statment handle and reset row count */
+      /* save off the prepared statement handle and reset row count */
       if( pArg ){
         pArg->pStmt = pStmt;
         pArg->cnt = 0;
@@ -19646,7 +19652,7 @@ static int shell_exec(
         }
         if( pArg->autoEQP>=AUTOEQP_trigger && triggerEQP==0 ){
           sqlite3_db_config(db, SQLITE_DBCONFIG_TRIGGER_EQP, 0, 0);
-          /* Reprepare pStmt before reactiving trace modes */
+          /* Reprepare pStmt before reactivating trace modes */
           sqlite3_finalize(pStmt);
           sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
           if( pArg ) pArg->pStmt = pStmt;
@@ -19783,7 +19789,7 @@ static char **tableColumnList(ShellState *p, const char *zTab){
   */
   if( preserveRowid && isIPK ){
     /* If a single PRIMARY KEY column with type INTEGER was seen, then it
-    ** might be an alise for the ROWID.  But it might also be a WITHOUT ROWID
+    ** might be an alias for the ROWID.  But it might also be a WITHOUT ROWID
     ** table or a INTEGER PRIMARY KEY DESC column, neither of which are
     ** ROWID aliases.  To distinguish these cases, check to see if
     ** there is a "pk" entry in "PRAGMA index_list".  There will be
@@ -20760,7 +20766,7 @@ static void open_db(ShellState *p, int openFlags){
     /* Let custom-included extensions get their ..._init() called.
      * The WHATEVER_INIT( db, pzErrorMsg, pApi ) macro should cause
      * the extension's sqlite3_*_init( db, pzErrorMsg, pApi )
-     * inititialization routine to be called.
+     * initialization routine to be called.
      */
     {
       int irc = SHELL_SUBMACRO(SQLITE_SHELL_EXTFUNCS, INIT)(p->db);
@@ -20837,7 +20843,7 @@ static void open_db(ShellState *p, int openFlags){
 }
 
 /*
-** Attempt to close the databaes connection.  Report errors.
+** Attempt to close the database connection.  Report errors.
 */
 void close_db(sqlite3 *db){
   int rc = sqlite3_close(db);
@@ -21331,7 +21337,7 @@ static void tryToCloneData(
   if( rc ){
     utf8_printf(stderr, "Error %d: %s on [%s]\n",
             sqlite3_extended_errcode(newDb), sqlite3_errmsg(newDb),
-            zQuery);
+            zInsert);
     goto end_data_xfer;
   }
   for(k=0; k<2; k++){
@@ -27409,7 +27415,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       if( data.aAuxDb->zDbFilename==0 ){
         data.aAuxDb->zDbFilename = z;
       }else{
-        /* Excesss arguments are interpreted as SQL (or dot-commands) and
+        /* Excess arguments are interpreted as SQL (or dot-commands) and
         ** mean that nothing is read from stdin */
         readStdin = 0;
         nCmd++;
@@ -27494,7 +27500,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #endif
 #ifdef SQLITE_ENABLE_MULTIPLEX
     }else if( cli_strcmp(z,"-multiplex")==0 ){
-      extern int sqlite3_multiple_initialize(const char*,int);
+      extern int sqlite3_multiplex_initialize(const char*,int);
       sqlite3_multiplex_initialize(0, 1);
 #endif
     }else if( cli_strcmp(z,"-mmap")==0 ){
@@ -27537,7 +27543,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       bail_on_error = 1;
     }else if( cli_strcmp(z,"-nonce")==0 ){
       free(data.zNonce);
-      data.zNonce = strdup(argv[++i]);
+      data.zNonce = strdup(cmdline_option_value(argc, argv, ++i));
     }else if( cli_strcmp(z,"-unsafe-testing")==0 ){
       ShellSetFlag(&data,SHFLG_TestingMode);
     }else if( cli_strcmp(z,"-safe")==0 ){
