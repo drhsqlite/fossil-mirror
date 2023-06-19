@@ -605,8 +605,8 @@ compile_commands.json = $(TOPDIR)/compile_commands.json
 # have a trailing comma.
 $(compile_commands.json): $(OBJ)
 	@-rm -f $@
-	sed -e '1s/^/[''\n''/' -e '$$s/,$$/''\n'']/' $(compile-commands-dir)/*.o.json > $@+
-	@if test -s $@+; then mv $@+ $@; else rm -f $@+; fi
+	@{ echo '['; cat $(compile-commands-dir)/*.o.json | tr '\n' ' ' | sed -e 's/, $$//'; echo ']'; } > $@
+	@echo "Generated $@"
 compile-commands.no:
 compile-commands.yes: $(compile_commands.json)
 all: compile-commands.$(MAKE_COMPILATION_DB)
