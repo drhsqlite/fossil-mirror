@@ -76,6 +76,7 @@ void stats_for_email(void){
     sqlite3_stmt *pStmt;
     int rc;
     @ Queued to database "%h(zDb)"
+    g.dbIgnoreErrors++;
     rc = sqlite3_open(zDb, &db);
     if( rc==SQLITE_OK ){
       rc = sqlite3_prepare_v2(db, "SELECT count(*) FROM email",-1,&pStmt,0);
@@ -84,6 +85,10 @@ void stats_for_email(void){
         @ %,d(file_size(zDb,ExtFILE)) bytes)
       }
       sqlite3_finalize(pStmt);
+    }
+    g.dbIgnoreErrors--;
+    if( rc ){
+      @ &larr; cannot access database!
     }
     sqlite3_close(db);
   }else
