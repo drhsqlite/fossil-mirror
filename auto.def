@@ -31,6 +31,8 @@ options {
     no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
     with-emsdk:path      => {Directory containing the Emscripten SDK}
+    no-compile-commands=0 =>
+      "Disable compile_commands.json support even if detected (possibly incorrectly)."
 }
 
 # Update the minimum required SQLite version number here, and also
@@ -731,6 +733,36 @@ if {[opt-bool fusefs]} {
      msg-result "FuseFS support enabled"
   }
 }
+
+########################################################################
+# Checks the compiler for compile_commands.json support. If passed an
+# argument it is assumed to be the name of an autosetup boolean config
+# option to explicitly DISABLE the compile_commands.json support.
+#
+# Returns 1 if supported, else 0. Defines MAKE_COMPILATION_DB to "yes"
+# if supported, "no" if not.
+proc check-compile-commands {{configOpt no-compile-commands}} {
+    msg-checking "compile_commands.json support... "
+    if {"" ne $configOpt && [opt-bool $configOpt]} {
+        msg-result "explicitly disabled"
+        define MAKE_COMPILATION_DB no
+        return 0
+    } else {
+        if {[cctest -lang c -cflags {/dev/null -MJ} -source {}]} {
+            # This test reportedly incorrectly succeeds on one of
+            # Martin G.'s older systems.
+            msg-result "compiler supports compile_commands.json"
+            define MAKE_COMPILATION_DB yes
+            return 1
+        } else {
+            msg-result "compiler does not support compile_commands.json"
+            define MAKE_COMPILATION_DB no
+            return 0
+        }
+    }
+}
+
+check-compile-commands
 
 # Add -fsanitize compile and link options late: we don't want the C
 # checks above to run with those sanitizers enabled.  It can not only
