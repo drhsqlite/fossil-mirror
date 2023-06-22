@@ -499,7 +499,13 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     blob_appendf(&hdr, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  if( etag_tag()[0]!=0 ){
+  if( etag_tag()[0]!=0
+   && iReplyStatus==200
+   && strcmp(zContentType,"text/html")==0
+  ){
+    /* Do not cache HTML replies as those will have been generated and
+    ** will likely, therefore, contains a nonce and we want that nonce to
+    ** be different every time. */
     blob_appendf(&hdr, "ETag: %s\r\n", etag_tag());
     blob_appendf(&hdr, "Cache-Control: max-age=%d\r\n", etag_maxage());
     if( etag_mtime()>0 ){
@@ -520,7 +526,7 @@ void cgi_reply(void){
 
   /* Add headers to turn on useful security options in browsers. */
   blob_appendf(&hdr, "X-Frame-Options: SAMEORIGIN\r\n");
-  /* This stops fossil pages appearing in frames or iframes, preventing
+  /* The previous stops fossil pages appearing in frames or iframes, preventing
   ** click-jacking attacks on supporting browsers.
   **
   ** Other good headers would be
@@ -536,9 +542,6 @@ void cgi_reply(void){
   ** a CGI script.
   */
 
-  /* Content intended for logged in users should only be cached in
-  ** the browser, not some shared location.
-  */
   if( iReplyStatus!=304 ) {
     blob_appendf(&hdr, "Content-Type: %s%s\r\n", zContentType,
                  content_type_charset(zContentType));
