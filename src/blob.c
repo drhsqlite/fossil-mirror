@@ -179,6 +179,23 @@ static void blob_panic(void){
 }
 
 /*
+** Maximum size of a Blob's managed memory. This is ~2GB, largely for
+** historical reasons.
+**
+*/
+#define MAX_BLOB_SIZE 0x7fff000
+
+/*
+** If n >= MAX_BLOB_SIZE, calls blob_panic(),
+** else this is a no-op.
+*/
+static void blob_assert_safe_size(i64 n){
+  if( n>=(i64)MAX_BLOB_SIZE ){
+    blob_panic();
+  }
+}
+
+/*
 ** A reallocation function that assumes that aData came from malloc().
 ** This function attempts to resize the buffer of the blob to hold
 ** newSize bytes.
@@ -196,7 +213,9 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->iCursor = 0;
     pBlob->blobFlags = 0;
   }else if( newSize>pBlob->nAlloc || newSize+4000<pBlob->nAlloc ){
-    char *pNew = fossil_realloc(pBlob->aData, newSize);
+    char *pNew;
+    blob_assert_safe_size((i64)newSize);
+    pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
     pBlob->nAlloc = newSize;
     if( pBlob->nUsed>pBlob->nAlloc ){
@@ -221,7 +240,9 @@ static void blobReallocStatic(Blob *pBlob, unsigned int newSize){
   if( newSize==0 ){
     *pBlob = empty_blob;
   }else{
-    char *pNew = fossil_malloc( newSize );
+    char *pNew;
+    blob_assert_safe_size((i64)newSize);
+    pNew = fossil_malloc( newSize );
     if( pBlob->nUsed>newSize ) pBlob->nUsed = newSize;
     memcpy(pNew, pBlob->aData, pBlob->nUsed);
     pBlob->aData = pNew;
@@ -331,10 +352,8 @@ static void blob_append_full(Blob *pBlob, const char *aData, int nData){
   if( nNew >= pBlob->nAlloc ){
     nNew += pBlob->nAlloc;
     nNew += 100;
-    if( nNew>=0x7fff0000 ){
-      blob_panic();
-    }
-    pBlob->xRealloc(pBlob, (int)nNew);
+    blob_assert_safe_size(nNew);
+    pBlob->xRealloc(pBlob, (unsigned)nNew);
     if( pBlob->nUsed + nData >= pBlob->nAlloc ){
       blob_panic();
     }
@@ -607,8 +626,8 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 ** the currently-allocated amount of memory.
 **
 ** For semantic compatibility with blob_append_full(), if newSize is
-** >=0x7fff000 (~2GB) then this function will trigger blob_panic(). If
-** it didn't, it would be possible to bypass that hard-coded limit via
+** >=MAX_BLOB_SIZE then this function will trigger blob_panic(). If it
+** didn't, it would be possible to bypass that hard-coded limit via
 ** this function.
 **
 ** We've had at least one report:
@@ -617,9 +636,8 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 ** builds.
 */
 void blob_reserve(Blob *pBlob, unsigned int newSize){
-  if(newSize>=0x7fff0000 ){
-    blob_panic();
-  }else if(newSize>pBlob->nAlloc){
+  blob_assert_safe_size( (i64)newSize );
+  if(newSize>pBlob->nAlloc){
     pBlob->xRealloc(pBlob, newSize+1);
     pBlob->aData[newSize] = 0;
   }
@@ -921,7 +939,7 @@ void test_strip_comment_lines_cmd(void){
   sbs = find_option("side-by-side","y",0)!=0;
   if( (z = find_option("width","W",1))!=0 && (w = atoi(z))>0 ){
     dCfg.wColumn = w;
-  }  
+  }
   verify_all_options();
   if( g.argc!=3 ) usage("INPUTFILE");
 
