@@ -1703,7 +1703,7 @@ static void svn_dump_import(FILE *pIn){
 **   --rename-trunk NAME  Use NAME as name of imported trunk branch
 **   --rename-branch PAT  Rename all branch names using PAT pattern
 **   --rename-tag PAT     Rename all tag names using PAT pattern
-**   -A|--admin-user NAME Use NAME for the admin user 
+**   -A|--admin-user NAME Use NAME for the admin user
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name
@@ -1721,7 +1721,11 @@ static void svn_dump_import(FILE *pIn){
 ** The --attribute option takes a quoted string argument comprised of a
 ** Git committer email and the username to be attributed to corresponding
 ** check-ins in the Fossil repository. This option can be repeated. For
-** example, --attribute "drh@sqlite.org drh" --attribute "xyz@abc.net X"
+** example, --attribute "drh@sqlite.org drh" --attribute "xyz@abc.net X".
+** Attributions are persisted to the repository so that subsequent
+** 'fossil git export' operations attribute Fossil commits to corresponding
+** 'Git Committer <git@committer.com>' users, and incremental imports with
+** 'fossil import --git --incremental' use previous --attribute records.
 **
 ** See also: export
 */
@@ -1957,9 +1961,11 @@ void import_cmd(void){
     if(ggit.nGitAttr > 0) {
       int idx;
       db_unprotect(PROTECT_ALL);
-      db_multi_exec(
-        "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
-      );
+      if( !db_table_exists("repository", "fx_git") ){
+        db_multi_exec(
+          "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
+        );
+      }
       for(idx = 0; idx < ggit.nGitAttr; ++idx ){
         db_multi_exec(
             "INSERT OR IGNORE INTO fx_git(user, email) VALUES(%Q, %Q)",

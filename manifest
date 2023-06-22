@@ -1,5 +1,5 @@
-C Allow\smore\sthan\s~128\sMiB\sin\sa\sblob\s;)
-D 2023-06-22T11:01:28.542
+C enable\simporting\smultiple\sgit\srepos\sinto\sone\sfsl\srepo\n\nThis\sfixes\san\sissue\sreported\sby\sJames\sCook\sin\s[forum:d162b6e2dc].\sPreviously,\nwe\sassumed\sthe\sfx_git\stable\sdoes\snot\sexist\swhen\screating\sa\snew\simport,\sthus\sthe\npreviously\suntested\suse\scase\sof\simporting\smultiple\snew\s(read:\snot\sincremental)\ngit\srepos\sinto\sthe\ssame\sfossil\srepo\sfailed\sat\sthis\sassumption.\sWhile\shere,\ndocument\sthe\spersistent\snature\sof\sattributions\sin\sthe\simport\scmd\shelp\stext;\npreviously,\sthis\swas\sonly\sin\sthe\sonline\sdocs:\s[src:/doc/trunk/www/inout.wiki]
+D 2023-06-22T13:49:33.380
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -464,7 +464,7 @@ F src/http.c bf1ea5de5a50bbc4386d1ed1e5665d409e631269c40a4986fb53efdd6cb06b8e
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 6327207da26138b00291a69e4d76bf6ec17e77d93754e0d00586a8a7aea7c669
 F src/http_transport.c 1773b329617c5e50da759e5863c96db1586d4ac9c07a18a4be0833bce3dcc52c
-F src/import.c 26bf6db4a5a11bbec1ddde3be392cade9aecdf3a8fe7d2ef39cc54f755debe7b
+F src/import.c aaf3ee783669973e097de905c7c56da51918181cf3bd3b589f38f025104ed032
 F src/info.c d5d301040b6bdbf8b2766d182235ae8ce9de2d84141d43fb3d88796aac1bd81a
 F src/interwiki.c e7b7f6c85f4d068f3912e2546446fc45b544d5c7c8beabddf98347410b087a44
 F src/json.c 552525d0b536e623950e35d7c568690e0dc48753c9ecb54b3bacd8ab5c3863db
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6efd41941ced78c5f34ea2c141c400f409ca0207f7a611b971eda31e96625438
-R 686fbc1c1ad3f648c5f04c9056e6fb87
-U danield
-Z 6328788ce83ebe1ef4bd9ff7b9fe3c4f
+P 1c2c0a1f953dda498fc27d423ead4620defbf51fce79cbd597c9aa42ff4b3959
+R 44de21e3b4af5fb5285dc0897e2b287d
+U mark
+Z 8746a56428495c2e113f1450d7eb5325
 # Remove this line to create a well-formed Fossil manifest.
