@@ -183,7 +183,7 @@ static void blob_panic(void){
 ** historical reasons.
 **
 */
-#define MAX_BLOB_SIZE 0x7fff000
+#define MAX_BLOB_SIZE 0x7fff0000
 
 /*
 ** If n >= MAX_BLOB_SIZE, calls blob_panic(),
