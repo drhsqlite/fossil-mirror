@@ -1,5 +1,5 @@
-C Do\snot\sshow\sthe\sClose\sbutton\son\sforum\sposts\swhich\sare\spending\smoderation.
-D 2023-06-23T16:34:35.715
+C Unconditionally\sdisable\scompile_commands.json\sgeneration\sfor\sout-of-tree\sbuilds,\sin\san\sattempt\sto\swork\saround\sa\sproblem\sreported\sin\s[forum:d19061d09a8179|forum\spost\sd19061d09a8179].
+D 2023-06-23T17:40:41.022
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION de53be951867a3e763e7c9f5e94e2bf012de26cfea4752b62f865f14547426c9
-F auto.def 1089570772d3f5bf1335f6b53c244692eba4256d4c3e398c5fd1304d71c0549d
+F auto.def 28b8f3cacc79e592fc824997b07399f5b03a4b2b7920a10274b3e166e19033d6
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 604e1a67d38a5e6e3c3d42f49c3fbd1fab84259fa6ac1e70e2f6a803a837d13b
-R 62963ae29f5828c106abd5a4c9ce07fc
+P 355a81bea7e40dac506f61c5b3dc1944e5248ef6cdd230c0e2bab54e48f928d4
+R 26db6a03f07089552f1b76d983cad641
 U stephan
-Z 9346009614e22c66d7b63b876ef62506
+Z a45935120ca55e2e7063d1472d20223c
 # Remove this line to create a well-formed Fossil manifest.

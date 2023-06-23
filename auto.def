@@ -47,6 +47,12 @@ if {[opt-bool print-minimum-sqlite-version]} {
     exit 0
 }
 
+set outOfTreeBuild 0
+if {![file exists fossil.1]} {
+  puts "This appears to be an out-of-tree build."
+  set outOfTreeBuild 1
+}
+
 # sqlite wants these types if possible
 cc-with {-includes {stdint.h inttypes.h}} {
     cc-check-types uint32_t uint16_t int16_t uint8_t
@@ -762,7 +768,14 @@ proc check-compile-commands {{configOpt no-compile-commands}} {
     }
 }
 
-check-compile-commands
+if {!$outOfTreeBuild} {
+  check-compile-commands
+} else {
+  define MAKE_COMPILATION_DB no
+  puts "Disabling compile_commands.json check for out-of-tree build."
+  # This is an attempt to resolve the problem reported at
+  # https://fossil-scm.org/forum/forumpost/d19061d09a8179d0
+}
 
 # Add -fsanitize compile and link options late: we don't want the C
 # checks above to run with those sanitizers enabled.  It can not only
