@@ -906,7 +906,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, bestSrc);
     db_bind_blob(&s1, ":data", &bestDelta);
     db_begin_transaction();
-    rc = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", rid);
+    rc = db_int(0, "SELECT octet_length(content) FROM blob WHERE rid=%d", rid);
     db_exec(&s1);
     db_exec(&s2);
     db_end_transaction(0);

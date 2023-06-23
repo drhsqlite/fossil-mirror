@@ -121,7 +121,7 @@ void stats_for_email(void){
   nSub = db_int(0, "SELECT count(*) FROM subscriber");
   iCutoff = db_get_int("email-renew-cutoff",0);
   nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
-                   " AND NOT sdonotcall AND length(ssub)>1"
+                   " AND NOT sdonotcall AND octet_length(ssub)>1"
                    " AND lastContact>=%d;", iCutoff);
   @ %,d(nASub) active, %,d(nSub) total
   @ </td></tr>
@@ -211,7 +211,7 @@ void stat_page(void){
       Stmt q;
       char zStored[100];
       db_prepare(&q,
-        "SELECT count(*), sum(sz), sum(length(content))"
+        "SELECT count(*), sum(sz), sum(octet_length(content))"
         "  FROM unversioned"
         " WHERE length(hash)>1"
       );
@@ -245,8 +245,8 @@ void stat_page(void){
       char zSz[100];
       n = db_int(0, "SELECT max(msgid) FROM chat");
       m = db_int(0, "SELECT count(*) FROM chat WHERE mdel IS NOT TRUE");
-      sz = db_int64(0, "SELECT sum(coalesce(length(xmsg),0)+"
-                                  "coalesce(length(file),0)) FROM chat");
+      sz = db_int64(0, "SELECT sum(coalesce(octet_length(xmsg),0)+"
+                                  "coalesce(octet_length(file),0)) FROM chat");
       approxSizeName(sizeof(zSz), zSz, sz);
       @ <tr><th>Number&nbsp;Of&nbsp;Chat&nbsp;Messages:</th>
       @ <td>%,d(n) (%,d(m) still alive, %s(zSz) in size)</td></tr>
@@ -887,7 +887,7 @@ void gather_artifact_stats(int bWithTypes){
     @ INSERT INTO artstat(id,atype,isDelta,szExp,szCmpr)
     @    SELECT blob.rid, NULL,
     @           delta.rid IS NOT NULL,
-    @           size, length(content)
+    @           size, octet_length(content)
     @      FROM blob LEFT JOIN delta ON blob.rid=delta.rid
     @     WHERE content IS NOT NULL;
   ;

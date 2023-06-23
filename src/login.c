@@ -146,7 +146,7 @@ int login_is_valid_anonymous(
   zPw = captcha_decode((unsigned int)atoi(zCS));
   if( fossil_stricmp(zPw, zPassword)!=0 ) return 0;
   uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
-                  " AND length(pw)>0 AND length(cap)>0");
+                  " AND octet_length(pw)>0 AND octet_length(cap)>0");
   return uid;
 }
 
@@ -212,7 +212,7 @@ int login_search_uid(const char **pzUsername, const char *zPasswd){
   int uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE login=%Q"
-    "   AND length(cap)>0 AND length(pw)>0"
+    "   AND octet_length(cap)>0 AND octet_length(pw)>0"
     "   AND login NOT IN ('anonymous','nobody','developer','reader')"
     "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
     "   AND (info NOT LIKE '%%expires 20%%'"
@@ -1136,8 +1136,8 @@ static int login_transfer_credentials(
     zSQL = mprintf(
       "SELECT cexpire FROM user"
       " WHERE login=%Q"
-      "   AND length(cap)>0"
-      "   AND length(pw)>0"
+      "   AND octet_length(cap)>0"
+      "   AND octet_length(pw)>0"
       "   AND cexpire>julianday('now')"
       "   AND constant_time_cmp(cookie,%Q)=0",
       zLogin, zHash
@@ -1190,8 +1190,8 @@ static int login_find_user(
     "SELECT uid FROM user"
     " WHERE login=%Q"
     "   AND cexpire>julianday('now')"
-    "   AND length(cap)>0"
-    "   AND length(pw)>0"
+    "   AND octet_length(cap)>0"
+    "   AND octet_length(pw)>0"
     "   AND constant_time_cmp(cookie,%Q)=0",
     zLogin, zCookie
   );
@@ -1337,8 +1337,8 @@ void login_check_credentials(void){
       if( fossil_strcmp(zHash, blob_str(&b))==0 ){
         uid = db_int(0,
             "SELECT uid FROM user WHERE login='anonymous'"
-            " AND length(cap)>0"
-            " AND length(pw)>0"
+            " AND octet_length(cap)>0"
+            " AND octet_length(pw)>0"
             " AND %.17g+0.25>julianday('now')",
             rTime
         );
@@ -1365,7 +1365,8 @@ void login_check_credentials(void){
     const char *zRemoteUser = P("REMOTE_USER");
     if( zRemoteUser && db_get_boolean("remote_user_ok",0) ){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
-                      " AND length(cap)>0 AND length(pw)>0", zRemoteUser);
+                      " AND octet_length(cap)>0 AND octet_length(pw)>0",
+                      zRemoteUser);
     }
   }
 

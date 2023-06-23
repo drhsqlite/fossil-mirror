@@ -590,7 +590,7 @@ void chat_poll_webpage(void){
   cgi_set_content_type("application/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
   blob_append_sql(&sql,
-    "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file),"
+    "SELECT msgid, datetime(mtime), xfrom, xmsg, octet_length(file),"
     "       fname, fmime, %s, lmtime"
     "  FROM chat ",
     msgBefore>0 ? "0 as mdel" : "mdel");
@@ -729,7 +729,7 @@ void chat_fetch_one(void){
   chat_create_tables();
   cgi_set_content_type("application/json");
   db_prepare(&q, 
-    "SELECT datetime(mtime), xfrom, xmsg, length(file),"
+    "SELECT datetime(mtime), xfrom, xmsg, octet_length(file),"
     "       fname, fmime, lmtime"
     "  FROM chat WHERE msgid=%d AND mdel IS NULL",
     msgid);
