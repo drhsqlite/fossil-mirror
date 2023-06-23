@@ -1,5 +1,5 @@
-C Unconditionally\sdisable\scompile_commands.json\sgeneration\sfor\sout-of-tree\sbuilds,\sin\san\sattempt\sto\swork\saround\sa\sproblem\sreported\sin\s[forum:d19061d09a8179|forum\spost\sd19061d09a8179].
-D 2023-06-23T17:40:41.022
+C Check-in\s[bdde964e06128a02]\sgot\sthe\stest\sfor\stext/html\sexactly\sbackwards.
+D 2023-06-23T22:15:34.401
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -391,7 +391,7 @@ F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
 F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095ae44e
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
-F src/cgi.c 14fb643019486502db7a21499f46c280a71c9e902210b4aed6ae319c2afee139
+F src/cgi.c 3bf2a125e73826e19cbd7ba598be03a9d2c9fcc731257873de53e75002bda111
 F src/chat.c af623d16c680073321a4b273c3d31f00375931c6ab7b0a04890ca6d46bb0d65f
 F src/checkin.c aba435cc20a83fa95ba30bbae545f4b1de419ede83f97b4ed0b8b1acb9cbaaff
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 355a81bea7e40dac506f61c5b3dc1944e5248ef6cdd230c0e2bab54e48f928d4
-R 26db6a03f07089552f1b76d983cad641
-U stephan
-Z a45935120ca55e2e7063d1472d20223c
+P 35f3e5bfba482db9e7e092e762cb58446fd5befd456f91a7f56fb3cf81742168
+R bdaedca48508aa73f04b89e20dd54371
+U drh
+Z 854cb5a8d0c3545c76afc82d38c99b81
 # Remove this line to create a well-formed Fossil manifest.

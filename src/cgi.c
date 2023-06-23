@@ -501,7 +501,7 @@ void cgi_reply(void){
   }
   if( etag_tag()[0]!=0
    && iReplyStatus==200
-   && strcmp(zContentType,"text/html")==0
+   && strcmp(zContentType,"text/html")!=0
   ){
     /* Do not cache HTML replies as those will have been generated and
     ** will likely, therefore, contains a nonce and we want that nonce to
