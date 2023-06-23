@@ -1,5 +1,5 @@
-C Do\snot\sallow\scaching\sof\sgenerated\sHTML\scontent,\sas\ssuch\scontent\swill\susually\ncontain\sa\snonce\swhich\sought\snot\sbe\srepeated.
-D 2023-06-22T17:09:40.471
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\scheck-in\sthat\ssupports\sthe\noctet_length()\sSQL\sfunction\sso\sthat\swe\scan\suse\sthat\sfunction\sin\sthe\sFossil\nimplementation.
+D 2023-06-23T11:43:41.872
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -274,9 +274,9 @@ F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc3
 F extsrc/pikchr.c da1b3e3f2126776a4ebb4a1acd5ec2b943d263a6e3c5bde257a9668cc1fe9a86
 F extsrc/pikchr.js 4be4e17e5a4b60edf2d9f4759a7928d2d36557a24ff6d6e295dd45bdee43b621
 F extsrc/pikchr.wasm 5fc0cddc22996280fa603c3606fdccf1b4484f7f8ccb5ba1a3889d7b665048a3
-F extsrc/shell.c ccd107b3f33836e51b56fbe1de5364e080e4dc47554710513ed491d35adfacf6
-F extsrc/sqlite3.c 27d8d2afc01baa41886a32e1bfb66061b8780e99dae1a854e427776fa8034e58
-F extsrc/sqlite3.h 53388f91abf1916f3ff789aaefb66d12c94981de21ee0648003d2f9d24fd531b
+F extsrc/shell.c 4dd3f428331ec20ffbea919316a29412b5c8bb64ca3110982456b1667f68462c
+F extsrc/sqlite3.c 3b9086488f6b22f459922d38b778caf3b4a9c6cbefa9e22bf861173cd6e141ba
+F extsrc/sqlite3.h 59e5c5024b5b73c1aca028a360bc8ed44ff60aa66292c74be15267039a056080
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47fb3ddc5a9100f56ca7dfb39a055a8c70d7709cbc8317b6b3de21f47aacad38
-R e82b984290ccc75ff8f432bdca5fbbea
+P bdde964e06128a02cf5d04d7542399b144ed487076a5e792bbf2c29eb4a436dc
+R e49a5fb526aaf92ddc675315ec4f3b66
 U drh
-Z 72a9c028361a9120fa4f083eb4bebd1d
+Z 2d6f3299ec717d10839e7c16b64ef9eb
 # Remove this line to create a well-formed Fossil manifest.
