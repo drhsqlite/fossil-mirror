@@ -906,7 +906,9 @@ static void forum_display_post(
         @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
         login_insert_csrf_secret();
         @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
-        @ <input type="submit" value='%s(iClosed ? "Re-open" : "Close")' />
+        if( moderation_pending(p->fpid)==0 ){
+          @ <input type="submit" value='%s(iClosed ? "Re-open" : "Close")' />
+        }
         @ </form>
       }
       @ </div>
