@@ -240,8 +240,8 @@ any changes that have already been merged in from the parent branch.
 <a id="start"></a>
 The prefix "<tt>start:</tt>" gives the first check-in of the named branch.
 
-The prefixes "<tt>root:</tt>" and  "<tt>merge-in:</tt>" can be chained: one
-can say for example 
+The prefixes "<tt>root:</tt>", "<tt>start:</tt>", and  "<tt>merge-in:</tt>"
+can be chained: one can say for example 
 
 <blockquote><tt>
 fossil info merge-in:xyzzy:2022-03-01
