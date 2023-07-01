@@ -1,5 +1,5 @@
-C give\s'json\sstatus'\sthe\ssame\srename\streatment\sas\srecent\sstatus\swork\n\nAs\sreported\sby\slarrybr\son\sthe\sforum:\s[forum:9e9778f2e6],\s'fossil\sjson\sstatus'\nreports\srenamed\s_and_\sedited\sfiles\sas\sonly\srenamed.\sThis\schange\sreports\ssuch\ncases\sas\sboth\sedited\sand\srenamed,\sand\sdisplays\sthe\sfilename\sprior\sto\sbeing\nrenamed\sas\swell\sas\sthe\srenamed\spath.\sWe\snow\salso\supdate\sthe\svfile\stable\sbefore\ngenerating\sthe\sstatus\sreport\sto\sensure\sthe\scurrent\scheckout\sstate\sis\sreported.
-D 2023-07-01T16:06:53.944
+C Update\s(json\sstatus)\sdocs\sfor\s[771e592b4c59].
+D 2023-07-01T16:51:56.997
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -856,7 +856,7 @@ F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
 F www/json-api/api-branch.md fead45003061de747b18abf26212d1bac38f799e25118966aaf522a82ced7b54
-F www/json-api/api-checkout.md 573374b07c229885ea0ee198a5d16574750623082c041441e4cca514666d8805
+F www/json-api/api-checkout.md 4d88592aab0accc9a47cc45d4d33819a889b90206a91bafd78067c884673d3aa
 F www/json-api/api-config.md fd78b7737b04dac1b458259e2c9a4b8e49473533949420c8735c55afc654f229
 F www/json-api/api-diff.md 56642aa64348ef36422466e98cd61d30c4bf738ffd6e357129557273533b08f8
 F www/json-api/api-dir.md 1be992e79bafa35c5b11417f6852db4363be7795078473f99c50289cb522a2b5
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36adf66b78762754bcd9bbfe47135941dca43f2ebda4eed39ebd59c83cd14577
-R d46d8d082eeb4c1ed4f3643ecd82e5f5
-U mark
-Z b9d59bdb41c5b79b33f3fb7eaa6b2ab0
+P 771e592b4c59ad59a28f586bba12a528a27e8e4892e72d48000bc38c8cc6c623
+R 4407c33abb925c8f842a2b622d252776
+U stephan
+Z 48bff79e42a0f5ead03e6ffea83539e0
 # Remove this line to create a well-formed Fossil manifest.
