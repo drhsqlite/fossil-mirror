@@ -62,6 +62,7 @@ cson_value * json_page_status(){
       json_set_err( FSL_JSON_E_UNKNOWN, "Can this even happen?" );
       return 0;
   }
+  vfile_check_signature(vid, 0);
   /* TODO: dupe show_common_info() state */
   tmpO = cson_new_object();
   cson_object_set(oPay, "checkout", cson_object_value(tmpO));
@@ -95,12 +96,14 @@ cson_value * json_page_status(){
   cson_object_set( oPay, "files", cson_array_value( aFiles ) );
 
   db_prepare(&q,
-    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
+    "SELECT pathname, deleted, chnged, rid, "
+    "     coalesce(origname!=pathname,0), origname"
     "  FROM vfile "
     " WHERE is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
   while( db_step(&q)==SQLITE_ROW ){
+    cson_array *aStatuses = NULL;
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
@@ -114,8 +117,6 @@ cson_value * json_page_status(){
     }else if( isNew ){
       zStatus = "new" /* maintenance reminder: MUST come
                          BEFORE the isChnged checks. */;
-    }else if( isRenamed ){
-      zStatus = "renamed";
     }else if( !file_isfile_or_link(zFullName) ){
       if( file_access(zFullName, F_OK)==0 ){
         zStatus = "notAFile";
@@ -139,13 +140,26 @@ cson_value * json_page_status(){
         zStatus = "edited";
       }
     }
-
     oFile = cson_new_object();
     cson_array_append( aFiles, cson_object_value(oFile) );
+    if( isRenamed ){
+      if( *zStatus!='?' ){
+        aStatuses = cson_new_array();
+        cson_object_set( oFile, "status", cson_array_value( aStatuses ) );
+        cson_array_append(aStatuses,
+            cson_value_new_string(zStatus, strlen(zStatus)));
+        cson_array_append(aStatuses, cson_value_new_string("renamed", 7));
+      }else{
+        zStatus = "renamed";
+      }
+      cson_object_set( oFile, "priorName",
+          cson_sqlite3_column_to_value(q.pStmt,5));
+    }
     /* optimization potential: move these keys into cson_strings
        to take advantage of refcounting. */
     cson_object_set( oFile, "name", json_new_string( zPathname ) );
-    cson_object_set( oFile, "status", json_new_string( zStatus ) );
+    cson_object_set( oFile, "status", aStatuses!=NULL ?
+        cson_array_value(aStatuses) : json_new_string( zStatus ) );
 
     free(zFullName);
   }

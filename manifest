@@ -1,5 +1,5 @@
-C Update\sdocumentation:\scheck-in\sname\s'start:'\scan\sbe\schained\sas\swell.
-D 2023-06-30T07:28:21.396
+C give\s'json\sstatus'\sthe\ssame\srename\streatment\sas\srecent\sstatus\swork\n\nAs\sreported\sby\slarrybr\son\sthe\sforum:\s[forum:9e9778f2e6],\s'fossil\sjson\sstatus'\nreports\srenamed\s_and_\sedited\sfiles\sas\sonly\srenamed.\sThis\schange\sreports\ssuch\ncases\sas\sboth\sedited\sand\srenamed,\sand\sdisplays\sthe\sfilename\sprior\sto\sbeing\nrenamed\sas\swell\sas\sthe\srenamed\spath.\sWe\snow\salso\supdate\sthe\svfile\stable\sbefore\ngenerating\sthe\sstatus\sreport\sto\sensure\sthe\scurrent\scheckout\sstate\sis\sreported.
+D 2023-07-01T16:06:53.944
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -478,7 +478,7 @@ F src/json_finfo.c 1e4df2494f573f7eb4dff3386efa258173c73c4998d7ac4607ed9567f3500
 F src/json_login.c 4472cd8eadf81b02661f6a5e11e8ac90f2c8a73ba63135bba3caab88f3c5ad73
 F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaae4b
 F src/json_report.c 10f8c32bb045ab3fee49d9c0df386deb60a59beee2c2142aeb69a8106989c6f9
-F src/json_status.c 91593f5f65d4c146ebbcde800979b8e9a2623ae2e331ecb6d5aee4c3ff8f4f45
+F src/json_status.c 6b0b99247c64db4073fae83da552c2f1f90859824a70c50e36fbd03f2985d94f
 F src/json_tag.c e768ad0a5be4a3095b1430b1716b47dfb3bd68ff40d6e9dcd6241eecb65acbad
 F src/json_timeline.c f13c3947014f15976b2fe077db8d9e469e5a24b442885e34810c70ef25599e77
 F src/json_user.c 92b2ee7ad3478329c15b51c19c8b9464055060e8047268803728d3e43447f1e1
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca9d0ddf064a7885c4abfaa69dc94398d639667720e16ef4a64816230a5d847d
-R bd82c0207c10c69bf8c63f909055ad71
-U danield
-Z 779269fa6e160de09772466a5ce9add7
+P 36adf66b78762754bcd9bbfe47135941dca43f2ebda4eed39ebd59c83cd14577
+R d46d8d082eeb4c1ed4f3643ecd82e5f5
+U mark
+Z b9d59bdb41c5b79b33f3fb7eaa6b2ab0
 # Remove this line to create a well-formed Fossil manifest.
