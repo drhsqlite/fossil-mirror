@@ -1,5 +1,5 @@
-C Update\s(json\sstatus)\sdocs\sfor\s[771e592b4c59].
-D 2023-07-01T16:51:56.997
+C Updates\sto\sthe\ssync\sprotocol\sdocumentation.
+D 2023-07-04T18:00:04.305
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -934,7 +934,7 @@ F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d96
 F www/ssl.wiki d0c7bb25c06fcfff8105bec0690bfe9955bca8f7badd32eec6a2e2b77066aa5c
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki c920b0cb141994141e857d92b35934b5bb38ae6cd39216e17ce1a6fcf4509740
+F www/sync.wiki b3597d83cf8bb6be87a7c4967f79f4f121666b19d383668c06568eb7d9e8140b
 F www/tech_overview.wiki ad89f32bfc3beb0bd7a01262bafc2e0e6b3693cb464011132efdd2b4b88cf85a
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 7a1e4072998d8f154d8cae5497859d4351ce18c0fafdd97068a61451b6d501ab
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 771e592b4c59ad59a28f586bba12a528a27e8e4892e72d48000bc38c8cc6c623
-R 4407c33abb925c8f842a2b622d252776
-U stephan
-Z 48bff79e42a0f5ead03e6ffea83539e0
+P 2868a0ec4c6f8545d1bdfb8bee05ba0b3a2d95d99f06a10a8ec9ab28b4760974
+R feccc4565e67f12dcbddfbee207b012f
+U drh
+Z 8bb38665eac7c4063e9dfe20a7a798cb
 # Remove this line to create a well-formed Fossil manifest.

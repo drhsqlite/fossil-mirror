@@ -6,7 +6,8 @@ content between two Fossil repositories.
 <h2>1.0 Overview</h2>
 
 The global state of a fossil repository consists of an unordered
-collection of artifacts.  Each artifact is identified by a cryptographic
+[./fileformat.wiki|collection of artifacts].  Each artifact is 
+identified by a cryptographic
 hash of its content, expressed as a lower-case hexadecimal string.
 Synchronization is the process of sharing artifacts between
 repositories so that all repositories have copies of all artifacts.  Because
@@ -19,7 +20,7 @@ whose names are missing from one side or the other of the connection.
 In practice, a repository might contain millions of artifacts.  The list of
 hash names for this many artifacts can be large.  So optimizations are
 employed that usually reduce the number of hashes that need to be
-shared to a few hundred.
+shared to a few dozen.
 
 Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
@@ -57,16 +58,20 @@ issues one or more HTTP requests and receives replies for each
 request.
 
 The server might be running as an independent server
-using the <b>server</b> command, or it might be launched from
-inetd or xinetd using the <b>http</b> command.  Or the server might
-be launched from CGI.
+using the [/help?cmd=server|"fossil server" command], or it
+might be launched from inetd or xinetd using the
+["fossil http" command|/help?cmd=http].  Or the server might
+be [./server/any/cgi.md|launched from CGI] or from
+[./server/any/scgi.md|SCGI].
 (See "[./server/|How To Configure A Fossil Server]" for details.)
 The specifics of how the server listens
 for incoming HTTP requests is immaterial to this protocol.
 The important point is that the server is listening for requests and
 the client is the issuer of the requests.
 
-A single push, pull, or sync might involve multiple HTTP requests.
+A single [/help?cmd=push|push], 
+[/help?cmd=pull|pull], or [/help?cmd=sync|sync]
+might involve multiple HTTP requests.
 The client maintains state between all requests.  But on the server
 side, each request is independent.  The server does not preserve
 any information about the client from one request to the next.
@@ -81,12 +86,15 @@ that responds.  Nothing more.
 
 <h4>2.0.1 HTTPS Transport</h4>
 
-In the current implementation of Fossil, the server only
-understands HTTP requests.  The client can send either
-clear-text HTTP requests or encrypted HTTPS requests.  But when
-HTTPS requests are sent, they first must be decrypted by a web server
-or proxy before being passed to the Fossil server.  This limitation
-may be relaxed in a future release.
+HTTPS differs from HTTP only in that the HTTPS protocol is
+encrypted as it travels over the wire.  The underlying protocol
+is the same.  This document describes only the underlying, unencrypted
+messages that go client to server and back to client.
+Whether or not those messages are encrypted does not come into play
+in this document.
+
+Fossil includes built-in 
+[./ssl-server.md|support for HTTPS encryption] in both client and server.
 
 <h4>2.0.2 SSH Transport</h4>
 
@@ -214,8 +222,8 @@ checks out, then the client is granted all privileges of the
 specified user.
 
 Privileges are cumulative.  There can be multiple successful
-login cards.  The session privileges are the bit-wise OR of the
-privileges of each individual login.
+login cards.  The session privilege is the union of all
+privileges from all login cards.
 
 <h3>3.3 File Cards</h3>
 
@@ -231,7 +239,8 @@ The "uvfile" name is an abbreviation for "unversioned file".
 
 For sync protocols, artifacts are transferred using "file"
 cards.  File cards come in two different formats depending
-on whether the artifact is sent directly or as a delta from some
+on whether the artifact is sent directly or as a 
+[../delta_format.wiki|delta] from some
 other artifact.
 
 <blockquote>
@@ -253,7 +262,8 @@ The last argument of the file card is the number of bytes of
 payload that immediately follow the file card.  If the file
 card has only two arguments, that means the payload is the
 complete content of the artifact.  If the file card has three
-arguments, then the payload is a delta and second argument is
+arguments, then the payload is a 
+[../delta_format.wiki|delta] and second argument is
 the ID of another artifact that is the source of the delta.
 
 File cards are sent in both directions: client to server and
@@ -337,7 +347,7 @@ instance of the same file held by the receiver.  The sender will not
 normally transmit a uvfile card unless all these constraints are true,
 but the receiver should double-check.
 
-A server should only accept uvfile cards if the login user has
+A server will only accept uvfile cards if the login user has
 the "y" write-unversioned permission.
 
 Servers send uvfile cards in response to uvgimme cards received from
