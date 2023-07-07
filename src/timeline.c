@@ -2285,7 +2285,7 @@ void page_timeline(void){
     }
     if( cpOnly && showCherrypicks ){
       db_multi_exec(
-        "CREATE TABLE IF NOT EXISTS cpnodes(rid INTEGER PRIMARY KEY);"
+        "CREATE TEMP TABLE IF NOT EXISTS cpnodes(rid INTEGER PRIMARY KEY);"
         "INSERT OR IGNORE INTO cpnodes SELECT childid FROM cherrypick;"
         "INSERT OR IGNORE INTO cpnodes SELECT parentid FROM cherrypick;"
       );
