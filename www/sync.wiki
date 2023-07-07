@@ -240,7 +240,7 @@ The "uvfile" name is an abbreviation for "unversioned file".
 For sync protocols, artifacts are transferred using "file"
 cards.  File cards come in two different formats depending
 on whether the artifact is sent directly or as a 
-[../delta_format.wiki|delta] from some
+[./delta_format.wiki|delta] from some
 other artifact.
 
 <blockquote>
@@ -263,7 +263,7 @@ payload that immediately follow the file card.  If the file
 card has only two arguments, that means the payload is the
 complete content of the artifact.  If the file card has three
 arguments, then the payload is a 
-[../delta_format.wiki|delta] and second argument is
+[./delta_format.wiki|delta] and the second argument is
 the ID of another artifact that is the source of the delta.
 
 File cards are sent in both directions: client to server and
