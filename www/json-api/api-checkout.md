@@ -48,5 +48,7 @@ Notes:
     `deleted`, `new`, `notAFile`, `missing`, `updatedByMerge`,
     `updatedByIntegrate`, `addedBymerge`, `addedByIntegrate`,
     `conflict`, `edited`, `renamed`
+-   File objects with a `"renamed"` status will contain a `"priorName"`
+    property in addition to the `"name"` property reported in all cases.
 -   TODO: Info for the parent version is currently missing.
 -   TODO: "merged with" info for the checkout is currently missing.

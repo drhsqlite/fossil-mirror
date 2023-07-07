@@ -1,5 +1,5 @@
-C URL\sfixes\sin\srecent\ssync.wiki\sedit
-D 2023-07-07T03:17:15.981
+C JSON\sAPI:\smention\s\s'priorName'\sof\srenamed\sfiles\sin\sstatus\sreport\n\nAs\sdiscussed\swith\sStephan\sin\s/chat.\sFile\sobjects\sin\sthe\srenamed\scase\spossess\na\s'priorName'\sproperty\sin\saddition\sto\sthe\s'name'\sreported\sin\sall\scases.
+D 2023-07-07T11:55:35.988
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -856,7 +856,7 @@ F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
 F www/json-api/api-branch.md fead45003061de747b18abf26212d1bac38f799e25118966aaf522a82ced7b54
-F www/json-api/api-checkout.md 4d88592aab0accc9a47cc45d4d33819a889b90206a91bafd78067c884673d3aa
+F www/json-api/api-checkout.md 63adf293598e2339cfbaefb197830c584e75e3e38aefdb4d0d5865fcab183928
 F www/json-api/api-config.md fd78b7737b04dac1b458259e2c9a4b8e49473533949420c8735c55afc654f229
 F www/json-api/api-diff.md 56642aa64348ef36422466e98cd61d30c4bf738ffd6e357129557273533b08f8
 F www/json-api/api-dir.md 1be992e79bafa35c5b11417f6852db4363be7795078473f99c50289cb522a2b5
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e57613dc4913fea5aa3c1a42348d0cd825c846b2cb62ddc82d08dcb90199fa29
-R a55ea1092e23b716616be2a45c340acb
-U wyoung
-Z 2ebde8d5a93503cfd4808d5e897af8a8
+P 6fd7e00d55cdf42114d6da1875c7722b62fa03a7d2547847e2963bfacac764ca
+R 328d9d0a319288134e45ff92ec6e08bc
+U mark
+Z 3dccae28c937e28a17b2af51542edb4f
 # Remove this line to create a well-formed Fossil manifest.
