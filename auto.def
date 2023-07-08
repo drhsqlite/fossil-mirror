@@ -31,8 +31,8 @@ options {
     no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
     with-emsdk:path      => {Directory containing the Emscripten SDK}
-    no-compile-commands=0 =>
-      "Disable compile_commands.json support even if detected (possibly incorrectly)."
+    compile-commands=0 =>
+      "Check for compile_commands.json support."
 }
 
 # Update the minimum required SQLite version number here, and also
@@ -747,31 +747,29 @@ if {[opt-bool fusefs]} {
 #
 # Returns 1 if supported, else 0. Defines MAKE_COMPILATION_DB to "yes"
 # if supported, "no" if not.
-proc check-compile-commands {{configOpt no-compile-commands}} {
+proc check-compile-commands {} {
     msg-checking "compile_commands.json support... "
-    if {"" ne $configOpt && [opt-bool $configOpt]} {
-        msg-result "explicitly disabled"
+    if {[cctest -lang c -cflags {/dev/null -MJ} -source {}]} {
+        # This test reportedly incorrectly succeeds on one of
+        # Martin G.'s older systems.
+        msg-result "compiler supports compile_commands.json"
+        define MAKE_COMPILATION_DB yes
+        return 1
+    } else {
+        msg-result "compiler does not support compile_commands.json"
         define MAKE_COMPILATION_DB no
         return 0
-    } else {
-        if {[cctest -lang c -cflags {/dev/null -MJ} -source {}]} {
-            # This test reportedly incorrectly succeeds on one of
-            # Martin G.'s older systems.
-            msg-result "compiler supports compile_commands.json"
-            define MAKE_COMPILATION_DB yes
-            return 1
-        } else {
-            msg-result "compiler does not support compile_commands.json"
-            define MAKE_COMPILATION_DB no
-            return 0
-        }
     }
 }
 
+define MAKE_COMPILATION_DB no
 if {!$outOfTreeBuild} {
-  check-compile-commands
+  if {[opt-bool compile-commands]} {
+    check-compile-commands
+  } else {
+    puts "Use --compile-commands to enable check for compile-commands-capable compiler."
+  }
 } else {
-  define MAKE_COMPILATION_DB no
   puts "Disabling compile_commands.json check for out-of-tree build."
   # This is an attempt to resolve the problem reported at
   # https://fossil-scm.org/forum/forumpost/d19061d09a8179d0
