@@ -741,9 +741,7 @@ if {[opt-bool fusefs]} {
 }
 
 ########################################################################
-# Checks the compiler for compile_commands.json support. If passed an
-# argument it is assumed to be the name of an autosetup boolean config
-# option to explicitly DISABLE the compile_commands.json support.
+# Checks the compiler for compile_commands.json support.
 #
 # Returns 1 if supported, else 0. Defines MAKE_COMPILATION_DB to "yes"
 # if supported, "no" if not.

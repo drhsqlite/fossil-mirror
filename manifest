@@ -1,5 +1,5 @@
-C Resolve\sinadvertent\sfork\scaused\sby\stwo\sexact-same-second\scheck-ins.
-D 2023-07-08T18:13:44.025
+C Remove\ssome\snow-stale\sauto.def\sdocumentation.
+D 2023-07-08T18:22:38.823
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION de53be951867a3e763e7c9f5e94e2bf012de26cfea4752b62f865f14547426c9
-F auto.def 6b3170a753016c1036819ea6ab3cb8597c41e4f32104d67e18eab7bf7809d701
+F auto.def 4004e29ac409c46c1f05b0c375cb748a782a007b1dbe74b64577bc48a43ad27e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -951,9 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 06fb3f8104ed7fed41431aca2ee22a0d9bda51cd8486b45e2136d4c06fb9a311 7e9a242b609b167845405ca33ef8d2ff603ee01a7ce55371936c39822b4292e7
-R b2217fc39bb3942372c44f8fcf717697
-T +closed 7e9a242b609b167845405ca33ef8d2ff603ee01a7ce55371936c39822b4292e7 Closed\sby\sintegrate-merge.
+P 5cf0da6e0a4c4b0967b6d027a0cdb21fc972f6bcb468fecda2444fb18c516f87
+R 338da9dc481b83308da1e2a1f991ce41
 U stephan
-Z 3d78c88f0b4551e29360940b3e914fe4
+Z b8c1f9509bfb6d20cd52b1494cc8db19
 # Remove this line to create a well-formed Fossil manifest.
