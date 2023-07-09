@@ -1272,10 +1272,16 @@ void help_cmd(void){
                  pCmd->zName, zCmdOrPage);
   }
   if( pCmd->eCmdFlags & CMDFLAG_SETTING ){
-    fossil_print("Setting: \"%s\"%s\n\n",
-         pCmd->zName,
+    const Setting *pSetting = db_find_setting(pCmd->zName, 0);
+    char *zDflt = 0;
+    if( pSetting!=0 && pSetting->def!=0 && *pSetting->def!=0 ){
+      zDflt = mprintf(" (default: %s)", pSetting->def);
+    }
+    fossil_print("Setting: \"%s\"%s%s\n\n",
+         pCmd->zName, zDflt!=0 ? zDflt : "",
          (pCmd->eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ? " (versionable)" : ""
     );
+    fossil_free(zDflt);
   }
   blob_init(&txt, 0, 0);
   if( useHtml ){
