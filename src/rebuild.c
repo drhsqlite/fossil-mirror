@@ -634,6 +634,7 @@ void repack_command(void){
     runVacuum = 1;
   }else{
     fossil_print("no new compression opportunities found\n");
+    runVacuum = db_int(0, "PRAGMA repository.freelist_count")>0;
   }
   if( runVacuum ){
     fossil_print("Vacuuming the database... "); fflush(stdout);

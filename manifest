@@ -1,5 +1,5 @@
-C In\sthe\sfts-config\scommand\sand\son\sthe\s/srchsetup\spage,\sshow\show\smuch\sspace\nis\sused\sby\sthe\sfull-text\sindex.
-D 2023-07-10T12:50:37.394
+C The\s"fossil\srepack"\scommand\sshould\srun\sVACUUM\sif\seither\snew\scompression\nopportunities\swere\sfound\s*or*\sif\sthe\sfreelist\scount\sis\spositive.
+D 2023-07-10T12:59:27.565
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -510,7 +510,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 5fa877f12f3078903042033d17a94afeb8eadfe88a7dace800e900c6f46307f0
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
-F src/rebuild.c 7db402bbd3c44ceb6d51327695b0c15a1331e848acaede72085f207b792008ac
+F src/rebuild.c cec998fc5b96e0f2a5f17baf0d584b0437179c1f3f0608f5c0426503f23fff41
 F src/regexp.c 0ac48c9004c871cca69f123bd0e806be271592a7121ee7bdea80ddbe0fd5a609
 F src/repolist.c bd7d0525d04927b3850a0ad14a96afb482a258b2c52c058dfc26909c190c5af4
 F src/report.c 765896d63cab511e56de2fda492fb6ca33e5450869d697ce0c5bfbaa474f1b92
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e1a319e6313f3108bd063ac3d736b5b895b872cdaaaecffbcbaa06e7f1c5374
-R bfbc1a71c1ccd4f19867713348495fac
+P 5c5e54928ed382e940e9a2b03076c8805358c69d2fbaa289843ee8cb19af38ef
+R 65cefc52561b5b4ab8dc4847264768b1
 U drh
-Z 03492befeedfd5ae6befdf6307f6906a
+Z 52f5815b06a09a34d58ea145597ce98e
 # Remove this line to create a well-formed Fossil manifest.
