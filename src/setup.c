@@ -2090,9 +2090,17 @@ void page_srchsetup(){
     search_update_index(search_restrict(SRCH_ALL));
   }
   if( search_index_exists() ){
+    int pgsz = db_int64(0, "PRAGMA repository.page_size;");
+    i64 nTotal = db_int64(0, "PRAGMA repository.page_count;")*pgsz;
+    i64 nFts = db_int64(0, "SELECT count(*) FROM dbstat"
+                               " WHERE schema='repository'"
+                               " AND name LIKE 'fts%%'")*pgsz;
+    char zSize[30];
+    approxSizeName(sizeof(zSize),zSize,nFts);
     @ <p>Currently using an SQLite FTS%d(search_index_type(0)) search index.
     @ The index helps search run faster, especially on large repositories,
-    @ but takes up space.</p>
+    @ but takes up space.  The index is currently using about %s(zSize)
+    @ or %.1f(100.0*(double)nFts/(double)nTotal)%% of the repository.</p>
     select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">

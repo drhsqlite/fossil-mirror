@@ -2085,9 +2085,18 @@ void fts_config_cmd(void){
   fossil_print("%-17s %s\n", "tokenizer:",
        search_tokenizer_for_string(0));
   if( search_index_exists() ){
+    int pgsz = db_int64(0, "PRAGMA repository.page_size;");
+    i64 nTotal = db_int64(0, "PRAGMA repository.page_count;")*pgsz;
+    i64 nFts = db_int64(0, "SELECT count(*) FROM dbstat"
+                               " WHERE schema='repository'"
+                               " AND name LIKE 'fts%%'")*pgsz;
+    char zSize[50];
     fossil_print("%-17s FTS%d\n", "full-text index:", search_index_type(1));
     fossil_print("%-17s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
+    approxSizeName(sizeof(zSize), zSize, nFts);
+    fossil_print("%-17s %s (%.1f%% of repository)\n", "space used",
+       zSize, 100.0*((double)nFts/(double)nTotal));
   }else{
     fossil_print("%-17s disabled\n", "full-text index:");
   }
