@@ -751,6 +751,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
   int seq;                  /* Order of insertion */
   char isQP;                /* True for query parameters */
   char cTag;                /* Tag on query parameters */
+  char isFetched;           /* 1 if the var is requested via P/PD() */
 } *aParamQP;             /* An array of all parameters and cookies */
 
 /*
@@ -778,6 +779,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
   aParamQP[nUsedQP].cTag = 0;
+  aParamQP[nUsedQP].isFetched = 0;
   nUsedQP++;
   sortQP = 1;
 }
@@ -1505,6 +1507,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
     c = fossil_strcmp(aParamQP[mid].zName, zName);
     if( c==0 ){
       CGIDEBUG(("mem-match [%s] = [%s]\n", zName, aParamQP[mid].zValue));
+      aParamQP[mid].isFetched = 1;
       return aParamQP[mid].zValue;
     }else if( c>0 ){
       hi = mid-1;
@@ -1544,7 +1547,7 @@ static void cgi_begone_spider(void){
   @ this in error, contact the developers on the Fossil-SCM Forum.  Type
   @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
   style_finish_page();
-  cgi_set_status(404,"Robot Attack Detected");
+  cgi_set_status(418,"Robot Attack Detected");
   cgi_reply();
   exit(0);
 }
@@ -1772,7 +1775,7 @@ void cgi_print_all(int showAll, unsigned int eDest){
         cgi_printf("%h = %h  <br>\n", zName, aParamQP[i].zValue);
         break;
       }
-      case 1: {  
+      case 1: {
         fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
         break;
       }
@@ -2705,4 +2708,24 @@ int cgi_from_mobile(void){
   if( zAgent==0 ) return 0;
   if( sqlite3_strglob("*iPad*", zAgent)==0 ) return 0;
   return sqlite3_strlike("%mobile%", zAgent, 0)==0;
+}
+
+/*
+** If the CGI environment contains any parameters which were not
+** fetched via P(), PD(), or equivalent, its value is passed to
+** cgi_value_spider_check(), fatally failing if the value looks to be
+** malicious. The intent is to block attempts at attacks which post
+** apparent SQL injection attempts using arbitrary query parameter
+** names.
+*/
+void verify_all_options_cgi(void){
+  struct QParam * pParam;
+  int i;
+  for(i = 0; i < nUsedQP; ++i){
+    pParam = &aParamQP[i];
+    if(0 == pParam->isFetched
+       && fossil_islower(pParam->zName[0])){
+      cgi_value_spider_check(pParam->zValue);
+    }
+  }
 }

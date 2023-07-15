@@ -643,6 +643,7 @@ void ci_page(void){
     return;
   }
   zRe = P("regex");
+  verify_all_options_cgi();
   if( zRe ) re_compile(&pRe, zRe, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zParent = db_text(0,
