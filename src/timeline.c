@@ -2837,6 +2837,7 @@ void page_timeline(void){
     @ %z(chref("button","%s",zNewerButton))%h(zNewerButtonLabel)\
     @ &nbsp;&uarr;</a>
   }
+  cgi_check_for_malice();
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, zBrName,
                      selectedRid, secondaryRid, 0);
   db_finalize(&q);

@@ -1653,6 +1653,7 @@ void bloblist_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
   if( g.perm.Admin ){

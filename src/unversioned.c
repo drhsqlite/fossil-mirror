@@ -544,6 +544,7 @@ void uvlist_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   etag_check(ETAG_DATA,0);
   style_header("Unversioned Files");
   if( !db_table_exists("repository","unversioned") ){
@@ -656,6 +657,7 @@ void uvlist_json_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   cgi_set_content_type("application/json");
   etag_check(ETAG_DATA,0);
   if( !db_table_exists("repository","unversioned") ){

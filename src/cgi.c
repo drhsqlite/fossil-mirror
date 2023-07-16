@@ -1537,18 +1537,21 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 */
 static void cgi_begone_spider(void){
   Blob content = empty_blob;
-
   cgi_set_content(&content);
   style_set_current_feature("test");
+  style_submenu_enable(0);
   style_header("Malicious Query Detected");
-  @ <h2>Begone, Fiend!</h2>
-  @ <p>This page was generated because Fossil believes it has
-  @ detected an SQL injection attack. If you believe you are seeing
-  @ this in error, contact the developers on the Fossil-SCM Forum.  Type
+  @ <h2>Begone, Knave!</h2>
+  @ <p>This page was generated because Fossil detected an (unsuccessful)
+  @ SQL injection attack or other nefarious content in your HTTP request.
+  @ 
+  @ <p>If you believe you are innocent and have reached this page in error,
+  @ contact the Fossil developers on the Fossil-SCM Forum.  Type 
   @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
   style_finish_page();
-  cgi_set_status(418,"Robot Attack Detected");
+  cgi_set_status(418,"I'm a teapotgrep ");
   cgi_reply();
+  fossil_errorlog("possible hack attempt - 418 response");
   exit(0);
 }
 

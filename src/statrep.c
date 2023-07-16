@@ -914,6 +914,7 @@ void stats_report_page(){
       break;
     }
   }
+  cgi_check_for_malice();
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
     for(i=0; i<count(aViewType); i++){

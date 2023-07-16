@@ -400,6 +400,7 @@ void clone_ssh_db_set_options(void){
 */
 void download_page(void){
   login_check_credentials();
+  cgi_check_for_malice();
   style_header("Download Page");
   if( !g.perm.Zip ){
     @ <p>Bummer.  You do not have permission to download.

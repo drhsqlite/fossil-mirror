@@ -815,11 +815,12 @@ void help_page(void){
   const char *zCmd = P("cmd");
 
   if( zCmd==0 ) zCmd = P("name");
+  cgi_check_for_malice();
   if( zCmd && *zCmd ){
     int rc;
     const CmdOrPage *pCmd = 0;
 
-  style_set_current_feature("tkt");
+    style_set_current_feature("tkt");
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%R/help");

@@ -211,6 +211,7 @@ void page_dir(void){
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "dir");
+  cgi_check_for_malice();
   cgi_query_parameters_to_url(&sURI);
 
   /* Compute the title of the page */
@@ -707,6 +708,7 @@ void page_tree(void){
     re_compile(&pRE, zRE, 0);
     zREx = mprintf("&re=%T", zRE);
   }
+  cgi_check_for_malice();
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
@@ -1111,6 +1113,7 @@ void fileage_page(void){
   style_submenu_element("Tree-View", "%R/tree?ci=%T&mtime=1&type=tree", zName);
   style_header("File Ages");
   zGlob = P("glob");
+  cgi_check_for_malice();
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
