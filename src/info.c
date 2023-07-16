@@ -643,7 +643,6 @@ void ci_page(void){
     return;
   }
   zRe = P("regex");
-  verify_all_options_cgi();
   if( zRe ) re_compile(&pRe, zRe, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zParent = db_text(0,
@@ -663,6 +662,7 @@ void ci_page(void){
   zBrName = branch_of_rid(rid);
 
   diffType = preferred_diff_type();
+  cgi_check_for_malice();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
     int nUuid = db_column_bytes(&q1, 0);
@@ -1249,6 +1249,7 @@ void vdiff_page(void){
   if( DCfg.diffFlags & DIFF_IGNORE_ALLWS ){
     blob_appendf(&qp, "&w");
   }
+  cgi_check_for_malice();
   style_set_current_feature("vdiff");
   if( zBranch==0 ){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);

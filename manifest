@@ -1,5 +1,5 @@
-C Add\sverify_all_options_cgi(),\swhich\sworks\ssimilarly\sto\sverify_all_options()\sbut\sonly\sfails\sif\sit\sfinds\sCGI\sGET/POST\sarguments\swhich\s(A)\shave\snot\sbeen\sfetched\svia\sP(),\sPD(),\sor\ssimilar,\sand\s(B)\sfail\scgi_value_spider_check().\sCurrently\sonly\sapplied\son\sthe\s/ci\spage.
-D 2023-07-15T13:57:22.155
+C Rename\sverify_all_options_cgi()\sto\scgi_check_for_malice().\s\sAdd\smore\scomments\nexplaining\swhat\sthe\sfunction\sis\sintended\sfor.\s\sAdd\scalls\sto\ncgi_check_for_malice()\sto\sa\sfew\snew\swebpages.
+D 2023-07-16T10:35:42.805
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -391,7 +391,7 @@ F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
 F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095ae44e
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
-F src/cgi.c ca2e8181e9d21a960519d549d92278409c4e006fe8349286ec63791db95ff3dc
+F src/cgi.c 5172c4d2166d909a564ff82ebc2ca4cabf550e0dd8448d0b9fad113a26cda211
 F src/chat.c af623d16c680073321a4b273c3d31f00375931c6ab7b0a04890ca6d46bb0d65f
 F src/checkin.c 719302d26f470bc41d797b9e7f4e8d59d1c114bba690e3ce876a39ae3d12122b
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
@@ -465,7 +465,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c 6327207da26138b00291a69e4d76bf6ec17e77d93754e0d00586a8a7aea7c669
 F src/http_transport.c 1773b329617c5e50da759e5863c96db1586d4ac9c07a18a4be0833bce3dcc52c
 F src/import.c aaf3ee783669973e097de905c7c56da51918181cf3bd3b589f38f025104ed032
-F src/info.c 3e1cd24a0b6567c790ca71bcc9dd69f671d9713c3cb35d67d0d406f7c1d12c5b
+F src/info.c 690622e16a973337c06e7bda0bf2187089f6930e9c877d8d42b2fbe6d1dbcaeb
 F src/interwiki.c e7b7f6c85f4d068f3912e2546446fc45b544d5c7c8beabddf98347410b087a44
 F src/json.c 552525d0b536e623950e35d7c568690e0dc48753c9ecb54b3bacd8ab5c3863db
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
@@ -559,7 +559,7 @@ F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c b01f89e55b02250f5bce2fa6619b0346fdac9a6c2177a0b18f6e8a9478009937
 F src/tag.c 4d29bcba46a509eee398cf9f8c13eb840de7427dbb5f7c63e36cd26e1e9993c9
-F src/tar.c 745c55f9f42eedb1f1e55d564682ef4166984b8a8e7f204c67be5c2f376e8802
+F src/tar.c 055514cd012d6d1a8670b7b6290ac7fbf4f9b97d39064e2de4488c4d29185772
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c b1589ea517d70abd4cd9db3172a2f7910d61d86822007371057741be0cd84ef3
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
@@ -588,7 +588,7 @@ F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c d6462bd856393cf0631294c16d52ac6cd3bcb77a590c60a993b3233a214d3d36
 F src/xfer.c c411640928b72587316b41f34152f18a068b3e1a13a393f4cd0f95b65288412b
 F src/xfersetup.c ece3e90cb01908c09205860478355127736a5833d5e8c9f5ab9035242f2978fb
-F src/zip.c d21139c7c2bc78c5553b054f631db85d14a497cd7b43fd0c79318fd522043155
+F src/zip.c 5df02ce80e1272ebdf605d78e0e01530f26704425a722eba27324ce3ae3a8dcb
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
@@ -951,11 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e88211628b529e08fc5f0c647fc789cbc5713065cc3f2d456c1d95451caed7d8
-R b6d03159fd2dee9c5be012da0838047f
-T *branch * verify-options-cgi
-T *sym-verify-options-cgi *
-T -sym-trunk * Cancelled\sby\sbranch.
-U stephan
-Z 6caf182b2ea4654f866d0ce516743c71
+P a065940a74345b27001215d66efcd16722fc2f5d838fe2255d82fe3892730940
+R 0eaee78cea3de5551bbddf8d1d324ba4
+U drh
+Z 2201989b5b6e7396629ebbbc6491fd98
 # Remove this line to create a well-formed Fossil manifest.

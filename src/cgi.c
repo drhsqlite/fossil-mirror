@@ -2711,14 +2711,32 @@ int cgi_from_mobile(void){
 }
 
 /*
-** If the CGI environment contains any parameters which were not
-** fetched via P(), PD(), or equivalent, its value is passed to
-** cgi_value_spider_check(), fatally failing if the value looks to be
-** malicious. The intent is to block attempts at attacks which post
-** apparent SQL injection attempts using arbitrary query parameter
-** names.
+** Look for query or POST parameters that:
+**
+**    (1)  Have not been used
+**    (2)  Appear to be malicious attempts to break into or otherwise
+**         harm the system, for example via SQL injection
+**
+** If any such parameters are seen, a 418 ("I'm a teapot") return is
+** generated and processing aborts - this routine does not return.
+**
+** When Fossil is launched via CGI from althttpd, the 418 return signals
+** the webserver to put the requestor IP address into "timeout", blocking
+** subsequent requests for 5 minutes.
+**
+** Fossil is not subject to any SQL injections, as far as anybody knows.
+** This routine is not necessary for the security of the system (though
+** an extra layer of security never hurts).  The main purpose here is
+** to shutdown malicious attack spiders and prevent them from burning
+** lots of CPU cycles and bogging down the website.  In other words, the
+** objective of this routine is to help prevent denial-of-service.
+**
+** Usage Hint: Put a call to this routine as late in the webpage
+** implementation as possible, ideally just before it begins doing
+** potentially CPU-intensive computations and after all query parameters
+** have been consulted.
 */
-void verify_all_options_cgi(void){
+void cgi_check_for_malice(void){
   struct QParam * pParam;
   int i;
   for(i = 0; i < nUsedQP; ++i){
