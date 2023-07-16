@@ -1549,7 +1549,7 @@ static void cgi_begone_spider(void){
   @ contact the Fossil developers on the Fossil-SCM Forum.  Type 
   @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
   style_finish_page();
-  cgi_set_status(418,"I'm a teapotgrep ");
+  cgi_set_status(418,"I'm a teapot");
   cgi_reply();
   fossil_errorlog("possible hack attempt - 418 response");
   exit(0);

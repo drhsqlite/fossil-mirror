@@ -1,5 +1,5 @@
-C Add\scalls\sto\scgi_check_for_malice()\son\smany\smore\sweb\spages.\s\sLog\sall\s418\nresponses\sto\sthe\serror\slog.
-D 2023-07-16T20:47:43.526
+C Fix\stypo\son\sthe\s418\sstatus\scode\sname.
+D 2023-07-16T20:55:37.236
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -391,7 +391,7 @@ F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
 F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095ae44e
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
-F src/cgi.c 1a55dc575e35d5f4b9277c5f7bed05d0c3bb7059dc5dbba02d10dccb80646158
+F src/cgi.c 260dfb6194f7f7d1f93bfe5e968ffe057abf659a46366b0e4c496757e4bc8eeb
 F src/chat.c af623d16c680073321a4b273c3d31f00375931c6ab7b0a04890ca6d46bb0d65f
 F src/checkin.c 719302d26f470bc41d797b9e7f4e8d59d1c114bba690e3ce876a39ae3d12122b
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5a8063a8cbe8be922c8c9675b1e322a6f64e622c3cc43474538d55cbd1f58eea
-R 795b8ae1f77d0929e4750f6b57ee5bef
+P 40266bf9b2917bfc5e7fd1c702611da1d8a10ba6e75ceda25604b7bd2699ba76
+R 2f716a8b1445159d9d8ed0436250a7c4
 U drh
-Z 625fcc3af58a0ba1fd52d3bd4a87e3be
+Z 1e81a2f73bdca25317b6d37df6333c64
 # Remove this line to create a well-formed Fossil manifest.
