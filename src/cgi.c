@@ -1535,7 +1535,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 /*
 ** Renders the "begone, spider" page and exits.
 */
-static void cgi_begone_spider(void){
+static void cgi_begone_spider(const char *zName){
   Blob content = empty_blob;
   cgi_set_content(&content);
   style_set_current_feature("test");
@@ -1549,9 +1549,9 @@ static void cgi_begone_spider(void){
   @ contact the Fossil developers on the Fossil-SCM Forum.  Type 
   @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
   style_finish_page();
-  cgi_set_status(418,"I'm a teapot");
+  cgi_set_status(418,"I'm a teapotgrep ");
   cgi_reply();
-  fossil_errorlog("possible hack attempt - 418 response");
+  fossil_errorlog("possible hack attempt - 418 response on \"%s\"", zName);
   exit(0);
 }
 
@@ -1571,9 +1571,9 @@ static void cgi_begone_spider(void){
 ** words, this is an effort to reduce the CPU load imposed by malicious
 ** spiders.  It is not an effect defense against SQL injection vulnerabilities.
 */
-void cgi_value_spider_check(const char *zTxt){
+void cgi_value_spider_check(const char *zTxt, const char *zName){
   if( g.zLogin==0 && looks_like_sql_injection(zTxt) ){
-    cgi_begone_spider();
+    cgi_begone_spider(zName);
   }
 }
 
@@ -1586,7 +1586,7 @@ const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
   const char *zTxt = cgi_parameter(zName, zDefault);
 
   if( zTxt!=zDefault ){
-    cgi_value_spider_check(zTxt);
+    cgi_value_spider_check(zTxt, zName);
   }
   return zTxt;
 }
@@ -2746,7 +2746,7 @@ void cgi_check_for_malice(void){
     pParam = &aParamQP[i];
     if(0 == pParam->isFetched
        && fossil_islower(pParam->zName[0])){
-      cgi_value_spider_check(pParam->zValue);
+      cgi_value_spider_check(pParam->zValue, pParam->zName);
     }
   }
 }

@@ -467,9 +467,9 @@ void looks_like_utf_test_cmd(void){
 ** Return true if z[i] is the whole word given by zWord
 */
 static int isWholeWord(const char *z, unsigned int i, const char *zWord, int n){
-  if( i>0 && fossil_isalnum(z[i-1]) ) return 0;
+  if( i>0 && !fossil_isspace(z[i-1]) ) return 0;
   if( sqlite3_strnicmp(z+i, zWord, n)!=0 ) return 0;
-  if( fossil_isalnum(z[i+n]) ) return 0;
+  if( z[i+n]!=0 && !fossil_isspace(z[i+n]) ) return 0;
   return 1;
 }
 
