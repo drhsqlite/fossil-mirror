@@ -1544,12 +1544,12 @@ static void cgi_begone_spider(const char *zName){
   @ <h2>Begone, Knave!</h2>
   @ <p>This page was generated because Fossil detected an (unsuccessful)
   @ SQL injection attack or other nefarious content in your HTTP request.
-  @ 
+  @
   @ <p>If you believe you are innocent and have reached this page in error,
-  @ contact the Fossil developers on the Fossil-SCM Forum.  Type 
+  @ contact the Fossil developers on the Fossil-SCM Forum.  Type
   @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
   style_finish_page();
-  cgi_set_status(418,"I'm a teapotgrep ");
+  cgi_set_status(418,"I'm a teapot");
   cgi_reply();
   fossil_errorlog("possible hack attempt - 418 response on \"%s\"", zName);
   exit(0);

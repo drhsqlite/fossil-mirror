@@ -1860,6 +1860,8 @@ void rawartifact_page(void){
   int rid = 0;
   char *zUuid;
 
+  (void)P("at")/*for cgi_check_for_malice()*/;
+  (void)P("m");
   if( P("ci") ){
     rid = artifact_from_ci_and_filename(0);
   }
@@ -1893,6 +1895,8 @@ void secure_rawartifact_page(void){
   int rid = 0;
   const char *zName = PD("name", "");
 
+  (void)P("at")/*for cgi_check_for_malice()*/;
+  (void)P("m");
   cgi_check_for_malice();
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
