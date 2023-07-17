@@ -1,5 +1,5 @@
-C Improve\sthe\serror\slog\smessage\sfor\s418\sresponses\sso\sthat\sit\sincludes\sthe\sname\nof\sthe\soffending\squery\sparameter.\s\sRequire\swhitespace\saround\skeywords\swhen\ntrying\sto\sdetect\sSQL.
-D 2023-07-17T11:44:26.469
+C Improvements\sto\sthe\salgorithm\sfor\sdetecting\slikely\sSQL\sinjection\stext.
+D 2023-07-17T12:13:27.036
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -487,7 +487,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
 F src/login.c 4b1f0df5b612679596296d0c67370a5dda659c16ce4a898feea6fb4efb2333a1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
-F src/lookslike.c 707b37915e1667ba4f0eb7b71a6cf485b502360508c91ced2156cf9e217121fc
+F src/lookslike.c 132e241e0e08ae49cd9bd9d4486f6490edfb56b53f2ec5c9a6d4584dcbcd0699
 F src/main.c feddceb5c00337a20caf002c325b0991733d846817464a91491dbc4151271dd3
 F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f39c878fe196db9eae2cc9a000e3e6af6ecbc21ee6d2bbea321fb5c348d4264c
-R 40647bd32d56ca043246a1404490df85
+P ef1702fde39616ec00b6536277f11ad65fb6e2526a4abada6ee2c7e33e022f82
+R a70f3bae2bf0c7e99f8bd7ee77605a23
 U drh
-Z be93a229c04ee11c579db69e64a42b86
+Z 29d24739f3fd90284eb478e313b01302
 # Remove this line to create a well-formed Fossil manifest.
