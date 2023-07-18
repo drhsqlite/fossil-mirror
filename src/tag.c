@@ -807,6 +807,7 @@ void taglist_page(void){
   if( !g.perm.Read ){
     login_needed(g.anon.Read);
   }
+  cgi_check_for_malice();
   login_anonymous_available();
   style_header("Tags");
   style_adunit_config(ADUNIT_RIGHT_OK);

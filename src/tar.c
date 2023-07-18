@@ -833,6 +833,7 @@ void tarball_page(void){
     style_finish_page();
     return;
   }
+  cgi_check_for_malice();
   blob_zero(&tarball);
   if( cache_read(&tarball, zKey)==0 ){
     tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude, 0);

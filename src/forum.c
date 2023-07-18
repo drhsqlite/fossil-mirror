@@ -1157,6 +1157,7 @@ void forumthread_page(void){
   if( zName==0 ){
     webpage_error("Missing \"name=\" query parameter");
   }
+  cgi_check_for_malice();
   fpid = symbolic_name_to_rid(zName, "f");
   if( fpid<=0 ){
     if( fpid==0 ){
@@ -1904,6 +1905,7 @@ void forum_main_page(void){
     login_needed(g.anon.RdForum);
     return;
   }
+  cgi_check_for_malice();
   style_set_current_feature("forum");
   style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
   style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");

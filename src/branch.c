@@ -860,6 +860,7 @@ void brlist_page(void){
   }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -988,6 +989,7 @@ void brtimeline_page(void){
   style_submenu_element("List", "brlist");
   login_anonymous_available();
   timeline_ss_submenu();
+  cgi_check_for_malice();
   @ <h2>The initial check-in for each branch:</h2>
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql,

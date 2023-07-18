@@ -1016,6 +1016,7 @@ void baseline_zip_page(void){
     style_finish_page();
     return;
   }
+  cgi_check_for_malice();
   blob_zero(&zip);
   if( cache_read(&zip, zKey)==0 ){
     zip_of_checkin(eType, rid, &zip, zName, pInclude, pExclude, 0);

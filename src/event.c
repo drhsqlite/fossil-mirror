@@ -131,6 +131,7 @@ void event_page(void){
 
   /* Extract the event content.
   */
+  cgi_check_for_malice();
   pTNote = manifest_get(rid, CFTYPE_EVENT, 0);
   if( pTNote==0 ){
     fossil_fatal("Object #%d is not a tech-note", rid);

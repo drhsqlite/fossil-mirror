@@ -1221,6 +1221,7 @@ void search_page(void){
   const int isSearch = P("s")!=0;
   login_check_credentials();
   style_header("Search%s", isSearch ? " Results" : "");
+  cgi_check_for_malice();
   search_screen(SRCH_ALL, 1);
   style_finish_page();
 }

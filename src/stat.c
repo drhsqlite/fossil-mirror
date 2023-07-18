@@ -809,6 +809,7 @@ void repo_tabsize_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   style_set_current_feature("stat");
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -985,6 +986,7 @@ void artifact_stats_page(void){
     login_needed(g.anon.Write);
     return;
   }
+  cgi_check_for_malice();
   fossil_nice_default();
 
   style_set_current_feature("stat");

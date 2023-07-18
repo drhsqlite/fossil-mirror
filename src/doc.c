@@ -1053,6 +1053,7 @@ void doc_page(void){
     Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                     " WHERE objid=%d AND type='ci'", vid));
   }
+  cgi_check_for_malice();
   document_render(&filebody, zMime, zDfltTitle, zName);
   if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
@@ -1244,6 +1245,7 @@ void doc_search_page(void){
   const int isSearch = P("s")!=0;
   login_check_credentials();
   style_header("Document Search%s", isSearch ? " Results" : "");
+  cgi_check_for_malice();
   search_screen(SRCH_DOC, 0);
   style_finish_page();
 }

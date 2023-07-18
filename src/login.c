@@ -577,6 +577,7 @@ void login_page(void){
     login_reqpwreset_page();
     return;
   }
+  cgi_check_for_malice();
   login_check_credentials();
   fossil_redirect_to_https_if_needed(1);
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,

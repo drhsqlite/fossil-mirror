@@ -751,6 +751,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
   int seq;                  /* Order of insertion */
   char isQP;                /* True for query parameters */
   char cTag;                /* Tag on query parameters */
+  char isFetched;           /* 1 if the var is requested via P/PD() */
 } *aParamQP;             /* An array of all parameters and cookies */
 
 /*
@@ -778,6 +779,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
   aParamQP[nUsedQP].cTag = 0;
+  aParamQP[nUsedQP].isFetched = 0;
   nUsedQP++;
   sortQP = 1;
 }
@@ -1505,6 +1507,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
     c = fossil_strcmp(aParamQP[mid].zName, zName);
     if( c==0 ){
       CGIDEBUG(("mem-match [%s] = [%s]\n", zName, aParamQP[mid].zValue));
+      aParamQP[mid].isFetched = 1;
       return aParamQP[mid].zValue;
     }else if( c>0 ){
       hi = mid-1;
@@ -1532,20 +1535,23 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 /*
 ** Renders the "begone, spider" page and exits.
 */
-static void cgi_begone_spider(void){
+static void cgi_begone_spider(const char *zName){
   Blob content = empty_blob;
-
   cgi_set_content(&content);
   style_set_current_feature("test");
+  style_submenu_enable(0);
   style_header("Malicious Query Detected");
-  @ <h2>Begone, Fiend!</h2>
-  @ <p>This page was generated because Fossil believes it has
-  @ detected an SQL injection attack. If you believe you are seeing
-  @ this in error, contact the developers on the Fossil-SCM Forum.  Type
+  @ <h2>Begone, Knave!</h2>
+  @ <p>This page was generated because Fossil detected an (unsuccessful)
+  @ SQL injection attack or other nefarious content in your HTTP request.
+  @
+  @ <p>If you believe you are innocent and have reached this page in error,
+  @ contact the Fossil developers on the Fossil-SCM Forum.  Type
   @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
   style_finish_page();
-  cgi_set_status(404,"Robot Attack Detected");
+  cgi_set_status(418,"I'm a teapot");
   cgi_reply();
+  fossil_errorlog("possible hack attempt - 418 response on \"%s\"", zName);
   exit(0);
 }
 
@@ -1565,9 +1571,9 @@ static void cgi_begone_spider(void){
 ** words, this is an effort to reduce the CPU load imposed by malicious
 ** spiders.  It is not an effect defense against SQL injection vulnerabilities.
 */
-void cgi_value_spider_check(const char *zTxt){
+void cgi_value_spider_check(const char *zTxt, const char *zName){
   if( g.zLogin==0 && looks_like_sql_injection(zTxt) ){
-    cgi_begone_spider();
+    cgi_begone_spider(zName);
   }
 }
 
@@ -1580,7 +1586,7 @@ const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
   const char *zTxt = cgi_parameter(zName, zDefault);
 
   if( zTxt!=zDefault ){
-    cgi_value_spider_check(zTxt);
+    cgi_value_spider_check(zTxt, zName);
   }
   return zTxt;
 }
@@ -1772,7 +1778,7 @@ void cgi_print_all(int showAll, unsigned int eDest){
         cgi_printf("%h = %h  <br>\n", zName, aParamQP[i].zValue);
         break;
       }
-      case 1: {  
+      case 1: {
         fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
         break;
       }
@@ -2705,4 +2711,42 @@ int cgi_from_mobile(void){
   if( zAgent==0 ) return 0;
   if( sqlite3_strglob("*iPad*", zAgent)==0 ) return 0;
   return sqlite3_strlike("%mobile%", zAgent, 0)==0;
+}
+
+/*
+** Look for query or POST parameters that:
+**
+**    (1)  Have not been used
+**    (2)  Appear to be malicious attempts to break into or otherwise
+**         harm the system, for example via SQL injection
+**
+** If any such parameters are seen, a 418 ("I'm a teapot") return is
+** generated and processing aborts - this routine does not return.
+**
+** When Fossil is launched via CGI from althttpd, the 418 return signals
+** the webserver to put the requestor IP address into "timeout", blocking
+** subsequent requests for 5 minutes.
+**
+** Fossil is not subject to any SQL injections, as far as anybody knows.
+** This routine is not necessary for the security of the system (though
+** an extra layer of security never hurts).  The main purpose here is
+** to shutdown malicious attack spiders and prevent them from burning
+** lots of CPU cycles and bogging down the website.  In other words, the
+** objective of this routine is to help prevent denial-of-service.
+**
+** Usage Hint: Put a call to this routine as late in the webpage
+** implementation as possible, ideally just before it begins doing
+** potentially CPU-intensive computations and after all query parameters
+** have been consulted.
+*/
+void cgi_check_for_malice(void){
+  struct QParam * pParam;
+  int i;
+  for(i = 0; i < nUsedQP; ++i){
+    pParam = &aParamQP[i];
+    if(0 == pParam->isFetched
+       && fossil_islower(pParam->zName[0])){
+      cgi_value_spider_check(pParam->zValue, pParam->zName);
+    }
+  }
 }

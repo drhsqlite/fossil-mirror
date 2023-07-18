@@ -508,6 +508,7 @@ void ci_tags_page(void){
     style_finish_page();
     return;
   }
+  cgi_check_for_malice();
   zHash = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Tags and Properties");
   zType = whatis_rid_type_label(rid);
@@ -662,6 +663,7 @@ void ci_page(void){
   zBrName = branch_of_rid(rid);
 
   diffType = preferred_diff_type();
+  cgi_check_for_malice();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
     int nUuid = db_column_bytes(&q1, 0);
@@ -1003,6 +1005,7 @@ void winfo_page(void){
       moderation_approve('w', rid);
     }
   }
+  cgi_check_for_malice();
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pWiki->rDate);
@@ -1248,6 +1251,7 @@ void vdiff_page(void){
   if( DCfg.diffFlags & DIFF_IGNORE_ALLWS ){
     blob_appendf(&qp, "&w");
   }
+  cgi_check_for_malice();
   style_set_current_feature("vdiff");
   if( zBranch==0 ){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
@@ -1780,6 +1784,7 @@ void diff_page(void){
   }
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
+  cgi_check_for_malice();
   if( zRe ) re_compile(&pRe, zRe, 0);
   if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
@@ -1855,6 +1860,8 @@ void rawartifact_page(void){
   int rid = 0;
   char *zUuid;
 
+  (void)P("at")/*for cgi_check_for_malice()*/;
+  (void)P("m");
   if( P("ci") ){
     rid = artifact_from_ci_and_filename(0);
   }
@@ -1863,6 +1870,7 @@ void rawartifact_page(void){
   }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   etag_check(ETAG_HASH, zUuid);
@@ -1887,6 +1895,9 @@ void secure_rawartifact_page(void){
   int rid = 0;
   const char *zName = PD("name", "");
 
+  (void)P("at")/*for cgi_check_for_malice()*/;
+  (void)P("m");
+  cgi_check_for_malice();
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
@@ -1936,6 +1947,7 @@ void jchunk_page(void){
   }
 
   login_check_credentials();
+  cgi_check_for_malice();
   if( !g.perm.Read ){
     ajax_route_error(403, "Access requires Read permissions.");
     return;
@@ -2117,6 +2129,7 @@ void hexdump_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
+  cgi_check_for_malice();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
@@ -2423,6 +2436,7 @@ void artifact_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   style_set_current_feature("artifact");
 
   /* Capture and normalize the name= and ci= query parameters */
@@ -2754,6 +2768,7 @@ void tinfo_page(void){
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
+  cgi_check_for_malice();
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
@@ -2864,6 +2879,7 @@ void info_page(void){
 
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
+  cgi_check_for_malice();
   nLen = strlen(zName);
   blob_set(&uuid, zName);
   if( name_collisions(zName) ){

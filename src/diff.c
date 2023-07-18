@@ -3583,6 +3583,7 @@ void annotation_page(void){
   fileVers = PB("filevers");
   ignoreWs = PB("w");
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
+  cgi_check_for_malice();
 
   /* compute the annotation */
   annotate_file(&ann, zFilename, zRevision, zLimit, zOrigin, annFlags);

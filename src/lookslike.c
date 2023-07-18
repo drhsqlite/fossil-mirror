@@ -464,12 +464,16 @@ void looks_like_utf_test_cmd(void){
 }
 
 /*
-** Return true if z[i] is the whole word given by zWord
+** Return true if z[i] is the whole word given by zWord in a context that
+** might be an attempted SQL injection.
 */
 static int isWholeWord(const char *z, unsigned int i, const char *zWord, int n){
-  if( i>0 && fossil_isalnum(z[i-1]) ) return 0;
+  if( i==0 ) return 0;
   if( sqlite3_strnicmp(z+i, zWord, n)!=0 ) return 0;
+  if( fossil_isalnum(z[i-1]) ) return 0;
   if( fossil_isalnum(z[i+n]) ) return 0;
+  if( strchr("-)_", z[i-1])!=0 ) return 0;
+  if( strchr("(_", z[i+n])!=0 ) return 0;
   return 1;
 }
 
@@ -504,7 +508,9 @@ int looks_like_sql_injection(const char *zTxt){
         break;
       case 'o':
       case 'O':
-        if( isWholeWord(zTxt, i, "order", 5) ) return 1;
+        if( isWholeWord(zTxt, i, "order", 5) && fossil_isspace(zTxt[i+5]) ){
+          return 1;
+        }
         if( isWholeWord(zTxt, i, "or", 2) ) return 1;
         break;
       case 's':
