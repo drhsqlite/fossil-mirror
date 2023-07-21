@@ -1,5 +1,5 @@
-C Improved\sdefense\sagainst\sdenial-of-service\scaused\sby\shackers\spounding\nFossil\swith\srepeated\srequests\sthat\scontain\sSQL\sinjection\sattempts.\sIf\sSQL\ninjection\sis\sattempted,\sreturn\sa\s"Begone,\sKnave!"\spage\swith\sstatus\scode\s418.
-D 2023-07-18T13:36:34.292
+C Display\sfile\ssizes\sin\s/dir\sand\s/tree,\sas\sper\srequest\sin\s[forum:2a0cd67e77|forum\spost\s2a0cd67e77].
+D 2023-07-21T23:02:05.599
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -385,7 +385,7 @@ F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c 0392404c3d5972fa304394ba758b2874869ffcbbac30c68c002d49ef0a0414c2
 F src/branch.c f2fb668e30650d95480d0e10443462362ffc9f6fc4d70813a19b03098930e272
-F src/browse.c 6a5ddcd7a16a00430ce43ae2741ca9e9d139371ec02a80a03b3d5b8d33a16251
+F src/browse.c b4c4ede7adc04b477487a8549b7aaff72ba6667b9cc015223f7acce83cd0136e
 F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
 F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
@@ -407,7 +407,7 @@ F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 45fab68219b3100e17584f62e2e967383732cbf34c4f18edbb095091de44975c
-F src/default.css 7fb222144f63a7e9c1f764a8a09cfafa9af2eb2758e6a5e9407fefc9c3bf9b13
+F src/default.css c9e3847c103b4d0319effaebfb85f2e10b2f64b367a7b21473f6ff53801107ef
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 11edf9d3d870b246ee7315f5f2fe62a1e7ca4f5093a6b07b6ed1adeb3f36574e
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -951,9 +951,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b72f337becee3d5ac1193a9567e6178b302564c8fa83060b1e167dd01ebb0a9 d276fd9b77d10a73c40bd8036814676320ccd99006fd6e9c141b1d478966dbb8
-R 30f2ba184cd3429f795fcf3149a17207
-T +closed d276fd9b77d10a73c40bd8036814676320ccd99006fd6e9c141b1d478966dbb8
-U drh
-Z f22e777964f47619edde39d96e0e820d
+P 57f1e8725425e34fd092dc672dfa7fd5b480ed8aa5364b76645136bafa10a446
+R 8571066fd6bcca79d4548533a71b3b20
+T *branch * filesize-listings
+T *sym-filesize-listings *
+T -sym-trunk *
+U danield
+Z e8f6aea54468d05e2ae987af129c48c4
 # Remove this line to create a well-formed Fossil manifest.

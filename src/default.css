@@ -334,8 +334,15 @@ v\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo\
 }
 div.filetreeage {
  display: table-cell;
- padding-left: 3em;
+ padding-left: 1.5em;
  text-align: right;
+ width: 30%;
+}
+div.filetreesize {
+ display: table-cell;
+ padding-left: 1em;
+ text-align: right;
+ width: 20%;
 }
 div.filetreeline:hover {
  background-color: #eee;

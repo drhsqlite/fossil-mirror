@@ -444,6 +444,7 @@ struct FileTreeNode {
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
+  int iSize;                /* Size for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
 };
@@ -473,11 +474,12 @@ static void tree_add_node(
   FileTree *pTree,         /* Tree into which nodes are added */
   const char *zPath,       /* The full pathname of file to add */
   const char *zUuid,       /* Hash of the file.  Might be NULL. */
-  double mtime             /* Modification time for this entry */
+  double mtime,            /* Modification time for this entry */
+  int size                 /* Size for this entry */
 ){
   int i;
   FileTreeNode *pParent;   /* Parent (directory) of the next node to insert */
-
+//fossil_print("<pre>zPath %s zUuid %s mtime %f size %d</pre>\n",zPath,zUuid,mtime,size);
   /* Make pParent point to the most recent ancestor of zPath, or
   ** NULL if there are no prior entires that are a container for zPath.
   */
@@ -527,6 +529,7 @@ static void tree_add_node(
       pTree->pLastTop = pNew;
     }
     pNew->mtime = mtime;
+    pNew->iSize = size;
     while( zPath[i]=='/' ){ i++; }
     pParent = pNew;
   }
@@ -790,7 +793,7 @@ void page_tree(void){
     Stmt q;
     compute_fileage(rid, 0);
     db_prepare(&q,
-       "SELECT filename.name, blob.uuid, fileage.mtime\n"
+       "SELECT filename.name, blob.uuid, blob.size, fileage.mtime\n"
        "  FROM fileage, filename, blob\n"
        " WHERE filename.fnid=fileage.fnid\n"
        "   AND blob.rid=fileage.fid\n"
@@ -799,12 +802,13 @@ void page_tree(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFile = db_column_text(&q,0);
       const char *zUuid = db_column_text(&q,1);
-      double mtime = db_column_double(&q,2);
+      int size = db_column_int(&q,2);
+      double mtime = db_column_double(&q,3);
       if( nD>0 && (fossil_strncmp(zFile, zD, nD-1)!=0 || zFile[nD-1]!='/') ){
         continue;
       }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
-      tree_add_node(&sTree, zFile, zUuid, mtime);
+      tree_add_node(&sTree, zFile, zUuid, mtime, size);
     }
     db_finalize(&q);
   }else{
@@ -813,6 +817,7 @@ void page_tree(void){
       "SELECT\n"
       "    (SELECT name FROM filename WHERE filename.fnid=mlink.fnid),\n"
       "    (SELECT uuid FROM blob WHERE blob.rid=mlink.fid),\n"
+      "    (SELECT size FROM blob WHERE blob.rid=mlink.fid),\n"
       "    max(event.mtime)\n"
       "  FROM mlink JOIN event ON event.objid=mlink.mid\n"
       " GROUP BY mlink.fnid\n"
@@ -820,12 +825,13 @@ void page_tree(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUuid = db_column_text(&q,1);
-      double mtime = db_column_double(&q,2);
+      int size = db_column_int(&q,2);
+      double mtime = db_column_double(&q,3);
       if( nD>0 && (fossil_strncmp(zName, zD, nD-1)!=0 || zName[nD-1]!='/') ){
         continue;
       }
       if( pRE && re_match(pRE, (const u8*)zName, -1)==0 ) continue;
-      tree_add_node(&sTree, zName, zUuid, mtime);
+      tree_add_node(&sTree, zName, zUuid, mtime, size);
     }
     db_finalize(&q);
   }
@@ -904,6 +910,7 @@ void page_tree(void){
       if( p->mtime>0.0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
         @ <div class="filetreeage">%s(zAge)</div>
+        @ <div class="filetreesize"></div>
       }
       @ </div>
       if( startExpanded || (int)(p->nFullName)<=nD ){
@@ -925,6 +932,7 @@ void page_tree(void){
       if( p->mtime>0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
         @ <div class="filetreeage">%s(zAge)</div>
+        @ <div class="filetreesize">%s(p->iSize ? mprintf("%,d",p->iSize) : "-")</div>
       }
       @ </div>
     }
