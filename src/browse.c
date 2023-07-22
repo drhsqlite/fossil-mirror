@@ -444,6 +444,7 @@ struct FileTreeNode {
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
+  double sortBy;            /* Either mtime or size, depending on desired sort order */
   int iSize;                /* Size for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
@@ -475,7 +476,8 @@ static void tree_add_node(
   const char *zPath,       /* The full pathname of file to add */
   const char *zUuid,       /* Hash of the file.  Might be NULL. */
   double mtime,            /* Modification time for this entry */
-  int size                 /* Size for this entry */
+  int size,                /* Size for this entry */
+  int sortOrder            /* 0: filename, 1: mtime, 2: size */
 ){
   int i;
   FileTreeNode *pParent;   /* Parent (directory) of the next node to insert */
@@ -530,6 +532,11 @@ static void tree_add_node(
     }
     pNew->mtime = mtime;
     pNew->iSize = size;
+    if( sortOrder ){
+      pNew->sortBy = sortOrder==1 ? mtime : (double)size;
+    }else{
+      pNew->sortBy = 0.0;
+    }
     while( zPath[i]=='/' ){ i++; }
     pParent = pNew;
   }
@@ -542,15 +549,18 @@ static void tree_add_node(
 }
 
 /* Comparison function for two FileTreeNode objects.  Sort first by
-** mtime (larger numbers first) and then by zName (smaller names first).
+** sortBy (larger numbers first) and then by zName (smaller names first).
+**
+** The sortBy field will be the same as mtime in order to sort by time,
+** or the same as iSize to sort by file size.
 **
 ** Return negative if pLeft<pRight.
 ** Return positive if pLeft>pRight.
 ** Return zero if pLeft==pRight.
 */
 static int compareNodes(FileTreeNode *pLeft, FileTreeNode *pRight){
-  if( pLeft->mtime>pRight->mtime ) return -1;
-  if( pLeft->mtime<pRight->mtime ) return +1;
+  if( pLeft->sortBy>pRight->sortBy ) return -1;
+  if( pLeft->sortBy<pRight->sortBy ) return +1;
   return fossil_stricmp(pLeft->zName, pRight->zName);
 }
 
@@ -576,8 +586,8 @@ static FileTreeNode *mergeNodes(FileTreeNode *pLeft,  FileTreeNode *pRight){
   return base.pSibling;
 }
 
-/* Sort a list of FileTreeNode objects in mtime order. */
-static FileTreeNode *sortNodesByMtime(FileTreeNode *p){
+/* Sort a list of FileTreeNode objects in sortmtime order. */
+static FileTreeNode *sortNodes(FileTreeNode *p){
   FileTreeNode *a[30];
   FileTreeNode *pX;
   int i;
@@ -609,12 +619,12 @@ static FileTreeNode *sortNodesByMtime(FileTreeNode *p){
 **
 ** Use relinkTree to reconnect the pNext pointers.
 */
-static FileTreeNode *sortTreeByMtime(FileTreeNode *p){
+static FileTreeNode *sortTree(FileTreeNode *p){
   FileTreeNode *pX;
   for(pX=p; pX; pX=pX->pSibling){
-    if( pX->pChild ) pX->pChild = sortTreeByMtime(pX->pChild);
+    if( pX->pChild ) pX->pChild = sortTree(pX->pChild);
   }
-  return sortNodesByMtime(p);
+  return sortNodes(p);
 }
 
 /* Reconstruct the FileTree by reconnecting the FileTreeNode.pNext
@@ -653,7 +663,7 @@ static void relinkTree(FileTree *pTree, FileTreeNode *pRoot){
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
 **    expand           Begin with the tree fully expanded.
 **    nofiles          Show directories (folders) only.  Omit files.
-**    mtime            Order directory elements by decreasing mtime
+**    sort             0: by filename, 1: by mtime, 2: by size
 */
 void page_tree(void){
   char *zD = fossil_strdup(P("name"));
@@ -666,6 +676,7 @@ void page_tree(void){
   double rNow = 0;
   char *zNow = 0;
   int useMtime = atoi(PD("mtime","0"));
+  int sortOrder = atoi(PD("sort",useMtime?"1":"0"));
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
@@ -770,7 +781,14 @@ void page_tree(void){
   }else if( zRE ){
     blob_appendf(&dirname, "matching \"%s\"", zRE);
   }
-  style_submenu_binary("mtime","Sort By Time","Sort By Filename", 0);
+  {
+    static const char *const sort_orders[] = {
+       "0", "Sort By Filename",
+       "1", "Sort By Age",
+       "2", "Sort By Size"
+    };
+    style_submenu_multichoice("sort", 3, sort_orders, 0);
+  }
   if( zCI ){
     style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
@@ -808,7 +826,7 @@ void page_tree(void){
         continue;
       }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
-      tree_add_node(&sTree, zFile, zUuid, mtime, size);
+      tree_add_node(&sTree, zFile, zUuid, mtime, size, sortOrder);
     }
     db_finalize(&q);
   }else{
@@ -831,7 +849,7 @@ void page_tree(void){
         continue;
       }
       if( pRE && re_match(pRE, (const u8*)zName, -1)==0 ) continue;
-      tree_add_node(&sTree, zName, zUuid, mtime, size);
+      tree_add_node(&sTree, zName, zUuid, mtime, size, sortOrder);
     }
     db_finalize(&q);
   }
@@ -861,8 +879,10 @@ void page_tree(void){
     int n = db_int(0, "SELECT count(*) FROM plink");
     @ <h2>%s(zObjType) from all %d(n) check-ins %s(blob_str(&dirname))
   }
-  if( useMtime ){
+  if( sortOrder==1 ){
     @ sorted by modification time</h2>
+  }else if( sortOrder==2 ){
+    @ sorted by size</h2>
   }else{
     @ sorted by filename</h2>
   }
@@ -896,8 +916,8 @@ void page_tree(void){
   }
   @ </div>
   @ <ul>
-  if( useMtime ){
-    p = sortTreeByMtime(sTree.pFirst);
+  if( sortOrder ){
+    p = sortTree(sTree.pFirst);
     memset(&sTree, 0, sizeof(sTree));
     relinkTree(&sTree, p);
   }

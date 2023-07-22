@@ -1,5 +1,5 @@
-C Display\sfile\ssizes\sin\s/dir\sand\s/tree,\sas\sper\srequest\sin\s[forum:2a0cd67e77|forum\spost\s2a0cd67e77].
-D 2023-07-21T23:02:05.599
+C Add\sthe\soption\sto\ssort\sfiles\sby\ssize\sin\sthe\stree-view.
+D 2023-07-22T14:29:36.799
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -385,7 +385,7 @@ F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c 0392404c3d5972fa304394ba758b2874869ffcbbac30c68c002d49ef0a0414c2
 F src/branch.c f2fb668e30650d95480d0e10443462362ffc9f6fc4d70813a19b03098930e272
-F src/browse.c b4c4ede7adc04b477487a8549b7aaff72ba6667b9cc015223f7acce83cd0136e
+F src/browse.c 7786f61df0bb7b03043fdc616726bab359e8f9079802725652de22c29298b71c
 F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
 F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
@@ -951,11 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57f1e8725425e34fd092dc672dfa7fd5b480ed8aa5364b76645136bafa10a446
-R 8571066fd6bcca79d4548533a71b3b20
-T *branch * filesize-listings
-T *sym-filesize-listings *
-T -sym-trunk *
-U danield
-Z e8f6aea54468d05e2ae987af129c48c4
+P fb0b7fe140318f51b797a2c2b8645e930bf2c83a1dc354dde407b895743e66d7
+R 8591d272758f05d9dceed805ab19d532
+U drh
+Z bca8b17059d513b5c8a06935c09f3248
 # Remove this line to create a well-formed Fossil manifest.
