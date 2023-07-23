@@ -273,50 +273,38 @@ void page_dir(void){
      "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
   );
   if( zCI ){
-    Stmt ins;
-    ManifestFile *pFile;
-    ManifestFile *pPrev = 0;
-    int nPrev = 0;
-    int c;
-
-    db_prepare(&ins,
-       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u)"
-    );
-    manifest_file_rewind(pM);
-    while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0
-       && (fossil_strncmp(pFile->zName, zD, nD-1)!=0
-           || pFile->zName[nD-1]!='/')
-      ){
-        continue;
-      }
-      if( pPrev
-       && fossil_strncmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
-       && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
-      ){
-        continue;
-      }
-      db_bind_text(&ins, ":x", &pFile->zName[nD]);
-      db_bind_text(&ins, ":u", pFile->zUuid);
-      db_step(&ins);
-      db_reset(&ins);
-      pPrev = pFile;
-      for(nPrev=0; (c=pPrev->zName[nD+nPrev]) && c!='/'; nPrev++){}
-      if( c=='/' ) nPrev++;
+    /* Files in the specific checked given by zCI */
+    if( zD ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(filename,%d), uuid"
+        "   FROM files_of_checkin(%Q)"
+        "  WHERE filename GLOB '%q/*'",
+        nD, zCI, zD
+      );
+    }else{
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(filename,%d), uuid"
+        "   FROM files_of_checkin(%Q)",
+        nD, zCI
+      );
     }
-    db_finalize(&ins);
-  }else if( zD ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,%d), NULL FROM filename"
-      "  WHERE name GLOB '%q/*'",
-      nD, zD
-    );
   }else{
-    db_multi_exec(
-      "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,0), NULL FROM filename"
-    );
+    /* All files across all check-ins */
+    if( zD ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,%d), NULL FROM filename"
+        "  WHERE name GLOB '%q/*'",
+        nD, zD
+      );
+    }else{
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,0), NULL FROM filename"
+      );
+    }
   }
 
   /* If the re=REGEXP query parameter is present, filter out names that
@@ -1221,4 +1209,21 @@ void fileage_page(void){
   db_finalize(&q1);
   db_finalize(&q2);
   style_finish_page();
+}
+
+/*
+** WEBPAGE: files
+**
+** Show files as a flat table.  If the ci=LABEL query parameter is provided,
+** then show all the files in the specified check-in.  Without the ci= query
+** parameter show all files across all check-ins.
+**
+** Query parameters:
+**
+**    name=PATH        Directory to display.  Optional
+**    ci=LABEL         Show only files in this check-in.  Optional.
+**    re=REGEXP        Show only files matching REGEXP.  Optional.
+*/
+void files_page(void){
+  return;
 }
