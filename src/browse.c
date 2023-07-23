@@ -900,7 +900,8 @@ void page_tree(void){
   @ <div class="filetreeline">
   @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
   if( zNow ){
-    @ <div class="filetreeage">%s(zNow)</div>
+    @ <div class="filetreeage">Last Change</div>
+    @ <div class="filetreesize">Size</div>
   }
   @ </div>
   @ <ul>

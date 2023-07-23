@@ -336,13 +336,13 @@ div.filetreeage {
  display: table-cell;
  padding-left: 1.5em;
  text-align: right;
- width: 30%;
+ width: 8em;
 }
 div.filetreesize {
  display: table-cell;
  padding-left: 1em;
  text-align: right;
- width: 20%;
+ width: 7em;
 }
 div.filetreeline:hover {
  background-color: #eee;
