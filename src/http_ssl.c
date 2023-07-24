@@ -131,7 +131,7 @@ static int sslctx_use_cert_from_mem(
 
   in = BIO_new_mem_buf(pData, nData);
   if( in==0 ) goto end_of_ucfm;
-  // x = X509_new_ex(ctx->libctx, ctx->propq);
+  /* x = X509_new_ex(ctx->libctx, ctx->propq); */
   x = X509_new();
   if( x==0 ) goto end_of_ucfm;
   cert = PEM_read_bio_X509(in, &x, 0, 0);

@@ -469,7 +469,7 @@ static void tree_add_node(
 ){
   int i;
   FileTreeNode *pParent;   /* Parent (directory) of the next node to insert */
-//fossil_print("<pre>zPath %s zUuid %s mtime %f size %d</pre>\n",zPath,zUuid,mtime,size);
+  
   /* Make pParent point to the most recent ancestor of zPath, or
   ** NULL if there are no prior entires that are a container for zPath.
   */
