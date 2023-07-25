@@ -7,6 +7,17 @@
      threads or respond to them by default, and the
      [/help?cmd=forum-close-policy|forum-close-policy setting] can be
      used to add that capability to moderators.
+  *  Add the [/help?cmd=all|fossil all whatis] command. 
+  *  The [/help?cmd=status|fossil status] command and relevant UI pages now
+     correctly report files which were both renamed <b>and</b> edited as such.
+  *  Show default value of settings that have a default in
+     [/help?cmd=help|fossil help SETTING] output. 
+  *  Fix a regression bug introduced in version 2.22 that caused FTS5 searches
+     to fail for terms containing non-ASCII characters.
+  *  Improve defense against denial-of-service with repeated requests that
+     contain SQL injection attempts.
+  *  Enhance file listings by displaying file sizes and allowing to sort by them.
+
 
 <h2 id='v2_22'>Changes for version 2.22 (2023-05-31)</h2>
   *  Enhancements to the [/help?cmd=/timeline|/timeline webpage]: <ol type="a">
@@ -35,7 +46,7 @@
      searching in Chinese.
   *  Comment lines (starting with a '#') are now supported inside 
      [./settings.wiki#versionable|versioned settings].
-  *  Default permissions for anonymous users in new repositories is
+  *  Default permissions for anonymous users in new repositories are
      changed to "hz".
   *  The [/help?cmd=status|fossil status] command now detects when a
      file used to be a symlink and has been replaced by a regular file.
@@ -51,8 +62,8 @@
      </ol>
 
 <h2 id='v2_21'>Changes for version 2.21 (2023-02-25)</h2>
-  *  Users can request a password reset.  This feature is disabledby default.  Use
-     the new [/help?cmd=self-pw-reset|self-pw-reset property] to enable it.
+  *  Users can request a password reset.  This feature is disabled by default.
+     Use the new [/help?cmd=self-pw-reset|self-pw-reset property] to enable it.
      New web pages [/help?cmd=/resetpw|/resetpw] and
      [/help?cmd=/reqpwreset|/reqpwreset] added.
   *  Add the [/help?cmd=repack|fossil repack] command (together with
@@ -150,7 +161,7 @@
   *  Query parameter "year=YYYY" is now accepted by [/help?cmd=/timeline|/timeline].
   *  The [/help?cmd=tar|tar] and [/help?cmd=zip|zip commands] no longer
      sterilize the manifest file.
-  *  Futher improvement to diff alignment in cases that involve both
+  *  Further improvement to diff alignment in cases that involve both
      edits and indentation changes.
   *  [/doc/trunk/www/chat.md|Chat] improvements:<ul>
      <li>  [/help?cmd=/chat|The /chat page] input options have been reworked
@@ -330,7 +341,7 @@
      individual diffs.
   *  Add the "[/help?cmd=preferred-diff-type|preferred-diff-type]"
      setting to allow an admin to force a default diff type.
-  *  The "pikchr-background" settings is now available in
+  *  The "pikchr-background" setting is now available in
      "detail.txt" skin files, for better control of Pikchr
      colors in inverted color schemes.
   *  Add the <tt>--list</tt> option to the
@@ -349,10 +360,10 @@
      of each leaf.
   *  The [/help?cmd=add|fossil add] command refuses to add files whose
      names are reserved by Windows (ex: "aux") unless the --allow-reserved
-     option is included.  This helps prevent unix users from accidentally
+     option is included.  This helps prevent Unix users from accidentally
      creating check-ins that are unreadable by Windows users.
   *  Add the "re=" query parameter to the [/help?cmd=/dir|/dir] webpage,
-     for symetry with the [/help?cmd=/tree|/tree] page.
+     for symmetry with the [/help?cmd=/tree|/tree] page.
   *  Update the built-in SQLite to version 3.35.0.
   *  The ./configure script now has the --print-minimum-sqlite-version option
      that prints the minimum SQLite version required by the current version
@@ -520,7 +531,7 @@
      of query parameters "p=CHECKIN" and "bt=ANCESTOR" draws all
      ancestors of CHECKIN going back to ANCESTOR.  For example,
      [/timeline?p=202006271506&bt=version-2.11] shows all ancestors
-     of the checkin that occured on 2020-06-27 15:06 going back to
+     of the checkin that occurred on 2020-06-27 15:06 going back to
      the 2.11 release.
   *  Update the built-in SQLite so that the
      "[/help?cmd=sql|fossil sql]" command supports new output
@@ -1409,7 +1420,7 @@
      place.
   *  Add the "[/help?cmd=blame | fossil blame]" command that works just like
      "fossil annotate" but uses a different output format that includes the
-     user who made each changes and omits line numbers.
+     user who made each change and omits line numbers.
   *  Add the "Tarball and ZIP-archive Prefix" configuration parameter under
      Admin/Configuration.
   *  Fix CGI processing so that it works on web servers that do not
@@ -1615,7 +1626,7 @@
   *  Added support for WYSIWYG editing of wiki pages. WYSIWYG is turned off
      by default and can be turned on by setting a configuration option.
   *  Allow style= attribute to occur in HTML markup on wiki pages.
-  *  Added the --tk option to the "fossi diff" and "fossil stash diff"
+  *  Added the --tk option to the "fossil diff" and "fossil stash diff"
      commands, causing color-coded diff output to be displayed in a Tcl/Tk
      GUI window.  This option only works if Tcl/Tk is installed on the
      host.

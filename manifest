@@ -1,5 +1,5 @@
-C Deal\swith\stwo\sC++-style\scomments.\sNo\sfunctional\schanges.
-D 2023-07-24T11:58:59.880
+C Updates\sto\sthe\schange\slog.\sVarious\sspelling\sand\sgrammar\sfixes.
+D 2023-07-25T12:35:36.170
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -776,7 +776,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 079ec7e493cf0194ea42eeee05f2baba9892a50c8c093ca2d94a8cb5cac8e4d1
+F www/changes.wiki 31d2a3ac621e914c881eec6fdc32e32aa6f8a1299a931c358fb4a4ec6621078e
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 04658e093bf10552fbc8d4bb6bce7d48e3212f07469b2c263e220313f73ffebf
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 73fe442a258179c427b5f521f1963c773ab86e238a230ce870a5f072034f59c2
-R 3227bb7c85774aaec015bfbc4a8f9ac9
+P 99ab5cd8d646c6a5b07e911787ff053eecbc5d892887db6b74723e53a7f76b7c
+R 249dd5569cff359cd10ee81c540b2c97
 U danield
-Z d1b1f83c3a3493c4b5aa74102a00d1aa
+Z 74976607b8c504dccf2db5dd37187277
 # Remove this line to create a well-formed Fossil manifest.
