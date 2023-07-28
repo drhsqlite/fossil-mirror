@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.\sVarious\sspelling\sand\sgrammar\sfixes.
-D 2023-07-25T12:35:36.170
+C Avoid\sa\spotential\s32-bit\sinteger\soverflow\swhen\sdoing\sa\sdiff\son\slarge\sfiles\nwith\slarge\sdifferences.
+D 2023-07-28T16:18:28.679
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 11edf9d3d870b246ee7315f5f2fe62a1e7ca4f5093a6b07b6ed1adeb3f36574e
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 6fa21312cf0d694c07f0bf8261ad585f46ae24dd415cc71614277ffb5a63659a
-F src/diff.c d622ff6e8e4c4c98aabc138de2b67dcf3a219336be195b69c9c95bd1d8c73937
+F src/diff.c 859e4f131bf9c9a9d5b092754c7459bb45727c83a8c770035f74fa10b455c88f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c de1bf3168a35fb1ff2dabaf29149fef4b5c143dd0cdc2e4c54fd02f014ecfabd
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99ab5cd8d646c6a5b07e911787ff053eecbc5d892887db6b74723e53a7f76b7c
-R 249dd5569cff359cd10ee81c540b2c97
-U danield
-Z 74976607b8c504dccf2db5dd37187277
+P e6569d3f632824897f4bd3bd89de5225453bb163cd0ca44ad1aa9127df0406be
+R 587f008fcad8c483edcda8b2f2801001
+U drh
+Z 2f150aeb5d8822704f3a482b9b49fab6
 # Remove this line to create a well-formed Fossil manifest.

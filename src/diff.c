@@ -2095,7 +2095,9 @@ static unsigned char *diffBlockAlignment(
   /* For large alignments, try to use alternative algorithms that are
   ** faster than the O(N*N) Wagner edit distance.
   */
-  if( nLeft*nRight>DIFF_ALIGN_MX && (pCfg->diffFlags & DIFF_SLOW_SBS)==0 ){
+  if( (i64)nLeft*(i64)nRight>DIFF_ALIGN_MX
+   && (pCfg->diffFlags & DIFF_SLOW_SBS)==0
+  ){
     if( (pCfg->diffFlags & DIFF_IGNORE_ALLWS)==0 ){
       unsigned char *aRes;
       aRes = diffBlockAlignmentIgnoreSpace(
