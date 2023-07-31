@@ -1,5 +1,5 @@
-C Avoid\sa\spotential\s32-bit\sinteger\soverflow\swhen\sdoing\sa\sdiff\son\slarge\sfiles\nwith\slarge\sdifferences.
-D 2023-07-28T16:18:28.679
+C Update\sthe\sstale\smetrics\sat\sthe\sbottom\sof\swww/aboutdownload.wiki.
+D 2023-07-31T15:20:00.366
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -750,7 +750,7 @@ F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/aboutcgi.wiki 2312bdc7ef999d5f40f8bc51d37aaa2166616587c7b22375bfc590114ed45e5c
-F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
+F www/aboutdownload.wiki a4d666bbf8a540a92f64c131c9a55522efdbf9fba68ddf1000b2f62bc54d1f47
 F www/adding_code.wiki ec528db5d54d1bebdcaa7d0763b2d5ef9e8cbe8df6024d120af9395c0ef83a9b
 F www/alerts.md 5d0870938d3cb0194815a4e30d0579e0e542299b0019b7ba856e6b0f64fd171a
 F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6569d3f632824897f4bd3bd89de5225453bb163cd0ca44ad1aa9127df0406be
-R 587f008fcad8c483edcda8b2f2801001
-U drh
-Z 2f150aeb5d8822704f3a482b9b49fab6
+P 5882e9e87861c7c07aad78304fccfbe8114e7c2de0ff660aa393f3b22b89ae73
+R ef7bf47c5e044cb1bb224a345da6cd1f
+U stephan
+Z aff0009e00de32deb2e9f6e3d49ec417
 # Remove this line to create a well-formed Fossil manifest.
