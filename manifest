@@ -1,5 +1,5 @@
-C Update\sto\sthe\schange\slog.
-D 2023-08-03T12:23:19.744
+C Remove\san\soverly\saggressive\scall\sto\scgi_check_for_malice()\son\sthe\s/login\npage.
+D 2023-08-03T14:34:29.832
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -485,7 +485,7 @@ F src/json_user.c 92b2ee7ad3478329c15b51c19c8b9464055060e8047268803728d3e43447f1
 F src/json_wiki.c b91dc896ee9e71e4faca84b55c8bf648e64a9540cbcb80f7f51ad6dfb67878aa
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c 4b1f0df5b612679596296d0c67370a5dda659c16ce4a898feea6fb4efb2333a1
+F src/login.c d4b55297fb47b39e4bd8ca19231b7c66a48d44e4a47a1867f24bc2686c1f7584
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 132e241e0e08ae49cd9bd9d4486f6490edfb56b53f2ec5c9a6d4584dcbcd0699
 F src/main.c feddceb5c00337a20caf002c325b0991733d846817464a91491dbc4151271dd3
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 23cb5373993979ba308e62fee895e5b8f189797429fe94d444c349f87ac90cb6
-R be53419e922afaec4dbfaf24a2715703
+P 928bac993454765c2d55df128bdc4d6222f63d83f6570dcf74ddbdd4c40f78c0
+R 25a2c04607a4c8a50b5e77dc475e9d4f
 U drh
-Z 544475f54dc20b86838f5960e43b3102
+Z 818c1df6603402feb7cf3b0685024502
 # Remove this line to create a well-formed Fossil manifest.
