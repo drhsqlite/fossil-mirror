@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\scode\sfrom\sthe\sSQLite\strunk,\sas\sa\nbeta\stest\sof\sSQLite.
-D 2023-08-03T11:50:27.780
+C Update\sto\sthe\schange\slog.
+D 2023-08-03T12:23:19.744
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -776,7 +776,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 31d2a3ac621e914c881eec6fdc32e32aa6f8a1299a931c358fb4a4ec6621078e
+F www/changes.wiki 9b046079c2fb1899f38d7988eb146ab6e01c84fe2ec39dbaa894db0f536dab4f
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 04658e093bf10552fbc8d4bb6bce7d48e3212f07469b2c263e220313f73ffebf
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9614f1b08fb700e345271fb547a8723986ee77ea1742184cff9f6a3a1f4ee94
-R 92c96a2b8760cb9f8c065a00fdafa3db
+P 23cb5373993979ba308e62fee895e5b8f189797429fe94d444c349f87ac90cb6
+R be53419e922afaec4dbfaf24a2715703
 U drh
-Z 6eb80698cc4df996106b8184c9d4c7c5
+Z 544475f54dc20b86838f5960e43b3102
 # Remove this line to create a well-formed Fossil manifest.
