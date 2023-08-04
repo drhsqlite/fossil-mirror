@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.43.0"
 #define SQLITE_VERSION_NUMBER 3043000
-#define SQLITE_SOURCE_ID      "2023-08-02 16:06:02 ea0b9aecbaca9a8e784fd2bcb50f78cbdcf4c5cfb45a7700bb222e4cc104c644"
+#define SQLITE_SOURCE_ID      "2023-08-04 13:19:11 ba7a66db13b28da0b41f03be825a593608474a5ebda89e12d58d89db709b8f65"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -12805,7 +12805,7 @@ struct Fts5PhraseIter {
 **   See xPhraseFirstColumn above.
 */
 struct Fts5ExtensionApi {
-  int iVersion;                   /* Currently always set to 3 */
+  int iVersion;                   /* Currently always set to 2 */
 
   void *(*xUserData)(Fts5Context*);
 
