@@ -2218,7 +2218,7 @@ void unsubscribe_page(void){
     }else if( P("manage")!=0 ){
       cgi_redirectf("%R/alerts/%s", zName);
     }else{
-      style_header("Unsubscribed");
+      style_header("Unsubscribe");
       form_begin(0, "%R/unsubscribe");
       @ <input type="hidden" name="scode" value="%h(zName)">
       @ <table border="0" cellpadding="10" width="100%%">
@@ -2231,7 +2231,7 @@ void unsubscribe_page(void){
       @ <input type="submit" name="manage" \
       @ value="Manage Subscription Settings">
       @ </td><td><big><b>&larr;</b></big></td>
-      @ <td>Make changes to your subscription preferences
+      @ <td>Make other changes to your subscription preferences
       @ </td><tr>
       @ </table>
       @ </form>
