@@ -1,5 +1,5 @@
-C Disallow\suser-choosen\sUserIDs\sthat\sbegin\swith\s"anonymous"\sor\sother\sreserved\nnames.
-D 2023-08-05T17:40:53.782
+C Two\snew\snotification\soptions:\s\s"n"\smeans\sto\sbe\snotified\sfor\snew\sforum\sthreads\nonly\sand\s"r"\smeans\sto\sbe\snotified\sfor\sforum\sposts\sthat\sare\sa\sreply\sto\sa\spost\nmade\sby\sthe\suser.
+D 2023-08-05T21:18:45.475
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -371,7 +371,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c a5e924841c9686f69ed6fd228ef2f28b913405cb5d26bf4f287571559154cee9
 F src/ajax.c 4712d4dc6810a8027a4669ce73e32b2d95cc787eac17531242d6697d4cc3014b
-F src/alerts.c baf3c2172d9f40c23bda3c4379d0223ca06b898c3564b4423efb9544fb448672
+F src/alerts.c 2485a4fd22ab17e8e807bc67d8c20b728cdba391fa98756c9bdd04475977c864
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19e6905cd218ac9834c137e1a475c66349864de076cf37a9867d3924ff8c6cc6
-R 5120e38175a788093eb66aedb750622b
+P a7e9dd53ef600974282799011bc7dc3758266b63e9ca51f43104eb679d584ab1
+R e9b2e5d8d8fbb03bc50468a51bebeaa4
 U drh
-Z 8966767af65b4a7861a8b505a8a3c49d
+Z e3d45aa468385dbc7a010bb90e75b414
 # Remove this line to create a well-formed Fossil manifest.

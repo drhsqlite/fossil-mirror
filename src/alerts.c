@@ -49,8 +49,11 @@ static const char zAlertInit[] =
 @ --     a - Announcements
 @ --     c - Check-ins
 @ --     f - Forum posts
+@ --     n - New forum threads
+@ --     r - Replies to my own forum posts
 @ --     t - Ticket changes
 @ --     w - Wiki changes
+@ --     x - Edits to forum posts
 @ -- Probably different codes will be added in the future.  In the future
 @ -- we might also add a separate table that allows subscribing to email
 @ -- notifications for specific branches or tags or tickets.
@@ -1558,6 +1561,8 @@ void subscribe_page(void){
     if( PB("sa") ) ssub[nsub++] = 'a';
     if( g.perm.Read && PB("sc") )    ssub[nsub++] = 'c';
     if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
+    if( g.perm.RdForum && PB("sn") ) ssub[nsub++] = 'n';
+    if( g.perm.RdForum && PB("sr") ) ssub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
@@ -1620,6 +1625,8 @@ void subscribe_page(void){
     cgi_set_parameter_nocopy("sa","1",1);
     if( g.perm.Read )    cgi_set_parameter_nocopy("sc","1",1);
     if( g.perm.RdForum ) cgi_set_parameter_nocopy("sf","1",1);
+    if( g.perm.RdForum ) cgi_set_parameter_nocopy("sn","1",1);
+    if( g.perm.RdForum ) cgi_set_parameter_nocopy("sr","1",1);
     if( g.perm.RdTkt )   cgi_set_parameter_nocopy("st","1",1);
     if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
@@ -1677,9 +1684,13 @@ void subscribe_page(void){
   }
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(PCK("sf"))> \
-    @  Forum Posts</label><br>
+    @  All Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sn" %s(PCK("sn"))> \
+    @  New Forum Threads</label><br>
+    @  <label><input type="checkbox" name="sr" %s(PCK("sr"))> \
+    @  Replies To My Forum Posts</label><br>
     @  <label><input type="checkbox" name="sx" %s(PCK("sx"))> \
-    @  Forum Edits</label><br>
+    @  Edits To Forum Posts</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(PCK("st"))> \
@@ -1801,6 +1812,7 @@ void alert_page(void){
   const char *zName = 0;        /* Value of the name= query parameter */
   Stmt q;                       /* For querying the database */
   int sa, sc, sf, st, sw, sx;   /* Types of notifications requested */
+  int sn, sr;
   int sdigest = 0, sdonotcall = 0, sverified = 0;  /* Other fields */
   int isLogin;                  /* True if logged in as an individual */
   const char *ssub = 0;         /* Subscription flags */
@@ -1857,6 +1869,8 @@ void alert_page(void){
     if( PB("sa") )                   newSsub[nsub++] = 'a';
     if( g.perm.Read && PB("sc") )    newSsub[nsub++] = 'c';
     if( g.perm.RdForum && PB("sf") ) newSsub[nsub++] = 'f';
+    if( g.perm.RdForum && PB("sn") ) newSsub[nsub++] = 'n';
+    if( g.perm.RdForum && PB("sr") ) newSsub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   newSsub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  newSsub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) newSsub[nsub++] = 'x';
@@ -1953,6 +1967,8 @@ void alert_page(void){
   sa = strchr(ssub,'a')!=0;
   sc = strchr(ssub,'c')!=0;
   sf = strchr(ssub,'f')!=0;
+  sn = strchr(ssub,'n')!=0;
+  sr = strchr(ssub,'r')!=0;
   st = strchr(ssub,'t')!=0;
   sw = strchr(ssub,'w')!=0;
   sx = strchr(ssub,'x')!=0;
@@ -2058,9 +2074,13 @@ void alert_page(void){
   }
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(sf?"checked":"")>\
-    @  Forum Posts</label><br>
+    @  All Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sn" %s(sn?"checked":"")>\
+    @  New Forum Threads</label><br>
+    @  <label><input type="checkbox" name="sr" %s(sr?"checked":"")>\
+    @  Replies To My Posts</label><br>
     @  <label><input type="checkbox" name="sx" %s(sx?"checked":"")>\
-    @  Forum Edits</label><br>
+    @  Edits To Forum Posts</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(st?"checked":"")>\
@@ -2486,16 +2506,20 @@ void subscriber_list_page(void){
 **
 **      c       A new check-in
 **      f       An original forum post
+**      n       New forum threads
+**      r       Replies to my forum posts
 **      x       An edit to a prior forum post
 **      t       A new ticket or a change to an existing ticket
 **      w       A change to a wiki page
+**      x       Edits to forum posts
 */
 struct EmailEvent {
-  int type;          /* 'c', 'f', 't', 'w', 'x' */
+  int type;          /* 'c', 'f', 'n', 'r', 't', 'w', 'x' */
   int needMod;       /* Pending moderator approval */
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
   char *zFromName;   /* Human name of the sender */
+  char *zPriors;     /* Upthread sender IDs for forum posts */
   EmailEvent *pNext; /* Next in chronological order */
 };
 #endif
@@ -2509,9 +2533,39 @@ void alert_free_eventlist(EmailEvent *p){
     blob_reset(&p->txt);
     blob_reset(&p->hdr);
     fossil_free(p->zFromName);
+    fossil_free(p->zPriors);
     fossil_free(p);
     p = pNext;
   }
+}
+
+/*
+** Compute a string that is appropriate for the EmailEvent.zPriors field
+** for a particular forum post.
+**
+** This string is an encode list of sender names and rids for all ancestors
+** of the fpdi post - the post that fpid answer, the post that that parent 
+** post answers, and so forth back up to the root post. Duplicates sender
+** names are omitted.
+**
+** The EmailEvent.zPriors field is used to screen events for people who
+** only want to see replies to their own posts or to specific posts.
+*/
+static char *alert_compute_priors(int fpid){
+  return db_text(0,
+    "WITH priors(rid,who) AS ("
+    "  SELECT firt, coalesce(euser,user)"
+    "    FROM forumpost LEFT JOIN event ON fpid=objid"
+    "   WHERE fpid=%d"
+    "  UNION ALL"
+    "  SELECT firt, coalesce(euser,user)"
+    "    FROM priors, forumpost LEFT JOIN event ON fpid=objid"
+    "   WHERE fpid=rid"
+    ")"
+    "SELECT ','||group_concat(DISTINCT 'u'||who)||"
+           "','||group_concat(rid) FROM priors;",
+    fpid
+  );
 }
 
 /*
@@ -2646,7 +2700,8 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   zFrom = db_get("email-self",0);
   zSub = db_get("email-subname","");
   while( db_step(&q)==SQLITE_ROW ){
-    Manifest *pPost = manifest_get(db_column_int(&q,0), CFTYPE_FORUM, 0);
+    int fpid = db_column_int(&q,0);
+    Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     const char *zIrt;
     const char *zUuid;
     const char *zTitle;
@@ -2659,6 +2714,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     p->needMod = db_column_int(&q, 5);
     z = db_column_text(&q,6);
     p->zFromName = z && z[0] ? fossil_strdup(z) : 0;
+    p->zPriors = alert_compute_priors(fpid);
     p->pNext = 0;
     blob_init(&p->hdr, 0, 0);
     zUuid = db_column_text(&q, 1);
@@ -2867,6 +2923,21 @@ static void alert_renewal_msg(
   );
 }
 
+/*
+** If zUser is a sender of one of the ancestors of a forum post
+** (if zUser appears in zPriors) then return true.
+*/
+static int alert_in_priors(const char *zUser, const char *zPriors){
+  int n = (int)strlen(zUser);
+  char zBuf[200];
+  if( n>195 ) return 0;
+  if( zPriors==0 || zPriors[0]==0 ) return 0;
+  zBuf[0] = ',';
+  zBuf[1] = 'u';
+  memcpy(zBuf+2, zUser, n+1);
+  return strstr(zPriors, zBuf)!=0;
+}
+
 #if INTERFACE
 /*
 ** Flags for alert_send_alerts()
@@ -3014,7 +3085,8 @@ int alert_send_alerts(u32 flags){
      " hex(subscriberCode),"  /* 0 */
      " semail,"               /* 1 */
      " ssub,"                 /* 2 */
-     " fullcap(user.cap)"     /* 3 */
+     " fullcap(user.cap),"    /* 3 */
+     " suname"                /* 4 */
      " FROM subscriber LEFT JOIN user ON (login=suname)"
      " WHERE sverified"
      "   AND NOT sdonotcall"
@@ -3030,7 +3102,17 @@ int alert_send_alerts(u32 flags){
     const char *zCap = db_column_text(&q, 3);
     int nHit = 0;
     for(p=pEvents; p; p=p->pNext){
-      if( strchr(zSub,p->type)==0 ) continue;
+      if( strchr(zSub,p->type)==0 ){
+        if( p->type!='f' ) continue;
+        if( strchr(zSub,'n')!=0 && (p->zPriors==0 || p->zPriors[0]==0) ){
+          /* New post: accepted */
+        }else if( strchr(zSub,'r')!=0
+               && alert_in_priors(db_column_text(&q,4), p->zPriors) ){
+          /* A follow-up to a post written by the user: accept */
+        }else{
+          continue;
+        }
+      }
       if( p->needMod ){
         /* For events that require moderator approval, only send an alert
         ** if the recipient is a moderator for that type of event.  Setup
@@ -3038,7 +3120,8 @@ int alert_send_alerts(u32 flags){
         char xType = '*';
         if( strpbrk(zCap,"as")==0 ){
           switch( p->type ){
-            case 'x': case 'f':  xType = '5';  break;
+            case 'x': case 'f':
+            case 'n': case 'r':  xType = '5';  break;
             case 't':            xType = 'q';  break;
             case 'w':            xType = 'l';  break;
           }
@@ -3053,7 +3136,8 @@ int alert_send_alerts(u32 flags){
         char xType = '*';
         switch( p->type ){
           case 'c':            xType = 'o';  break;
-          case 'x': case 'f':  xType = '2';  break;
+          case 'x': case 'f':
+          case 'n': case 'r':  xType = '2';  break;
           case 't':            xType = 'r';  break;
           case 'w':            xType = 'j';  break;
         }
