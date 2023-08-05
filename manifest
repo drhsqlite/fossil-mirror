@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sa\scomment.
-D 2023-08-05T16:55:26.126
+C Disallow\suser-choosen\sUserIDs\sthat\sbegin\swith\s"anonymous"\sor\sother\sreserved\nnames.
+D 2023-08-05T17:40:53.782
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -485,7 +485,7 @@ F src/json_user.c 92b2ee7ad3478329c15b51c19c8b9464055060e8047268803728d3e43447f1
 F src/json_wiki.c b91dc896ee9e71e4faca84b55c8bf648e64a9540cbcb80f7f51ad6dfb67878aa
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c d4b55297fb47b39e4bd8ca19231b7c66a48d44e4a47a1867f24bc2686c1f7584
+F src/login.c 9f7ef284f4418ed17ee31677e87455e7d4bdeef71b81fa71af0e5959ebe5ecf5
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 132e241e0e08ae49cd9bd9d4486f6490edfb56b53f2ec5c9a6d4584dcbcd0699
 F src/main.c feddceb5c00337a20caf002c325b0991733d846817464a91491dbc4151271dd3
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37f929e3aef8f966cde4a089b810ef1cfbaab2d836aeb2549254660a3d39060e
-R 42f6fc8ea23096704efa1d2b13281db4
+P 19e6905cd218ac9834c137e1a475c66349864de076cf37a9867d3924ff8c6cc6
+R 5120e38175a788093eb66aedb750622b
 U drh
-Z 3c656117f66b657e772238fbc71d1414
+Z 8966767af65b4a7861a8b505a8a3c49d
 # Remove this line to create a well-formed Fossil manifest.

@@ -1992,6 +1992,13 @@ void register_page(void){
   }else if( sqlite3_strglob("*[^-a-zA-Z0-9_.]*",zUserID)==0 ){
     iErrLine = 1;
     zErr = "User ID may not contain spaces or special characters.";
+  }else if( sqlite3_strlike("anonymous%", zUserID, 0)==0 
+         || sqlite3_strlike("nobody%", zUserID, 0)==0
+         || sqlite3_strlike("reader%", zUserID, 0)==0
+         || sqlite3_strlike("developer%", zUserID, 0)==0
+  ){
+    iErrLine = 1;
+    zErr = "This User ID is reserved. Choose something different.";
   }else if( zDName[0]==0 ){
     iErrLine = 2;
     zErr = "Required";
