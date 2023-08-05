@@ -1,5 +1,5 @@
-C Minor\swording\schanges\son\sthe\s/unsubscribe\spage.
-D 2023-08-05T16:09:07.058
+C Fix\sa\stypo\sin\sa\scomment.
+D 2023-08-05T16:55:26.126
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -418,7 +418,7 @@ F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c de1bf3168a35fb1ff2dabaf29149fef4b5c143dd0cdc2e4c54fd02f014ecfabd
 F src/dispatch.c 490e92b0e28571d5af26841f46ebfb14a88b6290f71c03a1ddbf88e8d3efa95a
 F src/doc.c 15552ea105bd70eb99f4f2059a9fb68f824af5eddbcbe679a77d6cdb2e990ba8
-F src/encode.c e1fb0359db29597da230ca637c157666a310426e8e2cf5c5e71c90717537ea51
+F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 96168f901fc138a9f9d3ba16509305c1b9787341df8c0b8425a09df0a8da2734
 F src/export.c 487204e1f6f0a007988038661524a306d8b001970e555db23e38d7d50ed3165f
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3c850cf52ab1033a186eb904207a6c33db00945be047930e8cf6328b0b86ca1
-R a0e8e71cf308828a4fa0af90fae06bf7
+P 37f929e3aef8f966cde4a089b810ef1cfbaab2d836aeb2549254660a3d39060e
+R 42f6fc8ea23096704efa1d2b13281db4
 U drh
-Z 580ce98a2f31f6cd7bf9dc394af8cc38
+Z 3c656117f66b657e772238fbc71d1414
 # Remove this line to create a well-formed Fossil manifest.

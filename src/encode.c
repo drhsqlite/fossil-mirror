@@ -214,7 +214,7 @@ char *urlize(const char *z, int n){
 }
 
 /*
-** If input string does not contain quotes (niether ' nor ")
+** If input string does not contain quotes (neither ' nor ")
 ** then return the argument itself. Otherwise return a newly allocated
 ** copy of input with all quotes %-escaped.
 */
