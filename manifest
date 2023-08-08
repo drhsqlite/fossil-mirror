@@ -1,5 +1,5 @@
-C Two\snew\snotification\soptions:\s\s"n"\smeans\sto\sbe\snotified\sfor\snew\sforum\sthreads\nonly\sand\s"r"\smeans\sto\sbe\snotified\sfor\sforum\sposts\sthat\sare\sa\sreply\sto\sa\spost\nmade\sby\sthe\suser.
-D 2023-08-05T21:18:45.475
+C Disable\src_reload\sin\sthe\sexample\src(8)\sscript\sin\sthe\sOpenBSD\sdocs.\nReloading\sis\sunsupported\sby\sFossil\ssuch\sthat\s'rcctl\sreload\sfossil'\nkills\sthe\sprocess.\sSuggested\sby\sJames\sCook:\s[forum:73520532dd].
+D 2023-08-08T11:26:58.856
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -915,7 +915,7 @@ F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4
 F www/server/macos/service.md cd25e3b003e88cf07713c7c5fdf6b16e1f21dae7c75cb1d6ab69946d12262f5f
 F www/server/openbsd/fastcgi.md af3f2ce8150c01004d52ee5e04ede23260453888ba20ed266d89dd3ec0439c58
 F www/server/openbsd/index.md 196d9378a3fd6182fb826e800cb3eb55c44a63e69cbe344489913e55b0d77b54
-F www/server/openbsd/service.wiki 0ab57ec4a7cf70fe97c60abdd83c87437ca81380635f49653db51a425a5da448
+F www/server/openbsd/service.wiki f5c1f9d53713e99626bc472e6e8a8db855c0a0b715bcfcdd0784e785b238427d
 F www/server/whyuseaserver.wiki 7791e9e8e0c03d3c9f572fb37db03987e59d1d0d9bbeb03b4b98ef1edbec2533
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a7e9dd53ef600974282799011bc7dc3758266b63e9ca51f43104eb679d584ab1
-R e9b2e5d8d8fbb03bc50468a51bebeaa4
-U drh
-Z e3d45aa468385dbc7a010bb90e75b414
+P d4361f6a94725aa36f30f4d1444963da2732dcc86bd5261f26dd495021a5e2b1
+R c5eafa69b6a7fb1be470f9aea5c2f18e
+U mark
+Z 5020403783b8095decb4b0199906d9f1
 # Remove this line to create a well-formed Fossil manifest.

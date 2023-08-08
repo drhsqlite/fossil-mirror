@@ -14,6 +14,7 @@ daemon_flags="server /home/_fossil/example --repolist --port 8888" # fossil comm
 
 . /etc/rc.d/rc.subr
 # pexp="$daemon server .*" # See below.
+rc_reload=NO # Unsupported by Fossil; 'rcctl reload fossil' kills the process.
 rc_bg=YES # Run in the background, since fossil serve does not daemonize itself
 rc_cmd $1
 </pre></blockquote>
