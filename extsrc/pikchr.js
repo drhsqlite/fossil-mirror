@@ -642,8 +642,6 @@ var stackAlloc = Module["stackAlloc"] = function() {
  return (stackAlloc = Module["stackAlloc"] = Module["asm"]["j"]).apply(null, arguments);
 };
 
-Module["stackAlloc"] = stackAlloc;
-
 Module["stackSave"] = stackSave;
 
 Module["stackRestore"] = stackRestore;

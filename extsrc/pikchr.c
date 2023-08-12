@@ -6592,8 +6592,6 @@ static void pik_same(Pik *p, PObj *pOther, PToken *pErrTok){
   pObj->rarrow = pOther->rarrow;
   pObj->bClose = pOther->bClose;
   pObj->bChop = pOther->bChop;
-  pObj->inDir = pOther->inDir;
-  pObj->outDir = pOther->outDir;
   pObj->iLayer = pOther->iLayer;
 }
 
@@ -8142,4 +8140,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8170 "pikchr.c"
+#line 8168 "pikchr.c"
