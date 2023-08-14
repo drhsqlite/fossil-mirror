@@ -2616,7 +2616,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = "";
     const char *zComment = db_column_text(&q, 2);
-    p = fossil_malloc( sizeof(EmailEvent) );
+    p = fossil_malloc_zero( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
     p->type = db_column_text(&q, 3)[0];

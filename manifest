@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sPikchr\sto\sfix\sthe\s"same"\soperator\sflow-control\sbug\nreported\son\sthe\sPikchr\sforum.
-D 2023-08-12T19:24:38.067
+C Make\ssure\sthe\sEmailEvent\sobject\sis\scompletely\szeroed\swhenever\sit\sis\sallocated.
+D 2023-08-14T21:09:32.002
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -371,7 +371,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c a5e924841c9686f69ed6fd228ef2f28b913405cb5d26bf4f287571559154cee9
 F src/ajax.c 4712d4dc6810a8027a4669ce73e32b2d95cc787eac17531242d6697d4cc3014b
-F src/alerts.c 2485a4fd22ab17e8e807bc67d8c20b728cdba391fa98756c9bdd04475977c864
+F src/alerts.c 8a9abe09c45866de127acb7106a9294a03e413e56baf5594498646d8b4cee81a
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 16ee39539a51a914a9f2f75e428032c6ba338508d46effcfff18ea81bf826a6a
-R 03645f25b9cd845fbecfc887dcb9c979
+P c21423eb69e3dab22542aa71ebf0ab94550a0a833c5cadfbc62518c53f72edcd
+R 0718b46a1f7cb3c2ebce9fbe90981e4e
 U drh
-Z d89192e3f76ae9764e51fcb545d130a0
+Z 0aa93594b8192ab5a7829cd5fe0d977f
 # Remove this line to create a well-formed Fossil manifest.
