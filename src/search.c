@@ -2064,7 +2064,7 @@ void fts_config_cmd(void){
     }
   }else if( iCmd==5 ){
     int iOldTokenizer, iNewTokenizer;
-    if( g.argc<4 ) usage("tokenizer porter|on|off|trigram");
+    if( g.argc<4 ) usage("tokenizer porter|on|off|trigram|unicode61");
     iOldTokenizer = search_tokenizer_type(0);
     db_set("search-tokenizer",
            search_tokenizer_for_string(g.argv[3]), 0);
