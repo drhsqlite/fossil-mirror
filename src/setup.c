@@ -2018,10 +2018,11 @@ static void select_fts_tokenizer(void){
   const char *const aTokenizer[] = {
   "off",     "None",
   "porter",  "Porter Stemmer",
-  "trigram", "Trigram"
+  "unicode61", "Unicode without stemming",
+  "trigram", "Trigram",
   };
   multiple_choice_attribute("FTS Tokenizer", "search-tokenizer",
-                            "ftstok", "off", 3, aTokenizer);
+                            "ftstok", "off", 4, aTokenizer);
 }
 
 /*

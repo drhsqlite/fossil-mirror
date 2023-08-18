@@ -1553,9 +1553,10 @@ static const char zFtsDrop[] =
 /*
 ** Values for the search-tokenizer config option.
 */
-#define FTS5TOK_NONE     0 /* no FTS stemmer */
-#define FTS5TOK_PORTER   1 /* porter stemmer */
-#define FTS5TOK_TRIGRAM  3 /* trigram stemmer */
+#define FTS5TOK_NONE      0 /* disabled */
+#define FTS5TOK_PORTER    1 /* porter stemmer */
+#define FTS5TOK_UNICODE61 2 /* unicode61 tokenizer */
+#define FTS5TOK_TRIGRAM   3 /* trigram tokenizer */
 #endif
 
 /*
@@ -1580,6 +1581,8 @@ int search_tokenizer_type(int bRecheck){
     iFtsTokenizer = FTS5TOK_NONE;
   }else if(0==fossil_strcmp(z,"porter")){
     iFtsTokenizer = FTS5TOK_PORTER;
+  }else if(0==fossil_strcmp(z,"unicode61")){
+    iFtsTokenizer = FTS5TOK_UNICODE61;
   }else if(0==fossil_strcmp(z,"trigram")){
     iFtsTokenizer = FTS5TOK_TRIGRAM;
   }else{
@@ -1608,6 +1611,8 @@ const char *search_tokenizer_for_string(const char *z){
     zRc = "off";
   }else if( 0==fossil_strcmp(z,"porter") ){
     zRc = "porter";
+  }else if( 0==fossil_strcmp(z,"unicode61") ){
+    zRc = "unicode61";
   }else if( 0==fossil_strcmp(z,"trigram") ){
     zRc = "trigram";
   }else{
@@ -1635,6 +1640,7 @@ void search_create_index(void){
   const char *zExtra;
   switch(useTokenizer){
     case FTS5TOK_PORTER: zExtra = ",tokenize=porter"; break;
+    case FTS5TOK_UNICODE61: zExtra = ",tokenize=unicode61"; break;
     case FTS5TOK_TRIGRAM: zExtra = ",tokenize=trigram"; break;
     default: zExtra = ""; break;
   }
@@ -1983,8 +1989,8 @@ void search_rebuild_index(void){
 **     disable cdtwe      Disable various kinds of search
 **
 **     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
-**                        may be one of (porter, on, off, trigram), and
-**                        "on" is equivalent to "porter". Unindexed
+**                        may be one of (porter, on, off, trigram, unicode61),
+**                        and "on" is equivalent to "porter". Unindexed
 **                        search never uses tokenization or stemming.
 **
 ** The current search settings are displayed after any changes are applied.
