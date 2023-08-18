@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.43.0"
 #define SQLITE_VERSION_NUMBER 3043000
-#define SQLITE_SOURCE_ID      "2023-08-11 22:40:06 3bc0693c4633f545f09dbee702e25354504b20836373a068447e6c61cb2ebd79"
+#define SQLITE_SOURCE_ID      "2023-08-18 12:15:44 ec7eeb055bfb0e5a4467d8a45fa53d84bb8ae80ca0474b687e2783e971648008"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -13035,8 +13035,8 @@ struct Fts5ExtensionApi {
 **   as separate queries of the FTS index are required for each synonym.
 **
 **   When using methods (2) or (3), it is important that the tokenizer only
-**   provide synonyms when tokenizing document text (method (2)) or query
-**   text (method (3)), not both. Doing so will not cause any errors, but is
+**   provide synonyms when tokenizing document text (method (3)) or query
+**   text (method (2)), not both. Doing so will not cause any errors, but is
 **   inefficient.
 */
 typedef struct Fts5Tokenizer Fts5Tokenizer;
