@@ -1,5 +1,5 @@
-C Carry\sforward\s[0f8bae079e]\sto\sthe\szlib\s1.3\supdate.
-D 2023-08-20T09:58:00.000
+C Carry\sforward\s[368d97869b]\sto\sthe\szlib\s1.3\supdate.\s(The\supstream\sticket\sfor\s[368d97869b]\sis\scommented\sas\s"Incorporated"\sand\sclosed,\ssee\s[https://github.com/madler/zlib/issues/684],\sbut\sdoesn't\sseem\sto\shave\slanded\sin\sthe\szlib\srelease\spackage.)
+D 2023-08-20T10:00:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -45,7 +45,7 @@ F compat/zlib/FAQ c78de2dfa24c56279870006dc8c6ac071b1e90e3793303231ba44d5ab9cff3
 F compat/zlib/INDEX 74611a0f2bcc004caa1fa07bdeb4c44b01f0a5d6
 F compat/zlib/LICENSE 5e35de57c028213521c7a6514e5c03b27962a7a77e85adacdb23d1a1e4fd2910
 F compat/zlib/Makefile b04f62dd1002b9ca07068c90651432dec60029f3
-F compat/zlib/Makefile.in b9735d30cf76e8cb88aecf7cfbc4083db82497a3510ffee5460b3c72d57c79ca
+F compat/zlib/Makefile.in ef6b80a1789124b28982b2bfa28493280b6c396d2c44dc2fc346adc27019439c
 F compat/zlib/README 7490417112720183ad3aa939a14f7795f3fd1ba257e9d9f8f5e15100f79b9fc0
 F compat/zlib/adler32.c 42a1a3da42b7ce9eb56a73fb004f5cfc04d6554e8558d0416e9fedab01702f03
 F compat/zlib/amiga/Makefile.pup 79461cdcf8eda434edca3c32781982d2082af5fe
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 97016e7e8a6e2912435bd3bab18ff4d42ed9ad22e844db2ecaf3beaed9cde7fd
-R 66549c524ef41aac2ae6c378ad966163
+P 65583e5b74f0a60e3efdb1105f5d1fed8d7377cab7cc89860b8b39e2d3dc31be
+R da26f6a20dee3b619cd8630b44ce7b9e
 U florian
-Z 76df92ba07cc3823c78a3b876d3d378c
+Z e161ede5efe943a17a643e85c4c7851d
 # Remove this line to create a well-formed Fossil manifest.
