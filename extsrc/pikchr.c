@@ -4911,6 +4911,7 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   PNum hb1 = 0.0;   /* Height of the first "below" row of text */
   PNum hb2 = 0.0;   /* Height of the second "below" row */
   PNum yBase = 0.0;
+  PNum sw = pObj->sw>=0.0 ? pObj->sw : 0;
   int n, i, nz;
   PNum x, y, orig_y, s;
   const char *z;
@@ -4925,7 +4926,7 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   x = pObj->ptAt.x;
   for(i=0; i<n; i++) allMask |= pObj->aTxt[i].eCode;
   if( pObj->type->isLine ){
-    hc = pObj->sw*1.5;
+    hc = sw*1.5;
   }else if( pObj->rad>0.0 && pObj->type->xInit==cylinderInit ){
     yBase = -0.75*pObj->rad;
   }
@@ -4970,7 +4971,7 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
     }
   }
   if( pObj->type->eJust==1 ){
-    jw = 0.5*(pObj->w - 0.5*(p->charWidth + pObj->sw));
+    jw = 0.5*(pObj->w - 0.5*(p->charWidth + sw));
   }else{
     jw = 0.0;
   }
@@ -8144,4 +8145,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8172 "pikchr.c"
+#line 8173 "pikchr.c"
