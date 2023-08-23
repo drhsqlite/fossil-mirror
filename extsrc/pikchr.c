@@ -2675,7 +2675,7 @@ static YYACTIONTYPE yy_reduce(
         break;
       case 58: /* boolproperty ::= INVIS */
 #line 676 "pikchr.y"
-{p->cur->sw = 0.0;}
+{p->cur->sw = -0.00001;}
 #line 2704 "pikchr.c"
         break;
       case 59: /* boolproperty ::= THICK */
@@ -3637,7 +3637,7 @@ static void arcCheck(Pik *p, PObj *pObj){
 static void arcRender(Pik *p, PObj *pObj){
   PPoint f, m, t;
   if( pObj->nPath<2 ) return;
-  if( pObj->sw<=0.0 ) return;
+  if( pObj->sw<0.0 ) return;
   f = pObj->aPath[0];
   t = pObj->aPath[1];
   m = arcControlPoint(pObj->cw,f,t,1.0);
@@ -3750,7 +3750,7 @@ static void boxRender(Pik *p, PObj *pObj){
   PNum h2 = 0.5*pObj->h;
   PNum rad = pObj->rad;
   PPoint pt = pObj->ptAt;
-  if( pObj->sw>0.0 ){
+  if( pObj->sw>=0.0 ){
     if( rad<=0.0 ){
       pik_append_xy(p,"<path d=\"M", pt.x-w2,pt.y-h2);
       pik_append_xy(p,"L", pt.x+w2,pt.y-h2);
@@ -3852,7 +3852,7 @@ static void circleFit(Pik *p, PObj *pObj, PNum w, PNum h){
 static void circleRender(Pik *p, PObj *pObj){
   PNum r = pObj->rad;
   PPoint pt = pObj->ptAt;
-  if( pObj->sw>0.0 ){
+  if( pObj->sw>=0.0 ){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\" ");
@@ -3878,7 +3878,7 @@ static void cylinderRender(Pik *p, PObj *pObj){
   PNum h2 = 0.5*pObj->h;
   PNum rad = pObj->rad;
   PPoint pt = pObj->ptAt;
-  if( pObj->sw>0.0 ){
+  if( pObj->sw>=0.0 ){
     if( rad>h2 ){
       rad = h2;
     }else if( rad<0 ){
@@ -3949,7 +3949,7 @@ static PPoint dotOffset(Pik *p, PObj *pObj, int cp){
 static void dotRender(Pik *p, PObj *pObj){
   PNum r = pObj->rad;
   PPoint pt = pObj->ptAt;
-  if( pObj->sw>0.0 ){
+  if( pObj->sw>=0.0 ){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\"");
@@ -4007,7 +4007,7 @@ static void ellipseRender(Pik *p, PObj *pObj){
   PNum w = pObj->w;
   PNum h = pObj->h;
   PPoint pt = pObj->ptAt;
-  if( pObj->sw>0.0 ){
+  if( pObj->sw>=0.0 ){
     pik_append_x(p,"<ellipse cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," rx=\"", w/2.0, "\"");
@@ -4064,7 +4064,7 @@ static void fileRender(Pik *p, PObj *pObj){
   PNum mn = w2<h2 ? w2 : h2;
   if( rad>mn ) rad = mn;
   if( rad<mn*0.25 ) rad = mn*0.25;
-  if( pObj->sw>0.0 ){
+  if( pObj->sw>=0.0 ){
     pik_append_xy(p,"<path d=\"M", pt.x-w2,pt.y-h2);
     pik_append_xy(p,"L", pt.x+w2,pt.y-h2);
     pik_append_xy(p,"L", pt.x+w2,pt.y+(h2-rad));
@@ -4261,6 +4261,10 @@ static PPoint textOffset(Pik *p, PObj *pObj, int cp){
   pik_size_to_fit(p, &pObj->errTok,3);
   return boxOffset(p, pObj, cp);
 }
+static void textRender(Pik *p, PObj *pObj){
+  pik_append_txt(p, pObj, 0);
+}
+
 
 /* Methods for the "sublist" class */
 static void sublistInit(Pik *p, PObj *pObj){
@@ -4425,7 +4429,7 @@ static const PClass aClass[] = {
       /* xChop */         boxChop,
       /* xOffset */       textOffset,
       /* xFit */          boxFit,
-      /* xRender */       boxRender 
+      /* xRender */       textRender 
    },
 };
 static const PClass sublistClass = 
@@ -4780,7 +4784,7 @@ static void pik_append_style(Pik *p, PObj *pObj, int eFill){
   }else{
     pik_append(p,"fill:none;",-1);
   }
-  if( pObj->sw>0.0 && pObj->color>=0.0 ){
+  if( pObj->sw>=0.0 && pObj->color>=0.0 ){
     PNum sw = pObj->sw;
     pik_append_dis(p, "stroke-width:", sw, ";");
     if( pObj->nPath>2 && pObj->rad<=pObj->sw ){
@@ -7023,7 +7027,7 @@ static void pik_bbox_add_elist(Pik *p, PList *pList, PNum wArrow){
   int i;
   for(i=0; i<pList->n; i++){
     PObj *pObj = pList->a[i];
-    if( pObj->sw>0.0 ) pik_bbox_addbox(&p->bbox, &pObj->bbox);
+    if( pObj->sw>=0.0 ) pik_bbox_addbox(&p->bbox, &pObj->bbox);
     pik_append_txt(p, pObj, &p->bbox);
     if( pObj->pSublist ) pik_bbox_add_elist(p, pObj->pSublist, wArrow);
 
@@ -8140,4 +8144,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8168 "pikchr.c"
+#line 8172 "pikchr.c"
