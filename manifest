@@ -1,5 +1,5 @@
-C New\sPikchr\sthat\sfixes\stext\spositioning\son\snegative\sthickness\slines.
-D 2023-08-23T15:57:50.179
+C Add\sthe\s"dx"\squery\sparameter\sto\sthe\s"dir"\spage,\swhich\sif\spresent\scauses\nlinks\sto\sfile\sto\suse\s/doc\sinstead\sof\s/file.
+D 2023-08-27T18:15:19.797
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -384,7 +384,7 @@ F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c 0392404c3d5972fa304394ba758b2874869ffcbbac30c68c002d49ef0a0414c2
 F src/branch.c f2fb668e30650d95480d0e10443462362ffc9f6fc4d70813a19b03098930e272
-F src/browse.c d639c03ca82277139ff8b981076981b6c67a37e8703dcff6f0e8ac31c80e9fb4
+F src/browse.c 85e595786f898800e875d8b8c6c2efaf1250826f91717a0b7a9273c5ee485c1b
 F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
 F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ed25a31b41326e210b8033059faa91c6c6074d177317919e1af11d529cd4877
-R a52352cd8f0df2bad2e9767e6772e146
+P 2bdd36e4adf88b172302697840b29a406552c12055cb75bb9a5bda3ded469622
+R 9529898b286c87f8886026dae00615ac
 U drh
-Z c7f941e3abcfaace16a00b3c57cc54f6
+Z afdffa13efe0a8af5a65dac21d377500
 # Remove this line to create a well-formed Fossil manifest.

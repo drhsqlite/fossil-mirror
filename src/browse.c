@@ -135,6 +135,7 @@ void hyperlinked_path(
 **    type=TYPE        TYPE=flat: use this display
 **                     TYPE=tree: use the /tree display instead
 **    noreadme         Do not attempt to display the README file.
+**    dx               File links to go to /doc instead of /file or /finfo.
 */
 void page_dir(void){
   char *zD = fossil_strdup(P("name"));
@@ -155,6 +156,7 @@ void page_dir(void){
   char *zHeader = 0;
   const char *zRegexp;    /* The re= query parameter */
   char *zMatch;           /* Extra title text describing the match */
+  int bDoc = PB("dx");
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
@@ -169,6 +171,7 @@ void page_dir(void){
   ** specific check-in does not exist, clear zCI.  zCI==0 will cause all
   ** files from all check-ins to be displayed.
   */
+  if( bDoc && zCI==0 ) zCI = "trunk";
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
@@ -178,6 +181,7 @@ void page_dir(void){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
+      if( bDoc ) zCI = mprintf("%S", zUuid);
       Th_Store("current_checkin", zCI);
     }else{
       zCI = 0;
@@ -240,7 +244,11 @@ void page_dir(void){
       @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a>\
       @ %s(zMatch)</h2>
     }
-    zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
+    if( bDoc ){
+      zSubdirLink = mprintf("%R/dir?dx&ci=%T&name=%T", zCI, zPrefix);
+    }else{
+      zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
+    }
     if( nD==0 ){
       style_submenu_element("File Ages", "%R/fileage?name=%T", zCI);
     }
@@ -333,7 +341,9 @@ void page_dir(void){
       @ <li class="dir">%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
     }else{
       const char *zLink;
-      if( zCI ){
+      if( bDoc ){
+        zLink = href("%R/doc/%T/%T%T", zCI, zPrefix, zFN);
+      }else if( zCI ){
         zLink = href("%R/file?name=%T%T&ci=%T",zPrefix,zFN,zCI);
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
