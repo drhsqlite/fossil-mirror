@@ -122,11 +122,16 @@ void hyperlinked_path(
 ** WEBPAGE: docdir
 **
 ** Show the files and subdirectories within a single directory of the
-** source tree.  This works like /dir except that links to files go to
-** /doc (showing the file content directly, depending on mimetype)
-** rather than to /file (which always shows the file embedded in a standard
-** Fossil page frame).  /docdir is a shorthand for /dir with the "dx"
-** query parameter.
+** source tree.  This works similarly to /dir but with the following
+** differences:
+**
+**    *   Links to files go to /doc (showing the file content directly,
+**        depending on mimetype) rather than to /file (which always shows
+**        the file embedded in a standard Fossil page frame).
+**
+**    *   The submenu and the page title is now show.  The page is plain.
+**
+** The /docdir page is a shorthand for /dir with the "dx" query parameter.
 **
 ** Query parameters:
 **
@@ -155,7 +160,7 @@ void page_docdir(void){ page_dir(); }
 **    type=TYPE        TYPE=flat: use this display
 **                     TYPE=tree: use the /tree display instead
 **    noreadme         Do not attempt to display the README file.
-**    dx               File links to go to /doc instead of /file or /finfo.
+**    dx               Behave like /docdir
 */
 void page_dir(void){
   char *zD = fossil_strdup(P("name"));
@@ -239,7 +244,9 @@ void page_dir(void){
   cgi_query_parameters_to_url(&sURI);
 
   /* Compute the title of the page */
-  if( zD ){
+  if( bDocDir ){
+    zPrefix = zD ? mprintf("%s/",zD) : "";
+  }else if( zD ){
     Blob dirname;
     blob_init(&dirname, 0, 0);
     hyperlinked_path(zD, &dirname, zCI, "dir", "", 0);
@@ -253,7 +260,9 @@ void page_dir(void){
     zPrefix = "";
   }
   if( zCI ){
-    if( fossil_strcmp(zCI,"tip")==0 ){
+    if( bDocDir ){
+      /* No header for /docdir.  Just give the list of files. */
+    }else if( fossil_strcmp(zCI,"tip")==0 ){
       @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a>\
       @ %s(zMatch)</h2>
     }else if( isBranchCI ){
@@ -269,26 +278,28 @@ void page_dir(void){
     }else{
       zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
     }
-    if( nD==0 ){
+    if( nD==0 && !bDocDir ){
       style_submenu_element("File Ages", "%R/fileage?name=%T", zCI);
     }
   }else{
     @ in any check-in</h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
-  if( linkTrunk ){
+  if( linkTrunk && !bDocDir ){
     style_submenu_element("Trunk", "%s",
                           url_render(&sURI, "ci", "trunk", 0, 0));
   }
-  if( linkTip ){
+  if( linkTip && !bDocDir ){
     style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
-  if( zD ){
+  if( zD && !bDocDir ){
     style_submenu_element("History","%R/timeline?chng=%T/*", zD);
   }
-  style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
-  style_submenu_element("Tree-View", "%s",
-                        url_render(&sURI, "type", "tree", 0, 0));
+  if( !bDocDir ){
+    style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
+    style_submenu_element("Tree-View", "%s",
+                          url_render(&sURI, "type", "tree", 0, 0));
+  }
 
   /* Compute the temporary table "localfiles" containing the names
   ** of all files and subdirectories in the zD[] directory.
