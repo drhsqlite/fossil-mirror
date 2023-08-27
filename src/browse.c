@@ -118,6 +118,26 @@ void hyperlinked_path(
   }
 }
 
+/*
+** WEBPAGE: docdir
+**
+** Show the files and subdirectories within a single directory of the
+** source tree.  This works like /dir except that links to files go to
+** /doc (showing the file content directly, depending on mimetype)
+** rather than to /file (which always shows the file embedded in a standard
+** Fossil page frame).  /docdir is a shorthand for /dir with the "dx"
+** query parameter.
+**
+** Query parameters:
+**
+**    ci=LABEL         Show only files in this check-in.  If omitted, the
+**                     "trunk" directory is used.
+**    name=PATH        Directory to display.  Optional.  Top-level if missing
+**    re=REGEXP        Show only files matching REGEXP
+**    noreadme         Do not attempt to display the README file.
+**    dx               File links to go to /doc instead of /file or /finfo.
+*/
+void page_docdir(void){ page_dir(); }
 
 /*
 ** WEBPAGE: dir
@@ -156,7 +176,7 @@ void page_dir(void){
   char *zHeader = 0;
   const char *zRegexp;    /* The re= query parameter */
   char *zMatch;           /* Extra title text describing the match */
-  int bDoc = PB("dx");
+  int bDocDir = PB("dx") || strncmp(g.zPath, "docdir", 6)==0;
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
@@ -171,7 +191,7 @@ void page_dir(void){
   ** specific check-in does not exist, clear zCI.  zCI==0 will cause all
   ** files from all check-ins to be displayed.
   */
-  if( bDoc && zCI==0 ) zCI = "trunk";
+  if( bDocDir && zCI==0 ) zCI = "trunk";
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
@@ -181,7 +201,7 @@ void page_dir(void){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
-      if( bDoc ) zCI = mprintf("%S", zUuid);
+      if( bDocDir ) zCI = mprintf("%S", zUuid);
       Th_Store("current_checkin", zCI);
     }else{
       zCI = 0;
@@ -244,8 +264,8 @@ void page_dir(void){
       @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a>\
       @ %s(zMatch)</h2>
     }
-    if( bDoc ){
-      zSubdirLink = mprintf("%R/dir?dx&ci=%T&name=%T", zCI, zPrefix);
+    if( bDocDir ){
+      zSubdirLink = mprintf("%R/docdir?ci=%T&name=%T", zCI, zPrefix);
     }else{
       zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
     }
@@ -341,7 +361,7 @@ void page_dir(void){
       @ <li class="dir">%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
     }else{
       const char *zLink;
-      if( bDoc ){
+      if( bDocDir ){
         zLink = href("%R/doc/%T/%T%T", zCI, zPrefix, zFN);
       }else if( zCI ){
         zLink = href("%R/file?name=%T%T&ci=%T",zPrefix,zFN,zCI);
