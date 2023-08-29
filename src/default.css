@@ -305,22 +305,26 @@ ul.browser {
   white-space: nowrap;
 }
 ul.browser li.file {
+  padding-top: 2px;
+}
+ul.browser li.file > a {
+  padding-left: 20px;
+  background-repeat: no-repeat;
+  background-position: 0px center;
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/\
 yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14Gq\
 FXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==");
-  background-repeat: no-repeat;
-  background-position: 0px center;
-  padding-left: 20px;
-  padding-top: 2px;
 }
 ul.browser li.dir {
+  padding-top: 2px;
+}
+ul.browser li.dir > a {
+  padding-left: 20px;
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiI\
 v\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+\
 jUs6b5Z/K4siDu5RPUFADs=");
   background-repeat: no-repeat;
   background-position: 0px center;
-  padding-left: 20px;
-  padding-top: 2px;
 }
 div.filetreeline {
   display: table;

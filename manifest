@@ -1,5 +1,5 @@
-C On\sthe\s/docdir\spage,\somit\sthe\ssubmenu\sand\sother\spage\sdecorations.
-D 2023-08-27T19:01:56.169
+C /dir,\smove\sthe\sfile/dir\sicons\sso\sthat\sthey\sare\sclickable,\sper\srequest\sin\s[forum:65a3bd20f98980b2|forum\spost\s65a3bd20f98980b2].
+D 2023-08-29T09:15:37.064
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 45fab68219b3100e17584f62e2e967383732cbf34c4f18edbb095091de44975c
-F src/default.css 5588897b81d8508ba450bec19ef385dd224fae72e57a6aa685c8ee2eece7f8cc
+F src/default.css 4b757424ab59d44ccae5bf031885574b204f781d93331ce3af31e20361f2d649
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 11edf9d3d870b246ee7315f5f2fe62a1e7ca4f5093a6b07b6ed1adeb3f36574e
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d7e153ff7cf87a07973ed17bd6df718821a72f0f708b2dd03a82c87779a20f1
-R 2c47f61a359e9cf8abf9fbdbad56ae56
-U drh
-Z 5ed17ac52c6ece50db1ed62b1dbe82e0
+P 0313f0f90d6410de9fa0f95801fff63a2cde32f5df7cffc44d2d7a8a78ed63e1
+R 7324eff48561cf914a640dbb61699a9c
+U stephan
+Z d9241e3cfa39e61293dcb0926f42d13f
 # Remove this line to create a well-formed Fossil manifest.
