@@ -1,5 +1,5 @@
-C /dir,\smove\sthe\sfile/dir\sicons\sso\sthat\sthey\sare\sclickable,\sper\srequest\sin\s[forum:65a3bd20f98980b2|forum\spost\s65a3bd20f98980b2].
-D 2023-08-29T09:15:37.064
+C Add\snew\sexample\spikchr\sto\s/pikchrshow.
+D 2023-08-30T19:21:44.744
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -440,7 +440,7 @@ F src/fossil.page.chat.js 44287811e62e8592cc75ee234c3ddff813cd12c326ff20283e33f8
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
-F src/fossil.page.pikchrshowasm.js 1865c84326ea83b3bb0f366db712b95c42b7a2414b3820f9177a66151a9ffdec
+F src/fossil.page.pikchrshowasm.js d8fb5d98d95b80c816959deb84deec2401c991c35aafab11f9b002da2764282d
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js aa823d629f61df524e8d1a37b683152f7378b48f8f8d381142862dd3536f016f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0313f0f90d6410de9fa0f95801fff63a2cde32f5df7cffc44d2d7a8a78ed63e1
-R 7324eff48561cf914a640dbb61699a9c
+P 32297dde2bee2383b4c1e50ff74f78741f310e0a88bf993a86c5ad4568f1f7e0
+R ffc714a9443430c319a72175bd3db802
 U stephan
-Z d9241e3cfa39e61293dcb0926f42d13f
+Z 5c3fe3302fc5a03378412fb9c14c361c
 # Remove this line to create a well-formed Fossil manifest.
