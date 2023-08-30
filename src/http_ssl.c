@@ -1177,7 +1177,7 @@ void wellknown_page(void){
 
 wellknown_notfound:
   fossil_free(zPath);
-  webpage_notfound_error(0);
+  webpage_notfound_error(0 /*works-like:""*/);
   return;
 }
 
