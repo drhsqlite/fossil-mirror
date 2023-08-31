@@ -836,7 +836,7 @@ void style_header(const char *zTitleFormat, ...){
   sideboxUsed = 0;
   if( g.perm.Debug && P("showqp") ){
     @ <div class="debug">
-    cgi_print_all(0, 0);
+    cgi_print_all(0, 0, 0);
     @ </div>
   }
 }
@@ -1476,7 +1476,7 @@ void webpage_error(const char *zFormat, ...){
     @ <hr>
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
-    cgi_print_all(showAll, 0);
+    cgi_print_all(showAll, 0, 0);
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr>
       @ <pre>

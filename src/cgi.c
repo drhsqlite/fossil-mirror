@@ -1551,7 +1551,7 @@ static void cgi_begone_spider(const char *zName){
   style_finish_page();
   cgi_set_status(418,"I'm a teapot");
   cgi_reply();
-  fossil_errorlog("possible hack attempt - 418 response on \"%s\"", zName);
+  fossil_errorlog("Xpossible hack attempt - 418 response on \"%s\"", zName);
   exit(0);
 }
 
@@ -1761,29 +1761,41 @@ void cgi_load_environment(void){
 ** The eDest parameter determines where the output is shown:
 **
 **     eDest==0:    Rendering as HTML into the CGI reply
-**     eDest==1:    Written to stderr
+**     eDest==1:    Written to fossil_trace
 **     eDest==2:    Written to cgi_debug
+**     eDest==3:    Written to out  (Used only by fossil_errorlog())
 */
-void cgi_print_all(int showAll, unsigned int eDest){
+void cgi_print_all(int showAll, unsigned int eDest, FILE *out){
   int i;
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
     const char *zName = aParamQP[i].zName;
-    if( !showAll ){
-      if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
-      if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
+    const char *zValue = aParamQP[i].zValue;
+    if( fossil_stricmp("HTTP_COOKIE",zName)==0
+     || fossil_strnicmp("fossil-",zName,7)==0
+    ){
+      if( !showAll ) continue;
+      if( eDest==3 ) zValue = "...";
     }
     switch( eDest ){
       case 0: {
-        cgi_printf("%h = %h  <br>\n", zName, aParamQP[i].zValue);
+        cgi_printf("%h = %h  <br>\n", zName, zValue);
         break;
       }
       case 1: {
-        fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
+        fossil_trace("%s = %s\n", zName, zValue);
         break;
       }
       case 2: {
-        cgi_debug("%s = %s\n", zName, aParamQP[i].zValue);
+        cgi_debug("%s = %s\n", zName, zValue);
+        break;
+      }
+      case 3: {
+        if( strlen(zValue)>100 ){
+          fprintf(out,"%s = %.100s...\n", zName, zValue);
+        }else{
+          fprintf(out,"%s = %s\n", zName, zValue);
+        }
         break;
       }
     }

@@ -3477,7 +3477,7 @@ void announce_page(void){
     /* Visit the /announce/test1 page to see the CGI variables */
     zAction = "announce/test1";
     @ <p style='border: 1px solid black; padding: 1ex;'>
-    cgi_print_all(0, 0);
+    cgi_print_all(0, 0, 0);
     @ </p>
   }else if( P("submit")!=0 && cgi_csrf_safe(1) ){
     char *zErr = alert_send_announcement();

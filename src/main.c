@@ -2102,7 +2102,7 @@ static void process_one_web_page(
     }
     if( g.fCgiTrace ){
       fossil_trace("######## Calling %s #########\n", pCmd->zName);
-      cgi_print_all(1, 1);
+      cgi_print_all(1, 1, 0);
     }
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     {
@@ -2567,7 +2567,7 @@ void cmd_cgi(void){
       blob_reset(&value);
       cgi_debug("-------- BEGIN cgi at %s --------\n", zNow);
       fossil_free(zNow);
-      cgi_print_all(1,2);
+      cgi_print_all(1,2,0);
       continue;
     }
   }
