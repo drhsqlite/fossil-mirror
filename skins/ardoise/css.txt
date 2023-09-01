@@ -51,7 +51,7 @@ sup {
   position: relative
 }
 .filetree .dir > div.filetreeline > a,
-ul.browser li.dir {
+ul.browser li.dir > a {
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDUuMjkyIDQuMjMzIj48cGF0aCBkPSJNLjc5NC41M3YzLjE3NGgzLjcwNFYxLjMyM0gyLjkxVi41Mjl6IiBmaWxsPSIjMWQyMDIxIiBzdHJva2U9IiNmZjgwMDAiIHN0cm9rZS13aWR0aD0iLjUyOSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+)
 }
 dfn,
@@ -797,7 +797,7 @@ ul.browser li.dir {
   background-repeat: no-repeat
 }
 .filetree a,
-ul.browser li.file {
+ul.browser li.file > a{
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDUuMjkyIDQuMjMzIj48cGF0aCBkPSJNMS4zMjMuMjY1djMuNzA0aDIuNjQ2VjEuMzIzTDIuOTEuMjY1eiIgZmlsbD0iIzFkMjAyMSIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9Ii41MjkiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMi42NDYuMjY1aC4yNjR2MS4zMjNoMS4wNiIgZmlsbD0iIzFkMjAyMSIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9Ii41MjkiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=);
   background-repeat: no-repeat
 }
