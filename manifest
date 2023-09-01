@@ -1,5 +1,5 @@
-C Show\sthe\scomplete\sCGI\senvironment\sin\sthe\serror\slog\son\sa\s418\shack\sattempt\serror.
-D 2023-08-31T12:20:00.640
+C Eliminate\sduplicate\sfolders\son\sthe\s/dir\spage\swhen\susing\sthe\sBlitz\sskin,\scaused\sby\s[32297dde2bee23]\sand\sreported\sby\sMartin\sG.\sin\s/chat.
+D 2023-09-01T05:48:24.434
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -324,7 +324,7 @@ F skins/black_and_white/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760c
 F skins/black_and_white/header.txt a99bf860b5d14bbf384fef0acfe66ac71e0ed17572cdbef671723ca7aa4df104
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 2f01ef2f23e06e555323bcb75f62b53279c48e9bb3d6e8f4e720f1dcb099fae6
+F skins/blitz/css.txt 4e5ba43733ea08134c4d561700e94af4bdfd491eb41339a132d8990e869b3a7b
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2afff83e7eb608f68250359cfbdec2fe2f33ad3cfa8b5ea174091e943a80f772
-R 30464080d0d12783325a2484a76f8cc5
-U drh
-Z 3d9f94d61ce9ee5e8087cfcfbbf1a43e
+P 0204f4aab5acb39bac06a24e2b50d6a7ca938a657652f551e2393ece46f7b25d
+R 0008d45e4f52f4b10614dd23193a437a
+U stephan
+Z 3b8cbb50868e121dd261fb09a5bb7f5b
 # Remove this line to create a well-formed Fossil manifest.

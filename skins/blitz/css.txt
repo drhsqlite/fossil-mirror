@@ -963,19 +963,25 @@ ul.browser {
 }
 
 ul.browser li.dir {
+  padding-top: 2px;
+}
+
+ul.browser li.dir > a {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QAVQBVAFV4xrLkAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wMLExABnLjGZQAAAEFJREFUOMtjYKAQMIaGhv4npGj16tWMuORYGBgYGOZW+eDUnNy2Ba/hLMQ4E58rCRpAyHVMlAbiqAGjBhCdmWgKAHp4Dh0ZusP3AAAAAElFTkSuQmCC);
   background-repeat: no-repeat;
   background-position: 0px center;
   padding-left: 22px;
-  padding-top: 2px;
 }
 
 ul.browser li.file {
+  padding-top: 2px;
+}
+
+ul.browser li.file > a {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QAVQBVAFV4xrLkAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wMLExMaPfBcSgAAAFNJREFUOMvtkzEOwDAIA02VL5pHwiOTJZFQmkqFOTex+CwPCCYkAaDjB+4u65ZdYGafQVV9SR4kWQUke0mwS1o2HGcAQKs0R1lpQuQKruD4jVnBAG/cGRqf0U66AAAAAElFTkSuQmCC);
   background-repeat: no-repeat;
   background-position: 0px center;
   padding-left: 22px;
-  padding-top: 2px;
 }
 
 div.filetreeline {
