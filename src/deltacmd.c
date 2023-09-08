@@ -145,9 +145,9 @@ int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
 /*
 ** COMMAND: test-delta-apply
 **
-** Usage: %fossil test-delta-apply FILE1 DELTA
+** Usage: %fossil test-delta-apply FILE1 DELTA FILE2
 **
-** Apply DELTA to FILE1 and output the result.
+** Apply DELTA to FILE1 and output the result in FILE2.
 */
 void delta_apply_cmd(void){
   Blob orig, target, delta;
