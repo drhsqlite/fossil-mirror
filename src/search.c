@@ -1983,10 +1983,11 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtwe       Enable various kinds of search. c=Check-ins,
-**                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes.
+**     enable cdtwef      Enable various kinds of search. c=Check-ins,
+**                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes,
+**                        f=Forum.
 **
-**     disable cdtwe      Disable various kinds of search
+**     disable cdtwef     Disable various kinds of search
 **
 **     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
 **                        may be one of (porter, on, off, trigram, unicode61),
