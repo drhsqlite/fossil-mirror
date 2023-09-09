@@ -2543,7 +2543,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
           zPwd[n] = 0;
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
-        g.localOpen = db_lget_int("checkout", -1);
+        g.localOpen = 1;
         db_open_repository(zDbName);
         return 1;
       }

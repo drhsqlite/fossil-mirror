@@ -401,6 +401,7 @@ static int is_trailing_punct(char c){
 */
 int symbolic_name_to_rid(const char *zTag, const char *zType){
   int rid = 0;
+  int ridCkout = 0;
   int nTag;
   int i;
   int startOfBranch = 0;
@@ -438,16 +439,17 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* special keywords: "prev", "previous", "current", "ckout", and
   ** "next" */
-  if( g.localOpen>0 && (zType[0]=='*' || isCheckin!=0) ){
-    const int vid = g.localOpen;
+  if( (zType[0]=='*' || isCheckin!=0)
+      && 0>(ridCkout = db_lget_int("checkout",0)) ){
     if( fossil_strcmp(zTag, "current")==0 ){
-      rid = vid;
+      rid = ridCkout;
     }else if( fossil_strcmp(zTag, "prev")==0
               || fossil_strcmp(zTag, "previous")==0 ){
-      rid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", vid);
+      rid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim",
+                   ridCkout);
     }else if( fossil_strcmp(zTag, "next")==0 ){
       rid = db_int(0, "SELECT cid FROM plink WHERE pid=%d"
-                      "  ORDER BY isprim DESC, mtime DESC", vid);
+                      "  ORDER BY isprim DESC, mtime DESC", ridCkout);
     }else if( isCheckin>1 && fossil_strcmp(zTag, "ckout")==0 ){
       rid = RID_CKOUT;
     }
