@@ -437,10 +437,13 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     if( rid ) return rid;
   }
 
+  if( g.localOpen ) {
+    ridCkout = db_lget_int("checkout",0);
+  }
+
   /* special keywords: "prev", "previous", "current", "ckout", and
   ** "next" */
-  if( (zType[0]=='*' || isCheckin!=0)
-      && 0>(ridCkout = db_lget_int("checkout",0)) ){
+  if( (zType[0]=='*' || isCheckin!=0) && 0<ridCkout ){
     if( fossil_strcmp(zTag, "current")==0 ){
       rid = ridCkout;
     }else if( fossil_strcmp(zTag, "prev")==0

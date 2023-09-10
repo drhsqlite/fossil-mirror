@@ -1,5 +1,5 @@
-C Help\stext\stypo\sfix\sfrom\s[forum:987bf1b023|forum\spost\s987bf1b023].
-D 2023-09-10T12:46:20.668
+C Fix\sa\sbug\sin\s[1ef6499a9af8]\swhich\scaused\sresolution\sof\scertain\sbuiltin\ssymbolic\snames\sto\snot\sresolve.
+D 2023-09-10T17:34:06.627
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -498,7 +498,7 @@ F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 53a5346bc58cad6913c39422f4e7db1e049c5d116f849e1825a5b77ab48dc2ae
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 3cf67bd2c29a836048e2a59da70e1f9472ad193a4c48311a15846982b2efcab6
+F src/name.c dda78a871b81a30d4ce22074a511c2b2e9f4e33bf0f24be9e4a21e0942d0d132
 F src/patch.c 2de76810aa86a6a5e3a88a0d67c03ce24f51927a85014b95d052cafd821e409a
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 71b591af2698fe2086cc285465e426897d3eff9133390cca475d436588d8f6b3
-R fe4df153eac715c74d54a2a81576869f
+P 0fd4bde73683c03fca8568dda434eeae016058815a8defd8d1434bf0d27d971d
+R 4fcb3673494b66de8028c976f73c8d88
 U stephan
-Z 50d09625ad165d13b677d8de27ce77a9
+Z d25980d968d0f395bbb8f0b1d894cf4d
 # Remove this line to create a well-formed Fossil manifest.
