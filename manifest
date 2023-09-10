@@ -1,5 +1,5 @@
-C Add\smissing\smention\sof\sforum\ssearch\sin\sfts-config\scommand.\sReported\sin\s[forum:6eb7cec6aa|forum\spost\s6eb7cec6aa].
-D 2023-09-09T15:09:55.603
+C Help\stext\stypo\sfix\sfrom\s[forum:987bf1b023|forum\spost\s987bf1b023].
+D 2023-09-10T12:46:20.668
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -558,7 +558,7 @@ F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
 F src/sync.c b01f89e55b02250f5bce2fa6619b0346fdac9a6c2177a0b18f6e8a9478009937
 F src/tag.c 4e044d0143f917283c6c2b64a786ffdbb22a790f62f5404a769c35de0fb3c5f5
-F src/tar.c 055514cd012d6d1a8670b7b6290ac7fbf4f9b97d39064e2de4488c4d29185772
+F src/tar.c fcf3dafb4eb1569a4c71cb4341815e89bc267760bf5205a5fb6aac838d86617d
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c b1589ea517d70abd4cd9db3172a2f7910d61d86822007371057741be0cd84ef3
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ef6499a9af8d438ee5a82582b65e7bfa31b825d679900e57d1a6a95b8fbf878
-R 5c9b31d10e7fad729daec51730a3f7a3
+P 71b591af2698fe2086cc285465e426897d3eff9133390cca475d436588d8f6b3
+R fe4df153eac715c74d54a2a81576869f
 U stephan
-Z b9bfcb09a654b042927de71b87fe844c
+Z 50d09625ad165d13b677d8de27ce77a9
 # Remove this line to create a well-formed Fossil manifest.
