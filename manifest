@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\s[1ef6499a9af8]\swhich\scaused\sresolution\sof\scertain\sbuiltin\ssymbolic\snames\sto\snot\sresolve.
-D 2023-09-10T17:34:06.627
+C Added\sthe\s"Converting\sRepositories\son\sWindows"\ssection\sto\sthe\sinout\sdoc\nto\scover\sa\sproblem\scase\sinvolving\sPowerShell\sand\sto\sgive\ssolutions.
+D 2023-09-11T08:16:08.056
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -848,7 +848,7 @@ F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984
 F www/image-format-vs-repo-size.md 92fa20536270b02c9318d25662315a36b22cb8ad72b124f33d44df4dd9dda0ca
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 1f9b2f5e4661d705902f3ac01ea08e7b2813a9812a98708d808ea96e5d14ba70
-F www/inout.wiki c9f1bf845d9e88a580a3c0f32e0ef32c31613d46eb2d44abfb65e04a10252bbb
+F www/inout.wiki c36bc320c43e2639ab9ee7aaea61edd06854b08e5b9c4c781c625883a872435b
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fd4bde73683c03fca8568dda434eeae016058815a8defd8d1434bf0d27d971d
-R 4fcb3673494b66de8028c976f73c8d88
-U stephan
-Z d25980d968d0f395bbb8f0b1d894cf4d
+P 7faa1f4e23113872d352369864159641a2cac345e8f509ad81c5bfd088470467
+R 979d5fff76b8f2ddc367059d3fee918d
+U wyoung
+Z 3ce09f50f70487b03fb512a61901dcae
 # Remove this line to create a well-formed Fossil manifest.
