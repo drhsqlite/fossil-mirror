@@ -43,7 +43,7 @@ and the BSDs, where everything <tt>git</tt> sends is consumed by
 concurrently.
 
 For some reason, the current version of PowerShell included with Windows
-chokes when you do this when the in-flight repository size exceeds
+chokes on the conversion when the in-flight repository size exceeds
 available memory. We do not know why it buffers the entire stream
 emitted by "<tt>git fast-export</tt>" before sending it along to Fossil,
 but we've seen the problem recur on multiple machines.
