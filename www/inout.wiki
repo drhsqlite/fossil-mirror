@@ -42,32 +42,18 @@ and the BSDs, where everything <tt>git</tt> sends is consumed by
 <tt>fossil</tt> as soon as it can manage, with both programs working
 concurrently.
 
-Windows has problems in this area which we can trace back to MS-DOS,
-where <tt>command.com</tt> emulated pipes in terms of temporary files.
-The source program's output was written to disk, and only when that
-executable stopped was the consuming program launched, with its input
-silently redirected in from the temporary file in the background. This
-problem isn't likely to affect you these days unless you boot up an old
-copy of Windows 98 or similar, being DOS-based, thus having
-<tt>command.com</tt> as its shell.
+For some reason, the current version of PowerShell included with Windows
+chokes when you do this when the in-flight repository size exceeds
+available memory. We do not know why it buffers the entire stream
+emitted by "<tt>git fast-export</tt>" before sending it along to Fossil,
+but we've seen the problem recur on multiple machines.
 
-You may therefore wonder why we dig this historical fact up. Didn't
-Microsoft correct that in rebuilding their shell as <tt>cmd.exe</tt> for
-the Windows NT era? Yes, they did, but they then went and broke this
-underlying assumption <i>again</i> when they later designed PowerShell.
-Because PS wants to believe everything is an object stream between .NET
-programs and thus needs to translate expected data formats between them,
-it falls down when you try to run a command like the above when the size
-of the translated repository is greater than the size of available
-memory.  PowerShell tries to load the entire fast-export output before
-sending it out to "<tt>fossil import</tt>," and that only works on
-sufficiently small repositories.
-
+While one workaround is to fall back to <tt>cmd.exe</tt> — which doesn't
+seem to be affected by this problem — we instead recommend using
 Mirosoft's own [https://learn.microsoft.com/en-us/windows/wsl/ | Windows
-Subsystem for Linux] solves this problem, as do userspace clones like
-Cygwin and the MSYS2 underpinnings of the two major "Git for Windows"
-products. You may successfully use any of these systems to do the
-conversion directly.
+Subsystem for Linux] or either of the two popular "Git for Windows"
+distributions based on MSYS2. They handle pipes the POSIX way, avoiding
+any dependency on the amount of data involved.
 
 <h2>Fossil → Git</h2>
 
