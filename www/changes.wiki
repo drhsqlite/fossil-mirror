@@ -19,6 +19,8 @@
   *  Enhance file listings by displaying file sizes and allowing to sort by them.
   *  The [/help?cmd=fts-config|fossil fts-config] command now shows how much
      repository space is used by the full-text index.
+  *  The [/help?cmd=branch|fossil branch list] command can now filter branches
+     that have/have not been merged into the current branch.
 
 
 <h2 id='v2_22'>Changes for version 2.22 (2023-05-31)</h2>
