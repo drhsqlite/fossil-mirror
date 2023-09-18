@@ -899,6 +899,7 @@ static void forum_display_post(
         /* Allow users to delete (reject) their own pending posts. */
         @ <input type="submit" name="reject" value="Delete">
       }
+      login_insert_csrf_secret();
       @ </form>
       if( bSelect && forumpost_may_close() && iClosed>=0 ){
         int iHead = forumpost_head_rid(p->fpid);
