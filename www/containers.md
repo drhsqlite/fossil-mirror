@@ -462,8 +462,8 @@ equally stripped-down versions of `awk` and `sed`.)
 Let’s say the extension is written in Python. Because this is one of the
 most popular programming languages in the world, we have many options
 for achieving this. For instance, there is a whole class of
-“[distroless]” images that will do this efficiently by changing “`STAGE
-2`” in the `Dockefile` to this:
+“[distroless]” images that will do this efficiently by changing
+“`STAGE 2`” in the `Dockefile` to this:
 
 ```
     ## ---------------------------------------------------------------------
