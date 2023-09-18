@@ -204,8 +204,7 @@ void onoff_attribute(
   }
   if( zQ ){
     int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
-    if( iQ!=iVal ){
-      login_verify_csrf_secret();
+    if( iQ!=iVal && cgi_csrf_safe(2) ){
       db_protect_only(PROTECT_NONE);
       db_set(zVar/*works-like:"x"*/, iQ ? "1" : "0", 0);
       db_protect_pop();
@@ -239,9 +238,8 @@ void entry_attribute(
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
-  if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
+  if( zQ && fossil_strcmp(zQ,zVal)!=0 && cgi_csrf_safe(2) ){
     const int nZQ = (int)strlen(zQ);
-    login_verify_csrf_secret();
     setup_incr_cfgcnt();
     db_protect_only(PROTECT_NONE);
     db_set(zVar/*works-like:"x"*/, zQ, 0);
@@ -272,9 +270,8 @@ const char *textarea_attribute(
 ){
   const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
-  if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
+  if( zQ && !disabled && fossil_strcmp(zQ,z)!=0 && cgi_csrf_safe(2) ){
     const int nZQ = (int)strlen(zQ);
-    login_verify_csrf_secret();
     db_protect_only(PROTECT_NONE);
     db_set(zVar/*works-like:"x"*/, zQ, 0);
     db_protect_pop();
@@ -311,9 +308,8 @@ void multiple_choice_attribute(
   const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
   int i;
-  if( zQ && fossil_strcmp(zQ,z)!=0){
+  if( zQ && fossil_strcmp(zQ,z)!=0 && cgi_csrf_safe(2) ){
     const int nZQ = (int)strlen(zQ);
-    login_verify_csrf_secret();
     db_unprotect(PROTECT_ALL);
     db_set(zVar/*works-like:"x"*/, zQ, 0);
     setup_incr_cfgcnt();
@@ -1824,7 +1820,7 @@ void sql_page(void){
     zQ = sqlite3_mprintf("SELECT*FROM pragma_table_list ORDER BY schema, name");
     go = 1;
   }
-  if( go ){
+  if( go && cgi_csrf_safe(2) ){
     sqlite3_stmt *pStmt;
     int rc;
     const char *zTail;
@@ -1832,7 +1828,6 @@ void sql_page(void){
     int nRow = 0;
     int i;
     @ <hr>
-    login_verify_csrf_secret();
     sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
     search_sql_setup(g.db);
     rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
@@ -1915,18 +1910,16 @@ void th1_page(void){
   @ run by this page.  If Tcl integration was enabled at compile-time and
   @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
   @
-  @ <form method="post" action="%R/admin_th1">
-  login_insert_csrf_secret();
+  form_begin(0, "%R/admin_th1");
   @ TH1:<br>
   @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br>
   @ <input type="submit" name="go" value="Run TH1">
   @ </form>
-  if( go ){
+  if( go && cgi_csrf_safe(2) ){
     const char *zR;
     int rc;
     int n;
     @ <hr>
-    login_verify_csrf_secret();
     rc = Th_Eval(g.interp, 0, zQ, -1);
     zR = Th_GetResult(g.interp, &n);
     if( rc==TH_OK ){
@@ -2175,13 +2168,12 @@ void page_waliassetup(){
   }
   style_set_current_feature("setup");
   style_header("URL Alias Configuration");
-  if( P("submit")!=0 ){
+  if( P("submit")!=0 && cgi_csrf_safe(2) ){
     Blob token;
     Blob sql;
     const char *zNewName;
     const char *zValue;
     char zCnt[10];
-    login_verify_csrf_secret();
     blob_init(&namelist, PD("namelist",""), -1);
     blob_init(&sql, 0, 0);
     while( blob_token(&namelist, &token) ){

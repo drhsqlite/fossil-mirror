@@ -1634,6 +1634,7 @@ void wikiappend_page(void){
   }
   if( !isSandbox && P("submit")!=0 && P("r")!=0 && P("u")!=0
    && (goodCaptcha = captcha_is_correct(0))
+   && cgi_csrf_safe(2)
   ){
     char *zDate;
     Blob cksum;
@@ -1641,7 +1642,6 @@ void wikiappend_page(void){
     Blob wiki;
 
     blob_zero(&body);
-    login_verify_csrf_secret();
     blob_append(&body, pWiki->zWiki, -1);
     blob_zero(&wiki);
     db_begin_transaction();
@@ -1697,7 +1697,6 @@ void wikiappend_page(void){
   }
   zUser = PD("u", g.zLogin);
   form_begin(0, "%R/wikiappend");
-  login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
   @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
   @ Your Name:

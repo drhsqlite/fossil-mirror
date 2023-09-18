@@ -261,6 +261,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
     @ <form method="POST" data-action='%s(zLink)' action='%R/login' \
     @ %s(zOtherArgs)>
   }
+  login_insert_csrf_secret();
 }
 
 /*

@@ -902,7 +902,10 @@ static int submitTicketCmd(
   Blob tktchng, cksum;
   int needMod;
 
-  login_verify_csrf_secret();
+  if( !cgi_csrf_safe(2) ){
+    @ <p class="generalError">Error: Invalid CSRF token.</p>
+    return TH_OK;
+  }
   if( !captcha_is_correct(0) ){
     @ <p class="generalError">Error: Incorrect security code.</p>
     return TH_OK;
@@ -1017,7 +1020,6 @@ void tktnew_page(void){
   initializeVariablesFromDb();
   if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
-  login_insert_csrf_secret();
   if( P("date_override") && g.perm.Setup ){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
@@ -1107,7 +1109,6 @@ void tktedit_page(void){
   if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)">
-  login_insert_csrf_secret();
   zScript = ticket_editpage_code();
   Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));

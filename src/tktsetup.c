@@ -137,14 +137,12 @@ static void tktsetup_generic(
   }
   style_set_current_feature("tktsetup");
   style_header("Edit %s", zTitle);
-  if( P("clear")!=0 ){
-    login_verify_csrf_secret();
+  if( P("clear")!=0 && cgi_csrf_safe(2) ){
     db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     cgi_redirect("tktsetup");
-  }else if( isSubmit ){
+  }else if( isSubmit && cgi_csrf_safe(2) ){
     char *zErr = 0;
-    login_verify_csrf_secret();
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="tktsetupError">ERROR: %h(zErr)</p>
     }else{

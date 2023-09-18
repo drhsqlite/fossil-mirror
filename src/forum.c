@@ -1425,7 +1425,7 @@ void forum_page_close(void){
     login_needed(g.anon.Admin);
     return;
   }
-  cgi_csrf_verify(1);
+  cgi_csrf_verify();
   fpid = symbolic_name_to_rid(zFpid, "f");
   if( fpid<=0 ){
     webpage_error("Missing or invalid fpid query parameter");
@@ -1844,10 +1844,9 @@ void forum_setup(void){
 
   @ <h2>Settings</h2>
   @ <p>Configuration settings specific to the forum.</p>
-  if( P("submit") && cgi_csrf_safe(1) ){
+  if( P("submit") && cgi_csrf_safe(2) ){
     int i = 0;
     const char *zSetting;
-    login_verify_csrf_secret();
     db_begin_transaction();
     while( (zSetting = zSettingsBool[i++]) ){
       const char *z = P(zSetting);

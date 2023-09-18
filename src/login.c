@@ -585,7 +585,7 @@ void login_page(void){
   zPasswd = P("p");
   anonFlag = g.zLogin==0 && PB("anon");
   /* Handle log-out requests */
-  if( P("out") ){
+  if( P("out") && cgi_csrf_safe(2) ){
     login_clear_login_data();
     redirect_to_g();
     return;
@@ -600,6 +600,7 @@ void login_page(void){
   /* Deal with password-change requests */
   if( g.perm.Password && zPasswd
    && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
+   && cgi_csrf_safe(2)
   ){
     /* If there is not a "real" login, we cannot change any password. */
     if( g.zLogin ){
@@ -1805,22 +1806,6 @@ void login_anonymous_available(void){
 */
 void login_insert_csrf_secret(void){
   @ <input type="hidden" name="csrf" value="%s(g.zCsrfToken)">
-}
-
-/*
-** Before using the results of a form, first call this routine to verify
-** that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
-** is missing or is incorrect, that indicates a cross-site scripting attack.
-** If the event of an attack is detected, an error message is generated and
-** all further processing is aborted.
-*/
-void login_verify_csrf_secret(void){
-  if( g.okCsrf ) return;
-  if( fossil_strcmp(P("csrf"), g.zCsrfToken)==0 ){
-    g.okCsrf = 1;
-    return;
-  }
-  fossil_fatal("Cross-site request forgery attempt");
 }
 
 /*
