@@ -1,5 +1,5 @@
-C Cleanup\sforms\son\sthe\sskin\seditor\spage.
-D 2023-09-18T14:29:11.476
+C Strengthen\sCSRF\srequirements\sfor\sthe\sskin\seditor.
+D 2023-09-18T14:32:00.470
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -526,7 +526,7 @@ F src/sha3.c b61d072897815a90a3557b1213cc1477cbba8c926a098d14d1838c0851196ea8
 F src/shun.c c7fb218ab716297a2331b1c42098960997afb2c1c9df37b3d890b549dee11b0a
 F src/sitemap.c c8c1da701ef6910d7db95f487ab54435ae5d4d52ce17c82d53b7c18bca05e003
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c d275eaed882686f80d3181a03874ce1b5e208da377bc81321f74fbfdac4753fd
+F src/skins.c 8e74ce18bcc191f944a3ada3f55d69b144b8461d8e29cc3263f77fdbcffac829
 F src/smtp.c bfeb4e2d680cdab7a39321a4e142eea7edd97c252744a36bdd2343b39d0cb84f
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ff3746c4c214a50e74328463604d9ae1c5aa82576d308a64c18c32f7fa130442
-R 582e4c2f3a68b2e615a73ca84455df6b
+P 5feae3fd75ca0ce2e0b7672fd14d1b0e493ab006111e3190feb34a74fddf20ea
+R 359594eb1747cfc60c7c99616fa59812
 U drh
-Z 664ed7d1496c0d8358eff1c47909b5d6
+Z 885e18528a17536597e41b9e913fb632
 # Remove this line to create a well-formed Fossil manifest.
