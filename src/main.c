@@ -258,8 +258,12 @@ struct Global {
 #endif
 
   /* For defense against Cross-site Request Forgery attacks */
-  char zCsrfToken[12];    /* Value of the anti-CSRF token */
-  int okCsrf;             /* Anti-CSRF token is present and valid */
+  char zCsrfToken[16];    /* Value of the anti-CSRF token */
+  int okCsrf;             /* -1:  unsafe
+                          **  0:  unknown
+                          **  1:  same origin
+                          **  2:  same origin + is POST
+                          **  3:  same origin, POST, valid csrf token */
 
   int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */

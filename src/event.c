@@ -470,8 +470,7 @@ void eventedit_page(void){
     }
   }
   zETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))", zETime);
-  if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
-    login_verify_csrf_secret();
+  if( P("submit")!=0 && (zBody!=0 && zComment!=0) && cgi_csrf_safe(2) ){
     if ( !event_commit_common(rid, zId, zBody, zETime,
                               zMimetype, zComment, zTags,
                               zClrFlag[0] ? zClr : 0) ){

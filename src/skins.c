@@ -533,7 +533,7 @@ void setup_skin_admin(void){
 
   style_set_current_feature("skins");
 
-  if( cgi_csrf_safe(1) ){
+  if( cgi_csrf_safe(2) ){
     /* Process requests to delete a user-defined skin */
     if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
       style_header("Confirm Custom Skin Delete");
@@ -630,6 +630,7 @@ void setup_skin_admin(void){
       @ <form action="%R/setup_skin_admin" method="post">
       @ <input type="hidden" name="sn" value="%h(z)">
       @ <input type="submit" name="load" value="Install">
+      login_insert_csrf_secret();
       if( pAltSkin==&aBuiltinSkin[i] ){
         @ (Current override)
       }
@@ -654,6 +655,7 @@ void setup_skin_admin(void){
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
     @ <form action="%R/setup_skin_admin" method="post">
+    login_insert_csrf_secret();
     if( fossil_strcmp(zV, zCurrent)==0 ){
       @ (Currently In Use)
       seenCurrent = 1;
@@ -673,6 +675,7 @@ void setup_skin_admin(void){
     @ <tr><td>%d(i).<td><i>Current</i><td>&nbsp;&nbsp;<td>
     @ <form action="%R/setup_skin_admin" method="post">
     @ <input type="submit" name="save" value="Backup">
+    login_insert_csrf_secret();
     @ </form>
   }
   db_prepare(&q,
@@ -691,6 +694,7 @@ void setup_skin_admin(void){
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
     @ <form action="%R/setup_skin_admin" method="post">
+    login_insert_csrf_secret();
     @ <input type="submit" name="draftdel" value="Delete">
     @ <input type="hidden" name="name" value="%h(zN)">
     @ </form></tr>
@@ -838,7 +842,7 @@ void setup_skinedit(void){
   zDflt = skin_file_content(zBasis, zFile);
   zOrig = db_get_mprintf(zDflt, "draft%d-%s",iSkin,zFile);
   zContent = PD(zFile,zOrig);
-  if( P("revert")!=0 && cgi_csrf_safe(0) ){
+  if( P("revert")!=0 && cgi_csrf_safe(2) ){
     zContent = zDflt;
     isRevert = 1;
   }
@@ -855,7 +859,9 @@ void setup_skinedit(void){
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(zTitle):</h2>
-  if( P("submit") && cgi_csrf_safe(0) && (zOrig==0 || strcmp(zOrig,zContent)!=0) ){
+  if( P("submit") && cgi_csrf_safe(2)
+   && (zOrig==0 || strcmp(zOrig,zContent)!=0)
+  ){
     db_set_mprintf(zContent, 0, "draft%d-%s",iSkin,zFile);
   }
   @ <textarea name="%s(zFile)" rows="10" cols="80">\
@@ -1044,6 +1050,7 @@ void setup_skin(void){
   }
   @ </select>
   @ </p>
+  @ </form>
   @
   @ <a name='step2'></a>
   @ <h1>Step 2: Authenticate</h1>

@@ -3215,11 +3215,10 @@ void ci_edit_page(void){
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
-  if( P("apply") && cgi_csrf_safe(1) ){
+  if( P("apply") && cgi_csrf_safe(2) ){
     Blob ctrl;
     char *zNow;
 
-    login_verify_csrf_secret();
     blob_zero(&ctrl);
     zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
@@ -3302,7 +3301,6 @@ void ci_edit_page(void){
   @ <p>Make changes to attributes of check-in
   @ [%z(href("%R/ci/%!S",zUuid))%s(zUuid)</a>]:</p>
   form_begin(0, "%R/ci_edit");
-  login_insert_csrf_secret();
   @ <div><input type="hidden" name="r" value="%s(zUuid)">
   @ <table border="0" cellspacing="10">
 

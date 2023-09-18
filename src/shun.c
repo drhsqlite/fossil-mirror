@@ -100,10 +100,9 @@ void shun_page(void){
     zUuid = zCanonical;
   }
   style_header("Shunned Artifacts");
-  if( zUuid && P("sub") ){
+  if( zUuid && P("sub") && cgi_csrf_safe(2) ){
     const char *p = zUuid;
     int allExist = 1;
-    login_verify_csrf_secret();
     while( *p ){
       db_multi_exec("DELETE FROM shun WHERE uuid=%Q", p);
       if( !db_exists("SELECT 1 FROM blob WHERE uuid=%Q", p) ){
@@ -129,10 +128,9 @@ void shun_page(void){
       @ can pulled in from other repositories.</p>
     }
   }
-  if( zUuid && P("add") ){
+  if( zUuid && P("add") && cgi_csrf_safe(2) ){
     const char *p = zUuid;
     int rid, tagid;
-    login_verify_csrf_secret();
     while( *p ){
       db_multi_exec(
         "INSERT OR IGNORE INTO shun(uuid,mtime)"

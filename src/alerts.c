@@ -1547,7 +1547,7 @@ void subscribe_page(void){
   alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
-   && cgi_csrf_safe(1)
+   && cgi_csrf_safe(2)
    && subscribe_error_check(&eErr,&zErr,needCaptcha)
   ){
     /* A validated request for a new subscription has been received. */
@@ -1858,7 +1858,7 @@ void alert_page(void){
     /*NOTREACHED*/
   }
   alert_submenu_common();
-  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+  if( P("submit")!=0 && cgi_csrf_safe(2) ){
     char newSsub[10];
     int nsub = 0;
     Blob update;
@@ -1920,7 +1920,7 @@ void alert_page(void){
     );
     db_protect_pop();
   }
-  if( P("delete")!=0 && cgi_csrf_safe(1) ){
+  if( P("delete")!=0 && cgi_csrf_safe(2) ){
     if( !PB("dodelete") ){
       eErr = 9;
       zErr = mprintf("Select this checkbox and press \"Unsubscribe\" again to"
@@ -2271,7 +2271,7 @@ void unsubscribe_page(void){
 
   zEAddr = PD("e","");
   dx = atoi(PD("dx","0"));
-  bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(1);
+  bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(2);
   if( bSubmit ){
     if( !captcha_is_correct(1) ){
       eErr = 2;
@@ -3302,7 +3302,7 @@ void contact_admin_page(void){
    && P("subject")!=0
    && P("msg")!=0
    && P("from")!=0
-   && cgi_csrf_safe(1)
+   && cgi_csrf_safe(2)
    && captcha_is_correct(0)
   ){
     Blob hdr, body;
@@ -3479,7 +3479,7 @@ void announce_page(void){
     @ <p style='border: 1px solid black; padding: 1ex;'>
     cgi_print_all(0, 0, 0);
     @ </p>
-  }else if( P("submit")!=0 && cgi_csrf_safe(1) ){
+  }else if( P("submit")!=0 && cgi_csrf_safe(2) ){
     char *zErr = alert_send_announcement();
     style_header("Announcement Sent");
     if( zErr ){
@@ -3504,6 +3504,7 @@ void announce_page(void){
 
   style_header("Send Announcement");
   @ <form method="POST" action="%R/%s(zAction)">
+  login_insert_csrf_secret();
   @ <table class="subscribe">
   if( g.perm.Admin ){
     int aa = PB("aa");

@@ -316,13 +316,11 @@ void cgi_set_cookie(
   }
   if( lifetime!=0 ){
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; "
-       "%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; %s\r\n",
        zName, lifetime>0 ? zValue : "null", zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; HttpOnly; "
-       "%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly; %s\r\n",
        zName, zValue, zPath, zSecure);
   }
 }
@@ -704,36 +702,60 @@ int cgi_same_origin(void){
 }
 
 /*
-** Return true if the current request appears to be safe from a
-** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
-** be met:
-**
-**    *   The HTTP_REFERER must have the same origin
-**    *   The REQUEST_METHOD must be POST - or requirePost==0
+** Return true if the current CGI request is a POST request
 */
-int cgi_csrf_safe(int requirePost){
-  if( requirePost ){
-    const char *zMethod = P("REQUEST_METHOD");
-    if( zMethod==0 ) return 0;
-    if( strcmp(zMethod,"POST")!=0 ) return 0;
-  }
-  return cgi_same_origin();
+static int cgi_is_post_request(void){
+  const char *zMethod = P("REQUEST_METHOD");
+  if( zMethod==0 ) return 0;
+  if( strcmp(zMethod,"POST")!=0 ) return 0;
+  return  1;
 }
 
 /*
-** If bLoginVerifyCsrf is true, this calls login_verify_csrf() to
-** verify that the secret injected by login_insert_csrf_secret() is in
-** the CGI environment and valid. If that fails, it does so
-** fatally. If that passes and cgi_csrf_safe(1) returns false, this
-** fails fatally with a message about a cross-site scripting attempt,
-** else it returns without side effects.
+** Return true if the current request appears to be safe from a
+** Cross-Site Request Forgery (CSRF) attack.  The level of checking
+** is determined by the parameter.  The higher the number, the more
+** secure we are:
+**
+**    0:     Request must come from the same origin
+**    1:     Same origin and must be a POST request
+**    2:     All of the above plus must have a valid CSRF token
+**
+** Results are cached in the g.okCsrf variable.  The g.okCsrf value
+** has meaning as follows:
+**
+**    -1:   Not a secure request
+**     0:   Status unknown
+**     1:   Request comes from the same origin
+**     2:   (1) plus it is a POST request
+**     3:   (2) plus there is a valid "csrf" token in the request
 */
-void cgi_csrf_verify(int bLoginVerifyCsrf){
-  if( bLoginVerifyCsrf!=0 ){
-    login_verify_csrf_secret();
+int cgi_csrf_safe(int securityLevel){
+  if( g.okCsrf<0 ) return 0;
+  if( g.okCsrf==0 ){
+    if( !cgi_same_origin() ){
+      g.okCsrf = -1;
+    }else{
+      g.okCsrf = 1;
+      if( cgi_is_post_request() ){
+        g.okCsrf = 2;
+        if( fossil_strcmp(P("csrf"), g.zCsrfToken)==0 ){
+          g.okCsrf = 3;
+        }
+      }
+    }
   }
-  if( 0==cgi_csrf_safe(1) ){
-    fossil_fatal("Cross-site request forgery attempt");
+  return g.okCsrf >= (securityLevel+1);
+}
+
+/*
+** Verify that CSRF defenses are maximal - that the request comes from
+** the same origin, that it is a POST request, and that there is a valid
+** "csrf" token.  If this is not the case, fail immediately.
+*/
+void cgi_csrf_verify(void){
+  if( !cgi_csrf_safe(2) ){
+    fossil_fatal("Cross-site Request Forgery detected");
   }
 }
 

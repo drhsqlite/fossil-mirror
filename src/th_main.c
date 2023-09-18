@@ -607,7 +607,9 @@ static int verifyCsrfCmd(
   if( argc!=1 ){
     return Th_WrongNumArgs(interp, "verifyCsrf");
   }
-  login_verify_csrf_secret();
+  if( !cgi_csrf_safe(2) ){
+    fossil_fatal("possible CSRF attack");
+  }
   return TH_OK;
 }
 

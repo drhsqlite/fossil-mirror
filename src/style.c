@@ -261,6 +261,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
     @ <form method="POST" data-action='%s(zLink)' action='%R/login' \
     @ %s(zOtherArgs)>
   }
+  login_insert_csrf_secret();
 }
 
 /*
@@ -1461,7 +1462,26 @@ void webpage_error(const char *zFormat, ...){
 #ifndef _WIN32
     @ RSS = %.2f(fossil_rss()/1000000.0) MB</br>
 #endif
-    @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br>
+    (void)cgi_csrf_safe(2);
+    switch( g.okCsrf ){
+      case 1: {
+         @ CSRF safety = Same origin<br>
+         break;
+      }
+      case 2: {
+         @ CSRF safety = Same origin, POST<br>
+         break;
+      }
+      case 3: {
+         @ CSRF safety = Same origin, POST, CSRF token<br>
+         break;
+      }
+      default: {
+         @ CSRF safety = unsafe<br>
+         break;
+      }
+    }
+    
     @ fossil_exe_id() = %h(fossil_exe_id())<br>
     if( g.perm.Admin ){
       int k;

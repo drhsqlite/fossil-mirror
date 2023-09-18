@@ -344,7 +344,7 @@ void user_edit(void){
   }
 
   /* Check for requests to delete the user */
-  if( P("delete") && cgi_csrf_safe(1) ){
+  if( P("delete") && cgi_csrf_safe(2) ){
     int n;
     if( P("verifydelete") ){
       /* Verified delete user request */
@@ -388,7 +388,7 @@ void user_edit(void){
     /* An Admin (a) user cannot edit a Superuser (s) */
   }else if( zDeleteVerify!=0 ){
     /* Need to verify a delete request */
-  }else if( !cgi_csrf_safe(1) ){
+  }else if( !cgi_csrf_safe(2) ){
     /* This might be a cross-site request forgery, so ignore it */
   }else{
     /* We have all the information we need to make the change to the user */
@@ -442,7 +442,7 @@ void user_edit(void){
       style_finish_page();
       return;
     }
-    login_verify_csrf_secret();
+    cgi_csrf_verify();
     db_unprotect(PROTECT_USER);
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
