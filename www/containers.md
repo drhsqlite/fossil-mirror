@@ -459,10 +459,11 @@ ships.(^[BusyBox]’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
 shell, implementing little more than what POSIX specified in 1989, plus
 equally stripped-down versions of `awk` and `sed`.)
 
-Let’s say the extension is written in Python. While you could handle it
-the same way we do with the Tcl example above, Python is more
-popular, giving us more options. Let’s inject a Python environment into
-the stock Fossil container via a suitable “[distroless]” image instead:
+Let’s say the extension is written in Python. Because this is one of the
+most popular programming languages in the world, we have many options
+for achieving this. For instance, there is a whole class of
+“[distroless]” images that will do this efficiently by changing “`STAGE
+2`” in the `Dockefile` to this:
 
 ```
     ## ---------------------------------------------------------------------
@@ -495,7 +496,8 @@ Build it and test that it works like so:
 ```
 
 The compensation for the hassle of using Chainguard over something more
-general purpose like Alpine + “`apk add python`”
+general purpose like changing the `run` layer to Alpine and then adding
+a “`apk add python`” command to the `Dockerfile`
 is huge: we no longer leave a package manager sitting around inside the
 container, waiting for some malefactor to figure out how to abuse it.
 

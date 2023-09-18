@@ -1,5 +1,5 @@
-C Added\s§5.6\sto\sthe\scontainers\sdoc,\s"Email\sAlerts,"\sexplaining\show\sto\sget\nemail\salerts\sout\sby\suse\sof\sthe\sincluded\stools/email-sender.tcl\sscript\nand\sthe\s"write\smail\sto\sDB"\sfeature\ssince\sthe\sdefault\soption\s(sendmail\n-ti)\swon't\swork\sby\sdefault\sand\sit\swouldn't\sbe\sappropriate\sto\smake\sit\nwork\sbesides.\s\sThis\sthen\sobviated\sthe\searlier\shalf-baked\sadvice\son\ninjecting\sa\sTcl\senvironment\sinto\sthe\scontainer;\sthe\sessential\spoint\sis\nadequately\smade\sby\sthe\sPython\sexample,\sso\sthere\sis\sno\spoint\strying\sto\nrescue\sthis\splan.
-D 2023-09-18T22:10:06.364
+C Removal\sof\sthe\sTcl\sexample\sin\s§5.5\sof\sthe\scontainers\sdoc\sleft\shanging\nreferences\sin\sthe\sPython\sexample\sin\sa\sfew\splaces.
+D 2023-09-18T22:26:41.485
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -786,7 +786,7 @@ F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e85
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 71b96e7d405a7a4a7ab90e5dbfb31bb6286621fcc22bd6bca85904759a369816
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md c6ba0d72090fff842a8daf887440f48bdf1fa52235dcc0d26d3191adb3108e6b
+F www/containers.md 2c5e856e9ab70d5bca40754a25434ba94c4cb7f71e2340d160140a9879043567
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 920ace17395fc150aaceedd7cbb416c693d06a4f134c54dacc5f762dc0a14b19
-R 4dc7fc6add33a170c11a2406a480f4e1
+P 616a37f4f71e7b3acf0a68669ec830b5c946bcf0a912a346b81007bde00e5cd8
+R d3c9e2650107e78dccc765f1cc26bb24
 U wyoung
-Z fc4dec93eed478b5f7fe8876721ce2e6
+Z 39da25764044fc83f3346072b9129116
 # Remove this line to create a well-formed Fossil manifest.
