@@ -1541,7 +1541,7 @@ void forumnew_page(void){
     login_needed(g.anon.WrForum);
     return;
   }
-  if( P("submit") && cgi_csrf_safe(1) ){
+  if( P("submit") && cgi_csrf_safe(2) ){
     if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent,
                    forum_post_flags()) ) return;
   }
@@ -1562,6 +1562,7 @@ void forumnew_page(void){
     @ <input type="submit" name="submit" value="Submit" disabled>
   }
   forum_render_debug_options();
+  login_insert_csrf_secret();
   @ </form>
   forum_emit_js();
   style_finish_page();
@@ -1613,7 +1614,7 @@ void forumedit_page(void){
   bPreview = P("preview")!=0;
   bReply = P("reply")!=0;
   iClosed = forum_rid_is_closed(fpid, 1);
-  isCsrfSafe = cgi_csrf_safe(1);
+  isCsrfSafe = cgi_csrf_safe(2);
   bPrivate = content_is_private(fpid);
   bSameUser = login_is_individual()
     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -1681,6 +1682,7 @@ void forumedit_page(void){
     @ <h1>Change Into:</h1>
     forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     @ <form action="%R/forume2" method="POST">
+    login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
     @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
@@ -1708,6 +1710,7 @@ void forumedit_page(void){
     }
     @ <h2>Revised Message:</h2>
     @ <form action="%R/forume2" method="POST">
+    login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
     forum_from_line();
@@ -1752,6 +1755,7 @@ void forumedit_page(void){
     }
   }
   forum_render_debug_options();
+  login_insert_csrf_secret();
   @ </form>
   forum_emit_js();
   style_finish_page();

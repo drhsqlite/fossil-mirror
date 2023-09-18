@@ -316,7 +316,7 @@ void interwiki_page(void){
     login_needed(0);
     return;
   }
-  if( g.perm.Setup && P("submit")!=0 && cgi_csrf_safe(1) ){
+  if( g.perm.Setup && P("submit")!=0 && cgi_csrf_safe(2) ){
     zTag = PT("tag");
     zBase = PT("base");
     zHash = PT("hash");

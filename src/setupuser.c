@@ -344,7 +344,7 @@ void user_edit(void){
   }
 
   /* Check for requests to delete the user */
-  if( P("delete") && cgi_csrf_safe(1) ){
+  if( P("delete") && cgi_csrf_safe(2) ){
     int n;
     if( P("verifydelete") ){
       /* Verified delete user request */

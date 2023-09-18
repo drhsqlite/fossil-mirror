@@ -797,7 +797,7 @@ void errorlog_page(void){
     style_finish_page();
     return;
   }
-  if( P("truncate1") && cgi_csrf_safe(1) ){
+  if( P("truncate1") && cgi_csrf_safe(2) ){
     fclose(fopen(g.zErrlog,"w"));
   }
   if( P("download") ){
@@ -810,6 +810,7 @@ void errorlog_page(void){
   szFile = file_size(g.zErrlog, ExtFILE);
   if( P("truncate") ){
     @ <form action="%R/errorlog" method="POST">
+    login_insert_csrf_secret();
     @ <p>Confirm that you want to truncate the %,lld(szFile)-byte error log:
     @ <input type="submit" name="truncate1" value="Confirm">
     @ <input type="submit" name="cancel" value="Cancel">

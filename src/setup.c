@@ -1456,7 +1456,7 @@ void setup_adunit(void){
     return;
   }
   db_begin_transaction();
-  if( P("clear")!=0 && cgi_csrf_safe(1) ){
+  if( P("clear")!=0 && cgi_csrf_safe(2) ){
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     db_protect_pop();
@@ -1558,7 +1558,7 @@ void setup_logo(void){
     return;
   }
   db_begin_transaction();
-  if( !cgi_csrf_safe(1) ){
+  if( !cgi_csrf_safe(2) ){
     /* Allow no state changes if not safe from CSRF */
   }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
@@ -1767,7 +1767,7 @@ void sql_page(void){
     return;
   }
   add_content_sql_commands(g.db);
-  zQ = cgi_csrf_safe(1) ? P("q") : 0;
+  zQ = cgi_csrf_safe(2) ? P("q") : 0;
   style_set_current_feature("setup");
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
@@ -2124,7 +2124,7 @@ static void setup_update_url_alias(
   const char *zNewName,
   const char *zValue
 ){
-  if( !cgi_csrf_safe(1) ) return;
+  if( !cgi_csrf_safe(2) ) return;
   if( zNewName[0]==0 || zValue[0]==0 ){
     if( zOldName[0] ){
       blob_append_sql(pSql,

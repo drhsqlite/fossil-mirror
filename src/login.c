@@ -1984,7 +1984,7 @@ void register_page(void){
   zDName = PDT("dn","");
 
   /* Verify user imputs */
-  if( P("new")==0 || !cgi_csrf_safe(1) ){
+  if( P("new")==0 || !cgi_csrf_safe(2) ){
     /* This is not a valid form submission.  Fall through into
     ** the form display */
   }else if( (captchaIsCorrect = captcha_is_correct(1))==0 ){
@@ -2262,7 +2262,7 @@ void login_reqpwreset_page(void){
   zEAddr = PDT("ea","");
 
   /* Verify user imputs */
-  if( !cgi_csrf_safe(1) || P("reqpwreset")==0 ){
+  if( !cgi_csrf_safe(2) || P("reqpwreset")==0 ){
     /* This is the initial display of the form.  No processing or error
     ** checking is to be done. Fall through into the form display
     */
