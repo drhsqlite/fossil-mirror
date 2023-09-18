@@ -442,50 +442,14 @@ shell environment that you can get into via:
 
       $ docker exec -it -u fossil $(make container-version) sh
 
-(That command assumes you built it via “`make container`” and are
-therefore using its versioning scheme.)
+That command assumes you built it via “`make container`” and are
+therefore using its versioning scheme.
 
-Another case where you might need to replace this bare-bones “`run`”
-layer with something more functional is that you’re setting up [email
-alerts](./alerts.md) and need some way to integrate with the host’s
-[MTA]. There are a number of alternatives in that linked document, so
-for the sake of discussion, we’ll say you’ve chosen [Method
-2](./alerts.md#db), which requires a Tcl interpreter and its SQLite
-extension to push messages into the outbound email queue DB, presumably
-bind-mounted into the container.
-
-You can do that by replacing STAGEs 2 and 3 in the stock `Dockerfile`
-with this:
-
-```
-    ## ---------------------------------------------------------------------
-    ## STAGE 2: Pare that back to the bare essentials, plus Tcl.
-    ## ---------------------------------------------------------------------
-    FROM alpine AS run
-    ARG UID=499
-    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
-    COPY --from=builder /tmp/fossil /bin/
-    COPY tools/email-sender.tcl /bin/
-    RUN set -x                                                              \
-        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
-        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
-        && install -d -m 700 -o fossil -g fossil log museum                 \
-        && apk add --no-cache tcl sqlite-tcl
-```
-
-Build it and test that it works like so:
-
-```
-    $ make container-run &&
-      echo 'puts [info patchlevel]' |
-      docker exec -i $(make container-version) tclsh 
-    8.6.12
-```
-
-You should remove the `PATH` override in the “RUN”
-stage, since it’s written for the case where everything is in `/bin`.
-With these additions, we need the longer `PATH` shown above to have
-ready access to them all.
+You will likely want to remove the `PATH` override in the “RUN” stage
+when doing this since it’s written for the case where everything is in
+`/bin`, and that will no longer be the case with a more full-featured
+“`run`” layer. As long as the parent layer’s `PATH` value contains
+`/bin`, delegating to it is more likely the correct thing.
 
 Another useful case to consider is that you’ve installed a [server
 extension](./serverext.wiki) and you need an interpreter for that
@@ -536,7 +500,7 @@ is huge: we no longer leave a package manager sitting around inside the
 container, waiting for some malefactor to figure out how to abuse it.
 
 Beware that there’s a limit to this über-jail’s ability to save you when
-you go and provide a more capable OS layer like this. The container
+you go and provide a more capable runtime layer like this. The container
 layer should stop an attacker from accessing any files out on the host
 that you haven’t explicitly mounted into the container’s namespace, but
 it can’t stop them from making outbound network connections or modifying
@@ -545,6 +509,78 @@ the repo DB inside the container.
 [cgimgs]:     https://github.com/chainguard-images/images/tree/main/images
 [distroless]: https://www.chainguard.dev/unchained/minimal-container-images-towards-a-more-secure-future
 [MTA]:        https://en.wikipedia.org/wiki/Message_transfer_agent
+
+
+### 5.6 <a id="alerts"></a>Email Alerts
+
+The nature of our single static binary container precludes two of the
+options for [sending email alerts](./alerts.md) from Fossil:
+
+*   pipe to a command
+*   SMTP relay host
+
+There is no `/usr/sbin/sendmail` inside the container, and the container
+cannot connect out to a TCP service on the host by default.
+
+While it is possible to get around the first lack by [elaborating the
+run layer](#run), to inject a full-blown Sendmail setup into the
+container would go against the whole idea of containerization.
+Forwarding an SMTP relay port into the container isn’t nearly as bad,
+but it’s still bending the intent behind containers out of shape.
+
+A far better option in this case is the “store emails in database”
+method since the containerized Fossil binary knows perfectly well how to
+write SQLite DB files without relying on any external code. Using the
+paths in the configuration recommended above, the database path should
+be set to something like `/museum/mail.db`. This, along with the use of
+[bind mounts](#bind-mount) means you can have a process running outside
+the container that passes the emails along to the host-side MTA.
+
+The included [`email-sender.tcl`](/file/tools/email-sender.tcl) script
+works reasonably well for this, though in my own usage, I had to make
+two changes to it:
+
+1.  The shebang line at the top has to be `#!/usr/bin/tclsh` on my server.
+2.  I parameterized the `DBFILE` variable at the top thus:
+
+        set DBFILE [lindex $argv 0]
+
+I then wanted a way to start this Tcl script on startup and keep it
+running, which made me reach for systemd. My server is set to allow user
+services to run at boot(^”Desktop” class Linuxes tend to disable that by
+default under the theory that you don’t want those services to run until
+you’ve logged into the GUI as that user. If you find yourself running
+into this, [enable linger
+mode](https://www.freedesktop.org/software/systemd/man/loginctl.html).)
+so I was able to create a unit file called
+`~/.local/share/systemd/user/alert-sender@.service` with these contents:
+
+```
+    [Unit]
+    Description=Fossil email alert sender for %I
+
+    [Service]
+    WorkingDirectory=/home/fossil/museum
+    ExecStart=/home/fossil/bin/alert-sender %I/mail.db
+    Restart=always
+    RestartSec=3
+
+    [Install]
+    WantedBy=default.target
+```
+
+I was then able to enable email alert forwarding for select repositories
+after configuring them per [the docs](./alerts.md) by saying:
+
+```
+    $ systemctl --user daemon-reload
+    $ systemctl --user enable alert-sender@myproject
+    $ systemctl --user start  alert-sender@myproject
+```
+
+Because this is a parameterized script and we’ve set our repository
+paths predictably, you can do this for as many repositories as you need
+to by passing their names after the “`@`” sign in the commands above.
 
 
 ## 6. <a id="light"></a>Lightweight Alternatives to Docker
