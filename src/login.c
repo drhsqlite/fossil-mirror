@@ -51,6 +51,21 @@
 #endif
 #include <time.h>
 
+/*
+** Compute an appropriate Anti-CSRF token into g.zCsrfToken[].
+*/
+static void login_create_csrf_secret(const char *zSeed){
+  unsigned char zResult[20];
+  int i;
+
+  sha1sum_binary(zSeed, zResult);
+  for(i=0; i<sizeof(g.zCsrfToken)-1; i++){
+    g.zCsrfToken[i] = "abcdefghijklmnopqrstuvwxyz"
+                      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                      "0123456789-/"[zResult[i]%64];
+  }
+  g.zCsrfToken[i] = 0;
+}
 
 /*
 ** Return the login-group name.  Or return 0 if this repository is
@@ -1291,6 +1306,7 @@ void login_check_credentials(void){
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
   ){
+    char *zSeed;
     if( g.localOpen ) zLogin = db_lget("default-user",0);
     if( zLogin!=0 ){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
@@ -1301,7 +1317,10 @@ void login_check_credentials(void){
     zCap = "sxy";
     g.noPswd = 1;
     g.isHuman = 1;
-    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "localhost");
+    zSeed = db_text("??", "SELECT uid||quote(login)||quote(pw)||quote(cookie)"
+                          "  FROM user WHERE uid=%d", uid);
+    login_create_csrf_secret(zSeed);
+    fossil_free(zSeed);
   }
 
   /* Check the login cookie to see if it matches a known valid user.
@@ -1356,7 +1375,7 @@ void login_check_credentials(void){
         if( uid ) record_login_attempt(zUser, zIpAddr, 1);
       }
     }
-    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zHash);
+    login_create_csrf_secret(zHash);
   }
 
   /* If no user found and the REMOTE_USER environment variable is set,
@@ -1406,7 +1425,7 @@ void login_check_credentials(void){
       uid = -1;
       zCap = "";
     }
-    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "none");
+    login_create_csrf_secret("none");
   }
 
   login_set_uid(uid, zCap);

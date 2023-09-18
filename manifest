@@ -1,5 +1,5 @@
-C Try\sto\ssimplify\sand\srationalize\sthe\sdefenses\sagainst\scross-site\srequest\nforgery\sattacks.\s\sA\shodgepodge\sof\stechniques\shave\sbeen\sused\sin\sthe\spast.\nThis\schanges\sattempts\sto\smake\severything\swork\smore\salike\sand\sto\scentralize\nCSRF\sdefenses\sfor\seasier\sauditing.
-D 2023-09-18T13:18:41.233
+C Stronger\sCSRF\stoken\sbased\son\sa\sSHA1\shash\sof\sthe\slogin\scookie.
+D 2023-09-18T14:13:38.976
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -385,7 +385,7 @@ F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c 0392404c3d5972fa304394ba758b2874869ffcbbac30c68c002d49ef0a0414c2
 F src/branch.c d4a80ef0b9ce391a697d4ce247af40586a64e0dae944aaf4726085c896b9d29c
 F src/browse.c 224cea8546c56c1f18e71eb527a6a56b7cdba1b9cd153d0319b752efcdca7ced
-F src/builtin.c fca2f33348122f3ff64a8f18481f5559150dfaf9226d220c6869ca8dc2c03c23
+F src/builtin.c 3a83f094b3af3b7fe8ab7bcf7cc7777201c6daef7dcbbb48b0da3dc354a120f4
 F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
 F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095ae44e
@@ -484,10 +484,10 @@ F src/json_user.c 92b2ee7ad3478329c15b51c19c8b9464055060e8047268803728d3e43447f1
 F src/json_wiki.c b91dc896ee9e71e4faca84b55c8bf648e64a9540cbcb80f7f51ad6dfb67878aa
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c ac311c842e3cf90487925e1ed18836c89aad7253ab28033caa81a712d3b1034d
+F src/login.c 8f9856919f0de53f6e523ad5c6bcbd1135bada00734fa3679bb4af6a0cdf048a
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 132e241e0e08ae49cd9bd9d4486f6490edfb56b53f2ec5c9a6d4584dcbcd0699
-F src/main.c 375f4721c5ba088f451d322ca221a7a57d5de73a9f21858892ed15bb2c65e1ac
+F src/main.c 7b5128c41f784249000750b957e410c5d41fba10c68a01ed069de15c3a165289
 F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
@@ -520,7 +520,7 @@ F src/search.c 04884c4f8e822908ef16956fa5f87435813be4db462d5e70677d3e51cbd82989
 F src/security_audit.c f19adc73d9970e37100bfde1992a3bd46f7248dfc4943971bf51084f540f0dc8
 F src/setup.c 3c985477fa96d6bd1422a14dcb7c8bf4961ecb9b9af8ad73944be47656e5a9b8
 F src/setupuser.c c7da451cff7545ab89f14322fc09fbba9d11e8adca4a981dad174d96abe1644c
-F src/sha1.c 98e4279ebda3c543ab4ac4511f0c3c4380a7faf78be1a7fd7521d7b6e8f62855
+F src/sha1.c 9fca2ef73ac3feaf361aa390ff5fab35b54736d72c59dc5ed63ec6daca1a1f29
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c b61d072897815a90a3557b1213cc1477cbba8c926a098d14d1838c0851196ea8
 F src/shun.c c7fb218ab716297a2331b1c42098960997afb2c1c9df37b3d890b549dee11b0a
@@ -950,11 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ff63db2e66013a5b6dc8108bb874dea48c48f8892b5f4762e7771b29ee662aa
-R 867677d7272c0e723fb3aac73918d682
-T *branch * csrf-defense-enhancement
-T *sym-csrf-defense-enhancement *
-T -sym-trunk *
+P 88a402fe2a5641990497eeed13f4848903c94ba37d860997c430da874849d7a8
+R 54527dc9dfce3fc2c935a6b0fcc0a8bf
 U drh
-Z 6065f72f46eae3ee7ef3e9bef37e547b
+Z 385ac4a8d028728ae6c0cd8c65233fad
 # Remove this line to create a well-formed Fossil manifest.

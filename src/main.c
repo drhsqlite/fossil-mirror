@@ -258,7 +258,7 @@ struct Global {
 #endif
 
   /* For defense against Cross-site Request Forgery attacks */
-  char zCsrfToken[12];    /* Value of the anti-CSRF token */
+  char zCsrfToken[16];    /* Value of the anti-CSRF token */
   int okCsrf;             /* -1:  unsafe
                           **  0:  unknown
                           **  1:  same origin
