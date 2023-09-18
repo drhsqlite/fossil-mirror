@@ -316,13 +316,12 @@ void cgi_set_cookie(
   }
   if( lifetime!=0 ){
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; "
-       "%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; SameSite=strict;"
+       " %s\r\n",
        zName, lifetime>0 ? zValue : "null", zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; HttpOnly; "
-       "%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly; SameSite=strict; %s\r\n",
        zName, zValue, zPath, zSecure);
   }
 }

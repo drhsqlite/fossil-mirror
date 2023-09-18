@@ -1,5 +1,5 @@
-C Fix\sforum-post\sapproval\sbuttons\sso\sthat\sthey\ssend\sthe\sCSRF\stoken.
-D 2023-09-18T15:24:56.282
+C Set\sthe\s"SameSite=strict"\svalue\son\scookies\s(used\sfor\sauthentication)\sas\sa\nfurther\sdefense-in-depth\sagainst\sCSRF\sattacks.
+D 2023-09-18T15:36:39.935
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -390,7 +390,7 @@ F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 85f433998f11dd56b9e3b3edf07b0205fb34ae4123cfc69235a1d1ab695c6a3f
 F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095ae44e
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
-F src/cgi.c c2fbc76c5862c08f94b052fdc538f1b8d1b80b5ddb6a888f9937c6054bc7c9b9
+F src/cgi.c e5d9bc3721871efcc88ca61ef143156f3afe038f3f3058dd3e410469bdbc1a70
 F src/chat.c af623d16c680073321a4b273c3d31f00375931c6ab7b0a04890ca6d46bb0d65f
 F src/checkin.c 719302d26f470bc41d797b9e7f4e8d59d1c114bba690e3ce876a39ae3d12122b
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0a66be2b7545262a62ec8f45ce82a6ff32750ab8d4038d0e285f1f4684cfbd10
-R 94d8317bda5ed21aa30ac9cbe15c4d2f
+P bf9974cf8d410af9e478e4cce2da8e0be22c2d0153967b9327b458ea4aadaf4f
+R 4bda508a895cf3802f1765b93c547ca5
 U drh
-Z 23e0462efa69774535ae20852e0c0699
+Z 4f4b92f9b1a94d38a6f972cae440db25
 # Remove this line to create a well-formed Fossil manifest.
