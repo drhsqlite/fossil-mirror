@@ -866,8 +866,8 @@ static void patch_diff(
 ** > fossil patch diff [DIRECTORY] PATCHFILE
 ** > fossil patch gdiff [DIRECTORY] PATCHFILE
 **
-**       Show a human-readable diff for the patch in PATCHFILE and assocated
-**       with the the repository checked out in DIRECTORY.  The currrent
+**       Show a human-readable diff for the patch in PATCHFILE and associated
+**       with the repository checked out in DIRECTORY.  The current
 **       directory is used if DIRECTORY is omitted. All the usual
 **       diff flags described at "fossil help diff" apply. With gdiff,
 **       gdiff-command is used instead of internal diff logic.  In addition:
