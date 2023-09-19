@@ -616,13 +616,13 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        List all branches.
 **
 **        Options:
-**          -a|--all      List all branches.  Default show only open branches
-**          -c|--closed   List closed branches
-**          -m|--merged   List branches merged into the current branch
-**          -M|--unmerged List branches not merged into the current branch
-**          -p            List only private branches
-**          -r            Reverse the sort order
-**          -t            Show recently changed branches first
+**          -a|--all       List all branches.  Default show only open branches
+**          -c|--closed    List closed branches
+**          -m|--merged    List branches merged into the current branch
+**          -M|--unmerged  List branches not merged into the current branch
+**          -p             List only private branches
+**          -r             Reverse the sort order
+**          -t             Show recently changed branches first
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
