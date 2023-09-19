@@ -841,19 +841,19 @@ static void patch_diff(
 ** uncommitted changes of a check-out.  Use Fossil binary patches to transfer
 ** proposed or incomplete changes between machines for testing or analysis.
 **
-** > fossil patch create [DIRECTORY] FILENAME
+** > fossil patch create [DIRECTORY] PATCHFILE
 **
-**       Create a new binary patch in FILENAME that captures all uncommitted
+**       Create a new binary patch in PATCHFILE that captures all uncommitted
 **       changes in the check-out at DIRECTORY, or the current directory if
-**       DIRECTORY is omitted.  If FILENAME is "-" then the binary patch
+**       DIRECTORY is omitted.  If PATCHFILE is "-" then the binary patch
 **       is written to standard output.
 **
 **       Options:
 **           -f|--force     Overwrite an existing patch with the same name
 **
-** > fossil patch apply [DIRECTORY] FILENAME
+** > fossil patch apply [DIRECTORY] PATCHFILE
 **
-**       Apply the changes in FILENAME to the check-out at DIRECTORY, or
+**       Apply the changes in PATCHFILE to the check-out at DIRECTORY, or
 **       in the current directory if DIRECTORY is omitted.
 **
 **       Options:
@@ -863,10 +863,12 @@ static void patch_diff(
 **           -n|--dry-run   Do nothing, but print what would have happened
 **           -v|--verbose   Extra output explaining what happens
 **
-** > fossil patch diff [DIRECTORY] FILENAME
-** > fossil patch gdiff [DIRECTORY] FILENAME
+** > fossil patch diff [DIRECTORY] PATCHFILE
+** > fossil patch gdiff [DIRECTORY] PATCHFILE
 **
-**       Show a human-readable diff for the patch.  All the usual
+**       Show a human-readable diff for the patch in PATCHFILE and assocated
+**       with the the repository checked out in DIRECTORY.  The currrent
+**       directory is used if DIRECTORY is omitted. All the usual
 **       diff flags described at "fossil help diff" apply. With gdiff,
 **       gdiff-command is used instead of internal diff logic.  In addition:
 **
@@ -906,9 +908,9 @@ static void patch_diff(
 **       Like "fossil patch push" except that the transfer is from remote
 **       to local.  All the same command-line options apply.
 **
-** > fossil patch view FILENAME
+** > fossil patch view PATCHFILE
 **
-**       View a summary of the changes in the binary patch FILENAME.
+**       View a summary of the changes in the binary patch in PATCHFILE.
 **       Use "fossil patch diff" for detailed patch content.
 **
 **           -v|--verbose       Show extra detail about the patch
