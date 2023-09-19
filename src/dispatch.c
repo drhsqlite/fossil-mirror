@@ -449,6 +449,10 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
         iLevel++;
         aIndent[iLevel] = nIndent;
         azEnd[iLevel] = zEndUL;
+        if( wantP ){
+          blob_append(pHtml,"<p>", 3);
+          wantP = 0;
+        }
         blob_append(pHtml, "<ul>\n", 5);
       }else if( isDT 
              || zHelp[nIndent]=='-'
@@ -456,11 +460,16 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
         iLevel++;
         aIndent[iLevel] = nIndent;
         azEnd[iLevel] = zEndDL;
+        wantP = 0;
         blob_append(pHtml, "<blockquote><dl>\n", -1);
       }else if( azEnd[iLevel]==zEndDL ){
         iLevel++;
         aIndent[iLevel] = nIndent;
         azEnd[iLevel] = zEndDD;
+        if( wantP ){
+          blob_append(pHtml,"<p>", 3);
+          wantP = 0;
+        }
         blob_append(pHtml, "<dd>", 4);
       }else if( wantP ){
         iLevel++;
@@ -1035,9 +1044,9 @@ void test_all_help_page(void){
         @ <dt><big><b>%s(aCommand[bktHelp[aCommand[i].iHelp][j]].zName)</b>
         @</big> (%s(zDesc))</dt>
       }
-      @ <dd>
+      @ <p><dd>
       help_to_html(aCommand[i].zHelp, cgi_output_blob());
-      @ </dd>
+      @ </dd><p>
       occHelp[aCommand[i].iHelp] = 0;
     }
   }

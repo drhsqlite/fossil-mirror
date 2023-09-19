@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2023-09-19T11:19:17.466
+C Improvements\sto\shelp-text\sHTML\sformatting.
+D 2023-09-19T11:31:01.613
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/diff.c 859e4f131bf9c9a9d5b092754c7459bb45727c83a8c770035f74fa10b455c88f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
 F src/diffcmd.c de1bf3168a35fb1ff2dabaf29149fef4b5c143dd0cdc2e4c54fd02f014ecfabd
-F src/dispatch.c 490e92b0e28571d5af26841f46ebfb14a88b6290f71c03a1ddbf88e8d3efa95a
+F src/dispatch.c 132188a85d5137661081c0d4daff4d35fc352d4d0be80987fa7f8cad70f7ab69
 F src/doc.c 15552ea105bd70eb99f4f2059a9fb68f824af5eddbcbe679a77d6cdb2e990ba8
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ead5a95b47bf5d0ca624f98f5d0d10283705a3069b378528e1960a14a3eeaab4
-R 0f98229a2ee6645f905884706c6b70bd
+P 5afa42e4ec6aba9a1c549b7a56b2ab2c7dda31401f5f28a84bf6bc29d3fe6a9c
+R a942a733835631a37297865ce84afc80
 U drh
-Z 7b2e31aa3bf3d8a01bcdcd5b8fb043a4
+Z d548800a0ade8d8016d5d8fe7d245741
 # Remove this line to create a well-formed Fossil manifest.
