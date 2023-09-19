@@ -11,16 +11,40 @@
   *  The [/help?cmd=status|fossil status] command and relevant UI pages now
      correctly report files which were both renamed <b>and</b> edited as such.
   *  Show default value of settings that have a default in
-     [/help?cmd=help|fossil help SETTING] output. 
+     [/help?cmd=help|fossil help SETTING] output.
+  *  New options for email notification:  Get email only for the first
+     post in each new thread, and/or posts that are in reply to my posts.
   *  Fix a regression bug introduced in version 2.22 that caused FTS5 searches
      to fail for terms containing non-ASCII characters.
-  *  Improve defense against denial-of-service with repeated requests that
-     contain SQL injection attempts.
-  *  Enhance file listings by displaying file sizes and allowing to sort by them.
+  *  Improved defense-in-depth against malicious attack:
+     <ul>
+     <li> When an attempted SQL injection attack is detected, return
+          HTTP result code 418, which can signal the web server to sanction
+          the attacking IP address.
+     <li> Better defense against cross-site request forgery (CSRF)
+          attacks.
+     <li> Improvements to static analysis of source code (the codecheck1.c
+          file in the source tree).
+     </ul>
+  *  Enhance the [/help?cmd=/dir|treeview file listings]
+     ([/dir?type=tree&ci=trunk|example]) by displaying file sizes
+     and adding the option to sort by file size.
   *  The [/help?cmd=fts-config|fossil fts-config] command now shows how much
      repository space is used by the full-text index.
   *  The [/help?cmd=branch|fossil branch list] command can now filter branches
      that have/have not been merged into the current branch.
+  *  Improvements to interactions with remote repositories over SSH:
+     <ul>
+     <li> Print the text of the SSH command that is run to do remote interaction,
+          for full disclosure to the operator.
+     <li> Add a PATH= argument to the [/help?cmd=ui|fossil ui remote:/] and
+          [/help?cmd=patch|fossil patch push/pull remote:...] commands so that
+          they work when the "remote" machine is a Mac and the "fossil"
+          executable is in the $HOME/bin directory.
+     </ul>
+  *  Update built-in libraries SQLite, ZLib, Pikchr to their latest versions.
+  *  Documentation enhancements and typo fixes.
+  
 
 
 <h2 id='v2_22'>Changes for version 2.22 (2023-05-31)</h2>
