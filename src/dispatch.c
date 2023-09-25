@@ -55,6 +55,7 @@ struct CmdOrPage {
 #define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
+#define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */

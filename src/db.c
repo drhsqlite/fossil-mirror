@@ -3730,7 +3730,17 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
   return z;
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
+  const CmdOrPage *pCmd = 0;
   db_assert_protection_off_or_not_sensitive(zName);
+  if( zValue!=0 && zValue[0]==0
+   && dispatch_name_search(zName, CMDFLAG_SETTING, &pCmd)==0
+   && (pCmd->eCmdFlags & CMDFLAG_KEEPEMPTY)==0
+  ){
+    /* Changing a setting to an empty string is the same as unsetting it,
+    ** unless that setting has the keep-empty flag. */
+    db_unset(zName/*works-like:"x"*/, globalFlag);
+    return;
+  }
   db_unprotect(PROTECT_CONFIG);
   db_begin_transaction();
   if( globalFlag ){
@@ -4570,7 +4580,7 @@ struct Setting {
 ** This is an alias for the crlf-glob setting.
 */
 /*
-** SETTING: default-perms   width=16 default=u sensitive
+** SETTING: default-perms   width=16 default=u sensitive keep-empty
 ** Permissions given automatically to new users.  For more
 ** information on permissions see the Users page in Server
 ** Administration of the HTTP UI.
@@ -4952,7 +4962,7 @@ struct Setting {
 ** whatsoever.
 */
 /*
-** SETTING: default-csp      width=40 block-text
+** SETTING: default-csp      width=40 block-text keep-empty
 **
 ** The text of the Content Security Policy that is included
 ** in the Content-Security-Policy: header field of the HTTP
