@@ -1245,6 +1245,7 @@ static void get_stext_by_mimetype(
   Blob *pOut
 ){
   Blob html, title;
+  Blob *pHtml = &html;
   blob_init(&html, 0, 0);
   if( zTitle==0 ){
     blob_init(&title, 0, 0);
@@ -1253,33 +1254,25 @@ static void get_stext_by_mimetype(
   }
   if( zMimetype==0 ) zMimetype = "text/plain";
   if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0 ){
-    Blob tail;
-    blob_init(&tail, 0, 0);
     if( blob_size(&title) ){
       wiki_convert(pIn, &html, 0);
-    }else if( wiki_find_title(pIn, &title, &tail) ){
-      blob_appendf(pOut, "%s\n", blob_str(&title));
+    }else{
+      Blob tail;
+      blob_init(&tail, 0, 0);
+      wiki_find_title(pIn, &title, &tail);
       wiki_convert(&tail, &html, 0);
       blob_reset(&tail);
-    }else{
-      blob_append(pOut, "\n", 1);
-      wiki_convert(pIn, &html, 0);
     }
-    html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/x-markdown")==0 ){
     markdown_to_html(pIn, blob_size(&title) ? NULL : &title, &html);
-    if( blob_size(&title) ){
-      blob_appendf(pOut, "%s\n", blob_str(&title));
-    }else{
-      blob_append(pOut, "\n", 1);
-    }
-    html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/html")==0 ){
     if( blob_size(&title)==0 ) doc_is_embedded_html(pIn, &title);
-    blob_appendf(pOut, "%s\n", blob_str(&title));
-    html_to_plaintext(blob_str(pIn), pOut);
+    pHtml = pIn;
+  }
+  blob_appendf(pOut, "%s\n", blob_str(&title));
+  if( blob_size(pHtml) ){
+    html_to_plaintext(blob_str(pHtml), pOut);
   }else{
-    blob_append(pOut, "\n", 1);
     blob_append(pOut, blob_buffer(pIn), blob_size(pIn));
   }
   blob_reset(&html);
