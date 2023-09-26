@@ -1231,6 +1231,9 @@ void search_page(void){
 ** This is a helper function for search_stext().  Writing into pOut
 ** the search text obtained from pIn according to zMimetype.
 **
+** If a title is not specified in zTitle (e.g. for wiki pages that do not
+** include the title in the body), it is determined from the page content.
+**
 ** The title of the document is the first line of text.  All subsequent
 ** lines are the body.  If the document has no title, the first line
 ** is blank.
@@ -1238,16 +1241,23 @@ void search_page(void){
 static void get_stext_by_mimetype(
   Blob *pIn,
   const char *zMimetype,
+  const char *zTitle,
   Blob *pOut
 ){
   Blob html, title;
   blob_init(&html, 0, 0);
-  blob_init(&title, 0, 0);
+  if( zTitle==0 ){
+    blob_init(&title, 0, 0);
+  }else{
+    blob_init(&title, zTitle, -1);
+  }
   if( zMimetype==0 ) zMimetype = "text/plain";
   if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0 ){
     Blob tail;
     blob_init(&tail, 0, 0);
-    if( wiki_find_title(pIn, &title, &tail) ){
+    if( blob_size(&title) ){
+      wiki_convert(pIn, &html, 0);
+    }else if( wiki_find_title(pIn, &title, &tail) ){
       blob_appendf(pOut, "%s\n", blob_str(&title));
       wiki_convert(&tail, &html, 0);
       blob_reset(&tail);
@@ -1257,7 +1267,7 @@ static void get_stext_by_mimetype(
     }
     html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/x-markdown")==0 ){
-    markdown_to_html(pIn, &title, &html);
+    markdown_to_html(pIn, blob_size(&title) ? NULL : &title, &html);
     if( blob_size(&title) ){
       blob_appendf(pOut, "%s\n", blob_str(&title));
     }else{
@@ -1265,9 +1275,8 @@ static void get_stext_by_mimetype(
     }
     html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/html")==0 ){
-    if( doc_is_embedded_html(pIn, &title) ){
-      blob_appendf(pOut, "%s\n", blob_str(&title));
-    }
+    if( blob_size(&title)==0 ) doc_is_embedded_html(pIn, &title);
+    blob_appendf(pOut, "%s\n", blob_str(&title));
     html_to_plaintext(blob_str(pIn), pOut);
   }else{
     blob_append(pOut, "\n", 1);
@@ -1307,7 +1316,7 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
       Blob txt;
       blob_init(&txt, db_column_text(pQuery,i), -1);
       blob_appendf(pAccum, "%s: ", zColName);
-      get_stext_by_mimetype(&txt, zMime, pAccum);
+      get_stext_by_mimetype(&txt, zMime, NULL, pAccum);
       blob_append(pAccum, " |", 2);
       blob_reset(&txt);
     }
@@ -1346,7 +1355,7 @@ void search_stext(
       Blob doc;
       content_get(rid, &doc);
       blob_to_utf8_no_bom(&doc, 0);
-      get_stext_by_mimetype(&doc, mimetype_from_name(zName), pOut);
+      get_stext_by_mimetype(&doc, mimetype_from_name(zName), NULL, pOut);
       blob_reset(&doc);
       break;
     }
@@ -1368,7 +1377,7 @@ void search_stext(
         blob_init(&wiki, pWiki->zWiki, -1);
       }
       get_stext_by_mimetype(&wiki, wiki_filter_mimetypes(pWiki->zMimetype),
-                            pOut);
+                            cType=='w' ? pWiki->zWikiTitle : NULL, pOut);
       blob_reset(&wiki);
       manifest_destroy(pWiki);
       break;
@@ -1398,7 +1407,7 @@ void search_stext(
           Blob x;
           blob_init(&x,0,0);
           db_column_blob(&q, 0, &x);
-          get_stext_by_mimetype(&x, "text/x-fossil-wiki", pOut);
+          get_stext_by_mimetype(&x, "text/x-fossil-wiki", NULL, pOut);
           blob_reset(&x);
         }
       }
@@ -1509,7 +1518,7 @@ void test_convert_stext(void){
   if( g.argc!=4 ) usage("FILENAME MIMETYPE");
   blob_read_from_file(&in, g.argv[2], ExtFILE);
   blob_init(&out, 0, 0);
-  get_stext_by_mimetype(&in, g.argv[3], &out);
+  get_stext_by_mimetype(&in, g.argv[3], NULL, &out);
   fossil_print("%s\n",blob_str(&out));
   blob_reset(&in);
   blob_reset(&out);

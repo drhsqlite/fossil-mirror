@@ -1,5 +1,5 @@
-C Correction\sof\ssimple\stypos\sin\spatch\susage\stext.
-D 2023-09-19T22:03:39.981
+C Allow\ssearching\sfor\swiki\spage\stitles\sas\sdiscussed\sin\s[forum:31d8831c2d9809fa].
+D 2023-09-26T10:18:28.422
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -516,7 +516,7 @@ F src/report.c 553e5cbe86e2684bbcf3ee0ac7916db9aebc644c42bbb245048a208b9cfc8f51
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 04884c4f8e822908ef16956fa5f87435813be4db462d5e70677d3e51cbd82989
+F src/search.c 5fe60470bede7bff59366aad304ed0ea4189935288e940b234a7f9106b06d019
 F src/security_audit.c 6da0bd26a7ff1544c46eb0caf4c003496c8caaaf9af7d060557a450770278953
 F src/setup.c f9a28bb0ba8196f80f1091af71236bff121efdcd87ffa1c6defa07fe9ad86009
 F src/setupuser.c 3b1136b8d5dbfb2d97b34845e5294af9ff11aab5588941efab1445b8aa0f161a
@@ -950,8 +950,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 132af984d05422e7a4cfe94e81aee75cff5696272eb578cd8e67a2fb4771bd03
-R d130d330c378c4448de975a8bade20ef
-U mgagnon
-Z e51778c7895467af21d4f591874ee6fb
+P 9b10bf45755514b4681bd58268a87def443efce02bf1c1e8b3f8bda077fe516b
+R 36da629da7b2dc26739cf8ec73c123ee
+T *bgcolor * #fec084
+T *branch * search-wiki-titles
+T *sym-search-wiki-titles *
+T -sym-trunk *
+U preben
+Z 49005b31c9ff2d8d512f1b04ea27259c
 # Remove this line to create a well-formed Fossil manifest.
