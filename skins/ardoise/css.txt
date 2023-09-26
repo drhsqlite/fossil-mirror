@@ -1035,6 +1035,16 @@ span.timelineSecondary {
   height: 4px;
   background: #bbb
 }
+.tl-node.closed-leaf:after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 0px;
+  width: 10px;
+  height: 4px;
+  background: #bbb
+  border-radius: 0%;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;

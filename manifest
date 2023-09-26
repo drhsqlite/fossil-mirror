@@ -1,5 +1,5 @@
-C Correction\sof\ssimple\stypos\sin\spatch\susage\stext.
-D 2023-09-19T22:03:39.981
+C Allow\sstyling\sleaves\sof\sclosed\sbranches\sin\s/timeline.
+D 2023-09-26T13:03:59.637
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -281,7 +281,7 @@ F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 35c559e340d6db2b8c7426f091d5e6c44e84b8b31413c04d65c774523b4a84fe
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt d3f0b7cff134b75fc9c6ffffdadb163abe75fbd2ea09f9a7b7f3d2b972a2b776
+F skins/ardoise/css.txt da6c8144b9c51e44882009a0a368b17ce81cc21504075ea296cd3321c3c75f95
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
 F skins/ardoise/footer.txt 3158faf0fe96034417cac8a4e210aaa2d79094cf108db8a7546c6be4ba037e22
 F skins/ardoise/header.txt 164e896364d9603946e3f0a055413b8502e689bbb09ba839abd8abf9d4c29e23
@@ -335,7 +335,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 6708e8bc5a5fdca2e60deb894d6b485c85c93185daaa758c95f36e23c880eaee
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt cfa7eed6ebb15e4bfe3032c5f522db0f147b23e77afb3752cbe9519eecdb7beb
+F skins/darkmode/css.txt 0f6a48f7b5b241056554e1097425d1b874fd16146f075a138d089af95b58ec92
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
@@ -345,7 +345,7 @@ F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 053fbe5135601cbb1212b6925479f5944bf881ad105c0c31f7ea56c850b19c5e
+F skins/eagle/css.txt df34ae93e911c1b10c237a475d8bb78a23f5e42514eb8e2b7fc27172f1891e61
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 1cc12e949701ca75072c0357364891fb911a9b6720ccbbaa2dac823f15611a2e
@@ -406,7 +406,7 @@ F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 53b0c1dd0ca7a561a953248fff548bf6a349582dd715e50c0e9bad293b90e010
-F src/default.css 4b757424ab59d44ccae5bf031885574b204f781d93331ce3af31e20361f2d649
+F src/default.css 4d87fc1c6841d1d9ad8c5ca9c8ee6c2c2ebfcc07fdb3e0e7448fe7ca104be576
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -453,7 +453,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 981f15f08c9a51d0cb5391beb476196393eae479410e619946231b82a99981af
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js 8dc2134ff4338d38c1746bf82e1ba9fc65182e66b2762d556cdb39e63b588b27
+F src/graph.js 447383536c60a68fa7c74b84db0027425b985c45ed5238950cc9652812dd0d77
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -565,7 +565,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 3997512c80c8ec1f37cd9494a156c8259297630293a99e1cfb6c1909896f88ce
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c adc3984422db797757bfb73379470cdc84d305a307f0ccf463279f3760f606e5
+F src/timeline.c f743686dd563d7275c06947e0d745c52c4493eff198e756f3eef374ff4e3b272
 F src/tkt.c d08ea1eb738134d7ff9731d9ab6ee5494973dc97e1b3d7c7c089b49f27571067
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -950,8 +950,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 132af984d05422e7a4cfe94e81aee75cff5696272eb578cd8e67a2fb4771bd03
-R d130d330c378c4448de975a8bade20ef
-U mgagnon
-Z e51778c7895467af21d4f591874ee6fb
+P 9b10bf45755514b4681bd58268a87def443efce02bf1c1e8b3f8bda077fe516b
+R dc3ebd83ca5b035462f37941f8f65aa1
+T *bgcolor * #fec084
+T *branch * indicate-closed-branches-in-timeline
+T *sym-indicate-closed-branches-in-timeline *
+T -sym-trunk *
+U preben
+Z 2ae578b8a5803fff634e522016b1b51b
 # Remove this line to create a well-formed Fossil manifest.

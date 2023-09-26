@@ -452,7 +452,8 @@ void www_print_timeline(
         db_reset(&qcherrypick);
       }
       gidx = graph_add_row(pGraph, rid, nParent, nCherrypick, aParent,
-                           zBr, zBgClr, zUuid, isLeaf);
+                           zBr, zBgClr, zUuid,
+                           isLeaf ? isLeaf + 2 * has_closed_tag(rid) : 0);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
@@ -943,7 +944,7 @@ void timeline_output_graph_javascript(
     **        node with the id equal to the value.  This is like "u" except
     **        that the line is dotted instead of solid and has no arrow.
     **        Mnemonic: "Same Branch".
-    **    f:  0x01: a leaf node.
+    **    f:  0x01: a leaf node, 0x02: a closed leaf node.
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
@@ -983,6 +984,7 @@ void timeline_output_graph_javascript(
       }
       k = 0;
       if( pRow->isLeaf ) k |= 1;
+      if( pRow->isLeaf & 2) k |= 2;
       cgi_printf("\"f\":%d,",k);
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;

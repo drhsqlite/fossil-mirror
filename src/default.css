@@ -120,6 +120,16 @@ span.timelineEllipsis {
   height: 4px;
   background: #000;
 }
+.tl-node.closed-leaf:after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 0px;
+  width: 10px;
+  height: 4px;
+  background: #000;
+  border-radius: 0%;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;

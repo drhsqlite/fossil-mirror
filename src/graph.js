@@ -392,6 +392,7 @@ function TimelineGraph(tx){
     var cls = node.cls;
     if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
     if( p.f&1 ) cls += " leaf";
+    if( p.f&2 ) cls += " closed-leaf";
     var n = drawBox(cls,p.bg,p.x,p.y);
     n.id = "tln"+p.id;
     n.onclick = clickOnNode;
