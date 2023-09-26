@@ -1,5 +1,5 @@
-C Correction\sof\ssimple\stypos\sin\spatch\susage\stext.
-D 2023-09-19T22:03:39.981
+C Update\sFTS\swhen\screating/updating\stickets.\sAlso\savoids\sa\sstray\srow\swith\srid\s0.
+D 2023-09-26T11:04:54.924
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -566,7 +566,7 @@ F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 3997512c80c8ec1f37cd9494a156c8259297630293a99e1cfb6c1909896f88ce
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c adc3984422db797757bfb73379470cdc84d305a307f0ccf463279f3760f606e5
-F src/tkt.c d08ea1eb738134d7ff9731d9ab6ee5494973dc97e1b3d7c7c089b49f27571067
+F src/tkt.c ec379497bbcf415d719195a4264b921d55ab3a6040c628cc9eac11efcac786ea
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
@@ -950,8 +950,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 132af984d05422e7a4cfe94e81aee75cff5696272eb578cd8e67a2fb4771bd03
-R d130d330c378c4448de975a8bade20ef
-U mgagnon
-Z e51778c7895467af21d4f591874ee6fb
+P 9b10bf45755514b4681bd58268a87def443efce02bf1c1e8b3f8bda077fe516b
+R 0c64e98487206c548be2cf8804d5dbce
+T *bgcolor * #fec084
+T *branch * fts-ticket-updates
+T *sym-fts-ticket-updates *
+T -sym-trunk *
+U preben
+Z 005e15774668aca5400611ecea8c3759
 # Remove this line to create a well-formed Fossil manifest.

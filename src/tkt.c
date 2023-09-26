@@ -452,7 +452,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   getAllTicketFields();
   if( haveTicket==0 ) return;
   tktid = db_int(0, "SELECT tkt_id FROM ticket WHERE tkt_uuid=%Q", zTktUuid);
-  search_doc_touch('t', tktid, 0);
+  if( tktid!=0 ) search_doc_touch('t', tktid, 0);
   if( haveTicketChng ){
     db_multi_exec("DELETE FROM ticketchng WHERE tkt_id=%d;", tktid);
   }
@@ -473,6 +473,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
     createFlag = 0;
   }
   db_finalize(&q);
+  search_doc_touch('t', tktid, 0);
   /* Extract backlinks from the most recent values of TICKET fields */
   for(i=0; i<nField; i++){
     Blob *cards = fields + i;
