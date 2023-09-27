@@ -400,15 +400,11 @@ function TimelineGraph(tx){
     n.onmousemove = mouseOverNode;
     n.style.zIndex = 10;
     if( p.f&2 ){
-      var pt1 = 0;
-      var pt2 = 100;
-      if( tx.circleNodes ){
-        pt1 = 14;
-        pt2 = 86;
-      }
       n.innerHTML = "<svg width='100%' height='100%'viewbox='0 0 100 100'>"
-          + `<path d='M ${pt1},${pt1} L ${pt2},${pt2} M ${pt1},${pt2} L ${pt2},${pt1}'`
-          + " stroke='currentcolor' stroke-width='13'/>"
+          + "<line x1='25' y1='55' x2='45' y2='75'"
+          + " stroke='currentcolor' stroke-width='15' stroke-linecap='round'/>"
+          + "<line x1='75' y1='30' x2='45' y2='75'"
+          + " stroke='currentcolor' stroke-width='15' stroke-linecap='round'/>"
           + "</svg>";
     }
     if( !tx.omitDescenders ){
