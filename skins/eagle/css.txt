@@ -216,10 +216,10 @@ table.timelineTable {
 .tl-node.closed-leaf:after {
   content: '';
   position: absolute;
-  top: 3px;
+  top: 4px;
   left: 0px;
   width: 10px;
-  height: 4px;
+  height: 2px;
   background: #fff;
   border-radius: 0%;
 }
