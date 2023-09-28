@@ -725,7 +725,7 @@ void branch_cmd(void){
     branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
-      int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
+      int isPriv = db_column_int(&q, 1)==1;
       const char *zMergeTo = db_column_text(&q, 2);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
       if( (brFlags & BRL_MERGED) && fossil_strcmp(zCurrent,zMergeTo)!=0 ){
