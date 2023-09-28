@@ -740,6 +740,7 @@ void branch_cmd(void){
       user_select();
       zUser = login_name();
     }
+    verify_all_options();
 
     if ( (brFlags & BRL_MERGED) && (brFlags & BRL_UNMERGED) ){
       fossil_fatal("flags --merged and --unmerged are mutually exclusive");
@@ -755,10 +756,6 @@ void branch_cmd(void){
       }
       brFlags |= BRL_ORDERBY_MTIME;
     }else{
-      if( (g.argc == 4 || g.argc == 5)
-       && fossil_strcmp(g.argv[g.argc-1], "--users") == 0 ){
-        fossil_fatal("Missing argument for --users");
-      }
       if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
     }
 
