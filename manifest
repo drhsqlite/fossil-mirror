@@ -1,5 +1,5 @@
-C The\s"branch\sls"\scommand\sshould\sflag\sprivate\sbranches\swith\s-R.
-D 2023-09-28T13:51:07.246
+C Minor\stweaks\sto\sthe\shash\scolor\stest\spage.
+D 2023-09-28T14:08:33.859
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0d
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 8b88196ff8280ea6b8038e3c6779a37a3d27bea175f5eade9a70c0ee6acc1cc5
-F src/color.c 561a9134632511addbd6e798816e43a913dd06fa15025f8c24ae59bb31b7ed44
+F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
 F src/comformat.c be18377aa1c12548c7f2853d3b544c4aae492094047f30ba90ef61a2b31202f6
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 9b5e2c5384ab60920f7de9e1841f1494b343fb10596abdc059927cffd73d9cc0
@@ -524,7 +524,7 @@ F src/sha1.c 9fca2ef73ac3feaf361aa390ff5fab35b54736d72c59dc5ed63ec6daca1a1f29
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c b61d072897815a90a3557b1213cc1477cbba8c926a098d14d1838c0851196ea8
 F src/shun.c c7fb218ab716297a2331b1c42098960997afb2c1c9df37b3d890b549dee11b0a
-F src/sitemap.c c8c1da701ef6910d7db95f487ab54435ae5d4d52ce17c82d53b7c18bca05e003
+F src/sitemap.c ea0f2af271c8ee6bc82e68a75412f1e436097206247c8ba275472b0ae21d696d
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 8e74ce18bcc191f944a3ada3f55d69b144b8461d8e29cc3263f77fdbcffac829
 F src/smtp.c bfeb4e2d680cdab7a39321a4e142eea7edd97c252744a36bdd2343b39d0cb84f
@@ -950,9 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 225abb37df48a1027fd6d1ef8161e3bf7bb19136a518e23b01eceda1cde9bf7d fcb40ac9318d405dcecfb5b0a2cd51997de62f7ed65d2327cd48d486455ec934
-R c348c4bced127fda16abb22e0149d8f9
-T +closed fcb40ac9318d405dcecfb5b0a2cd51997de62f7ed65d2327cd48d486455ec934
+P 016f6c5ec51086591ed666cf048032ab1160337f76f5b09bc55e0e3aec07efc3
+R d97b1dfec3b1abaca7b03dba60399cbe
 U drh
-Z 92d929ef9aec81231c8037ac1693f4e4
+Z 9432335e79bf2024a2be90818657eef4
 # Remove this line to create a well-formed Fossil manifest.
