@@ -2006,16 +2006,13 @@ static void process_one_web_page(
   /* Make g.zPath point to the first element of the path.  Make
   ** g.zExtra point to everything past that point.
   */
-  while(1){
-    g.zPath = &zPath[1];
-    for(i=1; zPath[i] && zPath[i]!='/'; i++){}
-    if( zPath[i]=='/' ){
-      zPath[i] = 0;
-      g.zExtra = &zPath[i+1];
-    }else{
-      g.zExtra = 0;
-    }
-    break;
+  g.zPath = &zPath[1];
+  for(i=1; zPath[i] && zPath[i]!='/'; i++){}
+  if( zPath[i]=='/' ){
+    zPath[i] = 0;
+    g.zExtra = &zPath[i+1];
+  }else{
+    g.zExtra = 0;
   }
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
