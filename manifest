@@ -1,5 +1,5 @@
-C Correction\sof\ssimple\stypos\sin\spatch\susage\stext.
-D 2023-09-19T22:03:39.981
+C branch\sls\sshould\salso\sflag\sprivate\sbranches\swith\s-R.
+D 2023-09-28T13:18:10.195
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -383,7 +383,7 @@ F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cd
 F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c 0392404c3d5972fa304394ba758b2874869ffcbbac30c68c002d49ef0a0414c2
-F src/branch.c ffd4a41a5e3597c7c2af475e1220607f173e62d882ec2c2e55a3f7e6f35cc09e
+F src/branch.c f7a40fd5ebb4e59671db663c4618f6a3fd9e8e5d70751161598e88469e94e487
 F src/browse.c 224cea8546c56c1f18e71eb527a6a56b7cdba1b9cd153d0319b752efcdca7ced
 F src/builtin.c 3a83f094b3af3b7fe8ab7bcf7cc7777201c6daef7dcbbb48b0da3dc354a120f4
 F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
@@ -950,8 +950,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 132af984d05422e7a4cfe94e81aee75cff5696272eb578cd8e67a2fb4771bd03
-R d130d330c378c4448de975a8bade20ef
-U mgagnon
-Z e51778c7895467af21d4f591874ee6fb
+P 9b10bf45755514b4681bd58268a87def443efce02bf1c1e8b3f8bda077fe516b
+R 361cfbeddbb08e0723d37882ced2e6e6
+T *bgcolor * #fec084
+T *branch * branch-ls-private-fix
+T *sym-branch-ls-private-fix *
+T -sym-trunk *
+U preben
+Z b9af53194455469c2e6be79853d0fc46
 # Remove this line to create a well-formed Fossil manifest.
