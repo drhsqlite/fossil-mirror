@@ -12,6 +12,8 @@
      correctly report files which were both renamed <b>and</b> edited as such.
   *  Show default value of settings that have a default in
      [/help?cmd=help|fossil help SETTING] output.
+  *  On timeline graphs, show closed check-ins using an X in the middle of the
+     node circle or box.
   *  New options for email notification:  Get email only for the first
      post in each new thread, and/or posts that are in reply to my posts.
   *  Fix a regression bug introduced in version 2.22 that caused FTS5 searches
@@ -31,6 +33,9 @@
      and adding the option to sort by file size.
   *  The [/help?cmd=fts-config|fossil fts-config] command now shows how much
      repository space is used by the full-text index.
+  *  Changing a setting to an empty string is now the same as deleting the
+     setting, in most cases.  There are a few exceptions, indicated by the
+     keep-empty flag on the setting definition.
   *  The [/help?cmd=branch|fossil branch list] command can now filter branches
      that have/have not been merged into the current branch.
   *  Improvements to interactions with remote repositories over SSH:

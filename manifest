@@ -1,5 +1,5 @@
-C Changing\sa\ssetting\sto\san\sempty\sstring\sis\snow\sthe\ssame\sas\sunsetting\sthat\svalue,\nin\smost\scases.\s\sSettings\sthat\sare\sexceptions\sto\sthe\srule\sare\smarked\swith\sthe\n"keep-empty"\sflag.\s\sFix\sfor\sthe\sissue\sreported\sby\n[forum:/forumpost/a17b5fa51d607e3d|forum\spost\sa17b5fa51d607e3d].
-D 2023-09-28T14:13:47.181
+C Update\sto\sthe\schange\slog.
+D 2023-09-28T14:15:46.006
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -775,7 +775,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 93444fbb69b27dc9300b646eb34e258aef2b516fb019fe625d6453110ec4cab4
+F www/changes.wiki 42eaa99ff9cec9dfdeb7c3dbe7f218510a2d7188ce9f66f712b262133bd13d4b
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 04658e093bf10552fbc8d4bb6bce7d48e3212f07469b2c263e220313f73ffebf
@@ -950,9 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19799565b7a8c9ff0a10a6e927fe0dc8165cf0c9727efd865c2defe9440aa037 b9bbb8d7fd0c41d2812e6b1fb11b9bb38bb6e4a1bcaa2a11c4ac2150176b2743
-R 08263c735e78d9202815670b7af7267e
-T +closed b9bbb8d7fd0c41d2812e6b1fb11b9bb38bb6e4a1bcaa2a11c4ac2150176b2743
+P 1f6ae1efb4fcb222ec7007012af812bc1ec9b4d62a216bc3f3e8f9161c9b5f8e
+R 51bd9e1bcb942a7b374b37d8631811b8
 U drh
-Z dc3aea7254e82459731a31474796652d
+Z 7f461a9ff5764e2f9d93cf4dbce3fa4a
 # Remove this line to create a well-formed Fossil manifest.
