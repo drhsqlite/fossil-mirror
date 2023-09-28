@@ -1,5 +1,5 @@
-C Add\sbranch\sls\s--users\sto\slist\susers\sparticipating\sin\sbranches.
-D 2023-09-28T17:16:36.203
+C Fix\sfind_option()\serror\sand\sbadly\stype\s--users\sin\sargument\stest.
+D 2023-09-28T17:58:38.971
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -383,7 +383,7 @@ F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cd
 F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c 0392404c3d5972fa304394ba758b2874869ffcbbac30c68c002d49ef0a0414c2
-F src/branch.c b856aa2327d86acec798d06d584c67b014c09bae620e23e6a51cb43168ec503d
+F src/branch.c 0d406fde79ee944c1a8466730f6865a9d8156b66b4357c9cd627d9aac06f4aae
 F src/browse.c 224cea8546c56c1f18e71eb527a6a56b7cdba1b9cd153d0319b752efcdca7ced
 F src/builtin.c 3a83f094b3af3b7fe8ab7bcf7cc7777201c6daef7dcbbb48b0da3dc354a120f4
 F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d66ccf646e345887a0aebda830f1d1ecc948bb3ae1536b04fce1d8d2611ef523
-R 05e8b3165791f3a5113cf477555e49ac
+P 4615e2072af5381adafdd95b7de76ca6aa03c068af524ced438a424c8a90d100
+R 72ada6a6d1454ae3e84edf92309e54fd
 U preben
-Z 9509932d2fe67f8a61b02a41558ff66d
+Z f8eb86e6d126c17e72aa7fcfb228d0de
 # Remove this line to create a well-formed Fossil manifest.

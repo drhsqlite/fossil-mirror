@@ -733,7 +733,7 @@ void branch_cmd(void){
     if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
     if( find_option("merged","m",0)!=0 ) brFlags |= BRL_MERGED;
     if( find_option("unmerged","M",0)!=0 ) brFlags |= BRL_UNMERGED;
-    if( find_option("self","0",0)!=0 ){
+    if( find_option("self",0,0)!=0 ){
       if( zUser ){
         fossil_fatal("flags --username and --self are mutually exclusive");
       }
@@ -756,8 +756,8 @@ void branch_cmd(void){
       brFlags |= BRL_ORDERBY_MTIME;
     }else{
       if( (g.argc == 4 || g.argc == 5)
-       && fossil_strcmp(g.argv[g.argc-1], "--user") == 0 ){
-        fossil_fatal("Missing argument for --user");
+       && fossil_strcmp(g.argv[g.argc-1], "--users") == 0 ){
+        fossil_fatal("Missing argument for --users");
       }
       if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
     }
