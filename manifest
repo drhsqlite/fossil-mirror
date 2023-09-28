@@ -1,5 +1,5 @@
-C Update\sto\sthe\schange\slog.
-D 2023-09-28T14:15:46.006
+C Handle\s--opt=arg\sas\sfinal\scommand\sline\sargument,\sdiscussed\sin\s[forum:a90b5ebd36f4c134].
+D 2023-09-28T18:59:15.768
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -487,7 +487,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c c6a8397288d5fc900a638814cbb765f88ab0ae640441037d8c1ede4cd4cf8cb6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 132e241e0e08ae49cd9bd9d4486f6490edfb56b53f2ec5c9a6d4584dcbcd0699
-F src/main.c 0259c4b435e911cbaaaba97c72408b16fed59057b69661db9b9f079313dfebf4
+F src/main.c f8ffd8acb46573a6e378031f471cff842a0f92ca2cd585ff7e2e0ffa31f6d70d
 F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
@@ -950,8 +950,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f6ae1efb4fcb222ec7007012af812bc1ec9b4d62a216bc3f3e8f9161c9b5f8e
-R 51bd9e1bcb942a7b374b37d8631811b8
-U drh
-Z 7f461a9ff5764e2f9d93cf4dbce3fa4a
+P e3e28f43dcce3af45090d9f1138640e58c58cd508ebd849eefb4e00baac0cd6a
+R ab12ec63b2ab16a59c4716be9587d407
+T *branch * find-options-last-arg-fix
+T *sym-find-options-last-arg-fix *
+T -sym-trunk *
+U preben
+Z fd6675313f500a02e65c0e5dfaae7f0e
 # Remove this line to create a well-formed Fossil manifest.
