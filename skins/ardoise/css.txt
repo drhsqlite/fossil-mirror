@@ -1035,6 +1035,14 @@ span.timelineSecondary {
   height: 4px;
   background: #bbb
 }
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #bbb;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;

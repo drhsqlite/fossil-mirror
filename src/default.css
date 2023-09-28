@@ -120,6 +120,14 @@ span.timelineEllipsis {
   height: 4px;
   background: #000;
 }
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #000;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;
