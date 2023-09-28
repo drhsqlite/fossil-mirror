@@ -299,7 +299,8 @@ void branch_prepare_list_query(
   Stmt *pQuery,
   int brFlags,
   const char *zBrNameGlob,
-  int nLimitMRU
+  int nLimitMRU,
+  const char *zUser
 ){
   Blob sql;
   blob_init(&sql, 0, 0);
@@ -332,7 +333,12 @@ void branch_prepare_list_query(
   }
   if( brFlags & BRL_PRIVATE ) blob_append_sql(&sql, " AND isprivate");
   if( brFlags & BRL_MERGED ) blob_append_sql(&sql, " AND mergeto IS NOT NULL");
-  if(zBrNameGlob) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
+  if( zBrNameGlob ) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
+  if( zUser && zUser[0] ) blob_append_sql(&sql,
+    " AND EXISTS (SELECT 1 FROM event WHERE type='ci' AND (user=%Q OR euser=%Q)"
+    "      AND objid in (SELECT rid FROM tagxref WHERE value=tmp_brlist.name))",
+    zUser, zUser
+  );
   if( brFlags & BRL_ORDERBY_MTIME ){
     blob_append_sql(&sql, " ORDER BY -mtime");
   }else{
@@ -616,13 +622,15 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        List all branches.
 **
 **        Options:
-**          -a|--all       List all branches.  Default show only open branches
-**          -c|--closed    List closed branches
-**          -m|--merged    List branches merged into the current branch
-**          -M|--unmerged  List branches not merged into the current branch
-**          -p             List only private branches
-**          -r             Reverse the sort order
-**          -t             Show recently changed branches first
+**          -a|--all         List all branches.  Default show only open branches
+**          -c|--closed      List closed branches
+**          -m|--merged      List branches merged into the current branch
+**          -M|--unmerged    List branches not merged into the current branch
+**          -p               List only private branches
+**          -r               Reverse the sort order
+**          -t               Show recently changed branches first
+**          --username USER  List only branches with check-ins by USER
+**          --self           List only branches with check-ins by the default user
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
@@ -694,6 +702,7 @@ void branch_cmd(void){
     int vid;
     char *zCurrent = 0;
     const char *zBrNameGlob = 0;
+    const char *zUser = find_option("username",0,1);
     int nLimit = 0;
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
@@ -703,6 +712,13 @@ void branch_cmd(void){
     if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
     if( find_option("merged","m",0)!=0 ) brFlags |= BRL_MERGED;
     if( find_option("unmerged","M",0)!=0 ) brFlags |= BRL_UNMERGED;
+    if( find_option("self","0",0)!=0 ){
+      if( zUser ){
+        fossil_fatal("flags --username and --self are mutually exclusive");
+      }
+      user_select();
+      zUser = login_name();
+    }
 
     if ( (brFlags & BRL_MERGED) && (brFlags & BRL_UNMERGED) ){
       fossil_fatal("flags --merged and --unmerged are mutually exclusive");
@@ -722,7 +738,7 @@ void branch_cmd(void){
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit);
+    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit, zUser);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
@@ -924,7 +940,7 @@ void brlist_page(void){
   style_sidebox_end();
 #endif
 
-  branch_prepare_list_query(&q, brFlags, 0, 0);
+  branch_prepare_list_query(&q, brFlags, 0, 0, 0);
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
