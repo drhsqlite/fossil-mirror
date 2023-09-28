@@ -630,7 +630,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **          -r               Reverse the sort order
 **          -t               Show recently changed branches first
 **          --username USER  List only branches with check-ins by USER
-**          --self           List only branches with check-ins by the default user
+**          --self           List only branches with check-ins by the current user
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
