@@ -101,6 +101,7 @@
 #define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
+#define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
 /**************************************************************************/
 
 /*
@@ -265,6 +266,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }else if( j==10 && strncmp(&zLine[i], "block-text", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_BOOLEAN);
       aEntry[nUsed].eType |= CMDFLAG_BLOCKTEXT;
+    }else if( j==10 && strncmp(&zLine[i], "keep-empty", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_KEEPEMPTY;
     }else if( j==11 && strncmp(&zLine[i], "versionable", j)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_VERSIONABLE;
     }else if( j==9 && strncmp(&zLine[i], "sensitive", j)==0 ){

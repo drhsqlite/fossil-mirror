@@ -1029,7 +1029,7 @@ void setup_settings(void){
 }
 
 /*
-** SETTING:  mainmenu          width=70 block-text
+** SETTING:  mainmenu          width=70 block-text keep-empty
 **
 ** The mainmenu setting specifies the entries on the main menu
 ** for many skins.  The mainmenu should be a TCL list.  Each set

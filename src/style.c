@@ -610,8 +610,8 @@ char *style_csp(int toHeader){
   char *zCsp;
   int i;
   if( disableCSP ) return fossil_strdup("");
-  zFormat = db_get("default-csp","");
-  if( zFormat[0]==0 ){
+  zFormat = db_get("default-csp",0);
+  if( zFormat==0 ){
     zFormat = zBackupCSP;
   }
   blob_init(&csp, 0, 0);
@@ -733,7 +733,7 @@ void style_set_current_feature(const char* zFeature){
 ** setting, or style_default_mainmenu(), in that order, returning the
 ** first of those which is defined.
 */
-const char*style_get_mainmenu(){
+const char *style_get_mainmenu(){
   static const char *zMenu = 0;
   if(!zMenu){
     if(g.zMainMenuFile){
