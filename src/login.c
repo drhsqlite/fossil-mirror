@@ -1969,6 +1969,7 @@ void register_page(void){
     return;
   }
   zPerms = db_get("default-perms", "u");
+  login_check_credentials();
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
