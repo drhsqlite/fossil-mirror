@@ -280,6 +280,7 @@ static void brlist_create_temp_table(void){
 #define BRL_PRIVATE          0x010 /* Show only private branches */
 #define BRL_MERGED           0x020 /* Show only merged branches */
 #define BRL_UNMERGED         0x040 /* Show only unmerged branches */
+#define BRL_LIST_USERS       0x080 /* Populate list of users participating */
 
 #endif /* INTERFACE */
 
@@ -299,7 +300,8 @@ void branch_prepare_list_query(
   Stmt *pQuery,
   int brFlags,
   const char *zBrNameGlob,
-  int nLimitMRU
+  int nLimitMRU,
+  const char *zUser
 ){
   Blob sql;
   blob_init(&sql, 0, 0);
@@ -309,7 +311,23 @@ void branch_prepare_list_query(
   /* Undocumented: invert negative values for nLimitMRU, so that command-line
   ** arguments similar to `head -5' with "option numbers" are possible. */
   if( nLimitMRU<0 ) nLimitMRU = -nLimitMRU;
-  blob_append_sql(&sql,"SELECT name, isprivate, mergeto FROM ("); /* OUTER QUERY */
+  /* OUTER QUERY */
+  blob_append_sql(&sql,"SELECT name, isprivate, mergeto,");
+  if( brFlags & BRL_LIST_USERS ){
+    blob_append_sql(&sql,
+      " (SELECT group_concat(user) FROM ("
+      "     SELECT DISTINCT * FROM ("
+      "         SELECT coalesce(euser,user) AS user"
+      "           FROM event"
+      "          WHERE type='ci' AND objid IN ("
+      "             SELECT rid FROM tagxref WHERE value=name)"
+      "          ORDER BY 1)))"
+    );
+  }else{
+    blob_append_sql(&sql, " NULL");
+  }
+  blob_append_sql(&sql," FROM (");
+  /* INNER QUERY */
   switch( brFlags & BRL_OPEN_CLOSED_MASK ){
     case BRL_CLOSED_ONLY: {
       blob_append_sql(&sql,
@@ -332,7 +350,12 @@ void branch_prepare_list_query(
   }
   if( brFlags & BRL_PRIVATE ) blob_append_sql(&sql, " AND isprivate");
   if( brFlags & BRL_MERGED ) blob_append_sql(&sql, " AND mergeto IS NOT NULL");
-  if(zBrNameGlob) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
+  if( zBrNameGlob ) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
+  if( zUser && zUser[0] ) blob_append_sql(&sql,
+    " AND EXISTS (SELECT 1 FROM event WHERE type='ci' AND (user=%Q OR euser=%Q)"
+    "      AND objid in (SELECT rid FROM tagxref WHERE value=tmp_brlist.name))",
+    zUser, zUser
+  );
   if( brFlags & BRL_ORDERBY_MTIME ){
     blob_append_sql(&sql, " ORDER BY -mtime");
   }else{
@@ -616,13 +639,16 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        List all branches.
 **
 **        Options:
-**          -a|--all       List all branches.  Default show only open branches
-**          -c|--closed    List closed branches
-**          -m|--merged    List branches merged into the current branch
-**          -M|--unmerged  List branches not merged into the current branch
-**          -p             List only private branches
-**          -r             Reverse the sort order
-**          -t             Show recently changed branches first
+**          -a|--all         List all branches.  Default show only open branches
+**          -c|--closed      List closed branches
+**          -m|--merged      List branches merged into the current branch
+**          -M|--unmerged    List branches not merged into the current branch
+**          -p               List only private branches
+**          -r               Reverse the sort order
+**          -t               Show recently changed branches first
+**          --self           List only branches where you participate
+**          --username USER  List only branches where USER participate
+**          --users N        List up to N users partipiating
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
@@ -691,9 +717,13 @@ void branch_cmd(void){
             strncmp(zCmd, "ls", n)==0 ||
             strcmp(zCmd, "lsh")==0 ){
     Stmt q;
+    Blob txt = empty_blob;
     int vid;
     char *zCurrent = 0;
     const char *zBrNameGlob = 0;
+    const char *zUser = find_option("username",0,1);
+    const char *zUsersOpt = find_option("users",0,1);
+    int nUsers = zUsersOpt ? atoi(zUsersOpt) : 0;
     int nLimit = 0;
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
@@ -703,9 +733,21 @@ void branch_cmd(void){
     if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
     if( find_option("merged","m",0)!=0 ) brFlags |= BRL_MERGED;
     if( find_option("unmerged","M",0)!=0 ) brFlags |= BRL_UNMERGED;
+    if( find_option("self",0,0)!=0 ){
+      if( zUser ){
+        fossil_fatal("flags --username and --self are mutually exclusive");
+      }
+      user_select();
+      zUser = login_name();
+    }
+    verify_all_options();
 
     if ( (brFlags & BRL_MERGED) && (brFlags & BRL_UNMERGED) ){
       fossil_fatal("flags --merged and --unmerged are mutually exclusive");
+    }
+    if( zUsersOpt ){
+      if( nUsers <= 0) fossil_fatal("With --users, N must be positive");
+      brFlags |= BRL_LIST_USERS;
     }
     if( strcmp(zCmd, "lsh")==0 ){
       nLimit = 5;
@@ -722,12 +764,14 @@ void branch_cmd(void){
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit);
+    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit, zUser);
+    blob_init(&txt, 0, 0);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isPriv = db_column_int(&q, 1)==1;
       const char *zMergeTo = db_column_text(&q, 2);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
+      const char *zUsers = db_column_text(&q, 3);
       if( (brFlags & BRL_MERGED) && fossil_strcmp(zCurrent,zMergeTo)!=0 ){
         continue;
       }
@@ -735,9 +779,29 @@ void branch_cmd(void){
           || isCur) ){
         continue;
       }
-      fossil_print("%s%s%s\n",
+      blob_appendf(&txt, "%s%s%s",
         ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ),
         (isCur ? "* " : "  "), zBr);
+      if( nUsers ){
+        char c;
+        const char *cp;
+        const char *pComma = 0;
+        int commas = 0;
+        for( cp = zUsers; ( c = *cp ) != 0; cp++ ){
+          if( c == ',' ){
+            commas++;
+            if( commas == nUsers ) pComma = cp;
+          }
+        }
+        if( pComma ){
+          blob_appendf(&txt, " (%.*s,... %i more)",
+            pComma - zUsers, zUsers, commas + 1 - nUsers);
+        }else{
+          blob_appendf(&txt, " (%s)", zUsers);
+        }
+      }
+      fossil_print("%s\n", blob_str(&txt));
+      blob_reset(&txt);
     }
     db_finalize(&q);
   }else if( strncmp(zCmd,"new",n)==0 ){
@@ -924,7 +988,7 @@ void brlist_page(void){
   style_sidebox_end();
 #endif
 
-  branch_prepare_list_query(&q, brFlags, 0, 0);
+  branch_prepare_list_query(&q, brFlags, 0, 0, 0);
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
