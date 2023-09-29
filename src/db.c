@@ -4298,8 +4298,24 @@ void cmd_open(void){
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
 */
-void print_setting(const Setting *pSetting){
+void print_setting(const Setting *pSetting, int valueOnly){
   Stmt q;
+  int versioned = 0;
+  if( pSetting->versionable && g.localOpen ){
+    /* Check to see if this is overridden by a versionable settings file */
+    Blob versionedPathname;
+    blob_zero(&versionedPathname);
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                 g.zLocalRoot, pSetting->name);
+    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
+      versioned = 1;
+    }
+    blob_reset(&versionedPathname);
+  }
+  if( valueOnly && versioned ){
+    fossil_print("%s\n", db_get_versioned(pSetting->name, NULL));
+    return;
+  }
   if( g.repositoryOpen ){
     db_prepare(&q,
        "SELECT '(local)', value FROM config WHERE name=%Q"
@@ -4314,22 +4330,20 @@ void print_setting(const Setting *pSetting){
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
-        db_column_text(&q, 1));
+    if( valueOnly ){
+      fossil_print("%s\n", db_column_text(&q, 1));
+    }else{
+      fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
+          db_column_text(&q, 1));
+    }
+  }else if( valueOnly ){
+    fossil_print("\n");
   }else{
     fossil_print("%-20s\n", pSetting->name);
   }
-  if( pSetting->versionable && g.localOpen ){
-    /* Check to see if this is overridden by a versionable settings file */
-    Blob versionedPathname;
-    blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
-                 g.zLocalRoot, pSetting->name);
-    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
-                   pSetting->name);
-    }
-    blob_reset(&versionedPathname);
+  if( versioned ){
+    fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
+                 pSetting->name);
   }
   db_finalize(&q);
 }
@@ -5065,6 +5079,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 **   --global   Set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only
 **   --exact    Only consider exact name matches
+**   --value    Only show the value of a given property (implies --exact)
 **
 ** See also: [[configuration]]
 */
@@ -5072,6 +5087,7 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
+  int valueFlag = find_option("value",0,0)!=0;
   /* Undocumented "--test-for-subsystem SUBSYS" option used to test
   ** the db_get_for_subsystem() interface: */
   const char *zSubsys = find_option("test-for-subsystem",0,1);
@@ -5090,10 +5106,16 @@ void setting_cmd(void){
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }
+  if( valueFlag ){
+    if( g.argc!=3 ){
+      fossil_fatal("--value is only supported when qurying a given property");
+    }
+    exactFlag = 1;
+  }
 
   if( g.argc==2 ){
     for(i=0; i<nSetting; i++){
-      print_setting(&aSetting[i]);
+      print_setting(&aSetting[i], 0);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -5148,7 +5170,7 @@ void setting_cmd(void){
           }
           fossil_print("\n");
         }else{
-          print_setting(pSetting);
+          print_setting(pSetting, valueFlag);
         }
         pSetting++;
       }

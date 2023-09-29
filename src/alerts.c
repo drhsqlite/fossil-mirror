@@ -1259,7 +1259,7 @@ void alert_cmd(void){
     pSetting = setting_info(&nSetting);
     for(; nSetting>0; nSetting--, pSetting++ ){
       if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
-      print_setting(pSetting);
+      print_setting(pSetting, 0);
     }
   }else
   if( strncmp(zCmd, "status", nCmd)==0 ){
@@ -1274,7 +1274,7 @@ void alert_cmd(void){
     pSetting = setting_info(&nSetting);
     for(; nSetting>0; nSetting--, pSetting++ ){
       if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
-      print_setting(pSetting);
+      print_setting(pSetting, 0);
     }
     n = db_int(0,"SELECT count(*) FROM pending_alert WHERE NOT sentSep");
     fossil_print(zFmt/*works-like:"%s%d"*/, "pending-alerts", n);
