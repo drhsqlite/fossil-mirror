@@ -1399,6 +1399,7 @@ void reconstruct_cmd(void) {
   fossil_print("server-id: %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+  hash_user_password(g.zLogin);
 }
 
 /*

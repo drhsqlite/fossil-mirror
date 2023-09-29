@@ -2627,6 +2627,7 @@ static void find_server_repository(int arg, int fCreate){
         zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
         fossil_print("admin-user: %s (initial password is \"%s\")\n",
                      g.zLogin, zPassword);
+        hash_user_password(g.zLogin);
         cache_initialize();
         g.zLogin = 0;
         g.userUid = 0;
