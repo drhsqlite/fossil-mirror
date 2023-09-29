@@ -1,5 +1,5 @@
-C merge\sin\sfossil-settings-value-only
-D 2023-09-29T13:35:17.971
+C merge\sin\sfts-ticket-updates
+D 2023-09-29T13:35:33.299
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -566,7 +566,7 @@ F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 3997512c80c8ec1f37cd9494a156c8259297630293a99e1cfb6c1909896f88ce
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c f743686dd563d7275c06947e0d745c52c4493eff198e756f3eef374ff4e3b272
-F src/tkt.c d08ea1eb738134d7ff9731d9ab6ee5494973dc97e1b3d7c7c089b49f27571067
+F src/tkt.c ec379497bbcf415d719195a4264b921d55ab3a6040c628cc9eac11efcac786ea
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad0b5f0e2da8eab97d6e9d7d9551e3962941efc10e64817d775055bcb4b226e5
-R 582c05b6cb4b19f21186d50ef27abb21
+P 0d4a31a9f536cde490f86647c0e9db0ae50023f391b11a5a8c6be2ccf257a676 fb5d53ec1182eaf5cef27d9ef5e936966db3f2665992c1095ae4bae5c208d6b9
+R 1d4c958c2af20987b25093601c0b6ac1
 U preben
-Z 3063098fb783a6c8af7cd652dc52c7fa
+Z 37f6ff2ca10195c364816fbf100d9050
 # Remove this line to create a well-formed Fossil manifest.
