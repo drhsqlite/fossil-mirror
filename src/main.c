@@ -1026,7 +1026,6 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   nLong = strlen(zLong);
   for(i=1; i<g.argc; i++){
     char *z;
-    if( i+hasArg >= g.argc ) break;
     z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
@@ -1044,11 +1043,13 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
         remove_from_argv(i, 1);
         break;
       }else if( z[nLong]==0 ){
+        if( i+hasArg >= g.argc ) break;
         zReturn = g.argv[i+hasArg];
         remove_from_argv(i, 1+hasArg);
         break;
       }
     }else if( fossil_strcmp(z,zShort)==0 ){
+      if( i+hasArg >= g.argc ) break;
       zReturn = g.argv[i+hasArg];
       remove_from_argv(i, 1+hasArg);
       break;
