@@ -1049,6 +1049,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
         break;
       }
     }else if( fossil_strcmp(z,zShort)==0 ){
+      if( i+hasArg >= g.argc ) break;
       zReturn = g.argv[i+hasArg];
       remove_from_argv(i, 1+hasArg);
       break;
