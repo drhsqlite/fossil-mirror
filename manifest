@@ -1,5 +1,5 @@
-C merge\sin\shash-admin-user-password
-D 2023-09-29T13:35:55.111
+C Prompt\suser\sto\spublish\sartifacts\swhen\smerging\sa\sprivate\sbranch\sinto\sa\spublic\sbranch.
+D 2023-10-02T11:38:30.656
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -495,7 +495,7 @@ F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb25
 F src/markdown_html.c 04a63c7e366347d7b1d9bb191d1e5df5184e099382508840171d2f7edc15d7cd
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 53a5346bc58cad6913c39422f4e7db1e049c5d116f849e1825a5b77ab48dc2ae
+F src/merge.c 9a86937a1884a02675819bfc1b5bca9ee3b090f3be84fa8b5333f172d2cac98c
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c dda78a871b81a30d4ce22074a511c2b2e9f4e33bf0f24be9e4a21e0942d0d132
@@ -950,8 +950,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0d402fe81a8fd994af834c6ec20a71974b9a2fc8ed407960ce9a7d1ebe7f754
-R d75b3393c29daae1ee97af28ab51c295
+P 593e801bdfaba3b033bdd6e7ecb6d36ecadd8aac4000f626a87258044b3636c5
+R 65d0598fdfb20ba1992748867e970d97
+T *branch * warn-on-merging-private-branch
+T *sym-warn-on-merging-private-branch *
+T -sym-trunk *
 U preben
-Z c42e733a628491c2b03c1a50024f8ad6
+Z ebab45883bcdeee52b8a1b0db1c462d6
 # Remove this line to create a well-formed Fossil manifest.

@@ -339,6 +339,7 @@ void merge_cmd(void){
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   char vAncestor = 'p'; /* If P is an ancestor of V then 'p', else 'n' */
+  char *zRefName = 0;   /* Name of branch being merged, or fork reference. */
   Stmt q;
 
 
@@ -411,6 +412,7 @@ void merge_cmd(void){
     if( mid==0 || !is_a_version(mid) ){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
+    zRefName = mprintf("%s", g.argv[2]);
   }else if( g.argc==2 ){
     /* No version specified on the command-line so pick the most recent
     ** leaf that is (1) not the version currently checked out and (2)
@@ -446,12 +448,61 @@ void merge_cmd(void){
             db_column_text(&q, 3), db_column_text(&q, 2));
       comment_print(zCom, db_column_text(&q,2), 0, -1, get_comment_format());
       fossil_free(zCom);
+      zRefName = mprintf("%s", db_column_text(&q, 0));
     }
     db_finalize(&q);
   }else{
     usage("?OPTIONS? ?VERSION?");
     return;
   }
+
+  db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY);");
+
+  if( forceFlag==0 && content_is_private(mid) && !content_is_private(vid) ){
+    Blob ans;
+    char cReply;
+    fossil_warning("Merging UNPUBLISHED %s", zRefName);
+    prompt_user("Publish history before merging (y/n/Abort)? ", &ans);
+    cReply = blob_str(&ans)[0];
+    blob_reset(&ans);
+    switch( cReply ){
+      case 'n':
+      case 'N': {
+        break;
+      }
+
+      case 'y':
+      case 'Y': {
+        db_begin_transaction();
+        if( db_exists("SELECT 1 FROM tagxref"
+                      " WHERE rid=%d AND tagid=%d"
+                      "   AND tagtype>0 AND value=%Q",
+                      mid, TAG_BRANCH, zRefName) ){
+          int rid = start_of_branch(mid, 1);
+          compute_descendants(rid, 1000000000);
+        }else{
+          db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", mid);
+        }
+        db_end_transaction(0);
+        fossil_warning("The following artifacts will be published:");
+        describe_artifacts_to_stdout("IN ok", 0);
+        prompt_user("Publish the listed artifacts (y/N)? ", &ans);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+        if( cReply!='y' && cReply!='Y' ){
+          fossil_free(zRefName);
+          return;
+        }
+        break;
+      }
+
+      default: {
+        fossil_free(zRefName);
+        return;
+      }
+    }
+  }
+  fossil_free(zRefName);
 
   if( zPivot ){
     pid = name_to_typed_rid(zPivot, "ci");
@@ -534,6 +585,15 @@ void merge_cmd(void){
   if( load_vfile_from_rid(pid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to merge");
   }
+
+  /* Publish artifacts from private branches if selected above. */
+  db_multi_exec(
+    "DELETE FROM ok WHERE rid NOT IN private;"
+    "DELETE FROM private WHERE rid IN ok;"
+    "INSERT OR IGNORE INTO unsent SELECT rid FROM ok;"
+    "INSERT OR IGNORE INTO unclustered SELECT rid FROM ok;"
+  );
+
   if( zPivot ){
     vAncestor = db_exists(
       "WITH RECURSIVE ancestor(id) AS ("
