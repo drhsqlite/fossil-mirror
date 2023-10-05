@@ -502,10 +502,30 @@ void diff_file(
       blob_reset(&file2);
     }
 
+#if defined(_WIN32)
+    /* TODO: How would a (common?) diff program on Windows react to NUL? */
     /* Construct a temporary file to hold pFile1 based on the name of
     ** zFile2 */
     file_tempname(&nameFile1, zFile2, "orig");
     blob_write_to_file(pFile1, blob_str(&nameFile1));
+#else
+    if( pCfg->diffFlags & DIFF_FILE_ADDED ){
+      blob_init(&nameFile1, NULL_DEVICE, -1);
+    }else{
+      if( pCfg->diffFlags & DIFF_FILE_DELETED ){
+        /* Indicate a deleted file as /dev/null on Unix.
+        ** For Windows, depends on how the diff tool handles NUL.
+        */
+        blob_init(&nameFile1, zFile2, -1);
+        zFile2 = NULL_DEVICE;
+      }else{
+        /* Construct a temporary file to hold pFile1 based on the name of
+        ** zFile2 */
+        file_tempname(&nameFile1, zFile2, "orig");
+      }
+      blob_write_to_file(pFile1, blob_str(&nameFile1));
+    }
+#endif
 
     /* Construct the external diff command */
     blob_zero(&cmd);
@@ -583,11 +603,29 @@ void diff_file_mem(
       }
     }
 
+#if defined(_WIN32)
+    /* TODO: How would a (common?) diff program on Windows react to NUL? */
     /* Construct a temporary file names */
     file_tempname(&temp1, zName, "before");
     file_tempname(&temp2, zName, "after");
     blob_write_to_file(pFile1, blob_str(&temp1));
     blob_write_to_file(pFile2, blob_str(&temp2));
+#else
+    if( pCfg->diffFlags & DIFF_FILE_ADDED ){
+      blob_init(&temp1, NULL_DEVICE, -1);
+      blob_init(&temp2, zName, -1);
+      blob_write_to_file(pFile2, blob_str(&temp2));
+    }else if( pCfg->diffFlags & DIFF_FILE_DELETED ){
+      blob_init(&temp1, zName, -1);
+      blob_init(&temp2, NULL_DEVICE, -1);
+      blob_write_to_file(pFile1, blob_str(&temp1));
+    }else{
+      file_tempname(&temp1, zName, "before");
+      file_tempname(&temp2, zName, "after");
+      blob_write_to_file(pFile1, blob_str(&temp1));
+      blob_write_to_file(pFile2, blob_str(&temp2));
+    }
+#endif
 
     /* Construct the external diff command */
     blob_zero(&cmd);
