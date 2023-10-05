@@ -50,6 +50,12 @@
 #define DIFF_TCL               0x00080000 /* For the --tk option */
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
 #define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
+/*
+** Per file information that may influence output.
+*/
+#define DIFF_FILE_ADDED        0x40000000 /* Added or rename destination */
+#define DIFF_FILE_DELETED      0x80000000 /* Deleted or rename source */
+#define DIFF_FILE_MASK         0xc0000000 /* Used for clearing file flags */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined

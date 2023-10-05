@@ -163,6 +163,9 @@ void diff_print_filenames(
   Blob *pOut              /* Write to this blob, or stdout of this is NULL */
 ){
   u64 diffFlags = pCfg->diffFlags;
+  /* Standardize on /dev/null, regardless of platform. */
+  if( pCfg->diffFlags & DIFF_FILE_ADDED ) zLeft = "/dev/null";
+  if( pCfg->diffFlags & DIFF_FILE_DELETED ) zRight = "/dev/null";
   if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
@@ -716,22 +719,27 @@ void diff_against_disk(
       blob_append(&fname, zPathname, -1);
     }
     zFullName = blob_str(&fname);
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( isDeleted ){
       if( !isNumStat ){ fossil_print("DELETED  %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
     }else if( file_access(zFullName, F_OK) ){
       if( !isNumStat ){ fossil_print("MISSING  %s\n", zPathname); }
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
       if( !isNumStat ){ fossil_print("ADDED    %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
       if( !isNumStat ){ fossil_print("ADDED_BY_MERGE %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==5 ){
       if( !isNumStat ){ fossil_print("ADDED_BY_INTEGRATE %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
@@ -877,11 +885,13 @@ static void diff_two_versions(
     }else{
       cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
     }
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( cmp<0 ){
       if( file_dir_match(pFileDir, pFromFile->zName) ){
         if( (pCfg->diffFlags & (DIFF_NUMSTAT|DIFF_HTML))==0 ){
           fossil_print("DELETED %s\n", pFromFile->zName);
         }
+        pCfg->diffFlags |= DIFF_FILE_DELETED;
         if( asNewFlag ){
           diff_manifest_entry(pFromFile, 0, pCfg);
         }
@@ -893,6 +903,7 @@ static void diff_two_versions(
              (DIFF_NUMSTAT|DIFF_HTML|DIFF_TCL|DIFF_JSON))==0 ){
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
+        pCfg->diffFlags |= DIFF_FILE_ADDED;
         if( asNewFlag ){
           diff_manifest_entry(0, pToFile, pCfg);
         }
