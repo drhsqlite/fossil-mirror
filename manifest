@@ -1,5 +1,5 @@
-C With\sexternal\sdiff\scommand,\suse\s/dev/null\sfor\sadded\sor\sdeleted\sfiles.\nImplemented\sfor\sUnix\sas\sI\sam\sunsure\show\sWindows\sdiff\stools\swould\sdeal\swith\sNUL.
-D 2023-10-05T13:26:04.958
+C With\sfossil\scommit\s-v,\sindicate\sadded\sor\sdeleted\sfiles\sin\sdiff\soutput,\stoo.
+D 2023-10-05T14:09:46.259
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -392,7 +392,7 @@ F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c 27a190c0dd9c87af6bcf64e5cab0b7bff4d4089cbc57dabb6898c307ca598b5d
 F src/chat.c af623d16c680073321a4b273c3d31f00375931c6ab7b0a04890ca6d46bb0d65f
-F src/checkin.c 719302d26f470bc41d797b9e7f4e8d59d1c114bba690e3ce876a39ae3d12122b
+F src/checkin.c 5d252bc1e02a434028673ae48dd8bd9a04b8a84b40383e387a43b7dc1a6b59bf
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e93797317ddcc568ed739a72906c040ca5b7a894124189278099114d02188db1
-R 46459a2690d47909599a8eccca877468
+P fd359387ca9cf45729a3084fdb6eb6c006ea024e9e6936e21f06a79dd851119f
+R 478a547e80af167a290a5ef54a81e13c
 U preben
-Z cc330f7a294d83632de7e91266547a26
+Z 3e31c616985cf17c7188c5d7b5ae3b4e
 # Remove this line to create a well-formed Fossil manifest.
