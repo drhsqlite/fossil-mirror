@@ -443,7 +443,7 @@ void diff_file(
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
-    if( file_size(zFile2, ExtFILE)<0 ){
+    if( pCfg->diffFlags & DIFF_FILE_DELETED || file_size(zFile2, ExtFILE)<0 ){
       zName2 = NULL_DEVICE;
     }else{
       blob_read_from_file(&file2, zFile2, ExtFILE);
@@ -756,7 +756,10 @@ void diff_against_disk(
       }else{
         blob_zero(&content);
       }
-      if( isChnged==0 || !file_same_as_blob(&content, zFullName) ){
+      if( isChnged==0
+       || pCfg->diffFlags & DIFF_FILE_DELETED
+       || !file_same_as_blob(&content, zFullName)
+      ){
         diff_print_index(zPathname, pCfg, pOut);
         diff_file(&content, zFullName, zPathname, pCfg, pOut);
       }

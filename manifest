@@ -1,5 +1,5 @@
-C Consistently\suse\s/dev/null\sin\sdiff\soutput\sfor\sadded\sand\sdeleted\sfiles.
-D 2023-10-05T11:57:41.490
+C After\sfossil\srm,\sdo\snot\sread\scontent\sfrom\sdisk\swith\sfossil\sdiff.\nThis\sway,\sfossil\sdiff\soutput\sreflects\swhat\swould\sbe\scommitted.
+D 2023-10-05T12:17:37.684
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -414,7 +414,7 @@ F src/descendants.c 6fa21312cf0d694c07f0bf8261ad585f46ae24dd415cc71614277ffb5a63
 F src/diff.c caa1794802fee34d8433e698f532eaf8a71fd969ed533d25aeff5841eff0988e
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl df2532fdae0f428195b3ecc767926b79443dfdf5bcd106d7d605fadaca717fad
-F src/diffcmd.c 4a399404632719f111c26e368353299e82b9dc6993af378fde2c8c7b41286cc7
+F src/diffcmd.c cb1b7109682bb2be983c9bd427c682fd136c202b861081be61f1530364683d0b
 F src/dispatch.c 5689a6949467df4fddc2d11b9866cb2ea47e2150866171e7cc8b798d308dfcfd
 F src/doc.c 15552ea105bd70eb99f4f2059a9fb68f824af5eddbcbe679a77d6cdb2e990ba8
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -950,12 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 593e801bdfaba3b033bdd6e7ecb6d36ecadd8aac4000f626a87258044b3636c5
-R 7c8beb24496f7bf6b6374ebb2de8bfee
-T *bgcolor * #fec084
-T *branch * diff-deleted-files
-T *sym-diff-deleted-files *
-T -sym-trunk *
+P 200dcdcd37f97c6099490c934f98e805a9d21d35b6bbdfb5e63f0baab9a9d58c
+R 30f35b4829c0922173449087336a672b
 U preben
-Z 38c5051a75c7c5b19a77df396e8c5612
+Z e86fceaeca776018d05f734a424dc934
 # Remove this line to create a well-formed Fossil manifest.
