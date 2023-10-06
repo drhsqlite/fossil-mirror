@@ -474,6 +474,7 @@ void diff_file(
   }else{
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
     Blob cmd;          /* Text of command to run */
+    int useTempfile = 1;
 
     if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
       Blob file2;
@@ -502,30 +503,19 @@ void diff_file(
       blob_reset(&file2);
     }
 
-#if defined(_WIN32)
-    /* TODO: How would a (common?) diff program on Windows react to NUL? */
     /* Construct a temporary file to hold pFile1 based on the name of
     ** zFile2 */
     file_tempname(&nameFile1, zFile2, "orig");
-    blob_write_to_file(pFile1, blob_str(&nameFile1));
-#else
+#if !defined(_WIN32)
+    /* On Unix, use /dev/null for added or deleted files. */
     if( pCfg->diffFlags & DIFF_FILE_ADDED ){
       blob_init(&nameFile1, NULL_DEVICE, -1);
-    }else{
-      if( pCfg->diffFlags & DIFF_FILE_DELETED ){
-        /* Indicate a deleted file as /dev/null on Unix.
-        ** For Windows, depends on how the diff tool handles NUL.
-        */
-        blob_init(&nameFile1, zFile2, -1);
-        zFile2 = NULL_DEVICE;
-      }else{
-        /* Construct a temporary file to hold pFile1 based on the name of
-        ** zFile2 */
-        file_tempname(&nameFile1, zFile2, "orig");
-      }
-      blob_write_to_file(pFile1, blob_str(&nameFile1));
+      useTempfile = 0;
+    }else if( pCfg->diffFlags & DIFF_FILE_DELETED ){
+      zFile2 = NULL_DEVICE;
     }
 #endif
+    if( useTempfile ) blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
     blob_zero(&cmd);
@@ -542,7 +532,7 @@ void diff_file(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    file_delete(blob_str(&nameFile1));
+    if( useTempfile ) file_delete(blob_str(&nameFile1));
     blob_reset(&nameFile1);
     blob_reset(&cmd);
   }
@@ -586,6 +576,8 @@ void diff_file_mem(
     Blob cmd;
     Blob temp1;
     Blob temp2;
+    int useTempfile1 = 1;
+    int useTempfile2 = 1;
 
     if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
       if( looks_like_binary(pFile1) || looks_like_binary(pFile2) ){
@@ -603,29 +595,21 @@ void diff_file_mem(
       }
     }
 
-#if defined(_WIN32)
-    /* TODO: How would a (common?) diff program on Windows react to NUL? */
-    /* Construct a temporary file names */
+    /* Construct temporary file names */
     file_tempname(&temp1, zName, "before");
     file_tempname(&temp2, zName, "after");
-    blob_write_to_file(pFile1, blob_str(&temp1));
-    blob_write_to_file(pFile2, blob_str(&temp2));
-#else
+#if !defined(_WIN32)
+    /* On Unix, use /dev/null for added or deleted files. */
     if( pCfg->diffFlags & DIFF_FILE_ADDED ){
+      useTempfile1 = 0;
       blob_init(&temp1, NULL_DEVICE, -1);
-      blob_init(&temp2, zName, -1);
-      blob_write_to_file(pFile2, blob_str(&temp2));
     }else if( pCfg->diffFlags & DIFF_FILE_DELETED ){
-      blob_init(&temp1, zName, -1);
+      useTempfile2 = 0;
       blob_init(&temp2, NULL_DEVICE, -1);
-      blob_write_to_file(pFile1, blob_str(&temp1));
-    }else{
-      file_tempname(&temp1, zName, "before");
-      file_tempname(&temp2, zName, "after");
-      blob_write_to_file(pFile1, blob_str(&temp1));
-      blob_write_to_file(pFile2, blob_str(&temp2));
     }
 #endif
+    if( useTempfile1 ) blob_write_to_file(pFile1, blob_str(&temp1));
+    if( useTempfile2 ) blob_write_to_file(pFile2, blob_str(&temp2));
 
     /* Construct the external diff command */
     blob_zero(&cmd);
@@ -637,8 +621,8 @@ void diff_file_mem(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    file_delete(blob_str(&temp1));
-    file_delete(blob_str(&temp2));
+    if( useTempfile1 ) file_delete(blob_str(&temp1));
+    if( useTempfile2 ) file_delete(blob_str(&temp2));
 
     blob_reset(&temp1);
     blob_reset(&temp2);
