@@ -2544,7 +2544,20 @@ void commit_cmd(void){
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
 
-  
+    if( !forceFlag && issue_commit_warnings(info_tags_of_checkin(vid, 0)) ){
+      Blob yn;
+      char c = 'n';
+      if( !noPrompt ){
+        prompt_user("Continue anyway (y/N)? ", &yn);
+        c = blob_str(&yn)[0];
+        blob_reset(&yn);
+      }
+      if( c!='y' && c!='Y' ){
+        db_end_transaction(1);
+        return;
+      }
+    }
+
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.
@@ -2891,6 +2904,7 @@ void commit_cmd(void){
     int syncFlags = SYNC_PUSH | SYNC_PULL | SYNC_IFABLE;
     autosync_loop(syncFlags, 0, "commit");
   }
+  if( forceFlag ) issue_commit_warnings(info_tags_of_checkin(vid, 0));
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");
   }else{

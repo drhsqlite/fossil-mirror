@@ -500,6 +500,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\util_.c" \
         "$(OX)\verify_.c" \
         "$(OX)\vfile_.c" \
+        "$(OX)\warnpolicy_.c" \
         "$(OX)\wiki_.c" \
         "$(OX)\wikiformat_.c" \
         "$(OX)\winfile_.c" \
@@ -765,6 +766,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\util$O" \
         "$(OX)\verify$O" \
         "$(OX)\vfile$O" \
+        "$(OX)\warnpolicy$O" \
         "$(OX)\wiki$O" \
         "$(OX)\wikiformat$O" \
         "$(OX)\winfile$O" \
@@ -1014,6 +1016,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\util.obj" >> $@
 	echo "$(OX)\verify.obj" >> $@
 	echo "$(OX)\vfile.obj" >> $@
+	echo "$(OX)\warnpolicy.obj" >> $@
 	echo "$(OX)\wiki.obj" >> $@
 	echo "$(OX)\wikiformat.obj" >> $@
 	echo "$(OX)\winfile.obj" >> $@
@@ -2083,6 +2086,12 @@ realclean: clean
 "$(OX)\vfile_.c" : "$(SRCDIR)\vfile.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\warnpolicy$O" : "$(OX)\warnpolicy_.c" "$(OX)\warnpolicy.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\warnpolicy_.c"
+
+"$(OX)\warnpolicy_.c" : "$(SRCDIR)\warnpolicy.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\wiki$O" : "$(OX)\wiki_.c" "$(OX)\wiki.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\wiki_.c"
 
@@ -2269,6 +2278,7 @@ realclean: clean
 			"$(OX)\util_.c":"$(OX)\util.h" \
 			"$(OX)\verify_.c":"$(OX)\verify.h" \
 			"$(OX)\vfile_.c":"$(OX)\vfile.h" \
+			"$(OX)\warnpolicy_.c":"$(OX)\warnpolicy.h" \
 			"$(OX)\wiki_.c":"$(OX)\wiki.h" \
 			"$(OX)\wikiformat_.c":"$(OX)\wikiformat.h" \
 			"$(OX)\winfile_.c":"$(OX)\winfile.h" \

@@ -509,6 +509,19 @@ void merge_cmd(void){
                  " Use --force to override.\n");
     return;
   }
+  if( !forceFlag
+   && issue_merge_warnings(
+     info_tags_of_checkin(vid, 0),
+     info_tags_of_checkin(mid, 0),
+     content_is_private(mid) && !content_is_private(vid))
+  ){
+    Blob yn;
+    char c;
+    prompt_user("Continue anyway (y/N)? ", &yn);
+    c = blob_str(&yn)[0];
+    blob_reset(&yn);
+    if( c!='y' && c!='Y' ) return;
+  }
   if( integrateFlag && !is_a_leaf(mid)){
     fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
     integrateFlag = 0;
@@ -526,18 +539,6 @@ void merge_cmd(void){
     print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
-
-  if( forceFlag==0 && content_is_private(mid) && !content_is_private(vid) ){
-    Blob ans;
-    char cReply;
-    fossil_warning("Merging UNPUBLISHED artifacts."
-      "  Consider using \"fossil publish\" first.");
-    prompt_user("Continue with merge (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
-    blob_reset(&ans);
-    if( cReply!='y' && cReply!='Y' ) return;
-  }
-
   db_begin_transaction();
   if( !dryRunFlag ) undo_begin();
   if( load_vfile_from_rid(mid) && !forceMissingFlag ){
@@ -1062,7 +1063,10 @@ void merge_cmd(void){
   if( !dryRunFlag ) undo_finish();
   db_end_transaction(dryRunFlag);
 
-  if( forceFlag==1 && content_is_private(mid) && !content_is_private(vid) ){
-    fossil_warning("WARNING: Merged private artifacts to public branch.");
+  if( forceFlag==1 ){
+    issue_merge_warnings(
+        info_tags_of_checkin(vid, 0),
+        info_tags_of_checkin(mid, 0),
+        content_is_private(mid) && !content_is_private(vid));
   }
 }

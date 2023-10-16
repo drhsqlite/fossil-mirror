@@ -189,6 +189,7 @@ set src {
   util
   verify
   vfile
+  warnpolicy
   wiki
   wikiformat
   winfile
