@@ -260,6 +260,7 @@ static cson_value * json_settings_get(void){
     jSet = cson_new_object();
     cson_object_set(pay, pSet->name, cson_object_value(jSet));
     cson_object_set(jSet, "versionable", cson_value_new_bool(pSet->versionable));
+    cson_object_set(jSet, "propagating", cson_value_new_bool(pSet->propagating));
     cson_object_set(jSet, "sensitive", cson_value_new_bool(pSet->sensitive));
     cson_object_set(jSet, "defaultValue", (pSet->def && pSet->def[0])
                     ? json_new_string(pSet->def)

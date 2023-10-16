@@ -43,6 +43,7 @@
 #define CONFIGSET_ALL       0x0007ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
+#define CONFIGSET_PROPAGATE 0x200000     /* Propagating setting */
 
 /*
 ** This mask is used for the common TH1 configuration settings (i.e. those
@@ -183,6 +184,7 @@ static struct {
   { "xfer-push-script",       CONFIGSET_XFER },
   { "xfer-commit-script",     CONFIGSET_XFER },
   { "xfer-ticket-script",     CONFIGSET_XFER },
+  { "warning-policy",         CONFIGSET_PROJ | CONFIGSET_PROPAGATE },
 
 };
 static int iConfig = 0;
@@ -426,7 +428,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
 
     blob_zero(&sql);
-    if( groupMask & CONFIGSET_OVERWRITE ){
+    if( groupMask & CONFIGSET_OVERWRITE || thisMask & CONFIGSET_PROPAGATE ){
       if( (thisMask & configHasBeenReset)==0 && aType[ii].zName[0]!='/' ){
         db_multi_exec("DELETE FROM \"%w\"", &aType[ii].zName[1]);
         configHasBeenReset |= thisMask;
@@ -698,6 +700,24 @@ int configure_send_group(
   }
   db_finalize(&q);
   return nCard;
+}
+
+/*
+** Send the warning-policy, writing it to pOut.
+*/
+void configure_send_warning_policy(Blob *pOut){
+  const char *zRec;
+  zRec = db_text(0,
+      "SELECT mtime || ' ' || quote(name) || ' value ' || quote(value)"
+      "  FROM config"
+      " WHERE name='warning-policy'");
+  if( zRec==0 ){
+    /* If not set, send the default value. */
+    zRec = db_text(0,
+        "SELECT now() || ' ' || quote(%Q) || ' value ' || quote(%Q)",
+        "warning-policy", db_get("warning-policy", 0));
+  }
+  blob_appendf(pOut, "config /config %d\n%s\n", strlen(zRec), zRec);
 }
 
 /*

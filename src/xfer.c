@@ -1420,6 +1420,8 @@ void page_xfer(void){
           break;
         }
         isPull = 1;
+        /* Client is pulling, so may be about to commit or merge. */
+        configure_send_warning_policy(xfer.pOut);
       }else{
         if( !g.perm.Write ){
           if( !isPull ){
@@ -2567,7 +2569,8 @@ int client_sync(
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
         g.perm.Admin = g.perm.RdAddr = 1;
-        configure_receive(zName, &content, origConfigRcvMask);
+        configure_receive(zName, &content,
+                          origConfigRcvMask | CONFIGSET_PROPAGATE);
         nCardRcvd++;
         nArtifactRcvd++;
         blob_reset(&content);

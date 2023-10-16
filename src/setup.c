@@ -964,7 +964,10 @@ void setup_settings(void){
   @ by the contents of managed files named
   @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
   @ If the file for a versionable setting exists, the value cannot be
-  @ changed on this screen.</p><hr><p>
+  @ changed on this screen.</p>
+  @ <p>Settings marked with (p) are "propagating" and will be overridden
+  @ if a remote sends an updated setting.</p>
+  @ <hr><p>
   @
   @ <form action="%R/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
@@ -979,6 +982,8 @@ void setup_settings(void){
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
+      }else if( pSet->propagating ){
+        @  (p)<br>
       } else {
         @ <br>
       }
@@ -995,6 +1000,8 @@ void setup_settings(void){
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)
+      }else if( pSet->propagating ){
+        @  (p)<br>
       } else {
         @
       }
@@ -1013,6 +1020,8 @@ void setup_settings(void){
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
+      }else if( pSet->propagating ){
+        @  (p)<br>
       } else {
         @ <br>
       }

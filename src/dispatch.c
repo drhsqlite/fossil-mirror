@@ -56,6 +56,7 @@ struct CmdOrPage {
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
 #define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
+#define CMDFLAG_PROPAGATES   0x8000     /* Propagates from server to client */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
@@ -607,10 +608,12 @@ static void display_all_help(int mask, int useHtml, int rawOut){
           blob_init(&txt, 0, 0);
           help_to_text(aCommand[i].zHelp, &txt);
           for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
-            fossil_print("# %s%s\n",
+            fossil_print("# %s%s%s\n",
               aCommand[bktHelp[aCommand[i].iHelp][j]].zName,
               (aCommand[i].eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ?
-              " (versionable)" : "");
+              " (versionable)" : "",
+              (aCommand[i].eCmdFlags & CMDFLAG_PROPAGATES)!=0 ?
+              " (propagating)" : "");
           }
           fossil_print("%s\n\n", blob_str(&txt));
           blob_reset(&txt);
@@ -1012,6 +1015,9 @@ void test_all_help_page(void){
       if( e & CMDFLAG_VERSIONABLE ){
         blob_appendf(&buf, "versionable ");
       }
+      if( e & CMDFLAG_PROPAGATES ){
+        blob_appendf(&buf, "propagating ");
+      }
       if( e & CMDFLAG_BLOCKTEXT ){
         blob_appendf(&buf, "block-text ");
       }
@@ -1288,9 +1294,10 @@ void help_cmd(void){
     if( pSetting!=0 && pSetting->def!=0 && *pSetting->def!=0 ){
       zDflt = mprintf(" (default: %s)", pSetting->def);
     }
-    fossil_print("Setting: \"%s\"%s%s\n\n",
+    fossil_print("Setting: \"%s\"%s%s%s\n\n",
          pCmd->zName, zDflt!=0 ? zDflt : "",
-         (pCmd->eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ? " (versionable)" : ""
+         (pCmd->eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ? " (versionable)" : "",
+         (pCmd->eCmdFlags & CMDFLAG_PROPAGATES)!=0 ? " (propagating)" : ""
     );
     fossil_free(zDflt);
   }

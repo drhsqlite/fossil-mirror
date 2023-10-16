@@ -4373,6 +4373,7 @@ struct Setting {
                         ** negative for values which should not appear
                         ** on the /setup_settings page. */
   char versionable;     /* Is this setting versionable? */
+  char propagating;     /* Is this setting propagating? */
   char forceTextArea;   /* Force using a text area for display? */
   char sensitive;       /* True if this a security-sensitive setting */
   const char *def;      /* Default value */
@@ -5018,6 +5019,12 @@ struct Setting {
 ** "add" or "commit" a "large file".  Set this value to 0 or less 
 ** to disable all such warnings.
 */
+/*
+** SETTING: warning-policy      width=40 block-text propagating default={}
+** Policy for showing warnings under various conditions.
+**
+** TODO: Applying the setting.  Default reflects intended JSON syntax.
+*/
 
 /*
 ** Look up a control setting by its name.  Return a pointer to the Setting
@@ -5067,6 +5074,9 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** file named .fossil-settings/PROPERTY in the check-out root, if that
 ** file exists.
 **
+** Settings marked as propagating will be overridden if a new value is received
+** when pulling from a repository.
+**
 ** The "unset" command clears a setting.
 **
 ** Settings can have both a "local" repository-only value and "global" value
@@ -5085,6 +5095,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** See also: [[configuration]]
 */
 void setting_cmd(void){
+  static const char *aLocalOnly[] = { "manifest", "warning-policy" };
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
@@ -5125,8 +5136,12 @@ void setting_cmd(void){
     if( pSetting==0 ){
       fossil_fatal("no such setting: %s", zName);
     }
-    if( globalFlag && fossil_strcmp(pSetting->name, "manifest")==0 ){
-      fossil_fatal("cannot set 'manifest' globally");
+    if( globalFlag ){
+      for(i=0; i<count(aLocalOnly); i++){
+        if( fossil_strcmp(pSetting->name, aLocalOnly[i])==0 ){
+          fossil_fatal("cannot set '%s' globally", aLocalOnly[i]);
+        }
+      }
     }
     if( unsetFlag || g.argc==4 ){
       int isManifest = fossil_strcmp(pSetting->name, "manifest")==0;
@@ -5141,9 +5156,6 @@ void setting_cmd(void){
         }
         fossil_fatal("ambiguous setting \"%s\" - might be:%s",
                      zName, blob_str(&x));
-      }
-      if( globalFlag && isManifest ){
-        fossil_fatal("cannot set 'manifest' globally");
       }
       if( unsetFlag ){
         db_unset(pSetting->name/*works-like:"x"*/, globalFlag);

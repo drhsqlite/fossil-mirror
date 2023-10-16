@@ -102,6 +102,7 @@
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
 #define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
+#define CMDFLAG_PROPAGATES   0x8000     /* Propagates from server to client */
 /**************************************************************************/
 
 /*
@@ -282,6 +283,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].eType |= CMDFLAG_HIDDEN;
     }else if( j==14 && strncmp(&zLine[i], "loadavg-exempt", 14)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_LDAVG_EXEMPT;
+    }else if( j==11 && strncmp(&zLine[i], "propagating", 11)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_PROPAGATES;
     }else{
       fprintf(stderr, "%s:%d: unknown option: '%.*s'\n",
               zFile, nLine, j, &zLine[i]);
@@ -509,9 +512,10 @@ void build_table(void){
     }else{
       printf(" 0,%*s", 16, "");
     }
-    printf(" %3d, %d, %d, %d, \"%s\"%*s },\n",
+    printf(" %3d, %d, %d, %d, %d, \"%s\"%*s },\n",
       aEntry[i].iWidth,
       (aEntry[i].eType & CMDFLAG_VERSIONABLE)!=0,
+      (aEntry[i].eType & CMDFLAG_PROPAGATES)!=0,
       (aEntry[i].eType & CMDFLAG_BLOCKTEXT)!=0,
       (aEntry[i].eType & CMDFLAG_SENSITIVE)!=0,
       zDef, (int)(10-strlen(zDef)), ""
