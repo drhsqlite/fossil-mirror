@@ -5019,12 +5019,6 @@ struct Setting {
 ** "add" or "commit" a "large file".  Set this value to 0 or less 
 ** to disable all such warnings.
 */
-/*
-** SETTING: warning-policy      width=40 block-text propagating default={}
-** Policy for showing warnings under various conditions.
-**
-** TODO: Applying the setting.  Default reflects intended JSON syntax.
-*/
 
 /*
 ** Look up a control setting by its name.  Return a pointer to the Setting
