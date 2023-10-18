@@ -30,7 +30,7 @@
 **                  (message, branch, except-branch, users, except-users).
 **   merge:         Used when merging.  A List of objects with names in
 **                  (message, branch, except-branch, from, except-from,
-**                  users, except-users, history-loss).
+**                  users, except-users, unpublished).
 **   match-style:   If "regexp", patterns use REGEXP, otherwise GLOB.
 **
 ** Meaning of names used in lists above:
@@ -40,8 +40,7 @@
 **   except-branch: PATTERN    Exclude when in a branch matching PATTERN.
 **   from: PATTERN             Apply if merging from PATTERN (default any).
 **   except-from: PATTERN      Exclude when merging from PATTERN.
-**   history-loss: true        If true, only show message when history loss
-**                             would occur; that is, when merging a private
+**   unpublished: true         If true, only show when merging from a private
 **                             branch into a public branch.
 **   users: LIST               Show only for users in LIST (default any).
 **   except-users: LIST        Users in LIST will not be shown the messages.
@@ -55,9 +54,9 @@
 **         "except-users": [ "owner", "admin" ] }
 **     ],
 **     "merge": [
-**       { "message": "Please 'fossil publish' before merging private to public",
+**       { "message": "Please use 'fossil publish' before merging private to public",
 **         "except-branch": "rebased-branch-*",
-**         "history-loss": true },
+**         "unpublished": true },
 **       { "message": "Updates to release branches should be merged from rc.",
 **         "branch": "release-*",
 **         "except-from": "rc-*" }
@@ -174,8 +173,8 @@ int issue_merge_warnings(
   );
   if( !historyLoss ){
     blob_append_sql(&sql,
-        " AND (elm->>'history-loss' IS NULL"
-        "      OR NOT elm->>'history-loss')"
+        " AND (elm->>'unpublished' IS NULL"
+        "      OR NOT elm->>'unpublished')"
     );
   }
   nWarnings = print_policy_warnings(&sql);
@@ -199,7 +198,7 @@ int issue_merge_warnings(
 ** Options for "merge" event:
 **   -b|--branch BRANCH   Test merge to BRANCH.
 **   -f|--from BRANCH     Test merge from BRANCH.
-**   -hl|--history-loss   Test merging from a private to a public branch.
+**   -u|--unpublished     Test merging from a private to a public branch.
 */
 void test_warning_policy_cmd(void){
   const char *zEvent;
@@ -231,7 +230,7 @@ void test_warning_policy_cmd(void){
   }else if( fossil_strcmp(zEvent, "merge")==0 ){
     const char *zBranch = find_option("branch", "b", 1);
     const char *zFrom = find_option("from", "f", 1);
-    int historyLoss = find_option("history-loss", "hl", 0)!=0;
+    int historyLoss = find_option("unpublished", "u", 0)!=0;
     if( zBranch==0 ) fossil_fatal("%s: missing --branch option", zEvent);
     if( zFrom==0 ) fossil_fatal("%s: missing --from option", zEvent);
     verify_all_options();
