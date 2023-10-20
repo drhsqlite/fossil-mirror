@@ -3119,6 +3119,11 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
       }
       db_reset(&fchngQuery);
     }
+    /* With special formatting (except for "oneline") and --verbose,
+    ** print a newline after the file listing */
+    if( zFormat!=0 && (fossil_strcmp(zFormat, "%h %c")!=0) ){
+      fossil_print("\n");
+    }
     nEntry++; /* record another complete entry */
   }
   if( rc==SQLITE_DONE ){
@@ -3306,10 +3311,10 @@ void timeline_cmd(void){
   if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 )
     zFormat = "%h %c";
   if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
-    zFormat = "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c%n";
+    zFormat = "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c";
   if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 )
     zFormat = "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%n"
-              "Branch:   %b%nTags:     %t%nPhase:    %p%n";
+              "Branch:   %b%nTags:     %t%nPhase:    %p";
   showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){
