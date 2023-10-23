@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.44.0\salpha\syet\sagain.\s\sThis\stime,\nalso\sremember\sto\sinclude\sthe\s"shell.c"\ssource\sfile\sfrom\sSQLite\sthat\sincludes\nthe\sremoval\sof\san\s"sprintf()"\scall,\sthereby\savoiding\sscary\sMacOS\swarnings.
-D 2023-10-23T10:21:02.027
+C Remove\sall\scalls\sto\ssprintf()\sfrom\smakeheaders\sand\smkversion\sin\sorder\sto\nappease\sprudish\scompilers.
+D 2023-10-23T10:44:21.495
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -728,13 +728,13 @@ F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
-F tools/makeheaders.c ca90c1e2460d79e48f97c2aac60a39bcb8024e394de7cff5164c9dcbc96ce529
+F tools/makeheaders.c b0dfb3a29b71a48ec1f91d8b317f500e06bb46b368933d678c0a6e498f6fd740
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl fe2ba46bf1162c090ce85cce191124e3a85b40ee300c0cdaa5c6ecb258027ffc x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 9cab3886665d8859e554d69431e4ff94afee9a339e977bff7facfa56c3b6dc39
-F tools/mkversion.c 9844d975a6750a5307dc32105efa972d6be86c320987886fe15e9ed43648606d
+F tools/mkversion.c 5ff58f12321a7991589dd6a75d43a14929a839fc64e232a5d2b7876d1287c45e
 F tools/skintxt2config.c 042c3c712731ee32550caa0c5298cec50f125c6c5e8de65c25c975b72009861a
 F tools/sqlcompattest.c c4ab50d957ecc8bacc0293837dfb01483a4d1e072cbc0c6121d1882ba5095c15
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39cac07254e36503da0735ff7dd65dca162c6702e00c02d75a5d860c19ce49b2
-R 25d4b1b2f94fc7667a936fb6a9f47e76
+P 6ac015311e2c1b3d644724836ab59acaf2a09a32dd27b42d578ea1ef56d306fe
+R ca3a92a6f1e6a6fa9fda40dbaee76e09
 U drh
-Z 4ced43b969444c4bb393503579c3211e
+Z 37da2cfdecd1671e0467321c56e6c62a
 # Remove this line to create a well-formed Fossil manifest.
