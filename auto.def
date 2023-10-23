@@ -369,14 +369,42 @@ if {$zlibpath eq "tree"} {
   set ::zlib_lib $zlibdir/libz.a
   msg-result "Using zlib in source tree"
 } else {
+  set cftry {""}
+  set ldtry {""}
   if {$zlibpath ni {auto ""}} {
-    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-    define-append EXTRA_CFLAGS -I$zlibpath
-    define-append EXTRA_LDFLAGS -L$zlibpath
-    msg-result "Using zlib from $zlibpath"
+    lappend cftry "-I$zlibpath"
+    lappend cftry "-I$zlibpath/include"
+    lappend ldtry "-L$zlibpath"
+    lappend ldtry "-L$zlibpath/lib"
   }
-  if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
-    user-error "zlib not found please install it or specify the location with --with-zlib"
+
+  # Reverse the list of tests so we check most-specific to least, else
+  # platform devel files will shadow local --with-zlib overrides.
+  foreach c [lreverse $cftry] {
+    if {[cc-with [list -cflags $c] {cc-check-includes zlib.h}]} {
+      if {$c eq ""} {
+        msg-result "Found zlib.h in default include path"
+      } else {
+        define-append EXTRA_CFLAGS "$c"
+        msg-result "Found zlib.h via $c"
+      }
+      set cfound $c
+      break
+    }
+  }
+  if {![info exists cfound]} {
+    user-error "zlib.h not found; either install it or specify its location via --with-zlib"
+  }
+  foreach lcheck [lreverse $ldtry] {
+    if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd z}]} {
+      if {$lcheck eq ""} {
+        msg-result "Linked to zlib via default library path"
+      } else {
+        define-append EXTRA_LDFLAGS "$lcheck"
+        msg-result "Linked to zlib via $lcheck"
+      }
+      break
+    }
   }
   set ::zlib_lib -lz
 }
