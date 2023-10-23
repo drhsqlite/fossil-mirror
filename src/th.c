@@ -247,9 +247,10 @@ static void thBufferWriteFast(
   if( pBuffer->nBuf+nAdd > pBuffer->nBufAlloc ){
     thBufferWriteResize(interp, pBuffer, zAdd, nAdd);
   }else{
-    char *z = pBuffer->zBuf + pBuffer->nBuf;
+    if( pBuffer->zBuf ){
+      memcpy(pBuffer->zBuf + pBuffer->nBuf, zAdd, nAdd);
+    }
     pBuffer->nBuf += nAdd;
-    memcpy(z, zAdd, nAdd);
   }
 }
 #define thBufferWrite(a,b,c,d) thBufferWriteFast(a,b,(const char *)c,d)
