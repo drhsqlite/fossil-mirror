@@ -797,7 +797,7 @@ static void style_init_th1_vars(const char *zTitle){
   if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
       g.ftntsIssues[2] || g.ftntsIssues[3] ){
     char buf[80];
-    sprintf(&buf[0],"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
+    sqlite3_snprintf(sizeof(buf),buf,"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
                                   g.ftntsIssues[2],g.ftntsIssues[3]);
     Th_Store("footnotes_issues_counters", buf);
   }

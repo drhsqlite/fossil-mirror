@@ -1,5 +1,5 @@
-C Reworked\sthe\shandling\sof\s"./configure\s--with-zlib=FOO",\syielding\sseveral\sbenefits:\n\n\s\s*\s\sFOO\scan\snow\spoint\sto\sboth\sa\sflat\sdirectory\sas\sbefore\sor\sto\sa\n\t\sdirectory\sone\slevel\sup\swith\slib/\sand\sinclude/\ssubdirs,\sas\szlib\n\t\sinstalls\sto\swhen\sconfigured\swith\sa\s--prefix,\sfixing\san\sissue\n\t\s[forum:/forumpost/9c64b51d44\s|\sreported\son\sthe\sforum].\n\s\s*\s\sThe\sold\smethod\swould\scheck\sthe\sdefault\spaths\sgiven\sbefore\strying\n\t\swhat\syou\sgave\sit,\spreventing\slocal\soverrides\swhen\syou\sknow\n\t\sthe\splatform\sversion\sisn't\swhat\syou\swant\sand\syou've\sbuilt\sfrom\n\t\ssource\sand\spointed\sFossil\sat\sthe\sreplacement.\s\sIt\sisn't\salways\ssafe\n\t\sor\sadvisable\sto\sremove\sthe\splatform\sversion\sin\sthis\scase\smerely\sto\n\t\sget\sFossil's\sconfiguration\sscript\sto\smove\son\sand\sobey\syour\sexplicit\n\t\sdirective.\n\s\s*\s\sThe\sold\smethod\schecked\sfor\sthe\sheader\sand\sthe\slibrary\sin\sa\ssingle\n\t\sstep,\sresulting\sin\sunhelpful\sconfigure\soutput,\srequiring\sthat\sone\n\t\sdig\sthrough\sconfig.log\sto\sfigure\sout\swhat\shappened.
-D 2023-10-23T00:56:33.797
+C Replaced\sa\sfew\ssprintf()\scalls\swith\ssqlite3_snprintf()\sto\ssquish\nwarnings\sfrom\sClang\son\smacOS\swhen\sconfigured\swith\sextra\sdebugging.\n(These\swarnings\sdon't\snormally\sappear.)\s\sThere\sis\sone\sleft\sin\nextsrc/shell.c\swhich\sneeds\sfixing\supstream.
+D 2023-10-23T01:17:48.828
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
 F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
-F src/markdown_html.c 04a63c7e366347d7b1d9bb191d1e5df5184e099382508840171d2f7edc15d7cd
+F src/markdown_html.c e216038c52a80cd38c4d00bc00f2fc3758591a275288f3f25ac513257f0ffe01
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 53a5346bc58cad6913c39422f4e7db1e049c5d116f849e1825a5b77ab48dc2ae
@@ -551,7 +551,7 @@ F src/stash.c f4b160ea4d639c09eb0217c1a04a8618958f278a565b08c225b7a5a4edb74f31
 F src/stat.c 22abd5854fd4d75650651d104907366d1a04ec7cb24949f1666ab4a97b19e134
 F src/statrep.c a4993ee2f796f9f10f555cc4b851e70a491e8c5e39fe723de907552bd66325af
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 4d8bf53fb7b26a102e87ce639ba214d32c959175f0b8cadc2dd3f9025e16a86a
+F src/style.c 95576389263a88583d38f69f4a19f8198281b2c30f077bf6ee3835835964864f
 F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20b93ff
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 128e503031db9c4692090b0428bed84526946494bedc573f9bbdf8a870b09551
-R 421b61353896b541408c2b51309553ce
-U tangent
-Z a9e45ccdd219222ec96c92d45e4e2303
+P 9d0b52e2d24424688a3b3e7d734f22e069f8169772f84f9fad889c894e8c72d1
+R a7240e590270be0138c1a3c81da6eb24
+U wyoung
+Z 5c669794ccb35f8df142fa5e02252f34
 # Remove this line to create a well-formed Fossil manifest.
