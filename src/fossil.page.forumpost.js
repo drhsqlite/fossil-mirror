@@ -106,7 +106,6 @@
     const formSubmitted = function(event){
       const form = event.target;
       if( form.dataset.submitted ){
-        console.warn("Preventing double-submit.");
         event.preventDefault();
         return;
       }

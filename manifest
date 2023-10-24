@@ -1,5 +1,5 @@
-C Attempt\sto\sprevent\sforum\sFORM\selements\sfrom\sa\sdouble-submit\svia\sstray\sdouble-clicks\son\sthe\svarious\ssubmit\sbuttons,\sas\sreported\sin\s[forum:6bd02466533aa131|forum\spost\s6bd02466533aa131].
-D 2023-10-24T20:27:52.127
+C Remove\sstray\sJS\sconsole\sdebug\soutput.\sNo\sfunctional\schanges.
+D 2023-10-24T20:53:25.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -438,7 +438,7 @@ F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e0
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 44287811e62e8592cc75ee234c3ddff813cd12c326ff20283e33f8f5aad6aa72
 F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
-F src/fossil.page.forumpost.js a9617f4dcf1e354729e6b8dcdcab87a639c63b557ea71f6407a18773595c7866
+F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
 F src/fossil.page.pikchrshowasm.js d8fb5d98d95b80c816959deb84deec2401c991c35aafab11f9b002da2764282d
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39bcd310e889538d4a50038165d1230f8e0608aa41522c86a717e6f4026b9d9f
-R 91d27e0a13dd7c0e190f89a7dca913ac
+P 600f171306d29f398e685bdf9713e1ff99573ecbc47ab4e2efc72107197b3238
+R c34309a689ca280965272e1ae60e2720
 U stephan
-Z 92c866f0ce5ea750492008ae54d33a3a
+Z a31e88ccbc09be520d8e20e7fe8d8b05
 # Remove this line to create a well-formed Fossil manifest.
