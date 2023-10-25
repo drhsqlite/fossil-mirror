@@ -283,7 +283,7 @@ repo DB file or what you name it.
 [undo]:   /help?cmd=undo
 
 
-## <a id="log"></a> Fossil’s Timeline Is The “Log”
+## <a id="log"></a> Fossil’s Timeline Is the “Log”
 
 Git users often need to use the `git log` command to dig linearly through
 commit histories due to its [weak data model][wdm], giving [O(n)
@@ -444,7 +444,7 @@ However, there is a setting under Admin → Timeline → “Truncate comment
 at first blank line (Git-style)” to change this for `/timeline`
 displays.  Alternately, you could enable the “Allow block-markup in
 timeline” setting under Admin → Timeline, then apply [local skin
-customizations][cskin] to put that first comment in in bold or whatever
+customizations][cskin] to put that first comment in bold or whatever
 suits.
 
 Because this isn’t a typical Fossil convention, you’re likely to find
@@ -730,7 +730,7 @@ Fossil to hide his mistake from timeline views by inserting a few new
 records into the local repository to change how the client interprets
 the data it finds there henceforth.(^One to change the tag marking this
 commit’s branch name to “`MISTAKE`,” one to mark that branch as hidden,
-and one to close it to further commits.).
+and one to close it to further commits.)
 
 Bob’s second command switches his working directory back to the prior
 commit on that branch. We’re presuming it was “`trunk`” for the sake of

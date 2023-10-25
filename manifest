@@ -1,5 +1,5 @@
-C Remove\sstray\sJS\sconsole\sdebug\soutput.\sNo\sfunctional\schanges.
-D 2023-10-24T20:53:25.000
+C Small\stweaks\sto\sthe\sgitusers\sdoc
+D 2023-10-25T11:47:08.370
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -833,7 +833,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md 22d5d129db25f3bd92a46f799805722bb6a0df6210fd6d368ae4d4b7b34df750
+F www/gitusers.md 387dbba1f32f196724c1ccf423d7b019b4daf85539e99f57b436a2ddf1c1cdc4
 F www/globs.md b1d2513af1844ebf670c9f1e612f77bd43f76ebd0e0c1c019d6626bdc55fa1d5
 F www/glossary.md 89147d421a00f104b220eefbce5033268b963c89eaeedfdf237e1b1cf7c3821d
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 600f171306d29f398e685bdf9713e1ff99573ecbc47ab4e2efc72107197b3238
-R c34309a689ca280965272e1ae60e2720
-U stephan
-Z a31e88ccbc09be520d8e20e7fe8d8b05
+P 03bb48a3b95b336ee47d4bffd1aaf0b2bb0c26489dacb2d23fb7e5dc903646da
+R 12ce8f434b4f32ee197ff94c7db9795c
+U wyoung
+Z ec657e7be740e9e2ba521d4b45c56a14
 # Remove this line to create a well-formed Fossil manifest.
