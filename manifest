@@ -1,5 +1,5 @@
-C Small\stweaks\sto\sthe\sgitusers\sdoc
-D 2023-10-25T11:47:08.370
+C Fix\sthe\spassword\sreset\srequest\sform\sso\sthat\sit\spasses\sCSRF\ssecurity\stests.
+D 2023-10-25T12:19:56.513
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -484,7 +484,7 @@ F src/json_user.c 92b2ee7ad3478329c15b51c19c8b9464055060e8047268803728d3e43447f1
 F src/json_wiki.c b91dc896ee9e71e4faca84b55c8bf648e64a9540cbcb80f7f51ad6dfb67878aa
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c 2a87f066cad58f6d8a0861526e7e6dafffa2c1f127095e31bc38f05218553675
+F src/login.c 224aa6cef9054efc4f041c4f365407282d8372b17a9a98d1c83d3d99d8863fc7
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 132e241e0e08ae49cd9bd9d4486f6490edfb56b53f2ec5c9a6d4584dcbcd0699
 F src/main.c 1ac0d5a308bdeb21fde3d341e131faa5de0051736099827d5289d847c0cd80f9
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03bb48a3b95b336ee47d4bffd1aaf0b2bb0c26489dacb2d23fb7e5dc903646da
-R 12ce8f434b4f32ee197ff94c7db9795c
-U wyoung
-Z ec657e7be740e9e2ba521d4b45c56a14
+P 3bfae2309cd2990298bfd5b289468c50c780ee4f28f0f6e32a7e251a3a50ed2b
+R 25950e4875a432d84225b504bdc12c03
+U drh
+Z 998c2eaa60df9b69a0b1bfee5763ce70
 # Remove this line to create a well-formed Fossil manifest.

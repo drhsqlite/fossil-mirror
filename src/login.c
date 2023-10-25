@@ -2263,9 +2263,13 @@ void login_reqpwreset_page(void){
   zEAddr = PDT("ea","");
 
   /* Verify user imputs */
-  if( !cgi_csrf_safe(2) || P("reqpwreset")==0 ){
+  if( !cgi_csrf_safe(1) || P("reqpwreset")==0 ){
     /* This is the initial display of the form.  No processing or error
     ** checking is to be done. Fall through into the form display
+    **
+    ** cgi_csrf_safe():  Nothing interesting happens on this page without
+    ** a valid captcha solution, so we only need to check referrer and that
+    ** the request is a POST.
     */
   }else if( (captchaIsCorrect = captcha_is_correct(1))==0 ){
     iErrLine = 2;
