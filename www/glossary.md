@@ -7,8 +7,9 @@ incorrectly or to get the wrong idea from someone using those terms
 correctly. We hope to teach users how to properly “speak Fossil” with
 this glossary.
 
-Each definition is followed by a bullet-point list of clarifying
-details. These are not part of the definition itself.
+The bullet-point lists following each definition are meant to be
+clarifying and illustrative. They are not part of the definitions
+themselves.
 
 
 ## <a id="project"></a>Project
@@ -46,24 +47,19 @@ history of that project being a valuable record.
     version-tracked file involved, if not at the start, then certainly
     by the end of the project.
 
-    We used the example of a fiction book above, with one chapter per
-    file.  That implies scripts for combining those chapters into the
-    finished book and converting that into PDF and ePub outputs, each of
-    which benefit from being version-tracked.
+    To take the example of a fiction book above, instead of putting each
+    chapter in a separate file, you could use a single AsciiDoc file for
+    the entire book project rather than make use of its [include
+    facility][AIF] to assemble it from chapter files, since that does at
+    least solve the [key problems][IFRS] inherent in version-tracking
+    something like Word’s DOCX format with Fossil instead.
 
-    You could instead use a Word DOCX file for the entire book project,
-    with these implicit scripts replaced by Word menu commands. Fossil
-    will happily track that single file’s evolution for you, though
-    there are [good reasons](./image-format-vs-repo-size.md) to *not* do
-    that.
-
-    Let us say you choose to solve the primary problems brought up in
-    that document by using a format like AsciiDoc instead. You could
-    still use a single file for the entire book’s prose content, but
-    even then you’re still likely to want separate files for a style
-    sheet, a script to convert the HTML to PDF and ePub in a reliably
-    repeatable fashion, cover artwork files, instructions to the
-    printing house, and so forth.
+    While Fossil will happily track the single file containing the prose
+    of your book project for you, you’re still likely to want separate
+    files for the cover artwork, a style sheet for use in converting the
+    source document to HTML, scripts to convert that intermediate output
+    to PDF and ePub in a reliably repeatable fashion, a `README` file
+    containing instructions to the printing house, and so forth.
 
 *   Fossil requires that all the files for a project be collected into a
     single directory hierarchy, owned by a single user with full rights
@@ -72,11 +68,7 @@ history of that project being a valuable record.
     system, nor of collections of files with complicated ownership and
     access rights.
 
-    A good mental model for a Fossil project is a versioned zip file or
-    tarball. If you cannot easily conceive of creating or extracting
-    such an archive for your project, Fossil is probably not a good fit.
-
-    As a counterexample, a project made of an operating system
+    A project made of an operating system
     installation’s configuration file set is not a good use of Fossil,
     because you’ll have all of your OS’s *other* files intermixed.
     Worse, Fossil doesn’t track OS permissions, so even if you were to
@@ -89,13 +81,19 @@ history of that project being a valuable record.
     Even with these problems aside, do you really want a `.fslckout`
     SQLite database at the root of your filesystem? Are you prepared for
     the consequences of saying `fossil clean --verily` on such a system?
+    You can constrain that with [the `ignore-glob` setting][IGS], but
+    are you prepared to write and maintain all the rules needed to keep
+    Fossil from blowing away the untracked portions of the file system?
     We believe Fossil is a poor choice for a whole-system configuration
     backup utility.
 
-    And as a counter-counterexample, a project made of your user’s [Vim]
-    configuration is a much better use of Fossil, because it’s all held
-    within `~/.vim`, and your user has full rights to that subdirectory.
+    As a counterexample, a project tracking your [Vim] configuration
+    history is a much better use of Fossil, because it’s all held within
+    `~/.vim`, and your user has full rights to that subdirectory.
 
+[AIF]:     https://docs.asciidoctor.org/asciidoc/latest/directives/include/
+[IGS]:     /help?cmd=ignore-glob
+[IFRS]:    ./image-format-vs-repo-size.md
 [tarball]: /help?cmd=tarball
 [tw]:      /help?cmd=/tarball
 [Vim]:     https://www.vim.org/
