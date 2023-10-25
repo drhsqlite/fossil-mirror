@@ -3327,7 +3327,7 @@ void cmd_webserver(void){
   if( isUiCmd && !fNoBrowser ){
     char *zBrowserArg;
     const char *zProtocol = g.httpUseSSL ? "https" : "http";
-    if( zRemote ) db_open_config(0,0);
+    db_open_config(0,0);
     zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
       zBrowserArg = mprintf("%s://localhost:%%d/%s", zProtocol, zInitPage);
