@@ -467,11 +467,20 @@ static int bail_on_error = 0;
 */
 static int stdin_is_interactive = 1;
 
+/*
+** If build is for Windows, without 3rd-party line editing, Console
+** input and output may be done in a UTF-8 compatible way. This is
+** determined by invocation option and OS installed capability.
+*/
 #if (defined(_WIN32) || defined(WIN32)) && SHELL_USE_LOCAL_GETLINE \
   && !defined(SHELL_OMIT_WIN_UTF8)
 # define SHELL_WIN_UTF8_OPT 1
-  static int console_utf8 = sizeof(char*)/4 - 1;
+  static int console_utf8_in = 0;
+  static int console_utf8_out = 0;
+  static int mbcs_opted = 0;
 #else
+# define console_utf8_in 0
+# define console_utf8_out 0
 # define SHELL_WIN_UTF8_OPT 0
 #endif
 
@@ -608,13 +617,13 @@ static char *dynamicContinuePrompt(void){
 #endif /* !defined(SQLITE_OMIT_DYNAPROMPT) */
 
 #if SHELL_WIN_UTF8_OPT
-/* Following struct is used for -utf8 operation. */
+/* Following struct is used for UTF-8 operation. */
 static struct ConsoleState {
   int stdinEof;      /* EOF has been seen on console input */
   int infsMode;      /* Input file stream mode upon shell start */
   UINT inCodePage;   /* Input code page upon shell start */
   UINT outCodePage;  /* Output code page upon shell start */
-  HANDLE hConsoleIn; /* Console input handle */
+  HANDLE hConsole;   /* Console input or output handle */
   DWORD consoleMode; /* Console mode upon shell start */
 } conState = { 0, 0, 0, 0, INVALID_HANDLE_VALUE, 0 };
 
@@ -622,51 +631,125 @@ static struct ConsoleState {
 # define _O_U16TEXT 0x20000
 #endif
 
+
+#if !SQLITE_OS_WINRT
 /*
-** Prepare console, (if known to be a WIN32 console), for UTF-8
-** input (from either typing or suitable paste operations) and for
-** UTF-8 rendering. This may "fail" with a message to stderr, where
-** the preparation is not done and common "code page" issues occur.
+** Check Windows major version against given value, returning
+** 1 if the OS major version is no less than the argument.
+** This check uses very late binding to the registry access
+** API so that it can operate gracefully on OS versions that
+** do not have that API. The Windows NT registry, for versions
+** through Windows 11 (at least, as of October 2023), keeps
+** the actual major version number at registry key/value
+** HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\CurrentMajorVersionNumber
+** where it can be read more reliably than allowed by various
+** version info APIs which "process" the result in a manner
+** incompatible with the purpose of the CLI's version check.
+**
+** If the registry API is unavailable, or the location of
+** the above registry value changes, or the OS major version
+** is less than the argument, this function returns 0.
 */
-static void console_prepare(void){
-  HANDLE hCI = GetStdHandle(STD_INPUT_HANDLE);
-  DWORD consoleMode = 0;
-  if( isatty(0) && GetFileType(hCI)==FILE_TYPE_CHAR
-      && GetConsoleMode( hCI, &consoleMode) ){
-    if( !IsValidCodePage(CP_UTF8) ){
-      fprintf(stderr, "Cannot use UTF-8 code page.\n");
-      console_utf8 = 0;
-      return;
+static int CheckAtLeastWinX(DWORD major_version){
+  typedef LONG (WINAPI *REG_OPEN)(HKEY,LPCSTR,DWORD,REGSAM,PHKEY);
+  typedef LSTATUS (WINAPI *REG_READ)(HKEY,LPCSTR,LPCSTR,DWORD,
+                                          LPDWORD,PVOID,LPDWORD);
+  typedef LSTATUS (WINAPI *REG_CLOSE)(HKEY);
+  int rv = 0;
+  HINSTANCE hLib = LoadLibrary(TEXT("Advapi32.dll"));
+  if( NULL != hLib ){
+    REG_OPEN rkOpen = (REG_OPEN)GetProcAddress(hLib, "RegOpenKeyExA");
+    REG_READ rkRead = (REG_READ)GetProcAddress(hLib, "RegGetValueA");
+    REG_CLOSE rkFree = (REG_CLOSE)GetProcAddress(hLib, "RegCloseKey");
+    if( rkOpen != NULL && rkRead != NULL && rkFree != NULL ){
+      HKEY hk;
+      const char *zsk = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
+      if( ERROR_SUCCESS == rkOpen(HKEY_LOCAL_MACHINE, zsk, 0, KEY_READ, &hk) ){
+        DWORD kv = 0, kvsize = sizeof(kv);
+        if( ERROR_SUCCESS ==  rkRead(hk, 0, "CurrentMajorVersionNumber",
+                                     RRF_RT_REG_DWORD, 0, &kv, &kvsize) ){
+          rv = (kv >= major_version);
+        }
+        rkFree(hk);
+      }
     }
-    conState.hConsoleIn = hCI;
-    conState.consoleMode = consoleMode;
-    conState.inCodePage = GetConsoleCP();
-    conState.outCodePage = GetConsoleOutputCP();
-    SetConsoleCP(CP_UTF8);
-    SetConsoleOutputCP(CP_UTF8);
-    consoleMode |= ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT;
-    SetConsoleMode(conState.hConsoleIn, consoleMode);
-    conState.infsMode = _setmode(_fileno(stdin), _O_U16TEXT);
-    console_utf8 = 1;
-  }else{
-    console_utf8 = 0;
+    FreeLibrary(hLib);
   }
+  return rv;
+}
+# define IS_WIN10_OR_LATER() CheckAtLeastWinX(10)
+#else /* defined(SQLITE_OS_WINRT) */
+# define IS_WIN10_OR_LATER() 0
+#endif
+
+/*
+** Prepare console, (if known to be a WIN32 console), for UTF-8 input
+** (from either typing or suitable paste operations) and/or for UTF-8
+** output rendering. This may "fail" with a message to stderr, where
+** the preparation is not done and common "code page" issues occur.
+**
+** The console state upon entry is preserved, in conState, so that
+** console_restore() can later restore the same console state.
+**
+** The globals console_utf8_in and console_utf8_out are set, for
+** later use in selecting UTF-8 or MBCS console I/O translations.
+*/
+static void console_prepare_utf8(void){
+  HANDLE hCI = GetStdHandle(STD_INPUT_HANDLE);
+  HANDLE hCO = GetStdHandle(STD_OUTPUT_HANDLE);
+  HANDLE hCC = INVALID_HANDLE_VALUE;
+  DWORD consoleMode = 0;
+  u8 conI = 0, conO = 0;
+  struct ConsoleState csWork = { 0, 0, 0, 0, INVALID_HANDLE_VALUE, 0 };
+
+  console_utf8_in = console_utf8_out = 0;
+  if( isatty(0) && GetFileType(hCI)==FILE_TYPE_CHAR ) conI = 1;
+  if( isatty(1) && GetFileType(hCO)==FILE_TYPE_CHAR ) conO = 1;
+  if( (!conI && !conO) || mbcs_opted ) return;
+  if( conI ) hCC = hCI;
+  else hCC = hCO;
+  if( !IsValidCodePage(CP_UTF8) || !GetConsoleMode( hCC, &consoleMode) ){
+  bail:
+    fprintf(stderr, "Cannot use UTF-8 code page.\n");
+    return;
+  }
+  csWork.hConsole = hCC;
+  csWork.consoleMode = consoleMode;
+  csWork.inCodePage = GetConsoleCP();
+  csWork.outCodePage = GetConsoleOutputCP();
+  if( conI ){
+    if( !SetConsoleCP(CP_UTF8) ) goto bail;
+    consoleMode |= ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT;
+    SetConsoleMode(conState.hConsole, consoleMode);
+    csWork.infsMode = _setmode(_fileno(stdin), _O_U16TEXT);
+  }
+  if( conO ){
+    /* Here, it is assumed that if conI is true, this call will also
+    ** succeed, so there is no need to undo above setup upon failure. */
+    if( !SetConsoleOutputCP(CP_UTF8) ) goto bail;
+  }
+  console_utf8_in = conI;
+  console_utf8_out = conO;
+  conState = csWork;
 }
 
 /*
-** Undo the effects of console_prepare(), if any.
+** Undo the effects of console_prepare_utf8(), if any.
 */
 static void SQLITE_CDECL console_restore(void){
-  if( console_utf8 && conState.inCodePage!=0
-      && conState.hConsoleIn!=INVALID_HANDLE_VALUE ){
-    _setmode(_fileno(stdin), conState.infsMode);
-    SetConsoleCP(conState.inCodePage);
-    SetConsoleOutputCP(conState.outCodePage);
-    SetConsoleMode(conState.hConsoleIn, conState.consoleMode);
+  if( (console_utf8_in||console_utf8_out)
+      && conState.hConsole!=INVALID_HANDLE_VALUE ){
+    if( console_utf8_in ){
+      SetConsoleCP(conState.inCodePage);
+      _setmode(_fileno(stdin), conState.infsMode);
+    }
+    if( console_utf8_out ) SetConsoleOutputCP(conState.outCodePage);
+    SetConsoleMode(conState.hConsole, conState.consoleMode);
     /* Avoid multiple calls. */
-    conState.hConsoleIn = INVALID_HANDLE_VALUE;
+    conState.hConsole = INVALID_HANDLE_VALUE;
     conState.consoleMode = 0;
-    console_utf8 = 0;
+    console_utf8_in = 0;
+    console_utf8_out = 0;
   }
 }
 
@@ -674,11 +757,11 @@ static void SQLITE_CDECL console_restore(void){
 ** Collect input like fgets(...) with special provisions for input
 ** from the Windows console to get around its strange coding issues.
 ** Defers to plain fgets() when input is not interactive or when the
-** startup option, -utf8, has not been provided or taken effect.
+** UTF-8 input is unavailable or opted out.
 */
 static char* utf8_fgets(char *buf, int ncmax, FILE *fin){
   if( fin==0 ) fin = stdin;
-  if( fin==stdin && stdin_is_interactive && console_utf8 ){
+  if( fin==stdin && stdin_is_interactive && console_utf8_in ){
 # define SQLITE_IALIM 150
     wchar_t wbuf[SQLITE_IALIM];
     int lend = 0;
@@ -691,7 +774,7 @@ static char* utf8_fgets(char *buf, int ncmax, FILE *fin){
         ? SQLITE_IALIM : (ncmax-1 - noc)/4;
 # undef SQLITE_IALIM
       DWORD nbr = 0;
-      BOOL bRC = ReadConsoleW(conState.hConsoleIn, wbuf, na, &nbr, 0);
+      BOOL bRC = ReadConsoleW(conState.hConsole, wbuf, na, &nbr, 0);
       if( !bRC || (noc==0 && nbr==0) ) return 0;
       if( nbr > 0 ){
         int nmb = WideCharToMultiByte(CP_UTF8,WC_COMPOSITECHECK|WC_DEFAULTCHAR,
@@ -737,16 +820,16 @@ static char* utf8_fgets(char *buf, int ncmax, FILE *fin){
 
 /*
 ** Render output like fprintf().  Except, if the output is going to the
-** console and if this is running on a Windows machine, and if the -utf8
-** option is unavailable or (available and inactive), translate the
+** console and if this is running on a Windows machine, and if UTF-8
+** output unavailable (or available but opted out), translate the
 ** output from UTF-8 into MBCS for output through 8-bit stdout stream.
-** (With -utf8 active, no translation is needed and must not be done.)
+** (Without -no-utf8, no translation is needed and must not be done.)
 */
 #if defined(_WIN32) || defined(WIN32)
 void utf8_printf(FILE *out, const char *zFormat, ...){
   va_list ap;
   va_start(ap, zFormat);
-  if( stdout_is_console && (out==stdout || out==stderr) && !console_utf8 ){
+  if( stdout_is_console && (out==stdout || out==stderr) && !console_utf8_out ){
     char *z1 = sqlite3_vmprintf(zFormat, ap);
     char *z2 = sqlite3_win32_utf8_to_mbcs_v2(z1, 0);
     sqlite3_free(z1);
@@ -957,10 +1040,10 @@ static char *local_getline(char *zLine, FILE *in){
     }
   }
 #if defined(_WIN32) || defined(WIN32)
-  /* For interactive input on Windows systems, without -utf8,
+  /* For interactive input on Windows systems, with -no-utf8,
   ** translate the multi-byte characterset characters into UTF-8.
-  ** This is the translation that predates the -utf8 option. */
-  if( stdin_is_interactive && in==stdin && !console_utf8 ){
+  ** This is the translation that predates console UTF-8 input. */
+  if( stdin_is_interactive && in==stdin && !console_utf8_in ){
     char *zTrans = sqlite3_win32_mbcs_to_utf8_v2(zLine, 0);
     if( zTrans ){
       i64 nTrans = strlen(zTrans)+1;
@@ -8519,6 +8602,7 @@ SQLITE_EXTENSION_INIT1
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include <zlib.h>
 
@@ -27825,7 +27909,7 @@ static const char zOptions[] =
   "   -newline SEP         set output row separator. Default: '\\n'\n"
 #if SHELL_WIN_UTF8_OPT
   "   -no-utf8             do not try to set up UTF-8 output (for legacy)\n"
-#endif     
+#endif
   "   -nofollow            refuse to open symbolic links to database files\n"
   "   -nonce STRING        set the safe-mode escape nonce\n"
   "   -nullvalue TEXT      set text string for NULL values. Default ''\n"
@@ -27842,7 +27926,7 @@ static const char zOptions[] =
   "   -table               set output mode to 'table'\n"
   "   -tabs                set output mode to 'tabs'\n"
   "   -unsafe-testing      allow unsafe commands and modes for testing\n"
-#if SHELL_WIN_UTF8_OPT
+#if SHELL_WIN_UTF8_OPT && 0 /* Option is accepted, but is now the default. */
   "   -utf8                setup interactive console code page for UTF-8\n"
 #endif
   "   -version             show SQLite version\n"
@@ -28078,10 +28162,20 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   }
 #endif
 
+#if SHELL_WIN_UTF8_OPT
+  /* If Windows build and not RT, set default MBCS/UTF-8 translation for
+  ** console according to detected Windows version. This default may be
+  ** overridden by a -no-utf8 or (undocumented) -utf8 invocation option.
+  ** If a runtime check for UTF-8 console I/O capability is devised,
+  ** that should be preferred over this version check.
+  */
+  mbcs_opted = (IS_WIN10_OR_LATER())? 0 : 1;
+#endif
+
   /* Do an initial pass through the command-line argument to locate
   ** the name of the database file, the name of the initialization file,
-  ** the size of the alternative malloc heap,
-  ** and the first command to execute.
+  ** the size of the alternative malloc heap, options affecting commands
+  ** or SQL run from the command line, and the first command to execute.
   */
 #ifndef SQLITE_SHELL_FIDDLE
   verify_uninitialized();
@@ -28115,12 +28209,26 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       (void)cmdline_option_value(argc, argv, ++i);
     }else if( cli_strcmp(z,"-init")==0 ){
       zInitFile = cmdline_option_value(argc, argv, ++i);
+    }else if( cli_strcmp(z,"-interactive")==0 ){
+      /* Need to check for interactive override here to so that it can
+      ** affect console setup (for Windows only) and testing thereof.
+      */
+      stdin_is_interactive = 1;
     }else if( cli_strcmp(z,"-batch")==0 ){
       /* Need to check for batch mode here to so we can avoid printing
       ** informational messages (like from process_sqliterc) before
       ** we do the actual processing of arguments later in a second pass.
       */
       stdin_is_interactive = 0;
+    }else if( cli_strcmp(z,"-utf8")==0 ){
+#if SHELL_WIN_UTF8_OPT
+      /* Option accepted, but just specifies default UTF-8 console I/O. */
+      mbcs_opted = 0;
+#endif /* SHELL_WIN_UTF8_OPT */
+    }else if( cli_strcmp(z,"-no-utf8")==0 ){
+#if SHELL_WIN_UTF8_OPT
+      mbcs_opted = 1;
+#endif /* SHELL_WIN_UTF8_OPT */
     }else if( cli_strcmp(z,"-heap")==0 ){
 #if defined(SQLITE_ENABLE_MEMSYS3) || defined(SQLITE_ENABLE_MEMSYS5)
       const char *zSize;
@@ -28259,6 +28367,15 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       exit(1);
     }
   }
+#if SHELL_WIN_UTF8_OPT
+  /* Get indicated Windows console setup done before running invocation commands. */
+  if( stdin_is_interactive || stdout_is_console ){
+    console_prepare_utf8();
+  }
+  if( !stdin_is_interactive ){
+    setBinaryMode(stdin, 0);
+  }
+#endif
 
   if( data.pAuxDb->zDbFilename==0 ){
 #ifndef SQLITE_OMIT_MEMORYDB
@@ -28386,17 +28503,13 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
              8*(int)sizeof(char*));
       return 0;
     }else if( cli_strcmp(z,"-interactive")==0 ){
-      stdin_is_interactive = 1;
+      /* already handled */
     }else if( cli_strcmp(z,"-batch")==0 ){
-      stdin_is_interactive = 0;
+      /* already handled */
     }else if( cli_strcmp(z,"-utf8")==0 ){
-#if SHELL_WIN_UTF8_OPT
-      console_utf8 = 1;
-#endif /* SHELL_WIN_UTF8_OPT */
+      /* already handled */
     }else if( cli_strcmp(z,"-no-utf8")==0 ){
-#if SHELL_WIN_UTF8_OPT
-      console_utf8 = 0;
-#endif /* SHELL_WIN_UTF8_OPT */
+      /* already handled */
     }else if( cli_strcmp(z,"-heap")==0 ){
       i++;
     }else if( cli_strcmp(z,"-pagecache")==0 ){
@@ -28478,14 +28591,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     }
     data.cMode = data.mode;
   }
-#if SHELL_WIN_UTF8_OPT
-  if( console_utf8 && stdin_is_interactive ){
-    console_prepare();
-  }else{
-    setBinaryMode(stdin, 0);
-    console_utf8 = 0;
-  }
-#endif
 
   if( !readStdin ){
     /* Run all arguments that do not begin with '-' as if they were separate
@@ -28524,7 +28629,12 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       const char *zCharset = "";
       int nHistory;
 #if SHELL_WIN_UTF8_OPT
-      if( console_utf8 ) zCharset = " (utf8)";
+      switch( console_utf8_in+2*console_utf8_out ){
+      default: case 0: break;
+      case 1: zCharset = " (utf8 in)"; break;
+      case 2: zCharset = " (utf8 out)"; break;
+      case 3: zCharset = " (utf8 I/O)"; break;
+      }
 #endif
       printf(
         "SQLite version %s %.19s%s\n" /*extra-version-info*/
