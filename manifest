@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sand\sotherwise\simproved\sthe\sdocs\sfor\sthe\s"fossil\sall\sset"\scommand.
-D 2023-10-29T19:19:05.633
+C Replicated\sthe\sserver\sload\saveage\slimit\son\sthe\srobot-defenses\sconfiguration\spage.
+D 2023-10-29T22:20:05.828
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -518,7 +518,7 @@ F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 04884c4f8e822908ef16956fa5f87435813be4db462d5e70677d3e51cbd82989
 F src/security_audit.c 6da0bd26a7ff1544c46eb0caf4c003496c8caaaf9af7d060557a450770278953
-F src/setup.c 1065e6d3bd0576a3a69f3a718b2b6b2f56691b3756ba0505f92f6078dedaf891
+F src/setup.c 879d77a697cb659dee2ae18fe6a44313b025fc1f9b1cd73bd4a3c3c29f65407e
 F src/setupuser.c 3b1136b8d5dbfb2d97b34845e5294af9ff11aab5588941efab1445b8aa0f161a
 F src/sha1.c 9fca2ef73ac3feaf361aa390ff5fab35b54736d72c59dc5ed63ec6daca1a1f29
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db6674638ae60a51ff65749b8a9ccbc3793cd9034dbb8080d85a3a44d4ae2230
-R cf0af84e1d1362cf7ca2d8c5857b08c1
+P 67094bc2992b77630755eba7315c1acf71f64d51ebc009ec13fcad696e88d081
+R 85abd1944f0bb36447adbaf0783e4df6
 U drh
-Z 8ef680253f6d332c736d72d1968d6065
+Z a4d267a78e271aa7f9b60729ab5ddb4d
 # Remove this line to create a well-formed Fossil manifest.

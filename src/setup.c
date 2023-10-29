@@ -415,6 +415,19 @@ void setup_robots(void){
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
   addAutoHyperlinkSettings();
+
+  @ <hr>
+  entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
+                  "0.0", 0);
+  @ <p>Some expensive operations (such as computing tarballs, zip archives,
+  @ or annotation/blame pages) are prohibited if the load average on the host
+  @ computer is too large.  Set the threshold for disallowing expensive
+  @ computations here.  Set this to 0.0 to disable the load average limit.
+  @ This limit is only enforced on Unix servers.  On Linux systems,
+  @ access to the /proc virtual filesystem is required, which means this limit
+  @ might not work inside a chroot() jail.
+  @ (Property: "max-loadavg")</p>
+
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
