@@ -118,10 +118,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned and --share-links options are supported.
 **
-**    set         Run the "setting" or "set" commands on all
-**                repositories.  These command are particularly useful in
-**                conjunction with the "max-loadavg" setting which cannot
-**                otherwise be set globally.
+**    set         Run the "setting" or "set" commands on all repositories.
+**                This command is useful for settings like "max-loadavg" which
+**                you usually want to be the same across all repositories
+**                on a server.
 **
 **    unset       Run the "unset" command on all repositories
 **
