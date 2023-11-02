@@ -1,5 +1,5 @@
-C Version\s2.23
-D 2023-11-01T18:56:47.843
+C Check\sif\smarkdown\sparagraphs\scontains\slists.\nFixes\sissue\sreported\sin\s[forum:b598ac56defddb2a].
+D 2023-11-02T12:44:05.629
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -490,7 +490,7 @@ F src/lookslike.c 132e241e0e08ae49cd9bd9d4486f6490edfb56b53f2ec5c9a6d4584dcbcd06
 F src/main.c 1ac0d5a308bdeb21fde3d341e131faa5de0051736099827d5289d847c0cd80f9
 F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
 F src/manifest.c 6e2821296117ec00182f7d151570e7500ce8b8fdea7772dbe383f567323c1f4f
-F src/markdown.c 4ab8b1749c3cf8a42acd63be10ed788e53159e367988da543492ace05db7d1ec
+F src/markdown.c 5a1ece685c3af5544994fe10bacb80f5d38459b0d4556bcec1c380e87d9ca771
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
 F src/markdown_html.c e216038c52a80cd38c4d00bc00f2fc3758591a275288f3f25ac513257f0ffe01
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
@@ -950,10 +950,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72e143519d956c4c1574537066576fd3b5563d9ae854334237bb495702ce012b
-R e9f401de4f9f0dc1d6e84c89234a700d
-T +sym-release *
-T +sym-version-2.23 *
-U drh
-Z 6fb54b7dc05b6dc6918c311bf1db6ae8
+P 47362306a7dd7c6fc3cab77cebe5d25469b0a9448479d9718eb5c49c8337b292
+R b6cb2046e17c8e65fb35739960493a89
+T *bgcolor * #fec084
+T *branch * markdown-multiple-sublists
+T *sym-markdown-multiple-sublists *
+T -sym-trunk *
+U preben
+Z bf3ad0fbc299292f42ffe3a5fe48b918
 # Remove this line to create a well-formed Fossil manifest.
