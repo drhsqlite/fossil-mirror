@@ -392,7 +392,8 @@ void pull_cmd(void){
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to communicate with
 **                              the server
-**   -v|--verbose               Additional (debugging) output
+**   -v|--verbose               Additional (debugging) output - use twice for
+**                              network debugging
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
@@ -441,7 +442,8 @@ void push_cmd(void){
 **   --transport-command CMD    Use external command CMD to move message
 **                              between the client and the server
 **   -u|--unversioned           Also sync unversioned content
-**   -v|--verbose               Additional (debugging) output
+**   -v|--verbose               Additional (debugging) output - use twice to
+**                              get network debug info
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
