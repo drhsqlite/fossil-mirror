@@ -236,6 +236,9 @@ static void process_sync_args(
   }
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
+    if( find_option("verbose","v",0)!=0 ){
+      *pSyncFlags |= SYNC_XVERBOSE;
+    }
   }
   if( find_option("no-http-compression",0,0)!=0 ){
     *pSyncFlags |= SYNC_NOHTTPCOMPRESS;
@@ -336,7 +339,8 @@ static void process_sync_args(
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to move messages
 **                              between client and server
-**   -v|--verbose               Additional (debugging) output
+**   -v|--verbose               Additional (debugging) output - use twice to
+**                              also trace network traffic.
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **

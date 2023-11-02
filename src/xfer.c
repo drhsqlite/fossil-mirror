@@ -1929,6 +1929,7 @@ static const char zBriefFormat[] =
 #define SYNC_NOHTTPCOMPRESS 0x04000    /* Do not compression HTTP messages */
 #define SYNC_ALLURL         0x08000    /* The --all flag - sync to all URLs */
 #define SYNC_SHARE_LINKS    0x10000    /* Request alternate repo links */
+#define SYNC_XVERBOSE       0x20000    /* Extra verbose.  Network traffic */
 #endif
 
 /*
@@ -2262,7 +2263,9 @@ int client_sync(
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
 
-    if( syncFlags & SYNC_VERBOSE ){
+    if( (syncFlags & SYNC_VERBOSE)!=0
+     && (syncFlags & SYNC_XVERBOSE)==0
+    ){
       fossil_print("waiting for server...");
     }
     fflush(stdout);
@@ -2275,6 +2278,9 @@ int client_sync(
     }
     if( syncFlags & SYNC_NOHTTPCOMPRESS ){
       mHttpFlags |= HTTP_NOCOMPRESS;
+    }
+    if( syncFlags & SYNC_XVERBOSE ){
+      mHttpFlags |= HTTP_VERBOSE;
     }
 
     /* Do the round-trip to the server */

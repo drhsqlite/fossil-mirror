@@ -1,5 +1,5 @@
-C Version\s2.23
-D 2023-11-01T18:56:47.843
+C For\sthe\s"fossil\ssync"\scommand\sif\sthe\s-v\soption\sis\srepeated,\sthen\sthe\nHTTP_VERBOSE\sflag\sis\sset\son\sthe\shttp_exchange()\scall,\sresulting\sin\sadditional\ndebugging\soutput\sfor\sthe\swire\sprotocol.
+D 2023-11-02T19:37:27.790
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -556,7 +556,7 @@ F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20
 F src/style.fileedit.css fcef5f7742f796c686fc5a907380bca43aed1350ec0da5409275370ec7ad443b
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css d6a3ba0e90f84797fdcdaa2f015ed93c833842753fc0de3b0ecdbda776681c54
-F src/sync.c b01f89e55b02250f5bce2fa6619b0346fdac9a6c2177a0b18f6e8a9478009937
+F src/sync.c 6efcbf4fa26a13845c705e3d07c9a65a7a717a8b48506154de8c8ea64ecc09e3
 F src/tag.c 4e044d0143f917283c6c2b64a786ffdbb22a790f62f5404a769c35de0fb3c5f5
 F src/tar.c fcf3dafb4eb1569a4c71cb4341815e89bc267760bf5205a5fb6aac838d86617d
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
@@ -585,7 +585,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 0232d269e8e338acd5fda4154f62a0e27c02a74c423941f6e62a7f41add5454c
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c d6462bd856393cf0631294c16d52ac6cd3bcb77a590c60a993b3233a214d3d36
-F src/xfer.c 61106f94dbc459439e22b42b1f7e8cad3ddb90c694a7606e05a959658d6993a1
+F src/xfer.c 12f76360ebc1881db63cb90f8731a830718d5d016461052aa8101743485a370b
 F src/xfersetup.c c6b9a9a2b56c86430b26535ec18b3943d858913c960deeb121076d70c9b7bd75
 F src/zip.c 5df02ce80e1272ebdf605d78e0e01530f26704425a722eba27324ce3ae3a8dcb
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -950,10 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72e143519d956c4c1574537066576fd3b5563d9ae854334237bb495702ce012b
-R e9f401de4f9f0dc1d6e84c89234a700d
-T +sym-release *
-T +sym-version-2.23 *
+P 47362306a7dd7c6fc3cab77cebe5d25469b0a9448479d9718eb5c49c8337b292
+R b6d9960b6ee682bc76958d1cb144a4be
 U drh
-Z 6fb54b7dc05b6dc6918c311bf1db6ae8
+Z a765e95c0ed884dc78be8902c31deff0
 # Remove this line to create a well-formed Fossil manifest.
