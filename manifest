@@ -1,5 +1,5 @@
-C Fix\smerge_warn.test:\swarning\sabout\smissing\scommon\sancestor\schanged\sto\smerge\sconflict\swarning.\s👀
-D 2023-11-05T12:42:00.000
+C Fix\srevert.test:\schanged\smarkers\sfor\sRENAMED\sfiles.
+D 2023-11-05T12:46:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -626,7 +626,7 @@ F test/merge_warn.test 269b1c26f1ce87fce82a6a1f5606a425b7dc4f7a54a21e31539b8fbef
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
 F test/release-checklist.wiki d3d3d277176238bbd517e267fa37fbc11b99c39b3cd0fbd59920ffd5c754069d
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
-F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
+F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac75a
 F test/set-manifest.test 46f4753240a2b344c694ea448ffbd5406ddfeac2a0c8c0e2a8b77ca06fabb35f
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 34abaf0120a83151fa91960801014ed8fbd84d930320487ba3da6afbe0a4520a
-R 5e2ebb690ad4a7e015a8b2441a1b5d82
+P c38c0ff74cd21ce97c1820a693aa454beb7a0d56487a77529fae2249943a619c
+R 23586cc1296163d657099cb6c9d0d765
 U florian
-Z 8abcb8aa74bb8564cb7db64a2261f723
+Z 32f5f78268185b7599589c4041aee087
 # Remove this line to create a well-formed Fossil manifest.
