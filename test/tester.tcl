@@ -22,6 +22,11 @@
 # Where ../test/tester.tcl is the name of this file and ../bld/fossil
 # is the name of the executable to be tested.
 #
+# To run a subset of tests (i.e. only one or more of the test/*.test
+# scripts), append the script base names as arguments:
+#
+#     tclsh ../test/tester.tcl ../bld/fossil <script-basename>...
+#
 
 # We use some things introduced in 8.6 such as lmap.  auto.def should
 # have found us a suitable Tcl installation.
