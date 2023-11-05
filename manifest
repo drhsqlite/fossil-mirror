@@ -1,5 +1,5 @@
-C Fix\srevert.test:\schanged\smarkers\sfor\sRENAMED\sfiles.
-D 2023-11-05T12:46:00.000
+C Fix\ssettings.test:\sadded\snew\ssettings.
+D 2023-11-05T12:47:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -638,7 +638,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test b8018b7041d7f41f075a9ccb796b80293a059833d6bfbed519dbb0ab3f0753f4
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl e885f029f0a754b7574ade53d1c0bf2bf70159cd3651267708a0cfdf79e0387b
+F test/tester.tcl 058d88b1c76e1fda87ec0c3cef4f06bf99f80f86e4e0ad7cdd5595f78d388179
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c38c0ff74cd21ce97c1820a693aa454beb7a0d56487a77529fae2249943a619c
-R 23586cc1296163d657099cb6c9d0d765
+P 4023c799d6358ff32e44a21f4ec8634b5af13ac2c2e992d83e36dedd32e77bd8
+R 466823e5cf0f662e2a76ccf070c62e8c
 U florian
-Z 32f5f78268185b7599589c4041aee087
+Z 1f702f7300b5035c075e7bdaf2da0c75
 # Remove this line to create a well-formed Fossil manifest.

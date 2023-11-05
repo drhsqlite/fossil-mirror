@@ -280,6 +280,8 @@ proc get_all_settings {} {
       allow-symlinks \
       auto-captcha \
       auto-hyperlink \
+      auto-hyperlink-delay \
+      auto-hyperlink-mouseover \
       auto-shun \
       autosync \
       autosync-tries \
@@ -294,6 +296,7 @@ proc get_all_settings {} {
       chat-keep-count \
       chat-keep-days \
       chat-poll-timeout \
+      chat-timeline-user \
       clean-glob \
       clearsign \
       comment-format \
@@ -303,10 +306,12 @@ proc get_all_settings {} {
       default-perms \
       diff-binary \
       diff-command \
+      dont-commit \
       dont-push \
       dotfiles \
       editor \
       email-admin \
+      email-listid \
       email-renew-interval \
       email-self \
       email-send-command \
@@ -321,6 +326,7 @@ proc get_all_settings {} {
       exec-rel-paths \
       fileedit-glob \
       forbid-delta-manifests \
+      forum-close-policy \
       gdiff-command \
       gmerge-command \
       hash-digits \
@@ -329,6 +335,7 @@ proc get_all_settings {} {
       https-login \
       ignore-glob \
       keep-glob \
+      large-file-size \
       localauth \
       lock-timeout \
       main-branch \
@@ -339,6 +346,7 @@ proc get_all_settings {} {
       max-upload \
       mimetypes \
       mtime-changes \
+      mv-rm-files \
       pgp-command \
       preferred-diff-type \
       proxy \
@@ -347,6 +355,7 @@ proc get_all_settings {} {
       repo-cksum \
       repolist-skin \
       safe-html \
+      self-pw-reset \
       self-register \
       sitemap-extra \
       ssh-command \
