@@ -187,7 +187,7 @@ stash-test 2 pop {
   ADDED      f0
   MISSING    f1
   EDITED     f2
-  RENAMED    f3n
+  RENAMED    f3  ->  f3n
 } -addremove {
   DELETED  f1
 } -exists {f0 f2 f3n} -notexists {f1 f3}
@@ -294,7 +294,7 @@ test_result_state stash-3-2-mv "mv --hard f2 f2n" [concat {
   RENAME f2 f2n
   MOVED_FILE} [file normalize f2] {
 }] -changes {
-  RENAMED f2n
+  RENAMED f2  ->  f2n
 } -addremove {
 } -exists {f1 f2n} -notexists {f2}
 
@@ -309,7 +309,7 @@ stash-test 3-2-pop {pop} {
   UPDATE f1
   UPDATE f2n
 } -changes {
-  RENAMED    f2n
+  RENAMED    f2  ->  f2n
 } -addremove {
 } -exists {f1 f2n} -notexists {f2}
 
@@ -370,7 +370,7 @@ stash-test 4-3 {snapshot -m "snap 3"} {
   ADDED      f0
   DELETED    f1
   EDITED     f2
-  RENAMED    f3n
+  RENAMED    f3  ->  f3n
 } -addremove {
 } -exists {f0 f2 f3n} -notexists {f1 f3}
 fossil stash diff

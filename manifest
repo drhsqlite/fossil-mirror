@@ -1,5 +1,5 @@
-C Fix\ssettings-repo.test:\sversionable\ssettings\scan\shave\scomments\sstarting\swith\s#.
-D 2023-11-05T12:50:00.000
+C Fix\sstash.test:\schanged\smarkers\sfor\sRENAMED\sfiles.
+D 2023-11-05T12:52:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -630,7 +630,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/set-manifest.test 46f4753240a2b344c694ea448ffbd5406ddfeac2a0c8c0e2a8b77ca06fabb35f
 F test/settings-repo.test 366e5c05af380b8c9aef4b5210d661f2741f55b6dfd2ad78f1b774a09954cc93
 F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
-F test/stash.test 4ac356770b8ad5a013f1927d678bec077cbb387616e67133a4050a177aae0373
+F test/stash.test 22440343ab7a82d2adbd238d91fe24a361216861d9fdf28a961e797e1c43e442
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c626bc977912ff6794e28f92fb96aa1708a849d7f656bb494762dd1050d4b2b
-R 77f19f815380028f03c21b8013a92a2c
+P 1d615c9b6c18c24e4f292dc282cd9c53c7600f3ce933260202eb25381cfea1a8
+R 6943a349a1f8b30099ba29e7d4d6b586
 U florian
-Z 86fd8f22ddb426da62629d03c362fb3b
+Z bb71770c604ec8722aed079c2559f7fa
 # Remove this line to create a well-formed Fossil manifest.
