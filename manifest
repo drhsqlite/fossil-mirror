@@ -1,5 +1,5 @@
-C Fix\smerge3.test:\schanged\smerge\sconflict\swarnings.
-D 2023-11-05T12:30:00.000
+C Fix\smerge4.test:\schanged\smerge\sconflict\swarnings.
+D 2023-11-05T12:31:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -615,7 +615,7 @@ F test/markdown-test3.md 70e697a5e9bab2f1a5bbb7bb4223a8d4b2d7f1a43973f7455e8c7ea
 F test/merge1.test b0e306f66d249dfe5eff08db57fcd969975a95d9cee51711f1418eb3ccf999c1
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 7949771e12a80306cd33aeebf19b58fda5b09e7fc776abc7d011a83122425692
-F test/merge4.test f80c90ed16db972cf87c41b9645048624a29d22346e36b8cf5abaaf88f85cd9c
+F test/merge4.test 2fc4833965826d01b212411228481c2702ff60327e3a0b90de16d8f8562c00e3
 F test/merge5.test 00a16dbff1c3ffb981b7bb7ede93dcf03e77a42c8fddff1fd632a49119d2dc65
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4f9cfebf18b43af6feab34373fb61742aeff0933d223dc6e0153e95cf3419d60
-R 65302a3b377308b63c83f0117d1246c6
+P 3e61910072dc8fe979dab4613fae87142e140b75859ddd71752cca79b7a24bd4
+R 4f1ced0112ecace855331aa44409af8c
 U florian
-Z f12859a9ff8237f34618288aafc2cb6e
+Z a9c4a9380622b52d92cb42877035b180
 # Remove this line to create a well-formed Fossil manifest.
