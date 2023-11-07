@@ -1,5 +1,5 @@
-C Add\sa\scomment\show\sto\srun\sjust\sa\ssubset\sof\stests.
-D 2023-11-05T13:41:00.000
+C Test\samend-tag-2.2\sexpects\sa\scase\sinsensitive\ssorted\slist\sof\stags\ssince\s[3500dbfd84].
+D 2023-11-07T09:57:35.295
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -590,7 +590,7 @@ F src/xfersetup.c c6b9a9a2b56c86430b26535ec18b3943d858913c960deeb121076d70c9b7bd
 F src/zip.c 5df02ce80e1272ebdf605d78e0e01530f26704425a722eba27324ce3ae3a8dcb
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
+F test/amend.test 5714ab5b58f947a4d404a73993b5bb5dec5bc9b4ae56ae241b887715a87a8a46
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2660ad0f3501f7f819351951c4dd3b1c05223916bff2408339abc9f2c591d99d
-R 60f1be1bbafb4970c1e9123696c51fcd
-U florian
-Z 4104f63d5a2a9ba4003c210a6a2ce8ff
+P f5d79188eabe2732025d662cb9a8035ca22d14052afc76f7c1dc389f718d6526
+R eeb950d1ad46c51d5c7b10dfc961717d
+U preben
+Z 089ed22f0ecb718336eadea461e2181f
 # Remove this line to create a well-formed Fossil manifest.
