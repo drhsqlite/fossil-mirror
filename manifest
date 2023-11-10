@@ -1,5 +1,5 @@
-C Add\sthe\sx=\squery\sparameter\sto\s/timeline.\nSatisfies\sticket\s[208e3fc206af9b61].
-D 2023-11-10T14:14:30.580
+C Increase\sthe\sversion\snumber\sto\s2.24\sto\sstart\sthe\snext\sdevelopment\scycle.\nBegin\sthe\schange\slog\sfor\s2.24.
+D 2023-11-10T14:41:36.806
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -16,7 +16,7 @@ F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c
 F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION de53be951867a3e763e7c9f5e94e2bf012de26cfea4752b62f865f14547426c9
+F VERSION 4e58c9045713ccaca5c369ffb67314a437bc14e171523a8a923a64c3ce65aafc
 F auto.def 708cdaa7c7cfd8f75affecd34ac7f7f72575c97f22a1537429d2a02388af6c71
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
@@ -775,7 +775,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 104b2a7940d6b9a3f239a2d3f7a07aa94e4ee9c74a4c469b8057846683835088
+F www/changes.wiki ca4ab14c177709d993c3694f7eb869a79ca19a79c3d9efdaad731d0ae7ba209e
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 04658e093bf10552fbc8d4bb6bce7d48e3212f07469b2c263e220313f73ffebf
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 88871c0203eef4d67cbc3871aa7b8179e646a7c035a47be9fe191b601d580ebf
-R fd80041b2dc7c87e1df10fe6d9963a80
+P cad7c10b3730c1c54da19ffa468a6092beff21922318ae491a25a5f88ae44f92
+R d6de08f688527291ea71bb58c5f41769
 U drh
-Z 2f9d69714311947fead5c9a1abb1125e
+Z d94dd5c68f49e9fe6208809e6cda26e8
 # Remove this line to create a well-formed Fossil manifest.
