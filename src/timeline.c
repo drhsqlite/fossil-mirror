@@ -1578,6 +1578,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                    event if TIMEORTAG is not part of the timeline.  If
 **                    the t= or r= is used, the m event is added to the timeline
 **                    if it isn't there already.
+**    x=HASHLIST      Show all check-ins in the comma-separated HASHLIST
+**                    in addition to check-ins specified by t= or r=
 **    sel1=TIMEORTAG  Highlight the check-in at TIMEORTAG if it is part of
 **                    the timeline.  Similar to m= except TIMEORTAG must
 **                    match a check-in that is already in the timeline.
@@ -2467,6 +2469,23 @@ void page_timeline(void){
         int ridMark = name_to_rid(zMark);
         db_multi_exec(
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
+      }
+      if( P("x")!=0 ){
+        char *zX = fossil_strdup(P("x"));
+        int ii;
+        int ridX;
+        while( zX[0] ){
+          char c;
+          if( zX[0]==',' || zX[0]==' ' ){ zX++; continue; }
+          for(ii=1; zX[ii] && zX[ii]!=',' && zX[ii]!=' '; ii++){}
+          c = zX[ii];
+          zX[ii] = 0;
+          ridX = name_to_rid(zX);
+          db_multi_exec(
+            "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridX);
+          zX[ii] = c;
+          zX += ii;
+        }
       }
       if( !related ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
