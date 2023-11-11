@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s2.24\sto\sstart\sthe\snext\sdevelopment\scycle.\nBegin\sthe\schange\slog\sfor\s2.24.
-D 2023-11-10T14:41:36.806
+C Suppress\scompiler\swarnings\sassociated\swith\sjimtcl\son\sOpenBSD.
+D 2023-11-11T17:49:55.410
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -23,7 +23,7 @@ F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
 F autosetup/autosetup-config.guess 3b75d9d5f8326458c69745d92193103e27e0481d2f9abd1bae73623cfc598114 x
 F autosetup/autosetup-config.sub 0697a5484327430771886185831e84042e91ce215da18fa282616d22c26f478e x
-F autosetup/autosetup-find-tclsh 2d5d8c103ed193f0627e79467df9e476b0cffe1c5ef99626c2bae5d3cb8ff005 x
+F autosetup/autosetup-find-tclsh 3ed4869b390e09b69b787aa6494abd84482ca4af9e86ee9c88888e877bb02cb3 x
 F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
 F autosetup/cc-db.tcl 4d410387006384f65ec986af45c5799eab1b8ef33f2b74bbcb976c0988ee8279
 F autosetup/cc-lib.tcl 8f02d3adf5051668b603b89ef907fdc74e394ca164207d4db7c33c9a82da4f28
@@ -950,8 +950,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cad7c10b3730c1c54da19ffa468a6092beff21922318ae491a25a5f88ae44f92
-R d6de08f688527291ea71bb58c5f41769
+P 9b642594730ca1a340e538d530dded6dacd1575efe9fa7c8682af9ba8599cd18 c8a1cfb62bc5aa54e48ef9a555971779bec354feb645e96cfa06cb244f8ee5f2
+R fdc9906832c5680f9b55b006079fa5d1
+T +closed c8a1cfb62bc5aa54e48ef9a555971779bec354feb645e96cfa06cb244f8ee5f2
 U drh
-Z d94dd5c68f49e9fe6208809e6cda26e8
+Z bd80b1df0651695a665be72c9c667078
 # Remove this line to create a well-formed Fossil manifest.
