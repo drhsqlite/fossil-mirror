@@ -1685,7 +1685,11 @@ static size_t parse_paragraph(
     ){
       break;
     }
-    if( (i && data[i]=='#') || is_hrule(data+i, size-i) ){
+    if( (i && data[i]=='#')
+     || is_hrule(data+i, size-i)
+     || prefix_uli(data+i, size-i)
+     || prefix_oli(data+i, size-i)
+    ){
       end = i;
       break;
     }
