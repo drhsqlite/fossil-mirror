@@ -808,22 +808,22 @@ void branch_cmd(void){
     branch_new();
   }else if( strncmp(zCmd,"close",5)==0 ){
     if(g.argc<4){
-      usage("branch close branch-name(s)...");
+      usage("close branch-name(s)...");
     }
     branch_cmd_close(3, 1);
   }else if( strncmp(zCmd,"reopen",6)==0 ){
     if(g.argc<4){
-      usage("branch reopen branch-name(s)...");
+      usage("reopen branch-name(s)...");
     }
     branch_cmd_close(3, 0);
   }else if( strncmp(zCmd,"hide",4)==0 ){
     if(g.argc<4){
-      usage("branch hide branch-name(s)...");
+      usage("hide branch-name(s)...");
     }
     branch_cmd_hide(3,1);
   }else if( strncmp(zCmd,"unhide",6)==0 ){
     if(g.argc<4){
-      usage("branch unhide branch-name(s)...");
+      usage("unhide branch-name(s)...");
     }
     branch_cmd_hide(3,0);
   }else{
