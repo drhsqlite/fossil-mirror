@@ -424,7 +424,7 @@ static void contextDiff(
   while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
 
     /* For the current block comprising nr triples, figure out
