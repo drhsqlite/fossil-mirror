@@ -820,9 +820,12 @@ void test_approx_match_command(void){
 **
 **    raw             Show the raw help text without any formatting.
 **                    (Used for debugging.)
+**
+**    s=PATTERN       Search help pages for PATTERN.
 */
 void help_page(void){
   const char *zCmd = P("cmd");
+  const char *zPattern = P("s");
 
   if( zCmd==0 ) zCmd = P("name");
   cgi_check_for_malice();
@@ -869,12 +872,24 @@ void help_page(void){
         @ </div>
       }
     }
+  }else if( zPattern && *zPattern ){
+    login_check_credentials();
+    style_set_current_feature("help");
+    style_header("Help Search");
+    search_screen(SRCH_HELP, 0);
+    style_finish_page();
   }else{
     int i;
     unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help str occurrences */
     int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {{0}};/* Help str->commands */
     style_header("Help");
 
+    if( search_restrict(SRCH_HELP)!=0 ){
+      @ <form action='%R/help' method='GET' style='text-align:center'>
+      @ <input type="text" name="s" size="40" autofocus>
+      @ <input type="submit" value="Search Help Pages">
+      @ </form>
+    }
     @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
     @ <div class="columns" style="column-width: 12ex;">

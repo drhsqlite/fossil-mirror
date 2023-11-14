@@ -543,6 +543,7 @@ void search_sql_setup(sqlite3 *db){
   static int once = 0;
   static const int enc = SQLITE_UTF8|SQLITE_INNOCUOUS;
   if( once++ ) return;
+  helptext_vtab_register(g.db);
   sqlite3_create_function(db, "search_match", -1, enc, 0,
      search_match_sqlfunc, 0, 0);
   sqlite3_create_function(db, "search_score", 0, enc, 0,
@@ -655,7 +656,8 @@ void search_cmd(void){
 #define SRCH_WIKI     0x0008    /* Search over wiki */
 #define SRCH_TECHNOTE 0x0010    /* Search over tech notes */
 #define SRCH_FORUM    0x0020    /* Search over forum messages */
-#define SRCH_ALL      0x003f    /* Search over everything */
+#define SRCH_HELP     0x0040    /* Search over help pages */
+#define SRCH_ALL      0x007f    /* Search over everything */
 #endif
 
 /*
@@ -673,12 +675,14 @@ unsigned int search_restrict(unsigned int srchFlags){
      { SRCH_WIKI,     "search-wiki" },
      { SRCH_TECHNOTE, "search-technote" },
      { SRCH_FORUM,    "search-forum" },
+     { SRCH_HELP,     "search-help" },
   };
   int i;
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC|SRCH_TECHNOTE);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
   if( g.perm.RdForum==0) srchFlags &= ~(SRCH_FORUM);
+  /* No restrictions on SRCH_HELP. */
   for(i=0; i<count(aSetng); i++){
     unsigned int m = aSetng[i].m;
     if( (srchFlags & m)==0 ) continue;
@@ -826,6 +830,19 @@ static void search_fullscan(
       "   WHERE search_match('',body('f',rid,NULL));"
     );
   }
+  if( (srchFlags & SRCH_HELP)!=0 ){
+    db_multi_exec(
+      "INSERT INTO x(label,url,score,id,date,snip)"
+      "  SELECT name,"
+      "         '/help?cmd='||name,"
+      "         search_score(),"
+      "         'h'||rowid,"
+      "         datetime(now()),"
+      "         search_snippet()"
+      "    FROM helptext"
+      "   WHERE search_match(name,helptext);"
+    );
+  }
 }
 
 /*
@@ -924,7 +941,8 @@ static void search_indexed(
   char *zPat = mprintf("%s",zPattern);
   int i;
   static const char *zSnippetCall;
-  if( srchFlags==0 ) return;
+  if( srchFlags&SRCH_HELP ) search_fullscan(zPattern, SRCH_HELP);
+  if( (srchFlags&~(SRCH_HELP))==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
   for(i=0; zPat[i]; i++){
@@ -1133,6 +1151,7 @@ int search_screen(unsigned srchFlags, int mFlags){
     case SRCH_WIKI:     zType = " Wiki";       zClass = "Wiki"; break;
     case SRCH_TECHNOTE: zType = " Tech Notes"; zClass = "Note"; break;
     case SRCH_FORUM:    zType = " Forum";      zClass = "Frm";  break;
+    case SRCH_HELP:     zType = " Help";       zClass = "Help"; break;
   }
   if( srchFlags==0 ){
     if( mFlags & 0x02 ) return 0;
@@ -1160,6 +1179,7 @@ int search_screen(unsigned srchFlags, int mFlags){
        { "w",    "Wiki",       SRCH_WIKI     },
        { "e",    "Tech Notes", SRCH_TECHNOTE },
        { "f",    "Forum",      SRCH_FORUM    },
+       { "h",    "Help",       SRCH_HELP     },
     };
     const char *zY = PD("y","all");
     unsigned newFlags = srchFlags;
@@ -1432,6 +1452,19 @@ void search_stext(
         }
         db_reset(&q2);
       }
+      break;
+    }
+    case 'h': {   /* Help pages */
+      static Stmt q;
+      db_static_prepare(&q,
+          "SELECT name,helptext FROM helptext WHERE rowid=:x");
+      db_bind_int(&q, ":x", rid);
+      if( db_step(&q)==SQLITE_ROW ){
+          db_column_blob(&q, 0, pOut);
+          blob_append(pOut, "\n", 1);
+          db_column_blob(&q, 1, pOut);
+      }
+      db_reset(&q);
       break;
     }
   }
@@ -1957,6 +1990,7 @@ void search_update_index(unsigned int srchFlags){
   if( srchFlags & SRCH_FORUM ){
     search_update_forum_index();
   }
+  /* SRCH_HELP does not use FTSDOCS. */
   db_protect_pop();
 }
 
@@ -1985,11 +2019,11 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtwef      Enable various kinds of search. c=Check-ins,
+**     enable cdtwefh     Enable various kinds of search. c=Check-ins,
 **                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes,
-**                        f=Forum.
+**                        f=Forum, h=Help.
 **
-**     disable cdtwef     Disable various kinds of search
+**     disable cdtwefh    Disable various kinds of search
 **
 **     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
 **                        may be one of (porter, on, off, trigram, unicode61),
@@ -2021,6 +2055,7 @@ void fts_config_cmd(void){
      { "search-wiki",     "wiki search:",      "w" },
      { "search-technote", "tech note search:", "e" },
      { "search-forum",    "forum search:",     "f" },
+     { "search-help",     "help search:",      "h" },
   };
   char *zSubCmd = 0;
   int i, j, n;
