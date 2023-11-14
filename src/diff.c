@@ -2225,7 +2225,7 @@ static void formatDiff(
 
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
