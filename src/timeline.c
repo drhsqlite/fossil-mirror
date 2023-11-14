@@ -3005,6 +3005,8 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   int rc;
+  int bVerboseNewline = (zFormat!=0 && (fossil_strcmp(zFormat, "%h %c")!=0) );
+                              /* True: print a newline after file listing */
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -3140,9 +3142,8 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
     }
     /* With special formatting (except for "oneline") and --verbose,
     ** print a newline after the file listing */
-    if( zFormat!=0 && (fossil_strcmp(zFormat, "%h %c")!=0) ){
-      fossil_print("\n");
-    }
+    if( bVerboseNewline ) fossil_print("\n");
+    
     nEntry++; /* record another complete entry */
   }
   if( rc==SQLITE_DONE ){
