@@ -1,5 +1,5 @@
-C Simplify\shandling\sof\s/dev/null\swith\sexternal\sdiff\scommands\sin\s[fd359387ca],\nreveting\sto\susing\sexisting\stemp\sfile\snaming\sconvention.\s\sAlso\savoids\sattempting\nto\sremove\snon-temporary\sfiles.
-D 2023-10-06T10:41:15.317
+C Add\sdiff\stest\scases\sfor\sadded/deleted\sfiles\sindicated\sby\s/dev/null.
+D 2023-11-15T12:26:41.590
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -599,7 +599,7 @@ F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki c62f7a5c91ad0fd43254091f748118a84d689b4d87755d0bc1ee0b006df7a24f
-F test/diff.test 1ed9a8119336471caba27bfd05fb551c0ddcc309c09a82c7bfeb8f4898eb04d8
+F test/diff.test bbb66743968253b92834ca39f5db28af875e7af4e8a197d637a70ebf713a8264
 F test/fake-editor.tcl 0cd19289b39facabff88e67576312f7ce4477c221f5bd0ee1a04b815a5521a61
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 57ada6bea09e70908d9525c41db62b915abfee58e5f7a702adda91e0c5c06a36
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 30559adbaf2ccc056d0e36d0a56a639bda38640e90a50f0dcb1338bcc7ece0db
-R 14c34838fe007c8ff18f81aaab02804a
+P be3eb3b85dec234e55e7ce8107a6f1301a5dcc033234bab4b4cb4be4684b0be5
+R f947e5423a62e689649083bb0b530166
 U preben
-Z 54407976e80bc62ee41ea1b80c79db66
+Z 9c0f995237e72a8d8aff1dcdb3c1b619
 # Remove this line to create a well-formed Fossil manifest.
