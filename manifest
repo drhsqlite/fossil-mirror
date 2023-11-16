@@ -1,5 +1,5 @@
-C Test\samend-tag-2.2\sexpects\sa\scase\sinsensitive\ssorted\slist\sof\stags\ssince\s[3500dbfd84].
-D 2023-11-07T09:57:35.295
+C Update\stransfer\ssummaries\sin\sunversioned\stests.\sSummaries\schanged\sin\s[2b8ac4d15b]\sand\s[0b7af9d865].
+D 2023-11-16T19:04:45.495
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -655,7 +655,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test c720d4f1db02d80e5d223e3b47517cfeb9324992178becf52bace3b834831731
-F test/unversioned.test 739f312d48a3063ed5931433e85f7b49c35b87ee6add5383c44fea5c4104a879
+F test/unversioned.test 06d69f77bec79a13feb7d236ad965b41353f5dd86a89a94d372a8cb4ffc05c98
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 785fc1ad4c79c42ad60a25abb82130a5578604b9955fa3599600ae6236d8af58
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5d79188eabe2732025d662cb9a8035ca22d14052afc76f7c1dc389f718d6526
-R eeb950d1ad46c51d5c7b10dfc961717d
+P 3a463e8f1279731b198fd320fc3adae61f882043ab096afd4c05233349723eb4
+R 90f5990885da838411aebea8f1593de3
 U preben
-Z 089ed22f0ecb718336eadea461e2181f
+Z b78c736d3ec659845e475d887875ca81
 # Remove this line to create a well-formed Fossil manifest.

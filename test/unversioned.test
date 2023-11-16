@@ -345,7 +345,7 @@ test unversioned-46 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+\n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
 ###############################################################################
@@ -391,7 +391,7 @@ test unversioned-52 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+\n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
 ###############################################################################
@@ -416,7 +416,7 @@ test unversioned-55 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 1  received: 0
 Round-trips: 2   Artifacts sent: 1  received: 0
-\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+\n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
 ###############################################################################
