@@ -1,5 +1,5 @@
-C Move\san\sinvariable\stest\soutside\sa\swhile\sloop.
-D 2023-11-14T21:29:10.513
+C Add\smore\sinformation\swhen\suser\sencounters\san\sUnresolved\sRID\scondition.
+D 2023-11-16T12:16:41.226
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -579,7 +579,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c 9b4270efae5bf3f8fa71a62823003967c6d68ef40ea67cbbb1540159d03b3620
+F src/vfile.c c661b18d51e66d061e5da6412d727c104e792a0eadf8b46870a44db0078c9013
 F src/wiki.c fa4e2f79514160270b0fb63bb988094c7604784c43c8ae237e4e50bd91ce9688
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 0232d269e8e338acd5fda4154f62a0e27c02a74c423941f6e62a7f41add5454c
@@ -950,8 +950,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a402dd2a888d6d7415070c64090eb2ba0e2490a7df564c29b1478c81054132b7
-R cdb1b21ecc50625ffe7dc0aba6bc9ffb
-U danield
-Z 9b7ec34bffea1d50e1cdfe55d132b502
+P b87bd729278fca0a023a867f219b4e93d43121adf4fa126b1039e71ff63bd905
+R 690e0d9b63d1a66fdc3cbd134bb9c725
+T *branch * unresolved-rid-explanation
+T *sym-unresolved-rid-explanation *
+T -sym-trunk *
+U preben
+Z d4374f5ed6c766e414cf9038b7fb66ef
 # Remove this line to create a well-formed Fossil manifest.

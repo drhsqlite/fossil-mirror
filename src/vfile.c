@@ -1071,7 +1071,14 @@ void vfile_rid_renumbering_event(int dryRun){
      oldVid
   );
   if( zUnresolved[0] ){
-    fossil_fatal("Unresolved RID values: %s\n", zUnresolved);
+    fossil_fatal("Unresolved RID values: %s\n"
+        "\n"
+        "Local check-out database is out of sync with repository file:\n"
+        "\n"
+        "    %s\n"
+        "\n"
+        "Has the repository file been replaced?\n",
+        zUnresolved, db_repository_filename());
   }
 
   /* Make the changes to the VFILE and VMERGE tables */
