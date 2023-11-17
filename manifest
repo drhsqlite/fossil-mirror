@@ -1,5 +1,5 @@
-C When\stesting,\ssort\sglob\sresults\sfor\sconsistent\stest\sordering\sacross\sOSes.
-D 2023-11-17T17:44:04.522
+C Add\sscript\sto\srewrite\stest\soutput\sfor\seasier\scomparison\sof\soutput\sfrom\sdifferent\sruns.\n\nInvoked\swith\stclsh,\sthe\sscript\sreads\seither\sa\sfile\sargument\sor\sstdin\sand\swrites\sto\sstdout.
+D 2023-11-17T17:47:47.609
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -627,6 +627,7 @@ F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e
 F test/release-checklist.wiki d3d3d277176238bbd517e267fa37fbc11b99c39b3cd0fbd59920ffd5c754069d
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
+F test/rewrite-test-output.tcl 3877f78d0ceac510c1e239774e6167ec957bd5ec12fbe025cde9b5bda2c96a66
 F test/set-manifest.test 0f7a5f05fef7b4a3995ce7384feecde313e542d197c3d2d8c5324ef8177f791c
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
@@ -950,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc1836edb68ab8909993dc8356ef7e7282c4ac9b345b781960f4797d53defbdb
-R ff90b6d90217c4018dba78c77f3e8efb
+P 7fc504d100eaccbd22c004759885e3fd78237c49d08efa4adce28eb4b52ceb1c
+R 4a97521679d43bb4af4dd978f2be08d0
 U preben
-Z 2e693371baadfffb659f33de4f547207
+Z e8ab1176c361f7662e802f6123ad9c0c
 # Remove this line to create a well-formed Fossil manifest.
