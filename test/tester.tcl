@@ -1110,3 +1110,6 @@ if {$nErr>0 || !$::QUIET} {
 if {$nErr>0} {
   protOut "***** Ignored failures: $ignored_test" 1
 }
+if {$bad_test>0} {
+  exit 1
+}
