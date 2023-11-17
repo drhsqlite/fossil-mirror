@@ -1,5 +1,5 @@
-C List\sskipped\stests\sin\sthe\sfinal\ssummary.
-D 2023-11-17T17:37:32.611
+C In\sunversioned\stest,\scloning\swith\s--save-http-password\savoid\spassword\sprompts\son\smacOs,\sOpenBSD\sand\sLinux.
+D 2023-11-17T17:39:10.864
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -655,7 +655,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test d24b7738f32bb3d9a443178895d191330807f80b384cd4acb8dfdd8efa6615a5
-F test/unversioned.test 739f312d48a3063ed5931433e85f7b49c35b87ee6add5383c44fea5c4104a879
+F test/unversioned.test 16dcaf6455bd179ed32a55ebb6b7c688260665981c6dc56e5eeafc58ab49ccd2
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 785fc1ad4c79c42ad60a25abb82130a5578604b9955fa3599600ae6236d8af58
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41f7e90c84d5b950fef2644b7ae1d22bafbdd29bf0a203b43c31b72efd6d3128
-R 11208a121ee33699ebe2a67b7eecbf9c
+P c028f36de876860cef0705193d935d8edf0ad1cb6c08666116afe95c12d20704
+R 971a6e5073d4ec20d2fcf8fbfa59def0
 U preben
-Z 2221a7ac1ef67a9f0442db603b9ee42e
+Z bca24f6d8ed12fa2051b1ee588fea727
 # Remove this line to create a well-formed Fossil manifest.
