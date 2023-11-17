@@ -477,7 +477,11 @@ proc test_cleanup_then_return {} {
 }
 
 proc test_cleanup {} {
-  if {$::KEEP} {return}; # All cleanup disabled?
+  if {$::KEEP} {
+      # To avoid errors with require_no_open_checkout, cd out of here.
+      if {[info exists ::tempSavedPwd]} {cd $::tempSavedPwd; unset ::tempSavedPwd}
+      return
+  }
   if {![info exists ::tempRepoPath]} {return}
   if {![file exists $::tempRepoPath]} {return}
   if {![file isdirectory $::tempRepoPath]} {return}
