@@ -1,5 +1,5 @@
-C The\ssymlinks\stests\sare\sall\sconcerned\swith\sfiles\saccessed\sthrough\ssymlink\ntraversal\swhich\shas\snot\sbeen\sallowed\sfor\squite\sa\swhile\s(I\sthink\s[4d445ead]\nis\sthe\slast\schange\sthat\senforced\sthis).\n\nTo\scarry\sout\sthe\stests,\sensure\sallow-symlinks\sis\sset\sin\sthe\slocal\srepo.
-D 2023-11-16T21:27:38.813
+C Update\sth1-tcl\stests\sto\sreflect\s"<hr\s/>"\sto\s"<hr>"\soutput\schange\sin\s[f5482a0a79].
+D 2023-11-17T18:05:32.008
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -644,7 +644,7 @@ F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 9d7a194369977e87ec4e7ae45fb9f76a62875b43e88090b6f5e40c25a32018d4
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
-F test/th1-tcl.test 76e8c9e232702be54a41f425ec3fe373a6d8f9eb
+F test/th1-tcl.test 122dd583fd986f62fd5e3f8b3392ddfe1949fffe31d5fa4a6131e8ad835616a8
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b94d8c4479ea4f643a639056c0dacaf5d678cc2537a69bfe919fc072ff9e98c4
-R c434182b8412fb17b9e925f50bed3290
+P d30cd073149436ddf289a4655908abaffdecf9f9f0da156e4b18a0b87b2f3f18
+R e924da20c5e8e6525f5f4d7f4dcbc67c
 U preben
-Z 55758e18e3aae9e4e7c024fded3a0ed7
+Z 1e49830347f628b15ff3432ed0280c6f
 # Remove this line to create a well-formed Fossil manifest.
