@@ -1,5 +1,5 @@
-C In\sunversioned\stest,\scloning\swith\s--save-http-password\savoid\spassword\sprompts\son\smacOs,\sOpenBSD\sand\sLinux.
-D 2023-11-17T17:39:10.864
+C In\sthe\sth1-docs\stest,\sthe\sdirty\scheckout\sshould\sbe\sdone\sin\sthe\sfossil\scheckout,\nnot\sthe\scurrent\sdirectory\s(which\sthe\sdirty_ckout\svariable\sreflects).
+D 2023-11-17T17:41:13.756
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -640,7 +640,7 @@ F test/symlinks.test b8018b7041d7f41f075a9ccb796b80293a059833d6bfbed519dbb0ab3f0
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl 228b9f5981d7dcf287acb504dfde2439982a37d09996df6d5ab55f9d41a4e0a3
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
+F test/th1-docs.test 875c4422587306f9ed7ae1efedfb26bccdd07d0556bd7f0bc2322779b5e4ae97
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 9d7a194369977e87ec4e7ae45fb9f76a62875b43e88090b6f5e40c25a32018d4
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c028f36de876860cef0705193d935d8edf0ad1cb6c08666116afe95c12d20704
-R 971a6e5073d4ec20d2fcf8fbfa59def0
+P 85b3a6002546f4f2c5f5865705520e6e1223f71e6433e53d41a1d4e6416846fa
+R fbc1919427a9e39c57c7d6d5a15ef6bc
 U preben
-Z bca24f6d8ed12fa2051b1ee588fea727
+Z 77aadd34c70f257227ada3287b744362
 # Remove this line to create a well-formed Fossil manifest.
