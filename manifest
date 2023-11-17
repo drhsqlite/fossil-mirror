@@ -1,5 +1,5 @@
-C In\sthe\ssymlinks\stest,\sthis\sused\sto\srequire\sallow-symlinks\sbeing\sset\sbefore\ntesting.\sWith\sthe\scurrent\stemporary\srepositories,\sit\sis\ssafe\sto\senable\nallow-symlinks\slocally.
-D 2023-11-17T17:42:46.723
+C When\stesting,\ssort\sglob\sresults\sfor\sconsistent\stest\sordering\sacross\sOSes.
+D 2023-11-17T17:44:04.522
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -597,7 +597,7 @@ F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
 F test/commit-warning.test becab1ef4d53b9d41ff1b1b9d6f46abaac87a95f362f3ae17589036f4bab5a2d
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
-F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
+F test/delta1.test 201f7f46d5c0d5a7bd7af565e5484d64f5af60a2aa8ce712c7c68c90e8b2ed7e
 F test/diff-test-1.wiki c62f7a5c91ad0fd43254091f748118a84d689b4d87755d0bc1ee0b006df7a24f
 F test/diff.test 1ed9a8119336471caba27bfd05fb551c0ddcc309c09a82c7bfeb8f4898eb04d8
 F test/fake-editor.tcl 0cd19289b39facabff88e67576312f7ce4477c221f5bd0ee1a04b815a5521a61
@@ -613,7 +613,7 @@ F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
 F test/markdown-test3.md 70e697a5e9bab2f1a5bbb7bb4223a8d4b2d7f1a43973f7455e8c7eaebb0ae34a
 F test/merge1.test b7b347a2faf5a6dba2eb1a57f2c6099f65541c2ddb730e5030d700dc9265b334
-F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
+F test/merge2.test c569f06bd3a13f01648db1796805972251ccc5fe1a575fa4e2c885172cb4b4ff
 F test/merge3.test 3ff4854352bea3e262d2710abadc8e85a5754734cc25072e21c400e65cff22ec
 F test/merge4.test f80c90ed16db972cf87c41b9645048624a29d22346e36b8cf5abaaf88f85cd9c
 F test/merge5.test 00a16dbff1c3ffb981b7bb7ede93dcf03e77a42c8fddff1fd632a49119d2dc65
@@ -627,7 +627,7 @@ F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e
 F test/release-checklist.wiki d3d3d277176238bbd517e267fa37fbc11b99c39b3cd0fbd59920ffd5c754069d
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
-F test/set-manifest.test 46f4753240a2b344c694ea448ffbd5406ddfeac2a0c8c0e2a8b77ca06fabb35f
+F test/set-manifest.test 0f7a5f05fef7b4a3995ce7384feecde313e542d197c3d2d8c5324ef8177f791c
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
 F test/stash.test 4ac356770b8ad5a013f1927d678bec077cbb387616e67133a4050a177aae0373
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62838cc7f23888bbfbe4d113a3244ef0e0dd99b26f960d1584d70d69d4299996
-R 5d65bc49a84ad5d0ca29f286f9477349
+P dc1836edb68ab8909993dc8356ef7e7282c4ac9b345b781960f4797d53defbdb
+R ff90b6d90217c4018dba78c77f3e8efb
 U preben
-Z 9760896ff66c778fad72a6e27182d6b5
+Z 2e693371baadfffb659f33de4f547207
 # Remove this line to create a well-formed Fossil manifest.
