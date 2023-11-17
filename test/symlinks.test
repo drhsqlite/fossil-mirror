@@ -25,18 +25,14 @@ if {$is_windows} {
   test_cleanup_then_return
 }
 
-fossil test-th-eval --open-config "setting allow-symlinks"
-
-if {![string is true -strict [normalize_result]]} {
-  puts "Symlinks are not enabled."
-  test_cleanup_then_return
-}
-
 require_no_open_checkout
 
 ###############################################################################
 
 test_setup; set rootDir [file normalize [pwd]]
+
+# Using tempHomePath, allow-symlinks will always be off at this point.
+fossil set allow-symlinks on
 
 fossil test-th-eval --open-config {repository}
 set repository [normalize_result]
