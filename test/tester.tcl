@@ -472,6 +472,8 @@ proc robust_delete { path {force ""} } {
 }
 
 proc test_cleanup_then_return {} {
+  global skipped_tests testfile
+  lappend skipped_tests $testfile
   uplevel 1 [list test_cleanup]
   return -code return
 }
@@ -837,6 +839,7 @@ proc test {name expr {constraints ""}} {
 }
 set bad_test {}
 set ignored_test {}
+set skipped_tests {}
 
 # Return a random string N characters long.
 #
@@ -1113,6 +1116,10 @@ if {$nErr>0 || !$::QUIET} {
 }
 if {$nErr>0} {
   protOut "***** Ignored failures: $ignored_test" 1
+}
+set nSkipped [llength $skipped_tests]
+if {$nSkipped>0} {
+  protOut "***** Skipped tests: $skipped_tests" 1
 }
 if {$bad_test>0} {
   exit 1
