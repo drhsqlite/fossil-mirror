@@ -1599,6 +1599,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       is also an n= or n1= query parameter.
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
+**    tl=TAGLIST      Shorthand for t=TAGLIST&ms=brlist
+**    rl=TAGLIST      Shorthand for r=TAGLIST&ms=brlist
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Limit rel to show ancestors but not descendants
 **    nowiki          Do not show wiki associated with branch or tag
@@ -1833,6 +1835,20 @@ void page_timeline(void){
       " ORDER BY event.mtime LIMIT 1",
       P("cf")
     );
+  }
+
+  /* Check for tl=TAGLIST and rl=TAGLIST which are abbreviations for
+  ** t=TAGLIST&ms=brlist and r=TAGLIST&ms=brlist repectively. */
+  if( zBrName==0 && zTagName==0 ){
+    const char *z;
+    if( (z = P("tl"))!=0 ){
+      zTagName = z;
+      zMatchStyle = "brlist";
+    }
+    if( (z = P("rl"))!=0 ){
+      zBrName = z;
+      zMatchStyle = "brlist";
+    }
   }
 
   /* Convert r=TAG to t=TAG&rel in order to populate the UI style widgets. */
