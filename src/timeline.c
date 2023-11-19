@@ -1419,7 +1419,7 @@ static const char *tagMatchExpression(
     zEnd = "')";
     zPrefix = "";
     zSuffix = "";
-    zIntro = "any of ";
+    zIntro = "";
   }
 
   /* Convert the list of matches into an SQL expression and text description. */
@@ -2729,7 +2729,7 @@ void page_timeline(void){
       tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( zTagSql ){
-      if( matchStyle==MS_EXACT ){
+      if( matchStyle==MS_EXACT || matchStyle==MS_BRLIST ){
         if( related ){
           blob_appendf(&desc, " related to %h", zMatchDesc);
         }else{

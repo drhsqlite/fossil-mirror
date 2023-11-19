@@ -1,5 +1,5 @@
-C Add\snew\stl=\sand\srl=\squery\sparameters\sto\s/timeline
-D 2023-11-18T20:41:34.611
+C Improved\sdescription\son\s/timeline\spages\sthat\smake\suse\sof\stl=\sor\srl=.
+D 2023-11-19T11:42:23.176
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -565,7 +565,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 3997512c80c8ec1f37cd9494a156c8259297630293a99e1cfb6c1909896f88ce
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 7dd619d8d38a34c9dcc1740f7bd11c69238f92c2c86b062bb106815d29bd228f
+F src/timeline.c 6dff987ab908094b9cea5b4dea9ad4e083097c902c7e916a42b809b665cf5ba2
 F src/tkt.c ec379497bbcf415d719195a4264b921d55ab3a6040c628cc9eac11efcac786ea
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 200247bc62f03ca804a5666e2e634a06ff07975156832f94ac59a1df36c9e5a3
-R 8f2e803a501012ca184b7464429f8501
+P 2288b74257674fce3d49654206d1adbe7a52d2c9f07ec1d38ee6280a1f2f221e
+R 1fa81ec4ae0ecdf96def0f27952565f6
 U drh
-Z 84b4db3bd44ea85596fefcc26c444166
+Z ee321936dee1dbb99238dd19f890593d
 # Remove this line to create a well-formed Fossil manifest.
