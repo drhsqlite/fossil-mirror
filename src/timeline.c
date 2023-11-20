@@ -37,6 +37,13 @@
 #define TIMELINE_MODE_CHILDREN  3
 #define TIMELINE_MODE_PARENTS   4
 
+#define TIMELINE_FMT_ONELINE \
+    "%h %c"
+#define TIMELINE_FMT_MEDIUM \
+    "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c"
+#define TIMELINE_FMT_FULL \
+    "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%n"\
+    "Branch:   %b%nTags:     %t%nPhase:    %p"                             
 /*
 ** Add an appropriate tag to the output if "rid" is unpublished (private)
 */
@@ -3021,8 +3028,11 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   int rc;
-  int bVerboseNewline = (zFormat!=0 && (fossil_strcmp(zFormat, "%h %c")!=0) );
-                              /* True: print a newline after file listing */
+  /* True: separate entries with a newline after file listing */
+  int bVerboseNL = (zFormat && (fossil_strcmp(zFormat, TIMELINE_FMT_ONELINE)!=0));
+  /* True: separate entries with a newline even with no file listing */
+  int bNoVerboseNL = (zFormat && (fossil_strcmp(zFormat, TIMELINE_FMT_MEDIUM)==0 ||
+                      fossil_strcmp(zFormat, TIMELINE_FMT_FULL)==0));
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -3155,10 +3165,10 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
         nLine++; /* record another line */
       }
       db_reset(&fchngQuery);
+      if( bVerboseNL ) fossil_print("\n");
+    }else{
+      if( bNoVerboseNL ) fossil_print("\n");
     }
-    /* With special formatting (except for "oneline") and --verbose,
-    ** print a newline after the file listing */
-    if( bVerboseNewline ) fossil_print("\n");
     
     nEntry++; /* record another complete entry */
   }
@@ -3344,13 +3354,15 @@ void timeline_cmd(void){
                     vid, TAG_BRANCH);
     }
   }
-  if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 )
-    zFormat = "%h %c";
-  if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
-    zFormat = "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c";
-  if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 )
-    zFormat = "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%n"
-              "Branch:   %b%nTags:     %t%nPhase:    %p";
+  if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 ){
+    zFormat = TIMELINE_FMT_ONELINE;
+  }
+  if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 ){
+    zFormat = TIMELINE_FMT_MEDIUM;
+  }
+  if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 ){
+    zFormat = TIMELINE_FMT_FULL;
+  }
   showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){
