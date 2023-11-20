@@ -1,5 +1,5 @@
-C Do\snot\sseparate\stimeline\sentries\sby\san\sempty\sline\swhen\susing\scustom\sformatting\sstrings.
-D 2023-11-20T18:57:57.084
+C On\sthe\sactivity\sreport\spage,\smake\ssure\sthe\sgraph\sbar\swith\sthe\sexpected\schanges\sfor\sthe\scurrent\sweek/month\sis\snot\sdisplayed\son\sa\sseparate\sline.
+D 2023-11-20T19:16:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -549,7 +549,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 4aecc676c43a00c00ca82c8f4841dc8e77690d2a2253d4cb7da22990cc2f8150
 F src/stash.c f4b160ea4d639c09eb0217c1a04a8618958f278a565b08c225b7a5a4edb74f31
 F src/stat.c 22abd5854fd4d75650651d104907366d1a04ec7cb24949f1666ab4a97b19e134
-F src/statrep.c a4993ee2f796f9f10f555cc4b851e70a491e8c5e39fe723de907552bd66325af
+F src/statrep.c f8cb66562e45949ede9624cc4bb14ddf5f2eebac88292eb12fd9be35032fdb8c
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 95576389263a88583d38f69f4a19f8198281b2c30f077bf6ee3835835964864f
 F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20b93ff
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e03200e5454304643363a5ed68d5fb8b5f0658867b6f780d4b255264b2a96700
-R bf721fff6c8db27601a602fad21498c2
-U danield
-Z 9062b3e81f86a9b73997c05ccc4d1d37
+P 256983fdd5219cbc6fc0c08452a5fe141d6475d2326b02158d6ce7966a80dbd7
+R 72415540cf8a3cf15aae717daa360956
+U florian
+Z 4167556ec46f86533f892b3fce1fef45
 # Remove this line to create a well-formed Fossil manifest.

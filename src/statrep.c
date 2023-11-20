@@ -311,7 +311,7 @@ static void stats_report_by_month_year(
       cgi_printf("'>%s</a>", zTimeframe);
     }
     @ </td><td>%d(nCount)</td>
-    @ <td>
+    @ <td style='white-space: nowrap;'>
     if( strcmp(zTimeframe, zCurrentTF)==0
      && rNowFraction>0.05
      && nCount>0
@@ -742,7 +742,7 @@ static void stats_report_year_weeks(const char *zUserName){
     cgi_printf("'>%s</a></td>",zWeek);
 
     cgi_printf("<td>%d</td>",nCount);
-    cgi_printf("<td>");
+    cgi_printf("<td style='white-space: nowrap;'>");
     if( nCount ){
       if( zCurrentWeek!=0
       && strcmp(zWeek, zCurrentWeek)==0
