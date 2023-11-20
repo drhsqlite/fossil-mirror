@@ -49,6 +49,7 @@ void shun_page(void){
   const char *zShun = P("shun");
   const char *zAccept = P("accept");
   const char *zRcvid = P("rcvid");
+  int reviewList = P("review")!=0;
   int nRcvid = 0;
   int numRows = 3;
   char *zCanonical = 0;
@@ -87,7 +88,7 @@ void shun_page(void){
     p = zCanonical;
     while( *p ){
       int nUuid = strlen(p);
-      if( !hname_validate(p, nUuid) ){
+      if( !(reviewList || hname_validate(p, nUuid)) ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
         zCanonical = 0;
@@ -157,6 +158,59 @@ void shun_page(void){
     @ They will be removed from the repository the next time the repository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
   }
+  if( zUuid && reviewList ){
+    const char *p;
+    int nTotal = 0;
+    int nOk = 0;
+    @ <table class="shun-review"><tbody><tr><td>
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
+      int rid = symbolic_name_to_rid(p, 0);
+      nTotal++;
+      if( rid < 0 ){
+        @ Ambiguous<br>
+      }else if( rid == 0 ){
+        if( !hname_validate(p, strlen(p)) ){
+          @ Bad artifact<br>
+        }else if(db_int(0, "SELECT 1 FROM shun WHERE uuid=%Q", p)){
+          @ Already shunned<br>
+        }else{
+          @ Unknown<br>
+        }
+      }else{
+        char *zCmpUuid = db_text(0,
+            "SELECT uuid"
+            "  FROM blob, rcvfrom"
+            " WHERE rid=%d"
+            "   AND rcvfrom.rcvid=blob.rcvid",
+            rid);
+        if( fossil_strcmp(p, zCmpUuid)==0 ){
+          nOk++;
+          @ OK</br>
+        }else{
+          @ Abbreviated<br>
+        }
+      }
+    }
+    @ </td><td>
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
+      int rid = symbolic_name_to_rid(p, 0);
+      if( rid > 0 ){
+        @ <a href="%R/artifact/%s(p)">%s(p)</a><br>
+      }else{
+        @ %s(p)<br>
+      }
+    }
+    @ </td></tr></tbody></table>
+    @ <p class="shunned">
+    if( nOk < nTotal){
+      @ <b>Warning:</b> Not all artifacts
+    }else if( nTotal==1 ){
+      @ The artifact is present and
+    }else{
+      @ All %i(nOk) artifacts are present and
+    }
+    @ can be shunned with its hash above.</p>
+  }
   if( zRcvid ){
     nRcvid = atoi(zRcvid);
     numRows = db_int(0, "SELECT min(count(), 10) FROM blob WHERE rcvid=%d",
@@ -198,9 +252,15 @@ void shun_page(void){
       }
       db_finalize(&q);
     }
+  }else if( zUuid && reviewList ){
+    const char *p;
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
+      @ %s(p)
+    }
   }
   @ </textarea>
   @ <input type="submit" name="add" value="Shun">
+  @ <input type="submit" name="review" value="Review">
   @ </div></form>
   @ </blockquote>
   @
