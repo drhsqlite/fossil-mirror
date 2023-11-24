@@ -4239,6 +4239,9 @@ void cmd_open(void){
 
   db_open_config(0,0);
   db_open_repository(zRepo);
+  if( db_get_int("aux-clone-seqno",0)!=0 ){
+    fossil_fatal("This repository appears to be an incomplete clone.");
+  }
 
   /* Figure out which revision to open. */
   if( !emptyFlag ){

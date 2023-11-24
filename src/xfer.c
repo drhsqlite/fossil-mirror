@@ -1467,6 +1467,10 @@ void page_xfer(void){
         while( xfer.mxSend>(int)blob_size(xfer.pOut) && seqno<=max){
           if( time(NULL) >= xfer.maxTime ) break;
           if( iVers>=3 ){
+            if( seqno==1 ){
+              send_all(&xfer);
+              if( xfer.syncPrivate ) send_private(&xfer);
+            }
             send_compressed_file(&xfer, seqno);
           }else{
             send_file(&xfer, seqno, 0, 1);
@@ -1997,6 +2001,12 @@ int client_sync(
      && configSendMask==0
   ){
     return 0;  /* Nothing to do */
+  }
+
+  if( (syncFlags & SYNC_CLONE)==0 && db_get_int("aux-clone-seqno",0) ){
+    fossil_fatal("Unable to synchronize due to incomplete clone.");
+  }else{
+    cloneSeqno = db_get_int("aux-clone-seqno",1);
   }
 
   /* Compute an appropriate project code.  zPCode is the project code
@@ -2812,6 +2822,11 @@ int client_sync(
     blob_reset(&recv);
     nCycle++;
 
+    /* Record the current cloneSeqno in the event that clone fails to enable
+    ** the ability to resume from this same point in clone.  */
+    if( (syncFlags & SYNC_CLONE)!=0 ){
+      db_set_int("aux-clone-seqno", cloneSeqno, 0);
+    }
     /* Set go to 1 if we need to continue the sync/push/pull/clone for
     ** another round.  Set go to 0 if it is time to quit. */
     nFileRecv = xfer.nFileRcvd + xfer.nDeltaRcvd + xfer.nDanglingFile;

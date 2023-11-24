@@ -131,6 +131,7 @@ void delete_private_content(void){
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
+**    --resume                   Resume a failed clone
 **    --save-http-password       Remember the HTTP password without asking
 **    -c|--ssh-command SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
@@ -151,6 +152,7 @@ void clone_cmd(void){
   int noCompress = find_option("nocompress",0,0)!=0;
   int noOpen = find_option("no-open",0,0)!=0;
   int allowNested = find_option("nested",0,0)!=0; /* Used by open */
+  int bResume = find_option("resume",0,0)!=0; /* Resume a failed clone */
   const char *zRepo = 0;      /* Name of the new local repository file */
   const char *zWorkDir = 0;   /* Open in this directory, if not zero */
 
@@ -199,7 +201,7 @@ void clone_cmd(void){
     }
     fossil_free(zBase);
   }  
-  if( -1 != file_size(zRepo, ExtFILE) ){
+  if( -1 != file_size(zRepo, ExtFILE) && bResume==0 ){
     fossil_fatal("file already exists: %s", zRepo);
   }
   /* Fail before clone if open will fail because inside an open check-out */
@@ -228,15 +230,23 @@ void clone_cmd(void){
     fossil_print("Repository cloned into %s\n", zRepo);
   }else{
     db_close_config();
-    db_create_repository(zRepo);
-    db_open_repository(zRepo);
-    db_open_config(0,0);
-    db_begin_transaction();
-    db_record_repository_filename(zRepo);
-    db_initial_setup(0, 0, zDefaultUser);
-    user_select();
-    db_set("content-schema", CONTENT_SCHEMA, 0);
-    db_set("aux-schema", AUX_SCHEMA_MAX, 0);
+    if( bResume ){
+      db_open_repository(zRepo);
+      db_open_config(0,0);
+      db_begin_transaction();
+      user_select();
+    }else{
+      db_create_repository(zRepo);
+      db_open_repository(zRepo);
+      db_open_config(0,0);
+      db_begin_transaction();
+      db_record_repository_filename(zRepo);
+      db_initial_setup(0, 0, zDefaultUser);
+      user_select();
+      db_set("content-schema", CONTENT_SCHEMA, 0);
+      db_set("aux-schema", AUX_SCHEMA_MAX, 0);
+      db_set_int("aux-clone-seqno", 1, 0);
+    }
     db_set("rebuilt", get_version(), 0);
     db_unset("hash-policy", 0);
     remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, g.argv[2]);
@@ -265,18 +275,22 @@ void clone_cmd(void){
     nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
+    if( nErr ){
+      fossil_warning("server returned an error - clone incomplete");
+    }else{
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec("DELETE FROM config WHERE name = 'aux-clone-seqno';");
+      db_protect_pop();
+    }
     db_end_transaction(0);
     db_close(1);
-    if( nErr ){
-      file_delete(zRepo);
-      fossil_fatal("server returned an error - clone aborted");
-    }
     db_open_repository(zRepo);
   }
   db_begin_transaction();
   if( db_exists("SELECT 1 FROM delta WHERE srcId IN phantom") ){
-    fossil_fatal("there are unresolved deltas -"
-                 " the clone is probably incomplete and unusable.");
+    fossil_warning("there are unresolved deltas -"
+                 " the clone is probably incomplete and unusable.\n"
+                 "It may be possible to continue clone with --resume.");
   }
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(1, 0);
