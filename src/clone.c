@@ -131,7 +131,6 @@ void delete_private_content(void){
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
-**    --resume                   Resume a failed clone
 **    --save-http-password       Remember the HTTP password without asking
 **    -c|--ssh-command SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
@@ -152,7 +151,7 @@ void clone_cmd(void){
   int noCompress = find_option("nocompress",0,0)!=0;
   int noOpen = find_option("no-open",0,0)!=0;
   int allowNested = find_option("nested",0,0)!=0; /* Used by open */
-  int bResume = find_option("resume",0,0)!=0; /* Resume a failed clone */
+  int bResume = 0;            /* Set if a previous clone failed */
   const char *zRepo = 0;      /* Name of the new local repository file */
   const char *zWorkDir = 0;   /* Open in this directory, if not zero */
 
@@ -201,8 +200,13 @@ void clone_cmd(void){
     }
     fossil_free(zBase);
   }  
-  if( -1 != file_size(zRepo, ExtFILE) && bResume==0 ){
-    fossil_fatal("file already exists: %s", zRepo);
+  if( -1 != file_size(zRepo, ExtFILE) ){
+    db_open_repository(zRepo);
+    bResume = db_get_int("aux-clone-seqno",0)!=0;
+    db_close(0);
+    if( !bResume ){
+      fossil_fatal("file already exists: %s", zRepo);
+    }
   }
   /* Fail before clone if open will fail because inside an open check-out */
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
@@ -297,7 +301,8 @@ void clone_cmd(void){
   if( db_exists("SELECT 1 FROM delta WHERE srcId IN phantom") ){
     fossil_warning("there are unresolved deltas -"
                  " the clone is probably incomplete and unusable.\n"
-                 "It may be possible to continue clone with --resume.");
+                 "It may be possible to resume the clone by running the"
+                 " same command.");
   }
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(1, 0);
