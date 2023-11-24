@@ -234,6 +234,13 @@ void clone_cmd(void){
       db_open_repository(zRepo);
       db_open_config(0,0);
       db_begin_transaction();
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec(
+        "DELETE FROM config WHERE name = 'project-code';"
+        "DELETE FROM config WHERE name = 'server-code';"
+      );
+      db_protect_pop();
+      db_initial_setup(0, 0, zDefaultUser);
       user_select();
     }else{
       db_create_repository(zRepo);

@@ -1,14 +1,11 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Implement\sthe\sability\sto\sresume\sa\sclone\sthat\shas\sfailed.\s\sThis\sis\sa\svariation\non\sthe\sattempt\smade\sin\s[ec26471439]\sthat\swas\snever\scompleted.\s\sThe\ssignificant\ndifference\sin\sthe\suse\sof\sthe\s"clone\sprotocol"\swhich\suses\scfile\scards\sto\s\ncomplete\sthe\ssynchronization\srather\sthan\sthe\s"sync\sprotocol"\swhich\stakes\smuch\s\nlonger\susing\sthe\sfile\scard.\na
-D 2023-11-24T21:39:44.356
-F src/clone.c 53c87bdfed854247eff565fbc03605c706ee50831e92b39e7c46fd9c4c034c85
+C Need\sto\sreset\sthe\sserver-code\sso\sthat\sthe\suser\spassword\sis\scorrect.\nMight\sas\swell\salso\sreset\sthe\sproject-code.
+D 2023-11-24T22:14:25.761
+F src/clone.c 1fef979cd9b927718eca10878fc23bb63457a847561d89452156f821a74dd683
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
 F src/xfer.c 38cad1346b541586d337052414ee25d4826d778e9e795181c2ba9c6b3c42645c
-P 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-R 128b6ed243ff24d02eb9308671c26a81
-T *branch * clone-resume
-T *sym-clone-resume *
-T -sym-trunk *
+P ee710cc171e6164bfad85e6b38f63f7868e3d2706236b40ad078ae898cac5962
+R 1fda869c58572b3dfa052734c0cf03d6
 U andybradford
-Z 5595c3742f15f60e5969abb1adfee9c5
+Z 2f5352939151bffa22391eafa61c8899
 # Remove this line to create a well-formed Fossil manifest.
