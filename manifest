@@ -1,5 +1,5 @@
-C Update\sth1-tcl\stests\sto\sreflect\s"<hr\s/>"\sto\s"<hr>"\soutput\schange\sin\s[f5482a0a79].
-D 2023-11-17T18:05:32.008
+C Update\s[4f9cfebf18]:\sindent\sthe\sverbatim\smerge\sconflict\smarkers\sin\sthe\smerge1.test\sscript\sto\savoid\scheck-in\swarnings\sfor\sthis\sbranch.
+D 2023-11-25T16:42:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -612,7 +612,7 @@ F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
 F test/markdown-test3.md 70e697a5e9bab2f1a5bbb7bb4223a8d4b2d7f1a43973f7455e8c7eaebb0ae34a
-F test/merge1.test b0e306f66d249dfe5eff08db57fcd969975a95d9cee51711f1418eb3ccf999c1
+F test/merge1.test 6f2cc827bf32c0facb29f2925da787298ba33217bc7e89b9cbf80bbc558d27d8
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 7949771e12a80306cd33aeebf19b58fda5b09e7fc776abc7d011a83122425692
 F test/merge4.test 2fc4833965826d01b212411228481c2702ff60327e3a0b90de16d8f8562c00e3
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d30cd073149436ddf289a4655908abaffdecf9f9f0da156e4b18a0b87b2f3f18
-R e924da20c5e8e6525f5f4d7f4dcbc67c
-U preben
-Z 1e49830347f628b15ff3432ed0280c6f
+P 1c637a4985b822e332e2ee6b1b13388d06ce2b1b9b504d94c8ed3af6f8c679d6
+R f3dedf3779a4df667624efae7891349b
+U florian
+Z 91a8e7d1d3d0295dd18d1bb392dcf84d
 # Remove this line to create a well-formed Fossil manifest.
