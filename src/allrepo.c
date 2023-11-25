@@ -108,8 +108,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    rebuild     Rebuild on all repositories.  The command line options
 **                supported by the rebuild command itself, if any are
-**                present, are passed along verbatim.  The --force and
-**                --randomize options are not supported.
+**                present, are passed along verbatim.  The --force option
+**                is not supported.
 **
 **    remote      Show remote hosts for all repositories.
 **
