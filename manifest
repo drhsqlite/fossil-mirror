@@ -1,5 +1,5 @@
-C Fix\smerge_renames-13-3\son\smacOs\sas\sthe\sexpected\sa\sfilename\sunder\s/tmp\nbut\sthe\sresult\swas\sunder\sthe\snormalized\s/private/tmp\sdirectory.
-D 2023-11-26T17:52:25.368
+C The\samend\stests\smay\sfail\son\snarrow\sterminals\son\ssystems\swhere\sthe\nterminal\ssize\scan\sbe\sdetermined\swhen\stclsh\sis\srunning\s(for\sme,\sall\nbut\sWindows).\sClosing\sstdin\scauses\sfossil\snot\sto\swrap\soutput.\nTo\savoid\sfossil\scomplaining\sabout\sfile\sdescriptor\szero\s(which\sis\nnow\sused\son\ssome\ssystems),\stemproarily\sopen\sthe\sscript\sreadonly.
+D 2023-11-26T18:18:41.276
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -590,7 +590,7 @@ F src/xfersetup.c c6b9a9a2b56c86430b26535ec18b3943d858913c960deeb121076d70c9b7bd
 F src/zip.c 5df02ce80e1272ebdf605d78e0e01530f26704425a722eba27324ce3ae3a8dcb
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 5714ab5b58f947a4d404a73993b5bb5dec5bc9b4ae56ae241b887715a87a8a46
+F test/amend.test 771a1d30707fdf7b67e4fe5a2efd8011217f1deaf8499d527693e84e7feecf01
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ba74ae04ee2e7aee2228feeae4b814b3eea36fb39fd949d5a03ce549494adc6
-R 1ece39ec790857cc6ed816371623db87
+P f04443763459083a672f94524da73f5c34e55437c8be8e77daa364e0538cd81f
+R 8fb77d3c8eb81a0f13189f7718c05c31
 U preben
-Z 8874c2fc238249c304ee1bd51b52724b
+Z e0f5e8156baf8b229a7083854ca93ba7
 # Remove this line to create a well-formed Fossil manifest.
