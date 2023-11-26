@@ -499,7 +499,7 @@ fossil commit -m "merge trunk" --tag c4
 fossil mv --hard f2 f2n
 test_status_list merge_renames-13-3 $RESULT "
   RENAME f2 f2n
-  MOVED_FILE $repoDir/f2
+  MOVED_FILE [file normalize $repoDir]/f2
 "
 fossil commit -m "renamed f2->f2n" --tag c5
 

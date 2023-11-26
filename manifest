@@ -1,5 +1,5 @@
-C Fix\sjson\stests\sthat\sno\slonger\sreflects\sdefault\scapabilities\sfor\sanonymous.
-D 2023-11-26T16:48:50.851
+C Fix\smerge_renames-13-3\son\smacOs\sas\sthe\sexpected\sa\sfilename\sunder\s/tmp\nbut\sthe\sresult\swas\sunder\sthe\snormalized\s/private/tmp\sdirectory.
+D 2023-11-26T17:52:25.368
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -620,7 +620,7 @@ F test/merge5.test 00a16dbff1c3ffb981b7bb7ede93dcf03e77a42c8fddff1fd632a49119d2d
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
-F test/merge_renames.test d98142609f07d3d0a85f88ee1b482f12840302df494514d2570abb4dac8f6126
+F test/merge_renames.test 9689530d8febf243586f6debc42f1de398ee4bf5eae257b40cf755bd468e6d84
 F test/merge_renames_2.test f734dda9962b9be916e9c65624ac474be812f27693c318de72a615df94db78d7
 F test/merge_warn.test 269b1c26f1ce87fce82a6a1f5606a425b7dc4f7a54a21e31539b8fbef45d98c4
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fc08b763328382821f0020460ae7bac3824920b0e897c6ebb179fe076e142b4
-R 1f1c5024786e1608d9bd150741b88b32
+P 9ba74ae04ee2e7aee2228feeae4b814b3eea36fb39fd949d5a03ce549494adc6
+R 1ece39ec790857cc6ed816371623db87
 U preben
-Z afa00df9c02a5948bd5e461c87834576
+Z 8874c2fc238249c304ee1bd51b52724b
 # Remove this line to create a well-formed Fossil manifest.
