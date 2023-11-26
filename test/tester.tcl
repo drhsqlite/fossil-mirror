@@ -1088,6 +1088,15 @@ please set TEMP variable in environment, error: $error"
 
 set tempHomePath [file join $tempPath home_[pid]]
 
+# Close stdin to avoid errors on wrapped text for narrow terminals.
+# Closing stdin means that terminal detection returns 0 width, in turn
+# causing the relvant strings to be printed on a single line.
+# However, closing stdin makes file descriptor 0 avaailable on some systems
+# and/or TCL implementations, which triggers fossil to complain about opening
+# databases using fd 0. Avoid this by opening the script, consuming fd 0.
+close stdin
+set possibly_fd0 [open [info script] r]
+
 if {[catch {
   file mkdir $tempHomePath
 } error] != 0} {
@@ -1110,6 +1119,10 @@ foreach testfile $argv {
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
 }
 unset ::tempKeepHome; delete_temporary_home
+
+# Clean up the file descriptor
+close $possibly_fd0
+
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
   protOut "***** Final results: $nErr errors out of $test_count tests" 1

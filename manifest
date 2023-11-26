@@ -1,5 +1,5 @@
-C The\samend\stests\smay\sfail\son\snarrow\sterminals\son\ssystems\swhere\sthe\nterminal\ssize\scan\sbe\sdetermined\swhen\stclsh\sis\srunning\s(for\sme,\sall\nbut\sWindows).\sClosing\sstdin\scauses\sfossil\snot\sto\swrap\soutput.\nTo\savoid\sfossil\scomplaining\sabout\sfile\sdescriptor\szero\s(which\sis\nnow\sused\son\ssome\ssystems),\stemproarily\sopen\sthe\sscript\sreadonly.
-D 2023-11-26T18:18:41.276
+C Fix\sprevious\scommit:\sJust\sfixing\samend\sbreaks\ssubsequent\stests.\nAs\stests\sshould\snot\sneed\sinput,\smove\sthe\scode\sto\sthe\stest/tester.tcl.
+D 2023-11-26T19:07:56.157
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -590,7 +590,7 @@ F src/xfersetup.c c6b9a9a2b56c86430b26535ec18b3943d858913c960deeb121076d70c9b7bd
 F src/zip.c 5df02ce80e1272ebdf605d78e0e01530f26704425a722eba27324ce3ae3a8dcb
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 771a1d30707fdf7b67e4fe5a2efd8011217f1deaf8499d527693e84e7feecf01
+F test/amend.test 5714ab5b58f947a4d404a73993b5bb5dec5bc9b4ae56ae241b887715a87a8a46
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -638,7 +638,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test e8ee4f4ef62941b0d386f79dfc995fc2b68897134f6b6e7f7ac291b2c394b62e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 91143c2f0f6207e7a9975edea67b94384cc75682c164da048939761aaee15a1d
+F test/tester.tcl 77043f08a7d24a27974b9c22daeba62b9fc1adc6f98a272ad8f217042745cb8b
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f04443763459083a672f94524da73f5c34e55437c8be8e77daa364e0538cd81f
-R 8fb77d3c8eb81a0f13189f7718c05c31
+P 1cb0d57db1dad9db428e80019c3bacc3591cdffd814f76aa29a7d221ae701129
+R 48c1f478a416f0779e64ab91cf66f449
 U preben
-Z e0f5e8156baf8b229a7083854ca93ba7
+Z 6ae300a8faa1f9d85a38ac610157623c
 # Remove this line to create a well-formed Fossil manifest.

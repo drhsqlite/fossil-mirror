@@ -47,16 +47,6 @@ proc uuid_from_checkout {var} {
 # Make sure we are not in an open repository and initialize new repository
 test_setup
 
-# Close stdin to avoid errors on wrapped text for narrow terminals.
-# Closing stdin means that terminal detection returns 0 width, in turn
-# causing the relvant strings to be printed on a single line.
-close stdin
-
-# However, closing stdin makes file descriptor 0 avaailable on some systems
-# and/or TCL implementations, which triggers fossil to complain about opening
-# databases using fd 0. Avoid this by opening the script, consuming fd 0.
-set possibly_fd0 [open [info script] r]
-
 ########################################
 # Setup: Add file and commit           #
 ########################################
@@ -412,6 +402,3 @@ test amend-null-uuid {$CODE && [string first "no such check-in" $RESULT] != -1}
 ###############################################################################
 
 test_cleanup
-
-# Clean up the file descriptor
-close $possibly_fd0
