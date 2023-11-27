@@ -1,11 +1,11 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Do\saway\swith\sthe\s--resume\sflag\sas\sit\sis\smostly\sredundant\sand\scan\sbe\sassumed\sby\nthe\spresence\sof\sthe\srecorded\sclone_seqno.\s\sSuggested\sby\sWarren\sYoung\sin\s\n[forum:4bcbb41aab2538d4|forum\spost\s4bcbb41aab2538d4].
-D 2023-11-24T23:51:22.493
+C Check\sfor\svalid\svalue\sfrom\sreturn\sof\sfunction.
+D 2023-11-27T06:14:38.531
 F src/clone.c 4f7b97763b93cfad96f73effc13d5bce3ac692cc14b8261895d286928a34177f
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
-F src/xfer.c 38cad1346b541586d337052414ee25d4826d778e9e795181c2ba9c6b3c42645c
-P 61e0ced9bfbc4a511759b63bfcea231e4a05932a1fe67a2b754761c60c4d3b6f
-R 0c82fbb5fd9026b7dcc666e68278992b
+F src/xfer.c 9f60ac638856ca6cf78d52e3c098182304b7f54a54c6610dac1fa6f7b5fd80dc
+P b0a60d8f1d3c302365b86b1d11a73134ddc80991338b9fe8663f830e07b42715
+R 0a2cd7744d1b625b5ff4803ae4bd9cd8
 U andybradford
-Z 72e70d7c12dbd280382871fe0a45edd3
+Z 8c0674e81a04e5edf7ec9052aa2cd570
 # Remove this line to create a well-formed Fossil manifest.

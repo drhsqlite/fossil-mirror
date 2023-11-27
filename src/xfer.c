@@ -2003,7 +2003,7 @@ int client_sync(
     return 0;  /* Nothing to do */
   }
 
-  if( (syncFlags & SYNC_CLONE)==0 && db_get_int("aux-clone-seqno",0) ){
+  if( (syncFlags & SYNC_CLONE)==0 && db_get_int("aux-clone-seqno",0)>0 ){
     fossil_fatal("Unable to synchronize due to incomplete clone.");
   }else{
     cloneSeqno = db_get_int("aux-clone-seqno",1);
