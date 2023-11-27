@@ -7,7 +7,7 @@ it retains the newest version of each such file, and that alone.
 
 Though it omits history, Fossil does sync unversioned content between
 repositories.  In the event of a conflict during a sync, it retains
-the most recent version of each unversioned file, discrding
+the most recent version of each unversioned file, discarding
 older versions.
 
 Unversioned files are useful for storing ephemeral content such as builds
@@ -102,7 +102,7 @@ compression on them.
 
 Fossil servers exchange unversioned content whole; it does not attempt
 to "diff" your local version against the remote and send only the
-changes. We point tihs out because one use-case for unversioned content
+changes. We point this out because one use-case for unversioned content
 is to send large, frequently-changing files. Appreciate the consequences
 before making each change.
 
