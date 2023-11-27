@@ -146,6 +146,7 @@ void clone_cmd(void){
   const char *zDefaultUser;   /* Optional name of the default user */
   const char *zHttpAuth;      /* HTTP Authorization user:pass information */
   int nErr = 0;
+  int nResumes = 0;
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
   int syncFlags = SYNC_CLONE;
   int noCompress = find_option("nocompress",0,0)!=0;
@@ -283,7 +284,10 @@ void clone_cmd(void){
     clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0);
+    while( nResumes++<3 && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0)) ){
+      fossil_warning("cloning encountered errors, trying again.");
+      sqlite3_sleep(500);
+    }
     g.xlinkClusterOnly = 0;
     verify_cancel();
     if( nErr ){

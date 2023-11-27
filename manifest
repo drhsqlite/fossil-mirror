@@ -1,11 +1,11 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Check\sfor\svalid\svalue\sfrom\sreturn\sof\sfunction.
-D 2023-11-27T06:14:38.531
-F src/clone.c 4f7b97763b93cfad96f73effc13d5bce3ac692cc14b8261895d286928a34177f
+C Take\sadvantage\sof\sthe\sfact\sthat\sthe\sseqno\sis\srecorded\sand\sautomatically\sresume\nup\sto\sthree\stimes\sif\sfailure\sis\sencountered.
+D 2023-11-27T06:19:10.877
+F src/clone.c 3bef5276ab8aff7e0df1c23cbd4861edbe54cf22e236baacacd98c0790690a46
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
 F src/xfer.c 9f60ac638856ca6cf78d52e3c098182304b7f54a54c6610dac1fa6f7b5fd80dc
-P b0a60d8f1d3c302365b86b1d11a73134ddc80991338b9fe8663f830e07b42715
-R 0a2cd7744d1b625b5ff4803ae4bd9cd8
+P 2f0aac8c01a393ccc834982673e29f34632a4c49f1b244090e2f919105215b61
+R 54d22cb9446da347205e8d8b97b56d90
 U andybradford
-Z 8c0674e81a04e5edf7ec9052aa2cd570
+Z 42b27909804b3a80bbfa760ad70a275a
 # Remove this line to create a well-formed Fossil manifest.
