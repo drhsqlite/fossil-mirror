@@ -1,5 +1,5 @@
-C Fix\ssort\sorder\sin\sjson_page_finfo()\son\ssystems\swhere\schar\sis\sunsigned.
-D 2023-11-28T14:58:26.365
+C Use\ssigned\schar\sfor\stwo\sjson\stimeline\sfunctions\sthat\smay\sreturn\s-1.
+D 2023-11-28T19:31:16.433
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -479,7 +479,7 @@ F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaa
 F src/json_report.c 10f8c32bb045ab3fee49d9c0df386deb60a59beee2c2142aeb69a8106989c6f9
 F src/json_status.c 6b0b99247c64db4073fae83da552c2f1f90859824a70c50e36fbd03f2985d94f
 F src/json_tag.c e768ad0a5be4a3095b1430b1716b47dfb3bd68ff40d6e9dcd6241eecb65acbad
-F src/json_timeline.c f13c3947014f15976b2fe077db8d9e469e5a24b442885e34810c70ef25599e77
+F src/json_timeline.c 8bf80912c5fc589270464edd2bf9ea93f7b211c1d1a27e35f52f695d24ccb09e
 F src/json_user.c 92b2ee7ad3478329c15b51c19c8b9464055060e8047268803728d3e43447f1e1
 F src/json_wiki.c b91dc896ee9e71e4faca84b55c8bf648e64a9540cbcb80f7f51ad6dfb67878aa
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
@@ -950,12 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22ee43db43f3aa657e389f0c6d75b3fd902c03659e570c7b025a0412e503c83e
-R 276194cc3aba347e679fa9cd9229e09e
-T *bgcolor * #fec084
-T *branch * signed-chars
-T *sym-signed-chars *
-T -sym-trunk *
+P fd288be35672136f873c726983bbba72407ad584aa4e81bda31e61359c410a3c
+R 534f89e2e47567f5a481ec09793cb336
 U preben
-Z 23c4b9c17414e5f088a21b3cca22be36
+Z f5e73521bd6b076a0c275f1b0c57f9b7
 # Remove this line to create a well-formed Fossil manifest.
