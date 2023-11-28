@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sunvers.wiki.
-D 2023-11-27T10:28:47.785
+C Fix\ssort\sorder\sin\sjson_page_finfo()\son\ssystems\swhere\schar\sis\sunsigned.
+D 2023-11-28T14:58:26.365
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -473,7 +473,7 @@ F src/json_config.c d601605b13f98888f7e5362f52fae89aab674c63616145085f007400b66b
 F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184bad1
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
 F src/json_dir.c 89cc2a9475618fa93baae9eca3b56d28e156d78e9959fc47a955bf62aed521ad
-F src/json_finfo.c 1e4df2494f573f7eb4dff3386efa258173c73c4998d7ac4607ed9567f350020c
+F src/json_finfo.c 435ec7e9ee6c36043eacb1e7b5e1ba1aacb8b8d2f421a5e7369062b165096c40
 F src/json_login.c 4472cd8eadf81b02661f6a5e11e8ac90f2c8a73ba63135bba3caab88f3c5ad73
 F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaae4b
 F src/json_report.c 10f8c32bb045ab3fee49d9c0df386deb60a59beee2c2142aeb69a8106989c6f9
@@ -950,8 +950,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33fa91550881d639d561103558465f15e42c7416756a1e558e25ec5204092d91
-R e16e03c47dc05fca24223e906012c05b
-U danield
-Z bbe7a8fff10498acce8aded24ccd7d7d
+P 22ee43db43f3aa657e389f0c6d75b3fd902c03659e570c7b025a0412e503c83e
+R 276194cc3aba347e679fa9cd9229e09e
+T *bgcolor * #fec084
+T *branch * signed-chars
+T *sym-signed-chars *
+T -sym-trunk *
+U preben
+Z 23c4b9c17414e5f088a21b3cca22be36
 # Remove this line to create a well-formed Fossil manifest.
