@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sunvers.wiki.
-D 2023-11-27T10:28:47.785
+C Tiny\sdocumentation\sfix:\san\sextra\sspace\sbefore\sargument\sto\sthe\s'--base-rcvid'\shook\stest\soption\smade\sthe\sargument\sappear\son\sthe\sline\sdescribing\sthe\soption.
+D 2023-11-28T22:05:01.973
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -457,7 +457,7 @@ F src/graph.js f7844964530566ef2908dcb1bdd5d57a8bec574591b09072257d858ea68bb41d
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c a178d9d59b8cd83cd83e1621893ec37a1576c468e405b50ccc24e260cb3493b2
+F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c bf1ea5de5a50bbc4386d1ed1e5665d409e631269c40a4986fb53efdd6cb06b8e
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33fa91550881d639d561103558465f15e42c7416756a1e558e25ec5204092d91
-R e16e03c47dc05fca24223e906012c05b
-U danield
-Z bbe7a8fff10498acce8aded24ccd7d7d
+P 22ee43db43f3aa657e389f0c6d75b3fd902c03659e570c7b025a0412e503c83e
+R 5d3f182940624badb3b1d58ed083b018
+U km
+Z ee16dec5be6bc942fcb1f73cf3a031c7
 # Remove this line to create a well-formed Fossil manifest.
