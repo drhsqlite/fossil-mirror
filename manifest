@@ -1,11 +1,17 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Take\sadvantage\sof\sthe\sfact\sthat\sthe\sseqno\sis\srecorded\sand\sautomatically\sresume\nup\sto\sthree\stimes\sif\sfailure\sis\sencountered.
-D 2023-11-27T06:19:10.877
+C Merge\sin\slatest\sfrom\strunk.
+D 2023-11-29T04:32:19.602
+F extsrc/shell.c ec2b2b39c528f7b5581323f7dce9871a44e0f6b79378ccf8d137e0a0e57db16d
+F extsrc/sqlite3.c bd70b012e2d1b3efa132d905224cd0ab476a69b892f8c6b21135756ec7ffbb13
+F extsrc/sqlite3.h f8b79005ebe3e9d07f214a0af4f2caf040f96cd6b6293fe412740e05babe780d
+F src/allrepo.c e83c8df009b48296b1348ebd3d0995714dbd844526ed7644ea320b3e1f1f9a72
 F src/clone.c 3bef5276ab8aff7e0df1c23cbd4861edbe54cf22e236baacacd98c0790690a46
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
+F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/xfer.c 9f60ac638856ca6cf78d52e3c098182304b7f54a54c6610dac1fa6f7b5fd80dc
-P 2f0aac8c01a393ccc834982673e29f34632a4c49f1b244090e2f919105215b61
-R 54d22cb9446da347205e8d8b97b56d90
+F www/unvers.wiki 58362aa66f532de6f6eb7135647a5639dd1ceed7525ff6f0d90668da3564ee0e
+P bc0a4c60c00ddf67d952256ca4f2fb32911b235f8decb4d2a1242353a03fb23e cb283ca505ade74f407b4ad2d6f17c9516d17b7fced4a3cc84a440fa5fc3fe1e
+R 804d82c440bbb47dbb6beadc4e2105de
 U andybradford
-Z 42b27909804b3a80bbfa760ad70a275a
+Z 39f4b5877325b790e59a8fdc7cd507ee
 # Remove this line to create a well-formed Fossil manifest.
