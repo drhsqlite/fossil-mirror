@@ -1944,6 +1944,20 @@ static double fossil_fabs(double x){
 }
 
 /*
+** Used during cloning to exit the sync loop prematurely
+*/
+static int bSyncGotIntr = 0;
+static void sync_sigint_handler(int x){
+  bSyncGotIntr = 1;
+}
+/*
+** Interface to check whether sync was interrupted by SIGINT
+*/
+int sync_interrupted() {
+  return bSyncGotIntr;
+}
+
+/*
 ** Sync to the host identified in g.url.name and g.url.path.  This
 ** routine is called by the client.
 **
@@ -2098,6 +2112,9 @@ int client_sync(
                RELEASE_VERSION_NUMBER, MANIFEST_NUMERIC_DATE,
                MANIFEST_NUMERIC_TIME);
   if( syncFlags & SYNC_CLONE ){
+#if !defined(_WIN32)
+    signal(SIGINT, sync_sigint_handler);
+#endif
     blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
     syncFlags &= ~(SYNC_PUSH|SYNC_PULL);
     nCardSent++;
@@ -2854,6 +2871,7 @@ int client_sync(
         go = 1;
       }
     }
+    if( go && bSyncGotIntr ) go = 0;
 
     nCardRcvd = 0;
     xfer.nFileRcvd = 0;

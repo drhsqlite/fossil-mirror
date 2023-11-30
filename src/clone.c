@@ -20,6 +20,7 @@
 #include "config.h"
 #include "clone.h"
 #include <assert.h>
+#include <signal.h>
 
 /*
 ** If there are public BLOBs that deltas from private BLOBs, then
@@ -284,14 +285,20 @@ void clone_cmd(void){
     clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    while( nResumes++<3 && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0)) ){
-      fossil_warning("cloning encountered errors, trying again.");
-      sqlite3_sleep(500);
+    while( nResumes++<3 && sync_interrupted()==0
+           && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0))
+    ){
+      if( sync_interrupted()!=0 ){
+        fossil_warning("cloning encountered errors, trying again.");
+        sqlite3_sleep(500);
+      }
     }
     g.xlinkClusterOnly = 0;
     verify_cancel();
     if( nErr ){
       fossil_warning("server returned an error - clone incomplete");
+    }else if( sync_interrupted()==1 ){
+      fossil_warning("clone was interrupted");
     }else{
       db_unprotect(PROTECT_CONFIG);
       db_multi_exec("DELETE FROM config WHERE name = 'aux-clone-seqno';");
@@ -300,13 +307,20 @@ void clone_cmd(void){
     db_end_transaction(0);
     db_close(1);
     db_open_repository(zRepo);
+#if !defined(_WIN32)
+    signal(SIGINT, SIG_DFL);
+#endif
   }
   db_begin_transaction();
   if( db_exists("SELECT 1 FROM delta WHERE srcId IN phantom") ){
-    fossil_warning("there are unresolved deltas -"
-                 " the clone is probably incomplete and unusable.\n"
-                 "It may be possible to resume the clone by running the"
-                 " same command.");
+    if( db_get_int("aux-clone-seqno",0)==0 ){
+      fossil_fatal("there are unresolved deltas -"
+                   " the clone is probabaly incomplete and unusable.");
+    }
+  }
+  if( db_get_int("aux-clone-seqno",0)>0 ){
+    fossil_warning("Clone incomplete - it may be possible to resume the"
+           " clone by running the same command again.");
   }
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(1, 0);
