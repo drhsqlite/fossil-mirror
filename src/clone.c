@@ -321,20 +321,21 @@ void clone_cmd(void){
   if( db_get_int("aux-clone-seqno",0)>0 ){
     fossil_warning("Clone incomplete - it may be possible to resume the"
            " clone by running the same command again.");
-  }
-  fossil_print("Rebuilding repository meta-data...\n");
-  rebuild_db(1, 0);
-  if( !noCompress ){
-    int nDelta = 0;
-    i64 nByte;
-    fossil_print("Extra delta compression... "); fflush(stdout);
-    nByte = extra_deltification(&nDelta);
-    if( nDelta==1 ){
-      fossil_print("1 delta saves %,lld bytes\n", nByte);
-    }else if( nDelta>1 ){
-      fossil_print("%d deltas save %,lld bytes\n", nDelta, nByte);
-    }else{
-      fossil_print("none found\n");
+  }else{
+    fossil_print("Rebuilding repository meta-data...\n");
+    rebuild_db(1, 0);
+    if( !noCompress ){
+      int nDelta = 0;
+      i64 nByte;
+      fossil_print("Extra delta compression... "); fflush(stdout);
+      nByte = extra_deltification(&nDelta);
+      if( nDelta==1 ){
+        fossil_print("1 delta saves %,lld bytes\n", nByte);
+      }else if( nDelta>1 ){
+        fossil_print("%d deltas save %,lld bytes\n", nDelta, nByte);
+      }else{
+        fossil_print("none found\n");
+      }
     }
   }
   db_end_transaction(0);
