@@ -333,7 +333,7 @@ void clone_cmd(void){
     }
   }
   if( db_get_int("aux-clone-seqno",0)>0 ){
-    fossil_warning("Clone incomplete - it may be possible to resume the"
+    fossil_warning("It may be possible to resume the"
            " clone by running the same command again.");
   }else{
     fossil_print("Rebuilding repository meta-data...\n");
