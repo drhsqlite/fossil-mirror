@@ -243,6 +243,7 @@ void clone_cmd(void){
       db_open_config(0,0);
       db_begin_transaction();
       zOldProjCode = db_get("project-code",0);
+      if( zOldProjCode==0 ) fossil_fatal("project-id missing from repository");
       fossil_print("Resuming clone of project-id %s\n",zOldProjCode);
       db_create_default_users(1, zDefaultUser);
       if( zDefaultUser ) g.zLogin = zDefaultUser;
