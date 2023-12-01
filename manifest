@@ -1,17 +1,17 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Prevent\sthe\sresuming\sof\sa\sclone\sthat\sdoes\snot\shave\sthe\sproduct\scode.
-D 2023-12-01T20:31:08.355
+C Prevent\sresuming\sa\sclone\sfrom\sa\sdifferent\sserver\sby\spreserving\sthe\sremote\nserver-code\sand\scomparing\son\sresume.\s\sThis\sis\sa\scrude\sheuristic\sto\sdetermine\nwhether\sor\snot\sit\sis\slikely\sthat\sthe\sremote\sserver\sstill\shas\sthe\ssame\srids.\nA\sbetter\sheuristic\smay\sbe\sto\sprobe\sthe\sserver\sfor\sknown\srids\sthat\shave\sbeen\nreceived\s(e.g.\seach\sclone\sseqno\sthat\sis\ssend\sby\sthe\sserver\scould\sbe\srecorded\nand\sthen\sprobed\swith\sa\spragma\srequest\sby\sthe\sclient\slater\son.
+D 2023-12-01T21:14:29.382
 F extsrc/shell.c ec2b2b39c528f7b5581323f7dce9871a44e0f6b79378ccf8d137e0a0e57db16d
 F extsrc/sqlite3.c bd70b012e2d1b3efa132d905224cd0ab476a69b892f8c6b21135756ec7ffbb13
 F extsrc/sqlite3.h f8b79005ebe3e9d07f214a0af4f2caf040f96cd6b6293fe412740e05babe780d
 F src/allrepo.c e83c8df009b48296b1348ebd3d0995714dbd844526ed7644ea320b3e1f1f9a72
-F src/clone.c 6cfa50839323dcedd7a9391435a1ec4cc74a0f0ee64c6bde837681b3e7d0d329
+F src/clone.c dcf2e2677491dabeae90c8fb56f7d114c5cb403c542ce9dd8d8776b9cd128290
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
-F src/xfer.c d07071487d45ca7da722d9938f22b22d1852acaa43190611f2f7c93037e12137
+F src/xfer.c 5c0d9b4a8e2ec19ec24bd63269e1a8a9c1fe59dfe330b21f087a151f0283ac26
 F www/unvers.wiki 58362aa66f532de6f6eb7135647a5639dd1ceed7525ff6f0d90668da3564ee0e
-P d82079546dcfc945ba03c33fb7618d0fa5c78258d06ecfa1c04f2c92fc2417e7
-R b6dd924fc9b502b53a392ca84fd466ef
+P 63af8da3554e92363a86f1a5d60c9b8f36f208474e65e42b5ec79a9d18ccc914
+R ea9a05aba3cbbbca9828c6173cb77501
 U andybradford
-Z 3c327fbd3c8f5cc1b14c29f889676700
+Z 20991d896533878041b057c80a59d9e1
 # Remove this line to create a well-formed Fossil manifest.

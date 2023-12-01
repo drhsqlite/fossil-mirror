@@ -156,6 +156,7 @@ void clone_cmd(void){
   int nResumeSeqno = 0;       /* Last seqno from which to resume clone */
   const char *zNewProjCode;   /* New Project code obtained during clone */
   const char *zOldProjCode;   /* Old project code stored in resuming clone */
+  const char *zCloneCode;     /* server-code for the source of the clone */
   const char *zRepo = 0;      /* Name of the new local repository file */
   const char *zWorkDir = 0;   /* Open in this directory, if not zero */
 
@@ -243,7 +244,9 @@ void clone_cmd(void){
       db_open_config(0,0);
       db_begin_transaction();
       zOldProjCode = db_get("project-code",0);
+      zCloneCode = db_get("aux-clone-code",0);
       if( zOldProjCode==0 ) fossil_fatal("project-id missing from repository");
+      if( zCloneCode==0 ) fossil_fatal("clone-code missing from repository");
       fossil_print("Resuming clone of project-id %s\n",zOldProjCode);
       db_create_default_users(1, zDefaultUser);
       if( zDefaultUser ) g.zLogin = zDefaultUser;
@@ -308,6 +311,10 @@ void clone_cmd(void){
                "\nrolling back changes",
                zOldProjCode, zNewProjCode);
       }
+      if( zCloneCode!=0 && zCloneCode[0]!=0
+          && fossil_strcmp(zCloneCode, db_get("aux-clone-code",0))!=0 ){
+        fossil_fatal("clone resume from different server not allowed");
+      }
     }
     if( nErr ){
       fossil_warning("server returned an error - clone incomplete");
@@ -315,7 +322,10 @@ void clone_cmd(void){
       fossil_warning("clone was interrupted");
     }else{
       db_unprotect(PROTECT_CONFIG);
-      db_multi_exec("DELETE FROM config WHERE name = 'aux-clone-seqno';");
+      db_multi_exec(
+        "DELETE FROM config WHERE name = 'aux-clone-seqno';"
+        "DELETE FROM config WHERE name = 'aux-clone-code';"
+      );
       db_protect_pop();
     }
     db_end_transaction(0);
