@@ -154,6 +154,8 @@ void clone_cmd(void){
   int noOpen = find_option("no-open",0,0)!=0;
   int allowNested = find_option("nested",0,0)!=0; /* Used by open */
   int bResume = 0;            /* Set if a previous clone failed */
+  const char *zNewProjCode;   /* New Project code obtained during clone */
+  const char *zOldProjCode;   /* Old project code stored in resuming clone */
   const char *zRepo = 0;      /* Name of the new local repository file */
   const char *zWorkDir = 0;   /* Open in this directory, if not zero */
 
@@ -241,6 +243,8 @@ void clone_cmd(void){
       db_open_config(0,0);
       db_begin_transaction();
       db_unprotect(PROTECT_CONFIG);
+      zOldProjCode = db_get("project-code",0);
+      fossil_print("Resuming clone of project-id %s\n",zOldProjCode);
       db_multi_exec(
         "DELETE FROM config WHERE name = 'project-code';"
         "DELETE FROM config WHERE name = 'server-code';"
@@ -304,8 +308,18 @@ void clone_cmd(void){
       db_multi_exec("DELETE FROM config WHERE name = 'aux-clone-seqno';");
       db_protect_pop();
     }
-    db_end_transaction(0);
-    db_close(1);
+    zNewProjCode = db_get("project-code",0);
+    if( bResume && zOldProjCode && zOldProjCode[0]
+        && fossil_strcmp(zOldProjCode, zNewProjCode)!=0 ){
+      fossil_warning("project-id changed\nwas %s\nis  %s\nrolling back changes",
+             zOldProjCode, zNewProjCode);
+      db_end_transaction(1);
+      db_close(1);
+      fossil_exit(1);
+    }else{
+      db_end_transaction(0);
+      db_close(1);
+    }
     db_open_repository(zRepo);
 #if !defined(_WIN32)
     signal(SIGINT, SIG_DFL);
