@@ -1586,7 +1586,7 @@ void page_xfer(void){
 
     /*    pragma NAME VALUE...
     **
-    ** The client issue pragmas to try to influence the behavior of the
+    ** The client issues pragmas to try to influence the behavior of the
     ** server.  These are requests only.  Unknown pragmas are silently
     ** ignored.
     */
@@ -2647,7 +2647,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
         /*   pragma server-version VERSION ?DATE? ?TIME?
         **
-        ** The servger announces to the server what version of Fossil it
+        ** The server announces to the server what version of Fossil it
         ** is running.  The DATE and TIME are a pure numeric ISO8601 time
         ** for the specific check-in of the client.
         */
@@ -2662,7 +2662,7 @@ int client_sync(
         /*   pragma uv-pull-only
         **   pragma uv-push-ok
         **
-        ** If the server is unwill to accept new unversioned content (because
+        ** If the server is unwilling to accept new unversioned content (because
         ** this client lacks the necessary permissions) then it sends a
         ** "uv-pull-only" pragma so that the client will know not to waste
         ** bandwidth trying to upload unversioned content.  If the server
