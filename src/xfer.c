@@ -1991,7 +1991,7 @@ int client_sync(
   double rArrivalTime;    /* Time at which a message arrived */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
-  const char *zCCode = db_get("aux-clone-code",0);
+  const char *zCCode = 0;
   int nErr = 0;           /* Number of errors */
   int nRoundtrip= 0;      /* Number of HTTP requests */
   int nArtifactSent = 0;  /* Total artifacts sent */
@@ -2583,7 +2583,7 @@ int client_sync(
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
         }
-        if( blob_is_hname(&xfer.aToken[1]) ){
+        if( zCCode==0 && blob_is_hname(&xfer.aToken[1]) ){
           zCCode = mprintf("%b", &xfer.aToken[1]);
           db_set("aux-clone-code", zCCode, 0);
         }
