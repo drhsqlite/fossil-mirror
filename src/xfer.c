@@ -2839,8 +2839,8 @@ int client_sync(
     blob_reset(&recv);
     nCycle++;
 
-    /* Record the current cloneSeqno in the event that clone fails to enable
-    ** the ability to resume from this same point in clone.  */
+    /* Record the current cloneSeqno in the event that clone fails. This
+    ** enables the ability to resume from this same point in clone. */
     if( (syncFlags & SYNC_CLONE)!=0 ){
       db_set_int("aux-clone-seqno", cloneSeqno, 0);
     }
