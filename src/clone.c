@@ -301,7 +301,7 @@ void clone_cmd(void){
         fossil_fatal("No progress was made - aborting");
       }
       zNewProjCode = db_get("project-code",0);
-      if( zOldProjCode && zOldProjCode[0]
+      if( zOldProjCode!=0 && zOldProjCode[0]!=0
           && fossil_strcmp(zOldProjCode, zNewProjCode)!=0 ){
         fossil_fatal("project-id changed\nwas %s\nis  %s"
                "\nrolling back changes",
