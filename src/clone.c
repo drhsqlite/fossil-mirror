@@ -324,7 +324,6 @@ void clone_cmd(void){
     signal(SIGINT, SIG_DFL);
 #endif
   }
-  db_begin_transaction();
   if( db_exists("SELECT 1 FROM delta WHERE srcId IN phantom") ){
     if( db_get_int("aux-clone-seqno",0)==0 ){
       fossil_fatal("there are unresolved deltas -"
@@ -335,6 +334,7 @@ void clone_cmd(void){
     fossil_warning("It may be possible to resume the"
            " clone by running the same command again.");
   }else{
+    db_begin_transaction();
     fossil_print("Rebuilding repository meta-data...\n");
     rebuild_db(1, 0);
     if( !noCompress ){
@@ -350,36 +350,36 @@ void clone_cmd(void){
         fossil_print("none found\n");
       }
     }
-  }
-  db_end_transaction(0);
-  fossil_print("Vacuuming the database... "); fflush(stdout);
-  if( db_int(0, "PRAGMA page_count")>1000
-   && db_int(0, "PRAGMA page_size")<8192 ){
-     db_multi_exec("PRAGMA page_size=8192;");
-  }
-  db_unprotect(PROTECT_ALL);
-  db_multi_exec("VACUUM");
-  db_protect_pop();
-  fossil_print("\nproject-id: %s\n", db_get("project-code", 0));
-  fossil_print("server-id:  %s\n", db_get("server-code", 0));
-  zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
-  hash_user_password(g.zLogin);
-  if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
-    Blob cmd;
-    fossil_print("opening the new %s repository in directory %s...\n",
-       zRepo, zWorkDir);
-    blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
-    blob_append(&cmd, " open ", -1);
-    blob_append_escaped_arg(&cmd, zRepo, 1);
-    blob_append(&cmd, " --nosync --workdir ", -1);
-    blob_append_escaped_arg(&cmd, zWorkDir, 1);
-    if( allowNested ){
-      blob_append(&cmd, " --nested", -1);
+    db_end_transaction(0);
+    fossil_print("Vacuuming the database... "); fflush(stdout);
+    if( db_int(0, "PRAGMA page_count")>1000
+     && db_int(0, "PRAGMA page_size")<8192 ){
+       db_multi_exec("PRAGMA page_size=8192;");
     }
-    fossil_system(blob_str(&cmd));
-    blob_reset(&cmd);
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec("VACUUM");
+    db_protect_pop();
+    fossil_print("\nproject-id: %s\n", db_get("project-code", 0));
+    fossil_print("server-id:  %s\n", db_get("server-code", 0));
+    zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+    fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+    hash_user_password(g.zLogin);
+    if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
+      Blob cmd;
+      fossil_print("opening the new %s repository in directory %s...\n",
+         zRepo, zWorkDir);
+      blob_init(&cmd, 0, 0);
+      blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
+      blob_append(&cmd, " open ", -1);
+      blob_append_escaped_arg(&cmd, zRepo, 1);
+      blob_append(&cmd, " --nosync --workdir ", -1);
+      blob_append_escaped_arg(&cmd, zWorkDir, 1);
+      if( allowNested ){
+        blob_append(&cmd, " --nested", -1);
+      }
+      fossil_system(blob_str(&cmd));
+      blob_reset(&cmd);
+    }
   }
 }
 
