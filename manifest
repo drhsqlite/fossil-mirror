@@ -1,17 +1,17 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Minor\scorrection\sin\scomment.\s\sNo\schange\sin\sfunctionality.
-D 2023-12-01T04:12:10.445
+C Try\sto\shandle\ssome\serror\sconditions\sbetter.\s\sFirst,\sif\sthe\sclone's\sfirst\ssync\ndidn't\sbring\sdown\sany\sartifacts\sthere\sisn't\slikely\sany\spoint\sin\scontinuing.\nSecond,\sif\son\sresuming\sa\sclone\sno\sartifacts\swere\sreceived,\sabort.\s\sThird,\scheck\nif\sthe\sproject-code\shas\schanged\searlier\s(this\smight\sbe\sdetected\searlier\swhen\s\nthe\sclient\sreceives\sthe\s"push"\scard).
+D 2023-12-01T17:55:28.726
 F extsrc/shell.c ec2b2b39c528f7b5581323f7dce9871a44e0f6b79378ccf8d137e0a0e57db16d
 F extsrc/sqlite3.c bd70b012e2d1b3efa132d905224cd0ab476a69b892f8c6b21135756ec7ffbb13
 F extsrc/sqlite3.h f8b79005ebe3e9d07f214a0af4f2caf040f96cd6b6293fe412740e05babe780d
 F src/allrepo.c e83c8df009b48296b1348ebd3d0995714dbd844526ed7644ea320b3e1f1f9a72
-F src/clone.c 7a50cda18ac66e0f8d75994ffdb925d1139958a6ec8774f1f679e77e7059f5a4
+F src/clone.c e722ae89c602ee3ffca9dce6ec933fad331a933bbf9d2b060301a126b9be7e39
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/xfer.c d07071487d45ca7da722d9938f22b22d1852acaa43190611f2f7c93037e12137
 F www/unvers.wiki 58362aa66f532de6f6eb7135647a5639dd1ceed7525ff6f0d90668da3564ee0e
-P 5bb6d2618760284a7269142f0496730c9e8eea09326f354c210c730291a1b76a
-R d0ebd91693670e35de831d8f6a54516a
+P 4fdc41bd05192bb4eb08239c2f2cc3dad649e91dd649189ee3ceb658ac0023e3
+R 5bbdce913412adcad1e8a97e77d60991
 U andybradford
-Z cd78669a21c893cfa5a9b9c4617669dc
+Z 9be6c6996191bd31fb4b84cac3205c1f
 # Remove this line to create a well-formed Fossil manifest.

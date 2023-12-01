@@ -153,7 +153,7 @@ void clone_cmd(void){
   int noCompress = find_option("nocompress",0,0)!=0;
   int noOpen = find_option("no-open",0,0)!=0;
   int allowNested = find_option("nested",0,0)!=0; /* Used by open */
-  int bResume = 0;            /* Set if a previous clone failed */
+  int nResumeSeqno = 0;       /* Last seqno from which to resume clone */
   const char *zNewProjCode;   /* New Project code obtained during clone */
   const char *zOldProjCode;   /* Old project code stored in resuming clone */
   const char *zRepo = 0;      /* Name of the new local repository file */
@@ -206,9 +206,9 @@ void clone_cmd(void){
   }  
   if( -1 != file_size(zRepo, ExtFILE) ){
     db_open_repository(zRepo);
-    bResume = db_get_int("aux-clone-seqno",0)!=0;
+    nResumeSeqno = db_get_int("aux-clone-seqno",0);
     db_close(0);
-    if( !bResume ){
+    if( !nResumeSeqno ){
       fossil_fatal("file already exists: %s", zRepo);
     }
   }
@@ -238,19 +238,14 @@ void clone_cmd(void){
     fossil_print("Repository cloned into %s\n", zRepo);
   }else{
     db_close_config();
-    if( bResume ){
+    if( nResumeSeqno>1 ){
       db_open_repository(zRepo);
       db_open_config(0,0);
       db_begin_transaction();
-      db_unprotect(PROTECT_CONFIG);
       zOldProjCode = db_get("project-code",0);
       fossil_print("Resuming clone of project-id %s\n",zOldProjCode);
-      db_multi_exec(
-        "DELETE FROM config WHERE name = 'project-code';"
-        "DELETE FROM config WHERE name = 'server-code';"
-      );
-      db_protect_pop();
-      db_initial_setup(0, 0, zDefaultUser);
+      db_create_default_users(1, zDefaultUser);
+      if( zDefaultUser ) g.zLogin = zDefaultUser;
       user_select();
     }else{
       db_create_repository(zRepo);
@@ -292,13 +287,27 @@ void clone_cmd(void){
     while( nResumes++<3 && sync_interrupted()==0
            && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0))
     ){
-      if( sync_interrupted()!=0 ){
-        fossil_warning("cloning encountered errors, trying again.");
-        sqlite3_sleep(500);
+      if( sync_interrupted() ) break;
+      if( db_get_int("aux-clone-seqno",1)==1 ){
+        fossil_fatal("server returned an error - clone aborted");
       }
+      fossil_warning("cloning encountered errors, trying again.");
+      sqlite3_sleep(500);
     }
     g.xlinkClusterOnly = 0;
     verify_cancel();
+    if( nResumeSeqno>1 ){
+      if( nResumeSeqno==db_get_int("aux-clone-seqno",0) ){
+        fossil_fatal("No progress was made - aborting");
+      }
+      zNewProjCode = db_get("project-code",0);
+      if( zOldProjCode && zOldProjCode[0]
+          && fossil_strcmp(zOldProjCode, zNewProjCode)!=0 ){
+        fossil_fatal("project-id changed\nwas %s\nis  %s"
+               "\nrolling back changes",
+               zOldProjCode, zNewProjCode);
+      }
+    }
     if( nErr ){
       fossil_warning("server returned an error - clone incomplete");
     }else if( sync_interrupted()==1 ){
@@ -308,18 +317,8 @@ void clone_cmd(void){
       db_multi_exec("DELETE FROM config WHERE name = 'aux-clone-seqno';");
       db_protect_pop();
     }
-    zNewProjCode = db_get("project-code",0);
-    if( bResume && zOldProjCode && zOldProjCode[0]
-        && fossil_strcmp(zOldProjCode, zNewProjCode)!=0 ){
-      fossil_warning("project-id changed\nwas %s\nis  %s\nrolling back changes",
-             zOldProjCode, zNewProjCode);
-      db_end_transaction(1);
-      db_close(1);
-      fossil_exit(1);
-    }else{
-      db_end_transaction(0);
-      db_close(1);
-    }
+    db_end_transaction(0);
+    db_close(1);
     db_open_repository(zRepo);
 #if !defined(_WIN32)
     signal(SIGINT, SIG_DFL);
@@ -332,7 +331,7 @@ void clone_cmd(void){
                    " the clone is probabaly incomplete and unusable.");
     }
   }
-  if( db_get_int("aux-clone-seqno",0)>0 ){
+  if( db_get_int("aux-clone-seqno",0)>1 ){
     fossil_warning("It may be possible to resume the"
            " clone by running the same command again.");
   }else{
