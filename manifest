@@ -1,6 +1,6 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Just\swrite\sthe\svalue\sthe\sfirst\stime\sit\sis\sseen\ssince\sthere\sis\sno\sneed\sto\nhave\sthe\svalue\sduring\sthe\ssync\s(yet).
-D 2023-12-01T21:22:06.500
+C Use\sa\snew\spragma\srequested\sonly\sin\sthe\sfirst\sclone\scycle\sto\strack\sthe\srebuilt\ntime\son\sthe\sremote\sserver\sto\sbe\sable\sto\serror\sout\sif\sthe\srids\sare\srebuilt\nbefore\sresuming\sa\sclone.\s\sThis\sis\scurrently\sjust\sa\sfossilized\sstring\sbut\sit\ncould\sinstead\sby\sa\shash\sof\sthe\scomponents\sto\smake\sit\smore\slike\sa\s"code".\nRequesting\sthe\spragma\sonly\sat\sthe\sbeginning\sdoes\snot\saccount\sfor\sthe\s\npossibility\sthat\sa\srebuild\swill\shappen\safter\sthe\sclone\sbegins.\s\sI\sfind\sthat\nscenario\shighly\sunlikely,\sbut\sgrant\sthat\sit\smight\sbe\spossible.
+D 2023-12-02T18:30:26.853
 F extsrc/shell.c ec2b2b39c528f7b5581323f7dce9871a44e0f6b79378ccf8d137e0a0e57db16d
 F extsrc/sqlite3.c bd70b012e2d1b3efa132d905224cd0ab476a69b892f8c6b21135756ec7ffbb13
 F extsrc/sqlite3.h f8b79005ebe3e9d07f214a0af4f2caf040f96cd6b6293fe412740e05babe780d
@@ -8,10 +8,10 @@ F src/allrepo.c e83c8df009b48296b1348ebd3d0995714dbd844526ed7644ea320b3e1f1f9a72
 F src/clone.c dcf2e2677491dabeae90c8fb56f7d114c5cb403c542ce9dd8d8776b9cd128290
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
-F src/xfer.c ba060447ea7a4d0b754cdfc4eb8fde84fd050a218dc2d695061ce551b298ebd3
+F src/xfer.c 27dfee6961742f26faac8ed70c2ce9a0db8a72032660e3765be0567bdfe65414
 F www/unvers.wiki 58362aa66f532de6f6eb7135647a5639dd1ceed7525ff6f0d90668da3564ee0e
-P aa54ea41168c703cd51a524d563327885c70fcdfdaee09e7a699cb6cbd5c4257
-R a0b0d9e671229674f57daed788a1a0fc
+P 15b166df9badce1ba34d70cca458ae9d855d64af5ec2c129c6003f66c319a789
+R 8c8aec24e2add775d93eac4dc728ff3b
 U andybradford
-Z 25525abe173e30411a77199e34601ac0
+Z f6dbebfed1e0af0c6d3088343907fed1
 # Remove this line to create a well-formed Fossil manifest.

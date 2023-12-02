@@ -1764,6 +1764,20 @@ void page_xfer(void){
       */
       if( blob_eq(&xfer.aToken[1], "req-links") ){
         bSendLinks = 1;
+      }else
+
+      /*    pragma send-rebuilt
+      **
+      ** The client sends this message to the server to ask the server
+      ** for the last time its database was rebuilt
+      */
+      if( blob_eq(&xfer.aToken[1], "send-rebuilt") ){
+        Blob rcode;
+        blob_zero(&rcode);
+        blob_appendf(&rcode, "%s-%s", db_get("server-code",0),
+                     db_get("rebuilt",0));
+        @ pragma rebuilt %F(blob_str(&rcode))
+        blob_reset(&rcode);
       }
 
     }else
@@ -2116,6 +2130,10 @@ int client_sync(
 #if !defined(_WIN32)
     signal(SIGINT, sync_sigint_handler);
 #endif
+    if( nCycle<2 ){
+      /* Only request this at the beginning of the clone */
+      blob_appendf(&send, "pragma send-rebuilt\n");
+    }
     blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
     syncFlags &= ~(SYNC_PUSH|SYNC_PULL);
     nCardSent++;
@@ -2583,9 +2601,11 @@ int client_sync(
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
         }
-        if( zCCode==0 && blob_is_hname(&xfer.aToken[1]) ){
-          zCCode = mprintf("%b", &xfer.aToken[1]);
-          db_set("aux-clone-code", zCCode, 0);
+        if( zCCode==0 ){
+          if( blob_is_hname(&xfer.aToken[1]) ){
+            zCCode = mprintf("%b", &xfer.aToken[1]);
+            db_set("aux-clone-code", zCCode, 0);
+          }
         }
         if( cloneSeqno>0 ) blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
         nCardSent++;
@@ -2774,6 +2794,19 @@ int client_sync(
             db_protect_pop();
           }
           url_unparse(&x);
+        }
+
+        /*    pragma rebuilt FOSSILISZESTRING
+        **
+        ** The server generates this message in response to a client request
+        ** that is trying to resume.
+        */
+        else if( blob_eq(&xfer.aToken[1], "rebuilt")
+              && xfer.nToken==3
+              && (syncFlags & SYNC_CLONE)!=0
+        ){
+          zCCode = mprintf("%b", &xfer.aToken[2]);
+          db_set("aux-clone-code", zCCode, 0);
         }
 
       }else
