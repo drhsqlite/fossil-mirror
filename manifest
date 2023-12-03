@@ -1,5 +1,5 @@
-C Tiny\sdocumentation\sfix:\san\sextra\sspace\sbefore\sargument\sto\sthe\s'--base-rcvid'\shook\stest\soption\smade\sthe\sargument\sappear\son\sthe\sline\sdescribing\sthe\soption.
-D 2023-11-28T22:05:01.973
+C In\sauto.def,\sset\sCFLAGS\sand\sLDFLAGS\swith\sLIBs\sas\sfurther\stests\smay\sneed\sthem.
+D 2023-12-03T14:06:30.496
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 4e58c9045713ccaca5c369ffb67314a437bc14e171523a8a923a64c3ce65aafc
-F auto.def 708cdaa7c7cfd8f75affecd34ac7f7f72575c97f22a1537429d2a02388af6c71
+F auto.def 813e22805867256c679fa2ce22826f8e6a581bd827b5f1c019bbcfa4aae03515
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -950,8 +950,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22ee43db43f3aa657e389f0c6d75b3fd902c03659e570c7b025a0412e503c83e
-R 5d3f182940624badb3b1d58ed083b018
-U km
-Z ee16dec5be6bc942fcb1f73cf3a031c7
+P cb283ca505ade74f407b4ad2d6f17c9516d17b7fced4a3cc84a440fa5fc3fe1e
+R fbbe30db5277368c94f55beeded02a64
+T *bgcolor * #fec084
+T *branch * auto-def-compilation-flags
+T *sym-auto-def-compilation-flags *
+T -sym-trunk *
+U preben
+Z 5db7036328870573f04a963e19d769cd
 # Remove this line to create a well-formed Fossil manifest.
