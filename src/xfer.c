@@ -21,6 +21,9 @@
 #include "xfer.h"
 
 #include <time.h>
+#if !defined(_WIN32)
+#  include <signal.h>
+#endif
 
 /*
 ** Maximum number of HTTP redirects that any http_exchange() call will

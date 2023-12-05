@@ -20,7 +20,9 @@
 #include "config.h"
 #include "clone.h"
 #include <assert.h>
-#include <signal.h>
+#if !defined(_WIN32)
+#  include <signal.h>
+#endif
 
 /*
 ** If there are public BLOBs that deltas from private BLOBs, then
