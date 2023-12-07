@@ -1,5 +1,5 @@
-C Provide\sa\sdark\smode\sfor\sthe\sTCL/TK-based\sdiff\sGUI.
-D 2023-12-05T16:02:47.958
+C Make\sthe\sdark\smode\salso\savailable\sfor\sthe\sdiff\sHTML\soutput\s(--webpage,\s-b[y]).
+D 2023-12-07T10:39:12.871
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,10 +411,10 @@ F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 6fa21312cf0d694c07f0bf8261ad585f46ae24dd415cc71614277ffb5a63659a
-F src/diff.c 859e4f131bf9c9a9d5b092754c7459bb45727c83a8c770035f74fa10b455c88f
+F src/diff.c a06ba8784723fe57a755305367aaf35b9eb22a593a9aa3dbf5aca5b53ff9fe18
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
-F src/diffcmd.c fba62b6cd6a28024ec892d3dbcb6f68134c4d049c106907efb04f8a346fe0895
+F src/diffcmd.c 9b50de69a68960ca5907492ad32a5e6f387bee69dda0f345cb7cab3e2eb450f6
 F src/dispatch.c 5689a6949467df4fddc2d11b9866cb2ea47e2150866171e7cc8b798d308dfcfd
 F src/doc.c 15552ea105bd70eb99f4f2059a9fb68f824af5eddbcbe679a77d6cdb2e990ba8
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -950,11 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8b6fdc83e8b539c4d5b53e7ab1230de19db88d8955ea89e153133a8eb564e4b
-R f7f6a361474b7a317496b13c195e87ac
-T *branch * tk-diff-darkmode
-T *sym-tk-diff-darkmode *
-T -sym-trunk *
+P b59a42f1f6489389874253739c49e3af2e3b25519e294c9585aff013b5a4573d
+R ffe377b2b448be1b84fe21d3a804d144
 U danield
-Z 2a865b2a329f86da095399fd3f4ecb3f
+Z 836333a057dd4e910b4dace8764821f4
 # Remove this line to create a well-formed Fossil manifest.

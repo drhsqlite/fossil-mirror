@@ -215,7 +215,7 @@ void diff_print_filenames(
 
 
 /*
-** Default header text for diff with --webpage
+** Default header texts for diff with --webpage
 */
 static const char zWebpageHdr[] = 
 @ <!DOCTYPE html>
@@ -317,6 +317,112 @@ static const char zWebpageHdr[] =
 @ </head>
 @ <body>
 ;
+static const char zWebpageHdrDark[] = 
+@ <!DOCTYPE html>
+@ <html>
+@ <head>
+@ <meta charset="UTF-8">
+@ <style>
+@ body {
+@    background-color: #353535;
+@    color: #ffffff;
+@ }
+@ h1 {
+@   font-size: 150%;
+@ }
+@ 
+@ table.diff {
+@   width: 100%;
+@   border-spacing: 0;
+@   border: 1px solid black;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ table.diff td {
+@   vertical-align: top;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ table.diff pre {
+@   margin: 0 0 0 0;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffln {
+@   width: 1px;
+@   text-align: right;
+@   padding: 0 1em 0 0;
+@ }
+@ td.difflne {
+@   padding-bottom: 0.4em;
+@ }
+@ td.diffsep {
+@   width: 1px;
+@   padding: 0 0.3em 0 1em;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffsep pre {
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt pre {
+@   overflow-x: auto;
+@ }
+@ td.diffln ins {
+@   background-color: #559855;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffln del {
+@   background-color: #cc5555;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt del {
+@   background-color: #f9cfcf;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt del > del {
+@   background-color: #cc5555;
+@   color: #000000;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt del > del.edit {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins {
+@   background-color: #a2dbb2;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt ins > ins {
+@   background-color: #559855;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins > ins.edit {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ 
+@ </style>
+@ </head>
+@ <body>
+;
 const char zWebpageEnd[] = 
 @ </body>
 @ </html>
@@ -380,7 +486,8 @@ void diff_begin(DiffConfig *pCfg){
 #endif
   }
   if( (pCfg->diffFlags & DIFF_WEBPAGE)!=0 ){
-    fossil_print("%s",zWebpageHdr);
+    fossil_print("%s",(pCfg->diffFlags & DIFF_DARKMODE)!=0 ? zWebpageHdrDark : 
+                                                             zWebpageHdr);
     fflush(stdout);
   }
 }
@@ -1082,7 +1189,7 @@ const char *diff_get_binary_glob(void){
 **   --command PROG              External diff program. Overrides "diff-command"
 **   -c|--context N              Show N lines of context around each change, with
 **                               negative N meaning show all content
-**   --dark                      Use dark mode for the TCL/TK-based GUI
+**   --dark                      Use dark mode for the TCL/TK-based GUI and HTML
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
@@ -1119,8 +1226,6 @@ void diff_cmd(void){
   if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
     diff_tk("diff", 2);
     return;
-  }else{
-    find_option("dark", 0, 0);
   }
   isGDiff = g.argv[1][0]=='g';
   zFrom = find_option("from", "r", 1);
