@@ -113,4 +113,22 @@ cannot compute difference between binary files}}
 
 ###############################################################################
 
+write_file file6a.dat "{\n \"abc\": {\n  \"def\": false,\n  \"ghi\": false\n }\n}\n"
+write_file file6b.dat "{\n \"abc\": {\n  \"def\": false,\n  \"ghi\": false\n },\n \"jkl\": {\n  \"mno\": {\n   \"pqr\": false\n  }\n }\n}\n"
+fossil xdiff -y -W 16 file6a.dat file6b.dat
+test diff-file-6-1 {[normalize_result] eq {========== file6a.dat ===== versus ===== file6b.dat =====
+     1 {                       1 {
+     2  "abc": {               2  "abc": {
+     3   "def": false,         3   "def": false,
+     4   "ghi": false          4   "ghi": false
+                        >      5  },
+                        >      6  "jkl": {
+                        >      7   "mno": {
+                        >      8    "pqr": false
+                        >      9   }
+     5  }                     10  }
+     6 }                      11 }}}
+
+###############################################################################
+
 test_cleanup
