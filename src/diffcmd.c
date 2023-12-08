@@ -312,6 +312,35 @@ static const char zWebpageHdr[] =
 @   text-decoration: none;
 @   font-weight: bold;
 @ }
+@ @media (prefers-color-scheme: dark) {
+@   body {
+@     background-color: #353535;
+@     color: #ffffff;
+@   }
+@   td.diffln ins {
+@     background-color: #559855;
+@     color: #000000;
+@   }
+@   td.diffln del {
+@     background-color: #cc5555;
+@     color: #000000;
+@   }
+@   td.difftxt del {
+@     background-color: #f9cfcf;
+@     color: #000000;
+@   }
+@     td.difftxt del > del {
+@     background-color: #cc5555;
+@     color: #000000;
+@   }
+@   td.difftxt ins {
+@     background-color: #a2dbb2;
+@     color: #000000;
+@   }
+@   td.difftxt ins > ins {
+@     background-color: #559855;
+@   }
+@ }
 @ 
 @ </style>
 @ </head>
