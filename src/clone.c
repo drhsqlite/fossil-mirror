@@ -299,8 +299,10 @@ void clone_cmd(void){
       if( db_get_int("aux-clone-seqno",1)==1 ){
         fossil_fatal("server returned an error - clone aborted");
       }
-      fossil_warning("cloning encountered errors, trying again.");
-      sqlite3_sleep(500);
+      if( nResumes<3 ){
+        fossil_warning("cloning encountered errors, trying again.");
+        sqlite3_sleep(500);
+      }
     }
     g.xlinkClusterOnly = 0;
     verify_cancel();
