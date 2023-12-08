@@ -1778,7 +1778,7 @@ void page_xfer(void){
         Blob rcode;
         blob_zero(&rcode);
         blob_appendf(&rcode, "%s-%s", db_get("server-code",0),
-                     db_get("rebuilt",0));
+                     db_get_mtime("rebuilt",0,0));
         @ pragma rebuilt %F(blob_str(&rcode))
         blob_reset(&rcode);
       }
