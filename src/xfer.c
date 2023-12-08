@@ -2912,7 +2912,10 @@ int client_sync(
         go = 1;
       }
     }
-    if( go && bSyncGotIntr ) go = 0;
+    if( go && bSyncGotIntr ){
+      go = 0;
+      nErr++;
+    }
 
     nCardRcvd = 0;
     xfer.nFileRcvd = 0;

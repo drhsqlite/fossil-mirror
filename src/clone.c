@@ -290,10 +290,12 @@ void clone_cmd(void){
     clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    while( nResumes++<3 && sync_interrupted()==0
-           && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0))
+    while( nResumes++<3 && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0))
     ){
-      if( sync_interrupted() ) break;
+      if( sync_interrupted() ){
+        fossil_warning("clone was interrupted");
+        break;
+      }
       if( db_get_int("aux-clone-seqno",1)==1 ){
         fossil_fatal("server returned an error - clone aborted");
       }
@@ -320,8 +322,6 @@ void clone_cmd(void){
     }
     if( nErr ){
       fossil_warning("server returned an error - clone incomplete");
-    }else if( sync_interrupted()==1 ){
-      fossil_warning("clone was interrupted");
     }else{
       db_unprotect(PROTECT_CONFIG);
       db_multi_exec(
@@ -338,9 +338,9 @@ void clone_cmd(void){
 #endif
   }
   if( db_exists("SELECT 1 FROM delta WHERE srcId IN phantom") ){
+    fossil_warning("there are unresolved deltas -");
     if( db_get_int("aux-clone-seqno",0)==0 ){
-      fossil_fatal("there are unresolved deltas -"
-                   " the clone is probabaly incomplete and unusable.");
+      fossil_fatal("the clone is probabaly incomplete and unusable.");
     }
   }
   if( db_get_int("aux-clone-seqno",0)>1 ){
