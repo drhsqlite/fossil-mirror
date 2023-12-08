@@ -1,17 +1,17 @@
 B 698dc59ec1dbd05d54a7754ddd6f7a5687c42ba724184163f2de1ceedf76f37d
-C Only\soutput\sclone\sretry\swarning\sif\sthere\sis\sanother\sround\sto\sgo.
-D 2023-12-08T14:33:15.550
+C Limit\sthe\sscope\sto\sthe\serror\scondition\sto\sclone\soperations\sonly\sfor\snow.
+D 2023-12-08T15:30:14.342
 F extsrc/shell.c ec2b2b39c528f7b5581323f7dce9871a44e0f6b79378ccf8d137e0a0e57db16d
 F extsrc/sqlite3.c bd70b012e2d1b3efa132d905224cd0ab476a69b892f8c6b21135756ec7ffbb13
 F extsrc/sqlite3.h f8b79005ebe3e9d07f214a0af4f2caf040f96cd6b6293fe412740e05babe780d
 F src/allrepo.c e83c8df009b48296b1348ebd3d0995714dbd844526ed7644ea320b3e1f1f9a72
-F src/clone.c e124e15d704424af32ebbc9c5a734ac919f2af7361a8cd2064cee9ecf17e87c7
+F src/clone.c bbc4fddd392a19a4aa0e853db8b432cfd4c305150a198e2a61f064ae25a86ad8
 F src/db.c 784e83b0ae6d2eb3a858a066124bc18a5c66332a35147fd51f039cb532362ae2
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
-F src/xfer.c 87588aa4251dc0eb846832895eaa691b2bb4e4d7e7b82903d8cfa437326e60c4
+F src/xfer.c bdb431e87b88d6aff9263100ab8c28be0c45a5d58644db0f635742c7779f23ec
 F www/unvers.wiki 58362aa66f532de6f6eb7135647a5639dd1ceed7525ff6f0d90668da3564ee0e
-P a92fddc02317ecdc74f8260c2d9be3664c8101bc3e5bb939c792b39f07a3554b
-R 8d5a1afefba4ad2a90717ff18c01e84c
+P bdd22578fa90c5bec8bdcefde9680c301b8104cac8e98f18e095d814894403c7
+R 0533bc110a78489708fc6546545b7255
 U andybradford
-Z aa00dd011d50782cb93b527a2e2d69ff
+Z ab3dfd8dcdfb7c86c5e591a0b28da96d
 # Remove this line to create a well-formed Fossil manifest.

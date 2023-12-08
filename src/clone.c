@@ -292,12 +292,12 @@ void clone_cmd(void){
     g.xlinkClusterOnly = 1;
     while( nResumes++<3 && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0))
     ){
+      if( db_get_int("aux-clone-seqno",1)==1 ){
+        fossil_fatal("server returned an error - clone aborted");
+      }
       if( sync_interrupted() ){
         fossil_warning("clone was interrupted");
         break;
-      }
-      if( db_get_int("aux-clone-seqno",1)==1 ){
-        fossil_fatal("server returned an error - clone aborted");
       }
       if( nResumes<3 ){
         fossil_warning("cloning encountered errors, trying again.");

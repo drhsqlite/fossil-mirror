@@ -2037,7 +2037,7 @@ int client_sync(
 
   if( (syncFlags & SYNC_CLONE)==0 && db_get_int("aux-clone-seqno",0)>0 ){
     fossil_fatal("Unable to synchronize due to incomplete clone.");
-  }else{
+  }else if( (syncFlags & SYNC_CLONE)!=0 ){
     cloneSeqno = db_get_int("aux-clone-seqno",1);
   }
 
@@ -2129,7 +2129,7 @@ int client_sync(
   blob_appendf(&send, "pragma client-version %d %d %d\n",
                RELEASE_VERSION_NUMBER, MANIFEST_NUMERIC_DATE,
                MANIFEST_NUMERIC_TIME);
-  if( syncFlags & SYNC_CLONE ){
+  if( (syncFlags & SYNC_CLONE)!=0 ){
 #if !defined(_WIN32)
     signal(SIGINT, sync_sigint_handler);
 #endif
@@ -2912,7 +2912,7 @@ int client_sync(
         go = 1;
       }
     }
-    if( go && bSyncGotIntr ){
+    if( (syncFlags & SYNC_CLONE)!=0 && bSyncGotIntr && cloneSeqno>0 ){
       go = 0;
       nErr++;
     }
