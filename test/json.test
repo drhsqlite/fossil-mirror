@@ -179,6 +179,14 @@ proc test_json_payload {testname okfields badfields} {
 #### VERSION AKA HAI
 
 # The JSON API generally assumes we have a respository, so let it have one.
+
+# Set FOSSIL_USER to ensure consistent results in "json user list"
+set _fossil_user ""
+if [info exists env(FOSSIL_USER)] {
+  set _fossil_user $env(FOSSIL_USER)
+}
+set ::env(FOSSIL_USER) "JSON-TEST-USER"
+
 test_setup
 
 # Stop backoffice from running during this test as it can cause hangs.
@@ -910,3 +918,9 @@ if { $JR ne "" } {
 ###############################################################################
 
 test_cleanup
+
+if { $_fossil_user eq "" } {
+  unset ::env(FOSSIL_USER)
+} else {
+  set ::env(FOSSIL_USER) $_fossil_user
+}

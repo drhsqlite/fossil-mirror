@@ -1,5 +1,5 @@
-C More\sthorough\stest\soutput\srewrite\sscript.\sAdd\san\s-extra\soption\sthat\scleans\sup\sfurther\sto\smake\scomparisons\sbetween\se.g.\sWindows\sand\sUnix\slike\ssystems\seasier.\sWhen\stesting\swith\s-verbose,\sthis\sgives\seasy\scomparable\sresults\sacross\sUnix\slike\sand\sWindows\ssystems.
-D 2023-12-11T20:26:30.641
+C Set\sFOSSIL_USER\sin\sjson\stests\sto\ssort\suser\srelated\soutput\sconsistently\sif\srun\sas\sa\sdifferent\suser.\sEases\stest\sresult\scomparisons.
+D 2023-12-11T20:43:24.274
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -607,7 +607,7 @@ F test/fileage-test-1.wiki 50661a791a5037d949534b42cfb1c8245687803fa46894f84a1ad
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
 F test/graph-test-1.wiki 005464d7086c690588eee46e29f551145178c0eed085f5063f647b0d1231197e
 F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02ee93546f
-F test/json.test ef5f080b4c1853ad2433bbb591c86759b497019137ce4296b9a8704ab426bec8
+F test/json.test ae4d37a02b3af1a5adc67e701231d5f169322948c5efe3d71241561e2af9390b
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3f89945a51be601a881945ca61f588501f39aa9bfe17f1698ecb11becf2608a
-R 56994983afb9e112016250b9bed78dce
+P 0424384328fe54e04140f3ed9f3441e6a55375fc838ef737297a1855e3a2a4ac
+R 13e837e6837019992779a5448323b490
 U preben
-Z 1880f58f42163baa12962743f097694a
+Z c8630cb84a6c33c5b6e24f82b46b1262
 # Remove this line to create a well-formed Fossil manifest.
