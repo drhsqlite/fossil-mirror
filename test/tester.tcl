@@ -435,6 +435,8 @@ proc require_no_open_checkout {} {
   }
   catch {exec $::fossilexe info} res
   if {[regexp {local-root:} $res]} {
+    global skipped_tests testfile
+    lappend skipped_tests $testfile
     set projectName <unknown>
     set localRoot <unknown>
     regexp -line -- {^project-name: (.*)$} $res dummy projectName
