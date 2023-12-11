@@ -1091,6 +1091,11 @@ please set TEMP variable in environment, error: $error"
 
 protInit $fossilexe
 set ::tempKeepHome 1
+
+# Start in tempHomePath to help avoid errors with require_no_open_checkout
+set startPwd [pwd]
+cd $tempHomePath
+
 foreach testfile $argv {
   protOut "***** $testfile ******"
   if { [catch {source $testdir/$testfile.test} testerror testopts] } {
@@ -1102,6 +1107,7 @@ foreach testfile $argv {
   }
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
 }
+cd $startPwd
 unset ::tempKeepHome; delete_temporary_home
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {

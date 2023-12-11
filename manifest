@@ -1,5 +1,5 @@
-C Let\sth1-docs\stest\srun\sin\sa\stest\srepo\sby\scopying\sthe\sfile\swe\sneed.\sThis\savoids\srunning\sthe\stest\sin\sthe\sactual\sdevelopment\scheckout.
-D 2023-12-11T21:10:44.080
+C Before\sstarting\stests,\sswitch\sto\stempHomePath.\sThis\savoids\srequire_no_open_checkout\serrors\sif\syou\sstart\sthe\stest\sinside\sa\scheckout\s(actual\stests\sare\sdone\sin\sa\stemporary\srepository/checkout\sanyway).
+D 2023-12-11T21:23:08.246
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -639,7 +639,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test f34c685f79132fb83e1a739d3a5ac13d8e34c11fd25f36d5616d202b9b2abc22
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 228b9f5981d7dcf287acb504dfde2439982a37d09996df6d5ab55f9d41a4e0a3
+F test/tester.tcl 9dfd7414350c7649c5d0a2c0f57fac20bf890273eef7721708d7da17eacb3dc3
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 68ae97d4568c6da57232350ebbd3628611cdc61bfd8603f1bd42e327941e773a
-R 1478c65a5c1f2d62839671aa669f04be
+P f1f5c4ce1e5c0694137554147b7a29d47d2234f9274a464f8f07c6c240d3f3ac
+R ab20927d6bba1ef04770310b3d979376
 U preben
-Z abf00b2aeef8b0c76988f5cd61ef3737
+Z cdc7db839aeaae8611204936bee338c9
 # Remove this line to create a well-formed Fossil manifest.
