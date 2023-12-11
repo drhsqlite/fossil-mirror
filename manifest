@@ -1,5 +1,5 @@
-C Set\sFOSSIL_USER\sin\sjson\stests\sto\ssort\suser\srelated\soutput\sconsistently\sif\srun\sas\sa\sdifferent\suser.\sEases\stest\sresult\scomparisons.
-D 2023-12-11T20:43:24.274
+C Let\sth1-docs\stest\srun\sin\sa\stest\srepo\sby\scopying\sthe\sfile\swe\sneed.\sThis\savoids\srunning\sthe\stest\sin\sthe\sactual\sdevelopment\scheckout.
+D 2023-12-11T21:10:44.080
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -641,7 +641,7 @@ F test/symlinks.test f34c685f79132fb83e1a739d3a5ac13d8e34c11fd25f36d5616d202b9b2
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl 228b9f5981d7dcf287acb504dfde2439982a37d09996df6d5ab55f9d41a4e0a3
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 875c4422587306f9ed7ae1efedfb26bccdd07d0556bd7f0bc2322779b5e4ae97
+F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 9d7a194369977e87ec4e7ae45fb9f76a62875b43e88090b6f5e40c25a32018d4
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0424384328fe54e04140f3ed9f3441e6a55375fc838ef737297a1855e3a2a4ac
-R 13e837e6837019992779a5448323b490
+P 68ae97d4568c6da57232350ebbd3628611cdc61bfd8603f1bd42e327941e773a
+R 1478c65a5c1f2d62839671aa669f04be
 U preben
-Z c8630cb84a6c33c5b6e24f82b46b1262
+Z abf00b2aeef8b0c76988f5cd61ef3737
 # Remove this line to create a well-formed Fossil manifest.

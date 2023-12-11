@@ -32,18 +32,9 @@ if {[normalize_result] ne "1"} {
   test_cleanup_then_return
 }
 
-run_in_checkout {
-  set changes [fossil changes --changed]
-}
-
-if {[string length $changes]} {
-  puts "Skipping th1-docs-* tests: uncommitted changes in Fossil checkout."
-  test_cleanup_then_return
-}
-
 ###############################################################################
 
-test_setup ""
+test_setup
 
 ###############################################################################
 
@@ -52,9 +43,7 @@ set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 
 ###############################################################################
 
-run_in_checkout {
-  set data [fossil info]
-}
+set data [fossil info]
 
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
@@ -63,15 +52,22 @@ if {[string length $repository] == 0 || ![file exists $repository]} {
 }
 
 set dataFileName [file join $::testdir th1-docs-input.txt]
+set origFileStat [file join $::testdir fileStat.th1]
+
+if {![file exists $origFileStat]} {
+  error "unable to locate [$origFileStat]"
+}
+
+file copy $origFileStat fileStat.th1
+fossil add fileStat.th1
+fossil commit -m "Add fileStat.th1"
 
 ###############################################################################
 
-run_in_checkout {
-  set RESULT [test_fossil_http \
-      $repository $dataFileName /doc/trunk/test/fileStat.th1]
-}
+set RESULT [test_fossil_http \
+  $repository $dataFileName /doc/trunk/fileStat.th1]
 
-test th1-docs-1a {[regexp {<title>Fossil: test/fileStat.th1</title>} $RESULT]}
+test th1-docs-1a {[regexp {<title>Unnamed Fossil Project: fileStat.th1</title>} $RESULT]}
 test th1-docs-1b {[regexp {>\[[0-9a-f]{40,64}\]<} $RESULT]}
 test th1-docs-1c {[regexp { contains \d+ files\.} $RESULT]}
 
