@@ -1,5 +1,5 @@
-C In\sthe\sHTML\sdiff\soutput,\shonour\sthe\suser's\slight/dark\smode\sbrowser\ssetting.
-D 2023-12-08T10:20:09.730
+C Updated\san\soutdated\sreference\sto\s"SHA1"\shashes\sin\sthe\sunversioned\scontent\sdoc.
+D 2023-12-12T21:44:05.221
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -941,7 +941,7 @@ F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d1297636
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
-F www/unvers.wiki 58362aa66f532de6f6eb7135647a5639dd1ceed7525ff6f0d90668da3564ee0e
+F www/unvers.wiki 07dfcd6cb857c53fe40bcf022c814b7356c4bb816c321f47175076f5fa61e2e6
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5a8516df59a6ce05fbbc35c2e9bd9463501c1fa2283c14786fb20b17b8bb5081
-R 4245c50c4b654233dc3690ea1f9e115f
-U danield
-Z 101cd8c4f0bf1e988b3b53fd58d3a418
+P a2e6b31aa16c2000d02feb7f9fa82a7c6c67808dfafe5d9f9977e922c2964842
+R d346e106d41a2be4eb4e128c36bfcbcc
+U wyoung
+Z fa2b7348eaad684c71f7c705c2062338
 # Remove this line to create a well-formed Fossil manifest.
