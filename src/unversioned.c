@@ -573,6 +573,7 @@ void uvlist_page(void){
     sqlite3_int64 mtime = db_column_int(&q, 1);
     const char *zHash = db_column_text(&q, 2);
     int isDeleted = zHash==0;
+    char *zAlgo = isDeleted ? "deleted" : strlen(zHash) == 40 ? "SHA1" : "SHA3-256";
     int fullSize = db_column_int(&q, 3);
     char *zAge = human_readable_age((iNow - mtime)/86400.0);
     const char *zLogin = db_column_text(&q, 4);
@@ -589,6 +590,7 @@ void uvlist_page(void){
       @   <th> Size
       @   <th> User
       @   <th> Hash
+      @   <th> Algo
       if( g.perm.Admin ){
         @ <th> rcvid
       }
@@ -610,7 +612,8 @@ void uvlist_page(void){
     @ <td data-sortkey='%016llx(-mtime)'> %s(zAge) </td>
     @ <td data-sortkey='%08x(fullSize)'> %s(zSzName) </td>
     @ <td> %h(zLogin) </td>
-    @ <td> %h(zHash) </td>
+    @ <td><code> %h(zHash) </code></td>
+    @ <td> %s(zAlgo) </td>
     if( g.perm.Admin ){
       if( rcvid ){
         @ <td> <a href="%R/rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a>
