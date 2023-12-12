@@ -310,7 +310,7 @@ void unversioned_cmd(void){
     mtime = db_int(0, "SELECT strftime('%%s',%Q)", zMtime);
     if( mtime<=0 ) fossil_fatal("bad timestamp: %Q", zMtime);
   }
-  if( memcmp(zCmd, "add", nCmd)==0 ){
+  if( strncmp(zCmd, "add", nCmd)==0 ){
     const char *zError = 0;
     const char *zIn;
     const char *zAs;
@@ -342,7 +342,7 @@ void unversioned_cmd(void){
       blob_reset(&file);
     }
     db_end_transaction(0);
-  }else if( memcmp(zCmd, "cat", nCmd)==0 ){
+  }else if( strncmp(zCmd, "cat", nCmd)==0 ){
     int i;
     verify_all_options();
     db_begin_transaction();
@@ -354,7 +354,7 @@ void unversioned_cmd(void){
       blob_reset(&content);
     }
     db_end_transaction(0);
-  }else if( memcmp(zCmd, "edit", nCmd)==0 ){
+  }else if( strncmp(zCmd, "edit", nCmd)==0 ){
     const char *zEditor;    /* Name of the text-editor command */
     const char *zTFile;     /* Temporary file */
     const char *zUVFile;    /* Name of the unversioned file */
@@ -397,7 +397,7 @@ void unversioned_cmd(void){
     unversioned_write(zUVFile, &content, mtime);
     db_end_transaction(0);
     blob_reset(&content);
-  }else if( memcmp(zCmd, "export", nCmd)==0 ){
+  }else if( strncmp(zCmd, "export", nCmd)==0 ){
     Blob content;
     verify_all_options();
     if( g.argc!=5 ) usage("export UVFILE OUTPUT");
@@ -406,11 +406,11 @@ void unversioned_cmd(void){
     }
     blob_write_to_file(&content, g.argv[4]);
     blob_reset(&content);
-  }else if( memcmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
+  }else if( strncmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
     /* Show the hash value used during uv sync */
     int debugFlag = find_option("debug",0,0)!=0;
     fossil_print("%s\n", unversioned_content_hash(debugFlag));
-  }else if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
+  }else if( strncmp(zCmd, "list", nCmd)==0 || strncmp(zCmd, "ls", nCmd)==0 ){
     Stmt q;
     int allFlag = find_option("all","a",0)!=0;
     int longFlag = find_option("l",0,0)!=0 || (nCmd>1 && zCmd[1]=='i');
@@ -466,14 +466,14 @@ void unversioned_cmd(void){
     }
     db_finalize(&q);
     sqlite3_free(zPattern);
-  }else if( memcmp(zCmd, "revert", nCmd)==0 ){
+  }else if( strncmp(zCmd, "revert", nCmd)==0 ){
     unsigned syncFlags =
         unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
-  }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0
-         || memcmp(zCmd, "delete", nCmd)==0 ){
+  }else if( strncmp(zCmd, "remove", nCmd)==0 || strncmp(zCmd, "rm", nCmd)==0
+         || strncmp(zCmd, "delete", nCmd)==0 ){
     int i;
     const char *zGlob;
     db_begin_transaction();
@@ -501,12 +501,12 @@ void unversioned_cmd(void){
     }
     db_unset("uv-hash", 0);
     db_end_transaction(0);
-  }else if( memcmp(zCmd,"sync",nCmd)==0 ){
+  }else if( strncmp(zCmd,"sync",nCmd)==0 ){
     unsigned syncFlags = unversioned_sync_flags(SYNC_UNVERSIONED);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
-  }else if( memcmp(zCmd, "touch", nCmd)==0 ){
+  }else if( strncmp(zCmd, "touch", nCmd)==0 ){
     int i;
     verify_all_options();
     db_begin_transaction();
