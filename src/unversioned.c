@@ -635,6 +635,7 @@ void uvlist_page(void){
     if( g.perm.Admin ){
       @ <td>
     }
+    @ <td>
     @ </tfoot>
     @ </table></div>
   }else{
