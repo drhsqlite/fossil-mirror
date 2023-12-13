@@ -308,9 +308,8 @@ void branch_prepare_list_query(
   brlist_create_temp_table();
   /* Ignore nLimitMRU if no chronological sort requested. */
   if( (brFlags & BRL_ORDERBY_MTIME)==0 ) nLimitMRU = 0;
-  /* Undocumented: invert negative values for nLimitMRU, so that command-line
-  ** arguments similar to `head -5' with "option numbers" are possible. */
-  if( nLimitMRU<0 ) nLimitMRU = -nLimitMRU;
+  /* Negative values for nLimitMRU also mean "no limit". */
+  if( nLimitMRU<0 ) nLimitMRU = 0;
   /* OUTER QUERY */
   blob_append_sql(&sql,"SELECT name, isprivate, mergeto,");
   if( brFlags & BRL_LIST_USERS ){
