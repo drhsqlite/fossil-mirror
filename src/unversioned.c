@@ -573,11 +573,13 @@ void uvlist_page(void){
     sqlite3_int64 mtime = db_column_int(&q, 1);
     const char *zHash = db_column_text(&q, 2);
     int isDeleted = zHash==0;
-    char *zAlgo = isDeleted ? "deleted" : strlen(zHash) == 40 ? "SHA1" : "SHA3-256";
+    const char *zAlgo;
     int fullSize = db_column_int(&q, 3);
     char *zAge = human_readable_age((iNow - mtime)/86400.0);
     const char *zLogin = db_column_text(&q, 4);
     int rcvid = db_column_int(&q,5);
+    if( isDeleted ) zAlgo = "deleted";
+    else zAlgo = hname_alg(strlen(zHash));
     if( zLogin==0 ) zLogin = "";
     if( (n++)==0 ){
       style_table_sorter();
