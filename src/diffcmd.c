@@ -1175,7 +1175,7 @@ const char *diff_get_binary_glob(void){
 ** output of "diff -u" on most unix systems).  Many alternative formats
 ** are available.  A few of the more useful alternatives:
 **
-**    --tk              Pop up a TCL/TK-based GUI to show the diff
+**    --tk              Pop up a Tcl/Tk-based GUI to show the diff
 **    --by              Show a side-by-side diff in the default web browser
 **    -b                Show a linear diff in the default web browser
 **    -y                Show a text side-by-side diff
@@ -1218,7 +1218,7 @@ const char *diff_get_binary_glob(void){
 **   --command PROG              External diff program. Overrides "diff-command"
 **   -c|--context N              Show N lines of context around each change, with
 **                               negative N meaning show all content
-**   --dark                      Use dark mode for the TCL/TK-based GUI and HTML
+**   --dark                      Use dark mode for the Tcl/Tk-based GUI and HTML
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
@@ -1230,8 +1230,8 @@ const char *diff_get_binary_glob(void){
 **   --numstat                   Show only the number of added and deleted lines
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
-**   --tcl                       TCL-formated output used internally by --tk
-**   --tclsh PATH                TCL/TK used for --tk (default: "tclsh")
+**   --tcl                       Tcl-formated output used internally by --tk
+**   --tclsh PATH                Tcl/Tk shell used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff
 **   --undo                      Diff against the "undo" buffer

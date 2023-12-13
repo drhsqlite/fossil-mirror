@@ -1,5 +1,5 @@
-C Modify\s[b1dc17a0aa]:\sUse\sthe\sAPIs\sfrom\shname.c\sto\sfind\shash\salgorithm\snames.
-D 2023-12-13T07:40:00.000
+C Use\sthe\sofficial\sspelling\sof\sTcl/Tk\sin\sthe\shelp\stexts\sfor\sthe\sdiff\scommands.
+D 2023-12-13T07:49:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -414,7 +414,7 @@ F src/descendants.c 6fa21312cf0d694c07f0bf8261ad585f46ae24dd415cc71614277ffb5a63
 F src/diff.c 38775290a2c83322ed20f0b0a18c8526e8c99a125e36fd852f3c77054781a5b8
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
-F src/diffcmd.c bd1abd359a839c2c07499d3f659d7d8859a374f381b2840fdc166d60d1885dbd
+F src/diffcmd.c 554be58608eaa02056965445d306fe4e5e0fbd185cfed80b0822e538833636f6
 F src/dispatch.c 5689a6949467df4fddc2d11b9866cb2ea47e2150866171e7cc8b798d308dfcfd
 F src/doc.c 15552ea105bd70eb99f4f2059a9fb68f824af5eddbcbe679a77d6cdb2e990ba8
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4fc47ad4a4694d1f3ac906d6fe37b0cd3e26e17d82cef603ca2220b655394f9
-R a3f7936caf4f657616714f3b50a8af14
+P a99a0fc08ba1f39eb0c21584d6f859f685b8e917ff354802c9e8d8d282391ffd
+R 0d7b40abfde23c65406c604375c36c8a
 U florian
-Z e71fd8b5c223e54f28f9ae349aa8dafd
+Z 7bde64edfccfd811845ef063f05a36d1
 # Remove this line to create a well-formed Fossil manifest.
