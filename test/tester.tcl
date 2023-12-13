@@ -32,6 +32,7 @@ set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
 set is_windows [expr {$::tcl_platform(platform) eq "windows"}]
+set is_cygwin [regexp {^CYGWIN} $::tcl_platform(os)]
 
 if {$::is_windows} {
   if {[string length [file extension $fossilexe]] == 0} {
@@ -514,7 +515,7 @@ proc test_cleanup {} {
 
 proc delete_temporary_home {} {
   if {$::KEEP} {return}; # All cleanup disabled?
-  if {$::is_windows} {
+  if {$::is_windows || $::is_cygwin} {
     robust_delete [file join $::tempHomePath _fossil]
   } else {
     robust_delete [file join $::tempHomePath .fossil]
