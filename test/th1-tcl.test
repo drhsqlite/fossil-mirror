@@ -131,7 +131,14 @@ requires Tcl 8.6 or higher.</p>}}
 fossil test-th-render --open-config \
     [file nativename [file join $path th1-tcl9.txt]]
 
-test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexe] 3 \
+# Under cygwin, the printed name with Usage: strips the extension
+if { $::is_cygwin && [file extension $fossilexe] eq ".exe" } {
+  set fossilexeref [string range $fossilexe 0 end-4]
+} else {
+  set fossilexeref $fossilexe
+}
+
+test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexeref] 3 \
 [list test-th-render --open-config [file nativename [file join $path \
 th1-tcl9.txt]]]]}
 

@@ -1,5 +1,5 @@
-C When\stesting,\sremove\s_fossil\sin\stemporary\shome\sfor\scygwin.
-D 2023-12-13T08:49:23.492
+C Fix\stest\sth1-tcl-9\sunder\scywing\sif\stesting\susing\sfossil.exe.
+D 2023-12-14T13:38:15.276
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -645,7 +645,7 @@ F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0f
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 9d7a194369977e87ec4e7ae45fb9f76a62875b43e88090b6f5e40c25a32018d4
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
-F test/th1-tcl.test 76e8c9e232702be54a41f425ec3fe373a6d8f9eb
+F test/th1-tcl.test f2b22ddc3263255d9ef744fb7b905af9028fe3a8e11ae005ab48e1a1611485b7
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a666efb6ae17575e2eae2bb341a0054753c05820b2c71d799761a16cb22e567
-R 76e54e619f80fe4279938121519e6bbd
-U Administrator
-Z 44fd9f3fbde55aba243a3f448bfd56de
+P 71d8cf46b48ce8e46a11fc6416d96f4253b11b8c3af5d8eba9738ef2a82e9c25
+R 6ce1561613956a86a2dabfb8eff13c82
+U preben
+Z 363231f4cc5b621fde9e1d57752aaf8b
 # Remove this line to create a well-formed Fossil manifest.
