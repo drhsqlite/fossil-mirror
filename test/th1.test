@@ -1023,7 +1023,7 @@ test th1-globalState-14 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-if {$is_windows} {
+if {$is_windows || $is_cygwin} {
   set altVfs win32-longpath
 } else {
   set altVfs unix-dotfile
