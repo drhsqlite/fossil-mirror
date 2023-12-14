@@ -48,9 +48,16 @@ set env(VISUAL) [appendArgs \
 
 ###############################################################################
 
+# Under cygwin, the printed name with Usage: strips the extension
+if { $::is_cygwin && [file extension $fossilexe] eq ".exe" } {
+  set fossilexeref [string range $fossilexe 0 end-4]
+} else {
+  set fossilexeref $fossilexe
+}
+
 fossil unversioned
 test unversioned-1 {[normalize_result] eq \
-[string map [list %fossil% [file nativename $fossilexe]] {Usage: %fossil%\
+[string map [list %fossil% [file nativename $fossilexeref]] {Usage: %fossil%\
 unversioned add|cat|edit|export|list|revert|remove|sync|touch}]}
 
 ###############################################################################
