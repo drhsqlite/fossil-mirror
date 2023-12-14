@@ -1165,19 +1165,17 @@ void whatis_artifact(
     const char *zType,    /* Artifact type filter */
     int mFlags            /* WHATIS_* flags */
 ){
-  const char* zNameTitle = "name:";
   int rid = symbolic_name_to_rid(zName, zType);
-  if( zFileName ){
-    fossil_print("%-12s%s\n", zNameTitle, zFileName);
-    zNameTitle = "hash:";
-  }
   if( rid<0 ){
     Stmt q;
     int cnt = 0;
     if( mFlags & WHATIS_REPO ){
       fossil_print("\nrepository: %s\n", g.zRepositoryName);
     }
-    fossil_print("%-12s%s (ambiguous)\n", zNameTitle, zName);
+    if( zFileName ){
+      fossil_print("%-12s%s\n", "name:", zFileName);
+    }
+    fossil_print("%-12s%s (ambiguous)\n", "hash:", zName);
     db_prepare(&q,
         "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
         zName, zName
@@ -1190,13 +1188,19 @@ void whatis_artifact(
   }else if( rid==0 ){
     if( (mFlags & WHATIS_OMIT_UNK)==0 ){
                  /* 0123456789 12 */
+      if( zFileName ){
+        fossil_print("%-12s%s\n", "name:", zFileName);
+      }
       fossil_print("unknown:    %s\n", zName);
     }
   }else{
     if( mFlags & WHATIS_REPO ){
       fossil_print("\nrepository: %s\n", g.zRepositoryName);
     }
-    fossil_print("%-12s%s\n", zNameTitle, zName);
+    if( zFileName ){
+      zName = zFileName;
+    }
+    fossil_print("%-12s%s\n", "name:", zName);
     whatis_rid(rid, mFlags);
   }
 }

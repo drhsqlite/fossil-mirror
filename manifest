@@ -1,5 +1,5 @@
-C Updated\sthe\schangelog\swith\sa\sfew\srecent\sdevelopments
-D 2023-12-14T03:21:33.531
+C Improve\s"whatis"\soutput\swhen\sin\s"filename"\smode\sand\sparse\ssupported\swhatis\noptions\swhen\susing\s"fossil\sall\swhatis".
+D 2023-12-14T16:29:30.502
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -376,7 +376,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c e83c8df009b48296b1348ebd3d0995714dbd844526ed7644ea320b3e1f1f9a72
+F src/allrepo.c 3a81ddac9c4e9a48a73e709c3be77cffa7787caea83ac3ef8246840fda1ab79e
 F src/attach.c 9ac10f887e29548fb4f917944e4815cdf967a20554c573a3b1b9939a8399a9f7
 F src/backlink.c 93d58763e00a9abe822dac4dca9d5b84213010ba286584d5de363524ec2786dd
 F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cdb5e
@@ -498,7 +498,7 @@ F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 53a5346bc58cad6913c39422f4e7db1e049c5d116f849e1825a5b77ab48dc2ae
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c dda78a871b81a30d4ce22074a511c2b2e9f4e33bf0f24be9e4a21e0942d0d132
+F src/name.c 9ed6ee484c99bcbdbdce1717bb82e87eb5143c6b1d7c386c492f59e48e57b8d1
 F src/patch.c c1b8761ea4f9e2c823cf011e6e25cd05925b0071e29f9c73d8e52a58bce70acb
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72859937fa52362bc108542119849876c6681ecd5ed3053bafb249f441145a04
-R 721ddf983ef0eb0ed041cd9807922b05
-U wyoung
-Z 657392a3c59c2c50844370489f193be2
+P 8d3b63e6e84d39027e64b652dc556b60f9c7dee6113a9ccb395e5b0ef3a0757f
+R c289dd52d897263e7f60e26a6aa44c3b
+U mgagnon
+Z cac0618440586ed3fc4d9f1e7c261ff9
 # Remove this line to create a well-formed Fossil manifest.
