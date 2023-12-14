@@ -434,8 +434,8 @@ SQLITE_INTERNAL_LINKAGE int ePutsUtf8(const char *z);
 #ifdef CONSIO_SPUTB
 SQLITE_INTERNAL_LINKAGE int
 fPutbUtf8(FILE *pfOut, const char *cBuf, int nAccept);
-#endif
 /* Like fPutbUtf8 except stream is always the designated output. */
+#endif
 SQLITE_INTERNAL_LINKAGE int
 oPutbUtf8(const char *cBuf, int nAccept);
 /* Like fPutbUtf8 except stream is always the designated error. */
@@ -1100,12 +1100,11 @@ zSkipValidUtf8(const char *z, int nAccept, long ccm){
 #endif /*!(defined(SQLITE_CIO_NO_UTF8SCAN)&&defined(SQLITE_CIO_NO_TRANSLATE))*/
 
 #ifndef SQLITE_CIO_NO_TRANSLATE
-
-#ifdef CONSIO_SPUTB
+# ifdef CONSIO_SPUTB
 SQLITE_INTERNAL_LINKAGE int
 fPutbUtf8(FILE *pfO, const char *cBuf, int nAccept){
   assert(pfO!=0);
-# if CIO_WIN_WC_XLATE
+#  if CIO_WIN_WC_XLATE
   PerStreamTags pst = PST_INITIALIZER; /* for unknown streams */
   PerStreamTags *ppst = getEmitStreamInfo(0, &pst, &pfO);
   if( pstReachesConsole(ppst) ){
@@ -1115,13 +1114,13 @@ fPutbUtf8(FILE *pfO, const char *cBuf, int nAccept){
     if( 0 == isKnownWritable(ppst->pf) ) restoreConsoleArb(ppst);
     return rv;
   }else {
-# endif
+#  endif
     return (int)fwrite(cBuf, 1, nAccept, pfO);
-# if CIO_WIN_WC_XLATE
+#  if CIO_WIN_WC_XLATE
   }
-# endif
+#  endif
 }
-#endif /* defined(CONSIO_SPUTB) */
+# endif
 
 SQLITE_INTERNAL_LINKAGE int
 oPutbUtf8(const char *cBuf, int nAccept){
@@ -1232,6 +1231,7 @@ SQLITE_INTERNAL_LINKAGE char* fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn){
 /************************* End ../ext/consio/console_io.c ********************/
 
 #ifndef SQLITE_SHELL_FIDDLE
+
 /* From here onward, fgets() is redirected to the console_io library. */
 # define fgets(b,n,f) fGetsUtf8(b,n,f)
 /*
@@ -1256,6 +1256,7 @@ SQLITE_INTERNAL_LINKAGE char* fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn){
 # define eputz(z) ePutsUtf8(z)
 # define eputf ePrintfUtf8
 # define oputb(buf,na) oPutbUtf8(buf,na)
+
 #else
 /* For Fiddle, all console handling and emit redirection is omitted. */
 # define sputz(fp,z) fputs(z,fp)
@@ -1339,7 +1340,7 @@ static void endTimer(void){
     sqlite3_int64 iEnd = timeOfDay();
     struct rusage sEnd;
     getrusage(RUSAGE_SELF, &sEnd);
-    oputf("Run Time: real %.3f user %f sys %f\n",
+    sputf(stdout, "Run Time: real %.3f user %f sys %f\n",
           (iEnd - iBegin)*0.001,
           timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
           timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
@@ -1418,7 +1419,7 @@ static void endTimer(void){
     FILETIME ftCreation, ftExit, ftKernelEnd, ftUserEnd;
     sqlite3_int64 ftWallEnd = timeOfDay();
     getProcessTimesAddr(hProcess,&ftCreation,&ftExit,&ftKernelEnd,&ftUserEnd);
-    oputf("Run Time: real %.3f user %f sys %f\n",
+    sputf(stdout, "Run Time: real %.3f user %f sys %f\n",
           (ftWallEnd - ftWallBegin)*0.001,
           timeDiff(&ftUserBegin, &ftUserEnd),
           timeDiff(&ftKernelBegin, &ftKernelEnd));
@@ -1715,14 +1716,14 @@ static int strlenChar(const char *z){
 */
 static FILE * openChrSource(const char *zFile){
 #if defined(_WIN32) || defined(WIN32)
-  struct _stat x = {0};
+  struct __stat64 x = {0};
 # define STAT_CHR_SRC(mode) ((mode & (_S_IFCHR|_S_IFIFO|_S_IFREG))!=0)
   /* On Windows, open first, then check the stream nature. This order
   ** is necessary because _stat() and sibs, when checking a named pipe,
   ** effectively break the pipe as its supplier sees it. */
   FILE *rv = fopen(zFile, "rb");
   if( rv==0 ) return 0;
-  if( _fstat(_fileno(rv), &x) != 0
+  if( _fstat64(_fileno(rv), &x) != 0
       || !STAT_CHR_SRC(x.st_mode)){
     fclose(rv);
     rv = 0;
@@ -14827,6 +14828,7 @@ static int dbdataNext(sqlite3_vtab_cursor *pCursor){
             bNextPage = 1;
           }else{
             iOff += dbdataGetVarintU32(&pCsr->aPage[iOff], &nPayload);
+            if( nPayload>0x7fffff00 ) nPayload &= 0x3fff;
           }
     
           /* If this is a leaf intkey cell, load the rowid */
@@ -27607,6 +27609,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     {"fk_no_action",       SQLITE_TESTCTRL_FK_NO_ACTION, 0, "BOOLEAN"       },
     {"imposter",         SQLITE_TESTCTRL_IMPOSTER,1,"SCHEMA ON/OFF ROOTPAGE"},
     {"internal_functions", SQLITE_TESTCTRL_INTERNAL_FUNCTIONS,0,""          },
+    {"json_selfcheck",     SQLITE_TESTCTRL_JSON_SELFCHECK ,0,"BOOLEAN"      },
     {"localtime_fault",    SQLITE_TESTCTRL_LOCALTIME_FAULT,0,"BOOLEAN"      },
     {"never_corrupt",      SQLITE_TESTCTRL_NEVER_CORRUPT,1, "BOOLEAN"       },
     {"optimizations",      SQLITE_TESTCTRL_OPTIMIZATIONS,0,"DISABLE-MASK"   },
@@ -27824,6 +27827,16 @@ static int do_meta_command(char *zLine, ShellState *p){
             rc2 = sqlite3_test_control(testctrl, p->db, opt);
             isOk = 3;
           }
+          break;
+        case SQLITE_TESTCTRL_JSON_SELFCHECK:
+          if( nArg==2 ){
+            rc2 = -1;
+            isOk = 1;
+          }else{
+            rc2 = booleanValue(azArg[2]);
+            isOk = 3;
+          }
+          sqlite3_test_control(testctrl, &rc2);
           break;
       }
     }
@@ -28711,14 +28724,14 @@ static void printBold(const char *zText){
          FOREGROUND_RED|FOREGROUND_INTENSITY
   );
 #endif
-  oputz(zText);
+  sputz(stdout, zText);
 #if !SQLITE_OS_WINRT
   SetConsoleTextAttribute(out, defaultScreenInfo.wAttributes);
 #endif
 }
 #else
 static void printBold(const char *zText){
-  oputf("\033[1m%s\033[0m", zText);
+  sputf(stdout, "\033[1m%s\033[0m", zText);
 }
 #endif
 
@@ -28912,10 +28925,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     }else if( cli_strcmp(z,"-init")==0 ){
       zInitFile = cmdline_option_value(argc, argv, ++i);
     }else if( cli_strcmp(z,"-interactive")==0 ){
-      /* Need to check for interactive override here to so that it can
-      ** affect console setup (for Windows only) and testing thereof.
-      */
-      stdin_is_interactive = 1;
     }else if( cli_strcmp(z,"-batch")==0 ){
       /* Need to check for batch mode here to so we can avoid printing
       ** informational messages (like from process_sqliterc) before
@@ -29185,11 +29194,14 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     }else if( cli_strcmp(z,"-bail")==0 ){
       /* No-op.  The bail_on_error flag should already be set. */
     }else if( cli_strcmp(z,"-version")==0 ){
-      oputf("%s %s (%d-bit)\n", sqlite3_libversion(), sqlite3_sourceid(),
-            8*(int)sizeof(char*));
+      sputf(stdout, "%s %s (%d-bit)\n",
+            sqlite3_libversion(), sqlite3_sourceid(), 8*(int)sizeof(char*));
       return 0;
     }else if( cli_strcmp(z,"-interactive")==0 ){
-      /* already handled */
+      /* Need to check for interactive override here to so that it can
+      ** affect console setup (for Windows only) and testing thereof.
+      */
+      stdin_is_interactive = 1;
     }else if( cli_strcmp(z,"-batch")==0 ){
       /* already handled */
     }else if( cli_strcmp(z,"-utf8")==0 ){
@@ -29318,13 +29330,13 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #else
 # define SHELL_CIO_CHAR_SET ""
 #endif
-      oputf("SQLite version %s %.19s%s\n" /*extra-version-info*/
+      sputf(stdout, "SQLite version %s %.19s%s\n" /*extra-version-info*/
             "Enter \".help\" for usage hints.\n",
             sqlite3_libversion(), sqlite3_sourceid(), SHELL_CIO_CHAR_SET);
       if( warnInmemoryDb ){
-        oputz("Connected to a ");
+        sputz(stdout, "Connected to a ");
         printBold("transient in-memory database");
-        oputz(".\nUse \".open FILENAME\" to reopen on a"
+        sputz(stdout, ".\nUse \".open FILENAME\" to reopen on a"
               " persistent database.\n");
       }
       zHistory = getenv("SQLITE_HISTORY");
