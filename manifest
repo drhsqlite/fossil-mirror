@@ -1,5 +1,5 @@
-C Fix\sa\snumber\sof\sunversioned\stests\sunder\scygwin\sby\sletting\she\sfake\seditor\sconvert\swindows\spaths\sto\sunix\spaths.
-D 2023-12-14T13:51:03.022
+C Disable\sthe\sbackoff\sis\sin\sunversioned\stests.\sPArticularly\susing\sCygwin,\sit\scan\scause\stest-framework\serrors\sfor\sthis\stest\sand\sany\ssubsequent\stests\sas\sthe\srepository\scannot\sbe\scleaned\sup\sif\sa\sbackoffice\sprocess\sis\ssleeping.
+D 2023-12-14T19:08:28.029
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -656,7 +656,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test c98457f5cd32d892af802bde595a415731aafd3e1af9cba60208cca962cbb803
-F test/unversioned.test c49a289b661a817dc664f3648f3d4b7d0e3e931826d4ff6ea21973200659b588
+F test/unversioned.test e0d752874d010ecab75fb5d326249c6132d621e3c023bd5525640619fb82bb43
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 785fc1ad4c79c42ad60a25abb82130a5578604b9955fa3599600ae6236d8af58
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f313c19e986b0d83e5894a48701dab92099bee82c98b6e40f926abb2fe02cff7
-R 1702410040baa01b75e84e81d9dd20ba
+P 84d86ba60ff83908351bda746298f143b0f29c1138c46302ee7f68ddcc809fc9
+R 49406891bd788d2febafbeec6fcc5bec
 U preben
-Z 04040fbf114f99ff0774a8bed992f11c
+Z cf9e17bf95f1c9beeb7586ec9bb2d856
 # Remove this line to create a well-formed Fossil manifest.

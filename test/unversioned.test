@@ -29,6 +29,9 @@ require_no_open_checkout
 
 test_setup; set rootDir [file normalize [pwd]]
 
+# Avoid delays from the backoffice.
+fossil set backoffice-disable 1
+
 fossil test-th-eval --open-config {repository}
 set repository [normalize_result]
 
