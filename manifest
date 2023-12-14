@@ -1,5 +1,5 @@
-C Fix\sunversioned-1\stest\sunder\scywing,\swhen\stesting\susing\sfossil.exe.
-D 2023-12-14T13:45:07.769
+C Fix\sa\snumber\sof\sunversioned\stests\sunder\scygwin\sby\sletting\she\sfake\seditor\sconvert\swindows\spaths\sto\sunix\spaths.
+D 2023-12-14T13:51:03.022
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -600,7 +600,7 @@ F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb
 F test/delta1.test 201f7f46d5c0d5a7bd7af565e5484d64f5af60a2aa8ce712c7c68c90e8b2ed7e
 F test/diff-test-1.wiki c62f7a5c91ad0fd43254091f748118a84d689b4d87755d0bc1ee0b006df7a24f
 F test/diff.test 1ed9a8119336471caba27bfd05fb551c0ddcc309c09a82c7bfeb8f4898eb04d8
-F test/fake-editor.tcl 0cd19289b39facabff88e67576312f7ce4477c221f5bd0ee1a04b815a5521a61
+F test/fake-editor.tcl 0c795f3bb07c4c24cc54c145d6e73e6bc55940b41ac55eb06f23d781e7e7cff3
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 57ada6bea09e70908d9525c41db62b915abfee58e5f7a702adda91e0c5c06a36
 F test/fileage-test-1.wiki 50661a791a5037d949534b42cfb1c8245687803fa46894f84a1ad458264d8501
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2060a49fe03ed9a8edc2a9365852e24da2831984ec44b0398265ccbd3ca095ba
-R e3d28ac2749644861c0869b7bef4e638
+P f313c19e986b0d83e5894a48701dab92099bee82c98b6e40f926abb2fe02cff7
+R 1702410040baa01b75e84e81d9dd20ba
 U preben
-Z 2cc714cf0a1fbc555454c161cb18d27d
+Z 04040fbf114f99ff0774a8bed992f11c
 # Remove this line to create a well-formed Fossil manifest.
