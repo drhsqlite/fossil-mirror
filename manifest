@@ -1,5 +1,5 @@
-C Moved\sthe\sdefault\srepo\sname\sfrom\sENTRYPOINT\sto\sCMD\sto\sallow\soverriding\nwith\s--repolist\sby\sthose\swanting\sthat\smode\sof\soperation.\s\sYou\scannot\ngive\sboth\sa\srepo\sname\sand\sthis\sflag,\sas\scorrectly\spointed\sout\sby\sckennedy\n[forum:/forumpost/da72faac39ad36bb\s|\son\sthe\sforum].
-D 2023-12-14T02:32:58.935
+C Updated\sthe\schangelog\swith\sa\sfew\srecent\sdevelopments
+D 2023-12-14T03:21:33.531
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -775,7 +775,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki ca4ab14c177709d993c3694f7eb869a79ca19a79c3d9efdaad731d0ae7ba209e
+F www/changes.wiki 0f2052d15a9625d11d5090af6ff206507bec5042ef25820b9db82cea7351066c
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 04658e093bf10552fbc8d4bb6bce7d48e3212f07469b2c263e220313f73ffebf
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2917bedadae3827c7fdb9e3c37ef4d69fe34fcdbdc1a5a482d13d315b9d1b798
-R a097e203cabe9ec72502bd5299d64fbf
+P 72859937fa52362bc108542119849876c6681ecd5ed3053bafb249f441145a04
+R 721ddf983ef0eb0ed041cd9807922b05
 U wyoung
-Z 62077809dd0b76b6c33a3ad10ae5470e
+Z 657392a3c59c2c50844370489f193be2
 # Remove this line to create a well-formed Fossil manifest.
