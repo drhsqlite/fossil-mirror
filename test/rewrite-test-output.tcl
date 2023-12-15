@@ -157,6 +157,8 @@ dict set tests "json" {
       {\1SIZE\2}
   {("user":").+?(")}
       {\1USER\2}
+  {("version":"YYYY-mm-dd HH:MM:SS )\[[0-9a-f]{10}\] \(\d+\.\d+\.\d+\)"}
+      {\1[HASH] (major.minor.patch)}
   {^(Date:) [A-Z][a-z]{2}, \d\d? [A-Z][a-z]{2} \d{4} \d\d:\d\d:\d\d [-+]\d{4}$}
       {\1 Day, dd Mon YYYY HH:MM:SS TZ}
 }
