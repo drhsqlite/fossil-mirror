@@ -1,6 +1,6 @@
 /**
    This file contains the client-side implementation of fossil's /chat
-   application. 
+   application.
 */
 window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
@@ -9,6 +9,7 @@ window.fossil.onPageLoad(function(){
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
+
   /**
      Returns true if e is entirely within the bounds of the window's viewport.
   */
@@ -398,6 +399,11 @@ window.fossil.onPageLoad(function(){
              laid out in a compact form. When off, the edit field and
              buttons are larger. */
           "edit-compact-mode": true,
+          /* See notes for this setting in fossil.page.wikiedit.js.
+             Both /wikiedit and /fileedit share this persistent config
+             option under the same storage key. */
+          "edit-shift-enter-preview":
+            F.storage.getBool('edit-shift-enter-preview', true),
           /* When on, sets the font-family on messages and the edit
              field to monospace. */
           "monospace-messages": false,
@@ -1501,7 +1507,7 @@ window.fossil.onPageLoad(function(){
         Chat.setCurrentView(Chat.e.viewMessages);
       }else if(!text){
         f.$toggleCompact(compactMode);
-      }else{
+      }else if(Chat.settings.getBool('edit-shift-enter-preview', true)){
         Chat.e.btnPreview.click();
       }
       return false;
@@ -1517,7 +1523,7 @@ window.fossil.onPageLoad(function(){
       //console.debug("!ctrlMode && ev.ctrlKey && text.");
       /* Ctrl-enter in Enter-sends mode SHOULD, with this logic add a
          newline, but that is not happening, for unknown reasons
-         (possibly related to this element being a conteneditable DIV
+         (possibly related to this element being a contenteditable DIV
          instead of a textarea). Forcibly appending a newline do the
          input area does not work, also for unknown reasons, and would
          only be suitable when we're at the end of the input.
@@ -1535,7 +1541,7 @@ window.fossil.onPageLoad(function(){
       Chat.submitMessage();
       return false;
     }
-  };  
+  };
   Chat.e.inputFields.forEach(
     (e)=>e.addEventListener('keydown', inputWidgetKeydown, false)
   );
@@ -1669,6 +1675,13 @@ window.fossil.onPageLoad(function(){
           "plain-text input fields, browser-specific quirks and bugs ",
           "may lead to frustration. Ideal for mobile devices."
         ].join('')
+      },{
+        label: "Shift-enter to preview",
+        hint: ["Use shift-enter to preview being-edited messages. ",
+               "This is normally desirable but some software-mode ",
+               "keyboards misinteract with this, in which cases it can be ",
+               "disabled."],
+        boolValue: 'edit-shift-enter-preview'
       }]
     },{
       label: "Appearance Options...",

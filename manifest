@@ -1,5 +1,5 @@
-C In\s/wikiedit\sand\s/fileedit,\sadd\sa\scheckbox\sto\sdisable\sshift-enter\sfor\stoggling\spreview,\sas\sper\sdiscussion\sin\s[forum:dbd5b68366147ce8|forum\spost\sdbd5b68366147ce8].
-D 2023-12-16T01:10:53.155
+C Add\sthe\sshift-enter\stoggle\sconfig\soption\sto\s/chat,\ssharing\sthe\ssame\spersistent\sconfig\skey\sas\s/wikiedit\sand\s/fileedit.
+D 2023-12-16T01:39:19.383
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 44287811e62e8592cc75ee234c3ddff813cd12c326ff20283e33f8f5aad6aa72
+F src/fossil.page.chat.js ece252cd0467bca46967f4d6b507b7e53ce733ede9b4352d45ec1527e491af8b
 F src/fossil.page.fileedit.js 7cdf2f25ea562173c24983f8aa9160bebfee30a9ca5dda4d42b543eeaa891755
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
@@ -950,11 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70cae0a964299bb22c02e2da0d2be0ad604870a6cc90bcde4a8b6cc56abd2166
-R 7227b2339783daeaf318db301ab509d7
-T *branch * shift-enter-preview
-T *sym-shift-enter-preview *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 8c1c4fa985780a3e98ef36a3a95a8e8248dee4429b9c0fe06dceb82e345dc664
+R d2a92a3f629acf2c32b8c89556553988
 U stephan
-Z c9ad11004f658f1f925e6a93999ad01e
+Z c3ec5d8a82c75cb464a323d84b1d1a42
 # Remove this line to create a well-formed Fossil manifest.
