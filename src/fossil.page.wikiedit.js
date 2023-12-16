@@ -77,7 +77,20 @@
       save: false,
       reload: true,
       discardStash: true
-    }
+    },
+    /**
+       If true, a keyboard combo of shift-enter (from the editor)
+       toggles between preview and edit modes.  This is normally
+       desired but at least one software keyboard is known to
+       misinteract with this, treating an Enter after
+       automatically-capitalized letters as a shift-enter:
+
+       https://fossil-scm.org/forum/forumpost/dbd5b68366147ce8
+
+       Maintenance note: /fileedit also uses this same key for the
+       same purpose.
+    */
+    shiftEnterPreview: F.storage.getBool('edit-shift-enter-preview', true)
   };
 
   /**
@@ -456,7 +469,7 @@
       D.enable(sel);
       if(P.winfo) sel.value = P.winfo.name;
     },
-    
+
     /** Loads the page list and populates the selection list. */
     loadList: function callee(){
       if(!callee.onload){
@@ -653,7 +666,7 @@
         D.append(D.addClass(D.div(), 'fieldset-wrapper'),
                  fsFilter, fsNewPage, fsLegend)
       );
-      
+
       D.append(parentElem, btn);
       btn.addEventListener('click', ()=>this.loadList(), false);
       this.loadList();
@@ -676,8 +689,15 @@
           F.error("BUG: internal mis-handling of page object: missing OPTION for page "+page.name);
         }
       });
+
+      const cbEditPreview = E('#edit-shift-enter-preview');
+      cbEditPreview.addEventListener('change', function(e){
+        F.storage.set('edit-shift-enter-preview',
+                      P.config.shiftEnterPreview = e.target.checked);
+      }, false);
+      cbEditPreview.checked = P.config.shiftEnterPreview;
       delete this.init;
-    }
+    }/*init()*/
   };
 
   /**
@@ -916,7 +936,7 @@
     // Trigger preview on Ctrl-Enter. This only works on the built-in
     // editor widget, not a client-provided one.
     P.e.taEditor.addEventListener('keydown',function(ev){
-      if(ev.shiftKey && 13 === ev.keyCode){
+      if(P.config.shiftEnterPreview && ev.shiftKey && 13===ev.keyCode){
         ev.preventDefault();
         ev.stopPropagation();
         P.e.taEditor.blur(/*force change event, if needed*/);
