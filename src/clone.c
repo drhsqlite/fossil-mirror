@@ -250,8 +250,15 @@ void clone_cmd(void){
       if( zOldProjCode==0 ) fossil_fatal("project-id missing from repository");
       if( zCloneCode==0 ) fossil_fatal("clone-code missing from repository");
       fossil_print("Resuming clone of project-id %s\n",zOldProjCode);
+      db_unprotect(PROTECT_USER);
+      db_multi_exec("DELETE FROM user WHERE cap LIKE '%%s%%'");
+      db_protect_pop();
       db_create_default_users(1, zDefaultUser);
-      if( zDefaultUser ) g.zLogin = zDefaultUser;
+      if( zDefaultUser ){
+        g.zLogin = zDefaultUser;
+      }else{
+        g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
+      }
       user_select();
     }else{
       db_create_repository(zRepo);
