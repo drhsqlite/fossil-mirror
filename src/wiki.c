@@ -1251,6 +1251,22 @@ void wiki_ajax_page(void){
 }
 
 /*
+** Emits a preview-toggle option widget for /wikiedit and /fileedit.
+*/
+void wikiedit_emit_toggle_preview(void){
+  CX("<div class='input-with-label'>"
+     "<input type='checkbox' id='edit-shift-enter-preview' "
+     "></input><label for='edit-shift-enter-preview'>"
+     "Shift-enter previews</label>"
+     "<div class='help-buttonlet'>"
+     "When enabled, shift-enter switches between preview and edit modes. "
+     "Some software-based keyboards misinteract with this, so it can be "
+     "disabled when needed."
+     "</div>"
+     "</div>");
+}
+
+/*
 ** WEBPAGE: wikiedit
 ** URL: /wikedit?name=PAGENAME
 **
@@ -1313,7 +1329,7 @@ void wikiedit_page(void){
      "<span class='name'></span>"
      "<span class='links'></span>"
      "</div>");
-  
+
   /* Main tab container... */
   CX("<div id='wikiedit-tabs' class='tab-container'>Loading...</div>");
   /* The .hidden class on the following tab elements is to help lessen
@@ -1373,7 +1389,7 @@ void wikiedit_page(void){
        "a few seconds or it will not reload."
        "</div>"
        "</div>");
-
+    wikiedit_emit_toggle_preview();
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
