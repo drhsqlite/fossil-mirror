@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sthat\sis\sdestined\sto\nbecome\s3.45.0\ssomeday.\s\sThis\sis\sbeta-testing\sfor\sSQLite.
-D 2023-12-14T17:24:49.650
+C Remove\sthe\swrite-perms\scheck\sfrom\sthe\s/ajax/preview-text\sroute\sso\sthat\sfolks\swithout\scheckin\spermissions\scan\suse\s/chat.\sProblem\sreported\sin\s[forum:ed4a762b3a557898|forum\spost\sed4a762b3a557898].\sSome\scode-adjacent\send-of-line\swhitespace\scleanups.
+D 2023-12-22T14:27:09.295
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -369,7 +369,7 @@ F skins/xekri/header.txt e75e1af0572c2cfe44e3882d18e0f71aac5fecc504b9a193205c9b7
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c a5e924841c9686f69ed6fd228ef2f28b913405cb5d26bf4f287571559154cee9
-F src/ajax.c 4712d4dc6810a8027a4669ce73e32b2d95cc787eac17531242d6697d4cc3014b
+F src/ajax.c caf28a8fdda103acbe9048eeed84f6b2cb1fb3545c1c68f38da66ea44f576e01
 F src/alerts.c 453cdb31558000870eacf425abfcafb1385f358ae783ba1ab52fb2cf7c6d94bb
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
@@ -436,13 +436,13 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 44287811e62e8592cc75ee234c3ddff813cd12c326ff20283e33f8f5aad6aa72
-F src/fossil.page.fileedit.js 4bd9081e09dc280d4273d27cf7aeee8374257b3d59c254680140dc07bf38ce74
+F src/fossil.page.chat.js 81f6e03d5501138187f15385f65ef949ca4ffb39beeccaf919d47af5317722f7
+F src/fossil.page.fileedit.js e54ed4e4280c254e8f214abe194a782c5af30ceb0dcb3c69afcbee2aa91b160a
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
 F src/fossil.page.pikchrshowasm.js d8fb5d98d95b80c816959deb84deec2401c991c35aafab11f9b002da2764282d
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
-F src/fossil.page.wikiedit.js aa823d629f61df524e8d1a37b683152f7378b48f8f8d381142862dd3536f016f
+F src/fossil.page.wikiedit.js a21ace29ca3ae5f8d333164ec85146fdb90714cd7de354cd2d64af4d2808ef6f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
 F src/fossil.popupwidget.js f91c1385bcbb45c9925f159926591e91df71a97e7ea111e3bc9d8a0ef7be3b96
 F src/fossil.storage.js 767a7eba00b6ffbed8aba7fab3b9b4a1eb3052cb9d0730b2bd96941baa7627a9
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1e9da26f68fe963e203063852f8e19910d8ecf8ee4c6f8f1b030c830411aa5b
-R 5e80c9315781edc361817b0bf57dbbde
-U drh
-Z e41169dfb90e6aee7cf6a39988fc5652
+P 70cae0a964299bb22c02e2da0d2be0ad604870a6cc90bcde4a8b6cc56abd2166
+R a88ad243848dcaace56af85a80ac0d76
+U stephan
+Z f039033ee32bd0a5274a094a79cfa6e9
 # Remove this line to create a well-formed Fossil manifest.

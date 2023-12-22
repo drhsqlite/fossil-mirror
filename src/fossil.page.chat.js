@@ -1967,7 +1967,7 @@ window.fossil.onPageLoad(function(){
     };
     btnPreview.addEventListener('click', submit, false);
   })()/*message preview setup*/;
-  
+
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is
       appended to the end of the chat list (for loading older

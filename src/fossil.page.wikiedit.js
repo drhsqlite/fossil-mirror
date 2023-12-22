@@ -1463,7 +1463,7 @@
       F.pikchr.addSrcView(target.querySelectorAll('svg.pikchr'));
     }
   };
-  
+
   /**
      Callback for use with F.connectPagePreviewers()
   */

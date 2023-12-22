@@ -572,7 +572,7 @@
       });
     }
   }/*P.stashWidget*/;
-  
+
   /**
      Internal workaround to select the current preview mode
      and fire a change event if the value actually changes
@@ -1163,7 +1163,7 @@
       F.pikchr.addSrcView(target.querySelectorAll('svg.pikchr'));
     }
   };
-  
+
   /**
      Callback for use with F.connectPagePreviewers()
   */
