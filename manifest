@@ -1,5 +1,5 @@
-C Add\soption\sto\sdisable\sthe\sshift-enter\spreview\shotkey\sin\s/wikiedit,\s/fileedit,\sand\s/chat\sas\sa\sworkaround\sfor\ssoftware\skeyboards\swhich\sreport\sthe\sshift\skey\sbeing\spressed\swhen\sauto-capitalizing\stext,\sper\sdiscussion\sin\s[forum:dbd5b68366147ce8|forum\spost\sdbd5b68366147ce8].
-D 2023-12-22T14:32:24.282
+C Fix\s/whistory\spage:\sprevent\s<var>csrf</var>\sparameter\sfrom\sappearing\nwithin\sa\squery\sstring\swhen\srequesting\sa\s<tt>diff</tt>.\n\n<var>csrf</var>\sstarted\sto\sappear\sin\sa\squery\sdue\sto\n<tt>[/timeline?r=csrf-defense-enhancement|csrf-defense-enhancement]</tt>:\n<code>form_begin()</code>\n[/fdiff?v1=9ab558549b3ca653&v2=b86a42cf7932f1cd|unconditionally\sgenerates]\na\shidden\sinput\swith\s<var>csrf</var>\stoken\ssince\s[88a402fe2a5641].\nThis\scheck-in\saddapts\s/whistory\spage\sto\sthe\snew\sbehaviour.
+D 2023-12-24T15:22:17.204
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -441,7 +441,7 @@ F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f2
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
 F src/fossil.page.pikchrshowasm.js d8fb5d98d95b80c816959deb84deec2401c991c35aafab11f9b002da2764282d
-F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
+F src/fossil.page.whistory.js 25d9059c9670337d0e2b9e22d791be209a3be77ebd5ff1a985dfaecef64d0e36
 F src/fossil.page.wikiedit.js a0f1709b25d47957c97055b9ad57f64e5fd858ba676a95dbbb9992bbe0b0a79f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
 F src/fossil.popupwidget.js f91c1385bcbb45c9925f159926591e91df71a97e7ea111e3bc9d8a0ef7be3b96
@@ -950,9 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0c6e669a7b0eacb2157464e7795d4bf08bb491672ab157d970fe99ca6962d5e4 895ecf9e4d17d07992c75277cf8ea758f02a2df026e7a451c3a14972bb649ef5
-R 1b4d8503ac5b00e0bf2c53b440f9d7e5
-T +closed 895ecf9e4d17d07992c75277cf8ea758f02a2df026e7a451c3a14972bb649ef5 Closed\sby\sintegrate-merge.
-U stephan
-Z 43b43b310676d36e1ee9b83822fbbdb8
+P 4bb5515caefa6826fa2f0d54b5d6f5f22dba097323295427175b6d059fceeed8
+R 6ef92b858122fb51ebba6ea58dc1e9a4
+U george
+Z 7bdfcbe26355db3f1df257603299956f
 # Remove this line to create a well-formed Fossil manifest.
