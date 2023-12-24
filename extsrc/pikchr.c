@@ -5110,7 +5110,7 @@ static void pik_error_context(Pik *p, PToken *pErr, int nContext){
   int iFirstLineno;     /* Line number of start of error context */
   int i;                /* Loop counter */
   int iBump = 0;        /* Bump the location of the error cursor */
-  char zLineno[20];     /* Buffer in which to generate line numbers */
+  char zLineno[24];     /* Buffer in which to generate line numbers */
 
   iErrPt = (int)(pErr->z - p->sIn.z);
   if( iErrPt>=(int)p->sIn.n ){
