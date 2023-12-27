@@ -286,7 +286,7 @@ void all_cmd(void){
     collect_argument(&extra, "noverify",0);
     collect_argument_value(&extra, "pagesize", 0);
     collect_argument(&extra, "vacuum",0);
-    collect_argument(&extra, "deanalyze",0);
+    collect_argument(&extra, "deanalyze",0); /* Legacy only - not recommended */
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);

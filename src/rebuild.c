@@ -658,7 +658,6 @@ void repack_command(void){
 **   --cluster         Compute clusters for unclustered artifacts
 **   --compress        Strive to make the database as small as possible
 **   --compress-only   Skip the rebuilding step. Do --compress only
-**   --deanalyze       Remove ANALYZE tables from the database
 **   --force           Force the rebuild to complete even if errors are seen
 **   --ifneeded        Only do the rebuild if it would change the schema version
 **   --index           Always add in the full-text search index
@@ -693,7 +692,7 @@ void rebuild_database(void){
   forceFlag = find_option("force","f",0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
-  runDeanalyze = find_option("deanalyze",0,0)!=0;
+  runDeanalyze = find_option("deanalyze",0,0)!=0; /* Legacy only. */
   runAnalyze = find_option("analyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
