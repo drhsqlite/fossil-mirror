@@ -62,7 +62,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** user.  This command performs certain operations on all repositories
 ** that can be useful before or after a period of disconnected operation.
 **
-** On Win32 systems, the file is named "_fossil" and is located in
+** On Win32 systems, the file is named "_FOSSIL_" and is located in
 ** %LOCALAPPDATA%, %APPDATA% or %HOMEPATH%.
 **
 ** Available operations are:
