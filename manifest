@@ -1,5 +1,5 @@
-C Backout\s[b53ee919]\s-\sthe\sdocs\swere\scorrectly\sreferring\sto\sthe\sWindows\s_fossil\sconfig\sdb,\snot\sthe\s_FOSSIL_\scheckout\sdb.
-D 2023-12-28T16:54:02.848
+C Publish\sthe\s--analyze\soption\sfor\s"rebuild"\sin\sthe\s"fossil\sall"\scommand.
+D 2023-12-31T12:53:47.696
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -376,7 +376,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c eeedd4aef020ed0f581522c20b9dc7962f003c868fa18e684f4eb8811f60413c
+F src/allrepo.c 7485c466d239fe809206f463ef978087bc954dca5def77ac7257e37dca99f0ff
 F src/attach.c 9ac10f887e29548fb4f917944e4815cdf967a20554c573a3b1b9939a8399a9f7
 F src/backlink.c 93d58763e00a9abe822dac4dca9d5b84213010ba286584d5de363524ec2786dd
 F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cdb5e
@@ -509,7 +509,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 55969293e294bdf28743924dece909d368d9d0fb15f58761caf4255acfd94398
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
-F src/rebuild.c 1d68936f7ed993bd0a1ed01230525433459d621ac6c289d1e02a9420b3b7aded
+F src/rebuild.c cb738c7aa6f5f2260622412c300646b8fcb836b21dcdb1b500e9ac79a8bc690b
 F src/regexp.c 0ac48c9004c871cca69f123bd0e806be271592a7121ee7bdea80ddbe0fd5a609
 F src/repolist.c bd7d0525d04927b3850a0ad14a96afb482a258b2c52c058dfc26909c190c5af4
 F src/report.c 553e5cbe86e2684bbcf3ee0ac7916db9aebc644c42bbb245048a208b9cfc8f51
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b53ee9190f24e3956bbf3eb8ba3ef7a806c46966a8538135e670ed896940cd4b
-R 504e005ed4eac430fdf7cee7db4efee1
-U stephan
-Z 8b1936fb0396fe6c95a21f7bddf481bc
+P bfdfa3ed72c99594bbe73b583549e0156e6355f6591a33988aed5c819be15707
+R 42f0ecb39b065675ef7c50dbf97ab73c
+U drh
+Z 736aabe8244f6d02f6a83bab6d5074b0
 # Remove this line to create a well-formed Fossil manifest.

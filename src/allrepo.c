@@ -280,13 +280,14 @@ void all_cmd(void){
     collect_argument(&extra, "share-links",0);
   }else if( fossil_strcmp(zCmd, "rebuild")==0 ){
     zCmd = "rebuild";
+    collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "cluster",0);
     collect_argument(&extra, "compress",0);
     collect_argument(&extra, "compress-only",0);
     collect_argument(&extra, "noverify",0);
     collect_argument_value(&extra, "pagesize", 0);
     collect_argument(&extra, "vacuum",0);
-    collect_argument(&extra, "deanalyze",0); /* Legacy only - not recommended */
+    collect_argument(&extra, "deanalyze",0); /* Deprecated */
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);

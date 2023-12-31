@@ -692,7 +692,7 @@ void rebuild_database(void){
   forceFlag = find_option("force","f",0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
-  runDeanalyze = find_option("deanalyze",0,0)!=0; /* Legacy only. */
+  runDeanalyze = find_option("deanalyze",0,0)!=0; /* Deprecated */
   runAnalyze = find_option("analyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
