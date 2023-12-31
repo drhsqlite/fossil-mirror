@@ -775,6 +775,11 @@ void repo_stat1_page(void){
   if( !g.perm.Admin ){ login_needed(0); return; }
   bTabular = PB("tabular");
 
+  if( P("analyze")!=0 ){
+    db_multi_exec("ANALYZE");
+  }else if( P("analyze200")!=0 ){
+    db_multi_exec("PRAGMA analysis_limit=200; ANALYZE;");
+  }
   style_set_current_feature("stat");
   style_header("Repository STAT1 Table");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -811,6 +816,14 @@ void repo_stat1_page(void){
     }
     db_finalize(&q);
   }
+  @ <p><form method="POST">
+  if( bTabular ){
+    @ <input type="hidden" name="tabular" value="1">
+  }
+  @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
+  @ <input type="submit" name="analyze200"\
+  @  value="Run ANALYZE with limit=200">
+  @ </form>
   style_finish_page();
 }
 
