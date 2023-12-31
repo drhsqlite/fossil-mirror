@@ -429,13 +429,16 @@ static void stash_diff(
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     Blob a, b;
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zNew);
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       diff_print_index(zNew, pCfg, 0);
       diff_file_mem(&empty, &a, zNew, pCfg);
     }else if( isRemoved ){
       if( !bWebpage) fossil_print("DELETE %s\n", zOrig);
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       diff_print_index(zNew, pCfg, 0);
       if( fBaseline ){
         content_get(rid, &a);

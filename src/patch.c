@@ -801,8 +801,10 @@ static void patch_diff(
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 0);
 
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( db_column_type(&q,3)==SQLITE_NULL ){
       if( !bWebpage ) fossil_print("DELETE %s\n", zName);
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       diff_print_index(zName, pCfg, 0);
       content_get(rid, &a);
       diff_file_mem(&a, &empty, zName, pCfg);
@@ -810,6 +812,7 @@ static void patch_diff(
       db_ephemeral_blob(&q, 3, &a);
       blob_uncompress(&a, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zName);
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       diff_print_index(zName, pCfg, 0);
       diff_file_mem(&empty, &a, zName, pCfg);
       blob_reset(&a);

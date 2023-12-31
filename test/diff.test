@@ -131,4 +131,32 @@ test diff-file-6-1 {[normalize_result] eq {========== file6a.dat ===== versus ==
 
 ###############################################################################
 
+fossil rm file1.dat
+fossil diff -v file1.dat
+
+test diff-deleted-file-1 {[normalize_result] eq {DELETED  file1.dat
+Index: file1.dat
+==================================================================
+--- file1.dat
++++ /dev/null
+@@ -1,1 +0,0 @@
+-test file 1 (one line no term).}}
+
+###############################################################################
+
+write_file file6.dat "test file 6 (one line no term)."
+fossil add file6.dat
+
+fossil diff -v file6.dat
+
+test diff-added-file-1 {[normalize_result] eq {ADDED    file6.dat
+Index: file6.dat
+==================================================================
+--- /dev/null
++++ file6.dat
+@@ -0,0 +1,1 @@
++test file 6 (one line no term).}}
+
+###############################################################################
+
 test_cleanup

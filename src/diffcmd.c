@@ -163,6 +163,9 @@ void diff_print_filenames(
   Blob *pOut              /* Write to this blob, or stdout of this is NULL */
 ){
   u64 diffFlags = pCfg->diffFlags;
+  /* Standardize on /dev/null, regardless of platform. */
+  if( pCfg->diffFlags & DIFF_FILE_ADDED ) zLeft = "/dev/null";
+  if( pCfg->diffFlags & DIFF_FILE_DELETED ) zRight = "/dev/null";
   if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
@@ -576,7 +579,7 @@ void diff_file(
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
-    if( file_size(zFile2, ExtFILE)<0 ){
+    if( pCfg->diffFlags & DIFF_FILE_DELETED || file_size(zFile2, ExtFILE)<0 ){
       zName2 = NULL_DEVICE;
     }else{
       blob_read_from_file(&file2, zFile2, ExtFILE);
@@ -607,6 +610,7 @@ void diff_file(
   }else{
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
     Blob cmd;          /* Text of command to run */
+    int useTempfile = 1;
 
     if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
       Blob file2;
@@ -638,7 +642,16 @@ void diff_file(
     /* Construct a temporary file to hold pFile1 based on the name of
     ** zFile2 */
     file_tempname(&nameFile1, zFile2, "orig");
-    blob_write_to_file(pFile1, blob_str(&nameFile1));
+#if !defined(_WIN32)
+    /* On Unix, use /dev/null for added or deleted files. */
+    if( pCfg->diffFlags & DIFF_FILE_ADDED ){
+      blob_init(&nameFile1, NULL_DEVICE, -1);
+      useTempfile = 0;
+    }else if( pCfg->diffFlags & DIFF_FILE_DELETED ){
+      zFile2 = NULL_DEVICE;
+    }
+#endif
+    if( useTempfile ) blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
     blob_zero(&cmd);
@@ -655,7 +668,7 @@ void diff_file(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    file_delete(blob_str(&nameFile1));
+    if( useTempfile ) file_delete(blob_str(&nameFile1));
     blob_reset(&nameFile1);
     blob_reset(&cmd);
   }
@@ -699,6 +712,8 @@ void diff_file_mem(
     Blob cmd;
     Blob temp1;
     Blob temp2;
+    int useTempfile1 = 1;
+    int useTempfile2 = 1;
 
     if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
       if( looks_like_binary(pFile1) || looks_like_binary(pFile2) ){
@@ -716,11 +731,21 @@ void diff_file_mem(
       }
     }
 
-    /* Construct a temporary file names */
+    /* Construct temporary file names */
     file_tempname(&temp1, zName, "before");
     file_tempname(&temp2, zName, "after");
-    blob_write_to_file(pFile1, blob_str(&temp1));
-    blob_write_to_file(pFile2, blob_str(&temp2));
+#if !defined(_WIN32)
+    /* On Unix, use /dev/null for added or deleted files. */
+    if( pCfg->diffFlags & DIFF_FILE_ADDED ){
+      useTempfile1 = 0;
+      blob_init(&temp1, NULL_DEVICE, -1);
+    }else if( pCfg->diffFlags & DIFF_FILE_DELETED ){
+      useTempfile2 = 0;
+      blob_init(&temp2, NULL_DEVICE, -1);
+    }
+#endif
+    if( useTempfile1 ) blob_write_to_file(pFile1, blob_str(&temp1));
+    if( useTempfile2 ) blob_write_to_file(pFile2, blob_str(&temp2));
 
     /* Construct the external diff command */
     blob_zero(&cmd);
@@ -732,8 +757,8 @@ void diff_file_mem(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    file_delete(blob_str(&temp1));
-    file_delete(blob_str(&temp2));
+    if( useTempfile1 ) file_delete(blob_str(&temp1));
+    if( useTempfile2 ) file_delete(blob_str(&temp2));
 
     blob_reset(&temp1);
     blob_reset(&temp2);
@@ -852,22 +877,27 @@ void diff_against_disk(
       blob_append(&fname, zPathname, -1);
     }
     zFullName = blob_str(&fname);
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( isDeleted ){
       if( !isNumStat ){ fossil_print("DELETED  %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
     }else if( file_access(zFullName, F_OK) ){
       if( !isNumStat ){ fossil_print("MISSING  %s\n", zPathname); }
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
       if( !isNumStat ){ fossil_print("ADDED    %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
       if( !isNumStat ){ fossil_print("ADDED_BY_MERGE %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==5 ){
       if( !isNumStat ){ fossil_print("ADDED_BY_INTEGRATE %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
@@ -884,7 +914,10 @@ void diff_against_disk(
       }else{
         blob_zero(&content);
       }
-      if( isChnged==0 || !file_same_as_blob(&content, zFullName) ){
+      if( isChnged==0
+       || pCfg->diffFlags & DIFF_FILE_DELETED
+       || !file_same_as_blob(&content, zFullName)
+      ){
         diff_print_index(zPathname, pCfg, pOut);
         diff_file(&content, zFullName, zPathname, pCfg, pOut);
       }
@@ -1013,11 +1046,13 @@ static void diff_two_versions(
     }else{
       cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
     }
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( cmp<0 ){
       if( file_dir_match(pFileDir, pFromFile->zName) ){
         if( (pCfg->diffFlags & (DIFF_NUMSTAT|DIFF_HTML))==0 ){
           fossil_print("DELETED %s\n", pFromFile->zName);
         }
+        pCfg->diffFlags |= DIFF_FILE_DELETED;
         if( asNewFlag ){
           diff_manifest_entry(pFromFile, 0, pCfg);
         }
@@ -1029,6 +1064,7 @@ static void diff_two_versions(
              (DIFF_NUMSTAT|DIFF_HTML|DIFF_TCL|DIFF_JSON))==0 ){
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
+        pCfg->diffFlags |= DIFF_FILE_ADDED;
         if( asNewFlag ){
           diff_manifest_entry(0, pToFile, pCfg);
         }

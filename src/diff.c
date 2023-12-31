@@ -53,6 +53,13 @@
 #define DIFF_DARKMODE          0x00400000 /* Use dark mode for HTML */
 
 /*
+** Per file information that may influence output.
+*/
+#define DIFF_FILE_ADDED        0x40000000 /* Added or rename destination */
+#define DIFF_FILE_DELETED      0x80000000 /* Deleted or rename source */
+#define DIFF_FILE_MASK         0xc0000000 /* Used for clearing file flags */
+
+/*
 ** These error messages are shared in multiple locations.  They are defined
 ** here for consistency.
 */
