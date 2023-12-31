@@ -22172,7 +22172,6 @@ static void open_db(ShellState *p, int openFlags){
         break;
       }
     }
-    globalDb = p->db;
     if( p->db==0 || SQLITE_OK!=sqlite3_errcode(p->db) ){
       eputf("Error: unable to open database \"%s\": %s\n",
             zDbFilename, sqlite3_errmsg(p->db));
@@ -22189,6 +22188,7 @@ static void open_db(ShellState *p, int openFlags){
               zDbFilename);
       }
     }
+    globalDb = p->db;
     sqlite3_db_config(p->db, SQLITE_DBCONFIG_STMT_SCANSTATUS, (int)0, (int*)0);
 
     /* Reflect the use or absence of --unsafe-testing invocation. */
