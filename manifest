@@ -1,5 +1,5 @@
-C Provide\sbuttons\sto\srun\sANALYZE\swith\sand\swithout\sa\slimit\son\sthe\n/repo_stat1\spage.
-D 2023-12-31T13:49:10.613
+C Add\sANALYZE\sbuttons\sto\sthe\s/repo_schema\spage\sin\scases\swhere\sonly\sa\ssingle\ntable\sis\sbeing\sshown.
+D 2023-12-31T13:57:44.043
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -548,7 +548,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 4aecc676c43a00c00ca82c8f4841dc8e77690d2a2253d4cb7da22990cc2f8150
 F src/stash.c 00eaaffcb21eca0e8286bb6d7b49a8ff417123a00c35e7ff96a85e62836d8f98
-F src/stat.c ded1a6b4bf89c572515186f06f0aab772d0976f6cc00d77c65cde1c6bffd0e38
+F src/stat.c 2bc76a1ce51d1b0054ed01400c498765579d20cf706cc1e1da74a806556080b6
 F src/statrep.c f8cb66562e45949ede9624cc4bb14ddf5f2eebac88292eb12fd9be35032fdb8c
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 95576389263a88583d38f69f4a19f8198281b2c30f077bf6ee3835835964864f
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c68f7d44549d58b6344a9b24c5eef86aa23a309b51baadc29fd4f1e7c68bc75
-R 25948af7b5ca492f62b94e59f4fd63cb
+P 349fb1fa16e7875cefc4bbdef75d082567e6be006216c8d9c65d82f540ade983
+R f7d3da0661ac17ab954571a3a75da7ad
 U drh
-Z e3cc01b25d13d997ac5aec6f47f922f2
+Z f49d4071f0b74af5185923ec324e5471
 # Remove this line to create a well-formed Fossil manifest.

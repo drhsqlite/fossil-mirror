@@ -717,6 +717,17 @@ void repo_schema_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
+  if( zArg!=0 
+   && db_table_exists("repository",zArg)
+   && cgi_csrf_safe(1)
+  ){
+    if( P("analyze")!=0 ){
+      db_multi_exec("ANALYZE \"%w\"", zArg);
+    }else if( P("analyze200")!=0 ){
+      db_multi_exec("PRAGMA analysis_limit=200; ANALYZE \"%w\"", zArg);
+    }
+  }
+
   style_set_current_feature("stat");
   style_header("Repository Schema");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -761,6 +772,12 @@ void repo_schema_page(void){
       style_submenu_element("Stat1","repo_stat1");
     }
   }
+  @ <hr><form method="POST">
+  @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
+  @ <input type="submit" name="analyze200"\
+  @  value="Run ANALYZE with limit=200">
+  @ </form>
+
   style_finish_page();
 }
 
@@ -775,9 +792,9 @@ void repo_stat1_page(void){
   if( !g.perm.Admin ){ login_needed(0); return; }
   bTabular = PB("tabular");
 
-  if( P("analyze")!=0 ){
+  if( P("analyze")!=0 && cgi_csrf_safe(1) ){
     db_multi_exec("ANALYZE");
-  }else if( P("analyze200")!=0 ){
+  }else if( P("analyze200")!=0 && cgi_csrf_safe(1) ){
     db_multi_exec("PRAGMA analysis_limit=200; ANALYZE;");
   }
   style_set_current_feature("stat");
