@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\sfor\stesting.
-D 2024-01-01T19:25:00.631
+C Add\s"De-ANALYZE"\sbuttons\son\sthe\sschema\sdisplay\spages.
+D 2024-01-01T19:35:13.098
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -548,7 +548,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 4aecc676c43a00c00ca82c8f4841dc8e77690d2a2253d4cb7da22990cc2f8150
 F src/stash.c fbf8f1df39403a32893ce13a749b787d980b765496b2b7a89417b010e3b0cf52
-F src/stat.c 2bc76a1ce51d1b0054ed01400c498765579d20cf706cc1e1da74a806556080b6
+F src/stat.c c943598bc6d2f6cc830423abc946fda9c81b55b0a4ac8d4b12105e4a9098d588
 F src/statrep.c f8cb66562e45949ede9624cc4bb14ddf5f2eebac88292eb12fd9be35032fdb8c
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 95576389263a88583d38f69f4a19f8198281b2c30f077bf6ee3835835964864f
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P caa6ad39db44392953b47626b381b0c54d5216db57e73aa1c4195984906dd242
-R a87031f6eaaa7e8d322ec59aa6dcaf19
+P 6da255034b30b4b42cd9f5e91f2b24cce0412867fa7d3a5dd61a5a3b1c1cab09
+R 63758ad29915bb9a66edca7ee627856e
 U drh
-Z b2d12d0ddf0e607a09880cf7d93a1bed
+Z 6f872ee13a364a7cee33fc24bbf2f26f
 # Remove this line to create a well-formed Fossil manifest.

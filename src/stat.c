@@ -725,6 +725,11 @@ void repo_schema_page(void){
       db_multi_exec("ANALYZE \"%w\"", zArg);
     }else if( P("analyze200")!=0 ){
       db_multi_exec("PRAGMA analysis_limit=200; ANALYZE \"%w\"", zArg);
+    }else if( P("deanalyze")!=0 ){
+      db_unprotect(PROTECT_ALL);
+      db_multi_exec("DELETE FROM repository.sqlite_stat1"
+                    " WHERE tbl LIKE %Q", zArg);
+      db_protect_pop();
     }
   }
 
@@ -775,7 +780,8 @@ void repo_schema_page(void){
   @ <hr><form method="POST">
   @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
   @ <input type="submit" name="analyze200"\
-  @  value="Run ANALYZE with limit=200">
+  @  value="Run ANALYZE with limit=200"><br />
+  @ <input type="submit" name="deanalyze" value="De-ANALYZE">
   @ </form>
 
   style_finish_page();
@@ -796,6 +802,10 @@ void repo_stat1_page(void){
     db_multi_exec("ANALYZE");
   }else if( P("analyze200")!=0 && cgi_csrf_safe(1) ){
     db_multi_exec("PRAGMA analysis_limit=200; ANALYZE;");
+  }else if( P("deanalyze")!=0 && cgi_csrf_safe(1) ){
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec("DELETE FROM repository.sqlite_stat1;");
+    db_protect_pop();
   }
   style_set_current_feature("stat");
   style_header("Repository STAT1 Table");
@@ -839,7 +849,9 @@ void repo_stat1_page(void){
   }
   @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
   @ <input type="submit" name="analyze200"\
-  @  value="Run ANALYZE with limit=200">
+  @  value="Run ANALYZE with limit=200"><br>
+  @ <input type="submit" name="deanalyze"\
+  @  value="De-ANALYZE">
   @ </form>
   style_finish_page();
 }
