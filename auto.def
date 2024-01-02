@@ -457,6 +457,8 @@ if {$ssldirs ne "none"} {
         define FOSSIL_ENABLE_SSL
         define-append EXTRA_CFLAGS $cflags
         define-append EXTRA_LDFLAGS $ldflags
+        define-append CFLAGS $cflags
+        define-append LDFLAGS $ldflags
         if {[info exists ssllibs]} {
             define-append LIBS $ssllibs
         } else {
@@ -657,6 +659,7 @@ if {$tclpath ne ""} {
         define-append LIBS $libs
     }
     define-append EXTRA_CFLAGS $cflags
+    define-append CFLAGS $cflags
     if {[info exists zlibpath] && $zlibpath eq "tree"} {
       #
       # NOTE: When using zlib in the source tree, prevent Tcl from
