@@ -24,6 +24,9 @@
 #ifdef _WIN32
 # include <windows.h>
 #else
+#ifdef __EXTENSIONS__
+#include <termio.h>
+#endif
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
