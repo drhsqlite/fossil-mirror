@@ -145,8 +145,8 @@ char const * json_timeline_query(void){
 ** Only one of "tag" or "branch" modes will work at a time, and if
 ** both are specified, which one takes precedence is unspecified.
 */
-static char json_timeline_add_tag_branch_clause(Blob *pSql,
-                                                cson_object * pPayload){
+static signed char json_timeline_add_tag_branch_clause(Blob *pSql,
+                                                       cson_object * pPayload){
   char const * zTag = NULL;
   char const * zBranch = NULL;
   char const * zMiOnly = NULL;
@@ -222,7 +222,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
 ** Returns -1 if it adds a "before" clause, 1 if it adds
 ** an "after" clause, and 0 if adds only an order-by clause.
 */
-static char json_timeline_add_time_clause(Blob *pSql){
+static signed char json_timeline_add_time_clause(Blob *pSql){
   char const * zAfter = NULL;
   char const * zBefore = NULL;
   int rc = 0;
