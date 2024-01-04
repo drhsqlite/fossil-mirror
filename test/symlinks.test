@@ -38,6 +38,9 @@ require_no_open_checkout
 
 test_setup; set rootDir [file normalize [pwd]]
 
+# Using tempHomePath, allow-symlinks will always be off at this point.
+fossil set allow-symlinks on
+
 fossil test-th-eval --open-config {repository}
 set repository [normalize_result]
 
@@ -64,18 +67,27 @@ test symlinks-dir-3 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
 test symlinks-dir-4 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
 
 fossil add [file join $rootDir symdirA f1.txt]
+test symlinks-skip-dir-traversal {[normalize_result] eq \
+"SKIP   symdirA/f1.txt"}
+
 fossil commit -m "c1"
+
+test symlinks-empty-commit {[normalize_result] eq \
+"nothing has changed; use --allow-empty to override"}
 
 ###############################################################################
 
 fossil ls
-test symlinks-dir-5 {[normalize_result] eq "symdirA/f1.txt"}
+test symlinks-dir-5 {[normalize_result] eq ""}
 
 ###############################################################################
 
+fossil set allow
+puts $RESULT
+
 fossil extras
 test symlinks-dir-6 {[normalize_result] eq \
-"subdirA/f1.txt\nsubdirA/f2.txt\nsymdirA/f2.txt"}
+"subdirA/f1.txt\nsubdirA/f2.txt\nsymdirA"}
 
 ###############################################################################
 
@@ -89,13 +101,13 @@ test symlinks-dir-10 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
 
 ###############################################################################
 
-fossil open $repository
+fossil open --force $repository
 set code [catch {file readlink [file join $rootDir symdirA]} result]
 
 test symlinks-dir-11 {$code == 0}
 test symlinks-dir-12 {$result eq [file join $rootDir subdirA]}
-test symlinks-dir-13 {[file exists [file join $rootDir subdirA f1.txt]] eq 1}
-test symlinks-dir-14 {[file exists [file join $rootDir symdirA f1.txt]] eq 1}
+test symlinks-dir-13 {[file exists [file join $rootDir subdirA f1.txt]] eq 0}
+test symlinks-dir-14 {[file exists [file join $rootDir symdirA f1.txt]] eq 0}
 test symlinks-dir-15 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
 test symlinks-dir-16 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
 

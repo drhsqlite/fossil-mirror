@@ -741,14 +741,14 @@ regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
 if {$th1Hooks} {
   test th1-trace-2 {$normalized_result eq \
 {------------------ BEGIN TRACE LOG ------------------
-th1-init 0x0 => 0x0<br />
+th1-init 0x0 => 0x0<br>
 
 ------------------- END TRACE LOG -------------------}}
 } else {
   test th1-trace-2 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
-th1-init 0x0 => 0x0<br />
-th1-setup {} => TH_OK<br />
+th1-init 0x0 => 0x0<br>
+th1-setup {} => TH_OK<br>
 
 ------------------- END TRACE LOG -------------------}}
 }
@@ -769,14 +769,14 @@ regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
 if {$th1Hooks} {
   test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
-th1-init 0x0 => 0x0<br />
+th1-init 0x0 => 0x0<br>
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 } else {
   test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
-th1-init 0x0 => 0x0<br />
-th1-setup {} => TH_OK<br />
+th1-init 0x0 => 0x0<br>
+th1-setup {} => TH_OK<br>
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 }
@@ -791,7 +791,9 @@ test th1-defHeader-1 {$RESULT eq \
 
 fossil test-th-eval "defHeader"
 test th1-defHeader-2 {[string match *<body> [normalize_result]] || \
-    [string match "*<body class=\"\$current_feature\">" [normalize_result]]}
+    [string match "*<body class=\"\$current_feature\
+                    rpage-\$requested_page\
+                    cpage-\$canonical_page\">" [normalize_result]]}
 
 ###############################################################################
 
@@ -1064,10 +1066,10 @@ set base_commands {anoncap anycap array artifact break breakpoint \
       combobox continue copybtn date decorate defHeader dir enable_htmlify \
       enable_output encode64 error expr for foreach getParameter glob_match \
       globalState hascap hasfeature html htmlize http httpize if info \
-      insertCsrf lappend lindex linecount list llength lsearch markdown \
-      nonce proc puts query randhex redirect regexp reinitialize rename \
-      render repository return searchable set setParameter setting stime \
-      string styleFooter styleHeader styleScript tclReady trace unset \
+      insertCsrf lappend lindex linecount list llength lsearch markdown nonce \
+      proc puts query randhex redirect regexp reinitialize rename render \
+      repository return searchable set setParameter setting stime string \
+      styleFooter styleHeader styleScript submenu tclReady trace unset \
       unversioned uplevel upvar utime verifyCsrf verifyLogin wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {

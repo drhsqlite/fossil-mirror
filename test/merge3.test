@@ -26,11 +26,18 @@ proc merge-test {testid basis v1 v2 result} {
   write_file t3 [join [string trim $v2] \n]\n
   fossil 3-way-merge t1 t2 t3 t4
   set x [read_file t4]
-  regsub -all {<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <+} $x \
-              {MINE:} x
-  regsub -all {\|\|\|\|\|\|\| COMMON ANCESTOR content follows \|+} $x {COM:} x
-  regsub -all {======= MERGED IN content follows =+} $x {YOURS:} x
-  regsub -all {>>>>>>> END MERGE CONFLICT >+} $x {END} x
+  regsub -all \
+    {<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <+ \(line \d+\)} \
+    $x {MINE:} x
+  regsub -all \
+    {\|\|\|\|\|\|\| COMMON ANCESTOR content follows \|+ \(line \d+\)} \
+    $x {COM:} x
+  regsub -all \
+    {======= MERGED IN content follows =+ \(line \d+\)} \
+    $x {YOURS:} x
+  regsub -all \
+    {>>>>>>> END MERGE CONFLICT >+} \
+    $x {END} x
   set x [split [string trim $x] \n]
   set result [string trim $result]
   if {$x!=$result} {

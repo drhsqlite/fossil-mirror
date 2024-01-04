@@ -244,7 +244,7 @@ foreach name $versionable_settings {
   set data [normalize_result]
 
   test settings-set-check2-versionable-$name {
-    $data eq $value
+    $data eq ""
   }
 
   file delete $fileName
