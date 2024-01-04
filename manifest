@@ -1,5 +1,5 @@
-C Ensure\schars\sare\ssigned\swhen\sdepending\son\sthe\ssignedness.
-D 2024-01-03T14:43:38.154
+C Use\san\sunsigned\sint\sin\sTh_SetResultInt()\sto\saddress\sissues\swith\sGCC\sfor\sINT_MIN.
+D 2024-01-04T09:32:35.148
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -560,7 +560,7 @@ F src/sync.c cb37442b06b64f2a98aea6d9037eb089847d8abf111f60ab84b33e84589f794b
 F src/tag.c 4e044d0143f917283c6c2b64a786ffdbb22a790f62f5404a769c35de0fb3c5f5
 F src/tar.c fcf3dafb4eb1569a4c71cb4341815e89bc267760bf5205a5fb6aac838d86617d
 F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629e
-F src/th.c 6231254d3aa9d23a6f313f69c9b3625e7a27eb026c459ada158d692bc885d252
+F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 3997512c80c8ec1f37cd9494a156c8259297630293a99e1cfb6c1909896f88ce
@@ -950,9 +950,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8780e4143a8147e7e9a81e64ad6e4da83aa317e9db6bd0cc96d3b7ac19e3034 c42dee8634ba9961c4d03a9f43989a4a433831e1a22bcf34b9af279c08b98480
-R dd3e1969edad1c3d8ace831b01bdcc38
-T +closed c42dee8634ba9961c4d03a9f43989a4a433831e1a22bcf34b9af279c08b98480
+P b7c7c2097f108c7b409cc5e2fc7b02e8d7ae1fea57f54de6f0a733016353256e 4a98d2aae1b6cc47ebd97886e6948d7c4374a7e24a11d24315b8e3de904a8bce
+R 82339aa7cfb00dd797ccc219c43de153
+T +closed 4a98d2aae1b6cc47ebd97886e6948d7c4374a7e24a11d24315b8e3de904a8bce
 U preben
-Z b4f314dfc83ddb366f5ae59bd9907bbc
+Z 792eb3dd58740d223beea5b523f6b0a0
 # Remove this line to create a well-formed Fossil manifest.
