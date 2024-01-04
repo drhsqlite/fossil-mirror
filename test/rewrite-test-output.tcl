@@ -369,6 +369,7 @@ if { $fname eq "-" } {
 set UNKOWN_PLATFORM 0
 set UNIX 1
 set WINDOWS 2
+set CYGWIN 3
 
 # One specific wiki test creates repetitive output of varying length
 set wiki_f13_cmd1 "fossil wiki create {timestamp of 2399999} f13 --technote 2399999"
@@ -427,6 +428,9 @@ while { [gets $fd line] >= 0 } {
     if { $platform == $UNKOWN_PLATFORM } {
       if { [regexp {^[A-Z]:/.*?/fossil\.exe } $line] } {
         set platform $WINDOWS
+      } elseif { [regexp {^/.*?/fossil\.exe } $line] } {
+        # No drive, but still .exe - must be CYGWIN
+        set platform $CYGWIN
       } elseif { [regexp {^/.*?/fossil } $line] } {
         set platform $UNIX
       }
@@ -518,7 +522,8 @@ while { [gets $fd line] >= 0 } {
       } elseif { $testname eq "cmdline" } {
         if { [regexp {^(fossil test-echo) (.*)} $line match test args] } {
           if { ($platform == $UNIX && $args in {"*" "*.*"})
-               || ($platform == $WINDOWS && $args eq "--args /TMP/fossil-cmd-line-101.txt") } {
+               || ($platform == $WINDOWS && $args eq "--args /TMP/fossil-cmd-line-101.txt")
+               || ($platform == $CYGWIN && $args in {"*" "*.*"}) } {
             set line "$test ARG_FOR_PLATFORM"
           }
         }
@@ -552,7 +557,10 @@ while { [gets $fd line] >= 0 } {
         }
       } elseif { $testname eq "settings-repo" } {
         if { [regexp {^fossil test-th-eval (?:--open-config )?\{setting case-sensitive\}$} $prev_line] } {
-          if { ($platform == $UNIX && $line eq "on") || ($platform == $WINDOWS && $line eq "off") } {
+          if { ($platform == $UNIX && $line eq "on")
+               || ($platform == $WINDOWS && $line eq "off")
+               || ($platform == $CYGWIN && $line eq "off")
+               } {
             set line "EXPECTED_FOR_PLATFORM"
           }
         }
@@ -578,6 +586,7 @@ while { [gets $fd line] >= 0 } {
           if { [regexp {^fossil test-th-eval --vfs ([^ ]+) \{globalState vfs\}$} $line match vfs] } {
             if { ($platform == $UNIX && $vfs == "unix-dotfile")
                  || ($platform == $WINDOWS && $vfs == "win32-longpath") } {
+                 || ($platform == $CYGWIN && $vfs == "win32-longpath") } {
               regsub $vfs $line {EXEPECTED_VFS} line
             }
           } elseif { $prev_line eq "fossil test-th-eval --vfs EXEPECTED_VFS {globalState vfs}" } {
@@ -588,6 +597,8 @@ while { [gets $fd line] >= 0 } {
               regsub {^unix$} $line {EXPECTED_PLATFORM} line
             } elseif { $platform == $WINDOWS } {
               regsub {^windows$} $line {EXPECTED_PLATFORM} line
+            } elseif { $platform == $CYGWIN } {
+              regsub {^unix$} $line {EXPECTED_PLATFORM} line
             }
           } elseif { $line eq "ERROR (1): " } {
             # Some output goes to stderr on Unix but stdout on Windows
