@@ -1,5 +1,5 @@
-C Add\smore\sinformation\swhen\suser\sencounters\san\sUnresolved\sRID\scondition.
-D 2024-01-05T21:02:39.994
+C Back\sout\s[a402dd2a888d6d74]\s(wiki\stitle\ssearch),\sas\sit\scauses\sall\ssearches\sto\sfail\sfor\sreasons\sas\syet\sundetermined.
+D 2024-01-07T17:26:47.878
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -516,7 +516,7 @@ F src/report.c 553e5cbe86e2684bbcf3ee0ac7916db9aebc644c42bbb245048a208b9cfc8f51
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c e29b047c1afc613a9f04499a587d0eeb8eb572655edb2158509014bf83c87b77
+F src/search.c 04884c4f8e822908ef16956fa5f87435813be4db462d5e70677d3e51cbd82989
 F src/security_audit.c 6da0bd26a7ff1544c46eb0caf4c003496c8caaaf9af7d060557a450770278953
 F src/setup.c 879d77a697cb659dee2ae18fe6a44313b025fc1f9b1cd73bd4a3c3c29f65407e
 F src/setupuser.c 3b1136b8d5dbfb2d97b34845e5294af9ff11aab5588941efab1445b8aa0f161a
@@ -950,9 +950,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc9e84bb278f13ecfe1f003760bebc73935c4649175ba9ec116ace27876d9a00 c04e494d0727db174649dd4f92e234e626de006201703f6ae90747e7d5c993fe
-R 6a3c6742df2d7f98b26fbf358e34332b
-T +closed c04e494d0727db174649dd4f92e234e626de006201703f6ae90747e7d5c993fe
-U preben
-Z ec3ab2b2f843da00876cc4af0fec216e
+P c8fda6a62cc5c6ead64500864d58d6056a698433969ed4ae63f33b27e00d54b9
+Q -a402dd2a888d6d7415070c64090eb2ba0e2490a7df564c29b1478c81054132b7
+R 32b5008991daab987ac1f8d4a65b11ff
+U stephan
+Z 7885320b7f55fd213095bde174ee0f69
 # Remove this line to create a well-formed Fossil manifest.
