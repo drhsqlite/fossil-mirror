@@ -21,6 +21,7 @@
 #include "vfile.h"
 #include <assert.h>
 #include <sys/types.h>
+#include <time.h>
 
 /*
 ** The input is guaranteed to be a 40- or 64-character well-formed
@@ -234,7 +235,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       assert( origSize==currentSize );
       if( hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 0;
     }else if( (chnged==0 || chnged==2 || chnged==4)
-           && (useMtime==0 || currentMtime!=oldMtime) ){
+           && (useMtime==0 || currentMtime!=oldMtime || currentMtime==time(0)) ){
       /* For files that were formerly believed to be unchanged or that were
       ** changed by merging, if their mtime changes, or unconditionally
       ** if --hash is used, check to see if they have been edited by
