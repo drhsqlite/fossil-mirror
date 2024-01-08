@@ -1,5 +1,5 @@
-C Compute\shash\sif\smtime\sis\sunchanged\sbut\smatch\ssystem\stime.\sDiscussed\sin\n[forum:/forumpost/58bef43842be6fc3|forum\sthread\s58bef43842be6fc3].
-D 2024-01-07T11:26:21.454
+C Check\shash\sif\smtime\smatches\ssystem\stime\sat\sthe\stime\swe\sstarted\schecking.
+D 2024-01-08T13:11:34.818
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -579,7 +579,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c 486a6c570efcfc939e34b0bae8c23553cf3db741b79e53d9203b6c53deb658b0
+F src/vfile.c b31bec3fd2cae6e063fed9d1456ec63355f91b54a11a37ff985fb66943505a6c
 F src/wiki.c e931ca579d63a99897503abccb1bac6e57a76ed41e541666713246b949d362e9
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 0232d269e8e338acd5fda4154f62a0e27c02a74c423941f6e62a7f41add5454c
@@ -950,12 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8fda6a62cc5c6ead64500864d58d6056a698433969ed4ae63f33b27e00d54b9
-R 6823a638d35b3514d8dc778d3785bca0
-T *bgcolor * #fec084
-T *branch * hash-if-mtime-is-current
-T *sym-hash-if-mtime-is-current *
-T -sym-trunk *
+P b295f86db5417cea1e7a33c188d5f489b06a8373ce8c5280cb2b1b4ec1dc751b
+R b192b4ecde97acd308c8a65eb5d08226
 U preben
-Z 7803c001800dc765fee697b0c4607ac8
+Z dcedaa62ffc2d191898becfb3227027c
 # Remove this line to create a well-formed Fossil manifest.

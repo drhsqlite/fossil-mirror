@@ -173,6 +173,7 @@ int load_vfile_from_rid(int vid){
 */
 void vfile_check_signature(int vid, unsigned int cksigFlags){
   int nErr = 0;
+  time_t now = time(0);
   Stmt q;
   int useMtime = (cksigFlags & CKSIG_HASH)==0
                     && db_get_boolean("mtime-changes", 1);
@@ -235,11 +236,12 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       assert( origSize==currentSize );
       if( hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 0;
     }else if( (chnged==0 || chnged==2 || chnged==4)
-           && (useMtime==0 || currentMtime!=oldMtime || currentMtime==time(0)) ){
+           && (useMtime==0 || currentMtime!=oldMtime || oldMtime==now) ){
       /* For files that were formerly believed to be unchanged or that were
       ** changed by merging, if their mtime changes, or unconditionally
       ** if --hash is used, check to see if they have been edited by
-      ** looking at their artifact hashes */
+      ** looking at their artifact hashes. Also check if mtime is current
+      ** in case a commit took place the same clock second checks started. */
       const char *zUuid = db_column_text(&q, 5);
       int nUuid = db_column_bytes(&q, 5);
       assert( origSize==currentSize );
