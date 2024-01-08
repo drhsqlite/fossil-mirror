@@ -1,5 +1,5 @@
-C Add\stest\sfor\sCygwin\sin\srewrite-test-output.tcl.\sBest\sresults\sare\sachieved\sif\stesting\susing\sfossil.exe\sinstead\sof\sjust\sfossil.
-D 2024-01-04T18:03:25.061
+C Update\spre-commit-warnings-fossil-1\stest\sfor\srunning\sin\sa\sfossil\scheckout\swithout\schanges.
+D 2024-01-08T09:26:00.201
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -594,7 +594,7 @@ F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test becab1ef4d53b9d41ff1b1b9d6f46abaac87a95f362f3ae17589036f4bab5a2d
+F test/commit-warning.test 77c7375437d510e306e55790d1de7e0f9dad8b36749e098716730393cb6f5f56
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test 201f7f46d5c0d5a7bd7af565e5484d64f5af60a2aa8ce712c7c68c90e8b2ed7e
@@ -951,8 +951,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7da44faa22f02ecc0fc65ff788b2b0b9e95f74c6dd1e2c7ffaf1c49a94a8be10
-R a983c2ff3dccde51dae285a241ad8cb0
+P c86335802d99d7ee99cc20abcbf05d4d8f15c4027d0bcc6edf25bb1fc3f69792
+R 731f349d8bfe086f010b44a5c9438cd9
 U preben
-Z 9e84484844dc4065699c875bd2b14cc5
+Z 2d978553ee0901f0463448793bc6584c
 # Remove this line to create a well-formed Fossil manifest.
