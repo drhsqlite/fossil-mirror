@@ -1,5 +1,5 @@
-C Update\spre-commit-warnings-fossil-1\stest\sfor\srunning\sin\sa\sfossil\scheckout\swithout\schanges.
-D 2024-01-08T09:26:00.201
+C Add\stests\sfor\sfossil\supdate.
+D 2024-01-09T18:13:50.035
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -659,6 +659,7 @@ F test/th1.test c98457f5cd32d892af802bde595a415731aafd3e1af9cba60208cca962cbb803
 F test/unversioned.test e0d752874d010ecab75fb5d326249c6132d621e3c023bd5525640619fb82bb43
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
+F test/update.test fe1043316ab492c73efe5572449c9c0bc23764f794862bda10939feed635da0d
 F test/utf.test 785fc1ad4c79c42ad60a25abb82130a5578604b9955fa3599600ae6236d8af58
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
@@ -951,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c86335802d99d7ee99cc20abcbf05d4d8f15c4027d0bcc6edf25bb1fc3f69792
-R 731f349d8bfe086f010b44a5c9438cd9
+P 0aebc116cd54b0e9a647c2d084c8040128d2571a7c22ca22cb9c8c0d41a9deb1
+R 654b4c1c4da78b3286d8ca8e5c53acc5
 U preben
-Z 2d978553ee0901f0463448793bc6584c
+Z bc4edcfb2254c607d0cf156dfeb39318
 # Remove this line to create a well-formed Fossil manifest.
