@@ -418,7 +418,7 @@ static void SHA3Update(
 ){
   unsigned int i = 0;
 #if SHA3_BYTEORDER==1234
-  if( (p->nLoaded % 8)==0 && ((aData - (const unsigned char*)0)&7)==0 ){
+  if( (p->nLoaded % 8)==0 && (((intptr_t)aData)&7)==0 ){
     for(; i+7<nData; i+=8){
       p->u.s[p->nLoaded/8] ^= *(u64*)&aData[i];
       p->nLoaded += 8;

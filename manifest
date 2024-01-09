@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\sfor\stesting.
-D 2024-01-09T13:42:21.154
+C Fix\sharmless\scompiler\swarning\sin\ssha3.c.
+D 2024-01-09T14:04:07.612
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -522,7 +522,7 @@ F src/setup.c 879d77a697cb659dee2ae18fe6a44313b025fc1f9b1cd73bd4a3c3c29f65407e
 F src/setupuser.c 3b1136b8d5dbfb2d97b34845e5294af9ff11aab5588941efab1445b8aa0f161a
 F src/sha1.c 9fca2ef73ac3feaf361aa390ff5fab35b54736d72c59dc5ed63ec6daca1a1f29
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
-F src/sha3.c b61d072897815a90a3557b1213cc1477cbba8c926a098d14d1838c0851196ea8
+F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
 F src/shun.c e8f6d93d5195eaf038b9291469a119197fbbb6f59c581607df49729c576d1ff1
 F src/sitemap.c ea0f2af271c8ee6bc82e68a75412f1e436097206247c8ba275472b0ae21d696d
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48af08bd48a83f92f00fd65c60e034eb78c67b12ab2fe17cac489da45da1373f
-R 33d352befb319622d0bcbd7871b2500d
+P 5d0d2219e8297a862788bafbf9b7e6047ba74b2b42a6788beec7f98f655d7dd2
+R a2eabf8121476338819887addcd4fd3f
 U drh
-Z 472561ce5953166d321eb7721f741e09
+Z db8ca20a91ace38b6790393748f371f0
 # Remove this line to create a well-formed Fossil manifest.
