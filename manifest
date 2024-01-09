@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning\sin\ssha3.c.
-D 2024-01-09T14:04:07.612
+C Add\sthe\s--fts\soption\sto\sthe\s"fossil\ssearch"\scommand.\s\sThis\soption\suses\sthe\nsame\ssearch\smechanism\sas\sweb\ssearch.\s\sUseful\sfor\sdebugging\sweb\ssearch.
+D 2024-01-09T15:14:46.970
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -516,7 +516,7 @@ F src/report.c 553e5cbe86e2684bbcf3ee0ac7916db9aebc644c42bbb245048a208b9cfc8f51
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 04884c4f8e822908ef16956fa5f87435813be4db462d5e70677d3e51cbd82989
+F src/search.c 283ecf13005abd4d2c735e37b9fbc3ecf6d3582f4e91a288af994020437bf6aa
 F src/security_audit.c 6da0bd26a7ff1544c46eb0caf4c003496c8caaaf9af7d060557a450770278953
 F src/setup.c 879d77a697cb659dee2ae18fe6a44313b025fc1f9b1cd73bd4a3c3c29f65407e
 F src/setupuser.c 3b1136b8d5dbfb2d97b34845e5294af9ff11aab5588941efab1445b8aa0f161a
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d0d2219e8297a862788bafbf9b7e6047ba74b2b42a6788beec7f98f655d7dd2
-R a2eabf8121476338819887addcd4fd3f
+P 537d9e00cfc20a3e0c2f9eb4e3b87405f4b98c133a28f63d6875d338c041602e
+R d8f1c154aaff940fd65d4c635d84b2f6
 U drh
-Z db8ca20a91ace38b6790393748f371f0
+Z e354cd4d1d34cc1498baf053e2b55c52
 # Remove this line to create a well-formed Fossil manifest.

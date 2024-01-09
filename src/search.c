@@ -585,6 +585,7 @@ void search_sql_setup(sqlite3 *db){
 **
 ** Options:
 **     -a|--all          Output all matches, not just best matches
+**     --fts             Use the full-text search mechanism (testing only)
 **     -n|--limit N      Limit output to N matches
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
 **                       unlimited. Defaults the terminal's width.
@@ -595,14 +596,13 @@ void search_cmd(void){
   Blob sql = empty_blob;
   Stmt q;
   int iBest;
-  char fAll = NULL != find_option("all", "a", 0); /* If set, do not lop
-                                                     off the end of the
-                                                     results. */
+  char fAll = NULL != find_option("all", "a", 0);
   const char *zLimit = find_option("limit","n",1);
   const char *zWidth = find_option("width","W",1);
-  int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
-                                                   lines/entries to list */
+  int nLimit = zLimit ? atoi(zLimit) : -1000;
   int width;
+  int bFts = find_option("fts",0,0)!=0;
+
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=20) ){
@@ -618,33 +618,72 @@ void search_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_appendf(&pattern, " %s", g.argv[i]);
   }
-  (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
-  blob_reset(&pattern);
-  search_sql_setup(g.db);
-
-  db_multi_exec(
-     "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
-     "CREATE INDEX srch_idx1 ON srch(x);"
-     "INSERT INTO srch(rid,uuid,date,comment,x)"
-     "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
-     "          coalesce(ecomment,comment),"
-     "          search_score()"
-     "     FROM event, blob"
-     "    WHERE blob.rid=event.objid"
-     "      AND search_match(coalesce(ecomment,comment));"
-  );
-  iBest = db_int(0, "SELECT max(x) FROM srch");
-  blob_append(&sql,
-              "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
-              "WHERE 1 ", -1);
-  if(!fAll){
-    blob_append_sql(&sql,"AND x>%d ", iBest/3);
+  if( bFts ){
+    /* Search using FTS */
+    Blob com;
+    const char *zPattern = blob_str(&pattern);
+    int srchFlags = SRCH_ALL;
+    search_sql_setup(g.db);
+    add_content_sql_commands(g.db);
+    db_multi_exec(
+      "CREATE TEMP TABLE x(label,url,score,id,date,snip);"
+    );
+    if( !search_index_exists() ){
+      search_fullscan(zPattern, srchFlags);  /* Full-scan search */
+    }else{
+      search_update_index(srchFlags);        /* Update the index */
+      search_indexed(zPattern, srchFlags);   /* Indexed search */
+    }
+    db_prepare(&q, "SELECT snip, label, score, id, substr(date,1,10)"
+                   "  FROM x"
+                   " ORDER BY score DESC, date DESC;");
+    blob_init(&com, 0, 0);
+    if( width<0 ) width = 80;
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zSnippet = db_column_text(&q, 0);
+      const char *zLabel = db_column_text(&q, 1);
+      const char *zDate = db_column_text(&q, 4);
+      const char *zScore = db_column_text(&q, 2);
+      const char *zId = db_column_text(&q, 3);
+      blob_appendf(&com, "%s\n%s\n%s score=%s id=%d", zLabel, zSnippet,
+                   zDate, zScore, zId);
+      comment_print(blob_str(&com), 0, 5, width,
+            COMMENT_PRINT_TRIM_CRLF |
+            COMMENT_PRINT_TRIM_SPACE);
+      blob_reset(&com);
+    }
+    db_finalize(&q);
+    blob_reset(&pattern);
+  }else{
+    /* Legacy timeline search (the default) */
+    (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
+    blob_reset(&pattern);
+    search_sql_setup(g.db);
+  
+    db_multi_exec(
+       "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
+       "CREATE INDEX srch_idx1 ON srch(x);"
+       "INSERT INTO srch(rid,uuid,date,comment,x)"
+       "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
+       "          coalesce(ecomment,comment),"
+       "          search_score()"
+       "     FROM event, blob"
+       "    WHERE blob.rid=event.objid"
+       "      AND search_match(coalesce(ecomment,comment));"
+    );
+    iBest = db_int(0, "SELECT max(x) FROM srch");
+    blob_append(&sql,
+                "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
+                "WHERE 1 ", -1);
+    if(!fAll){
+      blob_append_sql(&sql,"AND x>%d ", iBest/3);
+    }
+    blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
+    db_prepare(&q, "%s", blob_sql_text(&sql));
+    blob_reset(&sql);
+    print_timeline(&q, nLimit, width, 0, 0);
+    db_finalize(&q);
   }
-  blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  blob_reset(&sql);
-  print_timeline(&q, nLimit, width, 0, 0);
-  db_finalize(&q);
 }
 
 #if INTERFACE
@@ -708,7 +747,7 @@ unsigned int search_restrict(unsigned int srchFlags){
 **
 ** The companion indexed search routine is search_indexed().
 */
-static void search_fullscan(
+LOCAL void search_fullscan(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
@@ -916,7 +955,7 @@ static void search_rank_sqlfunc(
 **
 ** The companion full-scan search routine is search_fullscan().
 */
-static void search_indexed(
+LOCAL void search_indexed(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
