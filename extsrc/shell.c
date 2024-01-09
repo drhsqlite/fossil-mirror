@@ -296,7 +296,7 @@ extern LPWSTR sqlite3_win32_utf8_to_unicode(const char *zText);
 ** CIO_WIN_WC_XLATE is defined as 0 or 1, reflecting whether console I/O
 ** translation for Windows is effected for the build.
 */
-
+#define HAVE_CONSOLE_IO_H 1
 #ifndef SQLITE_INTERNAL_LINKAGE
 # define SQLITE_INTERNAL_LINKAGE extern /* external to translation unit */
 # include <stdio.h>
@@ -575,8 +575,10 @@ zSkipValidUtf8(const char *z, int nAccept, long ccm);
 # include <stdlib.h>
 # include <limits.h>
 # include <assert.h>
-# include "console_io.h"
 /* # include "sqlite3.h" */
+#endif
+#ifndef HAVE_CONSOLE_IO_H
+# include "console_io.h"
 #endif
 
 #ifndef SQLITE_CIO_NO_TRANSLATE
@@ -18145,6 +18147,7 @@ struct ShellState {
   u8 eTraceType;         /* SHELL_TRACE_* value for type of trace */
   u8 bSafeMode;          /* True to prohibit unsafe operations */
   u8 bSafeModePersist;   /* The long-term value of bSafeMode */
+  u8 eRestoreState;      /* See comments above doAutoDetectRestore() */
   ColModeOpts cmOpts;    /* Option values affecting columnar mode output */
   unsigned statsOn;      /* True to display memory stats before each finalize */
   unsigned mEqpLines;    /* Mask of vertical lines in the EQP output graph */
@@ -23584,7 +23587,6 @@ static int lintDotCommand(
   return SQLITE_ERROR;
 }
 
-#if !defined SQLITE_OMIT_VIRTUALTABLE
 static void shellPrepare(
   sqlite3 *db,
   int *pRc,
@@ -23603,12 +23605,8 @@ static void shellPrepare(
 
 /*
 ** Create a prepared statement using printf-style arguments for the SQL.
-**
-** This routine is could be marked "static".  But it is not always used,
-** depending on compile-time options.  By omitting the "static", we avoid
-** nuisance compiler warnings about "defined but not used".
 */
-void shellPreparePrintf(
+static void shellPreparePrintf(
   sqlite3 *db,
   int *pRc,
   sqlite3_stmt **ppStmt,
@@ -23631,13 +23629,10 @@ void shellPreparePrintf(
   }
 }
 
-/* Finalize the prepared statement created using shellPreparePrintf().
-**
-** This routine is could be marked "static".  But it is not always used,
-** depending on compile-time options.  By omitting the "static", we avoid
-** nuisance compiler warnings about "defined but not used".
+/* 
+** Finalize the prepared statement created using shellPreparePrintf().
 */
-void shellFinalize(
+static void shellFinalize(
   int *pRc,
   sqlite3_stmt *pStmt
 ){
@@ -23653,6 +23648,7 @@ void shellFinalize(
   }
 }
 
+#if !defined SQLITE_OMIT_VIRTUALTABLE
 /* Reset the prepared statement created using shellPreparePrintf().
 **
 ** This routine is could be marked "static".  But it is not always used,
@@ -24720,6 +24716,30 @@ FROM (\
 }
 
 /*
+** Check if the sqlite_schema table contains one or more virtual tables. If
+** parameter zLike is not NULL, then it is an SQL expression that the
+** sqlite_schema row must also match. If one or more such rows are found,
+** print the following warning to the output:
+**
+** WARNING: Script requires that SQLITE_DBCONFIG_DEFENSIVE be disabled
+*/
+static int outputDumpWarning(ShellState *p, const char *zLike){
+  int rc = SQLITE_OK;
+  sqlite3_stmt *pStmt = 0;
+  shellPreparePrintf(p->db, &rc, &pStmt,
+    "SELECT 1 FROM sqlite_schema o WHERE "
+    "sql LIKE 'CREATE VIRTUAL TABLE%%' AND %s", zLike ? zLike : "true"
+  );
+  if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+    oputz("/* WARNING: "
+          "Script requires that SQLITE_DBCONFIG_DEFENSIVE be disabled */\n"
+    );
+  }
+  shellFinalize(&rc, pStmt);
+  return rc;
+}
+
+/*
 ** If an input line begins with "." then invoke this routine to
 ** process that line.
 **
@@ -25181,6 +25201,7 @@ static int do_meta_command(char *zLine, ShellState *p){
 
     open_db(p, 0);
 
+    outputDumpWarning(p, zLike);
     if( (p->shellFlgs & SHFLG_DumpDataOnly)==0 ){
       /* When playing back a "dump", the content might appear in an order
       ** which causes immediate foreign key constraints to be violated.
@@ -28245,6 +28266,80 @@ static int line_is_complete(char *zSql, int nSql){
 }
 
 /*
+** This function is called after processing each line of SQL in the
+** runOneSqlLine() function. Its purpose is to detect scenarios where
+** defensive mode should be automatically turned off. Specifically, when
+**
+**   1. The first line of input is "PRAGMA foreign_keys=OFF;",
+**   2. The second line of input is "BEGIN TRANSACTION;",
+**   3. The database is empty, and
+**   4. The shell is not running in --safe mode.
+** 
+** The implementation uses the ShellState.eRestoreState to maintain state:
+**
+**    0: Have not seen any SQL.
+**    1: Have seen "PRAGMA foreign_keys=OFF;".
+**    2: Currently assuming we are parsing ".dump" restore, defensive mode
+**       should be disabled following the current transaction.
+**    3: Nothing left to do.
+*/
+static int doAutoDetectRestore(ShellState *p, const char *zSql){
+  int rc = SQLITE_OK;
+
+  switch( p->eRestoreState ){
+    case 0: {
+      int bDefense = 0;           /* True if in defensive mode */ 
+      const char *zExpect = "PRAGMA foreign_keys=OFF;";
+      assert( strlen(zExpect)==24 );
+      sqlite3_db_config(p->db, SQLITE_DBCONFIG_DEFENSIVE, -1, &bDefense);
+      if( p->bSafeMode==0 && bDefense && memcmp(zSql, zExpect, 25)==0 ){
+        p->eRestoreState = 1;
+      }else{
+        p->eRestoreState = 3;
+      }
+      break;
+    };
+
+    case 1: {
+      const char *zExpect = "BEGIN TRANSACTION;";
+      assert( strlen(zExpect)==18 );
+      if( memcmp(zSql, zExpect, 19)==0 ){
+        /* Now check if the database is empty. */
+        const char *zQuery = "SELECT 1 FROM sqlite_schema LIMIT 1";
+        sqlite3_stmt *pStmt = 0;
+        int bEmpty = 1;
+
+        shellPrepare(p->db, &rc, zQuery, &pStmt);
+        if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+          bEmpty = 0;
+        }
+        shellFinalize(&rc, pStmt);
+        if( bEmpty && rc==SQLITE_OK ){
+          sqlite3_db_config(p->db, SQLITE_DBCONFIG_DEFENSIVE, 0, 0);
+        }else{
+          p->eRestoreState = 3;
+        }
+      }
+      break;
+    }
+
+    case 2: {
+      if( sqlite3_get_autocommit(p->db) ){
+        sqlite3_db_config(p->db, SQLITE_DBCONFIG_DEFENSIVE, 0, 0);
+        p->eRestoreState = 3;
+      }
+      break;
+    }
+
+    default: /* Nothing to do */
+      assert( p->eRestoreState==3 );
+      break;
+  }
+
+  return rc;
+}
+
+/*
 ** Run a single line of SQL.  Return the number of errors.
 */
 static int runOneSqlLine(ShellState *p, char *zSql, FILE *in, int startline){
@@ -28291,6 +28386,8 @@ static int runOneSqlLine(ShellState *p, char *zSql, FILE *in, int startline){
             sqlite3_changes64(p->db), sqlite3_total_changes64(p->db));
     oputf("%s\n", zLineBuf);
   }
+
+  if( doAutoDetectRestore(p, zSql) ) return 1;
   return 0;
 }
 
