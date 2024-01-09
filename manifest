@@ -1,5 +1,5 @@
-C Add\sthe\s--fts\soption\sto\sthe\s"fossil\ssearch"\scommand.\s\sThis\soption\suses\sthe\nsame\ssearch\smechanism\sas\sweb\ssearch.\s\sUseful\sfor\sdebugging\sweb\ssearch.
-D 2024-01-09T15:14:46.970
+C Fix\san\soff-by-one\serror\sin\sthe\stext\sline-break\salgorithm\sof\scomformat.c.
+D 2024-01-09T17:04:36.298
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 9bd5608f8a2061b19182ea3f32a27f75ef8d0ba772e72298b3cb06c85cbf4f70
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
-F src/comformat.c be18377aa1c12548c7f2853d3b544c4aae492094047f30ba90ef61a2b31202f6
+F src/comformat.c 1a178e0c15c88c3bf6a5456fca17746f34400b3828242254cc46d00aff312af4
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 9b5e2c5384ab60920f7de9e1841f1494b343fb10596abdc059927cffd73d9cc0
 F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 537d9e00cfc20a3e0c2f9eb4e3b87405f4b98c133a28f63d6875d338c041602e
-R d8f1c154aaff940fd65d4c635d84b2f6
+P 2ddf62a32036acc177b5c2efb8bb18e1600df21f0be4c8cff44058d9bf0e8c81
+R d36dd5fd9a337ffb9c0f670a0c5625a4
 U drh
-Z e354cd4d1d34cc1498baf053e2b55c52
+Z a9fc2e6e935c85082f7d5e8fd0654121
 # Remove this line to create a well-formed Fossil manifest.
