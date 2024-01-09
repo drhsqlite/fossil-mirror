@@ -1,5 +1,5 @@
-C Fix\san\soff-by-one\serror\sin\sthe\stext\sline-break\salgorithm\sof\scomformat.c.
-D 2024-01-09T17:04:36.298
+C Improvements\sthe\s"fossil\ssearch\s--fts":\s\sAdd\sthe\s--scope\sand\s--debug\soptions\nand\simprove\soutput\sformatting.
+D 2024-01-09T17:05:23.659
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -516,7 +516,7 @@ F src/report.c 553e5cbe86e2684bbcf3ee0ac7916db9aebc644c42bbb245048a208b9cfc8f51
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 283ecf13005abd4d2c735e37b9fbc3ecf6d3582f4e91a288af994020437bf6aa
+F src/search.c 238abcebf45d1a2f2209fdd43208fc8d5568fd0df9a8538529f1c4496d55ddd7
 F src/security_audit.c 6da0bd26a7ff1544c46eb0caf4c003496c8caaaf9af7d060557a450770278953
 F src/setup.c 879d77a697cb659dee2ae18fe6a44313b025fc1f9b1cd73bd4a3c3c29f65407e
 F src/setupuser.c 3b1136b8d5dbfb2d97b34845e5294af9ff11aab5588941efab1445b8aa0f161a
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ddf62a32036acc177b5c2efb8bb18e1600df21f0be4c8cff44058d9bf0e8c81
-R d36dd5fd9a337ffb9c0f670a0c5625a4
+P eb2100db425fc15b80f50103db43bed75c8a9eda8faef1aee12fc74353fca16a
+R 09cc0902d4d74ab62ad80635bb452d56
 U drh
-Z a9fc2e6e935c85082f7d5e8fd0654121
+Z 0797b9dfd2f912e99ea0ee6f2477828e
 # Remove this line to create a well-formed Fossil manifest.
