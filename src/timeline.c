@@ -37,6 +37,13 @@
 #define TIMELINE_MODE_CHILDREN  3
 #define TIMELINE_MODE_PARENTS   4
 
+#define TIMELINE_FMT_ONELINE \
+    "%h %c"
+#define TIMELINE_FMT_MEDIUM \
+    "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c"
+#define TIMELINE_FMT_FULL \
+    "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%n"\
+    "Branch:   %b%nTags:     %t%nPhase:    %p"                             
 /*
 ** Add an appropriate tag to the output if "rid" is unpublished (private)
 */
@@ -1419,7 +1426,7 @@ static const char *tagMatchExpression(
     zEnd = "')";
     zPrefix = "";
     zSuffix = "";
-    zIntro = "any of ";
+    zIntro = "";
   }
 
   /* Convert the list of matches into an SQL expression and text description. */
@@ -1599,6 +1606,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       is also an n= or n1= query parameter.
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
+**    tl=TAGLIST      Shorthand for t=TAGLIST&ms=brlist
+**    rl=TAGLIST      Shorthand for r=TAGLIST&ms=brlist
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Limit rel to show ancestors but not descendants
 **    nowiki          Do not show wiki associated with branch or tag
@@ -1833,6 +1842,20 @@ void page_timeline(void){
       " ORDER BY event.mtime LIMIT 1",
       P("cf")
     );
+  }
+
+  /* Check for tl=TAGLIST and rl=TAGLIST which are abbreviations for
+  ** t=TAGLIST&ms=brlist and r=TAGLIST&ms=brlist repectively. */
+  if( zBrName==0 && zTagName==0 ){
+    const char *z;
+    if( (z = P("tl"))!=0 ){
+      zTagName = z;
+      zMatchStyle = "brlist";
+    }
+    if( (z = P("rl"))!=0 ){
+      zBrName = z;
+      zMatchStyle = "brlist";
+    }
   }
 
   /* Convert r=TAG to t=TAG&rel in order to populate the UI style widgets. */
@@ -2713,7 +2736,7 @@ void page_timeline(void){
       tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( zTagSql ){
-      if( matchStyle==MS_EXACT ){
+      if( matchStyle==MS_EXACT || matchStyle==MS_BRLIST ){
         if( related ){
           blob_appendf(&desc, " related to %h", zMatchDesc);
         }else{
@@ -3005,8 +3028,11 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   int rc;
-  int bVerboseNewline = (zFormat!=0 && (fossil_strcmp(zFormat, "%h %c")!=0) );
-                              /* True: print a newline after file listing */
+  /* True: separate entries with a newline after file listing */
+  int bVerboseNL = (zFormat && (fossil_strcmp(zFormat, TIMELINE_FMT_ONELINE)!=0));
+  /* True: separate entries with a newline even with no file listing */
+  int bNoVerboseNL = (zFormat && (fossil_strcmp(zFormat, TIMELINE_FMT_MEDIUM)==0 ||
+                      fossil_strcmp(zFormat, TIMELINE_FMT_FULL)==0));
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -3139,10 +3165,10 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
         nLine++; /* record another line */
       }
       db_reset(&fchngQuery);
+      if( bVerboseNL ) fossil_print("\n");
+    }else{
+      if( bNoVerboseNL ) fossil_print("\n");
     }
-    /* With special formatting (except for "oneline") and --verbose,
-    ** print a newline after the file listing */
-    if( bVerboseNewline ) fossil_print("\n");
     
     nEntry++; /* record another complete entry */
   }
@@ -3328,13 +3354,15 @@ void timeline_cmd(void){
                     vid, TAG_BRANCH);
     }
   }
-  if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 )
-    zFormat = "%h %c";
-  if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
-    zFormat = "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c";
-  if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 )
-    zFormat = "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%n"
-              "Branch:   %b%nTags:     %t%nPhase:    %p";
+  if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 ){
+    zFormat = TIMELINE_FMT_ONELINE;
+  }
+  if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 ){
+    zFormat = TIMELINE_FMT_MEDIUM;
+  }
+  if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 ){
+    zFormat = TIMELINE_FMT_FULL;
+  }
   showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){

@@ -10,7 +10,7 @@
 set prog {
 package require Tk
 
-array set CFG {
+array set CFG_light {
   TITLE      {Fossil Diff}
   LN_COL_BG  #dddddd
   LN_COL_FG  #444444
@@ -33,6 +33,37 @@ array set CFG {
   HEIGHT     45
   LB_HEIGHT  25
 }
+
+array set CFG_dark {
+  TITLE      {Fossil Diff}
+  LN_COL_BG  #dddddd
+  LN_COL_FG  #444444
+  TXT_COL_BG #3f3f3f
+  TXT_COL_FG #dcdccc
+  MKR_COL_BG #444444
+  MKR_COL_FG #dddddd
+  CHNG_BG    #6a6afc
+  ADD_BG     #57934c
+  RM_BG      #ef6767
+  HR_FG      #444444
+  HR_PAD_TOP 4
+  HR_PAD_BTM 8
+  FN_BG      #5e5e5e
+  FN_FG      #ffffff
+  FN_PAD     5
+  ERR_FG     #ee0000
+  PADX       5
+  WIDTH      80
+  HEIGHT     45
+  LB_HEIGHT  25
+}
+
+array set CFG_arr {
+  0          CFG_light
+  1          CFG_dark
+}
+
+array set CFG [array get $CFG_arr($darkmode)]
 
 if {![namespace exists ttk]} {
   interp alias {} ::ttk::scrollbar {} ::scrollbar

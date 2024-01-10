@@ -276,7 +276,7 @@ static void comment_print_line(
     }else if( wordBreak && fossil_isspace(c) ){
       int distUTF8;
       int nextIndex = comment_next_space(zLine, index, &distUTF8);
-      if( nextIndex<=0 || distUTF8>maxChars ){
+      if( nextIndex<=0 || distUTF8>=maxChars ){
         break;
       }
       charCnt++;

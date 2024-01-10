@@ -50,6 +50,14 @@
 #define DIFF_TCL               0x00080000 /* For the --tk option */
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
 #define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
+#define DIFF_DARKMODE          0x00400000 /* Use dark mode for HTML */
+
+/*
+** Per file information that may influence output.
+*/
+#define DIFF_FILE_ADDED        0x40000000 /* Added or rename destination */
+#define DIFF_FILE_DELETED      0x80000000 /* Deleted or rename source */
+#define DIFF_FILE_MASK         0xc0000000 /* Used for clearing file flags */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -424,7 +432,7 @@ static void contextDiff(
   while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
 
     /* For the current block comprising nr triples, figure out
@@ -2225,7 +2233,7 @@ static void formatDiff(
 
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
@@ -3162,6 +3170,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
+  if( find_option("dark",0,0)!=0 ) diffFlags |= DIFF_DARKMODE;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   if( find_option("internal","i",0)==0

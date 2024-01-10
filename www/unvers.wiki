@@ -7,7 +7,7 @@ it retains the newest version of each such file, and that alone.
 
 Though it omits history, Fossil does sync unversioned content between
 repositories.  In the event of a conflict during a sync, it retains
-the most recent version of each unversioned file, discrding
+the most recent version of each unversioned file, discarding
 older versions.
 
 Unversioned files are useful for storing ephemeral content such as builds
@@ -80,7 +80,7 @@ CREATE TABLE unversioned(
   name TEXT UNIQUE,       -- Name of the file
   rcvid INTEGER,          -- From whence this file was received
   mtime DATETIME,         -- Last change (seconds since 1970)
-  hash TEXT,              -- SHA1 hash of uncompressed content
+  hash TEXT,              -- SHA1 or SHA3-256 hash of uncompressed content
   sz INTEGER,             -- Size of uncompressed content
   encoding INT,           -- 0: plaintext  1: zlib compressed
   content BLOB            -- File content
@@ -102,13 +102,13 @@ compression on them.
 
 Fossil servers exchange unversioned content whole; it does not attempt
 to "diff" your local version against the remote and send only the
-changes. We point tihs out because one use-case for unversioned content
+changes. We point this out because one use-case for unversioned content
 is to send large, frequently-changing files. Appreciate the consequences
 before making each change.
 
 There are two bandwidth-saving measures in "<tt>fossil uv sync</tt>".
 The first is the regular HTTP payload compression step, done on all
-syncs. The second is that Fossil sends SHA1 hash exchanges to determine
+syncs. The second is that Fossil sends hash exchanges to determine
 when it can avoid sending duplicate content over the wire unnecessarily.
 See the [./sync.wiki|synchronization protocol documentation] for further
 information.

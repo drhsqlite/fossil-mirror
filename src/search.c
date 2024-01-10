@@ -562,6 +562,24 @@ void search_sql_setup(sqlite3 *db){
 }
 
 /*
+** Search scope abbreviations and names.
+*/
+static const struct {
+  const char *z;
+  const char *zNm;
+  unsigned m;
+} aScope[] = {
+   { "all",  "All",        SRCH_ALL      },
+   { "c",    "Check-ins",  SRCH_CKIN     },
+   { "d",    "Docs",       SRCH_DOC      },
+   { "t",    "Tickets",    SRCH_TKT      },
+   { "w",    "Wiki",       SRCH_WIKI     },
+   { "e",    "Tech Notes", SRCH_TECHNOTE },
+   { "f",    "Forum",      SRCH_FORUM    },
+};
+
+
+/*
 ** Testing the search function.
 **
 ** COMMAND: search*
@@ -585,7 +603,11 @@ void search_sql_setup(sqlite3 *db){
 **
 ** Options:
 **     -a|--all          Output all matches, not just best matches
+**     --debug           Show additional debug content on --fts search
+**     --fts             Use the full-text search mechanism (testing only)
 **     -n|--limit N      Limit output to N matches
+**     --scope SCOPE     Scope of search.  Valid for --fts only.  One or
+**                       more of: all, c, d, e, f, t, w.  Defaults to all.
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
 **                       unlimited. Defaults the terminal's width.
 */
@@ -595,14 +617,15 @@ void search_cmd(void){
   Blob sql = empty_blob;
   Stmt q;
   int iBest;
-  char fAll = NULL != find_option("all", "a", 0); /* If set, do not lop
-                                                     off the end of the
-                                                     results. */
+  char fAll = NULL != find_option("all", "a", 0);
   const char *zLimit = find_option("limit","n",1);
   const char *zWidth = find_option("width","W",1);
-  int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
-                                                   lines/entries to list */
+  const char *zScope = find_option("scope",0,1);
+  int bDebug = find_option("debug",0,0)!=0;
+  int nLimit = zLimit ? atoi(zLimit) : -1000;
   int width;
+  int bFts = find_option("fts",0,0)!=0;
+
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=20) ){
@@ -618,33 +641,105 @@ void search_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_appendf(&pattern, " %s", g.argv[i]);
   }
-  (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
-  blob_reset(&pattern);
-  search_sql_setup(g.db);
-
-  db_multi_exec(
-     "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
-     "CREATE INDEX srch_idx1 ON srch(x);"
-     "INSERT INTO srch(rid,uuid,date,comment,x)"
-     "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
-     "          coalesce(ecomment,comment),"
-     "          search_score()"
-     "     FROM event, blob"
-     "    WHERE blob.rid=event.objid"
-     "      AND search_match(coalesce(ecomment,comment));"
-  );
-  iBest = db_int(0, "SELECT max(x) FROM srch");
-  blob_append(&sql,
-              "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
-              "WHERE 1 ", -1);
-  if(!fAll){
-    blob_append_sql(&sql,"AND x>%d ", iBest/3);
+  if( bFts ){
+    /* Search using FTS */
+    Blob com;
+    Blob snip;
+    const char *zPattern = blob_str(&pattern);
+    int srchFlags;
+    if( zScope==0 ){
+      srchFlags = SRCH_ALL;
+    }else{
+      srchFlags = 0;
+      for(i=0; zScope[i]; i++){
+        switch( zScope[i] ){
+          case 'a':  srchFlags = SRCH_ALL;  break;
+          case 'c':  srchFlags |= SRCH_CKIN;     break;
+          case 'd':  srchFlags |= SRCH_DOC;      break;
+          case 'e':  srchFlags |= SRCH_TECHNOTE; break;
+          case 'f':  srchFlags |= SRCH_FORUM;    break;
+          case 't':  srchFlags |= SRCH_TKT;      break;
+          case 'w':  srchFlags |= SRCH_WIKI;     break;
+        }
+      }
+    }
+    search_sql_setup(g.db);
+    add_content_sql_commands(g.db);
+    db_multi_exec(
+      "CREATE TEMP TABLE x(label,url,score,id,date,snip);"
+    );
+    if( !search_index_exists() ){
+      search_fullscan(zPattern, srchFlags);  /* Full-scan search */
+    }else{
+      search_update_index(srchFlags);        /* Update the index */
+      search_indexed(zPattern, srchFlags);   /* Indexed search */
+    }
+    db_prepare(&q, "SELECT snip, label, score, id, date"
+                   "  FROM x"
+                   " ORDER BY score DESC, date DESC;");
+    blob_init(&com, 0, 0);
+    blob_init(&snip, 0, 0);
+    if( width<0 ) width = 80;
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zSnippet = db_column_text(&q, 0);
+      const char *zLabel = db_column_text(&q, 1);
+      const char *zDate = db_column_text(&q, 4);
+      const char *zScore = db_column_text(&q, 2);
+      const char *zId = db_column_text(&q, 3);
+      blob_appendf(&snip, "%s", zSnippet);
+      for(i=0; i<snip.nUsed; i++){
+        if( snip.aData[i]=='\n' ){
+          if( i>0 && snip.aData[i-1]=='\r' ) snip.aData[i-1] = ' ';
+          snip.aData[i] = ' ';
+        }
+      }
+      blob_appendf(&com, "%s\n%s\n%s", zLabel, blob_str(&snip), zDate);
+      if( bDebug ){
+        blob_appendf(&com," score: %s id: %s", zScore, zId);
+      }
+      comment_print(blob_str(&com), 0, 5, width,
+            COMMENT_PRINT_TRIM_CRLF |
+            COMMENT_PRINT_WORD_BREAK |
+            COMMENT_PRINT_TRIM_SPACE);
+      blob_reset(&com);
+      blob_reset(&snip);
+      if( nLimit>=1 ){
+        nLimit--;
+        if( nLimit==0 ) break;
+      }
+    }
+    db_finalize(&q);
+    blob_reset(&pattern);
+  }else{
+    /* Legacy timeline search (the default) */
+    (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
+    blob_reset(&pattern);
+    search_sql_setup(g.db);
+  
+    db_multi_exec(
+       "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
+       "CREATE INDEX srch_idx1 ON srch(x);"
+       "INSERT INTO srch(rid,uuid,date,comment,x)"
+       "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
+       "          coalesce(ecomment,comment),"
+       "          search_score()"
+       "     FROM event, blob"
+       "    WHERE blob.rid=event.objid"
+       "      AND search_match(coalesce(ecomment,comment));"
+    );
+    iBest = db_int(0, "SELECT max(x) FROM srch");
+    blob_append(&sql,
+                "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
+                "WHERE 1 ", -1);
+    if(!fAll){
+      blob_append_sql(&sql,"AND x>%d ", iBest/3);
+    }
+    blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
+    db_prepare(&q, "%s", blob_sql_text(&sql));
+    blob_reset(&sql);
+    print_timeline(&q, nLimit, width, 0, 0);
+    db_finalize(&q);
   }
-  blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  blob_reset(&sql);
-  print_timeline(&q, nLimit, width, 0, 0);
-  db_finalize(&q);
 }
 
 #if INTERFACE
@@ -708,7 +803,7 @@ unsigned int search_restrict(unsigned int srchFlags){
 **
 ** The companion indexed search routine is search_indexed().
 */
-static void search_fullscan(
+LOCAL void search_fullscan(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
@@ -916,7 +1011,7 @@ static void search_rank_sqlfunc(
 **
 ** The companion full-scan search routine is search_fullscan().
 */
-static void search_indexed(
+LOCAL void search_indexed(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
@@ -1259,10 +1354,16 @@ static void get_stext_by_mimetype(
     }else{
       Blob tail;
       blob_init(&tail, 0, 0);
-      wiki_find_title(pIn, &title, &tail);
-      wiki_convert(&tail, &html, 0);
-      blob_reset(&tail);
+      if( wiki_find_title(pIn, &title, &tail) ){
+        blob_appendf(pOut, "%s\n", blob_str(&title));
+        wiki_convert(&tail, &html, 0);
+        blob_reset(&tail);
+      }else{
+        blob_append(pOut, "\n", 1);
+        wiki_convert(pIn, &html, 0);
+      }
     }
+    html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/x-markdown")==0 ){
     markdown_to_html(pIn, blob_size(&title) ? NULL : &title, &html);
   }else if( fossil_strcmp(zMimetype,"text/html")==0 ){

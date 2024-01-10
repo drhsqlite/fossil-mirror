@@ -3091,7 +3091,7 @@ int alert_send_alerts(u32 flags){
      " WHERE sverified"
      "   AND NOT sdonotcall"
      "   AND sdigest IS %s"
-     "   AND coalesce(subscriber.lastContact,subscriber.mtime)>=%d",
+     "   AND coalesce(subscriber.lastContact*86400,subscriber.mtime)>=%d",
      zDigest/*safe-for-%s*/,
      db_get_int("email-renew-cutoff",0)
   );
@@ -3100,14 +3100,15 @@ int alert_send_alerts(u32 flags){
     const char *zSub = db_column_text(&q, 2);
     const char *zEmail = db_column_text(&q, 1);
     const char *zCap = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
     int nHit = 0;
     for(p=pEvents; p; p=p->pNext){
       if( strchr(zSub,p->type)==0 ){
         if( p->type!='f' ) continue;
         if( strchr(zSub,'n')!=0 && (p->zPriors==0 || p->zPriors[0]==0) ){
           /* New post: accepted */
-        }else if( strchr(zSub,'r')!=0
-               && alert_in_priors(db_column_text(&q,4), p->zPriors) ){
+        }else if( strchr(zSub,'r')!=0 && zUser!=0
+               && alert_in_priors(zUser, p->zPriors) ){
           /* A follow-up to a post written by the user: accept */
         }else{
           continue;

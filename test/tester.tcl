@@ -22,6 +22,11 @@
 # Where ../test/tester.tcl is the name of this file and ../bld/fossil
 # is the name of the executable to be tested.
 #
+# To run a subset of tests (i.e. only one or more of the test/*.test
+# scripts), append the script base names as arguments:
+#
+#     tclsh ../test/tester.tcl ../bld/fossil <script-basename>...
+#
 
 # We use some things introduced in 8.6 such as lmap.  auto.def should
 # have found us a suitable Tcl installation.
@@ -281,6 +286,8 @@ proc get_all_settings {} {
       allow-symlinks \
       auto-captcha \
       auto-hyperlink \
+      auto-hyperlink-delay \
+      auto-hyperlink-mouseover \
       auto-shun \
       autosync \
       autosync-tries \
@@ -295,6 +302,7 @@ proc get_all_settings {} {
       chat-keep-count \
       chat-keep-days \
       chat-poll-timeout \
+      chat-timeline-user \
       clean-glob \
       clearsign \
       comment-format \
@@ -304,10 +312,12 @@ proc get_all_settings {} {
       default-perms \
       diff-binary \
       diff-command \
+      dont-commit \
       dont-push \
       dotfiles \
       editor \
       email-admin \
+      email-listid \
       email-renew-interval \
       email-self \
       email-send-command \
@@ -322,6 +332,7 @@ proc get_all_settings {} {
       exec-rel-paths \
       fileedit-glob \
       forbid-delta-manifests \
+      forum-close-policy \
       gdiff-command \
       gmerge-command \
       hash-digits \
@@ -330,6 +341,7 @@ proc get_all_settings {} {
       https-login \
       ignore-glob \
       keep-glob \
+      large-file-size \
       localauth \
       lock-timeout \
       main-branch \
@@ -340,6 +352,7 @@ proc get_all_settings {} {
       max-upload \
       mimetypes \
       mtime-changes \
+      mv-rm-files \
       pgp-command \
       preferred-diff-type \
       proxy \
@@ -348,6 +361,7 @@ proc get_all_settings {} {
       repo-cksum \
       repolist-skin \
       safe-html \
+      self-pw-reset \
       self-register \
       sitemap-extra \
       ssh-command \
@@ -1084,6 +1098,15 @@ please set TEMP variable in environment, error: $error"
 
 set tempHomePath [file join $tempPath home_[pid]]
 
+# Close stdin to avoid errors on wrapped text for narrow terminals.
+# Closing stdin means that terminal detection returns 0 width, in turn
+# causing the relvant strings to be printed on a single line.
+# However, closing stdin makes file descriptor 0 avaailable on some systems
+# and/or TCL implementations, which triggers fossil to complain about opening
+# databases using fd 0. Avoid this by opening the script, consuming fd 0.
+close stdin
+set possibly_fd0 [open [info script] r]
+
 if {[catch {
   file mkdir $tempHomePath
 } error] != 0} {
@@ -1112,6 +1135,10 @@ foreach testfile $argv {
 }
 cd $startPwd
 unset ::tempKeepHome; delete_temporary_home
+
+# Clean up the file descriptor
+close $possibly_fd0
+
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
   protOut "***** Final results: $nErr errors out of $test_count tests" 1

@@ -394,7 +394,16 @@ void ajax_route_dispatcher(void){
   const AjaxRoute * pRoute = 0;
   const AjaxRoute routes[] = {
   /* Keep these sorted by zName (for bsearch()) */
-  {"preview-text", ajax_route_preview_text, 1, 1}
+  {"preview-text", ajax_route_preview_text, 0, 1
+   /* Note that this does not require write permissions in the repo.
+   ** It should arguably require write permissions but doing means
+   ** that /chat does not work without checkin permissions:
+   **
+   ** https://fossil-scm.org/forum/forumpost/ed4a762b3a557898
+   **
+   ** This particular route is used by /fileedit and /chat, whereas
+   ** /wikiedit uses a simpler wiki-specific route.
+   */ }
   };
 
   if(zName==0 || zName[0]==0){
@@ -411,5 +420,5 @@ void ajax_route_dispatcher(void){
   }else if(0==ajax_route_bootstrap(pRoute->bWriteMode, pRoute->bPost)){
     return;
   }
-  pRoute->xCallback();  
+  pRoute->xCallback();
 }

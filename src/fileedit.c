@@ -1700,7 +1700,7 @@ void fileedit_page(void){
     CX("<div id='fileedit-file-selector'></div>");
     CX("</div>"/*#fileedit-tab-fileselect*/);
   }
-  
+
   /******* Content tab *******/
   {
     CX("<div id='fileedit-tab-content' "
@@ -1708,7 +1708,8 @@ void fileedit_page(void){
        "data-tab-label='File Content' "
        "class='hidden'"
        ">");
-    CX("<div class='flex-container flex-row child-gap-small'>");
+    CX("<div class='fileedit-options flex-container "
+       "flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
        "<button class='fileedit-content-reload confirmer' "
        ">Discard &amp; Reload</button>"
@@ -1726,6 +1727,7 @@ void fileedit_page(void){
                           "100%", 100, "125%", 125,
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
+    wikiedit_emit_toggle_preview();
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='fileedit-content-editor' "

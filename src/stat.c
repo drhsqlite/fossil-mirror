@@ -717,6 +717,22 @@ void repo_schema_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
+  if( zArg!=0 
+   && db_table_exists("repository",zArg)
+   && cgi_csrf_safe(1)
+  ){
+    if( P("analyze")!=0 ){
+      db_multi_exec("ANALYZE \"%w\"", zArg);
+    }else if( P("analyze200")!=0 ){
+      db_multi_exec("PRAGMA analysis_limit=200; ANALYZE \"%w\"", zArg);
+    }else if( P("deanalyze")!=0 ){
+      db_unprotect(PROTECT_ALL);
+      db_multi_exec("DELETE FROM repository.sqlite_stat1"
+                    " WHERE tbl LIKE %Q", zArg);
+      db_protect_pop();
+    }
+  }
+
   style_set_current_feature("stat");
   style_header("Repository Schema");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -761,6 +777,13 @@ void repo_schema_page(void){
       style_submenu_element("Stat1","repo_stat1");
     }
   }
+  @ <hr><form method="POST">
+  @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
+  @ <input type="submit" name="analyze200"\
+  @  value="Run ANALYZE with limit=200"><br />
+  @ <input type="submit" name="deanalyze" value="De-ANALYZE">
+  @ </form>
+
   style_finish_page();
 }
 
@@ -770,30 +793,66 @@ void repo_schema_page(void){
 ** Show the sqlite_stat1 table for the repository schema
 */
 void repo_stat1_page(void){
+  int bTabular;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
+  bTabular = PB("tabular");
 
+  if( P("analyze")!=0 && cgi_csrf_safe(1) ){
+    db_multi_exec("ANALYZE");
+  }else if( P("analyze200")!=0 && cgi_csrf_safe(1) ){
+    db_multi_exec("PRAGMA analysis_limit=200; ANALYZE;");
+  }else if( P("deanalyze")!=0 && cgi_csrf_safe(1) ){
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec("DELETE FROM repository.sqlite_stat1;");
+    db_protect_pop();
+  }
   style_set_current_feature("stat");
   style_header("Repository STAT1 Table");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
   style_submenu_element("Schema", "repo_schema");
+  style_submenu_checkbox("tabular", "Tabular", 0, 0);
   if( db_table_exists("repository","sqlite_stat1") ){
     Stmt q;
     db_prepare(&q,
       "SELECT tbl, idx, stat FROM repository.sqlite_stat1"
       " ORDER BY tbl, idx");
-    @ <pre>
+    if( bTabular ){
+      @ <table border="1" cellpadding="0" cellspacing="0">
+      @ <tr><th>Table<th>Index<th>Stat
+    }else{
+      @ <pre>
+    }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zTab = db_column_text(&q,0);
       const char *zIdx = db_column_text(&q,1);
       const char *zStat = db_column_text(&q,2);
       char *zUrl = href("%R/repo_schema?n=%t",zTab);
-      @ INSERT INTO sqlite_stat1 VALUES('%z(zUrl)%h(zTab)</a>','%h(zIdx)','%h(zStat)');
+      if( bTabular ){
+        @ <tr><td>%z(zUrl)%h(zTab)</a><td>%h(zIdx)<td>%h(zStat)
+      }else{
+        @ INSERT INTO sqlite_stat1 \
+        @ VALUES('%z(zUrl)%h(zTab)</a>','%h(zIdx)','%h(zStat)');
+      }
     }
-    @ </pre>
+    if( bTabular ){
+      @ </table>
+    }else{
+      @ </pre>
+    }
     db_finalize(&q);
   }
+  @ <p><form method="POST">
+  if( bTabular ){
+    @ <input type="hidden" name="tabular" value="1">
+  }
+  @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
+  @ <input type="submit" name="analyze200"\
+  @  value="Run ANALYZE with limit=200"><br>
+  @ <input type="submit" name="deanalyze"\
+  @  value="De-ANALYZE">
+  @ </form>
   style_finish_page();
 }
 

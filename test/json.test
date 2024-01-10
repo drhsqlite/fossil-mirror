@@ -286,7 +286,7 @@ proc test_hascaps {testname need caps} {
     test $testname-$n {[string first $n $caps] >= 0}
   }
 }
-test_hascaps json-login-c "hmnc" [dict get $AuthAnon capabilities]
+test_hascaps json-login-c "hz" [dict get $AuthAnon capabilities]
 
 fossil user new U1 User-1 Uone
 fossil user capabilities U1 s
