@@ -1,5 +1,5 @@
-C Reduce\soutput\swhen\stesting\sin\s-quiet\smode.\sOutput\sis\snow\slimited\sto\stest\sfailures\s(including\sknownBug)\sand\sskipped\stests\swhen\sthere\sare\suncommitted\schanges.
-D 2024-01-10T09:53:03.956
+C Syntax\serror\sin\stest\srewrite\sscript\sand\sa\scouple\sof\sparsing\simprovments.
+D 2024-01-10T17:08:50.299
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -627,7 +627,7 @@ F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e
 F test/release-checklist.wiki d3d3d277176238bbd517e267fa37fbc11b99c39b3cd0fbd59920ffd5c754069d
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac75a
-F test/rewrite-test-output.tcl e2d9dd260c164962e7a8201b069ca3ef75f4342c087e444446a1b36d212688b4
+F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/set-manifest.test 0f7a5f05fef7b4a3995ce7384feecde313e542d197c3d2d8c5324ef8177f791c
 F test/settings-repo.test 26de9519938c46bcfbe263a55bbef7e0921b28ac53bcb14dde0b7f18f08fd41f
 F test/settings.test 7a54b57d4a7ab1d2b6cf8ad919ebd447fdfc42b31a586ef8d7c50644d1d3ba36
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41c35fb6e2cea4c9bab55cb318294a0afcd604f7809eb6b743c6dd249100dc3c
-R a89ab5890769f451081ced9ba894d4a0
+P 9c23c50defa0559551d47c69babd0fcdfb6ca42a31ddd6f74aab307f7a02e813
+R 235af3cc8d0621b5ef4a43bc56603f84
 U preben
-Z a8aaa0d8aed46be54f0f67972d3df47c
+Z 6dd9a5648220a575e5bec3bbcfc9222e
 # Remove this line to create a well-formed Fossil manifest.

@@ -35,6 +35,10 @@ if { [llength $argv] > 1 || [regexp {^-.+} $fname] } {
 proc common_rewrites { line testname } {
   # Normalise the fossil commands with path as just fossil
   regsub {^(?:[A-Z]:)?/.*?/fossil(?:\.exe)? } $line {fossil } line
+  if {[string match "Usage: *" $line]} {
+    regsub {^(Usage: )/.*?/fossil(?:\.exe)? } $line {\1fossil } line
+    regsub {^(Usage: )[A-Z]:\\.*?\\fossil(?:\.exe)? } $line {\1fossil } line
+  }
 
   # Accept 40 and 64 byte hashes as such
   regsub -all {[[:<:]][0-9a-f]{40}[[:>:]]} $line HASH line
@@ -487,6 +491,11 @@ while { [gets $fd line] >= 0 } {
     }
 
     if { $EXTRA } {
+      if { $line eq "ERROR (0): " && $platform == $WINDOWS } {
+        if { [string match "fossil http --in *" $prev_line] } {
+          continue
+        }
+      }
       if { $testname eq "amend" } {
         # The amend-comment-5.N tests are not run on Windows
         if { $line eq "fossil amend {} -close" } {
@@ -585,7 +594,7 @@ while { [gets $fd line] >= 0 } {
         } elseif { $testname eq "th1" } {
           if { [regexp {^fossil test-th-eval --vfs ([^ ]+) \{globalState vfs\}$} $line match vfs] } {
             if { ($platform == $UNIX && $vfs == "unix-dotfile")
-                 || ($platform == $WINDOWS && $vfs == "win32-longpath") } {
+                 || ($platform == $WINDOWS && $vfs == "win32-longpath")
                  || ($platform == $CYGWIN && $vfs == "win32-longpath") } {
               regsub $vfs $line {EXEPECTED_VFS} line
             }
@@ -600,9 +609,12 @@ while { [gets $fd line] >= 0 } {
             } elseif { $platform == $CYGWIN } {
               regsub {^unix$} $line {EXPECTED_PLATFORM} line
             }
-          } elseif { $line eq "ERROR (1): " } {
-            # Some output goes to stderr on Unix but stdout on Windows
-            set line "RESULT (0): "
+          } elseif { [string match "fossil test-th-eval --th-trace *" $prev_line] } {
+            if { ($result_prefix eq "RESULT (1): " && $line eq "")
+                 || ($result_prefix eq "" && $line eq "ERROR (0): ") } {
+              set result_prefix ""
+              set line "RESULT (0): / ERROR (1): "
+            }
           }
         } elseif { $testname eq "th1-docs" } {
           # In th1-docs, the fossil check-out is exposed in various states.
