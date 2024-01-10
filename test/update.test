@@ -32,8 +32,8 @@ proc test_update_setup {desc} {
 
 # The output is in file name order, so massage $RESULT to remove initial UNCHANGED
 # files. Only do this if we have the expected branch information.
-proc test_update {testname warning} {
-    fossil update --verbose
+proc test_update {testname warning {fossil_args ""}} {
+    fossil update --verbose {*}$fossil_args
     if { [regsub {\n-{79}\nupdated-from: [0-9a-z]{40} .*} $::RESULT {} test_result ] } {
         regsub {^(?:UNCHANGED [-a-z0-9.]+\n)*} $test_result {} test_result
     } else {
@@ -81,7 +81,7 @@ fossil commit -m "Add $fname"
 fossil up previous
 write_seq_to_file $fname
 fossil add $fname
-test_update $testname $warning
+test_update $testname $warning -expectError
 
 set testname "add-overwrites"
 set fname [test_update_setup $testname]
@@ -91,7 +91,7 @@ fossil add $fname
 fossil commit -m "Add $fname"
 fossil up previous
 write_seq_to_file $fname
-test_update $testname $warning
+test_update $testname $warning -expectError
 
 set testname "add-standard"
 set fname [test_update_setup $testname]
@@ -147,7 +147,7 @@ fossil rm --hard $fname
 fossil commit -m "Remove $fname"
 fossil up previous
 file delete $fname
-test_update $testname $warning
+test_update $testname $warning -expectError
 
 set testname "remove"
 set fname [test_update_setup $testname]
@@ -197,7 +197,7 @@ write_seq_to_file $fname
 fossil commit -m "Update $fname"
 fossil up previous
 write_seq_to_file $fname
-test_update $testname $warning
+test_update $testname $warning -expectError
 
 # TODO: test for "Cannot merge binary file"?
 

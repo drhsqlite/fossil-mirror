@@ -208,7 +208,7 @@ test stash-2-list {[first_data_line] eq "empty stash"}
 fossil checkout --force c1
 fossil clean
 fossil mv --soft f1 f1new
-stash-test WY-1 {save -m "Reported 2016-02-09"} {
+stash-test WY-1 {-expectError save -m "Reported 2016-02-09"} {
   REVERT   f1
   DELETE   f1new
 } -changes {

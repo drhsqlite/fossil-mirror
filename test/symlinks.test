@@ -63,7 +63,7 @@ fossil add [file join $rootDir symdirA f1.txt]
 test symlinks-skip-dir-traversal {[normalize_result] eq \
 "SKIP   symdirA/f1.txt"}
 
-fossil commit -m "c1"
+fossil commit -m "c1" -expectError
 
 test symlinks-empty-commit {[normalize_result] eq \
 "nothing has changed; use --allow-empty to override"}

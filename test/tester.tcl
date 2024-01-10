@@ -1021,7 +1021,7 @@ proc test_fossil_http { repository dataFileName url } {
   write_file $inFileName $data
 
   fossil http --in $inFileName --out $outFileName --ipaddr 127.0.0.1 \
-      $repository --localauth --th-trace
+      $repository --localauth --th-trace -expectError
 
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 

@@ -732,7 +732,7 @@ test th1-trace-1 {$RESULT eq {}}
 
 ###############################################################################
 
-fossil test-th-eval --th-trace "trace {}"
+fossil test-th-eval --th-trace "trace {}" -expectError
 set normalized_result [normalize_result]
 
 regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
@@ -760,7 +760,7 @@ test th1-trace-3 {$RESULT eq {}}
 
 ###############################################################################
 
-fossil test-th-eval --th-trace "trace {this is a trace message.}"
+fossil test-th-eval --th-trace "trace {this is a trace message.}" -expectError
 set normalized_result [normalize_result]
 
 regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \

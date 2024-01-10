@@ -58,7 +58,7 @@ if { $::is_cygwin && [file extension $fossilexe] eq ".exe" } {
   set fossilexeref $fossilexe
 }
 
-fossil unversioned
+fossil unversioned -expectError
 test unversioned-1 {[normalize_result] eq \
 [string map [list %fossil% [file nativename $fossilexeref]] {Usage: %fossil%\
 unversioned add|cat|edit|export|list|revert|remove|sync|touch}]}
