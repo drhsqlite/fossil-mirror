@@ -1,5 +1,5 @@
-C Add\s-expectError\sto\sa\snumber\sof\stests\sthat\sare\sexpected\sto\sgenerate\serrors\sor\soutput.
-D 2024-01-10T09:36:06.330
+C Remove\sstale\sdebug\soutput\sin\ssymlinks\stest.
+D 2024-01-10T09:38:06.645
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -637,7 +637,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
 F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec641e374496bcb0
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
-F test/symlinks.test fcd225a14cf3d873f8938333c2aa142a20c489ac1ef8e323e5473fe227cda991
+F test/symlinks.test 1ca2a95db55563fd16c4591037248a9fd7db36007cd4a0ea64c59051acac4e89
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl 04c2eced76fdf347437d583f5723eefe63f79c4aae9c42a39f9a1b0f814ee1e7
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 383087bfab207dd3a4bbb89b508dcdb5594d486479494f89e5ab7f49856e1ef1
-R 8f1da108a6bc7fc0ab07ee51ace7e3c3
+P 768d93e6ee8cc72c78fe78d1493f6f1925317925308ea8e285c23ac01f88fd68
+R 69a57d9fcc9e42885fd0e0780713b34a
 U preben
-Z f6d2b95cb773b84c971b011295d01c68
+Z 78b07b8b72c8d247895dd884e6d6d643
 # Remove this line to create a well-formed Fossil manifest.

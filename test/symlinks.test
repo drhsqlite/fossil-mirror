@@ -75,9 +75,6 @@ test symlinks-dir-5 {[normalize_result] eq ""}
 
 ###############################################################################
 
-fossil set allow
-puts $RESULT
-
 fossil extras
 test symlinks-dir-6 {[normalize_result] eq \
 "subdirA/f1.txt\nsubdirA/f2.txt\nsymdirA"}
