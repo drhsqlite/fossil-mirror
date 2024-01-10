@@ -1,5 +1,5 @@
-C No\sneed\sto\sre-open\srepository\sin\sjson\stests.
-D 2024-01-10T09:39:09.310
+C Reduce\soutput\swhen\stesting\sin\s-quiet\smode.\sOutput\sis\snow\slimited\sto\stest\sfailures\s(including\sknownBug)\sand\sskipped\stests\swhen\sthere\sare\suncommitted\schanges.
+D 2024-01-10T09:53:03.956
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -616,7 +616,7 @@ F test/merge1.test 7c09c990de1aaeb5318e0768c07f2526dacbb858d3a79118f25d0729312ad
 F test/merge2.test c569f06bd3a13f01648db1796805972251ccc5fe1a575fa4e2c885172cb4b4ff
 F test/merge3.test 0562a7c4de7c7c13f9d3a722ac56a506ece4e57cb3b3bbcd9c5ca1743a8ed816
 F test/merge4.test 4bbf9c9d8efeb3cc8e2ff3ab8a045ab1782a5447826d1ff0688ebafd8df41763
-F test/merge5.test 00a16dbff1c3ffb981b7bb7ede93dcf03e77a42c8fddff1fd632a49119d2dc65
+F test/merge5.test 42573accbfcc65c7162ba6cf26601f6ddf107c50559c6edbc148cf2b5b7c8f59
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
@@ -656,7 +656,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test e3361427060c0075dd26fe13be3b151182d6de392a85e80116d637e4383712d0
-F test/unversioned.test 0769a05adecc43e92aedbd3b8848fb13f2aec300dcec336a47399833d980b546
+F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e11f1d711a
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/update.test a1ea212dfa61da41fd1d61464d60b3dd7e53d756de199db15e263c683a02b326
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 211f170c1353bc474df382d9ea5bc0ff024f57e3542b9e7c9f7b81e31316f1df
-R 1a31da0f0e083e08b0c9785e5fb933cb
+P 41c35fb6e2cea4c9bab55cb318294a0afcd604f7809eb6b743c6dd249100dc3c
+R a89ab5890769f451081ced9ba894d4a0
 U preben
-Z 20629378eaa0b6837f7fa9ea04fe7721
+Z a8aaa0d8aed46be54f0f67972d3df47c
 # Remove this line to create a well-formed Fossil manifest.

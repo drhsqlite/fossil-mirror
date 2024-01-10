@@ -324,7 +324,9 @@ fossil user capabilities uvtester oy
 ###############################################################################
 
 foreach {pid port outTmpFile} [test_start_server $repository stopArg] {}
-puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
+if {! $::QUIET} {
+  puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
+}
 set remote [appendArgs http://uvtester: $password @localhost: $port /]
 
 ###############################################################################
@@ -334,7 +336,9 @@ set clientDir [file join $tempPath [appendArgs \
 
 set savedPwd [pwd]
 file mkdir $clientDir; cd $clientDir
-puts [appendArgs "Now in client directory \"" [pwd] \".]
+if {! $::QUIET} {
+  puts [appendArgs "Now in client directory \"" [pwd] \".]
+}
 write_file unversioned-client1.txt "This is unversioned client file #1."
 
 ###############################################################################
@@ -438,16 +442,20 @@ test unversioned-56 {[normalize_result] eq {}}
 
 cd $savedPwd; unset savedPwd
 file delete -force $clientDir
-puts [appendArgs "Now in server directory \"" [pwd] \".]
+if {! $::QUIET} {
+  puts [appendArgs "Now in server directory \"" [pwd] \".]
+}
 
 ###############################################################################
 
 set stopped [test_stop_server $stopArg $pid $outTmpFile]
 
-puts [appendArgs \
+if {! $::QUIET} {
+  puts [appendArgs \
     [expr {$stopped ? "Stopped" : "Could not stop"}] \
     " Fossil server, pid \"" $pid "\", using argument \"" \
     $stopArg \".]
+}
 
 ###############################################################################
 
