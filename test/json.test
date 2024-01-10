@@ -897,7 +897,6 @@ test json-RC-4102-CLI-exit {$CODE != 0}
 test_json_envelope json-RC-4102-CLI-exit {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
 test json-RC-4102 {[dict get $JR resultCode] eq "FOSSIL-4102"}
-fossil open .rep.fossil
 
 # FOSSIL-4103 FSL_JSON_E_DB_NOT_VALID
 #     Fossil repository db file is not valid.
