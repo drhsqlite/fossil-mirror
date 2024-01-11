@@ -1,5 +1,5 @@
-C Syntax\serror\sin\stest\srewrite\sscript\sand\sa\scouple\sof\sparsing\simprovments.
-D 2024-01-10T17:08:50.299
+C In\sthe\supdate\stests,\salso\scheck\sfossil\schanges\safter\supdating.
+D 2024-01-11T17:55:25.542
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -659,7 +659,7 @@ F test/th1.test e3361427060c0075dd26fe13be3b151182d6de392a85e80116d637e4383712d0
 F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e11f1d711a
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/update.test a1ea212dfa61da41fd1d61464d60b3dd7e53d756de199db15e263c683a02b326
+F test/update.test c13ead0c26bf794b038db9a40c2ecc2858df8b6d0df15991c4d8d2e67f6db93c
 F test/utf.test 785fc1ad4c79c42ad60a25abb82130a5578604b9955fa3599600ae6236d8af58
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c23c50defa0559551d47c69babd0fcdfb6ca42a31ddd6f74aab307f7a02e813
-R 235af3cc8d0621b5ef4a43bc56603f84
+P 2873af0b5c427a7c89619c65087f0453250dae3a77a1baafd2644961ec6c1618
+R 95efffb729c9078b0482503917321172
 U preben
-Z 6dd9a5648220a575e5bec3bbcfc9222e
+Z 1295b5fbaf965667540559482fe258c1
 # Remove this line to create a well-formed Fossil manifest.
