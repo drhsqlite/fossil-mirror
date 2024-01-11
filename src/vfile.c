@@ -236,18 +236,24 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       assert( origSize==currentSize );
       if( hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 0;
     }else if( (chnged==0 || chnged==2 || chnged==4)
-           && (useMtime==0 || currentMtime!=oldMtime || oldMtime==now) ){
+           && (useMtime==0 || currentMtime!=oldMtime) ){
       /* For files that were formerly believed to be unchanged or that were
       ** changed by merging, if their mtime changes, or unconditionally
       ** if --hash is used, check to see if they have been edited by
-      ** looking at their artifact hashes. Also check if mtime is current
-      ** in case a commit took place the same clock second checks started. */
+      ** looking at their artifact hashes */
       const char *zUuid = db_column_text(&q, 5);
       int nUuid = db_column_bytes(&q, 5);
       assert( origSize==currentSize );
       if( !hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 1;
     }
-    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4)){
+    /* Before updating VFILE below, currentMtime may need an update:
+    ** 1. If file was modified just now, set to 0 as done when merging.
+    **    Next time we check, we will likely check the hash and update mtime.
+    ** 2. Set to manifest time, if requested.
+    */
+    if( currentMtime >= now ){
+      currentMtime = 0;
+    } else if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4)){
       i64 desiredMtime;
       if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
         if( currentMtime!=desiredMtime ){
@@ -328,8 +334,7 @@ void vfile_to_disk(
     if( file_is_the_same(&content, zName) ){
       blob_reset(&content);
       if( file_setexe(zName, isExe) ){
-        db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
-                      file_mtime(zName, RepoFILE), id);
+        db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", id);
       }
       continue;
     }
@@ -364,8 +369,7 @@ void vfile_to_disk(
     }
     file_setexe(zName, isExe);
     blob_reset(&content);
-    db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
-                  file_mtime(zName, RepoFILE), id);
+    db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", id);
   }
   db_finalize(&q);
 }

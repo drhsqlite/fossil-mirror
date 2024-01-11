@@ -948,7 +948,6 @@ void revert_cmd(void){
     }else if( file_unsafe_in_tree_path(zFull) ){
       /* Ignore this file */
     }else{
-      sqlite3_int64 mtime;
       int rvChnged = 0;
       int rvPerm = manifest_file_mperm(pRvFile);
 
@@ -974,13 +973,12 @@ void revert_cmd(void){
       }
       file_setexe(zFull, rvPerm==PERM_EXE);
       fossil_print("REVERT   %s\n", zFile);
-      mtime = file_mtime(zFull, RepoFILE);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=%d, deleted=0, isexe=%d, islink=%d,"
+         "   SET mtime=0, chnged=%d, deleted=0, isexe=%d, islink=%d,"
          "       mrid=rid, mhash=NULL"
          " WHERE pathname=%Q OR origname=%Q",
-         mtime, rvChnged, rvPerm==PERM_EXE, rvPerm==PERM_LNK, zFile, zFile
+         rvChnged, rvPerm==PERM_EXE, rvPerm==PERM_LNK, zFile, zFile
       );
     }
     blob_reset(&record);

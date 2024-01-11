@@ -1,5 +1,5 @@
-C Optionally\sprint\smtime\sand\smhash\sin\stest-show-vfile\soutput.
-D 2024-01-11T16:34:27.687
+C When\sreverting\sor\supdating\sa\sfile,\sset\sthe\smtime\sto\s0\sas\salready\sdone\swith\nmerge\sand\sstash.\sEffectively,\swe\sdon't\strust\sthe\shash\suntil\snext\stime\swe\nevaluate\sthe\sstatus\sof\sthe\sfile,\sat\swhich\spoint\swe'll\supdate\svfile.mtime\nwith\sthe\sreal\smtime\sof\sthe\sfile.\n\nBased\son\sdiscussions\sin\s[forum:/forumpost/58bef43842be6fc3|forum\sthread\n58bef43842be6fc3].\n\n15:10:38\s[229360b12e]\s*UNPUBLISHED*\sConsistently\sset\svfile.mtime\sto\s0\swhen\smerging,\n\s\s\s\s\s\s\s\s\supdating,\sreverting\sand\schanging\sa\sfile.\s(user:\spreben\stags:\snew-mtime-update)
+D 2024-01-11T16:55:51.779
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -572,14 +572,14 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 1c7afcbade6c89bb66382e0c4460199ce41843a0fddfef5985e3f2f267c40d6f
-F src/update.c 3518f6180d729efe7c9ae4abf99851c45bc4396fef726fbb0a8c4a62e0a6bd42
+F src/update.c 6a7858ce79df541fa7b9f86b909388f376ef0983a4b830d9116074ea22ff16a9
 F src/url.c 416b3d0912569de0864b4a23e9f19f8b06c6a7857e95bb4075a10a3752a83c9a
 F src/user.c 9753471488de0a934cf0eb7909a71d09cfc189c2a0096f4accf0777b2c891b6a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c b31bec3fd2cae6e063fed9d1456ec63355f91b54a11a37ff985fb66943505a6c
+F src/vfile.c 1e517467fe0f2b130e816a1037fc76e7c3dae59e71de3808bb1e9f8c61ef2ea7
 F src/wiki.c e931ca579d63a99897503abccb1bac6e57a76ed41e541666713246b949d362e9
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 0232d269e8e338acd5fda4154f62a0e27c02a74c423941f6e62a7f41add5454c
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0aa85e302ee674e473d3bbcbaaad281881bde84698919ffb3995957a5aea0ce
-R 70464a5036f9cb026aa0caae9c87c8d6
+P 25f486135d982906f05e5536c0d43b165ccd82e906dc887fee0db96ee7205e31
+R 2931209a33ce37207c415f4d7aeea09c
 U preben
-Z 99dd91e6708225a88c5db518fae802f2
+Z 9e5b4001f87164af067d69324fba5c32
 # Remove this line to create a well-formed Fossil manifest.
