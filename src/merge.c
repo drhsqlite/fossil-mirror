@@ -220,13 +220,14 @@ static void debug_fv_dump(int showAll){
 ** Print the content of the VFILE table on standard output, for
 ** debugging purposes.
 */
-static void debug_show_vfile(void){
+static void debug_show_vfile(int shoeAll){
   Stmt q;
   int pvid = -1;
   db_prepare(&q,
     "SELECT vid, id, chnged, deleted, isexe, islink, rid, mrid, mtime,"
-          " pathname, origname, mhash FROM vfile"
-    " ORDER BY vid, pathname"
+          " pathname, origname, mhash, %s FROM vfile"
+    " ORDER BY vid, pathname",
+    shoeAll ? "COALESCE(datetime(mtime, 'unixepoch', 'localtime'), 'NULL')" : "''"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int vid = db_column_int(&q, 0);
@@ -254,6 +255,10 @@ static void debug_show_vfile(void){
     }else{
       fossil_print("\n");
     }
+    if( shoeAll ){
+      fossil_print("   mtime %19s / %-10i  mhash %s\n", db_column_text(&q, 12),
+          db_column_int(&q , 8), db_column_text(&q, 11));
+    }
   }
   db_finalize(&q);
 }
@@ -262,15 +267,19 @@ static void debug_show_vfile(void){
 ** COMMAND: test-show-vfile
 ** Usage:  %fossil test-show-vfile
 **
+** Options:
+**   --all                   Show all fields
+**
 ** Show the content of the VFILE table in a local check-out.
 */
 void test_show_vfile_cmd(void){
+  int showVfileAll = find_option("mtime",0,0)!=0;
   if( g.argc!=2 ){
     fossil_fatal("unknown arguments to the %s command\n", g.argv[1]);
   }
   verify_all_options();
   db_must_be_within_tree();
-  debug_show_vfile();  
+  debug_show_vfile(showVfileAll);  
 }
 
 
@@ -335,6 +344,7 @@ void merge_cmd(void){
   const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
   int showVfileFlag;    /* True if the --show-vfile flag is present */
+  int showVfileAll;     /* True if the --show-vfile-all flag is present */
   int keepMergeFlag;    /* True if --keep-merge-files is present */
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
@@ -371,13 +381,14 @@ void merge_cmd(void){
   zPivot = find_option("baseline",0,1);
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
 
-  /* Undocumented --debug and --show-vfile options:
+  /* Undocumented --debug, --show-vfile, --show-vfile-all options:
   **
   ** When included on the command-line, --debug causes lots of state
   ** information to be displayed.  This option is undocumented as it
   ** might change or be eliminated in future releases.
   **
   ** The --show-vfile flag does a dump of the VFILE table for reference. 
+  ** The --show-vfile-all shows all fields from the VFILE table.
   **
   ** Hints:
   **   *  Combine --debug and --verbose for still more output.
@@ -386,6 +397,7 @@ void merge_cmd(void){
   debugFlag = find_option("debug",0,0)!=0;
   if( debugFlag && verboseFlag ) debugFlag = 2;
   showVfileFlag = find_option("show-vfile",0,0)!=0;
+  showVfileAll = find_option("show-vfile-all",0,0)!=0;
 
   verify_all_options();
   db_must_be_within_tree();
@@ -557,7 +569,7 @@ void merge_cmd(void){
     fossil_print("V=%-4d %z (current version)\n", vid, z);
     fossil_print("vAncestor = '%c'\n", vAncestor);
   }
-  if( showVfileFlag ) debug_show_vfile();
+  if( showVfileFlag || showVfileAll ) debug_show_vfile(showVfileAll);
 
   /*
   ** The vfile.pathname field is used to match files against each other.  The

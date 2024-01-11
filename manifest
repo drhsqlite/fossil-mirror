@@ -1,5 +1,5 @@
-C Check\shash\sif\smtime\smatches\ssystem\stime\sat\sthe\stime\swe\sstarted\schecking.
-D 2024-01-08T13:11:34.818
+C Optionally\sprint\smtime\sand\smhash\sin\stest-show-vfile\soutput.
+D 2024-01-11T16:34:27.687
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -495,7 +495,7 @@ F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb25
 F src/markdown_html.c e216038c52a80cd38c4d00bc00f2fc3758591a275288f3f25ac513257f0ffe01
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 53a5346bc58cad6913c39422f4e7db1e049c5d116f849e1825a5b77ab48dc2ae
+F src/merge.c 7e996819ffe7a53681f7d1db2c2a4215b1e34aa627d547f1c90f5aa1fe664ba7
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 9ed6ee484c99bcbdbdce1717bb82e87eb5143c6b1d7c386c492f59e48e57b8d1
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b295f86db5417cea1e7a33c188d5f489b06a8373ce8c5280cb2b1b4ec1dc751b
-R b192b4ecde97acd308c8a65eb5d08226
+P f0aa85e302ee674e473d3bbcbaaad281881bde84698919ffb3995957a5aea0ce
+R 70464a5036f9cb026aa0caae9c87c8d6
 U preben
-Z dcedaa62ffc2d191898becfb3227027c
+Z 99dd91e6708225a88c5db518fae802f2
 # Remove this line to create a well-formed Fossil manifest.
