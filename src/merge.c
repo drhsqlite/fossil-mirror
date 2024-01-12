@@ -748,6 +748,7 @@ void merge_cmd(void){
     fossil_print("%s %s\n", isExe ? "EXECUTABLE" : "UNEXEC", zName);
     if( !dryRunFlag ){
       char *zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      undo_save(zName);
       file_setexe(zFullPath, isExe);
       free(zFullPath);
       db_multi_exec("UPDATE vfile SET isexe=%d WHERE id=%d", isExe, idv);
