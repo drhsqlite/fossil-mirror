@@ -1,5 +1,5 @@
-C Merge\scurrent\sstate\sof\stesting-improvements.\smake\sclean\soutput\sis\snow\seasy\sto\sreview.
-D 2024-01-12T15:48:50.830
+C Retain\srenames\sin\slocal\scheckout\swhen\srunning\sfossil\supdate.
+D 2024-01-12T16:11:17.355
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -572,7 +572,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 1c7afcbade6c89bb66382e0c4460199ce41843a0fddfef5985e3f2f267c40d6f
-F src/update.c 3518f6180d729efe7c9ae4abf99851c45bc4396fef726fbb0a8c4a62e0a6bd42
+F src/update.c 9dd0ad1ba1cf73663771463c4a07055423dd0779f67c8a2aec791694d3683dac
 F src/url.c 416b3d0912569de0864b4a23e9f19f8b06c6a7857e95bb4075a10a3752a83c9a
 F src/user.c 9753471488de0a934cf0eb7909a71d09cfc189c2a0096f4accf0777b2c891b6a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -659,7 +659,7 @@ F test/th1.test e3361427060c0075dd26fe13be3b151182d6de392a85e80116d637e4383712d0
 F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e11f1d711a
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/update.test c13ead0c26bf794b038db9a40c2ecc2858df8b6d0df15991c4d8d2e67f6db93c
+F test/update.test 7490472767d5abbe6e745e4a1c8512fcfef59d4dc8ebeff1ff2d44db126cebd8
 F test/utf.test 785fc1ad4c79c42ad60a25abb82130a5578604b9955fa3599600ae6236d8af58
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
@@ -952,8 +952,12 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d9bf1abfb59ec6536fe47a2beec7c6e8adb4ed7456eab8fe8203d9b3418405b 6e23e96acd59d1354f30ecc95cdbcb9151af86824fd10524c6b3a2935d63e432
-R 95efffb729c9078b0482503917321172
+P e5bcfd1efe9b638f3b639ebabe75275f0c8421dd6752821ec63250cb3997faed
+R 671019a1c6b50b01f76b0203ed4b0a76
+T *bgcolor * #fec084
+T *branch * update-with-renames
+T *sym-update-with-renames *
+T -sym-trunk *
 U preben
-Z 5a34e9537bb9cbeefac5497f192b88a4
+Z 5902fb196d232f3012869ed75af5a56b
 # Remove this line to create a well-formed Fossil manifest.

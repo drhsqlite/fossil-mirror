@@ -274,11 +274,13 @@ void update_cmd(void){
     filename_collation(), filename_collation()
   );
 
-  /* Add files found in the current version
+  /* Add files found in the current version. If a file is renamed locally,
+  ** use origname to compare with the original pathname in the target.
   */
   db_multi_exec(
     "INSERT OR IGNORE INTO fv(fn,fnt,idv,idt,ridv,ridt,isexe,chnged,deleted)"
-    " SELECT pathname, pathname, id, 0, rid, 0, isexe, chnged, deleted"
+    " SELECT pathname, COALESCE(origname,pathname), id, 0, rid, 0,"
+    "        isexe, chnged, deleted"
     "   FROM vfile WHERE vid=%d",
     vid
   );
@@ -630,6 +632,19 @@ void update_cmd(void){
       g.zLocalRoot, g.zLocalRoot, zPwd
     );
     fossil_free(zPwd);
+    /* Before deleting the old vid, transfer renames from the current vid. */
+    db_multi_exec(
+      "WITH mv AS ("
+      " SELECT pathname AS path, origname AS orig"
+      "   FROM vfile"
+      "  WHERE vid=%i AND origname IS NOT NULL AND pathname!=origname"
+      ")"
+      " UPDATE vfile"
+      "    SET pathname=path, origname=orig"
+      "   FROM mv"
+      "  WHERE vid=%i AND pathname=orig",
+      vid, tid
+    );
     if( g.argc<=3 ){
       /* All files updated.  Shift the current check-out to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);

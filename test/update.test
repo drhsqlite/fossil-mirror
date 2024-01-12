@@ -26,6 +26,7 @@ proc test_update_setup {desc} {
     global UPDATE_TEST
     incr UPDATE_TEST
     fossil revert
+    fossil clean
     fossil update
     return [format "test-%02u-%s.txt" $UPDATE_TEST $desc]
 }
@@ -40,7 +41,7 @@ proc test_update {testname message changes {fossil_args ""}} {
         set test_result $::RESULT
     }
     test "update-message-$testname" {$message == $test_result}
-    fossil changes
+    fossil changes --differ
     test "update-changes-$testname" {$changes == $::RESULT}
 }
 
@@ -90,7 +91,7 @@ test_update $testname $message $changes -expectError
 set testname "add-overwrites"
 set fname [test_update_setup $testname]
 set message "ADD $fname - overwrites an unmanaged file, original copy backed up locally"
-set changes ""
+set changes "EXTRA      $fname-original"
 write_seq_to_file $fname
 fossil add $fname
 fossil commit -m "Add $fname"
@@ -184,6 +185,22 @@ fossil commit -m "Update and rename $fname"
 fossil up previous
 write_file $fname "center\nbelow\n"
 test_update $testname $message $changes
+
+# Rename in current checkout with extra files in target.
+# Based on https://fossil-scm.org/forum/forumpost/2753239f00
+set testname "merge-renamed-current"
+set fname [test_update_setup $testname]
+set warning "UPDATE $fname.extra\nUNCHANGED $fname.renamed"
+set changes "RENAMED    $fname  ->  $fname.renamed"
+write_seq_to_file $fname
+write_seq_to_file "$fname.extra"
+fossil add $fname "$fname.extra"
+fossil commit -m "Add $fname and $fname.extra"
+write_seq_to_file "$fname.extra"
+fossil commit -m "Update $fname.extra"
+fossil up previous
+fossil mv --hard $fname "$fname.renamed"
+test_update $testname $warning $changes
 
 set testname "merge-standard"
 set fname [test_update_setup $testname]
