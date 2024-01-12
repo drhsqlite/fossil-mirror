@@ -1,0 +1,247 @@
+#
+# Copyright (c) 2024 Preben Guldnerg <preben@guldberg.org>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Tests for the "update" command.
+#
+
+# Track number of tests we have set up in test_update_setup. This helps ensure
+# that generated files are ordered in `fossil update --verbose` mode.
+set UPDATE_TEST 0
+
+proc test_update_setup {desc} {
+    global UPDATE_TEST
+    incr UPDATE_TEST
+    fossil revert
+    fossil update
+    return [format "test-%02u-%s.txt" $UPDATE_TEST $desc]
+}
+
+# The output is in file name order, so massage $RESULT to remove initial UNCHANGED
+# files. Only do this if we have the expected branch information.
+proc test_update {testname message changes {fossil_args ""}} {
+    fossil update --verbose {*}$fossil_args
+    if { [regsub {\n-{79}\nupdated-from: [0-9a-z]{40} .*} $::RESULT {} test_result ] } {
+        regsub {^(?:UNCHANGED [-a-z0-9.]+\n)*} $test_result {} test_result
+    } else {
+        set test_result $::RESULT
+    }
+    test "update-message-$testname" {$message == $test_result}
+    fossil changes
+    test "update-changes-$testname" {$changes == $::RESULT}
+}
+
+# Use a sequence number for file content that is not important for the test.
+set UPDATE_SEQ_NO 0
+proc write_seq_to_file {fname} {
+    global UPDATE_SEQ_NO
+    incr UPDATE_SEQ_NO
+    write_file $fname "$UPDATE_SEQ_NO\n"
+}
+
+# Make sure we are not in an open repository and initialize new repository
+test_setup
+
+###############################################################################
+
+fossil update --verbose
+test update-already-up-to-date {
+  [regexp {^-{79}\ncheckout: .*\nchanges: +None. Already up-to-date$} $RESULT]
+}
+
+# Remaining tests are carried out in the order update_cmd() performs checks.
+#
+# Common approach for tests below:
+# 1. Set the testname
+# 2. Set the file name, done by calling update_setup
+# 3. Set message and changes, the expected message message and subsequent changes
+# 3. Optionally set up and commit a common base for the next steps
+# 4. Commit a change to the repository (new tip)
+# 5. Update to the previous version
+# 6. Make changes
+# 7. Call test_update to attempt and update to tip
+
+
+set testname "conflict-standard"
+set fname [test_update_setup $testname]
+set message "CONFLICT $fname"
+set changes "EDITED     $fname"
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+fossil up previous
+write_seq_to_file $fname
+fossil add $fname
+test_update $testname $message $changes -expectError
+
+set testname "add-overwrites"
+set fname [test_update_setup $testname]
+set message "ADD $fname - overwrites an unmanaged file, original copy backed up locally"
+set changes ""
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+fossil up previous
+write_seq_to_file $fname
+test_update $testname $message $changes -expectError
+
+set testname "add-standard"
+set fname [test_update_setup $testname]
+set message "ADD $fname"
+set changes ""
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+fossil up previous
+test_update $testname $message $changes
+
+set testname "update-change"
+set fname [test_update_setup $testname]
+set message "UPDATE $fname - change to unmanaged file"
+set changes "DELETED    $fname"
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+write_seq_to_file $fname
+fossil commit -m "Update $fname"
+fossil up previous
+fossil rm --hard $fname
+test_update $testname $message $changes
+
+set testname "update-standard"
+set fname [test_update_setup $testname]
+set message "UPDATE $fname"
+set changes ""
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+write_seq_to_file $fname
+fossil commit -m "Update $testname"
+fossil up previous
+test_update $testname $message $changes
+
+set testname "update-missing"
+set fname [test_update_setup $testname]
+set message "UPDATE $fname"
+set changes ""
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+write_seq_to_file $fname
+fossil commit -m "Update $fname"
+fossil up previous
+file delete $fname
+test_update $testname $message $changes
+
+set testname "conflict-deleted"
+set fname [test_update_setup $testname]
+set message "CONFLICT $fname - edited locally but deleted by update"
+set changes ""
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+fossil rm --hard $fname
+fossil commit -m "Remove $fname"
+fossil up previous
+file delete $fname
+test_update $testname $message $changes -expectError
+
+set testname "remove"
+set fname [test_update_setup $testname]
+set message "REMOVE $fname"
+set changes ""
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+fossil rm --hard $fname
+fossil commit -m "Remove $fname"
+fossil up previous
+test_update $testname $message $changes
+
+set testname "merge-renamed"
+set fname [test_update_setup $testname]
+set message "MERGE $fname -> $fname.renamed"
+set changes "EDITED     $fname.renamed"
+write_file $fname "center\n"
+fossil add $fname
+fossil commit -m "Add $fname"
+write_file $fname "top\ncenter\n"
+fossil mv --hard $fname "$fname.renamed"
+fossil commit -m "Update and rename $fname"
+fossil up previous
+write_file $fname "center\nbelow\n"
+test_update $testname $message $changes
+
+set testname "merge-standard"
+set fname [test_update_setup $testname]
+set message "MERGE $fname"
+set changes "EDITED     $fname"
+write_file $fname "center\n"
+fossil add $fname
+fossil commit -m "Add $fname"
+write_file $fname "top\ncenter\n"
+fossil commit -m "Update $fname"
+fossil up previous
+write_file $fname "center\nbelow\n"
+test_update $testname $message $changes
+
+# TODO: test for "Cannot merge symlink" would be platform dependent
+
+set testname "merge-conflict"
+set fname [test_update_setup $testname]
+set message "MERGE $fname\n***** 1 merge conflicts in $fname"
+set changes "CONFLICT   $fname"
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+write_seq_to_file $fname
+fossil commit -m "Update $fname"
+fossil up previous
+write_seq_to_file $fname
+test_update $testname $message $changes -expectError
+
+# TODO: test for "Cannot merge binary file"?
+
+set testname "edited"
+set fname [test_update_setup $testname]
+set message "EDITED $fname\nADD $fname.other"
+set changes "EDITED     $fname"
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+write_seq_to_file "$fname.other"
+fossil add $fname.other
+fossil commit -m "Add $fname.other"
+fossil up previous
+write_seq_to_file $fname
+test_update $testname $message $changes
+
+set testname "unchanged"
+set fname [test_update_setup $testname]
+set message "ADD $fname\nUNCHANGED $fname.unchanged"
+set changes ""
+write_seq_to_file "$fname.unchanged"
+fossil add "$fname.unchanged"
+fossil commit -m "Add $fname.unchanged"
+write_seq_to_file "$fname"
+fossil add "$fname"
+fossil commit -m "Add $fname"
+fossil up previous
+test_update $testname $message $changes
+
+###############################################################################
+
+test_cleanup

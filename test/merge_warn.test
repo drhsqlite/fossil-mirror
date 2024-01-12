@@ -42,7 +42,7 @@ fossil commit -m "add f4"
 fossil update trunk
 write_file f1 "f1.1"
 write_file f3 "f3.1"
-fossil merge --integrate mrg
+fossil merge --integrate mrg -expectError
 test_status_list merge_warn-1 $RESULT {
   WARNING: 1 unmanaged files were overwritten
   WARNING: 2 merge conflicts

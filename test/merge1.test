@@ -100,9 +100,9 @@ write_file_indented t32 {
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
-fossil 3-way-merge t1 t3 t2 a32
+fossil 3-way-merge t1 t3 t2 a32 -expectError
 test merge1-2.1 {[same_file t32 a32]}
-fossil 3-way-merge t1 t2 t3 a23
+fossil 3-way-merge t1 t2 t3 a23 -expectError
 test merge1-2.2 {[same_file t23 a23]}
 
 write_file_indented t1 {
@@ -185,9 +185,9 @@ write_file_indented t23 {
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
-fossil 3-way-merge t1 t3 t2 a32
+fossil 3-way-merge t1 t3 t2 a32 -expectError
 test merge1-4.1 {[same_file t32 a32]}
-fossil 3-way-merge t1 t2 t3 a23
+fossil 3-way-merge t1 t2 t3 a23 -expectError
 test merge1-4.2 {[same_file t23 a23]}
 
 write_file_indented t1 {
@@ -332,7 +332,7 @@ write_file_indented t23 {
   STUV
   XYZ.
 }
-fossil 3-way-merge t1 t2 t3 a23
+fossil 3-way-merge t1 t2 t3 a23 -expectError
 test merge1-7.1 {[same_file t23 a23]}
 
 write_file_indented t2 {
@@ -400,7 +400,7 @@ write_file_indented t23 {
   STUV
   XYZ.
 }
-fossil 3-way-merge t1 t2 t3 a23
+fossil 3-way-merge t1 t2 t3 a23 -expectError
 test merge1-7.2 {[same_file t23 a23]}
 
 ###############################################################################
