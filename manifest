@@ -1,5 +1,5 @@
-C Have\sthe\s`amend'\scommand\scount\sarguments\sonly\sonce\swhen\soption\sparsing\sis\sdone.
-D 2024-01-13T12:59:00.000
+C Use\sauto-coloring\sfor\sprivate\sbranches,\sinstead\sof\sapplying\sthe\sorangeish\sdefault\s`#fec084',\sso\scolors\splay\sbetter\swith\sskins\sand\sthe\s`fossil\spublish'\scommand.
+D 2024-01-13T13:01:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -383,7 +383,7 @@ F src/backoffice.c 3d14e5ea117edf10942dcf53da981d856614b9e532caad912cd2e18dd04cd
 F src/bag.c 7d2c7a8b7817578255908e90e92fbb234c3744492a23415bfc3e24fca7474766
 F src/bisect.c 573bb2e76d3724d996d8f4e793d19e2a4f8de58ca046af77a215d058883ef5f5
 F src/blob.c 0392404c3d5972fa304394ba758b2874869ffcbbac30c68c002d49ef0a0414c2
-F src/branch.c 375bc3d563df5b0a4bf38736a99d532677d081e68c281d850b120dab012f5a60
+F src/branch.c e7d6de342bf0ded6dc225509c36e9fbc16f8af96529d96bc0a88a8eb5c247ff0
 F src/browse.c 224cea8546c56c1f18e71eb527a6a56b7cdba1b9cd153d0319b752efcdca7ced
 F src/builtin.c 3a83f094b3af3b7fe8ab7bcf7cc7777201c6daef7dcbbb48b0da3dc354a120f4
 F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
@@ -392,7 +392,7 @@ F src/capabilities.c 73cd01031c9d166560b8258daaf8dbe90379dfc95cc9faab5d73a209095
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c 27a190c0dd9c87af6bcf64e5cab0b7bff4d4089cbc57dabb6898c307ca598b5d
 F src/chat.c af623d16c680073321a4b273c3d31f00375931c6ab7b0a04890ca6d46bb0d65f
-F src/checkin.c 5d252bc1e02a434028673ae48dd8bd9a04b8a84b40383e387a43b7dc1a6b59bf
+F src/checkin.c ef92b7f3484d543523874be4f19fc1e606e7d4e2c8fd300871e097f729777cbb
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -468,7 +468,7 @@ F src/info.c a332472135cc1878bed02a790a8728510ee175863e72a45d6dbb502a80a28362
 F src/interwiki.c 47cfcf2a6c3d5a0295baf5174de586caff8cb6bf3570e1a21036d12487c933ff
 F src/json.c 552525d0b536e623950e35d7c568690e0dc48753c9ecb54b3bacd8ab5c3863db
 F src/json_artifact.c 09253fff3f12462092eb72655d8f3e40760ee4ff7704d4e4a480bad3768ce08b
-F src/json_branch.c db4a823243e5c0739e7e192bf214b17b187fab96d1f3198364ccc912264747fc
+F src/json_branch.c 69730cf179bc849422dc1d5a22adf33a884268c8a95d59409f4534e6054f4368
 F src/json_config.c d601605b13f98888f7e5362f52fae89aab674c63616145085f007400b66bd10f
 F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184bad1
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
@@ -952,8 +952,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5bcfd1efe9b638f3b639ebabe75275f0c8421dd6752821ec63250cb3997faed
-R 52405ba4d95932d58d557aae992e4f39
+P 30f18ce13012aea3ee6e6d188993bab909962fb22b673fc3b5ba0ef6cf199e0d
+R 72f4c14ad31e43d86bd3d447818a54cc
+T *branch * private-auto-colors
+T *sym-private-auto-colors *
+T -sym-trunk *
 U florian
-Z 42d2298b59ed328cdc83714cb205757e
+Z 234330faf23a1659454bcc5ac9e2dbc5
 # Remove this line to create a well-formed Fossil manifest.
