@@ -1,5 +1,5 @@
-C When\sreverting\sor\supdating\sa\sfile,\sset\sthe\smtime\sto\s0\sas\salready\sdone\swith\nmerge\sand\sstash.\sEffectively,\swe\sdon't\strust\sthe\shash\suntil\snext\stime\swe\nevaluate\sthe\sstatus\sof\sthe\sfile,\sat\swhich\spoint\swe'll\supdate\svfile.mtime\nwith\sthe\sreal\smtime\sof\sthe\sfile.\n\nBased\son\sdiscussions\sin\s[forum:/forumpost/58bef43842be6fc3|forum\sthread\n58bef43842be6fc3].\n\n15:10:38\s[229360b12e]\s*UNPUBLISHED*\sConsistently\sset\svfile.mtime\sto\s0\swhen\smerging,\n\s\s\s\s\s\s\s\s\supdating,\sreverting\sand\schanging\sa\sfile.\s(user:\spreben\stags:\snew-mtime-update)
-D 2024-01-11T16:55:51.779
+C Typo\sin\svariable\sname.
+D 2024-01-13T18:57:02.169
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -495,7 +495,7 @@ F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb25
 F src/markdown_html.c e216038c52a80cd38c4d00bc00f2fc3758591a275288f3f25ac513257f0ffe01
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 7e996819ffe7a53681f7d1db2c2a4215b1e34aa627d547f1c90f5aa1fe664ba7
+F src/merge.c a543f2b30fd0dbc33d8d7a8675909973a751908a1cf71e7ec1c3a63f3e187ade
 F src/merge3.c 891dc7498c1b060abf632ca360bfd902f331368327f9e5166b1200f4fafc4fd6
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 9ed6ee484c99bcbdbdce1717bb82e87eb5143c6b1d7c386c492f59e48e57b8d1
@@ -950,8 +950,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25f486135d982906f05e5536c0d43b165ccd82e906dc887fee0db96ee7205e31
-R 2931209a33ce37207c415f4d7aeea09c
+P f9686d02de6245a114fd6cd2a2ec2e331725e650c929770110e270609c23d157
+R 40c9ad47ae9215b2c5bdbb5d4a5d7ebd
 U preben
-Z 9e5b4001f87164af067d69324fba5c32
+Z 583d4644f7f1ab861fac95d122895de3
 # Remove this line to create a well-formed Fossil manifest.

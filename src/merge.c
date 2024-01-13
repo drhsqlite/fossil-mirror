@@ -220,14 +220,14 @@ static void debug_fv_dump(int showAll){
 ** Print the content of the VFILE table on standard output, for
 ** debugging purposes.
 */
-static void debug_show_vfile(int shoeAll){
+static void debug_show_vfile(int showAll){
   Stmt q;
   int pvid = -1;
   db_prepare(&q,
     "SELECT vid, id, chnged, deleted, isexe, islink, rid, mrid, mtime,"
           " pathname, origname, mhash, %s FROM vfile"
     " ORDER BY vid, pathname",
-    shoeAll ? "COALESCE(datetime(mtime, 'unixepoch', 'localtime'), 'NULL')" : "''"
+    showAll ? "COALESCE(datetime(mtime, 'unixepoch', 'localtime'), 'NULL')" : "''"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int vid = db_column_int(&q, 0);
@@ -255,7 +255,7 @@ static void debug_show_vfile(int shoeAll){
     }else{
       fossil_print("\n");
     }
-    if( shoeAll ){
+    if( showAll ){
       fossil_print("   mtime %19s / %-10i  mhash %s\n", db_column_text(&q, 12),
           db_column_int(&q , 8), db_column_text(&q, 11));
     }
