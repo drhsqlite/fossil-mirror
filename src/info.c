@@ -3549,7 +3549,6 @@ void ci_amend_cmd(void){
   int i;
   Stmt q;
 
-  if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   fEditComment = find_option("edit-comment","e",0)!=0;
   zNewComment = find_option("comment","m",1);
   zComFile = find_option("message-file","M",1);
