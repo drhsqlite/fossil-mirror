@@ -1,5 +1,5 @@
-C Have\sthe\s`amend'\scommand\scount\sarguments\sonly\sonce\swhen\soption\sparsing\sis\sdone.
-D 2024-01-13T12:59:00.000
+C Remove\sa\snow-unused\sstatic\sconst\sfrom\ssearch.c\sto\ssquelch\sa\scompiler\swarning.
+D 2024-01-15T12:00:19.552
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -516,7 +516,7 @@ F src/report.c 553e5cbe86e2684bbcf3ee0ac7916db9aebc644c42bbb245048a208b9cfc8f51
 F src/rss.c fe153e74c8818ec11dc376a3d49cff6f04422dc38ec24397c5687ac193404ab9
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c fca83b20510f707b130e98af240c58a8924063c956869b69237b22a589778892
+F src/search.c f97855119eea8f3b5c30887d2248b0153ce6e05155641e242c5d42da36f5a8fd
 F src/security_audit.c 6da0bd26a7ff1544c46eb0caf4c003496c8caaaf9af7d060557a450770278953
 F src/setup.c 879d77a697cb659dee2ae18fe6a44313b025fc1f9b1cd73bd4a3c3c29f65407e
 F src/setupuser.c 3b1136b8d5dbfb2d97b34845e5294af9ff11aab5588941efab1445b8aa0f161a
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5bcfd1efe9b638f3b639ebabe75275f0c8421dd6752821ec63250cb3997faed
-R 52405ba4d95932d58d557aae992e4f39
-U florian
-Z 42d2298b59ed328cdc83714cb205757e
+P 30f18ce13012aea3ee6e6d188993bab909962fb22b673fc3b5ba0ef6cf199e0d
+R bc99b3061a270cc7c46453b63c3750ec
+U stephan
+Z af3ca53b07f71e09615961372e6e2160
 # Remove this line to create a well-formed Fossil manifest.

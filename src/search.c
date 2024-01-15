@@ -562,24 +562,6 @@ void search_sql_setup(sqlite3 *db){
 }
 
 /*
-** Search scope abbreviations and names.
-*/
-static const struct {
-  const char *z;
-  const char *zNm;
-  unsigned m;
-} aScope[] = {
-   { "all",  "All",        SRCH_ALL      },
-   { "c",    "Check-ins",  SRCH_CKIN     },
-   { "d",    "Docs",       SRCH_DOC      },
-   { "t",    "Tickets",    SRCH_TKT      },
-   { "w",    "Wiki",       SRCH_WIKI     },
-   { "e",    "Tech Notes", SRCH_TECHNOTE },
-   { "f",    "Forum",      SRCH_FORUM    },
-};
-
-
-/*
 ** Testing the search function.
 **
 ** COMMAND: search*
