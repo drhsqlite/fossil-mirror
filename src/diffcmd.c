@@ -1261,7 +1261,9 @@ const char *diff_get_binary_glob(void){
 **   -r|--from VERSION           Select VERSION as source for the diff
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -i|--internal               Use internal diff logic
+**   --invert                    Invert the diff
 **   --json                      Output formatted as JSON
+**   -n|--linenum                Show line numbers
 **   -N|--new-file               Alias for --verbose
 **   --numstat                   Show only the number of added and deleted lines
 **   -y|--side-by-side           Side-by-side diff

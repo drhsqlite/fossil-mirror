@@ -1,5 +1,5 @@
-C Fix\sseveral\sharmless\scompiler\swarnings\s(turned\soff\sin\sthe\sstandard\sbuild).
-D 2024-01-18T14:50:58.875
+C Document\sthe\s--linenum\sand\s--invert\scommand-line\soptions\sto\s'fossil\sdiff'.
+D 2024-01-18T15:20:39.415
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -414,7 +414,7 @@ F src/descendants.c 6fa21312cf0d694c07f0bf8261ad585f46ae24dd415cc71614277ffb5a63
 F src/diff.c 0ac3ef70612dd6062c36e64b8150f7e0e207b742cc0458b6f65891dbb48f7f0a
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
-F src/diffcmd.c 3bfc32c93ba2e0f3fe8cb25c320ac7b099c7cb170129e3ef05a8eff57e77e26b
+F src/diffcmd.c c2a405ed5dbfa412a1b77e7585189a5a97adb9c3f7ed6c5b9ad1090f9b7e5a7a
 F src/dispatch.c 7532029f1898864c2243098a1f399dad5b83dbe20aa929d3bfb42af02883a9d5
 F src/doc.c 15552ea105bd70eb99f4f2059a9fb68f824af5eddbcbe679a77d6cdb2e990ba8
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17fe108ed408634efbb814e3ea1e62b2d2f271fbe58d0715d93d5a7a2db42943
-R 455bbc3400f99ad242e6da52b4be46ad
+P ab05475997fc58b967da852a47b90834aba4f149ddaf695b4b9dbfb71180ef3e
+R 709f7888401d2358103f04ae08809f71
 U danield
-Z 5d88cd06d3cbe8eb754e9d92ca5c32c5
+Z 862b1c84724899c3f627b9b7064b27eb
 # Remove this line to create a well-formed Fossil manifest.
