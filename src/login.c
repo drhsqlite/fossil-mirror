@@ -56,7 +56,7 @@
 */
 static void login_create_csrf_secret(const char *zSeed){
   unsigned char zResult[20];
-  int i;
+  unsigned int i;
 
   sha1sum_binary(zSeed, zResult);
   for(i=0; i<sizeof(g.zCsrfToken)-1; i++){

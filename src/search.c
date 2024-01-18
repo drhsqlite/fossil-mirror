@@ -629,6 +629,7 @@ void search_cmd(void){
     Blob snip;
     const char *zPattern = blob_str(&pattern);
     int srchFlags;
+    unsigned int j;
     if( zScope==0 ){
       srchFlags = SRCH_ALL;
     }else{
@@ -669,10 +670,10 @@ void search_cmd(void){
       const char *zScore = db_column_text(&q, 2);
       const char *zId = db_column_text(&q, 3);
       blob_appendf(&snip, "%s", zSnippet);
-      for(i=0; i<snip.nUsed; i++){
-        if( snip.aData[i]=='\n' ){
-          if( i>0 && snip.aData[i-1]=='\r' ) snip.aData[i-1] = ' ';
-          snip.aData[i] = ' ';
+      for(j=0; j<snip.nUsed; j++){
+        if( snip.aData[j]=='\n' ){
+          if( j>0 && snip.aData[j-1]=='\r' ) snip.aData[j-1] = ' ';
+          snip.aData[j] = ' ';
         }
       }
       blob_appendf(&com, "%s\n%s\n%s", zLabel, blob_str(&snip), zDate);

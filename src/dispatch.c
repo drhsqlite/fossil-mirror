@@ -1545,7 +1545,8 @@ static sqlite3_module helptextVtabModule = {
   /* xSavepoint  */ 0,
   /* xRelease    */ 0,
   /* xRollbackTo */ 0,
-  /* xShadowName */ 0
+  /* xShadowName */ 0,
+  /* xIntegrity  */ 0
 };
 
 

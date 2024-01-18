@@ -174,7 +174,7 @@ static struct DbLocalData {
   unsigned aProtect[12];    /* Saved values of protectMask */
 } db = {
   PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
-  0, 0, 0, 0, 0, 0, };
+  0, 0, 0, 0, 0, 0, 0, {{0}}, {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0}};
 
 /*
 ** Arrange for the given file to be deleted on a failure.
