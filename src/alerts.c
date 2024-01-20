@@ -3151,6 +3151,10 @@ int alert_send_alerts(u32 flags){
         blob_appendf(&fhdr, "To: <%s>\r\n", zEmail);
         blob_append(&fhdr, blob_buffer(&p->hdr), blob_size(&p->hdr));
         blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
+        blob_appendf(&fhdr, "List-Unsubscribe: <%s/unsubscribe/%s>\r\n",
+                     zUrl, zCode);
+        blob_appendf(&fhdr,
+                   "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
         blob_appendf(&fbody, "\n-- \nUnsubscribe: %s/unsubscribe/%s\n",
            zUrl, zCode);
         /* blob_appendf(&fbody, "Subscription settings: %s/alerts/%s\n",
