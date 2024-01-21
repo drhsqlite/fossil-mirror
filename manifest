@@ -1,5 +1,5 @@
-C Typo\sfix\sand\sEOL\swhitespace\scleanups.\sNo\sfunctional\schanges.
-D 2024-01-21T01:59:47.148
+C Improved\ssupport\sfor\sone-click\sunsubscribe\sfor\snotifications.
+D 2024-01-21T18:03:06.692
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -370,7 +370,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c a5e924841c9686f69ed6fd228ef2f28b913405cb5d26bf4f287571559154cee9
 F src/ajax.c caf28a8fdda103acbe9048eeed84f6b2cb1fb3545c1c68f38da66ea44f576e01
-F src/alerts.c e1beb31cbd2eb4bc6d5c16ee5345d5ff40cc7ff74a41d3e04ee807b337a641dd
+F src/alerts.c a3ba9fb4906d774f8f5bf7c88a7192df67f720512a64fa8f684f992e2e2bdae0
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b76320edee4986f55a4cda7390ef89501809367f6319e858806b9ac0ff03fe75
-R e629e05622186bb2a2a941eb1312427f
-U stephan
-Z 2910a5c9e463942563fb911ee4d5d191
+P 55151f0024d38524e8612fd509b78f7d80802277a2f58f9bdf172f3f4303c542
+R 67ab4fc71a631f80477de5b28ad63f09
+U drh
+Z 027e7dfd8a59370d5c326b66c37b8049
 # Remove this line to create a well-formed Fossil manifest.
