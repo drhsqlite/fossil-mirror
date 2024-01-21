@@ -89,7 +89,7 @@ static const char zAlertInit[] =
 @   sentDigest BOOLEAN DEFAULT false, -- digest alert sent
 @   sentMod BOOLEAN DEFAULT false     -- pending moderation alert sent
 @ ) WITHOUT ROWID;
-@ 
+@
 @ -- Obsolete table.  No longer used.
 @ DROP TABLE IF EXISTS repository.alert_bounce;
 ;
@@ -878,7 +878,7 @@ void email_header_to(Blob *pMsg, int *pnTo, char ***pazTo){
   Blob v;
   char *z, *zAddr;
   int i;
-  
+
   email_header_value(pMsg, "to", &v);
   z = blob_str(&v);
   for(i=0; z[i]; i++){
@@ -892,7 +892,7 @@ void email_header_to(Blob *pMsg, int *pnTo, char ***pazTo){
 }
 
 /*
-** Free a list of To addresses obtained from a prior call to 
+** Free a list of To addresses obtained from a prior call to
 ** email_header_to()
 */
 void email_header_to_free(int nTo, char **azTo){
@@ -918,7 +918,7 @@ void email_header_to_free(int nTo, char **azTo){
 **     Content-Transfer-Encoding:
 **     MIME-Version:
 **     Sender:
-**     
+**
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
 ** not free them.
@@ -931,7 +931,7 @@ void email_header_to_free(int nTo, char **azTo){
 ** email address based on a hash of zFromName and the domain of email-self,
 ** and an additional "Sender:" field is inserted with the email-self
 ** address.  Downstream software might use the Sender header to set
-** the envelope-from address of the email.  If zFromName is a NULL pointer, 
+** the envelope-from address of the email.  If zFromName is a NULL pointer,
 ** then the "From:" is set to the email-self value and Sender is
 ** omitted.
 */
@@ -1048,7 +1048,7 @@ void alert_send(
 */
 /*
 ** SETTING: email-admin               width=40
-** This is the email address for the human administrator for the system. 
+** This is the email address for the human administrator for the system.
 ** Abuse and trouble reports and password reset requests are send here.
 */
 /*
@@ -1083,7 +1083,7 @@ void alert_send(
 ** last batch of "your subscription is about to expire" emails were
 ** sent out.
 **
-** email-renew-cutoff is normally 7 days behind email-renew-warning.  
+** email-renew-cutoff is normally 7 days behind email-renew-warning.
 */
 /*
 ** SETTING: email-send-method         width=5 default=off sensitive
@@ -1091,7 +1091,7 @@ void alert_send(
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
 ** means no email is ever sent.  The "relay" value means emails are sent
 ** to an Mail Sending Agent using SMTP located at email-send-relayhost.
-** The "pipe" value means email messages are piped into a command 
+** The "pipe" value means email messages are piped into a command
 ** determined by the email-send-command setting. The "dir" value means
 ** emails are written to individual files in a directory determined
 ** by the email-send-dir setting.  The "db" value means that emails
@@ -1136,7 +1136,7 @@ void alert_send(
 
 /*
 ** COMMAND: alerts*
-** 
+**
 ** Usage: %fossil alerts SUBCOMMAND ARGS...
 **
 ** Subcommands:
@@ -1807,7 +1807,7 @@ static void alert_unsubscribe(int sid, int bTotal){
 **    *    The sid= query parameter contains an integer subscriberId.
 **         This only works for the administrator.  It allows the
 **         administrator to edit any subscription.
-**         
+**
 **    *    The user is logged into an account other than "nobody" or
 **         "anonymous".  In that case the notification settings
 **         associated with that account can be edited without needing
@@ -1939,7 +1939,7 @@ void alert_page(void){
     }else{
       alert_unsubscribe(sid, 1);
       db_commit_transaction();
-      return; 
+      return;
     }
   }
   style_set_current_feature("alerts");
@@ -2200,7 +2200,7 @@ void renewal_page(void){
 /* This is the message that gets sent to describe how to change
 ** or modify a subscription
 */
-static const char zUnsubMsg[] = 
+static const char zUnsubMsg[] =
 @ To changes your subscription settings at %s visit this link:
 @
 @    %s/alerts/%s
@@ -2245,9 +2245,9 @@ void unsubscribe_page(void){
   if( zName==0 ) zName = P("scode");
 
   /* If a valid subscriber code is supplied, then either present the user
-  ** with a comformation, or if already confirmed, unsubscribe immediately.
+  ** with a confirmation, or if already confirmed, unsubscribe immediately.
   */
-  if( zName 
+  if( zName
    && (sid = db_int(0, "SELECT subscriberId FROM subscriber"
                        " WHERE subscriberCode=hextoblob(%Q)", zName))!=0
   ){
@@ -2336,7 +2336,7 @@ void unsubscribe_page(void){
     alert_sender_free(pSender);
     style_finish_page();
     return;
-  }  
+  }
 
   /* Non-logged-in users have to enter an email address to which is
   ** sent a message containing the unsubscribe link.
@@ -2745,7 +2745,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
                    zSub, zTitle);
     }else{
       blob_appendf(&p->hdr, "Subject: %s %s\r\n", zSub, zTitle);
-      blob_appendf(&p->hdr, "Message-Id: <%.32s@%s>\r\n", 
+      blob_appendf(&p->hdr, "Message-Id: <%.32s@%s>\r\n",
                    zUuid, alert_hostname(zFrom));
       zIrt = db_column_text(&q, 4);
       if( zIrt && zIrt[0] ){
@@ -3254,7 +3254,7 @@ send_alert_expiration_warnings:
         Blob hdr, body;
         blob_init(&hdr, 0, 0);
         blob_init(&body, 0, 0);
-        alert_renewal_msg(&hdr, &body, 
+        alert_renewal_msg(&hdr, &body,
            db_column_text(&q,0),
            db_column_int(&q,1),
            db_column_text(&q,2),
@@ -3324,7 +3324,7 @@ void contact_admin_page(void){
     style_finish_page();
     return;
   }
-  if( P("submit")!=0 
+  if( P("submit")!=0
    && P("subject")!=0
    && P("msg")!=0
    && P("from")!=0
