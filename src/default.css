@@ -134,6 +134,14 @@ span.timelineEllipsis {
   height: 4px;
   background: #000;
 }
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #000;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;
@@ -319,22 +327,26 @@ ul.browser {
   white-space: nowrap;
 }
 ul.browser li.file {
+  padding-top: 2px;
+}
+ul.browser li.file > a {
+  padding-left: 20px;
+  background-repeat: no-repeat;
+  background-position: 0px center;
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/\
 yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14Gq\
 FXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==");
-  background-repeat: no-repeat;
-  background-position: 0px center;
-  padding-left: 20px;
-  padding-top: 2px;
 }
 ul.browser li.dir {
+  padding-top: 2px;
+}
+ul.browser li.dir > a {
+  padding-left: 20px;
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiI\
 v\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+\
 jUs6b5Z/K4siDu5RPUFADs=");
   background-repeat: no-repeat;
   background-position: 0px center;
-  padding-left: 20px;
-  padding-top: 2px;
 }
 div.filetreeline {
   display: table;
@@ -348,8 +360,15 @@ v\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo\
 }
 div.filetreeage {
  display: table-cell;
- padding-left: 3em;
+ padding-left: 1.5em;
  text-align: right;
+ width: 8em;
+}
+div.filetreesize {
+ display: table-cell;
+ padding-left: 1em;
+ text-align: right;
+ width: 7em;
 }
 div.filetreeline:hover {
  background-color: #eee;
@@ -591,10 +610,6 @@ table.diff pre > del > *{
 table.diff td.diffln > pre {
   padding: 0 0.35em 0 0.5em;
 }
-table.diff td.difftxt > pre {
-  min-width: 100%;
-  max-width: 100%;
-}
 table.diff td > pre {
   box-sizing: border-box;
   /* Workaround for "slight wiggle" when using mouse-wheel in some FF
@@ -723,7 +738,16 @@ td.difftxt ins > ins.edit {
   text-decoration: none;
   font-weight: bold;
 }
-
+body.tkt div.content li > table.udiff {
+  margin-left: 1.5em;
+  margin-top: 0.5em;
+}
+body.tkt div.content ol.tkt-changes > li:target > p > span {
+  border-bottom: 3px solid gold;
+}
+body.tkt div.content ol.tkt-changes > li:target > ol {
+  border-left: 1px solid gold;
+}
 
 span.modpending {
   color: #b03800;
@@ -743,7 +767,12 @@ pre.textPlain {
   word-wrap: break-word;
 }
 .statistics-report-graph-line {
+  border: 2px solid #446979;
   background-color: #446979;
+}
+.statistics-report-graph-extra {
+  border: 2px dashed #446979;
+  border-left-style: none;
 }
 .statistics-report-table-events th {
   padding: 0 1em 0 1em;
@@ -910,8 +939,35 @@ div.forumTime {
   display: flex;
   flex-direction: column;
 }
+div.forumClosed {
+}
+div.forumClosed > .forumPostBody {
+  opacity: 0.7;
+}
+div.forumClosed > .forumPostHdr::before {
+  content: "[CLOSED] ";
+}
+/*div.forumClosed > div.forumPostBody {
+  filter: blur(5px);
+}*/
+div.forumpost-closure-warning {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  border-style: solid;
+  padding: 0.25em 0.5em;
+  background: #f4f400bb;
+  /*font-weight: bold;*/
+}
+div.forumpost-closure-warning input[type=submit] {
+  padding: 0.25em;
+}
+div.forumpost-single-controls {
+  /* UI controls along the bottom of a single post
+  ** in the thread view. */
+}
 .forum div > form {
   margin: 0.5em 0;
+  display: inline-block;
 }
 .forum-post-collapser {
   /* Common style for the bottom-of-post and right-of-post
@@ -996,12 +1052,36 @@ div.forumPostBody.shrunken {
      to this size instead of its original size. */
   max-height: 8em;
 }
+span.forumPostReplyTitle {
+  /* thread title part of the page header when replying to a post */
+  font-style: italic;
+}
 
 div.forumSel {
   background-color: #cef;
 }
 div.forumObs {
   color: #bbb;
+}
+
+div.setup_forum-column {
+  display: flex;
+  flex-direction: column;
+}
+
+body.cpage-setup_forum > .content table {
+  margin-bottom: 1em;
+}
+body.cpage-setup_forum > .content table.bordered {
+  border: 1px solid;
+  border-radius: 0.25em;
+}
+body.cpage-setup_forum > .content table td,
+body.cpage-setup_forum > .content table th {
+  text-align: left;
+}
+body.cpage-setup_forum table.forum-settings-list > tbody > tr > td {
+  min-width: 2em;
 }
 
 #capabilitySummary {
@@ -1574,7 +1654,7 @@ pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   text-align: left;
 }
 /* The .source-inline class tells the .source class that the
-   source view, when enbaled, should be "inline" (same position
+   source view, when enabled, should be "inline" (same position
    as the graphic), else the sources are shifted to the left as
    if they were "plain text". */
 div.pikchr-wrapper.center:not(.source),
@@ -1589,6 +1669,7 @@ div.pikchr-wrapper.center.source.source-inline{
      still-seemingly-legitimate browsers don't support grid mode. */
 }
 div.pikchr-wrapper.center > div.pikchr-svg {
+  width: 100%/*necessary for Chrome!*/;
 }
 div.pikchr-wrapper.center:not(.source) > pre.pikchr-src,
 div.pikchr-wrapper.center:not(.source) > div.pikchr-svg,

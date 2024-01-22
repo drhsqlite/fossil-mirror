@@ -137,14 +137,12 @@ static void tktsetup_generic(
   }
   style_set_current_feature("tktsetup");
   style_header("Edit %s", zTitle);
-  if( P("clear")!=0 ){
-    login_verify_csrf_secret();
+  if( P("clear")!=0 && cgi_csrf_safe(2) ){
     db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     cgi_redirect("tktsetup");
-  }else if( isSubmit ){
+  }else if( isSubmit && cgi_csrf_safe(2) ){
     char *zErr = 0;
-    login_verify_csrf_secret();
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="tktsetupError">ERROR: %h(zErr)</p>
     }else{
@@ -158,12 +156,12 @@ static void tktsetup_generic(
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
   @ <blockquote><p>
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ <input type="submit" name="setup" value="Cancel" />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ <input type="submit" name="setup" value="Cancel">
   @ </p></blockquote>
   @ </div></form>
-  @ <hr />
+  @ <hr>
   @ <h2>Default %s(zTitle)</h2>
   @ <blockquote><pre>
   @ %h(zDfltValue)
@@ -326,8 +324,8 @@ static const char zDefaultNew[] =
 @ <table cellpadding="5">
 @ <tr>
 @ <td colspan="3">
-@ Enter a one-line summary of the ticket:<br />
-@ <input type="text" name="title" size="60" value="$<title>" />
+@ Enter a one-line summary of the ticket:<br>
+@ <input type="text" name="title" size="60" value="$<title>">
 @ </td>
 @ </tr>
 @
@@ -340,7 +338,7 @@ static const char zDefaultNew[] =
 @ <tr>
 @ <td align="right">Version:</td>
 @ <td align="left">
-@ <input type="text" name="foundin" size="20" value="$<foundin>" />
+@ <input type="text" name="foundin" size="20" value="$<foundin>">
 @ </td>
 @ <td align="left">In what version or build number do you observe
 @ the problem?</td>
@@ -356,8 +354,7 @@ static const char zDefaultNew[] =
 @ <tr>
 @ <td align="right">EMail:</td>
 @ <td align="left">
-@ <input type="text" name="private_contact" value="$<private_contact>"
-@  size="30" />
+@ <input name="private_contact" value="$<private_contact>" size="30">
 @ </td>
 @ <td align="left"><u>Not publicly visible</u>
 @ Used by developers to contact you with questions.</td>
@@ -370,15 +367,15 @@ static const char zDefaultNew[] =
 @ the problem can be reproduced.  Provide as much detail as
 @ possible.  Format:
 @ <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
-@ <br />
+@ <br>
 @ <th1>set nline [linecount $comment 50 10]</th1>
 @ <textarea name="icomment" cols="80" rows="$nline"
-@  wrap="virtual" class="wikiedit">$<icomment></textarea><br />
+@  wrap="virtual" class="wikiedit">$<icomment></textarea><br>
 @ </tr>
 @
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="3">
-@ Description Preview:<br /><hr />
+@ Description Preview:<br><hr>
 @ <th1>
 @ if {$mutype eq "Wiki"} {
 @   wiki $icomment
@@ -394,12 +391,12 @@ static const char zDefaultNew[] =
 @   wiki "<nowiki>$icomment\n</nowiki>"
 @ }
 @ </th1>
-@ <hr /></td></tr>
+@ <hr></td></tr>
 @ <th1>enable_output 1</th1>
 @
 @ <tr>
 @ <td><td align="left">
-@ <input type="submit" name="preview" value="Preview" />
+@ <input type="submit" name="preview" value="Preview">
 @ </td>
 @ <td align="left">See how the description will appear after formatting.</td>
 @ </tr>
@@ -407,7 +404,7 @@ static const char zDefaultNew[] =
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr>
 @ <td><td align="left">
-@ <input type="submit" name="submit" value="Submit" />
+@ <input type="submit" name="submit" value="Submit">
 @ </td>
 @ <td align="left">After filling in the information above, press this
 @ button to create the new ticket</td>
@@ -416,7 +413,7 @@ static const char zDefaultNew[] =
 @
 @ <tr>
 @ <td><td align="left">
-@ <input type="submit" name="cancel" value="Cancel" />
+@ <input type="submit" name="cancel" value="Cancel">
 @ </td>
 @ <td>Abandon and forget this ticket</td>
 @ </tr>
@@ -534,7 +531,7 @@ static const char zDefaultView[] =
 @          FROM ticketchng
 @         WHERE tkt_id=$tkt_id AND length(icomment)>0} {
 @   if {$seenRow} {
-@     html "<hr />\n"
+@     html "<hr>\n"
 @   } else {
 @     html "<tr><td class='tktDspLabel'>User Comments:</td></tr>\n"
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
@@ -618,7 +615,7 @@ static const char zDefaultEdit[] =
 @ </th1>
 @ <table cellpadding="5">
 @ <tr><td class="tktDspLabel">Title:</td><td>
-@ <input type="text" name="title" value="$<title>" size="60" />
+@ <input type="text" name="title" value="$<title>" size="60">
 @ </td></tr>
 @
 @ <tr><td class="tktDspLabel">Status:</td><td>
@@ -648,26 +645,26 @@ static const char zDefaultEdit[] =
 @ <th1>enable_output [hascap e]</th1>
 @   <tr><td class="tktDspLabel">Contact:</td><td>
 @   <input type="text" name="private_contact" size="40"
-@    value="$<private_contact>" />
+@    value="$<private_contact>">
 @   </td></tr>
 @ <th1>enable_output 1</th1>
 @
 @ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td><td>
-@ <input type="text" name="foundin" size="50" value="$<foundin>" />
+@ <input type="text" name="foundin" size="50" value="$<foundin>">
 @ </td></tr>
 @
 @ <tr><td colspan="2">
 @   Append Remark with format
 @  <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
 @   from
-@   <input type="text" name="username" value="$<username>" size="30" />:<br />
+@   <input type="text" name="username" value="$<username>" size="30">:<br>
 @   <textarea name="icomment" cols="80" rows="15"
 @    wrap="virtual" class="wikiedit">$<icomment></textarea>
 @ </td></tr>
 @
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="2">
-@ Description Preview:<br /><hr />
+@ Description Preview:<br><hr>
 @ <th1>
 @ if {$mutype eq "Wiki"} {
 @   wiki $icomment
@@ -683,13 +680,13 @@ static const char zDefaultEdit[] =
 @   wiki "<nowiki>\n[string trimright $icomment]\n</nowiki>"
 @ }
 @ </th1>
-@ <hr />
+@ <hr>
 @ </td></tr>
 @ <th1>enable_output 1</th1>
 @
 @ <tr>
 @ <td align="right">
-@ <input type="submit" name="preview" value="Preview" />
+@ <input type="submit" name="preview" value="Preview">
 @ </td>
 @ <td align="left">See how the description will appear after formatting.</td>
 @ </tr>
@@ -697,7 +694,7 @@ static const char zDefaultEdit[] =
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr>
 @ <td align="right">
-@ <input type="submit" name="submit" value="Submit" />
+@ <input type="submit" name="submit" value="Submit">
 @ </td>
 @ <td align="left">Apply the changes shown above</td>
 @ </tr>
@@ -705,7 +702,7 @@ static const char zDefaultEdit[] =
 @
 @ <tr>
 @ <td align="right">
-@ <input type="submit" name="cancel" value="Cancel" />
+@ <input type="submit" name="cancel" value="Cancel">
 @ </td>
 @ <td>Abandon this edit</td>
 @ </tr>
@@ -914,31 +911,31 @@ void tktsetup_timeline_page(void){
   @ <form action="%R/tktsetup_timeline" method="post"><div>
   login_insert_csrf_secret();
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Ticket Title", 40, "ticket-title-expr", "t",
                   "title", 0);
   @ <p>An SQL expression in a query against the TICKET table that will
   @ return the title of the ticket for display purposes.
   @ (Property: ticket-title-expr)</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Ticket Status", 40, "ticket-status-column", "s",
                   "status", 0);
   @ <p>The name of the column in the TICKET table that contains the ticket
   @ status in human-readable form.  Case sensitive.
   @ (Property: ticket-status-column)</p>
 
-  @ <hr />
+  @ <hr>
   entry_attribute("Ticket Closed", 40, "ticket-closed-expr", "c",
                   "status='Closed'", 0);
   @ <p>An SQL expression that evaluates to true in a TICKET table query if
   @ the ticket is closed.
   @ (Property: ticket-closed-expr)</p>
 
-  @ <hr />
+  @ <hr>
   @ <p>
-  @ <input type="submit"  name="submit" value="Apply Changes" />
-  @ <input type="submit" name="setup" value="Cancel" />
+  @ <input type="submit"  name="submit" value="Apply Changes">
+  @ <input type="submit" name="setup" value="Cancel">
   @ </p>
   @ </div></form>
   db_end_transaction(0);

@@ -203,7 +203,7 @@ of noise to anyone without the key:
 ----
 
 ```shell
-iter=52830
+iter=152830
 pass="h8TixP6Mt6edJ3d6COaexiiFlvAM54auF2AjT7ZYYn"
 gd="$HOME/Google Drive/Fossil Backups/$bf.xz.enc"
 fossil sql -R ~/museum/backups/"$bf" .dump | xz -9 |
@@ -217,8 +217,29 @@ If you’re adding this to the first script above, remove the
 current working directory.
 
 Change the `pass` value to some other long random string, and change the
-`iter` value to something between 10000 and 100000. A good source for
+`iter` value to something in the hundreds of thousands range. A good source for
 the first is [here][grcp], and for the second, [here][rint].
+
+You may find posts online written by people recommending millions of
+iterations for PBKDF2, but they’re generally talking about this in the
+context of memorizable passwords, where adding even one more character
+to the password is a significant burden. Given our script’s purely
+random maximum-length passphrase, there isn’t much more that increasing
+the key derivation iteration count can do for us.
+
+Conversely, if you were to reduce the passphrase to 41 characters, that
+would drop the key strength by roughly 2⁶, being the entropy value per
+character for using most of printable ASCII in our passphrase. To make
+that lost strength up on the PBKDF2 end, you’d have to multiply your
+iterations by 2⁶ = 64 times. It’s easier to use a max-length passphrase
+in this situation than get crazy with key derivation iteration counts.
+
+(This, by the way, is why the example passphrase above is 42 characters:
+with 6 bits of entropy per character, that gives you a key size of 252,
+as close as we can get to our chosen encryption algorithm’s 256-bit key
+size without going over. If it pleases you to give it 43 random
+characters for a passphrase in order to pick up those last four bits of
+security, you’re welcome to do so.)
 
 Compressing the data before encrypting it removes redundancies that can
 make decryption easier, and it results in a smaller backup than you get
@@ -235,14 +256,13 @@ a different cipher algorithm; both changes are likely to weaken the
 encryption significantly, so you should install a newer version rather
 than work around the lack of these features.
 
-At the time of this writing — 2022.03.28 — macOS 12 (Monterey) still ships an
-outdated fork of OpenSSL 1.0 called [LibreSSL][lssl] that lacks this
-capability. Until Apple redresses this lack, we recommend use of the
-[Homebrew][hb] OpenSSL package rather than give up on the security
-afforded by use of configurable-iteration PBKDF2 in OpenSSL 1.1 and up,
-later backported to LibreSSL 2.9.1 and up. To avoid a conflict with the
-platform version, Homebrew’s installation is [unlinked][hbul] by
-default, so you have to give an explicit path to it, one of:
+Beware that macOS ships a fork of OpenSSL called [LibreSSL][lssl] that
+lacked this capability until Ventura (13.0). If you’re on Monterey (12)
+or older, we recommend use of the [Homebrew][hb] OpenSSL package rather
+than give up on the security afforded by use of configurable-iteration
+PBKDF2. To avoid a conflict with the platform’s `openssl` binary,
+Homebrew’s installation is [unlinked][hbul] by default, so you have to
+give an explicit path to it, one of:
 
        /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
        /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
@@ -289,7 +309,7 @@ this way saves you from needing to go and build a matching version of
 [hbul]:  https://docs.brew.sh/FAQ#what-does-keg-only-mean
 [lz4]:   https://lz4.github.io/lz4/
 [pbr]:   ./private.wiki
-[rint]:  https://www.random.org/integers/?num=1&min=10000&max=100000&col=5&base=10&format=html&rnd=new
+[rint]:  https://www.random.org/integers/?num=1&min=100000&max=1000000&col=5&base=10&format=html&rnd=new
 [Setup]: ./caps/admin-v-setup.md#apsu
 [shun]:  ./shunning.wiki
 [tkt]:   ./tickets.wiki

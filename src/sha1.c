@@ -396,6 +396,19 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
 }
 
 /*
+** Compute a binary SHA1 checksum of a zero-terminated string.  The
+** result is stored in zOut, which is a buffer that must be at least
+** 20 bytes in size.
+*/
+void sha1sum_binary(const char *zIn, unsigned char *zOut){
+  SHA1Context ctx;
+
+  SHA1Init(&ctx);
+  SHA1Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
+  SHA1Final(zOut, &ctx);
+}
+
+/*
 ** Compute the SHA1 checksum of a zero-terminated string.  The
 ** result is held in memory obtained from mprintf().
 */
@@ -503,8 +516,8 @@ void sha1_shared_secret_sql_function(
 **
 ** Compute an SHA1 checksum of all files named on the command-line.
 ** If a file is named "-" then take its content from standard input.
-** Options:
 **
+** Options:
 **    -h|--dereference     If FILE is a symbolic link, compute the hash
 **                         on the object that the link points to.  Normally,
 **                         the hash is over the name of the object that

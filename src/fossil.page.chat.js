@@ -1,6 +1,6 @@
 /**
    This file contains the client-side implementation of fossil's /chat
-   application. 
+   application.
 */
 window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
@@ -9,6 +9,7 @@ window.fossil.onPageLoad(function(){
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
+
   /**
      Returns true if e is entirely within the bounds of the window's viewport.
   */
@@ -384,7 +385,7 @@ window.fossil.onPageLoad(function(){
             if(ev.detail.key===setting) f(ev.detail);
           }, false);
         },
-        /* Default values of settings. These are used for intializing
+        /* Default values of settings. These are used for initializing
            the setting event listeners and config view UI. */
         defaults:{
           /* When on, inbound images are displayed inlined, else as a
@@ -398,6 +399,11 @@ window.fossil.onPageLoad(function(){
              laid out in a compact form. When off, the edit field and
              buttons are larger. */
           "edit-compact-mode": true,
+          /* See notes for this setting in fossil.page.wikiedit.js.
+             Both /wikiedit and /fileedit share this persistent config
+             option under the same storage key. */
+          "edit-shift-enter-preview":
+            F.storage.getBool('edit-shift-enter-preview', true),
           /* When on, sets the font-family on messages and the edit
              field to monospace. */
           "monospace-messages": false,
@@ -916,19 +922,54 @@ window.fossil.onPageLoad(function(){
       ].join('');
     };
 
+    /**
+       Returns true if this page believes it can embed a view of the
+       file wrapped by the given message object, else returns false.
+    */
     const canEmbedFile = function f(msg){
       if(!f.$rx){
-        f.$rx = /\.((html?)|(txt))$/i;
+        f.$rx = /\.((html?)|(txt)|(md)|(wiki)|(pikchr))$/i;
         f.$specificTypes = [
           'text/plain',
-          'text/html'
+          'text/html',
+          'text/x-markdown',
+          /* Firefox sends text/markdown when uploading .md files */
+          'text/markdown',
+          'text/x-pikchr',
+          'text/x-fossil-wiki'
           // add more as we discover which ones Firefox won't
           // force the user to try to download.
         ];
       }
       if(msg.fmime){
-        return (msg.fmime.startsWith("image/")
-                || f.$specificTypes.indexOf(msg.fmime)>=0);
+        if(msg.fmime.startsWith("image/")
+           || f.$specificTypes.indexOf(msg.fmime)>=0){
+          return true;
+        }
+      }
+      return (msg.fname && f.$rx.test(msg.fname));
+    };
+
+    /**
+      Returns true if the given message object "should"
+      be embedded in fossil-rendered form instead of
+      raw content form. This is only intended to be passed
+      message objects for which canEmbedFile() returns true.
+    */
+    const shouldWikiRenderEmbed = function f(msg){
+      if(!f.$rx){
+        f.$rx = /\.((md)|(wiki)|(pikchr))$/i;
+        f.$specificTypes = [
+          'text/x-markdown',
+          'text/markdown' /* Firefox-uploaded md files */,
+          'text/x-pikchr',
+          'text/x-fossil-wiki'
+          // add more as we discover which ones Firefox won't
+          // force the user to try to download.
+        ];
+      }
+      if(msg.fmime){
+        if(f.$specificTypes.indexOf(msg.fmime)>=0) return true;
       }
       return msg.fname && f.$rx.test(msg.fname);
     };
@@ -1016,12 +1057,15 @@ window.fossil.onPageLoad(function(){
             if(canEmbedFile(m)){
               /* Add an option to embed HTML attachments in an iframe. The primary
                  use case is attached diffs. */
+              const shouldWikiRender = shouldWikiRenderEmbed(m);
+              const downloadArgs = shouldWikiRender ? '?render' : '';
               D.addClass(contentTarget, 'wide');
               const embedTarget = this.e.content;
               const self = this;
               const btnEmbed = D.attr(D.checkbox("1", false), 'id',
                                       'embed-'+ds.msgid);
-              const btnLabel = D.label(btnEmbed, "Embed");
+              const btnLabel = D.label(btnEmbed, shouldWikiRender
+                                       ? "Embed (fossil-rendered)" : "Embed");
               /* Maintenance reminder: do not disable the toggle
                  button while the content is loading because that will
                  cause it to get stuck in disabled mode if the browser
@@ -1043,7 +1087,7 @@ window.fossil.onPageLoad(function(){
                   self.e.$iframeLoaded = true;
                   adjustIFrameSize(self);
                 });
-                iframe.setAttribute('src', downloadUri);
+                iframe.setAttribute('src', downloadUri + downloadArgs);
               });
               D.append(w, btnEmbed, btnLabel);
             }
@@ -1463,7 +1507,7 @@ window.fossil.onPageLoad(function(){
         Chat.setCurrentView(Chat.e.viewMessages);
       }else if(!text){
         f.$toggleCompact(compactMode);
-      }else{
+      }else if(Chat.settings.getBool('edit-shift-enter-preview', true)){
         Chat.e.btnPreview.click();
       }
       return false;
@@ -1479,7 +1523,7 @@ window.fossil.onPageLoad(function(){
       //console.debug("!ctrlMode && ev.ctrlKey && text.");
       /* Ctrl-enter in Enter-sends mode SHOULD, with this logic add a
          newline, but that is not happening, for unknown reasons
-         (possibly related to this element being a conteneditable DIV
+         (possibly related to this element being a contenteditable DIV
          instead of a textarea). Forcibly appending a newline do the
          input area does not work, also for unknown reasons, and would
          only be suitable when we're at the end of the input.
@@ -1497,7 +1541,7 @@ window.fossil.onPageLoad(function(){
       Chat.submitMessage();
       return false;
     }
-  };  
+  };
   Chat.e.inputFields.forEach(
     (e)=>e.addEventListener('keydown', inputWidgetKeydown, false)
   );
@@ -1631,6 +1675,13 @@ window.fossil.onPageLoad(function(){
           "plain-text input fields, browser-specific quirks and bugs ",
           "may lead to frustration. Ideal for mobile devices."
         ].join('')
+      },{
+        label: "Shift-enter to preview",
+        hint: ["Use shift-enter to preview being-edited messages. ",
+               "This is normally desirable but some software-mode ",
+               "keyboards misinteract with this, in which cases it can be ",
+               "disabled."],
+        boolValue: 'edit-shift-enter-preview'
       }]
     },{
       label: "Appearance Options...",
@@ -1929,7 +1980,7 @@ window.fossil.onPageLoad(function(){
     };
     btnPreview.addEventListener('click', submit, false);
   })()/*message preview setup*/;
-  
+
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is
       appended to the end of the chat list (for loading older

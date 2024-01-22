@@ -136,7 +136,7 @@ function hideGraphTooltip(){ /* Hide the tooltip */
   tooltipInfo.ixActive = -1;
   tooltipInfo.idNodeActive = 0;
 }
-window.onpageshow = window.onpagehide = hideGraphTooltip;
+window.onpagehide = hideGraphTooltip;
 function stopDwellTimer(){
   if(tooltipInfo.idTimer!=0){
     clearTimeout(tooltipInfo.idTimer);
@@ -391,13 +391,26 @@ function TimelineGraph(tx){
     if( p.sb>0 ) drawDotted(p,tx.rowinfo[p.sb-tx.iTopRow],p.fg,p.id);
     var cls = node.cls;
     if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
-    if( p.f&1 ) cls += " leaf";
+    if( p.f&2 ) cls += " closed-leaf";
+    else if( p.f&1 ) cls += " leaf";
     var n = drawBox(cls,p.bg,p.x,p.y);
     n.id = "tln"+p.id;
     n.onclick = clickOnNode;
     n.ondblclick = dblclickOnNode;
     n.onmousemove = mouseOverNode;
     n.style.zIndex = 10;
+    if( p.f&2 ){
+      var pt1 = 0;
+      var pt2 = 100;
+      if( tx.circleNodes ){
+        pt1 = 14;
+        pt2 = 86;
+      }
+      n.innerHTML = "<svg width='100%' height='100%'viewbox='0 0 100 100'>"
+          + `<path d='M ${pt1},${pt1} L ${pt2},${pt2} M ${pt1},${pt2} L ${pt2},${pt1}'`
+          + " stroke='currentcolor' stroke-width='13'/>"
+          + "</svg>";
+    }
     if( !tx.omitDescenders ){
       if( p.u==0 ){
         if( p.hasOwnProperty('mo') && p.r==p.mo ){

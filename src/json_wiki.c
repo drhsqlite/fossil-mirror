@@ -23,12 +23,12 @@
 #include "json_detail.h"
 #endif
 
-static cson_value * json_wiki_create();
-static cson_value * json_wiki_get();
-static cson_value * json_wiki_list();
-static cson_value * json_wiki_preview();
-static cson_value * json_wiki_save();
-static cson_value * json_wiki_diff();
+static cson_value * json_wiki_create(void);
+static cson_value * json_wiki_get(void);
+static cson_value * json_wiki_list(void);
+static cson_value * json_wiki_preview(void);
+static cson_value * json_wiki_save(void);
+static cson_value * json_wiki_diff(void);
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
 */
@@ -49,7 +49,7 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 ** Implements the /json/wiki family of pages/commands.
 **
 */
-cson_value * json_page_wiki(){
+cson_value * json_page_wiki(void){
   return json_page_dispatch_helper(JsonPageDefs_Wiki);
 }
 
@@ -246,7 +246,7 @@ static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
 ** Implementation of /json/wiki/get.
 **
 */
-static cson_value * json_wiki_get(){
+static cson_value * json_wiki_get(void){
   char const * zPageName;
   char const * zSymName = NULL;
   int contentFormat = -1;
@@ -276,7 +276,7 @@ static cson_value * json_wiki_get(){
 /*
 ** Implementation of /json/wiki/preview.
 */
-static cson_value * json_wiki_preview(){
+static cson_value * json_wiki_preview(void){
   char const * zContent = NULL;
   char const * zMime = NULL;
   cson_string * sContent = NULL;
@@ -451,14 +451,14 @@ static cson_value * json_wiki_create_or_save(char createMode,
 /*
 ** Implementation of /json/wiki/create.
 */
-static cson_value * json_wiki_create(){
+static cson_value * json_wiki_create(void){
   return json_wiki_create_or_save(1,0);
 }
 
 /*
 ** Implementation of /json/wiki/save.
 */
-static cson_value * json_wiki_save(){
+static cson_value * json_wiki_save(void){
   char const createIfNotExists = json_getenv_bool("createIfNotExists",0);
   return json_wiki_create_or_save(0,createIfNotExists);
 }
@@ -466,7 +466,7 @@ static cson_value * json_wiki_save(){
 /*
 ** Implementation of /json/wiki/list.
 */
-static cson_value * json_wiki_list(){
+static cson_value * json_wiki_list(void){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   char const * zGlob = NULL;
@@ -533,7 +533,7 @@ static cson_value * json_wiki_list(){
   return listV;
 }
 
-static cson_value * json_wiki_diff(){
+static cson_value * json_wiki_diff(void){
   char const * zV1 = NULL;
   char const * zV2 = NULL;
   cson_object * pay = NULL;

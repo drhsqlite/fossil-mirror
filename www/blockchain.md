@@ -62,7 +62,7 @@ Cryptocurrencies must prevent three separate types of fraud to be useful:
     US $10 bills. There are two sub-types to this fraud. In terms of
     our analogy, they are:
 
-    *  **Type 2a**: copying an existing legitimate $10 bill<p>
+    *  **Type 2a**: copying an existing legitimate $10 bill<br><br>
 
     *  **Type 2b**: printing a new $10 bill that is unlike an existing
        legitimate one, yet which will still pass in commerce

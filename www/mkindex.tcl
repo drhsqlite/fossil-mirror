@@ -25,7 +25,7 @@ set doclist {
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
   cap-theorem.md {Fossil and the CAP Theorem}
-  caps/ {Administering User Capabilities}
+  caps/ {Administering User Capabilities (a.k.a. Permissions)}
   caps/admin-v-setup.md {Differences Between Setup and Admin Users}
   caps/ref.html {User Capability Reference}
   cgi.wiki {CGI Script Configuration Options}
@@ -40,6 +40,7 @@ set doclist {
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contact.md {Developer Contact Information}
+  containers.md {OCI Containers}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
   css-tricks.md {Fossil CSS Tips and Tricks}
   customgraph.md {Theming: Customizing the Timeline Graph}
@@ -154,12 +155,10 @@ fconfigure $out -encoding utf-8 -translation lf
 puts $out \
 "<div class='fossil-doc' data-title='Index Of Fossil Documentation'>"
 puts $out {
-<center>
-<form action='$ROOT/docsrch' method='GET'>
+<form action='$ROOT/docsrch' method='GET' style="text-align:center">
 <input type="text" name="s" size="40" autofocus>
 <input type="submit" value="Search Docs">
 </form>
-</center>
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
@@ -173,7 +172,7 @@ puts $out {
   how deliverables are built</li></ul>
 </li>
 <li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
-<li> <a href='http://fossil-scm.org/fossil-book/home'>Fossil book</a>
+<li> <a href='https://fossil-scm.org/fossil-book/'>Fossil book</a>
 </ul>
 <h2 id="pindex">Other Documents:</h2>
 <ul>}

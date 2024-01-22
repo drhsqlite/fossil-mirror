@@ -6,7 +6,8 @@ Fossil uses [/wiki_rules | Fossil wiki markup] and/or
 
    *  Stand-alone wiki pages.
    *  Description and comments in [./bugtheory.wiki | bug reports].
-   *  Check-in comments.
+   *  Check-in comments.  (For historical reasons, these must
+      currently be in fossil-wiki text format.)
    *  [./embeddeddoc.wiki | Embedded documentation] files whose
       name ends in ".wiki" or ".md" or ".markdown".
    *  [./event.wiki | Technical notes].
@@ -62,10 +63,14 @@ or back again as the project evolves.
 
 <h2>Bug-reports and check-in comments and Forum messages</h2>
 
-The comments on check-ins and the text in the descriptions of bug reports
-both use wiki formatting.  Exactly the same set of formatting rules apply.
-There is never a need to learn one formatting language for documentation
-and a different markup for bugs or for check-in comments.
+The comments on check-ins, forum posts, and the text in the
+descriptions of bug reports both use wiki formatting.  Exactly the
+same set of formatting rules apply.  There is never a need to learn
+one formatting language for documentation and a different markup for
+bugs or for check-in comments.
+
+Minor caveat: check-in messages are currently limited to the
+fossil-wiki format.
 
 <h2 id="assocwiki">Auxiliary notes attached to check-ins or branches</h2>
 

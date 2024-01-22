@@ -61,6 +61,7 @@
 **
 ** Additional lines of comment after the COMMAND: or WEBPAGE: or SETTING:
 ** become the built-in help text for that command or webpage or setting.
+** Backslashes must be escaped ("\\" in comment yields "\" in the help text.)
 **
 ** Multiple COMMAND: entries can be attached to the same command, thus
 ** creating multiple aliases for that command.  Similarly, multiple
@@ -100,6 +101,7 @@
 #define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
+#define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
 /**************************************************************************/
 
 /*
@@ -264,6 +266,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }else if( j==10 && strncmp(&zLine[i], "block-text", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_BOOLEAN);
       aEntry[nUsed].eType |= CMDFLAG_BLOCKTEXT;
+    }else if( j==10 && strncmp(&zLine[i], "keep-empty", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_KEEPEMPTY;
     }else if( j==11 && strncmp(&zLine[i], "versionable", j)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_VERSIONABLE;
     }else if( j==9 && strncmp(&zLine[i], "sensitive", j)==0 ){
@@ -516,7 +520,7 @@ void build_table(void){
       printf("#endif\n");
     }
   }
-  printf("{0,0,0,0,0,0}};\n");
+  printf("{0,0,0,0,0,0,0}};\n");
 
 }
 

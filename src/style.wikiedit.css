@@ -45,7 +45,6 @@ body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > input {
   margin: 0.5em;
 }
 body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > .input-with-label {
-  vertical-align: middle;
   margin: 0 0.5em 0.25em 0.5em;
 }
 body.wikiedit label {

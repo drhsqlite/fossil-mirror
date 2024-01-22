@@ -248,7 +248,7 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 ** if either the includeContent (HTTP) or -content|-c boolean flags
 ** (CLI) are set.
 */
-static int json_artifact_get_content_format_flag(){
+static int json_artifact_get_content_format_flag(void){
   enum { MagicValue = -9 };
   int contentFormat = json_wiki_get_content_format_flag(MagicValue);
   if(MagicValue == contentFormat){
@@ -400,7 +400,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
 ** Impl of /json/artifact. This basically just determines the type of
 ** an artifact and forwards the real work to another function.
 */
-cson_value * json_page_artifact(){
+cson_value * json_page_artifact(void){
   cson_object * pay = NULL;
   char const * zName = NULL;
   char const * zType = NULL;

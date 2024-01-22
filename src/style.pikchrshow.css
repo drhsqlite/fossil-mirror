@@ -1,5 +1,5 @@
 /* CSS for the WASM /pikchrshow app. */
-/* emcscript-related styling, used during the module load/intialization processes... */
+/* emcscript-related styling, used during the module load/initialization processes... */
 .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
 div.emscripten { text-align: center; }
 div.emscripten_border { border: 1px solid black; }

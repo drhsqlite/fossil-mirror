@@ -130,9 +130,9 @@ faq {
 } {
   Any of the following commands should work:
   <blockquote><pre>
-  fossil [/help/clone|clone]  http://fossil-scm.org/  fossil.fossil
-  fossil [/help/clone|clone]  http://www2.fossil-scm.org/  fossil.fossil
-  fossil [/help/clone|clone]  http://www3.fossil-scm.org/site.cgi  fossil.fossil
+  fossil [/help/clone|clone]  https://fossil-scm.org/  fossil.fossil
+  fossil [/help/clone|clone]  https://www2.fossil-scm.org/  fossil.fossil
+  fossil [/help/clone|clone]  https://www3.fossil-scm.org/site.cgi  fossil.fossil
   </pre></blockquote>
   Once you have the repository cloned, you can open a local check-out
   as follows:
@@ -159,7 +159,7 @@ faq {
 #
 puts "<title>Fossil FAQ</title>"
 puts "<h1 align=\"center\">Frequently Asked Questions</h1>\n"
-puts "<p>Note: See also <a href=\"qandc.wiki\">Questions and Criticisms</a>.\n"
+puts "Note: See also <a href=\"qandc.wiki\">Questions and Criticisms</a>.\n"
 
 puts {<ol>}
 for {set i 1} {$i<$cnt} {incr i} {

@@ -356,7 +356,10 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   }
 
   /* The isWriter flag must be true in order to land the new file */
-  if( !isWriter ) goto end_accept_unversioned_file;
+  if( !isWriter ){
+    blob_appendf(&pXfer->err, "Write permissions for unversioned files missing");
+    goto end_accept_unversioned_file;
+  }
 
   /* Make sure we have a valid g.rcvid marker */
   content_rcvid_init(0);
@@ -452,7 +455,7 @@ static int send_delta_parent(
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcId);
     blob_delta_create(&src, pContent, &delta);
     size = blob_size(&delta);
-    if( size>=blob_size(pContent)-50 ){
+    if( size>=(int)blob_size(pContent)-50 ){
       size = 0;
     }else if( uuid_is_shunned(zUuid) ){
       size = 0;
@@ -579,7 +582,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     return;
   }
   if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) ||
-       pXfer->mxSend<=blob_size(pXfer->pOut) ){
+       pXfer->mxSend<=(int)blob_size(pXfer->pOut) ){
     const char *zFormat = isPriv ? "igot %b 1\n" : "igot %b\n";
     blob_appendf(pXfer->pOut, zFormat /*works-like:"%b"*/, pUuid);
     pXfer->nIGotSent++;
@@ -703,7 +706,7 @@ static void send_unversioned_file(
 ){
   Stmt q1;
 
-  if( blob_size(pXfer->pOut)>=pXfer->mxSend ) noContent = 1;
+  if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ) noContent = 1;
   if( noContent ){
     db_prepare(&q1,
       "SELECT mtime, hash, encoding, sz FROM unversioned WHERE name=%Q",
@@ -724,7 +727,7 @@ static void send_unversioned_file(
       db_reset(&q1);
       return;
     }
-    if( blob_size(pXfer->pOut)>=pXfer->mxSend ){
+    if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ){
       /* If we have already reached the send size limit, send a (short)
       ** uvigot card rather than a uvfile card.  This only happens on the
       ** server side.  The uvigot card will provoke the client to resend
@@ -800,7 +803,9 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 **
 ** The NONCE is the SHA1 hash of the remainder of the input.
 ** SIGNATURE is the SHA1 checksum of the NONCE concatenated
-** with the users password.
+** with the sha1_shared_secret() encoding of the users password.
+**
+**   SIGNATURE = sha1_sum( NONCE + sha1_shared_secret(PASSWORD) );
 **
 ** The parameters to this routine are ephemeral blobs holding the
 ** LOGIN, NONCE and SIGNATURE.
@@ -816,7 +821,7 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 **
 ** Return non-zero for a login failure and zero for success.
 */
-int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
+static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   Stmt q;
   int rc = -1;
   char *zLogin = blob_terminate(pLogin);
@@ -1029,7 +1034,7 @@ static int send_unclustered(Xfer *pXfer){
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
     cnt++;
-    if( pXfer->resync && pXfer->mxSend<blob_size(pXfer->pOut) ){
+    if( pXfer->resync && pXfer->mxSend<(int)blob_size(pXfer->pOut) ){
       pXfer->resync = db_column_int(&q, 1)-1;
     }
   }
@@ -1063,7 +1068,6 @@ static void send_all(Xfer *pXfer){
 ** on this server.
 */
 static void send_unversioned_catalog(Xfer *pXfer){
-  int nUvIgot = 0;
   Stmt uvq;
   unversioned_schema();
   db_prepare(&uvq,
@@ -1074,7 +1078,6 @@ static void send_unversioned_catalog(Xfer *pXfer){
     sqlite3_int64 mtime = db_column_int64(&uvq,1);
     const char *zHash = db_column_text(&uvq,2);
     int sz = db_column_int(&uvq,3);
-    nUvIgot++;
     if( zHash==0 ){ sz = 0; zHash = "-"; }
     blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n",
                  zName, mtime, zHash, sz);
@@ -1219,6 +1222,7 @@ void page_xfer(void){
   g.zLogin = "anonymous";
   login_set_anon_nobody_capabilities();
   login_check_credentials();
+  cgi_check_for_malice();
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);
@@ -1309,6 +1313,7 @@ void page_xfer(void){
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
+        fossil_print("%%%%%%%% xfer.err: '%s'\n", blob_str(&xfer.err));
         nErr++;
         break;
       }
@@ -1459,7 +1464,7 @@ void page_xfer(void){
         }
         blob_is_int(&xfer.aToken[2], &seqno);
         max = db_int(0, "SELECT max(rid) FROM blob");
-        while( xfer.mxSend>blob_size(xfer.pOut) && seqno<=max){
+        while( xfer.mxSend>(int)blob_size(xfer.pOut) && seqno<=max){
           if( time(NULL) >= xfer.maxTime ) break;
           if( iVers>=3 ){
             send_compressed_file(&xfer, seqno);
@@ -1581,7 +1586,7 @@ void page_xfer(void){
 
     /*    pragma NAME VALUE...
     **
-    ** The client issue pragmas to try to influence the behavior of the
+    ** The client issues pragmas to try to influence the behavior of the
     ** server.  These are requests only.  Unknown pragmas are silently
     ** ignored.
     */
@@ -1840,7 +1845,7 @@ void page_xfer(void){
   ** to use up a significant fraction of our time window.
   */
   zNow = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')");
-  @ # timestamp %s(zNow)
+  @ # timestamp %s(zNow) errors %d(nErr)
   free(zNow);
 
   db_commit_transaction();
@@ -1874,7 +1879,6 @@ void page_xfer(void){
 **     fossil test-xfer xferfile.txt
 **
 ** Options:
-**
 **    --host  HOSTNAME             Supply a server hostname used to populate
 **                                 g.zBaseURL and similar.
 */
@@ -1925,6 +1929,7 @@ static const char zBriefFormat[] =
 #define SYNC_NOHTTPCOMPRESS 0x04000    /* Do not compression HTTP messages */
 #define SYNC_ALLURL         0x08000    /* The --all flag - sync to all URLs */
 #define SYNC_SHARE_LINKS    0x10000    /* Request alternate repo links */
+#define SYNC_XVERBOSE       0x20000    /* Extra verbose.  Network traffic */
 #endif
 
 /*
@@ -2070,7 +2075,7 @@ int client_sync(
        "  name TEXT PRIMARY KEY,"  /* Name of file to send client->server */
        "  mtimeOnly BOOLEAN"       /* True to only send mtime, not content */
        ") WITHOUT ROWID;"
-       "REPLACE INTO uv_toSend(name,mtimeOnly)"
+       "REPLACE INTO uv_tosend(name,mtimeOnly)"
        "  SELECT name, 0 FROM unversioned WHERE hash IS NOT NULL;"
     );
   }
@@ -2231,7 +2236,7 @@ int client_sync(
           if( syncFlags & SYNC_VERBOSE ){
             fossil_print("\rUnversioned-file sent: %s\n", zName);
           }
-          if( blob_size(xfer.pOut)>xfer.mxSend ) break;
+          if( (int)blob_size(xfer.pOut)>xfer.mxSend ) break;
         }
         db_finalize(&uvq);
         if( rc==SQLITE_DONE ) uvDoPush = 0;
@@ -2258,7 +2263,9 @@ int client_sync(
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
 
-    if( syncFlags & SYNC_VERBOSE ){
+    if( (syncFlags & SYNC_VERBOSE)!=0
+     && (syncFlags & SYNC_XVERBOSE)==0
+    ){
       fossil_print("waiting for server...");
     }
     fflush(stdout);
@@ -2271,6 +2278,9 @@ int client_sync(
     }
     if( syncFlags & SYNC_NOHTTPCOMPRESS ){
       mHttpFlags |= HTTP_NOCOMPRESS;
+    }
+    if( syncFlags & SYNC_XVERBOSE ){
+      mHttpFlags |= HTTP_VERBOSE;
     }
 
     /* Do the round-trip to the server */
@@ -2637,7 +2647,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
         /*   pragma server-version VERSION ?DATE? ?TIME?
         **
-        ** The servger announces to the server what version of Fossil it
+        ** The server announces to the server what version of Fossil it
         ** is running.  The DATE and TIME are a pure numeric ISO8601 time
         ** for the specific check-in of the client.
         */
@@ -2652,7 +2662,7 @@ int client_sync(
         /*   pragma uv-pull-only
         **   pragma uv-push-ok
         **
-        ** If the server is unwill to accept new unversioned content (because
+        ** If the server is unwilling to accept new unversioned content (because
         ** this client lacks the necessary permissions) then it sends a
         ** "uv-pull-only" pragma so that the client will know not to waste
         ** bandwidth trying to upload unversioned content.  If the server
@@ -2809,25 +2819,25 @@ int client_sync(
       go = 1;
       mxPhantomReq = nFileRecv*2;
       if( mxPhantomReq<200 ) mxPhantomReq = 200;
-    }else if( (syncFlags & SYNC_CLONE)!=0 && nFileRecv>0 ){
-      go = 1;
     }else if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
       /* Go another round if files are queued to send */
       go = 1;
     }else if( xfer.nPrivIGot>0 && nCycle==1 ){
       go = 1;
+    }else if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ){
+      /* Continue looping as long as new uvfile cards are being received
+      ** and uvgimme cards are being sent. */
+      go = 1;
     }else if( (syncFlags & SYNC_CLONE)!=0 ){
       if( nCycle==1 ){
         go = 1;   /* go at least two rounds on a clone */
+      }else if( nFileRecv>0 ){
+        go = 1;
       }else if( cloneSeqno>0 && nArtifactRcvd>nPriorArtifact ){
         /* Continue the clone until we see the clone_seqno 0" card or
         ** until we stop receiving artifacts */
         go = 1;
       }
-    }else if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ){
-      /* Continue looping as long as new uvfile cards are being received
-      ** and uvgimme cards are being sent. */
-      go = 1;
     }
 
     nCardRcvd = 0;
@@ -2856,9 +2866,19 @@ int client_sync(
 
   fossil_force_newline();
   if( g.zHttpCmd==0 ){
-    fossil_print(
-       "%s done, wire bytes sent: %lld  received: %lld  ip: %s\n",
-       zOpType, nSent, nRcvd, g.zIpAddr);
+    if( syncFlags & SYNC_VERBOSE ){
+      fossil_print(
+        "%s done, wire bytes sent: %lld  received: %lld  remote: %s%s\n",
+        zOpType, nSent, nRcvd,
+        (g.url.name && g.url.name[0]!='\0') ? g.url.name : "",
+        (g.zIpAddr && g.zIpAddr[0]!='\0'
+          && fossil_strcmp(g.zIpAddr, g.url.name))
+          ? mprintf(" (%s)", g.zIpAddr) : "");
+    }else{
+      fossil_print(
+        "%s done, wire bytes sent: %lld  received: %lld  remote: %s\n",
+          zOpType, nSent, nRcvd, g.zIpAddr);
+    }
   }
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(

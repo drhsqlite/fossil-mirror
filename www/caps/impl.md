@@ -104,8 +104,8 @@ Be careful who you give that pair to!
 [ifvc]: https://en.wikipedia.org/wiki/Inter_frame
 [mn]:   https://en.wikipedia.org/wiki/Mnemonic
 [ref]:  ./ref.html
-[sexp]: http://fossil-scm.org/fossil/artifact?udc=1&ln=1223-1298&name=889d6724
-[sff]:  http://fossil-scm.org/fossil/artifact?udc=1&ln=80-117&name=52d2860f
+[sexp]: /artifact?ln=1223-1298&name=889d6724
+[sff]:  /artifact?ln=80-117&name=52d2860f
 [sc]:   https://en.cppreference.com/w/c/string/byte/strchr
 [shun]: ../shunning.wiki
 [ucap]: ./index.md#ucap

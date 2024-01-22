@@ -543,7 +543,7 @@ static void backoffice_thread(void){
         break;
       }
     }else{
-      if( lastWarning+warningDelay < tmNow ){
+      if( (sqlite3_uint64)(lastWarning+warningDelay) < tmNow ){
         fossil_warning(
            "backoffice process %lld still running after %d seconds",
            x.idCurrent, (int)(BKOFCE_LEASE_TIME + tmNow - x.tmCurrent));
@@ -668,7 +668,7 @@ void backoffice_work(void){
 ** Usage: %fossil backoffice [OPTIONS...] [REPOSITORIES...]
 **
 ** Run backoffice processing on the repositories listed.  If no
-** repository is specified, run it on the repository of the local checkout.
+** repository is specified, run it on the repository of the local check-out.
 **
 ** This might be done by a cron job or similar to make sure backoffice
 ** processing happens periodically.  Or, the --poll option can be used
@@ -682,9 +682,9 @@ void backoffice_work(void){
 **
 ** Standard options:
 **
-**    --debug                 Show what this command is doing.
+**    --debug                 Show what this command is doing
 **
-**    --logfile FILE          Append a log of backoffice actions onto FILE.
+**    --logfile FILE          Append a log of backoffice actions onto FILE
 **
 **    --min N                 When polling, invoke backoffice at least
 **                            once every N seconds even if the repository

@@ -179,6 +179,14 @@ proc test_json_payload {testname okfields badfields} {
 #### VERSION AKA HAI
 
 # The JSON API generally assumes we have a respository, so let it have one.
+
+# Set FOSSIL_USER to ensure consistent results in "json user list"
+set _fossil_user ""
+if [info exists env(FOSSIL_USER)] {
+  set _fossil_user $env(FOSSIL_USER)
+}
+set ::env(FOSSIL_USER) "JSON-TEST-USER"
+
 test_setup
 
 # Stop backoffice from running during this test as it can cause hangs.
@@ -278,7 +286,7 @@ proc test_hascaps {testname need caps} {
     test $testname-$n {[string first $n $caps] >= 0}
   }
 }
-test_hascaps json-login-c "hmnc" [dict get $AuthAnon capabilities]
+test_hascaps json-login-c "hz" [dict get $AuthAnon capabilities]
 
 fossil user new U1 User-1 Uone
 fossil user capabilities U1 s
@@ -889,7 +897,6 @@ test json-RC-4102-CLI-exit {$CODE != 0}
 test_json_envelope json-RC-4102-CLI-exit {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
 test json-RC-4102 {[dict get $JR resultCode] eq "FOSSIL-4102"}
-fossil open .rep.fossil
 
 # FOSSIL-4103 FSL_JSON_E_DB_NOT_VALID
 #     Fossil repository db file is not valid.
@@ -910,3 +917,9 @@ if { $JR ne "" } {
 ###############################################################################
 
 test_cleanup
+
+if { $_fossil_user eq "" } {
+  unset ::env(FOSSIL_USER)
+} else {
+  set ::env(FOSSIL_USER) $_fossil_user
+}

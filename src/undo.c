@@ -457,14 +457,14 @@ void undo_rollback(void){
 ** option.
 **
 ** A single level of undo/redo is supported.  The undo/redo stack
-** is cleared by the commit and checkout commands.  Other commands may
+** is cleared by the commit and check-out commands.  Other commands may
 ** or may not clear the undo stack.
 **
 ** Future versions of Fossil might add new commands to the set of commands
 ** that are undoable.
 **
 ** Options:
-**   -n|--dry-run   Do not make changes but show what would be done
+**   -n|--dry-run   Do not make changes, but show what would be done
 **
 ** See also: [[commit]], [[status]]
 */

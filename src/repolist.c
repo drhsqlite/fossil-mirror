@@ -145,7 +145,11 @@ int repo_list_page(void){
     db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
     db_multi_exec("CREATE TABLE vfile(pathname);");
     vfile_scan(&base, blob_size(&base), 0, 0, 0, ExtFILE);
-    db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
+    db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'"
+#if USE_SEE
+                  " AND pathname NOT GLOB '*[^/].efossil'"
+#endif
+    );
     allRepo = 0;
   }
   n = db_int(0, "SELECT count(*) FROM sfile");
@@ -172,13 +176,18 @@ int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       int nName = (int)strlen(zName);
+      int nSuffix = 7; /* ".fossil" */
       char *zUrl;
       char *zAge;
       char *zFull;
       RepoInfo x;
       sqlite3_int64 iAge;
-      if( nName<7 ) continue;
-      zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
+#if USE_SEE
+      int bEncrypted = sqlite3_strglob("*.efossil", zName)==0;
+      if( bEncrypted ) nSuffix = 8; /* ".efossil" */
+#endif
+      if( nName<nSuffix ) continue;
+      zUrl = sqlite3_mprintf("%.*s", nName-nSuffix, zName);
       if( zName[0]=='/'
 #ifdef _WIN32
           || sqlite3_strglob("[a-zA-Z]:/*", zName)==0
@@ -199,7 +208,11 @@ int repo_list_page(void){
         }
       }
       fossil_free(zFull);
-      if( !x.isValid ){
+      if( !x.isValid
+#if USE_SEE
+       && !bEncrypted
+#endif
+      ){
         continue;
       }
       if( x.isRepolistSkin==2 && !allRepo ){
@@ -220,7 +233,7 @@ int repo_list_page(void){
         zAge = mprintf("unknown");
       }
       blob_append_sql(&html, "<tr><td valign='top'>");
-      if( sqlite3_strglob("*.fossil", zName)!=0 ){
+      if( !file_ends_with_repository_extension(zName,0) ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
@@ -232,7 +245,7 @@ int repo_list_page(void){
         blob_append_sql(&html,
           "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
           zUrl, zName);
-      }else if( sqlite3_strglob("*/*.fossil", zName)==0 ){
+      }else if( file_ends_with_repository_extension(zName,1) ){
         /* As described in
         ** https://fossil-scm.org/forum/info/f50f647c97c72fc1: if
         ** foo.fossil and foo/bar.fossil both exist and we create a
@@ -241,8 +254,15 @@ int repo_list_page(void){
         ** emit a link to foo/bar.fossil. */
         char * zDirPart = file_dirname(zName);
         if( db_exists("SELECT 1 FROM sfile "
-                      "WHERE pathname=(%Q || '.fossil') COLLATE nocase",
-                      zDirPart) ){
+                      "WHERE pathname=(%Q || '.fossil') COLLATE nocase"
+#if USE_SEE
+                      "  OR pathname=(%Q || '.efossil') COLLATE nocase"
+#endif
+                      , zDirPart
+#if USE_SEE
+                      , zDirPart
+#endif
+        ) ){
           blob_append_sql(&html,
             "<s>%h</s> (directory/repo name collision)\n",
             zName);
@@ -265,7 +285,7 @@ int repo_list_page(void){
       }
       blob_append_sql(&html,
         "<td></td><td data-sortkey='%08x'>%h</td>\n",
-        iAge, zAge);
+        (int)iAge, zAge);
       fossil_free(zAge);
       if( x.zLoginGroup ){
         blob_append_sql(&html, "<td></td><td>%h</td></tr>\n", x.zLoginGroup);
@@ -302,7 +322,7 @@ int repo_list_page(void){
     ** property set, then use a default skin */
     @ <html>
     @ <head>
-    @ <base href="%s(g.zBaseURL)/" />
+    @ <base href="%s(g.zBaseURL)/">
     @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @ <title>Repository List</title>
     @ </head>

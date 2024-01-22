@@ -6,11 +6,15 @@ Fossil shares many similarities with Git.  In many cases, the
 sub-commands are identical: [`fossil bisect`][fbis] does essentially the
 same thing as [`git bisect`][gbis], for example.
 
-This document covers the cases where there is no simple 1:1 mapping,
+Yet, Fossil is not merely Git with a bunch of commands misspelled. If
+that were the case, we could give you a two-column translation table
+which would tell you [how to say things like “`git reset --hard HEAD`”](#reset) in
+this funny ol’ Fossil dialect of Git and be done. The purpose of this
+document is to cover all the cases where there is no simple 1:1 mapping,
 usually because of intentional design differences in Fossil that prevent
 it from working exactly like Git. We choose to explain these differences
-rather than provide a simple “translation dictionary,” since to
-understand the conversion, you need to know why the difference exists.
+since to understand the conversion, you need to know why each difference
+exists.
 
 We focus on practical command examples here, leaving discussions of the
 philosophical underpinnings that drive these command differences to [another
@@ -279,7 +283,7 @@ repo DB file or what you name it.
 [undo]:   /help?cmd=undo
 
 
-## <a id="log"></a> Fossil’s Timeline Is The “Log”
+## <a id="log"></a> Fossil’s Timeline Is the “Log”
 
 Git users often need to use the `git log` command to dig linearly through
 commit histories due to its [weak data model][wdm], giving [O(n)
@@ -440,7 +444,7 @@ However, there is a setting under Admin → Timeline → “Truncate comment
 at first blank line (Git-style)” to change this for `/timeline`
 displays.  Alternately, you could enable the “Allow block-markup in
 timeline” setting under Admin → Timeline, then apply [local skin
-customizations][cskin] to put that first comment in in bold or whatever
+customizations][cskin] to put that first comment in bold or whatever
 suits.
 
 Because this isn’t a typical Fossil convention, you’re likely to find
@@ -574,6 +578,36 @@ indeed to any other Fossil command documented to accept a `VERSION` or
 [scin]: ./checkin_names.wiki
 
 
+<a id="syncall"></a>
+## Sync Is All-or-Nothing
+
+Fossil does not support the concept of syncing, pushing, or pulling
+individual branches.  When you sync/push/pull in Fossil, it
+processes all artifacts in its hash tree:
+branches, tags, wiki articles, tickets, forum posts, technotes…
+This is [not quite “everything,” full stop][bu], but it’s close.
+[Fossil is an AP-mode system][capt], which in this case means it works
+*very hard* to ensure that all repos are as close to identical as it can
+make them under this eventually-consistent design philosophy.
+
+Branch *names* sync automatically in Fossil, not just the
+content of those branches. That means this common Git command:
+
+        git push origin master
+
+…is simply this in Fossil:
+
+        fossil push
+
+Fossil doesn’t need to be told what to push or where to push it: it just
+keeps using the same remote server URL you gave it last
+until you [tell it to do something different][rem]. It pushes all
+branches, not just one named local branch.
+
+[capt]: ./cap-theorem.md
+[rem]:  /help?cmd=remote
+
+
 <a id="autosync"></a>
 ## Autosync
 
@@ -583,22 +617,48 @@ it off:
 
         fossil set autosync 0
 
-However, it’s better to understand what the feature does and why it is enabled by
-default.
+Let’s say that you have a typical server-and-workstations model with two
+working clones on different machines, that you have disabled autosync,
+and that this common sequence then occurs:
 
-When autosync is enabled, Fossil automatically pushes your changes
-to the remote server whenever you "`fossil commit`", and it
-pulls all remote changes down to your local clone of the repository as
-part of a "`fossil update`".
-This provides most of the advantages of a centralized version control
-system while retaining the advantages of distributed version control:
+1.  Alice commits to her local clone and *separately* pushes the change
+    up to Condor — their central server — in typical Git fashion.
+2.  Bob does the same.
+3.  Alice brings Bob’s changes down from Condor with “`fossil pull`,” sees
+    what he did to their shared working branch, and becomes most wrathful.
+    (Tsk, tsk.)
+
+We’ll get to what you do about this situation [below](#reset), but for
+now let us focus on the fact that disabling autosync makes it easier for
+[forks] to occur in the development history. If all three machines had
+been online and syncing at the time the sequence above began, Bob would
+have been warned in step 2 that committing to the central repo would
+create a fork and would be invited to fix it before committing.
+Likewise, it would allow Fossil to warn Alice about the new
+tip-of-branch commit the next time she triggers an implicit autosync at
+step 3, giving her a chance to bring Bob’s changes down in a
+non-conflicting manner, allowing work to proceed with minimal fuss.
+
+Fossil, being a distributed version control system, cannot guarantee
+that sequence of events. Because it allows Alice’s work to proceed
+asynchronously, it gives her the chance to create *another* inadvertent
+fork before she can trigger an autosync. This is not a serious problem;
+Fossil resolves it the same way as with Bob, by inviting her to fix this
+second fork in the same manner as it did with Bob. It gets both parties
+back onto a single track as expeditiously as possible by moving the
+synchronization point out of the expensive human-time workflow and into
+the software system, where it’s cheapest to resolve.
+
+Autosync provides Fossil with most of the advantages of a centralized
+version control system while retaining the advantages of distributed
+version control:
 
 1.  Your work stays synced up with your coworkers’ efforts as long as your
     machine can connect to the remote repository. At need, you can go
     off-network and continue work atop the last version you synced with
     the remote.
 
-2.  It provides immediate off-machine backup of your commits. Unlike
+2.  You get implicit off-machine backup of your commits. Unlike
     centralized version control, though, you can still work while
     disconnected; your changes will sync up with the remote once you get
     back online.
@@ -614,34 +674,102 @@ system while retaining the advantages of distributed version control:
     truth once again.
 
 [bu]:    ./backup.md
+[forks]: ./branching.wiki
 [setup]: ./caps/admin-v-setup.md#apsu
 [wflow]: ./concepts.wiki#workflow
 
 
-<a id="syncall"></a>
-## Sync Is All-or-Nothing
+<a id="reset"></a>
+## Resetting the Repository
 
-Fossil does not support the concept of syncing, pushing, or pulling
-individual branches.  When you sync/push/pull in Fossil, it
-processes all artifacts in its hash tree:
-branches, tags, wiki articles, tickets, forum posts, technotes…
-This is [not quite “everything,” full stop][bu], but it’s close.
+Extending from [the prior item](#syncall), you may correctly infer that
+“[delete the project and download a fresh copy][x1597]” has no part in
+the Fossil Way. Ideally, you should never find yourself forced into
+desperate measures like this:(^Parsing the output of `fossil status` is
+usually a mistake since it relies on a potentially unstable interface.
+We make no guarantee that there will always be a line beginning with
+“`repo`” and that it will be separated from the repository’s file name
+by a colon. The simplified example above is also liable to become
+confused by whitespace in file names.)
 
-Furthermore, branch *names* sync automatically in Fossil, not just the
-content of those branches. That means this common Git command:
 
-        git push origin master
+```
+  $ repo=$(fossil status | grep ^repo | cut -f2 -d:)
+  $ url=$(fossil remote)
+  $ fossil close             # Stop here and think if it warns you!
+  $ mv $repo ${repo}.old
+  $ fossil clone $url $repo
+  $ fossil open --force $repo
+```
 
-…is simply this in Fossil:
+What, then, should you as a Git transplant do instead when you find
+yourself reaching for “`git reset`”?
 
-        fossil push
+Since the correct answer to that depends on why you think it’s a good
+solution to your immediate problem, we’ll take our motivating scenario
+from the problem setup above, where we discussed Fossil’s [autosync]
+feature.  Let us further say Alice’s pique results from a belief that
+Bob’s commit is objectively wrong-headed and should be expunged
+henceforth. Since Fossil goes out of its way to ensure that [commits are
+durable][wdm], it should be no further surprise that there is no easier
+method to reset Bob’s clone in favor of Alice’s than the above sequence
+in Fossil’s command set. Except in extreme situations, we believe that
+sort of thing is unnecessary.
 
-Fossil doesn’t need to be told what to push or where to push it: it just
-keeps using the same remote server URL you gave it last
-until you [tell it to do something different][rem], and it pushes all
-branches, not just one named local branch.
+Instead, Bob can say something like this:
 
-[rem]: /help?cmd=remote
+```
+  fossil amend --branch MISTAKE --hide --close -m "mea culpa" tip
+  fossil up trunk
+  fossil push
+```
+
+Unlike in Git, the “`amend`” command doesn’t modify prior committed
+artifacts. Bob’s first command doesn’t delete anything, merely tells
+Fossil to hide his mistake from timeline views by inserting a few new
+records into the local repository to change how the client interprets
+the data it finds there henceforth.(^One to change the tag marking this
+commit’s branch name to “`MISTAKE`,” one to mark that branch as hidden,
+and one to close it to further commits.)
+
+Bob’s second command switches his working directory back to the prior
+commit on that branch. We’re presuming it was “`trunk`” for the sake of
+the example, but it works for any parent branch name. The command works
+because the name “`trunk`” now means something different to Fossil by
+virtue of the first command.
+
+Bob’s third command pushes the changes up to the central machine to
+inform everyone else of his amendment.(^Amendments don’t autosync in
+Fossil because they don’t change any previous commits, allowing the
+other clones to continue working safely with their existing commit
+hashes.)
+
+In this scheme, Alice then needs to say “`fossil update trunk`” in order
+to return her check-out’s parent commit to the previous version lest her
+next attempted commit land atop this mistake branch. The fact that Bob
+marked the branch as closed will prevent that from going thru, cluing
+Alice into what she needs to do to remedy the situation, but that merely
+shows why it’s a better workflow if Alice makes the amendment herself:
+
+```
+  fossil amend --branch MISTAKE --hide --close \
+    -m "shunt Bob’s erroneous commit off" tip
+  fossil up trunk
+  fossil push
+```
+
+Then she can fire off an email listing Bob’s assorted failings and go
+about her work. This asynchronous workflow solves the problem without
+requiring explicit coordination with Bob. When he gets his email, he can
+then say “`fossil up trunk`” himself, which by default will trigger an
+autosync, pulling down Alice’s amendments and getting him back onto her
+development track.
+
+Remember that [branch names need not be unique](#btnames) in Fossil. You
+are free to reuse this “`MISTAKE`” branch name as often as you need to.
+
+[autosync]: #autosync
+[x1597]:    https://xkcd.com/1597/
 
 
 <a id="trunk"></a>
@@ -953,7 +1081,7 @@ because of its lack of an always-up-to-date [index into its log](#log) and in
 part because of its “small tools loosely joined” design philosophy. This
 sort of command is therefore composed piece by piece:
 
-<center>◆  ◆  ◆</center>
+<p style="text-align:center">◆  ◆  ◆</p>
 
 “Oh, I know, I’ll search the rev-list, which outputs commit IDs by
 parsing the log backwards from `HEAD`! Easy!”
@@ -987,7 +1115,7 @@ not merge-commits. Let’s try the first one:”
 
 “Success, I guess?”
 
-<center>◆  ◆  ◆</center>
+<p style="text-align:center">◆  ◆  ◆</p>
 
 This vignette is meant to explain some of Git’s popularity: it rewards
 the sort of people who enjoy puzzles, many of whom are software
@@ -1187,7 +1315,7 @@ from home:
 
 It’s one short command for Fossil instead of three for Git — or two if
 you abbreviate it as “`git commit -a && git push`” — because of Fossil’s
-[autosync feature](#autosync) feature and deliberate omission of a
+[autosync] feature and deliberate omission of a
 [staging feature](#staging).
 
 The “Friday afternoon sync-up” case is simpler, too:

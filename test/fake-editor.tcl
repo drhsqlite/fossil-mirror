@@ -52,6 +52,11 @@ proc writeFile { fileName data } {
 
 set fileName [lindex $argv 0]
 
+if {[regexp {^CYGWIN} $::tcl_platform(os)]} {
+  # Under Cygwin, we get a Windows path but must access using the unix path.
+  set fileName [exec cygpath --unix $fileName]
+}
+
 if {[file exists $fileName]} {
   set data [readFile $fileName]
 } else {

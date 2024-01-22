@@ -51,6 +51,7 @@ static const char *azCgiEnv[] = {
    "HTTPS",
    "HTTP_ACCEPT",
    /* "HTTP_ACCEPT_ENCODING", // omitted from sub-cgi */
+   "HTTP_ACCEPT_LANGUAGE",
    "HTTP_COOKIE",
    "HTTP_HOST",
    "HTTP_IF_MODIFIED_SINCE",
@@ -117,7 +118,7 @@ static int isDirWithIndexFile(char **pzPath){
   int i;
   if( file_isdir(*pzPath, ExtFILE)!=1 ) return 0;
   if( sqlite3_strglob("*/", *pzPath)!=0 ) return 0;
-  for(i=0; i<sizeof(azIndexNames)/sizeof(azIndexNames[0]); i++){
+  for(i=0; i<(int)(sizeof(azIndexNames)/sizeof(azIndexNames[0])); i++){
     char *zNew = mprintf("%s%s", *pzPath, azIndexNames[i]);
     if( file_isfile(zNew, ExtFILE) ){
       fossil_free(*pzPath);
@@ -274,11 +275,11 @@ void ext_page(void){
   }
   cgi_replace_parameter("SERVER_SOFTWARE", zSrvSw);
   cgi_replace_parameter("GATEWAY_INTERFACE","CGI/1.0");
-  for(i=0; i<sizeof(azCgiEnv)/sizeof(azCgiEnv[0]); i++){
+  for(i=0; i<(int)(sizeof(azCgiEnv)/sizeof(azCgiEnv[0])); i++){
     (void)P(azCgiEnv[i]);
   }
   fossil_clearenv();
-  for(i=0; i<sizeof(azCgiEnv)/sizeof(azCgiEnv[0]); i++){
+  for(i=0; i<(int)(sizeof(azCgiEnv)/sizeof(azCgiEnv[0])); i++){
     const char *zVal = P(azCgiEnv[i]);
     if( zVal ) fossil_setenv(azCgiEnv[i], zVal);
   }

@@ -137,8 +137,8 @@ int fossil_any_has_fork(int rcvid){
 */
 static void add_renames(
   const char *zFnCol, /* The FV column for the filename in vid */
-  int vid,            /* The desired version's checkin RID */
-  int nid,            /* The	checkin rid for the name pivot */
+  int vid,            /* The desired version's- RID */
+  int nid,            /* The	check-in rid for the name pivot */
   int revOK,          /* OK to move backwards (child->parent) if true */
   const char *zDebug  /* Generate trace output if not NULL */
 ){
@@ -281,53 +281,42 @@ void test_show_vfile_cmd(void){
 ** Usage: %fossil merge ?OPTIONS? ?VERSION?
 **
 ** The argument VERSION is a version that should be merged into the
-** current checkout.  All changes from VERSION back to the nearest
-** common ancestor are merged.  Except, if either of the --cherrypick or
-** --backout options are used only the changes associated with the
+** current check-out.  All changes from VERSION back to the nearest
+** common ancestor are merged.  Except, if either of the --cherrypick
+** or --backout options are used only the changes associated with the
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
-** checkout rather than added. When invoked with the name cherry-pick,
-** this command works exactly like merge --cherrypick.
+** check-out rather than added. When invoked with the name
+** cherry-pick, this command works exactly like merge --cherrypick.
+**
+** Files which are renamed in the merged-in branch will be renamed in
+** the current check-out.
 **
 ** If the VERSION argument is omitted, then Fossil attempts to find
 ** a recent fork on the current branch to merge.
 **
-** Only file content is merged.  The result continues to use the
-** file and directory names from the current checkout even if those
-** names might have been changed in the branch being merged in.
-**
 ** Options:
-**
 **   --backout               Do a reverse cherrypick merge against VERSION.
 **                           In other words, back out the changes that were
 **                           added by VERSION.
-**
 **   --baseline BASELINE     Use BASELINE as the "pivot" of the merge instead
 **                           of the nearest common ancestor.  This allows
 **                           a sequence of changes in a branch to be merged
 **                           without having to merge the entire branch.
-**
 **   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
 **                           and do not try to merge parallel changes.  This
 **                           option overrides the "binary-glob" setting.
-**
 **   --cherrypick            Do a cherrypick merge VERSION into the current
-**                           checkout.  A cherrypick merge pulls in the changes
+**                           check-out.  A cherrypick merge pulls in the changes
 **                           of the single check-in VERSION, rather than all
 **                           changes back to the nearest common ancestor.
-**
-**   -f|--force              Force the merge even if it would be a no-op.
-**
-**   --force-missing         Force the merge even if there is missing content.
-**
-**   --integrate             Merged branch will be closed when committing.
-**
+**   -f|--force              Force the merge even if it would be a no-op
+**   --force-missing         Force the merge even if there is missing content
+**   --integrate             Merged branch will be closed when committing
 **   -K|--keep-merge-files   On merge conflict, retain the temporary files
 **                           used for merging, named *-baseline, *-original,
 **                           and *-merge.
-**
 **   -n|--dry-run            If given, display instead of run actions
-**
 **   -v|--verbose            Show additional details of the merge
 */
 void merge_cmd(void){
@@ -355,7 +344,7 @@ void merge_cmd(void){
 
   /* Notation:
   **
-  **      V     The current checkout
+  **      V     The current check-out
   **      M     The version being merged in
   **      P     The "pivot" - the most recent common ancestor of V and M.
   **      N     The "name pivot" - for detecting renames
@@ -425,9 +414,9 @@ void merge_cmd(void){
   }else if( g.argc==2 ){
     /* No version specified on the command-line so pick the most recent
     ** leaf that is (1) not the version currently checked out and (2)
-    ** has not already been merged into the current checkout and (3)
+    ** has not already been merged into the current check-out and (3)
     ** the leaf is not closed and (4) the leaf is in the same branch
-    ** as the current checkout.
+    ** as the current check-out.
     */
     Stmt q;
     if( pickFlag || backoutFlag || integrateFlag){
@@ -494,7 +483,7 @@ void merge_cmd(void){
       pid = pivot_find(0);
       if( pid<=0 ){
         fossil_fatal("cannot find a common ancestor between the current "
-                     "checkout and %s", g.argv[2]);
+                     "check-out and %s", g.argv[2]);
       }
     }
     pivot_set_primary(mid);
@@ -573,7 +562,7 @@ void merge_cmd(void){
   /*
   ** The vfile.pathname field is used to match files against each other.  The
   ** FV table contains one row for each each unique filename in
-  ** in the current checkout, the pivot, and the version being merged.
+  ** in the current check-out, the pivot, and the version being merged.
   */
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
@@ -774,24 +763,7 @@ void merge_cmd(void){
   ** All of the information needed to do the merge is now contained in the
   ** FV table.  Starting here, we begin to actually carry out the merge.
   **
-  ** First, find files in M and V but not in P and report conflicts.
-  ** The file in M will be ignored.  It will be treated as if it
-  ** does not exist.
-  */
-  db_prepare(&q,
-    "SELECT idm FROM fv WHERE idp=0 AND idv>0 AND idm>0"
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int idm = db_column_int(&q, 0);
-    char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
-    fossil_warning("WARNING: no common ancestor for %s", zName);
-    free(zName);
-    db_multi_exec("UPDATE fv SET idm=0 WHERE idm=%d", idm);
-  }
-  db_finalize(&q);
-
-  /*
-  ** Find files that have changed from P->M but not P->V.
+  ** First, find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
@@ -821,10 +793,14 @@ void merge_cmd(void){
 
   /*
   ** Do a three-way merge on files that have changes on both P->M and P->V.
+  **
+  ** Proceed even if the file doesn't exist on P, just like the common ancestor
+  ** of M and V is an empty file. In this case, merge conflict marks will be
+  ** added to the file and user will be forced to take a decision.
   */
   db_prepare(&q,
     "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm FROM fv"
-    " WHERE idp>0 AND idv>0 AND idm>0"
+    " WHERE idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
   );

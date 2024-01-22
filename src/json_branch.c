@@ -24,8 +24,8 @@
 #endif
 
 
-static cson_value * json_branch_list();
-static cson_value * json_branch_create();
+static cson_value * json_branch_list(void);
+static cson_value * json_branch_create(void);
 /*
 ** Mapping of /json/branch/XXX commands/paths to callbacks.
 */
@@ -42,7 +42,7 @@ static const JsonPageDef JsonPageDefs_Branch[] = {
 ** complete.
 **
 */
-cson_value * json_page_branch(){
+cson_value * json_page_branch(void){
   return json_page_dispatch_helper(&JsonPageDefs_Branch[0]);
 }
 
@@ -62,7 +62,7 @@ cson_value * json_page_branch(){
 ** "range" GET/POST.payload parameter. FIXME: currently we also use
 ** POST, but really want to restrict this to POST.payload.
 */
-static cson_value * json_branch_list(){
+static cson_value * json_branch_list(void){
   cson_value * payV;
   cson_object * pay;
   cson_value * listV;
@@ -130,7 +130,7 @@ static cson_value * json_branch_list(){
   }
 
 
-  branch_prepare_list_query(&q, branchListFlags, 0, 0);
+  branch_prepare_list_query(&q, branchListFlags, 0, 0, 0); /* Allow a user? */
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
@@ -295,7 +295,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   if( brid==0 ){
     fossil_panic("Problem committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
+  db_add_unsent(brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
     fossil_panic("%s", g.zErrMsg);
   }
@@ -315,7 +315,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 /*
 ** Impl of /json/branch/create.
 */
-static cson_value * json_branch_create(){
+static cson_value * json_branch_create(void){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   int rc = 0;

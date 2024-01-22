@@ -182,20 +182,14 @@ This policy is particularly useful when running Fossil inside a
 restrictive container, anything from [./chroot.md | classic chroot
 jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
 | OS-level virtualization mechanisms] such as
-[https://en.wikipedia.org/wiki/Docker_(software) | Docker]. By using
-executable compression, our
-[/file?name=Dockerfile.in&ci=trunk | stock <tt>Dockerfile</tt>]
-creates a container that's under 4 MiB on 64-bit Linux, including
-a capable [https://www.busybox.net/ | Busybox] environment for live
-debugging of the container's innards.
+[https://en.wikipedia.org/wiki/Docker_(software) | Docker].
+Our [./containers.md | stock container image] is under 8&nbsp;MB when
+uncompressed and running. It contains nothing but a single
+statically-linked binary.
 
-Modern Linux systems tend to make full static linking
-[https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
-| difficult], but our official executables do statically link to OpenSSL
-to remove a version dependency, resulting in an executable that's around
-6 MiB, depending on the platform. ([Release Build How-To | Details].)
-The result is dependent only upon widespread platform libraries with
-stable ABIs such as glibc, zlib, etc.
+If you build a dynamically linked binary instead, Fossil's on-disk size
+drops to around 6&nbsp;MB, and it's dependent only on widespread
+platform libraries with stable ABIs such as glibc, zlib, and openssl.
 
 Full static linking is easier on Windows, so our precompiled Windows
 binaries are just a ZIP archive
@@ -209,7 +203,7 @@ Fossil is easy to build from sources. Just run
 Contrast a basic installation of Git, which takes up about
 15&nbsp;MiB on Debian 10 across 230 files, not counting the contents of
 <tt>/usr/share/doc</tt> or <tt>/usr/share/locale</tt>. If you need to
-deploy to any platform where you cannot count facilities like the POSIX
+deploy to any platform where you cannot count on facilities like the POSIX
 shell, Perl interpreter, and Tcl/Tk platform needed to fully use Git
 as part of the base platform, the full footprint of a Git installation
 extends to more like 45&nbsp;MiB and thousands of files. This complicates
@@ -285,7 +279,7 @@ easy to also see "what came after".
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
-[http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
+[http://gitfaq.org/1/01/what-is-a-detached-head/|detached head
 state] problem has caused grief for
 [https://www.google.com/search?q=git+detached+head+state | many
 Git users]. With
@@ -361,7 +355,7 @@ About half of Git's code is POSIX C, and about a third is POSIX shell
 code. This is largely why the so-called "Git for Windows" distributions
 (both [https://git-scm.com/download/win|first-party] and
 [https://gitforwindows.org/|third-party]) are actually an
-[http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
+[https://www.msys2.org/wiki/Home/|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
 natively to Windows. Git is a foreign citizen on Windows, speaking to it
 only through a translator.⁶
@@ -371,7 +365,8 @@ line endings are treated as first-class citizens over CR+LF, for example
 — the Windows build of Fossil is truly native.
 
 The third-party extensions to Git tend to follow this same pattern.
-[http://mingw.org/wiki/msys|GitLab isn't portable to Windows at all],
+[https://docs.gitlab.com/ee/install/install_methods.html#microsoft-windows | 
+GitLab isn't portable to Windows at all],
 for example. For that matter, GitLab isn't even officially supported on
 macOS, the BSDs, or uncommon Linuxes! We have many users who regularly
 build and run Fossil on all of these systems.
@@ -431,78 +426,76 @@ Fossil's normal mode of operation differs on every one of these points,
 with the specific designed-in goal of promoting SQLite's cathedral
 development model:
 
-<ul>
-    <li><p><b>Personal engagement:</b> SQLite's developers know each
-    other by name and work together daily on the project.</p></li>
-
-    <li><p><b>Trust over hierarchy:</b> SQLite's developers check
-    changes into their local repository, and these are immediately and
-    automatically synchronized up to the central repository; there is no
-    "[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|dictator
-    and lieutenants]" hierarchy as with Linux kernel contributions.  D.
-    Richard Hipp rarely overrides decisions made by those he has trusted
-    with commit access on his repositories. Fossil allows you to give
-    [./caps/admin-v-setup.md|some users] more power over what
-    they can do with the repository, but Fossil [./caps/index.md#ucap |
-    only loosely supports] the enforcement of a development organization's
-    social and power hierarchies. Fossil is a great fit for
-    [https://en.wikipedia.org/wiki/Flat_organization|flat
-    organizations].</p></li>
-
-    <li><p><b>No easy drive-by contributions:</b> Git
-    [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
-    a low-friction path to accepting
-    [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
-    contributions]. Fossil's closest equivalents are its unique
-    [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
-    than firing off a PR.⁷ This difference comes directly from the
-    initial designed purpose for each tool: the SQLite project doesn't
-    accept outside contributions from previously-unknown developers, but
-    the Linux kernel does.</p></li>
-
-    <li><p><b>No rebasing:</b> When your local repo clone syncs changes
-    up to its parent, those changes are sent exactly as they were
-    committed locally. [#history|There is no rebasing mechanism in
-    Fossil, on purpose.]</p></li>
-
-    <li><p><b>Sync over push:</b> Explicit pushes are uncommon in
-    Fossil-based projects: the default is to rely on
-    [/help?cmd=autosync|autosync mode] instead, in which each commit
-    syncs immediately to its parent repository. This is a mode so you
-    can turn it off temporarily when needed, such as when working
-    offline. Fossil is still a truly distributed version control system;
-    it's just that its starting default is to assume you're rarely out
-    of communication with the parent repo.
-    <br><br>
-    This is not merely a reflection of modern always-connected computing
-    environments. It is a conscious decision in direct support of
-    SQLite's cathedral development model: we don't want developers going
-    dark, then showing up weeks later with a massive bolus of changes
-    for us to integrate all at once.
-    [https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy]
-    put it well in his book on software project management,
-    <i>[https://www.amazon.com/dp/0735623198/|Dynamics of Software
-    Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
-    of a guy in a room]."</p></li>
-
-    <li><p><b>Branch names sync:</b> Unlike in Git, branch names in
-    Fossil are not purely local labels. They sync along with everything
-    else, so everyone sees the same set of branch names. Fossil's design
-    choice here is a direct reflection of the Linux vs. SQLite project
-    outlook: SQLite's developers collaborate closely on a single
-    coherent project, whereas Linux's developers go off on tangents and
-    occasionally send selected change sets to each other.</p></li>
-
-    <li><p><b>Private branches are rare:</b>
-    [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
-    they're normally used to handle rare exception cases, whereas in
-    many Git projects, they're part of the straight-line development
-    process.</p></li>
-
-    <li><p><b>Identical clones:</b> Fossil's autosync system tries to
-    keep each local clone identical to the repository it cloned
-    from.</p></li>
-</ul>
+  *  <b>Personal engagement:</b> SQLite's developers know each
+     other by name and work together daily on the project.
+ 
+  *  <b>Trust over hierarchy:</b> SQLite's developers check
+     changes into their local repository, and these are immediately and
+     automatically synchronized up to the central repository; there is no
+     "[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|dictator
+     and lieutenants]" hierarchy as with Linux kernel contributions.  D.
+     Richard Hipp rarely overrides decisions made by those he has trusted
+     with commit access on his repositories. Fossil allows you to give
+     [./caps/admin-v-setup.md|some users] more power over what
+     they can do with the repository, but Fossil [./caps/index.md#ucap |
+     only loosely supports] the enforcement of a development organization's
+     social and power hierarchies. Fossil is a great fit for
+     [https://en.wikipedia.org/wiki/Flat_organization|flat
+     organizations].
+ 
+  *  <b>No easy drive-by contributions:</b> Git
+     [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
+     a low-friction path to accepting
+     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
+     contributions]. Fossil's closest equivalents are its unique
+     [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
+     than firing off a PR.⁷ This difference comes directly from the
+     initial designed purpose for each tool: the SQLite project doesn't
+     accept outside contributions from previously-unknown developers, but
+     the Linux kernel does.
+ 
+  *  <b>No rebasing:</b> When your local repo clone syncs changes
+     up to its parent, those changes are sent exactly as they were
+     committed locally. [#history|There is no rebasing mechanism in
+     Fossil, on purpose.]
+ 
+  *  <b>Sync over push:</b> Explicit pushes are uncommon in
+     Fossil-based projects: the default is to rely on
+     [/help?cmd=autosync|autosync mode] instead, in which each commit
+     syncs immediately to its parent repository. This is a mode so you
+     can turn it off temporarily when needed, such as when working
+     offline. Fossil is still a truly distributed version control system;
+     it's just that its starting default is to assume you're rarely out
+     of communication with the parent repo.
+     <br><br>
+     This is not merely a reflection of modern always-connected computing
+     environments. It is a conscious decision in direct support of
+     SQLite's cathedral development model: we don't want developers going
+     dark, then showing up weeks later with a massive bolus of changes
+     for us to integrate all at once.
+     [https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy]
+     put it well in his book on software project management,
+     <i>[https://www.amazon.com/dp/0735623198/|Dynamics of Software
+     Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
+     of a guy in a room]."
+ 
+  *  <b>Branch names sync:</b> Unlike in Git, branch names in
+     Fossil are not purely local labels. They sync along with everything
+     else, so everyone sees the same set of branch names. Fossil's design
+     choice here is a direct reflection of the Linux vs. SQLite project
+     outlook: SQLite's developers collaborate closely on a single
+     coherent project, whereas Linux's developers go off on tangents and
+     occasionally send selected change sets to each other.
+ 
+  *  <b>Private branches are rare:</b>
+     [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
+     they're normally used to handle rare exception cases, whereas in
+     many Git projects, they're part of the straight-line development
+     process.
+ 
+  *  <b>Identical clones:</b> Fossil's autosync system tries to
+     keep each local clone identical to the repository it cloned
+     from.
 
 Where Git encourages siloed development, Fossil fights against it.
 Fossil places a lot of emphasis on synchronizing everyone's work and on
@@ -511,7 +504,7 @@ that everyone — especially the project leader — can maintain a better
 mental picture of what is happening, leading to better situational
 awareness.
 
-By contrast, "…[https://guides.github.com/activities/forking|forking is
+By contrast, "…[https://docs.github.com/en/get-started/quickstart/contributing-to-projects|forking is
 at the core of social coding at GitHub]".  As of January 2022,
 [https://github.com/search?q=is:public|Github hosts 47 million distinct
 software projects], most of which were created by forking a

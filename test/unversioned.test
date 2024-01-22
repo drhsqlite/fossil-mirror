@@ -29,6 +29,9 @@ require_no_open_checkout
 
 test_setup; set rootDir [file normalize [pwd]]
 
+# Avoid delays from the backoffice.
+fossil set backoffice-disable 1
+
 fossil test-th-eval --open-config {repository}
 set repository [normalize_result]
 
@@ -48,9 +51,16 @@ set env(VISUAL) [appendArgs \
 
 ###############################################################################
 
-fossil unversioned
+# Under cygwin, the printed name with Usage: strips the extension
+if { $::is_cygwin && [file extension $fossilexe] eq ".exe" } {
+  set fossilexeref [string range $fossilexe 0 end-4]
+} else {
+  set fossilexeref $fossilexe
+}
+
+fossil unversioned -expectError
 test unversioned-1 {[normalize_result] eq \
-[string map [list %fossil% [file nativename $fossilexe]] {Usage: %fossil%\
+[string map [list %fossil% [file nativename $fossilexeref]] {Usage: %fossil%\
 unversioned add|cat|edit|export|list|revert|remove|sync|touch}]}
 
 ###############################################################################
@@ -314,7 +324,9 @@ fossil user capabilities uvtester oy
 ###############################################################################
 
 foreach {pid port outTmpFile} [test_start_server $repository stopArg] {}
-puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
+if {! $::QUIET} {
+  puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
+}
 set remote [appendArgs http://uvtester: $password @localhost: $port /]
 
 ###############################################################################
@@ -324,12 +336,14 @@ set clientDir [file join $tempPath [appendArgs \
 
 set savedPwd [pwd]
 file mkdir $clientDir; cd $clientDir
-puts [appendArgs "Now in client directory \"" [pwd] \".]
+if {! $::QUIET} {
+  puts [appendArgs "Now in client directory \"" [pwd] \".]
+}
 write_file unversioned-client1.txt "This is unversioned client file #1."
 
 ###############################################################################
 
-fossil_maybe_answer y clone $remote uvrepo.fossil
+fossil clone --save-http-password $remote uvrepo.fossil
 fossil open -f uvrepo.fossil
 
 ###############################################################################
@@ -345,7 +359,7 @@ test unversioned-46 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+\n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
 ###############################################################################
@@ -391,7 +405,7 @@ test unversioned-52 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+\n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
 ###############################################################################
@@ -416,7 +430,7 @@ test unversioned-55 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 1  received: 0
 Round-trips: 2   Artifacts sent: 1  received: 0
-\n? done, sent: \d+  received: \d+  ip: (?:127\.0\.0\.1|::1)} \
+\n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
 ###############################################################################
@@ -428,16 +442,20 @@ test unversioned-56 {[normalize_result] eq {}}
 
 cd $savedPwd; unset savedPwd
 file delete -force $clientDir
-puts [appendArgs "Now in server directory \"" [pwd] \".]
+if {! $::QUIET} {
+  puts [appendArgs "Now in server directory \"" [pwd] \".]
+}
 
 ###############################################################################
 
 set stopped [test_stop_server $stopArg $pid $outTmpFile]
 
-puts [appendArgs \
+if {! $::QUIET} {
+  puts [appendArgs \
     [expr {$stopped ? "Stopped" : "Could not stop"}] \
     " Fossil server, pid \"" $pid "\", using argument \"" \
     $stopArg \".]
+}
 
 ###############################################################################
 

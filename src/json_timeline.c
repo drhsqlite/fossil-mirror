@@ -24,9 +24,9 @@
 #include "json_detail.h"
 #endif
 
-static cson_value * json_timeline_branch();
-static cson_value * json_timeline_ci();
-static cson_value * json_timeline_ticket();
+static cson_value * json_timeline_branch(void);
+static cson_value * json_timeline_ci(void);
+static cson_value * json_timeline_ticket(void);
 /*
 ** Mapping of /json/timeline/XXX commands/paths to callbacks.
 */
@@ -51,7 +51,7 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 ** complete.
 **
 */
-cson_value * json_page_timeline(){
+cson_value * json_page_timeline(void){
 #if 0
   /* The original timeline code does not require 'h' access,
      but it arguably should. For JSON mode i think one could argue
@@ -145,8 +145,8 @@ char const * json_timeline_query(void){
 ** Only one of "tag" or "branch" modes will work at a time, and if
 ** both are specified, which one takes precedence is unspecified.
 */
-static char json_timeline_add_tag_branch_clause(Blob *pSql,
-                                                cson_object * pPayload){
+static signed char json_timeline_add_tag_branch_clause(Blob *pSql,
+                                                       cson_object * pPayload){
   char const * zTag = NULL;
   char const * zBranch = NULL;
   char const * zMiOnly = NULL;
@@ -222,7 +222,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
 ** Returns -1 if it adds a "before" clause, 1 if it adds
 ** an "after" clause, and 0 if adds only an order-by clause.
 */
-static char json_timeline_add_time_clause(Blob *pSql){
+static signed char json_timeline_add_time_clause(Blob *pSql){
   char const * zAfter = NULL;
   char const * zBefore = NULL;
   int rc = 0;
@@ -366,7 +366,7 @@ cson_value * json_get_changed_files(int rid, int flags){
   return rowsV;
 }
 
-static cson_value * json_timeline_branch(){
+static cson_value * json_timeline_branch(void){
   cson_value * pay = NULL;
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
@@ -447,7 +447,7 @@ static cson_value * json_timeline_branch(){
 ** Still a few TODOs (like figuring out how to structure
 ** inheritance info).
 */
-static cson_value * json_timeline_ci(){
+static cson_value * json_timeline_ci(void){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value * tmp = NULL;
@@ -528,7 +528,7 @@ static cson_value * json_timeline_ci(){
 ** Implementation of /json/timeline/event.
 **
 */
-cson_value * json_timeline_event(){
+cson_value * json_timeline_event(void){
   /* This code is 95% the same as json_timeline_ci(), by the way. */
   cson_value * payV = NULL;
   cson_object * pay = NULL;
@@ -584,7 +584,7 @@ cson_value * json_timeline_event(){
 ** Implementation of /json/timeline/wiki.
 **
 */
-cson_value * json_timeline_wiki(){
+cson_value * json_timeline_wiki(void){
   /* This code is 95% the same as json_timeline_ci(), by the way. */
   cson_value * payV = NULL;
   cson_object * pay = NULL;
@@ -645,7 +645,7 @@ cson_value * json_timeline_wiki(){
 ** Implementation of /json/timeline/ticket.
 **
 */
-static cson_value * json_timeline_ticket(){
+static cson_value * json_timeline_ticket(void){
   /* This code is 95% the same as json_timeline_ci(), by the way. */
   cson_value * payV = NULL;
   cson_object * pay = NULL;

@@ -83,6 +83,16 @@ static int stats_report_init_view(){
       zRealType = "g";
       rc = *zRealType;
       break;
+    case 'm':
+    case 'M':
+      zRealType = "m";
+      rc = *zRealType;
+      break;
+    case 'n':
+    case 'N':
+      zRealType = "n";
+      rc = *zRealType;
+      break;
     case 't':
     case 'T':
       zRealType = "t";
@@ -105,15 +115,24 @@ static int stats_report_init_view(){
   }else{
     zTimeSpan = " 1";
   }
-  if(zRealType){
+  if( zRealType==0 ){
+    statsReportTimelineYFlag = "a";
+    db_multi_exec("CREATE TEMP VIEW v_reports AS "
+                  "SELECT * FROM event WHERE %s", zTimeSpan/*safe-for-%s*/);
+  }else if( rc!='n' && rc!='m' ){
     statsReportTimelineYFlag = zRealType;
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
                   "SELECT * FROM event WHERE (type GLOB %Q) AND %s",
                   zRealType, zTimeSpan/*safe-for-%s*/);
   }else{
-    statsReportTimelineYFlag = "a";
-    db_multi_exec("CREATE TEMP VIEW v_reports AS "
-                  "SELECT * FROM event WHERE %s", zTimeSpan/*safe-for-%s*/);
+    const char *zNot = rc=='n' ? "NOT" : "";
+    statsReportTimelineYFlag = "ci";
+    db_multi_exec(
+      "CREATE TEMP VIEW v_reports AS "
+      "SELECT * FROM event WHERE type='ci' AND %s"
+      " AND objid %s IN (SELECT cid FROM plink WHERE NOT isprim)",
+      zTimeSpan/*safe-for-%s*/, zNot/*safe-for-%s*/
+    );        
   }
   return statsReportType = rc;
 }
@@ -129,6 +148,10 @@ static const char *stats_report_label_for_type(){
   switch( statsReportType ){
     case 'c':
       return "check-ins";
+    case 'm':
+      return "merge check-ins";
+    case 'n':
+      return "non-merge check-ins";
     case 'e':
       return "technotes";
     case 'f':
@@ -146,43 +169,15 @@ static const char *stats_report_label_for_type(){
 
 
 /*
-** Helper for stats_report_by_month_year(), which generates a list of
-** week numbers. zTimeframe should be either a timeframe in the form YYYY
-** or YYYY-MM.
-*/
-static void stats_report_output_week_links(const char *zTimeframe){
-  Stmt stWeek = empty_Stmt;
-  char yearPart[5] = {0,0,0,0,0};
-  memcpy(yearPart, zTimeframe, 4);
-  db_prepare(&stWeek,
-             "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
-             "count(*) AS n, "
-             "substr(date(mtime),1,%d) AS ym "
-             "FROM v_reports "
-             "WHERE ym=%Q AND mtime < current_timestamp "
-             "GROUP BY wk ORDER BY wk",
-             strlen(zTimeframe),
-             zTimeframe);
-  while( SQLITE_ROW == db_step(&stWeek) ){
-    const char *zWeek = db_column_text(&stWeek,0);
-    const int nCount = db_column_int(&stWeek,1);
-    cgi_printf("<a href='%R/timeline?"
-               "yw=%t-%t&n=%d&y=%s'>%s</a>",
-               yearPart, zWeek,
-               nCount, statsReportTimelineYFlag, zWeek);
-  }
-  db_finalize(&stWeek);
-}
-
-/*
 ** Implements the "byyear" and "bymonth" reports for /reports.
 ** If includeMonth is true then it generates the "bymonth" report,
 ** else the "byyear" report. If zUserName is not NULL then the report is
 ** restricted to events created by the named user account.
 */
-static void stats_report_by_month_year(char includeMonth,
-                                       char includeWeeks,
-                                       const char *zUserName){
+static void stats_report_by_month_year(
+  char includeMonth,        /* 0 for stats-by-year.  1 for stats-by-month */
+  const char *zUserName     /* Only report events by this user */
+){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
@@ -199,12 +194,14 @@ static void stats_report_by_month_year(char includeMonth,
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
-  Blob userFilter = empty_blob;      /* Optional user=johndoe query string */
+
+  char *zCurrentTF;                  /* The timeframe in which 'now' lives */
+  double rNowFraction;               /* Fraction of 'now' timeframe that has
+                                        passed */
+  int nTFChar;                       /* Prefix of date() for timeframe */
+
+  nTFChar = includeMonth ? 7 : 4;
   stats_report_init_view();
-  if( zUserName ){
-    blob_appendf(&userFilter, "user=%s", zUserName);
-  }
-  blob_reset(&userFilter);
   db_prepare(&query,
              "SELECT substr(date(mtime),1,%d) AS timeframe,"
              "       count(*) AS eventCount"
@@ -212,7 +209,7 @@ static void stats_report_by_month_year(char includeMonth,
              " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
              " GROUP BY timeframe"
              " ORDER BY timeframe DESC",
-             includeMonth ? 7 : 4, zUserName);
+             nTFChar, zUserName);
   @ <h1>Timeline Events (%s(stats_report_label_for_type()))
   @ by year%s(includeMonth ? "/month" : "")
   if( zUserName ){
@@ -220,12 +217,21 @@ static void stats_report_by_month_year(char includeMonth,
   }
   @ </h1>
   @ <table border='0' cellpadding='2' cellspacing='0' \
+  zCurrentTF = db_text(0, "SELECT substr(date(),1,%d)", nTFChar);
   if( !includeMonth ){
     @ class='statistics-report-table-events sortable' \
     @ data-column-types='tnx' data-init-sort='0'>
     style_table_sorter();
+    rNowFraction = db_double(0.5,
+       "SELECT (unixepoch() - unixepoch('now','start of year'))*1.0/"
+       "        (unixepoch('now','start of year','+1 year') - "
+       "         unixepoch('now','start of year'));");
   }else{
     @ class='statistics-report-table-events'>
+    rNowFraction = db_double(0.5,
+       "SELECT (unixepoch() - unixepoch('now','start of month'))*1.0/"
+       "       (unixepoch('now','start of month','+1 month') - "
+       "        unixepoch('now','start of month'));");
   }
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
@@ -238,7 +244,12 @@ static void stats_report_by_month_year(char includeMonth,
      Fu can re-implement this with a single query.
   */
   while( SQLITE_ROW == db_step(&query) ){
-    const int nCount = db_column_int(&query, 1);
+    int nCount = db_column_int(&query, 1);
+    if( strcmp(db_column_text(&query,0),zCurrentTF)==0
+     && rNowFraction>0.05
+    ){
+      nCount = (int)(((double)nCount)/rNowFraction);
+    }
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
@@ -248,7 +259,7 @@ static void stats_report_by_month_year(char includeMonth,
   while( SQLITE_ROW == db_step(&query) ){
     const char *zTimeframe = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    int nSize = nCount
+    int nSize = (nCount>0 && nMaxEvents>0)
       ? (int)(100 * nCount / nMaxEvents)
       : 1;
     showYearTotal = 0;
@@ -300,22 +311,27 @@ static void stats_report_by_month_year(char includeMonth,
       cgi_printf("'>%s</a>", zTimeframe);
     }
     @ </td><td>%d(nCount)</td>
-    @ <td>
-    @ <div class='statistics-report-graph-line'
-    @  style='width:%d(nSize)%%;'>&nbsp;</div>
-    @ </td>
-    @</tr>
-    if(includeWeeks){
-      /* This part works fine for months but it terribly slow (4.5s on my PC),
-         so it's only shown for by-year for now. Suggestions/patches for
-         a better/faster layout are welcomed. */
-      @ <tr class='row%d(rowClass)'>
-      @ <td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
-      @ <td class='statistics-report-week-of-year-list'>
-      stats_report_output_week_links(zTimeframe);
-      @ </td></tr>
+    @ <td style='white-space: nowrap;'>
+    if( strcmp(zTimeframe, zCurrentTF)==0
+     && rNowFraction>0.05
+     && nCount>0
+     && nMaxEvents>0
+    ){
+      /* If the timespan covered by this row contains "now", then project
+      ** the number of changes until the completion of the timespan and
+      ** show a dashed box of that projection. */
+      int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
+      int nXSize = (100 * nExtra)/nMaxEvents;
+      @ <span class='statistics-report-graph-line' \
+      @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
+      @ <span class='statistics-report-graph-extra' \
+      @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
+    }else{
+      @ <div class='statistics-report-graph-line' \
+      @  style='width:%d(nSize)%%;'>&nbsp;</div> \
     }
-
+    @ </td>
+    @ </tr>
     /*
       Potential improvement: calculate the min/max event counts and
       use percent-based graph bars.
@@ -334,8 +350,8 @@ static void stats_report_by_month_year(char includeMonth,
   if(nEventTotal){
     const char *zAvgLabel = includeMonth ? "month" : "year";
     int nAvg = iterations ? (nEventTotal/iterations) : 0;
-    @ <br /><div>Total events: %d(nEventTotal)
-    @ <br />Average per active %s(zAvgLabel): %d(nAvg)
+    @ <br><div>Total events: %d(nEventTotal)
+    @ <br>Average per active %s(zAvgLabel): %d(nAvg)
     @ </div>
   }
 }
@@ -361,7 +377,7 @@ static void stats_report_by_user(){
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg></centre><hr />
+    @ </svg></centre><hr>
   }
   style_table_sorter();
   @ <table class='statistics-report-table-events sortable' border='0' \
@@ -479,16 +495,12 @@ static void stats_report_day_of_week(const char *zUserName){
                                         row colors */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-  Blob userFilter = empty_blob;      /* Optional user=johndoe query string */
   static const char *const daysOfWeek[] = {
   "Sunday", "Monday", "Tuesday", "Wednesday",
   "Thursday", "Friday", "Saturday"
   };
 
   stats_report_init_view();
-  if( zUserName ){
-    blob_appendf(&userFilter, "user=%s", zUserName);
-  }
   db_prepare(&query,
                "SELECT cast(strftime('%%w', mtime) AS INTEGER) dow,"
                "       COUNT(*) AS eventCount"
@@ -521,7 +533,7 @@ static void stats_report_day_of_week(const char *zUserName){
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg></centre><hr />
+    @ </svg></centre><hr>
   }
   style_table_sorter();
   @ <table class='statistics-report-table-events sortable' border='0' \
@@ -562,11 +574,86 @@ static void stats_report_day_of_week(const char *zUserName){
   db_finalize(&query);
 }
 
+/*
+** Implements the "byhour" view for /reports. If zUserName is not NULL
+** then the report is restricted to events created by the named user
+** account.
+*/
+static void stats_report_hour_of_day(const char *zUserName){
+  Stmt query = empty_Stmt;
+  int nRowNumber = 0;                /* current TR number */
+  int rowClass = 0;                  /* counter for alternating
+                                        row colors */
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
+
+  stats_report_init_view();
+  db_prepare(&query,
+               "SELECT cast(strftime('%%H', mtime) AS INTEGER) hod,"
+               "       COUNT(*) AS eventCount"
+               "  FROM v_reports"
+               " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
+               " GROUP BY hod ORDER BY hod", zUserName);
+  @ <h1>Timeline Events (%h(stats_report_label_for_type())) by Hour of Day
+  if( zUserName ){
+    @ for user %h(zUserName)
+  }
+  @ </h1>
+  db_multi_exec(
+    "CREATE TEMP VIEW piechart(amt,label) AS"
+    " SELECT count(*), strftime('%%H', mtime) hod"
+    "  FROM v_reports"
+    "  WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
+    "  GROUP BY 2 ORDER BY hod;",
+    zUserName
+  );
+  if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
+    @ <center><svg width=700 height=400>
+    piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
+    @ </svg></centre><hr>
+  }
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='nnx' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Hour</th>
+  @ <th>Events</th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ </tr></thead><tbody>
+  while( SQLITE_ROW == db_step(&query) ){
+    const int nCount = db_column_int(&query, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+  }
+  db_reset(&query);
+  while( SQLITE_ROW == db_step(&query) ){
+    const int hourNum =db_column_int(&query, 0);
+    const int nCount = db_column_int(&query, 1);
+    int nSize = nCount
+      ? (int)(100 * nCount / nMaxEvents)
+      : 0;
+    if(!nCount) continue /* arguable! Possible? */;
+    else if(!nSize) nSize = 1;
+    rowClass = ++nRowNumber % 2;
+    @<tr class='row%d(rowClass)'>
+    @ <td>%d(hourNum)</td>
+    @ <td>%d(nCount)</td>
+    @ <td>
+    @ <div class='statistics-report-graph-line'
+    @  style='width:%d(nSize)%%;'>&nbsp;</div>
+    @ </td>
+    @</tr>
+  }
+  @ </tbody></table>
+  db_finalize(&query);
+}
+
 
 /*
 ** Helper for stats_report_by_month_year(), which generates a list of
-** week numbers. zTimeframe should be either a timeframe in the form YYYY
-** or YYYY-MM. If zUserName is not NULL then the report is restricted to events
+** week numbers.  The "y" query parameter is the year in format YYYY.
+** If zUserName is not NULL then the report is restricted to events
 ** created by the named user account.
 */
 static void stats_report_year_weeks(const char *zUserName){
@@ -577,6 +664,9 @@ static void stats_report_year_weeks(const char *zUserName){
   int iterations = 0;                /* # of active time periods. */
   int rowCount = 0;
   int total = 0;
+  char *zCurrentWeek;                /* Current week number */
+  double rNowFraction = 0.0;         /* Fraction of current week that has
+                                     ** passed */
 
   stats_report_init_view();
   style_submenu_sql("y", "Year:",
@@ -588,7 +678,7 @@ static void stats_report_year_weeks(const char *zUserName){
   if( zYear==0 || strlen(zYear)!=4 ){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
-  cgi_printf("<br />");
+  cgi_printf("<br>\n");
   db_prepare(&q,
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
              "       count(*) AS n "
@@ -603,18 +693,31 @@ static void stats_report_year_weeks(const char *zUserName){
     @  for user %h(zUserName)
   }
   @ </h1>
-  style_table_sorter();
+  zCurrentWeek = db_text(0,
+      "SELECT strftime('%%W','now') WHERE date() LIKE '%q%%'",
+      zYear);
+  if( zCurrentWeek ){
+    rNowFraction = db_double(0.5,
+      "SELECT (unixepoch()-unixepoch('now','weekday 0','-7 days'))/604800.0;");
+  }
+    style_table_sorter();
   cgi_printf("<table class='statistics-report-table-events sortable' "
               "border='0' cellpadding='2' width='100%%' "
-             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>");
+             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
   cgi_printf("<thead><tr>"
              "<th>Week</th>"
              "<th>Events</th>"
              "<th width='90%%'><!-- relative commits graph --></th>"
-             "</tr></thead>"
-             "<tbody>");
+             "</tr></thead>\n"
+             "<tbody>\n");
   while( SQLITE_ROW == db_step(&q) ){
-    const int nCount = db_column_int(&q, 1);
+    int nCount = db_column_int(&q, 1);
+    if( zCurrentWeek!=0
+     && strcmp(db_column_text(&q,0),zCurrentWeek)==0
+     && rNowFraction>0.05
+    ){
+      nCount = (int)(((double)nCount)/rNowFraction);
+    }
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
@@ -624,7 +727,7 @@ static void stats_report_year_weeks(const char *zUserName){
   while( SQLITE_ROW == db_step(&q) ){
     const char *zWeek = db_column_text(&q,0);
     const int nCount = db_column_int(&q,1);
-    int nSize = nCount
+    int nSize = (nCount>0 && nMaxEvents>0)
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
     if(!nSize) nSize = 1;
@@ -639,19 +742,34 @@ static void stats_report_year_weeks(const char *zUserName){
     cgi_printf("'>%s</a></td>",zWeek);
 
     cgi_printf("<td>%d</td>",nCount);
-    cgi_printf("<td>");
-    if(nCount){
-      cgi_printf("<div class='statistics-report-graph-line'"
-                 "style='width:%d%%;'>&nbsp;</div>",
-                 nSize);
+    cgi_printf("<td style='white-space: nowrap;'>");
+    if( nCount ){
+      if( zCurrentWeek!=0
+      && strcmp(zWeek, zCurrentWeek)==0
+      && rNowFraction>0.05
+      && nMaxEvents>0
+      ){
+        /* If the covered covered by this row contains "now", then project
+        ** the number of changes until the completion of the week and
+        ** show a dashed box of that projection. */
+        int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
+        int nXSize = (100 * nExtra)/nMaxEvents;
+        @ <span class='statistics-report-graph-line' \
+        @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
+        @ <span class='statistics-report-graph-extra' \
+        @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
+      }else{
+        @ <div class='statistics-report-graph-line' \
+        @  style='width:%d(nSize)%%;'>&nbsp;</div> \
+      }
     }
-    cgi_printf("</td></tr>");
+    cgi_printf("</td></tr>\n");
   }
   db_finalize(&q);
   cgi_printf("</tbody></table>");
   if(total){
     int nAvg = iterations ? (total/iterations) : 0;
-    cgi_printf("<br /><div>Total events: %d<br />"
+    cgi_printf("<br><div>Total events: %d<br>"
                "Average per active week: %d</div>",
                total, nAvg);
   }
@@ -711,6 +829,7 @@ static void stats_report_last_change(void){
 #define RPT_BYWEEKDAY 5
 #define RPT_BYYEAR    6
 #define RPT_LASTCHNG  7  /* Last change made for each user */
+#define RPT_BYHOUR    8  /* hour-of-day */
 #define RPT_NONE      0  /* None of the above */
 
 /*
@@ -720,10 +839,25 @@ static void stats_report_last_change(void){
 **
 ** Query Parameters:
 **
-**   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
+**   view=REPORT_NAME  Valid REPORT_NAME values:
+**                        * byyear
+**                        * bymonth
+**                        * byweek
+**                        * byweekday
+**                        * byhour
+**                        * byuser
+**                        * byfile
+**                        * lastchng
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
-**                     ci (check-in), f (forum), w (wiki), t (ticket), g (tag)
+**                        * all (everything),
+**                        * ci  (check-in)
+**                        * m   (merge check-in),
+**                        * n   (non-merge check-in)
+**                        * f   (forum post)
+**                        * w   (wiki page change)
+**                        * t   (ticket change)
+**                        * g   (tag added or removed)
 **                     Defaulting to all event types.
 **
 ** The view-specific query parameters include:
@@ -751,11 +885,14 @@ void stats_report_page(){
      {  "By Week",     "byweek",    RPT_BYWEEK    },
      {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
      {  "By Year",     "byyear",    RPT_BYYEAR    },
+     {  "By Hour",     "byhour",    RPT_BYHOUR    },
   };
   static const char *const azType[] = {
      "a",  "All Changes",
      "ci", "Check-ins",
      "f",  "Forum Posts",
+     "m",  "Merge check-ins",
+     "n",  "Non-merge check-ins",
      "g",  "Tags",
      "e",  "Tech Notes",
      "t",  "Tickets",
@@ -777,6 +914,7 @@ void stats_report_page(){
       break;
     }
   }
+  cgi_check_for_malice();
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
     for(i=0; i<count(aViewType); i++){
@@ -801,10 +939,10 @@ void stats_report_page(){
   style_header("Activity Reports");
   switch( eType ){
     case RPT_BYYEAR:
-      stats_report_by_month_year(0, 0, zUserName);
+      stats_report_by_month_year(0, zUserName);
       break;
     case RPT_BYMONTH:
-      stats_report_by_month_year(1, 0, zUserName);
+      stats_report_by_month_year(1, zUserName);
       break;
     case RPT_BYWEEK:
       stats_report_year_weeks(zUserName);
@@ -818,6 +956,9 @@ void stats_report_page(){
       break;
     case RPT_BYFILE:
       stats_report_by_file(zUserName);
+      break;
+    case RPT_BYHOUR:
+      stats_report_hour_of_day(zUserName);
       break;
     case RPT_LASTCHNG:
       stats_report_last_change();

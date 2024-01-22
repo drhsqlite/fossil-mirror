@@ -24,11 +24,11 @@
 #endif
 
 
-static cson_value * json_report_create();
-static cson_value * json_report_get();
-static cson_value * json_report_list();
-static cson_value * json_report_run();
-static cson_value * json_report_save();
+static cson_value * json_report_create(void);
+static cson_value * json_report_get(void);
+static cson_value * json_report_list(void);
+static cson_value * json_report_run(void);
+static cson_value * json_report_save(void);
 
 /*
 ** Mapping of /json/report/XXX commands/paths to callbacks.
@@ -47,7 +47,7 @@ static const JsonPageDef JsonPageDefs_Report[] = {
 **
 **
 */
-cson_value * json_page_report(){
+cson_value * json_page_report(void){
   if(!g.perm.RdTkt && !g.perm.NewTkt ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'r' or 'n' permissions.");
@@ -79,12 +79,12 @@ static int json_report_get_number(int argPos){
   return nReport;
 }
 
-static cson_value * json_report_create(){
+static cson_value * json_report_create(void){
   json_set_err(FSL_JSON_E_NYI, NULL);
   return NULL;
 }
 
-static cson_value * json_report_get(){
+static cson_value * json_report_get(void){
   int nReport;
   Stmt q = empty_Stmt;
   cson_value * pay = NULL;
@@ -124,7 +124,7 @@ static cson_value * json_report_get(){
 /*
 ** Impl of /json/report/list.
 */
-static cson_value * json_report_list(){
+static cson_value * json_report_list(void){
   Blob sql = empty_blob;
   cson_value * pay = NULL;
   if(!g.perm.RdTkt){
@@ -160,7 +160,7 @@ static cson_value * json_report_list(){
 ** format=a|o Specifies result format: a=each row is an arry, o=each
 ** row is an object.  Default=o.
 */
-static cson_value * json_report_run(){
+static cson_value * json_report_run(void){
   int nReport;
   Stmt q = empty_Stmt;
   cson_object * pay = NULL;
@@ -257,7 +257,7 @@ static cson_value * json_report_run(){
 
 }
 
-static cson_value * json_report_save(){
+static cson_value * json_report_save(void){
   return NULL;
 }
 #endif /* FOSSIL_ENABLE_JSON */

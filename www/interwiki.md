@@ -5,8 +5,8 @@ external wikis or websites.  For example, the following two
 hyperlinks mean the same thing (assuming an appropriate [intermap](#intermap)
 configuration):
 
-  * [](wikipedia:Interwiki_links)
-  * [](https://en.wikipedia.org/wiki/Interwiki_links)
+  * [](wikipedia:MediaWiki#Interwiki_links)
+  * [](https://en.wikipedia.org/wiki/MediaWiki#Interwiki_links)
 
 Another example:  The Fossil Forum is hosted in a separate repository
 from the Fossil source code.  This page is part of the

@@ -50,6 +50,14 @@
 #define DIFF_TCL               0x00080000 /* For the --tk option */
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
 #define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
+#define DIFF_DARKMODE          0x00400000 /* Use dark mode for HTML */
+
+/*
+** Per file information that may influence output.
+*/
+#define DIFF_FILE_ADDED        0x40000000 /* Added or rename destination */
+#define DIFF_FILE_DELETED      0x80000000 /* Deleted or rename source */
+#define DIFF_FILE_MASK         0xc0000000 /* Used for clearing file flags */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -411,7 +419,6 @@ static void contextDiff(
   int i, j;     /* Loop counters */
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
   int showDivider = 0;  /* True to show the divider between diff blocks */
@@ -425,7 +432,7 @@ static void contextDiff(
   while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
 
     /* For the current block comprising nr triples, figure out
@@ -1131,7 +1138,7 @@ static DiffBuilder *dftclNew(Blob *pOut){
 **   -----------   --------    --------------------------
 **   0             END         This is the end of the diff
 **   1  INTEGER    SKIP        Skip N lines from both files
-**   2  STRING     COMMON      The line show by STRING is in both files
+**   2  STRING     COMMON      The line shown by STRING is in both files
 **   3  STRING     INSERT      The line STRING is in only the right file
 **   4  STRING     DELETE      The STRING line is in only the left file
 **   5  SUBARRAY   EDIT        One line is different on left and right.
@@ -2072,7 +2079,6 @@ static unsigned char *diffBlockAlignment(
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
-  int nMatch, iMatch;          /* Number of matching lines and match score */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   if( nLeft==0 ){
@@ -2097,7 +2103,9 @@ static unsigned char *diffBlockAlignment(
   /* For large alignments, try to use alternative algorithms that are
   ** faster than the O(N*N) Wagner edit distance.
   */
-  if( nLeft*nRight>DIFF_ALIGN_MX && (pCfg->diffFlags & DIFF_SLOW_SBS)==0 ){
+  if( (i64)nLeft*(i64)nRight>DIFF_ALIGN_MX
+   && (pCfg->diffFlags & DIFF_SLOW_SBS)==0
+  ){
     if( (pCfg->diffFlags & DIFF_IGNORE_ALLWS)==0 ){
       unsigned char *aRes;
       aRes = diffBlockAlignmentIgnoreSpace(
@@ -2154,15 +2162,12 @@ static unsigned char *diffBlockAlignment(
   i = nRight;
   j = nLeft;
   k = (nRight+1)*(nLeft+1)-1;
-  nMatch = iMatch = 0;
   while( i+j>0 ){
     unsigned char c = aM[k];
     if( c>=3 ){
       assert( i>0 && j>0 );
       i--;
       j--;
-      nMatch++;
-      iMatch += (c>>2);
       aM[k] = 3;
     }else if( c==2 ){
       assert( i>0 );
@@ -2228,7 +2233,7 @@ static void formatDiff(
 
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
@@ -2258,7 +2263,7 @@ static void formatDiff(
     /* Figure out how many lines of A and B are to be displayed
     ** for this change block.
     */
-    if( R[r]>nContext ){
+    if( R[r]>(int)nContext ){
       skip = R[r] - nContext;
     }else{
       skip = 0;
@@ -2269,10 +2274,10 @@ static void formatDiff(
     m = R[r] - skip;
     if( r ) skip -= nContext;
     if( skip>0 ){
-      if( skip<nContext ){
+      if( skip<(int)nContext ){
         /* If the amount to skip is less that the context band, then
         ** go ahead and show the skip band as it is not worth eliding */
-        for(j=0; j<skip; j++){
+        for(j=0; (int)j<skip; j++){
           pBuilder->xCommon(pBuilder, &A[a+j-skip]);
         }
       }else{
@@ -2306,7 +2311,7 @@ static void formatDiff(
       alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, pCfg, &nAlign);
 
       for(j=0; ma+mb>0; j++){
-        assert( j<nAlign );
+        assert( (int)j<nAlign );
         switch( alignment[j] ){
           case 1: {
             /* Delete one line from the left */
@@ -2348,7 +2353,7 @@ static void formatDiff(
           }
         }
       }
-      assert( nAlign==j );
+      assert( nAlign==(int)j );
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
@@ -2368,7 +2373,7 @@ static void formatDiff(
       pBuilder->xCommon(pBuilder, &A[a+j]);
     }
   }
-  if( R[r]>nContext ){
+  if( R[r]>(int)nContext ){
     pBuilder->xSkip(pBuilder, R[r] - nContext, 1);
   }
   pBuilder->xEnd(pBuilder);
@@ -2893,8 +2898,8 @@ int diff_context_lines(DiffConfig *pCfg){
   const int dflt = 5;
   if(pCfg!=0){
     int n = pCfg->nContext;
-    if( n<=0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
-    return n;
+    if( n==0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = dflt;
+    return n<0 ? 0x7ffffff : n;
   }else{
     return dflt;
   }
@@ -2961,7 +2966,7 @@ void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
 **   2.  The number of lines to delete
 **   3.  The number of lines to insert
 **
-** The return vector is terminated bin a triple of all zeros.  The caller
+** The return vector is terminated by a triple of all zeros.  The caller
 ** should free the returned vector using fossil_free().
 **
 ** This diff utility does not work on binary files.  If a binary
@@ -3154,7 +3159,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   }
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))!=0 ){
     pCfg->nContext = f;
     diffFlags |= DIFF_CONTEXT_EX;
   }
@@ -3165,6 +3170,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
+  if( find_option("dark",0,0)!=0 ) diffFlags |= DIFF_DARKMODE;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   if( find_option("internal","i",0)==0
@@ -3200,7 +3206,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
 ** a diff between two disk files that are not necessarily under management.
 ** In other words, this command provides a mechanism to use Fossil's file
 ** difference engine on arbitrary disk files.  See the "diff" command for
-** computing differences between files that are* under management.
+** computing differences between files that are under management.
 **
 ** This command prints the differences between the two files FILE1 and FILE2.
 ** all of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
@@ -3550,7 +3556,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **                           Xs     As much as can be computed in X seconds
 **                           N      N versions
 **    log=BOOLEAN         Show a log of versions analyzed
-**    origin=ID           The origin checkin.  If unspecified, the root
+**    origin=ID           The origin check-in.  If unspecified, the root
 **                        check-in over the entire repository is used.
 **                        Specify "origin=trunk" or similar for a reverse
 **                        annotation
@@ -3588,6 +3594,7 @@ void annotation_page(void){
   fileVers = PB("filevers");
   ignoreWs = PB("w");
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
+  cgi_check_for_malice();
 
   /* compute the annotation */
   annotate_file(&ann, zFilename, zRevision, zLimit, zOrigin, annFlags);
@@ -3643,7 +3650,7 @@ void annotation_page(void){
     @ </span>
   }
   @ </ol>
-  @ <hr />
+  @ <hr>
   @ </div>
 
   if( !ann.bMoreToDo ){

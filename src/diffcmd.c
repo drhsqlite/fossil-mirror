@@ -163,6 +163,9 @@ void diff_print_filenames(
   Blob *pOut              /* Write to this blob, or stdout of this is NULL */
 ){
   u64 diffFlags = pCfg->diffFlags;
+  /* Standardize on /dev/null, regardless of platform. */
+  if( pCfg->diffFlags & DIFF_FILE_ADDED ) zLeft = "/dev/null";
+  if( pCfg->diffFlags & DIFF_FILE_DELETED ) zRight = "/dev/null";
   if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
@@ -215,7 +218,7 @@ void diff_print_filenames(
 
 
 /*
-** Default header text for diff with --webpage
+** Default header texts for diff with --webpage
 */
 static const char zWebpageHdr[] = 
 @ <!DOCTYPE html>
@@ -312,6 +315,141 @@ static const char zWebpageHdr[] =
 @   text-decoration: none;
 @   font-weight: bold;
 @ }
+@ @media (prefers-color-scheme: dark) {
+@   body {
+@     background-color: #353535;
+@     color: #ffffff;
+@   }
+@   td.diffln ins {
+@     background-color: #559855;
+@     color: #000000;
+@   }
+@   td.diffln del {
+@     background-color: #cc5555;
+@     color: #000000;
+@   }
+@   td.difftxt del {
+@     background-color: #f9cfcf;
+@     color: #000000;
+@   }
+@     td.difftxt del > del {
+@     background-color: #cc5555;
+@     color: #000000;
+@   }
+@   td.difftxt ins {
+@     background-color: #a2dbb2;
+@     color: #000000;
+@   }
+@   td.difftxt ins > ins {
+@     background-color: #559855;
+@   }
+@ }
+@ 
+@ </style>
+@ </head>
+@ <body>
+;
+static const char zWebpageHdrDark[] = 
+@ <!DOCTYPE html>
+@ <html>
+@ <head>
+@ <meta charset="UTF-8">
+@ <style>
+@ body {
+@    background-color: #353535;
+@    color: #ffffff;
+@ }
+@ h1 {
+@   font-size: 150%;
+@ }
+@ 
+@ table.diff {
+@   width: 100%;
+@   border-spacing: 0;
+@   border: 1px solid black;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ table.diff td {
+@   vertical-align: top;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ table.diff pre {
+@   margin: 0 0 0 0;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffln {
+@   width: 1px;
+@   text-align: right;
+@   padding: 0 1em 0 0;
+@ }
+@ td.difflne {
+@   padding-bottom: 0.4em;
+@ }
+@ td.diffsep {
+@   width: 1px;
+@   padding: 0 0.3em 0 1em;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffsep pre {
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt pre {
+@   overflow-x: auto;
+@ }
+@ td.diffln ins {
+@   background-color: #559855;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.diffln del {
+@   background-color: #cc5555;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt del {
+@   background-color: #f9cfcf;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt del > del {
+@   background-color: #cc5555;
+@   color: #000000;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt del > del.edit {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins {
+@   background-color: #a2dbb2;
+@   color: #000000;
+@   text-decoration: none;
+@   line-height: inherit;
+@   font-size: inherit;
+@ }
+@ td.difftxt ins > ins {
+@   background-color: #559855;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins > ins.edit {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
 @ 
 @ </style>
 @ </head>
@@ -370,7 +508,7 @@ void diff_begin(DiffConfig *pCfg){
     tempDiffFilename = sqlite3_mprintf("%z.html", tempDiffFilename);
     diffOut = fossil_freopen(tempDiffFilename,"wb",stdout);
     if( diffOut==0 ){
-      fossil_fatal("unable to create temporary file \"%s\"", 
+      fossil_fatal("unable to create temporary file \"%s\"",
                    tempDiffFilename);
     }
 #ifndef _WIN32
@@ -380,7 +518,8 @@ void diff_begin(DiffConfig *pCfg){
 #endif
   }
   if( (pCfg->diffFlags & DIFF_WEBPAGE)!=0 ){
-    fossil_print("%s",zWebpageHdr);
+    fossil_print("%s",(pCfg->diffFlags & DIFF_DARKMODE)!=0 ? zWebpageHdrDark : 
+                                                             zWebpageHdr);
     fflush(stdout);
   }
 }
@@ -440,7 +579,7 @@ void diff_file(
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
-    if( file_size(zFile2, ExtFILE)<0 ){
+    if( pCfg->diffFlags & DIFF_FILE_DELETED || file_size(zFile2, ExtFILE)<0 ){
       zName2 = NULL_DEVICE;
     }else{
       blob_read_from_file(&file2, zFile2, ExtFILE);
@@ -471,6 +610,7 @@ void diff_file(
   }else{
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
     Blob cmd;          /* Text of command to run */
+    int useTempfile = 1;
 
     if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
       Blob file2;
@@ -502,7 +642,16 @@ void diff_file(
     /* Construct a temporary file to hold pFile1 based on the name of
     ** zFile2 */
     file_tempname(&nameFile1, zFile2, "orig");
-    blob_write_to_file(pFile1, blob_str(&nameFile1));
+#if !defined(_WIN32)
+    /* On Unix, use /dev/null for added or deleted files. */
+    if( pCfg->diffFlags & DIFF_FILE_ADDED ){
+      blob_init(&nameFile1, NULL_DEVICE, -1);
+      useTempfile = 0;
+    }else if( pCfg->diffFlags & DIFF_FILE_DELETED ){
+      zFile2 = NULL_DEVICE;
+    }
+#endif
+    if( useTempfile ) blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
     blob_zero(&cmd);
@@ -519,7 +668,7 @@ void diff_file(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    file_delete(blob_str(&nameFile1));
+    if( useTempfile ) file_delete(blob_str(&nameFile1));
     blob_reset(&nameFile1);
     blob_reset(&cmd);
   }
@@ -563,6 +712,8 @@ void diff_file_mem(
     Blob cmd;
     Blob temp1;
     Blob temp2;
+    int useTempfile1 = 1;
+    int useTempfile2 = 1;
 
     if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
       if( looks_like_binary(pFile1) || looks_like_binary(pFile2) ){
@@ -580,11 +731,21 @@ void diff_file_mem(
       }
     }
 
-    /* Construct a temporary file names */
+    /* Construct temporary file names */
     file_tempname(&temp1, zName, "before");
     file_tempname(&temp2, zName, "after");
-    blob_write_to_file(pFile1, blob_str(&temp1));
-    blob_write_to_file(pFile2, blob_str(&temp2));
+#if !defined(_WIN32)
+    /* On Unix, use /dev/null for added or deleted files. */
+    if( pCfg->diffFlags & DIFF_FILE_ADDED ){
+      useTempfile1 = 0;
+      blob_init(&temp1, NULL_DEVICE, -1);
+    }else if( pCfg->diffFlags & DIFF_FILE_DELETED ){
+      useTempfile2 = 0;
+      blob_init(&temp2, NULL_DEVICE, -1);
+    }
+#endif
+    if( useTempfile1 ) blob_write_to_file(pFile1, blob_str(&temp1));
+    if( useTempfile2 ) blob_write_to_file(pFile2, blob_str(&temp2));
 
     /* Construct the external diff command */
     blob_zero(&cmd);
@@ -596,8 +757,8 @@ void diff_file_mem(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    file_delete(blob_str(&temp1));
-    file_delete(blob_str(&temp2));
+    if( useTempfile1 ) file_delete(blob_str(&temp1));
+    if( useTempfile2 ) file_delete(blob_str(&temp2));
 
     blob_reset(&temp1);
     blob_reset(&temp2);
@@ -716,22 +877,27 @@ void diff_against_disk(
       blob_append(&fname, zPathname, -1);
     }
     zFullName = blob_str(&fname);
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( isDeleted ){
       if( !isNumStat ){ fossil_print("DELETED  %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
     }else if( file_access(zFullName, F_OK) ){
       if( !isNumStat ){ fossil_print("MISSING  %s\n", zPathname); }
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
       if( !isNumStat ){ fossil_print("ADDED    %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
       if( !isNumStat ){ fossil_print("ADDED_BY_MERGE %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==5 ){
       if( !isNumStat ){ fossil_print("ADDED_BY_INTEGRATE %s\n", zPathname); }
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
@@ -748,7 +914,10 @@ void diff_against_disk(
       }else{
         blob_zero(&content);
       }
-      if( isChnged==0 || !file_same_as_blob(&content, zFullName) ){
+      if( isChnged==0
+       || pCfg->diffFlags & DIFF_FILE_DELETED
+       || !file_same_as_blob(&content, zFullName)
+      ){
         diff_print_index(zPathname, pCfg, pOut);
         diff_file(&content, zFullName, zPathname, pCfg, pOut);
       }
@@ -877,11 +1046,13 @@ static void diff_two_versions(
     }else{
       cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
     }
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( cmp<0 ){
       if( file_dir_match(pFileDir, pFromFile->zName) ){
         if( (pCfg->diffFlags & (DIFF_NUMSTAT|DIFF_HTML))==0 ){
           fossil_print("DELETED %s\n", pFromFile->zName);
         }
+        pCfg->diffFlags |= DIFF_FILE_DELETED;
         if( asNewFlag ){
           diff_manifest_entry(pFromFile, 0, pCfg);
         }
@@ -893,6 +1064,7 @@ static void diff_two_versions(
              (DIFF_NUMSTAT|DIFF_HTML|DIFF_TCL|DIFF_JSON))==0 ){
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
+        pCfg->diffFlags |= DIFF_FILE_ADDED;
         if( asNewFlag ){
           diff_manifest_entry(0, pToFile, pCfg);
         }
@@ -958,6 +1130,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   const char *zTempFile = 0;
   char *zCmd;
   const char *zTclsh;
+  int bDarkMode = find_option("dark",0,0)!=0;
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -i -v",
                g.nameOfExe, zSubCmd);
@@ -984,7 +1157,8 @@ void diff_tk(const char *zSubCmd, int firstArg){
       for(j=0; z[j]; j++) blob_appendf(&script, "\\%03o", (unsigned char)z[j]);
     }
   }
-  blob_appendf(&script, "}\n%s", builtin_file("diff.tcl", 0));
+  blob_appendf(&script, "}\nset darkmode %d\n", bDarkMode);
+  blob_appendf(&script, "%s", builtin_file("diff.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);
     fossil_print("To see diff, run: %s \"%s\"\n", zTclsh, zTempFile);
@@ -1029,7 +1203,7 @@ const char *diff_get_binary_glob(void){
 ** Usage: %fossil diff|gdiff ?OPTIONS? ?FILE1? ?FILE2 ...?
 **
 ** Show the difference between the current version of each of the FILEs
-** specified (as they exist on disk) and that same file as it was checked
+** specified (as they exist on disk) and that same file as it was checked-
 ** out.  Or if the FILE arguments are omitted, show all unsaved changes
 ** currently in the working check-out.
 **
@@ -1037,14 +1211,14 @@ const char *diff_get_binary_glob(void){
 ** output of "diff -u" on most unix systems).  Many alternative formats
 ** are available.  A few of the more useful alternatives:
 **
-**    --tk              Pop up a TCL/TK-based GUI to show the diff
+**    --tk              Pop up a Tcl/Tk-based GUI to show the diff
 **    --by              Show a side-by-side diff in the default web browser
 **    -b                Show a linear diff in the default web browser
 **    -y                Show a text side-by-side diff
 **    --webpage         Format output as HTML
 **    --webpage -y      HTML output in the side-by-side format
 **
-** The "--from VERSION" option is used it specifies the source check-in
+** The "--from VERSION" option is used to specify the source check-in
 ** for the diff operation.  If not specified, the source check-in is the
 ** base check-in for the current check-out. Similarly, the "--to VERSION"
 ** option specifies the check-in from which the second version of the file
@@ -1053,7 +1227,7 @@ const char *diff_get_binary_glob(void){
 ** shows the changes made by check-in VERSION relative to its primary parent.
 ** The "--branch BRANCHNAME" shows all the changes on the branch BRANCHNAME.
 **
-** The "-i" command-line option forces the use of Fossils own the internal
+** The "-i" command-line option forces the use of Fossil's own internal
 ** diff logic rather than any external diff program that might be configured
 ** using the "setting" command.  If no external diff program is configured,
 ** then the "-i" option is a no-op.  The "-i" option converts "gdiff" into
@@ -1063,8 +1237,8 @@ const char *diff_get_binary_glob(void){
 ** when using an external diff program.
 **
 ** The "--binary" option causes files matching the glob PATTERN to be treated
-** as binary when considering if they should be used with external diff program.
-** This option overrides the "binary-glob" setting.
+** as binary when considering if they should be used with the external diff
+** program.  This option overrides the "binary-glob" setting.
 **
 ** These command show differences between managed files. Use the "fossil xdiff"
 ** command to see differences in unmanaged files.
@@ -1078,20 +1252,24 @@ const char *diff_get_binary_glob(void){
 **   --by                        Shorthand for "--browser -y"
 **   -ci|--checkin VERSION       Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
-**   -c|--context N              Show N lines of context around each change
+**   -c|--context N              Show N lines of context around each change, with
+**                               negative N meaning show all content
+**   --dark                      Use dark mode for the Tcl/Tk-based GUI and HTML
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
 **   -r|--from VERSION           Select VERSION as source for the diff
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -i|--internal               Use internal diff logic
+**   --invert                    Invert the diff
 **   --json                      Output formatted as JSON
+**   -n|--linenum                Show line numbers
 **   -N|--new-file               Alias for --verbose
-**   --numstat                   Show only the number of lines delete and added
+**   --numstat                   Show only the number of added and deleted lines
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
-**   --tcl                       TCL-formated output used internally by --tk
-**   --tclsh PATH                TCL/TK used for --tk (default: "tclsh")
+**   --tcl                       Tcl-formated output used internally by --tk
+**   --tclsh PATH                Tcl/Tk shell used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff
 **   --undo                      Diff against the "undo" buffer
@@ -1137,10 +1315,14 @@ void diff_cmd(void){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
   g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
-  if( zTo==0 || againstUndo ){
-    db_must_be_within_tree();
-  }else if( zFrom==0 ){
-    fossil_fatal("must use --from if --to is present");
+  if( 0==zCheckin ){
+    if( zTo==0 || againstUndo ){
+      db_must_be_within_tree();
+    }else if( zFrom==0 ){
+      fossil_fatal("must use --from if --to is present");
+    }else{
+      db_find_and_open_repository(0, 0);
+    }
   }else{
     db_find_and_open_repository(0, 0);
   }
@@ -1218,6 +1400,7 @@ void vpatch_page(void){
   const char *zFrom = P("from");
   const char *zTo = P("to");
   DiffConfig DCfg;
+  cgi_check_for_malice();
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();

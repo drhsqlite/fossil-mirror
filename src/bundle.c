@@ -116,7 +116,7 @@ static void bundle_ls_cmd(void){
   if( bDetails ){
     db_prepare(&q,
       "SELECT blobid, substr(uuid,1,10), coalesce(substr(delta,1,10),''),"
-      "       sz, length(data), notes"
+      "       sz, octet_length(data), notes"
       "  FROM bblob"
     );
     while( db_step(&q)==SQLITE_ROW ){
@@ -593,7 +593,7 @@ static void bundle_import_cmd(void){
   zMissingDeltas = db_text(0,
       "SELECT group_concat(substr(delta,1,10),' ')"
       "  FROM bblob"
-      " WHERE typeof(delta)='text' AND length(delta)>=%d"
+      " WHERE typeof(delta)='text' AND octet_length(delta)>=%d"
       "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.delta)",
       HNAME_MIN);
   if( zMissingDeltas && zMissingDeltas[0] ){

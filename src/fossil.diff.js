@@ -171,9 +171,10 @@ window.fossil.onPageLoad(function(){
     /**
        this.pos.next refers to the line numbers in the next TR's chunk.
        this.pos.prev refers to the line numbers in the previous TR's chunk.
+       this.pos corresponds to the line numbers of the gap.
     */
     if(this.pos.prev && this.pos.next
-       && ((this.pos.next.startLhs - this.pos.prev.endLhs)
+       && ((this.pos.endLhs - this.pos.startLhs)
            <= Diff.config.chunkLoadLines)){
       /* Place a single button to load the whole block, rather
          than separate up/down buttons. */
@@ -668,6 +669,16 @@ window.fossil.onPageLoad(function(){
       e.style.width = w + "px";
       e.style.maxWidth = w + "px";
     });
+    if(force || !f.colsU){
+      f.colsU = document.querySelectorAll('td.difftxtu pre');
+    }
+    f.colsU.forEach(function(e){
+      w = lastWidth - 3; // Outer border
+      var k = e.parentElement/*TD*/;
+      while(k = k.previousElementSibling/*TD*/) w -= k.scrollWidth;
+      e.style.width = w + "px";
+      e.style.maxWidth = w + "px";
+    });
     if(0){ // seems to be unnecessary
       if(!f.allDiffs){
         f.allDiffs = document.querySelectorAll('table.diff');
@@ -693,11 +704,16 @@ window.fossil.onPageLoad(function(){
     table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
     return false;
   };
-  Diff.initTableDiff = function f(diff){
+  Diff.initTableDiff = function f(diff, unifiedDiffs){
     if(!diff){
-      let i, diffs = document.querySelectorAll('table.splitdiff');
+      let i, diffs;
+      diffs = document.querySelectorAll('table.splitdiff');
       for(i=0; i<diffs.length; ++i){
-        f.call(this, diffs[i]);
+        f.call(this, diffs[i], false);
+      }
+      diffs = document.querySelectorAll('table.udiff');
+      for(i=0; i<diffs.length; ++i){
+        f.call(this, diffs[i], true);
       }
       return this;
     }
@@ -712,25 +728,27 @@ window.fossil.onPageLoad(function(){
     diff.$txtPres.forEach(function(e){
       e.style.maxWidth = width + 'px';
       e.style.width = width + 'px';
-      if(!e.classList.contains('scroller')){
+      if(!unifiedDiffs && !e.classList.contains('scroller')){
         D.addClass(e, 'scroller');
         e.addEventListener('scroll', scrollLeft, false);
       }
     });
-    diff.tabIndex = 0;
-    if(!diff.classList.contains('scroller')){
-      D.addClass(diff, 'scroller');
-      diff.addEventListener('keydown', function(e){
-        e = e || event;
-        const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
-        if( !len ) return;
-        this.$txtPres[0].scrollLeft += len;
-        /* ^^^ bug: if there is a 2nd column and it has a scrollbar
-           but txtPres[0] does not, no scrolling happens here. We need
-           to find the widest of txtPres and scroll that one. Example:
-           Checkin a7fbefee38a1c522 file diff.c */
-        return false;
-      }, false);
+    if(!unifiedDiffs){
+      diff.tabIndex = 0;
+      if(!diff.classList.contains('scroller')){
+        D.addClass(diff, 'scroller');
+        diff.addEventListener('keydown', function(e){
+          e = e || event;
+          const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
+          if( !len ) return;
+          this.$txtPres[0].scrollLeft += len;
+          /* ^^^ bug: if there is a 2nd column and it has a scrollbar
+             but txtPres[0] does not, no scrolling happens here. We need
+             to find the widest of txtPres and scroll that one. Example:
+             Checkin a7fbefee38a1c522 file diff.c */
+          return false;
+        }, false);
+      }
     }
     return this;
   }

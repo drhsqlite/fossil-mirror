@@ -128,7 +128,8 @@ const char zRepositorySchema1[] =
 @   cexpire DATETIME,               -- Time when cookie expires
 @   info TEXT,                      -- contact information
 @   mtime DATE,                     -- last change.  seconds since 1970
-@   photo BLOB                      -- JPEG image of this user
+@   photo BLOB,                     -- JPEG image of this user
+@   jx TEXT DEFAULT '{}'            -- Extra fields in JSON
 @ );
 @
 @ -- The config table holds miscellanous information about the repository.
@@ -178,7 +179,8 @@ const char zRepositorySchema1[] =
 @    title TEXT UNIQUE,       -- Title of this report
 @    mtime DATE,              -- Last modified.  seconds since 1970
 @    cols TEXT,               -- A color-key specification
-@    sqlcode TEXT             -- An SQL SELECT statement for this report
+@    sqlcode TEXT,            -- An SQL SELECT statement for this report
+@    jx TEXT DEFAULT '{}'     -- Additional fields encoded as JSON
 @ );
 @
 @ -- Some ticket content (such as the originators email address or contact
@@ -391,10 +393,13 @@ const char zRepositorySchema2[] =
 @ -- keep calling them tags because in many cases the value is ignored.
 @ --
 @ CREATE TABLE tagxref(
-@   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
+@   tagid INTEGER REFERENCES tag,   -- The tag being added, removed,
+@                                   -- or propagated
 @   tagtype INTEGER,                -- 0:-,cancel  1:+,single  2:*,propagate
-@   srcid INTEGER REFERENCES blob,  -- Artifact of tag. 0 for propagated tags
-@   origid INTEGER REFERENCES blob, -- check-in holding propagated tag
+@   srcid INTEGER REFERENCES blob,  -- Artifact tag originates from, or
+@                                   -- 0 for propagated tags
+@   origid INTEGER REFERENCES blob, -- Artifact holding propagated tag
+@                                   -- (any artifact type with a P-card)
 @   value TEXT,                     -- Value of the tag.  Might be NULL.
 @   mtime TIMESTAMP,                -- Time of addition or removal. Julian day
 @   rid INTEGER REFERENCE blob,     -- Artifact tag is applied to
@@ -522,13 +527,13 @@ const char zRepositorySchema2[] =
 /*
 ** The schema for the local FOSSIL database file found at the root
 ** of every check-out.  This database contains the complete state of
-** the checkout.  See also the addendum in zLocalSchemaVmerge[].
+** the check-out.  See also the addendum in zLocalSchemaVmerge[].
 */
 const char zLocalSchema[] =
 @ -- The VVAR table holds miscellanous information about the local database
 @ -- in the form of name-value pairs.  This is similar to the VAR table
 @ -- table in the repository except that this table holds information that
-@ -- is specific to the local checkout.
+@ -- is specific to the local check-out.
 @ --
 @ -- Important Variables:
 @ --
@@ -542,7 +547,7 @@ const char zLocalSchema[] =
 @ );
 @
 @ -- Each entry in the vfile table represents a single file in the
-@ -- current checkout.
+@ -- current check-out.
 @ --
 @ -- The file.rid field is 0 for files or folders that have been
 @ -- added but not yet committed.
@@ -555,8 +560,8 @@ const char zLocalSchema[] =
 @ --    4,5     Same as 2,3 except merge using --integrate
 @ --
 @ CREATE TABLE vfile(
-@   id INTEGER PRIMARY KEY,           -- ID of the checked out file
-@   vid INTEGER REFERENCES blob,      -- The checkin this file is part of.
+@   id INTEGER PRIMARY KEY,           -- ID of the checked-out file
+@   vid INTEGER REFERENCES blob,      -- The check-in this file is part of.
 @   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
@@ -605,7 +610,7 @@ const char zLocalSchemaVmerge[] =
 @ CREATE TRIGGER vmerge_ck1 AFTER INSERT ON vmerge
 @ WHEN new.mhash IS NULL BEGIN
 @   SELECT raise(FAIL,
-@   'trying to update a newer checkout with an older version of Fossil');
+@   'trying to update a newer check-out with an older version of Fossil');
 @ END;
 @
 ;

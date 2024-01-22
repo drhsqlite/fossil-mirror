@@ -49,6 +49,7 @@ void shun_page(void){
   const char *zShun = P("shun");
   const char *zAccept = P("accept");
   const char *zRcvid = P("rcvid");
+  int reviewList = P("review")!=0;
   int nRcvid = 0;
   int numRows = 3;
   char *zCanonical = 0;
@@ -87,7 +88,7 @@ void shun_page(void){
     p = zCanonical;
     while( *p ){
       int nUuid = strlen(p);
-      if( !hname_validate(p, nUuid) ){
+      if( !(reviewList || hname_validate(p, nUuid)) ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
         zCanonical = 0;
@@ -100,10 +101,9 @@ void shun_page(void){
     zUuid = zCanonical;
   }
   style_header("Shunned Artifacts");
-  if( zUuid && P("sub") ){
+  if( zUuid && P("sub") && cgi_csrf_safe(2) ){
     const char *p = zUuid;
     int allExist = 1;
-    login_verify_csrf_secret();
     while( *p ){
       db_multi_exec("DELETE FROM shun WHERE uuid=%Q", p);
       if( !db_exists("SELECT 1 FROM blob WHERE uuid=%Q", p) ){
@@ -113,15 +113,15 @@ void shun_page(void){
       p += strlen(p)+1;
     }
     if( allExist ){
-      @ <p class="noMoreShun">Artifact(s)<br />
+      @ <p class="noMoreShun">Artifact(s)<br>
       for( p = zUuid ; *p ; p += strlen(p)+1 ){
-        @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
+        @ <a href="%R/artifact/%s(p)">%s(p)</a><br>
       }
       @ are no longer being shunned.</p>
     }else{
-      @ <p class="noMoreShun">Artifact(s)<br />
+      @ <p class="noMoreShun">Artifact(s)<br>
       for( p = zUuid ; *p ; p += strlen(p)+1 ){
-        @ %s(p)<br />
+        @ %s(p)<br>
       }
       @ will no longer be shunned.  But they may not exist in the repository.
       @ It may be necessary to rebuild the repository using the
@@ -129,10 +129,9 @@ void shun_page(void){
       @ can pulled in from other repositories.</p>
     }
   }
-  if( zUuid && P("add") ){
+  if( zUuid && P("add") && cgi_csrf_safe(2) ){
     const char *p = zUuid;
     int rid, tagid;
-    login_verify_csrf_secret();
     while( *p ){
       db_multi_exec(
         "INSERT OR IGNORE INTO shun(uuid,mtime)"
@@ -151,13 +150,66 @@ void shun_page(void){
       admin_log("Shunned %Q", p);
       p += strlen(p)+1;
     }
-    @ <p class="shunned">Artifact(s)<br />
+    @ <p class="shunned">Artifact(s)<br>
     for( p = zUuid ; *p ; p += strlen(p)+1 ){
-      @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
+      @ <a href="%R/artifact/%s(p)">%s(p)</a><br>
     }
     @ have been shunned.  They will no longer be pushed.
     @ They will be removed from the repository the next time the repository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
+  }
+  if( zUuid && reviewList ){
+    const char *p;
+    int nTotal = 0;
+    int nOk = 0;
+    @ <table class="shun-review"><tbody><tr><td>
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
+      int rid = symbolic_name_to_rid(p, 0);
+      nTotal++;
+      if( rid < 0 ){
+        @ Ambiguous<br>
+      }else if( rid == 0 ){
+        if( !hname_validate(p, strlen(p)) ){
+          @ Bad artifact<br>
+        }else if(db_int(0, "SELECT 1 FROM shun WHERE uuid=%Q", p)){
+          @ Already shunned<br>
+        }else{
+          @ Unknown<br>
+        }
+      }else{
+        char *zCmpUuid = db_text(0,
+            "SELECT uuid"
+            "  FROM blob, rcvfrom"
+            " WHERE rid=%d"
+            "   AND rcvfrom.rcvid=blob.rcvid",
+            rid);
+        if( fossil_strcmp(p, zCmpUuid)==0 ){
+          nOk++;
+          @ OK</br>
+        }else{
+          @ Abbreviated<br>
+        }
+      }
+    }
+    @ </td><td>
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
+      int rid = symbolic_name_to_rid(p, 0);
+      if( rid > 0 ){
+        @ <a href="%R/artifact/%s(p)">%s(p)</a><br>
+      }else{
+        @ %s(p)<br>
+      }
+    }
+    @ </td></tr></tbody></table>
+    @ <p class="shunned">
+    if( nOk < nTotal){
+      @ <b>Warning:</b> Not all artifacts
+    }else if( nTotal==1 ){
+      @ The artifact is present and
+    }else{
+      @ All %i(nOk) artifacts are present and
+    }
+    @ can be shunned with its hash above.</p>
   }
   if( zRcvid ){
     nRcvid = atoi(zRcvid);
@@ -200,9 +252,15 @@ void shun_page(void){
       }
       db_finalize(&q);
     }
+  }else if( zUuid && reviewList ){
+    const char *p;
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
+      @ %s(p)
+    }
   }
   @ </textarea>
-  @ <input type="submit" name="add" value="Shun" />
+  @ <input type="submit" name="add" value="Shun">
+  @ <input type="submit" name="review" value="Review">
   @ </div></form>
   @ </blockquote>
   @
@@ -229,7 +287,7 @@ void shun_page(void){
     }
   }
   @ </textarea>
-  @ <input type="submit" name="sub" value="Accept" />
+  @ <input type="submit" name="sub" value="Accept">
   @ </div></form>
   @ </blockquote>
   @
@@ -241,11 +299,11 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="submit" name="rebuild" value="Rebuild" />
+  @ <input type="submit" name="rebuild" value="Rebuild">
   @ </div></form>
   @ </blockquote>
   @
-  @ <hr /><p>Shunned Artifacts:</p>
+  @ <hr><p>Shunned Artifacts:</p>
   @ <blockquote><p>
   db_prepare(&q,
      "SELECT uuid, EXISTS(SELECT 1 FROM blob WHERE blob.uuid=shun.uuid)"
@@ -255,9 +313,9 @@ void shun_page(void){
     int stillExists = db_column_int(&q, 1);
     cnt++;
     if( stillExists ){
-      @ <b><a href="%R/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
+      @ <b><a href="%R/artifact/%s(zUuid)">%s(zUuid)</a></b><br>
     }else{
-      @ <b>%s(zUuid)</b><br />
+      @ <b>%s(zUuid)</b><br>
     }
   }
   if( cnt==0 ){
@@ -318,6 +376,9 @@ void rcvfromlist_page(void){
     return;
   }
   style_header("Artifact Receipts");
+  style_submenu_element("Admin-Log", "admin_log");
+  style_submenu_element("User-Log", "access_log");
+  style_submenu_element("Error-Log", "errorlog");
   if( showAll ){
     ofst = 0;
   }else{
@@ -480,7 +541,7 @@ void rcvfrom_page(void){
     }
     cnt++;
     @ <a href="%R/info/%s(zUuid)">%s(zUuid)</a>
-    @ %h(zDesc) (size: %d(size))<br />
+    @ %h(zDesc) (size: %d(size))<br>
   }
   if( cnt>0 ){
     @ <p>
@@ -530,9 +591,9 @@ void rcvfrom_page(void){
       }
       cnt++;
       if( isDeleted ){
-        @ %h(zName) (deleted)<br />
+        @ %h(zName) (deleted)<br>
       }else{
-        @ <a href="%R/uv/%h(zName)">%h(zName)</a> (size: %d(size))<br />
+        @ <a href="%R/uv/%h(zName)">%h(zName)</a> (size: %d(size))<br>
       }
     }
     if( cnt>0 ){

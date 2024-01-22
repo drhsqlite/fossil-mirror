@@ -107,12 +107,8 @@ void branch_new(void){
   if( zBranch==0 || zBranch[0]==0 ){
     fossil_fatal("branch name cannot be empty");
   }
-  if( db_exists(
-        "SELECT 1 FROM tagxref"
-        " WHERE tagtype>0"
-        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%q')",
-        zBranch)!=0 ){
-    fossil_fatal("branch \"%s\" already exists", zBranch);
+  if( branch_is_open(zBranch) ){
+    fossil_fatal("an open branch named \"%s\" already exists", zBranch);
   }
 
   user_select();
@@ -199,13 +195,13 @@ void branch_new(void){
   if( brid==0 ){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
+  db_add_unsent(brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, &brid, 1, 0);
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
+  zUuid = rid_to_uuid(brid);
   fossil_print("New branch: %s\n", zUuid);
   if( g.argc==3 ){
     fossil_print(
@@ -230,11 +226,11 @@ void branch_new(void){
 ** Create a TEMP table named "tmp_brlist" with 7 columns:
 **
 **      name           Name of the branch
-**      mtime          Time of last checkin on this branch
+**      mtime          Time of last check-in on this branch
 **      isclosed       True if the branch is closed
 **      mergeto        Another branch this branch was merged into
 **      nckin          Number of checkins on this branch
-**      ckin           Hash of the last checkin on this branch
+**      ckin           Hash of the last check-in on this branch
 **      isprivate      True if the branch is private
 **      bgclr          Background color for this branch
 */
@@ -282,15 +278,14 @@ static void brlist_create_temp_table(void){
 #define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
 #define BRL_REVERSE          0x008 /* Reverse the sort order */
 #define BRL_PRIVATE          0x010 /* Show only private branches */
+#define BRL_MERGED           0x020 /* Show only merged branches */
+#define BRL_UNMERGED         0x040 /* Show only unmerged branches */
+#define BRL_LIST_USERS       0x080 /* Populate list of users participating */
 
 #endif /* INTERFACE */
 
 /*
 ** Prepare a query that will list branches.
-**
-** If (which<0) then the query pulls only closed branches. If
-** (which>0) then the query pulls all (closed and opened)
-** branches. Else the query pulls currently-opened branches.
 **
 ** If the BRL_ORDERBY_MTIME flag is set and nLimitMRU ("Limit Most Recently Used
 ** style") is a non-zero number, the result is limited to nLimitMRU entries, and
@@ -305,39 +300,61 @@ void branch_prepare_list_query(
   Stmt *pQuery,
   int brFlags,
   const char *zBrNameGlob,
-  int nLimitMRU
+  int nLimitMRU,
+  const char *zUser
 ){
   Blob sql;
   blob_init(&sql, 0, 0);
   brlist_create_temp_table();
   /* Ignore nLimitMRU if no chronological sort requested. */
   if( (brFlags & BRL_ORDERBY_MTIME)==0 ) nLimitMRU = 0;
-  /* Undocumented: invert negative values for nLimitMRU, so that command-line
-  ** arguments similar to `head -5' with "option numbers" are possible. */
-  if( nLimitMRU<0 ) nLimitMRU = -nLimitMRU;
-  blob_append_sql(&sql,"SELECT name, isprivate FROM ("); /* OUTER QUERY */
+  /* Negative values for nLimitMRU also mean "no limit". */
+  if( nLimitMRU<0 ) nLimitMRU = 0;
+  /* OUTER QUERY */
+  blob_append_sql(&sql,"SELECT name, isprivate, mergeto,");
+  if( brFlags & BRL_LIST_USERS ){
+    blob_append_sql(&sql,
+      " (SELECT group_concat(user) FROM ("
+      "     SELECT DISTINCT * FROM ("
+      "         SELECT coalesce(euser,user) AS user"
+      "           FROM event"
+      "          WHERE type='ci' AND objid IN ("
+      "             SELECT rid FROM tagxref WHERE value=name)"
+      "          ORDER BY 1)))"
+    );
+  }else{
+    blob_append_sql(&sql, " NULL");
+  }
+  blob_append_sql(&sql," FROM (");
+  /* INNER QUERY */
   switch( brFlags & BRL_OPEN_CLOSED_MASK ){
     case BRL_CLOSED_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE isclosed"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE isclosed"
       );
       break;
     }
     case BRL_BOTH: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE 1"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE 1"
       );
       break;
     }
     case BRL_OPEN_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime FROM tmp_brlist WHERE NOT isclosed"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE NOT isclosed"
       );
       break;
     }
   }
   if( brFlags & BRL_PRIVATE ) blob_append_sql(&sql, " AND isprivate");
-  if(zBrNameGlob) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
+  if( brFlags & BRL_MERGED ) blob_append_sql(&sql, " AND mergeto IS NOT NULL");
+  if( zBrNameGlob ) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
+  if( zUser && zUser[0] ) blob_append_sql(&sql,
+    " AND EXISTS (SELECT 1 FROM event WHERE type='ci' AND (user=%Q OR euser=%Q)"
+    "      AND objid in (SELECT rid FROM tagxref WHERE value=tmp_brlist.name))",
+    zUser, zUser
+  );
   if( brFlags & BRL_ORDERBY_MTIME ){
     blob_append_sql(&sql, " ORDER BY -mtime");
   }else{
@@ -466,7 +483,7 @@ static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
     }
     fossil_print("Saved new control artifact %z (RID %d).\n",
                  rid_to_uuid(newRid), newRid);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", newRid);
+    db_add_unsent(newRid);
     if(fDryRun){
       fossil_print("Dry-run mode: rolling back new artifact.\n");
       assert(0!=doRollback);
@@ -480,7 +497,7 @@ static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
 
 /*
 ** Internal helper for branch_cmd_close() and friends. zName is a
-** symbolic checkin name. Returns the blob.rid of the checkin or fails
+** symbolic check-in name. Returns the blob.rid of the check-in or fails
 ** fatally if the name does not resolve unambiguously.  If zUuid is
 ** not NULL, *zUuid is set to the resolved blob.uuid and must be freed
 ** by the caller via fossil_free().
@@ -497,7 +514,7 @@ static int branch_resolve_name(char const *zName, char **zUuid){
 
 /*
 ** Implementation of (branch hide/unhide) subcommands. nStartAtArg is
-** the g.argv index to start reading branch/checkin names. fHide is
+** the g.argv index to start reading branch/check-in names. fHide is
 ** true for hiding, false for unhiding. Fails fatally on error.
 */
 static void branch_cmd_hide(int nStartAtArg, int fHide){
@@ -518,15 +535,15 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
     ** entry if it already has (if fHide) or does not have (if !fHide)
     ** that tag. FWIW, /ci_edit does not do so. */
     if(fHide && isHidden){
-      fossil_warning("Skipping hidden checkin %s: %s.", zName, zUuid);
+      fossil_warning("Skipping hidden check-in %s: %s.", zName, zUuid);
       continue;
     }else if(!fHide && !isHidden){
-      fossil_warning("Skipping non-hidden checkin %s: %s.", zName, zUuid);
+      fossil_warning("Skipping non-hidden check-in %s: %s.", zName, zUuid);
       continue;
     }
     branch_cmd_tag_add(rid, fHide ? "*hidden" : "-hidden");
     if(fVerbose!=0){
-      fossil_print("%s checkin [%s] %s\n",
+      fossil_print("%s check-in [%s] %s\n",
                    fHide ? "Hiding" : "Unhiding",
                    zName, zUuid);
     }
@@ -536,7 +553,7 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
 
 /*
 ** Implementation of (branch close|reopen) subcommands. nStartAtArg is
-** the g.argv index to start reading branch/checkin names. The given
+** the g.argv index to start reading branch/check-in names. The given
 ** checkins are closed if fClose is true, else their "closed" tag (if
 ** any) is cancelled. Fails fatally on error.
 */
@@ -591,11 +608,13 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **
 **       Adds or cancels the "closed" tag to one or more branches.
 **       It accepts arbitrary unambiguous symbolic names but
-**       will only resolve checkin names and skips any which resolve
-**       to non-leaf checkins. Options:
-**         -n|--dry-run          do not commit changes and dump artifact
+**       will only resolve check-in names and skips any which resolve
+**       to non-leaf check-ins.
+**
+**       Options:
+**         -n|--dry-run          Do not commit changes, but dump artifact
 **                               to stdout
-**         -v|--verbose          output more information
+**         -v|--verbose          Output more information
 **         --date-override DATE  DATE to use instead of 'now'
 **         --user-override USER  USER to use instead of the current default
 **
@@ -606,7 +625,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
 **       Adds or cancels the "hidden" tag for the specified branches or
-**       or checkin IDs. Accepts the same options as the close
+**       or check-in IDs. Accepts the same options as the close
 **       subcommand.
 **
 ** >  fossil branch info BRANCH-NAME
@@ -616,12 +635,19 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** >  fossil branch list|ls ?OPTIONS? ?GLOB?
 ** >  fossil branch lsh ?OPTIONS? ?LIMIT?
 **
-**        List all branches. Options:
-**          -a|--all      List all branches.  Default show only open branches
-**          -c|--closed   List closed branches.
-**          -p            List only private branches.
-**          -r            Reverse the sort order
-**          -t            Show recently changed branches first
+**        List all branches.
+**
+**        Options:
+**          -a|--all         List all branches.  Default show only open branches
+**          -c|--closed      List closed branches
+**          -m|--merged      List branches merged into the current branch
+**          -M|--unmerged    List branches not merged into the current branch
+**          -p               List only private branches
+**          -r               Reverse the sort order
+**          -t               Show recently changed branches first
+**          --self           List only branches where you participate
+**          --username USER  List only branches where USER participate
+**          --users N        List up to N users partipiating
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
@@ -636,12 +662,13 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        Supported options for this subcommand include:
-**          --private             branch is private (i.e., remains local)
-**          --bgcolor COLOR       use COLOR instead of automatic background
+**
+**        Options:
+**          --private             Branch is private (i.e., remains local)
+**          --bgcolor COLOR       Use COLOR instead of automatic background
 **                                ("auto" lets Fossil choose it automatically,
 **                                even for private branches)
-**          --nosign              do not sign contents on this branch
+**          --nosign              Do not sign contents on this branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default
 **
@@ -651,8 +678,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
 **
-** Options valid for all subcommands:
-**
+** Options:
 **    -R|--repository REPO       Run commands on repository REPO
 */
 void branch_cmd(void){
@@ -663,7 +689,7 @@ void branch_cmd(void){
   n = strlen(zCmd);
   if( strncmp(zCmd,"current",n)==0 ){
     if( !g.localOpen ){
-      fossil_fatal("not within an open checkout");
+      fossil_fatal("not within an open check-out");
     }else{
       int vid = db_lget_int("checkout", 0);
       char *zCurrent = db_text(0, "SELECT value FROM tagxref"
@@ -690,9 +716,13 @@ void branch_cmd(void){
             strncmp(zCmd, "ls", n)==0 ||
             strcmp(zCmd, "lsh")==0 ){
     Stmt q;
+    Blob txt = empty_blob;
     int vid;
     char *zCurrent = 0;
     const char *zBrNameGlob = 0;
+    const char *zUser = find_option("username",0,1);
+    const char *zUsersOpt = find_option("users",0,1);
+    int nUsers = zUsersOpt ? atoi(zUsersOpt) : 0;
     int nLimit = 0;
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
@@ -700,7 +730,24 @@ void branch_cmd(void){
     if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
     if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
     if( find_option("p",0,0)!=0 ) brFlags |= BRL_PRIVATE;
+    if( find_option("merged","m",0)!=0 ) brFlags |= BRL_MERGED;
+    if( find_option("unmerged","M",0)!=0 ) brFlags |= BRL_UNMERGED;
+    if( find_option("self",0,0)!=0 ){
+      if( zUser ){
+        fossil_fatal("flags --username and --self are mutually exclusive");
+      }
+      user_select();
+      zUser = login_name();
+    }
+    verify_all_options();
 
+    if ( (brFlags & BRL_MERGED) && (brFlags & BRL_UNMERGED) ){
+      fossil_fatal("flags --merged and --unmerged are mutually exclusive");
+    }
+    if( zUsersOpt ){
+      if( nUsers <= 0) fossil_fatal("With --users, N must be positive");
+      brFlags |= BRL_LIST_USERS;
+    }
     if( strcmp(zCmd, "lsh")==0 ){
       nLimit = 5;
       if( g.argc>4 || (g.argc==4 && (nLimit = atoi(g.argv[3]))==0) ){
@@ -716,36 +763,66 @@ void branch_cmd(void){
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit);
+    branch_prepare_list_query(&q, brFlags, zBrNameGlob, nLimit, zUser);
+    blob_init(&txt, 0, 0);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
-      int isPriv = zCurrent!=0 && db_column_int(&q, 1)==1;
+      int isPriv = db_column_int(&q, 1)==1;
+      const char *zMergeTo = db_column_text(&q, 2);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
-      fossil_print("%s%s%s\n", 
-        ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ), 
+      const char *zUsers = db_column_text(&q, 3);
+      if( (brFlags & BRL_MERGED) && fossil_strcmp(zCurrent,zMergeTo)!=0 ){
+        continue;
+      }
+      if( (brFlags & BRL_UNMERGED) && (fossil_strcmp(zCurrent,zMergeTo)==0 
+          || isCur) ){
+        continue;
+      }
+      blob_appendf(&txt, "%s%s%s",
+        ( (brFlags & BRL_PRIVATE) ? " " : ( isPriv ? "#" : " ") ),
         (isCur ? "* " : "  "), zBr);
+      if( nUsers ){
+        char c;
+        const char *cp;
+        const char *pComma = 0;
+        int commas = 0;
+        for( cp = zUsers; ( c = *cp ) != 0; cp++ ){
+          if( c == ',' ){
+            commas++;
+            if( commas == nUsers ) pComma = cp;
+          }
+        }
+        if( pComma ){
+          blob_appendf(&txt, " (%.*s,... %i more)",
+            pComma - zUsers, zUsers, commas + 1 - nUsers);
+        }else{
+          blob_appendf(&txt, " (%s)", zUsers);
+        }
+      }
+      fossil_print("%s\n", blob_str(&txt));
+      blob_reset(&txt);
     }
     db_finalize(&q);
   }else if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
   }else if( strncmp(zCmd,"close",5)==0 ){
     if(g.argc<4){
-      usage("branch close branch-name(s)...");
+      usage("close branch-name(s)...");
     }
     branch_cmd_close(3, 1);
   }else if( strncmp(zCmd,"reopen",6)==0 ){
     if(g.argc<4){
-      usage("branch reopen branch-name(s)...");
+      usage("reopen branch-name(s)...");
     }
     branch_cmd_close(3, 0);
   }else if( strncmp(zCmd,"hide",4)==0 ){
     if(g.argc<4){
-      usage("branch hide branch-name(s)...");
+      usage("hide branch-name(s)...");
     }
     branch_cmd_hide(3,1);
   }else if( strncmp(zCmd,"unhide",6)==0 ){
     if(g.argc<4){
-      usage("branch unhide branch-name(s)...");
+      usage("unhide branch-name(s)...");
     }
     branch_cmd_hide(3,0);
   }else{
@@ -864,6 +941,7 @@ void brlist_page(void){
   }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -909,7 +987,7 @@ void brlist_page(void){
   style_sidebox_end();
 #endif
 
-  branch_prepare_list_query(&q, brFlags, 0, 0);
+  branch_prepare_list_query(&q, brFlags, 0, 0, 0);
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
@@ -992,6 +1070,7 @@ void brtimeline_page(void){
   style_submenu_element("List", "brlist");
   login_anonymous_available();
   timeline_ss_submenu();
+  cgi_check_for_malice();
   @ <h2>The initial check-in for each branch:</h2>
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql,

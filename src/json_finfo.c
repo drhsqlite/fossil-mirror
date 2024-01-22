@@ -27,7 +27,7 @@
 ** Implements the /json/finfo page/command.
 **
 */
-cson_value * json_page_finfo(){
+cson_value * json_page_finfo(void){
   cson_object * pay = NULL;
   cson_array * checkins = NULL;
   char const * zFilename = NULL;
@@ -38,7 +38,7 @@ cson_value * json_page_finfo(){
   int limit = -1;
   int currentRow = 0;
   char const * zCheckin = NULL;
-  char sort = -1;
+  signed char sort = -1;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,"Requires 'o' privileges.");
     return NULL;
