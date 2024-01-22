@@ -136,7 +136,7 @@ function hideGraphTooltip(){ /* Hide the tooltip */
   tooltipInfo.ixActive = -1;
   tooltipInfo.idNodeActive = 0;
 }
-document.body.onunload = hideGraphTooltip
+window.onpagehide = hideGraphTooltip;
 function stopDwellTimer(){
   if(tooltipInfo.idTimer!=0){
     clearTimeout(tooltipInfo.idTimer);

@@ -1,5 +1,5 @@
-C Typo\sfix\sand\sEOL\swhitespace\scleanups.\sNo\sfunctional\schanges.
-D 2024-01-21T21:57:20.643
+C Hide\sthe\stimeline\sgraph\stooltip\sin\sthe\s`pagehide'\shandler,\sas\sChromium-based\sbrowsers\s(but\snot\sFirefox)\sare\sdeprecating\sthe\s`unload'\shandler.
+D 2024-01-22T13:37:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -453,7 +453,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 981f15f08c9a51d0cb5391beb476196393eae479410e619946231b82a99981af
 F src/graph.c e9ccefeb63bb1fca291c1b4c0bad8d1e29db74680cbb1a7260017c582b188e48
-F src/graph.js f7844964530566ef2908dcb1bdd5d57a8bec574591b09072257d858ea68bb41d
+F src/graph.js 91271ed35b6f576c3527664d6c1a255f67af5b7fa9f667854ef47e6837404c37
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -952,9 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bca95cbf9c2bf230efe14793f0389db34c6636d3b44b0863161a6997a6d84dcb
-Q +55151f0024d38524e8612fd509b78f7d80802277a2f58f9bdf172f3f4303c542
-R f34afb564c0e01aaf24324ab49d7f9f1
-U stephan
-Z fbfa52784cd9a0155f4ad1cff25d68c8
+P e0576ea919cd8052a00c849f1ee2f5325d18a4c6aa89752d15d5e00bd8730f29
+R ce4a2ff5d6adafbbc2f665b124e059f0
+U florian
+Z 81c0a1d22d988c32c146a30f0b799a57
 # Remove this line to create a well-formed Fossil manifest.
