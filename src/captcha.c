@@ -546,8 +546,8 @@ void captcha_generate(int showButton){
   @ %h(zCaptcha)
   @ </pre>
   @ Enter security code shown above:
-  @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
-  @ <input type="text" name="captcha" size=8 />
+  @ <input type="hidden" name="captchaseed" value="%u(uSeed)">
+  @ <input type="text" name="captcha" size=8>
   if( showButton ){
     @ <input type="submit" value="Submit">
   }
@@ -687,7 +687,7 @@ static void captcha_wav(const char *zHex, Blob *pOut){
 ** is determined by the seed given in the name= query parameter.
 */
 void captcha_wav_page(void){
-  const char *zSeed = P("name");
+  const char *zSeed = PD("name","0");
   const char *zDecode = captcha_decode((unsigned int)atoi(zSeed));
   Blob audio;
   captcha_wav(zDecode, &audio);

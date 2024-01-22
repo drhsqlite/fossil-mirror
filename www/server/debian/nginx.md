@@ -5,12 +5,14 @@ instructions][scgii], which may suffice for your purposes if your needs
 are simple.
 
 Here, we add more detailed information on nginx itself, plus details
-about running it on Debian type OSes. We focus on Debian 10 (Buster) and
-Ubuntu 20.04 here, which are common Tier 1 OS offerings for [virtual
-private servers][vps] at the time of writing.  This material may not work for older OSes. It is
+about running it on Debian type OSes. This document was originally
+written for and tested on Debian 10 (Buster) and Ubuntu 20.04, which
+were common Tier 1 OS offerings for [virtual private servers][vps]
+at the time. The same configuration appears to run on Ubuntu 22.04
+LTS without change. This material may not work for older OSes. It is
 known in particular to not work as given for Debian 9 and older!
 
-We also cover adding TLS to the basic configuration, because several
+We also cover [adding TLS](#tls) to the basic configuration, because several
 details depend on the host OS and web stack details. Besides, TLS is
 widely considered part of the baseline configuration these days.
 
@@ -111,13 +113,17 @@ OS.
 ## <a id="scgi"></a>Running Fossil in SCGI Mode
 
 For the following nginx configuration to work, it needs to contact a
-Fossil instance speaking the SCGI protocol. There are [many ways](../)
-to set that up. For Debian type systems, we recommend
-following [our systemd system service guide](service.md).
+background Fossil instance speaking the SCGI protocol. There are
+[many ways](../) to set that up, such as [with `systemd`](./service.md)
+on mainstream Linux distros.  Another way is to [containerize][ctz] your
+repository servers, then use the [`fslsrv` wrapper for Podman][fspm] to
+generate `systemd` units for use by the front-end proxy.
 
-There are other ways to arrange for Fossil to run as a service backing
-nginx, but however you do it, you need to match up the TCP port numbers between it
+However you do it, you need to match up the TCP port numbers between it
 and those in the nginx configuration below.
+
+[ctz]:  ../../containers.md
+[fspm]: https://tangentsoft.com/fossil/dir/bin
 
 
 ## <a id="config"></a>Configuration
@@ -138,42 +144,75 @@ contains the configuration for `*.foo.net`.
 The configuration for our `example.com` web site, stored in
 `/etc/nginx/sites-enabled/local/example.com` is:
 
-      server {
-          server_name .example.com .example.net "";
-          include local/generic;
+----
 
-          access_log /var/log/nginx/example.com-https-access.log;
-           error_log /var/log/nginx/example.com-https-error.log;
+    server {
+        server_name .example.com .example.net "";
+        include local/generic;
+        include local/code;
 
-          # Bypass Fossil for the static documentation generated from
-          # our source code by Doxygen, so it merges into the embedded
-          # doc URL hierarchy at Fossil’s $ROOT/doc without requiring that
-          # these generated files actually be stored in the repo.  This
-          # also lets us set aggressive caching on these docs, since
-          # they rarely change.
-          location /code/doc/html {
-              root /var/www/example.com/code/doc/html;
+        access_log /var/log/nginx/example.com-https-access.log;
+        error_log /var/log/nginx/example.com-https-error.log;
 
-              location ~* \.(html|ico|css|js|gif|jpg|png)$ {
-                  expires 7d;
-                  add_header Vary Accept-Encoding;
-                  access_log off;
-              }
-          }
+        # Bypass Fossil for the static documentation generated from
+        # our source code by Doxygen, so it merges into the embedded
+        # doc URL hierarchy at Fossil’s $ROOT/doc without requiring that
+        # these generated files actually be stored in the repo.  This
+        # also lets us set aggressive caching on these docs, since
+        # they rarely change.
+        location /code/doc/html {
+            root /var/www/example.com/code/doc/html;
 
-          # Redirect everything else to the Fossil instance
-          location /code {
-              include scgi_params;
-              scgi_param SCRIPT_NAME "/code";
-              scgi_pass 127.0.0.1:12345;
-          }
-      }
+            location ~* \.(html|ico|css|js|gif|jpg|png)$ {
+                add_header Vary Accept-Encoding;
+                access_log off;
+                expires 7d;
+            }
+        }
+
+        # Redirect everything under /code to the Fossil instance
+        location /code {
+            include local/code;
+
+            # Extended caching for URLs that include unique IDs
+            location ~ "/(artifact|doc|file|raw)/[0-9a-f]{40,64}" {
+                add_header Cache-Control "public, max-age=31536000, immutable";
+                include local/code;
+                access_log off;
+            }
+
+            # Lesser caching for URLs likely to be quasi-static
+            location ~* \.(css|gif|ico|js|jpg|png)$ {
+                add_header Vary Accept-Encoding;
+                include local/code;
+                access_log off;
+                expires 7d;
+            }
+        }
+    }
+
+----
 
 As you can see, this is a pure extension of [the basic nginx service
 configuration for SCGI][scgii], showing off a few ideas you might want to
 try on your own site, such as static asset proxying.
 
-The `local/generic` file referenced above helps us reduce unnecessary
+You also need a `local/code` file containing:
+
+      include scgi_params;
+      scgi_pass 127.0.0.1:12345;
+      scgi_param SCRIPT_NAME "/code";
+
+We separate that out because nginx refuses to inherit certain settings
+between nested location blocks, so rather than repeat them, we extract
+them to this separate file and include it from both locations where it’s
+needed. You see this above where we set far-future expiration dates on
+files served by Fossil via URLs that contain hashes that change when the
+content changes. It tells your browser that the content of these URLs
+can never change without the URL itself changing, which makes your
+Fossil-based site considerably faster.
+
+Similarly, the `local/generic` file referenced above helps us reduce unnecessary
 repetition among the multiple sites this configuration hosts:
 
       root /var/www/$host;
@@ -185,8 +224,8 @@ repetition among the multiple sites this configuration hosts:
 
 There are some configuration directives that nginx refuses to substitute
 variables into, citing performance considerations, so there is a limit
-to how much repetition you can squeeze out this way. One such example is
-the `access_log` and `error_log` directives, which follow an obvious
+to how much repetition you can squeeze out this way. One such example
+are the `access_log` and `error_log` directives, which follow an obvious
 pattern from one host to the next. Sadly, you must tolerate some
 repetition across `server { }` blocks when setting up multiple domains
 on a single server.
@@ -283,385 +322,79 @@ this guide.
 
 ## <a id="tls"></a> Adding TLS (HTTPS) Support
 
-One of the [many ways](../../ssl.wiki) to provide TLS-encrypted HTTP access
-(a.k.a. HTTPS) to Fossil is to run it behind a web proxy that supports
-TLS. One such option is nginx on Debian, so we show the details of that
-here.
-
-You can extend this guide to other operating systems by following the
-instructions found via [the front Certbot web page][cb] instead, telling
-it what OS and web stack you’re using. Chances are good that they’ve got
-a good guide for you already.
-
-
-### <a id="leew"></a> Configuring Let’s Encrypt, the Easy Way
-
-If your web serving needs are simple, [Certbot][cb] can configure nginx
-for you and keep its certificates up to date. Simply follow Certbot’s
-[nginx on Ubuntu 20.04 LTS guide][cbnu].
-
-Unfortunately, the setup above was beyond Certbot’s ability to cope the
-last time we tried it. The use of per-subdomain files in particular
-confused Certbot, so we had to [arrange these details manually](#lehw),
-else the Let’s Encrypt [ACME] exchange failed in the necessary domain
-validation steps.
-
-At this point, if your configuration needs are simple, needing only a
-single Internet domain and a single Fossil repo, you might wish to try
-to reduce the above configuration to a more typical single-file nginx
-config, which Certbot might then cope with out of the box.
-
-
-
-### <a id="lehw"></a> Configuring Let’s Encrypt, the Hard Way
-
-The primary motivation for this section is that it documents the manual
-Certbot configuration on my public Fossil-based site.  I’m addressing
-the “me” years hence who needs to upgrade to Ubuntu 22.04 or 24.04 LTS
-and has forgotten all of this stuff. 😉
-
-
-#### Step 1: Shifting into Manual
-
-The first thing we’ll do is install Certbot in the normal way, but we’ll
-turn off all of the Certbot automation and won’t follow through with use
-of the `--nginx` plugin:
-
-      $ sudo snap install --classic certbot
-      $ sudo systemctl disable certbot.timer
-
-Next, edit `/etc/letsencrypt/renewal/example.com.conf` to disable the
-nginx plugins. You’re looking for two lines setting the “install” and
-“auth” plugins to “nginx”.  You can comment them out or remove them
-entirely.
-
-
-#### Step 2: Configuring nginx
-
-This is a straightforward extension to the HTTP-only configuration
-[above](#config):
-
-      server {
-          server_name .foo.net;
-
-          include local/tls-common;
-
-          charset utf-8;
-
-          access_log /var/log/nginx/foo.net-https-access.log;
-           error_log /var/log/nginx/foo.net-https-error.log;
-
-          # Bypass Fossil for the static Doxygen docs
-          location /doc/html {
-              root /var/www/foo.net;
-
-              location ~* \.(html|ico|css|js|gif|jpg|png)$ {
-                  expires 7d;
-                  add_header Vary Accept-Encoding;
-                  access_log off;
-              }
-          }
-
-          # Redirect everything else to the Fossil instance
-          location / {
-              include scgi_params;
-              scgi_pass 127.0.0.1:12345;
-              scgi_param HTTPS "on";
-              scgi_param SCRIPT_NAME "";
-          }
-      }
-      server {
-          server_name .foo.net;
-          root /var/www/foo.net;
-          include local/http-certbot-only;
-          access_log /var/log/nginx/foo.net-http-access.log;
-           error_log /var/log/nginx/foo.net-http-error.log;
-      }
-
-One big difference between this and the HTTP-only case is
-that we need two `server { }` blocks: one for HTTPS service, and
-one for HTTP-only service.
-
-
-##### HTTP over TLS (HTTPS) Service
-
-The first `server { }` block includes this file, `local/tls-common`:
-
-      listen 443 ssl;
-
-      ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
-      ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-
-      ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
-      ssl_stapling on;
-      ssl_stapling_verify on;
-
-      ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
-      ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-CBC-SHA:ECDHE-ECDSA-AES256-CBC-SHA:ECDHE-ECDSA-AES128-CBC-SHA256:ECDHE-ECDSA-AES256-CBC-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-CBC-SHA:ECDHE-RSA-AES256-CBC-SHA:ECDHE-RSA-AES128-CBC-SHA256:ECDHE-RSA-AES256-CBC-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-CBC-SHA:DHE-RSA-AES256-CBC-SHA:DHE-RSA-AES128-CBC-SHA256:DHE-RSA-AES256-CBC-SHA256";
-      ssl_session_cache shared:le_nginx_SSL:1m;
-      ssl_prefer_server_ciphers on;
-      ssl_session_timeout 1440m;
-
-These are the common TLS configuration parameters used by all domains
-hosted by this server.
-
-The first line tells nginx to accept TLS-encrypted HTTP connections on
-the standard HTTPS port. It is the same as `listen 443; ssl on;` in
-older versions of nginx.
-
-Since all of those domains share a single TLS certificate, we reference
-the same `example.com/*.pem` files written out by Certbot with the
-`ssl_certificate*` lines.
-
-The `ssl_dhparam` directive isn’t strictly required, but without it, the
-server becomes vulnerable to the [Logjam attack][lja] because some of
-the cryptography steps are precomputed, making the attacker’s job much
-easier. The parameter file this directive references should be
-generated automatically by the Let’s Encrypt package upon installation,
-making those parameters unique to your server and thus unguessable. If
-the file doesn’t exist on your system, you can create it manually, so:
-
-      $ sudo openssl dhparam -out /etc/letsencrypt/dhparams.pem 2048
-
-Beware, this can take a long time. On a shared Linux host I tried it on
-running OpenSSL 1.1.0g, it took about 21 seconds, but on a fast, idle
-iMac running LibreSSL 2.6.5, it took 8 minutes and 4 seconds!
-
-The next section is also optional. It enables [OCSP stapling][ocsp], a
-protocol that improves the speed and security of the TLS connection
-negotiation.
-
-The next section containing the `ssl_protocols` and `ssl_ciphers` lines
-restricts the TLS implementation to only those protocols and ciphers
-that are currently believed to be safe and secure.  This section is the
-one most prone to bit-rot: as new attacks on TLS and its associated
-technologies are discovered, this configuration is likely to need to
-change. Even if we fully succeed in keeping this document up-to-date in
-the face of the evolving security landscape, we’re recommending static
-configurations for your server: it will thus be up to you to track
-changes in this document and others to merge the changes into your local
-static configuration.
-
-Running a TLS certificate checker against your site occasionally is a
-good idea. The most thorough service I’m aware of is the [Qualys SSL
-Labs Test][qslt], which gives the site I’m basing this guide on an “A+”
-rating at the time of this writing. The long `ssl_ciphers` line above is
-based on [their advice][qslc]: the default nginx configuration tells
-OpenSSL to use whatever ciphersuites it considers “high security,” but
-some of those have come to be considered “weak” in the time between that
-judgement and the time of this writing. By explicitly giving the list of
-ciphersuites we want OpenSSL to use within nginx, we can remove those
-that become considered weak in the future.
-
-<a id=”hsts”></a>There are a few things you can do to get an even better
-grade, such as to enable [HSTS][hsts]:
-
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-
-This prevents a particular variety of [man in the middle attack][mitm]
-where our HTTP-to-HTTPS permanent redirect is intercepted, allowing the
-attacker to prevent the automatic upgrade of the connection to a secure
-TLS-encrypted one.  I didn’t enable that in the configuration above
-because it is something a site administrator should enable only after
-the configuration is tested and stable, and then only after due
-consideration. There are ways to lock your users out of your site by
-jumping to HSTS hastily. When you’re ready, there are [guides you can
-follow][nest] elsewhere online.
-
-
-##### HTTP-Only Service
-
-While we’d prefer not to offer HTTP service at all, we need to do so for
-two reasons:
-
-*   The temporary reason is that until we get Let’s Encrypt certificates
-    minted and configured properly, we can’t use HTTPS yet at all.
-
-*   The ongoing reason is that the Certbot [ACME][acme] HTTP-01
-    challenge used by the Let’s Encrypt service only runs over HTTP. This is
-    not only because it has to work before HTTPS is first configured,
-    but also because it might need to work after a certificate is
-    accidentally allowed to lapse to get that server back into a state
-    where it can speak HTTPS safely again.
-
-So, from the second `service { }` block, we include this file to set up
-the minimal HTTP service we require, `local/http-certbot-only`:
-
-      listen 80;
-      listen [::]:80;
-
-      # This is expressed as a rewrite rule instead of an "if" because
-      # http://wiki.nginx.org/IfIsEvil
-      #rewrite ^(/.well-known/acme-challenge/.*) $1 break;
-
-      # Force everything else to HTTPS with a permanent redirect.
-      #return 301 https://$host$request_uri;
-
-As written above, this configuration does nothing other than to tell
-nginx that it’s allowed to serve content via HTTP on port 80 as well.
-We’ll uncomment the `rewrite` and `return` directives below, when we’re
-ready to begin testing.
-
-Notice that most of the nginx directives given [above](#config) moved up
-into the TLS `server { }` block, because we eventually want this site to
-be as close to HTTPS-only as we can get it.
-
-
-#### Step 3: Dry Run
-
-We want to first request a dry run, because Let’s Encrypt puts some
-rather low limits on how often you’re allowed to request an actual
-certificate.  You want to be sure everything’s working before you do
-that.  You’ll run a command something like this:
-
-      $ sudo certbot certonly --webroot --dry-run \
-         --webroot-path /var/www/example.com \
-             -d example.com -d www.example.com \
-             -d example.net -d www.example.net \
-         --webroot-path /var/www/foo.net \
-             -d foo.net -d www.foo.net
-
-There are two key options here.
-
-First, we’re telling Certbot to use its `--webroot` plugin instead of
-the automated `--nginx` plugin. With this plugin, Certbot writes the
-[ACME][acme] HTTP-01 challenge files to the static web document root
-directory behind each domain.  For this example, we’ve got two web
-roots, one of which holds documents for two different second-level
-domains (`example.com` and `example.net`) with `www` at the third level
-being optional.  This is a common sort of configuration these days, but
-you needn’t feel that you must slavishly imitate it. The other web root
-is for an entirely different domain, also with `www` being optional.
-Since all of these domains are served by a single nginx instance, we
-need to give all of this in a single command, because we want to mint a
-single certificate that authenticates all of these domains.
-
-The second key option is `--dry-run`, which tells Certbot not to do
-anything permanent.  We’re just seeing if everything works as expected,
-at this point.
-
-
-##### Troubleshooting the Dry Run
-
-If that didn’t work, try creating a manual test:
-
-      $ mkdir -p /var/www/example.com/.well-known/acme-challenge
-      $ echo hi > /var/www/example.com/.well-known/acme-challenge/test
-
-Then try to pull that file over HTTP — not HTTPS! — as
-`http://example.com/.well-known/acme-challenge/test`. I’ve found that
-using Firefox or Safari is better for this sort of thing than Chrome,
-because Chrome is more aggressive about automatically forwarding URLs to
-HTTPS even if you requested “`http`”.
-
-In extremis, you can do the test manually:
-
-      $ curl -i http://example.com/.well-known/acme-challenge/test
-      HTTP/1.1 200 OK
-      Server: nginx/1.14.0 (Ubuntu)
-      Date: Sat, 19 Jan 2019 19:43:58 GMT
-      Content-Type: application/octet-stream
-      Content-Length: 3
-      Last-Modified: Sat, 19 Jan 2019 18:21:54 GMT
-      Connection: keep-alive
-      ETag: "5c436ac2-4"
-      Accept-Ranges: bytes
-
-      hi
-
-The key bits you’re looking for here are the “200 OK” response code at
-the start and the “hi” line at the end. (Or whatever you wrote in to the
-test file.)
-
-If you get a 301 redirect to an `https://` URI, you either haven’t
-uncommented the `rewrite` line for HTTP-only service for this directory,
-or there’s some other problem with the “redirect to HTTPS” config.
-
-If you get a 404 or other error response, you need to look into your web
-server logs to find out what’s going wrong.
-
-If you’re still running into trouble, the log file written by Certbot
-can be helpful.  It tells you where it’s writing the ACME files early in
-each run.
-
-
-
-#### Step 4: Getting Your First Certificate
-
-Once the dry run is working, you can drop the `--dry-run` option and
-re-run the long command above.  (The one with all the `--webroot*`
-flags.) This should now succeed, and it will save all of those flag
-values to your Let’s Encrypt configuration file, so you don’t need to
-keep giving them.
-
-
-
-#### Step 5: Test It
-
-Edit the `local/http-certbot-only` file and uncomment the `redirect` and
-`return` directives, then restart your nginx server and make sure it now
-forces everything to HTTPS like it should:
-
-      $ sudo systemctl restart nginx
-
-Test ideas:
-
-*   Visit both Fossil and non-Fossil URLs
-
-*   Log into the repo, log out, and log back in
-
-*   Clone via `http`: ensure that it redirects to `https`, and that
-    subsequent `fossil sync` commands go directly to `https` due to the
-    301 permanent redirect.
-
-This forced redirect is why we don’t need the Fossil Admin &rarr; Access
-"Redirect to HTTPS on the Login page" setting to be enabled.  Not only
-is it unnecessary with this HTTPS redirect at the front-end proxy level,
-it would actually [cause an infinite redirect loop if
-enabled](./ssl.wiki#rloop).
-
-
-
-#### Step 6: Switch to HTTPS Sync
-
-Fossil remembers permanent HTTP-to-HTTPS redirects on sync since version
-2.9, so all you need to do to switch your syncs to HTTPS is:
-
-      $ fossil sync -R /path/to/repo.fossil
-    
-
-#### Step 7: Renewing Automatically
-
-Now that the configuration is solid, you can renew the LE cert with the
-`certbot` command from above without the `--dry-run` flag plus a restart
-of nginx:
-
-      sudo certbot certonly --webroot \
-         --webroot-path /var/www/example.com \
-             -d example.com -d www.example.com \
-             -d example.net -d www.example.net \
-         --webroot-path /var/www/foo.net \
-             -d foo.net -d www.foo.net
-      sudo systemctl restart nginx
-
-I put those commands in a script in the `PATH`, then arrange to call that
-periodically.  Let’s Encrypt doesn’t let you renew the certificate very
-often unless forced, and when forced there’s a maximum renewal counter.
-Nevertheless, some people recommend running this daily and just letting
-it fail until the server lets you renew.  Others arrange to run it no
-more often than it’s known to work without complaint.  Suit yourself.
-
-
-[acme]: https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment
-[cb]:   https://certbot.eff.org/
-[cbnu]: https://certbot.eff.org/lets-encrypt/ubuntufocal-nginx
-[hsts]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
-[lja]:  https://en.wikipedia.org/wiki/Logjam_(computer_security)
-[mitm]: https://en.wikipedia.org/wiki/Man-in-the-middle_attack
-[nest]: https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/
-[ocsp]: https://en.wikipedia.org/wiki/OCSP_stapling
-[qslc]: https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices
-[qslt]: https://www.ssllabs.com/ssltest/
+One of the [many ways](../../ssl.wiki) to provide TLS-encrypted HTTP
+access (a.k.a. HTTPS) to Fossil is to run it behind a web proxy that
+supports TLS. Because one such option is nginx, it’s best to delegate
+TLS to it if you were already using nginx for some other reason, such as
+static content serving, with only part of the site being served by
+Fossil.
+
+The simplest way by far to do this is to use [Let’s Encrypt][LE]’s
+[Certbot][CB], which can configure nginx for you and keep its
+certificates up to date. You need but follow their [nginx on Ubuntu 20
+guide][CBU]. We had trouble with this in the past, but either Certbot
+has gotten smarter or our nginx configurations have gotten simpler, so
+we have removed the manual instructions we used to have here.
+
+You may wish to include something like this from each `server { }`
+block in your configuration to enable TLS in a common, secure way:
+
+```
+    # Tell nginx to accept TLS-encrypted HTTPS on the standard TCP port.
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    # Reference the TLS cert files produced by Certbot.
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    # Load the Let's Encrypt Diffie-Hellman parameters generated for
+    # this server.  Without this, the server is vulnerable to Logjam.
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Tighten things down further, per Qualys’ and Certbot’s advice.
+    ssl_session_cache shared:le_nginx_SSL:1m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_session_timeout 1440m;
+
+    # Offer OCSP certificate stapling.
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    # Enable HSTS.
+    include local/enable-hsts;
+```
+
+The [HSTS] step is optional and should be applied only after due
+consideration, since it has the potential to lock users out of your
+site if you later change your mind on the TLS configuration.
+The `local/enable-hsts` file it references is simply:
+
+```
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+```
+
+It’s a separate file because nginx requires that headers like this be
+applied separately for each `location { }` block. We’ve therefore
+factored this out so you can `include` it everywhere you need it.
+
+The [OCSP] step is optional, but recommended.
+
+You may find [Qualys’ SSL Server Test][QSLT] helpful in verifying that
+you have set all this up correctly, and that the configuration is
+strong. We’ve found their [best practices doc][QSLC] to be helpful.  As
+of this writing, the above configuration yields an A+ rating when run on
+Ubuntu 22.04.01 LTS.
+
+[CB]:   https://certbot.eff.org/
+[CBU]:  https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
+[LE]:   https://letsencrypt.org/
+[HSTS]: https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/
+[OCSP]: https://en.wikipedia.org/wiki/OCSP_stapling
+[QSLC]: https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices
+[QSLT]: https://www.ssllabs.com/ssltest/
+
+<div style="height:50em" id="this-space-intentionally-left-blank"></div>
 
 *[Return to the top-level Fossil server article.](../)*

@@ -92,11 +92,32 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     zPw = g.url.passwd;
   }
 
-  /* The login card wants the SHA1 hash of the password, so convert the
-  ** password to its SHA1 hash if it isn't already a SHA1 hash.
+  /* The login card wants the SHA1 hash of the password (as computed by
+  ** sha1_shared_secret()), not the original password.  So convert the
+  ** password to its SHA1 encoding if it isn't already a SHA1 hash.
+  **
+  ** We assume that a hexadecimal string of exactly 40 characters is a
+  ** SHA1 hash, not an original password.  If a user has a password which
+  ** just happens to be a 40-character hex string, then this routine won't
+  ** be able to distinguish it from a hash, the translation will not be
+  ** performed, and the sync won't work.  
   */
-  /* fossil_print("\nzPw=[%s]\n", zPw); // TESTING ONLY */
-  if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
+  if( zPw && zPw[0] && (strlen(zPw)!=40 || !validate16(zPw,40)) ){
+    const char *zProjectCode = 0;
+    if( g.url.flags & URL_USE_PARENT ){
+      zProjectCode = db_get("parent-project-code", 0);
+    }else{
+      zProjectCode = db_get("project-code", 0);
+    }
+    zPw = sha1_shared_secret(zPw, zLogin, zProjectCode);
+    if( g.url.pwConfig!=0 && (g.url.flags & URL_REMEMBER_PW)!=0 ){
+      char *x = obscure(zPw);
+      db_set(g.url.pwConfig/*works-like:"x"*/, x, 0);
+      fossil_free(x);
+    }
+    fossil_free(g.url.passwd);
+    g.url.passwd = fossil_strdup(zPw);
+  }
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
@@ -542,7 +563,6 @@ write_err:
 ** a GET request where there is no PAYLOAD.
 **
 ** Options:
-**
 **     --compress                 Use ZLIB compression on the payload
 **     --mimetype TYPE            Mimetype of the payload
 **     --out FILE                 Store the reply in FILE

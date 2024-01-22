@@ -94,9 +94,9 @@ to push unversioned content up to the servers.  Having the ability
 to push check-ins (the [/setup_ulist_notes|"i" permission]) is not
 sufficient.
 
-On the Fossil project there are 67 people (as of 2017-03-24) who have
-check-in privileges.  But only 3 core developers
-can push unversioned content and thus
-change the build products on the download page.  Minimizing the number
-of people who can change the build products helps to ensure that
-rogue binaries do not slip onto the download page unnoticed.
+On the Fossil project there are (as of 2023-07-31) 71 people who have
+check-in privileges.  But only the project lead can push unversioned
+content and thus change the build products on the download page.
+Minimizing the number of people who can change the build products
+helps to ensure that rogue binaries do not slip onto the download page
+unnoticed.

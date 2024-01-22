@@ -258,7 +258,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
   while( rid>0 ){
 
     /* Fix up the "blob.size" field if needed. */
-    if( size!=blob_size(pBase) ){
+    if( size!=(int)blob_size(pBase) ){
       db_multi_exec(
          "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
       );
@@ -490,14 +490,18 @@ int rebuild_db(int doOut, int doClustering){
 
 /*
 ** Attempt to convert more full-text blobs into delta-blobs for
-** storage efficiency.
+** storage efficiency.  Return the number of bytes of storage space
+** saved.
 */
-void extra_deltification(void){
+i64 extra_deltification(int *pnDelta){
   Stmt q;
   int aPrev[N_NEIGHBOR];
   int nPrev;
   int rid;
   int prevfnid, fnid;
+  int nDelta = 0;
+  i64 nByte = 0;
+  int nSaved;
   db_begin_transaction();
 
   /* Look for manifests that have not been deltaed and try to make them
@@ -514,7 +518,11 @@ void extra_deltification(void){
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
     if( nPrev>0 ){
-      content_deltify(rid, aPrev, nPrev, 0);
+      nSaved = content_deltify(rid, aPrev, nPrev, 0);
+      if( nSaved>0 ){
+        nDelta++;
+        nByte += nSaved;
+      }
     }
     if( nPrev<N_NEIGHBOR ){
       aPrev[nPrev++] = rid;
@@ -545,7 +553,11 @@ void extra_deltification(void){
     if( fnid!=prevfnid ) nPrev = 0;
     prevfnid = fnid;
     if( nPrev>0 ){
-      content_deltify(rid, aPrev, nPrev, 0);
+      nSaved = content_deltify(rid, aPrev, nPrev, 0);
+      if( nSaved>0 ){
+        nDelta++;
+        nByte += nSaved;
+      }
     }
     if( nPrev<N_NEIGHBOR ){
       aPrev[nPrev++] = rid;
@@ -558,6 +570,8 @@ void extra_deltification(void){
   db_finalize(&q);
 
   db_end_transaction(0);
+  if( pnDelta!=0 ) *pnDelta = nDelta;
+  return nByte;
 }
 
 
@@ -579,6 +593,56 @@ static void reconstruct_private_table(void){
   fix_private_blob_dependencies(0);
 }
 
+/*
+** COMMAND: repack
+**
+** Usage: %fossil repack ?REPOSITORY?
+**
+** Perform extra delta-compression to try to minimize the size of the
+** repository.  This command is simply a short-hand for:
+**
+**     fossil rebuild --compress-only
+**
+** The name for this command is stolen from the "git repack" command that
+** does approximately the same thing in Git.
+*/
+void repack_command(void){
+  i64 nByte = 0;
+  int nDelta = 0;
+  int runVacuum = 0;
+  verify_all_options();
+  if( g.argc==3 ){
+    db_open_repository(g.argv[2]);
+  }else if( g.argc==2 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close(1);
+    db_open_repository(g.zRepositoryName);
+  }else{
+    usage("?REPOSITORY-FILENAME?");
+  }
+  db_unprotect(PROTECT_ALL);
+  nByte = extra_deltification(&nDelta);
+  if( nDelta>0 ){
+    if( nDelta==1 ){
+      fossil_print("1 new delta saves %,lld bytes\n", nByte);
+    }else{
+      fossil_print("%d new deltas save %,lld bytes\n", nDelta, nByte);
+    }
+    runVacuum = 1;
+  }else{
+    fossil_print("no new compression opportunities found\n");
+    runVacuum = db_int(0, "PRAGMA repository.freelist_count")>0;
+  }
+  if( runVacuum ){
+    fossil_print("Vacuuming the database... "); fflush(stdout);
+    db_multi_exec("VACUUM");
+    fossil_print("done\n");
+  }
+}
+
 
 /*
 ** COMMAND: rebuild
@@ -594,7 +658,6 @@ static void reconstruct_private_table(void){
 **   --cluster         Compute clusters for unclustered artifacts
 **   --compress        Strive to make the database as small as possible
 **   --compress-only   Skip the rebuilding step. Do --compress only
-**   --deanalyze       Remove ANALYZE tables from the database
 **   --force           Force the rebuild to complete even if errors are seen
 **   --ifneeded        Only do the rebuild if it would change the schema version
 **   --index           Always add in the full-text search index
@@ -629,7 +692,7 @@ void rebuild_database(void){
   forceFlag = find_option("force","f",0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
-  runDeanalyze = find_option("deanalyze",0,0)!=0;
+  runDeanalyze = find_option("deanalyze",0,0)!=0; /* Deprecated */
   runAnalyze = find_option("analyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
@@ -638,7 +701,7 @@ void rebuild_database(void){
   optNoIndex = find_option("noindex",0,0)!=0;
   optIfNeeded = find_option("ifneeded",0,0)!=0;
   compressOnlyFlag = find_option("compress-only",0,0)!=0;
-  if( compressOnlyFlag ) runCompress = runVacuum = 1;
+  if( compressOnlyFlag ) runCompress = 1;
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
     if( newPagesize<512 || newPagesize>65536
@@ -690,13 +753,25 @@ void rebuild_database(void){
     db_end_transaction(1);
   }else{
     if( runCompress ){
+      i64 nByte = 0;
+      int nDelta = 0;
       fossil_print("Extra delta compression... "); fflush(stdout);
-      extra_deltification();
-      runVacuum = 1;
+      nByte = extra_deltification(&nDelta);
+      if( nDelta>0 ){
+        if( nDelta==1 ){
+          fossil_print("1 new delta saves %,lld bytes", nByte);
+        }else{
+          fossil_print("%d new deltas save %,lld bytes", nDelta, nByte);
+        }
+        runVacuum = 1;
+      }else{
+        fossil_print("none found");
+      }
+      fflush(stdout);
     }
     if( omitVerify ) verify_cancel();
     db_end_transaction(0);
-    if( runCompress ) fossil_print("done\n");
+    if( runCompress ) fossil_print("\n");
     db_close(0);
     db_open_repository(g.zRepositoryName);
     if( newPagesize ){
@@ -1323,6 +1398,7 @@ void reconstruct_cmd(void) {
   fossil_print("server-id: %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+  hash_user_password(g.zLogin);
 }
 
 /*
@@ -1338,15 +1414,15 @@ void reconstruct_cmd(void) {
 ** can be set to 0,1,..,9 characters.
 **
 ** Options:
-**   -R|--repository REPO        Deconstruct given REPOSITORY.
+**   -R|--repository REPO        Deconstruct given REPOSITORY
 **   -K|--keep-rid1              Save the filename of the artifact with RID=1 to
-**                               the file .rid1 in the DESTINATION directory.
+**                               the file .rid1 in the DESTINATION directory
 **   -L|--prefixlength N         Set the length of the names of the DESTINATION
-**                               subdirectories to N.
-**   --private                   Include private artifacts.
+**                               subdirectories to N
+**   --private                   Include private artifacts
 **   -P|--keep-private           Save the list of private artifacts to the file
 **                               .private in the DESTINATION directory (implies
-**                               the --private option).
+**                               the --private option)
 */
 void deconstruct_cmd(void){
   const char *zPrefixOpt;

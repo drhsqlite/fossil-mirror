@@ -115,13 +115,14 @@ int main(int argc, char *argv[]){
     if( n + 50 < sizeof(b) ){
 #ifdef FOSSIL_BUILD_EPOCH
 #define str(s) #s
-      sprintf(b+n, "%d", (int)strtoll(str(FOSSIL_BUILD_EPOCH), 0, 10));
+      snprintf(b+n, sizeof(b)-n,
+               "%d", (int)strtoll(str(FOSSIL_BUILD_EPOCH), 0, 10));
 #else
       const char *zEpoch = getenv("SOURCE_DATE_EPOCH");
       if( zEpoch && isdigit(zEpoch[0]) ){
-        sprintf(b+n, "%d", (int)strtoll(zEpoch, 0, 10));
+        snprintf(b+n, sizeof(b)-n, "%d", (int)strtoll(zEpoch, 0, 10));
       }else{
-        sprintf(b+n, "%d", (int)time(0));
+        snprintf(b+n, sizeof(b)-n, "%d", (int)time(0));
       }
 #endif
       hash(b,33,vx);

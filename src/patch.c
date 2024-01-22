@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to implement the "diff" command
+** This file contains code used to implement the "patch" command
 */
 #include "config.h"
 #include "patch.h"
@@ -30,7 +30,7 @@ char *fossil_hostname(void){
   char zBuf[200];
   in = popen("hostname","r");
   if( in ){
-    size_t n = fread(zBuf, 1, sizeof(zBuf)-1, in);
+    int n = fread(zBuf, 1, sizeof(zBuf)-1, in);
     while( n>0 && fossil_isspace(zBuf[n-1]) ){ n--; }
     if( n<0 ) n = 0;
     zBuf[n] = 0;
@@ -50,7 +50,7 @@ char *fossil_hostname(void){
 
 /*
 ** Implementation of the "readfile(X)" SQL function.  The entire content
-** of the checkout file named X is read and returned as a BLOB.
+** of the check-out file named X is read and returned as a BLOB.
 */
 static void readfileFunc(
   sqlite3_context *context,
@@ -377,7 +377,7 @@ void patch_apply(unsigned mFlags){
   blob_init(&cmd, 0, 0);
   if( unsaved_changes(0) ){
     if( (mFlags & PATCH_FORCE)==0 ){
-      fossil_fatal("there are unsaved changes in the current checkout");
+      fossil_fatal("there are unsaved changes in the current check-out");
     }else{
       blob_appendf(&cmd, "%$ revert", g.nameOfExe);
       if( mFlags & PATCH_DRYRUN ){
@@ -498,8 +498,8 @@ void patch_apply(unsigned mFlags){
     }else{
       int rc = fossil_unsafe_system(blob_str(&cmd));
       if( rc ){
-        fossil_fatal("unable to rename files:\n%s",
-                     blob_str(&cmd));
+        fossil_print("%-10s unable to rename files:\n%s", "WARNING!",
+                       blob_str(&cmd));
       }
     }
     blob_reset(&cmd);
@@ -695,16 +695,17 @@ static FILE *patch_remote_command(
     blob_appendf(&cmd, " -T");
     blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);
-    if( zFossilCmd==0 ) zFossilCmd = "fossil";
+    if( zFossilCmd==0 ){
+      blob_append_escaped_arg(&cmd, "PATH=$HOME/bin:$PATH", 0);
+      zFossilCmd = "fossil";
+    }
     blob_appendf(&remote, "%$ patch %s%s --dir64 %z -", 
                  zFossilCmd, zRemoteCmd, zForce, encode64(zDir, -1));
     blob_append_escaped_arg(&cmd, blob_str(&remote), 0);
     blob_reset(&remote);
   }
-  if( mFlags & PATCH_VERBOSE ){
-    fossil_print("# %s\n", blob_str(&cmd));
-    fflush(stdout);
-  }
+  fossil_print("%s\n", blob_str(&cmd));
+  fflush(stdout);
   f = popen(blob_str(&cmd), zRW);
   if( f==0 ){
     fossil_fatal("cannot run command: %s", blob_str(&cmd));
@@ -800,8 +801,10 @@ static void patch_diff(
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 0);
 
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( db_column_type(&q,3)==SQLITE_NULL ){
       if( !bWebpage ) fossil_print("DELETE %s\n", zName);
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       diff_print_index(zName, pCfg, 0);
       content_get(rid, &a);
       diff_file_mem(&a, &empty, zName, pCfg);
@@ -809,6 +812,7 @@ static void patch_diff(
       db_ephemeral_blob(&q, 3, &a);
       blob_uncompress(&a, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zName);
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       diff_print_index(zName, pCfg, 0);
       diff_file_mem(&empty, &a, zName, pCfg);
       blob_reset(&a);
@@ -840,30 +844,36 @@ static void patch_diff(
 ** uncommitted changes of a check-out.  Use Fossil binary patches to transfer
 ** proposed or incomplete changes between machines for testing or analysis.
 **
-** > fossil patch create [DIRECTORY] FILENAME
+** > fossil patch create [DIRECTORY] PATCHFILE
 **
-**       Create a new binary patch in FILENAME that captures all uncommitted
+**       Create a new binary patch in PATCHFILE that captures all uncommitted
 **       changes in the check-out at DIRECTORY, or the current directory if
-**       DIRECTORY is omitted.  If FILENAME is "-" then the binary patch
+**       DIRECTORY is omitted.  If PATCHFILE is "-" then the binary patch
 **       is written to standard output.
 **
-**           -f|--force     Overwrite an existing patch with the same name.
+**       Options:
+**           -f|--force     Overwrite an existing patch with the same name
 **
-** > fossil patch apply [DIRECTORY] FILENAME
+** > fossil patch apply [DIRECTORY] PATCHFILE
 **
-**       Apply the changes in FILENAME to the check-out at DIRECTORY, or
-**       in the current directory if DIRECTORY is omitted. Options:
+**       Apply the changes in PATCHFILE to the check-out at DIRECTORY, or
+**       in the current directory if DIRECTORY is omitted.
 **
+**       Options:
 **           -f|--force     Apply the patch even though there are unsaved
 **                          changes in the current check-out.  Unsaved changes
 **                          are reverted and permanently lost.
-**           -n|--dry-run   Do nothing, but print what would have happened.
-**           -v|--verbose   Extra output explaining what happens.
+**           -n|--dry-run   Do nothing, but print what would have happened
+**           -v|--verbose   Extra output explaining what happens
 **
-** > fossil patch diff [DIRECTORY] FILENAME
+** > fossil patch diff [DIRECTORY] PATCHFILE
+** > fossil patch gdiff [DIRECTORY] PATCHFILE
 **
-**       Show a human-readable diff for the patch.  All the usual
-**       diff flags described at "fossil help diff" apply.  In addition:
+**       Show a human-readable diff for the patch in PATCHFILE and associated
+**       with the repository checked out in DIRECTORY.  The current
+**       directory is used if DIRECTORY is omitted. All the usual
+**       diff flags described at "fossil help diff" apply. With gdiff,
+**       gdiff-command is used instead of internal diff logic.  In addition:
 **
 **           -f|--force     Continue trying to perform the diff even if
 **                          baseline information is missing from the current
@@ -879,6 +889,12 @@ static void patch_diff(
 **           *   HOST:DIRECTORY
 **           *   USER@HOST:DIRECTORY
 **
+**       The name of the fossil executable on the remote host is specified
+**       by the --fossilcmd option, or if there is no --fossilcmd, it first
+**       tries "$HOME/bin/fossil" and if not found there it searches for any
+**       executable named "fossil" on the default $PATH set by SSH on the
+**       remote.
+**
 **       Command-line options:
 **
 **           -f|--force         Apply the patch even though there are unsaved
@@ -886,8 +902,8 @@ static void patch_diff(
 **                              changes will be reverted and then the patch is
 **                              applied.
 **           --fossilcmd EXE    Name of the "fossil" executable on the remote  
-**           -n|--dry-run       Do nothing, but print what would have happened.
-**           -v|--verbose       Extra output explaining what happens.
+**           -n|--dry-run       Do nothing, but print what would have happened
+**           -v|--verbose       Extra output explaining what happens
 **
 **
 ** > fossil patch pull REMOTE-CHECKOUT
@@ -895,12 +911,12 @@ static void patch_diff(
 **       Like "fossil patch push" except that the transfer is from remote
 **       to local.  All the same command-line options apply.
 **
-** > fossil patch view FILENAME
+** > fossil patch view PATCHFILE
 **
-**       View a summary of the changes in the binary patch FILENAME.
+**       View a summary of the changes in the binary patch in PATCHFILE.
 **       Use "fossil patch diff" for detailed patch content.
 **
-**           -v|--verbose       Show extra detail about the patch.
+**           -v|--verbose       Show extra detail about the patch
 **
 */
 void patch_cmd(void){
@@ -908,7 +924,7 @@ void patch_cmd(void){
   size_t n;
   if( g.argc<3 ){
     patch_usage:
-    usage("apply|create|diff|pull|push|view");
+    usage("apply|create|diff|gdiff|pull|push|view");
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
@@ -934,7 +950,7 @@ void patch_cmd(void){
     patch_create(flags, zOut, stdout);
     fossil_free(zOut);
   }else
-  if( strncmp(zCmd, "diff", n)==0 ){
+  if( (strncmp(zCmd, "diff", n)==0) || (strncmp(zCmd, "gdiff", n)==0) ){
     char *zIn;
     unsigned flags = 0;
     DiffConfig DCfg;
@@ -944,9 +960,9 @@ void patch_cmd(void){
       diff_tk("patch diff", 3);
       return;
     }
-    diff_options(&DCfg, zCmd[0]=='g', 0);
     db_find_and_open_repository(0, 0);
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
+    diff_options(&DCfg, zCmd[0]=='g', 0);
     verify_all_options();
     zIn = patch_find_patch_filename("apply");
     patch_attach(zIn, stdin);

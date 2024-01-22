@@ -10,7 +10,7 @@
 set prog {
 package require Tk
 
-array set CFG {
+array set CFG_light {
   TITLE      {Fossil Diff}
   LN_COL_BG  #dddddd
   LN_COL_FG  #444444
@@ -33,6 +33,37 @@ array set CFG {
   HEIGHT     45
   LB_HEIGHT  25
 }
+
+array set CFG_dark {
+  TITLE      {Fossil Diff}
+  LN_COL_BG  #dddddd
+  LN_COL_FG  #444444
+  TXT_COL_BG #3f3f3f
+  TXT_COL_FG #dcdccc
+  MKR_COL_BG #444444
+  MKR_COL_FG #dddddd
+  CHNG_BG    #6a6afc
+  ADD_BG     #57934c
+  RM_BG      #ef6767
+  HR_FG      #444444
+  HR_PAD_TOP 4
+  HR_PAD_BTM 8
+  FN_BG      #5e5e5e
+  FN_FG      #ffffff
+  FN_PAD     5
+  ERR_FG     #ee0000
+  PADX       5
+  WIDTH      80
+  HEIGHT     45
+  LB_HEIGHT  25
+}
+
+array set CFG_arr {
+  0          CFG_light
+  1          CFG_dark
+}
+
+array set CFG [array get $CFG_arr($darkmode)]
 
 if {![namespace exists ttk]} {
   interp alias {} ::ttk::scrollbar {} ::scrollbar
@@ -75,6 +106,20 @@ proc readDiffs {fossilcmd} {
   set n1 0
   set n2 0  
   array set widths {txt 3 ln 3 mkr 1}
+  
+  
+  set fromIndex [lsearch -glob $fossilcmd *-from]
+  set toIndex [lsearch -glob $fossilcmd *-to]
+  set branchIndex [lsearch -glob $fossilcmd *-branch]
+  set checkinIndex [lsearch -glob $fossilcmd *-checkin]
+  set fA {base check-in}
+  set fB {current check-out}
+  if {$fromIndex > -1} {set fA [lindex $fossilcmd $fromIndex+1]}
+  if {$toIndex > -1} {set fB [lindex $fossilcmd $toIndex+1]}
+  if {$branchIndex > -1} {set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"}
+  if {$checkinIndex > -1} {set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]}
+  
+  
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
       FILE {
@@ -83,10 +128,10 @@ proc readDiffs {fossilcmd} {
           if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
         .lnA insert end \n fn \n -
-        .txtA insert end [lindex $line 1]\n fn \n -
+        .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
         .mkr insert end \n fn \n -
         .lnB insert end \n fn \n -
-        .txtB insert end [lindex $line 2]\n fn \n -
+        .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
         .wfiles.lb insert end [lindex $line 2]
         set n1 0
         set n2 0

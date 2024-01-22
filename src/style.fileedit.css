@@ -79,6 +79,9 @@ body.fileedit #fileedit-tab-preview-wrapper > pre {
 body.fileedit #fileedit-tab-fileselect > h1 {
   margin: 0;
 }
+body.fileedit .fileedit-options > div > * {
+  margin: 0.25em;
+}
 body.fileedit .fileedit-options.commit-message > div {
   display: flex;
   flex-direction: column;
@@ -107,8 +110,7 @@ body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > input {
   margin: 0.5em;
 }
 body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > .input-with-label {
-  vertical-align: middle;
-  margin: 0.5em;
+  margin: 0 0.5em 0.25em 0.5em;
 }
 body.fileedit .fileedit-options > div > * {
   margin: 0.25em;

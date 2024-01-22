@@ -397,7 +397,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 ** > fossil tag add ?OPTIONS? TAGNAME ARTIFACT-ID ?VALUE?
 **
 **         Add a new tag or property to an artifact referenced by
-**         ARTIFACT-ID. For checkins, the tag will be usable instead
+**         ARTIFACT-ID. For check-ins, the tag will be usable instead
 **         of a CHECK-IN in commands such as update and merge. If the
 **         --propagate flag is present and ARTIFACT-ID refers to a
 **         wiki page, forum post, technote, or check-in, the tag
@@ -406,11 +406,11 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         Options:
 **           --raw                      Raw tag name. Ignored for
 **                                      non-CHECK-IN artifacts.
-**           --propagate                Propagating tag.
-**           --date-override DATETIME   Set date and time added.
-**           --user-override USER       Name USER when adding the tag.
+**           --propagate                Propagating tag
+**           --date-override DATETIME   Set date and time added
+**           --user-override USER       Name USER when adding the tag
 **           -n|--dry-run               Display the tag text, but do not
-**                                      actually insert it into the database.
+**                                      actually insert it into the database
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
@@ -431,10 +431,10 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         Options:
 **           --raw                       Raw tag name. Ignored for
 **                                       non-CHECK-IN artifacts.
-**           --date-override DATETIME    Set date and time deleted.
-**           --user-override USER        Name USER when deleting the tag.
+**           --date-override DATETIME    Set date and time deleted
+**           --user-override USER        Name USER when deleting the tag
 **           -n|--dry-run                Display the control artifact, but do
-**                                       not insert it into the database.
+**                                       not insert it into the database
 **
 ** > fossil tag find ?OPTIONS? TAGNAME
 **
@@ -449,7 +449,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           e (event/technote), f (forum post),
 **                           t (ticket). Default is all types. Ignored
 **                           if --raw is used.
-**           -n|--limit N    Limit to N results.
+**           -n|--limit N    Limit to N results
 **
 ** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
 **
@@ -464,8 +464,8 @@ static void tag_cmd_tagname_check(const char *zTag){
 **           --raw           List raw names of tags
 **           --tagtype TYPE  List only tags of type TYPE, which must
 **                           be one of: cancel, singleton, propagated
-**           -v|--inverse    Inverse the meaning of --tagtype TYPE.
-**           --prefix        List only tags with the given prefix.
+**           -v|--inverse    Inverse the meaning of --tagtype TYPE
+**           --prefix        List only tags with the given prefix
 **                           Fossil-internal prefixes include "sym-"
 **                           (branch name), "wiki-", "event-"
 **                           (technote), and "tkt-" (ticket). The
@@ -807,6 +807,7 @@ void taglist_page(void){
   if( !g.perm.Read ){
     login_needed(g.anon.Read);
   }
+  cgi_check_for_malice();
   login_anonymous_available();
   style_header("Tags");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -888,7 +889,7 @@ void tagtimeline_page(void){
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
-  @ <br />
+  @ <br>
   style_finish_page();
 }
 
@@ -904,4 +905,35 @@ int rid_has_tag(int rid, int tagId){
      " AND tagxref.tagid=tag.tagid",
      rid, tagId
   );
+}
+
+
+/*
+** Returns tagxref.rowid if the given blob.rid has a tagxref.rid entry
+** of an active (non-cancelled) tag matching the given rid and tag
+** name string, else returns 0. Note that this function does not
+** distinguish between a non-existent tag and a cancelled tag.
+**
+** Design note: the return value is the tagxref.rowid because that
+** gives us an easy way to fetch the value of the tag later on, if
+** needed.
+*/
+int rid_has_active_tag_name(int rid, const char *zTagName){
+  static Stmt q = empty_Stmt_m;
+  int rc;
+
+  assert( 0 != zTagName );
+  if( !q.pStmt ){
+    db_static_prepare(&q,
+       "SELECT x.rowid FROM tagxref x, tag t"
+       " WHERE x.rid=$rid AND x.tagtype>0 "
+       " AND x.tagid=t.tagid"
+       " AND t.tagname=$tagname"
+    );
+  }
+  db_bind_int(&q, "$rid", rid);
+  db_bind_text(&q, "$tagname", zTagName);
+  rc = (SQLITE_ROW==db_step(&q)) ? db_column_int(&q, 0) : 0;
+  db_reset(&q);
+  return rc;
 }

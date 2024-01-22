@@ -258,7 +258,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
 static int stash_create(void){
   const char *zComment;              /* Comment to add to the stash */
   int stashid;                       /* ID of the new stash */
-  int vid;                           /* Current checkout */
+  int vid;                           /* Current check-out */
 
   zComment = find_option("comment", "m", 1);
   verify_all_options();
@@ -303,7 +303,7 @@ static int stash_create(void){
 }
 
 /*
-** Apply a stash to the current checkout.
+** Apply a stash to the current check-out.
 */
 static void stash_apply(int stashid, int nConflict){
   int vid;
@@ -429,13 +429,16 @@ static void stash_diff(
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     Blob a, b;
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zNew);
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       diff_print_index(zNew, pCfg, 0);
       diff_file_mem(&empty, &a, zNew, pCfg);
     }else if( isRemoved ){
       if( !bWebpage) fossil_print("DELETE %s\n", zOrig);
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       diff_print_index(zNew, pCfg, 0);
       if( fBaseline ){
         content_get(rid, &a);
@@ -515,7 +518,7 @@ static int stash_get_id(const char *zStashId){
 **      are listed, then only stash and revert the named files.  The
 **      "save" verb can be omitted if and only if there are no other
 **      arguments.  The "snapshot" verb works the same as "save" but
-**      omits the revert, keeping the checkout unchanged.
+**      omits the revert, keeping the check-out unchanged.
 **
 ** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **
@@ -533,13 +536,13 @@ static int stash_get_id(const char *zStashId){
 ** > fossil stash apply ?STASHID?
 **
 **      Apply STASHID or the most recently created stash to the current
-**      working checkout.  The "pop" command deletes that changeset from
+**      working check-out.  The "pop" command deletes that changeset from
 **      the stash after applying it but the "apply" command retains the
 **      changeset.
 **
 ** > fossil stash goto ?STASHID?
 **
-**      Update to the baseline checkout for STASHID then apply the
+**      Update to the baseline check-out for STASHID then apply the
 **      changes of STASHID.  Keep STASHID so that it can be reused
 **      This command is undoable.
 **
@@ -571,7 +574,7 @@ void stash_cmd(void){
     zCmd = g.argv[2];
   }
   nCmd = strlen(zCmd);
-  if( memcmp(zCmd, "save", nCmd)==0 ){
+  if( strncmp(zCmd, "save", nCmd)==0 ){
     if( unsaved_changes(0)==0 ){
       fossil_fatal("nothing to stash");
     }
@@ -602,10 +605,10 @@ void stash_cmd(void){
     fossil_print("stash %d saved\n", stashid);
     return;
   }else
-  if( memcmp(zCmd, "snapshot", nCmd)==0 ){
+  if( strncmp(zCmd, "snapshot", nCmd)==0 ){
     stash_create();
   }else
-  if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
+  if( strncmp(zCmd, "list", nCmd)==0 || strncmp(zCmd, "ls", nCmd)==0 ){
     Stmt q, q2;
     int n = 0, width;
     int verboseFlag = find_option("verbose","v",0)!=0;
@@ -669,7 +672,7 @@ void stash_cmd(void){
     if( verboseFlag ) db_finalize(&q2);
     if( n==0 ) fossil_print("empty stash\n");
   }else
-  if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
+  if( strncmp(zCmd, "drop", nCmd)==0 || strncmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", "a", 0)!=0;
     if( allFlag ){
       Blob ans;
@@ -695,7 +698,7 @@ void stash_cmd(void){
       undo_finish();
     }
   }else
-  if( memcmp(zCmd, "pop", nCmd)==0 ||  memcmp(zCmd, "apply", nCmd)==0 ){
+  if( strncmp(zCmd, "pop", nCmd)==0 ||  strncmp(zCmd, "apply", nCmd)==0 ){
     char *zCom = 0, *zDate = 0, *zHash = 0;
     int popped = *zCmd=='p';
     if( popped ){
@@ -724,7 +727,7 @@ void stash_cmd(void){
     undo_finish();
     if( popped ) stash_drop(stashid);
   }else
-  if( memcmp(zCmd, "goto", nCmd)==0 ){
+  if( strncmp(zCmd, "goto", nCmd)==0 ){
     int nConflict;
     int vid;
     if( g.argc>4 ) usage("apply STASHID");
@@ -739,12 +742,12 @@ void stash_cmd(void){
                   stashid);
     undo_finish();
   }else
-  if( memcmp(zCmd, "diff", nCmd)==0
-   || memcmp(zCmd, "gdiff", nCmd)==0
-   || memcmp(zCmd, "show", nCmd)==0
-   || memcmp(zCmd, "gshow", nCmd)==0
-   || memcmp(zCmd, "cat", nCmd)==0
-   || memcmp(zCmd, "gcat", nCmd)==0
+  if( strncmp(zCmd, "diff", nCmd)==0
+   || strncmp(zCmd, "gdiff", nCmd)==0
+   || strncmp(zCmd, "show", nCmd)==0
+   || strncmp(zCmd, "gshow", nCmd)==0
+   || strncmp(zCmd, "cat", nCmd)==0
+   || strncmp(zCmd, "gcat", nCmd)==0
   ){
     int fBaseline = 0;
     DiffConfig DCfg;
@@ -761,7 +764,7 @@ void stash_cmd(void){
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, fBaseline, &DCfg);
   }else
-  if( memcmp(zCmd, "help", nCmd)==0 ){
+  if( strncmp(zCmd, "help", nCmd)==0 ){
     g.argv[1] = "help";
     g.argv[2] = "stash";
     g.argc = 3;

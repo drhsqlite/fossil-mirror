@@ -47,7 +47,6 @@ void view_list(void){
   Blob ril;   /* Report Item List */
   Stmt q;
   int rn = 0;
-  int cnt = 0;
   char *defaultReport = db_get("ticket-default-report", 0);
 
   login_check_credentials();
@@ -57,9 +56,9 @@ void view_list(void){
   }
   style_header("Ticket Main Menu");
   ticket_standard_submenu(T_ALL_BUT(T_REPLIST));
-  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br>\n", -1);
   zScript = ticket_reportlist_code();
-  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br>\n", -1);
 
   blob_zero(&ril);
   ticket_init();
@@ -72,12 +71,11 @@ void view_list(void){
       continue;
     }
     rn = db_column_int(&q, 0);
-    cnt++;
     blob_appendf(&ril, "<li>");
     if( zTitle[0] == '_' ){
       blob_appendf(&ril, "%s", zTitle);
     } else {
-      blob_appendf(&ril, "%z%h</a>", href("%R/rptview?rn=%d", rn), zTitle);
+      blob_appendf(&ril, "%z%h</a>", href("%R/rptview/%d", rn), zTitle);
     }
     blob_appendf(&ril, "&nbsp;&nbsp;&nbsp;");
     if( g.perm.Write && zOwner && zOwner[0] ){
@@ -85,17 +83,17 @@ void view_list(void){
     }
     if( g.perm.TktFmt ){
       blob_appendf(&ril, "[%zcopy</a>] ",
-                   href("%R/rptedit?rn=%d&copy=1", rn));
+                   href("%R/rptedit/%d?copy=1", rn));
     }
     if( g.perm.Admin
      || (g.perm.WrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
     ){
       blob_appendf(&ril, "[%zedit</a>]",
-                         href("%R/rptedit?rn=%d", rn));
+                         href("%R/rptedit/%d", rn));
     }
     if( g.perm.TktFmt ){
       blob_appendf(&ril, "[%zsql</a>]",
-                         href("%R/rptsql?rn=%d", rn));
+                         href("%R/rptsql/%d", rn));
     }
     if( fossil_strcmp(zTitle, defaultReport)==0 ){
       blob_appendf(&ril, "&nbsp;← default");
@@ -109,7 +107,7 @@ void view_list(void){
   Th_Render(zScript);
 
   blob_reset(&ril);
-  if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_REPORTLIST<br>\n", -1);
 
   style_finish_page();
 }
@@ -257,6 +255,20 @@ static int report_query_authorizer(
 }
 
 /*
+** Make sure the reportfmt table is up-to-date.  It should contain
+** the "jx" column (as of version 2.21).  If it does not, add it.
+**
+** The "jx" column is intended to hold a JSON object containing optional
+** key-value pairs.
+*/
+void report_update_reportfmt_table(void){
+  if( db_table_has_column("repository","reportfmt","jx")==0 ){
+    db_multi_exec("ALTER TABLE repository.reportfmt"
+                  " ADD COLUMN jx TEXT DEFAULT '{}';");
+  }
+}
+
+/*
 ** Activate the ticket report query authorizer. Must be followed by an
 ** eventual call to report_unrestrict_sql().
 */
@@ -325,11 +337,47 @@ char *verify_sql_statement(char *zSql){
 }
 
 /*
-** WEBPAGE: rptsql
-** URL: /rptsql?rn=N
+** Get a report number from query parameters.  This can be done in various
+** ways:
 **
-** Display the SQL query used to generate a ticket report.  The rn=N
-** query parameter identifies the specific report number to be displayed.
+**   (1) (legacy)  rn=NNN  where NNN is the reportfmt.rn integer primary key.
+**
+**   (2) name=NNN where NNN is the rn.
+**
+**   (3) name=TAG where TAG matches reportfmt.jx->>tag
+**
+** Regardless of how the report is specified, return the primary key, rn.
+** Return 0 if not found.
+*/
+static int report_number(void){
+  int rn;
+  const char *zName;
+  char *zEnd;
+
+  /* Case (1) */
+  rn = atoi(PD("rn","0"));
+  if( rn>0 ) return rn;
+
+  zName = P("name");
+  if( zName==0 || zName[0]==0 ) return 0;
+  if( fossil_isdigit(zName[0])
+   && (rn = strtol(zName, &zEnd, 10))>0
+   && zEnd[0]==0
+  ){
+    /* Case 2 */
+    return rn;
+  }
+
+  rn = db_int(0, "SELECT rn FROM reportfmt WHERE jx->>'tag'==%Q", zName);
+  return rn;
+}
+
+/*
+** WEBPAGE: rptsql
+** URL: /rptsql/N
+**
+** Display the SQL query used to generate a ticket report.  The N value
+** is either the report number of a report tag.
 */
 void view_see_sql(void){
   int rn;
@@ -344,7 +392,7 @@ void view_see_sql(void){
     login_needed(g.anon.TktFmt);
     return;
   }
-  rn = atoi(PD("rn","0"));
+  rn = report_number();
   db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                    "FROM reportfmt WHERE rn=%d",rn);
   style_set_current_feature("report");
@@ -384,20 +432,28 @@ void view_see_sql(void){
 ** Create (/rptnew) or edit (/rptedit) a ticket report format.
 ** Query parameters:
 **
-**     rn=N           Ticket report number. (required)
+**     name=N         Ticket report number or tag.
+**     rn=N           Ticket report number (legacy).
+**                       ^^^-- one of the two previous is required.
 **     t=TITLE        Title of the report format
 **     w=USER         Owner of the report format
 **     s=SQL          SQL text used to implement the report
 **     k=KEY          Color key
+**     d=DESC         Optional descriptive text
+**     m=MIMETYPE     Mimetype for DESC
+**     x=TAG          Symbolic name for the report
 */
 void view_edit(void){
   int rn;
-  const char *zTitle;
+  const char *zTitle;           /* Title of the report */
   const char *z;
-  const char *zOwner;
-  const char *zClrKey;
-  char *zSQL;
-  char *zErr = 0;
+  const char *zOwner;           /* Owner of the report */
+  const char *zClrKey;          /* Color key - used to add colors to lines */
+  char *zSQL;                   /* The SQL text that gnerates the report */
+  char *zErr = 0;               /* An error message */
+  const char *zDesc;            /* Extra descriptive text about the report */
+  const char *zMimetype;        /* Mimetype for zDesc */
+  const char *zTag;             /* Symbolic name for this report */
   int dflt = P("dflt") ? 1 : 0;
 
   login_check_credentials();
@@ -407,18 +463,21 @@ void view_edit(void){
   }
   style_set_current_feature("report");
   /*view_add_functions(0);*/
-  rn = atoi(PD("rn","0"));
+  rn = report_number();
   zTitle = P("t");
   zOwner = PD("w",g.zLogin);
   z = P("s");
   zSQL = z ? trim_string(z) : 0;
   zClrKey = trim_string(PD("k",""));
-  if( rn>0 && P("del2") ){
-    login_verify_csrf_secret();
+  zDesc = trim_string(PD("d",""));
+  zMimetype = P("m");
+  zTag = P("x");
+  report_update_reportfmt_table();
+  if( rn>0 && P("del2") && cgi_csrf_safe(2) ){
     db_multi_exec("DELETE FROM reportfmt WHERE rn=%d", rn);
     cgi_redirect("reportlist");
     return;
-  }else if( rn>0 && P("del1") ){
+  }else if( rn>0 && P("del1") && cgi_csrf_safe(2) ){
     zTitle = db_text(0, "SELECT title FROM reportfmt "
                          "WHERE rn=%d", rn);
     if( zTitle==0 ) cgi_redirect("reportlist");
@@ -456,16 +515,23 @@ void view_edit(void){
     ){
       zErr = mprintf("There is already another report named \"%h\"", zTitle);
     }
-    if( zErr==0 ){
-      login_verify_csrf_secret();
+    if( zErr==0 && cgi_csrf_safe(2) ){
+      if( zTag && zTag[0]==0 ) zTag = 0;
+      if( zDesc && zDesc[0]==0 ){ zDesc = 0; zMimetype = 0; }
+      if( zMimetype && zMimetype[0]==0 ){ zDesc = 0; zMimetype = 0; }
       if( rn>0 ){
-        db_multi_exec("UPDATE reportfmt SET title=%Q, sqlcode=%Q,"
-                      " owner=%Q, cols=%Q, mtime=now() WHERE rn=%d",
-           zTitle, zSQL, zOwner, zClrKey, rn);
+        db_multi_exec(
+            "UPDATE reportfmt SET title=%Q, sqlcode=%Q,"
+            " owner=%Q, cols=%Q, mtime=now(), "
+            " jx=json_patch(jx,json_object('desc',%Q,'descmt',%Q,'tag',%Q))"
+            " WHERE rn=%d",
+           zTitle, zSQL, zOwner, zClrKey, zDesc, zMimetype, zTag, rn);
       }else{
-        db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols,mtime) "
-           "VALUES(%Q,%Q,%Q,%Q,now())",
-           zTitle, zSQL, zOwner, zClrKey);
+        db_multi_exec(
+           "INSERT INTO reportfmt(title,sqlcode,owner,cols,mtime,jx) "
+           "VALUES(%Q,%Q,%Q,%Q,now(),"
+                  "json_object('desc',%Q,'descmt',%Q,'tag',%Q))",
+           zTitle, zSQL, zOwner, zClrKey, zDesc, zMimetype, zTag);
         rn = db_last_insert_rowid();
       }
       if( dflt ){
@@ -476,7 +542,7 @@ void view_edit(void){
           db_set("ticket-default-report", "", 0);
         }
       }
-      cgi_redirect(mprintf("rptview?rn=%d", rn));
+      cgi_redirect(mprintf("rptview/%d", rn));
       return;
     }
   }else if( rn==0 ){
@@ -485,7 +551,11 @@ void view_edit(void){
     zClrKey = ticket_key_template();
   }else{
     Stmt q;
-    db_prepare(&q, "SELECT title, sqlcode, owner, cols "
+    int hasJx = 0;
+    zDesc = 0;
+    zMimetype = 0;
+    zTag = 0;
+    db_prepare(&q, "SELECT title, sqlcode, owner, cols, json_valid(jx) "
                      "FROM reportfmt WHERE rn=%d",rn);
     if( db_step(&q)==SQLITE_ROW ){
       char *defaultReport = db_get("ticket-default-report", 0);
@@ -494,8 +564,19 @@ void view_edit(void){
       zOwner = db_column_malloc(&q, 2);
       zClrKey = db_column_malloc(&q, 3);
       dflt = fossil_strcmp(zTitle, defaultReport)==0;
+      hasJx = db_column_int(&q, 4);
     }
     db_finalize(&q);
+    if( hasJx ){
+      db_prepare(&q, "SELECT jx->>'desc', jx->>'descmt', jx->>'tag'"
+                     "  FROM reportfmt WHERE rn=%d", rn);
+      if( db_step(&q)==SQLITE_ROW ){
+        zDesc = db_column_malloc(&q, 0);
+        zMimetype = db_column_malloc(&q, 1);
+        zTag = db_column_malloc(&q, 2);
+      }
+      db_finalize(&q);
+    }
     if( P("copy") ){
       rn = 0;
       zTitle = mprintf("Copy Of %s", zTitle);
@@ -503,35 +584,49 @@ void view_edit(void){
     }
   }
   if( zOwner==0 ) zOwner = g.zLogin;
-  style_submenu_element("Cancel", "reportlist");
+  style_submenu_element("Cancel", "%R/reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "rptedit?rn=%d&del1=1", rn);
+    style_submenu_element("Delete", "%R/rptedit/%d?del1=1", rn);
   }
   style_header("%s", rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
     @ <blockquote class="reportError">%h(zErr)</blockquote>
   }
   @ <form action="rptedit" method="post"><div>
-  @ <input type="hidden" name="rn" value="%d(rn)" />
-  @ <p>Report Title:<br />
-  @ <input type="text" name="t" value="%h(zTitle)" size="60" /></p>
-  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br />
+  @ <input type="hidden" name="rn" value="%d(rn)">
+  @ <p>Report Title:<br>
+  @ <input type="text" name="t" value="%h(zTitle)" size="60"></p>
+  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br>
   @ <textarea name="s" rows="20" cols="80">%h(zSQL)</textarea>
   @ </p>
   login_insert_csrf_secret();
   if( g.perm.Admin ){
     @ <p>Report owner:
-    @ <input type="text" name="w" size="20" value="%h(zOwner)" />
+    @ <input type="text" name="w" size="20" value="%h(zOwner)">
+    @ </p>
+    @ <p>Tag:
+    @ <input type="text" name="x" size="20" value="%h(zTag?zTag:"")">
     @ </p>
   } else {
-    @ <input type="hidden" name="w" value="%h(zOwner)" />
+    @ <input type="hidden" name="w" value="%h(zOwner)">
+    if( zTag && zTag[0] ){
+      @ <input type="hidden" name="x" value="%h(zTag)">
+    }
   }
   @ <p>Enter an optional color key in the following box.  (If blank, no
   @ color key is displayed.)  Each line contains the text for a single
   @ entry in the key.  The first token of each line is the background
-  @ color for that line.<br />
+  @ color for that line.<br>
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
+
+  @ <p>Optional human-readable description for this report<br>
+  @ %z(href("%R/markup_help"))Markup style</a>:
+  mimetype_option_menu(zMimetype, "m");
+  @ <br><textarea aria-label="Description:" name="d" class="wikiedit" \
+  @ cols="80" rows="15" wrap="virtual">%h(zDesc)</textarea>
+  @ </p>
+
   @ <p><label><input type="checkbox" name="dflt" %s(dflt?"checked":"")> \
   @ Make this the default report</label></p>
   if( !g.perm.Admin && fossil_strcmp(zOwner,g.zLogin)!=0 ){
@@ -542,9 +637,9 @@ void view_edit(void){
     style_finish_page();
     return;
   }
-  @ <input type="submit" value="Apply Changes" />
+  @ <input type="submit" value="Apply Changes">
   if( rn>0 ){
-    @ <input type="submit" value="Delete This Report" name="del1" />
+    @ <input type="submit" value="Delete This Report" name="del1">
   }
   @ </div></form>
   report_format_hints();
@@ -562,7 +657,7 @@ static void report_format_hints(void){
     zSchema = db_text(0,"SELECT sql FROM repository.sqlite_schema"
                         " WHERE name='ticket'");
   }
-  @ <hr /><h3>TICKET Schema</h3>
+  @ <hr><h3>TICKET Schema</h3>
   @ <blockquote><pre>
   @ <code class="language-sql">%h(zSchema)</code>
   @ </pre></blockquote>
@@ -755,9 +850,9 @@ static int generate_html(
             pState->wikiFlags |= WIKI_LINKSONLY;
             pState->zWikiStart = "<pre class='verbatim'>";
             pState->zWikiEnd = "</pre>";
-            style_submenu_element("Formatted", "%R/rptview?rn=%d", pState->rn);
+            style_submenu_element("Formatted", "%R/rptview/%d", pState->rn);
           }else{
-            style_submenu_element("Plaintext", "%R/rptview?rn=%d&plaintext",
+            style_submenu_element("Plaintext", "%R/rptview/%d?plaintext",
                                   pState->rn);
           }
         }else{
@@ -835,7 +930,7 @@ static int generate_html(
       }
     }else if( azName[i][0]=='#' ){
       zTid = zData;
-      @ <td valign="top">%z(href("%R/tktview?name=%h",zData))%h(zData)</a></td>
+      @ <td valign="top">%z(href("%R/tktview/%h",zData))%h(zData)</a></td>
     }else if( zData[0]==0 ){
       @ <td valign="top">&nbsp;</td>
     }else{
@@ -1027,17 +1122,21 @@ void rptview_page_content(
   char *zTitle;
   char *zOwner;
   char *zClrKey;
+  char *zDesc;
+  char *zMimetype;
   int tabs;
   Stmt q;
   char *zErr1 = 0;
   char *zErr2 = 0;
-
+  
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
+  report_update_reportfmt_table();
+  rn = report_number();
   tabs = P("tablist")!=0;
   db_prepare(&q,
-    "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE rn=%d",
-     atoi(PD("rn","0")));
+    "SELECT title, sqlcode, owner, cols, rn, jx->>'desc', jx->>'descmt'"
+    "  FROM reportfmt WHERE rn=%d", rn);
   rc = db_step(&q);
   if( rc!=SQLITE_ROW ){
     const char *titleSearch =
@@ -1045,7 +1144,8 @@ void rptview_page_content(
         P("title") : defaultTitleSearch;
     db_finalize(&q);
     db_prepare(&q,
-      "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE title GLOB %Q",
+      "SELECT title, sqlcode, owner, cols, rn, jx->>'desc', jx->>'descmt'"
+      "  FROM reportfmt WHERE title GLOB %Q",
       titleSearch);
     rc = db_step(&q);
   }
@@ -1061,6 +1161,8 @@ void rptview_page_content(
   zOwner = db_column_malloc(&q, 2);
   zClrKey = db_column_malloc(&q, 3);
   rn = db_column_int(&q,4);
+  zDesc = db_column_malloc(&q, 5);
+  zMimetype = db_column_malloc(&q, 6);
   db_finalize(&q);
 
   if( P("order_by") ){
@@ -1088,23 +1190,39 @@ void rptview_page_content(
     if( pageWrap ) {
       /* style_finish_page() should provide escaping via %h formatting */
       if( zQS[0] ){
-        style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+        if( g.zExtra && g.zExtra[0] ){
+          style_submenu_element("Raw","%R/%s/%s?tablist=1&%s",
+                                  g.zPath, g.zExtra, zQS);
+        }else{
+          style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+        }
         style_submenu_element("Reports","%R/reportlist?%s",zQS);
       } else {
-        style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+        if( g.zExtra && g.zExtra[0] ){
+          style_submenu_element("Raw","%R/%s/%s?tablist=1",g.zPath,g.zExtra);
+        }else{
+          style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+        }
         style_submenu_element("Reports","%R/reportlist");
       }
       if( g.perm.Admin
         || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
-        style_submenu_element("Edit", "rptedit?rn=%d", rn);
+        style_submenu_element("Edit", "%R/rptedit/%d", rn);
       }
       if( g.perm.TktFmt ){
-        style_submenu_element("SQL", "rptsql?rn=%d",rn);
+        style_submenu_element("SQL", "%R/rptsql/%d",rn);
       }
       if( g.perm.NewTkt ){
         style_submenu_element("New Ticket", "%R/tktnew");
       }
       style_header("%s", zTitle);
+    }
+    if( zDesc && zDesc[0] && zMimetype ){
+      Blob src;
+      blob_init(&src, zDesc, -1);
+      wiki_render_by_mimetype(&src, zMimetype);
+      blob_reset(&src);
+      @ <br>
     }
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");

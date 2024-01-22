@@ -1,8 +1,9 @@
 #!/bin/bash
-BASEPORT=12345
 FOSSIL=fossil
-OLDPID=`pgrep -P 1 fossil`
 PGARGS="-P 1"
+OLDPID=`pgrep -P 1 fossil`
+SITE=https://example.com
+PORT=12345
 
 if [ "$1" = "-f" ] ; then PGARGS= ; shift ; fi
 
@@ -39,15 +40,20 @@ fi
 
 function start_one() {
     bn=$1
-    port=$(($BASEPORT + $2))
-    url="$3"
-    if [ -n "$url" ] ; then baseurl="--baseurl $url" ; fi
+    ln="$2"
 
-    $FOSSIL server --localhost --port $port --scgi $baseurl \
-            --errorlog ~/log/fossil/$bn-errors.log \
-            ~/museum/$bn.fossil > ~/log/fossil/$bn-stdout.log &
-    echo Fossil server running for $bn, PID $!, port $port.
+    $FOSSIL server $extra \
+        --scgi \
+        --localhost \
+        --port $PORT \
+        --jsmode bundled \
+        --baseurl ${SITE}/$bn \
+        --errorlog ~/log/fossil/$bn-errors.log \
+        ~/museum/$bn.fossil > ~/log/fossil/$bn-stdout.log &
+    echo Started $ln Fossil server, port $PORT, PID $!.
+    PORT=$(($PORT + 1))
 }
 
-start_one example 0 https://example.com/code
-start_one foo     1 # https://foo.net
+start_one first  "First Project"
+start_one second "Second Project"
+start_one third  "Third Project"

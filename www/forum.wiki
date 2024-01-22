@@ -14,7 +14,7 @@ the forum include:
      no new software to install and configure, and the same logins
      and passwords work.
 
-  *  <b>Consistent Display:</b>  Forum posts can be in [/md_rules|Markdown], 
+  *  <b>Consistent Display:</b>  Forum posts can be in [/md_rules|Markdown],
      [/wiki_rules|Fossil Wiki], or plain text.  Whichever format is used, the result is
      displayed consistently across all platforms and operating systems and
      between mobile devices and desktops.
@@ -351,8 +351,7 @@ repository's administrators and moderators:
     your users who should have this ability. You don't need to do this
     for any user with <b>[./caps/ref.html#s | Setup]</b> or
     <b>[./caps/ref.html#a | Admin]</b> capability; it's
-    [http://fossil-scm.org/index.html/artifact/b16221ffb736caa2?ln=1246-1257
-    | already included].</li>
+    [/artifact/b16221ffb736caa2?ln=1246-1257 | already included].</li>
 
     <li>When someone updates the forum, an entry will appear in the
     timeline if the type filter is set to "Forum" or "Any Type". If that
@@ -369,3 +368,44 @@ repository's administrators and moderators:
     "Delete" button that the post's creator sees. Beware that both
     actions are durable and have no undo. Be careful!</li>
 </ol>
+
+<h2 id="close-post">Closing Forum Posts</h2>
+
+As of version 2.23, the forum interface supports the notion of
+"closing" posts. By default, only users with the [./caps/index.md|'s'
+and 'a' capabilities] may close or re-open posts, or reply to closed
+posts. If the [/help?cmd=forum-close-policy|forum-close-policy
+configuration option] is enabled then users with
+[./caps/index.md|forum-moderator permissions] may also perform those
+actions.
+
+Closing a post has the following implications:
+
+  *  Only authorized users may edit or respond to such posts, recursively
+     through all responses of that post.
+  *  Only authorized users may re-open a closed post.
+
+A forum thread may be closed at any given point in the conversation,
+not just the starting point of the thread, and affects that specific
+post and all existing responses to it.
+
+Note that closing a post is effectively an "advisory lock" and may be
+bypassed. Any user, admin or otherwise, who can push changes to a
+repository may bypass closure of a post by setting the appropriate
+artifact tags on a local copy and pushing those changes to a remote
+copy of the forum.
+
+The option to close a post, permissions permitting, appears as a
+"Close" button on the currently-selected post. If the selected post is
+alread closed, a "Re-open" button will be shown instead. In order to
+re-open a post, <em>the closed post itself</em> must be
+selected. Selecting a response to that post, which is implicitly
+closed by the closure of its parent, will <em>not</em> offer a re-open
+option.
+
+Though forum users are permitted to delete their own posts, they are
+not permitted, without appropriate permissions, to close their own
+posts. This is intentional, as closing one's own post can be used to
+antagonize other forum users. For example, by posting something
+trollish or highly contraversial in nature and closing the post to
+further responses.

@@ -359,7 +359,7 @@ static int safeInt(const char *z){
 **    /config     $MTIME $NAME value $VALUE
 **    /user       $MTIME $LOGIN pw $VALUE cap $VALUE info $VALUE photo $VALUE
 **    /shun       $MTIME $UUID scom $VALUE
-**    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE
+**    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE jx $JSON
 **    /concealed  $MTIME $HASH content $VALUE
 **    /subscriber $SMTIME $SEMAIL suname $V ...
 */
@@ -380,13 +380,13 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       int nField;                /* Number of data fields */
       const char *azField[6];    /* Names of the data fields */
     } aType[] = {
-      { "/config",    "name",  1, { "value", 0,0,0,0,0 }           },
-      { "@user",      "login", 4, { "pw","cap","info","photo",0,0} },
-      { "@shun",      "uuid",  1, { "scom", 0,0,0,0,0}             },
-      { "@reportfmt", "title", 3, { "owner","cols","sqlcode",0,0,0}},
-      { "@concealed", "hash",  1, { "content", 0,0,0,0,0 }         },
+      { "/config",    "name",  1, { "value", 0,0,0,0,0 }              },
+      { "@user",      "login", 5, { "pw","cap","info","photo","jx",0} },
+      { "@shun",      "uuid",  1, { "scom", 0,0,0,0,0}                },
+      { "@reportfmt", "title", 4, { "owner","cols","sqlcode","jx",0,0}},
+      { "@concealed", "hash",  1, { "content", 0,0,0,0,0 }            },
       { "@subscriber","semail",6,
-         { "suname","sdigest","sdonotcall","ssub","sctime","smip"}         },
+          { "suname","sdigest","sdonotcall","ssub","sctime","smip"}   },
     };
 
     /* Locate the receiveType in aType[ii] */
@@ -447,7 +447,16 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
     }
     db_protect_only(PROTECT_SENSITIVE);
+
+    /* Make sure tables have the "jx" column */
+    if( strcmp(&zName[1],"user")==0 ){
+      user_update_user_table();
+    }else if( strcmp(&zName[1],"reportfmt")==0 ){
+      report_update_reportfmt_table();
+    }
+
     db_multi_exec("%s)", blob_sql_text(&sql));
+
     if( db_changes()==0 ){
       blob_reset(&sql);
       blob_append_sql(&sql, "UPDATE \"%w\" SET mtime=%s",
@@ -534,18 +543,28 @@ int configure_send_group(
     db_finalize(&q);
   }
   if( groupMask & CONFIGSET_USER ){
-    db_prepare(&q, "SELECT mtime, quote(login), quote(pw), quote(cap),"
-                   "       quote(info), quote(photo) FROM user"
-                   " WHERE mtime>=%lld", iStart);
+    if( db_table_has_column("repository","user","jx") ){
+      db_prepare(&q, "SELECT mtime, quote(login), quote(pw), quote(cap),"
+                     "       quote(info), quote(photo), quote(jx) FROM user"
+                     " WHERE mtime>=%lld", iStart);
+    }else{
+      db_prepare(&q, "SELECT mtime, quote(login), quote(pw), quote(cap),"
+                     "       quote(info), quote(photo), 'NULL' FROM user"
+                     " WHERE mtime>=%lld", iStart);
+    }
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&rec,"%s %s pw %s cap %s info %s photo %s",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1),
-        db_column_text(&q, 2),
-        db_column_text(&q, 3),
-        db_column_text(&q, 4),
-        db_column_text(&q, 5)
-      );
+      const char *z;
+      blob_appendf(&rec,"%s %s", db_column_text(&q,0), db_column_text(&q,1));
+      z = db_column_text(&q,2);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," pw %s", z);
+      z = db_column_text(&q,3);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," cap %s", z);
+      z = db_column_text(&q,4);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," info %s", z);
+      z = db_column_text(&q,5);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," photo %s", z);
+      z = db_column_text(&q,6);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," jx %s", z);
       blob_appendf(pOut, "config /user %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;
@@ -554,17 +573,26 @@ int configure_send_group(
     db_finalize(&q);
   }
   if( groupMask & CONFIGSET_TKT ){
-    db_prepare(&q, "SELECT mtime, quote(title), quote(owner), quote(cols),"
-                   "       quote(sqlcode) FROM reportfmt"
-                   " WHERE mtime>=%lld", iStart);
+    if( db_table_has_column("repository","reportfmt","jx") ){
+      db_prepare(&q, "SELECT mtime, quote(title), quote(owner), quote(cols),"
+                     "       quote(sqlcode), quote(jx) FROM reportfmt"
+                     " WHERE mtime>=%lld", iStart);
+    }else{
+      db_prepare(&q, "SELECT mtime, quote(title), quote(owner), quote(cols),"
+                     "       quote(sqlcode), 'NULL' FROM reportfmt"
+                     " WHERE mtime>=%lld", iStart);
+    }
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&rec,"%s %s owner %s cols %s sqlcode %s",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1),
-        db_column_text(&q, 2),
-        db_column_text(&q, 3),
-        db_column_text(&q, 4)
-      );
+      const char *z;
+      blob_appendf(&rec,"%s %s", db_column_text(&q,0), db_column_text(&q,1));
+      z = db_column_text(&q,2);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," owner %s", z);
+      z = db_column_text(&q,3);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," cols %s", z);
+      z = db_column_text(&q,4);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," sqlcode %s", z);
+      z = db_column_text(&q,5);
+      if( strcmp(z,"NULL")!=0 ) blob_appendf(&rec," jx %s", z);
       blob_appendf(pOut, "config /reportfmt %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;

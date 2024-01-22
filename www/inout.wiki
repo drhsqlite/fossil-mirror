@@ -8,15 +8,14 @@ Git as an intermediary.
 
 <h2>Git → Fossil</h2>
 
-To import a Git repository into Fossil, run commands like this:
+To import a Git repository into Fossil, say something like:
 
 <blockquote><pre>
 cd git-repo
 git fast-export --all | fossil import --git new-repo.fossil
 </pre></blockquote>
 
-In other words, simply pipe the output of the "git fast-export" command
-into the "fossil import --git" command.  The 3rd argument to the "fossil import"
+The 3rd argument to the "fossil import"
 command is the name of a new Fossil repository that is created to hold the Git
 content.
 
@@ -35,6 +34,26 @@ commits by a given committer attributed to a desired username. This will create
 and populate the new <code>fx_git</code> table in the repository database to
 maintain a record of correspondent usernames and email addresses that can be
 used in subsequent exports or incremental imports.
+
+<h3>Converting Repositories on Windows</h3>
+
+The above commands work best on proper POSIX systems like Linux, macOS,
+and the BSDs, where everything <tt>git</tt> sends is consumed by
+<tt>fossil</tt> as soon as it can manage, with both programs working
+concurrently.
+
+For some reason, the current version of PowerShell included with Windows
+chokes on the conversion when the in-flight repository size exceeds
+available memory. We do not know why it buffers the entire stream
+emitted by "<tt>git fast-export</tt>" before sending it along to Fossil,
+but we've seen the problem recur on multiple machines.
+
+While one workaround is to fall back to <tt>cmd.exe</tt> — which doesn't
+seem to be affected by this problem — we instead recommend using
+Mirosoft's own [https://learn.microsoft.com/en-us/windows/wsl/ | Windows
+Subsystem for Linux] or either of the two popular "Git for Windows"
+distributions based on MSYS2. They handle pipes the POSIX way, avoiding
+any dependency on the amount of data involved.
 
 <h2>Fossil → Git</h2>
 

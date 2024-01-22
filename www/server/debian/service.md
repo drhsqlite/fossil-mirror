@@ -1,17 +1,43 @@
 # Serving via systemd on Debian and Ubuntu
 
-[`systemd`][sdhome] is the default service management framework on
-Debian [since version 8][wpa] and Ubuntu since version 15.04, both
-released in April 2015.
-
-There are multiple ways to get a service to launch under `systemd`.
-We’re going to show two methods which correspond approximately to two of
-our generic Fossil server setup methods, the [`inetd`](../any/inetd.md)
-and [standalone HTTP server](../any/none.md) methods.
+[`systemd`][sdhome] is the service management framework in all major
+in-support versions of Linux.  There are multiple ways to run Fossil
+under `systemd`.
 
 [sdhome]: https://www.freedesktop.org/wiki/Software/systemd/
 [wpa]:    https://en.wikipedia.org/wiki/Systemd#Adoption
 
+
+## Containerized Service
+
+Two of the methods for running [containerized Fossil][cntdoc] integrate
+with `systemd`, potentially obviating the more direct methods below:
+
+*   If you take [the Podman method][podman] of running containerized
+    Fossil, it opens the `podman generate systemd` option for you, as
+    exemplified in [the `fslsrv` script][fslsrv] used on this author’s
+    public Fossil-based web site. That script pulls its container images
+    from [my Docker Hub repo][dhrepo] to avoid the need for my public
+    Fossil server to have build tools and a copy of the Fossil source
+    tree. You’re welcome to use my images as-is, or you may use these
+    tools to bounce custom builds up through a separate container image
+    repo you manage.
+
+*   If you’re willing to give up [a lot of features][nsweak] relative to
+    Podman, and you’re willing to tolerate a lot more manual
+    administrivia, [the nspawn method][nspawn] has a lot less overhead,
+    being a direct feature of `systemd` itself.
+
+Both of these options provide [better security][cntsec] than running
+Fossil directly under `systemd`, among [other benefits][cntdoc].
+
+[cntdoc]: ../../containers.md
+[cntsec]: ../../containers.md#security
+[dhrepo]: https://hub.docker.com/r/tangentsoft/fossil
+[fslsrv]: https://tangentsoft.com/fossil/dir?name=bin
+[nspawn]: ../../containers.md#nspawn
+[nsweak]: ../../containers.md#nspawn-weaknesses
+[podman]: ../../containers.md#podman
 
 
 ## User Service
@@ -48,15 +74,19 @@ user and group to run this service as, because we’ve installed it
 under the account we’re logged into, which `systemd` will use as the
 service’s owner.
 
-We’ve told `systemd` that we want automatic service restarts with
-back-off logic, making this much more robust than the by-hand launches
-of `fossil` in the platform-independent Fossil server instructions.  The
-service will stay up until we explicitly tell it to shut down.
+The result is essentially [the standalone server method](../any/none.md)
+coupled with an intelligent service manager that will start it
+automatically in the background on system boot, perform automatic
+service restarts with back-off logic, and more, making this much more
+robust than the by-hand launches of `fossil` in the platform-independent
+Fossil server instructions.  The service will stay up until we
+explicitly tell it to shut down.
 
-A simple and useful modification to the above scheme is to add the
-`--scgi` and `--localhost` flags to the `ExecStart` line to replace the
-use of `fslsrv` in [the generic SCGI instructions](../any/scgi.md),
-giving a much more robust configuration.
+This scheme couples well with [the generic SCGI instructions][scgi] as
+it requires a way to run the underlying repository server in the
+background. Given that its service port is then proxied by SCGI, it
+follows that it doesn’t need to run as a system service. A user service
+works perfectly well for this.
 
 Because we’ve set this up as a user service, the commands you give to
 manipulate the service vary somewhat from the sort you’re more likely to
@@ -86,21 +116,29 @@ allow background services to continue to run after logout, say:
 You can paste the command just like that into your terminal, since
 `$USER` will expand to your login name.
 
+[scgi]: ../any/scgi.md
+
 
 
 ### System Service Alternative
 
-There are a couple of common reasons that you’d have cause to install
+There are some common reasons that you’d have good cause to install
 Fossil as a system-level service rather than the prior user-level one:
 
-*   You need Fossil to listen on a TCP port under 1024, such as because
-    you’re running it on a private LAN, and the server has no other HTTP
-    service, so you want Fossil to handle the web traffic directly.
+*   You’re using [the new `fossil server --cert` feature][sslsrv] to get
+    TLS service and want it to listen directly on port 443, rather than be
+    proxied, as one had to do before Fossil got the ability to act as a
+    TLS server itself.  That requires root privileges, so you can’t run
+    it as a user-level service.
 
-*   You’re proxying Fossil with a system-level service such as
-    [nginx](./nginx.md), so you need to put Fossil into the system-level
-    service dependency chain to make sure things start up and shut down
-    in the proper order.
+*   You’re proxying Fossil with [nginx](./nginx.md) or similar, allowing
+    it to bind to high-numbered ports, but because it starts as a system
+    service, you can’t get Fossil into the same dependency chain to
+    ensure things start up and shut down in the proper order unless it
+    *also* runs as a system service.
+
+*   You want to make use of Fossil’s [chroot jail feature][cjail], which
+    requires the server to start as root.
 
 There are just a small set of changes required:
 
@@ -114,14 +152,16 @@ There are just a small set of changes required:
     Fossil runs as a normal user, preferably one with access only to
     the Fossil repo files, rather than running as `root`.
 
+[sslsrv]: ../../ssl-server.md
+[cjail]:  ../../chroot.md
+
 
 ## Socket Activation
 
 Another useful method to serve a Fossil repo via `systemd` is via a
-socket listener, which `systemd` calls “[socket activation][sa].”
-It’s more complicated, but it has some nice properties.  It is the
-feature that allows `systemd` to replace `inetd`, `xinetd`, Upstart, and
-several other competing technologies.
+socket listener, which `systemd` calls “[socket activation][sa],”
+roughly equivalent to [the ancient `inetd` method](../any/inetd.md).
+It’s more complicated, but it has some nice properties.
 
 We first need to define the privileged socket listener by writing
 `/etc/systemd/system/fossil.socket`:
@@ -165,13 +205,11 @@ Next, create the service definition file in that same directory as
     WantedBy=multi-user.target
 ```
 
-We’ll explain the “`@`” in the file name below.
-
 Notice that we haven’t told `systemd` which user and group to run Fossil
 under. Since this is a system-level service definition, that means it
 will run as root, which then causes Fossil to [automatically drop into a
 `chroot(2)` jail](../../chroot.md) rooted at the `WorkingDirectory`
-we’ve configured above, shortly each `fossil http` call starts.
+we’ve configured above, shortly after each `fossil http` call starts.
 
 The `Restart*` directives we had in the user service configuration above
 are unnecessary for this method, since Fossil isn’t supposed to remain

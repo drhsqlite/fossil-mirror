@@ -33,7 +33,7 @@
 ** By default, this command only shows unpublished check-ins.  To show
 ** all unpublished artifacts, use the --all command-line option.
 **
-** OPTIONS:
+** Options:
 **     --all                   Show all artifacts, not just check-ins
 */
 void unpublished_cmd(void){

@@ -261,6 +261,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
     @ <form method="POST" data-action='%s(zLink)' action='%R/login' \
     @ %s(zOtherArgs)>
   }
+  login_insert_csrf_secret();
 }
 
 /*
@@ -609,8 +610,8 @@ char *style_csp(int toHeader){
   char *zCsp;
   int i;
   if( disableCSP ) return fossil_strdup("");
-  zFormat = db_get("default-csp","");
-  if( zFormat[0]==0 ){
+  zFormat = db_get("default-csp",0);
+  if( zFormat==0 ){
     zFormat = zBackupCSP;
   }
   blob_init(&csp, 0, 0);
@@ -650,13 +651,13 @@ static const char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <meta charset="UTF-8">
-@ <base href="$baseurl/$current_page" />
-@ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
+@ <base href="$baseurl/$current_page">
+@ <meta http-equiv="Content-Security-Policy" content="$default_csp">
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
-@  href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
+@  href="$home/timeline.rss">
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css">
 @ </head>
 @ <body class="$current_feature rpage-$requested_page cpage-$canonical_page">
 ;
@@ -732,7 +733,7 @@ void style_set_current_feature(const char* zFeature){
 ** setting, or style_default_mainmenu(), in that order, returning the
 ** first of those which is defined.
 */
-const char*style_get_mainmenu(){
+const char *style_get_mainmenu(){
   static const char *zMenu = 0;
   if(!zMenu){
     if(g.zMainMenuFile){
@@ -796,7 +797,7 @@ static void style_init_th1_vars(const char *zTitle){
   if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
       g.ftntsIssues[2] || g.ftntsIssues[3] ){
     char buf[80];
-    sprintf(&buf[0],"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
+    sqlite3_snprintf(sizeof(buf),buf,"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
                                   g.ftntsIssues[2],g.ftntsIssues[3]);
     Th_Store("footnotes_issues_counters", buf);
   }
@@ -819,16 +820,16 @@ void style_header(const char *zTitleFormat, ...){
 
   @ <!DOCTYPE html>
 
-  if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_HEADER<br>\n", -1);
 
   /* Generate the header up through the main menu */
   style_init_th1_vars(zTitle);
   if( sqlite3_strlike("%<body%", zHeader, 0)!=0 ){
     Th_Render(zDfltHeader);
   }
-  if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br>\n", -1);
   Th_Render(zHeader);
-  if( g.thTrace ) Th_Trace("END_HEADER<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_HEADER<br>\n", -1);
   Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
   g.cgiOutput = 1;
@@ -836,7 +837,7 @@ void style_header(const char *zTitleFormat, ...){
   sideboxUsed = 0;
   if( g.perm.Debug && P("showqp") ){
     @ <div class="debug">
-    cgi_print_all(0, 0);
+    cgi_print_all(0, 0, 0);
     @ </div>
   }
 }
@@ -997,7 +998,8 @@ void style_finish_page(){
         style_derive_classname(p->zLabel, zClass, sizeof zClass);
         /* switching away from the %h formatting below might be dangerous
         ** because some places use %s to compose zLabel and zLink;
-        ** e.g. /rptview page.  "sml" stands for submenu link.
+        ** e.g. /rptview page and the submenuCmd() function.
+        ** "sml" stands for submenu link.
         */
         if( p->zLink==0 ){
           @ <span class="label sml-%s(zClass)">%h(p->zLabel)</span>
@@ -1122,13 +1124,13 @@ void style_finish_page(){
   if( sqlite3_strlike("%</body>%", zFooter, 0)==0 ){
     style_load_all_js_files();
   }
-  if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br>\n", -1);
   Th_Render(zFooter);
-  if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_FOOTER<br>\n", -1);
 
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
-    cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
+    cgi_append_content("<span class=\"thTrace\"><hr>\n", -1);
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
     cgi_append_content("</span>\n", -1);
   }
@@ -1139,9 +1141,7 @@ void style_finish_page(){
     @ </body>
     @ </html>
   }
-  /* Update the user display prefs cookie if it was modified during
-  ** this request.
-  */
+  /* Update the user display prefs cookie if it was modified */
   cookie_render();
 }
 
@@ -1432,39 +1432,73 @@ void webpage_error(const char *zFormat, ...){
 
   if( isAuth ){
   #if !defined(_WIN32)
-    @ uid=%d(getuid()), gid=%d(getgid())<br />
+    @ uid=%d(getuid()), gid=%d(getgid())<br>
   #endif
-    @ g.zBaseURL = %h(g.zBaseURL)<br />
-    @ g.zHttpsURL = %h(g.zHttpsURL)<br />
-    @ g.zTop = %h(g.zTop)<br />
-    @ g.zPath = %h(g.zPath)<br />
-    @ g.userUid = %d(g.userUid)<br />
-    @ g.zLogin = %h(g.zLogin)<br />
-    @ g.isHuman = %d(g.isHuman)<br />
-    @ g.jsHref = %d(g.jsHref)<br />
+    @ g.zBaseURL = %h(g.zBaseURL)<br>
+    @ g.zHttpsURL = %h(g.zHttpsURL)<br>
+    @ g.zTop = %h(g.zTop)<br>
+    @ g.zPath = %h(g.zPath)<br>
+    @ g.userUid = %d(g.userUid)<br>
+    @ g.zLogin = %h(g.zLogin)<br>
+    @ g.isHuman = %d(g.isHuman)<br>
+    @ g.jsHref = %d(g.jsHref)<br>
+    if( g.zLocalRoot ){
+      @ g.zLocalRoot = %h(g.zLocalRoot)<br>
+    }else{
+      @ g.zLocalRoot = <i>none</i><br>
+    }
     if( g.nRequest ){
-      @ g.nRequest = %d(g.nRequest)<br />
+      @ g.nRequest = %d(g.nRequest)<br>
     }
     if( g.nPendingRequest>1 ){
-      @ g.nPendingRequest = %d(g.nPendingRequest)<br />
+      @ g.nPendingRequest = %d(g.nPendingRequest)<br>
     }
-    @ capabilities = %s(find_capabilities(zCap))<br />
+    @ capabilities = %s(find_capabilities(zCap))<br>
     if( zCap[0] ){
-      @ anonymous-adds = %s(find_anon_capabilities(zCap))<br />
+      @ anonymous-adds = %s(find_anon_capabilities(zCap))<br>
     }
-    @ g.zRepositoryName = %h(g.zRepositoryName)<br />
-    @ load_average() = %f(load_average())<br />
+    @ g.zRepositoryName = %h(g.zRepositoryName)<br>
+    @ load_average() = %f(load_average())<br>
 #ifndef _WIN32
-    @ RSS = %.2f(fossil_rss()/1000000.0) MB</br />
+    @ RSS = %.2f(fossil_rss()/1000000.0) MB</br>
 #endif
-    @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
-    @ fossil_exe_id() = %h(fossil_exe_id())<br />
-    @ <hr />
+    (void)cgi_csrf_safe(2);
+    switch( g.okCsrf ){
+      case 1: {
+         @ CSRF safety = Same origin<br>
+         break;
+      }
+      case 2: {
+         @ CSRF safety = Same origin, POST<br>
+         break;
+      }
+      case 3: {
+         @ CSRF safety = Same origin, POST, CSRF token<br>
+         break;
+      }
+      default: {
+         @ CSRF safety = unsafe<br>
+         break;
+      }
+    }
+    
+    @ fossil_exe_id() = %h(fossil_exe_id())<br>
+    if( g.perm.Admin ){
+      int k;
+      for(k=0; g.argvOrig[k]; k++){
+        Blob t;
+        blob_init(&t, 0, 0);
+        blob_append_escaped_arg(&t, g.argvOrig[k], 0);
+        @ argv[%d(k)] = %h(blob_str(&t))<br>
+        blob_zero(&t);
+      }
+    }
+    @ <hr>
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
-    cgi_print_all(showAll, 0);
+    cgi_print_all(showAll, 0, 0);
     if( showAll && blob_size(&g.httpHeader)>0 ){
-      @ <hr />
+      @ <hr>
       @ <pre>
       @ %h(blob_str(&g.httpHeader))
       @ </pre>

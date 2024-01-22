@@ -134,6 +134,11 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
         blob_append(p, "&#39;", 5);
         j = i+1;
         break;
+      case '\r':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, " ", 1);
+        j = i+1;
+        break;
     }
   }
   if( j<i ) blob_append(p, zIn+j, i-j);
@@ -209,7 +214,7 @@ char *urlize(const char *z, int n){
 }
 
 /*
-** If input string does not contain quotes (niether ' nor ")
+** If input string does not contain quotes (neither ' nor ")
 ** then return the argument itself. Otherwise return a newly allocated
 ** copy of input with all quotes %-escaped.
 */
@@ -705,7 +710,7 @@ int validate16(const char *zIn, int nIn){
   int i;
   if( nIn<0 ) nIn = (int)strlen(zIn);
   if( zIn[nIn]==0 ){
-    return strspn(zIn,"0123456789abcdefABCDEF")==nIn;
+    return (int)strspn(zIn,"0123456789abcdefABCDEF")==nIn;
   }
   for(i=0; i<nIn; i++, zIn++){
     if( zDecode[zIn[0]&0xff]>63 ){

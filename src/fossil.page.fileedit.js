@@ -72,7 +72,13 @@
         P = F.page;
 
   P.config = {
-    defaultMaxStashSize: 7
+    defaultMaxStashSize: 7,
+    /**
+       See notes for this setting in fossil.page.wikiedit.js. Both
+       /wikiedit and /fileedit share this persistent config option
+       under the same storage key.
+    */
+    shiftEnterPreview: F.storage.getBool('edit-shift-enter-preview', true)
   };
 
   /**
@@ -572,7 +578,7 @@
       });
     }
   }/*P.stashWidget*/;
-  
+
   /**
      Internal workaround to select the current preview mode
      and fire a change event if the value actually changes
@@ -726,7 +732,7 @@
     // Trigger preview on Ctrl-Enter. This only works on the built-in
     // editor widget, not a client-provided one.
     P.e.taEditor.addEventListener('keydown',function(ev){
-      if(ev.shiftKey && 13 === ev.keyCode){
+      if(P.config.shiftEnterPreview && ev.shiftKey && 13===ev.keyCode){
         ev.preventDefault();
         ev.stopPropagation();
         P.e.taEditor.blur(/*force change event, if needed*/);
@@ -847,6 +853,13 @@
     P.stashWidget.init(
       P.e.tabs.content.lastElementChild
     );
+
+    const cbEditPreview = E('#edit-shift-enter-preview');
+    cbEditPreview.addEventListener('change', function(e){
+      F.storage.set('edit-shift-enter-preview',
+                    P.config.shiftEnterPreview = e.target.checked);
+    }, false);
+    cbEditPreview.checked = P.config.shiftEnterPreview;
   }/*F.onPageLoad()*/);
 
   /**
@@ -1163,7 +1176,7 @@
       F.pikchr.addSrcView(target.querySelectorAll('svg.pikchr'));
     }
   };
-  
+
   /**
      Callback for use with F.connectPagePreviewers()
   */

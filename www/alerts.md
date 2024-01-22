@@ -368,11 +368,12 @@ it is important to give this option if your MTA treats leading dots on a
 line this way.
 
 <a id="msmtp"></a>
-We believe the [`msmtp`][msmtp] SMTP client is compatible with this
-protocol if you give it the `-t` option. To our knowledge, this remains
-untested, but if it works, this would be a useful option on a server
+The [`msmtp`][msmtp] SMTP client is compatible with this
+protocol if you give it the `-t` option. It’s a useful option on a server
 hosting a Fossil repository which doesn't otherwise require a separate
-SMTP server for other purposes.
+SMTP server for other purposes, such as because you’ve got a separate
+provider for your email and merely need a way to let Fossil feed
+messages into it.
 
 It is probably also possible to configure [`procmail`][pmdoc] to work
 with this protocol. If you know how to do it, a patch to this document

@@ -411,8 +411,8 @@ static void win32_http_request(void *pAppData){
   }
 
   /*
-  ** The repository name is only needed if there was no open checkout.  This
-  ** is designed to allow the open checkout for the interactive user to work
+  ** The repository name is only needed if there was no open check-out.  This
+  ** is designed to allow the open check-out for the interactive user to work
   ** with the local Fossil server started via the "ui" command.
   */
   zIp = SocketAddr_toString(&p->addr);
@@ -572,6 +572,8 @@ void win32_http_server(
   int iPort = mnPort;
   Blob options;
   wchar_t zTmpPath[MAX_PATH];
+  char *zTempSubDirPath;
+  const char *zTempSubDir = "fossil";
   const char *zSkin;
 #if USE_SEE
   const char *zSavedKey = 0;
@@ -625,7 +627,7 @@ void win32_http_server(
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();
   savedKeySize = db_get_saved_encryption_key_size();
-  if( zSavedKey!=0 && savedKeySize>0 ){
+  if( db_is_valid_saved_encryption_key(zSavedKey, savedKeySize) ){
     blob_appendf(&options, " --usepidkey %lu:%p:%u", GetCurrentProcessId(),
                  zSavedKey, savedKeySize);
   }
@@ -663,6 +665,12 @@ void win32_http_server(
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_panic("unable to get path to the temporary directory.");
   }
+  /* Use a subdirectory for temp files (can then be excluded from virus scan) */
+  zTempSubDirPath = mprintf("%s%s\\",fossil_path_to_utf8(zTmpPath),zTempSubDir);
+  if ( !file_mkdir(zTempSubDirPath, ExtFILE, 0) ||
+        file_isdir(zTempSubDirPath, ExtFILE)==1 ){
+    wcscpy(zTmpPath, fossil_utf8_to_path(zTempSubDirPath, 1));
+  }  
   if( g.fHttpTrace ){
     zTempPrefix = mprintf("httptrace");
   }else{
@@ -1030,7 +1038,7 @@ int win32_http_service(
 **
 **              Specifies the name of the repository to be served.
 **              The repository option may be omitted if the working directory
-**              is within an open checkout.
+**              is within an open check-out.
 **              The REPOSITORY can be a directory (aka folder) that contains
 **              one or more repositories with names ending in ".fossil".
 **              In that case, the first element of the URL is used to select

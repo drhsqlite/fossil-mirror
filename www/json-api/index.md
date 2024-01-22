@@ -30,6 +30,7 @@ The APIs, alphabetically by category:
 * [File Info](api-finfo.md)
 * [The Obligatory Misc. Category](api-misc.md)
 * [Repository Stats](api-stat.md)
+* [Settings](api-settings.md)
 * [SQL Query](api-query.md)
 * [Tags](api-tag.md)
 * [Tickets](api-ticket.md)

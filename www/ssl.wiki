@@ -19,11 +19,10 @@ in different ways. Those are the subjects of the next two major
 sections.
 
 
-<h2 id="client">Fossil TLS Configuration: Client Side</h2>
+<h2 id="client">Client-Side Configuration</h2>
 
-Fossil itself has built-in support for TLS on the client side only. That
-is to say, you can build it against [https://www.openssl.org/|the
-OpenSSL library], which will allow it to clone and sync with a remote
+You can build Fossil against [https://www.openssl.org/ |
+OpenSSL] to allow it to clone and sync with a remote
 Fossil repository via <tt>https</tt> URIs.
 
 
@@ -38,7 +37,7 @@ If it can't find the files it needs, the most common solution is to
 install the OpenSSL development package on your system via your OS's
 package manager. Examples:
 
-  *  <b>RHEL & Fedora</b>: <tt>sudo yum install openssl-devel</tt>
+  *  <b>RHEL & Fedora</b>: <tt>sudo dnf install openssl-devel</tt>
   *  <b>Debian & Ubuntu</b>: <tt>sudo apt install libssl-dev</tt>
   *  <b>FreeBSD</b>: <tt>su -c 'pkg install openssl'</tt>
   *  <b>macOS</b>: <tt>sudo brew install openssl</tt>
@@ -143,11 +142,12 @@ In older versions, the message was much longer and began with this line:
 Fossil relies on the OpenSSL library to have some way to check a trusted
 list of CA signing keys. There are two common ways this fails:
 
-  #  <p>The OpenSSL library Fossil is linked to doesn't have a CA
+  #  The OpenSSL library Fossil is linked to doesn't have a CA
      signing key set at all, so that it initially trusts no certificates
-     at all.</p>
-  #  <p>The OpenSSL library does have a CA cert set, but your Fossil server's
-     TLS certificate was signed by a CA that isn't in that set.</p>
+     at all.
+
+  #  The OpenSSL library does have a CA cert set, but your Fossil server's
+     TLS certificate was signed by a CA that isn't in that set.
 
 A common reason to fall into the second trap is that you're using
 certificates signed by a local private CA, as often happens in large
@@ -226,15 +226,15 @@ certificate, but don't provide one, fossil will show an error message
 which explains what to do to authenticate with the server.
 
 
-<h2 id="server">Fossil TLS Configuration: Server Side</h2>
+<h2 id="server">Server-Side Configuration</h2>
 
-Fossil's built-in HTTP server feature did not add [./ssl-server.md|support HTTP over TLS]
-(a.k.a. HTTPS) until version 2.18 (early 2022).  Prior to that, system
-administrators that wanted to add HTTPS support to a Fossil server had
-to put Fossil behind a web-server or reverse-proxy that would do the
-HTTPS to HTTP translation.  [./server/ | Instructions for doing so]
-are found elsewhere in this documentation.  A few of the most useful
-of these are:
+Fossil's built-in HTTP server got [./ssl-server.md | TLS support] in
+December 2021, released as version 2.18 in early 2022.  Prior to that,
+system administrators that wanted to add TLS support to a Fossil server
+had to put it behind a reverse proxy that would do the translation.
+Since advantages remain for delegating TLS to another layer in the
+stack, instructions for doing so continue to be included in our
+documentation, such as:
 
   *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
   *  <a id="althttpd" href="./server/any/althttpd.md">Serving via stunnel + althttpd</a>
@@ -275,22 +275,24 @@ detects it's in a redirect loop and gives up. This problem prevents you
 from getting back into the Admin UI to fix it, but there are several
 ways to fix it:
 
-  #  <p><b>Reset via CLI.</b> You can turn the setting back off from the
+  #  <b>Reset via CLI.</b> You can turn the setting back off from the
      CLI with the command "<tt>fossil -R /path/to/repo.fossil set
-     redirect-to-https 0</tt>". (Currently doesn't work.)</p>
-  #  <p><b>Backup first.</b> This setting is stored in the Fossil
+     redirect-to-https 0</tt>". (Currently doesn't work.)
+
+  #  <b>Backup first.</b> This setting is stored in the Fossil
      repository, so if you make a backup first <i>on the server</i>, you
      can restore the repo file if enabling this feature creates a
-     redirect loop.</p>
-  #  <p><b>Download, fix, and restore.</b> You can copy the remote
+     redirect loop.
+
+  #  <b>Download, fix, and restore.</b> You can copy the remote
      repository file down to a local machine, use <tt>fossil ui</tt> to
      fix the setting, and then upload it to the repository server
-     again.</p>
+     again.
 
 It's best to enforce TLS-only access at the front-end proxy level
 anyway. It not only avoids the problem entirely, it can be significantly
-more secure.  The [server/debian/nginx.md#tls | nginx-on-Debian proxy guide] shows one way
-to achieve this.</p>
+more secure.  The [./server/debian/nginx.md#tls | nginx-on-Debian proxy guide] shows one way
+to achieve this.
 
 
 <h2>Terminology Note</h2>
@@ -305,7 +307,7 @@ Some people still use the term "SSL" when they actually mean "TLS," but
 in the Fossil project, we always use "TLS" except when we must preserve
 some sort of historical compatibility, as with this document's name in
 order to avoid broken external URLs.  The Fossil TLS-related settings
-also often use "<tt>ssl</tt>" in their names, for the same reason.
+also often use "<tt>ssl</tt>" in their names for the same reason.
 
 This series of protocols is also called "HTTPS" after the URI scheme
 used to specify "HTTP over TLS."

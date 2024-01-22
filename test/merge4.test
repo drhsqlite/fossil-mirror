@@ -20,20 +20,20 @@
 
 test_setup ""
 
-proc merge-test {testid basis v1 v2 result1 result2} {
+proc merge-test {testid basis v1 v2 result1 result2 {fossil_args ""}} {
   write_file t1 [join [string trim $basis] \n]\n
   write_file t2 [join [string trim $v1] \n]\n
   write_file t3 [join [string trim $v2] \n]\n
-  fossil 3-way-merge t1 t2 t3 t4
-  fossil 3-way-merge t1 t3 t2 t5
+  fossil 3-way-merge t1 t2 t3 t4 {*}$fossil_args
+  fossil 3-way-merge t1 t3 t2 t5 {*}$fossil_args
   set x [read_file t4]
-  regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<<} $x {>} x
-  regsub -all {\|\|\|\|\|\|\|.*=======} $x {=} x
+  regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<< \(line \d+\)} $x {>} x
+  regsub -all {\|\|\|\|\|\|\|.*======= \(line \d+\)} $x {=} x
   regsub -all {>>>>>>> END MERGE CONFLICT.*>>>>} $x {<} x
   set x [split [string trim $x] \n]
   set y [read_file t5]
-  regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<<} $y {>} y
-  regsub -all {\|\|\|\|\|\|\|.*=======} $y {=} y
+  regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<< \(line \d+\)} $y {>} y
+  regsub -all {\|\|\|\|\|\|\|.*======= \(line \d+\)} $y {=} y
   regsub -all {>>>>>>> END MERGE CONFLICT.*>>>>} $y {<} y
   set y [split [string trim $y] \n]
   set result1 [string trim $result1]
@@ -63,7 +63,7 @@ merge-test 1000 {
   1 > 2b 3b 4b 5 6b 7b 8b = 2 3 4c 5c 6c 7 8 < 9
 } {
   1 > 2 3 4c 5c 6c 7 8 = 2b 3b 4b 5 6b 7b 8b < 9
-}
+} -expectError
 merge-test 1001 {
   1 2 3 4 5 6 7 8 9
 } {
@@ -85,7 +85,7 @@ merge-test 1002 {
   > 2b 3b 4b 5 6b 7b 8b = 2 3 4c 5c 6c 7 8 <
 } {
   > 2 3 4c 5c 6c 7 8 = 2b 3b 4b 5 6b 7b 8b <
-}
+} -expectError
 merge-test 1003 {
   2 3 4 5 6 7 8
 } {

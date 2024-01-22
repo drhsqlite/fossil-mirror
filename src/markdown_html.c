@@ -232,7 +232,7 @@ static void html_header(
 
 static void html_hrule(struct Blob *ob, void *opaque){
   INTER_BLOCK(ob);
-  blob_append_literal(ob, "<hr />\n");
+  blob_append_literal(ob, "<hr>\n");
 }
 
 
@@ -404,7 +404,7 @@ static int html_footnote_ref(
   assert( locus > 0 );
   /* expect BUGs if the following yields compiler warnings */
   if( iMark > 0 ){      /* a regular reference to a footnote */
-    sprintf(pos, "%s-%d-%s", ctx->unique.c, iMark, l.c);
+    sqlite3_snprintf(sizeof(pos), pos, "%s-%d-%s", ctx->unique.c, iMark, l.c);
     if(span && blob_size(span)) {
       blob_append_literal(ob,"<span class='");
       append_footnote_upc(ob, upc, 0);
@@ -427,7 +427,7 @@ static int html_footnote_ref(
   }else{              /* misreference */
     assert( iMark == -1 );
 
-    sprintf(pos, "%s-%s", ctx->unique.c, l.c);
+    sqlite3_snprintf(sizeof(pos), pos, "%s-%s", ctx->unique.c, l.c);
     if(span && blob_size(span)) {
       blob_appendf(ob, "<span class='notescope' id='misref%s'>", pos);
       blob_appendb(ob, span);
@@ -487,7 +487,7 @@ static void html_footnote_item(
     assert( text );
     /* allow blob_size(text)==0 for constructs like  [...](^ [] ())  */
     memset(pos,0,24);
-    sprintf(pos, "%s-%d", unique, iMark);
+    sqlite3_snprintf(sizeof(pos), pos, "%s-%d", unique, iMark);
     blob_appendf(ob, "<li id='footnote%s' class='", pos);
     if( nUsed ){
       if( blob_size(text)>=_jfi_sz &&
@@ -760,12 +760,12 @@ static int html_image(
     blob_append_literal(ob, "\" title=\"");
     html_quote(ob, blob_buffer(title), blob_size(title));
   }
-  blob_append_literal(ob, "\" />");
+  blob_append_literal(ob, "\">");
   return 1;
 }
 
 static int html_linebreak(struct Blob *ob, void *opaque){
-  blob_append_literal(ob, "<br />\n");
+  blob_append_literal(ob, "<br>\n");
   return 1;
 }
 

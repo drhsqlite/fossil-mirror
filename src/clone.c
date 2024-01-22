@@ -110,7 +110,7 @@ void delete_private_content(void){
 ** of "/", and "%3a" in place of ":".
 **
 ** Note that in Fossil (in contrast to some other DVCSes) a repository
-** is distinct from a checkout.  Cloning a repository is not the same thing
+** is distinct from a check-out.  Cloning a repository is not the same thing
 ** as opening a repository.  This command always clones the repository.  This
 ** command might also open the repository, but only if the --no-open option
 ** is omitted and either the --workdir option is included or the FILENAME
@@ -126,18 +126,18 @@ void delete_private_content(void){
 **    -A|--admin-user USERNAME   Make USERNAME the administrator
 **    -B|--httpauth USER:PASS    Add HTTP Basic Authorization to requests
 **    --nested                   Allow opening a repository inside an opened
-**                               checkout
+**                               check-out
 **    --nocompress               Omit extra delta compression
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
 **    --save-http-password       Remember the HTTP password without asking
-**    --ssh-command|-c SSH       Use SSH as the "ssh" command
+**    -c|--ssh-command SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
 **    --transport-command CMD    Use CMD to move messages to the server and back
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
-**    --workdir DIR              Also open a checkout in DIR
+**    --workdir DIR              Also open a check-out in DIR
 **
 ** See also: [[init]], [[open]]
 */
@@ -163,7 +163,12 @@ void clone_cmd(void){
     urlFlags |= URL_REMEMBER_PW;
   }
   if( find_option("verbose","v",0)!=0) syncFlags |= SYNC_VERBOSE;
-  if( find_option("unversioned","u",0)!=0 ) syncFlags |= SYNC_UNVERSIONED;
+  if( find_option("unversioned","u",0)!=0 ){
+    syncFlags |= SYNC_UNVERSIONED;
+    if( syncFlags & SYNC_VERBOSE ){
+      syncFlags |= SYNC_UV_TRACE;
+    }
+  }
   zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
   zWorkDir = find_option("workdir", 0, 1);
@@ -197,7 +202,7 @@ void clone_cmd(void){
   if( -1 != file_size(zRepo, ExtFILE) ){
     fossil_fatal("file already exists: %s", zRepo);
   }
-  /* Fail before clone if open will fail because inside an open checkout */
+  /* Fail before clone if open will fail because inside an open check-out */
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
     if( db_open_local_v2(0, allowNested) ){
       fossil_fatal("there is already an open tree at %s", g.zLocalRoot);
@@ -276,9 +281,17 @@ void clone_cmd(void){
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(1, 0);
   if( !noCompress ){
+    int nDelta = 0;
+    i64 nByte;
     fossil_print("Extra delta compression... "); fflush(stdout);
-    extra_deltification();
-    fossil_print("\n");
+    nByte = extra_deltification(&nDelta);
+    if( nDelta==1 ){
+      fossil_print("1 delta saves %,lld bytes\n", nByte);
+    }else if( nDelta>1 ){
+      fossil_print("%d deltas save %,lld bytes\n", nDelta, nByte);
+    }else{
+      fossil_print("none found\n");
+    }
   }
   db_end_transaction(0);
   fossil_print("Vacuuming the database... "); fflush(stdout);
@@ -293,6 +306,7 @@ void clone_cmd(void){
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  hash_user_password(g.zLogin);
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
     Blob cmd;
     fossil_print("opening the new %s repository in directory %s...\n",
@@ -387,6 +401,7 @@ void clone_ssh_db_set_options(void){
 */
 void download_page(void){
   login_check_credentials();
+  cgi_check_for_malice();
   style_header("Download Page");
   if( !g.perm.Zip ){
     @ <p>Bummer.  You do not have permission to download.

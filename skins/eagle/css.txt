@@ -212,6 +212,16 @@ table.timelineTable {
   background: #fff;
 }
 
+/* closed leaf commit marker */
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #fff;
+}
+
 /* up arrow */
 .tl-arrow.u {
   margin-top: -1px;
@@ -401,6 +411,9 @@ div.forumSel {
 div.forumObs {
   color: white;
 }
+body.forum .forumPosts.fileage a:visited {
+  color: rgba(176,176,176,1.0);
+}
 
 .fileage td {
   font-family: "courier new";
@@ -415,7 +428,12 @@ table.numbered-lines td.line-numbers span.selected-line {
 }
 
 .statistics-report-graph-line {
+  border: 2px solid #7EA2D9;
   background-color: #7EA2D9;
+}
+.statistics-report-graph-extra {
+  border: 2px solid #7EA2D9;
+  border-left-style: none;
 }
 
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {

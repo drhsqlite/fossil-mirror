@@ -131,7 +131,7 @@ static int sslctx_use_cert_from_mem(
 
   in = BIO_new_mem_buf(pData, nData);
   if( in==0 ) goto end_of_ucfm;
-  // x = X509_new_ex(ctx->libctx, ctx->propq);
+  /* x = X509_new_ex(ctx->libctx, ctx->propq); */
   x = X509_new();
   if( x==0 ) goto end_of_ucfm;
   cert = PEM_read_bio_X509(in, &x, 0, 0);
@@ -543,7 +543,7 @@ int ssl_open_client(UrlData *pUrlData){
     x = X509_digest(cert, EVP_sha1(), md, &mdLength);
 #endif
     if( x ){
-      int j;
+      unsigned j;
       for(j=0; j<mdLength && j*2+1<sizeof(zHash); ++j){
         zHash[j*2] = "0123456789abcdef"[md[j]>>4];
         zHash[j*2+1] = "0123456789abcdef"[md[j]&0xf];
@@ -917,7 +917,7 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 **                               confirmation.
 **
 **   show ?-v?                   Show the TLS configuration. Add -v to see
-**                               additional explaination
+**                               additional explanation
 */
 void test_tlsconfig_info(void){
   const char *zCmd;
@@ -1177,7 +1177,7 @@ void wellknown_page(void){
 
 wellknown_notfound:
   fossil_free(zPath);
-  webpage_notfound_error(0);
+  webpage_notfound_error(0 /*works-like:""*/);
   return;
 }
 

@@ -40,7 +40,7 @@
 ** TODO: in CLI mode (only) use -S FILENAME to read the sql
 ** from a file.
 */
-cson_value * json_page_query(){
+cson_value * json_page_query(void){
   char const * zSql = NULL;
   cson_value * payV;
   char const * zFmt;

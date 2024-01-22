@@ -180,7 +180,7 @@ static const struct {
   { "midi",       4, "audio/midi"                        },
   { "mif",        3, "application/x-mif"                 },
   { "mime",       4, "www/mime"                          },
-  { "mjs",        3, "text/javascript" /*EM6 modules*/   },
+  { "mjs",        3, "text/javascript" /*ES6 module*/    },
   { "mkd",        3, "text/x-markdown"                   },
   { "mov",        3, "video/quicktime"                   },
   { "movie",      5, "video/x-sgi-movie"                 },
@@ -461,7 +461,7 @@ const char *mimetype_from_name(const char *zName){
     if( zName[i]=='.' ) z = &zName[i+1];
   }
   len = strlen(z);
-  if( len<sizeof(zSuffix)-1 ){
+  if( len<(int)sizeof(zSuffix)-1 ){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     z = mimetype_from_name_custom(zSuffix);
@@ -652,8 +652,15 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 ** if the file is not found or could not be loaded.
 */
 int doc_load_content(int vid, const char *zName, Blob *pContent){
-  int writable = db_is_writeable("repository");
+  int writable;
   int rid;   /* The RID of the file being loaded */
+  if( db_is_protected(PROTECT_READONLY)
+   || !db_is_writeable("repository")
+  ){
+    writable = 0;
+  }else{
+    writable = 1;
+  }
   if( writable ){
     db_end_transaction(0);
     db_begin_write();
@@ -1014,7 +1021,7 @@ void doc_page(void){
     }else if( fossil_strcmp(zCheckin,"ckout")==0
            || fossil_strcmp(zCheckin,g.zCkoutAlias)==0
     ){
-      /* Read from the local checkout */
+      /* Read from the local check-out */
       char *zFullpath;
       db_must_be_within_tree();
       zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);
@@ -1046,6 +1053,7 @@ void doc_page(void){
     Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                     " WHERE objid=%d AND type='ci'", vid));
   }
+  cgi_check_for_malice();
   document_render(&filebody, zMime, zDfltTitle, zName);
   if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
@@ -1237,6 +1245,7 @@ void doc_search_page(void){
   const int isSearch = P("s")!=0;
   login_check_credentials();
   style_header("Document Search%s", isSearch ? " Results" : "");
+  cgi_check_for_malice();
   search_screen(SRCH_DOC, 0);
   style_finish_page();
 }

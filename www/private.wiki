@@ -52,6 +52,19 @@ private branch.  It's still possible to close the leaf of the private branch
 (after committing the merge child) with the <code>fossil amend --close</code>
 command.
 
+<blockquote><small>
+Side note: For the same reason, i.e. so as not to generate a missing artifact
+reference on peer repositories without the private branch, the merge parent
+is not recorded when merging the private branch into a public branch.  As a
+consequence, the web UI timeline does not draw a merge line from the private
+merge parent to the public merge child.  Moreover, repeat private-to-public
+merge operations (without the [/help?cmd=merge | --force option]) with files
+added on the private branch may only work once, but later abort with
+"WARNING: no common ancestor for FILE", as the parent-child relationship is
+not recorded (see the [/doc/trunk/www/branching.wiki | Branching, Forking,
+Merging, and Tagging] document for more information).
+</small></blockquote>
+
 <h2>Syncing Private Branches</h2>
 
 A private branch normally stays on the one repository where it was

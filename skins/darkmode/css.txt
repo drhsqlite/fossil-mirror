@@ -128,6 +128,10 @@ input[type=submit]:hover {
   color: rgba(24,24,24,0.8);
   outline: 0
 }
+input[type=submit]:disabled {
+  color: #363636;
+  background-color: #707070;
+}
 .button:focus,
 button:focus,
 input[type=button]:focus,
@@ -386,6 +390,14 @@ span.timelineSecondary {
   height: 4px;
   background: #bbb
 }
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #bbb;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;
@@ -558,14 +570,26 @@ body.forum .debug {
     color: rgba(24,24,24,0.8);
 }
 
-body.forum .fileage tr:hover {
+body.forum .forumPosts.fileage tr:hover {
     background-color: #333;
     color: rgba(24,24,24,0.8);
+}
+body.forum .forumPosts.fileage tr:hover {
+    background-color: #333;
+    color: rgba(24,24,24,0.8);
+}
+body.forum .forumPosts.fileage tr:hover > td:nth-child(1),
+body.forum .forumPosts.fileage tr:hover > td:nth-child(3) {
+  color: #ffffffe0;
 }
 
 body.forum .forumPostBody > div blockquote {
     border: 1px inset;
     padding: 0 0.5em;
+}
+
+body.forum .forumPosts.fileage a:visited {
+  color: rgba(98, 150, 205, 0.9);
 }
 
 body.report table.report tr td { color: black }

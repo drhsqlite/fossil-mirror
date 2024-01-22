@@ -23,7 +23,7 @@ To add a new skin:
         skins/newskin/footer.txt, skins/newskin/header.txt, and
         skins/newskin/js.txt. Be sure to "fossil add" these files.
 
-   3.   Go to the src/ directory and rerun "tclsh makemake.tcl".  This
+   3.   Go to the tools/ directory and rerun "tclsh makemake.tcl".  This
         step rebuilds the various makefiles so that they have dependencies
         on the skin files you just installed.
 

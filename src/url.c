@@ -63,11 +63,12 @@ struct UrlData {
   char *canonical;      /* Canonical representation of the URL */
   char *proxyAuth;      /* Proxy-Authorizer: string */
   char *fossil;         /* The fossil query parameter on ssh: */
+  char *pwConfig;       /* CONFIG table entry that gave us the password */
   unsigned flags;       /* Boolean flags controlling URL processing */
   int useProxy;         /* Used to remember that a proxy is in use */
-  char *proxyUrlPath;   /* Remember path when proxy is use */
+  int proxyOrigPort;       /* Tunneled port number for https through proxy */
+  char *proxyUrlPath;      /* Remember path when proxy is use */
   char *proxyUrlCanonical; /* Remember canonical path when proxy is use */
-  int proxyOrigPort;    /* Tunneled port number for https through proxy */
 };
 #endif /* INTERFACE */
 
@@ -89,13 +90,13 @@ struct UrlData {
 **      hostname    HOST:PORT or just HOST if port is the default.
 **      canonical   The URL in canonical form, omitting the password
 **
-** If zUrl==0 and URL_USE_CONFIG is set, then parse the URL stored
-** in last-sync-url and last-sync-pw of the CONFIG table.  Or if 
+** If URL_USECONFIG is set and zUrl is NULL or "default", then parse the
+** URL stored in last-sync-url and last-sync-pw of the CONFIG table.  Or if 
 ** URL_USE_PARENT is also set, then use parent-project-url and
 ** parent-project-pw from the CONFIG table instead of last-sync-url
 ** and last-sync-pw.
 **
-** If zUrl is a symbolic name and URL_USE_CONFIG is true, then look up
+** If URL_USE_CONFIG is set and zUrl is a symbolic name, then look up
 ** the URL in sync-url:%Q and sync-pw:%Q elements of the CONFIG table where
 ** %Q is the symbolic name.
 **
@@ -111,6 +112,7 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
+  pUrlData->pwConfig = 0;
   if( urlFlags & URL_USE_CONFIG ){
     if( zUrl==0 || strcmp(zUrl,"default")==0 ){
       const char *zPwConfig = "last-sync-pw";
@@ -127,13 +129,14 @@ void url_parse_local(
       if( zUrl==0 ) return;
       if( pUrlData->passwd==0 ){
         pUrlData->passwd = unobscure(db_get(zPwConfig, 0));
+        pUrlData->pwConfig = fossil_strdup(zPwConfig);
       }
       pUrlData->isAlias = 1;
     }else{
       char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
       char *zAlt = db_get(zKey, 0);
-      sqlite3_free(zKey);
       if( zAlt ){
+        pUrlData->pwConfig = mprintf("sync-pw:%q", zUrl);
         pUrlData->passwd = unobscure(
           db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
         );
@@ -143,6 +146,7 @@ void url_parse_local(
       }else{
         pUrlData->isAlias = 0;
       }
+      sqlite3_free(zKey);
     }
   }else{
     if( zUrl==0 ) return;
@@ -406,6 +410,7 @@ void url_unparse(UrlData *p){
   fossil_free(p->user);
   fossil_free(p->passwd);
   fossil_free(p->fossil);
+  fossil_free(p->pwConfig);
   memset(p, 0, sizeof(*p));
 }
 
@@ -427,6 +432,7 @@ void url_unparse(UrlData *p){
 **      g.url.passwd      Password.
 **      g.url.hostname    HOST:PORT or just HOST if port is the default.
 **      g.url.canonical   The URL in canonical form, omitting the password
+**      g.url.pwConfig    Name of CONFIG table entry containing the password
 **
 ** HTTP url format as follows (HTTPS is the same with a different scheme):
 **
@@ -436,6 +442,15 @@ void url_unparse(UrlData *p){
 **
 **     ssh://userid@host:port/path?fossil=path/to/fossil.exe
 **
+** If URL_USE_CONFIG is set then the URL and password might be pulled from
+** the CONFIG table rather than from the zUrl parameter.  If zUrl is NULL
+** or "default" then the URL is given by the "last-sync-url" setting and
+** the password comes form the "last-sync-pw" setting.  If zUrl is a symbolic
+** name, then the URL comes from "sync-url:NAME" and the password from
+** "sync-pw:NAME" where NAME is the input zUrl string.  Whenever the
+** password is taken from the CONFIG table, the g.url.pwConfig field is
+** set to the CONFIG.NAME value from which that password is taken.  Otherwise,
+** g.url.pwConfig is NULL.
 */
 void url_parse(const char *zUrl, unsigned int urlFlags){
   url_parse_local(zUrl, urlFlags, &g.url);
@@ -446,18 +461,24 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
 **
 ** Usage: %fossil test-urlparser URL ?options?
 **
-**    --remember      Store results in last-sync-url
 **    --prompt-pw     Prompt for password if missing
+**    --remember      Store results in last-sync-url
+**    --show-pw       Show the CONFIG-derived password in the output
+**    --use-config    Pull URL and password from the CONFIG table
+**    --use-parent    Use the parent project URL
 */
 void cmd_test_urlparser(void){
   int i;
   unsigned fg = 0;
+  int showPw = 0;
+  db_must_be_within_tree();
   url_proxy_options();
-  if( find_option("remember",0,0) ){
-    db_must_be_within_tree();
-    fg |= URL_REMEMBER;
-  }
-  if( find_option("prompt-pw",0,0) ) fg |= URL_PROMPT_PW;
+  if( find_option("remember",0,0) )    fg |= URL_REMEMBER;
+  if( find_option("prompt-pw",0,0) )   fg |= URL_PROMPT_PW;
+  if( find_option("use-parent",0,0) )  fg |= URL_USE_PARENT|URL_USE_CONFIG;
+  if( find_option("use-config",0,0) )  fg |= URL_USE_CONFIG;
+  if( find_option("show-pw",0,0) )     showPw = 1;
+  if( (fg & URL_USE_CONFIG)==0 )       showPw = 1;
   if( g.argc!=3 && g.argc!=4 ){
     usage("URL");
   }
@@ -473,7 +494,12 @@ void cmd_test_urlparser(void){
     fossil_print("g.url.hostname  = %s\n", g.url.hostname);
     fossil_print("g.url.path      = %s\n", g.url.path);
     fossil_print("g.url.user      = %s\n", g.url.user);
-    fossil_print("g.url.passwd    = %s\n", g.url.passwd);
+    if( showPw || g.url.pwConfig==0 ){
+      fossil_print("g.url.passwd    = %s\n", g.url.passwd);
+    }else{
+      fossil_print("g.url.passwd    = ************\n");
+    }
+    fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
     fossil_print("g.url.canonical = %s\n", g.url.canonical);
     fossil_print("g.url.fossil    = %s\n", g.url.fossil);
     fossil_print("g.url.flags     = 0x%02x\n", g.url.flags);
@@ -536,7 +562,7 @@ void url_enable_proxy(const char *zMsg){
   const char *zProxy;
   zProxy = zProxyOpt;
   if( zProxy==0 ){
-    zProxy = db_get("proxy", 0);
+    zProxy = db_get("proxy", "system");
     if( fossil_strcmp(zProxy, "system")==0 ){
       zProxy = fossil_getenv("http_proxy");
     }

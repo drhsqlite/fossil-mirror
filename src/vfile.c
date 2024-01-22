@@ -161,10 +161,10 @@ int load_vfile_from_rid(int vid){
 ** changed without having to look at the mtime or on-disk content.
 **
 ** The mtime of the file is only a factor if the mtime-changes setting
-** is false and the CKSIG_HASH flag is false.  If the mtime-changes
-** setting is true (or undefined - it defaults to true) or if CKSIG_HASH
-** is true, then we do not trust the mtime and will examine the on-disk
-** content to determine if a file really is the same.
+** is true (or undefined - it defaults to true) and the CKSIG_HASH
+** flag is false.  If the mtime-changes setting is false or if
+** CKSIG_HASH is true, then we do not trust the mtime and will examine
+** the on-disk content to determine if a file really is the same.
 **
 ** If the mtime is used, it is used only to determine if files are the same.
 ** If the mtime of a file has changed, we still examine the on-disk content
@@ -257,6 +257,9 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     if( origPerm!=PERM_LNK && currentPerm==PERM_LNK ){
        /* Changing to a symlink takes priority over all other change types. */
        chnged = 7;
+    }else if( origPerm==PERM_LNK && currentPerm!=PERM_LNK ){
+      /* Ditto, other direction */
+      chnged = 9;
     }else if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
        /* Confirm metadata change types. */
       if( origPerm==currentPerm ){
@@ -365,7 +368,7 @@ void vfile_to_disk(
 }
 
 /*
-** Check to see if the directory named in zPath is the top of a checkout.
+** Check to see if the directory named in zPath is the top of a check-out.
 ** In other words, check to see if directory pPath contains a file named
 ** "_FOSSIL_" or ".fslckout".  Return true or false.
 */
@@ -383,7 +386,7 @@ int vfile_top_of_checkout(const char *zPath){
   }
 
   /* Check for ".fos" for legacy support.  But the use of ".fos" as the
-  ** per-checkout database name is deprecated.  At some point, all support
+  ** per-check-out database name is deprecated.  At some point, all support
   ** for ".fos" will end and this code should be removed.  This comment
   ** added on 2012-02-04.
   */
@@ -1068,7 +1071,14 @@ void vfile_rid_renumbering_event(int dryRun){
      oldVid
   );
   if( zUnresolved[0] ){
-    fossil_fatal("Unresolved RID values: %s\n", zUnresolved);
+    fossil_fatal("Unresolved RID values: %s\n"
+        "\n"
+        "Local check-out database is out of sync with repository file:\n"
+        "\n"
+        "    %s\n"
+        "\n"
+        "Has the repository file been replaced?\n",
+        zUnresolved, db_repository_filename());
   }
 
   /* Make the changes to the VFILE and VMERGE tables */

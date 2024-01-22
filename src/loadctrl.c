@@ -67,7 +67,7 @@ void load_control(void){
   style_header("Server Overload");
   @ <h2>The server load is currently too high.
   @ Please try again later.</h2>
-  @ <p>Current load average: %f(load_average()).<br />
+  @ <p>Current load average: %f(load_average()).<br>
   @ Load average limit: %f(mxLoad)</p>
   style_finish_page();
   cgi_set_status(503,"Server Overload");

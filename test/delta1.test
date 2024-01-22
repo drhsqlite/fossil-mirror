@@ -27,7 +27,7 @@ test_setup ""
 # two files to make sure that deltas between these two files
 # work properly.
 #
-set filelist [glob $testdir/*]
+set filelist [lsort [glob $testdir/*]]
 foreach f $filelist {
   if {[file isdir $f]} continue
   set base [file root [file tail $f]]

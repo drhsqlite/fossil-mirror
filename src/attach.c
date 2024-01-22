@@ -113,11 +113,11 @@ void attachlist_page(void){
     @ <li><p>
     @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
     moderation_pending_www(attachid);
-    @ <br /><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ <br><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br>
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
-      @ %!W(zComment)<br />
+      @ %!W(zComment)<br>
     }
     if( zPage==0 && zTkt==0 && zTechNote==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
@@ -246,7 +246,7 @@ static void attach_put(
     );
   }else{
     rid = content_put(pAttach);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_add_unsent(rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink(rid, pAttach, MC_NONE);
@@ -399,19 +399,19 @@ void attachadd_page(void){
   form_begin("enctype='multipart/form-data'", "%R/attachadd");
   @ <div>
   @ File to Attach:
-  @ <input type="file" name="f" size="60" /><br />
-  @ Description:<br />
-  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br />
+  @ <input type="file" name="f" size="60"><br>
+  @ Description:<br>
+  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br>
   if( zTkt ){
-    @ <input type="hidden" name="tkt" value="%h(zTkt)" />
+    @ <input type="hidden" name="tkt" value="%h(zTkt)">
   }else if( zTechNote ){
-    @ <input type="hidden" name="technote" value="%h(zTechNote)" />
+    @ <input type="hidden" name="technote" value="%h(zTechNote)">
   }else{
-    @ <input type="hidden" name="page" value="%h(zPage)" />
+    @ <input type="hidden" name="page" value="%h(zPage)">
   }
-  @ <input type="hidden" name="from" value="%h(zFrom)" />
-  @ <input type="submit" name="ok" value="Add Attachment" />
-  @ <input type="submit" name="cancel" value="Cancel" />
+  @ <input type="hidden" name="from" value="%h(zFrom)">
+  @ <input type="submit" name="ok" value="Add Attachment">
+  @ <input type="submit" name="cancel" value="Cancel">
   @ </div>
   captcha_generate(0);
   @ </form>
@@ -593,9 +593,9 @@ void ainfo_page(void){
     @ <blockquote>
     form_begin(0, "%R/ainfo/%s", zUuid);
     @ <label><input type="radio" name="modaction" value="delete">
-    @ Delete this change</label><br />
+    @ Delete this change</label><br>
     @ <label><input type="radio" name="modaction" value="approve">
-    @ Approve this change</label><br />
+    @ Approve this change</label><br>
     @ <input type="submit" value="Submit">
     @ </form>
     @ </blockquote>
@@ -618,7 +618,7 @@ void ainfo_page(void){
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of image data)</i><br />
+    @ <i>(file is %d(sz) bytes of image data)</i><br>
     @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
     style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
@@ -680,16 +680,15 @@ void attachment_list(
 ** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
 ** Add an attachment to an existing wiki page or tech note.
-** Options:
 **
+** Options:
 **    -t|--technote DATETIME      Specifies the timestamp of
 **                                the technote to which the attachment
 **                                is to be made. The attachment will be
 **                                to the most recently modified tech note
 **                                with the specified timestamp.
-**
 **    -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                updated by its technote id.
+**                                updated by its technote id
 **
 ** One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 **
@@ -794,8 +793,7 @@ attachment_cmd_usage:
 ** which will match most wiki page names and some ticket hashes.
 **
 ** Options:
-**
-**    -latest    List only the latest version of a given attachment.
+**    -latest    List only the latest version of a given attachment
 **
 */
 void test_list_attachments(void){

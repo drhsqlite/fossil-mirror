@@ -515,7 +515,12 @@ table.captcha pre {
  */
 
 .statistics-report-graph-line {
+  border: 2px solid #22e;
   background-color: #22e;
+}
+.statistics-report-graph-extra {
+  border: 2px dashed #22e;
+  border-left-style: none;
 }
 
 .statistics-report-table-events th {
@@ -1143,6 +1148,13 @@ div.forumPostBody blockquote {
   border-style: solid;
   padding: 0 0.5em;
   border-radius: 0.25em;
+}
+
+body.forum .forumPosts.fileage a {
+  color: #60c0ff;
+}
+body.forum .forumPosts.fileage a:visited {
+  color: #40a0ff;
 }
 
 .debug {

@@ -425,7 +425,6 @@ int smtp_client_startup(SmtpSession *p){
 ** on the console.  Use ME as the domain name of the sender.
 **
 ** Options:
-**
 **    --direct              Use DOMAIN directly without going through MX
 **    --port N              Talk on TCP port N
 */
@@ -580,9 +579,10 @@ int smtp_send_msg(
 
 /*
 ** The input is a base email address of the form "local@domain".
-** Return a pointer to just the "domain" part.
+** Return a pointer to just the "domain" part, or 0 if the string
+** contains no "@".
 */
-static const char *domainOfAddr(const char *z){
+const char *domain_of_addr(const char *z){
   while( z[0] && z[0]!='@' ) z++;
   if( z[0]==0 ) return 0;
   return z+1;
@@ -598,7 +598,6 @@ static const char *domainOfAddr(const char *z){
 ** to the list of users TO.  FROM is the sender of the email.
 **
 ** Options:
-**
 **      --direct              Go directly to the TO domain.  Bypass MX lookup
 **      --relayhost R         Use R as relay host directly for delivery.
 **      --port N              Use TCP port N instead of 25
@@ -627,12 +626,12 @@ void test_smtp_send(void){
   zFrom = g.argv[3];
   nTo = g.argc-4;
   azTo = (const char**)g.argv+4;
-  zFromDomain = domainOfAddr(zFrom);
+  zFromDomain = domain_of_addr(zFrom);
   if( zRelay!=0 && zRelay[0]!= 0) {
     smtpFlags |= SMTP_DIRECT;
     zToDomain = zRelay;
   }else{
-    zToDomain = domainOfAddr(azTo[0]);
+    zToDomain = domain_of_addr(azTo[0]);
   }
   p = smtp_session_new(zFromDomain, zToDomain, smtpFlags, smtpPort);
   if( p->zErr ){

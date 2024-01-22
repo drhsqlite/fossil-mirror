@@ -23,7 +23,7 @@
 #include "json_detail.h"
 #endif
 
-static cson_value * json_page_dir_list();
+static cson_value * json_page_dir_list(void);
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
 */
@@ -35,7 +35,7 @@ static const JsonPageDef JsonPageDefs_Dir[] = {
 #endif
 
 #if 0 /* TODO: Not used? */
-static char const * json_dir_path_extra(){
+static char const * json_dir_path_extra(void){
   static char const * zP = NULL;
   if( !zP ){
     zP = g.zExtra;
@@ -51,7 +51,7 @@ static char const * json_dir_path_extra(){
 ** Impl of /json/dir. 98% of it was taken directly
 ** from browse.c::page_dir()
 */
-static cson_value * json_page_dir_list(){
+static cson_value * json_page_dir_list(void){
   cson_object * zPayload = NULL; /* return value */
   cson_array * zEntries = NULL; /* accumulated list of entries. */
   cson_object * zEntry = NULL;  /* a single dir/file entry. */
@@ -283,7 +283,7 @@ static cson_value * json_page_dir_list(){
 ** Implements the /json/dir family of pages/commands.
 **
 */
-cson_value * json_page_dir(){
+cson_value * json_page_dir(void){
 #if 1
   return json_page_dir_list();
 #else

@@ -5,7 +5,7 @@ In a simple and perfect world, the development of a project would proceed
 linearly, as shown in Figure 1.
 
 <verbatim type="pikchr center toggle">
-ALL: [circle rad 40% thickness 1.5px "1"
+ALL: [circle rad 0.1in thickness 1.5px "1"
 arrow right 40%
 circle same "2"
 arrow same
@@ -45,7 +45,7 @@ project.  Suppose two programmers make independent modifications to check-in 2.
 After both changes are committed, the check-in graph looks like Figure 2:
 
 <verbatim type="pikchr center toggle">
-ALL: [circle rad 40% thickness 1.5px "1"
+ALL: [circle rad 0.1in thickness 1.5px "1"
 arrow right 40%
 circle same "2"
 circle same "3" at 2nd circle+(.4,.3)
@@ -121,7 +121,7 @@ so, commit the results as check-in 5.  This results in a DAG as shown in
 Figure 3.
 
 <verbatim type="pikchr center toggle">
-ALL: [circle rad 40% thickness 1.5px "1"
+ALL: [circle rad 0.1in thickness 1.5px "1"
 arrow right 40%
 circle same "2"
 circle same "3" at 2nd circle+(.4,.3)
@@ -184,7 +184,7 @@ Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
 
 <verbatim type="pikchr center toggle">
-ALL: [circle rad 40% thickness 1.5px fill white "1"
+ALL: [circle rad 0.1in thickness 1.5px fill white "1"
 arrow 40%
 C2: circle same "2"
 arrow same
@@ -395,7 +395,7 @@ same scenario as Figure 4 but with tags and properties added:
 
 <verbatim type="pikchr center toggle">
 ALL: [arrowht = 0.07
-C1: circle rad 40% thickness 1.5px fill white "1"
+C1: circle rad 0.1in thickness 1.5px fill white "1"
 arrow 40%
 C2: circle same "2"
 arrow same
@@ -426,7 +426,7 @@ box same "branch=test" "sym-test" "bgcolor=blue" "cancel=sym-trunk" fit \
 line color gray from last box.n to C4 chop
 box same "sym-release-1.0" "closed" fit with .n at C9-(0,0.3)
 line color gray from last box.n to C9 chop]
-box invis "Figure 5" bold fit with .n at 0.2cm below ALL.s
+box invis "Figure 5" big fit with .n at 0.2cm below ALL.s
 </verbatim>
 
 A <i>tag</i> is a name that is attached to a check-in.  A

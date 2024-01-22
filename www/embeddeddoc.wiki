@@ -203,11 +203,11 @@ source tree is "<b>www/embeddeddoc.wiki</b>".
 You are perhaps looking at this
 file using the URL:
 
-   [http://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki].
+   [https://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki].
 
-The first part of this path, the "[http://fossil-scm.org/home]",
+The first part of this path, the "[https://fossil-scm.org/home]",
 is the base URL.  You might have originally typed:
-[http://fossil-scm.org/].  The web server at the fossil-scm.org
+[https://fossil-scm.org/].  The web server at the fossil-scm.org
 site automatically redirects such links by appending "home".  The
 "home" file on fossil-scm.org is really a [./server/any/cgi.md|CGI script]
 which runs the fossil web service in CGI mode.
@@ -245,8 +245,8 @@ and time specified.  So, for example, to see what the fossil website
 looked like at the beginning of 2010, enter:
 
 <blockquote>
-<a href="http://fossil-scm.org/home/doc/2010-01-01/www/index.wiki">
-http://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
+<a href="/doc/2010-01-01/www/index.wiki">
+https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
 </a>
 </blockquote>
 

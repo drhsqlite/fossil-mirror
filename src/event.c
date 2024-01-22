@@ -131,6 +131,7 @@ void event_page(void){
 
   /* Extract the event content.
   */
+  cgi_check_for_malice();
   pTNote = manifest_get(rid, CFTYPE_EVENT, 0);
   if( pTNote==0 ){
     fossil_fatal("Object #%d is not a tech-note", rid);
@@ -214,7 +215,7 @@ void event_page(void){
     wiki_convert(&comment, 0, WIKI_INLINE);
     blob_reset(&comment);
     @ </div>
-    @ </blockquote><hr />
+    @ </blockquote><hr>
   }
 
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
@@ -230,7 +231,7 @@ void event_page(void){
                        "  FROM tag"
                        " WHERE tagname GLOB 'event-%q*'",
                     zId);
-  attachment_list(zFullId, "<hr /><h2>Attachments:</h2><ul>");
+  attachment_list(zFullId, "<hr><h2>Attachments:</h2><ul>");
   document_emit_js();
   style_finish_page();
   manifest_destroy(pTNote);
@@ -330,7 +331,7 @@ int event_commit_common(
   blob_appendf(&event, "Z %b\n", &cksum);
   blob_reset(&cksum);
   nrid = content_put(&event);
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_add_unsent(nrid);
   if( manifest_crosslink(nrid, &event, MC_NONE)==0 ){
     db_end_transaction(1);
     return 0;
@@ -469,8 +470,7 @@ void eventedit_page(void){
     }
   }
   zETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))", zETime);
-  if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
-    login_verify_csrf_secret();
+  if( P("submit")!=0 && (zBody!=0 && zComment!=0) && cgi_csrf_safe(2) ){
     if ( !event_commit_common(rid, zId, zBody, zETime,
                               zMimetype, zComment, zTags,
                               zClrFlag[0] ? zClr : 0) ){
@@ -515,7 +515,7 @@ void eventedit_page(void){
     blob_append(&event, zBody, -1);
     safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&event, zMimetype);
-    @ </blockquote><hr />
+    @ </blockquote><hr>
     blob_reset(&event);
   }
   for(n=2, z=zBody; z[0]; z++){
@@ -525,12 +525,12 @@ void eventedit_page(void){
   if( n>40 ) n = 40;
   @ <form method="post" action="%R/technoteedit"><div>
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zId)" />
+  @ <input type="hidden" name="name" value="%h(zId)">
   @ <table border="0" cellspacing="10">
 
   @ <tr><th align="right" valign="top">Timestamp (UTC):</th>
   @ <td valign="top">
-  @   <input type="text" name="t" size="25" value="%h(zETime)" />
+  @   <input type="text" name="t" size="25" value="%h(zETime)">
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Timeline Comment:</th>
@@ -541,20 +541,20 @@ void eventedit_page(void){
 
   @ <tr><th align="right" valign="top">Timeline Background Color:</th>
   @ <td valign="top">
-  @ <input type='checkbox' name='newclr'%s(zClrFlag) />
+  @ <input type='checkbox' name='newclr'%s(zClrFlag)>
   @ Use custom color: \
   @ <input type='color' name='clr' value='%s(zClr[0]?zClr:"#c0f0ff")'>
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
-  @   <input type="text" name="g" size="40" value="%h(zTags)" />
+  @   <input type="text" name="g" size="40" value="%h(zTags)">
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">\
   @ %z(href("%R/markup_help"))Markup Style</a>:</th>
   @ <td valign="top">
-  mimetype_option_menu(zMimetype);
+  mimetype_option_menu(zMimetype, "mimetype");
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>
@@ -564,10 +564,10 @@ void eventedit_page(void){
   @ </td></tr>
 
   @ <tr><td colspan="2">
-  @ <input type="submit" name="cancel" value="Cancel" />
-  @ <input type="submit" name="preview" value="Preview" />
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ <input type="submit" name="preview" value="Preview">
   if( P("preview") ){
-    @ <input type="submit" name="submit" value="Submit" />
+    @ <input type="submit" name="submit" value="Submit">
   }
   @ </td></tr></table>
   @ </div></form>

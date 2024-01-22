@@ -237,7 +237,7 @@ int ajax_route_bootstrap(int requireWrite, int requirePost){
 }
 
 /*
-** Helper for collecting filename/checkin request parameters.
+** Helper for collecting filename/check-in request parameters.
 **
 ** If zFn is not NULL, it is assigned the value of the first one of
 ** the "filename" or "fn" CGI parameters which is set.
@@ -325,7 +325,7 @@ void ajax_route_preview_text(void){
   /*
   ** Now tell the caller if we did indeed use AJAX_RENDER_WIKI, so that
   ** they can re-set the <base href> to an appropriate value (which
-  ** requires knowing the content's current checkin version, which we
+  ** requires knowing the content's current check-in version, which we
   ** don't have here).
   */
   switch(renderMode){
@@ -394,7 +394,16 @@ void ajax_route_dispatcher(void){
   const AjaxRoute * pRoute = 0;
   const AjaxRoute routes[] = {
   /* Keep these sorted by zName (for bsearch()) */
-  {"preview-text", ajax_route_preview_text, 1, 1}
+  {"preview-text", ajax_route_preview_text, 0, 1
+   /* Note that this does not require write permissions in the repo.
+   ** It should arguably require write permissions but doing means
+   ** that /chat does not work without checkin permissions:
+   **
+   ** https://fossil-scm.org/forum/forumpost/ed4a762b3a557898
+   **
+   ** This particular route is used by /fileedit and /chat, whereas
+   ** /wikiedit uses a simpler wiki-specific route.
+   */ }
   };
 
   if(zName==0 || zName[0]==0){
@@ -411,5 +420,5 @@ void ajax_route_dispatcher(void){
   }else if(0==ajax_route_bootstrap(pRoute->bWriteMode, pRoute->bPost)){
     return;
   }
-  pRoute->xCallback();  
+  pRoute->xCallback();
 }
