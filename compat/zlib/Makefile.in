@@ -1,5 +1,5 @@
 # Makefile for zlib
-# Copyright (C) 1995-2017 Jean-loup Gailly, Mark Adler
+# Copyright (C) 1995-2024 Jean-loup Gailly, Mark Adler
 # For conditions of distribution and use, see copyright notice in zlib.h
 
 # To compile and test, type:
@@ -22,13 +22,13 @@ CFLAGS=-O
 
 SFLAGS=-O
 LDFLAGS=
-TEST_LDFLAGS=$(LDFLAGS) -L. libz.a
+TEST_LIBS=-L. libz.a
 LDSHARED=$(CC)
 CPP=$(CC) -E
 
 STATICLIB=libz.a
 SHAREDLIB=libz.so
-SHAREDLIBV=libz.so.1.3
+SHAREDLIBV=libz.so.1.3.1
 SHAREDLIBM=libz.so.1
 LIBS=$(STATICLIB) $(SHAREDLIBV)
 
@@ -200,77 +200,77 @@ gzwrite.o: $(SRCDIR)gzwrite.c
 
 adler32.lo: $(SRCDIR)adler32.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/adler32.o $(SRCDIR)adler32.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/adler32.o $(SRCDIR)adler32.c
 	-@mv objs/adler32.o $@
 
 crc32.lo: $(SRCDIR)crc32.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/crc32.o $(SRCDIR)crc32.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/crc32.o $(SRCDIR)crc32.c
 	-@mv objs/crc32.o $@
 
 deflate.lo: $(SRCDIR)deflate.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/deflate.o $(SRCDIR)deflate.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/deflate.o $(SRCDIR)deflate.c
 	-@mv objs/deflate.o $@
 
 infback.lo: $(SRCDIR)infback.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/infback.o $(SRCDIR)infback.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/infback.o $(SRCDIR)infback.c
 	-@mv objs/infback.o $@
 
 inffast.lo: $(SRCDIR)inffast.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inffast.o $(SRCDIR)inffast.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inffast.o $(SRCDIR)inffast.c
 	-@mv objs/inffast.o $@
 
 inflate.lo: $(SRCDIR)inflate.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inflate.o $(SRCDIR)inflate.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inflate.o $(SRCDIR)inflate.c
 	-@mv objs/inflate.o $@
 
 inftrees.lo: $(SRCDIR)inftrees.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/inftrees.o $(SRCDIR)inftrees.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/inftrees.o $(SRCDIR)inftrees.c
 	-@mv objs/inftrees.o $@
 
 trees.lo: $(SRCDIR)trees.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/trees.o $(SRCDIR)trees.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/trees.o $(SRCDIR)trees.c
 	-@mv objs/trees.o $@
 
 zutil.lo: $(SRCDIR)zutil.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/zutil.o $(SRCDIR)zutil.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/zutil.o $(SRCDIR)zutil.c
 	-@mv objs/zutil.o $@
 
 compress.lo: $(SRCDIR)compress.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/compress.o $(SRCDIR)compress.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/compress.o $(SRCDIR)compress.c
 	-@mv objs/compress.o $@
 
 uncompr.lo: $(SRCDIR)uncompr.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/uncompr.o $(SRCDIR)uncompr.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/uncompr.o $(SRCDIR)uncompr.c
 	-@mv objs/uncompr.o $@
 
 gzclose.lo: $(SRCDIR)gzclose.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzclose.o $(SRCDIR)gzclose.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzclose.o $(SRCDIR)gzclose.c
 	-@mv objs/gzclose.o $@
 
 gzlib.lo: $(SRCDIR)gzlib.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzlib.o $(SRCDIR)gzlib.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzlib.o $(SRCDIR)gzlib.c
 	-@mv objs/gzlib.o $@
 
 gzread.lo: $(SRCDIR)gzread.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzread.o $(SRCDIR)gzread.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzread.o $(SRCDIR)gzread.c
 	-@mv objs/gzread.o $@
 
 gzwrite.lo: $(SRCDIR)gzwrite.c
 	-@mkdir objs 2>/dev/null || test -d objs
-	$(CC) $(SFLAGS) $(ZINC) -fPIC -c -o objs/gzwrite.o $(SRCDIR)gzwrite.c
+	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzwrite.o $(SRCDIR)gzwrite.c
 	-@mv objs/gzwrite.o $@
 
 
@@ -282,10 +282,10 @@ placebo $(SHAREDLIBV): $(PIC_OBJS) libz.a
 	-@rmdir objs
 
 example$(EXE): example.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ example.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ example.o $(TEST_LIBS)
 
 minigzip$(EXE): minigzip.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ minigzip.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ minigzip.o $(TEST_LIBS)
 
 examplesh$(EXE): example.o $(SHAREDLIBV)
 	$(CC) $(CFLAGS) -o $@ example.o $(LDFLAGS) -L. $(SHAREDLIBV)
@@ -294,10 +294,10 @@ minigzipsh$(EXE): minigzip.o $(SHAREDLIBV)
 	$(CC) $(CFLAGS) -o $@ minigzip.o $(LDFLAGS) -L. $(SHAREDLIBV)
 
 example64$(EXE): example64.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ example64.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ example64.o $(TEST_LIBS)
 
 minigzip64$(EXE): minigzip64.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ minigzip64.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ minigzip64.o $(TEST_LIBS)
 
 install-libs: $(LIBS)
 	-@if [ ! -d $(DESTDIR)$(exec_prefix)  ]; then mkdir -p $(DESTDIR)$(exec_prefix); fi
@@ -360,7 +360,7 @@ zconf: $(SRCDIR)zconf.h.in
 	cp -p $(SRCDIR)zconf.h.in zconf.h
 
 minizip-test: static
-	cd contrib/minizip && { CFLAGS="$(CFLAGS)" $(MAKE) test ; cd ../.. ; }
+	cd contrib/minizip && { CC="$(CC)" CFLAGS="$(CFLAGS)" $(MAKE) test ; cd ../.. ; }
 
 minizip-clean:
 	cd contrib/minizip && { $(MAKE) clean ; cd ../.. ; }
