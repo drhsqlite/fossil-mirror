@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\szlib\sto\sversion\s1.3.1,\sreleased\son\sJanuary\s22,\s2024.\sAccording\sto\scheck-ins\s[eea86cee3a]\sand\s[511ad59ae3],\sall\sfiles\sfrom\sthe\sdoc/\sand\scontrib/ada/\ssubdirectories\sare\sexcluded.
-D 2024-01-23T06:46:00.000
+C Carry\sforward\s[0f8bae079e]\sto\sthe\szlib\s1.3.1\supdate.
+D 2024-01-23T06:52:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -247,7 +247,7 @@ F compat/zlib/watcom/watcom_l.mak e1deb6874b6162d2607dff14c2fccb7a37ce97b0
 F compat/zlib/win32/DLL_FAQ.txt affcbe2811b45adc90ea6a386370a5f54b9bfe12202adf46ff6678f6f127cfab
 F compat/zlib/win32/Makefile.bor 7c0c2afee464562d431f3969caab28d190e70ee7c7f2ace0e4a4027322acbfdd
 F compat/zlib/win32/Makefile.gcc 2ead7d941b2fa64d4ac73d19df3eee2eecb258c9176151f1e1de37be24759949
-F compat/zlib/win32/Makefile.msc d45955825e3e0496859a0f7cf5d5727ccec1e0579b5e65ae5e357a63318022f9
+F compat/zlib/win32/Makefile.msc 061013e88eaee7577a04ea7116b80f3b24258ac6eacb6a583aa4ffd0186dce2e
 F compat/zlib/win32/README-WIN32.txt 2979b17f4f566d7818beef7b3522856a31b2af2d72a0cbc2aeb5e069c212b38a
 F compat/zlib/win32/VisualC.txt ba666fb015a257ab0182f10bc20409a2ec61169f
 F compat/zlib/win32/zlib.def 38e7a26e391e1e72b3fff9595de086799792249e8f3ac58ecb13e1498196ff81
@@ -952,11 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f97a29dd58fb40c05e884d1fac8728202c3a22b1fab302a6951211e721ed5882
-R beeb283c2cd8ae8f83cdab829a2bbd9b
-T *branch * zlib-update
-T *sym-zlib-update *
-T -sym-trunk *
+P ff7fa23bb67637316d8f99dd23c891bcc9f942671d41bc24382633d781bb682e
+R 8b56c415a2b8ab21119eb7147e92d8a9
 U florian
-Z 0603789b106bc777d79fbdbb8d804bd9
+Z 62c6a635b307e2eaff1e3f19411a35ba
 # Remove this line to create a well-formed Fossil manifest.
