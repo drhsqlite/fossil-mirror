@@ -366,6 +366,22 @@ div.timelineDate {
     white-space: nowrap;
 }
 
+tr.timelineSelected {
+  /* default/css.txt puts these styles on the whole row. We want them only
+     on the comment/details cell within the table, not over the time
+     and graph columns as well. */
+  background-color: unset;
+  border: unset;
+  box-shadow: unset;
+}
+tr.timelineSelected {
+  td.timelineModernCell, td.timelineColumnarCell {
+    background-color: #ffc;
+    border: 2px solid #eed;
+    border-radius: 1em;
+  }
+}
+
 
 /* Miscellaneous UI elements */
 
