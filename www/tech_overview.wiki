@@ -165,7 +165,7 @@ for which the corresponding environment variables exist:
   *  %USERPROFILES%/_fossil
   *  %HOMEDRIVE%%HOMEPATH%/_fossil
 
-The second case is the one that usually determines the name  Note that the
+The second case is the one that usually determines the name. Note that the
 FOSSIL_HOME environment variable can always be set to determine the 
 location of the configuration database.  Note also that the configuration
 database file itself is called ".fossil" or "fossil.db" on unix but
