@@ -1,5 +1,5 @@
-C Set\sthe\slocal\sbin\spath\son\sSSH\scalls\sfor\s"fossil\ssync",\sas\sis\salready\sdone\nin\s[8cb116407933bb3b]\sfor\s"fossil\sui"\sand\s"fossil\spatch".
-D 2024-01-25T14:47:28.167
+C When\sthe\s"autoconf"\ssetting\scontains\s"all",\sthen\sall\sremotes\sare\ssynced\susing\nthe\s"fossil\ssync"\scommand.
+D 2024-01-25T19:09:32.008
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -405,7 +405,7 @@ F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 1c258dbde2985b8ad8d3bdbf13d5c7cb6e3faade23602fa0a6e6ff6254a58d5f
+F src/db.c 1ea6b8c181201e7d61ededaae3523641248eb585302a13c58614d7a71945a7b9
 F src/default.css 6cbfe438c0bc92c91959f31656ff10b742e98fb05df94ceb012fd7ef179c92da
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -556,7 +556,7 @@ F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
-F src/sync.c cb37442b06b64f2a98aea6d9037eb089847d8abf111f60ab84b33e84589f794b
+F src/sync.c 6ac5b66d2dbba93738458731911f01d98c52a945049e5bf76e58b4d17d7ab100
 F src/tag.c 4e044d0143f917283c6c2b64a786ffdbb22a790f62f5404a769c35de0fb3c5f5
 F src/tar.c fcf3dafb4eb1569a4c71cb4341815e89bc267760bf5205a5fb6aac838d86617d
 F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629e
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5b04f0ec60ae8b37ae6bf1e788fa49480530f38a1e56aa2c579c516175f5423
-R b10501eb9e434af22a1c5ec1cc978dec
+P 805c93147956957621d093f8748dec5c6595b49332c0d678da69e06e2ad2b167
+R acc969c85abaa08211a67cf27464e289
 U drh
-Z e28e916e63389d4dd46aa499a29a73e7
+Z 31908e48ab8574dafc887e18d0feeeb8
 # Remove this line to create a well-formed Fossil manifest.
