@@ -1,5 +1,5 @@
-C Hide\sthe\stimeline\sgraph\stooltip\sin\sthe\s`pagehide'\shandler,\sas\sChromium-based\sbrowsers\s(but\snot\sFirefox)\sare\sdeprecating\sthe\s`unload'\shandler.
-D 2024-01-22T13:37:00.000
+C Make\sforum\spost\shyperlinks\smore\svisible,\swith\sthe\sconventional\sunderline.
+D 2024-01-25T03:28:52.637
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 1c258dbde2985b8ad8d3bdbf13d5c7cb6e3faade23602fa0a6e6ff6254a58d5f
-F src/default.css 4ffef7945b7a93ba1bd351742ff2801e6818b1915871edbd3f3769452b4d7fe4
+F src/default.css 6cbfe438c0bc92c91959f31656ff10b742e98fb05df94ceb012fd7ef179c92da
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -952,8 +952,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0576ea919cd8052a00c849f1ee2f5325d18a4c6aa89752d15d5e00bd8730f29
-R ce4a2ff5d6adafbbc2f665b124e059f0
-U florian
-Z 81c0a1d22d988c32c146a30f0b799a57
+P f97a29dd58fb40c05e884d1fac8728202c3a22b1fab302a6951211e721ed5882
+R 1e47258eb21c347017866e82a60f2470
+T *branch * visible-post-links
+T *sym-visible-post-links *
+T -sym-trunk *
+U larrybr
+Z e8b6210f001ccfde9ee049293384d6fa
 # Remove this line to create a well-formed Fossil manifest.
