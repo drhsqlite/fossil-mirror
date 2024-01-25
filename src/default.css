@@ -620,7 +620,6 @@ tr.diffskip.jchunk:hover {
 }
 tr.diffskip > td.chunkctrl {
   text-align: left;
-  font-family: monospace;
 }
 tr.diffskip > td.chunkctrl > div {
   display: flex;
@@ -1296,7 +1295,6 @@ hr {
 }
 #fossil-status-bar {
   display: block;
-  font-family: monospace;
   border-width: 1px;
   border-style: inset;
   border-color: inherit;
@@ -1387,7 +1385,6 @@ table.numbered-lines {
                          on them. */;
 }
 table.numbered-lines > tbody > tr {
-  font-family: monospace;
   line-height: 1.35;
   white-space: pre;
 }
@@ -1763,8 +1760,19 @@ body.branch .submenu > a.timeline-link.selected {
   display: inline;
 }
 
-.monospace {
-  font-family: monospace;
+/* Candidate fonts for various forms of monospaced text. Collected here
+ * to avoid repeating this long list of fonts. */
+code, pre, tt,
+    div.markdown ol.footnotes > li.fn-joined > sup.fn-joined,
+    table.numbered-lines > tbody > tr,
+    tr.diffskip > td.chunkctrl,
+    #fossil-status-bar,
+    .monospace {
+  font-family: Source Code Pro, Menlo, Monaco,
+               Andale Mono, Ubuntu Mono, Deja Vu Sans Mono,
+               Letter Gothic, Letter Gothic Std, Prestige Elite Std,
+               Courier, Courier New,
+               monospace;
 }
 
 div.markdown > ol.footnotes {
@@ -1775,7 +1783,6 @@ div.markdown > ol.footnotes > li {
 }
 div.markdown ol.footnotes > li.fn-joined > sup.fn-joined {
   color: gray;
-  font-family: monospace;
 }
 div.markdown ol.footnotes > li.fn-joined > sup.fn-joined::after {
   content: "(joined from multiple locations) ";

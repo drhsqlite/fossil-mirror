@@ -1,5 +1,5 @@
-C First\sin\sa\sseries\sof\schanges\sto\sthe\sdefault\sskin\sto\smake\sit\slook\smore\slike\n[https://tangentsoft.com/inskinerator/dir/override/modern\s|\sInskinerator\sModern]\nwithout\sbringing\sin\sInskinerator's\sdependencies\sand\smachinery.\n\nThis\schange\sincreases\sthe\sbody\sfont\ssize\sfor\sdesktop\suse\swithout\naffecting\smobile.\sWith\smiddle-aged\seyes,\sthe\sold\sdefault\sputs\stoo\smuch\ntext\son\sa\sline,\sdecreasing\sreadability\sdue\sto\slong\sline\slengths,\seven\nwith\sbrowsers\sno\swider\sthan\sa\ssheet\sof\soffice\spaper.\s\sFor\sour\sdefinition\nof\s"mobile,"\sline\slengths\sare\snaturally\slimited\sto\sreasonable\slengths,\nand\sin\sany\scase,\scompromise\sis\sthe\snature\sof\sthat\sgame.
-D 2024-01-25T16:46:08.875
+C Collected\sall\sthe\suses\sof\s"font-face:\smonospace"\stogether\sand\sgave\sthe\nbrowser\sa\slong\slist\sof\ssuitable\soptions\sfor\suse\shere\sbefore\sfalling\sback\nto\sthat\sgeneric\sdefault.\s\sThe\slist\sis\sordered\sto\sgive\sthe\smost\sreadable\nfonts\sfirst.
+D 2024-01-25T17:38:51.696
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 1c258dbde2985b8ad8d3bdbf13d5c7cb6e3faade23602fa0a6e6ff6254a58d5f
-F src/default.css 4ffef7945b7a93ba1bd351742ff2801e6818b1915871edbd3f3769452b4d7fe4
+F src/default.css fa326fbdc661af6876d7bad65ec17f7c4cf43388d0368a04b6620f561b011d64
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -952,11 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0850d54c5001e68021917d9174c66d704c61527766101da80d1b4409c0be155
-R 9f573022bb0202c126a8f21f654ed412
-T *branch * inskinerator-modern-backport
-T *sym-inskinerator-modern-backport *
-T -sym-trunk *
+P 2fdfb834b9109e3848d642cc5a111344b738308b7ea76c9ba1395dc44e0d187e
+R 8bcbe5603062323b12b4c77396430575
 U wyoung
-Z eb85766319b3b95c3cd189760e36a148
+Z 39015025ba2ef6fe1600ca6508b83a08
 # Remove this line to create a well-formed Fossil manifest.
