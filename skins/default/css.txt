@@ -146,6 +146,12 @@ hr {
   color: #eee;
 }
 
+/* Wiki <verbatim> text block adjustments */
+pre.verbatim {
+  padding: 0.5em;
+  white-space: pre-wrap;
+}
+
 
 /* Page footer */
 
