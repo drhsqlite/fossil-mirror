@@ -1,5 +1,5 @@
-C Fix\sminor\sdocumentation\stypo.
-D 2024-01-25T11:42:32.150
+C Fix\sincorrect\shyperlink\starget\sin\sthe\sdocumentation.
+D 2024-01-25T11:55:09.357
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -936,7 +936,7 @@ F www/ssl.wiki d0c7bb25c06fcfff8105bec0690bfe9955bca8f7badd32eec6a2e2b77066aa5c
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 4c08c05e1bc5e28b0f851c7da323604d04127f5305c89f1e813e580caf6e9896
-F www/tech_overview.wiki 9c9dc3b7e30648933cb72c315494850b20a313be4147b2800077eb11d2a8c7ec
+F www/tech_overview.wiki 96a3814b69518d1b903f3dccd316aaa13260f37a1e18ce30e9d3882350fc10e2
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 7a1e4072998d8f154d8cae5497859d4351ce18c0fafdd97068a61451b6d501ab
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 321d8baf19390fc38135680d0fba0d3169db1e5f1a4c42f6098225f23105ebe4
-R eee9438077e09ab52758875ffb70ff79
+P 031cc65643ba0657bdc42f9a5d5921b964580b6ff66ac5b127d7d5a1153885cc
+R 90a444c839d2984ad58da7a59244f45b
 U drh
-Z 93736fa42c709c7b6aedc8c85e72de12
+Z 6e01a8088b683abb5b8d0c5b0e3b0ea3
 # Remove this line to create a well-formed Fossil manifest.
