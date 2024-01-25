@@ -174,27 +174,6 @@ body.cpage-forumnew form input {
   margin: 0.5em 0;
 }
 
-.forum .markdown blockquote,
-.forum .markdown h1,
-.forum .markdown h2,
-.forum .markdown h3,
-.forum .markdown h4,
-.forum .markdown h5,
-.forum .markdown p,
-.forum .markdown pre,
-.forum .markdown ol,
-.forum .markdown ul {
-  /* Avoid double-indent for doc content in forum thread view. */
-  margin-left: 0;
-  margin-right: 0;
-}
-.forum .forumTime h1,
-.forum .forumTime h2,
-.forum .forumTime h3 {
-  margin-left: 0;
-  margin-right: 0;
-}
-
 
 /* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
 
@@ -243,7 +222,6 @@ body.cpage-forumnew form input {
 .markdown table {
   margin-left: 50pt;
   margin-right: 50pt;
- 
 }
 
 .doc p ol, .doc p ul,
@@ -303,6 +281,44 @@ div.pikchr-wrapper.indent:not(.source) {
   margin-left: 70pt;
 }
 
+/* Back above margins out in forum posts and ticket comments, and define
+ * a one-off class for use in documents where the same is desired. */
+.forum .markdown blockquote,
+.forum .markdown h1,
+.forum .markdown h2,
+.forum .markdown h3,
+.forum .markdown h4,
+.forum .markdown h5,
+.forum .markdown p,
+.forum .markdown pre,
+.forum .markdown ol,
+.forum .markdown ul,
+.forum .forumTime h1,
+.forum .forumTime h2,
+.forum .forumTime h3,
+.tkt .markdown h1,
+.tkt .markdown h2,
+.tkt .markdown h3,
+.tkt .markdown h4,
+.tkt .markdown h5,
+.tkt .markdown p,
+.tkt .markdown pre,
+.tkt .markdown ol,
+.tkt .markdown ul,
+.nomargins,
+.nomargins h1,
+.nomargins h2,
+.nomargins h3,
+.nomargins h4,
+.nomargins h5,
+.nomargins p,
+.nomargins pre,
+.nomargins ol,
+.nomargins ul {
+  margin-left: 0;
+  margin-right: 0;
+}
+
 
 /* Tickets */
 
@@ -353,21 +369,6 @@ td.tktDspValue {
 }
 td.tktDspValue pre {
   white-space: pre-wrap;
-}
-
-.tkt .markdown h1,
-.tkt .markdown h2,
-.tkt .markdown h3,
-.tkt .markdown h4,
-.tkt .markdown h5,
-.tkt .markdown p,
-.tkt .markdown pre,
-.tkt .markdown ol,
-.tkt .markdown ul {
-  /* Back out indents for MD-formatted ticket comments for the same
-   * basic reason we do it with forum posts above. */
-  margin-left: 0;
-  margin-right: 0;
 }
 
 

@@ -1,5 +1,5 @@
-C Made\sticket\sreport\stable\sborder\srounding\sconsistent\swith\sMD\stables.\nThis\srequires\sa\schange\sto\sdefault.css,\swhich\shad\sa\sconflicting\sstyle.\nIf\sthere\sare\sother\sskins\swhere\sborder-collapse\smode\sis\sdesired,\sthis\nneeds\sto\sbe\sreapplied\swithin\sthat\sskin.
-D 2024-01-25T21:09:57.333
+C Collected\sthe\s"nomargins"\shandling\sfor\sforum\sposts\sand\sticket\scomments\ntogether,\sthen\sdefined\sa\snew\sone-off\sstyle\sto\sdo\sthe\ssame\sthing\son\narbitrary\sblocks.\s\sTested\sit\sout\son\sthe\sindex.wiki\spage's\ssidebar.
+D 2024-01-25T21:59:43.981
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 271207dc41c384374eec363b0ab50c8c5f7ac4cfa71664eea15301d16d369a2a
+F skins/default/css.txt 68d1c61e729eb22b66cfe5f59d00610f4d901c954d5d761caaa4c5998fa14cea
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
@@ -849,7 +849,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 92fa20536270b02c9318d25662315a36b22cb8ad72b124f33d44df4dd9dda0ca
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 34d0f5dbf0a51d0fd676fb106fbccb11e644857cf8461e60d607a1b79a41dc8a
+F www/index.wiki f07be027202253ecb254152da8c330db2064f8a1414d582602988099c1cd3a4e
 F www/inout.wiki 21c3cf513e2c8dc81af0feeae3b95adbb7c927172b5e2b73c3001f30519388a6
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4fb177e62ad917e2cb8af0b3d99f6b821de32d0ca32e13a65ee6918a1e70bdba
-R 0a4e365476b5cd4497e835f85fffab73
+P 2ba7a7d8b2352fcfb36a051670309a3fe1bf2a530585369c70dc914f8d1e6499
+R 372d89f58406e9dfd894b9785abc8071
 U wyoung
-Z fca1229f10485fd9a3f1245eb98e679e
+Z 9f0f0af0d4b3fc72fc05c9f5d38839a9
 # Remove this line to create a well-formed Fossil manifest.
