@@ -175,6 +175,10 @@ pre.verbatim {
   padding: .1em 1em;
 }
 
+textarea.wikiedit {
+  font-size: 1em;  /* monospace fonts tend to be smaller; compensate */
+}
+
 
 /* Tickets */
 
