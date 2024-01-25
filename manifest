@@ -1,5 +1,5 @@
-C Remove\ssome\svendor-prefixed\sCSS\sattributes,\sas\smodern\sbrowsers\semit\swarnings\sfor\sthose.
-D 2024-01-25T03:00:06.785
+C First\sin\sa\sseries\sof\schanges\sto\sthe\sdefault\sskin\sto\smake\sit\slook\smore\slike\n[https://tangentsoft.com/inskinerator/dir/override/modern\s|\sInskinerator\sModern]\nwithout\sbringing\sin\sInskinerator's\sdependencies\sand\smachinery.\n\nThis\schange\sincreases\sthe\sbody\sfont\ssize\sfor\sdesktop\suse\swithout\naffecting\smobile.\sWith\smiddle-aged\seyes,\sthe\sold\sdefault\sputs\stoo\smuch\ntext\son\sa\sline,\sdecreasing\sreadability\sdue\sto\slong\sline\slengths,\seven\nwith\sbrowsers\sno\swider\sthan\sa\ssheet\sof\soffice\spaper.\s\sFor\sour\sdefinition\nof\s"mobile,"\sline\slengths\sare\snaturally\slimited\sto\sreasonable\slengths,\nand\sin\sany\scase,\scompromise\sis\sthe\snature\sof\sthat\sgame.
+D 2024-01-25T16:46:08.875
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt f197e213902dd70646154d55919736614db4e765553789aef883f59302f90d33
+F skins/default/css.txt a3803c1b88bd5fb1346642ddf5e2ebb40c8a4d7fab33463290b61170c2515050
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
@@ -952,8 +952,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f97a29dd58fb40c05e884d1fac8728202c3a22b1fab302a6951211e721ed5882
-R b1672ae2bdcad0b9601a3b53b37f4638
-U stephan
-Z 94d1aa21ab9ac1006bb394ba92b972af
+P a0850d54c5001e68021917d9174c66d704c61527766101da80d1b4409c0be155
+R 9f573022bb0202c126a8f21f654ed412
+T *branch * inskinerator-modern-backport
+T *sym-inskinerator-modern-backport *
+T -sym-trunk *
+U wyoung
+Z eb85766319b3b95c3cd189760e36a148
 # Remove this line to create a well-formed Fossil manifest.
