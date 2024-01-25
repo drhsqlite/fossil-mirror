@@ -355,6 +355,21 @@ td.tktDspValue pre {
   white-space: pre-wrap;
 }
 
+.tkt .markdown h1,
+.tkt .markdown h2,
+.tkt .markdown h3,
+.tkt .markdown h4,
+.tkt .markdown h5,
+.tkt .markdown p,
+.tkt .markdown pre,
+.tkt .markdown ol,
+.tkt .markdown ul {
+  /* Back out indents for MD-formatted ticket comments for the same
+   * basic reason we do it with forum posts above. */
+  margin-left: 0;
+  margin-right: 0;
+}
+
 
 /* Timeline */
 

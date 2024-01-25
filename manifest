@@ -1,5 +1,5 @@
-C Confine\sthe\syellow\shighlight\sin\smodes\slike\s/timeline?c=current\sto\sthe\ncomment\sbox,\snot\sescaping\sout\sacross\sthe\swhole\stable\srow.
-D 2024-01-25T20:43:52.363
+C Backed\sout\sindent\slevels\sfor\stickets\sas\swell;\sthis\sshould've\nbeen\sincluded\sin\s[4dbd66ad].
+D 2024-01-25T20:48:52.429
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt ba5a54d4df8ad3f135a0e39b0695df1295f62c58a646d337b456e307986deb4f
+F skins/default/css.txt 20dd9383a52b60ca6c3b202c47830edd571dddbf94fd8bfe6c0920ad54894f5c
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4dbd66adecc8c62c488b4da6878d4cbabc147306cc3277194a1e0f59f7692f3f
-R 6b94ff1e47501e551b250e625f69eb9e
+P fdf5f00ce974c626d9f3d402f9f7974b6f1f7f5a626c6a177341f1f985ed19fe
+R c1554b29f2a6ff61e24a5d4a08394874
 U wyoung
-Z 994238948d57268fb7341ea1466a3be2
+Z 6fc0ff8b09681c3cd61920f08a915ffa
 # Remove this line to create a well-formed Fossil manifest.
