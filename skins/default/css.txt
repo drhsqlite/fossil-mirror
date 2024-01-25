@@ -104,7 +104,7 @@ span.submenuctrl {
 /* Main document area; elements common to most pages. */
 
 .content {
-  padding-top: 10px;
+  padding: 0ex 1ex 1ex 1ex;
   color: #444;
 }
 .content blockquote {
