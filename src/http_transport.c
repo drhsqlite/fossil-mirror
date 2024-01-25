@@ -137,6 +137,7 @@ int transport_ssh_open(UrlData *pUrlData){
     fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
                  "the server.", pUrlData->fossil);
   }
+  blob_append_escaped_arg(&zCmd, "PATH=$HOME/bin:$PATH", 1);
   blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
