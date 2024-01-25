@@ -25,6 +25,7 @@ a:hover {
 }
 .title h1 {
   display: inline;
+  font-size: 2.00em;
 }
 .title h1:after {
   content: " / ";
@@ -108,17 +109,13 @@ span.submenuctrl {
   color: #444;
 }
 .content blockquote {
-  padding: 0 15px;
+  padding: 0.1em 1em;
 }
-.content h1 {
-  font-size: 1.25em;
-}
-.content h2 {
-  font-size: 1.15em;
-}
-.content h3 {
-  font-size: 1.05em;
-}
+.content h1 { font-size: 2.00em; margin-left: 10pt; }
+.content h2 { font-size: 1.50em; margin-left: 20pt; }
+.content h3 { font-size: 1.15em; margin-left: 30pt; }
+.content h4 { font-size: 1.05em; margin-left: 40pt; }
+.content h5 { font-size: 1.00em; margin-left: 50pt; }
 
 .section {
   font-size: 1em;
@@ -169,18 +166,141 @@ pre.verbatim {
   color: #6A7F94;
 }
 
-.forum blockquote {
-  background-color: rgba(65, 131, 196, 0.1);
-  border-left: 3px solid #254769;
-  padding: .1em 1em;
-}
-
 textarea.wikiedit {
   font-size: 1em;  /* monospace fonts tend to be smaller; compensate */
 }
 
 body.cpage-forumnew form input {
   margin: 0.5em 0;
+}
+
+.forum .markdown blockquote,
+.forum .markdown h1,
+.forum .markdown h2,
+.forum .markdown h3,
+.forum .markdown h4,
+.forum .markdown h5,
+.forum .markdown p,
+.forum .markdown pre,
+.forum .markdown ol,
+.forum .markdown ul {
+  /* Avoid double-indent for doc content in forum thread view. */
+  margin-left: 0;
+  margin-right: 0;
+}
+.forum .forumTime h1,
+.forum .forumTime h2,
+.forum .forumTime h3 {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+
+/* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
+
+.doc blockquote, .markdown blockquote {
+  background-color: rgba(65, 131, 196, 0.1);
+  border-left: 3px solid #4183c4;
+  margin-left: 60pt;
+  padding: 0.1em 1em;
+}
+
+.doc dl, .markdown dl {
+  margin-left: 60pt;
+}
+
+.doc dt, .markdown dt {
+  margin-left: 10pt;
+}
+
+.doc dd, .markdown dd {
+  margin-left: 30pt;
+  margin-bottom: 1em;
+}
+
+.doc hr, .markdown hr {
+  margin-left: 10pt;
+}
+
+.doc dd, .doc dt,
+.doc li,
+.doc p,
+.doc table,
+.markdown dd, .markdown dt,
+.markdown li,
+.markdown p,
+.markdown table {
+  line-height: 1.4em;
+}
+
+.doc p,
+.doc pre,
+.doc ol, .doc ul,
+.doc table,
+.markdown p,
+.markdown pre,
+.markdown ol, .markdown ul,
+.markdown table {
+  margin-left: 50pt;
+  margin-right: 50pt;
+ 
+}
+
+.doc p ol, .doc p ul,
+.doc pre ol, .doc pre ul,
+.doc ol ol, .doc ol ul,
+.doc ul ol, .doc ul ul,
+.doc table ol, .doc table ul,
+.markdown p ol, .markdown p ul,
+.markdown pre ol, .markdown pre ul,
+.markdown ol ol, .markdown ol ul,
+.markdown ul ol, .markdown ul ul,
+.markdown table ol, .markdown table ul {
+    margin-left: 10pt;
+}
+
+.doc pre, .markdown pre {
+  hyphens: none;
+  font-size: 110%;
+  line-height: 1.25;
+  margin-left: 70pt;
+}
+
+.doc .pikchr-wrapper, .markdown .pikchr-wrapper {
+  font-size: 15px;
+  margin-left: 50pt;
+}
+
+.doc ul li, .markdown ul li {
+  list-style-type: disc;
+}
+
+.doc li p, .doc li pre, .markdown li p, .markdown li pre {
+  margin-left: 0;
+}
+
+.doc table, .markdown table {
+  background-color: #f0f5f9;
+  border: 1px solid #a7c2dc;
+  border-radius: 6px;
+  padding: 6px;
+}
+
+.doc th, .markdown th {
+  border-bottom: 1px solid #dee8f2;
+  padding-bottom: 4px;
+  padding-right: 6px;
+  text-align: left;
+}
+
+.doc td, .markdown td {
+  padding-bottom: 4px;
+  padding-right: 6px;
+  text-align: left;
+}
+
+div.pikchr-wrapper.indent:not(.source) {
+  margin-left: 70pt;
 }
 
 
