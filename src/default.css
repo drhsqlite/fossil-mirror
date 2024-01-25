@@ -498,7 +498,6 @@ table.rpteditex {
   border-spacing: 0;
 }
 table.report {
-  border-collapse:collapse;
   border: 1px solid #999;
   margin: 1em 0 1em 0;
   cursor: pointer;

@@ -282,7 +282,7 @@ body.cpage-forumnew form input {
 .doc table, .markdown table {
   background-color: #f0f5f9;
   border: 1px solid #a7c2dc;
-  border-radius: 6px;
+  border-radius: 0.5em;
   padding: 6px;
 }
 
@@ -308,8 +308,8 @@ div.pikchr-wrapper.indent:not(.source) {
 
 table.report {
   cursor: auto;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 0.5em;
   margin: 1em 0;
 }
 .report td, .report th {
