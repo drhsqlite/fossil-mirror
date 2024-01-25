@@ -930,6 +930,10 @@ div.forumClosed {
 div.forumClosed > .forumPostBody {
   opacity: 0.7;
 }
+.forumPostBody a {
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+}
 div.forumClosed > .forumPostHdr::before {
   content: "[CLOSED] ";
 }
