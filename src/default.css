@@ -1768,7 +1768,7 @@ code, pre, tt,
     tr.diffskip > td.chunkctrl,
     #fossil-status-bar,
     .monospace {
-  font-family: Source Code Pro, Menlo, Monaco,
+  font-family: Source Code Pro, Menlo, Monaco, Consolas,
                Andale Mono, Ubuntu Mono, Deja Vu Sans Mono,
                Letter Gothic, Letter Gothic Std, Prestige Elite Std,
                Courier, Courier New,
