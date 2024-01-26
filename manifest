@@ -1,5 +1,5 @@
-C Prior\scommit\slets\sus\sback\sout\s[f82b01cb].
-D 2024-01-26T17:05:02.964
+C Replaced\sthe\shand-rolled\stable\sat\sthe\stop\sof\sthe\scustomskin\sdoc\swith\san\nMD\stable\sthat\snow\sgets\sstyled\sin\smuch\sthe\ssame\sway\sunder\sthe\snew\sskin.
+D 2024-01-26T17:08:07.381
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -797,7 +797,7 @@ F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272b
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki 5220adadd102e56bb8c46f27b68dc83ab0c1ff42b12186ff832bcb5c561157bc
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
-F www/customskin.md 983d48bf9c36d1ac764692a3087c983a272031baa59c8715381b10d860408507
+F www/customskin.md 573c9cad892e8a7016d17614cb6f5757c8bbfd0704f617f8167f34be03531d72
 F www/defcsp.md 67b48b4e320129055663647ed1bb821bf5a1ef17aaec744f20c17e783b7d735d
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 276727611a9fa788a668ce16cb1d1a443485ea72751ed45301e7fdb19fd7125a
-R 2841de57737d493a1e0396044b4058d5
+P cdbf591bcff90fce7d49d4c9cbd11c24308e8d83c8c2e0b58b4f6bb42b6e4c8b
+R 9cead9ffa9e65661ee34762d7334d73d
 U wyoung
-Z dee87ed95c4f3cd19fe60ae36e236a75
+Z 14b12fb71f29ef580f3a94a57c325933
 # Remove this line to create a well-formed Fossil manifest.
