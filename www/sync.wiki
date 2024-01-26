@@ -132,30 +132,26 @@ The client modifies the URL by appending the method name "<b>/xfer</b>"
 to the end.  For example, if the URL specified on the client command
 line is
 
-<blockquote>
-https://fossil-scm.org/fossil
-</blockquote>
+<pre>https://fossil-scm.org/fossil</pre>
 
 Then the URL that is really used to do the synchronization will
 be:
 
-<blockquote>
-https://fossil-scm.org/fossil/xfer
-</blockquote>
+<pre>https://fossil-scm.org/fossil/xfer</pre>
 
 <h3>2.2 HTTP Request Format</h3>
 
 The client always sends a POST request to the server.  The
 general format of the POST request is as follows:
 
-<blockquote><pre>
+<pre>
 POST /fossil/xfer HTTP/1.0
 Host: fossil-scm.hwaci.com:80
 Content-Type: application/x-fossil
 Content-Length: 4216
+</pre>
 
-<i>content...</i>
-</pre></blockquote>
+<i><pre>content...</pre></i>
 
 In the example above, the pathname given after the POST keyword
 on the first line is a copy of the URL pathname.  The Host: parameter
@@ -167,16 +163,16 @@ uncompressed.
 
 A typical reply from the server might look something like this:
 
-<blockquote><pre>
+<pre>
 HTTP/1.0 200 OK
 Date: Mon, 10 Sep 2007 12:21:01 GMT
 Connection: close
 Cache-control: private
 Content-Type: application/x-fossil; charset=US-ASCII
 Content-Length: 265
+</pre>
 
-<i>content...</i>
-</pre></blockquote>
+<i><pre>content...</pre></i>
 
 The content type of the reply is always the same as the content type
 of the request.
@@ -204,9 +200,7 @@ are very similar.
 Every message from client to server begins with one or more login
 cards.  Each login card has the following format:
 
-<blockquote>
-<b>login</b>  <i>userid  nonce  signature</i>
-</blockquote>
+<pre><b>login</b>  <i>userid  nonce  signature</i></pre>
 
 The userid is the name of the user that is requesting service
 from the server.  The nonce is the SHA1 hash of the remainder of
@@ -243,10 +237,10 @@ on whether the artifact is sent directly or as a
 [./delta_format.wiki|delta] from some
 other artifact.
 
-<blockquote>
-<b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i><br>
+<pre>
+<b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
 <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
-</blockquote>
+</pre>
 
 File cards are followed by in-line "payload" data.
 The content of the artifact
@@ -284,10 +278,10 @@ direct content or delta content.  Cfile cards come in two different formats
 depending on whether the artifact is sent directly or as a delta from
 some other artifact.
 
-<blockquote>
-<b>cfile</b> <i>artifact-id usize csize</i> <b>\n</b> <i>content</i><br>
-<b>cfile</b> <i>artifact-id delta-artifact-id usize csize</i> <b>\n</b> <i>content</i><br>
-</blockquote>
+<pre>
+<b>cfile</b> <i>artifact-id usize csize</i> <b>\n</b> <i>content</i>
+<b>cfile</b> <i>artifact-id delta-artifact-id usize csize</i> <b>\n</b> <i>content</i>
+</pre>
 
 The first argument of the cfile card is the ID of the artifact that
 is being transferred.  The artifact ID is the lower-case hexadecimal
@@ -313,9 +307,7 @@ the [/help?cmd=sync|fossil sync] command includes the "--private" option.
 
 Private content is marked by a "private" card:
 
-<blockquote>
-<b>private</b>
-</blockquote>
+<pre><b>private</b></pre>
 
 The private card has no arguments and must directly precede a
 file card that contains the private content.
@@ -325,9 +317,7 @@ file card that contains the private content.
 Unversioned content is sent in both directions (client to server and
 server to client) using "uvfile" cards in the following format:
 
-<blockquote>
-<b>uvfile</b> <i>name mtime hash size flags</i> <b>\n</b> <i>content</i>
-</blockquote>
+<pre><b>uvfile</b> <i>name mtime hash size flags</i> <b>\n</b> <i>content</i></pre>
 
 The <i>name</i> field is the name of the unversioned file.  The
 <i>mtime</i> is the last modification time of the file in seconds
@@ -362,10 +352,10 @@ the client is pushing content.  The pull card tells the server
 that the client wants to pull content.  In the event of a sync,
 both cards are sent.  The format is as follows:
 
-<blockquote>
-<b>push</b> <i>servercode projectcode</i><br>
+<pre>
+<b>push</b> <i>servercode projectcode</i>
 <b>pull</b> <i>servercode projectcode</i>
-</blockquote>
+</pre>
 
 The <i>servercode</i> argument is the repository ID for the
 client.  The <i>projectcode</i> is the identifier
@@ -387,10 +377,10 @@ wants to pull content.  The clone card comes in two formats.  Older
 clients use the no-argument format and newer clients use the
 two-argument format.
 
-<blockquote>
-<b>clone</b><br>
+<pre>
+<b>clone</b>
 <b>clone</b> <i>protocol-version sequence-number</i>
-</blockquote>
+</pre>
 
 <h4>3.5.1 Protocol 3</h4>
 
@@ -411,9 +401,9 @@ cards for some number of artifacts up to the maximum message size.
 The server will also send a single "clone_seqno" card to the client
 so that the client can know where the server left off.
 
-<blockquote>
+<pre>
 <b>clone_seqno</b>  <i>sequence-number</i>
-</blockquote>
+</pre>
 
 The clone message in subsequent HTTP requests for the same clone
 operation will use the sequence-number from the
@@ -442,9 +432,9 @@ An igot card can be sent from either client to server or from
 server to client in order to indicate that the sender holds a copy
 of a particular artifact.  The format is:
 
-<blockquote>
+<pre>
 <b>igot</b> <i>artifact-id</i> ?<i>flag</i>?
-</blockquote>
+</pre>
 
 The first argument of the igot card is the ID of the artifact that
 the sender possesses.
@@ -465,9 +455,9 @@ Zero or more "uvigot" cards are sent from server to client when
 synchronizing unversioned content.  The format of a uvigot card is
 as follows:
 
-<blockquote>
+<pre>
 <b>uvigot</b> <i>name mtime hash size</i>
-</blockquote>
+</pre>
 
 The <i>name</i> argument is the name of an unversioned file.
 The <i>mtime</i> is the last modification time of the unversioned file
@@ -497,9 +487,9 @@ A gimme card is sent from either client to server or from server
 to client.  The gimme card asks the receiver to send a particular
 artifact back to the sender.  The format of a gimme card is this:
 
-<blockquote>
+<pre>
 <b>gimme</b> <i>artifact-id</i>
-</blockquote>
+</pre>
 
 The argument to the gimme card is the ID of the artifact that
 the sender wants.  The receiver will typically respond to a
@@ -517,9 +507,9 @@ cards to the server.  A uvgimme card requests that the server send
 unversioned content to the client.  The format of a uvgimme card is
 as follows:
 
-<blockquote>
+<pre>
 <b>uvgimme</b> <i>name</i>
-</blockquote>
+</pre>
 
 The <i>name</i> is the name of the unversioned file found on the
 server that the client would like to have.  When a server sees a
@@ -534,9 +524,9 @@ client.  The client sends the same cookie back to the server on
 its next request.  The cookie card has a single argument which
 is its payload.
 
-<blockquote>
+<pre>
 <b>cookie</b> <i>payload</i>
-</blockquote>
+</pre>
 
 The client is not required to return the cookie to the server on
 its next request.  Or the client might send a cookie from a different
@@ -560,9 +550,9 @@ data elements.
 The reqconfig card is normally sent in response to the
 "fossil configuration pull" command.  The format is as follows:
 
-<blockquote>
+<pre>
 <b>reqconfig</b> <i>configuration-name</i>
-</blockquote>
+</pre>
 
 As of 2018-06-04, the configuration-name must be one of the
 following values:
@@ -605,7 +595,7 @@ following values:
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs
-<li> <s>allow-symlinks</s> (removed 2020-08, version 2.12.1)
+<li> <s title="removed 2020-08, version 2.12.1">allow-symlinks</s>
 <li> dotfiles
 <li> parent-project-code
 <li> parent-projet-name
@@ -662,9 +652,9 @@ to server (in response to a "fossil configuration push" command) or
 from server to client (in response to a "fossil configuration pull" or
 "fossil clone" command).  The format is as follows:
 
-<blockquote>
+<pre>
 <b>config</b> <i>configuration-name size</i> <b>\n</b> <i>content</i>
-</blockquote>
+</pre>
 
 The server will only accept a config card if the user has
 "Admin" privilege.  A client will only accept a config card if
@@ -678,9 +668,9 @@ corresponding configuration data in the receiver.
 The client may try to influence the behavior of the server by
 issuing a pragma card:
 
-<blockquote>
+<pre>
 <b>pragma</i> <i>name value...</i>
-</blockquote>
+</pre>
 
 The "pragma" card has at least one argument which is the pragma name.
 The pragma name defines what the pragma does.
@@ -777,9 +767,9 @@ an error card in its reply.  When the client sees the error card,
 it displays an error message to the user and aborts the sync
 operation.  An error card looks like this:
 
-<blockquote>
+<pre>
 <b>error</b> <i>error-message</i>
-</blockquote>
+</pre>
 
 The error message is English text that is encoded in order to
 be a single token.
@@ -793,9 +783,9 @@ the error message.
 The server can also send a message card that also prints a
 message on the client console, but which is not an error:
 
-<blockquote>
+<pre>
 <b>message</b> <i>message-text</i>
-</blockquote>
+</pre>
 
 The message-text uses the same format as an error message.
 

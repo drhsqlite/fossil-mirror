@@ -1,5 +1,5 @@
-C Assorted\ssmall\stweaks\sto\sthe\snew\sskin,\scatching\ssmall\sover-reaches\sand\nsuch\sfound\sby\sopening\smany\sof\sthe\sFossil\sdocs\sunder\sit\sand\sseeing\swhat\nhappens\sto\sthe\sexisting\sformatting.
-D 2024-01-26T17:25:37.388
+C Several\sdoc\sadjustments\sto\smake\sthings\swork\sbetter\swith\sthe\snew\sskin.\nAlthough\sthis\sisn't\sstrictly\spart\sof\sthe\snew\sskin,\sand\sit\sdoes\sadmit\sof\na\stype\sof\sregression,\sI'm\scommitting\sit\shere\sanyway\sbecause\sthese\sare\ncases\swhere\smarkup\swas\sused\sto\swork\saround\sproblems\sin\sthe\sold\sskin.\nNearly\sall\sof\sthese\sare\smisuses\sof\sthe\s"blockquote"\stag\sto\smean\n"indented\sparagraph".\s\sNow\sthat\swe\shave\strue\sindented\sparagraph\sstyles,\nswitched\sthe\smarkup\sover\sto\suse\sthem.
+D 2024-01-26T17:28:25.773
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -624,7 +624,7 @@ F test/merge_renames.test 50c8b01ca6a1fe0e124aa226c7ded8297807240798b1345b8cb052
 F test/merge_renames_2.test f734dda9962b9be916e9c65624ac474be812f27693c318de72a615df94db78d7
 F test/merge_warn.test f06aaf44f8c4320d2877e73b3aca269404104fec028691e21cbad597b3ca63fc
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
-F test/release-checklist.wiki d3d3d277176238bbd517e267fa37fbc11b99c39b3cd0fbd59920ffd5c754069d
+F test/release-checklist.wiki e2c611eee0ce2899d72f389e7518e7b8a71284f8b7992def4213b6afb4ddac6e
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac75a
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
@@ -752,12 +752,12 @@ F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/aboutcgi.wiki 2312bdc7ef999d5f40f8bc51d37aaa2166616587c7b22375bfc590114ed45e5c
 F www/aboutdownload.wiki a4d666bbf8a540a92f64c131c9a55522efdbf9fba68ddf1000b2f62bc54d1f47
-F www/adding_code.wiki ec528db5d54d1bebdcaa7d0763b2d5ef9e8cbe8df6024d120af9395c0ef83a9b
+F www/adding_code.wiki 1b6e3f62cefc95cbd6101c3a47dcf3c3ee8e93426359e3f054202057bab85efe
 F www/alerts.md 5d0870938d3cb0194815a4e30d0579e0e542299b0019b7ba856e6b0f64fd171a
 F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
-F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
+F www/backoffice.md b0ca100e4fa8fd5d86460a9cb4b4c426dc9b464680c985ed41fda3b1e21eee6b
 F www/backup.md 63442dd9fd41b0f0e9b45243143c1372103e1c918c56eb2b76fc2f6b12e40deb
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md bd934c673cf72cd200c9c32aae5f9ea173167f9763d3bd92ca320801db2b4599
@@ -769,7 +769,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki a4115c8458477d968e5e259a7d062a61d98fae425451d2684bc53bbe9956ac02
+F www/build.wiki e2507fa6d0cec68f888261a64f30a0d23d07a48465d3917eab96a3273a6c406d
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -797,7 +797,7 @@ F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272b
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki 5220adadd102e56bb8c46f27b68dc83ab0c1ff42b12186ff832bcb5c561157bc
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
-F www/customskin.md 573c9cad892e8a7016d17614cb6f5757c8bbfd0704f617f8167f34be03531d72
+F www/customskin.md 3e1022ee85cc3723efa74a8fce6578ba7557972d3a3d25b91aca5581f072fc43
 F www/defcsp.md 67b48b4e320129055663647ed1bb821bf5a1ef17aaec744f20c17e783b7d735d
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
@@ -878,7 +878,7 @@ F www/json-api/index.md 1f06115e752536000e1a6aaca37f4e44671f4b9c89b4ce6b70245222
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
-F www/makefile.wiki 19bd2d5843ee6277253dea41e7a540bc63bf55747a60909d22b24ad585287908
+F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e4b2a
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 7ec8d49262fb9c140407d74862cf89dc62eef4477666b7825659ee77282d3192
@@ -935,7 +935,7 @@ F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d96
 F www/ssl.wiki d0c7bb25c06fcfff8105bec0690bfe9955bca8f7badd32eec6a2e2b77066aa5c
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki 4c08c05e1bc5e28b0f851c7da323604d04127f5305c89f1e813e580caf6e9896
+F www/sync.wiki e17abc3c91a21540aa63642f70ff471ff2e276409ab997994e96aec82ee6f0b3
 F www/tech_overview.wiki 6ea55d141e962950c6d7b72e23e5d22f888a63e2d9e45ff38bef91f3462274d0
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 7a1e4072998d8f154d8cae5497859d4351ce18c0fafdd97068a61451b6d501ab
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb90acd9449286221f130c175ef6e9c9b47b15039c0c9f2627df80bccc2762f6
-R 7563fbf26137392d8ded3f8351e6296d
+P 538ddbffbe25b6763033235576f7de7a5d71740fb2a8f7916af9405215bf92f3
+R 800d1f591388257664981d13e495eb4f
 U wyoung
-Z d0a7540758a36b9ff825c92ff7cbd770
+Z 4abbaf12e9623fd5d230c20a88127166
 # Remove this line to create a well-formed Fossil manifest.
