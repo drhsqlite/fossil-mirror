@@ -23,4 +23,4 @@ foreach {name url expr class} $mainmenu {
   html "<a href='$url' class='$class'>$name</a>\n"
 }
 </th1></div>
-<div id='hbdrop'></div>
+<div id='hbdrop' class='nomargins'></div>
