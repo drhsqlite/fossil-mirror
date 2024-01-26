@@ -172,7 +172,7 @@ textarea.wikiedit {
   font-size: 1em;  /* monospace fonts tend to be smaller; compensate */
 }
 
-body.cpage-forumnew form input {
+.forum form input {
   margin: 0.5em 0;
 }
 
