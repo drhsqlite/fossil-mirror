@@ -612,12 +612,9 @@ of times a card may (or must) appear in the corresponding artifact type.
 e.g. a value of 1 indicates a required unique card and 1+ indicates that one
 or more such cards are required.
 
-<table border=1 width="100%">
+<table>
 <tr>
-<th rowspan=2 valign=bottom>Card Format</th>
-<th colspan=8>Used By</th>
-</tr>
-<tr>
+<th>⇩ Card Format / Used By ⇨</th>
 <th>Manifest</th>
 <th>Cluster</th>
 <th>Control</th>

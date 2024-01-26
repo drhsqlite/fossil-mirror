@@ -1,5 +1,5 @@
-C Added\szebra-striping\sto\stables.\sThe\sold\smethod\swas\sfine\sfor\ssmaller\nones,\sbut\sas\stables\sget\slarger,\swith\slonger\slines,\sit\sbecame\sdifficult\nto\strace\swhich\scells\swent\swith\swhich\srow\sheaders.
-D 2024-01-26T13:39:53.977
+C The\sfile\sformat\sdoc\snow\sdemonstrates\sgood\suse\sof\sthe\snew\stable\sstyling,\nno\slonger\sdepending\son\slocal\sstyle=""\soverrides\sto\sbe\sreadable.
+D 2024-01-26T13:40:48.433
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -818,7 +818,7 @@ F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e36
 F www/faq.tcl 1504b25cd9f5277a278df000222f5a903bf3e03102ff2a6cdcb0bcec01bfcd9d x
 F www/faq.wiki 4b0237f3c1f0aa14923772ea628eb6b6cfb1e3332f0e2924049b24266bc38ca6
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
-F www/fileformat.wiki a896d84e5c8baae6f481500e75b9b109bb96cf10056128226da8c813ebeef333
+F www/fileformat.wiki 942b89016691296faa5ff5607604b2945f1f236cd80961dce8a76e5ea38f06e2
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki ee1fcb6eb51f8193edc83c62b857565831557ec0b8b48b35c183dec017410f01
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f82b01cbdc9dbcec0f5171eb4baafb05a723fa63075e63939782051272511b1e
-R 2ad12bb0370aff2496ae2587196b6dfd
+P 37ff33ad297a66869ea3d044b93e3185b19c14f4970615b6b2e6ebf996daae9c
+R 9e0445650bdf36992f840cc45633fecc
 U wyoung
-Z 7ba13b1e979460cce34267da55be5fb2
+Z 7beb2e2e3b1ba6b60b8871a523e808b6
 # Remove this line to create a well-formed Fossil manifest.
