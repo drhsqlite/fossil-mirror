@@ -261,6 +261,7 @@ body.cpage-forumnew form input {
   background-color: #f0f5f9;
   border: 1px solid #a7c2dc;
   border-radius: 0.5em;
+  border-spacing: 0;
   padding: 6px;
 }
 
@@ -269,6 +270,14 @@ body.cpage-forumnew form input {
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
+}
+
+.doc tr > th, .markdown tr > th {
+  background-color: #dee8f0;
+}
+
+.doc tr:nth-child(odd), .markdown tr:nth-child(odd) {
+  background-color: #e0e8ee;
 }
 
 .doc td, .markdown td {
