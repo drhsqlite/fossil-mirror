@@ -1,4 +1,5 @@
-/* Overall page style */
+/* Overall page style; vi: filetype=css
+ */
 
 body {
   margin: 0 auto;
@@ -108,14 +109,11 @@ span.submenuctrl {
   padding: 0ex 1ex 1ex 1ex;
   color: #444;
 }
-.content blockquote {
-  padding: 0.1em 1em;
-}
-.content h1 { font-size: 2.00em; margin-left: 10pt; }
-.content h2 { font-size: 1.50em; margin-left: 20pt; }
-.content h3 { font-size: 1.15em; margin-left: 30pt; }
-.content h4 { font-size: 1.05em; margin-left: 40pt; }
-.content h5 { font-size: 1.00em; margin-left: 50pt; }
+.content h1 { font-size: 2.00em; }
+.content h2 { font-size: 1.50em; }
+.content h3 { font-size: 1.15em; }
+.content h4 { font-size: 1.05em; }
+.content h5 { font-size: 1.00em; }
 
 .section {
   font-size: 1em;
@@ -175,89 +173,102 @@ body.cpage-forumnew form input {
 }
 
 
-/* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
+/* Markdown and Wiki-formatted pages: /wiki, /doc, /file...
+ *
+ * The frequent use of the immediate-child selector (>) is done on
+ * purpose to prevent these rules from affecting MD in forum posts,
+ * ticket comments, etc.  Without this, we'd need a bunch of inverse
+ * rules to back out the margins everywhere we don't want them.
+ *
+ * BEWARE: Fossil's MD and wiki to HTML processors wrap the content bodies
+ * differently, and /doc on *.html files works yet a third way.  These
+ * rules are carefully written to capture these docs and no other use of
+ * MD/wiki/HTML.  Adjust with care!
+ */
 
-.doc blockquote, .markdown blockquote {
+.doc > .content blockquote {
+  /* Apply extra indent relative to "p" for backwards compatibility,
+   * especially the Fossil wiki generator, which misuses this tag
+   * against HTML and MD norms to mean "indented paragraph."
+   */
+  margin-left: 60pt;
+}
+.markdown blockquote {
+  /* Style it as a proper blockquote for MD only.  Unlike the indent
+   * rule, this applies everywhere, including the forum, tickets… */
   background-color: rgba(65, 131, 196, 0.1);
   border-left: 3px solid #4183c4;
-  margin-left: 60pt;
   padding: 0.1em 1em;
 }
 
-.doc dl, .markdown dl {
-  margin-left: 60pt;
-}
-
-.doc dt, .markdown dt {
+.doc > .content dt {
   margin-left: 10pt;
 }
-
-.doc dd, .markdown dd {
+.doc > .content dd {
   margin-left: 30pt;
   margin-bottom: 1em;
 }
+.doc > .content dl {
+  margin-left: 60pt;
+}
 
-.doc hr, .markdown hr {
+.doc > .content hr {
   margin-left: 10pt;
 }
 
-.doc dd, .doc dt,
-.doc li,
-.doc p,
-.doc table,
-.markdown dd, .markdown dt,
-.markdown li,
-.markdown p,
-.markdown table {
+.content dd, .content dt,
+.content li,
+.content p,
+.content table
+{
   line-height: 1.4em;
 }
 
-.doc p,
-.doc pre,
-.doc ol, .doc ul,
-.doc table,
-.markdown p,
-.markdown pre,
-.markdown ol, .markdown ul,
-.markdown table {
+.doc > .content h1 { margin-left: 10pt; }
+.doc > .content h2 { margin-left: 20pt; }
+.doc > .content h3 { margin-left: 30pt; }
+.doc > .content h4 { margin-left: 40pt; }
+.doc > .content h5 { margin-left: 50pt; }
+
+.doc > .content > p,
+.doc > .content > .markdown > p,
+.doc > .content > .fossil-doc > p,
+.doc > .content > ol, .doc > .content > ul,
+.doc > .content > .markdown > ol, .doc > .content > .markdown > ul,
+.doc > .content > .fossil-doc > ol, .doc > .content > .fossil-doc > ul,
+.doc > .content table {
   margin-left: 50pt;
   margin-right: 50pt;
 }
 
-.doc p ol, .doc p ul,
-.doc pre ol, .doc pre ul,
-.doc ol ol, .doc ol ul,
-.doc ul ol, .doc ul ul,
-.doc table ol, .doc table ul,
-.markdown p ol, .markdown p ul,
-.markdown pre ol, .markdown pre ul,
-.markdown ol ol, .markdown ol ul,
-.markdown ul ol, .markdown ul ul,
-.markdown table ol, .markdown table ul {
-    margin-left: 10pt;
-}
-
-.doc pre, .markdown pre {
+.content pre {
   hyphens: none;
   font-size: 110%;
   line-height: 1.25;
+}
+.doc > .content > pre,
+.doc > .content > .markdown > pre {
+  margin-left: 70pt;
+  margin-right: 50pt;
+}
+
+.content .pikchr-wrapper {
   margin-left: 70pt;
 }
-
-.doc .pikchr-wrapper, .markdown .pikchr-wrapper {
-  font-size: 15px;
-  margin-left: 50pt;
+div.pikchr-wrapper.center:not(.source) {
+  margin-left: 0;
+}
+div.pikchr-wrapper.indent:not(.source) {
+  /* Odd selector must match one in default.css to override it. */
+  margin-left: 70pt;
+  margin-right: 50pt;
 }
 
-.doc ul li, .markdown ul li {
+.content ul li {
   list-style-type: disc;
 }
 
-.doc li p, .doc li pre, .markdown li p, .markdown li pre {
-  margin-left: 0;
-}
-
-.doc table, .markdown table {
+.content table {
   background-color: #f0f5f9;
   border: 1px solid #a7c2dc;
   border-radius: 0.5em;
@@ -265,78 +276,25 @@ body.cpage-forumnew form input {
   padding: 6px;
 }
 
-.doc th, .markdown th {
+.content th {
   border-bottom: 1px solid #dee8f2;
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
 }
 
-.doc tr > th, .markdown tr > th {
+.content tr > th {
   background-color: #dee8f0;
 }
 
-.doc tr:nth-child(odd), .markdown tr:nth-child(odd) {
+.content tr:nth-child(odd) {
   background-color: #e0e8ee;
 }
 
-.doc td, .markdown td {
+.content td {
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
-}
-
-div.pikchr-wrapper.indent:not(.source) {
-  margin-left: 70pt;
-}
-
-/* Back above margin changes out in sections where it isn't helpful,
- * mainly forum posts — indented already on the desktop due to the
- * default threaded view — and ticket comments.  Also define a class
- * for use in documents where the same effect is wanted in a one-off
- * fashion, as with the ToC sidebar on the Fossil home page.
- * 
- * If you're wondering why this is so repetitive, it's to ensure that
- * we back out all hierarchical levels of formatting inversely.  In a
- * richer stylesheet language like SCSS, we could express the hierarchy
- * directly, getting the same effect in a small fraction of the code.
- */
-.forum .markdown blockquote,
-.forum .markdown h1,
-.forum .markdown h2,
-.forum .markdown h3,
-.forum .markdown h4,
-.forum .markdown h5,
-.forum .markdown p,
-.forum .markdown pre,
-.forum .markdown ol,
-.forum .markdown ul,
-.forum .forumTime h1,
-.forum .forumTime h2,
-.forum .forumTime h3,
-.tkt .markdown blockquote,
-.tkt .markdown h1,
-.tkt .markdown h2,
-.tkt .markdown h3,
-.tkt .markdown h4,
-.tkt .markdown h5,
-.tkt .markdown p,
-.tkt .markdown pre,
-.tkt .markdown ol,
-.tkt .markdown ul,
-.nomargins,
-.nomargins blockquote,
-.nomargins h1,
-.nomargins h2,
-.nomargins h3,
-.nomargins h4,
-.nomargins h5,
-.nomargins p,
-.nomargins pre,
-.nomargins ol,
-.nomargins ul {
-  margin-left: 0;
-  margin-right: 0;
 }
 
 
