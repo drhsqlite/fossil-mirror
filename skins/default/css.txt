@@ -164,6 +164,10 @@ pre.verbatim {
   color: #6A7F94;
 }
 
+div.forumSel {
+  background-color: #ebf5ff;
+}
+
 textarea.wikiedit {
   font-size: 1em;  /* monospace fonts tend to be smaller; compensate */
 }
