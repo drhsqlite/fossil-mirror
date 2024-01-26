@@ -1,5 +1,5 @@
-C Removed\san\sunhelpful\s"ul"\slevel\sin\sthe\sold\spermutexindex\spage.\s\sThe\sold\nskin\smasked\sit.
-D 2024-01-26T16:24:07.058
+C Backed\sout\sall\sthe\sextra\swhitespace\sin\scommand\sexamples\sin\sthe\sgitusers\ndoc\snow\sthat\sthe\sskin\shandles\sindenting\sfor\sus.
+D 2024-01-26T16:30:04.775
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -835,7 +835,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md 387dbba1f32f196724c1ccf423d7b019b4daf85539e99f57b436a2ddf1c1cdc4
+F www/gitusers.md 06b91d2f62bf9908320a9bfc15b871cc9cf93998cccea125d6c6b5ae38ffc510
 F www/globs.md b1d2513af1844ebf670c9f1e612f77bd43f76ebd0e0c1c019d6626bdc55fa1d5
 F www/glossary.md eade6289fe358fe9662247b663739cade3f9fb1f2d2e8bdbf9c0482f7a94b186
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43793758ca317cd49006af6c73a367cc734f166f8972eb263fb722168e20284f
-R 05c2fcf1deb30ee1955e985434daaa02
+P d67009e521d03330e501a5ef781650d79e707b3ec0b7bc3cc4f5f5e6112b2036
+R 9b5b43d7d0f237be83c62069536feb0b
 U wyoung
-Z d1539d4bb1fb726cfa5b6e1dcdf1d952
+Z ae8523b31dafb2fd5a3526e61bb0a07a
 # Remove this line to create a well-formed Fossil manifest.
