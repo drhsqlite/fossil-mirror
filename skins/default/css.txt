@@ -281,8 +281,17 @@ div.pikchr-wrapper.indent:not(.source) {
   margin-left: 70pt;
 }
 
-/* Back above margins out in forum posts and ticket comments, and define
- * a one-off class for use in documents where the same is desired. */
+/* Back above margin changes out in sections where it isn't helpful,
+ * mainly forum posts — indented already on the desktop due to the
+ * default threaded view — and ticket comments.  Also define a class
+ * for use in documents where the same effect is wanted in a one-off
+ * fashion, as with the ToC sidebar on the Fossil home page.
+ * 
+ * If you're wondering why this is so repetitive, it's to ensure that
+ * we back out all hierarchical levels of formatting inversely.  In a
+ * richer stylesheet language like SCSS, we could express the hierarchy
+ * directly, getting the same effect in a small fraction of the code.
+ */
 .forum .markdown blockquote,
 .forum .markdown h1,
 .forum .markdown h2,
@@ -296,6 +305,7 @@ div.pikchr-wrapper.indent:not(.source) {
 .forum .forumTime h1,
 .forum .forumTime h2,
 .forum .forumTime h3,
+.tkt .markdown blockquote,
 .tkt .markdown h1,
 .tkt .markdown h2,
 .tkt .markdown h3,
@@ -306,6 +316,7 @@ div.pikchr-wrapper.indent:not(.source) {
 .tkt .markdown ol,
 .tkt .markdown ul,
 .nomargins,
+.nomargins blockquote,
 .nomargins h1,
 .nomargins h2,
 .nomargins h3,
