@@ -1,5 +1,5 @@
-C Reworked\sthe\stwo\stable-based\slayout\shacks\sin\sthe\stech\soverview\sdoc\sto\nuse\splain\stables,\sstyled\sby\sthe\snew\sskin.
-D 2024-01-26T17:24:18.555
+C Assorted\ssmall\stweaks\sto\sthe\snew\sskin,\scatching\ssmall\sover-reaches\sand\nsuch\sfound\sby\sopening\smany\sof\sthe\sFossil\sdocs\sunder\sit\sand\sseeing\swhat\nhappens\sto\sthe\sexisting\sformatting.
+D 2024-01-26T17:25:37.388
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 2e77419824af0f7b7b4f385954655ebf24450765d4aa5bbc9852a1366aeff7da
+F skins/default/css.txt 06959dde7972e6df5bd14e7a30f3ccf7e763bf86e17223b11b1fd152af768e45
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69aaf2595df92b550ca6776748fdfba4e41275c2796a3ded07ba392c890db070
-R aac5597d3033f50a87c2111cdc48ed64
+P eb90acd9449286221f130c175ef6e9c9b47b15039c0c9f2627df80bccc2762f6
+R 7563fbf26137392d8ded3f8351e6296d
 U wyoung
-Z 3aab80ac402329e647593642d63d26ee
+Z d0a7540758a36b9ff825c92ff7cbd770
 # Remove this line to create a well-formed Fossil manifest.

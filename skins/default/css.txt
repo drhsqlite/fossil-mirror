@@ -191,7 +191,7 @@ body.cpage-forumnew form input {
    * especially the Fossil wiki generator, which misuses this tag
    * against HTML and MD norms to mean "indented paragraph."
    */
-  margin-left: 60pt;
+  margin-left: 80pt;
 }
 .markdown blockquote {
   /* Style it as a proper blockquote for MD only.  Unlike the indent
@@ -199,6 +199,9 @@ body.cpage-forumnew form input {
   background-color: rgba(65, 131, 196, 0.1);
   border-left: 3px solid #4183c4;
   padding: 0.1em 1em;
+}
+.doc > .content > .markdown > blockquote {
+  margin-left: 60pt;
 }
 
 .doc > .content dt {
@@ -216,10 +219,10 @@ body.cpage-forumnew form input {
   margin-left: 10pt;
 }
 
-.content dd, .content dt,
-.content li,
-.content p,
-.content table
+.doc > .content dd, .content dt,
+.doc > .content li,
+.doc > .content p,
+.doc > .content table
 {
   line-height: 1.4em;
 }
@@ -268,30 +271,26 @@ div.pikchr-wrapper.indent:not(.source) {
   list-style-type: disc;
 }
 
-.content table {
+.doc > .content table {
   background-color: #f0f5f9;
   border: 1px solid #a7c2dc;
   border-radius: 0.5em;
   border-spacing: 0;
   padding: 6px;
 }
-
-.content th {
+.doc > .content th {
   border-bottom: 1px solid #dee8f2;
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
 }
-
-.content tr > th {
+.doc > .content tr > th {
   background-color: #dee8f0;
 }
-
-.content tr:nth-child(odd) {
+.doc > .content tr:nth-child(odd) {
   background-color: #e0e8ee;
 }
-
-.content td {
+.doc > .content td {
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
