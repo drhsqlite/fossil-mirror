@@ -10,7 +10,7 @@ well they are working.  The following table is a summary of the results.
 (Last updated on 2018-06-04.)
 Explanation and analysis follows the table.
 
-<table border=1>
+<table>
 <tr>
 <th>Project</th>
 <th>Number Of Artifacts</th>

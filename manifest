@@ -1,5 +1,5 @@
-C Moved\sall\s"margin-left"\schanges\sdown\sinto\sthe\sdesktop\smedia\sblock\sto\nmake\sthe\shierarchy\slevels\sdisappear\son\s"mobile"\sscreens.
-D 2024-01-27T13:49:26.926
+C Removed\sa\snow-unneeded\stable\sborder\son\sthe\sstats\sdoc
+D 2024-01-27T15:06:48.702
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -933,7 +933,7 @@ F www/settings.wiki 194a1b8a22acf5098168ffd991758a5903f135c4870dcbe5beb3ffdf5791
 F www/shunning.wiki c8e96dbccdd3aea354ecf31c6e6f265010213bd234a5441606da60b636bbc93b
 F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d960eda
 F www/ssl.wiki d0c7bb25c06fcfff8105bec0690bfe9955bca8f7badd32eec6a2e2b77066aa5c
-F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
+F www/stats.wiki 5c0b0674ee2b2a9a2b24b26161ed38d349f84f653d3ab5cbf59510e06f5cd6bd
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki e17abc3c91a21540aa63642f70ff471ff2e276409ab997994e96aec82ee6f0b3
 F www/tech_overview.wiki 6ea55d141e962950c6d7b72e23e5d22f888a63e2d9e45ff38bef91f3462274d0
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44ea50db046038beb4c43308309c55f8d0e39fa013cd1e5b5be32f45e62a24dd
-R 43d0b3f586eb38288c91455864029a0e
+P d00a8867b294809e6e11ff9341279aa48dbe19954b1be9d9619021b4ed12b1a5
+R cf604ab3e634cba21affbfbdcce501ae
 U wyoung
-Z 2df57f7a3cce988f835af0afcfd0defa
+Z db92e6f9be80124d38a84c927e48b3e8
 # Remove this line to create a well-formed Fossil manifest.
