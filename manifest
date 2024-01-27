@@ -1,5 +1,5 @@
-C Simplified\stable\sstyling\sfor\sthe\sToC\sat\sthe\stop\sof\sthe\sFossil\sv\sGit\sdoc\nto\smake\sbetter\suse\sof\sthe\snew\sstyling.
-D 2024-01-27T15:30:34.929
+C Replaced\smany\suses\sof\sblockquote\sin\sthe\squick\sstart\sdoc\swith\spre,\nverbatim,\setc.,\swhere\sall\sthat\swas\swanted\swas\san\sindented\sblock\sof\stext.\nThese\smore\ssemantic\smarkup\selements\sare\snow\sindented\salready.
+D 2024-01-27T15:32:53.919
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -891,7 +891,7 @@ F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 0d9f2a36fbf1db95b7097936609b455c49a4ea064b167c1f52eabf213f3bb5b2
 F www/qandc.wiki 754e41cafbb90ac44b13732a764fc22e9c4b3983653c52b1514b26898a6adaf9
-F www/quickstart.wiki 74b85495fa35b8316ec9caa047c30e0bf81f4b61b1adb5d19e0f600defe1861a
+F www/quickstart.wiki e2130117b15699a5ec4c59bfd6989b1b910218c896113960a336193010f0e3f2
 F www/quotes.wiki c76107fccacca55ba3b2f42bb8ef2fe0963f06d28894bde3b1d6501a20f0cbd2
 F www/rebaseharm.md ee60c4c18678fd7708440865e660a46de367f9c3c6ec5419fb9a404513ff1ffd
 F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76f6e9e1b71d807c8757f35fd7a6571667c0fbdf3d3d0070e37de98ae2cbdd9f
-R 189fd25430484c14f686710d446a1246
+P 5f1caed1da0fd2f3e757117868d2ba23ec2cedbc1c3041cb9145147a9a64dffc
+R 4932ed9ac4725f1e110f8e5969deb51f
 U wyoung
-Z 6ab30540b417d3bd0e740505540a5695
+Z 22293035e06012e5ca040a3d98c0bba2
 # Remove this line to create a well-formed Fossil manifest.
