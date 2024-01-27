@@ -260,6 +260,20 @@ textarea.wikiedit {
 }
 
 .content .pikchr-wrapper {
+  /* Pikchr was developed with the assumption that it would be
+   * integrated into a Fossil repo using the old 0.9em body font
+   * size, which no longer obtians.  This gives us a choice:
+   *
+   * 1. Change Pikchr to track this skin change, potentially breaking
+   *    uses of alternate skins with differing default font sizes.
+   * 2. Restore the old default for Pikchr diagrams so the old
+   *    assumptions continue to be valid.
+   * 3. Make everyone with custom skins set pikchr-scale=1.11 (1/0.9)
+   *    in their skin's footer.txt to increase the diagram's relative
+   *    size to compensate for the font size change.
+   *
+   * We choose #2 because it puts both adjustments in the same file. */
+  font-size: 0.9em;
   margin-left: 70pt;
 }
 div.pikchr-wrapper.center:not(.source) {
