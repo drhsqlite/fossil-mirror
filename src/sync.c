@@ -305,7 +305,7 @@ static void process_sync_args(
   user_select();
   url_enable_proxy("via proxy: ");
   *pConfigFlags |= configSync;
-  if( (*pSyncFlags & SYNC_ALLURL)==0 ){
+  if( (*pSyncFlags & SYNC_ALLURL)==0 && zUrl==0 ){
     const char *zAutosync = db_get_for_subsystem("autosync", "sync");
     if( sqlite3_strglob("*all*", zAutosync)==0 ){
       *pSyncFlags |= SYNC_ALLURL;
