@@ -1619,9 +1619,33 @@ static size_t parse_blockquote(
   char *data,
   size_t size
 ){
-  size_t beg, end = 0, pre, work_size = 0;
+  size_t beg, end = 0, pre, work_size = 0, nb, endFence = 0;
   char *work_data = 0;
   struct Blob *out = new_work_buffer(rndr);
+
+  /* Check to see if this is a quote of a fenced code block, because
+  ** if it is, then blank lines do not terminated the quoted text.  Ex:
+  **
+  **    > ~~~~
+  **    First line
+  **
+  **    Line after blank
+  **    ~~~~
+  **
+  **  If this is a quoted fenced block, then set endFence to be the
+  **  offset of the end of the fenced block.
+  */
+  pre = prefix_quote(data,size);
+  pre += is_empty(data+pre,size-pre);
+  nb = prefix_fencedcode(data+pre,size-pre);
+  if( nb ){
+    size_t i = 0;
+    char delim = data[pre];
+    for(end=pre+nb; end<size && i<nb; end++){
+      if( data[end]==delim ) i++; else i = 0;
+    }
+    if( i>=nb ) endFence = end;
+  }
 
   beg = 0;
   while( beg<size ){
@@ -1631,7 +1655,8 @@ static size_t parse_blockquote(
       beg += pre; /* skipping prefix */
     }else if( is_empty(data+beg, end-beg)
      && (end>=size
-         || (prefix_quote(data+end, size-end)==0
+         || (end>endFence
+             && prefix_quote(data+end, size-end)==0
              && !is_empty(data+end, size-end)))
     ){
       /* empty line followed by non-quote line */
