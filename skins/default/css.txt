@@ -190,37 +190,12 @@ textarea.wikiedit {
  * MD/wiki/HTML.  Adjust with care!
  */
 
-.doc > .content blockquote {
-  /* Apply extra indent relative to "p" for backwards compatibility,
-   * especially the Fossil wiki generator, which misuses this tag
-   * against HTML and MD norms to mean "indented paragraph."
-   */
-  margin-left: 80pt;
-}
 .markdown blockquote {
   /* Style it as a proper blockquote for MD only.  Unlike the indent
    * rule, this applies everywhere, including the forum, tickets… */
   background-color: rgba(65, 131, 196, 0.1);
   border-left: 3px solid #4183c4;
   padding: 0.1em 1em;
-}
-.doc > .content > .markdown > blockquote {
-  margin-left: 60pt;
-}
-
-.doc > .content dt {
-  margin-left: 10pt;
-}
-.doc > .content dd {
-  margin-left: 30pt;
-  margin-bottom: 1em;
-}
-.doc > .content dl {
-  margin-left: 60pt;
-}
-
-.doc > .content hr {
-  margin-left: 10pt;
 }
 
 .doc > .content dd, .content dt,
@@ -231,32 +206,10 @@ textarea.wikiedit {
   line-height: 1.4em;
 }
 
-.doc > .content h1 { margin-left: 10pt; }
-.doc > .content h2 { margin-left: 20pt; }
-.doc > .content h3 { margin-left: 30pt; }
-.doc > .content h4 { margin-left: 40pt; }
-.doc > .content h5 { margin-left: 50pt; }
-
-.doc > .content > p,
-.doc > .content > .markdown > p,
-.doc > .content > .fossil-doc > p,
-.doc > .content > ol, .doc > .content > ul,
-.doc > .content > .markdown > ol, .doc > .content > .markdown > ul,
-.doc > .content > .fossil-doc > ol, .doc > .content > .fossil-doc > ul,
-.doc > .content table {
-  margin-left: 50pt;
-  margin-right: 50pt;
-}
-
 .content pre {
   hyphens: none;
   font-size: 110%;
   line-height: 1.25;
-}
-.doc > .content > pre,
-.doc > .content > .markdown > pre {
-  margin-left: 70pt;
-  margin-right: 50pt;
 }
 
 .content .pikchr-wrapper {
@@ -274,15 +227,6 @@ textarea.wikiedit {
    *
    * We choose #2 because it puts both adjustments in the same file. */
   font-size: 0.9em;
-  margin-left: 70pt;
-}
-div.pikchr-wrapper.center:not(.source) {
-  margin-left: 0;
-}
-div.pikchr-wrapper.indent:not(.source) {
-  /* Odd selector must match one in default.css to override it. */
-  margin-left: 70pt;
-  margin-right: 50pt;
 }
 
 .content ul li {
@@ -445,5 +389,56 @@ tr.timelineSecondary td.timelineColumnarCell {
   }
   .mainmenu {
     padding: 10px;
+  }
+  .doc > .content > .markdown > blockquote {
+    /* Slight indent for MD blockquotes, since they're styled with extra
+     * whitespace above for both mobile and desktop. */
+    margin-left: 60pt;
+  }
+  .doc > .content blockquote {
+    /* Apply extra indent relative to "p" for backwards compatibility
+     * in wiki docs since Fossil's generator misuses the blockquote
+     * tag against HTML and MD norms to mean "indented paragraph." */
+    margin-left: 80pt;
+  }
+  .doc > .content dd { margin-left: 30pt; margin-bottom: 1em; }
+  .doc > .content dl { margin-left: 60pt; }
+  .doc > .content dt { margin-left: 10pt; }
+  .doc > .content h1 { margin-left: 10pt; }
+  .doc > .content h2 { margin-left: 20pt; }
+  .doc > .content h3 { margin-left: 30pt; }
+  .doc > .content h4 { margin-left: 40pt; }
+  .doc > .content h5 { margin-left: 50pt; }
+  .doc > .content hr { margin-left: 10pt; }
+
+  /* Extra > in these relative to above is to ensure we indent top-level
+   * markup only to avoid double-indent of nested markup like p in li. */
+  .doc > .content > p,
+  .doc > .content > .markdown > p,
+  .doc > .content > .fossil-doc > p,
+  .doc > .content > ol, .doc > .content > ul,
+  .doc > .content > .markdown > ol, .doc > .content > .markdown > ul,
+  .doc > .content > .fossil-doc > ol, .doc > .content > .fossil-doc > ul,
+  .doc > .content table {
+    margin-left: 50pt;
+    margin-right: 50pt;
+  }
+  .doc > .content > pre,
+  .doc > .content > .markdown > pre,
+  .doc > .content > .fossil-doc > pre {
+    margin-left: 70pt;
+    margin-right: 50pt;
+  }
+  .doc > .content .pikchr-wrapper {
+    margin-left: 70pt;
+  }
+  div.pikchr-wrapper.indent:not(.source) {
+    /* Selector naming scheme mismatch is intentional: it must match the
+     * way it's given in default.css exactly if it is to override it. */
+    margin-left: 70pt;
+    margin-right: 50pt;
+  }
+  div.pikchr-wrapper.center:not(.source) {
+    margin-left: 0;
   }
 }
