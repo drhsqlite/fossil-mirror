@@ -1,6 +1,5 @@
 <title>Questions And Criticisms</title>
 <nowiki>
-<h1 align="center">Questions And Criticisms</h1>
 
 This page is a collection of real questions and criticisms that were
 raised against Fossil early in its history (circa 2008).

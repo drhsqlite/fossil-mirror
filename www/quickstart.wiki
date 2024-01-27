@@ -1,5 +1,4 @@
 <title>Fossil Quick Start Guide</title>
-<h1 align="center">Fossil Quick Start</h1>
 
 This is a guide to help you get started using the Fossil [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed Version Control System] quickly
 and painlessly.

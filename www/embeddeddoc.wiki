@@ -1,5 +1,4 @@
 <title>Project Documentation</title>
-<h1 align="center">Project Documentation</h1>
 
 Fossil provides a built-in <a href="wikitheory.wiki">wiki</a>
 that can be used to store the

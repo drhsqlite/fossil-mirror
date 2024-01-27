@@ -1,5 +1,4 @@
 <title>Fossil Concepts</title>
-<h1 align="center">Fossil Concepts</h1>
 
 <h2>1.0 Introduction</h2>
 

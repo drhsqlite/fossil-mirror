@@ -1,7 +1,4 @@
 <title>Fossil File Formats</title>
-<h1 align="center">
-Fossil File Formats
-</h1>
 
 The global state of a fossil repository is kept simple so that it can
 endure in useful form for decades or centuries.

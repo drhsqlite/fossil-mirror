@@ -1,5 +1,4 @@
 <title>Unversioned Content</title>
-<h1 align="center">Unversioned Content</h1>
 
 "Unversioned content" or "unversioned files" are
 files stored in a Fossil repository without history, meaning
