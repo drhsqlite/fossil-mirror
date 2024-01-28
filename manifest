@@ -1,5 +1,5 @@
-C It\sis\spossible\sto\strick\sthe\swiki\sto\sHTML\srenderer\sinto\sleaving\sthe\sfirst\nparagraph\sunwrapped\sby\s"p"\stags,\sas\swith\sthe\scheckin_names.wiki\sdoc,\sin\nwhich\scase\syou\sget\sno\sfirst-line\spadding.\s\sThe\strunk\sversion\sof\sthe\sskin\nworks\saround\sthis\sby\sputting\s10px\sof\spadding\sin\sat\sthe\stop,\swhich\swe\ndialed\sback\sout\sin\sInskinerator\sModern\ssince\sthe\sMD\srenderer\sdoes\snot\sdo\nthis.\s\sPut\sit\sback,\sbut\sas\s1ex\saround\sthe\swhole\sdoc,\sgiving\sa\ssmidge\sof\nbreathing\sroom\sin\sodd\scases\slike\sthis\sone\swithout\sputting\stoo\smuch\sin\nfor\sthe\sother\scases\swhere\sthe\sparagraph\sspacing\ssuffices.
-D 2024-01-28T20:12:50.911
+C Moved\sthe\sfirst\sparagraph\sof\sthe\scheckin\snames\sdoc\sup\sabove\sthe\sQuick\nReference\ssidebar\stable\sto\ssidestep\sthe\spreviously-mentioned\swiki\nrendering\sbug,\sat\sthe\sminor\sexpense\sof\spushing\ssaid\ssidebar\sdown\nslightly.\s\s(Also\sremoved\slocal\soverrides\son\sthe\stable,\sto\slet\sthe\sskin's\ntable\sstyling\stake\sover\sfully.)\s\sThe\sprior\scheckin's\sfix\sthe\sfirst-line\nspacing\sproblem\sdoesn't\ssuffice;\sthe\sbug\sstill\sleaves\sthis\sparagraph\nunindented\sand\swithout\sthe\ssame\sline\sspacing\sas\sthe\sothers.
+D 2024-01-28T20:24:30.484
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -780,7 +780,7 @@ F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
 F www/changes.wiki 0f2052d15a9625d11d5090af6ff206507bec5042ef25820b9db82cea7351066c
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
-F www/checkin_names.wiki 04658e093bf10552fbc8d4bb6bce7d48e3212f07469b2c263e220313f73ffebf
+F www/checkin_names.wiki 71dd3c0f69b317c86166e4e93027bdfd71ea346d83a9f254ccfc8e2ca0735059
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
 F www/ckout-workflows.md ab6e6458629a8716980e3b11dfdb0123b199bc2444365ccf587b04938c20a588
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82db130f7941bdbc352b1a60a4e1d1031e216c2ce848b2c13378d0342f621403
-R 119687b1b2fed59f088b3f402cd18c95
+P 6185c648d1af140ce181357e8288b3d08f467278f0415e194acc767b0ee9dad1
+R bb0e346f683a2b629fe7fbf4cb728699
 U wyoung
-Z ecaed3ae077c6726ea8ed1b49ec45293
+Z 01bc56543d08370287efd31eb2dbf74b
 # Remove this line to create a well-formed Fossil manifest.
