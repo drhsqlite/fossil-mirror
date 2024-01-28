@@ -105,7 +105,7 @@ span.submenuctrl {
 /* Main document area; elements common to most pages. */
 
 .content {
-  padding: 0ex 1ex 1ex 1ex;
+  padding: 1ex;
   color: #444;
 }
 .content h1 { font-size: 1.80em; }
