@@ -4486,6 +4486,9 @@ struct Setting {
 ** The syntax is a comma-separated list of VALUE and COMMAND=VALUE entries.
 ** A plain VALUE entry is the default that is used if no COMMAND matches.
 ** Otherwise, the VALUE of the matching command is used.
+**
+** The "all" value is special in that it applies to the "sync" command in
+** addition to "commit", "merge", "open", and "update".
 */
 /*
 ** SETTING: autosync-tries  width=16 default=1
