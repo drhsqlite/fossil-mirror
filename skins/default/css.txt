@@ -492,8 +492,10 @@ span.timelineSecondary {
   }
 
   /* Special treatment for backward compatibility. */
-  .content blockquote {
-    /* We must apply extra indent relative to "p" since Fossil's wiki
+  .artifact > .content > blockquote,
+  .dir      > .content > blockquote,
+  .doc      > .content > blockquote {
+    /* We must apply ex> tra indent relative to "p" since Fossil's wiki
      * generator misuses the blockquote tag against HTML and MD norms
      * to mean "indented paragraph." */
     margin-left: 80pt;
