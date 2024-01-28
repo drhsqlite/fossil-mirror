@@ -1,5 +1,5 @@
-C Changed\sthe\stimeline\shighlight\scolors\sso\sthat\sthe\ssecondary\svalue\s(used\nin\se.g.\s/vdiff&to)\sis\sa\slighter\sand\smore\ssaturated\sversion\sof\sthe\nprimary\saccent\scolor,\sbeing\sthe\sheader\sfont\scolor,\sand\sthe\ssecondary\sis\na\sone-eighty\shue\sshift\son\sthis.\s\sThis\sresults\sin\sa\ssmall\scolor\ndifference\sfor\sthe\sformer,\smore\scomplementary\sto\sthe\soverall\sskin\scolors\nbut\sstill\sa\slight\sblue.\s\sThe\sprimary\scolor\s—\sused\sin\s/info\stimelines\sand\nfor\sthe\s/vdiff&from\scell\s—\sis\smore\ssignificantly\sshifted,\sa\spale\sorange\nnow\srather\sthan\sa\sbright\syellow.\s\sThis\sresults\sfrom\sbasic\scolor\stheory;\nto\smaintain\sa\syellow\sunder\sthis\sone-eighty\shue\srule,\swe'd\shave\sto\smake\nthe\ssecondary\scolor\spurple,\snot\sblue.\n\nInskinerator\sModern\suses\sthat\srule\sto\sshift\sall\sthe\sancillary\scolors\nwhen\syou\sshift\sone\sof\sthe\sprimaries,\ssaving\sthe\suser\sfrom\shaving\sto\nspecify\seach\sderived\scolor\sname\smanually.\s\sFossil's\shard-coded\sskins\ndon't\shave\sthat\ssame\smotivation,\sand\sas\shard-coded\sdefaults,\sthe\sold\n"office\shighlighter"\scolors\swere\sfine,\sbut\sonce\syou\sget\sdown\sto\sspecific\ninstances,\swe\sdon't\swant\sto\suse\sarbitrary\scolor,\swe\swant\sthem\sto\sbe\nanalogous\sor\scomplementary\sto\sthe\smain\saccent\scolor.
-D 2024-01-28T19:37:14.057
+C Removed\sthe\sbody\sfont\ssize\soverride\sfor\sdesktop\sscreens,\sletting\sthe\nbrowser\stake\sits\sdefault,\s"medium"\sin\sCSS-speak.\s\sThis\sresults\sin\sa\nslight\sreduction\sin\sall\sfont\ssizes\son\sdesktop\sscreens.
+D 2024-01-28T19:47:43.229
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 766ac5a1edf6f17667396c43be5f22605c0b383a023f93194ce92ba0199dec14
+F skins/default/css.txt 0bf33ea2d18daa43636c27034b915c567f25180dfaee00dbbcf25413ab04c7a1
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8e9f8c4d0fa28902d7c7bf0a0f0b4c1267580cec37c5ed2710397189e5ddda1
-R 5f3348a6bc865f3499248ec8ff8235d1
+P 285defacdac5dc0fca1457fc46db010021f0fbdbdf5fa44085cc82f56c3b6f1d
+R 0e5fcd951c8974db38550a9e16634887
 U wyoung
-Z 042dd40fd9791803742a0b9ff56ec515
+Z 0257444a23690cc21dbb86c73958ab7b
 # Remove this line to create a well-formed Fossil manifest.
