@@ -336,12 +336,18 @@ tr.timelineCurrent td.timelineColumnarCell {
 }
 tr.timelineSelected td.timelineModernCell,
 tr.timelineSelected td.timelineColumnarCell {
-  background-color: #ffc;
+  background-color: #fbe8d5;
   border-radius: 1em;
 }
 tr.timelineSecondary td.timelineModernCell,
 tr.timelineSecondary td.timelineColumnarCell {
-  background-color: #cff;
+  background-color: #d5e8fb;
+}
+span.timelineSelected {
+  background-color: #fbe8d5;
+}
+span.timelineSecondary {
+  background-color: #d5e8fb;
 }
 
 
