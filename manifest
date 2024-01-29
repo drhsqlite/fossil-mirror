@@ -1,5 +1,5 @@
-C In\smarkdown,\ssupport\sfenced\scode\sblocks\scontaining\sblank\slines\sthat\nare\sindented.
-D 2024-01-27T22:38:18.110
+C Back\sout\s[321d8baf1939],\sas\s(A)\sthe\smajority\sconsensus\sis\sthat\sunderlining\sof\shyperlinks\sis\snot\sdesired\sand\s(B)\sto\shelp\savoid\sa\spotential\smerge\sconflict\swith\sthe\sinkskinerator-modern-backport\sbranch,\swhich\swas\sbranched\safter\sthat\schange\swas\smade.
+D 2024-01-29T04:34:17.243
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/cookies.c 9e340886611143bab12820e2aaca1ae9cc8dfb7b3676e5625ca19bada49b5580
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 1ea6b8c181201e7d61ededaae3523641248eb585302a13c58614d7a71945a7b9
-F src/default.css 6cbfe438c0bc92c91959f31656ff10b742e98fb05df94ceb012fd7ef179c92da
+F src/default.css 4ffef7945b7a93ba1bd351742ff2801e6818b1915871edbd3f3769452b4d7fe4
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -952,9 +952,9 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 949b321b26cdbcb3a89332bf4d9c791bc10ea09762364e657cd47070cdc9b75e 5a51d1b4df6a534f4edfec71bd1b4355f2b0ea8cd5b70e7bd9ab033caf379474
-R 8cbd739f71327212f595ed84806e74c2
-T +closed 5a51d1b4df6a534f4edfec71bd1b4355f2b0ea8cd5b70e7bd9ab033caf379474
-U drh
-Z 66e502065b102019a24c0fb8e17eb99f
+P c031b2d4b55d9cfb3d94d5fcd4de05b0c134489ccfb9b40f9a11a4ba995d14d0
+Q -321d8baf19390fc38135680d0fba0d3169db1e5f1a4c42f6098225f23105ebe4
+R d6dc06d1acf59749743c98d059fd4827
+U stephan
+Z af0f5489ae9303129d7e1891a4d8c932
 # Remove this line to create a well-formed Fossil manifest.
