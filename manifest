@@ -1,5 +1,5 @@
-C Back\sout\s[321d8baf1939],\sas\s(A)\sthe\smajority\sconsensus\sis\sthat\sunderlining\sof\shyperlinks\sis\snot\sdesired\sand\s(B)\sto\shelp\savoid\sa\spotential\smerge\sconflict\swith\sthe\sinkskinerator-modern-backport\sbranch,\swhich\swas\sbranched\safter\sthat\schange\swas\smade.
-D 2024-01-29T04:34:17.243
+C Wrapped\sthe\sTH1\svars\sdeclared\sfor\scustom\sskinning\sin\sbackticks\sfor\nbetter\sMD\sformatting,\savoiding\sthe\sneed\sto\sescape\sunderscores\sto\sprevent\nthem\sfrom\sbeing\sinterpreted\sas\srequesting\sitalics.\s\sFixed\sa\stypo\sin\sone\nof\sthe\svariable\snames\swhile\sin\sthere;\sthe\svisual\snoise\sof\sone\sof\sthese\nescaped\sunderscores\shid\sthe\stypo.
+D 2024-01-29T17:56:37.070
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -797,7 +797,7 @@ F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272b
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki 5220adadd102e56bb8c46f27b68dc83ab0c1ff42b12186ff832bcb5c561157bc
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
-F www/customskin.md 983d48bf9c36d1ac764692a3087c983a272031baa59c8715381b10d860408507
+F www/customskin.md 579a2d15140e70d90925d3c6e211f14ee27cde99b5bdd14a6a73e32b9f841d4d
 F www/defcsp.md 67b48b4e320129055663647ed1bb821bf5a1ef17aaec744f20c17e783b7d735d
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
@@ -952,9 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c031b2d4b55d9cfb3d94d5fcd4de05b0c134489ccfb9b40f9a11a4ba995d14d0
-Q -321d8baf19390fc38135680d0fba0d3169db1e5f1a4c42f6098225f23105ebe4
-R d6dc06d1acf59749743c98d059fd4827
-U stephan
-Z af0f5489ae9303129d7e1891a4d8c932
+P 5ef34fd764d12f09942f11e4ef317adf0e378046b139a596b10d70ed521e40c1
+R 0123014df05d8567af27f308ced7ecd0
+U wyoung
+Z e842ec713406f41d9de1ba2e254875d2
 # Remove this line to create a well-formed Fossil manifest.

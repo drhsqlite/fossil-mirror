@@ -420,15 +420,15 @@ Before expanding the TH1 within the header and footer, Fossil first
 initializes a number of TH1 variables to values that depend on
 repository settings and the specific page being generated.
 
-   *   **project_name** - The project_name variable is filled with the
+   *   **`project_name`** - The project_name variable is filled with the
        name of the project as configured under the Admin/Configuration
        menu.
 
-   *   **project_description** - The project_description variable is
+   *   **`project_description`** - The project_description variable is
        filled with the description of the project as configured under
        the Admin/Configuration menu.
 
-   *   **title** - The title variable holds the title of the page being
+   *   **`title`** - The title variable holds the title of the page being
        generated.
 
        The title variable is special in that it is deleted after
@@ -436,53 +436,53 @@ repository settings and the specific page being generated.
        necessary to avoid a conflict with a variable by the same name used
        in my ticket-screen scripts.
 
-   *   **baseurl** - The root of the URL namespace for this server.
+   *   **`baseurl`** - The root of the URL namespace for this server.
 
-   *   **secureurl** - The same as $baseurl except that if the scheme is
+   *   **`secureurl`** - The same as $baseurl except that if the scheme is
                        "http:" it is changed to "https:"
 
-   *   **home** - The $baseurl without the scheme and hostname.  For example,
+   *   **`home`** - The $baseurl without the scheme and hostname.  For example,
        if the $baseurl is "http://projectX.com/cgi-bin/fossil" then the
        $home will be just "/cgi-bin/fossil".
 
-   *   **index_page** - The landing page URI as
+   *   **`index_page`** - The landing page URI as
        specified by the Admin/Configuration setup page.
 
-   *   **current_page** - The name of the page currently being processed,
+   *   **`current_page`** - The name of the page currently being processed,
        without the leading "/" and without query parameters.
        Examples:  "timeline", "doc/trunk/README.txt", "wiki".
 
-   *   **csrf_token** - A token used to prevent cross-site request forgery.
+   *   **`csrf_token`** - A token used to prevent cross-site request forgery.
 
-   *   **default_csp** - [Fossil’s default CSP](./defcsp.md) unless
+   *   **`default_csp`** - [Fossil’s default CSP](./defcsp.md) unless
        [overridden by custom TH1 code](./defcsp.md#th1). Useful within
        the skin for inserting the CSP into a `<meta>` tag within [a
        custom `<head>` element](#headfoot).
 
-   *   **nonce** - The value of the cryptographic nonce for the request
+   *   **`nonce`** - The value of the cryptographic nonce for the request
        being processed.
 
-   *   **release_version** - The release version of Fossil.  Ex: "1.31"
+   *   **`release_version`** - The release version of Fossil.  Ex: "1.31"
 
-   *   **manifest_version** - A prefix on the check-in hash of the
+   *   **`manifest_version`** - A prefix on the check-in hash of the
        specific version of fossil that is running.  Ex: "\[47bb6432a1\]"
 
-   *   **manifest_date** - The date of the source-code check-in for the
+   *   **`manifest_date`** - The date of the source-code check-in for the
        version of fossil that is running.
 
-   *   **compiler_name** - The name and version of the compiler used to
+   *   **`compiler_name`** - The name and version of the compiler used to
        build the fossil executable.
 
-   *   **login** - This variable only exists if the user has logged in.
+   *   **`login`** - This variable only exists if the user has logged in.
        The value is the username of the user.
 
-   *   **stylesheet_url** - A URL for the internal style-sheet maintained
+   *   **`stylesheet_url`** - A URL for the internal style-sheet maintained
        by Fossil.
 
-   *   **log\_image\_url** - A URL for the logo image for this project, as
+   *   **`logo_image_url`** - A URL for the logo image for this project, as
        configured on the Admin/Logo page.
 
-   *   **background\_image\_url** - A URL for a background image for this
+   *   **`background_image_url`** - A URL for a background image for this
        project, as configured on the Admin/Logo page.
 
 All of the above are variables in the sense that either the header or the
