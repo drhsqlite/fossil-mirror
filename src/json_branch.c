@@ -337,7 +337,8 @@ static cson_value * json_branch_create(void){
   }
 
   if(!opt.zName){
-    json_set_err(FSL_JSON_E_MISSING_ARGS, "'name' parameter was not specified." );
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "'name' parameter was not specified." );
     return NULL;
   }
 

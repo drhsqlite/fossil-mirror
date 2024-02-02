@@ -899,7 +899,8 @@ void help_page(void){
         int aliases[MX_HELP_DUP], nAliases=0;
         for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
           if( bktHelp[aCommand[i].iHelp][j] != i ){
-            if( aCommand[bktHelp[aCommand[i].iHelp][j]].eCmdFlags & CMDFLAG_ALIAS ){
+            if( aCommand[bktHelp[aCommand[i].iHelp][j]].eCmdFlags
+                & CMDFLAG_ALIAS ){
               aliases[nAliases++] = bktHelp[aCommand[i].iHelp][j];
             }
           }

@@ -33,7 +33,8 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_NO_REPO     ((u32)0x00000010) /* Skip opening repository. */
-#define TH_INIT_NO_ENCODE   ((u32)0x00000020) /* Do not html-encode sendText() output. */
+#define TH_INIT_NO_ENCODE   ((u32)0x00000020) /* Do not html-encode sendText()*/
+                                              /* output. */
 #define TH_INIT_MASK        ((u32)0x0000003F) /* All possible init flags. */
 
 /*

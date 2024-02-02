@@ -384,7 +384,8 @@ static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
   rndr->iDepth--;
   blob_reset(buf);
-  if( rndr->nBlobCache < (int)(sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0])) ){
+  if( rndr->nBlobCache < 
+        (int)(sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0])) ){
     rndr->aBlobCache[rndr->nBlobCache++] = buf;
   }else{
     fossil_free(buf);

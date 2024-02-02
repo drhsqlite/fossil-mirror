@@ -473,7 +473,8 @@ struct FileTreeNode {
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
-  double sortBy;            /* Either mtime or size, depending on desired sort order */
+  double sortBy;            /* Either mtime or size, depending on desired
+                               sort order */
   int iSize;                /* Size for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */

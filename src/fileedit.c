@@ -575,7 +575,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     ** contain embedded newlines. Note that HTML5 specifies that
     ** form-submitted TEXTAREA content gets normalized to CRLF-style:
     **
-    ** https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
+    ** https://html.spec.whatwg.org/#the-textarea-element
     */
     const int pseudoBinary = LOOK_LONG | LOOK_NUL;
     const int lookFlags = LOOK_CRLF | LOOK_LONE_LF | pseudoBinary;

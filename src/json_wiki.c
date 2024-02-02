@@ -165,7 +165,8 @@ cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
 ** name. If found it behaves like json_get_wiki_page_by_rid(theRid,
 ** contentFormat), else it returns NULL.
 */
-cson_value * json_get_wiki_page_by_name(char const * zPageName, int contentFormat){
+cson_value * json_get_wiki_page_by_name(char const * zPageName,
+                                        int contentFormat){
   int rid;
   rid = db_int(0,
                "SELECT x.rid FROM tag t, tagxref x, blob b"
@@ -261,7 +262,7 @@ static cson_value * json_wiki_get(void){
 
   if((!zPageName||!*zPageName) && (!zSymName || !*zSymName)){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "At least one of the 'name' or 'uuid' arguments must be provided.");
+            "At least one of the 'name' or 'uuid' arguments must be provided.");
     return NULL;
   }
 
@@ -299,13 +300,13 @@ static cson_value * json_wiki_preview(void){
   }
   if(!sContent) {
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "The 'payload' property must be either a string containing the "
-                 "Fossil wiki code to preview or an object with body + mimetype "
-                 "properties.");
+                "The 'payload' property must be either a string containing the "
+                "Fossil wiki code to preview or an object with body + mimetype "
+                "properties.");
     return NULL;
   }
   zContent = cson_string_cstr(sContent);
-  blob_append( &contentOrig, zContent, (int)cson_string_length_bytes(sContent) );
+  blob_append( &contentOrig, zContent, (int)cson_string_length_bytes(sContent));
   zMime = wiki_filter_mimetypes(zMime);
   if( 0==fossil_strcmp(zMime, "text/x-markdown") ){
     markdown_to_html(&contentOrig, 0, &contentHtml);
@@ -317,7 +318,8 @@ static cson_value * json_wiki_preview(void){
     wiki_convert( &contentOrig, &contentHtml, 0 );
   }
   blob_reset( &contentOrig );
-  pay = cson_value_new_string( blob_str(&contentHtml), (unsigned int)blob_size(&contentHtml));
+  pay = cson_value_new_string( blob_str(&contentHtml),
+                               (unsigned int)blob_size(&contentHtml));
   blob_reset( &contentHtml );
   return pay;
 }
@@ -348,7 +350,8 @@ static cson_value * json_wiki_create_or_save(char createMode,
   cson_value * contentV;      /* passed-in content */
   cson_value * emptyContent = NULL;  /* placeholder for empty content. */
   cson_value * payV = NULL;   /* payload/return value */
-  cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string conversions. */
+  cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string 
+                                       conversions. */
   char const * zMimeType = 0;
   unsigned int contentLen = 0;
   int rid;

@@ -471,7 +471,8 @@ static int wiki_page_header(
         cgi_redirectf("%R/info/%s",zPageName);
       }else{
         style_header("Notes About Check-in %S", zPageName);
-        style_submenu_element("Check-in Timeline","%R/timeline?f=%s", zPageName);
+        style_submenu_element("Check-in Timeline","%R/timeline?f=%s",
+                              zPageName);
         style_submenu_element("Check-in Info","%R/info/%s", zPageName);
       }
       break;

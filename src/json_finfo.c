@@ -43,10 +43,11 @@ cson_value * json_page_finfo(void){
     json_set_err(FSL_JSON_E_DENIED,"Requires 'o' privileges.");
     return NULL;
   }
-  json_warn( FSL_JSON_W_UNKNOWN, "Achtung: the output of the finfo command is up for change.");
+  json_warn( FSL_JSON_W_UNKNOWN, 
+             "Achtung: the output of the finfo command is up for change.");
 
-  /* For the "name" argument we have to jump through some hoops to make sure that we don't
-     get the fossil-internally-assigned "name" option.
+  /* For the "name" argument we have to jump through some hoops to make sure
+     that we don't get the fossil-internally-assigned "name" option.
   */
   zFilename = json_find_option_cstr2("name",NULL,NULL, g.json.dispatchDepth+1);
   if(!zFilename || !*zFilename){
@@ -67,7 +68,7 @@ cson_value * json_page_finfo(void){
   blob_append_sql(&sql,
 /*0*/   "SELECT b.uuid,"
 /*1*/   "   ci.uuid,"
-/*2*/   "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
+/*2*/   "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"/* Current file uuid */
 /*3*/   "   cast(strftime('%%s',event.mtime) AS INTEGER),"
 /*4*/   "   coalesce(event.euser, event.user),"
 /*5*/   "   coalesce(event.ecomment, event.comment),"
@@ -90,7 +91,8 @@ cson_value * json_page_finfo(void){
     int rc = name_to_uuid2( zCheckin, "ci", &zU );
     /*printf("zCheckin=[%s], zU=[%s]", zCheckin, zU);*/
     if(rc<=0){
-      json_set_err((rc<0) ? FSL_JSON_E_AMBIGUOUS_UUID : FSL_JSON_E_RESOURCE_NOT_FOUND,
+      json_set_err((rc<0) ? FSL_JSON_E_AMBIGUOUS_UUID :
+                            FSL_JSON_E_RESOURCE_NOT_FOUND,
                    "Check-in hash %s.", (rc<0) ? "is ambiguous" : "not found");
       blob_reset(&sql);
       return NULL;
@@ -106,7 +108,8 @@ cson_value * json_page_finfo(void){
     }
   }
 
-  blob_append_sql(&sql," ORDER BY event.mtime %s /*sort*/", (sort>0?"ASC":"DESC"));
+  blob_append_sql(&sql," ORDER BY event.mtime %s /*sort*/",
+                        (sort>0 ? "ASC" : "DESC"));
   /*printf("SQL=\n%s\n",blob_str(&sql));*/
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
@@ -125,14 +128,16 @@ cson_value * json_page_finfo(void){
     cson_array_append( checkins, cson_object_value(row) );
     cson_object_set(row, "checkin", json_new_string( db_column_text(&q,1) ));
     cson_object_set(row, "uuid", json_new_string( db_column_text(&q,2) ));
-    /*cson_object_set(row, "parentArtifact", json_new_string( db_column_text(&q,6) ));*/
+    /*cson_object_set(row, "parentArtifact",
+                      json_new_string( db_column_text(&q,6) ));*/
     cson_object_set(row, "timestamp", json_new_int( db_column_int64(&q,3) ));
     cson_object_set(row, "user", json_new_string( db_column_text(&q,4) ));
     cson_object_set(row, "comment", json_new_string( db_column_text(&q,5) ));
-    /*cson_object_set(row, "bgColor", json_new_string( db_column_text(&q,7) ));*/
+    /*cson_object_set(row, "bgColor",
+                      json_new_string( db_column_text(&q,7) ));*/
     cson_object_set(row, "size", json_new_int( db_column_int64(&q,8) ));
-    cson_object_set(row, "state",
-                    json_new_string(json_artifact_status_to_string(isNew,isDel)));
+    cson_object_set(row, "state", json_new_string(
+                            json_artifact_status_to_string(isNew, isDel)));
     if( (0 < limit) && (++currentRow >= limit) ){
       break;
     }

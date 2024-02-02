@@ -342,7 +342,8 @@ void branch_prepare_list_query(
     }
     case BRL_OPEN_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE NOT isclosed"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist "
+        "  WHERE NOT isclosed"
       );
       break;
     }

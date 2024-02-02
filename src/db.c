@@ -2491,7 +2491,7 @@ static int isValidLocalDb(const char *zDbName){
     }
   }
 
-  /* The design of the check-out database changed on 2019-01-19, adding the mhash
+  /* The design of the check-out database changed on 2019-01-19 adding the mhash
   ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
   ** a PRIMARY KEY that includes the new mhash column.  However, we must have
   ** the repository database at hand in order to do the migration, so that
@@ -3718,7 +3718,8 @@ char *db_get(const char *zName, const char *zDefault){
   }
   return z;
 }
-char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
+char *db_get_mtime(const char *zName, const char *zFormat,
+                   const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);

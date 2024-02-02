@@ -3495,7 +3495,8 @@ static void annotate_file(
 
   if( p->nVers==0 ){
     if( zRevision ){
-      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRevision);
+      fossil_fatal("file %s does not exist in check-in %s",
+                   zFilename, zRevision);
     }else{
       fossil_fatal("no history for file: %s", zFilename);
     }

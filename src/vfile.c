@@ -412,7 +412,8 @@ static int is_temporary_file(const char *zName){
 
   if( sqlite3_strglob("ci-comment-????????????.txt", zName)==0 ) return 1;
   for(; zName[0]!=0; zName++){
-    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
+    if( zName[0]=='/'
+        && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
       return 1;
     }
     if( zName[0]!='-' ) continue;
@@ -756,7 +757,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n", ftell(in));
         fseek(in, 0L, SEEK_SET);
         md5sum_step_text(zBuf, -1);
-        /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
+        /*printf("%s %s %s",md5sum_current_state(),zName,zBuf);fflush(stdout);*/
         for(;;){
           int n;
           n = fread(zBuf, 1, sizeof(zBuf), in);

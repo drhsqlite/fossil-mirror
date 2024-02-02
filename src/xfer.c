@@ -357,7 +357,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 
   /* The isWriter flag must be true in order to land the new file */
   if( !isWriter ){
-    blob_appendf(&pXfer->err, "Write permissions for unversioned files missing");
+    blob_appendf(&pXfer->err,"Write permissions for unversioned files missing");
     goto end_accept_unversioned_file;
   }
 

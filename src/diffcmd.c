@@ -1252,8 +1252,8 @@ const char *diff_get_binary_glob(void){
 **   --by                        Shorthand for "--browser -y"
 **   -ci|--checkin VERSION       Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
-**   -c|--context N              Show N lines of context around each change, with
-**                               negative N meaning show all content
+**   -c|--context N              Show N lines of context around each change,
+**                               with negative N meaning show all content
 **   --dark                      Use dark mode for the Tcl/Tk-based GUI and HTML
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands

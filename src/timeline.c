@@ -3019,7 +3019,8 @@ static char *timeline_entry_subst(
 **   10.  user
 **   11.  tags
 */
-void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
+                    int verboseFlag){
   int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
   int nLine = 0;
   int nEntry = 0;
@@ -3029,10 +3030,12 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   int rc;
   /* True: separate entries with a newline after file listing */
-  int bVerboseNL = (zFormat && (fossil_strcmp(zFormat, TIMELINE_FMT_ONELINE)!=0));
+  int bVerboseNL = (zFormat && 
+                    (fossil_strcmp(zFormat, TIMELINE_FMT_ONELINE)!=0));
   /* True: separate entries with a newline even with no file listing */
-  int bNoVerboseNL = (zFormat && (fossil_strcmp(zFormat, TIMELINE_FMT_MEDIUM)==0 ||
-                      fossil_strcmp(zFormat, TIMELINE_FMT_FULL)==0));
+  int bNoVerboseNL = (zFormat &&
+                      (fossil_strcmp(zFormat, TIMELINE_FMT_MEDIUM)==0 ||
+                       fossil_strcmp(zFormat, TIMELINE_FMT_FULL)==0));
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -3124,8 +3127,9 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
       if( nChild==0 ){
         sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*LEAF* ");
       }
-      zEntry = timeline_entry_subst(zFormat, &nEntryLine, zId, zDate, zUserShort,
-                                    zComShort, zBranch, zTags, zPrefix);
+      zEntry = timeline_entry_subst(zFormat, &nEntryLine, zId, zDate,
+                                    zUserShort, zComShort, zBranch, zTags,
+                                    zPrefix);
       nLine += nEntryLine;
       fossil_print("%s\n", zEntry);
       fossil_free(zEntry);
@@ -3282,7 +3286,7 @@ static int fossil_is_julianday(const char *zDate){
 **                            %h  abbreviated commit hash
 **                            %a  author name
 **                            %d  date
-**                            %c  comment (NL, TAB replaced by space, LF deleted)
+**                            %c  comment (NL, TAB replaced by space, LF erased)
 **                            %b  branch
 **                            %t  tags
 **                            %p  phase: zero or more of *CURRENT*, *MERGE*,

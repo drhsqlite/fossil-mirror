@@ -1370,7 +1370,8 @@ void rptshow(
   int count = 0;
   int rn;
 
-  if( !zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
+  if( !zRep || !strcmp(zRep,zFullTicketRptRn)
+      || !strcmp(zRep,zFullTicketRptTitle) ){
     zSql = "SELECT * FROM ticket";
   }else{
     rn = atoi(zRep);
