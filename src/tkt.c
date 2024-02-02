@@ -559,7 +559,7 @@ static int ticket_schema_auth(
       ){
         goto ticket_schema_error;
       }
-      if( sqlite3_strnicmp(z0,"ticket",6)!=0 
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0
        && sqlite3_strnicmp(z0,"fx_",3)!=0
       ){
         goto ticket_schema_error;
@@ -1215,7 +1215,7 @@ void tkt_draw_timeline(int tagid, const char *zType){
 ** URL: /tkttimeline/TICKETUUID
 **
 ** Show the change history for a single ticket in timeline format.
-** 
+**
 ** Query parameters:
 **
 **     y=ci          Show only check-ins associated with the ticket

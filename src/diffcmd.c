@@ -115,7 +115,7 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 /*
 ** Print details about the compared versions - possibly the working directory
 ** or the undo buffer.  For check-ins, show hash and commit time.
-** 
+**
 ** This is intended primarily to go into the "header garbage" that is ignored
 ** by patch(1).
 **
@@ -220,7 +220,7 @@ void diff_print_filenames(
 /*
 ** Default header texts for diff with --webpage
 */
-static const char zWebpageHdr[] = 
+static const char zWebpageHdr[] =
 @ <!DOCTYPE html>
 @ <html>
 @ <head>
@@ -344,12 +344,12 @@ static const char zWebpageHdr[] =
 @     background-color: #559855;
 @   }
 @ }
-@ 
+@
 @ </style>
 @ </head>
 @ <body>
 ;
-static const char zWebpageHdrDark[] = 
+static const char zWebpageHdrDark[] =
 @ <!DOCTYPE html>
 @ <html>
 @ <head>
@@ -362,7 +362,7 @@ static const char zWebpageHdrDark[] =
 @ h1 {
 @   font-size: 150%;
 @ }
-@ 
+@
 @ table.diff {
 @   width: 100%;
 @   border-spacing: 0;
@@ -450,12 +450,12 @@ static const char zWebpageHdrDark[] =
 @   text-decoration: none;
 @   font-weight: bold;
 @ }
-@ 
+@
 @ </style>
 @ </head>
 @ <body>
 ;
-const char zWebpageEnd[] = 
+const char zWebpageEnd[] =
 @ </body>
 @ </html>
 ;
@@ -518,7 +518,7 @@ void diff_begin(DiffConfig *pCfg){
 #endif
   }
   if( (pCfg->diffFlags & DIFF_WEBPAGE)!=0 ){
-    fossil_print("%s",(pCfg->diffFlags & DIFF_DARKMODE)!=0 ? zWebpageHdrDark : 
+    fossil_print("%s",(pCfg->diffFlags & DIFF_DARKMODE)!=0 ? zWebpageHdrDark :
                                                              zWebpageHdr);
     fflush(stdout);
   }
@@ -527,7 +527,7 @@ void diff_begin(DiffConfig *pCfg){
 /* Do any final output required by a diff and complete the diff
 ** process.
 **
-** For --browser and --webpage, output any javascript required by 
+** For --browser and --webpage, output any javascript required by
 ** the diff.  (Currently JS is only needed for side-by-side diffs).
 **
 ** For --browser, close the connection to the temporary file, then
@@ -949,7 +949,7 @@ static void diff_against_undo(
   blob_init(&content, 0, 0);
   if( (pCfg->diffFlags & DIFF_SHOW_VERS)!=0 ){
     diff_print_versions("(undo)", "(workdir)", pCfg);
-  }  
+  }
   while( db_step(&q)==SQLITE_ROW ){
     char *zFullName;
     const char *zFile = (const char*)db_column_text(&q, 0);
@@ -1036,7 +1036,7 @@ static void diff_two_versions(
   pToFile = manifest_file_next(pTo,0);
   if( (pCfg->diffFlags & DIFF_SHOW_VERS)!=0 ){
     diff_print_versions(zFrom, zTo, pCfg);
-  }    
+  }
   while( pFromFile || pToFile ){
     int cmp;
     if( pFromFile==0 ){
@@ -1385,7 +1385,7 @@ void diff_cmd(void){
   }
   diff_end(&DCfg, 0);
   if ( DCfg.diffFlags & DIFF_NUMSTAT ){
-    fossil_print("%10d %10d TOTAL over %d changed files\n", 
+    fossil_print("%10d %10d TOTAL over %d changed files\n",
                  g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);
   }
 }

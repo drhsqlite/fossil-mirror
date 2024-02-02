@@ -39,7 +39,7 @@
 **
 ** The code in this file abstracts the web-request so that downstream
 ** modules that generate the body of the reply (based on the requested page)
-** do not need to know if the request is coming from CGI, direct HTTP, 
+** do not need to know if the request is coming from CGI, direct HTTP,
 ** SCGI, or some other means.
 **
 ** This module gathers information about web page request into a key/value
@@ -483,7 +483,7 @@ void cgi_reply(void){
 
   if( g.fullHttpReply ){
     if( rangeEnd>0
-     && iReplyStatus==200 
+     && iReplyStatus==200
      && fossil_strcmp(P("REQUEST_METHOD"),"GET")==0
     ){
       iReplyStatus = 206;
@@ -564,7 +564,7 @@ void cgi_reply(void){
     if( iReplyStatus==206 ){
       blob_appendf(&hdr, "Content-Range: bytes %d-%d/%d\r\n",
               rangeStart, rangeEnd-1, total_size);
-      total_size = rangeEnd - rangeStart; 
+      total_size = rangeEnd - rangeStart;
     }
     blob_appendf(&hdr, "Content-Length: %d\r\n", total_size);
   }else{
@@ -1313,7 +1313,7 @@ int cgi_setup_query_string(void){
 **      |       HTTP_HOST      |        PATH_INFO     QUERY_STRING
 **      |                      |
 **    REQUEST_SCHEMA         SCRIPT_NAME
-**               
+**
 */
 void cgi_init(void){
   char *z;
@@ -1350,7 +1350,7 @@ void cgi_init(void){
 #ifdef _WIN32
   /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
   ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
-  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the 
+  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the
   ** beginning. */
   if( zServerSoftware && strstr(zServerSoftware, "Microsoft-IIS") ){
     int i, j;

@@ -887,7 +887,7 @@ void setup_skinedit(void){
     blob_init(&to, zContent, -1);
     blob_init(&from, skin_file_content(zBasis, zFile), -1);
     blob_zero(&out);
-    DCfg.diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG; 
+    DCfg.diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
     if( DCfg.diffFlags & DIFF_SIDEBYSIDE ){
       text_diff(&from, &to, &out, &DCfg);
       @ %s(blob_str(&out))
@@ -1208,7 +1208,7 @@ void skins_page(void){
       zBase[nBase] = 0;
     }
     fossil_free(zPattern);
-  } 
+  }
   login_check_credentials();
   style_header("Skins");
   if( iDraftSkin || nSkinRank<=1 ){

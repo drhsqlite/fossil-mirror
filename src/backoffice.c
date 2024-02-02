@@ -317,7 +317,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
   return pid>0 && backofficeWin32ProcessExists((DWORD)pid)!=0;
 #else
   return pid>0 && kill((pid_t)pid, 0)==0;
-#endif 
+#endif
 }
 
 /*
@@ -329,7 +329,7 @@ static int backofficeProcessDone(sqlite3_uint64 pid){
   return pid<=0 || backofficeWin32ProcessExists((DWORD)pid)==0;
 #else
   return pid<=0 || kill((pid_t)pid, 0)!=0;
-#endif 
+#endif
 }
 
 /*
@@ -677,7 +677,7 @@ void backoffice_work(void){
 **
 ** If only a single repository is named and --poll is omitted, then the
 ** backoffice work is done in-process.  But if there are multiple repositories
-** or if --poll is used, a separate sub-process is started for each poll of 
+** or if --poll is used, a separate sub-process is started for each poll of
 ** each repository.
 **
 ** Standard options:

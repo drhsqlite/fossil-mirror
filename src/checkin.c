@@ -2537,7 +2537,7 @@ void commit_cmd(void){
                      "--allow-fork.");
       }
     }
-  
+
     /*
     ** Do not allow a commit against a closed leaf unless the commit
     ** ends up on a different branch.
@@ -2558,7 +2558,7 @@ void commit_cmd(void){
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
 
-  
+
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.

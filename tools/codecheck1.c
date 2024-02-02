@@ -606,7 +606,7 @@ static int checkFormatFunc(
                    " a query parameter\n",
                zFilename, lnFCall, i+fmtArg, szFName, zFCall);
              nErr++;
-   
+
           }else if( (fmtFlags & FMT_SQL)!=0 && !is_sql_safe(zExpr) ){
             printf("%s:%d: Argument %d to %.*s() not safe for SQL\n",
                zFilename, lnFCall, i+fmtArg, szFName, zFCall);

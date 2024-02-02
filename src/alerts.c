@@ -1462,7 +1462,7 @@ static int subscribe_error_check(
 /*
 ** Text of email message sent in order to confirm a subscription.
 */
-static const char zConfirmMsg[] = 
+static const char zConfirmMsg[] =
 @ Someone has signed you up for email alerts on the Fossil repository
 @ at %s.
 @
@@ -2565,7 +2565,7 @@ void alert_free_eventlist(EmailEvent *p){
 ** for a particular forum post.
 **
 ** This string is an encode list of sender names and rids for all ancestors
-** of the fpdi post - the post that fpid answer, the post that that parent 
+** of the fpdi post - the post that fpid answer, the post that that parent
 ** post answers, and so forth back up to the root post. Duplicates sender
 ** names are omitted.
 **
@@ -3225,7 +3225,7 @@ int alert_send_alerts(u32 flags){
   /* Send renewal messages to subscribers whose subscriptions are about
   ** to expire.  Only do this if:
   **
-  **  (1)  email-renew-interval is 14 or greater (or in other words if 
+  **  (1)  email-renew-interval is 14 or greater (or in other words if
   **       subscription expiration is enabled).
   **
   **  (2)  The SENDALERT_RENEWAL flag is set

@@ -459,7 +459,7 @@ void db_protect_only(unsigned flags){
     fossil_panic("too many db_protect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  if( (flags & PROTECT_SENSITIVE)!=0 
+  if( (flags & PROTECT_SENSITIVE)!=0
    && db.bProtectTriggers==0
    && g.repositoryOpen
   ){
@@ -1559,9 +1559,9 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "url_nouser", 1, SQLITE_UTF8, 0,
                           url_nouser_func,0,0);
   sqlite3_create_function(db, "chat_msg_from_event", 4,
-        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0, 
+        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
-                           
+
 }
 
 #if USE_SEE
@@ -2608,7 +2608,7 @@ int db_looks_like_a_repository(const char *zDbName){
   db = db_open(zDbName);
   if( !db ) return 0;
   if( !g.zVfsName && sz%512 ) return 0;
-  rc = sqlite3_prepare_v2(db, 
+  rc = sqlite3_prepare_v2(db,
        "SELECT count(*) FROM sqlite_schema"
        " WHERE name COLLATE nocase IN"
        "('blob','delta','rcvfrom','user','config','mlink','plink');",
@@ -4024,7 +4024,7 @@ void db_record_repository_filename(const char *zName){
   (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
-  
+
   db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
      "DELETE FROM global_config WHERE name %s = %Q;",
@@ -4188,7 +4188,7 @@ void cmd_open(void){
   ){
     fossil_fatal("directory %s is not empty\n"
                  "use the -f (--force) option to override\n"
-                 "or the -k (--keep) option to keep local files unchanged", 
+                 "or the -k (--keep) option to keep local files unchanged",
                  file_getcwd(0,0));
   }
 
@@ -4394,7 +4394,7 @@ struct Setting {
 /*
 ** SETTING: allow-symlinks  boolean default=off sensitive
 **
-** When allow-symlinks is OFF, Fossil does not see symbolic links 
+** When allow-symlinks is OFF, Fossil does not see symbolic links
 ** (a.k.a "symlinks") on disk as a separate class of object.  Instead Fossil
 ** sees the object that the symlink points to.  Fossil will only manage files
 ** and directories, not symlinks.  When a symlink is added to a repository,
@@ -4452,7 +4452,7 @@ struct Setting {
 /*
 ** SETTING: auto-hyperlink-mouseover  boolean default=off
 **
-** When the auto-hyperlink setting is 1 and this setting is on, the 
+** When the auto-hyperlink setting is 1 and this setting is on, the
 ** javascript that runs to set the href= attributes of hyperlinks waits
 ** until either a mousedown or mousemove event is seen.  This helps
 ** to distinguish real users from robots. For maximum robot defense,
@@ -4676,7 +4676,7 @@ struct Setting {
 ** SETTING: forbid-delta-manifests    boolean default=off
 ** If enabled on a client, new delta manifests are prohibited on
 ** commits.  If enabled on a server, whenever a client attempts
-** to obtain a check-in lock during auto-sync, the server will 
+** to obtain a check-in lock during auto-sync, the server will
 ** send the "pragma avoid-delta-manifests" statement in its reply,
 ** which will cause the client to avoid generating a delta
 ** manifest.
@@ -5017,7 +5017,7 @@ struct Setting {
 ** SETTING: large-file-size     width=10 default=200000000
 ** Fossil considers any file whose size is greater than this value
 ** to be a "large file".  Fossil might issue warnings if you try to
-** "add" or "commit" a "large file".  Set this value to 0 or less 
+** "add" or "commit" a "large file".  Set this value to 0 or less
 ** to disable all such warnings.
 */
 

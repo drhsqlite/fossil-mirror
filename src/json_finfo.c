@@ -43,7 +43,7 @@ cson_value * json_page_finfo(void){
     json_set_err(FSL_JSON_E_DENIED,"Requires 'o' privileges.");
     return NULL;
   }
-  json_warn( FSL_JSON_W_UNKNOWN, 
+  json_warn( FSL_JSON_W_UNKNOWN,
              "Achtung: the output of the finfo command is up for change.");
 
   /* For the "name" argument we have to jump through some hoops to make sure

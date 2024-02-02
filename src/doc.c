@@ -343,7 +343,7 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
   int tokenizerState /* 0=expecting a key, 1=skip next token,
                      ** 2=accept next token */;
   if(once==0){
-    once = 1; 
+    once = 1;
     zList = db_get("mimetypes",0);
     if(zList==0){
       return 0;
@@ -731,9 +731,9 @@ static int isWithinHref(const char *z, int i){
 **       action="$ROOT/..."
 **       href=".../doc/$CURRENT/..."
 **
-** Convert $ROOT to the root URI of the repository, and $CURRENT to the 
+** Convert $ROOT to the root URI of the repository, and $CURRENT to the
 ** version number of the /doc/ document currently being displayed (if any).
-** Allow ' in place of " and any case for href or action.  
+** Allow ' in place of " and any case for href or action.
 **
 ** Efforts are made to limit this translation to cases where the text is
 ** fully contained with an HTML markup element.
@@ -1213,7 +1213,7 @@ void background_page(void){
 ** in the HTML header using a line like:
 **
 **   <link rel="icon" href="URL-FOR-YOUR-ICON" type="MIMETYPE"/>
-** 
+**
 */
 void favicon_page(void){
   Blob icon;

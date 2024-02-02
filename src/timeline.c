@@ -43,7 +43,7 @@
     "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c"
 #define TIMELINE_FMT_FULL \
     "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%n"\
-    "Branch:   %b%nTags:     %t%nPhase:    %p"                             
+    "Branch:   %b%nTags:     %t%nPhase:    %p"
 /*
 ** Add an appropriate tag to the output if "rid" is unpublished (private)
 */
@@ -155,7 +155,7 @@ static int has_closed_tag(int rid){
 }
 
 /*
-** Return the text of the unformatted 
+** Return the text of the unformatted
 ** forum post given by the RID in the argument.
 */
 static void forum_post_content_function(
@@ -368,7 +368,7 @@ void www_print_timeline(
           zExtraClass = " tktTlOpen";
         }
         fossil_free(zTktid);
-      }   
+      }
     }
     if( zType[0]=='e' && tagid ){
       if( bTimestampLinksToInfo ){
@@ -678,7 +678,7 @@ void www_print_timeline(
     if( tmFlags & TIMELINE_SHOWRID ){
       int srcId = delta_source_rid(rid);
       if( srcId ){
-        cgi_printf(" id:&nbsp;%z%d&larr;%d</a>", 
+        cgi_printf(" id:&nbsp;%z%d&larr;%d</a>",
                    href("%R/deltachain/%d",rid), rid, srcId);
       }else{
         cgi_printf(" id:&nbsp;%z%d</a>",
@@ -2224,7 +2224,7 @@ void page_timeline(void){
     if( ridBackTo ){
       if( np==0 ){
         blob_reset(&desc);
-        blob_appendf(&desc, 
+        blob_appendf(&desc,
                     "Check-in %z%h</a> only (%z%h</a> is not an ancestor)",
                      href("%R/info?name=%h",zCiName), zCiName,
                      href("%R/info?name=%h",zBackTo), zBackTo);
@@ -2239,7 +2239,7 @@ void page_timeline(void){
     }else if( ridFwdTo ){
       if( nd==0 ){
         blob_reset(&desc);
-        blob_appendf(&desc, 
+        blob_appendf(&desc,
                     "Check-in %z%h</a> only (%z%h</a> is not an descendant)",
                      href("%R/info?name=%h",zCiName), zCiName,
                      href("%R/info?name=%h",zFwdTo), zFwdTo);
@@ -3030,7 +3030,7 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   int rc;
   /* True: separate entries with a newline after file listing */
-  int bVerboseNL = (zFormat && 
+  int bVerboseNL = (zFormat &&
                     (fossil_strcmp(zFormat, TIMELINE_FMT_ONELINE)!=0));
   /* True: separate entries with a newline even with no file listing */
   int bNoVerboseNL = (zFormat &&
@@ -3173,7 +3173,7 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
     }else{
       if( bNoVerboseNL ) fossil_print("\n");
     }
-    
+
     nEntry++; /* record another complete entry */
   }
   if( rc==SQLITE_DONE ){
@@ -3217,7 +3217,7 @@ const char *timeline_query_for_tty(void){
     @         FROM (SELECT group_concat(substr(tagname,5), ', ') AS x
     @         FROM tag, tagxref
     @         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
-    @          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)) AS tags    
+    @          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)) AS tags
     @ FROM tag CROSS JOIN event CROSS JOIN blob
     @      LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
@@ -3278,7 +3278,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -b|--branch BRANCH   Show only items on the branch named BRANCH
 **   -c|--current-branch  Show only items on the current branch
 **   -F|--format          Entry format. Values "oneline", "medium", and "full"
-**                        get mapped to the full options below. Otherwise a 
+**                        get mapped to the full options below. Otherwise a
 **                        string which can contain these placeholders:
 **                            %n  newline
 **                            %%  a raw %

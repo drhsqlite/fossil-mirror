@@ -92,12 +92,12 @@
 **
 ** Information encoded by this object includes but is not limited to:
 **
-**    *   The desired output format (unified vs. side-by-side, 
+**    *   The desired output format (unified vs. side-by-side,
 **        TCL, JSON, HTML vs. plain-text).
 **
 **    *   Number of lines of context surrounding each difference block
 **
-**    *   Width of output columns for text side-by-side diffop          
+**    *   Width of output columns for text side-by-side diffop
 */
 struct DiffConfig {
   u64 diffFlags;           /* Diff flags */
@@ -917,7 +917,7 @@ static int minInt(int a, int b){ return a<b ? a : b; }
 **
 ** To subclass, create an instance of the DiffBuilder object and fill
 ** in appropriate method implementations.
-*/ 
+*/
 typedef struct DiffBuilder DiffBuilder;
 struct DiffBuilder {
   void (*xSkip)(DiffBuilder*, unsigned int, int);
@@ -1102,7 +1102,7 @@ static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
     x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_literal(p->pOut, 
+    blob_append_tcl_literal(p->pOut,
                          pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   if( x<pX->n ){
@@ -1188,7 +1188,7 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
     x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ',');
-    blob_append_json_literal(p->pOut, 
+    blob_append_json_literal(p->pOut,
                          pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   blob_append_char(p->pOut, ',');
@@ -1270,7 +1270,7 @@ static void dfunifiedFinishInsert(DiffBuilder *p){
   blob_append(&p->aCol[2], "<ins>", 5);
   blob_append_xfer(&p->aCol[2], &p->aCol[4]);
   blob_append(&p->aCol[2], "</ins>", 6);
-  
+
   p->nPending = 0;
 }
 static void dfunifiedFinishRow(DiffBuilder *p){
@@ -2007,7 +2007,7 @@ static unsigned char *diffBlockAlignmentDivideAndConquer(
   iDivSmall = nSmall/2;
 
   if( pCfg->diffFlags & DIFF_DEBUG ){
-    fossil_print("  Divide at [%.*s]\n", 
+    fossil_print("  Divide at [%.*s]\n",
                  aBig[iDivBig].n, aBig[iDivBig].z);
   }
 

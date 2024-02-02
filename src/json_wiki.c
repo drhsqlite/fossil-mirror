@@ -350,7 +350,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
   cson_value * contentV;      /* passed-in content */
   cson_value * emptyContent = NULL;  /* placeholder for empty content. */
   cson_value * payV = NULL;   /* payload/return value */
-  cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string 
+  cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string
                                        conversions. */
   char const * zMimeType = 0;
   unsigned int contentLen = 0;

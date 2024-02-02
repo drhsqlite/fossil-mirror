@@ -1128,7 +1128,7 @@ void rptview_page_content(
   Stmt q;
   char *zErr1 = 0;
   char *zErr2 = 0;
-  
+
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   report_update_reportfmt_table();

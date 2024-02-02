@@ -137,7 +137,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
      /* If any TH1_xxx flags are set, set TH1 */
      && (PIKCHR_PROCESS_TH1_NOSVG & pikFlags || thFlags!=0)){
     pikFlags |= PIKCHR_PROCESS_TH1;
-  }  
+  }
   if(zNonce){
     blob_appendf(pOut, "%s\n", zNonce);
   }
@@ -548,7 +548,7 @@ void pikchrshow_page(void){
 **    -src       Store the input pikchr's source code in the output as
 **               a separate element adjacent to the SVG one. Implied
 **               by -div-source.
-**                
+**
 **
 **    -th        Process the input using TH1 before passing it to pikchr
 **

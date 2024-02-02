@@ -100,7 +100,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   ** SHA1 hash, not an original password.  If a user has a password which
   ** just happens to be a 40-character hex string, then this routine won't
   ** be able to distinguish it from a hash, the translation will not be
-  ** performed, and the sync won't work.  
+  ** performed, and the sync won't work.
   */
   if( zPw && zPw[0] && (strlen(zPw)!=40 || !validate16(zPw,40)) ){
     const char *zProjectCode = 0;
@@ -260,7 +260,7 @@ static int http_exchange_external(
   rc = fossil_system(zCmd);
   if( rc ){
     fossil_warning("Transport command failed: %s\n", zCmd);
-  }    
+  }
   fossil_free(zCmd);
   file_delete(zUplink);
   if( file_size(zDownlink, ExtFILE)<0 ){
@@ -269,7 +269,7 @@ static int http_exchange_external(
     blob_read_from_file(pReply, zDownlink, ExtFILE);
     file_delete(zDownlink);
   }
-  return rc; 
+  return rc;
 }
 
 /*

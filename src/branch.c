@@ -775,7 +775,7 @@ void branch_cmd(void){
       if( (brFlags & BRL_MERGED) && fossil_strcmp(zCurrent,zMergeTo)!=0 ){
         continue;
       }
-      if( (brFlags & BRL_UNMERGED) && (fossil_strcmp(zCurrent,zMergeTo)==0 
+      if( (brFlags & BRL_UNMERGED) && (fossil_strcmp(zCurrent,zMergeTo)==0
           || isCur) ){
         continue;
       }
@@ -889,7 +889,7 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input 
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input
     @  type="checkbox" disabled="disabled"/></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>

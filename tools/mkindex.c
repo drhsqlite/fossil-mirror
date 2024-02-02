@@ -40,7 +40,7 @@
 ** "test-" or if the command name has a "test" argument, then it becomes
 ** a test command.  If the command name has a "2nd-tier" argument or ends
 ** with a "*" character, it is second tier.  If the command name has an "alias"
-** argument or ends with a "#" character, it is an alias: another name  
+** argument or ends with a "#" character, it is an alias: another name
 ** (a one-to-one replacement) for a command.  Examples:
 **
 **        COMMAND:  abcde*

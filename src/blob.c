@@ -1553,15 +1553,15 @@ void blob_cp1252_to_utf8(Blob *p){
 
 /*
 ** ASCII (for reference):
-**    x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf 
-** 0x ^`  ^a  ^b  ^c  ^d  ^e  ^f  ^g  \b  \t  \n  ()  \f  \r  ^n  ^o 
-** 1x ^p  ^q  ^r  ^s  ^t  ^u  ^v  ^w  ^x  ^y  ^z  ^{  ^|  ^}  ^~  ^ 
-** 2x ()  !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /  
-** 3x 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?  
-** 4x @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O  
-** 5x P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _  
-** 6x `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o  
-** 7x p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   ^_ 
+**    x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf
+** 0x ^`  ^a  ^b  ^c  ^d  ^e  ^f  ^g  \b  \t  \n  ()  \f  \r  ^n  ^o
+** 1x ^p  ^q  ^r  ^s  ^t  ^u  ^v  ^w  ^x  ^y  ^z  ^{  ^|  ^}  ^~  ^
+** 2x ()  !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /
+** 3x 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?
+** 4x @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O
+** 5x P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _
+** 6x `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o
+** 7x p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   ^_
 */
 
 /*
@@ -1667,7 +1667,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
         }
         i += x-2;
       }
-    } 
+    }
   }
 
   /* Separate from the previous argument by a space */
@@ -1797,7 +1797,7 @@ void test_escaped_arg_command(void){
       if( zBuf[0]=='-' && zArg[0]=='.' && zArg[1]=='/' ) zArg += 2;
 #endif
       if( strcmp(zBuf, zArg)!=0 ){
-        fossil_fatal("argument disagree: \"%s\" (%s) versus \"%s\"", 
+        fossil_fatal("argument disagree: \"%s\" (%s) versus \"%s\"",
                      zBuf, g.argv[i-1], zArg);
       }
       continue;

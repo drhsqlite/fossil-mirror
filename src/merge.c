@@ -270,7 +270,7 @@ void test_show_vfile_cmd(void){
   }
   verify_all_options();
   db_must_be_within_tree();
-  debug_show_vfile();  
+  debug_show_vfile();
 }
 
 
@@ -377,7 +377,7 @@ void merge_cmd(void){
   ** information to be displayed.  This option is undocumented as it
   ** might change or be eliminated in future releases.
   **
-  ** The --show-vfile flag does a dump of the VFILE table for reference. 
+  ** The --show-vfile flag does a dump of the VFILE table for reference.
   **
   ** Hints:
   **   *  Combine --debug and --verbose for still more output.

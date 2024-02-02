@@ -66,7 +66,7 @@ struct mkd_renderer {
               void *opaque);
   void (*table_row)(struct Blob *ob, struct Blob *cells, int flags,
               void *opaque);
-  void (*footnote_item)(struct Blob *ob, const struct Blob *text, 
+  void (*footnote_item)(struct Blob *ob, const struct Blob *text,
               int index, int nUsed, void *opaque);
 
   /* span level callbacks - NULL or return 0 prints the span verbatim */
@@ -384,7 +384,7 @@ static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
   rndr->iDepth--;
   blob_reset(buf);
-  if( rndr->nBlobCache < 
+  if( rndr->nBlobCache <
         (int)(sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0])) ){
     rndr->aBlobCache[rndr->nBlobCache++] = buf;
   }else{
@@ -2373,7 +2373,7 @@ static void parse_block(
       beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED);
     }else if( has_table && is_tableline(txt_data, end) ){
       beg += parse_table(ob, rndr, txt_data, end);
-    }else if( prefix_fencedcode(txt_data, end) 
+    }else if( prefix_fencedcode(txt_data, end)
              && (i = char_codespan(ob, rndr, txt_data, 0, end))!=0
     ){
       beg += i;

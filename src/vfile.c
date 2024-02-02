@@ -1044,13 +1044,13 @@ void vfile_rid_renumbering_event(int dryRun){
     " SELECT vfile.mrid, blob.rid FROM vfile, blob"
     "  WHERE blob.uuid=vfile.mhash;"
   );
-  
+
   if( dryRun ){
     Stmt q;
     db_prepare(&q, "SELECT oldrid, newrid, blob.uuid"
                    "  FROM idMap, blob WHERE blob.rid=idMap.newrid");
     while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("%8d -> %8d  %.25s\n", 
+      fossil_print("%8d -> %8d  %.25s\n",
          db_column_int(&q,0),
          db_column_int(&q,1),
          db_column_text(&q,2));

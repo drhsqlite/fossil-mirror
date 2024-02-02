@@ -515,8 +515,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( strncmp(zTag, "start:", 6)==0 ){
     rid = symbolic_name_to_rid(zTag+6, zType);
     return start_of_branch(rid, 1);
-  }  
-  
+  }
+
   /* merge-in:BR -> Most recent merge-in for the branch named BR */
   if( strncmp(zTag, "merge-in:", 9)==0 ){
     rid = symbolic_name_to_rid(zTag+9, zType);
@@ -526,7 +526,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* symbolic-name ":" date-time */
   nTag = strlen(zTag);
   for(i=0; i<nTag-8 && zTag[i]!=':'; i++){}
-  if( zTag[i]==':' 
+  if( zTag[i]==':'
    && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0)!=0)
   ){
     char *zDate = mprintf("%s", &zTag[i+1]);
@@ -1089,7 +1089,7 @@ void whatis_rid(int rid, int flags){
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
     " ORDER BY event.mtime %s /*sort*/",
-    rid, 
+    rid,
     (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
     if( flags & WHATIS_BRIEF ){

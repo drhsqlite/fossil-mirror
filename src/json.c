@@ -1301,7 +1301,7 @@ static cson_value * json_response_command_path(){
   }else{
     cson_value * rc = NULL;
     Blob path = empty_blob;
-    unsigned int aLen = g.json.dispatchDepth+1; 
+    unsigned int aLen = g.json.dispatchDepth+1;
                                  /*cson_array_length_get(g.json.cmd.a);*/
     unsigned int i = 1;
     for( ; i < aLen; ++i ){
@@ -2033,7 +2033,7 @@ cson_value * json_page_stat(void){
   fossil_free(zTmp);
   zTmp = NULL;
   fsize = file_size(g.zRepositoryName, ExtFILE);
-  cson_object_set(jo, "repositorySize", 
+  cson_object_set(jo, "repositorySize",
                   cson_value_new_integer((cson_int_t)fsize));
 
   if(full){
@@ -2088,7 +2088,7 @@ cson_value * json_page_stat(void){
   jv2 = cson_value_new_object();
   jo2 = cson_value_get_object(jv2);
   cson_object_set(jo, "sqlite", jv2);
-  sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)", sqlite3_sourceid(), 
+  sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)", sqlite3_sourceid(),
                    &sqlite3_sourceid()[20], sqlite3_libversion());
   SETBUF(jo2, "version");
   cson_object_set(jo2, "pageCount", cson_value_new_integer(
@@ -2099,9 +2099,9 @@ cson_value * json_page_stat(void){
                   (cson_int_t)db_int(0, "PRAGMA repository.freelist_count")));
   sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0,"PRAGMA repository.encoding"));
   SETBUF(jo2, "encoding");
-  sqlite3_snprintf(BufLen, zBuf, "%s", 
+  sqlite3_snprintf(BufLen, zBuf, "%s",
                    db_text(0, "PRAGMA repository.journal_mode"));
-  cson_object_set(jo2, "journalMode", *zBuf ? 
+  cson_object_set(jo2, "journalMode", *zBuf ?
                  cson_value_new_string(zBuf, strlen(zBuf)) : cson_value_null());
   return jv;
 #undef SETBUF

@@ -145,7 +145,7 @@ void page_timeline_rss(void){
 
   zProjectName = db_get("project-name", 0);
   if( zProjectName==0 ){
-    zFreeProjectName = zProjectName = 
+    zFreeProjectName = zProjectName =
       mprintf("Fossil source repository for: %s", g.zBaseURL);
   }
   zProjectDescr = db_get("project-description", 0);
@@ -344,7 +344,7 @@ void cmd_timeline_rss(void){
 
   zProjectName = db_get("project-name", 0);
   if( zProjectName==0 ){
-    zFreeProjectName = zProjectName = 
+    zFreeProjectName = zProjectName =
       mprintf("Fossil source repository for: %s", zBaseURL);
   }
   zProjectDescr = db_get("project-description", 0);

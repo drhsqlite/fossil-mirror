@@ -61,7 +61,7 @@ static int sslNoCertVerify = 0;  /* Do not verify SSL certs */
 /* This is a self-signed cert in the PEM format that can be used when
 ** no other certs are available.
 */
-static const char sslSelfCert[] = 
+static const char sslSelfCert[] =
 "-----BEGIN CERTIFICATE-----\n"
 "MIIDMTCCAhkCFGrDmuJkkzWERP/ITBvzwwI2lv0TMA0GCSqGSIb3DQEBCwUAMFQx\n"
 "CzAJBgNVBAYTAlVTMQswCQYDVQQIDAJOQzESMBAGA1UEBwwJQ2hhcmxvdHRlMRMw\n"
@@ -85,7 +85,7 @@ static const char sslSelfCert[] =
 
 /* This is the private-key corresponding to the cert above
 */
-static const char sslSelfPKey[] = 
+static const char sslSelfPKey[] =
 "-----BEGIN PRIVATE KEY-----\n"
 "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCCbTU26GRQHQqL\n"
 "q7vyZ0OxpAxmgfAKCxt6eIz+jBi2ZM/CB5vVXWVh2+SkSiWEA3UZiUqXxZlzmS/C\n"
@@ -208,7 +208,7 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 /*
 ** Convert an OpenSSL ASN1_TIME to an ISO8601 timestamp.
 **
-** Per RFC 5280, ASN1 timestamps in X.509 certificates must 
+** Per RFC 5280, ASN1 timestamps in X.509 certificates must
 ** be in UTC (Zulu timezone) with no fractional seconds.
 **
 ** If showUtc==1, add " UTC" at the end of the returned string. This is
@@ -414,7 +414,7 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
 ** real server or a man-in-the-middle imposter.
 */
 void ssl_disable_cert_verification(void){
-  sslNoCertVerify = 1;  
+  sslNoCertVerify = 1;
 }
 
 /*
@@ -567,12 +567,12 @@ int ssl_open_client(UrlData *pUrlData){
                  ssl_asn1time_to_iso8601(X509_get_notAfter(cert), 1));
       BIO_printf(mem, "\n  sha256:    %s", zHash);
       desclen = BIO_get_mem_data(mem, &desc);
-  
+
       prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
           "accept this cert and continue (y/N/fingerprint)? ",
           pUrlData->name, desclen, desc);
       BIO_free(mem);
-  
+
       prompt_user(prompt, &ans);
       free(prompt);
       cReply = blob_str(&ans)[0];
@@ -1187,7 +1187,7 @@ wellknown_notfound:
 ** freed by the caller.
 */
 char *fossil_openssl_version(void){
-#if defined(FOSSIL_ENABLE_SSL) 
+#if defined(FOSSIL_ENABLE_SSL)
   return mprintf("%s (0x%09x)\n",
          SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
 #else

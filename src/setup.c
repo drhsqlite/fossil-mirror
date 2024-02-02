@@ -590,7 +590,7 @@ void setup_access(void){
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
-  @ "Default privileges" setting below. 
+  @ "Default privileges" setting below.
   @
   @ <p>Example use case: Set this field to "/doc/trunk/www/*" and set
   @ the "Default privileges" to include the "o" privilege
@@ -1203,7 +1203,7 @@ void setup_config(void){
     db_unset("mainmenu", 0);
     cgi_delete_parameter("mmenu");
   }
-  textarea_attribute("Main Menu", 12, 80, 
+  textarea_attribute("Main Menu", 12, 80,
       "mainmenu", "mmenu", style_default_mainmenu(), 0);
   @ </p>
   @ <p><input type='checkbox' id='cbResetMenu' name='resetMenu' value='1'>
@@ -1231,7 +1231,7 @@ void setup_config(void){
   @ <p>The default value is blank, meaning no added entries.
   @ (Property: sitemap-extra)
   @ <p>
-  textarea_attribute("Custom Sitemap Entries", 8, 80, 
+  textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>

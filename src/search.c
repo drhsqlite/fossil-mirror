@@ -698,7 +698,7 @@ void search_cmd(void){
     (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
     blob_reset(&pattern);
     search_sql_setup(g.db);
-  
+
     db_multi_exec(
        "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
        "CREATE INDEX srch_idx1 ON srch(x);"
@@ -2382,7 +2382,7 @@ static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi){
 
 /*
 ** Argument f should be a flag accepted by matchinfo() (a valid character
-** in the string passed as the second argument). If it is not, -1 is 
+** in the string passed as the second argument). If it is not, -1 is
 ** returned. Otherwise, if f is a valid matchinfo flag, the value returned
 ** is the number of 32-bit integers added to the output array if the
 ** table has nCol columns and the query nPhrase phrases.
