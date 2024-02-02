@@ -138,7 +138,7 @@ int fossil_any_has_fork(int rcvid){
 static void add_renames(
   const char *zFnCol, /* The FV column for the filename in vid */
   int vid,            /* The desired version's- RID */
-  int nid,            /* The	check-in rid for the name pivot */
+  int nid,            /* The check-in rid for the name pivot */
   int revOK,          /* OK to move backwards (child->parent) if true */
   const char *zDebug  /* Generate trace output if not NULL */
 ){
