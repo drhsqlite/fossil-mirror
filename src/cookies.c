@@ -241,7 +241,7 @@ void cookie_page(void){
     }
     nCookie++;
     @ <li><p><b>%h(zName)</b>: %h(zValue)
-    @ <input type="submit" name="%h(zDel)" value="Delete"> 
+    @ <input type="submit" name="%h(zDel)" value="Delete">
     if( fossil_strcmp(zName, DISPLAY_SETTINGS_COOKIE)==0  && cookies.nParam>0 ){
       int j;
       @ <ul>

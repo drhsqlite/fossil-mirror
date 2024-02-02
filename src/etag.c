@@ -102,14 +102,14 @@ void etag_check(unsigned eFlags, const char *zHash){
 
   /* By default, ETagged URLs never expire since the ETag will change
    * when the content changes.  Approximate this policy as 10 years. */
-  iMaxAge = 10 * 365 * 24 * 60 * 60;   
+  iMaxAge = 10 * 365 * 24 * 60 * 60;
   md5sum_init();
 
   /* Always include the executable ID as part of the hash */
   md5sum_step_text("exe-id: ", -1);
   md5sum_step_text(fossil_exe_id(), -1);
   md5sum_step_text("\n", 1);
-  
+
   if( (eFlags & ETAG_HASH)!=0 && zHash ){
     md5sum_step_text("hash: ", -1);
     md5sum_step_text(zHash, -1);
@@ -212,7 +212,7 @@ void etag_last_modified(sqlite3_int64 mtime){
   x = cgi_rfc822_parsedate(zIfModifiedSince);
   if( x<mtime ) return;
 
-#if 0  
+#if 0
   /* If the Fossil executable is more recent than If-Modified-Since,
   ** go ahead and regenerate the resource. */
   if( file_mtime(g.nameOfExe, ExtFILE)>x ) return;
@@ -246,7 +246,7 @@ sqlite3_int64 etag_mtime(void){
   return iEtagMtime;
 }
 
-/* 
+/*
 ** COMMAND: test-etag
 **
 ** Usage:  fossil test-etag -key KEY-NUMBER  -hash HASH

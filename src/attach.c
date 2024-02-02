@@ -752,7 +752,8 @@ void attachment_cmd(void){
         fossil_fatal("technote [%s] not found",zETime);
       }
       zTarget = db_text(0,
-        "SELECT substr(tagname,7) FROM tag WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
+        "SELECT substr(tagname,7) FROM tag "
+        "  WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
         rid
       );
       zFile = g.argv[3];

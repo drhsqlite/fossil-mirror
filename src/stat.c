@@ -559,7 +559,7 @@ void urllist_page(void){
     cnt++;
   }
   db_finalize(&q);
-  
+
   if( nOmitted ){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
@@ -717,7 +717,7 @@ void repo_schema_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
-  if( zArg!=0 
+  if( zArg!=0
    && db_table_exists("repository",zArg)
    && cgi_csrf_safe(1)
   ){
@@ -936,7 +936,7 @@ void repo_tabsize_page(void){
 ** Only populate the artstat.atype field if the bWithTypes parameter is true.
 */
 void gather_artifact_stats(int bWithTypes){
-  static const char zSql[] = 
+  static const char zSql[] =
     @ CREATE TEMP TABLE artstat(
     @   id INTEGER PRIMARY KEY,   -- Corresponds to BLOB.RID
     @   atype TEXT,               -- 'data', 'manifest', 'tag', 'wiki', etc.
@@ -951,7 +951,7 @@ void gather_artifact_stats(int bWithTypes){
     @      FROM blob LEFT JOIN delta ON blob.rid=delta.rid
     @     WHERE content IS NOT NULL;
   ;
-  static const char zSql2[] = 
+  static const char zSql2[] =
     @ UPDATE artstat SET atype='file'
     @  WHERE +id IN (SELECT fid FROM mlink);
     @ UPDATE artstat SET atype='manifest'
@@ -959,34 +959,34 @@ void gather_artifact_stats(int bWithTypes){
     @ UPDATE artstat SET atype='forum'
     @  WHERE id IN (SELECT objid FROM event WHERE type='f') AND atype IS NULL;
     @ UPDATE artstat SET atype='cluster'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid=(SELECT tagid FROM tag
     @                              WHERE tagname='cluster'));
     @ UPDATE artstat SET atype='ticket'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid IN (SELECT tagid FROM tag
     @                              WHERE tagname GLOB 'tkt-*'));
     @ UPDATE artstat SET atype='wiki'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid IN (SELECT tagid FROM tag
     @                              WHERE tagname GLOB 'wiki-*'));
     @ UPDATE artstat SET atype='technote'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid IN (SELECT tagid FROM tag
     @                              WHERE tagname GLOB 'event-*'));
     @ UPDATE artstat SET atype='attachment'
-    @  WHERE atype IS NULL 
-    @    AND id IN (SELECT attachid FROM attachment UNION 
+    @  WHERE atype IS NULL
+    @    AND id IN (SELECT attachid FROM attachment UNION
     @               SELECT blob.rid FROM attachment JOIN blob ON uuid=src);
     @ UPDATE artstat SET atype='tag'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT srcid FROM tagxref);
     @ UPDATE artstat SET atype='tag'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT objid FROM event WHERE type='g');
     @ UPDATE artstat SET atype='unused' WHERE atype IS NULL;
   ;

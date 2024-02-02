@@ -642,9 +642,9 @@ void tag_cmd(void){
       int l = strlen(zTagType);
       if( strncmp(zTagType,"cancel",l)==0 ){
         nTagType = 0;
-      }else if( strncmp(zTagType,"singleton",l)==0 ){ 
+      }else if( strncmp(zTagType,"singleton",l)==0 ){
         nTagType = 1;
-      }else if( strncmp(zTagType,"propagated",l)==0 ){ 
+      }else if( strncmp(zTagType,"propagated",l)==0 ){
         nTagType = 2;
       }else{
         fossil_fatal("unrecognized tag type");

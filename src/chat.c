@@ -36,7 +36,7 @@
 ** in which a GET request is issued but the server does not send a reply until
 ** new content arrives.  Newer Web Sockets and Server Sent Event protocols are
 ** more elegant, but are not compatible with CGI, and would thus complicate
-** configuration.  
+** configuration.
 */
 #include "config.h"
 #include <assert.h>
@@ -321,7 +321,7 @@ static void chat_purge(void){
      if( msgid>0 ){
        Stmt s;
        db_multi_exec("PRAGMA secure_delete=ON;");
-       db_prepare(&s, 
+       db_prepare(&s,
              "DELETE FROM chat WHERE mtime<julianday('now')-:mxage"
              " AND msgid<%d", msgid);
        db_bind_double(&s, ":mxage", mxDays);
@@ -695,7 +695,7 @@ void chat_poll_webpage(void){
   db_finalize(&q1);
   blob_append(&json, "\n]}", 3);
   cgi_set_content(&json);
-  return;      
+  return;
 }
 
 /*
@@ -728,7 +728,7 @@ void chat_fetch_one(void){
   zChatUser = db_get("chat-timeline-user",0);
   chat_create_tables();
   cgi_set_content_type("application/json");
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT datetime(mtime), xfrom, xmsg, octet_length(file),"
     "       fname, fmime, lmtime"
     "  FROM chat WHERE msgid=%d AND mdel IS NULL",
@@ -771,7 +771,7 @@ void chat_fetch_one(void){
     }else{
       blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
                    nByte, zFName, zFMime);
-    }    
+    }
     blob_append(&json,"}",1);
     cgi_set_content(&json);
   }else{
@@ -959,7 +959,7 @@ void chat_msg_from_event(
   const char *zUser = (const char*)sqlite3_value_text(argv[2]);
   const char *zMsg = (const char*)sqlite3_value_text(argv[3]);
   char *zRes = 0;
-  
+
   if( zType==0 || zUser==0 || zMsg==0 ) return;
   if( zType[0]=='c' ){
     /* Check-ins */

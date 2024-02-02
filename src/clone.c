@@ -198,7 +198,7 @@ void clone_cmd(void){
       zWorkDir = mprintf("./%s", zBase);
     }
     fossil_free(zBase);
-  }  
+  }
   if( -1 != file_size(zRepo, ExtFILE) ){
     fossil_fatal("file already exists: %s", zRepo);
   }

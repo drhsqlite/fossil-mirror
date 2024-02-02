@@ -256,7 +256,7 @@ int login_search_uid(const char **pzUsername, const char *zPasswd){
       }
     }
     db_finalize(&q);
-  }    
+  }
   free(zSha1Pw);
   return uid;
 }
@@ -777,7 +777,7 @@ void login_page(void){
     if( P("HTTPS")==0 ){
       @ <tr><td class="form_label">Warning:</td>
       @ <td><span class='securityWarning'>
-      @ Login information, including the password, 
+      @ Login information, including the password,
       @ will be sent in the clear over an unencrypted connection.
       if( !g.sslNotAvailable ){
         @ Consider logging in at
@@ -826,7 +826,7 @@ void login_page(void){
       const char *zDecoded = captcha_decode(uSeed);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
       char *zCaptcha = captcha_render(zDecoded);
-  
+
       @ <p><input type="hidden" name="cs" value="%u(uSeed)">
       @ Visitors may enter <b>anonymous</b> as the user-ID with
       @ the 8-character hexadecimal password shown below:</p>
@@ -1031,7 +1031,7 @@ void login_resetpw(void){
     @ Password-reset URLs have a short lifespan.
     @ </span></p>
     style_finish_page();
-    sleep(1);  /* Introduce a small delay on an invalid suffix as an 
+    sleep(1);  /* Introduce a small delay on an invalid suffix as an
                ** extra defense against search attacks */
     return;
   }
@@ -1165,7 +1165,7 @@ static int login_transfer_credentials(
       db_multi_exec(
         "UPDATE user SET cookie=%Q, cexpire=%.17g"
         " WHERE login=%Q",
-        zHash, 
+        zHash,
         sqlite3_column_double(pStmt, 0), zLogin
       );
       db_protect_pop();
@@ -1582,7 +1582,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt =
                              p->RdForum = p->WrForum = p->ModForum =
-                             p->WrTForum = p->AdminForum = p->Chat = 
+                             p->WrTForum = p->AdminForum = p->Chat =
                              p->EmailAlert = p->Announce = p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1829,7 +1829,7 @@ void login_insert_csrf_secret(void){
 
 /*
 ** Check to see if the candidate username zUserID is already used.
-** Return 1 if it is already in use.  Return 0 if the name is 
+** Return 1 if it is already in use.  Return 0 if the name is
 ** available for a self-registeration.
 */
 static int login_self_choosen_userid_already_exists(const char *zUserID){
@@ -1851,7 +1851,7 @@ static int login_self_choosen_userid_already_exists(const char *zUserID){
 */
 static int email_address_in_use(const char *zEMail){
   int uid;
-  uid = db_int(0, 
+  uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE info LIKE '%%<%q>%%'", zEMail);
   if( uid>0 ){
@@ -1880,7 +1880,7 @@ static int email_address_in_use(const char *zEMail){
 /*
 ** COMMAND: test-email-used
 ** Usage:  fossil test-email-used EMAIL ...
-** 
+**
 ** Given a list of email addresses, show the UID and LOGIN associated
 ** with each one.
 */
@@ -1905,7 +1905,7 @@ void test_email_used(void){
     }
   }
 }
-    
+
 
 /*
 ** Check an email address and confirm that it is valid for self-registration.
@@ -1997,7 +1997,7 @@ void register_page(void){
   }else if( sqlite3_strglob("*[^-a-zA-Z0-9_.]*",zUserID)==0 ){
     iErrLine = 1;
     zErr = "User ID may not contain spaces or special characters.";
-  }else if( sqlite3_strlike("anonymous%", zUserID, 0)==0 
+  }else if( sqlite3_strlike("anonymous%", zUserID, 0)==0
          || sqlite3_strlike("nobody%", zUserID, 0)==0
          || sqlite3_strlike("reader%", zUserID, 0)==0
          || sqlite3_strlike("developer%", zUserID, 0)==0

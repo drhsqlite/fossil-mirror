@@ -136,7 +136,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                web-browser
 **
 **    whatis      Run the "whatis" command on all repositories.  Only
-**                show output for repositories that have a match.           
+**                show output for repositories that have a match.
 **
 **
 ** In addition, the following maintenance operations are supported:

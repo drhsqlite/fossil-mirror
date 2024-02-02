@@ -670,7 +670,7 @@ void win32_http_server(
   if ( !file_mkdir(zTempSubDirPath, ExtFILE, 0) ||
         file_isdir(zTempSubDirPath, ExtFILE)==1 ){
     wcscpy(zTmpPath, fossil_utf8_to_path(zTempSubDirPath, 1));
-  }  
+  }
   if( g.fHttpTrace ){
     zTempPrefix = mprintf("httptrace");
   }else{
@@ -1374,12 +1374,12 @@ void cmd_win32_service(void){
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_RUNNING ){
       fossil_print("Starting service '%s'", zSvcName);
-      if( sstat.dwCurrentState!=SERVICE_START_PENDING ){ 
-        if( !StartServiceW(hSvc, 0, NULL) ){ 
-          winhttp_fatal("start", zSvcName, win32_get_last_errmsg()); 
-        } 
-        QueryServiceStatus(hSvc, &sstat); 
-      } 
+      if( sstat.dwCurrentState!=SERVICE_START_PENDING ){
+        if( !StartServiceW(hSvc, 0, NULL) ){
+          winhttp_fatal("start", zSvcName, win32_get_last_errmsg());
+        }
+        QueryServiceStatus(hSvc, &sstat);
+      }
       while( sstat.dwCurrentState==SERVICE_START_PENDING ||
              sstat.dwCurrentState==SERVICE_STOPPED ){
         Sleep(100);

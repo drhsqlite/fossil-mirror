@@ -272,7 +272,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   if( n%sizeof(WCHAR_T) ){
     flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
   }
-  if( n<sizeof(WCHAR_T) ) return flags;  /* Zero or One byte -> binary (UTF-8?) */
+  if( n<sizeof(WCHAR_T) ) return flags;/* Zero or One byte -> binary (UTF-8?) */
   c = *z;
   if( bReverse ){
     c = UTF16_SWAP(c);

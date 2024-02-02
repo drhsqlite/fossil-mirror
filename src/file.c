@@ -2247,7 +2247,7 @@ FILE *fossil_fopen_for_output(const char *zFilename){
 ** path element.
 */
 const char *file_is_win_reserved(const char *zPath){
-  static const char *const azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
+  static const char *const azRes[] = { "CON","PRN","AUX","NUL","COM","LPT" };
   static char zReturn[5];
   int i;
   while( zPath[0] ){

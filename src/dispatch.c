@@ -455,7 +455,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
           wantP = 0;
         }
         blob_append(pHtml, "<ul>\n", 5);
-      }else if( isDT 
+      }else if( isDT
              || zHelp[nIndent]=='-'
              || hasGap(zHelp+nIndent,i-nIndent) ){
         iLevel++;
@@ -549,11 +549,11 @@ static void help_to_text(const char *zHelp, Blob *pText){
       zHelp += x-1;
       i = -1;
       continue;
-    }     
+    }
   }
   if( i>0 ){
     blob_append(pText, zHelp, i);
-  }      
+  }
 }
 
 /*
@@ -637,7 +637,7 @@ static void display_all_help(int mask, int useHtml, int rawOut){
 **
 ** Options:
 **    -a|--aliases      Show aliases
-**    -e|--everything   Show all commands and pages.  Omit aliases to 
+**    -e|--everything   Show all commands and pages.  Omit aliases to
 **                      avoid duplicates.
 **    -h|--html         Transform output to HTML
 **    -o|--options      Show global options
@@ -663,7 +663,7 @@ void test_all_help_cmd(void){
   }
   if( find_option("aliases","a",0) ){
     mask = CMDFLAG_ALIAS;
-  }  
+  }
   if( find_option("test","t",0) ){
     mask |= CMDFLAG_TEST;
   }
@@ -770,7 +770,7 @@ int dispatch_approx_match(const char *zIn, int nArray, const char **azArray){
   }
 
   while( n<nArray ){
-    bestScore = mxScore;    
+    bestScore = mxScore;
     for(i=iFirst; i<=iLast; i++){
       m = edit_distance(zIn, aCommand[i].zName);
       if( m<mnScore ) continue;
@@ -899,7 +899,8 @@ void help_page(void){
         int aliases[MX_HELP_DUP], nAliases=0;
         for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
           if( bktHelp[aCommand[i].iHelp][j] != i ){
-            if( aCommand[bktHelp[aCommand[i].iHelp][j]].eCmdFlags & CMDFLAG_ALIAS ){
+            if( aCommand[bktHelp[aCommand[i].iHelp][j]].eCmdFlags
+                & CMDFLAG_ALIAS ){
               aliases[nAliases++] = bktHelp[aCommand[i].iHelp][j];
             }
           }
@@ -989,7 +990,7 @@ void test_all_help_page(void){
   for(i=0; i<MX_COMMAND; i++){
     if(aCommand[i].eCmdFlags & CMDFLAG_HIDDEN) continue;
     bktHelp[aCommand[i].iHelp][occHelp[aCommand[i].iHelp]++] = i;
-  }  
+  }
   for(i=0; i<MX_COMMAND; i++){
     const char *zDesc;
     unsigned int e = aCommand[i].eCmdFlags;
@@ -1041,7 +1042,7 @@ void test_all_help_page(void){
             zDesc = "web page";
           }
         }
-        
+
         @ <dt><big><b>%s(aCommand[bktHelp[aCommand[i].iHelp][j]].zName)</b>
         @</big> (%s(zDesc))</dt>
       }
@@ -1120,14 +1121,14 @@ static void command_list(int cmdMask, int verboseFlag, int useHtml){
 /* @-comment: # */
 static const char zOptions[] =
 @ Command-line options common to all commands:
-@ 
+@
 @   --args FILENAME         Read additional arguments and options from FILENAME
 @   --case-sensitive BOOL   Set case sensitivity for file names
 @   --cgitrace              Active CGI tracing
-@   --chdir PATH            Change to PATH before performing any operations 
+@   --chdir PATH            Change to PATH before performing any operations
 @   --comfmtflags VALUE     Set comment formatting flags to VALUE
 @   --comment-format VALUE  Alias for --comfmtflags
-@   --errorlog FILENAME     Log errors to FILENAME 
+@   --errorlog FILENAME     Log errors to FILENAME
 @   --help                  Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests
 @   --localtime             Display times using the local timezone
@@ -1489,11 +1490,11 @@ static int helptextVtabEof(sqlite3_vtab_cursor *cur){
 /*
 ** This method is called to "rewind" the helptextVtab_cursor object back
 ** to the first row of output.  This method is always called at least
-** once prior to any call to helptextVtabColumn() or helptextVtabRowid() or 
+** once prior to any call to helptextVtabColumn() or helptextVtabRowid() or
 ** helptextVtabEof().
 */
 static int helptextVtabFilter(
-  sqlite3_vtab_cursor *pVtabCursor, 
+  sqlite3_vtab_cursor *pVtabCursor,
   int idxNum, const char *idxStr,
   int argc, sqlite3_value **argv
 ){
@@ -1518,7 +1519,7 @@ static int helptextVtabBestIndex(
 }
 
 /*
-** This following structure defines all the methods for the 
+** This following structure defines all the methods for the
 ** virtual table.
 */
 static sqlite3_module helptextVtabModule = {

@@ -119,7 +119,8 @@ static cson_value * json_tag_add(void){
     blob_append(&uu, zName, -1);
     rc = name_to_uuid(&uu, 9, "*");
     if(0!=rc){
-      json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert name back to artifact hash!");
+      json_set_err(FSL_JSON_E_UNKNOWN,
+                   "Could not convert name back to artifact hash!");
       blob_reset(&uu);
       goto error;
     }
