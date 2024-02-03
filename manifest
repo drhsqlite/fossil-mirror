@@ -1,5 +1,5 @@
-C Fix\soverlong\slines\sand\sremove\strailing\swhitespace\sfrom\snon-external\sC\sfiles.
-D 2024-02-02T22:22:37.329
+C In\sthe\s/timeline,\sautomatically\shighlight\sthe\sfrom=\sand\sto=\sselections.
+D 2024-02-03T20:32:48.874
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -565,7 +565,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c 6ed2e926c4dfaecc99827030d8c6ecc764d7e2d706d3cf1a4b3a637fbdb94090
-F src/timeline.c 1893d007b33ff450fd21b2b399cdf3b60b4d8469891b993accca629a8ea40b9a
+F src/timeline.c 7eca5d66681c43d88ce36ea4e8eb1a25b7373ff06137262be3c9ceb17fa221ce
 F src/tkt.c 6a9ba46397f7e48b85e465d3a03c459e1508ff97bed12124b85a9c730f4f3154
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -952,9 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9db696ea7879b810fc73158df0cca0e2c97fea271d3112c8206108e62a8da102 7db0a2d910dce2ebd74eee1391bd08683d8b30ea54b53318bea6499104efc418
-R 015eb8aa2648ed7476a55c5863696877
-T +closed 7db0a2d910dce2ebd74eee1391bd08683d8b30ea54b53318bea6499104efc418
-U danield
-Z a89a25486b8ca5548dbdf1e6e2438ab9
+P 275da70f8cc6b943752b1273a22b572f51018e01794b395814f9fa7bfdd2005c
+R b54221482ced5d7c1600aeb03cccbaf1
+U drh
+Z bef0ac94931bbfc9537dc1c846e5b180
 # Remove this line to create a well-formed Fossil manifest.

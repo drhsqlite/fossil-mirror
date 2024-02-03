@@ -1791,6 +1791,10 @@ void page_timeline(void){
 
   secondaryRid = name_to_typed_rid(P("sel2"),"ci");
   selectedRid = name_to_typed_rid(P("sel1"),"ci");
+  if( from_rid!=0 && to_rid!=0 ){
+    if( selectedRid==0 ) selectedRid = from_rid;
+    if( secondaryRid==0 ) secondaryRid = to_rid;
+  }
   tmFlags |= timeline_ss_submenu();
   cookie_link_parameter("advm","advm","0");
   advancedMenu = atoi(PD("advm","0"));
