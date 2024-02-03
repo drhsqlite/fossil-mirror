@@ -145,8 +145,8 @@ void page_timeline_rss(void){
 
   zProjectName = db_get("project-name", 0);
   if( zProjectName==0 ){
-    zFreeProjectName = zProjectName = mprintf("Fossil source repository for: %s",
-      g.zBaseURL);
+    zFreeProjectName = zProjectName =
+      mprintf("Fossil source repository for: %s", g.zBaseURL);
   }
   zProjectDescr = db_get("project-description", 0);
   if( zProjectDescr==0 ){
@@ -260,7 +260,7 @@ void cmd_timeline_rss(void){
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   Blob bSQL;
-  const char *zType = find_option("type","y",1); /* Type of events.  All if NULL */
+  const char *zType = find_option("type","y",1); /* Type of events;All if NULL*/
   const char *zTicketUuid = find_option("tkt",NULL,1);
   const char *zTag = find_option("tag",NULL,1);
   const char *zFilename = find_option("name",NULL,1);
@@ -334,7 +334,8 @@ void cmd_timeline_rss(void){
 
   if( zFilename ){
     blob_append_sql(&bSQL,
-      " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
+      " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) "
+      " IN (SELECT fnid FROM filename WHERE name=%Q %s)",
         zFilename, filename_collation()
     );
   }
@@ -343,8 +344,8 @@ void cmd_timeline_rss(void){
 
   zProjectName = db_get("project-name", 0);
   if( zProjectName==0 ){
-    zFreeProjectName = zProjectName = mprintf("Fossil source repository for: %s",
-      zBaseURL);
+    zFreeProjectName = zProjectName =
+      mprintf("Fossil source repository for: %s", zBaseURL);
   }
   zProjectDescr = db_get("project-description", 0);
   if( zProjectDescr==0 ){
@@ -354,7 +355,8 @@ void cmd_timeline_rss(void){
   zPubDate = cgi_rfc822_datestamp(time(NULL));
 
   fossil_print("<?xml version=\"1.0\"?>");
-  fossil_print("<rss xmlns:dc=\"http://purl.org/dc/elements/1.1/\" version=\"2.0\">");
+  fossil_print("<rss xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
+               "  version=\"2.0\">");
   fossil_print("<channel>\n");
   fossil_print("<title>%h</title>\n", zProjectName);
   fossil_print("<link>%s</link>\n", zBaseURL);

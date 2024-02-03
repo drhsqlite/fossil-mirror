@@ -213,7 +213,8 @@ cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
 */
 static cson_value * json_artifact_ci( cson_object * zParent, int rid ){
   if(!g.perm.Read){
-    json_set_err( FSL_JSON_E_DENIED, "Viewing check-ins requires 'o' privileges." );
+    json_set_err( FSL_JSON_E_DENIED,
+                  "Viewing check-ins requires 'o' privileges." );
     return NULL;
   }else{
     cson_value * artV = json_artifact_for_ci(rid, 1);
@@ -252,12 +253,13 @@ static int json_artifact_get_content_format_flag(void){
   enum { MagicValue = -9 };
   int contentFormat = json_wiki_get_content_format_flag(MagicValue);
   if(MagicValue == contentFormat){
-    contentFormat = json_find_option_bool("includeContent","content","c",0) /* deprecated */ ? -1 : 0;
+    contentFormat = json_find_option_bool("includeContent",
+                                     "content","c",0) /* deprecated */ ? -1 : 0;
   }
   return contentFormat;
 }
 
-extern int json_wiki_get_content_format_flag( int defaultValue ) /* json_wiki.c */;
+extern int json_wiki_get_content_format_flag(int defaultValue) /* json_wiki.c*/;
 
 cson_value * json_artifact_wiki(cson_object * zParent, int rid){
   if( ! g.perm.RdWiki ){
@@ -382,14 +384,15 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
   checkin_arr = cson_new_array();
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
   while( (SQLITE_ROW==db_step(&q) ) ){
-    cson_object * row = cson_value_get_object(cson_sqlite3_row_to_object(q.pStmt));
+    cson_object * row = cson_value_get_object(
+                           cson_sqlite3_row_to_object(q.pStmt));
     /* FIXME: move this isNew/isDel stuff into an SQL CASE statement. */
     char const isNew = cson_value_get_bool(cson_object_get(row,"isNew"));
     char const isDel = cson_value_get_bool(cson_object_get(row,"isDel"));
     cson_object_set(row, "isNew", NULL);
     cson_object_set(row, "isDel", NULL);
-    cson_object_set(row, "state",
-                    json_new_string(json_artifact_status_to_string(isNew, isDel)));
+    cson_object_set(row, "state", json_new_string(
+                            json_artifact_status_to_string(isNew, isDel)));
     cson_array_append( checkin_arr, cson_object_value(row) );
   }
   db_finalize(&q);

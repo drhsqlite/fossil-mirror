@@ -819,7 +819,7 @@ static void git_fast_import(FILE *pIn){
     }else
     if( strncmp(zLine, "property branch-nick ", 21)==0 ){
       /* Breezy uses this property to store the branch name.
-      ** It has two values. Integer branch number, then the 
+      ** It has two values. Integer branch number, then the
       ** user-readable branch name. */
       z = &zLine[21];
       next_token(&z);

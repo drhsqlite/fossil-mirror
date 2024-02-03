@@ -73,7 +73,7 @@ static void readfileFunc(
 **
 ** X is an numeric artifact id.  Y is a filename.
 **
-** Compute a compressed delta that carries X into Y.  Or return 
+** Compute a compressed delta that carries X into Y.  Or return
 ** and zero-length blob if X is equal to Y.
 */
 static void mkdeltaFunc(
@@ -164,7 +164,7 @@ void patch_create(unsigned mFlags, const char *zOut, FILE *out){
     "  hash TEXT,\n"     /* Baseline hash.  NULL for new files. */
     "  isexe BOOL,\n"    /* True if executable */
     "  islink BOOL,\n"   /* True if is a symbolic link */
-    "  delta BLOB\n"     /* compressed delta. NULL if deleted. 
+    "  delta BLOB\n"     /* compressed delta. NULL if deleted.
                          **    length 0 if unchanged */
     ");"
     "CREATE TABLE patch.cfg(\n"
@@ -198,7 +198,7 @@ void patch_create(unsigned mFlags, const char *zOut, FILE *out){
        "INSERT INTO patch.cfg(key,value)VALUES('hostname',%Q)", z);
     fossil_free(z);
   }
-  
+
   /* New files */
   db_multi_exec(
     "INSERT INTO patch.chng(pathname,hash,isexe,islink,delta)"
@@ -251,7 +251,7 @@ void patch_create(unsigned mFlags, const char *zOut, FILE *out){
     _setmode(_fileno(out), _O_BINARY);
 #endif
     fwrite(pData, sz, 1, out);
-    sqlite3_free(pData); 
+    sqlite3_free(pData);
     fflush(out);
   }
 }
@@ -303,7 +303,7 @@ void patch_attach(const char *zIn, FILE *in){
 */
 void patch_view(unsigned mFlags){
   Stmt q;
-  db_prepare(&q, 
+  db_prepare(&q,
     "WITH nmap(nkey,nm) AS (VALUES"
        "('baseline','BASELINE'),"
        "('project-name','PROJECT-NAME'))"
@@ -314,7 +314,7 @@ void patch_view(unsigned mFlags){
   }
   db_finalize(&q);
   if( mFlags & PATCH_VERBOSE ){
-    db_prepare(&q, 
+    db_prepare(&q,
       "WITH nmap(nkey,nm,isDate) AS (VALUES"
          "('project-code','PROJECT-CODE',0),"
          "('date','TIMESTAMP',1),"
@@ -435,7 +435,7 @@ void patch_apply(unsigned mFlags){
         blob_appendf(&cmd, " merge --%s %s\n", zType, db_column_text(&q,1));
       }
       if( mFlags & PATCH_VERBOSE ){
-        fossil_print("%-10s %s\n", db_column_text(&q,2), 
+        fossil_print("%-10s %s\n", db_column_text(&q,2),
                     db_column_text(&q,0));
       }
     }
@@ -563,7 +563,7 @@ void patch_apply(unsigned mFlags){
         fossil_print("%-10s %s\n", "NEW", zPathname);
       }
     }
-    if( (mFlags & PATCH_DRYRUN)==0 ){   
+    if( (mFlags & PATCH_DRYRUN)==0 ){
       if( isLink ){
         symlink_create(blob_str(&data), zPathname);
       }else{
@@ -699,7 +699,7 @@ static FILE *patch_remote_command(
       blob_append_escaped_arg(&cmd, "PATH=$HOME/bin:$PATH", 0);
       zFossilCmd = "fossil";
     }
-    blob_appendf(&remote, "%$ patch %s%s --dir64 %z -", 
+    blob_appendf(&remote, "%$ patch %s%s --dir64 %z -",
                  zFossilCmd, zRemoteCmd, zForce, encode64(zDir, -1));
     blob_append_escaped_arg(&cmd, blob_str(&remote), 0);
     blob_reset(&remote);
@@ -779,7 +779,7 @@ static void patch_diff(
     int rid;
     const char *zName;
     Blob a, b;
- 
+
     if( db_column_type(&q,0)!=SQLITE_INTEGER
      && db_column_type(&q,4)==SQLITE_TEXT
     ){
@@ -901,7 +901,7 @@ static void patch_diff(
 **                              changes in the current check-out.  Unsaved
 **                              changes will be reverted and then the patch is
 **                              applied.
-**           --fossilcmd EXE    Name of the "fossil" executable on the remote  
+**           --fossilcmd EXE    Name of the "fossil" executable on the remote
 **           -n|--dry-run       Do nothing, but print what would have happened
 **           -v|--verbose       Extra output explaining what happens
 **
@@ -978,7 +978,7 @@ void patch_cmd(void){
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
     verify_all_options();
-    pIn = patch_remote_command(flags & (~PATCH_FORCE), 
+    pIn = patch_remote_command(flags & (~PATCH_FORCE),
                  "pull", "create", zFossilCmd, "r");
     if( pIn ){
       patch_attach(0, pIn);
@@ -1016,5 +1016,5 @@ void patch_cmd(void){
   }else
   {
     goto patch_usage;
-  } 
+  }
 }

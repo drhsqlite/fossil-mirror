@@ -315,7 +315,7 @@ void cache_cmd(void){
       fossil_print("nothing to clear; cache does not exist\n");
     }
   }else if( strncmp(zCmd, "list", nCmd)==0
-        ||  strncmp(zCmd, "ls", nCmd)==0 
+        ||  strncmp(zCmd, "ls", nCmd)==0
         ||  strncmp(zCmd, "status", nCmd)==0
   ){
     db = cacheOpen(0);
@@ -434,7 +434,7 @@ void cache_page(void){
           fossil_free(zHash);
         }
         @ </p></li>
-        
+
       }
       sqlite3_finalize(pStmt);
       @ </ol>

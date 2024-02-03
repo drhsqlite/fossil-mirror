@@ -403,7 +403,7 @@ void capability_summary(void){
     int n = db_column_int(&q, 3);
     int eType;
     static const char *const azType[] = { "off", "read", "write" };
-    static const char *const azClass[] = 
+    static const char *const azClass[] =
         { "capsumOff", "capsumRead", "capsumWrite" };
 
     if( n==0 ) continue;

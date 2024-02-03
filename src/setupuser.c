@@ -812,7 +812,7 @@ void user_edit(void){
   @
   @ <li><p>
   @ The "<span class="ueditInheritDeveloper"><sub>D</sub></span>"
-  @ subscript suffix indicates the privileges of 
+  @ subscript suffix indicates the privileges of
   @ <span class="usertype">developer</span> that
   @ are inherited by all users with the
   @ <span class="capability">Developer</span> privilege.

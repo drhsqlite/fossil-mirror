@@ -357,7 +357,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 
   /* The isWriter flag must be true in order to land the new file */
   if( !isWriter ){
-    blob_appendf(&pXfer->err, "Write permissions for unversioned files missing");
+    blob_appendf(&pXfer->err,"Write permissions for unversioned files missing");
     goto end_accept_unversioned_file;
   }
 
@@ -1836,7 +1836,7 @@ void page_xfer(void){
       if( x.name!=0 && sqlite3_strlike("%localhost%", x.name, 0)!=0 ){
         @ pragma link %F(x.canonical) %F(zArg) %lld(iMtime)
       }
-      url_unparse(&x);      
+      url_unparse(&x);
     }
     db_finalize(&q);
   }
@@ -1861,7 +1861,7 @@ void page_xfer(void){
 ** protocol handler.  Generate a reply on standard output.
 **
 ** This command was original created to help debug the server side of
-** sync messages.  The XFERFILE is the uncompressed content of an 
+** sync messages.  The XFERFILE is the uncompressed content of an
 ** "xfer" HTTP request from client to server.  This command interprets
 ** that message and generates the content of an HTTP reply (without any
 ** encoding and without the HTTP reply headers) and writes that reply
@@ -2530,7 +2530,7 @@ int client_sync(
             "         sufficient permission on the server\n"
           );
           uvPullOnly = 2;
-        }          
+        }
         if( iStatus<=3 || uvPullOnly ){
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
         }else if( iStatus==4 ){

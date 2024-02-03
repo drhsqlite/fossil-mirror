@@ -140,7 +140,7 @@ static int archiveDeviceCharacteristics(sqlite3_file *pFile){
 }
 
 static int archiveOpen(
-  sqlite3_vfs *pVfs, const char *zName, 
+  sqlite3_vfs *pVfs, const char *zName,
   sqlite3_file *pFile, int flags, int *pOutFlags
 ){
   static struct sqlite3_io_methods methods = {
@@ -249,8 +249,8 @@ void zip_set_timedate(double rDate){
 */
 static void zip_add_file_to_zip(
   Archive *p,
-  const char *zName, 
-  const Blob *pFile, 
+  const char *zName,
+  const Blob *pFile,
   int mPerm
 ){
   z_stream stream;
@@ -376,8 +376,8 @@ static void zip_add_file_to_zip(
 
 static void zip_add_file_to_sqlar(
   Archive *p,
-  const char *zName, 
-  const Blob *pFile, 
+  const char *zName,
+  const Blob *pFile,
   int mPerm
 ){
   int nName = (int)strlen(zName);
@@ -398,12 +398,12 @@ static void zip_add_file_to_sqlar(
     p->vfs.xCurrentTime = archiveCurrentTime;
     p->vfs.xGetLastError = archiveGetLastError;
     sqlite3_vfs_register(&p->vfs, 0);
-    sqlite3_open_v2("file:xyz.db", &p->db, 
+    sqlite3_open_v2("file:xyz.db", &p->db,
         SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE, p->vfs.zName
     );
     assert( p->db );
     blob_zero(&p->tmp);
-    sqlite3_exec(p->db, 
+    sqlite3_exec(p->db,
         "PRAGMA page_size=512;"
         "PRAGMA journal_mode = off;"
         "PRAGMA cache_spill = off;"
@@ -416,8 +416,8 @@ static void zip_add_file_to_sqlar(
           "data BLOB               -- compressed content\n"
         ");", 0, 0, 0
     );
-    sqlite3_prepare(p->db, 
-        "INSERT INTO sqlar VALUES(?, ?, ?, ?, ?)", -1, 
+    sqlite3_prepare(p->db,
+        "INSERT INTO sqlar VALUES(?, ?, ?, ?, ?)", -1,
         &p->pInsert, 0
     );
     assert( p->pInsert );
@@ -439,7 +439,7 @@ static void zip_add_file_to_sqlar(
     if( mPerm==PERM_LNK ){
       sqlite3_bind_int(p->pInsert, 2, 0120755);
       sqlite3_bind_int(p->pInsert, 4, -1);
-      sqlite3_bind_text(p->pInsert, 5, 
+      sqlite3_bind_text(p->pInsert, 5,
           blob_buffer(pFile), blob_size(pFile), SQLITE_STATIC
       );
     }else{
@@ -452,11 +452,11 @@ static void zip_add_file_to_sqlar(
           blob_buffer(&p->tmp), &nOut, (unsigned char*)blob_buffer(pFile), nIn
       );
       if( nOut>=(unsigned long)nIn ){
-        sqlite3_bind_blob(p->pInsert, 5, 
+        sqlite3_bind_blob(p->pInsert, 5,
             blob_buffer(pFile), blob_size(pFile), SQLITE_STATIC
         );
       }else{
-        sqlite3_bind_blob(p->pInsert, 5, 
+        sqlite3_bind_blob(p->pInsert, 5,
             blob_buffer(&p->tmp), nOut, SQLITE_STATIC
         );
       }
@@ -469,8 +469,8 @@ static void zip_add_file_to_sqlar(
 
 static void zip_add_file(
   Archive *p,
-  const char *zName, 
-  const Blob *pFile, 
+  const char *zName,
+  const Blob *pFile,
   int mPerm
 ){
   if( p->eType==ARCHIVE_ZIP ){
@@ -788,7 +788,7 @@ static void archive_cmd(int eType){
        db_get("project-name", "unnamed"), rid, rid
     );
   }
-  zip_of_checkin(eType, rid, zOut ? &zip : 0, 
+  zip_of_checkin(eType, rid, zOut ? &zip : 0,
                  zName, pInclude, pExclude, listFlag);
   glob_free(pInclude);
   glob_free(pExclude);
@@ -949,14 +949,14 @@ void baseline_zip_page(void){
   if( zInclude==0 && zExclude==0 ){
     etag_check_for_invariant_name(z);
   }
-  if( eType==ARCHIVE_ZIP 
+  if( eType==ARCHIVE_ZIP
    && nName>4
    && fossil_strcmp(&zName[nName-4], ".zip")==0
   ){
     /* Special case:  Remove the ".zip" suffix.  */
     nName -= 4;
     zName[nName] = 0;
-  }else if( eType==ARCHIVE_SQLAR 
+  }else if( eType==ARCHIVE_SQLAR
    && nName>6
    && fossil_strcmp(&zName[nName-6], ".sqlar")==0
   ){

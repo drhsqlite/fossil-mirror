@@ -204,7 +204,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   if( fossil_strncmp(zColor, "auto", 4)==0 ) {
     bAutoColor = 1;
     zColor = 0;
-  } 
+  }
   /* fossil branch new name */
   if( zBranch==0 || zBranch[0]==0 ){
     zOpt->rcErrMsg = "Branch name may not be null/empty.";
@@ -337,7 +337,8 @@ static cson_value * json_branch_create(void){
   }
 
   if(!opt.zName){
-    json_set_err(FSL_JSON_E_MISSING_ARGS, "'name' parameter was not specified." );
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "'name' parameter was not specified." );
     return NULL;
   }
 

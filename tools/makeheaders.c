@@ -40,7 +40,8 @@
 #include <assert.h>
 #include <string.h>
 
-#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
+#if defined( __MINGW32__) || defined(__DMC__)   || \
+    defined(_MSC_VER)     || defined(__POCC__)
 #  ifndef WIN32
 #    define WIN32
 #  endif
@@ -2228,7 +2229,8 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
       PushIfMacro(0,0,0,pToken->nLine,PS_Export);
     }else if( nArg==15 && strncmp(zArg,"LOCAL_INTERFACE",15)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Local);
-    }else if( nArg==15 && strncmp(zArg,"MAKEHEADERS_STOPLOCAL_INTERFACE",15)==0 ){
+    }else if( nArg==15 &&
+              strncmp(zArg,"MAKEHEADERS_STOPLOCAL_INTERFACE",15)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Local);
     }else{
       PushIfMacro(0,zArg,nArg,pToken->nLine,0);

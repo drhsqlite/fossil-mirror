@@ -2222,7 +2222,7 @@ const char *html_attribute(const char *zMarkup, const char *zAttr, int *pLen){
       if( (zStart[0]=='"' || zStart[0]=='\'') && zStart[n-1]==zStart[0] ){
         zStart++;
         n -= 2;
-      } 
+      }
       *pLen = n;
       return zStart;
     }else{

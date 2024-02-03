@@ -55,7 +55,8 @@ int main(int argc, char **argv){
 #define STR(MACRO_VAL) QUOTE(MACRO_VAL)
 
   char zMinimumVersionNumber[8]="nn.nn.nn";
-  strncpy((char *)&zMinimumVersionNumber,STR(MINIMUM_SQLITE_VERSION),sizeof(zMinimumVersionNumber));
+  strncpy((char *)&zMinimumVersionNumber,STR(MINIMUM_SQLITE_VERSION),
+          sizeof(zMinimumVersionNumber));
 
   long major, minor, release, version;
   sscanf(zMinimumVersionNumber, "%li.%li.%li", &major, &minor, &release);
@@ -69,7 +70,8 @@ int main(int argc, char **argv){
 
   /* Check minimum SQLite version number */
   if( sqlite3_libversion_number()<version ){
-    printf("found system SQLite version %s but need %s or later, consider removing --disable-internal-sqlite\n",
+    printf("found system SQLite version %s but need %s or later, "
+           "consider removing --disable-internal-sqlite\n",
             sqlite3_libversion(),STR(MINIMUM_SQLITE_VERSION));
     return 1;
   }
