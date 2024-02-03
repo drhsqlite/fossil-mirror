@@ -1,5 +1,5 @@
-C Merged\strunk.\sNotably,\sdrh's\s[bb3de39ffefb3f20]\sworks\sseamlessly\swith\nthis\sbranch's\sskin.
-D 2024-02-03T23:12:26.020
+C Found\sa\ssimpler\sfix\sfor\s[6b40ee53]:\sput\sa\sblank\sline\sbetween\sthe\send\sof\nthe\sfloated-right\stable\sand\sthe\sfirst\sparagraph.\s\sReduces\sthe\sdiff\sfor\s\s\nthis\sfile\srelative\sto\strunk\sto\sa\ssingle\sLF.
+D 2024-02-03T23:37:23.918
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -780,7 +780,7 @@ F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
 F www/changes.wiki 0f2052d15a9625d11d5090af6ff206507bec5042ef25820b9db82cea7351066c
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
-F www/checkin_names.wiki 71dd3c0f69b317c86166e4e93027bdfd71ea346d83a9f254ccfc8e2ca0735059
+F www/checkin_names.wiki 1d8b56192e3b860951e1385099e88b96188639856c313b60c920409655b72cc1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
 F www/ckout-workflows.md ab6e6458629a8716980e3b11dfdb0123b199bc2444365ccf587b04938c20a588
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f94da9b6b2b049cbc4e0061cee659b33dfb09f04411814054aab02d865f63d7 bb3de39ffefb3f203f165d0d378e5843a057ba9abbb9039e7965b8b0767de084
-R f7e656428f39d7efd1666f8d24eb6ba9
+P 4f9cb1d1e074f5199bd8aa7a0453352d837384b019029b9e4ae4eaff0b749aa1
+R 1b266fd174e3eeaee946c31b5e143f98
 U wyoung
-Z e006a471fe848871ab99364a337ede5b
+Z f72d5957323ff40044e00f3239bd9645
 # Remove this line to create a well-formed Fossil manifest.

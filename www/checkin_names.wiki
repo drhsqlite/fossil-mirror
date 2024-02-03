@@ -1,11 +1,6 @@
 <title>Check-in Names</title>
 
-Many Fossil [/help|commands] and [./webui.wiki | web interface] URLs accept
-check-in names as an argument.  For example, the "[/help/info|info]" command
-accepts an optional check-in name to identify the specific check-in
-about which information is desired:
-
-<table align="right" width="33%">
+<table align="right" border="1" width="33%" cellpadding="10">
 <tr><td>
 <h3>Quick Reference</h3>
 <ul>
@@ -28,6 +23,11 @@ about which information is desired:
 </ul>
 </td></tr>
 </table>
+
+Many Fossil [/help|commands] and [./webui.wiki | web interface] URLs accept
+check-in names as an argument.  For example, the "[/help/info|info]" command
+accepts an optional check-in name to identify the specific check-in
+about which information is desired:
 
 <blockquote>
 <tt>fossil info</tt> <i>checkin-name</i>
