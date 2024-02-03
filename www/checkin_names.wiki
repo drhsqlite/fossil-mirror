@@ -1,6 +1,6 @@
 <title>Check-in Names</title>
 
-<table align="right" border="1" width="33%" cellpadding="10">
+<table align="right" width="33%">
 <tr><td>
 <h3>Quick Reference</h3>
 <ul>
