@@ -515,8 +515,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( strncmp(zTag, "start:", 6)==0 ){
     rid = symbolic_name_to_rid(zTag+6, zType);
     return start_of_branch(rid, 1);
-  }  
-  
+  }
+
   /* merge-in:BR -> Most recent merge-in for the branch named BR */
   if( strncmp(zTag, "merge-in:", 9)==0 ){
     rid = symbolic_name_to_rid(zTag+9, zType);
@@ -526,7 +526,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* symbolic-name ":" date-time */
   nTag = strlen(zTag);
   for(i=0; i<nTag-8 && zTag[i]!=':'; i++){}
-  if( zTag[i]==':' 
+  if( zTag[i]==':'
    && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0)!=0)
   ){
     char *zDate = mprintf("%s", &zTag[i+1]);
@@ -1089,7 +1089,7 @@ void whatis_rid(int rid, int flags){
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
     " ORDER BY event.mtime %s /*sort*/",
-    rid, 
+    rid,
     (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
     if( flags & WHATIS_BRIEF ){
@@ -1165,19 +1165,17 @@ void whatis_artifact(
     const char *zType,    /* Artifact type filter */
     int mFlags            /* WHATIS_* flags */
 ){
-  const char* zNameTitle = "name:";
   int rid = symbolic_name_to_rid(zName, zType);
-  if( zFileName ){
-    fossil_print("%-12s%s\n", zNameTitle, zFileName);
-    zNameTitle = "hash:";
-  }
   if( rid<0 ){
     Stmt q;
     int cnt = 0;
     if( mFlags & WHATIS_REPO ){
       fossil_print("\nrepository: %s\n", g.zRepositoryName);
     }
-    fossil_print("%-12s%s (ambiguous)\n", zNameTitle, zName);
+    if( zFileName ){
+      fossil_print("%-12s%s\n", "name:", zFileName);
+    }
+    fossil_print("%-12s%s (ambiguous)\n", "hash:", zName);
     db_prepare(&q,
         "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
         zName, zName
@@ -1190,13 +1188,19 @@ void whatis_artifact(
   }else if( rid==0 ){
     if( (mFlags & WHATIS_OMIT_UNK)==0 ){
                  /* 0123456789 12 */
+      if( zFileName ){
+        fossil_print("%-12s%s\n", "name:", zFileName);
+      }
       fossil_print("unknown:    %s\n", zName);
     }
   }else{
     if( mFlags & WHATIS_REPO ){
       fossil_print("\nrepository: %s\n", g.zRepositoryName);
     }
-    fossil_print("%-12s%s\n", zNameTitle, zName);
+    if( zFileName ){
+      zName = zFileName;
+    }
+    fossil_print("%-12s%s\n", "name:", zName);
     whatis_rid(rid, mFlags);
   }
 }

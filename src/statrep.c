@@ -132,7 +132,7 @@ static int stats_report_init_view(){
       "SELECT * FROM event WHERE type='ci' AND %s"
       " AND objid %s IN (SELECT cid FROM plink WHERE NOT isprim)",
       zTimeSpan/*safe-for-%s*/, zNot/*safe-for-%s*/
-    );        
+    );
   }
   return statsReportType = rc;
 }

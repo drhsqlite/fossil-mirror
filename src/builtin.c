@@ -523,11 +523,11 @@ static int builtinVtabEof(sqlite3_vtab_cursor *cur){
 /*
 ** This method is called to "rewind" the builtinVtab_cursor object back
 ** to the first row of output.  This method is always called at least
-** once prior to any call to builtinVtabColumn() or builtinVtabRowid() or 
+** once prior to any call to builtinVtabColumn() or builtinVtabRowid() or
 ** builtinVtabEof().
 */
 static int builtinVtabFilter(
-  sqlite3_vtab_cursor *pVtabCursor, 
+  sqlite3_vtab_cursor *pVtabCursor,
   int idxNum, const char *idxStr,
   int argc, sqlite3_value **argv
 ){
@@ -552,7 +552,7 @@ static int builtinVtabBestIndex(
 }
 
 /*
-** This following structure defines all the methods for the 
+** This following structure defines all the methods for the
 ** virtual table.
 */
 static sqlite3_module builtinVtabModule = {
@@ -579,7 +579,8 @@ static sqlite3_module builtinVtabModule = {
   /* xSavepoint  */ 0,
   /* xRelease    */ 0,
   /* xRollbackTo */ 0,
-  /* xShadowName */ 0
+  /* xShadowName */ 0,
+  /* xIntegrity  */ 0
 };
 
 
@@ -817,7 +818,7 @@ void test_js_once(void){
 ** dependencies also get queued (recursively) and that each module is
 ** queued only once.
 **
-** If passed a name which is not a base fossil module name then it 
+** If passed a name which is not a base fossil module name then it
 ** will fail fatally!
 **
 ** DO NOT use this for loading fossil.page.*.js: use

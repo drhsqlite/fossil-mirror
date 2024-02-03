@@ -1367,13 +1367,27 @@ static void prepare_commit_comment(
     diff_options(&DCfg, 0, 1);
     DCfg.diffFlags |= DIFF_VERBOSE;
     if( g.aCommitFile ){
+      Stmt q;
+      Blob sql = BLOB_INITIALIZER;
       FileDirList *diffFiles;
       int i;
       for(i=0; g.aCommitFile[i]!=0; ++i){}
       diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
       for(i=0; g.aCommitFile[i]!=0; ++i){
-        diffFiles[i].zName  = db_text(0,
-         "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
+        blob_append_sql(&sql,
+                        "SELECT pathname, deleted, rid WHERE id=%d",
+                        g.aCommitFile[i]);
+        db_prepare(&q, "%s", blob_sql_text(&sql));
+        blob_reset(&sql);
+        assert( db_step(&q)==SQLITE_ROW );
+        diffFiles[i].zName = fossil_strdup(db_column_text(&q, 0));
+        DCfg.diffFlags &= (~DIFF_FILE_MASK);
+        if( db_column_int(&q, 1) ){
+          DCfg.diffFlags |= DIFF_FILE_DELETED;
+        }else if( db_column_int(&q, 2)==0 ){
+          DCfg.diffFlags |= DIFF_FILE_ADDED;
+        }
+        db_finalize(&q);
         if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
           diffFiles[0].zName[0] = '.';
           diffFiles[0].zName[1] = 0;
@@ -2523,7 +2537,7 @@ void commit_cmd(void){
                      "--allow-fork.");
       }
     }
-  
+
     /*
     ** Do not allow a commit against a closed leaf unless the commit
     ** ends up on a different branch.
@@ -2544,7 +2558,7 @@ void commit_cmd(void){
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
 
-  
+
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.

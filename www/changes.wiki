@@ -3,6 +3,13 @@
 <h2 id='v2_24'>Changes for version 2.24 (pending)</h2>
 
   *  Add the x= query paramater to the [/help?cmd=/timeline|/timeline page].
+  *  Moved the /museum/repo.fossil file referenced from the Dockerfile from
+     the ENTRYPOINT to the CMD part to allow use of --repolist mode.
+  *  The /uvlist page now shows the hash algorithm used so that
+     outsiders don't have to guess it from the hash length when
+     double-checking hashes of downloaded files on their end.
+  *  The hash itself is now shown in a fixed-width font on the /uvlist
+     page, suiting this tabular display.
 
 <h2 id='v2_23'>Changes for version 2.23 (2023-11-01)</h2>
 

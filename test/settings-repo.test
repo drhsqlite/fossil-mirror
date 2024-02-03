@@ -42,7 +42,11 @@ foreach name $all_settings {
   # HACK: Make 100% sure that there are no non-default setting values
   #       present anywhere.
   #
-  fossil unset $name --exact --global
+  if {$name eq "manifest"} {
+    fossil unset $name --exact --global -expectError
+  } else {
+    fossil unset $name --exact --global
+  }
   fossil unset $name --exact
 
   #
@@ -55,13 +59,13 @@ foreach name $all_settings {
 
 ###############################################################################
 
-fossil settings bad-setting some_value
+fossil settings bad-setting some_value -expectError
 
 test settings-set-bad-local {
   [normalize_result] eq "no such setting: bad-setting"
 }
 
-fossil settings bad-setting some_value --global
+fossil settings bad-setting some_value --global -expectError
 
 test settings-set-bad-global {
   [normalize_result] eq "no such setting: bad-setting"
@@ -69,13 +73,13 @@ test settings-set-bad-global {
 
 ###############################################################################
 
-fossil unset bad-setting
+fossil unset bad-setting -expectError
 
 test settings-unset-bad-local {
   [normalize_result] eq "no such setting: bad-setting"
 }
 
-fossil unset bad-setting --global
+fossil unset bad-setting --global -expectError
 
 test settings-unset-bad-global {
   [normalize_result] eq "no such setting: bad-setting"
@@ -83,14 +87,14 @@ test settings-unset-bad-global {
 
 ###############################################################################
 
-fossil settings ssl some_value
+fossil settings ssl some_value -expectError
 
 test settings-set-ambiguous-local {
   [normalize_result] eq
   "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
 }
 
-fossil settings ssl some_value --global
+fossil settings ssl some_value --global -expectError
 
 test settings-set-ambiguous-global {
   [normalize_result] eq
@@ -99,14 +103,14 @@ test settings-set-ambiguous-global {
 
 ###############################################################################
 
-fossil unset ssl
+fossil unset ssl -expectError
 
 test settings-unset-ambiguous-local {
   [normalize_result] eq
   "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
 }
 
-fossil unset ssl --global
+fossil unset ssl --global -expectError
 
 test settings-unset-ambiguous-global {
   [normalize_result] eq
@@ -244,7 +248,7 @@ foreach name $versionable_settings {
   set data [normalize_result]
 
   test settings-set-check2-versionable-$name {
-    $data eq $value
+    $data eq ""
   }
 
   file delete $fileName

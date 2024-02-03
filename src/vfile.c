@@ -412,7 +412,8 @@ static int is_temporary_file(const char *zName){
 
   if( sqlite3_strglob("ci-comment-????????????.txt", zName)==0 ) return 1;
   for(; zName[0]!=0; zName++){
-    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
+    if( zName[0]=='/'
+        && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
       return 1;
     }
     if( zName[0]!='-' ) continue;
@@ -756,7 +757,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n", ftell(in));
         fseek(in, 0L, SEEK_SET);
         md5sum_step_text(zBuf, -1);
-        /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
+        /*printf("%s %s %s",md5sum_current_state(),zName,zBuf);fflush(stdout);*/
         for(;;){
           int n;
           n = fread(zBuf, 1, sizeof(zBuf), in);
@@ -1043,13 +1044,13 @@ void vfile_rid_renumbering_event(int dryRun){
     " SELECT vfile.mrid, blob.rid FROM vfile, blob"
     "  WHERE blob.uuid=vfile.mhash;"
   );
-  
+
   if( dryRun ){
     Stmt q;
     db_prepare(&q, "SELECT oldrid, newrid, blob.uuid"
                    "  FROM idMap, blob WHERE blob.rid=idMap.newrid");
     while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("%8d -> %8d  %.25s\n", 
+      fossil_print("%8d -> %8d  %.25s\n",
          db_column_int(&q,0),
          db_column_int(&q,1),
          db_column_text(&q,2));
@@ -1071,7 +1072,14 @@ void vfile_rid_renumbering_event(int dryRun){
      oldVid
   );
   if( zUnresolved[0] ){
-    fossil_fatal("Unresolved RID values: %s\n", zUnresolved);
+    fossil_fatal("Unresolved RID values: %s\n"
+        "\n"
+        "Local check-out database is out of sync with repository file:\n"
+        "\n"
+        "    %s\n"
+        "\n"
+        "Has the repository file been replaced?\n",
+        zUnresolved, db_repository_filename());
   }
 
   /* Make the changes to the VFILE and VMERGE tables */

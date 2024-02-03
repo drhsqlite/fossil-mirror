@@ -83,8 +83,9 @@ COPY --from=os  --chown=fossil:fossil /museum     /museum/
 ENV PATH "/bin"
 EXPOSE 8080/tcp
 USER fossil
-ENTRYPOINT [ "fossil", "server", "museum/repo.fossil" ]
+ENTRYPOINT [ "fossil", "server" ]
 CMD [                       \
     "--create",             \
     "--jsmode", "bundled",  \
-    "--user",   "admin" ]
+    "--user",   "admin",    \
+    "museum/repo.fossil" ]

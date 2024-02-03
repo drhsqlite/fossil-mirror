@@ -854,7 +854,7 @@ int fossil_main(int argc, char **argv){
       g.argc = 3;
       g.argv = zNewArgv;
 #endif
-    }   
+    }
     zCmdName = g.argv[1];
   }
 #ifndef _WIN32
@@ -1416,7 +1416,7 @@ void set_base_url(const char *zAltBase){
     }else{
       /* Remove trailing ":80" from the HOST */
       if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
-    }    
+    }
     if( i && z[i-1]=='.' ) i--;
     z[i] = 0;
     zCur = PD("SCRIPT_NAME","/");
@@ -1616,7 +1616,7 @@ int fossil_wants_https(int iLevel){
 
 /*
 ** Redirect to the equivalent HTTPS request if the current connection is
-** insecure and if the redirect-to-https flag greater than or equal to 
+** insecure and if the redirect-to-https flag greater than or equal to
 ** iLevel.  iLevel is 1 for /login pages and 2 for every other page.
 */
 int fossil_redirect_to_https_if_needed(int iLevel){
@@ -1971,7 +1971,7 @@ static void process_one_web_page(
     etag_cancel();
   }
 
-  /* If the content type is application/x-fossil or 
+  /* If the content type is application/x-fossil or
   ** application/x-fossil-debug, then a sync/push/pull/clone is
   ** desired, so default the PATH_INFO to /xfer
   */
@@ -2787,7 +2787,7 @@ static void decode_ssl_options(void){
 **   --nossl             Do not do http: to https: redirects, regardless of
 **                       the redirect-to-https setting.
 **   --notfound URL      Use URL as the "HTTP 404, object not found" page
-**   --out FILE          Write the HTTP reply to FILE instead of to 
+**   --out FILE          Write the HTTP reply to FILE instead of to
 **                       standard output
 **   --pkey FILE         Read the private key used for TLS from FILE
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
@@ -3177,7 +3177,7 @@ void cmd_webserver(void){
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
-  
+
 
 #if USE_SEE
   db_setup_for_saved_encryption_key();
@@ -3349,7 +3349,7 @@ void cmd_webserver(void){
     blob_init(&ssh, 0, 0);
     transport_ssh_command(&ssh);
     db_close_config();
-    blob_appendf(&ssh, 
+    blob_appendf(&ssh,
        " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
        iPort, iPort, zRemote
     );

@@ -308,9 +308,8 @@ void branch_prepare_list_query(
   brlist_create_temp_table();
   /* Ignore nLimitMRU if no chronological sort requested. */
   if( (brFlags & BRL_ORDERBY_MTIME)==0 ) nLimitMRU = 0;
-  /* Undocumented: invert negative values for nLimitMRU, so that command-line
-  ** arguments similar to `head -5' with "option numbers" are possible. */
-  if( nLimitMRU<0 ) nLimitMRU = -nLimitMRU;
+  /* Negative values for nLimitMRU also mean "no limit". */
+  if( nLimitMRU<0 ) nLimitMRU = 0;
   /* OUTER QUERY */
   blob_append_sql(&sql,"SELECT name, isprivate, mergeto,");
   if( brFlags & BRL_LIST_USERS ){
@@ -343,7 +342,8 @@ void branch_prepare_list_query(
     }
     case BRL_OPEN_ONLY: {
       blob_append_sql(&sql,
-        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist WHERE NOT isclosed"
+        "SELECT name, isprivate, mtime, mergeto FROM tmp_brlist "
+        "  WHERE NOT isclosed"
       );
       break;
     }
@@ -775,7 +775,7 @@ void branch_cmd(void){
       if( (brFlags & BRL_MERGED) && fossil_strcmp(zCurrent,zMergeTo)!=0 ){
         continue;
       }
-      if( (brFlags & BRL_UNMERGED) && (fossil_strcmp(zCurrent,zMergeTo)==0 
+      if( (brFlags & BRL_UNMERGED) && (fossil_strcmp(zCurrent,zMergeTo)==0
           || isCur) ){
         continue;
       }
@@ -889,7 +889,7 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input 
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input
     @  type="checkbox" disabled="disabled"/></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>

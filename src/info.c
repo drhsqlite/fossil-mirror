@@ -2504,7 +2504,7 @@ void artifact_page(void){
       }
       /* No directory found, look for an historic version of the file
       ** that was subsequently deleted. */
-      db_prepare(&q, 
+      db_prepare(&q,
         "SELECT fid, uuid FROM mlink, filename, event, blob"
         " WHERE filename.name=%Q"
         "   AND mlink.fnid=filename.fnid AND mlink.fid>0"
@@ -2802,7 +2802,7 @@ void tinfo_page(void){
     }
   }
   zTktTitle = db_table_has_column("repository", "ticket", "title" )
-      ? db_text("(No title)", 
+      ? db_text("(No title)",
                 "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_set_current_feature("tinfo");
@@ -3549,7 +3549,6 @@ void ci_amend_cmd(void){
   int i;
   Stmt q;
 
-  if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   fEditComment = find_option("edit-comment","e",0)!=0;
   zNewComment = find_option("comment","m",1);
   zComFile = find_option("message-file","M",1);
@@ -3835,7 +3834,7 @@ int describe_commit(
 ** ancestor is found, show only the short hash of VERSION.
 **
 ** Options:
-**    --digits           Display so many hex digits of the hash 
+**    --digits           Display so many hex digits of the hash
 **                       (default: the larger of 6 and the 'hash-digit' setting)
 **    -d|--dirty         Show whether there are changes to be committed
 **    --long             Always show all three components

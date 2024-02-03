@@ -782,8 +782,8 @@ static int html_link(
 
   if( zLink==0 || zLink[0]==0 ){
     zClose[0] = 0;
-  }else{  
-    static const int flags = 
+  }else{
+    static const int flags =
        WIKI_NOBADLINKS |
        WIKI_MARKDOWNLINKS
     ;

@@ -18,7 +18,9 @@
 # Tests of the "merge" command
 #
 
-puts "Skipping Merge5 tests"
+if {! $::QUIET} {
+  puts "Skipping Merge5 tests"
+}
 protOut {
 fossil sqlite3 --no-repository reacts badly to SQL dumped from
 repositories created from fossil older than version 2.0.

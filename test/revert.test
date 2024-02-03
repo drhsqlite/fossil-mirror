@@ -100,7 +100,7 @@ revert-test 1-2 f0 {
 } -changes {
   DELETED f1
   EDITED f2
-  RENAMED f3n
+  RENAMED f3  ->  f3n
 } -addremove {
   ADDED f0
 } -exists {f0 f2 f3n} -notexists f3
@@ -110,7 +110,7 @@ revert-test 1-3 f1 {
 } -changes {
   ADDED f0
   EDITED f2
-  RENAMED f3n
+  RENAMED f3  ->  f3n
 } -exists {f0 f1 f2 f3n} -notexists f3
 
 revert-test 1-4 f2 {
@@ -118,7 +118,7 @@ revert-test 1-4 f2 {
 } -changes {
   ADDED f0
   DELETED f1
-  RENAMED f3n
+  RENAMED f3  ->  f3n
 } -exists {f0 f2 f3n} -notexists {f1 f3}
 
 # Both files involved in a rename are reverted regardless of which filename

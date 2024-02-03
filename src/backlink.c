@@ -251,7 +251,7 @@ static int backlink_md_link(
   int nTarget = blob_size(target);
 
   backlink_create(p, zTarget, nTarget);
-  return 1;    
+  return 1;
 }
 
 /* No-op routines for the rendering callbacks that we do not need */

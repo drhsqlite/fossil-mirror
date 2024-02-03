@@ -130,7 +130,7 @@ static int autosync(int flags, const char *zSubsys){
   zAutosync = db_get_for_subsystem("autosync", zSubsys);
   if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
-  if( db_get_boolean("dont-push",0) 
+  if( db_get_boolean("dont-push",0)
    || sqlite3_strglob("*pull*", zAutosync)==0
   ){
     flags &= ~SYNC_CKIN_LOCK;
@@ -305,6 +305,12 @@ static void process_sync_args(
   user_select();
   url_enable_proxy("via proxy: ");
   *pConfigFlags |= configSync;
+  if( (*pSyncFlags & SYNC_ALLURL)==0 && zUrl==0 ){
+    const char *zAutosync = db_get_for_subsystem("autosync", "sync");
+    if( sqlite3_strglob("*all*", zAutosync)==0 ){
+      *pSyncFlags |= SYNC_ALLURL;
+    }
+  }
 }
 
 
@@ -529,7 +535,7 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** > fossil remote off
 **
-**     Forget the default URL. This disables autosync. 
+**     Forget the default URL. This disables autosync.
 **
 **     This is a convenient way to enter "airplane mode".  To enter
 **     airplane mode, first save the current default URL, then turn the
@@ -591,7 +597,7 @@ void remote_url_cmd(void){
   ** entries.  Thus, when doing a "fossil sync --all" or an autosync with
   ** autosync=all, each sync-url:NAME entry is checked to see if it is the
   ** same as last-sync-url and if it is then that entry is skipped.
-  */ 
+  */
 
   if( g.argc==2 ){
     /* "fossil remote" with no arguments:  Show the last sync URL. */

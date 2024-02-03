@@ -50,6 +50,14 @@
 #define DIFF_TCL               0x00080000 /* For the --tk option */
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
 #define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
+#define DIFF_DARKMODE          0x00400000 /* Use dark mode for HTML */
+
+/*
+** Per file information that may influence output.
+*/
+#define DIFF_FILE_ADDED        0x40000000 /* Added or rename destination */
+#define DIFF_FILE_DELETED      0x80000000 /* Deleted or rename source */
+#define DIFF_FILE_MASK         0xc0000000 /* Used for clearing file flags */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -84,12 +92,12 @@
 **
 ** Information encoded by this object includes but is not limited to:
 **
-**    *   The desired output format (unified vs. side-by-side, 
+**    *   The desired output format (unified vs. side-by-side,
 **        TCL, JSON, HTML vs. plain-text).
 **
 **    *   Number of lines of context surrounding each difference block
 **
-**    *   Width of output columns for text side-by-side diffop          
+**    *   Width of output columns for text side-by-side diffop
 */
 struct DiffConfig {
   u64 diffFlags;           /* Diff flags */
@@ -424,7 +432,7 @@ static void contextDiff(
   while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
 
     /* For the current block comprising nr triples, figure out
@@ -909,7 +917,7 @@ static int minInt(int a, int b){ return a<b ? a : b; }
 **
 ** To subclass, create an instance of the DiffBuilder object and fill
 ** in appropriate method implementations.
-*/ 
+*/
 typedef struct DiffBuilder DiffBuilder;
 struct DiffBuilder {
   void (*xSkip)(DiffBuilder*, unsigned int, int);
@@ -1094,7 +1102,7 @@ static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
     x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_literal(p->pOut, 
+    blob_append_tcl_literal(p->pOut,
                          pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   if( x<pX->n ){
@@ -1180,7 +1188,7 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
     x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ',');
-    blob_append_json_literal(p->pOut, 
+    blob_append_json_literal(p->pOut,
                          pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   blob_append_char(p->pOut, ',');
@@ -1262,7 +1270,7 @@ static void dfunifiedFinishInsert(DiffBuilder *p){
   blob_append(&p->aCol[2], "<ins>", 5);
   blob_append_xfer(&p->aCol[2], &p->aCol[4]);
   blob_append(&p->aCol[2], "</ins>", 6);
-  
+
   p->nPending = 0;
 }
 static void dfunifiedFinishRow(DiffBuilder *p){
@@ -1999,7 +2007,7 @@ static unsigned char *diffBlockAlignmentDivideAndConquer(
   iDivSmall = nSmall/2;
 
   if( pCfg->diffFlags & DIFF_DEBUG ){
-    fossil_print("  Divide at [%.*s]\n", 
+    fossil_print("  Divide at [%.*s]\n",
                  aBig[iDivBig].n, aBig[iDivBig].z);
   }
 
@@ -2225,7 +2233,7 @@ static void formatDiff(
 
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
-    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
+    for(nr=1; 3*nr<mxr && R[r+nr*3]>0 && R[r+nr*3]<(int)nContext*2; nr++){}
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
@@ -3162,6 +3170,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
+  if( find_option("dark",0,0)!=0 ) diffFlags |= DIFF_DARKMODE;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   if( find_option("internal","i",0)==0
@@ -3486,7 +3495,8 @@ static void annotate_file(
 
   if( p->nVers==0 ){
     if( zRevision ){
-      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRevision);
+      fossil_fatal("file %s does not exist in check-in %s",
+                   zFilename, zRevision);
     }else{
       fossil_fatal("no history for file: %s", zFilename);
     }

@@ -33,8 +33,10 @@ static void collect_argument(Blob *pExtra,const char *zArg,const char *zShort){
     blob_appendf(pExtra, " %s", z);
   }
 }
-static void collect_argument_value(Blob *pExtra, const char *zArg){
-  const char *zValue = find_option(zArg, 0, 1);
+static void collect_argument_value(
+    Blob *pExtra, const char *zArg, const char *zShort
+){
+  const char *zValue = find_option(zArg, zShort, 1);
   if( zValue ){
     if( zValue[0] ){
       blob_appendf(pExtra, " --%s %$", zArg, zValue);
@@ -134,7 +136,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                web-browser
 **
 **    whatis      Run the "whatis" command on all repositories.  Only
-**                show output for repositories that have a match.           
+**                show output for repositories that have a match.
 **
 **
 ** In addition, the following maintenance operations are supported:
@@ -212,15 +214,15 @@ void all_cmd(void){
   }else if( fossil_strcmp(zCmd, "clean")==0 ){
     zCmd = "clean --chdir";
     collect_argument(&extra, "allckouts",0);
-    collect_argument_value(&extra, "case-sensitive");
-    collect_argument_value(&extra, "clean");
+    collect_argument_value(&extra, "case-sensitive", 0);
+    collect_argument_value(&extra, "clean", 0);
     collect_argument(&extra, "dirsonly",0);
     collect_argument(&extra, "disable-undo",0);
     collect_argument(&extra, "dotfiles",0);
     collect_argument(&extra, "emptydirs",0);
     collect_argument(&extra, "force","f");
-    collect_argument_value(&extra, "ignore");
-    collect_argument_value(&extra, "keep");
+    collect_argument_value(&extra, "ignore", 0);
+    collect_argument_value(&extra, "keep", 0);
     collect_argument(&extra, "no-prompt",0);
     collect_argument(&extra, "temp",0);
     collect_argument(&extra, "verbose","v");
@@ -249,9 +251,9 @@ void all_cmd(void){
       zCmd = "extras --header --chdir";
     }
     collect_argument(&extra, "abs-paths",0);
-    collect_argument_value(&extra, "case-sensitive");
+    collect_argument_value(&extra, "case-sensitive", 0);
     collect_argument(&extra, "dotfiles",0);
-    collect_argument_value(&extra, "ignore");
+    collect_argument_value(&extra, "ignore", 0);
     collect_argument(&extra, "rel-paths",0);
     useCheckouts = 1;
     stopOnError = 0;
@@ -278,13 +280,14 @@ void all_cmd(void){
     collect_argument(&extra, "share-links",0);
   }else if( fossil_strcmp(zCmd, "rebuild")==0 ){
     zCmd = "rebuild";
+    collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "cluster",0);
     collect_argument(&extra, "compress",0);
     collect_argument(&extra, "compress-only",0);
     collect_argument(&extra, "noverify",0);
-    collect_argument_value(&extra, "pagesize");
+    collect_argument_value(&extra, "pagesize", 0);
     collect_argument(&extra, "vacuum",0);
-    collect_argument(&extra, "deanalyze",0);
+    collect_argument(&extra, "deanalyze",0); /* Deprecated */
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);
@@ -416,6 +419,8 @@ void all_cmd(void){
   }else if( fossil_strcmp(zCmd, "whatis")==0 ){
     zCmd = "whatis -q -R";
     quiet = 1;
+    collect_argument(&extra, "file", "f");
+    collect_argument_value(&extra, "type", 0);
     collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "

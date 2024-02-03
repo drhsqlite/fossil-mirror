@@ -242,7 +242,8 @@ static int unicode_remove_diacritic(int c, int bComplex){
   }
   assert( key>=aDia[iRes] );
   if( bComplex==0 && (aChar[iRes] & 0x80) ) return c;
-  return (c > (aDia[iRes]>>3) + (aDia[iRes]&0x07)) ? c : ((int)aChar[iRes] & 0x7F);
+  return (c > (aDia[iRes]>>3) + (aDia[iRes]&0x07)) ? c :
+                                                     ((int)aChar[iRes] & 0x7F);
 }
 
 

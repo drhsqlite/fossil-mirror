@@ -658,13 +658,12 @@ void repack_command(void){
 **   --cluster         Compute clusters for unclustered artifacts
 **   --compress        Strive to make the database as small as possible
 **   --compress-only   Skip the rebuilding step. Do --compress only
-**   --deanalyze       Remove ANALYZE tables from the database
 **   --force           Force the rebuild to complete even if errors are seen
 **   --ifneeded        Only do the rebuild if it would change the schema version
 **   --index           Always add in the full-text search index
 **   --noverify        Skip the verification of changes to the BLOB table
 **   --noindex         Always omit the full-text search index
-**   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
+**   --pagesize N      Set the database pagesize to N (512..65536, power of 2)
 **   --quiet           Only show output if there are errors
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
@@ -693,7 +692,7 @@ void rebuild_database(void){
   forceFlag = find_option("force","f",0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
-  runDeanalyze = find_option("deanalyze",0,0)!=0;
+  runDeanalyze = find_option("deanalyze",0,0)!=0; /* Deprecated */
   runAnalyze = find_option("analyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
@@ -1398,7 +1397,8 @@ void reconstruct_cmd(void) {
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id: %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print("admin-user: %s (initial password is \"%s\")\n", g.zLogin,
+               zPassword);
   hash_user_password(g.zLogin);
 }
 

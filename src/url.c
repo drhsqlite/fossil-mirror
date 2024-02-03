@@ -91,7 +91,7 @@ struct UrlData {
 **      canonical   The URL in canonical form, omitting the password
 **
 ** If URL_USECONFIG is set and zUrl is NULL or "default", then parse the
-** URL stored in last-sync-url and last-sync-pw of the CONFIG table.  Or if 
+** URL stored in last-sync-url and last-sync-pw of the CONFIG table.  Or if
 ** URL_USE_PARENT is also set, then use parent-project-url and
 ** parent-project-pw from the CONFIG table instead of last-sync-url
 ** and last-sync-pw.
@@ -319,7 +319,7 @@ void url_parse_local(
     pUrlData->name = mprintf("%b", &cfile);
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
-  }else if( pUrlData->user!=0 && pUrlData->passwd==0 
+  }else if( pUrlData->user!=0 && pUrlData->passwd==0
          && (urlFlags & URL_PROMPT_PW)!=0 ){
     url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
@@ -793,7 +793,7 @@ void url_get_password_if_needed(void){
 **       elided.
 **
 **    *  If the URL is just a domain name, without a path, then use the
-**       first element of the domain name, except skip over "www." if 
+**       first element of the domain name, except skip over "www." if
 **       present and if there is a ".com" or ".org" or similar suffix.
 **
 ** The string returned is obtained from fossil_malloc().  NULL might be

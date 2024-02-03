@@ -25,8 +25,9 @@
 ** Notes for hackers...
 **
 ** Here's how command/page dispatching works: json_page_top() (in HTTP mode) or
-** json_cmd_top() (in CLI mode) catch the "json" path/command. Those functions then
-** dispatch to a JSON-mode-specific command/page handler with the type fossil_json_f().
+** json_cmd_top() (in CLI mode) catch the "json" path/command. Those functions
+** then dispatch to a JSON-mode-specific command/page handler with the type
+** fossil_json_f().
 ** See the API docs for that typedef (below) for the semantics of the callbacks.
 **
 **
@@ -38,7 +39,8 @@
 #include <time.h>
 
 #if INTERFACE
-#include "json_detail.h" /* workaround for apparent enum limitation in makeheaders */
+#include "json_detail.h" /* workaround for apparent enum limitation
+                            in makeheaders */
 #endif
 
 const FossilJsonKeys_ FossilJsonKeys = {
@@ -178,7 +180,8 @@ int cson_data_dest_Blob(void * pState, void const * src, unsigned int n){
 ** Convenience wrapper around cson_output() which appends the output
 ** to pDest. pOpt may be NULL, in which case g.json.outOpt will be used.
 */
-int cson_output_Blob( cson_value const * pVal, Blob * pDest, cson_output_opt const * pOpt ){
+int cson_output_Blob( cson_value const * pVal, Blob * pDest,
+                      cson_output_opt const * pOpt ){
   return cson_output( pVal, cson_data_dest_Blob,
                       pDest, pOpt ? pOpt : &g.json.outOpt );
 }
@@ -709,7 +712,8 @@ cson_value * json_auth_token(){
          Then again, the hardened cookie value helps ensure that
          only a proper key/value match is valid.
       */
-      cgi_replace_parameter( login_cookie_name(), cson_value_get_cstr(g.json.authToken) );
+      cgi_replace_parameter( login_cookie_name(),
+                             cson_value_get_cstr(g.json.authToken) );
     }else if( g.isHTTP ){
       /* try fossil's conventional cookie. */
       /* Reminder: chicken/egg scenario regarding db access in CLI
@@ -906,7 +910,8 @@ int json_string_split( char const * zStr,
         if(doDeHttp){
           dehttpize(zPart);
         }
-        if( *zPart ){ /* should only fail if someone manages to url-encoded a NUL byte */
+        if( *zPart ){
+          /* should only fail if someone manages to url-encoded a NUL byte */
           part = cson_value_new_string(zPart, strlen(zPart));
           if( 0 != cson_array_append( target, part ) ){
             cson_value_free(part);
@@ -1088,7 +1093,7 @@ void json_bootstrap_late(){
      the request payload. We currently only use this in the context of
      Object payloads, not Arrays, strings, etc.
   */
-  g.json.reqPayload.v = cson_object_get( g.json.post.o, FossilJsonKeys.payload );
+  g.json.reqPayload.v = cson_object_get( g.json.post.o,FossilJsonKeys.payload );
   if( g.json.reqPayload.v ){
     g.json.reqPayload.o = cson_value_get_object( g.json.reqPayload.v )
         /* g.json.reqPayload.o may legally be NULL, which means only that
@@ -1117,7 +1122,7 @@ void json_bootstrap_late(){
     g.json.jsonp = json_find_option_cstr("jsonp",NULL,NULL);
   }
   if(!g.isHTTP){
-    g.json.errorDetailParanoia = 0 /*disable error code dumb-down for CLI mode*/;
+    g.json.errorDetailParanoia = 0;/*disable error code dumb-down for CLI mode*/
   }
 
   {/* set up JSON output formatting options. */
@@ -1168,7 +1173,7 @@ void json_bootstrap_late(){
 char const * json_command_arg(unsigned short ndx){
   cson_array * ar = g.json.cmd.a;
   assert((NULL!=ar) && "Internal error. Was json_bootstrap_late() called?");
-  assert((g.argc>1) && "Internal error - we never should have gotten this far.");
+  assert((g.argc>1) &&"Internal error - we never should have gotten this far.");
   if( g.json.cmd.offset < 0 ){
     /* first-time setup. */
     short i = 0;
@@ -1194,7 +1199,8 @@ char const * json_command_arg(unsigned short ndx){
     return NULL;
   }else{
     ndx = g.json.cmd.offset + ndx;
-    return cson_string_cstr(cson_value_get_string(cson_array_get( ar, g.json.cmd.offset + ndx )));
+    return cson_string_cstr(cson_value_get_string(
+                              cson_array_get( ar, g.json.cmd.offset + ndx )));
   }
 }
 
@@ -1212,7 +1218,8 @@ char const * json_auth_token_cstr(){
 ** head must be a pointer to an array of JsonPageDefs in which the
 ** last entry has a NULL name.
 */
-JsonPageDef const * json_handler_for_name( char const * name, JsonPageDef const * head ){
+JsonPageDef const * json_handler_for_name( char const * name,
+                                           JsonPageDef const * head ){
   JsonPageDef const * pageDef = head;
   assert( head != NULL );
   if(name && *name) for( ; pageDef->name; ++pageDef ){
@@ -1294,10 +1301,12 @@ static cson_value * json_response_command_path(){
   }else{
     cson_value * rc = NULL;
     Blob path = empty_blob;
-    unsigned int aLen = g.json.dispatchDepth+1; /*cson_array_length_get(g.json.cmd.a);*/
+    unsigned int aLen = g.json.dispatchDepth+1;
+                                 /*cson_array_length_get(g.json.cmd.a);*/
     unsigned int i = 1;
     for( ; i < aLen; ++i ){
-      char const * part = cson_string_cstr(cson_value_get_string(cson_array_get(g.json.cmd.a, i)));
+      char const * part = cson_string_cstr(cson_value_get_string(
+                                             cson_array_get(g.json.cmd.a, i)));
       if(!part){
 #if 1
           fossil_warning("Iterating further than expected in %s.",
@@ -1331,7 +1340,8 @@ cson_value * json_g_to_json(){
   pay = o = cson_new_object();
 
 #define INT(OBJ,K) cson_object_set(o, #K, json_new_int(OBJ.K))
-#define CSTR(OBJ,K) cson_object_set(o, #K, OBJ.K ? json_new_string(OBJ.K) : cson_value_null())
+#define CSTR(OBJ,K) cson_object_set(o, #K, OBJ.K ? json_new_string(OBJ.K) \
+                                                 : cson_value_null())
 #define VAL(K,V) cson_object_set(o, #K, (V) ? (V) : cson_value_null())
   VAL(capabilities, json_cap_value());
   INT(g, argc);
@@ -1815,10 +1825,11 @@ cson_value * json_page_resultCodes(void){
     kNumber = cson_new_string("number",6);
     kDesc = cson_new_string("description",11);
 #define C(K) obj = cson_new_object(); \
-    cson_object_set_s(obj, kRC, json_new_string(json_rc_cstr(FSL_JSON_E_##K)) ); \
-    cson_object_set_s(obj, kSymbol, json_new_string("FSL_JSON_E_"#K) );             \
-    cson_object_set_s(obj, kNumber, cson_value_new_integer(FSL_JSON_E_##K) );        \
-    cson_object_set_s(obj, kDesc, json_new_string(json_err_cstr(FSL_JSON_E_##K))); \
+    cson_object_set_s(obj, kRC,json_new_string(json_rc_cstr(FSL_JSON_E_##K))); \
+    cson_object_set_s(obj, kSymbol, json_new_string("FSL_JSON_E_"#K) );        \
+    cson_object_set_s(obj, kNumber, cson_value_new_integer(FSL_JSON_E_##K) );  \
+    cson_object_set_s(obj, kDesc, \
+                      json_new_string(json_err_cstr(FSL_JSON_E_##K))); \
     cson_array_append( list, cson_object_value(obj) ); obj = NULL;
 
     C(GENERIC);
@@ -2008,7 +2019,8 @@ cson_value * json_page_stat(void){
   }
   full = json_find_option_bool("full",NULL,"f",
               json_find_option_bool("verbose",NULL,"v",0));
-#define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
+#define SETBUF(O,K) cson_object_set(O, K, \
+                                    cson_value_new_string(zBuf, strlen(zBuf)));
 
   jv = cson_value_new_object();
   jo = cson_value_get_object(jv);
@@ -2021,7 +2033,7 @@ cson_value * json_page_stat(void){
   fossil_free(zTmp);
   zTmp = NULL;
   fsize = file_size(g.zRepositoryName, ExtFILE);
-  cson_object_set(jo, "repositorySize", 
+  cson_object_set(jo, "repositorySize",
                   cson_value_new_integer((cson_int_t)fsize));
 
   if(full){
@@ -2070,21 +2082,27 @@ cson_value * json_page_stat(void){
   cson_object_set(jo, "ageYears", cson_value_new_double(n/365.2425));
   sqlite3_snprintf(BufLen, zBuf, db_get("project-code",""));
   SETBUF(jo, "projectCode");
-  cson_object_set(jo, "compiler", cson_value_new_string(COMPILER_NAME, strlen(COMPILER_NAME)));
+  cson_object_set(jo, "compiler",
+                  cson_value_new_string(COMPILER_NAME, strlen(COMPILER_NAME)));
 
   jv2 = cson_value_new_object();
   jo2 = cson_value_get_object(jv2);
   cson_object_set(jo, "sqlite", jv2);
-  sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)",
-                   sqlite3_sourceid(), &sqlite3_sourceid()[20], sqlite3_libversion());
+  sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)", sqlite3_sourceid(),
+                   &sqlite3_sourceid()[20], sqlite3_libversion());
   SETBUF(jo2, "version");
-  cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA repository.page_count")));
-  cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA repository.page_size")));
-  cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA repository.freelist_count")));
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA repository.encoding"));
+  cson_object_set(jo2, "pageCount", cson_value_new_integer(
+                  (cson_int_t)db_int(0, "PRAGMA repository.page_count")));
+  cson_object_set(jo2, "pageSize", cson_value_new_integer(
+                  (cson_int_t)db_int(0, "PRAGMA repository.page_size")));
+  cson_object_set(jo2, "freeList", cson_value_new_integer(
+                  (cson_int_t)db_int(0, "PRAGMA repository.freelist_count")));
+  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0,"PRAGMA repository.encoding"));
   SETBUF(jo2, "encoding");
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA repository.journal_mode"));
-  cson_object_set(jo2, "journalMode", *zBuf ? cson_value_new_string(zBuf, strlen(zBuf)) : cson_value_null());
+  sqlite3_snprintf(BufLen, zBuf, "%s",
+                   db_text(0, "PRAGMA repository.journal_mode"));
+  cson_object_set(jo2, "journalMode", *zBuf ?
+                 cson_value_new_string(zBuf, strlen(zBuf)) : cson_value_null());
   return jv;
 #undef SETBUF
 }
@@ -2239,7 +2257,8 @@ cson_value * json_page_status(void);
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
 */
 static const JsonPageDef JsonPageDefs[] = {
-/* please keep alphabetically sorted (case-insensitive) for maintenance reasons. */
+/* please keep alphabetically sorted (case-insensitive)
+   for maintenance reasons. */
 {"anonymousPassword", json_page_anon_password, 0},
 {"artifact", json_page_artifact, 0},
 {"branch", json_page_branch,0},

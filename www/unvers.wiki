@@ -80,7 +80,7 @@ CREATE TABLE unversioned(
   name TEXT UNIQUE,       -- Name of the file
   rcvid INTEGER,          -- From whence this file was received
   mtime DATETIME,         -- Last change (seconds since 1970)
-  hash TEXT,              -- SHA1 hash of uncompressed content
+  hash TEXT,              -- SHA1 or SHA3-256 hash of uncompressed content
   sz INTEGER,             -- Size of uncompressed content
   encoding INT,           -- 0: plaintext  1: zlib compressed
   content BLOB            -- File content
@@ -108,7 +108,7 @@ before making each change.
 
 There are two bandwidth-saving measures in "<tt>fossil uv sync</tt>".
 The first is the regular HTTP payload compression step, done on all
-syncs. The second is that Fossil sends SHA1 hash exchanges to determine
+syncs. The second is that Fossil sends hash exchanges to determine
 when it can avoid sending duplicate content over the wire unnecessarily.
 See the [./sync.wiki|synchronization protocol documentation] for further
 information.

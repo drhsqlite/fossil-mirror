@@ -1128,7 +1128,7 @@ void rptview_page_content(
   Stmt q;
   char *zErr1 = 0;
   char *zErr2 = 0;
-  
+
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   report_update_reportfmt_table();
@@ -1370,7 +1370,8 @@ void rptshow(
   int count = 0;
   int rn;
 
-  if( !zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
+  if( !zRep || !strcmp(zRep,zFullTicketRptRn)
+      || !strcmp(zRep,zFullTicketRptTitle) ){
     zSql = "SELECT * FROM ticket";
   }else{
     rn = atoi(zRep);

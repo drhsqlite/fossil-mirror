@@ -34,7 +34,8 @@
 #if FOSSIL_HARDENED_SHA1
 
 #if INTERFACE
-typedef void(*collision_block_callback)(uint64_t, const uint32_t*, const uint32_t*, const uint32_t*, const uint32_t*);
+typedef void(*collision_block_callback)(uint64_t, const uint32_t*,
+                            const uint32_t*, const uint32_t*, const uint32_t*);
 struct SHA1_CTX {
   uint64_t total;
   uint32_t ihv[5];

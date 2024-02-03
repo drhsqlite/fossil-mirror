@@ -360,7 +360,7 @@ void page_dir(void){
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT x, u FROM localfiles ORDER BY x COLLATE uintnocase /*scan*/");
   @ <div class="columns files" style="columns: %d(mxLen)ex auto">
   @ <ul class="browser">
@@ -473,7 +473,8 @@ struct FileTreeNode {
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
-  double sortBy;            /* Either mtime or size, depending on desired sort order */
+  double sortBy;            /* Either mtime or size, depending on desired
+                               sort order */
   int iSize;                /* Size for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
@@ -510,7 +511,7 @@ static void tree_add_node(
 ){
   int i;
   FileTreeNode *pParent;   /* Parent (directory) of the next node to insert */
-  
+
   /* Make pParent point to the most recent ancestor of zPath, or
   ** NULL if there are no prior entires that are a container for zPath.
   */
