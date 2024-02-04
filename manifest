@@ -1,5 +1,5 @@
-C Replaced\snearly\sall\sexplicit\suses\sof\sthe\s"blockquote"\stag\sin\sthe\nembedded\sdocs:\n\n\s\s*\s\sConstructs\slike\s"&lt;blockquote&gt;&lt;pre&gt;"\sare\snow\ssimply\s"&lt;pre&gt;"\n\s\s*\s\sDitto\s"&lt;blockquote&gt;&lt;b&gt;"\sfor\scommand\sexamples,\swhich\n\s\s\s\s\sthen\sallowed\sme\sto\sget\srid\sof\sexplicit\s"br"\selements;\spre\sdoes\sthat\n\s\s\s\s\sfor\sus.\n\s\s*\s\sWhere\sit\swas\sused\smerely\sto\sget\san\sindent\sfor\sa\scode\sblock,\swe're\n\s\s\s\s\snow\susing\spre\sor\sverbatim\sinstead,\sdepending\son\swhether\swe\sneed\n\s\s\s\s\sembedded\sHTML\sand/or\spre-wrap\shandling.\s(Not\sthe\ssame\sthing\sas\sthe\n\s\s\s\s\sprior\sitem.)\s\sIn\ssome\splaces,\sthis\slet\sus\sreplace\suse\sof\n\s\s\s\s\sHTML-escaped\scode\sblocks\sin\spre\swith\sverbatim\sequivalents,\snot\n\s\s\s\s\sneeding\sthe\sescaping,\sallownig\sthe\sdoc\ssource\sto\sread\smore\slike\sthe\n\s\s\s\s\srendered\sHTML.\n\s\s*\s\sUse\sof\sblockquotes\sto\sget\shierarchical\sindenting\sis\sno\slonger\n\s\s\s\s\snecessary;\sthe\sskin\sdoes\sthat.\sA\sgood\sexample\sis\sindenting\sol\sand\n\s\s\s\s\sul\slists\sunder\sthe\sparent\sparagraph;\sadditional\smanual\sindenting\sis\n\s\s\s\s\sno\slonger\snecessary.\n\nThe\sonly\sremaining\suses\sare\snecessary:\n\n\s\s\s\s\swrapper,\sthus\sno\saccess\sto\sthe\snew\sskin\simprovements.\n\s\s\s\s\sthe\scurrent\sparsing\srules\sdon't\slet\sus\suse\s">"\sthere.
-D 2024-02-04T04:29:29.389
+C Added\sthree\snew\sblock-element\sclasses\sto\sthe\sskin\sto\sreplace\suse\sof\n"blockquote"\swith\ssemantic\salternatives:\n\n\s\s*\s\s"indent"\sfor\scases\swhere\sthe\sonly\spurpose\swas\sto\sindent\sthings\n\s\s*\s\s"blockquote"\swhere\syou\swant\san\sactual\sblock\squote\sin\sa\swiki\sdoc\sand\n\s\s\s\s\sthus\scan't\suse\sa\s"blockquote"\selement\sdue\sto\sthe\shistorical\n\s\s\s\s\smisuse\sof\sthis\stag,\spreventing\sus\sfrom\sdoing\sthe\ssame\sfor\sit\sas\swe\n\s\s\s\s\sdo\sfor\sMD\n\s\s*\s\s"sidebar"\swhen\sthe\sreason\syou\swanted\san\sindented\sparagraph\swas\sto\n\s\s\s\s\screate\sa\ssidebar;\sthis\sis\sstyled\smuch\slike\sa\sblockquote\sin\sMD\s(or\n\s\s\s\s\sthe\snew\s"blockquote"\sclass\sin\swiki\sdocs)\sbut\sfloats\sto\sthe\sright.\n\nUsing\sall\sthree\sof\sthese\sin\sthe\sremaining\swww/\sdocs\sthat\sstill\sused\nexplicit\s"blockquote"\stags.\n\n(If\syou're\swondering\swhy\sthe\sprior\scommit\sclaims\sto\shave\sdealt\swith\sall\nof\sthese\stags\swhen\sthis\scommit\sbelies\sthat,\sit's\sbecause\sthis\swork\swas\ndone\sen\smasse,\sthen\ssplit\sup\sinto\stwo\srelated\scommits\sto\skeep\sthe\scommit\nmessages\smore\son-point.\s\sIt\swas\seasier\sto\scommit\sthese\stwo\schunks\sof\nwork\sin\sthis\sorder.\sIt\swould\shave\srequired\sa\scomplicated\sdance\swith\sthe\nstash\sto\scommit\sthem\sin\sthe\smore\slogical\sorder.)
+D 2024-02-04T04:42:03.335
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt ad1cfe5da4f3986c2cb94c97964504877523a6c4fc72138d47a8ccc9008b3fb4
+F skins/default/css.txt be8118ae8cc2f651d946f4a1d6840a55edc45754146c96b1a1c3b254c0c3edd7
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
@@ -769,7 +769,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki e2507fa6d0cec68f888261a64f30a0d23d07a48465d3917eab96a3273a6c406d
+F www/build.wiki 01249d2479733418c7ab6893e258ead43c0d1e9a7c9bd3a79733ff01a4153c0d
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -818,7 +818,7 @@ F www/event.wiki abbc834163b54136f49ae4fbfc0503a5a70115d915d4b435ed140a10f557958
 F www/faq.tcl ea96feb8d056ab25f3e353fc3b5ad2790d2aff54e35294cd5fbbc9cc8b4bc017 x
 F www/faq.wiki a3c5ba4cb4fb76c115a202337ca8d34cb49dff47c4aa7b2311c05ebdefcb62df
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
-F www/fileformat.wiki 1a02099770bdff1f9e1408096732b8ad1bf66fd3b0f4176feec57031bba5906f
+F www/fileformat.wiki 9edfc8e4e9015ef0a59d9b704f71d9ac32322a6f7a29ebb2315819f3c46eabf9
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki ee1fcb6eb51f8193edc83c62b857565831557ec0b8b48b35c183dec017410f01
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
@@ -883,19 +883,19 @@ F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f297687
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md c1f374c1e952edf948dca06c5b7788fd96523db1529250e000c0491f833e7d62
 F www/mkindex.tcl be47b33aeb004efdf9f32179e61c574c55db1bf448db70f0e3b9ebf2296cdadf x
-F www/newrepo.wiki 785cb1e8bdc0313555ec1569338d5375313ea871ebf8b83a4d7bc68f916383d3
+F www/newrepo.wiki fe4e59c5e2cfda9b25c381ba739051682130ef6f4f1d3c14a534f185666e7111
 F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
 F www/permutedindex.html a407f28ba752120d0773799c2370e58e93c6737ef1d40742258b9be333394daf
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
-F www/private.wiki 0d9f2a36fbf1db95b7097936609b455c49a4ea064b167c1f52eabf213f3bb5b2
-F www/qandc.wiki 754e41cafbb90ac44b13732a764fc22e9c4b3983653c52b1514b26898a6adaf9
+F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
+F www/qandc.wiki bc4386e67bb81ebf2dc838266fbff03b854d9f577282afd9ef087aa670f8136d
 F www/quickstart.wiki e2130117b15699a5ec4c59bfd6989b1b910218c896113960a336193010f0e3f2
 F www/quotes.wiki d4a684d0ac5838ddbc76688284b7043e561d4e52ecbeb4b0bf0ac3e10bc70d3c
 F www/rebaseharm.md ee60c4c18678fd7708440865e660a46de367f9c3c6ec5419fb9a404513ff1ffd
 F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
-F www/reviews.wiki 8861df71b6af8a3fe625944e4af1d5f994b7abca5a212d87e2685d786ab8049f
+F www/reviews.wiki aec384797fc2dc4d6d297ec5710f5763e602573e275643494a684be013d09e4a
 F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki 9a7db45ae11899205c631e42c64553a80624352b5fbf5101c0fd3059a5424dd3
 F www/selfhost.wiki ee86a1290195803262d7175ee4453f8e2771da3cb81cf713a2498fd8912c02df
@@ -946,14 +946,14 @@ F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294
 F www/unvers.wiki 3c82abb88674d738b06780640d2a55cc1bbfff05c49ec79592f52c5ba4de46ca
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
-F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
+F www/webui.wiki 56aab62a28c1fee5e43918defd44f5ed5f5c12355d0d91bc51c0cbb8f1a45057
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
 F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cabbf1ca54d453b90de7a8a1b950f24e21f85d0998456521eecd82ac6d22a623
-R e00311214043a643b45b3ce075930940
+P 54977e1413a6d59722fb366d6eb25574ce81fa161eb1679e634cc6a6e897dc73
+R 14d937f2b8a02e201a8093b0d24ae8b3
 U wyoung
-Z a9effbb2cc13adcfe195b82021f5ba53
+Z 0051ca4ab70c94a6ce9c90dddbf51f86
 # Remove this line to create a well-formed Fossil manifest.

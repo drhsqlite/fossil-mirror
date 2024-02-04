@@ -40,13 +40,13 @@ but that's personal preference.)
 Once you are done, kill the fossil server (with Ctrl-C or equivalent)
 and close the browser window.
 
-<blockquote>
-Tip: it is not strictly required to configure a repository
+<div class="sidebar">
+It is not strictly required to configure a repository
 this way, but if you are going to share a repo over the net then it
 is highly recommended. If you are only going to work with the repo
 locally, you can skip the configuration step and do it later if
 you decide you want to share your repo.
-</blockquote>
+</div>
 
 The next thing we need to do is <em>open</em> the repository. To do so
 we create a working directory and then <tt>cd</tt> to it:

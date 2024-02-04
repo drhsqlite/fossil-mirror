@@ -187,15 +187,29 @@ textarea.wikiedit {
  * MD/wiki/HTML.  Adjust with care!
  */
 
-.markdown blockquote {
+.markdown blockquote, .sidebar, p.blockquote {
   /* Style it as a proper blockquote for MD only.  Unlike the indent
    * rule, this applies everywhere, including the forum, tickets… */
   background-color: rgba(65, 131, 196, 0.1);
   border-left: 3px solid #4183c4;
   padding: 0.1em 1em;
 }
+.sidebar {
+  float: right;
+  font-size: 0.9em;
+  max-width: 33%;
+}
+div.sidebar {
+  margin-left: 1em; /* don't run wraparound text right up to our border */
+  padding: 1em;     /* no p wrapper inside to get extra padding from */
+}
+div.sidebar:not(.no-label):before {
+  content: "Sidebar: ";
+  font-weight: bold;
+}
 
 .doc > .content dd, .content dt,
+.doc > .content div,
 .doc > .content li,
 .doc > .content p,
 .doc > .content table
@@ -405,7 +419,7 @@ span.timelineSecondary {
    *   > .content,                // wiki docs have no inner container
    *   > .content > .fossil-doc,  // container for HTML embedded docs
    *   > .content > markdown {    // ditto for MD outside forum, tickets…
-   *     > p, > ol, > ul, > table {
+   *     > div, > p, > ol, > ul, > table {
    *       margin-left: 50pt; margin-right: 50pt;
    *     }
    *   }
@@ -491,6 +505,7 @@ span.timelineSecondary {
   }
 
   /* Special treatment for backward compatibility. */
+  .indent,                /* clean alternative to misusing <blockquote> */
   .artifact > .content > blockquote:not(.file-content),
   .dir      > .content > blockquote,
   .doc      > .content > blockquote {
@@ -507,5 +522,13 @@ span.timelineSecondary {
      * blockquote tags only for _block quotes_!  A moderate indent
      * suffices due to the visual styling applied above. */
     margin-left: 60pt;
+  }
+
+  /* Alternative to BLOCK.indent when wrapped in something that is
+   * itself indented.  The value is the delta between p and blockquote
+   * above, expressed as padding instead of margin so it adds to the
+   * outer margin instead of forcing the browser into picking one. */
+  .local-indent {
+    padding-left: 30pt;
   }
 }
