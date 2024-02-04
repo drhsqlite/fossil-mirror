@@ -20,7 +20,7 @@ by following these steps:
 
     <blockquote>
     <pre>
-      $ fossil git export /path/to/git/repo --autopush \
+      $ fossil git export /path/to/git/repo --autopush &bsol;
         https://<font color="orange">username</font>:<font color="red">password</font>@github.com/username/project.git
     </pre>
     </blockquote>
