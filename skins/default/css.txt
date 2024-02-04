@@ -36,6 +36,14 @@ a:hover {
   float: right;
   font-size: 0.8em;
 }
+div.logo {
+  float: left;
+  padding-top: 10px;
+  padding-right: 10px;
+}
+div.logo img {
+  max-height: 2em;    /* smaller than title to keep it above the baseline */
+}
 
 
 /* Main menu and optional sub-menu */
