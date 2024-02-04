@@ -33,7 +33,10 @@
       <img src="$logo_image_url" border="0" alt="$project_name">
     </a>
   </div>
-  <div class="title"><h1>$<project_name></h1>$<title></div>
+  <div class="title">
+    <h1>$<project_name></h1>
+    <span class="page-title">$<title></span>
+  </div>
     <div class="status"><th1>
  if {[info exists login]} {
    html "<a href='$home/login'>$login</a>\n"
@@ -58,3 +61,4 @@ foreach {name url expr class} $mainmenu {
 }
 </th1></div>
 <div id='hbdrop'></div>
+<h1 class="page-title">$<title></h1>

@@ -1,5 +1,5 @@
-C Triumphant\sreturn\sof\sthe\slogo\sin\sthe\stitle\sarea,\slost\sin\sthe\stransition\nfrom\s"original"\sto\sthe\strunk\sdefault\sskin.
-D 2024-02-04T05:06:35.168
+C Moved\sthe\spage\stitle\son\smobile\sfrom\safter\sthe\sproject\sname\sand\sthe\sslash\nseparator\sin\sthe\sheader\sto\sjust\sabove\sthe\scontent\sarea,\sstyled\sas\sa\nseparate\s"h1"\selement,\ssame\sas\sin\san\sembedded\sdoc\swith\san\s"h1"\sinline.\nThis\saccommodates\slong\spage\stitles\sbetter\son\snarrow\sscreens\swhile\nleaving\sdesktop-class\swindows\salone.\s\sReduced\sthe\ssize\sof\sh1\sto\sbe\ncloser\sto\sh2\sas\sa\sconsequence.\s\sAlso\sremoved\sthe\snew\slogo's\stop-padding\non\smobile\sto\sfit\sin\sbetter\swith\sall\sthis.
+D 2024-02-04T05:27:07.682
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,10 +340,10 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 22e0d1023162d10c132195415da765bceef3b248fae63cc0e3fbe2b6c08d8229
+F skins/default/css.txt 97ce918400007c93c4dc47cfe05e955d34d23feaf2981274cce17fcefda849b9
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
-F skins/default/header.txt eeee5501e1dc90cc9ff885499f3b2ac9dc4a89666df49bb2f73385dab8eb4d4e
+F skins/default/header.txt fe7f43a4b8be296a0bfb86a7da7beb38a59248deee02878c459e78d5698985c6
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 7984797a0096eb915702f3d997a3e32c5440d1fca78ae552f481f18a9d63cc21
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b205333681b1695602ca72c220861999199e5f31d1a56dc577be2ba162d9e7a
-R 669037e750f8b687ffbf92dd04c26b45
+P 45b055016078ca9ae9033513360c86aa5df4f5174fb76596d3bb1f6181f7dd2f
+R 284d46abbe50714387358e7a94660554
 U wyoung
-Z 9ba0c953c2baeed09b771669146be90f
+Z f43d67babfe5363037fa129f44909e44
 # Remove this line to create a well-formed Fossil manifest.

@@ -27,18 +27,12 @@ a:hover {
   display: inline;
   font-size: 2.20em;
 }
-.title h1:after {
-  content: " / ";
-  color: #777;
-  font-weight: normal;
-}
 .status {
   float: right;
   font-size: 0.8em;
 }
 div.logo {
   float: left;
-  padding-top: 10px;
   padding-right: 10px;
 }
 div.logo img {
@@ -115,7 +109,7 @@ span.submenuctrl {
   padding: 1ex;
   color: #444;
 }
-.content h1 { font-size: 1.80em; }
+.content h1 { font-size: 1.60em; }
 .content h2 { font-size: 1.45em; }
 .content h3 { font-size: 1.15em; }
 .content h4 { font-size: 1.05em; }
@@ -392,6 +386,13 @@ span.timelineSecondary {
     padding-top: 0px;
     padding-bottom: 0px;
   }
+  .title > .page-title {
+    display: none;      /* use h1 in body area, below menu bar */
+  }
+  h1.page-title {
+    font-size: 1.60em;  /* match content > h1 */
+    margin-bottom: 0;   /* div.content top margin suffices */
+  }
   .status {padding-top: 0px;}
   .mainmenu a {
     padding: 8px 10px;
@@ -409,6 +410,17 @@ span.timelineSecondary {
   .title {
     padding-top: 10px;
     padding-bottom: 10px;
+  }
+  .title h1:after {
+    content: " / ";
+    color: #777;
+    font-weight: normal;
+  }
+  h1.page-title {
+    display: none;  /* use h1 in title area, above menu bar */
+  }
+  div.logo {
+    padding-top: 10px;
   }
   .status {padding-top: 30px;}
   .mainmenu a {
