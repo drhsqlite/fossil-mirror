@@ -1,5 +1,5 @@
-C Use\sof\sa\strailing\sbackslash\sin\sa\scommand\sexample\sin\sthe\smirrortogithub\ndoc\swasn't\srendering\sas\sexpected,\sleading\sthe\scommand\sto\sbe\ssplit\sin\sthe\nHTML\srendering,\snot\scontinued\sacross\smultiple\slines\sas\sintended.\nReplaced\sit\swith\san\sHTML\snamed\sentity\sto\ssidestep\sthis\squirk\sof\sthe\sMD\nrenderer.
-D 2024-02-04T03:58:50.394
+C www/newrepo.wiki:\sremove\suser@machine\sreferences\stin\sto\sreduce\sthe\snoise\slevel.\sMinor\scontent\stouchups.
+D 2024-02-04T10:06:08.574
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -883,7 +883,7 @@ F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f297687
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 6d0b93a0a6b28225bfcfb121418631272f39e92c1f35862890eca1ff63668a00
 F www/mkindex.tcl be47b33aeb004efdf9f32179e61c574c55db1bf448db70f0e3b9ebf2296cdadf x
-F www/newrepo.wiki 785cb1e8bdc0313555ec1569338d5375313ea871ebf8b83a4d7bc68f916383d3
+F www/newrepo.wiki 8f59f8f792664d9cfff1270b1b252b334e327410a25025e159332acb50755f59
 F www/password.wiki b6e5dd5e1be25654203b6aaa7ef4d040764f023340d7e95ddb55d0a95597790b
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
 F www/permutedindex.html 546cda9f915c68bd5eb98edb3bcbc533fd8e270b21c976c20b50e57a9803c72b
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb3de39ffefb3f203f165d0d378e5843a057ba9abbb9039e7965b8b0767de084
-R a2dd85217fde069b73c9a3cfde4f8bfd
-U wyoung
-Z 2fbd01754eba4a318a3da26ea1e004bc
+P 221cf52bf516560ee9d118a4c3545f0e8208d3ec09d91ea274a98e835e0dea93
+R 2e95d10d5ea0f6dd101f82d311a66d5e
+U stephan
+Z a4ce494f8d7f5f192c285778af05001e
 # Remove this line to create a well-formed Fossil manifest.
