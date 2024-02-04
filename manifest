@@ -1,5 +1,5 @@
-C Reworked\sthe\sremaining\scustom\sCSS\sin\sthe\sserver\sindex\sdoc\sto\scascade\nproperly\swith\sthe\snew\stable\sstyling\sin\sthe\sskin.
-D 2024-02-04T02:39:29.960
+C Replaced\suse\sof\san\sexplicit\s"blockquote"\stag\sin\san\sMD\sdoc\swith\sa\sleading\n">".\s\sIt's\snot\sonly\ssimpler\smarkup,\sit\sgenerates\sslightly\sdifferent\sHTML\noutput,\sleading\sto\sbetter\sformatting\sunder\sthis\sskin.
+D 2024-02-04T02:53:43.496
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -753,7 +753,7 @@ F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d
 F www/aboutcgi.wiki 2312bdc7ef999d5f40f8bc51d37aaa2166616587c7b22375bfc590114ed45e5c
 F www/aboutdownload.wiki eceecda6f757dc2e2f09f84abacbbda16a40a277ad4e9773dfae2e86b80f4085
 F www/adding_code.wiki 1b6e3f62cefc95cbd6101c3a47dcf3c3ee8e93426359e3f054202057bab85efe
-F www/alerts.md 5d0870938d3cb0194815a4e30d0579e0e542299b0019b7ba856e6b0f64fd171a
+F www/alerts.md 72146c3cb9521b58391d3f080c7579f7154af9e6b41151547162f5f185c15a48
 F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3291f68fe3224ed73dbf6ee08e4a862cb379ac299867c9cea08dae845188e9ef
-R 8095b5daa79d1496c1b9f0c355cd4f8f
+P d3c55b57f1286ab5e5e5e8beb3835f1cafceafbf0e4475e8d0f5e12732adf004
+R a37411013e66c77f45574b4b65100568
 U wyoung
-Z 426616eb9e34ec45cd475a62f387d9a7
+Z 213452de165fc65f4f398565c8018328
 # Remove this line to create a well-formed Fossil manifest.

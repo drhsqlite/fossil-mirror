@@ -157,10 +157,7 @@ are the two records tied together under the hood. For more on this, see
 
 If you are seeing the following complaint from Fossil:
 
-<blockquote>
-  Use a different login with greater privilege than FOO to access
-  /subscribe
-</blockquote>
+> Use a different login with greater privilege than FOO to access /subscribe
 
 ...then the repository's administrator forgot to give the
 [**EmailAlert** capability][cap7]
