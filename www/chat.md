@@ -82,6 +82,15 @@ Non-image files always appear in messages as download links.
 
 ### Deletion of Messages
 
+<div class="sidebar">Message deletion is itself a type of message, which
+is why deletions count towards updates in the recent activity list.  (It
+is counted for the person who performed the deletion, not the author of
+the deleted comment.) That can potentially lead to odd corner cases
+where a user shows up in the list but has no messages which are
+currently visible because they were deleted, or an admin user who has
+not posted anything but deleted a message. That is a known minor
+cosmetic-only bug with a resolution of "will not fix."</div>
+
 Any user may *locally* delete a given message by clicking on the "tab"
 at the top of the message and clicking the button which appears. Such
 deletions are local-only, and the messages will reappear if the page
@@ -113,15 +122,6 @@ show up in that list, nor does the chat infrastructure have a way to
 track and present those. That list can be used to filter messages on a
 specific user by tapping on that user's name, tapping a second time to
 remove the filter.
-
-Sidebar: message deletion is a type of message and deletions count
-towards updates in the recent activity list (counted for the person
-who performed the deletion, not the author of the deleted
-comment). That can potentially lead to odd corner cases where a user
-shows up in the list but has no messages which are currently visible
-because they were deleted, or an admin user who has not posted
-anything but deleted a message. That is a known minor cosmetic-only
-bug with a resolution of "will not fix."
 
 ### <a id="cli"></a> The `fossil chat` Command
 

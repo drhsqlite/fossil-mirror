@@ -1,5 +1,5 @@
-C Removed\sextra\sindent\slevel\sfrom\sthe\srelease\sdoc\slink\sin\sthe\spermuted\nindex,\sgenerated\sby\sthe\smkindex.tcl\sscript.
-D 2024-02-04T05:43:06.684
+C Applied\sthe\snew\sdiv\sclass=sidebar\sstyling\sto\sa\sfew\smore\scases\sin\sthe\sdocs.
+D 2024-02-04T05:52:49.426
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -778,7 +778,7 @@ F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
 F www/changes.wiki 0f2052d15a9625d11d5090af6ff206507bec5042ef25820b9db82cea7351066c
-F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
+F www/chat.md e7215c6e50d4856a56013e7dec340d151a347411593febd875143c9d50fe1f3c
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki b74a2edf01afa32b5c09cb895222704d08e3a28b04803da8ec3be272bb9f473b
 F www/childprojects.wiki 7ae960b153c84280c72de5ee172c1beb823f07b65ea00756a4a62f54bdec64f7
@@ -799,7 +799,7 @@ F www/custom_ticket.wiki 78144925dba3634f948a20ccf9d2fa358a98e2e7d31fbaad7833e28
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
 F www/customskin.md 7ac5d4fab0e9f788045b60f77edea62a9e11e1e055ba0a63836056936e8865cf
 F www/defcsp.md 67b48b4e320129055663647ed1bb821bf5a1ef17aaec744f20c17e783b7d735d
-F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
+F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
 F www/delta_format.wiki 33a3f71dc160959bd4c612e7ffee5be54548990e53eb0f6d9b50779c8767bd58
 F www/embeddeddoc.wiki 64c79a61d74e29e95c8e5e4277c013b4d085c92ec9e2b6ffeded1b04826dc1ff
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2ef252ef8053905ba6dcffa5edb278d3ee82d5fa1ec70a955917c0f3b84dd53
-R aca0a90281d639476d51d263495dce12
+P 01764fea862df2415410d4129556292db88e6f842799141df2d07e1404d96cf2
+R eab4219fad7f38cf783f5d8f10cc44a6
 U wyoung
-Z d34cb310244e7236424110c4f7bbc085
+Z 0da522ff13b6042c2d1b0cd5caa1af44
 # Remove this line to create a well-formed Fossil manifest.
