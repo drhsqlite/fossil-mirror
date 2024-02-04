@@ -1,5 +1,5 @@
-C Replaced\suse\sof\san\sexplicit\s"blockquote"\stag\sin\san\sMD\sdoc\swith\sa\sleading\n">".\s\sIt's\snot\sonly\ssimpler\smarkup,\sit\sgenerates\sslightly\sdifferent\sHTML\noutput,\sleading\sto\sbetter\sformatting\sunder\sthis\sskin.
-D 2024-02-04T02:53:43.496
+C Removed\sa\sbunch\sof\sexplicit\sblockquote\stags\sin\sthe\sencryptedrepos\sdoc\nwhich\swere\sessentially\sduplicating\sthe\shierarchical\sindent\sstructure\snow\nimplemented\sby\sthis\sbranch's\sskin\schanges.\s\sThis\sis\swhy\swe\swant\sto\sdo\nthis\sat\sthe\sskin\slevel:\sso\sall\spages\sget\sthis\sappearance,\savoiding\sthe\nneed\sfor\smanual\sformatting\son\seach\spage.
+D 2024-02-04T02:57:37.622
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -812,7 +812,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/encryptedrepos.wiki d6ab458d7272a793c645645116ff478f442ff48e2ac15e717bee716ae76b5156
+F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
 F www/env-opts.md ab37f892ab4e2482046f7ffc6ab40ff04f8c6f72e4b68a4ade1d433ada784a53
 F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e360
 F www/faq.tcl 1504b25cd9f5277a278df000222f5a903bf3e03102ff2a6cdcb0bcec01bfcd9d x
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3c55b57f1286ab5e5e5e8beb3835f1cafceafbf0e4475e8d0f5e12732adf004
-R a37411013e66c77f45574b4b65100568
+P 9f71793cdff2dcc0d17f8ce719337345089b546ba43f54a40534b50b5f611527
+R 9701ea77bdb191a42427d91aa87ee990
 U wyoung
-Z 213452de165fc65f4f398565c8018328
+Z b6191ef7e2e6408cea5887fc57ccfc20
 # Remove this line to create a well-formed Fossil manifest.
