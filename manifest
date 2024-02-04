@@ -1,5 +1,5 @@
-C Moved\sthe\spage\stitle\son\smobile\sfrom\safter\sthe\sproject\sname\sand\sthe\sslash\nseparator\sin\sthe\sheader\sto\sjust\sabove\sthe\scontent\sarea,\sstyled\sas\sa\nseparate\s"h1"\selement,\ssame\sas\sin\san\sembedded\sdoc\swith\san\s"h1"\sinline.\nThis\saccommodates\slong\spage\stitles\sbetter\son\snarrow\sscreens\swhile\nleaving\sdesktop-class\swindows\salone.\s\sReduced\sthe\ssize\sof\sh1\sto\sbe\ncloser\sto\sh2\sas\sa\sconsequence.\s\sAlso\sremoved\sthe\snew\slogo's\stop-padding\non\smobile\sto\sfit\sin\sbetter\swith\sall\sthis.
-D 2024-02-04T05:27:07.682
+C Removed\sextra\sindent\slevel\sfrom\sthe\srelease\sdoc\slink\sin\sthe\spermuted\nindex,\sgenerated\sby\sthe\smkindex.tcl\sscript.
+D 2024-02-04T05:43:06.684
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -882,11 +882,11 @@ F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md c1f374c1e952edf948dca06c5b7788fd96523db1529250e000c0491f833e7d62
-F www/mkindex.tcl be47b33aeb004efdf9f32179e61c574c55db1bf448db70f0e3b9ebf2296cdadf x
+F www/mkindex.tcl 34842945e1282f74e0d4d68908b3be376baec9afc52bb5b47fd5dd5ad55b1a4a x
 F www/newrepo.wiki fe4e59c5e2cfda9b25c381ba739051682130ef6f4f1d3c14a534f185666e7111
 F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
-F www/permutedindex.html a407f28ba752120d0773799c2370e58e93c6737ef1d40742258b9be333394daf
+F www/permutedindex.html 3d7fd271c71ac1919f3a0be9af80d83bbc10cbc2ac02e1c9463300af4df8975a
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45b055016078ca9ae9033513360c86aa5df4f5174fb76596d3bb1f6181f7dd2f
-R 284d46abbe50714387358e7a94660554
+P f2ef252ef8053905ba6dcffa5edb278d3ee82d5fa1ec70a955917c0f3b84dd53
+R aca0a90281d639476d51d263495dce12
 U wyoung
-Z f43d67babfe5363037fa129f44909e44
+Z d34cb310244e7236424110c4f7bbc085
 # Remove this line to create a well-formed Fossil manifest.
