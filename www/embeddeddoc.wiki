@@ -31,9 +31,9 @@ The fossil web interface supports embedded documentation using
 the "/doc" page.  To access embedded documentation, one points
 a web browser to a fossil URL of the following form:
 
-<blockquote>
+<pre>
 <i>&lt;baseurl&gt;</i><big><b>/doc/</b></big><i>&lt;version&gt;</i><big><b>/</b></big><i>&lt;filename&gt;</i>
-</blockquote>
+</pre>
 
 The <i>&lt;baseurl&gt;</i> is the main URL used to access the fossil web server.
 For example, the <i>&lt;baseurl&gt;</i> for the fossil project itself is
@@ -202,7 +202,7 @@ source tree is "<b>www/embeddeddoc.wiki</b>".
 You are perhaps looking at this
 file using the URL:
 
-   [https://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki].
+<pre>[https://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki]</pre>
 
 The first part of this path, the "[https://fossil-scm.org/home]",
 is the base URL.  You might have originally typed:
@@ -212,10 +212,10 @@ site automatically redirects such links by appending "home".  The
 which runs the fossil web service in CGI mode.
 The "home" CGI script looks like this:
 
-<blockquote><pre>
+<pre>
 #!/usr/bin/fossil
 repository: /fossil/fossil.fossil
-</pre></blockquote>
+</pre>
 
 This is one of the many ways to set up a
 <a href="./server/">Fossil server</a>.
@@ -243,11 +243,8 @@ of the document that was most recently checked in as of the date
 and time specified.  So, for example, to see what the fossil website
 looked like at the beginning of 2010, enter:
 
-<blockquote>
-<a href="/doc/2010-01-01/www/index.wiki">
-https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
-</a>
-</blockquote>
+<pre><a href="/doc/2010-01-01/www/index.wiki">https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
+</a></pre>
 
 The file that encodes this document is stored in the fossil source tree under
 the name "<b>www/embeddeddoc.wiki</b>" and so that name forms the

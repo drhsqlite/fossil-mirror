@@ -75,12 +75,10 @@ editing existing technotes.
 
 Technotes can also be created using the <b>wiki create</b> command:
 
-<blockquote>
-<b>
-fossil wiki create TestTechnote -t now --technote-bgcolor lightgreen technote.md<br>
-<tt>Created new tech note 2021-03-15 13:05:56</tt><br>
-</b>
-</blockquote>
+<verbatim>
+fossil wiki create TestTechnote -t now --technote-bgcolor lightgreen technote.md
+Created new tech note 2021-03-15 13:05:56
+</verbatim>
 
 This command inserts a light green technote in the timeline at 2021-03-15 13:05:56, with 
 the contents of file <b>technote.md</b> and comment "TestTechnote". Specifying a different time using
@@ -92,26 +90,22 @@ that appears in the timeline.
 
 To view all technotes, use the <b>wiki ls</b> command:
 
-<blockquote>
-<b>
-fossil wiki ls --technote --show-technote-ids<br>
-<tt>z739263a134bf0da1d28e939f4c4367f51ef4c51 2020-12-19 13:20:19</tt><br>
-<tt>e15a918a8bed71c2ac091d74dc397b8d3340d5e1 2018-09-22 17:40:10</tt><br>
-</b>
-</blockquote>
+<verbatim>
+fossil wiki ls --technote --show-technote-ids
+z739263a134bf0da1d28e939f4c4367f51ef4c51 2020-12-19 13:20:19
+e15a918a8bed71c2ac091d74dc397b8d3340d5e1 2018-09-22 17:40:10
+</verbatim>
 
 A technote ID is the UUID of the technote.
 
 To view an individual technote, use the <b>wiki export</b> command:
 
-<blockquote>
-<b>
-fossil wiki export --technote version-2.16<br>
+<verbatim>
+fossil wiki export --technote version-2.16
 Release Notes 2021-07-02
 
 This note describes changes in the Fossil snapshot for ...
-</b>
-</blockquote>
+</verbatim>
 
 The <b>-t|--technote</b> option to the <b>export</b> subcommand takes one of
 three identifiers: <b>DATETIME</b>; <b>TECHNOTE-ID</b>; and <b>TAG</b>.

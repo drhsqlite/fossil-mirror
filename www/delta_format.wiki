@@ -192,9 +192,9 @@ written base-64 encoded, MSB first, and without leading
 The base-64 encoding uses one character for each 6 bits of
 the integer to be encoded.  The encoding characters are:
 
-<blockquote><pre>
+<pre>
 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~
-</pre></blockquote>
+</pre>
 
 The least significant 6 bits of the integer are encoded by
 the first character, followed by

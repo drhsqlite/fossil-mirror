@@ -1,5 +1,5 @@
-C Small\scosmetic\stweaks\sto\sthe\smirrortogithub\sdoc\son\sthis\sbranch\sto\swork\sbetter\nwith\sthe\sskin.
-D 2024-02-04T04:01:03.936
+C Replaced\snearly\sall\sexplicit\suses\sof\sthe\s"blockquote"\stag\sin\sthe\nembedded\sdocs:\n\n\s\s*\s\sConstructs\slike\s"&lt;blockquote&gt;&lt;pre&gt;"\sare\snow\ssimply\s"&lt;pre&gt;"\n\s\s*\s\sDitto\s"&lt;blockquote&gt;&lt;b&gt;"\sfor\scommand\sexamples,\swhich\n\s\s\s\s\sthen\sallowed\sme\sto\sget\srid\sof\sexplicit\s"br"\selements;\spre\sdoes\sthat\n\s\s\s\s\sfor\sus.\n\s\s*\s\sWhere\sit\swas\sused\smerely\sto\sget\san\sindent\sfor\sa\scode\sblock,\swe're\n\s\s\s\s\snow\susing\spre\sor\sverbatim\sinstead,\sdepending\son\swhether\swe\sneed\n\s\s\s\s\sembedded\sHTML\sand/or\spre-wrap\shandling.\s(Not\sthe\ssame\sthing\sas\sthe\n\s\s\s\s\sprior\sitem.)\s\sIn\ssome\splaces,\sthis\slet\sus\sreplace\suse\sof\n\s\s\s\s\sHTML-escaped\scode\sblocks\sin\spre\swith\sverbatim\sequivalents,\snot\n\s\s\s\s\sneeding\sthe\sescaping,\sallownig\sthe\sdoc\ssource\sto\sread\smore\slike\sthe\n\s\s\s\s\srendered\sHTML.\n\s\s*\s\sUse\sof\sblockquotes\sto\sget\shierarchical\sindenting\sis\sno\slonger\n\s\s\s\s\snecessary;\sthe\sskin\sdoes\sthat.\sA\sgood\sexample\sis\sindenting\sol\sand\n\s\s\s\s\sul\slists\sunder\sthe\sparent\sparagraph;\sadditional\smanual\sindenting\sis\n\s\s\s\s\sno\slonger\snecessary.\n\nThe\sonly\sremaining\suses\sare\snecessary:\n\n\s\s\s\s\swrapper,\sthus\sno\saccess\sto\sthe\snew\sskin\simprovements.\n\s\s\s\s\sthe\scurrent\sparsing\srules\sdon't\slet\sus\suse\s">"\sthere.
+D 2024-02-04T04:29:29.389
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -750,7 +750,7 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
-F www/aboutcgi.wiki 2312bdc7ef999d5f40f8bc51d37aaa2166616587c7b22375bfc590114ed45e5c
+F www/aboutcgi.wiki 8c15fe1b3e2e512e219bc7a3a6140515dc618863d5ac8d2fade8f8c56e4c5daa
 F www/aboutdownload.wiki eceecda6f757dc2e2f09f84abacbbda16a40a277ad4e9773dfae2e86b80f4085
 F www/adding_code.wiki 1b6e3f62cefc95cbd6101c3a47dcf3c3ee8e93426359e3f054202057bab85efe
 F www/alerts.md 72146c3cb9521b58391d3f080c7579f7154af9e6b41151547162f5f185c15a48
@@ -761,7 +761,7 @@ F www/backoffice.md b0ca100e4fa8fd5d86460a9cb4b4c426dc9b464680c985ed41fda3b1e21e
 F www/backup.md 63442dd9fd41b0f0e9b45243143c1372103e1c918c56eb2b76fc2f6b12e40deb
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md bd934c673cf72cd200c9c32aae5f9ea173167f9763d3bd92ca320801db2b4599
-F www/branching.wiki 2485100d5afd6f554ea7f70663eebcabdcc4701716ceafef1e7ad1f90ff45781
+F www/branching.wiki 9fe1917a373ea147fbae0521f45498b053dee11d7e3935a999fa7a2c229d691e
 F www/bugtheory.wiki 05d4c22d09171d3077d0662a940dfddd8290d34ea83b48847978ece08021c1fa
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -776,17 +776,17 @@ F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999
 F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f7bc8
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
-F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
+F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
 F www/changes.wiki 0f2052d15a9625d11d5090af6ff206507bec5042ef25820b9db82cea7351066c
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
-F www/checkin_names.wiki 632a0a79e5247d2b730022556fb1e098ecd14b41e3ccaae35da3514c9dc64c5d
-F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
+F www/checkin_names.wiki b74a2edf01afa32b5c09cb895222704d08e3a28b04803da8ec3be272bb9f473b
+F www/childprojects.wiki 7ae960b153c84280c72de5ee172c1beb823f07b65ea00756a4a62f54bdec64f7
 F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
 F www/ckout-workflows.md ab6e6458629a8716980e3b11dfdb0123b199bc2444365ccf587b04938c20a588
 F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e854d
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
-F www/concepts.wiki c5d1fa363dd041fa027de5e131674c43a83336a51a2101eb2b177304043d20a6
+F www/concepts.wiki bf9e06a5dfc82213b92030bb43843b9710dd77b2d08ef4535d3a671eb3892444
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
 F www/containers.md 0bc9ed93bab6da9d3091b81eb2c163904a6cd1a373ad29962fabd095ce00cc0b
 F www/contribute.wiki d75a599af3651f1afa3cd3d4f089ec20d3dac29699277e242066763e799ba9ce
@@ -795,14 +795,14 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
 F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272bf3
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
-F www/custom_ticket.wiki 5220adadd102e56bb8c46f27b68dc83ab0c1ff42b12186ff832bcb5c561157bc
+F www/custom_ticket.wiki 78144925dba3634f948a20ccf9d2fa358a98e2e7d31fbaad7833e2822a3be46b
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
 F www/customskin.md 7ac5d4fab0e9f788045b60f77edea62a9e11e1e055ba0a63836056936e8865cf
 F www/defcsp.md 67b48b4e320129055663647ed1bb821bf5a1ef17aaec744f20c17e783b7d735d
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
-F www/delta_format.wiki 95f7af1f566205dd46bd266676a71240c179e8babac779569a2249e7980bdf20
-F www/embeddeddoc.wiki e5a99145345af187335418d995eb07b5ca47b03cec4c2c9719f15f5b3a7ce7b8
+F www/delta_format.wiki 33a3f71dc160959bd4c612e7ffee5be54548990e53eb0f6d9b50779c8767bd58
+F www/embeddeddoc.wiki 64c79a61d74e29e95c8e5e4277c013b4d085c92ec9e2b6ffeded1b04826dc1ff
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -814,9 +814,9 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
 F www/env-opts.md ab37f892ab4e2482046f7ffc6ab40ff04f8c6f72e4b68a4ade1d433ada784a53
-F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e360
-F www/faq.tcl 1504b25cd9f5277a278df000222f5a903bf3e03102ff2a6cdcb0bcec01bfcd9d x
-F www/faq.wiki e09152ae2638c867950a6f64b70d00081c202c45ec397cc24c6f34a0a8e0e6da
+F www/event.wiki abbc834163b54136f49ae4fbfc0503a5a70115d915d4b435ed140a10f557958b
+F www/faq.tcl ea96feb8d056ab25f3e353fc3b5ad2790d2aff54e35294cd5fbbc9cc8b4bc017 x
+F www/faq.wiki a3c5ba4cb4fb76c115a202337ca8d34cb49dff47c4aa7b2311c05ebdefcb62df
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
 F www/fileformat.wiki 1a02099770bdff1f9e1408096732b8ad1bf66fd3b0f4176feec57031bba5906f
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
@@ -834,7 +834,7 @@ F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
-F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
+F www/fossil_prompt.wiki 7c198e501721bbb613ff1c3238b35dc991408cf301d3718e040916d35c2bdc27
 F www/gitusers.md 06b91d2f62bf9908320a9bfc15b871cc9cf93998cccea125d6c6b5ae38ffc510
 F www/globs.md b1d2513af1844ebf670c9f1e612f77bd43f76ebd0e0c1c019d6626bdc55fa1d5
 F www/glossary.md eade6289fe358fe9662247b663739cade3f9fb1f2d2e8bdbf9c0482f7a94b186
@@ -842,7 +842,7 @@ F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 04d1741d9ee53d178b26c788b2c87b5305569e27c42bfa179d0ec1175bd28dd9
-F www/hashpolicy.wiki 59b6a5175af49ec5cbec767321f4fdd9a27338c019fdbfc846fd51d59f570b67
+F www/hashpolicy.wiki de49bc15473801c37306ae83419e6a7d80d77cc6b61b43d5c5c2486bee2f5f00
 F www/hints.wiki 2649ca99290577715a01bb051386874b8a219da234926a181ed3a5c8b5c8a661
 F www/history.md ec29ba623dceb4d162772bb6faa81a8fbdbff81f0d5c742e158d998d9a00aedb
 F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
@@ -850,7 +850,7 @@ F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984
 F www/image-format-vs-repo-size.md 92fa20536270b02c9318d25662315a36b22cb8ad72b124f33d44df4dd9dda0ca
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki f07be027202253ecb254152da8c330db2064f8a1414d582602988099c1cd3a4e
-F www/inout.wiki 21c3cf513e2c8dc81af0feeae3b95adbb7c927172b5e2b73c3001f30519388a6
+F www/inout.wiki 9982cc004c39afa5309bb3c6a26353859838a4e4424a8516bbc658f53c2260c6
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md c0c37e0c2306304696640e78e47ccdf4f2ae657cffb1cf7b983b4b1135957d1a
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -884,7 +884,7 @@ F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f6
 F www/mirrortogithub.md c1f374c1e952edf948dca06c5b7788fd96523db1529250e000c0491f833e7d62
 F www/mkindex.tcl be47b33aeb004efdf9f32179e61c574c55db1bf448db70f0e3b9ebf2296cdadf x
 F www/newrepo.wiki 785cb1e8bdc0313555ec1569338d5375313ea871ebf8b83a4d7bc68f916383d3
-F www/password.wiki 9f182349c9022a8477a15fea67803ea25f0f693897be68a5c93052677664dbd0
+F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
 F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
 F www/permutedindex.html a407f28ba752120d0773799c2370e58e93c6737ef1d40742258b9be333394daf
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
@@ -892,13 +892,13 @@ F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 0d9f2a36fbf1db95b7097936609b455c49a4ea064b167c1f52eabf213f3bb5b2
 F www/qandc.wiki 754e41cafbb90ac44b13732a764fc22e9c4b3983653c52b1514b26898a6adaf9
 F www/quickstart.wiki e2130117b15699a5ec4c59bfd6989b1b910218c896113960a336193010f0e3f2
-F www/quotes.wiki c76107fccacca55ba3b2f42bb8ef2fe0963f06d28894bde3b1d6501a20f0cbd2
+F www/quotes.wiki d4a684d0ac5838ddbc76688284b7043e561d4e52ecbeb4b0bf0ac3e10bc70d3c
 F www/rebaseharm.md ee60c4c18678fd7708440865e660a46de367f9c3c6ec5419fb9a404513ff1ffd
 F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
 F www/reviews.wiki 8861df71b6af8a3fe625944e4af1d5f994b7abca5a212d87e2685d786ab8049f
-F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
+F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki 9a7db45ae11899205c631e42c64553a80624352b5fbf5101c0fd3059a5424dd3
-F www/selfhost.wiki 1fd025edaf770792a624efb9178d1fce212c578b35445df63b769720d1c359fc
+F www/selfhost.wiki ee86a1290195803262d7175ee4453f8e2771da3cb81cf713a2498fd8912c02df
 F www/server/any/althttpd.md 4ac7121aa47d8ce6321128097884528354428a7606d60a83efb01c1e31270fad
 F www/server/any/cgi.md 6dc21692b83c7366968c3b001baac95b4327e232948697f001cbbd82603e0ca8
 F www/server/any/http-over-ssh.md 52ed3ad473026a50fbd5c9cd2c8df8006fef24e677448a23453dca4f2a95e6ff
@@ -916,7 +916,7 @@ F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4
 F www/server/macos/service.md cd25e3b003e88cf07713c7c5fdf6b16e1f21dae7c75cb1d6ab69946d12262f5f
 F www/server/openbsd/fastcgi.md af3f2ce8150c01004d52ee5e04ede23260453888ba20ed266d89dd3ec0439c58
 F www/server/openbsd/index.md 196d9378a3fd6182fb826e800cb3eb55c44a63e69cbe344489913e55b0d77b54
-F www/server/openbsd/service.wiki f5c1f9d53713e99626bc472e6e8a8db855c0a0b715bcfcdd0784e785b238427d
+F www/server/openbsd/service.wiki 2cff4e972f45156e0906717dd6c094557a99761ffd6696f0a1eb0d720fc15647
 F www/server/whyuseaserver.wiki 7791e9e8e0c03d3c9f572fb37db03987e59d1d0d9bbeb03b4b98ef1edbec2533
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -928,7 +928,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md 50da9506fe48dc41cc418ca63e2d01fe188c9887542f7a6832185dca1ab98f27
 F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524b356f3d5ab8b8ac8
-F www/serverext.wiki 1f7594105c7e30ed1b20c9e1d87fba422cdee9b64bcd2f4c7476402f82ebdeac
+F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
 F www/settings.wiki 194a1b8a22acf5098168ffd991758a5903f135c4870dcbe5beb3ffdf57915e6b
 F www/shunning.wiki c8e96dbccdd3aea354ecf31c6e6f265010213bd234a5441606da60b636bbc93b
 F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d960eda
@@ -940,10 +940,10 @@ F www/tech_overview.wiki 7ca8f8399585c31e693586a69fe74ccc301460466751f1c7627e633
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 7a1e4072998d8f154d8cae5497859d4351ce18c0fafdd97068a61451b6d501ab
 F www/theory1.wiki d4ae96337cdbb6fa6677d023aa9d2abe8db4f471d7450a32a92b1f06496e04aa
-F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
+F www/tickets.wiki 8a19c866b38766c2559dc32a7fa509eaa780fcb8b7ca9fecdba2b20de2766692
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
-F www/unvers.wiki f940cb6a499c9657bce75006fcb82f04929ff54053598d42876595c4af6181ed
+F www/unvers.wiki 3c82abb88674d738b06780640d2a55cc1bbfff05c49ec79592f52c5ba4de46ca
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d9debe90ab6bc86c842704d92bc42f201ff11641a8d064d871d2174ca09bc4cf
-R ff1916060d86a4c3b52a3652e441a5f9
+P cabbf1ca54d453b90de7a8a1b950f24e21f85d0998456521eecd82ac6d22a623
+R e00311214043a643b45b3ce075930940
 U wyoung
-Z 60a1db54f66fc40f33bbf0a4c2957a86
+Z a9effbb2cc13adcfe195b82021f5ba53
 # Remove this line to create a well-formed Fossil manifest.

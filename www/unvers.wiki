@@ -35,11 +35,11 @@ the [/help?cmd=/uvlist|/uvlist] URL.  ([/uvlist|example]).
 Unversioned content does not sync between repositories by default.
 One must request it via commands such as:
 
-<blockquote><pre>
+<pre>
 fossil sync <b>-u</b>
 fossil clone <b>-u</b> <i>URL local-repo-name</i>
 fossil unversioned sync
-</pre></blockquote>
+</pre>
 
 The [/help?cmd=sync|fossil sync] and [/help?cmd=clone|fossil clone]
 commands will synchronize unversioned content if and only if they're
@@ -73,7 +73,7 @@ files.  This is not an interface spec and hence subject to change.)</i>
 Unversioned content is stored in the repository in the
 "unversioned" table:
 
-<blockquote><pre>
+<pre>
 CREATE TABLE unversioned(
   uvid INTEGER PRIMARY KEY AUTOINCREMENT,  -- unique ID for this file
   name TEXT UNIQUE,       -- Name of the file
@@ -84,7 +84,7 @@ CREATE TABLE unversioned(
   encoding INT,           -- 0: plaintext  1: zlib compressed
   content BLOB            -- File content
 );
-</pre></blockquote>
+</pre>
 
 Fossil does not create the table ahead of need.
 If there are no unversioned files in the repository, the
@@ -92,9 +92,9 @@ If there are no unversioned files in the repository, the
 one simple way to purge all unversioned content from a repository
 is to run:
 
-<blockquote><pre>
+<pre>
 fossil sql "DROP TABLE unversioned; VACUUM;"
-</pre></blockquote>
+</pre>
 
 Lacking history for unversioned files, Fossil does not attempt delta
 compression on them.
