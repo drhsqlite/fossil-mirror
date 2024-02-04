@@ -75,7 +75,7 @@ div#hbdrop {
 }
 
 .submenu {
-  font-size: .7em;
+  font-size: 0.8em;
   padding: 10px;
   border-bottom: 1px solid #ccc;
 }
