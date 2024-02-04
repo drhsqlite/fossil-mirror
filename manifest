@@ -1,5 +1,5 @@
-C Merged\sbackslash\sfix\sin\sfrom\strunk
-D 2024-02-04T03:59:18.816
+C Small\scosmetic\stweaks\sto\sthe\smirrortogithub\sdoc\son\sthis\sbranch\sto\swork\sbetter\nwith\sthe\sskin.
+D 2024-02-04T04:01:03.936
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -881,7 +881,7 @@ F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c
 F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e4b2a
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
-F www/mirrortogithub.md 6d0b93a0a6b28225bfcfb121418631272f39e92c1f35862890eca1ff63668a00
+F www/mirrortogithub.md c1f374c1e952edf948dca06c5b7788fd96523db1529250e000c0491f833e7d62
 F www/mkindex.tcl be47b33aeb004efdf9f32179e61c574c55db1bf448db70f0e3b9ebf2296cdadf x
 F www/newrepo.wiki 785cb1e8bdc0313555ec1569338d5375313ea871ebf8b83a4d7bc68f916383d3
 F www/password.wiki 9f182349c9022a8477a15fea67803ea25f0f693897be68a5c93052677664dbd0
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01e364c6f198aa2db2801ceee923b7eb3e30a57a8c7501c8ae3893ac27d9d135 221cf52bf516560ee9d118a4c3545f0e8208d3ec09d91ea274a98e835e0dea93
-R 7382beb5c6ac07ec225af582e7f77bef
+P d9debe90ab6bc86c842704d92bc42f201ff11641a8d064d871d2174ca09bc4cf
+R ff1916060d86a4c3b52a3652e441a5f9
 U wyoung
-Z 2780283fb27948f14509309734c357a1
+Z 60a1db54f66fc40f33bbf0a4c2957a86
 # Remove this line to create a well-formed Fossil manifest.
