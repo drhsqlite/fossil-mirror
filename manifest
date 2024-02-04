@@ -1,5 +1,5 @@
-C For\s'fossil\sdiff',\sallow\s--context\sto\sbe\s0,\sper\srequest\sin\s[forum:806f1296d8\s|\sforum\spost\s806f1296d8].
-D 2024-02-04T21:28:03.559
+C Add\smissing\s"#include\s<errno.h>"\sthat\swas\sneeded\son\sprevious\scommit.
+D 2024-02-04T22:12:12.571
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 6fa21312cf0d694c07f0bf8261ad585f46ae24dd415cc71614277ffb5a63659a
-F src/diff.c 28f7be78d733ab044a800e871671f787f7be20784dc2d4c3be82501e78e6912e
+F src/diff.c 74d304a16e33d8cb803b79132fca644c9932efdfa9de321fc76243e6463659d5
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
 F src/diffcmd.c e11ab5f28e58d80735eaafc6b29fd78d479571bd767553bb8a685018790d1285
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc0e0543569ce26a53b5602292cc0404a84aeebe097dc1513459c83a00b723ab
-R 0fe27b7c674fd21f3054d4df590fdf41
-U danield
-Z 1fa7849c735d26b3f8dae942719853ba
+P ea6f9a84aca1d1b0e7f4f0cb2788bde9e6daa7bcc30ae219126e4787db976ab8
+R c7544750053521a87a7a6e72cf862fc3
+U mgagnon
+Z ba81550b9da7a6121d924205c78aa4e1
 # Remove this line to create a well-formed Fossil manifest.

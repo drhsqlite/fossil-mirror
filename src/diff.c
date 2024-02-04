@@ -21,6 +21,7 @@
 #include "config.h"
 #include "diff.h"
 #include <assert.h>
+#include <errno.h>
 
 
 #if INTERFACE
