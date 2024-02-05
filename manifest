@@ -1,5 +1,5 @@
-C Add\smissing\s"#include\s<errno.h>"\sthat\swas\sneeded\son\sprevious\scommit.
-D 2024-02-04T22:12:12.571
+C Update\swww/loadmgmt.md\sto\smatch\sthe\scurrent\sbehavior,\sper\sfeedback\sin\sthe\sforum.
+D 2024-02-05T03:15:44.596
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -877,7 +877,7 @@ F www/json-api/hacking.md 5e916b51718458ceef1f2641c2c29774eaa89f8817f02dc77b91aa
 F www/json-api/index.md 1f06115e752536000e1a6aaca37f4e44671f4b9c89b4ce6b7024522224f142bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
-F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
+F www/loadmgmt.md 5acd0e15c1b353f670f7ee8cfe2a8ae8bd2e9ab34572fa98be4e7722603555ea
 F www/makefile.wiki 19bd2d5843ee6277253dea41e7a540bc63bf55747a60909d22b24ad585287908
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea6f9a84aca1d1b0e7f4f0cb2788bde9e6daa7bcc30ae219126e4787db976ab8
-R c7544750053521a87a7a6e72cf862fc3
-U mgagnon
-Z ba81550b9da7a6121d924205c78aa4e1
+P a66a14b033831ba1b26abcb6bb9921f18913d08ff4a1a6c8185928350c4d7c2d
+R 25b21361e563168e652b21b6315f10c8
+U stephan
+Z 0ca2dde1b700d65c2541c4b7ac447dc9
 # Remove this line to create a well-formed Fossil manifest.
