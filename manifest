@@ -1,5 +1,5 @@
-C Update\swww/loadmgmt.md\sto\smatch\sthe\scurrent\sbehavior,\sper\sfeedback\sin\sthe\sforum.
-D 2024-02-05T03:15:44.596
+C Omit\sthe\sPATH=\sprefix\son\sthe\sssh\sfossil\ssyncs\sunless\sthe\sfirst\sattempt\sto\ncontact\sthe\sremote\sfails.\s\sChange\sthe\sprefix\sto\sinclude\scommon\sdirectories\nfor\sFossil\son\sMacs.\s\sRemember\swhether\sor\snot\sthe\sPATH=\sprefix\sis\sneeded\sbased\non\shostname.\s\sSee\sthe\sdiscussion\sat\n[forum:/forumpost/4903cb4b691af7ce|forum\sthread\s4903cb4b691af7ce].
+D 2024-02-05T22:00:00.904
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -459,10 +459,10 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 3fa90199ad5c10b6496736d0756912172a8c51737da67de470304d79ea35b621
+F src/http.c 5c06c6778e8f6b1450c16ca133da84cc44d3f573b7091e69dc0388b51a175305
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
-F src/http_transport.c e27961885f90b32017f8a7660b6c9091fd6facdb722ed82836dd808352882032
+F src/http_transport.c 42258a96c6549bb8057d5c41b9b426fc341b05d22de7fbce7a7246e864b2e210
 F src/import.c aa7e267f27d6167463574631f37f373c2ff99f930dbd5b8063921dbccecb839b
 F src/info.c 01fa1ca3cb851fe64d937c3afd2e93f5706d3f9291c19552b105847b6cea3bc4
 F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
@@ -504,7 +504,7 @@ F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c e37c19e50035659549519b165c14ceddf7d2b39eb679d88650ee26918e8cdbd5
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
-F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
+F src/popen.c e6675fd982e390d498c33f7be1d891fae6ddf7dc398e335227c3122cb532f4cc
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 55969293e294bdf28743924dece909d368d9d0fb15f58761caf4255acfd94398
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
@@ -573,7 +573,7 @@ F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c 1c7afcbade6c89bb66382e0c4460199ce41843a0fddfef5985e3f2f267c40d6f
 F src/update.c 9364bc0f5bc0f0eb43f2a379cfb295d0fcc6853c12fe000e0a9d4a87297a2111
-F src/url.c d8c95cbccd0fb562bb58762c50facc9bfa66af87bf7db17611b20b7732e1c036
+F src/url.c f9c63beb016a10ae96d8787362dce7445a6a9876bc4a54e1e4b225ec82cda546
 F src/user.c 579a6e93785511acd24aaad6db86834334269f11a1d8c3c6f855feb9c1eae6eb
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
@@ -952,8 +952,11 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a66a14b033831ba1b26abcb6bb9921f18913d08ff4a1a6c8185928350c4d7c2d
-R 25b21361e563168e652b21b6315f10c8
-U stephan
-Z 0ca2dde1b700d65c2541c4b7ac447dc9
+P 53a065900f045ca6b08cc9df6a1e877d181bed1171976ed11444e17155fbc7f1
+R 9adf504be152cf5e90295cc3c275e74d
+T *branch * ssh-path-prefix
+T *sym-ssh-path-prefix *
+T -sym-trunk *
+U drh
+Z 32cf320004da93231df1152457d4c1b7
 # Remove this line to create a well-formed Fossil manifest.

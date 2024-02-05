@@ -35,14 +35,17 @@
 /*
 ** Flags for url_parse()
 */
-#define URL_PROMPT_PW        0x001  /* Prompt for password if needed */
-#define URL_REMEMBER         0x002  /* Remember the url for later reuse */
-#define URL_ASK_REMEMBER_PW  0x004  /* Ask whether to remember prompted pw */
-#define URL_REMEMBER_PW      0x008  /* Should remember pw */
-#define URL_PROMPTED         0x010  /* Prompted for PW already */
-#define URL_OMIT_USER        0x020  /* Omit the user name from URL */
-#define URL_USE_CONFIG       0x040  /* Use remembered URLs from CONFIG table */
-#define URL_USE_PARENT       0x080  /* Use the URL of the parent project */
+#define URL_PROMPT_PW        0x0001  /* Prompt for password if needed */
+#define URL_REMEMBER         0x0002  /* Remember the url for later reuse */
+#define URL_ASK_REMEMBER_PW  0x0004  /* Ask whether to remember prompted pw */
+#define URL_REMEMBER_PW      0x0008  /* Should remember pw */
+#define URL_PROMPTED         0x0010  /* Prompted for PW already */
+#define URL_OMIT_USER        0x0020  /* Omit the user name from URL */
+#define URL_USE_CONFIG       0x0040  /* Use remembered URLs from CONFIG table */
+#define URL_USE_PARENT       0x0080  /* Use the URL of the parent project */
+#define URL_SSH_PATH         0x0100  /* Include PATH= on SSH syncs */
+#define URL_SSH_RETRY        0x0200  /* This a retry of an SSH */
+#define URL_SSH_EXE          0x0400  /* ssh: URL contains fossil= query param*/
 
 /*
 ** The URL related data used with this subsystem.
@@ -257,11 +260,13 @@ void url_parse_local(
         i++;
       }
       if( fossil_strcmp(zName,"fossil")==0 ){
+        fossil_free(pUrlData->fossil);
         pUrlData->fossil = fossil_strdup(zValue);
         dehttpize(pUrlData->fossil);
         fossil_free(zExe);
         zExe = mprintf("%cfossil=%T", cQuerySep, pUrlData->fossil);
         cQuerySep = '&';
+        urlFlags |= URL_SSH_EXE;
       }
     }
 
@@ -502,7 +507,7 @@ void cmd_test_urlparser(void){
     fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
     fossil_print("g.url.canonical = %s\n", g.url.canonical);
     fossil_print("g.url.fossil    = %s\n", g.url.fossil);
-    fossil_print("g.url.flags     = 0x%02x\n", g.url.flags);
+    fossil_print("g.url.flags     = 0x%04x\n", g.url.flags);
     fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
     if( g.url.isFile || g.url.isSsh ) break;
     if( i==0 ){
