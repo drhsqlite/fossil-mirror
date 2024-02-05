@@ -1,5 +1,5 @@
-C Omit\sthe\sPATH=\sprefix\son\sthe\sssh\sfossil\ssyncs\sunless\sthe\sfirst\sattempt\sto\ncontact\sthe\sremote\sfails.\s\sChange\sthe\sprefix\sto\sinclude\scommon\sdirectories\nfor\sFossil\son\sMacs.\s\sRemember\swhether\sor\snot\sthe\sPATH=\sprefix\sis\sneeded\sbased\non\shostname.\s\sSee\sthe\sdiscussion\sat\n[forum:/forumpost/4903cb4b691af7ce|forum\sthread\s4903cb4b691af7ce].
-D 2024-02-05T22:00:00.904
+C Debugging\schanges\sin\surl.c:\s\sEnsure\sthat\seach\snew\sUrlData\sobject\sparse\nis\sfully\sreinitialized.\s\sBring\sout\sprinting\sof\sg.url\sinto\sa\sseparate\sroutine\nso\sthat\sit\scan\sbe\scalled\sduring\sdebugging.
+D 2024-02-05T23:59:57.057
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -573,7 +573,7 @@ F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c 1c7afcbade6c89bb66382e0c4460199ce41843a0fddfef5985e3f2f267c40d6f
 F src/update.c 9364bc0f5bc0f0eb43f2a379cfb295d0fcc6853c12fe000e0a9d4a87297a2111
-F src/url.c f9c63beb016a10ae96d8787362dce7445a6a9876bc4a54e1e4b225ec82cda546
+F src/url.c 81724044810a3b94cc2e80acad7ee60cdf5675404b5dac5778ddea7059789e97
 F src/user.c 579a6e93785511acd24aaad6db86834334269f11a1d8c3c6f855feb9c1eae6eb
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
@@ -952,11 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53a065900f045ca6b08cc9df6a1e877d181bed1171976ed11444e17155fbc7f1
-R 9adf504be152cf5e90295cc3c275e74d
-T *branch * ssh-path-prefix
-T *sym-ssh-path-prefix *
-T -sym-trunk *
+P d07689d11d36645cfc460008704205c93dd60fd8f52a9ee2eb24e5e50cbc6a91
+R 8bce6b676d2ef81480771bd08ec52f0f
 U drh
-Z 32cf320004da93231df1152457d4c1b7
+Z 41f131a06847e69a5489972c5d73a27a
 # Remove this line to create a well-formed Fossil manifest.

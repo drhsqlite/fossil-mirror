@@ -115,7 +115,7 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
-  pUrlData->pwConfig = 0;
+  memset(pUrlData, 0, sizeof(*pUrlData));
   if( urlFlags & URL_USE_CONFIG ){
     if( zUrl==0 || strcmp(zUrl,"default")==0 ){
       const char *zPwConfig = "last-sync-pw";
@@ -164,8 +164,6 @@ void url_parse_local(
     char *zExe;
     char cQuerySep = '?';
 
-    pUrlData->isFile = 0;
-    pUrlData->useProxy = 0;
     if( zUrl[4]=='s' ){
       pUrlData->isHttps = 1;
       pUrlData->protocol = "https";
@@ -462,6 +460,32 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
 }
 
 /*
+** Print the content of g.url
+*/
+void urlparse_print(int showPw){
+  fossil_print("g.url.isFile    = %d\n", g.url.isFile);
+  fossil_print("g.url.isHttps   = %d\n", g.url.isHttps);
+  fossil_print("g.url.isSsh     = %d\n", g.url.isSsh);
+  fossil_print("g.url.protocol  = %s\n", g.url.protocol);
+  fossil_print("g.url.name      = %s\n", g.url.name);
+  fossil_print("g.url.port      = %d\n", g.url.port);
+  fossil_print("g.url.dfltPort  = %d\n", g.url.dfltPort);
+  fossil_print("g.url.hostname  = %s\n", g.url.hostname);
+  fossil_print("g.url.path      = %s\n", g.url.path);
+  fossil_print("g.url.user      = %s\n", g.url.user);
+  if( showPw || g.url.pwConfig==0 ){
+    fossil_print("g.url.passwd    = %s\n", g.url.passwd);
+  }else{
+    fossil_print("g.url.passwd    = ************\n");
+  }
+  fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
+  fossil_print("g.url.canonical = %s\n", g.url.canonical);
+  fossil_print("g.url.fossil    = %s\n", g.url.fossil);
+  fossil_print("g.url.flags     = 0x%04x\n", g.url.flags);
+  fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
+}
+
+/*
 ** COMMAND: test-urlparser
 **
 ** Usage: %fossil test-urlparser URL ?options?
@@ -489,26 +513,7 @@ void cmd_test_urlparser(void){
   }
   url_parse(g.argv[2], fg);
   for(i=0; i<2; i++){
-    fossil_print("g.url.isFile    = %d\n", g.url.isFile);
-    fossil_print("g.url.isHttps   = %d\n", g.url.isHttps);
-    fossil_print("g.url.isSsh     = %d\n", g.url.isSsh);
-    fossil_print("g.url.protocol  = %s\n", g.url.protocol);
-    fossil_print("g.url.name      = %s\n", g.url.name);
-    fossil_print("g.url.port      = %d\n", g.url.port);
-    fossil_print("g.url.dfltPort  = %d\n", g.url.dfltPort);
-    fossil_print("g.url.hostname  = %s\n", g.url.hostname);
-    fossil_print("g.url.path      = %s\n", g.url.path);
-    fossil_print("g.url.user      = %s\n", g.url.user);
-    if( showPw || g.url.pwConfig==0 ){
-      fossil_print("g.url.passwd    = %s\n", g.url.passwd);
-    }else{
-      fossil_print("g.url.passwd    = ************\n");
-    }
-    fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
-    fossil_print("g.url.canonical = %s\n", g.url.canonical);
-    fossil_print("g.url.fossil    = %s\n", g.url.fossil);
-    fossil_print("g.url.flags     = 0x%04x\n", g.url.flags);
-    fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
+    urlparse_print(showPw);
     if( g.url.isFile || g.url.isSsh ) break;
     if( i==0 ){
       fossil_print("********\n");
