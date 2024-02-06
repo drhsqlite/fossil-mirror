@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\spatch\spush"\sand\s"fossil\spatch\spull"\scommands\sso\sthat,\slike\n"fossil\ssync",\sthey\sinitial\stry\sto\srun\sssh\swithout\sthe\sPATH=\sargument,\sbut\nadd\sin\sthe\sPATH=\sargument\sif\sthe\sinitial\sattempt\sdoes\snot\swork.
-D 2024-02-06T23:18:34.253
+C Detailed\sheader\scomment\son\sthe\sssh_add_path_argument()\sfunction\sexplaining\nwhat\sthis\sPATH=\sbusiness\sis\sall\sabout,\sfor\sfuture\sreference.
+D 2024-02-06T23:45:06.593
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -459,7 +459,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 73d317580b0ea2194d0b64955b00589ad2d556cf056c589ca30a0479928a10d8
+F src/http.c 3d84a581e2fb0554e4766282ec0b37531f150ea2d6a8a109643c0d596cdbc77b
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P efd3a5ec0760f59b9507a6852aa1b4e70dd143b61ff0cea5d5fa46be3b88d25c
-R 84bc37843dc26c9e1731255305ec483a
+P eb135ef204f467963fe293ffa14f88aae7556c38e7a6931849aee0eac39db108
+R 5ac81ea5d20cb5f6dd57115997b23dd3
 U drh
-Z 7a11e3dfab089f32363e0ffc1708d2cf
+Z 85efed6d805170133cc7a06337f6d0b0
 # Remove this line to create a well-formed Fossil manifest.

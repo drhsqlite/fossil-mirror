@@ -273,12 +273,14 @@ static int http_exchange_external(
 }
 
 /* If iTruth<0 then guess as to whether or not a PATH= argument is required
-** when using ssh to run fossil on a remote machine name zHostname.
+** when using ssh to run fossil on a remote machine name zHostname.  Return
+** true if a PATH= should be provided and 0 if not.
 **
 ** If iTruth is 1 or 0 then that means that the PATH= is or is not required,
 ** respectively.  Record this fact for future reference.
 **
-** If iTruth is 99 or more, then toggle the truth value.
+** If iTruth is 99 or more, then toggle the value that will be returned
+** for future iTruth==(-1) queries.
 */
 int ssh_needs_path_argument(const char *zHostname, int iTruth){
   int ans = 0;  /* Default to "no" */
@@ -303,7 +305,7 @@ int ssh_needs_path_argument(const char *zHostname, int iTruth){
 /*
 ** COMMAND: test-ssh-needs-path
 **
-** Usage: fossil test-ssh-needs-path HOSTNAME ?BOOLEAN?
+** Usage: fossil test-ssh-needs-path ?HOSTNAME? ?BOOLEAN?
 **
 ** With one argument, show whether or not the PATH= argument is included
 ** by default for HOSTNAME.  If the second argument is a boolean, then
@@ -334,6 +336,53 @@ void test_ssh_needs_path(void){
 
 /* Add an approprate PATH= argument to the SSH command under construction
 ** in pCmd.
+**
+** About This Feature
+** ==================
+**
+** On some ssh servers (Macs in particular are guilty of this) the PATH
+** variable in the shell that runs the command that is sent to the remote
+** host contains a limited number of read-only system directories:
+**
+**      /usr/bin:/bin:/usr/sbin:/sbin
+**
+** The fossil executable cannot be installed into any of those directories
+** because they are locked down, and so the "fossil" command cannot run.
+**
+** To work around this, the fossil command is prefixed with the PATH=
+** argument, inserted by this function, to augment the PATH with additional
+** directories in which the fossil executable is often found.
+**
+** But other ssh servers are confused by this initial PATH= argument.
+** Some ssh servers have a list of programs that they are allowed to run
+** and will fail if the first argument is not on that list, and PATH=....
+** is not on that list.
+**
+** So that various commands that use ssh can run seamlessly on a variety
+** of systems (commands that use ssh include "fossil sync" with an ssh:
+** URL and the "fossil patch pull" and "fossil patch push" commands where
+** the destination directory starts with HOSTNAME: or USER@HOSTNAME:.)
+** the following algorithm is used:
+**
+**   *  First try running the fossil without any PATH= argument.  If that
+**      works (and it does on a majority of systems) then we are done.
+**
+**   *  If the first attempt fails, then try again after adding the
+**      PATH= prefix argument.  (This function is what adds that
+**      argument.)  If the retry works, then remember that fact using
+**      the use-path-for-ssh:HOSTNAME setting so that the first step
+**      is skipped on subsequent uses of the same command.
+**
+** See the forum thread at
+** https://fossil-scm.org/forum/forumpost/4903cb4b691af7ce for more
+** background.
+**
+** See also:
+**
+**   *  The ssh_needs_path_argument() function above.
+**   *  The test-ssh-needs-path command that shows the settings
+**      that cache whether or not a PATH= is needed for a particular
+**      HOSTNAME.
 */
 void ssh_add_path_argument(Blob *pCmd){
   blob_append_escaped_arg(pCmd, 
