@@ -527,7 +527,12 @@ int http_exchange(
     }else{
       /* The problem could not be corrected by retrying.  Report the
       ** the error. */
-      fossil_warning("server did not reply");
+      if( g.url.isSsh && !g.fSshTrace ){
+        fossil_warning("server did not reply: "
+                       " rerun with --sshtrace for diagnostics");
+      }else{
+        fossil_warning("server did not reply");
+      }
       goto write_err;
     }
   }

@@ -1,5 +1,5 @@
-C Always\sadjust\sthe\suse-path-for-ssh\ssetting\swhen\san\sssh\sretry\ssucceeds,\seven\nif\sthe\sREMEMBER\sflag\sis\snot\sset.\s\sAnd\sstore\sthe\ssetting\slocally\sinstead\sof\nglobally.
-D 2024-02-06T12:01:00.706
+C Stderr\sof\sssh\ssubcommand\sgoes\sis\sread\sby\sthe\smain\sprocess\snow,\sinstead\sof\ngoing\sto\sthe\sconsole.\s\sImproved\serror\smessages\sfollowing\sfailure\son\sssh:\nsync.
+D 2024-02-06T13:57:15.617
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -459,7 +459,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c ae3e4b6d34e7d6a7d8648e016ad87160d97c64235a4e425bc0b7c9407397b6ae
+F src/http.c 781842c8fff96506fdd5038b3b4bc906cff683df6132f4113148d2c109e06655
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c 83b0d4c62b6c189c16cb9cb06437204acfe07d74e8340d49db6dcffa2232a1d4
@@ -504,7 +504,7 @@ F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c e37c19e50035659549519b165c14ceddf7d2b39eb679d88650ee26918e8cdbd5
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
-F src/popen.c 7705e4474a4157b238729ef8885ad117fcfa4654647164acc9c1609eab27c9b4
+F src/popen.c 09d66813a27ddf13e915b6d1acb14edce13e9d66a86c508d1c96b78469f34bc1
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 55969293e294bdf28743924dece909d368d9d0fb15f58761caf4255acfd94398
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07e092ab3950718355c38dce70736ae9f551db47b3e476362fd09e2b3dd97a77
-R e98832f9ecae5b871e7cd68b258019b0
+P 857495ec92a521bb5472105679b50330818e2f22766c68731e75df1f37f32183
+R 4977c1072a5fe689eb8d6638bf5ff8c0
 U drh
-Z c17d55debe9ed98c1eeed4caa0274189
+Z 32ddea40bf0f9b796f51d41ffb2d7fed
 # Remove this line to create a well-formed Fossil manifest.
