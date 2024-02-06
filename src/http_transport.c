@@ -142,10 +142,7 @@ int transport_ssh_open(UrlData *pUrlData){
   if( (pUrlData->flags & URL_SSH_EXE)==0
    && (pUrlData->flags & URL_SSH_PATH)!=0 
   ){
-    blob_append_escaped_arg(&zCmd, 
-     /*  tag-20240206-b:
-     **  vvvv---  keep in sync with PATH= at tag-20240206-a */
-        "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
+    ssh_add_path_argument(&zCmd);
   }
   blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);

@@ -696,10 +696,7 @@ static FILE *patch_remote_command(
     blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);
     if( zFossilCmd==0 ){
-      blob_append_escaped_arg(&cmd,
-        /*  tag-20240206-a:
-        **  vvvv----  Keep in sync with the PATH= in tag-20240206-b */
-           "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 0);
+      ssh_add_path_argument(&cmd);
       zFossilCmd = "fossil";
     }
     blob_appendf(&remote, "%$ patch %s%s --dir64 %z -",

@@ -272,6 +272,35 @@ static int http_exchange_external(
   return rc;
 }
 
+/* If iTruth<0 then guess as to whether or not a PATH= argument is required
+** when using ssh to run fossil on a remote machine name zHostname.
+**
+** If iTruth is 1 or 0 then that means that the PATH= is or is not required,
+** respectively.  Record this fact for future reference.
+*/
+int ssh_needs_path_argument(const char *zHostname, int iTruth){
+  int ans = 0;  /* Default to "no" */
+  char *z = mprintf("use-path-for-ssh:%s", zHostname);
+  if( iTruth<0 ){
+    if( db_get_boolean(z/*works-like:"x"*/, 0) ) ans = 1;
+  }else if( iTruth ){
+    ans = 1;
+    db_set(z/*works-like:"x"*/, "1", 0);
+  }else{
+    db_unset(z/*works-like:"x"*/, 0);
+  }
+  fossil_free(z);
+  return ans;
+}
+
+/* Add an approprate PATH= argument to the SSH command under construction
+** in pCmd.
+*/
+void ssh_add_path_argument(Blob *pCmd){
+  blob_append_escaped_arg(pCmd, 
+     "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
+}
+
 /*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
@@ -310,12 +339,11 @@ int http_exchange(
   /* Activate the PATH= auxiliary argument to the ssh command if that
   ** is called for.
   */
-  if( g.url.isSsh && (g.url.flags & URL_SSH_RETRY)==0 ){
-    char *z = mprintf("use-path-for-ssh:%s", g.url.hostname);
-    if( db_get_boolean(z/*works-like:"x"*/, 0) ){
-      g.url.flags |= URL_SSH_PATH;
-    }
-    fossil_free(z);
+  if( g.url.isSsh
+   && (g.url.flags & URL_SSH_RETRY)==0
+   && ssh_needs_path_argument(g.url.hostname, -1)
+  ){
+    g.url.flags |= URL_SSH_PATH;
   }
 
   if( transport_open(&g.url) ){
@@ -517,13 +545,8 @@ int http_exchange(
       g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
       rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
       if( rc==0 ){
-        char *z = mprintf("use-path-for-ssh:%s", g.url.hostname);
-        if( (g.url.flags & URL_SSH_PATH) ){
-          db_set(z/*works-like:"x"*/, "1", 0);
-        }else{
-          db_unset(z/*works-like:"x"*/, 0);
-        }
-        fossil_free(z);
+        (void)ssh_needs_path_argument(g.url.hostname,
+                                (g.url.flags & URL_SSH_PATH)!=0);
       }
       return rc;
     }else{
