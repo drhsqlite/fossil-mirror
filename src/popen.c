@@ -196,7 +196,7 @@ int popen2(
     if( fd!=1 ) fossil_panic("popen() failed to open file descriptor 1");
     close(pin[0]);
     close(pin[1]);
-    close(2); dup(1);  /* Redirect stderr into the stdout pipe */
+    close(2); (void)dup(1);  /* Redirect stderr into the stdout pipe */
     if( bDirect ){
       execl(zCmd, zCmd, (char*)0);
     }else{
