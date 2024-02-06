@@ -21,6 +21,7 @@
 #include "config.h"
 #include "diff.h"
 #include <assert.h>
+#include <errno.h>
 
 
 #if INTERFACE
@@ -3159,9 +3160,13 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   }
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))!=0 ){
-    pCfg->nContext = f;
-    diffFlags |= DIFF_CONTEXT_EX;
+  if( (z = find_option("context","c",1))!=0 ){
+    char *zEnd;
+    f = (int)strtol(z, &zEnd, 10);
+    if( zEnd[0]==0 && errno!=ERANGE ){
+      pCfg->nContext = f;
+      diffFlags |= DIFF_CONTEXT_EX;
+    }
   }
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
     pCfg->wColumn = f;

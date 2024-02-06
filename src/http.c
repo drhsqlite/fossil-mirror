@@ -307,6 +307,17 @@ int http_exchange(
     return http_exchange_external(pSend,pReply,mHttpFlags,zAltMimetype);
   }
 
+  /* Activate the PATH= auxiliary argument to the ssh command if that
+  ** is called for.
+  */
+  if( g.url.isSsh && (g.url.flags & URL_SSH_RETRY)==0 ){
+    char *z = mprintf("use-path-for-ssh:%s", g.url.hostname);
+    if( db_get_boolean(z/*works-like:"x"*/, 0) ){
+      g.url.flags |= URL_SSH_PATH;
+    }
+    fossil_free(z);
+  }
+
   if( transport_open(&g.url) ){
     fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
@@ -486,8 +497,44 @@ int http_exchange(
     }
   }
   if( iLength<0 ){
-    fossil_warning("server did not reply");
-    goto write_err;
+    /* We got nothing back from the server.  If using the ssh: protocol,
+    ** this might mean we need to add or remove the PATH=... argument
+    ** to the SSH command being sent.  If that is the case, retry the
+    ** request after adding or removing the PATH= argument.
+    */
+    if( g.url.isSsh                         /* This is an SSH: sync */
+     && (g.url.flags & URL_SSH_EXE)==0      /* Does not have ?fossil=.... */
+     && (g.url.flags & URL_SSH_RETRY)==0    /* Not retried already */
+    ){
+      /* Retry after flipping the SSH_PATH setting */
+      transport_close(&g.url);
+      if( g.fSshTrace ){
+         printf("Retry after %s the PATH= argument to the SSH command\n",
+                 (g.url.flags & URL_SSH_PATH)!=0 ? "removing" : "adding");
+      }
+      g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
+      rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
+      if( rc==0 ){
+        char *z = mprintf("use-path-for-ssh:%s", g.url.hostname);
+        if( (g.url.flags & URL_SSH_PATH) ){
+          db_set(z/*works-like:"x"*/, "1", 0);
+        }else{
+          db_unset(z/*works-like:"x"*/, 0);
+        }
+        fossil_free(z);
+      }
+      return rc;
+    }else{
+      /* The problem could not be corrected by retrying.  Report the
+      ** the error. */
+      if( g.url.isSsh && !g.fSshTrace ){
+        fossil_warning("server did not reply: "
+                       " rerun with --sshtrace for diagnostics");
+      }else{
+        fossil_warning("server did not reply");
+      }
+      goto write_err;
+    }
   }
   if( rc!=200 ){
     fossil_warning("\"location:\" missing from %d redirect reply", rc);

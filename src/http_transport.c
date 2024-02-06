@@ -133,11 +133,18 @@ int transport_ssh_open(UrlData *pUrlData){
   }else{
     blob_append_escaped_arg(&zCmd, pUrlData->name, 0);
   }
-  if( !is_safe_fossil_command(pUrlData->fossil) ){
+  if( (pUrlData->flags & URL_SSH_EXE)!=0
+   && !is_safe_fossil_command(pUrlData->fossil)
+  ){
     fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
                  "the server.", pUrlData->fossil);
   }
-  blob_append_escaped_arg(&zCmd, "PATH=$HOME/bin:$PATH", 1);
+  if( (pUrlData->flags & URL_SSH_EXE)==0
+   && (pUrlData->flags & URL_SSH_PATH)!=0 
+  ){
+    blob_append_escaped_arg(&zCmd, 
+        "PATH=bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
+  }
   blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
@@ -315,7 +322,7 @@ void transport_rewind(UrlData *pUrlData){
 */
 static int transport_fetch(UrlData *pUrlData, char *zBuf, int N){
   int got;
-  if( sshIn ){
+  if( pUrlData->isSsh ){
     int x;
     int wanted = N;
     got = 0;
