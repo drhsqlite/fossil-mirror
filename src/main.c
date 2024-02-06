@@ -3354,7 +3354,8 @@ void cmd_webserver(void){
        iPort, iPort, zRemote
     );
     if( zFossilCmd==0 ){
-      blob_appendf(&ssh, " %$ fossil", "PATH=$HOME/bin:$PATH");
+      ssh_add_path_argument(&ssh);
+      blob_append_escaped_arg(&ssh, "fossil", 1);
     }else{
       blob_appendf(&ssh, " %$", zFossilCmd);
     }

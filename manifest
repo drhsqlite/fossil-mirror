@@ -1,5 +1,5 @@
-C Detailed\sheader\scomment\son\sthe\sssh_add_path_argument()\sfunction\sexplaining\nwhat\sthis\sPATH=\sbusiness\sis\sall\sabout,\sfor\sfuture\sreference.
-D 2024-02-06T23:45:06.593
+C Make\suse\sof\sthe\sssh_add_path_argument()\sfunction\sfor\sthe\simplementation\nof\s"fossil\sui\sREMOTE:folder".
+D 2024-02-06T23:59:14.369
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -487,7 +487,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 380ef2e3e0e9eeec88c99463e00e1f1297de65e78828f211e0dde8c4786c16ac
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 1c964153158b49f1221016f3897074361b0a05f26588e0df6e7313c76409adc4
+F src/main.c 314afd3eae3997f5be6f6efff13da7641c7507244eec02a77aeabd9fe671530e
 F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb135ef204f467963fe293ffa14f88aae7556c38e7a6931849aee0eac39db108
-R 5ac81ea5d20cb5f6dd57115997b23dd3
+P ac52d12e66d71692a30116bc76d5cdca25ace9d48e95110600f56950485dc899
+R 1ad2c7a7057477752184a8210f439271
 U drh
-Z 85efed6d805170133cc7a06337f6d0b0
+Z e74bcbb4ad6fc7a93e54398895e4bd3d
 # Remove this line to create a well-formed Fossil manifest.
