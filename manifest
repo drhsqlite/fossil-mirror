@@ -1,5 +1,5 @@
-C Bring\sthe\sPATH=\sarguments\sfor\ssync\sand\spatch\sinto\sagreement.
-D 2024-02-06T14:49:53.028
+C Print\sa\sdiagnostic\smessage\sif\sthe\sfirst\sattempt\sto\sconnect\sto\sa\sremote\susing\nSSH\sfails\sand\sa\sretry\swith\sor\swithout\sPATH=\sis\sabout\sto\scommence.\s\sSee\n[forum:/forumpost/9584923cf6|forum\spost\s9584923cf6]\sfor\san\sexplanation\sof\nwhy\sthis\sis\simportant.
+D 2024-02-06T15:03:49.483
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -459,7 +459,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 781842c8fff96506fdd5038b3b4bc906cff683df6132f4113148d2c109e06655
+F src/http.c a6375991641d192768d2313a86efc3bfc6c0191cc4396e8171d4d69985be1c2c
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c 19826fcd949ed312ab02a1a66fcf33078a93b8e084eb6b883c59dabf02574d2e
@@ -499,7 +499,7 @@ F src/merge.c a3e9edb0939858da2f538a9bc827278a1fcfb99d9b46bdcefc912966619eaee7
 F src/merge3.c 19b67bb5c7742daa22348de9efd2db11de51a6f9e20940277e8557d187dd6147
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 5ed908081564cb980ac7edd803d1ee239805eca43e784bfd9deae28b3a59beb9
-F src/patch.c 97831f0a270677783594a96090c9dbda367fa2d50e1969505c85e4aac02377b1
+F src/patch.c 99f3558d7dae10b00b4eb72f888d6076cc8332e07eb171b94188a65861a303ed
 F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c e37c19e50035659549519b165c14ceddf7d2b39eb679d88650ee26918e8cdbd5
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b1483634c6284812e16127294e569c2dcf7efaa4418d5bc69447a0c02230f994
-R eb2a516c76c112b17ab63676a53c2759
+P b2619342c7e71e3ff57d803378fbb59b60306b51f8ce93906a41caf5fc6e4148
+R 439c837bbfe95575bfa4d2d2f6ff1b2e
 U drh
-Z 1cb124abc654760fcf2c271dc661be24
+Z 42bfcff19f7502915deea058481c3d0c
 # Remove this line to create a well-formed Fossil manifest.
