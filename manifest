@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2024-02-06T14:00:02.292
+C Another\sattempt\sto\sfix\sthe\sharmless\scompiler\swarning\sin\spopen2().
+D 2024-02-06T14:07:41.791
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -504,7 +504,7 @@ F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c e37c19e50035659549519b165c14ceddf7d2b39eb679d88650ee26918e8cdbd5
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
-F src/popen.c 09d66813a27ddf13e915b6d1acb14edce13e9d66a86c508d1c96b78469f34bc1
+F src/popen.c a731693eb7d78b9e44870cffa7749ec8bed9e90f0baf8a4533002189e32d1ce7
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 55969293e294bdf28743924dece909d368d9d0fb15f58761caf4255acfd94398
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb156a12bfa2aefbca413f9b7affa2b299d5eefb28ab0d16e92e9c97e3e8a00a
-R 428bcf6df5cbb255e14b032f1f1b19f8
+P beec145ff3e3c8577848c82531bc9c3b76020871b6e4cf3385d97b1e89953276
+R 9c263a83e8729968c755ff79e3dec574
 U drh
-Z e3b95f96d6698ad5dda9f96848cda428
+Z 3323d44dde5b38f52ac53cb53582a627
 # Remove this line to create a well-formed Fossil manifest.
