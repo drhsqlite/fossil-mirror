@@ -1,5 +1,5 @@
-C Stderr\sof\sssh\ssubcommand\sgoes\sis\sread\sby\sthe\smain\sprocess\snow,\sinstead\sof\ngoing\sto\sthe\sconsole.\s\sImproved\serror\smessages\sfollowing\sfailure\son\sssh:\nsync.
-D 2024-02-06T13:57:15.617
+C Updates\sto\sthe\schange\slog.
+D 2024-02-06T14:00:02.292
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -777,7 +777,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 2e73aa5a6d8b7014c98dc8bc20ff7b8627606b363879b815c4e7f5e4d8672515
-F www/changes.wiki 0f2052d15a9625d11d5090af6ff206507bec5042ef25820b9db82cea7351066c
+F www/changes.wiki 9a1f32f5eb61ad6b032ed646a177b488c7f440e274a9fe71a05565ffd261f970
 F www/chat.md 9f74638d3c0d5c3525cf14893fcb5b4f6d2bbbbaffbe1dcc7a55d894acc92f60
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 04658e093bf10552fbc8d4bb6bce7d48e3212f07469b2c263e220313f73ffebf
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 857495ec92a521bb5472105679b50330818e2f22766c68731e75df1f37f32183
-R 4977c1072a5fe689eb8d6638bf5ff8c0
+P fb156a12bfa2aefbca413f9b7affa2b299d5eefb28ab0d16e92e9c97e3e8a00a
+R 428bcf6df5cbb255e14b032f1f1b19f8
 U drh
-Z 32ddea40bf0f9b796f51d41ffb2d7fed
+Z e3b95f96d6698ad5dda9f96848cda428
 # Remove this line to create a well-formed Fossil manifest.
