@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning\sin\spopen2().
-D 2024-02-06T11:24:45.480
+C Always\sadjust\sthe\suse-path-for-ssh\ssetting\swhen\san\sssh\sretry\ssucceeds,\seven\nif\sthe\sREMEMBER\sflag\sis\snot\sset.\s\sAnd\sstore\sthe\ssetting\slocally\sinstead\sof\nglobally.
+D 2024-02-06T12:01:00.706
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -459,7 +459,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 5c06c6778e8f6b1450c16ca133da84cc44d3f573b7091e69dc0388b51a175305
+F src/http.c ae3e4b6d34e7d6a7d8648e016ad87160d97c64235a4e425bc0b7c9407397b6ae
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c 83b0d4c62b6c189c16cb9cb06437204acfe07d74e8340d49db6dcffa2232a1d4
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cbf27ece6cf90c126909e33cf063ead6dae68d873b8e1f0f8b76957a7d2baf03
-R f78ede21d311d2de3f76734af7bf66fe
+P 07e092ab3950718355c38dce70736ae9f551db47b3e476362fd09e2b3dd97a77
+R e98832f9ecae5b871e7cd68b258019b0
 U drh
-Z a01de51049025d46f7d97954f654fd84
+Z c17d55debe9ed98c1eeed4caa0274189
 # Remove this line to create a well-formed Fossil manifest.

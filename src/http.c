@@ -514,12 +514,12 @@ int http_exchange(
       }
       g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
       rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
-      if( rc==0 && (g.url.flags & URL_REMEMBER)!=0 ){
+      if( rc==0 ){
         char *z = mprintf("use-path-for-ssh:%s", g.url.hostname);
         if( (g.url.flags & URL_SSH_PATH) ){
-          db_set(z/*works-like:"x"*/, "1", 1);
+          db_set(z/*works-like:"x"*/, "1", 0);
         }else{
-          db_unset(z/*works-like:"x"*/, 1);
+          db_unset(z/*works-like:"x"*/, 0);
         }
         fossil_free(z);
       }
