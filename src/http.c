@@ -277,20 +277,59 @@ static int http_exchange_external(
 **
 ** If iTruth is 1 or 0 then that means that the PATH= is or is not required,
 ** respectively.  Record this fact for future reference.
+**
+** If iTruth is 99 or more, then toggle the truth value.
 */
 int ssh_needs_path_argument(const char *zHostname, int iTruth){
   int ans = 0;  /* Default to "no" */
   char *z = mprintf("use-path-for-ssh:%s", zHostname);
   if( iTruth<0 ){
     if( db_get_boolean(z/*works-like:"x"*/, 0) ) ans = 1;
-  }else if( iTruth ){
-    ans = 1;
-    db_set(z/*works-like:"x"*/, "1", 0);
   }else{
-    db_unset(z/*works-like:"x"*/, 0);
+    if( iTruth>=99 ){
+      iTruth = !db_get_boolean(z/*works-like:"x"*/, 0);
+    }
+    if( iTruth ){
+      ans = 1;
+      db_set(z/*works-like:"x"*/, "1", 0);
+    }else{
+      db_unset(z/*works-like:"x"*/, 0);
+    }
   }
   fossil_free(z);
   return ans;
+}
+
+/*
+** COMMAND: test-ssh-needs-path
+**
+** Usage: fossil test-ssh-needs-path HOSTNAME ?BOOLEAN?
+**
+** With one argument, show whether or not the PATH= argument is included
+** by default for HOSTNAME.  If the second argument is a boolean, then
+** change the value.
+**
+** With no arguments, show all hosts for which ssh-needs-path is true.
+*/
+void test_ssh_needs_path(void){
+  db_find_and_open_repository(0,0);
+  if( g.argc>=3 ){
+    const char *zHost = g.argv[2];
+    int a = -1;
+    int rc;
+    if( g.argc>=4 ) a = is_truth(g.argv[3]);
+    rc = ssh_needs_path_argument(zHost, a);
+    fossil_print("%-20s %s\n", zHost, rc ? "yes" : "no");
+  }else{
+    Stmt s;
+    db_prepare(&s, "SELECT substr(name,18) FROM config"
+                   " WHERE name GLOB 'use-path-for-ssh:*'");
+    while( db_step(&s)==SQLITE_ROW ){
+      const char *zHost = db_column_text(&s,0);
+      fossil_print("%-20s yes\n", zHost);
+    }
+    db_finalize(&s);
+  }
 }
 
 /* Add an approprate PATH= argument to the SSH command under construction
