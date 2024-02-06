@@ -322,7 +322,7 @@ void transport_rewind(UrlData *pUrlData){
 */
 static int transport_fetch(UrlData *pUrlData, char *zBuf, int N){
   int got;
-  if( sshIn ){
+  if( pUrlData->isSsh ){
     int x;
     int wanted = N;
     got = 0;
