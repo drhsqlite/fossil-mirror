@@ -293,9 +293,9 @@ int ssh_needs_path_argument(const char *zHostname, int iTruth){
     }
     if( iTruth ){
       ans = 1;
-      db_set(z/*works-like:"x"*/, "1", 0);
+      db_set(z/*works-like:"x"*/, "1", 1);
     }else{
-      db_unset(z/*works-like:"x"*/, 0);
+      db_unset(z/*works-like:"x"*/, 1);
     }
   }
   fossil_free(z);

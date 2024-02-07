@@ -1,5 +1,5 @@
-C Make\suse\sof\sthe\sssh_add_path_argument()\sfunction\sfor\sthe\simplementation\nof\s"fossil\sui\sREMOTE:folder".
-D 2024-02-06T23:59:14.369
+C For\sthe\s"fossil\sui\sREMOTE:path"\scommand,\sinitially\somit\sthe\sPATH=\sprefix\nbut\sadd\sit\sin\sif\sthe\sinitial\sattempt\sfails\sto\sfind\sa\sfossil\sexecutable.
+D 2024-02-07T12:16:30.374
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -459,7 +459,7 @@ F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 3d84a581e2fb0554e4766282ec0b37531f150ea2d6a8a109643c0d596cdbc77b
+F src/http.c f354090d659adec1c540f509f85a4c2aa718bb9ea8f3bcda4a652f74d6705454
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
@@ -487,7 +487,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 380ef2e3e0e9eeec88c99463e00e1f1297de65e78828f211e0dde8c4786c16ac
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 314afd3eae3997f5be6f6efff13da7641c7507244eec02a77aeabd9fe671530e
+F src/main.c 7ff22450f3d31aa51bf8ac01e66b7e7572df4b6a1f621e880443d7c356b39de4
 F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac52d12e66d71692a30116bc76d5cdca25ace9d48e95110600f56950485dc899
-R 1ad2c7a7057477752184a8210f439271
+P 151406f34c4632bd528c937d5eb4007566e78cf8aded761a3c37539d397b865c
+R 60ec245b0929ec7f4373902f130950b7
 U drh
-Z e74bcbb4ad6fc7a93e54398895e4bd3d
+Z 8c17525fcb1932a8c782167c688e3f00
 # Remove this line to create a well-formed Fossil manifest.
