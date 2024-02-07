@@ -131,7 +131,7 @@ int popen2(
   int bDirect            /* 0: run zCmd as a shell cmd.  1: run directly */
 ){
 #ifdef _WIN32
-  HANDLE hStdinRd, hStdinWr, hStdoutRd, hStdoutWr;
+  HANDLE hStdinRd, hStdinWr, hStdoutRd, hStdoutWr, hStderr;
   SECURITY_ATTRIBUTES saAttr;
   DWORD childPid = 0;
   int fd;
@@ -139,6 +139,7 @@ int popen2(
   saAttr.nLength = sizeof(saAttr);
   saAttr.bInheritHandle = TRUE;
   saAttr.lpSecurityDescriptor = NULL;
+  hStderr = GetStdHandle(STD_ERROR_HANDLE);
   if( !CreatePipe(&hStdoutRd, &hStdoutWr, &saAttr, 4096) ){
     win32_fatal_error("cannot create pipe for stdout");
   }
@@ -150,12 +151,7 @@ int popen2(
   SetHandleInformation( hStdinWr, HANDLE_FLAG_INHERIT, FALSE);
 
   win32_create_child_process(fossil_utf8_to_unicode(zCmd),
-                             hStdinRd,hStdoutWr,hStdoutWr,&childPid);
-             /*                       ^^^^^^^^^ ^^^^^^^^^
-             **             Send both stdout and stderr to to *ppOut.
-             ** See check-in 857495ec92a521bb (2024-02-06) and earlier for
-             ** an example of how to leave stderr going to console */
-
+                             hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
   *pfdIn = _open_osfhandle(PTR_TO_INT(hStdoutRd), 0);
   fd = _open_osfhandle(PTR_TO_INT(hStdinWr), 0);
@@ -200,9 +196,6 @@ int popen2(
     if( fd!=1 ) fossil_panic("popen() failed to open file descriptor 1");
     close(pin[0]);
     close(pin[1]);
-    close(2);
-    fd = dup(1);
-    if( fd!=2 ) fossil_panic("popen() failed to redirect stderr into stdout");
     if( bDirect ){
       execl(zCmd, zCmd, (char*)0);
     }else{
