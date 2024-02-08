@@ -1570,6 +1570,93 @@ const char *timeline_expand_datetime(const char *zIn){
   return zEDate;
 }
 
+/*
+** Find the first check-in encountered with a particular tag
+** when moving either forwards are backwards in time from a
+** particular starting point (iFrom).  Return the rid of that
+** first check-in.  If there are no check-ins in the decendent
+** or ancestor set of check-in iFrom that match the tag, then
+** return 0.
+*/
+static int timeline_endpoint(
+  int iFrom,         /* Starting point */
+  const char *zEnd,  /* Tag we are searching for */   
+  int bForward       /* 1: forwards in time (descendents) 0: backwards */
+){
+  int tagId;
+  int endId = 0;
+  Stmt q;
+  int ans = 0;
+
+  tagId = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zEnd);
+  if( tagId==0 ){
+    endId = symbolic_name_to_rid(zEnd, "ci");
+    if( endId==0 ) return 0;
+  }
+  if( bForward ){
+    if( tagId ){
+      db_prepare(&q,
+        "WITH RECURSIVE dx(id,mtime) AS ("
+        "  SELECT %d, event.mtime FROM event WHERE objid=%d"
+        "  UNION ALL"
+        "  SELECT plink.cid, plink.mtime"
+        "    FROM dx, plink"
+        "   WHERE plink.pid=dx.id"
+        "   ORDER BY plink.mtime)"
+        "SELECT id FROM dx, tagxref"
+        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        iFrom, iFrom, tagId
+      );
+    }else{
+      db_prepare(&q,
+        "WITH RECURSIVE dx(id,mtime) AS ("
+        "  SELECT %d, event.mtime FROM event WHERE objid=%d"
+        "  UNION ALL"
+        "  SELECT plink.cid, plink.mtime"
+        "    FROM dx, plink"
+        "   WHERE plink.pid=dx.id"
+        "     AND plink.mtime<=(SELECT mtime FROM event WHERE objid=%d)"
+        "   ORDER BY plink.mtime)"
+        "SELECT id FROM dx WHERE id=%d",
+        iFrom, iFrom, endId, endId
+      );
+    }
+  }else{
+    if( tagId ){
+      db_prepare(&q,
+        "WITH RECURSIVE dx(id,mtime) AS ("
+        "  SELECT %d, event.mtime FROM event WHERE objid=%d"
+        "  UNION ALL"
+        "  SELECT plink.pid, event.mtime"
+        "    FROM dx, plink, event"
+        "   WHERE plink.cid=dx.id AND event.objid=plink.pid"
+        "   ORDER BY event.mtime DESC)"
+        "SELECT id FROM dx, tagxref"
+        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        iFrom, iFrom, tagId
+      );
+    }else{
+      db_prepare(&q,
+        "WITH RECURSIVE dx(id,mtime) AS ("
+        "  SELECT %d, event.mtime FROM event WHERE objid=%d"
+        "  UNION ALL"
+        "  SELECT plink.pid, event.mtime"
+        "    FROM dx, plink, event"
+        "   WHERE plink.cid=dx.id AND event.objid=plink.pid"
+        "     AND event.mtime>=(SELECT mtime FROM event WHERE objid=%d)"
+        "   ORDER BY event.mtime DESC)"
+        "SELECT id FROM dx WHERE id=%d",
+        iFrom, iFrom, endId, endId
+      );
+    }
+  }
+  if( db_step(&q)==SQLITE_ROW ){
+    ans = db_column_int(&q, 0);
+  }
+  db_finalize(&q);
+  return ans;
+}
+
 
 /*
 ** WEBPAGE: timeline
@@ -1600,10 +1687,12 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       ft=DESCENDANT   ... going forward to DESCENDANT
 **    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
-**    bt=CHECKIN      In conjunction with p=CX, this means show all
-**                       ancestors of CX going back to the time of CHECKIN.
-**                       All qualifying check-ins are shown unless there
-**                       is also an n= or n1= query parameter.
+**    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
+**                       p=CX       ... from CX back to time of CHECKIN
+**                       from=CX    ... shortest path from CX back to CHECKIN
+**    ft=CHECKIN      "Forward To":  Show decendents forward to CHECKIN
+**                       d=CX       ... from CX up to the time of CHECKIN
+**                       from=CX    ... shortest path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    tl=TAGLIST      Shorthand for t=TAGLIST&ms=brlist
@@ -1629,6 +1718,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       to=CHECKIN      ... to this
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
+**                       bt=PRIOR        ... path from CHECKIN back to PRIOR
+**                       ft=LATER        ... path from CHECKIN forward to LATER
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **                       All qualifying check-ins are shown unless there is
 **                       also an n= or n1= query parameter.
@@ -1729,6 +1820,7 @@ void page_timeline(void){
   char *zPlural;                      /* Ending for plural forms */
   int showCherrypicks = 1;            /* True to show cherrypick merges */
   int haveParameterN;                 /* True if n= query parameter present */
+  int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
 
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
@@ -2046,6 +2138,25 @@ void page_timeline(void){
       TAG_HIDDEN
     );
   }
+  if( from_rid && !to_rid && (P("ft")!=0 || P("bt")!=0) ){
+    const char *zTo = P("ft");
+    if( zTo ){
+      from_to_mode = 1;
+      to_rid = timeline_endpoint(from_rid, zTo, 1);
+    }else{
+      from_to_mode = 2;
+      zTo = P("bt");
+      to_rid = timeline_endpoint(from_rid, zTo, 0);
+    }
+    if( to_rid ){
+      cgi_replace_parameter("to", zTo);
+      if( selectedRid==0 ) selectedRid = from_rid;
+      if( secondaryRid==0 ) secondaryRid = to_rid;
+    }else{
+      blob_appendf(&desc, "There is no path from %h %s to %h.<br>Instead: ",
+                   P("from"), from_to_mode==1 ? "forward" : "back", zTo);
+    }
+  }
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
     /* If from= and to= are present, display all nodes on a path connecting
     ** the two */
@@ -2056,7 +2167,13 @@ void page_timeline(void){
     int nNodeOnPath = 0;
 
     if( from_rid && to_rid ){
-      p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
+      if( from_to_mode==0 ){
+        p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
+      }else if( from_to_mode==1 ){
+        p = path_shortest(from_rid, to_rid, 0, 1, 0);
+      }else{
+        p = path_shortest(to_rid, from_rid, 0, 1, 0);
+      }
       zFrom = P("from");
       zTo = P("to");
     }else{
@@ -2124,10 +2241,22 @@ void page_timeline(void){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
     }
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
-    blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
+    if( from_to_mode>0 ){
+      blob_appendf(&desc, "%d check-ins on the shorted path from ",nNodeOnPath);
+    }else{
+      blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
+    }
+    if( from_rid==selectedRid ){
+      blob_appendf(&desc, "<span class='timelineSelected'>");
+    }
     blob_appendf(&desc, "%z%h</a>", href("%R/info/%h", zFrom), zFrom);
+    if( from_rid==selectedRid ) blob_appendf(&desc, "</span>");
     blob_append(&desc, " to ", -1);
+    if( to_rid==secondaryRid ){
+      blob_appendf(&desc, "<span class='timelineSelected timelineSecondary'>");
+    }
     blob_appendf(&desc, "%z%h</a>", href("%R/info/%h",zTo), zTo);
+    if( to_rid==secondaryRid )  blob_appendf(&desc, "</span>");
     if( related ){
       int nRelated = db_int(0, "SELECT count(*) FROM timeline") - nNodeOnPath;
       if( nRelated>0 ){
