@@ -1,5 +1,5 @@
-C Change\spopen()\sback\sto\sthe\sway\sit\swas\slast\sweek\s-\sso\sthat\sit\sshows\sstderr\nlines\son\sthe\sconsole\srather\sthan\sconsuming\sthem.
-D 2024-02-07T15:46:13.784
+C Simplification\sto\sthe\sPQueue\sobject\sto\sremove\sthe\scontent\spointer,\swhich\nis\snever\sused.
+D 2024-02-08T01:33:17.633
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -505,7 +505,7 @@ F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e2
 F src/pikchrshow.c e37c19e50035659549519b165c14ceddf7d2b39eb679d88650ee26918e8cdbd5
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
-F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
+F src/pqueue.c d92e2b6cb6b19f894dbd4245ee93df36ea160ecb6fecf6ea80f096a95251c88a
 F src/printf.c 55969293e294bdf28743924dece909d368d9d0fb15f58761caf4255acfd94398
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
@@ -557,7 +557,7 @@ F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c 565cea554cd28456614bffdbda98dbaa9a34101d9365f8b163157752c8a638ea
-F src/tag.c 2f65f203ee8476f21a90a9cfe6cb334c9a92d5616145349c7748779bfd4214fb
+F src/tag.c aeb3dcda74a50cb228545be32d240999e667644ddc24fa360b5163e26e874c22
 F src/tar.c b6a23b6fa52a62880071710c412152b48a0626a01eeedfef4862826d6c4d71c6
 F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629e
 F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 46e7855a4e19200ecde8772f0e988712467b1d29129776eb18221a3d0660a1c0
-R f55789944a90371c993b2697cea2e4b7
+P 274079a2e19a1489d8d3a8df82df36736236a24ca63a0078b94190b7896e2de0
+R 04e945d8f6a205bce39c6d3c34b52081
 U drh
-Z 74c91d65a1d36ad834903a839f82362e
+Z c6ae481b7f245dbb1efc5389ff288c0f
 # Remove this line to create a well-formed Fossil manifest.
