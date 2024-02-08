@@ -2,6 +2,10 @@
 
 <h2 id='v2_24'>Changes for version 2.24 (pending)</h2>
 
+  *  If an ssh: sync fails in a way that suggests that the fossil executable
+     could not be found on the remote host, then retry after adding a PATH=
+     prefix to the command.  This helps "ssh:" to "just work" when the server
+     is a Mac.
   *  Add the x= query paramater to the [/help?cmd=/timeline|/timeline page].
   *  Moved the /museum/repo.fossil file referenced from the Dockerfile from
      the ENTRYPOINT to the CMD part to allow use of --repolist mode.

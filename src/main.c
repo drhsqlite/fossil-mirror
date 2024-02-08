@@ -3067,10 +3067,11 @@ void fossil_set_timeout(int N){
 ** the command is run on the remote host specified and the results are
 ** tunneled back to the local machine via SSH.  This feature only works for
 ** the "fossil ui" command, not the "fossil server" command.  The name of the
-** fossil executable on the remote host is specified by the --fossilcmd option,
-** or if there is no --fossilcmd, it first tries "$HOME/bin/fossil" and if
-** not found there it searches for any executable named "fossil" on the
-** default $PATH set by SSH on the remote.
+** fossil executable on the remote host is specified by the --fossilcmd
+** option, or if there is no --fossilcmd, it first tries "fossil" and if it
+** is not found in the default $PATH set by SSH on the remote, it then adds
+** "$HOME/bin:/usr/local/bin:/opt/homebrew/bin" to the PATH and tries again to
+** run "fossil".
 **
 ** REPOSITORY may also be a directory (aka folder) that contains one or
 ** more repositories with names ending in ".fossil".  In this case, a
@@ -3345,45 +3346,64 @@ void cmd_webserver(void){
     ** tunnel from the local machine to the remote. */
     FILE *sshIn;
     Blob ssh;
+    int bRunning = 0;    /* True when fossil starts up on the remote */
+    int isRetry;         /* True if on the second attempt */        
     char zLine[1000];
+
     blob_init(&ssh, 0, 0);
-    transport_ssh_command(&ssh);
-    db_close_config();
-    blob_appendf(&ssh,
-       " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
-       iPort, iPort, zRemote
-    );
-    if( zFossilCmd==0 ){
-      blob_appendf(&ssh, " %$ fossil", "PATH=$HOME/bin:$PATH");
-    }else{
-      blob_appendf(&ssh, " %$", zFossilCmd);
-    }
-    blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
-    if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
-    if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
-    if( g.zCkoutAlias ) blob_appendf(&ssh, " --ckout-alias %!$",g.zCkoutAlias);
-    if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
-    if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
-    if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
-    if( fCreate ) blob_appendf(&ssh, " --create");
-    blob_appendf(&ssh, " %$", g.argv[2]);
-    fossil_print("%s\n", blob_str(&ssh));
-    sshIn = popen(blob_str(&ssh), "r");
-    if( sshIn==0 ){
-      fossil_fatal("unable to %s", blob_str(&ssh));
-    }
-    while( fgets(zLine, sizeof(zLine), sshIn) ){
-      fputs(zLine, stdout);
-      fflush(stdout);
-      if( zBrowserCmd && sqlite3_strglob("*Listening for HTTP*",zLine)==0 ){
-        char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
-        fossil_system(zCmd);
-        fossil_free(zCmd);
-        fossil_free(zBrowserCmd);
-        zBrowserCmd = 0;
+    for(isRetry=0; isRetry<2 && !bRunning; isRetry++){
+      blob_reset(&ssh);
+      transport_ssh_command(&ssh);
+      blob_appendf(&ssh,
+         " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
+         iPort, iPort, zRemote
+      );
+      if( zFossilCmd==0 ){
+        if( ssh_needs_path_argument(zRemote,-1) ^ isRetry ){
+          ssh_add_path_argument(&ssh);
+        }
+        blob_append_escaped_arg(&ssh, "fossil", 1);
+      }else{
+        blob_appendf(&ssh, " %$", zFossilCmd);
       }
+      blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
+      if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
+      if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
+      if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);
+      if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
+      if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
+      if( fCreate ) blob_appendf(&ssh, " --create");
+      blob_appendf(&ssh, " %$", g.argv[2]);
+      if( isRetry ){
+        fossil_print("First attempt to run \"fossil\" on %s failed\n"
+                     "Retry: ", zRemote);
+      } 
+      fossil_print("%s\n", blob_str(&ssh));
+      sshIn = popen(blob_str(&ssh), "r");
+      if( sshIn==0 ){
+        fossil_fatal("unable to %s", blob_str(&ssh));
+      }
+      while( fgets(zLine, sizeof(zLine), sshIn) ){
+        fputs(zLine, stdout);
+        fflush(stdout);
+        if( !bRunning && sqlite3_strglob("*Listening for HTTP*",zLine)==0 ){
+          bRunning = 1;
+          if( isRetry ){
+            ssh_needs_path_argument(zRemote,99);
+          }
+          db_close_config();
+          if( zBrowserCmd ){
+            char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
+            fossil_system(zCmd);
+            fossil_free(zCmd);
+            fossil_free(zBrowserCmd);
+            zBrowserCmd = 0;
+          }
+        }
+      }
+      pclose(sshIn);
     }
-    pclose(sshIn);
     fossil_free(zBrowserCmd);
     return;
   }

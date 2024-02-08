@@ -27,11 +27,14 @@ due to excessive requests to expensive pages:
     answer if the same page is requested again.
 
 2.  Page requests can be configured to fail with a
-    “[503 Server Overload][503]” HTTP error if an expensive request is
+    “[503 Server Overload][503]” HTTP error if any request is
     received while the host load average is too high.
 
 Both of these load-control mechanisms are turned off by default, but
-they are recommended for high-traffic sites.
+they are recommended for high-traffic sites. Users with [admin
+permissions](caps/index.md) are exempt from these restrictions,
+provided they are logged in before the load gets too high (login is
+disabled under high load).
 
 The webpage cache is activated using the [`fossil cache init`](/help/cache)
 command-line on the server.  Add a `-R` option to

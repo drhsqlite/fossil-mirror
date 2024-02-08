@@ -9,7 +9,7 @@ sharing it over the web.
 The first thing we need to do is create a fossil repository file:
 
 <verbatim>
-stephan@ludo:~/fossil$ fossil new demo.fossil
+$ fossil new demo.fossil
 project-id: 9d8ccff5671796ee04e60af6932aa7788f0a990a
 server-id:  145fe7d71e3b513ac37ac283979d73e12ca04bfe
 admin-user: stephan (initial password is ******)
@@ -26,7 +26,7 @@ The first thing we normally want to do is to run fossil as a local server so
 that you can configure the access rights to the repo:
 
 <verbatim>
-stephan@ludo:~/fossil$ fossil ui demo.fossil
+$ fossil ui demo.fossil
 </verbatim>
 
 The <tt>ui</tt> command starts up a server (with an optional <tt>-port
@@ -52,10 +52,9 @@ The next thing we need to do is <em>open</em> the repository. To do so
 we create a working directory and then <tt>cd</tt> to it:
 
 <verbatim>
-stephan@ludo:~/fossil$ mkdir demo
-stephan@ludo:~/fossil$ cd demo
-stephan@ludo:~/fossil/demo$ fossil open ../demo.fossil
-stephan@ludo:~/fossil/demo$
+$ mkdir demo
+$ cd demo
+$ fossil open ../demo.fossil
 </verbatim>
 
 That creates a file called <tt>_FOSSIL_</tt> in the current
@@ -69,9 +68,9 @@ happens, we have a few C source files lying around, which we'll
 simply copy into our working directory.
 
 <verbatim>
-stephan@ludo:~/fossil/demo$ cp ../csnip/*.{c,h} .
-stephan@ludo:~/fossil/demo$ ls
-clob.c  clob.h  clobz.c  _FOSSIL_  mkdep.c  test-clob.c
+$ cp ../csnip/*.{c,h} .
+$ ls
+clob.c  clob.h  clobz.c  mkdep.c  test-clob.c
 tokenize_path.c tokenize_path.h  vappendf.c  vappendf.h
 </verbatim>
 
@@ -81,8 +80,8 @@ to the repository, then we <em>commit</em> the file. This is a familiar
 process for anyone who's worked with SCM systems before:
 
 <verbatim>
-stephan@ludo:~/fossil/demo$ fossil add *.{c,h}
-stephan@ludo:~/fossil/demo$ fossil commit -m "egg"
+$ fossil add *.{c,h}
+$ fossil commit -m "egg"
 New_Version: d1296b4a08b9f8b943bb6c73698e51eed23f8f91
 </verbatim>
 
@@ -91,10 +90,10 @@ is the central storage, and we can share it amongst an arbitrary
 number of trees. As a silly example:
 
 <verbatim>
-stephan@ludo:~/fossil/demo$ cd ~/fossil
-stephan@ludo:~/fossil$ mkdir demo2
-stephan@ludo:~/fossil$ cd demo2
-stephan@ludo:~/fossil/demo2$ fossil open ../demo.fossil
+$ cd ~/fossil
+$ mkdir demo2
+$ cd demo2
+$ fossil open ../demo.fossil
 ADD clob.c
 ADD clob.h
 ADD clobz.c
@@ -114,8 +113,8 @@ assume you have some web space where you can store your fossil file
 and run a CGI script. If not, then this option is not for you. If
 you do, then here's how...
 
-Copy the fossil repository file to your web server (it doesn't
-matter where, really).
+Copy the fossil repository file to your web server (it doesn't matter
+where, really, but it "should" be unreachable by web browser traffic).
 
 In your <tt>cgi-bin</tt> (or equivalent) directory, create a file
 which looks like this:
@@ -128,24 +127,23 @@ repository: /path/to/my_repo.fossil
 Make that script executable, and you're all ready to go:
 
 <verbatim>
-~/www/cgi-bin> chmod +x myrepo.cgi
+$ chmod +x ~/www/cgi-bin/myrepo.cgi
 </verbatim>
 
 Now simply point your browser to
-<tt>http://my.domain/cgi-bin/myrepo.cgi</tt> and you should
+<tt>https://my.domain/cgi-bin/myrepo.cgi</tt> and you should
 be able to manage the repository from there.
 
 To check out a copy of your remote repository, use the
 <em>clone</em> command:
 
 <verbatim>
-stephan@ludo:~/fossil$ fossil clone \
-  http://MyAccountName:MyAccountPassword@my.domain/cgi-bin/myrepo.cgi
+$ fossil clone \
+  https://MyAccountName:MyAccountPassword@my.domain/cgi-bin/myrepo.cgi
 </verbatim>
 
-Note that you should pass your fossil login name and password (as set
-via local server mode) during the clone - that ensures that fossil
-won't ask you for it on each commit!
+If you do not provide your password in the URL, fossil will
+interactively prompt you for it.
 
 A clone is a local copy of a remote repository, and can be opened just
 like a local one (as shown above). It is treated identically to your

@@ -3579,6 +3579,8 @@ static const struct { const char *zName; PNum val; } aBuiltin[] = {
   { "cylrad",      0.075 },
   { "cylwid",      0.75  },
   { "dashwid",     0.05  },
+  { "diamondht",   0.75  },
+  { "diamondwid",  1.0   },
   { "dotrad",      0.015 },
   { "ellipseht",   0.5   },
   { "ellipsewid",  0.75  },
@@ -3959,6 +3961,58 @@ static void dotRender(Pik *p, PObj *pObj){
   pik_append_txt(p, pObj, 0);
 }
 
+/* Methods for the "diamond" class */
+static void diamondInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "diamondwid",10,0);
+  pObj->h = pik_value(p, "diamondht",9,0);
+}
+/* Return offset from the center of the box to the compass point 
+** given by parameter cp */
+static PPoint diamondOffset(Pik *p, PObj *pObj, int cp){
+  PPoint pt = cZeroPoint;
+  PNum w2 = 0.5*pObj->w;
+  PNum w4 = 0.25*pObj->w;
+  PNum h2 = 0.5*pObj->h;
+  PNum h4 = 0.25*pObj->h;
+  switch( cp ){
+    case CP_C:                                   break;
+    case CP_N:   pt.x = 0.0;      pt.y = h2;     break;
+    case CP_NE:  pt.x = w4;       pt.y = h4;     break;
+    case CP_E:   pt.x = w2;       pt.y = 0.0;    break;
+    case CP_SE:  pt.x = w4;       pt.y = -h4;    break;
+    case CP_S:   pt.x = 0.0;      pt.y = -h2;    break;
+    case CP_SW:  pt.x = -w4;      pt.y = -h4;    break;
+    case CP_W:   pt.x = -w2;      pt.y = 0.0;    break;
+    case CP_NW:  pt.x = -w4;      pt.y = h4;     break;
+    default:     assert(0);
+  }
+  UNUSED_PARAMETER(p);
+  return pt;
+}
+static void diamondFit(Pik *p, PObj *pObj, PNum w, PNum h){
+  if( pObj->w>0 && pObj->h>0 ){
+    PNum x = pObj->w*h/pObj->h + w;
+    PNum y = pObj->h*x/pObj->w;
+    pObj->w = x;
+    pObj->h = y;
+  }
+  UNUSED_PARAMETER(p);
+}
+static void diamondRender(Pik *p, PObj *pObj){
+  PNum w2 = 0.5*pObj->w;
+  PNum h2 = 0.5*pObj->h;
+  PPoint pt = pObj->ptAt;
+  if( pObj->sw>=0.0 ){
+    pik_append_xy(p,"<path d=\"M", pt.x-w2,pt.y);
+    pik_append_xy(p,"L", pt.x,pt.y-h2);
+    pik_append_xy(p,"L", pt.x+w2,pt.y);
+    pik_append_xy(p,"L", pt.x,pt.y+h2);
+    pik_append(p,"Z\" ",-1);
+    pik_append_style(p,pObj,3);
+    pik_append(p,"\" />\n", -1);
+  }
+  pik_append_txt(p, pObj, 0);
+}
 
 
 /* Methods for the "ellipse" class */
@@ -4342,6 +4396,17 @@ static const PClass aClass[] = {
       /* xOffset */       cylinderOffset,
       /* xFit */          cylinderFit,
       /* xRender */       cylinderRender
+   },
+   {  /* name */          "diamond",
+      /* isline */        0,
+      /* eJust */         0,
+      /* xInit */         diamondInit,
+      /* xNumProp */      0,
+      /* xCheck */        0,
+      /* xChop */         boxChop,
+      /* xOffset */       diamondOffset,
+      /* xFit */          diamondFit,
+      /* xRender */       diamondRender 
    },
    {  /* name */          "dot",
       /* isline */        0,
@@ -8145,4 +8210,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8173 "pikchr.c"
+#line 8238 "pikchr.c"

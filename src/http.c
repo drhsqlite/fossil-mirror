@@ -272,6 +272,126 @@ static int http_exchange_external(
   return rc;
 }
 
+/* If iTruth<0 then guess as to whether or not a PATH= argument is required
+** when using ssh to run fossil on a remote machine name zHostname.  Return
+** true if a PATH= should be provided and 0 if not.
+**
+** If iTruth is 1 or 0 then that means that the PATH= is or is not required,
+** respectively.  Record this fact for future reference.
+**
+** If iTruth is 99 or more, then toggle the value that will be returned
+** for future iTruth==(-1) queries.
+*/
+int ssh_needs_path_argument(const char *zHostname, int iTruth){
+  int ans = 0;  /* Default to "no" */
+  char *z = mprintf("use-path-for-ssh:%s", zHostname);
+  if( iTruth<0 ){
+    if( db_get_boolean(z/*works-like:"x"*/, 0) ) ans = 1;
+  }else{
+    if( iTruth>=99 ){
+      iTruth = !db_get_boolean(z/*works-like:"x"*/, 0);
+    }
+    if( iTruth ){
+      ans = 1;
+      db_set(z/*works-like:"x"*/, "1", 1);
+    }else{
+      db_unset(z/*works-like:"x"*/, 1);
+    }
+  }
+  fossil_free(z);
+  return ans;
+}
+
+/*
+** COMMAND: test-ssh-needs-path
+**
+** Usage: fossil test-ssh-needs-path ?HOSTNAME? ?BOOLEAN?
+**
+** With one argument, show whether or not the PATH= argument is included
+** by default for HOSTNAME.  If the second argument is a boolean, then
+** change the value.
+**
+** With no arguments, show all hosts for which ssh-needs-path is true.
+*/
+void test_ssh_needs_path(void){
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+  db_open_config(0,0);
+  if( g.argc>=3 ){
+    const char *zHost = g.argv[2];
+    int a = -1;
+    int rc;
+    if( g.argc>=4 ) a = is_truth(g.argv[3]);
+    rc = ssh_needs_path_argument(zHost, a);
+    fossil_print("%-20s %s\n", zHost, rc ? "yes" : "no");
+  }else{
+    Stmt s;
+    db_swap_connections();
+    db_prepare(&s, "SELECT substr(name,18) FROM global_config"
+                   " WHERE name GLOB 'use-path-for-ssh:*'");
+    while( db_step(&s)==SQLITE_ROW ){
+      const char *zHost = db_column_text(&s,0);
+      fossil_print("%-20s yes\n", zHost);
+    }
+    db_finalize(&s);
+    db_swap_connections();
+  }
+}
+
+/* Add an approprate PATH= argument to the SSH command under construction
+** in pCmd.
+**
+** About This Feature
+** ==================
+**
+** On some ssh servers (Macs in particular are guilty of this) the PATH
+** variable in the shell that runs the command that is sent to the remote
+** host contains a limited number of read-only system directories:
+**
+**      /usr/bin:/bin:/usr/sbin:/sbin
+**
+** The fossil executable cannot be installed into any of those directories
+** because they are locked down, and so the "fossil" command cannot run.
+**
+** To work around this, the fossil command is prefixed with the PATH=
+** argument, inserted by this function, to augment the PATH with additional
+** directories in which the fossil executable is often found.
+**
+** But other ssh servers are confused by this initial PATH= argument.
+** Some ssh servers have a list of programs that they are allowed to run
+** and will fail if the first argument is not on that list, and PATH=....
+** is not on that list.
+**
+** So that various commands that use ssh can run seamlessly on a variety
+** of systems (commands that use ssh include "fossil sync" with an ssh:
+** URL and the "fossil patch pull" and "fossil patch push" commands where
+** the destination directory starts with HOSTNAME: or USER@HOSTNAME:.)
+** the following algorithm is used:
+**
+**   *  First try running the fossil without any PATH= argument.  If that
+**      works (and it does on a majority of systems) then we are done.
+**
+**   *  If the first attempt fails, then try again after adding the
+**      PATH= prefix argument.  (This function is what adds that
+**      argument.)  If the retry works, then remember that fact using
+**      the use-path-for-ssh:HOSTNAME setting so that the first step
+**      is skipped on subsequent uses of the same command.
+**
+** See the forum thread at
+** https://fossil-scm.org/forum/forumpost/4903cb4b691af7ce for more
+** background.
+**
+** See also:
+**
+**   *  The ssh_needs_path_argument() function above.
+**   *  The test-ssh-needs-path command that shows the settings
+**      that cache whether or not a PATH= is needed for a particular
+**      HOSTNAME.
+*/
+void ssh_add_path_argument(Blob *pCmd){
+  blob_append_escaped_arg(pCmd, 
+     "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
+}
+
 /*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
@@ -305,6 +425,16 @@ int http_exchange(
   if( g.zHttpCmd!=0 ){
     /* Handle the --transport-command option for "fossil sync" and similar */
     return http_exchange_external(pSend,pReply,mHttpFlags,zAltMimetype);
+  }
+
+  /* Activate the PATH= auxiliary argument to the ssh command if that
+  ** is called for.
+  */
+  if( g.url.isSsh
+   && (g.url.flags & URL_SSH_RETRY)==0
+   && ssh_needs_path_argument(g.url.hostname, -1)
+  ){
+    g.url.flags |= URL_SSH_PATH;
   }
 
   if( transport_open(&g.url) ){
@@ -486,8 +616,41 @@ int http_exchange(
     }
   }
   if( iLength<0 ){
-    fossil_warning("server did not reply");
-    goto write_err;
+    /* We got nothing back from the server.  If using the ssh: protocol,
+    ** this might mean we need to add or remove the PATH=... argument
+    ** to the SSH command being sent.  If that is the case, retry the
+    ** request after adding or removing the PATH= argument.
+    */
+    if( g.url.isSsh                         /* This is an SSH: sync */
+     && (g.url.flags & URL_SSH_EXE)==0      /* Does not have ?fossil=.... */
+     && (g.url.flags & URL_SSH_RETRY)==0    /* Not retried already */
+    ){
+      /* Retry after flipping the SSH_PATH setting */
+      transport_close(&g.url);
+      fossil_print(
+        "First attempt to run fossil on %s using SSH failed.\n"
+        "Retrying %s the PATH= argument.\n",
+        g.url.hostname,
+        (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
+      );
+      g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
+      rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
+      if( rc==0 ){
+        (void)ssh_needs_path_argument(g.url.hostname,
+                                (g.url.flags & URL_SSH_PATH)!=0);
+      }
+      return rc;
+    }else{
+      /* The problem could not be corrected by retrying.  Report the
+      ** the error. */
+      if( g.url.isSsh && !g.fSshTrace ){
+        fossil_warning("server did not reply: "
+                       " rerun with --sshtrace for diagnostics");
+      }else{
+        fossil_warning("server did not reply");
+      }
+      goto write_err;
+    }
   }
   if( rc!=200 ){
     fossil_warning("\"location:\" missing from %d redirect reply", rc);
