@@ -2190,15 +2190,10 @@ void page_timeline(void){
       if( selectedRid==0 ) selectedRid = from_rid;
       if( secondaryRid==0 ) secondaryRid = to_rid;
     }else{
+      to_rid = from_rid;
       blob_appendf(&desc, "There is no path from %h %s to %h.<br>Instead: ",
                    P("from"), from_to_mode==1 ? "forward" : "back", zTo);
-      p_rid = 0;
-      d_rid = 0;
-      zCirca = P("from");
-      zMark = zCirca;
-      zType = "ci";
-      nEntry = 1;
-    }
+     }
   }
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
     /* If from= and to= are present, display all nodes on a path connecting
@@ -2284,7 +2279,9 @@ void page_timeline(void){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
     }
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
-    if( from_to_mode>0 ){
+    if( nNodeOnPath==1 && from_to_mode>0 ){
+      blob_appendf(&desc,"Check-in ");
+    }else if( from_to_mode>0 ){
       blob_appendf(&desc, "%d check-ins on the shorted path from ",nNodeOnPath);
     }else{
       blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
@@ -2294,17 +2291,21 @@ void page_timeline(void){
     }
     blob_appendf(&desc, "%z%h</a>", href("%R/info/%h", zFrom), zFrom);
     if( from_rid==selectedRid ) blob_appendf(&desc, "</span>");
-    blob_append(&desc, " to ", -1);
-    if( to_rid==secondaryRid ){
-      blob_appendf(&desc, "<span class='timelineSelected timelineSecondary'>");
-    }
-    blob_appendf(&desc, "%z%h</a>", href("%R/info/%h",zTo), zTo);
-    if( to_rid==secondaryRid )  blob_appendf(&desc, "</span>");
-    if( related ){
-      int nRelated = db_int(0, "SELECT count(*) FROM timeline") - nNodeOnPath;
-      if( nRelated>0 ){
-        blob_appendf(&desc, " and %d related check-in%s", nRelated,
-                     nRelated>1 ? "s" : "");
+    if( nNodeOnPath==1 && from_to_mode>0 ){
+      blob_appendf(&desc, " only");
+    }else{
+      blob_append(&desc, " to ", -1);
+      if( to_rid==secondaryRid ){
+        blob_appendf(&desc,"<span class='timelineSelected timelineSecondary'>");
+      }
+      blob_appendf(&desc, "%z%h</a>", href("%R/info/%h",zTo), zTo);
+      if( to_rid==secondaryRid )  blob_appendf(&desc, "</span>");
+      if( related ){
+        int nRelated = db_int(0, "SELECT count(*) FROM timeline") - nNodeOnPath;
+        if( nRelated>0 ){
+          blob_appendf(&desc, " and %d related check-in%s", nRelated,
+                       nRelated>1 ? "s" : "");
+        }
       }
     }
     addFileGlobDescription(zChng, &desc);
