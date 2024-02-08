@@ -3067,10 +3067,11 @@ void fossil_set_timeout(int N){
 ** the command is run on the remote host specified and the results are
 ** tunneled back to the local machine via SSH.  This feature only works for
 ** the "fossil ui" command, not the "fossil server" command.  The name of the
-** fossil executable on the remote host is specified by the --fossilcmd option,
-** or if there is no --fossilcmd, it first tries "$HOME/bin/fossil" and if
-** not found there it searches for any executable named "fossil" on the
-** default $PATH set by SSH on the remote.
+** fossil executable on the remote host is specified by the --fossilcmd
+** option, or if there is no --fossilcmd, it first tries "fossil" and if it
+** is not found in the default $PATH set by SSH on the remote, it then adds
+** "$HOME/bin:/usr/local/bin:/opt/homebrew/bin" to the PATH and tries again to
+** run "fossil".
 **
 ** REPOSITORY may also be a directory (aka folder) that contains one or
 ** more repositories with names ending in ".fossil".  In this case, a
