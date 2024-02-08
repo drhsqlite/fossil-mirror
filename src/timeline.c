@@ -1598,20 +1598,23 @@ static int timeline_endpoint(
       db_prepare(&q,
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
-        "  UNION ALL"
+        "  UNION"
         "  SELECT plink.cid, plink.mtime"
         "    FROM dx, plink"
         "   WHERE plink.pid=dx.id"
+        "     AND plink.mtime<=(SELECT max(event.mtime) FROM tagxref, event"
+                               " WHERE tagxref.tagid=%d AND tagxref.tagtype>0"
+                               " AND event.objid=tagxref.rid)"
         "   ORDER BY plink.mtime)"
         "SELECT id FROM dx, tagxref"
         " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
-        iFrom, iFrom, tagId
+        iFrom, iFrom, tagId, tagId
       );
     }else{
       db_prepare(&q,
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
-        "  UNION ALL"
+        "  UNION"
         "  SELECT plink.cid, plink.mtime"
         "    FROM dx, plink"
         "   WHERE plink.pid=dx.id"
@@ -1626,20 +1629,23 @@ static int timeline_endpoint(
       db_prepare(&q,
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
-        "  UNION ALL"
+        "  UNION"
         "  SELECT plink.pid, event.mtime"
         "    FROM dx, plink, event"
         "   WHERE plink.cid=dx.id AND event.objid=plink.pid"
+        "     AND event.mtime>=(SELECT min(event.mtime) FROM tagxref, event"
+                               " WHERE tagxref.tagid=%d AND tagxref.tagtype>0"
+                               " AND event.objid=tagxref.rid)"
         "   ORDER BY event.mtime DESC)"
         "SELECT id FROM dx, tagxref"
         " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
-        iFrom, iFrom, tagId
+        iFrom, iFrom, tagId, tagId
       );
     }else{
       db_prepare(&q,
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
-        "  UNION ALL"
+        "  UNION"
         "  SELECT plink.pid, event.mtime"
         "    FROM dx, plink, event"
         "   WHERE plink.cid=dx.id AND event.objid=plink.pid"
@@ -1655,6 +1661,37 @@ static int timeline_endpoint(
   }
   db_finalize(&q);
   return ans;
+}
+
+/*
+** COMMAND: test-endpoint
+**
+** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
+**
+** Show the first check-in with TAG that is a descendent or ancestor
+** of BASE.  The first descendent checkin is shown by default.  Use
+** the --backto to see the first ancestor checkin.
+**
+** Options:
+**
+**      --backto            Show ancestor.  Others defaults to descendents.
+*/
+void timeline_test_endpoint(void){
+  int bForward = find_option("backto",0,0)==0;
+  int from_rid;
+  int ans;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc!=4 ){
+    usage("BASE-CHECKIN TAG ?--backto?");
+  }
+  from_rid = symbolic_name_to_rid(g.argv[2],"ci");
+  ans = timeline_endpoint(from_rid, g.argv[3], bForward);
+  if( ans ){
+    fossil_print("Result: %d (%S)\n", ans, rid_to_uuid(ans));
+  }else{
+    fossil_print("No path found\n");
+  }
 }
 
 
@@ -2155,6 +2192,12 @@ void page_timeline(void){
     }else{
       blob_appendf(&desc, "There is no path from %h %s to %h.<br>Instead: ",
                    P("from"), from_to_mode==1 ? "forward" : "back", zTo);
+      p_rid = 0;
+      d_rid = 0;
+      zCirca = P("from");
+      zMark = zCirca;
+      zType = "ci";
+      nEntry = 1;
     }
   }
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -2811,6 +2854,7 @@ void page_timeline(void){
       db_multi_exec("%s", blob_sql_text(&sql2));
       if( nEntry>0 ){
         nEntry -= db_int(0,"select count(*) from timeline");
+        if( nEntry<=0 ) nEntry = 1;
       }
       blob_reset(&sql2);
       blob_append_sql(&sql,
