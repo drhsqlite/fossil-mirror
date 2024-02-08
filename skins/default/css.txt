@@ -435,7 +435,7 @@ span.timelineSecondary {
    * paragraphs within tables, etc.  What this actually *says* is far
    * simpler than it looks; the equivalent SCSS is merely:
    *
-   * .artifact, .dir, .doc {
+   * .artifact, .dir, .doc, .wiki {
    *   > .content,                // wiki docs have no inner container
    *   > .content > .fossil-doc,  // container for HTML embedded docs
    *   > .content > markdown {    // ditto for MD outside forum, tickets…
@@ -472,7 +472,16 @@ span.timelineSecondary {
   .doc > .content > .fossil-doc > ol, .doc > .content > .fossil-doc > ul,
   .doc > .content > table,
   .doc > .content > .markdown > table,
-  .doc > .content > .fossil-doc > table {
+  .doc > .content > .fossil-doc > table,
+  .wiki > .content > p,
+  .wiki > .content > .markdown > p,
+  .wiki > .content > .fossil-doc > p,
+  .wiki > .content > ol,               .wiki > .content > ul,
+  .wiki > .content > .markdown > ol,   .wiki > .content > .markdown > ul,
+  .wiki > .content > .fossil-doc > ol, .wiki > .content > .fossil-doc > ul,
+  .wiki > .content > table,
+  .wiki > .content > .markdown > table,
+  .wiki > .content > .fossil-doc > table {
     margin-left:  50pt;
     margin-right: 50pt;
   }
