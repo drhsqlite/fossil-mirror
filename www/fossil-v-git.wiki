@@ -801,17 +801,17 @@ Incidentally, this is a good example of Git's messy command design.
 These three commands:
 
 <pre>
-    $ git merge HASH 
-    $ git cherry-pick HASH 
-    $ git revert HASH
+$ git merge HASH 
+$ git cherry-pick HASH 
+$ git revert HASH
 </pre>
 
 ...are all the same command in Fossil:
 
 <pre>
-    $ fossil merge HASH
-    $ fossil merge --cherrypick HASH
-    $ fossil merge --backout HASH
+$ fossil merge HASH
+$ fossil merge --cherrypick HASH
+$ fossil merge --backout HASH
 </pre>
 
 If you think about it, they're all the same function: apply work done on
