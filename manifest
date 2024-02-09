@@ -1,5 +1,5 @@
-C Removed\sextra\swhitespace\sin\scommand\sexamples\sin\sfossil-v-git\sdoc.\sSkin\ndoes\sthat\snow.
-D 2024-02-09T02:52:53.387
+C Simplified\sthe\sstyle\soverrides\son\sthe\sfossil-v-git\sdoc's\sToC\stable\sto\ngive\sthe\sbrowser\smore\slayout\sfreedom,\spreventing\sit\sfrom\sbeing\sclipped\noff\son\sthe\sright\sedge\son\ssmaller\smobile\sdevices.
+D 2024-02-09T03:09:44.262
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -824,7 +824,7 @@ F www/forum.wiki ee1fcb6eb51f8193edc83c62b857565831557ec0b8b48b35c183dec017410f0
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 42373b5cb455cb12c130488eaf28a1c0daccdcc2c3506bbbde229ac5f03e1dec
-F www/fossil-v-git.wiki 915f54d7f287cb56405dda2c80e04c8164285092f282a620ab08e756af60cdd0
+F www/fossil-v-git.wiki 919adde1fa03ed281a2da2f4ad946e03fabef5bd255cd678acddf566e01f668c
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e23092003065a5688b1c2fb623a704c75ac155506a6dc83e85647e310544985
-R e811348b32380ad832fd1c433650e4fa
+P b36872790418478639e14cc1ae20dd3921fef917af836b9fa53cd2360a6c2bd1
+R ee87ffbae98d379cf4e5d421984c9761
 U wyoung
-Z 9dc734b1f5f5370a38154a5ce61992a0
+Z e9d9dacc703b73fc5a65a07fd518e517
 # Remove this line to create a well-formed Fossil manifest.

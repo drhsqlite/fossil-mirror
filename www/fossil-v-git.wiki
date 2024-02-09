@@ -37,10 +37,10 @@ Differences between Fossil and Git are summarized by the following table,
 with further description in the text that follows.
 
 <table style="width: fit-content">
-<tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
+<tr><th>GIT</th><th>FOSSIL</th><th>more</th></tr>
 <tr>
     <td>File versioning only</td>
-    <td style="white-space: nowrap">
+    <td>
       VCS, tickets, wiki, docs, notes, forum, chat, UI,
         [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]
     </td>
