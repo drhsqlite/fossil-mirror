@@ -314,7 +314,8 @@ int ssh_needs_path_argument(const char *zHostname, int iTruth){
 ** With no arguments, show all hosts for which ssh-needs-path is true.
 */
 void test_ssh_needs_path(void){
-  db_find_and_open_repository(0,0);
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+  db_open_config(0,0);
   if( g.argc>=3 ){
     const char *zHost = g.argv[2];
     int a = -1;
@@ -324,13 +325,15 @@ void test_ssh_needs_path(void){
     fossil_print("%-20s %s\n", zHost, rc ? "yes" : "no");
   }else{
     Stmt s;
-    db_prepare(&s, "SELECT substr(name,18) FROM config"
+    db_swap_connections();
+    db_prepare(&s, "SELECT substr(name,18) FROM global_config"
                    " WHERE name GLOB 'use-path-for-ssh:*'");
     while( db_step(&s)==SQLITE_ROW ){
       const char *zHost = db_column_text(&s,0);
       fossil_print("%-20s yes\n", zHost);
     }
     db_finalize(&s);
+    db_swap_connections();
   }
 }
 

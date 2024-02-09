@@ -212,7 +212,7 @@ int start_of_branch(int rid, int eType){
 **
 ** This is a tricky query to do efficiently.
 ** If the tag is very common (ex: "trunk") then
-** we want to use the query identified below as Q1 - which searching
+** we want to use the query identified below as Q1 - which searches
 ** the most recent EVENT table entries for the most recent with the tag.
 ** But if the tag is relatively scarce (anything other than "trunk", basically)
 ** then we want to do the indexed search show below as Q2.
