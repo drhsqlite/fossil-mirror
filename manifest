@@ -1,5 +1,5 @@
-C Experimental\sstyling\sof\sinline\scode\sand\stt\sblocks\sin\suser\scontent\slike\neveryone\selse\s(Stack\sExchange,\sGitHub,\sReddit,\sDiscord…)\sdo,\swith\sa\nlight\sgray\sbackground\sand\sslight\sexpansion\sof\sthe\sbox\sarea,\sto\soffset\sit\nfrom\sthe\sprose.
-D 2024-02-09T02:29:43.164
+C Backed\soff\son\smobile\sbody\sfont\ssize\sreduction\sfrom\s0.8em\sto\s0.9em\sfor\nthe\ssame\sreason\swe\sdid\sit\sfor\sdesktop.
+D 2024-02-09T02:30:59.900
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 359cded179737148d3a7da929bc8d8d6aa247b919e75558ea5d28fa8f9bea155
+F skins/default/css.txt b17be62be22041e4b1b50f79aa2475506e0a230de152252468e694108a442043
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt fe7f43a4b8be296a0bfb86a7da7beb38a59248deee02878c459e78d5698985c6
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f3e59cffc2dd1fec5a529ca330dcbe98ad42d0e117270f5160f574312bf5e40
-R 8b4e0cf6ee64893d59f9b4dfc903c31c
+P 4772a9b2ccbb4c3ce667555f1f4bb64cb21f4859f9a5a46ea14916a1a99a978c
+R 12ba16dd2fa3dbb481d55d59459cbba7
 U wyoung
-Z 02b094ba8a340f7d7adda0bd0ea9a853
+Z ac05467ea60f7b7e726073549648ac44
 # Remove this line to create a well-formed Fossil manifest.

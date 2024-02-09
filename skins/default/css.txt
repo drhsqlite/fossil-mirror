@@ -406,7 +406,7 @@ span.timelineSecondary {
     padding-right: 4px;
   }
   .content {
-    font-size: 0.8em;
+    font-size: 0.9em;
   }
   .title {
     padding-top: 0px;
