@@ -223,6 +223,33 @@ div.sidebar:not(.no-label):before {
   hyphens: none;
   line-height: 1.25;
 }
+.artifact > .content               > p > code,
+.artifact > .content               > p > tt,
+.artifact > .content > .fossil-doc > p > code,
+.artifact > .content > .fossil-doc > p > tt,
+.artifact > .content > .markdown   > p > code,
+.artifact > .content > .markdown   > p > tt,
+.dir      > .content               > p > code,
+.dir      > .content               > p > tt,
+.dir      > .content > .fossil-doc > p > code,
+.dir      > .content > .fossil-doc > p > tt,
+.dir      > .content > .markdown   > p > code,
+.dir      > .content > .markdown   > p > tt,
+.doc      > .content               > p > code,
+.doc      > .content               > p > tt,
+.doc      > .content > .fossil-doc > p > code,
+.doc      > .content > .fossil-doc > p > tt,
+.doc      > .content > .markdown   > p > code,
+.doc      > .content > .markdown   > p > tt,
+.wiki     > .content               > p > code,
+.wiki     > .content               > p > tt,
+.wiki     > .content > .fossil-doc > p > code,
+.wiki     > .content > .fossil-doc > p > tt,
+.wiki     > .content > .markdown   > p > code,
+.wiki     > .content > .markdown   > p > tt {
+  background-color: #eee;
+  padding: 0 4px;
+}
 
 .content .pikchr-wrapper {
   /* Pikchr was developed with the assumption that it would be
