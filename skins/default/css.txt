@@ -464,14 +464,6 @@ span.timelineSecondary {
   .doc > .content > table,
   .doc > .content > .markdown > table,
   .doc > .content > .fossil-doc > table,
-  .fileedit div#fileedit-tab-preview-wrapper > p,
-  .fileedit div#fileedit-tab-preview-wrapper > ol,
-  .fileedit div#fileedit-tab-preview-wrapper > ul,
-  .fileedit div#fileedit-tab-preview-wrapper > table,
-  .fileedit div#fileedit-tab-preview-wrapper > .markdown > p,
-  .fileedit div#fileedit-tab-preview-wrapper > .markdown > ol,
-  .fileedit div#fileedit-tab-preview-wrapper > .markdown > ul,
-  .fileedit div#fileedit-tab-preview-wrapper > .markdown > table,
   .wiki > .content > p,
   .wiki > .content > .markdown > p,
   .wiki > .content > .fossil-doc > p,
@@ -481,14 +473,22 @@ span.timelineSecondary {
   .wiki > .content > table,
   .wiki > .content > .markdown > table,
   .wiki > .content > .fossil-doc > table,
-  .wikiedit div#wikiedit-tab-preview-wrapper > p,
-  .wikiedit div#wikiedit-tab-preview-wrapper > ol,
-  .wikiedit div#wikiedit-tab-preview-wrapper > ul,
-  .wikiedit div#wikiedit-tab-preview-wrapper > table,
-  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > p,
-  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > ol,
-  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > ul,
-  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > table {
+  #fileedit-tab-preview-wrapper > p,
+  #fileedit-tab-preview-wrapper > ol,
+  #fileedit-tab-preview-wrapper > ul,
+  #fileedit-tab-preview-wrapper > table,
+  #fileedit-tab-preview-wrapper > .markdown > p,
+  #fileedit-tab-preview-wrapper > .markdown > ol,
+  #fileedit-tab-preview-wrapper > .markdown > ul,
+  #fileedit-tab-preview-wrapper > .markdown > table,
+  #wikiedit-tab-preview-wrapper > p,
+  #wikiedit-tab-preview-wrapper > ol,
+  #wikiedit-tab-preview-wrapper > ul,
+  #wikiedit-tab-preview-wrapper > table,
+  #wikiedit-tab-preview-wrapper > .markdown > p,
+  #wikiedit-tab-preview-wrapper > .markdown > ol,
+  #wikiedit-tab-preview-wrapper > .markdown > ul,
+  #wikiedit-tab-preview-wrapper > .markdown > table {
     margin-left:  50pt;
     margin-right: 50pt;
   }
@@ -510,8 +510,8 @@ span.timelineSecondary {
    *     }
    *   }
    * }
-   * .fileedit div#fileedit-tab-preview-wrapper,
-   * .wikiedit div#wikiedit-tab-preview-wrapper {
+   * #fileedit-tab-preview-wrapper,
+   * #wikiedit-tab-preview-wrapper {
    *   > .content, > .content > .markdown {
    *     > pre {
    *       @import 'margins.scss';
@@ -536,10 +536,10 @@ span.timelineSecondary {
     margin-left: 70pt;
     margin-right: 50pt;
   }
-  .fileedit div#fileedit-tab-preview-wrapper > .content > pre,
-  .fileedit div#fileedit-tab-preview-wrapper > .content > .markdown > pre,
-  .wikiedit div#wikiedit-tab-preview-wrapper > .content > pre,
-  .wikiedit div#wikiedit-tab-preview-wrapper > .content > .markdown > pre {
+  #fileedit-tab-preview-wrapper > .content > pre,
+  #fileedit-tab-preview-wrapper > .content > .markdown > pre,
+  #wikiedit-tab-preview-wrapper > .content > pre,
+  #wikiedit-tab-preview-wrapper > .content > .markdown > pre {
     margin-left: 70pt;
     margin-right: 50pt;
   }
