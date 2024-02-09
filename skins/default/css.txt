@@ -8,7 +8,7 @@ body {
 }
 
 a {
-  color: #4183C4;
+  color: #59C;
   text-decoration: none;
 }
 a:hover {

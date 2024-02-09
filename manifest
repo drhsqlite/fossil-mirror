@@ -1,5 +1,5 @@
-C Replaced\sstatic\spale\sblue\sbackground\sfor\sselected\sforum\sposts\swith\sa\sCSS\nanimation\sthat\sfades\sthe\sdefault.css\sblue\sout\sto\swhite\sover\sa\ssecond\nafter\spage\sload.\s\sAlso\smade\sthe\sleft\sborder\sof\sthe\sforumSel\spost's\sbox\nheavy\sto\sserve\sas\san\safter-animation\sselection\sindicator.
-D 2024-02-09T08:16:24.551
+C Increased\sthe\sbrightness\sof\sunvisited\slinks\sto\sbring\stheir\scontrast\sup\nrelative\sto\sbody\stest\sabove\sthe\s3:1\srecommended\sby\sthe\n[https://webaim.org/resources/linkcontrastchecker/\s|\sWebAIM\slink\ncontrast\schecker].\sThis\sunavoidably\sdrops\sthe\scontrast\swith\sthe\nbackground\sfrom\saround\s4:1\sto\s3:1,\sbut\sif\slinks\sare\skept\sshort\n(ideally,\sone\sword\sonly)\sthis\sis\sa\sgood\stradeoff.
+D 2024-02-09T08:25:08.375
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 5c64c2c8daba354325cb4a5b93f6396cec79469340c85ad38a4d7eba6e8003c8
+F skins/default/css.txt 497644ca7776d15986bacc90af886ad123850d1856d832c5fc0448cffeeaa8f1
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt fe7f43a4b8be296a0bfb86a7da7beb38a59248deee02878c459e78d5698985c6
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca973301e23f757f2f5d8f3371ee7d4085c65aaf9b7e571f13f48885c2b70f3c
-R e4642f0af03fb6bd7383467647339556
+P 9df0a451a095f7592239ecd10d37f4c6803f3478f92e6c12dd89b4c9345f160c
+R 53982eff56a30efeb190955f515adce9
 U wyoung
-Z 049bd7c052c6f6cb0e7480f271d90c1a
+Z 26bf96568c7e04efe0d28d981ea4f93d
 # Remove this line to create a well-formed Fossil manifest.
