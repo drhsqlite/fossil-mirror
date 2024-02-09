@@ -223,16 +223,6 @@ div.sidebar:not(.no-label):before {
   hyphens: none;
   line-height: 1.25;
 }
-code, pre, tt,    /* long list of classes from src/default.css */
-    div.markdown ol.footnotes > li.fn-joined > sup.fn-joined,
-    table.numbered-lines > tbody > tr,
-    tr.diffskip > td.chunkctrl,
-    #fossil-status-bar,
-    .monospace {
-  /* Monospace fonts tend to have smaller x-heights than proportional text
-   * fonts at the same point size.  Bring them up a bit to compensate. */
-  font-size: 105%;
-}
 
 .content .pikchr-wrapper {
   /* Pikchr was developed with the assumption that it would be
