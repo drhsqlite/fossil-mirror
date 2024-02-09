@@ -464,6 +464,14 @@ span.timelineSecondary {
   .doc > .content > table,
   .doc > .content > .markdown > table,
   .doc > .content > .fossil-doc > table,
+  .fileedit div#fileedit-tab-preview-wrapper > p,
+  .fileedit div#fileedit-tab-preview-wrapper > ol,
+  .fileedit div#fileedit-tab-preview-wrapper > ul,
+  .fileedit div#fileedit-tab-preview-wrapper > table,
+  .fileedit div#fileedit-tab-preview-wrapper > .markdown > p,
+  .fileedit div#fileedit-tab-preview-wrapper > .markdown > ol,
+  .fileedit div#fileedit-tab-preview-wrapper > .markdown > ul,
+  .fileedit div#fileedit-tab-preview-wrapper > .markdown > table,
   .wiki > .content > p,
   .wiki > .content > .markdown > p,
   .wiki > .content > .fossil-doc > p,
@@ -472,7 +480,15 @@ span.timelineSecondary {
   .wiki > .content > .fossil-doc > ol, .wiki > .content > .fossil-doc > ul,
   .wiki > .content > table,
   .wiki > .content > .markdown > table,
-  .wiki > .content > .fossil-doc > table {
+  .wiki > .content > .fossil-doc > table,
+  .wikiedit div#wikiedit-tab-preview-wrapper > p,
+  .wikiedit div#wikiedit-tab-preview-wrapper > ol,
+  .wikiedit div#wikiedit-tab-preview-wrapper > ul,
+  .wikiedit div#wikiedit-tab-preview-wrapper > table,
+  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > p,
+  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > ol,
+  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > ul,
+  .wikiedit div#wikiedit-tab-preview-wrapper > .markdown > table {
     margin-left:  50pt;
     margin-right: 50pt;
   }
@@ -481,9 +497,30 @@ span.timelineSecondary {
    * equally powerful to the above because Fossil UI *does* use <pre>,
    * and we want this to apply to user content only.
    *
-   * It's easier to see what's going on here: three types of top-level
-   * body class for /file, /dir and /doc times three flavors of embedded
-   * doc type (plain HTML, wiki, and MD) require nine total selectors. */
+   * It's easier to see what's going on here: four types of top-level
+   * body class for /file, /dir, /doc and /wiki times three flavors of
+   * embedded doc type (plain HTML, wiki, and MD) equals 12 selectors,
+   * plus another 4 to account for the two supported types of markup
+   * preview in /fileedit and /wikiedit.  In SCSS form, this is simply:
+   *
+   * .artifact, .dir, .doc, .wiki {
+   *   > .content, > .content > .markdown, > .content > .fossil-doc {
+   *     > pre {
+   *       @import 'margins.scss';
+   *     }
+   *   }
+   * }
+   * .fileedit div#fileedit-tab-preview-wrapper,
+   * .wiki     div#wikiedit-tab-preview-wrapper {
+   *   > .content, > .content > .markdown {
+   *     > pre {
+   *       @import 'margins.scss';
+   *     }
+   *   }
+   * }
+   * 
+   * …where margins.scss contains the common definitions for both blocks.
+   */
   .artifact > .content > pre,
   .artifact > .content > .markdown > pre,
   .artifact > .content > .fossil-doc > pre,
@@ -492,24 +529,34 @@ span.timelineSecondary {
   .dir > .content > .fossil-doc > pre,
   .doc > .content > pre,
   .doc > .content > .markdown > pre,
-  .doc > .content > .fossil-doc > pre {
+  .doc > .content > .fossil-doc > pre,
+  .wiki > .content > pre,
+  .wiki > .content > .markdown > pre,
+  .wiki > .content > .fossil-doc > pre {
+    margin-left: 70pt;
+    margin-right: 50pt;
+  }
+  .fileedit div#fileedit-tab-preview-wrapper > .content > pre,
+  .fileedit div#fileedit-tab-preview-wrapper > .content > .markdown > pre,
+  .wikiedit div#wikiedit-tab-preview-wrapper > .content > pre,
+  .wikiedit div#wikiedit-tab-preview-wrapper > .content > .markdown > pre {
     margin-left: 70pt;
     margin-right: 50pt;
   }
 
   /* Fossil UI uses these, but in sufficiently constrained ways that we
    * don't have to be nearly as careful to avoid an overreach. */
-  .doc > .content h1, .artifact h1, .dir h1 { margin-left: 10pt; }
-  .doc > .content h2, .artifact h2, .dir h2 { margin-left: 20pt; }
-  .doc > .content h3, .artifact h3, .dir h3 { margin-left: 30pt; }
-  .doc > .content h4, .artifact h4, .dir h4 { margin-left: 40pt; }
-  .doc > .content h5, .artifact h5, .dir h5 { margin-left: 50pt; }
-  .doc > .content hr, .artifact hr, .dir hr { margin-left: 10pt; }
+  .doc > .content h1, .artifact h1, .dir h1, .fileedit h1, .wiki h1 { margin-left: 10pt; }
+  .doc > .content h2, .artifact h2, .dir h2, .fileedit h2, .wiki h2 { margin-left: 20pt; }
+  .doc > .content h3, .artifact h3, .dir h3, .fileedit h3, .wiki h3 { margin-left: 30pt; }
+  .doc > .content h4, .artifact h4, .dir h4, .fileedit h4, .wiki h4 { margin-left: 40pt; }
+  .doc > .content h5, .artifact h5, .dir h5, .fileedit h5, .wiki h5 { margin-left: 50pt; }
+  .doc > .content hr, .artifact hr, .dir hr, .fileedit hr, .wiki hr { margin-left: 10pt; }
 
   /* Don't need to be nearly as careful with tags Fossil UI doesn't use. */
-  .doc dd, .artifact dd, .dir dd { margin-left: 30pt; margin-bottom: 1em; }
-  .doc dl, .artifact dl, .dir dl { margin-left: 60pt; }
-  .doc dt, .artifact dt, .dir dt { margin-left: 10pt; }
+  .doc dd, .artifact dd, .dir dd, .fileedit dd, .wikiedit dd { margin-left: 30pt; margin-bottom: 1em; }
+  .doc dl, .artifact dl, .dir dl, .fileedit dl, .wikiedit dl { margin-left: 60pt; }
+  .doc dt, .artifact dt, .dir dt, .fileedit dt, .wikiedit dt { margin-left: 10pt; }
 
   /* Fossil UI doesn't use Pikchr at all (yet?) so we can be quite loose
    * with these selectors. */
@@ -528,7 +575,9 @@ span.timelineSecondary {
   .indent,                /* clean alternative to misusing <blockquote> */
   .artifact > .content > blockquote:not(.file-content),
   .dir      > .content > blockquote,
-  .doc      > .content > blockquote {
+  .doc      > .content > blockquote,
+  .fileedit > .content > blockquote,
+  .wiki     > .content > blockquote {
     /* We must apply extra indent relative to "p" since Fossil's wiki
      * generator misuses the blockquote tag against HTML and MD norms
      * to mean "indented paragraph."  Skip it for file content retrieved
@@ -537,7 +586,9 @@ span.timelineSecondary {
   }
   .artifact > .content > .markdown > blockquote,
   .dir      > .content > .markdown > blockquote,
-  .doc      > .content > .markdown > blockquote {
+  .doc      > .content > .markdown > blockquote,
+  .fileedit > .content > .markdown > blockquote,
+  .wiki     > .content > .markdown > blockquote {
     /* Fossil MD didn't inherit that bug; its HTML generator emits
      * blockquote tags only for _block quotes_!  A moderate indent
      * suffices due to the visual styling applied above. */
