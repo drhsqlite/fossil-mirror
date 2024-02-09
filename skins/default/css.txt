@@ -164,7 +164,13 @@ pre.verbatim {
 }
 
 div.forumSel {
-  background-color: #ebf5ff;
+  animation: 1s linear 0s sel-fade;
+  background-color: white;      /* animation end state */
+  border-left: 4px solid black; /* after-animation selection indicator */
+}
+@keyframes sel-fade {
+  from { background-color: #cef;  }
+    to { background-color: white; }
 }
 
 textarea.wikiedit {
