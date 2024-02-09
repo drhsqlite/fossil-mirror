@@ -504,15 +504,17 @@ span.timelineSecondary {
    * preview in /fileedit and /wikiedit.  In SCSS form, this is simply:
    *
    * .artifact, .dir, .doc, .wiki {
-   *   > .content, > .content > .markdown, > .content > .fossil-doc {
-   *     > pre {
-   *       @import 'margins.scss';
+   *   > .content {
+   *     &, > .markdown, > .fossil-doc {
+   *       > pre {
+   *         @import 'margins.scss';
+   *       }
    *     }
    *   }
    * }
    * #fileedit-tab-preview-wrapper,
    * #wikiedit-tab-preview-wrapper {
-   *   > .content, > .content > .markdown {
+   *   &, > .markdown {
    *     > pre {
    *       @import 'margins.scss';
    *     }
