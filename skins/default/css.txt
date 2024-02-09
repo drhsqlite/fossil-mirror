@@ -511,7 +511,7 @@ span.timelineSecondary {
    *   }
    * }
    * .fileedit div#fileedit-tab-preview-wrapper,
-   * .wiki     div#wikiedit-tab-preview-wrapper {
+   * .wikiedit div#wikiedit-tab-preview-wrapper {
    *   > .content, > .content > .markdown {
    *     > pre {
    *       @import 'margins.scss';
