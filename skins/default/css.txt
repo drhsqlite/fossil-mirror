@@ -536,10 +536,10 @@ span.timelineSecondary {
     margin-left: 70pt;
     margin-right: 50pt;
   }
-  #fileedit-tab-preview-wrapper > .content > pre,
-  #fileedit-tab-preview-wrapper > .content > .markdown > pre,
-  #wikiedit-tab-preview-wrapper > .content > pre,
-  #wikiedit-tab-preview-wrapper > .content > .markdown > pre {
+  #fileedit-tab-preview-wrapper > pre,
+  #fileedit-tab-preview-wrapper > .markdown > pre,
+  #wikiedit-tab-preview-wrapper > pre,
+  #wikiedit-tab-preview-wrapper > .markdown > pre {
     margin-left: 70pt;
     margin-right: 50pt;
   }
