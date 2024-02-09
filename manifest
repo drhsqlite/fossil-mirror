@@ -1,5 +1,5 @@
-C Update\sPikchr\sto\sinclude\sfixes\sto\sautofit\son\sdiamond\sobjects.
-D 2024-02-08T20:45:38.970
+C Rebuild\spikchr.wasm/js\swith\semcc\s3.1.53\sand\sadapt\sthe\sassociated\sbuild\srule\sin\ssrc/main.mk\sto\saccount\sfor\sa\sbreaking\semcc\schange\s(should\salso\sbe\sbackwards-compatible\sto\solder\semcc's).
+D 2024-02-09T00:12:59.368
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -271,8 +271,8 @@ F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f1999
 F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
 F extsrc/pikchr.c 598eea7de6f0d7aeb90079642605a6ccff13d96cf3405283500339473833d602
-F extsrc/pikchr.js ef8475dfa65cdeff238905f1d7c5d22af6d576eb073b84789f6cb9d00d8f2585
-F extsrc/pikchr.wasm c0e30bf457b5406460ba0fc88418d154f41995311ba7807afbf1faa32ae75a3c
+F extsrc/pikchr.js bf23761009296341d6423974cd7a67cadec6f79944f3e3dcc49a0bfc2a28cd05
+F extsrc/pikchr.wasm de56cf6f1d7faab2cb4627b5131c490ba3fbaa47fb7f75e8e02026aa8438f77c
 F extsrc/shell.c 5d26c3c38d826225be26ecbc30fefc1a988b7d943ac2a3550bf8ea4f910b23f2
 F extsrc/sqlite3.c 0474604df9e1b69a5544295dd046aad954749279780d557da80f44b958100295
 F extsrc/sqlite3.h 1e74881d57a6abcb15909b59507f6d90805698e985197be44c68bd911f39734a
@@ -488,7 +488,7 @@ F src/login.c 380ef2e3e0e9eeec88c99463e00e1f1297de65e78828f211e0dde8c4786c16ac
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c cc62c6c43683e65eb8e728dfb0e808439e31e01d38daa44055cc5777664dbf3e
-F src/main.mk 021031745a6dc9493420916667b6bed052080ed990a3969227766f8592cf3886
+F src/main.mk 961a783e98e357af1fd67bbdab8d60726ffa18811d5fd58e3220a7bc2586ebe3
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 68baa36667eaf84df76d08d493bb6f8f8d8cbef7892ef6891d2d32b13ffe1e88
-R 302cf3b4938e600b6a5697ba5e8ae983
-U drh
-Z 91700d0b45836ec7f949bd2838cbc753
+P f4ec8e0f05f28b3732fa1986cca7a0c6618cd9dc6a8a5e6dc59878688eb0dbe1
+R 165ff3c380820ac036ae40a7686fd0df
+U stephan
+Z 4df43b1a8de700b99ddd801647fefd35
 # Remove this line to create a well-formed Fossil manifest.
