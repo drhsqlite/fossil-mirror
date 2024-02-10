@@ -152,11 +152,6 @@ hr {
   color: #eee;
 }
 
-/* Wiki <verbatim> text block adjustments */
-pre.verbatim {
-  white-space: pre-wrap;
-}
-
 
 /* Page footer */
 
@@ -182,10 +177,6 @@ div.forumSel {
 @keyframes sel-fade {
   from { background-color: #cef;  }
     to { background-color: white; }
-}
-
-textarea.wikiedit {
-  font-size: 1em;  /* monospace fonts tend to be smaller; compensate */
 }
 
 .forum form input {
@@ -373,6 +364,19 @@ div.sidebar:not(.no-label):before {
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
+}
+
+/* Wiki adjustments */
+pre.verbatim {
+  /* keep code examples from crashing into sidebars, etc. */
+  white-space: pre-wrap;  
+}
+textarea.wikiedit {
+  /* Monospace fonts tend to have smaller x-heights; compensate.
+   * Can't do this generally because not all fonts have this problem.
+   * A textarea stands alone, whereas inline <code> has to work with
+   * the browser's choice of sans-serif proportional font. */
+  font-size: 1.1em;  
 }
 
 
