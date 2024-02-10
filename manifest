@@ -1,5 +1,5 @@
-C Applied\sa\sfew\swhitespace\sfixes\sto\setienne/css.txt\smatching\sthose\sin\ndefault/css.txt,\sto\smake\sthe\sdiff\sbetween\sthem\seasier\sto\sread.
-D 2024-02-10T11:02:18.366
+C Whitespace\sfix
+D 2024-02-10T11:20:29.566
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -829,7 +829,7 @@ F www/forum.wiki ee1fcb6eb51f8193edc83c62b857565831557ec0b8b48b35c183dec017410f0
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 42373b5cb455cb12c130488eaf28a1c0daccdcc2c3506bbbde229ac5f03e1dec
-F www/fossil-v-git.wiki 919adde1fa03ed281a2da2f4ad946e03fabef5bd255cd678acddf566e01f668c
+F www/fossil-v-git.wiki 3f1c1d778d291c41eef9d2a34ae1912e12ddafa0c5576655cda54e90cfd7b492
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67a10cd7eec9b2671f876ce2772fcf135d253e491560af1ac47cd7fc9ee90506
-R 37a4acaefb7dc28a959d92a65a7431cf
+P ce479eea4c7e83499b1f25780df17aa2272f3478d506bfae457a5bcefdb37cda
+R 2b213a0fd81f2eae4fbb9323c85bb18b
 U wyoung
-Z 67d0ac9bac740210893b0ce7aa49655f
+Z d3bc86bed332a1a985a688b3c6115dd2
 # Remove this line to create a well-formed Fossil manifest.

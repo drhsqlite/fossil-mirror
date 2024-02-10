@@ -42,7 +42,7 @@ with further description in the text that follows.
     <td>File versioning only</td>
     <td>
       VCS, tickets, wiki, docs, notes, forum, chat, UI,
-        [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]
+      [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]
     </td>
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
