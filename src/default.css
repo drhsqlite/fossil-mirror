@@ -583,7 +583,7 @@ table.diff pre {
 table.diff pre > ins,
 table.diff pre > del {
   /* Fill platform-dependent color gaps caused by
-     inflated line-height */;
+     inflated line-height */
   padding: 0.062em 0 0.062em 0;
 }
 table.diff pre > ins > *,
