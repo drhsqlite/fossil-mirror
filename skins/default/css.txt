@@ -225,36 +225,106 @@ div.sidebar:not(.no-label):before {
   line-height: 1.4em;
 }
 
+/* Mark inline code fragments in the near-universal manner pioneered by
+ * Stack Overflow, then picked up by approximately everyone, including
+ * us, now.
+ *
+ * This combinatoric selector explosion results from a need to apply
+ * these stylings inside multiple page container types, multiplied by
+ * the surprisingly large number of tags HTML defines for semantically
+ * differentiated monospaced inline markup.  If we do not target the
+ * elements we want to affect carefully, we'll end up overreaching,
+ * styling Fossil UI elements that use these tags for local purposes.
+ *
+ * HTML generated and emitted by Fossil UI does not always fall under
+ * the skin's generic rules; we must avoid intruding on its domain.
+ * Our limited intent here is to style user content only, where it is
+ * unreasonable to expect its author to take the time to hand-craft
+ * per-document styling.  Contrast Fossil UI, which often does exactly
+ * that in order to get particular results.
+ *
+ * The equivalent Sass syntax is far more compact, thus clearer:
+ * 
+ * .artifact, .dir, .doc, .wiki                // the page types we target
+ *   > .content                                // hands off header & footer
+ *     &, > .fossil-doc, > .markdown           // wiki, HTML & MD emb docs
+ *       > p                                   // inline elements only
+ *         > code, > kbd, > samp, > tt, > var  // monospaced tag types
+ *           background-color: #eee            // pale gray box that…
+ *           padding: 0 4px                    // …extends around the sides
+ *
+ * We generated the CSS below by:
+ *
+ *   $ sassc code.sass | sed -e 's/, /,\n/g'
+ *
+ * …then hand-cleansed it to make it _somewhat_ more understandable.
+ */
+.artifact > .content               > p > code,
+.artifact > .content               > p > kbd,
+.artifact > .content               > p > samp,
+.artifact > .content               > p > tt,
+.artifact > .content               > p > var,
+.artifact > .content > .fossil-doc > p > code,
+.artifact > .content > .fossil-doc > p > kbd,
+.artifact > .content > .fossil-doc > p > samp,
+.artifact > .content > .fossil-doc > p > tt,
+.artifact > .content > .fossil-doc > p > var,
+.artifact > .content > .markdown   > p > code,
+.artifact > .content > .markdown   > p > kbd,
+.artifact > .content > .markdown   > p > samp,
+.artifact > .content > .markdown   > p > tt,
+.artifact > .content > .markdown   > p > var,
+.dir      > .content               > p > code,
+.dir      > .content               > p > kbd,
+.dir      > .content               > p > samp,
+.dir      > .content               > p > tt,
+.dir      > .content               > p > var,
+.dir      > .content > .fossil-doc > p > code,
+.dir      > .content > .fossil-doc > p > kbd,
+.dir      > .content > .fossil-doc > p > samp,
+.dir      > .content > .fossil-doc > p > tt,
+.dir      > .content > .fossil-doc > p > var,
+.dir      > .content > .markdown   > p > code,
+.dir      > .content > .markdown   > p > kbd,
+.dir      > .content > .markdown   > p > samp,
+.dir      > .content > .markdown   > p > tt,
+.dir      > .content > .markdown   > p > var,
+.doc      > .content               > p > code,
+.doc      > .content               > p > kbd,
+.doc      > .content               > p > samp,
+.doc      > .content               > p > tt,
+.doc      > .content               > p > var,
+.doc      > .content > .fossil-doc > p > code,
+.doc      > .content > .fossil-doc > p > kbd,
+.doc      > .content > .fossil-doc > p > samp,
+.doc      > .content > .fossil-doc > p > tt,
+.doc      > .content > .fossil-doc > p > var,
+.doc      > .content > .markdown   > p > code,
+.doc      > .content > .markdown   > p > kbd,
+.doc      > .content > .markdown   > p > samp,
+.doc      > .content > .markdown   > p > tt,
+.doc      > .content > .markdown   > p > var,
+.wiki     > .content               > p > code,
+.wiki     > .content               > p > kbd,
+.wiki     > .content               > p > samp,
+.wiki     > .content               > p > tt,
+.wiki     > .content               > p > var,
+.wiki     > .content > .fossil-doc > p > code,
+.wiki     > .content > .fossil-doc > p > kbd,
+.wiki     > .content > .fossil-doc > p > samp,
+.wiki     > .content > .fossil-doc > p > tt,
+.wiki     > .content > .fossil-doc > p > var,
+.wiki     > .content > .markdown   > p > code,
+.wiki     > .content > .markdown   > p > kbd,
+.wiki     > .content > .markdown   > p > samp,
+.wiki     > .content > .markdown   > p > tt,
+.wiki     > .content > .markdown   > p > var {
+  background-color: #eee;
+  padding: 0 4px;
+}
 .content pre {
   hyphens: none;
   line-height: 1.25;
-}
-.artifact > .content               > p > code,
-.artifact > .content               > p > tt,
-.artifact > .content > .fossil-doc > p > code,
-.artifact > .content > .fossil-doc > p > tt,
-.artifact > .content > .markdown   > p > code,
-.artifact > .content > .markdown   > p > tt,
-.dir      > .content               > p > code,
-.dir      > .content               > p > tt,
-.dir      > .content > .fossil-doc > p > code,
-.dir      > .content > .fossil-doc > p > tt,
-.dir      > .content > .markdown   > p > code,
-.dir      > .content > .markdown   > p > tt,
-.doc      > .content               > p > code,
-.doc      > .content               > p > tt,
-.doc      > .content > .fossil-doc > p > code,
-.doc      > .content > .fossil-doc > p > tt,
-.doc      > .content > .markdown   > p > code,
-.doc      > .content > .markdown   > p > tt,
-.wiki     > .content               > p > code,
-.wiki     > .content               > p > tt,
-.wiki     > .content > .fossil-doc > p > code,
-.wiki     > .content > .fossil-doc > p > tt,
-.wiki     > .content > .markdown   > p > code,
-.wiki     > .content > .markdown   > p > tt {
-  background-color: #eee;
-  padding: 0 4px;
 }
 
 .content .pikchr-wrapper {
@@ -462,13 +532,18 @@ span.timelineSecondary {
     padding: 10px;
   }
 
-  /* This horror-show selector explosion lets us avoid applying indents
-   * to Fossil UI generated pages, nested formatting in forum posts, p
-   * within td cells, etc.  It's easier to understand what this actually
-   * *says* by studying the override/modern/media.scss input file from
-   * the [Inskinerator](https://tangentsoft.com/inskinerator/) project.
-   * We generated the mess below from that, then sent it through a hand
-   * polishing pass.  The tool's _raw_ output is even worse. */
+  /* This horror show has the same cause that informed our handling of
+   * <code> and friends above; see "combinatorial selector explosion."
+   * Without this careful targeting, we'd not only overreach into areas
+   * of Fossil UI where our meddling is not wanted, we would mistakenly
+   * apply double indents to nested formatting in MD forum posts, p
+   * within td tags, and more.
+   *
+   * Rather than give the equivalent Sass code here, see the SCSS file
+   * that the [Inskinerator](https://tangentsoft.com/inskinerator/)
+   * project ships as override/modern/media.scss.  Rendering that
+   * through sassc gives substantially identical output, modulo the
+   * hand-polishing we've done here. */
   .artifact > .content > p,
   .artifact > .content > .markdown > p,
   .artifact > .content > .fossil-doc > p,
@@ -525,56 +600,54 @@ span.timelineSecondary {
     margin-right: 50pt;
   }
 
-  /* Code blocks and such get extra indent.  We need a selector explosion
-   * equally powerful to the above because Fossil UI *does* use <pre>,
-   * and we want this to apply to user content only.
+  /* Code blocks get extra indenting.  We need a selector explosion
+   * equally powerful to the one above for inline <code> fragments and
+   * similar elements, for essentially the same reason: Fossil UI also
+   * uses <pre>, and we want to affect user content only.
    *
-   * It's easier to see what's going on here: four types of top-level
-   * body class for /file, /dir, /doc and /wiki times three flavors of
-   * embedded doc type (plain HTML, wiki, and MD) equals 12 selectors,
-   * plus another 4 to account for the two supported types of markup
-   * preview in /fileedit and /wikiedit.  In SCSS form, this is simply:
+   * The equivalent Sass code is:
    *
-   * .artifact, .dir, .doc, .wiki {
-   *   > .content {
-   *     &, > .markdown, > .fossil-doc {
-   *       > pre {
-   *         @import 'margins.scss';
-   *       }
-   *     }
-   *   }
-   * }
-   * #fileedit-tab-preview-wrapper,
-   * #wikiedit-tab-preview-wrapper {
-   *   &, > .markdown {
-   *     > pre {
-   *       @import 'margins.scss';
-   *     }
-   *   }
-   * }
+   *   .artifact, .dir, .doc, .wiki       // doc types we target
+   *     > .content                       // hands off header & footer
+   *       @import 'pre-doc-margins.sass'
+   *
+   *   #fileedit-tab-preview-wrapper,     // include /fileedit previews
+   *   #wikiedit-tab-preview-wrapper      // ditto /wikiedit
+   *     @import 'pre-doc-margins.sass'
    * 
-   * …where margins.scss contains the common definitions for both blocks.
+   * …where pre-doc-margins.sass contains the elements common to both:
+   * 
+   *   &, > .fossil-doc, > .markdown      // wiki, HTML & MD doc types
+   *     > pre                            // direct pre descendants only
+   *       margin-left: 70pt;
+   *       margin-right: 50pt;
+   *
+   * This is a technical overreach since /wiki & /wikiedit lack support
+   * for Fossil's HTML embedded doc markup capability, but we prefer to
+   * draw the /fileedit parallel in our Sass example over the dubious
+   * pleasure of being nit-picky on this point.  Instead, we've chosen
+   * to back that overreach out by hand below.
    */
-  .artifact > .content > pre,
-  .artifact > .content > .markdown > pre,
+  .artifact > .content               > pre,
   .artifact > .content > .fossil-doc > pre,
-  .dir > .content > pre,
-  .dir > .content > .markdown > pre,
-  .dir > .content > .fossil-doc > pre,
-  .doc > .content > pre,
-  .doc > .content > .markdown > pre,
-  .doc > .content > .fossil-doc > pre,
-  .wiki > .content > pre,
-  .wiki > .content > .markdown > pre,
-  .wiki > .content > .fossil-doc > pre {
-    margin-left: 70pt;
+  .artifact > .content > .markdown   > pre,
+  .dir      > .content               > pre,
+  .dir      > .content > .fossil-doc > pre,
+  .dir      > .content > .markdown   > pre,
+  .doc      > .content               > pre,
+  .doc      > .content > .fossil-doc > pre,
+  .doc      > .content > .markdown   > pre,
+  .wiki     > .content               > pre,
+  .wiki     > .content > .markdown   > pre {
+    margin-left:  70pt;
     margin-right: 50pt;
   }
-  #fileedit-tab-preview-wrapper > pre,
-  #fileedit-tab-preview-wrapper > .markdown > pre,
-  #wikiedit-tab-preview-wrapper > pre,
-  #wikiedit-tab-preview-wrapper > .markdown > pre {
-    margin-left: 70pt;
+  #fileedit-tab-preview-wrapper               > pre,
+  #wikiedit-tab-preview-wrapper               > pre,
+  #fileedit-tab-preview-wrapper > .fossil-doc > pre,
+  #fileedit-tab-preview-wrapper > .markdown   > pre,
+  #wikiedit-tab-preview-wrapper > .markdown   > pre {
+    margin-left:  70pt;
     margin-right: 50pt;
   }
 
