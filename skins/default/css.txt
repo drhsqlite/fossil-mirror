@@ -501,6 +501,9 @@ span.timelineSecondary {
   h1.page-title {
     display: none;  /* use h1 in title area, above menu bar */
   }
+  span.page-title {
+    font-size: 18px;
+  }
   div.logo {
     padding-top: 10px;
   }
