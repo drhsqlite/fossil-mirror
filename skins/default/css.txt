@@ -120,11 +120,11 @@ span.submenuctrl {
   padding: 1ex;
   color: #2e2e2e;   /* justified above in "WCAG 2" comment */
 }
-.content h1 { font-size: 1.60em; }
-.content h2 { font-size: 1.45em; }
-.content h3 { font-size: 1.15em; }
-.content h4 { font-size: 1.05em; }
-.content h5 { font-size: 1.00em; }
+.content h1 { font-size: 1.60em; color: #444; }
+.content h2 { font-size: 1.45em; color: #444; }
+.content h3 { font-size: 1.15em; color: #444; }
+.content h4 { font-size: 1.05em; color: #444; }
+.content h5 { font-size: 1.00em; color: #444; }
 
 .section {
   font-size: 1em;
