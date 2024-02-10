@@ -1,5 +1,5 @@
-C Moved\smost\sof\sthe\ssidebar\simplementation\sup\sinto\sdefault.css\sin\sa\ngeneric\sform\sso\sall\sskins\sshare\sit,\sincluding\sÉtienne.\s\sWhat\sremains\nbehind\sin\sthe\snew\sdefault\sskin\sare\sthe\saccent\scolors\sfor\sthe\sbackground\nand\sthe\sleft\sborder.\s\sThe\sgeneric\sform\ssimply\sapplies\sa\stint\sdarkening\nto\swhatever\sbackground\sit\sfinds\sitself\son,\swhich\sworks\sfor\smost\sof\sthe\nstock\sskins.
-D 2024-02-10T10:20:34.784
+C Copied\stable\sformatting\sover\sto\sÉtienne\sskin,\sbut\sin\smonochrome\sform\sand\nwithout\sany\sof\sthe\sextra\swhitespace\sin\sthe\sdefault\sversion.
+D 2024-02-10T10:28:00.306
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -350,7 +350,7 @@ F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 1cc12e949701ca75072c0357364891fb911a9b6720ccbbaa2dac823f15611a2e
 F skins/etienne/README.md 471470404bd2354b7975401208bd08b15f1a6db38280107863bf39fd82986d2a
-F skins/etienne/css.txt 6fdc1050077484fe4b17b7f5e5130f0b985626438f7546113d0c499caafb9bd9
+F skins/etienne/css.txt 9b97061248b2ac0df21f91003129166c817a18e5fc9384a49396fe47b7e95528
 F skins/etienne/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/etienne/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/etienne/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89ceba160c8faed7b9990671812b06d8f06ed7ab009f78b7039bfdef36754574
-R 92d7382be5a61eeaf51852c5c933e492
+P bcbd1c1e90483716e29e9919837e4c13f38c55842b0c1a9b05a9ded29881c6cd
+R fc33744f79b145d94967603cfbc91280
 U wyoung
-Z 26751cadd893d9ceb7415dfa3fb8dc33
+Z e4a42335800ac6547a09e77490f5f0aa
 # Remove this line to create a well-formed Fossil manifest.

@@ -172,6 +172,34 @@ hr {
 }
 
 
+/* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
+
+.doc > .content table {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid #aaa;
+  border-radius: 0.5em;
+  border-spacing: 0;
+  padding: 6px;
+}
+.doc > .content th {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+  padding-right: 6px;
+  text-align: left;
+}
+.doc > .content tr > th {
+  background-color: #eee;
+}
+.doc > .content tr:nth-child(odd) {
+  background-color: #e8e8e8;
+}
+.doc > .content td {
+  padding-bottom: 4px;
+  padding-right: 6px;
+  text-align: left;
+}
+
+
 /* Tickets */
 
 table.report {
