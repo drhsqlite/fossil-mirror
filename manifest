@@ -1,5 +1,5 @@
-C Removed\sa\sbunch\sof\smanual\sindents\sin\spre\sblocks,\sMD\sfenced\scode\sblocks,\netc.\s\sThe\sskin\sdoes\sthat\sfor\sus\snow.
-D 2024-02-10T12:26:43.137
+C Removed\sredundant\ssidebar\sstyling;\sshould've\sbeen\sdone\sas\spart\sof\s[bcbd1c1e].
+D 2024-02-10T14:29:40.527
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
 F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac878d2bad087a
-F skins/default/css.txt 7c743275bc287363ec50a20c2f544bde2afb0b398ae37b51ac2820d1356d8178
+F skins/default/css.txt 1ac5c946f8e5a683d86283c1052ebcea3f308717cdb89400d9bb925d3f930e6e
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
 F skins/default/header.txt c13e64bb1110af9f6b7a76399546a08ebbc481f1acd067280cf9e48bc252a799
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ccdfa417aef0ab4fc81802ae915efa16638235e2fe01c9ff75b3722fec71f88
-R 4afe5da20937c45b2342e9207cfae558
+P 2a7b1de356d12a5fe5ffab37bc90e8514e2831f564e8de2ce0e1a4556394c24b
+R 2d06938164f032da6a8935f6cf2be8db
 U wyoung
-Z 810be3eabf259646c872cd986bceb5df
+Z f3d661a67a80d258690997f0eadaaf0a
 # Remove this line to create a well-formed Fossil manifest.

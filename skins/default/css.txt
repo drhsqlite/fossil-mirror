@@ -703,12 +703,4 @@ span.timelineSecondary {
   .local-indent {
     padding-left: 30pt;
   }
-
-  /* Float sidebars to the right of the main content only on screens big
-   * enough to give enough room for both.  Margin needed only then. */
-  .sidebar {
-    float: right;
-    max-width: 33%;
-    margin-left: 1em;
-  }
 }
