@@ -1761,7 +1761,7 @@ body.branch .submenu > a.timeline-link.selected {
 
 /* Candidate fonts for various forms of monospaced text. Collected here
  * to avoid repeating this long list of fonts. */
-code, pre, tt,
+code, kbd, pre, samp, tt, var,
     div.markdown ol.footnotes > li.fn-joined > sup.fn-joined,
     table.numbered-lines > tbody > tr,
     tr.diffskip > td.chunkctrl,

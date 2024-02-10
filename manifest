@@ -1,5 +1,5 @@
-C Restored\sthe\s#444\stext\scolor\sfor\sheaders,\ssince\sbold\sand\sbig\stext\ndoesn't\shave\sthe\ssame\sneed\sfor\shigh\scontrast\sratios\sto\sbe\sreadable.
-D 2024-02-10T05:37:29.185
+C Added\skbd,\ssamp\sand\svar\selement\sselectors\sto\sthe\slist\sgetting\smonospace\ntreatment\sin\sthe\sdefault.css\sfile.
+D 2024-02-10T05:40:15.681
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/cookies.c d614f17384a6f159138aad99110c0bc54ab5f550d730adb2ed01505ed1017e40
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 96ab100f63667a4a01560796f67251b647733613ff2ba4397bee5844f5015b9a
-F src/default.css cb320466e9225472cc2a91ae51db0a2d8fa5773b71704f5cc8e1aa9c984a54b9
+F src/default.css ea9c896c43e933bc0dbbf6c2fb7c644cfda4f3e0afd4f2a4b9f7be6491cfd60d
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2267249c6da7857545586618c5315b04e8f9163a92a79500e79f8f8a5a05a303
-R ec86f36f156a6a937de820da97073b4d
+P a3903958de99fb3374afe9b262ac93c1327928c168708c3d2269ec93425145ad
+R b88559dd9ca7531f5ee4075c7711dbc6
 U wyoung
-Z f9d5afe22950bd30e47bbb421e6e030e
+Z db5ccda67e7e528e0dd3d68e00400beb
 # Remove this line to create a well-formed Fossil manifest.
