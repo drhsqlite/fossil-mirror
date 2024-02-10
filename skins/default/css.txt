@@ -227,15 +227,6 @@ div.sidebar:not(.no-label):before {
   font-weight: bold;
 }
 
-.doc > .content dd, .content dt,
-.doc > .content div,
-.doc > .content li,
-.doc > .content p,
-.doc > .content table
-{
-  line-height: 1.4em;
-}
-
 /* Mark inline code fragments in the near-universal manner pioneered by
  * Stack Overflow, then picked up by approximately everyone, including
  * us, now.
@@ -541,6 +532,18 @@ span.timelineSecondary {
   }
   .mainmenu {
     padding: 10px;
+  }
+
+  /* Wide screens mean long lines.  Add extra leading to give the eye a
+   * "gutter" to follow from the end of one to the start of the next. */
+  .content dd,
+  .content dt,
+  .content div,
+  .content li,
+  .content p,
+  .content table
+  {
+    line-height: 1.4em;
   }
 
   /* This horror show has the same cause that informed our handling of
