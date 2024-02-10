@@ -1,4 +1,5 @@
-/* Overall page style */
+/* Overall page style; vi: filetype=css
+ */
 
 body {
   margin: 0 auto;
