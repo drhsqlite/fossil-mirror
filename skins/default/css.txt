@@ -417,7 +417,7 @@ div.timelineDate {
 }
 
 tr.timelineSelected, tr.timelineCurrent {
-  /* default/css.txt puts these styles on the whole row. We want them only
+  /* etienne/css.txt puts these styles on the whole row. We want them only
    * on the comment/details cell within the table, not over the time
    * and graph columns as well. */
   background-color: unset;
