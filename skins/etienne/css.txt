@@ -61,7 +61,7 @@ a:hover {
   color: #000;
   border-bottom: 2px solid #D26911;
 }
-div#hbdrop {
+nav#hbdrop {
   background-color: white;
   border: 1px solid black;
   border-top: white;
@@ -151,7 +151,7 @@ hr {
 
 /* Page footer */
 
-.footer {
+footer {
   border-top: 1px solid #ccc;
   padding: 10px;
   font-size: 0.7em;

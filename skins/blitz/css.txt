@@ -757,7 +757,7 @@ td:last-child {
 /* Header
  * Div displayed at the top of every page.
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
-.header {
+header {
   color: #666;
   font-weight: 400;
   padding-top: 10px;
@@ -766,38 +766,38 @@ td:last-child {
   border-bottom: 1px solid #ccc;
 }
 
-.header .logo {
+header .logo {
   display: inline-block;
 }
 
-.header .login {
+header .login {
   padding-top: 2px;
   text-align: right;
 }
 
-.header .login .button {
+header .login .button {
   margin: 0;
 }
 
-.header h1 {
+header h1 {
   margin: 0px;
   color: #666;
   display: inline-block;
 }
 
-.header .logo h1 {
+header .logo h1 {
   display: inline-block;
 }
 
-.header .title h1 {
+header .title h1 {
   padding-bottom: 10px;
 }
 
-.header h1 small, .header h2 small {
+header h1 small, header h2 small {
   color: #888;
 }
 
-.header a.rss {
+header a.rss {
   display: inline-block;
   padding: 10px 15px;
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wMNDhwn05VjawAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAGlSURBVDjLrdPfb8xREAXwT7tIl+paVNaPJghCKC8kXv0XXvyNXsRfwYPQJqVKiqykWFVZXd12vcxNJtduUtJJvrm7984998ycMxxwNGI9jPs4j7nY+/U/gIdiPYO71dk21rCE7r8ybOHGmMfmcRNnsbEf1gXwNzqYSXs5WljEMXzAaBLg1Ji9Js7hOi6OeeAznqC/X8AcMyHWYpX7E4/Rm1QyHMdefCWGeI/VcMDR2D8S7Fci5y/AeTzCPVyLi1sYJAut4BTaiX0n9kc14MmkcjPY3I5LXezGtxqKtyJ3Lir6VAM2AmCq6m8Hl6PsQTB5hyvxmMhZxk4G3MZLfAwLtdNZM9rwOs528TVVNB3ga7UoQ2wGmyWciFaU0VwIJiP8iL6Xfp7GK+w0JthliDep8UKonTSGvbBTaU8f3QzYxgPcCsBvWK9E6OBFCNGPVjTTqC430p+H6fLVGLGtmIw7SbwevqT+XkgVPJ9Otpmtyl6I9XswLXEp/d6oPN0ugJu14xMLob4kgPRYjtkCOMDTUG+AZ3ibEtfDLorfEmAB3UuTdXDxBzUUZV+B82aLAAAAAElFTkSuQmCC);
@@ -832,7 +832,7 @@ td:last-child {
 /* Footer
  * Displayed after the middle div and forms the page bottom.
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
-.footer {
+footer {
   padding: 10px 0 60px;
   border-top: 1px solid #ccc;
   background-color: #f8f8f8;
@@ -841,7 +841,7 @@ td:last-child {
   background-position: center top 10px;
 }
 
-.footer a {
+footer a {
   color: #3b5c6b;
 }
 
@@ -873,7 +873,7 @@ td:last-child {
 }
 
 .mainmenu li a,
-div#hbdrop a {
+nav#hbdrop a {
   color: #3b5c6b;
   padding: 10px 15px;
 }
@@ -883,11 +883,11 @@ div#hbdrop a {
 }
 
 .mainmenu li:hover
-div#hbdrop a:hover {
+nav#hbdrop a:hover {
     background-color: #eee;
 }
 
-div#hbdrop {
+nav#hbdrop {
   background-color: white;
   border: 2px solid #ccc;
   display: none;
