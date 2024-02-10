@@ -1,4 +1,4 @@
-<div class="header">
+<header>
   <div class="logo">
     <th1>
     ## See skins/original/header.txt for commentary; not repeated here.
@@ -44,8 +44,8 @@
    html "<a href='$home/login'>Login</a>\n"
  }
     </th1></div>
-</div>
-<div class="mainmenu">
+</header>
+<nav class="mainmenu" title="Main Menu">
 <th1>
 html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
 builtin_request_js hbmenu.js
@@ -59,6 +59,6 @@ foreach {name url expr class} $mainmenu {
   }
   html "<a href='$url' class='$class'>$name</a>\n"
 }
-</th1></div>
-<div id='hbdrop'></div>
+</th1></nav>
+<nav id="hbdrop" title="sitemap"></nav>
 <h1 class="page-title">$<title></h1>
