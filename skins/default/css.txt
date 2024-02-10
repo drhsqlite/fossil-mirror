@@ -8,7 +8,18 @@ body {
 }
 
 a {
-  color: #59C;
+  /* Unvisited links are a lightness-adjusted version of this skin's
+   * header blue, balancing contrast between the body text and the
+   * background in order to meet the goals specified by the WCAG 2
+   * accessbility standard, earning us an "AA" grade according to
+   * the calculator result here:
+   *
+   *   https://webaim.org/resources/linkcontrastchecker/?fcolor=2E2E2E&bcolor=FFFFFF&lcolor=3779BF
+   *
+   * It is for this same reason that our not-quite-black body text
+   * color is the shade of dark gray that it is.  It can't be any
+   * lighter and still allow us to meet both targets. */
+  color: #3779BF;
   text-decoration: none;
 }
 a:hover {
@@ -107,7 +118,7 @@ span.submenuctrl {
 
 .content {
   padding: 1ex;
-  color: #444;
+  color: #2e2e2e;   /* justified above in "WCAG 2" comment */
 }
 .content h1 { font-size: 1.60em; }
 .content h2 { font-size: 1.45em; }
