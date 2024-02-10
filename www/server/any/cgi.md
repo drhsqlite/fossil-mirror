@@ -10,8 +10,8 @@ on the CGI protocol.
 To run Fossil as CGI, create a CGI script (here called "repo") in the
 CGI directory of your web server with content like this:
 
-        #!/usr/bin/fossil
-        repository: /home/fossil/repo.fossil
+    #!/usr/bin/fossil
+    repository: /home/fossil/repo.fossil
 
 Adjust the paths appropriately.  It may be necessary to set certain
 permissions on this file or to modify an `.htaccess` file or make other
@@ -59,9 +59,9 @@ To serve multiple repositories from a directory using CGI, use the
 might also want to add a "notfound:" tag to tell where to redirect if
 the particular repository requested by the URL is not found:
 
-        #!/usr/bin/fossil
-        directory: /home/fossil/repos
-        notfound: http://url-to-go-to-if-repo-not-found/
+    #!/usr/bin/fossil
+    directory: /home/fossil/repos
+    notfound: http://url-to-go-to-if-repo-not-found/
 
 Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
 will serve up the repository `/home/fossil/repos/XYZ.fossil` if it
@@ -81,12 +81,12 @@ However, Fossil in CGI mode needs it in order to generate the correct links.
 Apache can be instructed to pass this parameter further to the CGI scripts for
 TLS connections with a stanza like
 
-        SetEnvIf X-Forwarded-Proto "https" HTTPS=on
-        
+    SetEnvIf X-Forwarded-Proto "https" HTTPS=on
+
 in its config file section for CGI, provided that
 
-        proxy_set_header  X-Forwarded-Proto $scheme;
-        
+    proxy_set_header  X-Forwarded-Proto $scheme;
+
 has been be added in the relevant proxying section of the Nginx config file.
 
 *[Return to the top-level Fossil server article.](../)*
