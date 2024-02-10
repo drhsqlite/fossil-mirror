@@ -184,35 +184,12 @@ div.forumSel {
 }
 
 
-/* Markdown and Wiki-formatted pages: /wiki, /doc, /file...
- *
- * The frequent use of the immediate-child selector (>) is done on
- * purpose to prevent these rules from affecting MD in forum posts,
- * ticket comments, etc.  Without this, we'd need a bunch of inverse
- * rules to back out the margins everywhere we don't want them.
- *
- * BEWARE: Fossil's MD and wiki to HTML processors wrap the content bodies
- * differently, and /doc on *.html files works yet a third way.  These
- * rules are carefully written to capture these docs and no other use of
- * MD/wiki/HTML.  Adjust with care!
- */
+/* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
 
-.markdown blockquote, .sidebar, p.blockquote {
-  /* Style it as a proper blockquote for MD only.  Unlike the indent
-   * rule, this applies everywhere, including the forum, tickets… */
+.markdown blockquote, p.blockquote, .sidebar {
+  /* Override default.css version with our accent colors. */
   background-color: rgba(65, 131, 196, 0.1);
-  border-left: 3px solid #4183c4;
-  padding: 0.1em 1em;
-}
-.sidebar {
-  font-size: 0.9em;
-}
-div.sidebar {
-  padding: 1em;     /* no p wrapper inside to get extra padding from */
-}
-div.sidebar:not(.no-label):before {
-  content: "Sidebar: ";
-  font-weight: bold;
+  border-left-color: #4183c4;
 }
 
 /* Mark inline code fragments in the near-universal manner pioneered by

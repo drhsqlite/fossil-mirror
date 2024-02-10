@@ -1534,6 +1534,30 @@ blockquote.file-content {
   margin: 0 1em;
 }
 
+/* Generic sidebar styling inherited by skins that don't make their own
+ * arrangements. */
+.markdown blockquote, p.blockquote, .sidebar {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #777;
+  padding: 0.1em 1em;
+}
+.sidebar {
+  font-size: 90%;
+}
+.sidebar {
+  /* Generic form that can be applied to any block element. */
+  font-size: 0.9em;
+}
+div.sidebar {
+  /* Special exception for div-type sidebars, where there is no p
+   * wrapper inside to give us the extra padding we want. */
+  padding: 1em;
+}
+div.sidebar:not(.no-label):before {
+  content: "Sidebar: ";
+  font-weight: bold;
+}
+
 
 /**
    Circular "help" buttons intended to be placed to the right of
@@ -1853,6 +1877,14 @@ div.markdown span.notescope:target {
 @media screen and (max-width: 600px) {
   .desktoponly {
     display: none;
+  }
+}
+/* Float sidebars to the right of the main content only if there's room. */
+@media screen and (min-width: 600px) {
+  .sidebar {
+    float: right;
+    max-width: 33%;
+    margin-left: 1em;
   }
 }
 /* Objects in the "wideonly" class are invisible only on wide-screen desktops */
