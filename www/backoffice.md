@@ -81,7 +81,7 @@ daily digest might not go out until somebody does visit a webpage.
 If this is a problem, an administrator can set up a cron job to
 periodically run:
 
->   fossil backoffice _REPOSITORY_
+    fossil backoffice _REPOSITORY_
 
 That command will cause backoffice processing to occur immediately.
 Note that this is almost never necessary for an internet-facing
@@ -104,12 +104,12 @@ on OpenBSD systems.
 To set up fully-manual backoffice, first disable the automatic backoffice
 using the "[backoffice-disable](/help?cmd=backoffice-disable)" setting.
 
->   fossil setting backoffice-disable on
+    fossil setting backoffice-disable on
 
 Then arrange to invoke the backoffice separately using a command
 like this:
 
->   fossil backoffice --poll 30 _REPOSITORY-LIST_
+    fossil backoffice --poll 30 _REPOSITORY-LIST_
 
 Multiple repositories can be named.  This one command will handle
 launching the backoffice for all of them.  There are additional useful
@@ -149,7 +149,7 @@ not a process still exists.
 You can print out a decoded copy of the current backoffice lease using
 this command:
 
->  fossil test-backoffice-lease -R _REPOSITORY_
+    fossil test-backoffice-lease -R _REPOSITORY_
 
 If a system has been idle for a long time, then there will be no
 backoffice processes.  (Either the process id entries in the lease
@@ -199,7 +199,7 @@ there are some debugging aids.
 We have already mentioned the command that shows the backoffice lease
 for a repository:
 
->  fossil test-backoffice-lease -R _REPOSITORY_
+    fossil test-backoffice-lease -R _REPOSITORY_
 
 Running that command every few seconds should show what is going on with
 backoffice processing in a particular repository.

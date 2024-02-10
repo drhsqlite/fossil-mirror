@@ -1783,6 +1783,7 @@ static void wiki_render(Renderer *p, char *z){
               pushStack(p, MARKUP_TR);
               blob_append_string(p->pOut, "<tr>");
             }
+            p->wantAutoParagraph = 0;
             pushStack(p, markup.iCode);
             renderMarkup(p->pOut, &markup);
           }

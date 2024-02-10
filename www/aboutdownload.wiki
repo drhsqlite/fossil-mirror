@@ -1,5 +1,4 @@
 <title>How The Fossil Download Page Works</title>
-<h1 align="center">How The Download Page Works</h1>
 
 <h2>1.0 Overview</h2>
 

@@ -33,9 +33,9 @@ If the Fossil server is itself run as
 [./server/any/cgi.md|CGI], then add a line to the 
 [./cgi.wiki#extroot|CGI script file] that says:
 
-<blockquote><pre>
+<pre>
 extroot: <i>DIRECTORY</i>
-</pre></blockquote>
+</pre>
 
 Or, if the Fossil server is being run using the 
 "[./server/any/none.md|fossil server]" or
@@ -46,9 +46,9 @@ Or, if the Fossil server is being run using the
 The <i>DIRECTORY</i> is the DOCUMENT_ROOT for the CGI.
 Files in the DOCUMENT_ROOT are accessed via URLs like this:
 
-<blockquote>
+<pre>
 https://example-project.org/ext/<i>FILENAME</i>
-</blockquote>
+</pre>
 
 In other words, access files in DOCUMENT_ROOT by appending the filename
 relative to DOCUMENT_ROOT to the [/help?cmd=/ext|/ext]
@@ -62,12 +62,12 @@ The source code repository for SQLite is a Fossil server that is run
 as CGI.  The URL for the source code repository is [https://sqlite.org/src].
 The CGI script looks like this:
 
-<blockquote><verbatim>
+<verbatim>
 #!/usr/bin/fossil
 repository: /fossil/sqlite.fossil
 errorlog: /logs/errors.txt
 extroot: /sqlite-src-ext
-</verbatim></blockquote>
+</verbatim>
 
 The "extroot: /sqlite-src-ext" line tells Fossil that it should look for
 extension CGIs in the /sqlite-src-ext directory.  (All of this is happening
@@ -103,12 +103,12 @@ main web server which in turn relays the result back to the original client.
 The [https://fossil-scm.org/home|Fossil self-hosting repository] is also
 a CGI that looks like this:
 
-<blockquote><verbatim>
+<verbatim>
 #!/usr/bin/fossil
 repository: /fossil/fossil.fossil
 errorlog: /logs/errors.txt
 extroot: /fossil-extroot
-</verbatim></blockquote>
+</verbatim>
 
 The extroot for this Fossil server is /fossil-extroot and in that directory
 is an executable file named "fileup1" - another [https://wapp.tcl.tk|Wapp]
@@ -203,9 +203,9 @@ CGI output must include a nonce or else they will be suppressed by the
 web browser.  The FOSSIL_NONCE variable contains the value of that nonce.
 So, in other words, to get javascript to work, it must be enclosed in:
 
-<blockquote><verbatim>
+<verbatim>
 <script nonce='$FOSSIL_NONCE'>...</script>
-</verbatim></blockquote>
+</verbatim>
 
 Except, of course, the $FOSSIL_NONCE is replaced by the value of the
 FOSSIL_NONCE environment variable.
@@ -225,10 +225,10 @@ the CGI.  These are followed by a blank line and then the content.
 
 Typical parameter output looks like this:
 
-<blockquote><verbatim>
+<verbatim>
 Status: 200 OK
 Content-Type: text/html
-</verbatim></blockquote>
+</verbatim>
 
 CGI programs can return any content type they want - they are not restricted
 to text replies.  It is OK for a CGI program to return (for example)
@@ -246,11 +246,11 @@ own header and footer text according to the repository skin.  Content
 of type "text/html" is normally passed straight through
 unchanged.  However, if the text/html content is of the form:
 
-<blockquote><verbatim>
+<verbatim>
 <div class='fossil-doc' data-title='DOCUMENT TITLE'>
 ... HTML content there ...
 </div>
-</verbatim></blockquote>
+</verbatim>
 
 In other words, if the outer-most markup of the HTML is a &lt;div&gt;
 element with a single class of "fossil-doc", 

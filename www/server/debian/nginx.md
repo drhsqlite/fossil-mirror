@@ -103,7 +103,7 @@ SCGI it is, then.
 The first step is to install some non-default packages we’ll need. SSH into
 your server, then say:
 
-       $ sudo apt install fossil nginx
+    $ sudo apt install fossil nginx
 
 You can leave “`fossil`” out of that if you’re building Fossil from
 source to get a more up-to-date version than is shipped with the host
@@ -133,8 +133,8 @@ for nginx is `/etc/nginx/sites-enabled/default`. I recommend that this
 file contain only a list of include statements, one for each site that
 server hosts:
 
-      include local/example.com
-      include local/foo.net
+    include local/example.com
+    include local/foo.net
 
 Those files then each define one domain’s configuration.  Here,
 `/etc/nginx/local/example.com` contains the configuration for
@@ -199,9 +199,9 @@ try on your own site, such as static asset proxying.
 
 You also need a `local/code` file containing:
 
-      include scgi_params;
-      scgi_pass 127.0.0.1:12345;
-      scgi_param SCRIPT_NAME "/code";
+    include scgi_params;
+    scgi_pass 127.0.0.1:12345;
+    scgi_param SCRIPT_NAME "/code";
 
 We separate that out because nginx refuses to inherit certain settings
 between nested location blocks, so rather than repeat them, we extract
@@ -215,12 +215,12 @@ Fossil-based site considerably faster.
 Similarly, the `local/generic` file referenced above helps us reduce unnecessary
 repetition among the multiple sites this configuration hosts:
 
-      root /var/www/$host;
+    root /var/www/$host;
 
-      listen 80;
-      listen [::]:80;
+    listen 80;
+    listen [::]:80;
 
-      charset utf-8;
+    charset utf-8;
 
 There are some configuration directives that nginx refuses to substitute
 variables into, citing performance considerations, so there is a limit
@@ -248,10 +248,10 @@ However, it is still worth showing the proper method of proxying
 Fossil’s HTTP server through nginx if only to make reading nginx
 documentation on other sites easier:
 
-        location /code {
-            rewrite ^/code(/.*) $1 break;
-            proxy_pass http://127.0.0.1:12345;
-        }
+    location /code {
+        rewrite ^/code(/.*) $1 break;
+        proxy_pass http://127.0.0.1:12345;
+    }
 
 The most common thing people get wrong when hand-rolling a configuration
 like this is to get the slashes wrong. Fossil is sensitive to this. For
@@ -269,8 +269,8 @@ message for the entire file. Therefore, if you will be storing files
 larger than this limit as unversioned content, you need to raise the
 limit. Within the `location` block:
 
-        # Allow large unversioned file uploads, such as PDFs
-        client_max_body_size 20M;
+    # Allow large unversioned file uploads, such as PDFs
+    client_max_body_size 20M;
 
 [uv]: ../../unvers.wiki
 
@@ -287,7 +287,7 @@ form, which `fail2ban` is designed to handle.
 
 First, install `fail2ban`, if you haven’t already:
 
-      sudo apt install fail2ban
+    sudo apt install fail2ban
 
 We’d like `fail2ban` to react to Fossil `/login` failures.  The stock
 configuration of `fail2ban` only detects a few common sorts of SSH
@@ -296,8 +296,8 @@ detectors don’t include one that knows how to detect an attack on
 Fossil.  We have to teach it by putting the following into
 `/etc/fail2ban/filter.d/nginx-fossil-login.conf`:
 
-      [Definition]
-      failregex = ^<HOST> - .*POST .*/login HTTP/..." 401
+    [Definition]
+    failregex = ^<HOST> - .*POST .*/login HTTP/..." 401
 
 That teaches `fail2ban` how to recognize the errors logged by Fossil
 [as of 2.14](/info/39d7eb0e22). (Earlier versions of Fossil returned
@@ -306,9 +306,9 @@ login from a failure.)
 
 Then in `/etc/fail2ban/jail.local`, add this section:
 
-      [nginx-fossil-login]
-      enabled = true
-      logpath = /var/log/nginx/*-https-access.log
+    [nginx-fossil-login]
+    enabled = true
+    logpath = /var/log/nginx/*-https-access.log
 
 The last line is the key: it tells `fail2ban` where we’ve put all of our
 per-repo access logs in the nginx config above.
@@ -340,30 +340,30 @@ You may wish to include something like this from each `server { }`
 block in your configuration to enable TLS in a common, secure way:
 
 ```
-    # Tell nginx to accept TLS-encrypted HTTPS on the standard TCP port.
-    listen 443 ssl;
-    listen [::]:443 ssl;
+# Tell nginx to accept TLS-encrypted HTTPS on the standard TCP port.
+listen 443 ssl;
+listen [::]:443 ssl;
 
-    # Reference the TLS cert files produced by Certbot.
-    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+# Reference the TLS cert files produced by Certbot.
+ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
 
-    # Load the Let's Encrypt Diffie-Hellman parameters generated for
-    # this server.  Without this, the server is vulnerable to Logjam.
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+# Load the Let's Encrypt Diffie-Hellman parameters generated for
+# this server.  Without this, the server is vulnerable to Logjam.
+ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    # Tighten things down further, per Qualys’ and Certbot’s advice.
-    ssl_session_cache shared:le_nginx_SSL:1m;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_session_timeout 1440m;
+# Tighten things down further, per Qualys’ and Certbot’s advice.
+ssl_session_cache shared:le_nginx_SSL:1m;
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers on;
+ssl_session_timeout 1440m;
 
-    # Offer OCSP certificate stapling.
-    ssl_stapling on;
-    ssl_stapling_verify on;
+# Offer OCSP certificate stapling.
+ssl_stapling on;
+ssl_stapling_verify on;
 
-    # Enable HSTS.
-    include local/enable-hsts;
+# Enable HSTS.
+include local/enable-hsts;
 ```
 
 The [HSTS] step is optional and should be applied only after due
@@ -371,9 +371,7 @@ consideration, since it has the potential to lock users out of your
 site if you later change your mind on the TLS configuration.
 The `local/enable-hsts` file it references is simply:
 
-```
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-```
 
 It’s a separate file because nginx requires that headers like this be
 applied separately for each `location { }` block. We’ve therefore

@@ -1,7 +1,4 @@
 <title>Fossil File Formats</title>
-<h1 align="center">
-Fossil File Formats
-</h1>
 
 The global state of a fossil repository is kept simple so that it can
 endure in useful form for decades or centuries.
@@ -112,7 +109,7 @@ with the check-in.
 
 Allowed cards in the manifest are as follows:
 
-<blockquote>
+<p class="indent">
 <b>B</b> <i>baseline-manifest</i><br>
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
@@ -124,7 +121,7 @@ Allowed cards in the manifest are as follows:
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <b>*</b> ?<i>value</i>?<br>
 <b>U</b> <i>user-login</i><br>
 <b>Z</b> <i>manifest-checksum</i>
-</blockquote>
+</p>
 
 A manifest may optionally have a single <b>B</b> card.  The <b>B</b> card specifies
 another manifest that serves as the "baseline" for this manifest.  A
@@ -150,10 +147,10 @@ the <b>D</b> card is a date-time stamp in the ISO8601 format.  The
 date and time should be in coordinated universal time (UTC).
 The format one of:
 
-<blockquote>
+<p class="indent">
 <i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><br>
 <i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><b>.</b><i>SSS</i>
-</blockquote>
+</p>
 
 A manifest has zero or more <b>F</b> cards.  Each <b>F</b> card identifies a file
 that is part of the check-in.  There are one, two, three, or four
@@ -265,10 +262,10 @@ underlying project code.
 
 Allowed cards in the cluster are as follows:
 
-<blockquote>
+<p class="indent">
 <b>M</b> <i>artifact-id</i><br />
 <b>Z</b> <i>checksum</i>
-</blockquote>
+</p>
 
 A cluster contains one or more <b>M</b> cards followed by a single <b>Z</b> card.
 Each <b>M</b> card has a single argument which is the artifact ID of
@@ -286,12 +283,12 @@ Control artifacts are used to assign properties to other artifacts
 within the repository.
 Allowed cards in a control artifact are as follows:
 
-<blockquote>
+<p class="indent">
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <i>artifact-id</i> ?<i>value</i>?<br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i><br />
-</blockquote>
+</p>
 
 A control artifact must have one <b>D</b> card, one <b>U</b> card, one <b>Z</b> card and
 one or more <b>T</b> cards.  No other cards or other text is
@@ -340,7 +337,7 @@ single wiki page.
 Wiki artifacts accept
 the following card types:
 
-<blockquote>
+<p class="indent">
 <b>C</b> <i>change-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>L</b> <i>wiki-title</i><br />
@@ -349,7 +346,7 @@ the following card types:
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
-</blockquote>
+</p>
 
 The <b>D</b> card is the date and time when the wiki page was edited.
 The <b>P</b> card specifies the parent wiki pages, if any.  The <b>L</b> card
@@ -381,13 +378,13 @@ An example wiki artifact can be seen
 A ticket-change artifact represents a change to a trouble ticket.
 The following cards are allowed on a ticket change artifact:
 
-<blockquote>
+<p class="indent">
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>J</b> ?<b>+</b>?<i>name</i> ?<i>value</i>?<br />
 <b>K</b> <i>ticket-id</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
-</blockquote>
+</p>
 
 The <b>D</b> card is the usual date and time stamp and represents the point
 in time when the change was entered.  The <b>U</b> card is the login of the
@@ -429,14 +426,14 @@ technical note to which
 the attachment is connected (the target artifact).
 The following cards are allowed on an attachment artifact:
 
-<blockquote>
+<p class="indent">
 <b>A</b> <i>filename target</i> ?<i>source</i>?<br />
 <b>C</b> <i>comment</i><br />
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>N</b> <i>mimetype</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
-</blockquote>
+</p>
 
 The <b>A</b> card specifies a filename for the attachment in its first argument.
 The second argument to the <b>A</b> card is the name of the wiki page or
@@ -471,7 +468,7 @@ to record project milestones, release notes, blog entries, process
 checkpoints, or news articles.
 The following cards are allowed on an technote artifact:
 
-<blockquote>
+<p class="indent">
 <b>C</b> <i>comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>E</b> <i>technote-time</i> <i>technote-id</i><br />
@@ -481,7 +478,7 @@ The following cards are allowed on an technote artifact:
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
-</blockquote>
+</p>
 
 The <b>C</b> card contains text that is displayed on the timeline for the
 technote.  The <b>C</b> card is optional, but there can only be one.
@@ -536,7 +533,7 @@ discuss a project.  Forum posts are like messages on a mailing list.
 
 The following cards are allowed on an forum post artifact:
 
-<blockquote>
+<p class="indent">
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>G</b> <i>thread-root</i><br />
 <b>H</b> <i>thread-title</i><br />
@@ -546,7 +543,7 @@ The following cards are allowed on an forum post artifact:
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
-</blockquote>
+</p>
 
 Every forum post must have either one <b>I</b> card and one <b>G</b> card
 or one <b>H</b> card.
@@ -612,12 +609,9 @@ of times a card may (or must) appear in the corresponding artifact type.
 e.g. a value of 1 indicates a required unique card and 1+ indicates that one
 or more such cards are required.
 
-<table border=1 width="100%">
+<table>
 <tr>
-<th rowspan=2 valign=bottom>Card Format</th>
-<th colspan=8>Used By</th>
-</tr>
-<tr>
+<th>⇩ Card Format / Used By ⇨</th>
 <th>Manifest</th>
 <th>Cluster</th>
 <th>Control</th>
@@ -911,11 +905,11 @@ Technical Note artifacts that were inserted by users in good faith
 from being rejected by newer Fossil builds, the card ordering
 requirement is relaxed slightly.  The actual implementation is this:
 
-<blockquote>
+<p class=blockquote>
 "All cards must be in strict lexicographic order, except that the
 N and P cards of a Technical Note artifact are allowed to be
 interchanged."
-</blockquote>
+</p>
 
 Future versions of Fossil might strengthen this slightly to only allow
 the out of order N and P cards for Technical Notes entered before

@@ -36,12 +36,14 @@ Git to Fossil, see our [./gitusers.md | Git to Fossil Translation Guide].
 Differences between Fossil and Git are summarized by the following table,
 with further description in the text that follows.
 
-<blockquote><table border=1 cellpadding=5 align=center>
-<tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
+<table style="width: fit-content">
+<tr><th>GIT</th><th>FOSSIL</th><th>more</th></tr>
 <tr>
     <td>File versioning only</td>
-    <td>VCS, tickets, wiki, docs, notes, forum, chat, UI,
-    [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td>
+    <td>
+      VCS, tickets, wiki, docs, notes, forum, chat, UI,
+      [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]
+    </td>
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
 <tr>
@@ -99,7 +101,7 @@ with further description in the text that follows.
     <td>SHA-1 and/or SHA-3, in the same repository</td>
     <td><a href="#hash">2.9&nbsp;&darr;</a></td>
 </tr>
-</table></blockquote>
+</table>
 
 <h3 id="features">2.1 Featureful</h3>
 
@@ -799,17 +801,17 @@ Incidentally, this is a good example of Git's messy command design.
 These three commands:
 
 <pre>
-    $ git merge HASH 
-    $ git cherry-pick HASH 
-    $ git revert HASH
+$ git merge HASH 
+$ git cherry-pick HASH 
+$ git revert HASH
 </pre>
 
 ...are all the same command in Fossil:
 
 <pre>
-    $ fossil merge HASH
-    $ fossil merge --cherrypick HASH
-    $ fossil merge --backout HASH
+$ fossil merge HASH
+$ fossil merge --cherrypick HASH
+$ fossil merge --backout HASH
 </pre>
 
 If you think about it, they're all the same function: apply work done on

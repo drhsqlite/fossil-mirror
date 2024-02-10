@@ -264,8 +264,8 @@ PBKDF2. To avoid a conflict with the platform’s `openssl` binary,
 Homebrew’s installation is [unlinked][hbul] by default, so you have to
 give an explicit path to it, one of:
 
-       /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
-       /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
+    /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
+    /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
 
 [lssl]: https://www.libressl.org/
 

@@ -248,9 +248,9 @@ They are in fact separate concepts, but since Fossil is intended to be
 used primarily by humans, we combine them in Fossil's human user
 interfaces.
 
-<blockquote>
+<p class="blockquote">
 <b>Key Distinction:</b> A branch is a <i>named, intentional</i> fork.
-</blockquote>
+</p>
 
 Unnamed forks <i>may</i> be intentional, but most of the time, they're
 accidental and left unnamed.
@@ -697,7 +697,7 @@ painless to fix them] when they do occur.
 
 <h2>Review Of Terminology</h2>
 
-<blockquote><dl>
+<dl>
 <dt><b>Branch</b></dt>
 <dd><p>A branch is a set of check-ins with the same value for their
 "branch" property.</p></dd>
@@ -716,7 +716,7 @@ children in the same branch.</p></dd>
 <dd><p>A branch point occurs when a check-in has two or more direct (non-merge)
 children in different branches.  A branch point is similar to a fork,
 except that the children are in different branches.</p></dd>
-</dl></blockquote>
+</dl>
 
 Check-in 4 of Figure 3 is not a leaf because it has a child (check-in 5)
 in the same branch.  Check-in 9 of Figure 5 also has a child (check-in 10)
