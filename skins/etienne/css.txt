@@ -255,11 +255,11 @@ td.tktDspValue pre {
 /* Timeline */
 
 span.timelineDetail {
-    font-size: 90%;
+  font-size: 90%;
 }
 div.timelineDate {
-    font-weight: bold;
-    white-space: nowrap;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 
