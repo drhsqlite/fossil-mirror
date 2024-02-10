@@ -27,8 +27,8 @@ check-in names as an argument.  For example, the "[/help/info|info]" command
 accepts an optional check-in name to identify the specific check-in
 about which information is desired:
 
-<pre>
-fossil info< <i>checkin-name</i>
+<pre style="white-space: pre-wrap">
+fossil info <i>checkin-name</i>
 </pre>
 
 You are perhaps reading this page from the following URL:
