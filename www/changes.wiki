@@ -14,6 +14,10 @@
      double-checking hashes of downloaded files on their end.
   *  The hash itself is now shown in a fixed-width font on the /uvlist
      page, suiting this tabular display.
+  *  Reworked the default skin to make everything more readable: larger
+     fonts, more whitespace, added indents to show hierarchy and to
+     offset command examples, etc.  Colors are slightly adjusted to bring
+     things into better accord with the WCAG accessibility guidelines.
 
 <h2 id='v2_23'>Changes for version 2.23 (2023-11-01)</h2>
 

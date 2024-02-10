@@ -1,5 +1,5 @@
-C Sidebars\snow\sfloat\sto\sthe\sright\sof\sthe\smain\scontent\swhen\sthere's\sspace\nto\sallow\sboth.\s\sThis\sdoesn't\swholly\sinvalidate\s[c062e330],\sbut\sthis\sis\sa\nbetter\soverall\ssolution.
-D 2024-02-10T09:22:48.903
+C Added\sbranch\schange\ssummary\sto\schanges\sdoc.
+D 2024-02-10T09:30:19.320
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -777,7 +777,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
-F www/changes.wiki 9a1f32f5eb61ad6b032ed646a177b488c7f440e274a9fe71a05565ffd261f970
+F www/changes.wiki 5ea59bfa8175c3f382c0f01525e7ed48dee3bc493df170449606ae701133815f
 F www/chat.md e7215c6e50d4856a56013e7dec340d151a347411593febd875143c9d50fe1f3c
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 966187ef75f7150db2644fb2358b969672dd888d6f227a5587b975b935a327e7
@@ -952,8 +952,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c062e330ccb805c6f2207440515f5b6afce27dfa5c4c7eb10b0a8206b7952c73
-R b7eba45ec645f91e3f52159c8827dd2f
+P 265412ee5a656656f86e67ea3ed53c9511bdb6d120e1965d3e5c8f463e65954f
+R 2ab76a4f3ec4e4add4e8c85ad9db3c4e
 U wyoung
-Z 9ac81d793e72e14df0c8c038c6063a8b
+Z 45b2f469893f3acf4fceed7b8a2aa0e4
 # Remove this line to create a well-formed Fossil manifest.
