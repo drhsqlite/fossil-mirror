@@ -1,5 +1,5 @@
-C Added\sbranch\schange\ssummary\sto\schanges\sdoc.
-D 2024-02-10T09:30:19.320
+C Initial\sfork\sof\sthe\strunk\sdefault\sskin\sinto\s"Étienne"\s(a.k.a.\s"etienne"\nwithout\sthe\saccent\sfor\seasier\suse\sin\s?skin="\sand\ssuch)\sfor\suse\sby\sthose\nwho\swant\sto\sreturn\sto\sthe\sold\sdefault\sonce\sthis\sbranch\sis\smerged\sto\ntrunk.\n\nAt\sthe\smoment,\sit\sis\sa\sstraight\scopy\swith\sthe\sintent\sof\sforming\sa\nbaseline\sfor\sthe\sminimal\schanges\sI'm\sabout\sto\smake\sin\sorder\sto\sallow\nthe\sFossil\sdoc\schanges\son\sthis\sbranch\sto\srender\sreasonably.
+D 2024-02-10T09:54:37.089
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -339,7 +339,7 @@ F skins/darkmode/css.txt 04cc2331f15c0206663b4d22770664e34c9f63c10e30e9bdeca9763
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt b5badb60c494d7206e088a6996573cdd6b8579a73e7f1360a1119fc0400a0f13
-F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
+F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac878d2bad087a
 F skins/default/css.txt 4778b2b09fead81f35076061c36e420ad139275664ed211efe67044e42adba8f
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
@@ -349,6 +349,11 @@ F skins/eagle/css.txt 7984797a0096eb915702f3d997a3e32c5440d1fca78ae552f481f18a9d
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 1cc12e949701ca75072c0357364891fb911a9b6720ccbbaa2dac823f15611a2e
+F skins/etienne/README.md 471470404bd2354b7975401208bd08b15f1a6db38280107863bf39fd82986d2a
+F skins/etienne/css.txt f197e213902dd70646154d55919736614db4e765553789aef883f59302f90d33
+F skins/etienne/details.txt 916a4c696f0865d103980df3ae8425297d70af09
+F skins/etienne/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
+F skins/etienne/header.txt 1f7d499f1d0dd12ee2d461a17f8af7a5b51bc8c68044f14d74c80af5d30a4d75
 F skins/khaki/css.txt e4df7a70a1a3c6552441587a4038753f0058608b95d3f0d89ff47f94967225d2
 F skins/khaki/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/khaki/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
@@ -488,7 +493,7 @@ F src/login.c 380ef2e3e0e9eeec88c99463e00e1f1297de65e78828f211e0dde8c4786c16ac
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c cc62c6c43683e65eb8e728dfb0e808439e31e01d38daa44055cc5777664dbf3e
-F src/main.mk 961a783e98e357af1fd67bbdab8d60726ffa18811d5fd58e3220a7bc2586ebe3
+F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
@@ -526,7 +531,7 @@ F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
 F src/shun.c e8f6d93d5195eaf038b9291469a119197fbbb6f59c581607df49729c576d1ff1
 F src/sitemap.c 8d5b61937f3adf75bff06ff06d2b5b73d86fa829980e6eceb7be4aa65b51f50e
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c bfd45e72f198effb1557ea9124368ab9d07e4c11078c0196addc8d04c9f5150a
+F src/skins.c c5be6540f23502543e0e08ccc425376c7c510e42447edeace71b6edf0e5cbaed
 F src/smtp.c 595dd8e9a92adb32a47bae1112bfce5de3166feb1c97a2ec543bc8d909199861
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -741,9 +746,9 @@ F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d
 F tools/sqlcompattest.c e55aa8c8ab4d12e10db6941f5e4f6c518209305fa2fb8903c2ffa9d6c3a183dd
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.dmc 01a0d435b6f77213339280e30fd6913e146c1f4e889bacd58854a2c95f27bb61
-F win/Makefile.mingw 94020419f2b67575f076676453f9070f51481bb97e3b54c1b5af14495f02fbac
+F win/Makefile.mingw f0eda223f09a22a857267965fd1b0e1e17a2f2426adf297d8ac00d3fe1a82334
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
-F win/Makefile.msc e333d3c83af75623bd56abcab64ea4a7f83a7b8a2433f557740dc20c22b6bba2
+F win/Makefile.msc df7478c521e5696a8664cb91fe7201c0fa9e42a7c17bd0766f71fa39c6bd787e
 F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -952,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 265412ee5a656656f86e67ea3ed53c9511bdb6d120e1965d3e5c8f463e65954f
-R 2ab76a4f3ec4e4add4e8c85ad9db3c4e
+P d08e47ce0549f913df47ca2526bce49f78e252bd14634423ec2a4bf8b8fbc7ce
+R fbb9eec6a90f8a6a888429f5161c451e
 U wyoung
-Z 45b2f469893f3acf4fceed7b8a2aa0e4
+Z 25ef39d8bc27dd59d69296510bf142fb
 # Remove this line to create a well-formed Fossil manifest.

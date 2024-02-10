@@ -47,6 +47,7 @@ static struct BuiltinSkin {
   { "Blitz",                             "blitz",             0 },
   { "Dark Mode",                         "darkmode",          0 },
   { "Eagle",                             "eagle",             0 },
+  { "Étienne",                           "etienne",           0 },
   { "Khaki",                             "khaki",             0 },
   { "Original",                          "original",          0 },
   { "Plain Gray",                        "plain_gray",        0 },

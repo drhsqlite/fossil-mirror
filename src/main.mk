@@ -193,6 +193,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
+  $(SRCDIR)/../skins/etienne/css.txt \
+  $(SRCDIR)/../skins/etienne/details.txt \
+  $(SRCDIR)/../skins/etienne/footer.txt \
+  $(SRCDIR)/../skins/etienne/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
   $(SRCDIR)/../skins/khaki/details.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
@@ -2117,7 +2121,7 @@ $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 
 $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
 	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry \
-        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore,stackAlloc \
+        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore \
         -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c \
         -sENVIRONMENT=web \
         -sMODULARIZE \
