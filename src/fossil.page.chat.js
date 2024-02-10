@@ -79,10 +79,10 @@ window.fossil.onPageLoad(function(){
        of the input field so that pasting huge text does not scroll
        the upper area of the input widget off-screen. */
     const elemsToCount = [
-      document.querySelector('body > div.header'),
-      document.querySelector('body > div.mainmenu'),
+      document.querySelector('body > header'),
+      document.querySelector('body > nav.mainmenu'),
       document.querySelector('body > #hbdrop'),
-      document.querySelector('body > div.footer')
+      document.querySelector('body > footer')
     ];
     const contentArea = E1('div.content');
     const bcl = document.body.classList;
@@ -104,10 +104,10 @@ window.fossil.onPageLoad(function(){
       contentArea.style.height =
         contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
-          " - 0.75em"/*fudge value*/,")"
+          " - 0.65em"/*fudge value*/,")"
           /* ^^^^ hypothetically not needed, but both Chrome/FF on
              Linux will force scrollbars on the body if this value is
-             too small (<0.75em in my tests). */
+             too small; current value is empirically selected. */
         ].join('');
       if(false){
         console.debug("resized.",wh, extra, ht,
@@ -327,9 +327,9 @@ window.fossil.onPageLoad(function(){
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
           document.querySelectorAll(
-            ["body > div.header",
-             "body > div.mainmenu",
-             "body > div.footer",
+            ["body > header",
+             "body > nav.mainmenu",
+             "body > footer",
              "#debugMsg"
             ].join(',')
           ).forEach((e)=>f.elemsToToggle.push(e));
