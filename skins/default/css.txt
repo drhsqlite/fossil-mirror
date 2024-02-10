@@ -205,12 +205,9 @@ div.forumSel {
   padding: 0.1em 1em;
 }
 .sidebar {
-  float: right;
   font-size: 0.9em;
-  max-width: 33%;
 }
 div.sidebar {
-  margin-left: 1em; /* don't run wraparound text right up to our border */
   padding: 1em;     /* no p wrapper inside to get extra padding from */
 }
 div.sidebar:not(.no-label):before {
@@ -725,5 +722,13 @@ span.timelineSecondary {
    * outer margin instead of forcing the browser into picking one. */
   .local-indent {
     padding-left: 30pt;
+  }
+
+  /* Float sidebars to the right of the main content only on screens big
+   * enough to give enough room for both.  Margin needed only then. */
+  .sidebar {
+    float: right;
+    max-width: 33%;
+    margin-left: 1em;
   }
 }
