@@ -67,6 +67,15 @@ window.fossil.onPageLoad(function(){
       D.append(document.body,dbg);
     }
   })();
+  const GetFramingElements = function() {
+    return document.querySelectorAll([
+      "body > header",
+      "body > nav.mainmenu",
+      "body > footer",
+      "h1.page-title",
+      "#debugMsg"
+    ].join(','));
+  };
   const ForceResizeKludge = (function(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
@@ -78,12 +87,7 @@ window.fossil.onPageLoad(function(){
        While we're here, we also use this to cap the max-height
        of the input field so that pasting huge text does not scroll
        the upper area of the input widget off-screen. */
-    const elemsToCount = [
-      document.querySelector('body > header'),
-      document.querySelector('body > nav.mainmenu'),
-      document.querySelector('body > #hbdrop'),
-      document.querySelector('body > footer')
-    ];
+    const elemsToCount = GetFramingElements();
     const contentArea = E1('div.content');
     const bcl = document.body.classList;
     const resized = function f(){
@@ -326,13 +330,7 @@ window.fossil.onPageLoad(function(){
       chatOnlyMode: function f(yes){
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
-          document.querySelectorAll(
-            ["body > header",
-             "body > nav.mainmenu",
-             "body > footer",
-             "#debugMsg"
-            ].join(',')
-          ).forEach((e)=>f.elemsToToggle.push(e));
+          GetFramingElements().forEach((e)=>f.elemsToToggle.push(e));
         }
         if(!arguments.length) yes = true;
         if(yes === this.isChatOnlyMode()) return this;
