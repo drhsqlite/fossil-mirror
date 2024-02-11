@@ -1688,7 +1688,7 @@ window.fossil.onPageLoad(function(){
       children:[{
         label: "Left-align my posts",
         hint: "Default alignment of your own messages is selected "
-          + "based window width/height ratio.",
+          + "based on the window width/height ratio.",
         boolValue: ()=>!document.body.classList.contains('my-messages-right'),
         callback: function f(){
           document.body.classList[
