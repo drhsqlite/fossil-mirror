@@ -72,7 +72,6 @@ window.fossil.onPageLoad(function(){
       "body > header",
       "body > nav.mainmenu",
       "body > footer",
-      "h1.page-title",
       "#debugMsg"
     ].join(','));
   };
