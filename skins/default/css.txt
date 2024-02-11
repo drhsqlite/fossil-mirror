@@ -469,7 +469,10 @@ span.timelineSecondary {
     padding-bottom: 0px;
   }
   .title > .page-title {
-    display: none;      /* use h1 in body area, below menu bar */
+    display: none;      /* use h1 in body area, below menu bar… */
+  }
+  body.chat > .page-title {
+    display: none;      /* …except in mobile chat */
   }
   h1.page-title {
     font-size: 1.60em;  /* match content > h1 */
