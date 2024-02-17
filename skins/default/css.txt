@@ -34,9 +34,35 @@ a:hover {
   color: #4183C4;
   float: left;
 }
+h1.page-title {
+  display: none;    /* don't use body-area h1 except… */
+}
+.artifact h1.page-title,
+.dir      h1.page-title,
+.doc      h1.page-title,
+.wiki     h1.page-title {
+  display: block;   /* …for potentially long doc titles… */
+}
+.artifact .title > .page-title,
+.dir      .title > .page-title,
+.doc      .title > .page-title,
+.wiki     .title > .page-title {
+  display: none;   /* …where we suppress the title area h1 instead */
+}
 .title h1 {
   display: inline;
   font-size: 2.20em;
+}
+.title h1:after {
+  content: " / ";
+  color: #777;
+  font-weight: normal;
+}
+.artifact .title h1:after,
+.dir      .title h1:after,
+.doc      .title h1:after,
+.wiki     .title h1:after {
+  content: "";    /* hide solidus for docs along with title h1 */
 }
 .status {
   float: right;
@@ -469,10 +495,13 @@ span.timelineSecondary {
     padding-bottom: 0px;
   }
   .title > .page-title {
-    display: none;      /* use h1 in body area, below menu bar… */
+    display: inline;    /* show page titles above menu bar… */
   }
-  body.chat > .page-title {
-    display: none;      /* …except in mobile chat */
+  .artifact .title > .page-title,
+  .dir      .title > .page-title,
+  .doc      .title > .page-title,
+  .wiki     .title > .page-title {
+    display: none;     /* …except for docs, where it may force wrapping */
   }
   h1.page-title {
     font-size: 1.60em;  /* match content > h1 */
@@ -495,14 +524,6 @@ span.timelineSecondary {
   .title {
     padding-top: 10px;
     padding-bottom: 10px;
-  }
-  .title h1:after {
-    content: " / ";
-    color: #777;
-    font-weight: normal;
-  }
-  h1.page-title {
-    display: none;  /* use h1 in title area, above menu bar */
   }
   span.page-title {
     font-size: 18px;
