@@ -315,7 +315,7 @@ div.forumSel {
   background-color: #eee;
   padding: 0 4px;
 }
-.content pre {
+.content pre, table.numbered-lines > tbody > tr {
   hyphens: none;
   line-height: 1.25;
 }
