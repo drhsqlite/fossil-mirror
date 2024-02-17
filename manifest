@@ -1,5 +1,5 @@
-C The\sincreased\sline-height\sCSS\sfor\s"code"\sblocks\sis\snow\sreflected\sinto\nthe\sline\snumber\scolumn\sin\s/file?ln\sviews,\skeeping\sthe\stwo\sin\ssync.
-D 2024-02-17T17:33:41.289
+C The\sh1\shandling\schange\sin\s[b1f6753c]\sleft\sa\sfew\sdefinitions\sbehind.\s\sFixed.
+D 2024-02-17T18:24:19.339
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt f836de28bcd65e3101349141588c932f366e209255e4312ee054aad0ac01b526
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
 F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac878d2bad087a
-F skins/default/css.txt f01df4522224562644c1c4ae5156d14ce86617fc75d20662b4ff7f9dd3f99fa6
+F skins/default/css.txt aa5d0d47ed719e92ce25685b525942f3ca99309dd3d7fca5988ab2c8da44522c
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
 F skins/default/header.txt d1e9025e8bcc2de8f6d83bc5b0279782ff0aaf2f9b23312bce4b97206f3c9f24
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b1f6753c6766123a98c64a869e0ccf671991db87c61b608eb79d6cd40a1ef244
-R ed53d2f9106da8966e48c75dddb5fa1d
+P d745752649265e148307ba1f63b8fbe6daddc7c9e8b39360ebb3b0af67247c0a
+R 8bf42085d116a53b38f9c380135484e3
 U wyoung
-Z 951c3b503c41def0308565b21ae54000
+Z 1b08ba41c2e719e87842c0c1c2865c37
 # Remove this line to create a well-formed Fossil manifest.

@@ -35,7 +35,9 @@ a:hover {
   float: left;
 }
 h1.page-title {
-  display: none;    /* don't use body-area h1 except… */
+  font-size: 1.60em;  /* match content > h1 */
+  margin-bottom: 0;   /* div.content top margin suffices */
+  display: none;      /* don't use body-area h1 except… */
 }
 .artifact h1.page-title,
 .dir      h1.page-title,
@@ -502,10 +504,6 @@ span.timelineSecondary {
   .doc      .title > .page-title,
   .wiki     .title > .page-title {
     display: none;     /* …except for docs, where it may force wrapping */
-  }
-  h1.page-title {
-    font-size: 1.60em;  /* match content > h1 */
-    margin-bottom: 0;   /* div.content top margin suffices */
   }
   .status {padding-top: 0px;}
   .mainmenu a {
