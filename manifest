@@ -1,5 +1,5 @@
-C Further\simprovements\sto\spre\sstyling,\snow\staking\sMD\sforum\sposts\sinto\saccount.
-D 2024-02-18T15:56:23.031
+C Improved\sappearance\sof\sthe\snew\sCGI\sURL\sbreakdown\sPikchr:\scolorized\sit\nand\smade\suse\sof\spolygons\sinstead\sof\sspindly\slines\sto\sindicate\sthe\sparts.
+D 2024-02-18T20:31:24.460
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -755,7 +755,7 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
-F www/aboutcgi.wiki d8b450692d9406b7c2f561232292b26d8bfbcc2acc383bbfd9be673e0bb0066c
+F www/aboutcgi.wiki c2c40ca2843857999e02af28973d80279d7c8d84b12257f854b9b63df92e3b4e
 F www/aboutdownload.wiki 58acdbeb021dea92fdc39c7d7d58c58ffc8d6da4cd45ae954cc4be080a0f2846
 F www/adding_code.wiki 0015d3dda7bcde73aad2d2f3c6abf011964b3efd843a27d77d03244189f00a20
 F www/alerts.md 71618780f0fb8ee9d700957e2c3f26fd1c338a470070be9e84e974a622f57f42
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 825efe96d25864cebc92adbdbffe6b8333fadfdffc29afd5787cfbbec4a0f764
-R f889288d72154d9b7894de9dae27cb02
+P 77f91620102f868789b1df744e787422a0edba3f1ee6340d77f114a79c105a28
+R 9d532a95757a3cb734d6863ed8e0a5eb
 U wyoung
-Z cc18789284fd7facfbe521b230056c50
+Z 72c185617de92e8f3988adeaef86825d
 # Remove this line to create a well-formed Fossil manifest.

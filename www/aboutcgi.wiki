@@ -216,32 +216,49 @@ QUERY:  box "?c=55d7e1" mono fit
 
 thickness = 0.01
 
-box at 0.3 below DOMAIN "HTTP_HOST" mono fit invis
-line from previous box.n to DOMAIN.sw
-line from previous box.n to DOMAIN.se
-
-box at 0.3 below SCRIPT "SCRIPT_NAME" mono fit invis
-line from previous box.n to SCRIPT.sw
-line from previous box.n to SCRIPT.se
-
-box at 0.3 below PATH "PATH_INFO" mono fit invis
-line from previous box.n to PATH.sw
-line from previous box.n to PATH.se
-
-box at 0.3 below QUERY "QUERY_STRING" mono fit invis
-line from previous box.n to QUERY.sw
-line from previous box.n to QUERY.se
-
-box at 0.5 above PATH "REQUEST_URI" mono fit invis
-line from previous box.s to SCRIPT.nw
-line from previous box.s to QUERY.ne
+DB: box at 0.3 below DOMAIN "HTTP_HOST"    mono fit invis
+SB: box at 0.3 below SCRIPT "SCRIPT_NAME"  mono fit invis
+PB: box at 0.3 below PATH   "PATH_INFO"    mono fit invis
+QB: box at 0.3 below QUERY  "QUERY_STRING" mono fit invis
+RB: box at 0.5 above PATH   "REQUEST_URI"  mono fit invis
 
 color = lightgray
+
 box at SCHEME width SCHEME.width height SCHEME.height
-box at DOMAIN width DOMAIN.width height DOMAIN.height
-box at SCRIPT width SCRIPT.width height SCRIPT.height
-box at   PATH width   PATH.width height   PATH.height
-box at  QUERY width  QUERY.width height  QUERY.height
+line fill 0x7799CC behind QUERY \
+  from SCRIPT.nw \
+    to RB.sw \
+    to RB.se \
+    to QUERY.ne \
+  close
+line fill 0x99CCFF behind DOMAIN \
+  from DOMAIN.nw \
+    to DOMAIN.sw \
+    to DB.n \
+    to DOMAIN.se \
+    to DOMAIN.ne \
+  close
+line fill 0xCCEEFF behind SCRIPT \
+  from SCRIPT.nw \
+    to SCRIPT.sw \
+    to SB.n \
+    to SCRIPT.se \
+    to SCRIPT.ne \
+  close
+line fill 0x99CCFF behind PATH \
+  from PATH.nw \
+    to PATH.sw \
+    to PB.n \
+    to PATH.se \
+    to PATH.ne \
+  close
+line fill 0xCCEEFF behind QUERY \
+  from QUERY.nw \
+    to QUERY.sw \
+    to QB.n \
+    to QUERY.se \
+    to QUERY.ne \
+  close
 </verbatim>
 
 <h2>Additional CGI Script Options</h2>
