@@ -148,7 +148,7 @@ able to send chat messages, but not do anything else.  Then, in the
 program or script that runs the robot, when it wants to send a chat
 message, have it run a command like this:
 
-> ~~~~
+~~~~
 fossil chat send --remote https://robot:PASSWORD@project.org/fossil \
   --message 'MESSAGE TEXT' --file file-to-attach.txt
 ~~~~
@@ -214,7 +214,7 @@ Downloading of posted files and images uses a separate, non-XHR interface:
 Chat messages are stored on the server-side in the CHAT table of
 the repository.
 
-> ~~~
+~~~
 CREATE TABLE repository.chat(
   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
   mtime JULIANDAY,  -- Time for this entry - Julianday Zulu
