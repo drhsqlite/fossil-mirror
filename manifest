@@ -1,5 +1,5 @@
-C Replaced\san\sHTML\stable\sin\sthe\shashes\sdoc\swith\sthe\sMD\sequivalent.\s\sThis\nnot\sonly\smakes\sthe\smarkup\sversion\seasier\sto\sread,\sit\sallows\sthe\sskin's\ntable\sstyling\sto\stake\sfull\seffect.
-D 2024-02-18T14:12:57.143
+C Pikchr-ized\sthe\sASCII-art\sbreakdown\sof\sthe\sURL\sinto\sCGI\svars\sin\sthe\saboutcgi\sdoc.
+D 2024-02-18T14:43:26.609
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -755,7 +755,7 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
-F www/aboutcgi.wiki 8c15fe1b3e2e512e219bc7a3a6140515dc618863d5ac8d2fade8f8c56e4c5daa
+F www/aboutcgi.wiki d8b450692d9406b7c2f561232292b26d8bfbcc2acc383bbfd9be673e0bb0066c
 F www/aboutdownload.wiki eceecda6f757dc2e2f09f84abacbbda16a40a277ad4e9773dfae2e86b80f4085
 F www/adding_code.wiki 0015d3dda7bcde73aad2d2f3c6abf011964b3efd843a27d77d03244189f00a20
 F www/alerts.md 71618780f0fb8ee9d700957e2c3f26fd1c338a470070be9e84e974a622f57f42
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3d99d9260faa4dc63dfd98e1e04600637c9dd3a57a13a7c20a8ff75c9bf1782
-R 2479bef43740f3de4f37321e59c36d4d
+P 7268a9b8517cfed59f8ba66d886445cedb23963064a611eff0d56abc458aa984
+R c799bf4cb1cc9f458d3c940bc290768f
 U wyoung
-Z 5c05f7abecd6a0f883e442e7144737bc
+Z e3ba1d38331b90f88c04c63aa6ab2d92
 # Remove this line to create a well-formed Fossil manifest.
