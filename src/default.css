@@ -1542,11 +1542,8 @@ blockquote.file-content {
   padding: 0.1em 1em;
 }
 .sidebar {
-  font-size: 90%;
-}
-.sidebar {
   /* Generic form that can be applied to any block element. */
-  font-size: 0.9em;
+  font-size: 90%;
 }
 div.sidebar {
   /* Special exception for div-type sidebars, where there is no p
