@@ -215,9 +215,17 @@ div.forumSel {
 /* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
 
 .markdown blockquote, p.blockquote, .sidebar {
-  /* Override default.css version with our accent colors. */
-  background-color: rgba(65, 131, 196, 0.1);
+  /* Override default.css version with our accent colors.  Background is
+   * the solid version of rgba(65, 131, 196, 0.1) on white, needed to
+   * avoid tinting pre block backgrounds going "under" them. */
+  background-color: #ebf2f9;
   border-left-color: #4183c4;
+}
+div.sidebar {
+  /* Add extra whitespace between sidebar and content, both for spacing
+   * and to put a gap between it and any <pre> blocks that happen to run
+   * up against it. */
+  outline: 1em solid white;
 }
 
 /* Mark inline code fragments in the near-universal manner pioneered by
@@ -245,8 +253,10 @@ div.forumSel {
  *     &, > .fossil-doc, > .markdown           // wiki, HTML & MD emb docs
  *       > p                                   // in top-level paras only
  *         > code, > kbd, > samp, > tt, > var  // monospaced tag types
- *           background-color: #eee            // pale gray box which…
+ *           background-color: #f4f4f4         // pale gray box which…
  *           padding: 0 4px                    // …extends around the sides
+ *
+ * We then need something similar for the block-level pre elements.
  *
  * The CSS below is based on feeding that Sass code through this:
  *
@@ -325,8 +335,23 @@ div.forumSel {
 .wiki     > .content > .markdown   > p > kbd,
 .wiki     > .content > .markdown   > p > samp,
 .wiki     > .content > .markdown   > p > tt,
-.wiki     > .content > .markdown   > p > var {
-  background-color: #eee;
+.wiki     > .content > .markdown   > p > var,
+.artifact > .content               > pre,
+.artifact > .content > .fossil-doc > pre,
+.artifact > .content > .markdown   > pre,
+.dir      > .content               > pre,
+.dir      > .content > .fossil-doc > pre,
+.dir      > .content > .markdown   > pre,
+.doc      > .content               > pre,
+.doc      > .content > .fossil-doc > pre,
+.doc      > .content > .markdown   > pre,
+.forum    > .content               > pre,
+.forum    > .content > .fossil-doc > pre,
+.forum    > .content > .markdown   > pre,
+.wiki     > .content               > pre,
+.wiki     > .content > .fossil-doc > pre,
+.wiki     > .content > .markdown   > pre {
+  background-color: #f4f4f4;
   padding: 0 4px;
 }
 .content pre, table.numbered-lines > tbody > tr {
@@ -338,26 +363,36 @@ div.forumSel {
   list-style-type: disc;
 }
 
-.doc > .content table {
+.artifact > .content table,
+.dir      > .content table,
+.doc      > .content table {
   background-color: #f0f5f9;
   border: 1px solid #a7c2dc;
   border-radius: 0.5em;
   border-spacing: 0;
   padding: 6px;
 }
-.doc > .content th {
+.artifact > .content th,
+.dir      > .content th,
+.doc      > .content th {
   border-bottom: 1px solid #dee8f2;
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
 }
-.doc > .content tr > th {
+.artifact > .content tr > th,
+.dir      > .content tr > th,
+.doc      > .content tr > th {
   background-color: #dee8f0;
 }
-.doc > .content tr:nth-child(odd) {
+.artifact > .content tr:nth-child(odd),
+.dir      > .content tr:nth-child(odd),
+.doc      > .content tr:nth-child(odd) {
   background-color: #e0e8ee;
 }
-.doc > .content td {
+.artifact > .content td,
+.dir      > .content td,
+.doc      > .content td {
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
