@@ -1,5 +1,5 @@
-C Replaced\sa\suse\sof\slocal\sformatting\sfor\sa\scode\sexample\sin\sthe\naboutdownload\sdoc\swith\sgeneric\sverbatim\sformatting.
-D 2024-02-18T14:45:40.997
+C Centered\sthe\sPikchrs\sin\sthe\srebaseharm\sdoc,\sand\sreplaced\san\sHTML\stable\nwith\sthe\sMD\sequivalent.
+D 2024-02-18T14:59:44.128
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -898,7 +898,7 @@ F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78
 F www/qandc.wiki bc4386e67bb81ebf2dc838266fbff03b854d9f577282afd9ef087aa670f8136d
 F www/quickstart.wiki e2130117b15699a5ec4c59bfd6989b1b910218c896113960a336193010f0e3f2
 F www/quotes.wiki d4a684d0ac5838ddbc76688284b7043e561d4e52ecbeb4b0bf0ac3e10bc70d3c
-F www/rebaseharm.md ee60c4c18678fd7708440865e660a46de367f9c3c6ec5419fb9a404513ff1ffd
+F www/rebaseharm.md fdd2cef3427f1d538e51794e075ab8782db87e60b8ca68528dbcc96e76aea23a
 F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
 F www/reviews.wiki aec384797fc2dc4d6d297ec5710f5763e602573e275643494a684be013d09e4a
 F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f4370d80e8d6a186c39781e92062e210fa16b2ebd09a76493bb0a20e922e2a0c
-R 48e0aac7280b4585f694779fad53d810
+P fc2965be401ed5ccabab3483d7cc3a03db9bd9ba0cad60aeb45501823d031d4a
+R b54ea6dcbbf1f80722af18ef1df3a84e
 U wyoung
-Z 0acf083bc205518cc35cd40bdd2869c7
+Z 803fc69c2376ce5750cd0e55598319b1
 # Remove this line to create a well-formed Fossil manifest.
