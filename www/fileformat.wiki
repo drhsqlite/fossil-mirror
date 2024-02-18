@@ -109,7 +109,7 @@ with the check-in.
 
 Allowed cards in the manifest are as follows:
 
-<p class="indent">
+<div class="indent">
 <b>B</b> <i>baseline-manifest</i><br>
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
@@ -121,7 +121,7 @@ Allowed cards in the manifest are as follows:
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <b>*</b> ?<i>value</i>?<br>
 <b>U</b> <i>user-login</i><br>
 <b>Z</b> <i>manifest-checksum</i>
-</p>
+</div>
 
 A manifest may optionally have a single <b>B</b> card.  The <b>B</b> card specifies
 another manifest that serves as the "baseline" for this manifest.  A
@@ -147,10 +147,8 @@ the <b>D</b> card is a date-time stamp in the ISO8601 format.  The
 date and time should be in coordinated universal time (UTC).
 The format one of:
 
-<p class="indent">
-<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><br>
-<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><b>.</b><i>SSS</i>
-</p>
+<pre class="indent"><i>YYYY-MM-DD<b>T</b>HH:MM:SS
+YYYY-MM-DD<b>T</b>HH:MM:SS.SSS</i></pre>
 
 A manifest has zero or more <b>F</b> cards.  Each <b>F</b> card identifies a file
 that is part of the check-in.  There are one, two, three, or four
@@ -262,10 +260,10 @@ underlying project code.
 
 Allowed cards in the cluster are as follows:
 
-<p class="indent">
+<div class="indent">
 <b>M</b> <i>artifact-id</i><br />
 <b>Z</b> <i>checksum</i>
-</p>
+</div>
 
 A cluster contains one or more <b>M</b> cards followed by a single <b>Z</b> card.
 Each <b>M</b> card has a single argument which is the artifact ID of
@@ -283,12 +281,12 @@ Control artifacts are used to assign properties to other artifacts
 within the repository.
 Allowed cards in a control artifact are as follows:
 
-<p class="indent">
+<div class="indent">
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <i>artifact-id</i> ?<i>value</i>?<br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i><br />
-</p>
+</div>
 
 A control artifact must have one <b>D</b> card, one <b>U</b> card, one <b>Z</b> card and
 one or more <b>T</b> cards.  No other cards or other text is
@@ -337,7 +335,7 @@ single wiki page.
 Wiki artifacts accept
 the following card types:
 
-<p class="indent">
+<div class="indent">
 <b>C</b> <i>change-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>L</b> <i>wiki-title</i><br />
@@ -346,7 +344,7 @@ the following card types:
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
-</p>
+</div>
 
 The <b>D</b> card is the date and time when the wiki page was edited.
 The <b>P</b> card specifies the parent wiki pages, if any.  The <b>L</b> card
@@ -378,13 +376,13 @@ An example wiki artifact can be seen
 A ticket-change artifact represents a change to a trouble ticket.
 The following cards are allowed on a ticket change artifact:
 
-<p class="indent">
+<div class="indent">
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>J</b> ?<b>+</b>?<i>name</i> ?<i>value</i>?<br />
 <b>K</b> <i>ticket-id</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
-</p>
+</div>
 
 The <b>D</b> card is the usual date and time stamp and represents the point
 in time when the change was entered.  The <b>U</b> card is the login of the
@@ -426,14 +424,14 @@ technical note to which
 the attachment is connected (the target artifact).
 The following cards are allowed on an attachment artifact:
 
-<p class="indent">
+<div class="indent">
 <b>A</b> <i>filename target</i> ?<i>source</i>?<br />
 <b>C</b> <i>comment</i><br />
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>N</b> <i>mimetype</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
-</p>
+</div>
 
 The <b>A</b> card specifies a filename for the attachment in its first argument.
 The second argument to the <b>A</b> card is the name of the wiki page or
@@ -468,7 +466,7 @@ to record project milestones, release notes, blog entries, process
 checkpoints, or news articles.
 The following cards are allowed on an technote artifact:
 
-<p class="indent">
+<div class="indent">
 <b>C</b> <i>comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>E</b> <i>technote-time</i> <i>technote-id</i><br />
@@ -478,7 +476,7 @@ The following cards are allowed on an technote artifact:
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
-</p>
+</div>
 
 The <b>C</b> card contains text that is displayed on the timeline for the
 technote.  The <b>C</b> card is optional, but there can only be one.
@@ -533,7 +531,7 @@ discuss a project.  Forum posts are like messages on a mailing list.
 
 The following cards are allowed on an forum post artifact:
 
-<p class="indent">
+<div class="indent">
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>G</b> <i>thread-root</i><br />
 <b>H</b> <i>thread-title</i><br />
@@ -543,7 +541,7 @@ The following cards are allowed on an forum post artifact:
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
-</p>
+</div>
 
 Every forum post must have either one <b>I</b> card and one <b>G</b> card
 or one <b>H</b> card.

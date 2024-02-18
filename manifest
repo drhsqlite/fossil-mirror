@@ -1,5 +1,5 @@
-C Modernized\stable-based\sformatting\sin\sdelta_encoder_algorithm\sdoc.
-D 2024-02-18T13:19:46.098
+C The\sskin's\snew\s"indent"\sclass\sfor\sblock\selements\sdoesn't\sapply\sto\s"p"\ntags\sdue\sto\sCSS\scascading\srules.\s\sChanged\sthem\sto\sdivs\sto\ssidestep\sthis\nlimitation.\s\sAlso\sfixed\sanother\sinstance\sof\sbold\sformatting\sinterfering\nwith\sabutting\sitalics.
+D 2024-02-18T13:25:57.148
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -823,7 +823,7 @@ F www/event.wiki abbc834163b54136f49ae4fbfc0503a5a70115d915d4b435ed140a10f557958
 F www/faq.tcl ea96feb8d056ab25f3e353fc3b5ad2790d2aff54e35294cd5fbbc9cc8b4bc017 x
 F www/faq.wiki a3c5ba4cb4fb76c115a202337ca8d34cb49dff47c4aa7b2311c05ebdefcb62df
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
-F www/fileformat.wiki 9edfc8e4e9015ef0a59d9b704f71d9ac32322a6f7a29ebb2315819f3c46eabf9
+F www/fileformat.wiki e03aac299cc392d9d34105f4d0dbbd75fdeffceb292d24955695dc55bc86a6a1
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki ee1fcb6eb51f8193edc83c62b857565831557ec0b8b48b35c183dec017410f01
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
@@ -951,14 +951,14 @@ F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294
 F www/unvers.wiki 3c82abb88674d738b06780640d2a55cc1bbfff05c49ec79592f52c5ba4de46ca
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
-F www/webui.wiki 56aab62a28c1fee5e43918defd44f5ed5f5c12355d0d91bc51c0cbb8f1a45057
+F www/webui.wiki 72cfaeb9b6ca3f97d693c1d0f3b680abb47faa3e527c9b4ed22d7a4fabe7523c
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
 F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c72726cf6
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6dff8d714e645d9f2e03512429ba525d16202104bc2f3eccef011fe08e2f67e
-R 1df663526e04bf1cb24775c17e8703a8
+P 65853cc1e4673726fa06a148ec6afa0685acc23eb1b2045c279e235fea7eb572
+R 0826f61c2fcb1709c4d9087c6de89fe4
 U wyoung
-Z 419ce3e80c51f663c0fa87a68474afde
+Z 47a5d45eb83c28341c743beb720c0b04
 # Remove this line to create a well-formed Fossil manifest.

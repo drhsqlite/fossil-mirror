@@ -34,10 +34,10 @@ including the document you are now reading,
 is rendered using the Fossil web interface, with no enhancements,
 and little customization.
 
-<p class="indent">
+<div class="indent">
 <b>Key point:</b> <i>The Fossil website is just a running instance
 of Fossil!
-</p>
+</div>
 
 Note also that because Fossil is a distributed system, you can run
 the web interface on your local machine while off network (for example,
