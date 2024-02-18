@@ -1,5 +1,5 @@
-C Comment\simprovement
-D 2024-02-18T12:15:17.076
+C Consolidated\sthe\sdual\stitles\sin\sthe\stech_overview\sdoc\sinto\sone;\sthe\snew\nbody-area\sh1\stag\sfor\sdocs\smakes\sthe\sold\sstyling\sredundant.
+D 2024-02-18T12:31:57.780
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -941,7 +941,7 @@ F www/ssl.wiki d0c7bb25c06fcfff8105bec0690bfe9955bca8f7badd32eec6a2e2b77066aa5c
 F www/stats.wiki db154391c71965d6d9205f691885848f9c7fa629271682a03a1133bdc32cc6e3
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki e17abc3c91a21540aa63642f70ff471ff2e276409ab997994e96aec82ee6f0b3
-F www/tech_overview.wiki 7ca8f8399585c31e693586a69fe74ccc301460466751f1c7627e63370838b786
+F www/tech_overview.wiki a40dd7668234ed325091106f0473568584fb1a164a04e680d8179a81d74e178d
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 9860795eb46f6c34253c289273d281877c097bbf180bf3267c4bebe541c0396b
 F www/theory1.wiki d4ae96337cdbb6fa6677d023aa9d2abe8db4f471d7450a32a92b1f06496e04aa
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32c4522d730b448bf788b5ec2ce7be6e82bfb60782cf29f89dc8170e51678f4d
-R 39285821b0deed72bda21d8992350a95
+P 261f80db5ec3c828b13873fea153ee38b541588db09108535da7a7c8bb2c74fb
+R 5324ade0592458906f15b972c98e9ee3
 U wyoung
-Z 567f150ed3a09bb03efd9a642fb5553a
+Z ec549c64eedbb7e873a54adf6e02925c
 # Remove this line to create a well-formed Fossil manifest.

@@ -1,7 +1,4 @@
-<title>Technical Overview</title>
-<h2 align="center">
-A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
-</h2>
+<title>A Technical Overview of Fossil's Design & Implementation</title>
 
 <h2>1.0 Introduction</h2>
 
