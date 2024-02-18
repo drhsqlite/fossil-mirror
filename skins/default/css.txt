@@ -243,12 +243,12 @@ div.forumSel {
  * .artifact, .dir, .doc, .forum, .wiki        // the page types we target
  *   > .content                                // hands off header & footer
  *     &, > .fossil-doc, > .markdown           // wiki, HTML & MD emb docs
- *       > p                                   // inline elements only
+ *       > p                                   // in top-level paras only
  *         > code, > kbd, > samp, > tt, > var  // monospaced tag types
- *           background-color: #eee            // pale gray box that…
+ *           background-color: #eee            // pale gray box which…
  *           padding: 0 4px                    // …extends around the sides
  *
- * The CSS below is based on feeding that through this:
+ * The CSS below is based on feeding that Sass code through this:
  *
  *   $ sassc code.sass | sed -e 's/, /,\n/g'
  *
