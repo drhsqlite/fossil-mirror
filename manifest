@@ -1,5 +1,5 @@
-C The\snew\sskin's\stable\sstyling\snow\sapplies\sto\sdocs\sserved\svia\s/dir\sand\n/file\sURLs\sas\swell.
-D 2024-02-18T15:10:12.135
+C Replaced\suse\sof\sMD\sblockquotes\sfor\scommand\sexamples\swith\sMD\scode\sblocks.
+D 2024-02-18T15:15:18.032
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -890,7 +890,7 @@ F www/mirrortogithub.md c1f374c1e952edf948dca06c5b7788fd96523db1529250e000c0491f
 F www/mkindex.tcl 34842945e1282f74e0d4d68908b3be376baec9afc52bb5b47fd5dd5ad55b1a4a x
 F www/newrepo.wiki 6a71485f3f2d0f3635a3ce7d804f2ceda0c25ea9186340889e6ecb00d4000634
 F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
-F www/patchcmd.md c60d34861ed498c0b821d426900ad6d7c89d00d7540f268d475631b5e2a98d51
+F www/patchcmd.md 86eb9976dc81b657052018f807d8ee82a41333b1df78c06515b9383d9fe4858f
 F www/permutedindex.html 3d7fd271c71ac1919f3a0be9af80d83bbc10cbc2ac02e1c9463300af4df8975a
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f19f5369f9a9418a036a45e4a6bbeb9fdfe61ff8210a6f532267dd77606ce704
-R a7681bd9abc21787190381e8cfb10cad
+P a974210166464b5926f53bdeb0aacc51d9908322bd24131e5076cbc146cc7b13
+R 8e9e866f2a3b69bcbefa7a2cf5f4a3bd
 U wyoung
-Z 899e2346df60e6284b1a8797a1d51d33
+Z 95e05553da94060acbf3c692ea011bed
 # Remove this line to create a well-formed Fossil manifest.
