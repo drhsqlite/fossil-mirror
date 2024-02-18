@@ -1,5 +1,5 @@
-C Merged\sanother\sredundant\spage\stitle\sin\sthe\swhyusefossil\sdoc.\s\sAlso,\nmaking\suse\sof\sthe\snew\sh5\slevel\sformatting\sto\savoid\sthe\sneed\sfor\sinline\nmanual\sboldfacing.
-D 2024-02-18T12:43:58.794
+C Removed\smanual\sindents\son\scommand\sexamples\sin\sthe\sbranching\sdoc;\sthe\nskin\sdoes\sthat\snow.
+D 2024-02-18T12:45:19.405
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -766,7 +766,7 @@ F www/backoffice.md b0ca100e4fa8fd5d86460a9cb4b4c426dc9b464680c985ed41fda3b1e21e
 F www/backup.md 04d5a7db7179cd314fe7fd62a89f9a84a02a6fd5fccf1c4a3a2e8c627103bd27
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md bd934c673cf72cd200c9c32aae5f9ea173167f9763d3bd92ca320801db2b4599
-F www/branching.wiki 9fe1917a373ea147fbae0521f45498b053dee11d7e3935a999fa7a2c229d691e
+F www/branching.wiki d48c4b3b60910dbb609cc62dd79832185f23047b583a55d9759c42e814356cf4
 F www/bugtheory.wiki 05d4c22d09171d3077d0662a940dfddd8290d34ea83b48847978ece08021c1fa
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4003c654b660a9df711f17d2e180441809b30d84be302760baffdb6c22e2b135
-R 845e1f07b44e55cc989954f927394973
+P b1a709a1a4edba785575040e27be3a0e82877a1d816f234c90728c195517ec11
+R 7463e7b7d2e12177049137718b706484
 U wyoung
-Z ec0ba12b858db0810679efac90a0455d
+Z fdbe0500d4c62653ce5add8bc127a00d
 # Remove this line to create a well-formed Fossil manifest.

@@ -259,7 +259,7 @@ Fossil offers two primary ways to create named, intentional forks,
 a.k.a. branches. First:
 
 <pre>
-    $ fossil commit --branch my-new-branch-name
+$ fossil commit --branch my-new-branch-name
 </pre>
 
 This is the method we recommend for most cases: it creates a branch as
@@ -274,9 +274,9 @@ tip check-in on that branch.
 The second, more complicated option is:
 
 <pre>
-    $ fossil branch new my-new-branch-name trunk
-    $ fossil update my-new-branch-name
-    $ fossil commit
+$ fossil branch new my-new-branch-name trunk
+$ fossil update my-new-branch-name
+$ fossil commit
 </pre>
 
 Not only is this three commands instead of one, the first of which is
@@ -379,7 +379,7 @@ If your local checkout is on a forked branch, you can usually fix a fork
 automatically with:
 
 <pre>
-    $ fossil merge
+$ fossil merge
 </pre>
 
 Normally you need to pass arguments to <b>fossil merge</b> to tell it
