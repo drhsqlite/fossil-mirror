@@ -1,5 +1,5 @@
-C Replaced\suse\sof\sinline\s"###"\sMD\smarkup\sin\sthe\scustomgraph\sdoc\swith\nsimple\sboldfacing\sto\savoid\sthe\sindents\sgiven\sto\sall\sh3\snow.\s\sBesides,\nheaders\sinside\slists…?\s\sDodgy.
-D 2024-02-18T15:24:24.308
+C Removed\smanual\sindents\sin\scommand\sand\sfile\sexamples\sin\sthe\sssl\sdoc.
+D 2024-02-18T15:26:29.746
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -937,7 +937,7 @@ F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd1
 F www/settings.wiki 194a1b8a22acf5098168ffd991758a5903f135c4870dcbe5beb3ffdf57915e6b
 F www/shunning.wiki c8e96dbccdd3aea354ecf31c6e6f265010213bd234a5441606da60b636bbc93b
 F www/ssl-server.md a2df89dac308c5143f95e30c9acfa8ab5cbeaa931bbefbcb40d49e37dd0cc4a8
-F www/ssl.wiki d0c7bb25c06fcfff8105bec0690bfe9955bca8f7badd32eec6a2e2b77066aa5c
+F www/ssl.wiki 2c45e53ac917d23d039a8286b83b96523ac0dda27acdf727f5bdc619f8f97bee
 F www/stats.wiki db154391c71965d6d9205f691885848f9c7fa629271682a03a1133bdc32cc6e3
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki e17abc3c91a21540aa63642f70ff471ff2e276409ab997994e96aec82ee6f0b3
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ed362da6353d8e5c8eb6aed4387ac1522c2fcd11d9ee7143c2baf4b7880446c
-R dcc22c0c6ba4f26a93fe3db428fd6afa
+P c2c55014b0b5b6df0b55c70f7d7c6de734c7d734f49617161961b61699db4108
+R 858fb6bffea2debaf4c139d7d7007354
 U wyoung
-Z cc3b0ce8e61959884d112fba3da3aa96
+Z 1895233dc52e4619df21f0a78eb6e846
 # Remove this line to create a well-formed Fossil manifest.
