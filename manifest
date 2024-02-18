@@ -1,5 +1,5 @@
-C Removed\smanual\sindents\sin\sverbatim\sblocks\sin\sforum\sdoc.
-D 2024-02-18T13:27:25.352
+C Removed\sextra\sindent\sin\san\sMD\scode\sblock.
+D 2024-02-18T13:28:33.125
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -843,7 +843,7 @@ F www/fossil_prompt.wiki 7c198e501721bbb613ff1c3238b35dc991408cf301d3718e040916d
 F www/gitusers.md 06b91d2f62bf9908320a9bfc15b871cc9cf93998cccea125d6c6b5ae38ffc510
 F www/globs.md ff40b819c050a7f5e96eface5ba10f9926e4a7e809d6f27462a2aeda2eb4cdb0
 F www/glossary.md eade6289fe358fe9662247b663739cade3f9fb1f2d2e8bdbf9c0482f7a94b186
-F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
+F www/grep.md f204b91b0ef4c49314a70606968609609df6e90255391d4d1208381bc1ecdc06
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 04d1741d9ee53d178b26c788b2c87b5305569e27c42bfa179d0ec1175bd28dd9
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8e2a3b87402a496d4ee2573cb2a9d35b75dbf05aeaf41a660cce8896c724655
-R 8646181b7f2c65313ca88420d40c7f4a
+P 6c9755b9a6c6d7d05c73e5583661d5670eb1e721e7257047728e1ac5cb442611
+R a6d850305ee08167b81cbfa6bf817a55
 U wyoung
-Z d0db5c11989b0107b6caa6f559a8ca1b
+Z 229645e59f094c7f88991f55dc245340
 # Remove this line to create a well-formed Fossil manifest.
