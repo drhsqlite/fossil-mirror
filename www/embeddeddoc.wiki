@@ -234,8 +234,8 @@ can also be a date and time string in any of the following formats:</p>
 
 <ul>
 <li> <i>YYYY-MM-DD</i>
-<li> <i>YYYY-MM-DD</i><b>T</b><i>HH:MM</i>
-<li> <i>YYYY-MM-DD</i><b>T</b><i>HH:MM:SS</i>
+<li> <i>YYYY-MM-DD<b>T</b>HH:MM</i>
+<li> <i>YYYY-MM-DD<b>T</b>HH:MM:SS</i>
 </ul>
 
 When the symbolic name is a date and time, fossil shows the version

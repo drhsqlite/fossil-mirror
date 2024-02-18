@@ -1,5 +1,5 @@
-C Fixed\sa\s5-space\sindent\sin\sone\sof\sthe\scustomskin\sdoc's\sexamples\swith\nMD's\s4-space\sminimum\sto\savoid\sextra\sindent.
-D 2024-02-18T13:04:27.225
+C Style\stweak\sin\sthe\sembedded\sdoc:\sitalic\snext\sto\sbold\scauses\sthe\sslanted\nletters\sto\scrash\sinto\sthe\ssurrounding\sbold\stext.\s\sBold-italic\ssolves\sthat.
+D 2024-02-18T13:06:51.556
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -807,7 +807,7 @@ F www/defcsp.md 76312fbb774320ba1375dafd9a5306f86c238e5f6e9cc1ec9210b7dcc6ece652
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
 F www/delta_format.wiki 33a3f71dc160959bd4c612e7ffee5be54548990e53eb0f6d9b50779c8767bd58
-F www/embeddeddoc.wiki 2523efa4b2465a53c6ecc2e588f75df9bbe67f6c1105c15279bfd0549542b3cc
+F www/embeddeddoc.wiki 918175ad2763d00b530c433faaa7b75b17e55c1d613b2d3f98057e92b93e78bb
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 647dadf2be50f913b9226479ad34f58f41cfbc8d67ed0d927e8d5e50743478df
-R 382495aaa333e6f60d65c0fcc86c2855
+P b6fa99e8ce684e5100c36a4a36a62492fa0fc008772d40cbe36585fbb54b85f8
+R 8205fcb1f30fdec291b0bd9888264182
 U wyoung
-Z 12f76e378532a5a6a91a7b5b5a5094a8
+Z 063514280dfae949b0101952d3e8bfe2
 # Remove this line to create a well-formed Fossil manifest.
