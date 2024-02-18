@@ -1,5 +1,5 @@
-C Removed\smanual\sindents\sof\scode\sblocks\sin\swebui\sdoc
-D 2024-02-18T15:17:19.910
+C Removed\smanual\sindents\sin\scode\sexamples\sin\sthe\spikchr\sdoc
+D 2024-02-18T15:18:37.847
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -892,7 +892,7 @@ F www/newrepo.wiki 6a71485f3f2d0f3635a3ce7d804f2ceda0c25ea9186340889e6ecb00d4000
 F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
 F www/patchcmd.md 86eb9976dc81b657052018f807d8ee82a41333b1df78c06515b9383d9fe4858f
 F www/permutedindex.html 3d7fd271c71ac1919f3a0be9af80d83bbc10cbc2ac02e1c9463300af4df8975a
-F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
+F www/pikchr.md 2eaa7bd7defc5e6a7b3d14adb03c21b43924a70fd65858bebb1a3aee733cf609
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
 F www/qandc.wiki bc4386e67bb81ebf2dc838266fbff03b854d9f577282afd9ef087aa670f8136d
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 006b61b0e5d43016c4e9779dbbf545cf502f739fe47a4e47f6bbf5a28b8e5ebc
-R 48d54b7bec68830c38c144202958e8d8
+P 9437518451e562134689e63da8f2a6baaf2ba8a5c3f5edd2d4967d0869625a93
+R b670a8c932cbb5249d212caa7d1d0e06
 U wyoung
-Z c92546d0eb6023152bb2b1a7071292a8
+Z 5db35d92a12a7731a1061453aa490f2e
 # Remove this line to create a well-formed Fossil manifest.
