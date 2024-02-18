@@ -1,5 +1,5 @@
-C Replaced\sa\sfew\smore\sbits\sof\slocal\sformatting\sin\sthe\sadding_code\sdoc\swith\ngeneric\s"verbatim"\sblocks,\suniformly\sstyled\sby\sthe\sskin.
-D 2024-02-18T12:34:45.488
+C Merged\sanother\sredundant\spage\stitle\sin\sthe\swhyusefossil\sdoc.\s\sAlso,\nmaking\suse\sof\sthe\snew\sh5\slevel\sformatting\sto\savoid\sthe\sneed\sfor\sinline\nmanual\sboldfacing.
+D 2024-02-18T12:43:58.794
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -953,12 +953,12 @@ F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 56aab62a28c1fee5e43918defd44f5ed5f5c12355d0d91bc51c0cbb8f1a45057
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
-F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb8e8c7f37
+F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c72726cf6
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 010e5527ce12de1bdd003ef62a4efd4c1f35a60341c84f90f95364eb13b37fd7
-R a4754e25c4a4c4c026c4c77ea9e1feee
+P 4003c654b660a9df711f17d2e180441809b30d84be302760baffdb6c22e2b135
+R 845e1f07b44e55cc989954f927394973
 U wyoung
-Z 43d910fc79e84e751e89b9521a6983e1
+Z ec0ba12b858db0810679efac90a0455d
 # Remove this line to create a well-formed Fossil manifest.
