@@ -155,8 +155,8 @@ run Fossil as CGI, just put the
 have both read and write permission on the file and the directory that
 contains the file, then add a CGI script that looks something like this:
 
-<verbatim>  #!/usr/local/bin/fossil
-  repository: /home/www/sample-project.fossil</verbatim>
+<verbatim>#!/usr/local/bin/fossil
+repository: /home/www/sample-project.fossil</verbatim>
 
 Adjust the script above so that the paths are correct for your system,
 of course, and also make sure the Fossil binary is installed on the server.
@@ -173,8 +173,8 @@ Not a problem.  The Fossil interface can also be launched via inetd or
 xinetd.  An inetd configuration line sufficient to launch the Fossil
 web interface looks like this:
 
-<verbatim>  80 stream tcp nowait.1000 root /usr/local/bin/fossil \
-  /usr/local/bin/fossil http /home/www/sample-project.fossil</verbatim>
+<verbatim>80 stream tcp nowait.1000 root /usr/local/bin/fossil \
+/usr/local/bin/fossil http /home/www/sample-project.fossil</verbatim>
 
 As always, you'll want to adjust the pathnames to whatever is appropriate
 for your system.  The xinetd setup uses a different syntax but follows
