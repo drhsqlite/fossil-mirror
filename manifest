@@ -1,5 +1,5 @@
-C Assorted\simprovements\sto\sPikchr\shandling\sin\sthe\sdocs\sunder\sthe\snew\sskin.
-D 2024-02-18T14:08:39.543
+C Replaced\san\sHTML\stable\sin\sthe\shashes\sdoc\swith\sthe\sMD\sequivalent.\s\sThis\nnot\sonly\smakes\sthe\smarkup\sversion\seasier\sto\sread,\sit\sallows\sthe\sskin's\ntable\sstyling\sto\stake\sfull\seffect.
+D 2024-02-18T14:12:57.143
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -846,7 +846,7 @@ F www/glossary.md 88c377db22140a46d97efbd3efe8283403900d977cd7e6fda9402455663219
 F www/grep.md f204b91b0ef4c49314a70606968609609df6e90255391d4d1208381bc1ecdc06
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
-F www/hashes.md 04d1741d9ee53d178b26c788b2c87b5305569e27c42bfa179d0ec1175bd28dd9
+F www/hashes.md 0ad9fb7af0f21d16dde0062f7909765f9aac2005fe28ffcc7af6e616be5bbc3e
 F www/hashpolicy.wiki de49bc15473801c37306ae83419e6a7d80d77cc6b61b43d5c5c2486bee2f5f00
 F www/hints.wiki 2649ca99290577715a01bb051386874b8a219da234926a181ed3a5c8b5c8a661
 F www/history.md ec29ba623dceb4d162772bb6faa81a8fbdbff81f0d5c742e158d998d9a00aedb
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eedcd15040ec36c8fc7020253c65974d82dcd51472ab6308d0e1c679ee46e689
-R 559be867b574d404c185c837f1c9ebf7
+P b3d99d9260faa4dc63dfd98e1e04600637c9dd3a57a13a7c20a8ff75c9bf1782
+R 2479bef43740f3de4f37321e59c36d4d
 U wyoung
-Z 09416f78d4f9fd510d6e2a0229b6e778
+Z 5c05f7abecd6a0f883e442e7144737bc
 # Remove this line to create a well-formed Fossil manifest.
