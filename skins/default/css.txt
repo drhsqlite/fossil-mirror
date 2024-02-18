@@ -224,7 +224,7 @@ div.forumSel {
  * Stack Overflow, then picked up by approximately everyone, including
  * us, now.
  *
- * This combinatoric selector explosion results from a need to apply
+ * This combinatorial selector explosion results from a need to apply
  * these stylings inside multiple page container types, multiplied by
  * the surprisingly large number of tags HTML defines for semantically
  * differentiated monospaced inline markup.  If we do not target the
@@ -238,9 +238,9 @@ div.forumSel {
  * per-document styling.  Contrast Fossil UI, which often does exactly
  * that in order to get particular results.
  *
- * The equivalent Sass syntax is far more compact, thus clearer:
+ * Its rough equivalent in Sass syntax is far more compact, thus clearer:
  * 
- * .artifact, .dir, .doc, .wiki                // the page types we target
+ * .artifact, .dir, .doc, .forum, .wiki        // the page types we target
  *   > .content                                // hands off header & footer
  *     &, > .fossil-doc, > .markdown           // wiki, HTML & MD emb docs
  *       > p                                   // inline elements only
@@ -248,11 +248,18 @@ div.forumSel {
  *           background-color: #eee            // pale gray box that…
  *           padding: 0 4px                    // …extends around the sides
  *
- * We generated the CSS below by:
+ * The CSS below is based on feeding that through this:
  *
  *   $ sassc code.sass | sed -e 's/, /,\n/g'
  *
- * …then hand-cleansed it to make it _somewhat_ more understandable.
+ * …then hand-cleansing it to make it _somewhat_ more understandable.
+ * That largely amounts to whitespace tweaks, but we've also done things
+ * like trim back the forum-specific styling to apply to the default MD
+ * markup only; direct HTML formatting isn't even an option there, and
+ * while wiki markup _is_ supported, MD was the default from day 1.
+ * Another quirk of the forum post handling is that the .markdown class
+ * gets applied per-post, not up at the top level as with the wiki,
+ * embedded docs, etc.
  */
 .artifact > .content               > p > code,
 .artifact > .content               > p > kbd,
@@ -299,6 +306,11 @@ div.forumSel {
 .doc      > .content > .markdown   > p > samp,
 .doc      > .content > .markdown   > p > tt,
 .doc      > .content > .markdown   > p > var,
+.forum    > .content .markdown     > p > code,
+.forum    > .content .markdown     > p > kbd,
+.forum    > .content .markdown     > p > samp,
+.forum    > .content .markdown     > p > tt,
+.forum    > .content .markdown     > p > var,
 .wiki     > .content               > p > code,
 .wiki     > .content               > p > kbd,
 .wiki     > .content               > p > samp,
