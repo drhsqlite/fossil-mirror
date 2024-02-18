@@ -1,5 +1,5 @@
-C Replaced\slocal\s"tt"\sformatting\sof\scommand\sexamples\sin\sthe\scontribute\sdoc\nwith\sgeneric\spre\sso\sthat\sit\sis\sstyled\suniformly\sby\sthe\sskin.
-D 2024-02-18T13:01:02.766
+C Fixed\sa\s5-space\sindent\sin\sone\sof\sthe\scustomskin\sdoc's\sexamples\swith\nMD's\s4-space\sminimum\sto\savoid\sextra\sindent.
+D 2024-02-18T13:04:27.225
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -802,7 +802,7 @@ F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272b
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki 78144925dba3634f948a20ccf9d2fa358a98e2e7d31fbaad7833e2822a3be46b
 F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c91a08
-F www/customskin.md ed6bbafb72a6bc82cb7166890f5739b6604de6178a43be8b098808544fb08200
+F www/customskin.md b538cbcf359f1445c3e8257cd8fdd6a1857ba0b3c2058f7468bc6f18875a35b4
 F www/defcsp.md 76312fbb774320ba1375dafd9a5306f86c238e5f6e9cc1ec9210b7dcc6ece652
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccd880e435e189ac2f8bcb24b3d5bb5f43783422c60bda9309cd5f5c6032a0e4
-R d3d62e026560421470f8ec238e689793
+P 647dadf2be50f913b9226479ad34f58f41cfbc8d67ed0d927e8d5e50743478df
+R 382495aaa333e6f60d65c0fcc86c2855
 U wyoung
-Z 14806b4fc7dbf23575790f3a8c2880aa
+Z 12f76e378532a5a6a91a7b5b5a5094a8
 # Remove this line to create a well-formed Fossil manifest.

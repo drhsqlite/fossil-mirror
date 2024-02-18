@@ -89,9 +89,9 @@ allowing per-feature CSS. For instance, to style `<blockquote>` tags
 specially for forum posts written in Markdown, leaving all other block
 quotes alone, you could say:
 
-     body.forum div.markdown blockquote {
-       margin-left: 10px;
-     }
+    body.forum div.markdown blockquote {
+      margin-left: 10px;
+    }
 
 You can [override this generated HTML header](#override) by including a
 “`<body>`” tag somewhere in the Header area of the skin, but it is
