@@ -1,5 +1,5 @@
-C The\schat\sdoc\swas\susing\sblockquote\sMD\smarkup\sfor\scode\sexamples,\smaking\nthem\slook\sdifferent\sfrom\sall\sthe\sothers.
-D 2024-02-18T13:15:33.062
+C Modernized\stable-based\sformatting\sin\sdelta_encoder_algorithm\sdoc.
+D 2024-02-18T13:19:46.098
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -805,7 +805,7 @@ F www/customgraph.md 788e9fb895c7fca0f14b65fd71d725f191183ecc446f66b76ef2ff3e28c
 F www/customskin.md b538cbcf359f1445c3e8257cd8fdd6a1857ba0b3c2058f7468bc6f18875a35b4
 F www/defcsp.md 76312fbb774320ba1375dafd9a5306f86c238e5f6e9cc1ec9210b7dcc6ece652
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
-F www/delta_encoder_algorithm.wiki 88d6ff4209e746d15680748e1a7727d0fe237290b12ea6fffcfa3319d1155152
+F www/delta_encoder_algorithm.wiki fc45ac9b78121dd58fee461c55bebc4386d561239213927e9700c1c04eee5141
 F www/delta_format.wiki 33a3f71dc160959bd4c612e7ffee5be54548990e53eb0f6d9b50779c8767bd58
 F www/embeddeddoc.wiki 918175ad2763d00b530c433faaa7b75b17e55c1d613b2d3f98057e92b93e78bb
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea3925bdc146754500c4ed12e1d18ca4d01165e1c377e0589f381d0b98699d73
-R 6ef9fd6960676029cfacec4940326333
+P d6dff8d714e645d9f2e03512429ba525d16202104bc2f3eccef011fe08e2f67e
+R 1df663526e04bf1cb24775c17e8703a8
 U wyoung
-Z 2419f7198e1bca629aa1193153247a44
+Z 419ce3e80c51f663c0fa87a68474afde
 # Remove this line to create a well-formed Fossil manifest.
