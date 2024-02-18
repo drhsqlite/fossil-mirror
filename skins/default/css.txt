@@ -316,11 +316,11 @@ div.sidebar {
 .doc      > .content > .markdown   > p > samp,
 .doc      > .content > .markdown   > p > tt,
 .doc      > .content > .markdown   > p > var,
-.forum    > .content .markdown     > p > code,
-.forum    > .content .markdown     > p > kbd,
-.forum    > .content .markdown     > p > samp,
-.forum    > .content .markdown     > p > tt,
-.forum    > .content .markdown     > p > var,
+.forum    > .content   .markdown   > p > code,
+.forum    > .content   .markdown   > p > kbd,
+.forum    > .content   .markdown   > p > samp,
+.forum    > .content   .markdown   > p > tt,
+.forum    > .content   .markdown   > p > var,
 .wiki     > .content               > p > code,
 .wiki     > .content               > p > kbd,
 .wiki     > .content               > p > samp,
@@ -345,9 +345,7 @@ div.sidebar {
 .doc      > .content               > pre,
 .doc      > .content > .fossil-doc > pre,
 .doc      > .content > .markdown   > pre,
-.forum    > .content               > pre,
-.forum    > .content > .fossil-doc > pre,
-.forum    > .content > .markdown   > pre,
+.forum    > .content   .markdown   > pre,
 .wiki     > .content               > pre,
 .wiki     > .content > .fossil-doc > pre,
 .wiki     > .content > .markdown   > pre {
@@ -695,6 +693,9 @@ span.timelineSecondary {
   #wikiedit-tab-preview-wrapper > .markdown   > pre {
     margin-left:  70pt;
     margin-right: 50pt;
+  }
+  .forum > .content .markdown > pre {
+    margin-left: 20pt;  /* special case for MD in forum; need less indent */
   }
 
   /* Fossil UI uses these, but in sufficiently constrained ways that we
