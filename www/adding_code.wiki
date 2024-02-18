@@ -52,7 +52,9 @@ the final ".c") to the list of source modules at the top of that script.
 Save the result and then run the makemake.tcl script using a TCL
 interpreter.  The command to run the makemake.tcl script is:
 
-    <b>tclsh makemake.tcl</b>
+<verbatim>
+tclsh makemake.tcl
+</verbatim>
 
 The working directory must be src/ when the command above is run.
 Note that TCL is not normally required to build Fossil, but
@@ -109,7 +111,9 @@ Fossil repository and then [/help/commit|commit] your changes!
 By "commands" we mean the keywords that follow "fossil" when invoking
 Fossil from the command-line.  So, for example, in
 
-    <b>fossil diff xyzzy.c</b>
+<verbatim>
+fossil diff xyzzy.c
+</verbatim>
 
 The "command" is "diff".  Commands may optionally be followed by
 arguments and/or options.  To create new commands in Fossil, add code
@@ -146,9 +150,11 @@ The example above is a fully functioning Fossil command.  You can add
 the text shown to an existing Fossil source file, recompiling then test
 it out by typing:
 
-    <b>./fossil xyzzy<br>
-    ./fossil help xyzzy<br>
-    ./fossil xyzzy --help</b>
+<verbatim>
+./fossil xyzzy
+./fossil help xyzzy
+./fossil xyzzy --help
+</verbatim>
 
 The name of the C function that implements the command can be anything
 you like (as long as it does not collide with some other symbol in the

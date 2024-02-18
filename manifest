@@ -1,5 +1,5 @@
-C Consolidated\sthe\sdual\stitles\sin\sthe\stech_overview\sdoc\sinto\sone;\sthe\snew\nbody-area\sh1\stag\sfor\sdocs\smakes\sthe\sold\sstyling\sredundant.
-D 2024-02-18T12:31:57.780
+C Replaced\sa\sfew\smore\sbits\sof\slocal\sformatting\sin\sthe\sadding_code\sdoc\swith\ngeneric\s"verbatim"\sblocks,\suniformly\sstyled\sby\sthe\sskin.
+D 2024-02-18T12:34:45.488
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -757,7 +757,7 @@ F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/aboutcgi.wiki 8c15fe1b3e2e512e219bc7a3a6140515dc618863d5ac8d2fade8f8c56e4c5daa
 F www/aboutdownload.wiki eceecda6f757dc2e2f09f84abacbbda16a40a277ad4e9773dfae2e86b80f4085
-F www/adding_code.wiki 1b6e3f62cefc95cbd6101c3a47dcf3c3ee8e93426359e3f054202057bab85efe
+F www/adding_code.wiki 0015d3dda7bcde73aad2d2f3c6abf011964b3efd843a27d77d03244189f00a20
 F www/alerts.md 71618780f0fb8ee9d700957e2c3f26fd1c338a470070be9e84e974a622f57f42
 F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki b91ab7f82ace6a54daad625af1d227a3274b04250a467c60eb33e6fb
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 261f80db5ec3c828b13873fea153ee38b541588db09108535da7a7c8bb2c74fb
-R 5324ade0592458906f15b972c98e9ee3
+P 010e5527ce12de1bdd003ef62a4efd4c1f35a60341c84f90f95364eb13b37fd7
+R a4754e25c4a4c4c026c4c77ea9e1feee
 U wyoung
-Z ec549c64eedbb7e873a54adf6e02925c
+Z 43d910fc79e84e751e89b9521a6983e1
 # Remove this line to create a well-formed Fossil manifest.
