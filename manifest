@@ -1,5 +1,5 @@
-C Centered\sthe\sPikchrs\sin\sthe\srebaseharm\sdoc,\sand\sreplaced\san\sHTML\stable\nwith\sthe\sMD\sequivalent.
-D 2024-02-18T14:59:44.128
+C Replaced\sblockquote-formatted\scommands\sin\sssl-server\sdoc\swith\sindented\ncode\sblocks\sfor\sconsistency\swith\sthe\sother\sdocs.
+D 2024-02-18T15:03:18.766
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -936,7 +936,7 @@ F www/server/windows/stunnel.md 7a4dbf9730e048bbd79a757ed2bafd7e95070b8ba8fd8524
 F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
 F www/settings.wiki 194a1b8a22acf5098168ffd991758a5903f135c4870dcbe5beb3ffdf57915e6b
 F www/shunning.wiki c8e96dbccdd3aea354ecf31c6e6f265010213bd234a5441606da60b636bbc93b
-F www/ssl-server.md 0a1f53b48d61b940670acd3187b779486ef54b996b78448dc34c3ea46d960eda
+F www/ssl-server.md a2df89dac308c5143f95e30c9acfa8ab5cbeaa931bbefbcb40d49e37dd0cc4a8
 F www/ssl.wiki d0c7bb25c06fcfff8105bec0690bfe9955bca8f7badd32eec6a2e2b77066aa5c
 F www/stats.wiki db154391c71965d6d9205f691885848f9c7fa629271682a03a1133bdc32cc6e3
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc2965be401ed5ccabab3483d7cc3a03db9bd9ba0cad60aeb45501823d031d4a
-R b54ea6dcbbf1f80722af18ef1df3a84e
+P 9607f5b4e4d2db82e6477f78d8c4bff36adc70604870b02a77c3f1ec3a3bb03b
+R 09e82d5192f795903e92e2448bf62baa
 U wyoung
-Z 803fc69c2376ce5750cd0e55598319b1
+Z a18fcc7e2217dfa270e05eec74e9d43b
 # Remove this line to create a well-formed Fossil manifest.
