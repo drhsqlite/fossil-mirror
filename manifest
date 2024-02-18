@@ -1,5 +1,5 @@
-C Style\stweak\sin\sthe\sembedded\sdoc:\sitalic\snext\sto\sbold\scauses\sthe\sslanted\nletters\sto\scrash\sinto\sthe\ssurrounding\sbold\stext.\s\sBold-italic\ssolves\sthat.
-D 2024-02-18T13:06:51.556
+C Fixed\sanother\scase\sof\sextra\sindenting\sin\sthe\sglobs\sdoc
+D 2024-02-18T13:08:07.466
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -841,7 +841,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki 7c198e501721bbb613ff1c3238b35dc991408cf301d3718e040916d35c2bdc27
 F www/gitusers.md 06b91d2f62bf9908320a9bfc15b871cc9cf93998cccea125d6c6b5ae38ffc510
-F www/globs.md b1d2513af1844ebf670c9f1e612f77bd43f76ebd0e0c1c019d6626bdc55fa1d5
+F www/globs.md ff40b819c050a7f5e96eface5ba10f9926e4a7e809d6f27462a2aeda2eb4cdb0
 F www/glossary.md eade6289fe358fe9662247b663739cade3f9fb1f2d2e8bdbf9c0482f7a94b186
 F www/grep.md e3cb198e787904c3c3ac960bd95b112cd6bd3ce75b5adeb10e8b9eb5e935f59d
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6fa99e8ce684e5100c36a4a36a62492fa0fc008772d40cbe36585fbb54b85f8
-R 8205fcb1f30fdec291b0bd9888264182
+P 99e6f717bf49af91301c17b1aca4a59811477719dea36d486a507a77fe9ce102
+R c8597d9691610dca557b3fcc8d2a430f
 U wyoung
-Z 063514280dfae949b0101952d3e8bfe2
+Z 2815fb44a4fa05548a8e96cdf40928ed
 # Remove this line to create a well-formed Fossil manifest.
