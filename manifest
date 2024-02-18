@@ -1,5 +1,5 @@
-C Pikchr-ized\sthe\sASCII-art\sbreakdown\sof\sthe\sURL\sinto\sCGI\svars\sin\sthe\saboutcgi\sdoc.
-D 2024-02-18T14:43:26.609
+C Replaced\sa\suse\sof\slocal\sformatting\sfor\sa\scode\sexample\sin\sthe\naboutdownload\sdoc\swith\sgeneric\sverbatim\sformatting.
+D 2024-02-18T14:45:40.997
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -756,7 +756,7 @@ F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/aboutcgi.wiki d8b450692d9406b7c2f561232292b26d8bfbcc2acc383bbfd9be673e0bb0066c
-F www/aboutdownload.wiki eceecda6f757dc2e2f09f84abacbbda16a40a277ad4e9773dfae2e86b80f4085
+F www/aboutdownload.wiki 58acdbeb021dea92fdc39c7d7d58c58ffc8d6da4cd45ae954cc4be080a0f2846
 F www/adding_code.wiki 0015d3dda7bcde73aad2d2f3c6abf011964b3efd843a27d77d03244189f00a20
 F www/alerts.md 71618780f0fb8ee9d700957e2c3f26fd1c338a470070be9e84e974a622f57f42
 F www/antibot.wiki bcc6dba3f32d829d4a35417a8c246e9e8d5566c40061b0616800c11e88781a0c
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7268a9b8517cfed59f8ba66d886445cedb23963064a611eff0d56abc458aa984
-R c799bf4cb1cc9f458d3c940bc290768f
+P f4370d80e8d6a186c39781e92062e210fa16b2ebd09a76493bb0a20e922e2a0c
+R 48e0aac7280b4585f694779fad53d810
 U wyoung
-Z e3ba1d38331b90f88c04c63aa6ab2d92
+Z 0acf083bc205518cc35cd40bdd2869c7
 # Remove this line to create a well-formed Fossil manifest.
