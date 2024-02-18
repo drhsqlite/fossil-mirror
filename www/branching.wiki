@@ -493,7 +493,7 @@ effort on a branch can be divided among the forks. It might not be
 immediately obvious why this is so. To see it, consider this swim lane
 diagram:
 
-<verbatim type="pikchr center toggle toggle">
+<verbatim type="pikchr center toggle">
     $laneh = 0.75
 
 ALL: [

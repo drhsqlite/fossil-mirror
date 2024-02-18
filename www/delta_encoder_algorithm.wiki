@@ -109,9 +109,9 @@ to <a href="delta_format.wiki#copyrange">copy a range</a>, or
 </ul>
 </p>
 
-<div style="float:right">
-<verbatim type="pikchr" style="float:right">
+<verbatim type="pikchr float-right">
 TARGET: [
+       scale = 0.8
        down
        "Target" bold
        box fill palegreen width 150% height 200% "Processed"
@@ -135,7 +135,6 @@ ORIGIN: [
 
 arrow from TARGET.W.e to ORIGIN.B2.w "Signature" aligned above
 </verbatim>
-</div>
 
 <p>To make this decision the encoder first computes the hash value for
 the NHASH bytes in the window and then looks at all the locations in
