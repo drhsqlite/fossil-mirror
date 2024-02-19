@@ -1,5 +1,5 @@
-C Improved\sappearance\sof\sthe\snew\sCGI\sURL\sbreakdown\sPikchr:\scolorized\sit\nand\smade\suse\sof\spolygons\sinstead\sof\sspindly\slines\sto\sindicate\sthe\sparts.
-D 2024-02-18T20:31:24.460
+C Add\sa\slink\sto\s/skins\son\sthe\s/login\spage,\sper\srequest\sin\sthe\sforum.
+D 2024-02-19T16:18:52.680
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -489,7 +489,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c 380ef2e3e0e9eeec88c99463e00e1f1297de65e78828f211e0dde8c4786c16ac
+F src/login.c 019c23164912022995a335a9e6963b862cced2ea028b09961a65566c432076b7
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c cc62c6c43683e65eb8e728dfb0e808439e31e01d38daa44055cc5777664dbf3e
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77f91620102f868789b1df744e787422a0edba3f1ee6340d77f114a79c105a28
-R 9d532a95757a3cb734d6863ed8e0a5eb
-U wyoung
-Z 72c185617de92e8f3988adeaef86825d
+P 11420bbbdb294e8c5929b42bda9bd25eb84339747f85ed32802ebaab49e2b6dd
+R bfe54cf3c7cff867572477daa6d96664
+U stephan
+Z be0bbf0c140e1f00b3399e1d6d553b0d
 # Remove this line to create a well-formed Fossil manifest.
