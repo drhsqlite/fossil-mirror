@@ -1,5 +1,5 @@
-C Add\sa\slink\sto\s/skins\son\sthe\s/login\spage,\sper\srequest\sin\sthe\sforum.
-D 2024-02-19T16:18:52.680
+C Changed\shome\spage\stitle\sfrom\s"Home"\sto\s"A\sCoherent\sSoftware\nConfiguration\sManagement\sSystem"\ssince\sdocs\snow\sshow\sthe\stitle\sin\sthe\nbody\sarea.\s\s"Home"\sin\sthe\stitle\sarea\swas\sfine,\sbut\snow\sit\swants\nsomething\smore\sexplanatory\sof\sthe\spage's\scontent.\n\nMoved\sthe\slist\sof\slinks\son\sthe\sright\sup\sa\sbit\sas\sa\sresult.\n\nSwitched\sthe\sASCII\shyphens\sto\sem\sdashes\sin\sthe\slist\sof\sFossil\sattributes\nbelo.
+D 2024-02-20T14:35:00.320
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -854,7 +854,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki f07be027202253ecb254152da8c330db2064f8a1414d582602988099c1cd3a4e
+F www/index.wiki dfd6d0d14dd6a3e1dd2ee5bef81c160ffb4f49634adfd656f21c04756fcbd2c1
 F www/inout.wiki 9982cc004c39afa5309bb3c6a26353859838a4e4424a8516bbc658f53c2260c6
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md bf1b6d6257e4493ea36171e700de72e6ded5ba7629c49f78e57b50172d72a90e
@@ -957,8 +957,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11420bbbdb294e8c5929b42bda9bd25eb84339747f85ed32802ebaab49e2b6dd
-R bfe54cf3c7cff867572477daa6d96664
-U stephan
-Z be0bbf0c140e1f00b3399e1d6d553b0d
+P cc7930e13cc8caad035efb4f40a0604887ac819d3a5c4c08936ae61b447de606 b85779e491caaf6edbdb496a21293e47d8f9c621c21aba712b1c10ab727b1a4b
+R 94793601573fe07571fe7893fb2d158b
+T +closed b85779e491caaf6edbdb496a21293e47d8f9c621c21aba712b1c10ab727b1a4b
+U wyoung
+Z 08468ef2d7880fe17dfd4eed5724a041
 # Remove this line to create a well-formed Fossil manifest.
