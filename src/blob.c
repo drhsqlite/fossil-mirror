@@ -1577,7 +1577,7 @@ void blob_cp1252_to_utf8(Blob *p){
 static const char aSafeChar[256] = {
 #ifdef _WIN32
 /* Windows
-** Prohibit:  all control characters, including tab, \r and \n
+** Prohibit:  all control characters, including tab, \r and \n.  Also %
 ** Escape:    (space) " # $ % & ' ( ) * ; < > ? [ ] ^ ` { | }
 */
 /*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
@@ -1702,6 +1702,8 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
     for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
       blob_append_char(pBlob, (char)c);
       if( c=='"' ) blob_append_char(pBlob, '"');
+      if( c=='\\' ) blob_append_char(pBlob, '\\');
+      if( c=='%' ) blob_append(pBlob, "%cd:~,%", 7);
     }
     blob_append_char(pBlob, '"');
 #else
