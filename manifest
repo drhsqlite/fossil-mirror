@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sa\snewer\sversion\sthat\sdoes\snot\sgive\swarnings\non\sWindows.
-D 2024-02-22T00:51:45.894
+C Updates\sto\s"hints.wiki"\sdocument.
+D 2024-02-22T11:00:48.100
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -848,7 +848,7 @@ F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c48
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 0ad9fb7af0f21d16dde0062f7909765f9aac2005fe28ffcc7af6e616be5bbc3e
 F www/hashpolicy.wiki de49bc15473801c37306ae83419e6a7d80d77cc6b61b43d5c5c2486bee2f5f00
-F www/hints.wiki 2649ca99290577715a01bb051386874b8a219da234926a181ed3a5c8b5c8a661
+F www/hints.wiki a28dcaff80e4e36693571728b463e9c0649976ded01d5985b2b57547db72a5b7
 F www/history.md ec29ba623dceb4d162772bb6faa81a8fbdbff81f0d5c742e158d998d9a00aedb
 F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e0b35edee238391efae8f50e1b1f2208ebaebe7a8e0a2a741b78b653eddc851
-R 8d9f1ba2bf26fb5c55a7ce5b6a1f1ec2
+P 35f4dae3d6ccc233f3784cfcfb31bcdf08c2a7358edda30d60056f20bfe90e1b
+R 05c82f3afc8a6affe3033cecfcc0ac8f
 U drh
-Z 1920962f602928023d00101a2e091cb5
+Z 7c56e802254e00d22e7ea7b049a8787e
 # Remove this line to create a well-formed Fossil manifest.
