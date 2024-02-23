@@ -189,6 +189,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
+  $(SRCDIR)/../skins/dense/css.txt \
+  $(SRCDIR)/../skins/dense/details.txt \
+  $(SRCDIR)/../skins/dense/footer.txt \
+  $(SRCDIR)/../skins/dense/header.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
