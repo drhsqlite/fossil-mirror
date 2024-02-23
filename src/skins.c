@@ -22,6 +22,13 @@
 #include "skins.h"
 
 /*
+** SETTING: default-skin width=16
+**
+** If the text value if this setting is the name of a built-in skin
+** then the named skin becomes the default skin for the repository.
+*/
+
+/*
 ** An array of available built-in skins.
 **
 ** To add new built-in skins:
@@ -78,7 +85,24 @@ static int iDraftSkin = 0;
 ** so that the /skins page can, if warranted, warn the user that skin
 ** changes won't have any effect.
 */
-static int nSkinRank = 5;
+static int nSkinRank = 6;
+
+/*
+** How the specific skin being used was chosen
+*/
+#if INTERFACE
+#define SKIN_FROM_DRAFT     0   /* The "draftN" prefix on the PATH_INFO */
+#define SKIN_FROM_CMDLINE   1   /* --skin option to server command-line */
+#define SKIN_FROM_CGI       2   /* skin: parameter in CGI script */
+#define SKIN_FROM_QPARAM    3   /* skin= query parameter */
+#define SKIN_FROM_COOKIE    4   /* skin= from fossil_display_settings cookie*/
+#define SKIN_FROM_SETTING   5   /* Built-in named by "default-skin" setting */
+#define SKIN_FROM_CUSTOM    6   /* Skin values in CONFIG table */
+#define SKIN_FROM_DEFAULT   7   /* The built-in named "default" */
+#define SKIN_FROM_UNKNOWN   8   /* Do not yet know which skin to use */
+#endif /* INTERFACE */
+static int iSkinSource = SKIN_FROM_UNKNOWN;
+
 
 /*
 ** Skin details are a set of key/value pairs that define display
@@ -127,36 +151,46 @@ static struct SkinDetail {
 **
 ** The rankings were initially defined in
 ** https://fossil-scm.org/forum/forumpost/caf8c9a8bb
-** and are:
+** but where subsequently revised:
 **
-** 0) A skin name matching the glob draft[1-9] trumps everything else.
+** 0) A skin name matching the glob pattern "draft[1-9]" at the start of
+**    the PATH_INFO.
 **
-** 1) The --skin flag or skin: CGI config setting.
+** 1) The --skin flag for commands like "fossil ui", "fossil server", or
+**    "fossil http", or  the "skin:" CGI config setting.
 **
 ** 2) The "skin" display setting cookie or URL argument, in that
-** order. If the "skin" URL argument is provided and refers to a legal
-** skin then that will update the display cookie. If the skin name is
-** illegal it is silently ignored.
+**    order. If the "skin" URL argument is provided and refers to a legal
+**    skin then that will update the display cookie. If the skin name is
+**    illegal it is silently ignored.
 **
-** 3) Skin properties from the CONFIG db table
+** 3) The built-in skin identfied by the "default-skin" setting, if such
+**    a setting exists and matches one of the built-in skin names.
 **
-** 4) Default skin.
+** 4) Skin properties (settings "css", "details", "footer", "header",
+**    and "js") from the CONFIG db table
+**
+** 5) The built-in skin named "default"
+**
+** The iSource integer privides additional detail about where the skin
 **
 ** As a special case, a NULL or empty name resets zAltSkinDir and
 ** pAltSkin to 0 to indicate that the current config-side skin should
 ** be used (rank 3, above), then returns 0.
 */
-char *skin_use_alternative(const char *zName, int rank){
+char *skin_use_alternative(const char *zName, int rank, int iSource){
   int i;
   Blob err = BLOB_INITIALIZER;
   if(rank > nSkinRank) return 0;
   nSkinRank = rank;
   if( zName && 1==rank && strchr(zName, '/')!=0 ){
     zAltSkinDir = fossil_strdup(zName);
+    iSkinSource = iSource;
     return 0;
   }
   if( zName && sqlite3_strglob("draft[1-9]", zName)==0 ){
     skin_use_draft(zName[5] - '0');
+    iSkinSource = iSource;
     return 0;
   }
   if(!zName || !*zName){
@@ -167,6 +201,7 @@ char *skin_use_alternative(const char *zName, int rank){
   for(i=0; i<count(aBuiltinSkin); i++){
     if( fossil_strcmp(aBuiltinSkin[i].zLabel, zName)==0 ){
       pAltSkin = &aBuiltinSkin[i];
+      iSkinSource = iSource;
       return 0;
     }
   }
@@ -181,11 +216,14 @@ char *skin_use_alternative(const char *zName, int rank){
 /*
 ** Look for the --skin command-line option and process it.  Or
 ** call fossil_fatal() if an unknown skin is specified.
+**
+** This routine is called during command-line parsing for commands
+** like "fossil ui" and "fossil http".
 */
 void skin_override(void){
   const char *zSkin = find_option("skin",0,1);
   if( zSkin ){
-    char *zErr = skin_use_alternative(zSkin, 1);
+    char *zErr = skin_use_alternative(zSkin, 1, SKIN_FROM_CMDLINE);
     if( zErr ) fossil_fatal("%s", zErr);
   }
 }
@@ -195,6 +233,7 @@ void skin_override(void){
 */
 void skin_use_draft(int i){
   iDraftSkin = i;
+  iSkinSource = SKIN_FROM_DRAFT;
 }
 
 /*
@@ -222,6 +261,20 @@ const char *skin_get(const char *zWhat){
     }
     fossil_free(z);
   }
+  if( iSkinSource==SKIN_FROM_UNKNOWN ){
+    const char *zDflt = db_get("default-skin", 0);
+    iSkinSource = SKIN_FROM_DEFAULT;
+    if( zDflt!=0 ){
+      int i;
+      for(i=0; i<count(aBuiltinSkin); i++){
+        if( fossil_strcmp(aBuiltinSkin[i].zLabel, zDflt)==0 ){
+          pAltSkin = &aBuiltinSkin[i];
+          iSkinSource = SKIN_FROM_SETTING;
+          break;
+        }
+      }
+    }
+  }
   if( pAltSkin ){
     z = mprintf("skins/%s/%s.txt", pAltSkin->zLabel, zWhat);
     zOut = builtin_text(z);
@@ -232,6 +285,8 @@ const char *skin_get(const char *zWhat){
       z = mprintf("skins/default/%s.txt", zWhat);
       zOut = builtin_text(z);
       fossil_free(z);
+    }else{
+      iSkinSource = SKIN_FROM_CUSTOM;
     }
   }
   return zOut;
@@ -1218,10 +1273,11 @@ void skins_page(void){
       @ you are using a draft skin,
     }else{
       @ this fossil instance was started with a hard-coded skin
-      @ value,
+      @ value
     }
-    @ which trumps any option selected below. A skin selected
-    @ below will be recorded in your preference cookie
+    @ which supercedes any option selected below. A skin selected
+    @ below will be recorded in your 
+    @ "%z(href("%R/fdscookie"))fossil_display_settings</a>" cookie
     @ but will not be used so long as the site has a
     @ higher-priority skin in place.
     @ </p>
@@ -1229,9 +1285,9 @@ void skins_page(void){
   @ <p>The following skins are available for this repository:</p>
   @ <ul>
   if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
-    @ <li> Standard skin for this repository &larr; <i>Currently in use</i>
+    @ <li> Custom skin for this repository &larr; <i>Currently in use</i>
   }else{
-    @ <li> %z(href("%R/skins?skin="))Standard skin for this repository</a>
+    @ <li> %z(href("%R/skins?skin="))Custom skin for this repository</a>
   }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
@@ -1242,6 +1298,30 @@ void skins_page(void){
     }
   }
   @ </ul>
+  if( iSkinSource<SKIN_FROM_CUSTOM ){
+    @ <p>The current skin is selected by
+    switch( iSkinSource ){
+      case SKIN_FROM_DRAFT:
+         @ the "debugN" prefix on the PATH_INFO portion of the URL.
+         break;
+      case SKIN_FROM_CMDLINE:
+         @ the "--skin" command-line option on the Fossil server.
+         break;
+      case SKIN_FROM_CGI:
+         @ the "skin:" property in the CGI script that runs the Fossil server.
+         break;
+      case SKIN_FROM_QPARAM:
+         @ the "skin=NAME" query parameter on the URL.
+         break;
+      case SKIN_FROM_COOKIE:
+         @ the "skin" property in the
+         @ "%z(href("%R/fdscookie"))fossil_display_settings</a>" cookie.
+         break;
+      case SKIN_FROM_SETTING:
+         @ the "default-skin" setting on the repository.
+         break;
+    }
+  }
   style_finish_page();
   fossil_free(zBase);
 }

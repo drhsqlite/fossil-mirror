@@ -2527,7 +2527,7 @@ void cmd_cgi(void){
       ** the skin stored in the CONFIG db table is used.
       */
       blob_token(&line, &value);
-      fossil_free(skin_use_alternative(blob_str(&value), 1));
+      fossil_free(skin_use_alternative(blob_str(&value), 1, SKIN_FROM_CGI));
       blob_reset(&value);
       continue;
     }
