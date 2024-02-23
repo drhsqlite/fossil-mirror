@@ -1,5 +1,5 @@
-C Reworked\sthe\shandling\sof\sthe\sthree\s"selected"\srow\scases\sin\s/timeline\n(current,\sfirst-in-range\sand\slast-in-range)\sso\sthe\sborders\sand\nhighlighting\sextend\sto\sthe\sleft\smargin.\s\sThe\s"current"\scase\s(seen\sunder\n"fossil\sui"\sonly,\sto\sindicate\sthe\sckout\sversion)\swasn't\sa\sproblem,\sbut\nthe\sother\stwo\suse\sbackground\scolors\spotentially\sconfusable\swith\sbranch\ncolors.\s\sThis\smakes\sthe\stimelines\smore\slike\sthat\sof\sthe\sFossil\s2.23\sand\nprior\sdefault\sskin\s(now\scalled\sÉtienne)\sbut\swith\srounded\scorners\sin\sthe\nmodern\smodes,\smatching\sthe\srest\sof\sthe\stimeline.\n\nThis\soccurs\sin\sall\stimeline\smodes,\sincluding\sthe\sclassic,\scompact,\sand\nverbose\sviews.\s\sThe\sresult\sis\sthat\sthe\scorners\sfor\sthese\sselected\srow\ntypes\sare\srounded,\sbut\sbecause\sthey\stend\sto\sbe\scompact,\sit\sgives\sa\nfull-round\slook\son\sthe\sends.\s\sAvoiding\sthis\swould\srequire\sconsiderably\nmore\sverbose\sCSS,\sand\sit's\splenty\sintricate\sas\sit\sis.
-D 2024-02-23T17:48:31.846
+C Revive\sthe\sdefault-skin\ssetting.\s\sI\sknow\sthink\sit\swill\sbe\suseful\safter\sall,\nwhen\sused\sin\scombination\swith\sother\schanges\sthat\sare\splanned.
+D 2024-02-23T18:18:06.617
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -531,7 +531,7 @@ F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
 F src/shun.c e8f6d93d5195eaf038b9291469a119197fbbb6f59c581607df49729c576d1ff1
 F src/sitemap.c 8d5b61937f3adf75bff06ff06d2b5b73d86fa829980e6eceb7be4aa65b51f50e
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c cad5be26028ae7262a360fa88e2c834846ec966ad95906ac668d77aacddbc1e8
+F src/skins.c 4c4b29315ced1c79c71fb945e8c561f5cc053c25a57a723bcaa0f24ecfd7f306
 F src/smtp.c 595dd8e9a92adb32a47bae1112bfce5de3166feb1c97a2ec543bc8d909199861
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -957,8 +957,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1975bfd279759471d7aac8c83bf72500911b27f1e11b98f66ddd4e2966dd9f6f
-R 793c98ff151d2d2715564915c7e1b1fe
-U wyoung
-Z 8d51f6caf4c52f2a8979c1f6ce50628d
+P 9568091a9beee72fae8fd189f09bcf6da7cb3f1fc71de3129b03ddb4bce3fd55
+Q -1975bfd279759471d7aac8c83bf72500911b27f1e11b98f66ddd4e2966dd9f6f
+R 351ded84981ec8d9b8cc0e3bc31f9cac
+U drh
+Z 4efa95430efa4ca2970b7105b10ff6dd
 # Remove this line to create a well-formed Fossil manifest.

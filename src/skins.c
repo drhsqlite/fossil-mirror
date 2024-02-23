@@ -22,6 +22,13 @@
 #include "skins.h"
 
 /*
+** SETTING: default-skin width=16
+**
+** If the text value if this setting is the name of a built-in skin
+** then the named skin becomes the default skin for the repository.
+*/
+
+/*
 ** An array of available built-in skins.
 **
 ** To add new built-in skins:
@@ -89,10 +96,12 @@ static int nSkinRank = 6;
 #define SKIN_FROM_CGI       2   /* skin: parameter in CGI script */
 #define SKIN_FROM_QPARAM    3   /* skin= query parameter */
 #define SKIN_FROM_COOKIE    4   /* skin= from fossil_display_settings cookie*/
-#define SKIN_FROM_CUSTOM    5   /* Skin values in CONFIG table */
-#define SKIN_FROM_DEFAULT   6   /* The built-in named "default" */
+#define SKIN_FROM_SETTING   5   /* Built-in named by "default-skin" setting */
+#define SKIN_FROM_CUSTOM    6   /* Skin values in CONFIG table */
+#define SKIN_FROM_DEFAULT   7   /* The built-in named "default" */
+#define SKIN_FROM_UNKNOWN   8   /* Do not yet know which skin to use */
 #endif /* INTERFACE */
-static int iSkinSource = SKIN_FROM_DEFAULT;
+static int iSkinSource = SKIN_FROM_UNKNOWN;
 
 
 /*
@@ -155,10 +164,13 @@ static struct SkinDetail {
 **    skin then that will update the display cookie. If the skin name is
 **    illegal it is silently ignored.
 **
-** 3) Skin properties (settings "css", "details", "footer", "header",
+** 3) The built-in skin identfied by the "default-skin" setting, if such
+**    a setting exists and matches one of the built-in skin names.
+**
+** 4) Skin properties (settings "css", "details", "footer", "header",
 **    and "js") from the CONFIG db table
 **
-** 4) The built-in skin named "default"
+** 5) The built-in skin named "default"
 **
 ** The iSource integer privides additional detail about where the skin
 **
@@ -248,6 +260,20 @@ const char *skin_get(const char *zWhat){
       return blob_str(&x);
     }
     fossil_free(z);
+  }
+  if( iSkinSource==SKIN_FROM_UNKNOWN ){
+    const char *zDflt = db_get("default-skin", 0);
+    iSkinSource = SKIN_FROM_DEFAULT;
+    if( zDflt!=0 ){
+      int i;
+      for(i=0; i<count(aBuiltinSkin); i++){
+        if( fossil_strcmp(aBuiltinSkin[i].zLabel, zDflt)==0 ){
+          pAltSkin = &aBuiltinSkin[i];
+          iSkinSource = SKIN_FROM_SETTING;
+          break;
+        }
+      }
+    }
   }
   if( pAltSkin ){
     z = mprintf("skins/%s/%s.txt", pAltSkin->zLabel, zWhat);
@@ -693,6 +719,9 @@ void setup_skin_admin(void){
       case SKIN_FROM_COOKIE:
         @ the "skin" value of the 
         @ <a href='./fdscookie'>fossil_display_setting</a> cookie.
+        break;
+      case SKIN_FROM_SETTING:
+        @ the "default-skin" setting.
         break;
       default:
         @ reasons unknown.  (Fix me!)
@@ -1332,6 +1361,9 @@ void skins_page(void){
       case SKIN_FROM_COOKIE:
          @ the "skin" property in the
          @ "%z(href("%R/fdscookie"))fossil_display_settings</a>" cookie.
+         break;
+      case SKIN_FROM_SETTING:
+         @ the "default-skin" setting on the repository.
          break;
     }
   }
