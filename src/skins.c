@@ -198,6 +198,12 @@ char *skin_use_alternative(const char *zName, int rank, int iSource){
     zAltSkinDir = 0;
     return 0;
   }
+  if( fossil_strcmp(zName, "custom")==0 ){
+    pAltSkin = 0;
+    zAltSkinDir = 0;
+    iSkinSource = iSource;
+    return 0;
+  }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( fossil_strcmp(aBuiltinSkin[i].zLabel, zName)==0 ){
       pAltSkin = &aBuiltinSkin[i];
@@ -285,7 +291,7 @@ const char *skin_get(const char *zWhat){
       z = mprintf("skins/default/%s.txt", zWhat);
       zOut = builtin_text(z);
       fossil_free(z);
-    }else{
+    }else if( iSkinSource==SKIN_FROM_DEFAULT ){
       iSkinSource = SKIN_FROM_CUSTOM;
     }
   }
@@ -1348,6 +1354,7 @@ void skins_page(void){
   int i;
   char *zBase = fossil_strdup(g.zTop);
   size_t nBase = strlen(zBase);
+  const char *z;
   login_check_credentials();
   if( iDraftSkin && sqlite3_strglob("*/draft?", zBase)==0 ){
     nBase -= 7;
@@ -1378,6 +1385,14 @@ void skins_page(void){
   }
   @ <p>The following skins are available for this repository:</p>
   @ <ul>
+  if( skin_exists_custom() ){
+    if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
+      @ <li> Custom skin for this repository &larr; <i>Currently in use</i>
+    }else{
+      @ <li> %z(href("%R/skins?skin=custom"))\
+      @ Custom skin for this repository</a>
+    }
+  }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
       @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
@@ -1411,6 +1426,7 @@ void skins_page(void){
          break;
     }
   }
+fprintf(stderr, "iSkinSource = %d\n", iSkinSource);
   if( iSkinSource==SKIN_FROM_COOKIE || iSkinSource==SKIN_FROM_QPARAM ){
     @ <ul>
     @ <li> %z(href("%R/skins?skin="))<i>Let Fossil choose \
