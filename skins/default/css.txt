@@ -472,59 +472,45 @@ div.timelineDate {
   white-space: nowrap;
 }
 
-tr.timelineSelected, tr.timelineCurrent {
-  /* etienne/css.txt puts these styles on the whole row. We want them only
-   * on the comment/details cell within the table, not over the time
-   * and graph columns as well. */
-  background-color: unset;
-  border: unset;
-  box-shadow: unset;
+/* Extend default.css comment cell rounding to the whole row for the
+ * various types of "selected" rows, making them "hang" into the left
+ * margin, distinguishing them from the coloring used for branch cells.
+ * Care must be taken to avoid having the box-shadow rounded but the
+ * background squared-off. */
+table.timelineTable {
+  padding: 0 3px;  /* leave space to sides for box shadow; can clip otherwise */
 }
-tr.timelineCurrent td.timelineClassicCell,
-tr.timelineCurrent td.timelineColumnarCell,
-tr.timelineCurrent td.timelineCompactCell,
-tr.timelineCurrent td.timelineModernCell,
-tr.timelineCurrent td.timelineVerboseCell {
-  border: 1px dashed #446979;
+table.timelineTable tr {
   border-radius: 1em;
 }
-tr.timelineSelected td.timelineClassicCell,
-tr.timelineSelected td.timelineColumnarCell,
-tr.timelineSelected td.timelineCompactCell,
-tr.timelineSelected td.timelineModernCell,
-tr.timelineSelected td.timelineVerboseCell {
+tr.timelineSelected, tr.timelineSecondary { background-color: unset; }
+tr.timelineSelected  td, span.timelineSelected {
   background-color: #fbe8d5;
 }
-tr.timelineSecondary td.timelineClassicCell,
-tr.timelineSecondary td.timelineColumnarCell,
-tr.timelineSecondary td.timelineCompactCell,
-tr.timelineSecondary td.timelineModernCell,
-tr.timelineSecondary td.timelineVerboseCell {
+tr.timelineSecondary td, span.timelineSecondary {
   background-color: #d5e8fb;
 }
-tr.timelineCurrent   td,
-tr.timelineSecondary td,
-tr.timelineSelected  td {
-  border-radius: 1em;    /* Full-rounding default for modes that have room. */
+tr.timelineCurrent   td:first-child,
+tr.timelineSecondary td:first-child,
+tr.timelineSelected  td:first-child {
+  border-top-left-radius:    1em;
+  border-bottom-left-radius: 1em;
 }
-tr.timelineCurrent   td.timelineClassicCell,
-tr.timelineSecondary td.timelineClassicCell,
-tr.timelineSelected  td.timelineClassicCell,
-tr.timelineCurrent   td.timelineCompactCell,
-tr.timelineSecondary td.timelineCompactCell,
-tr.timelineSelected  td.timelineCompactCell,
-tr.timelineCurrent   td.timelineVerboseCell,
-tr.timelineSecondary td.timelineVerboseCell,
-tr.timelineSelected  td.timelineVerboseCell {
-  border-radius: 0.5em;  /* Exception: compact modes require half-rounding, */
-  padding-left:  0.5em;  /* and even then needs help to avoid clipping the */
-  padding-right: 0.5em;  /* text near these rounded corners. */
+tr.timelineCurrent   td:last-child,
+tr.timelineSecondary td:last-child,
+tr.timelineSelected  td:last-child {
+  border-top-right-radius:    1em;
+  border-bottom-right-radius: 1em;
 }
-span.timelineSelected {
-  background-color: #fbe8d5;
+tr.timelineCurrent td {
+  border-top:    1px dashed #446979;
+  border-bottom: 1px dashed #446979;
 }
-span.timelineSecondary {
-  background-color: #d5e8fb;
+tr.timelineCurrent td:first-child {
+  border-left:   1px dashed #446979;
+}
+tr.timelineCurrent td:last-child {
+  border-right:  1px dashed #446979;
 }
 
 

@@ -1,5 +1,5 @@
-C Remove\sthe\s"default-skin"\ssetting\sthat\swas\sadded\sby\s[24e015de71cfdc79].
-D 2024-02-23T17:30:05.318
+C Reworked\sthe\shandling\sof\sthe\sthree\s"selected"\srow\scases\sin\s/timeline\n(current,\sfirst-in-range\sand\slast-in-range)\sso\sthe\sborders\sand\nhighlighting\sextend\sto\sthe\sleft\smargin.\s\sThe\s"current"\scase\s(seen\sunder\n"fossil\sui"\sonly,\sto\sindicate\sthe\sckout\sversion)\swasn't\sa\sproblem,\sbut\nthe\sother\stwo\suse\sbackground\scolors\spotentially\sconfusable\swith\sbranch\ncolors.\s\sThis\smakes\sthe\stimelines\smore\slike\sthat\sof\sthe\sFossil\s2.23\sand\nprior\sdefault\sskin\s(now\scalled\sÉtienne)\sbut\swith\srounded\scorners\sin\sthe\nmodern\smodes,\smatching\sthe\srest\sof\sthe\stimeline.\n\nThis\soccurs\sin\sall\stimeline\smodes,\sincluding\sthe\sclassic,\scompact,\sand\nverbose\sviews.\s\sThe\sresult\sis\sthat\sthe\scorners\sfor\sthese\sselected\srow\ntypes\sare\srounded,\sbut\sbecause\sthey\stend\sto\sbe\scompact,\sit\sgives\sa\nfull-round\slook\son\sthe\sends.\s\sAvoiding\sthis\swould\srequire\sconsiderably\nmore\sverbose\sCSS,\sand\sit's\splenty\sintricate\sas\sit\sis.
+D 2024-02-23T17:48:31.846
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt f836de28bcd65e3101349141588c932f366e209255e4312ee054aad0ac01b526
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
 F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac878d2bad087a
-F skins/default/css.txt e501409bb63b6b0ee3f037f82f03e6470eda102c870dce0611bfe1eee5f81c03
+F skins/default/css.txt 63ece4dd7a4b1d059a7df0c88bd5bfefdf6e9a910344ddba96806bd7e8246936
 F skins/default/details.txt b8827752a356cf0073e493a6cf2afbbe7a82ff75eafd0b7549161e21de3cdaaa
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
 F skins/default/header.txt d1e9025e8bcc2de8f6d83bc5b0279782ff0aaf2f9b23312bce4b97206f3c9f24
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33cc83ffb8550a8b7e78087242e6cf6ec9c06aeaf3c0a2b3040b6b89e13028c8
-R 7f0c1ec54ad4e0f79ae350f84d233305
-U drh
-Z 1a7b3d9bce168c0bca5731595af9eb61
+P 1975bfd279759471d7aac8c83bf72500911b27f1e11b98f66ddd4e2966dd9f6f
+R 793c98ff151d2d2715564915c7e1b1fe
+U wyoung
+Z 8d51f6caf4c52f2a8979c1f6ce50628d
 # Remove this line to create a well-formed Fossil manifest.
