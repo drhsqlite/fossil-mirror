@@ -562,6 +562,16 @@ static int skinSave(const char *zCurrent){
 }
 
 /*
+** Return true if a custom skin exists
+*/
+static int skin_exists_custom(void){
+  return db_exists("SELECT 1 FROM config WHERE name IN"
+                        " ('css','details','footer','header','js')");
+}
+
+static void skin_publish(int);  /* Forward reference */
+
+/*
 ** WEBPAGE: setup_skin_admin
 **
 ** Administrative actions on skins.  For administrators only.
@@ -573,10 +583,11 @@ void setup_skin_admin(void){
   const char *zCurrent = 0;  /* Current skin */
   int i;                     /* Loop counter */
   Stmt q;
-  int seenCurrent = 0;
   int once;
-  const char *zInstalled = 0;
   const char *zOverride = 0;
+  const char *zDfltSkin = 0;
+  int seenDefault = 0;
+  int hasCustom;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -593,7 +604,7 @@ void setup_skin_admin(void){
 
   if( cgi_csrf_safe(2) ){
     /* Process requests to delete a user-defined skin */
-    if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
+    if( P("del1") && P("sn")!=0 ){
       style_header("Confirm Custom Skin Delete");
       @ <form action="%R/setup_skin_admin" method="post"><div>
       @ <p>Deletion of a custom skin is a permanent action that cannot
@@ -607,9 +618,14 @@ void setup_skin_admin(void){
       db_end_transaction(1);
       return;
     }
-    if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
+    if( P("del2")!=0 ){
       db_unprotect(PROTECT_CONFIG);
-      db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+      if( fossil_strcmp(P("sn"),"custom")==0 ){
+        db_multi_exec("DELETE FROM config WHERE name IN" 
+                      "('css','details','footer','header','js')");
+      }else if( (zName = skinVarName(P("sn"), 1))!=0 ){
+        db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+      }
       db_protect_pop();
     }
     if( P("draftdel")!=0 ){
@@ -630,34 +646,52 @@ void setup_skin_admin(void){
       return;
     }
 
+    if( P("setdflt") && (z = P("bisl"))!=0 ){
+      if( z[0] ){
+        db_set("default-skin", z, 0);
+      }else{
+        db_unset("default-skin", 0);
+      }
+      db_end_transaction(0);
+      cgi_redirectf("%R/setup_skin_admin");
+      return;
+    }
+
     /* The user pressed one of the "Install" buttons. */
     if( P("load") && (z = P("sn"))!=0 && z[0] ){
       int seen = 0;
 
       /* Check to see if the current skin is already saved.  If it is, there
       ** is no need to create a backup */
-      zCurrent = getSkin(0);
-      for(i=0; i<count(aBuiltinSkin); i++){
-        if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
-          seen = 1;
-          break;
+      hasCustom = skin_exists_custom();
+      if( hasCustom ){
+        zCurrent = getSkin(0);
+        for(i=0; i<count(aBuiltinSkin); i++){
+          if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
+            seen = 1;
+            break;
+          }
         }
-      }
-      if( !seen ){
-        seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
-                         " AND value=%Q", zCurrent);
         if( !seen ){
-          db_unprotect(PROTECT_CONFIG);
-          db_multi_exec(
-            "INSERT INTO config(name,value,mtime) VALUES("
-            "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
-            "  %Q,now())", zCurrent
-          );
-          db_protect_pop();
+          seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
+                           " AND value=%Q", zCurrent);
+          if( !seen ){
+            db_unprotect(PROTECT_CONFIG);
+            db_multi_exec(
+              "INSERT INTO config(name,value,mtime) VALUES("
+              "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
+              "  %Q,now())", zCurrent
+            );
+            db_protect_pop();
+          }
         }
       }
       seen = 0;
-      for(i=0; i<count(aBuiltinSkin); i++){
+      if( z[0]>='1' && z[0]<='9' && z[1]==0 ){
+        skin_publish(z[0]-'0');
+        seen = 1;
+      }
+      for(i=0; seen==0 && i<count(aBuiltinSkin); i++){
         if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
           seen = 1;
           zCurrent = aBuiltinSkin[i].zSQL;
@@ -677,31 +711,35 @@ void setup_skin_admin(void){
     }
   }
 
+  zDfltSkin = db_get("default-skin",0);
+  hasCustom = skin_exists_custom();
+  if( !hasCustom && zDfltSkin==0 ){
+    zDfltSkin = "default";
+  }
+
   style_header("Skins");
   if( zErr ){
     @ <p style="color:red">%h(zErr)</p>
   }
   @ <table border="0">
-  @ <tr><td colspan=4><h2>Built-in Skins:</h2></td></th>
+  @ <tr><td colspan=4><h2>Built-in Skins:</h2></td></tr>
   for(i=0; i<count(aBuiltinSkin); i++){
     z = aBuiltinSkin[i].zDesc;
     @ <tr><td>%d(i+1).<td>%h(z)<td>&nbsp;&nbsp;<td>
-    if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
-      @ (Installed)
-      zInstalled = z;
-      seenCurrent = 1;
+    @ <form action="%R/setup_skin_admin" method="POST">
+    login_insert_csrf_secret();
+    if( zDfltSkin==0 || fossil_strcmp(aBuiltinSkin[i].zLabel, zDfltSkin)!=0 ){
+                                /* vvvv--- mnemonic: Built-In Skin Label */
+      @ <input type="hidden" name="bisl" value="%h(aBuiltinSkin[i].zLabel)">
+      @ <input type="submit" name="setdflt" value="Set">
     }else{
-      @ <form action="%R/setup_skin_admin" method="post">
-      @ <input type="hidden" name="sn" value="%h(z)">
-      @ <input type="submit" name="load" value="Install">
-      login_insert_csrf_secret();
-      if( pAltSkin==&aBuiltinSkin[i] ){
-        zOverride = z;
-        @ (Currently Used)
-      }
-      @ </form>
+      @ (Selected)
+      seenDefault = 1;
     }
-    @ </tr>
+    if( pAltSkin==&aBuiltinSkin[i] && iSkinSource!=SKIN_FROM_SETTING ){
+      @ (Override)
+    }
+    @ </form></td></tr>
   }
   if( zOverride ){
     @ <tr><td>&nbsp;<td colspan="3">
@@ -729,53 +767,55 @@ void setup_skin_admin(void){
     }
     @ </tr>
   }
+  i++;
+  @ <tr><td colspan=4><h2>Custom skin:</h2></td></tr>
+  @ <tr><td>%d(i).
+  if( hasCustom ){
+    @ <td>Custom<td>&nbsp;&nbsp;<td>
+  }else{
+    @ <td><i>(None)</i><td>&nbsp;&nbsp;<td>
+  }
+  @ <form method="post">
+  login_insert_csrf_secret();
+  if( hasCustom ){
+    @ <input type="submit" name="save" value="Backup">
+    @ <input type="submit" name="editdraft" value="Edit">
+    if( !seenDefault ){
+      @ (Selected)
+    }else{
+      @ <input type="hidden" name="bisl" value="">
+      @ <input type="submit" name="setdflt" value="Set">
+      @ <input type="submit" name="del1" value="Delete">
+      @ <input type="hidden" name="sn" value="custom">
+    }
+  }else{
+    @ <input type="submit" name="editdraft" value="Create">
+  }
+  @ </form>
+  @ </td></tr>
   db_prepare(&q,
-     "SELECT substr(name, 6), value FROM config"
+     "SELECT substr(name, 6) FROM config"
      " WHERE name GLOB 'skin:*'"
      " ORDER BY name"
   );
   once = 1;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zN = db_column_text(&q, 0);
-    const char *zV = db_column_text(&q, 1);
     i++;
     if( once ){
       once = 0;
-      @ <tr><td colspan=4><h2>Backup skins saved as "skin:*' entries \
-      @ in the CONFIG table:</h2></td></tr>
+      @ <tr><td colspan=4><h2>Backups of past custom skins:</h2></td></tr>
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
     @ <form action="%R/setup_skin_admin" method="post">
     login_insert_csrf_secret();
-    if( fossil_strcmp(zV, zCurrent)==0 ){
-      @ (Installed)
-      zInstalled = mprintf("%s", zN);
-      seenCurrent = 1;
-    }else{
-      @ <input type="submit" name="load" value="Install">
-      @ <input type="submit" name="del1" value="Delete">
-    }
+    @ <input type="submit" name="load" value="Install">
+    @ <input type="submit" name="del1" value="Delete">
     @ <input type="submit" name="rename" value="Rename">
     @ <input type="hidden" name="sn" value="%h(zN)">
     @ </form></tr>
   }
   db_finalize(&q);
-  i++;
-  @ <tr><td colspan=4><h2>Current skin in css/details/footer/header/js \
-  @ entries in the CONFIG table:</h2></td></tr>
-  @ <tr><td>%d(i).<td><i>Current</i><td>&nbsp;&nbsp;<td>
-  @ <form action="%R/setup_skin_admin" method="post">
-  if( !seenCurrent ){
-    @ <input type="submit" name="save" value="Backup">
-  }
-  @ <input type="submit" name="editdraft" value="Edit">
-  login_insert_csrf_secret();
-  @ </form>
-  if( zInstalled ){
-    @ <tr><td>&nbsp;<td colspan="3"><p>
-    @ Note: The current skin is an exact copy of "%h(zInstalled)".
-    @ </tr>
-  }
   db_prepare(&q,
      "SELECT DISTINCT substr(name, 1, 6) FROM config"
      " WHERE name GLOB 'draft[1-9]-*'"
@@ -787,14 +827,15 @@ void setup_skin_admin(void){
     i++;
     if( once ){
       once = 0;
-      @ <tr><td colspan=4><h2>Draft skins stored as "draft[1-9]-*' entries \
-      @ in the CONFIG table:</h2></td></tr>
+      @ <tr><td colspan=4><h2>Draft skins:</h2></td></tr>
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
     @ <form action="%R/setup_skin_admin" method="post">
     login_insert_csrf_secret();
+    @ <input type="submit" name="load" value="Install">
     @ <input type="submit" name="draftdel" value="Delete">
     @ <input type="hidden" name="name" value="%h(zN)">
+    @ <input type="hidden" name="sn" value="%h(zN+5)">
     @ </form></tr>
   }
   db_finalize(&q);
@@ -814,24 +855,26 @@ static void skin_emit_skin_selector(
   const char *zExcept        /* Omit this skin if not NULL */
 ){
   int i;
+  Stmt s;
   @ <select size='1' name='%s(zVarName)'>
-  if( fossil_strcmp(zExcept, "current")!=0 ){
-    @ <option value='current'>Currently In Use</option>
+  if( fossil_strcmp(zExcept, "current")!=0 && skin_exists_custom() ){
+    @ <option value='current'>Current Custom Skin</option>
   }
   for(i=0; i<count(aBuiltinSkin); i++){
     const char *zName = aBuiltinSkin[i].zLabel;
     if( fossil_strcmp(zName, zExcept)==0 ) continue;
     if( fossil_strcmp(zDefault, zName)==0 ){
       @ <option value='%s(zName)' selected>\
-      @ %h(aBuiltinSkin[i].zDesc) (built-in)</option>
+      @ %h(aBuiltinSkin[i].zDesc)</option>
     }else{
       @ <option value='%s(zName)'>\
-      @ %h(aBuiltinSkin[i].zDesc) (built-in)</option>
+      @ %h(aBuiltinSkin[i].zDesc)</option>
     }
   }
-  for(i=1; i<=9; i++){
-    char zName[20];
-    sqlite3_snprintf(sizeof(zName), zName, "draft%d", i);
+  db_prepare(&s, "SELECT DISTINCT substr(name,1,6) FROM config"
+                 " WHERE name GLOB 'draft[1-9]-*' ORDER BY 1");
+  while( db_step(&s)==SQLITE_ROW ){
+    const char *zName = db_column_text(&s, 0);
     if( fossil_strcmp(zName, zExcept)==0 ) continue;
     if( fossil_strcmp(zDefault, zName)==0 ){
       @ <option value='%s(zName)' selected>%s(zName)</option>
@@ -839,6 +882,7 @@ static void skin_emit_skin_selector(
       @ <option value='%s(zName)'>%s(zName)</option>
     }
   }
+  db_finalize(&s);
   @ </select>
 }
 
@@ -1056,12 +1100,14 @@ static void skin_publish(int iSkin){
     char *zNew = db_get_mprintf("", "draft%d-%s", iSkin, azSkinFile[i]);
     db_set(azSkinFile[i]/*works-like:"x"*/, zNew, 0);
   }
+  db_unset("default-skin", 0);
 }
 
 /*
 ** WEBPAGE: setup_skin
 **
-** Generate a page showing the steps needed to customize a skin.
+** Generate a page showing the steps needed to create or edit
+** a custom skin.
 */
 void setup_skin(void){
   int i;          /* Loop counter */
@@ -1188,6 +1234,7 @@ void setup_skin(void){
     @ <p>You are not allowed to initialize draft%d(iSkin).  Contact
     @ the administrator for this repository for more information.
   }else{
+    char *zDraft = mprintf("draft%d", iSkin);
     @ <p>Initialize the draft%d(iSkin) skin to one of the built-in skins
     @ or a preexisting skin, to use as a baseline.</p>
     @
@@ -1195,7 +1242,8 @@ void setup_skin(void){
     @ <p class='skinInput'>
     @ <input type='hidden' name='sk' value='%d(iSkin)'>
     @ Initialize skin <b>draft%d(iSkin)</b> using
-    skin_emit_skin_selector("initskin", "current", 0);
+    skin_emit_skin_selector("initskin", 0, zDraft);
+    fossil_free(zDraft);
     @ <input type='submit' name='init3' value='Go'>
     @ </p>
     @ </form>
