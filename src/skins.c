@@ -575,6 +575,8 @@ void setup_skin_admin(void){
   Stmt q;
   int seenCurrent = 0;
   int once;
+  const char *zInstalled = 0;
+  const char *zOverride = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -617,6 +619,11 @@ void setup_skin_admin(void){
         db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
         db_protect_pop();
       }
+    }
+    if( P("editdraft")!=0 ){
+      db_end_transaction(0);
+      cgi_redirectf("%R/setup_skin");
+      return;
     }
     if( skinRename() || skinSave(zCurrent) ){
       db_end_transaction(0);
@@ -680,7 +687,8 @@ void setup_skin_admin(void){
     z = aBuiltinSkin[i].zDesc;
     @ <tr><td>%d(i+1).<td>%h(z)<td>&nbsp;&nbsp;<td>
     if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
-      @ (Currently In Use)
+      @ (Installed)
+      zInstalled = z;
       seenCurrent = 1;
     }else{
       @ <form action="%R/setup_skin_admin" method="post">
@@ -688,9 +696,36 @@ void setup_skin_admin(void){
       @ <input type="submit" name="load" value="Install">
       login_insert_csrf_secret();
       if( pAltSkin==&aBuiltinSkin[i] ){
-        @ (Current override)
+        zOverride = z;
+        @ (Currently Used)
       }
       @ </form>
+    }
+    @ </tr>
+  }
+  if( zOverride ){
+    @ <tr><td>&nbsp;<td colspan="3">
+    @ <p>Note: Built-in skin "%h(zOverride)" is currently being used because of
+    switch( iSkinSource ){
+      case SKIN_FROM_CMDLINE:
+        @ the --skin command-line option.
+        break;
+      case SKIN_FROM_CGI:
+        @ the "skin:" option on CGI script.
+        break;
+      case SKIN_FROM_QPARAM:
+        @ the "skin=NAME" query parameter.
+        break;
+      case SKIN_FROM_COOKIE:
+        @ the "skin" value of the 
+        @ <a href='./fdscookie'>fossil_display_setting</a> cookie.
+        break;
+      case SKIN_FROM_SETTING:
+        @ the "default-skin" setting.
+        break;
+      default:
+        @ reasons unknown.  (Fix me!)
+        break;
     }
     @ </tr>
   }
@@ -706,14 +741,15 @@ void setup_skin_admin(void){
     i++;
     if( once ){
       once = 0;
-      @ <tr><td colspan=4><h2>Skins saved as "skin:*' entries \
+      @ <tr><td colspan=4><h2>Backup skins saved as "skin:*' entries \
       @ in the CONFIG table:</h2></td></tr>
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
     @ <form action="%R/setup_skin_admin" method="post">
     login_insert_csrf_secret();
     if( fossil_strcmp(zV, zCurrent)==0 ){
-      @ (Currently In Use)
+      @ (Installed)
+      zInstalled = mprintf("%s", zN);
       seenCurrent = 1;
     }else{
       @ <input type="submit" name="load" value="Install">
@@ -724,15 +760,21 @@ void setup_skin_admin(void){
     @ </form></tr>
   }
   db_finalize(&q);
+  i++;
+  @ <tr><td colspan=4><h2>Current skin in css/details/footer/header/js \
+  @ entries in the CONFIG table:</h2></td></tr>
+  @ <tr><td>%d(i).<td><i>Current</i><td>&nbsp;&nbsp;<td>
+  @ <form action="%R/setup_skin_admin" method="post">
   if( !seenCurrent ){
-    i++;
-    @ <tr><td colspan=4><h2>Current skin in css/header/footer/details entries \
-    @ in the CONFIG table:</h2></td></tr>
-    @ <tr><td>%d(i).<td><i>Current</i><td>&nbsp;&nbsp;<td>
-    @ <form action="%R/setup_skin_admin" method="post">
     @ <input type="submit" name="save" value="Backup">
-    login_insert_csrf_secret();
-    @ </form>
+  }
+  @ <input type="submit" name="editdraft" value="Edit">
+  login_insert_csrf_secret();
+  @ </form>
+  if( zInstalled ){
+    @ <tr><td>&nbsp;<td colspan="3"><p>
+    @ Note: The current skin is an exact copy of "%h(zInstalled)".
+    @ </tr>
   }
   db_prepare(&q,
      "SELECT DISTINCT substr(name, 1, 6) FROM config"
@@ -1078,6 +1120,9 @@ void setup_skin(void){
 
   style_set_current_feature("skins");
   style_header("Customize Skin");
+  if( g.perm.Admin ){
+    style_submenu_element("Skin-Admin", "%R/setup_skin_admin");
+  }
 
   @ <p>Customize the look of this Fossil repository by making changes
   @ to the CSS, Header, Footer, and Detail Settings in one of nine "draft"
