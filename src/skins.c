@@ -1354,7 +1354,6 @@ void skins_page(void){
   int i;
   char *zBase = fossil_strdup(g.zTop);
   size_t nBase = strlen(zBase);
-  const char *z;
   login_check_credentials();
   if( iDraftSkin && sqlite3_strglob("*/draft?", zBase)==0 ){
     nBase -= 7;
@@ -1426,7 +1425,6 @@ void skins_page(void){
          break;
     }
   }
-fprintf(stderr, "iSkinSource = %d\n", iSkinSource);
   if( iSkinSource==SKIN_FROM_COOKIE || iSkinSource==SKIN_FROM_QPARAM ){
     @ <ul>
     @ <li> %z(href("%R/skins?skin="))<i>Let Fossil choose \

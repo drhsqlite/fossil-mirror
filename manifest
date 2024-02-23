@@ -1,5 +1,5 @@
-C Show\sthe\scustom\sskin\sas\san\soption\son\sthe\s/skins\spage,\sif\sit\sexists.
-D 2024-02-23T23:29:54.225
+C Remove\sa\sdebugging\sprintf()\saccidently\sleft\sin\sthe\sprevious\scheck-in.\s\sAlso\nremove\san\sunused\svariable.
+D 2024-02-23T23:31:49.243
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -531,7 +531,7 @@ F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
 F src/shun.c e8f6d93d5195eaf038b9291469a119197fbbb6f59c581607df49729c576d1ff1
 F src/sitemap.c 8d5b61937f3adf75bff06ff06d2b5b73d86fa829980e6eceb7be4aa65b51f50e
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 6623d402bd36c22d59c2f4d6560bbe074d63c3e86cbbf21d4df31019ce10464d
+F src/skins.c 6b3ac39d799891aa569f5ac4453c4c8553388dd5836e862240de5b03529824a7
 F src/smtp.c 595dd8e9a92adb32a47bae1112bfce5de3166feb1c97a2ec543bc8d909199861
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99575d4cbcbc24e60774cbd6927fe33c9f2248a1c6b73b579cb113a17113bc58
-R 671ae341c528ab8b82d8e154e61c0fc6
+P b828d8fd59a18b923087ca180de269b25407a4621d684efe3af18a74fa029a00
+R d3a3ba3499987ac0f265c7a0dfde573a
 U drh
-Z 7d78464765d487b66a2ca69283861f12
+Z d5d4d610e39e495835ab96620e69fd34
 # Remove this line to create a well-formed Fossil manifest.
