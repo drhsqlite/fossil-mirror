@@ -1,5 +1,5 @@
-C Fix\san\sincorrect\scomment\son\sthe\sprevious\scheck-in.
-D 2024-02-22T20:08:52.809
+C Teach\sthe\schat\spull\ssubcommand\sto\sprompt\sfor\sa\spassword\sif\sno\spassword\shas\sbeen\sremembered\sfor\sthe\sremote.\sResolves\sthe\sproblem\sreported\sin\s[forum:ea82cf10d4|forum\spost\sea82cf10d4].
+D 2024-02-23T00:38:45.359
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c 42b06a0a3b66ae97373cf0adbcd3e4ff75ffaa2178a9766d060848e9ef86b303
-F src/chat.c fa43df41238d1a284999f4410c366527524bf911133dc90988fbc3b2f200a044
+F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
 F src/checkin.c e8e3d07896a783f7e49c498ca412ee413b9fb5b713874e380206d7ae36bc3390
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc0b9325f02b16b3832e37365e2d9e66ab373663d168c05e72c6aa92a508f68a
-R 560d763c35ecccc41dc7fe1544df5097
-U drh
-Z ecfb5204a9754645ba734603f75fcd29
+P 0d2befb04d9640f339d71f3165b2ae5c87c34b47ac811fe042e5a1a83d1ec791
+R 6d7beefccf6c3722f947093c903f356b
+U stephan
+Z 4c32dcd65b6428213a762065a51d7d9c
 # Remove this line to create a well-formed Fossil manifest.
