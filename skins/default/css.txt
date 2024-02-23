@@ -480,6 +480,7 @@ tr.timelineSelected, tr.timelineCurrent {
   border: unset;
   box-shadow: unset;
 }
+tr.timelineCurrent td.timelineClassicCell,
 tr.timelineCurrent td.timelineColumnarCell,
 tr.timelineCurrent td.timelineCompactCell,
 tr.timelineCurrent td.timelineModernCell,
@@ -487,12 +488,14 @@ tr.timelineCurrent td.timelineVerboseCell {
   border: 1px dashed #446979;
   border-radius: 1em;
 }
+tr.timelineSelected td.timelineClassicCell,
 tr.timelineSelected td.timelineColumnarCell,
 tr.timelineSelected td.timelineCompactCell,
 tr.timelineSelected td.timelineModernCell,
 tr.timelineSelected td.timelineVerboseCell {
   background-color: #fbe8d5;
 }
+tr.timelineSecondary td.timelineClassicCell,
 tr.timelineSecondary td.timelineColumnarCell,
 tr.timelineSecondary td.timelineCompactCell,
 tr.timelineSecondary td.timelineModernCell,
@@ -504,6 +507,9 @@ tr.timelineSecondary td,
 tr.timelineSelected  td {
   border-radius: 1em;    /* Full-rounding default for modes that have room. */
 }
+tr.timelineCurrent   td.timelineClassicCell,
+tr.timelineSecondary td.timelineClassicCell,
+tr.timelineSelected  td.timelineClassicCell,
 tr.timelineCurrent   td.timelineCompactCell,
 tr.timelineSecondary td.timelineCompactCell,
 tr.timelineSelected  td.timelineCompactCell,
@@ -511,8 +517,8 @@ tr.timelineCurrent   td.timelineVerboseCell,
 tr.timelineSecondary td.timelineVerboseCell,
 tr.timelineSelected  td.timelineVerboseCell {
   border-radius: 0.5em;  /* Exception: compact modes require half-rounding, */
-  padding-left:  0.5em;  /* and even then requires help to avoid clipping */
-  padding-right: 0.5em;  /* of the text near these rounded corners. */
+  padding-left:  0.5em;  /* and even then needs help to avoid clipping the */
+  padding-right: 0.5em;  /* text near these rounded corners. */
 }
 span.timelineSelected {
   background-color: #fbe8d5;
