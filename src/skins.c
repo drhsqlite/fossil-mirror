@@ -738,6 +738,7 @@ void setup_skin_admin(void){
     }
     if( pAltSkin==&aBuiltinSkin[i] && iSkinSource!=SKIN_FROM_SETTING ){
       @ (Override)
+      zOverride = z;
     }
     @ </form></td></tr>
   }
@@ -1347,6 +1348,7 @@ void skins_page(void){
   int i;
   char *zBase = fossil_strdup(g.zTop);
   size_t nBase = strlen(zBase);
+  login_check_credentials();
   if( iDraftSkin && sqlite3_strglob("*/draft?", zBase)==0 ){
     nBase -= 7;
     zBase[nBase] = 0;
@@ -1358,7 +1360,6 @@ void skins_page(void){
     }
     fossil_free(zPattern);
   }
-  login_check_credentials();
   style_header("Skins");
   if( iDraftSkin || nSkinRank<=1 ){
     @ <p class="warning">Warning:
@@ -1377,11 +1378,6 @@ void skins_page(void){
   }
   @ <p>The following skins are available for this repository:</p>
   @ <ul>
-  if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
-    @ <li> Custom skin for this repository &larr; <i>Currently in use</i>
-  }else{
-    @ <li> %z(href("%R/skins?skin="))Custom skin for this repository</a>
-  }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
       @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
@@ -1415,6 +1411,17 @@ void skins_page(void){
          break;
     }
   }
+  if( iSkinSource==SKIN_FROM_COOKIE || iSkinSource==SKIN_FROM_QPARAM ){
+    @ <ul>
+    @ <li> %z(href("%R/skins?skin="))<i>Let Fossil choose \
+    @ which skin to use</i></a>
+    @ </ul>
+  }
   style_finish_page();
+  if( P("skin")!=0 ){
+    sqlite3_uint64 x;
+    sqlite3_randomness(sizeof(x), &x);
+    cgi_redirectf("%R/skins/%llx", x);
+  }
   fossil_free(zBase);
 }
