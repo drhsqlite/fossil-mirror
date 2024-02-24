@@ -1384,20 +1384,20 @@ void skins_page(void){
   }
   @ <p>The following skins are available for this repository:</p>
   @ <ul>
-  if( skin_exists_custom() ){
-    if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
-      @ <li> Custom skin for this repository &larr; <i>Currently in use</i>
-    }else{
-      @ <li> %z(href("%R/skins?skin=custom"))\
-      @ Custom skin for this repository</a>
-    }
-  }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
       @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
     }else{
       char *zUrl = href("%R/skins?skin=%T", aBuiltinSkin[i].zLabel);
       @ <li> %z(zUrl)%h(aBuiltinSkin[i].zDesc)</a>
+    }
+  }
+  if( skin_exists_custom() ){
+    if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
+      @ <li> Custom skin for this repository &larr; <i>Currently in use</i>
+    }else{
+      @ <li> %z(href("%R/skins?skin=custom"))\
+      @ Custom skin for this repository</a>
     }
   }
   @ </ul>

@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sWindows\sbuilds\sintroduced\sby\s[fc0b9325f02b16b3]:\s\sWhen\sescaping\narguments\sfor\sthe\sCMD.EXE\swhich\sare\snot\sfilenames,\sallow\s%\sto\spass\sthrough\nunaltered\sand\sunquoted.\s\sThis\sis\snecessary\sso\sthat\swe\scan\sconstruct\sa\sURL\s\nthat\scontains\sa\s"%d"\sfield\sto\shold\sthe\sTCP\sport\snumber.
-D 2024-02-24T11:33:01.475
+C On\sthe\s/skins\spage,\smove\sthe\s"Custom"\sskin\sto\sthe\sbottom\sof\sthe\slist.
+D 2024-02-24T16:31:31.852
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -531,7 +531,7 @@ F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
 F src/shun.c e8f6d93d5195eaf038b9291469a119197fbbb6f59c581607df49729c576d1ff1
 F src/sitemap.c 8d5b61937f3adf75bff06ff06d2b5b73d86fa829980e6eceb7be4aa65b51f50e
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 6b3ac39d799891aa569f5ac4453c4c8553388dd5836e862240de5b03529824a7
+F src/skins.c 3f8c75ddc6ab8a47a01d537cda16c28f57c9709446d5373dbf7b0c026783f57b
 F src/smtp.c 595dd8e9a92adb32a47bae1112bfce5de3166feb1c97a2ec543bc8d909199861
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 818a6ad79aee3eb3a66bff719d7cc7bd0dc1c4a789883c309e854c30c4aa12c0
-R e92260ef424490f7514f8fe54f3f9987
+P c2c02cd7d1f50df46df9e3437cc4a8258cdb4622e358d760bc2921cceeb13d05
+R 5b25a111dc2ad993d3bac6aef2a5ac11
 U drh
-Z 5b3989634cc3d79f0e5322c7e83a56e7
+Z 00b409bbbff2a0bb512aa0244b19f2db
 # Remove this line to create a well-formed Fossil manifest.
