@@ -1703,7 +1703,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
       blob_append_char(pBlob, (char)c);
       if( c=='"' ) blob_append_char(pBlob, '"');
       if( c=='\\' ) blob_append_char(pBlob, '\\');
-      if( c=='%' ) blob_append(pBlob, "%cd:~,%", 7);
+      if( c=='%' && isFilename ) blob_append(pBlob, "%cd:~,%", 7);
     }
     blob_append_char(pBlob, '"');
 #else
