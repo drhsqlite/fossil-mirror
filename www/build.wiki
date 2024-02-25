@@ -42,13 +42,13 @@ To obtain a development version of fossil, follow these steps:
 <li>Click on the [/timeline|Timeline]
 link at the top of the page.</li>
 
-<li>Select a version of of Fossil you want to download.  The latest
+<li>Select a version of Fossil you want to download.  The latest
 version on the trunk branch is usually a good choice.  Click on its
 link.</li>
 
 <li>Finally, click on one of the
 "Zip Archive" or "Tarball" links, according to your preference.
-These link will build a ZIP archive or a gzip-compressed tarball of the
+These links will build a ZIP archive or a gzip-compressed tarball of the
 complete source code and download it to your computer.</li>
 </ol>
 

@@ -1,5 +1,5 @@
-C On\sthe\s/skins\spage,\smove\sthe\s"Custom"\sskin\sto\sthe\sbottom\sof\sthe\slist.
-D 2024-02-24T16:31:31.852
+C Fix\stypos\sin\swww/build.wiki\sas\sreported\son\sthe\sforum.
+D 2024-02-25T10:52:20.846
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -774,7 +774,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 01249d2479733418c7ab6893e258ead43c0d1e9a7c9bd3a79733ff01a4153c0d
+F www/build.wiki e8755bf9fd91eb9f1689621ad6605c16a3e806254043b82f9fbd3e7691418d74
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2c02cd7d1f50df46df9e3437cc4a8258cdb4622e358d760bc2921cceeb13d05
-R 5b25a111dc2ad993d3bac6aef2a5ac11
+P 2ac49d32007c3da2b7cbdfbf672f6b980daea085b091feb6b0a545507744c218
+R ce96980d99e00b217326ea6825c513af
 U drh
-Z 00b409bbbff2a0bb512aa0244b19f2db
+Z b2aa49067adb8453e1def2c51a4ceb17
 # Remove this line to create a well-formed Fossil manifest.
