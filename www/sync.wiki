@@ -121,7 +121,7 @@ The simpler of the two solutions to this problem is to install Fossil
 where sshd expects to find it, but when that isn't an option, you can
 instead give a URL like this:
 
-<verbatim>fossil clone ssh://myserver.example.com?fossil=/home/me/bin/fossil /path/to/repo.fossil</verbatim>
+<verbatim>fossil clone ssh://myserver.example.com/path/to/repo.fossil?fossil=/home/me/bin/fossil</verbatim>
 
 That gives the local Fossil instance the absolute path to the binary on
 the remote machine for use when calling that Fossil instance through the
