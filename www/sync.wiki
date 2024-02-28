@@ -50,7 +50,7 @@ If you are already familiar with CRDTs and were wondering if Fossil
 used them, the answer is "yes".  We just don't call them by that name.
 
 
-<h2>2.0 Transport</h2>
+<h2 id="transport">2.0 Transport</h2>
 
 All communication between client and server is via HTTP requests.
 The server is listening for incoming HTTP requests.  The client
@@ -84,7 +84,7 @@ or handheld device.  For the purposes of this article "client" simply means
 the repository that initiates the conversation and "server" is the repository
 that responds.  Nothing more.
 
-<h4>2.0.1 HTTPS Transport</h4>
+<h4 id="https">2.0.1 HTTPS Transport</h4>
 
 HTTPS differs from HTTP only in that the HTTPS protocol is
 encrypted as it travels over the wire.  The underlying protocol
@@ -96,7 +96,7 @@ in this document.
 Fossil includes built-in 
 [./ssl-server.md|support for HTTPS encryption] in both client and server.
 
-<h4>2.0.2 SSH Transport</h4>
+<h4 id="ssh">2.0.2 SSH Transport</h4>
 
 When doing a sync using an "ssh:..." URL, the same HTTP transport protocol
 is used.  Fossil simply uses [https://en.wikipedia.org/wiki/Secure_Shell|ssh]
@@ -107,7 +107,7 @@ internet socket.  To see the specific "ssh" command that the Fossil client
 runs in order to set up a connection, add either of the the "--httptrace" or
 "--sshtrace" options to the "fossil sync" command line.
 
-<h4>2.0.3 FILE Transport</h4>
+<h4 id="file">2.0.3 FILE Transport</h4>
 
 When doing a sync using a "file:..." URL, the same HTTP protocol is
 still used.  But instead of sending each HTTP request over a socket or
@@ -119,7 +119,7 @@ temporary files.  To see the specific "fossil http" command that is run
 in order to implement the "file:" transport, add the "--httptrace"
 option to the "fossil sync" command.
 
-<h3>2.1 Server Identification</h3>
+<h3 id="srv-id">2.1 Server Identification</h3>
 
 The server is identified by a URL argument that accompanies the
 push, pull, or sync command on the client.  (As a convenience to
@@ -139,7 +139,7 @@ be:
 
 <pre>https://fossil-scm.org/fossil/xfer</pre>
 
-<h3>2.2 HTTP Request Format</h3>
+<h3 id="req-format">2.2 HTTP Request Format</h3>
 
 The client always sends a POST request to the server.  The
 general format of the POST request is as follows:
@@ -177,13 +177,13 @@ Content-Length: 265
 The content type of the reply is always the same as the content type
 of the request.
 
-<h2>3.0 Fossil Synchronization Content</h2>
+<h2 id="content">3.0 Fossil Synchronization Content</h2>
 
 A synchronization request between a client and server consists of
 one or more HTTP requests as described in the previous section.  This
 section details the "x-fossil" content type.
 
-<h3>3.1 Line-oriented Format</h3>
+<h3 id="lines">3.1 Line-oriented Format</h3>
 
 The x-fossil content type consists of zero or more "cards".  Cards
 are separated by the newline character ("\n").  Leading and trailing
@@ -195,7 +195,7 @@ are arguments.  The set of operators understood by servers is slightly
 different from the operators understood by clients, though the two
 are very similar.
 
-<h3>3.2 Login Cards</h3>
+<h3 id="login">3.2 Login Cards</h3>
 
 Every message from client to server begins with one or more login
 cards.  Each login card has the following format:
@@ -219,7 +219,7 @@ Privileges are cumulative.  There can be multiple successful
 login cards.  The session privilege is the union of all
 privileges from all login cards.
 
-<h3>3.3 File Cards</h3>
+<h3 id="file">3.3 File Cards</h3>
 
 Artifacts are transferred using either "file" cards, or "cfile"
 or "uvfile" cards.
@@ -228,8 +228,7 @@ files that are under version control.
 The "cfile" name is an abbreviation for "compressed file".
 The "uvfile" name is an abbreviation for "unversioned file".
 
-
-<h4>3.3.1 Ordinary File Cards</h4>
+<h4 id="ordinary-fc">3.3.1 Ordinary File Cards</h4>
 
 For sync protocols, artifacts are transferred using "file"
 cards.  File cards come in two different formats depending
@@ -265,7 +264,7 @@ server to client.  A delta might be sent before the source of
 the delta, so both client and server should remember deltas
 and be able to apply them when their source arrives.
 
-<h4>3.3.2 Compressed File Cards</h4>
+<h4 id="compressed-fc">3.3.2 Compressed File Cards</h4>
 
 A client that sends a clone protocol version "3" or greater will
 receive artifacts as "cfile" cards while cloning.  This card was
@@ -298,12 +297,11 @@ delta artifact.
 Unlike file cards, cfile cards are only sent in one direction during a
 clone from server to client for clone protocol version "3" or greater.
 
-<h4>3.3.3 Private artifacts</h4>
+<h4 id="private">3.3.3 Private artifacts</h4>
 
 "Private" content consist of artifacts that are not normally synced.
 However, private content will be synced when the
 the [/help?cmd=sync|fossil sync] command includes the "--private" option.
-
 
 Private content is marked by a "private" card:
 
@@ -312,7 +310,7 @@ Private content is marked by a "private" card:
 The private card has no arguments and must directly precede a
 file card that contains the private content.
 
-<h4>3.3.4 Unversioned File Cards</h4>
+<h4 id="uv-fc">3.3.4 Unversioned File Cards</h4>
 
 Unversioned content is sent in both directions (client to server and
 server to client) using "uvfile" cards in the following format:
@@ -344,7 +342,7 @@ Servers send uvfile cards in response to uvgimme cards received from
 the client.  Clients send uvfile cards when they determine that the server
 needs the content based on uvigot cards previously received from the server.
 
-<h3>3.4 Push and Pull Cards</h3>
+<h3 id="push" name="pull">3.4 Push and Pull Cards</h3>
 
 Among the first cards in a client-to-server message are
 the push and pull cards.  The push card tells the server that
@@ -369,7 +367,7 @@ code to put in the new repository it is constructing.
 
 The <i>servercode</i> argument is currently unused.
 
-<h3>3.5 Clone Cards</h3>
+<h3 id="clones">3.5 Clone Cards</h3>
 
 A clone card works like a pull card in that it is sent from
 client to server in order to tell the server that the client
@@ -426,7 +424,7 @@ The version 2 protocol is an effort to improve performance.  Further
 performance improvements with higher-numbered clone protocols are
 possible in future versions of Fossil.
 
-<h3>3.6 Igot Cards</h3>
+<h3 id="igot">3.6 Igot Cards</h3>
 
 An igot card can be sent from either client to server or from
 server to client in order to indicate that the sender holds a copy
@@ -481,7 +479,7 @@ transfer to occur on a subsequent HTTP request.  If a server-to-client
 transfer is needed, then the client sends a "uvgimme" card back to the
 server to request the file content.
 
-<h3>3.7 Gimme Cards</h3>
+<h3 id="gimme">3.7 Gimme Cards</h3>
 
 A gimme card is sent from either client to server or from server
 to client.  The gimme card asks the receiver to send a particular
@@ -516,7 +514,7 @@ server that the client would like to have.  When a server sees a
 uvgimme card, it normally responses with a uvfile card, though it might
 also send another uvigot card if the HTTP reply is already oversized.
 
-<h3>3.8 Cookie Cards</h3>
+<h3 id="cookie">3.8 Cookie Cards</h3>
 
 A cookie card can be used by a server to record a small amount
 of state information on a client.  The server sends a cookie to the
@@ -536,7 +534,7 @@ a way that it can tell if the cookie it sees is its own cookie or
 a cookie from another server.  (Typically the server will embed
 its servercode as part of the cookie.)
 
-<h3>3.9 Request-Configuration Cards</h3>
+<h3 id="reqconfig">3.9 Request-Configuration Cards</h3>
 
 A request-configuration or "reqconfig" card is sent from client to
 server in order to request that the server send back "configuration"
@@ -645,7 +643,7 @@ intended to be evaluated by the client.
 The @user and @concealed configuration items contain sensitive information
 and are ignored for clients without sufficient privilege.
 
-<h3>3.10 Configuration Cards</h3>
+<h3 id="config">3.10 Configuration Cards</h3>
 
 A "config" card is used to send configuration information from client
 to server (in response to a "fossil configuration push" command) or
@@ -663,7 +661,7 @@ it had sent a corresponding reqconfig card in its request.
 The content of the configuration item is used to overwrite the
 corresponding configuration data in the receiver.
 
-<h3>3.11 Pragma Cards</h3>
+<h3 id="pragma">3.11 Pragma Cards</h3>
 
 The client may try to influence the behavior of the server by
 issuing a pragma card:
@@ -755,12 +753,12 @@ that might arise if a check-in is aborted and then restarted
 on a branch.
 </ol>
 
-<h3>3.12 Comment Cards</h3>
+<h3 id="comment">3.12 Comment Cards</h3>
 
 Any card that begins with "#" (ASCII 0x23) is a comment card and
 is silently ignored.
 
-<h3>3.13 Message and Error Cards</h3>
+<h3 id="error">3.13 Message and Error Cards</h3>
 
 If the server discovers anything wrong with a request, it generates
 an error card in its reply.  When the client sees the error card,
@@ -789,12 +787,12 @@ message on the client console, but which is not an error:
 
 The message-text uses the same format as an error message.
 
-<h3>3.14 Unknown Cards</h3>
+<h3 id="unknown">3.14 Unknown Cards</h3>
 
 If either the client or the server sees a card that is not
 described above, then it generates an error and aborts.
 
-<h2>4.0 Phantoms And Clusters</h2>
+<h2 id="phantoms" name="clusters">4.0 Phantoms And Clusters</h2>
 
 When a repository knows that an artifact exists and knows the ID of
 that artifact, but it does not know the artifact content, then it stores that
@@ -829,7 +827,7 @@ the artifact.  There must be one or more M cards.  There must be a
 single Z card with a correct MD5 checksum.  And all cards must
 be in strict lexicographical order.
 
-<h3>4.1 The Unclustered Table</h3>
+<h3 id="unclustered">4.1 The Unclustered Table</h3>
 
 Every repository maintains a table named "<b>unclustered</b>"
 which records the identity of every artifact and phantom it holds that is not
@@ -840,9 +838,9 @@ which might contain still more clusters, and so forth.  Beginning
 with the artifacts in the unclustered table, one can follow the chain
 of clusters to find every artifact in the repository.
 
-<h2>5.0 Synchronization Strategies</h2>
+<h2 id="strategies">5.0 Synchronization Strategies</h2>
 
-<h3>5.1 Pull</h3>
+<h3 id="pull-strategy">5.1 Pull</h3>
 
 A typical pull operation proceeds as shown below.  Details
 of the actual implementation may very slightly but the gist of
@@ -894,7 +892,7 @@ or if servers and clients sometimes change roles.  The only negative
 effects of these unusual arrangements is that more than the minimum
 number of clusters might be generated.
 
-<h3>5.2 Push</h3>
+<h3 id="push-stragegy">5.2 Push</h3>
 
 A typical push operation proceeds roughly as shown below.  As
 with a pull, the actual implementation may vary slightly.
@@ -928,7 +926,7 @@ pull, the client attempts to keep the size of the request from
 growing too large by suppressing file cards once the
 size of the request reaches 1MB.
 
-<h3 id="sync">5.3 Sync</h3>
+<h3 id="sync-strategy">5.3 Sync</h3>
 
 A sync is just a pull and a push that happen at the same time.
 The first three steps of a pull are combined with the first five steps
@@ -936,7 +934,7 @@ of a push.  Steps (4) through (7) of a pull are combined with steps
 (5) through (8) of a push.  And steps (8) through (10) of a pull
 are combined with step (9) of a push.
 
-<h3>5.4 Unversioned File Sync</h3>
+<h3 id="uv-strategy">5.4 Unversioned File Sync</h3>
 
 "Unversioned files" are files held in the repository
 where only the most recent version of the file is kept rather than
@@ -978,7 +976,7 @@ The last two steps might be repeated multiple
 times if there is more unversioned content to be transferred than will
 fit comfortably in a single HTTP request.
 
-<h2>6.0 Summary</h2>
+<h2 id="summary">6.0 Summary</h2>
 
 Here are the key points of the synchronization protocol:
 
@@ -1022,8 +1020,7 @@ cluster and send igot messages for those artifacts.
 gimme messages for those artifacts.
 </ol>
 
-<h2>7.0 Troubleshooting And Debugging Hints</h2>
-
+<h2 id="troubleshooting">7.0 Troubleshooting And Debugging Hints</h2>
 
 If you run the [/help?cmd=sync|fossil sync] command
 (or [/help?cmd=pull|pull] or [/help?cmd=push|push] or
