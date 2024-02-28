@@ -98,7 +98,7 @@ Fossil includes built-in
 
 <h4 id="ssh">2.0.2 SSH Transport</h4>
 
-When doing a sync using an "ssh:..." URL, the same HTTP transport protocol
+When doing a sync using an "<code>ssh:…</code>" URL, the same HTTP transport protocol
 is used.  Fossil simply uses [https://en.wikipedia.org/wiki/Secure_Shell|ssh]
 to start an instance of the [/help?cmd=test-http|fossil test-http] command
 running on the remote machine.  It then sends HTTP requests and gets back HTTP
@@ -106,6 +106,26 @@ replies over the SSH connection, rather than sending and receiving over an
 internet socket.  To see the specific "ssh" command that the Fossil client
 runs in order to set up a connection, add either of the the "--httptrace" or
 "--sshtrace" options to the "fossil sync" command line.
+
+This method is dependent on the remote <var>PATH</var> set by the SSH
+daemon, which may not be the same as your interactive shell's
+<var>PATH</var> on that same server. It is common to find
+<var>$HOME/bin</var> in the latter but not the former, for instance,
+leading to failures to sync over <code>ssh:…</code> URLs when you
+install the <code>fossil</code> binary in a nonstandard location, as
+with
+
+<verbatim>./configure --prefix=$HOME && make install</verbatim>
+
+The simpler of the two solutions to this problem is to install Fossil
+where sshd expects to find it, but when that isn't an option, you can
+instead give a URL like this:
+
+<verbatim>fossil clone ssh://myserver.example.com?fossil=/home/me/bin/fossil /path/to/repo.fossil</verbatim>
+
+That gives the local Fossil instance the absolute path to the binary on
+the remote machine for use when calling that Fossil instance through the
+SSH tunnel.
 
 <h4 id="file">2.0.3 FILE Transport</h4>
 
