@@ -107,12 +107,10 @@ groups at a time.
 Trust in login groups is transitive within a single server. Consider
 this sequence:
 
-```
-  $ cd /path/to/A/checkout
-  $ fossil login-group join --name G ~/museum/B.fossil
-  $ cd /path/to/C/checkout
-  $ fossil login-group join ~/museum/B.fossil
-```
+    $ cd /path/to/A/checkout
+    $ fossil login-group join --name G ~/museum/B.fossil
+    $ cd /path/to/C/checkout
+    $ fossil login-group join ~/museum/B.fossil
 
 That creates login group G joining repo A to B, then joins C to B.
 Although we didn’t explicitly tie C to A, a successful login on C gets

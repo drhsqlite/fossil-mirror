@@ -1,5 +1,5 @@
-C URL\sfix\sin\sprevious;\sremote\spath\sneeds\sto\sbe\spart\sof\sthe\sURL,\sand\swe\scan\navoid\sgiving\sthe\slocal\sclone\spath\sby\susing\sthe\snew\sclone-and-open\nfunctionality.
-D 2024-02-28T18:16:43.706
+C Removed\sextra\sindent\sin\sthe\slogin\sgroups\sdoc.\s\sNot\scaught\searlier\nbecause\sit's\sburied\sin\sthe\s"caps"\ssection.
+D 2024-02-29T19:48:11.524
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -779,7 +779,7 @@ F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
 F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f7bc8
-F www/caps/login-groups.md 734c68c059c5f294b53265e68a0c6c2dec224922ec0ed066a965d2c863753aa9
+F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
 F www/changes.wiki dc00842a1e46d0653fb6583a5b1d7c1b04ed508eb9d32e85a9ddff2d2d0b1880
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a975ccb75b713a3db42a0bf50f7adc4b0b92e23e9df1216c908ca453e6f839b8
-R bef83899fc92fb4f83fd19b490cc3aec
+P 69959fa5b6be3e4df17f8be62c86ea7075eda5db407acf2d02b66f748b6a196f
+R 17df47b159b206826aa4f9e6bd84b88d
 U wyoung
-Z 2a1bd78bf6d1dbfc574b15b50555b6b9
+Z 449b31ca80c13329cd70b7bcc7be4f36
 # Remove this line to create a well-formed Fossil manifest.
