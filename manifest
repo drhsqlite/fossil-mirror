@@ -1,5 +1,5 @@
-C Removed\sextra\sindent\sin\sthe\slogin\sgroups\sdoc.\s\sNot\scaught\searlier\nbecause\sit's\sburied\sin\sthe\s"caps"\ssection.
-D 2024-02-29T19:48:11.524
+C Adapt\s/pikchrshow\sto\slatest\sskin\schanges\sto\skeep\sthe\spage\sfooter\sfrom\sscrolling\soff\sthe\sscreen.
+D 2024-03-03T13:50:51.268
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -444,8 +444,8 @@ F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51
 F src/fossil.page.chat.js 468a8092b560e8e58b1890c90db92e203367d1616cdfef5af9a83d183dd122df
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
-F src/fossil.page.pikchrshow.js 53ffa4de5d3e0be45d0db90b2143b2897f609ff7a5003b50a8c3e63bbdae7651
-F src/fossil.page.pikchrshowasm.js d8fb5d98d95b80c816959deb84deec2401c991c35aafab11f9b002da2764282d
+F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
+F src/fossil.page.pikchrshowasm.js 901822d1993f28ba2bac4a7bc2e2a603894a9702871a110993e437e9dcda6f53
 F src/fossil.page.whistory.js 25d9059c9670337d0e2b9e22d791be209a3be77ebd5ff1a985dfaecef64d0e36
 F src/fossil.page.wikiedit.js a0f1709b25d47957c97055b9ad57f64e5fd858ba676a95dbbb9992bbe0b0a79f
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69959fa5b6be3e4df17f8be62c86ea7075eda5db407acf2d02b66f748b6a196f
-R 17df47b159b206826aa4f9e6bd84b88d
-U wyoung
-Z 449b31ca80c13329cd70b7bcc7be4f36
+P a7255ba561572b65b206d275c86957aeae2fec3043e15fc7673facc6cf46959a
+R 2f18f551047dadf1fe12180fd6b4c523
+U stephan
+Z 5a380a0d2821f02bc4001144298e6179
 # Remove this line to create a well-formed Fossil manifest.
