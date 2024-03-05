@@ -1,0 +1,310 @@
+/* Overall page style; vi: filetype=css
+ */
+
+body {
+  margin: 0 auto;
+  background-color: white;
+  font-family: sans-serif;
+  font-size: 14pt;
+}
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+a:hover {
+  color: #4183C4;
+  text-decoration: underline;
+}
+
+
+/* Page title, above menu bars */
+
+.title {
+  color: #4183C4;
+  float: left;
+}
+.title h1 {
+  display: inline;
+}
+.title h1:after {
+  content: " / ";
+  color: #777;
+  font-weight: normal;
+}
+.status {
+  float: right;
+  font-size: 0.7em;
+}
+
+
+/* Main menu and optional sub-menu */
+
+.mainmenu {
+  font-size: 0.8em;
+  clear: both;
+  background: #eaeaea linear-gradient(#fafafa, #eaeaea) repeat-x;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  z-index: 21;  /* just above hbdrop */
+}
+.mainmenu a {
+  text-decoration: none;
+  color: #777;
+  border-right: 1px solid #eaeaea;
+}
+.mainmenu a.active,
+.mainmenu a:hover {
+  color: #000;
+  border-bottom: 2px solid #D26911;
+}
+nav#hbdrop {
+  background-color: white;
+  border: 1px solid black;
+  border-top: white;
+  border-radius: 0 0 0.5em 0.5em;
+  display: none;
+  font-size: 80%;
+  left: 2em;
+  width: 90%;
+  padding-right: 1em;
+  position: absolute;
+  z-index: 20;  /* just below mainmenu, but above timeline bubbles */
+}
+
+.submenu {
+  font-size: .7em;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+.submenu a, .submenu label {
+  padding: 10px 11px;
+  text-decoration: none;
+  color: #777;
+}
+.submenu label {
+  white-space: nowrap;
+}
+.submenu a:hover, .submenu label:hover {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: #000;
+}
+span.submenuctrl, span.submenuctrl input, select.submenuctrl {
+  color: #777;
+}
+span.submenuctrl {
+  white-space: nowrap;
+}
+
+
+/* Main document area; elements common to most pages. */
+
+.content {
+  padding-top: 10px;
+  font-size: 0.8em;
+  color: #444;
+}
+.content blockquote {
+  padding: 0 15px;
+}
+.content h1 {
+  font-size: 1.25em;
+}
+.content h2 {
+  font-size: 1.15em;
+}
+.content h3 {
+  font-size: 1.05em;
+}
+
+.section {
+  font-size: 1em;
+  font-weight: bold;
+  background-color: #f5f5f5;
+  border: 1px solid #d8d8d8;
+  border-radius: 3px 3px 0 0;
+  padding: 9px 10px 10px;
+  margin: 10px 0;
+}
+.sectionmenu {
+  border: 1px solid #d8d8d8;
+  border-radius: 0 0 3px 3px;
+  border-top: 0;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+.sectionmenu a {
+  display: inline-block;
+  margin-right: 1em;
+}
+
+hr {
+  color: #eee;
+}
+
+
+/* Page footer */
+
+footer {
+  border-top: 1px solid #ccc;
+  padding: 10px;
+  font-size: 0.7em;
+  margin-top: 10px;
+  color: #ccc;
+}
+
+/* Forum */
+
+.forum a:visited {
+  color: #6A7F94;
+}
+
+.forum blockquote {
+  background-color: rgba(65, 131, 196, 0.1);
+  border-left: 3px solid #254769;
+  padding: .1em 1em;
+}
+
+
+/* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
+
+.doc > .content table {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid #aaa;
+  border-radius: 0.5em;
+  border-spacing: 0;
+  padding: 6px;
+}
+.doc > .content th {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+  padding-right: 6px;
+  text-align: left;
+}
+.doc > .content tr > th {
+  background-color: #eee;
+}
+.doc > .content tr:nth-child(odd) {
+  background-color: #e8e8e8;
+}
+.doc > .content td {
+  padding-bottom: 4px;
+  padding-right: 6px;
+  text-align: left;
+}
+
+
+/* Tickets */
+
+table.report {
+  cursor: auto;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin: 1em 0;
+}
+.report td, .report th {
+ border: 0;
+ font-size: .8em;
+ padding: 10px;
+}
+.report td:first-child {
+  border-top-left-radius: 5px;
+}
+.report tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 5px;
+}
+.report td:last-child {
+  border-top-right-radius: 5px;
+}
+.report tbody tr:last-child {
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.report tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 5px;
+}
+.report th {
+  cursor: pointer;
+}
+.report thead+tbody tr:hover {
+  background-color: #f5f9fc !important;
+}
+
+td.tktDspLabel {
+  width: 70px;
+  text-align: right;
+  overflow: hidden;
+}
+td.tktDspValue {
+  text-align: left;
+  vertical-align: top;
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+}
+td.tktDspValue pre {
+  white-space: pre-wrap;
+}
+
+
+/* Timeline */
+
+span.timelineDetail {
+  font-size: 90%;
+}
+div.timelineDate {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+
+/* Miscellaneous UI elements */
+
+.fossil-tooltip.help-buttonlet-content {
+  background-color: lightyellow;
+}
+
+
+/* Exceptions for specific screen sizes */
+
+@media screen and (max-width: 600px) {
+  /* Spacing for mobile */
+  body {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .title {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+  .status {padding-top: 0px;}
+  .mainmenu a {
+    padding: 8px 10px;
+  }
+  .mainmenu {
+    padding: 10px;
+  }
+}
+@media screen and (min-width: 600px) {
+  /* Spacing for desktop */
+  body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .title {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .status {padding-top: 30px;}
+  .mainmenu a {
+    padding: 8px 20px;
+  }
+  .mainmenu {
+    padding: 10px;
+  }
+}

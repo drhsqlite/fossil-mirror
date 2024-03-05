@@ -215,7 +215,13 @@ const char *cookie_value(const char *zPName, const char *zDefault){
 }
 
 /*
-** WEBPAGE:  cookies
+** WEBPAGE: cookies
+**
+** Show all cookies associated with Fossil.  This shows the text of the
+** login cookie and is hence dangerous if an adversary is looking over
+** your shoulder and is able to read and reproduce that cookie.
+**
+** WEBPAGE: fdscookie
 **
 ** Show the current display settings contained in the
 ** "fossil_display_settings" cookie.
@@ -226,22 +232,28 @@ void cookie_page(void){
   const char *zName = 0;
   const char *zValue = 0;
   int isQP = 0;
+  int bFDSonly = strstr(g.zPath, "fdscookie")!=0;
   cookie_parse();
-  style_header("Cookies");
+  if( bFDSonly ){
+    style_header("Display Preferences Cookie");
+  }else{
+    style_header("All Cookies");
+  }
   @ <form method="POST">
   @ <ol>
   for(i=0; cgi_param_info(i, &zName, &zValue, &isQP); i++){
     char *zDel;
     if( isQP ) continue;
     if( fossil_isupper(zName[0]) ) continue;
+    if( bFDSonly && strcmp(zName, "fossil_display_settings")!=0 ) continue;
     zDel = mprintf("del%s",zName);
     if( P(zDel)!=0 ){
       cgi_set_cookie(zName, "", 0, -1);
-      cgi_redirect("cookies");
+      cgi_redirect(g.zPath);
     }
     nCookie++;
     @ <li><p><b>%h(zName)</b>: %h(zValue)
-    @ <input type="submit" name="%h(zDel)" value="Delete"> 
+    @ <input type="submit" name="%h(zDel)" value="Delete">
     if( fossil_strcmp(zName, DISPLAY_SETTINGS_COOKIE)==0  && cookies.nParam>0 ){
       int j;
       @ <ul>
@@ -255,7 +267,12 @@ void cookie_page(void){
   @ </ol>
   @ </form>
   if( nCookie==0 ){
-    @ <p><i>No cookies for this website</i></p>
+    if( bFDSonly ){
+      @ <p><i>Your browser is not holding a "fossil_display_setting" cookie
+      @ for this website</i></p>
+    }else{
+      @ <p><i>Your browser is not holding any cookies for this website</i></p>
+    }
   }
   style_finish_page();
 }

@@ -569,7 +569,7 @@ void update_cmd(void){
     show_common_info(tid, "checkout:", 1, 0);
     fossil_print("%-13s None. Already up-to-date\n", "changes:");
   }else{
-    fossil_print("%-13s %.40s %s\n", "updated-from:", rid_to_uuid(vid), 
+    fossil_print("%-13s %.40s %s\n", "updated-from:", rid_to_uuid(vid),
                  db_text("", "SELECT datetime(mtime) || ' UTC' FROM event "
                          "  WHERE objid=%d", vid));
     show_common_info(tid, "updated-to:", 1, 0);
@@ -656,7 +656,7 @@ void ensure_empty_dirs_created(int clearDirTable){
     int i;
     Glob *pGlob = glob_create(zEmptyDirs);
 
-    for(i=0; i<pGlob->nPattern; i++){
+    for(i=0; pGlob!=0 && i<pGlob->nPattern; i++){
       const char *zDir = pGlob->azPattern[i];
       char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
       switch( file_isdir(zPath, RepoFILE) ){

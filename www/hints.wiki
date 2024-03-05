@@ -39,10 +39,11 @@
       that you can add to timeline pages.  The available query parameters
       are tersely documented [/help?cmd=/timeline | here].
 
-  8.  You can run "[/help?cmd=test-diff | fossil test-diff --tk $file1 $file2]"
-      to get a pop-up  window with side-by-side diffs of two files, even if
+  8.  You can run "[/help?cmd=xdiff | fossil xdiff --tk $file1 $file2]"
+      to get a Tk pop-up window with side-by-side diffs of two files, even if
       neither of the two files is part of any Fossil repository.  Note that
-      this command is "test-diff", not "diff".
+      this command is "xdiff", not "diff".  Change <nobr>--tk</nobr> to
+      <nobr>--by</nobr> to see the diff in your web browser.
 
   9.  On web pages showing the content of a file (for example
       [/artifact/c7dd1de9f]) you can manually

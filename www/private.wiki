@@ -10,9 +10,9 @@ that needs further refinement before it is shared and which might never
 be shared at all.  To do this in Fossil, simply commit the change with
 the --private command-line option:
 
-<blockquote><pre>
+<pre>
 fossil commit --private
-</pre></blockquote>
+</pre>
 
 The --private option causes Fossil to put the check-in in a new branch
 named "private".  That branch will not participate in subsequent clone,
@@ -27,11 +27,11 @@ After additional work, one might desire to publish the changes associated
 with a private branch.  The usual way to do this is to merge those
 changes into a public branch.  For example:
 
-<blockquote><pre>
+<pre>
 fossil update trunk
 fossil merge private
 fossil commit
-</pre></blockquote>
+</pre>
 
 The private branch remains private and is not recorded as a parent
 in the merge manifest's P-card, but all of the changes associated with
@@ -43,6 +43,19 @@ converted into a public branch using the <code>fossil publish</code>
 command.  However, there is no way to convert a private branch created with
 older versions of Fossil into a public branch.
 
+<div class="sidebar">
+To avoid generating a missing artifact
+reference on peer repositories without the private branch, the merge parent
+is not recorded when merging the private branch into a public branch.  As a
+consequence, the web UI timeline does not draw a merge line from the private
+merge parent to the public merge child.  Moreover, repeat private-to-public
+merge operations (without the [/help?cmd=merge | --force option]) with files
+added on the private branch may only work once, but later abort with
+"WARNING: no common ancestor for FILE", as the parent-child relationship is
+not recorded. (See the [/doc/trunk/www/branching.wiki | Branching, Forking,
+Merging, and Tagging] document for more information.)
+</div>
+
 The <code>--integrate</code> option of <code>fossil merge</code> (to close
 the merged branch when committing) is ignored for a private branch -- or the
 check-in manifest of the resulting merge child would include a
@@ -51,19 +64,6 @@ and generate a missing artifact reference on repository clones without that
 private branch.  It's still possible to close the leaf of the private branch
 (after committing the merge child) with the <code>fossil amend --close</code>
 command.
-
-<blockquote><small>
-Side note: For the same reason, i.e. so as not to generate a missing artifact
-reference on peer repositories without the private branch, the merge parent
-is not recorded when merging the private branch into a public branch.  As a
-consequence, the web UI timeline does not draw a merge line from the private
-merge parent to the public merge child.  Moreover, repeat private-to-public
-merge operations (without the [/help?cmd=merge | --force option]) with files
-added on the private branch may only work once, but later abort with
-"WARNING: no common ancestor for FILE", as the parent-child relationship is
-not recorded (see the [/doc/trunk/www/branching.wiki | Branching, Forking,
-Merging, and Tagging] document for more information).
-</small></blockquote>
 
 <h2>Syncing Private Branches</h2>
 
@@ -77,9 +77,9 @@ between these machines by using the --private option on the "sync",
 "fossil server" on your Linux box and you want to clone that repository
 to your Mac, including all private branches, use:
 
-<blockquote><pre>
+<verbatim>
 fossil clone --private http://user@linux.localnetwork:8080/ mac-clone.fossil
-</pre></blockquote>
+</verbatim>
 
 You'll have to supply a username and password in order for this to work.
 Fossil will not clone (or sync) private branches anonymously.
@@ -103,9 +103,9 @@ push private branches beyond their intended audience.
 
 You can remove all private branches from a repository using this command:
 
-<blockquote><pre>
+<pre>
 fossil scrub --private
-</pre></blockquote>
+</pre>
 
 Note that the above is a permanent and irreversible change.  You will
 be asked to confirm before continuing.  Once the private branches are

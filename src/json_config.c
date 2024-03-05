@@ -259,7 +259,7 @@ static cson_value * json_settings_get(void){
     cson_value * pVal = 0, * pSrc = 0;
     jSet = cson_new_object();
     cson_object_set(pay, pSet->name, cson_object_value(jSet));
-    cson_object_set(jSet, "versionable", cson_value_new_bool(pSet->versionable));
+    cson_object_set(jSet, "versionable",cson_value_new_bool(pSet->versionable));
     cson_object_set(jSet, "sensitive", cson_value_new_bool(pSet->sensitive));
     cson_object_set(jSet, "defaultValue", (pSet->def && pSet->def[0])
                     ? json_new_string(pSet->def)
@@ -294,7 +294,7 @@ static cson_value * json_settings_get(void){
           if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
             Blob content;
             blob_zero(&content);
-            blob_read_from_file(&content, blob_str(&versionedPathname), ExtFILE);
+            blob_read_from_file(&content, blob_str(&versionedPathname),ExtFILE);
             pSrc = json_new_string("versioned");
             pVal = json_new_string(blob_str(&content));
             blob_reset(&content);

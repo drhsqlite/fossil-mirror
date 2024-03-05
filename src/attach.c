@@ -246,7 +246,7 @@ static void attach_put(
     );
   }else{
     rid = content_put(pAttach);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_add_unsent(rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink(rid, pAttach, MC_NONE);
@@ -752,7 +752,8 @@ void attachment_cmd(void){
         fossil_fatal("technote [%s] not found",zETime);
       }
       zTarget = db_text(0,
-        "SELECT substr(tagname,7) FROM tag WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
+        "SELECT substr(tagname,7) FROM tag "
+        "  WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
         rid
       );
       zFile = g.argv[3];

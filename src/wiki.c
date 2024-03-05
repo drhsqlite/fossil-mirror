@@ -87,7 +87,7 @@ int wiki_tagid2(const char *zPrefix, const char *zPageName){
 }
 
 /*
-** Return the RID of the next or previous version of a wiki page.  
+** Return the RID of the next or previous version of a wiki page.
 ** Return 0 if rid is the last/first version.
 */
 int wiki_next(int tagid, double mtime){
@@ -117,6 +117,7 @@ void home_page(void){
   char *zPageName = db_get("project-name",0);
   char *zIndexPage = db_get("index-page",0);
   login_check_credentials();
+  cgi_check_for_malice();
   if( zIndexPage ){
     const char *zPathInfo = P("PATH_INFO");
     while( zIndexPage[0]=='/' ) zIndexPage++;
@@ -414,7 +415,7 @@ int wiki_page_type(const char *zPageName){
   if( db_get_boolean("wiki-about",1)==0 ){
     return WIKITYPE_NORMAL;
   }else
-  if( sqlite3_strglob("checkin/*", zPageName)==0 
+  if( sqlite3_strglob("checkin/*", zPageName)==0
    && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
   ){
     return WIKITYPE_CHECKIN;
@@ -448,7 +449,7 @@ const char * wiki_page_type_name(const char *zPageName){
 ** "Edit: " for /wikiedit.
 **
 ** If the page is /wiki and the page is one of the special times (check-in,
-** branch, or tag) and the "p" query parameter is omitted, then do a 
+** branch, or tag) and the "p" query parameter is omitted, then do a
 ** redirect to the display of the check-in, branch, or tag rather than
 ** continuing to the plain wiki display.
 */
@@ -470,7 +471,8 @@ static int wiki_page_header(
         cgi_redirectf("%R/info/%s",zPageName);
       }else{
         style_header("Notes About Check-in %S", zPageName);
-        style_submenu_element("Check-in Timeline","%R/timeline?f=%s", zPageName);
+        style_submenu_element("Check-in Timeline","%R/timeline?f=%s",
+                              zPageName);
         style_submenu_element("Check-in Info","%R/info/%s", zPageName);
       }
       break;
@@ -552,6 +554,7 @@ void wiki_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = P("name");
+  cgi_check_for_malice();
   if( zPageName==0 ){
     if( search_restrict(SRCH_WIKI)!=0 ){
       wiki_srchpage();
@@ -637,7 +640,7 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
     moderation_table_create();
     db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)", nrid);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_add_unsent(nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
   manifest_crosslink(nrid, pWiki, MC_NONE);
   if( login_is_individual() ){
@@ -743,7 +746,7 @@ static int wiki_fetch_by_name( const char *zPageName,
 static int wiki_ajax_can_write(const char *zPageName, int * pRid){
   int rid = 0;
   const char * zErr = 0;
- 
+
   if(pRid) *pRid = 0;
   if(!zPageName || !*zPageName
      || !wiki_name_is_wellformed((unsigned const char *)zPageName)){
@@ -766,7 +769,7 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
     }
   }
   ajax_route_error(403, "%s", zErr);
-  return 0;  
+  return 0;
 }
 
 
@@ -1012,7 +1015,7 @@ static void wiki_ajax_route_save(void){
 */
 static void wiki_ajax_route_fetch(void){
   const char * zPageName = P("page");
-  
+
   if( zPageName==0 || zPageName[0]==0 ){
     ajax_route_error(400,"Missing page name.");
     return;
@@ -1203,7 +1206,7 @@ static void wiki_ajax_route_list(void){
 **
 ** An internal dispatcher for wiki AJAX operations. Not for direct
 ** client use. All routes defined by this interface are app-internal,
-** subject to change 
+** subject to change
 */
 void wiki_ajax_page(void){
   const char * zName = P("name");
@@ -1246,6 +1249,22 @@ void wiki_ajax_page(void){
     return;
   }
   pRoute->xCallback();
+}
+
+/*
+** Emits a preview-toggle option widget for /wikiedit and /fileedit.
+*/
+void wikiedit_emit_toggle_preview(void){
+  CX("<div class='input-with-label'>"
+     "<input type='checkbox' id='edit-shift-enter-preview' "
+     "></input><label for='edit-shift-enter-preview'>"
+     "Shift-enter previews</label>"
+     "<div class='help-buttonlet'>"
+     "When enabled, shift-enter switches between preview and edit modes. "
+     "Some software-based keyboards misinteract with this, so it can be "
+     "disabled when needed."
+     "</div>"
+     "</div>");
 }
 
 /*
@@ -1311,7 +1330,7 @@ void wikiedit_page(void){
      "<span class='name'></span>"
      "<span class='links'></span>"
      "</div>");
-  
+
   /* Main tab container... */
   CX("<div id='wikiedit-tabs' class='tab-container'>Loading...</div>");
   /* The .hidden class on the following tab elements is to help lessen
@@ -1327,7 +1346,7 @@ void wikiedit_page(void){
     CX("<div>Loading wiki pages list...</div>");
     CX("</div>"/*#wikiedit-tab-pages*/);
   }
-  
+
   /******* Content tab *******/
   {
     CX("<div id='wikiedit-tab-content' "
@@ -1371,7 +1390,7 @@ void wikiedit_page(void){
        "a few seconds or it will not reload."
        "</div>"
        "</div>");
-
+    wikiedit_emit_toggle_preview();
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
@@ -1632,6 +1651,7 @@ void wikiappend_page(void){
   }
   if( !isSandbox && P("submit")!=0 && P("r")!=0 && P("u")!=0
    && (goodCaptcha = captcha_is_correct(0))
+   && cgi_csrf_safe(2)
   ){
     char *zDate;
     Blob cksum;
@@ -1639,7 +1659,6 @@ void wikiappend_page(void){
     Blob wiki;
 
     blob_zero(&body);
-    login_verify_csrf_secret();
     blob_append(&body, pWiki->zWiki, -1);
     blob_zero(&wiki);
     db_begin_transaction();
@@ -1695,7 +1714,6 @@ void wikiappend_page(void){
   }
   zUser = PD("u", g.zLogin);
   form_begin(0, "%R/wikiappend");
-  login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
   @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
   @ Your Name:
@@ -1844,6 +1862,7 @@ void wdiff_page(void){
   if( ( zPid==0 || zPid[0] == 0 ) && pW1->nParent ){
     zPid = pW1->azParent[0];
   }
+  cgi_check_for_malice();
   if( zPid && zPid[0] != 0 ){
     char *zDate;
     rid2 = name_to_typed_rid(zPid, "w");
@@ -1889,7 +1908,7 @@ void wdiff_page(void){
 **
 ** The wrid value is zero for deleted wiki pages.
 */
-static const char listAllWikiPages[] = 
+static const char listAllWikiPages[] =
 @ SELECT
 @   substr(tag.tagname, 6) AS wname,
 @   lower(substr(tag.tagname, 6)) AS sortname,
@@ -1931,6 +1950,7 @@ void wcontent_page(void){
   }else{
     style_submenu_element("All", "%R/wcontent?all=1");
   }
+  cgi_check_for_malice();
   showCkBr = db_exists(
     "SELECT tag.tagname AS tn FROM tag JOIN tagxref USING(tagid) "
     "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' ) "
@@ -2008,6 +2028,7 @@ void wfind_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zTitle = PD("title","*");
+  cgi_check_for_malice();
   style_set_current_feature("wiki");
   style_header("Wiki Pages Found");
   @ <ul>
@@ -2115,19 +2136,19 @@ int wiki_technote_to_rid(const char *zETime) {
       ** such time as tags have the errant prefix dropped.
       */
       rid = db_int(0, "SELECT e.objid"
-		      "  FROM event e, tag t, tagxref tx"
-		      " WHERE e.type='e'"
-		      "   AND e.tagid IS NOT NULL"
-		      "   AND e.objid IN"
+          "  FROM event e, tag t, tagxref tx"
+          " WHERE e.type='e'"
+          "   AND e.tagid IS NOT NULL"
+          "   AND e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
                       "                       WHERE tagname GLOB '%q'))"
-		      "    OR e.objid IN"
+          "    OR e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
                       "                       WHERE tagname GLOB 'sym-%q'))"
-		      "   ORDER BY e.mtime DESC LIMIT 1",
-		   zETime, zETime);
+          "   ORDER BY e.mtime DESC LIMIT 1",
+       zETime, zETime);
   }
   return rid;
 }
@@ -2464,7 +2485,7 @@ void wiki_cmd(void){
       if(!showAll && !wrid){
         continue;
       }
-      if( !showCkBr && 
+      if( !showCkBr &&
           (sqlite3_strglob("checkin/*", zName)==0 ||
            sqlite3_strglob("branch/*", zName)==0) ){
         continue;

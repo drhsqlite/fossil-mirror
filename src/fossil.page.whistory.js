@@ -11,7 +11,10 @@
 */
 window.addEventListener( 'load', function() {
 
-document.getElementById("wh-form").method = "GET";
+var form = document.getElementById("wh-form");
+form.method = "GET";
+var csrf = form.querySelector("input[name='csrf']");
+if( csrf ) form.removeChild( csrf );
 
 var wh_id  = document.getElementById("wh-id" );
 var wh_pid = document.getElementById("wh-pid");

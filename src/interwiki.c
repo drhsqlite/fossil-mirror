@@ -47,10 +47,10 @@
 **      "wiki":  Append this to "base" for Wiki targets.
 **    }
 **
-** If the remote wiki is Fossil, then the correct value for "hash" 
+** If the remote wiki is Fossil, then the correct value for "hash"
 ** is "/info/" and the correct value for "wiki" is "/wiki?name=".
 ** If (for example) Wikipedia is the remote, then "hash" should be
-** omitted and the correct value for "wiki" is "/wiki/".  
+** omitted and the correct value for "wiki" is "/wiki/".
 **
 ** PageName is link name of the target wiki.  Several different forms
 ** of PageName are recognized.
@@ -84,7 +84,7 @@ char *interwiki_url(const char *zTarget){
   if( nCode==4 && strncmp(zTarget,"wiki",4)==0 ) return 0;
   zPage = zTarget + nCode + 1;
   nPage = (int)strlen(zPage);
-  db_static_prepare(&q, 
+  db_static_prepare(&q,
      "SELECT value->>'base', value->>'hash', value->>'wiki'"
      " FROM config WHERE name=lower($name) AND json_valid(value)"
   );
@@ -224,7 +224,7 @@ void interwiki_cmd(void){
     for(i=3; i<g.argc; i++){
       const char *zName = g.argv[i];
       db_multi_exec(
-        "DELETE FROM config WHERE name='interwiki:%q'", 
+        "DELETE FROM config WHERE name='interwiki:%q'",
         zName
       );
     }
@@ -316,7 +316,7 @@ void interwiki_page(void){
     login_needed(0);
     return;
   }
-  if( g.perm.Setup && P("submit")!=0 && cgi_csrf_safe(1) ){
+  if( g.perm.Setup && P("submit")!=0 && cgi_csrf_safe(2) ){
     zTag = PT("tag");
     zBase = PT("base");
     zHash = PT("hash");

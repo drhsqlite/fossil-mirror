@@ -161,35 +161,35 @@ uncompressed form to make Fossil happy while still having the compressed
 form to keep our content creation applications happy.  This `Makefile`
 should[^makefile] do that for BMP, PNG, SVG, and XLSX files:
 
-        .SUFFIXES: .bmp .png .svg .svgz
+    .SUFFIXES: .bmp .png .svg .svgz
 
-        .svgz.svg:
-            gzip -dc < $< > $@
+    .svgz.svg:
+        gzip -dc < $< > $@
 
-        .svg.svgz:
-            gzip -9c < $< > $@
+    .svg.svgz:
+        gzip -9c < $< > $@
 
-        .bmp.png:
-            convert -quality 95 $< $@
+    .bmp.png:
+        convert -quality 95 $< $@
 
-        .png.bmp:
-            convert $< $@
+    .png.bmp:
+        convert $< $@
 
-        SS_FILES := $(wildcard spreadsheet/*)
-
-
-        all: $(SS_FILES) illus.svg image.bmp doc-big.pdf
-
-        reconstitute: illus.svgz image.png
-            ( cd spreadsheet ; zip -9 ../spreadsheet.xlsx) * )
-            qpdf doc-big.pdf doc-small.pdf
+    SS_FILES := $(wildcard spreadsheet/*)
 
 
-        $(SS_FILES): spreadsheet.xlsx
-            unzip $@ -d $<
+    all: $(SS_FILES) illus.svg image.bmp doc-big.pdf
 
-        doc-big.pdf: doc-small.pdf
-            qpdf --stream-data=uncompress $@ $<
+    reconstitute: illus.svgz image.png
+        ( cd spreadsheet ; zip -9 ../spreadsheet.xlsx) * )
+        qpdf doc-big.pdf doc-small.pdf
+
+
+    $(SS_FILES): spreadsheet.xlsx
+        unzip $@ -d $<
+
+    doc-big.pdf: doc-small.pdf
+        qpdf --stream-data=uncompress $@ $<
 
 This `Makefile` allows you to treat the compressed version as the
 process input, but to actually check in only the changes against the

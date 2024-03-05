@@ -401,7 +401,8 @@ void user_cmd(void){
         db_set("default-user", g.argv[3], 0);
       }
     }
-  }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) || ( n>=2 && strncmp(g.argv[2],"ls",n)==0 )){
+  }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) ||
+           ( n>=2 && strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){
@@ -609,6 +610,20 @@ void user_hash_passwords_cmd(void){
     "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
     " WHERE length(pw)>0 AND length(pw)!=40"
   );
+}
+
+/*
+** Ensure that the password for a user is hashed.
+*/
+void hash_user_password(const char *zUser){
+  sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
+                          sha1_shared_secret_sql_function, 0, 0);
+  db_unprotect(PROTECT_USER);
+  db_multi_exec(
+    "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
+    " WHERE login=%Q AND length(pw)>0 AND length(pw)!=40", zUser
+  );
+  db_protect_pop();
 }
 
 /*

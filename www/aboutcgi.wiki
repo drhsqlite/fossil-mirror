@@ -1,5 +1,7 @@
 <title>How CGI Works In Fossil</title>
-<h2>Introduction</h2><blockquote>
+
+<h2>Introduction</h2>
+
 CGI or "Common Gateway Interface" is a venerable yet reliable technique for
 generating dynamic web content.  This article gives a quick background on how
 CGI works and describes how Fossil can act as a CGI service.
@@ -10,8 +12,8 @@ is going on behind the scenes.  If you just want to set up Fossil
 as a CGI server, see the [./server/ | Fossil Server Setup] page.  Or
 if you want to development CGI-based extensions to Fossil, see
 the [./serverext.wiki|CGI Server Extensions] page.
-</blockquote>
-<h2>A Quick Review Of CGI</h2><blockquote>
+
+<h2>A Quick Review Of CGI</h2>
 
 An HTTP request is a block of text that is sent by a client application
 (usually a web browser) and arrives at the web server over a network
@@ -31,7 +33,9 @@ But most web servers follow a similar pattern, described below.
 (Note: details may vary from one web server to another.)
 
 Suppose the filename component of the URL in the HTTP request looks like this:
-<blockquote><b>/one/two/timeline/four</b></blockquote>
+
+<pre>/one/two/timeline/four</pre>
+
 Most web servers will search their content area for files that match
 some prefix of the URL.  The search starts with <b>/one</b>, then goes to
 <b>/one/two</b>, then <b>/one/two/timeline</b>, and finally
@@ -48,8 +52,8 @@ the script is collected and repackaged as the HTTP reply.
 
 Before executing the CGI script, the web server will set up various
 environment variables with information useful to the CGI script:
-<table border=1 cellpadding=5>
-<tr><th>Environment<br>Variable<th>Meaning
+<table>
+<tr><th>Variable<th>Meaning
 <tr><td>GATEWAY_INTERFACE<td>Always set to "CGI/1.0"
 <tr><td>REQUEST_URI
     <td>The input URL from the HTTP request.
@@ -87,15 +91,17 @@ but a CGI script handles just one HTTP request and then exits.
 The above is a rough outline of how CGI works.
 There are many details omitted from this brief discussion.
 See other on-line CGI tutorials for further information.
-</blockquote>
+
 <h2>How Fossil Acts As A CGI Program</h2>
-<blockquote>
+
 An appropriate CGI script for running Fossil will look something
 like the following:
-<blockquote><pre>
+
+<pre>
 #!/usr/bin/fossil
 repository: /home/www/repos/project.fossil
-</pre></blockquote>
+</pre>
+
 The first line of the script is a
 "[https://en.wikipedia.org/wiki/Shebang_%28Unix%29|shebang]"
 that tells the operating system what program to use as the interpreter
@@ -136,6 +142,7 @@ exactly the same thing to Fossil:
 <li> [https://fossil-scm.org/home/info/c14ecc43]
 <li> [https://fossil-scm.org/home/info?name=c14ecc43]
 </ol>
+
 In both cases, the CGI script is called "/fossil".  For case (A),
 the PATH_INFO variable will be "info/c14ecc43" and so the
 "[/help?cmd=/info|/info]" webpage will be generated and the suffix of
@@ -143,9 +150,9 @@ PATH_INFO will be converted into the "name" query parameter, which
 identifies the artifact about which information is requested.
 In case (B), the PATH_INFO is just "info", but the same "name"
 query parameter is set explicitly by the URL itself.
-</blockquote>
+
 <h2>Serving Multiple Fossil Repositories From One CGI Script</h2>
-<blockquote>
+
 The previous example showed how to serve a single Fossil repository
 using a single CGI script.
 On a website that wants to serve multiple repositories, one could
@@ -157,18 +164,22 @@ If the CGI script for Fossil contains a "directory:" line instead of
 a "repository:" line, then the argument to "directory:" is the name
 of a directory that contains multiple repository files, each ending
 with ".fossil".  For example:
-<blockquote><pre>
+
+<pre>
 #!/usr/bin/fossil
 directory: /home/www/repos
-</pre></blockquote>
+</pre>
+
 Suppose the /home/www/repos directory contains files named
 <b>one.fossil</b>, <b>two.fossil</b>, and <b>subdir/three.fossil</b>.
 Further suppose that the name of the CGI script (relative to the root
 of the webserver document area) is "cgis/example2".  Then to
 see the timeline for the "three.fossil" repository, the URL would be:
-<blockquote>
-<b>http://example.com/cgis/example2/subdir/three/timeline</b>
-</blockquote>
+
+<pre>
+http://example.com/cgis/example2/subdir/three/timeline
+</pre>
+
 Here is what happens:
 <ol>
 <li> The input URI on the HTTP request is
@@ -188,29 +199,76 @@ Here is what happens:
      requested is "timeline".
 </ol>
 <a id="cgivar"></a>
+
 The web server sets many environment variables in step 2 in addition
 to just PATH_INFO.  The following diagram shows a few of these variables
 and their relationship to the request URL:
-<pre>
-                                       REQUEST_URI
-                         ___________________|_______________________
-                        /                                           \
-      http://example.com/cgis/example2/subdir/three/timeline?c=55d7e1
-             \_________/\____________/\____________________/ \______/
-                  |            |                 |               |
-              HTTP_HOST   SCRIPT_NAME        PATH_INFO      QUERY_STRING
-</pre>
-</blockquote>
+
+<verbatim type="pikchr">
+charwid = 0.075
+thickness = 0
+
+SCHEME: box "https://" mono fit
+DOMAIN: box "example.com" mono fit
+SCRIPT: box "/cgis/example2" mono fit
+PATH:   box "/subdir/three/timeline" mono fit
+QUERY:  box "?c=55d7e1" mono fit
+
+thickness = 0.01
+
+DB: box at 0.3 below DOMAIN "HTTP_HOST"    mono fit invis
+SB: box at 0.3 below SCRIPT "SCRIPT_NAME"  mono fit invis
+PB: box at 0.3 below PATH   "PATH_INFO"    mono fit invis
+QB: box at 0.3 below QUERY  "QUERY_STRING" mono fit invis
+RB: box at 0.5 above PATH   "REQUEST_URI"  mono fit invis
+
+color = lightgray
+
+box at SCHEME width SCHEME.width height SCHEME.height
+line fill 0x7799CC behind QUERY \
+  from SCRIPT.nw \
+    to RB.sw \
+    to RB.se \
+    to QUERY.ne \
+  close
+line fill 0x99CCFF behind DOMAIN \
+  from DOMAIN.nw \
+    to DOMAIN.sw \
+    to DB.n \
+    to DOMAIN.se \
+    to DOMAIN.ne \
+  close
+line fill 0xCCEEFF behind SCRIPT \
+  from SCRIPT.nw \
+    to SCRIPT.sw \
+    to SB.n \
+    to SCRIPT.se \
+    to SCRIPT.ne \
+  close
+line fill 0x99CCFF behind PATH \
+  from PATH.nw \
+    to PATH.sw \
+    to PB.n \
+    to PATH.se \
+    to PATH.ne \
+  close
+line fill 0xCCEEFF behind QUERY \
+  from QUERY.nw \
+    to QUERY.sw \
+    to QB.n \
+    to QUERY.se \
+    to QUERY.ne \
+  close
+</verbatim>
+
 <h2>Additional CGI Script Options</h2>
-<blockquote>
 
 The CGI script can have additional options used to fine-tune
 Fossil's behavior.  See the [./cgi.wiki|CGI script documentation]
 for details.
 
-</blockquote>
 <h2>Additional Observations</h2>
-<blockquote><ol type="I">
+<ol type="I">
 <li><p>
 Fossil does not distinguish between the various HTTP methods (GET, PUT,
 DELETE, etc).  Fossil figures out what it needs to do purely from the
@@ -241,4 +299,3 @@ Fossil is itself often launched using CGI.  But Fossil can also then
 turn around and launch [./serverext.wiki|sub-CGI scripts to implement
 extensions].</p></li>
 </ol>
-</blockquote>

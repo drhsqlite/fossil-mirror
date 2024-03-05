@@ -20,7 +20,7 @@
 
 test_setup ""
 
-set filelist [glob $testdir/*]
+set filelist [lsort [glob $testdir/*]]
 foreach f $filelist {
   if {[file isdir $f]} continue
   set base [file root [file tail $f]]

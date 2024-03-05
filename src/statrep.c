@@ -132,7 +132,7 @@ static int stats_report_init_view(){
       "SELECT * FROM event WHERE type='ci' AND %s"
       " AND objid %s IN (SELECT cid FROM plink WHERE NOT isprim)",
       zTimeSpan/*safe-for-%s*/, zNot/*safe-for-%s*/
-    );        
+    );
   }
   return statsReportType = rc;
 }
@@ -311,7 +311,7 @@ static void stats_report_by_month_year(
       cgi_printf("'>%s</a>", zTimeframe);
     }
     @ </td><td>%d(nCount)</td>
-    @ <td>
+    @ <td style='white-space: nowrap;'>
     if( strcmp(zTimeframe, zCurrentTF)==0
      && rNowFraction>0.05
      && nCount>0
@@ -742,7 +742,7 @@ static void stats_report_year_weeks(const char *zUserName){
     cgi_printf("'>%s</a></td>",zWeek);
 
     cgi_printf("<td>%d</td>",nCount);
-    cgi_printf("<td>");
+    cgi_printf("<td style='white-space: nowrap;'>");
     if( nCount ){
       if( zCurrentWeek!=0
       && strcmp(zWeek, zCurrentWeek)==0
@@ -914,6 +914,7 @@ void stats_report_page(){
       break;
     }
   }
+  cgi_check_for_malice();
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
     for(i=0; i<count(aViewType); i++){

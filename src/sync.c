@@ -130,7 +130,7 @@ static int autosync(int flags, const char *zSubsys){
   zAutosync = db_get_for_subsystem("autosync", zSubsys);
   if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
-  if( db_get_boolean("dont-push",0) 
+  if( db_get_boolean("dont-push",0)
    || sqlite3_strglob("*pull*", zAutosync)==0
   ){
     flags &= ~SYNC_CKIN_LOCK;
@@ -236,6 +236,9 @@ static void process_sync_args(
   }
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
+    if( find_option("verbose","v",0)!=0 ){
+      *pSyncFlags |= SYNC_XVERBOSE;
+    }
   }
   if( find_option("no-http-compression",0,0)!=0 ){
     *pSyncFlags |= SYNC_NOHTTPCOMPRESS;
@@ -302,6 +305,12 @@ static void process_sync_args(
   user_select();
   url_enable_proxy("via proxy: ");
   *pConfigFlags |= configSync;
+  if( (*pSyncFlags & SYNC_ALLURL)==0 && zUrl==0 ){
+    const char *zAutosync = db_get_for_subsystem("autosync", "sync");
+    if( sqlite3_strglob("*all*", zAutosync)==0 ){
+      *pSyncFlags |= SYNC_ALLURL;
+    }
+  }
 }
 
 
@@ -336,7 +345,8 @@ static void process_sync_args(
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to move messages
 **                              between client and server
-**   -v|--verbose               Additional (debugging) output
+**   -v|--verbose               Additional (debugging) output - use twice to
+**                              also trace network traffic.
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
@@ -388,7 +398,8 @@ void pull_cmd(void){
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   --transport-command CMD    Use external command CMD to communicate with
 **                              the server
-**   -v|--verbose               Additional (debugging) output
+**   -v|--verbose               Additional (debugging) output - use twice for
+**                              network debugging
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
@@ -437,7 +448,8 @@ void push_cmd(void){
 **   --transport-command CMD    Use external command CMD to move message
 **                              between the client and the server
 **   -u|--unversioned           Also sync unversioned content
-**   -v|--verbose               Additional (debugging) output
+**   -v|--verbose               Additional (debugging) output - use twice to
+**                              get network debug info
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
@@ -523,7 +535,7 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** > fossil remote off
 **
-**     Forget the default URL. This disables autosync. 
+**     Forget the default URL. This disables autosync.
 **
 **     This is a convenient way to enter "airplane mode".  To enter
 **     airplane mode, first save the current default URL, then turn the
@@ -585,7 +597,7 @@ void remote_url_cmd(void){
   ** entries.  Thus, when doing a "fossil sync --all" or an autosync with
   ** autosync=all, each sync-url:NAME entry is checked to see if it is the
   ** same as last-sync-url and if it is then that entry is skipped.
-  */ 
+  */
 
   if( g.argc==2 ){
     /* "fossil remote" with no arguments:  Show the last sync URL. */

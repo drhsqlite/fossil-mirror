@@ -120,6 +120,14 @@ span.timelineEllipsis {
   height: 4px;
   background: #000;
 }
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #000;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;
@@ -305,22 +313,26 @@ ul.browser {
   white-space: nowrap;
 }
 ul.browser li.file {
+  padding-top: 2px;
+}
+ul.browser li.file > a {
+  padding-left: 20px;
+  background-repeat: no-repeat;
+  background-position: 0px center;
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/\
 yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14Gq\
 FXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==");
-  background-repeat: no-repeat;
-  background-position: 0px center;
-  padding-left: 20px;
-  padding-top: 2px;
 }
 ul.browser li.dir {
+  padding-top: 2px;
+}
+ul.browser li.dir > a {
+  padding-left: 20px;
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiI\
 v\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+\
 jUs6b5Z/K4siDu5RPUFADs=");
   background-repeat: no-repeat;
   background-position: 0px center;
-  padding-left: 20px;
-  padding-top: 2px;
 }
 div.filetreeline {
   display: table;
@@ -334,8 +346,15 @@ v\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo\
 }
 div.filetreeage {
  display: table-cell;
- padding-left: 3em;
+ padding-left: 1.5em;
  text-align: right;
+ width: 8em;
+}
+div.filetreesize {
+ display: table-cell;
+ padding-left: 1em;
+ text-align: right;
+ width: 7em;
 }
 div.filetreeline:hover {
  background-color: #eee;
@@ -479,7 +498,6 @@ table.rpteditex {
   border-spacing: 0;
 }
 table.report {
-  border-collapse:collapse;
   border: 1px solid #999;
   margin: 1em 0 1em 0;
   cursor: pointer;
@@ -565,7 +583,7 @@ table.diff pre {
 table.diff pre > ins,
 table.diff pre > del {
   /* Fill platform-dependent color gaps caused by
-     inflated line-height */;
+     inflated line-height */
   padding: 0.062em 0 0.062em 0;
 }
 table.diff pre > ins > *,
@@ -601,7 +619,6 @@ tr.diffskip.jchunk:hover {
 }
 tr.diffskip > td.chunkctrl {
   text-align: left;
-  font-family: monospace;
 }
 tr.diffskip > td.chunkctrl > div {
   display: flex;
@@ -906,8 +923,35 @@ div.forumTime {
   display: flex;
   flex-direction: column;
 }
+div.forumClosed {
+}
+div.forumClosed > .forumPostBody {
+  opacity: 0.7;
+}
+div.forumClosed > .forumPostHdr::before {
+  content: "[CLOSED] ";
+}
+/*div.forumClosed > div.forumPostBody {
+  filter: blur(5px);
+}*/
+div.forumpost-closure-warning {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  border-style: solid;
+  padding: 0.25em 0.5em;
+  background: #f4f400bb;
+  /*font-weight: bold;*/
+}
+div.forumpost-closure-warning input[type=submit] {
+  padding: 0.25em;
+}
+div.forumpost-single-controls {
+  /* UI controls along the bottom of a single post
+  ** in the thread view. */
+}
 .forum div > form {
   margin: 0.5em 0;
+  display: inline-block;
 }
 .forum-post-collapser {
   /* Common style for the bottom-of-post and right-of-post
@@ -1002,6 +1046,26 @@ div.forumSel {
 }
 div.forumObs {
   color: #bbb;
+}
+
+div.setup_forum-column {
+  display: flex;
+  flex-direction: column;
+}
+
+body.cpage-setup_forum > .content table {
+  margin-bottom: 1em;
+}
+body.cpage-setup_forum > .content table.bordered {
+  border: 1px solid;
+  border-radius: 0.25em;
+}
+body.cpage-setup_forum > .content table td,
+body.cpage-setup_forum > .content table th {
+  text-align: left;
+}
+body.cpage-setup_forum table.forum-settings-list > tbody > tr > td {
+  min-width: 2em;
 }
 
 #capabilitySummary {
@@ -1230,7 +1294,6 @@ hr {
 }
 #fossil-status-bar {
   display: block;
-  font-family: monospace;
   border-width: 1px;
   border-style: inset;
   border-color: inherit;
@@ -1321,7 +1384,6 @@ table.numbered-lines {
                          on them. */;
 }
 table.numbered-lines > tbody > tr {
-  font-family: monospace;
   line-height: 1.35;
   white-space: pre;
 }
@@ -1470,6 +1532,27 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
 blockquote.file-content {
   /* file content block in the /file page */
   margin: 0 1em;
+}
+
+/* Generic sidebar styling inherited by skins that don't make their own
+ * arrangements. */
+.markdown blockquote, p.blockquote, .sidebar {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #777;
+  padding: 0.1em 1em;
+}
+.sidebar {
+  /* Generic form that can be applied to any block element. */
+  font-size: 90%;
+}
+div.sidebar {
+  /* Special exception for div-type sidebars, where there is no p
+   * wrapper inside to give us the extra padding we want. */
+  padding: 1em;
+}
+div.sidebar:not(.no-label):before {
+  content: "Sidebar: ";
+  font-weight: bold;
 }
 
 
@@ -1697,8 +1780,19 @@ body.branch .submenu > a.timeline-link.selected {
   display: inline;
 }
 
-.monospace {
-  font-family: monospace;
+/* Candidate fonts for various forms of monospaced text. Collected here
+ * to avoid repeating this long list of fonts. */
+code, kbd, pre, samp, tt, var,
+    div.markdown ol.footnotes > li.fn-joined > sup.fn-joined,
+    table.numbered-lines > tbody > tr,
+    tr.diffskip > td.chunkctrl,
+    #fossil-status-bar,
+    .monospace {
+  font-family: Source Code Pro, Menlo, Monaco, Consolas,
+               Andale Mono, Ubuntu Mono, Deja Vu Sans Mono,
+               Letter Gothic, Letter Gothic Std, Prestige Elite Std,
+               Courier, Courier New,
+               monospace;
 }
 
 div.markdown > ol.footnotes {
@@ -1709,7 +1803,6 @@ div.markdown > ol.footnotes > li {
 }
 div.markdown ol.footnotes > li.fn-joined > sup.fn-joined {
   color: gray;
-  font-family: monospace;
 }
 div.markdown ol.footnotes > li.fn-joined > sup.fn-joined::after {
   content: "(joined from multiple locations) ";
@@ -1781,6 +1874,14 @@ div.markdown span.notescope:target {
 @media screen and (max-width: 600px) {
   .desktoponly {
     display: none;
+  }
+}
+/* Float sidebars to the right of the main content only if there's room. */
+@media screen and (min-width: 600px) {
+  .sidebar {
+    float: right;
+    max-width: 33%;
+    margin-left: 1em;
   }
 }
 /* Objects in the "wideonly" class are invisible only on wide-screen desktops */

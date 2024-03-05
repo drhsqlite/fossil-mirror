@@ -49,6 +49,7 @@ struct ForumPost {
   ForumPost *pDisplay;   /* Next in display order */
   int nEdit;             /* Number of edits to this post */
   int nIndent;           /* Number of levels of indentation for this post */
+  int iClosed;           /* See forum_rid_is_closed() */
 };
 
 /*
@@ -78,6 +79,226 @@ int forum_rid_has_been_edited(int rid){
   res = db_step(&q)==SQLITE_ROW;
   db_reset(&q);
   return res;
+}
+
+/*
+** Given a valid forumpost.fpid value, this function returns the first
+** fpid in the chain of edits for that forum post, or rid if no prior
+** versions are found.
+*/
+static int forumpost_head_rid(int rid){
+  Stmt q;
+  int rcRid = rid;
+
+  db_prepare(&q, "SELECT fprev FROM forumpost"
+             " WHERE fpid=:rid AND fprev IS NOT NULL");
+  db_bind_int(&q, ":rid", rid);
+  while( SQLITE_ROW==db_step(&q) ){
+    rcRid = db_column_int(&q, 0);
+    db_reset(&q);
+    db_bind_int(&q, ":rid", rcRid);
+  }
+  db_finalize(&q);
+  return rcRid;
+}
+
+/*
+** Returns true if p, or any parent of p, has a non-zero iClosed
+** value.  Returns 0 if !p. For an edited chain of post, the tag is
+** checked on the pEditHead entry, to simplify subsequent unlocking of
+** the post.
+**
+** If bCheckIrt is true then p's thread in-response-to parents are
+** checked (recursively) for closure, else only p is checked.
+*/
+static int forumpost_is_closed(ForumPost *p, int bCheckIrt){
+  while(p){
+    if( p->pEditHead ) p = p->pEditHead;
+    if( p->iClosed || !bCheckIrt ) return p->iClosed;
+    p = p->pIrt;
+  }
+  return 0;
+}
+
+/*
+** Given a forum post RID, this function returns true if that post has
+** (or inherits) an active "closed" tag. If bCheckIrt is true then
+** the post to which the given post responds is also checked
+** (recursively), else they are not. When checking in-response-to
+** posts, the first one which is closed ends the search.
+**
+** Note that this function checks _exactly_ the given rid, whereas
+** forum post closure/re-opening is always applied to the head of an
+** edit chain so that we get consistent implied locking beheavior for
+** later versions and responses to arbitrary versions in the
+** chain. Even so, the "closed" tag is applied as a propagating tag
+** so will apply to all edits in a given chain.
+**
+** The return value is one of:
+**
+** - 0 if no "closed" tag is found.
+**
+** - The tagxref.rowid of the tagxref entry for the closure if rid is
+**   the forum post to which the closure applies.
+**
+** - (-tagxref.rowid) if the given rid inherits a "closed" tag from an
+**   IRT forum post.
+*/
+static int forum_rid_is_closed(int rid, int bCheckIrt){
+  static Stmt qIrt = empty_Stmt_m;
+  int rc = 0, i = 0;
+  /* TODO: this can probably be turned into a CTE by someone with
+  ** superior SQL-fu. */
+  for( ; rid; i++ ){
+    rc = rid_has_active_tag_name(rid, "closed");
+    if( rc || !bCheckIrt ) break;
+    else if( !qIrt.pStmt ) {
+      db_static_prepare(&qIrt,
+        "SELECT firt FROM forumpost "
+        "WHERE fpid=$fpid ORDER BY fmtime DESC"
+      );
+    }
+    db_bind_int(&qIrt, "$fpid", rid);
+    rid = SQLITE_ROW==db_step(&qIrt) ? db_column_int(&qIrt, 0) : 0;
+    db_reset(&qIrt);
+  }
+  return i ? -rc : rc;
+}
+
+/*
+** Closes or re-opens the given forum RID via addition of a new
+** control artifact into the repository. In order to provide
+** consistent behavior for implied closing of responses and later
+** versions, it always acts on the first version of the given forum
+** post, walking the forumpost.fprev values to find the head of the
+** chain.
+**
+** If doClose is true then a propagating "closed" tag is added, except
+** as noted below, with the given optional zReason string as the tag's
+** value. If doClose is false then any active "closed" tag on frid is
+** cancelled, except as noted below. zReason is ignored if doClose is
+** false or if zReason is NULL or starts with a NUL byte.
+**
+** This function only adds a "closed" tag if forum_rid_is_closed()
+** indicates that frid's head is not closed. If a parent post is
+** already closed, no tag is added. Similarly, it will only remove a
+** "closed" tag from a post which has its own "closed" tag, and will
+** not remove an inherited one from a parent post.
+**
+** If doClose is true and frid is closed (directly or inherited), this
+** is a no-op. Likewise, if doClose is false and frid itself is not
+** closed (not accounting for an inherited closed tag), this is a
+** no-op.
+**
+** Returns true if it actually creates a new tag, else false. Fails
+** fatally on error. If it returns true then any ForumPost::iClosed
+** values from previously loaded posts are invalidated if they refer
+** to the amended post or a response to it.
+**
+** Sidebars:
+**
+** - Unless the caller has a transaction open, via
+**   db_begin_transaction(), there is a very tiny race condition
+**   window during which the caller's idea of whether or not the forum
+**   post is closed may differ from the current repository state.
+**
+** - This routine assumes that frid really does refer to a forum post.
+**
+** - This routine assumes that frid is not private or pending
+**   moderation.
+**
+** - Closure of a forum post requires a propagating "closed" tag to
+**   account for how edits of posts are handled. This differs from
+**   closure of a branch, where a non-propagating tag is used.
+*/
+static int forumpost_close(int frid, int doClose, const char *zReason){
+  Blob artifact = BLOB_INITIALIZER;  /* Output artifact */
+  Blob cksum = BLOB_INITIALIZER;     /* Z-card */
+  int iClosed;                       /* true if frid is closed */
+  int trid;                          /* RID of new control artifact */
+  char *zUuid;                       /* UUID of head version of post */
+
+  db_begin_transaction();
+  frid = forumpost_head_rid(frid);
+  iClosed = forum_rid_is_closed(frid, 1);
+  if( (iClosed && doClose
+      /* Already closed, noting that in the case of (iClosed<0), it's
+      ** actually a parent which is closed. */)
+      || (iClosed<=0 && !doClose
+          /* This entry is not closed, but a parent post may be. */) ){
+    db_end_transaction(0);
+    return 0;
+  }
+  if( doClose==0 || (zReason && !zReason[0]) ){
+    zReason = 0;
+  }
+  zUuid = rid_to_uuid(frid);
+  blob_appendf(&artifact, "D %z\n", date_in_standard_format( "now" ));
+  blob_appendf(&artifact,
+               "T %cclosed %s%s%F\n",
+               doClose ? '*' : '-', zUuid,
+               zReason ? " " : "", zReason ? zReason : "");
+  blob_appendf(&artifact, "U %F\n", login_name());
+  md5sum_blob(&artifact, &cksum);
+  blob_appendf(&artifact, "Z %b\n", &cksum);
+  blob_reset(&cksum);
+  trid = content_put_ex(&artifact, 0, 0, 0, 0);
+  if( trid==0 ){
+    fossil_fatal("Error saving tag artifact: %s", g.zErrMsg);
+  }
+  if( manifest_crosslink(trid, &artifact,
+                         MC_NONE /*MC_PERMIT_HOOKS?*/)==0 ){
+    fossil_fatal("%s", g.zErrMsg);
+  }
+  assert( blob_is_reset(&artifact) );
+  db_add_unsent(trid);
+  admin_log("%s forum post %S", doClose ? "Close" : "Re-open", zUuid);
+  fossil_free(zUuid);
+  /* Potential TODO: if (iClosed>0) then we could find the initial tag
+  ** artifact and content_deltify(thatRid,&trid,1,0). Given the tiny
+  ** size of these artifacts, however, that would save little space,
+  ** if any. */
+  db_end_transaction(0);
+  return 1;
+}
+
+/*
+** Returns true if the forum-close-policy setting is true, else false,
+** caching the result for subsequent calls.
+*/
+static int forumpost_close_policy(void){
+  static int closePolicy = -99;
+
+  if( closePolicy==-99 ){
+    closePolicy = db_get_boolean("forum-close-policy",0)>0;
+  }
+  return closePolicy;
+}
+
+/*
+** Returns 1 if the current user is an admin, -1 if the current user
+** is a forum moderator and the forum-close-policy setting is true,
+** else returns 0. The value is cached for subsequent calls.
+*/
+static int forumpost_may_close(void){
+  static int permClose = -99;
+  if( permClose!=-99 ){
+    return permClose;
+  }else if( g.perm.Admin ){
+    return permClose = 1;
+  }else if( g.perm.ModForum ){
+    return permClose = forumpost_close_policy()>0 ? -1 : 0;
+  }else{
+    return permClose = 0;
+  }
+}
+
+/*
+** Emits a warning that the current forum post is CLOSED and can only
+** be edited or responded to by an administrator. */
+static void forumpost_error_closed(void){
+  @ <div class='error'>This (sub)thread is CLOSED and can only be
+  @ edited or replied to by an admin user.</div>
 }
 
 /*
@@ -217,6 +438,9 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
         p->pEditTail = pPost;
       }
     }
+    pPost->iClosed = forum_rid_is_closed(pPost->pEditHead
+                                         ? pPost->pEditHead->fpid
+                                         : pPost->fpid, 1);
   }
   db_finalize(&q);
 
@@ -302,9 +526,11 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid  rev      fpid      pIrt pEditPrev pEditTail hash\n");
+  " sid  rev  closed      fpid      pIrt pEditPrev pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%4d %4d %9d %9d %9d %9d %8.8s\n", p->sid, p->rev,
+    fossil_print("%4d %4d %7d %9d %9d %9d %9d %8.8s\n",
+       p->sid, p->rev,
+       p->iClosed,
        p->fpid, p->pIrt ? p->pIrt->fpid : 0,
        p->pEditPrev ? p->pEditPrev->fpid : 0,
        p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
@@ -313,10 +539,14 @@ void forumthread_cmd(void){
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     fossil_print("%*s", (p->nIndent-1)*3, "");
     if( p->pEditTail ){
-      fossil_print("%d->%d\n", p->fpid, p->pEditTail->fpid);
+      fossil_print("%d->%d", p->fpid, p->pEditTail->fpid);
     }else{
-      fossil_print("%d\n", p->fpid);
+      fossil_print("%d", p->fpid);
     }
+    if( p->iClosed ){
+      fossil_print(" [closed%s]", p->iClosed<0 ? " via parent" : "");
+    }
+    fossil_print("\n");
   }
   forumthread_delete(pThread);
 }
@@ -513,12 +743,13 @@ static void forum_display_post(
   int bPrivate;         /* True for posts awaiting moderation */
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
+  int iClosed;          /* True if (sub)thread is closed */
   const char *zMimetype;/* Formatting MIME type */
 
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
   pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
   if( !pManifest ) return;
-
+  iClosed = forumpost_is_closed(p, 1);
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
     /* Open the <div> enclosing the post.  Set the class string to mark the post
@@ -526,6 +757,7 @@ static void forum_display_post(
     iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
     @ <div id='forum%d(p->fpid)' class='forumTime\
     @ %s(bSelect ? " forumSel" : "")\
+    @ %s(iClosed ? " forumClosed" : "")\
     @ %s(p->pEditTail ? " forumObs" : "")' \
     if( iIndent && iIndentScale ){
       @ style='margin-left:%d(iIndent*iIndentScale)ex;'>
@@ -545,7 +777,7 @@ static void forum_display_post(
     **    *  The post was last edited by a different person
     */
     if( p->pEditHead ){
-      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", 
+      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())",
                       p->pEditHead->rDate);
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
@@ -557,7 +789,7 @@ static void forum_display_post(
       zEditorName = forum_post_display_name(p, pManifest);
       zHist = bHist ? "" : zQuery[0]==0 ? "?hist" : "&hist";
       @ <h3 class='forumPostHdr'>(%d(p->sid)\
-      @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
+      @ .%0*d(fossil_num_digits(p->nEdit))(p->rev))
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
         @ By %s(zPosterName) on %h(zDate) edited from \
         @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
@@ -570,7 +802,7 @@ static void forum_display_post(
       }
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
-      @ <h3 class='forumPostHdr'>(%d(p->sid)) \
+      @ <h3 class='forumPostHdr'>(%d(p->sid))
       @ By %s(zPosterName) on %h(zDate)
     }
     fossil_free(zDate);
@@ -633,14 +865,22 @@ static void forum_display_post(
     /* If the user is able to write to the forum and if this post has not been
     ** edited, create a form with various interaction buttons. */
     if( g.perm.WrForum && !p->pEditTail ){
-      @ <div><form action="%R/forumedit" method="POST">
+      @ <div class="forumpost-single-controls">\
+      @ <form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !bPrivate ){
-        /* Reply and Edit are only available if the post has been approved. */
-        @ <input type="submit" name="reply" value="Reply">
-        if( g.perm.Admin || bSameUser ){
-          @ <input type="submit" name="edit" value="Edit">
-          @ <input type="submit" name="nullout" value="Delete">
+        /* Reply and Edit are only available if the post has been
+        ** approved.  Closed threads can only be edited or replied to
+        ** if forumpost_may_close() is true but a user may delete
+        ** their own posts even if they are closed. */
+        if( forumpost_may_close() || !iClosed ){
+          @ <input type="submit" name="reply" value="Reply">
+          if( g.perm.Admin || (bSameUser && !iClosed) ){
+            @ <input type="submit" name="edit" value="Edit">
+          }
+          if( g.perm.Admin || bSameUser ){
+            @ <input type="submit" name="nullout" value="Delete">
+          }
         }
       }else if( g.perm.ModForum ){
         /* Allow moderators to approve or reject pending posts.  Also allow
@@ -659,7 +899,20 @@ static void forum_display_post(
         /* Allow users to delete (reject) their own pending posts. */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></div>
+      login_insert_csrf_secret();
+      @ </form>
+      if( bSelect && forumpost_may_close() && iClosed>=0 ){
+        int iHead = forumpost_head_rid(p->fpid);
+        @ <form method="post" \
+        @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
+        login_insert_csrf_secret();
+        @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
+        if( moderation_pending(p->fpid)==0 ){
+          @ <input type="submit" value='%s(iClosed ? "Re-open" : "Close")' />
+        }
+        @ </form>
+      }
+      @ </div>
     }
     @ </div>
   }
@@ -905,6 +1158,7 @@ void forumthread_page(void){
   if( zName==0 ){
     webpage_error("Missing \"name=\" query parameter");
   }
+  cgi_check_for_malice();
   fpid = symbolic_name_to_rid(zName, "f");
   if( fpid<=0 ){
     if( fpid==0 ){
@@ -1042,6 +1296,11 @@ static int forum_post(
   int nContent = zContent ? (int)strlen(zContent) : 0;
 
   schema_forum();
+  if( !g.perm.Admin && (iEdit || iInReplyTo)
+      && forum_rid_is_closed(iEdit ? iEdit : iInReplyTo, 1) ){
+    forumpost_error_closed();
+    return 0;
+  }
   if( iEdit==0 && whitespace_only(zContent) ){
     return 0;
   }
@@ -1145,6 +1404,41 @@ static void forum_post_widget(
 }
 
 /*
+** WEBPAGE: forumpost_close hidden
+** WEBPAGE: forumpost_reopen hidden
+**
+**   fpid=X        Hash of the post to be edited.  REQUIRED
+**   reason=X      Optional reason for closure.
+**
+** Closes or re-opens the given forum post, within the bounds of the
+** API for forumpost_close(). After (perhaps) modifying the "closed"
+** status of the given thread, it redirects to that post's thread
+** view. Requires admin privileges.
+*/
+void forum_page_close(void){
+  const char *zFpid = PD("fpid","");
+  const char *zReason = 0;
+  int fClose;
+  int fpid;
+
+  login_check_credentials();
+  if( forumpost_may_close()==0 ){
+    login_needed(g.anon.Admin);
+    return;
+  }
+  cgi_csrf_verify();
+  fpid = symbolic_name_to_rid(zFpid, "f");
+  if( fpid<=0 ){
+    webpage_error("Missing or invalid fpid query parameter");
+  }
+  fClose = sqlite3_strglob("*_close*", g.zPath)==0;
+  if( fClose ) zReason = PD("reason",0);
+  forumpost_close(fpid, fClose, zReason);
+  cgi_redirectf("%R/forumpost/%S",zFpid);
+  return;
+}
+
+/*
 ** WEBPAGE: forumnew
 ** WEBPAGE: forumedit
 **
@@ -1154,6 +1448,7 @@ static void forum_post_widget(
 void forum_page_init(void){
   int isEdit;
   char *zGoto;
+
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
@@ -1247,7 +1542,7 @@ void forumnew_page(void){
     login_needed(g.anon.WrForum);
     return;
   }
-  if( P("submit") && cgi_csrf_safe(1) ){
+  if( P("submit") && cgi_csrf_safe(2) ){
     if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent,
                    forum_post_flags()) ) return;
   }
@@ -1268,6 +1563,7 @@ void forumnew_page(void){
     @ <input type="submit" name="submit" value="Submit" disabled>
   }
   forum_render_debug_options();
+  login_insert_csrf_secret();
   @ </form>
   forum_emit_js();
   style_finish_page();
@@ -1293,8 +1589,11 @@ void forumedit_page(void){
   const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
+  int iClosed = 0;
   int bSameUser;        /* True if author is also the reader */
+  int bPreview;         /* True in preview mode. */
   int bPrivate;         /* True if post is private (not yet moderated) */
+  int bReply;           /* True if replying to a post */
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -1310,10 +1609,13 @@ void forumedit_page(void){
     webpage_error("fpid does not appear to be a forum post: \"%d\"", fpid);
   }
   if( P("cancel") ){
-    cgi_redirectf("%R/forumpost/%S",P("fpid"));
+    cgi_redirectf("%R/forumpost/%S",zFpid);
     return;
   }
-  isCsrfSafe = cgi_csrf_safe(1);
+  bPreview = P("preview")!=0;
+  bReply = P("reply")!=0;
+  iClosed = forum_rid_is_closed(fpid, 1);
+  isCsrfSafe = cgi_csrf_safe(2);
   bPrivate = content_is_private(fpid);
   bSameUser = login_is_individual()
     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -1359,7 +1661,7 @@ void forumedit_page(void){
   ){
     int done = 1;
     const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
-    if( P("reply") ){
+    if( bReply ){
       done = forum_post(0, fpid, 0, 0, zMimetype, zContent,
                         forum_post_flags());
     }else if( P("edit") || isDelete ){
@@ -1381,6 +1683,7 @@ void forumedit_page(void){
     @ <h1>Change Into:</h1>
     forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     @ <form action="%R/forume2" method="POST">
+    login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
     @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
@@ -1402,12 +1705,13 @@ void forumedit_page(void){
     @ <h2>Original Post:</h2>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit", 1);
-    if( P("preview") ){
+    if( bPreview ){
       @ <h2>Preview of Edited Post:</h2>
       forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     }
     @ <h2>Revised Message:</h2>
     @ <form action="%R/forume2" method="POST">
+    login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
     forum_from_line();
@@ -1431,7 +1735,7 @@ void forumedit_page(void){
     fossil_free(zDisplayName);
     fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit", 1);
-    if( P("preview") && !whitespace_only(zContent) ){
+    if( bPreview && !whitespace_only(zContent) ){
       @ <h2>Preview:</h2>
       forum_render(0, zMimetype,zContent, "forumEdit", 1);
     }
@@ -1446,12 +1750,135 @@ void forumedit_page(void){
     @ <input type="submit" name="preview" value="Preview">
   }
   @ <input type="submit" name="cancel" value="Cancel">
-  if( (P("preview") && !whitespace_only(zContent)) || isDelete ){
-    @ <input type="submit" name="submit" value="Submit">
+  if( (bPreview && !whitespace_only(zContent)) || isDelete ){
+    if( !iClosed || g.perm.Admin ) {
+      @ <input type="submit" name="submit" value="Submit">
+    }
   }
   forum_render_debug_options();
+  login_insert_csrf_secret();
   @ </form>
   forum_emit_js();
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_forum
+**
+** Forum configuration and metrics.
+*/
+void forum_setup(void){
+  /* boolean config settings specific to the forum. */
+  const char * zSettingsBool[] = {
+  "forum-close-policy",
+  NULL /* sentinel entry */
+  };
+
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(g.anon.Setup);
+    return;
+  }
+  style_set_current_feature("forum");
+  style_header("Forum Setup");
+
+  @ <h2>Metrics</h2>
+  {
+    int nPosts = db_int(0, "SELECT COUNT(*) FROM event WHERE type='f'");
+    @ <p><a href='%R/forum'>Forum posts</a>:
+    @ <a href='%R/timeline?y=f'>%d(nPosts)</a></p>
+  }
+
+  @ <h2>Supervisors</h2>
+  @ <p>Users with capabilities 's', 'a', or '6'.</p>
+  {
+    Stmt q = empty_Stmt;
+    int nRows = 0;
+    db_prepare(&q, "SELECT uid, login, cap FROM user "
+                   "WHERE cap GLOB '*[as6]*' ORDER BY login");
+    @ <table class='bordered'>
+    @ <thead><tr><th>User</th><th>Capabilities</th></tr></thead>
+    @ <tbody>
+    while( SQLITE_ROW==db_step(&q) ){
+      const int iUid = db_column_int(&q, 0);
+      const char *zUser = db_column_text(&q, 1);
+      const char *zCap = db_column_text(&q, 2);
+      ++nRows;
+      @ <tr>
+      @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
+      @ <td>(%h(zCap))</td>
+      @ </tr>
+    }
+    db_finalize(&q);
+    @</tbody></table>
+    if( 0==nRows ){
+      @ No supervisors
+    }else{
+      @ %d(nRows) supervisor(s)
+    }
+  }
+
+  @ <h2>Moderators</h2>
+  @ <p>Users with capability '5'.</p>
+  {
+    Stmt q = empty_Stmt;
+    int nRows = 0;
+    db_prepare(&q, "SELECT uid, login, cap FROM user "
+               "WHERE cap GLOB '*5*' ORDER BY login");
+    @ <table class='bordered'>
+    @ <thead><tr><th>User</th><th>Capabilities</th></tr></thead>
+    @ <tbody>
+    while( SQLITE_ROW==db_step(&q) ){
+      const int iUid = db_column_int(&q, 0);
+      const char *zUser = db_column_text(&q, 1);
+      const char *zCap = db_column_text(&q, 2);
+      ++nRows;
+      @ <tr>
+      @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
+      @ <td>(%h(zCap))</td>
+      @ </tr>
+    }
+    db_finalize(&q);
+    @ </tbody></table>
+    if( 0==nRows ){
+      @ No non-supervisor moderators
+    }else{
+      @ %d(nRows) moderator(s)
+    }
+  }
+
+  @ <h2>Settings</h2>
+  @ <p>Configuration settings specific to the forum.</p>
+  if( P("submit") && cgi_csrf_safe(2) ){
+    int i = 0;
+    const char *zSetting;
+    db_begin_transaction();
+    while( (zSetting = zSettingsBool[i++]) ){
+      const char *z = P(zSetting);
+      if( !z || !z[0] ) z = "off";
+      db_set(zSetting/*works-like:"x"*/, z, 0);
+    }
+    db_end_transaction(0);
+    @ <p><em>Settings saved.</em></p>
+  }
+  {
+    int i = 0;
+    const char *zSetting;
+    @ <form action="%R/setup_forum" method="post">
+    login_insert_csrf_secret();
+    @ <table class='forum-settings-list'><tbody>
+    while( (zSetting = zSettingsBool[i++]) ){
+      @ <tr><td>
+      onoff_attribute("", zSetting, zSetting/*works-like:"x"*/, 0, 0);
+      @ </td><td>
+      @ <a href='%R/help?cmd=%h(zSetting)'>%h(zSetting)</a>
+      @ </td></tr>
+    }
+    @ </tbody></table>
+    @ <input type='submit' name='submit' value='Apply changes'>
+    @ </form>
+  }
+
   style_finish_page();
 }
 
@@ -1482,6 +1909,7 @@ void forum_main_page(void){
     login_needed(g.anon.RdForum);
     return;
   }
+  cgi_check_for_malice();
   style_set_current_feature("forum");
   style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
   style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");

@@ -1,6 +1,6 @@
 /**
    This file contains the client-side implementation of fossil's /chat
-   application. 
+   application.
 */
 window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
@@ -9,6 +9,7 @@ window.fossil.onPageLoad(function(){
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
+
   /**
      Returns true if e is entirely within the bounds of the window's viewport.
   */
@@ -66,6 +67,14 @@ window.fossil.onPageLoad(function(){
       D.append(document.body,dbg);
     }
   })();
+  const GetFramingElements = function() {
+    return document.querySelectorAll([
+      "body > header",
+      "body > nav.mainmenu",
+      "body > footer",
+      "#debugMsg"
+    ].join(','));
+  };
   const ForceResizeKludge = (function(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
@@ -77,12 +86,7 @@ window.fossil.onPageLoad(function(){
        While we're here, we also use this to cap the max-height
        of the input field so that pasting huge text does not scroll
        the upper area of the input widget off-screen. */
-    const elemsToCount = [
-      document.querySelector('body > div.header'),
-      document.querySelector('body > div.mainmenu'),
-      document.querySelector('body > #hbdrop'),
-      document.querySelector('body > div.footer')
-    ];
+    const elemsToCount = GetFramingElements();
     const contentArea = E1('div.content');
     const resized = function f(){
       if(f.$disabled) return;
@@ -102,10 +106,10 @@ window.fossil.onPageLoad(function(){
       contentArea.style.height =
         contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
-          " - 0.75em"/*fudge value*/,")"
+          " - 0.65em"/*fudge value*/,")"
           /* ^^^^ hypothetically not needed, but both Chrome/FF on
              Linux will force scrollbars on the body if this value is
-             too small (<0.75em in my tests). */
+             too small; current value is empirically selected. */
         ].join('');
       if(false){
         console.debug("resized.",wh, extra, ht,
@@ -342,13 +346,7 @@ window.fossil.onPageLoad(function(){
       chatOnlyMode: function f(yes){
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
-          document.querySelectorAll(
-            ["body > div.header",
-             "body > div.mainmenu",
-             "body > div.footer",
-             "#debugMsg"
-            ].join(',')
-          ).forEach((e)=>f.elemsToToggle.push(e));
+          GetFramingElements().forEach((e)=>f.elemsToToggle.push(e));
         }
         if(!arguments.length) yes = true;
         if(yes === this.isChatOnlyMode()) return this;
@@ -415,6 +413,11 @@ window.fossil.onPageLoad(function(){
              laid out in a compact form. When off, the edit field and
              buttons are larger. */
           "edit-compact-mode": true,
+          /* See notes for this setting in fossil.page.wikiedit.js.
+             Both /wikiedit and /fileedit share this persistent config
+             option under the same storage key. */
+          "edit-shift-enter-preview":
+            F.storage.getBool('edit-shift-enter-preview', true),
           /* When on, sets the font-family on messages and the edit
              field to monospace. */
           "monospace-messages": false,
@@ -1681,7 +1684,7 @@ window.fossil.onPageLoad(function(){
         Chat.setCurrentView(Chat.e.viewMessages);
       }else if(!text){
         f.$toggleCompact(compactMode);
-      }else{
+      }else if(Chat.settings.getBool('edit-shift-enter-preview', true)){
         Chat.e.btnPreview.click();
       }
       return false;
@@ -1697,7 +1700,7 @@ window.fossil.onPageLoad(function(){
       //console.debug("!ctrlMode && ev.ctrlKey && text.");
       /* Ctrl-enter in Enter-sends mode SHOULD, with this logic add a
          newline, but that is not happening, for unknown reasons
-         (possibly related to this element being a conteneditable DIV
+         (possibly related to this element being a contenteditable DIV
          instead of a textarea). Forcibly appending a newline do the
          input area does not work, also for unknown reasons, and would
          only be suitable when we're at the end of the input.
@@ -1715,7 +1718,7 @@ window.fossil.onPageLoad(function(){
       Chat.submitMessage();
       return false;
     }
-  };  
+  };
   Chat.e.inputFields.forEach(
     (e)=>e.addEventListener('keydown', inputWidgetKeydown, false)
   );
@@ -1849,13 +1852,20 @@ window.fossil.onPageLoad(function(){
           "plain-text input fields, browser-specific quirks and bugs ",
           "may lead to frustration. Ideal for mobile devices."
         ].join('')
+      },{
+        label: "Shift-enter to preview",
+        hint: ["Use shift-enter to preview being-edited messages. ",
+               "This is normally desirable but some software-mode ",
+               "keyboards misinteract with this, in which cases it can be ",
+               "disabled."],
+        boolValue: 'edit-shift-enter-preview'
       }]
     },{
       label: "Appearance Options...",
       children:[{
         label: "Left-align my posts",
         hint: "Default alignment of your own messages is selected "
-          + "based window width/height ratio.",
+          + "based on the window width/height ratio.",
         boolValue: ()=>!document.body.classList.contains('my-messages-right'),
         callback: function f(){
           document.body.classList[
@@ -2148,7 +2158,7 @@ window.fossil.onPageLoad(function(){
     };
     btnPreview.addEventListener('click', submit, false);
   })()/*message preview setup*/;
-  
+
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is
       appended to the end of the chat list (for loading older

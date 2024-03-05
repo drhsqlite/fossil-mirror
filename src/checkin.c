@@ -123,7 +123,7 @@ static void status_report(
 ){
   Stmt q;
   int nErr = 0;
-  Blob rewrittenPathname;
+  Blob rewrittenOrigName, rewrittenPathname;
   Blob sql = BLOB_INITIALIZER, where = BLOB_INITIALIZER;
   const char *zName;
   int i;
@@ -207,6 +207,7 @@ static void status_report(
 
   /* Execute the query and assemble the report. */
   blob_zero(&rewrittenPathname);
+  blob_zero(&rewrittenOrigName);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     const char *zClass = 0;
@@ -270,14 +271,17 @@ static void status_report(
     }else if( (flags & (C_EDITED | C_CHANGED)) && isChnged
            && (isChnged<2 || isChnged>9) ){
       zClass = "EDITED";
-    }else if( (flags & C_RENAMED) && isRenamed ){
-      zClass = "RENAMED";
-      zOrigName = db_column_text(&q,8);
     }else if( (flags & C_UNCHANGED) && isManaged && !isNew
                                     && !isChnged && !isRenamed ){
       zClass = "UNCHANGED";
     }else if( (flags & C_EXTRA) && !isManaged ){
       zClass = "EXTRA";
+    }
+    if( (flags & C_RENAMED) && isRenamed ){
+      zOrigName = db_column_text(&q,8);
+      if( zClass==0 ){
+        zClass = "RENAMED";
+      }
     }
 
     /* Only report files for which a change classification was determined. */
@@ -297,26 +301,30 @@ static void status_report(
       }
       if( flags & C_RELPATH ){
         /* If C_RELPATH, display paths relative to current directory. */
-        const char *zDisplayName;
         file_relative_name(zFullName, &rewrittenPathname, 0);
-        zDisplayName = blob_str(&rewrittenPathname);
-        if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
-          zDisplayName += 2;  /* no unnecessary ./ prefix */
+        zPathname = blob_str(&rewrittenPathname);
+        if( zPathname[0]=='.' && zPathname[1]=='/' ){
+          zPathname += 2;  /* no unnecessary ./ prefix */
         }
         if( (flags & (C_FILTER ^ C_RENAMED)) && zOrigName ){
-          blob_appendf(report, "%s  ->  %s", zOrigName, zDisplayName);
-        }else{
-          blob_append(report, zDisplayName, -1);
+          char *zOrigFullName = mprintf("%s%s", g.zLocalRoot, zOrigName);
+          file_relative_name(zOrigFullName, &rewrittenOrigName, 0);
+          zOrigName = blob_str(&rewrittenOrigName);
+          fossil_free(zOrigFullName);
+          if( zOrigName[0]=='.' && zOrigName[1]=='/' ){
+            zOrigName += 2;  /* no unnecessary ./ prefix */
+          }
         }
-      }else{
-        /* If not C_RELPATH, display paths relative to project root. */
-        blob_append(report, zPathname, -1);
       }
-      blob_append(report, "\n", 1);
+      if( (flags & (C_FILTER ^ C_RENAMED)) && zOrigName ){
+        blob_appendf(report, "%s  ->  ", zOrigName);
+      }
+      blob_appendf(report, "%s\n", zPathname);
     }
     free(zFullName);
   }
   blob_reset(&rewrittenPathname);
+  blob_reset(&rewrittenOrigName);
   db_finalize(&q);
 
   /* If C_MERGE, put merge contributors at the end of the report. */
@@ -1359,13 +1367,27 @@ static void prepare_commit_comment(
     diff_options(&DCfg, 0, 1);
     DCfg.diffFlags |= DIFF_VERBOSE;
     if( g.aCommitFile ){
+      Stmt q;
+      Blob sql = BLOB_INITIALIZER;
       FileDirList *diffFiles;
       int i;
       for(i=0; g.aCommitFile[i]!=0; ++i){}
       diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
       for(i=0; g.aCommitFile[i]!=0; ++i){
-        diffFiles[i].zName  = db_text(0,
-         "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
+        blob_append_sql(&sql,
+                        "SELECT pathname, deleted, rid WHERE id=%d",
+                        g.aCommitFile[i]);
+        db_prepare(&q, "%s", blob_sql_text(&sql));
+        blob_reset(&sql);
+        assert( db_step(&q)==SQLITE_ROW );
+        diffFiles[i].zName = fossil_strdup(db_column_text(&q, 0));
+        DCfg.diffFlags &= (~DIFF_FILE_MASK);
+        if( db_column_int(&q, 1) ){
+          DCfg.diffFlags |= DIFF_FILE_DELETED;
+        }else if( db_column_int(&q, 2)==0 ){
+          DCfg.diffFlags |= DIFF_FILE_ADDED;
+        }
+        db_finalize(&q);
         if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
           diffFiles[0].zName[0] = '.';
           diffFiles[0].zName[1] = 0;
@@ -2515,7 +2537,7 @@ void commit_cmd(void){
                      "--allow-fork.");
       }
     }
-  
+
     /*
     ** Do not allow a commit against a closed leaf unless the commit
     ** ends up on a different branch.
@@ -2536,7 +2558,7 @@ void commit_cmd(void){
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
 
-  
+
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.
@@ -2667,7 +2689,7 @@ void commit_cmd(void){
       }
       db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
                     nrid,nrid,id);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+      db_add_unsent(nrid);
     }
   }
   db_finalize(&q);
@@ -2765,7 +2787,7 @@ void commit_cmd(void){
   if( nvid==0 ){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
+  db_add_unsent(nvid);
   if( manifest_crosslink(nvid, &manifest,
                          dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
     fossil_fatal("%s", g.zErrMsg);

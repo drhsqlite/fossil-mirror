@@ -32,8 +32,8 @@
 **       db_multi_exec() have the correct number of arguments for their
 **       format string.
 **
-**    *  For routines designed to generate SQL, warn about the use of %s
-**       which might allow SQL injection.
+**    *  For routines designed to generate SQL or HTML or a URL or JSON,
+**       detect and warn about possible injection attacks.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -348,9 +348,10 @@ static int never_safe(const char *z){
 #define FMT_SQL   0x00001     /* Generator for SQL text */
 #define FMT_HTML  0x00002     /* Generator for HTML text */
 #define FMT_URL   0x00004     /* Generator for URLs */
-#define FMT_SAFE  0x00008     /* Generator for human-readable text */
-#define FMT_LIT   0x00010     /* Just verify that a string literal */
-#define FMT_PX    0x00020     /* Must have a literal prefix in format string */
+#define FMT_JSON  0x00008     /* Generator for JSON */
+#define FMT_SAFE  0x00010     /* Generator for human-readable text */
+#define FMT_LIT   0x00020     /* Just verify that a string literal */
+#define FMT_PX    0x00040     /* Must have a literal prefix in format string */
 
 /*
 ** A list of internal Fossil interfaces that take a printf-style format
@@ -362,8 +363,10 @@ struct FmtFunc {
   unsigned fmtFlags;     /* Processing flags */
 } aFmtFunc[] = {
   { "admin_log",                  1, FMT_SAFE },
+  { "ajax_route_error",           2, FMT_SAFE },
   { "audit_append",               3, FMT_SAFE },
   { "backofficeTrace",            1, FMT_SAFE },
+  { "backoffice_log",             1, FMT_SAFE },
   { "blob_append_sql",            2, FMT_SQL },
   { "blob_appendf",               2, FMT_SAFE },
   { "cgi_debug",                  1, FMT_SAFE },
@@ -406,6 +409,7 @@ struct FmtFunc {
   { "fossil_print",               1, FMT_SAFE },
   { "fossil_trace",               1, FMT_SAFE },
   { "fossil_warning",             1, FMT_SAFE },
+  { "gitmirror_message",          2, FMT_SAFE },
   { "href",                       1, FMT_URL },
   { "json_new_string_f",          1, FMT_SAFE },
   { "json_set_err",               2, FMT_SAFE },
@@ -418,6 +422,7 @@ struct FmtFunc {
   { "smtp_server_send",           2, FMT_SAFE },
   { "socket_set_errmsg",          1, FMT_SAFE },
   { "ssl_set_errmsg",             1, FMT_SAFE },
+  { "style_copy_button",          5, FMT_SAFE },
   { "style_header",               1, FMT_HTML },
   { "style_set_current_page",     1, FMT_URL },
   { "style_submenu_element",      2, FMT_URL },
@@ -425,6 +430,7 @@ struct FmtFunc {
   { "textarea_attribute",         5, FMT_LIT },
   { "tktsetup_generic",           1, FMT_LIT },
   { "webpage_error",              1, FMT_SAFE },
+  { "webpage_notfound_error",     1, FMT_SAFE },
   { "xfersetup_generic",          1, FMT_LIT },
   { "xhref",                      2, FMT_URL },
 };
@@ -600,7 +606,7 @@ static int checkFormatFunc(
                    " a query parameter\n",
                zFilename, lnFCall, i+fmtArg, szFName, zFCall);
              nErr++;
-   
+
           }else if( (fmtFlags & FMT_SQL)!=0 && !is_sql_safe(zExpr) ){
             printf("%s:%d: Argument %d to %.*s() not safe for SQL\n",
                zFilename, lnFCall, i+fmtArg, szFName, zFCall);

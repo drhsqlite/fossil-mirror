@@ -25,10 +25,10 @@ bugs that might lead to a vulnerability.
 The default CSP used by Fossil is as follows:
 
 <pre>
-     default-src 'self' data:;
-     script-src 'self' 'nonce-$nonce';
-     style-src 'self' 'unsafe-inline';
-     img-src * data:;
+default-src 'self' data:;
+script-src 'self' 'nonce-$nonce';
+style-src 'self' 'unsafe-inline';
+img-src * data:;
 </pre>
 
 The default is recommended for most installations.  However,
@@ -36,9 +36,7 @@ the site administrators can overwrite this default CSP using the
 [default-csp setting](/help?cmd=default-csp).  For example,
 CSP restrictions can be completely disabled by setting the default-csp to:
 
-<pre>
-     default-src *;
-</pre>
+    default-src *;
 
 The following sections detail the maining of the default CSP setting.
 
@@ -48,7 +46,7 @@ This policy means mixed-origin content isn’t allowed, so you can’t refer
 to resources on other web domains. Browsers will ignore a link like the
 one in the following Markdown under our default CSP:
 
-         ![fancy 3D Fossil logotype](https://i.imgur.com/HalpMgt.png)
+    ![fancy 3D Fossil logotype](https://i.imgur.com/HalpMgt.png)
 
 If you look in the browser’s developer console, you should see a CSP
 error when attempting to render such a page.
@@ -57,7 +55,7 @@ The default policy does allow inline `data:` URIs, which means you could
 [data-encode][de] your image content and put it inline within the
 document:
 
-         ![small inline image](data:image/gif;base64,R0lGODlh...)
+    ![small inline image](data:image/gif;base64,R0lGODlh...)
 
 That method is best used for fairly small resources. Large `data:` URIs
 are hard to read and edit. There are secondary problems as well: if you
@@ -69,7 +67,7 @@ For inline images within [embedded documentation][ed], it suffices to
 store the referred-to files in the repo and then refer to them using
 repo-relative URLs:
 
-         ![large inline image](./inlineimage.jpg)
+    ![large inline image](./inlineimage.jpg)
 
 This avoids bloating the doc text with `data:` URI blobs:
 
@@ -101,7 +99,7 @@ under the Fossil repo server’s Internet domain. It also allows inline CSS
 The `'unsafe-inline'` declaration allows CSS within individual HTML
 elements:
 
-        <p style="margin-left: 4em">Indented text.</p>
+    <p style="margin-left: 4em">Indented text.</p>
 
 As the "`unsafe-`" prefix on the name implies, the `'unsafe-inline'`
 feature is suboptimal for security.  However, there are
@@ -176,7 +174,7 @@ visiting their repository home page, set to [an HTML-formatted embedded
 doc page][hfed] via Admin → Configuration → Index&nbsp;Page, with this
 content:
 
-         <script src="/doc/trunk/bad.js"></script>
+    <script src="/doc/trunk/bad.js"></script>
 
 That script can then do anything allowed in JavaScript to *any other*
 Chisel repository your browser can access. The possibilities for mischief
@@ -200,7 +198,7 @@ not** give the `--with-th1-docs` option when configuring Fossil, because
 that allows substitution of the [pre-defined `$nonce` TH1
 variable](./th1.md#nonce) into [HTML-formatted embedded docs][hfed]:
 
-         <script src="/doc/trunk/bad.js" nonce="$nonce"></script>
+    <script src="/doc/trunk/bad.js" nonce="$nonce"></script>
 
 Even with this feature enabled, you cannot put `<script>` tags into
 Fossil Wiki or Markdown-formatted content, because our HTML generators
@@ -333,7 +331,7 @@ Because a blank setting tells Fossil to use its hard-coded default CSP,
 you have to say something like the following to get a repository without
 content security policy restrictions:
 
-        $ fossil set -R /path/to/served/repo.fossil default-csp 'default-src *'
+    $ fossil set -R /path/to/served/repo.fossil default-csp 'default-src *'
 
 We recommend that instead of using the command line to change this
 setting that you do it via the repository’s web interface, in
@@ -368,7 +366,7 @@ This means that another way you can override this value is to use
 the [`th1-setup` hook script](./th1-hooks.md), which runs before TH1
 processing happens during skin processing:
 
-        $ fossil set th1-setup "set default_csp {default-src 'self'}"
+    $ fossil set th1-setup "set default_csp {default-src 'self'}"
 
 After [the above](#admin-ui), this is the cleanest method.
 

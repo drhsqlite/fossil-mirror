@@ -75,22 +75,22 @@ void sha1_compression_states(uint32_t ihv[5], const uint32_t W[80], uint32_t sta
 extern sha1_recompression_type sha1_recompression_step[80];
 typedef void(*collision_block_callback)(uint64_t, const uint32_t*, const uint32_t*, const uint32_t*, const uint32_t*);
 typedef struct {
-	uint64_t total;
-	uint32_t ihv[5];
-	unsigned char buffer[64];
-	int bigendian;
-	int found_collision;
-	int safe_hash;
-	int detect_coll;
-	int ubc_check;
-	int reduced_round_coll;
-	collision_block_callback callback;
+  uint64_t total;
+  uint32_t ihv[5];
+  unsigned char buffer[64];
+  int bigendian;
+  int found_collision;
+  int safe_hash;
+  int detect_coll;
+  int ubc_check;
+  int reduced_round_coll;
+  collision_block_callback callback;
 
-	uint32_t ihv1[5];
-	uint32_t ihv2[5];
-	uint32_t m1[80];
-	uint32_t m2[80];
-	uint32_t states[80][5];
+  uint32_t ihv1[5];
+  uint32_t ihv2[5];
+  uint32_t m1[80];
+  uint32_t m2[80];
+  uint32_t states[80][5];
 } SHA1_CTX;
 
 /******************** File: lib/ubc_check.c **************************/

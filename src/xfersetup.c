@@ -120,14 +120,12 @@ static void xfersetup_generic(
   }
   style_set_current_feature("xfersetup");
   style_header("Edit %s", zTitle);
-  if( P("clear")!=0 ){
-    login_verify_csrf_secret();
+  if( P("clear")!=0 && cgi_csrf_safe(2) ){
     db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     z = zDfltValue;
-  }else if( isSubmit ){
+  }else if( isSubmit && cgi_csrf_safe(2) ){
     char *zErr = 0;
-    login_verify_csrf_secret();
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="xfersetupError">ERROR: %h(zErr)</p>
     }else{

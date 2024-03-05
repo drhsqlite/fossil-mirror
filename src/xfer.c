@@ -357,7 +357,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 
   /* The isWriter flag must be true in order to land the new file */
   if( !isWriter ){
-    blob_appendf(&pXfer->err, "Write permissions for unversioned files missing");
+    blob_appendf(&pXfer->err,"Write permissions for unversioned files missing");
     goto end_accept_unversioned_file;
   }
 
@@ -1222,6 +1222,7 @@ void page_xfer(void){
   g.zLogin = "anonymous";
   login_set_anon_nobody_capabilities();
   login_check_credentials();
+  cgi_check_for_malice();
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);
@@ -1585,7 +1586,7 @@ void page_xfer(void){
 
     /*    pragma NAME VALUE...
     **
-    ** The client issue pragmas to try to influence the behavior of the
+    ** The client issues pragmas to try to influence the behavior of the
     ** server.  These are requests only.  Unknown pragmas are silently
     ** ignored.
     */
@@ -1835,7 +1836,7 @@ void page_xfer(void){
       if( x.name!=0 && sqlite3_strlike("%localhost%", x.name, 0)!=0 ){
         @ pragma link %F(x.canonical) %F(zArg) %lld(iMtime)
       }
-      url_unparse(&x);      
+      url_unparse(&x);
     }
     db_finalize(&q);
   }
@@ -1860,7 +1861,7 @@ void page_xfer(void){
 ** protocol handler.  Generate a reply on standard output.
 **
 ** This command was original created to help debug the server side of
-** sync messages.  The XFERFILE is the uncompressed content of an 
+** sync messages.  The XFERFILE is the uncompressed content of an
 ** "xfer" HTTP request from client to server.  This command interprets
 ** that message and generates the content of an HTTP reply (without any
 ** encoding and without the HTTP reply headers) and writes that reply
@@ -1928,6 +1929,7 @@ static const char zBriefFormat[] =
 #define SYNC_NOHTTPCOMPRESS 0x04000    /* Do not compression HTTP messages */
 #define SYNC_ALLURL         0x08000    /* The --all flag - sync to all URLs */
 #define SYNC_SHARE_LINKS    0x10000    /* Request alternate repo links */
+#define SYNC_XVERBOSE       0x20000    /* Extra verbose.  Network traffic */
 #endif
 
 /*
@@ -2261,7 +2263,9 @@ int client_sync(
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
 
-    if( syncFlags & SYNC_VERBOSE ){
+    if( (syncFlags & SYNC_VERBOSE)!=0
+     && (syncFlags & SYNC_XVERBOSE)==0
+    ){
       fossil_print("waiting for server...");
     }
     fflush(stdout);
@@ -2274,6 +2278,9 @@ int client_sync(
     }
     if( syncFlags & SYNC_NOHTTPCOMPRESS ){
       mHttpFlags |= HTTP_NOCOMPRESS;
+    }
+    if( syncFlags & SYNC_XVERBOSE ){
+      mHttpFlags |= HTTP_VERBOSE;
     }
 
     /* Do the round-trip to the server */
@@ -2523,7 +2530,7 @@ int client_sync(
             "         sufficient permission on the server\n"
           );
           uvPullOnly = 2;
-        }          
+        }
         if( iStatus<=3 || uvPullOnly ){
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
         }else if( iStatus==4 ){
@@ -2640,7 +2647,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
         /*   pragma server-version VERSION ?DATE? ?TIME?
         **
-        ** The servger announces to the server what version of Fossil it
+        ** The server announces to the server what version of Fossil it
         ** is running.  The DATE and TIME are a pure numeric ISO8601 time
         ** for the specific check-in of the client.
         */
@@ -2655,7 +2662,7 @@ int client_sync(
         /*   pragma uv-pull-only
         **   pragma uv-push-ok
         **
-        ** If the server is unwill to accept new unversioned content (because
+        ** If the server is unwilling to accept new unversioned content (because
         ** this client lacks the necessary permissions) then it sends a
         ** "uv-pull-only" pragma so that the client will know not to waste
         ** bandwidth trying to upload unversioned content.  If the server

@@ -338,7 +338,7 @@ void secaudit0_page(void){
   */
   if( hasAnyCap(zAnonCap, "lq5") ){
     @ <li><p><b>WARNING:</b>
-    @ Anonymous users can act as moderators for wiki, tickets, or 
+    @ Anonymous users can act as moderators for wiki, tickets, or
     @ forum posts. This defeats the whole purpose of moderation.
     @ Fix this by removing the "Mod-Wiki", "Mod-Tkt", and "Mod-Forum"
     @ privileges (<a href="%R/setup_ucap_list">capabilities</a> "fq5")
@@ -355,7 +355,7 @@ void secaudit0_page(void){
     @ clone operation.  See the the <a href="%R/xfersetup">/xfersetup</a>
     @ page for more information.  These TH1 scripts are a potential
     @ security concern and so should be carefully audited by a human.
-  } 
+  }
 
   /* The strict-manifest-syntax setting should be on. */
   if( db_get_boolean("strict-manifest-syntax",1)==0 ){
@@ -584,7 +584,7 @@ void secaudit0_page(void){
       @ Load average limiting is turned off.  This can cause the server
       @ to bog down if many requests for expensive services (such as
       @ large diffs or tarballs) arrive at about the same time.
-      @ To fix this, set the 
+      @ To fix this, set the
       @ <a href='%R/setup_access#slal'>"Server Load Average Limit"</a> on the
       @ <a href='%R/setup_access'>Access Control</a> page to the approximate
       @ the number of available cores on your server, or maybe just a little
@@ -606,7 +606,7 @@ void secaudit0_page(void){
       @ make an entry like "errorlog: <i>FILENAME</i>" in the
       @ CGI script at %h(P("SCRIPT_FILENAME")).
     }else{
-      @ add the "--errorlog <i>FILENAME</i>" option to the 
+      @ add the "--errorlog <i>FILENAME</i>" option to the
       @ "%h(g.argv[0]) %h(g.zCmdName)" command that launched this server.
     }
   }else{
@@ -637,7 +637,7 @@ void secaudit0_page(void){
 
   if( fileedit_glob()!=0 ){
     @ <li><p><a href='%R/fileedit'>Online File Editing</a> is enabled
-    @ for this repository.  Clear the 
+    @ for this repository.  Clear the
     @ <a href='%R/setup_settings'>"fileedit-glob" setting</a> to
     @ disable online editing.</p>
   }
@@ -653,7 +653,7 @@ void secaudit0_page(void){
     @ automatically insert an appropriate CSP if you let it generate the
     @ HTML <tt>&lt;head&gt;</tt> element by omitting <tt>&lt;body&gt;</tt>
     @ from the header configuration in your customized skin.
-    @ 
+    @
   }else{
     int ii;
     @ <li><p> Content Security Policy:
@@ -789,7 +789,7 @@ void errorlog_page(void){
     @ errorlog: <i>FILENAME</i>
     @ </pre></blockquote>
     @ <li><p>
-    @ If the server is running using one of 
+    @ If the server is running using one of
     @ the "fossil http" or "fossil server" commands then add
     @ a command-line option "--errorlog <i>FILENAME</i>" to that
     @ command.
@@ -797,7 +797,7 @@ void errorlog_page(void){
     style_finish_page();
     return;
   }
-  if( P("truncate1") && cgi_csrf_safe(1) ){
+  if( P("truncate1") && cgi_csrf_safe(2) ){
     fclose(fopen(g.zErrlog,"w"));
   }
   if( P("download") ){
@@ -810,6 +810,7 @@ void errorlog_page(void){
   szFile = file_size(g.zErrlog, ExtFILE);
   if( P("truncate") ){
     @ <form action="%R/errorlog" method="POST">
+    login_insert_csrf_secret();
     @ <p>Confirm that you want to truncate the %,lld(szFile)-byte error log:
     @ <input type="submit" name="truncate1" value="Confirm">
     @ <input type="submit" name="cancel" value="Cancel">

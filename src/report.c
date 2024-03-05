@@ -473,12 +473,11 @@ void view_edit(void){
   zMimetype = P("m");
   zTag = P("x");
   report_update_reportfmt_table();
-  if( rn>0 && P("del2") ){
-    login_verify_csrf_secret();
+  if( rn>0 && P("del2") && cgi_csrf_safe(2) ){
     db_multi_exec("DELETE FROM reportfmt WHERE rn=%d", rn);
     cgi_redirect("reportlist");
     return;
-  }else if( rn>0 && P("del1") ){
+  }else if( rn>0 && P("del1") && cgi_csrf_safe(2) ){
     zTitle = db_text(0, "SELECT title FROM reportfmt "
                          "WHERE rn=%d", rn);
     if( zTitle==0 ) cgi_redirect("reportlist");
@@ -516,8 +515,7 @@ void view_edit(void){
     ){
       zErr = mprintf("There is already another report named \"%h\"", zTitle);
     }
-    if( zErr==0 ){
-      login_verify_csrf_secret();
+    if( zErr==0 && cgi_csrf_safe(2) ){
       if( zTag && zTag[0]==0 ) zTag = 0;
       if( zDesc && zDesc[0]==0 ){ zDesc = 0; zMimetype = 0; }
       if( zMimetype && zMimetype[0]==0 ){ zDesc = 0; zMimetype = 0; }
@@ -1130,7 +1128,7 @@ void rptview_page_content(
   Stmt q;
   char *zErr1 = 0;
   char *zErr2 = 0;
-  
+
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   report_update_reportfmt_table();
@@ -1372,7 +1370,8 @@ void rptshow(
   int count = 0;
   int rn;
 
-  if( !zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
+  if( !zRep || !strcmp(zRep,zFullTicketRptRn)
+      || !strcmp(zRep,zFullTicketRptTitle) ){
     zSql = "SELECT * FROM ticket";
   }else{
     rn = atoi(zRep);

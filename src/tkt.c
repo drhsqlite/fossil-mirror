@@ -452,7 +452,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   getAllTicketFields();
   if( haveTicket==0 ) return;
   tktid = db_int(0, "SELECT tkt_id FROM ticket WHERE tkt_uuid=%Q", zTktUuid);
-  search_doc_touch('t', tktid, 0);
+  if( tktid!=0 ) search_doc_touch('t', tktid, 0);
   if( haveTicketChng ){
     db_multi_exec("DELETE FROM ticketchng WHERE tkt_id=%d;", tktid);
   }
@@ -473,6 +473,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
     createFlag = 0;
   }
   db_finalize(&q);
+  search_doc_touch('t', tktid, 0);
   /* Extract backlinks from the most recent values of TICKET fields */
   for(i=0; i<nField; i++){
     Blob *cards = fields + i;
@@ -558,7 +559,7 @@ static int ticket_schema_auth(
       ){
         goto ticket_schema_error;
       }
-      if( sqlite3_strnicmp(z0,"ticket",6)!=0 
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0
        && sqlite3_strnicmp(z0,"fx_",3)!=0
       ){
         goto ticket_schema_error;
@@ -866,7 +867,7 @@ static int ticket_put(
       rid, zTktId
     );
   }else{
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_add_unsent(rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
@@ -902,7 +903,10 @@ static int submitTicketCmd(
   Blob tktchng, cksum;
   int needMod;
 
-  login_verify_csrf_secret();
+  if( !cgi_csrf_safe(2) ){
+    @ <p class="generalError">Error: Invalid CSRF token.</p>
+    return TH_OK;
+  }
   if( !captcha_is_correct(0) ){
     @ <p class="generalError">Error: Incorrect security code.</p>
     return TH_OK;
@@ -1017,7 +1021,6 @@ void tktnew_page(void){
   initializeVariablesFromDb();
   if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
-  login_insert_csrf_secret();
   if( P("date_override") && g.perm.Setup ){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
@@ -1107,7 +1110,6 @@ void tktedit_page(void){
   if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)">
-  login_insert_csrf_secret();
   zScript = ticket_editpage_code();
   Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
@@ -1213,7 +1215,7 @@ void tkt_draw_timeline(int tagid, const char *zType){
 ** URL: /tkttimeline/TICKETUUID
 **
 ** Show the change history for a single ticket in timeline format.
-** 
+**
 ** Query parameters:
 **
 **     y=ci          Show only check-ins associated with the ticket

@@ -174,7 +174,7 @@ static struct DbLocalData {
   unsigned aProtect[12];    /* Saved values of protectMask */
 } db = {
   PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
-  0, 0, 0, 0, 0, 0, };
+  0, 0, 0, 0, 0, 0, 0, {{0}}, {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0}};
 
 /*
 ** Arrange for the given file to be deleted on a failure.
@@ -459,7 +459,7 @@ void db_protect_only(unsigned flags){
     fossil_panic("too many db_protect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  if( (flags & PROTECT_SENSITIVE)!=0 
+  if( (flags & PROTECT_SENSITIVE)!=0
    && db.bProtectTriggers==0
    && g.repositoryOpen
   ){
@@ -1559,9 +1559,9 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "url_nouser", 1, SQLITE_UTF8, 0,
                           url_nouser_func,0,0);
   sqlite3_create_function(db, "chat_msg_from_event", 4,
-        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0, 
+        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
-                           
+
 }
 
 #if USE_SEE
@@ -2491,7 +2491,7 @@ static int isValidLocalDb(const char *zDbName){
     }
   }
 
-  /* The design of the check-out database changed on 2019-01-19, adding the mhash
+  /* The design of the check-out database changed on 2019-01-19 adding the mhash
   ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
   ** a PRIMARY KEY that includes the new mhash column.  However, we must have
   ** the repository database at hand in order to do the migration, so that
@@ -2543,7 +2543,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
           zPwd[n] = 0;
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
-        g.localOpen = db_lget_int("checkout", -1);
+        g.localOpen = 1;
         db_open_repository(zDbName);
         return 1;
       }
@@ -2608,7 +2608,7 @@ int db_looks_like_a_repository(const char *zDbName){
   db = db_open(zDbName);
   if( !db ) return 0;
   if( !g.zVfsName && sz%512 ) return 0;
-  rc = sqlite3_prepare_v2(db, 
+  rc = sqlite3_prepare_v2(db,
        "SELECT count(*) FROM sqlite_schema"
        " WHERE name COLLATE nocase IN"
        "('blob','delta','rcvfrom','user','config','mlink','plink');",
@@ -3302,6 +3302,7 @@ void create_repository_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
+  hash_user_password(g.zLogin);
 }
 
 /*
@@ -3717,7 +3718,8 @@ char *db_get(const char *zName, const char *zDefault){
   }
   return z;
 }
-char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
+char *db_get_mtime(const char *zName, const char *zFormat,
+                   const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
@@ -3730,7 +3732,17 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
   return z;
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
+  const CmdOrPage *pCmd = 0;
   db_assert_protection_off_or_not_sensitive(zName);
+  if( zValue!=0 && zValue[0]==0
+   && dispatch_name_search(zName, CMDFLAG_SETTING, &pCmd)==0
+   && (pCmd->eCmdFlags & CMDFLAG_KEEPEMPTY)==0
+  ){
+    /* Changing a setting to an empty string is the same as unsetting it,
+    ** unless that setting has the keep-empty flag. */
+    db_unset(zName/*works-like:"x"*/, globalFlag);
+    return;
+  }
   db_unprotect(PROTECT_CONFIG);
   db_begin_transaction();
   if( globalFlag ){
@@ -4012,7 +4024,7 @@ void db_record_repository_filename(const char *zName){
   (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
-  
+
   db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
      "DELETE FROM global_config WHERE name %s = %Q;",
@@ -4089,7 +4101,7 @@ void db_record_repository_filename(const char *zName){
 **                     with the local repository. If you commit this check-out,
 **                     it will become a new "initial" commit in the repository.
 **   -f|--force        Continue with the open even if the working directory is
-**                     not empty
+**                     not empty, or if auto-sync fails.
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest file(s)
 **   --nested          Allow opening a repository inside an opened check-out
@@ -4100,8 +4112,6 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last check-in which modified
 **                     them).
-**   --sync            Auto-sync prior to opening even if the autosync setting
-**                     is off
 **   --verbose         If passed a URI then this flag is passed on to the clone
 **                     operation, otherwise it has no effect
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
@@ -4178,7 +4188,7 @@ void cmd_open(void){
   ){
     fossil_fatal("directory %s is not empty\n"
                  "use the -f (--force) option to override\n"
-                 "or the -k (--keep) option to keep local files unchanged", 
+                 "or the -k (--keep) option to keep local files unchanged",
                  file_getcwd(0,0));
   }
 
@@ -4288,8 +4298,24 @@ void cmd_open(void){
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
 */
-void print_setting(const Setting *pSetting){
+void print_setting(const Setting *pSetting, int valueOnly){
   Stmt q;
+  int versioned = 0;
+  if( pSetting->versionable && g.localOpen ){
+    /* Check to see if this is overridden by a versionable settings file */
+    Blob versionedPathname;
+    blob_zero(&versionedPathname);
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                 g.zLocalRoot, pSetting->name);
+    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
+      versioned = 1;
+    }
+    blob_reset(&versionedPathname);
+  }
+  if( valueOnly && versioned ){
+    fossil_print("%s\n", db_get_versioned(pSetting->name, NULL));
+    return;
+  }
   if( g.repositoryOpen ){
     db_prepare(&q,
        "SELECT '(local)', value FROM config WHERE name=%Q"
@@ -4304,22 +4330,20 @@ void print_setting(const Setting *pSetting){
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
-        db_column_text(&q, 1));
+    if( valueOnly ){
+      fossil_print("%s\n", db_column_text(&q, 1));
+    }else{
+      fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
+          db_column_text(&q, 1));
+    }
+  }else if( valueOnly ){
+    fossil_print("\n");
   }else{
     fossil_print("%-20s\n", pSetting->name);
   }
-  if( pSetting->versionable && g.localOpen ){
-    /* Check to see if this is overridden by a versionable settings file */
-    Blob versionedPathname;
-    blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
-                 g.zLocalRoot, pSetting->name);
-    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
-                   pSetting->name);
-    }
-    blob_reset(&versionedPathname);
+  if( versioned ){
+    fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
+                 pSetting->name);
   }
   db_finalize(&q);
 }
@@ -4370,7 +4394,7 @@ struct Setting {
 /*
 ** SETTING: allow-symlinks  boolean default=off sensitive
 **
-** When allow-symlinks is OFF, Fossil does not see symbolic links 
+** When allow-symlinks is OFF, Fossil does not see symbolic links
 ** (a.k.a "symlinks") on disk as a separate class of object.  Instead Fossil
 ** sees the object that the symlink points to.  Fossil will only manage files
 ** and directories, not symlinks.  When a symlink is added to a repository,
@@ -4428,7 +4452,7 @@ struct Setting {
 /*
 ** SETTING: auto-hyperlink-mouseover  boolean default=off
 **
-** When the auto-hyperlink setting is 1 and this setting is on, the 
+** When the auto-hyperlink setting is 1 and this setting is on, the
 ** javascript that runs to set the href= attributes of hyperlinks waits
 ** until either a mousedown or mousemove event is seen.  This helps
 ** to distinguish real users from robots. For maximum robot defense,
@@ -4452,6 +4476,8 @@ struct Setting {
 **
 **    pullonly               Only to pull autosyncs
 **
+**    all                    Sync with all remotes
+**
 **    on,open=off            Autosync for most commands, but not for "open"
 **
 **    off,commit=pullonly    Do not autosync, except do a pull before each
@@ -4461,6 +4487,9 @@ struct Setting {
 ** The syntax is a comma-separated list of VALUE and COMMAND=VALUE entries.
 ** A plain VALUE entry is the default that is used if no COMMAND matches.
 ** Otherwise, the VALUE of the matching command is used.
+**
+** The "all" value is special in that it applies to the "sync" command in
+** addition to "commit", "merge", "open", and "update".
 */
 /*
 ** SETTING: autosync-tries  width=16 default=1
@@ -4568,7 +4597,7 @@ struct Setting {
 ** This is an alias for the crlf-glob setting.
 */
 /*
-** SETTING: default-perms   width=16 default=u sensitive
+** SETTING: default-perms   width=16 default=u sensitive keep-empty
 ** Permissions given automatically to new users.  For more
 ** information on permissions see the Users page in Server
 ** Administration of the HTTP UI.
@@ -4647,10 +4676,17 @@ struct Setting {
 ** SETTING: forbid-delta-manifests    boolean default=off
 ** If enabled on a client, new delta manifests are prohibited on
 ** commits.  If enabled on a server, whenever a client attempts
-** to obtain a check-in lock during auto-sync, the server will 
+** to obtain a check-in lock during auto-sync, the server will
 ** send the "pragma avoid-delta-manifests" statement in its reply,
 ** which will cause the client to avoid generating a delta
 ** manifest.
+*/
+/*
+** SETTING: forum-close-policy    boolean default=off
+** If true, forum moderators may close/re-open forum posts, and reply
+** to closed posts. If false, only administrators may do so. Note that
+** this only affects the forum web UI, not post-closing tags which
+** arrive via the command-line or from synchronization with a remote.
 */
 /*
 ** SETTING: gdiff-command    width=40 default=gdiff sensitive
@@ -4943,7 +4979,7 @@ struct Setting {
 ** whatsoever.
 */
 /*
-** SETTING: default-csp      width=40 block-text
+** SETTING: default-csp      width=40 block-text keep-empty
 **
 ** The text of the Content Security Policy that is included
 ** in the Content-Security-Policy: header field of the HTTP
@@ -4981,7 +5017,7 @@ struct Setting {
 ** SETTING: large-file-size     width=10 default=200000000
 ** Fossil considers any file whose size is greater than this value
 ** to be a "large file".  Fossil might issue warnings if you try to
-** "add" or "commit" a "large file".  Set this value to 0 or less 
+** "add" or "commit" a "large file".  Set this value to 0 or less
 ** to disable all such warnings.
 */
 
@@ -5046,6 +5082,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 **   --global   Set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only
 **   --exact    Only consider exact name matches
+**   --value    Only show the value of a given property (implies --exact)
 **
 ** See also: [[configuration]]
 */
@@ -5053,6 +5090,7 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
+  int valueFlag = find_option("value",0,0)!=0;
   /* Undocumented "--test-for-subsystem SUBSYS" option used to test
   ** the db_get_for_subsystem() interface: */
   const char *zSubsys = find_option("test-for-subsystem",0,1);
@@ -5071,10 +5109,16 @@ void setting_cmd(void){
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }
+  if( valueFlag ){
+    if( g.argc!=3 ){
+      fossil_fatal("--value is only supported when qurying a given property");
+    }
+    exactFlag = 1;
+  }
 
   if( g.argc==2 ){
     for(i=0; i<nSetting; i++){
-      print_setting(&aSetting[i]);
+      print_setting(&aSetting[i], 0);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -5129,7 +5173,7 @@ void setting_cmd(void){
           }
           fossil_print("\n");
         }else{
-          print_setting(pSetting);
+          print_setting(pSetting, valueFlag);
         }
         pSetting++;
       }
@@ -5198,7 +5242,7 @@ void test_timespan_cmd(void){
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
 **
 ** Options:
-**    -n|--dry-run  	No changes.  Just print what would happen.
+**    -n|--dry-run     No changes.  Just print what would happen.
 */
 void test_without_rowid(void){
   int i, j;
@@ -5452,4 +5496,11 @@ int db_fingerprint_ok(void){
   }
   fossil_free(zCkout);
   return rc;
+}
+
+/*
+** Adds the given rid to the UNSENT table.
+*/
+void db_add_unsent(int rid){
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", rid);
 }

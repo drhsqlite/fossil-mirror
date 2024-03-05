@@ -1,5 +1,4 @@
 <title>Fossil Concepts</title>
-<h1 align="center">Fossil Concepts</h1>
 
 <h2>1.0 Introduction</h2>
 
@@ -117,13 +116,13 @@ same artifact ID.
 
 Artifact IDs look something like this:
 
-<blockquote><b>
-6089f0b563a9db0a6d90682fe47fd7161ff867c8<br>
-59712614a1b3ccfd84078a37fa5b606e28434326<br>
-19dbf73078be9779edd6a0156195e610f81c94f9<br>
-b4104959a67175f02d6b415480be22a239f1f077<br>
+<pre>
+6089f0b563a9db0a6d90682fe47fd7161ff867c8
+59712614a1b3ccfd84078a37fa5b606e28434326
+19dbf73078be9779edd6a0156195e610f81c94f9
+b4104959a67175f02d6b415480be22a239f1f077
 997c9d6ae03ad114b2b57f04e9eeef17dcb82788
-</b></blockquote>
+</pre>
 
 When referring to an artifact using Fossil, you can use a unique
 prefix of the artifact ID that is four characters or longer.  This saves
@@ -241,9 +240,7 @@ To use Fossil, simply type the name of the executable in your
 shell, followed by one of the various built-in commands and
 arguments appropriate for that command.  For example:
 
-<blockquote><b>
-fossil help
-</b></blockquote>
+<pre>fossil help</pre>
 
 In the next section, when we say things like "use the <b>help</b>
 command" we mean to use the command name "help" as the first
@@ -284,11 +281,11 @@ The default setting for Fossil is to be in autosync mode.  You
 can change the autosync setting or check the current autosync
 setting using commands like:
 
-<blockquote>
-<b>fossil setting autosync on<br>
-fossil setting autosync off<br>
-<b>fossil settings</b>
-</blockquote>
+<pre>
+fossil setting autosync on
+fossil setting autosync off
+fossil settings
+</pre>
 
 By default, Fossil runs with autosync mode turned on.  The
 authors finds that projects run more smoothly in autosync mode since

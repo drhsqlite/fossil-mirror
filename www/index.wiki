@@ -1,9 +1,9 @@
-<title>Home</title>
+<title>A Coherent Software Configuration Management System</title>
 
-<h3>What Is Fossil?</h3>
+<h3>What Is It?</h3>
 
-<div style='float:right;border:2px solid #446979;padding:0 15px 10px 0;margin:0 0 10px 10px;'>
-<ul style='margin-left: -10px;'>
+<div class="nomargins" style='float:right;border:2px solid #446979;padding:0 15px 10px 0;margin:0 50px 0 10px'>
+<ul>
 <li> [/uv/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
@@ -19,10 +19,11 @@
 <p style="text-align:center"><img src="fossil3.gif" alt="Fossil logo"></p>
 </div>
 
-Fossil is a simple, high-reliability, distributed software configuration
-management system with these advanced features:
+Fossil is a simple, high-reliability, distributed
+[https://en.wikipedia.org/wiki/Software_configuration_management | SCM]
+system with these advanced features:
 
-  1.  <b>Project Management</b> -
+  1.  <b>Project Management</b> —
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
@@ -30,7 +31,7 @@ management system with these advanced features:
       [./alerts.md|email alerts], [./chat.md | chat], and
       [./event.wiki | technotes].
 
-  2.  <b>Built-in Web Interface</b> -
+  2.  <b>Built-in Web Interface</b> —
       Fossil has a built-in, [/skins | themeable], [./serverext.wiki | extensible],
       and intuitive [./webui.wiki | web interface]
       with a rich variety of information pages
@@ -43,9 +44,9 @@ management system with these advanced features:
       [./unvers.wiki | unversioned files].
       When you clone Fossil from one of its
       [./selfhost.wiki | self-hosting repositories],
-      you get more than just source code - you get this entire website.
+      you get more than just source code — you get this entire website.
 
-  3.  <b>All-in-one</b> -
+  3.  <b>All-in-one</b> —
       Fossil is a single self-contained, stand-alone executable.
       To install, simply download a
       [/uv/download.html | precompiled binary]
@@ -53,14 +54,14 @@ management system with these advanced features:
       [./build.wiki | Easy-to-compile source code] is also available.
 
 
-  4.  <b>Self-host Friendly</b> - Stand up a project website
+  4.  <b>Self-host Friendly</b> — Stand up a project website
       in minutes using [./server/ | a variety of techniques].
       Fossil is CPU and memory efficient. Most projects can be
       hosted comfortably on a $5/month VPS or a Raspberry Pi.
       You can also set up an automatic
       [./mirrortogithub.md | GitHub mirror].
 
-  5.  <b>Simple Networking</b> -
+  5.  <b>Simple Networking</b> —
       Fossil uses ordinary HTTPS (or SSH if you prefer)
       for network communications, so it works fine from behind
       firewalls and [./quickstart.wiki#proxy|proxies].
@@ -68,29 +69,29 @@ management system with these advanced features:
       [./stats.wiki | bandwidth efficient] to the point that Fossil can be
       used comfortably over dial-up, weak 3G, or airliner Wifi.
 
-  6.  <b>Autosync</b> -
+  6.  <b>Autosync</b> —
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]
       which helps to keep projects moving
       forward by reducing the amount of needless
       [./branching.wiki | forking and merging] often
       associated with distributed projects.
 
-  7.  <b>Robust &amp; Reliable</b> -
+  7.  <b>Robust &amp; Reliable</b> —
       Fossil stores content using an [./fileformat.wiki | enduring file format]
       in an SQLite database so that transactions are
       atomic even if interrupted by a power loss or system crash.
       Automatic [./selfcheck.wiki | self-checks] verify that all aspects of
       the repository are consistent prior to each commit.
 
-  8.  <b>Free and Open-Source</b> - [../COPYRIGHT-BSD2.txt|2-clause BSD license].
+  8.  <b>Free and Open-Source</b> — [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Latest Release: 2.22 ([/timeline?c=version-2.22|2023-05-31])</h3>
+<h3>Latest Release: 2.23 ([/timeline?c=version-2.23|2023-11-01])</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_22|Change Summary]
-  *  [/timeline?p=version-2.22&bt=version-2.21&y=ci|Check-ins in version 2.22]
-  *  [/timeline?df=version-2.22&y=ci|Check-ins derived from the 2.22 release]
+  *  [./changes.wiki#v2_23|Change Summary]
+  *  [/timeline?p=version-2.23&bt=version-2.22&y=ci|Check-ins in version 2.23]
+  *  [/timeline?df=version-2.23&y=ci|Check-ins derived from the 2.23 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
 <hr>

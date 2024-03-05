@@ -118,6 +118,31 @@ void hyperlinked_path(
   }
 }
 
+/*
+** WEBPAGE: docdir
+**
+** Show the files and subdirectories within a single directory of the
+** source tree.  This works similarly to /dir but with the following
+** differences:
+**
+**    *   Links to files go to /doc (showing the file content directly,
+**        depending on mimetype) rather than to /file (which always shows
+**        the file embedded in a standard Fossil page frame).
+**
+**    *   The submenu and the page title is now show.  The page is plain.
+**
+** The /docdir page is a shorthand for /dir with the "dx" query parameter.
+**
+** Query parameters:
+**
+**    ci=LABEL         Show only files in this check-in.  If omitted, the
+**                     "trunk" directory is used.
+**    name=PATH        Directory to display.  Optional.  Top-level if missing
+**    re=REGEXP        Show only files matching REGEXP
+**    noreadme         Do not attempt to display the README file.
+**    dx               File links to go to /doc instead of /file or /finfo.
+*/
+void page_docdir(void){ page_dir(); }
 
 /*
 ** WEBPAGE: dir
@@ -135,6 +160,7 @@ void hyperlinked_path(
 **    type=TYPE        TYPE=flat: use this display
 **                     TYPE=tree: use the /tree display instead
 **    noreadme         Do not attempt to display the README file.
+**    dx               Behave like /docdir
 */
 void page_dir(void){
   char *zD = fossil_strdup(P("name"));
@@ -155,6 +181,7 @@ void page_dir(void){
   char *zHeader = 0;
   const char *zRegexp;    /* The re= query parameter */
   char *zMatch;           /* Extra title text describing the match */
+  int bDocDir = PB("dx") || strncmp(g.zPath, "docdir", 6)==0;
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
@@ -169,6 +196,7 @@ void page_dir(void){
   ** specific check-in does not exist, clear zCI.  zCI==0 will cause all
   ** files from all check-ins to be displayed.
   */
+  if( bDocDir && zCI==0 ) zCI = "trunk";
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
@@ -178,6 +206,7 @@ void page_dir(void){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
+      if( bDocDir ) zCI = mprintf("%S", zUuid);
       Th_Store("current_checkin", zCI);
     }else{
       zCI = 0;
@@ -211,10 +240,13 @@ void page_dir(void){
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "dir");
+  cgi_check_for_malice();
   cgi_query_parameters_to_url(&sURI);
 
   /* Compute the title of the page */
-  if( zD ){
+  if( bDocDir ){
+    zPrefix = zD ? mprintf("%s/",zD) : "";
+  }else if( zD ){
     Blob dirname;
     blob_init(&dirname, 0, 0);
     hyperlinked_path(zD, &dirname, zCI, "dir", "", 0);
@@ -228,7 +260,9 @@ void page_dir(void){
     zPrefix = "";
   }
   if( zCI ){
-    if( fossil_strcmp(zCI,"tip")==0 ){
+    if( bDocDir ){
+      /* No header for /docdir.  Just give the list of files. */
+    }else if( fossil_strcmp(zCI,"tip")==0 ){
       @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a>\
       @ %s(zMatch)</h2>
     }else if( isBranchCI ){
@@ -239,27 +273,33 @@ void page_dir(void){
       @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a>\
       @ %s(zMatch)</h2>
     }
-    zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
-    if( nD==0 ){
+    if( bDocDir ){
+      zSubdirLink = mprintf("%R/docdir?ci=%T&name=%T", zCI, zPrefix);
+    }else{
+      zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
+    }
+    if( nD==0 && !bDocDir ){
       style_submenu_element("File Ages", "%R/fileage?name=%T", zCI);
     }
   }else{
     @ in any check-in</h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
-  if( linkTrunk ){
+  if( linkTrunk && !bDocDir ){
     style_submenu_element("Trunk", "%s",
                           url_render(&sURI, "ci", "trunk", 0, 0));
   }
-  if( linkTip ){
+  if( linkTip && !bDocDir ){
     style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
-  if( zD ){
+  if( zD && !bDocDir ){
     style_submenu_element("History","%R/timeline?chng=%T/*", zD);
   }
-  style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
-  style_submenu_element("Tree-View", "%s",
-                        url_render(&sURI, "type", "tree", 0, 0));
+  if( !bDocDir ){
+    style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
+    style_submenu_element("Tree-View", "%s",
+                          url_render(&sURI, "type", "tree", 0, 0));
+  }
 
   /* Compute the temporary table "localfiles" containing the names
   ** of all files and subdirectories in the zD[] directory.
@@ -272,50 +312,38 @@ void page_dir(void){
      "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
   );
   if( zCI ){
-    Stmt ins;
-    ManifestFile *pFile;
-    ManifestFile *pPrev = 0;
-    int nPrev = 0;
-    int c;
-
-    db_prepare(&ins,
-       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u)"
-    );
-    manifest_file_rewind(pM);
-    while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0
-       && (fossil_strncmp(pFile->zName, zD, nD-1)!=0
-           || pFile->zName[nD-1]!='/')
-      ){
-        continue;
-      }
-      if( pPrev
-       && fossil_strncmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
-       && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
-      ){
-        continue;
-      }
-      db_bind_text(&ins, ":x", &pFile->zName[nD]);
-      db_bind_text(&ins, ":u", pFile->zUuid);
-      db_step(&ins);
-      db_reset(&ins);
-      pPrev = pFile;
-      for(nPrev=0; (c=pPrev->zName[nD+nPrev]) && c!='/'; nPrev++){}
-      if( c=='/' ) nPrev++;
+    /* Files in the specific checked given by zCI */
+    if( zD ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(filename,%d), uuid"
+        "   FROM files_of_checkin(%Q)"
+        "  WHERE filename GLOB '%q/*'",
+        nD, zCI, zD
+      );
+    }else{
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(filename,%d), uuid"
+        "   FROM files_of_checkin(%Q)",
+        nD, zCI
+      );
     }
-    db_finalize(&ins);
-  }else if( zD ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,%d), NULL FROM filename"
-      "  WHERE name GLOB '%q/*'",
-      nD, zD
-    );
   }else{
-    db_multi_exec(
-      "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,0), NULL FROM filename"
-    );
+    /* All files across all check-ins */
+    if( zD ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,%d), NULL FROM filename"
+        "  WHERE name GLOB '%q/*'",
+        nD, zD
+      );
+    }else{
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,0), NULL FROM filename"
+      );
+    }
   }
 
   /* If the re=REGEXP query parameter is present, filter out names that
@@ -332,7 +360,7 @@ void page_dir(void){
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT x, u FROM localfiles ORDER BY x COLLATE uintnocase /*scan*/");
   @ <div class="columns files" style="columns: %d(mxLen)ex auto">
   @ <ul class="browser">
@@ -344,7 +372,9 @@ void page_dir(void){
       @ <li class="dir">%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
     }else{
       const char *zLink;
-      if( zCI ){
+      if( bDocDir ){
+        zLink = href("%R/doc/%T/%T%T", zCI, zPrefix, zFN);
+      }else if( zCI ){
         zLink = href("%R/file?name=%T%T&ci=%T",zPrefix,zFN,zCI);
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
@@ -443,6 +473,9 @@ struct FileTreeNode {
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
+  double sortBy;            /* Either mtime or size, depending on desired
+                               sort order */
+  int iSize;                /* Size for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
 };
@@ -472,7 +505,9 @@ static void tree_add_node(
   FileTree *pTree,         /* Tree into which nodes are added */
   const char *zPath,       /* The full pathname of file to add */
   const char *zUuid,       /* Hash of the file.  Might be NULL. */
-  double mtime             /* Modification time for this entry */
+  double mtime,            /* Modification time for this entry */
+  int size,                /* Size for this entry */
+  int sortOrder            /* 0: filename, 1: mtime, 2: size */
 ){
   int i;
   FileTreeNode *pParent;   /* Parent (directory) of the next node to insert */
@@ -526,6 +561,12 @@ static void tree_add_node(
       pTree->pLastTop = pNew;
     }
     pNew->mtime = mtime;
+    pNew->iSize = size;
+    if( sortOrder ){
+      pNew->sortBy = sortOrder==1 ? mtime : (double)size;
+    }else{
+      pNew->sortBy = 0.0;
+    }
     while( zPath[i]=='/' ){ i++; }
     pParent = pNew;
   }
@@ -538,15 +579,18 @@ static void tree_add_node(
 }
 
 /* Comparison function for two FileTreeNode objects.  Sort first by
-** mtime (larger numbers first) and then by zName (smaller names first).
+** sortBy (larger numbers first) and then by zName (smaller names first).
+**
+** The sortBy field will be the same as mtime in order to sort by time,
+** or the same as iSize to sort by file size.
 **
 ** Return negative if pLeft<pRight.
 ** Return positive if pLeft>pRight.
 ** Return zero if pLeft==pRight.
 */
 static int compareNodes(FileTreeNode *pLeft, FileTreeNode *pRight){
-  if( pLeft->mtime>pRight->mtime ) return -1;
-  if( pLeft->mtime<pRight->mtime ) return +1;
+  if( pLeft->sortBy>pRight->sortBy ) return -1;
+  if( pLeft->sortBy<pRight->sortBy ) return +1;
   return fossil_stricmp(pLeft->zName, pRight->zName);
 }
 
@@ -572,8 +616,8 @@ static FileTreeNode *mergeNodes(FileTreeNode *pLeft,  FileTreeNode *pRight){
   return base.pSibling;
 }
 
-/* Sort a list of FileTreeNode objects in mtime order. */
-static FileTreeNode *sortNodesByMtime(FileTreeNode *p){
+/* Sort a list of FileTreeNode objects in sortmtime order. */
+static FileTreeNode *sortNodes(FileTreeNode *p){
   FileTreeNode *a[30];
   FileTreeNode *pX;
   int i;
@@ -605,12 +649,12 @@ static FileTreeNode *sortNodesByMtime(FileTreeNode *p){
 **
 ** Use relinkTree to reconnect the pNext pointers.
 */
-static FileTreeNode *sortTreeByMtime(FileTreeNode *p){
+static FileTreeNode *sortTree(FileTreeNode *p){
   FileTreeNode *pX;
   for(pX=p; pX; pX=pX->pSibling){
-    if( pX->pChild ) pX->pChild = sortTreeByMtime(pX->pChild);
+    if( pX->pChild ) pX->pChild = sortTree(pX->pChild);
   }
-  return sortNodesByMtime(p);
+  return sortNodes(p);
 }
 
 /* Reconstruct the FileTree by reconnecting the FileTreeNode.pNext
@@ -649,7 +693,7 @@ static void relinkTree(FileTree *pTree, FileTreeNode *pRoot){
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
 **    expand           Begin with the tree fully expanded.
 **    nofiles          Show directories (folders) only.  Omit files.
-**    mtime            Order directory elements by decreasing mtime
+**    sort             0: by filename, 1: by mtime, 2: by size
 */
 void page_tree(void){
   char *zD = fossil_strdup(P("name"));
@@ -662,6 +706,7 @@ void page_tree(void){
   double rNow = 0;
   char *zNow = 0;
   int useMtime = atoi(PD("mtime","0"));
+  int sortOrder = atoi(PD("sort",useMtime?"1":"0"));
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
@@ -707,6 +752,7 @@ void page_tree(void){
     re_compile(&pRE, zRE, 0);
     zREx = mprintf("&re=%T", zRE);
   }
+  cgi_check_for_malice();
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
@@ -765,7 +811,14 @@ void page_tree(void){
   }else if( zRE ){
     blob_appendf(&dirname, "matching \"%s\"", zRE);
   }
-  style_submenu_binary("mtime","Sort By Time","Sort By Filename", 0);
+  {
+    static const char *const sort_orders[] = {
+       "0", "Sort By Filename",
+       "1", "Sort By Age",
+       "2", "Sort By Size"
+    };
+    style_submenu_multichoice("sort", 3, sort_orders, 0);
+  }
   if( zCI ){
     style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
@@ -788,7 +841,7 @@ void page_tree(void){
     Stmt q;
     compute_fileage(rid, 0);
     db_prepare(&q,
-       "SELECT filename.name, blob.uuid, fileage.mtime\n"
+       "SELECT filename.name, blob.uuid, blob.size, fileage.mtime\n"
        "  FROM fileage, filename, blob\n"
        " WHERE filename.fnid=fileage.fnid\n"
        "   AND blob.rid=fileage.fid\n"
@@ -797,12 +850,13 @@ void page_tree(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFile = db_column_text(&q,0);
       const char *zUuid = db_column_text(&q,1);
-      double mtime = db_column_double(&q,2);
+      int size = db_column_int(&q,2);
+      double mtime = db_column_double(&q,3);
       if( nD>0 && (fossil_strncmp(zFile, zD, nD-1)!=0 || zFile[nD-1]!='/') ){
         continue;
       }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
-      tree_add_node(&sTree, zFile, zUuid, mtime);
+      tree_add_node(&sTree, zFile, zUuid, mtime, size, sortOrder);
     }
     db_finalize(&q);
   }else{
@@ -811,6 +865,7 @@ void page_tree(void){
       "SELECT\n"
       "    (SELECT name FROM filename WHERE filename.fnid=mlink.fnid),\n"
       "    (SELECT uuid FROM blob WHERE blob.rid=mlink.fid),\n"
+      "    (SELECT size FROM blob WHERE blob.rid=mlink.fid),\n"
       "    max(event.mtime)\n"
       "  FROM mlink JOIN event ON event.objid=mlink.mid\n"
       " GROUP BY mlink.fnid\n"
@@ -818,12 +873,13 @@ void page_tree(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUuid = db_column_text(&q,1);
-      double mtime = db_column_double(&q,2);
+      int size = db_column_int(&q,2);
+      double mtime = db_column_double(&q,3);
       if( nD>0 && (fossil_strncmp(zName, zD, nD-1)!=0 || zName[nD-1]!='/') ){
         continue;
       }
       if( pRE && re_match(pRE, (const u8*)zName, -1)==0 ) continue;
-      tree_add_node(&sTree, zName, zUuid, mtime);
+      tree_add_node(&sTree, zName, zUuid, mtime, size, sortOrder);
     }
     db_finalize(&q);
   }
@@ -853,8 +909,10 @@ void page_tree(void){
     int n = db_int(0, "SELECT count(*) FROM plink");
     @ <h2>%s(zObjType) from all %d(n) check-ins %s(blob_str(&dirname))
   }
-  if( useMtime ){
+  if( sortOrder==1 ){
     @ sorted by modification time</h2>
+  }else if( sortOrder==2 ){
+    @ sorted by size</h2>
   }else{
     @ sorted by filename</h2>
   }
@@ -884,12 +942,13 @@ void page_tree(void){
   @ <div class="filetreeline">
   @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
   if( zNow ){
-    @ <div class="filetreeage">%s(zNow)</div>
+    @ <div class="filetreeage">Last Change</div>
+    @ <div class="filetreesize">Size</div>
   }
   @ </div>
   @ <ul>
-  if( useMtime ){
-    p = sortTreeByMtime(sTree.pFirst);
+  if( sortOrder ){
+    p = sortTree(sTree.pFirst);
     memset(&sTree, 0, sizeof(sTree));
     relinkTree(&sTree, p);
   }
@@ -902,6 +961,7 @@ void page_tree(void){
       if( p->mtime>0.0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
         @ <div class="filetreeage">%s(zAge)</div>
+        @ <div class="filetreesize"></div>
       }
       @ </div>
       if( startExpanded || (int)(p->nFullName)<=nD ){
@@ -923,6 +983,7 @@ void page_tree(void){
       if( p->mtime>0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
         @ <div class="filetreeage">%s(zAge)</div>
+        @ <div class="filetreesize">%s(p->iSize ? mprintf("%,d",p->iSize) : "-")</div>
       }
       @ </div>
     }
@@ -1111,6 +1172,7 @@ void fileage_page(void){
   style_submenu_element("Tree-View", "%R/tree?ci=%T&mtime=1&type=tree", zName);
   style_header("File Ages");
   zGlob = P("glob");
+  cgi_check_for_malice();
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
@@ -1190,4 +1252,21 @@ void fileage_page(void){
   db_finalize(&q1);
   db_finalize(&q2);
   style_finish_page();
+}
+
+/*
+** WEBPAGE: files
+**
+** Show files as a flat table.  If the ci=LABEL query parameter is provided,
+** then show all the files in the specified check-in.  Without the ci= query
+** parameter show all files across all check-ins.
+**
+** Query parameters:
+**
+**    name=PATH        Directory to display.  Optional
+**    ci=LABEL         Show only files in this check-in.  Optional.
+**    re=REGEXP        Show only files matching REGEXP.  Optional.
+*/
+void files_page(void){
+  return;
 }

@@ -132,6 +132,8 @@ void setup_page(void){
       "Mapping keywords for interwiki links");
     setup_menu_entry("Chat", "setup_chat",
       "Configure the chatroom");
+    setup_menu_entry("Forum", "setup_forum",
+      "Forum config and metrics");
   }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
@@ -143,7 +145,7 @@ void setup_page(void){
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
   }
-  setup_menu_entry("Skins", "setup_skin",
+  setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
@@ -202,8 +204,7 @@ void onoff_attribute(
   }
   if( zQ ){
     int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
-    if( iQ!=iVal ){
-      login_verify_csrf_secret();
+    if( iQ!=iVal && cgi_csrf_safe(2) ){
       db_protect_only(PROTECT_NONE);
       db_set(zVar/*works-like:"x"*/, iQ ? "1" : "0", 0);
       db_protect_pop();
@@ -237,9 +238,8 @@ void entry_attribute(
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
-  if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
+  if( zQ && fossil_strcmp(zQ,zVal)!=0 && cgi_csrf_safe(2) ){
     const int nZQ = (int)strlen(zQ);
-    login_verify_csrf_secret();
     setup_incr_cfgcnt();
     db_protect_only(PROTECT_NONE);
     db_set(zVar/*works-like:"x"*/, zQ, 0);
@@ -270,9 +270,8 @@ const char *textarea_attribute(
 ){
   const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
-  if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
+  if( zQ && !disabled && fossil_strcmp(zQ,z)!=0 && cgi_csrf_safe(2) ){
     const int nZQ = (int)strlen(zQ);
-    login_verify_csrf_secret();
     db_protect_only(PROTECT_NONE);
     db_set(zVar/*works-like:"x"*/, zQ, 0);
     db_protect_pop();
@@ -309,9 +308,8 @@ void multiple_choice_attribute(
   const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
   int i;
-  if( zQ && fossil_strcmp(zQ,z)!=0){
+  if( zQ && fossil_strcmp(zQ,z)!=0 && cgi_csrf_safe(2) ){
     const int nZQ = (int)strlen(zQ);
-    login_verify_csrf_secret();
     db_unprotect(PROTECT_ALL);
     db_set(zVar/*works-like:"x"*/, zQ, 0);
     setup_incr_cfgcnt();
@@ -417,6 +415,19 @@ void setup_robots(void){
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
   addAutoHyperlinkSettings();
+
+  @ <hr>
+  entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
+                  "0.0", 0);
+  @ <p>Some expensive operations (such as computing tarballs, zip archives,
+  @ or annotation/blame pages) are prohibited if the load average on the host
+  @ computer is too large.  Set the threshold for disallowing expensive
+  @ computations here.  Set this to 0.0 to disable the load average limit.
+  @ This limit is only enforced on Unix servers.  On Linux systems,
+  @ access to the /proc virtual filesystem is required, which means this limit
+  @ might not work inside a chroot() jail.
+  @ (Property: "max-loadavg")</p>
+
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
@@ -579,7 +590,7 @@ void setup_access(void){
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
-  @ "Default privileges" setting below. 
+  @ "Default privileges" setting below.
   @
   @ <p>Example use case: Set this field to "/doc/trunk/www/*" and set
   @ the "Default privileges" to include the "o" privilege
@@ -1031,7 +1042,7 @@ void setup_settings(void){
 }
 
 /*
-** SETTING:  mainmenu          width=70 block-text
+** SETTING:  mainmenu          width=70 block-text keep-empty
 **
 ** The mainmenu setting specifies the entries on the main menu
 ** for many skins.  The mainmenu should be a TCL list.  Each set
@@ -1192,7 +1203,7 @@ void setup_config(void){
     db_unset("mainmenu", 0);
     cgi_delete_parameter("mmenu");
   }
-  textarea_attribute("Main Menu", 12, 80, 
+  textarea_attribute("Main Menu", 12, 80,
       "mainmenu", "mmenu", style_default_mainmenu(), 0);
   @ </p>
   @ <p><input type='checkbox' id='cbResetMenu' name='resetMenu' value='1'>
@@ -1220,7 +1231,7 @@ void setup_config(void){
   @ <p>The default value is blank, meaning no added entries.
   @ (Property: sitemap-extra)
   @ <p>
-  textarea_attribute("Custom Sitemap Entries", 8, 80, 
+  textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
@@ -1458,7 +1469,7 @@ void setup_adunit(void){
     return;
   }
   db_begin_transaction();
-  if( P("clear")!=0 && cgi_csrf_safe(1) ){
+  if( P("clear")!=0 && cgi_csrf_safe(2) ){
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     db_protect_pop();
@@ -1560,7 +1571,7 @@ void setup_logo(void){
     return;
   }
   db_begin_transaction();
-  if( !cgi_csrf_safe(1) ){
+  if( !cgi_csrf_safe(2) ){
     /* Allow no state changes if not safe from CSRF */
   }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
@@ -1769,7 +1780,7 @@ void sql_page(void){
     return;
   }
   add_content_sql_commands(g.db);
-  zQ = cgi_csrf_safe(1) ? P("q") : 0;
+  zQ = cgi_csrf_safe(2) ? P("q") : 0;
   style_set_current_feature("setup");
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
@@ -1822,7 +1833,7 @@ void sql_page(void){
     zQ = sqlite3_mprintf("SELECT*FROM pragma_table_list ORDER BY schema, name");
     go = 1;
   }
-  if( go ){
+  if( go && cgi_csrf_safe(2) ){
     sqlite3_stmt *pStmt;
     int rc;
     const char *zTail;
@@ -1830,7 +1841,6 @@ void sql_page(void){
     int nRow = 0;
     int i;
     @ <hr>
-    login_verify_csrf_secret();
     sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
     search_sql_setup(g.db);
     rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
@@ -1913,18 +1923,16 @@ void th1_page(void){
   @ run by this page.  If Tcl integration was enabled at compile-time and
   @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
   @
-  @ <form method="post" action="%R/admin_th1">
-  login_insert_csrf_secret();
+  form_begin(0, "%R/admin_th1");
   @ TH1:<br>
   @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br>
   @ <input type="submit" name="go" value="Run TH1">
   @ </form>
-  if( go ){
+  if( go && cgi_csrf_safe(2) ){
     const char *zR;
     int rc;
     int n;
     @ <hr>
-    login_verify_csrf_secret();
     rc = Th_Eval(g.interp, 0, zQ, -1);
     zR = Th_GetResult(g.interp, &n);
     if( rc==TH_OK ){
@@ -1974,7 +1982,7 @@ void page_admin_log(){
   db_prepare(&stLog,
     "SELECT datetime(time,'unixepoch'), who, page, what "
     "FROM admin_log "
-    "ORDER BY time DESC");
+    "ORDER BY time DESC, rowid DESC");
   style_table_sorter();
   @ <table class="sortable adminLogTable" width="100%%" \
   @  data-column-types='Tttx' data-init-sort='1'>
@@ -2016,10 +2024,11 @@ static void select_fts_tokenizer(void){
   const char *const aTokenizer[] = {
   "off",     "None",
   "porter",  "Porter Stemmer",
-  "trigram", "Trigram"
+  "unicode61", "Unicode without stemming",
+  "trigram", "Trigram",
   };
   multiple_choice_attribute("FTS Tokenizer", "search-tokenizer",
-                            "ftstok", "off", 3, aTokenizer);
+                            "ftstok", "off", 4, aTokenizer);
 }
 
 /*
@@ -2088,9 +2097,17 @@ void page_srchsetup(){
     search_update_index(search_restrict(SRCH_ALL));
   }
   if( search_index_exists() ){
+    int pgsz = db_int64(0, "PRAGMA repository.page_size;");
+    i64 nTotal = db_int64(0, "PRAGMA repository.page_count;")*pgsz;
+    i64 nFts = db_int64(0, "SELECT count(*) FROM dbstat"
+                               " WHERE schema='repository'"
+                               " AND name LIKE 'fts%%'")*pgsz;
+    char zSize[30];
+    approxSizeName(sizeof(zSize),zSize,nFts);
     @ <p>Currently using an SQLite FTS%d(search_index_type(0)) search index.
     @ The index helps search run faster, especially on large repositories,
-    @ but takes up space.</p>
+    @ but takes up space.  The index is currently using about %s(zSize)
+    @ or %.1f(100.0*(double)nFts/(double)nTotal)%% of the repository.</p>
     select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
@@ -2120,7 +2137,7 @@ static void setup_update_url_alias(
   const char *zNewName,
   const char *zValue
 ){
-  if( !cgi_csrf_safe(1) ) return;
+  if( !cgi_csrf_safe(2) ) return;
   if( zNewName[0]==0 || zValue[0]==0 ){
     if( zOldName[0] ){
       blob_append_sql(pSql,
@@ -2164,13 +2181,12 @@ void page_waliassetup(){
   }
   style_set_current_feature("setup");
   style_header("URL Alias Configuration");
-  if( P("submit")!=0 ){
+  if( P("submit")!=0 && cgi_csrf_safe(2) ){
     Blob token;
     Blob sql;
     const char *zNewName;
     const char *zValue;
     char zCnt[10];
-    login_verify_csrf_secret();
     blob_init(&namelist, PD("namelist",""), -1);
     blob_init(&sql, 0, 0);
     while( blob_token(&namelist, &token) ){

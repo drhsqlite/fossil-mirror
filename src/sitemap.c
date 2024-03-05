@@ -83,7 +83,7 @@ void sitemap_page(void){
     style_header("Site Map");
     style_adunit_config(ADUNIT_RIGHT_OK);
   }
-    
+
   @ <ul id="sitemap" class="columns" style="column-width:20em">
   if( (e&1)==0 ){
     @ <li>%z(href("%R/home"))Home Page</a>
@@ -154,7 +154,7 @@ void sitemap_page(void){
 
   if( inSublist ){
     @ </ul>
-    inSublist = 0;    
+    inSublist = 0;
   }
   @ </li>
   if( g.perm.Read ){
@@ -329,8 +329,7 @@ void sitemap_test_page(void){
   }
   @ <li>%z(href("%R/test-builtin-files"))List of built-in files</a></li>
   @ <li>%z(href("%R/mimetype_list"))List of MIME types</a></li>
-  @ <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
-  @     colors assigned to branch names</a>
+  @ <li>%z(href("%R/hash-color-test"))Hash color test</a>
   if( g.perm.Admin ){
     @ <li>%z(href("%R/test-backlinks"))List of backlinks</a></li>
     @ <li>%z(href("%R/test-backlink-timeline"))Backlink timeline</a></li>

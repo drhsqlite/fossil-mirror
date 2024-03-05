@@ -131,6 +131,7 @@ void event_page(void){
 
   /* Extract the event content.
   */
+  cgi_check_for_malice();
   pTNote = manifest_get(rid, CFTYPE_EVENT, 0);
   if( pTNote==0 ){
     fossil_fatal("Object #%d is not a tech-note", rid);
@@ -330,7 +331,7 @@ int event_commit_common(
   blob_appendf(&event, "Z %b\n", &cksum);
   blob_reset(&cksum);
   nrid = content_put(&event);
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_add_unsent(nrid);
   if( manifest_crosslink(nrid, &event, MC_NONE)==0 ){
     db_end_transaction(1);
     return 0;
@@ -469,8 +470,7 @@ void eventedit_page(void){
     }
   }
   zETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))", zETime);
-  if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
-    login_verify_csrf_secret();
+  if( P("submit")!=0 && (zBody!=0 && zComment!=0) && cgi_csrf_safe(2) ){
     if ( !event_commit_common(rid, zId, zBody, zETime,
                               zMimetype, zComment, zTags,
                               zClrFlag[0] ? zClr : 0) ){

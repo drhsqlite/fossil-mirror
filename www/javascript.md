@@ -373,20 +373,20 @@ lets you manipulate wiki documents from the command line. For example,
 consider this Vi based workflow:
 
 ```shell
-    $ vi 'My Article.wiki'                   # begin work on new article
-      ...write, write, write...
-    :w                                       # save changes to disk copy
-    :!fossil wiki create 'My Article' '%'    # current file (%) to new article
-      ...write, write, write some more...
-    :w                                       # save again
-    :!fossil wiki commit 'My Article' '%'    # update article from disk
-    :q                                       # done writing for today
+$ vi 'My Article.wiki'                   # begin work on new article
+  ...write, write, write...
+:w                                       # save changes to disk copy
+:!fossil wiki create 'My Article' '%'    # current file (%) to new article
+  ...write, write, write some more...
+:w                                       # save again
+:!fossil wiki commit 'My Article' '%'    # update article from disk
+:q                                       # done writing for today
 
-      ....days later...
-    $ vi                                     # work sans named file today
-    :r !fossil wiki export 'My Article' -    # pull article text into vi buffer
-      ...write, write, write yet more...
-    :w !fossil wiki commit -                 # vi buffer updates article
+  ....days later...
+$ vi                                     # work sans named file today
+:r !fossil wiki export 'My Article' -    # pull article text into vi buffer
+  ...write, write, write yet more...
+:w !fossil wiki commit -                 # vi buffer updates article
 ```
 
 Extending this concept to other text editors is an exercise left to the
@@ -578,7 +578,7 @@ IRC, Jabber, etc. The messages are stored in the repository’s `chat`
 table with monotonically increasing IDs, so a poller that did something
 like
 
-       SELECT xfrom, xmsg FROM chat WHERE msgid > 1234;
+    SELECT xfrom, xmsg FROM chat WHERE msgid > 1234;
 
 …would pull the messages submitted since the last poll. Making the
 gateway bidirectional should be possible as well, as long as it properly

@@ -318,7 +318,7 @@
           gets all labels/headers in sync.*/
         P.renderPreview();
       }
-    }    
+    }
   }/*F.onPageLoad()*/);
 
   /**

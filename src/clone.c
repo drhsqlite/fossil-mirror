@@ -198,7 +198,7 @@ void clone_cmd(void){
       zWorkDir = mprintf("./%s", zBase);
     }
     fossil_free(zBase);
-  }  
+  }
   if( -1 != file_size(zRepo, ExtFILE) ){
     fossil_fatal("file already exists: %s", zRepo);
   }
@@ -306,6 +306,7 @@ void clone_cmd(void){
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  hash_user_password(g.zLogin);
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
     Blob cmd;
     fossil_print("opening the new %s repository in directory %s...\n",
@@ -400,6 +401,7 @@ void clone_ssh_db_set_options(void){
 */
 void download_page(void){
   login_check_credentials();
+  cgi_check_for_malice();
   style_header("Download Page");
   if( !g.perm.Zip ){
     @ <p>Bummer.  You do not have permission to download.

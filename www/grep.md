@@ -47,7 +47,7 @@ one day get this feature, it would have a different option letter, since
 `-R` in Fossil has a different meaning, by convention. Until then, you
 can get the same effect on systems with a POSIX shell like so:
 
-      $ fossil grep COMMAND: $(fossil ls src)
+    $ fossil grep COMMAND: $(fossil ls src)
 
 If you run that in a check-out of the [Fossil self-hosting source
 repository][fshsr], that returns the first line of the built-in

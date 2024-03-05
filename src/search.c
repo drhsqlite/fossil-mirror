@@ -585,7 +585,11 @@ void search_sql_setup(sqlite3 *db){
 **
 ** Options:
 **     -a|--all          Output all matches, not just best matches
+**     --debug           Show additional debug content on --fts search
+**     --fts             Use the full-text search mechanism (testing only)
 **     -n|--limit N      Limit output to N matches
+**     --scope SCOPE     Scope of search.  Valid for --fts only.  One or
+**                       more of: all, c, d, e, f, t, w.  Defaults to all.
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
 **                       unlimited. Defaults the terminal's width.
 */
@@ -595,14 +599,15 @@ void search_cmd(void){
   Blob sql = empty_blob;
   Stmt q;
   int iBest;
-  char fAll = NULL != find_option("all", "a", 0); /* If set, do not lop
-                                                     off the end of the
-                                                     results. */
+  char fAll = NULL != find_option("all", "a", 0);
   const char *zLimit = find_option("limit","n",1);
   const char *zWidth = find_option("width","W",1);
-  int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
-                                                   lines/entries to list */
+  const char *zScope = find_option("scope",0,1);
+  int bDebug = find_option("debug",0,0)!=0;
+  int nLimit = zLimit ? atoi(zLimit) : -1000;
   int width;
+  int bFts = find_option("fts",0,0)!=0;
+
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=20) ){
@@ -618,33 +623,106 @@ void search_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_appendf(&pattern, " %s", g.argv[i]);
   }
-  (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
-  blob_reset(&pattern);
-  search_sql_setup(g.db);
+  if( bFts ){
+    /* Search using FTS */
+    Blob com;
+    Blob snip;
+    const char *zPattern = blob_str(&pattern);
+    int srchFlags;
+    unsigned int j;
+    if( zScope==0 ){
+      srchFlags = SRCH_ALL;
+    }else{
+      srchFlags = 0;
+      for(i=0; zScope[i]; i++){
+        switch( zScope[i] ){
+          case 'a':  srchFlags = SRCH_ALL;  break;
+          case 'c':  srchFlags |= SRCH_CKIN;     break;
+          case 'd':  srchFlags |= SRCH_DOC;      break;
+          case 'e':  srchFlags |= SRCH_TECHNOTE; break;
+          case 'f':  srchFlags |= SRCH_FORUM;    break;
+          case 't':  srchFlags |= SRCH_TKT;      break;
+          case 'w':  srchFlags |= SRCH_WIKI;     break;
+        }
+      }
+    }
+    search_sql_setup(g.db);
+    add_content_sql_commands(g.db);
+    db_multi_exec(
+      "CREATE TEMP TABLE x(label,url,score,id,date,snip);"
+    );
+    if( !search_index_exists() ){
+      search_fullscan(zPattern, srchFlags);  /* Full-scan search */
+    }else{
+      search_update_index(srchFlags);        /* Update the index */
+      search_indexed(zPattern, srchFlags);   /* Indexed search */
+    }
+    db_prepare(&q, "SELECT snip, label, score, id, date"
+                   "  FROM x"
+                   " ORDER BY score DESC, date DESC;");
+    blob_init(&com, 0, 0);
+    blob_init(&snip, 0, 0);
+    if( width<0 ) width = 80;
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zSnippet = db_column_text(&q, 0);
+      const char *zLabel = db_column_text(&q, 1);
+      const char *zDate = db_column_text(&q, 4);
+      const char *zScore = db_column_text(&q, 2);
+      const char *zId = db_column_text(&q, 3);
+      blob_appendf(&snip, "%s", zSnippet);
+      for(j=0; j<snip.nUsed; j++){
+        if( snip.aData[j]=='\n' ){
+          if( j>0 && snip.aData[j-1]=='\r' ) snip.aData[j-1] = ' ';
+          snip.aData[j] = ' ';
+        }
+      }
+      blob_appendf(&com, "%s\n%s\n%s", zLabel, blob_str(&snip), zDate);
+      if( bDebug ){
+        blob_appendf(&com," score: %s id: %s", zScore, zId);
+      }
+      comment_print(blob_str(&com), 0, 5, width,
+            COMMENT_PRINT_TRIM_CRLF |
+            COMMENT_PRINT_WORD_BREAK |
+            COMMENT_PRINT_TRIM_SPACE);
+      blob_reset(&com);
+      blob_reset(&snip);
+      if( nLimit>=1 ){
+        nLimit--;
+        if( nLimit==0 ) break;
+      }
+    }
+    db_finalize(&q);
+    blob_reset(&pattern);
+  }else{
+    /* Legacy timeline search (the default) */
+    (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
+    blob_reset(&pattern);
+    search_sql_setup(g.db);
 
-  db_multi_exec(
-     "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
-     "CREATE INDEX srch_idx1 ON srch(x);"
-     "INSERT INTO srch(rid,uuid,date,comment,x)"
-     "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
-     "          coalesce(ecomment,comment),"
-     "          search_score()"
-     "     FROM event, blob"
-     "    WHERE blob.rid=event.objid"
-     "      AND search_match(coalesce(ecomment,comment));"
-  );
-  iBest = db_int(0, "SELECT max(x) FROM srch");
-  blob_append(&sql,
-              "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
-              "WHERE 1 ", -1);
-  if(!fAll){
-    blob_append_sql(&sql,"AND x>%d ", iBest/3);
+    db_multi_exec(
+       "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
+       "CREATE INDEX srch_idx1 ON srch(x);"
+       "INSERT INTO srch(rid,uuid,date,comment,x)"
+       "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
+       "          coalesce(ecomment,comment),"
+       "          search_score()"
+       "     FROM event, blob"
+       "    WHERE blob.rid=event.objid"
+       "      AND search_match(coalesce(ecomment,comment));"
+    );
+    iBest = db_int(0, "SELECT max(x) FROM srch");
+    blob_append(&sql,
+                "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
+                "WHERE 1 ", -1);
+    if(!fAll){
+      blob_append_sql(&sql,"AND x>%d ", iBest/3);
+    }
+    blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
+    db_prepare(&q, "%s", blob_sql_text(&sql));
+    blob_reset(&sql);
+    print_timeline(&q, nLimit, width, 0, 0);
+    db_finalize(&q);
   }
-  blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  blob_reset(&sql);
-  print_timeline(&q, nLimit, width, 0, 0);
-  db_finalize(&q);
 }
 
 #if INTERFACE
@@ -708,7 +786,7 @@ unsigned int search_restrict(unsigned int srchFlags){
 **
 ** The companion indexed search routine is search_indexed().
 */
-static void search_fullscan(
+LOCAL void search_fullscan(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
@@ -916,7 +994,7 @@ static void search_rank_sqlfunc(
 **
 ** The companion full-scan search routine is search_fullscan().
 */
-static void search_indexed(
+LOCAL void search_indexed(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
@@ -928,7 +1006,7 @@ static void search_indexed(
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
   for(i=0; zPat[i]; i++){
-    if( (zPat[i]&0x80)!=0 || !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
+    if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
   }
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
@@ -1221,6 +1299,7 @@ void search_page(void){
   const int isSearch = P("s")!=0;
   login_check_credentials();
   style_header("Search%s", isSearch ? " Results" : "");
+  cgi_check_for_malice();
   search_screen(SRCH_ALL, 1);
   style_finish_page();
 }
@@ -1230,6 +1309,9 @@ void search_page(void){
 ** This is a helper function for search_stext().  Writing into pOut
 ** the search text obtained from pIn according to zMimetype.
 **
+** If a title is not specified in zTitle (e.g. for wiki pages that do not
+** include the title in the body), it is determined from the page content.
+**
 ** The title of the document is the first line of text.  All subsequent
 ** lines are the body.  If the document has no title, the first line
 ** is blank.
@@ -1237,39 +1319,44 @@ void search_page(void){
 static void get_stext_by_mimetype(
   Blob *pIn,
   const char *zMimetype,
+  const char *zTitle,
   Blob *pOut
 ){
   Blob html, title;
+  Blob *pHtml = &html;
   blob_init(&html, 0, 0);
-  blob_init(&title, 0, 0);
+  if( zTitle==0 ){
+    blob_init(&title, 0, 0);
+  }else{
+    blob_init(&title, zTitle, -1);
+  }
   if( zMimetype==0 ) zMimetype = "text/plain";
   if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0 ){
-    Blob tail;
-    blob_init(&tail, 0, 0);
-    if( wiki_find_title(pIn, &title, &tail) ){
-      blob_appendf(pOut, "%s\n", blob_str(&title));
-      wiki_convert(&tail, &html, 0);
-      blob_reset(&tail);
-    }else{
-      blob_append(pOut, "\n", 1);
+    if( blob_size(&title) ){
       wiki_convert(pIn, &html, 0);
+    }else{
+      Blob tail;
+      blob_init(&tail, 0, 0);
+      if( wiki_find_title(pIn, &title, &tail) ){
+        blob_appendf(pOut, "%s\n", blob_str(&title));
+        wiki_convert(&tail, &html, 0);
+        blob_reset(&tail);
+      }else{
+        blob_append(pOut, "\n", 1);
+        wiki_convert(pIn, &html, 0);
+      }
     }
     html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/x-markdown")==0 ){
-    markdown_to_html(pIn, &title, &html);
-    if( blob_size(&title) ){
-      blob_appendf(pOut, "%s\n", blob_str(&title));
-    }else{
-      blob_append(pOut, "\n", 1);
-    }
-    html_to_plaintext(blob_str(&html), pOut);
+    markdown_to_html(pIn, blob_size(&title) ? NULL : &title, &html);
   }else if( fossil_strcmp(zMimetype,"text/html")==0 ){
-    if( doc_is_embedded_html(pIn, &title) ){
-      blob_appendf(pOut, "%s\n", blob_str(&title));
-    }
-    html_to_plaintext(blob_str(pIn), pOut);
+    if( blob_size(&title)==0 ) doc_is_embedded_html(pIn, &title);
+    pHtml = pIn;
+  }
+  blob_appendf(pOut, "%s\n", blob_str(&title));
+  if( blob_size(pHtml) ){
+    html_to_plaintext(blob_str(pHtml), pOut);
   }else{
-    blob_append(pOut, "\n", 1);
     blob_append(pOut, blob_buffer(pIn), blob_size(pIn));
   }
   blob_reset(&html);
@@ -1306,7 +1393,7 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
       Blob txt;
       blob_init(&txt, db_column_text(pQuery,i), -1);
       blob_appendf(pAccum, "%s: ", zColName);
-      get_stext_by_mimetype(&txt, zMime, pAccum);
+      get_stext_by_mimetype(&txt, zMime, NULL, pAccum);
       blob_append(pAccum, " |", 2);
       blob_reset(&txt);
     }
@@ -1345,7 +1432,7 @@ void search_stext(
       Blob doc;
       content_get(rid, &doc);
       blob_to_utf8_no_bom(&doc, 0);
-      get_stext_by_mimetype(&doc, mimetype_from_name(zName), pOut);
+      get_stext_by_mimetype(&doc, mimetype_from_name(zName), NULL, pOut);
       blob_reset(&doc);
       break;
     }
@@ -1367,7 +1454,7 @@ void search_stext(
         blob_init(&wiki, pWiki->zWiki, -1);
       }
       get_stext_by_mimetype(&wiki, wiki_filter_mimetypes(pWiki->zMimetype),
-                            pOut);
+                            cType=='w' ? pWiki->zWikiTitle : NULL, pOut);
       blob_reset(&wiki);
       manifest_destroy(pWiki);
       break;
@@ -1397,7 +1484,7 @@ void search_stext(
           Blob x;
           blob_init(&x,0,0);
           db_column_blob(&q, 0, &x);
-          get_stext_by_mimetype(&x, "text/x-fossil-wiki", pOut);
+          get_stext_by_mimetype(&x, "text/x-fossil-wiki", NULL, pOut);
           blob_reset(&x);
         }
       }
@@ -1508,7 +1595,7 @@ void test_convert_stext(void){
   if( g.argc!=4 ) usage("FILENAME MIMETYPE");
   blob_read_from_file(&in, g.argv[2], ExtFILE);
   blob_init(&out, 0, 0);
-  get_stext_by_mimetype(&in, g.argv[3], &out);
+  get_stext_by_mimetype(&in, g.argv[3], NULL, &out);
   fossil_print("%s\n",blob_str(&out));
   blob_reset(&in);
   blob_reset(&out);
@@ -1552,9 +1639,10 @@ static const char zFtsDrop[] =
 /*
 ** Values for the search-tokenizer config option.
 */
-#define FTS5TOK_NONE     0 /* no FTS stemmer */
-#define FTS5TOK_PORTER   1 /* porter stemmer */
-#define FTS5TOK_TRIGRAM  3 /* trigram stemmer */
+#define FTS5TOK_NONE      0 /* disabled */
+#define FTS5TOK_PORTER    1 /* porter stemmer */
+#define FTS5TOK_UNICODE61 2 /* unicode61 tokenizer */
+#define FTS5TOK_TRIGRAM   3 /* trigram tokenizer */
 #endif
 
 /*
@@ -1579,6 +1667,8 @@ int search_tokenizer_type(int bRecheck){
     iFtsTokenizer = FTS5TOK_NONE;
   }else if(0==fossil_strcmp(z,"porter")){
     iFtsTokenizer = FTS5TOK_PORTER;
+  }else if(0==fossil_strcmp(z,"unicode61")){
+    iFtsTokenizer = FTS5TOK_UNICODE61;
   }else if(0==fossil_strcmp(z,"trigram")){
     iFtsTokenizer = FTS5TOK_TRIGRAM;
   }else{
@@ -1607,6 +1697,8 @@ const char *search_tokenizer_for_string(const char *z){
     zRc = "off";
   }else if( 0==fossil_strcmp(z,"porter") ){
     zRc = "porter";
+  }else if( 0==fossil_strcmp(z,"unicode61") ){
+    zRc = "unicode61";
   }else if( 0==fossil_strcmp(z,"trigram") ){
     zRc = "trigram";
   }else{
@@ -1634,6 +1726,7 @@ void search_create_index(void){
   const char *zExtra;
   switch(useTokenizer){
     case FTS5TOK_PORTER: zExtra = ",tokenize=porter"; break;
+    case FTS5TOK_UNICODE61: zExtra = ",tokenize=unicode61"; break;
     case FTS5TOK_TRIGRAM: zExtra = ",tokenize=trigram"; break;
     default: zExtra = ""; break;
   }
@@ -1976,14 +2069,15 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtwe       Enable various kinds of search. c=Check-ins,
-**                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes.
+**     enable cdtwef      Enable various kinds of search. c=Check-ins,
+**                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes,
+**                        f=Forum.
 **
-**     disable cdtwe      Disable various kinds of search
+**     disable cdtwef     Disable various kinds of search
 **
 **     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
-**                        may be one of (porter, on, off, trigram), and
-**                        "on" is equivalent to "porter". Unindexed
+**                        may be one of (porter, on, off, trigram, unicode61),
+**                        and "on" is equivalent to "porter". Unindexed
 **                        search never uses tokenization or stemming.
 **
 ** The current search settings are displayed after any changes are applied.
@@ -2027,7 +2121,7 @@ void fts_config_cmd(void){
       Blob all;
       blob_init(&all,0,0);
       for(i=0; i<count(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
-      fossil_fatal("unknown \"%s\" - should be on of:%s",
+      fossil_fatal("unknown \"%s\" - should be one of:%s",
                    zSubCmd, blob_str(&all));
       return;
     }
@@ -2057,7 +2151,7 @@ void fts_config_cmd(void){
     }
   }else if( iCmd==5 ){
     int iOldTokenizer, iNewTokenizer;
-    if( g.argc<4 ) usage("tokenizer porter|on|off|trigram");
+    if( g.argc<4 ) usage("tokenizer porter|on|off|trigram|unicode61");
     iOldTokenizer = search_tokenizer_type(0);
     db_set("search-tokenizer",
            search_tokenizer_for_string(g.argv[3]), 0);
@@ -2085,9 +2179,18 @@ void fts_config_cmd(void){
   fossil_print("%-17s %s\n", "tokenizer:",
        search_tokenizer_for_string(0));
   if( search_index_exists() ){
+    int pgsz = db_int64(0, "PRAGMA repository.page_size;");
+    i64 nTotal = db_int64(0, "PRAGMA repository.page_count;")*pgsz;
+    i64 nFts = db_int64(0, "SELECT count(*) FROM dbstat"
+                               " WHERE schema='repository'"
+                               " AND name LIKE 'fts%%'")*pgsz;
+    char zSize[50];
     fossil_print("%-17s FTS%d\n", "full-text index:", search_index_type(1));
     fossil_print("%-17s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
+    approxSizeName(sizeof(zSize), zSize, nFts);
+    fossil_print("%-17s %s (%.1f%% of repository)\n", "space used",
+       zSize, 100.0*((double)nFts/(double)nTotal));
   }else{
     fossil_print("%-17s disabled\n", "full-text index:");
   }
@@ -2279,7 +2382,7 @@ static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi){
 
 /*
 ** Argument f should be a flag accepted by matchinfo() (a valid character
-** in the string passed as the second argument). If it is not, -1 is 
+** in the string passed as the second argument). If it is not, -1 is
 ** returned. Otherwise, if f is a valid matchinfo flag, the value returned
 ** is the number of 32-bit integers added to the output array if the
 ** table has nCol columns and the query nPhrase phrases.

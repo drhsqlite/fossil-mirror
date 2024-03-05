@@ -34,7 +34,8 @@
 #if FOSSIL_HARDENED_SHA1
 
 #if INTERFACE
-typedef void(*collision_block_callback)(uint64_t, const uint32_t*, const uint32_t*, const uint32_t*, const uint32_t*);
+typedef void(*collision_block_callback)(uint64_t, const uint32_t*,
+                            const uint32_t*, const uint32_t*, const uint32_t*);
 struct SHA1_CTX {
   uint64_t total;
   uint32_t ihv[5];
@@ -393,6 +394,19 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
   SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, blob_buffer(pCksum));
   return 0;
+}
+
+/*
+** Compute a binary SHA1 checksum of a zero-terminated string.  The
+** result is stored in zOut, which is a buffer that must be at least
+** 20 bytes in size.
+*/
+void sha1sum_binary(const char *zIn, unsigned char *zOut){
+  SHA1Context ctx;
+
+  SHA1Init(&ctx);
+  SHA1Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
+  SHA1Final(zOut, &ctx);
 }
 
 /*

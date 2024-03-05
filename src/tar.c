@@ -246,7 +246,8 @@ static void add_pax_header(
     blen++;
   }
   /* build the string */
-  blob_appendf(&tball.pax, "%d %s=%*.*s\n", blen, zField, nValue, nValue, zValue);
+  blob_appendf(&tball.pax, "%d %s=%*.*s\n",
+               blen, zField, nValue, nValue, zValue);
   /* this _must_ be right */
   if((int)blob_size(&tball.pax) != blen){
     fossil_panic("internal error: PAX tar header has bad length");
@@ -609,7 +610,7 @@ void tarball_of_checkin(
 ** actually generated.  This feature can be used in combination with
 ** the --list option to get a list of the filenames that would be in the
 ** tarball had it actually been generated.  Note that --list shows only
-** filenames.  "tar tzf" shows both filesnames and subdirectory names.
+** filenames.  "tar tzf" shows both filenames and subdirectory names.
 **
 ** Options:
 **   -X|--exclude GLOBLIST   Comma-separated list of GLOBs of files to exclude
@@ -833,6 +834,7 @@ void tarball_page(void){
     style_finish_page();
     return;
   }
+  cgi_check_for_malice();
   blob_zero(&tarball);
   if( cache_read(&tarball, zKey)==0 ){
     tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude, 0);

@@ -1039,6 +1039,9 @@ void fossil_trace(const char *zFormat, ...){
 /*
 ** Write a message to the error log, if the error log filename is
 ** defined.
+**
+** If the message format begins with 'X', then omit that X from the
+** beginning of the message and add much more CGI context.
 */
 void fossil_errorlog(const char *zFormat, ...){
   struct tm *pNow;
@@ -1046,6 +1049,7 @@ void fossil_errorlog(const char *zFormat, ...){
   FILE *out;
   const char *z;
   int i;
+  int bDetail = 0;
   va_list ap;
   static const char *const azEnv[] = { "HTTP_HOST", "HTTP_REFERER",
       "HTTP_USER_AGENT",
@@ -1064,16 +1068,24 @@ void fossil_errorlog(const char *zFormat, ...){
           pNow->tm_year+1900, pNow->tm_mon+1, pNow->tm_mday,
           pNow->tm_hour, pNow->tm_min, pNow->tm_sec);
   va_start(ap, zFormat);
+  if( zFormat[0]=='X' ){
+    bDetail = 1;
+    zFormat++;
+  }
   vfprintf(out, zFormat, ap);
   fprintf(out, "\n");
   va_end(ap);
-  for(i=0; i<count(azEnv); i++){
-    char *p;
-    if( (p = fossil_getenv(azEnv[i]))!=0 && p[0]!=0 ){
-      fprintf(out, "%s=%s\n", azEnv[i], p);
-      fossil_path_free(p);
-    }else if( (z = P(azEnv[i]))!=0 && z[0]!=0 ){
-      fprintf(out, "%s=%s\n", azEnv[i], z);
+  if( bDetail ){
+    cgi_print_all(1,3,out);
+  }else{
+    for(i=0; i<count(azEnv); i++){
+      char *p;
+      if( (p = fossil_getenv(azEnv[i]))!=0 && p[0]!=0 ){
+        fprintf(out, "%s=%s\n", azEnv[i], p);
+        fossil_path_free(p);
+      }else if( (z = P(azEnv[i]))!=0 && z[0]!=0 ){
+        fprintf(out, "%s=%s\n", azEnv[i], z);
+      }
     }
   }
   fclose(out);

@@ -261,6 +261,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
     @ <form method="POST" data-action='%s(zLink)' action='%R/login' \
     @ %s(zOtherArgs)>
   }
+  login_insert_csrf_secret();
 }
 
 /*
@@ -453,7 +454,7 @@ static void stylesheet_url_var(void){
     blob_appendf(&url, "&skin=%s&once", skin_in_use());
   }
 
-  /* Generate the CSS URL variable */  
+  /* Generate the CSS URL variable */
   Th_Store("stylesheet_url", blob_str(&url));
   blob_reset(&url);
 }
@@ -473,7 +474,7 @@ static void image_url_var(const char *zImageName){
   zResource = mprintf("%s-image", zImageName);
   zUrl = mprintf("%R/%s?id=%x", zImageName, skin_id(zResource));
   free(zResource);
-  zVarName = mprintf("%s_image_url", zImageName);  
+  zVarName = mprintf("%s_image_url", zImageName);
   Th_Store(zVarName, zUrl);
   free(zVarName);
   free(zUrl);
@@ -598,7 +599,7 @@ char *style_nonce(void){
 ** should be released by the caller.
 */
 char *style_csp(int toHeader){
-  static const char zBackupCSP[] = 
+  static const char zBackupCSP[] =
    "default-src 'self' data:; "
    "script-src 'self' 'nonce-$nonce'; "
    "style-src 'self' 'unsafe-inline'; "
@@ -609,8 +610,8 @@ char *style_csp(int toHeader){
   char *zCsp;
   int i;
   if( disableCSP ) return fossil_strdup("");
-  zFormat = db_get("default-csp","");
-  if( zFormat[0]==0 ){
+  zFormat = db_get("default-csp",0);
+  if( zFormat==0 ){
     zFormat = zBackupCSP;
   }
   blob_init(&csp, 0, 0);
@@ -634,7 +635,7 @@ char *style_csp(int toHeader){
 ** Disable content security policy for the current page.
 ** WARNING:  Do not do this lightly!
 **
-** This routine must be called before the CSP is sued by 
+** This routine must be called before the CSP is sued by
 ** style_header().
 */
 void style_disable_csp(void){
@@ -646,7 +647,7 @@ void style_disable_csp(void){
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
 */
-static const char zDfltHeader[] = 
+static const char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <meta charset="UTF-8">
@@ -671,7 +672,7 @@ const char *get_default_header(){
 /*
 ** The default TCL list that defines the main menu.
 */
-static const char zDfltMainMenu[] = 
+static const char zDfltMainMenu[] =
 @ Home      /home        *              {}
 @ Timeline  /timeline    {o r j}        {}
 @ Files     /dir?ci=tip  oh             desktoponly
@@ -732,7 +733,7 @@ void style_set_current_feature(const char* zFeature){
 ** setting, or style_default_mainmenu(), in that order, returning the
 ** first of those which is defined.
 */
-const char*style_get_mainmenu(){
+const char *style_get_mainmenu(){
   static const char *zMenu = 0;
   if(!zMenu){
     if(g.zMainMenuFile){
@@ -796,8 +797,8 @@ static void style_init_th1_vars(const char *zTitle){
   if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
       g.ftntsIssues[2] || g.ftntsIssues[3] ){
     char buf[80];
-    sprintf(&buf[0],"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
-                                  g.ftntsIssues[2],g.ftntsIssues[3]);
+    sqlite3_snprintf(sizeof(buf), buf, "%i %i %i %i", g.ftntsIssues[0],
+                     g.ftntsIssues[1], g.ftntsIssues[2], g.ftntsIssues[3]);
     Th_Store("footnotes_issues_counters", buf);
   }
 }
@@ -836,7 +837,7 @@ void style_header(const char *zTitleFormat, ...){
   sideboxUsed = 0;
   if( g.perm.Debug && P("showqp") ){
     @ <div class="debug">
-    cgi_print_all(0, 0);
+    cgi_print_all(0, 0, 0);
     @ </div>
   }
 }
@@ -1286,7 +1287,7 @@ static void page_style_css_append_page_style(Blob *pOut){
 **    *   $background
 **
 ** The output from TH1 becomes the style sheet.  Fossil always reports
-** that the style sheet is cacheable.  
+** that the style sheet is cacheable.
 */
 void page_style_css(void){
   Blob css = empty_blob;
@@ -1326,7 +1327,7 @@ void page_style_css(void){
 /*
 ** All possible capabilities
 */
-static const char allCap[] = 
+static const char allCap[] =
   "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKL";
 
 /*
@@ -1461,7 +1462,26 @@ void webpage_error(const char *zFormat, ...){
 #ifndef _WIN32
     @ RSS = %.2f(fossil_rss()/1000000.0) MB</br>
 #endif
-    @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br>
+    (void)cgi_csrf_safe(2);
+    switch( g.okCsrf ){
+      case 1: {
+         @ CSRF safety = Same origin<br>
+         break;
+      }
+      case 2: {
+         @ CSRF safety = Same origin, POST<br>
+         break;
+      }
+      case 3: {
+         @ CSRF safety = Same origin, POST, CSRF token<br>
+         break;
+      }
+      default: {
+         @ CSRF safety = unsafe<br>
+         break;
+      }
+    }
+
     @ fossil_exe_id() = %h(fossil_exe_id())<br>
     if( g.perm.Admin ){
       int k;
@@ -1476,7 +1496,7 @@ void webpage_error(const char *zFormat, ...){
     @ <hr>
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
-    cgi_print_all(showAll, 0);
+    cgi_print_all(showAll, 0, 0);
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr>
       @ <pre>
@@ -1633,7 +1653,7 @@ void style_labeled_checkbox(const char * zWrapperId,
 **                       atoi(PD("my_field","0")),
 **                       "", 1, "2", 2, "Three", 3,
 **                       NULL);
-** 
+**
 */
 void style_select_list_int(const char * zWrapperId,
                            const char *zFieldName, const char * zLabel,
@@ -1757,7 +1777,7 @@ void style_script_begin(const char *zOrigin, int iLine){
   CX("<script nonce='%s'>/* %s:%d */\n", style_nonce(), zOrigin, iLine);
 }
 
-/* Generate the closing </script> tag 
+/* Generate the closing </script> tag
 */
 void style_script_end(void){
   CX("</script>\n");

@@ -94,7 +94,11 @@ foreach name $all_settings {
     [regexp -- [string map [list %name% $name] $pattern(2)] $data]
   }
 
-  fossil settings $name --exact --global
+  if {$name eq "manifest"} {
+    fossil settings $name --exact --global -expectError
+  } else {
+    fossil settings $name --exact --global
+  }
   set data [normalize_result]
 
   if {$name eq "manifest"} {
@@ -111,13 +115,13 @@ foreach name $all_settings {
 
 ###############################################################################
 
-fossil settings bad-setting
+fossil settings bad-setting -expectError
 
 test settings-query-bad-local {
   [normalize_result] eq "no such setting: bad-setting"
 }
 
-fossil settings bad-setting --global
+fossil settings bad-setting --global -expectError
 
 test settings-query-bad-global {
   [normalize_result] eq "no such setting: bad-setting"

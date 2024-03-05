@@ -40,7 +40,7 @@
 ** "test-" or if the command name has a "test" argument, then it becomes
 ** a test command.  If the command name has a "2nd-tier" argument or ends
 ** with a "*" character, it is second tier.  If the command name has an "alias"
-** argument or ends with a "#" character, it is an alias: another name  
+** argument or ends with a "#" character, it is an alias: another name
 ** (a one-to-one replacement) for a command.  Examples:
 **
 **        COMMAND:  abcde*
@@ -101,6 +101,7 @@
 #define CMDFLAG_HIDDEN       0x0800     /* Elide from most listings */
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
+#define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
 /**************************************************************************/
 
 /*
@@ -265,6 +266,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }else if( j==10 && strncmp(&zLine[i], "block-text", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_BOOLEAN);
       aEntry[nUsed].eType |= CMDFLAG_BLOCKTEXT;
+    }else if( j==10 && strncmp(&zLine[i], "keep-empty", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_KEEPEMPTY;
     }else if( j==11 && strncmp(&zLine[i], "versionable", j)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_VERSIONABLE;
     }else if( j==9 && strncmp(&zLine[i], "sensitive", j)==0 ){

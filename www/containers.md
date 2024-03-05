@@ -15,16 +15,12 @@ show some of these options later on.
 Fossil ships a `Dockerfile` at the top of its source tree,
 [here][DF], which you can build like so:
 
-```
-  $ docker build -t fossil .
-```
+    $ docker build -t fossil .
 
 If the image built successfully, you can create a container from it and
 test that it runs:
 
-```
-  $ docker run --name fossil -p 9999:8080/tcp fossil
-```
+    $ docker run --name fossil -p 9999:8080/tcp fossil
 
 This shows us remapping the internal TCP listening port as 9999 on the
 host. This feature of OCI runtimes means there’s little point to using
@@ -46,9 +42,7 @@ is short for “`docker create`”, a sub-step of the “run” target.)
 To get the custom port setting as in
 second command above, say:
 
-```
-  $ make container-run DCFLAGS='-p 9999:8080/tcp'
-```
+    $ make container-run DCFLAGS='-p 9999:8080/tcp'
 
 Contrast the raw “`docker`” commands above, which create an
 _unversioned_ image called `fossil:latest` and from that a container
@@ -83,11 +77,9 @@ _image_, not in the image itself.
 The simplest method is to stop the container if it was running, then
 say:
 
-```
-  $ docker cp /path/to/my-project.fossil fossil:/museum/repo.fossil
-  $ docker start fossil
-  $ docker exec fossil chown -R 499 /museum
-```
+    $ docker cp /path/to/my-project.fossil fossil:/museum/repo.fossil
+    $ docker start fossil
+    $ docker exec fossil chown -R 499 /museum
 
 That copies the local Fossil repo into the container where the server
 expects to find it, so that the “start” command causes it to serve from
@@ -122,13 +114,11 @@ redeployed. If you do that with the repo inside the container, it gets
 destroyed, too. The solution is to replace the “run” command above with
 the following:
 
-```
-  $ docker run \
-    --publish 9999:8080 \
-    --name fossil-bind-mount \
-    --volume ~/museum:/museum \
-    fossil
-```
+    $ docker run \
+      --publish 9999:8080 \
+      --name fossil-bind-mount \
+      --volume ~/museum:/museum \
+      fossil
 
 Because this bind mount maps a host-side directory (`~/museum`) into the
 container, you don’t need to `docker cp` the repo into the container at
@@ -153,9 +143,7 @@ the repository rather than a whole directory.  Since Fossil repositories
 are specially-formatted SQLite databases, you might be wondering why we
 don’t say things like:
 
-```
-  --volume ~/museum/my-project.fossil:/museum/repo.fossil
-```
+    --volume ~/museum/my-project.fossil:/museum/repo.fossil
 
 That lets us have a convenient file name for the project outside the
 container while letting the configuration inside the container refer to
@@ -294,17 +282,15 @@ All together, we recommend adding the following options to your
 “`docker run`” commands, as well as to any “`docker create`” command
 that will be followed by “`docker start`”:
 
-```
-  --cap-drop AUDIT_WRITE \
-  --cap-drop CHOWN \
-  --cap-drop FSETID \
-  --cap-drop KILL \
-  --cap-drop MKNOD \
-  --cap-drop NET_BIND_SERVICE \
-  --cap-drop NET_RAW \
-  --cap-drop SETFCAP \
-  --cap-drop SETPCAP
-```
+    --cap-drop AUDIT_WRITE \
+    --cap-drop CHOWN \
+    --cap-drop FSETID \
+    --cap-drop KILL \
+    --cap-drop MKNOD \
+    --cap-drop NET_BIND_SERVICE \
+    --cap-drop NET_RAW \
+    --cap-drop SETFCAP \
+    --cap-drop SETPCAP
 
 In the next section, we’ll show a case where you create a container
 without ever running it, making these options pointless.
@@ -328,12 +314,10 @@ back-to-basics nature makes static builds work the way they used to,
 back in the day. If that’s all you’re after, you can do so as easily as
 this:
 
-```
-  $ docker build -t fossil .
-  $ docker create --name fossil-static-tmp fossil
-  $ docker cp fossil-static-tmp:/bin/fossil .
-  $ docker container rm fossil-static-tmp
-```
+    $ docker build -t fossil .
+    $ docker create --name fossil-static-tmp fossil
+    $ docker cp fossil-static-tmp:/bin/fossil .
+    $ docker container rm fossil-static-tmp
 
 The result is six or seven megs, depending on the CPU architecture you
 build for. It’s built stripped.
@@ -349,15 +333,11 @@ The default version of Fossil fetched in the build is the version in the
 checkout directory at the time you run it.  You could override it to get
 a release build like so:
 
-```
-  $ docker build -t fossil --build-arg FSLVER=version-2.20 .
-```
+    $ docker build -t fossil --build-arg FSLVER=version-2.20 .
 
 Or equivalently, using Fossil’s `Makefile` convenience target:
 
-```
-  $ make container-image DBFLAGS='--build-arg FSLVER=version-2.20'
-```
+    $ make container-image DBFLAGS='--build-arg FSLVER=version-2.20'
 
 While you could instead use the generic
 “`release`” tag here, it’s better to use a specific version number
@@ -386,9 +366,7 @@ close to zero as we can manage.
 
 To change it to something else, say:
 
-```
-  $ make container-image DBFLAGS='--build-arg UID=501'
-```
+    $ make container-image DBFLAGS='--build-arg UID=501'
 
 This is particularly useful if you’re putting your repository on a
 separate volume since the IDs “leak” out into the host environment via
@@ -405,9 +383,7 @@ We go into more details about this [below](#light), but
 for now, it suffices to point out that you can switch to Podman while
 using our `Makefile` convenience targets unchanged by saying:
 
-```
     $ make CENGINE=podman container-run
-```
 
 
 ### 5.4 <a id="config"></a>Fossil Configuration Options
@@ -416,10 +392,8 @@ You can use this same mechanism to enable non-default Fossil
 configuration options in your build. For instance, to turn on
 the JSON API and the TH1 docs extension:
 
-```
-  $ make container-image \
-    DBFLAGS='--build-arg FSLCFG="--json --with-th1-docs"'
-```
+    $ make container-image \
+      DBFLAGS='--build-arg FSLCFG="--json --with-th1-docs"'
 
 If you also wanted [the Tcl evaluation extension](./th1.md#tclEval),
 that brings us to [the next point](#run).
@@ -431,61 +405,25 @@ If you want a basic shell environment for temporary debugging of the
 running container, that’s easily added. Simply change this line in the
 `Dockerfile`…
 
-      FROM scratch AS run
+    FROM scratch AS run
 
 …to this:
 
-      FROM busybox AS run
+    FROM busybox AS run
 
 Rebuild and redeploy to give your Fossil container a [BusyBox]-based
 shell environment that you can get into via:
 
-      $ docker exec -it -u fossil $(make container-version) sh
+    $ docker exec -it -u fossil $(make container-version) sh
 
-(That command assumes you built it via “`make container`” and are
-therefore using its versioning scheme.)
+That command assumes you built it via “`make container`” and are
+therefore using its versioning scheme.
 
-Another case where you might need to replace this bare-bones “`run`”
-layer with something more functional is that you’re setting up [email
-alerts](./alerts.md) and need some way to integrate with the host’s
-[MTA]. There are a number of alternatives in that linked document, so
-for the sake of discussion, we’ll say you’ve chosen [Method
-2](./alerts.md#db), which requires a Tcl interpreter and its SQLite
-extension to push messages into the outbound email queue DB, presumably
-bind-mounted into the container.
-
-You can do that by replacing STAGEs 2 and 3 in the stock `Dockerfile`
-with this:
-
-```
-    ## ---------------------------------------------------------------------
-    ## STAGE 2: Pare that back to the bare essentials, plus Tcl.
-    ## ---------------------------------------------------------------------
-    FROM alpine AS run
-    ARG UID=499
-    ENV PATH "/sbin:/usr/sbin:/bin:/usr/bin"
-    COPY --from=builder /tmp/fossil /bin/
-    COPY tools/email-sender.tcl /bin/
-    RUN set -x                                                              \
-        && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
-        && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
-        && install -d -m 700 -o fossil -g fossil log museum                 \
-        && apk add --no-cache tcl sqlite-tcl
-```
-
-Build it and test that it works like so:
-
-```
-    $ make container-run &&
-      echo 'puts [info patchlevel]' |
-      docker exec -i $(make container-version) tclsh 
-    8.6.12
-```
-
-You should remove the `PATH` override in the “RUN”
-stage, since it’s written for the case where everything is in `/bin`.
-With these additions, we need the longer `PATH` shown above to have
-ready access to them all.
+You will likely want to remove the `PATH` override in the “RUN” stage
+when doing this since it’s written for the case where everything is in
+`/bin`, and that will no longer be the case with a more full-featured
+“`run`” layer. As long as the parent layer’s `PATH` value contains
+`/bin`, delegating to it is more likely the correct thing.
 
 Another useful case to consider is that you’ve installed a [server
 extension](./serverext.wiki) and you need an interpreter for that
@@ -495,12 +433,12 @@ ships.(^[BusyBox]’s `/bin/sh` is based on the old 4.4BSD Lite Almquist
 shell, implementing little more than what POSIX specified in 1989, plus
 equally stripped-down versions of `awk` and `sed`.)
 
-Let’s say the extension is written in Python. While you could handle it
-the same way we do with the Tcl example above, Python is more
-popular, giving us more options. Let’s inject a Python environment into
-the stock Fossil container via a suitable “[distroless]” image instead:
+Let’s say the extension is written in Python. Because this is one of the
+most popular programming languages in the world, we have many options
+for achieving this. For instance, there is a whole class of
+“[distroless]” images that will do this efficiently by changing
+“`STAGE 2`” in the `Dockefile` to this:
 
-```
     ## ---------------------------------------------------------------------
     ## STAGE 2: Pare that back to the bare essentials, plus Python.
     ## ---------------------------------------------------------------------
@@ -515,7 +453,6 @@ the stock Fossil container via a suitable “[distroless]” image instead:
         && echo "fossil:x:${UID}:${UID}:User:/museum:/false" >> /etc/passwd \
         && echo "fossil:x:${UID}:fossil"                     >> /etc/group  \
         && install -d -m 700 -o fossil -g fossil log museum
-```
 
 You will also have to add `busybox-static` to the APK package list in
 STAGE 1 for the `RUN` script at the end of that stage to work, since the
@@ -524,19 +461,18 @@ install root-level binaries is why we change `USER` temporarily here.
 
 Build it and test that it works like so:
 
-```
     $ make container-run &&
       docker exec -i $(make container-version) python --version 
     3.11.2
-```
 
 The compensation for the hassle of using Chainguard over something more
-general purpose like Alpine + “`apk add python`”
+general purpose like changing the `run` layer to Alpine and then adding
+a “`apk add python`” command to the `Dockerfile`
 is huge: we no longer leave a package manager sitting around inside the
 container, waiting for some malefactor to figure out how to abuse it.
 
 Beware that there’s a limit to this über-jail’s ability to save you when
-you go and provide a more capable OS layer like this. The container
+you go and provide a more capable runtime layer like this. The container
 layer should stop an attacker from accessing any files out on the host
 that you haven’t explicitly mounted into the container’s namespace, but
 it can’t stop them from making outbound network connections or modifying
@@ -545,6 +481,74 @@ the repo DB inside the container.
 [cgimgs]:     https://github.com/chainguard-images/images/tree/main/images
 [distroless]: https://www.chainguard.dev/unchained/minimal-container-images-towards-a-more-secure-future
 [MTA]:        https://en.wikipedia.org/wiki/Message_transfer_agent
+
+
+### 5.6 <a id="alerts"></a>Email Alerts
+
+The nature of our single static binary container precludes two of the
+options for [sending email alerts](./alerts.md) from Fossil:
+
+*   pipe to a command
+*   SMTP relay host
+
+There is no `/usr/sbin/sendmail` inside the container, and the container
+cannot connect out to a TCP service on the host by default.
+
+While it is possible to get around the first lack by [elaborating the
+run layer](#run), to inject a full-blown Sendmail setup into the
+container would go against the whole idea of containerization.
+Forwarding an SMTP relay port into the container isn’t nearly as bad,
+but it’s still bending the intent behind containers out of shape.
+
+A far better option in this case is the “store emails in database”
+method since the containerized Fossil binary knows perfectly well how to
+write SQLite DB files without relying on any external code. Using the
+paths in the configuration recommended above, the database path should
+be set to something like `/museum/mail.db`. This, along with the use of
+[bind mounts](#bind-mount) means you can have a process running outside
+the container that passes the emails along to the host-side MTA.
+
+The included [`email-sender.tcl`](/file/tools/email-sender.tcl) script
+works reasonably well for this, though in my own usage, I had to make
+two changes to it:
+
+1.  The shebang line at the top has to be `#!/usr/bin/tclsh` on my server.
+2.  I parameterized the `DBFILE` variable at the top thus:
+
+        set DBFILE [lindex $argv 0]
+
+I then wanted a way to start this Tcl script on startup and keep it
+running, which made me reach for systemd. My server is set to allow user
+services to run at boot(^”Desktop” class Linuxes tend to disable that by
+default under the theory that you don’t want those services to run until
+you’ve logged into the GUI as that user. If you find yourself running
+into this, [enable linger
+mode](https://www.freedesktop.org/software/systemd/man/loginctl.html).)
+so I was able to create a unit file called
+`~/.local/share/systemd/user/alert-sender@.service` with these contents:
+
+    [Unit]
+    Description=Fossil email alert sender for %I
+
+    [Service]
+    WorkingDirectory=/home/fossil/museum
+    ExecStart=/home/fossil/bin/alert-sender %I/mail.db
+    Restart=always
+    RestartSec=3
+
+    [Install]
+    WantedBy=default.target
+
+I was then able to enable email alert forwarding for select repositories
+after configuring them per [the docs](./alerts.md) by saying:
+
+    $ systemctl --user daemon-reload
+    $ systemctl --user enable alert-sender@myproject
+    $ systemctl --user start  alert-sender@myproject
+
+Because this is a parameterized script and we’ve set our repository
+paths predictably, you can do this for as many repositories as you need
+to by passing their names after the “`@`” sign in the commands above.
 
 
 ## 6. <a id="light"></a>Lightweight Alternatives to Docker
@@ -570,9 +574,7 @@ integrating Fossil into a larger web site, such as with our [Debian +
 nginx + TLS][DNT] plan. This is why all of the examples below create
 the container with this option:
 
-```
-  --publish 127.0.0.1:9999:8080
-```
+    --publish 127.0.0.1:9999:8080
 
 The assumption is that there’s a reverse proxy running somewhere that
 redirects public web hits to localhost port 9999, which in turn goes to
@@ -642,10 +644,8 @@ tenth the size of Docker Engine.
 For our purposes here, the only thing that changes relative to the
 examples at the top of this document are the initial command:
 
-```
-  $ podman build -t fossil .
-  $ podman run --name fossil -p 9999:8080/tcp fossil
-```
+    $ podman build -t fossil .
+    $ podman run --name fossil -p 9999:8080/tcp fossil
 
 Your Linux package repo may have a `podman-docker` package which
 provides a “`docker`” script that calls “`podman`” for you, eliminating
@@ -656,19 +656,17 @@ The only difference that matters here is that Podman doesn’t have the
 same [default Linux kernel capability set](#caps) as Docker, which
 affects the `--cap-drop` flags recommended above to:
 
-```
-  $ podman create \
-    --name fossil \
-    --cap-drop CHOWN \
-    --cap-drop FSETID \
-    --cap-drop KILL \
-    --cap-drop NET_BIND_SERVICE \
-    --cap-drop SETFCAP \
-    --cap-drop SETPCAP \
-    --publish 127.0.0.1:9999:8080 \
-    localhost/fossil
-  $ podman start fossil
-```
+    $ podman create \
+      --name fossil \
+      --cap-drop CHOWN \
+      --cap-drop FSETID \
+      --cap-drop KILL \
+      --cap-drop NET_BIND_SERVICE \
+      --cap-drop SETFCAP \
+      --cap-drop SETPCAP \
+      --publish 127.0.0.1:9999:8080 \
+      localhost/fossil
+    $ podman start fossil
 
 [pmmac]:  https://podman.io/getting-started/installation.html#macos
 [pmwin]:  https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
@@ -684,9 +682,7 @@ aware of is the `systemd-container` infrastructure on modern Linuxes,
 available since version 239 or so.  Its runtime tooling requires only
 about 1.4 MiB of disk space:
 
-```
-  $ sudo apt install systemd-container btrfs-tools
-```
+    $ sudo apt install systemd-container btrfs-tools
 
 That command assumes the primary test environment for
 this guide, Ubuntu 22.04 LTS with `systemd` 249.  For best
@@ -706,56 +702,50 @@ base image, `nspawn` won’t recognize it as containing an OS unless you
 change the “`FROM scratch AS os`” line at the top of the second stage
 to something like this:
 
-```
-  FROM gcr.io/distroless/static-debian11 AS os
-```
+    FROM gcr.io/distroless/static-debian11 AS os
 
 Using that as a base image provides all the files `nspawn` checks for to
 determine whether the container is sufficiently close to a Linux VM for
 the following step to proceed:
 
-```
-  $ make container
-  $ docker container export $(make container-version) |
-    machinectl import-tar - myproject
-```
+    $ make container
+    $ docker container export $(make container-version) |
+      machinectl import-tar - myproject
 
 Next, create `/etc/systemd/nspawn/myproject.nspawn`:
 
 ----
 
-```
-[Exec]
-WorkingDirectory=/
-Parameters=bin/fossil server                \
-    --baseurl https://example.com/myproject \
-    --create                                \
-    --jsmode bundled                        \
-    --localhost                             \
-    --port 9000                             \
-    --scgi                                  \
-    --user admin                            \
-    museum/repo.fossil
-DropCapability=          \
-    CAP_AUDIT_WRITE      \
-    CAP_CHOWN            \
-    CAP_FSETID           \
-    CAP_KILL             \
-    CAP_MKNOD            \
-    CAP_NET_BIND_SERVICE \
-    CAP_NET_RAW          \
-    CAP_SETFCAP          \
-    CAP_SETPCAP
-ProcessTwo=yes
-LinkJournal=no
-Timezone=no
+    [Exec]
+    WorkingDirectory=/
+    Parameters=bin/fossil server                \
+        --baseurl https://example.com/myproject \
+        --create                                \
+        --jsmode bundled                        \
+        --localhost                             \
+        --port 9000                             \
+        --scgi                                  \
+        --user admin                            \
+        museum/repo.fossil
+    DropCapability=          \
+        CAP_AUDIT_WRITE      \
+        CAP_CHOWN            \
+        CAP_FSETID           \
+        CAP_KILL             \
+        CAP_MKNOD            \
+        CAP_NET_BIND_SERVICE \
+        CAP_NET_RAW          \
+        CAP_SETFCAP          \
+        CAP_SETPCAP
+    ProcessTwo=yes
+    LinkJournal=no
+    Timezone=no
 
-[Files]
-Bind=/home/fossil/museum/myproject:/museum
+    [Files]
+    Bind=/home/fossil/museum/myproject:/museum
 
-[Network]
-VirtualEthernet=no
-```
+    [Network]
+    VirtualEthernet=no
 
 ----
 
@@ -783,18 +773,16 @@ That being done, we also need a generic `systemd` unit file called
 
 ----
 
-```
-[Unit]
-Description=Fossil %i Repo Service
-Wants=modprobe@tun.service modprobe@loop.service
-After=network.target systemd-resolved.service modprobe@tun.service modprobe@loop.service
+    [Unit]
+    Description=Fossil %i Repo Service
+    Wants=modprobe@tun.service modprobe@loop.service
+    After=network.target systemd-resolved.service modprobe@tun.service modprobe@loop.service
 
-[Service]
-ExecStart=systemd-nspawn --settings=override --read-only --machine=%i bin/fossil
+    [Service]
+    ExecStart=systemd-nspawn --settings=override --read-only --machine=%i bin/fossil
 
-[Install]
-WantedBy=multi-user.target
-```
+    [Install]
+    WantedBy=multi-user.target
 
 ----
 
@@ -807,10 +795,8 @@ adjustments to their individual `*.nspawn` files.
 
 You may then start the service in the normal way:
 
-```
-  $ sudo systemctl enable fossil@myproject
-  $ sudo systemctl start  fossil@myproject
-```
+    $ sudo systemctl enable fossil@myproject
+    $ sudo systemctl start  fossil@myproject
 
 You should then find it running on localhost port 9000 per the nspawn
 configuration file above, suitable for proxying Fossil out to the
@@ -818,15 +804,13 @@ public using nginx via SCGI. If you aren’t using a front-end proxy
 and want Fossil exposed to the world via HTTPS, you might say this instead in
 the `*.nspawn` file:
 
-```
-Parameters=bin/fossil server \
-    --cert /path/to/cert.pem \
-    --create                 \
-    --jsmode bundled         \
-    --port 443               \
-    --user admin             \
-    museum/repo.fossil
-```
+    Parameters=bin/fossil server \
+        --cert /path/to/cert.pem \
+        --create                 \
+        --jsmode bundled         \
+        --port 443               \
+        --user admin             \
+        museum/repo.fossil
 
 You would also need to un-drop the `CAP_NET_BIND_SERVICE` capability
 to allow Fossil to bind to this low-numbered port.
@@ -836,9 +820,7 @@ servers running on a single machine, each on a different TCP port,
 as when proxying them out as subdirectories of a larger site.
 To add another project, you must first clone the base “machine” layer:
 
-```
-  $ sudo machinectl clone myproject otherthing
-```
+    $ sudo machinectl clone myproject otherthing
 
 That will not only create a clone of `/var/lib/machines/myproject`
 as `../otherthing`, it will create a matching `otherthing.nspawn` file for you
@@ -859,17 +841,13 @@ Fortunately, there are workarounds.
 
 First, the `apt install` command above becomes:
 
-```
-  $ sudo dnf install systemd-container
-```
+    $ sudo dnf install systemd-container
 
 Second, you have to hack around the lack of `machinectl import-tar`:
 
-```
-  $ rootfs=/var/lib/machines/fossil
-  $ sudo mkdir -p $rootfs
-  $ docker container export fossil | sudo tar -xf -C $rootfs -
-```
+    $ rootfs=/var/lib/machines/fossil
+    $ sudo mkdir -p $rootfs
+    $ docker container export fossil | sudo tar -xf -C $rootfs -
 
 The parent directory path in the `rootfs` variable is important,
 because although we aren’t able to use `machinectl` on such systems, the

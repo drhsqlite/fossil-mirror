@@ -1,8 +1,7 @@
 <title>Check-in Names</title>
 
-<table align="right" border="1" width="33%" cellpadding="10">
-<tr><td>
-<h3>Quick Reference</h3>
+<div class="sidebar no-label">
+<b>Quick Reference</b>
 <ul>
 <li> Hash prefix
 <li> Branch name
@@ -21,25 +20,26 @@
 <li> <b>ckout</b> (<a href='./embeddeddoc.wiki'>embedded docs</a> only)
 </ul>
 </ul>
-</td></tr>
-</table>
+</div>
+
 Many Fossil [/help|commands] and [./webui.wiki | web interface] URLs accept
 check-in names as an argument.  For example, the "[/help/info|info]" command
 accepts an optional check-in name to identify the specific check-in
 about which information is desired:
 
-<blockquote>
-<tt>fossil info</tt> <i>checkin-name</i>
-</blockquote>
+<pre style="white-space: pre-wrap">
+fossil info <i>checkin-name</i>
+</pre>
 
 You are perhaps reading this page from the following URL:
 
-<blockquote>
-https://fossil-scm.org/home/doc/<b>trunk</b>/www/checkin_names.wiki
-</blockquote>
+<verbatim>
+https://fossil-scm.org/home/doc/trunk/www/checkin_names.wiki
+</verbatim>
 
-The URL above is an example of an [./embeddeddoc.wiki | embedded documentation]
-page in Fossil.  The bold term of the pathname is a check-in name that
+This is an example of an [./embeddeddoc.wiki | embedded documentation]
+page URL.  The "trunk" element of the pathname is a
+[./glossary.md#check-in | check-in] name that
 determines which version of the documentation to display.
 
 Fossil provides a variety of ways to specify a check-in.  This
@@ -51,9 +51,9 @@ The canonical name of a check-in is the hash of its
 [./fileformat.wiki#manifest | manifest] expressed as a
 [./hashes.md | long lowercase hexadecimal number].  For example:
 
-<blockquote><pre>
+<pre>
 fossil info e5a734a19a9826973e1d073b49dc2a16aa2308f9
-</pre></blockquote>
+</pre>
 
 The full 40 or 64 character hash is unwieldy to remember and type, though,
 so Fossil also accepts a unique prefix of the hash, using any combination
@@ -61,14 +61,15 @@ of upper and lower case letters, as long as the prefix is at least 4
 characters long.  Hence the following commands all
 accomplish the same thing as the above:
 
-<blockquote><pre>
+<pre>
 fossil info e5a734a19a9
 fossil info E5a734A
 fossil info e5a7
-</blockquote>
+</pre>
 
-Many web interface screens identify check-ins by 10- or 16-character
-prefix of canonical name.
+Fossil uses this feature itself, identifying check-ins by 8 to 16-character
+prefixes of the canonical name in places where it doesn't want to chew
+up the screen real estate required to display the whole hash.
 
 <h2 id="tags">Tags And Branch Names</h2>
 
@@ -78,18 +79,18 @@ So for example, the most recent check-in that
 is tagged with "release" as of this writing is [b98ce23d4fc].
 The command:
 
-<blockquote><pre>
+<pre>
 fossil info release
-</pre></blockquote>
+</pre>
 
 …results in the following output:
 
-<blockquote><pre>
+<pre>
 hash:         b98ce23d4fc3b734cdc058ee8a67e6dad675ca13 2020-08-20 13:27:04 UTC
 parent:       40feec329163103293d98dfcc2d119d1a16b227a 2020-08-20 13:01:51 UTC
 tags:         release, branch-2.12, version-2.12.1
 comment:      Version 2.12.1 (user: drh)
-</pre></blockquote>
+</pre>
 
 There are multiple check-ins that are tagged with "release" but
 (as of this writing) the [b98ce23d4fc]
@@ -109,9 +110,9 @@ you use the "deed2" name, does it choose the canonical name or the tag
 name?  In such cases, you can prefix the tag name with "tag:".
 For example:
 
-<blockquote><tt>
+<pre>
 fossil info tag:deed2
-</tt></blockquote>
+</pre>
 
 The "tag:deed2" name will refer to the most recent check-in
 tagged with "deed2" rather than the
@@ -182,17 +183,17 @@ rather than as a tag by passing “date:2020-04-01”.
 For an example of how timestamps are useful,
 consider the homepage for the Fossil website itself:
 
-<blockquote>
+<pre>
 https://fossil-scm.org/home/doc/<b>trunk</b>/www/index.wiki
-</blockquote>
+</pre>
 
 The bold component of that URL is a check-in name.  To see the stored content
 of the Fossil website repository as of January 1, 2009, one has merely to change
 the URL to the following:
 
-<blockquote>
+<pre>
 https://fossil-scm.org/home/doc/<b>2009-01-01</b>/www/index.wiki
-</blockquote>
+</pre>
 
 (Note that this won't roll you back to the <i>skin</i> and other
 cosmetic configurations as of that date. It also won't change screens
@@ -205,9 +206,9 @@ a colon and then a timestamp.  The combination means to take the most
 recent check-in with the given tag or branch which is not more recent than
 the timestamp.  So, for example:
 
-<blockquote><tt>
+<pre>
 fossil update trunk:2010-07-01T14:30
-</tt></blockquote>
+</pre>
 
 Would cause Fossil to update the working check-out to be the most recent
 check-in on the trunk that is not more recent than 14:30 (UTC) on
@@ -221,9 +222,9 @@ Such a label is useful, for example, in computing all diffs for a single
 branch.  The following example will show all changes in the hypothetical
 branch "xyzzy":
 
-<blockquote><tt>
+<pre>
 fossil diff --from root:xyzzy --to xyzzy
-</tt></blockquote>
+</pre>
 
 <a id="merge-in"></a>
 That doesn't do what you might expect after you merge the parent
@@ -240,12 +241,12 @@ any changes that have already been merged in from the parent branch.
 <a id="start"></a>
 The prefix "<tt>start:</tt>" gives the first check-in of the named branch.
 
-The prefixes "<tt>root:</tt>" and  "<tt>merge-in:</tt>" can be chained: one
-can say for example 
+The prefixes "<tt>root:</tt>", "<tt>start:</tt>", and  "<tt>merge-in:</tt>"
+can be chained: one can say for example 
 
-<blockquote><tt>
+<pre>
 fossil info merge-in:xyzzy:2022-03-01
-</tt></blockquote>
+</pre>
 
 to get informations about the most recent merge-in point on the branch 
 "xyzzy" that happened on or before March 1, 2022.
@@ -258,9 +259,9 @@ equivalent to the timestamp "9999-12-31".
 This special name works anywhere you can pass a "NAME", such as with
 <tt>/info</tt> URLs:
 
-<blockquote><pre>
+<pre>
 http://localhost:8080/info/tip
-</pre></blockquote>
+</pre>
 
 There are several other special names, but they only work from within a
 check-out directory because they are relative to the current checked-out
@@ -284,16 +285,16 @@ more details. You cannot currently use "ckout" anywhere other than in
 To view the changes in the most recent check-in prior to the version currently
 checked out:
 
-<blockquote><pre>
+<pre>
 fossil diff --from previous --to current
-</pre></blockquote>
+</pre>
 
 Suppose you are of the habit of tagging each release with a "release" tag.
 Then to see everything that has changed on the trunk since the last release:
 
-<blockquote><pre>
+<pre>
 fossil diff --from release --to trunk
-</pre></blockquote>
+</pre>
 
 
 <h2 id="order">Resolution Order</h2>

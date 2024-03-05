@@ -73,7 +73,7 @@ struct mkd_renderer {
               void *opaque);
   void (*table_row)(struct Blob *ob, struct Blob *cells, int flags,
               void *opaque);
-  void (*footnote_item)(struct Blob *ob, const struct Blob *text, 
+  void (*footnote_item)(struct Blob *ob, const struct Blob *text,
               int index, int nUsed, void *opaque);
 
   /* span level callbacks - NULL or return 0 prints the span verbatim */
@@ -393,7 +393,8 @@ static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
   rndr->iDepth--;
   blob_reset(buf);
-  if( rndr->nBlobCache < (int)(sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0])) ){
+  if( rndr->nBlobCache <
+        (int)(sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0])) ){
     rndr->aBlobCache[rndr->nBlobCache++] = buf;
   }else{
     fossil_free(buf);
@@ -1819,9 +1820,33 @@ static size_t parse_blockquote(
   char *data,
   size_t size
 ){
-  size_t beg, end = 0, pre, work_size = 0;
+  size_t beg, end = 0, pre, work_size = 0, nb, endFence = 0;
   char *work_data = 0;
   struct Blob *out = new_work_buffer(rndr);
+
+  /* Check to see if this is a quote of a fenced code block, because
+  ** if it is, then blank lines do not terminated the quoted text.  Ex:
+  **
+  **    > ~~~~
+  **    First line
+  **
+  **    Line after blank
+  **    ~~~~
+  **
+  **  If this is a quoted fenced block, then set endFence to be the
+  **  offset of the end of the fenced block.
+  */
+  pre = prefix_quote(data,size);
+  pre += is_empty(data+pre,size-pre);
+  nb = prefix_fencedcode(data+pre,size-pre);
+  if( nb ){
+    size_t i = 0;
+    char delim = data[pre];
+    for(end=pre+nb; end<size && i<nb; end++){
+      if( data[end]==delim ) i++; else i = 0;
+    }
+    if( i>=nb ) endFence = end;
+  }
 
   beg = 0;
   while( beg<size ){
@@ -1831,7 +1856,8 @@ static size_t parse_blockquote(
       beg += pre; /* skipping prefix */
     }else if( is_empty(data+beg, end-beg)
      && (end>=size
-         || (prefix_quote(data+end, size-end)==0
+         || (end>endFence
+             && prefix_quote(data+end, size-end)==0
              && !is_empty(data+end, size-end)))
     ){
       /* empty line followed by non-quote line */
@@ -1885,7 +1911,11 @@ static size_t parse_paragraph(
     ){
       break;
     }
-    if( (i && data[i]=='#') || is_hrule(data+i, size-i) ){
+    if( (i && data[i]=='#')
+     || is_hrule(data+i, size-i)
+     || prefix_uli(data+i, size-i)
+     || prefix_oli(data+i, size-i)
+    ){
       end = i;
       break;
     }
@@ -2543,7 +2573,7 @@ static void parse_block(
       beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED);
     }else if( has_table && is_tableline(txt_data, end) ){
       beg += parse_table(ob, rndr, txt_data, end);
-    }else if( prefix_fencedcode(txt_data, end) 
+    }else if( prefix_fencedcode(txt_data, end)
              && (i = char_codespan(ob, rndr, txt_data, 0, end))!=0
     ){
       beg += i;

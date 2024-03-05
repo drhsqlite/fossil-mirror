@@ -13,15 +13,15 @@ by following these steps:
     supply you with a URL for your project that will look something
     like this:
 
-                https://github.com/username/project.git
+          https://github.com/username/project.git
 
 3.  Back on your workstation, move to a checkout for your Fossil
     project and type:
 
     <blockquote>
     <pre>
-      $ fossil git export /path/to/git/repo --autopush \
-        https://<font color="orange">username</font>:<font color="red">password</font>@github.com/username/project.git
+    $ fossil git export /path/to/git/repo --autopush &bsol;
+      https://<font color="orange">username</font>:<font color="red">password</font>@github.com/username/project.git
     </pre>
     </blockquote>
 
@@ -60,7 +60,7 @@ by following these steps:
 6.  Whenever you update your project, simply run this command to update
     the mirror:
 
-                $ fossil git export
+          $ fossil git export
 
     Unlike with the first time you ran that command, you don’t need
     the remaining arguments, because Fossil remembers those things.
@@ -69,7 +69,7 @@ by following these steps:
 
 7.  To see the status of your mirror, run:
 
-                $ fossil git status
+          $ fossil git status
 
 ## Notes:
 
@@ -144,13 +144,11 @@ by following these steps:
 As of this writing (2019-03-16) Fossil’s own repository is mirrored
 on GitHub at:
 
->
-<https://github.com/drhsqlite/fossil-mirror>
+> <https://github.com/drhsqlite/fossil-mirror>
 
 In addition, an official Git mirror of SQLite is available:
 
->
-<https://github.com/sqlite/sqlite>
+> <https://github.com/sqlite/sqlite>
 
 The Fossil source repositories for these mirrors are at
 <https://www2.fossil-scm.org/fossil> and <https://www2.sqlite.org/src>,
@@ -159,7 +157,6 @@ respectively.  Both repositories are hosted on the same VM at
 [cron job](https://linux.die.net/man/8/cron)
 that runs at 17 minutes after the hour, every hour that does:
 
->
     /usr/bin/fossil sync -u -R /home/www/fossil/fossil.fossil
     /usr/bin/fossil sync -R /home/www/fossil/sqlite.fossil
     /usr/bin/fossil git export -R /home/www/fossil/fossil.fossil

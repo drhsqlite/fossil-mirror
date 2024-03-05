@@ -1,5 +1,4 @@
 <title>How The Fossil Download Page Works</title>
-<h1 align="center">How The Download Page Works</h1>
 
 <h2>1.0 Overview</h2>
 
@@ -45,7 +44,7 @@ instead of the usual HTML or Javascript.
 The default mimetype for "download.html" is
 text/html.  But because the entire page is enclosed within
 
-    <b>&lt;div class='fossil-doc' data-title='Download Page'&gt;...&lt;/div&gt;</b>
+<verbatim><div class='fossil-doc' data-title='Download Page'>...</div></verbatim>
 
 Fossil knows to add its standard header and footer information to the
 document, making it look just like any other page.  See
@@ -94,9 +93,9 @@ to push unversioned content up to the servers.  Having the ability
 to push check-ins (the [/setup_ulist_notes|"i" permission]) is not
 sufficient.
 
-On the Fossil project there are 67 people (as of 2017-03-24) who have
-check-in privileges.  But only 3 core developers
-can push unversioned content and thus
-change the build products on the download page.  Minimizing the number
-of people who can change the build products helps to ensure that
-rogue binaries do not slip onto the download page unnoticed.
+On the Fossil project there are (as of 2023-07-31) 71 people who have
+check-in privileges.  But only the project lead can push unversioned
+content and thus change the build products on the download page.
+Minimizing the number of people who can change the build products
+helps to ensure that rogue binaries do not slip onto the download page
+unnoticed.

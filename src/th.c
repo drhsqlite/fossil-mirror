@@ -247,9 +247,10 @@ static void thBufferWriteFast(
   if( pBuffer->nBuf+nAdd > pBuffer->nBufAlloc ){
     thBufferWriteResize(interp, pBuffer, zAdd, nAdd);
   }else{
-    char *z = pBuffer->zBuf + pBuffer->nBuf;
+    if( pBuffer->zBuf ){
+      memcpy(pBuffer->zBuf + pBuffer->nBuf, zAdd, nAdd);
+    }
     pBuffer->nBuf += nAdd;
-    memcpy(z, zAdd, nAdd);
   }
 }
 #define thBufferWrite(a,b,c,d) thBufferWriteFast(a,b,(const char *)c,d)
@@ -2871,17 +2872,18 @@ int Th_ToDouble(
 */
 int Th_SetResultInt(Th_Interp *interp, int iVal){
   int isNegative = 0;
+  unsigned int uVal = iVal;
   char zBuf[32];
   char *z = &zBuf[32];
 
   if( iVal<0 ){
     isNegative = 1;
-    iVal = iVal * -1;
+    uVal = iVal * -1;
   }
   *(--z) = '\0';
-  *(--z) = (char)(48+((unsigned)iVal%10));
-  while( (iVal = ((unsigned)iVal/10))>0 ){
-    *(--z) = (char)(48+((unsigned)iVal%10));
+  *(--z) = (char)(48+(uVal%10));
+  while( (uVal = (uVal/10))>0 ){
+    *(--z) = (char)(48+(uVal%10));
     assert(z>zBuf);
   }
   if( isNegative ){

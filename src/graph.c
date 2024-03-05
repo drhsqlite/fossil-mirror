@@ -313,7 +313,7 @@ static int findFreeRail(
       iBest = i;
     }
   }
-  
+
   /* If no match, consider all possible rails */
   if( iBestDist>1000 ){
     for(i=0; i<=p->mxRail+1; i++){
@@ -541,7 +541,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       for(i=1; i<pRow->nParent; i++){
         GraphRow *pParent = hashFind(p, pRow->aParent[i]);
         if( pParent==0 ){
-          memmove(pRow->aParent+i, pRow->aParent+i+1, 
+          memmove(pRow->aParent+i, pRow->aParent+i+1,
                   sizeof(pRow->aParent[0])*(pRow->nParent-i-1));
           pRow->nParent--;
           if( i<pRow->nNonCherrypick ){
@@ -554,7 +554,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       }
     }
   }
- 
+
   /* Put the deepest (earliest) merge parent first in the list.
   ** An off-screen merge parent is considered deepest.
   */
@@ -942,7 +942,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       }
 
       /* All clear.  Make the translation
-      */      
+      */
       for(pLoop=pRow; pLoop && pLoop->idx<=pBottom->idx; pLoop=pLoop->pNext){
         if( pLoop->iRail==iFrom ){
           pLoop->iRail = iTo;

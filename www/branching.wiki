@@ -248,9 +248,9 @@ They are in fact separate concepts, but since Fossil is intended to be
 used primarily by humans, we combine them in Fossil's human user
 interfaces.
 
-<blockquote>
+<p class="blockquote">
 <b>Key Distinction:</b> A branch is a <i>named, intentional</i> fork.
-</blockquote>
+</p>
 
 Unnamed forks <i>may</i> be intentional, but most of the time, they're
 accidental and left unnamed.
@@ -259,7 +259,7 @@ Fossil offers two primary ways to create named, intentional forks,
 a.k.a. branches. First:
 
 <pre>
-    $ fossil commit --branch my-new-branch-name
+$ fossil commit --branch my-new-branch-name
 </pre>
 
 This is the method we recommend for most cases: it creates a branch as
@@ -274,9 +274,9 @@ tip check-in on that branch.
 The second, more complicated option is:
 
 <pre>
-    $ fossil branch new my-new-branch-name trunk
-    $ fossil update my-new-branch-name
-    $ fossil commit
+$ fossil branch new my-new-branch-name trunk
+$ fossil update my-new-branch-name
+$ fossil commit
 </pre>
 
 Not only is this three commands instead of one, the first of which is
@@ -379,7 +379,7 @@ If your local checkout is on a forked branch, you can usually fix a fork
 automatically with:
 
 <pre>
-    $ fossil merge
+$ fossil merge
 </pre>
 
 Normally you need to pass arguments to <b>fossil merge</b> to tell it
@@ -493,7 +493,7 @@ effort on a branch can be divided among the forks. It might not be
 immediately obvious why this is so. To see it, consider this swim lane
 diagram:
 
-<verbatim type="pikchr center toggle toggle">
+<verbatim type="pikchr center toggle">
     $laneh = 0.75
 
 ALL: [
@@ -697,7 +697,7 @@ painless to fix them] when they do occur.
 
 <h2>Review Of Terminology</h2>
 
-<blockquote><dl>
+<dl>
 <dt><b>Branch</b></dt>
 <dd><p>A branch is a set of check-ins with the same value for their
 "branch" property.</p></dd>
@@ -716,7 +716,7 @@ children in the same branch.</p></dd>
 <dd><p>A branch point occurs when a check-in has two or more direct (non-merge)
 children in different branches.  A branch point is similar to a fork,
 except that the children are in different branches.</p></dd>
-</dl></blockquote>
+</dl>
 
 Check-in 4 of Figure 3 is not a leaf because it has a child (check-in 5)
 in the same branch.  Check-in 9 of Figure 5 also has a child (check-in 10)

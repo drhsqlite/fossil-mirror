@@ -36,14 +36,14 @@ div.leftoftitle {
 }
 
 /* The header across the top of the page */
-div.header {
+header {
   display: table;
   width: 100%;
 }
 
 /* The main menu bar that appears at the top of the page beneath
 ** the header */
-div.mainmenu {
+nav.mainmenu {
   padding: 0.25em 0.5em;
   font-size: 0.9em;
   font-weight: bold;
@@ -53,7 +53,7 @@ div.mainmenu {
   border-bottom: 1px dotted rgba(200,200,200,0.3);
   z-index: 21;  /* just above hbdrop */
 }
-div#hbdrop {
+nav#hbdrop {
   background-color: #1f1f1f;
   border: 2px solid #303536;
   border-radius: 0 0 0.5em 0.5em;
@@ -64,7 +64,7 @@ div#hbdrop {
   z-index: 20;  /* just below mainmenu, but above timeline bubbles */
 }
 
-div.mainmenu, div.submenu, div.sectionmenu {
+nav.mainmenu, div.submenu, div.sectionmenu {
   color: #ffffffcc;
   background-color: #303536/*#0000ff60*/;
 }
@@ -82,12 +82,12 @@ a, a:visited {
    text-decoration: none;
 }
 a:visited {opacity: 0.8}
-div.mainmenu a, div.submenu a,
+nav.mainmenu a, div.submenu a,
 div.sectionmenu>a.button, div.submenu label,
-div.footer a {
+footer a {
   padding: 0.15em 0.5em;
 }
-div.mainmenu a.active {
+nav.mainmenu a.active {
   border-bottom: 1px solid #FF4500f0;
 }
 a:hover,
@@ -174,7 +174,7 @@ div.divider {
 }
 
 /* The footer at the very bottom of the page */
-div.footer {
+footer {
   clear: both;
   font-size: 0.8em;
   padding: 0.15em 0.5em;
@@ -389,6 +389,14 @@ span.timelineSecondary {
   width: 4px;
   height: 4px;
   background: #bbb
+}
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #bbb;
 }
 .tl-node.sel:after {
   content: '';

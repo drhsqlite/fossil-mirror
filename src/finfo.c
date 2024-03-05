@@ -425,6 +425,7 @@ void finfo_page(void){
     }
   }
   url_add_parameter(&url, "name", zFilename);
+  cgi_check_for_malice();
   blob_zero(&sql);
   if( ridCi ){
     /* If we will be tracking changes across renames, some extra temp

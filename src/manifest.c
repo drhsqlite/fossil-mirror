@@ -1228,7 +1228,7 @@ int manifest_is_well_formed(const char *zIn, int nIn){
   blob_init(&errmsg, 0, 0);
   blob_append(&copy, zIn, nIn);
   pManifest = manifest_parse(&copy, 0, &errmsg);
-  iRes = pManifest!=0;  
+  iRes = pManifest!=0;
   manifest_destroy(pManifest);
   blob_reset(&errmsg);
   return iRes;
@@ -1340,7 +1340,7 @@ void manifest_test_parse_all_blobs_cmd(void){
                      "but manifest_parse() found nothing wrong.\n", id);
         nErr++;
       }
-    }else{            
+    }else{
       p = manifest_get(id, CFTYPE_ANY, &err);
       if( p==0 ){
         fossil_print("%d ERROR: %s\n", id, blob_str(&err));
@@ -2115,7 +2115,7 @@ void manifest_create_event_triggers(void){
     return;  /* Triggers already exists.  No-op. */
   }
   alert_create_trigger();
-  manifest_event_triggers_are_enabled = 1;  
+  manifest_event_triggers_are_enabled = 1;
 }
 
 /*

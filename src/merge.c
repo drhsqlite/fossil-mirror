@@ -138,7 +138,7 @@ int fossil_any_has_fork(int rcvid){
 static void add_renames(
   const char *zFnCol, /* The FV column for the filename in vid */
   int vid,            /* The desired version's- RID */
-  int nid,            /* The	check-in rid for the name pivot */
+  int nid,            /* The check-in rid for the name pivot */
   int revOK,          /* OK to move backwards (child->parent) if true */
   const char *zDebug  /* Generate trace output if not NULL */
 ){
@@ -270,7 +270,7 @@ void test_show_vfile_cmd(void){
   }
   verify_all_options();
   db_must_be_within_tree();
-  debug_show_vfile();  
+  debug_show_vfile();
 }
 
 
@@ -282,19 +282,18 @@ void test_show_vfile_cmd(void){
 **
 ** The argument VERSION is a version that should be merged into the
 ** current check-out.  All changes from VERSION back to the nearest
-** common ancestor are merged.  Except, if either of the --cherrypick or
-** --backout options are used only the changes associated with the
+** common ancestor are merged.  Except, if either of the --cherrypick
+** or --backout options are used only the changes associated with the
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
-** check-out rather than added. When invoked with the name cherry-pick,
-** this command works exactly like merge --cherrypick.
+** check-out rather than added. When invoked with the name
+** cherry-pick, this command works exactly like merge --cherrypick.
+**
+** Files which are renamed in the merged-in branch will be renamed in
+** the current check-out.
 **
 ** If the VERSION argument is omitted, then Fossil attempts to find
 ** a recent fork on the current branch to merge.
-**
-** Only file content is merged.  The result continues to use the
-** file and directory names from the current check-out even if those
-** names might have been changed in the branch being merged in.
 **
 ** Options:
 **   --backout               Do a reverse cherrypick merge against VERSION.
@@ -378,7 +377,7 @@ void merge_cmd(void){
   ** information to be displayed.  This option is undocumented as it
   ** might change or be eliminated in future releases.
   **
-  ** The --show-vfile flag does a dump of the VFILE table for reference. 
+  ** The --show-vfile flag does a dump of the VFILE table for reference.
   **
   ** Hints:
   **   *  Combine --debug and --verbose for still more output.

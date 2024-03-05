@@ -46,7 +46,7 @@ static void tag_propagate(
 
   assert( tagType==0 || tagType==2 );
   pqueuex_init(&queue);
-  pqueuex_insert(&queue, pid, 0.0, 0);
+  pqueuex_insert(&queue, pid, 0.0);
 
   /* Query for children of :pid to which to propagate the tag.
   ** Three returns:  (1) rid of the child.  (2) timestamp of child.
@@ -81,14 +81,14 @@ static void tag_propagate(
       "UPDATE event SET bgcolor=%Q WHERE objid=:rid", zValue
     );
   }
-  while( (pid = pqueuex_extract(&queue, 0))!=0 ){
+  while( (pid = pqueuex_extract(&queue))!=0 ){
     db_bind_int(&s, ":pid", pid);
     while( db_step(&s)==SQLITE_ROW ){
       int doit = db_column_int(&s, 2);
       if( doit ){
         int cid = db_column_int(&s, 0);
         double mtime = db_column_double(&s, 1);
-        pqueuex_insert(&queue, cid, mtime, 0);
+        pqueuex_insert(&queue, cid, mtime);
         db_bind_int(&ins, ":rid", cid);
         db_step(&ins);
         db_reset(&ins);
@@ -642,9 +642,9 @@ void tag_cmd(void){
       int l = strlen(zTagType);
       if( strncmp(zTagType,"cancel",l)==0 ){
         nTagType = 0;
-      }else if( strncmp(zTagType,"singleton",l)==0 ){ 
+      }else if( strncmp(zTagType,"singleton",l)==0 ){
         nTagType = 1;
-      }else if( strncmp(zTagType,"propagated",l)==0 ){ 
+      }else if( strncmp(zTagType,"propagated",l)==0 ){
         nTagType = 2;
       }else{
         fossil_fatal("unrecognized tag type");
@@ -807,6 +807,7 @@ void taglist_page(void){
   if( !g.perm.Read ){
     login_needed(g.anon.Read);
   }
+  cgi_check_for_malice();
   login_anonymous_available();
   style_header("Tags");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -904,4 +905,35 @@ int rid_has_tag(int rid, int tagId){
      " AND tagxref.tagid=tag.tagid",
      rid, tagId
   );
+}
+
+
+/*
+** Returns tagxref.rowid if the given blob.rid has a tagxref.rid entry
+** of an active (non-cancelled) tag matching the given rid and tag
+** name string, else returns 0. Note that this function does not
+** distinguish between a non-existent tag and a cancelled tag.
+**
+** Design note: the return value is the tagxref.rowid because that
+** gives us an easy way to fetch the value of the tag later on, if
+** needed.
+*/
+int rid_has_active_tag_name(int rid, const char *zTagName){
+  static Stmt q = empty_Stmt_m;
+  int rc;
+
+  assert( 0 != zTagName );
+  if( !q.pStmt ){
+    db_static_prepare(&q,
+       "SELECT x.rowid FROM tagxref x, tag t"
+       " WHERE x.rid=$rid AND x.tagtype>0 "
+       " AND x.tagid=t.tagid"
+       " AND t.tagname=$tagname"
+    );
+  }
+  db_bind_int(&q, "$rid", rid);
+  db_bind_text(&q, "$tagname", zTagName);
+  rc = (SQLITE_ROW==db_step(&q)) ? db_column_int(&q, 0) : 0;
+  db_reset(&q);
+  return rc;
 }

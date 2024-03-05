@@ -399,10 +399,20 @@ static void append_file_change_line(
   }else{
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
-        @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
-        @ %h(zName)</a>
-        @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
-        @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
+          @ Renamed and modified
+          @ %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
+          @ %h(zOldName)</a>
+          @ %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+          @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ %h(zName)</a>
+          @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        }else{
+          @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ %h(zName)</a>
+          @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+          @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        }
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
         @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
@@ -498,6 +508,7 @@ void ci_tags_page(void){
     style_finish_page();
     return;
   }
+  cgi_check_for_malice();
   zHash = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Tags and Properties");
   zType = whatis_rid_type_label(rid);
@@ -652,6 +663,7 @@ void ci_page(void){
   zBrName = branch_of_rid(rid);
 
   diffType = preferred_diff_type();
+  cgi_check_for_malice();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
     int nUuid = db_column_bytes(&q1, 0);
@@ -993,6 +1005,7 @@ void winfo_page(void){
       moderation_approve('w', rid);
     }
   }
+  cgi_check_for_malice();
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pWiki->rDate);
@@ -1238,6 +1251,7 @@ void vdiff_page(void){
   if( DCfg.diffFlags & DIFF_IGNORE_ALLWS ){
     blob_appendf(&qp, "&w");
   }
+  cgi_check_for_malice();
   style_set_current_feature("vdiff");
   if( zBranch==0 ){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
@@ -1770,6 +1784,7 @@ void diff_page(void){
   }
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
+  cgi_check_for_malice();
   if( zRe ) re_compile(&pRe, zRe, 0);
   if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
@@ -1845,6 +1860,8 @@ void rawartifact_page(void){
   int rid = 0;
   char *zUuid;
 
+  (void)P("at")/*for cgi_check_for_malice()*/;
+  (void)P("m");
   if( P("ci") ){
     rid = artifact_from_ci_and_filename(0);
   }
@@ -1853,6 +1870,7 @@ void rawartifact_page(void){
   }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   etag_check(ETAG_HASH, zUuid);
@@ -1877,6 +1895,9 @@ void secure_rawartifact_page(void){
   int rid = 0;
   const char *zName = PD("name", "");
 
+  (void)P("at")/*for cgi_check_for_malice()*/;
+  (void)P("m");
+  cgi_check_for_malice();
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
@@ -1926,6 +1947,7 @@ void jchunk_page(void){
   }
 
   login_check_credentials();
+  cgi_check_for_malice();
   if( !g.perm.Read ){
     ajax_route_error(403, "Access requires Read permissions.");
     return;
@@ -2107,6 +2129,7 @@ void hexdump_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
+  cgi_check_for_malice();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
@@ -2413,6 +2436,7 @@ void artifact_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   style_set_current_feature("artifact");
 
   /* Capture and normalize the name= and ci= query parameters */
@@ -2480,7 +2504,7 @@ void artifact_page(void){
       }
       /* No directory found, look for an historic version of the file
       ** that was subsequently deleted. */
-      db_prepare(&q, 
+      db_prepare(&q,
         "SELECT fid, uuid FROM mlink, filename, event, blob"
         " WHERE filename.name=%Q"
         "   AND mlink.fnid=filename.fnid AND mlink.fid>0"
@@ -2744,6 +2768,7 @@ void tinfo_page(void){
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
+  cgi_check_for_malice();
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
@@ -2777,7 +2802,7 @@ void tinfo_page(void){
     }
   }
   zTktTitle = db_table_has_column("repository", "ticket", "title" )
-      ? db_text("(No title)", 
+      ? db_text("(No title)",
                 "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_set_current_feature("tinfo");
@@ -2854,6 +2879,7 @@ void info_page(void){
 
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
+  cgi_check_for_malice();
   nLen = strlen(zName);
   blob_set(&uuid, zName);
   if( name_collisions(zName) ){
@@ -3189,11 +3215,10 @@ void ci_edit_page(void){
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
-  if( P("apply") && cgi_csrf_safe(1) ){
+  if( P("apply") && cgi_csrf_safe(2) ){
     Blob ctrl;
     char *zNow;
 
-    login_verify_csrf_secret();
     blob_zero(&ctrl);
     zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
@@ -3276,7 +3301,6 @@ void ci_edit_page(void){
   @ <p>Make changes to attributes of check-in
   @ [%z(href("%R/ci/%!S",zUuid))%s(zUuid)</a>]:</p>
   form_begin(0, "%R/ci_edit");
-  login_insert_csrf_secret();
   @ <div><input type="hidden" name="r" value="%s(zUuid)">
   @ <table border="0" cellspacing="10">
 
@@ -3525,7 +3549,6 @@ void ci_amend_cmd(void){
   int i;
   Stmt q;
 
-  if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   fEditComment = find_option("edit-comment","e",0)!=0;
   zNewComment = find_option("comment","m",1);
   zComFile = find_option("message-file","M",1);
@@ -3811,7 +3834,7 @@ int describe_commit(
 ** ancestor is found, show only the short hash of VERSION.
 **
 ** Options:
-**    --digits           Display so many hex digits of the hash 
+**    --digits           Display so many hex digits of the hash
 **                       (default: the larger of 6 and the 'hash-digit' setting)
 **    -d|--dirty         Show whether there are changes to be committed
 **    --long             Always show all three components
