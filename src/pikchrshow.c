@@ -24,6 +24,10 @@
 
 #if INTERFACE
 /* These are described in pikchr_process()'s docs. */
+/* The first two must match the values from pikchr.c */
+#define PIKCHR_PROCESS_PLAINTEXT_ERRORS  0x0001
+#define PIKCHR_PROCESS_DARK_MODE         0x0002
+/* end of flags supported directly by pikchr() */
 #define PIKCHR_PROCESS_PASSTHROUGH       0x0003   /* Pass through these flags */
 #define PIKCHR_PROCESS_TH1               0x0004
 #define PIKCHR_PROCESS_TH1_NOSVG         0x0008
@@ -562,6 +566,8 @@ void pikchrshow_page(void){
 **
 **    -th-trace  Trace TH1 execution (for debugging purposes)
 **
+**    -dark      Change pikchr colors to assume a dark-mode theme.
+**
 **
 ** The -div-indent/center/left/right flags may not be combined.
 **
@@ -614,6 +620,9 @@ void pikchr_cmd(void){
   }
   if(find_option("div-source",0,0)!=0){
     pikFlags |= PIKCHR_PROCESS_DIV_SOURCE | PIKCHR_PROCESS_SRC;
+  }
+  if(find_option("dark",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DARK_MODE;
   }
 
   verify_all_options();
