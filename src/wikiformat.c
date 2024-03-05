@@ -462,6 +462,7 @@ struct Renderer {
   int preVerbState;           /* Value of state prior to verbatim */
   int wantAutoParagraph;      /* True if a <p> is desired */
   int inAutoParagraph;        /* True if within an automatic paragraph */
+  int pikchrHtmlFlags;        /* Flags for pikchr_to_html() */
   const char *zVerbatimId;    /* The id= attribute of <verbatim> */
   int nStack;                 /* Number of elements on the stack */
   int nAlloc;                 /* Space allocated for aStack */
@@ -1876,6 +1877,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --inline         Set the WIKI_INLINE flag
 **    --noblock        Set the WIKI_NOBLOCK flag
+**    --dark-pikchr    Render pikchrs in dark mode
 */
 void test_wiki_render(void){
   Blob in, out;
@@ -1886,6 +1888,9 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  if( find_option("dark-pikchr",0,0)!=0 ){
+    pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
+  }
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
@@ -1905,6 +1910,7 @@ void test_wiki_render(void){
 **
 **    --safe            Restrict the output to use only "safe" HTML
 **    --lint-footnotes  Print stats for footnotes-related issues
+**    --dark-pikchr     Render pikchrs in dark mode
 */
 void test_markdown_render(void){
   Blob in, out;
@@ -1913,6 +1919,9 @@ void test_markdown_render(void){
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   bSafe = find_option("safe",0,0)!=0;
   bFnLint = find_option("lint-footnotes",0,0)!=0;
+  if( find_option("dark-pikchr",0,0)!=0 ){
+    pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
+  }
   verify_all_options();
   for(i=2; i<g.argc; i++){
     blob_zero(&out);

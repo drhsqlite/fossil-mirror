@@ -1,5 +1,5 @@
-C Add\s-dark\sflag\sto\sthe\spikchr\scommand\sto\stell\spikchr\sto\srender\sin\sdark\smode.\sThis\sis\sthe\sfirst\spart\sof\sa\srequest\sfrom\s[forum:8f18c016fe|forum\spost\s8f18c016fe].
-D 2024-03-05T08:16:30.276
+C Part\s2\sof\s2\sof\s[91a73ec348d7609f]:\sadd\s--dark-pikchr\sto\sthe\stest-wiki-render\sand\stest-markdown-render\scommands.
+D 2024-03-05T08:44:33.285
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -497,7 +497,7 @@ F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
-F src/markdown_html.c a4926a97fd82b11638c98f67a99fecdd63db6dbb2bc20cdb4ce8be4223a11b07
+F src/markdown_html.c c091000cdd12972fecbf0f1434e5224d5703c0e2b893003f764695676f9f46cf
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c a3e9edb0939858da2f538a9bc827278a1fcfb99d9b46bdcefc912966619eaee7
@@ -587,7 +587,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c de4956b3b7a52f0b9352a7266a427a13a3acc6f9ee2b0503422a10bc16aa2fb6
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c f9cfe8c6ab258f9a533bfbc4a9c4208f5ffa8fa7a8c70e3aae63ce26cc865567
+F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 4ac22db1c25e2a96207a891aced5dd19090afa266586f6f563160cfe8b91890f
 F src/xfer.c ba1e310eb17735e5fde272df86778130b4df9a4ad471f024bca96b5e7568b8fd
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b4bbc8203e001b80390a71db299854cb39fa2a588b5261b9399dafeedb53233
-R 744f7811f2b81b7b9dc728626a624d54
+P 91a73ec348d7609fa8dcde9080e6f64d0bfc473a6a4bf8278bcfd7fd97eea387
+R 0c03e2d65db29bbff726e5340cb2b5e2
 U stephan
-Z c38f2ec6bb1d5064d4c3a19167a10a51
+Z e8503f1eb496033c5b231d55167f2e70
 # Remove this line to create a well-formed Fossil manifest.
