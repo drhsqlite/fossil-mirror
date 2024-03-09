@@ -1753,6 +1753,7 @@ void timeline_test_endpoint(void){
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
 **                       to=CHECKIN      ... to this
+**                       to2=CHECKIN     ... backup name if to= doesn't resolve
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
 **                       bt=PRIOR        ... path from CHECKIN back to PRIOR
@@ -1839,7 +1840,7 @@ void page_timeline(void){
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
-  int to_rid = name_to_typed_rid(P("to"),"ci");    /* to= for path timelines */
+  int to_rid = name_choice("to","to2");             /* to= for path timelines */
   int noMerge = P("shortest")==0;           /* Follow merge links if shorter */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */

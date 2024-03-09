@@ -823,6 +823,30 @@ int name_to_rid(const char *zName){
 }
 
 /*
+** Try to resolve zQP1 into a check-in name.  If zQP1 does not exist,
+** return 0.  If zQP1 exists but cannot be resolved, then also try to
+** resolve zQP2 if it exists.  If zQP1 cannot be resolved but zQP2 does
+** not exist, then raise an error.  If both zQP1 and zQP2 exists but
+** neither can be resolved, also raise an error.
+*/
+int name_choice(const char *zQP1, const char *zQP2){
+  const char *zName, *zName2;
+  int rid;
+  zName = P(zQP1);
+  if( zName==0 || zName[0]==0 ) return 0;
+  rid = symbolic_name_to_rid(zName, "ci");
+  if( rid>0 ) return rid;
+  if( rid<0 ){
+    fossil_fatal("ambiguous name: %s", zName);
+  }
+  zName2 = P(zQP2);
+  if( zName2==0 || zName2[0]==0 ){
+    fossil_fatal("cannot resolve name: %s", zName);
+  }
+  return name_to_typed_rid(zName2, "ci");
+}
+
+/*
 ** WEBPAGE: ambiguous
 ** URL: /ambiguous?name=NAME&src=WEBPAGE
 **
