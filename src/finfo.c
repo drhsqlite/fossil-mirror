@@ -569,7 +569,7 @@ void finfo_page(void){
       fossil_free(zUuid);
     }
   }else if( ridCi ){
-    blob_appendf(&title, "History of the file that is called ");
+    blob_appendf(&title, "History of file ");
     hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_appendf(&title, " at check-in %z%h</a>",

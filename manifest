@@ -1,5 +1,5 @@
-C Part\s2\sof\s2\sof\s[91a73ec348d7609f]:\sadd\s--dark-pikchr\sto\sthe\stest-wiki-render\sand\stest-markdown-render\scommands.
-D 2024-03-05T08:44:33.285
+C Reduce\sextraneous\swording\sin\s/finfo,\sper\sfeedback\sin\s[forum:e456b9141b|forum\spost\se456b9141b].
+D 2024-03-09T07:44:01.047
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -429,7 +429,7 @@ F src/export.c 798a58358be78e338e19e72ca51b533c037f9befb2642efb3efddfc36d5ee02f
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 63150abb2b79ea300cb674556a4f8f527216231f188ca125160378e0040a7a84
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
-F src/finfo.c 9af32353eea80b636e2579eb89bd1f70e53ad0ec1e2fdabf942283fc38442e1b
+F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c b6484592581b757b04337b17cdf472f56cefc45d66ca6c0c93964feab79b1d40
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 91a73ec348d7609fa8dcde9080e6f64d0bfc473a6a4bf8278bcfd7fd97eea387
-R 0c03e2d65db29bbff726e5340cb2b5e2
+P aac2a3508649ffed87c9c966685ba5499feecb2f1c0a41f68441ba57eaf3695b
+R 406a96db996f63f76eaef7591ccc3a0d
 U stephan
-Z e8503f1eb496033c5b231d55167f2e70
+Z 6c066820200354b9a71dfdffc32b4d41
 # Remove this line to create a well-formed Fossil manifest.
