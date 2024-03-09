@@ -3144,7 +3144,7 @@ void fossil_set_timeout(int N){
 **   --notfound URL      Redirect to URL if a page is not found.
 **   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --pkey FILE         Read the private key used for TLS from FILE
-**   -P|--port TCPPORT   Listen to request on port TCPPORT
+**   -P|--port [IP:]PORT  Listen on the given IP (optional) and port
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL

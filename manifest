@@ -1,5 +1,5 @@
-C Reduce\sextraneous\swording\sin\s/finfo,\sper\sfeedback\sin\s[forum:e456b9141b|forum\spost\se456b9141b].
-D 2024-03-09T07:44:01.047
+C Document\sthe\soptional\sIP:\spart\sof\s(server\s--port\sIP:PORT),\sper\s[forum:88f7f8245e|forum\spost\s88f7f8245e].
+D 2024-03-09T07:52:26.761
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 019c23164912022995a335a9e6963b862cced2ea028b09961a65566c432076b7
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 897c21eb493cdd4f3f563526ada020d05751b7e0d2e0a6bc3f473b4c94809e3f
+F src/main.c 522bed78fa3036b03b1217b4d8bec7907b67385872bfb2de60839a02c2dbefa1
 F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aac2a3508649ffed87c9c966685ba5499feecb2f1c0a41f68441ba57eaf3695b
-R 406a96db996f63f76eaef7591ccc3a0d
+P b6517d5eebe414f6e7bca2265a9cf3849549d21e94dd592f5321e58130aac1cc
+R b31a3b7b8f0aa000911d62d5be5a7dc2
 U stephan
-Z 6c066820200354b9a71dfdffc32b4d41
+Z 8c9f576e3b71fcfcf611d612bb513a51
 # Remove this line to create a well-formed Fossil manifest.
