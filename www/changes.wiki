@@ -13,6 +13,8 @@
      <li> Add the shortcut tl= and rl= query parameters
      <li> Add support for from=,ft= and from=,bt= query parameter combinations
      <li> Automatically highlight the endpoints for from=,to= queries.
+     <li> Add the to2=Z query parameter to augment from=X,to=Y so that the
+          path from X to Z is shown if Y cannot be found.
      </ul>
   *  Moved the /museum/repo.fossil file referenced from the Dockerfile from
      the ENTRYPOINT to the CMD part to allow use of --repolist mode.
