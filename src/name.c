@@ -828,14 +828,20 @@ int name_to_rid(const char *zName){
 ** resolve zQP2 if it exists.  If zQP1 cannot be resolved but zQP2 does
 ** not exist, then raise an error.  If both zQP1 and zQP2 exists but
 ** neither can be resolved, also raise an error.
+**
+** If pzPick is not a NULL pointer, then *pzPick to be the value of whichever
+** query parameter ended up being used.
 */
-int name_choice(const char *zQP1, const char *zQP2){
+int name_choice(const char *zQP1, const char *zQP2, const char **pzPick){
   const char *zName, *zName2;
   int rid;
   zName = P(zQP1);
   if( zName==0 || zName[0]==0 ) return 0;
   rid = symbolic_name_to_rid(zName, "ci");
-  if( rid>0 ) return rid;
+  if( rid>0 ){
+    if( pzPick ) *pzPick = zName;
+    return rid;
+  }
   if( rid<0 ){
     fossil_fatal("ambiguous name: %s", zName);
   }
@@ -843,6 +849,7 @@ int name_choice(const char *zQP1, const char *zQP2){
   if( zName2==0 || zName2[0]==0 ){
     fossil_fatal("cannot resolve name: %s", zName);
   }
+  if( pzPick ) *pzPick = zName2;
   return name_to_typed_rid(zName2, "ci");
 }
 

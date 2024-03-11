@@ -1840,7 +1840,8 @@ void page_timeline(void){
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
-  int to_rid = name_choice("to","to2");             /* to= for path timelines */
+  const char *zTo2 = 0;
+  int to_rid = name_choice("to","to2",&zTo2);    /* to= for path timelines */
   int noMerge = P("shortest")==0;           /* Follow merge links if shorter */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
@@ -2214,7 +2215,7 @@ void page_timeline(void){
         p = path_shortest(to_rid, from_rid, 0, 1, 0);
       }
       zFrom = P("from");
-      zTo = P("to");
+      zTo = zTo2 ? zTo2 : P("to");
     }else{
       if( path_common_ancestor(me_rid, you_rid) ){
         p = path_first();
