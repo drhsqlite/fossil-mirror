@@ -1191,7 +1191,7 @@ static int disableLogin = 0;
 ** clone clients to specify a URL that omits default pathnames, such
 ** as "http://fossil-scm.org/" instead of "http://fossil-scm.org/index.cgi".
 **
-** WEBPAGE: xfer  raw-content
+** WEBPAGE: xfer  raw-content  loadavg-exempt
 **
 ** This is the transfer handler on the server side.  The transfer
 ** message has been uncompressed and placed in the g.cgiIn blob.
