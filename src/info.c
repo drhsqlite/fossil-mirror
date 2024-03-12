@@ -1226,8 +1226,13 @@ void vdiff_page(void){
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   zGlob = P("glob");
-  zFrom = P_NoBot("from");
-  zTo = P_NoBot("to");
+  /*
+  ** Maintenace reminder: we explicitly do _not_ use P_NoBot()
+  ** for "from" and "to" because those args can contain legitimate
+  ** strings which may trigger the looks-like SQL checks.
+  */
+  zFrom = P("from");
+  zTo = P("to");
   if( bInvert ){
     Manifest *pTemp = pTo;
     const char *zTemp = zTo;

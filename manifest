@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog.
-D 2024-03-11T19:36:17.931
+C In\s/vdiff,\sexempt\sthe\s'from'\sand\s'to'\s(branch\snames)\sargs\sfrom\sthe\sHTTP\s418\sresponse\scheck\sbecause\sthey\sotherwise\strigger\son\ssome\sreal-world\sbranch\snames.
+D 2024-03-12T18:20:59.998
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
 F src/import.c aa7e267f27d6167463574631f37f373c2ff99f930dbd5b8063921dbccecb839b
-F src/info.c 01fa1ca3cb851fe64d937c3afd2e93f5706d3f9291c19552b105847b6cea3bc4
+F src/info.c fdf673a7db3aa4f6325969a01c7a4d0ba53edb60ce1976f94f3caf36a36bfaf3
 F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
 F src/json.c 60efff7e65795acaa680c845a7aab4871cbf6d62e9ea5f53cf0a9235b2bfd093
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 452f050241b94485b74d1b1f3c992e648b028383c65ccfe92b45ce3a7c77929a
-R 7a4102d0fa6f7e1b4476cbee4f1dbd78
-U drh
-Z bc1564cf2acea7141ea634c80b19a7af
+P fc9c53abf1614b124dbf72bd6f71734ee74cba67e78e5fb11674bbbc1bf3c82e
+R 58507ac713ac8f2ea93017d302670ef8
+U stephan
+Z cf1797828034ca308ce20b56da2cc74d
 # Remove this line to create a well-formed Fossil manifest.
