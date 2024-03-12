@@ -1229,7 +1229,9 @@ void vdiff_page(void){
   /*
   ** Maintenace reminder: we explicitly do _not_ use P_NoBot()
   ** for "from" and "to" because those args can contain legitimate
-  ** strings which may trigger the looks-like SQL checks.
+  ** strings which may trigger the looks-like SQL checks, e.g.
+  **   from=merge-in:OR-clause-improvement
+  **   to=OR-clause-improvement
   */
   zFrom = P("from");
   zTo = P("to");

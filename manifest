@@ -1,5 +1,5 @@
-C In\s/vdiff,\sexempt\sthe\s'from'\sand\s'to'\s(branch\snames)\sargs\sfrom\sthe\sHTTP\s418\sresponse\scheck\sbecause\sthey\sotherwise\strigger\son\ssome\sreal-world\sbranch\snames.
-D 2024-03-12T18:20:59.998
+C Apply\s[938fda79d49e]\sto\sthe\s's'\s(search)\sparameter\sto\sthe\s/wiki\spage.
+D 2024-03-12T23:33:27.354
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
 F src/import.c aa7e267f27d6167463574631f37f373c2ff99f930dbd5b8063921dbccecb839b
-F src/info.c fdf673a7db3aa4f6325969a01c7a4d0ba53edb60ce1976f94f3caf36a36bfaf3
+F src/info.c 85cde3e927a6f7f861997c4b5576bbd2761dbd61b98762ac0a1776724225d727
 F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
 F src/json.c 60efff7e65795acaa680c845a7aab4871cbf6d62e9ea5f53cf0a9235b2bfd093
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -585,7 +585,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
-F src/wiki.c de4956b3b7a52f0b9352a7266a427a13a3acc6f9ee2b0503422a10bc16aa2fb6
+F src/wiki.c 24808e6e70c3497776e43ab4a0aa2d1712a1e6d84c75cc37fab16c9c7bc8f334
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc9c53abf1614b124dbf72bd6f71734ee74cba67e78e5fb11674bbbc1bf3c82e
-R 58507ac713ac8f2ea93017d302670ef8
+P 938fda79d49ede02c349137ca7e92925631c2ca07686f144134c50656f3b93c8
+R 1390a88448b56792b6e1308446757bf4
 U stephan
-Z cf1797828034ca308ce20b56da2cc74d
+Z 024b77e890f89083f6355bc2930642c5
 # Remove this line to create a well-formed Fossil manifest.
