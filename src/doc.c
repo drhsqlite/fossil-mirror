@@ -832,9 +832,9 @@ void document_render(
     }
   }else if( fossil_strcmp(zMime, "text/x-pikchr")==0 ){
     style_adunit_config(ADUNIT_RIGHT_OK);
-    style_header("%s", zDefaultTitle);
+    if( !isPopup ) style_header("%s", zDefaultTitle);
     wiki_render_by_mimetype(pBody, zMime);
-    style_finish_page();
+    if( !isPopup ) style_finish_page();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
