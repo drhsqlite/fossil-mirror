@@ -38,6 +38,8 @@
      This constitutes a <strong>breaking change</strong> for those with
      custom skins; see [./customskin.md#version-2.24 | this section of
      the docs] for migration advice.
+  *  Add ability to render committed Pikchr files to SVG via
+     <samp>/doc/…/foo.pikchr?popup</samp> URLs.
 
 <h2 id='v2_23'>Changes for version 2.23 (2023-11-01)</h2>
 

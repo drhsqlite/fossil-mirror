@@ -1,5 +1,5 @@
-C Allow\srendering\sof\sPikchrs\sto\sSVG\svia\s/doc/…/foo.pikchr?popup\sURLs.\sThis\sallows\sa\sfile\sstored\sin\sthe\srepo\sto\sbe\sreferenced\sas\san\sSVG\sfrom\sother\spages
-D 2024-03-16T22:59:10.497
+C Referenced\sprior\scommit's\sfeature\sin\sthe\schangelog
+D 2024-03-16T23:01:48.800
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -782,7 +782,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html 392290b09844b3b24a218ec01b1bb1119ea4c512a9bbde551d5f168415727d72
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
-F www/changes.wiki ee30c863ea3d100bb4e92ba2b8fb2c02efbae2c0e3ddc1b207f92275c9708ae4
+F www/changes.wiki c12961399a1d80d432c2ecb4fb42bcf735c5379e385ee65ee761cc0ff3b6aaac
 F www/chat.md b16538090e15a37a18e01487f8bccf1d5424ee88e68d02b4c4e8b7bf801151f2
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 966187ef75f7150db2644fb2358b969672dd888d6f227a5587b975b935a327e7
@@ -957,9 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 34276d22e558fbde2705ca0457caefb647b7f387602aca4e0a7621ae65d05f13 758170bc79fe365e580fd9825ebeb4cb817c2554c87712144643a60aa18225bd
-R 10b69f1799c281283363951048257ed1
-T +closed 758170bc79fe365e580fd9825ebeb4cb817c2554c87712144643a60aa18225bd
-U drh
-Z c86139af1daa7ea689b8b55eddeb83cc
+P 363f01aba975a2d7ba599bee1e4030e35ed06038a5a93242b649803b58c8c74e
+R 42cfce49a8dde04fc77555b6ba004975
+U wyoung
+Z 4cdee4118b1a8a1d65da2d7ff73cab73
 # Remove this line to create a well-formed Fossil manifest.
