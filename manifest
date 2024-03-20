@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfrom\sthe\s3.46.0\ndevelopment\scycle,\sfor\sthe\spurposing\stesting\sSQLite.
-D 2024-03-18T19:16:23.242
+C Fix\sa\spotential\sNULL\spointer\sdereference\sin\ssearch\sif\sthe\ssearch\sindex\sis\nnot\scorrect.
+D 2024-03-20T19:06:17.427
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 13c001fcdac41bc5f8e1470ae4ec3fbe9dc49c4e1bd1d969790cb63d3c567086
+F src/search.c f9c5c20536bfacaf8570ae2a265ec7c50e52873e0f60467efedf610fadb8d7f9
 F src/security_audit.c 22032b2d4f946ab45fd63cf34ac09f9b909d16492b03b791b9795ba7726f2354
 F src/setup.c 961c000982b59304e334c043d7da471149f5210cc18082699b9b43f2e9662def
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f532afa4710c5f60d956147e1c73e644ad8515fc0b6c8c3d02965a22a4488e1
-R a697013d19e18cd42c5f5ed2d81a0fcc
+P 03e00a67d9f0aff6e03afd7efed9ee4370e6231e28fcc9957b41ab06d8705c00
+R 524a76711efac70969e4a2dce95c1c62
 U drh
-Z 49f7bcdc3d50be8030b037f5f6812de4
+Z 8aea2e9cfd48614995ca14d50e48f8c4
 # Remove this line to create a well-formed Fossil manifest.
