@@ -54,7 +54,7 @@ static int client_sync_all_urls(
   unsigned configSendMask, /* Send these configuration items */
   const char *zAltPCode    /* Alternative project code (usually NULL) */
 ){
-  int nErr;                /* Number of errors seen */
+  int nErr = 0;            /* Number of errors seen */
   int nOther;              /* Number of extra remote URLs */
   char **azOther;          /* Text of extra remote URLs */
   int i;                   /* Loop counter */
