@@ -418,6 +418,15 @@ void url_unparse(UrlData *p){
 }
 
 /*
+** Move a URL parse from one UrlData object to another.
+*/
+void url_move_parse(UrlData *pTo, UrlData *pFrom){
+  url_unparse(pTo);
+  memcpy(pTo, pFrom, sizeof(*pTo));
+  memset(pFrom, 0, sizeof(*pFrom));
+}
+
+/*
 ** Parse the given URL, which describes a sync server.  Populate variables
 ** in the global "g.url" structure as shown below.  If zUrl is NULL, then
 ** parse the URL given in the last-sync-url setting, taking the password

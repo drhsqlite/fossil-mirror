@@ -262,7 +262,7 @@ void clone_cmd(void){
     clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0);
+    nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
