@@ -34,7 +34,7 @@ serving some local repository, bound to localhost on a fixed
 high-numbered TCP port. For the purposes of testing, simply start it by
 hand in your command shell of choice:
 
-        fossil serve --port 9000 --localhost repo.fossil
+    fossil serve --port 9000 --localhost repo.fossil
 
 That command assumes you’ve got `fossil.exe` in your `%PATH%` and you’re
 in a directory holding `repo.fossil`. See [the platform-independent

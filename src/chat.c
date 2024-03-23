@@ -1219,7 +1219,15 @@ void chat_command(void){
       fossil_free(zObs);
     }
     zPw = g.url.passwd;
-    if( zPw==0 && isDefaultUrl ) zPw = unobscure(db_get("last-sync-pw", 0));
+    if( zPw==0 && isDefaultUrl ){
+      zPw = unobscure(db_get("last-sync-pw", 0));
+      if( zPw==0 ){
+        /* Can happen if "remember password" is not used. */
+        g.url.flags |= URL_PROMPT_PW;
+        url_prompt_for_password();
+        zPw = g.url.passwd;
+      }
+    }
     if( zPw && zPw[0] ){
       zObs = obscure(zPw);
       blob_appendf(&reqUri, "&token=%t", zObs);

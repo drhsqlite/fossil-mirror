@@ -54,8 +54,8 @@ easily set it higher on a multi-core server.
 The maximum load average can also be set on the command line using
 commands like this:
 
-        fossil set max-loadavg 1.5
-        fossil all set max-loadavg 1.5
+    fossil set max-loadavg 1.5
+    fossil all set max-loadavg 1.5
 
 The second form is especially useful for changing the maximum load
 average simultaneously on a large number of repositories.
@@ -73,7 +73,7 @@ jail](./chroot.md) and you have not mounted the `/proc` virtual file
 system inside that jail. On the [self-hosting Fossil repositories][sh],
 this was accomplished by adding a line to the `/etc/fstab` file:
 
-        chroot_jail_proc /home/www/proc proc ro 0 0
+    chroot_jail_proc /home/www/proc proc ro 0 0
 
 The `/home/www/proc` pathname should be adjusted so that the `/proc`
 component is at the root of the chroot jail, of course.

@@ -51,7 +51,7 @@ div.status {
 }
 
 /* The header across the top of the page */
-div.header {
+header {
     margin:10px 0px 10px 0px;
     padding:1px 0px 0px 20px;
     border-style:solid;
@@ -62,7 +62,7 @@ div.header {
 
 /* The main menu bar that appears at the top left of the page beneath
 ** the header. Width must be co-ordinated with the container below */
-div.mainmenu {
+nav.mainmenu {
   float: left;
   margin-left: 10px;
   margin-right: 20px;
@@ -75,16 +75,16 @@ div.mainmenu {
 }
 
 /* Main menu is now a list */
-div.mainmenu ul {
+nav.mainmenu ul {
   padding: 0;
   list-style:none;
 }
-div.mainmenu a, div.mainmenu a:visited{
+nav.mainmenu a, nav.mainmenu a:visited{
   padding: 1px 10px 1px 10px;
   color: #333;
   text-decoration: none;
 }
-div.mainmenu a:hover {
+nav.mainmenu a:hover {
   color: #eee;
   background-color: #333;
 }
@@ -151,7 +151,7 @@ div.divider {
 }
 
 /* The footer at the very bottom of the page */
-div.footer {
+footer {
   font-size: 0.8em;
   margin-top: 12px;
   padding: 5px 10px 5px 10px;

@@ -169,7 +169,6 @@ project, which can be [cloned] to other machines and
     mobile machines that shuttle between home and the office:
 
 ``` pikchr toggle indent
-scale=0.8
 box "~/museum/" fit
 move right 0.1
 line right dotted

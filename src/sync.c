@@ -54,16 +54,28 @@ static int client_sync_all_urls(
   unsigned configSendMask, /* Send these configuration items */
   const char *zAltPCode    /* Alternative project code (usually NULL) */
 ){
-  int nErr;
-  int nOther;
-  char **azOther;
-  int i;
-  Stmt q;
+  int nErr = 0;            /* Number of errors seen */
+  int nOther;              /* Number of extra remote URLs */
+  char **azOther;          /* Text of extra remote URLs */
+  int i;                   /* Loop counter */
+  int iEnd;                /* Loop termination point */
+  int nextIEnd;            /* Loop termination point for next pass */
+  int iPass;               /* Which pass through the remotes.  0 or 1 */
+  int nPass;               /* Number of passes to make.  1 or 2 */
+  Stmt q;                  /* An SQL statement */
+  UrlData baseUrl;         /* Saved parse of the default remote */
 
   sync_explain(syncFlags);
-  nErr = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
-  if( nErr==0 ) url_remember();
-  if( (syncFlags & SYNC_ALLURL)==0 ) return nErr;
+  if( (syncFlags & SYNC_ALLURL)==0 ){
+    /* Common-case:  Only sync with the remote identified by g.url */
+    nErr = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode, 0);
+    if( nErr==0 ) url_remember();
+    return nErr;
+  }
+
+  /* If we reach this point, it means we want to sync with all remotes */
+  memset(&baseUrl, 0, sizeof(baseUrl));
+  url_move_parse(&baseUrl, &g.url);
   nOther = 0;
   azOther = 0;
   db_prepare(&q,
@@ -77,26 +89,56 @@ static int client_sync_all_urls(
     azOther[nOther++] = fossil_strdup(zUrl);
   }
   db_finalize(&q);
-  for(i=0; i<nOther; i++){
-    int rc;
-    url_unparse(&g.url);
-    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW|URL_USE_CONFIG);
-    sync_explain(syncFlags);
-    rc = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
-    nErr += rc;
-    if( (g.url.flags & URL_REMEMBER_PW)!=0 && rc==0 ){
-      char *zKey = mprintf("sync-pw:%s", azOther[i]);
-      char *zPw = obscure(g.url.passwd);
-      if( zPw && zPw[0] ){
-        db_set(zKey/*works-like:""*/, zPw, 0);
+  iEnd = nOther+1;
+  nextIEnd = 0;
+  nPass = 1 + ((syncFlags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL));
+  for(iPass=0; iPass<nPass; iPass++){
+    for(i=0; i<iEnd; i++){
+      int rc;
+      int nRcvd;
+      if( i==0 ){
+        url_move_parse(&g.url, &baseUrl);  /* Load canonical URL */
+      }else{
+        /* Load an auxiliary remote URL */
+        url_parse(azOther[i-1],
+                  URL_PROMPT_PW|URL_ASK_REMEMBER_PW|URL_USE_CONFIG);
       }
-      fossil_free(zPw);
-      fossil_free(zKey);
+      if( i>0 || iPass>0 ) sync_explain(syncFlags);
+      rc = client_sync(syncFlags, configRcvMask, configSendMask,
+                       zAltPCode, &nRcvd);
+      if( nRcvd>0 ){
+        /* If new artifacts were received, we want to repeat all prior
+        ** remotes on the second pass */
+        nextIEnd = i;
+      }
+      nErr += rc;
+      if( rc==0 && iPass==0 ){
+        if( i==0 ){
+          url_remember();
+        }else if( (g.url.flags & URL_REMEMBER_PW)!=0 ){
+          char *zKey = mprintf("sync-pw:%s", azOther[i-1]);
+          char *zPw = obscure(g.url.passwd);
+          if( zPw && zPw[0] ){
+            db_set(zKey/*works-like:""*/, zPw, 0);
+          }
+          fossil_free(zPw);
+          fossil_free(zKey);
+        }
+      }
+      if( i==0 ){
+        url_move_parse(&baseUrl, &g.url); /* Don't forget canonical URL */
+      }else{
+        url_unparse(&g.url);  /* Delete auxiliary URL parses */
+      }
     }
+    iEnd = nextIEnd;
+  }
+  for(i=0; i<nOther; i++){
     fossil_free(azOther[i]);
     azOther[i] = 0;
   }
   fossil_free(azOther);
+  url_move_parse(&g.url, &baseUrl);  /* Restore the canonical URL parse */
   return nErr;
 }
 
@@ -151,7 +193,7 @@ static int autosync(int flags, const char *zSubsys){
     url_remember();
     sync_explain(flags);
     url_enable_proxy("via proxy: ");
-    rc = client_sync(flags, configSync, 0, 0);
+    rc = client_sync(flags, configSync, 0, 0, 0);
   }
   return rc;
 }
@@ -482,7 +524,7 @@ void sync_unversioned(unsigned syncFlags){
   (void)find_option("uv-noop",0,0);
   process_sync_args(&configFlags, &syncFlags, 1, 0);
   verify_all_options();
-  client_sync(syncFlags, 0, 0, 0);
+  client_sync(syncFlags, 0, 0, 0, 0);
 }
 
 /*

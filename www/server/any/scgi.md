@@ -11,11 +11,11 @@ which does not support [Fossil’s CGI mode](./cgi.md).
 
 A basic nginx configuration to support SCGI with Fossil looks like this:
 
-        location /code/ {
-            include scgi_params;
-            scgi_param SCRIPT_NAME "/code";
-            scgi_pass localhost:9000;
-        }
+    location /code/ {
+        include scgi_params;
+        scgi_param SCRIPT_NAME "/code";
+        scgi_pass localhost:9000;
+    }
 
 The `scgi_params` file comes with nginx, and it simply translates nginx
 internal variables to `scgi_param` directives to create SCGI environment
@@ -30,7 +30,7 @@ The final directive simply tells nginx to proxy all calls to URLs under
 `/code` down to an SCGI program on TCP port 9000. We can temporarily
 set Fossil up as a server on that port like so:
 
-        $ fossil server /path/to/repo.fossil --scgi --localhost --port 9000 &
+    $ fossil server /path/to/repo.fossil --scgi --localhost --port 9000 &
 
 The `--scgi` option switches Fossil into SCGI mode from its default,
 which is [stand-alone HTTP server mode](./none.md). All of the other

@@ -1,5 +1,5 @@
 <title>Fossil Delta Encoding Algorithm</title>
-<nowiki>
+
 <h2>Abstract</h2>
 
 <p>A key component for the efficient storage of multiple revisions of
@@ -109,9 +109,9 @@ to <a href="delta_format.wiki#copyrange">copy a range</a>, or
 </ul>
 </p>
 
-<div style="float:right">
-<verbatim type="pikchr" style="float:right">
+<verbatim type="pikchr float-right">
 TARGET: [
+       scale = 0.8
        down
        "Target" bold
        box fill palegreen width 150% height 200% "Processed"
@@ -135,7 +135,6 @@ ORIGIN: [
 
 arrow from TARGET.W.e to ORIGIN.B2.w "Signature" aligned above
 </verbatim>
-</div>
 
 <p>To make this decision the encoder first computes the hash value for
 the NHASH bytes in the window and then looks at all the locations in
@@ -219,11 +218,9 @@ and a new byte is shifted in.<p>
 <p>Assuming an array Z of NHASH bytes (indexing starting at 0) the
 hash V is computed via</p>
 
-<p align=center><table><tr><td>
-<p><img src="encode1.gif" align="center"></p>
-<p><img src="encode2.gif" align="center"></p>
-<p><img src="encode3.gif" align="center"></p>
-</td></tr></table></p>
+<div align="center"><img src="encode1.gif"></div>
+<div align="center"><img src="encode2.gif"></div>
+<div align="center"><img src="encode3.gif"></div>
 
 where A and B are unsigned 16-bit integers (hence the <u>mod</u>), and
 V is a 32-bit unsigned integer with B as MSB, A as LSB.
@@ -236,11 +233,9 @@ byte <img src="encode4.gif" align="center">, and the new byte
 <img src="encode5.gif" align="center"> , the new hash can
 be computed incrementally via: </p>
 
-<p align=center><table><tr><td>
-<p><img src="encode6.gif" align="center"></p>
-<p><img src="encode7.gif" align="center"></p>
-<p><img src="encode8.gif" align="center"></p>
-</td></tr></table></p>
+<div align="center"><img src="encode6.gif"></div>
+<div align="center"><img src="encode7.gif"></div>
+<div align="center"><img src="encode8.gif"></div>
 
 <p>For A, the regular sum, it can be seen easily that this the correct
 way recomputing that component.</p>

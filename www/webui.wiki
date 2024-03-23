@@ -34,10 +34,10 @@ including the document you are now reading,
 is rendered using the Fossil web interface, with no enhancements,
 and little customization.
 
-<blockquote>
+<div class="indent">
 <b>Key point:</b> <i>The Fossil website is just a running instance
 of Fossil!
-</blockquote>
+</div>
 
 Note also that because Fossil is a distributed system, you can run
 the web interface on your local machine while off network (for example,
@@ -52,7 +52,7 @@ management website.
 To start using the built-in Fossil web interface on an existing Fossil
 repository, simply type this:
 
-   <b>fossil ui existing-repository.fossil</b>
+<pre>fossil ui existing-repository.fossil</pre>
 
 Substitute the name of your repository, of course.
 The "ui" command will start a web server running (it figures out an
@@ -60,7 +60,7 @@ available TCP port to use on its own) and then automatically launches
 your web browser to point at that server.  If you run the "ui" command
 from within an open check-out, you can omit the repository name:
 
-  <b>fossil ui</b>
+<pre>fossil ui</pre>
 
 The latter case is a very useful short-cut when you are working on a
 Fossil project and you want to quickly do some work with the web interface.
@@ -155,10 +155,8 @@ run Fossil as CGI, just put the
 have both read and write permission on the file and the directory that
 contains the file, then add a CGI script that looks something like this:
 
-  <verbatim>
-  #!/usr/local/bin/fossil
-  repository: /home/www/sample-project.fossil
-  </verbatim>
+<verbatim>#!/usr/local/bin/fossil
+repository: /home/www/sample-project.fossil</verbatim>
 
 Adjust the script above so that the paths are correct for your system,
 of course, and also make sure the Fossil binary is installed on the server.
@@ -175,10 +173,8 @@ Not a problem.  The Fossil interface can also be launched via inetd or
 xinetd.  An inetd configuration line sufficient to launch the Fossil
 web interface looks like this:
 
-  <verbatim>
-  80 stream tcp nowait.1000 root /usr/local/bin/fossil \
-  /usr/local/bin/fossil http /home/www/sample-project.fossil
-  </verbatim>
+<verbatim>80 stream tcp nowait.1000 root /usr/local/bin/fossil \
+/usr/local/bin/fossil http /home/www/sample-project.fossil</verbatim>
 
 As always, you'll want to adjust the pathnames to whatever is appropriate
 for your system.  The xinetd setup uses a different syntax but follows

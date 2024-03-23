@@ -1,27 +1,28 @@
-<div class="header">
+<header>
   <div class="logo">
     <img src="$logo_image_url" alt="logo">
     <br />$<project_name>
   </div>
   <div class="title">$<title></div>
   <div class="status"><th1>
-     if {[info exists login]} {
-       puts "Logged in as $login"
-     } else {
-       puts "Not logged in"
-     }
+    if {[info exists login]} {
+      puts "Logged in as $login"
+    } else {
+      puts "Not logged in"
+    }
   </th1></div>
-</div>
-<div class="mainmenu">
-<th1>
-set sitemap 0
-foreach {name url expr class} $mainmenu {
-  if {![capexpr $expr]} continue
-  if {[string match /* $url]} {set url $home$url}
-  html "<a href='$url'>$name</a><br/>\n"
-  if {[string match /sitemap $url]} {set sitemap 1}
-}
-if {!$sitemap} {
-  html "<a href='$home/sitemap'>Sitemap</a>\n"
-}
-</th1></div>
+</header>
+<nav class="mainmenu" title="Main Menu">
+  <th1>
+    set sitemap 0
+    foreach {name url expr class} $mainmenu {
+      if {![capexpr $expr]} continue
+      if {[string match /* $url]} {set url $home$url}
+      html "<a href='$url'>$name</a><br/>\n"
+      if {[string match /sitemap $url]} {set sitemap 1}
+    }
+    if {!$sitemap} {
+      html "<a href='$home/sitemap'>Sitemap</a>\n"
+    }
+  </th1>
+</nav>

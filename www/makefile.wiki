@@ -148,9 +148,9 @@ To run the VERSION.h generator, first compile the tools/mkversion.c
  source file into a command-line program (named "mkversion.exe")
 then run:
 
-<blockquote><pre>
+<pre>
 mkversion.exe manifest.uuid manifest VERSION &gt;VERSION.h
-</pre></blockquote>
+</pre>
 
 The pathnames in the above command might need to be adjusted to get the
 directories right.  The point is that the manifest.uuid, manifest, and
@@ -163,9 +163,9 @@ The builtin_data.h file contains C-language byte-array definitions for
 the content of resource files used by Fossil.  To generate the
 builtin_data.h file, first compile the mkbuiltin.c program, then run:
 
-<blockquote><pre>
+<pre>
 mkbuiltin.exe diff.tcl <i>OtherFiles...</i> &gt;builtin_data.h
-</pre></blockquote>
+</pre>
 
 At the time of this writing, the "diff.tcl" script (a Tcl/Tk script used
 to generate implement --tk option on the diff command) is the only resource
@@ -187,9 +187,9 @@ generates some C code that Fossil uses in order to dispatch commands and
 HTTP requests and to show on-line help.  Compile the mkindex program
 from the mkindex.c source file.  Then run:
 
-<blockquote><pre>
+<pre>
 ./mkindex src.c >page_index.h
-</pre></blockquote>
+</pre>
 
 Note that "src.c" in the above is a stand-in for the (79) regular source
 files of Fossil - all source files except for the exceptions described in
@@ -207,9 +207,9 @@ an HTTP request.  The translate preprocessor is a simple C program whose
 sources are in the translate.c source file.  The translate preprocess
 is run on each of the other ordinary source files separately, like this:
 
-<blockquote><pre>
+<pre>
 ./translate src.c >src_.c
-</pre></blockquote>
+</pre>
 
 In this case, the "src.c" file represents any single source file from the
 set of ordinary source files as described in section 2.0 above.  Note that
@@ -237,9 +237,9 @@ source files are not scanned by makeheaders.  Makeheaders only runs over
 makeheaders also uses some extra header files as input.  The general format
 is like this:
 
-<blockquote><pre>
+<pre>
 makeheaders src_.c:src.h sqlite3.h th.h VERSION.h
-</pre></blockquote>
+</pre>
 
 In the example above the "src_.c" and "src.h" names represent all of the
 (79) ordinary C source files, each as a separate argument.
@@ -306,14 +306,14 @@ example, use these Debug flags in addition to other flags passed to the
 configure scripts:
 
 On Linux, *NIX and similar platforms:
-<blockquote><pre>
+<pre>
 ./configure --fossil-debug
-</pre></blockquote>
+</pre>
 
 On Windows:
-<blockquote><pre>
+<pre>
 win\buildmsvc.bat FOSSIL_DEBUG=1
-</pre></blockquote>
+</pre>
 
 The resulting fossil binary could then be loaded into a platform-specific
 debugger. Source files displayed in the debugger correspond to the ones

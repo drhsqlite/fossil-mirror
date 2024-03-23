@@ -1258,7 +1258,7 @@ int cgi_setup_query_string(void){
     add_param_list(z, '&');
     z = (char*)P("skin");
     if( z ){
-      char *zErr = skin_use_alternative(z, 2);
+      char *zErr = skin_use_alternative(z, 2, SKIN_FROM_QPARAM);
       ++rc;
       if( !zErr && P("once")==0 ){
         cookie_write_parameter("skin","skin",z);
@@ -1409,7 +1409,7 @@ void cgi_init(void){
     add_param_list(z, ';');
     z = (char*)cookie_value("skin",0);
     if(z){
-      skin_use_alternative(z, 2);
+      skin_use_alternative(z, 2, SKIN_FROM_COOKIE);
     }
   }
 

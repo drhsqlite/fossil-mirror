@@ -4,11 +4,10 @@ All artifacts in Fossil are identified by a unique hash, currently using
 [the SHA3 algorithm by default][hpol], but historically using the SHA1
 algorithm:
 
-<table border="1" cellspacing="0" cellpadding="10">
-<tr><th>Algorithm</th><th>Raw Bits</th> <th>Hexadecimal digits</th></tr>
-<tr><td>SHA3-256</td>  <td>256</td>      <td>64</td></tr>
-<tr><td>SHA1</td>      <td>160</td>      <td>40</td></tr>
-</table>
+| Algorithm | Raw Bits | Hexadecimal digits |
+|-----------|----------|--------------------|
+| SHA3-256  | 256      | 64                 |
+| SHA1      | 160      | 40                 |
 
 There are many types of artifacts in Fossil: commits (a.k.a. check-ins),
 tickets, ticket comments, wiki articles, forum postings, file data

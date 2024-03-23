@@ -1194,7 +1194,7 @@ static int disableLogin = 0;
 ** clone clients to specify a URL that omits default pathnames, such
 ** as "http://fossil-scm.org/" instead of "http://fossil-scm.org/index.cgi".
 **
-** WEBPAGE: xfer  raw-content
+** WEBPAGE: xfer  raw-content  loadavg-exempt
 **
 ** This is the transfer handler on the server side.  The transfer
 ** message has been uncompressed and placed in the g.cgiIn blob.
@@ -1986,7 +1986,8 @@ int client_sync(
   unsigned syncFlags,      /* Mask of SYNC_* flags */
   unsigned configRcvMask,  /* Receive these configuration items */
   unsigned configSendMask, /* Send these configuration items */
-  const char *zAltPCode    /* Alternative project code (usually NULL) */
+  const char *zAltPCode,   /* Alternative project code (usually NULL) */
+  int *pnRcvd              /* Set to # received artifacts, if not NULL */
 ){
   int go = 1;             /* Loop until zero */
   int nCardSent = 0;      /* Number of cards sent */
@@ -2027,6 +2028,7 @@ int client_sync(
   const char *zClientId;  /* A unique identifier for this check-out */
   unsigned int mHttpFlags;/* Flags for the http_exchange() subsystem */
 
+  if( pnRcvd ) *pnRcvd = 0;
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
      && configRcvMask==0
@@ -2931,6 +2933,7 @@ int client_sync(
     db_end_transaction(0);
   };
   transport_stats(&nSent, &nRcvd, 1);
+  if( pnRcvd ) *pnRcvd = nArtifactRcvd;
   if( (rSkew*24.0*3600.0) > 10.0 ){
      fossil_warning("*** time skew *** server is fast by %s",
                     db_timespan_name(rSkew));
@@ -2961,6 +2964,8 @@ int client_sync(
     fossil_print(
       "Uncompressed payload sent: %lld  received: %lld\n", nUncSent, nUncRcvd);
   }
+  blob_reset(&send);
+  blob_reset(&recv);
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
   if( nErr && go==2 ){

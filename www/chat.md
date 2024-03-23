@@ -82,6 +82,15 @@ Non-image files always appear in messages as download links.
 
 ### Deletion of Messages
 
+<div class="sidebar">Message deletion is itself a type of message, which
+is why deletions count towards updates in the recent activity list.  (It
+is counted for the person who performed the deletion, not the author of
+the deleted comment.) That can potentially lead to odd corner cases
+where a user shows up in the list but has no messages which are
+currently visible because they were deleted, or an admin user who has
+not posted anything but deleted a message. That is a known minor
+cosmetic-only bug with a resolution of "will not fix."</div>
+
 Any user may *locally* delete a given message by clicking on the "tab"
 at the top of the message and clicking the button which appears. Such
 deletions are local-only, and the messages will reappear if the page
@@ -114,15 +123,6 @@ track and present those. That list can be used to filter messages on a
 specific user by tapping on that user's name, tapping a second time to
 remove the filter.
 
-Sidebar: message deletion is a type of message and deletions count
-towards updates in the recent activity list (counted for the person
-who performed the deletion, not the author of the deleted
-comment). That can potentially lead to odd corner cases where a user
-shows up in the list but has no messages which are currently visible
-because they were deleted, or an admin user who has not posted
-anything but deleted a message. That is a known minor cosmetic-only
-bug with a resolution of "will not fix."
-
 ### <a id="cli"></a> The `fossil chat` Command
 
 Type [fossil chat](/help?cmd=chat) from within any open check-out
@@ -148,7 +148,7 @@ able to send chat messages, but not do anything else.  Then, in the
 program or script that runs the robot, when it wants to send a chat
 message, have it run a command like this:
 
-> ~~~~
+~~~~
 fossil chat send --remote https://robot:PASSWORD@project.org/fossil \
   --message 'MESSAGE TEXT' --file file-to-attach.txt
 ~~~~
@@ -214,7 +214,7 @@ Downloading of posted files and images uses a separate, non-XHR interface:
 Chat messages are stored on the server-side in the CHAT table of
 the repository.
 
-> ~~~
+~~~
 CREATE TABLE repository.chat(
   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
   mtime JULIANDAY,  -- Time for this entry - Julianday Zulu

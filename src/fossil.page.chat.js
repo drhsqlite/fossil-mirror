@@ -67,6 +67,14 @@ window.fossil.onPageLoad(function(){
       D.append(document.body,dbg);
     }
   })();
+  const GetFramingElements = function() {
+    return document.querySelectorAll([
+      "body > header",
+      "body > nav.mainmenu",
+      "body > footer",
+      "#debugMsg"
+    ].join(','));
+  };
   const ForceResizeKludge = (function(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
@@ -78,12 +86,7 @@ window.fossil.onPageLoad(function(){
        While we're here, we also use this to cap the max-height
        of the input field so that pasting huge text does not scroll
        the upper area of the input widget off-screen. */
-    const elemsToCount = [
-      document.querySelector('body > div.header'),
-      document.querySelector('body > div.mainmenu'),
-      document.querySelector('body > #hbdrop'),
-      document.querySelector('body > div.footer')
-    ];
+    const elemsToCount = GetFramingElements();
     const contentArea = E1('div.content');
     const bcl = document.body.classList;
     const resized = function f(){
@@ -104,10 +107,10 @@ window.fossil.onPageLoad(function(){
       contentArea.style.height =
         contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
-          " - 0.75em"/*fudge value*/,")"
+          " - 0.65em"/*fudge value*/,")"
           /* ^^^^ hypothetically not needed, but both Chrome/FF on
              Linux will force scrollbars on the body if this value is
-             too small (<0.75em in my tests). */
+             too small; current value is empirically selected. */
         ].join('');
       if(false){
         console.debug("resized.",wh, extra, ht,
@@ -326,13 +329,7 @@ window.fossil.onPageLoad(function(){
       chatOnlyMode: function f(yes){
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
-          document.querySelectorAll(
-            ["body > div.header",
-             "body > div.mainmenu",
-             "body > div.footer",
-             "#debugMsg"
-            ].join(',')
-          ).forEach((e)=>f.elemsToToggle.push(e));
+          GetFramingElements().forEach((e)=>f.elemsToToggle.push(e));
         }
         if(!arguments.length) yes = true;
         if(yes === this.isChatOnlyMode()) return this;
@@ -1688,7 +1685,7 @@ window.fossil.onPageLoad(function(){
       children:[{
         label: "Left-align my posts",
         hint: "Default alignment of your own messages is selected "
-          + "based window width/height ratio.",
+          + "based on the window width/height ratio.",
         boolValue: ()=>!document.body.classList.contains('my-messages-right'),
         callback: function f(){
           document.body.classList[

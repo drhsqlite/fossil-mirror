@@ -145,7 +145,7 @@ void setup_page(void){
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
   }
-  setup_menu_entry("Skins", "setup_skin",
+  setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"

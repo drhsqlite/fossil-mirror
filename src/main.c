@@ -2527,7 +2527,7 @@ void cmd_cgi(void){
       ** the skin stored in the CONFIG db table is used.
       */
       blob_token(&line, &value);
-      fossil_free(skin_use_alternative(blob_str(&value), 1));
+      fossil_free(skin_use_alternative(blob_str(&value), 1, SKIN_FROM_CGI));
       blob_reset(&value);
       continue;
     }
@@ -3144,7 +3144,7 @@ void fossil_set_timeout(int N){
 **   --notfound URL      Redirect to URL if a page is not found.
 **   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --pkey FILE         Read the private key used for TLS from FILE
-**   -P|--port TCPPORT   Listen to request on port TCPPORT
+**   -P|--port [IP:]PORT  Listen on the given IP (optional) and port
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL

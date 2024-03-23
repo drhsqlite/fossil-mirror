@@ -601,6 +601,37 @@ static int html_autolink(
 }
 
 /*
+** Flags for use with/via pikchr_to_html_add_flags().
+*/
+static int pikchrToHtmlFlags = 0;
+/*
+** Sets additional pikchr_process() flags to use for all future calls
+** to pikch_to_html(). This is intended to be used by commands such as
+** test-wiki-render and test-markdown-render to set the
+** PIKCHR_PROCESS_DARK_MODE flag for all embedded pikchr elements.
+**
+** Not all PIKCHR_PROCESS flags are legal, as pikchr_to_html()
+** hard-codes a subset of flags and passing arbitrary flags here may
+** interfere with that.
+**
+** The only tested/intended use of this function is to pass it either
+** 0 or PIKCHR_PROCESS_DARK_MODE.
+**
+** Design note: this is not implemented as an additional argument to
+** pikchr_to_html() because the commands for which dark-mode rendering
+** are now supported (test-wiki-render and test-markdown-render) are
+** far removed from their corresponding pikchr_to_html() calls and
+** there is no direct path from those commands to those calls. A
+** cleaner, but much more invasive, approach would be to add a flag to
+** markdown_to_html(), extend the WIKI_... flags with
+** WIKI_DARK_PIKCHR, and extend both wiki.c:Renderer and
+** markdown_html.c:MarkdownToHtml to contain and pass on that flag.
+*/
+void pikchr_to_html_add_flags( int f ){
+  pikchrToHtmlFlags = f;
+}
+
+/*
 ** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
 ** text and insert the result in place of the original.
 */
@@ -612,7 +643,8 @@ void pikchr_to_html(
   int pikFlags = PIKCHR_PROCESS_NONCE
     | PIKCHR_PROCESS_DIV
     | PIKCHR_PROCESS_SRC
-    | PIKCHR_PROCESS_ERR_PRE;
+    | PIKCHR_PROCESS_ERR_PRE
+    | pikchrToHtmlFlags;
   Blob bSrc = empty_blob;
   const char *zPikVar;
   double rPikVar;

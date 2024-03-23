@@ -1,0 +1,29 @@
+<header>
+  <div class="title"><h1>$<project_name></h1>$<title></div>
+  <div class="status">
+    <th1>
+      if {[info exists login]} {
+        html "<a href='$home/login'>$login</a>\n"
+      } else {
+        html "<a href='$home/login'>Login</a>\n"
+      }
+    </th1>
+  </div>
+</header>
+<nav class="mainmenu" title="Main Menu">
+  <th1>
+    html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
+    builtin_request_js hbmenu.js
+    foreach {name url expr class} $mainmenu {
+      if {![capexpr $expr]} continue
+      if {[string match /* $url]} {
+        if {[string match $url\[/?#\]* /$current_page/]} {
+          set class "active $class"
+        }
+        set url $home$url
+      }
+      html "<a href='$url' class='$class'>$name</a>\n"
+    }
+  </th1>
+</nav>
+<nav id="hbdrop" class='hbdrop' title="sitemap"></nav>

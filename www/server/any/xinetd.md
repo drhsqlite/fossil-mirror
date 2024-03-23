@@ -8,15 +8,15 @@ The typical configuration file is either `/etc/xinetd.conf` or a subfile
 in the `/etc/xinetd.d` directory. You need a configuration something
 like this for Fossil:
 
-        service http
-        {
-          port = 80
-          socket_type = stream
-          wait = no
-          user = root
-          server = /usr/bin/fossil
-          server_args = http /home/fossil/repos/
-        }
+    service http
+    {
+      port = 80
+      socket_type = stream
+      wait = no
+      user = root
+      server = /usr/bin/fossil
+      server_args = http /home/fossil/repos/
+    }
 
 This example configures Fossil to serve multiple repositories under the
 `/home/fossil/repos/` directory.

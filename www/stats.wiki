@@ -1,5 +1,4 @@
 <title>Fossil Performance</title>
-<h1 align="center">Performance Statistics</h1>
 
 The questions will inevitably arise:  How does Fossil perform?
 Does it use a lot of disk space or bandwidth?  Is it scalable?
@@ -10,7 +9,7 @@ well they are working.  The following table is a summary of the results.
 (Last updated on 2018-06-04.)
 Explanation and analysis follows the table.
 
-<table border=1>
+<table>
 <tr>
 <th>Project</th>
 <th>Number Of Artifacts</th>

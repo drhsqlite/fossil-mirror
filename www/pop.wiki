@@ -1,5 +1,4 @@
 <title>Principles Of Operation</title>
-<h1 align="center">Principles Of Operation</h1>
 
 This page attempts to define the foundational principals upon
 which Fossil is built.

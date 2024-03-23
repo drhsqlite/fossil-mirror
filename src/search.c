@@ -1159,7 +1159,7 @@ int search_run_and_output(
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
     @ <br><span class='snippet'>%z(cleanSnippet(zSnippet)) \
-    if( zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
+    if( zLabel && zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
       @ <small>(%h(zDate))</small>
     }
     @ </span></li>

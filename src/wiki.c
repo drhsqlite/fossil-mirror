@@ -206,13 +206,19 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
     @ %s(blob_str(&tail))
     blob_reset(&tail);
   }else if( fossil_strcmp(zMimetype, "text/x-pikchr")==0 ){
+    int isPopup = P("popup")!=0;
     const char *zPikchr = blob_str(pWiki);
     int w, h;
     char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
     if( w>0 ){
-      @ <div class="pikchr-svg" style="max-width:%d(w)px">
+      if( isPopup ) cgi_set_content_type("image/svg+xml");
+      else{
+        @ <div class="pikchr-svg" style="max-width:%d(w)px">
+      }
       @ %s(zOut)
-      @ </div>
+      if( !isPopup){
+        @ </div>
+      }
     }else{
       @ <pre class='error'>
       @ %h(zOut)
@@ -554,6 +560,7 @@ void wiki_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = P("name");
+  (void)P("s")/*for cgi_check_for_malice(). "s" == search stringy*/;
   cgi_check_for_malice();
   if( zPageName==0 ){
     if( search_restrict(SRCH_WIKI)!=0 ){

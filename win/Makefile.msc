@@ -537,6 +537,10 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\..\skins\eagle\details.txt" \
         "$(SRCDIR)\..\skins\eagle\footer.txt" \
         "$(SRCDIR)\..\skins\eagle\header.txt" \
+        "$(SRCDIR)\..\skins\etienne\css.txt" \
+        "$(SRCDIR)\..\skins\etienne\details.txt" \
+        "$(SRCDIR)\..\skins\etienne\footer.txt" \
+        "$(SRCDIR)\..\skins\etienne\header.txt" \
         "$(SRCDIR)\..\skins\khaki\css.txt" \
         "$(SRCDIR)\..\skins\khaki\details.txt" \
         "$(SRCDIR)\..\skins\khaki\footer.txt" \
@@ -1162,6 +1166,10 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/eagle/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/header.txt" >> $@
+	echo "$(SRCDIR)\../skins/etienne/css.txt" >> $@
+	echo "$(SRCDIR)\../skins/etienne/details.txt" >> $@
+	echo "$(SRCDIR)\../skins/etienne/footer.txt" >> $@
+	echo "$(SRCDIR)\../skins/etienne/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/footer.txt" >> $@

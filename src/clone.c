@@ -297,7 +297,7 @@ void clone_cmd(void){
     clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    while( nResumes++<3 && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0))
+    while( nResumes++<3 && (nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0,0))
     ){
       if( db_get_int("aux-clone-seqno",1)==1 ){
         fossil_fatal("server returned an error - clone aborted");

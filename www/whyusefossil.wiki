@@ -1,10 +1,10 @@
-<title>Why Use Fossil</title>
-<h1 align='center'>Why You Should Use Fossil</h1>
-<p align='center'><b>Or, if not Fossil, at least some kind of modern
-version control<br>such as Git, Mercurial, or Subversion.</b></p>
-<p align='center'>(Presented in outline form, for people in a hurry)</p>
+<title>Why You Should Use Fossil</title>
 
-<b>I. Benefits of Version Control</b>
+<h4>(Or if not Fossil, at least some kind of modern
+version control such as Git, Mercurial, or Subversion.)</h4>
+
+<h5>I. Benefits of Version Control</h5>
+
   <ol type='A'>
   <li><p><b>Immutable file and version identification</b>
      <ol type='i'>
@@ -39,11 +39,11 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
      </ol>
   </ol>
 
-<p id="definitions"><b>II. Definitions</b></p>
+<h5 id="definitions">II. Definitions</h5>
 
-Moved to [./glossary.md | a separate document].
+<div class="indent">Moved to [./glossary.md | a separate document].</div>
 
-<p><b>III. Basic Fossil commands</b>
+<h5>III. Basic Fossil commands</h5>
 
  <ul>
  <li><p><b>clone</b> &rarr;
@@ -89,7 +89,7 @@ Moved to [./glossary.md | a separate document].
      "commit".
  </ul>
 
-<b>IV. The history of a project is a Directed Acyclic Graph (DAG)</b>
+<h5>IV. The history of a project is a Directed Acyclic Graph (DAG)</h5>
 
  <ul>
  <li><p>Fossil (and other distributed VCSes like Git and Mercurial, but
@@ -144,7 +144,7 @@ Moved to [./glossary.md | a separate document].
       </ul>
  </ul>
 
-<b>V. Why version control is important (reprise)</b>
+<h5>V. Why version control is important (reprise)</h5>
 
  <ol>
  <li><p>Every check-in and every individual file has a unique name - its

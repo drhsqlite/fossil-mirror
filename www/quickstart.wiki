@@ -1,5 +1,4 @@
 <title>Fossil Quick Start Guide</title>
-<h1 align="center">Fossil Quick Start</h1>
 
 This is a guide to help you get started using the Fossil [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed Version Control System] quickly
 and painlessly.
@@ -16,12 +15,9 @@ someplace on your $PATH.
 
 You can test that Fossil is present and working like this:
 
-<blockquote>
-<b>
-fossil version<br>
-<tt>This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC</tt><br>
-</b>
-</blockquote>
+<pre><b>fossil version
+This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC
+</b></pre>
 
 <h2 id="workflow" name="fslclone">General Work Flow</h2>
 
@@ -50,9 +46,8 @@ operations.
 To start a new project with fossil create a new empty repository
 this way: ([/help/init | more info])
 
-<blockquote>
-<b>fossil init </b><i> repository-filename</i>
-</blockquote>
+<pre><b>fossil init</b> <i>repository-filename</i>
+</pre>
 
 You can name the database anything you like, and you can place it anywhere in the filesystem.
 The <tt>.fossil</tt> extension is traditional but only required if you are going to use the 
@@ -68,41 +63,33 @@ repository.  Making a local copy of a remote repository is called
 
 Clone a remote repository as follows: ([/help/clone | more info])
 
-<blockquote>
-<b>fossil clone</b> <i>URL  repository-filename</i>
-</blockquote>
+<pre><b>fossil clone</b> <i>URL repository-filename</i>
+</pre>
 
 The <i>URL</i> specifies the fossil repository
 you want to clone.  The <i>repository-filename</i> is the new local
 filename into which the cloned repository will be written.  For
 example, to clone the source code of Fossil itself:
 
-<blockquote>
-<b>fossil clone https://fossil-scm.org/ myclone.fossil</b>
-</blockquote>
+<pre><b>fossil clone https://fossil-scm.org/ myclone.fossil</b></pre>
 
 If your logged-in username is 'exampleuser', you should see output something like this:
 
-<blockquote>
-<b><tt>
-        Round-trips: 8   Artifacts sent: 0  received: 39421<br>
-        Clone done, sent: 2424  received: 42965725  ip: 10.10.10.0<br>
-        Rebuilding repository meta-data...<br>
-        100% complete...<br>
-        Extra delta compression... <br>
-        Vacuuming the database... <br>
-        project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333<br>
-        server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42<br>
-        admin-user: exampleuser (password is "yoWgDR42iv")><br>
-</tt></b>
-</blockquote>
+<pre><b>Round-trips: 8   Artifacts sent: 0  received: 39421
+Clone done, sent: 2424  received: 42965725  ip: 10.10.10.0
+Rebuilding repository meta-data...
+100% complete...
+Extra delta compression... 
+Vacuuming the database... 
+project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333
+server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42
+admin-user: exampleuser (password is "yoWgDR42iv")>
+</b></pre>
 
 If the remote repository requires a login, include a
 userid in the URL like this:
 
-<blockquote>
-<b>fossil clone https://</b><i>remoteuserid</i><b>@www.example.org/ myclone.fossil</b>
-</blockquote>
+<pre><b>fossil clone https://</b><i>remoteuserid</i><b>@www.example.org/ myclone.fossil</b></pre>
 
 You will be prompted separately for the password.
 Use [https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_characters|"%HH"] escapes for special characters in the userid.
@@ -145,21 +132,16 @@ copy of the source tree.  Create the directory you want to be
 the root of your tree and cd into that directory.  Then
 do this: ([/help/open | more info])
 
-<blockquote>
-<b>fossil open </b><i> repository-filename</i>
-</blockquote>
+<pre><b>fossil open</b> <i>repository-filename</i></pre>
 
 for example:
 
-<blockquote>
-<b><tt>
-    fossil open ../myclone.fossil<br>
-    BUILD.txt<br>
-    COPYRIGHT-BSD2.txt<br>
-    README.md<br>
-      ︙<br>
-</tt></b>
-</blockquote>
+<pre><b>fossil open ../myclone.fossil
+    BUILD.txt
+    COPYRIGHT-BSD2.txt
+    README.md
+      ︙
+</tt></b></pre>
 
 (or "fossil open ..\myclone.fossil" on Windows).
 
@@ -169,15 +151,15 @@ From anywhere underneath the root of your local tree, you
 can type commands like the following to find out the status of
 your local tree:
 
-<blockquote>
-<b>[/help/info | fossil info]</b><br>
-<b>[/help/status | fossil status]</b><br>
-<b>[/help/changes | fossil changes]</b><br>
-<b>[/help/diff | fossil diff]</b><br>
-<b>[/help/timeline | fossil timeline]</b><br>
-<b>[/help/ls | fossil ls]</b><br>
-<b>[/help/branch | fossil branch]</b><br>
-</blockquote>
+<pre>
+<b>[/help/info | fossil info]</b>
+<b>[/help/status | fossil status]</b>
+<b>[/help/changes | fossil changes]</b>
+<b>[/help/diff | fossil diff]</b>
+<b>[/help/timeline | fossil timeline]</b>
+<b>[/help/ls | fossil ls]</b>
+<b>[/help/branch | fossil branch]</b>
+</pre>
 
 If you created a new repository using "fossil init" some commands will not
 produce much output.
@@ -190,10 +172,10 @@ the same time without having to generate extra clones.
 To switch a checkout between different versions and branches,
 use:<
 
-<blockquote>
-<b>[/help/update | fossil update]</b><br>
-<b>[/help/checkout | fossil checkout]</b><br>
-</blockquote>
+<pre>
+<b>[/help/update | fossil update]</b>
+<b>[/help/checkout | fossil checkout]</b>
+</pre>
 
 [/help/update | update] honors the "autosync" option and
 does a "soft" switch, merging any local changes into the target
@@ -206,44 +188,35 @@ changes if told to do so.
 To add new files to your project or remove existing ones, use these
 commands:
 
-<blockquote>
-<b>[/help/add | fossil add]</b> <i>file...</i><br>
-<b>[/help/rm | fossil rm]</b> <i>file...</i><br>
-<b>[/help/addremove | fossil addremove]</b> <i>file...</i><br>
-</blockquote>
+<pre>
+<b>[/help/add | fossil add]</b> <i>file...</i>
+<b>[/help/rm | fossil rm]</b> <i>file...</i>
+<b>[/help/addremove | fossil addremove]</b> <i>file...</i>
+</pre>
 
 The command:
 
-<blockquote>
-<b>
-        [/help/changes | fossil changes]</b>
-</blockquote>
+<pre><b>[/help/changes | fossil changes]</b></pre>
 
 lists files that have changed since the last commit to the repository. For
 example, if you edit the file "README.md":
 
-<blockquote>
-<b>
-        fossil changes<br>
-        EDITED     README.md
-</b>
-</blockquote>
+<pre><b>fossil changes
+EDITED     README.md
+</b></pre>
 
 To see exactly what change was made you can use the command
 <b>[/help/diff | fossil diff]</b>:
 
-<blockquote>
-<b>
-        fossil diff <br><tt>
-        Index: README.md<br>
-        ============================================================<br>
-        --- README.md<br>
-        +++ README.md<br>
-        @@ -1,5 +1,6 @@<br>
-        +Made some changes to the project<br>
-        # Original text<br>
- </tt></b>
-</blockquote>
+<pre><b>fossil diff
+Index: README.md
+============================================================
+--- README.md
++++ README.md
+@@ -1,5 +1,6 @@
++Made some changes to the project
+# Original text
+</b></pre>
 
 "fossil diff" shows the difference between your tree on disk now and as
 the tree was when you last committed changes. If you haven't committed
@@ -254,43 +227,39 @@ without specifying a version, populating the working directory.
 To see the most recent changes made to the repository by other users, use "fossil timeline" to
 find out the most recent commit, and then "fossil diff" between that commit and the
 current tree:
-<blockquote>
-<b>
-        fossil timeline <br><tt>
-        === 2021-03-28 === <br>
-        03:18:54 [ad75dfa4a0] *CURRENT* Added details to frobnicate command (user: user-one tags: trunk) <br>
-        === 2021-03-27 === <br>
-        23:58:05 [ab975c6632] Update README.md. (user: user-two tags: trunk) <br>
-             ⋮ <br>
-        </tt><br>
-        fossil diff --from current --to ab975c6632 <br><tt>
-        Index: frobnicate.c<br>
-        ============================================================<br>
-        --- frobnicate.c<br>
-        +++ frobnicate.c<br>
-        @@ -1,10 +1,11 @@<br>
-        +/* made a change to the source file */<br>
-        # Original text<br>
-</tt></b>
-</blockquote>
+
+<pre><b>fossil timeline
+=== 2021-03-28 === 
+03:18:54 [ad75dfa4a0] *CURRENT* Added details to frobnicate command (user: user-one tags: trunk) 
+=== 2021-03-27 === 
+23:58:05 [ab975c6632] Update README.md. (user: user-two tags: trunk) 
+     ⋮ 
+
+fossil diff --from current --to ab975c6632
+Index: frobnicate.c
+============================================================
+--- frobnicate.c
++++ frobnicate.c
+@@ -1,10 +1,11 @@
++/* made a change to the source file */
+# Original text
+</b></pre>
 
 "current" is an alias for the checkout version, so the command
 "fossil diff --from ad75dfa4a0 --to ab975c6632" gives identical results.
 
 To commit your changes to a local-only repository:
-<blockquote>
-<b>
-fossil commit     </b><i>(... Fossil will start your editor, if defined)</i><b><br><tt>
-# Enter a commit message for this check-in. Lines beginning with # are ignored.<br>
-#<br>
-# user: exampleuser<br>
-# tags: trunk<br>
-#<br>
-# EDITED     README.md<br>
-Edited file to add description of code changes<br>
-New_Version: 7b9a416ced4a69a60589dde1aedd1a30fde8eec3528d265dbeed5135530440ab<br>
-</tt></b>
-</blockquote>
+
+<pre><b>fossil commit</b>     <i>(... Fossil will start your editor, if defined)</i><b>
+# Enter a commit message for this check-in. Lines beginning with # are ignored.
+#
+# user: exampleuser
+# tags: trunk
+#
+# EDITED     README.md
+Edited file to add description of code changes
+New_Version: 7b9a416ced4a69a60589dde1aedd1a30fde8eec3528d265dbeed5135530440ab
+</b></pre>
 
 You will be prompted for check-in comments using whatever editor
 is specified by your VISUAL or EDITOR environment variable. If none is
@@ -335,9 +304,9 @@ local configuration.  This is easily accomplished using the web-server
 that is built into fossil.  Start the fossil web server like this:
 ([/help/ui | more info])
 
-<blockquote>
-<b>fossil ui </b><i> repository-filename</i>
-</blockquote>
+<pre>
+<b>fossil ui</b> <i>repository-filename</i>
+</pre>
 
 You can omit the <i>repository-filename</i> from the command above
 if you are inside a checked-out local tree.
@@ -348,9 +317,9 @@ has an unusual configuration, fossil might not be able to figure out
 how to start your web browser.  In that case, first tell fossil
 where to find your web browser using a command like this:
 
-<blockquote>
-<b>fossil setting web-browser </b><i>  path-to-web-browser</i>
-</blockquote>
+<pre>
+<b>fossil setting web-browser</b> <i>path-to-web-browser</i>
+</pre>
 
 By default, fossil does not require a login for HTTP connections
 coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
@@ -366,9 +335,9 @@ the changes you [/help/commit | commit] are only
 on your local repository.
 To share those changes with other repositories, do:
 
-<blockquote>
+<pre>
 <b>[/help/push | fossil push]</b> <i>URL</i>
-</blockquote>
+</pre>
 
 Where <i>URL</i> is the http: URL of the server repository you
 want to share your changes with.  If you omit the <i>URL</i> argument,
@@ -378,18 +347,18 @@ The [/help/push | push] command only sends your changes to others.  To
 Receive changes from others, use [/help/pull | pull].  Or go both ways at
 once using [/help/sync | sync]:
 
-<blockquote>
-<b>[/help/pull | fossil pull]</b> <i>URL</i><br>
+<pre>
+<b>[/help/pull | fossil pull]</b> <i>URL</i>
 <b>[/help/sync | fossil sync]</b> <i>URL</i>
-</blockquote>
+</pre>
 
 When you pull in changes from others, they go into your repository,
 not into your checked-out local tree.  To get the changes into your
 local tree, use [/help/update | update]:
 
-<blockquote>
+<pre>
 <b>[/help/update | fossil update]</b> <i>VERSION</i>
-</blockquote>
+</pre>
 
 The <i>VERSION</i> can be the name of a branch or tag or any
 abbreviation to the 40-character
@@ -406,9 +375,9 @@ automatically after you [/help/commit|commit].  So in normal practice,
 the push, pull, and sync commands are rarely used.  But it is important
 to know about them, all the same.
 
-<blockquote>
+<pre>
 <b>[/help/checkout | fossil checkout]</b> <i>VERSION</i>
-</blockquote>
+</pre>
 
 Is similar to update except that it does not honor the autosync
 setting, nor does it merge in local changes - it prefers to overwrite
@@ -430,12 +399,12 @@ Then do a [/help/merge|merge] of the other branch that you want to incorporate
 the changes from.  For example, to merge "featureX" changes into "trunk"
 do this:
 
-<blockquote>
-<b>fossil [/help/update|update] trunk</b><br>
-<b>fossil [/help/merge|merge] featureX</b><br>
-<i># make sure the merge didn't break anything...</i><br>
+<pre>
+<b>fossil [/help/update|update] trunk</b>
+<b>fossil [/help/merge|merge] featureX</b>
+<i># make sure the merge didn't break anything...</i>
 <b>fossil [/help/commit|commit]
-</blockquote>
+</pre>
 
 The argument to the [/help/merge|merge] command can be any of the
 version identifier forms that work for [/help/update|update].
@@ -462,9 +431,9 @@ merge.
 If a merge or update doesn't work out (perhaps something breaks or
 there are many merge conflicts) then you back up using:
 
-<blockquote>
+<pre>
 <b>[/help/undo | fossil undo]</b>
-</blockquote>
+</pre>
 
 This will back out the changes that the merge or update made to the
 working checkout.  There is also a [/help/redo|redo] command if you undo by
@@ -478,10 +447,10 @@ level of undo/redo.
 Fossil can act as a stand-alone web server using one of these
 commands:
 
-<blockquote>
-<b>[/help/server | fossil server]</b> <i>repository-filename</i><br>
+<pre>
+<b>[/help/server | fossil server]</b> <i>repository-filename</i>
 <b>[/help/ui | fossil ui]</b> <i>repository-filename</i>
-</blockquote>
+</pre>
 
 The <i>repository-filename</i> can be omitted when these commands
 are run from within an open check-out, which is a particularly useful
@@ -529,29 +498,29 @@ in three different ways.  You can tell fossil about your proxy using
 a command-line option on commands that use the network,
 <b>sync</b>, <b>clone</b>, <b>push</b>, and <b>pull</b>.
 
-<blockquote>
-<b>fossil clone </b><i>URL</i>  <b>--proxy</b> <i>Proxy-URL</i>
-</blockquote>
+<pre>
+<b>fossil clone </b><i>URL</i> <b>--proxy</b> <i>Proxy-URL</i>
+</pre>
 
 It is annoying to have to type in the proxy URL every time you
 sync your project, though, so you can make the proxy configuration
 persistent using the [/help/setting | setting] command:
 
-<blockquote>
+<pre>
 <b>fossil setting proxy </b><i>Proxy-URL</i>
-</blockquote>
+</pre>
 
 Or, you can set the "<b>http_proxy</b>" environment variable:
 
-<blockquote>
+<pre>
 <b>export http_proxy=</b><i>Proxy-URL</i>
-</blockquote>
+</pre>
 
 To stop using the proxy, do:
 
-<blockquote>
+<pre>
 <b>fossil setting proxy off</b>
-</blockquote>
+</pre>
 
 Or unset the environment variable.  The fossil setting for the
 HTTP proxy takes precedence over the environment variable and the
@@ -560,9 +529,9 @@ proxy setting that you want to override for a one-time sync, that
 is easily done on the command-line.  For example, to sync with
 a co-worker's repository on your LAN, you might type:
 
-<blockquote>
+<pre>
 <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>
-</blockquote>
+</pre>
 
 <h2 id="links">Other Resources</h2>
 

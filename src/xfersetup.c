@@ -82,7 +82,7 @@ void xfersetup_page(void){
       user_select();
       url_enable_proxy(0);
       @ <pre class="xfersetup">
-      client_sync(syncFlags, 0, 0, 0);
+      client_sync(syncFlags, 0, 0, 0, 0);
       @ </pre>
     }
   }

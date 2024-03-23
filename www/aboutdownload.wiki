@@ -1,5 +1,4 @@
 <title>How The Fossil Download Page Works</title>
-<h1 align="center">How The Download Page Works</h1>
 
 <h2>1.0 Overview</h2>
 
@@ -45,7 +44,7 @@ instead of the usual HTML or Javascript.
 The default mimetype for "download.html" is
 text/html.  But because the entire page is enclosed within
 
-    <b>&lt;div class='fossil-doc' data-title='Download Page'&gt;...&lt;/div&gt;</b>
+<verbatim><div class='fossil-doc' data-title='Download Page'>...</div></verbatim>
 
 Fossil knows to add its standard header and footer information to the
 document, making it look just like any other page.  See
