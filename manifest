@@ -1,5 +1,5 @@
-C Fix\suninitialized\svariable\sin\sthe\sprevious\scheck-in.
-D 2024-03-22T12:30:01.209
+C Update\sbuildmsvc.bat\sto\sbe\sable\sto\sbe\scalled\sin\sa\snormal\scommand\sprompt\sand\sautomatically\sload\sthe\sneeded\sMSVC\sbuild\stools\s(x64\sby\sdefault;\sx86\scan\sbe\sgiven\sas\sthe\sfirst\sargument).
+D 2024-03-25T15:48:36.342
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -749,7 +749,7 @@ F win/Makefile.dmc 01a0d435b6f77213339280e30fd6913e146c1f4e889bacd58854a2c95f27b
 F win/Makefile.mingw f0eda223f09a22a857267965fd1b0e1e17a2f2426adf297d8ac00d3fe1a82334
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
 F win/Makefile.msc df7478c521e5696a8664cb91fe7201c0fa9e42a7c17bd0766f71fa39c6bd787e
-F win/buildmsvc.bat 753a723e5936fcf2592209c54d883d3d4b8fb5fb8661f97d0262a0a8a08c8b1d x
+F win/buildmsvc.bat b5c945900619a63112b1483e01569241d3cb2a955099e4a46ee7eafcff9e8b6e x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0cd5589c09562b55edbf9b66c4825caa56d5a64abad2e85d2558cfd4bffe86ff
-R 99f0969f230e343682d715a84e1abce1
-U drh
-Z 407b31d84dd1aa14e8ee9a1e3977917d
+P 38dad38b6d87e0fa08194d3e46b07a6b0da685f0d9c416d482e99cec72b06370
+R 7a32f3bfca60a093a9b90e8549d2f10e
+U danield
+Z 930ecb3c79df6ad856ecc1fe7eb0ca18
 # Remove this line to create a well-formed Fossil manifest.
