@@ -49,7 +49,7 @@ text/html.  But because the entire page is enclosed within
 Fossil knows to add its standard header and footer information to the
 document, making it look just like any other page.  See
 "[./embeddeddoc.wiki|embedded documentation]" for further details on
-how &lt;div class='fossil-doc'&gt; this works.
+how this &lt;div class='fossil-doc'&gt; markup works.
 
 With each new release, the "releases" variable in the javascript on
 the [/uv/download.js?mimetype=text/plain|download.js] page is
@@ -64,7 +64,7 @@ in the "releases" variable.
 
 Build products need to be constructed on different machines.  The precompiled
 binary for Linux is compiled on Linux, the precompiled binary for Windows
-is compiled on Windows10, and so forth.  After a new release is tagged,
+is compiled on Windows11, and so forth.  After a new release is tagged,
 the release manager goes around to each of the target platforms, checks
 out the release and compiles it, then runs
 [/help?cmd=uv|fossil uv add] for the build product followed by
