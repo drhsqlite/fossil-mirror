@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s"aboutdownload"\sdocumentation\spage.
-D 2024-03-26T17:08:40.994
+C In\sthe\sbuild\swiki,\smention\sthat\sbuildmsvc.bat\scan\sbe\scalled\sin\sa\snormal\scommand\sprompt.
+D 2024-03-27T11:47:43.941
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -774,7 +774,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki e8755bf9fd91eb9f1689621ad6605c16a3e806254043b82f9fbd3e7691418d74
+F www/build.wiki 931726ffbec411484b8ec761319857b706cf0183f6260cf05ffac8aa93e1c84b
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 452f8e1ffc99c607ef274684bee0592a224b16cbf21ce75b9a7f4ae068521aab
-R 82ef95764c2592d07661eb610346fe21
-U drh
-Z 4709770baf19a4704bf3a1e93d44414d
+P f5d1c5e0f9125a974b91f79b3bbd66ba79a7044ae3b6b729736c50da9c5d3547
+R 7ffd4dce7705bc52d4d7dd1477e49816
+U danield
+Z cac0a0c02d3814986b4eb625d56d868f
 # Remove this line to create a well-formed Fossil manifest.
