@@ -1,5 +1,5 @@
-C Make\sthe\sshunned/unshunned\slist\slegible\s(not\sblue\son\sblack)\sin\sthe\sxekri\sskin.
-D 2024-03-28T10:40:46.709
+C Fix\sto\sthe\s"fossil\sgit\sstatus"\scommand\sas\ssuggested\sby\n[forum:/forumpost/e15631f21e16f0b6|forum\spost\se15631f21e16f0b6].
+D 2024-03-28T20:57:30.451
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -425,7 +425,7 @@ F src/doc.c 121d89bbd13caed7c7bb44e411576448bb84468d68a3f1a03fb1009f223da77e
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
-F src/export.c 798a58358be78e338e19e72ca51b533c037f9befb2642efb3efddfc36d5ee02f
+F src/export.c effa1bec1bb723b7c66c60cd1b25709a8960b2baa89cb3939954a9f401c86aa8
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 63150abb2b79ea300cb674556a4f8f527216231f188ca125160378e0040a7a84
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 004b433b42d17fae48784e377729510f108a2120c34cefe77dc41b55303e44ff
-R 6e900f7f42b50230e2b1f200095bf716
-U stephan
-Z 39794b86604df6bc8fb9774b2462b6b0
+P dbbc4800e69c0e2b5e50426a15670c8ff7de9722d213b5ca87da1ce30cad92bf
+R 5368e9f3a45e5edde4f9b3c3d20e03ec
+U drh
+Z b9b19a366a03dfab177c59159d4fb9e9
 # Remove this line to create a well-formed Fossil manifest.

@@ -1789,8 +1789,12 @@ void gitmirror_status_command(void){
     fossil_print("Autopush:    off\n");
   }else{
     UrlData url;
-    url_parse_local(z, 0, &url);
-    fossil_print("Autopush:    %s\n", url.canonical);
+    if( sqlite3_strglob("http*", z)==0 ){
+      url_parse_local(z, 0, &url);
+      fossil_print("Autopush:    %s\n", url.canonical);
+    }else{
+      fossil_print("Autopush:    %s\n", url);
+    }
     fossil_free(z);
   }
   n = db_int(0,
