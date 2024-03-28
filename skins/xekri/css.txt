@@ -64,15 +64,6 @@ h3 {
   font-size: 1.25rem;
 }
 
-span[style^=background-color] {
-  color: #000;
-}
-
-td[style^=background-color] {
-  color: #000;
-}
-
-
 /**************************************
  * Main Area
  */
