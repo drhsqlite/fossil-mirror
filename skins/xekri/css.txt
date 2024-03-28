@@ -566,7 +566,7 @@ div.section, div.sectionmenu {
 
 div.sectionmenu {
   border-radius: 0 0 3rem 3rem;
-  margin-top: -0.75rem;
+  margin-top: auto;
   width: 75%;
 }
 
