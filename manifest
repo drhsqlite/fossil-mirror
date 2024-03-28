@@ -1,5 +1,5 @@
-C Fix\sskin/xekri/css.txt's\sdiv.sectionmenu\smargin-top\sto\savoid\struncating\sthe\stop\sof\sthe\smenu.\sVisible\sin\s/ci/CHECKIN_ID\spages.
-D 2024-03-28T10:16:32.128
+C Make\sthe\sshunned/unshunned\slist\slegible\s(not\sblue\son\sblack)\sin\sthe\sxekri\sskin.
+D 2024-03-28T10:40:46.709
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -367,7 +367,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a99f62d152ce127c5fb19
 F skins/plain_gray/header.txt e3b31ade9f580a571d708dfe5976ac849dbbb73263a124c3b7409102f1425664
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 2d8e93c659472738cb7e23b28c3c8c567a40571a232263d46773390c727d58f0
+F skins/xekri/css.txt e2c36d08eccdecb93f13e122eb79ba94dc3454194acd20f81a9eedd6fc09ceed
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 00760bbee5f45decff089e54bc8a11600eeb4644d01f21d7b2a0af52a07312f8
 F skins/xekri/header.txt f518b8c6cfab016cb9d2e65b42c6f3463235199acf29a1e287226c979eb3dddf
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aba45b228f3b62e65154106f37cacf10f3398a72d161f87839c12a8d3ca8e43b
-R 05cc2c760c2aaf762a75e8eea41e7fe8
+P 004b433b42d17fae48784e377729510f108a2120c34cefe77dc41b55303e44ff
+R 6e900f7f42b50230e2b1f200095bf716
 U stephan
-Z b2a5a889b19baf7012e5efeb080ee77d
+Z 39794b86604df6bc8fb9774b2462b6b0
 # Remove this line to create a well-formed Fossil manifest.

@@ -1077,11 +1077,11 @@ blockquote.reportError {
 }
 /* format for artifact lines, no longer shunned */
 p.noMoreShun {
-  color: #00f;
+  color: yellow;
 }
 /* format for artifact lines being shunned */
 p.shunned {
-  color: #00f;
+  color: yellow;
 }
 /* a broken hyperlink */
 span.brokenlink {
