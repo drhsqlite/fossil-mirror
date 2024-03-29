@@ -1,5 +1,5 @@
-C Update\sthe\sbacktrace\soutput\sformatting\sto\sthe\slog\sfile\sso\sthat\sit\sis\seasy\nto\scopy/paste\sthe\sbacktrace\shex\saddresses\sinto\san\s"addr2line"\scommand-line\nin\sorder\sto\sget\ssymbolic\snames.
-D 2024-03-29T11:27:22.908
+C Create\sa\sseparate\s"Log\sMenu"\spage\sthat\sshows\sall\sof\sthe\savailable\slog\sfiles.
+D 2024-03-29T12:41:47.123
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -522,13 +522,13 @@ F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c f9c5c20536bfacaf8570ae2a265ec7c50e52873e0f60467efedf610fadb8d7f9
-F src/security_audit.c 22032b2d4f946ab45fd63cf34ac09f9b909d16492b03b791b9795ba7726f2354
-F src/setup.c 961c000982b59304e334c043d7da471149f5210cc18082699b9b43f2e9662def
+F src/security_audit.c 6606b26e6db4c47416239807f0c4a35138d9e8d8d33942331fd98aa094fe630a
+F src/setup.c c8623a54b3591b0502b6e16fd362faa7efc088ad9009871f9db165de67f748ed
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
-F src/shun.c e8f6d93d5195eaf038b9291469a119197fbbb6f59c581607df49729c576d1ff1
+F src/shun.c 57f58eae891dd4e5bed76ae293717c4e1f3b4278f0eb96e641704666a133149e
 F src/sitemap.c 8d5b61937f3adf75bff06ff06d2b5b73d86fa829980e6eceb7be4aa65b51f50e
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 3f8c75ddc6ab8a47a01d537cda16c28f57c9709446d5373dbf7b0c026783f57b
@@ -579,7 +579,7 @@ F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c 1c7afcbade6c89bb66382e0c4460199ce41843a0fddfef5985e3f2f267c40d6f
 F src/update.c 9364bc0f5bc0f0eb43f2a379cfb295d0fcc6853c12fe000e0a9d4a87297a2111
 F src/url.c 303318d7493ac31ed88aaf97a29c4262edbf3be7c804ce3004790e73c0a9f24a
-F src/user.c 579a6e93785511acd24aaad6db86834334269f11a1d8c3c6f855feb9c1eae6eb
+F src/user.c cda5e43af6b01c05aacd01450e707d1ed8f2910d19321d2a543e948ff7fcf53b
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0028303999dc1ddcd08ecaa0a3569f59735178ae5c12812b6f4774cd86cf64c8
-R 6494a0aa286ace1b8b51cffad679691e
+P daaf9ee79c17f25d1d70506c1b9953f5fe5c71b0eea7321ef9a2000063ca0be8
+R 2ee13b46af3f832fbf3c9f9279113a87
 U drh
-Z eb2d42b95fc5ba7c45b92d8934a3bcd2
+Z 087ecb70ccdb1e1dcaa07750c5854170
 # Remove this line to create a well-formed Fossil manifest.

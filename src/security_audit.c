@@ -753,9 +753,9 @@ void takeitprivate_page(void){
 }
 
 /*
-** The maximum number of bytes of log to show
+** The maximum number of bytes of the error log to show by default.
 */
-#define MXSHOWLOG 50000
+#define MXSHOWLOG 500000
 
 /*
 ** WEBPAGE: errorlog
@@ -775,9 +775,7 @@ void errorlog_page(void){
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
-  style_submenu_element("Admin-Log", "admin_log");
-  style_submenu_element("User-Log", "access_log");
-  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
 
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <p>To create a server error log:

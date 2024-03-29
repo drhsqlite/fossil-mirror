@@ -51,7 +51,7 @@ void setup_menu_entry(
 ){
   @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
-    @ <a href="%s(zLink)">%h(zTitle)</a>
+    @ <a href="%s(zLink)"><nobr>%h(zTitle)</nobr></a>
   }else{
     @ %h(zTitle)
   }
@@ -162,14 +162,8 @@ void setup_page(void){
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
-  setup_menu_entry("Artifact Receipts Log", "rcvfromlist",
-    "A record of received artifacts and their sources");
-  setup_menu_entry("User Log", "access_log",
-    "A record of login attempts");
-  setup_menu_entry("Administrative Log", "admin_log",
-    "View the admin_log entries");
-  setup_menu_entry("Error Log", "errorlog",
-    "View the Fossil server error log");
+  setup_menu_entry("Log Files", "setup-logmenu",
+    "A menu of available log files");
   setup_menu_entry("Unversioned Files", "uvlist?byage=1",
     "Show all unversioned files held");
   setup_menu_entry("Stats", "stat",
@@ -184,6 +178,61 @@ void setup_page(void){
   }
   @ </table>
 
+  style_finish_page();
+}
+
+
+/*
+** WEBPAGE: setup-logmenu
+**
+** Show a menu of available log renderings accessible to an administrator, 
+** together with a succinct explanation of each.
+**
+** This page is only accessible by administrators.
+*/
+void setup_logmenu_page(void){
+  Blob desc;
+  blob_init(&desc, 0, 0);
+
+  /* Administrator access only */
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Log Menu");
+  @ <table border="0" cellspacing="3">
+  setup_menu_entry("Admin Log", "admin_log",
+    "The admin log records configuration changes to the repository.\n"
+    "The admin log is stored in the \"admin_log\" table of the repository.\n"
+  );
+  setup_menu_entry("Artifact Log", "rcvfromlist",
+    "The artifact log records when new content is added to the repository.\n"
+    "The time and date and origin of the new content is entered into the\n"
+    "Log.  The artifact log is always on and is stored in the \"rcvfrom\"\n"
+    "table of the repository.\n"
+  );
+
+  blob_appendf(&desc,
+    "The error log is a separate text file to which warning and error\n"
+    "messages are appended.  A single error log can and often is shared\n"
+    "across multiple repositories.\n"
+  );
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    blob_appendf(&desc,"The error log is disabled for this repository.");
+  }else{
+    blob_appendf(&desc,"In this repository, the error log is in the file"
+       "named \"%s\".", g.zErrlog);
+  }
+  setup_menu_entry("Error Log", "errorlog", blob_str(&desc));
+  blob_reset(&desc);
+
+  setup_menu_entry("User Log", "user_log",
+    "The user log is a record of login attempts.  The user log is stored\n"
+    "in the \"accesslog\" table of the respository.\n"
+  );
+
+  @ </table>
   style_finish_page();
 }
 
@@ -1964,9 +2013,7 @@ void page_admin_log(){
   }
   style_set_current_feature("setup");
   style_header("Admin Log");
-  style_submenu_element("User-Log", "access_log");
-  style_submenu_element("Artifact-Log", "rcvfromlist");
-  style_submenu_element("Error-Log", "errorlog");
+  style_submenu_element("Log-Menu", "setup-logmenu");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));
