@@ -1574,7 +1574,8 @@ void sigsegv_handler(int x){
   size = backtrace(array, sizeof(array)/sizeof(array[0]));
   strings = backtrace_symbols(array, size);
   blob_init(&out, 0, 0);
-  blob_appendf(&out, "Segfault during %s", g.zPhase);
+  blob_appendf(&out, "Segfault during %s in fossil %s",
+               g.zPhase, MANIFEST_VERSION);
   for(i=0; i<size; i++){
     size_t len;
     const char *z = strings[i];

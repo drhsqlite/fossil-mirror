@@ -1,5 +1,5 @@
-C Add\sthe\s/paniclog\spage,\saccessible\sonly\sto\sadministrators.
-D 2024-03-29T13:44:24.764
+C Include\sthe\sMANIFEST_VERSION\sin\sthe\ssegfault\sbacktrace\slisting\sto\shelp\sthe\sdeveloper\schase\sthe\sissue\sin\sthe\sproper\sbinary.
+D 2024-03-29T17:37:49.240
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 019c23164912022995a335a9e6963b862cced2ea028b09961a65566c432076b7
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 90305d208f0c4e6e4d10c9cf6492042562d4be46d280c69b55eccc8740e393b8
+F src/main.c a27631649162e2296472a7239fef4d7fc956d4bd72ab35fb5bbf307451b4de3d
 F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4644ebef642afe3e6369407eb9d5eb9123b8a8b07c9cc9d66bf87485a1ef9831
-R 323cf87baed2398300536e5929cbeb1a
-U drh
-Z 9794bd51002ea13e4166b8b624939883
+P 11f6b5b06cfd9aaea449a350ee3da31e2514edf131ead454f415c66be5ace49c
+R 0de9a7f55f40de4bc19c49e0e2db29e0
+U stephan
+Z 74b72e1317ede4f9f10be9291f9a510d
 # Remove this line to create a well-formed Fossil manifest.
