@@ -1,5 +1,5 @@
-C Provide\sthe\sfull\spathname\sof\sthe\sCGI\scontrol\sfile\swhen\sdescribing\show\sto\nactivate\sthe\serror\slog\sin\sthe\serrorlog\spage,\sand\son\sthe\ssecurity\saudit.
-D 2024-03-29T13:15:10.143
+C Add\sthe\s/paniclog\spage,\saccessible\sonly\sto\sadministrators.
+D 2024-03-29T13:44:24.764
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -522,8 +522,8 @@ F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c f9c5c20536bfacaf8570ae2a265ec7c50e52873e0f60467efedf610fadb8d7f9
-F src/security_audit.c 8b5baf4aa762d515f42785c90d6323d25c7b7ef7a5d4c0e6a3a9b0bb706d9bdb
-F src/setup.c c8623a54b3591b0502b6e16fd362faa7efc088ad9009871f9db165de67f748ed
+F src/security_audit.c f3d6bb56fcd650686f45f941bc21b619589498e258301ba2d081fadb94f48ff5
+F src/setup.c 62044534fab24aac22f073aeabe5c5dffa6c5a7c286c1d83251f7f9b8ae24289
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6b06b5d11b1a04102e702e9c50a5dfa97842b225b2662e0b6a52ebf14855b5e
-R 7ae64f1826964a80467ce7ae99fd2ad9
+P 4644ebef642afe3e6369407eb9d5eb9123b8a8b07c9cc9d66bf87485a1ef9831
+R 323cf87baed2398300536e5929cbeb1a
 U drh
-Z a680a7bd3f919ce95b6c957abee409c1
+Z 9794bd51002ea13e4166b8b624939883
 # Remove this line to create a well-formed Fossil manifest.

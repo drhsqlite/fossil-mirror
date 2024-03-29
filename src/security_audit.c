@@ -793,6 +793,7 @@ static void no_error_log_available(void){
 void errorlog_page(void){
   i64 szFile;
   FILE *in;
+  char *zLog;
   char z[10000];
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -803,6 +804,7 @@ void errorlog_page(void){
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
   style_submenu_element("Log-Menu", "%R/setup-logmenu");
+  style_submenu_element("Panics", "%R/paniclog");
 
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     no_error_log_available();
@@ -830,7 +832,9 @@ void errorlog_page(void){
     style_finish_page();
     return;
   }
-  @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ <p>The server error log at "%h(zLog)" is %,lld(szFile) bytes in size.
+  fossil_free(zLog);
   style_submenu_element("Download", "%R/errorlog?download");
   style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
@@ -850,6 +854,72 @@ void errorlog_page(void){
   @ <pre>
   while( fgets(z, sizeof(z), in) ){
     @ %h(z)\
+  }
+  fclose(in);
+  @ </pre>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: paniclog
+**
+** Scan the error log for panics.  Show all panic messages, ignoring all
+** other error log entries.
+*/
+void paniclog_page(void){
+  i64 szFile;
+  char *zLog;
+  FILE *in;
+  int bOutput = 0;
+  int prevWasTime = 0;
+  char z[10000];
+  char zTime[10000];
+
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Server Panic Log");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
+
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    no_error_log_available();
+    style_finish_page();
+    return;
+  }
+  in = fossil_fopen(g.zErrlog, "rb");
+  if( in==0 ){
+    @ <p class='generalError'>Unable to open that file for reading!</p>
+    style_finish_page();
+    return;
+  }
+  szFile = file_size(g.zErrlog, ExtFILE);
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ Panic messages contained within the %lld(szFile)-byte 
+  @ <a href="%R/errorlog?all">error log</a> found at
+  @ "%h(zLog)".
+  fossil_free(zLog);
+  @ <hr>
+  @ <pre>
+  while( fgets(z, sizeof(z), in) ){
+    if( prevWasTime
+     && (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0)
+    ){
+      @ %h(zTime)\
+      bOutput = 1;
+    }
+    if( strncmp(z, "--------", 8)==0 ){
+      size_t n = strlen(z);
+      memcpy(zTime, z, n+1);
+      prevWasTime = 1;
+      bOutput = 0;
+    }else{
+      prevWasTime = 0;
+    }
+    if( bOutput ){
+      @ %h(z)\
+    }
   }
   fclose(in);
   @ </pre>

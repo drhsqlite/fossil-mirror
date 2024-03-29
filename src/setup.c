@@ -227,6 +227,12 @@ void setup_logmenu_page(void){
   setup_menu_entry("Error Log", "errorlog", blob_str(&desc));
   blob_reset(&desc);
 
+  setup_menu_entry("Panic Log", "paniclog",
+    "The panic log is a filtering of the Error Log that shows only the\n"
+    "most important messages - assertion faults, segmentation faults, and\n"
+    "similar malfunctions."
+  );
+
   setup_menu_entry("User Log", "user_log",
     "The user log is a record of login attempts.  The user log is stored\n"
     "in the \"accesslog\" table of the respository.\n"
